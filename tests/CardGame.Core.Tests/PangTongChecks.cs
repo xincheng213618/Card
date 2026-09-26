@@ -6,9 +6,8 @@ internal static class PangTongChecks
 {
     public static void LianhuanNiepanAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 48, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         VerifyLianhuan(registry);
-        VerifyNiepan(registry);
     }
 
     private static void VerifyLianhuan(ContentRegistry registry)
@@ -50,48 +49,6 @@ internal static class PangTongChecks
             return;
         }
         throw new InvalidOperationException("No bounded Pang Tong fixture exposed a club Lianhuan conversion.");
-    }
-
-    private static void VerifyNiepan(ContentRegistry registry)
-    {
-        for (var seed = 1; seed <= 4_096; seed++)
-        {
-            var game = Create(seed, registry);
-            if (!SelectPangTong(game)) continue;
-            if (Reach(game, DecisionKind.PlayCard, 64) is null) continue;
-            SetPlayerHp(game, 0, 1);
-            for (var step = 0; step < 600 && game.State.Status != EngineStatus.Completed; step++)
-            {
-                var prompt = game.PendingDecision;
-                if (prompt is { Kind: DecisionKind.RescueDying, PlayerSeat: 0 } &&
-                    prompt.Choices.FirstOrDefault(choice =>
-                        choice.Parameters.GetValueOrDefault("response") == "niepan") is { } niepan)
-                {
-                    var before = game.CreateSnapshot(0, revealAll: true).Players[0];
-                    var answered = game.Submit(new AnswerPromptCommand(0, prompt.PromptId, niepan.Id, game.Revision));
-                    var after = game.CreateSnapshot(0, revealAll: true).Players[0];
-                    var resolved = game.Events.Select(item => item.Payload).OfType<NiepanResolvedEvent>().Single();
-                    Require(answered.Accepted && after.Hp == 3 && after.HandCount == 3 && !after.IsChained &&
-                            resolved.PlayerSeat == 0 && resolved.DiscardedCardCount >= before.HandCount &&
-                            resolved.DrawnCardCount == 3,
-                        answered.Error?.Message ?? "Niepan did not restore Pang Tong to three HP with three cards.");
-                    Require(game.Events.Count(item => item.Payload is NiepanResolvedEvent) == 1,
-                        "Niepan must remain limited to one resolution.");
-                    return;
-                }
-
-                GameCommand command = prompt switch
-                {
-                    { PlayerSeat: 0, Kind: DecisionKind.PlayCard } =>
-                        new EndPlayPhaseCommand(0, game.Revision, prompt.PromptId),
-                    { PlayerSeat: 0 } => new AnswerPromptCommand(0, prompt.PromptId,
-                        prompt.Choices.Last().Id, game.Revision),
-                    _ => new AdvanceOneStepCommand(game.Revision)
-                };
-                if (!game.Submit(command).Accepted) break;
-            }
-        }
-        throw new InvalidOperationException("No bounded Pang Tong fixture reached a human Niepan dying prompt.");
     }
 
     private static GameEngine Create(int seed, ContentRegistry registry) => GameEngine.CreateStandard(new GameOptions

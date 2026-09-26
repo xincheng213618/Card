@@ -8,7 +8,7 @@ public sealed partial class GameEngine
         Suit effectiveSuit,
         bool succeeded)
     {
-        if (_rulesVersion < 81 || _contentRegistry is null) return false;
+        if (_contentRegistry is null) return false;
         if (!_players[pending.TargetSeat].IsAlive) return false;
         var candidates = _players.Where(player => player.IsAlive).OrderBy(player => player.Seat)
             .SelectMany(owner => EnabledUniqueProgramTriggers(owner, SkillProgramTriggerWindow.JudgmentFinalized)
@@ -373,8 +373,6 @@ public sealed partial class GameEngine
         ProgramJudgmentTriggerCandidate candidate,
         SkillProgramTriggerEffect effect)
     {
-        if (_rulesVersion < 93)
-            throw new InvalidOperationException("Configured causeDeath requires rules version 93.");
         var targetSeat = effect.Target == SkillProgramTriggerEffectTarget.JudgmentSubject
             ? frame.Judgment.SubjectSeat
             : frame.SelectedTargetSeat;
@@ -631,7 +629,7 @@ public sealed partial class GameEngine
             IsProgramJudgmentDamage: true,
             ProgramJudgmentFrameId: var programFrameId
         } && programFrameId == frame.Id;
-        if (_rulesVersion < 81 || pending is null || pending.ResultSucceeded is null ||
+        if (pending is null || pending.ResultSucceeded is null ||
             (!ReferenceEquals(_resolutionStack.Last(), frame) && !resolvingDamage) ||
             judgmentFrame is null || judgmentFrame.Id != frame.ParentFrameId ||
             pending.FrameId != frame.Judgment.JudgmentFrameId ||

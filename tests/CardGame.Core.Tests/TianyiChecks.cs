@@ -6,11 +6,12 @@ internal static class TianyiChecks
 {
     public static void WinLossSlashRulesAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 49, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var win = Find(registry, sourceWins: true, requireSlash: true);
-        var winEvent = win.Game.Events.Select(item => item.Payload).OfType<PindianResolvedEvent>().Last();
+        var winEvent = win.Game.Events.Select(item => item.Payload).OfType<PindianResultDeterminedEvent>()
+            .Last(item => item.SkillId == "classic:tianyi");
         var actions = win.Game.GetHumanLegalActions();
-        Require(winEvent is { Skill: SkillKind.Tianyi, InitiatorWon: true } &&
+        Require(winEvent.Result.SourceWon &&
                 actions.Any(action => action.Kind == LegalActionKind.Slash && action.TargetSeats.Count == 2) &&
                 actions.Where(action => action.Kind == LegalActionKind.Slash).SelectMany(action => action.TargetSeats)
                     .Any(seat => win.Game.GetCombatDistance(0, seat) > win.Game.GetAttackRange(0)),
@@ -35,8 +36,9 @@ internal static class TianyiChecks
             "Winning Tianyi state and legal Slash actions must replay exactly.");
 
         var loss = Find(registry, sourceWins: false, requireSlash: false);
-        var lossEvent = loss.Game.Events.Select(item => item.Payload).OfType<PindianResolvedEvent>().Last();
-        Require(lossEvent is { Skill: SkillKind.Tianyi, InitiatorWon: false } &&
+        var lossEvent = loss.Game.Events.Select(item => item.Payload).OfType<PindianResultDeterminedEvent>()
+            .Last(item => item.SkillId == "classic:tianyi");
+        Require(!lossEvent.Result.SourceWon &&
                 loss.Game.GetHumanLegalActions().All(action => action.Kind != LegalActionKind.Slash),
             "Losing or tying Tianyi must prohibit Slash for the rest of the turn.");
     }
@@ -59,16 +61,21 @@ internal static class TianyiChecks
                     ? sourceHand.Where(card => card.Rank > opponentMax).OrderByDescending(card => card.Rank).FirstOrDefault()
                     : sourceHand.Where(card => card.Rank <= opponentMax).OrderBy(card => card.Rank).FirstOrDefault();
                 if (sourceCard is null) continue;
+                var action = game.GetHumanLegalActions().FirstOrDefault(candidate =>
+                    candidate.Kind == LegalActionKind.UseProgramSkill &&
+                    candidate.ProgramSkillId == "classic:tianyi" &&
+                    candidate.ProgramActivationId == "contest");
+                if (action is null || !action.SelectableTargetSeats.Contains(target.Seat)) continue;
                 var before = game.CreateCheckpoint();
-                var used = game.Submit(new UseSkillCommand(0, SkillKind.Tianyi, [sourceCard.Id], [target.Seat],
-                    game.Revision, play.PromptId));
+                var used = game.Submit(new UseProgramSkillCommand(0, "classic:tianyi", "contest",
+                    [sourceCard.Id], [target.Seat], game.Revision, play.PromptId));
                 if (!used.Accepted) continue;
                 for (var step = 0; step < 8 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
                     Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
                         "Tianyi could not return to the initiator's play phase.");
-                var result = game.Events.Select(item => item.Payload).OfType<PindianResolvedEvent>()
-                    .LastOrDefault(item => item.Skill == SkillKind.Tianyi);
-                if (result?.InitiatorWon == sourceWins && game.PendingDecision?.Kind == DecisionKind.PlayCard)
+                var result = game.Events.Select(item => item.Payload).OfType<PindianResultDeterminedEvent>()
+                    .LastOrDefault(item => item.SkillId == "classic:tianyi");
+                if (result?.Result.SourceWon == sourceWins && game.PendingDecision?.Kind == DecisionKind.PlayCard)
                     return new Fixture(game, before);
             }
         }

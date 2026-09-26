@@ -27,13 +27,6 @@ internal static class LiDianChecks
                 CardSubsetSelector.Enumerate([new CardSubsetCandidate(1, 1)],
                     new CardSubsetConstraint(2, 2, 208)).Count == 0,
             "Depleted-card relaxation must be opt-in; existing exact-count selection remains strict.");
-        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 138, 0));
-        Require(!historical.Generals.ContainsKey("classic:li-dian") &&
-                !historical.Skills.ContainsKey("classic:xunxun") &&
-                !historical.Skills.ContainsKey("classic:wangxi") &&
-                StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 139, 0))
-                    .Generals.ContainsKey("classic:li-dian"),
-            "Li Dian and both skills must first appear in classic package 1.139.0.");
         RejectInvalidWangxiTargetReferences();
 
         var game = Start(registry);

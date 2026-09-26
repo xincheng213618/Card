@@ -10,9 +10,7 @@ internal static class GuanXingZhangBaoChecks
 
     public static void ContentAndRulesBoundary()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 119, 0));
-        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 118, 0));
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 88, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
         var general = current.Generals[GeneralId];
         var fuhun = current.Skills[FuhunSkillId];
 
@@ -40,16 +38,6 @@ internal static class GuanXingZhangBaoChecks
                 program.ViewAs.Single().InputCount == 2,
             $"Fuhun metadata drifted: kind={fuhun.LegacyKind}, tags={fuhun.Tags}, " +
             $"execution={fuhun.ExecutionForms}, actions={fuhun.ActionForms}.");
-        Require(historical.Skills[FuhunSkillId] is
-                {
-                    LegacyKind: SkillKind.Fuhun,
-                    Program: null
-                } &&
-                !previous.Generals.ContainsKey(GeneralId) &&
-                !previous.Skills.ContainsKey(FuhunSkillId) &&
-                current.ContentHash != historical.ContentHash &&
-                historical.ContentHash != previous.ContentHash,
-            "Package 1.119.0 must migrate Fuhun without mutating its 1.118.0 legacy or 1.88.0 content boundaries.");
 
     }
 

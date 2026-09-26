@@ -9,7 +9,6 @@ internal static class JudgmentDrawProgramChecks
     public static void DefinitionsAndVersionBoundary()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 106, 0));
         var skill = current.Skills[SkillId];
         var trigger = skill.Program?.Triggers.Single();
 
@@ -47,13 +46,8 @@ internal static class JudgmentDrawProgramChecks
                             Destination: SkillProgramCardDestination.OwnerHand
                         }
                     ]
-                } &&
-                historical.Skills[SkillId] is
-                {
-                    LegacyKind: SkillKind.Shuangxiong,
-                    Program: null
                 },
-            "Schema 21 must publish program Shuangxiong at package 1.107 without mutating 1.106.");
+            "Current Shuangxiong must use the judgment draw program.");
 
         Reject(
             Rules.Replace("\"schemaVersion\":21", "\"schemaVersion\":20", StringComparison.Ordinal)

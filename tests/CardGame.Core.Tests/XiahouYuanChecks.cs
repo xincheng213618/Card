@@ -5,7 +5,7 @@ internal static class XiahouYuanChecks
 {
     public static void ShensuPhaseSkipsAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 54, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var game = FindFixture(registry);
         var prompt = game.PendingDecision!;
         var paused = GameReplay.Restore(game.CreateCheckpoint(), registry);
@@ -52,6 +52,71 @@ internal static class XiahouYuanChecks
                     move.Reason == CardMoveReasons.ShensuDiscard),
             "Shensu option two must discard the exact equipped card and resolve another virtual Slash.");
 
+        var chained = FindEquippedFixture(registry);
+        var firstPrompt = chained.PendingDecision!;
+        var firstUse = firstPrompt.Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "shensu-use");
+        Require(chained.Submit(new AnswerPromptCommand(0, firstPrompt.PromptId, firstUse.Id, chained.Revision)).Accepted,
+            "The consecutive Shensu fixture could not use its first virtual Slash.");
+        DriveToStageTwo(chained);
+        var secondPrompt = chained.PendingDecision!;
+        Require(secondPrompt.Kind == DecisionKind.Shensu && chained.ResolutionStack.Count == 0,
+            "Finishing the first Shensu Slash must preserve the newly created second-stage prompt.");
+        var resumed = GameReplay.Restore(chained.CreateCheckpoint(), registry);
+        Require(SnapshotJson.Serialize(resumed.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(chained.CreateSnapshot(0, revealAll: true)),
+            "The consecutive Shensu continuation must replay with its second prompt intact.");
+        var secondUse = secondPrompt.Choices.First(choice => choice.Cards.Count == 1);
+        foreach (var branch in new[] { chained, resumed })
+        {
+            Require(branch.Submit(new AnswerPromptCommand(0, secondPrompt.PromptId, secondUse.Id, branch.Revision)).Accepted,
+                "The second consecutive Shensu Slash was rejected.");
+            DriveUntilResolutionFinishes(branch);
+            Require(branch.CreateSnapshot(0, revealAll: true).Phase == TurnPhase.Discard &&
+                    branch.Events.Select(item => item.Payload).OfType<ShensuUsedEvent>()
+                        .Select(item => item.Stage).SequenceEqual(new[] { 1, 2 }),
+                "Both consecutive Shensu Slashes must finish before the discard phase.");
+        }
+        Require(SnapshotJson.Serialize(resumed.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(chained.CreateSnapshot(0, revealAll: true)),
+            "Both branches must finish the consecutive Shensu actions identically.");
+
+    }
+
+    private static GameEngine FindEquippedFixture(ContentRegistry registry)
+    {
+        var game = FindFixture(registry);
+        var prompt = game.PendingDecision!;
+        var skip = prompt.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "shensu-skip");
+        Require(game.Submit(new AnswerPromptCommand(0, prompt.PromptId, skip.Id, game.Revision)).Accepted,
+            "Could not reach the equipment setup turn.");
+        DriveToHumanBoundary(game);
+        var equipment = game.CreateSnapshot(0).Players[0].Hand.First(card => EquipmentCatalog.IsEquipment(card.Kind));
+        Require(game.Submit(new PlayCardCommand(0, equipment.Id, [], game.Revision, game.PendingDecision!.PromptId)).Accepted,
+            "Could not equip a card through the command boundary.");
+        for (var step = 0; step < 512 && game.State.Winner == Winner.None; step++)
+        {
+            if (game.PendingDecision is { Kind: DecisionKind.Shensu, PlayerSeat: 0 } next &&
+                next.Choices.Any(choice => choice.Parameters.GetValueOrDefault("stage") == "1") &&
+                game.CreateSnapshot(0).Players[0].Equipment.Count > 0)
+                return game;
+            if (game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } play &&
+                game.CreateSnapshot(0).Players[0].Equipment.Count == 0 &&
+                game.CreateSnapshot(0, revealAll: true).Players[0].Hand.FirstOrDefault(card =>
+                    EquipmentCatalog.IsEquipment(card.Kind)) is { } replacement)
+            {
+                Require(game.Submit(new PlayCardCommand(0, replacement.Id, [], game.Revision, play.PromptId)).Accepted,
+                    "The consecutive Shensu fixture could not replace equipment through a legal command.");
+                continue;
+            }
+            BorrowedSwordScenario.Step(game);
+        }
+        throw new InvalidOperationException(
+            $"The equipped Xiahou Yuan fixture did not return to its first Shensu prompt: " +
+            $"status={game.State.Status}, winner={game.State.Winner}, turn={game.State.TurnNumber}, " +
+            $"phase={game.State.Phase}, prompt={game.PendingDecision?.Kind}/{game.PendingDecision?.PlayerSeat}, " +
+            $"hp={game.CreateSnapshot(0).Players[0].Hp}, equipment={game.CreateSnapshot(0).Players[0].Equipment.Count}.");
     }
 
     private static GameEngine FindFixture(ContentRegistry registry)

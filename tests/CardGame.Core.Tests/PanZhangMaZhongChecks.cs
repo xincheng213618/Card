@@ -13,14 +13,11 @@ internal static class PanZhangMaZhongChecks
     public static void DefinitionAndGenericSchema()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 140, 0));
         Require(current.Generals[General] is { BaseHp: 4, FactionId: "wu" } general &&
                 general.SkillIds.SequenceEqual([Duodao, Anjian]) &&
                 current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(General) &&
-                current.Modes["identity:classic-8"].GeneralPoolIds!.Contains(General) &&
-                !previous.Generals.ContainsKey(General) && !previous.Skills.ContainsKey(Duodao) &&
-                !previous.Skills.ContainsKey(Anjian),
-            "2013 Pan Zhang and Ma Zhong must first enter the 1.141 formal Wu roster with four HP.");
+                current.Modes["identity:classic-8"].GeneralPoolIds!.Contains(General),
+            "2013 Pan Zhang and Ma Zhong must be in the current Wu roster with four HP.");
         var damage = current.Skills[Anjian].Program!.DamageModifiers.Single();
         Require(damage.Condition == SkillProgramDamageModifierCondition.SourceOutsideTargetAttackRange &&
                 damage.SourceScope == SkillProgramDamageModifierSourceScope.OwnerUsed &&

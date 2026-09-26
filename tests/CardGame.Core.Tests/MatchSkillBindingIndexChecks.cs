@@ -9,8 +9,7 @@ internal static class MatchSkillBindingIndexChecks
         for (var i = 0; i < 128; i++)
             definitions[$"fixture:unused-{i}"] = new($"fixture:unused-{i}", "Unused", "Fixture");
         var resolves = 0;
-        var index = new MatchSkillBindingIndex(id => { resolves++; return definitions[id]; }, false, true, true,
-            GameCheckpoint.CurrentRulesVersion);
+        var index = new MatchSkillBindingIndex(id => { resolves++; return definitions[id]; }, false);
         var players = Enumerable.Range(0, 8).Select(seat => Player(seat, Role.Rebel)).ToArray();
         for (var seat = 0; seat < players.Length; seat++)
             players[seat].SkillGrants.Grant(Grant($"g:{seat}", seat % 2 == 0 ? fixture.RichId : fixture.PlainId, $"i:{seat}"));
@@ -77,8 +76,7 @@ internal static class MatchSkillBindingIndexChecks
     public static void OnlyBindingStampChangesRebuildOneSeatAndOldShardsStayFrozen()
     {
         var fixture = Fixture();
-        var index = new MatchSkillBindingIndex(id => fixture.Definitions[id], true, true, true,
-            GameCheckpoint.CurrentRulesVersion);
+        var index = new MatchSkillBindingIndex(id => fixture.Definitions[id], true);
         var first = Player(0, Role.Rebel); var second = Player(1, Role.Rebel);
         first.SkillGrants.Grant(Grant("p", fixture.RichId, "p", CharacterState.PrimarySkillSource));
         second.SkillGrants.Grant(Grant("s", fixture.PlainId, "s", "acquired:test"));
@@ -121,7 +119,7 @@ internal static class MatchSkillBindingIndexChecks
     }
 
     private static MatchSkillBindingIndex Index(FixtureData fixture) => new(
-        id => fixture.Definitions[id], false, true, true, GameCheckpoint.CurrentRulesVersion);
+        id => fixture.Definitions[id], false);
 
     private static FixtureData Fixture()
     {

@@ -9,7 +9,7 @@ internal static class GuidaoChecks
             new StandardContentPackage(),
             new StandardActiveSkillExpansionPackage(),
             new StandardRescueSkillExpansionPackage(),
-            new StandardClassicGeneralPackage(new Version(1, 56, 0)),
+            new StandardClassicGeneralPackage(),
             new ScenarioPackage());
 
         for (var seed = 1; seed <= 4096; seed++)

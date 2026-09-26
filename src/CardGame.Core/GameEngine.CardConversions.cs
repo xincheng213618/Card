@@ -6,13 +6,12 @@ public sealed partial class GameEngine
     private const string NuzhanSkillId = "sp:nuzhan";
 
     private bool IgnoresSpGuanYuWushengDistance(CharacterState player, Card card) =>
-        SupportsRuntimeSkillAcquisition &&
         HasRuntimeSkill(player, SpGuanYuWushengSkillId) &&
         card.Suit == Suit.Diamond;
 
     private NuzhanModifiers GetNuzhanModifiers(long frameId, CharacterState source)
     {
-        if (!SupportsRuntimeSkillAcquisition || !HasRuntimeSkill(source, NuzhanSkillId))
+        if (!HasRuntimeSkill(source, NuzhanSkillId))
             return default;
 
         var action = _resolutionStack
@@ -56,7 +55,7 @@ public sealed partial class GameEngine
         CharacterState actor,
         IReadOnlyList<Card> playableCards)
     {
-        if (!SupportsRuntimeSkillAcquisition || !HasRuntimeSkill(actor, NuzhanSkillId)) return;
+        if (!HasRuntimeSkill(actor, NuzhanSkillId)) return;
 
         foreach (var converted in playableCards.Where(card =>
                      CardCatalog.Get(card.Kind).CategoryName == "锦囊牌"))
@@ -90,14 +89,6 @@ public sealed partial class GameEngine
             }
 
             AddFangtianHalberdSlashActions(
-                actions,
-                actor,
-                converted,
-                targets,
-                "杀",
-                CardKind.Slash,
-                source);
-            AddTianyiSlashActions(
                 actions,
                 actor,
                 converted,
@@ -142,7 +133,7 @@ public sealed partial class GameEngine
         CharacterState owner,
         Card card)
     {
-        if (_rulesVersion < 94 || _cardZones.GetLocation(card.Id) != CardLocation.Hand(owner.Seat))
+        if (_cardZones.GetLocation(card.Id) != CardLocation.Hand(owner.Seat))
             return [];
 
         var context = CreateSkillContext(owner);
@@ -206,7 +197,7 @@ public sealed partial class GameEngine
         CardKind outputKind,
         bool forResponse)
     {
-        if (_rulesVersion < 80 || card.Kind == outputKind ||
+        if (card.Kind == outputKind ||
             HasProgramCardIdentity(owner, card))
         {
             return [];
@@ -266,7 +257,7 @@ public sealed partial class GameEngine
         CardKind outputKind,
         bool forResponse)
     {
-        if (_rulesVersion < 140 || !owner.IsAlive ||
+        if (!owner.IsAlive ||
             IsCardUseForbidden(owner.Seat, outputKind,
                 forResponse ? CardActionType.Response : CardActionType.Use))
             return [];
@@ -487,7 +478,7 @@ public sealed partial class GameEngine
     {
         if (card.Kind == outputKind) return false;
         var context = CreateSkillContext(owner);
-        return EnabledPassiveSkills(owner).Any(skill => forResponse
+        return ConversionRules(owner).Any(skill => forResponse
             ? skill.CanUseAsResponse(context, card, outputKind)
             : outputKind == CardKind.Slash && skill.CanUseAsSlash(context, card));
     }
@@ -498,7 +489,7 @@ public sealed partial class GameEngine
         CardKind outputKind,
         bool forResponse)
     {
-        if (_rulesVersion < 80 || _contentRegistry is null || card.Kind == outputKind) return [];
+        if (_contentRegistry is null || card.Kind == outputKind) return [];
         var context = CreateSkillContext(owner);
         return EnabledContentSkillIds(owner)
             .Select(id => _contentRegistry.Skills[id])
@@ -508,8 +499,8 @@ public sealed partial class GameEngine
             {
                 var rules = SkillRegistry.Get(skill.LegacyKind!.Value);
                 return forResponse
-                    ? rules.CanUseAsResponse(context, card, outputKind)
-                    : outputKind == CardKind.Slash && rules.CanUseAsSlash(context, card);
+                    ? rules.Conversion?.CanUseAsResponse(context, card, outputKind) == true
+                    : outputKind == CardKind.Slash && rules.Conversion?.CanUseAsSlash(context, card) == true;
             })
             .Select(skill => new CardConversionSource(
                 skill.Id,
@@ -524,7 +515,6 @@ public sealed partial class GameEngine
     private IReadOnlyList<Card> GetSlashUseCards(CharacterState owner)
     {
         if (SlashKinds.All(kind => IsCardUseForbidden(owner.Seat, kind, CardActionType.Use))) return [];
-        if (_rulesVersion < 80) return GetResponseCards(owner, CardKind.Slash);
         var cards = GetPlayableCards(owner).Where(card =>
         {
             if (IsTurnHandCardRestricted(owner, card)) return false;

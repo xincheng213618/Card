@@ -294,7 +294,7 @@ public sealed partial class GameEngine
         var (cardId, thought) = _aiBrains[owner.Seat].ChooseGuicaiReplacement(
             CreateSnapshot(owner.Seat), pending.TargetSeat, pending.Reason, decision.ValidCardIds,
             judgmentCard.Kind, EffectiveSuit(_players[pending.TargetSeat], judgmentCard),
-            ++_thoughtSequence, judgmentCard.Rank, _rulesVersion, UsesClassicGanglieJudgment);
+            ++_thoughtSequence, judgmentCard.Rank, UsesClassicGanglieJudgment);
         AddThought(thought);
         var selected = cardId is { } id
             ? decision.Choices.Single(choice => choice.Cards.SequenceEqual([id]))

@@ -7,7 +7,6 @@ internal static class SkillMetadataChecks
     public static void TagsNormalizeAndFingerprint()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 67, 0));
 
         Require(current.Skills["classic:niepan"] is
         {
@@ -28,13 +27,8 @@ internal static class SkillMetadataChecks
                 {
                     Tags: SkillTag.Locked,
                     ExecutionForms: SkillExecutionForm.State
-                } &&
-                previous.Skills["classic:niepan"] is
-                {
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.None
                 },
-            "Package 1.68.0 and newer must project the first structured skill metadata set.");
+            "The current classic skills must publish structured metadata.");
 
         var plain = ContentRegistry.Build(new MetadataFixture(SkillTag.None, SkillExecutionForm.None));
         var tagged = ContentRegistry.Build(new MetadataFixture(SkillTag.Limited, SkillExecutionForm.Trigger));
@@ -126,8 +120,8 @@ internal static class SkillMetadataChecks
 
     public static void ClassicLockedStateMetadataIsVersioned()
     {
-        var migrated = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 71, 0));
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 70, 0));
+        var migrated = StandardContentRegistry.CreateWithClassicGenerals();
+        var previous = StandardContentRegistry.CreateWithClassicGenerals();
         string[] skillIds =
         [
             "classic:kuanggu",
@@ -170,7 +164,7 @@ internal static class SkillMetadataChecks
     public static void ClassicSharedLockedSkillsReceiveDistinctIdentities()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 71, 0));
+        var previous = StandardContentRegistry.CreateWithClassicGenerals();
         var expected = new Dictionary<string, SkillKind?>
         {
             ["classic:kongcheng"] = SkillKind.Kongcheng,
@@ -224,8 +218,8 @@ internal static class SkillMetadataChecks
 
     public static void ClassicOptionalTriggerMetadataIsVersioned()
     {
-        var migrated = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 73, 0));
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 72, 0));
+        var migrated = StandardContentRegistry.CreateWithClassicGenerals();
+        var previous = StandardContentRegistry.CreateWithClassicGenerals();
         string[] triggerSkillIds =
         [
             "classic:feedback",
@@ -298,8 +292,8 @@ internal static class SkillMetadataChecks
 
     public static void ClassicContinuousCardConversionMetadataIsVersioned()
     {
-        var migrated = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 74, 0));
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 73, 0));
+        var migrated = StandardContentRegistry.CreateWithClassicGenerals();
+        var previous = StandardContentRegistry.CreateWithClassicGenerals();
         string[] stateSkillIds =
         [
             "classic:qixi",
@@ -350,15 +344,14 @@ internal static class SkillMetadataChecks
 
     public static void ClassicPureActiveActionMetadataIsVersioned()
     {
-        var migrated = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 75, 0));
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 74, 0));
+        var migrated = StandardContentRegistry.CreateWithClassicGenerals();
+        var previous = StandardContentRegistry.CreateWithClassicGenerals();
         string[] activeSkillIds =
         [
             "classic:fanjian",
             "classic:qiangxi",
             "classic:lijian",
-            "classic:jieyin",
-            "classic:quhu"
+            "classic:jieyin"
         ];
 
         foreach (var skillId in activeSkillIds)
@@ -370,7 +363,7 @@ internal static class SkillMetadataChecks
                     ActionForms: SkillActionForm.Active
                 } definition &&
                     definition.LegacyKind is { } kind &&
-                    SkillRegistry.GetActive(kind) is not null,
+                    ActiveActionCatalog.Find(kind) is not null,
                 $"Current classic content did not classify {skillId} as a backed active action.");
             Require(previous.Skills[skillId].ActionForms == SkillActionForm.None,
                 $"Package 1.74.0 unexpectedly gained the action metadata for {skillId}.");
@@ -405,8 +398,8 @@ internal static class SkillMetadataChecks
 
     public static void ClassicCompoundSkillMetadataIsVersioned()
     {
-        var migrated = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 76, 0));
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 75, 0));
+        var migrated = StandardContentRegistry.CreateWithClassicGenerals();
+        var previous = StandardContentRegistry.CreateWithClassicGenerals();
 
         Require(migrated.Skills["classic:jijiang"] is
                 {
@@ -415,7 +408,7 @@ internal static class SkillMetadataChecks
                     ActionForms: SkillActionForm.Active,
                     LegacyKind: SkillKind.Jijiang
                 } &&
-                SkillRegistry.GetActive(SkillKind.Jijiang) is not null,
+                ActiveActionCatalog.Find(SkillKind.Jijiang) is not null,
             "Current Jijiang metadata did not preserve its Lord trigger and active action parts.");
         Require(migrated.Skills["classic:luanji"] is
                 {
@@ -424,7 +417,7 @@ internal static class SkillMetadataChecks
                     ActionForms: SkillActionForm.Active,
                     LegacyKind: SkillKind.Luanji
                 } &&
-                SkillRegistry.GetActive(SkillKind.Luanji) is not null,
+                ActiveActionCatalog.Find(SkillKind.Luanji) is not null,
             "Current Luanji metadata did not combine its continuous conversion and active action parts.");
         Require(migrated.Skills["classic:tianyi"] is
                 {
@@ -433,8 +426,8 @@ internal static class SkillMetadataChecks
                     ActionForms: SkillActionForm.Active,
                     LegacyKind: SkillKind.Tianyi
                 } &&
-                SkillRegistry.GetActive(SkillKind.Tianyi) is not null,
-            "Current Tianyi metadata did not combine its active Pindian and turn-state parts.");
+                ActiveActionCatalog.Find(SkillKind.Tianyi) is null,
+            "Tianyi must not retain a second legacy active executor after its Program migration.");
         Require(migrated.Skills["classic:shuangxiong"] is
                 {
                     Tags: SkillTag.None,
@@ -442,7 +435,7 @@ internal static class SkillMetadataChecks
                     ActionForms: SkillActionForm.None,
                     LegacyKind: SkillKind.Shuangxiong
                 } &&
-                SkillRegistry.GetActive(SkillKind.Shuangxiong) is null,
+                ActiveActionCatalog.Find(SkillKind.Shuangxiong) is null,
             "Current Shuangxiong metadata did not combine its draw trigger and turn-state parts.");
 
         Require(previous.Skills["classic:jijiang"] is
@@ -481,8 +474,8 @@ internal static class SkillMetadataChecks
 
     public static void ClassicSharedActiveSkillsReceiveDistinctIdentities()
     {
-        var migrated = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 77, 0));
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 76, 0));
+        var migrated = StandardContentRegistry.CreateWithClassicGenerals();
+        var previous = StandardContentRegistry.CreateWithClassicGenerals();
         var stable = StandardContentRegistry.CreateWithActiveSkills();
         (string ClassicId, string StandardId, SkillKind Kind)[] skills =
         [
@@ -502,7 +495,7 @@ internal static class SkillMetadataChecks
                         LegacyKind: var projectedKind
                     } &&
                     projectedKind == kind &&
-                    SkillRegistry.GetActive(kind) is not null,
+                    ActiveActionCatalog.Find(kind) is not null,
                 $"Current classic content did not register {classicId} as a backed active action.");
             Require(!previous.Skills.ContainsKey(classicId) &&
                     previous.Skills[standardId].ActionForms == SkillActionForm.None,
@@ -540,11 +533,11 @@ internal static class SkillMetadataChecks
 
     public static void ClassicRemainingSharedSkillsReceiveDistinctIdentities()
     {
-        var migrated = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 79, 0));
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 78, 0));
+        var migrated = StandardContentRegistry.CreateWithClassicGenerals();
+        var previous = StandardContentRegistry.CreateWithClassicGenerals();
         var stable = ContentRegistry.Build(
-            new StandardContentPackage(new Version(1, 11, 0)),
-            new StandardActiveSkillExpansionPackage(new Version(1, 0, 0), includeJijiu: true),
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true),
             new StandardRescueSkillExpansionPackage());
         (string ClassicId, string StandardId, SkillKind Kind, SkillExecutionForm Form)[] skills =
         [

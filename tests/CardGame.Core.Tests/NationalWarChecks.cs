@@ -54,16 +54,28 @@ internal static class NationalWarChecks
         Require(own.GeneralId == selected[0] && own.SecondaryGeneralId == selected[1] && own.FactionId is not null &&
             !own.IsGeneralPublic && !own.IsSecondaryGeneralPublic && !own.IsFactionRevealed && own.Role is null,
             "Own hidden dual-general metadata is incomplete.");
+        Require(own.Skills is { Count: > 0 } && own.SecondarySkills is { Count: > 0 },
+            "The owner must see both ordered skill collections before revealing either slot.");
+        using (var playerJson = JsonDocument.Parse(JsonSerializer.Serialize(own)))
+        {
+            foreach (var singular in new[] { "Skill", "SkillName", "SkillDescription",
+                         "SecondarySkill", "SecondarySkillName", "SecondarySkillDescription" })
+                Require(!playerJson.RootElement.TryGetProperty(singular, out _),
+                    $"PlayerSnapshot still serialized the singular compatibility field {singular}.");
+        }
         var hidden = game.CreateSnapshot(1).Players[0];
         Require(hidden.FactionId is null && hidden.GeneralId != selected[0] && hidden.SecondaryGeneralId != selected[1] &&
-            hidden.Hand.Count == 0 && hidden.Role is null, "Unrevealed national information leaked to another player.");
+            hidden.Hand.Count == 0 && hidden.Role is null && hidden.Skills is null && hidden.SecondarySkills is null,
+            "Unrevealed national information leaked to another player.");
         var actions = game.GetHumanLegalActions().Where(action => action.Kind == LegalActionKind.RevealGeneral).ToArray();
         Require(actions.Length == 2 && actions.Select(action => action.GeneralSlot).Distinct().Count() == 2, "Both generals need independent reveal actions.");
         var primary = new RevealGeneralCommand(0, GeneralSelectionSlot.Primary, game.Revision, game.PendingDecision!.PromptId);
         Require(game.Submit(primary).Accepted, "Primary reveal failed.");
         var revealed = game.CreateSnapshot(1).Players[0];
         Require(revealed.GeneralId == selected[0] && revealed.IsGeneralPublic && revealed.FactionId == own.FactionId &&
-            !revealed.IsSecondaryGeneralPublic && revealed.SecondaryGeneralId != selected[1], "Primary reveal leaked the secondary general or failed to reveal faction.");
+            !revealed.IsSecondaryGeneralPublic && revealed.SecondaryGeneralId != selected[1] &&
+            revealed.Skills is { Count: > 0 } && revealed.SecondarySkills is null,
+            "Primary reveal leaked the secondary general or failed to reveal faction.");
         Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted && game.PendingDecision is { Kind: DecisionKind.PlayCard },
             "Primary reveal did not return to a playable decision.");
         var before = SnapshotJson.Serialize(game.CreateSnapshot(0, true));
@@ -314,9 +326,9 @@ internal static class NationalWarChecks
                 .GetField("_players", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
                 .GetValue(game)!).Cast<object>().ToArray();
             var enabled = (System.Collections.IEnumerable)typeof(GameEngine)
-                .GetMethod("EnabledPassiveSkills", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+                .GetMethod("EnabledSkillRules", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
                 .Invoke(game, [players[0]])!;
-            return enabled.Cast<IPassiveSkill>().Select(skill => skill.Kind)
+            return enabled.Cast<SkillRuleDefinition>().Select(skill => skill.Kind)
                 .Where(kind => kind != SkillKind.None).ToArray();
         }
 

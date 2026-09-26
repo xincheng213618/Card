@@ -72,8 +72,6 @@ public sealed record ContentSkillDefinition(
 {
     public SkillProgram? Program { get; init; }
     public SkillPresentation? ProgramPresentation { get; init; }
-    public IPhaseSkillModule? PhaseSkill { get; init; }
-    public IPindianResultModule? PindianResultSkill { get; init; }
     public SkillTag Tags { get; init; }
     public SkillExecutionForm ExecutionForms { get; init; }
     public SkillActionForm ActionForms { get; init; }
@@ -90,8 +88,7 @@ public sealed record ContentGeneralDefinition(
     GeneralGender Gender = GeneralGender.Male)
 {
     /// <summary>
-    /// Ordered skills for new content. <see cref="SkillId"/> remains the
-    /// compatibility primary skill used by v1-v9 checkpoints and older hosts.
+    /// Complete ordered skill identities used by the current runtime.
     /// </summary>
     public IReadOnlyList<string> SkillIds => AdditionalSkillIds is { Count: > 0 }
         ? new[] { SkillId }.Concat(AdditionalSkillIds).ToArray()
@@ -110,8 +107,7 @@ public sealed record ContentDeckRecipe(
     IReadOnlyList<ContentDeckCardCount> Cards)
 {
     /// <summary>
-    /// Optional ordered physical-card recipe. New packages can provide exact
-    /// suit/rank data; legacy count recipes remain byte-for-byte hash compatible.
+    /// Optional ordered physical-card recipe with exact suit/rank data.
     /// Exactly one of Cards or PhysicalCards must contain entries.
     /// </summary>
     public IReadOnlyList<ContentDeckPhysicalCard>? PhysicalCards { get; init; }
@@ -305,298 +301,72 @@ public sealed class ContentRegistry
         IReadOnlyDictionary<string, ContentDeckRecipe> decks,
         IReadOnlyDictionary<string, ContentModeDefinition> modes)
     {
-        var baseCanonical = JsonSerializer.Serialize(new
+        // One canonical representation of current content. No nested historical hash layouts.
+        var canonical = JsonSerializer.Serialize(new
         {
-            HashSchema = 1,
-            Packages = packages
-                .OrderBy(package => package.Id, StringComparer.Ordinal)
-                .Select(package => new
-                {
-                    package.Id,
-                    Version = package.Version.ToString(),
-                    Dependencies = package.Dependencies
-                        .OrderBy(dependency => dependency.Id, StringComparer.Ordinal)
-                        .Select(dependency => new
-                        {
-                            dependency.Id,
-                            MinimumVersion = dependency.MinimumVersion.ToString()
-                        })
-                        .ToArray()
-                })
-                .ToArray(),
-            Cards = cards
-                .OrderBy(entry => entry.Key, StringComparer.Ordinal)
-                .Select(entry => new
-                {
-                    entry.Value.Id,
-                    entry.Value.DisplayName,
-                    entry.Value.CategoryName,
-                    entry.Value.Description,
-                    LegacyKind = entry.Value.LegacyKind?.ToString(),
-                    AiTags = (entry.Value.AiTags ?? new Dictionary<string, string>())
-                        .OrderBy(tag => tag.Key, StringComparer.Ordinal)
-                        .Select(tag => new { tag.Key, tag.Value })
-                        .ToArray()
-                })
-                .ToArray(),
-            Skills = skills
-                .OrderBy(entry => entry.Key, StringComparer.Ordinal)
-                .Select(entry => new
-                {
-                    entry.Value.Id,
-                    Name = entry.Value.Program is null ? entry.Value.Name : string.Empty,
-                    Description = entry.Value.Program is null ? entry.Value.Description : string.Empty,
-                    LegacyKind = entry.Value.LegacyKind?.ToString()
-                })
-                .ToArray(),
-            Generals = generals
-                .OrderBy(entry => entry.Key, StringComparer.Ordinal)
-                .Select(entry => new
-                {
-                    entry.Value.Id,
-                    entry.Value.Name,
-                    entry.Value.PortraitKey,
-                    entry.Value.SkillId,
-                    entry.Value.FactionId
-                })
-                .ToArray(),
-            Decks = decks
-                .OrderBy(entry => entry.Key, StringComparer.Ordinal)
-                .Select(entry => new
-                {
-                    entry.Value.Id,
-                    entry.Value.Name,
-                    entry.Value.InitialHandSize,
-                    entry.Value.DrawPerTurn,
-                    Cards = entry.Value.Cards
-                        .Select(card => new { card.CardDefinitionId, card.Count })
-                        .ToArray()
-                })
-                .ToArray(),
-            Modes = modes
-                .OrderBy(entry => entry.Key, StringComparer.Ordinal)
-                .Select(entry => new
-                {
-                    entry.Value.Id,
-                    entry.Value.Name,
-                    entry.Value.MinPlayers,
-                    entry.Value.MaxPlayers,
-                    RoleCounts = (entry.Value.RoleCounts ?? new Dictionary<string, int>())
-                        .OrderBy(role => role.Key, StringComparer.Ordinal)
-                        .Select(role => new { role.Key, role.Value })
-                        .ToArray(),
-                    entry.Value.DeckId,
-                    entry.Value.GeneralCandidateCount,
-                    GeneralPoolIds = entry.Value.GeneralPoolIds?.ToArray()
-                })
-                .ToArray()
-        });
-
-        // Keep the v1 byte representation stable for every existing identity
-        // registry. Team-mode metadata is added only when a registry actually
-        // contains a team mode, so old checkpoints and content hashes remain
-        // compatible while new modes still participate in drift detection.
-        var hasExtendedMode = modes.Values.Any(mode =>
-            mode.ModeKind != ContentModeKind.Identity || mode.TeamCounts is { Count: > 0 });
-        var nationalModes = modes.Values
-            .Where(mode => mode.ModeKind == ContentModeKind.NationalWarLite)
-            .OrderBy(mode => mode.Id, StringComparer.Ordinal)
-            .ToArray();
-        var factionModeExtensions = nationalModes
-            .Select(mode => mode.SoloFactionIds is { Count: > 0 }
-                ? (object)new
-                {
-                    mode.Id,
-                    FactionCounts = (mode.FactionCounts ?? new Dictionary<string, int>())
-                        .OrderBy(faction => faction.Key, StringComparer.Ordinal)
-                        .Select(faction => new { faction.Key, faction.Value })
-                        .ToArray(),
-                    SoloFactionIds = mode.SoloFactionIds
-                        .OrderBy(id => id, StringComparer.Ordinal)
-                        .ToArray()
-                }
-                : new
-                {
-                    mode.Id,
-                    FactionCounts = (mode.FactionCounts ?? new Dictionary<string, int>())
-                        .OrderBy(faction => faction.Key, StringComparer.Ordinal)
-                        .Select(faction => new { faction.Key, faction.Value })
-                        .ToArray()
-                })
-            .ToArray();
-        var canonical = hasExtendedMode
-            ? nationalModes.Length == 0
-                ? JsonSerializer.Serialize(new
-                {
-                    HashSchema = 2,
-                    Base = JsonSerializer.Deserialize<JsonElement>(baseCanonical),
-                    ModeExtensions = modes
-                        .OrderBy(entry => entry.Key, StringComparer.Ordinal)
-                        .Where(entry => entry.Value.ModeKind != ContentModeKind.Identity ||
-                                        entry.Value.TeamCounts is { Count: > 0 })
-                        .Select(entry => new
-                        {
-                            entry.Value.Id,
-                            ModeKind = entry.Value.ModeKind.ToString(),
-                            TeamCounts = (entry.Value.TeamCounts ?? new Dictionary<string, int>())
-                                .OrderBy(team => team.Key, StringComparer.Ordinal)
-                                .Select(team => new { team.Key, team.Value })
-                                .ToArray()
-                        })
-                        .ToArray()
-                })
-                : JsonSerializer.Serialize(new
-                {
-                    HashSchema = 3,
-                    Base = JsonSerializer.Deserialize<JsonElement>(baseCanonical),
-                    ModeExtensions = modes
-                        .OrderBy(entry => entry.Key, StringComparer.Ordinal)
-                        .Where(entry => entry.Value.ModeKind != ContentModeKind.Identity ||
-                                        entry.Value.TeamCounts is { Count: > 0 })
-                        .Select(entry => new
-                        {
-                            entry.Value.Id,
-                            ModeKind = entry.Value.ModeKind.ToString(),
-                            TeamCounts = (entry.Value.TeamCounts ?? new Dictionary<string, int>())
-                                .OrderBy(team => team.Key, StringComparer.Ordinal)
-                                .Select(team => new { team.Key, team.Value })
-                                .ToArray()
-                        })
-                        .ToArray(),
-                    FactionModeExtensions = factionModeExtensions
-                })
-            : baseCanonical;
-
-        var generalVitals = generals.Values.Where(general => general.BaseHp != 4)
-            .OrderBy(general => general.Id, StringComparer.Ordinal)
-            .Select(general => new { general.Id, general.BaseHp }).ToArray();
-        if (generalVitals.Length > 0)
-            canonical = JsonSerializer.Serialize(new { HashSchema = 4, Base = JsonSerializer.Deserialize<JsonElement>(canonical), GeneralVitals = generalVitals });
-        var generalSkillExtensions = generals.Values
-            .Where(general => general.AdditionalSkillIds is { Count: > 0 })
-            .OrderBy(general => general.Id, StringComparer.Ordinal)
-            .Select(general => new
+            HashSchema = 13,
+            Packages = packages.OrderBy(package => package.Id, StringComparer.Ordinal).Select(package => new
             {
-                general.Id,
-                AdditionalSkillIds = general.AdditionalSkillIds!.ToArray()
-            })
-            .ToArray();
-        if (generalSkillExtensions.Length > 0)
-            canonical = JsonSerializer.Serialize(new
+                package.Id,
+                Version = package.Version.ToString(),
+                Dependencies = package.Dependencies.OrderBy(dependency => dependency.Id, StringComparer.Ordinal)
+                    .Select(dependency => new { dependency.Id, MinimumVersion = dependency.MinimumVersion.ToString() })
+                    .ToArray()
+            }).ToArray(),
+            Cards = cards.Values.OrderBy(card => card.Id, StringComparer.Ordinal).Select(card => new
             {
-                HashSchema = 5,
-                Base = JsonSerializer.Deserialize<JsonElement>(canonical),
-                GeneralSkillExtensions = generalSkillExtensions
-            });
-        var generalGenderExtensions = generals.Values
-            .Where(general => general.Gender != GeneralGender.Male)
-            .OrderBy(general => general.Id, StringComparer.Ordinal)
-            .Select(general => new { general.Id, Gender = general.Gender.ToString() })
-            .ToArray();
-        if (generalGenderExtensions.Length > 0)
-            canonical = JsonSerializer.Serialize(new
-            {
-                HashSchema = 6,
-                Base = JsonSerializer.Deserialize<JsonElement>(canonical),
-                GeneralGenderExtensions = generalGenderExtensions
-            });
-        var physicalDeckExtensions = decks.Values
-            .Where(deck => deck.PhysicalCards is { Count: > 0 })
-            .OrderBy(deck => deck.Id, StringComparer.Ordinal)
-            .Select(deck => new
-            {
-                deck.Id,
-                PhysicalCards = deck.PhysicalCards!.Select(card => new
-                {
-                    card.CardDefinitionId,
-                    Suit = card.Suit.ToString(),
-                    card.Rank
-                }).ToArray()
-            })
-            .ToArray();
-        if (physicalDeckExtensions.Length > 0)
-            canonical = JsonSerializer.Serialize(new
-            {
-                HashSchema = 7,
-                Base = JsonSerializer.Deserialize<JsonElement>(canonical),
-                PhysicalDeckExtensions = physicalDeckExtensions
-            });
-        var programs = skills.Values
-            .Where(skill => skill.Program is not null)
-            .OrderBy(skill => skill.Id, StringComparer.Ordinal)
-            .Select(skill => new { skill.Program!.Id, skill.Program.GameplayHash })
-            .ToArray();
-        if (programs.Length > 0)
-            canonical = JsonSerializer.Serialize(new
-            {
-                HashSchema = 8,
-                Base = JsonSerializer.Deserialize<JsonElement>(canonical),
-                RuntimeVersion = string.Join("+", skills.Values
-                    .Where(skill => skill.Program is not null)
-                    .Select(skill => skill.Program!.RuntimeVersion)
-                    .Distinct(StringComparer.Ordinal)
-                    .OrderBy(version => version, StringComparer.Ordinal)
-                    .DefaultIfEmpty(SkillProgramCatalog.RuntimeVersion)),
-                Programs = programs
-            });
-        var skillMetadata = skills.Values
-            .Where(skill => skill.Tags != SkillTag.None || skill.ExecutionForms != SkillExecutionForm.None)
-            .OrderBy(skill => skill.Id, StringComparer.Ordinal)
-            .Select(skill => new
+                card.Id, card.DisplayName, card.CategoryName, card.Description,
+                Kind = card.LegacyKind?.ToString(),
+                AiTags = (card.AiTags ?? new Dictionary<string, string>()).OrderBy(tag => tag.Key, StringComparer.Ordinal)
+                    .Select(tag => new { tag.Key, tag.Value }).ToArray()
+            }).ToArray(),
+            Skills = skills.Values.OrderBy(skill => skill.Id, StringComparer.Ordinal).Select(skill => new
             {
                 skill.Id,
+                // Program presentation has its own hash and does not change gameplay identity.
+                Name = skill.Program is null ? skill.Name : string.Empty,
+                Description = skill.Program is null ? skill.Description : string.Empty,
+                Kind = skill.LegacyKind?.ToString(),
                 Tags = skill.Tags.ToString(),
-                ExecutionForms = skill.ExecutionForms.ToString()
-            })
-            .ToArray();
-        if (skillMetadata.Length > 0)
-            canonical = JsonSerializer.Serialize(new
+                ExecutionForms = skill.ExecutionForms.ToString(),
+                ActionForms = skill.ActionForms.ToString(),
+                Program = skill.Program is {} program ? new
+                {
+                    program.Id, program.RuntimeVersion, program.MinimumRulesVersion, program.GameplayHash
+                } : null
+            }).ToArray(),
+            Generals = generals.Values.OrderBy(general => general.Id, StringComparer.Ordinal).Select(general => new
             {
-                HashSchema = 9,
-                Base = JsonSerializer.Deserialize<JsonElement>(canonical),
-                SkillMetadata = skillMetadata
-            });
-        var skillActionForms = skills.Values
-            .Where(skill => skill.ActionForms != SkillActionForm.None)
-            .OrderBy(skill => skill.Id, StringComparer.Ordinal)
-            .Select(skill => new
+                general.Id, general.Name, general.PortraitKey, general.FactionId, general.BaseHp,
+                Gender = general.Gender.ToString(),
+                Skills = general.SkillIds.ToArray()
+            }).ToArray(),
+            Decks = decks.Values.OrderBy(deck => deck.Id, StringComparer.Ordinal).Select(deck => new
             {
-                skill.Id,
-                ActionForms = skill.ActionForms.ToString()
-            })
-            .ToArray();
-        if (skillActionForms.Length > 0)
-            canonical = JsonSerializer.Serialize(new
+                deck.Id, deck.Name, deck.InitialHandSize, deck.DrawPerTurn,
+                Cards = deck.Cards.Select(card => new { card.CardDefinitionId, card.Count }).ToArray(),
+                PhysicalCards = (deck.PhysicalCards ?? []).Select(card => new
+                {
+                    card.CardDefinitionId, Suit = card.Suit.ToString(), card.Rank
+                }).ToArray()
+            }).ToArray(),
+            Modes = modes.Values.OrderBy(mode => mode.Id, StringComparer.Ordinal).Select(mode => new
             {
-                HashSchema = 10,
-                Base = JsonSerializer.Deserialize<JsonElement>(canonical),
-                SkillActionForms = skillActionForms
-            });
-        var phaseSkills = skills.Values
-            .Where(skill => skill.PhaseSkill is not null)
-            .OrderBy(skill => skill.Id, StringComparer.Ordinal)
-            .Select(skill => new { skill.Id, skill.PhaseSkill!.Revision, Window = skill.PhaseSkill.Window.ToString() })
-            .ToArray();
-        if (phaseSkills.Length > 0)
-            canonical = JsonSerializer.Serialize(new
-            {
-                HashSchema = 11,
-                Base = JsonSerializer.Deserialize<JsonElement>(canonical),
-                PhaseSkillRuntime = "phase-skills-v2",
-                PhaseSkills = phaseSkills
-            });
-        var pindianSkills = skills.Values.Where(skill => skill.PindianResultSkill is not null)
-            .OrderBy(skill => skill.Id, StringComparer.Ordinal)
-            .Select(skill => new { skill.Id, skill.PindianResultSkill!.Revision }).ToArray();
-        if (pindianSkills.Length > 0)
-            canonical = JsonSerializer.Serialize(new
-            {
-                HashSchema = 12, Base = JsonSerializer.Deserialize<JsonElement>(canonical),
-                PindianRuntime = "pindian-v1", PindianSkills = pindianSkills
-            });
+                mode.Id, mode.Name, mode.MinPlayers, mode.MaxPlayers,
+                Kind = mode.ModeKind.ToString(),
+                mode.DeckId, mode.GeneralCandidateCount,
+                GeneralPoolIds = mode.GeneralPoolIds?.ToArray(),
+                RoleCounts = (mode.RoleCounts ?? new Dictionary<string, int>()).OrderBy(role => role.Key, StringComparer.Ordinal)
+                    .Select(role => new { role.Key, role.Value }).ToArray(),
+                TeamCounts = (mode.TeamCounts ?? new Dictionary<string, int>()).OrderBy(team => team.Key, StringComparer.Ordinal)
+                    .Select(team => new { team.Key, team.Value }).ToArray(),
+                FactionCounts = (mode.FactionCounts ?? new Dictionary<string, int>()).OrderBy(faction => faction.Key, StringComparer.Ordinal)
+                    .Select(faction => new { faction.Key, faction.Value }).ToArray(),
+                SoloFactionIds = (mode.SoloFactionIds ?? []).OrderBy(id => id, StringComparer.Ordinal).ToArray()
+            }).ToArray()
+        });
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)));
     }
-
     private static PackageManifest ValidateManifest(PackageManifest manifest)
     {
         ArgumentNullException.ThrowIfNull(manifest);
@@ -962,13 +732,6 @@ public sealed class ContentRegistry
             var normalized = definition.Tags.HasFlag(SkillTag.Awakening)
                 ? definition with { Tags = definition.Tags | SkillTag.Locked | SkillTag.Limited }
                 : definition;
-            if (normalized.PhaseSkill is { } phaseSkill &&
-                (phaseSkill.SkillId != normalized.Id || phaseSkill.Revision < 1 ||
-                 !Enum.IsDefined(phaseSkill.Window) || normalized.Program is not null))
-                throw new InvalidOperationException($"Invalid phase skill binding for '{normalized.Id}'.");
-            if (normalized.PindianResultSkill is { } pindianSkill &&
-                (pindianSkill.SkillId != normalized.Id || pindianSkill.Revision < 1 || normalized.Program is not null))
-                throw new InvalidOperationException($"Invalid Pindian result skill binding for '{normalized.Id}'.");
             if (normalized.Program is null)
                 return normalized;
 

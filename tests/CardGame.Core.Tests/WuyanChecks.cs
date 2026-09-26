@@ -12,14 +12,13 @@ internal static class WuyanChecks
                 GameEngine.IsTrickCardDamage(CardKind.Lightning) &&
                 !GameEngine.IsTrickCardDamage(CardKind.Slash),
             "Wuyan must recognize immediate and delayed trick damage without treating Slash as trick damage.");
-        Require(GameEngine.CanWuyanPreventDamage(77, true, CardKind.Duel, true, false) &&
-                GameEngine.CanWuyanPreventDamage(77, true, CardKind.FireAttack, false, true) &&
-                !GameEngine.CanWuyanPreventDamage(76, true, CardKind.Duel, true, false) &&
-                !GameEngine.CanWuyanPreventDamage(77, false, CardKind.Duel, true, false) &&
-                !GameEngine.CanWuyanPreventDamage(77, true, CardKind.Slash, true, true),
+        Require(GameEngine.CanWuyanPreventDamage(true, CardKind.Duel, true, false) &&
+                GameEngine.CanWuyanPreventDamage(true, CardKind.FireAttack, false, true) &&
+                !GameEngine.CanWuyanPreventDamage(false, CardKind.Duel, true, false) &&
+                !GameEngine.CanWuyanPreventDamage(true, CardKind.Slash, true, true),
             "Wuyan must be versioned to rules v77, classic identity, trick damage, and either participating owner.");
 
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 62, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var sourceVerified = false;
         var targetVerified = false;
         for (var seed = 1; seed <= 4096 && (!sourceVerified || !targetVerified); seed++)

@@ -6,7 +6,7 @@ internal static class YuanShaoChecks
 {
     public static void LuanjiAndXueyiReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 53, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var game = FindFixture(registry);
         var prompt = game.PendingDecision!;
         var owner = game.CreateSnapshot(0, revealAll: true).Players[0];

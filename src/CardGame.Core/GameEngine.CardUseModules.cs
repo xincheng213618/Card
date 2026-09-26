@@ -181,16 +181,21 @@ public sealed partial class GameEngine
         ProgramSkillFrame frame,
         SkillRuleQuery query,
         SkillRuleOperation operation,
-        int amount)
+        int amount,
+        IReadOnlyList<CardKind> cardKinds)
     {
         ValidateProgramTurnEffectGrant(frame);
         var valid = query == SkillRuleQuery.SlashLimit && operation == SkillRuleOperation.Add && amount > 0 ||
                     (query is SkillRuleQuery.SlashDistanceLimit or SkillRuleQuery.AttackRange) &&
-                    operation == SkillRuleOperation.Unlimited && amount == 0;
+                    operation == SkillRuleOperation.Unlimited && amount == 0 ||
+                    query == SkillRuleQuery.CardTargetCount && operation == SkillRuleOperation.Add &&
+                    amount > 0 && cardKinds.Count > 0;
+        if (query != SkillRuleQuery.CardTargetCount && cardKinds.Count > 0)
+            throw new InvalidOperationException("Only card target-count modifiers accept card kinds.");
         if (!valid) throw new InvalidOperationException("The turn rule modifier is unsupported.");
         var granted = _turnCardUseEffects.GrantRuleModifier(
             _turnNumber, _currentSeat, frame.Id, frame.InstructionIndex - 1,
-            CreateProgramTurnEffectSource(frame), query, operation, amount);
+            CreateProgramTurnEffectSource(frame), query, operation, amount, cardKinds);
         QueueGameEvent(new TurnRuleModifierGrantedEvent(granted));
     }
 

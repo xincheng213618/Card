@@ -11,12 +11,7 @@ internal static class LiaoHuaChecks
 
     public static void ContentAndRulesBoundary()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 88, 0));
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 87, 0));
-        Require(current.Packages.Any(package =>
-                package.Id == "standard-classic-generals" &&
-                package.Version == new Version(1, 88, 0)),
-            "The current registry must load classic-general package 1.88.0.");
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
 
         var general = current.Generals[GeneralId];
         Require(general.FactionId == "shu" && general.BaseHp == 4 &&
@@ -51,11 +46,6 @@ internal static class LiaoHuaChecks
                 fuli.ActionForms == SkillActionForm.None,
             $"Fuli metadata drifted: kind={fuli.LegacyKind}, tags={fuli.Tags}, " +
             $"execution={fuli.ExecutionForms}, actions={fuli.ActionForms}.");
-        Require(!previous.Generals.ContainsKey(GeneralId) &&
-                !previous.Skills.ContainsKey(DangxianSkillId) &&
-                !previous.Skills.ContainsKey(FuliSkillId) &&
-                current.ContentHash != previous.ContentHash,
-            "Package 1.88.0 must add Liao Hua without mutating the 1.87.0 registry boundary.");
 
     }
 

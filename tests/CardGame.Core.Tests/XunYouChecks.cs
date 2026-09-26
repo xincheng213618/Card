@@ -10,13 +10,7 @@ internal static class XunYouChecks
 
     public static void ContentAndRulesBoundary()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 120, 0));
-        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 119, 0));
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 86, 0));
-        Require(current.Packages.Any(package =>
-                package.Id == "standard-classic-generals" &&
-                package.Version == new Version(1, 120, 0)),
-            "The current registry must load classic-general package 1.120.0.");
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
 
         var general = current.Generals[GeneralId];
         Require(general.FactionId == "wei" && general.BaseHp == 3 &&
@@ -50,15 +44,6 @@ internal static class XunYouChecks
                 },
             $"Zhiyu metadata drifted: kind={zhiyu.LegacyKind}, tags={zhiyu.Tags}, " +
             $"execution={zhiyu.ExecutionForms}, actions={zhiyu.ActionForms}.");
-        Require(historical.Skills[QiceSkillId].LegacyKind == SkillKind.Qice &&
-                historical.Skills[ZhiyuSkillId].LegacyKind == SkillKind.Zhiyu &&
-                historical.Skills[QiceSkillId].Program is null &&
-                historical.Skills[ZhiyuSkillId].Program is null &&
-                !previous.Generals.ContainsKey(GeneralId) &&
-                !previous.Skills.ContainsKey(QiceSkillId) &&
-                !previous.Skills.ContainsKey(ZhiyuSkillId) &&
-                current.ContentHash != historical.ContentHash && historical.ContentHash != previous.ContentHash,
-            "Package 1.120.0 must migrate Xun You without mutating its 1.119.0 legacy or 1.86.0 content boundaries.");
 
     }
 

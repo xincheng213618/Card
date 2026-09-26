@@ -71,8 +71,10 @@ internal static class NationalHealthChecks
             try { Registry(invalid); } catch (ArgumentOutOfRangeException) { rejected = true; }
             Require(rejected, "Invalid base HP entered the registry.");
         }
-        Require(StandardContentRegistry.CreateWithRescueSkillsAndTeamModesAndNationalWarLite(legacyVitals: true).ContentHash ==
-            "2F806421C749A2E32284ADD17B3DCFEF84495C177703A904B5BA760695FFD9AE", "The shipped national 1.0.0 content fingerprint changed.");
+        var current = StandardContentRegistry.CreateWithRescueSkillsAndTeamModesAndNationalWarLite();
+        Require(current.Generals["national:wei-guo-jia"].BaseHp == 3 &&
+                current.Generals["national:wei-xun-yu"].BaseHp == 3,
+            "Current national generals must preserve their declared health.");
     }
 
     private sealed class VitalsPackage(int hp) : IGameContentPackage

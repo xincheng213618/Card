@@ -51,12 +51,9 @@ internal static class CardMovementProgramChecks
             "{\"schemaVersion\":1,\"skills\":{\"fixture:wrong-window\":{\"name\":\"Wrong\",\"description\":\"Wrong\"}}}";
         Reject(wrongWindow, wrongPresentation, "only by cardsMoved");
 
-        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 99, 0));
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         foreach (var skillId in new[] { "classic:xiaoji", "classic:lianying" })
         {
-            Require(historical.Skills[skillId].Program is null,
-                $"Package 1.99 must retain historical {skillId} metadata without reviving its removed route.");
             Require(current.Skills[skillId].Program is
                     { UsesCompositionKernel: true, MinimumRulesVersion: 128 } migrated &&
                     migrated.Triggers.Single().Window == SkillProgramTriggerWindow.CardsMoved,

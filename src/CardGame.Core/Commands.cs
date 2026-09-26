@@ -91,7 +91,6 @@ public sealed record CommandError(CommandErrorCode Code, string Message);
 [JsonDerivedType(typeof(SelectGeneralCommand), "select-general")]
 [JsonDerivedType(typeof(RevealGeneralCommand), "reveal-general")]
 [JsonDerivedType(typeof(AnswerPromptCommand), "answer-prompt")]
-[JsonDerivedType(typeof(RespondCommand), "respond")]
 [JsonDerivedType(typeof(UseSkillCommand), "use-skill")]
 [JsonDerivedType(typeof(UseEquipmentEffectCommand), "use-equipment-effect")]
 [JsonDerivedType(typeof(UseProgramSkillCommand), "use-program-skill")]
@@ -212,16 +211,6 @@ public sealed record RevealGeneralCommand(
 
 /// <summary>Answers a published prompt by its exact stable choice identifier.</summary>
 public sealed record AnswerPromptCommand(
-    int ActorSeat,
-    PromptId Prompt,
-    ChoiceId Choice,
-    long ExpectedRevision) : GameCommand(ActorSeat, ExpectedRevision)
-{
-    public PromptId PromptId => Prompt;
-}
-
-/// <summary>Compatibility spelling for callers that model Dodge as a response.</summary>
-public sealed record RespondCommand(
     int ActorSeat,
     PromptId Prompt,
     ChoiceId Choice,

@@ -11,12 +11,10 @@ internal static class BoundaryGanNingChecks
     public static void DefinitionAndReusableSchema()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var old = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 139, 0));
         var general = current.Generals[GeneralId];
         var skill = current.Skills[SkillId];
         var trigger = skill.Program!.Triggers.Single();
-        Require(!old.Generals.ContainsKey(GeneralId) && !old.Skills.ContainsKey(SkillId) &&
-            old.Generals["classic:gan-ning"].SkillIds.SequenceEqual(["classic:qixi"]) &&
+        Require(current.Generals["classic:gan-ning"].SkillIds.SequenceEqual(["classic:qixi"]) &&
             general.Name == "界甘宁" && general.BaseHp == 4 && general.FactionId == "wu" &&
             general.SkillIds.SequenceEqual(["boundary:qixi", SkillId]) &&
             current.Skills["boundary:qixi"].LegacyKind == SkillKind.Qixi &&

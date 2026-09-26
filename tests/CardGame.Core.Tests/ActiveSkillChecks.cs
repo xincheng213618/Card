@@ -199,7 +199,7 @@ internal static class ActiveSkillChecks
             skill.LegacyKind == SkillKind.Qingnang,
             "The Qingnang content definition must retain a typed legacy projection.");
 
-        var directEffect = SkillRegistry.GetActive(SkillKind.Qingnang)!.GetEffect(new ActiveSkillContext(
+        var directEffect = ActiveActionCatalog.Find(SkillKind.Qingnang)!.GetEffect(new ActiveSkillContext(
             new PlayerSkillContext(0, 3, 4, 4, TurnPhase.Play),
             SelectedCardCount: 1,
             SelectedTargetCount: 1));
@@ -310,7 +310,7 @@ internal static class ActiveSkillChecks
             skill.LegacyKind == SkillKind.Huichun,
             "The Huichun content definition must retain a typed legacy projection.");
 
-        var directEffect = SkillRegistry.GetActive(SkillKind.Huichun)!.GetEffect(new ActiveSkillContext(
+        var directEffect = ActiveActionCatalog.Find(SkillKind.Huichun)!.GetEffect(new ActiveSkillContext(
             new PlayerSkillContext(0, 3, 4, 4, TurnPhase.Play),
             SelectedCardCount: 2,
             SelectedTargetCount: 2));
@@ -567,7 +567,7 @@ internal static class ActiveSkillChecks
             skill.LegacyKind == SkillKind.Rende,
             "The target-selection active skill must retain a typed legacy projection.");
 
-        var directEffect = SkillRegistry.GetActive(SkillKind.Rende)!.GetEffect(new ActiveSkillContext(
+        var directEffect = ActiveActionCatalog.Find(SkillKind.Rende)!.GetEffect(new ActiveSkillContext(
             new PlayerSkillContext(0, 3, 4, 4, TurnPhase.Play),
             SelectedCardCount: 2,
             SelectedTargetCount: 1));
@@ -687,7 +687,7 @@ internal static class ActiveSkillChecks
                 AiPolicyVersion = 2
             }, registry);
             var human = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-            if (human.Skill == SkillKind.Kujin)
+            if (human.Skills?.Any(skill => skill.Kind == SkillKind.Kujin) == true)
             {
                 return game;
             }
@@ -713,7 +713,7 @@ internal static class ActiveSkillChecks
                 AiPolicyVersion = 2
             }, registry);
             var human = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-            if (human.Skill != SkillKind.Kujin || !game.Submit(new StartGameCommand()).Accepted)
+            if (human.Skills?.Any(skill => skill.Kind == SkillKind.Kujin) != true || !game.Submit(new StartGameCommand()).Accepted)
             {
                 continue;
             }
@@ -768,7 +768,7 @@ internal static class ActiveSkillChecks
                 AiPolicyVersion = 2
             }, registry);
             var human = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-            if (human.Skill == SkillKind.Zhiheng)
+            if (human.Skills?.Any(skill => skill.Kind == SkillKind.Zhiheng) == true)
             {
                 return game;
             }
@@ -794,7 +794,7 @@ internal static class ActiveSkillChecks
                 AiPolicyVersion = 2
             }, registry);
             var human = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-            if (human.Skill == SkillKind.Rende)
+            if (human.Skills?.Any(skill => skill.Kind == SkillKind.Rende) == true)
             {
                 return game;
             }
@@ -820,7 +820,7 @@ internal static class ActiveSkillChecks
                 AiPolicyVersion = 2
             }, registry);
             var initial = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-            if (initial.Skill != SkillKind.Qingnang || !game.Submit(new StartGameCommand()).Accepted)
+            if (initial.Skills?.Any(skill => skill.Kind == SkillKind.Qingnang) != true || !game.Submit(new StartGameCommand()).Accepted)
             {
                 continue;
             }
@@ -877,7 +877,7 @@ internal static class ActiveSkillChecks
                 AiPolicyVersion = 2
             }, registry);
             var initial = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-            if (initial.Skill != SkillKind.Huichun || !game.Submit(new StartGameCommand()).Accepted)
+            if (initial.Skills?.Any(skill => skill.Kind == SkillKind.Huichun) != true || !game.Submit(new StartGameCommand()).Accepted)
             {
                 continue;
             }

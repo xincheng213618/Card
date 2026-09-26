@@ -34,9 +34,10 @@ internal static class QuhuUiChecks
                        viewModel.IsSkillSelectionPending &&
                        prompt is
                        {
-                           Kind: DecisionKind.QuhuDamageTarget,
+                           Kind: DecisionKind.ProgramTrigger,
                            PlayerSeat: var playerSeat,
-                           IsPrivate: true
+                           IsPrivate: true,
+                           SkillPrompt.SkillId: "classic:quhu"
                        } &&
                        playerSeat == boundary.SourceSeat &&
                        viewModel.SkillChoices.Count == prompt.ValidTargetSeats.Count &&

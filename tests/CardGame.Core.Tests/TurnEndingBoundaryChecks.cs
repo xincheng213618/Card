@@ -9,21 +9,16 @@ internal static class TurnEndingBoundaryChecks
 
     public static void ContentPreservesLegacyBoundaryAndPublishesPrograms()
     {
-        var legacy = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 98, 0));
         var current = StandardContentRegistry.CreateWithClassicGenerals();
 
-        foreach (var (skillId, legacyKind, priority) in new[]
+        foreach (var (skillId, priority) in new[]
                  {
-                     ("classic:jushou", SkillKind.Jushou, 100),
-                     ("classic:biyue", SkillKind.Biyue, -100)
+                     ("classic:jushou", 100),
+                     ("classic:biyue", -100)
                  })
         {
-            var historical = legacy.Skills[skillId];
             var migrated = current.Skills[skillId];
-            Require(historical.LegacyKind == legacyKind && historical.Program is null &&
-                    historical.PhaseSkill is null,
-                $"Package 1.98 must retain historical {skillId} metadata without the removed runtime path.");
-            Require(migrated.LegacyKind is null && migrated.PhaseSkill is null &&
+            Require(migrated.LegacyKind is null &&
                     migrated.Program is { UsesCompositionKernel: true, MinimumRulesVersion: 128 } program &&
                     program.Triggers.Single() is
                     {
@@ -43,8 +38,7 @@ internal static class TurnEndingBoundaryChecks
                 ],
             "Jushou must draw three then use the exact face-down state primitive, not the toggle primitive.");
 
-        Require(legacy.Skills["classic:jujian"] is { LegacyKind: SkillKind.Jujian, Program: null } &&
-                current.Skills["classic:jujian"] is
+        Require(current.Skills["classic:jujian"] is
                 {
                     LegacyKind: null,
                     Program: { UsesCompositionKernel: true, MinimumRulesVersion: 135 } jujian

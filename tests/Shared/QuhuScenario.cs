@@ -28,7 +28,7 @@ internal static class QuhuScenario
         string outcome)
     {
         const int sourceSeat = 0;
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 45, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 16_384; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
@@ -61,7 +61,8 @@ internal static class QuhuScenario
                 if (pending is { Kind: DecisionKind.PlayCard, PlayerSeat: sourceSeat })
                 {
                     var action = game.GetHumanLegalActions().SingleOrDefault(candidate =>
-                        candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Quhu);
+                        candidate.Kind == LegalActionKind.UseProgramSkill &&
+                        candidate.ProgramSkillId == "classic:quhu" && candidate.ProgramActivationId == "contest");
                     if (action is null)
                     {
                         break;
@@ -86,9 +87,8 @@ internal static class QuhuScenario
                     }
 
                     var before = game.CreateCheckpoint();
-                    var used = game.Submit(new UseSkillCommand(
-                        sourceSeat,
-                        SkillKind.Quhu,
+                    var used = game.Submit(new UseProgramSkillCommand(
+                        sourceSeat, "classic:quhu", "contest",
                         [pair.Card.Id],
                         [pair.Seat],
                         game.Revision,

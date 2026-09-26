@@ -22,7 +22,10 @@ internal static class ShuangxiongUiChecks
         var root = (FrameworkElement)window.Content;
         var prompt = Program.Engine(viewModel).PendingDecision;
         Program.Assert(!viewModel.HasSaveError && viewModel.IsSkillSelectionPending &&
-                       prompt is { Kind: DecisionKind.Shuangxiong, IsPrivate: true } &&
+                       prompt is { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } &&
+                       prompt.Choices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("skill-id") == "classic:shuangxiong" &&
+                           choice.Parameters.GetValueOrDefault("program-action") == "activate") &&
                        viewModel.SkillChoices.Count == 2 &&
                        viewModel.HumanSkillCards.Any(skill =>
                            skill.Name == "双雄" &&
@@ -39,7 +42,7 @@ internal static class ShuangxiongUiChecks
 
     private static GameEngine Find()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 46, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 16_384; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
@@ -53,9 +56,12 @@ internal static class ShuangxiongUiChecks
             if (selection is not { Kind: DecisionKind.SelectGeneral, PlayerSeat: 0 } ||
                 !selection.ValidContentIds.Contains("classic:yan-liang-wen-chou")) continue;
             if (!game.Submit(new SelectGeneralCommand(0, "classic:yan-liang-wen-chou", game.Revision, selection.PromptId)).Accepted) continue;
-            for (var step = 0; step < 32 && game.PendingDecision?.Kind != DecisionKind.Shuangxiong; step++)
+            for (var step = 0; step < 32 &&
+                 game.PendingDecision is not { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 }; step++)
                 if (!game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted) break;
-            if (game.PendingDecision?.Kind == DecisionKind.Shuangxiong) return game;
+            if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 } prompt &&
+                prompt.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("skill-id") == "classic:shuangxiong")) return game;
         }
         throw new InvalidOperationException("No bounded Shuangxiong WPF fixture was found.");
     }

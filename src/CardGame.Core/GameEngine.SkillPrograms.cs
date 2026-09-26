@@ -14,39 +14,39 @@ public sealed partial class GameEngine
     // Compatibility inspection surface for existing diagnostics and tests. The
     // result is projected by the match-local index and does not scan registry values.
     private IReadOnlyList<SkillProgram> EnabledSkillPrograms(CharacterState player) =>
-        _rulesVersion < 79 || _contentRegistry is null
+        _contentRegistry is null
             ? []
             : GetSkillBindingShard(player)!.Programs;
 
     private IReadOnlyList<SkillProgram> EnabledActivationPrograms(CharacterState player) =>
-        _rulesVersion < 79 || _contentRegistry is null
+        _contentRegistry is null
             ? []
             : GetSkillBindingShard(player)!.ActivationPrograms;
 
     private IReadOnlyList<SkillProgram> EnabledContributionPrograms(CharacterState player) =>
-        _rulesVersion < 79 || _contentRegistry is null
+        _contentRegistry is null
             ? []
             : GetSkillBindingShard(player)!.ContributionPrograms;
 
     private IReadOnlyList<SkillProgram> EnabledViewAsPrograms(CharacterState player) =>
-        _rulesVersion < 79 || _contentRegistry is null
+        _contentRegistry is null
             ? []
             : GetSkillBindingShard(player)!.ViewAsPrograms;
 
     private IReadOnlyList<SkillProgram> EnabledCardIdentityPrograms(CharacterState player) =>
-        _rulesVersion < 79 || _contentRegistry is null
+        _contentRegistry is null
             ? []
             : GetSkillBindingShard(player)!.CardIdentityPrograms;
 
     private IReadOnlyList<SkillProgram> EnabledPassiveRulePrograms(CharacterState player) =>
-        _rulesVersion < 79 || _contentRegistry is null
+        _contentRegistry is null
             ? []
             : GetSkillBindingShard(player)!.PassiveRulePrograms;
 
     private IReadOnlyList<IndexedSkillProgramTrigger> EnabledUniqueProgramTriggers(
         CharacterState player,
         SkillProgramTriggerWindow window) =>
-        _rulesVersion < 79 || _contentRegistry is null
+        _contentRegistry is null
             ? []
             : GetSkillBindingShard(player)!.GetUniqueTriggers(window);
 
@@ -119,7 +119,8 @@ public sealed partial class GameEngine
                         SkillProgramTargetKind.OtherLiving => target.Seat != owner.Seat,
                         SkillProgramTargetKind.OtherLivingWithHand =>
                             target.Seat != owner.Seat && GetHand(target).Count > 0,
-                        SkillProgramTargetKind.OtherLivingAtDistanceOne =>
+SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
+                            target.Seat != owner.Seat && GetHand(target).Count > 0 && target.Hp > owner.Hp,                                                SkillProgramTargetKind.OtherLivingAtDistanceOne =>
                             target.Seat != owner.Seat && GetCombatDistance(owner.Seat, target.Seat) == 1,
                         SkillProgramTargetKind.AnyLiving => true,
                         SkillProgramTargetKind.OtherWounded =>
@@ -157,8 +158,6 @@ public sealed partial class GameEngine
                 SelectableTargetSeats = Array.AsReadOnly(targets)
             };
         }
-
-        if (_rulesVersion < 85) yield break;
         foreach (var skillOwner in _players.Where(player => player.IsAlive && player.Seat != owner.Seat).OrderBy(player => player.Seat))
         foreach (var program in EnabledContributionPrograms(skillOwner))
         foreach (var contribution in program.Contributions)
@@ -377,7 +376,8 @@ public sealed partial class GameEngine
     private SkillProgramStepOutcome BeginProgramSkillDamage(
         ProgramSkillFrame frame,
         int targetSeat,
-        int amount)
+        int amount,
+        ProgramParticipantReference? sourceReference = null)
     {
         if (_pendingAttack is not null || _pendingDying is not null ||
             _resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
@@ -385,7 +385,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A program damage effect requires one active program and living target.");
         var attack = new AttackResolution(
             frame.Id,
-            frame.OwnerSeat,
+            sourceReference is { } reference ? ResolveProgramParticipant(frame, reference) : frame.OwnerSeat,
             targetSeat,
             card: null,
             damageAmount: amount,
@@ -418,7 +418,6 @@ public sealed partial class GameEngine
             frame.OwnerSeat,
             targetSeat,
             frame.SelectedCardIds[0],
-            legacySkill: null,
             programResultBind: SimpleProgramPindianResultBind,
             programResultVisibility: SkillProgramCardSetVisibility.Public);
         return SkillProgramStepOutcome.AwaitChild;
@@ -491,7 +490,7 @@ public sealed partial class GameEngine
         foreach (var frame in frames)
         {
             var program = _contentRegistry?.Skills.GetValueOrDefault(frame.SkillId)?.Program;
-            if (_rulesVersion < 79 || !IsValidPlayerSeat(frame.OwnerSeat) ||
+            if (!IsValidPlayerSeat(frame.OwnerSeat) ||
                 string.IsNullOrWhiteSpace(frame.SkillInstanceId) ||
                 program?.GameplayHash != frame.GameplayHash)
                 throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
@@ -563,7 +562,7 @@ public sealed partial class GameEngine
                     frame.SelectedTargetSeats.Count >= executedSelection.MinimumTargets &&
                     frame.SelectedTargetSeats.Count <= executedSelection.MaximumTargets &&
                     frame.SelectedTargetSeats.Distinct().Count() == frame.SelectedTargetSeats.Count,
-                _ => false
+                        _ => false
             };
             if (!dynamicTargetsValid)
                 throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
@@ -581,7 +580,7 @@ public sealed partial class GameEngine
                     SkillProgramEffectOp.ChooseDifferentCategoryDiscard => binding.OptionId is
                         ChooseDifferentCategoryDiscardProgramOperationDescriptor.DiscardedOption or
                         ChooseDifferentCategoryDiscardProgramOperationDescriptor.DeclinedOption,
-                    _ => false
+                        _ => false
                 };
                 var chooserSeat = producer?.Op == SkillProgramEffectOp.ChooseDifferentCategoryDiscard
                     ? ResolveProgramParticipant(frame, producer.ChooserRef!)

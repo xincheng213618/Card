@@ -21,7 +21,8 @@ internal static class JijiuChecks
                 "The WPF general choice must expose Jijiu's red-card rescue rule.");
 
             var engine = Program.Engine(viewModel);
-            Program.Assert(engine.State.Players.Single(player => player.Seat == 0).Skill == SkillKind.Jijiu,
+            Program.Assert(engine.State.Players.Single(player => player.Seat == 0).Skills?
+                    .Any(skill => skill.Kind == SkillKind.Jijiu) == true,
                 "The selected WPF general must project Jijiu into the Core engine.");
             var prompt = viewModel.DyingChoices.First(choice =>
                 choice.Parameters.GetValueOrDefault("response") == "peach" &&
@@ -56,7 +57,7 @@ internal static class JijiuChecks
 
     public static void EquipmentControls(string output)
     {
-        var fixture = JijiuEquipmentScenario.Find(new Version(1, 56, 0));
+        var fixture = JijiuEquipmentScenario.Find();
         var owner = fixture.CreateSnapshot(0, revealAll: true).Players[0];
         var equipmentChoice = fixture.PendingDecision!.Choices.Single(choice =>
             choice.Parameters.GetValueOrDefault("response") == "peach" &&

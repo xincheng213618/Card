@@ -6,7 +6,7 @@ internal static class ZhouTaiChecks
 {
     public static void BuquWoundsHandLimitAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 52, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var fixture = FindFirstWound(registry);
         var game = fixture.Game;
         var owner = game.CreateSnapshot(0, revealAll: true).Players[0];

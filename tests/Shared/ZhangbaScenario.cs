@@ -19,7 +19,7 @@ internal static class ZhangbaScenario
 {
     public static ZhangbaBoundary FindHumanActiveUse()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 16_384; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
@@ -125,7 +125,7 @@ internal static class ZhangbaScenario
 
     public static ZhangbaResponseBoundary FindHumanResponse()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 16_384; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions

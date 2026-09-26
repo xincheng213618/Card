@@ -654,9 +654,6 @@ public sealed partial record PlayerSnapshot(
     string GeneralId,
     string GeneralName,
     string PortraitKey,
-    SkillKind Skill,
-    string SkillName,
-    string SkillDescription,
     int Hp,
     int MaxHp,
     bool IsAlive,
@@ -684,9 +681,8 @@ public sealed partial record PlayerSnapshot
     public IReadOnlyList<CardSnapshot>? WoodenOxGrain { get; init; }
 
     /// <summary>
-    /// Ordered skills visible with the primary general. The singular Skill,
-    /// SkillName and SkillDescription fields remain the v1-v9 compatibility
-    /// projection for older hosts and serialized snapshots.
+    /// Ordered skills visible with the primary general. Null means this viewer
+    /// cannot see the general; an empty collection means no visible skills.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<GeneralSkillDefinition>? Skills { get; init; }
@@ -760,18 +756,9 @@ public sealed partial record PlayerSnapshot
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? SecondaryPortraitKey { get; init; }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public SkillKind? SecondarySkill { get; init; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? SecondarySkillName { get; init; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? SecondarySkillDescription { get; init; }
-
     /// <summary>
-    /// Ordered skills visible with the secondary general. Rules v89 adds the
-    /// national-war multi-skill projection; older checkpoints keep this null.
+    /// Ordered skills visible with the secondary general. Null means this
+    /// viewer cannot see the slot; an empty collection means no visible skills.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<GeneralSkillDefinition>? SecondarySkills { get; init; }

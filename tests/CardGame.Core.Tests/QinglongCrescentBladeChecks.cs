@@ -6,7 +6,7 @@ internal static class QinglongCrescentBladeChecks
 {
     public static void SameTargetFollowupAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var boundary = QinglongCrescentBladeScenario.FindHumanTrigger();
         var game = boundary.Game;
         var prompt = game.PendingDecision ??
@@ -95,7 +95,7 @@ internal static class QinglongCrescentBladeChecks
 
     public static void AiUsesPrivatePublishedChoice()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 56, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         GameEngine? witnessed = null;
         for (var seed = 1; seed <= 64 && witnessed is null; seed++)
         {
@@ -140,7 +140,7 @@ internal static class QinglongCrescentBladeChecks
 
     public static void JijiangProviderOpensFollowupSlash()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var boundary = QinglongCrescentBladeScenario.FindHumanTrigger(requireJijiang: true);
         var game = boundary.Game;
         var prompt = game.PendingDecision ??

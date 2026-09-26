@@ -31,10 +31,7 @@ public enum ActiveSkillEffectKind
     PayHpOrDiscardWeaponAndDamage,
     DiscardAndStartDuel,
     DiscardAndRecoverSelfAndTarget,
-    PindianAndDamage,
-    PindianForSlashBonus,
     StartArrowBarrage,
-    RemoveAuthorityDrawAndDamage, // Reserved serialized value; the specialized executor was retired.
     ChooseOrdinaryTrick,
     UseTwoHandCardsAsSlash,
     DiscardForUnlimitedRange,
@@ -84,155 +81,9 @@ public sealed record ResponseCountSkillContext(
     CardKind RequiredCardKind);
 
 /// <summary>
-/// Skills answer small rule questions. State mutation remains in GameEngine, so
-/// a skill cannot silently bypass card movement, logging, death, or victory checks.
+/// Identity for the absence of a printed or granted skill.
 /// </summary>
-public interface IPassiveSkill
-{
-    SkillKind Kind { get; }
-
-    string Name { get; }
-
-    int ModifyDrawCount(PlayerSkillContext owner, int currentCount) => currentCount;
-
-    int ModifySlashLimit(PlayerSkillContext owner, int currentLimit) => currentLimit;
-
-    int ModifyOutgoingDistance(PlayerSkillContext owner, int currentDistance) => currentDistance;
-
-    int ModifyIncomingDistance(PlayerSkillContext owner, int currentDistance) => currentDistance;
-
-    bool IgnoresTrickDistance(PlayerSkillContext owner, CardKind trickKind) => false;
-
-    bool ProhibitsSlashTarget(PlayerSkillContext owner) => false;
-
-    /// <summary>
-    /// Returns whether the owner cannot be selected by this effective card
-    /// kind. The default projects the historical Slash-only hook so existing
-    /// skills and old rules paths keep their original behavior.
-    /// </summary>
-    bool ProhibitsCardTarget(PlayerSkillContext owner, CardKind cardKind) =>
-        (cardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) &&
-        ProhibitsSlashTarget(owner);
-
-    bool CanUseAsSlash(PlayerSkillContext owner, Card card) => false;
-
-    /// <summary>
-    /// Returns whether the owner can treat this physical card as Dismantlement.
-    /// The engine remains responsible for validating the source zone, targets,
-    /// movement ledger and effective-card events.
-    /// </summary>
-    bool CanUseAsDismantlement(PlayerSkillContext owner, Card card) => false;
-
-    /// <summary>
-    /// Returns whether the owner can treat this physical card as Supply
-    /// Shortage. The engine owns the source zone, distance, delayed-card
-    /// identity and judgment lifecycle.
-    /// </summary>
-    bool CanUseAsSupplyShortage(PlayerSkillContext owner, Card card) => false;
-
-    bool CanUseAsIndulgence(PlayerSkillContext owner, Card card) => false;
-
-    int ModifySupplyShortageDistanceLimit(PlayerSkillContext owner, int currentLimit) =>
-        currentLimit;
-
-    /// <summary>
-    /// Returns whether the owner may skip the current discard phase. The engine
-    /// supplies whether a Slash was used or played during this turn's play phase
-    /// and remains responsible for the optional prompt and phase transition.
-    /// </summary>
-    bool CanSkipDiscardPhase(
-        PlayerSkillContext owner,
-        bool usedOrPlayedSlashDuringPlayPhase) => false;
-
-    bool CanUseAsResponse(
-        PlayerSkillContext owner,
-        Card card,
-        CardKind requiredCardKind) => false;
-
-    /// <summary>
-    /// Modifies the number of consecutive responses required from one player.
-    /// Each response still resolves through its own private prompt, physical
-    /// card movement and equipment or faction-skill continuation.
-    /// </summary>
-    int ModifyRequiredResponseCount(
-        ResponseCountSkillContext context,
-        int currentCount) => currentCount;
-
-    /// <summary>
-    /// Returns whether this skill can treat a physical owned card as Peach in
-    /// a dying response. The physical card remains unchanged in the movement
-    /// ledger; the engine owns the effective Peach resolution.
-    /// </summary>
-    bool CanUseAsDyingRescue(PlayerSkillContext owner, Card card) => false;
-
-    /// <summary>
-    /// Declares which seat relationship can enter the after-damage window.
-    /// The default keeps the historical rule that the skill belongs to the
-    /// damaged character; cross-seat skills opt in with an explicit scope.
-    /// </summary>
-    DamageTriggerScope AfterDamageTriggerScope => DamageTriggerScope.DamagedPlayer;
-
-    bool CanTriggerAfterDamage(DamageSkillContext context)
-    {
-        if (context.Amount <= 0)
-        {
-            return false;
-        }
-
-        if (context.TargetSeat is not { } targetSeat)
-        {
-            return AfterDamageTriggerScope == DamageTriggerScope.DamagedPlayer;
-        }
-
-        return AfterDamageTriggerScope switch
-        {
-            DamageTriggerScope.DamagedPlayer => targetSeat == context.Owner.Seat,
-            DamageTriggerScope.DamageSource => context.SourceSeat == context.Owner.Seat,
-            DamageTriggerScope.OtherLivingPlayer => targetSeat != context.Owner.Seat,
-            DamageTriggerScope.AnyLivingPlayer => true,
-            _ => false
-        };
-    }
-
-    int DamageTriggerPriority => 0;
-
-    string DamageTriggerId => Kind.ToString();
-
-    bool OffersDamageCardChoice(DamageSkillContext context) => false;
-
-    DamageSkillEffectKind GetDamageSkillEffect(DamageSkillContext context) =>
-        DamageSkillEffectKind.None;
-
-    bool CanTriggerBeforeJudgment(JudgmentSkillContext context) => false;
-
-    bool OffersJudgmentCardChoice(JudgmentSkillContext context) =>
-        CanTriggerBeforeJudgment(context);
-
-    bool CanClaimResolvedJudgment(JudgmentSkillContext context) => false;
-
-    int JudgmentTriggerPriority => 0;
-
-    string JudgmentTriggerId => Kind.ToString();
-}
-
-/// <summary>
-/// Optional active-skill surface. Selection and state mutation remain owned by
-/// GameEngine; implementations only expose deterministic legality and effect
-/// data for the current context.
-/// </summary>
-public interface IActiveSkill
-{
-    SkillKind Kind { get; }
-
-    string Name { get; }
-
-    bool CanUse(ActiveSkillContext context) => false;
-
-    ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(ActiveSkillEffectKind.None);
-}
-
-public sealed class NoSkill : IPassiveSkill
+public sealed class NoSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.None;
     public string Name => "无";
@@ -242,19 +93,19 @@ public sealed class NoSkill : IPassiveSkill
 /// Historical package identity only. Current Wuhun execution is a schema-38
 /// program and does not dispatch through this passive object.
 /// </summary>
-public sealed class WuhunSkill : IPassiveSkill
+public sealed class WuhunSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Wuhun;
     public string Name => "武魂";
 }
 
-public sealed class ShensuSkill : IPassiveSkill
+public sealed class ShensuSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Shensu;
     public string Name => "神速";
 }
 
-public sealed class YaowuSkill : IPassiveSkill
+public sealed class YaowuSkill : ISkillRuleIdentity, IDamageSkillRule
 {
     public SkillKind Kind => SkillKind.Yaowu;
     public string Name => "耀武";
@@ -269,40 +120,35 @@ public sealed class YaowuSkill : IPassiveSkill
         CanTriggerAfterDamage(context) ? DamageSkillEffectKind.BenefitDamageSource : DamageSkillEffectKind.None;
 }
 
-public sealed class JianxiongSkill : IPassiveSkill
+public sealed class JianxiongSkill : ISkillRuleIdentity, IDamageSkillRule
 {
     public SkillKind Kind => SkillKind.Jianxiong;
     public string Name => "奸雄";
 }
 
-public sealed class HujiaSkill : IPassiveSkill
+public sealed class HujiaSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Hujia;
     public string Name => "护驾";
 }
 
-public sealed class JijiangSkill : IPassiveSkill, IActiveSkill
+public sealed class JijiangSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Jijiang;
     public string Name => "激将";
 
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.Phase == TurnPhase.Play;
 
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(
-            ActiveSkillEffectKind.RequestSlash,
-            MinTargetCount: 1,
-            MaxTargetCount: 1);
+
+
 }
 
-public sealed class JiuyuanSkill : IPassiveSkill
+public sealed class JiuyuanSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Jiuyuan;
     public string Name => "救援";
 }
 
-public sealed class QixiSkill : IPassiveSkill
+public sealed class QixiSkill : ISkillRuleIdentity, ICardConversionSkillRule
 {
     public SkillKind Kind => SkillKind.Qixi;
     public string Name => "奇袭";
@@ -312,7 +158,7 @@ public sealed class QixiSkill : IPassiveSkill
         card.Suit is Suit.Spade or Suit.Club;
 }
 
-public sealed class DuanliangSkill : IPassiveSkill
+public sealed class DuanliangSkill : ISkillRuleIdentity, INumericSkillRule, ICardConversionSkillRule
 {
     public SkillKind Kind => SkillKind.Duanliang;
     public string Name => "断粮";
@@ -328,13 +174,13 @@ public sealed class DuanliangSkill : IPassiveSkill
         int currentLimit) => Math.Max(currentLimit, 2);
 }
 
-public sealed class LuoshenSkill : IPassiveSkill
+public sealed class LuoshenSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Luoshen;
     public string Name => "洛神";
 }
 
-public sealed class QingguoSkill : IPassiveSkill
+public sealed class QingguoSkill : ISkillRuleIdentity, ICardConversionSkillRule
 {
     public SkillKind Kind => SkillKind.Qingguo;
     public string Name => "倾国";
@@ -348,25 +194,25 @@ public sealed class QingguoSkill : IPassiveSkill
         card.Suit is Suit.Spade or Suit.Club;
 }
 
-public sealed class JizhiSkill : IPassiveSkill
+public sealed class JizhiSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Jizhi;
     public string Name => "集智";
 }
 
-public sealed class TieqiSkill : IPassiveSkill
+public sealed class TieqiSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Tieqi;
     public string Name => "铁骑";
 }
 
-public sealed class LiegongSkill : IPassiveSkill
+public sealed class LiegongSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Liegong;
     public string Name => "烈弓";
 }
 
-public sealed class KuangguSkill : IPassiveSkill
+public sealed class KuangguSkill : ISkillRuleIdentity, IDamageSkillRule
 {
     public SkillKind Kind => SkillKind.Kuanggu;
     public string Name => "狂骨";
@@ -385,7 +231,7 @@ public sealed class KuangguSkill : IPassiveSkill
             : DamageSkillEffectKind.None;
 }
 
-public sealed class WushuangSkill : IPassiveSkill
+public sealed class WushuangSkill : ISkillRuleIdentity, ICardUseSkillRule
 {
     public SkillKind Kind => SkillKind.Wushuang;
     public string Name => "无双";
@@ -402,7 +248,7 @@ public sealed class WushuangSkill : IPassiveSkill
             : currentCount;
 }
 
-public sealed class KejiSkill : IPassiveSkill
+public sealed class KejiSkill : ISkillRuleIdentity, ICardUseSkillRule
 {
     public SkillKind Kind => SkillKind.Keji;
     public string Name => "克己";
@@ -415,57 +261,47 @@ public sealed class KejiSkill : IPassiveSkill
         !usedOrPlayedSlashDuringPlayPhase;
 }
 
-public sealed class TuxiSkill : IPassiveSkill
+public sealed class TuxiSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Tuxi;
     public string Name => "突袭";
 }
 
-public sealed class LuoyiSkill : IPassiveSkill
+public sealed class LuoyiSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Luoyi;
     public string Name => "裸衣";
 }
 
-public sealed class QiangxiSkill : IPassiveSkill, IActiveSkill
+public sealed class QiangxiSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Qiangxi;
     public string Name => "强袭";
 
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.Phase == TurnPhase.Play &&
-        context.Owner.Hp > 0 &&
-        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
 
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(
-            ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage,
-            HpCost: context.SelectedCardCount == 0 ? 1 : 0,
-            MinCardCount: 0,
-            MaxCardCount: 1,
-            MinTargetCount: 1,
-            MaxTargetCount: 1);
+
+
 }
 
-public sealed class FeedbackSkill : IPassiveSkill
+public sealed class FeedbackSkill : ISkillRuleIdentity, IDamageSkillRule
 {
     public SkillKind Kind => SkillKind.Feedback;
     public string Name => "反馈";
 }
 
-public sealed class YijiSkill : IPassiveSkill
+public sealed class YijiSkill : ISkillRuleIdentity, IDamageSkillRule
 {
     public SkillKind Kind => SkillKind.Yiji;
     public string Name => "遗计";
 }
 
-public sealed class JiemingSkill : IPassiveSkill
+public sealed class JiemingSkill : ISkillRuleIdentity, IDamageSkillRule
 {
     public SkillKind Kind => SkillKind.Jieming;
     public string Name => "节命";
 }
 
-public sealed class YuanhuSkill : IPassiveSkill
+public sealed class YuanhuSkill : ISkillRuleIdentity, IDamageSkillRule
 {
     public SkillKind Kind => SkillKind.Yuanhu;
     public string Name => "援护";
@@ -478,7 +314,7 @@ public sealed class YuanhuSkill : IPassiveSkill
     /// relationship; this skill adds its discardable-card and missing-HP rules.
     /// </summary>
     public bool OffersDamageCardChoice(DamageSkillContext context) =>
-        ((IPassiveSkill)this).CanTriggerAfterDamage(context) &&
+        ((IDamageSkillRule)this).CanTriggerAfterDamage(context) &&
         context.Owner.HandCount > 0 &&
         context.TargetHp is { } targetHp &&
         context.TargetMaxHp is { } targetMaxHp &&
@@ -491,7 +327,7 @@ public sealed class YuanhuSkill : IPassiveSkill
             : DamageSkillEffectKind.None;
 }
 
-public sealed class GanglieSkill : IPassiveSkill
+public sealed class GanglieSkill : ISkillRuleIdentity, IDamageSkillRule
 {
     public SkillKind Kind => SkillKind.Ganglie;
     public string Name => "刚烈";
@@ -512,7 +348,7 @@ public sealed class GanglieSkill : IPassiveSkill
             : DamageSkillEffectKind.None;
 }
 
-public sealed class GuicaiSkill : IPassiveSkill
+public sealed class GuicaiSkill : ISkillRuleIdentity, IJudgmentSkillRule
 {
     public SkillKind Kind => SkillKind.Guicai;
     public string Name => "鬼才";
@@ -529,7 +365,7 @@ public sealed class GuicaiSkill : IPassiveSkill
         CanTriggerBeforeJudgment(context);
 }
 
-public sealed class GuidaoSkill : IPassiveSkill
+public sealed class GuidaoSkill : ISkillRuleIdentity, IJudgmentSkillRule
 {
     public SkillKind Kind => SkillKind.Guidao;
     public string Name => "鬼道";
@@ -539,67 +375,67 @@ public sealed class GuidaoSkill : IPassiveSkill
     public bool OffersJudgmentCardChoice(JudgmentSkillContext context) => true;
 }
 
-public sealed class LeijiSkill : IPassiveSkill
+public sealed class LeijiSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Leiji;
     public string Name => "雷击";
 }
 
-public sealed class HuangtianSkill : IPassiveSkill
+public sealed class HuangtianSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Huangtian;
     public string Name => "黄天";
 }
 
-public sealed class YinghunSkill : IPassiveSkill
+public sealed class YinghunSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Yinghun;
     public string Name => "英魂";
 }
 
-public sealed class HuoshouSkill : IPassiveSkill
+public sealed class HuoshouSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Huoshou;
     public string Name => "祸首";
 }
 
-public sealed class ZaiqiSkill : IPassiveSkill
+public sealed class ZaiqiSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Zaiqi;
     public string Name => "再起";
 }
 
-public sealed class JuxiangSkill : IPassiveSkill
+public sealed class JuxiangSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Juxiang;
     public string Name => "巨象";
 }
 
-public sealed class LierenSkill : IPassiveSkill
+public sealed class LierenSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Lieren;
     public string Name => "烈刃";
 }
 
-public sealed class YizhongSkill : IPassiveSkill
+public sealed class YizhongSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Yizhong;
     public string Name => "毅重";
 }
 
-public sealed class WuyanSkill : IPassiveSkill
+public sealed class WuyanSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Wuyan;
     public string Name => "无言";
 }
 
-public sealed class JujianSkill : IPassiveSkill
+public sealed class JujianSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Jujian;
     public string Name => "举荐";
 }
 
-public sealed class TianduSkill : IPassiveSkill
+public sealed class TianduSkill : ISkillRuleIdentity, IJudgmentSkillRule
 {
     public SkillKind Kind => SkillKind.Tiandu;
     public string Name => "天妒";
@@ -608,7 +444,7 @@ public sealed class TianduSkill : IPassiveSkill
         context.Owner.Seat == context.TargetSeat;
 }
 
-public sealed class WushengSkill : IPassiveSkill
+public sealed class WushengSkill : ISkillRuleIdentity, ICardConversionSkillRule
 {
     public SkillKind Kind => SkillKind.Wusheng;
     public string Name => "武圣";
@@ -621,7 +457,7 @@ public sealed class WushengSkill : IPassiveSkill
         requiredCardKind == CardKind.Slash && CanUseAsSlash(owner, card);
 }
 
-public sealed class LongdanSkill : IPassiveSkill
+public sealed class LongdanSkill : ISkillRuleIdentity, ICardConversionSkillRule
 {
     public SkillKind Kind => SkillKind.Longdan;
     public string Name => "龙胆";
@@ -639,7 +475,7 @@ public sealed class LongdanSkill : IPassiveSkill
         };
 }
 
-public sealed class GuoseSkill : IPassiveSkill
+public sealed class GuoseSkill : ISkillRuleIdentity, ICardConversionSkillRule
 {
     public SkillKind Kind => SkillKind.Guose;
 
@@ -649,145 +485,122 @@ public sealed class GuoseSkill : IPassiveSkill
         owner.Phase == TurnPhase.Play && card.Suit == Suit.Diamond;
 }
 
-public sealed class ShuangxiongSkill : IPassiveSkill
+public sealed class ShuangxiongSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Shuangxiong;
     public string Name => "双雄";
 }
 
-public sealed class BazhenSkill : IPassiveSkill
+public sealed class BazhenSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Bazhen;
     public string Name => "八阵";
 }
 
-public sealed class HuojiSkill : IPassiveSkill
+public sealed class HuojiSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Huoji;
     public string Name => "火计";
 }
 
-public sealed class KanpoSkill : IPassiveSkill
+public sealed class KanpoSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Kanpo;
     public string Name => "看破";
 }
 
-public sealed class LianhuanSkill : IPassiveSkill
+public sealed class LianhuanSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Lianhuan;
     public string Name => "连环";
 }
 
-public sealed class NiepanSkill : IPassiveSkill
+public sealed class NiepanSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Niepan;
     public string Name => "涅槃";
 }
 
-public sealed class LiuliSkill : IPassiveSkill
+public sealed class LiuliSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Liuli;
 
     public string Name => "流离";
 }
 
-public sealed class LijianSkill : IPassiveSkill, IActiveSkill
+public sealed class LijianSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Lijian;
     public string Name => "离间";
 
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.IsOwnTurn &&
-        context.Owner.Phase == TurnPhase.Play &&
-        context.Owner.HandCount + context.AdditionalSelectableCardCount > 0 &&
-        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
 
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(
-            ActiveSkillEffectKind.DiscardAndStartDuel,
-            MinCardCount: 1,
-            MaxCardCount: 1,
-            MinTargetCount: 2,
-            MaxTargetCount: 2);
+
+
 }
 
-public sealed class BiyueSkill : IPassiveSkill
+public sealed class BiyueSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Biyue;
     public string Name => "闭月";
 }
 
-public sealed class JushouSkill : IPassiveSkill
+public sealed class JushouSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Jushou;
     public string Name => "据守";
 }
 
-public sealed class HongyanSkill : IPassiveSkill
+public sealed class HongyanSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Hongyan;
     public string Name => "红颜";
 }
 
-public sealed class TianxiangSkill : IPassiveSkill
+public sealed class TianxiangSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Tianxiang;
     public string Name => "天香";
 }
 
-public sealed class BuquSkill : IPassiveSkill
+public sealed class BuquSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Buqu;
     public string Name => "不屈";
 }
 
-public sealed class LuanjiSkill : IPassiveSkill, IActiveSkill
+public sealed class LuanjiSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Luanji;
     public string Name => "乱击";
 
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.IsOwnTurn && context.Owner.Phase == TurnPhase.Play && context.Owner.HandCount >= 2;
 
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(ActiveSkillEffectKind.StartArrowBarrage, MinCardCount: 2, MaxCardCount: 2);
+
+
 }
 
-public sealed class XueyiSkill : IPassiveSkill
+public sealed class XueyiSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Xueyi;
     public string Name => "血裔";
 }
 
-public sealed class JieyinSkill : IPassiveSkill, IActiveSkill
+public sealed class JieyinSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Jieyin;
     public string Name => "结姻";
 
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.IsOwnTurn &&
-        context.Owner.Phase == TurnPhase.Play &&
-        context.Owner.HandCount >= 2 &&
-        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
 
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(
-            ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget,
-            MinCardCount: 2,
-            MaxCardCount: 2,
-            MinTargetCount: 1,
-            MaxTargetCount: 1,
-            RecoveryAmount: 1);
+
+
 }
 
-public sealed class XiaojiSkill : IPassiveSkill
+public sealed class XiaojiSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Xiaoji;
     public string Name => "枭姬";
 }
 
-public sealed class PaoxiaoSkill : IPassiveSkill
+public sealed class PaoxiaoSkill : ISkillRuleIdentity, INumericSkillRule
 {
     public SkillKind Kind => SkillKind.Paoxiao;
     public string Name => "咆哮";
@@ -795,13 +608,13 @@ public sealed class PaoxiaoSkill : IPassiveSkill
     public int ModifySlashLimit(PlayerSkillContext owner, int currentLimit) => int.MaxValue;
 }
 
-public sealed class YingziSkill : IPassiveSkill
+public sealed class YingziSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Yingzi;
     public string Name => "英姿";
 }
 
-public sealed class MashuSkill : IPassiveSkill
+public sealed class MashuSkill : ISkillRuleIdentity, INumericSkillRule
 {
     public SkillKind Kind => SkillKind.Mashu;
     public string Name => "马术";
@@ -815,7 +628,7 @@ public sealed class MashuSkill : IPassiveSkill
         currentDistance - 1;
 }
 
-public sealed class YicongSkill : IPassiveSkill
+public sealed class YicongSkill : ISkillRuleIdentity, INumericSkillRule
 {
     public SkillKind Kind => SkillKind.Yicong;
     public string Name => "义从";
@@ -827,7 +640,7 @@ public sealed class YicongSkill : IPassiveSkill
         owner.Hp <= 2 ? currentDistance + 1 : currentDistance;
 }
 
-public sealed class QicaiSkill : IPassiveSkill
+public sealed class QicaiSkill : ISkillRuleIdentity, ICardUseSkillRule
 {
     public SkillKind Kind => SkillKind.Qicai;
     public string Name => "奇才";
@@ -855,7 +668,7 @@ public sealed class QicaiSkill : IPassiveSkill
             CardKind.Lightning;
 }
 
-public sealed class JijiuSkill : IPassiveSkill
+public sealed class JijiuSkill : ISkillRuleIdentity, ICardConversionSkillRule
 {
     public SkillKind Kind => SkillKind.Jijiu;
     public string Name => "急救";
@@ -871,7 +684,7 @@ public sealed class JijiuSkill : IPassiveSkill
         card.Suit is Suit.Heart or Suit.Diamond;
 }
 
-public sealed class KongchengSkill : IPassiveSkill
+public sealed class KongchengSkill : ISkillRuleIdentity, ICardUseSkillRule
 {
     public SkillKind Kind => SkillKind.Kongcheng;
     public string Name => "空城";
@@ -883,7 +696,7 @@ public sealed class KongchengSkill : IPassiveSkill
         cardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Duel;
 }
 
-public sealed class QianxunSkill : IPassiveSkill
+public sealed class QianxunSkill : ISkillRuleIdentity, ICardUseSkillRule
 {
     public SkillKind Kind => SkillKind.Qianxun;
     public string Name => "谦逊";
@@ -892,120 +705,92 @@ public sealed class QianxunSkill : IPassiveSkill
         cardKind is CardKind.Snatch or CardKind.Indulgence;
 }
 
-public sealed class LianyingSkill : IPassiveSkill
+public sealed class LianyingSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Lianying;
     public string Name => "连营";
 }
 
-public sealed class MengjinSkill : IPassiveSkill
+public sealed class MengjinSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Mengjin;
     public string Name => "猛进";
 }
 
-public sealed class QuhuSkill : IPassiveSkill, IActiveSkill
+public sealed class QuhuSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Quhu;
     public string Name => "驱虎";
 
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.IsOwnTurn &&
-        context.Owner.Phase == TurnPhase.Play &&
-        context.Owner.HandCount > 0 &&
-        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
 
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(
-            ActiveSkillEffectKind.PindianAndDamage,
-            MinCardCount: 1,
-            MaxCardCount: 1,
-            MinTargetCount: 1,
-            MaxTargetCount: 1);
+
+
 }
 
-public sealed class TianyiSkill : IPassiveSkill, IActiveSkill
+public sealed class TianyiSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Tianyi;
     public string Name => "天义";
 
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.IsOwnTurn &&
-        context.Owner.Phase == TurnPhase.Play &&
-        context.Owner.HandCount > 0 &&
-        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
 
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(
-            ActiveSkillEffectKind.PindianForSlashBonus,
-            MinCardCount: 1,
-            MaxCardCount: 1,
-            MinTargetCount: 1,
-            MaxTargetCount: 1);
+
+
 }
 
-public sealed class ZishouSkill : IPassiveSkill
+public sealed class ZishouSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Zishou;
     public string Name => "自守";
 }
 
-public sealed class ZongshiSkill : IPassiveSkill
+public sealed class ZongshiSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Zongshi;
     public string Name => "宗室";
 }
 
-public sealed class ZhenlieSkill : IPassiveSkill
+public sealed class ZhenlieSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Zhenlie;
     public string Name => "贞烈";
 }
 
-public sealed class MijiSkill : IPassiveSkill
+public sealed class MijiSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Miji;
     public string Name => "秘计";
 }
 
 // Historical name/kind metadata only. Current behavior is defined by skill programs.
-public sealed class QuanjiSkill : IPassiveSkill
+public sealed class QuanjiSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Quanji;
     public string Name => "权计";
 }
 
-public sealed class ZiliSkill : IPassiveSkill
+public sealed class ZiliSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Zili;
     public string Name => "自立";
 }
 
-public sealed class PaiyiSkill : IPassiveSkill
+public sealed class PaiyiSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Paiyi;
     public string Name => "排异";
 }
 
-public sealed class QiceSkill : IPassiveSkill, IActiveSkill
+public sealed class QiceSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Qice;
     public string Name => "奇策";
 
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.IsOwnTurn &&
-        context.Owner.Phase == TurnPhase.Play &&
-        context.Owner.HandCount > 0 &&
-        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
 
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(
-            ActiveSkillEffectKind.ChooseOrdinaryTrick,
-            MinCardCount: context.Owner.HandCount,
-            MaxCardCount: context.Owner.HandCount);
+
+
 }
 
-public sealed class ZhiyuSkill : IPassiveSkill
+public sealed class ZhiyuSkill : ISkillRuleIdentity, IDamageSkillRule
 {
     public SkillKind Kind => SkillKind.Zhiyu;
     public string Name => "智愚";
@@ -1022,94 +807,82 @@ public sealed class ZhiyuSkill : IPassiveSkill
             : DamageSkillEffectKind.None;
 }
 
-public sealed class RenxinSkill : IPassiveSkill
+public sealed class RenxinSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Renxin;
     public string Name => "仁心";
 }
 
-public sealed class JingceSkill : IPassiveSkill
+public sealed class JingceSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Jingce;
     public string Name => "精策";
 }
 
-public sealed class JunxingSkill : IPassiveSkill
+public sealed class JunxingSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Junxing;
     public string Name => "峻刑";
 }
 
-public sealed class YuceSkill : IPassiveSkill
+public sealed class YuceSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Yuce;
     public string Name => "御策";
 }
 
-public sealed class FuhunSkill : IPassiveSkill, IActiveSkill
+public sealed class FuhunSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Fuhun;
     public string Name => "父魂";
 
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.Phase == TurnPhase.Play && context.Owner.HandCount >= 2;
 
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(
-            ActiveSkillEffectKind.UseTwoHandCardsAsSlash,
-            MinCardCount: 2,
-            MaxCardCount: 2,
-            MinTargetCount: 1,
-            MaxTargetCount: 1);
+
+
 }
 
 /// <summary>Historical package identity; current Anxu is a composed program.</summary>
-public sealed class AnxuSkill : IPassiveSkill
+public sealed class AnxuSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Anxu;
     public string Name => "安恤";
 }
 
-public sealed class ZhuiyiSkill : IPassiveSkill
+public sealed class ZhuiyiSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Zhuiyi;
     public string Name => "追忆";
 }
 
-public sealed class LihuoSkill : IPassiveSkill
+public sealed class LihuoSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Lihuo;
     public string Name => "疠火";
 }
 
-public sealed class ChunlaoSkill : IPassiveSkill
+public sealed class ChunlaoSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Chunlao;
     public string Name => "醇醪";
 }
 
-public sealed class GongqiSkill : IPassiveSkill
+public sealed class GongqiSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Gongqi;
     public string Name => "弓骑";
 }
 
-public sealed class JiefanSkill : IPassiveSkill, IActiveSkill
+public sealed class JiefanSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Jiefan;
     public string Name => "解烦";
 
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.IsOwnTurn && context.Owner.Phase == TurnPhase.Play;
 
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(
-            ActiveSkillEffectKind.AidByAttackRange,
-            MinTargetCount: 1,
-            MaxTargetCount: 1);
+
+
 }
 
-public sealed class KujinSkill : IPassiveSkill, IActiveSkill
+public sealed class KujinSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Kujin;
     public string Name => "苦肉";
@@ -1119,14 +892,12 @@ public sealed class KujinSkill : IPassiveSkill, IActiveSkill
     /// engine pauses this active-skill frame in the shared dying window before
     /// completing the draw effect.
     /// </summary>
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.Phase == TurnPhase.Play && context.Owner.Hp > 0;
 
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(ActiveSkillEffectKind.LoseHpAndDraw, HpCost: 1, DrawCount: 2);
+
+
 }
 
-public sealed class ZhihengSkill : IPassiveSkill, IActiveSkill
+public sealed class ZhihengSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Zhiheng;
     public string Name => "制衡";
@@ -1136,22 +907,12 @@ public sealed class ZhihengSkill : IPassiveSkill, IActiveSkill
     /// the versioned classic rules. Historical/demo contexts remain hand-only.
     /// The engine owns the two-step movement through Processing.
     /// </summary>
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.Phase == TurnPhase.Play &&
-        context.Owner.HandCount + context.AdditionalSelectableCardCount > 0 &&
-        (!context.EnforceOncePerTurn ||
-         context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true);
 
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(
-            ActiveSkillEffectKind.DiscardAndDraw,
-            MinCardCount: 1,
-            MaxCardCount: Math.Max(
-                0,
-                context.Owner.HandCount + context.AdditionalSelectableCardCount));
+
+
 }
 
-public sealed class RendeSkill : IPassiveSkill, IActiveSkill
+public sealed class RendeSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Rende;
     public string Name => "仁德";
@@ -1161,46 +922,28 @@ public sealed class RendeSkill : IPassiveSkill, IActiveSkill
     /// supplies the versioned phase ledger and cumulative self-recovery rule;
     /// EnforceOncePerTurn retains the earlier showcase and replay behavior.
     /// </summary>
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.Phase == TurnPhase.Play &&
-        context.Owner.HandCount > 0 &&
-        (!context.EnforceOncePerTurn ||
-         context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true);
 
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(
-            ActiveSkillEffectKind.GiveCardsAndRecover,
-            MinCardCount: 1,
-            MaxCardCount: Math.Max(0, context.Owner.HandCount),
-            MinTargetCount: 1,
-            MaxTargetCount: 1,
-            RecoveryAmount: context.SelectedCardCount >= 2 ? 1 : 0);
+
+
 }
 
-public sealed class FanjianSkill : IPassiveSkill, IActiveSkill
+public sealed class FanjianSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Fanjian;
     public string Name => "反间";
 
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.Phase == TurnPhase.Play &&
-        context.Owner.HandCount > 0 &&
-        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
 
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(
-            ActiveSkillEffectKind.RevealGiftAndDamage,
-            MinTargetCount: 1,
-            MaxTargetCount: 1);
+
+
 }
 
-public sealed class GuanxingSkill : IPassiveSkill
+public sealed class GuanxingSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Guanxing;
     public string Name => "观星";
 }
 
-public sealed class QingnangSkill : IPassiveSkill, IActiveSkill
+public sealed class QingnangSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Qingnang;
     public string Name => "青囊";
@@ -1210,22 +953,12 @@ public sealed class QingnangSkill : IPassiveSkill, IActiveSkill
     /// is supplied by the engine from public living HP, while this rule object
     /// only exposes the phase, cost and effect contract.
     /// </summary>
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.Phase == TurnPhase.Play &&
-        context.Owner.HandCount > 0 &&
-        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
 
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(
-            ActiveSkillEffectKind.DiscardAndRecover,
-            MinCardCount: 1,
-            MaxCardCount: 1,
-            MinTargetCount: 1,
-            MaxTargetCount: 1,
-            RecoveryAmount: 1);
+
+
 }
 
-public sealed class HuichunSkill : IPassiveSkill, IActiveSkill
+public sealed class HuichunSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Huichun;
     public string Name => "回春";
@@ -1236,25 +969,15 @@ public sealed class HuichunSkill : IPassiveSkill, IActiveSkill
     /// engine supplies the public target candidates and owns each recovery
     /// frame, so the rule object remains a deterministic contract only.
     /// </summary>
-    public bool CanUse(ActiveSkillContext context) =>
-        context.Owner.Phase == TurnPhase.Play &&
-        context.Owner.HandCount >= 2 &&
-        context.Owner.UsedActiveSkillKinds?.Contains(Kind) != true;
 
-    public ActiveSkillEffect GetEffect(ActiveSkillContext context) =>
-        new(
-            ActiveSkillEffectKind.DiscardAndRecoverTargets,
-            MinCardCount: 2,
-            MaxCardCount: 2,
-            MinTargetCount: 2,
-            MaxTargetCount: 3,
-            RecoveryAmount: 1);
+
+
 }
 
 public static class SkillRegistry
 {
-    private static readonly IReadOnlyDictionary<SkillKind, IPassiveSkill> Skills =
-        new Dictionary<SkillKind, IPassiveSkill>
+    private static readonly IReadOnlyDictionary<SkillKind, ISkillRuleIdentity> Skills =
+        new Dictionary<SkillKind, ISkillRuleIdentity>
         {
             [SkillKind.None] = new NoSkill(),
             [SkillKind.Jianxiong] = new JianxiongSkill(),
@@ -1356,10 +1079,7 @@ public static class SkillRegistry
             [SkillKind.Wuhun] = new WuhunSkill()
         };
 
-    public static IPassiveSkill Get(SkillKind kind) => Skills[kind];
-
-    public static IActiveSkill? GetActive(SkillKind kind) =>
-        Skills.TryGetValue(kind, out var skill) ? skill as IActiveSkill : null;
+    public static SkillRuleDefinition Get(SkillKind kind) => SkillRuleDefinition.From(Skills[kind]);
 }
 
 public static class GameRules

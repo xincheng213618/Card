@@ -61,7 +61,7 @@ public sealed partial class GameEngine
         CardConversionSource primaryConversionSource,
         bool forResponse)
     {
-        if (_rulesVersion < 162 || inputKind == outputKind)
+        if (inputKind == outputKind)
         {
             return [];
         }
@@ -123,9 +123,7 @@ public sealed partial class GameEngine
                            GetHand(actor).Count == 1 &&
                            GetHand(actor)[0].Id == physicalCard.Id &&
                            GetEquipment(actor).Any(card => card.Kind == CardKind.FangtianHalberd);
-        var existingMaximum = usesFangtian
-            ? actor.TianyiWonThisTurn ? 4 : 3
-            : actor.TianyiWonThisTurn ? 2 : 1;
+        var existingMaximum = usesFangtian ? 3 : 1;
         var maximum = Math.Min(existingMaximum + programBonus, legalTargets.Count);
         if (maximum <= existingMaximum) return;
 
@@ -137,6 +135,11 @@ public sealed partial class GameEngine
             .Where(binding => binding.Modifier.CardKinds.Contains(effectiveKind) &&
                               binding.Modifier.Condition.Evaluate(CreateSkillContext(actor)))
             .Select(binding => _contentRegistry!.Skills[binding.Source.SkillId].Name)
+            .Concat(_turnCardUseEffects.GetRuleModifiers(_turnNumber, _currentSeat, actor.Seat,
+                    SkillRuleQuery.CardTargetCount, effectiveKind)
+                .Select(item => item.Source.SkillId is { } skillId &&
+                    _contentRegistry!.Skills.TryGetValue(skillId, out var skill)
+                    ? skill.Name : item.Source.SkillId ?? "回合加成"))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
 
@@ -151,7 +154,6 @@ public sealed partial class GameEngine
                     var targetSeats = Array.AsReadOnly(selected.Select(target => target.Seat).ToArray());
                     var combinedEffects = new List<string>();
                     if (usesFangtian) combinedEffects.Add("方天画戟");
-                    if (actor.TianyiWonThisTurn) combinedEffects.Add("天义");
                     combinedEffects.AddRange(skillNames);
                     actions.Add(new LegalAction(
                         LegalActionKind.Slash,
@@ -190,9 +192,7 @@ public sealed partial class GameEngine
                            GetHand(source).Count == 1 &&
                            GetHand(source)[0].Id == physicalCard.Id &&
                            GetEquipment(source).Any(card => card.Kind == CardKind.FangtianHalberd);
-        var existingMaximum = usesFangtian
-            ? source.TianyiWonThisTurn ? 4 : 3
-            : source.TianyiWonThisTurn ? 2 : 1;
+        var existingMaximum = usesFangtian ? 3 : 1;
         return targetCount > existingMaximum &&
                ((FiniteRuleQueryValue)EvaluateCardTargetCount(source, effectiveKind).Value).Value > 1;
     }

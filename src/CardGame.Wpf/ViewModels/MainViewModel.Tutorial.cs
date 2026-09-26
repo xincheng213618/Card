@@ -141,7 +141,7 @@ public sealed partial class MainViewModel
         var human = _snapshot.Players.Single(player => player.IsHuman);
         bool Uses(CardKind kind) => command is PlayCardCommand play &&
             (play.PlayedCardKind is null || play.PlayedCardKind == kind) && human.Hand.Any(card => card.Id == play.CardId && card.Kind == kind);
-        var answerId = command switch { AnswerPromptCommand answer => answer.Choice, RespondCommand response => response.Choice, _ => (ChoiceId?)null };
+        var answerId = command switch { AnswerPromptCommand answer => answer.Choice, _ => (ChoiceId?)null };
         var answerChoice = _snapshot.PendingDecision?.Choices.SingleOrDefault(choice => choice.Id == answerId);
         var allowed = CurrentTutorialLesson.Action switch
         {

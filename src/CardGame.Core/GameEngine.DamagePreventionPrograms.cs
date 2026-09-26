@@ -35,7 +35,7 @@ public sealed partial class GameEngine
         DamageNature nature,
         BeforeDamageProgramContinuation continuation)
     {
-        if (_rulesVersion < 138 || _contentRegistry is null || amount <= 0 ||
+        if (_contentRegistry is null || amount <= 0 ||
             !IsValidPlayerSeat(sourceSeat) || !IsValidPlayerSeat(targetSeat) ||
             !_players[targetSeat].IsAlive)
             return false;

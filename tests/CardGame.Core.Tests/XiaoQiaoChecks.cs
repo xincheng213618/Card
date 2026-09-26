@@ -5,7 +5,7 @@ internal static class XiaoQiaoChecks
 {
     public static void HongyanTianxiangTransferAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 51, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var game = FindTianxiangPrompt(registry);
         var prompt = game.PendingDecision!;
         var before = game.CreateSnapshot(0, revealAll: true);

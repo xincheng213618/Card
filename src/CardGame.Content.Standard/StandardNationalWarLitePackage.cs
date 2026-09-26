@@ -8,11 +8,11 @@ namespace CardGame.Content.Standard;
 /// hidden dual-general setup. Future packages can add real national skills
 /// without changing this state-machine boundary.
 /// </summary>
-public sealed class StandardNationalWarLitePackage(bool legacyVitals = false) : IGameContentPackage
+public sealed class StandardNationalWarLitePackage : IGameContentPackage
 {
     public PackageManifest Manifest { get; } = new(
         "standard-national-war-lite",
-        legacyVitals ? new Version(1, 0, 0) : new Version(1, 1, 0),
+        new Version(1, 1, 0),
         [new PackageDependency("standard", new Version(1, 11, 0))]);
 
     public void Register(IContentRegistryBuilder builder)
@@ -22,9 +22,9 @@ public sealed class StandardNationalWarLitePackage(bool legacyVitals = false) : 
         builder.AddGeneral(new ContentGeneralDefinition(
             "national:wei-cao-cao", "曹操", "cao_cao", "standard:jianxiong", "wei"));
         builder.AddGeneral(new ContentGeneralDefinition(
-            "national:wei-guo-jia", "郭嘉", "guo_jia", "standard:yiji", "wei", BaseHp: legacyVitals ? 4 : 3));
+            "national:wei-guo-jia", "郭嘉", "guo_jia", "standard:yiji", "wei", BaseHp: 3));
         builder.AddGeneral(new ContentGeneralDefinition(
-            "national:wei-xun-yu", "荀彧", "xun_yu", "standard:jieming", "wei", BaseHp: legacyVitals ? 4 : 3));
+            "national:wei-xun-yu", "荀彧", "xun_yu", "standard:jieming", "wei", BaseHp: 3));
         builder.AddGeneral(new ContentGeneralDefinition(
             "national:wei-ganglie", "刚烈者", "ganglie", "standard:ganglie", "wei"));
 

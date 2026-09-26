@@ -10,12 +10,8 @@ internal static class MouLuMengChecks
 
     public static void ContentAndRulesBoundary()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 80, 0));
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 79, 0));
-        Require(current.Packages.Any(package =>
-                    package.Id == "standard-classic-generals" &&
-                    package.Version == new Version(1, 80, 0)) &&
-                current.Generals[GeneralId] is
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(current.Generals[GeneralId] is
                 {
                     FactionId: "wu",
                     BaseHp: 4,
@@ -32,12 +28,8 @@ internal static class MouLuMengChecks
                     LegacyKind: null,
                     Tags: SkillTag.None,
                     ExecutionForms: SkillExecutionForm.State | SkillExecutionForm.Trigger
-                } &&
-                !previous.Generals.ContainsKey(GeneralId) &&
-                !previous.Skills.ContainsKey(HengyeSkillId) &&
-                !previous.Skills.ContainsKey(YingboSkillId) &&
-                current.ContentHash != previous.ContentHash,
-            "Package 1.80.0 must add formal Mou Lu Meng without mutating package 1.79.0.");
+                },
+            "Current Mou Lu Meng must publish Hengye and Yingbo metadata.");
 
     }
 

@@ -12,16 +12,16 @@ internal static class KongchengChecks
         var rule = SkillRegistry.Get(SkillKind.Kongcheng);
         var empty = new PlayerSkillContext(1, 3, 3, 0, TurnPhase.Play);
         var holdingCards = empty with { HandCount = 1 };
-        Require(rule.ProhibitsCardTarget(empty, CardKind.Slash) &&
-                rule.ProhibitsCardTarget(empty, CardKind.FireSlash) &&
-                rule.ProhibitsCardTarget(empty, CardKind.ThunderSlash) &&
-                rule.ProhibitsCardTarget(empty, CardKind.Duel),
+        Require(rule.CardUse!.ProhibitsCardTarget(empty, CardKind.Slash) &&
+                rule.CardUse!.ProhibitsCardTarget(empty, CardKind.FireSlash) &&
+                rule.CardUse!.ProhibitsCardTarget(empty, CardKind.ThunderSlash) &&
+                rule.CardUse!.ProhibitsCardTarget(empty, CardKind.Duel),
             "Kongcheng must prohibit every Slash kind and Duel while the owner has no hand cards.");
-        Require(!rule.ProhibitsCardTarget(holdingCards, CardKind.Duel) &&
-                !rule.ProhibitsCardTarget(empty, CardKind.DrawTwo),
+        Require(!rule.CardUse!.ProhibitsCardTarget(holdingCards, CardKind.Duel) &&
+                !rule.CardUse!.ProhibitsCardTarget(empty, CardKind.DrawTwo),
             "Kongcheng must not prohibit Duel with a hand card or unrelated card kinds.");
 
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 52, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var seed = FindSeedWithHumanDuel(registry);
         var current = CreateGame(registry, seed, GameCheckpoint.CurrentRulesVersion);
         ArrangeEmptyKongchengTarget(current, targetSeat: 1);
@@ -45,8 +45,8 @@ internal static class KongchengChecks
                 action.CardId == duelId &&
                 action.TargetSeat == 2),
             "Formal Kongcheng must not remove unrelated living Duel targets.");
-        Require(current.CreateSnapshot(0, revealAll: true).Players[1].SkillDescription
-                    .Contains("【决斗】", StringComparison.Ordinal),
+        Require(current.CreateSnapshot(0, revealAll: true).Players[1].Skills?
+                    .Any(skill => skill.Description.Contains("【决斗】", StringComparison.Ordinal)) == true,
             "The player projection must describe formal Kongcheng for current classic rules.");
 
         var beforeState = current.SerializeState();

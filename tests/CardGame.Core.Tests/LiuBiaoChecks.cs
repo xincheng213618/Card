@@ -11,7 +11,6 @@ internal static class LiuBiaoChecks
     public static void ContentPromptAndRulesBoundary()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 105, 0));
         var zishou = current.Skills[ZishouSkillId];
         Require(current.Packages.Any(package =>
                     package.Id == "standard-classic-generals" &&
@@ -26,10 +25,8 @@ internal static class LiuBiaoChecks
                 } && skillIds.SequenceEqual([ZishouSkillId, ZongshiSkillId]) &&
                 zishou.LegacyKind is null &&
                 zishou.Program is { UsesCompositionKernel: true, MinimumRulesVersion: 128 } &&
-                current.Skills.ContainsKey(ZongshiSkillId) &&
-                previous.Skills[ZishouSkillId] is { LegacyKind: SkillKind.Zishou, Program: null } &&
-                current.ContentHash != previous.ContentHash,
-            "Current package must retain the 1.106 Zishou migration without mutating 1.105.0.");
+                current.Skills.ContainsKey(ZongshiSkillId),
+            "Current Liu Biao must publish Zishou and Zongshi.");
 
         var fixture = FindFixture();
         var game = fixture.Game;

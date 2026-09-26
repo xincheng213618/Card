@@ -5,7 +5,7 @@ internal static class WolongChecks
 {
     public static void ConversionsBazhenAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 47, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 16_384; seed++)
         {
             var game = Create(seed, registry);

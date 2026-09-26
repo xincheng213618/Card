@@ -9,26 +9,8 @@ internal static class ManChongChecks
 
     public static void ContentAndPackageBoundary()
     {
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 95, 0));
-        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 117, 0));
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 118, 0));
-        Require(!previous.Generals.ContainsKey(GeneralId) &&
-                !previous.Skills.ContainsKey("classic:junxing") &&
-                !previous.Skills.ContainsKey("classic:yuce"),
-            "Package 1.95.0 must retain the pre-Man-Chong content boundary.");
-        Require(historical.Skills["classic:junxing"] is
-                {
-                    LegacyKind: SkillKind.Junxing,
-                    Program: null
-                } &&
-                historical.Skills["classic:yuce"] is
-                {
-                    LegacyKind: SkillKind.Yuce,
-                    Program: null
-                } &&
-                current.Packages.Single(package => package.Id == "standard-classic-generals").Version ==
-                    new Version(1, 118, 0) &&
-                current.Generals[GeneralId] is
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(current.Generals[GeneralId] is
                 {
                     BaseHp: 3,
                     FactionId: "wei",
@@ -61,7 +43,7 @@ internal static class ManChongChecks
                     ActionForms: SkillActionForm.None
                 } &&
                 current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId),
-            "Package 1.118.0 must migrate Junxing and Yuce to schema 34 while 1.117.0 retains historical metadata only.");
+            "Current Man Chong must publish Junxing and Yuce programs.");
     }
 
     public static void JunxingUsesExactCategoriesAndReplaysBothBranches()

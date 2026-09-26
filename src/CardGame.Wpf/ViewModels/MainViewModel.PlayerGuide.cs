@@ -184,7 +184,7 @@ public sealed partial class MainViewModel
         {
             var activeSkillName = ActiveSkillName(skillAction);
             CurrentGuideTitle = CanConfirmActiveSkill ? $"确认发动【{activeSkillName}】" : $"选择【{activeSkillName}】的牌和目标";
-            CurrentGuideBody = $"{human?.SkillDescription}\n{GetActiveSkillSelectionHint()}";
+            CurrentGuideBody = $"{VisibleSkillDescriptions(human?.Skills)}\n{GetActiveSkillSelectionHint()}";
             var selectedNames = Seats.Where(seat => _selectedActiveSkillTargetSeats.Contains(seat.Seat))
                 .Select(seat => seat.IsHuman ? $"你（{seat.GeneralName}）" : $"{seat.Seat + 1} 号位 {seat.GeneralName}").ToArray();
             steps = [$"本次需要选择{BuildActiveSkillRequirement(skillAction)}。再次点击已选牌或目标可以取消。",
@@ -222,7 +222,7 @@ public sealed partial class MainViewModel
             else
             {
                 CurrentGuideTitle = CanUseActiveSkill ? "轮到你行动，可出牌或发动技能" : Hand.Any(card => card.IsPlayable) ? "轮到你出牌" : "当前没有可以主动使用的牌";
-                CurrentGuideBody = CanUseActiveSkill ? $"{human?.SkillName}：{human?.SkillDescription}\n点击对应的【{HumanActiveSkillName}】技能或装备按钮发动；需要选牌或目标时，选齐后再确认。无须选择的技能点击后立即结算。" : Hand.Any(card => card.IsPlayable) ? "选中一张亮起的手牌，再按提示选择目标或直接确认。你可以连续使用不同的牌，直到决定结束出牌。" : "可以点击「结束」。灰色牌仍可能在响应时发挥作用，不代表它没有用。";
+                CurrentGuideBody = CanUseActiveSkill ? $"{VisibleSkillNames(human?.Skills)}：{VisibleSkillDescriptions(human?.Skills)}\n点击对应的【{HumanActiveSkillName}】技能或装备按钮发动；需要选牌或目标时，选齐后再确认。无须选择的技能点击后立即结算。" : Hand.Any(card => card.IsPlayable) ? "选中一张亮起的手牌，再按提示选择目标或直接确认。你可以连续使用不同的牌，直到决定结束出牌。" : "可以点击「结束」。灰色牌仍可能在响应时发挥作用，不代表它没有用。";
                 steps = ["杀通常每回合限一次，目标须在攻击范围内；部分技能和装备会改变限制。", "灰色手牌悬停可查看当前不可用的原因，也可在下面查阅图鉴。", "想保留资源时，可直接结束出牌；超出体力的手牌会进入弃牌选择。"];
             }
         }
@@ -246,10 +246,8 @@ public sealed partial class MainViewModel
                 DecisionKind.RespondSlash when prompt.Choices.Any(choice =>
                     choice.Parameters.GetValueOrDefault("response") == "jijiang-slash") => ("响应刘备的激将", new[] { "你可以打出自己的一张杀；成功后视为刘备打出杀。", "也可以拒绝，系统会继续询问下一名蜀势力角色。" }),
                 DecisionKind.RespondDodge or DecisionKind.RespondSlash => ("选择手牌并确认响应", new[] { "读清这次需要杀还是闪；中央会列出合法的手牌、技能或装备选项。", "点击中央候选会立即提交响应。选择不响应可能受到伤害。" }),
-                DecisionKind.RescueDying => ("决定是否救援濒死角色", _game.RulesVersion >= 12
-                    ? new[] { "桃可用于救援当前濒死角色；只有濒死者本人可额外使用酒自救。庞统还可发动一次限定技涅槃。", "选择使用哪张牌、发动涅槃或不救援；按当前模式的阵营关系决定希望保护谁。" }
-                    : new[] { "桃和酒都可用于救援当前濒死角色；酒也会在濒死窗口中恢复 1 点体力。", "选择使用哪张牌或不救援；按当前模式的阵营关系决定希望保护谁。" }),
-                DecisionKind.SelectHarvestCard => ("从公开牌中取走一张", new[] { "点击中央的一张公开牌，它会加入你的手牌。", "这是选牌，不需要再选择武将或点击出牌。" }),
+DecisionKind.RescueDying => ("决定是否救援濒死角色", (new[] { "桃可用于救援当前濒死角色；只有濒死者本人可额外使用酒自救。庞统还可发动一次限定技涅槃。", "选择使用哪张牌、发动涅槃或不救援；按当前模式的阵营关系决定希望保护谁。" }
+)),                                DecisionKind.SelectHarvestCard => ("从公开牌中取走一张", new[] { "点击中央的一张公开牌，它会加入你的手牌。", "这是选牌，不需要再选择武将或点击出牌。" }),
                 DecisionKind.SelectTargetCard => ("选择一张暗牌位", new[] { "目标手牌的牌面不会展示；每个按钮只代表一个不透明的牌位。", "选择后，拆桥会弃置该牌，顺手会将该牌交给你。" }),
                 DecisionKind.Nullification => ("决定是否使用无懈可击", new[] { "看清候选写的是使锦囊失效，还是恢复已被无懈的效果。", "点击使用会消耗所选的无懈；也可跳过并保留手牌。" }),
                 DecisionKind.FireAttackReveal => ("展示一张手牌", new[] { "在中央选择要展示的牌；此时只是展示，并非主动弃牌。", "随后由火攻使用者决定是否弃置同花色牌造成伤害。" }),
@@ -299,60 +297,25 @@ public sealed partial class MainViewModel
         RaisePropertyChanged(nameof(HasGuideHand));
     }
 
-    private string GetCardDescription(CardKind kind)
+    private string GetCardDescription(CardKind kind) => kind switch
     {
-        var rulesVersion = _game is null ? GameCheckpoint.CurrentRulesVersion : _game.RulesVersion;
-        if (kind == CardKind.IronChain && rulesVersion >= 6)
-            return "选择一到两名存活角色（可包含自己），横置或重置；连环角色受到火焰或雷电伤害时会传导同量伤害。也可重铸：不选目标，将此牌置入弃牌堆并摸一张牌；重铸不属于使用锦囊，不进入无懈响应。";
-        if (kind == CardKind.Indulgence)
-        {
-            return rulesVersion >= 11
-                ? CardCatalog.Get(kind).Description
-                : "选择一名其他角色；其下个回合判定，若为红色则跳过出牌阶段。";
-        }
-        if (kind == CardKind.SupplyShortage)
-        {
-            if (rulesVersion >= 18)
-                return "选择一名距离为 1 的其他角色；其下个回合判定，若结果不为梅花则跳过摸牌阶段。";
-            return rulesVersion >= 11
-                ? CardCatalog.Get(kind).Description
-                : "选择一名有手牌的其他角色；其下个回合判定，若为黑色则跳过摸牌阶段。";
-        }
-        if (kind == CardKind.FireAttack && rulesVersion < 19)
-            return "选择一名有手牌的其他角色；其展示一张手牌，你弃置一张相同花色的手牌后对其造成 1 点火焰伤害；展示牌按旧规则进入弃牌堆。";
-        if (kind == CardKind.Alcohol && rulesVersion >= 20)
-            return "出牌阶段每回合限使用一次，令本回合下一张杀造成的伤害 +1；濒死时仅可对自己使用并回复 1 点体力。";
-        if (kind == CardKind.Crossbow && rulesVersion < 13)
-            return "装备至武器槽；攻击范围 +1，出牌阶段使用杀不受次数限制。";
-        if (kind == CardKind.QinggangSword && rulesVersion < 13)
-            return "装备至武器槽；你使用杀时无视目标的防具。";
-        if (kind == CardKind.BaguaFormation && rulesVersion < 14)
-            return "装备至防具槽；成为普通/火/雷杀的直接目标时可选择公开判定，红色判定牌视为闪。";
-        if (kind == CardKind.RenwangShield && rulesVersion < 14)
-            return "装备至防具槽；黑色杀不能对你使用。";
-        return rulesVersion >= 4
-            ? kind switch
-            {
-                CardKind.Dismantlement => "选择一名其他角色；从其手牌的不透明牌位中选择一张弃置，或弃置其一张公开装备/判定区牌。",
-                CardKind.Snatch => "选择一名距离为 1 的其他角色；从其手牌的不透明牌位中选择一张获得，或获得其一张公开装备/判定区牌。",
-                _ => CardCatalog.Get(kind).Description
-            }
-            : CardCatalog.Get(kind).Description;
-    }
+        CardKind.IronChain => "选择一到两名存活角色（可包含自己），横置或重置；连环角色受到火焰或雷电伤害时会传导同量伤害。也可重铸：不选目标，将此牌置入弃牌堆并摸一张牌；重铸不属于使用锦囊，不进入无懈响应。",
+        CardKind.SupplyShortage => "选择一名距离为 1 的其他角色；其下个回合判定，若结果不为梅花则跳过摸牌阶段。",
+        CardKind.Alcohol => "出牌阶段每回合限使用一次，令本回合下一张杀造成的伤害 +1；濒死时仅可对自己使用并回复 1 点体力。",
+        CardKind.Dismantlement => "选择一名其他角色；从其手牌的不透明牌位中选择一张弃置，或弃置其一张公开装备/判定区牌。",
+        CardKind.Snatch => "选择一名距离为 1 的其他角色；从其手牌的不透明牌位中选择一张获得，或获得其一张公开装备/判定区牌。",
+        _ => CardCatalog.Get(kind).Description
+    };
 
     private string GetCardTiming(CardKind kind)
     {
-        var rulesVersion = _game is null ? GameCheckpoint.CurrentRulesVersion : _game.RulesVersion;
         return kind switch
         {
             CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash => "出牌阶段进攻 · 决斗或南蛮入侵中响应杀",
             CardKind.Dodge => "受到杀或万箭齐发时响应",
             CardKind.Nullification => "锦囊响应窗口",
             CardKind.Peach => "出牌阶段回复自己 · 濒死时救援",
-            CardKind.Alcohol when rulesVersion >= 20 => "出牌阶段每回合限一次 · 自己濒死时仅可自救",
-            CardKind.Alcohol when rulesVersion >= 12 => "出牌阶段饮酒 · 自己濒死时仅可自救",
-            CardKind.Alcohol => "出牌阶段饮酒 · 濒死时救援",
-            _ => "自己的出牌阶段"
+            CardKind.Alcohol => "出牌阶段每回合限一次 · 自己濒死时仅可自救",                                    _ => "自己的出牌阶段"
         };
     }
 }

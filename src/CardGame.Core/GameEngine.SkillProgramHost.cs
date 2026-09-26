@@ -118,8 +118,9 @@ public sealed partial class GameEngine
             return SkillProgramStepOutcome.AwaitChild;
         }
 
-        public SkillProgramStepOutcome Damage(ProgramSkillFrame frame, int targetSeat, int amount) =>
-            engine.BeginProgramSkillDamage(frame, targetSeat, amount);
+        public SkillProgramStepOutcome Damage(ProgramSkillFrame frame, int targetSeat, int amount,
+            ProgramParticipantReference? sourceReference = null) =>
+            engine.BeginProgramSkillDamage(frame, targetSeat, amount, sourceReference);
 
         public SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat) =>
             engine.BeginProgramSkillPindian(frame, targetSeat);
@@ -264,8 +265,11 @@ public sealed partial class GameEngine
             int ownerSeat,
             SkillProgramTargetKind targetKind,
             IReadOnlyList<CardZoneKind> zones,
-            PlayerMarkerKind? marker) =>
-            engine.SelectProgramTarget(frameId, ownerSeat, targetKind, zones, marker);
+            PlayerMarkerKind? marker,
+            ProgramParticipantReference? actorReference = null,
+            bool skipIfNoTarget = false) =>
+            engine.SelectProgramTarget(frameId, ownerSeat, targetKind, zones, marker,
+                actorReference, skipIfNoTarget);
 
         public void ChangeAttributedMarker(
             ProgramSkillFrame frame,
@@ -372,8 +376,9 @@ public sealed partial class GameEngine
             ProgramSkillFrame frame,
             SkillRuleQuery query,
             SkillRuleOperation operation,
-            int amount) =>
-            engine.GrantProgramTurnRuleModifier(frame, query, operation, amount);
+            int amount,
+            IReadOnlyList<CardKind> cardKinds) =>
+            engine.GrantProgramTurnRuleModifier(frame, query, operation, amount, cardKinds);
 
         public void GrantTurnCardTargetRestriction(
             ProgramSkillFrame frame,

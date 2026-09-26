@@ -150,25 +150,16 @@ internal sealed class MatchSkillBindingIndex
 {
     private readonly Func<string, ContentSkillDefinition> _resolveDefinition;
     private readonly bool _isNationalWarMode;
-    private readonly bool _supportsStructuredSkillOwnership;
-    private readonly bool _supportsRuntimeSkillAcquisition;
-    private readonly int _rulesVersion;
     private readonly Dictionary<int, SkillBindingShard> _shards = [];
     private readonly Dictionary<int, int> _rebuildCounts = [];
 
     internal MatchSkillBindingIndex(
         Func<string, ContentSkillDefinition> resolveDefinition,
-        bool isNationalWarMode,
-        bool supportsStructuredSkillOwnership,
-        bool supportsRuntimeSkillAcquisition,
-        int rulesVersion)
+        bool isNationalWarMode)
     {
         ArgumentNullException.ThrowIfNull(resolveDefinition);
         _resolveDefinition = resolveDefinition;
         _isNationalWarMode = isNationalWarMode;
-        _supportsStructuredSkillOwnership = supportsStructuredSkillOwnership;
-        _supportsRuntimeSkillAcquisition = supportsRuntimeSkillAcquisition;
-        _rulesVersion = rulesVersion;
     }
 
     internal int CachedSeatCount => _shards.Count;
@@ -211,7 +202,7 @@ internal sealed class MatchSkillBindingIndex
             }
             var isTemplate = grant.SourceId is CharacterState.PrimarySkillSource or
                 CharacterState.SecondarySkillSource;
-            if (isTemplate && _supportsStructuredSkillOwnership && definition.Tags.HasFlag(SkillTag.Lord) &&
+            if (isTemplate && definition.Tags.HasFlag(SkillTag.Lord) &&
                 player.Role != Role.Lord)
                 continue;
             activeGrants.Add(grant);
@@ -225,8 +216,7 @@ internal sealed class MatchSkillBindingIndex
             .GroupBy(grant => (grant.SkillId, grant.SkillInstanceId))
             .Select(group => group.OrderBy(grant => grant.GrantId, StringComparer.Ordinal).First())
             .Select(grant => (Grant: grant, Definition: definitions[grant.SkillId]))
-            .Where(item => item.Definition.Program is { } program &&
-                           program.MinimumRulesVersion <= _rulesVersion)
+            .Where(item => item.Definition.Program is not null)
             .Select(item => new IndexedSkillProgramInstance(
                 item.Grant.SkillId,
                 item.Grant.SkillInstanceId,
@@ -265,7 +255,7 @@ internal sealed class MatchSkillBindingIndex
         if (sourceId == CharacterState.SecondarySkillSource)
             return _isNationalWarMode && player.SecondaryGeneral is not null &&
                    player.SecondaryGeneralSelected && player.SecondaryGeneralRevealed;
-        return _supportsRuntimeSkillAcquisition;
+        return true;
     }
 
     private static IReadOnlyDictionary<SkillProgramTriggerWindow, IReadOnlyList<IndexedSkillProgramTrigger>>

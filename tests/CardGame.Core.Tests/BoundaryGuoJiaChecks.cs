@@ -30,10 +30,6 @@ internal static class BoundaryGuoJiaChecks
                 trigger.Effects[1].NumberExpression == SkillProgramNumberExpression.AllOwnedZoneCards &&
                 trigger.Effects[1].Zones.SequenceEqual([CardZoneKind.Hand]),
             "2019 Yiji must draw two, bind the whole current hand, then offer two independent optional gifts per damage point.");
-        var old = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 138, 0));
-        Require(!old.Generals.ContainsKey(GeneralId) && !old.Skills.ContainsKey(Yiji) &&
-                !old.Skills.ContainsKey("boundary:tiandu"),
-            "Prior released classic content must not contain the new Guo Jia variant.");
     }
 
     public static void YijiGivesZeroOneOrTwoCurrentHandCardsAndReplays()

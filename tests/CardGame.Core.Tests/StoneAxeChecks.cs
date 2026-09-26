@@ -6,7 +6,7 @@ internal static class StoneAxeChecks
 {
     public static void ExactCostDamageAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var boundary = StoneAxeScenario.FindHumanTrigger();
         var game = boundary.Game;
         var prompt = game.PendingDecision ??
@@ -90,7 +90,7 @@ internal static class StoneAxeChecks
 
     public static void AiUsesPrivatePublishedChoices()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 56, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         GameEngine? witnessed = null;
         for (var seed = 1; seed <= 48 && witnessed is null; seed++)
         {

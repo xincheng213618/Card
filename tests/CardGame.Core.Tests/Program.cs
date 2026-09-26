@@ -22,6 +22,7 @@ if (args.FirstOrDefault() == "--ai-batch")
 // Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("current classic catalogue modes and skill references", CurrentClassicContentChecks.CatalogueAndModes),
     ("turn-ending Xiaoguo Tianxiang game over stops later observers", TurnEndingGameOverChecks.XiaoguoTianxiangVictoryStopsLaterObservers),
     ("2014 boundary Zhou Yu definition version and public gift resource contracts", BoundaryZhouYuChecks.DefinitionAndResourceContracts),
     ("2014 boundary Zhou Yu Yingzi Fanjian transfer choice and replay", BoundaryZhouYuChecks.TransferChoiceAndReplay),
@@ -98,7 +99,7 @@ var tests = new (string Name, Action Body)[]
     ("classic Li Dian Wangxi taken damage gives private replayable choice", LiDianChecks.WangxiTakenDamageOffersPrivateChoice),
     ("rescued lethal damage offers Wangxi only after dying and replays", DamageAfterDyingChecks.RescuedLethalDamageOffersWangxiAfterRescue),
     ("Kuanggu uses lethal damage distance after target death", DamageAfterDyingChecks.KuangguUsesDistanceAtLethalDamage),
-    ("phase exchange definitions and historical boundary", ProgramActivationLimitChecks.DefinitionsAndHistoricalBoundary),
+    ("phase exchange definitions and current boundary", ProgramActivationLimitChecks.DefinitionsAndCurrentBoundary),
     ("phase exchange mixed zones atomicity and replay", ProgramActivationLimitChecks.MixedZonesAtomicityAndReplay),
     ("phase exchange extra phase and large selection", ProgramActivationLimitChecks.ExtraPhaseAndLargeSelection),
     ("phase exchange equipment loss trigger and replay", ProgramActivationLimitChecks.EquipmentLossTriggerAndReplay),
@@ -189,14 +190,6 @@ var tests = new (string Name, Action Body)[]
     ("schema-22 self-dying state programs preserve definitions and package boundary", SelfDyingStateProgramChecks.DefinitionsAndVersionBoundary),
     ("schema-22 Niepan clears owned state and replays", SelfDyingStateProgramChecks.ClearsOwnedStateAndReplays),
     ("structured skill metadata normalizes explicitly and fingerprints content", SkillMetadataChecks.TagsNormalizeAndFingerprint),
-    ("classic locked-state metadata is versioned without changing package 1.70", SkillMetadataChecks.ClassicLockedStateMetadataIsVersioned),
-    ("classic shared locked skills receive distinct versioned identities", SkillMetadataChecks.ClassicSharedLockedSkillsReceiveDistinctIdentities),
-    ("classic optional trigger metadata is versioned without flattening compound skills", SkillMetadataChecks.ClassicOptionalTriggerMetadataIsVersioned),
-    ("classic continuous card conversions receive versioned state metadata", SkillMetadataChecks.ClassicContinuousCardConversionMetadataIsVersioned),
-    ("classic pure active skills receive independent versioned action metadata", SkillMetadataChecks.ClassicPureActiveActionMetadataIsVersioned),
-    ("classic compound skills preserve independent metadata axes", SkillMetadataChecks.ClassicCompoundSkillMetadataIsVersioned),
-    ("classic shared active skills receive distinct versioned identities", SkillMetadataChecks.ClassicSharedActiveSkillsReceiveDistinctIdentities),
-    ("remaining classic shared skills receive distinct versioned identities", SkillMetadataChecks.ClassicRemainingSharedSkillsReceiveDistinctIdentities),
     ("skill runtime usage and conversion states reset by declared scope", SkillMetadataChecks.RuntimeUsageAndReset),
     ("program Niepan usage restores without touching its historical legacy record", SkillMetadataChecks.StructuredNiepanUsageReplays),
     ("printed Lord skills follow identity and rules 96 replay ownership boundaries", SkillOwnershipChecks.PrintedLordSkillsFollowIdentityAndReplayBoundary),
@@ -224,21 +217,9 @@ var tests = new (string Name, Action Body)[]
     ("skill program v10 card identities and action modifiers validate and freeze", SkillProgramCardIdentityChecks.Definitions),
     ("schema-46 viewAs source zones validate and isolate hand from equipment", SkillProgramViewAsZoneChecks.DefinitionAndZoneIsolation),
     ("mandatory card identity suppresses native use, ignores Slash distance and replays", SkillProgramCardIdentityChecks.MandatoryIdentityDistanceAndReplay),
-    ("phase modules share private prompts replay and continuation", PhaseSkillModuleChecks.IndependentModulesSharePromptReplayAndContinuation),
-    ("phase modules use the same AI choices", PhaseSkillModuleChecks.AiUsesTheSameModuleDecisions),
-    ("phase modules version native bindings in the fingerprint", PhaseSkillModuleChecks.ModuleBindingParticipatesInFingerprint),
-    ("card-use module effects validate categories conditions and JSON", CardUseModuleEffectChecks.DefinitionsValidateAndClassifyEffectiveCards),
+    ("card-use effect categories use effective card kinds", CardUseModuleEffectChecks.DefinitionsValidateAndClassifyEffectiveCards),
     ("turn card-use effects union order consume and expire by action semantics", CardUseModuleEffectChecks.TurnStateUsesActionSemanticsStableOrderAndExpiration),
-    ("Pindian-conditioned card-use effects filter native and converted uses and replay", CardUseModuleEffectChecks.PindianConditionFiltersNativeAndConvertedUsesAndReplays),
-    ("Pindian modules preserve child privacy cards and replay", PindianModuleChecks.PhaseChildPreservesPrivacyCardsAndReplay),
     ("active programs suspend into Pindian and branch from the frozen result", PindianModuleChecks.ActiveProgramPindianSuspendsConditionsAndReplays),
-    ("Pindian modules skip activation and empty opponents", PindianModuleChecks.DeclineAndEmptyOpponentsDoNotStartAChild),
-    ("Pindian modules share AI choices and candidate availability", PindianModuleChecks.AiUsesPrivateChoicesAndSkipsConsumedCandidates),
-    ("Pindian modules fingerprint result revisions", PindianModuleChecks.ResultModuleRevisionChangesFingerprint),
-    ("Pindian modules suspend and resume existing active skill parents", PindianModuleChecks.ExistingActiveSkillsResumeAfterResultModules),
-    ("Pindian modules allow both owners to claim with private prompts", PindianModuleChecks.BothParticipantsCanClaimWithoutExposingTheirPrompts),
-    ("Zongshi module selects win loss tie and available cards", ZongshiModuleChecks.PlanFollowsWinLossAndAvailability),
-    ("Zongshi module claims privately and resumes after replay", ZongshiModuleChecks.SharedPindianClaimIsPrivateReplayableAndResumes),
     ("god generals choose a private effective faction before reveal and replay", GodFactionSelectionChecks.PromptPrivacyEffectiveFactionAndReplay),
     ("chosen god factions feed existing configured lord-skill checks", GodFactionSelectionChecks.EffectiveFactionFeedsConfiguredLordSkill),
     ("formal Wushen treats a real heart Peach as a distance-free counted Slash", ClassicShenGuanYuChecks.WushenRealDeckIdentityAndReplay),
@@ -247,7 +228,7 @@ var tests = new (string Name, Action Body)[]
     ("schema-25 awakening state primitives and frozen conditions validate", SpGuanYuChecks.ProgramPrimitivesAndConditionsValidate),
     ("formal SP Guan Yu awakens through a generic mandatory lifecycle binding", SpGuanYuChecks.ContentAndDanjiReplayBoundary),
     ("formal Nuzhan uses the exact SP Wusheng conversion source", SpGuanYuChecks.NuzhanUsesExactConversionSource),
-    ("formal Yan Yan registers tagged Juzhan with a rules 98 boundary", YanYanChecks.ContentPolarityAndRulesBoundary),
+    ("current Yan Yan registers tagged Juzhan and its initial polarity", YanYanChecks.ContentPolarityAndRulesBoundary),
     ("formal Juzhan uses per-target turn and per-card-use event ledgers", YanYanChecks.YangYinLedgerAndReplay),
     ("formal Mou Lu Meng versions Hengye and Yingbo by content package", MouLuMengChecks.ContentAndRulesBoundary),
     ("formal Hengye grows on damage and resets after a kill", MouLuMengChecks.HengyeGrowthAndKillReset),
@@ -268,7 +249,7 @@ var tests = new (string Name, Action Body)[]
     ("public Zhenlie nullifies only Wang Yi during a group trick", WangYiChecks.ZhenlieNullifiesOnlyItsGroupEffect),
     ("formal Zhong Hui versions Quanji Zili and Paiyi", ZhongHuiChecks.ContentQuanjiAndBoundary),
     ("Quanji awakens Zili and acquired Paiyi replays", ZhongHuiChecks.ZiliAndPaiyiReplay),
-    ("schema-26 Zili validates; retired Quanji Zili Paiyi routes stay inactive", ZhongHuiChecks.ZiliProgramValidationAndHistoricalBoundary),
+    ("schema-26 Zili validates owned-zone conditions", ZhongHuiChecks.ZiliProgramValidationAndCurrentConditions),
     ("formal Xun You versions active Qice and optional Zhiyu", XunYouChecks.ContentAndRulesBoundary),
     ("Qice converts every hand card once and replays", XunYouChecks.QiceUsesAllHandCardsAndReplays),
     ("Zhiyu draws reveals and makes the source discard", XunYouChecks.ZhiyuDrawRevealDiscardAndReplay),
@@ -288,15 +269,11 @@ var tests = new (string Name, Action Body)[]
     ("a fully dodged Lihuo conversion does not lose HP", ChengPuLihuoChecks.FullyDodgedConversionDoesNotLoseHp),
     ("configured Lihuo penalty enters dying and replays", ChengPuLihuoChecks.CompletedPenaltyCanEnterDyingAndReplay),
     ("Wusheng to Lihuo chained conversion preserves both sources", ChengPuLihuoChecks.ChainedWushengLihuoConversionKeepsBothSources),
-    ("historical Lihuo packages do not reactivate retired routes", ChengPuLihuoChecks.HistoricalLihuoPackagesDoNotReactivateRetiredExecutionRoutes),
-    ("formal Cheng Pu publishes Chunlao behind its package boundary", ChengPuLihuoChecks.ChunlaoContentAndRulesBoundary),
-    ("historical Chunlao definitions do not reactivate the retired executor", ChengPuLihuoChecks.HistoricalChunlaoDefinitionDoesNotReactivateRetiredExecutor),
+    ("current Cheng Pu publishes Chunlao storage and rescue triggers", ChengPuLihuoChecks.ChunlaoContentAndRulesBoundary),
     ("Chunlao stores exact Slash cards publicly and replays a paused selection", ChengPuLihuoChecks.ChunlaoStoresExactSlashesAndReplays),
     ("Chunlao spends one public Chun as virtual Alcohol in a dying response", ChengPuLihuoChecks.ChunlaoRescuesWithVirtualAlcoholAndReplays),
     ("Chunlao AI stores one explained reserve instead of its whole Slash hand", ChengPuLihuoChecks.ChunlaoAiStoresOneExplainedReserve),
     ("formal Han Dang migrates Gongqi and limited Jiefan through package 1.136", HanDangChecks.ContentAndPackageBoundary),
-    ("historical Gongqi definitions do not reactivate the retired executor", HanDangChecks.HistoricalGongqiDefinitionDoesNotReactivateRetiredExecutor),
-    ("historical Jiefan definitions do not reactivate the retired executor", HanDangChecks.HistoricalJiefanDefinitionDoesNotReactivateRetiredExecutor),
     ("Gongqi equipment cost grants unlimited range and uses opaque optional discard", HanDangChecks.GongqiEquipmentCostAndOpaqueDiscardReplay),
     ("Jiefan freezes attackers consumes its limited use and replays", HanDangChecks.JiefanFreezesRespondersConsumesLimitedUseAndReplays),
     ("formal Cao Chong publishes Chengxiang and Renxin behind package 1.94", CaoChongChecks.ContentAndPackageBoundary),
@@ -387,10 +364,8 @@ var tests = new (string Name, Action Body)[]
     ("program GiveSelected anyLiving excludes and rejects its owner", SkillProgramChecks.ProgramAnyLivingGiftExcludesOwner),
     ("physical deck recipes preserve exact suit, rank and content hashing", PhysicalDeckRecipeChecks.ExactSuitRankValidationAndHashing),
     ("classic standard and military decks match their official physical tables", PhysicalDeckRecipeChecks.ClassicPhysicalDecksMatchOfficialTables),
-    ("classic identity roster is opt-in, formal and replay-versioned", ClassicGeneralChecks.ContentContract),
     ("classic identity applies base HP, multiple skills and legacy replay boundaries", ClassicGeneralChecks.SetupHealthAndReplay),
     ("classic Liu Bei repeats formal Rende with cumulative self-recovery and replay", ClassicGeneralChecks.FormalRendeFlow),
-    ("classic Huang Gai repeats formal Kujin and replays", ClassicGeneralChecks.FormalKujinFlow),
     ("current classic Huang Gai repeats configured Kujin and replays", ClassicGeneralChecks.ConfiguredKujinFlow),
     ("configured Huang Gai Kujin suspends at dying and replays", ClassicGeneralChecks.ConfiguredKujinDyingContinuation),
     ("classic Gan Ning converts black hand and equipped cards through formal Qixi", ClassicGeneralChecks.FormalQixiFlow),
@@ -399,19 +374,16 @@ var tests = new (string Name, Action Body)[]
     ("current classic Luoyi uses generic draw adjustment and card-damage state", ClassicGeneralChecks.ProgramLuoyiFlow),
     ("classic Dian Wei pays HP or a weapon for formal Qiangxi damage", ClassicGeneralChecks.FormalQiangxiFlow),
     ("classic Xu Huang converts black cards into persistent Supply Shortage", ClassicGeneralChecks.FormalDuanliangFlow),
-    ("classic Zhen Ji repeats black Luoshen judgments and converts Qingguo Dodge responses", ClassicGeneralChecks.FormalLuoshenAndQingguoFlow),
+    ("classic Zhen Ji repeats black Luoshen judgments and replays", ClassicGeneralChecks.FormalLuoshenAndQingguoFlow),
     ("classic Huang Yueying draws through Jizhi and ignores trick distance through Qicai", ClassicGeneralChecks.FormalJizhiAndQicaiFlow),
     ("classic Ma Chao judges through Tieqi and reduces distance through Mashu", ClassicGeneralChecks.FormalTieqiAndMashuFlow),
     ("classic Huang Zhong prohibits Dodge through eligible Liegong", ClassicGeneralChecks.FormalLiegongFlow),
     ("classic Wei Yan recovers through distance-one Kuanggu damage", ClassicGeneralChecks.FormalKuangguFlow),
     ("classic Lu Bu requires sequential Wushuang responses", ClassicGeneralChecks.FormalWushuangFlow),
-    ("classic Zhang Fei uses multiple Slashes through formal Paoxiao", ClassicGeneralChecks.FormalPaoxiaoFlow),
-    ("classic Zhao Yun converts Slash and Dodge through formal Longdan", ClassicGeneralChecks.FormalLongdanFlow),
     ("current classic Zhao Yun uses configured Longdan with historical replay boundary", ClassicGeneralChecks.ConfiguredLongdanFlow),
     ("current classic Zhen Ji uses configured Qingguo responses with historical boundary", ClassicGeneralChecks.ConfiguredQingguoResponses),
     ("current classic Guan Yu uses configured Wusheng from hand and equipment", ClassicGeneralChecks.ConfiguredWushengSources),
     ("current classic Hua Tuo heals with configured Qingnang once per play phase", ClassicGeneralChecks.ConfiguredQingnangHealing),
-    ("classic Guan Yu converts red equipment through formal Wusheng", ClassicGeneralChecks.FormalWushengEquipmentFlow),
     ("classic Da Qiao converts diamonds through Guose and redirects Slash through Liuli", ClassicGeneralChecks.FormalGuoseAndLiuliFlow),
     ("classic Diao Chan starts a virtual Duel through Lijian and draws through Biyue", ClassicGeneralChecks.FormalLijianAndBiyueFlow),
     ("classic Sun Shangxiang recovers through Jieyin and draws through Xiaoji", ClassicGeneralChecks.FormalJieyinAndXiaojiFlow),
@@ -433,9 +405,8 @@ var tests = new (string Name, Action Body)[]
     ("Qilin Bow AI uses public mount choices and replays", QilinBowChecks.AiUsesPublicMountChoices),
     ("classic Pang De discards an opaque hand card or public equipment through Mengjin", MengjinChecks.HiddenHandPublicEquipmentChoiceAndReplay),
     ("classic Xun Yu resolves private Pindian and attributed Quhu damage", QuhuChecks.PindianWinLossDamageAndReplay),
-    ("classic Yan Liang and Wen Chou claim Shuangxiong judgment and convert opposite-color Duels", ClassicGeneralChecks.FormalShuangxiongFlow),
     ("classic Wolong converts Huoji and Kanpo and provides virtual Bazhen", WolongChecks.ConversionsBazhenAndReplay),
-    ("classic Pang Tong converts Lianhuan and revives once through Niepan", PangTongChecks.LianhuanNiepanAndReplay),
+    ("classic Pang Tong converts Lianhuan for recast and use", PangTongChecks.LianhuanNiepanAndReplay),
     ("classic Taishi Ci resolves Tianyi win and loss Slash rules", TianyiChecks.WinLossSlashRulesAndReplay),
     ("classic Cao Ren draws and skips a flipped turn through Jushou", CaoRenChecks.JushouDrawFlipSkipAndReplay),
     ("classic Xiao Qiao converts Spades and transfers damage through Tianxiang", XiaoQiaoChecks.HongyanTianxiangTransferAndReplay),
@@ -447,6 +418,7 @@ var tests = new (string Name, Action Body)[]
     ("classic Sun Jian draws and discards exact cards through Yinghun", SunJianChecks.YinghunChoiceAndReplay),
     ("classic Meng Huo redirects Barbarian Assault and replaces drawing through Zaiqi", MengHuoChecks.HuoshouAndZaiqiReplay),
     ("classic Zhu Rong claims Barbarian Assault and wins cards through Lieren", ZhuRongChecks.JuxiangAndLierenReplay),
+    ("winning Leiji damage cleans its parent Slash", ZhuRongChecks.LeijiWinningDamageCleansParentSlash),
     ("classic Yu Jin nullifies black Slash through locked Yizhong", YuJinChecks.YizhongBlackSlashAndReplay),
     ("classic Xu Shu prevents trick damage through locked Wuyan", WuyanChecks.PreventsTrickDamageWithVersionBoundary),
     ("classic Xu Shu discards a non-basic card for all Jujian benefits", XuShuChecks.JujianBenefitsAndReplay),
@@ -456,7 +428,6 @@ var tests = new (string Name, Action Body)[]
     ("classic Tengjia makes ordinary Slash ineffective before response", TengjiaChecks.OrdinarySlashImmunityAndLegacyBoundary),
     ("classic Silver Lion caps damage and recovers after leaving equipment", SilverLionChecks.DamageCapRemovalRecoveryAndLegacyBoundary),
     ("classic Wooden Ox stores private playable grain and replays", WoodenOxChecks.StoresPrivatePlayableGrainAndReplays),
-    ("classic Zhiheng selects equipment, enforces once and preserves legacy rules", ClassicGeneralChecks.FormalZhihengEquipmentFlow),
     ("classic Tiandu can claim a resolved judgment and preserves legacy rules", ClassicGeneralChecks.FormalTianduJudgment),
     ("classic Fanjian transfers a random card after suit choice and preserves legacy rules", ClassicGeneralChecks.FormalFanjianFlow),
     ("classic Guanxing privately orders the draw-pile top and preserves legacy rules", ClassicGeneralChecks.FormalGuanxingFlow),
@@ -541,7 +512,6 @@ var tests = new (string Name, Action Body)[]
     ("Guicai privately replaces a public judgment with a hand card", GuicaiFlow),
     ("Guidao privately replaces judgments with exact black hand or equipment cards", GuidaoChecks.BlackHandAndEquipmentReplacement),
     ("Leiji follows each effective Dodge with a replayable suit-specific judgment", LeijiChecks.DodgeJudgmentDamageAndReplay),
-    ("Huangtian lets each other Qun character give one Dodge or Lightning per play phase", HuangtianChecks.QunProviderGivesOncePerPhase),
     ("Indulgence delays a target play phase through public judgment", IndulgenceFlow),
     ("SupplyShortage delays a target draw phase through public judgment", SupplyShortageFlow),
     ("formal SupplyShortage uses distance and preserves legacy empty-hand behavior", SupplyShortageChecks.TargetingAndResolution),
@@ -559,10 +529,10 @@ var tests = new (string Name, Action Body)[]
     ("throwing observers are isolated after commit", ObserverFailuresAreIsolated),
     ("observer failures do not change deterministic outcomes", ObserverFailuresDoNotChangeOutcome),
     ("uncaught observer reentry cannot interrupt the engine", UncaughtObserverReentryIsIsolated),
-    ("human API reaches play and accepts a legal card", HumanPlayApi),
-    ("human can answer an incoming Slash with Dodge", HumanDodgeApi),
+    ("human commands reach play and accept a legal card", HumanPlayApi),
+    ("human command answers an incoming Slash with Dodge", HumanDodgeApi),
     ("declining lethal Dodge leaves a completed game completed", LethalHumanResponseKeepsCompletedStatus),
-    ("AdvanceOneStep exposes one AI decision at a time", AdvanceOneStepApi),
+    ("single-step command exposes one AI decision at a time", AdvanceOneStepApi),
     ("AI ending play publishes its committed Discard state", AiEndPlayPublishesState),
     ("synchronous observers cannot advance the engine reentrantly", ReentrantAdvanceIsRejected),
     ("an unknown phase fails fast", UnknownPhaseFailsFast),
@@ -810,7 +780,7 @@ static void SnapshotHidesSecrets()
 static void SnapshotHidesEngineSecrets()
 {
     var game = GameEngine.CreateStandard(new GameOptions { UseInteractiveDiscard = false, Seed = 413, HumanSeat = 0, HumanRole = Role.Lord });
-    game.Start();
+    game.DriveStart();
 
     Equal(413, game.Seed);
     Equal<int?>(null, game.State.Seed);
@@ -833,7 +803,7 @@ static void SnapshotDecisionIsDefensive()
             HumanSeat = 0,
             HumanRole = Role.Lord
         });
-        game.Start();
+        game.DriveStart();
         if (game.PendingDecision is { ValidCardIds.Count: > 0, ValidTargetSeats.Count: > 0 })
         {
             selectedGame = game;
@@ -949,7 +919,7 @@ static void CommandPlayUsesExactChoice()
     True(accepted.Accepted);
     Equal(revisionBefore + 1, selectedGame.Revision);
     ResolveNullificationWindowForTest(selectedGame);
-    True(selectedGame.Log.Any(entry => entry.Type is "CardUsed" or "Recovered"));
+    True(selectedGame!.Log.Any(entry => entry.Type is "CardUsed" or "Recovered"));
 }
 
 static void CommandPromptAnswerBoundary()
@@ -1646,14 +1616,14 @@ static void AiCardContentPolicy()
         GeneralId: "liu-bei",
         GeneralName: "刘备",
         PortraitKey: "liu_bei",
-        Skill: SkillKind.None,
-        SkillName: "无",
-        SkillDescription: "",
         Hp: 2,
         MaxHp: 4,
         IsAlive: true,
         HandCount: 13,
-        Hand: [peach, drawTwo, barbarianAssault, arrowBarrage, peachGarden, fiveGrains, dismantlement, snatch, fireSlash, thunderSlash, alcohol, fireAttack, ironChain]);
+        Hand: [peach, drawTwo, barbarianAssault, arrowBarrage, peachGarden, fiveGrains, dismantlement, snatch, fireSlash, thunderSlash, alcohol, fireAttack, ironChain])
+    {
+        Skills = []
+    };
     var target = self with
     {
         Seat = 1,
@@ -1664,6 +1634,7 @@ static void AiCardContentPolicy()
         GeneralId = "",
         GeneralName = "目标",
         PortraitKey = "",
+        Skills = null,
         HandCount = 4,
         Hand = []
     };
@@ -1809,9 +1780,7 @@ static void AiCardContentPolicy()
     var redVirtualSlash = new CardSnapshot(23, CardKind.Peach, Suit.Heart, 10, "桃", "10");
     var wushengSelf = self with
     {
-        Skill = SkillKind.Wusheng,
-        SkillName = "武圣",
-        SkillDescription = "红色牌可当作杀使用。",
+        Skills = [new GeneralSkillDefinition(SkillKind.Wusheng, "武圣", "红色牌可当作杀使用。")],
         HandCount = 1,
         Hand = [redVirtualSlash]
     };
@@ -1835,9 +1804,7 @@ static void AiCardContentPolicy()
 
     var yuanhuSelf = self with
     {
-        Skill = SkillKind.Yuanhu,
-        SkillName = "援护",
-        SkillDescription = "其他角色受到伤害后，可弃置一张牌令其回复 1 点体力。",
+        Skills = [new GeneralSkillDefinition(SkillKind.Yuanhu, "援护", "其他角色受到伤害后，可弃置一张牌令其回复 1 点体力。")],
         HandCount = 1,
         Hand = [redVirtualSlash]
     };
@@ -1867,9 +1834,9 @@ static void PassiveSkills()
     var fullHand = new PlayerSkillContext(0, 4, 4, 3, TurnPhase.Draw);
     var emptyHand = fullHand with { HandCount = 0 };
 
-    Equal(2, SkillRegistry.Get(SkillKind.Yingzi).ModifyDrawCount(fullHand, 2));
-    Equal(int.MaxValue, SkillRegistry.Get(SkillKind.Paoxiao).ModifySlashLimit(fullHand, 1));
-    True(SkillRegistry.Get(SkillKind.Kongcheng).ProhibitsSlashTarget(emptyHand));
+    True(SkillRegistry.Get(SkillKind.Yingzi).Numeric is null);
+    Equal(int.MaxValue, SkillRegistry.Get(SkillKind.Paoxiao).Numeric!.ModifySlashLimit(fullHand, 1));
+    True(SkillRegistry.Get(SkillKind.Kongcheng).CardUse!.ProhibitsSlashTarget(emptyHand));
     var yijiContext = new DamageSkillContext(
         fullHand,
         1,
@@ -1879,13 +1846,13 @@ static void PassiveSkills()
         SourceCardId: 21,
         TargetSeat: 0);
     Equal(DamageSkillEffectKind.None,
-        SkillRegistry.Get(SkillKind.Jianxiong).GetDamageSkillEffect(yijiContext));
+        SkillRegistry.Get(SkillKind.Jianxiong).Damage!.GetDamageSkillEffect(yijiContext));
     Equal(DamageSkillEffectKind.None,
-        SkillRegistry.Get(SkillKind.Feedback).GetDamageSkillEffect(yijiContext));
+        SkillRegistry.Get(SkillKind.Feedback).Damage!.GetDamageSkillEffect(yijiContext));
     Equal(DamageSkillEffectKind.None,
-        SkillRegistry.Get(SkillKind.Yiji).GetDamageSkillEffect(yijiContext));
+        SkillRegistry.Get(SkillKind.Yiji).Damage!.GetDamageSkillEffect(yijiContext));
     Equal(DamageSkillEffectKind.None,
-        SkillRegistry.Get(SkillKind.Jieming).GetDamageSkillEffect(yijiContext));
+        SkillRegistry.Get(SkillKind.Jieming).Damage!.GetDamageSkillEffect(yijiContext));
 
     var yuanhuContext = yijiContext with
     {
@@ -1896,27 +1863,27 @@ static void PassiveSkills()
     };
     Equal(
         DamageTriggerScope.OtherLivingPlayer,
-        SkillRegistry.Get(SkillKind.Yuanhu).AfterDamageTriggerScope);
-    True(SkillRegistry.Get(SkillKind.Yuanhu).CanTriggerAfterDamage(yuanhuContext));
-    True(SkillRegistry.Get(SkillKind.Yuanhu).OffersDamageCardChoice(yuanhuContext));
+        SkillRegistry.Get(SkillKind.Yuanhu).Damage!.AfterDamageTriggerScope);
+    True(SkillRegistry.Get(SkillKind.Yuanhu).Damage!.CanTriggerAfterDamage(yuanhuContext));
+    True(SkillRegistry.Get(SkillKind.Yuanhu).Damage!.OffersDamageCardChoice(yuanhuContext));
     Equal(
         DamageSkillEffectKind.RecoverDamageTarget,
-        SkillRegistry.Get(SkillKind.Yuanhu).GetDamageSkillEffect(yuanhuContext));
-    False(SkillRegistry.Get(SkillKind.Yuanhu).CanTriggerAfterDamage(
+        SkillRegistry.Get(SkillKind.Yuanhu).Damage!.GetDamageSkillEffect(yuanhuContext));
+    False(SkillRegistry.Get(SkillKind.Yuanhu).Damage!.CanTriggerAfterDamage(
         yuanhuContext with { TargetSeat = fullHand.Seat }));
-    False(SkillRegistry.Get(SkillKind.Yuanhu).CanTriggerAfterDamage(
+    False(SkillRegistry.Get(SkillKind.Yuanhu).Damage!.CanTriggerAfterDamage(
         yuanhuContext with { TargetSeat = null }));
-    False(SkillRegistry.Get(SkillKind.Yuanhu).CanTriggerAfterDamage(
+    False(SkillRegistry.Get(SkillKind.Yuanhu).Damage!.CanTriggerAfterDamage(
         yuanhuContext with { Amount = 0 }));
-    IPassiveSkill anyScope = new AnyScopeProbeSkill();
+    IDamageSkillRule anyScope = new AnyScopeProbeSkill();
     True(anyScope.CanTriggerAfterDamage(yuanhuContext));
     True(anyScope.CanTriggerAfterDamage(
         yuanhuContext with { TargetSeat = fullHand.Seat }));
     False(anyScope.CanTriggerAfterDamage(
         yuanhuContext with { TargetSeat = null }));
-    False(SkillRegistry.Get(SkillKind.Yuanhu).OffersDamageCardChoice(
+    False(SkillRegistry.Get(SkillKind.Yuanhu).Damage!.OffersDamageCardChoice(
         yuanhuContext with { Owner = emptyHand }));
-    False(SkillRegistry.Get(SkillKind.Yuanhu).OffersDamageCardChoice(
+    False(SkillRegistry.Get(SkillKind.Yuanhu).Damage!.OffersDamageCardChoice(
         yuanhuContext with { TargetHp = 4 }));
 
     var ganglieContext = yijiContext with
@@ -1926,34 +1893,34 @@ static void PassiveSkills()
         SourceSeat = 1,
         Amount = 1
     };
-    True(SkillRegistry.Get(SkillKind.Ganglie).CanTriggerAfterDamage(ganglieContext));
-    True(SkillRegistry.Get(SkillKind.Ganglie).OffersDamageCardChoice(ganglieContext));
+    True(SkillRegistry.Get(SkillKind.Ganglie).Damage!.CanTriggerAfterDamage(ganglieContext));
+    True(SkillRegistry.Get(SkillKind.Ganglie).Damage!.OffersDamageCardChoice(ganglieContext));
     Equal(
         DamageSkillEffectKind.GanglieJudgment,
-        SkillRegistry.Get(SkillKind.Ganglie).GetDamageSkillEffect(ganglieContext));
-    False(SkillRegistry.Get(SkillKind.Ganglie).CanTriggerAfterDamage(
+        SkillRegistry.Get(SkillKind.Ganglie).Damage!.GetDamageSkillEffect(ganglieContext));
+    False(SkillRegistry.Get(SkillKind.Ganglie).Damage!.CanTriggerAfterDamage(
         ganglieContext with { TargetSeat = 1 }));
-    False(SkillRegistry.Get(SkillKind.Ganglie).OffersDamageCardChoice(
+    False(SkillRegistry.Get(SkillKind.Ganglie).Damage!.OffersDamageCardChoice(
         ganglieContext with { SourceSeat = null }));
-    False(SkillRegistry.Get(SkillKind.Ganglie).OffersDamageCardChoice(
+    False(SkillRegistry.Get(SkillKind.Ganglie).Damage!.OffersDamageCardChoice(
         ganglieContext with { Amount = 0 }));
 
     var redPeach = new Card(31, CardKind.Peach, Suit.Heart, 5);
     var blackPeach = new Card(32, CardKind.Peach, Suit.Spade, 6);
     var wusheng = SkillRegistry.Get(SkillKind.Wusheng);
-    True(wusheng.CanUseAsSlash(fullHand, redPeach));
-    False(wusheng.CanUseAsSlash(fullHand, blackPeach));
-    False(wusheng.CanUseAsSlash(fullHand, redPeach with { Kind = CardKind.Slash }));
+    True(wusheng.Conversion!.CanUseAsSlash(fullHand, redPeach));
+    False(wusheng.Conversion!.CanUseAsSlash(fullHand, blackPeach));
+    False(wusheng.Conversion!.CanUseAsSlash(fullHand, redPeach with { Kind = CardKind.Slash }));
 
     var longdan = SkillRegistry.Get(SkillKind.Longdan);
     var physicalDodge = new Card(33, CardKind.Dodge, Suit.Spade, 7);
     var physicalSlash = new Card(34, CardKind.Slash, Suit.Heart, 8);
     var physicalPeach = new Card(35, CardKind.Peach, Suit.Heart, 9);
-    True(longdan.CanUseAsSlash(fullHand, physicalDodge));
-    False(longdan.CanUseAsSlash(fullHand, physicalSlash));
-    True(longdan.CanUseAsResponse(fullHand, physicalSlash, CardKind.Dodge));
-    True(longdan.CanUseAsResponse(fullHand, physicalDodge, CardKind.Slash));
-    False(longdan.CanUseAsResponse(fullHand, physicalPeach, CardKind.Dodge));
+    True(longdan.Conversion!.CanUseAsSlash(fullHand, physicalDodge));
+    False(longdan.Conversion!.CanUseAsSlash(fullHand, physicalSlash));
+    True(longdan.Conversion!.CanUseAsResponse(fullHand, physicalSlash, CardKind.Dodge));
+    True(longdan.Conversion!.CanUseAsResponse(fullHand, physicalDodge, CardKind.Slash));
+    False(longdan.Conversion!.CanUseAsResponse(fullHand, physicalPeach, CardKind.Dodge));
 }
 
 static void DamageTriggerOrdering()
@@ -1992,20 +1959,21 @@ static void DamageTriggerWindowFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         if (result.Status != EngineStatus.AwaitingHumanPlay)
         {
             continue;
         }
 
         var revealed = game.CreateSnapshot(0, revealAll: true);
-        if (revealed.Players.Any(player => player.Skill == SkillKind.Yuanhu))
+        if (revealed.Players.Any(player => player.Skills?.Any(skill => skill.Kind == SkillKind.Yuanhu) == true))
         {
             continue;
         }
@@ -2015,7 +1983,7 @@ static void DamageTriggerWindowFlow()
             candidate.TargetSeat is { } candidateTarget &&
             revealed.Players.Any(player =>
                 player.Seat == candidateTarget &&
-                player.Skill == SkillKind.Jianxiong &&
+                player.Skills?.Any(skill => skill.Kind == SkillKind.Jianxiong) == true &&
                 player.IsAlive &&
                 player.Hand.All(card => card.Kind != CardKind.Dodge)));
         if (action is not null)
@@ -2037,7 +2005,7 @@ static void DamageTriggerWindowFlow()
 
     var gameWithWindow = selectedGame!;
     var attackCardId = selectedAttackCardId;
-    var used = gameWithWindow.HumanPlay(
+    var used = gameWithWindow.DriveHumanPlay(
         attackCardId,
         targetSeat,
         advanceToHumanBoundary: false);
@@ -2068,7 +2036,7 @@ static void DamageTriggerWindowFlow()
         !gameWithWindow.SerializeState().Contains("DamageTriggerWindow", StringComparison.Ordinal),
         "player state hides trusted trigger stack");
 
-    var resumed = gameWithWindow.AdvanceOneStep();
+    var resumed = gameWithWindow.DriveAdvanceOneStep();
     Equal(EngineStatus.Running, resumed.Status);
     Equal(0, resumed.State.ProcessingCardCount);
     Equal(0, gameWithWindow.ResolutionStack.Count);
@@ -2103,6 +2071,7 @@ static void LethalDamageTriggerWindowFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
@@ -2110,13 +2079,14 @@ static void LethalDamageTriggerWindowFlow()
             MaxTurns = 220
         });
         var initial = game.CreateSnapshot(0, revealAll: true);
-        if (initial.Players.Any(player => player.Skill == SkillKind.Yuanhu) ||
-            initial.Players.Single(player => player.Seat == 0).Skill != SkillKind.Feedback)
+        if (initial.Players.Any(player => player.Skills?.Any(skill => skill.Kind == SkillKind.Yuanhu) == true) ||
+            initial.Players.Single(player => player.Seat == 0).Skills?
+                .Any(skill => skill.Kind == SkillKind.Feedback) != true)
         {
             continue;
         }
 
-        var result = game.Start();
+        var result = game.DriveStart();
         var steps = 0;
         while (result.Status != EngineStatus.Completed && steps++ < 4_000)
         {
@@ -2141,19 +2111,19 @@ static void LethalDamageTriggerWindowFlow()
 
             result = result.Status switch
             {
-                EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanPlay => game.DriveHumanEndPlay(advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanResponse when result.PendingDecision?.Kind == DecisionKind.RespondSlash =>
-                    game.HumanRespondSlash(useSlash: false, advanceToHumanBoundary: false),
+                    game.DriveHumanRespondSlash(useSlash: false, advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanResponse when result.PendingDecision?.Kind == DecisionKind.Nullification =>
-                    game.HumanRespondNullification(useNullification: false, advanceToHumanBoundary: false),
+                    game.DriveHumanRespondNullification(useNullification: false, advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanResponse when result.PendingDecision?.Kind == DecisionKind.Feedback =>
-                    game.HumanRespondFeedback(useFeedback: false, advanceToHumanBoundary: false),
+                    game.DriveHumanRespondFeedback(useFeedback: false, advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanResponse =>
-                    game.HumanRespond(useDodge: false, advanceToHumanBoundary: false),
+                    game.DriveHumanRespond(useDodge: false, advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanDying =>
-                    game.HumanRespondDying(usePeach: false, advanceToHumanBoundary: false),
+                    game.DriveHumanRespondDying(usePeach: false, advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
-                _ => game.AdvanceOneStep()
+                _ => game.DriveAdvanceOneStep()
             };
         }
     }
@@ -2341,9 +2311,15 @@ static void CheckpointRestore()
 
     ThrowsFor<InvalidOperationException>(() => GameReplay.Restore(decoded), "a missing content registry");
 
-    var legacy = GameEngine.CreateStandard(new GameOptions { UseInteractiveDiscard = false, Seed = 913 });
-    _ = legacy.Start();
-    ThrowsFor<InvalidOperationException>(() => legacy.CreateCheckpoint(), "a legacy-driven state");
+    var commandRegistry = StandardContentRegistry.Create();
+    var commandDriven = GameEngine.CreateStandard(
+        new GameOptions { UseInteractiveDiscard = false, Seed = 913 },
+        commandRegistry);
+    _ = commandDriven.DriveStart();
+    var commandCheckpoint = commandDriven.CreateCheckpoint();
+    Equal(SnapshotJson.Serialize(commandDriven.CreateSnapshot(0, revealAll: true)),
+        SnapshotJson.Serialize(GameReplay.Restore(commandCheckpoint, commandRegistry)
+            .CreateSnapshot(0, revealAll: true)));
 }
 
 static void CheckpointRejectsSameVersionContentDrift()
@@ -2431,13 +2407,14 @@ static void SlashAndDodgeProcessing()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 150
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         if (HasSkill(game, SkillKind.Yuanhu))
         {
             continue;
@@ -2461,14 +2438,14 @@ static void SlashAndDodgeProcessing()
                 }
 
                 result = result.PendingDecision?.Kind == DecisionKind.RespondDodge
-                    ? game.HumanRespond(useDodge: false)
-                    : game.HumanRespondSlash(useSlash: false);
+                    ? game.DriveHumanRespond(useDodge: false)
+                    : game.DriveHumanRespondSlash(useSlash: false);
                 continue;
             }
 
             if (result.Status == EngineStatus.AwaitingHumanDying)
             {
-                result = game.HumanRespondDying(usePeach: false);
+                result = game.DriveHumanRespondDying(usePeach: false);
                 continue;
             }
 
@@ -2479,8 +2456,8 @@ static void SlashAndDodgeProcessing()
             }
 
             result = result.Status == EngineStatus.AwaitingHumanPlay
-                ? game.HumanEndPlay()
-                : game.AdvanceOneStep();
+                ? game.DriveHumanEndPlay()
+                : game.DriveAdvanceOneStep();
         }
     }
 
@@ -2494,7 +2471,7 @@ static void SlashAndDodgeProcessing()
 
     var dodgeId = before.Players.Single(player => player.Seat == 0).Hand
         .First(card => card.Kind == CardKind.Dodge).Id;
-    var after = pendingGame.HumanRespond(useDodge: true, advanceToHumanBoundary: false);
+    var after = pendingGame.DriveHumanRespond(useDodge: true, advanceToHumanBoundary: false);
     Equal(0, after.State.ProcessingCardCount);
     AssertCardInventory(pendingGame);
 
@@ -2526,6 +2503,7 @@ static void CardInventoryConservation()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
@@ -2534,7 +2512,7 @@ static void CardInventoryConservation()
         });
         game.StateChanged += AssertPublishedCardTotal;
 
-        var result = game.Start();
+        var result = game.DriveStart();
         AssertCardInventory(game);
         var steps = 0;
         while (result.Status != EngineStatus.Completed && steps++ < 800)
@@ -2544,20 +2522,20 @@ static void CardInventoryConservation()
                 var action = game.GetHumanLegalActions()
                     .FirstOrDefault(candidate => candidate.Kind != LegalActionKind.EndPlay);
                 result = action is null
-                    ? game.HumanEndPlay(advanceToHumanBoundary: false)
+                    ? game.DriveHumanEndPlay(advanceToHumanBoundary: false)
                     : action.Kind == LegalActionKind.Recast
                         ? game.Submit(new RecastCardCommand(0, action.CardId!.Value, game.Revision, game.PendingDecision!.PromptId)).Result
-                    : game.HumanPlay(action.CardId!.Value, action.TargetSeat, advanceToHumanBoundary: false);
+                    : game.DriveHumanPlay(action.CardId!.Value, action.TargetSeat, advanceToHumanBoundary: false);
             }
             else if (result.Status == EngineStatus.AwaitingHumanResponse)
             {
                 result = game.PendingDecision?.Kind == DecisionKind.RespondSlash
-                    ? game.HumanRespondSlash(useSlash: true, advanceToHumanBoundary: false)
-                    : game.HumanRespond(useDodge: true, advanceToHumanBoundary: false);
+                    ? game.DriveHumanRespondSlash(useSlash: true, advanceToHumanBoundary: false)
+                    : game.DriveHumanRespond(useDodge: true, advanceToHumanBoundary: false);
             }
             else if (result.Status == EngineStatus.AwaitingHumanDying)
             {
-                result = game.HumanRespondDying(usePeach: false, advanceToHumanBoundary: false);
+                result = game.DriveHumanRespondDying(usePeach: false, advanceToHumanBoundary: false);
             }
             else if (result.Status == EngineStatus.AwaitingHumanCardSelection)
             {
@@ -2565,7 +2543,7 @@ static void CardInventoryConservation()
             }
             else
             {
-                result = game.AdvanceOneStep();
+                result = game.DriveAdvanceOneStep();
             }
 
             AssertCardInventory(game);
@@ -2590,7 +2568,7 @@ static void ObserversRunPostCommit()
     game.CardMoved += _ => observedStatuses.Add(game.State.Status);
     game.StateChanged += snapshot => publishedSnapshots.Add(snapshot);
 
-    var result = game.Start();
+    var result = game.DriveStart();
 
     Equal(EngineStatus.AwaitingHumanPlay, result.Status);
     True(observedStatuses.Count > 0);
@@ -2614,8 +2592,8 @@ static void TypedEventStream()
     var observedStatuses = new List<EngineStatus>();
     left.EventCommitted += _ => observedStatuses.Add(left.State.Status);
 
-    var leftResult = left.Start();
-    var rightResult = right.Start();
+    var leftResult = left.DriveStart();
+    var rightResult = right.DriveStart();
 
     True(left.Events.Count > 0);
     True(left.Events[0].Payload is GameStartedEvent started && started.PlayerCount == 8);
@@ -2645,13 +2623,14 @@ static void ResolutionFrameStack()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 150
         });
-        result = game.Start();
+        result = game.DriveStart();
         if (HasSkill(game, SkillKind.Yuanhu))
         {
             continue;
@@ -2675,17 +2654,17 @@ static void ResolutionFrameStack()
                 }
 
                 result = result.PendingDecision?.Kind == DecisionKind.RespondDodge
-                    ? game.HumanRespond(useDodge: false)
-                    : game.HumanRespondSlash(useSlash: false);
+                    ? game.DriveHumanRespond(useDodge: false)
+                    : game.DriveHumanRespondSlash(useSlash: false);
                 continue;
             }
 
             result = result.Status switch
             {
-                EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(),
-                EngineStatus.AwaitingHumanDying => game.HumanRespondDying(usePeach: false),
+                EngineStatus.AwaitingHumanPlay => game.DriveHumanEndPlay(),
+                EngineStatus.AwaitingHumanDying => game.DriveHumanRespondDying(usePeach: false),
                 EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
-                _ => game.AdvanceOneStep()
+                _ => game.DriveAdvanceOneStep()
             };
         }
     }
@@ -2725,13 +2704,14 @@ static void DuelResponseFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 220
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         var steps = 0;
         while (result.Status != EngineStatus.Completed && steps++ < 2_500)
         {
@@ -2740,8 +2720,8 @@ static void DuelResponseFlow()
                 var duel = game.GetHumanLegalActions()
                     .FirstOrDefault(action => action.Kind == LegalActionKind.Duel);
                 result = duel is null
-                    ? game.HumanEndPlay(advanceToHumanBoundary: false)
-                    : game.HumanPlay(duel.CardId!.Value, duel.TargetSeat, advanceToHumanBoundary: false);
+                    ? game.DriveHumanEndPlay(advanceToHumanBoundary: false)
+                    : game.DriveHumanPlay(duel.CardId!.Value, duel.TargetSeat, advanceToHumanBoundary: false);
                 continue;
             }
 
@@ -2755,15 +2735,15 @@ static void DuelResponseFlow()
                     break;
                 }
 
-                result = game.HumanRespond(useDodge: false, advanceToHumanBoundary: false);
+                result = game.DriveHumanRespond(useDodge: false, advanceToHumanBoundary: false);
                 continue;
             }
 
             result = result.Status == EngineStatus.AwaitingHumanDying
-                ? game.HumanRespondDying(usePeach: false, advanceToHumanBoundary: false)
+                ? game.DriveHumanRespondDying(usePeach: false, advanceToHumanBoundary: false)
                 : result.Status == EngineStatus.AwaitingHumanCardSelection
                     ? ResolveFirstHarvestChoice(game)
-                : game.AdvanceOneStep();
+                : game.DriveAdvanceOneStep();
         }
     }
 
@@ -2818,17 +2798,17 @@ static void DuelResponseFlow()
     {
         if (resultAfterResponse.Status == EngineStatus.AwaitingHumanPlay)
         {
-            resultAfterResponse = gameWithDuel.HumanEndPlay(advanceToHumanBoundary: false);
+            resultAfterResponse = gameWithDuel.DriveHumanEndPlay(advanceToHumanBoundary: false);
         }
         else if (resultAfterResponse.Status == EngineStatus.AwaitingHumanResponse)
         {
             resultAfterResponse = gameWithDuel.PendingDecision?.Kind == DecisionKind.RespondSlash
-                ? gameWithDuel.HumanRespondSlash(useSlash: false, advanceToHumanBoundary: false)
-                : gameWithDuel.HumanRespond(useDodge: false, advanceToHumanBoundary: false);
+                ? gameWithDuel.DriveHumanRespondSlash(useSlash: false, advanceToHumanBoundary: false)
+                : gameWithDuel.DriveHumanRespond(useDodge: false, advanceToHumanBoundary: false);
         }
         else if (resultAfterResponse.Status == EngineStatus.AwaitingHumanDying)
         {
-            resultAfterResponse = gameWithDuel.HumanRespondDying(usePeach: false, advanceToHumanBoundary: false);
+            resultAfterResponse = gameWithDuel.DriveHumanRespondDying(usePeach: false, advanceToHumanBoundary: false);
         }
         else if (resultAfterResponse.Status == EngineStatus.AwaitingHumanCardSelection)
         {
@@ -2836,7 +2816,7 @@ static void DuelResponseFlow()
         }
         else
         {
-            resultAfterResponse = gameWithDuel.AdvanceOneStep();
+            resultAfterResponse = gameWithDuel.DriveAdvanceOneStep();
         }
     }
 
@@ -2875,13 +2855,13 @@ static void DrawTwoFlow()
             HumanSeat = 0,
             HumanRole = Role.Lord
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         var human = game.CreateSnapshot(0, revealAll: true)
             .Players.Single(player => player.Seat == 0);
         var action = game.GetHumanLegalActions()
             .FirstOrDefault(candidate => candidate.Kind == LegalActionKind.DrawTwo);
         if (result.Status == EngineStatus.AwaitingHumanPlay &&
-            human.Skill != SkillKind.Wusheng &&
+            human.Skills?.Any(skill => skill.Kind == SkillKind.Wusheng) != true &&
             action is not null &&
             game.CreateSnapshot(0, revealAll: true).Players.All(player =>
                 player.Hand.All(card => card.Kind != CardKind.Nullification)))
@@ -2987,13 +2967,14 @@ static void NullificationFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = -1,
             HumanRole = null,
             MaxTurns = 250
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         if (result.Status == EngineStatus.Completed &&
             game.Events.Any(eventItem => eventItem.Payload is NullificationRespondedEvent))
         {
@@ -3046,13 +3027,14 @@ static void NullificationFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         if (result.Status != EngineStatus.AwaitingHumanPlay)
         {
             continue;
@@ -3073,7 +3055,7 @@ static void NullificationFlow()
             continue;
         }
 
-        _ = game.HumanPlay(
+        _ = game.DriveHumanPlay(
             action.CardId!.Value,
             action.TargetSeat,
             advanceToHumanBoundary: false,
@@ -3092,7 +3074,7 @@ static void NullificationFlow()
                 break;
             }
 
-            game.AdvanceOneStep();
+            game.DriveAdvanceOneStep();
         }
     }
 
@@ -3155,20 +3137,21 @@ static void IronChainFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
-        var started = game.Start();
+        var started = game.DriveStart();
         if (started.Status != EngineStatus.AwaitingHumanPlay)
         {
             continue;
         }
 
         var revealed = game.CreateSnapshot(0, revealAll: true);
-        if (revealed.Players.Any(player => player.Skill == SkillKind.Yuanhu))
+        if (revealed.Players.Any(player => player.Skills?.Any(skill => skill.Kind == SkillKind.Yuanhu) == true))
         {
             continue;
         }
@@ -3193,7 +3176,7 @@ static void IronChainFlow()
             chainAction is null ||
             fireSlashAction is null ||
             chainChoice is null ||
-            target.Skill == SkillKind.Longdan ||
+            target.Skills?.Any(skill => skill.Kind == SkillKind.Longdan) == true ||
             target.Hand.Any(card => card.Kind == CardKind.Dodge))
         {
             continue;
@@ -3231,7 +3214,7 @@ static void IronChainFlow()
 
         if (game.PendingDecision?.Kind != DecisionKind.PlayCard)
         {
-            game.AdvanceOneStep();
+            game.DriveAdvanceOneStep();
         }
 
         chainedSnapshot = game.CreateSnapshot(0, revealAll: true);
@@ -3245,7 +3228,7 @@ static void IronChainFlow()
         }
 
         var eventCountBeforeFireSlash = game.Events.Count;
-        game.HumanPlay(fireSlash.Id, expectedTargets[0], advanceToHumanBoundary: false);
+        game.DriveHumanPlay(fireSlash.Id, expectedTargets[0], advanceToHumanBoundary: false);
         for (var step = 0; step < 512; step++)
         {
             propagated = game.Events
@@ -3262,27 +3245,27 @@ static void IronChainFlow()
             {
                 _ = humanPrompt.Kind switch
                 {
-                    DecisionKind.RespondDodge => game.HumanRespond(
+                    DecisionKind.RespondDodge => game.DriveHumanRespond(
                         useDodge: false,
                         advanceToHumanBoundary: false),
-                    DecisionKind.RespondSlash => game.HumanRespondSlash(
+                    DecisionKind.RespondSlash => game.DriveHumanRespondSlash(
                         useSlash: false,
                         advanceToHumanBoundary: false),
-                    DecisionKind.RescueDying => game.HumanRespondDying(
+                    DecisionKind.RescueDying => game.DriveHumanRespondDying(
                         usePeach: false,
                         advanceToHumanBoundary: false),
                     DecisionKind.SelectHarvestCard => ResolveFirstHarvestChoice(game),
-                    DecisionKind.Nullification => game.HumanRespondNullification(
+                    DecisionKind.Nullification => game.DriveHumanRespondNullification(
                         useNullification: false,
                         advanceToHumanBoundary: false),
-                    DecisionKind.PlayCard => game.HumanEndPlay(advanceToHumanBoundary: false),
+                    DecisionKind.PlayCard => game.DriveHumanEndPlay(advanceToHumanBoundary: false),
                     _ => throw new InvalidOperationException(
                         $"Unexpected human prompt during IronChain propagation: {humanPrompt.Kind}.")
                 };
             }
             else
             {
-                game.AdvanceOneStep();
+                game.DriveAdvanceOneStep();
             }
         }
 
@@ -3305,27 +3288,27 @@ static void IronChainFlow()
             {
                 _ = settlePrompt.Kind switch
                 {
-                    DecisionKind.RespondDodge => game.HumanRespond(
+                    DecisionKind.RespondDodge => game.DriveHumanRespond(
                         useDodge: false,
                         advanceToHumanBoundary: false),
-                    DecisionKind.RespondSlash => game.HumanRespondSlash(
+                    DecisionKind.RespondSlash => game.DriveHumanRespondSlash(
                         useSlash: false,
                         advanceToHumanBoundary: false),
-                    DecisionKind.RescueDying => game.HumanRespondDying(
+                    DecisionKind.RescueDying => game.DriveHumanRespondDying(
                         usePeach: false,
                         advanceToHumanBoundary: false),
                     DecisionKind.SelectHarvestCard => ResolveFirstHarvestChoice(game),
-                    DecisionKind.Nullification => game.HumanRespondNullification(
+                    DecisionKind.Nullification => game.DriveHumanRespondNullification(
                         useNullification: false,
                         advanceToHumanBoundary: false),
-                    DecisionKind.PlayCard => game.HumanEndPlay(advanceToHumanBoundary: false),
+                    DecisionKind.PlayCard => game.DriveHumanEndPlay(advanceToHumanBoundary: false),
                     _ => throw new InvalidOperationException(
                         $"Unexpected human prompt while settling IronChain: {settlePrompt.Kind}.")
                 };
             }
             else
             {
-                game.AdvanceOneStep();
+                game.DriveAdvanceOneStep();
             }
         }
 
@@ -3432,13 +3415,14 @@ static void BarbarianAssaultFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         var action = game.GetHumanLegalActions()
             .FirstOrDefault(candidate => candidate.Kind == LegalActionKind.BarbarianAssault);
         if (result.Status != EngineStatus.AwaitingHumanPlay || action is null)
@@ -3452,12 +3436,13 @@ static void BarbarianAssaultFlow()
             continue;
         }
         if (game.CreateSnapshot(0, revealAll: true).Players
-            .Single(player => player.Seat == 0).Skill == SkillKind.Yuanhu)
+            .Single(player => player.Seat == 0).Skills?
+                .Any(skill => skill.Kind == SkillKind.Yuanhu) == true)
         {
             continue;
         }
 
-        result = game.HumanPlay(action.CardId!.Value, null, advanceToHumanBoundary: false);
+        result = game.DriveHumanPlay(action.CardId!.Value, null, advanceToHumanBoundary: false);
         result = ResolveNullificationWindowForTest(game, result);
         var currentFrame = game.ResolutionStack.OfType<CardUseFrame>()
             .SingleOrDefault(frame => frame.CardKind == CardKind.BarbarianAssault);
@@ -3511,14 +3496,14 @@ static void BarbarianAssaultFlow()
                finished.ResolutionId == frame.Id) &&
            steps++ < 500)
     {
-        var advanced = gameWithAssault.AdvanceOneStep();
+        var advanced = gameWithAssault.DriveAdvanceOneStep();
         if (advanced.Status == EngineStatus.AwaitingHumanResponse)
         {
-            gameWithAssault.HumanRespond(useDodge: false, advanceToHumanBoundary: false);
+            gameWithAssault.DriveHumanRespond(useDodge: false, advanceToHumanBoundary: false);
         }
         else if (advanced.Status == EngineStatus.AwaitingHumanDying)
         {
-            gameWithAssault.HumanRespondDying(usePeach: false, advanceToHumanBoundary: false);
+            gameWithAssault.DriveHumanRespondDying(usePeach: false, advanceToHumanBoundary: false);
         }
     }
 
@@ -3566,13 +3551,14 @@ static void ArrowBarrageFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         var action = game.GetHumanLegalActions()
             .FirstOrDefault(candidate => candidate.Kind == LegalActionKind.ArrowBarrage);
         if (result.Status != EngineStatus.AwaitingHumanPlay || action is null)
@@ -3586,7 +3572,7 @@ static void ArrowBarrageFlow()
             continue;
         }
 
-        result = game.HumanPlay(action.CardId!.Value, null, advanceToHumanBoundary: false);
+        result = game.DriveHumanPlay(action.CardId!.Value, null, advanceToHumanBoundary: false);
         result = ResolveNullificationWindowForTest(game, result);
         var currentFrame = game.ResolutionStack.OfType<CardUseFrame>()
             .SingleOrDefault(frame => frame.CardKind == CardKind.ArrowBarrage);
@@ -3595,12 +3581,13 @@ static void ArrowBarrageFlow()
         var hasGuaranteedDamageTarget = currentFrame is not null && currentFrame.TargetSeats.Any(targetSeat =>
         {
             var target = game.CreateSnapshot(targetSeat).Players.Single(player => player.Seat == targetSeat);
-            return target.Skill != SkillKind.Longdan &&
+            return target.Skills?.Any(skill => skill.Kind == SkillKind.Longdan) != true &&
                    !target.Hand.Any(card => card.Kind == CardKind.Dodge);
         });
         var hasNoFeedbackTarget = currentFrame is not null && currentFrame.TargetSeats.All(targetSeat =>
             game.CreateSnapshot(targetSeat, revealAll: true).Players
-                .Single(player => player.Seat == targetSeat).Skill != SkillKind.Feedback);
+                .Single(player => player.Seat == targetSeat).Skills?
+                    .Any(skill => skill.Kind == SkillKind.Feedback) != true);
         if (currentFrame is not null && responseFrame is not null &&
             hasGuaranteedDamageTarget && hasNoFeedbackTarget)
         {
@@ -3654,7 +3641,7 @@ static void ArrowBarrageFlow()
                finished.ResolutionId == frame.Id) &&
            steps++ < 500)
     {
-        var advanced = gameWithBarrage.AdvanceOneStep();
+        var advanced = gameWithBarrage.DriveAdvanceOneStep();
         if (advanced.Status is EngineStatus.AwaitingHumanResponse or
             EngineStatus.AwaitingHumanDying or
             EngineStatus.AwaitingHumanCardSelection or
@@ -3715,13 +3702,14 @@ static void PeachGardenFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         var garden = game.GetHumanLegalActions()
             .FirstOrDefault(candidate => candidate.Kind == LegalActionKind.PeachGarden);
         var slash = game.GetHumanLegalActions()
@@ -3736,7 +3724,7 @@ static void PeachGardenFlow()
         }
 
         var targetSeatForTest = slash.TargetSeat!.Value;
-        game.HumanPlay(slash.CardId!.Value, targetSeatForTest, advanceToHumanBoundary: false);
+        game.DriveHumanPlay(slash.CardId!.Value, targetSeatForTest, advanceToHumanBoundary: false);
         ResolveNullificationWindowForTest(game);
         var targetAfterSlash = game.State.Players.Single(player => player.Seat == targetSeatForTest);
         if (targetAfterSlash.Hp != targetAfterSlash.MaxHp - 1)
@@ -3744,7 +3732,7 @@ static void PeachGardenFlow()
             continue;
         }
 
-        result = game.AdvanceOneStep();
+        result = game.DriveAdvanceOneStep();
         garden = game.GetHumanLegalActions()
             .FirstOrDefault(candidate => candidate.Kind == LegalActionKind.PeachGarden);
         if (result.Status != EngineStatus.AwaitingHumanPlay || garden is null)
@@ -3752,7 +3740,7 @@ static void PeachGardenFlow()
             continue;
         }
 
-        game.HumanPlay(garden.CardId!.Value, null, advanceToHumanBoundary: false);
+        game.DriveHumanPlay(garden.CardId!.Value, null, advanceToHumanBoundary: false);
         ResolveNullificationWindowForTest(game);
         var currentFrame = game.ResolutionStack.OfType<CardUseFrame>()
             .SingleOrDefault(frame => frame.CardKind == CardKind.PeachGarden);
@@ -3787,7 +3775,7 @@ static void PeachGardenFlow()
         cardUse.TargetIndex == 0,
         "PeachGarden card-use frame is paused before the first target");
 
-    var firstStep = gameWithGarden.AdvanceOneStep();
+    var firstStep = gameWithGarden.DriveAdvanceOneStep();
     Equal(EngineStatus.Running, firstStep.Status);
     TrueWithMessage(
         gameWithGarden.ResolutionStack.OfType<CardUseFrame>().Single().TargetIndex == 1,
@@ -3806,7 +3794,7 @@ static void PeachGardenFlow()
                finished.ResolutionId == frame.Id) &&
            steps++ < 100)
     {
-        gameWithGarden.AdvanceOneStep();
+        gameWithGarden.DriveAdvanceOneStep();
     }
 
     TrueWithMessage(
@@ -3856,13 +3844,14 @@ static void FiveGrainsFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         var action = game.GetHumanLegalActions()
             .FirstOrDefault(candidate => candidate.Kind == LegalActionKind.FiveGrains);
         if (result.Status != EngineStatus.AwaitingHumanPlay || action is null)
@@ -3870,7 +3859,7 @@ static void FiveGrainsFlow()
             continue;
         }
 
-        result = game.HumanPlay(action.CardId!.Value, null, advanceToHumanBoundary: false);
+        result = game.DriveHumanPlay(action.CardId!.Value, null, advanceToHumanBoundary: false);
         result = ResolveNullificationWindowForTest(game, result);
         var candidateFrame = game.ResolutionStack.OfType<CardUseFrame>()
             .SingleOrDefault(candidate => candidate.CardKind == CardKind.FiveGrains);
@@ -3942,7 +3931,7 @@ static void FiveGrainsFlow()
     Equal(beforeInvalid, gameWithDraft.SerializeState());
 
     var selectedCardId = prompt.Choices[0].Cards.Single();
-    var afterHumanPick = gameWithDraft.HumanSelectHarvestCard(
+    var afterHumanPick = gameWithDraft.DriveHumanSelectHarvestCard(
         selectedCardId,
         advanceToHumanBoundary: false);
     Equal(EngineStatus.Running, afterHumanPick.Status);
@@ -3959,7 +3948,7 @@ static void FiveGrainsFlow()
            guard++ < 32)
     {
         True(gameWithDraft.State.Status == EngineStatus.Running);
-        gameWithDraft.AdvanceOneStep();
+        gameWithDraft.DriveAdvanceOneStep();
     }
 
     TrueWithMessage(guard < 32, "FiveGrains draft completes within one step per picker");
@@ -4002,13 +3991,14 @@ static void DismantlementFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         var action = game.GetHumanLegalActions()
             .FirstOrDefault(candidate => candidate.Kind == LegalActionKind.Dismantlement);
         if (!game.CreateSnapshot(0, revealAll: true).Players.All(player =>
@@ -4049,7 +4039,7 @@ static void DismantlementFlow()
     True(privateTargetBefore.Hand.Count == privateTargetBefore.HandCount);
 
     var beforeTargetCards = privateTargetBefore.Hand.ToArray();
-    var resultAfterUse = gameWithDismantlement.HumanPlay(
+    var resultAfterUse = gameWithDismantlement.DriveHumanPlay(
         actionToUse.CardId!.Value,
         targetSeat,
         advanceToHumanBoundary: false);
@@ -4066,7 +4056,7 @@ static void DismantlementFlow()
         choice.Targets.SequenceEqual([targetSeat]) &&
         choice.Parameters.ContainsKey("slot-index") &&
         !choice.Parameters.ContainsKey("card-id")));
-    resultAfterUse = gameWithDismantlement.HumanSelectTargetCardSlot(0, advanceToHumanBoundary: false);
+    resultAfterUse = gameWithDismantlement.DriveHumanSelectTargetCardSlot(0, advanceToHumanBoundary: false);
 
     Equal(EngineStatus.Running, resultAfterUse.Status);
     Equal<PendingDecision?>(null, resultAfterUse.PendingDecision);
@@ -4136,13 +4126,14 @@ static void SnatchFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         var action = game.GetHumanLegalActions()
             .FirstOrDefault(candidate =>
                 candidate.Kind == LegalActionKind.Snatch &&
@@ -4189,7 +4180,7 @@ static void SnatchFlow()
     True(privateTargetBefore.Hand.Count == privateTargetBefore.HandCount);
 
     var beforeTargetCards = privateTargetBefore.Hand.ToArray();
-    var resultAfterUse = gameWithSnatch.HumanPlay(
+    var resultAfterUse = gameWithSnatch.DriveHumanPlay(
         actionToUse.CardId!.Value,
         targetSeat,
         advanceToHumanBoundary: false);
@@ -4271,13 +4262,14 @@ static void PublicTargetCardFlow()
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {
+                AdvanceAfterHumanCommands = false,
                 UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
                 HumanRole = Role.Lord,
                 MaxTurns = 180
             });
-            var result = game.Start();
+            var result = game.DriveStart();
             if (result.Status != EngineStatus.AwaitingHumanPlay)
             {
                 continue;
@@ -4300,7 +4292,7 @@ static void PublicTargetCardFlow()
                     return game;
                 }
 
-                result = game.HumanEndPlay(advanceToHumanBoundary: true);
+                result = game.DriveHumanEndPlay(advanceToHumanBoundary: true);
             }
         }
 
@@ -4381,7 +4373,7 @@ static void PublicTargetCardFlow()
         };
         TrueWithMessage(ordinaryTargetCardsBefore.Any(card => card.Id == targetCard.Id), "public viewer sees selected target card");
 
-        var result = game.HumanPlay(
+        var result = game.DriveHumanPlay(
             action.CardId!.Value,
             targetSeat,
             advanceToHumanBoundary: false,
@@ -4598,13 +4590,14 @@ static void EquipmentFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         if (result.Status != EngineStatus.AwaitingHumanPlay)
         {
             continue;
@@ -4632,7 +4625,7 @@ static void EquipmentFlow()
     var firstEquipAction = gameWithEquipment.GetHumanLegalActions().Single(action =>
         action.Kind == LegalActionKind.Equip && action.CardId == firstCrossbow.Id);
     True(firstEquipAction.TargetSeat is null);
-    var firstResult = gameWithEquipment.HumanPlay(
+    var firstResult = gameWithEquipment.DriveHumanPlay(
         firstCrossbow.Id,
         targetSeat: null,
         advanceToHumanBoundary: true);
@@ -4680,7 +4673,7 @@ static void EquipmentFlow()
         movement.To == CardLocation.Equipment(0) &&
         movement.Reason == CardMoveReasons.EquipmentEnter));
 
-    var secondResult = gameWithEquipment.HumanPlay(
+    var secondResult = gameWithEquipment.DriveHumanPlay(
         secondCrossbow.Id,
         targetSeat: null,
         advanceToHumanBoundary: true);
@@ -4714,13 +4707,14 @@ static void EquipmentFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         if (result.Status != EngineStatus.AwaitingHumanPlay)
         {
             continue;
@@ -4740,7 +4734,7 @@ static void EquipmentFlow()
     }
 
     Equal(2, horseGame.GetCombatDistance(0, 2));
-    horseGame.HumanPlay(horse.Id, targetSeat: null, advanceToHumanBoundary: true);
+    horseGame.DriveHumanPlay(horse.Id, targetSeat: null, advanceToHumanBoundary: true);
     Equal(1, horseGame.GetCombatDistance(0, 2));
     Equal(2, horseGame.GetSeatDistance(0, 2));
     True(horseGame.GetCombatDistance(0, 2) <= horseGame.GetSeatDistance(0, 2));
@@ -4758,13 +4752,14 @@ static void BaguaJudgmentFlow()
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {
+                AdvanceAfterHumanCommands = false,
                 UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
                 HumanRole = Role.Lord,
                 MaxTurns = 180
             });
-            var result = game.Start();
+            var result = game.DriveStart();
             var bagua = game.State.Players.Single(player => player.Seat == 0).Hand
                 .FirstOrDefault(card => card.Kind == CardKind.BaguaFormation);
             if (result.Status != EngineStatus.AwaitingHumanPlay || bagua is null)
@@ -4772,8 +4767,8 @@ static void BaguaJudgmentFlow()
                 continue;
             }
 
-            result = game.HumanPlay(bagua.Id, targetSeat: null, advanceToHumanBoundary: true);
-            result = game.HumanEndPlay(advanceToHumanBoundary: false);
+            result = game.DriveHumanPlay(bagua.Id, targetSeat: null, advanceToHumanBoundary: true);
+            result = game.DriveHumanEndPlay(advanceToHumanBoundary: false);
             var steps = 0;
             while (result.Status != EngineStatus.Completed && steps++ < 1_500)
             {
@@ -4811,13 +4806,13 @@ static void BaguaJudgmentFlow()
 
                     result = prompt.Kind switch
                     {
-                        DecisionKind.RespondSlash => game.HumanRespondSlash(
+                        DecisionKind.RespondSlash => game.DriveHumanRespondSlash(
                             useSlash: false,
                             advanceToHumanBoundary: false),
-                        DecisionKind.RespondDodge => game.HumanRespond(
+                        DecisionKind.RespondDodge => game.DriveHumanRespond(
                             useDodge: false,
                             advanceToHumanBoundary: false),
-                        _ => game.HumanRespond(
+                        _ => game.DriveHumanRespond(
                             useDodge: false,
                             advanceToHumanBoundary: false)
                     };
@@ -4826,13 +4821,13 @@ static void BaguaJudgmentFlow()
 
                 result = result.Status switch
                 {
-                    EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(
+                    EngineStatus.AwaitingHumanPlay => game.DriveHumanEndPlay(
                         advanceToHumanBoundary: false),
-                    EngineStatus.AwaitingHumanDying => game.HumanRespondDying(
+                    EngineStatus.AwaitingHumanDying => game.DriveHumanRespondDying(
                         usePeach: false,
                         advanceToHumanBoundary: false),
                     EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
-                    _ => game.AdvanceOneStep()
+                    _ => game.DriveAdvanceOneStep()
                 };
             }
         }
@@ -4944,6 +4939,7 @@ static void BaguaDefendsArrowBarrage()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
@@ -4956,7 +4952,7 @@ static void BaguaDefendsArrowBarrage()
                 game.CreateCheckpoint() with { RulesVersion = rulesVersion });
         }
 
-        var result = game.Start();
+        var result = game.DriveStart();
         var bagua = game.CreateSnapshot(0, revealAll: true).Players
             .Single(player => player.Seat == 0).Hand
             .FirstOrDefault(card => card.Kind == CardKind.BaguaFormation);
@@ -4965,8 +4961,8 @@ static void BaguaDefendsArrowBarrage()
             return null;
         }
 
-        result = game.HumanPlay(bagua.Id, targetSeat: null, advanceToHumanBoundary: true);
-        result = game.HumanEndPlay(advanceToHumanBoundary: false);
+        result = game.DriveHumanPlay(bagua.Id, targetSeat: null, advanceToHumanBoundary: true);
+        result = game.DriveHumanEndPlay(advanceToHumanBoundary: false);
         for (var step = 0; result.Status != EngineStatus.Completed && step < 1_500; step++)
         {
             if (result.Status == EngineStatus.AwaitingHumanResponse)
@@ -4982,10 +4978,10 @@ static void BaguaDefendsArrowBarrage()
 
                 result = prompt.Kind switch
                 {
-                    DecisionKind.RespondSlash => game.HumanRespondSlash(
+                    DecisionKind.RespondSlash => game.DriveHumanRespondSlash(
                         useSlash: false,
                         advanceToHumanBoundary: false),
-                    _ => game.HumanRespond(
+                    _ => game.DriveHumanRespond(
                         useDodge: false,
                         advanceToHumanBoundary: false)
                 };
@@ -4994,13 +4990,13 @@ static void BaguaDefendsArrowBarrage()
 
             result = result.Status switch
             {
-                EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(
+                EngineStatus.AwaitingHumanPlay => game.DriveHumanEndPlay(
                     advanceToHumanBoundary: false),
-                EngineStatus.AwaitingHumanDying => game.HumanRespondDying(
+                EngineStatus.AwaitingHumanDying => game.DriveHumanRespondDying(
                     usePeach: false,
                     advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
-                _ => game.AdvanceOneStep()
+                _ => game.DriveAdvanceOneStep()
             };
         }
 
@@ -5119,6 +5115,7 @@ static void QinggangBypassesBagua()
         var candidate = GameEngine.CreateStandard(
             new GameOptions
             {
+                AdvanceAfterHumanCommands = false,
                 UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
@@ -5127,7 +5124,7 @@ static void QinggangBypassesBagua()
                 MaxTurns = 60
             },
             registry);
-        var result = candidate.Start();
+        var result = candidate.DriveStart();
         if (result.Status != EngineStatus.AwaitingHumanPlay)
         {
             continue;
@@ -5142,9 +5139,9 @@ static void QinggangBypassesBagua()
             continue;
         }
 
-        candidate.HumanPlay(candidateQinggang.Id, targetSeat: null, advanceToHumanBoundary: false);
-        candidate.Advance();
-        result = candidate.HumanEndPlay(advanceToHumanBoundary: true);
+        candidate.DriveHumanPlay(candidateQinggang.Id, targetSeat: null, advanceToHumanBoundary: false);
+        candidate.DriveAdvance();
+        result = candidate.DriveHumanEndPlay(advanceToHumanBoundary: true);
         if (result.Status != EngineStatus.AwaitingHumanPlay)
         {
             continue;
@@ -5184,7 +5181,7 @@ static void QinggangBypassesBagua()
         "Qinggang enters the public weapon slot");
     Equal(2, game.GetAttackRange(0));
     var eventCount = game.Events.Count;
-    var slashResult = game.HumanPlay(
+    var slashResult = game.DriveHumanPlay(
         slashAction.CardId!.Value,
         slashAction.TargetSeat,
         advanceToHumanBoundary: false);
@@ -5220,7 +5217,7 @@ static void QinggangBypassesBagua()
         JsonSerializer.Serialize(frame).Contains("\"IgnoresArmor\":true", StringComparison.Ordinal),
         "Qinggang modifier survives frame serialization");
 
-    var targetResponse = game.AdvanceOneStep();
+    var targetResponse = game.DriveAdvanceOneStep();
     Equal(EngineStatus.Running, targetResponse.Status);
     Equal(0, game.ResolutionStack.Count);
     TrueWithMessage(
@@ -5278,6 +5275,7 @@ static void RenwangShieldFlow()
             var candidate = GameEngine.CreateStandard(
                 new GameOptions
                 {
+                    AdvanceAfterHumanCommands = false,
                     UseInteractiveDiscard = false,
                     Seed = seed,
                     HumanSeat = 0,
@@ -5293,7 +5291,7 @@ static void RenwangShieldFlow()
                     registry);
             }
 
-            var started = candidate.Start();
+            var started = candidate.DriveStart();
             if (started.Status != EngineStatus.AwaitingHumanPlay)
             {
                 continue;
@@ -5317,7 +5315,7 @@ static void RenwangShieldFlow()
                 continue;
             }
 
-            var nextHumanTurn = candidate.HumanEndPlay(advanceToHumanBoundary: true);
+            var nextHumanTurn = candidate.DriveHumanEndPlay(advanceToHumanBoundary: true);
             if (nextHumanTurn.Status != EngineStatus.AwaitingHumanPlay)
             {
                 continue;
@@ -5390,7 +5388,7 @@ static void RenwangShieldFlow()
 
     var targetHp = targetView.Hp;
     var eventCount = game.Events.Count;
-    var accepted = game.HumanPlay(
+    var accepted = game.DriveHumanPlay(
         blackSlash.Id,
         shieldSeat,
         advanceToHumanBoundary: false);
@@ -5432,13 +5430,14 @@ static void FireAttackFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         if (HasSkill(game, SkillKind.Yuanhu))
         {
             continue;
@@ -5459,14 +5458,14 @@ static void FireAttackFlow()
         }
 
         var targetSeat = action.TargetSeat!.Value;
-        var targetSkill = game.CreateSnapshot(0, revealAll: true).Players
-            .Single(player => player.Seat == targetSeat).Skill;
-        if (targetSkill is SkillKind.Yiji or SkillKind.Jieming or SkillKind.Yuanhu)
+        var targetSkills = game.CreateSnapshot(0, revealAll: true).Players
+            .Single(player => player.Seat == targetSeat).Skills;
+        if (targetSkills?.Any(skill => skill.Kind is SkillKind.Yiji or SkillKind.Jieming or SkillKind.Yuanhu) == true)
         {
             continue;
         }
 
-        result = game.HumanPlay(action.CardId!.Value, targetSeat, advanceToHumanBoundary: false);
+        result = game.DriveHumanPlay(action.CardId!.Value, targetSeat, advanceToHumanBoundary: false);
         if (result.Status != EngineStatus.Running || game.PendingDecision is not null)
         {
             continue;
@@ -5496,7 +5495,7 @@ static void FireAttackFlow()
             continue;
         }
 
-        result = game.AdvanceOneStep();
+        result = game.DriveAdvanceOneStep();
         var candidateDiscardPrompt = game.PendingDecision;
         if (result.Status != EngineStatus.AwaitingHumanCardSelection ||
             candidateDiscardPrompt is not { Kind: DecisionKind.FireAttackDiscard, PlayerSeat: 0 } ||
@@ -5562,6 +5561,8 @@ static void FireAttackFlow()
         discardChoice.Id,
         gameWithFireAttack.Revision));
     TrueWithMessage(accepted.Accepted, "FireAttack discard choice accepted");
+    accepted = gameWithFireAttack.Submit(new AdvanceCommand(gameWithFireAttack.Revision));
+    TrueWithMessage(accepted.Accepted, "FireAttack discard continuation accepted");
     Equal(EngineStatus.AwaitingHumanPlay, accepted.State.Status);
     Equal(0, accepted.State.ProcessingCardCount);
     Equal(0, gameWithFireAttack.ResolutionStack.Count);
@@ -5642,13 +5643,14 @@ static void FireAttackSkipFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         if (HasSkill(game, SkillKind.Yuanhu))
         {
             continue;
@@ -5669,7 +5671,7 @@ static void FireAttackSkipFlow()
         }
 
         var targetSeat = action.TargetSeat!.Value;
-        result = game.HumanPlay(action.CardId!.Value, targetSeat, advanceToHumanBoundary: false);
+        result = game.DriveHumanPlay(action.CardId!.Value, targetSeat, advanceToHumanBoundary: false);
         if (result.Status != EngineStatus.Running || game.PendingDecision is not null)
         {
             continue;
@@ -5688,7 +5690,7 @@ static void FireAttackSkipFlow()
             continue;
         }
 
-        result = game.AdvanceOneStep();
+        result = game.DriveAdvanceOneStep();
         var prompt = game.PendingDecision;
         if (result.Status == EngineStatus.AwaitingHumanCardSelection &&
             prompt is { Kind: DecisionKind.FireAttackDiscard, PlayerSeat: 0 } &&
@@ -5726,6 +5728,8 @@ static void FireAttackSkipFlow()
         skipChoice.Id,
         gameWithSkip.Revision));
     TrueWithMessage(accepted.Accepted, "FireAttack skip choice accepted");
+    accepted = gameWithSkip.Submit(new AdvanceCommand(gameWithSkip.Revision));
+    TrueWithMessage(accepted.Accepted, "FireAttack skip continuation accepted");
     Equal(EngineStatus.AwaitingHumanPlay, accepted.State.Status);
     Equal(0, accepted.State.ProcessingCardCount);
     Equal(0, accepted.State.PublicRevealedCards.Count);
@@ -5769,13 +5773,14 @@ static void AttributeSlashFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         if (HasSkill(game, SkillKind.Yuanhu))
         {
             continue;
@@ -5801,8 +5806,8 @@ static void AttributeSlashFlow()
             var target = game.CreateSnapshot(action.TargetSeat!.Value)
                 .Players.Single(player => player.Seat == action.TargetSeat.Value);
             if (target.Hand.Any(candidate => candidate.Kind == CardKind.Dodge) ||
-                IsDamageTriggerSkill(target.Skill) ||
-                target.Skill == SkillKind.Longdan)
+                target.Skills?.Any(skill => IsDamageTriggerSkill(skill.Kind)) == true ||
+                target.Skills?.Any(skill => skill.Kind == SkillKind.Longdan) == true)
             {
                 continue;
             }
@@ -5828,7 +5833,7 @@ static void AttributeSlashFlow()
         : DamageNature.Thunder;
     var expectedLabel = expectedNature == DamageNature.Fire ? "火焰" : "雷电";
 
-    var resultAfterUse = gameWithAttributeSlash.HumanPlay(
+    var resultAfterUse = gameWithAttributeSlash.DriveHumanPlay(
         actionToUse.CardId!.Value,
         targetSeat,
         advanceToHumanBoundary: false);
@@ -5876,13 +5881,14 @@ static void AlcoholFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         if (HasSkill(game, SkillKind.Yuanhu))
         {
             continue;
@@ -5912,8 +5918,8 @@ static void AlcoholFlow()
                 .Single(player => player.Seat == targetSeat);
             if (!IsSlashCard(candidateCard.Kind) ||
                 target.Hand.Any(card => card.Kind == CardKind.Dodge) ||
-                IsDamageTriggerSkill(target.Skill) ||
-                target.Skill == SkillKind.Longdan)
+                target.Skills?.Any(skill => IsDamageTriggerSkill(skill.Kind)) == true ||
+                target.Skills?.Any(skill => skill.Kind == SkillKind.Longdan) == true)
             {
                 continue;
             }
@@ -5935,7 +5941,7 @@ static void AlcoholFlow()
     var alcoholCardId = alcoholAction!.CardId!.Value;
     var slashCardSnapshot = slashCard!;
     var targetSeatForSlash = slashAction!.TargetSeat!.Value;
-    var afterAlcohol = gameWithAlcohol.HumanPlay(
+    var afterAlcohol = gameWithAlcohol.DriveHumanPlay(
         alcoholCardId,
         targetSeat: null,
         advanceToHumanBoundary: false);
@@ -5959,9 +5965,9 @@ static void AlcoholFlow()
     True(gameWithAlcohol.GetHumanLegalActions().All(action =>
         action.Kind != LegalActionKind.Alcohol));
 
-    var alcoholPlayBoundary = gameWithAlcohol.Advance();
+    var alcoholPlayBoundary = gameWithAlcohol.DriveAdvance();
     Equal(EngineStatus.AwaitingHumanPlay, alcoholPlayBoundary.Status);
-    var afterSlash = gameWithAlcohol.HumanPlay(
+    var afterSlash = gameWithAlcohol.DriveHumanPlay(
         slashAction.CardId!.Value,
         targetSeatForSlash,
         advanceToHumanBoundary: false);
@@ -5995,13 +6001,14 @@ static void AlcoholFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         if (HasSkill(game, SkillKind.Yuanhu))
         {
             continue;
@@ -6017,10 +6024,10 @@ static void AlcoholFlow()
         }
 
         var openingTurn = result.State.TurnNumber;
-        game.HumanPlay(action.CardId!.Value, advanceToHumanBoundary: false);
-        game.Advance();
-        game.HumanEndPlay(advanceToHumanBoundary: false);
-        var nextBoundary = game.Advance();
+        game.DriveHumanPlay(action.CardId!.Value, advanceToHumanBoundary: false);
+        game.DriveAdvance();
+        game.DriveHumanEndPlay(advanceToHumanBoundary: false);
+        var nextBoundary = game.DriveAdvance();
         var boundarySteps = 0;
         while (nextBoundary.Status != EngineStatus.Completed &&
                !(nextBoundary.Status == EngineStatus.AwaitingHumanPlay &&
@@ -6031,13 +6038,13 @@ static void AlcoholFlow()
             nextBoundary = nextBoundary.Status switch
             {
                 EngineStatus.AwaitingHumanResponse => game.PendingDecision?.Kind == DecisionKind.RespondSlash
-                    ? game.HumanRespondSlash(useSlash: false, advanceToHumanBoundary: false)
-                    : game.HumanRespond(useDodge: false, advanceToHumanBoundary: false),
-                EngineStatus.AwaitingHumanDying => game.HumanRespondDying(
+                    ? game.DriveHumanRespondSlash(useSlash: false, advanceToHumanBoundary: false)
+                    : game.DriveHumanRespond(useDodge: false, advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanDying => game.DriveHumanRespondDying(
                     usePeach: false,
                     advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
-                _ => game.Advance()
+                _ => game.DriveAdvance()
             };
         }
         if (nextBoundary.Status == EngineStatus.AwaitingHumanPlay &&
@@ -6068,6 +6075,7 @@ static void FeedbackFlow()
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                AdvanceAfterHumanCommands = false,
                 UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
@@ -6075,13 +6083,13 @@ static void FeedbackFlow()
                 MaxTurns = 180
             },
             StandardContentRegistry.Create());
-        var result = game.Start();
+        var result = game.DriveStart();
         if (result.Status != EngineStatus.AwaitingHumanPlay)
         {
             continue;
         }
         var revealed = game.CreateSnapshot(0, revealAll: true);
-        if (revealed.Players.Any(player => player.Skill == SkillKind.Yuanhu))
+        if (revealed.Players.Any(player => player.Skills?.Any(skill => skill.Kind == SkillKind.Yuanhu) == true))
         {
             continue;
         }
@@ -6089,7 +6097,7 @@ static void FeedbackFlow()
         var self = revealed.Players.Single(player => player.Seat == 0);
         var target = revealed.Players.FirstOrDefault(player =>
             player.Seat != 0 &&
-            player.Skill == SkillKind.Feedback &&
+            player.Skills?.Any(skill => skill.Kind == SkillKind.Feedback) == true &&
             player.IsAlive &&
             player.Hand.All(card => card.Kind != CardKind.Dodge));
         if (target is null)
@@ -6118,7 +6126,7 @@ static void FeedbackFlow()
     var targetBefore = gameWithFeedback.CreateSnapshot(feedbackSeat)
         .Players.Single(player => player.Seat == feedbackSeat);
     var sourceBefore = gameWithFeedback.State.Players.Single(player => player.Seat == 0);
-    var resultAfterUse = gameWithFeedback.HumanPlay(
+    var resultAfterUse = gameWithFeedback.DriveHumanPlay(
         attackCard.Id,
         feedbackSeat,
         advanceToHumanBoundary: false);
@@ -6138,7 +6146,7 @@ static void FeedbackFlow()
          triggerWindow.CandidateIndex == 0);
     Equal("Feedback", feedbackFrame!.CandidateId);
     var aiThoughtCountBefore = gameWithFeedback.AiThoughts.Count;
-    var afterAiTrigger = gameWithFeedback.AdvanceOneStep();
+    var afterAiTrigger = gameWithFeedback.DriveAdvanceOneStep();
     Equal(EngineStatus.Running, afterAiTrigger.Status);
     Equal(0, afterAiTrigger.State.ProcessingCardCount);
     Equal(0, gameWithFeedback.ResolutionStack.Count);
@@ -6207,6 +6215,7 @@ static void FeedbackHumanChoiceFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
@@ -6214,17 +6223,18 @@ static void FeedbackHumanChoiceFlow()
             MaxTurns = 180
         });
         var revealed = game.CreateSnapshot(0, revealAll: true);
-        if (revealed.Players.Any(player => player.Skill == SkillKind.Yuanhu))
+        if (revealed.Players.Any(player => player.Skills?.Any(skill => skill.Kind == SkillKind.Yuanhu) == true))
         {
             continue;
         }
 
-        if (revealed.Players.Single(player => player.Seat == 0).Skill != SkillKind.Feedback)
+        if (revealed.Players.Single(player => player.Seat == 0).Skills?
+                .Any(skill => skill.Kind == SkillKind.Feedback) != true)
         {
             continue;
         }
 
-        var result = game.Start();
+        var result = game.DriveStart();
         var steps = 0;
         while (result.Status != EngineStatus.Completed && steps++ < 2_000)
         {
@@ -6238,16 +6248,16 @@ static void FeedbackHumanChoiceFlow()
 
             result = result.Status switch
             {
-                EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanPlay => game.DriveHumanEndPlay(advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanResponse when result.PendingDecision?.Kind == DecisionKind.RespondSlash =>
-                    game.HumanRespondSlash(useSlash: false, advanceToHumanBoundary: false),
+                    game.DriveHumanRespondSlash(useSlash: false, advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanResponse =>
-                    game.HumanRespond(useDodge: false, advanceToHumanBoundary: false),
-                EngineStatus.AwaitingHumanDying => game.HumanRespondDying(
+                    game.DriveHumanRespond(useDodge: false, advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanDying => game.DriveHumanRespondDying(
                     usePeach: false,
                     advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
-                _ => game.AdvanceOneStep()
+                _ => game.DriveAdvanceOneStep()
             };
         }
     }
@@ -6315,6 +6325,7 @@ static void FeedbackSkipChoiceFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
@@ -6322,17 +6333,18 @@ static void FeedbackSkipChoiceFlow()
             MaxTurns = 180
         });
         var revealed = game.CreateSnapshot(0, revealAll: true);
-        if (revealed.Players.Any(player => player.Skill == SkillKind.Yuanhu))
+        if (revealed.Players.Any(player => player.Skills?.Any(skill => skill.Kind == SkillKind.Yuanhu) == true))
         {
             continue;
         }
 
-        if (revealed.Players.Single(player => player.Seat == 0).Skill != SkillKind.Feedback)
+        if (revealed.Players.Single(player => player.Seat == 0).Skills?
+                .Any(skill => skill.Kind == SkillKind.Feedback) != true)
         {
             continue;
         }
 
-        var result = game.Start();
+        var result = game.DriveStart();
         var steps = 0;
         while (result.Status != EngineStatus.Completed && steps++ < 2_000)
         {
@@ -6367,16 +6379,16 @@ static void FeedbackSkipChoiceFlow()
 
             result = result.Status switch
             {
-                EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanPlay => game.DriveHumanEndPlay(advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanResponse when result.PendingDecision?.Kind == DecisionKind.RespondSlash =>
-                    game.HumanRespondSlash(useSlash: false, advanceToHumanBoundary: false),
+                    game.DriveHumanRespondSlash(useSlash: false, advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanResponse =>
-                    game.HumanRespond(useDodge: false, advanceToHumanBoundary: false),
-                EngineStatus.AwaitingHumanDying => game.HumanRespondDying(
+                    game.DriveHumanRespond(useDodge: false, advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanDying => game.DriveHumanRespondDying(
                     usePeach: false,
                     advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
-                _ => game.AdvanceOneStep()
+                _ => game.DriveAdvanceOneStep()
             };
         }
     }
@@ -6398,7 +6410,7 @@ static void FeedbackSkipChoiceFlow()
     var eventCountBeforeSkip = gameWithFeedback.Events.Count;
     var movementCountBeforeSkip = gameWithFeedback.CardMovements.Count;
 
-    var accepted = gameWithFeedback.HumanRespondFeedback(
+    var accepted = gameWithFeedback.DriveHumanRespondFeedback(
         useFeedback: false,
         advanceToHumanBoundary: false);
     TrueWithMessage(accepted.Status != EngineStatus.NotStarted, "Feedback skip choice accepted");
@@ -6444,6 +6456,7 @@ static void YijiGiftFlow()
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                AdvanceAfterHumanCommands = false,
                 UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
@@ -6451,14 +6464,14 @@ static void YijiGiftFlow()
                 MaxTurns = 180
             },
             StandardContentRegistry.Create());
-        var result = game.Start();
+        var result = game.DriveStart();
         if (result.Status != EngineStatus.AwaitingHumanPlay)
         {
             continue;
         }
 
         var revealed = game.CreateSnapshot(0, revealAll: true);
-        if (revealed.Players.Any(player => player.Skill == SkillKind.Yuanhu))
+        if (revealed.Players.Any(player => player.Skills?.Any(skill => skill.Kind == SkillKind.Yuanhu) == true))
         {
             continue;
         }
@@ -6466,7 +6479,7 @@ static void YijiGiftFlow()
         var source = revealed.Players.Single(player => player.Seat == 0);
         var target = revealed.Players.FirstOrDefault(player =>
             player.Seat != 0 &&
-            player.Skill == SkillKind.Yiji &&
+            player.Skills?.Any(skill => skill.Kind == SkillKind.Yiji) == true &&
             player.IsAlive &&
             player.Hand.All(card => card.Kind != CardKind.Dodge));
         if (target is null)
@@ -6492,7 +6505,7 @@ static void YijiGiftFlow()
 
     var gameWithYiji = selectedGame!;
     var attackCard = selectedAttackCard!;
-    var resultAfterDamage = gameWithYiji.HumanPlay(
+    var resultAfterDamage = gameWithYiji.DriveHumanPlay(
         attackCard.Id,
         yijiSeat,
         advanceToHumanBoundary: false);
@@ -6523,7 +6536,7 @@ static void YijiGiftFlow()
             StringComparison.Ordinal));
     }
 
-    var completedStep = gameWithYiji.AdvanceOneStep();
+    var completedStep = gameWithYiji.DriveAdvanceOneStep();
     TrueWithMessage(completedStep.Status is EngineStatus.Running or EngineStatus.AwaitingHumanPlay or EngineStatus.Completed, "Yiji AI step returns after the gift");
     Equal(0, gameWithYiji.ResolutionStack.Count);
     Equal(0, completedStep.State.ProcessingCardCount);
@@ -6565,6 +6578,7 @@ static void YijiHumanChoiceFlow()
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                AdvanceAfterHumanCommands = false,
                 UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
@@ -6573,15 +6587,15 @@ static void YijiHumanChoiceFlow()
                 MaxTurns = 180
             },
             StandardContentRegistry.Create());
-        var started = game.Start();
+        var started = game.DriveStart();
         if (started.Status != EngineStatus.AwaitingHumanGeneralSelection ||
             !started.PendingDecision!.ValidContentIds.Contains("standard:guo-jia", StringComparer.Ordinal))
         {
             continue;
         }
 
-        _ = game.HumanSelectGeneral("standard:guo-jia", advanceToHumanBoundary: false);
-        var result = game.Advance();
+        _ = game.DriveHumanSelectGeneral("standard:guo-jia", advanceToHumanBoundary: false);
+        var result = game.DriveAdvance();
         for (var step = 0; step < 1_200 && result.Status != EngineStatus.Completed; step++)
         {
             if (result.Status == EngineStatus.AwaitingHumanResponse &&
@@ -6593,16 +6607,16 @@ static void YijiHumanChoiceFlow()
 
             result = result.Status switch
             {
-                EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanPlay => game.DriveHumanEndPlay(advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanResponse when result.PendingDecision?.Kind == DecisionKind.RespondSlash =>
-                    game.HumanRespondSlash(useSlash: false, advanceToHumanBoundary: false),
+                    game.DriveHumanRespondSlash(useSlash: false, advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanResponse =>
-                    game.HumanRespond(useDodge: false, advanceToHumanBoundary: false),
-                EngineStatus.AwaitingHumanDying => game.HumanRespondDying(
+                    game.DriveHumanRespond(useDodge: false, advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanDying => game.DriveHumanRespondDying(
                     usePeach: false,
                     advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
-                _ => game.Advance()
+                _ => game.DriveAdvance()
             };
         }
     }
@@ -6648,6 +6662,7 @@ static void JiemingFlow()
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                AdvanceAfterHumanCommands = false,
                 UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
@@ -6656,15 +6671,15 @@ static void JiemingFlow()
                 MaxTurns = 180
             },
             StandardContentRegistry.Create());
-        var started = game.Start();
+        var started = game.DriveStart();
         if (started.Status != EngineStatus.AwaitingHumanGeneralSelection ||
             !started.PendingDecision!.ValidContentIds.Contains("standard:xun-yu", StringComparer.Ordinal))
         {
             continue;
         }
 
-        _ = game.HumanSelectGeneral("standard:xun-yu", advanceToHumanBoundary: false);
-        var result = game.Advance();
+        _ = game.DriveHumanSelectGeneral("standard:xun-yu", advanceToHumanBoundary: false);
+        var result = game.DriveAdvance();
         for (var step = 0; step < 2_400 && result.Status != EngineStatus.Completed; step++)
         {
             if (result.Status == EngineStatus.AwaitingHumanResponse &&
@@ -6677,18 +6692,18 @@ static void JiemingFlow()
 
             result = result.Status switch
             {
-                EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanPlay => game.DriveHumanEndPlay(advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanResponse when result.PendingDecision?.Kind == DecisionKind.RespondSlash =>
-                    game.HumanRespondSlash(useSlash: false, advanceToHumanBoundary: false),
+                    game.DriveHumanRespondSlash(useSlash: false, advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanResponse when result.PendingDecision?.Kind == DecisionKind.Feedback =>
-                    game.HumanRespondFeedback(useFeedback: false, advanceToHumanBoundary: false),
+                    game.DriveHumanRespondFeedback(useFeedback: false, advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanResponse =>
-                    game.HumanRespond(useDodge: false, advanceToHumanBoundary: false),
-                EngineStatus.AwaitingHumanDying => game.HumanRespondDying(
+                    game.DriveHumanRespond(useDodge: false, advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanDying => game.DriveHumanRespondDying(
                     usePeach: false,
                     advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
-                _ => game.AdvanceOneStep()
+                _ => game.DriveAdvanceOneStep()
             };
         }
     }
@@ -6736,7 +6751,7 @@ static void JiemingFlow()
     Equal(CommandErrorCode.InvalidChoice, invalid.Error!.Code);
     Equal(beforeInvalid, gameWithJieming.SerializeState());
 
-    var completedSkill = gameWithJieming.HumanRespondJieming(
+    var completedSkill = gameWithJieming.DriveHumanRespondJieming(
         targetSeat,
         advanceToHumanBoundary: false);
     True(completedSkill.Status is EngineStatus.Running or EngineStatus.AwaitingHumanPlay);
@@ -6786,7 +6801,7 @@ static void JiemingFlow()
             StringComparison.Ordinal));
     }
     TrueWithMessage(gameWithJieming.AiThoughts.Count > 0, "Jieming match keeps prior AI evidence");
-    gameWithJieming.Advance();
+    gameWithJieming.DriveAdvance();
     AssertCardInventory(gameWithJieming);
 }
 
@@ -6801,6 +6816,7 @@ static void YuanhuCrossSeatFlow()
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                AdvanceAfterHumanCommands = false,
                 UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
@@ -6809,15 +6825,15 @@ static void YuanhuCrossSeatFlow()
                 MaxTurns = 180
             },
             StandardContentRegistry.Create());
-        var started = game.Start();
+        var started = game.DriveStart();
         if (started.Status != EngineStatus.AwaitingHumanGeneralSelection ||
             !started.PendingDecision!.ValidContentIds.Contains("standard:demo-yuanhu", StringComparer.Ordinal))
         {
             continue;
         }
 
-        _ = game.HumanSelectGeneral("standard:demo-yuanhu", advanceToHumanBoundary: false);
-        var ready = game.Advance();
+        _ = game.DriveHumanSelectGeneral("standard:demo-yuanhu", advanceToHumanBoundary: false);
+        var ready = game.DriveAdvance();
         if (ready.Status != EngineStatus.AwaitingHumanPlay)
         {
             continue;
@@ -6825,7 +6841,7 @@ static void YuanhuCrossSeatFlow()
 
         var revealed = game.CreateSnapshot(0, revealAll: true);
         var human = revealed.Players.Single(player => player.Seat == 0);
-        if (human.Skill != SkillKind.Yuanhu)
+        if (human.Skills?.Any(skill => skill.Kind == SkillKind.Yuanhu) != true)
         {
             continue;
         }
@@ -6850,7 +6866,7 @@ static void YuanhuCrossSeatFlow()
             continue;
         }
 
-        var result = game.HumanPlay(
+        var result = game.DriveHumanPlay(
             action.CardId!.Value,
             action.TargetSeat,
             advanceToHumanBoundary: true,
@@ -6913,7 +6929,7 @@ static void YuanhuCrossSeatFlow()
     var useChoice = prompt.Choices.First(choice =>
         choice.Parameters.GetValueOrDefault("response") == "yuanhu");
     var discardCardId = useChoice.Cards.Single();
-    var accepted = gameWithYuanhu.HumanRespondYuanhu(
+    var accepted = gameWithYuanhu.DriveHumanRespondYuanhu(
         discardCardId,
         advanceToHumanBoundary: false);
     TrueWithMessage(accepted.Status != EngineStatus.NotStarted, "Yuanhu choice accepted");
@@ -6968,6 +6984,7 @@ static void GanglieFlow()
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                AdvanceAfterHumanCommands = false,
                 UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
@@ -6976,7 +6993,7 @@ static void GanglieFlow()
                 MaxTurns = 180
             },
             StandardContentRegistry.Create());
-        var started = game.Start();
+        var started = game.DriveStart();
         if (started.Status != EngineStatus.AwaitingHumanGeneralSelection)
         {
             continue;
@@ -6990,10 +7007,10 @@ static void GanglieFlow()
             continue;
         }
 
-        _ = game.HumanSelectGeneral(
+        _ = game.DriveHumanSelectGeneral(
             humanChoice.ContentIds.Single(),
             advanceToHumanBoundary: false);
-        var ready = game.Advance();
+        var ready = game.DriveAdvance();
         if (ready.Status != EngineStatus.AwaitingHumanPlay)
         {
             continue;
@@ -7003,7 +7020,7 @@ static void GanglieFlow()
         var target = revealed.Players.FirstOrDefault(player =>
             player.Seat != 0 &&
             player.IsAlive &&
-            player.Skill == SkillKind.Ganglie &&
+            player.Skills?.Any(skill => skill.Kind == SkillKind.Ganglie) == true &&
             player.Hand.All(card => card.Kind != CardKind.Dodge));
         if (target is null)
         {
@@ -7021,7 +7038,7 @@ static void GanglieFlow()
             continue;
         }
 
-        var resultAfterAttack = game.HumanPlay(
+        var resultAfterAttack = game.DriveHumanPlay(
             action.CardId!.Value,
             target.Seat,
             advanceToHumanBoundary: false);
@@ -7034,7 +7051,7 @@ static void GanglieFlow()
             continue;
         }
 
-        var afterTrigger = game.AdvanceOneStep();
+        var afterTrigger = game.DriveAdvanceOneStep();
         if (afterTrigger.Status != EngineStatus.AwaitingHumanResponse ||
             afterTrigger.PendingDecision is not { Kind: DecisionKind.GangliePunish } sourcePrompt)
         {
@@ -7130,6 +7147,8 @@ static void GanglieFlow()
         discardChoice.Id,
         gameWithGanglie.Revision));
     TrueWithMessage(accepted.Accepted, "Ganglie punishment choice accepted");
+    accepted = gameWithGanglie.Submit(new AdvanceCommand(gameWithGanglie.Revision));
+    TrueWithMessage(accepted.Accepted, "Ganglie attack continuation accepted");
 
     var judgment = gameWithGanglie.Events
         .Select(eventItem => eventItem.Payload)
@@ -7193,6 +7212,7 @@ static void GuicaiFlow()
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                AdvanceAfterHumanCommands = false,
                 UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
@@ -7201,7 +7221,7 @@ static void GuicaiFlow()
                 MaxTurns = 180
             },
             StandardContentRegistry.Create());
-        var started = game.Start();
+        var started = game.DriveStart();
         if (started.Status != EngineStatus.AwaitingHumanGeneralSelection ||
             started.PendingDecision is not { } setupPrompt)
         {
@@ -7215,10 +7235,10 @@ static void GuicaiFlow()
             continue;
         }
 
-        _ = game.HumanSelectGeneral(
+        _ = game.DriveHumanSelectGeneral(
             "standard:demo-guicai",
             advanceToHumanBoundary: false);
-        var ready = game.Advance();
+        var ready = game.DriveAdvance();
         if (ready.Status != EngineStatus.AwaitingHumanPlay)
         {
             continue;
@@ -7231,7 +7251,7 @@ static void GuicaiFlow()
             continue;
         }
 
-        var result = game.HumanPlay(
+        var result = game.DriveHumanPlay(
             bagua.Id,
             targetSeat: null,
             advanceToHumanBoundary: true);
@@ -7240,7 +7260,7 @@ static void GuicaiFlow()
             continue;
         }
 
-        result = game.HumanEndPlay(advanceToHumanBoundary: false);
+        result = game.DriveHumanEndPlay(advanceToHumanBoundary: false);
         for (var step = 0; step < 1_500 && result.Status != EngineStatus.Completed; step++)
         {
             if (result.Status == EngineStatus.AwaitingHumanResponse)
@@ -7302,19 +7322,19 @@ static void GuicaiFlow()
 
                 if (prompt.Kind == DecisionKind.RespondSlash)
                 {
-                    result = game.HumanRespondSlash(
+                    result = game.DriveHumanRespondSlash(
                         useSlash: false,
                         advanceToHumanBoundary: false);
                 }
                 else if (prompt.Kind == DecisionKind.RespondDodge)
                 {
-                    result = game.HumanRespond(
+                    result = game.DriveHumanRespond(
                         useDodge: false,
                         advanceToHumanBoundary: false);
                 }
                 else if (prompt.Kind == DecisionKind.Nullification)
                 {
-                    result = game.HumanRespondNullification(
+                    result = game.DriveHumanRespondNullification(
                         useNullification: false,
                         advanceToHumanBoundary: false);
                 }
@@ -7332,13 +7352,13 @@ static void GuicaiFlow()
 
             result = result.Status switch
             {
-                EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(
+                EngineStatus.AwaitingHumanPlay => game.DriveHumanEndPlay(
                     advanceToHumanBoundary: false),
-                EngineStatus.AwaitingHumanDying => game.HumanRespondDying(
+                EngineStatus.AwaitingHumanDying => game.DriveHumanRespondDying(
                     usePeach: false,
                     advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
-                _ => game.AdvanceOneStep()
+                _ => game.DriveAdvanceOneStep()
             };
         }
     }
@@ -7435,6 +7455,7 @@ static (GameEngine Game, int TargetSeat, int CardId, DelayedCardResolvedEvent Re
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                AdvanceAfterHumanCommands = false,
                 UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
@@ -7446,7 +7467,7 @@ static (GameEngine Game, int TargetSeat, int CardId, DelayedCardResolvedEvent Re
         {
             game = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
         }
-        var result = game.Start();
+        var result = game.DriveStart();
         if (result.Status != EngineStatus.AwaitingHumanPlay)
         {
             continue;
@@ -7461,7 +7482,7 @@ static (GameEngine Game, int TargetSeat, int CardId, DelayedCardResolvedEvent Re
         }
 
         var targetSeat = action.TargetSeat!.Value;
-        result = game.HumanPlay(
+        result = game.DriveHumanPlay(
             action.CardId!.Value,
             targetSeat,
             advanceToHumanBoundary: false);
@@ -7523,7 +7544,7 @@ static (GameEngine Game, int TargetSeat, int CardId, DelayedCardResolvedEvent Re
             }
             else
             {
-                result = game.AdvanceOneStep();
+                result = game.DriveAdvanceOneStep();
             }
         }
     }
@@ -7537,8 +7558,8 @@ static EngineRunResult ResolveDelayedCardHumanBoundary(
 {
     return result.Status switch
     {
-        EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(advanceToHumanBoundary: false),
-        EngineStatus.AwaitingHumanDying => game.HumanRespondDying(
+        EngineStatus.AwaitingHumanPlay => game.DriveHumanEndPlay(advanceToHumanBoundary: false),
+        EngineStatus.AwaitingHumanDying => game.DriveHumanRespondDying(
             usePeach: false,
             advanceToHumanBoundary: false),
         EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
@@ -7656,6 +7677,7 @@ static (GameEngine Game, int TargetSeat, int CardId, DelayedCardResolvedEvent Re
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                AdvanceAfterHumanCommands = false,
                 UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
@@ -7667,7 +7689,7 @@ static (GameEngine Game, int TargetSeat, int CardId, DelayedCardResolvedEvent Re
         {
             game = GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
         }
-        var result = game.Start();
+        var result = game.DriveStart();
         if (result.Status != EngineStatus.AwaitingHumanPlay)
         {
             continue;
@@ -7689,7 +7711,7 @@ static (GameEngine Game, int TargetSeat, int CardId, DelayedCardResolvedEvent Re
             game.RulesVersion >= 18
                 ? "兵粮寸断 target must be selected at combat distance one"
                 : "legacy 兵粮寸断 target must be selected from a publicly non-empty hand");
-        result = game.HumanPlay(
+        result = game.DriveHumanPlay(
             action.CardId!.Value,
             targetSeat,
             advanceToHumanBoundary: false);
@@ -7763,7 +7785,7 @@ static (GameEngine Game, int TargetSeat, int CardId, DelayedCardResolvedEvent Re
             }
             else
             {
-                result = game.AdvanceOneStep();
+                result = game.DriveAdvanceOneStep();
             }
         }
     }
@@ -7849,6 +7871,7 @@ static (GameEngine Game, int CardId, LightningResolvedEvent Resolved, int HpBefo
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                AdvanceAfterHumanCommands = false,
                 UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
@@ -7856,7 +7879,7 @@ static (GameEngine Game, int CardId, LightningResolvedEvent Resolved, int HpBefo
                 MaxTurns = 180
             },
             StandardContentRegistry.Create());
-        var result = game.Start();
+        var result = game.DriveStart();
         if (result.Status != EngineStatus.AwaitingHumanPlay)
         {
             continue;
@@ -7872,7 +7895,7 @@ static (GameEngine Game, int CardId, LightningResolvedEvent Resolved, int HpBefo
 
         var action = actions[0];
         var hpBefore = game.State.Players.Single(player => player.Seat == 0).Hp;
-        result = game.HumanPlay(action.CardId!.Value, 0, advanceToHumanBoundary: false);
+        result = game.DriveHumanPlay(action.CardId!.Value, 0, advanceToHumanBoundary: false);
         for (var step = 0; step < 2_000; step++)
         {
             var resolved = game.Events
@@ -7904,7 +7927,7 @@ static (GameEngine Game, int CardId, LightningResolvedEvent Resolved, int HpBefo
                     }
                     else
                     {
-                        result = game.AdvanceOneStep();
+                        result = game.DriveAdvanceOneStep();
                     }
 
                     continue;
@@ -7924,7 +7947,7 @@ static (GameEngine Game, int CardId, LightningResolvedEvent Resolved, int HpBefo
                     }
                     else
                     {
-                        result = game.AdvanceOneStep();
+                        result = game.DriveAdvanceOneStep();
                     }
 
                     continue;
@@ -7953,7 +7976,7 @@ static (GameEngine Game, int CardId, LightningResolvedEvent Resolved, int HpBefo
             }
             else
             {
-                result = game.AdvanceOneStep();
+                result = game.DriveAdvanceOneStep();
             }
         }
     }
@@ -8066,6 +8089,7 @@ static void MultipleDelayedCardsFlow()
         var candidate = GameEngine.CreateStandard(
             new GameOptions
             {
+                AdvanceAfterHumanCommands = false,
                 UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
@@ -8074,7 +8098,7 @@ static void MultipleDelayedCardsFlow()
                 MaxTurns = 32
             },
             registry);
-        var result = candidate.Start();
+        var result = candidate.DriveStart();
         if (result.Status != EngineStatus.AwaitingHumanPlay)
         {
             continue;
@@ -8099,30 +8123,30 @@ static void MultipleDelayedCardsFlow()
     NotNull(indulgence);
     NotNull(supplyShortage);
     var selected = game!;
-    var firstResult = selected.HumanPlay(
+    var firstResult = selected.DriveHumanPlay(
         indulgence!.CardId!.Value,
         targetSeat,
         advanceToHumanBoundary: false);
     ResolveNullificationWindowForTest(selected, firstResult);
     if (selected.GetHumanLegalActions().Count == 0)
     {
-        selected.Advance();
+        selected.DriveAdvance();
     }
 
     var secondAction = selected.GetHumanLegalActions().Single(action =>
         action.Kind == LegalActionKind.SupplyShortage &&
         action.TargetSeat == targetSeat);
-    var secondResult = selected.HumanPlay(
+    var secondResult = selected.DriveHumanPlay(
         secondAction.CardId!.Value,
         targetSeat,
         advanceToHumanBoundary: false);
     ResolveNullificationWindowForTest(selected, secondResult);
     if (selected.GetHumanLegalActions().Count == 0)
     {
-        selected.Advance();
+        selected.DriveAdvance();
     }
 
-    selected.HumanEndPlay();
+    selected.DriveHumanEndPlay();
     var resolved = selected.Events
         .Select(eventItem => eventItem.Payload)
         .OfType<DelayedCardResolvedEvent>()
@@ -8164,7 +8188,7 @@ static void WushengFlow()
                 MaxTurns = 180
             },
             StandardContentRegistry.Create());
-        var result = game.Start();
+        var result = game.DriveStart();
         if (result.Status != EngineStatus.AwaitingHumanPlay)
         {
             continue;
@@ -8172,7 +8196,7 @@ static void WushengFlow()
 
         var revealed = game.CreateSnapshot(0, revealAll: true);
         var human = revealed.Players.Single(player => player.Seat == 0);
-        if (human.Skill != SkillKind.Wusheng)
+        if (human.Skills?.Any(skill => skill.Kind == SkillKind.Wusheng) != true)
         {
             continue;
         }
@@ -8193,14 +8217,14 @@ static void WushengFlow()
                    card.Suit is (Suit.Heart or Suit.Diamond) &&
                    target.IsAlive &&
                    target.Hp > 1 &&
-                   target.Skill == SkillKind.None &&
+                    target.Skills?.Any(skill => skill.Kind != SkillKind.None) != true &&
                    target.Skills?.All(skill => skill.ContentId is not
                        ("standard:feedback" or "standard:jianxiong")) != false &&
                    target.Hand.All(handCard => handCard.Kind != CardKind.Dodge) &&
                    target.Equipment.All(equipment => equipment.Kind != CardKind.BaguaFormation);
         });
         if (action is not null &&
-            revealed.Players.All(player => player.Skill != SkillKind.Yuanhu))
+            revealed.Players.All(player => player.Skills?.Any(skill => skill.Kind == SkillKind.Yuanhu) != true))
         {
             selectedGame = game;
             selectedCard = human.Hand.Single(card => card.Id == action.CardId);
@@ -8296,7 +8320,7 @@ static void LongdanFlow()
                 MaxTurns = 180
             },
             StandardContentRegistry.Create());
-        var result = game.Start();
+        var result = game.DriveStart();
         if (result.Status != EngineStatus.AwaitingHumanPlay)
         {
             continue;
@@ -8304,7 +8328,7 @@ static void LongdanFlow()
 
         var revealed = game.CreateSnapshot(0, revealAll: true);
         var human = revealed.Players.Single(player => player.Seat == 0);
-        if (human.Skill != SkillKind.Longdan || HasSkill(game, SkillKind.Yuanhu))
+        if (human.Skills?.Any(skill => skill.Kind == SkillKind.Longdan) != true || HasSkill(game, SkillKind.Yuanhu))
         {
             continue;
         }
@@ -8324,7 +8348,7 @@ static void LongdanFlow()
             return card.Kind == CardKind.Dodge &&
                    target.IsAlive &&
                    target.Hp > 1 &&
-                   target.Skill == SkillKind.None &&
+                    target.Skills?.Any(skill => skill.Kind != SkillKind.None) != true &&
                    target.Hand.All(handCard => handCard.Kind != CardKind.Dodge);
         });
         if (action is not null)
@@ -8415,6 +8439,7 @@ static void LongdanResponseFlow()
         var game = GameEngine.CreateStandard(
             new GameOptions
             {
+                AdvanceAfterHumanCommands = false,
                 UseInteractiveDiscard = false,
                 Seed = seed,
                 HumanSeat = 0,
@@ -8422,9 +8447,10 @@ static void LongdanResponseFlow()
                 MaxTurns = 180
             },
             StandardContentRegistry.Create());
-        var result = game.Start();
+        var result = game.DriveStart();
         var humanAtStart = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-        if (result.Status != EngineStatus.AwaitingHumanPlay || humanAtStart.Skill != SkillKind.Longdan)
+        if (result.Status != EngineStatus.AwaitingHumanPlay ||
+            humanAtStart.Skills?.Any(skill => skill.Kind == SkillKind.Longdan) != true)
         {
             continue;
         }
@@ -8458,13 +8484,13 @@ static void LongdanResponseFlow()
 
                 result = prompt.Kind switch
                 {
-                    DecisionKind.RespondSlash => game.HumanRespondSlash(
+                    DecisionKind.RespondSlash => game.DriveHumanRespondSlash(
                         useSlash: false,
                         advanceToHumanBoundary: false),
-                    DecisionKind.RespondDodge => game.HumanRespond(
+                    DecisionKind.RespondDodge => game.DriveHumanRespond(
                         useDodge: false,
                         advanceToHumanBoundary: false),
-                    DecisionKind.Feedback => game.HumanRespondFeedback(
+                    DecisionKind.Feedback => game.DriveHumanRespondFeedback(
                         useFeedback: false,
                         advanceToHumanBoundary: false),
                     _ => throw new InvalidOperationException(
@@ -8475,12 +8501,12 @@ static void LongdanResponseFlow()
 
             result = result.Status switch
             {
-                EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(advanceToHumanBoundary: false),
-                EngineStatus.AwaitingHumanDying => game.HumanRespondDying(
+                EngineStatus.AwaitingHumanPlay => game.DriveHumanEndPlay(advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanDying => game.DriveHumanRespondDying(
                     usePeach: false,
                     advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
-                _ => game.AdvanceOneStep()
+                _ => game.DriveAdvanceOneStep()
             };
         }
     }
@@ -8541,13 +8567,14 @@ static void DyingAlcoholRescueFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
-        result = game.Start();
+        result = game.DriveStart();
         var steps = 0;
         while (result.Status != EngineStatus.Completed && steps++ < 3_000)
         {
@@ -8566,15 +8593,15 @@ static void DyingAlcoholRescueFlow()
 
             result = result.Status switch
             {
-                EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanPlay => game.DriveHumanEndPlay(advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanResponse => game.PendingDecision?.Kind == DecisionKind.RespondSlash
-                    ? game.HumanRespondSlash(useSlash: false, advanceToHumanBoundary: false)
-                    : game.HumanRespond(useDodge: false, advanceToHumanBoundary: false),
-                EngineStatus.AwaitingHumanDying => game.HumanRespondDying(
+                    ? game.DriveHumanRespondSlash(useSlash: false, advanceToHumanBoundary: false)
+                    : game.DriveHumanRespond(useDodge: false, advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanDying => game.DriveHumanRespondDying(
                     usePeach: false,
                     advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
-                _ => game.AdvanceOneStep()
+                _ => game.DriveAdvanceOneStep()
             };
         }
     }
@@ -8616,7 +8643,7 @@ static void DyingAlcoholRescueFlow()
     Equal(CommandErrorCode.InvalidChoice, invalid.Error!.Code);
     Equal(beforeInvalid, gameWithDying.SerializeState());
 
-    var accepted = gameWithDying.HumanRespondDying(
+    var accepted = gameWithDying.DriveHumanRespondDying(
         usePeach: false,
         requestedPeachCardId: null,
         advanceToHumanBoundary: false,
@@ -8759,13 +8786,14 @@ static void DyingResponseFlow()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
-        result = game.Start();
+        result = game.DriveStart();
         var steps = 0;
         while (result.Status != EngineStatus.Completed && steps++ < 2_000)
         {
@@ -8783,13 +8811,13 @@ static void DyingResponseFlow()
 
             result = result.Status switch
             {
-                EngineStatus.AwaitingHumanPlay => game.HumanEndPlay(advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanPlay => game.DriveHumanEndPlay(advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanResponse => game.PendingDecision?.Kind == DecisionKind.RespondSlash
-                    ? game.HumanRespondSlash(useSlash: false, advanceToHumanBoundary: false)
-                    : game.HumanRespond(useDodge: false, advanceToHumanBoundary: false),
-                EngineStatus.AwaitingHumanDying => game.HumanRespondDying(usePeach: false, advanceToHumanBoundary: false),
+                    ? game.DriveHumanRespondSlash(useSlash: false, advanceToHumanBoundary: false)
+                    : game.DriveHumanRespond(useDodge: false, advanceToHumanBoundary: false),
+                EngineStatus.AwaitingHumanDying => game.DriveHumanRespondDying(usePeach: false, advanceToHumanBoundary: false),
                 EngineStatus.AwaitingHumanCardSelection => ResolveFirstHarvestChoice(game),
-                _ => game.AdvanceOneStep()
+                _ => game.DriveAdvanceOneStep()
             };
         }
     }
@@ -8865,6 +8893,7 @@ static void ObserverFailuresAreIsolated()
 {
     var game = GameEngine.CreateStandard(new GameOptions
     {
+        AdvanceAfterHumanCommands = false,
         UseInteractiveDiscard = false,
         Seed = 337,
         HumanSeat = 0,
@@ -8885,16 +8914,16 @@ static void ObserverFailuresAreIsolated()
     game.CardMoved += _ => throw new InvalidOperationException("movement observer failed");
     game.CardMoved += _ => deliveredMovements++;
 
-    var result = game.Start();
+    var result = game.DriveStart();
     Equal(EngineStatus.AwaitingHumanPlay, result.Status);
     True(deliveredLogs > 0);
     True(deliveredStates > 0);
     True(deliveredMovements > 0);
 
-    result = game.HumanEndPlay(advanceToHumanBoundary: false);
+    result = game.DriveHumanEndPlay(advanceToHumanBoundary: false);
     for (var step = 0; step < 8 && deliveredThoughts == 0; step++)
     {
-        result = game.AdvanceOneStep();
+        result = game.DriveAdvanceOneStep();
     }
 
     True(deliveredThoughts > 0);
@@ -8923,8 +8952,8 @@ static void ObserverFailuresDoNotChangeOutcome()
     faulted.StateChanged += _ => throw new InvalidOperationException("state observer failed");
     faulted.CardMoved += _ => throw new InvalidOperationException("movement observer failed");
 
-    var baselineResult = baseline.Start();
-    var faultedResult = faulted.Start();
+    var baselineResult = baseline.DriveStart();
+    var faultedResult = faulted.DriveStart();
 
     Equal(baselineResult.Winner, faultedResult.Winner);
     Equal(baseline.SerializeState(revealAll: true), faulted.SerializeState(revealAll: true));
@@ -8945,16 +8974,16 @@ static void UncaughtObserverReentryIsIsolated()
         HumanRole = Role.Lord
     });
     var laterObserverCalls = 0;
-    game.LogAdded += _ => game.Advance();
+    CommandErrorCode? reentryError = null;
+    game.LogAdded += _ => reentryError = game.Submit(new AdvanceCommand(game.Revision)).Error?.Code;
     game.LogAdded += _ => laterObserverCalls++;
 
-    var result = game.Start();
+    var result = game.DriveStart();
 
     Equal(EngineStatus.AwaitingHumanPlay, result.Status);
     True(laterObserverCalls > 0);
-    True(game.ObserverFailures.Any(failure =>
-        failure.ExceptionType.Contains(nameof(InvalidOperationException), StringComparison.Ordinal) &&
-        failure.Message.Contains("reentrantly", StringComparison.Ordinal)));
+    Equal(CommandErrorCode.ReentrantOperation, reentryError);
+    Equal(0, game.ObserverFailures.Count);
     AssertCardInventory(game);
 }
 
@@ -8966,8 +8995,8 @@ static void HumanPlayApi()
     // Search a small deterministic seed range instead of coupling the test to one deck order.
     for (var seed = 1; seed <= 64 && selectedAction is null; seed++)
     {
-        var game = GameEngine.CreateStandard(new GameOptions { UseInteractiveDiscard = false, Seed = seed, HumanSeat = 0, HumanRole = Role.Lord });
-        var result = game.Start();
+        var game = GameEngine.CreateStandard(new GameOptions { AdvanceAfterHumanCommands = false, UseInteractiveDiscard = false, Seed = seed, HumanSeat = 0, HumanRole = Role.Lord });
+        var result = game.DriveStart();
         var action = game.GetHumanLegalActions().FirstOrDefault(candidate =>
             candidate.Kind is LegalActionKind.Slash or LegalActionKind.Peach);
         if (result.Status == EngineStatus.AwaitingHumanPlay && action is not null)
@@ -8979,13 +9008,13 @@ static void HumanPlayApi()
 
     NotNull(selectedGame);
     NotNull(selectedAction);
-    var next = selectedGame!.HumanPlay(selectedAction!.CardId!.Value, selectedAction.TargetSeat);
+    var next = selectedGame!.DriveHumanPlay(selectedAction!.CardId!.Value, selectedAction.TargetSeat);
     True(next.Status is EngineStatus.AwaitingHumanPlay or
         EngineStatus.AwaitingHumanResponse or
         EngineStatus.AwaitingHumanDying or
         EngineStatus.AwaitingHumanCardSelection or
         EngineStatus.Completed);
-    True(selectedGame.Log.Any(entry => entry.Type is "CardUsed" or "Recovered"));
+    True(selectedGame!.Log.Any(entry => entry.Type is "CardUsed" or "Recovered"));
 }
 
 static void HumanDodgeApi()
@@ -8995,13 +9024,14 @@ static void HumanDodgeApi()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 150
         });
-        var result = game.Start();
+        var result = game.DriveStart();
         var decisions = 0;
         while (result.Status != EngineStatus.Completed && decisions++ < 400)
         {
@@ -9014,21 +9044,21 @@ static void HumanDodgeApi()
                 }
 
                 result = result.PendingDecision?.Kind == DecisionKind.RespondSlash
-                    ? game.HumanRespondSlash(useSlash: false)
-                    : game.HumanRespond(useDodge: false);
+                    ? game.DriveHumanRespondSlash(useSlash: false)
+                    : game.DriveHumanRespond(useDodge: false);
                 continue;
             }
 
             result = result.Status == EngineStatus.AwaitingHumanPlay
-                ? game.HumanEndPlay()
-                : game.AdvanceOneStep();
+                ? game.DriveHumanEndPlay()
+                : game.DriveAdvanceOneStep();
         }
     }
 
     NotNull(selectedGame);
     var before = selectedGame!.State.Players.Single(player => player.Seat == 0);
     True(before.Hand.Any(card => card.Kind == CardKind.Dodge));
-    var resultAfterDodge = selectedGame.HumanRespond(
+    var resultAfterDodge = selectedGame.DriveHumanRespond(
         useDodge: true,
         advanceToHumanBoundary: false);
     var after = resultAfterDodge.State.Players.Single(player => player.Seat == 0);
@@ -9043,6 +9073,7 @@ static void LethalHumanResponseKeepsCompletedStatus()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
@@ -9062,13 +9093,13 @@ static void LethalHumanResponseKeepsCompletedStatus()
                         player.HandCount + player.Equipment.Count + player.Judgment.Count));
             }
         };
-        var result = game.Start();
+        var result = game.DriveStart();
         var decisions = 0;
         while (result.Status != EngineStatus.Completed && decisions++ < 500)
         {
             if (result.Status == EngineStatus.AwaitingHumanPlay)
             {
-                result = game.HumanEndPlay();
+                result = game.DriveHumanEndPlay();
                 continue;
             }
 
@@ -9076,17 +9107,17 @@ static void LethalHumanResponseKeepsCompletedStatus()
             {
                 if (game.PendingDecision?.Kind == DecisionKind.RespondSlash)
                 {
-                    result = game.HumanRespondSlash(useSlash: false);
+                    result = game.DriveHumanRespondSlash(useSlash: false);
                     continue;
                 }
 
                 var hpBefore = game.State.Players.Single(player => player.Seat == 0).Hp;
-                result = game.HumanRespond(useDodge: false);
+                result = game.DriveHumanRespond(useDodge: false);
                 if (hpBefore == 1)
                 {
                     if (result.Status == EngineStatus.AwaitingHumanDying)
                     {
-                        result = game.HumanRespondDying(usePeach: false);
+                        result = game.DriveHumanRespondDying(usePeach: false);
                     }
 
                     if (result.Status == EngineStatus.Completed)
@@ -9104,7 +9135,7 @@ static void LethalHumanResponseKeepsCompletedStatus()
 
             if (result.Status == EngineStatus.AwaitingHumanDying)
             {
-                result = game.HumanRespondDying(usePeach: false);
+                result = game.DriveHumanRespondDying(usePeach: false);
                 continue;
             }
 
@@ -9122,27 +9153,28 @@ static void AdvanceOneStepApi()
 {
     var game = GameEngine.CreateStandard(new GameOptions
     {
+        AdvanceAfterHumanCommands = false,
         UseInteractiveDiscard = false,
         Seed = 31,
         HumanSeat = 0,
         HumanRole = Role.Lord
     });
 
-    Equal(EngineStatus.AwaitingHumanPlay, game.Start().Status);
-    var afterHuman = game.HumanEndPlay(advanceToHumanBoundary: false);
+    Equal(EngineStatus.AwaitingHumanPlay, game.DriveStart().Status);
+    var afterHuman = game.DriveHumanEndPlay(advanceToHumanBoundary: false);
     Equal(EngineStatus.Running, afterHuman.Status);
     Equal(TurnPhase.Discard, afterHuman.State.Phase);
 
     var thoughtsBefore = game.AiThoughts.Count;
-    var afterDiscard = game.AdvanceOneStep();
+    var afterDiscard = game.DriveAdvanceOneStep();
     Equal(TurnPhase.NotStarted, afterDiscard.State.Phase);
     Equal(thoughtsBefore, game.AiThoughts.Count);
 
-    var afterAiTurnStart = game.AdvanceOneStep();
+    var afterAiTurnStart = game.DriveAdvanceOneStep();
     Equal(TurnPhase.Play, afterAiTurnStart.State.Phase);
     Equal(thoughtsBefore, game.AiThoughts.Count);
 
-    game.AdvanceOneStep();
+    game.DriveAdvanceOneStep();
     Equal(thoughtsBefore + 1, game.AiThoughts.Count);
 
     var observedAiDodge = false;
@@ -9153,21 +9185,21 @@ static void AdvanceOneStepApi()
     {
         if (result.Status == EngineStatus.AwaitingHumanPlay)
         {
-            result = game.HumanEndPlay(advanceToHumanBoundary: false);
+            result = game.DriveHumanEndPlay(advanceToHumanBoundary: false);
             continue;
         }
 
         if (result.Status == EngineStatus.AwaitingHumanResponse)
         {
             result = game.PendingDecision?.Kind == DecisionKind.RespondSlash
-                ? game.HumanRespondSlash(useSlash: false, advanceToHumanBoundary: false)
-                : game.HumanRespond(useDodge: false, advanceToHumanBoundary: false);
+                ? game.DriveHumanRespondSlash(useSlash: false, advanceToHumanBoundary: false)
+                : game.DriveHumanRespond(useDodge: false, advanceToHumanBoundary: false);
             continue;
         }
 
         if (result.Status == EngineStatus.AwaitingHumanDying)
         {
-            result = game.HumanRespondDying(usePeach: false, advanceToHumanBoundary: false);
+            result = game.DriveHumanRespondDying(usePeach: false, advanceToHumanBoundary: false);
             continue;
         }
 
@@ -9178,7 +9210,7 @@ static void AdvanceOneStepApi()
         }
 
         var before = game.AiThoughts.Count;
-        result = game.AdvanceOneStep();
+        result = game.DriveAdvanceOneStep();
         var emitted = game.AiThoughts.Count - before;
         True(emitted <= 1);
         if (emitted == 1 && game.AiThoughts[^1].Decision == "打出闪")
@@ -9200,34 +9232,35 @@ static void AiEndPlayPublishesState()
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
+            AdvanceAfterHumanCommands = false,
             UseInteractiveDiscard = false,
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             MaxTurns = 180
         });
-        game.Start();
-        game.HumanEndPlay(advanceToHumanBoundary: false);
+        game.DriveStart();
+        game.DriveHumanEndPlay(advanceToHumanBoundary: false);
         var snapshots = new List<GameSnapshot>();
         game.StateChanged += snapshot => snapshots.Add(snapshot);
-        var result = game.AdvanceOneStep();
+        var result = game.DriveAdvanceOneStep();
         for (var step = 0; step < 400 &&
                           result.Status != EngineStatus.Completed &&
                           result.State.Phase != TurnPhase.Discard; step++)
         {
             if (result.Status == EngineStatus.AwaitingHumanPlay)
             {
-                result = game.HumanEndPlay(advanceToHumanBoundary: false);
+                result = game.DriveHumanEndPlay(advanceToHumanBoundary: false);
             }
             else if (result.Status == EngineStatus.AwaitingHumanResponse)
             {
                 result = game.PendingDecision?.Kind == DecisionKind.RespondSlash
-                    ? game.HumanRespondSlash(useSlash: false, advanceToHumanBoundary: false)
-                    : game.HumanRespond(useDodge: false, advanceToHumanBoundary: false);
+                    ? game.DriveHumanRespondSlash(useSlash: false, advanceToHumanBoundary: false)
+                    : game.DriveHumanRespond(useDodge: false, advanceToHumanBoundary: false);
             }
             else if (result.Status == EngineStatus.AwaitingHumanDying)
             {
-                result = game.HumanRespondDying(usePeach: false, advanceToHumanBoundary: false);
+                result = game.DriveHumanRespondDying(usePeach: false, advanceToHumanBoundary: false);
             }
             else if (result.Status == EngineStatus.AwaitingHumanCardSelection)
             {
@@ -9235,7 +9268,7 @@ static void AiEndPlayPublishesState()
             }
             else
             {
-                result = game.AdvanceOneStep();
+                result = game.DriveAdvanceOneStep();
             }
         }
 
@@ -9274,18 +9307,11 @@ static void ReentrantAdvanceIsRejected()
             return;
         }
 
-        try
-        {
-            game.Advance();
-        }
-        catch (InvalidOperationException exception) when (
-            exception.Message.Contains("reentrantly", StringComparison.Ordinal))
-        {
-            rejected = true;
-        }
+        rejected = game.Submit(new AdvanceCommand(game.Revision)).Error?.Code ==
+            CommandErrorCode.ReentrantOperation;
     };
 
-    var result = game.Start();
+    var result = game.DriveStart();
     True(rejected);
     Equal(EngineStatus.AwaitingHumanPlay, result.Status);
     Equal(Winner.None, result.Winner);
@@ -9296,19 +9322,20 @@ static void UnknownPhaseFailsFast()
 {
     var game = GameEngine.CreateStandard(new GameOptions
     {
+        AdvanceAfterHumanCommands = false,
         UseInteractiveDiscard = false,
         Seed = 79,
         HumanSeat = 0,
         HumanRole = Role.Lord
     });
-    game.Start();
-    game.HumanEndPlay(advanceToHumanBoundary: false);
+    game.DriveStart();
+    game.DriveHumanEndPlay(advanceToHumanBoundary: false);
 
     var phaseField = typeof(GameEngine).GetField("_phase", BindingFlags.Instance | BindingFlags.NonPublic);
     NotNull(phaseField);
     phaseField!.SetValue(game, (TurnPhase)999);
 
-    Throws<InvalidOperationException>(() => game.AdvanceOneStep());
+    Throws<InvalidOperationException>(() => game.DriveAdvanceOneStep());
 }
 
 static void AiMatchSmoke()
@@ -9324,7 +9351,7 @@ static void AiMatchSmoke()
             MaxTurns = 250
         });
 
-        var result = game.Start();
+        var result = game.DriveStart();
         Equal(EngineStatus.Completed, result.Status);
         True(result.Winner != Winner.None);
         True(game.AiThoughts.Count > 0);
@@ -9343,7 +9370,7 @@ static void StepGuardFinishesResponse()
         MaxTurns = 5_559
     });
 
-    var result = game.Start();
+    var result = game.DriveStart();
 
     Equal(EngineStatus.Completed, result.Status);
     True(result.Winner != Winner.None);
@@ -9365,7 +9392,7 @@ static bool IsSlashCard(CardKind kind) =>
     kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash;
 
 static bool HasSkill(GameEngine game, SkillKind skill) =>
-    game.CreateSnapshot(0, revealAll: true).Players.Any(player => player.Skill == skill);
+    game.CreateSnapshot(0, revealAll: true).Players.Any(player => player.Skills?.Any(entry => entry.Kind == skill) == true);
 
 static bool IsDamageTriggerSkill(SkillKind skill) =>
     skill is SkillKind.Jianxiong or
@@ -9448,13 +9475,13 @@ static EngineRunResult ResolveFirstHarvestChoice(GameEngine game)
         throw new InvalidOperationException("The test expected at least one FiveGrains choice.");
     return prompt.Kind switch
     {
-        DecisionKind.SelectTargetCard => game.HumanSelectTargetCardSlot(
+        DecisionKind.SelectTargetCard => game.DriveHumanSelectTargetCardSlot(
             int.Parse(choice.Parameters["slot-index"], System.Globalization.CultureInfo.InvariantCulture),
             advanceToHumanBoundary: false),
-        DecisionKind.FireAttackReveal or DecisionKind.FireAttackDiscard => game.HumanSelectFireAttackCard(
+        DecisionKind.FireAttackReveal or DecisionKind.FireAttackDiscard => game.DriveHumanSelectFireAttackCard(
             choice.Cards.Single(),
             advanceToHumanBoundary: false),
-        _ => game.HumanSelectHarvestCard(choice.Cards.Single(), advanceToHumanBoundary: false)
+        _ => game.DriveHumanSelectHarvestCard(choice.Cards.Single(), advanceToHumanBoundary: false)
     };
 }
 
@@ -9475,15 +9502,15 @@ static EngineRunResult ResolveNullificationWindowForTest(
     {
         result = game.PendingDecision?.Kind switch
         {
-            DecisionKind.Nullification => game.HumanRespondNullification(
+            DecisionKind.Nullification => game.DriveHumanRespondNullification(
                 useNullification: false,
                 advanceToHumanBoundary: false),
-            DecisionKind.SelectTargetCard => game.HumanSelectTargetCardSlot(
+            DecisionKind.SelectTargetCard => game.DriveHumanSelectTargetCardSlot(
                 int.Parse(
                     game.PendingDecision.Choices.First().Parameters["slot-index"],
                     System.Globalization.CultureInfo.InvariantCulture),
                 advanceToHumanBoundary: false),
-            _ => game.AdvanceOneStep()
+            _ => game.DriveAdvanceOneStep()
         };
     }
 
@@ -9604,7 +9631,7 @@ sealed class SyntheticPackage : IGameContentPackage
     public void Register(IContentRegistryBuilder builder) => _register(builder);
 }
 
-sealed class AnyScopeProbeSkill : IPassiveSkill
+sealed class AnyScopeProbeSkill : IDamageSkillRule
 {
     public SkillKind Kind => SkillKind.None;
     public string Name => "范围测试";

@@ -49,17 +49,17 @@ public sealed partial class MainViewModel
                     .SelectMany(slot =>
                     {
                         var definition = _contentRegistry.Generals[slot.Id];
-                        var printedSkillIds = _game.RulesVersion >= 89
-                            ? definition.SkillIds
-                            : definition.SkillIds.Take(1);
+                        var printedSkillIds = (definition.SkillIds
+);
                         return FilterOwnedSkillIds(printedSkillIds, slot.Skills)
                             .Select(_contentRegistry.GetSkill)
                             .Where(skill => skill.LegacyKind != SkillKind.None || skill.Name != "无")
                             .Select(skill =>
                             {
-                                var enabled = _game.RulesVersion >= 7 ? slot.Revealed : slot.Label == "主";
-                                var active = skill.Program?.Activations.Count > 0 ||
-                                             skill.LegacyKind is { } kind && SkillRegistry.GetActive(kind) is not null;
+                                var enabled = (slot.Revealed );
+                                var active = skill.ActionForms.HasFlag(SkillActionForm.Active) ||
+                                             skill.Program?.Activations.Count > 0 ||
+                                             skill.LegacyKind is { } kind && ActiveActionCatalog.Find(kind) is not null;
                                 var isAvailable = availablePrograms.Contains(skill.Id) ||
                                                   skill.LegacyKind is { } legacyKind && available.Contains(legacyKind);
                                 return new HumanSkillViewModel(
@@ -92,8 +92,9 @@ public sealed partial class MainViewModel
                     {
                         var runtimeState = human.SkillRuntimeStates?
                             .SingleOrDefault(state => state.SkillId == skill.Id);
-                        var active = skill.Program?.Activations.Count > 0 ||
-                                     skill.LegacyKind is { } kind && SkillRegistry.GetActive(kind) is not null;
+                        var active = skill.ActionForms.HasFlag(SkillActionForm.Active) ||
+                                     skill.Program?.Activations.Count > 0 ||
+                                     skill.LegacyKind is { } kind && ActiveActionCatalog.Find(kind) is not null;
                         var isAvailable = availablePrograms.Contains(skill.Id) ||
                                           skill.LegacyKind is { } legacyKind && available.Contains(legacyKind);
                         var isFuhunGranted = runtimeState?.IsAcquired == true &&
@@ -125,11 +126,11 @@ public sealed partial class MainViewModel
                     .ToArray();
             }
 
-            return (human.Skills ?? [new(human.Skill, human.SkillName, human.SkillDescription)])
+            return (human.Skills ?? [])
                 .Where(skill => skill.Kind != SkillKind.None)
                 .Select(skill =>
                 {
-                    var active = SkillRegistry.GetActive(skill.Kind) is not null;
+                    var active = ActiveActionCatalog.Find(skill.Kind) is not null;
                     return new HumanSkillViewModel(
                         skill.Name,
                         skill.Description,

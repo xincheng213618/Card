@@ -12,99 +12,37 @@ internal static class ZhongHuiChecks
 
     public static void ContentQuanjiAndBoundary()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 86, 0));
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 85, 0));
-        Require(current.Packages.Any(package =>
-                package.Id == "standard-classic-generals" &&
-                package.Version == new Version(1, 86, 0)),
-            "The current registry must load classic-general package 1.86.0.");
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        var migrated = current;
         var general = current.Generals[GeneralId];
         Require(general.FactionId == "wei" && general.BaseHp == 4 &&
                 general.Gender == GeneralGender.Male && general.PortraitKey == "zhong_hui" &&
                 general.SkillIds.SequenceEqual([QuanjiSkillId, ZiliSkillId]),
-            $"Classic Zhong Hui metadata drifted: faction={general.FactionId}, hp={general.BaseHp}, " +
-            $"gender={general.Gender}, portrait={general.PortraitKey}, skills={string.Join(',', general.SkillIds)}.");
-        var quanji = current.Skills[QuanjiSkillId];
-        Require(quanji.LegacyKind == SkillKind.Quanji && quanji.Tags == SkillTag.None &&
-                quanji.ExecutionForms == (SkillExecutionForm.State | SkillExecutionForm.Trigger) &&
-                quanji.ActionForms == SkillActionForm.None,
-            $"Quanji metadata drifted: kind={quanji.LegacyKind}, tags={quanji.Tags}, " +
-            $"execution={quanji.ExecutionForms}, actions={quanji.ActionForms}.");
-        var zili = current.Skills[ZiliSkillId];
-        Require(zili.LegacyKind == SkillKind.Zili &&
-                zili.Tags == (SkillTag.Awakening | SkillTag.Locked | SkillTag.Limited) &&
-                zili.ExecutionForms == SkillExecutionForm.Trigger && zili.ActionForms == SkillActionForm.None,
-            $"Zili metadata drifted: kind={zili.LegacyKind}, tags={zili.Tags}, " +
-            $"execution={zili.ExecutionForms}, actions={zili.ActionForms}.");
-        var paiyi = current.Skills[PaiyiSkillId];
-        Require(paiyi.LegacyKind == SkillKind.Paiyi && paiyi.Tags == SkillTag.None &&
-                paiyi.ActionForms == SkillActionForm.Active,
-            $"Paiyi metadata drifted: kind={paiyi.LegacyKind}, tags={paiyi.Tags}, actions={paiyi.ActionForms}.");
-        Require(!previous.Generals.ContainsKey(GeneralId) &&
-                !previous.Skills.ContainsKey(QuanjiSkillId) &&
-                !previous.Skills.ContainsKey(ZiliSkillId) &&
-                !previous.Skills.ContainsKey(PaiyiSkillId) &&
-                current.ContentHash != previous.ContentHash,
-            "Package 1.86.0 must add Zhong Hui without mutating the 1.85.0 registry boundary.");
-
-        var migrated = StandardContentRegistry.CreateWithClassicGenerals();
-        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 109, 0));
-        var historicalQuanji = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 110, 0));
-        var historicalPaiyi = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 111, 0));
-        Require(GameCheckpoint.CurrentRulesVersion >= 133 &&
-                StandardClassicGeneralPackage.CurrentVersion >= new Version(1, 112, 0) &&
-                migrated.Skills[ZiliSkillId].Program is
-                {
-                    RuntimeVersion: "skill-program-v26",
-                    MinimumRulesVersion: 131,
-                    Triggers.Count: 2
-                } program &&
-                program.Triggers.All(trigger =>
-                    trigger.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow &&
-                    trigger.ChoiceGroup == "awakening-benefit" &&
-                    !trigger.Optional && trigger.UsageScope == SkillUsageScope.Game &&
-                    trigger.UsageLimit == 1) &&
-                migrated.Skills[QuanjiSkillId].Program is
-                {
-                    RuntimeVersion: "skill-program-v27",
-                    MinimumRulesVersion: 132,
-                    Triggers.Count: 1,
-                    Modifiers.Count: 1
-                } quanjiProgram &&
-                quanjiProgram.Triggers.Single().Effects.Select(effect => effect.Op).SequenceEqual([
+            "Current Zhong Hui must publish his complete general identity.");
+        var quanji = current.Skills[QuanjiSkillId].Program;
+        var zili = current.Skills[ZiliSkillId].Program;
+        var paiyi = current.Skills[PaiyiSkillId].Program;
+        Require(quanji is { RuntimeVersion: "skill-program-v27", MinimumRulesVersion: 132,
+                            Triggers.Count: 1, Modifiers.Count: 1 } &&
+                quanji.Triggers.Single().Effects.Select(effect => effect.Op).SequenceEqual([
                     SkillProgramTriggerEffectOp.Draw,
                     SkillProgramTriggerEffectOp.SelectSourceCard,
                     SkillProgramTriggerEffectOp.MoveBoundCards
                 ]) &&
-                migrated.Skills[PaiyiSkillId] is
-                {
-                    LegacyKind: null,
-                    ActionForms: SkillActionForm.Active,
-                    Program:
-                    {
-                        RuntimeVersion: "skill-program-v28",
-                        MinimumRulesVersion: 133,
-                        Activations.Count: 1
-                    }
-                } &&
-                migrated.Skills[PaiyiSkillId].Program!.Activations.Single() is
-                {
-                    SourceZones.Count: 1,
-                    Effects.Count: 3
-                } &&
-                migrated.Skills[PaiyiSkillId].Program!.Activations.Single().SourceZones.Single() == CardZoneKind.Authority &&
-                migrated.Skills[PaiyiSkillId].Program!.Activations.Single().Effects.Select(effect => effect.Op).SequenceEqual([
+                zili is { RuntimeVersion: "skill-program-v26", MinimumRulesVersion: 131,
+                           Triggers.Count: 2 } &&
+                zili.Triggers.All(trigger => trigger.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow &&
+                    trigger.ChoiceGroup == "awakening-benefit" && !trigger.Optional &&
+                    trigger.UsageScope == SkillUsageScope.Game && trigger.UsageLimit == 1) &&
+                paiyi is { RuntimeVersion: "skill-program-v28", MinimumRulesVersion: 133,
+                            Activations.Count: 1 } &&
+                paiyi.Activations.Single().SourceZones.SequenceEqual([CardZoneKind.Authority]) &&
+                paiyi.Activations.Single().Effects.Select(effect => effect.Op).SequenceEqual([
                     SkillProgramEffectOp.DiscardSelected,
                     SkillProgramEffectOp.Draw,
                     SkillProgramEffectOp.Damage
-                ]) &&
-                historicalPaiyi.Skills[PaiyiSkillId].Program is null &&
-                historicalPaiyi.Skills[PaiyiSkillId].LegacyKind == SkillKind.Paiyi &&
-                historicalQuanji.Skills[QuanjiSkillId].Program is null &&
-                historical.Skills[ZiliSkillId].Program is null &&
-                historical.Skills[ZiliSkillId].LegacyKind == SkillKind.Zili,
-            "Package 1.112/rules 133 must migrate Paiyi while preserving earlier package definitions, not legacy execution.");
-
+                ]),
+            "Current Quanji, Zili and Paiyi must expose their authority-zone programs.");
         var paiyiProgram = migrated.Skills[PaiyiSkillId].Program!.Activations.Single();
         var activeRules = ReadResource(typeof(StandardClassicGeneralPackage).Assembly,
             "CardGame.Content.Standard.SkillPrograms.active-persistent-zone-skills.rules.json");
@@ -293,7 +231,7 @@ internal static class ZhongHuiChecks
             "The completed Zili-to-Paiyi chain must replay exactly.");
     }
 
-    public static void ZiliProgramValidationAndHistoricalBoundary()
+    public static void ZiliProgramValidationAndCurrentConditions()
     {
         const string rulesResource =
             "CardGame.Content.Standard.SkillPrograms.state-awakening-skills.rules.json";
@@ -328,46 +266,6 @@ internal static class ZhongHuiChecks
             presentation,
             "currentOwnedZoneCount must reject ordinary hand zones");
 
-        var fixture = FindFixture();
-        var historicalRegistry = CreateRegistry(new Version(1, 109, 0));
-        var historical = CreateFixtureGame(historicalRegistry, fixture.Seed);
-        ResolveSelfFireAttack(historical, expectQuanji: false);
-        ResolveSelfFireAttack(historical, expectQuanji: false);
-        ResolveSelfFireAttack(historical, expectQuanji: false);
-        var owner = historical.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat];
-        Require(owner.AuthorityCount == 0 && owner.Hp == owner.MaxHp - 3 &&
-                historical.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
-                    .All(item => item.SkillId != QuanjiSkillId),
-            "Historical Quanji metadata must not revive either the retired draw/store route or a current program.");
-
-        // Prepare the old awakening and active-cost preconditions without asserting that
-        // these test-only mutations are player commands or replayable actions.
-        var zones = typeof(GameEngine).GetField("_cardZones", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .GetValue(historical)!;
-        var move = zones.GetType().GetMethod("Move")!;
-        foreach (var card in owner.Hand.Take(3))
-            move.Invoke(zones, [card.Id, CardLocation.Hand(HumanSeat), CardLocation.Authority(HumanSeat)]);
-        var players = (IReadOnlyList<CharacterState>)typeof(GameEngine)
-            .GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(historical)!;
-        typeof(GameEngine).GetMethod("AcquireRuntimeSkills", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .Invoke(historical, [players[HumanSeat], "fixture:retired-route", new[] { PaiyiSkillId }]);
-        Require(historical.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].AuthorityCount == 3 &&
-                GetHandLimit(historical, HumanSeat) == owner.Hp &&
-                SkillRegistry.GetActive(SkillKind.Paiyi) is null &&
-                historical.GetHumanLegalActions().All(action =>
-                    action.Skill != SkillKind.Paiyi && action.ProgramSkillId != PaiyiSkillId),
-            "Three public Authorities and acquired historical Paiyi must not revive the old hand-limit or active route.");
-        var play = RequirePrompt(historical, DecisionKind.PlayCard);
-        Require(historical.Submit(new EndPlayPhaseCommand(
-                HumanSeat, historical.Revision, play.PromptId)).Accepted,
-            "The historical Zhong Hui fixture could not end its play phase.");
-        ReachPrompt(historical, DecisionKind.PlayCard, 2_048);
-        Require(historical.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].MaxHp == owner.MaxHp &&
-                historical.Events.Select(item => item.Payload).OfType<SkillAwakenedEvent>()
-                    .All(item => item.SkillId != ZiliSkillId) &&
-                historical.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
-                    .All(item => item.SkillId != ZiliSkillId),
-            "Package 1.109 keeps its definition but must not revive Zili even when three Authorities satisfy the old threshold.");
     }
 
     private static void ResolveSelfFireAttack(GameEngine game, bool expectQuanji, bool testForgery = false)
@@ -630,14 +528,11 @@ internal static class ZhongHuiChecks
             : GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
     }
 
-    private static ContentRegistry CreateRegistry() => CreateRegistry(
-        StandardClassicGeneralPackage.CurrentVersion);
-
-    private static ContentRegistry CreateRegistry(Version classicVersion) => ContentRegistry.Build(
+    private static ContentRegistry CreateRegistry() => ContentRegistry.Build(
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        new StandardClassicGeneralPackage(classicVersion),
+        new StandardClassicGeneralPackage(),
         new ScenarioPackage());
 
     private static string ReadResource(Assembly assembly, string resourceName)

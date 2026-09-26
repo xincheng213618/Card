@@ -21,7 +21,6 @@ public static class GeneralVoiceProjector
                 DrawSkillResolvedEvent { Used: true } e => (e.SourceSeat, (SkillKind?)e.Skill, (string?)null, false),
                 PhaseSkillResolvedEvent { Used: true } e => (e.SourceSeat, (SkillKind?)e.Skill, (string?)null, false),
                 DamageSkillResolvedEvent { Used: true } e => (e.OwnerSeat, (SkillKind?)e.Skill, (string?)null, false),
-                SkillModuleResolvedEvent { Used: true } e => (e.OwnerSeat, (SkillKind?)null, e.SkillId, false),
                 ProgramSkillResolvedEvent { Completed: true } e => (e.OwnerSeat, (SkillKind?)null, e.SkillId, false),
                 ProgramBindingResolvedEvent { Activated: true, Completed: true } e => (e.OwnerSeat, (SkillKind?)null, e.SkillId, false),
                 ProgramJudgmentTriggerResolvedEvent { Activated: true } e => (e.OwnerSeat, (SkillKind?)null, e.SkillId, false),
@@ -33,7 +32,7 @@ public static class GeneralVoiceProjector
             if (player is null) continue;
             // Only the public snapshot supplies identity/skills; never inspect the engine's hidden players.
             if (player.IsGeneralPublic)
-                result = Find(player.GeneralId, player.Skills ?? [new(player.Skill, player.SkillName, player.SkillDescription)]) ?? result;
+                result = Find(player.GeneralId, player.Skills ?? []) ?? result;
             if (player.IsSecondaryGeneralPublic && player.SecondaryGeneralId is { } secondary)
                 result = Find(secondary, player.SecondarySkills ?? []) ?? result;
 

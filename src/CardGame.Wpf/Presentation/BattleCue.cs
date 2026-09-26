@@ -11,8 +11,7 @@ public sealed record BattleCue(long Sequence, BattleCueKind Kind, int SourceSeat
 
 public static class BattleCueProjector
 {
-    public static IReadOnlyList<BattleCue> Project(IEnumerable<EventEnvelope> source, GameSnapshot playerView,
-        int rulesVersion = GameCheckpoint.CurrentRulesVersion)
+    public static IReadOnlyList<BattleCue> Project(IEnumerable<EventEnvelope> source, GameSnapshot playerView)
     {
         var events = source.ToArray();
         var targets = events.Select(item => item.Payload).OfType<TargetsConfirmedEvent>()
@@ -98,9 +97,6 @@ public static class BattleCueProjector
                     BattleCueKind.Response, prevented.OwnerSeat, Seats([prevented.TargetSeat]),
                     $"{SkillName(prevented.OwnerSeat, prevented.SkillId)} · 防止{prevented.Amount}点伤害",
                     Name(prevented.OwnerSeat)),
-                SkillModuleResolvedEvent { Used: true } skillModule => new(envelope.Sequence,
-                        BattleCueKind.Response, skillModule.OwnerSeat, Seats([skillModule.OwnerSeat]),
-                        $"{SkillName(skillModule.OwnerSeat, skillModule.SkillId)} · 已发动", Name(skillModule.OwnerSeat)),
                 ProgramPhaseScheduledEvent { Started: true } phase => new(envelope.Sequence,
                     BattleCueKind.Turn, phase.OwnerSeat, Seats([phase.OwnerSeat]),
                     $"{SkillName(phase.OwnerSeat, phase.SkillId)} · 额外{PhaseName(phase.Phase)}阶段",
@@ -135,7 +131,7 @@ public static class BattleCueProjector
                 JudgmentResolvedEvent judgment => new(envelope.Sequence, BattleCueKind.Judgment, judgment.TargetSeat,
                     Seats([judgment.TargetSeat]),
                     $"{JudgmentName(judgment.Reason)} · {JudgmentCard(judgment.Suit, judgment.Rank)}", Name(judgment.TargetSeat),
-                    Detail: JudgmentOutcome(judgment, rulesVersion)),
+                    Detail: JudgmentOutcome(judgment)),
                 DamageAppliedEvent damage when damage.Amount > 0 => new(envelope.Sequence, BattleCueKind.Damage, damage.SourceSeat,
                     Seats([damage.TargetSeat]), $"−{damage.Amount}", Name(damage.TargetSeat), damage.Nature),
                 RecoveryAppliedEvent recovery when recovery.Amount > 0 => new(envelope.Sequence, BattleCueKind.Recovery, recovery.SourceSeat,
@@ -200,14 +196,12 @@ public static class BattleCueProjector
         return $"{glyph}{rankText}";
     }
 
-    private static string JudgmentOutcome(JudgmentResolvedEvent judgment, int rulesVersion)
+    private static string JudgmentOutcome(JudgmentResolvedEvent judgment)
     {
         if (judgment.CardId is null) return "没有可用的判定牌";
         return judgment.Reason switch
         {
             JudgmentReasons.BaguaDefense => judgment.Succeeded ? "红色 · 视为打出闪" : "黑色 · 未提供闪",
-            JudgmentReasons.Indulgence when rulesVersion < 11 => judgment.Succeeded ? "红色 · 不跳过出牌阶段" : "黑色 · 跳过出牌阶段",
-            JudgmentReasons.SupplyShortage when rulesVersion < 11 => judgment.Succeeded ? "红色 · 不跳过摸牌阶段" : "黑色 · 跳过摸牌阶段",
             JudgmentReasons.Indulgence => judgment.Succeeded ? "红桃 · 不跳过出牌阶段" : "非红桃 · 跳过出牌阶段",
             JudgmentReasons.SupplyShortage => judgment.Succeeded ? "梅花 · 不跳过摸牌阶段" : "非梅花 · 跳过摸牌阶段",
             JudgmentReasons.Lightning => judgment.Succeeded ? "黑桃 2–9 · 命中" : "未命中 · 移至下家",

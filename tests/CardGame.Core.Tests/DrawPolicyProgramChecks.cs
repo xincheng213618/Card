@@ -6,7 +6,6 @@ internal static class DrawPolicyProgramChecks
     public static void DefinitionsGroupsAndActivationBoundary()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 105, 0));
         var jiangchi = current.Skills["classic:jiangchi"].Program ??
             throw new InvalidOperationException("Current Jiangchi has no program.");
         var zishou = current.Skills["classic:zishou"].Program ??
@@ -25,10 +24,8 @@ internal static class DrawPolicyProgramChecks
                       NumberExpression: SkillProgramNumberExpression.LivingFactionCount },
                     { Op: SkillProgramTriggerEffectOp.GrantTurnCardTargetRestriction,
                       TargetRestriction: SkillProgramCardTargetRestriction.SelfOnly }
-                ] &&
-                historical.Skills["classic:jiangchi"].Program is null &&
-                historical.Skills["classic:zishou"].Program is null,
-            "Schema 20 must publish grouped Jiangchi and composed Zishou behind package 1.106.");
+                ],
+            "Current Jiangchi and Zishou must use grouped draw-policy programs.");
 
         var unsupported = Enum.GetValues<SkillProgramEffectOp>()
             .Except([

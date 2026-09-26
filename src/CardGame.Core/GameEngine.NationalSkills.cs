@@ -5,11 +5,11 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private int NationalMaxHp(GeneralDefinition primary, GeneralDefinition secondary) =>
-        _rulesVersion >= 8 ? (primary.BaseHp + secondary.BaseHp) / 2 : 4;
+        ((primary.BaseHp + secondary.BaseHp) / 2 );
 
     private void InitializeNationalHealth()
     {
-        if (!IsNationalWarMode || _rulesVersion < 8) return;
+        if (!IsNationalWarMode) return;
         foreach (var player in _players)
         {
             if (!player.GeneralSelected || !player.SecondaryGeneralSelected || player.SecondaryGeneral is null)
@@ -21,7 +21,7 @@ public sealed partial class GameEngine
 
     private PromptChoice WithNationalHealthPreview(PromptChoice choice, CharacterState player, GeneralDefinition candidate)
     {
-        if (!IsNationalWarMode || _rulesVersion < 8) return choice;
+        if (!IsNationalWarMode) return choice;
         var parameters = new Dictionary<string, string>(choice.Parameters);
         parameters["base-hp"] = candidate.BaseHp.ToString(CultureInfo.InvariantCulture);
         var health = $"基础体力 {candidate.BaseHp}";
@@ -42,7 +42,6 @@ public sealed partial class GameEngine
     /// not pass through this printed-skill restriction.
     /// </summary>
     private bool CanOwnPrintedSkill(CharacterState player, SkillTag tags) =>
-        !SupportsStructuredSkillOwnership ||
         !tags.HasFlag(SkillTag.Lord) ||
         player.Role == Role.Lord;
 
@@ -88,7 +87,7 @@ public sealed partial class GameEngine
         {
             if (skill.ContentId is null || emitted.Add(skill.ContentId)) yield return skill;
         }
-        if (!includeAcquired || !SupportsRuntimeSkillAcquisition) yield break;
+        if (!includeAcquired) yield break;
         foreach (var skillId in EnabledNonTemplateSkillGrants(player).Select(grant => grant.SkillId))
         {
             if (!emitted.Add(skillId)) continue;
@@ -121,7 +120,6 @@ public sealed partial class GameEngine
         {
             if (skill.ContentId is null || emitted.Add(skill.ContentId)) yield return skill;
         }
-        if (!SupportsRuntimeSkillAcquisition) yield break;
         foreach (var skillId in EnabledNonTemplateSkillGrants(player).Select(grant => grant.SkillId))
         {
             if (!emitted.Add(skillId)) continue;
@@ -147,8 +145,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<string> EnabledContentSkillIds(CharacterState player)
     {
         var ids = EnabledPrintedContentSkillIds(player).ToList();
-        if (SupportsRuntimeSkillAcquisition)
-            ids.AddRange(EnabledNonTemplateSkillGrants(player).Select(grant => grant.SkillId));
+        ids.AddRange(EnabledNonTemplateSkillGrants(player).Select(grant => grant.SkillId));
         return ids.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
     }
 
@@ -173,7 +170,7 @@ public sealed partial class GameEngine
             return _contentRegistry is null ||
                 CanOwnPrintedSkill(player, _contentRegistry.GetSkill(grant.SkillId).Tags);
         }
-        return SupportsRuntimeSkillAcquisition;
+        return true;
     }
 
     private IEnumerable<SkillGrant> EnabledRuntimeSkillGrants(CharacterState player) =>
@@ -200,9 +197,7 @@ public sealed partial class GameEngine
     private bool HasLegacyRuntimeSkill(CharacterState player, string skillId) =>
         GetSkillBindingShard(player)?.Definitions.GetValueOrDefault(skillId) is
         {
-            Program: null,
-            PhaseSkill: null,
-            PindianResultSkill: null
+            Program: null
         };
 
     private bool HasRuntimeSkill(CharacterState player, SkillKind skill) =>
@@ -217,7 +212,7 @@ public sealed partial class GameEngine
                 .OrderBy(definition => definition.Id, StringComparer.Ordinal)
                 .FirstOrDefault(definition => definition.LegacyKind == skill);
 
-    private IEnumerable<IPassiveSkill> EnabledPassiveSkills(CharacterState player)
+    private IEnumerable<SkillRuleDefinition> EnabledSkillRules(CharacterState player)
     {
         // Older checkpoints retain their original primary-only behavior.
         if (!IsNationalWarMode)
@@ -230,11 +225,6 @@ public sealed partial class GameEngine
                     (skill.Kind != SkillKind.Yicong || UsesFormalGongsunZan))
                     yield return SkillRegistry.Get(skill.Kind);
             }
-            yield break;
-        }
-        if (_rulesVersion < 7)
-        {
-            yield return SkillRegistry.Get(player.General.Skill);
             yield break;
         }
 
@@ -268,43 +258,29 @@ public sealed partial class GameEngine
         }
     }
 
-    private IPassiveSkill PassiveRules(CharacterState player)
+    private int GetSupplyShortageDistanceLimit(CharacterState player, PlayerSkillContext context) =>
+        EnabledSkillRules(player).Select(skill => skill.Numeric).OfType<INumericSkillRule>()
+            .Aggregate(1, (limit, rule) => rule.ModifySupplyShortageDistanceLimit(context, limit));
+
+    private IEnumerable<ICardUseSkillRule> CardUseRules(CharacterState player) =>
+        EnabledSkillRules(player).Select(skill => skill.CardUse)
+            .Where(rule => rule is not null).Cast<ICardUseSkillRule>();
+
+    private IEnumerable<ICardConversionSkillRule> ConversionRules(CharacterState player)
     {
+        foreach (var rule in EnabledSkillRules(player).Select(skill => skill.Conversion)
+                     .OfType<ICardConversionSkillRule>())
+            yield return rule;
         var programs = EnabledPassiveRulePrograms(player);
-        var skills = programs.Count == 0
-            ? EnabledPassiveSkills(player).ToArray()
-            : EnabledPassiveSkills(player).Append(new SkillProgramRules(programs,
-                GetHand(player).Select(card => card.Id).ToHashSet())).ToArray();
-        return skills.Length == 1 ? skills[0] : new CompositePassiveRules(skills);
+        if (programs.Count != 0)
+            yield return new SkillProgramRules(programs,
+                GetHand(player).Select(card => card.Id).ToHashSet());
     }
 
-    // Compose only rule queries. Trigger collection keeps each skill's identity
-    // so two damage skills can enter and resume their own ordered windows.
-    private sealed class CompositePassiveRules(IReadOnlyList<IPassiveSkill> skills) : IPassiveSkill
+    private string EnabledSkillNames(CharacterState player)
     {
-        public SkillKind Kind => SkillKind.None;
-        public string Name => skills.Count == 0 ? "无" : string.Join(" / ", skills.Select(skill => skill.Name));
-        public int ModifyDrawCount(PlayerSkillContext owner, int currentCount) => skills.Aggregate(currentCount, (value, skill) => skill.ModifyDrawCount(owner, value));
-        public int ModifySlashLimit(PlayerSkillContext owner, int currentLimit) => skills.Aggregate(currentLimit, (value, skill) => skill.ModifySlashLimit(owner, value));
-        public int ModifyOutgoingDistance(PlayerSkillContext owner, int currentDistance) => skills.Aggregate(currentDistance, (value, skill) => skill.ModifyOutgoingDistance(owner, value));
-        public int ModifyIncomingDistance(PlayerSkillContext owner, int currentDistance) => skills.Aggregate(currentDistance, (value, skill) => skill.ModifyIncomingDistance(owner, value));
-        public bool IgnoresTrickDistance(PlayerSkillContext owner, CardKind trickKind) => skills.Any(skill => skill.IgnoresTrickDistance(owner, trickKind));
-        public bool ProhibitsSlashTarget(PlayerSkillContext owner) => skills.Any(skill => skill.ProhibitsSlashTarget(owner));
-        public bool ProhibitsCardTarget(PlayerSkillContext owner, CardKind cardKind) => skills.Any(skill => skill.ProhibitsCardTarget(owner, cardKind));
-        public bool CanUseAsSlash(PlayerSkillContext owner, Card card) => skills.Any(skill => skill.CanUseAsSlash(owner, card));
-        public bool CanUseAsDismantlement(PlayerSkillContext owner, Card card) => skills.Any(skill => skill.CanUseAsDismantlement(owner, card));
-        public bool CanUseAsSupplyShortage(PlayerSkillContext owner, Card card) =>
-            skills.Any(skill => skill.CanUseAsSupplyShortage(owner, card));
-        public bool CanUseAsIndulgence(PlayerSkillContext owner, Card card) =>
-            skills.Any(skill => skill.CanUseAsIndulgence(owner, card));
-        public int ModifySupplyShortageDistanceLimit(PlayerSkillContext owner, int currentLimit) =>
-            skills.Aggregate(currentLimit, (value, skill) => skill.ModifySupplyShortageDistanceLimit(owner, value));
-        public bool CanSkipDiscardPhase(PlayerSkillContext owner, bool usedOrPlayedSlashDuringPlayPhase) =>
-            skills.Any(skill => skill.CanSkipDiscardPhase(owner, usedOrPlayedSlashDuringPlayPhase));
-        public bool CanUseAsResponse(PlayerSkillContext owner, Card card, CardKind requiredCardKind) =>
-            skills.Any(skill => skill.CanUseAsResponse(owner, card, requiredCardKind));
-        public int ModifyRequiredResponseCount(ResponseCountSkillContext context, int currentCount) =>
-            skills.Aggregate(currentCount, (value, skill) => skill.ModifyRequiredResponseCount(context, value));
-        public bool CanUseAsDyingRescue(PlayerSkillContext owner, Card card) => skills.Any(skill => skill.CanUseAsDyingRescue(owner, card));
+        var names = EnabledSkillRules(player).Select(skill => skill.Name).ToList();
+        if (EnabledPassiveRulePrograms(player).Count != 0) names.Add("Configured skills");
+        return names.Count == 0 ? "无" : string.Join(" / ", names);
     }
 }

@@ -41,10 +41,16 @@ internal static class TacticalAiChecks
         var wine = View(Role.Rebel, CardKind.Alcohol, CardKind.Slash);
         lord = wine.Players.Single(player => player.Role == Role.Lord).Seat;
         Pick(wine, [Action(LegalActionKind.Alcohol, 1000, 0), Action(LegalActionKind.Slash, 1001, lord), End()], LegalActionKind.Alcohol);
-        var redWine = Change(View(Role.Rebel, CardKind.Alcohol), 0, player => player with { Skill = SkillKind.Wusheng });
+        var redWine = Change(View(Role.Rebel, CardKind.Alcohol), 0, player => player with
+        {
+            Skills = [new GeneralSkillDefinition(SkillKind.Wusheng, "武圣", "红色牌当杀")]
+        });
         var wineConversion = Action(LegalActionKind.Slash, 1000, lord) with { PlayedCardKind = CardKind.Slash };
         Pick(redWine, [Action(LegalActionKind.Alcohol, 1000, 0), wineConversion, End()], LegalActionKind.Slash);
-        var converting = Change(View(Role.Rebel, CardKind.Peach, CardKind.Slash), 0, player => player with { Skill = SkillKind.Wusheng });
+        var converting = Change(View(Role.Rebel, CardKind.Peach, CardKind.Slash), 0, player => player with
+        {
+            Skills = [new GeneralSkillDefinition(SkillKind.Wusheng, "武圣", "红色牌当杀")]
+        });
         var converted = Action(LegalActionKind.Slash, 1000, lord) with { PlayedCardKind = CardKind.Slash };
         var selected = new SimpleAiBrain(0, 271, 2).ChoosePlay(converting, [converted, Action(LegalActionKind.Slash, 1001, lord), End()], 1);
         Require(selected.Action.CardId == 1001, "Physical Slash should preserve Peach when both can hit the same enemy.");
@@ -62,7 +68,7 @@ internal static class TacticalAiChecks
         var qixiEquipment = new CardSnapshot(2001, CardKind.Crossbow, Suit.Club, 1, "诸葛连弩", "A");
         var qixiView = Change(View(Role.Rebel), 0, player => player with
         {
-            Skill = SkillKind.Qixi,
+            Skills = [new GeneralSkillDefinition(SkillKind.Qixi, "奇袭", "黑色牌当过河拆桥")],
             Hand = [],
             HandCount = 0,
             Equipment = [qixiEquipment]
@@ -393,43 +399,36 @@ internal static class TacticalAiChecks
         var loyalBrain = new SimpleAiBrain(0, 271, 2);
         Require(loyalBrain.ChooseGuicaiReplacement(
                 loyal, lord, JudgmentReasons.Indulgence, [1000, 1001], CardKind.Dodge,
-                Suit.Spade, 1, 7, rulesVersion: 11).CardId == 1000,
+                Suit.Spade, 1, 7).CardId == 1000,
             "Guicai did not turn an allied Indulgence judgment into Heart.");
         Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
                 loyal, lord, JudgmentReasons.SupplyShortage, [1000, 1001], CardKind.Dodge,
-                Suit.Spade, 1, 7, rulesVersion: 11).CardId == 1001,
+                Suit.Spade, 1, 7).CardId == 1001,
             "Guicai did not turn an allied Supply Shortage judgment into Club.");
         Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
                 loyal, lord, JudgmentReasons.Lightning, [1000, 1001], CardKind.Dodge,
-                Suit.Spade, 1, 5, rulesVersion: 11).CardId == 1000,
+                Suit.Spade, 1, 5).CardId == 1000,
             "Guicai did not turn an allied Lightning hit into a miss.");
         Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
                 loyal, lord, JudgmentReasons.Ganglie, [1000, 1001], CardKind.Dodge,
-                Suit.Heart, 1, 7, rulesVersion: 11, usesClassicGanglieJudgment: true).CardId == 1001,
+                Suit.Heart, 1, 7, usesClassicGanglieJudgment: true).CardId == 1001,
             "Guicai did not use the classic non-Heart Ganglie success suit.");
         Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
                 loyal, lord, JudgmentReasons.Tieqi, [1000, 1001], CardKind.Dodge,
-                Suit.Club, 1, 7, rulesVersion: 36).CardId == 1000,
+                Suit.Club, 1, 7).CardId == 1000,
             "Guicai did not turn an allied Tieqi judgment red.");
 
         var rebel = JudgmentView(Role.Rebel);
         lord = rebel.Players.Single(player => player.Role == Role.Lord).Seat;
         Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
                 rebel, lord, JudgmentReasons.Indulgence, [1000, 1001], CardKind.Dodge,
-                Suit.Heart, 1, 7, rulesVersion: 11).CardId == 1001,
+                Suit.Heart, 1, 7).CardId == 1001,
             "Guicai did not turn an enemy Indulgence safe suit into a failed judgment.");
         Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
                 rebel, lord, JudgmentReasons.Tieqi, [1000, 1001], CardKind.Dodge,
-                Suit.Heart, 1, 7, rulesVersion: 36).CardId == 1001,
+                Suit.Heart, 1, 7).CardId == 1001,
             "Guicai did not turn an enemy Tieqi judgment black.");
-        Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
-                rebel, lord, JudgmentReasons.Indulgence, [1000, 1001], CardKind.Dodge,
-                Suit.Spade, 1, 7, rulesVersion: 10).CardId == 1000,
-            "Rules 10 Guicai no longer preserves its historical red-card scoring.");
-        Require(new SimpleAiBrain(0, 271, 2).ChooseGuicaiReplacement(
-                loyal, lord, JudgmentReasons.Ganglie, [1000, 1001], CardKind.Dodge,
-                Suit.Spade, 1, 7, rulesVersion: 10, usesClassicGanglieJudgment: true).CardId == 1000,
-            "Rules 10 classic Ganglie no longer preserves its historical Guicai scoring.");
+
     }
 
     private static void Pick(GameSnapshot view, IReadOnlyList<LegalAction> actions, LegalActionKind expected) =>

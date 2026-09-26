@@ -33,11 +33,6 @@ internal static class BoundaryCaoCaoChecks
                 registry.Skills["boundary:hujia"].LegacyKind == SkillKind.Hujia &&
                 registry.Skills["boundary:hujia"].Program is null,
             "Jianxiong must choose draw or currently claimable damage cards once per hit; Hujia must reuse the lord kind.");
-        var old = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 138, 0));
-        Require(!old.Generals.ContainsKey(General) && !old.Skills.ContainsKey(Jianxiong) &&
-                !old.Skills.ContainsKey("boundary:hujia"),
-            "Previously released classic content must not contain this boundary general or either skill.");
-
         var owner = new PlayerSkillContext(0, 3, 5, 2, TurnPhase.Play);
         var effects = trigger.Effects.Select(effect => effect.ToExecutionEffect()).ToArray();
         var cardlessAi = ProgramCompositionAi.Estimate(effects, owner,

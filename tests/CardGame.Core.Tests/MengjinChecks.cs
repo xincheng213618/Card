@@ -6,7 +6,7 @@ internal static class MengjinChecks
 {
     public static void HiddenHandPublicEquipmentChoiceAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 44, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var boundary = MengjinScenario.FindHumanTrigger();
         var game = boundary.Game;
         var prompt = game.PendingDecision ??

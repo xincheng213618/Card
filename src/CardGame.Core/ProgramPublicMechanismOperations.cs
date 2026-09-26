@@ -15,9 +15,9 @@ internal sealed class StartPindianProgramOperationDescriptor : ProgramOperationD
         reader.AllowOnly("op", "target", "opponentRef", "resultBind", "visibility", "condition");
         var target = FilterBoundCardsProgramOperationDescriptor.Owner(reader);
         var opponent = reader.RequiredParticipantReference("opponentRef");
-        if (opponent.Kind is not ProgramParticipantRef.SelectedTarget)
+        if (opponent.Kind is not (ProgramParticipantRef.SelectedTarget or ProgramParticipantRef.EventTarget))
             throw new InvalidOperationException(
-                $"Invalid skill program at {reader.Path}.opponentRef: active pindian currently requires selectedTarget.");
+                $"Invalid skill program at {reader.Path}.opponentRef: Pindian requires selectedTarget or a damage eventTarget.");
         var effect = new SkillProgramEffect(
             Op, target, 0, reader.Condition(),
             resultBind: reader.RequiredIdentifier("resultBind"),
@@ -28,7 +28,9 @@ internal sealed class StartPindianProgramOperationDescriptor : ProgramOperationD
     }
 
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        [new ReadSelectedTarget(), new CreatePindianResult(effect.ResultBind!)];
+        effect.OpponentReference?.Kind == ProgramParticipantRef.EventTarget
+            ? [new RequireContext(ProgramContextCapability.Damage), new CreatePindianResult(effect.ResultBind!)]
+            : [new ReadSelectedTarget(), new CreatePindianResult(effect.ResultBind!)];
 }
 
 public sealed class StartPindianSkillProgramEffectHandler : ISkillProgramEffectHandler

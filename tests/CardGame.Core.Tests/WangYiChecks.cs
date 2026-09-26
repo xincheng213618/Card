@@ -10,57 +10,20 @@ internal static class WangYiChecks
 
     public static void ContentPromptAndRulesBoundary()
     {
-        var introduced = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 85, 0));
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 84, 0));
-        var preMigration = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 134, 0));
-        var beforeZhenlieMigration = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 136, 0));
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(introduced.Packages.Any(package =>
-                    package.Id == "standard-classic-generals" &&
-                    package.Version == new Version(1, 85, 0)) &&
-                introduced.Generals[GeneralId] is
+        Require(current.Generals[GeneralId] is
                 {
                     FactionId: "wei",
                     BaseHp: 3,
                     Gender: GeneralGender.Female,
                     PortraitKey: "wang_yi",
                     SkillIds: var skillIds
-                } && skillIds.SequenceEqual([ZhenlieSkillId, MijiSkillId]) &&
-                introduced.Skills[ZhenlieSkillId] is
-                {
-                    LegacyKind: SkillKind.Zhenlie,
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.Trigger,
-                    ActionForms: SkillActionForm.None
-                } &&
-                introduced.Skills[MijiSkillId] is
-                {
-                    LegacyKind: SkillKind.Miji,
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.Trigger,
-                    ActionForms: SkillActionForm.None
-                } &&
-                !previous.Generals.ContainsKey(GeneralId) &&
-                !previous.Skills.ContainsKey(ZhenlieSkillId) &&
-                !previous.Skills.ContainsKey(MijiSkillId) &&
-                introduced.ContentHash != previous.ContentHash,
-            "Package 1.85.0 must add exact Wang Yi content without mutating 1.84.0.");
+                } && skillIds.SequenceEqual([ZhenlieSkillId, MijiSkillId]),
+            "Current Wang Yi must keep the Wei three-HP Zhenlie and Miji card.");
 
-        Require(preMigration.Skills[MijiSkillId] is
-                {
-                    LegacyKind: SkillKind.Miji,
-                    Program: null,
-                    ExecutionForms: SkillExecutionForm.Trigger
-                } &&
-                current.Packages.Any(package =>
+        Require(current.Packages.Any(package =>
                     package.Id == "standard-classic-generals" &&
                     package.Version == StandardClassicGeneralPackage.CurrentVersion) &&
-                beforeZhenlieMigration.Skills[ZhenlieSkillId] is
-                {
-                    LegacyKind: SkillKind.Zhenlie,
-                    Program: null,
-                    ExecutionForms: SkillExecutionForm.Trigger
-                } &&
                 current.Skills[ZhenlieSkillId] is
                 {
                     LegacyKind: null,
@@ -170,7 +133,6 @@ internal static class WangYiChecks
                 SnapshotJson.Serialize(game.CreateSnapshot(HumanSeat, revealAll: true)) == before,
             "A forged Zhenlie answer must be rejected atomically.");
 
-        HistoricalZhenlieDefinitionDoesNotReactivateRetiredExecutor(fixture.Seed);
     }
 
     public static void ZhenlieSlashAndMijiDistributionReplay()
@@ -341,7 +303,6 @@ internal static class WangYiChecks
                 SnapshotJson.Serialize(game.CreateSnapshot(HumanSeat, revealAll: true)),
             "The completed Zhenlie and Miji command prefix must replay exactly.");
 
-        HistoricalMijiDefinitionDoesNotReactivateRetiredExecutor();
     }
 
     public static void ZhenlieNullifiesOnlyItsGroupEffect()
@@ -393,9 +354,9 @@ internal static class WangYiChecks
         throw new InvalidOperationException("The active group trick did not finish in bounded steps.");
     }
 
-    private static Fixture FindFixture(string modeId, Version? classicVersion = null)
+    private static Fixture FindFixture(string modeId)
     {
-        var registry = CreateRegistry(classicVersion);
+        var registry = CreateRegistry();
         for (var seed = 1; seed <= 2_048; seed++)
         {
             var game = CreateGame(registry, seed, modeId);
@@ -482,48 +443,6 @@ internal static class WangYiChecks
         throw new InvalidOperationException("The Wang Yi fixture did not reach Miji in bounded steps.");
     }
 
-    private static void HistoricalZhenlieDefinitionDoesNotReactivateRetiredExecutor(int seed)
-    {
-        var registry = CreateRegistry(new Version(1, 136, 0));
-        var game = CreateGame(registry, seed, ScenarioPackage.SlashModeId);
-        Require(TryStartAndSelect(game) &&
-                game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: HumanSeat } &&
-                game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>().Any(item =>
-                    item.TargetSeat == HumanSeat) &&
-                game.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>().All(item =>
-                    item.SkillId != ZhenlieSkillId) &&
-                game.Events.Select(item => item.Payload).OfType<ZhenlieResolvedEvent>().Count() == 0,
-            "Package 1.136.0 must retain Zhenlie identity data without executing a retired specialized or current program path.");
-    }
-
-    private static void HistoricalMijiDefinitionDoesNotReactivateRetiredExecutor()
-    {
-        var current = FindFixture(ScenarioPackage.SlashModeId);
-        var registry = CreateRegistry(new Version(1, 134, 0));
-        var game = CreateGame(registry, current.Seed, ScenarioPackage.SlashModeId);
-        Require(TryStartAndSelect(game) &&
-                game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: HumanSeat } &&
-                game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hp < 3,
-            "The historical Wang Yi fixture must reach an injured human play phase without a retired Zhenlie executor.");
-        var play = RequirePrompt(game, DecisionKind.PlayCard);
-        Require(game.Submit(new EndPlayPhaseCommand(HumanSeat, game.Revision, play.PromptId)).Accepted,
-            "The historical Wang Yi fixture could not end its play phase.");
-        for (var step = 0; step < 64 && game.State.CurrentSeat == HumanSeat; step++)
-        {
-            Require(game.PendingDecision is not { Kind: DecisionKind.Miji, PlayerSeat: HumanSeat } &&
-                    game.PendingDecision is not
-                        { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: MijiSkillId },
-                "A historical Miji definition reactivated a retired specialized or current program executor.");
-            Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
-                "The historical Wang Yi fixture could not leave its turn.");
-        }
-        Require(game.State.CurrentSeat != HumanSeat &&
-                !game.Events.Select(item => item.Payload).OfType<MijiResolvedEvent>().Any() &&
-                game.CardMovements.All(item => item.Reason != CardMoveReasons.MijiDraw &&
-                    item.Reason != CardMoveReasons.MijiGive),
-            "Package 1.134.0 must retain Miji identity data without executing the retired Miji state machine.");
-    }
-
     private static void AnswerProgram(GameEngine game, string skillId, string action)
     {
         var prompt = RequireProgramPrompt(game, skillId);
@@ -594,13 +513,11 @@ internal static class WangYiChecks
             : GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
     }
 
-    private static ContentRegistry CreateRegistry(Version? classicVersion = null) => ContentRegistry.Build(
+    private static ContentRegistry CreateRegistry() => ContentRegistry.Build(
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        classicVersion is null
-            ? new StandardClassicGeneralPackage()
-            : new StandardClassicGeneralPackage(classicVersion),
+        new StandardClassicGeneralPackage(),
         new ScenarioPackage());
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>

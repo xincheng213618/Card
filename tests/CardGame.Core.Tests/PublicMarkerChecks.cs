@@ -73,29 +73,22 @@ internal static class PublicMarkerChecks
 
     public static void WuhunCandidateRules()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 122, 0));
-        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 121, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
         var wuhun = current.Skills["classic:wuhun"];
         Require(wuhun is
                 {
                     LegacyKind: null,
                     Tags: SkillTag.Locked,
                     ExecutionForms: SkillExecutionForm.State,
-                    Program.RuntimeVersion: "skill-program-v38",
-                    Program.MinimumRulesVersion: 143
+                    Program.RuntimeVersion: "skill-program-v53",
+                    Program.MinimumRulesVersion: 163
                 } &&
                 wuhun.Program.Triggers.Select(trigger => trigger.Window)
                     .SequenceEqual([
-                        SkillProgramTriggerWindow.AfterDamageApplied,
+                        SkillProgramTriggerWindow.DamageAppliedBeforeDying,
                         SkillProgramTriggerWindow.OwnerDied
-                    ]) &&
-                historical.Skills["classic:wuhun"] is
-                {
-                    LegacyKind: SkillKind.Wuhun,
-                    Program: null
-                } &&
-                current.ContentHash != historical.ContentHash,
-            "Package 1.122.0 must bind Wuhun to schema 38 while 1.121.0 retains only its legacy identity.");
+                    ]),
+            "Current Wuhun must bind the pre-dying Nightmare record and death judgment program.");
         Exception? schemaFailure = null;
         try
         {
@@ -418,8 +411,8 @@ internal static class PublicMarkerChecks
                 ready.Players[0].Hand.Count == 0)
                 continue;
             var quhu = game.GetHumanLegalActions().SingleOrDefault(action =>
-                action.Kind == LegalActionKind.UseSkill &&
-                action.Skill == SkillKind.Quhu &&
+                action.Kind == LegalActionKind.UseProgramSkill &&
+                action.ProgramSkillId == "classic:quhu" &&
                 action.SelectableTargetSeats.Contains(0));
             if (quhu is null)
                 continue;
@@ -429,9 +422,10 @@ internal static class PublicMarkerChecks
                 .OrderBy(card => card.Rank)
                 .FirstOrDefault();
             if (sourceCard is null ||
-                !game.Submit(new UseSkillCommand(
+                !game.Submit(new UseProgramSkillCommand(
                     2,
-                    SkillKind.Quhu,
+                    "classic:quhu",
+                    quhu.ProgramActivationId!,
                     [sourceCard.Id],
                     [0],
                     game.Revision,
@@ -457,8 +451,8 @@ internal static class PublicMarkerChecks
             }
 
             if (game.State is not { Status: EngineStatus.AwaitingHumanPlay, CurrentSeat: 2 } ||
-                !game.Events.Select(item => item.Payload).OfType<PindianResolvedEvent>().Any(item =>
-                    item.InitiatorSeat == 2 && item.OpponentSeat == 0 && !item.InitiatorWon) ||
+                !game.Events.Select(item => item.Payload).OfType<PindianResultDeterminedEvent>().Any(item =>
+                    item.Result.SourceSeat == 2 && item.Result.OpponentSeat == 0 && !item.Result.SourceWon) ||
                 !game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>().Any(item =>
                     item.SourceSeat == 0 && item.TargetSeat == 2) ||
                 !game.Events.Select(item => item.Payload).OfType<PlayerMarkerChangedEvent>().Any(item =>
@@ -688,11 +682,8 @@ internal static class PublicMarkerChecks
                     }
                     if (attackerSkill == SkillKind.Quhu)
                     {
-                        builder.AddSkill(new ContentSkillDefinition(
-                            "wuhun-marker:quhu",
-                            "驱虎",
-                            "出牌阶段限一次，你可以与一名体力值大于你的角色拼点。",
-                            SkillKind.Quhu));
+                        builder.AddSkill(StandardContentRegistry.CreateWithClassicGenerals()
+                            .Skills["classic:quhu"]);
                     }
                     builder.AddGeneral(new ContentGeneralDefinition(
                         AttackerId,
@@ -708,7 +699,7 @@ internal static class PublicMarkerChecks
                         "wei",
                         BaseHp: 4,
                         AdditionalSkillIds: attackerSkill == SkillKind.Quhu
-                            ? ["wuhun-marker:quhu"]
+                            ? ["classic:quhu"]
                             : null));
                     builder.AddGeneral(new ContentGeneralDefinition(
                         OwnerId, "武魂测试者", "shen-guan-yu", WuhunSkillId, "god", BaseHp: ownerHp));

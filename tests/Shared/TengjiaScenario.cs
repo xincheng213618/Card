@@ -24,7 +24,7 @@ internal static class TengjiaScenario
             new StandardContentPackage(),
             new StandardActiveSkillExpansionPackage(includeJijiu: true),
             new StandardRescueSkillExpansionPackage(),
-            new StandardClassicGeneralPackage(new Version(1, 63, 0)),
+            new StandardClassicGeneralPackage(),
             new ScenarioPackage());
         for (var seed = 1; seed <= 4096; seed++)
         {

@@ -62,8 +62,6 @@ internal static class SpGuanYuChecks
     public static void ContentAndDanjiReplayBoundary()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 68, 0));
-        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 108, 0));
         var danji = current.Skills[DanjiSkillId];
         var awakening = danji.Program?.Triggers.Single();
         Require(current.Generals[GeneralId] is
@@ -118,10 +116,8 @@ internal static class SpGuanYuChecks
                 Tags: SkillTag.Locked,
                 ExecutionForms: SkillExecutionForm.State
             } &&
-            !previous.Generals.ContainsKey(GeneralId) &&
-            !previous.Skills.ContainsKey(DanjiSkillId) &&
-            historical.Skills[DanjiSkillId].Program is null,
-            "Package 1.109.0 must migrate Danji without changing its 1.69.0 registration or 1.108.0 content definition.");
+            current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId),
+            "Current SP Guan Yu must register mandatory Danji and its granted skills in the identity pool.");
 
         var registry = CreateRegistry();
         var game = CreateGame(registry);
@@ -163,20 +159,6 @@ internal static class SpGuanYuChecks
         Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
             "Danji acquisition and its game-scoped record must restore from the command prefix.");
-
-        var historicalGame = CreateGame(CreateRegistry(new Version(1, 108, 0)));
-        ReachHumanPlay(historicalGame);
-        var historicalOwner = historicalGame.CreateSnapshot(0, revealAll: true).Players[0];
-        Require(historicalOwner is { Hp: 5, MaxHp: 5 } &&
-                historicalOwner.Skills!.Select(skill => skill.ContentId).SequenceEqual(
-                    [WushengSkillId, DanjiSkillId]) &&
-                historicalOwner.SkillRuntimeStates!.Single(state => state.SkillId == DanjiSkillId)
-                    .Usages.Count == 0 &&
-                historicalGame.Events.Select(item => item.Payload).OfType<SkillAwakenedEvent>()
-                    .All(item => item.SkillId != DanjiSkillId) &&
-                !historicalGame.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
-                    .Any(item => item.SkillId == DanjiSkillId),
-            "Package 1.108.0 retains Danji metadata but must not revive the retired awakening or silently bind the current program.");
 
     }
 
@@ -297,13 +279,11 @@ internal static class SpGuanYuChecks
         Require(result.Accepted, result.Error?.Message ?? "SP Guan Yu's Slash was rejected.");
     }
 
-    private static ContentRegistry CreateRegistry(Version? classicVersion = null) => ContentRegistry.Build(
+    private static ContentRegistry CreateRegistry() => ContentRegistry.Build(
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        classicVersion is null
-            ? new StandardClassicGeneralPackage()
-            : new StandardClassicGeneralPackage(classicVersion),
+        new StandardClassicGeneralPackage(),
         new ScenarioPackage());
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>

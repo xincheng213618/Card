@@ -33,7 +33,6 @@ public enum ResolutionFrameKind
     ProgramSkill,
     ProgramCardTriggerWindow,
     ProgramJudgmentTriggerWindow,
-    PhaseSkill,
     Pindian,
     ProgramLifecycleTriggerWindow,
     TurnEndingBoundary,
@@ -61,7 +60,6 @@ public enum DamageSkillEffectKind
     TakeSourceCard,
     RecoverDamageSource,
     BenefitDamageSource,
-    StoreAuthority, // Reserved serialized value; persistent-zone effects use program bindings.
     RevealHandAndPunishSource,
     SelectRevealedCardsByRank,
     RevealCardAndChallengeSource
@@ -88,7 +86,6 @@ public enum DamageSkillEffectKind
 [JsonDerivedType(typeof(ProgramSkillFrame), "program-skill")]
 [JsonDerivedType(typeof(ProgramCardTriggerWindowFrame), "program-card-trigger-window")]
 [JsonDerivedType(typeof(ProgramJudgmentTriggerWindowFrame), "program-judgment-trigger-window")]
-[JsonDerivedType(typeof(PhaseSkillFrame), "phase-skill")]
 [JsonDerivedType(typeof(PindianFrame), "pindian")]
 [JsonDerivedType(typeof(ProgramLifecycleTriggerWindowFrame), "program-lifecycle-trigger-window")]
 [JsonDerivedType(typeof(TurnEndingBoundaryFrame), "turn-ending-boundary")]

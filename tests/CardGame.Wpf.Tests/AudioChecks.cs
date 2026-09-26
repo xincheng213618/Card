@@ -132,21 +132,14 @@ internal static class AudioChecks
         Assert(slider.ActualHeight > 0 && slider.TranslatePoint(new Point(slider.ActualWidth, slider.ActualHeight), root) is { X: <= 1120, Y: <= 740 }, "Sound controls overflow the small window.");
         vm.SaveGameCommand.Execute(null);
         var saved = store.Read(GameSaveSlot.Manual);
-        Assert(saved.SoundEnabled == false && saved.SoundVolume == .27, "Sound preferences did not reach JSON.");
+        Assert(vm.FlushPreferences(), "Sound preferences did not persist to the device store.");
+        var saveJson = JsonNode.Parse(File.ReadAllText(store.GetPath(GameSaveSlot.Manual)))!.AsObject();
+        Assert(!saveJson.ContainsKey("SoundEnabled") && !saveJson.ContainsKey("SoundVolume"),
+            "Match saves must not duplicate device sound preferences.");
         vm.SoundVolume = .8;
         vm.IsSoundEnabled = true;
         vm.LoadManualGameCommand.Execute(null);
         Assert(vm.IsSoundEnabled && vm.SoundVolume == .8 && State(vm) == state, "Loading a real save replaced the current device preferences.");
-        var original = JsonNode.Parse(File.ReadAllText(store.GetPath(GameSaveSlot.Manual)))!.AsObject();
-        original.Remove("SoundEnabled");
-        original.Remove("SoundVolume");
-        File.WriteAllText(store.GetPath(GameSaveSlot.Manual), original.ToJsonString());
-        vm.LoadManualGameCommand.Execute(null);
-        Assert(!vm.HasSaveError && vm.IsSoundEnabled && vm.SoundVolume == .8, "Existing saves without sound fields replaced current preferences.");
-        original["SoundVolume"] = 7;
-        File.WriteAllText(store.GetPath(GameSaveSlot.Manual), original.ToJsonString());
-        vm.LoadManualGameCommand.Execute(null);
-        Assert(vm.HasSaveError && State(vm) == state && vm.SoundVolume == .8, "Invalid saved volume replaced the active game.");
         store.Write(GameSaveSlot.Manual, saved);
         vm.LoadManualGameCommand.Execute(null);
         vm.IsSoundEnabled = true;

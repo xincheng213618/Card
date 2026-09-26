@@ -22,7 +22,7 @@ public sealed record GameCheckpoint(
     // so checkpoints from any other rules version are rejected instead of
     // migrated. Adding content is versioned by its package and content hash.
     // 102-114 were retired development epochs; do not reuse one for new semantics.
-    public const int CurrentRulesVersion = 166;
+    public const int CurrentRulesVersion = 167;
 
     public int RulesVersion { get; init; }
 }
@@ -62,22 +62,11 @@ public static class GameReplay
         GameOptions options,
         IEnumerable<GameCommand> commands,
         ContentRegistry? contentRegistry = null)
-        => ReplayCore(
-            options,
-            commands,
-            contentRegistry,
-            GameCheckpoint.CurrentRulesVersion);
-
-    private static GameEngine ReplayCore(
-        GameOptions options,
-        IEnumerable<GameCommand> commands,
-        ContentRegistry? contentRegistry,
-        int rulesVersion)
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(commands);
 
-        var engine = GameEngine.CreateForReplay(options, contentRegistry, rulesVersion);
+        var engine = GameEngine.CreateStandard(options, contentRegistry);
         var commandIndex = 0;
         foreach (var command in commands)
         {
@@ -161,11 +150,10 @@ public static class GameReplay
                 "The checkpoint content hash does not match the supplied registry.");
         }
 
-        var engine = ReplayCore(
+        var engine = Replay(
             checkpoint.Options,
             checkpoint.Commands,
-            contentRegistry,
-            checkpoint.RulesVersion);
+            contentRegistry);
         if (engine.Revision != checkpoint.Revision ||
             !string.Equals(engine.ModeId, checkpoint.ModeId, StringComparison.Ordinal))
         {

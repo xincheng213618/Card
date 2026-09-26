@@ -23,8 +23,7 @@ public sealed partial class GameEngine
 
     private void ResolveRecast(CharacterState actor, Card card, CardKind? playedCardKind = null)
     {
-        if (_rulesVersion < 6 ||
-            (playedCardKind is null && card.Kind != CardKind.IronChain) ||
+        if ((playedCardKind is null && card.Kind != CardKind.IronChain) ||
             (playedCardKind is not null && playedCardKind != CardKind.IronChain))
             throw new InvalidOperationException("Only Iron Chain may be recast under rules version 6.");
         MoveCards([card], CardLocation.Hand(actor.Seat), CardLocation.DiscardPile, CardMoveReasons.RecastDiscard);
@@ -52,7 +51,6 @@ public sealed partial class GameEngine
         SkillKind? cardKindModifierSkill = null,
         IReadOnlyList<int>? designatedTargetSeats = null)
     {
-        if (_rulesVersion < 80) return null;
         var costs = physicalIds.Select(id => new CardActionCost(id,
             _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(item => item.Id == id).Kind,
             _cardZones.GetLocation(id))).ToArray();
@@ -92,7 +90,7 @@ public sealed partial class GameEngine
             _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
             CardActionType.Use, actorSeat, provider, provider == actorSeat ? null : actorSeat,
             null, null, effectiveKind, targets, costs, conversionChain,
-            _rulesVersion >= 165 ? designatedTargetSeats ?? targets : null);
+            (designatedTargetSeats ?? targets ));
     }
 
     private bool TryBeginCardResponsePrograms(AttackResolution attack, CharacterState actor,
@@ -100,7 +98,6 @@ public sealed partial class GameEngine
         IReadOnlyList<CardActionCost> costs, ProgramCardContinuation continuation,
         CardConversionSource? conversionSource = null)
     {
-        if (_rulesVersion < 80) return false;
         var parent = _resolutionStack.OfType<CardUseFrame>().LastOrDefault(frame => frame.Id == attack.ResolutionId);
         var action = new CardActionContext(++_cardActionSequence, parent?.Action?.ActionId,
             CardActionType.Response, actor.Seat, provider.Seat, requesterSeat, actor.Seat,
@@ -114,7 +111,7 @@ public sealed partial class GameEngine
     // response starts. Keep the prepared attack objects so Liuli cannot run twice.
     private bool PrepareProgramSlashTargets(AttackResolution attack)
     {
-        if (_rulesVersion < 80 || _acceptedProgramUses.Contains(attack.ResolutionId)) return false;
+        if (_acceptedProgramUses.Contains(attack.ResolutionId)) return false;
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == attack.ResolutionId);
         if (frame.Action is not { } captured) return false;
         if (_pendingFangtianHalberd is { } multi && multi.ResolutionId == attack.ResolutionId)
@@ -139,7 +136,7 @@ public sealed partial class GameEngine
         var finalized = new CardActionContext(captured.ActionId, captured.ParentActionId, captured.Type,
             captured.ActorSeat, captured.ProviderSeat, captured.RequesterSeat, captured.ResponderSeat,
             captured.OpponentSeat, captured.EffectiveKind, frame.TargetSeats, captured.PhysicalCards, captured.ConversionChain,
-            _rulesVersion >= 165 ? frame.TargetSeats.Where(seat => _players[seat].IsAlive).Distinct().ToArray() : null);
+            (frame.TargetSeats.Where(seat => _players[seat].IsAlive).Distinct().ToArray() ));
         var index = _resolutionStack.FindLastIndex(item => item.Id == frame.Id);
         _resolutionStack[index] = frame with { Action = finalized };
         QueueGameEvent(new CardActionAcceptedEvent(finalized));
@@ -506,7 +503,7 @@ public sealed partial class GameEngine
 
     private bool TryBeginDelayedCardUsePrograms(long resolutionId)
     {
-        if (_rulesVersion < 84 || !_acceptedProgramUses.Add(resolutionId)) return false;
+        if (!_acceptedProgramUses.Add(resolutionId)) return false;
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == resolutionId);
         var action = frame.Action ??
             throw new InvalidOperationException("A direct delayed-card trigger requires a captured card action.");
@@ -802,9 +799,8 @@ public sealed partial class GameEngine
               frame.Action.Type == CardActionType.Use &&
               frame.Action.PhysicalCards.Any(cost => cost.CardId == trick.EffectCardId)
             : frame.TrickContinuation is null;
-        if (_rulesVersion < 80 || !attackMatches ||
+        if (!attackMatches ||
             frameIndex < 1 || _resolutionStack[frameIndex - 1].Id != frame.ParentFrameId ||
-            (frame.Continuation == ProgramCardContinuation.DelayedCard && _rulesVersion < 84) ||
             !trickContinuationMatches ||
             !candidateCursorValid ||
             (!judgmentIsActive && !directPromptMatches && !sharedPromptMatches && !sharedChildMatches) ||

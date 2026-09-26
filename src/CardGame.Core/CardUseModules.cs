@@ -10,24 +10,15 @@ public enum CardUseCategories
     Equipment = 8
 }
 
-public enum SkillEffectCondition
-{
-    Always,
-    PindianWon,
-    PindianNotWon
-}
-
 public sealed record GrantNextCardTargetAdjustment(
     CardUseCategories Categories,
     int MinimumTargets = 1,
     bool AllowAdd = true,
     bool AllowRemove = true,
-    bool IgnoreExtraTargetDistance = true,
-    SkillEffectCondition When = SkillEffectCondition.Always) : SkillModuleEffect;
+    bool IgnoreExtraTargetDistance = true);
 
 public sealed record ForbidCardUseUntilTurnEnd(
-    CardUseCategories Categories,
-    SkillEffectCondition When = SkillEffectCondition.Always) : SkillModuleEffect;
+    CardUseCategories Categories);
 
 /// <summary>The stable content binding that granted a turn-scoped card-use effect.</summary>
 public sealed record CardUseEffectSource(
@@ -103,7 +94,8 @@ public sealed record TurnRuleModifier(
     CardUseEffectSource Source,
     SkillRuleQuery Query,
     SkillRuleOperation Operation,
-    int Amount);
+    int Amount,
+    IReadOnlyList<CardKind>? CardKinds = null);
 
 public sealed record TurnCardTargetRestriction(
     long GrantSequence,
@@ -351,22 +343,25 @@ internal sealed class TurnCardUseEffectStore
         CardUseEffectSource source,
         SkillRuleQuery query,
         SkillRuleOperation operation,
-        int amount)
+        int amount,
+        IReadOnlyList<CardKind>? cardKinds = null)
     {
+        IReadOnlyList<CardKind> frozenKinds = cardKinds is null ? [] : Array.AsReadOnly(cardKinds.ToArray());
         var existing = _ruleModifiers.SingleOrDefault(item =>
             item.ParentFrameId == parentFrameId && item.EffectIndex == effectIndex);
         if (existing is not null)
         {
             if (existing.TurnNumber != turnNumber || existing.TurnSeat != turnSeat ||
                 existing.Source != source || existing.Query != query ||
-                existing.Operation != operation || existing.Amount != amount)
+                existing.Operation != operation || existing.Amount != amount ||
+                !(existing.CardKinds ?? []).SequenceEqual(frozenKinds))
                 throw new InvalidOperationException("A turn rule-modifier grant key changed its meaning.");
             return existing;
         }
 
         var granted = new TurnRuleModifier(
             ++_grantSequence, turnNumber, turnSeat, parentFrameId, effectIndex, source,
-            query, operation, amount);
+            query, operation, amount, frozenKinds);
         _ruleModifiers.Add(granted);
         return granted;
     }
@@ -486,10 +481,13 @@ internal sealed class TurnCardUseEffectStore
         int turnNumber,
         int turnSeat,
         int actorSeat,
-        SkillRuleQuery query) =>
+        SkillRuleQuery query,
+        CardKind? effectiveCardKind = null) =>
         _ruleModifiers.Where(item =>
                 item.TurnNumber == turnNumber && item.TurnSeat == turnSeat &&
-                item.Source.OwnerSeat == actorSeat && item.Query == query)
+                item.Source.OwnerSeat == actorSeat && item.Query == query &&
+                (item.CardKinds is null || item.CardKinds.Count == 0 ||
+                 effectiveCardKind is { } kind && item.CardKinds.Contains(kind)))
             .OrderBy(item => item.GrantSequence)
             .ToArray();
 
@@ -654,8 +652,12 @@ internal sealed class TurnCardUseEffectStore
                     item.Operation != SkillRuleOperation.Unlimited ||
                 item.Query == SkillRuleQuery.AttackRange &&
                     item.Operation != SkillRuleOperation.Unlimited ||
+                item.Query == SkillRuleQuery.CardTargetCount &&
+                    (item.Operation != SkillRuleOperation.Add || item.Amount <= 0 ||
+                     item.CardKinds is not { Count: > 0 } cardKinds ||
+                     cardKinds.Distinct().Count() != cardKinds.Count) ||
                 item.Query is not (SkillRuleQuery.SlashLimit or SkillRuleQuery.SlashDistanceLimit or
-                    SkillRuleQuery.AttackRange)) ||
+                    SkillRuleQuery.AttackRange or SkillRuleQuery.CardTargetCount)) ||
             _targetRestrictions.Any(item => item.Restriction == SkillProgramCardTargetRestriction.SelfOnly
                 ? item.TargetSeat is not null
                 : item.TargetSeat is null or < 0) ||

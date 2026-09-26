@@ -9,21 +9,8 @@ internal static class CaoChongChecks
 
     public static void ContentAndPackageBoundary()
     {
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 93, 0));
-        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 116, 0));
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 117, 0));
-        Require(!previous.Generals.ContainsKey(GeneralId) &&
-                !previous.Skills.ContainsKey("classic:chengxiang") &&
-                !previous.Skills.ContainsKey("classic:renxin"),
-            "Package 1.93.0 must retain the pre-Cao-Chong content boundary.");
-        Require(historical.Skills["classic:renxin"] is
-                {
-                    LegacyKind: SkillKind.Renxin,
-                    Program: null
-                } &&
-                current.Packages.Single(package => package.Id == "standard-classic-generals").Version ==
-                    new Version(1, 117, 0) &&
-                current.Generals[GeneralId] is
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(current.Generals[GeneralId] is
                 {
                     BaseHp: 3,
                     FactionId: "wei",
@@ -50,7 +37,7 @@ internal static class CaoChongChecks
                     ActionForms: SkillActionForm.None
                 } &&
                 current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId),
-            "Package 1.117.0 must migrate Renxin to schema 33 while 1.116.0 retains historical metadata only.");
+            "Current Cao Chong must expose Chengxiang and Renxin programs.");
     }
 
     public static void ChengxiangRevealsLegalSubsetAndReplays()

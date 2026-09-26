@@ -281,7 +281,8 @@ internal static class SkillProgramExecutorChecks
             return LoseHpOutcome;
         }
 
-        public SkillProgramStepOutcome Damage(ProgramSkillFrame frame, int targetSeat, int amount)
+        public SkillProgramStepOutcome Damage(ProgramSkillFrame frame, int targetSeat, int amount,
+            ProgramParticipantReference? sourceReference = null)
         {
             Calls.Add($"damage:{frame.OwnerSeat}:{targetSeat}:{amount}");
             return SkillProgramStepOutcome.AwaitChild;
@@ -480,7 +481,8 @@ internal static class SkillProgramExecutorChecks
             ProgramSkillFrame frame,
             SkillRuleQuery query,
             SkillRuleOperation operation,
-            int amount) =>
+            int amount,
+            IReadOnlyList<CardKind> cardKinds) =>
             Calls.Add($"grant-turn-rule:{frame.OwnerSeat}:{query}:{operation}:{amount}");
 
         public void GrantTurnCardTargetRestriction(

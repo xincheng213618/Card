@@ -12,7 +12,6 @@ public sealed partial class GameEngine
 
     private readonly GameOptions _options;
     private readonly ContentRegistry? _contentRegistry;
-    private readonly int _rulesVersion;
     private readonly ContentModeDefinition _modeDefinition;
     private readonly IReadOnlyList<GeneralDefinition> _generalPool;
     private readonly DeterministicRandom _random;
@@ -78,7 +77,6 @@ public sealed partial class GameEngine
     private QilinBowResolution? _pendingQilinBow;
     private TianxiangResolution? _pendingTianxiang;
     private MengjinResolution? _pendingMengjin;
-    private QuhuResolution? _pendingQuhu;
     private FangtianHalberdResolution? _pendingFangtianHalberd;
     private FireAttackResolution? _pendingFireAttack;
     private NullificationResolution? _pendingNullification;
@@ -91,7 +89,6 @@ public sealed partial class GameEngine
     private JudgmentResolution? _pendingJudgment;
     private LeijiResolution? _pendingLeiji;
     private ShuangxiongDrawResolution? _pendingShuangxiongDraw;
-    private LierenResolution? _pendingLieren;
     private LuoshenResolution? _pendingLuoshen;
     private JizhiResolution? _pendingJizhi;
     private TieqiResolution? _pendingTieqi;
@@ -105,20 +102,17 @@ public sealed partial class GameEngine
 
     private GameEngine(
         GameOptions options,
-        ContentRegistry? contentRegistry,
-        int rulesVersion)
+        ContentRegistry? contentRegistry)
     {
         ValidateOptions(options);
-        ValidateRulesVersion(rulesVersion);
         _options = options;
         _contentRegistry = contentRegistry;
-        _rulesVersion = rulesVersion;
         var requiredProgramRulesVersion = contentRegistry?.Skills.Values
             .Where(skill => skill.Program is not null)
             .Select(skill => skill.Program!.MinimumRulesVersion)
             .DefaultIfEmpty(0)
             .Max() ?? 0;
-        if (rulesVersion < requiredProgramRulesVersion)
+        if (GameCheckpoint.CurrentRulesVersion < requiredProgramRulesVersion)
             throw new InvalidOperationException(
                 $"Compiled skill programs require rules version {requiredProgramRulesVersion} or newer.");
         _modeDefinition = ResolveModeDefinition(contentRegistry, options);
@@ -131,10 +125,7 @@ public sealed partial class GameEngine
             ? null
             : new MatchSkillBindingIndex(
                 contentRegistry.GetSkill,
-                IsNationalWarMode,
-                SupportsStructuredSkillOwnership,
-                SupportsRuntimeSkillAcquisition,
-                rulesVersion);
+                IsNationalWarMode);
         var deckDefinition = ResolveDeckDefinition(
             contentRegistry,
             options.DeckId ?? _modeDefinition.DeckId);
@@ -164,59 +155,29 @@ public sealed partial class GameEngine
     public static GameEngine CreateStandard(
         GameOptions? options = null,
         ContentRegistry? contentRegistry = null) =>
-        new(options ?? new GameOptions(), contentRegistry, GameCheckpoint.CurrentRulesVersion);
-
-    internal static GameEngine CreateForReplay(
-        GameOptions options,
-        ContentRegistry? contentRegistry,
-        int rulesVersion) =>
-        new(options, contentRegistry, rulesVersion);
+        new(options ?? new GameOptions(), contentRegistry);
 
     private bool UsesTypedGanglieDamageFrames =>
-        _rulesVersion >= 2 && _contentRegistry is not null;
-
-    private bool UsesHistoricalCrossSeatAlcoholRescue =>
-        _rulesVersion is >= 3 and <= 11;
-
-    private bool SupportsPrivateTargetCardSelection =>
-        _rulesVersion >= 4;
-
-    private bool SupportsNationalResponseReveal =>
-        _rulesVersion >= 9;
-
-    private bool SupportsLethalAfterDamageTriggers =>
-        _rulesVersion >= 5;
+        _contentRegistry is not null;
 
     private bool SupportsGodFactionSelection =>
         _modeDefinition.ModeKind == ContentModeKind.Identity;
 
-    private bool SupportsStructuredSkillState => _rulesVersion >= 96;
-
-    private bool SupportsStructuredSkillOwnership => _rulesVersion >= 97;
-
-    private bool SupportsRuntimeSkillAcquisition => _rulesVersion >= 98;
-
     public bool UsesFormalRende =>
-        HasClassicGeneralPackage(new Version(1, 78, 0));
+        HasClassicGeneralPackage;
 
     private bool SupportsMultiSkillGenerals =>
-        _rulesVersion >= 10 && IsClassicIdentityMode ||
-        _rulesVersion >= 89 && IsNationalWarMode;
+        IsClassicIdentityMode ||
+        IsNationalWarMode;
 
     private bool IsClassicIdentityMode =>
         _modeDefinition.Id.StartsWith("identity:classic-", StringComparison.Ordinal);
 
     private bool UsesGeneralBaseHp =>
-        _rulesVersion >= 10 && IsClassicIdentityMode;
+        IsClassicIdentityMode;
 
     private bool UsesClassicGanglieJudgment =>
-        _rulesVersion >= 10 && IsClassicIdentityMode;
-
-    private bool UsesSuitSpecificDelayedJudgments =>
-        _rulesVersion >= 11;
-
-    private bool UsesFormalArmorResponseTiming =>
-        _rulesVersion >= 14;
+        IsClassicIdentityMode;
 
     private bool UsesFormalKongchengTargeting =>
         IsClassicIdentityMode;
@@ -226,15 +187,6 @@ public sealed partial class GameEngine
 
     private bool UsesFormalZhihengEquipment =>
         IsClassicIdentityMode;
-
-    private bool UsesFormalSupplyShortageTargeting =>
-        _rulesVersion >= 18;
-
-    private bool UsesFormalFireAttackReveal =>
-        _rulesVersion >= 19;
-
-    private bool UsesFormalPlayPhaseAlcoholLimit =>
-        _rulesVersion >= 20;
 
     private bool UsesFormalTiandu =>
         IsClassicIdentityMode;
@@ -389,29 +341,15 @@ public sealed partial class GameEngine
     private bool UsesFormalWoodenOx =>
         IsClassicIdentityMode;
 
-    private bool UsesCorrectDuelDamageAttribution =>
-        _rulesVersion >= 31;
-
     private bool IsTeamMode => _modeDefinition.ModeKind == ContentModeKind.Team;
 
     private bool IsNationalWarMode => _modeDefinition.ModeKind == ContentModeKind.NationalWarLite;
-
-    private static void ValidateRulesVersion(int rulesVersion)
-    {
-        if (rulesVersion is < 1 or > GameCheckpoint.CurrentRulesVersion)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(rulesVersion),
-                rulesVersion,
-                $"Supported rules versions are 1 through {GameCheckpoint.CurrentRulesVersion}.");
-        }
-    }
 
     /// <summary>The deterministic match seed for local diagnostics and replay labels.</summary>
     public int Seed => _options.Seed;
 
     /// <summary>The behavior version selected for deterministic replay compatibility.</summary>
-    public int RulesVersion => _rulesVersion;
+    public int RulesVersion => GameCheckpoint.CurrentRulesVersion;
 
     /// <summary>
     /// Monotonically increasing public state revision. Player commands must carry
@@ -529,7 +467,7 @@ public sealed partial class GameEngine
             GameReplay.GetPackageSignatures(_contentRegistry),
             GameReplay.GetContentHash(_contentRegistry))
         {
-            RulesVersion = _rulesVersion
+            RulesVersion = GameCheckpoint.CurrentRulesVersion
         };
     }
 
@@ -553,8 +491,8 @@ public sealed partial class GameEngine
     public event Action<EventEnvelope>? EventCommitted;
 
     /// <summary>
-    /// Submits one data-only command through the same exclusive boundary used by
-    /// the legacy WPF methods. Player-input errors are typed results, not exceptions.
+    /// Submits one data-only command through the exclusive game boundary.
+    /// Player-input errors are typed results, not exceptions.
     /// </summary>
     public CommandResult Submit(GameCommand? command)
     {
@@ -628,10 +566,6 @@ public sealed partial class GameEngine
                 answer.ActorSeat,
                 answer.Prompt,
                 answer.Choice),
-            RespondCommand response => SubmitPromptAnswer(
-                response.ActorSeat,
-                response.Prompt,
-                response.Choice),
             _ => Reject(CommandErrorCode.UnsupportedCommand, "The command type is not supported by this engine.")
         };
 
@@ -715,10 +649,6 @@ public sealed partial class GameEngine
         if (pendingKind is not (DecisionKind.PlayCard or DecisionKind.RespondDodge or DecisionKind.RespondSlash))
         {
             return Reject(CommandErrorCode.IllegalAction, "The engine is not waiting for a revealable national-war action.");
-        }
-        if (pendingKind is DecisionKind.RespondDodge or DecisionKind.RespondSlash && !SupportsNationalResponseReveal)
-        {
-            return Reject(CommandErrorCode.IllegalAction, "This rules version does not allow revealing a general during a response.");
         }
 
         if (!IsNationalWarMode)
@@ -839,22 +769,7 @@ public sealed partial class GameEngine
                 "The requested active skill is not a legal action in the current play phase.");
         }
 
-        if (command.Skill == SkillKind.Huangtian)
-        {
-            var huangtianError = ValidateHuangtianSelection(actor, action, cardIds, targetSeats);
-            if (huangtianError is not null)
-            {
-                return Reject(huangtianError.Code, huangtianError.Message);
-            }
-
-            return Accept(() => HumanHuangtianCore(
-                actor,
-                cardIds[0],
-                targetSeats[0],
-                _options.AdvanceAfterHumanCommands));
-        }
-
-        var activeSkill = SkillRegistry.GetActive(command.Skill);
+        var activeSkill = ActiveActionCatalog.Find(command.Skill);
         if (activeSkill is null)
         {
             return Reject(CommandErrorCode.IllegalAction, "The requested skill has no active effect.");
@@ -1019,16 +934,12 @@ public sealed partial class GameEngine
                 DecisionKind.CixiongDoubleSwords or
                 DecisionKind.Liuli or
                 DecisionKind.Tianxiang or
-                DecisionKind.Lieren or
                 DecisionKind.Shensu or
                 DecisionKind.Yaowu or
                 DecisionKind.QinglongCrescentBlade or
                 DecisionKind.IceSword or
                 DecisionKind.QilinBow or
                 DecisionKind.Mengjin or
-                DecisionKind.QuhuPindian or
-                DecisionKind.QuhuDamageTarget or
-                DecisionKind.TianyiPindian or
                 DecisionKind.ZhuqueFan or
                 DecisionKind.Nullification or
                 DecisionKind.SelectTargetCard))
@@ -1065,7 +976,7 @@ public sealed partial class GameEngine
         }
 
         if (pending.SkillPrompt is not null)
-            return SubmitModulePromptAnswer(selected);
+            return SubmitPindianPromptAnswer(selected);
 
         CaptureSelectedResponseConversion(selected);
 
@@ -1144,11 +1055,6 @@ public sealed partial class GameEngine
             return SubmitTianxiangPromptAnswer(selected);
         }
 
-        if (pending.Kind == DecisionKind.Lieren)
-        {
-            return SubmitLierenPromptAnswer(selected);
-        }
-
         if (pending.Kind == DecisionKind.Shuangxiong)
         {
             return SubmitShuangxiongPromptAnswer(selected);
@@ -1208,11 +1114,6 @@ public sealed partial class GameEngine
         if (pending.Kind == DecisionKind.Mengjin)
         {
             return SubmitMengjinPromptAnswer(selected);
-        }
-
-        if (pending.Kind == DecisionKind.QuhuDamageTarget)
-        {
-            return SubmitQuhuPromptAnswer(selected);
         }
 
         if (pending.Kind == DecisionKind.Liuli)
@@ -1822,19 +1723,6 @@ public sealed partial class GameEngine
             : Reject(CommandErrorCode.InvalidChoice, "猛进必须选择目标当前的一张暗手牌/公开装备，或选择不发动。");
     }
 
-    private CommandResult SubmitQuhuPromptAnswer(PromptChoice selected)
-    {
-        if (_pendingQuhu is null ||
-            _pendingDecision is not { Kind: DecisionKind.QuhuDamageTarget })
-        {
-            return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的驱虎结算。");
-        }
-
-        return Accept(() => HumanQuhuCore(
-            selected,
-            advanceToHumanBoundary: _options.AdvanceAfterHumanCommands));
-    }
-
     private CommandResult SubmitKejiPromptAnswer(PromptChoice selected)
     {
         if (_pendingDecision is not { Kind: DecisionKind.Keji })
@@ -2088,10 +1976,10 @@ public sealed partial class GameEngine
                 requestedSlashCardId: selected.Cards[0],
                 requestedResponseCardKind: ReadResponseCardKind(selected),
                 advanceToHumanBoundary: _options.AdvanceAfterHumanCommands)),
-            "zhangba-slash" when selected.Cards.Count == 2 => Accept(() => HumanZhangbaSlashResponseCore(
+                "zhangba-slash" when selected.Cards.Count == 2 => Accept(() => HumanZhangbaSlashResponseCore(
                 selected.Cards,
                 _options.AdvanceAfterHumanCommands)),
-            "program-view-as-slash" when selected.Cards.Count >= 2 => Accept(() => HumanProgramViewAsSlashResponseCore(
+                "program-view-as-slash" when selected.Cards.Count >= 2 => Accept(() => HumanProgramViewAsSlashResponseCore(
                 selected.Cards,
                 RequireConversionSource(selected),
                 _options.AdvanceAfterHumanCommands)),
@@ -2112,10 +2000,10 @@ public sealed partial class GameEngine
                 requestedCardId: selected.Cards[0],
                 requestedEffectiveKind: ReadResponseCardKind(selected),
                 _options.AdvanceAfterHumanCommands)),
-            "zhangba-slash" when selected.Cards.Count == 2 => Accept(() => HumanZhangbaSlashResponseCore(
+                "zhangba-slash" when selected.Cards.Count == 2 => Accept(() => HumanZhangbaSlashResponseCore(
                 selected.Cards,
                 _options.AdvanceAfterHumanCommands)),
-            "program-view-as-slash" when selected.Cards.Count >= 2 => Accept(() => HumanProgramViewAsSlashResponseCore(
+                "program-view-as-slash" when selected.Cards.Count >= 2 => Accept(() => HumanProgramViewAsSlashResponseCore(
                 selected.Cards,
                 RequireConversionSource(selected),
                 _options.AdvanceAfterHumanCommands)),
@@ -2209,21 +2097,7 @@ public sealed partial class GameEngine
         IReadOnlyList<int> targetSeats,
         IReadOnlySet<int>? validTargetSeats = null)
     {
-        if (effect.Kind is not (ActiveSkillEffectKind.LoseHpAndDraw or
-                ActiveSkillEffectKind.DiscardAndDraw or
-                ActiveSkillEffectKind.GiveCardsAndRecover or
-                ActiveSkillEffectKind.DiscardAndRecover or
-                ActiveSkillEffectKind.DiscardAndRecoverTargets or
-                ActiveSkillEffectKind.RevealGiftAndDamage or
-                ActiveSkillEffectKind.RequestSlash or
-                ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage or
-                ActiveSkillEffectKind.DiscardAndStartDuel or
-                ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget or
-                ActiveSkillEffectKind.PindianAndDamage or
-                ActiveSkillEffectKind.PindianForSlashBonus or
-                ActiveSkillEffectKind.StartArrowBarrage or
-                ActiveSkillEffectKind.DiscardForUnlimitedRange or
-                ActiveSkillEffectKind.AidByAttackRange) ||
+        if (!ActiveActionExecutor.IsSupported(effect.Kind) ||
             effect.HpCost < 0 ||
             effect.DrawCount < 0 ||
             effect.HpCost > actor.Hp ||
@@ -2257,14 +2131,6 @@ public sealed partial class GameEngine
             effect.Kind == ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget &&
             (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount != 1 ||
              effect.MinCardCount != 2 || effect.MaxCardCount != 2 ||
-             effect.MinTargetCount != 1 || effect.MaxTargetCount != 1) ||
-            effect.Kind == ActiveSkillEffectKind.PindianAndDamage &&
-            (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount != 0 ||
-             effect.MinCardCount != 1 || effect.MaxCardCount != 1 ||
-             effect.MinTargetCount != 1 || effect.MaxTargetCount != 1) ||
-            effect.Kind == ActiveSkillEffectKind.PindianForSlashBonus &&
-            (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount != 0 ||
-             effect.MinCardCount != 1 || effect.MaxCardCount != 1 ||
              effect.MinTargetCount != 1 || effect.MaxTargetCount != 1) ||
             effect.Kind == ActiveSkillEffectKind.StartArrowBarrage &&
             (effect.HpCost != 0 || effect.DrawCount != 0 || effect.RecoveryAmount != 0 ||
@@ -2398,7 +2264,6 @@ public sealed partial class GameEngine
     private CommandResult Reject(CommandErrorCode code, string message) =>
         new(false, new CommandError(code, message), _revision, BuildResult());
 
-    public EngineRunResult Start() => ExecuteExclusive(StartCore);
 
     private EngineRunResult StartCore()
     {
@@ -2522,35 +2387,26 @@ public sealed partial class GameEngine
         {
             AddLog("Rules", $"{jijiuRules.TrimStart('，')}。");
         }
-        var dyingAlcoholRules = UsesHistoricalCrossSeatAlcoholRescue
-            ? "酒可使本回合下一张直接杀伤害 +1，也可在濒死窗口由当前 responder 救援濒死角色回复 1 点体力"
-            : "酒可使本回合下一张直接杀伤害 +1，也可在濒死时仅自救 1 点体力";
-        var targetCardRules = SupportsPrivateTargetCardSelection
-            ? "过河拆桥和顺手牵羊的手牌效果由使用者选择不透明牌位，目标牌面不公开"
-            : "过河拆桥和顺手牵羊的手牌效果按历史规则确定性盲选";
-        var supplyShortageTargetRules = UsesFormalSupplyShortageTargeting
-            ? "对距离为 1 的其他角色使用，奇才可忽略此距离限制"
-            : "对有手牌的其他角色使用";
-        var delayedCardRules = UsesSuitSpecificDelayedJudgments
-            ? $"乐不思蜀置入目标判定区并在其下回合摸牌前判定，结果不为红桃时跳过出牌阶段；兵粮寸断{supplyShortageTargetRules}，置入目标判定区并在其下回合摸牌前判定，结果不为梅花时跳过摸牌阶段；闪电置于自己的判定区，判定为黑桃 2 至 9 时受到 3 点雷电伤害，否则移至下一名存活角色。"
-            : $"乐不思蜀置入目标判定区并在其下回合摸牌前判定，红色跳过出牌阶段；兵粮寸断{supplyShortageTargetRules}，置入目标判定区并在其下回合摸牌前判定，黑色跳过摸牌阶段；闪电置于自己的判定区，判定为黑桃 2 至 9 时受到 3 点雷电伤害，否则移至下一名存活角色。";
+        var dyingAlcoholRules = ("酒可使本回合下一张直接杀伤害 +1，也可在濒死时仅自救 1 点体力");
+        var targetCardRules = ("过河拆桥和顺手牵羊的手牌效果由使用者选择不透明牌位，目标牌面不公开"
+);
+        var supplyShortageTargetRules = ("对距离为 1 的其他角色使用，奇才可忽略此距离限制"
+);
+        var delayedCardRules = ($"乐不思蜀置入目标判定区并在其下回合摸牌前判定，结果不为红桃时跳过出牌阶段；兵粮寸断{supplyShortageTargetRules}，置入目标判定区并在其下回合摸牌前判定，结果不为梅花时跳过摸牌阶段；闪电置于自己的判定区，判定为黑桃 2 至 9 时受到 3 点雷电伤害，否则移至下一名存活角色。"
+);
         var modeRules = IsNationalWarMode
             ? $"{FormatFactionSummary(_modeDefinition)}；每名角色选择两名同势力武将，势力和武将默认暗置，明置后公开；消灭其他势力获胜"
             : IsTeamMode
                 ? $"{FormatTeamSummary(_modeDefinition)}；阵营身份和队友关系公开，击败另一阵营即获胜，{GetRoleName(GetTeamRole(GetModeTeamIds()[0]))}的首位座位先行动"
                 : FormatRoleSummary(_modeDefinition);
-        var weaponRules = _rulesVersion >= 13
-            ? "诸葛连弩攻击范围为 1 且杀不受次数限制，青釭剑攻击范围为 2 且使直接杀无视目标防具"
-            : "诸葛连弩使攻击范围 +1 且杀不受次数限制，青釭剑使直接杀无视目标防具";
-        var armorRules = UsesFormalArmorResponseTiming
-            ? "八卦阵在需要使用或打出闪时可选择发动判定，红色判定牌视为闪，仁王盾使黑色杀在指定目标后无效"
-            : "八卦阵成为杀的目标时可选择发动判定，红色判定牌视为闪，仁王盾使黑色杀不能对装备者使用";
-        var fireAttackRules = UsesFormalFireAttackReveal
-            ? "火攻可对自己使用，展示牌仍留在目标手牌中"
-            : "火攻只能对其他角色使用，展示牌按历史规则进入弃牌堆";
-        var alcoholPlayRules = UsesFormalPlayPhaseAlcoholLimit
-            ? "出牌阶段每回合限使用一次酒"
-            : "酒效存在时不能重复饮酒，酒效被杀消费后可在同回合再次饮酒";
+        var weaponRules = ("诸葛连弩攻击范围为 1 且杀不受次数限制，青釭剑攻击范围为 2 且使直接杀无视目标防具"
+);
+        var armorRules = ("八卦阵在需要使用或打出闪时可选择发动判定，红色判定牌视为闪，仁王盾使黑色杀在指定目标后无效"
+);
+        var fireAttackRules = ("火攻可对自己使用，展示牌仍留在目标手牌中"
+);
+        var alcoholPlayRules = ("出牌阶段每回合限使用一次酒"
+);
         AddLog(
             "Rules",
             $"{modeRules}；模式 {_modeDefinition.Id}；牌堆含杀、火杀、雷杀、闪、桃、酒、决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、乐不思蜀、兵粮寸断、无懈可击和七种装备牌。默认战斗距离按存活座位环计算、攻击范围为 1；装备按五类槽位公开替换，{weaponRules}，赤兔和绝影修正战斗距离，玉玺额外摸一张，{armorRules}。{dyingAlcoholRules}，{alcoholPlayRules}，桃可在出牌阶段自救或在基础濒死窗口救援，桃园结义按座次使所有存活角色各回复 1 点体力，五谷丰登公开翻牌并按座次私有选牌，{fireAttackRules}，并通过攻击者同花色弃牌决定是否造成火焰伤害，无懈可击在可抵消锦囊结算前按座次进入有限多层响应窗口{yijiRules}{jiemingRules}{yuanhuRules}{guicaiRules}{tianduRules}{guanxingRules}{hujiaRules}{jijiangRules}{yingziRules}{tuxiRules}{qiangxiRules}{duanliangRules}{kejiRules}{qingnangRules}{kongchengRules}{jianxiongRules}，{(_options.UseInteractiveDiscard ? "人类回合末弃牌由玩家选择，AI 自动处理" : "弃牌自动处理")}。");
@@ -2585,7 +2441,6 @@ public sealed partial class GameEngine
     /// Runs deterministic AI decisions until a human input boundary or game end.
     /// Calling this while input is already pending is harmless and returns immediately.
     /// </summary>
-    public EngineRunResult Advance() => ExecuteExclusive(AdvanceToHumanBoundary);
 
     private EngineRunResult AdvanceToHumanBoundary()
     {
@@ -2628,7 +2483,7 @@ public sealed partial class GameEngine
                     IsAiKejiPending() ||
                     IsAiTianduPending() ||
                     IsAiFanjianPending() ||
-                    IsAiModulePending() ||
+                    IsAiPindianPending() ||
                     IsAiLiuliPending() ||
                     IsAiGuanxingPending())
                 {
@@ -2651,7 +2506,6 @@ public sealed partial class GameEngine
     /// request human input, or finish discard/end-turn) and then returns. This is
     /// useful for a UI that wants to animate or inspect each AI decision.
     /// </summary>
-    public EngineRunResult AdvanceOneStep() => ExecuteExclusive(AdvanceOneStepCore);
 
     private EngineRunResult AdvanceOneStepCore()
     {
@@ -2686,19 +2540,10 @@ public sealed partial class GameEngine
 
         return pending.Kind == DecisionKind.PlayCard
             ? BuildLegalActions(_players[_options.HumanSeat])
-            : pending.Kind is DecisionKind.RespondDodge or DecisionKind.RespondSlash && SupportsNationalResponseReveal
+            : pending.Kind is DecisionKind.RespondDodge or DecisionKind.RespondSlash
                 ? BuildNationalRevealActions(_players[_options.HumanSeat])
                 : [];
     }
-
-    /// <summary>
-    /// Compatibility adapter for a local UI that has not migrated to
-    /// <see cref="SelectGeneralCommand"/> yet.
-    /// </summary>
-    public EngineRunResult HumanSelectGeneral(
-        string generalId,
-        bool advanceToHumanBoundary = true) =>
-        ExecuteExclusive(() => HumanSelectGeneralCore(generalId, advanceToHumanBoundary));
 
     private EngineRunResult HumanSelectGeneralCore(
         string generalId,
@@ -2719,12 +2564,6 @@ public sealed partial class GameEngine
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
 
-    /// <summary>Compatibility adapter for a local national-war host.</summary>
-    public EngineRunResult HumanRevealGeneral(
-        GeneralSelectionSlot slot,
-        bool advanceToHumanBoundary = true) =>
-        ExecuteExclusive(() => HumanRevealGeneralCore(slot, advanceToHumanBoundary));
-
     private EngineRunResult HumanRevealGeneralCore(
         GeneralSelectionSlot slot,
         bool advanceToHumanBoundary)
@@ -2735,10 +2574,6 @@ public sealed partial class GameEngine
         if (pendingKind is not (DecisionKind.PlayCard or DecisionKind.RespondDodge or DecisionKind.RespondSlash))
         {
             throw new InvalidOperationException("The current prompt does not allow a national-war general reveal.");
-        }
-        if (pendingKind is DecisionKind.RespondDodge or DecisionKind.RespondSlash && !SupportsNationalResponseReveal)
-        {
-            throw new InvalidOperationException("This rules version does not allow revealing a general during a response.");
         }
 
         RequireHumanDecision(pendingKind);
@@ -2772,36 +2607,6 @@ public sealed partial class GameEngine
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
 
-    public EngineRunResult HumanPlay(
-        int cardId,
-        int? targetSeat = null,
-        bool advanceToHumanBoundary = true,
-        CardKind? playedCardKind = null,
-        int? targetCardId = null) =>
-        ExecuteExclusive(() => HumanPlayCore(
-            cardId,
-            targetSeat,
-            advanceToHumanBoundary,
-            playedCardKind,
-            targetCardId));
-
-    /// <summary>
-    /// Compatibility adapter for a local host that needs to submit an exact
-    /// multi-target play such as IronChain.
-    /// </summary>
-    public EngineRunResult HumanPlayTargets(
-        int cardId,
-        IReadOnlyList<int> targetSeats,
-        bool advanceToHumanBoundary = true,
-        CardKind? playedCardKind = null,
-        int? targetCardId = null) =>
-        ExecuteExclusive(() => HumanPlayCore(
-            cardId,
-            targetSeat: null,
-            advanceToHumanBoundary,
-            playedCardKind,
-            targetCardId,
-            targetSeats));
 
     private EngineRunResult HumanPlayCore(
         int cardId,
@@ -2848,15 +2653,6 @@ public sealed partial class GameEngine
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
-
-    /// <summary>
-    /// Legacy local-host adapter for callers that have not migrated to the
-    /// data-only <see cref="UseSkillCommand"/> boundary.
-    /// </summary>
-    public EngineRunResult HumanUseSkill(
-        SkillKind skill,
-        bool advanceToHumanBoundary = true) =>
-        ExecuteExclusive(() => HumanUseSkillCore(skill, [], [], advanceToHumanBoundary));
 
     private EngineRunResult HumanUseSkillCore(
         SkillKind skill,
@@ -2918,8 +2714,6 @@ public sealed partial class GameEngine
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
 
-    public EngineRunResult HumanEndPlay(bool advanceToHumanBoundary = true) =>
-        ExecuteExclusive(() => HumanEndPlayCore(advanceToHumanBoundary));
 
     private EngineRunResult HumanEndPlayCore(bool advanceToHumanBoundary)
     {
@@ -2930,141 +2724,6 @@ public sealed partial class GameEngine
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
 
-    public EngineRunResult HumanRespond(
-        bool useDodge,
-        bool advanceToHumanBoundary = true) =>
-        ExecuteExclusive(() => HumanRespondCore(
-            useDodge,
-            useBagua: false,
-            requestedDodgeCardId: null,
-            requestedResponseCardKind: null,
-            advanceToHumanBoundary: advanceToHumanBoundary));
-
-    /// <summary>
-    /// Compatibility adapter for answering the private Nullification prompt
-    /// without constructing an <see cref="AnswerPromptCommand"/>.
-    /// </summary>
-    public EngineRunResult HumanRespondNullification(
-        bool useNullification,
-        int? requestedNullificationCardId = null,
-        bool advanceToHumanBoundary = true) =>
-        ExecuteExclusive(() => HumanNullificationCore(
-            useNullification,
-            requestedNullificationCardId,
-            advanceToHumanBoundary));
-
-    /// <summary>
-    /// Compatibility adapter for choosing the public Bagua judgment in a Slash
-    /// response window without constructing an <see cref="AnswerPromptCommand"/>.
-    /// </summary>
-    public EngineRunResult HumanRespondBagua(bool advanceToHumanBoundary = true) =>
-        ExecuteExclusive(() => HumanRespondCore(
-            useDodge: false,
-            useBagua: true,
-            requestedDodgeCardId: null,
-            requestedResponseCardKind: null,
-            advanceToHumanBoundary: advanceToHumanBoundary));
-
-    public EngineRunResult HumanRespondFeedback(
-        bool useFeedback,
-        bool advanceToHumanBoundary = true) =>
-        throw new InvalidOperationException(
-            "Feedback no longer has a dedicated response route; answer its ProgramTrigger prompt.");
-
-    /// <summary>
-    /// Compatibility adapter for answering the optional Ganglie trigger
-    /// without constructing an <see cref="AnswerPromptCommand"/>.
-    /// </summary>
-    public EngineRunResult HumanRespondGanglie(
-        bool useGanglie,
-        bool advanceToHumanBoundary = true) =>
-        ExecuteExclusive(() => HumanGanglieCore(useGanglie, advanceToHumanBoundary));
-
-    /// <summary>
-    /// Compatibility adapter for answering the private Guicai judgment choice
-    /// without constructing an <see cref="AnswerPromptCommand"/>.
-    /// </summary>
-    public EngineRunResult HumanRespondGuicai(
-        bool useGuicai,
-        int? requestedCardId = null,
-        bool advanceToHumanBoundary = true) =>
-        ExecuteExclusive(() => HumanGuicaiCore(
-            useGuicai,
-            requestedCardId,
-            advanceToHumanBoundary));
-
-    /// <summary>
-    /// Compatibility adapter for selecting the source's private red-Ganglie
-    /// punishment choice without constructing an <see cref="AnswerPromptCommand"/>.
-    /// </summary>
-    public EngineRunResult HumanRespondGangliePunishment(
-        GangliePunishmentKind punishment,
-        IReadOnlyList<int>? discardedCardIds = null,
-        bool advanceToHumanBoundary = true) =>
-        ExecuteExclusive(() => HumanGangliePunishmentCore(
-            punishment,
-            discardedCardIds ?? [],
-            advanceToHumanBoundary));
-
-    /// <summary>
-    /// Compatibility adapter for a local host that wants to answer a dying
-    /// response without constructing an <see cref="AnswerPromptCommand"/>.
-    /// </summary>
-    public EngineRunResult HumanRespondDying(
-        bool usePeach,
-        int? requestedPeachCardId = null,
-        bool advanceToHumanBoundary = true,
-        bool useAlcohol = false,
-        int? requestedAlcoholCardId = null) =>
-        ExecuteExclusive(() => HumanDyingResponseCore(
-            usePeach,
-            requestedPeachCardId,
-            useAlcohol,
-            requestedAlcoholCardId,
-            advanceToHumanBoundary));
-
-    /// <summary>
-    /// Compatibility adapter for answering a Slash-response prompt without
-    /// constructing an <see cref="AnswerPromptCommand"/>.
-    /// </summary>
-    public EngineRunResult HumanRespondSlash(
-        bool useSlash,
-        int? requestedSlashCardId = null,
-        bool advanceToHumanBoundary = true) =>
-        ExecuteExclusive(() => HumanSlashResponseCore(
-            useSlash,
-            requestedSlashCardId,
-            requestedResponseCardKind: null,
-            advanceToHumanBoundary));
-
-    /// <summary>
-    /// Compatibility adapter for answering the private choice in a public
-    /// FiveGrains draft without constructing an <see cref="AnswerPromptCommand"/>.
-    /// </summary>
-    public EngineRunResult HumanSelectHarvestCard(
-        int cardId,
-        bool advanceToHumanBoundary = true) =>
-        ExecuteExclusive(() => HumanHarvestCardCore(cardId, advanceToHumanBoundary));
-
-    /// <summary>
-    /// Compatibility adapter for answering the private opaque slot prompt used
-    /// by Dismantlement and Snatch without constructing an AnswerPromptCommand.
-    /// The slot is an ordinal in the target's hidden hand, never a card id.
-    /// </summary>
-    public EngineRunResult HumanSelectTargetCardSlot(
-        int slot,
-        bool advanceToHumanBoundary = true) =>
-        ExecuteExclusive(() => HumanTargetCardSelectionCore(slot, advanceToHumanBoundary));
-
-    /// <summary>
-    /// Compatibility adapter for answering either private FireAttack card
-    /// selection without constructing an <see cref="AnswerPromptCommand"/>.
-    /// The prompt still determines whether the card is revealed or discarded.
-    /// </summary>
-    public EngineRunResult HumanSelectFireAttackCard(
-        int cardId,
-        bool advanceToHumanBoundary = true) =>
-        ExecuteExclusive(() => HumanFireAttackCardCore(cardId, advanceToHumanBoundary));
 
     private EngineRunResult HumanRequestHujiaCore(bool advanceToHumanBoundary)
     {
@@ -3380,16 +3039,6 @@ public sealed partial class GameEngine
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
 
-    private EngineRunResult HumanQuhuCore(
-        PromptChoice selected,
-        bool advanceToHumanBoundary)
-    {
-        RequireHumanDecision(DecisionKind.QuhuDamageTarget);
-        ResolveQuhuDamageTargetChoice(selected);
-        PublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
-    }
-
     private EngineRunResult HumanDyingResponseCore(
         bool usePeach,
         int? requestedPeachCardId,
@@ -3423,7 +3072,7 @@ public sealed partial class GameEngine
 
         if (useAlcohol)
         {
-            if (!UsesHistoricalCrossSeatAlcoholRescue && responder.Seat != pending.VictimSeat)
+            if (responder.Seat != pending.VictimSeat)
             {
                 throw new InvalidOperationException("Alcohol can only rescue its dying holder.");
             }
@@ -3574,7 +3223,7 @@ public sealed partial class GameEngine
         {
             throw new InvalidOperationException("The engine is not waiting for this Fanjian responder.");
         }
-        ResolveFanjianChoice(suit);
+        ResolveActiveSuitChoice(suit);
         PublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
@@ -3954,20 +3603,6 @@ public sealed partial class GameEngine
             advanceToHumanBoundary);
     }
 
-    public EngineRunResult HumanRespondJieming(
-        int? targetSeat,
-        bool advanceToHumanBoundary = true) =>
-        throw new InvalidOperationException(
-            "Jieming no longer has a dedicated response route; answer its ProgramTrigger prompt.");
-
-    /// <summary>
-    /// Compatibility adapter for paying the private cross-seat Yuanhu trigger
-    /// without constructing an <see cref="AnswerPromptCommand"/>.
-    /// </summary>
-    public EngineRunResult HumanRespondYuanhu(
-        int? discardCardId,
-        bool advanceToHumanBoundary = true) =>
-        ExecuteExclusive(() => HumanYuanhuCore(discardCardId, advanceToHumanBoundary));
 
     private EngineRunResult HumanYuanhuCore(
         int? selectedCardId,
@@ -4060,8 +3695,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A response cannot use both a physical card and Bagua.");
         }
 
-        var canUseBagua = UsesFormalArmorResponseTiming &&
-                          requiredCardKind == CardKind.Dodge &&
+        var canUseBagua = requiredCardKind == CardKind.Dodge &&
                           !attack.IgnoresArmor &&
                           HasBagua(responder);
         if (useBagua && !canUseBagua)
@@ -4159,15 +3793,6 @@ public sealed partial class GameEngine
                                     ? revealAll || player.FactionRevealed || player.Seat == viewerSeat
                                     : hasIdentityGodFaction &&
                                       (revealAll || player.GeneralRevealed || player.Seat == viewerSeat));
-            var visiblePrimaryDescription = GetVisibleSkillDescription(
-                general.Skill,
-                general.SkillDescription);
-            var visibleSecondaryDescription = secondaryGeneral is null
-                ? null
-                : GetVisibleSkillDescription(
-                    secondaryGeneral.Skill,
-                    secondaryGeneral.SkillDescription);
-
             return new PlayerSnapshot(
                 player.Seat,
                 player.Name,
@@ -4177,9 +3802,6 @@ public sealed partial class GameEngine
                 general.Id,
                 general.Name,
                 general.PortraitKey,
-                general.Skill,
-                general.SkillName,
-                visiblePrimaryDescription,
                 player.Hp,
                 player.MaxHp,
                 player.IsAlive,
@@ -4225,11 +3847,8 @@ public sealed partial class GameEngine
                 SecondaryGeneralId = secondaryGeneral?.Id,
                 SecondaryGeneralName = secondaryGeneral?.Name,
                 SecondaryPortraitKey = secondaryGeneral?.PortraitKey,
-                SecondarySkill = secondaryGeneral?.Skill,
-                SecondarySkillName = secondaryGeneral?.SkillName,
-                SecondarySkillDescription = visibleSecondaryDescription,
                 IsSecondaryGeneralPublic = IsNationalWarMode && player.SecondaryGeneralRevealed,
-                Skills = SupportsMultiSkillGenerals && canSeeGeneral
+                Skills = canSeeGeneral
                     ? Array.AsReadOnly(OwnedRuntimeSkills(player, general, includeAcquired: true)
                         .Select(skill => skill with
                         {
@@ -4237,7 +3856,7 @@ public sealed partial class GameEngine
                         })
                         .ToArray())
                     : null,
-                SecondarySkills = SupportsMultiSkillGenerals && secondaryGeneral is not null
+                SecondarySkills = secondaryGeneral is not null
                     ? Array.AsReadOnly(OwnedRuntimeSkills(player, secondaryGeneral, includeAcquired: false)
                         .Select(skill => skill with
                         {
@@ -4245,7 +3864,7 @@ public sealed partial class GameEngine
                         })
                         .ToArray())
                     : null,
-                SkillRuntimeStates = SupportsRuntimeSkillAcquisition && canSeeGeneral
+                SkillRuntimeStates = canSeeGeneral
                     ? Array.AsReadOnly(OwnedRuntimeSkills(player, general, includeAcquired: true)
                         .Select(skill => skill.ContentId)
                         .OfType<string>()
@@ -4260,8 +3879,10 @@ public sealed partial class GameEngine
             ? CloneDecision(_pendingDecision)
             : null;
         var programRevealedCards = GetProgramPublicCards();
-        var publicRevealedCards = _resolutionStack.LastOrDefault() is PindianFrame { Result: not null }
-            ? _cardZones.CardsAt(CardLocation.Processing).Select(ToSnapshot).ToArray()
+        var publicRevealedCards = _resolutionStack.LastOrDefault() is PindianFrame { Result: { } contest }
+            ? _cardZones.CardsAt(CardLocation.Processing)
+                .Where(card => card.Id == contest.SourceCardId || card.Id == contest.OpponentCardId)
+                .Select(ToSnapshot).ToArray()
             : programRevealedCards.Count > 0
             ? programRevealedCards.ToArray()
             : _pendingGroupCard is { Effect: GroupCardEffect.PublicDraft } publicDraft
@@ -5086,8 +4707,6 @@ public sealed partial class GameEngine
                 character.SkillGrants.RemoveGrant(grant.GrantId);
         foreach (var key in _programUses.Keys.Where(key => key.Seat == current.Seat).ToArray())
             _programUses.Remove(key);
-        current.TianyiWonThisTurn = false;
-        current.TianyiLostThisTurn = false;
         _phase = TurnPhase.Draw;
         AddLog(
             "TurnStarted",
@@ -5610,7 +5229,6 @@ public sealed partial class GameEngine
         _phase = TurnPhase.Play;
         AddLog("PhaseChanged", $"{current.Name} 进入出牌阶段。", current.Seat);
         QueueGameEvent(new PhaseChangedEvent(_phase, current.Seat));
-        TryBeginPhaseSkill(PhaseSkillWindow.PlayStarting, current);
     }
 
     private void BeginShensuChoice(CharacterState current, int stage)
@@ -5900,7 +5518,7 @@ public sealed partial class GameEngine
             DecisionKind.SelectGeneral,
             player.Seat,
             IsNationalWarMode
-                ? _rulesVersion >= 8 && player.GeneralSelected
+                ? player.GeneralSelected
                     ? $"主将 {player.General.Name}（基础体力 {player.General.BaseHp}）· 请选择副将，卡片显示组合后的体力上限。"
                     : $"请选择你的第 {(player.GeneralSelected ? "二" : "一")} 名同势力武将。候选仅对你可见，明置前势力不会公开。"
                 : "请选择你的武将。候选仅对你可见，所有人完成后才会公开结果。",
@@ -6014,7 +5632,7 @@ public sealed partial class GameEngine
 
         if (_pendingDecision?.SkillPrompt is not null)
         {
-            if (IsAiModulePending()) ResolvePendingAiModule();
+            if (IsAiPindianPending()) ResolvePendingAiPindian();
             return;
         }
 
@@ -6059,21 +5677,9 @@ public sealed partial class GameEngine
             return;
         }
 
-        if (IsAiQuhuPending())
-        {
-            ResolvePendingAiQuhu();
-            return;
-        }
-
         if (IsAiGuanxingPending())
         {
             ResolvePendingAiGuanxing();
-            return;
-        }
-
-        if (IsAiLierenPending())
-        {
-            ResolvePendingAiLieren();
             return;
         }
 
@@ -6257,7 +5863,11 @@ public sealed partial class GameEngine
             return;
         }
 
-        throw new InvalidOperationException($"Unknown or unsupported turn phase: {_phase}.");
+        throw new InvalidOperationException(
+            $"No continuation for phase {_phase}; seed {_options.Seed}, turn {_turnNumber}, seat {_currentSeat}, " +
+            $"general {_players[_currentSeat].General.Id}, winner {_winner}, " +
+            $"frames [{string.Join(", ", _resolutionStack.Select(frame => $"{frame.Kind}:{frame.Id}"))}], " +
+            $"decision {_pendingDecision?.Kind}.");
     }
 
     private void RunOneAiPlayDecision(CharacterState player)
@@ -6292,21 +5902,9 @@ public sealed partial class GameEngine
     {
         var skillKind = action.Skill ??
             throw new InvalidOperationException("An active-skill action must identify its skill.");
-        if (skillKind == SkillKind.Huangtian)
-        {
-            var huangtianCardIds = selectedCardIds?.ToArray() ?? [];
-            var huangtianTargetSeats = selectedTargetSeats?.ToArray() ?? [];
-            var huangtianError = ValidateHuangtianSelection(actor, action, huangtianCardIds, huangtianTargetSeats);
-            if (huangtianError is not null)
-            {
-                throw new InvalidOperationException(huangtianError.Message);
-            }
-            ResolveHuangtian(actor, huangtianCardIds[0], huangtianTargetSeats[0]);
-            return;
-        }
-
-        var skill = SkillRegistry.GetActive(skillKind) ??
+        var skill = ActiveActionCatalog.Find(skillKind) ??
             throw new InvalidOperationException($"Skill {skillKind} does not expose an active effect.");
+        var selection = ActiveActionCatalog.Selection(skillKind);
         var cardIds = selectedCardIds?.ToArray() ?? [];
         var targetSeats = selectedTargetSeats?.ToArray() ?? [];
         var context = CreateActiveSkillContext(
@@ -6332,29 +5930,13 @@ public sealed partial class GameEngine
             throw new InvalidOperationException(selectionError.Message);
         }
 
-        if (effect.Kind == ActiveSkillEffectKind.None ||
-            effect.Kind is not (ActiveSkillEffectKind.LoseHpAndDraw or
-                ActiveSkillEffectKind.DiscardAndDraw or
-                ActiveSkillEffectKind.GiveCardsAndRecover or
-                ActiveSkillEffectKind.DiscardAndRecover or
-                ActiveSkillEffectKind.DiscardAndRecoverTargets or
-                ActiveSkillEffectKind.RevealGiftAndDamage or
-                ActiveSkillEffectKind.RequestSlash or
-                ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage or
-                ActiveSkillEffectKind.DiscardAndStartDuel or
-                ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget or
-                ActiveSkillEffectKind.PindianAndDamage or
-                ActiveSkillEffectKind.PindianForSlashBonus or
-                ActiveSkillEffectKind.StartArrowBarrage or
-                ActiveSkillEffectKind.UseTwoHandCardsAsSlash or
-                ActiveSkillEffectKind.DiscardForUnlimitedRange))
+        if (!ActiveActionExecutor.IsSupported(effect.Kind))
         {
             throw new InvalidOperationException($"Skill {skillKind} returned an invalid or unsupported active effect.");
         }
 
-        if (effect.Kind == ActiveSkillEffectKind.StartArrowBarrage)
+        if (ActiveActionExecutor.TryExecuteImmediate(skill, effect, actor.Seat, cardIds, this))
         {
-            ResolveLuanji(actor, cardIds);
             return;
         }
 
@@ -6389,513 +5971,13 @@ public sealed partial class GameEngine
             recordedTargetSeats));
         SetActiveSkillFrameStep(frameId, ResolutionFrameStep.ResolvingEffect);
 
-        if (effect.Kind == ActiveSkillEffectKind.PindianAndDamage)
+        if (ActiveActionExecutor.TryExecute(new ActiveActionInvocation(
+                frameId, actor.Seat, skill, selection, effect, cardIds, targetSeats), this))
         {
-            BeginQuhuPindian(actor, cardIds.Single(), targetSeats.Single(), frameId);
             return;
         }
 
-        if (effect.Kind == ActiveSkillEffectKind.PindianForSlashBonus)
-        {
-            if (skillKind != SkillKind.Tianyi)
-            {
-                throw new InvalidOperationException(
-                    $"Skill {skillKind} cannot own a Pindian Slash-state effect.");
-            }
-            BeginTianyiPindian(actor, cardIds.Single(), targetSeats.Single(), frameId);
-            return;
-        }
-
-        if (effect.Kind == ActiveSkillEffectKind.DiscardAndStartDuel)
-        {
-            actor.UsedActiveSkillKinds.Add(skillKind);
-            var discarded = GetHand(actor).SingleOrDefault(card => card.Id == cardIds[0]);
-            var from = CardLocation.Hand(actor.Seat);
-            if (discarded is null)
-            {
-                discarded = GetEquipment(actor).Single(card => card.Id == cardIds[0]);
-                from = CardLocation.Equipment(actor.Seat);
-            }
-
-            MoveCard(discarded, from, CardLocation.Processing, CardMoveReasons.LijianDiscard);
-            QueueGameEvent(new SkillCardsDiscardedEvent(
-                frameId,
-                actor.Seat,
-                skillKind,
-                Array.AsReadOnly(cardIds)));
-            MoveCard(discarded, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.LijianDiscard);
-
-            var duelSource = _players[targetSeats[0]];
-            var duelTarget = _players[targetSeats[1]];
-            var attack = new AttackResolution(
-                frameId,
-                duelSource.Seat,
-                duelTarget.Seat,
-                card: null,
-                playedCardKind: CardKind.Duel,
-                sourceSkill: SkillKind.Lijian);
-            _pendingAttack = attack;
-            _pendingDuel = new DuelResolution(attack);
-            AddLog(
-                "ActiveSkill",
-                $"{actor.Name} 发动【离间】，弃置一张牌并视为 {duelSource.Name} 对 {duelTarget.Name} 使用【决斗】。",
-                actor.Seat,
-                duelTarget.Seat);
-            BeginDuelResponse(_pendingDuel);
-            return;
-        }
-
-        if (effect.Kind == ActiveSkillEffectKind.DiscardAndRecoverSelfAndTarget)
-        {
-            var jieyinHand = GetHand(actor);
-            var discarded = cardIds.Select(cardId => jieyinHand.Single(card => card.Id == cardId)).ToArray();
-            MoveCards(discarded, CardLocation.Hand(actor.Seat), CardLocation.Processing, CardMoveReasons.JieyinDiscard);
-            QueueGameEvent(new SkillCardsDiscardedEvent(
-                frameId,
-                actor.Seat,
-                skillKind,
-                Array.AsReadOnly(cardIds)));
-            MoveCards(discarded, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.JieyinDiscard);
-
-            var target = _players[targetSeats.Single()];
-            foreach (var recovering in new[] { actor, target })
-            {
-                if (recovering.IsAlive && recovering.Hp < recovering.MaxHp)
-                {
-                    var recovery = Math.Min(effect.RecoveryAmount, recovering.MaxHp - recovering.Hp);
-                    var recoveryFrameId = BeginRecovery(frameId, actor.Seat, recovering.Seat, recovery);
-                    try
-                    {
-                        recovering.Hp += recovery;
-                        QueueGameEvent(new RecoveryAppliedEvent(actor.Seat, recovering.Seat, recovery, recovering.Hp));
-                    }
-                    finally
-                    {
-                        PopResolutionFrame(recoveryFrameId, ResolutionFrameKind.Recovery);
-                    }
-                }
-            }
-
-            actor.UsedActiveSkillKinds.Add(skillKind);
-            SetActiveSkillFrameStep(frameId, ResolutionFrameStep.Completed);
-            QueueGameEvent(new ActiveSkillResolvedEvent(frameId, actor.Seat, skillKind, effect.Kind));
-            PopResolutionFrame(frameId, ResolutionFrameKind.ActiveSkill);
-            AddLog(
-                "ActiveSkill",
-                $"{actor.Name} 发动【结姻】，弃置两张手牌，令自己与 {target.Name} 各回复 1 点体力。",
-                actor.Seat,
-                target.Seat);
-            return;
-        }
-
-        if (effect.Kind == ActiveSkillEffectKind.RequestSlash)
-        {
-            BeginActiveJijiangRequest(actor, targetSeats.Single(), frameId);
-            return;
-        }
-
-        if (effect.Kind == ActiveSkillEffectKind.RevealGiftAndDamage)
-        {
-            actor.UsedActiveSkillKinds.Add(skillKind);
-            var target = _players[targetSeats.Single()];
-            var choices = Enum.GetValues<Suit>()
-                .Select(suit => new PromptChoice(
-                    new ChoiceId($"fanjian-suit-{suit.ToString().ToLowerInvariant()}"),
-                    $"选择{GetSuitName(suit)}",
-                    [],
-                    [],
-                    new Dictionary<string, string>
-                    {
-                        ["action"] = "fanjian-choose-suit",
-                        ["suit"] = suit.ToString()
-                    }))
-                .ToArray();
-            _pendingDecision = new PendingDecision(
-                DecisionKind.Fanjian,
-                target.Seat,
-                $"{actor.Name} 对你发动【反间】：先选择一种花色，再获得并展示其一张随机手牌。",
-                [],
-                [],
-                SourceSeat: actor.Seat)
-            {
-                PromptId = CreatePromptId(),
-                Choices = choices,
-                TargetSeat = target.Seat
-            };
-            SetActiveSkillFrameStep(frameId, ResolutionFrameStep.AwaitingResponse);
-            _status = target.IsHuman
-                ? EngineStatus.AwaitingHumanResponse
-                : EngineStatus.Running;
-            AddLog(
-                "ActiveSkill",
-                $"{actor.Name} 对 {target.Name} 发动【反间】，等待其选择花色。",
-                actor.Seat,
-                target.Seat);
-            return;
-        }
-
-        if (effect.Kind == ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage)
-        {
-            actor.UsedActiveSkillKinds.Add(skillKind);
-            if (cardIds.Length == 1)
-            {
-                var weapon = GetHand(actor).SingleOrDefault(card => card.Id == cardIds[0]);
-                var from = CardLocation.Hand(actor.Seat);
-                if (weapon is null)
-                {
-                    weapon = GetEquipment(actor).Single(card => card.Id == cardIds[0]);
-                    from = CardLocation.Equipment(actor.Seat);
-                }
-
-                if (!EquipmentCatalog.IsEquipment(weapon.Kind) ||
-                    EquipmentCatalog.Get(weapon.Kind).Slot != EquipmentSlot.Weapon)
-                {
-                    throw new InvalidOperationException("Qiangxi can discard only a weapon card.");
-                }
-
-                MoveCard(weapon, from, CardLocation.Processing, CardMoveReasons.QiangxiDiscard);
-                QueueGameEvent(new SkillCardsDiscardedEvent(
-                    frameId,
-                    actor.Seat,
-                    skillKind,
-                    Array.AsReadOnly(cardIds)));
-                MoveCard(
-                    weapon,
-                    CardLocation.Processing,
-                    CardLocation.DiscardPile,
-                    CardMoveReasons.QiangxiDiscard);
-            }
-            else
-            {
-                actor.Hp = Math.Max(0, actor.Hp - effect.HpCost);
-                QueueGameEvent(new SkillHpLostEvent(
-                    frameId,
-                    actor.Seat,
-                    skillKind,
-                    effect.HpCost,
-                    actor.Hp));
-                if (actor.Hp == 0)
-                {
-                    BeginActiveSkillDying(frameId, actor);
-                    return;
-                }
-            }
-
-            BeginQiangxiDamage(frameId, actor, targetSeats.Single());
-            return;
-        }
-
-        if (effect.Kind == ActiveSkillEffectKind.LoseHpAndDraw)
-        {
-            actor.Hp = Math.Max(0, actor.Hp - effect.HpCost);
-            QueueGameEvent(new SkillHpLostEvent(
-                frameId,
-                actor.Seat,
-                skillKind,
-                effect.HpCost,
-                actor.Hp));
-
-            if (actor.Hp == 0)
-            {
-                BeginActiveSkillDying(frameId, actor);
-                return;
-            }
-
-            var drawn = DrawCards(
-                actor,
-                effect.DrawCount,
-                log: true,
-                reason: CardMoveReasons.KujinDraw);
-            QueueGameEvent(new SkillCardsDrawnEvent(
-                frameId,
-                actor.Seat,
-                skillKind,
-                drawn));
-
-            SetActiveSkillFrameStep(frameId, ResolutionFrameStep.Completed);
-            QueueGameEvent(new ActiveSkillResolvedEvent(frameId, actor.Seat, skillKind, effect.Kind));
-            PopResolutionFrame(frameId, ResolutionFrameKind.ActiveSkill);
-            AddLog(
-                "ActiveSkill",
-                $"{actor.Name} 发动【{skill.Name}】，失去 {effect.HpCost} 点体力并摸了 {drawn.Count} 张牌。",
-                actor.Seat);
-            return;
-        }
-
-        if (effect.Kind == ActiveSkillEffectKind.GiveCardsAndRecover)
-        {
-            var targetSeat = targetSeats.Single();
-            var target = _players[targetSeat];
-            var rendeHand = GetHand(actor);
-            var givenCards = cardIds
-                .Select(cardId => rendeHand.Single(card => card.Id == cardId))
-                .ToArray();
-            MoveCards(
-                givenCards,
-                CardLocation.Hand(actor.Seat),
-                CardLocation.Processing,
-                CardMoveReasons.RendeGive);
-            MoveCards(
-                givenCards,
-                CardLocation.Processing,
-                CardLocation.Hand(target.Seat),
-                CardMoveReasons.RendeGive);
-            QueueGameEvent(new SkillCardsGivenEvent(
-                frameId,
-                actor.Seat,
-                target.Seat,
-                skillKind,
-                Array.AsReadOnly(cardIds)));
-
-            var recovery = 0;
-            var recovering = target;
-            var shouldRecover = effect.RecoveryAmount > 0;
-            if (skillKind == SkillKind.Rende && UsesFormalRende)
-            {
-                const string skillId = "classic:rende";
-                const string usageId = "cards-given";
-                var givenBefore = _skillRuntimeState.GetUsage(
-                    actor.Seat,
-                    skillId,
-                    usageId,
-                    SkillUsageScope.Phase);
-                foreach (var _ in givenCards)
-                {
-                    if (!_skillRuntimeState.TryConsumeUsage(
-                            actor.Seat,
-                            skillId,
-                            usageId,
-                            SkillUsageScope.Phase,
-                            int.MaxValue))
-                    {
-                        throw new InvalidOperationException("Rende's phase card ledger overflowed.");
-                    }
-                }
-
-                recovering = actor;
-                shouldRecover = givenBefore < 2 && givenBefore + givenCards.Length >= 2;
-            }
-
-            if (shouldRecover && recovering.IsAlive && recovering.Hp < recovering.MaxHp)
-            {
-                var recoveryAmount = skillKind == SkillKind.Rende && UsesFormalRende
-                    ? 1
-                    : effect.RecoveryAmount;
-                recovery = Math.Min(recoveryAmount, recovering.MaxHp - recovering.Hp);
-                if (skillKind == SkillKind.Rende && UsesFormalRende)
-                {
-                    var recoveryFrameId = BeginRecovery(
-                        frameId,
-                        actor.Seat,
-                        recovering.Seat,
-                        recovery);
-                    try
-                    {
-                        recovering.Hp += recovery;
-                        QueueGameEvent(new RecoveryAppliedEvent(
-                            actor.Seat,
-                            recovering.Seat,
-                            recovery,
-                            recovering.Hp));
-                    }
-                    finally
-                    {
-                        PopResolutionFrame(recoveryFrameId, ResolutionFrameKind.Recovery);
-                    }
-                }
-                else
-                {
-                    // Keep the pre-v100 Rende sequence byte-for-byte compatible:
-                    // it recovered the recipient without allocating a child frame.
-                    recovering.Hp += recovery;
-                    QueueGameEvent(new RecoveryAppliedEvent(
-                        actor.Seat,
-                        recovering.Seat,
-                        recovery,
-                        recovering.Hp));
-                }
-            }
-
-            if (skillKind != SkillKind.Rende || !UsesFormalRende)
-            {
-                actor.UsedActiveSkillKinds.Add(skillKind);
-            }
-            SetActiveSkillFrameStep(frameId, ResolutionFrameStep.Completed);
-            QueueGameEvent(new ActiveSkillResolvedEvent(frameId, actor.Seat, skillKind, effect.Kind));
-            PopResolutionFrame(frameId, ResolutionFrameKind.ActiveSkill);
-            AddLog(
-                "ActiveSkill",
-                recovery > 0
-                    ? $"{actor.Name} 发动【{skill.Name}】，向 {target.Name} 交给 {givenCards.Length} 张牌，{recovering.Name} 回复 {recovery} 点体力。"
-                    : $"{actor.Name} 发动【{skill.Name}】，向 {target.Name} 交给 {givenCards.Length} 张牌。",
-                actor.Seat);
-            return;
-        }
-
-        if (effect.Kind == ActiveSkillEffectKind.DiscardAndRecover)
-        {
-            var targetSeat = targetSeats.Single();
-            var qingnangTarget = _players[targetSeat];
-            var qingnangHand = GetHand(actor);
-            var qingnangDiscardedCards = cardIds
-                .Select(cardId => qingnangHand.Single(card => card.Id == cardId))
-                .ToArray();
-            MoveCards(
-                qingnangDiscardedCards,
-                CardLocation.Hand(actor.Seat),
-                CardLocation.Processing,
-                CardMoveReasons.QingnangDiscard);
-            QueueGameEvent(new SkillCardsDiscardedEvent(
-                frameId,
-                actor.Seat,
-                skillKind,
-                Array.AsReadOnly(cardIds)));
-            MoveCards(
-                qingnangDiscardedCards,
-                CardLocation.Processing,
-                CardLocation.DiscardPile,
-                CardMoveReasons.QingnangDiscard);
-
-            var recovery = 0;
-            if (qingnangTarget.IsAlive && qingnangTarget.Hp < qingnangTarget.MaxHp)
-            {
-                recovery = Math.Min(effect.RecoveryAmount, qingnangTarget.MaxHp - qingnangTarget.Hp);
-                qingnangTarget.Hp += recovery;
-                QueueGameEvent(new RecoveryAppliedEvent(
-                    actor.Seat,
-                    qingnangTarget.Seat,
-                    recovery,
-                    qingnangTarget.Hp));
-            }
-
-            actor.UsedActiveSkillKinds.Add(skillKind);
-            SetActiveSkillFrameStep(frameId, ResolutionFrameStep.Completed);
-            QueueGameEvent(new ActiveSkillResolvedEvent(frameId, actor.Seat, skillKind, effect.Kind));
-            PopResolutionFrame(frameId, ResolutionFrameKind.ActiveSkill);
-            AddLog(
-                "ActiveSkill",
-                $"{actor.Name} 发动【{skill.Name}】，弃置 {qingnangDiscardedCards.Length} 张手牌并令 {qingnangTarget.Name} 回复 {recovery} 点体力。",
-                actor.Seat);
-            return;
-        }
-
-        if (effect.Kind == ActiveSkillEffectKind.DiscardAndRecoverTargets)
-        {
-            var huichunHand = GetHand(actor);
-            var huichunDiscardedCards = cardIds
-                .Select(cardId => huichunHand.Single(card => card.Id == cardId))
-                .ToArray();
-            MoveCards(
-                huichunDiscardedCards,
-                CardLocation.Hand(actor.Seat),
-                CardLocation.Processing,
-                CardMoveReasons.HuichunDiscard);
-            QueueGameEvent(new SkillCardsDiscardedEvent(
-                frameId,
-                actor.Seat,
-                skillKind,
-                Array.AsReadOnly(cardIds)));
-            MoveCards(
-                huichunDiscardedCards,
-                CardLocation.Processing,
-                CardLocation.DiscardPile,
-                CardMoveReasons.HuichunDiscard);
-
-            var recoveredTargets = 0;
-            foreach (var targetSeat in targetSeats)
-            {
-                var target = _players[targetSeat];
-                if (!target.IsAlive || target.Hp >= target.MaxHp)
-                {
-                    continue;
-                }
-
-                var recovery = Math.Min(effect.RecoveryAmount, target.MaxHp - target.Hp);
-                var recoveryFrameId = BeginRecovery(frameId, actor.Seat, target.Seat, recovery);
-                try
-                {
-                    target.Hp += recovery;
-                    recoveredTargets++;
-                    AddLog(
-                        "Recovered",
-                        $"{target.Name} 因【{skill.Name}】回复至 {target.Hp}/{target.MaxHp} 点体力。",
-                        actor.Seat,
-                        target.Seat);
-                    QueueGameEvent(new RecoveryAppliedEvent(
-                        actor.Seat,
-                        target.Seat,
-                        recovery,
-                        target.Hp));
-                }
-                finally
-                {
-                    PopResolutionFrame(recoveryFrameId, ResolutionFrameKind.Recovery);
-                }
-            }
-
-            actor.UsedActiveSkillKinds.Add(skillKind);
-            SetActiveSkillFrameStep(frameId, ResolutionFrameStep.Completed);
-            QueueGameEvent(new ActiveSkillResolvedEvent(frameId, actor.Seat, skillKind, effect.Kind));
-            PopResolutionFrame(frameId, ResolutionFrameKind.ActiveSkill);
-            AddLog(
-                "ActiveSkill",
-                $"{actor.Name} 发动【{skill.Name}】，弃置 {huichunDiscardedCards.Length} 张手牌并令 {recoveredTargets} 名受伤角色各回复 {effect.RecoveryAmount} 点体力。",
-                actor.Seat);
-            return;
-        }
-
-        var hand = GetHand(actor);
-        var equipment = GetEquipment(actor);
-        var discardedCards = cardIds
-            .Select(cardId =>
-            {
-                var handCard = hand.SingleOrDefault(card => card.Id == cardId);
-                return handCard is not null
-                    ? (Card: handCard, From: CardLocation.Hand(actor.Seat))
-                    : (Card: equipment.Single(card => card.Id == cardId), From: CardLocation.Equipment(actor.Seat));
-            })
-            .ToArray();
-        foreach (var discarded in discardedCards)
-        {
-            MoveCard(
-                discarded.Card,
-                discarded.From,
-                CardLocation.Processing,
-                CardMoveReasons.ZhihengDiscard);
-        }
-        QueueGameEvent(new SkillCardsDiscardedEvent(
-            frameId,
-            actor.Seat,
-            skillKind,
-            Array.AsReadOnly(cardIds)));
-        MoveCards(
-            discardedCards.Select(discarded => discarded.Card).ToArray(),
-            CardLocation.Processing,
-            CardLocation.DiscardPile,
-            CardMoveReasons.ZhihengDiscard);
-
-        var drawnForDiscardAndDraw = DrawCards(
-            actor,
-            effect.DrawCount,
-            log: true,
-            reason: CardMoveReasons.ZhihengDraw);
-        QueueGameEvent(new SkillCardsDrawnEvent(
-            frameId,
-            actor.Seat,
-            skillKind,
-            drawnForDiscardAndDraw));
-
-        if (skillKind == SkillKind.Zhiheng && UsesFormalZhihengEquipment)
-        {
-            actor.UsedActiveSkillKinds.Add(skillKind);
-        }
-        SetActiveSkillFrameStep(frameId, ResolutionFrameStep.Completed);
-        QueueGameEvent(new ActiveSkillResolvedEvent(frameId, actor.Seat, skillKind, effect.Kind));
-        PopResolutionFrame(frameId, ResolutionFrameKind.ActiveSkill);
-        AddLog(
-            "ActiveSkill",
-            $"{actor.Name} 发动【{skill.Name}】，弃置 {discardedCards.Length} 张牌并摸了 {drawnForDiscardAndDraw.Count} 张牌。",
-            actor.Seat);
+        throw new InvalidOperationException($"Unsupported active effect {effect.Kind}.");
     }
 
     private void ExecuteAction(
@@ -7868,14 +6950,8 @@ public sealed partial class GameEngine
                 return;
             }
 
-            if (SupportsPrivateTargetCardSelection)
-            {
-                BeginTargetCardSelection(pending, target, targetHand.Count);
-                return;
-            }
-
-            targetCard = targetHand[_random.Next(targetHand.Count)];
-            targetCardFromZone = CardLocation.Hand(target.Seat);
+            BeginTargetCardSelection(pending, target, targetHand.Count);
+            return;
         }
 
         ApplyTargetCardEffect(
@@ -8310,52 +7386,6 @@ public sealed partial class GameEngine
             requiredCardKind: requiredCardKind);
     }
 
-    private void ResolveLuanji(CharacterState source, IReadOnlyList<int> selectedCardIds)
-    {
-        if (!UsesFormalYuanShao || !HasRuntimeSkill(source, SkillKind.Luanji) ||
-            !CanUseGlobalCard(source, CardKind.ArrowBarrage) ||
-            selectedCardIds.Count != 2 || selectedCardIds.Distinct().Count() != 2)
-        {
-            throw new InvalidOperationException("Luanji requires exactly two distinct hand cards.");
-        }
-        var hand = GetHand(source);
-        var cards = selectedCardIds.Select(id => hand.SingleOrDefault(card => card.Id == id)).ToArray();
-        if (cards.Any(card => card is null) || cards[0]!.Suit != cards[1]!.Suit)
-        {
-            throw new InvalidOperationException("Luanji requires two hand cards of the same suit.");
-        }
-        var physicalCards = cards.Cast<Card>().ToArray();
-        var targets = Enumerable.Range(1, _playerCount - 1)
-            .Select(offset => _players[(source.Seat + offset) % _playerCount])
-            .Where(player => player.IsAlive)
-            .Select(player => player.Seat)
-            .ToArray();
-        var representative = physicalCards[0];
-        var resolutionId = BeginCardUse(
-            representative,
-            source.Seat,
-            targets,
-            CardKind.ArrowBarrage,
-            physicalCardIds: physicalCards.Select(card => card.Id).ToArray());
-        MoveCards(physicalCards, CardLocation.Hand(source.Seat), CardLocation.Processing, CardMoveReasons.Use);
-        QueueGameEvent(new LuanjiConvertedEvent(
-            resolutionId,
-            source.Seat,
-            Array.AsReadOnly(physicalCards.Select(card => card.Id).ToArray()),
-            physicalCards[0].Suit));
-        AddLog("SkillTriggered",
-            $"{source.Name} 发动【乱击】，将两张{GetSuitName(physicalCards[0].Suit)}手牌当【万箭齐发】使用。",
-            source.Seat);
-        BeginJizhiOrNullificationWindow(
-            resolutionId,
-            representative,
-            source.Seat,
-            targets,
-            LegalActionKind.ArrowBarrage,
-            requiredCardKind: CardKind.Dodge,
-            playedCardKind: CardKind.ArrowBarrage);
-    }
-
     private IReadOnlyList<Card> GetCardUsePhysicalCards(long resolutionId)
     {
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(cardUse => cardUse.Id == resolutionId);
@@ -8518,7 +7548,7 @@ public sealed partial class GameEngine
         };
         var canTargetSelf = pending.EffectiveCardKind == CardKind.Lightning;
         if (pending.EffectiveCardKind == CardKind.SupplyShortage &&
-            !UsesFormalSupplyShortageTargeting &&
+            false &&
             GetHand(target).Count == 0)
         {
             SkipUnavailableTargetCardEffect(pending, target, CardEffectSkipReason.TargetHandEmpty);
@@ -8763,14 +7793,6 @@ public sealed partial class GameEngine
         var target = _players[pending.TargetSeat];
         var revealed = GetHand(target).SingleOrDefault(card => card.Id == cardId) ??
             throw new InvalidOperationException("The selected FireAttack reveal card is not in the target hand.");
-        if (!UsesFormalFireAttackReveal)
-        {
-            MoveCard(
-                revealed,
-                CardLocation.Hand(target.Seat),
-                CardLocation.Processing,
-                CardMoveReasons.FireAttackReveal);
-        }
         pending.RevealedCardId = revealed.Id;
         SetCardUseStep(pending.ResolutionId, ResolutionFrameStep.AwaitingResponse);
         QueueGameEvent(new FireAttackCardRevealedEvent(
@@ -8869,14 +7891,6 @@ public sealed partial class GameEngine
 
         if (matchingDiscard is null)
         {
-            if (!UsesFormalFireAttackReveal)
-            {
-                MoveCard(
-                    revealed,
-                    CardLocation.Processing,
-                    CardLocation.DiscardPile,
-                    CardMoveReasons.FireAttackFinished);
-            }
             QueueGameEvent(new FireAttackResolvedEvent(
                 pending.ResolutionId,
                 source.Seat,
@@ -8905,14 +7919,6 @@ public sealed partial class GameEngine
             CardLocation.Hand(source.Seat),
             CardLocation.Processing,
             CardMoveReasons.FireAttackDiscard);
-        if (!UsesFormalFireAttackReveal)
-        {
-            MoveCard(
-                revealed,
-                CardLocation.Processing,
-                CardLocation.DiscardPile,
-                CardMoveReasons.FireAttackFinished);
-        }
         MoveCard(
             matchingDiscard,
             CardLocation.Processing,
@@ -8952,9 +7958,8 @@ public sealed partial class GameEngine
     {
         var revealedCardId = pending.RevealedCardId ??
             throw new InvalidOperationException("FireAttack has no revealed card.");
-        var location = UsesFormalFireAttackReveal
-            ? CardLocation.Hand(pending.TargetSeat)
-            : CardLocation.Processing;
+        var location = (CardLocation.Hand(pending.TargetSeat)
+);
         return _cardZones.CardsAt(location).Single(card => card.Id == revealedCardId);
     }
 
@@ -9236,8 +8241,7 @@ public sealed partial class GameEngine
         var programMultiCardResponses = requiredCardKind == CardKind.Slash
             ? GetProgramMultiCardViewAsSelections(target, CardKind.Slash, forResponse: true)
             : [];
-        var hasBagua = UsesFormalArmorResponseTiming &&
-                       requiredCardKind == CardKind.Dodge &&
+        var hasBagua = requiredCardKind == CardKind.Dodge &&
                        !attack.IgnoresArmor &&
                        HasBagua(target);
         var canRequestHujia = requiredCardKind == CardKind.Dodge && CanRequestHujia(target, attack);
@@ -9401,7 +8405,7 @@ public sealed partial class GameEngine
         {
             var baseEffectiveKind = IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash;
             return GetSlashUseKinds(weaponOwner, baseEffectiveKind)
-                .Where(effectiveKind => _rulesVersion < 80 || effectiveKind == baseEffectiveKind ||
+                .Where(effectiveKind => effectiveKind == baseEffectiveKind ||
                                         IsNativeResponseCard(card, CardKind.Slash))
                 .SelectMany(effectiveKind =>
             {
@@ -9793,10 +8797,9 @@ public sealed partial class GameEngine
         var usesFangtian = UsesFormalFangtianHalberd &&
             GetHand(source).Count == 1 && GetHand(source)[0].Id == slash.Id &&
             GetEquipment(source).Any(card => card.Kind == CardKind.FangtianHalberd);
-        var usesTianyi = UsesFormalTaishiCi && source.TianyiWonThisTurn && targetSeats.Length == 2;
         var usesProgramTargetCount = UsesProgramCardTargetCount(
             source, slash, playedCardKind, targetSeats.Length);
-        if (!stillLegal || (!usesFangtian && !usesTianyi && !usesProgramTargetCount))
+        if (!stillLegal || (!usesFangtian && !usesProgramTargetCount))
         {
             throw new InvalidOperationException("Fangtian Halberd Slash became illegal before resolution.");
         }
@@ -10362,9 +9365,8 @@ public sealed partial class GameEngine
                 candidate.Seat != target.Seat &&
                 candidate.Seat != attack.SourceSeat &&
                 (_pendingFangtianHalberd is null ||
-                 !(_rulesVersion >= 80
-                     ? _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == attack.ResolutionId).TargetSeats
-                     : _pendingFangtianHalberd.TargetSeats).Contains(candidate.Seat)) &&
+                 !((_resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == attack.ResolutionId).TargetSeats
+)).Contains(candidate.Seat)) &&
                  (HasCardDistanceExemption(_players[attack.SourceSeat], candidate,
                       attack.EffectiveCardKind ?? CardKind.Slash) ||
                   GetCombatDistance(target.Seat, candidate.Seat) <= GetAttackRange(target.Seat)) &&
@@ -10527,8 +9529,7 @@ public sealed partial class GameEngine
                 CardKind.Dodge));
         }
 
-        if (UsesFormalArmorResponseTiming &&
-            !ignoresArmor &&
+        if (!ignoresArmor &&
             !attack.IsTwoCardVirtualSlash &&
             slash?.Suit is Suit.Spade or Suit.Club &&
             HasBlackSlashBarrier(target))
@@ -11080,7 +10081,6 @@ public sealed partial class GameEngine
             SlashCardId: null));
         var attack = _pendingAttack ??
             throw new InvalidOperationException("A failed Duel response has no active damage source.");
-        if (UsesCorrectDuelDamageAttribution)
         {
             attack.SetDamageParticipants(
                 sourceSeat: duel.OpponentSeat,
@@ -11351,7 +10351,6 @@ public sealed partial class GameEngine
                 ? GetResponseCards(provider, CardKind.Dodge)
                 : [];
             var hasBagua = provider.IsAlive &&
-                           UsesFormalArmorResponseTiming &&
                            HasBagua(provider);
             if (responseCards.Count == 0 && !hasBagua)
             {
@@ -11472,7 +10471,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The Hujia responder has no matching Dodge response card.");
         }
 
-        if (useBagua && (!UsesFormalArmorResponseTiming || !HasBagua(provider)))
+        if (useBagua && (!HasBagua(provider)))
         {
             throw new InvalidOperationException("The Hujia responder cannot use Bagua in this response window.");
         }
@@ -11603,7 +10602,7 @@ public sealed partial class GameEngine
                 CardLocation.DiscardPile,
                 CardMoveReasons.ResponseFinished);
         }
-        else if (usedBagua && _rulesVersion >= 84 && TryBeginCardResponsePrograms(
+        else if (usedBagua && TryBeginCardResponsePrograms(
                      attack,
                      owner,
                      provider,
@@ -12417,38 +11416,6 @@ public sealed partial class GameEngine
         _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
-    private void BeginActiveJijiangRequest(CharacterState owner, int targetSeat, long activeSkillFrameId)
-    {
-        if (_pendingJijiang is not null ||
-            !CanUseActiveJijiang(owner) ||
-            !GetActiveSkillValidTargetSeats(owner, SkillKind.Jijiang).Contains(targetSeat))
-        {
-            throw new InvalidOperationException("Jijiang cannot be used against the selected target.");
-        }
-
-        var candidateSeats = GetJijiangCandidateSeats(owner.Seat);
-        _pendingJijiang = new JijiangResolution(
-            activeSkillFrameId,
-            JijiangPurpose.ActiveUse,
-            owner.Seat,
-            candidateSeats,
-            targetSeat: targetSeat,
-            activeSkillFrameId: activeSkillFrameId);
-        SetActiveSkillFrameStep(activeSkillFrameId, ResolutionFrameStep.AwaitingResponse);
-        QueueGameEvent(new JijiangRequestedEvent(
-            activeSkillFrameId,
-            owner.Seat,
-            candidateSeats,
-            IsActiveUse: true,
-            targetSeat));
-        AddLog(
-            "SkillTriggered",
-            $"{owner.Name} 发动主公技【激将】，请求其他蜀势力角色为其对 {_players[targetSeat].Name} 提供【杀】。",
-            owner.Seat,
-            targetSeat);
-        AdvanceJijiangCandidate();
-    }
-
     private void BeginJijiangResponseRequest(AttackResolution attack)
     {
         if (_pendingJijiang is not null)
@@ -13076,13 +12043,7 @@ public sealed partial class GameEngine
         {
             owner.AiJijiangFailedThisTurn = true;
         }
-        SetActiveSkillFrameStep(frameId, ResolutionFrameStep.Completed);
-        QueueGameEvent(new ActiveSkillResolvedEvent(
-            frameId,
-            owner.Seat,
-            SkillKind.Jijiang,
-            ActiveSkillEffectKind.RequestSlash));
-        PopResolutionFrame(frameId, ResolutionFrameKind.ActiveSkill);
+        ActiveActionExecutor.CompleteFactionRequest(RequireActiveAction(frameId), this);
         _status = EngineStatus.Running;
     }
 
@@ -13250,7 +12211,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("An active Jijiang use has no target.")];
         if (!ReferenceEquals(_pendingJijiang, pending) ||
             !pending.IsActiveUse ||
-            !CanUseJijiangTarget(owner, target, effectiveKind))
+            !CanUseProvidedSlashTarget(owner, target, effectiveKind))
         {
             throw new InvalidOperationException("The active Jijiang target is no longer legal.");
         }
@@ -13516,26 +12477,6 @@ public sealed partial class GameEngine
             physicalCards,
             effectiveKind,
             convertToFireSlash);
-    }
-
-    private void CompleteActiveJijiang(JijiangResolution pending)
-    {
-        if (!ReferenceEquals(_pendingJijiang, pending) ||
-            pending.AwaitingProviders ||
-            pending.ActiveSkillFrameId is not { } frameId)
-        {
-            throw new InvalidOperationException("The completed active Jijiang continuation is invalid.");
-        }
-
-        var owner = _players[pending.OwnerSeat];
-        SetActiveSkillFrameStep(frameId, ResolutionFrameStep.Completed);
-        QueueGameEvent(new ActiveSkillResolvedEvent(
-            frameId,
-            owner.Seat,
-            SkillKind.Jijiang,
-            ActiveSkillEffectKind.RequestSlash));
-        PopResolutionFrame(frameId, ResolutionFrameKind.ActiveSkill);
-        _pendingJijiang = null;
     }
 
     private void CompleteQinglongCrescentBladeJijiang(JijiangResolution pending)
@@ -13936,7 +12877,7 @@ public sealed partial class GameEngine
         ResolveHujiaCandidateResponse(
             pending,
             useDodge: selectedDodge is not null,
-            useBagua: useBagua && UsesFormalArmorResponseTiming && HasBagua(provider),
+            useBagua: useBagua && HasBagua(provider),
             requestedCardId: selectedDodge?.Id);
         PublishState();
     }
@@ -14092,7 +13033,6 @@ public sealed partial class GameEngine
             judgmentCard.Suit,
             ++_thoughtSequence,
             judgmentCard.Rank,
-            _rulesVersion,
             UsesClassicGanglieJudgment);
         AddThought(thought);
         ClearPendingDecision();
@@ -14300,8 +13240,7 @@ public sealed partial class GameEngine
             ? GetProgramMultiCardViewAsSelections(
                 responder, CardKind.Slash, forResponse: true).FirstOrDefault()
             : null;
-        var hasBagua = UsesFormalArmorResponseTiming &&
-                       requiredCardKind == CardKind.Dodge &&
+        var hasBagua = requiredCardKind == CardKind.Dodge &&
                        !attack.IgnoresArmor &&
                        HasBagua(responder);
         PopResponseWindow(group.ResolutionId);
@@ -14320,7 +13259,8 @@ public sealed partial class GameEngine
                     view,
                     group.SourceSeat,
                     ++_thoughtSequence,
-                    attack.IgnoresArmor);
+                    attack.IgnoresArmor,
+                    legalDodgeAvailable: responseCards.Count > 0);
             AddThought(thought);
             if (useDodge)
             {
@@ -14406,7 +13346,8 @@ public sealed partial class GameEngine
                     view,
                     source.Seat,
                     ++_thoughtSequence,
-                    attack.IgnoresArmor);
+                    attack.IgnoresArmor,
+                    legalDodgeAvailable: dodge is not null);
             AddThought(thought);
             if (useDodge)
             {
@@ -14480,7 +13421,7 @@ public sealed partial class GameEngine
                                ReferenceEquals(responseGroup.CurrentAttack, attack)
                 ? ProgramCardContinuation.GroupResponse
                 : ProgramCardContinuation.Dodge;
-            if (_rulesVersion >= 84 && TryBeginCardResponsePrograms(
+            if (TryBeginCardResponsePrograms(
                     attack,
                     _players[attack.TargetSeat],
                     _players[attack.TargetSeat],
@@ -14658,7 +13599,7 @@ public sealed partial class GameEngine
         var candidates = new List<JudgmentTriggerCandidate>();
         foreach (var owner in _players.Where(player => player.IsAlive))
         {
-            foreach (var skill in EnabledPassiveSkills(owner))
+            foreach (var skill in EnabledSkillRules(owner).Select(definition => definition.Judgment).OfType<IJudgmentSkillRule>())
             {
                 var context = new JudgmentSkillContext(
                     CreateSkillContext(owner),
@@ -14681,7 +13622,7 @@ public sealed partial class GameEngine
                     skill.JudgmentTriggerPriority));
             }
 
-            if (_rulesVersion < 82 || _contentRegistry is null)
+            if (_contentRegistry is null)
             {
                 continue;
             }
@@ -14710,7 +13651,7 @@ public sealed partial class GameEngine
             }
         }
 
-        var orderingSeat = _rulesVersion >= 87 ? _currentSeat : targetSeat;
+        var orderingSeat = (_currentSeat );
         return JudgmentTriggerOrdering.Order(candidates, orderingSeat, _playerCount);
     }
 
@@ -14740,8 +13681,7 @@ public sealed partial class GameEngine
             BeginProgramJudgmentReplacementChoice(pending, candidate);
             return;
         }
-        var skill = EnabledPassiveSkills(owner)
-            .Single(item => item.Kind == candidate.Skill);
+        var skill = EnabledSkillRules(owner).Select(definition => definition.Judgment).OfType<IJudgmentSkillRule>().Single(item => item.Kind == candidate.Skill);
         var context = new JudgmentSkillContext(
             CreateSkillContext(owner),
             pending.TargetSeat,
@@ -14779,7 +13719,7 @@ public sealed partial class GameEngine
     private PendingDecision CreateGuicaiDecision(
         JudgmentResolution pending,
         CharacterState owner,
-        IPassiveSkill skill)
+        IJudgmentSkillRule skill)
     {
         var judgmentCard = pending.CurrentCard ??
             throw new InvalidOperationException("A Guicai prompt requires a public judgment card.");
@@ -14844,7 +13784,6 @@ public sealed partial class GameEngine
         Card card,
         int judgmentSubjectSeat,
         string judgmentReason) =>
-        _rulesVersion >= 88 &&
         owner.Seat == judgmentSubjectSeat &&
         string.Equals(judgmentReason, JudgmentReasons.BaguaDefense, StringComparison.Ordinal) &&
         card.Kind == CardKind.BaguaFormation &&
@@ -14866,8 +13805,7 @@ public sealed partial class GameEngine
         {
             var candidate = pending.CurrentCandidate ??
                 throw new InvalidOperationException("The judgment replacement candidate cursor is invalid.");
-            var skill = EnabledPassiveSkills(owner)
-                .Single(item => item.Kind == candidate.Skill);
+            var skill = EnabledSkillRules(owner).Select(definition => definition.Judgment).OfType<IJudgmentSkillRule>().Single(item => item.Kind == candidate.Skill);
             var replacement = GetJudgmentReplacementCards(
                 owner, skill.Kind, pending.TargetSeat, pending.Reason)
                 .SingleOrDefault(card => card.Id == cardId) ??
@@ -14917,8 +13855,7 @@ public sealed partial class GameEngine
         {
             var candidate = pending.CurrentCandidate ??
                 throw new InvalidOperationException("The judgment replacement candidate cursor is invalid.");
-            var skill = EnabledPassiveSkills(owner)
-                .Single(item => item.Kind == candidate.Skill);
+            var skill = EnabledSkillRules(owner).Select(definition => definition.Judgment).OfType<IJudgmentSkillRule>().Single(item => item.Kind == candidate.Skill);
             QueueGameEvent(new JudgmentReplacementResolvedEvent(
                 pending.FrameId,
                 pending.FrameId,
@@ -14980,11 +13917,9 @@ public sealed partial class GameEngine
                 judgmentSuit == Suit.Spade && judgmentCard.Rank is >= 2 and <= 9,
             JudgmentContinuationKind.Ganglie when UsesClassicGanglieJudgment =>
                 judgmentSuit != Suit.Heart,
-            JudgmentContinuationKind.Indulgence when UsesSuitSpecificDelayedJudgments =>
-                judgmentSuit == Suit.Heart,
-            JudgmentContinuationKind.SupplyShortage when UsesSuitSpecificDelayedJudgments =>
-                judgmentSuit == Suit.Club,
-            JudgmentContinuationKind.Luoshen => !IsRedSuit(judgmentSuit),
+            JudgmentContinuationKind.Indulgence =>
+                judgmentSuit == Suit.Heart,                        JudgmentContinuationKind.SupplyShortage =>
+                judgmentSuit == Suit.Club,                        JudgmentContinuationKind.Luoshen => !IsRedSuit(judgmentSuit),
             JudgmentContinuationKind.Shuangxiong => IsRedSuit(judgmentSuit),
             JudgmentContinuationKind.Leiji => judgmentSuit is Suit.Spade or Suit.Club,
             _ => IsRedSuit(judgmentSuit)
@@ -15097,8 +14032,7 @@ public sealed partial class GameEngine
         }
 
         var owner = _players[pending.TargetSeat];
-        var skill = EnabledPassiveSkills(owner).FirstOrDefault(candidate =>
-            candidate.Kind == SkillKind.Tiandu);
+        var skill = EnabledSkillRules(owner).Select(definition => definition.Judgment).OfType<IJudgmentSkillRule>().FirstOrDefault(candidate => candidate.Kind == SkillKind.Tiandu);
         if (!owner.IsAlive || skill is null)
         {
             return false;
@@ -15241,11 +14175,8 @@ public sealed partial class GameEngine
         }
 
         var effectiveCardKind = GetJudgmentEffectiveCardKind(delayedCard);
-        var delayedEffectSucceeded = UsesSuitSpecificDelayedJudgments
-            ? !succeeded
-            : effectiveCardKind == CardKind.SupplyShortage
-                ? !succeeded
-                : succeeded;
+        var delayedEffectSucceeded = (!succeeded
+);
         var delayedEffects = delayedEffectSucceeded
             ? GetDelayedTurnEffects(effectiveCardKind)
             : DelayedTurnEffects.None;
@@ -16410,7 +15341,7 @@ public sealed partial class GameEngine
             return;
         }
         var context = CreateDamageSkillContext(window.Attack, owner);
-        var skill = SkillRegistry.Get(candidate.Skill);
+        var skill = SkillRegistry.Get(candidate.Skill).Damage!;
         if (!owner.IsAlive ||
             !skill.CanTriggerAfterDamage(context) ||
             ResolveDamageSkillEffect(skill, context) != candidate.Effect)
@@ -16510,7 +15441,7 @@ public sealed partial class GameEngine
         DamageTriggerResolution window,
         DamageTriggerCandidate candidate,
         CharacterState owner,
-        IPassiveSkill skill)
+        IDamageSkillRule skill)
     {
         var attack = window.Attack;
         var damageFrameId = window.DamageFrameId;
@@ -16586,7 +15517,7 @@ public sealed partial class GameEngine
             : EngineStatus.Running;
     }
 
-    private PendingDecision CreateYaowuDecision(CharacterState owner, IPassiveSkill skill, AttackResolution attack)
+    private PendingDecision CreateYaowuDecision(CharacterState owner, IDamageSkillRule skill, AttackResolution attack)
     {
         var source = _players[attack.SourceSeat];
         var choices = new List<PromptChoice>();
@@ -16641,7 +15572,7 @@ public sealed partial class GameEngine
 
     private PendingDecision CreateGanglieDecision(
         CharacterState owner,
-        IPassiveSkill skill,
+        IDamageSkillRule skill,
         AttackResolution attack)
     {
         return new PendingDecision(
@@ -16684,7 +15615,7 @@ public sealed partial class GameEngine
 
     private PendingDecision CreateYuanhuDecision(
         CharacterState owner,
-        IPassiveSkill skill,
+        IDamageSkillRule skill,
         AttackResolution attack)
     {
         var target = _players[attack.TargetSeat];
@@ -17089,7 +16020,7 @@ public sealed partial class GameEngine
 
         var owner = _players[pending.OwnerSeat];
         var source = _players[pending.SourceSeat];
-        var skill = SkillRegistry.Get(pending.Skill);
+        var skill = SkillRegistry.Get(pending.Skill).Damage!;
         var damageContext = CreateDamageSkillContext(pending.Attack, owner);
         Card? yuanhuDiscardedCard = null;
         CharacterState? yuanhuRecoveredTarget = null;
@@ -17209,7 +16140,7 @@ public sealed partial class GameEngine
         if (window == SkillProgramTriggerWindow.AfterDamageApplied)
         {
         foreach (var owner in _players.Where(player => player.IsAlive))
-            foreach (var skill in EnabledPassiveSkills(owner))
+            foreach (var skill in EnabledSkillRules(owner).Select(definition => definition.Damage).OfType<IDamageSkillRule>())
             {
                 var ownerContext = context with
                 {
@@ -17252,7 +16183,7 @@ public sealed partial class GameEngine
                 SkillProgramTriggerSubject.Source => programOwnerSeat == context.SourceSeat &&
                     MatchesAfterDamageProgramSource(attack, trigger),
                 SkillProgramTriggerSubject.DamageSource => programOwnerSeat == context.SourceSeat,
-                _ => false
+            _ => false
             };
             if (!ownsTiming) continue;
             var occurrenceIndexes = trigger.DamageOccurrence switch
@@ -17291,7 +16222,7 @@ public sealed partial class GameEngine
          string.Equals(source.BindingId, trigger.SourceViewAsId, StringComparison.Ordinal));
 
     private DamageSkillEffectKind ResolveDamageSkillEffect(
-        IPassiveSkill skill,
+        IDamageSkillRule skill,
         DamageSkillContext context)
     {
         if (skill.Kind == SkillKind.Kuanggu)
@@ -17332,7 +16263,7 @@ public sealed partial class GameEngine
         AttackResolution attack,
         long damageFrameId,
         CharacterState owner,
-        IPassiveSkill skill,
+        IDamageSkillRule skill,
         DamageSkillContext context)
     {
         if (skill.Kind != SkillKind.Kuanggu ||
@@ -17527,12 +16458,12 @@ public sealed partial class GameEngine
     private Card[] GetDyingPeaches(CharacterState responder)
     {
         var context = CreateSkillContext(responder);
-        var passiveSkills = EnabledPassiveSkills(responder).ToArray();
+        var passiveSkills = ConversionRules(responder).ToArray();
         var handCandidates = GetPlayableCards(responder)
             .Where(card => !IsTurnHandCardRestricted(responder, card))
             .Where(card => !HasProgramCardIdentity(responder, card))
             .Where(card => card.Kind == CardKind.Peach || passiveSkills.Any(skill =>
-                skill.Kind == SkillKind.Jijiu && (_rulesVersion < 10 || !IsClassicIdentityMode)
+                skill is JijiuSkill && (!IsClassicIdentityMode)
                     ? card.Kind != CardKind.Peach && card.Suit is Suit.Heart or Suit.Diamond
                     : skill.CanUseAsDyingRescue(context, card)))
             .ToArray();
@@ -17544,12 +16475,12 @@ public sealed partial class GameEngine
 
         return handCandidates
             .Concat(GetEquipment(responder).Where(card => passiveSkills.Any(skill =>
-                skill.Kind == SkillKind.Jijiu && skill.CanUseAsDyingRescue(context, card))))
+                skill is JijiuSkill && skill.CanUseAsDyingRescue(context, card))))
             .ToArray();
     }
 
     private Card[] GetDyingAlcohols(CharacterState responder, int victimSeat) =>
-        responder.Seat == victimSeat || UsesHistoricalCrossSeatAlcoholRescue
+        responder.Seat == victimSeat
             ? GetHand(responder)
                 .Where(card => card.Kind == CardKind.Alcohol &&
                                !HasProgramCardIdentity(responder, card))
@@ -17566,8 +16497,7 @@ public sealed partial class GameEngine
         var legacyMetadata = responder.General.Skills.FirstOrDefault(skill => skill.Kind == SkillKind.Niepan);
         var skillId = contentMetadata?.Id ?? legacyMetadata?.ContentId;
         var tags = contentMetadata?.Tags ?? legacyMetadata?.Tags ?? SkillTag.None;
-        return SupportsStructuredSkillState &&
-               skillId is not null &&
+        return skillId is not null &&
                tags.HasFlag(SkillTag.Limited)
             ? _skillRuntimeState.GetUsage(
                 responder.Seat, skillId, "activation", SkillUsageScope.Game) == 0
@@ -17649,7 +16579,7 @@ public sealed partial class GameEngine
             peaches,
             alcohols,
             ++_thoughtSequence,
-            UsesHistoricalCrossSeatAlcoholRescue);
+            false);
         AddThought(thought);
         ApplyDyingResponse(
             responder,
@@ -17803,8 +16733,7 @@ public sealed partial class GameEngine
         var legacyMetadata = victim.General.Skills.FirstOrDefault(skill => skill.Kind == SkillKind.Niepan);
         var skillId = contentMetadata?.Id ?? legacyMetadata?.ContentId;
         var tags = contentMetadata?.Tags ?? legacyMetadata?.Tags ?? SkillTag.None;
-        if (SupportsStructuredSkillState &&
-            skillId is not null &&
+        if (skillId is not null &&
             tags.HasFlag(SkillTag.Limited))
         {
             if (!_skillRuntimeState.TryConsumeUsage(
@@ -17877,7 +16806,7 @@ public sealed partial class GameEngine
         }
         if (useAlcohol)
         {
-            if (!UsesHistoricalCrossSeatAlcoholRescue && responder.Seat != victim.Seat)
+            if (responder.Seat != victim.Seat)
             {
                 throw new InvalidOperationException("Alcohol can only rescue its dying holder.");
             }
@@ -17994,17 +16923,16 @@ public sealed partial class GameEngine
 
         if (activeSkill.Effect == ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage)
         {
+            var action = RequireActiveAction(activeSkill.Id);
             if (survived)
             {
-                BeginQiangxiDamage(
-                    activeSkill.Id,
-                    actor,
-                    activeSkill.TargetSeats?.Single() ??
-                        throw new InvalidOperationException("Qiangxi lost its selected target."));
+                if (!((IActiveActionEffectHost)this).BeginSkillDamage(action,
+                        action.TargetSeats.Single(), card: null))
+                    ActiveActionExecutor.CompleteDamage(action, dealtDamage: false, this);
                 return;
             }
 
-            CompleteQiangxiResolution(activeSkill.Id, dealtDamage: false);
+            ActiveActionExecutor.CompleteDamage(action, dealtDamage: false, this);
             if (_winner != Winner.None && _status != EngineStatus.Completed)
             {
                 CompleteGame();
@@ -18061,7 +16989,7 @@ public sealed partial class GameEngine
         var damageFrameId = dying.DamageFrameId ??
             throw new InvalidOperationException("A damage dying continuation has no damage frame.");
         attack.MarkDyingResolvedForDamage(damageFrameId);
-        if (SupportsLethalAfterDamageTriggers && _winner == Winner.None &&
+        if (_winner == Winner.None &&
             TryBeginDamageTriggerWindow(attack, damageFrameId,
                 SkillProgramTriggerWindow.AfterDamageApplied))
         {
@@ -18128,20 +17056,12 @@ public sealed partial class GameEngine
 
         if (attack.Card is null && attack.EffectiveCardKind == CardKind.Slash && _pendingShensuStage is 1 or 2)
         {
-            var stage = _pendingShensuStage;
-            var source = _players[attack.SourceSeat];
             SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.Completed);
             PopResolutionFrame(attack.ResolutionId, ResolutionFrameKind.CardUse);
-            _pendingShensuStage = 0;
             if (_winner != Winner.None)
             {
                 if (_status != EngineStatus.Completed) CompleteGame();
-                return false;
             }
-            if (stage == 1)
-                CompleteTurnStartAfterDraw(source, DelayedTurnEffects.None);
-            else
-                BeginDiscardPhase();
             ClearYingboCardUse(attack.ResolutionId);
             return false;
         }
@@ -18171,30 +17091,17 @@ public sealed partial class GameEngine
                 return false;
             }
 
-            if (attack.SourceSkill == SkillKind.Qiangxi)
+            if (_resolutionStack.OfType<ActiveSkillFrame>().LastOrDefault(frame =>
+                    frame.Id == attack.ResolutionId && frame.Skill == attack.SourceSkill) is
+                { Effect: ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage } damageAction)
             {
                 if (attack.Card is not null)
                 {
-                    throw new InvalidOperationException("Qiangxi damage cannot carry a physical damage card.");
+                    throw new InvalidOperationException("A direct active-action damage cannot carry a physical card.");
                 }
 
-                CompleteQiangxiResolution(attack.ResolutionId, dealtDamage: true);
-                if (_winner != Winner.None && _status != EngineStatus.Completed)
-                {
-                    CompleteGame();
-                }
-                return false;
-            }
-
-            if (attack.SourceSkill == SkillKind.Quhu)
-            {
-                if (attack.Card is not null || _pendingQuhu is not { } quhu ||
-                    quhu.FrameId != attack.ResolutionId)
-                {
-                    throw new InvalidOperationException("Quhu damage lost its active-skill continuation.");
-                }
-
-                CompleteQuhuResolution(quhu, attack.TargetSeat);
+                ActiveActionExecutor.CompleteDamage(RequireActiveAction(damageAction.Id),
+                    dealtDamage: true, this);
                 if (_winner != Winner.None && _status != EngineStatus.Completed)
                 {
                     CompleteGame();
@@ -18210,13 +17117,16 @@ public sealed partial class GameEngine
                     $"A resolved active-skill damage card has an unsupported destination: {activeSkillLocation}.");
             }
 
-            if (attack.SourceSkill != SkillKind.Fanjian)
+            if (_resolutionStack.OfType<ActiveSkillFrame>().LastOrDefault(frame =>
+                    frame.Id == attack.ResolutionId && frame.Skill == attack.SourceSkill) is not
+                { Effect: ActiveSkillEffectKind.RevealGiftAndDamage } giftAction)
             {
                 throw new InvalidOperationException(
                     $"Unsupported active-skill damage source: {attack.SourceSkill}.");
             }
 
-            CompleteFanjianResolution(attack.ResolutionId);
+            ActiveActionExecutor.CompleteDamage(RequireActiveAction(giftAction.Id),
+                dealtDamage: true, this);
             if (_winner != Winner.None && _status != EngineStatus.Completed)
             {
                 CompleteGame();
@@ -18286,7 +17196,7 @@ public sealed partial class GameEngine
         var completedAction = _resolutionStack.OfType<CardUseFrame>()
             .Single(frame => frame.Id == attack.ResolutionId).Action;
         QueueCardUseFinishedWithoutPop(attack.ResolutionId, attackCard, RequireAttackCardKind(attack));
-        if (_rulesVersion >= 147 && _winner == Winner.None && completedAction is not null &&
+        if (_winner == Winner.None && completedAction is not null &&
             TryBeginProgramCardWindow(attack, completedAction,
                 SkillProgramTriggerWindow.CardUseCompleted, completedAction.TargetSeats,
                 ProgramCardContinuation.CompletedSlash,
@@ -18302,7 +17212,7 @@ public sealed partial class GameEngine
         if (_pendingJijiang is { IsActiveUse: true, AwaitingProviders: false } jijiang &&
             ReferenceEquals(jijiang.ActiveAttack, attack))
         {
-            CompleteActiveJijiang(jijiang);
+            CompleteActiveFactionRequest(jijiang);
         }
         else if (_pendingJijiang is { IsQinglongCrescentBladeUse: true, AwaitingProviders: false } qinglongJijiang &&
                  ReferenceEquals(qinglongJijiang.ActiveAttack, attack))
@@ -18326,11 +17236,6 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A card cannot finish while its dying resolution is pending.");
         }
 
-
-        if (TryBeginLierenChoice(attack))
-        {
-            return;
-        }
 
         if (attack.TryConsumeTianxiangDraw(out var tianxiangOwnerSeat, out var tianxiangTargetSeat))
         {
@@ -18433,9 +17338,26 @@ public sealed partial class GameEngine
         var resumesLeiji = attack.IsLeijiDamage;
         var resumesProgramJudgment = attack.IsProgramJudgmentDamage;
         var resumesProgramSkill = attack.IsProgramSkillDamage;
+        var shensuStage = attack.Card is null && attack.EffectiveCardKind == CardKind.Slash &&
+                          !resumesProgramSkill && !resumesProgramJudgment && !resumesLeiji
+            ? _pendingShensuStage : 0;
         _pendingAttack = null;
         _pendingDuel = null;
         _pendingDecision = null;
+        if (shensuStage is 1 or 2)
+        {
+            // Resume only after releasing the old attack. The continuation can open
+            // a second Shensu prompt, which must survive this attack's cleanup.
+            _pendingShensuStage = 0;
+            if (_winner == Winner.None && _status != EngineStatus.Completed)
+            {
+                if (shensuStage == 1)
+                    CompleteTurnStartAfterDraw(_players[attack.SourceSeat], DelayedTurnEffects.None);
+                else
+                    BeginDiscardPhase();
+            }
+            return;
+        }
         if (borrowedSword is not null)
         {
             CompleteBorrowedSwordAfterSlash(borrowedSword);
@@ -18456,7 +17378,7 @@ public sealed partial class GameEngine
         {
             ResumeAfterLightningDamage(attack);
         }
-        else if (resumesLeiji && _winner == Winner.None && _status != EngineStatus.Completed)
+        else if (resumesLeiji)
         {
             ResumeAfterLeijiDamage(attack);
         }
@@ -18474,6 +17396,15 @@ public sealed partial class GameEngine
         var originalAttack = pending.OriginalAttack;
         _pendingLeiji = null;
         _pendingAttack = originalAttack;
+        if (_winner != Winner.None || _status == EngineStatus.Completed)
+        {
+            // The result is settled: finish the interrupted physical use without opening
+            // another Dodge follow-up, card-use trigger or optional card gift.
+            if (FinishAttack(originalAttack, allowYingboGift: false))
+                throw new InvalidOperationException("A completed game cannot suspend the interrupted card use.");
+            CompleteAttackAfterCardResolution(originalAttack);
+            return;
+        }
         FinishSuccessfulDodgeResponse(originalAttack);
     }
 
@@ -18648,7 +17579,7 @@ public sealed partial class GameEngine
         CharacterState target,
         Card alcohol)
     {
-        if ((!UsesHistoricalCrossSeatAlcoholRescue && source.Seat != target.Seat) ||
+        if ((source.Seat != target.Seat) ||
             target.Hp > 0 ||
             !target.IsAlive)
         {
@@ -18728,11 +17659,10 @@ public sealed partial class GameEngine
     {
         var resolutionId = ++_resolutionSequence;
         var targets = Array.AsReadOnly(targetSeats.ToArray());
-        var designated = _rulesVersion >= 165
-            ? Array.AsReadOnly((designatedTargetSeats ?? targets)
+        var designated = (Array.AsReadOnly((designatedTargetSeats ?? targets)
                 .Where(seat => IsValidPlayerSeat(seat) && _players[seat].IsAlive)
                 .Distinct().ToArray())
-            : null;
+);
         var effectiveCardKind = playedCardKind ?? card.Kind;
         var physicalIds = Array.AsReadOnly((physicalCardIds ?? [card.Id]).ToArray());
         var actionContext = CaptureCardUseAction(
@@ -19193,11 +18123,11 @@ public sealed partial class GameEngine
         var playableCards = physicalPlayableCards
             .Where(card => !HasProgramCardIdentity(actor, card))
             .ToArray();
-        var skill = PassiveRules(actor);
+        var conversionRules = ConversionRules(actor).ToArray();
+        var cardUseRules = CardUseRules(actor).ToArray();
         var skillContext = CreateSkillContext(actor);
         var slashLimit = GetSlashUseLimit(actor);
         if (SlashKinds.Any(kind => !IsCardUseForbidden(actor.Seat, kind, CardActionType.Use)) &&
-            !actor.TianyiLostThisTurn &&
             (_slashCountThisTurn < slashLimit || HasSlashAllowanceForAnyTarget(actor)))
         {
             foreach (var transformed in physicalPlayableCards
@@ -19239,9 +18169,6 @@ public sealed partial class GameEngine
                     AddFangtianHalberdSlashActions(
                         actions, actor, card, targets, effectiveName, effectiveKind, conversionSource,
                         additionalConversions);
-                    AddTianyiSlashActions(
-                        actions, actor, card, targets, effectiveName, effectiveKind, conversionSource,
-                        additionalConversions);
                     AddProgramTargetCountSlashActions(
                         actions, actor, card, targets, effectiveName, effectiveKind, conversionSource,
                         additionalConversions);
@@ -19277,8 +18204,6 @@ public sealed partial class GameEngine
                         targets,
                         slashName,
                         playedCardKind);
-                    AddTianyiSlashActions(
-                        actions, actor, slash, targets, slashName, playedCardKind);
                     AddProgramTargetCountSlashActions(
                         actions, actor, slash, targets, slashName, playedCardKind);
                 }
@@ -19305,8 +18230,6 @@ public sealed partial class GameEngine
                 }
                 AddFangtianHalberdSlashActions(actions, actor, slash, targets,
                     "火杀", CardKind.FireSlash, conversionSource);
-                AddTianyiSlashActions(actions, actor, slash, targets,
-                    "火杀", CardKind.FireSlash, conversionSource);
                 AddProgramTargetCountSlashActions(actions, actor, slash, targets,
                     "火杀", CardKind.FireSlash, conversionSource);
             }
@@ -19317,7 +18240,7 @@ public sealed partial class GameEngine
                     actor, converted, CardKind.Slash, forResponse: false);
                 var legacySources = GetLegacyViewAsConversions(
                     actor, converted, CardKind.Slash, forResponse: false);
-                var legacyCompatibility = _rulesVersion < 80 && skill.CanUseAsSlash(skillContext, converted);
+                var legacyCompatibility = false;
                 if (!legacyCompatibility && legacySources.Count == 0 && programSources.Count == 0) continue;
                 var physicalName = CardCatalog.Get(converted.Kind).DisplayName;
                 var sources = new List<CardConversionSource?>();
@@ -19354,9 +18277,6 @@ public sealed partial class GameEngine
                         }
 
                         AddFangtianHalberdSlashActions(
-                            actions, actor, converted, targets, effectiveName,
-                            variant.EffectiveKind, conversionSource, additionalConversions);
-                        AddTianyiSlashActions(
                             actions, actor, converted, targets, effectiveName,
                             variant.EffectiveKind, conversionSource, additionalConversions);
                         AddProgramTargetCountSlashActions(
@@ -19404,9 +18324,6 @@ public sealed partial class GameEngine
                                     AdditionalConversionSources = additionalConversions
                                 });
                             }
-                            AddTianyiSlashActions(
-                                actions, actor, converted, targets, effectiveName,
-                                variant.EffectiveKind, conversionSource, additionalConversions);
                             AddProgramTargetCountSlashActions(
                                 actions, actor, converted, targets, effectiveName,
                                 variant.EffectiveKind, conversionSource, additionalConversions);
@@ -19442,8 +18359,7 @@ public sealed partial class GameEngine
                 }
             }
         }
-        else if (SlashKinds.Any(kind => !IsCardUseForbidden(actor.Seat, kind, CardActionType.Use)) &&
-                 !actor.TianyiLostThisTurn)
+        else if (SlashKinds.Any(kind => !IsCardUseForbidden(actor.Seat, kind, CardActionType.Use)))
         {
             AddNuzhanUnlimitedTrickSlashActions(actions, actor, playableCards);
         }
@@ -19586,7 +18502,7 @@ public sealed partial class GameEngine
                          .Concat(GetEquipment(actor))
                          .Where(card => !IsTurnHandCardRestricted(actor, card))
                          .Where(card => !HasProgramCardIdentity(actor, card))
-                         .Where(card => skill.CanUseAsIndulgence(skillContext, card)))
+                         .Where(card => conversionRules.Any(rule => rule.CanUseAsIndulgence(skillContext, card))))
             {
                 var physicalName = CardCatalog.Get(converted.Kind).DisplayName;
                 foreach (var target in _players.Where(player =>
@@ -19606,18 +18522,17 @@ public sealed partial class GameEngine
 
         foreach (var supplyShortage in playableCards.Where(card => card.Kind == CardKind.SupplyShortage))
         {
-            var ignoresDistance = skill.IgnoresTrickDistance(skillContext, CardKind.SupplyShortage);
+            var ignoresDistance = cardUseRules.Any(rule => rule.IgnoresTrickDistance(skillContext, CardKind.SupplyShortage));
             var distanceLimit = UsesFormalDuanliang
-                ? skill.ModifySupplyShortageDistanceLimit(skillContext, 1)
+                ? GetSupplyShortageDistanceLimit(actor, skillContext)
                 : 1;
             foreach (var target in _players.Where(player =>
                          player.IsAlive &&
                          player.Seat != actor.Seat &&
-                         (UsesFormalSupplyShortageTargeting
-                             ? HasCardDistanceExemption(actor, player, CardKind.SupplyShortage) ||
+                         ((HasCardDistanceExemption(actor, player, CardKind.SupplyShortage) ||
                                ignoresDistance ||
                                GetCombatDistance(actor.Seat, player.Seat) <= distanceLimit
-                             : GetHand(player).Count > 0) &&
+)) &&
                          !IsDirectedCardTargetProhibited(actor.Seat, player.Seat, CardKind.SupplyShortage) &&
                          !HasJudgmentEffectiveCard(player, CardKind.SupplyShortage)))
             {
@@ -19631,12 +18546,12 @@ public sealed partial class GameEngine
 
         if (UsesFormalDuanliang)
         {
-            var distanceLimit = skill.ModifySupplyShortageDistanceLimit(skillContext, 1);
+            var distanceLimit = GetSupplyShortageDistanceLimit(actor, skillContext);
             var convertedCards = GetHand(actor)
                 .Concat(GetEquipment(actor))
                 .Where(card => !IsTurnHandCardRestricted(actor, card))
                 .Where(card => !HasProgramCardIdentity(actor, card))
-                .Where(card => skill.CanUseAsSupplyShortage(skillContext, card));
+                .Where(card => conversionRules.Any(rule => rule.CanUseAsSupplyShortage(skillContext, card)));
             foreach (var converted in convertedCards)
             {
                 var physicalName = CardCatalog.Get(converted.Kind).DisplayName;
@@ -19671,10 +18586,9 @@ public sealed partial class GameEngine
         }
 
         var ironChainTargets = _players
-            .Where(player => player.IsAlive && (_rulesVersion >= 6 || player.Seat != actor.Seat))
+            .Where(player => player.IsAlive)
             .OrderBy(player => player.Seat)
             .ToArray();
-        if (_rulesVersion >= 6)
         {
             foreach (var ironChain in allPhysicalPlayableCards.Where(card =>
                          !HasProgramCardIdentity(actor, card) &&
@@ -19750,7 +18664,7 @@ public sealed partial class GameEngine
         }
 
         if (!actor.HasAlcoholEffect &&
-            (!UsesFormalPlayPhaseAlcoholLimit || !actor.UsedPlayPhaseAlcoholThisTurn))
+            (!actor.UsedPlayPhaseAlcoholThisTurn))
         {
             foreach (var alcohol in playableCards.Where(card => card.Kind == CardKind.Alcohol))
             {
@@ -19794,7 +18708,7 @@ public sealed partial class GameEngine
                 .Concat(GetEquipment(actor))
                 .Where(card => !IsTurnHandCardRestricted(actor, card))
                 .Where(card => !HasProgramCardIdentity(actor, card))
-                .Where(card => skill.CanUseAsDismantlement(skillContext, card));
+                .Where(card => conversionRules.Any(rule => rule.CanUseAsDismantlement(skillContext, card)));
             foreach (var converted in qixiCards)
             {
                 foreach (var target in _players.Where(player =>
@@ -19815,7 +18729,7 @@ public sealed partial class GameEngine
 
         foreach (var snatch in playableCards.Where(card => card.Kind == CardKind.Snatch))
         {
-            var ignoresDistance = skill.IgnoresTrickDistance(skillContext, CardKind.Snatch);
+            var ignoresDistance = cardUseRules.Any(rule => rule.IgnoresTrickDistance(skillContext, CardKind.Snatch));
             foreach (var target in _players.Where(player =>
                          player.IsAlive &&
                          player.Seat != actor.Seat &&
@@ -19862,7 +18776,6 @@ public sealed partial class GameEngine
         {
             foreach (var target in _players.Where(player =>
                          player.IsAlive &&
-                         (UsesFormalFireAttackReveal || player.Seat != actor.Seat) &&
                          GetHand(player).Any(card => player.Seat != actor.Seat || card.Id != fireAttack.Id)))
             {
                 actions.Add(new LegalAction(
@@ -19881,7 +18794,6 @@ public sealed partial class GameEngine
                          card.Kind != CardKind.FireAttack && IsRedSuit(card.Suit)))
             {
                 foreach (var target in _players.Where(player => player.IsAlive &&
-                             (UsesFormalFireAttackReveal || player.Seat != actor.Seat) &&
                              GetHand(player).Any(card => player.Seat != actor.Seat || card.Id != converted.Id)))
                 {
                     actions.Add(new LegalAction(LegalActionKind.FireAttack, converted.Id, target.Seat,
@@ -19891,72 +18803,13 @@ public sealed partial class GameEngine
             }
         }
 
-        if (TryGetHuangtianLord(actor, out var huangtianLord) &&
-            !actor.UsedActiveSkillKinds.Contains(SkillKind.Huangtian))
-        {
-            var giftCards = GetHand(actor)
-                .Where(card => card.Kind is CardKind.Dodge or CardKind.Lightning)
-                .Select(card => card.Id)
-                .Order()
-                .ToArray();
-            if (giftCards.Length > 0)
-            {
-                actions.Add(new LegalAction(
-                    LegalActionKind.UseSkill,
-                    null,
-                    huangtianLord.Seat,
-                    $"响应【黄天】，将一张【闪】或【闪电】交给 {huangtianLord.Name}",
-                    Skill: SkillKind.Huangtian,
-                    MinCardCount: 1,
-                    MaxCardCount: 1,
-                    MinTargetCount: 1,
-                    MaxTargetCount: 1)
-                {
-                    SelectableCardIds = giftCards,
-                    SelectableTargetSeats = [huangtianLord.Seat]
-                });
-            }
-        }
-
-        foreach (var activeSkill in EnabledPassiveSkills(actor)
-                     .Select(skillRule => SkillRegistry.GetActive(skillRule.Kind))
+        foreach (var activeSkill in EnabledSkillRules(actor)
+                     .Select(skillRule => ActiveActionCatalog.Find(skillRule.Kind))
                      .Where(candidate => candidate is not null)
-                     .Cast<IActiveSkill>())
+                     .Cast<ActiveActionRule>())
         {
-            if (activeSkill.Kind == SkillKind.Fanjian && !UsesFormalFanjian)
-            {
-                continue;
-            }
-
-            if (activeSkill.Kind == SkillKind.Qiangxi && !UsesFormalQiangxi)
-            {
-                continue;
-            }
-
-            if (activeSkill.Kind == SkillKind.Quhu && !UsesFormalXunYu)
-            {
-                continue;
-            }
-
-            if (activeSkill.Kind == SkillKind.Tianyi && !UsesFormalTaishiCi)
-            {
-                continue;
-            }
-
-            if (activeSkill.Kind == SkillKind.Luanji &&
-                (!UsesFormalYuanShao ||
-                 !CanUseGlobalCard(actor, CardKind.ArrowBarrage) ||
-                 !GetHand(actor).GroupBy(card => card.Suit).Any(group => group.Count() >= 2)))
-            {
-                continue;
-            }
-
-            if (activeSkill.Kind == SkillKind.Jiefan)
-            {
-                continue;
-            }
-
-            if (activeSkill.Kind == SkillKind.Jijiang && !CanUseActiveJijiang(actor))
+            var selection = ActiveActionCatalog.Selection(activeSkill.Kind);
+            if (!IsActiveActionAvailable(actor, selection))
             {
                 continue;
             }
@@ -20035,75 +18888,6 @@ public sealed partial class GameEngine
         return FilterTurnCardUseRestrictions(actor, permittedActions);
     }
 
-    private bool TryGetHuangtianLord(CharacterState provider, out CharacterState lord)
-    {
-        lord = _players.FirstOrDefault(player =>
-            player.IsAlive &&
-            player.Role == Role.Lord &&
-            player.Seat != provider.Seat &&
-            HasRuntimeSkill(player, SkillKind.Huangtian))!;
-        return UsesFormalZhangJiao &&
-               lord is not null &&
-               string.Equals(GetEffectiveFactionId(provider), "qun", StringComparison.Ordinal);
-    }
-
-    private CommandError? ValidateHuangtianSelection(
-        CharacterState provider,
-        LegalAction action,
-        IReadOnlyList<int> cardIds,
-        IReadOnlyList<int> targetSeats)
-    {
-        if (cardIds.Count != 1 || cardIds.Distinct().Count() != 1 ||
-            !action.SelectableCardIds.Contains(cardIds[0]))
-        {
-            return new CommandError(CommandErrorCode.InvalidCard,
-                "黄天必须选择一张已发布的手牌【闪】或【闪电】。");
-        }
-        if (targetSeats.Count != 1 || targetSeats.Distinct().Count() != 1 ||
-            !action.SelectableTargetSeats.Contains(targetSeats[0]) ||
-            !TryGetHuangtianLord(provider, out var lord) || lord.Seat != targetSeats[0])
-        {
-            return new CommandError(CommandErrorCode.InvalidTarget,
-                "黄天只能将牌交给当前存活的张角主公。");
-        }
-        return null;
-    }
-
-    private EngineRunResult HumanHuangtianCore(
-        CharacterState provider,
-        int cardId,
-        int lordSeat,
-        bool advanceToHumanBoundary)
-    {
-        ResolveHuangtian(provider, cardId, lordSeat);
-        PublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
-    }
-
-    private void ResolveHuangtian(CharacterState provider, int cardId, int lordSeat)
-    {
-        if (!TryGetHuangtianLord(provider, out var lord) || lord.Seat != lordSeat ||
-            provider.UsedActiveSkillKinds.Contains(SkillKind.Huangtian))
-        {
-            throw new InvalidOperationException("Huangtian is not legal in the current play phase.");
-        }
-        var card = GetHand(provider).SingleOrDefault(candidate => candidate.Id == cardId);
-        if (card is null || card.Kind is not (CardKind.Dodge or CardKind.Lightning))
-        {
-            throw new InvalidOperationException("Huangtian requires one hand Dodge or Lightning.");
-        }
-
-        MoveCard(card, CardLocation.Hand(provider.Seat), CardLocation.Processing,
-            CardMoveReasons.HuangtianGive);
-        MoveCard(card, CardLocation.Processing, CardLocation.Hand(lord.Seat),
-            CardMoveReasons.HuangtianGive);
-        provider.UsedActiveSkillKinds.Add(SkillKind.Huangtian);
-        QueueGameEvent(new HuangtianCardGivenEvent(provider.Seat, lord.Seat, card.Id, card.Kind));
-        AddLog("SkillTriggered",
-            $"{provider.Name} 响应【黄天】，将【{card.DisplayName}】交给 {lord.Name}。",
-            provider.Seat, lord.Seat);
-    }
-
     private IReadOnlyList<CharacterState> GetFangtianOrderedSlashTargets(
         CharacterState actor,
         Card slash,
@@ -20119,49 +18903,8 @@ public sealed partial class GameEngine
         return _players
             .Where(player =>
                 CanSpendSlashUse(actor, player, ignoresSlashLimit, effectiveKind) &&
-                (actor.TianyiWonThisTurn
-                    ? player.IsAlive &&
-                      player.Seat != actor.Seat &&
-                      !IsDirectedCardTargetProhibited(actor.Seat, player.Seat, effectiveKind) &&
-                      !IsSlashProhibited(actor, player, slash)
-                    : CanUseSlashTarget(actor, player, slash, conversionSource, effectiveKind)))
+                CanUseSlashTarget(actor, player, slash, conversionSource, effectiveKind))
             .ToArray();
-    }
-
-    private void AddTianyiSlashActions(
-        ICollection<LegalAction> actions,
-        CharacterState actor,
-        Card physicalCard,
-        IReadOnlyList<CharacterState> legalTargets,
-        string slashName,
-        CardKind? playedCardKind,
-        CardConversionSource? conversionSource = null,
-        IReadOnlyList<CardConversionSource>? additionalConversionSources = null,
-        SkillKind? cardKindModifierSkill = null)
-    {
-        if (!actor.TianyiWonThisTurn || legalTargets.Count < 2 ||
-            UsesFormalFangtianHalberd &&
-            GetHand(actor).Count == 1 &&
-            GetHand(actor)[0].Id == physicalCard.Id &&
-            GetEquipment(actor).Any(card => card.Kind == CardKind.FangtianHalberd))
-        {
-            return;
-        }
-        var ordered = legalTargets.OrderBy(player => (player.Seat - actor.Seat + _playerCount) % _playerCount).ToArray();
-        for (var first = 0; first < ordered.Length - 1; first++)
-            for (var second = first + 1; second < ordered.Length; second++)
-            {
-                var targets = new[] { ordered[first], ordered[second] };
-                actions.Add(new LegalAction(LegalActionKind.Slash, physicalCard.Id, targets[0].Seat,
-                    DescribeConversion(conversionSource, $"发动【天义】，以【{slashName}】指定 {string.Join("、", targets.Select(target => target.Name))}"),
-                    PlayedCardKind: playedCardKind,
-                    TargetSeats: targets.Select(target => target.Seat).ToArray())
-                {
-                    ConversionSource = conversionSource,
-                    AdditionalConversionSources = additionalConversionSources,
-                    CardKindModifierSkill = cardKindModifierSkill
-                });
-            }
     }
 
     private void AddFangtianHalberdSlashActions(
@@ -20187,7 +18930,7 @@ public sealed partial class GameEngine
         var orderedTargets = legalTargets
             .OrderBy(player => (player.Seat - actor.Seat + _playerCount) % _playerCount)
             .ToArray();
-        var maximumTargets = Math.Min(actor.TianyiWonThisTurn ? 4 : 3, orderedTargets.Length);
+        var maximumTargets = Math.Min(3, orderedTargets.Length);
         for (var targetCount = 2; targetCount <= maximumTargets; targetCount++)
         {
             AddCombinations(0, []);
@@ -20528,8 +19271,8 @@ public sealed partial class GameEngine
         var context = CreateSkillContext(responder);
         return GetProgramViewAsConversions(responder, card, CardKind.Slash, forResponse: false)
                    .Any(source => source.SkillId == "classic:wusheng") ||
-               EnabledPassiveSkills(responder).Any(skill =>
-                   skill.Kind == SkillKind.Wusheng && skill.CanUseAsSlash(context, card));
+               EnabledSkillRules(responder).Any(skill =>
+                   skill.Kind == SkillKind.Wusheng && skill.Conversion?.CanUseAsSlash(context, card) == true);
     }
 
     private bool CanUseAsFormalWushengResponse(CharacterState responder, Card card)
@@ -20542,9 +19285,9 @@ public sealed partial class GameEngine
         var context = CreateSkillContext(responder);
         return GetProgramViewAsConversions(responder, card, CardKind.Slash, forResponse: true)
                    .Any(source => source.SkillId == "classic:wusheng") ||
-               EnabledPassiveSkills(responder).Any(skill =>
+               EnabledSkillRules(responder).Any(skill =>
                    skill.Kind == SkillKind.Wusheng &&
-                   skill.CanUseAsResponse(context, card, CardKind.Slash));
+                   skill.Conversion?.CanUseAsResponse(context, card, CardKind.Slash) == true);
     }
 
     private bool CanConvertResponse(CharacterState responder, Card card, CardKind requiredCardKind)
@@ -20558,10 +19301,9 @@ public sealed partial class GameEngine
                 EnabledViewAsPrograms(responder),
                 GetHand(responder).Select(item => item.Id).ToHashSet(),
                 GetEquipment(responder).Select(item => item.Id).ToHashSet())
-            .CanUseAsResponse(context, card, requiredCardKind) || EnabledPassiveSkills(responder).Any(skill =>
-            (_rulesVersion >= 9 || skill.Kind != SkillKind.Wusheng) &&
+            .CanUseAsResponse(context, card, requiredCardKind) || EnabledSkillRules(responder).Any(skill =>
             (UsesFormalLuoshenAndQingguo || skill.Kind != SkillKind.Qingguo) &&
-            skill.CanUseAsResponse(context, card, requiredCardKind));
+            skill.Conversion?.CanUseAsResponse(context, card, requiredCardKind) == true);
     }
 
     private CardKind GetEffectiveResponseKind(
@@ -20763,7 +19505,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<(CardUseEffectSource Source, int Amount)> GetPassiveProgramDamageModifiers(
         AttackResolution attack)
     {
-        if (_rulesVersion < 166 || _contentRegistry is null || attack.IsChainPropagation ||
+        if (_contentRegistry is null || attack.IsChainPropagation ||
             attack.IsActiveSkillDamage || attack.IsDelayedJudgmentDamage || attack.IsLeijiDamage ||
             attack.IsProgramJudgmentDamage || attack.CardUserSeat != attack.SourceSeat ||
             attack.EffectiveCardKind is not { } effectiveKind ||
@@ -20781,7 +19523,7 @@ public sealed partial class GameEngine
                     SkillProgramDamageModifierCondition.SourceOutsideTargetAttackRange =>
                         GetCombatDistance(attack.TargetSeat, attack.SourceSeat) >
                         GetAttackRange(attack.TargetSeat),
-                    _ => false
+            _ => false
                 }))
             .Select(item => (new CardUseEffectSource(item.instance.SkillId, item.modifier.Id,
                 attack.SourceSeat, item.instance.SkillInstanceId), item.modifier.Amount))
@@ -20824,12 +19566,12 @@ public sealed partial class GameEngine
 
     private bool IsSlashProhibited(CharacterState target)
     {
-        var skill = PassiveRules(target);
-        return skill.ProhibitsCardTarget(CreateSkillContext(target), CardKind.Slash);
+        return CardUseRules(target).Any(rule =>
+            rule.ProhibitsCardTarget(CreateSkillContext(target), CardKind.Slash));
     }
 
     private bool IsCardTargetProhibited(CharacterState target, CardKind cardKind) =>
-        PassiveRules(target).ProhibitsCardTarget(CreateSkillContext(target), cardKind);
+        CardUseRules(target).Any(rule => rule.ProhibitsCardTarget(CreateSkillContext(target), cardKind));
 
     private bool IsSlashProhibited(CharacterState source, CharacterState target, Card slashCard)
     {
@@ -20838,10 +19580,7 @@ public sealed partial class GameEngine
             return true;
         }
 
-        return !UsesFormalArmorResponseTiming &&
-               !HasArmorBypass(source) &&
-               slashCard.Suit is Suit.Spade or Suit.Club &&
-               HasBlackSlashBarrier(target);
+        return false;
     }
 
     private void RequestHumanPlay()
@@ -21288,9 +20027,9 @@ public sealed partial class GameEngine
         QueueGameEvent(new PhaseChangedEvent(_phase, _currentSeat));
         if (UsesFormalKeji &&
             HasRuntimeSkill(current, SkillKind.Keji) &&
-            PassiveRules(current).CanSkipDiscardPhase(
+            CardUseRules(current).Any(rule => rule.CanSkipDiscardPhase(
                 CreateSkillContext(current),
-                _usedOrPlayedSlashDuringPlayPhase))
+                _usedOrPlayedSlashDuringPlayPhase)))
         {
             BeginKejiChoice(current);
         }
@@ -21635,7 +20374,7 @@ public sealed partial class GameEngine
         _status = EngineStatus.Completed;
         _pendingDecision = null;
         _pendingCardsMovedBatches.Clear();
-        var winnerName = IsNationalWarMode && _rulesVersion >= 7
+        var winnerName = IsNationalWarMode
             ? _winnerFactionId is { } winnerFactionId
                 ? $"{GetFactionName(winnerFactionId)}势力"
                 : "未知势力"
@@ -21932,14 +20671,14 @@ public sealed partial class GameEngine
             return 1;
         }
 
-        return PassiveRules(skillOwner).ModifyRequiredResponseCount(
+        return CardUseRules(skillOwner).Aggregate(1, (count, rule) => rule.ModifyRequiredResponseCount(
             new ResponseCountSkillContext(
                 CreateSkillContext(skillOwner),
                 sourceSeat,
                 responderSeat,
                 incomingCard,
                 requiredCardKind),
-            currentCount: 1);
+            count));
     }
 
     private IReadOnlyList<int> GetHujiaCandidateSeats(int ownerSeat) =>
@@ -21970,24 +20709,21 @@ public sealed partial class GameEngine
         return !attack.JijiangAttempted;
     }
 
-    private bool CanUseActiveJijiang(CharacterState owner)
+    private bool CanUseFactionSlashRequest(CharacterState owner, string providerFactionId)
     {
-        if (!UsesFormalJijiang ||
-            SlashKinds.All(kind => IsCardUseForbidden(owner.Seat, kind, CardActionType.Use)) ||
-            owner.TianyiLostThisTurn ||
+        if (SlashKinds.All(kind => IsCardUseForbidden(owner.Seat, kind, CardActionType.Use)) ||
             !owner.IsAlive ||
             owner.Role != Role.Lord ||
-            !HasRuntimeSkill(owner, SkillKind.Jijiang) ||
             (!owner.IsHuman && owner.AiJijiangFailedThisTurn) ||
-            GetJijiangCandidateSeats(owner.Seat).Count == 0)
+            GetFactionProviderSeats(owner.Seat, providerFactionId).Count == 0)
         {
             return false;
         }
 
-        return _players.Any(target => CanUseJijiangTarget(owner, target));
+        return _players.Any(target => CanUseProvidedSlashTarget(owner, target));
     }
 
-    private bool CanUseJijiangTarget(
+    private bool CanUseProvidedSlashTarget(
         CharacterState owner,
         CharacterState target,
         CardKind? effectiveKind = null) =>
@@ -21998,15 +20734,18 @@ public sealed partial class GameEngine
                HasUnlimitedTurnRuleModifier(owner.Seat, SkillRuleQuery.SlashDistanceLimit) ||
                GetCombatDistance(owner.Seat, target.Seat) <= GetAttackRange(owner.Seat)) &&
               !IsSlashProhibited(target)
-            : SlashKinds.Any(candidate => CanUseJijiangTarget(owner, target, candidate));
+            : SlashKinds.Any(candidate => CanUseProvidedSlashTarget(owner, target, candidate));
 
-    private IReadOnlyList<int> GetJijiangCandidateSeats(int ownerSeat) =>
+    private IReadOnlyList<int> GetFactionProviderSeats(int ownerSeat, string factionId) =>
         Enumerable.Range(0, _playerCount)
             .Select(offset => (_currentSeat + offset) % _playerCount)
             .Where(seat => seat != ownerSeat &&
-                           _players[seat].IsAlive &&
-                           string.Equals(GetEffectiveFactionId(_players[seat]), "shu", StringComparison.Ordinal))
+                            _players[seat].IsAlive &&
+                            string.Equals(GetEffectiveFactionId(_players[seat]), factionId, StringComparison.Ordinal))
             .ToArray();
+
+    private IReadOnlyList<int> GetJijiangCandidateSeats(int ownerSeat) =>
+        GetFactionProviderSeats(ownerSeat, "shu");
 
     private bool HasBlackSlashBarrier(CharacterState player) =>
         GetEquipment(player).Any(card => EquipmentCatalog.Get(card.Kind).BlocksBlackSlash);
@@ -22025,12 +20764,10 @@ public sealed partial class GameEngine
         CardCatalog.Get(kind).CategoryName == "锦囊牌";
 
     internal static bool CanWuyanPreventDamage(
-        int rulesVersion,
         bool isClassicIdentityMode,
         CardKind kind,
         bool sourceHasWuyan,
         bool targetHasWuyan) =>
-        rulesVersion >= 77 &&
         isClassicIdentityMode &&
         IsTrickCardDamage(kind) &&
         (sourceHasWuyan || targetHasWuyan);
@@ -22045,7 +20782,6 @@ public sealed partial class GameEngine
         var source = _players[attack.SourceSeat];
         var target = _players[attack.TargetSeat];
         if (!CanWuyanPreventDamage(
-                _rulesVersion,
                 IsClassicIdentityMode,
                 cardKind,
                 HasRuntimeSkill(source, SkillKind.Wuyan),
@@ -22097,122 +20833,76 @@ public sealed partial class GameEngine
         CharacterState actor,
         SkillKind skill,
         int selectedCardCount = 0,
-        int selectedTargetCount = 0) =>
-        new(
+        int selectedTargetCount = 0)
+    {
+        var selection = ActiveActionCatalog.Selection(skill);
+        return new ActiveSkillContext(
             CreateSkillContext(actor),
             selectedCardCount,
             selectedTargetCount,
-            AdditionalSelectableCardCount: skill == SkillKind.Zhiheng && UsesFormalZhihengEquipment
-                || skill == SkillKind.Lijian && UsesFormalDiaoChan
-                ? GetEquipment(actor).Count
-                : 0,
-            EnforceOncePerTurn:
-                skill == SkillKind.Zhiheng && UsesFormalZhihengEquipment ||
-                skill == SkillKind.Qiangxi && UsesFormalQiangxi ||
-                skill == SkillKind.Rende && !UsesFormalRende);
+            AdditionalSelectableCardCount:
+                selection.Cards == ActiveCardSelector.HandAndEquipmentInClassic && IsClassicIdentityMode
+                    ? GetEquipment(actor).Count
+                    : 0,
+            EnforceOncePerTurn: selection.OncePerTurn);
+    }
+
+    private bool IsActiveActionAvailable(CharacterState actor, ActiveActionSelection selection)
+    {
+        var gate = selection.Gate;
+        return (!gate.HasFlag(ActiveActionGate.ClassicIdentity) || IsClassicIdentityMode) &&
+               (!gate.HasFlag(ActiveActionGate.GlobalArrowBarragePlayable) ||
+                CanUseGlobalCard(actor, CardKind.ArrowBarrage)) &&
+               (!gate.HasFlag(ActiveActionGate.TwoSameSuitHandCards) ||
+                GetHand(actor).GroupBy(card => card.Suit).Any(group => group.Count() >= 2)) &&
+               (!gate.HasFlag(ActiveActionGate.FactionSlashRequestAvailable) ||
+                 CanUseFactionSlashRequest(actor, selection.ProviderFactionId ??
+                     throw new InvalidOperationException("A faction request needs a provider faction.")));
+    }
 
     private IReadOnlySet<int> GetActiveSkillValidCardIds(
         CharacterState actor,
         SkillKind skill)
     {
-        if (skill == SkillKind.Qiangxi && UsesFormalQiangxi)
+        var selection = ActiveActionCatalog.Selection(skill);
+        var hand = GetHand(actor);
+        var equipment = GetEquipment(actor);
+        return selection.Cards switch
         {
-            return GetHand(actor)
-                .Concat(GetEquipment(actor))
-                .Where(card =>
-                    EquipmentCatalog.IsEquipment(card.Kind) &&
+            ActiveCardSelector.WeaponFromHandOrEquipment => hand.Concat(equipment)
+                .Where(card => EquipmentCatalog.IsEquipment(card.Kind) &&
                     EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon)
-                .Select(card => card.Id)
-                .ToHashSet();
-        }
-
-        var cardIds = GetHand(actor).Select(card => card.Id).ToHashSet();
-        if (skill == SkillKind.Huangtian && UsesFormalZhangJiao)
-        {
-            return GetHand(actor)
-                .Where(card => card.Kind is CardKind.Dodge or CardKind.Lightning)
-                .Select(card => card.Id)
-                .ToHashSet();
-        }
-        if (skill == SkillKind.Luanji && UsesFormalYuanShao)
-        {
-            return GetHand(actor)
-                .GroupBy(card => card.Suit)
+                .Select(card => card.Id).ToHashSet(),            ActiveCardSelector.SameSuitPair => hand.GroupBy(card => card.Suit)
                 .Where(group => group.Count() >= 2)
-                .SelectMany(group => group)
-                .Select(card => card.Id)
-                .ToHashSet();
-        }
-        if (skill == SkillKind.Zhiheng && UsesFormalZhihengEquipment ||
-            skill == SkillKind.Lijian && UsesFormalDiaoChan)
-        {
-            cardIds.UnionWith(GetEquipment(actor).Select(card => card.Id));
-        }
-
-        return cardIds;
+                .SelectMany(group => group).Select(card => card.Id).ToHashSet(),            ActiveCardSelector.HandAndEquipmentInClassic when IsClassicIdentityMode =>
+                hand.Concat(equipment).Select(card => card.Id).ToHashSet(),            _ => hand.Select(card => card.Id).ToHashSet()
+        };
     }
 
     private IReadOnlySet<int> GetActiveSkillValidTargetSeats(
         CharacterState actor,
-        SkillKind skill) => skill switch
+        SkillKind skill)
+    {
+        var selection = ActiveActionCatalog.Selection(skill);
+        var requirements = selection.Targets;
+        if (selection.RequireClassicIdentityForTarget && !IsClassicIdentityMode)
         {
-            SkillKind.Rende => _players
-                .Where(player => player.IsAlive && player.Seat != actor.Seat)
-                .Select(player => player.Seat)
-                .ToHashSet(),
-            SkillKind.Fanjian => _players
-                .Where(player => player.IsAlive && player.Seat != actor.Seat)
-                .Select(player => player.Seat)
-                .ToHashSet(),
-            SkillKind.Qingnang => _players
-                .Where(player => player.IsAlive && player.Hp < player.MaxHp)
-                .Select(player => player.Seat)
-                .ToHashSet(),
-            SkillKind.Huichun => _players
-                .Where(player => player.IsAlive && player.Hp < player.MaxHp)
-                .Select(player => player.Seat)
-                .ToHashSet(),
-            SkillKind.Jijiang => _players
-                .Where(player => CanUseJijiangTarget(actor, player))
-                .Select(player => player.Seat)
-                .ToHashSet(),
-            SkillKind.Huangtian when UsesFormalZhangJiao =>
-                TryGetHuangtianLord(actor, out var huangtianLord)
-                    ? new HashSet<int> { huangtianLord.Seat }
-                    : [],
-            SkillKind.Qiangxi when UsesFormalQiangxi => _players
-                .Where(player =>
-                    player.IsAlive &&
-                    player.Seat != actor.Seat &&
-                    GetCombatDistance(actor.Seat, player.Seat) <= GetAttackRange(actor.Seat))
-                .Select(player => player.Seat)
-                .ToHashSet(),
-            SkillKind.Lijian when UsesFormalDiaoChan => _players
-                .Where(player => player.IsAlive && player.Gender == GeneralGender.Male)
-                .Select(player => player.Seat)
-                .ToHashSet(),
-            SkillKind.Jieyin when UsesFormalSunShangxiang => _players
-                .Where(player =>
-                    player.IsAlive &&
-                    player.Seat != actor.Seat &&
-                    player.Gender == GeneralGender.Male &&
-                    player.Hp < player.MaxHp)
-                .Select(player => player.Seat)
-                .ToHashSet(),
-            SkillKind.Quhu when UsesFormalXunYu => _players
-                .Where(player =>
-                    player.IsAlive &&
-                    player.Seat != actor.Seat &&
-                    player.Hp > actor.Hp &&
-                    GetHand(player).Count > 0)
-                .Select(player => player.Seat)
-                .ToHashSet(),
-            SkillKind.Tianyi when UsesFormalTaishiCi => _players
-                .Where(player => player.IsAlive && player.Seat != actor.Seat && GetHand(player).Count > 0)
-                .Select(player => player.Seat)
-                .ToHashSet(),
-            _ => new HashSet<int>()
-        };
+            return new HashSet<int>();
+        }
+
+        return _players.Where(player =>
+                requirements.HasFlag(ActiveTargetSelector.Alive) && player.IsAlive &&
+                (!requirements.HasFlag(ActiveTargetSelector.Other) || player.Seat != actor.Seat) &&
+                (!requirements.HasFlag(ActiveTargetSelector.Wounded) || player.Hp < player.MaxHp) &&
+                (!requirements.HasFlag(ActiveTargetSelector.Male) || player.Gender == GeneralGender.Male) &&
+                (!requirements.HasFlag(ActiveTargetSelector.HasHand) || GetHand(player).Count > 0) &&
+                (!requirements.HasFlag(ActiveTargetSelector.MoreHpThanOwner) || player.Hp > actor.Hp) &&
+                (!requirements.HasFlag(ActiveTargetSelector.WithinAttackRange) ||
+                    GetCombatDistance(actor.Seat, player.Seat) <= GetAttackRange(actor.Seat)) &&
+                (!requirements.HasFlag(ActiveTargetSelector.FactionSlashRequestTarget) ||
+                    CanUseProvidedSlashTarget(actor, player)))
+            .Select(player => player.Seat).ToHashSet();
+    }
 
     private void MoveCard(
         Card card,
@@ -22428,7 +21118,6 @@ public sealed partial class GameEngine
     {
         var damageProgramDying = IsPendingDamageProgramDying();
         _turnCardUseEffects.AssertInvariants();
-        AssertPhaseSkillInvariant();
         AssertPindianInvariant();
         AssertProgramCardWindowState();
         AssertProgramJudgmentWindowState();
@@ -22495,7 +21184,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException(
                 $"The active card resolution and Processing zone are inconsistent " +
                 $"(attack={attack.ResolutionId}/{attack.EffectiveCardKind}, physical=[{string.Join(',', attack.PhysicalCards.Select(card => card.Id))}], " +
-                $"processing=[{string.Join(',', processing.Select(card => card.Id))}], lieren={_pendingLieren?.Stage}).");
+                $"processing=[{string.Join(',', processing.Select(card => card.Id))}]).");
         }
 
         if (_pendingBorrowedSword is { } borrowedSword)
@@ -22543,13 +21232,12 @@ public sealed partial class GameEngine
 
         if (_pendingFireAttack is { } fireAttack)
         {
-            var expectedProcessingCount = fireAttack.RevealedCardId is null || UsesFormalFireAttackReveal ? 1 : 2;
+            const int expectedProcessingCount = 1;
             if (processing.Count != expectedProcessingCount ||
                 processing.All(card => card.Id != fireAttack.Card.Id) ||
                 (fireAttack.RevealedCardId is { } revealedId &&
-                 (UsesFormalFireAttackReveal
-                     ? GetHand(_players[fireAttack.TargetSeat]).All(card => card.Id != revealedId)
-                     : processing.All(card => card.Id != revealedId))))
+                 ((GetHand(_players[fireAttack.TargetSeat]).All(card => card.Id != revealedId)
+))))
             {
                 throw new InvalidOperationException(
                     "The active FireAttack and Processing zone are inconsistent.");
@@ -23317,7 +22005,7 @@ public sealed partial class GameEngine
                         choice.Parameters.GetValueOrDefault("action") == "guanxing-bottom" &&
                         choice.Cards.Count == 1 &&
                         remainingIds.Contains(choice.Cards[0])),
-                _ => false
+            _ => false
             };
             if (!UsesFormalGuanxing ||
                 _phase != TurnPhase.Draw ||
@@ -23397,7 +22085,6 @@ public sealed partial class GameEngine
         }
 
         if (!hasActiveCardResolution && _resolutionStack.Count != 0 &&
-            _resolutionStack[^1] is not PhaseSkillFrame &&
             !HasProgramLifecycleBoundaryFrame() && !HasTurnEndingBoundaryFrame() &&
             !HasCardsMovedProgramBoundaryFrame())
         {
@@ -23562,7 +22249,7 @@ public sealed partial class GameEngine
                     JudgmentFrame current => current.Id == judgmentContinuation.FrameId,
                     ProgramJudgmentTriggerWindowFrame program =>
                         program.ParentFrameId == judgmentContinuation.FrameId,
-                    _ => false
+            _ => false
                 };
                 if (!ReferenceEquals(judgmentContinuation.Attack,
                         _pendingNestedGanglieDamage?.Attack ?? pendingAttack) ||
@@ -23573,17 +22260,6 @@ public sealed partial class GameEngine
                 {
                     throw new InvalidOperationException(
                         "An active judgment continuation must retain its Judgment frame and active child window.");
-                }
-            }
-            else if (_pendingLieren is { } lieren)
-            {
-                if (!ReferenceEquals(lieren.Attack, pendingAttack) ||
-                    _pendingDecision is not { Kind: DecisionKind.Lieren } ||
-                    _resolutionStack.LastOrDefault() is not CardUseFrame lierenCardUse ||
-                    lierenCardUse.Id != pendingAttack.ResolutionId)
-                {
-                    throw new InvalidOperationException(
-                        "An active Lieren choice must retain its Slash frame as the stack top.");
                 }
             }
             else if (_pendingYingboGift is
@@ -23684,9 +22360,19 @@ public sealed partial class GameEngine
                         ParentFrameId: var parentFrameId
                     } &&
                     parentFrameId == triggerContinuation.FrameId;
+                var topMatchesProgramPindian = _resolutionStack.LastOrDefault() is PindianFrame pindian &&
+                    _resolutionStack.Count >= 2 &&
+                    _resolutionStack[^2] is ProgramSkillFrame pindianProgram &&
+                    pindian.ParentFrameId == pindianProgram.Id &&
+                    pindianProgram.WindowContext is
+                    {
+                        Window: SkillProgramTriggerWindow.AfterDamageApplied,
+                        ParentFrameId: var pindianWindowId
+                    } &&
+                    pindianWindowId == triggerContinuation.FrameId;
                 if (!ReferenceEquals(triggerContinuation.Attack,
                         _pendingNestedGanglieDamage?.Attack ?? pendingAttack) ||
-                    !topMatchesWindow && !topMatchesProgram && !damageProgramDying)
+                    !topMatchesWindow && !topMatchesProgram && !topMatchesProgramPindian && !damageProgramDying)
                 {
                     throw new InvalidOperationException(
                         "An active damage trigger window must retain its ordered cursor as the stack top.");
@@ -23765,17 +22451,6 @@ public sealed partial class GameEngine
                 activeSkillFrame.Effect == ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage &&
                 _pendingAttack is { IsActiveSkillDamage: true, SourceSkill: SkillKind.Qiangxi } qiangxiAttack &&
                 qiangxiAttack.ResolutionId == activeSkillFrame.Id;
-            var isQuhuContinuation =
-                activeSkillFrame.Skill == SkillKind.Quhu &&
-                activeSkillFrame.Effect == ActiveSkillEffectKind.PindianAndDamage &&
-                _pendingQuhu is { } quhu &&
-                quhu.FrameId == activeSkillFrame.Id &&
-                ((_pendingAttack is null &&
-                  activeSkillFrame.Step == ResolutionFrameStep.AwaitingResponse &&
-                  (_pendingDecision is { Kind: DecisionKind.QuhuDamageTarget } || HasPindianChild(activeSkillFrame.Id))) ||
-                 (_pendingAttack is { IsActiveSkillDamage: true, SourceSkill: SkillKind.Quhu } quhuAttack &&
-                  quhuAttack.ResolutionId == activeSkillFrame.Id));
-            var isTianyiContinuation = activeSkillFrame.Skill == SkillKind.Tianyi && HasPindianChild(activeSkillFrame.Id);
             var isLijianDuel =
                 activeSkillFrame.Skill == SkillKind.Lijian &&
                 activeSkillFrame.Effect == ActiveSkillEffectKind.DiscardAndStartDuel &&
@@ -23792,8 +22467,6 @@ public sealed partial class GameEngine
                 !isFanjianPrompt &&
                 !isFanjianDamage &&
                 !isQiangxiDamage &&
-                !isQuhuContinuation &&
-                !isTianyiContinuation &&
                 !isLijianDuel &&
                 !isJijiangContinuation)
             {
@@ -24008,7 +22681,7 @@ public sealed partial class GameEngine
                     JudgmentFrame current => current.Id == activeJudgmentFrame.Id,
                     ProgramJudgmentTriggerWindowFrame program =>
                         program.ParentFrameId == activeJudgmentFrame.Id,
-                    _ => false
+            _ => false
                 };
             var activeDamageProgram = _resolutionStack.LastOrDefault() is ProgramSkillFrame programFrame &&
                 programFrame.WindowContext is
@@ -24018,6 +22691,16 @@ public sealed partial class GameEngine
                     ParentFrameId: var programParentId
                 } &&
                 programParentId == pendingDamageTrigger.FrameId;
+            var activeDamageProgramPindian = _resolutionStack.LastOrDefault() is PindianFrame pindianFrame &&
+                _resolutionStack.Count >= 2 &&
+                _resolutionStack[^2] is ProgramSkillFrame pindianParent &&
+                pindianParent.Id == pindianFrame.ParentFrameId &&
+                pindianParent.WindowContext is
+                {
+                    Window: SkillProgramTriggerWindow.AfterDamageApplied,
+                    ParentFrameId: var pindianWindowId
+                } &&
+                pindianWindowId == pendingDamageTrigger.FrameId;
             var awaitingDamageProgramPrompt = _pendingDecision is { Kind: DecisionKind.ProgramTrigger } &&
                 pendingDamageTrigger.CandidateIndex < pendingDamageTrigger.Candidates.Count &&
                 pendingDamageTrigger.Candidates[pendingDamageTrigger.CandidateIndex].IsProgram;
@@ -24032,7 +22715,7 @@ public sealed partial class GameEngine
                 ? _resolutionStack.LastOrDefault() is DyingFrame dyingFrame &&
                   dyingFrame.Id == _pendingDying.FrameId &&
                   dyingFrame.ParentFrameId == _pendingDamageSkill.FrameId
-                : activeDamageProgram
+                : activeDamageProgram || activeDamageProgramPindian
                 ? true
                 : _pendingDamageSkill is null
                 ? _resolutionStack.LastOrDefault() is DamageTriggerWindowFrame triggerFrame &&
@@ -24050,7 +22733,8 @@ public sealed partial class GameEngine
                     "A damage trigger continuation must retain its window or skill frame at the stack top.");
             }
 
-            if (_pendingDamageSkill is null && !activeDamageProgram && !awaitingDamageProgramPrompt &&
+            if (_pendingDamageSkill is null && !activeDamageProgram && !activeDamageProgramPindian &&
+                !awaitingDamageProgramPrompt &&
                 !damageProgramDying &&
                 _status != EngineStatus.Running)
             {
@@ -24410,13 +23094,6 @@ public sealed partial class GameEngine
                 "A Mengjin prompt cannot exist without its Slash continuation.");
         }
 
-        if (_pendingDecision?.Kind is DecisionKind.QuhuPindian or DecisionKind.QuhuDamageTarget &&
-            _pendingQuhu is null)
-        {
-            throw new InvalidOperationException(
-                "A Quhu prompt cannot exist without its active-skill continuation.");
-        }
-
         if (_pendingDecision?.Kind == DecisionKind.Yingbo && _pendingYingboGift is null)
         {
             throw new InvalidOperationException(
@@ -24464,7 +23141,6 @@ public sealed partial class GameEngine
                 DecisionKind.IceSword or
                 DecisionKind.QilinBow or
                 DecisionKind.Mengjin or
-                DecisionKind.Lieren or
                 DecisionKind.ZhuqueFan or DecisionKind.ProgramCardTrigger or
                 DecisionKind.ProgramJudgmentTrigger or
                 DecisionKind.ProgramJudgmentReplacement or
@@ -24480,7 +23156,7 @@ public sealed partial class GameEngine
             _pendingDecision?.Kind == DecisionKind.RescueDying &&
             _status == EngineStatus.AwaitingHumanDying;
         var awaitingAiResponse = IsAiResponsePending() || IsAiTieqiPending() || IsAiLiegongPending() ||
-                                              IsAiTianxiangPending() || IsAiLierenPending() ||
+                                              IsAiTianxiangPending() ||
                                   (_pendingDecision is { } programDecision &&
                                    (programDecision.Kind == DecisionKind.ProgramCardTrigger ||
                                     hasCardProgramPrompt || hasBeforeDamageProgramPrompt) &&
@@ -24563,7 +23239,6 @@ public sealed partial class GameEngine
              _pendingQilinBow is not null ||
              _pendingTianxiang is not null ||
              _pendingMengjin is not null ||
-             _pendingQuhu is not null ||
              _pendingFangtianHalberd is not null ||
              processing.Count != 0))
         {
@@ -24575,6 +23250,12 @@ public sealed partial class GameEngine
         AttackResolution attack,
         IReadOnlyList<Card> processing)
     {
+        if (_resolutionStack.LastOrDefault() is PindianFrame { Result: { } contest } pindian)
+        {
+            var contestIds = new[] { contest.SourceCardId, contest.OpponentCardId };
+            if (contestIds.Any(id => (pindian.ParentProcessingCardIds ?? []).Contains(id))) return false;
+            processing = processing.Where(card => !contestIds.Contains(card.Id)).ToArray();
+        }
         if (HasPendingProgramBoundCards)
         {
             return IsProgramProcessingConsistent(attack, processing);
@@ -24627,11 +23308,6 @@ public sealed partial class GameEngine
         }
 
         if (attack.IsActiveSkillDamage && attack.SourceSkill == SkillKind.Qiangxi)
-        {
-            return attack.Card is null && processing.Count == 0;
-        }
-
-        if (attack.IsActiveSkillDamage && attack.SourceSkill == SkillKind.Quhu)
         {
             return attack.Card is null && processing.Count == 0;
         }
@@ -24720,7 +23396,7 @@ public sealed partial class GameEngine
             return true;
         }
 
-        if (_pendingDamageTrigger is not null || _pendingLieren is not null)
+        if (_pendingDamageTrigger is not null)
         {
             return processing.All(card => attackCardIds.Contains(card.Id)) &&
                    attack.PhysicalCards.All(card =>
@@ -25029,332 +23705,20 @@ public sealed partial class GameEngine
 
         // Every suit is intentionally equivalent without access to Zhou Yu's
         // private hand. A fixed public tie-break keeps the choice replayable.
-        ResolveFanjianChoice(Suit.Diamond);
+        ResolveActiveSuitChoice(Suit.Diamond);
         PublishState();
     }
 
-    private bool IsAiQuhuPending() =>
-        _pendingQuhu is not null &&
-        _pendingDecision is { Kind: DecisionKind.QuhuDamageTarget } decision &&
-        !_players[decision.PlayerSeat].IsHuman;
-
-    private void ResolvePendingAiQuhu()
-    {
-        if (!IsAiQuhuPending() || _pendingDecision is not { } decision)
-        {
-            throw new InvalidOperationException("There is no AI Quhu choice to resolve.");
-        }
-
-        var source = _players[decision.PlayerSeat];
-        var selected = decision.Choices.OrderBy(choice => choice.Targets.Single()).First();
-        AddThought(new AiThoughtRecord(++_thoughtSequence, _turnNumber, source.Seat,
-            selected.Description, [], "驱虎获胜：从合法伤害目标中选择。"));
-        ResolveQuhuDamageTargetChoice(selected);
-        PublishState();
-    }
-
-    private void ResolveFanjianChoice(Suit chosenSuit)
+    private void ResolveActiveSuitChoice(Suit chosenSuit)
     {
         if (_pendingDecision is not { Kind: DecisionKind.Fanjian } decision ||
-            _resolutionStack.LastOrDefault() is not ActiveSkillFrame
-            {
-                Skill: SkillKind.Fanjian,
-                Effect: ActiveSkillEffectKind.RevealGiftAndDamage,
-                TargetSeats: { Count: 1 } targetSeats
-            } activeSkill ||
-            decision.PlayerSeat != targetSeats[0])
-        {
-            throw new InvalidOperationException("The Fanjian suit choice is not the current resolution.");
-        }
+            _resolutionStack.LastOrDefault() is not ActiveSkillFrame frame ||
+            frame.Effect != ActiveSkillEffectKind.RevealGiftAndDamage ||
+            frame.TargetSeats is not { Count: 1 } targets ||
+            decision.PlayerSeat != targets[0])
+            throw new InvalidOperationException("The active suit choice is not the current resolution.");
 
-        var source = _players[activeSkill.SourceSeat];
-        var target = _players[targetSeats[0]];
-        var sourceHand = GetHand(source).OrderBy(card => card.Id).ToArray();
-        if (sourceHand.Length == 0 || !source.IsAlive || !target.IsAlive)
-        {
-            throw new InvalidOperationException("Fanjian requires a living source, living target and source hand card.");
-        }
-
-        ClearPendingDecision();
-        SetActiveSkillFrameStep(activeSkill.Id, ResolutionFrameStep.ResolvingEffect);
-        var revealedCard = sourceHand[_random.Next(sourceHand.Length)];
-        MoveCard(
-            revealedCard,
-            CardLocation.Hand(source.Seat),
-            CardLocation.Processing,
-            CardMoveReasons.FanjianGive);
-        MoveCard(
-            revealedCard,
-            CardLocation.Processing,
-            CardLocation.Hand(target.Seat),
-            CardMoveReasons.FanjianGive);
-
-        var causesDamage = revealedCard.Suit != chosenSuit;
-        QueueGameEvent(new FanjianCardRevealedEvent(
-            activeSkill.Id,
-            source.Seat,
-            target.Seat,
-            chosenSuit,
-            revealedCard.Id,
-            revealedCard.Kind,
-            revealedCard.Suit,
-            causesDamage));
-        AddLog(
-            "FanjianRevealed",
-            $"{target.Name} 为【反间】选择{GetSuitName(chosenSuit)}，获得并展示了{GetSuitName(revealedCard.Suit)}【{revealedCard.DisplayName}】" +
-            (causesDamage ? "，花色不同。" : "，花色相同。"),
-            source.Seat,
-            target.Seat);
-
-        if (!causesDamage)
-        {
-            CompleteFanjianResolution(activeSkill.Id);
-            return;
-        }
-
-        var attack = new AttackResolution(
-            activeSkill.Id,
-            source.Seat,
-            target.Seat,
-            revealedCard,
-            damageAmount: 1,
-            sourceSkill: SkillKind.Fanjian,
-            damageNatureOverride: DamageNature.Normal);
-        _pendingAttack = attack;
-        if (!ApplyAttackDamage(attack))
-        {
-            CompleteAttack(attack);
-        }
-    }
-
-    private void CompleteFanjianResolution(long frameId)
-    {
-        var activeSkill = _resolutionStack.OfType<ActiveSkillFrame>()
-            .LastOrDefault(frame => frame.Id == frameId);
-        if (activeSkill is not
-            {
-                Skill: SkillKind.Fanjian,
-                Effect: ActiveSkillEffectKind.RevealGiftAndDamage
-            })
-        {
-            throw new InvalidOperationException("The Fanjian active-skill frame is missing.");
-        }
-
-        SetActiveSkillFrameStep(frameId, ResolutionFrameStep.Completed);
-        QueueGameEvent(new ActiveSkillResolvedEvent(
-            frameId,
-            activeSkill.SourceSeat,
-            activeSkill.Skill,
-            activeSkill.Effect));
-        PopResolutionFrame(frameId, ResolutionFrameKind.ActiveSkill);
-    }
-
-    private void BeginQuhuPindian(
-        CharacterState source,
-        int sourceCardId,
-        int opponentSeat,
-        long frameId)
-    {
-        var opponent = _players[opponentSeat];
-        var sourceCard = GetHand(source).SingleOrDefault(card => card.Id == sourceCardId);
-        if (!UsesFormalXunYu ||
-            !HasRuntimeSkill(source, SkillKind.Quhu) ||
-            sourceCard is null ||
-            !opponent.IsAlive ||
-            opponent.Seat == source.Seat ||
-            opponent.Hp <= source.Hp ||
-            GetHand(opponent).Count == 0 ||
-            _pendingQuhu is not null)
-        {
-            throw new InvalidOperationException("The selected Quhu Pindian is no longer legal.");
-        }
-
-        source.UsedActiveSkillKinds.Add(SkillKind.Quhu);
-        _pendingQuhu = new QuhuResolution(frameId, source.Seat, opponent.Seat, sourceCard.Id);
-        SetActiveSkillFrameStep(frameId, ResolutionFrameStep.AwaitingResponse);
-        BeginSharedPindian(frameId, new("classic:quhu", "驱虎", "驱虎", "选择拼点牌"),
-            source.Seat, opponentSeat, sourceCardId, SkillKind.Quhu);
-    }
-
-    private void CompleteQuhuPindian(PindianResult result)
-    {
-        var pending = _pendingQuhu ?? throw new InvalidOperationException("There is no Quhu parent.");
-        var source = _players[pending.SourceSeat];
-        var opponent = _players[pending.OpponentSeat];
-        pending.OpponentCardId = result.OpponentCardId;
-        pending.SourceWon = result.SourceWon;
-        SetActiveSkillFrameStep(pending.FrameId, ResolutionFrameStep.ResolvingEffect);
-
-        if (!pending.SourceWon)
-        {
-            BeginQuhuDamage(pending, opponent.Seat, source.Seat);
-            return;
-        }
-
-        var victims = _players.Where(player =>
-                player.IsAlive &&
-                player.Seat != opponent.Seat &&
-                GetCombatDistance(opponent.Seat, player.Seat) <= GetAttackRange(opponent.Seat))
-            .Select(player => player.Seat)
-            .ToArray();
-        if (victims.Length == 0)
-        {
-            CompleteQuhuResolution(pending, damageTargetSeat: null);
-            return;
-        }
-
-        _pendingDecision = new PendingDecision(
-            DecisionKind.QuhuDamageTarget,
-            source.Seat,
-            $"【驱虎】拼点获胜：请选择由 {opponent.Name} 对其造成1点伤害的角色。",
-            [],
-            victims,
-            SourceSeat: opponent.Seat)
-        {
-            PromptId = source.IsHuman ? CreatePromptId() : default,
-            TargetSeat = opponent.Seat,
-            IsPrivate = true,
-            Choices = victims.Select(seat => new PromptChoice(
-                new ChoiceId($"quhu-damage-seat-{seat}.resolution-{pending.FrameId}"),
-                $"令 {opponent.Name} 对 {_players[seat].Name} 造成1点伤害",
-                [],
-                [seat],
-                new Dictionary<string, string> { ["action"] = "quhu-damage" })).ToArray()
-        };
-        SetActiveSkillFrameStep(pending.FrameId, ResolutionFrameStep.AwaitingResponse);
-        _status = source.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
-    }
-
-    private void ResolveQuhuDamageTargetChoice(PromptChoice selected)
-    {
-        var pending = _pendingQuhu ?? throw new InvalidOperationException("There is no Quhu target choice.");
-        if (_pendingDecision is not { Kind: DecisionKind.QuhuDamageTarget } decision ||
-            decision.PlayerSeat != pending.SourceSeat ||
-            selected.Parameters.GetValueOrDefault("action") != "quhu-damage" ||
-            selected.Targets.Count != 1 ||
-            !decision.ValidTargetSeats.Contains(selected.Targets[0]))
-        {
-            throw new InvalidOperationException("The Quhu damage target choice is malformed.");
-        }
-
-        ClearPendingDecision();
-        BeginQuhuDamage(pending, pending.OpponentSeat, selected.Targets[0]);
-    }
-
-    private void BeginQuhuDamage(QuhuResolution pending, int damageSourceSeat, int damageTargetSeat)
-    {
-        SetActiveSkillFrameStep(pending.FrameId, ResolutionFrameStep.ResolvingEffect);
-        var attack = new AttackResolution(
-            pending.FrameId,
-            damageSourceSeat,
-            damageTargetSeat,
-            card: null,
-            damageAmount: 1,
-            sourceSkill: SkillKind.Quhu,
-            damageNatureOverride: DamageNature.Normal);
-        _pendingAttack = attack;
-        if (!ApplyAttackDamage(attack))
-        {
-            CompleteAttack(attack);
-        }
-    }
-
-    private void CompleteQuhuResolution(QuhuResolution pending, int? damageTargetSeat)
-    {
-        if (!ReferenceEquals(_pendingQuhu, pending))
-        {
-            throw new InvalidOperationException("The completed Quhu resolution is not current.");
-        }
-
-        _pendingQuhu = null;
-        ClearPendingDecision();
-        SetActiveSkillFrameStep(pending.FrameId, ResolutionFrameStep.Completed);
-        QueueGameEvent(new ActiveSkillResolvedEvent(
-            pending.FrameId,
-            pending.SourceSeat,
-            SkillKind.Quhu,
-            ActiveSkillEffectKind.PindianAndDamage));
-        PopResolutionFrame(pending.FrameId, ResolutionFrameKind.ActiveSkill);
-        AddLog(
-            "ActiveSkill",
-            damageTargetSeat is { } seat
-                ? $"{_players[pending.SourceSeat].Name} 的【驱虎】结算完成，{_players[seat].Name} 受到伤害。"
-                : $"{_players[pending.SourceSeat].Name} 的【驱虎】拼点获胜，但目标攻击范围内没有可受伤角色。",
-            pending.SourceSeat,
-            damageTargetSeat);
-    }
-
-    private void BeginQiangxiDamage(
-        long activeSkillFrameId,
-        CharacterState source,
-        int targetSeat)
-    {
-        var activeSkill = _resolutionStack.OfType<ActiveSkillFrame>()
-            .LastOrDefault(frame => frame.Id == activeSkillFrameId);
-        if (activeSkill is not
-            {
-                Skill: SkillKind.Qiangxi,
-                Effect: ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage,
-                TargetSeats: { Count: 1 } targets
-            } ||
-            targets[0] != targetSeat)
-        {
-            throw new InvalidOperationException("The Qiangxi active-skill frame is missing its target.");
-        }
-
-        var target = _players[targetSeat];
-        if (!source.IsAlive || !target.IsAlive)
-        {
-            CompleteQiangxiResolution(activeSkillFrameId, dealtDamage: false);
-            return;
-        }
-
-        SetActiveSkillFrameStep(activeSkillFrameId, ResolutionFrameStep.ResolvingEffect);
-        var attack = new AttackResolution(
-            activeSkillFrameId,
-            source.Seat,
-            target.Seat,
-            card: null,
-            damageAmount: 1,
-            sourceSkill: SkillKind.Qiangxi,
-            damageNatureOverride: DamageNature.Normal);
-        _pendingAttack = attack;
-        if (!ApplyAttackDamage(attack))
-        {
-            CompleteAttack(attack);
-        }
-    }
-
-    private void CompleteQiangxiResolution(long frameId, bool dealtDamage)
-    {
-        var activeSkill = _resolutionStack.OfType<ActiveSkillFrame>()
-            .LastOrDefault(frame => frame.Id == frameId);
-        if (activeSkill is not
-            {
-                Skill: SkillKind.Qiangxi,
-                Effect: ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage,
-                TargetSeats: { Count: 1 } targets
-            })
-        {
-            throw new InvalidOperationException("The Qiangxi active-skill frame is missing.");
-        }
-
-        var source = _players[activeSkill.SourceSeat];
-        var target = _players[targets[0]];
-        SetActiveSkillFrameStep(frameId, ResolutionFrameStep.Completed);
-        QueueGameEvent(new ActiveSkillResolvedEvent(
-            frameId,
-            activeSkill.SourceSeat,
-            activeSkill.Skill,
-            activeSkill.Effect));
-        PopResolutionFrame(frameId, ResolutionFrameKind.ActiveSkill);
-        AddLog(
-            "ActiveSkill",
-            dealtDamage
-                ? $"{source.Name} 发动【强袭】，对 {target.Name} 造成 1 点伤害。"
-                : $"{source.Name} 发动【强袭】后未能对 {target.Name} 造成伤害。",
-            source.Seat,
-            target.Seat);
+        ActiveActionExecutor.ResolveSuitChoice(RequireActiveAction(frame.Id), chosenSuit, this);
     }
 
     private bool IsAiDyingResponsePending() =>
@@ -25803,7 +24167,6 @@ public sealed partial class GameEngine
         public int SourceToTargetDistanceAtDamage { get; private set; }
         private long? ResolvedDyingDamageFrameId { get; set; }
         public bool CardUseCausedDamage { get; private set; }
-        public bool LierenAttempted { get; private set; }
         public bool LiuliResolved { get; private set; }
         public bool TianxiangResolved { get; private set; }
         public bool BeforeDamageProgramsResolved { get; private set; }
@@ -25845,7 +24208,6 @@ public sealed partial class GameEngine
         public void SetCardUseCausedDamage(bool value) => CardUseCausedDamage = value;
 
 
-        public void MarkLierenAttempted() => LierenAttempted = true;
 
         public void RedirectFinalizedDamageTarget(int targetSeat) => TargetSeat = targetSeat;
 
@@ -26070,20 +24432,6 @@ public sealed partial class GameEngine
         DamageNature Nature);
 
     private sealed record MengjinResolution(AttackResolution Attack);
-
-    private sealed class QuhuResolution(
-        long frameId,
-        int sourceSeat,
-        int opponentSeat,
-        int sourceCardId)
-    {
-        public long FrameId { get; } = frameId;
-        public int SourceSeat { get; } = sourceSeat;
-        public int OpponentSeat { get; } = opponentSeat;
-        public int SourceCardId { get; } = sourceCardId;
-        public int? OpponentCardId { get; set; }
-        public bool SourceWon { get; set; }
-    }
 
     private sealed class FangtianHalberdResolution(
         long resolutionId,

@@ -312,7 +312,7 @@ internal static class BoundaryZhangJiaoProgramChecks
             new StandardContentPackage(),
             new StandardActiveSkillExpansionPackage(),
             new StandardRescueSkillExpansionPackage(),
-            new StandardClassicGeneralPackage(new Version(1, 66, 0)),
+            new StandardClassicGeneralPackage(),
             new SyntheticPackage(
                 "boundary-zhang-jiao-program-fixture",
                 builder =>
@@ -341,7 +341,7 @@ internal static class BoundaryZhangJiaoProgramChecks
             new StandardContentPackage(),
             new StandardActiveSkillExpansionPackage(),
             new StandardRescueSkillExpansionPackage(),
-            new StandardClassicGeneralPackage(new Version(1, 66, 0)),
+            new StandardClassicGeneralPackage(),
             new SyntheticPackage(
                 "boundary-huangtian-program-fixture",
                 builder =>

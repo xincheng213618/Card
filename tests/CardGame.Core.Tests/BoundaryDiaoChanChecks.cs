@@ -10,15 +10,6 @@ internal static class BoundaryDiaoChanChecks
     public static void DefinitionAndLijianCommands()
     {
         var registry = Registry(allCrossbows: false);
-        var priorRegistry = ContentRegistry.Build(
-            new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(includeJijiu: true),
-            new StandardRescueSkillExpansionPackage(),
-            new StandardClassicGeneralPackage(new Version(1, 138, 0)));
-        Require(!priorRegistry.Generals.ContainsKey(GeneralId) &&
-                !priorRegistry.Skills.ContainsKey("boundary:lijian") &&
-                !priorRegistry.Skills.ContainsKey(BiyueId),
-            "The 2019 boundary general must not change the prior package version.");
         var general = registry.Generals[GeneralId];
         Require(general.Name == "界貂蝉" && general.BaseHp == 3 && general.FactionId == "qun" &&
                 general.Gender == GeneralGender.Female &&

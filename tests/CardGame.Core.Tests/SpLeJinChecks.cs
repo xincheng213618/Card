@@ -13,28 +13,25 @@ internal static class SpLeJinChecks
     public static void DefinitionAndSchemaBoundary()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 140, 0));
         var general = current.Generals[GeneralId];
         var skill = current.Skills[SkillId];
         Require(general is { Name: "SP乐进", FactionId: "wei", BaseHp: 4, PortraitKey: "sp_le_jin" } &&
             general.SkillIds.SequenceEqual([SkillId]) &&
             current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
             current.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId) &&
-            !previous.Generals.ContainsKey(GeneralId) && !previous.Skills.ContainsKey(SkillId) &&
-            !previous.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
             skill.Program is { RuntimeVersion: "skill-program-v56", MinimumRulesVersion: 166,
                 UsesCompositionKernel: true } &&
             skill.Program.Triggers.Single().TurnOwnerScope == SkillProgramTurnOwnerScope.OtherLiving &&
             (int)SkillProgramConditionKind.HasOwnedCardCategory == 23,
-            "SP Le Jin must register only at 1.141 with its schema-56 observer trigger and preserve 1.140.");
+            "SP Le Jin must register with its schema-56 observer trigger in the current identity roster.");
         var rules = Resource(RulesResource);
         var presentation = Resource(PresentationResource);
         Reject(rules.Replace("\"schemaVersion\": 56", "\"schemaVersion\": 55"),
             presentation, "unsupported property");
         Reject(rules.Replace("\"window\": \"turnEnding\"", "\"window\": \"playEnding\""),
             presentation, "turnEnding trigger");
-        Reject(rules.Replace("\"zones\": [\"hand\", \"equipment\"],\n                  \"cardCategories\": [\"equipment\"]",
-                "\"zones\": [\"judgment\"], \"cardCategories\": [\"equipment\"]"),
+        Reject(rules.Replace("\"kind\": \"hasOwnedCardCategory\", \"zones\": [\"hand\", \"equipment\"]",
+                "\"kind\": \"hasOwnedCardCategory\", \"zones\": [\"judgment\"]"),
             presentation, "hand or equipment only");
     }
 

@@ -12,13 +12,13 @@ internal static class GuYongChecks
     public static void ContentAndCapability()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var prior = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 138, 0));
         var general = current.Generals[GeneralId];
         Require(general is { Name: "顾雍", FactionId: "wu", BaseHp: 3, PortraitKey: "gu_yong" } &&
                 general.SkillIds.SequenceEqual([Shenxing, Bingyi]) &&
                 current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
-                !prior.Generals.ContainsKey(GeneralId) && !prior.Skills.ContainsKey(Shenxing) &&
-                !prior.Skills.ContainsKey(Bingyi), "Current roster and historical content boundary drifted.");
+                current.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId) &&
+                current.Skills.ContainsKey(Shenxing) && current.Skills.ContainsKey(Bingyi),
+            "Current Gu Yong roster and skill registration drifted.");
         var action = current.Skills[Shenxing].Program!.Activations.Single();
         var trigger = current.Skills[Bingyi].Program!.Triggers.Single();
         Require(action is { MinCards: 2, MaxCards: 2, UsesPerTurn: null } &&

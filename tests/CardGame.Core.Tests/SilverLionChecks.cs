@@ -16,7 +16,8 @@ internal static class SilverLionChecks
             Require(result.Accepted, result.Error?.Message ?? "Play did not resume after Alcohol.");
         }
         var slash = game.GetHumanLegalActions().SingleOrDefault(candidate =>
-            candidate.CardId == boundary.SlashCardId && candidate.TargetSeat == boundary.TargetSeat);
+            candidate.Kind == LegalActionKind.Slash && candidate.CardId == boundary.SlashCardId &&
+            candidate.PlayedCardKind is null && candidate.TargetSeat == boundary.TargetSeat);
         Require(slash is not null, "The prepared Silver Lion Slash disappeared after Alcohol resolved.");
         var ai = new SimpleAiBrain(boundary.SourceSeat, 53001, policyVersion: 2);
         var (_, thought) = ai.ChoosePlay(game.CreateSnapshot(boundary.SourceSeat), game.GetHumanLegalActions(), 1);
@@ -31,7 +32,10 @@ internal static class SilverLionChecks
             .LastOrDefault(item => item.TargetSeat == boundary.TargetSeat);
         var damage = game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>()
             .LastOrDefault(item => item.TargetSeat == boundary.TargetSeat);
-        Require(capped is not null && damage is not null, "The prepared Silver Lion Slash did not publish capped damage.");
+        Require(capped is not null && damage is not null,
+            $"The prepared Silver Lion Slash did not publish capped damage. " +
+            $"Pending={game.PendingDecision?.Kind}; status={game.State.Status}; " +
+            $"recent={string.Join(',', game.Events.TakeLast(8).Select(item => item.Payload.GetType().Name))}.");
         Require(capped!.BaseAmount == 2 && capped.ModifiedAmount == 1 && damage!.Amount == 1 &&
                 game.CreateSnapshot(boundary.SourceSeat, revealAll: true).Players[boundary.TargetSeat].Hp == hp - 1,
             "Silver Lion must cap an Alcohol-enhanced Slash from two damage to one.");

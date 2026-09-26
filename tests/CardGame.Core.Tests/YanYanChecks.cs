@@ -9,7 +9,6 @@ internal static class YanYanChecks
     public static void ContentPolarityAndRulesBoundary()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 69, 0));
         Require(current.Generals[GeneralId] is
         {
             FactionId: "shu",
@@ -21,10 +20,8 @@ internal static class YanYanChecks
                     LegacyKind: null,
                     Tags: SkillTag.Conversion,
                     ExecutionForms: SkillExecutionForm.Trigger
-                } &&
-                !previous.Generals.ContainsKey(GeneralId) &&
-                !previous.Skills.ContainsKey(SkillId),
-            "Package 1.70.0 must add formal classic Yan Yan and tagged Juzhan without changing 1.69.0.");
+                },
+            "Current classic Yan Yan must expose tagged Juzhan with the correct faction and HP.");
 
         var registry = CreateRegistry();
         var game = CreateGame(registry, seed: 1);

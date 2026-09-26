@@ -20,7 +20,7 @@ public sealed partial class MainViewModel
         : IsZhangJiaoNationalMode
             ? "四人魏1、蜀2、群1标准国战张角试验；群势力候选为国战张角与历史标准国战华佗。仅验证双将明置后的雷击、鬼道、急救与青囊，不包含黄天、阵法、珠联璧合、鏖战、明置奖励或完整国战专用牌堆。"
             : "四人魏蜀对抗，每势力两人，双将同势力；没有野心家、阵法、鏖战、明置奖励或完整国战专用牌堆。明置机会在自己的出牌阶段，沿用当前游戏的牌与技能规则。";
-    public string NationalHealthRuleText => !IsNewGameSetupOpen && IsNationalSnapshot && _game.RulesVersion < 8
+    public string NationalHealthRuleText => !IsNewGameSetupOpen && IsNationalSnapshot && false
         ? "此存档沿用旧规则：体力上限固定为 4。"
         : "双将基础体力取平均、向下取整；选副将时可预览组合上限。开局满体力，明置不改变体力；当前国战切片没有半体力奖励。";
     public ObservableCollection<NationalRevealChoice> NationalRevealChoices { get; } = [];
@@ -87,13 +87,20 @@ public sealed partial class MainViewModel
 
     private string DisplaySkillText(PlayerSnapshot player)
     {
-        var identitySkills = string.Join("\n\n",
-            (player.Skills ?? [new(player.Skill, player.SkillName, player.SkillDescription)])
-            .Select(skill => $"{skill.Name}：{skill.Description}"));
+        var identitySkills = player.Skills is null ? "武将技能未公开。" :
+            string.Join("\n\n", player.Skills.Select(skill => $"{skill.Name}：{skill.Description}"));
         if (!IsNationalSnapshot) return identitySkills;
-        return GeneralSlotViewModel.FromPlayer(player, false, _game.RulesVersion).DetailText + "\n\n" +
-            GeneralSlotViewModel.FromPlayer(player, true, _game.RulesVersion).DetailText;
+        return GeneralSlotViewModel.FromPlayer(player, false).DetailText + "\n\n" +
+            GeneralSlotViewModel.FromPlayer(player, true).DetailText;
     }
+
+    private static string VisibleSkillNames(IReadOnlyList<GeneralSkillDefinition>? skills) =>
+        skills is null ? "未知" : skills.Count == 0 ? "无" :
+            string.Join(" / ", skills.Select(skill => skill.Name));
+
+    private static string VisibleSkillDescriptions(IReadOnlyList<GeneralSkillDefinition>? skills) =>
+        skills is null ? "武将技能未公开。" : skills.Count == 0 ? "没有技能。" :
+            string.Join("\n", skills.Select(skill => $"{skill.Name}：{skill.Description}"));
 
     private string NationalRelationship(PlayerSnapshot player)
     {

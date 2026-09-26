@@ -56,7 +56,7 @@ internal static class AlcoholLimitChecks
             var formal = CreateStartedGame(seed, registry, GameCheckpoint.CurrentRulesVersion);
             var full = formal.CreateSnapshot(0, revealAll: true);
             var human = full.Players.Single(player => player.Seat == 0);
-            if (human.Skill != SkillKind.None)
+            if (human.Skills?.Any(skill => skill.Kind == SkillKind.None) != true)
                 continue;
             var alcoholIds = human.Hand.Where(card => card.Kind == CardKind.Alcohol)
                 .Select(card => card.Id)

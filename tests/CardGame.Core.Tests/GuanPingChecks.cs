@@ -9,14 +9,8 @@ internal static class GuanPingChecks
 
     public static void ContentAndPackageBoundary()
     {
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 96, 0));
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 97, 0));
-        Require(!previous.Generals.ContainsKey(GeneralId) &&
-                !previous.Skills.ContainsKey("classic:longyin"),
-            "Package 1.96.0 must retain the pre-Guan-Ping content boundary.");
-        Require(current.Packages.Single(package => package.Id == "standard-classic-generals").Version ==
-                    new Version(1, 97, 0) &&
-                current.Generals[GeneralId] is
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(current.Generals[GeneralId] is
                 {
                     BaseHp: 4,
                     FactionId: "shu",
@@ -32,7 +26,7 @@ internal static class GuanPingChecks
                     ActionForms: SkillActionForm.None
                 } &&
                 current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId),
-            "Package 1.97.0 must publish complete classic Guan Ping with optional Longyin.");
+            "Current classic Guan Ping must publish optional Longyin.");
     }
 
     public static void RedSlashDrawsAndReplays() => CheckPaidSlash(requireRed: true);
@@ -266,7 +260,7 @@ internal static class GuanPingChecks
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        new StandardClassicGeneralPackage(new Version(1, 97, 0)),
+        new StandardClassicGeneralPackage(),
         new ScenarioPackage());
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>

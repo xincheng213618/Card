@@ -17,7 +17,7 @@ internal static class YuJinChecks
                 !GameEngine.CanYizhongNullify([new Card(7, CardKind.Slash, Suit.Club, 8)], hasArmor: true),
             "Yizhong must stop applying while any armor remains equipped, even if that armor is ignored.");
 
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 61, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 4096; seed++)
         {
             var game = Create(seed, registry);

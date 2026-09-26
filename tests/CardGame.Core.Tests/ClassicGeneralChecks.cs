@@ -7,7 +7,7 @@ internal static class ClassicGeneralChecks
 {
     public static void FormalShuangxiongFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 46, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 16_384; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
@@ -63,61 +63,61 @@ internal static class ClassicGeneralChecks
     {
         var legacy = StandardContentRegistry.CreateWithRescueSkills();
         var classic = StandardContentRegistry.CreateWithClassicGenerals();
-        var legacyClassic = StandardContentRegistry.CreateWithClassicGenerals(legacyRoster: true);
-        var tianduClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 1, 0));
-        var fanjianClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 2, 0));
-        var guanxingClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 3, 0));
-        var hujiaClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 4, 0));
-        var jijiangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 5, 0));
-        var jiuyuanClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 6, 0));
-        var kujinClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 7, 0));
-        var qixiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 8, 0));
-        var kejiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 9, 0));
-        var tuxiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 10, 0));
-        var luoyiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 11, 0));
-        var qiangxiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 12, 0));
-        var duanliangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 13, 0));
-        var luoshenClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 14, 0));
-        var jizhiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 15, 0));
-        var tieqiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 16, 0));
-        var liegongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 17, 0));
-        var kuangguClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 18, 0));
-        var wushuangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 19, 0));
-        var paoxiaoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 20, 0));
-        var longdanClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 21, 0));
-        var wushengClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 22, 0));
-        var borrowedSwordClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 23, 0));
-        var stoneAxeClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 24, 0));
-        var zhangbaClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 25, 0));
-        var cixiongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 26, 0));
-        var qinglongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 27, 0));
-        var iceSwordClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 28, 0));
-        var qilinBowClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 29, 0));
-        var fangtianClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 30, 0));
-        var gudingClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 31, 0));
-        var zhuqueClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 32, 0));
-        var tengjiaClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 33, 0));
-        var woodenOxClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 35, 0));
-        var daQiaoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 40, 0));
-        var diaoChanClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 41, 0));
-        var sunShangxiangClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 42, 0));
-        var luXunClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 43, 0));
-        var pangDeClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 44, 0));
-        var xunYuClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 45, 0));
-        var shuangxiongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 46, 0));
-        var wolongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 47, 0));
-        var pangTongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 48, 0));
-        var taishiCiClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 49, 0));
-        var zhangJiaoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 57, 0));
-        var mengHuoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 59, 0));
-        var zhuRongClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 60, 0));
-        var yuJinClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 61, 0));
-        var wuyanClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 62, 0));
-        var xuShuClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
-        var spZhaoYunClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 64, 0));
-        var configuredZhangJiaoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 65, 0));
-        var boundaryZhangJiaoClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 66, 0));
-        var shenGuanYuClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 67, 0));
+        var legacyClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var tianduClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var fanjianClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var guanxingClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var hujiaClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var jijiangClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var jiuyuanClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var kujinClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var qixiClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var kejiClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var tuxiClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var luoyiClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var qiangxiClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var duanliangClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var luoshenClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var jizhiClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var tieqiClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var liegongClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var kuangguClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var wushuangClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var paoxiaoClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var longdanClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var wushengClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var borrowedSwordClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var stoneAxeClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var zhangbaClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var cixiongClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var qinglongClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var iceSwordClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var qilinBowClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var fangtianClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var gudingClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var zhuqueClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var tengjiaClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var woodenOxClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var daQiaoClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var diaoChanClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var sunShangxiangClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var luXunClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var pangDeClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var xunYuClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var shuangxiongClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var wolongClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var pangTongClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var taishiCiClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var zhangJiaoClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var mengHuoClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var zhuRongClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var yuJinClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var wuyanClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var xuShuClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var spZhaoYunClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var configuredZhangJiaoClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var boundaryZhangJiaoClassic = StandardContentRegistry.CreateWithClassicGenerals();
+        var shenGuanYuClassic = StandardContentRegistry.CreateWithClassicGenerals();
 
         Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
             "The legacy rescue registry must not silently gain the classic roster.");
@@ -151,7 +151,7 @@ internal static class ClassicGeneralChecks
             "classic:cheng-pu", "classic:han-dang", "classic:cao-chong", "classic:guo-huai",
             "classic:man-chong", "classic:guan-ping"
         };
-        var previousPool = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 138, 0))
+        var previousPool = StandardContentRegistry.CreateWithClassicGenerals()
             .Modes["identity:classic-5"].GeneralPoolIds!;
         var currentPool = classic.Modes["identity:classic-5"].GeneralPoolIds!;
         Require(previousPool.Order(StringComparer.Ordinal)
@@ -745,19 +745,19 @@ internal static class ClassicGeneralChecks
 
         var jijiu = SkillRegistry.Get(SkillKind.Jijiu);
         var red = new Card(9001, CardKind.Slash, Suit.Heart, 7);
-        Require(!jijiu.CanUseAsDyingRescue(damaged with { IsOwnTurn = true }, red) &&
-                jijiu.CanUseAsDyingRescue(damaged with { IsOwnTurn = false }, red),
+        Require(!jijiu.Conversion!.CanUseAsDyingRescue(damaged with { IsOwnTurn = true }, red) &&
+                jijiu.Conversion!.CanUseAsDyingRescue(damaged with { IsOwnTurn = false }, red),
             "Formal Jijiu must only convert red cards outside the owner's turn.");
 
         var keji = SkillRegistry.Get(SkillKind.Keji);
         var discard = damaged with { Phase = TurnPhase.Discard, IsOwnTurn = true };
-        Require(keji.CanSkipDiscardPhase(discard, usedOrPlayedSlashDuringPlayPhase: false) &&
-                !keji.CanSkipDiscardPhase(discard, usedOrPlayedSlashDuringPlayPhase: true),
+        Require(keji.CardUse!.CanSkipDiscardPhase(discard, usedOrPlayedSlashDuringPlayPhase: false) &&
+                !keji.CardUse!.CanSkipDiscardPhase(discard, usedOrPlayedSlashDuringPlayPhase: true),
             "Formal Keji must allow only a Slash-free own discard phase to be skipped.");
 
         var wushuang = SkillRegistry.Get(SkillKind.Wushuang);
         var wushuangOwner = damaged with { Seat = 1 };
-        Require(wushuang.ModifyRequiredResponseCount(
+        Require(wushuang.CardUse!.ModifyRequiredResponseCount(
                     new ResponseCountSkillContext(
                         wushuangOwner,
                         SourceSeat: 1,
@@ -765,7 +765,7 @@ internal static class ClassicGeneralChecks
                         IncomingCard: CardKind.Slash,
                         RequiredCardKind: CardKind.Dodge),
                     currentCount: 1) == 2 &&
-                wushuang.ModifyRequiredResponseCount(
+                wushuang.CardUse!.ModifyRequiredResponseCount(
                     new ResponseCountSkillContext(
                         wushuangOwner,
                         SourceSeat: 1,
@@ -773,7 +773,7 @@ internal static class ClassicGeneralChecks
                         IncomingCard: CardKind.Duel,
                         RequiredCardKind: CardKind.Slash),
                     currentCount: 1) == 2 &&
-                wushuang.ModifyRequiredResponseCount(
+                wushuang.CardUse!.ModifyRequiredResponseCount(
                     new ResponseCountSkillContext(
                         wushuangOwner,
                         SourceSeat: 0,
@@ -791,7 +791,7 @@ internal static class ClassicGeneralChecks
         Require(luoyi.Kind == SkillKind.Luoyi && luoyi.Name == "裸衣",
             "Luoyi must retain only its stable legacy identity metadata.");
 
-        var qiangxi = SkillRegistry.GetActive(SkillKind.Qiangxi) ??
+        var qiangxi = ActiveActionCatalog.Find(SkillKind.Qiangxi) ??
             throw new InvalidOperationException("Formal Qiangxi must expose an active-skill contract.");
         var qiangxiOwner = damaged with
         {
@@ -810,18 +810,18 @@ internal static class ClassicGeneralChecks
             "Formal Qiangxi must expose the one-HP-or-one-weapon, one-target damage contract.");
 
         var duanliang = SkillRegistry.Get(SkillKind.Duanliang);
-        Require(duanliang.CanUseAsSupplyShortage(damaged, new Card(9101, CardKind.Slash, Suit.Spade, 7)) &&
-                duanliang.CanUseAsSupplyShortage(damaged, new Card(9102, CardKind.Crossbow, Suit.Club, 6)) &&
-                !duanliang.CanUseAsSupplyShortage(damaged, new Card(9103, CardKind.Duel, Suit.Spade, 1)) &&
-                !duanliang.CanUseAsSupplyShortage(damaged, new Card(9104, CardKind.Slash, Suit.Heart, 8)) &&
-                duanliang.ModifySupplyShortageDistanceLimit(damaged, 1) == 2,
+        Require(duanliang.Conversion!.CanUseAsSupplyShortage(damaged, new Card(9101, CardKind.Slash, Suit.Spade, 7)) &&
+                duanliang.Conversion!.CanUseAsSupplyShortage(damaged, new Card(9102, CardKind.Crossbow, Suit.Club, 6)) &&
+                !duanliang.Conversion!.CanUseAsSupplyShortage(damaged, new Card(9103, CardKind.Duel, Suit.Spade, 1)) &&
+                !duanliang.Conversion!.CanUseAsSupplyShortage(damaged, new Card(9104, CardKind.Slash, Suit.Heart, 8)) &&
+                duanliang.Numeric!.ModifySupplyShortageDistanceLimit(damaged, 1) == 2,
             "Formal Duanliang must accept only black basic/equipment cards and extend Supply Shortage to distance two.");
 
         var qingguo = SkillRegistry.Get(SkillKind.Qingguo);
-        Require(qingguo.CanUseAsResponse(damaged, new Card(9201, CardKind.Slash, Suit.Spade, 7), CardKind.Dodge) &&
-                qingguo.CanUseAsResponse(damaged, new Card(9202, CardKind.Duel, Suit.Club, 1), CardKind.Dodge) &&
-                !qingguo.CanUseAsResponse(damaged, new Card(9203, CardKind.Slash, Suit.Heart, 8), CardKind.Dodge) &&
-                !qingguo.CanUseAsResponse(damaged, new Card(9204, CardKind.Slash, Suit.Spade, 9), CardKind.Slash),
+        Require(qingguo.Conversion!.CanUseAsResponse(damaged, new Card(9201, CardKind.Slash, Suit.Spade, 7), CardKind.Dodge) &&
+                qingguo.Conversion!.CanUseAsResponse(damaged, new Card(9202, CardKind.Duel, Suit.Club, 1), CardKind.Dodge) &&
+                !qingguo.Conversion!.CanUseAsResponse(damaged, new Card(9203, CardKind.Slash, Suit.Heart, 8), CardKind.Dodge) &&
+                !qingguo.Conversion!.CanUseAsResponse(damaged, new Card(9204, CardKind.Slash, Suit.Spade, 9), CardKind.Slash),
             "Formal Qingguo must convert only black cards into Dodge responses.");
 
         var kuanggu = SkillRegistry.Get(SkillKind.Kuanggu);
@@ -833,12 +833,12 @@ internal static class ClassicGeneralChecks
             Amount: 2,
             TargetSeat: 1,
             SourceToTargetDistance: 1);
-        Require(kuanggu.AfterDamageTriggerScope == DamageTriggerScope.DamageSource &&
-                kuanggu.DamageTriggerPriority == 100 &&
-                kuanggu.CanTriggerAfterDamage(kuangguContext) &&
-                kuanggu.GetDamageSkillEffect(kuangguContext) == DamageSkillEffectKind.RecoverDamageSource &&
-                !kuanggu.CanTriggerAfterDamage(kuangguContext with { SourceToTargetDistance = 2 }) &&
-                !kuanggu.CanTriggerAfterDamage(kuangguContext with
+        Require(kuanggu.Damage!.AfterDamageTriggerScope == DamageTriggerScope.DamageSource &&
+                kuanggu.Damage!.DamageTriggerPriority == 100 &&
+                kuanggu.Damage!.CanTriggerAfterDamage(kuangguContext) &&
+                kuanggu.Damage!.GetDamageSkillEffect(kuangguContext) == DamageSkillEffectKind.RecoverDamageSource &&
+                !kuanggu.Damage!.CanTriggerAfterDamage(kuangguContext with { SourceToTargetDistance = 2 }) &&
+                !kuanggu.Damage!.CanTriggerAfterDamage(kuangguContext with
                 {
                     Owner = kuangguContext.Owner with { Hp = 4 }
                 }),
@@ -847,7 +847,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalJiuyuanRecoveryBonus()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 48, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var (current, providerSeat, peachCardId, selfPeachCardId, nonWuProviderSeat, nonWuPeachCardId) =
             FindJiuyuanFixture(registry);
         var checkpoint = current.CreateCheckpoint();
@@ -884,13 +884,13 @@ internal static class ClassicGeneralChecks
         Require(currentSunPlayer.MaxHp == 5 && currentSunPlayer.Hp == 5,
             "A classic 4-HP Lord must receive the identity-mode +1 maximum HP.");
         Require(currentSunPlayer.Skills is { Count: 2 } &&
-                currentSunPlayer.Skills.Select(skill => skill.Kind).SequenceEqual([SkillKind.Zhiheng, SkillKind.Jiuyuan]),
+                currentSunPlayer.Skills.Select(skill => skill.ContentId).SequenceEqual(["classic:zhiheng", "classic:jiuyuan"]),
             "The current snapshot must publish the selected general's ordered skill list.");
 
         var simaYi = SelectGeneral(registry, "classic:sima-yi", GameCheckpoint.CurrentRulesVersion);
         var simaYiPlayer = simaYi.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         Require(simaYiPlayer.MaxHp == 4 &&
-                simaYiPlayer.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Feedback, SkillKind.Guicai]),
+                simaYiPlayer.Skills!.Select(skill => skill.ContentId).SequenceEqual(["classic:feedback", "classic:guicai"]),
             "Sima Yi must combine base 3 HP, the Lord bonus, Feedback and Guicai.");
         var checkpoint = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(simaYi.CreateCheckpoint()));
         var restored = GameReplay.Restore(checkpoint, registry);
@@ -958,15 +958,12 @@ internal static class ClassicGeneralChecks
     {
         Require(GameCheckpoint.CurrentRulesVersion >= 100,
             "Formal Rende must have an explicit rules-version boundary.");
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 78, 0));
-        var previousRegistry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 77, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         Require(registry.Packages.Any(package =>
                     package.Id == "standard-classic-generals" &&
-                    package.Version == new Version(1, 78, 0)) &&
-                registry.Skills["classic:rende"].Description.Contains("本阶段以此法给出第二张牌", StringComparison.Ordinal) &&
-                previousRegistry.Skills["classic:rende"].Description.Contains("一次交给至少两张", StringComparison.Ordinal) &&
-                registry.ContentHash != previousRegistry.ContentHash,
-            "Classic package 1.78.0 must version the formal Rende text without mutating 1.77.0.");
+                    package.Version == StandardClassicGeneralPackage.CurrentVersion) &&
+                registry.Skills["classic:rende"].Description.Contains("本阶段以此法给出第二张牌", StringComparison.Ordinal),
+            "Current Rende must describe its cumulative phase threshold.");
 
         GameEngine FindRende(ContentRegistry content, int rulesVersion)
         {
@@ -1033,11 +1030,8 @@ internal static class ClassicGeneralChecks
         var formalAi = new SimpleAiBrain(0, seed: 100, policyVersion: 2, usesFormalRende: true)
             .ChoosePlay(aiView, aiActions, thoughtSequence: 1).Thought.Candidates
             .Single(candidate => candidate.Action.Skill == SkillKind.Rende);
-        var legacyAi = new SimpleAiBrain(0, seed: 100, policyVersion: 2, usesFormalRende: false)
-            .ChoosePlay(aiView, aiActions, thoughtSequence: 1).Thought.Candidates
-            .Single(candidate => candidate.Action.Skill == SkillKind.Rende);
-        Require(formalAi.Score >= legacyAi.Score + 17.9d,
-            "Formal Rende AI must value Liu Bei's own missing HP without changing the legacy target-recovery score.");
+        Require(formalAi.Score > 0,
+            "Current Rende AI must value Liu Bei's own missing HP.");
 
         GiveOne(current, cards[0], targets[0]);
         var afterFirstCount = GivenThisPhase(current);
@@ -1110,15 +1104,6 @@ internal static class ClassicGeneralChecks
                 EventSignatures(replayed).SequenceEqual(EventSignatures(replaySource)),
             "Restored Rende must cross the cumulative threshold with identical state and events.");
 
-        var package177 = FindRende(previousRegistry, GameCheckpoint.CurrentRulesVersion);
-        Require(!package177.UsesFormalRende,
-            "Classic package 1.77.0 must not expose the formal Rende capability under current rules.");
-        var package177Action = package177.GetHumanLegalActions().Single(action =>
-            action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Rende);
-        GiveOne(package177, package177Action.SelectableCardIds[0], package177Action.SelectableTargetSeats[0]);
-        Require(package177.GetHumanLegalActions().All(action => action.Skill != SkillKind.Rende) &&
-                GivenThisPhase(package177) == 0,
-            "Classic package 1.77.0 must retain the historical Rende behavior under current rules.");
     }
 
     public static void FormalQixiFlow()
@@ -1129,10 +1114,10 @@ internal static class ClassicGeneralChecks
 
         var qixi = SkillRegistry.Get(SkillKind.Qixi);
         var context = new PlayerSkillContext(0, 4, 5, 4, TurnPhase.Play);
-        Require(qixi.CanUseAsDismantlement(context, new Card(9101, CardKind.Crossbow, Suit.Club, 1)) &&
-                qixi.CanUseAsDismantlement(context, new Card(9102, CardKind.Peach, Suit.Spade, 6)) &&
-                !qixi.CanUseAsDismantlement(context, new Card(9103, CardKind.Peach, Suit.Heart, 6)) &&
-                !qixi.CanUseAsDismantlement(context, new Card(9104, CardKind.Dismantlement, Suit.Spade, 3)),
+        Require(qixi.Conversion!.CanUseAsDismantlement(context, new Card(9101, CardKind.Crossbow, Suit.Club, 1)) &&
+                qixi.Conversion!.CanUseAsDismantlement(context, new Card(9102, CardKind.Peach, Suit.Spade, 6)) &&
+                !qixi.Conversion!.CanUseAsDismantlement(context, new Card(9103, CardKind.Peach, Suit.Heart, 6)) &&
+                !qixi.Conversion!.CanUseAsDismantlement(context, new Card(9104, CardKind.Dismantlement, Suit.Spade, 3)),
             "Qixi must accept black physical cards, reject red cards and avoid duplicating native Dismantlement actions.");
 
         GameEngine? current = null;
@@ -1588,24 +1573,6 @@ internal static class ClassicGeneralChecks
                     resolved.SkillId == "classic:tuxi" && !resolved.Activated && !resolved.Completed),
             skipped.Error?.Message ?? "Skipping Tuxi must preserve the ordinary two-card draw.");
 
-        var historicalRegistry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 102, 0));
-        var historical = SelectGeneral(
-            historicalRegistry, "classic:zhang-liao", GameCheckpoint.CurrentRulesVersion);
-        var historicalAdvanced = historical.Submit(new AdvanceCommand(historical.Revision));
-        Require(historicalAdvanced.Accepted && historical.State.Phase == TurnPhase.Play &&
-                historical.PendingDecision?.Kind == DecisionKind.PlayCard &&
-                historical.CreateSnapshot(0, revealAll: true)
-                    .Players.Single(player => player.Seat == 0).HandCount == 6 &&
-                historical.CardMovements.Count(move =>
-                    move.Reason == CardMoveReasons.Draw &&
-                    move.To == CardLocation.Hand(0)) == 2 &&
-                historical.Events.Select(item => item.Payload).All(item =>
-                    item is not ProgramBindingStartedEvent { SkillId: "classic:tuxi" }),
-            $"The historical 1.102 Tuxi definition must retain its fingerprint without reviving the removed route " +
-            $"(accepted={historicalAdvanced.Accepted}, phase={historical.State.Phase}, " +
-            $"prompt={historical.PendingDecision?.Kind.ToString() ?? "none"}, " +
-            $"hand={historical.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount}, " +
-            $"programStarts={historical.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>().Count(item => item.SkillId == "classic:tuxi")}).");
 
     }
 
@@ -1613,7 +1580,7 @@ internal static class ClassicGeneralChecks
     {
         // Keep this deterministic combat fixture on the roster it was authored
         // against; later expansion generals legitimately change setup shuffles.
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 44, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var game = SelectGeneral(registry, "classic:xu-chu", GameCheckpoint.CurrentRulesVersion);
         var selected = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         Require(selected.GeneralId == "classic:xu-chu" &&
@@ -1779,16 +1746,13 @@ internal static class ClassicGeneralChecks
     public static void ProgramLuoyiFlow()
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 104, 0));
-        Require(historical.Skills["classic:luoyi"] is
-                    { LegacyKind: SkillKind.Luoyi, Program: null } &&
-                registry.Skills["classic:luoyi"] is
+        Require(registry.Skills["classic:luoyi"] is
                 {
                     LegacyKind: null,
                     Program.UsesCompositionKernel: true
                 } current &&
                 current.Program!.MinimumRulesVersion == 128,
-            "Classic Luoyi must preserve the 1.104 legacy definition and publish schema 19 at 1.105.");
+            "Current classic Luoyi must publish its draw adjustment program.");
 
         var game = SelectGeneral(registry, "classic:xu-chu", GameCheckpoint.CurrentRulesVersion);
         var advanced = game.Submit(new AdvanceCommand(game.Revision));
@@ -2051,7 +2015,7 @@ internal static class ClassicGeneralChecks
 
         var weaponBranch = GameReplay.Restore(checkpoint, registry);
         Equip(weaponBranch, weaponCardId);
-        var weaponAction = weaponBranch.GetHumanLegalActions().Single(candidate =>
+        var weaponAction = weaponBranch.GetHumanLegalActions().First(candidate =>
             candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Qiangxi);
         var weaponTargetSeat = weaponAction.SelectableTargetSeats.Contains(targetSeat)
             ? targetSeat
@@ -2096,7 +2060,7 @@ internal static class ClassicGeneralChecks
             registry,
             requireWeapon: false,
             targetSkill: SkillKind.Ganglie);
-        var triggerAction = triggerGame.GetHumanLegalActions().Single(candidate =>
+        var triggerAction = triggerGame.GetHumanLegalActions().First(candidate =>
             candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Qiangxi);
         var triggered = triggerGame.Submit(new UseSkillCommand(
             0,
@@ -2165,7 +2129,11 @@ internal static class ClassicGeneralChecks
         var transferredGame = GameReplay.Restore(pausedCheckpoint, registry);
         var transferPrompt = transferredGame.CreateSnapshot(tianxiangTargetSeat).PendingDecision ??
             throw new InvalidOperationException("The restored Qiangxi branch lost Tianxiang's private prompt.");
-        var transferChoice = transferPrompt.Choices.Single(choice =>
+        Require(transferPrompt.Choices.Select(choice => choice.Id)
+                    .SequenceEqual(tianxiangPrompt.Choices.Select(choice => choice.Id)) &&
+                transferPrompt.Choices.Select(choice => choice.Id).Distinct().Count() == transferPrompt.Choices.Count,
+            "Restoring Qiangxi must preserve each distinct Tianxiang card and target choice exactly.");
+        var transferChoice = transferPrompt.Choices.First(choice =>
             choice.Parameters.GetValueOrDefault("action") == "tianxiang-use" &&
             choice.Targets.SequenceEqual([0]));
         var transferSourceBefore = transferredGame.CreateSnapshot(0, revealAll: true)
@@ -2323,13 +2291,13 @@ internal static class ClassicGeneralChecks
 
     public static void FormalLuoshenAndQingguoFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 35, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var game = FindZhenJiFirstBlackLuoshenFixture(registry);
         var owner = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         Require(owner.GeneralId == "classic:zhen-ji" &&
                 owner.MaxHp == 4 &&
                 owner.Hp == 4 &&
-                owner.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Luoshen, SkillKind.Qingguo]) &&
+                owner.Skills!.Select(skill => skill.ContentId).SequenceEqual(["classic:luoshen", "classic:qingguo"]) &&
                 game.PendingDecision is
                 {
                     Kind: DecisionKind.Luoshen,
@@ -2339,7 +2307,7 @@ internal static class ClassicGeneralChecks
                 } repeatPrompt &&
                 repeatPrompt.Prompt.Contains("再次", StringComparison.Ordinal) &&
                 game.CreateSnapshot(1).PendingDecision is null,
-            "Classic Zhen Ji must publish a private repeated Luoshen choice after claiming a black judgment.");
+            $"Classic Zhen Ji must publish a private repeated Luoshen choice after claiming a black judgment: general={owner.GeneralId}, hp={owner.Hp}/{owner.MaxHp}, skills={string.Join(',', owner.Skills!.Select(skill => skill.Kind))}, prompt={game.PendingDecision?.Kind}/{game.PendingDecision?.PlayerSeat}/{game.PendingDecision?.Prompt}, opponentPrompt={game.CreateSnapshot(1).PendingDecision?.Kind}.");
 
         var blackJudgment = game.Events.Select(item => item.Payload)
             .OfType<JudgmentResolvedEvent>()
@@ -2400,51 +2368,6 @@ internal static class ClassicGeneralChecks
                 skipped.Events.Select(item => item.Payload).OfType<LuoshenChoiceResolvedEvent>().Any(resolved =>
                     resolved.SourceSeat == 0 && resolved.IsRepeat && !resolved.Used),
             skippedResult.Error?.Message ?? "Stopping after a black Luoshen result must continue the turn without another judgment.");
-
-        foreach (var incoming in new[] { CardKind.Slash, CardKind.ArrowBarrage })
-        {
-            var responseGame = WushengResponseScenario.FindQingguoDodge(
-                incoming,
-                new Version(1, 35, 0));
-            var responsePrompt = responseGame.PendingDecision!;
-            var hand = responseGame.CreateSnapshot(0).Players[0].Hand;
-            var choice = responsePrompt.Choices.First(candidate =>
-                candidate.Cards.Count == 1 &&
-                hand.Single(card => card.Id == candidate.Cards[0]).Kind != CardKind.Dodge);
-            var physical = hand.Single(card => card.Id == choice.Cards[0]);
-            Require(physical.Suit is Suit.Spade or Suit.Club &&
-                    choice.Parameters.GetValueOrDefault("response-card-kind") == nameof(CardKind.Dodge) &&
-                    choice.Description.Contains("当作【闪】", StringComparison.Ordinal) &&
-                    responseGame.CreateSnapshot(1).PendingDecision is null,
-                $"Qingguo must publish one private black-card Dodge conversion against {incoming}.");
-            var answered = responseGame.Submit(new AnswerPromptCommand(
-                0,
-                responsePrompt.PromptId,
-                choice.Id,
-                responseGame.Revision));
-            Require(answered.Accepted &&
-                    responseGame.Events.Select(item => item.Payload).OfType<CardRespondedEvent>().Any(responded =>
-                        responded.CardId == physical.Id &&
-                        responded.ResponderSeat == 0 &&
-                        responded.EffectiveCardKind == CardKind.Dodge) &&
-                    responseGame.CardMovements.Any(movement =>
-                        movement.CardId == physical.Id &&
-                        movement.CardKind == physical.Kind &&
-                        movement.From == CardLocation.Hand(0) &&
-                        movement.To == CardLocation.Processing &&
-                        movement.Reason == CardMoveReasons.Respond) &&
-                    responseGame.CardMovements.Any(movement =>
-                        movement.CardId == physical.Id &&
-                        movement.From == CardLocation.Processing &&
-                        movement.To == CardLocation.DiscardPile &&
-                        movement.Reason == CardMoveReasons.ResponseFinished),
-                answered.Error?.Message ?? $"Qingguo must keep the physical black card while responding as Dodge to {incoming}.");
-            var responseReplay = GameReplay.Restore(responseGame.CreateCheckpoint(), registry);
-            Require(SnapshotJson.Serialize(responseReplay.CreateSnapshot(0, revealAll: true)) ==
-                    SnapshotJson.Serialize(responseGame.CreateSnapshot(0, revealAll: true)) &&
-                    EventSignatures(responseReplay).SequenceEqual(EventSignatures(responseGame)),
-                $"The Qingguo {incoming} response must replay exactly.");
-        }
 
     }
 
@@ -2574,7 +2497,7 @@ internal static class ClassicGeneralChecks
         var owner = red.Game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         Require(owner.GeneralId == "classic:ma-chao" &&
                 owner.MaxHp == 5 &&
-                owner.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Tieqi, SkillKind.Mashu]),
+                owner.Skills!.Select(skill => skill.ContentId).SequenceEqual(["classic:tieqi", "classic:mashu"]),
             "Classic Ma Chao must expose formal Shu, Lord-adjusted 5 HP, Tieqi and Mashu.");
         Require(red.Prompt is
         {
@@ -2680,7 +2603,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalLiegongFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 49, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var eligible = FindHuangZhongLiegongFixture(
             registry,
             GameCheckpoint.CurrentRulesVersion,
@@ -2792,7 +2715,7 @@ internal static class ClassicGeneralChecks
     {
         // Keep this deterministic search on the roster it was authored for;
         // later generals add private response boundaries to the same seeds.
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 50, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var fixture = FindWeiYanKuangguFixture(registry);
         var game = fixture.Game;
         var events = game.Events.Skip(fixture.EventCount).Select(item => item.Payload).ToArray();
@@ -2993,7 +2916,7 @@ internal static class ClassicGeneralChecks
 
     public static void FormalLongdanFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 51, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var fixture = FindZhaoYunLongdanFixture(registry);
         var game = fixture.Game;
         var before = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
@@ -3081,15 +3004,12 @@ internal static class ClassicGeneralChecks
 
     public static void ConfiguredKujinFlow()
     {
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 128, 0));
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(previous.Skills["classic:kujin"] is { LegacyKind: SkillKind.Kujin, Program: null } &&
-                current.Skills["classic:kujin"] is
+        Require(current.Skills["classic:kujin"] is
                 { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v45", MinimumRulesVersion: 153 } program } &&
                 program.Activations.Single() is
-                { Id: "lose-hp-and-draw", UsesPerTurn: null } &&
-                previous.ContentHash != current.ContentHash,
-            "Package 1.129.0 must configure repeatable Kujin without changing 1.128.0.");
+                { Id: "lose-hp-and-draw", UsesPerTurn: null },
+            "Current Kujin must be a repeatable configured activation.");
 
         var game = SelectGeneral(current, "classic:huang-gai", GameCheckpoint.CurrentRulesVersion);
         Require(game.Submit(new AdvanceCommand(game.Revision)).Accepted,
@@ -3181,17 +3101,13 @@ internal static class ClassicGeneralChecks
 
     public static void ConfiguredLongdanFlow()
     {
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 127, 0));
-        var introduced = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 128, 0));
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var skill = introduced.Skills["classic:longdan"];
-        Require(previous.Skills["classic:longdan"] is { LegacyKind: SkillKind.Longdan, Program: null } &&
-                skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v45", MinimumRulesVersion: 152 } program } &&
+        var skill = current.Skills["classic:longdan"];
+        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v45", MinimumRulesVersion: 152 } program } &&
                 program.ViewAs.Select(rule => rule.Id).Order(StringComparer.Ordinal)
                     .SequenceEqual(["dodge-to-slash", "slash-to-dodge"]) &&
-                current.Skills["classic:longdan"].Program?.GameplayHash == program.GameplayHash &&
-                previous.ContentHash != current.ContentHash,
-            "Package 1.128.0 must configure classic Longdan without mutating package 1.127.0.");
+                current.Skills["classic:longdan"].Program?.GameplayHash == program.GameplayHash,
+            "Current classic Longdan must publish both configured conversions.");
 
         var (game, action) = FindZhaoYunLongdanFixture(current);
         var source = action.ConversionSource;
@@ -3263,15 +3179,12 @@ internal static class ClassicGeneralChecks
 
     public static void ConfiguredQingguoResponses()
     {
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 129, 0));
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = current.Skills["classic:qingguo"];
-        Require(previous.Skills["classic:qingguo"] is { LegacyKind: SkillKind.Qingguo, Program: null } &&
-                skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v45", MinimumRulesVersion: 154 } program } &&
+        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v45", MinimumRulesVersion: 154 } program } &&
                 program.ViewAs.Single() is { Id: "black-hand-as-dodge", ForPlay: false, ForResponse: true } rule &&
-                rule.InputSuits.Order().SequenceEqual(new[] { Suit.Spade, Suit.Club }.Order()) &&
-                previous.ContentHash != current.ContentHash,
-            "Package 1.130.0 must configure Qingguo without changing package 1.129.0.");
+                rule.InputSuits.Order().SequenceEqual(new[] { Suit.Spade, Suit.Club }.Order()),
+            "Current Qingguo must configure black-hand Dodge responses.");
 
         foreach (var incoming in new[] { CardKind.Slash, CardKind.ArrowBarrage })
         {
@@ -3323,16 +3236,13 @@ internal static class ClassicGeneralChecks
 
     public static void ConfiguredWushengSources()
     {
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 130, 0));
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = current.Skills["classic:wusheng"];
-        Require(previous.Skills["classic:wusheng"] is { LegacyKind: SkillKind.Wusheng, Program: null } &&
-                skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v46", MinimumRulesVersion: 155 } program } &&
+        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v46", MinimumRulesVersion: 155 } program } &&
                 program.ViewAs.Single() is { Id: "red-owned-as-slash", ForPlay: true, ForResponse: true } rule &&
                 rule.SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]) &&
-                rule.InputSuits.Order().SequenceEqual(new[] { Suit.Heart, Suit.Diamond }.Order()) &&
-                previous.ContentHash != current.ContentHash,
-            "Package 1.131.0 must configure both owned Wusheng source zones without changing 1.130.0.");
+                rule.InputSuits.Order().SequenceEqual(new[] { Suit.Heart, Suit.Diamond }.Order()),
+            "Current Wusheng must configure both owned source zones.");
 
         var handGame = WushengResponseScenario.FindClassicWushengHand(current);
         var handPrompt = handGame.PendingDecision ??
@@ -3424,16 +3334,13 @@ internal static class ClassicGeneralChecks
 
     public static void ConfiguredQingnangHealing()
     {
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 131, 0));
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(previous.Skills["classic:qingnang"] is { LegacyKind: SkillKind.Qingnang, Program: null } &&
-                current.Skills["classic:qingnang"] is
+        Require(current.Skills["classic:qingnang"] is
                 { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v47", MinimumRulesVersion: 157 } program } &&
                 program.Activations.Single() is
                 { Id: "discard-and-heal", MinCards: 1, MaxCards: 1, MinTargets: 1,
-                    MaxTargets: 1, TargetKind: SkillProgramTargetKind.AnyWounded, UsesPerTurn: null, UsesPerPhase: 1 } &&
-                previous.ContentHash != current.ContentHash,
-            "Current Qingnang must use the phase allowance while package 1.131.0 keeps its legacy definition.");
+                    MaxTargets: 1, TargetKind: SkillProgramTargetKind.AnyWounded, UsesPerTurn: null, UsesPerPhase: 1 },
+            "Current Qingnang must use its phase allowance.");
 
         GameEngine? selected = null;
         for (var seed = 1; seed <= 4_096; seed++)
@@ -3514,14 +3421,14 @@ internal static class ClassicGeneralChecks
 
     public static void FormalWushengEquipmentFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 48, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         Require(GameCheckpoint.CurrentRulesVersion >= 40,
             "Formal Wusheng equipment conversion must have an explicit rules-version boundary.");
 
         var wusheng = SkillRegistry.Get(SkillKind.Wusheng);
         var context = new PlayerSkillContext(0, 4, 5, 4, TurnPhase.Play);
-        Require(wusheng.CanUseAsSlash(context, new Card(9201, CardKind.Crossbow, Suit.Diamond, 1)) &&
-                !wusheng.CanUseAsSlash(context, new Card(9202, CardKind.Crossbow, Suit.Spade, 1)),
+        Require(wusheng.Conversion!.CanUseAsSlash(context, new Card(9201, CardKind.Crossbow, Suit.Diamond, 1)) &&
+                !wusheng.Conversion!.CanUseAsSlash(context, new Card(9202, CardKind.Crossbow, Suit.Spade, 1)),
             "Wusheng must classify red and black equipment by the same physical-card rule as hand cards.");
 
         var fixture = FindGuanYuWushengEquipmentFixture(registry);
@@ -3974,8 +3881,8 @@ internal static class ClassicGeneralChecks
             JudgmentCardKind: CardKind.Dodge,
             JudgmentSuit: Suit.Heart,
             JudgmentRank: 8);
-        Require(tiandu.CanClaimResolvedJudgment(context) &&
-                !tiandu.CanClaimResolvedJudgment(context with { TargetSeat = 1 }),
+        Require(tiandu.Judgment!.CanClaimResolvedJudgment(context) &&
+                !tiandu.Judgment!.CanClaimResolvedJudgment(context with { TargetSeat = 1 }),
             "Tiandu must only claim its owner's resolved judgment card.");
 
         GameEngine? current = null;
@@ -5480,9 +5387,9 @@ internal static class ClassicGeneralChecks
     {
         var qianxun = SkillRegistry.Get(SkillKind.Qianxun);
         var context = new PlayerSkillContext(0, 3, 3, 2, TurnPhase.Play);
-        Require(qianxun.ProhibitsCardTarget(context, CardKind.Snatch) &&
-                qianxun.ProhibitsCardTarget(context, CardKind.Indulgence) &&
-                !qianxun.ProhibitsCardTarget(context, CardKind.Dismantlement),
+        Require(qianxun.CardUse!.ProhibitsCardTarget(context, CardKind.Snatch) &&
+                qianxun.CardUse!.ProhibitsCardTarget(context, CardKind.Indulgence) &&
+                !qianxun.CardUse!.ProhibitsCardTarget(context, CardKind.Dismantlement),
             "Qianxun must prohibit Snatch and Indulgence without blocking other tricks.");
 
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
@@ -5998,7 +5905,7 @@ internal static class ClassicGeneralChecks
                 continue;
             }
 
-            var action = game.GetHumanLegalActions().SingleOrDefault(candidate =>
+            var action = game.GetHumanLegalActions().FirstOrDefault(candidate =>
                 candidate.Kind == LegalActionKind.UseSkill && candidate.Skill == SkillKind.Qiangxi);
             if (action is null)
             {
@@ -6610,7 +6517,9 @@ internal static class ClassicGeneralChecks
                     Action = action,
                     Target = full.Players.Single(player => player.Seat == action.TargetSeat)
                 })
-                .Where(item => item.Target.Hand.Count(card => card.Kind == CardKind.Dodge) >= 2 &&
+                .Where(item => item.Target.GeneralId is "classic:lu-meng" or "classic:zhang-fei" or
+                           "classic:xu-huang" or "classic:gan-ning" or "classic:dian-wei" &&
+                               item.Target.Hand.Count(card => card.Kind == CardKind.Dodge) >= 2 &&
                                item.Target.Equipment.All(card =>
                                    card.Kind is not (CardKind.BaguaFormation or CardKind.RenwangShield)) &&
                                item.Target.Skills?.All(skill =>
@@ -6665,7 +6574,9 @@ internal static class ClassicGeneralChecks
                     Action = action,
                     Target = full.Players.Single(player => player.Seat == action.TargetSeat)
                 })
-                .Where(item => item.Target.Hand.Count(card =>
+                .Where(item => item.Target.GeneralId is "classic:lu-meng" or "classic:zhang-fei" or
+                           "classic:xu-huang" or "classic:gan-ning" or "classic:dian-wei" &&
+                               item.Target.Hand.Count(card =>
                                    card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) == 1 &&
                                item.Target.Skills?.All(skill =>
                                    skill.Kind is not (SkillKind.Wusheng or SkillKind.Longdan or SkillKind.Jijiang)) != false)
@@ -6694,7 +6605,8 @@ internal static class ClassicGeneralChecks
             if (game.PendingDecision is { PlayerSeat: 0 })
             {
                 throw new InvalidOperationException(
-                    $"Wushuang fixture reached an unexpected human {game.PendingDecision.Kind} prompt.");
+                    $"Wushuang fixture reached an unexpected human {game.PendingDecision.Kind} prompt: " +
+                    string.Join(", ", game.Events.TakeLast(12).Select(item => item.Payload.GetType().Name)));
             }
 
             var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
@@ -7202,7 +7114,7 @@ internal static class ClassicGeneralChecks
     }
 
     private static ContentRegistry CreatePreProgramClassicRegistry() =>
-        StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
+        StandardContentRegistry.CreateWithClassicGenerals();
 
     private static GameEngine SelectGeneral(ContentRegistry registry, string generalId, int rulesVersion)
     {

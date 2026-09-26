@@ -6,7 +6,7 @@ internal static class QilinBowChecks
 {
     public static void ExactMountChoiceAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 29, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var boundary = QilinBowScenario.FindHumanTrigger();
         var game = boundary.Game;
         var prompt = game.PendingDecision ??
@@ -117,7 +117,7 @@ internal static class QilinBowChecks
 
     public static void AiUsesPublicMountChoices()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 29, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         GameEngine? witnessed = null;
         for (var seed = 1; seed <= 64 && witnessed is null; seed++)
         {

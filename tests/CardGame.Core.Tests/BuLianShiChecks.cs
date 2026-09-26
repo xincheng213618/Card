@@ -11,10 +11,7 @@ internal static class BuLianShiChecks
 
     public static void ContentAndRulesBoundary()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 123, 0));
-        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 122, 0));
-        var introduced = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 90, 0));
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 89, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
         var general = current.Generals[GeneralId];
         var anxu = current.Skills[AnxuSkillId];
         var zhuiyi = current.Skills[ZhuiyiSkillId];
@@ -43,18 +40,8 @@ internal static class BuLianShiChecks
                     Window: SkillProgramTriggerWindow.OwnerDied,
                     Optional: true,
                     UsesSharedExecutor: true
-                } &&
-                historical.Skills[AnxuSkillId].Program is null &&
-                historical.Skills[AnxuSkillId].LegacyKind == SkillKind.Anxu,
-            "Current Zhuiyi and Anxu must use programs while 1.122.0 retains historical Anxu identity.");
-        Require(!previous.Generals.ContainsKey(GeneralId) &&
-                !previous.Skills.ContainsKey(AnxuSkillId) &&
-                !previous.Skills.ContainsKey(ZhuiyiSkillId) &&
-                introduced.Generals.ContainsKey(GeneralId) &&
-                current.ContentHash != historical.ContentHash &&
-                historical.ContentHash != introduced.ContentHash &&
-                introduced.ContentHash != previous.ContentHash,
-            "Package 1.123.0 must migrate Anxu without mutating historical content boundaries.");
+                },
+            "Current Zhuiyi and Anxu must use programs.");
 
         var rules = ReadResource(
             "CardGame.Content.Standard.SkillPrograms.death-benefit-skills.rules.json");

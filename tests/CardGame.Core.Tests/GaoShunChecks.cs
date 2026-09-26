@@ -11,11 +11,6 @@ internal static class GaoShunChecks
     public static void ContentIdentityAndRulesBoundary()
     {
         var current = CreateRegistry();
-        var previous = ContentRegistry.Build(
-            new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(includeJijiu: true),
-            new StandardRescueSkillExpansionPackage(),
-            new StandardClassicGeneralPackage(new Version(1, 82, 0)));
         var general = current.Generals[GeneralId];
         var xianzhen = current.GetSkill(XianzhenSkillId);
         var jinjiu = current.GetSkill(JinjiuSkillId);
@@ -38,11 +33,8 @@ internal static class GaoShunChecks
                 jinjiu.Program!.MinimumRulesVersion == 94 &&
                 identity.InputKinds.SequenceEqual([CardKind.Alcohol]) &&
                 identity.Zones.SequenceEqual([CardZoneKind.Hand]) &&
-                current.Modes[ScenarioPackage.ModeId].GeneralPoolIds!.Contains(GeneralId) &&
-                !previous.Generals.ContainsKey(GeneralId) &&
-                !previous.Skills.ContainsKey(XianzhenSkillId) &&
-                !previous.Skills.ContainsKey(JinjiuSkillId),
-            "Classic package 1.83.0 must add exact Gao Shun content while 1.82.0 remains unchanged.");
+                current.Modes[ScenarioPackage.ModeId].GeneralPoolIds!.Contains(GeneralId),
+            "Current classic content must publish exact Gao Shun skills and identity.");
 
         var fixture = Find(sourceWins: true, requireAlcohol: true);
         var snapshot = fixture.Game.CreateSnapshot(0, revealAll: true);
@@ -307,12 +299,12 @@ internal static class GaoShunChecks
                 BindingFlags.NonPublic | BindingFlags.Instance)!
             .SetValue(game, value);
 
-    private static ContentRegistry CreateRegistry(Version? version = null) =>
+    private static ContentRegistry CreateRegistry() =>
         ContentRegistry.Build(
             new StandardContentPackage(),
             new StandardActiveSkillExpansionPackage(includeJijiu: true),
             new StandardRescueSkillExpansionPackage(),
-            new StandardClassicGeneralPackage(version ?? new Version(1, 83, 0)),
+            new StandardClassicGeneralPackage(),
             new ScenarioPackage());
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>

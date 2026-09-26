@@ -34,7 +34,7 @@ internal static class PacedCommandChecks
             else
             {
                 Require(commands.Submit(new AdvanceOneStepCommand(commands.Revision)).Accepted, "A valid step failed.");
-                legacy.AdvanceOneStep();
+                legacy.DriveAdvanceOneStep();
                 actualSteps++;
             }
             Require(State(commands) == State(legacy), "A step command changed the established one-step pacing.");

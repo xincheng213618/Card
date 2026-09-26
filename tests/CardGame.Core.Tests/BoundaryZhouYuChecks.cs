@@ -16,15 +16,12 @@ internal static class BoundaryZhouYuChecks
     public static void DefinitionAndResourceContracts()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 140, 0));
         var general = current.Generals[General];
         Require(general is { Name: "界周瑜", FactionId: "wu", BaseHp: 3, PortraitKey: "boundary_zhou_yu" } &&
                 general.SkillIds.SequenceEqual([Yingzi, Fanjian]) &&
                 current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(General) &&
-                current.Modes["identity:classic-8"].GeneralPoolIds!.Contains(General) &&
-                !previous.Generals.ContainsKey(General) && !previous.Skills.ContainsKey(Yingzi) &&
-                !previous.Skills.ContainsKey(Fanjian),
-            "2014 Zhou Yu must be an independent Wu three-HP 1.141 identity general.");
+                current.Modes["identity:classic-8"].GeneralPoolIds!.Contains(General),
+            "2014 Zhou Yu must be an independent Wu three-HP identity general.");
         var yingzi = current.Skills[Yingzi].Program!;
         Require(yingzi.Triggers.Count == 0 && yingzi.Modifiers.Any(item => item.Query == SkillRuleQuery.DrawCount &&
                 item.Operation == SkillRuleOperation.Add && item.Value == 1) &&

@@ -47,6 +47,7 @@ internal sealed record ReadSelectedTarget : ProgramResourceOperation;
 internal sealed record ReadTargetSet(int Minimum) : ProgramResourceOperation;
 internal sealed record RequireContext(ProgramContextCapability Capability) : ProgramResourceOperation;
 internal sealed record SelectSingleTarget : ProgramResourceOperation;
+internal sealed record ReplaceSingleTarget : ProgramResourceOperation;
 internal sealed record ConsumeSelectedCards(int Count) : ProgramResourceOperation;
 internal sealed record CreatePindianResult(string Name) : ProgramResourceOperation;
 internal sealed record ReadPindianResult(string Name) : ProgramResourceOperation;
@@ -561,9 +562,11 @@ internal sealed class MoveBoundCardsProgramOperationDescriptor : ProgramOperatio
         var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), sourceBind: source,
             exceptBind: except, destination: destination, destinationZone: destinationZone);
         if (effect.Condition.Kind != SkillProgramConditionKind.Always &&
-            (effect.Condition.Kind != SkillProgramConditionKind.ChoiceIs ||
-             destination != SkillProgramCardDestination.DiscardPile))
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}: conditional card movement requires a named-choice discard branch.");
+            !(effect.Condition.Kind == SkillProgramConditionKind.ChoiceIs &&
+              destination == SkillProgramCardDestination.DiscardPile) &&
+            !(effect.Condition.Kind == SkillProgramConditionKind.PindianWon &&
+              destination == SkillProgramCardDestination.OwnerHand))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: conditional card movement requires a named-choice discard or winning Pindian gain branch.");
         return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
@@ -665,20 +668,32 @@ internal sealed class SelectTargetProgramOperationDescriptor : ProgramOperationD
         static (effect, context) => context.SelectTarget(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "targetKind", "marker", "zones", "condition");
+        r.AllowOnly("op", "target", "targetKind", "marker", "zones", "actorRef", "skipIfNoTarget", "condition");
         var zones = r.Has("zones") ? r.RequiredEnumArray<CardZoneKind>("zones") : [];
         if (zones.Any(zone => zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment)))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.zones: selectTarget supports hand, equipment and judgment only.");
         var targetKind = r.RequiredEnum<SkillProgramTargetKind>("targetKind");
         var marker = r.Has("marker") ? r.RequiredEnum<PlayerMarkerKind>("marker") : (PlayerMarkerKind?)null;
+        var actorRef = r.Has("actorRef") ? r.RequiredParticipantReference("actorRef") : null;
+        var skipIfNoTarget = r.Has("skipIfNoTarget") && r.RequiredBool("skipIfNoTarget");
+        if ((targetKind == SkillProgramTargetKind.OtherLivingInBoundParticipantAttackRange) !=
+            (actorRef?.Kind is ProgramParticipantRef.ResultSource or ProgramParticipantRef.ResultOpponent))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: bound-participant attack-range targets require actorRef.");
         if ((targetKind == SkillProgramTargetKind.MaximumAttributedMarker) != (marker is not null))
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}: maximumAttributedMarker requires marker, and other target kinds forbid it.");
         var effect = new SkillProgramEffect(Op, FilterBoundCardsProgramOperationDescriptor.Owner(r), 0,
-            r.Condition(), zones: zones, targetKind: targetKind, marker: marker);
-        RequireAlways(effect, r.Path); return effect;
+            r.Condition(), zones: zones, targetKind: targetKind, marker: marker,
+            actorReference: actorRef, skipIfNoTarget: skipIfNoTarget);
+        if (effect.Condition.Kind != SkillProgramConditionKind.Always &&
+            !(skipIfNoTarget && effect.Condition.Kind == SkillProgramConditionKind.PindianWon))
+            RequireAlways(effect, r.Path);
+        return effect;
     }
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [new SelectSingleTarget()];
+    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
+        effect.ActorReference is { } reference
+            ? [new ReadPindianResult(reference.ResultBind!), new ReplaceSingleTarget()]
+            : [new SelectSingleTarget()];
 }
 
 internal sealed class TurnOverProgramOperationDescriptor : ProgramOperationDescriptorBase

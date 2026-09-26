@@ -9,13 +9,17 @@ public sealed partial class GameEngine
         string resultBind,
         SkillProgramCardSetVisibility visibility)
     {
-        if (frame.TriggerId is not null || opponentReference.Kind != ProgramParticipantRef.SelectedTarget ||
-            frame.SelectedTargetSeats.Count != 1 || frame.PindianResultBindings.Any(item => item.Name == resultBind) ||
-            HasPendingProgramBoundCards ||
-            _cardZones.CardsAt(CardLocation.Processing).Count != 0)
+        var eventOpponent = opponentReference.Kind == ProgramParticipantRef.EventTarget &&
+            frame.WindowContext is { Window: SkillProgramTriggerWindow.AfterDamageApplied, TargetSeat: { } };
+        if (!eventOpponent && (frame.TriggerId is not null ||
+                opponentReference.Kind != ProgramParticipantRef.SelectedTarget ||
+                frame.SelectedTargetSeats.Count != 1 ||
+                _cardZones.CardsAt(CardLocation.Processing).Count != 0) ||
+            frame.PindianResultBindings.Any(item => item.Name == resultBind) || HasPendingProgramBoundCards)
             throw new InvalidOperationException(
-                "Program Pindian requires a clean active entry, one selected opponent and no pending program cards.");
-        var opponentSeat = frame.SelectedTargetSeats.Single();
+                "Program Pindian requires an active selected opponent or a damage-event opponent and no pending program cards.");
+        var opponentSeat = eventOpponent ? frame.WindowContext!.TargetSeat!.Value :
+            frame.SelectedTargetSeats.Single();
         var source = _players[frame.OwnerSeat];
         var opponent = _players[opponentSeat];
         if (!source.IsAlive || !opponent.IsAlive || opponentSeat == frame.OwnerSeat ||
@@ -27,7 +31,6 @@ public sealed partial class GameEngine
             new SkillPromptPresentation(frame.SkillId, skill.Name, $"{skill.Name} · 拼点", skill.Description),
             frame.OwnerSeat,
             opponentSeat,
-            legacySkill: null,
             programResultBind: resultBind,
             programResultVisibility: visibility);
         return SkillProgramStepOutcome.AwaitChild;
@@ -88,7 +91,6 @@ public sealed partial class GameEngine
 
     private void CompletePlayPhaseAfterProgramWindow()
     {
-        if (TryBeginPhaseSkill(PhaseSkillWindow.PlayEnding, _players[_currentSeat])) return;
         if (ResumeScheduledProgramPhase()) return;
         BeginDiscardPhase();
     }
@@ -509,7 +511,8 @@ public sealed partial class GameEngine
         int ownerSeat,
         SkillProgramTargetKind targetKind,
         ProgramSkillWindowContext? windowContext = null,
-        PlayerMarkerKind? marker = null)
+        PlayerMarkerKind? marker = null,
+        ProgramParticipantReference? actorReference = null)
     {
         windowContext ??= _resolutionStack.LastOrDefault() switch
         {
@@ -555,6 +558,17 @@ public sealed partial class GameEngine
                 .Distinct().Where(seat => _players[seat].IsAlive &&
                     parent.IneffectiveTargetSeats?.Contains(seat) != true).ToArray();
         }
+        if (targetKind == SkillProgramTargetKind.OtherLivingInBoundParticipantAttackRange)
+        {
+            if (actorReference is not { } reference ||
+                _resolutionStack.LastOrDefault() is not ProgramSkillFrame frame)
+                throw new InvalidOperationException("Attack-range target selection lost its bound participant.");
+            var actorSeat = ResolveProgramParticipant(frame, reference);
+            if (!_players[actorSeat].IsAlive) return [];
+            return _players.Where(target => target.IsAlive && target.Seat != actorSeat &&
+                    GetCombatDistance(actorSeat, target.Seat) <= GetAttackRange(actorSeat))
+                .Select(target => target.Seat).Order().ToArray();
+        }
         if (targetKind == SkillProgramTargetKind.MaximumAttributedMarker)
         {
             if (marker is not { } markerKind)
@@ -571,7 +585,9 @@ public sealed partial class GameEngine
                 SkillProgramTargetKind.OtherLiving => target.Seat != ownerSeat,
                 SkillProgramTargetKind.OtherLivingWithHand =>
                     target.Seat != ownerSeat && GetHand(target).Count > 0,
-                SkillProgramTargetKind.OtherLivingHandAtLeastOwner =>
+SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
+                    target.Seat != ownerSeat && GetHand(target).Count > 0 &&
+                    target.Hp > _players[ownerSeat].Hp,                                SkillProgramTargetKind.OtherLivingHandAtLeastOwner =>
                     target.Seat != ownerSeat && GetHand(target).Count > 0 &&
                     GetHand(target).Count >= GetHand(_players[ownerSeat]).Count,
                 SkillProgramTargetKind.OtherLivingUnequalHandPair => target.Seat != ownerSeat &&
@@ -596,9 +612,10 @@ public sealed partial class GameEngine
 
     private bool IsProgramTargetEligible(int ownerSeat, SkillProgramTargetKind targetKind,
         IReadOnlyList<CardZoneKind> zones, int targetSeat, PlayerMarkerKind? marker = null,
-        ProgramSkillWindowContext? windowContext = null)
+        ProgramSkillWindowContext? windowContext = null,
+        ProgramParticipantReference? actorReference = null)
     {
-        if (!GetProgramTargetSeats(ownerSeat, targetKind, windowContext, marker).Contains(targetSeat)) return false;
+        if (!GetProgramTargetSeats(ownerSeat, targetKind, windowContext, marker, actorReference).Contains(targetSeat)) return false;
         if (zones.Count == 0) return true;
         var target = _players[targetSeat];
         return zones.Any(zone => zone switch
@@ -606,7 +623,7 @@ public sealed partial class GameEngine
             CardZoneKind.Hand => GetHand(target).Count > 0,
             CardZoneKind.Equipment => GetEquipment(target).Count > 0,
             CardZoneKind.Judgment => GetJudgment(target).Count > 0,
-            _ => false
+                _ => false
         });
     }
 
@@ -786,14 +803,21 @@ public sealed partial class GameEngine
         int ownerSeat,
         SkillProgramTargetKind targetKind,
         IReadOnlyList<CardZoneKind> zones,
-        PlayerMarkerKind? marker)
+        PlayerMarkerKind? marker,
+        ProgramParticipantReference? actorReference = null,
+        bool skipIfNoTarget = false)
     {
         var frame = GetActiveProgramFrame(frameId);
-        var targetSeats = GetProgramTargetSeats(ownerSeat, targetKind, frame.WindowContext, marker)
+        var targetSeats = GetProgramTargetSeats(ownerSeat, targetKind, frame.WindowContext, marker, actorReference)
             .Where(seat => IsProgramTargetEligible(ownerSeat, targetKind, zones, seat, marker,
-                frame.WindowContext)).ToArray();
+                frame.WindowContext, actorReference)).ToArray();
         if (targetSeats.Length == 0)
         {
+            if (skipIfNoTarget)
+            {
+                _resolutionStack[^1] = frame with { SelectedTargetSeats = [] };
+                return SkillProgramStepOutcome.Continue;
+            }
             CancelProgramBindingAndCleanup(frame, "没有仍然合法的技能目标，技能结算已取消。");
             return SkillProgramStepOutcome.AwaitChild;
         }
@@ -847,9 +871,10 @@ public sealed partial class GameEngine
         bool allowSameSource)
     {
         var frame = GetActiveProgramFrame(frameId);
-        var sourceSeat = cardSource == SkillProgramCardSource.Owner
-            ? ownerSeat
-            : frame.WindowContext?.SourceSeat;
+        var sourceSeat = cardSource switch
+        {
+            SkillProgramCardSource.Owner => ownerSeat,            SkillProgramCardSource.DamageSource => frame.WindowContext?.SourceSeat,            SkillProgramCardSource.EventTarget => frame.WindowContext?.TargetSeat,                        _ => null
+        };
         if (sourceSeat is null || !IsValidPlayerSeat(sourceSeat.Value) ||
             (cardSource == SkillProgramCardSource.DamageSource && sourceSeat == ownerSeat && !allowSameSource))
         {
@@ -1465,7 +1490,7 @@ public sealed partial class GameEngine
                 ProgramParticipantRef.Owner => owner.Seat,
                 ProgramParticipantRef.Actor => context.CardUse?.ActorSeat,
                 ProgramParticipantRef.EventTarget => context.TargetSeat,
-                _ => null
+            _ => null
             };
             if (payer is { } payerSeat && (!IsValidPlayerSeat(payerSeat) ||
                 !payment.Zones.Any(zone => _cardZones.CardsAt(new CardLocation(zone, payerSeat)).Any(card =>
@@ -1479,7 +1504,7 @@ public sealed partial class GameEngine
                     CardZoneKind.Hand => GetHand(_players[seat]).Count > 0,
                     CardZoneKind.Equipment => GetEquipment(_players[seat]).Count > 0,
                     CardZoneKind.Judgment => GetJudgment(_players[seat]).Count > 0,
-                    _ => false
+                _ => false
                 }))))
             return false;
         if (trigger.Effects.Any(effect => effect.Op == SkillProgramTriggerEffectOp.SelectTargets &&
@@ -1528,7 +1553,7 @@ public sealed partial class GameEngine
                         _pendingDamageTrigger is { } sourceDamage &&
                         MatchesAfterDamageProgramSource(sourceDamage.Attack, trigger),
                     SkillProgramTriggerSubject.DamageSource => context.SourceSeat == owner.Seat,
-                    _ => false
+                _ => false
                 } &&
                 CanRunAfterDamageProgramTrigger(owner, trigger, context),
             SkillProgramTriggerWindow.CardsMoved =>
@@ -1557,7 +1582,7 @@ public sealed partial class GameEngine
                 cardFrame.Candidates.Any(item => item.OwnerSeat == candidate.OwnerSeat &&
                     item.SkillId == candidate.SkillId && item.SkillInstanceId == candidate.SkillInstanceId &&
                     item.TriggerId == candidate.BindingId && item.GameplayHash == candidate.GameplayHash),
-            _ => false
+                _ => false
         };
     }
 
@@ -1581,10 +1606,10 @@ public sealed partial class GameEngine
                 !GetProgramTargetSeats(owner.Seat, singleKind, marker: effect.Marker).Any(seat =>
                     effect.Zones.Count == 0 || effect.Zones.Any(zone => zone switch
                     {
-                        CardZoneKind.Hand => GetHand(_players[seat]).Count > 0,
-                        CardZoneKind.Equipment => GetEquipment(_players[seat]).Count > 0,
-                        CardZoneKind.Judgment => GetJudgment(_players[seat]).Count > 0,
-                        _ => false
+                    CardZoneKind.Hand => GetHand(_players[seat]).Count > 0,
+                    CardZoneKind.Equipment => GetEquipment(_players[seat]).Count > 0,
+                    CardZoneKind.Judgment => GetJudgment(_players[seat]).Count > 0,
+                _ => false
                     })))
                 return false;
         }
@@ -1604,6 +1629,11 @@ public sealed partial class GameEngine
         if (trigger.DamageCardKinds.Count > 0 &&
             (damage.Attack.EffectiveCardKind is not { } kind || !trigger.DamageCardKinds.Contains(kind)))
             return false;
+        if (trigger.Effects.Any(effect => effect.Op == SkillProgramTriggerEffectOp.StartPindian) &&
+            (context.TargetSeat is not { } opponentSeat ||
+             !IsValidPlayerSeat(opponentSeat) || !owner.IsAlive || !_players[opponentSeat].IsAlive ||
+             GetHand(owner).Count == 0 || GetHand(_players[opponentSeat]).Count == 0))
+            return false;
         foreach (var effect in trigger.Effects.Where(effect =>
                      effect.Op is (SkillProgramTriggerEffectOp.SelectTarget or SkillProgramTriggerEffectOp.SelectSourceCard or
                          SkillProgramTriggerEffectOp.ClaimDamageCards) &&
@@ -1619,9 +1649,10 @@ public sealed partial class GameEngine
                     break;
                 case SkillProgramTriggerEffectOp.SelectSourceCard:
                     if (effect.SkipIfNoCards) break;
-                    var sourceSeat = effect.CardSource == SkillProgramCardSource.Owner
-                        ? owner.Seat
-                        : context.SourceSeat;
+                    var sourceSeat = effect.CardSource switch
+                    {
+                        SkillProgramCardSource.Owner => owner.Seat,                        SkillProgramCardSource.DamageSource => context.SourceSeat,                        SkillProgramCardSource.EventTarget => context.TargetSeat,                                    _ => null
+                    };
                     if (sourceSeat is not { } resolvedSourceSeat ||
                         (effect.CardSource == SkillProgramCardSource.DamageSource && resolvedSourceSeat == owner.Seat &&
                          !effect.AllowSameSource) ||
@@ -1632,7 +1663,7 @@ public sealed partial class GameEngine
                             CardZoneKind.Equipment => GetEquipment(_players[resolvedSourceSeat]).Any(card =>
                                 effect.EquipmentSlots.Count == 0 ||
                                 effect.EquipmentSlots.Contains(EquipmentCatalog.Get(card.Kind).Slot)),
-                            _ => false
+                _ => false
                         }))
                         return false;
                     break;
@@ -2382,7 +2413,7 @@ public sealed partial class GameEngine
                     throw new InvalidOperationException("The selected target does not match the suspended instruction.");
                 var targetSeat = selected.Targets.Single();
                 if (!IsProgramTargetEligible(frame.OwnerSeat, targetKind, effect.Zones, targetSeat,
-                    effect.Marker, frame.WindowContext))
+                    effect.Marker, frame.WindowContext, effect.ActorReference))
                     throw new InvalidOperationException("The selected program target is no longer legal.");
                 ClearPendingDecision();
                 _resolutionStack[^1] = frame with
@@ -2430,9 +2461,10 @@ public sealed partial class GameEngine
                     !Enum.TryParse<CardZoneKind>(
                         selected.Parameters.GetValueOrDefault("source-zone"), out var zone) ||
                     !effect.Zones.Contains(zone) ||
-                    (effect.CardSource == SkillProgramCardSource.Owner
-                        ? frame.OwnerSeat
-                        : frame.WindowContext?.SourceSeat) is not { } sourceSeat ||
+                    (effect.CardSource switch
+                    {
+                        SkillProgramCardSource.Owner => frame.OwnerSeat,                        SkillProgramCardSource.DamageSource => frame.WindowContext?.SourceSeat,                        SkillProgramCardSource.EventTarget => frame.WindowContext?.TargetSeat,                                    _ => null
+                    }) is not { } sourceSeat ||
                     effect.CardSource == SkillProgramCardSource.DamageSource && sourceSeat == frame.OwnerSeat &&
                     !effect.AllowSameSource)
                     throw new InvalidOperationException("The source-card choice does not match the suspended instruction.");
@@ -3340,7 +3372,10 @@ public sealed partial class GameEngine
                 IsValidPlayerSeat(damage.Attack.TargetSeat) &&
                 damage.Attack.SourceSeat != damage.Attack.TargetSeat &&
                 _players[damage.Attack.SourceSeat].IsAlive &&
-                _players[damage.Attack.TargetSeat].IsAlive
+                _players[damage.Attack.TargetSeat].IsAlive,
+            DirectCardUseDamage = !damage.Attack.IsChainPropagation &&
+                damage.Attack.SourceSkill is null && damage.Attack.Card is not null &&
+                damage.Attack.CardUserSeat == damage.Attack.SourceSeat
         };
         return new(
             damage.Window,

@@ -15,14 +15,12 @@ internal static class ZhuZhiChecks
     public static void DefinitionAndResourceContracts()
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 139, 0));
         var general = registry.Generals[GeneralId];
         var skill = registry.Skills[SkillId];
         Require(general is { Name: "朱治", FactionId: "wu", BaseHp: 4, PortraitKey: "zhu_zhi" } &&
                 general.SkillIds.SequenceEqual([SkillId]) &&
                 registry.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
                 registry.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId) &&
-                !previous.Generals.ContainsKey(GeneralId) && !previous.Skills.ContainsKey(SkillId) &&
                 skill.Program is { RuntimeVersion: "skill-program-v55", MinimumRulesVersion: 165,
                     UsesCompositionKernel: true } &&
                 skill.Program.Activations.Single() is { UsesPerPhase: 1, MinTargets: 0, MaxTargets: 0 } &&

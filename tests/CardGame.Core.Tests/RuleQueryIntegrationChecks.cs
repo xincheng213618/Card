@@ -10,24 +10,15 @@ internal static class RuleQueryIntegrationChecks
     public static void FormalContentPreservesVersionBoundaries()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 97, 0));
         var expectedVersions = new Dictionary<string, Version>(StringComparer.Ordinal)
         {
             ["standard"] = StandardContentPackage.CurrentVersion,
             ["standard-active-skills"] = StandardActiveSkillExpansionPackage.CurrentVersion,
             ["standard-classic-generals"] = StandardClassicGeneralPackage.CurrentVersion
         };
-        var previousVersions = new Dictionary<string, Version>(StringComparer.Ordinal)
-        {
-            ["standard"] = new(1, 11, 0),
-            ["standard-active-skills"] = new(1, 0, 0),
-            ["standard-classic-generals"] = new(1, 97, 0)
-        };
         Require(expectedVersions.All(expected => current.Packages.Any(package =>
-                    package.Id == expected.Key && package.Version == expected.Value)) &&
-                previousVersions.All(expected => previous.Packages.Any(package =>
                     package.Id == expected.Key && package.Version == expected.Value)),
-            "Current and previous registries must select the exact rule-query migration package bundle.");
+            "The current registry must publish the configured package bundle.");
 
         var expectedLegacyKinds = new Dictionary<string, SkillKind>(StringComparer.Ordinal)
         {
@@ -42,7 +33,6 @@ internal static class RuleQueryIntegrationChecks
         foreach (var expected in expectedLegacyKinds)
         {
             var currentSkill = current.Skills[expected.Key];
-            var previousSkill = previous.Skills[expected.Key];
             Require(currentSkill.LegacyKind is null &&
                     currentSkill.Program is
                     {
@@ -52,11 +42,7 @@ internal static class RuleQueryIntegrationChecks
                     program.Id == expected.Key &&
                     program.Modifiers.Count > 0,
                 $"Current skill '{expected.Key}' must be a rules-117 schema-12 program without a legacy executor.");
-            Require(previousSkill.LegacyKind == expected.Value && previousSkill.Program is null,
-                $"Previous skill '{expected.Key}' must retain only its historical legacy definition.");
         }
-        Require(current.ContentHash != previous.ContentHash,
-            "The formal rule-query migration must change the content fingerprint without mutating the old bundle.");
     }
 
     public static void EngineTracksDynamicSourcesAndInstanceIdentity()

@@ -235,13 +235,11 @@ internal static class GodFactionSelectionChecks
         return false;
     }
 
-    private static ContentRegistry CreateRegistry(Version? classicPackageVersion = null) => ContentRegistry.Build(
+    private static ContentRegistry CreateRegistry() => ContentRegistry.Build(
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        classicPackageVersion is null
-            ? new StandardClassicGeneralPackage()
-            : new StandardClassicGeneralPackage(classicPackageVersion),
+        new StandardClassicGeneralPackage(),
         new FixturePackage());
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>

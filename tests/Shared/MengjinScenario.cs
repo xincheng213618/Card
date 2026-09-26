@@ -13,7 +13,7 @@ internal static class MengjinScenario
     public static MengjinBoundary FindHumanTrigger()
     {
         const int sourceSeat = 0;
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 44, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 32_768; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions

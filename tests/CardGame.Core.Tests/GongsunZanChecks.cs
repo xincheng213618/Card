@@ -7,7 +7,7 @@ internal static class GongsunZanChecks
 {
     public static void YicongDistanceAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 56, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var game = FindFixture(registry);
         Require(game.GetSeatDistance(0, 2) == 2 &&
                 game.GetCombatDistance(0, 2) == 1 &&

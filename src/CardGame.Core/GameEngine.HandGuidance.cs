@@ -22,7 +22,7 @@ public sealed partial class GameEngine
         var actor = _players[_options.HumanSeat];
         var actions = GetHumanLegalActions().Where(action => action.CardId is not null).ToLookup(action => action.CardId!.Value);
         var ownPrompt = _pendingDecision?.PlayerSeat == actor.Seat ? _pendingDecision : null;
-        var skill = PassiveRules(actor);
+        var skillNames = EnabledSkillNames(actor);
         var context = CreateSkillContext(actor);
         return GetHand(actor).Select(card =>
         {
@@ -42,7 +42,7 @@ public sealed partial class GameEngine
                 if (cardActions.Any(action => action.Kind == LegalActionKind.Recast))
                     return Hint(HandGuidanceReason.Playable, "可选择一到两名存活角色切换连环，或不选目标，点击重铸换一张牌。", true);
                 if (!IsSlashCard(card.Kind) && cardActions.All(action => action.PlayedCardKind == CardKind.Slash))
-                    return Hint(HandGuidanceReason.ConversionOnly, $"当前可通过【{skill.Name}】当作杀使用；选择目标后确认转化。", true);
+                    return Hint(HandGuidanceReason.ConversionOnly, $"当前可通过【{skillNames}】当作杀使用；选择目标后确认转化。", true);
                 return Hint(HandGuidanceReason.Playable,
                     cardActions.All(action => action.TargetSeats.All(seat => seat == actor.Seat))
                         ? "当前可以使用；点击选中，再确认出牌。"

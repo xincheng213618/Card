@@ -10,12 +10,10 @@ internal static class MaDaiChecks
 
     public static void ContentPromptAndRulesBoundary()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 116, 0));
-        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 115, 0));
-        var beforeRoster = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 81, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
         Require(current.Packages.Any(package =>
                     package.Id == "standard-classic-generals" &&
-                    package.Version == new Version(1, 116, 0)) &&
+                    package.Version == StandardClassicGeneralPackage.CurrentVersion) &&
                 current.Generals[GeneralId] is
                 {
                     FactionId: "shu",
@@ -39,12 +37,8 @@ internal static class MaDaiChecks
                     UsesSharedExecutor: true
                 } &&
                 skill.Description ==
-                "准备阶段开始时，你可以摸一张牌然后弃置一张牌。若如此做，你选择距离为1的一名其他角色，然后直到回合结束，该角色不能使用或打出与你以此法弃置的牌颜色相同的手牌。" &&
-                historical.Skills[SkillId].Program is null &&
-                !beforeRoster.Generals.ContainsKey(GeneralId) &&
-                !beforeRoster.Skills.ContainsKey(SkillId) &&
-                current.ContentHash != historical.ContentHash,
-            "Package 1.116.0 must migrate current Qianxi to schema 32 without rewriting 1.115.0 metadata.");
+                "准备阶段开始时，你可以摸一张牌然后弃置一张牌。若如此做，你选择距离为1的一名其他角色，然后直到回合结束，该角色不能使用或打出与你以此法弃置的牌颜色相同的手牌。",
+            "Current Ma Dai must publish Qianxi with its printed text and program.");
 
         var fixture = FindFixture(CardColor.Red, stopAfterPaymentPrompt: false);
         var game = fixture.Game;
@@ -83,12 +77,6 @@ internal static class MaDaiChecks
                 ActiveQianxiRestrictions(game).Count == 0,
             "Skipping Qianxi must continue with normal drawing and create no turn restriction.");
 
-        var historicalGame = CreateGame(CreateRegistry(new Version(1, 115, 0)), fixture.Seed);
-        StartAndSelect(historicalGame);
-        Require(historicalGame.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } &&
-                historicalGame.Events.Select(item => item.Payload)
-                    .OfType<ProgramBindingStartedEvent>().All(item => item.SkillId != SkillId),
-            "Package 1.115.0 must remain metadata-only after the dedicated Qianxi executor is removed.");
     }
 
     public static void RedRestrictionFiltersHandResponsesAndReplays() =>
@@ -352,13 +340,11 @@ internal static class MaDaiChecks
         }, registry);
     }
 
-    private static ContentRegistry CreateRegistry(Version? classicVersion = null) => ContentRegistry.Build(
+    private static ContentRegistry CreateRegistry() => ContentRegistry.Build(
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        classicVersion is null
-            ? new StandardClassicGeneralPackage()
-            : new StandardClassicGeneralPackage(classicVersion),
+        new StandardClassicGeneralPackage(),
         new ScenarioPackage());
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>

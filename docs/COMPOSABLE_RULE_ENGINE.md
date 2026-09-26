@@ -1,5 +1,7 @@
 2026-09-26 当前边界：rules165 / schema55 / standard-classic-generals@1.140.0 / Checkpoint3。新增朱治2015、界甘宁2014、界许褚2014首发；移动局部续接、真实指定目标子集、类型牌过滤和跨回合伤害期限均为公共能力。契约见 [schema55](content/skill-composition/RUNTIME_V55.md)，实测及父审返工见 [第四批记录](benchmarks/2026-09-26-movement-and-target-generals.md)。下方旧版本段落保留为历史记录。
 
+2026-09-26 当前指令：按公共能力整批删除旧接口和执行链，不维护历史包指纹、旧版本注册树或兼容投影。当前玩法由统一执行路径及行为测试保证，开发期间仅编译和定向检查，整批合并后统一验证。下文历史验收记录不构成继续保留旧实现的要求；本轮进度与边界见 [技能边界整批迁移](SKILL_BOUNDARY_MIGRATION.md)。
+
 2026-09-26 最新能力：当前 rules v164／schema 54、`standard-classic-generals@1.139.0`。顾雍、李典通过目标集合、私密置底与伤害参与者等公共节点接入。伤害扣血后先执行受限标记、完成濒死，再开放收益；刚烈嵌套、程序失血及伤害时距离均有明确续接。schema 52 的疠火目标数／连续转化及此前能力继续保留。甄姬洛神、华佗急救、孙权救援以及 `MouLuMeng` 命名专属引擎分区仍保留。能力边界见 [SKILL_MIGRATION_PLAN.md](SKILL_MIGRATION_PLAN.md) 顶部和 [schema 53 契约](content/skill-composition/RUNTIME_V53.md)；下列各批数字是历史验收记录。
 
 本批 schema 54 另增精确实体牌型条件、伤害牌可领取选项与按正常摸牌计划选择／扣数，接入朱桓、界曹操、界张辽；公共 AI 评分变化统一以 rules 164 隔离。契约见 [schema 54](content/skill-composition/RUNTIME_V54.md)。

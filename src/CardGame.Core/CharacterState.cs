@@ -64,8 +64,6 @@ public sealed class CharacterState
     public IReadOnlyList<string> TurnGrantedSkillIds => SkillGrants.Grants
         .Where(grant => grant.IsEnabled && grant.SourceId.StartsWith("turn:", StringComparison.Ordinal))
         .Select(grant => grant.SkillId).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
-    public bool TianyiWonThisTurn { get; set; }
-    public bool TianyiLostThisTurn { get; set; }
     public bool IsFaceDown { get; set; }
 
     private void BindTemplateSkills(string sourceId, GeneralDefinition? template)

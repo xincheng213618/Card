@@ -1339,7 +1339,7 @@ internal static class ClassicGeneralUiChecks
         luoshenWindow.Content = null;
         luoshenWindow.Close();
 
-        var qingguoEngine = WushengResponseScenario.FindQingguoDodge(packageVersion: new Version(1, 51, 0));
+        var qingguoEngine = WushengResponseScenario.FindQingguoDodge(skillContentId: "classic:qingguo");
         var qingguoPrompt = qingguoEngine.PendingDecision!;
         var qingguoHand = qingguoEngine.CreateSnapshot(0).Players[0].Hand;
         var qingguoChoice = qingguoPrompt.Choices.First(choice =>
@@ -3071,11 +3071,11 @@ internal static class ClassicGeneralUiChecks
     }
 
     private static bool HasVisibleSkill(PlayerSnapshot player, SkillKind kind) =>
-        player.Skill == kind || player.Skills?.Any(skill => skill.Kind == kind) == true;
+        player.Skills?.Any(skill => skill.Kind == kind) == true;
 
     private static GameEngine FindLiegongFixture()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 51, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 2_048; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
@@ -3176,7 +3176,7 @@ internal static class ClassicGeneralUiChecks
 
     private static (GameEngine Game, int JudgmentCardId) FindTianduFixture()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 51, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 8_192; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
@@ -3259,7 +3259,7 @@ internal static class ClassicGeneralUiChecks
 
     private static GameEngine FindFanjianTargetFixture()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 51, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 2_048; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
@@ -3316,7 +3316,7 @@ internal static class ClassicGeneralUiChecks
 
     private static GameEngine FindGuanxingFixture()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 51, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 4_096; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
@@ -3355,7 +3355,7 @@ internal static class ClassicGeneralUiChecks
 
     private static GameEngine FindHujiaFixture()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 51, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 8_192; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions

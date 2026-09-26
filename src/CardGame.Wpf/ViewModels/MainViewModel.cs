@@ -792,8 +792,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 Portrait = GetGeneralPortrait(player.GeneralId),
                 GeneralName = player.GeneralName,
                 IsNationalSeat = IsNationalSnapshot,
-                PrimaryGeneral = IsNationalSnapshot ? GeneralSlotViewModel.FromPlayer(player, false, _game.RulesVersion, GetGeneralPortrait) : null,
-                SecondaryGeneral = IsNationalSnapshot ? GeneralSlotViewModel.FromPlayer(player, true, _game.RulesVersion, GetGeneralPortrait) : null,
+                PrimaryGeneral = IsNationalSnapshot ? GeneralSlotViewModel.FromPlayer(player, false, GetGeneralPortrait) : null,
+                SecondaryGeneral = IsNationalSnapshot ? GeneralSlotViewModel.FromPlayer(player, true, GetGeneralPortrait) : null,
                 RelationshipLabel = IsNationalSnapshot ? NationalRelationship(player) : string.Empty,
                 SecondaryGeneralText = IsNationalSnapshot ? $"副将：{player.SecondaryGeneralName ?? (player.IsHuman ? "待选" : "暗将")}" +
                     (player.IsHuman && player.SecondaryGeneralName is not null && !player.IsSecondaryGeneralPublic ? "·暗" : "") : string.Empty,
@@ -816,9 +816,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     : string.Empty,
                 HasAlcoholEffect = player.HasAlcoholEffect,
                 SkillName = IsNationalSnapshot
-                    ? $"{player.SkillName} / {player.SecondarySkillName ?? "未知"}"
-                    : string.Join(" / ", (player.Skills ?? [new(player.Skill, player.SkillName, player.SkillDescription)])
-                        .Select(skill => skill.Name)),
+                    ? $"{VisibleSkillNames(player.Skills)} / {VisibleSkillNames(player.SecondarySkills)}"
+                    : VisibleSkillNames(player.Skills),
                 Name = $"{player.GeneralName} · {(player.IsHuman ? "你" : $"AI {player.Seat + 1}")}",
                 Kingdom = IsNationalSnapshot
                     ? FactionName(player.FactionId)
@@ -2378,21 +2377,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         return skill.LegacyKind switch
         {
-            SkillKind.Kongcheng when _game.RulesVersion >= 15 =>
-                "锁定技，若你没有手牌，你不能成为【杀】或【决斗】的目标。",
-            SkillKind.Jianxiong when _game.RulesVersion >= 16 =>
-                "当你受到伤害后，你可以获得造成此伤害的牌。",
-            SkillKind.Zhiheng when _game.RulesVersion >= 17 =>
-                "出牌阶段限一次，你可以弃置任意张牌，然后摸等量张牌。",
-            SkillKind.Yingzi when _game.RulesVersion >= 21 =>
-                "摸牌阶段，你可以多摸一张牌。",
-            SkillKind.Hujia when _game.RulesVersion >= 25 =>
-                "主公技，当你需要使用或打出【闪】时，你可以令其他魏势力角色依次选择是否打出一张【闪】；视为由你使用或打出。",
-            SkillKind.Jijiang when _game.RulesVersion >= 26 =>
-                "主公技，当你需要使用或打出【杀】时，你可以令其他蜀势力角色依次选择是否打出一张【杀】；视为由你使用或打出。",
-            SkillKind.Jiuyuan when _game.RulesVersion >= 27 =>
-                "主公技，锁定技，其他吴势力角色对处于濒死状态的你使用的【桃】回复的体力+1。",
-            _ => skill.Description
+            SkillKind.Kongcheng =>
+                "锁定技，若你没有手牌，你不能成为【杀】或【决斗】的目标。",                        SkillKind.Jianxiong =>
+                "当你受到伤害后，你可以获得造成此伤害的牌。",                        SkillKind.Zhiheng =>
+                "出牌阶段限一次，你可以弃置任意张牌，然后摸等量张牌。",                        SkillKind.Yingzi =>
+                "摸牌阶段，你可以多摸一张牌。",                        SkillKind.Hujia =>
+                "主公技，当你需要使用或打出【闪】时，你可以令其他魏势力角色依次选择是否打出一张【闪】；视为由你使用或打出。",                        SkillKind.Jijiang =>
+                "主公技，当你需要使用或打出【杀】时，你可以令其他蜀势力角色依次选择是否打出一张【杀】；视为由你使用或打出。",                        SkillKind.Jiuyuan =>
+                "主公技，锁定技，其他吴势力角色对处于濒死状态的你使用的【桃】回复的体力+1。",                        _ => skill.Description
         };
     }
 
@@ -2421,7 +2413,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             or "standard:zhuge-liang" or "standard:zhao-yun" or "standard:demo-qicai" => "蜀",
         "sun-quan" or "zhou-yu" or "standard:sun-quan" or "standard:zhou-yu" or "standard:demo-kujin" or "standard:demo-zhiheng" => "吴",
         "standard:demo-rende" => "蜀",
-        _ => "群"
+            _ => "群"
     };
 
     private static string GetSuitGlyph(Suit suit) => suit switch

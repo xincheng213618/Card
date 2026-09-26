@@ -7,8 +7,7 @@ internal static class SelfDyingStateProgramChecks
 
     public static void DefinitionsAndVersionBoundary()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 108, 0));
-        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 107, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = current.Skills[SkillId];
         var trigger = skill.Program?.Triggers.Single();
 
@@ -55,13 +54,8 @@ internal static class SelfDyingStateProgramChecks
                             Amount: 3
                         }
                     ]
-                } &&
-                historical.Skills[SkillId] is
-                {
-                    LegacyKind: SkillKind.Niepan,
-                    Program: null
                 },
-            "Schema 22 must publish program Niepan at package 1.108 without mutating 1.107.");
+            "Current Niepan must use its bounded self-dying program.");
 
         Reject(
             Rules.Replace("\"schemaVersion\":22", "\"schemaVersion\":21", StringComparison.Ordinal)

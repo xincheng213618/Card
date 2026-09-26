@@ -6,14 +6,14 @@ internal static class QuhuChecks
 {
     public static void PindianWinLossDamageAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 45, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var win = QuhuScenario.Find(sourceWins: true);
         var pindianStage = GameReplay.Restore(RoundTrip(win.AtPindianPrompt), registry);
         var opponentPrompt = pindianStage.CreateSnapshot(win.OpponentSeat).PendingDecision;
         var opponentHand = pindianStage.CreateSnapshot(win.OpponentSeat).Players[win.OpponentSeat].Hand;
         Require(opponentPrompt is
                 {
-                    Kind: DecisionKind.QuhuPindian,
+                    Kind: DecisionKind.SkillModule,
                     PlayerSeat: var opponentSeat,
                     IsPrivate: true
                 } &&
@@ -26,21 +26,23 @@ internal static class QuhuChecks
         var winGame = win.Game;
         var targetPrompt = winGame.PendingDecision ??
             throw new InvalidOperationException("Winning Quhu lost its damage-target prompt.");
-        var pindian = winGame.Events.Select(item => item.Payload).OfType<PindianResolvedEvent>().Last();
+        var pindian = winGame.Events.Select(item => item.Payload).OfType<PindianResultDeterminedEvent>()
+            .Last(item => item.SkillId == "classic:quhu").Result;
         Require(targetPrompt is
                 {
-                    Kind: DecisionKind.QuhuDamageTarget,
+                    Kind: DecisionKind.ProgramTrigger,
+                    SkillPrompt.SkillId: "classic:quhu",
                     PlayerSeat: var sourceSeat,
                     IsPrivate: true
                 } &&
                 sourceSeat == win.SourceSeat &&
                 targetPrompt.ValidTargetSeats.Count > 0 &&
                 targetPrompt.ValidTargetSeats.All(seat => seat != win.OpponentSeat) &&
-                pindian.InitiatorSeat == win.SourceSeat &&
+                pindian.SourceSeat == win.SourceSeat &&
                 pindian.OpponentSeat == win.OpponentSeat &&
-                pindian.InitiatorCardId == win.SourceCardId &&
-                pindian.InitiatorWon &&
-                pindian.InitiatorRank > pindian.OpponentRank &&
+                pindian.SourceCardId == win.SourceCardId &&
+                pindian.SourceWon &&
+                pindian.SourceRank > pindian.OpponentRank &&
                 winGame.CreateSnapshot(win.OpponentSeat).PendingDecision is null,
             "Winning Quhu must publicly reveal both committed cards, then privately ask Xun Yu for a legal damage target.");
 
@@ -55,8 +57,8 @@ internal static class QuhuChecks
         var resolved = winGame.Submit(new AnswerPromptCommand(
             win.SourceSeat, targetPrompt.PromptId, choice.Id, winGame.Revision));
         for (var step = 0; step < 32 &&
-             !winGame.Events.Select(item => item.Payload).OfType<ActiveSkillResolvedEvent>()
-                 .Any(item => item.Skill == SkillKind.Quhu); step++)
+             !winGame.Events.Select(item => item.Payload).OfType<ProgramSkillResolvedEvent>()
+                 .Any(item => item.SkillId == "classic:quhu"); step++)
         {
             var continuation = winGame.PendingDecision;
             var command = continuation is { PlayerSeat: var seat } && seat == win.SourceSeat
@@ -72,8 +74,8 @@ internal static class QuhuChecks
                 winGame.CreateSnapshot(win.SourceSeat, revealAll: true).Players[victim].Hp == victimHp - 1 &&
                 winGame.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>().Any(item =>
                     item.SourceSeat == win.OpponentSeat && item.TargetSeat == victim) &&
-                winGame.Events.Select(item => item.Payload).OfType<ActiveSkillResolvedEvent>().Any(item =>
-                    item.Skill == SkillKind.Quhu),
+                winGame.Events.Select(item => item.Payload).OfType<ProgramSkillResolvedEvent>().Any(item =>
+                    item.SkillId == "classic:quhu"),
             resolved.Error?.Message ?? "Winning Quhu must attribute normal damage to the Pindian opponent.");
         var replayed = GameReplay.Restore(RoundTrip(winGame.CreateCheckpoint()), registry);
         Require(State(replayed) == State(winGame) && Events(replayed).SequenceEqual(Events(winGame)),
@@ -81,21 +83,23 @@ internal static class QuhuChecks
 
         var loss = QuhuScenario.Find(sourceWins: false);
         var lossState = loss.Game.CreateSnapshot(loss.SourceSeat, revealAll: true);
-        var lossPindian = loss.Game.Events.Select(item => item.Payload).OfType<PindianResolvedEvent>().Last();
-        Require(!lossPindian.InitiatorWon &&
-                lossPindian.InitiatorRank <= lossPindian.OpponentRank &&
-                loss.Game.PendingDecision?.Kind != DecisionKind.QuhuDamageTarget &&
+        var lossPindian = loss.Game.Events.Select(item => item.Payload).OfType<PindianResultDeterminedEvent>()
+            .Last(item => item.SkillId == "classic:quhu").Result;
+        Require(!lossPindian.SourceWon &&
+                lossPindian.SourceRank <= lossPindian.OpponentRank &&
+                loss.Game.PendingDecision?.Kind != DecisionKind.ProgramTrigger &&
                 loss.Game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>().Any(item =>
                     item.SourceSeat == loss.OpponentSeat && item.TargetSeat == loss.SourceSeat) &&
                 lossState.Players[loss.SourceSeat].Hp == loss.SourceHpBefore - 1,
             $"Losing or tying Quhu must make the Pindian opponent deal one normal damage to Xun Yu. " +
-            $"ranks={lossPindian.InitiatorRank}/{lossPindian.OpponentRank}; hp={lossState.Players[loss.SourceSeat].Hp}; " +
+            $"ranks={lossPindian.SourceRank}/{lossPindian.OpponentRank}; hp={lossState.Players[loss.SourceSeat].Hp}; " +
             $"pending={loss.Game.PendingDecision?.Kind}; damage={string.Join(',', loss.Game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>().Select(item => $"{item.SourceSeat}>{item.TargetSeat}"))}.");
 
         var tie = QuhuScenario.FindTie();
-        var tiePindian = tie.Game.Events.Select(item => item.Payload).OfType<PindianResolvedEvent>().Last();
-        Require(!tiePindian.InitiatorWon &&
-                tiePindian.InitiatorRank == tiePindian.OpponentRank &&
+        var tiePindian = tie.Game.Events.Select(item => item.Payload).OfType<PindianResultDeterminedEvent>()
+            .Last(item => item.SkillId == "classic:quhu").Result;
+        Require(!tiePindian.SourceWon &&
+                tiePindian.SourceRank == tiePindian.OpponentRank &&
                 tie.Game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>().Any(item =>
                     item.SourceSeat == tie.OpponentSeat && item.TargetSeat == tie.SourceSeat),
             "A tied Pindian must count as Xun Yu not winning and damage Xun Yu from the opponent.");

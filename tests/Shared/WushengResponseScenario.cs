@@ -29,15 +29,12 @@ internal static class WushengResponseScenario
 
     public static GameEngine FindQingguoDodge(
         CardKind incoming = CardKind.Slash,
-        Version? packageVersion = null,
         string? skillContentId = null)
         => FindResponse(
             incoming,
             SkillKind.Qingguo,
             DecisionKind.RespondDodge,
-            packageVersion is null
-                ? StandardContentRegistry.CreateWithClassicGenerals()
-                : StandardContentRegistry.CreateWithClassicGenerals(packageVersion),
+            StandardContentRegistry.CreateWithClassicGenerals(),
             "identity:classic-8",
             skillContentId);
 
@@ -163,8 +160,7 @@ internal static class WushengResponseScenario
             }, registry ?? StandardContentRegistry.Create());
             var human = game.CreateSnapshot(0).Players[0];
             var matchesSkill = skillContentId is null
-                ? human.Skill == responderSkill ||
-                  human.Skills?.Any(skill => skill.Kind == responderSkill) == true
+                ? human.Skills?.Any(skill => skill.Kind == responderSkill) == true
                 : human.Skills?.Any(skill => skill.ContentId == skillContentId) == true;
             if (!matchesSkill)
             {

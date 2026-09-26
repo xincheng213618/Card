@@ -47,7 +47,8 @@ internal static class PersistenceChecks
                 Require(State(restored) == expected && restored.GameLog.SequenceEqual(expectedLog), $"Restored {label} state or public log differs.");
                 Require(Engine(restored).CreateCheckpoint().Options.AiPolicyVersion == 3, "Restoring a new game lost its public-evidence AI policy.");
                 Require(restored.RecentPlays.SequenceEqual(expectedPlays), $"Restored {label} public card display differs.");
-                Require(restored.IsMotionEnabled == original.IsMotionEnabled, "Animation preference did not survive JSON save and restore.");
+                Require(restored.IsMotionEnabled == System.Windows.SystemParameters.ClientAreaAnimation,
+                    "A restored match must preserve the current device's animation preference.");
                 Require(restored.Hand.All(card => !card.IsSelected) && restored.SelectedDiscardCount == 0, "Restore retained stale visual selection.");
                 if (!original.HasGameOver)
                 {

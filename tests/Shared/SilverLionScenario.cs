@@ -63,7 +63,8 @@ internal static class SilverLionScenario
                             full.Players[sourceSeat].Hand.Single(card => card.Id == cardId).Kind == CardKind.Alcohol);
                         var slash = full.Players[sourceSeat].Hand.FirstOrDefault(card => card.Kind == CardKind.Slash);
                         var target = slash is null ? null : actions.FirstOrDefault(candidate =>
-                            candidate.CardId == slash.Id && candidate.TargetSeat is { } targetSeat &&
+                            candidate.Kind == LegalActionKind.Slash && candidate.CardId == slash.Id &&
+                            candidate.PlayedCardKind is null && candidate.TargetSeat is { } targetSeat &&
                             full.Players[targetSeat].Hp > 1 &&
                             full.Players[targetSeat].Hand.All(card => card.Kind != CardKind.Dodge) &&
                             full.Players[targetSeat].Equipment.Any(card => card.Kind == CardKind.SilverLion));
@@ -93,7 +94,7 @@ internal static class SilverLionScenario
     private static ContentRegistry CreateRegistry() => ContentRegistry.Build(
         new StandardContentPackage(), new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        new StandardClassicGeneralPackage(new Version(1, 63, 0)),
+        new StandardClassicGeneralPackage(),
         new ScenarioPackage());
 
     private sealed class ScenarioPackage : IGameContentPackage

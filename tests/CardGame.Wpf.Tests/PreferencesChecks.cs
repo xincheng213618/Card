@@ -49,11 +49,9 @@ internal static class PreferencesChecks
                 "Relaunch without loading a match lost device preferences.");
             reopened.StartNewGameCommand.Execute(null);
             reopened.SaveGameCommand.Execute(null);
-            var checkpoint = saves.Read(GameSaveSlot.Manual);
-            saves.Write(GameSaveSlot.Manual, checkpoint with { SoundEnabled = true, SoundVolume = .9, MotionEnabled = true });
             reopened.LoadManualGameCommand.Execute(null);
             Require(!reopened.HasSaveError && !reopened.IsSoundEnabled && reopened.SoundVolume == .19 && !reopened.IsMotionEnabled,
-                "Loading a louder old save overrode current preferences.");
+                "Loading a match overrode device preferences.");
             reopened.StartTutorialCommand.Execute(null);
             reopened.SoundVolume = .24;
             Require(reopened.IsTutorialActive && reopened.FlushPreferences() && store.Read()!.SoundVolume == .24,
@@ -62,17 +60,18 @@ internal static class PreferencesChecks
             Require(!reopened.IsSoundEnabled && reopened.SoundVolume == .24, "Returning from tutorial reverted device preferences.");
         }
 
-        var migrationPath = Path.Combine(directory, "migrated.json");
-        using (var firstLoad = new MainViewModel(false, 721019, true, saves, preferencesStore: new FilePlayerPreferencesStore(migrationPath)))
+        var freshPath = Path.Combine(directory, "fresh-device.json");
+        using (var firstLoad = new MainViewModel(false, 721019, true, saves, preferencesStore: new FilePlayerPreferencesStore(freshPath)))
         {
+            var before = (firstLoad.IsSoundEnabled, firstLoad.SoundVolume, firstLoad.IsMotionEnabled);
             firstLoad.LoadManualGameCommand.Execute(null);
-            Require(firstLoad.IsSoundEnabled && firstLoad.SoundVolume == .9 && firstLoad.IsMotionEnabled && firstLoad.FlushPreferences(),
-                "First legacy save did not seed missing device preferences.");
+            Require((firstLoad.IsSoundEnabled, firstLoad.SoundVolume, firstLoad.IsMotionEnabled) == before,
+                "A match save must not seed or replace device preferences.");
             firstLoad.IsSoundEnabled = false;
             firstLoad.LoadManualGameCommand.Execute(null);
-            Require(!firstLoad.IsSoundEnabled, "Repeated legacy import unmuted the player.");
+            Require(!firstLoad.IsSoundEnabled, "Repeated loading unmuted the player.");
         }
-        Require(new FilePlayerPreferencesStore(migrationPath).Read() is { SoundEnabled: false }, "Closing failed to flush the latest setting.");
+        Require(new FilePlayerPreferencesStore(freshPath).Read() is { SoundEnabled: false }, "Closing failed to flush the latest setting.");
     }
 
     public static void FailuresAndDebounce(string output)

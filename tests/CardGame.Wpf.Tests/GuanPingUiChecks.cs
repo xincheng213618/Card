@@ -189,7 +189,7 @@ internal static class GuanPingUiChecks
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        new StandardClassicGeneralPackage(new Version(1, 97, 0)),
+        new StandardClassicGeneralPackage(),
         new ScenarioPackage());
 
     private sealed class ScenarioPackage : IGameContentPackage

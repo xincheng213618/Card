@@ -1,0 +1,241 @@
+{
+  "schemaVersion": 57,
+  "skills": [
+    {
+      "id": "classic:tianyi",
+      "revision": 1,
+      "minimumRulesVersion": 167,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "contest",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingWithHand",
+          "usesPerTurn": 1,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "pindian",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "always"
+              }
+            },
+            {
+              "op": "grantTurnRuleModifier",
+              "target": "owner",
+              "ruleQuery": "slashLimit",
+              "ruleOperation": "add",
+              "amount": 1,
+              "condition": {
+                "kind": "pindianWon"
+              }
+            },
+            {
+              "op": "grantTurnRuleModifier",
+              "target": "owner",
+              "ruleQuery": "slashDistanceLimit",
+              "ruleOperation": "unlimited",
+              "condition": {
+                "kind": "pindianWon"
+              }
+            },
+            {
+              "op": "grantTurnRuleModifier",
+              "target": "owner",
+              "ruleQuery": "cardTargetCount",
+              "ruleOperation": "add",
+              "amount": 1,
+              "cardKinds": [
+                "slash",
+                "fireSlash",
+                "thunderSlash"
+              ],
+              "condition": {
+                "kind": "pindianWon"
+              }
+            },
+            {
+              "op": "grantTurnCardActionProhibition",
+              "target": "owner",
+              "cardKinds": [
+                "slash",
+                "fireSlash",
+                "thunderSlash"
+              ],
+              "actionTypes": [
+                "use"
+              ],
+              "condition": {
+                "kind": "pindianNotWon"
+              }
+            }
+          ]
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:lieren",
+      "revision": 1,
+      "minimumRulesVersion": 167,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "contest-after-direct-damage",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "damageOccurrence": "perDamage",
+          "damageCardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "directCardUseDamage"
+              },
+              {
+                "kind": "otherDamageParticipantAlive"
+              }
+            ]
+          },
+          "optional": true,
+          "priority": -100,
+          "effects": [
+            {
+              "op": "startPindian",
+              "target": "owner",
+              "opponentRef": {
+                "kind": "eventTarget"
+              },
+              "resultBind": "contest",
+              "visibility": "public"
+            },
+            {
+              "op": "selectSourceCard",
+              "target": "owner",
+              "cardSource": "eventTarget",
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "resultBind": "taken",
+              "skipIfNoCards": true,
+              "condition": {
+                "kind": "pindianWon",
+                "sourceBind": "contest"
+              }
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "taken",
+              "destination": "ownerHand",
+              "condition": {
+                "kind": "pindianWon",
+                "sourceBind": "contest"
+              }
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:quhu",
+      "revision": 1,
+      "minimumRulesVersion": 167,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "contest",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingWithHandHpGreaterThanOwner",
+          "usesPerTurn": 1,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "pindian",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "always"
+              }
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingInBoundParticipantAttackRange",
+              "actorRef": {
+                "kind": "resultOpponent",
+                "resultBind": "__active-pindian-result"
+              },
+              "skipIfNoTarget": true,
+              "condition": {
+                "kind": "pindianWon",
+                "sourceBind": "__active-pindian-result"
+              }
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "sourceRef": {
+                "kind": "resultOpponent",
+                "resultBind": "__active-pindian-result"
+              },
+              "amount": 1,
+              "skipIfNoTarget": true,
+              "condition": {
+                "kind": "pindianWon",
+                "sourceBind": "__active-pindian-result"
+              }
+            },
+            {
+              "op": "damage",
+              "target": "owner",
+              "sourceRef": {
+                "kind": "resultOpponent",
+                "resultBind": "__active-pindian-result"
+              },
+              "amount": 1,
+              "condition": {
+                "kind": "pindianNotWon",
+                "sourceBind": "__active-pindian-result"
+              }
+            }
+          ]
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

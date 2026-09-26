@@ -20,27 +20,24 @@ internal static class NationalSeatChecks
         return vm;
     }
 
-    public static void PrivacyAndLegacy()
+    public static void PrivacyAndReveal()
     {
         using var vm = Ready();
         var before = State(vm);
         var own = Program.Engine(vm).CreateSnapshot(0, true).Players[0];
-        var primary = GeneralSlotViewModel.FromPlayer(own, false, 8);
-        var secondary = GeneralSlotViewModel.FromPlayer(own, true, 8);
+        var primary = GeneralSlotViewModel.FromPlayer(own, false);
+        var secondary = GeneralSlotViewModel.FromPlayer(own, true);
         Require(primary.HasPortrait && secondary.HasPortrait && !primary.IsSkillEnabled && !secondary.IsSkillEnabled, "Own dark slots lost portraits or enabled skills.");
         var other = own with { IsHuman = false };
         foreach (var second in new[] { false, true })
         {
-            var hidden = GeneralSlotViewModel.FromPlayer(other, second, 8);
+            var hidden = GeneralSlotViewModel.FromPlayer(other, second);
             Require(!hidden.IsKnown && !hidden.HasPortrait && !hidden.IsSkillEnabled && hidden.GeneralId.Length == 0 && hidden.Name == "暗将" &&
                 !hidden.DetailText.Contains(own.GeneralName) && !hidden.DetailText.Contains(own.SecondaryGeneralName!), "Trusted input leaked an unrevealed general through its portrait or tooltip.");
         }
         other = other with { IsSecondaryGeneralPublic = true };
-        Require(!GeneralSlotViewModel.FromPlayer(other, false, 8).HasPortrait && GeneralSlotViewModel.FromPlayer(other, true, 8) is { HasPortrait: true, IsSkillEnabled: true },
+        Require(!GeneralSlotViewModel.FromPlayer(other, false).HasPortrait && GeneralSlotViewModel.FromPlayer(other, true) is { HasPortrait: true, IsSkillEnabled: true },
             "Revealing the secondary slot also exposed the primary or left the revealed skill disabled.");
-        Require(GeneralSlotViewModel.FromPlayer(own, false, 6) is { IsSkillEnabled: true } &&
-            !GeneralSlotViewModel.FromPlayer(own with { IsSecondaryGeneralPublic = true }, true, 6).IsSkillEnabled,
-            "Slot labels misrepresented the historical primary-only skill rules.");
         vm.IsDeveloperView = true;
         Require(vm.Seats.Where(seat => !seat.IsHuman).All(seat => seat.RelationshipLabel == "未明" && !seat.IsTeammate && !seat.PrimaryGeneral!.HasPortrait && !seat.SecondaryGeneral!.HasPortrait &&
             seat.Kingdom == "未明势力" && seat.SkillName == "未知 / 未知"),
@@ -65,8 +62,8 @@ internal static class NationalSeatChecks
             ],
             IsSecondaryGeneralPublic = true
         };
-        var primary = GeneralSlotViewModel.FromPlayer(own, false, 89);
-        var secondary = GeneralSlotViewModel.FromPlayer(own, true, 89);
+        var primary = GeneralSlotViewModel.FromPlayer(own, false);
+        var secondary = GeneralSlotViewModel.FromPlayer(own, true);
         Require(primary.SkillName == "咆哮 / 武圣" &&
                 primary.DetailText.Contains("咆哮：", StringComparison.Ordinal) &&
                 primary.DetailText.Contains("武圣：", StringComparison.Ordinal) &&
@@ -78,11 +75,17 @@ internal static class NationalSeatChecks
                 secondary.IsSkillEnabled,
             "The revealed secondary slot did not present and enable both skills.");
 
+        var empty = GeneralSlotViewModel.FromPlayer(own with { Skills = [] }, false);
+        var unavailable = GeneralSlotViewModel.FromPlayer(own with { Skills = null }, false);
+        Require(empty.SkillName == "无" && empty.SkillStateText == "此将没有技能" &&
+                unavailable.SkillName == "未知技能" && unavailable.SkillStateText == "技能信息未公开",
+            "An empty visible skill collection was confused with unavailable private skill data.");
+
         var hidden = GeneralSlotViewModel.FromPlayer(own with
         {
             IsHuman = false,
             IsSecondaryGeneralPublic = false
-        }, true, 89);
+        }, true);
         Require(!hidden.IsKnown && !hidden.DetailText.Contains("青囊", StringComparison.Ordinal) &&
                 !hidden.DetailText.Contains("急救", StringComparison.Ordinal),
             "A trusted snapshot leaked an unrevealed secondary multi-skill list through WPF.");

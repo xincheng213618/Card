@@ -39,11 +39,11 @@ internal static class JijiuChecks
         var redDiamond = new Card(102, CardKind.Alcohol, Suit.Diamond, 9);
         var blackCard = new Card(103, CardKind.Slash, Suit.Spade, 7);
         var peach = new Card(104, CardKind.Peach, Suit.Heart, 3);
-        Require(skill.CanUseAsDyingRescue(context, redHeart) &&
-                skill.CanUseAsDyingRescue(context, redDiamond),
+        Require(skill.Conversion!.CanUseAsDyingRescue(context, redHeart) &&
+                skill.Conversion!.CanUseAsDyingRescue(context, redDiamond),
             "Jijiu must accept red physical cards as dying Peach candidates.");
-        Require(!skill.CanUseAsDyingRescue(context, blackCard) &&
-                !skill.CanUseAsDyingRescue(context, peach),
+        Require(!skill.Conversion!.CanUseAsDyingRescue(context, blackCard) &&
+                !skill.Conversion!.CanUseAsDyingRescue(context, peach),
             "Jijiu must reject black cards and leave native Peach to the base rule.");
 
         var self = new PlayerSnapshot(
@@ -55,14 +55,14 @@ internal static class JijiuChecks
             GeneralId: "standard:demo-jijiu",
             GeneralName: "急救者",
             PortraitKey: "hua_tuo",
-            Skill: SkillKind.Jijiu,
-            SkillName: "急救",
-            SkillDescription: "濒死窗口可将一张红色牌当作桃使用。",
             Hp: 3,
             MaxHp: 4,
             IsAlive: true,
             HandCount: 1,
-            Hand: [new CardSnapshot(redHeart.Id, redHeart.Kind, redHeart.Suit, redHeart.Rank, redHeart.DisplayName, redHeart.RankText)]);
+            Hand: [new CardSnapshot(redHeart.Id, redHeart.Kind, redHeart.Suit, redHeart.Rank, redHeart.DisplayName, redHeart.RankText)])
+        {
+            Skills = [new GeneralSkillDefinition(SkillKind.Jijiu, "急救", "濒死窗口可将一张红色牌当作桃使用。")]
+        };
         var victim = self with
         {
             Seat = 1,
@@ -72,9 +72,7 @@ internal static class JijiuChecks
             GeneralId = "liu-bei",
             GeneralName = "刘备",
             PortraitKey = "liu_bei",
-            Skill = SkillKind.None,
-            SkillName = "无",
-            SkillDescription = "",
+            Skills = [],
             Hp = 0,
             HandCount = 0,
             Hand = []
@@ -192,8 +190,8 @@ internal static class JijiuChecks
 
     public static void EquipmentFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 56, 0));
-        var game = JijiuEquipmentScenario.Find(new Version(1, 56, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var game = JijiuEquipmentScenario.Find();
         var prompt = game.PendingDecision ??
             throw new InvalidOperationException("The classic Jijiu equipment fixture lost its dying prompt.");
         var owner = game.CreateSnapshot(0, revealAll: true).Players[0];
@@ -288,7 +286,8 @@ internal static class JijiuChecks
             {
                 if (result.Status == EngineStatus.AwaitingHumanDying &&
                     game.PendingDecision is { } prompt &&
-                    game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Skill == SkillKind.Jijiu)
+                    game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Skills?
+                        .Any(skill => skill.Kind == SkillKind.Jijiu) == true)
                 {
                     var hand = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hand;
                     var converted = prompt.Choices

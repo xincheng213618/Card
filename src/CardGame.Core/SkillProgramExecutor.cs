@@ -44,7 +44,8 @@ public interface ISkillProgramEffectHost
     void Recover(long frameId, int ownerSeat, int targetSeat, int amount,
         SkillProgramNumberExpression? numberExpression, string? sourceBind);
     SkillProgramStepOutcome LoseHp(long frameId, string skillId, int targetSeat, int amount);
-    SkillProgramStepOutcome Damage(ProgramSkillFrame frame, int targetSeat, int amount);
+    SkillProgramStepOutcome Damage(ProgramSkillFrame frame, int targetSeat, int amount,
+        ProgramParticipantReference? sourceReference = null);
     SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat);
     void MoveSelected(
         ProgramSkillFrame frame,
@@ -157,7 +158,9 @@ public interface ISkillProgramEffectHost
         int ownerSeat,
         SkillProgramTargetKind targetKind,
         IReadOnlyList<CardZoneKind> zones,
-        PlayerMarkerKind? marker) => SelectTarget(frameId, ownerSeat, targetKind, zones);
+        PlayerMarkerKind? marker,
+        ProgramParticipantReference? actorReference = null,
+        bool skipIfNoTarget = false) => SelectTarget(frameId, ownerSeat, targetKind, zones);
     void ChangeAttributedMarker(
         ProgramSkillFrame frame,
         ProgramParticipantReference target,
@@ -236,7 +239,8 @@ public interface ISkillProgramEffectHost
         ProgramSkillFrame frame,
         SkillRuleQuery query,
         SkillRuleOperation operation,
-        int amount);
+        int amount,
+        IReadOnlyList<CardKind> cardKinds);
     void GrantTurnCardTargetRestriction(
         ProgramSkillFrame frame,
         SkillProgramCardTargetRestriction restriction,
@@ -344,7 +348,9 @@ public sealed class SelectTargetSkillProgramEffectHandler : ISkillProgramEffectH
             frame.OwnerSeat,
             effect.TargetKind ?? throw new InvalidOperationException("selectTarget has no target kind."),
             effect.Zones,
-            effect.Marker);
+            effect.Marker,
+            effect.ActorReference,
+            effect.SkipIfNoTarget);
 }
 
 public sealed class SelectTargetsSkillProgramEffectHandler : ISkillProgramEffectHandler
@@ -502,7 +508,8 @@ public sealed class DamageSkillProgramEffectHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.Damage;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
-        int targetSeat, ISkillProgramEffectHost host) => host.Damage(frame, targetSeat, effect.Amount);
+        int targetSeat, ISkillProgramEffectHost host) =>
+        host.Damage(frame, targetSeat, effect.Amount, effect.ActorReference);
 }
 
 public sealed class PindianSkillProgramEffectHandler : ISkillProgramEffectHandler
@@ -861,7 +868,8 @@ public sealed class GrantTurnRuleModifierSkillProgramEffectHandler : ISkillProgr
             frame,
             effect.RuleQuery ?? throw new InvalidOperationException("A turn rule modifier lost its query."),
             effect.RuleOperation ?? throw new InvalidOperationException("A turn rule modifier lost its operation."),
-            effect.Amount);
+            effect.Amount,
+            effect.CardKinds);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -1128,6 +1136,9 @@ public sealed class SkillProgramExecutor
             frame = frame with { InstructionIndex = frame.InstructionIndex + 1 };
             state.UpdateFrame(frame);
             if (!state.EvaluateCondition(frame, effect.Condition, actor.Context)) continue;
+            if (effect.Op == SkillProgramEffectOp.Damage && effect.SkipIfNoTarget &&
+                effect.Target == SkillProgramEffectTarget.SelectedTarget && frame.SelectedTargetSeats.Count == 0)
+                continue;
 
             var targetSeat = effect.Op is SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets
                 ? frame.OwnerSeat

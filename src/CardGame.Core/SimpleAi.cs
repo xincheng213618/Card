@@ -307,7 +307,10 @@ public sealed partial class SimpleAiBrain
 
         var self = view.Players.Single(player => player.Seat == Seat);
         var selectableCards = GetActiveSkillSelectableCards(self, action);
-        if (action.Skill == SkillKind.Qiangxi)
+        var cardSelector = action.Skill is { } activeKind
+            ? ActiveActionCatalog.Selection(activeKind).Cards
+            : ActiveCardSelector.Hand;
+        if (cardSelector == ActiveCardSelector.WeaponFromHandOrEquipment)
         {
             return selectableCards
                 .OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue)
@@ -317,7 +320,7 @@ public sealed partial class SimpleAiBrain
                 .ToArray();
         }
 
-        if (action.Skill == SkillKind.Luanji)
+        if (cardSelector == ActiveCardSelector.SameSuitPair)
         {
             return selectableCards
                 .GroupBy(card => card.Suit)
@@ -392,6 +395,10 @@ public sealed partial class SimpleAiBrain
             throw new InvalidOperationException("The active-skill target selection bounds are invalid.");
         }
 
+        var activeSelection = action.Skill is { } activeKind
+            ? ActiveActionCatalog.Selection(activeKind)
+            : new ActiveActionSelection();
+        var targetSelection = activeSelection.Targets;
         var selectableTargets = action.SelectableTargetSeats.Count == 0
             ? null
             : action.SelectableTargetSeats.ToHashSet();
@@ -400,7 +407,7 @@ public sealed partial class SimpleAiBrain
                               (selectableTargets is null || selectableTargets.Contains(player.Seat)) &&
                               (action.Kind == LegalActionKind.UseProgramSkill
                                   ? true
-                                  : action.Skill is SkillKind.Qingnang or SkillKind.Huichun
+                                  : targetSelection.HasFlag(ActiveTargetSelector.Wounded)
                                       ? player.Hp < player.MaxHp
                                       : player.Seat != Seat))
             .ToArray();
@@ -425,7 +432,7 @@ public sealed partial class SimpleAiBrain
         }
 
         var orderedCandidates = action.Kind == LegalActionKind.UseEquipmentEffect ||
-                                action.Skill is SkillKind.Fanjian or SkillKind.Jijiang or SkillKind.Qiangxi
+                                activeSelection.AiTargetPriority == ActiveTargetPriority.MostHostile
             ? candidates
                 .OrderByDescending(player => GetHostility(view, selfRole, player))
                 .ThenBy(player => player.Hp)
@@ -484,32 +491,22 @@ public sealed partial class SimpleAiBrain
         return (selected, thought);
     }
 
-    public (bool UseDodge, AiThoughtRecord Thought) ChooseDodge(
-        GameSnapshot view,
-        int attackerSeat,
-        int thoughtSequence)
-    {
-        var choice = ChooseDodgeResponse(view, attackerSeat, thoughtSequence);
-        return (choice.UseDodge, choice.Thought);
-    }
-
     /// <summary>
-    /// Chooses between a visible physical Dodge, the visible Bagua armor
-    /// judgment, and taking damage. The engine calls this only with a public
-    /// player snapshot, so the choice never depends on the hidden draw-pile
-    /// order or another player's hand.
+    /// Chooses between a legal Dodge response, the visible Bagua armor
+    /// judgment, and taking damage. The engine supplies response legality
+    /// from the actual candidate list; the remaining scoring reads only the
+    /// player's public and own-hand snapshot.
     /// </summary>
     public (bool UseDodge, bool UseBagua, AiThoughtRecord Thought) ChooseDodgeResponse(
         GameSnapshot view,
         int attackerSeat,
         int thoughtSequence,
-        bool incomingIgnoresArmor = false)
+        bool incomingIgnoresArmor,
+        bool legalDodgeAvailable)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var dodgeProfile = CardCatalog.Get(CardKind.Dodge);
-        var hasDodge = self.Hand.Any(card =>
-            card.Kind == CardKind.Dodge ||
-            self.Skill == SkillKind.Longdan && IsSlashCard(card.Kind));
+        var hasDodge = legalDodgeAvailable;
         var hasBagua = !incomingIgnoresArmor &&
                        self.Equipment.Any(card => card.Kind == CardKind.BaguaFormation);
         var useDodgeScore = self.Hp <= 1
@@ -632,9 +629,10 @@ public sealed partial class SimpleAiBrain
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var owner = view.Players.Single(player => player.Seat == ownerSeat);
+        var hasLongdan = self.Skills?.Any(skill => skill.Kind == SkillKind.Longdan) == true;
         var hasDodge = self.Hand.Any(card =>
             card.Kind == CardKind.Dodge ||
-            self.Skill == SkillKind.Longdan && IsSlashCard(card.Kind));
+            hasLongdan && IsSlashCard(card.Kind));
         var hasBagua = self.Equipment.Any(card => card.Kind == CardKind.BaguaFormation);
         var shouldHelp = self.Role == Role.Loyalist ||
                          self.Role == Role.Renegade && view.Players.Count(player => player.IsAlive) > 2;
@@ -801,7 +799,6 @@ public sealed partial class SimpleAiBrain
         Suit currentSuit,
         int thoughtSequence,
         int currentRank,
-        int rulesVersion = 1,
         bool usesClassicGanglieJudgment = false)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
@@ -813,8 +810,6 @@ public sealed partial class SimpleAiBrain
             throw new InvalidOperationException("AI was asked to resolve an empty Guicai card prompt.");
         }
 
-        var isLightning = reason == JudgmentReasons.Lightning;
-        var usesTacticalJudgmentScoring = rulesVersion >= 11;
         var target = view.Players.Single(player => player.Seat == targetSeat);
         var tacticalSupport = GetTacticalSupport(view, self.Role ?? Role.Renegade, target);
         var wantsSuccessfulJudgment = reason is JudgmentReasons.Lightning or JudgmentReasons.Leiji
@@ -824,11 +819,8 @@ public sealed partial class SimpleAiBrain
             reason,
             currentSuit,
             currentRank,
-            usesTacticalJudgmentScoring,
             usesClassicGanglieJudgment);
-        var currentIsDesirable = usesTacticalJudgmentScoring
-            ? currentMatches == wantsSuccessfulJudgment
-            : currentMatches;
+        var currentIsDesirable = currentMatches == wantsSuccessfulJudgment;
         var cardCandidates = cards
             .Select(card =>
             {
@@ -836,11 +828,8 @@ public sealed partial class SimpleAiBrain
                     reason,
                     card.Suit,
                     card.Rank,
-                    usesTacticalJudgmentScoring,
-                    usesClassicGanglieJudgment);
-                var turnsDesirable = !usesTacticalJudgmentScoring
-                    ? turnsSuccessful
-                    : turnsSuccessful == wantsSuccessfulJudgment;
+                            usesClassicGanglieJudgment);
+                var turnsDesirable = turnsSuccessful == wantsSuccessfulJudgment;
                 var score = currentIsDesirable
                     ? -CardCatalog.Get(card.Kind).HandKeepValue
                     : turnsDesirable
@@ -853,17 +842,9 @@ public sealed partial class SimpleAiBrain
                         targetSeat,
                         $"弃置【{card.DisplayName}】替换判定牌"),
                     Math.Round(score + _random.NextDouble() * 0.001d, 3),
-                    usesTacticalJudgmentScoring
-                        ? turnsDesirable
-                            ? "这张手牌会把公开判定改成符合当前阵营取向的结果；不读取隐藏牌堆。"
-                            : "这张手牌不能把公开判定改成符合当前阵营取向的结果，保留手牌资源。"
-                        : turnsSuccessful
-                            ? isLightning
-                                ? "用自己的黑桃 2 至 9 手牌把公开闪电判定转为命中；不读取隐藏牌堆。"
-                                : "用自己的红色手牌把当前公开判定转为红色；不读取隐藏牌堆。"
-                            : isLightning
-                                ? "当前手牌不能把闪电转为命中，保留手牌资源。"
-                                : "当前牌面不适合转为红色，保留手牌资源。");
+                    turnsDesirable
+                        ? "这张手牌会把公开判定改成符合当前阵营取向的结果；不读取隐藏牌堆。"
+                        : "这张手牌不能把公开判定改成符合当前阵营取向的结果，保留手牌资源。");
             })
             .ToList();
         cardCandidates.Add(new AiCandidateScore(
@@ -873,17 +854,9 @@ public sealed partial class SimpleAiBrain
                 targetSeat,
                 "不发动【鬼才】"),
             currentIsDesirable ? 30d : 1d,
-            usesTacticalJudgmentScoring
-                ? currentIsDesirable
-                    ? "当前公开判定已符合当前阵营取向，保留手牌资源。"
-                    : "没有值得牺牲的手牌可把公开判定改成符合当前阵营取向的结果。"
-                : currentMatches
-                    ? isLightning
-                        ? "当前闪电判定已经命中，只使用公开判定结果。"
-                        : "当前判定已经是红色，只使用自己的公开判定结果。"
-                    : isLightning
-                        ? "没有值得牺牲的黑桃 2 至 9 手牌时保留资源。"
-                        : "没有值得牺牲的红色手牌时保留资源."));
+            currentIsDesirable
+                ? "当前公开判定已符合当前阵营取向，保留手牌资源。"
+                : "没有值得牺牲的手牌可把公开判定改成符合当前阵营取向的结果。"));
 
         var selected = cardCandidates
             .OrderByDescending(candidate => candidate.Score)
@@ -906,16 +879,15 @@ public sealed partial class SimpleAiBrain
         string reason,
         Suit suit,
         int rank,
-        bool usesSuitSpecificDelayedJudgments,
         bool usesClassicGanglieJudgment) => reason switch
         {
             JudgmentReasons.Lightning => suit == Suit.Spade && rank is >= 2 and <= 9,
-            JudgmentReasons.Indulgence when usesSuitSpecificDelayedJudgments => suit == Suit.Heart,
-            JudgmentReasons.SupplyShortage when usesSuitSpecificDelayedJudgments => suit == Suit.Club,
+            JudgmentReasons.Indulgence => suit == Suit.Heart,
+            JudgmentReasons.SupplyShortage => suit == Suit.Club,
             JudgmentReasons.Luoshen => suit is Suit.Spade or Suit.Club,
             JudgmentReasons.Tieqi => suit is Suit.Heart or Suit.Diamond,
             JudgmentReasons.Leiji => suit is Suit.Spade or Suit.Club,
-            JudgmentReasons.Ganglie when usesSuitSpecificDelayedJudgments && usesClassicGanglieJudgment =>
+            JudgmentReasons.Ganglie when usesClassicGanglieJudgment =>
                 suit != Suit.Heart,
             _ => suit is Suit.Heart or Suit.Diamond
         };
@@ -2690,6 +2662,20 @@ public sealed partial class SimpleAiBrain
         _programUsesThisTurn.Clear();
     }
 
+    private static ActiveSkillEffectKind? GetActiveActionEffectKind(
+        PlayerSnapshot self,
+        LegalAction action)
+    {
+        if (action.Skill is not { } skill || ActiveActionCatalog.Find(skill) is not { } rule)
+        {
+            return null;
+        }
+
+        var context = new ActiveSkillContext(new PlayerSkillContext(
+            self.Seat, self.Hp, self.MaxHp, self.HandCount, TurnPhase.Play));
+        return rule.GetEffect(context).Kind;
+    }
+
     private (double Score, string Reason) ScoreAction(
         GameSnapshot view,
         PlayerSnapshot self,
@@ -2705,7 +2691,8 @@ public sealed partial class SimpleAiBrain
                 : (32d, "重铸铁索换取一张未知牌；不读取牌堆顺序，优先保留更有利的连环或解链行动。");
         if (action.Kind == LegalActionKind.UseSkill)
         {
-            if (action.Skill == SkillKind.Qiangxi)
+            var activeEffectKind = GetActiveActionEffectKind(self, action);
+            if (activeEffectKind == ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage)
             {
                 var qiangxiTarget = view.Players
                     .Where(player => player.IsAlive && action.SelectableTargetSeats.Contains(player.Seat))
@@ -2738,7 +2725,7 @@ public sealed partial class SimpleAiBrain
                         : $"失去 1 点体力，对座位 {qiangxiTarget.Seat + 1} 造成 1 点伤害；只使用公开体力和合法目标。");
             }
 
-            if (action.Skill == SkillKind.Fanjian)
+            if (activeEffectKind == ActiveSkillEffectKind.RevealGiftAndDamage)
             {
                 var fanjianTarget = view.Players
                     .Where(player => player.IsAlive && player.Seat != Seat)
@@ -2758,7 +2745,7 @@ public sealed partial class SimpleAiBrain
                     : (-80d, "没有值得主动交牌并施压的敌对目标，保留手牌。");
             }
 
-            if (action.Skill == SkillKind.Rende)
+            if (activeEffectKind == ActiveSkillEffectKind.GiveCardsAndRecover)
             {
                 var recoveryBonus = self.HandCount >= 2 && self.Hp < self.MaxHp ? 12d : 0d;
                 return (
@@ -2768,7 +2755,7 @@ public sealed partial class SimpleAiBrain
                         : $"发动{action.Description}，向其他存活角色交给一张低保留价值手牌；目标由公开存活信息确定。 ");
             }
 
-            if (action.Skill == SkillKind.Jijiang)
+            if (activeEffectKind == ActiveSkillEffectKind.RequestSlash)
             {
                 var jijiangTarget = view.Players
                     .Where(player => player.IsAlive &&
@@ -2789,7 +2776,7 @@ public sealed partial class SimpleAiBrain
                     : (-80d, "攻击范围内没有值得发动激将的敌对目标。");
             }
 
-            if (action.Skill == SkillKind.Qingnang)
+            if (activeEffectKind == ActiveSkillEffectKind.DiscardAndRecover)
             {
                 var qingnangTarget = view.Players
                     .Where(player => player.IsAlive && player.Hp < player.MaxHp)
@@ -2805,7 +2792,7 @@ public sealed partial class SimpleAiBrain
                     $"发动{action.Description}，弃置一张低保留价值手牌令公开受伤目标 {qingnangTarget.Seat + 1} 回复 1 点；不读取暗牌。 ");
             }
 
-            if (action.Skill == SkillKind.Huichun)
+            if (activeEffectKind == ActiveSkillEffectKind.DiscardAndRecoverTargets)
             {
                 var huichunTargets = view.Players
                     .Where(player => player.IsAlive && player.Hp < player.MaxHp)
@@ -2823,7 +2810,7 @@ public sealed partial class SimpleAiBrain
                     $"发动{action.Description}，弃置两张低保留价值手牌令 {huichunTargets.Length} 名公开受伤目标各回复 1 点；不读取暗牌。 ");
             }
 
-            if (action.Skill == SkillKind.Zhiheng)
+            if (activeEffectKind == ActiveSkillEffectKind.DiscardAndDraw)
             {
                 var selectableCards = GetActiveSkillSelectableCards(self, action);
                 var discardCandidate = selectableCards
@@ -2972,10 +2959,12 @@ public sealed partial class SimpleAiBrain
 
         if (action.Kind == LegalActionKind.Alcohol)
         {
+            var hasWusheng = self.Skills?.Any(skill => skill.Kind == SkillKind.Wusheng) == true;
+            var hasLongdan = self.Skills?.Any(skill => skill.Kind == SkillKind.Longdan) == true;
             var slashCount = self.Hand.Count(card =>
                 IsSlashCard(card.Kind) ||
-                self.Skill == SkillKind.Wusheng && IsRedCard(card.Suit) ||
-                self.Skill == SkillKind.Longdan && card.Kind == CardKind.Dodge);
+                hasWusheng && IsRedCard(card.Suit) ||
+                hasLongdan && card.Kind == CardKind.Dodge);
             var score = slashCount == 0
                 ? -10d
                 : cardProfile.AiPlayValue + Math.Min(slashCount, 2) * 10d;

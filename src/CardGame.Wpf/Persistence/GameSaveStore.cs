@@ -11,9 +11,6 @@ public enum GameSaveSlot { Automatic, Manual }
 public sealed record GameSaveFile(int FormatVersion, DateTimeOffset SavedAtUtc, bool AutoAdvance, GameCheckpoint Checkpoint)
 {
     public const int CurrentFormatVersion = 1;
-    public bool? MotionEnabled { get; init; }
-    public bool? SoundEnabled { get; init; }
-    public double? SoundVolume { get; init; }
     public string? PlaybackSpeedId { get; init; }
 }
 
@@ -91,8 +88,6 @@ public sealed class FileGameSaveStore : IGameSaveStore
             throw new InvalidDataException("存档格式不受支持。");
         if (save.Checkpoint.Commands is null || save.Checkpoint.Commands.Count > 100_000)
             throw new InvalidDataException("存档命令记录不完整或过长。");
-        if (save.SoundVolume is { } volume && (!double.IsFinite(volume) || volume < 0 || volume > 1))
-            throw new InvalidDataException("存档中的音量设置无效。");
         if (save.PlaybackSpeedId is { } speed && PlaybackSpeed.Find(speed) is null)
             throw new InvalidDataException("存档中的对局速度设置无效。");
     }

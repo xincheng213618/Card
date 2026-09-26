@@ -15,7 +15,7 @@ internal static class QilinBowScenario
     public static QilinBowBoundary FindHumanTrigger()
     {
         const int sourceSeat = 0;
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 29, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 32_768; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions

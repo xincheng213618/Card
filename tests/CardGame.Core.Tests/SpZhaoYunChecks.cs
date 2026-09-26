@@ -85,7 +85,7 @@ internal static class SpZhaoYunChecks
 
                 if (candidate.PendingDecision?.Kind == DecisionKind.PlayCard)
                 {
-                    candidate.HumanEndPlay(advanceToHumanBoundary: false);
+                    candidate.DriveHumanEndPlay(advanceToHumanBoundary: false);
                 }
                 else
                 {
@@ -137,7 +137,7 @@ internal static class SpZhaoYunChecks
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        new StandardClassicGeneralPackage(new Version(1, 64, 0)),
+        new StandardClassicGeneralPackage(),
         new FixturePackage());
 
     private static GameEngine SelectSpZhaoYun(ContentRegistry registry, string modeId, Role role, int seed)

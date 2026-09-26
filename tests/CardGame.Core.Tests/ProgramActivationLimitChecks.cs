@@ -18,16 +18,14 @@ internal static class ProgramActivationLimitChecks
         {"schemaVersion":1,"skills":{"fixture:turn-draw":{"name":"限次摸牌","description":"回合和阶段分别限次。"}}}
         """;
 
-    public static void DefinitionsAndHistoricalBoundary()
+    public static void DefinitionsAndCurrentBoundary()
     {
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 132, 0));
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(previous.Skills[SkillId] is { LegacyKind: SkillKind.Zhiheng, Program: null } &&
-                current.Skills[SkillId] is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v47",
+        Require(current.Skills[SkillId] is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v47",
                     MinimumRulesVersion: 157 } program } &&
                 program.Activations.Single() is { MaxCards: int.MaxValue, UsesPerPhase: 1, UsesPerTurn: null } &&
                 program.Activations.Single().SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]),
-            "The current exchange must use shared nodes with phase limits, preserving the previous definition.");
+            "The current exchange must use shared nodes with phase limits.");
         var baseline = SkillProgramCatalog.Load(Rules, Presentation).Programs["fixture:turn-draw"];
         var noPhase = SkillProgramCatalog.Load(Rules.Replace("\"usesPerPhase\":1", "\"usesPerPhase\":null"),
             Presentation).Programs["fixture:turn-draw"];
@@ -146,9 +144,9 @@ internal static class ProgramActivationLimitChecks
 
     public static void HealingRenewsOnlyAtNextPhase()
     {
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 132, 0));
-        Require(previous.Skills["classic:qingnang"].Program!.Activations.Single() is
-                { UsesPerTurn: 1, UsesPerPhase: null }, "The previous Qingnang definition must stay intact.");
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(current.Skills["classic:qingnang"].Program!.Activations.Single() is
+                { UsesPerTurn: null, UsesPerPhase: 1 }, "Current Qingnang must renew its allowance each Play phase.");
         var (game, registry) = Create(extraPhase: true, healing: true);
         void Activate(string skill, string activation, IReadOnlyList<int> cards, IReadOnlyList<int> targets)
         {

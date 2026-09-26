@@ -6,13 +6,13 @@ internal static class BorrowedSwordChecks
 {
     public static void TransferSlashAndReplay()
     {
-        var sourceBoundary = BorrowedSwordScenario.FindHumanSourcePlay(new Version(1, 23, 0));
+        var sourceBoundary = BorrowedSwordScenario.FindHumanSourcePlay();
         Require(sourceBoundary.GetHumanLegalActions().Any(action =>
                 action.Kind == LegalActionKind.BorrowedSword),
             "Current rules must expose Borrowed Sword from the prepared source boundary.");
 
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 37, 0));
-        var boundary = BorrowedSwordScenario.FindHumanOwnerResponse(packageVersion: new Version(1, 37, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var boundary = BorrowedSwordScenario.FindHumanOwnerResponse();
         var prompt = boundary.PendingDecision ??
             throw new InvalidOperationException("Borrowed Sword fixture lost its private response prompt.");
         var sourceSeat = prompt.SourceSeat ??
@@ -131,10 +131,8 @@ internal static class BorrowedSwordChecks
 
     public static void JijiangProvidesForcedSlash()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 35, 0));
-        var game = BorrowedSwordScenario.FindHumanOwnerResponse(
-            requireJijiang: true,
-            packageVersion: new Version(1, 35, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var game = BorrowedSwordScenario.FindHumanOwnerResponse(requireJijiang: true);
         var prompt = game.PendingDecision ??
             throw new InvalidOperationException("Borrowed Sword Jijiang fixture lost its owner prompt.");
         var targetSeat = prompt.TargetSeat ??

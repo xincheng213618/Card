@@ -14,50 +14,36 @@ internal static class ChengPuLihuoChecks
 
     public static void ContentAndRulesBoundary()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 91, 0));
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 90, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = current.Skills[LihuoSkillId];
 
-        Require(skill.LegacyKind == SkillKind.Lihuo &&
+        Require(skill.LegacyKind is null && skill.Program is not null &&
                 skill.Tags == SkillTag.None &&
                 skill.ActionForms == SkillActionForm.None &&
-                skill.ExecutionForms == SkillExecutionForm.State,
-            "Lihuo must be a continuous state rule, not a standalone active button or trigger prompt.");
-        Require(!previous.Skills.ContainsKey(LihuoSkillId) &&
-                current.ContentHash != previous.ContentHash,
-            "Package 1.91.0 must add Lihuo without mutating package 1.90.0.");
-        Require((current.Modes["identity:classic-5"].GeneralPoolIds ?? []).SequenceEqual(
-                    previous.Modes["identity:classic-5"].GeneralPoolIds ?? []),
-            "The partial Lihuo runtime must not publish an incomplete Cheng Pu general in the current pool.");
+                skill.ExecutionForms == (SkillExecutionForm.State | SkillExecutionForm.Trigger),
+            "Lihuo must expose conversion state and a completed-use penalty without an active button.");
+        Require(current.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:cheng-pu"),
+            "Current identity mode must publish the complete Cheng Pu general.");
 
     }
 
     public static void CompletionPenaltyProgramContentBoundary()
     {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var latest = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 127, 0));
-        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 125, 0));
-        var penaltyOnly = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 126, 0));
+        var latest = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = latest.Skills[LihuoSkillId];
-        Require(current.Skills[LihuoSkillId].Program is
+        Require(skill.Program is
                 { RuntimeVersion: "skill-program-v52", MinimumRulesVersion: 162 } currentProgram &&
                 currentProgram.Modifiers.Single() is
                 { Query: SkillRuleQuery.CardTargetCount, Operation: SkillRuleOperation.Add, Value: 1 } &&
                 currentProgram.Modifiers.Single().CardKinds.SequenceEqual([CardKind.FireSlash]) &&
                 currentProgram.ViewAs.Single() is { AllowChainedInput: true } &&
-                skill.Program is { RuntimeVersion: "skill-program-v45", MinimumRulesVersion: 150 } &&
                 skill.Program.Triggers.Single() is
                 { Window: SkillProgramTriggerWindow.CardUseCompleted, Optional: false } &&
                 skill.Program.ViewAs.Single() is
                 { OutputKind: CardKind.FireSlash, ForPlay: true, ForResponse: false } &&
                 skill.LegacyKind is null &&
-                skill.ExecutionForms == (SkillExecutionForm.State | SkillExecutionForm.Trigger) &&
-                penaltyOnly.Skills[LihuoSkillId].Program is
-                { RuntimeVersion: "skill-program-v44", ViewAs.Count: 0 } &&
-                historical.Skills[LihuoSkillId].Program is null &&
-                historical.Skills[LihuoSkillId].LegacyKind == SkillKind.Lihuo &&
-                historical.ContentHash != latest.ContentHash,
-            "Package 1.138.0 must add public target-count and chained-viewAs rules while preserving the 1.127.0, 1.126.0 and 1.125.0 definitions.");
+                skill.ExecutionForms == (SkillExecutionForm.State | SkillExecutionForm.Trigger),
+            "Current Lihuo must expose target-count, chained conversion and completed-use penalty rules.");
     }
 
     public static void ConvertedFireSlashAddsTargetAndLosesHpOnce()
@@ -314,41 +300,9 @@ internal static class ChengPuLihuoChecks
             "The Wusheng-to-Lihuo chain must replay exactly.");
     }
 
-    public static void HistoricalLihuoPackagesDoNotReactivateRetiredExecutionRoutes()
-    {
-        foreach (var version in new[]
-                 {
-                     new Version(1, 125, 0),
-                     new Version(1, 126, 0),
-                     new Version(1, 137, 0)
-                 })
-        {
-            var game = CreateGame(ScenarioPackage.SlashModeId, seed: 1, classicVersion: version);
-            ReachHumanPlay(game);
-            var slash = Player(game, HumanSeat).Hand.First(card => card.Kind == CardKind.Slash);
-            var actions = game.GetHumanLegalActions().Where(candidate =>
-                candidate.Kind == LegalActionKind.Slash &&
-                candidate.CardId == slash.Id).ToArray();
-            Require(actions.All(candidate =>
-                    candidate.CardKindModifierSkill is null &&
-                    candidate.TargetCountModifierSkill is null &&
-                    candidate.TargetSeats.Count == 1) &&
-                (version.Minor < 127
-                    ? actions.All(candidate => candidate.PlayedCardKind != CardKind.FireSlash)
-                    : actions.Any(candidate =>
-                        candidate.PlayedCardKind == CardKind.FireSlash &&
-                        candidate.ConversionSource?.SkillId == LihuoSkillId)),
-                $"Historical Lihuo package {version} reactivated a retired specialized route.");
-        }
-    }
-
     public static void ChunlaoContentAndRulesBoundary()
     {
-        var latest = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 125, 0));
-        var storageHistorical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 124, 0));
-        var legacyHistorical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 123, 0));
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 92, 0));
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 91, 0));
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
         var general = current.Generals["classic:cheng-pu"];
         var chunlao = current.Skills[ChunlaoSkillId];
 
@@ -361,28 +315,19 @@ internal static class ChengPuLihuoChecks
                     Gender: GeneralGender.Male
                 } && general.SkillIds.SequenceEqual([LihuoSkillId, ChunlaoSkillId]),
             "Classic Cheng Pu metadata drifted.");
-        Require(chunlao.LegacyKind == SkillKind.Chunlao &&
+        Require(chunlao.LegacyKind is null &&
                 chunlao.Tags == SkillTag.None &&
                 chunlao.ActionForms == SkillActionForm.None &&
                 chunlao.ExecutionForms == SkillExecutionForm.Trigger,
             "Chunlao must remain an optional trigger rather than an active play-phase action.");
-        Require(!previous.Generals.ContainsKey("classic:cheng-pu") &&
-                !previous.Skills.ContainsKey(ChunlaoSkillId) &&
-                current.ContentHash != previous.ContentHash,
-            "Package 1.92.0 must publish complete Cheng Pu without mutating package 1.91.0.");
-        Require(latest.Skills[ChunlaoSkillId] is
-                { LegacyKind: null, Program.Triggers.Count: 2 } &&
-                latest.Skills[ChunlaoSkillId].Program!.Triggers[0] is
+        Require(chunlao.Program is { Triggers.Count: 2 } &&
+                chunlao.Program.Triggers[0] is
                 { Id: "store-chun-at-turn-end", Window: SkillProgramTriggerWindow.TurnEnding, Optional: true } &&
-                latest.Skills[ChunlaoSkillId].Program!.Triggers[1] is
+                chunlao.Program.Triggers[1] is
                 { Id: "spend-chun-for-dying-alcohol", Window: SkillProgramTriggerWindow.DyingResponse, Optional: true } &&
-                latest.Skills[ChunlaoSkillId].Program!.Triggers[0].Effects[0] is
-                { MinimumCards: 1, MaximumCards: 20, CardKinds.Count: 3 } &&
-                storageHistorical.Skills[ChunlaoSkillId].Program?.Triggers.Count == 1 &&
-                legacyHistorical.Skills[ChunlaoSkillId].Program is null &&
-                legacyHistorical.Skills[ChunlaoSkillId].LegacyKind == SkillKind.Chunlao &&
-                latest.ContentHash != storageHistorical.ContentHash,
-            "Package 1.125.0 must compose Chunlao rescue without changing the 1.124.0 storage boundary.");
+                chunlao.Program.Triggers[0].Effects[0] is
+                { MinimumCards: 1, MaximumCards: 20, CardKinds.Count: 3 },
+            "Current Chunlao must compose end-phase storage and dying rescue with the configured selection cost.");
         var rules = ReadResource("CardGame.Content.Standard.SkillPrograms.owned-zone-storage-skills.rules.json");
         var presentation = ReadResource("CardGame.Content.Standard.SkillPrograms.owned-zone-storage-skills.presentation.json");
         try
@@ -475,22 +420,6 @@ internal static class ChengPuLihuoChecks
             "Finishing Chunlao must atomically move the exact selected Slash cards into a public owner pile.");
         Require(State(paused) == State(game) && Events(paused).SequenceEqual(Events(game)),
             "The completed Chunlao storage branch must replay exactly.");
-    }
-
-    public static void HistoricalChunlaoDefinitionDoesNotReactivateRetiredExecutor()
-    {
-        var game = CreateGame(
-            ScenarioPackage.SlashModeId,
-            seed: 1,
-            classicVersion: new Version(1, 123, 0));
-        ReachHumanPlay(game);
-        EndHumanPlay(game);
-
-        Require(game.PendingDecision?.Kind != DecisionKind.Chunlao &&
-                game.CardMovements.All(move => move.To != CardLocation.Chunlao(HumanSeat)) &&
-                game.Events.Select(item => item.Payload).All(payload =>
-                    payload is not ChunlaoStoredEvent and not ChunlaoRescueEvent),
-            "A historical Chunlao definition must preserve its identity without reactivating the retired executor.");
     }
 
     public static void ChunlaoRescuesWithVirtualAlcoholAndReplays()
@@ -722,9 +651,9 @@ internal static class ChengPuLihuoChecks
     });
 
     private static GameEngine CreateGame(string modeId, int seed, int rulesVersion = GameCheckpoint.CurrentRulesVersion,
-        string ownerGeneralId = OwnerGeneralId, Version? classicVersion = null)
+        string ownerGeneralId = OwnerGeneralId)
     {
-        var registry = Registry(classicVersion);
+        var registry = Registry();
         var game = GameEngine.CreateStandard(new GameOptions
         {
             Seed = seed,
@@ -768,11 +697,11 @@ internal static class ChengPuLihuoChecks
         throw new InvalidOperationException("The Lihuo fixture did not reach human Play.");
     }
 
-    private static ContentRegistry Registry(Version? classicVersion = null) => ContentRegistry.Build(
+    private static ContentRegistry Registry() => ContentRegistry.Build(
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        classicVersion is null ? new StandardClassicGeneralPackage() : new StandardClassicGeneralPackage(classicVersion),
+        new StandardClassicGeneralPackage(),
         new ScenarioPackage());
 
     private static string ReadResource(string name)

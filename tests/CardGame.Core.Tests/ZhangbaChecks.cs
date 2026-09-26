@@ -6,7 +6,7 @@ internal static class ZhangbaChecks
 {
     public static void ActiveUseAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var boundary = ZhangbaScenario.FindHumanActiveUse();
         var game = boundary.Game;
         var prompt = game.PendingDecision ??
@@ -78,15 +78,11 @@ internal static class ZhangbaChecks
         Require(State(replayed) == State(game) && Events(replayed).SequenceEqual(Events(game)),
             "A completed Zhangba active use must replay exactly.");
 
-        var previousPackage = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 24, 0));
-        Require(!previousPackage.Cards.ContainsKey("classic:zhangba-serpent-spear") &&
-                previousPackage.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 93,
-            "Classic package 1.24 must retain the pre-Zhangba 93-card content fingerprint.");
     }
 
     public static void SlashResponseAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var boundary = ZhangbaScenario.FindHumanResponse();
         var game = boundary.Game;
         var prompt = game.PendingDecision ??

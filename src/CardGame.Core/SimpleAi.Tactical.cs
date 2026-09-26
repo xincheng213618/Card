@@ -69,7 +69,8 @@ public sealed partial class SimpleAiBrain
     {
         if (action.Kind == LegalActionKind.UseSkill)
         {
-            if (action.Skill == SkillKind.Fanjian)
+            var activeEffectKind = GetActiveActionEffectKind(self, action);
+            if (activeEffectKind == ActiveSkillEffectKind.RevealGiftAndDamage)
             {
                 var target = view.Players
                     .Where(player => player.IsAlive && player.Seat != Seat)
@@ -87,7 +88,7 @@ public sealed partial class SimpleAiBrain
                     : (-100d, "公开阵营信息中没有敌对目标，不向友方发动反间。");
             }
 
-            if (action.Skill == SkillKind.Rende)
+            if (activeEffectKind == ActiveSkillEffectKind.GiveCardsAndRecover)
             {
                 var target = view.Players
                     .Where(player => player.IsAlive && player.Seat != Seat)
@@ -106,7 +107,7 @@ public sealed partial class SimpleAiBrain
                     $"向公开上最值得支持的目标 {target.Seat + 1} 交给手牌；支持收益 {support:0.#}，不读取目标暗牌。 ");
             }
 
-            if (action.Skill == SkillKind.Qingnang)
+            if (activeEffectKind == ActiveSkillEffectKind.DiscardAndRecover)
             {
                 var target = view.Players
                     .Where(player => player.IsAlive && player.Hp < player.MaxHp)
@@ -123,7 +124,7 @@ public sealed partial class SimpleAiBrain
                     $"弃置一张低保留价值手牌令公开受伤目标 {target.Seat + 1} 回复 1 点；支持收益 {support:0.#}，不读取暗牌。 ");
             }
 
-            if (action.Skill == SkillKind.Huichun)
+            if (activeEffectKind == ActiveSkillEffectKind.DiscardAndRecoverTargets)
             {
                 var targets = view.Players
                     .Where(player => player.IsAlive && player.Hp < player.MaxHp)
@@ -142,7 +143,7 @@ public sealed partial class SimpleAiBrain
                     $"弃置两张低保留价值手牌令 {targets.Length} 名公开受伤目标各回复 1 点；综合支持收益 {support:0.#}，不读取暗牌。 ");
             }
 
-            if (action.Skill == SkillKind.Zhiheng)
+            if (activeEffectKind == ActiveSkillEffectKind.DiscardAndDraw)
             {
                 var selectableCards = GetActiveSkillSelectableCards(self, action);
                 var discardCandidate = selectableCards

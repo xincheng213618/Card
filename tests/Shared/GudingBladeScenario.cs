@@ -66,8 +66,8 @@ internal static class GudingBladeScenario
                 continue;
             }
 
-            var weapon = source.Hand.SingleOrDefault(card => card.Kind == CardKind.GudingBlade);
-            var slash = source.Hand.SingleOrDefault(card => card.Kind == CardKind.Slash);
+            var weapon = source.Hand.FirstOrDefault(card => card.Kind == CardKind.GudingBlade);
+            var slash = source.Hand.FirstOrDefault(card => card.Kind == CardKind.Slash);
             if (weapon is null || slash is null)
             {
                 continue;
@@ -208,7 +208,7 @@ internal static class GudingBladeScenario
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        new StandardClassicGeneralPackage(new Version(1, 63, 0)),
+        new StandardClassicGeneralPackage(),
         new GudingScenarioPackage());
 
     private sealed class GudingScenarioPackage : IGameContentPackage

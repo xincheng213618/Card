@@ -5,7 +5,7 @@ internal static class HuaXiongChecks
 {
     public static void RedSlashBenefitAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 55, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 4096; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions

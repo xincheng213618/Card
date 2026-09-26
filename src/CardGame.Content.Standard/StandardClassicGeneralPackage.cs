@@ -3,9 +3,7 @@ using CardGame.Core;
 namespace CardGame.Content.Standard;
 
 /// <summary>
-/// Opt-in classic identity roster. The legacy standard and demo expansion
-/// packages remain unchanged so their checkpoints keep the original content
-/// hashes and v1-v9 behavior.
+/// Current opt-in classic identity roster and its skill definitions.
 /// </summary>
 public sealed class StandardClassicGeneralPackage : IGameContentPackage
 {
@@ -57,45 +55,21 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicLifecycleRulesResource),
             ReadEmbeddedText(ClassicLifecyclePresentationResource)));
-    private readonly Version _version;
-
     public static Version CurrentVersion { get; } = new(1, 141, 0);
 
-    public StandardClassicGeneralPackage(bool legacyRoster = false)
-        : this(legacyRoster ? new Version(1, 0, 0) : CurrentVersion)
+    public StandardClassicGeneralPackage()
     {
-    }
-
-    public StandardClassicGeneralPackage(Version version)
-    {
-        ArgumentNullException.ThrowIfNull(version);
-        var isSupportedDevelopmentVersion =
-            version.Major == CurrentVersion.Major &&
-            version.Minor <= CurrentVersion.Minor &&
-            version.Build == 0 &&
-            version.Revision < 0;
-        if (!isSupportedDevelopmentVersion)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(version),
-                version,
-                $"Supported classic-general package versions are 1.0.0 through {CurrentVersion}.");
-        }
-
-        _version = version;
         Manifest = new PackageManifest(
             Id: "standard-classic-generals",
-            Version: version,
+            Version: CurrentVersion,
             Dependencies: [new PackageDependency("standard-rescue-skills", new Version(1, 0, 0))]);
     }
-
     public PackageManifest Manifest { get; }
 
     public void Register(IContentRegistryBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        if (_version >= new Version(1, 23, 0))
         {
             builder.AddCard(new ContentCardDefinition(
                 Id: "classic:borrowed-sword",
@@ -108,7 +82,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                     ["action"] = "force-slash-or-take-weapon",
                     ["targets"] = "ordered-two"
                 }));
-            if (_version >= new Version(1, 24, 0))
             {
                 builder.AddCard(new ContentCardDefinition(
                     Id: "classic:stone-axe",
@@ -123,7 +96,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["cost"] = "discard-two"
                     }));
             }
-            if (_version >= new Version(1, 25, 0))
             {
                 builder.AddCard(new ContentCardDefinition(
                     Id: "classic:zhangba-serpent-spear",
@@ -137,7 +109,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["conversion"] = "two-hand-cards-as-slash"
                     }));
             }
-            if (_version >= new Version(1, 26, 0))
             {
                 builder.AddCard(new ContentCardDefinition(
                     Id: "classic:cixiong-double-swords",
@@ -151,7 +122,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["trigger"] = "opposite-gender-slash-target"
                     }));
             }
-            if (_version >= new Version(1, 27, 0))
             {
                 builder.AddCard(new ContentCardDefinition(
                     Id: "classic:qinglong-crescent-blade",
@@ -166,7 +136,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["continuation"] = "same-target-slash"
                     }));
             }
-            if (_version >= new Version(1, 28, 0))
             {
                 builder.AddCard(new ContentCardDefinition(
                     Id: "classic:ice-sword",
@@ -181,7 +150,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["replacement"] = "discard-up-to-two-target-cards"
                     }));
             }
-            if (_version >= new Version(1, 29, 0))
             {
                 builder.AddCard(new ContentCardDefinition(
                     Id: "classic:qilin-bow",
@@ -196,7 +164,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["effect"] = "discard-target-mount"
                     }));
             }
-            if (_version >= new Version(1, 30, 0))
             {
                 builder.AddCard(new ContentCardDefinition(
                     Id: "classic:fangtian-halberd",
@@ -211,7 +178,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["effect"] = "up-to-two-extra-targets"
                     }));
             }
-            if (_version >= new Version(1, 31, 0))
             {
                 builder.AddCard(new ContentCardDefinition(
                     Id: "classic:guding-blade",
@@ -226,7 +192,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["effect"] = "damage-plus-one"
                     }));
             }
-            if (_version >= new Version(1, 32, 0))
             {
                 builder.AddCard(new ContentCardDefinition(
                     Id: "classic:zhuque-fan",
@@ -241,7 +206,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["effect"] = "convert-to-fire-slash"
                     }));
             }
-            if (_version >= new Version(1, 33, 0))
             {
                 builder.AddCard(new ContentCardDefinition(
                     Id: "classic:tengjia",
@@ -256,7 +220,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["fire-damage"] = "plus-one"
                     }));
             }
-            if (_version >= new Version(1, 34, 0))
             {
                 builder.AddCard(new ContentCardDefinition(
                     Id: "classic:silver-lion",
@@ -271,7 +234,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["on-loss"] = "recover-one"
                     }));
             }
-            if (_version >= new Version(1, 35, 0))
             {
                 builder.AddCard(new ContentCardDefinition(
                     Id: "classic:wooden-ox",
@@ -286,7 +248,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                         ["transfer"] = "equipment-to-equipment"
                     }));
             }
-            if (_version >= new Version(1, 37, 0))
             {
                 builder.AddCard(new ContentCardDefinition(
                     "classic:dawan", "大宛", "装备牌",
@@ -301,7 +262,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                     "classic:zhaohuangfeidian", "爪黄飞电", "装备牌",
                     "装备至防御坐骑槽；其他角色到你的战斗距离 +1。", CardKind.Zhaohuangfeidian));
             }
-            if (_version >= new Version(1, 38, 0))
             {
                 builder.AddCard(new ContentCardDefinition(
                     "classic:hualiu", "骅骝", "装备牌",
@@ -339,61 +299,44 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 new("standard:renwang_shield", 1),
                 new("classic:borrowed-sword", 2)
             };
-            if (_version >= new Version(1, 24, 0))
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:stone-axe", 1));
             }
-            if (_version >= new Version(1, 25, 0))
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:zhangba-serpent-spear", 1));
             }
-            if (_version >= new Version(1, 26, 0))
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:cixiong-double-swords", 2));
             }
-            if (_version >= new Version(1, 27, 0))
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:qinglong-crescent-blade", 1));
             }
-            if (_version >= new Version(1, 28, 0))
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:ice-sword", 1));
             }
-            if (_version >= new Version(1, 29, 0))
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:qilin-bow", 1));
             }
-            if (_version >= new Version(1, 30, 0))
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:fangtian-halberd", 1));
             }
-            if (_version >= new Version(1, 31, 0))
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:guding-blade", 1));
             }
-            if (_version >= new Version(1, 32, 0))
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:zhuque-fan", 1));
             }
-            if (_version >= new Version(1, 33, 0))
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:tengjia", 1));
             }
-            if (_version >= new Version(1, 34, 0))
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:silver-lion", 1));
             }
-            if (_version >= new Version(1, 35, 0))
             {
                 classicDeckCards.Add(new ContentDeckCardCount("classic:wooden-ox", 1));
             }
 
-            var physicalCards = _version >= new Version(1, 38, 0)
-                ? CreateMilitaryPhysicalDeck()
-                : _version >= new Version(1, 36, 0)
-                ? CreateStandardPhysicalDeck(_version >= new Version(1, 37, 0))
-                : null;
-            if (_version >= new Version(1, 39, 0))
+            var physicalCards = CreateMilitaryPhysicalDeck();
             {
                 builder.AddDeck(new ContentDeckRecipe(
                     Id: "classic:standard-108",
@@ -407,37 +350,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             }
             builder.AddDeck(new ContentDeckRecipe(
                 Id: "classic:standard-deck",
-                Name: _version >= new Version(1, 38, 0)
-                    ? "经典军争 160 张逐张牌堆"
-                    : _version >= new Version(1, 37, 0)
-                    ? "经典标准 108 张逐张牌堆（六匹实名坐骑）"
-                    : _version >= new Version(1, 36, 0)
-                    ? "经典标准 108 张逐张牌堆（含 4 张 EX）"
-                    : _version >= new Version(1, 35, 0)
-                    ? "经典标准牌堆（含木牛流马等扩展装备）"
-                    : _version >= new Version(1, 34, 0)
-                    ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑·麒麟弓·方天画戟·古锭刀·朱雀羽扇·藤甲·白银狮子）"
-                    : _version >= new Version(1, 33, 0)
-                    ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑·麒麟弓·方天画戟·古锭刀·朱雀羽扇·藤甲）"
-                    : _version >= new Version(1, 32, 0)
-                    ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑·麒麟弓·方天画戟·古锭刀·朱雀羽扇）"
-                    : _version >= new Version(1, 31, 0)
-                    ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑·麒麟弓·方天画戟·古锭刀）"
-                    : _version >= new Version(1, 30, 0)
-                    ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑·麒麟弓·方天画戟）"
-                    : _version >= new Version(1, 29, 0)
-                    ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑·麒麟弓）"
-                    : _version >= new Version(1, 28, 0)
-                    ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀·寒冰剑）"
-                    : _version >= new Version(1, 27, 0)
-                    ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑·青龙偃月刀）"
-                    : _version >= new Version(1, 26, 0)
-                    ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛·雌雄双股剑）"
-                    : _version >= new Version(1, 25, 0)
-                    ? "经典标准牌堆（借刀杀人·贯石斧·丈八蛇矛）"
-                    : _version >= new Version(1, 24, 0)
-                    ? "经典标准牌堆（借刀杀人·贯石斧）"
-                    : "经典标准牌堆（借刀杀人）",
+                Name: "经典军争 160 张逐张牌堆",
                 InitialHandSize: 4,
                 DrawPerTurn: 2,
                 Cards: physicalCards is null ? classicDeckCards : [])
@@ -446,41 +359,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             });
         }
 
-        if (_version >= new Version(1, 77, 0))
         {
             builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
                 "classic:rende",
                 "仁德",
-                _version >= new Version(1, 78, 0)
-                    ? "出牌阶段，你可以将任意张手牌交给其他角色，然后你本阶段以此法给出第二张牌或更多时，你回复 1 点体力。"
-                    : "出牌阶段将一至若干张手牌交给一名其他角色；一次交给至少两张时回复 1 点体力。",
+                "出牌阶段，你可以将任意张手牌交给其他角色，然后你本阶段以此法给出第二张牌或更多时，你回复 1 点体力。",
                 SkillKind.Rende)));
-            builder.AddSkill(WithActiveActionMetadata(_version >= new Version(1, 133, 0)
-                ? EmbeddedSkillProgramCatalog.Definition("phase-owned-card-actions", "classic:zhiheng")
-                : new ContentSkillDefinition(
-                "classic:zhiheng",
-                "制衡",
-                "出牌阶段限一次，你可以弃置任意张手牌或装备区里的牌，然后摸等量张牌。",
-                SkillKind.Zhiheng)));
-            builder.AddSkill(WithActiveActionMetadata(_version >= new Version(1, 133, 0)
-                ? EmbeddedSkillProgramCatalog.Definition("phase-owned-card-actions", "classic:qingnang")
-                : _version >= new Version(1, 132, 0)
-                ? EmbeddedSkillProgramCatalog.Definition("classic-qingnang-skills", "classic:qingnang")
-                : new ContentSkillDefinition(
-                    "classic:qingnang",
-                    "青囊",
-                    "出牌阶段限一次，你可以弃置一张手牌并选择一名已受伤的角色，令其回复 1 点体力。",
-                    SkillKind.Qingnang)));
-            builder.AddSkill(WithActiveActionMetadata(_version >= new Version(1, 129, 0)
-                ? EmbeddedSkillProgramCatalog.Definition("classic-kujin-skills", "classic:kujin")
-                : new ContentSkillDefinition(
-                    "classic:kujin",
-                    "苦肉",
-                    "出牌阶段，你可以失去 1 点体力，然后摸两张牌。",
-                    SkillKind.Kujin)));
+            builder.AddSkill(WithActiveActionMetadata(EmbeddedSkillProgramCatalog.Definition("phase-owned-card-actions", "classic:zhiheng")));
+            builder.AddSkill(WithActiveActionMetadata(EmbeddedSkillProgramCatalog.Definition("phase-owned-card-actions", "classic:qingnang")));
+            builder.AddSkill(WithActiveActionMetadata(EmbeddedSkillProgramCatalog.Definition("classic-kujin-skills", "classic:kujin")));
         }
 
-        if (_version >= new Version(1, 79, 0))
         {
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
                 "classic:guicai",
@@ -497,37 +386,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "急救",
                 "你的回合外，你可以将一张红色牌当【桃】使用。",
                 SkillKind.Jijiu)));
-            builder.AddSkill(_version >= new Version(1, 101, 0)
-                ? DamageSkillPrograms.Definition("classic:yiji")
-                : WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                    "classic:yiji",
-                    "遗计",
-                    "受到 1 点伤害后，你可以摸两张牌，然后可以将其中一张交给一名其他存活角色。",
-                    SkillKind.Yiji)));
-            builder.AddSkill(_version >= new Version(1, 102, 0)
-                ? DrawPhaseSkillPrograms.Definition("classic:yingzi")
-                : WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                    "classic:yingzi",
-                    "英姿",
-                    "摸牌阶段，你可以多摸一张牌。",
-                    SkillKind.Yingzi)));
-            builder.AddSkill(_version >= new Version(1, 101, 0)
-                ? DamageSkillPrograms.Definition("classic:jianxiong")
-                : WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                    "classic:jianxiong",
-                    "奸雄",
-                    "当你受到伤害后，你可以获得造成此伤害的牌。",
-                    SkillKind.Jianxiong)));
-            builder.AddSkill(_version >= new Version(1, 101, 0)
-                ? DamageSkillPrograms.Definition("classic:jieming")
-                : WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                    "classic:jieming",
-                    "节命",
-                    "受到伤害后，你可以令一名手牌数少于体力上限的角色摸牌至其体力上限。",
-                    SkillKind.Jieming)));
+            builder.AddSkill(DamageSkillPrograms.Definition("classic:yiji"));
+            builder.AddSkill(DrawPhaseSkillPrograms.Definition("classic:yingzi"));
+            builder.AddSkill(DamageSkillPrograms.Definition("classic:jianxiong"));
+            builder.AddSkill(DamageSkillPrograms.Definition("classic:jieming"));
         }
 
-        if (_version >= new Version(1, 80, 0))
         {
             builder.AddSkill(new ContentSkillDefinition(
                 "mou:hengye",
@@ -546,36 +410,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             });
         }
 
-        if (_version >= new Version(1, 81, 0))
         {
-            builder.AddSkill(_version >= new Version(1, 106, 0)
-                ? DrawPolicySkillPrograms.Definition("classic:jiangchi")
-                : new ContentSkillDefinition(
-                    "classic:jiangchi",
-                    "将驰",
-                    "摸牌阶段，你可以选择一项：1.额外摸一张牌，若如此做，你不能使用或打出【杀】，直到回合结束；2.少摸一张牌，若如此做，你于出牌阶段内使用【杀】无距离限制且能额外使用一张【杀】，直到回合结束。")
+            builder.AddSkill(DrawPolicySkillPrograms.Definition("classic:jiangchi"));
+        }
+
+        {
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("hand-color-restriction-skills", "classic:qianxi") with
                 {
                     ExecutionForms = SkillExecutionForm.State | SkillExecutionForm.Trigger
                 });
         }
 
-        if (_version >= new Version(1, 82, 0))
-        {
-            builder.AddSkill(_version >= new Version(1, 116, 0)
-                ? EmbeddedSkillProgramCatalog.Definition("hand-color-restriction-skills", "classic:qianxi") with
-                {
-                    ExecutionForms = SkillExecutionForm.State | SkillExecutionForm.Trigger
-                }
-                : new ContentSkillDefinition(
-                    "classic:qianxi",
-                    "潜袭",
-                    "准备阶段开始时，你可以摸一张牌然后弃置一张牌。若如此做，你选择距离为1的一名其他角色，然后直到回合结束，该角色不能使用或打出与你以此法弃置的牌颜色相同的手牌。")
-                {
-                    ExecutionForms = SkillExecutionForm.State | SkillExecutionForm.Trigger
-                });
-        }
-
-        if (_version >= new Version(1, 83, 0))
         {
             builder.AddSkill(ClassicCardActionSkillPrograms.Definition("classic:xianzhen"));
 
@@ -590,109 +435,44 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             }, SkillTag.Locked, SkillExecutionForm.State));
         }
 
-        if (_version >= new Version(1, 84, 0))
         {
-            builder.AddSkill(_version >= new Version(1, 106, 0)
-                ? DrawPolicySkillPrograms.Definition("classic:zishou")
-                : WithStructuredSkillMetadata(new ContentSkillDefinition(
-                        "classic:zishou",
-                        "自守",
-                        "摸牌阶段摸牌时，你可以额外摸X张牌（X为现存势力数）。若如此做，你于本回合出牌阶段内使用的牌不能指定其他角色为目标。",
-                        SkillKind.Zishou),
-                    SkillTag.None,
-                    SkillExecutionForm.State | SkillExecutionForm.Trigger));
+            builder.AddSkill(DrawPolicySkillPrograms.Definition("classic:zishou"));
             builder.AddSkill(WithStructuredSkillMetadata(
-                _version >= new Version(1, 98, 0)
-                    ? RuleQuerySkillPrograms.Definition("classic:zongshi")
-                    : new ContentSkillDefinition(
-                        "classic:zongshi",
-                        "宗室",
-                        "锁定技，你的手牌上限+X（X为现存势力数）。",
-                        SkillKind.Zongshi),
+                RuleQuerySkillPrograms.Definition("classic:zongshi"),
                 SkillTag.Locked,
                 SkillExecutionForm.State));
         }
 
-        if (_version >= new Version(1, 85, 0))
         {
-            builder.AddSkill(_version >= new Version(1, 137, 0)
-                ? EmbeddedSkillProgramCatalog.Definition(
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition(
                     "classic-zhenlie-skills", "classic:zhenlie") with
                 {
                     ExecutionForms = SkillExecutionForm.Trigger
-                }
-                : WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                    "classic:zhenlie",
-                    "贞烈",
-                    "当你成为其他角色使用【杀】或普通锦囊牌的目标后，你可以失去1点体力，令此牌对你无效，然后你弃置其一张牌。",
-                    SkillKind.Zhenlie)));
-            builder.AddSkill(_version >= new Version(1, 135, 0)
-                ? EmbeddedSkillProgramCatalog.Definition(
+                });
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition(
                     "owned-card-distribution-skills", "classic:miji") with
                 {
                     ExecutionForms = SkillExecutionForm.Trigger
-                }
-                : WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                    "classic:miji",
-                    "秘计",
-                    "结束阶段，若你已受伤，你可以摸X张牌（X为你已损失的体力值）。若如此做，你可以将等量的手牌交给其他角色。",
-                    SkillKind.Miji)));
+                });
         }
 
-        if (_version >= new Version(1, 86, 0))
         {
-            builder.AddSkill(_version >= new Version(1, 111, 0)
-                ? PersistentZoneSkillPrograms.Definition("classic:quanji")
-                : WithStructuredSkillMetadata(new ContentSkillDefinition(
-                        "classic:quanji",
-                        "权计",
-                        "每当你受到1点伤害后，你可以摸一张牌，然后将一张手牌置于武将牌上，称为“权”；你的手牌上限+X（X为“权”数）。",
-                        SkillKind.Quanji),
-                    SkillTag.None,
-                    SkillExecutionForm.State | SkillExecutionForm.Trigger));
-            builder.AddSkill(_version >= new Version(1, 110, 0)
-                ? AwakeningSkillPrograms.Definition("classic:zili")
-                : WithStructuredSkillMetadata(new ContentSkillDefinition(
-                        "classic:zili",
-                        "自立",
-                        "觉醒技，准备阶段，若“权”的数量不小于3，你选择一项：回复1点体力；或摸两张牌。若如此做，你减1点体力上限，获得“排异”。",
-                        SkillKind.Zili),
-                    SkillTag.Awakening,
-                    SkillExecutionForm.Trigger));
-            builder.AddSkill(_version >= new Version(1, 112, 0)
-                ? ActivePersistentZoneSkillPrograms.Definition("classic:paiyi")
-                : WithActiveActionMetadata(new ContentSkillDefinition(
-                    "classic:paiyi",
-                    "排异",
-                    "出牌阶段限一次，你可以移去一张“权”，令一名角色摸两张牌，然后若其手牌数大于你，你对其造成1点伤害。",
-                    SkillKind.Paiyi)));
+            builder.AddSkill(PersistentZoneSkillPrograms.Definition("classic:quanji"));
+            builder.AddSkill(AwakeningSkillPrograms.Definition("classic:zili"));
+            builder.AddSkill(ActivePersistentZoneSkillPrograms.Definition("classic:paiyi"));
         }
 
-        if (_version >= new Version(1, 87, 0))
         {
-            builder.AddSkill(_version >= new Version(1, 120, 0)
-                ? EmbeddedSkillProgramCatalog.Definition("all-hand-trick-skills", "classic:qice") with
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("all-hand-trick-skills", "classic:qice") with
                 {
                     ActionForms = SkillActionForm.Active
-                }
-                : WithActiveActionMetadata(new ContentSkillDefinition(
-                    "classic:qice",
-                    "奇策",
-                    "出牌阶段限一次，你可以将所有手牌（至少一张）当任意一张普通锦囊牌使用。",
-                    SkillKind.Qice)));
-            builder.AddSkill(_version >= new Version(1, 120, 0)
-                ? EmbeddedSkillProgramCatalog.Definition("all-hand-trick-skills", "classic:zhiyu") with
+                });
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("all-hand-trick-skills", "classic:zhiyu") with
                 {
                     ExecutionForms = SkillExecutionForm.Trigger
-                }
-                : WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                    "classic:zhiyu",
-                    "智愚",
-                    "每当你受到伤害后，你可以摸一张牌，然后展示所有手牌；若颜色均相同，伤害来源弃置一张手牌。",
-                    SkillKind.Zhiyu)));
+                });
         }
 
-        if (_version >= new Version(1, 88, 0))
         {
             var dangxian = ClassicLifecycleCatalog.Value.Programs["classic:dangxian"];
             var dangxianPresentation = ClassicLifecycleCatalog.Value.Presentations["classic:dangxian"];
@@ -718,119 +498,51 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 SkillExecutionForm.Trigger));
         }
 
-        if (_version >= new Version(1, 89, 0))
         {
-            builder.AddSkill(_version >= new Version(1, 119, 0)
-                ? EmbeddedSkillProgramCatalog.Definition(
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition(
                     "multi-card-conversion-skills", "classic:fuhun") with
                 {
                     ExecutionForms = SkillExecutionForm.State | SkillExecutionForm.Trigger,
                     ActionForms = SkillActionForm.Active
-                }
-                : WithActiveActionMetadata(
-                    WithContinuousStateMetadata(new ContentSkillDefinition(
-                        "classic:fuhun",
-                        "父魂",
-                        "你可以将两张手牌当【杀】使用或打出；每当你于出牌阶段内以此法使用的【杀】造成伤害后，你于此回合内拥有“武圣”和“咆哮”。",
-                        SkillKind.Fuhun)),
-                    new Version(1, 89, 0)));
+                });
         }
 
-        if (_version >= new Version(1, 90, 0))
         {
-            builder.AddSkill(_version >= new Version(1, 123, 0)
-                ? EmbeddedSkillProgramCatalog.Definition("unequal-hand-transfer-skills", "classic:anxu") with
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("unequal-hand-transfer-skills", "classic:anxu") with
                 {
                     ActionForms = SkillActionForm.Active
-                }
-                : WithActiveActionMetadata(new ContentSkillDefinition(
-                    "classic:anxu",
-                    "安恤",
-                    "出牌阶段限一次，你可以选择两名手牌数不同的其他角色，令其中手牌少的角色先获得手牌多的角色的一张手牌再展示之，然后若以此法展示的牌不为黑桃，你摸一张牌。",
-                    SkillKind.Anxu)));
-            builder.AddSkill(_version >= new Version(1, 121, 0)
-                ? EmbeddedSkillProgramCatalog.Definition("death-benefit-skills", "classic:zhuiyi") with
+                });
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("death-benefit-skills", "classic:zhuiyi") with
                 {
                     ExecutionForms = SkillExecutionForm.Trigger
-                }
-                : WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                    "classic:zhuiyi",
-                    "追忆",
-                    "当你死亡时，你可以令除杀死你的角色外的一名其他角色摸三张牌，然后其回复1点体力。",
-                    SkillKind.Zhuiyi)));
+                });
         }
 
-        if (_version >= new Version(1, 91, 0))
         {
-            builder.AddSkill(_version >= new Version(1, 126, 0)
-                ? EmbeddedSkillProgramCatalog.Definition(
-                    _version >= new Version(1, 138, 0)
-                        ? "lihuo-program-skills"
-                        : _version >= new Version(1, 127, 0)
-                        ? "lihuo-viewas-skills"
-                        : "lihuo-completed-skills", "classic:lihuo") with
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition(
+                    "lihuo-program-skills", "classic:lihuo") with
                 {
                     ExecutionForms = SkillExecutionForm.State | SkillExecutionForm.Trigger
-                }
-                : WithStructuredSkillMetadata(new ContentSkillDefinition(
-                    "classic:lihuo",
-                    "疠火",
-                    "你使用普通的【杀】可以改为【火杀】；你使用【火杀】可以多选择一个目标。若以此法转化的【火杀】造成过伤害，结算结束后你失去1点体力。",
-                    SkillKind.Lihuo),
-                    SkillTag.None,
-                    SkillExecutionForm.State));
+                });
         }
-        if (_version >= new Version(1, 92, 0))
         {
-            builder.AddSkill(_version >= new Version(1, 125, 0)
-                ? EmbeddedSkillProgramCatalog.Definition("owned-zone-dying-rescue-skills", "classic:chunlao") with
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("owned-zone-dying-rescue-skills", "classic:chunlao") with
                 {
                     ExecutionForms = SkillExecutionForm.Trigger
-                }
-                : _version >= new Version(1, 124, 0)
-                ? EmbeddedSkillProgramCatalog.Definition("owned-zone-storage-skills", "classic:chunlao") with
-                {
-                    ExecutionForms = SkillExecutionForm.Trigger
-                }
-                : WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                    "classic:chunlao",
-                    "醇醪",
-                    "结束阶段，若你没有“醇”，你可以将至少一张【杀】置于武将牌上，称为“醇”；每当一名角色处于濒死状态时，你可以将一张“醇”置入弃牌堆，令其视为使用【酒】。同一次濒死限发动一次。",
-                    SkillKind.Chunlao)));
+                });
         }
-        if (_version >= new Version(1, 93, 0))
         {
-            builder.AddSkill(_version >= new Version(1, 134, 0)
-                ? EmbeddedSkillProgramCatalog.Definition("classic-gongqi-skills", "classic:gongqi") with
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("classic-gongqi-skills", "classic:gongqi") with
                 {
                     ActionForms = SkillActionForm.Active,
                     ExecutionForms = SkillExecutionForm.State
-                }
-                : WithActiveActionMetadata(
-                    WithContinuousStateMetadata(new ContentSkillDefinition(
-                        "classic:gongqi",
-                        "弓骑",
-                        "出牌阶段限一次，你可以弃置一张牌使你本回合的攻击范围无限。若弃置的为装备牌，你可以弃置一名其他角色的一张牌。",
-                        SkillKind.Gongqi)),
-                    new Version(1, 93, 0)));
-            builder.AddSkill(_version >= new Version(1, 136, 0)
-                ? EmbeddedSkillProgramCatalog.Definition("classic-jiefan-skills", "classic:jiefan") with
+                });
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("classic-jiefan-skills", "classic:jiefan") with
                 {
                     ActionForms = SkillActionForm.Active,
                     Tags = SkillTag.Limited
-                }
-                : WithActiveActionMetadata(
-                    WithStructuredSkillMetadata(new ContentSkillDefinition(
-                            "classic:jiefan",
-                            "解烦",
-                            "限定技，出牌阶段，你可以选择一名角色，令能攻击到该角色的所有角色选择一项：1.弃置一张武器牌；2.令该角色摸一张牌。",
-                            SkillKind.Jiefan),
-                        SkillTag.Limited,
-                        SkillExecutionForm.None,
-                        new Version(1, 93, 0)),
-                    new Version(1, 93, 0)));
+                });
         }
-        if (_version >= new Version(1, 94, 0))
         {
             var chengxiang = ClassicLifecycleCatalog.Value.Programs["classic:chengxiang"];
             var chengxiangPresentation = ClassicLifecycleCatalog.Value.Presentations["classic:chengxiang"];
@@ -841,64 +553,30 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             {
                 Program = chengxiang
             }));
-            builder.AddSkill(_version >= new Version(1, 117, 0)
-                ? EmbeddedSkillProgramCatalog.Definition("damage-prevention-skills", "classic:renxin") with
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("damage-prevention-skills", "classic:renxin") with
                 {
                     ExecutionForms = SkillExecutionForm.Trigger
-                }
-                : WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                    "classic:renxin",
-                    "仁心",
-                    "每当体力值为1的一名其他角色受到伤害时，你可以翻面并弃置一张装备牌。若如此做，防止此伤害。",
-                    SkillKind.Renxin)));
+                });
         }
-        if (_version >= new Version(1, 95, 0))
         {
             builder.AddSkill(WithOptionalTriggerMetadata(
-                _version >= new Version(1, 99, 0)
-                    ? ClassicPhaseWindowSkillPrograms.Definition("classic:jingce")
-                    : new ContentSkillDefinition(
-                        "classic:jingce",
-                        "精策",
-                        "出牌阶段结束时，若你于此回合内使用过的牌的数量大于等于你当前的体力值，你可以摸两张牌。",
-                        SkillKind.Jingce)));
+                ClassicPhaseWindowSkillPrograms.Definition("classic:jingce")));
         }
-        if (_version >= new Version(1, 96, 0))
         {
-            builder.AddSkill(_version >= new Version(1, 118, 0)
-                ? EmbeddedSkillProgramCatalog.Definition("category-challenge-skills", "classic:junxing") with
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("category-challenge-skills", "classic:junxing") with
                 {
                     ActionForms = SkillActionForm.Active
-                }
-                : WithActiveActionMetadata(new ContentSkillDefinition(
-                    "classic:junxing",
-                    "峻刑",
-                    "出牌阶段限一次，你可以弃置至少一张手牌并选择一名其他角色，令其选择一项：弃置一张类别与你弃置的所有牌均不同的手牌；或翻面，然后摸等量的牌。",
-                    SkillKind.Junxing)));
-            builder.AddSkill(_version >= new Version(1, 118, 0)
-                ? EmbeddedSkillProgramCatalog.Definition("category-challenge-skills", "classic:yuce") with
+                });
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("category-challenge-skills", "classic:yuce") with
                 {
                     ExecutionForms = SkillExecutionForm.Trigger
-                }
-                : WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                    "classic:yuce",
-                    "御策",
-                    "每当你受到伤害后，你可以展示一张手牌，令伤害来源选择是否弃置一张与展示牌类别不同的手牌；若其不弃置，你回复1点体力。",
-                    SkillKind.Yuce)));
+                });
         }
-        if (_version >= new Version(1, 97, 0))
         {
             builder.AddSkill(ClassicCardActionSkillPrograms.Definition("classic:longyin"));
         }
 
-        builder.AddSkill(_version >= new Version(1, 101, 0)
-            ? DamageSkillPrograms.Definition("classic:feedback")
-            : WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                "classic:feedback",
-                "反馈",
-                "受到伤害后，你可以获得伤害来源的一张牌。",
-                SkillKind.Feedback)));
-        if (_version >= new Version(1, 1, 0))
+        builder.AddSkill(DamageSkillPrograms.Definition("classic:feedback"));
         {
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
                 "classic:tiandu",
@@ -906,7 +584,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "当你的判定牌生效后，你可以获得此牌。",
                 SkillKind.Tiandu)));
         }
-        if (_version >= new Version(1, 2, 0))
         {
             builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
                 "classic:fanjian",
@@ -914,7 +591,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "出牌阶段限一次，你可以令一名其他角色选择一种花色，令其获得并展示你的一张随机手牌；若花色不同，你对其造成1点伤害。",
                 SkillKind.Fanjian)));
         }
-        if (_version >= new Version(1, 3, 0))
         {
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
                 "classic:guanxing",
@@ -922,7 +598,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "准备阶段，你可以观看牌堆顶的X张牌（X为存活角色数且至多为5），然后以任意顺序置于牌堆顶或牌堆底。",
                 SkillKind.Guanxing)));
         }
-        if (_version >= new Version(1, 4, 0))
         {
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "classic:hujia",
@@ -930,17 +605,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "主公技，当你需要使用或打出【闪】时，你可以令其他魏势力角色依次选择是否打出一张【闪】；视为由你使用或打出。",
                 SkillKind.Hujia), SkillTag.Lord, SkillExecutionForm.Trigger));
         }
-        if (_version >= new Version(1, 5, 0))
         {
             builder.AddSkill(WithActiveActionMetadata(
                 WithStructuredSkillMetadata(new ContentSkillDefinition(
                     "classic:jijiang",
                     "激将",
                     "主公技，当你需要使用或打出【杀】时，你可以令其他蜀势力角色依次选择是否打出一张【杀】；视为由你使用或打出。",
-                    SkillKind.Jijiang), SkillTag.Lord, SkillExecutionForm.Trigger),
-                new Version(1, 76, 0)));
+                    SkillKind.Jijiang), SkillTag.Lord, SkillExecutionForm.Trigger)));
         }
-        if (_version >= new Version(1, 6, 0))
         {
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "classic:jiuyuan",
@@ -948,7 +620,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "主公技，锁定技，其他吴势力角色对处于濒死状态的你使用的【桃】回复的体力+1。",
                 SkillKind.Jiuyuan), SkillTag.Lord | SkillTag.Locked, SkillExecutionForm.State));
         }
-        if (_version >= new Version(1, 8, 0))
         {
             builder.AddSkill(WithContinuousStateMetadata(new ContentSkillDefinition(
                 "classic:qixi",
@@ -956,7 +627,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "你可以将一张黑色牌当【过河拆桥】使用。",
                 SkillKind.Qixi)));
         }
-        if (_version >= new Version(1, 9, 0))
         {
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
                 "classic:keji",
@@ -964,27 +634,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "若你未于本回合出牌阶段使用或打出过【杀】，你可以跳过弃牌阶段。",
                 SkillKind.Keji)));
         }
-        if (_version >= new Version(1, 10, 0))
         {
-            builder.AddSkill(_version >= new Version(1, 103, 0)
-                ? DrawReplacementSkillPrograms.Definition("classic:tuxi")
-                : WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                    "classic:tuxi",
-                    "突袭",
-                    "摸牌阶段，你可以改为获得至多两名其他角色的各一张手牌。",
-                    SkillKind.Tuxi)));
+            builder.AddSkill(DrawReplacementSkillPrograms.Definition("classic:tuxi"));
         }
-        if (_version >= new Version(1, 11, 0))
         {
-            builder.AddSkill(_version >= new Version(1, 105, 0)
-                ? DrawAdjustmentSkillPrograms.Definition("classic:luoyi")
-                : WithOptionalTriggerMetadata(new ContentSkillDefinition(
-                    "classic:luoyi",
-                    "裸衣",
-                    "摸牌阶段，你可以少摸一张牌，若如此做，每当你于此回合内使用【杀】或【决斗】对目标角色造成伤害时，此伤害+1。",
-                    SkillKind.Luoyi)));
+            builder.AddSkill(DrawAdjustmentSkillPrograms.Definition("classic:luoyi"));
         }
-        if (_version >= new Version(1, 12, 0))
         {
             builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
                 "classic:qiangxi",
@@ -992,7 +647,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "出牌阶段限一次，你可以失去1点体力或弃置一张武器牌，并选择你攻击范围内的一名其他角色，对其造成1点伤害。",
                 SkillKind.Qiangxi)));
         }
-        if (_version >= new Version(1, 13, 0))
         {
             builder.AddSkill(WithContinuousStateMetadata(new ContentSkillDefinition(
                 "classic:duanliang",
@@ -1000,22 +654,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "你可以将一张黑色基本牌或黑色装备牌当【兵粮寸断】使用；你可以对距离为2的角色使用【兵粮寸断】。",
                 SkillKind.Duanliang)));
         }
-        if (_version >= new Version(1, 14, 0))
         {
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
                 "classic:luoshen",
                 "洛神",
                 "准备阶段开始时，你可以进行判定，若结果为黑色，你可以再次进行判定，直到出现红色的结果，然后你获得所有生效后的黑色判定牌。",
                 SkillKind.Luoshen)));
-            builder.AddSkill(WithContinuousStateMetadata(_version >= new Version(1, 130, 0)
-                ? EmbeddedSkillProgramCatalog.Definition("classic-qingguo-skills", "classic:qingguo")
-                : new ContentSkillDefinition(
-                    "classic:qingguo",
-                    "倾国",
-                    "你可以将1张黑色手牌当【闪】使用或打出。",
-                    SkillKind.Qingguo)));
+            builder.AddSkill(WithContinuousStateMetadata(EmbeddedSkillProgramCatalog.Definition("classic-qingguo-skills", "classic:qingguo")));
         }
-        if (_version >= new Version(1, 15, 0))
         {
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
                 "classic:jizhi",
@@ -1023,7 +669,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "每当你使用普通锦囊牌时，你可以摸一张牌。",
                 SkillKind.Jizhi)));
         }
-        if (_version >= new Version(1, 16, 0))
         {
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
                 "classic:tieqi",
@@ -1031,7 +676,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "每当你使用【杀】指定一名目标角色后，你可以进行判定，若结果为红色，该角色不能使用【闪】响应此【杀】。",
                 SkillKind.Tieqi)));
         }
-        if (_version >= new Version(1, 17, 0))
         {
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
                 "classic:liegong",
@@ -1039,56 +683,32 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "当你于出牌阶段内使用【杀】指定一个目标后，若该角色的手牌数不小于你的体力值或不大于你的攻击范围，则你可以令其不能使用【闪】响应此【杀】。",
                 SkillKind.Liegong)));
         }
-        if (_version >= new Version(1, 18, 0))
         {
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "classic:kuanggu",
                 "狂骨",
                 "锁定技，当你对距离1以内的一名角色造成1点伤害后，你回复1点体力。",
-                SkillKind.Kuanggu), SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
+                SkillKind.Kuanggu), SkillTag.Locked, SkillExecutionForm.State));
         }
-        if (_version >= new Version(1, 19, 0))
         {
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "classic:wushuang",
                 "无双",
                 "锁定技，你使用的【杀】需两张【闪】才能抵消；与你【决斗】的角色每次需打出两张【杀】。",
-                SkillKind.Wushuang), SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
+                SkillKind.Wushuang), SkillTag.Locked, SkillExecutionForm.State));
         }
-        if (_version >= new Version(1, 20, 0))
         {
             builder.AddSkill(WithStructuredSkillMetadata(
-                _version >= new Version(1, 98, 0)
-                    ? RuleQuerySkillPrograms.Definition("classic:paoxiao")
-                    : new ContentSkillDefinition(
-                        "classic:paoxiao",
-                        "咆哮",
-                        "锁定技，你使用【杀】无次数限制。",
-                        SkillKind.Paoxiao),
-                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
+                RuleQuerySkillPrograms.Definition("classic:paoxiao"),
+                SkillTag.Locked, SkillExecutionForm.State));
         }
-        if (_version >= new Version(1, 21, 0))
         {
-            builder.AddSkill(_version >= new Version(1, 128, 0)
-                ? WithContinuousStateMetadata(EmbeddedSkillProgramCatalog.Definition(
-                    "classic-longdan-skills", "classic:longdan"))
-                : WithContinuousStateMetadata(new ContentSkillDefinition(
-                    "classic:longdan",
-                    "龙胆",
-                    "你可以将一张【杀】当【闪】、【闪】当【杀】使用或打出。",
-                    SkillKind.Longdan)));
+            builder.AddSkill(WithContinuousStateMetadata(EmbeddedSkillProgramCatalog.Definition(
+                    "classic-longdan-skills", "classic:longdan")));
         }
-        if (_version >= new Version(1, 22, 0))
         {
-            builder.AddSkill(WithContinuousStateMetadata(_version >= new Version(1, 131, 0)
-                ? EmbeddedSkillProgramCatalog.Definition("classic-wusheng-skills", "classic:wusheng")
-                : new ContentSkillDefinition(
-                    "classic:wusheng",
-                    "武圣",
-                    "你可以将一张红色牌当【杀】使用或打出。",
-                    SkillKind.Wusheng)));
+            builder.AddSkill(WithContinuousStateMetadata(EmbeddedSkillProgramCatalog.Definition("classic-wusheng-skills", "classic:wusheng")));
         }
-        if (_version >= new Version(1, 40, 0))
         {
             builder.AddSkill(WithContinuousStateMetadata(new ContentSkillDefinition(
                 "classic:guose",
@@ -1101,7 +721,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "当你成为【杀】的目标时，你可以弃置一张牌，将此【杀】转移给你攻击范围内且不是此【杀】使用者的一名其他角色。",
                 SkillKind.Liuli)));
         }
-        if (_version >= new Version(1, 41, 0))
         {
             builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
                 "classic:lijian",
@@ -1109,15 +728,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "出牌阶段限一次，你可以弃置一张牌并选择两名男性角色，视为其中一名角色对另一名角色使用一张不能被无懈可击响应的【决斗】。",
                 SkillKind.Lijian)));
             builder.AddSkill(WithOptionalTriggerMetadata(
-                _version >= new Version(1, 99, 0)
-                    ? ClassicPhaseWindowSkillPrograms.Definition("classic:biyue")
-                    : new ContentSkillDefinition(
-                        "classic:biyue",
-                        "闭月",
-                        "结束阶段，你可以摸一张牌。",
-                        SkillKind.Biyue)));
+                ClassicPhaseWindowSkillPrograms.Definition("classic:biyue")));
         }
-        if (_version >= new Version(1, 42, 0))
         {
             builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
                 "classic:jieyin",
@@ -1125,31 +737,17 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "出牌阶段限一次，你可以弃置两张手牌并选择一名已受伤的男性角色，令你与其各回复1点体力。",
                 SkillKind.Jieyin)));
             builder.AddSkill(WithOptionalTriggerMetadata(
-                _version >= new Version(1, 100, 0)
-                    ? ClassicCardMovementSkillPrograms.Definition("classic:xiaoji")
-                    : new ContentSkillDefinition(
-                        "classic:xiaoji",
-                        "枭姬",
-                        "当你失去装备区里的一张牌后，你可以摸两张牌。",
-                        SkillKind.Xiaoji)));
+                ClassicCardMovementSkillPrograms.Definition("classic:xiaoji")));
         }
-        if (_version >= new Version(1, 43, 0))
         {
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "classic:qianxun",
                 "谦逊",
                 "锁定技，你不能被选择为【顺手牵羊】和【乐不思蜀】的目标。",
-                SkillKind.Qianxun), SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
+                SkillKind.Qianxun), SkillTag.Locked, SkillExecutionForm.State));
             builder.AddSkill(WithOptionalTriggerMetadata(
-                _version >= new Version(1, 100, 0)
-                    ? ClassicCardMovementSkillPrograms.Definition("classic:lianying")
-                    : new ContentSkillDefinition(
-                        "classic:lianying",
-                        "连营",
-                        "当你失去最后的手牌时，你可以摸一张牌。",
-                        SkillKind.Lianying)));
+                ClassicCardMovementSkillPrograms.Definition("classic:lianying")));
         }
-        if (_version >= new Version(1, 44, 0))
         {
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
                 "classic:mengjin",
@@ -1157,115 +755,70 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "当你使用的【杀】被目标角色使用的【闪】抵消后，你可以弃置其一张手牌或装备牌。",
                 SkillKind.Mengjin)));
         }
-        if (_version >= new Version(1, 45, 0))
         {
-            builder.AddSkill(WithActiveActionMetadata(new ContentSkillDefinition(
-                "classic:quhu",
-                "驱虎",
-                "出牌阶段限一次，你可以与一名体力值大于你的角色拼点：若你赢，其对其攻击范围内由你选择的另一名角色造成1点伤害；若你没赢，其对你造成1点伤害。",
-                SkillKind.Quhu)));
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("shared-pindian-skills", "classic:quhu"));
         }
-        if (_version >= new Version(1, 46, 0))
         {
-            builder.AddSkill(_version >= new Version(1, 107, 0)
-                ? JudgmentDrawSkillPrograms.Definition("classic:shuangxiong")
-                : WithStructuredSkillMetadata(new ContentSkillDefinition(
-                        "classic:shuangxiong", "双雄",
-                        "摸牌阶段，你可以改为判定并获得判定牌；本回合你可以将与判定牌颜色不同的一张手牌当【决斗】使用。",
-                        SkillKind.Shuangxiong),
-                    SkillTag.None,
-                    SkillExecutionForm.State | SkillExecutionForm.Trigger,
-                    new Version(1, 76, 0)));
+            builder.AddSkill(JudgmentDrawSkillPrograms.Definition("classic:shuangxiong"));
         }
-        if (_version >= new Version(1, 47, 0))
         {
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:bazhen", "八阵",
                 "锁定技，若你的装备区里没有防具牌，你视为装备着【八卦阵】。", SkillKind.Bazhen),
-                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
+                SkillTag.Locked, SkillExecutionForm.State));
             builder.AddSkill(WithContinuousStateMetadata(new ContentSkillDefinition("classic:huoji", "火计",
                 "你可以将一张红色手牌当【火攻】使用。", SkillKind.Huoji)));
             builder.AddSkill(WithContinuousStateMetadata(new ContentSkillDefinition("classic:kanpo", "看破",
                 "你可以将一张黑色手牌当【无懈可击】使用。", SkillKind.Kanpo)));
         }
-        if (_version >= new Version(1, 48, 0))
         {
             builder.AddSkill(WithContinuousStateMetadata(new ContentSkillDefinition("classic:lianhuan", "连环",
                 "出牌阶段，你可以将一张梅花手牌当【铁索连环】使用或重铸。", SkillKind.Lianhuan)));
-            builder.AddSkill(_version >= new Version(1, 108, 0)
-                ? SelfDyingSkillPrograms.Definition("classic:niepan")
-                : WithStructuredSkillMetadata(
-                    new ContentSkillDefinition("classic:niepan", "涅槃",
-                        "限定技，当你处于濒死状态时，你可以弃置区域内所有牌，解除连环状态，摸三张牌并将体力回复至3点。", SkillKind.Niepan),
-                    SkillTag.Limited,
-                    SkillExecutionForm.Trigger));
+            builder.AddSkill(SelfDyingSkillPrograms.Definition("classic:niepan"));
         }
-        if (_version >= new Version(1, 49, 0))
         {
-            builder.AddSkill(WithActiveActionMetadata(
-                WithStructuredSkillMetadata(new ContentSkillDefinition("classic:tianyi", "天义",
-                        "出牌阶段限一次，你可以与一名其他角色拼点。若你赢，本回合可额外使用一张【杀】、使用【杀】无距离限制且目标上限+1；若你没赢，本回合不能使用【杀】。", SkillKind.Tianyi),
-                    SkillTag.None,
-                    SkillExecutionForm.State,
-                    new Version(1, 76, 0)),
-                new Version(1, 76, 0)));
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("shared-pindian-skills", "classic:tianyi"));
         }
-        if (_version >= new Version(1, 50, 0))
         {
             builder.AddSkill(WithOptionalTriggerMetadata(
-                _version >= new Version(1, 99, 0)
-                    ? ClassicPhaseWindowSkillPrograms.Definition("classic:jushou")
-                    : new ContentSkillDefinition("classic:jushou", "据守",
-                        "结束阶段，你可以摸三张牌，然后将武将牌翻面。", SkillKind.Jushou)));
+                ClassicPhaseWindowSkillPrograms.Definition("classic:jushou")));
         }
-        if (_version >= new Version(1, 51, 0))
         {
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:hongyan", "红颜",
                 "锁定技，你的黑桃牌均视为红桃牌。", SkillKind.Hongyan),
-                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
+                SkillTag.Locked, SkillExecutionForm.State));
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition("classic:tianxiang", "天香",
                 "当你受到伤害时，你可以弃置一张红桃手牌并选择一名其他角色，防止此伤害并令其受到等量伤害，然后其摸等同于其已损失体力值的牌。", SkillKind.Tianxiang)));
         }
-        if (_version >= new Version(1, 52, 0))
         {
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:buqu", "不屈",
                 "锁定技，当你处于濒死状态时，将牌堆顶一张牌置于武将牌上，称为“创”；若其点数与已有“创”均不同，你回复至1点体力，否则弃置之。若你有“创”，手牌上限等于“创”的数量。", SkillKind.Buqu),
-                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
+                SkillTag.Locked, SkillExecutionForm.State));
         }
-        if (_version >= new Version(1, 53, 0))
         {
             builder.AddSkill(WithActiveActionMetadata(
                 WithContinuousStateMetadata(new ContentSkillDefinition("classic:luanji", "乱击",
-                    "你可以将两张花色相同的手牌当【万箭齐发】使用。", SkillKind.Luanji)),
-                new Version(1, 76, 0)));
+                    "你可以将两张花色相同的手牌当【万箭齐发】使用。", SkillKind.Luanji))));
             builder.AddSkill(WithStructuredSkillMetadata(
                 new ContentSkillDefinition("classic:xueyi", "血裔",
                     "主公技，锁定技，你的手牌上限+X（X为其他群势力角色数的两倍）。", SkillKind.Xueyi),
                 SkillTag.Lord | SkillTag.Locked,
                 SkillExecutionForm.State));
         }
-        if (_version >= new Version(1, 54, 0))
         {
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition("classic:shensu", "神速",
                 "你可以选择一项：跳过判定阶段和摸牌阶段，或跳过出牌阶段并弃置一张装备牌；每如此做一次，视为你使用一张无距离限制的【杀】。", SkillKind.Shensu)));
         }
-        if (_version >= new Version(1, 55, 0))
         {
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:yaowu", "耀武",
                 "锁定技，当一名角色使用红色【杀】对你造成伤害后，其选择回复1点体力或摸一张牌。", SkillKind.Yaowu),
-                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
+                SkillTag.Locked, SkillExecutionForm.State));
         }
-        if (_version >= new Version(1, 56, 0))
         {
             builder.AddSkill(WithStructuredSkillMetadata(
-                _version >= new Version(1, 98, 0)
-                    ? RuleQuerySkillPrograms.Definition("classic:yicong")
-                    : new ContentSkillDefinition("classic:yicong", "义从",
-                        "锁定技，若你的体力值大于2，你计算与其他角色的距离-1；若你的体力值不大于2，其他角色计算与你的距离+1。", SkillKind.Yicong),
-                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
+                RuleQuerySkillPrograms.Definition("classic:yicong"),
+                SkillTag.Locked, SkillExecutionForm.State));
         }
-        if (_version >= new Version(1, 57, 0))
         {
-            if (_version >= new Version(1, 65, 0))
             {
                 foreach (var (id, program) in ClassicZhangJiaoCatalog.Value.Programs
                              .OrderBy(entry => entry.Key, StringComparer.Ordinal))
@@ -1287,20 +840,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                     });
                 }
             }
-            else
-            {
-                builder.AddSkill(new ContentSkillDefinition("classic:guidao", "鬼道",
-                    "一名角色的判定牌生效前，你可以打出一张黑色牌替换之。", SkillKind.Guidao));
-                builder.AddSkill(new ContentSkillDefinition("classic:leiji", "雷击",
-                    "当你使用或打出闪时，你可以令一名其他角色判定：黑桃则你对其造成2点雷电伤害；梅花则你回复1点体力，然后对其造成1点雷电伤害。", SkillKind.Leiji));
-                builder.AddSkill(WithStructuredSkillMetadata(
-                    new ContentSkillDefinition("classic:huangtian", "黄天",
-                        "主公技，其他群势力角色的出牌阶段限一次，其可以将一张闪或闪电交给你。", SkillKind.Huangtian),
-                    SkillTag.Lord,
-                    SkillExecutionForm.Trigger));
-            }
         }
-        if (_version >= new Version(1, 66, 0))
         {
             foreach (var (id, program) in BoundaryZhangJiaoCatalog.Value.Programs
                          .OrderBy(entry => entry.Key, StringComparer.Ordinal))
@@ -1322,7 +862,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 });
             }
         }
-        if (_version >= new Version(1, 67, 0))
         {
             var wushenProgram = ClassicShenGuanYuCatalog.Value.Programs["classic:wushen"];
             var wushenPresentation = ClassicShenGuanYuCatalog.Value.Presentations["classic:wushen"];
@@ -1333,45 +872,23 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             {
                 Program = wushenProgram
             }, SkillTag.Locked, SkillExecutionForm.State));
-            builder.AddSkill(_version >= new Version(1, 122, 0)
-                ? EmbeddedSkillProgramCatalog.Definition(
-                    _version >= new Version(1, 139, 0)
-                        ? "nightmare-death-skills-v53"
-                        : "nightmare-death-skills",
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition(
+                    "nightmare-death-skills-v53",
                     "classic:wuhun") with
                 {
                     Tags = SkillTag.Locked,
                     ExecutionForms = SkillExecutionForm.State
-                }
-                : WithStructuredSkillMetadata(new ContentSkillDefinition(
-                    "classic:wuhun",
-                    "武魂",
-                    "锁定技，当你受到1点伤害后，你令伤害来源获得1枚“梦魇”标记；当你死亡时，你令“梦魇”标记最多的一名角色进行判定，若结果不为【桃】或【桃园结义】，该角色死亡。",
-                    SkillKind.Wuhun), SkillTag.Locked, SkillExecutionForm.State));
+                });
         }
-        if (_version >= new Version(1, 69, 0))
         {
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "sp:guan-yu-wusheng",
                 "武圣",
                 "你可以将一张红色牌当【杀】使用或打出；你使用或打出的方块【杀】无距离限制。",
                 SkillKind.Wusheng), SkillTag.None, SkillExecutionForm.State));
-            builder.AddSkill(_version >= new Version(1, 109, 0)
-                ? AwakeningSkillPrograms.Definition("sp:danji")
-                : WithStructuredSkillMetadata(new ContentSkillDefinition(
-                        "sp:danji",
-                        "单骑",
-                        "觉醒技，准备阶段，若你的手牌数大于体力值且本局主公不为刘备，你减1点体力上限，然后获得【马术】和【怒斩】。"),
-                    SkillTag.Awakening,
-                    SkillExecutionForm.Trigger));
+            builder.AddSkill(AwakeningSkillPrograms.Definition("sp:danji"));
             builder.AddSkill(WithStructuredSkillMetadata(
-                _version >= new Version(1, 98, 0)
-                    ? RuleQuerySkillPrograms.Definition("sp:guan-yu-mashu")
-                    : new ContentSkillDefinition(
-                        "sp:guan-yu-mashu",
-                        "马术",
-                        "锁定技，你计算与其他角色的距离-1。",
-                        SkillKind.Mashu),
+                RuleQuerySkillPrograms.Definition("sp:guan-yu-mashu"),
                 SkillTag.Locked, SkillExecutionForm.State));
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "sp:nuzhan",
@@ -1380,11 +897,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 SkillTag.Locked,
                 SkillExecutionForm.State));
         }
-        if (_version >= new Version(1, 70, 0))
         {
             builder.AddSkill(ClassicCardActionSkillPrograms.Definition("classic:juzhan"));
         }
-        if (_version >= new Version(1, 72, 0))
         {
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "classic:kongcheng",
@@ -1392,13 +907,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "锁定技，若你没有手牌，你不能成为【杀】或【决斗】的目标。",
                 SkillKind.Kongcheng), SkillTag.Locked, SkillExecutionForm.State));
             builder.AddSkill(WithStructuredSkillMetadata(
-                _version >= new Version(1, 98, 0)
-                    ? RuleQuerySkillPrograms.Definition("classic:mashu")
-                    : new ContentSkillDefinition(
-                        "classic:mashu",
-                        "马术",
-                        "锁定技，你计算与其他角色的距离始终 -1。",
-                        SkillKind.Mashu),
+                RuleQuerySkillPrograms.Definition("classic:mashu"),
                 SkillTag.Locked, SkillExecutionForm.State));
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "classic:qicai",
@@ -1406,53 +915,34 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "锁定技，你使用锦囊牌无距离限制。",
                 SkillKind.Qicai), SkillTag.Locked, SkillExecutionForm.State));
         }
-        if (_version >= new Version(1, 58, 0))
         {
-            builder.AddSkill(_version >= new Version(1, 115, 0)
-                ? EmbeddedSkillProgramCatalog.Definition("owned-card-exchange-skills", "classic:yinghun")
-                : WithOptionalTriggerMetadata(new ContentSkillDefinition("classic:yinghun", "英魂",
-                    "准备阶段开始时，若你已受伤，你可以令一名其他角色摸X张牌并弃置一张牌，或摸一张牌并弃置X张牌（X为你已损失的体力值）。", SkillKind.Yinghun)));
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("owned-card-exchange-skills", "classic:yinghun"));
         }
-        if (_version >= new Version(1, 59, 0))
         {
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:huoshou", "祸首",
                 "锁定技，南蛮入侵对你无效；其他角色使用南蛮入侵造成的伤害来源改为你。", SkillKind.Huoshou),
-                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
-            builder.AddSkill(_version >= new Version(1, 104, 0)
-                ? DrawRevealReplacementSkillPrograms.Definition("classic:zaiqi")
-                : WithOptionalTriggerMetadata(new ContentSkillDefinition("classic:zaiqi", "再起",
-                    "摸牌阶段开始时，若你已受伤，你可以放弃摸牌并展示牌堆顶X张牌（X为你已损失的体力值）：每有一张红桃牌，你回复1点体力，然后弃置这些红桃牌并获得其余牌。", SkillKind.Zaiqi)));
+                SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(DrawRevealReplacementSkillPrograms.Definition("classic:zaiqi"));
         }
-        if (_version >= new Version(1, 60, 0))
         {
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:juxiang", "巨象",
                 "锁定技，南蛮入侵对你无效；其他角色使用的南蛮入侵结算完毕置入弃牌堆后，你获得之。", SkillKind.Juxiang),
-                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition("classic:lieren", "烈刃",
-                "当你使用杀对目标角色造成伤害后，你可以与其拼点；若你赢，你获得其一张牌。", SkillKind.Lieren)));
+                SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("shared-pindian-skills", "classic:lieren"));
         }
-        if (_version >= new Version(1, 61, 0))
         {
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:yizhong", "毅重",
                 "锁定技，若你的装备区里没有防具牌，黑色的杀对你无效。", SkillKind.Yizhong),
-                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
+                SkillTag.Locked, SkillExecutionForm.State));
         }
-        if (_version >= new Version(1, 62, 0))
         {
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:wuyan", "无言",
                 "锁定技，当锦囊牌造成伤害时，若你为伤害来源或受伤角色，防止此伤害。", SkillKind.Wuyan),
-                SkillTag.Locked, SkillExecutionForm.State, new Version(1, 71, 0)));
+                SkillTag.Locked, SkillExecutionForm.State));
         }
-        if (_version >= new Version(1, 114, 0))
         {
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("support-choice-skills", "classic:jujian"));
         }
-        else if (_version >= new Version(1, 63, 0))
-        {
-            builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition("classic:jujian", "举荐",
-                "结束阶段开始时，你可以弃置一张非基本牌并选择一名其他角色，令其选择摸两张牌、回复1点体力或复原武将牌。", SkillKind.Jujian)));
-        }
-        if (_version >= new Version(1, 64, 0))
         {
             foreach (var (id, program) in SpZhaoYunCatalog.Value.Programs
                          .OrderBy(entry => entry.Key, StringComparer.Ordinal))
@@ -1474,20 +964,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             }
         }
 
-        if (_version >= new Version(1, 139, 0))
         {
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("classic-zhu-huan", "classic:youdi"));
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("classic-gu-yong", "classic:shenxing"));
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("classic-gu-yong", "classic:bingyi"));
         }
 
-        if (_version >= new Version(1, 140, 0))
-            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("classic-zhu-zhi", "classic:anguo"));
+        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("classic-zhu-zhi", "classic:anguo"));
 
-        if (_version >= new Version(1, 141, 0))
-            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("sp-le-jin", "sp:xiaoguo"));
+        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("sp-le-jin", "sp:xiaoguo"));
 
-        if (_version >= new Version(1, 139, 0))
         {
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("classic-li-dian", "classic:xunxun"));
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("classic-li-dian", "classic:wangxi"));
@@ -1501,7 +987,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 SkillKind.Hujia), SkillTag.Lord, SkillExecutionForm.Trigger));
         }
 
-        if (_version >= new Version(1, 139, 0))
         {
             builder.AddSkill(DamageSkillPrograms.Definition("boundary:feedback"));
             builder.AddSkill(WithOptionalTriggerMetadata(
@@ -1515,7 +1000,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(WithOptionalTriggerMetadata(
                 EmbeddedSkillProgramCatalog.Definition("boundary-zhang-liao", "boundary:tuxi")));
         }
-        if (_version >= new Version(1, 140, 0))
         {
             builder.AddSkill(WithContinuousStateMetadata(new ContentSkillDefinition(
                 "boundary:qixi", "奇袭", "你可以将一张黑色牌当【过河拆桥】使用。", SkillKind.Qixi)));
@@ -1526,16 +1010,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             });
         }
 
-        if (_version >= new Version(1, 140, 0))
-            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("boundary-xu-chu", "boundary:luoyi"));
+        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("boundary-xu-chu", "boundary:luoyi"));
 
-        if (_version >= new Version(1, 141, 0))
         {
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("boundary-zhou-yu", "boundary:yingzi"));
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("boundary-zhou-yu", "boundary:fanjian"));
         }
 
-        if (_version >= new Version(1, 141, 0))
         {
             builder.AddSkill(WithOptionalTriggerMetadata(
                 EmbeddedSkillProgramCatalog.Definition("classic-pan-zhang-ma-zhong", "classic:duodao")));
@@ -1551,26 +1032,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             "classic:liu-bei",
             "刘备",
             "liu_bei",
-            _version >= new Version(1, 77, 0)
-                ? "classic:rende"
-                : "standard:rende",
+            "classic:rende",
             "shu",
             BaseHp: 4,
-            AdditionalSkillIds: _version >= new Version(1, 5, 0)
-                ? ["classic:jijiang"]
-                : null));
+            AdditionalSkillIds: ["classic:jijiang"]));
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:sun-quan",
             "孙权",
             "sun_quan",
-            _version >= new Version(1, 77, 0)
-                ? "classic:zhiheng"
-                : "standard:zhiheng",
+            "classic:zhiheng",
             "wu",
             BaseHp: 4,
-            AdditionalSkillIds: _version >= new Version(1, 6, 0)
-                ? ["classic:jiuyuan"]
-                : null));
+            AdditionalSkillIds: ["classic:jiuyuan"]));
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:sima-yi",
             "司马懿",
@@ -1580,35 +1053,26 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             BaseHp: 3,
             AdditionalSkillIds:
             [
-                _version >= new Version(1, 79, 0)
-                    ? "classic:guicai"
-                    : "standard:guicai"
+                "classic:guicai"
             ]));
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:xiahou-dun",
             "夏侯惇",
             "xiahou_dun",
-            _version >= new Version(1, 79, 0)
-                ? "classic:ganglie"
-                : "standard:ganglie",
+            "classic:ganglie",
             "wei",
             BaseHp: 4));
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:hua-tuo",
             "华佗",
             "hua_tuo",
-            _version >= new Version(1, 77, 0)
-                ? "classic:qingnang"
-                : "standard:qingnang",
+            "classic:qingnang",
             "qun",
             BaseHp: 3,
             AdditionalSkillIds:
             [
-                _version >= new Version(1, 79, 0)
-                    ? "classic:jijiu"
-                    : "standard:jijiu"
+                "classic:jijiu"
             ]));
-        if (_version >= new Version(1, 1, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:guo-jia",
@@ -1619,25 +1083,19 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 BaseHp: 3,
                 AdditionalSkillIds:
                 [
-                    _version >= new Version(1, 79, 0)
-                        ? "classic:yiji"
-                        : "standard:yiji"
+                    "classic:yiji"
                 ]));
         }
-        if (_version >= new Version(1, 2, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:zhou-yu",
                 "周瑜",
                 "zhou_yu",
-                _version >= new Version(1, 79, 0)
-                    ? "classic:yingzi"
-                    : "standard:yingzi",
+                "classic:yingzi",
                 "wu",
                 BaseHp: 3,
                 AdditionalSkillIds: ["classic:fanjian"]));
         }
-        if (_version >= new Version(1, 3, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:zhuge-liang",
@@ -1648,37 +1106,28 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 BaseHp: 3,
                 AdditionalSkillIds:
                 [
-                    _version >= new Version(1, 72, 0)
-                        ? "classic:kongcheng"
-                        : "standard:kongcheng"
+                    "classic:kongcheng"
                 ]));
         }
-        if (_version >= new Version(1, 4, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:cao-cao",
                 "曹操",
                 "cao_cao",
-                _version >= new Version(1, 79, 0)
-                    ? "classic:jianxiong"
-                    : "standard:jianxiong",
+                "classic:jianxiong",
                 "wei",
                 BaseHp: 4,
                 AdditionalSkillIds: ["classic:hujia"]));
         }
-        if (_version >= new Version(1, 7, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:huang-gai",
                 "黄盖",
                 "huang_gai",
-                _version >= new Version(1, 77, 0)
-                    ? "classic:kujin"
-                    : "standard:kujin",
+                "classic:kujin",
                 "wu",
                 BaseHp: 4));
         }
-        if (_version >= new Version(1, 8, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:gan-ning",
@@ -1688,7 +1137,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "wu",
                 BaseHp: 4));
         }
-        if (_version >= new Version(1, 9, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:lu-meng",
@@ -1698,7 +1146,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "wu",
                 BaseHp: 4));
         }
-        if (_version >= new Version(1, 10, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:zhang-liao",
@@ -1708,7 +1155,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "wei",
                 BaseHp: 4));
         }
-        if (_version >= new Version(1, 11, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:xu-chu",
@@ -1718,7 +1164,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "wei",
                 BaseHp: 4));
         }
-        if (_version >= new Version(1, 12, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:dian-wei",
@@ -1728,7 +1173,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "wei",
                 BaseHp: 4));
         }
-        if (_version >= new Version(1, 13, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:xu-huang",
@@ -1738,7 +1182,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "wei",
                 BaseHp: 4));
         }
-        if (_version >= new Version(1, 14, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:zhen-ji",
@@ -1748,11 +1191,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "wei",
                 BaseHp: 3,
                 AdditionalSkillIds: ["classic:qingguo"],
-                Gender: _version >= new Version(1, 26, 0)
-                    ? GeneralGender.Female
-                    : GeneralGender.Male));
+                Gender: GeneralGender.Female));
         }
-        if (_version >= new Version(1, 15, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:huang-yueying",
@@ -1763,15 +1203,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 BaseHp: 3,
                 AdditionalSkillIds:
                 [
-                    _version >= new Version(1, 72, 0)
-                        ? "classic:qicai"
-                        : "standard:qicai"
+                    "classic:qicai"
                 ],
-                Gender: _version >= new Version(1, 26, 0)
-                    ? GeneralGender.Female
-                    : GeneralGender.Male));
+                Gender: GeneralGender.Female));
         }
-        if (_version >= new Version(1, 16, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:ma-chao",
@@ -1782,12 +1217,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 BaseHp: 4,
                 AdditionalSkillIds:
                 [
-                    _version >= new Version(1, 72, 0)
-                        ? "classic:mashu"
-                        : "standard:mashu"
+                    "classic:mashu"
                 ]));
         }
-        if (_version >= new Version(1, 17, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:huang-zhong",
@@ -1797,7 +1229,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "shu",
                 BaseHp: 4));
         }
-        if (_version >= new Version(1, 18, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:wei-yan",
@@ -1807,7 +1238,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "shu",
                 BaseHp: 4));
         }
-        if (_version >= new Version(1, 19, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:lu-bu",
@@ -1817,7 +1247,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "qun",
                 BaseHp: 4));
         }
-        if (_version >= new Version(1, 20, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:zhang-fei",
@@ -1827,7 +1256,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "shu",
                 BaseHp: 4));
         }
-        if (_version >= new Version(1, 21, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:zhao-yun",
@@ -1837,7 +1265,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "shu",
                 BaseHp: 4));
         }
-        if (_version >= new Version(1, 22, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:guan-yu",
@@ -1847,7 +1274,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "shu",
                 BaseHp: 4));
         }
-        if (_version >= new Version(1, 40, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:da-qiao",
@@ -1859,7 +1285,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 AdditionalSkillIds: ["classic:liuli"],
                 Gender: GeneralGender.Female));
         }
-        if (_version >= new Version(1, 41, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:diao-chan",
@@ -1871,7 +1296,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 AdditionalSkillIds: ["classic:lijian"],
                 Gender: GeneralGender.Female));
         }
-        if (_version >= new Version(1, 42, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:sun-shangxiang",
@@ -1883,7 +1307,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 AdditionalSkillIds: ["classic:xiaoji"],
                 Gender: GeneralGender.Female));
         }
-        if (_version >= new Version(1, 43, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:lu-xun",
@@ -1894,20 +1317,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 BaseHp: 3,
                 AdditionalSkillIds: ["classic:lianying"]));
         }
-        if (_version >= new Version(1, 44, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:pang-de",
                 "庞德",
                 "pang_de",
-                _version >= new Version(1, 72, 0)
-                    ? "classic:mashu"
-                    : "standard:mashu",
+                "classic:mashu",
                 "qun",
                 BaseHp: 4,
                 AdditionalSkillIds: ["classic:mengjin"]));
         }
-        if (_version >= new Version(1, 45, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:xun-yu",
@@ -1918,190 +1337,160 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 BaseHp: 3,
                 AdditionalSkillIds:
                 [
-                    _version >= new Version(1, 79, 0)
-                        ? "classic:jieming"
-                        : "standard:jieming"
+                    "classic:jieming"
                 ]));
         }
-        if (_version >= new Version(1, 46, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:yan-liang-wen-chou", "颜良文丑", "yan_liang_wen_chou",
                 "classic:shuangxiong", "qun", BaseHp: 4));
         }
-        if (_version >= new Version(1, 47, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:wolong-zhuge-liang", "卧龙诸葛亮", "wolong_zhuge_liang",
                 "classic:bazhen", "shu", BaseHp: 3,
                 AdditionalSkillIds: ["classic:huoji", "classic:kanpo"]));
         }
-        if (_version >= new Version(1, 48, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:pang-tong", "庞统", "pang_tong",
                 "classic:lianhuan", "shu", BaseHp: 3,
                 AdditionalSkillIds: ["classic:niepan"]));
         }
-        if (_version >= new Version(1, 49, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:taishi-ci", "太史慈", "taishi_ci",
                 "classic:tianyi", "wu", BaseHp: 4));
         }
-        if (_version >= new Version(1, 50, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:cao-ren", "曹仁", "cao_ren",
                 "classic:jushou", "wei", BaseHp: 4));
         }
-        if (_version >= new Version(1, 51, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:xiao-qiao", "小乔", "xiao_qiao",
                 "classic:hongyan", "wu", BaseHp: 3,
                 AdditionalSkillIds: ["classic:tianxiang"], Gender: GeneralGender.Female));
         }
-        if (_version >= new Version(1, 52, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:zhou-tai", "周泰", "zhou_tai",
                 "classic:buqu", "wu", BaseHp: 4));
         }
-        if (_version >= new Version(1, 53, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:yuan-shao", "袁绍", "yuan_shao",
                 "classic:luanji", "qun", BaseHp: 4,
                 AdditionalSkillIds: ["classic:xueyi"]));
         }
-        if (_version >= new Version(1, 54, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:xiahou-yuan", "夏侯渊", "xiahou_yuan",
                 "classic:shensu", "wei", BaseHp: 4));
         }
-        if (_version >= new Version(1, 55, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:hua-xiong", "华雄", "hua_xiong",
                 "classic:yaowu", "qun", BaseHp: 6));
         }
-        if (_version >= new Version(1, 56, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:gongsun-zan", "公孙瓒", "gongsun_zan",
                 "classic:yicong", "qun", BaseHp: 4));
         }
-        if (_version >= new Version(1, 57, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:zhang-jiao", "张角", "zhang_jiao",
                 "classic:guidao", "qun", BaseHp: 3,
                 AdditionalSkillIds: ["classic:leiji", "classic:huangtian"]));
         }
-        if (_version >= new Version(1, 58, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:sun-jian", "孙坚", "sun_jian",
                 "classic:yinghun", "wu", BaseHp: 4));
         }
-        if (_version >= new Version(1, 59, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:meng-huo", "孟获", "meng_huo",
                 "classic:huoshou", "shu", BaseHp: 4,
                 AdditionalSkillIds: ["classic:zaiqi"]));
         }
-        if (_version >= new Version(1, 60, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:zhu-rong", "祝融", "zhu_rong",
                 "classic:juxiang", "shu", BaseHp: 4,
                 AdditionalSkillIds: ["classic:lieren"], Gender: GeneralGender.Female));
         }
-        if (_version >= new Version(1, 61, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:yu-jin", "于禁", "yu_jin",
                 "classic:yizhong", "wei", BaseHp: 4));
         }
-        if (_version >= new Version(1, 63, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:xu-shu", "徐庶", "xu_shu",
                 "classic:wuyan", "shu", BaseHp: 3,
                 AdditionalSkillIds: ["classic:jujian"]));
         }
-        if (_version >= new Version(1, 64, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "sp:zhao-yun", "SP赵云", "zhao_yun",
                 "sp:longdan", "qun", BaseHp: 3,
                 AdditionalSkillIds: ["sp:chongzhen"]));
         }
-        if (_version >= new Version(1, 66, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "boundary:zhang-jiao", "界张角", "boundary_zhang_jiao",
                 "boundary:leiji", "qun", BaseHp: 3,
                 AdditionalSkillIds: ["boundary:guidao", "boundary:huangtian"]));
         }
-        if (_version >= new Version(1, 67, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:shen-guan-yu", "神关羽", "shen_guan_yu",
                 "classic:wushen", "god", BaseHp: 5,
                 AdditionalSkillIds: ["classic:wuhun"]));
         }
-        if (_version >= new Version(1, 69, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "sp:guan-yu", "SP关羽", "guan_yu",
                 "sp:guan-yu-wusheng", "wei", BaseHp: 4,
                 AdditionalSkillIds: ["sp:danji"]));
         }
-        if (_version >= new Version(1, 70, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:yan-yan", "严颜", "yan_yan",
                 "classic:juzhan", "shu", BaseHp: 4));
         }
-        if (_version >= new Version(1, 80, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "mou:lu-meng", "谋吕蒙", "lu_meng",
                 "mou:hengye", "wu", BaseHp: 4,
                 AdditionalSkillIds: ["mou:yingbo"]));
         }
-        if (_version >= new Version(1, 81, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:cao-zhang", "曹彰", "cao_zhang",
                 "classic:jiangchi", "wei", BaseHp: 4));
         }
-        if (_version >= new Version(1, 82, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:ma-dai", "马岱", "ma_dai",
                 "classic:mashu", "shu", BaseHp: 4,
                 AdditionalSkillIds: ["classic:qianxi"]));
         }
-        if (_version >= new Version(1, 83, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:gao-shun", "高顺", "gao_shun",
                 "classic:xianzhen", "qun", BaseHp: 4,
                 AdditionalSkillIds: ["classic:jinjiu"]));
         }
-        if (_version >= new Version(1, 84, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:liu-biao", "刘表", "liu_biao",
                 "classic:zishou", "qun", BaseHp: 3,
                 AdditionalSkillIds: ["classic:zongshi"]));
         }
-        if (_version >= new Version(1, 85, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:wang-yi", "王异", "wang_yi",
@@ -2109,34 +1498,29 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 AdditionalSkillIds: ["classic:miji"],
                 Gender: GeneralGender.Female));
         }
-        if (_version >= new Version(1, 86, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:zhong-hui", "钟会", "zhong_hui",
                 "classic:quanji", "wei", BaseHp: 4,
                 AdditionalSkillIds: ["classic:zili"]));
         }
-        if (_version >= new Version(1, 87, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:xun-you", "荀攸", "xun_you",
                 "classic:qice", "wei", BaseHp: 3,
                 AdditionalSkillIds: ["classic:zhiyu"]));
         }
-        if (_version >= new Version(1, 88, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:liao-hua", "廖化", "liao_hua",
                 "classic:dangxian", "shu", BaseHp: 4,
                 AdditionalSkillIds: ["classic:fuli"]));
         }
-        if (_version >= new Version(1, 89, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:guan-xing-zhang-bao", "关兴张苞", "guan_xing_zhang_bao",
                 "classic:fuhun", "shu", BaseHp: 4));
         }
-        if (_version >= new Version(1, 90, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:bu-lian-shi", "步练师", "bu_lian_shi",
@@ -2144,48 +1528,41 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 AdditionalSkillIds: ["classic:zhuiyi"],
                 Gender: GeneralGender.Female));
         }
-        if (_version >= new Version(1, 92, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:cheng-pu", "程普", "cheng_pu",
                 "classic:lihuo", "wu", BaseHp: 4,
                 AdditionalSkillIds: ["classic:chunlao"]));
         }
-        if (_version >= new Version(1, 93, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:han-dang", "韩当", "han_dang",
                 "classic:gongqi", "wu", BaseHp: 4,
                 AdditionalSkillIds: ["classic:jiefan"]));
         }
-        if (_version >= new Version(1, 94, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:cao-chong", "曹冲", "cao_chong",
                 "classic:chengxiang", "wei", BaseHp: 3,
                 AdditionalSkillIds: ["classic:renxin"]));
         }
-        if (_version >= new Version(1, 95, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:guo-huai", "郭淮", "guo_huai",
                 "classic:jingce", "wei", BaseHp: 4));
         }
-        if (_version >= new Version(1, 96, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:man-chong", "满宠", "man_chong",
                 "classic:junxing", "wei", BaseHp: 3,
                 AdditionalSkillIds: ["classic:yuce"]));
         }
-        if (_version >= new Version(1, 97, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:guan-ping", "关平", "guan_ping",
                 "classic:longyin", "shu", BaseHp: 4));
         }
 
-        if (_version >= new Version(1, 139, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:zhu-huan", "朱桓", "zhu_huan",
@@ -2196,17 +1573,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 AdditionalSkillIds: ["classic:bingyi"]));
         }
 
-        if (_version >= new Version(1, 140, 0))
-            builder.AddGeneral(new ContentGeneralDefinition(
+        builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:zhu-zhi", "朱治", "zhu_zhi",
                 "classic:anguo", "wu", BaseHp: 4));
 
-        if (_version >= new Version(1, 141, 0))
-            builder.AddGeneral(new ContentGeneralDefinition(
+        builder.AddGeneral(new ContentGeneralDefinition(
                 "sp:le-jin", "SP乐进", "sp_le_jin",
                 "sp:xiaoguo", "wei", BaseHp: 4));
 
-        if (_version >= new Version(1, 139, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:li-dian", "李典", "li_dian",
@@ -2221,7 +1595,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "boundary:jianxiong", "wei", BaseHp: 4,
                 AdditionalSkillIds: ["boundary:hujia"]));
         }
-        if (_version >= new Version(1, 139, 0))
         {
             builder.AddGeneral(new ContentGeneralDefinition(
                 "boundary:sima-yi", "界司马懿", "boundary_sima_yi",
@@ -2235,99 +1608,23 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "boundary:zhang-liao", "界张辽", "boundary_zhang_liao",
                 "boundary:tuxi", "wei", BaseHp: 4));
         }
-        if (_version >= new Version(1, 140, 0))
-            builder.AddGeneral(new ContentGeneralDefinition(
+        builder.AddGeneral(new ContentGeneralDefinition(
                 "boundary:xu-chu", "界许褚", "boundary_xu_chu",
                 "boundary:luoyi", "wei", BaseHp: 4));
-        if (_version >= new Version(1, 140, 0))
-            builder.AddGeneral(new ContentGeneralDefinition(
+        builder.AddGeneral(new ContentGeneralDefinition(
                 "boundary:gan-ning", "界甘宁", "boundary_gan_ning",
                 "boundary:qixi", "wu", BaseHp: 4,
                 AdditionalSkillIds: ["boundary:fenwei"]));
-        if (_version >= new Version(1, 141, 0))
-            builder.AddGeneral(new ContentGeneralDefinition(
+        builder.AddGeneral(new ContentGeneralDefinition(
                 "boundary:zhou-yu", "界周瑜", "boundary_zhou_yu",
                 "boundary:yingzi", "wu", BaseHp: 3,
                 AdditionalSkillIds: ["boundary:fanjian"]));
-        if (_version >= new Version(1, 141, 0))
-            builder.AddGeneral(new ContentGeneralDefinition(
+        builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:pan-zhang-ma-zhong", "潘璋马忠", "pan_zhang_ma_zhong",
                 "classic:duodao", "wu", BaseHp: 4,
                 AdditionalSkillIds: ["classic:anjian"]));
 
-        var generalPoolIds = _version switch
-        {
-            { Major: 1, Minor: >= 141 } => ExpandedClassic141GeneralIds,
-            { Major: 1, Minor: 140 } => ExpandedClassic140GeneralIds,
-            { Major: 1, Minor: >= 139 } => SharedExpansionClassicGeneralIds,
-            { Major: 1, Minor: >= 97 } => GuanPingClassicGeneralIds,
-            { Major: 1, Minor: 96 } => ManChongClassicGeneralIds,
-            { Major: 1, Minor: 95 } => GuoHuaiClassicGeneralIds,
-            { Major: 1, Minor: 94 } => CaoChongClassicGeneralIds,
-            { Major: 1, Minor: 93 } => HanDangClassicGeneralIds,
-            { Major: 1, Minor: 92 } => ChengPuClassicGeneralIds,
-            { Major: 1, Minor: >= 90 } => BuLianShiClassicGeneralIds,
-            { Major: 1, Minor: 89 } => GuanXingZhangBaoClassicGeneralIds,
-            { Major: 1, Minor: >= 88 } => LiaoHuaClassicGeneralIds,
-            { Major: 1, Minor: >= 87 } => XunYouClassicGeneralIds,
-            { Major: 1, Minor: 86 } => ZhongHuiClassicGeneralIds,
-            { Major: 1, Minor: 85 } => WangYiClassicGeneralIds,
-            { Major: 1, Minor: 84 } => LiuBiaoClassicGeneralIds,
-            { Major: 1, Minor: 83 } => GaoShunClassicGeneralIds,
-            { Major: 1, Minor: >= 82 } => MaDaiClassicGeneralIds,
-            { Major: 1, Minor: >= 81 } => CaoZhangClassicGeneralIds,
-            { Major: 1, Minor: >= 80 } => MouLuMengClassicGeneralIds,
-            { Major: 1, Minor: >= 70 } => YanYanClassicGeneralIds,
-            { Major: 1, Minor: >= 69 } => SpGuanYuClassicGeneralIds,
-            { Major: 1, Minor: >= 67 } => ShenGuanYuClassicGeneralIds,
-            { Major: 1, Minor: >= 64 } => SpZhaoYunClassicGeneralIds,
-            { Major: 1, Minor: >= 63 } => XuShuClassicGeneralIds,
-            { Major: 1, Minor: >= 61 } => YuJinClassicGeneralIds,
-            { Major: 1, Minor: 60 } => ZhuRongClassicGeneralIds,
-            { Major: 1, Minor: 59 } => MengHuoClassicGeneralIds,
-            { Major: 1, Minor: 58 } => SunJianClassicGeneralIds,
-            { Major: 1, Minor: 57 } => ZhangJiaoClassicGeneralIds,
-            { Major: 1, Minor: 56 } => GongsunZanClassicGeneralIds,
-            { Major: 1, Minor: 55 } => HuaXiongClassicGeneralIds,
-            { Major: 1, Minor: 54 } => XiahouYuanClassicGeneralIds,
-            { Major: 1, Minor: 53 } => YuanShaoClassicGeneralIds,
-            { Major: 1, Minor: 52 } => ZhouTaiClassicGeneralIds,
-            { Major: 1, Minor: 51 } => XiaoQiaoClassicGeneralIds,
-            { Major: 1, Minor: 50 } => CaoRenClassicGeneralIds,
-            { Major: 1, Minor: 49 } => TaishiCiClassicGeneralIds,
-            { Major: 1, Minor: 48 } => PangTongClassicGeneralIds,
-            { Major: 1, Minor: 47 } => WolongClassicGeneralIds,
-            { Major: 1, Minor: 46 } => YanLiangWenChouClassicGeneralIds,
-            { Major: 1, Minor: 45 } => XunYuClassicGeneralIds,
-            { Major: 1, Minor: 44 } => PangDeClassicGeneralIds,
-            { Major: 1, Minor: 43 } => LuXunClassicGeneralIds,
-            { Major: 1, Minor: 42 } => SunShangxiangClassicGeneralIds,
-            { Major: 1, Minor: 41 } => DiaoChanClassicGeneralIds,
-            { Major: 1, Minor: 40 } => DaQiaoClassicGeneralIds,
-            { Major: 1, Minor: 0 } => LegacyClassicGeneralIds,
-            { Major: 1, Minor: 1 } => TianduClassicGeneralIds,
-            { Major: 1, Minor: 2 } => FanjianClassicGeneralIds,
-            { Major: 1, Minor: 3 } => GuanxingClassicGeneralIds,
-            { Major: 1, Minor: 4 } => PreHuangGaiClassicGeneralIds,
-            { Major: 1, Minor: 5 } => PreHuangGaiClassicGeneralIds,
-            { Major: 1, Minor: 6 } => PreHuangGaiClassicGeneralIds,
-            { Major: 1, Minor: 7 } => PreGanNingClassicGeneralIds,
-            { Major: 1, Minor: 8 } => PreLuMengClassicGeneralIds,
-            { Major: 1, Minor: 9 } => PreZhangLiaoClassicGeneralIds,
-            { Major: 1, Minor: 10 } => PreXuChuClassicGeneralIds,
-            { Major: 1, Minor: 11 } => PreDianWeiClassicGeneralIds,
-            { Major: 1, Minor: 12 } => PreXuHuangClassicGeneralIds,
-            { Major: 1, Minor: 13 } => PreZhenJiClassicGeneralIds,
-            { Major: 1, Minor: 14 } => PreHuangYueyingClassicGeneralIds,
-            { Major: 1, Minor: 15 } => PreMaChaoClassicGeneralIds,
-            { Major: 1, Minor: 16 } => PreHuangZhongClassicGeneralIds,
-            { Major: 1, Minor: 17 } => PreWeiYanClassicGeneralIds,
-            { Major: 1, Minor: 18 } => PreLuBuClassicGeneralIds,
-            { Major: 1, Minor: 19 } => PreZhangFeiClassicGeneralIds,
-            { Major: 1, Minor: 20 } => PreZhaoYunClassicGeneralIds,
-            { Major: 1, Minor: 21 } => PreGuanYuClassicGeneralIds,
-            _ => ClassicGeneralIds
-        };
+        var generalPoolIds = CurrentGeneralIds;
 
         builder.AddMode(new ContentModeDefinition(
             Id: "identity:classic-8",
@@ -2341,9 +1638,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 [nameof(Role.Rebel)] = 4,
                 [nameof(Role.Renegade)] = 1
             },
-            DeckId: _version >= new Version(1, 23, 0)
-                ? "classic:standard-deck"
-                : "standard:basic-demo",
+            DeckId: "classic:standard-deck",
             GeneralCandidateCount: 3,
             GeneralPoolIds: generalPoolIds));
         builder.AddMode(new ContentModeDefinition(
@@ -2358,12 +1653,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 [nameof(Role.Rebel)] = 2,
                 [nameof(Role.Renegade)] = 1
             },
-            DeckId: _version >= new Version(1, 23, 0)
-                ? "classic:standard-deck"
-                : "standard:basic-demo",
+            DeckId: "classic:standard-deck",
             GeneralCandidateCount: 3,
             GeneralPoolIds: generalPoolIds));
-        if (_version >= new Version(1, 66, 0))
         {
             builder.AddMode(new ContentModeDefinition(
                 Id: "identity:classic-boundary-8",
@@ -2521,32 +1813,23 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
     private ContentSkillDefinition WithStructuredSkillMetadata(
         ContentSkillDefinition definition,
         SkillTag tags,
-        SkillExecutionForm executionForms,
-        Version? minimumVersion = null) =>
-        _version >= (minimumVersion ?? new Version(1, 68, 0))
-            ? definition with { Tags = tags, ExecutionForms = executionForms }
-            : definition;
+        SkillExecutionForm executionForms) =>
+        definition with { Tags = tags, ExecutionForms = executionForms };
 
     private ContentSkillDefinition WithOptionalTriggerMetadata(ContentSkillDefinition definition) =>
         WithStructuredSkillMetadata(
             definition,
             SkillTag.None,
-            SkillExecutionForm.Trigger,
-            new Version(1, 73, 0));
+            SkillExecutionForm.Trigger);
 
     private ContentSkillDefinition WithContinuousStateMetadata(ContentSkillDefinition definition) =>
         WithStructuredSkillMetadata(
             definition,
             SkillTag.None,
-            SkillExecutionForm.State,
-            new Version(1, 74, 0));
+            SkillExecutionForm.State);
 
-    private ContentSkillDefinition WithActiveActionMetadata(
-        ContentSkillDefinition definition,
-        Version? minimumVersion = null) =>
-        _version >= (minimumVersion ?? new Version(1, 75, 0))
-            ? definition with { ActionForms = SkillActionForm.Active }
-            : definition;
+    private ContentSkillDefinition WithActiveActionMetadata(ContentSkillDefinition definition) =>
+        definition with { ActionForms = SkillActionForm.Active };
 
     private static string ReadEmbeddedText(string resourceName)
     {
@@ -2556,7 +1839,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         return reader.ReadToEnd();
     }
 
-    internal static IReadOnlyList<string> ClassicGeneralIds { get; } =
+    internal static IReadOnlyList<string> CurrentGeneralIds { get; } =
     [
         "classic:liu-bei",
         "classic:sun-quan",
@@ -2582,276 +1865,51 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:zhuge-liang",
         "classic:guan-yu",
         "classic:zhao-yun",
-        "classic:guo-jia"
-    ];
-
-    internal static IReadOnlyList<string> DaQiaoClassicGeneralIds { get; } =
-    [
-        .. ClassicGeneralIds,
-        "classic:da-qiao"
-    ];
-
-    internal static IReadOnlyList<string> DiaoChanClassicGeneralIds { get; } =
-    [
-        .. DaQiaoClassicGeneralIds,
-        "classic:diao-chan"
-    ];
-
-    internal static IReadOnlyList<string> SunShangxiangClassicGeneralIds { get; } =
-    [
-        .. DiaoChanClassicGeneralIds,
-        "classic:sun-shangxiang"
-    ];
-
-    internal static IReadOnlyList<string> LuXunClassicGeneralIds { get; } =
-    [
-        .. SunShangxiangClassicGeneralIds,
-        "classic:lu-xun"
-    ];
-
-    internal static IReadOnlyList<string> PangDeClassicGeneralIds { get; } =
-    [
-        .. LuXunClassicGeneralIds,
-        "classic:pang-de"
-    ];
-
-    internal static IReadOnlyList<string> XunYuClassicGeneralIds { get; } =
-    [
-        .. PangDeClassicGeneralIds,
-        "classic:xun-yu"
-    ];
-
-    internal static IReadOnlyList<string> YanLiangWenChouClassicGeneralIds { get; } =
-    [
-        .. XunYuClassicGeneralIds,
-        "classic:yan-liang-wen-chou"
-    ];
-
-    internal static IReadOnlyList<string> WolongClassicGeneralIds { get; } =
-    [
-        .. YanLiangWenChouClassicGeneralIds,
-        "classic:wolong-zhuge-liang"
-    ];
-
-    internal static IReadOnlyList<string> PangTongClassicGeneralIds { get; } =
-    [
-        .. WolongClassicGeneralIds,
-        "classic:pang-tong"
-    ];
-
-    internal static IReadOnlyList<string> TaishiCiClassicGeneralIds { get; } =
-    [
-        .. PangTongClassicGeneralIds,
-        "classic:taishi-ci"
-    ];
-
-    internal static IReadOnlyList<string> CaoRenClassicGeneralIds { get; } =
-    [
-        .. TaishiCiClassicGeneralIds,
-        "classic:cao-ren"
-    ];
-
-    internal static IReadOnlyList<string> XiaoQiaoClassicGeneralIds { get; } =
-    [
-        .. CaoRenClassicGeneralIds,
-        "classic:xiao-qiao"
-    ];
-
-    internal static IReadOnlyList<string> ZhouTaiClassicGeneralIds { get; } =
-    [
-        .. XiaoQiaoClassicGeneralIds,
-        "classic:zhou-tai"
-    ];
-
-    internal static IReadOnlyList<string> YuanShaoClassicGeneralIds { get; } =
-    [
-        .. ZhouTaiClassicGeneralIds,
-        "classic:yuan-shao"
-    ];
-
-    internal static IReadOnlyList<string> XiahouYuanClassicGeneralIds { get; } =
-    [
-        .. YuanShaoClassicGeneralIds,
-        "classic:xiahou-yuan"
-    ];
-
-    internal static IReadOnlyList<string> HuaXiongClassicGeneralIds { get; } =
-    [
-        .. XiahouYuanClassicGeneralIds,
-        "classic:hua-xiong"
-    ];
-
-    internal static IReadOnlyList<string> GongsunZanClassicGeneralIds { get; } =
-    [
-        .. HuaXiongClassicGeneralIds,
-        "classic:gongsun-zan"
-    ];
-
-    internal static IReadOnlyList<string> ZhangJiaoClassicGeneralIds { get; } =
-    [
-        .. GongsunZanClassicGeneralIds,
-        "classic:zhang-jiao"
-    ];
-
-    internal static IReadOnlyList<string> SunJianClassicGeneralIds { get; } =
-    [
-        .. ZhangJiaoClassicGeneralIds,
-        "classic:sun-jian"
-    ];
-
-    internal static IReadOnlyList<string> MengHuoClassicGeneralIds { get; } =
-    [
-        .. SunJianClassicGeneralIds,
-        "classic:meng-huo"
-    ];
-
-    internal static IReadOnlyList<string> ZhuRongClassicGeneralIds { get; } =
-    [
-        .. MengHuoClassicGeneralIds,
-        "classic:zhu-rong"
-    ];
-
-    internal static IReadOnlyList<string> YuJinClassicGeneralIds { get; } =
-    [
-        .. ZhuRongClassicGeneralIds,
-        "classic:yu-jin"
-    ];
-
-    internal static IReadOnlyList<string> XuShuClassicGeneralIds { get; } =
-    [
-        .. YuJinClassicGeneralIds,
-        "classic:xu-shu"
-    ];
-
-    internal static IReadOnlyList<string> SpZhaoYunClassicGeneralIds { get; } =
-    [
-        .. XuShuClassicGeneralIds,
-        "sp:zhao-yun"
-    ];
-
-    internal static IReadOnlyList<string> ShenGuanYuClassicGeneralIds { get; } =
-    [
-        .. SpZhaoYunClassicGeneralIds,
-        "classic:shen-guan-yu"
-    ];
-
-    internal static IReadOnlyList<string> SpGuanYuClassicGeneralIds { get; } =
-    [
-        .. ShenGuanYuClassicGeneralIds,
-        "sp:guan-yu"
-    ];
-
-    internal static IReadOnlyList<string> YanYanClassicGeneralIds { get; } =
-    [
-        .. SpGuanYuClassicGeneralIds,
-        "classic:yan-yan"
-    ];
-
-    internal static IReadOnlyList<string> MouLuMengClassicGeneralIds { get; } =
-    [
-        .. YanYanClassicGeneralIds,
-        "mou:lu-meng"
-    ];
-
-    internal static IReadOnlyList<string> CaoZhangClassicGeneralIds { get; } =
-    [
-        .. MouLuMengClassicGeneralIds,
-        "classic:cao-zhang"
-    ];
-
-    internal static IReadOnlyList<string> MaDaiClassicGeneralIds { get; } =
-    [
-        .. CaoZhangClassicGeneralIds,
-        "classic:ma-dai"
-    ];
-
-    internal static IReadOnlyList<string> GaoShunClassicGeneralIds { get; } =
-    [
-        .. MaDaiClassicGeneralIds,
-        "classic:gao-shun"
-    ];
-
-    internal static IReadOnlyList<string> LiuBiaoClassicGeneralIds { get; } =
-    [
-        .. GaoShunClassicGeneralIds,
-        "classic:liu-biao"
-    ];
-
-    internal static IReadOnlyList<string> WangYiClassicGeneralIds { get; } =
-    [
-        .. LiuBiaoClassicGeneralIds,
-        "classic:wang-yi"
-    ];
-
-    internal static IReadOnlyList<string> ZhongHuiClassicGeneralIds { get; } =
-    [
-        .. WangYiClassicGeneralIds,
-        "classic:zhong-hui"
-    ];
-
-    internal static IReadOnlyList<string> XunYouClassicGeneralIds { get; } =
-    [
-        .. ZhongHuiClassicGeneralIds,
-        "classic:xun-you"
-    ];
-
-    internal static IReadOnlyList<string> LiaoHuaClassicGeneralIds { get; } =
-    [
-        .. XunYouClassicGeneralIds,
-        "classic:liao-hua"
-    ];
-
-    internal static IReadOnlyList<string> GuanXingZhangBaoClassicGeneralIds { get; } =
-    [
-        .. LiaoHuaClassicGeneralIds,
-        "classic:guan-xing-zhang-bao"
-    ];
-
-    internal static IReadOnlyList<string> BuLianShiClassicGeneralIds { get; } =
-    [
-        .. GuanXingZhangBaoClassicGeneralIds,
-        "classic:bu-lian-shi"
-    ];
-
-    internal static IReadOnlyList<string> ChengPuClassicGeneralIds { get; } =
-    [
-        .. BuLianShiClassicGeneralIds,
-        "classic:cheng-pu"
-    ];
-
-    internal static IReadOnlyList<string> HanDangClassicGeneralIds { get; } =
-    [
-        .. ChengPuClassicGeneralIds,
-        "classic:han-dang"
-    ];
-
-    internal static IReadOnlyList<string> CaoChongClassicGeneralIds { get; } =
-    [
-        .. HanDangClassicGeneralIds,
-        "classic:cao-chong"
-    ];
-
-    internal static IReadOnlyList<string> GuoHuaiClassicGeneralIds { get; } =
-    [
-        .. CaoChongClassicGeneralIds,
-        "classic:guo-huai"
-    ];
-
-    internal static IReadOnlyList<string> ManChongClassicGeneralIds { get; } =
-    [
-        .. GuoHuaiClassicGeneralIds,
-        "classic:man-chong"
-    ];
-
-    internal static IReadOnlyList<string> GuanPingClassicGeneralIds { get; } =
-    [
-        .. ManChongClassicGeneralIds,
-        "classic:guan-ping"
-    ];
-
-    internal static IReadOnlyList<string> SharedExpansionClassicGeneralIds { get; } =
-    [
-        .. GuanPingClassicGeneralIds,
+        "classic:guo-jia",
+        "classic:da-qiao",
+        "classic:diao-chan",
+        "classic:sun-shangxiang",
+        "classic:lu-xun",
+        "classic:pang-de",
+        "classic:xun-yu",
+        "classic:yan-liang-wen-chou",
+        "classic:wolong-zhuge-liang",
+        "classic:pang-tong",
+        "classic:taishi-ci",
+        "classic:cao-ren",
+        "classic:xiao-qiao",
+        "classic:zhou-tai",
+        "classic:yuan-shao",
+        "classic:xiahou-yuan",
+        "classic:hua-xiong",
+        "classic:gongsun-zan",
+        "classic:zhang-jiao",
+        "classic:sun-jian",
+        "classic:meng-huo",
+        "classic:zhu-rong",
+        "classic:yu-jin",
+        "classic:xu-shu",
+        "sp:zhao-yun",
+        "classic:shen-guan-yu",
+        "sp:guan-yu",
+        "classic:yan-yan",
+        "mou:lu-meng",
+        "classic:cao-zhang",
+        "classic:ma-dai",
+        "classic:gao-shun",
+        "classic:liu-biao",
+        "classic:wang-yi",
+        "classic:zhong-hui",
+        "classic:xun-you",
+        "classic:liao-hua",
+        "classic:guan-xing-zhang-bao",
+        "classic:bu-lian-shi",
+        "classic:cheng-pu",
+        "classic:han-dang",
+        "classic:cao-chong",
+        "classic:guo-huai",
+        "classic:man-chong",
+        "classic:guan-ping",
         "classic:zhu-huan",
         "classic:gu-yong",
         "classic:li-dian",
@@ -2859,128 +1917,65 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "boundary:guo-jia",
         "boundary:cao-cao",
         "boundary:diao-chan",
-        "boundary:zhang-liao"
-    ];
-
-    internal static IReadOnlyList<string> ExpandedClassic140GeneralIds { get; } =
-    [
-        .. SharedExpansionClassicGeneralIds,
+        "boundary:zhang-liao",
         "classic:zhu-zhi",
         "boundary:xu-chu",
-        "boundary:gan-ning"
-    ];
-
-    internal static IReadOnlyList<string> ExpandedClassic141GeneralIds { get; } =
-    [
-        .. ExpandedClassic140GeneralIds,
+        "boundary:gan-ning",
         "boundary:zhou-yu",
         "classic:pan-zhang-ma-zhong",
-        "sp:le-jin"
+        "sp:le-jin",
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =
     [
-        .. SpZhaoYunClassicGeneralIds.Select(id =>
-            id == "classic:zhang-jiao" ? "boundary:zhang-jiao" : id)
-    ];
-
-    internal static IReadOnlyList<string> PreGuanYuClassicGeneralIds { get; } =
-    [
-        .. ClassicGeneralIds.Select(id => id == "classic:guan-yu" ? "standard:guan-yu" : id)
-    ];
-
-    internal static IReadOnlyList<string> PreZhaoYunClassicGeneralIds { get; } =
-    [
-        .. PreGuanYuClassicGeneralIds.Select(id => id == "classic:zhao-yun" ? "standard:zhao-yun" : id)
-    ];
-
-    internal static IReadOnlyList<string> PreZhangFeiClassicGeneralIds { get; } =
-    [
-        .. PreZhaoYunClassicGeneralIds.Select(id => id == "classic:zhang-fei" ? "standard:zhang-fei" : id)
-    ];
-
-    internal static IReadOnlyList<string> PreLuBuClassicGeneralIds { get; } =
-    [
-        .. PreZhangFeiClassicGeneralIds.Where(id => id != "classic:lu-bu")
-    ];
-
-    internal static IReadOnlyList<string> PreWeiYanClassicGeneralIds { get; } =
-    [
-        .. PreLuBuClassicGeneralIds.Where(id => id != "classic:wei-yan")
-    ];
-
-    internal static IReadOnlyList<string> PreHuangZhongClassicGeneralIds { get; } =
-    [
-        .. PreWeiYanClassicGeneralIds.Where(id => id != "classic:huang-zhong")
-    ];
-
-    internal static IReadOnlyList<string> PreMaChaoClassicGeneralIds { get; } =
-    [
-        .. PreHuangZhongClassicGeneralIds.Where(id => id != "classic:ma-chao")
-    ];
-
-    internal static IReadOnlyList<string> PreHuangYueyingClassicGeneralIds { get; } =
-    [
-        .. PreMaChaoClassicGeneralIds.Where(id => id != "classic:huang-yueying")
-    ];
-
-    internal static IReadOnlyList<string> PreZhenJiClassicGeneralIds { get; } =
-    [
-        .. PreHuangYueyingClassicGeneralIds.Where(id => id != "classic:zhen-ji")
-    ];
-
-    internal static IReadOnlyList<string> PreXuHuangClassicGeneralIds { get; } =
-    [
-        .. PreZhenJiClassicGeneralIds.Where(id => id != "classic:xu-huang")
-    ];
-
-    internal static IReadOnlyList<string> PreDianWeiClassicGeneralIds { get; } =
-    [
-        .. PreXuHuangClassicGeneralIds.Where(id => id != "classic:dian-wei")
-    ];
-
-    internal static IReadOnlyList<string> PreXuChuClassicGeneralIds { get; } =
-    [
-        .. PreDianWeiClassicGeneralIds.Where(id => id != "classic:xu-chu")
-    ];
-
-    internal static IReadOnlyList<string> PreZhangLiaoClassicGeneralIds { get; } =
-    [
-        .. PreXuChuClassicGeneralIds.Where(id => id != "classic:zhang-liao")
-    ];
-
-    internal static IReadOnlyList<string> PreLuMengClassicGeneralIds { get; } =
-    [
-        .. PreZhangLiaoClassicGeneralIds.Where(id => id != "classic:lu-meng")
-    ];
-
-    internal static IReadOnlyList<string> PreGanNingClassicGeneralIds { get; } =
-    [
-        .. PreLuMengClassicGeneralIds.Where(id => id != "classic:gan-ning")
-    ];
-
-    internal static IReadOnlyList<string> PreHuangGaiClassicGeneralIds { get; } =
-    [
-        .. PreGanNingClassicGeneralIds.Where(id => id != "classic:huang-gai")
-    ];
-
-    internal static IReadOnlyList<string> GuanxingClassicGeneralIds { get; } =
-    [
-        .. PreHuangGaiClassicGeneralIds.Select(id => id == "classic:cao-cao" ? "standard:cao-cao" : id)
-    ];
-
-    internal static IReadOnlyList<string> FanjianClassicGeneralIds { get; } =
-    [
-        .. GuanxingClassicGeneralIds.Select(id => id == "classic:zhuge-liang" ? "standard:zhuge-liang" : id)
-    ];
-
-    internal static IReadOnlyList<string> TianduClassicGeneralIds { get; } =
-    [
-        .. FanjianClassicGeneralIds.Select(id => id == "classic:zhou-yu" ? "standard:zhou-yu" : id)
-    ];
-
-    internal static IReadOnlyList<string> LegacyClassicGeneralIds { get; } =
-    [
-        .. TianduClassicGeneralIds.Select(id => id == "classic:guo-jia" ? "standard:guo-jia" : id)
+        "classic:liu-bei",
+        "classic:sun-quan",
+        "classic:sima-yi",
+        "classic:xiahou-dun",
+        "classic:hua-tuo",
+        "classic:cao-cao",
+        "classic:zhang-liao",
+        "classic:xu-chu",
+        "classic:dian-wei",
+        "classic:xu-huang",
+        "classic:zhen-ji",
+        "classic:huang-yueying",
+        "classic:ma-chao",
+        "classic:huang-zhong",
+        "classic:wei-yan",
+        "classic:lu-bu",
+        "classic:huang-gai",
+        "classic:gan-ning",
+        "classic:lu-meng",
+        "classic:zhang-fei",
+        "classic:zhou-yu",
+        "classic:zhuge-liang",
+        "classic:guan-yu",
+        "classic:zhao-yun",
+        "classic:guo-jia",
+        "classic:da-qiao",
+        "classic:diao-chan",
+        "classic:sun-shangxiang",
+        "classic:lu-xun",
+        "classic:pang-de",
+        "classic:xun-yu",
+        "classic:yan-liang-wen-chou",
+        "classic:wolong-zhuge-liang",
+        "classic:pang-tong",
+        "classic:taishi-ci",
+        "classic:cao-ren",
+        "classic:xiao-qiao",
+        "classic:zhou-tai",
+        "classic:yuan-shao",
+        "classic:xiahou-yuan",
+        "classic:hua-xiong",
+        "classic:gongsun-zan",
+        "boundary:zhang-jiao",
+        "classic:sun-jian",
+        "classic:meng-huo",
+        "classic:zhu-rong",
+        "classic:yu-jin",
+        "classic:xu-shu",
+        "sp:zhao-yun",
     ];
 }

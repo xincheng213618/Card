@@ -129,6 +129,11 @@ internal static class ClassicZhangJiaoProgramChecks
                 item.ProgramActivationId == "contribute" &&
                 item.ProgramSkillOwnerSeat == lord.Seat);
             if (action is null || action.SelectableCardIds.Count == 0) continue;
+            Require(game.GetHumanLegalActions().All(item =>
+                    item.Kind != LegalActionKind.UseSkill || item.Skill != SkillKind.Huangtian) &&
+                    action.SelectableTargetSeats.SequenceEqual([lord.Seat]) &&
+                    action.MinCardCount == 1 && action.MaxCardCount == 1,
+                "Current Huangtian must publish only its Program contribution with one exact Lord target and card.");
             var cardId = action.SelectableCardIds[0];
             var card = game.CreateSnapshot(0, revealAll: true).Players[0].Hand.Single(item => item.Id == cardId);
             Require(card.Kind is CardKind.Dodge or CardKind.Lightning,
@@ -149,7 +154,10 @@ internal static class ClassicZhangJiaoProgramChecks
                 .OfType<ProgramSkillContributionResolvedEvent>()
                 .Single(item => item.SkillId == "classic:huangtian" && item.CardId == cardId);
             Require(resolved.SkillOwnerSeat == lord.Seat &&
-                    game.CreateSnapshot(0, revealAll: true).Players[lord.Seat].Hand.Any(item => item.Id == cardId),
+                    game.CreateSnapshot(0, revealAll: true).Players[lord.Seat].Hand.Any(item => item.Id == cardId) &&
+                    game.CreateSnapshot(0, revealAll: true).Players[0].Hand.All(item => item.Id != cardId) &&
+                    game.CardMovements.Count(move => move.CardId == cardId &&
+                        move.Reason == new CardMoveReason("skill-program.classic:huangtian.contribute.contribute")) == 2,
                 "Formal classic Huangtian must transfer the exact provider card to the living Lord owner.");
             for (var step = 0; step < 8 &&
                  game.PendingDecision is not { Kind: DecisionKind.PlayCard, PlayerSeat: 0 }; step++)
@@ -283,7 +291,7 @@ internal static class ClassicZhangJiaoProgramChecks
             new StandardContentPackage(),
             new StandardActiveSkillExpansionPackage(),
             new StandardRescueSkillExpansionPackage(),
-            new StandardClassicGeneralPackage(new Version(1, 65, 0)),
+            new StandardClassicGeneralPackage(),
             new SyntheticPackage(
                 "classic-zhang-jiao-program-fixture",
                 builder =>
@@ -312,7 +320,7 @@ internal static class ClassicZhangJiaoProgramChecks
             new StandardContentPackage(),
             new StandardActiveSkillExpansionPackage(),
             new StandardRescueSkillExpansionPackage(),
-            new StandardClassicGeneralPackage(new Version(1, 65, 0)),
+            new StandardClassicGeneralPackage(),
             new SyntheticPackage(
                 "classic-huangtian-program-fixture",
                 builder =>

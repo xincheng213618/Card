@@ -20,8 +20,8 @@ internal static class DistanceSkillChecks
         var skill = SkillRegistry.Get(SkillKind.Mashu);
         var context = new PlayerSkillContext(0, 4, 4, 4, TurnPhase.Play);
         Require(
-            skill.ModifyOutgoingDistance(context, 2) == 1 &&
-            skill.ModifyOutgoingDistance(context, 1) == 0,
+            skill.Numeric!.ModifyOutgoingDistance(context, 2) == 1 &&
+            skill.Numeric!.ModifyOutgoingDistance(context, 1) == 0,
             "Mashu must reduce outgoing distance by exactly one before the engine clamp.");
 
         var game = FindMashuGame(registry);
@@ -52,9 +52,9 @@ internal static class DistanceSkillChecks
         var skill = SkillRegistry.Get(SkillKind.Qicai);
         var context = new PlayerSkillContext(0, 4, 4, 4, TurnPhase.Play);
         Require(
-            skill.IgnoresTrickDistance(context, CardKind.Snatch) &&
-            skill.IgnoresTrickDistance(context, CardKind.SupplyShortage) &&
-            !skill.IgnoresTrickDistance(context, CardKind.Slash),
+            skill.CardUse!.IgnoresTrickDistance(context, CardKind.Snatch) &&
+            skill.CardUse!.IgnoresTrickDistance(context, CardKind.SupplyShortage) &&
+            !skill.CardUse!.IgnoresTrickDistance(context, CardKind.Slash),
             "Qicai must waive distance only for trick cards, not basic Slash cards.");
 
         var game = FindQicaiGame(registry);
@@ -137,7 +137,7 @@ internal static class DistanceSkillChecks
                 AiPolicyVersion = 2
             }, registry);
             var initial = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-            if (initial.Skill != SkillKind.Qicai || !initial.Hand.Any(card => card.Kind == CardKind.Snatch))
+            if (initial.Skills?.Any(skill => skill.Kind == SkillKind.Qicai) != true || !initial.Hand.Any(card => card.Kind == CardKind.Snatch))
             {
                 continue;
             }
@@ -175,7 +175,7 @@ internal static class DistanceSkillChecks
                 AiPolicyVersion = 2
             }, registry);
             var initial = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-            if (initial.Skill != SkillKind.Qicai || !initial.Hand.Any(card => card.Kind == CardKind.SupplyShortage))
+            if (initial.Skills?.Any(skill => skill.Kind == SkillKind.Qicai) != true || !initial.Hand.Any(card => card.Kind == CardKind.SupplyShortage))
             {
                 continue;
             }

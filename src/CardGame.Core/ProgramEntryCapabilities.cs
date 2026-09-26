@@ -47,7 +47,7 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.BeforeDamageApplied or
             SkillProgramTriggerWindow.DamageAppliedBeforeDying or
             SkillProgramTriggerWindow.AfterDamageApplied =>
-            Common | ProgramContextCapability.Damage,
+            Common | ProgramContextCapability.Damage | ProgramContextCapability.Pindian,
         SkillProgramTriggerWindow.OwnerDied =>
             Common | ProgramContextCapability.Judgment | ProgramContextCapability.Death,
         SkillProgramTriggerWindow.DyingResponse => Common | ProgramContextCapability.Dying,

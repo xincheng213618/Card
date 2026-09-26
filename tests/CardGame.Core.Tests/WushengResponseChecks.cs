@@ -166,14 +166,15 @@ internal static class WushengResponseChecks
         {
             var registry = StandardContentRegistry.Create();
             var game = GameEngine.CreateStandard(new GameOptions { Seed = seed, HumanSeat = -1, HumanRole = null, UseInteractiveSetup = false, MaxTurns = 100, AiPolicyVersion = 2, AdvanceAfterHumanCommands = false }, registry);
-            if (!game.CreateSnapshot(-1, true).Players.Any(player => player.Skill == SkillKind.Wusheng)) continue;
+            if (!game.CreateSnapshot(-1, true).Players.Any(player => player.Skills?.Any(skill => skill.Kind == SkillKind.Wusheng) == true)) continue;
             Require(game.Submit(new StartGameCommand()).Accepted, "AI Wusheng fixture failed to start.");
             for (var step = 0; step < 12000 && game.State.Status != EngineStatus.Completed; step++)
                 Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted, "AI Wusheng response stalled.");
             Require(game.State.Status == EngineStatus.Completed, "AI Wusheng match did not finish.");
             var generals = game.CreateSnapshot(-1, true).Players;
             var converted = game.Events.Select(item => item.Payload).OfType<CardRespondedEvent>().Count(response =>
-                generals.Single(player => player.Seat == response.ResponderSeat).Skill == SkillKind.Wusheng && response.EffectiveCardKind == CardKind.Slash &&
+                generals.Single(player => player.Seat == response.ResponderSeat).Skills?
+                    .Any(skill => skill.Kind == SkillKind.Wusheng) == true && response.EffectiveCardKind == CardKind.Slash &&
                 game.CardMovements.Last(move => move.CardId == response.CardId && move.Reason == CardMoveReasons.Respond).CardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash));
             if (converted == 0) continue;
             var replay = GameReplay.Restore(game.CreateCheckpoint(), registry);

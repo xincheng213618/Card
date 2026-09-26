@@ -14,12 +14,7 @@ internal static class DrawPhaseProgramChecks
                 StandardClassicGeneralPackage.CurrentVersion >= new Version(1, 106, 0),
             "The current standard and classic packages must expose their draw-phase-program boundaries.");
 
-        var historicalStandard = ContentRegistry.Build(new StandardContentPackage(new Version(1, 13, 0)));
         var currentStandard = StandardContentRegistry.Create();
-        var historicalClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 101, 0));
-        var additiveClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 102, 0));
-        var targetHandClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 103, 0));
-        var revealClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 104, 0));
         var currentClassic = StandardContentRegistry.CreateWithClassicGenerals();
         var standard = currentStandard.Skills["standard:yingzi"];
         var classic = currentClassic.Skills["classic:yingzi"];
@@ -27,19 +22,13 @@ internal static class DrawPhaseProgramChecks
         var zaiqi = currentClassic.Skills["classic:zaiqi"];
         var luoyi = currentClassic.Skills["classic:luoyi"];
 
-        Require(historicalStandard.Skills["standard:yingzi"] is
-                { LegacyKind: SkillKind.Yingzi, Program: null } &&
-                standard is { LegacyKind: null, Program.UsesCompositionKernel: true } &&
+        Require(standard is { LegacyKind: null, Program.UsesCompositionKernel: true } &&
                 standard.Program!.MinimumRulesVersion == 128,
-            "Standard Yingzi did not preserve the standard@1.13/current migration boundary.");
-        Require(historicalClassic.Skills["classic:yingzi"] is
-                { LegacyKind: SkillKind.Yingzi, Program: null } &&
-                classic is { LegacyKind: null, Program.UsesCompositionKernel: true } &&
+            "Standard Yingzi must use its configured program.");
+        Require(classic is { LegacyKind: null, Program.UsesCompositionKernel: true } &&
                 classic.Program!.MinimumRulesVersion == 128,
-            "Classic Yingzi did not preserve the classic@1.101/current migration boundary.");
-        Require(additiveClassic.Skills["classic:tuxi"] is
-                { LegacyKind: SkillKind.Tuxi, Program: null } &&
-                tuxi is { LegacyKind: null, Program.UsesCompositionKernel: true } &&
+            "Classic Yingzi must use its configured program.");
+        Require(tuxi is { LegacyKind: null, Program.UsesCompositionKernel: true } &&
                 tuxi.Program!.MinimumRulesVersion == 128 &&
                 tuxi.Program.Triggers.Single() is
                 {
@@ -58,9 +47,7 @@ internal static class DrawPhaseProgramChecks
                     ]
                 },
             "Classic Tuxi did not preserve the classic@1.102/schema-17 replacement boundary.");
-        Require(targetHandClassic.Skills["classic:zaiqi"] is
-                { LegacyKind: SkillKind.Zaiqi, Program: null } &&
-                zaiqi is { LegacyKind: null, Program.UsesCompositionKernel: true } &&
+        Require(zaiqi is { LegacyKind: null, Program.UsesCompositionKernel: true } &&
                 zaiqi.Program!.MinimumRulesVersion == 128 &&
                 zaiqi.Program.Triggers.Single() is
                 {
@@ -87,9 +74,7 @@ internal static class DrawPhaseProgramChecks
                     ]
                 },
             "Classic Zaiqi did not preserve the classic@1.103/schema-18 reveal replacement boundary.");
-        Require(revealClassic.Skills["classic:luoyi"] is
-                { LegacyKind: SkillKind.Luoyi, Program: null } &&
-                luoyi is { LegacyKind: null, Program.UsesCompositionKernel: true } &&
+        Require(luoyi is { LegacyKind: null, Program.UsesCompositionKernel: true } &&
                 luoyi.Program!.MinimumRulesVersion == 128 &&
                 luoyi.Program.Triggers.Single() is
                 {

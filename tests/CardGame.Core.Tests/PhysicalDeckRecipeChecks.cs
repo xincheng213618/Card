@@ -6,8 +6,8 @@ internal static class PhysicalDeckRecipeChecks
 {
     public static void ClassicPhysicalDecksMatchOfficialTables()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 37, 0));
-        var deck = registry.Decks["classic:standard-deck"];
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var deck = registry.Decks["classic:standard-108"];
         var cards = deck.PhysicalCards ?? throw new InvalidOperationException(
             "The current classic deck must use a physical-card recipe.");
 
@@ -59,26 +59,7 @@ internal static class PhysicalDeckRecipeChecks
                 RuntimeKind(Suit.Heart, 13, EquipmentSlot.DefensiveHorse) == CardKind.Zhaohuangfeidian,
             "The physical recipe must preserve six distinct mount identities at runtime.");
 
-        var legacy = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 35, 0));
-        Require(legacy.Decks["classic:standard-deck"].PhysicalCards is null &&
-                legacy.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 105,
-            "The 1.35 hybrid deck must remain available for old checkpoints and scenarios.");
-        var genericPhysical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 36, 0));
-        Require(!genericPhysical.Cards.ContainsKey("classic:dawan") &&
-                genericPhysical.Decks["classic:standard-deck"].PhysicalCards!.Count(card =>
-                    card.CardDefinitionId == "standard:offensive_horse") == 3 &&
-                genericPhysical.Decks["classic:standard-deck"].PhysicalCards!.Count(card =>
-                    card.CardDefinitionId == "standard:defensive_horse") == 3,
-            "The 1.36 physical deck must retain its generic mount identities and fingerprint boundary.");
-
-        var militaryRegistry = StandardContentRegistry.CreateWithClassicGenerals();
-        var militaryCards = militaryRegistry.Decks["classic:standard-deck"].PhysicalCards ?? [];
-        Require(militaryRegistry.Decks["classic:standard-108"].PhysicalCards!.SequenceEqual(cards),
-            "The current registry must expose the same exact 108-card standard recipe as a selectable deck.");
-        var militaryOnlyRegistry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 38, 0));
-        Require(!militaryOnlyRegistry.Decks.ContainsKey("classic:standard-108") &&
-                militaryOnlyRegistry.Decks["classic:standard-deck"].PhysicalCards?.Count == 160,
-            "The 1.38 registry must retain its original single military deck and content fingerprint boundary.");
+        var militaryCards = registry.Decks["classic:standard-deck"].PhysicalCards ?? [];
         var expansion = militaryCards.Skip(108).ToArray();
         Require(militaryCards.Count == 160 && expansion.Length == 52 &&
                 Enum.GetValues<Suit>().All(suit => expansion.Count(card => card.Suit == suit) == 13) &&
@@ -96,7 +77,7 @@ internal static class PhysicalDeckRecipeChecks
                 ExpansionCount("standard:fire_attack") == 3 &&
                 ExpansionCount("standard:supply_shortage") == 2 &&
                 ExpansionCount("standard:iron_chain") == 6 &&
-                expansion.Count(card => militaryRegistry.Cards[card.CardDefinitionId].CategoryName == "装备牌") == 6 &&
+                expansion.Count(card => registry.Cards[card.CardDefinitionId].CategoryName == "装备牌") == 6 &&
                 expansion.Single(card => card.Suit == Suit.Diamond && card.Rank == 13).CardDefinitionId == "classic:hualiu",
             "The 52-card military expansion must match its exact card-name distribution and diamond-K Hualiu.");
 

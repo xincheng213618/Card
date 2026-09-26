@@ -12,17 +12,12 @@ internal static class BoundaryXuChuChecks
         var current = ContentRegistry.Build(new StandardContentPackage(),
             new StandardActiveSkillExpansionPackage(includeJijiu: true),
             new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage());
-        var previous = ContentRegistry.Build(new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(includeJijiu: true),
-            new StandardRescueSkillExpansionPackage(),
-            new StandardClassicGeneralPackage(new Version(1, 139, 0)));
         Require(current.Generals[GeneralId] is { BaseHp: 4, FactionId: "wei" } general &&
                 general.SkillIds.SequenceEqual([SkillId]) &&
                 current.Skills[SkillId].Program?.MinimumRulesVersion == 165 &&
-                !previous.Generals.ContainsKey(GeneralId) && !previous.Skills.ContainsKey(SkillId) &&
                 current.Modes["identity:classic-5"].GeneralPoolIds?.Contains(GeneralId) == true &&
                 current.Modes["identity:classic-8"].GeneralPoolIds?.Contains(GeneralId) == true,
-            "2014 Xu Chu must be new, independent, Wei four HP and in formal five/eight-player pools only at 1.140.");
+            "2014 Xu Chu must remain an independent Wei four-HP general in both current formal pools.");
         var valid = GenericRules("""
             {"op":"filterBoundCards","target":"owner","sourceBind":"cards","resultBind":"selected",
              "suits":["spade"],"categories":["trick"],"cardKinds":["peach"]}

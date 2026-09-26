@@ -12,7 +12,7 @@ internal static class QinglongCrescentBladeScenario
 {
     public static QinglongCrescentBladeBoundary FindHumanTrigger(bool requireJijiang = false)
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 63, 0));
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 32_768; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions

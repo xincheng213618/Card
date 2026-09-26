@@ -8,14 +8,25 @@ internal sealed class DamageProgramOperationDescriptor : ProgramOperationDescrip
         static (effect, context) => context.Damage(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "amount", "condition");
+        r.AllowOnly("op", "target", "amount", "condition", "sourceRef", "skipIfNoTarget");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
-        if (target != SkillProgramEffectTarget.SelectedTarget)
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}.target: damage requires selectedTarget.");
-        return new(Op, target, DrawProgramOperationDescriptor.Amount(r, 20), r.Condition());
+        if (target is not (SkillProgramEffectTarget.SelectedTarget or SkillProgramEffectTarget.Owner))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.target: damage requires selectedTarget or owner.");
+        var sourceRef = r.Has("sourceRef") ? r.RequiredParticipantReference("sourceRef") : null;
+        if (sourceRef?.Kind is not null and not (ProgramParticipantRef.Owner or
+            ProgramParticipantRef.ResultSource or ProgramParticipantRef.ResultOpponent))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.sourceRef: unsupported damage source.");
+        var skip = r.Has("skipIfNoTarget") && r.RequiredBool("skipIfNoTarget");
+        if (skip && target != SkillProgramEffectTarget.SelectedTarget)
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.skipIfNoTarget: requires selectedTarget.");
+        return new(Op, target, DrawProgramOperationDescriptor.Amount(r, 20), r.Condition(),
+            actorReference: sourceRef, skipIfNoTarget: skip);
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        [new ReadSelectedTarget()];
+        (effect.Target == SkillProgramEffectTarget.SelectedTarget
+            ? [new ReadSelectedTarget()] : Array.Empty<ProgramResourceOperation>())
+        .Concat(effect.ActorReference is { Kind: ProgramParticipantRef.ResultOpponent or ProgramParticipantRef.ResultSource } reference
+            ? [new ReadPindianResult(reference.ResultBind!)] : Array.Empty<ProgramResourceOperation>()).ToArray();
 }
 
 internal sealed class PindianProgramOperationDescriptor : ProgramOperationDescriptorBase
@@ -208,11 +219,10 @@ internal sealed class SelectSourceCardProgramOperationDescriptor : ProgramOperat
             r.Condition(), resultBind: r.RequiredIdentifier("resultBind"), zones: zones,
             cardSource: cardSource, equipmentSlots: equipmentSlots,
             skipIfNoCards: skipIfNoCards, allowSameSource: allowSameSource);
-        RequireAlways(effect, r.Path);
         return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        effect.CardSource == SkillProgramCardSource.DamageSource
+        (effect.CardSource is SkillProgramCardSource.DamageSource or SkillProgramCardSource.EventTarget)
             ? [new RequireContext(ProgramContextCapability.Damage), new CaptureSourceCard(effect.ResultBind!)]
             : [new CaptureSourceCard(effect.ResultBind!)];
 }
@@ -380,6 +390,15 @@ internal sealed class GrantTurnRuleModifierProgramOperationDescriptor : TurnEffe
     {
         var query = r.RequiredEnum<SkillRuleQuery>("ruleQuery");
         var operation = r.RequiredEnum<SkillRuleOperation>("ruleOperation");
+        if (query == SkillRuleQuery.CardTargetCount && operation == SkillRuleOperation.Add)
+        {
+            r.AllowOnly("op", "target", "ruleQuery", "ruleOperation", "amount", "cardKinds", "condition");
+            var kinds = r.RequiredEnumArray<CardKind>("cardKinds");
+            if (kinds.Count == 0 || kinds.Distinct().Count() != kinds.Count)
+                throw new InvalidOperationException($"Invalid skill program at {r.Path}.cardKinds: requires distinct card kinds.");
+            return new(Op, Owner(r), DrawProgramOperationDescriptor.Amount(r, 20), r.Condition(),
+                cardKinds: kinds, ruleQuery: query, ruleOperation: operation);
+        }
         if (query == SkillRuleQuery.SlashLimit && operation == SkillRuleOperation.Add)
         {
             r.AllowOnly("op", "target", "ruleQuery", "ruleOperation", "amount", "condition");

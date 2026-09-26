@@ -82,7 +82,7 @@ internal static class CaoRenChecks
                 if (prompt.Kind == DecisionKind.PlayCard)
                     Require(game.Submit(new EndPlayPhaseCommand(0, game.Revision, prompt.PromptId)).Accepted, "Could not end human play.");
                 else if (prompt.Kind == DecisionKind.SelectHarvestCard)
-                    game.HumanSelectHarvestCard(prompt.ValidCardIds[0], advanceToHumanBoundary: false);
+                    game.DriveHumanSelectHarvestCard(prompt.ValidCardIds[0], advanceToHumanBoundary: false);
                 else
                 {
                     var choice = prompt.Choices.FirstOrDefault();

@@ -10,30 +10,8 @@ internal static class GuoHuaiChecks
 
     public static void ContentAndPackageBoundary()
     {
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 94, 0));
-        var introduced = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 95, 0));
-        var legacy = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 98, 0));
-        var current = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 99, 0));
-        Require(!previous.Generals.ContainsKey(GeneralId) &&
-                !previous.Skills.ContainsKey("classic:jingce"),
-            "Package 1.94.0 must retain the pre-Guo-Huai content boundary.");
-        Require(introduced.Generals[GeneralId].SkillIds.SequenceEqual(["classic:jingce"]) &&
-                introduced.Skills["classic:jingce"] is
-                {
-                    LegacyKind: SkillKind.Jingce,
-                    Program: null,
-                    PhaseSkill: null
-                } &&
-                legacy.Skills["classic:jingce"] is
-                {
-                    LegacyKind: SkillKind.Jingce,
-                    Program: null,
-                    PhaseSkill: null
-                },
-            "Packages 1.95.0 through 1.98.0 must retain the historical Jingce definition without the removed module.");
-        Require(current.Packages.Single(package => package.Id == "standard-classic-generals").Version ==
-                    new Version(1, 99, 0) &&
-                current.Generals[GeneralId] is
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(current.Generals[GeneralId] is
                 {
                     BaseHp: 4,
                     FactionId: "wei",
@@ -58,7 +36,7 @@ internal static class GuoHuaiChecks
                     UsageLimit: 1
                 } &&
                 current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId),
-            "Package 1.99.0 must publish Guo Huai's PlayEnding Jingce through the shared composition kernel.");
+            "Current Guo Huai must publish PlayEnding Jingce through the shared composition kernel.");
     }
 
     public static void JingceCountsTurnUsesDrawsAndReplays()

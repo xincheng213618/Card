@@ -32,7 +32,7 @@ public sealed partial class MainViewModel
         if (_initializing) return;
         var committed = events.Skip(start).ToArray();
         RecordPublicPlays(committed);
-        var cues = BattleCueProjector.Project(committed, _snapshot, _game.RulesVersion);
+        var cues = BattleCueProjector.Project(committed, _snapshot);
         foreach (var cue in cues)
         {
             BattleCues.Add(cue);

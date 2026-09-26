@@ -9,43 +9,12 @@ internal static class HanDangChecks
 
     public static void ContentAndPackageBoundary()
     {
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 92, 0));
-        var introduced = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 93, 0));
-        var preGongqiMigration = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 133, 0));
-        var preJiefanMigration = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 135, 0));
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(!previous.Generals.ContainsKey(HanDangId) &&
-                !previous.Skills.ContainsKey("classic:gongqi") &&
-                !previous.Skills.ContainsKey("classic:jiefan"),
-            "Package 1.92.0 must retain the pre-Han-Dang content boundary.");
-        Require(introduced.Packages.Single(package => package.Id == "standard-classic-generals").Version ==
-                    new Version(1, 93, 0) &&
-                introduced.Generals[HanDangId] is { BaseHp: 4, FactionId: "wu", Gender: GeneralGender.Male } hanDang &&
+        Require(current.Generals[HanDangId] is { BaseHp: 4, FactionId: "wu", Gender: GeneralGender.Male } hanDang &&
                 hanDang.SkillIds.SequenceEqual(["classic:gongqi", "classic:jiefan"]) &&
-                introduced.Skills["classic:gongqi"] is
-                {
-                    LegacyKind: SkillKind.Gongqi,
-                    ActionForms: SkillActionForm.Active,
-                    ExecutionForms: SkillExecutionForm.State,
-                    Tags: SkillTag.None
-                } &&
-                introduced.Skills["classic:jiefan"] is
-                {
-                    LegacyKind: SkillKind.Jiefan,
-                    ActionForms: SkillActionForm.Active,
-                    ExecutionForms: SkillExecutionForm.None,
-                    Tags: SkillTag.Limited
-                } &&
-                introduced.Modes["identity:classic-5"].GeneralPoolIds!.Contains(HanDangId),
-            "Package 1.93.0 must publish complete classic Han Dang with active/state and limited metadata.");
-        Require(preGongqiMigration.Skills["classic:gongqi"] is { LegacyKind: SkillKind.Gongqi, Program: null } &&
-                preJiefanMigration.Skills["classic:jiefan"] is
-                {
-                    LegacyKind: SkillKind.Jiefan,
-                    Program: null,
-                    Tags: SkillTag.Limited
-                } &&
-                current.Skills["classic:gongqi"] is
+                current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(HanDangId),
+            "Current identity roster must publish complete Han Dang metadata.");
+        Require(current.Skills["classic:gongqi"] is
                 {
                     LegacyKind: null,
                     Program: { RuntimeVersion: "skill-program-v48", MinimumRulesVersion: 158 } program,
@@ -78,7 +47,7 @@ internal static class HanDangChecks
                     UsesPerGame: 1,
                     Effects: [{ Op: SkillProgramEffectOp.RequestAttackRangeAid }]
                 },
-            "Package 1.134.0 must migrate Gongqi and package 1.136.0 must migrate Jiefan to schema 50.");
+            "Current Gongqi and Jiefan must use their composed programs.");
     }
 
     public static void GongqiEquipmentCostAndOpaqueDiscardReplay()
@@ -138,37 +107,6 @@ internal static class HanDangChecks
         Require(game.GetHumanLegalActions().All(candidate => candidate.ProgramSkillId != "classic:gongqi") &&
                 State(paused) == State(game) && Events(paused).SequenceEqual(Events(game)),
             "Gongqi must be once per play phase and complete identically after replay.");
-    }
-
-    public static void HistoricalGongqiDefinitionDoesNotReactivateRetiredExecutor()
-    {
-        var game = CreateGame(new Version(1, 133, 0));
-        ReachHumanPlay(game);
-
-        Require(game.GetHumanLegalActions().All(action =>
-                    action.Skill != SkillKind.Gongqi &&
-                    action.ProgramSkillId != "classic:gongqi") &&
-                game.PendingDecision?.Kind != DecisionKind.Gongqi &&
-                game.CardMovements.All(move =>
-                    move.Reason != CardMoveReasons.GongqiCost &&
-                    move.Reason != CardMoveReasons.GongqiDiscard) &&
-                game.Events.Select(item => item.Payload).All(payload => payload is not GongqiResolvedEvent),
-            "A historical Gongqi definition must preserve its identity without reactivating the retired executor.");
-    }
-
-    public static void HistoricalJiefanDefinitionDoesNotReactivateRetiredExecutor()
-    {
-        var game = CreateGame(new Version(1, 135, 0));
-        ReachHumanPlay(game);
-
-        Require(game.GetHumanLegalActions().All(action =>
-                    action.Skill != SkillKind.Jiefan &&
-                    action.ProgramSkillId != "classic:jiefan") &&
-                game.PendingDecision?.Kind != DecisionKind.Jiefan &&
-                game.Events.Select(item => item.Payload).All(payload =>
-                    payload is not JiefanStartedEvent &&
-                    payload is not JiefanChoiceResolvedEvent),
-            "A historical Jiefan definition must preserve its identity without reactivating the retired executor.");
     }
 
     public static void JiefanFreezesRespondersConsumesLimitedUseAndReplays()
@@ -278,9 +216,9 @@ internal static class HanDangChecks
             "Jiefan must return to the owner's play prompt after every frozen responder resolves.");
     }
 
-    private static GameEngine CreateGame(Version? classicVersion = null)
+    private static GameEngine CreateGame()
     {
-        var registry = Registry(classicVersion);
+        var registry = Registry();
         var game = GameEngine.CreateStandard(new GameOptions
         {
             Seed = 17,
@@ -336,11 +274,11 @@ internal static class HanDangChecks
             : throw new InvalidOperationException(
                 $"Expected {kind}, found {game.PendingDecision?.Kind.ToString() ?? "no prompt"}.");
 
-    private static ContentRegistry Registry(Version? classicVersion = null) => ContentRegistry.Build(
+    private static ContentRegistry Registry() => ContentRegistry.Build(
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
-        classicVersion is null ? new StandardClassicGeneralPackage() : new StandardClassicGeneralPackage(classicVersion),
+        new StandardClassicGeneralPackage(),
         new ScenarioPackage());
 
     private static PlayerSnapshot Player(GameEngine game, int seat) =>

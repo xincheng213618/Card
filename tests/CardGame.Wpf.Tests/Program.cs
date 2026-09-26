@@ -20,6 +20,8 @@ internal static class Program
 {
     private static int _passed;
     private static string? _nameFilter;
+    private static string? _startAfterName;
+    private static bool _startAfterReached;
     private static readonly BindingListener BindingErrors = new();
 
     [STAThread]
@@ -37,6 +39,10 @@ internal static class Program
             _nameFilter = args.FirstOrDefault(argument =>
                     argument.StartsWith("--filter=", StringComparison.OrdinalIgnoreCase))?
                 ["--filter=".Length..].Trim();
+            _startAfterName = args.FirstOrDefault(argument =>
+                    argument.StartsWith("--start-after=", StringComparison.OrdinalIgnoreCase))?
+                ["--start-after=".Length..].Trim();
+            _startAfterReached = _startAfterName is null;
             var output = args.FirstOrDefault(argument =>
                 !argument.StartsWith("--", StringComparison.Ordinal)) ??
                 Path.Combine(Path.GetTempPath(), "card-ui-check");
@@ -271,7 +277,6 @@ internal static class Program
             Check("2018 boundary Zhang Liao renders private dynamic Tuxi targets", () => BoundaryZhangLiaoUiChecks.PortraitAndPrivateDrawPlan(output));
             Check("2014 boundary Gan Ning renders private Fenwei target subsets", () => BoundaryGanNingUiChecks.PrivateFenweiSubsetPrompt(output));
             Check("formal Diao Chan renders and resolves the metadata-driven Biyue prompt", () => DiaoChanUiChecks.BiyuePromptAndContinuation(output));
-            Check("Zongshi module renders shared Pindian choices and resumes Play", () => ZongshiModuleUiChecks.GenericClaimPromptAndContinuation(output));
             Check("Program named choice renders shared labels and resumes parent", () => ProgramChoiceUiChecks.NamedChoiceUsesSharedSurfaceAndCommand(output));
             Check("Program owned-card sets render a private shared draft and commit once", () => ProgramOwnedCardsUiChecks.PrivateSetUsesSharedChoiceSurface(output));
             Check("formal Man Chong renders official art, Junxing selection and Yuce prompt", () => ManChongUiChecks.CardActiveSelectionAndYucePrompt(output));
@@ -326,7 +331,7 @@ internal static class Program
             Check("six-player national controls preserve solo faction labels and saved reveals", () => NationalExperienceChecks.AmbitiousControlsAndRestore(output));
             Check("national Zhang Jiao mode preserves formal skills, hidden slots and package-aware saves", () => NationalExperienceChecks.ZhangJiaoControlsAndRestore(output));
             Check("dual-general health previews survive selection and reject incompatible shipped saves safely", () => NationalHealthChecks.ControlsAndOldPackage(output));
-            Check("dual portraits protect hidden slots and retain legacy skill semantics", NationalSeatChecks.PrivacyAndLegacy);
+            Check("dual portraits protect hidden slots and retain legacy skill semantics", NationalSeatChecks.PrivacyAndReveal);
             Check("dual portraits project ordered multi-skill lists without leaking hidden slots", NationalSeatChecks.MultiSkillProjection);
             Check("dual-seat controls preserve targeting, half-reveal saves and public relationships", () => NationalSeatChecks.ControlsAndRelations(output));
             Check("auto advance pauses at a human decision and can be paused", CheckAutoAdvance);
@@ -344,6 +349,8 @@ internal static class Program
             Check("sound controls, shipped assets and compatible JSON preferences are valid", () => AudioChecks.SettingsAndAssets(output));
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             Check("complete matches can be played through the UI commands", () => CheckMatches(output));
+            if (!_startAfterReached)
+                throw new InvalidOperationException($"No WPF check matched start-after '{_startAfterName}'.");
             if (_nameFilter is not null && _passed == 0)
                 throw new InvalidOperationException($"No WPF checks matched filter '{_nameFilter}'.");
             Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
@@ -360,6 +367,12 @@ internal static class Program
 
     private static void Check(string name, Action action)
     {
+        if (!_startAfterReached)
+        {
+            if (string.Equals(name, _startAfterName, StringComparison.Ordinal))
+                _startAfterReached = true;
+            return;
+        }
         if (_nameFilter is not null &&
             !name.Contains(_nameFilter, StringComparison.OrdinalIgnoreCase))
             return;

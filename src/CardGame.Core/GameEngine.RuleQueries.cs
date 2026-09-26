@@ -32,7 +32,6 @@ public sealed partial class GameEngine
     private RuleQueryEvaluation EvaluateAttackRange(CharacterState player, int? excludedEquipmentId = null)
     {
         var baseTerms = new List<RuleQueryBaseTerm>();
-        if (_rulesVersion >= 13)
         {
             var weapon = GetEquipment(player).Where(card => card.Id != excludedEquipmentId)
                 .SingleOrDefault(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon);
@@ -41,13 +40,6 @@ public sealed partial class GameEngine
                 : new RuleQueryBaseTerm(
                     $"equipment:{weapon.Id}:printed-attack-range",
                     EquipmentCatalog.Get(weapon.Kind).WeaponAttackRange ?? 1));
-        }
-        else
-        {
-            baseTerms.Add(new RuleQueryBaseTerm($"mode:{_modeDefinition.Id}:attack-range", 1));
-            baseTerms.AddRange(GetEquipment(player).Where(card => card.Id != excludedEquipmentId).Select(card => new RuleQueryBaseTerm(
-                $"equipment:{card.Id}:attack-range-bonus",
-                EquipmentCatalog.Get(card.Kind).AttackRangeBonus)));
         }
 
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.AttackRange).ToList();
@@ -102,8 +94,6 @@ public sealed partial class GameEngine
         AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
         AddFiniteContribution(contributions, $"turn:{player.Seat}:slash-limit",
             GetAdditiveTurnRuleModifier(player.Seat, SkillRuleQuery.SlashLimit));
-        AddFiniteContribution(contributions, $"state:{player.Seat}:classic:tianyi:won",
-            player.TianyiWonThisTurn ? 1 : 0);
         return RuleQueryService.Evaluate(
             SkillRuleQuery.SlashLimit,
             new RuleQueryBounds(0, int.MaxValue),
@@ -150,7 +140,12 @@ public sealed partial class GameEngine
             CollectNumericRuleContributions(
                 player,
                 SkillRuleQuery.CardTargetCount,
-                effectiveCardKind));
+                effectiveCardKind).Concat(
+                _turnCardUseEffects.GetRuleModifiers(_turnNumber, _currentSeat, player.Seat,
+                        SkillRuleQuery.CardTargetCount, effectiveCardKind)
+                    .Where(item => item.Operation == SkillRuleOperation.Add)
+                    .Select(item => (RuleQueryContribution)new FiniteRuleQueryContribution(
+                        $"turn:{item.GrantSequence}:card-target-count", SkillRuleOperation.Add, item.Amount))).ToArray());
 
     private IReadOnlyList<RuleQueryContribution> CollectNumericRuleContributions(
         CharacterState player,
@@ -182,11 +177,7 @@ public sealed partial class GameEngine
         {
             var value = query switch
             {
-                SkillRuleQuery.DrawCount => skill.ModifyDrawCount(context, 0),
-                SkillRuleQuery.SlashLimit => skill.ModifySlashLimit(context, 0),
-                SkillRuleQuery.OutgoingDistance => skill.ModifyOutgoingDistance(context, 0),
-                SkillRuleQuery.IncomingDistance => skill.ModifyIncomingDistance(context, 0),
-                _ => 0
+                SkillRuleQuery.DrawCount => skill.Numeric?.ModifyDrawCount(context, 0) ?? 0,                SkillRuleQuery.SlashLimit => skill.Numeric?.ModifySlashLimit(context, 0) ?? 0,                SkillRuleQuery.OutgoingDistance => skill.Numeric?.ModifyOutgoingDistance(context, 0) ?? 0,                SkillRuleQuery.IncomingDistance => skill.Numeric?.ModifyIncomingDistance(context, 0) ?? 0,                                _ => 0
             };
             if (value == 0) continue;
             var sourceId = $"legacy-skill:{player.Seat}:{skill.Kind}:{query}";
@@ -198,7 +189,7 @@ public sealed partial class GameEngine
         return result;
     }
 
-    private IEnumerable<IPassiveSkill> EnabledLegacyNumericSkills(CharacterState player)
+    private IEnumerable<SkillRuleDefinition> EnabledLegacyNumericSkills(CharacterState player)
     {
         if (_contentRegistry is null)
         {
@@ -210,7 +201,7 @@ public sealed partial class GameEngine
         foreach (var definition in GetSkillBindingShard(player)!.Definitions.Values)
         {
             if (definition.LegacyKind is not { } kind || kind == SkillKind.None ||
-                definition.Program is { } program && program.MinimumRulesVersion <= _rulesVersion ||
+                definition.Program is not null ||
                 kind == SkillKind.Yicong && !UsesFormalGongsunZan ||
                 !emitted.Add(kind))
                 continue;

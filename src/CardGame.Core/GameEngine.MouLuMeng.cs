@@ -15,7 +15,7 @@ public sealed partial class GameEngine
     private YingboGiftResolution? _pendingYingboGift;
 
     private bool UsesFormalMouLuMeng =>
-        HasClassicGeneralPackage(new Version(1, 80, 0));
+        HasClassicGeneralPackage;
 
     private void BeginRoundForTurn(CharacterState current)
     {

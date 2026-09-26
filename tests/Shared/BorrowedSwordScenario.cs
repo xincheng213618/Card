@@ -3,11 +3,9 @@ using CardGame.Core;
 
 internal static class BorrowedSwordScenario
 {
-    public static GameEngine FindHumanSourcePlay(Version? packageVersion = null)
+    public static GameEngine FindHumanSourcePlay()
     {
-        var registry = packageVersion is null
-            ? StandardContentRegistry.CreateWithClassicGenerals()
-            : StandardContentRegistry.CreateWithClassicGenerals(packageVersion);
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 4_096; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
@@ -69,13 +67,9 @@ internal static class BorrowedSwordScenario
             "No bounded classic Borrowed Sword source fixture with an equipped target was found.");
     }
 
-    public static GameEngine FindHumanOwnerResponse(
-        bool requireJijiang = false,
-        Version? packageVersion = null)
+    public static GameEngine FindHumanOwnerResponse(bool requireJijiang = false)
     {
-        var registry = packageVersion is null
-            ? StandardContentRegistry.CreateWithClassicGenerals()
-            : StandardContentRegistry.CreateWithClassicGenerals(packageVersion);
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 16_384; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions

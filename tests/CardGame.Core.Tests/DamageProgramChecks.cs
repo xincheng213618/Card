@@ -14,9 +14,7 @@ internal static class DamageProgramChecks
                 StandardClassicGeneralPackage.CurrentVersion >= new Version(1, 101, 0),
             "The current standard and classic packages must retain their damage-program boundaries.");
 
-        var historicalStandard = ContentRegistry.Build(new StandardContentPackage(new Version(1, 12, 0)));
         var currentStandard = StandardContentRegistry.Create();
-        var historicalClassic = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 100, 0));
         var currentClassic = StandardContentRegistry.CreateWithClassicGenerals();
 
         foreach (var skillId in new[]
@@ -24,10 +22,9 @@ internal static class DamageProgramChecks
                      "standard:jianxiong", "standard:feedback", "standard:yiji", "standard:jieming"
                  })
         {
-            Require(historicalStandard.Skills[skillId].Program is null &&
-                    currentStandard.Skills[skillId].Program is
+            Require(currentStandard.Skills[skillId].Program is
                         { UsesCompositionKernel: true, MinimumRulesVersion: 128 },
-                $"{skillId} did not preserve the standard@1.12/current boundary.");
+                $"{skillId} must use the current damage program.");
         }
 
         foreach (var skillId in new[]
@@ -35,10 +32,9 @@ internal static class DamageProgramChecks
                      "classic:jianxiong", "classic:feedback", "classic:yiji", "classic:jieming"
                  })
         {
-            Require(historicalClassic.Skills[skillId].Program is null &&
-                    currentClassic.Skills[skillId].Program is
+            Require(currentClassic.Skills[skillId].Program is
                         { UsesCompositionKernel: true, MinimumRulesVersion: 128 },
-                $"{skillId} did not preserve the classic@1.100/current boundary.");
+                $"{skillId} must use the current damage program.");
         }
 
         var yiji = currentStandard.Skills["standard:yiji"].Program!;

@@ -8,7 +8,6 @@ public sealed partial class MainViewModel
 {
     private IPlayerPreferencesStore _preferencesStore = null!;
     private DispatcherTimer? _preferencesTimer;
-    private bool _preferencesEstablished;
     private bool _applyingPreferences;
     private bool _preferencesPending;
     private bool _hasPreferencesError;
@@ -34,7 +33,6 @@ public sealed partial class MainViewModel
             if (_preferencesStore.Read() is { } preferences)
             {
                 ApplyPreferences(preferences);
-                _preferencesEstablished = true;
             }
             HasPreferencesError = false;
             PreferencesStatus = "声音与动画保存在本机，重新开局或读档后保持当前设置。";
@@ -42,7 +40,6 @@ public sealed partial class MainViewModel
         catch (Exception error) when (FileMatchHistoryStore.IsHistoryError(error))
         {
             // Preserve the unreadable file until the player explicitly changes a setting.
-            _preferencesEstablished = true;
             ApplyPreferences(new(1, false, DefaultSoundVolume, false));
             HasPreferencesError = true;
             PreferencesStatus = "设置无法读取，暂以静音和无动画启动；调整设置后可重新保存，原文件会备份。";
@@ -64,18 +61,9 @@ public sealed partial class MainViewModel
         finally { _applyingPreferences = false; }
     }
 
-    private void ImportLegacyPreferences(GameSaveFile save)
-    {
-        if (_preferencesEstablished) return;
-        ApplyPreferences(new(1, save.SoundEnabled ?? true, save.SoundVolume ?? DefaultSoundVolume,
-            save.MotionEnabled ?? System.Windows.SystemParameters.ClientAreaAnimation));
-        QueuePreferencesSave();
-    }
-
     private void QueuePreferencesSave()
     {
         if (_initializing || _disposed || _applyingPreferences) return;
-        _preferencesEstablished = true;
         _preferencesPending = true;
         if (_preferencesTimer is { IsEnabled: false }) _preferencesTimer.Start();
     }

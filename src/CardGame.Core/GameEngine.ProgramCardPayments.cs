@@ -137,7 +137,7 @@ public sealed partial class GameEngine
             CardZoneKind.Hand => GetHand(_players[ownerSeat]),
             CardZoneKind.Equipment => GetEquipment(_players[ownerSeat]),
             CardZoneKind.Judgment => GetJudgment(_players[ownerSeat]),
-            _ => throw new InvalidOperationException("Unsupported payment card zone.")
+                _ => throw new InvalidOperationException("Unsupported payment card zone.")
         };
         if (slot < 0 || slot >= cards.Count)
         {

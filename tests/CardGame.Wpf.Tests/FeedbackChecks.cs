@@ -85,13 +85,6 @@ internal static class FeedbackChecks
                judgmentCues[2] is { Label: "乐不思蜀 · ♥Q", Detail: "红桃 · 不跳过出牌阶段" } &&
                judgmentCues[3] is { Label: "闪电 · ♠5", Detail: "黑桃 2–9 · 命中" },
             "Judgment lifecycle, replacement, card face, or rule outcome was not projected exactly.");
-        var legacyJudgment = BattleCueProjector.Project(
-        [
-            Envelope(new JudgmentResolvedEvent(13, 9, 1, JudgmentReasons.SupplyShortage, 44,
-                CardKind.Peach, Suit.Heart, 6, true))
-        ], view, rulesVersion: 10).Single();
-        Assert(legacyJudgment.Detail == "红色 · 不跳过摸牌阶段",
-            "Legacy red/black delayed-judgment feedback was rewritten as the formal suit rule.");
         var responseCues = BattleCueProjector.Project(
         [
             Envelope(new ResponseRequestedEvent(0, 1, CardKind.Slash, CardKind.Dodge)),
@@ -146,7 +139,8 @@ internal static class FeedbackChecks
         var revision = Engine(vm).Revision;
         var writes = store.WriteCount;
         vm.IsMotionEnabled = true;
-        Assert(vm.FlushPendingSave() && store.WriteCount == writes + 1 && store.Read(GameSaveSlot.Automatic).MotionEnabled == true, "Changing motion after a settled save was not persisted.");
+        Assert(vm.FlushPreferences() && vm.IsMotionEnabled && Engine(vm).Revision == revision,
+            "Changing motion must persist as a device preference without advancing the match.");
         vm.IsAutoAdvance = true;
         Assert(vm.FlushPendingSave() && store.Read(GameSaveSlot.Automatic).AutoAdvance, "Changing auto advance was not persisted.");
         vm.IsAutoAdvance = false;

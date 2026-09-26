@@ -10,7 +10,6 @@ internal static class CaoZhangChecks
     public static void ContentPromptAndRulesBoundary()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var previous = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 105, 0));
         Require(current.Packages.Any(package =>
                     package.Id == "standard-classic-generals" &&
                     package.Version == StandardClassicGeneralPackage.CurrentVersion) &&
@@ -28,10 +27,8 @@ internal static class CaoZhangChecks
                     ExecutionForms: SkillExecutionForm.Trigger,
                     ActionForms: SkillActionForm.None
                 } skill &&
-                skill.Program is { UsesCompositionKernel: true, MinimumRulesVersion: 128 } &&
-                previous.Skills[SkillId].Program is null &&
-                current.ContentHash != previous.ContentHash,
-            "Current package must retain the 1.106 Jiangchi migration without mutating 1.105.0.");
+                skill.Program is { UsesCompositionKernel: true, MinimumRulesVersion: 128 },
+            "Current Cao Zhang must publish grouped Jiangchi through its program.");
 
         var fixture = FindFixture();
         var game = fixture.Game;

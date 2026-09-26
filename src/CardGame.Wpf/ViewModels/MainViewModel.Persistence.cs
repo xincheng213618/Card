@@ -107,7 +107,7 @@ public sealed partial class MainViewModel
         {
             var save = new GameSaveFile(GameSaveFile.CurrentFormatVersion, DateTimeOffset.UtcNow,
                 IsAutoAdvance, _game.CreateCheckpoint())
-            { MotionEnabled = IsMotionEnabled, SoundEnabled = IsSoundEnabled, SoundVolume = SoundVolume, PlaybackSpeedId = SelectedPlaybackSpeed.Id };
+            { PlaybackSpeedId = SelectedPlaybackSpeed.Id };
             _saveStore.Write(slot, save);
             if (slot == GameSaveSlot.Automatic) _autoSavePending = false;
             RefreshSaveSlots();
@@ -169,7 +169,6 @@ public sealed partial class MainViewModel
             ManualDiscardEnabled = options.UseInteractiveDiscard;
             IsAutoAdvance = save.AutoAdvance;
             SelectedPlaybackSpeed = playbackSpeed;
-            ImportLegacyPreferences(save);
             IsNewGameSetupOpen = false;
             IsHelpOpen = false;
             IsLogOpen = false;
@@ -233,29 +232,28 @@ public sealed partial class MainViewModel
             .SingleOrDefault();
         var hasClassicGenerals = classicPackageVersion is not null;
         var hasAmbitiousNational = packages.Contains("standard-national-war-ambitious@1.0.0", StringComparer.Ordinal);
-        var legacyNational = packages.Contains("standard-national-war-lite@1.0.0", StringComparer.Ordinal);
         if (hasClassicGenerals)
         {
+            if (classicPackageVersion != StandardClassicGeneralPackage.CurrentVersion)
+                throw new InvalidDataException("存档使用了当前版本不支持的经典武将内容包版本。");
             return hasTeamModes && hasAmbitiousNational
-                ? StandardContentRegistry.CreateWithClassicGeneralsAndTeamModesAndNationalWarAmbitious(
-                    legacyNational,
-                    classicPackageVersion!)
-                : StandardContentRegistry.CreateWithClassicGenerals(classicPackageVersion!);
+                ? StandardContentRegistry.CreateWithClassicGeneralsAndTeamModesAndNationalWarAmbitious()
+                : StandardContentRegistry.CreateWithClassicGenerals();
         }
-        if (hasAmbitiousNational || legacyNational || packages.Contains("standard-national-war-lite@1.1.0", StringComparer.Ordinal))
+        if (hasAmbitiousNational || packages.Contains("standard-national-war-lite@1.1.0", StringComparer.Ordinal))
         {
             if (hasAmbitiousNational)
             {
-                if (hasRescueSkills && hasTeamModes) return StandardContentRegistry.CreateWithRescueSkillsAndTeamModesAndNationalWarAmbitious(legacyNational);
-                if (hasRescueSkills) return StandardContentRegistry.CreateWithRescueSkillsAndNationalWarAmbitious(legacyNational);
-                if (hasActiveSkills && hasTeamModes) return StandardContentRegistry.CreateWithActiveSkillsAndTeamModesAndNationalWarAmbitious(legacyNational);
-                if (hasActiveSkills) return StandardContentRegistry.CreateWithActiveSkillsAndNationalWarAmbitious(legacyNational);
-                if (hasTeamModes) return StandardContentRegistry.CreateWithTeamModesAndNationalWarAmbitious(legacyNational);
-                return StandardContentRegistry.CreateWithNationalWarAmbitious(legacyNational);
+                if (hasRescueSkills && hasTeamModes) return StandardContentRegistry.CreateWithRescueSkillsAndTeamModesAndNationalWarAmbitious();
+                if (hasRescueSkills) return StandardContentRegistry.CreateWithRescueSkillsAndNationalWarAmbitious();
+                if (hasActiveSkills && hasTeamModes) return StandardContentRegistry.CreateWithActiveSkillsAndTeamModesAndNationalWarAmbitious();
+                if (hasActiveSkills) return StandardContentRegistry.CreateWithActiveSkillsAndNationalWarAmbitious();
+                if (hasTeamModes) return StandardContentRegistry.CreateWithTeamModesAndNationalWarAmbitious();
+                return StandardContentRegistry.CreateWithNationalWarAmbitious();
             }
-            if (hasRescueSkills && hasTeamModes) return StandardContentRegistry.CreateWithRescueSkillsAndTeamModesAndNationalWarLite(legacyNational);
-            if (hasActiveSkills) return StandardContentRegistry.CreateWithActiveSkillsAndNationalWarLite(legacyNational);
-            return StandardContentRegistry.CreateWithNationalWarLite(legacyNational);
+            if (hasRescueSkills && hasTeamModes) return StandardContentRegistry.CreateWithRescueSkillsAndTeamModesAndNationalWarLite();
+            if (hasActiveSkills) return StandardContentRegistry.CreateWithActiveSkillsAndNationalWarLite();
+            return StandardContentRegistry.CreateWithNationalWarLite();
         }
         if (hasRescueSkills && hasTeamModes)
         {

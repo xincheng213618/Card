@@ -239,6 +239,10 @@ internal static class ProgramCompositionValidator
                         if (selectedTarget || targetSetAvailable) Fail("a composition may select its target only once");
                         selectedTarget = true;
                         break;
+                    case ReplaceSingleTarget:
+                        if (!selectedTarget || targetSetAvailable)
+                            Fail("a replacement target requires one existing single target");
+                        break;
                     case SelectTargetSet:
                         if (selectedTarget || targetSetAvailable) Fail("a composition may select its targets only once");
                         targetSetAvailable = true;

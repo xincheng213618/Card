@@ -30,11 +30,9 @@ internal static class BoundaryZhangLiaoChecks
                         { Op: SkillProgramTriggerEffectOp.TakeRandomHandCardFromSelectedTargets }
                     ] },
             "The 2018 boundary Zhang Liao must use its own additive draw-plan skill in the current identity pool.");
-        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 138, 0));
-        Require(!historical.Generals.ContainsKey(GeneralId) && !historical.Skills.ContainsKey(SkillId) &&
-                registry.Skills["classic:tuxi"].Program!.Triggers.Single().DrawPhaseMode ==
+        Require(registry.Skills["classic:tuxi"].Program!.Triggers.Single().DrawPhaseMode ==
                     SkillProgramDrawPhaseMode.Replacement,
-            "The new draw-plan syntax must not change historical or classic Tuxi registration.");
+            "The new draw-plan syntax must not change classic Tuxi behavior.");
 
         using var rulesStream = typeof(StandardClassicGeneralPackage).Assembly.GetManifestResourceStream(
             "CardGame.Content.Standard.SkillPrograms.boundary-zhang-liao.rules.json")!;

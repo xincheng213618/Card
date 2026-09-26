@@ -12,10 +12,9 @@ public sealed record SkillProgramRuleSource(
     SkillProgram Program);
 
 /// <summary>
-/// Projects compiled skill programs onto the legacy passive-rule questions.
-/// State mutation and active program execution remain owned by GameEngine.
+/// Evaluates compiled numeric contributions and card conversions from current program definitions.
 /// </summary>
-public sealed class SkillProgramRules : IPassiveSkill
+public sealed class SkillProgramRules : ICardConversionSkillRule
 {
     private readonly IReadOnlyList<SkillProgram> _programs;
     private readonly IReadOnlySet<int> _handCardIds;
@@ -38,62 +37,12 @@ public sealed class SkillProgramRules : IPassiveSkill
             : new HashSet<int>(equipmentCardIds);
     }
 
-    public SkillKind Kind => SkillKind.None;
-
-    public string Name => "Configured skills";
-
-    public int ModifyDrawCount(PlayerSkillContext owner, int currentCount) =>
-        Modify(SkillRuleQuery.DrawCount, owner, currentCount, _programs);
-
-    public int ModifySlashLimit(PlayerSkillContext owner, int currentLimit) =>
-        Modify(SkillRuleQuery.SlashLimit, owner, currentLimit, _programs);
-
-    public int ModifyOutgoingDistance(PlayerSkillContext owner, int currentDistance) =>
-        Modify(SkillRuleQuery.OutgoingDistance, owner, currentDistance, _programs);
-
-    public int ModifyIncomingDistance(PlayerSkillContext owner, int currentDistance) =>
-        Modify(SkillRuleQuery.IncomingDistance, owner, currentDistance, _programs);
-
     public bool CanUseAsSlash(PlayerSkillContext owner, Card card) =>
         MatchesViewAs(owner, card, CardKind.Slash, forResponse: false);
 
     public bool CanUseAsResponse(PlayerSkillContext owner, Card card, CardKind requiredCardKind) =>
         requiredCardKind is CardKind.Slash or CardKind.Dodge &&
         MatchesViewAs(owner, card, requiredCardKind, forResponse: true);
-
-    public static int Modify(
-        SkillRuleQuery query,
-        PlayerSkillContext context,
-        int baseValue,
-        IReadOnlyList<SkillProgram> programs)
-    {
-        ArgumentNullException.ThrowIfNull(context);
-        ArgumentNullException.ThrowIfNull(programs);
-
-        var sources = programs.Select(program => new SkillProgramRuleSource(
-            program.Id,
-            program.Id,
-            program)).ToArray();
-        var contributions = CollectContributions(
-            query,
-            new SkillProgramRuleContext(context, LivingFactionCount: 0),
-            sources);
-        var bounds = query switch
-        {
-            SkillRuleQuery.DrawCount or SkillRuleQuery.HandLimit or SkillRuleQuery.SlashLimit =>
-                new RuleQueryBounds(0, int.MaxValue),
-            SkillRuleQuery.AttackRange => new RuleQueryBounds(1, int.MaxValue),
-            _ => new RuleQueryBounds(int.MinValue, int.MaxValue)
-        };
-        var evaluated = RuleQueryService.Evaluate(
-            query,
-            bounds,
-            [new RuleQueryBaseTerm("compatibility:base", baseValue)],
-            contributions);
-        return evaluated.Value is UnlimitedRuleQueryValue
-            ? int.MaxValue
-            : ((FiniteRuleQueryValue)evaluated.Value).Value;
-    }
 
     public static IReadOnlyList<RuleQueryContribution> CollectContributions(
         SkillRuleQuery query,

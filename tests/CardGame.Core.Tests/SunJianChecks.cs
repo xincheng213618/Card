@@ -9,11 +9,8 @@ internal static class SunJianChecks
     public static void YinghunChoiceAndReplay()
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        var historical = StandardContentRegistry.CreateWithClassicGenerals(new Version(1, 114, 0));
-        Require(registry.Skills[SkillId] is { LegacyKind: null, Program.RuntimeVersion: "skill-program-v31" } &&
-                historical.Skills[SkillId] is { LegacyKind: SkillKind.Yinghun, Program: null },
-            "Current Yinghun must use schema 31 without rewriting the historical definition.");
-        VerifyHistoricalPackageDoesNotReviveLegacyYinghun(historical);
+        Require(registry.Skills[SkillId] is { LegacyKind: null, Program.RuntimeVersion: "skill-program-v31" },
+            "Current Yinghun must use its configured program.");
         for (var seed = 1; seed <= 4096; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
