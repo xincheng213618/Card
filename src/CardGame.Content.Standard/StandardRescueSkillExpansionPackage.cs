@@ -18,11 +18,7 @@ public sealed class StandardRescueSkillExpansionPackage : IGameContentPackage
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:jijiu",
-            "急救",
-            "濒死窗口可将一张红色牌当作桃使用。",
-            SkillKind.Jijiu));
+        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("conversion-cutover", "standard:jijiu"));
         builder.AddGeneral(new ContentGeneralDefinition(
             "standard:demo-jijiu",
             "急救者",

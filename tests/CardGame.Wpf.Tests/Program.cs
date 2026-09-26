@@ -27,6 +27,12 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        if (args.Contains("--filter", StringComparer.OrdinalIgnoreCase))
+        {
+            Console.Error.WriteLine("Use --filter=<name>; an incomplete filter must not start the full suite.");
+            return 2;
+        }
+
         var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
         app.Resources.MergedDictionaries.Add(new ResourceDictionary
         {
@@ -39,6 +45,11 @@ internal static class Program
             _nameFilter = args.FirstOrDefault(argument =>
                     argument.StartsWith("--filter=", StringComparison.OrdinalIgnoreCase))?
                 ["--filter=".Length..].Trim();
+            if (_nameFilter is { Length: 0 })
+            {
+                Console.Error.WriteLine("A WPF check filter cannot be empty.");
+                return 2;
+            }
             _startAfterName = args.FirstOrDefault(argument =>
                     argument.StartsWith("--start-after=", StringComparison.OrdinalIgnoreCase))?
                 ["--start-after=".Length..].Trim();
@@ -311,6 +322,7 @@ internal static class Program
             Check("national Wusheng reveal during response refreshes the WPF controls", () => WushengResponseChecks.NationalRevealDuringResponse(output));
             Check("Iron Chain selects seats directly and preserves multi-target drafts through guides and tutorials", () => CardTargetChecks.DirectSelection(output));
             Check("recast uses a distinct action and rejects incompatible saved rules safely", () => RecastUiChecks.ControlsAndOldSaves(output));
+            Check("converted Lianhuan recast selects exact source and saves replay", () => RecastUiChecks.ConvertedLianhuanSelectionAndReplay(output));
             Check("response context distinguishes recipients, opponents and private prompts", DecisionContextChecks.Semantics);
             Check("match reports aggregate public outcomes without double counting", MatchSummaryChecks.Aggregation);
             Check("completed history survives relaunch, deduplicates endings and isolates damaged files", () => HistoryChecks.PersistenceAndFailures(output));
@@ -1058,10 +1070,18 @@ internal static class Program
         var peach = vm.Hand.Single(card => card.Name == "桃");
         Assert(!peach.IsPlayable, "Black Peach should not be usable at full health with Wusheng.");
         var redCard = vm.Hand.First(card => card.Name != "杀" && card.SuitGlyph is "♥" or "♦");
-        var action = engine.GetHumanLegalActions().First(a => a.CardId == redCard.Id && a.PlayedCardKind == CardKind.Slash);
+        var action = engine.GetHumanLegalActions().First(a =>
+            a.CardId == redCard.Id && a.PlayedCardKind == CardKind.Slash &&
+            a.ConversionSource?.SkillId == "standard:wusheng");
         vm.SelectCardCommand.Execute(redCard);
+        var conversionChoice = vm.EquipmentPlayChoices.Single(choice =>
+            choice.Cards.SequenceEqual([redCard.Id]) &&
+            choice.Parameters.GetValueOrDefault("conversion-skill-id") == action.ConversionSource!.SkillId &&
+            choice.Parameters.GetValueOrDefault("conversion-binding-id") == action.ConversionSource.BindingId &&
+            choice.Parameters.GetValueOrDefault("conversion-instance-id") == action.ConversionSource.SkillInstanceId);
+        vm.SelectEquipmentPlayChoiceCommand.Execute(conversionChoice);
         vm.SelectTargetCommand.Execute(vm.Seats.Single(seat => seat.Seat == action.TargetSeat));
-        Assert(vm.CanPlaySelectedAsSlash, "Red card conversion should be available.");
+        Assert(vm.CanPlaySelectedAsSlash, "The selected Wusheng source should enable this exact converted Slash.");
         var revision = engine.Revision;
         vm.PlaySelectedAsSlashCommand.Execute(null);
         Assert(engine.Revision > revision && !vm.HasSelection, "Wusheng did not commit and clear the selected card.");

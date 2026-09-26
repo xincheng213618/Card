@@ -135,7 +135,11 @@ public sealed record PlayCardCommand(
 
 /// <summary>Recasts an eligible physical hand card without using it as a trick.</summary>
 public sealed record RecastCardCommand(int ActorSeat, int CardId, long ExpectedRevision, PromptId? PromptId = null)
-    : GameCommand(ActorSeat, ExpectedRevision);
+    : GameCommand(ActorSeat, ExpectedRevision)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CardConversionSource? ConversionSource { get; init; }
+}
 
 /// <summary>
 /// Uses the actor's currently available active skill. CardIds and TargetSeats

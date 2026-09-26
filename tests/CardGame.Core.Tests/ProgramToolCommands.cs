@@ -130,7 +130,7 @@ internal static class ProgramToolCommands
                             found.Add(new
                             {
                                 bundle,
-                                schemaVersion = 58,
+                                schemaVersion = SkillProgramCatalog.RulesSchemaVersion,
                                 skillId,
                                 entryKind = kind,
                                 entryId,

@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 58,
+  "schemaVersion": 59,
   "skills": [
     {
       "id": "standard:paoxiao",
       "revision": 1,
-      "minimumRulesVersion": 168,
+      "minimumRulesVersion": 169,
       "modifiers": [
         {
           "id": "unlimited-slash-uses",
@@ -23,7 +23,7 @@
     {
       "id": "standard:mashu",
       "revision": 1,
-      "minimumRulesVersion": 168,
+      "minimumRulesVersion": 169,
       "modifiers": [
         {
           "id": "outgoing-distance-minus-one",
@@ -42,7 +42,7 @@
     {
       "id": "classic:paoxiao",
       "revision": 1,
-      "minimumRulesVersion": 168,
+      "minimumRulesVersion": 169,
       "modifiers": [
         {
           "id": "unlimited-slash-uses",
@@ -61,7 +61,7 @@
     {
       "id": "classic:mashu",
       "revision": 1,
-      "minimumRulesVersion": 168,
+      "minimumRulesVersion": 169,
       "modifiers": [
         {
           "id": "outgoing-distance-minus-one",
@@ -80,7 +80,7 @@
     {
       "id": "sp:guan-yu-mashu",
       "revision": 1,
-      "minimumRulesVersion": 168,
+      "minimumRulesVersion": 169,
       "modifiers": [
         {
           "id": "outgoing-distance-minus-one",
@@ -99,7 +99,7 @@
     {
       "id": "classic:yicong",
       "revision": 1,
-      "minimumRulesVersion": 168,
+      "minimumRulesVersion": 169,
       "modifiers": [
         {
           "id": "healthy-outgoing-distance-minus-one",
@@ -138,7 +138,7 @@
     {
       "id": "classic:zongshi",
       "revision": 1,
-      "minimumRulesVersion": 168,
+      "minimumRulesVersion": 169,
       "modifiers": [
         {
           "id": "living-faction-hand-limit",

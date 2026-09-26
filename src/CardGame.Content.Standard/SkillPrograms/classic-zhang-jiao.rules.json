@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 58,
+  "schemaVersion": 59,
   "skills": [
     {
       "id": "classic:guidao",
       "revision": 1,
-      "minimumRulesVersion": 168,
+      "minimumRulesVersion": 169,
       "triggers": [
         {
           "id": "replace-judgment",
@@ -27,7 +27,7 @@
     {
       "id": "classic:leiji",
       "revision": 1,
-      "minimumRulesVersion": 168,
+      "minimumRulesVersion": 169,
       "triggers": [
         {
           "id": "after-dodge",
@@ -108,7 +108,7 @@
     {
       "id": "classic:huangtian",
       "revision": 1,
-      "minimumRulesVersion": 168,
+      "minimumRulesVersion": 169,
       "contributions": [
         {
           "id": "contribute",

@@ -8,7 +8,7 @@ internal static class DistanceSkillChecks
         var registry = StandardContentRegistry.CreateWithActiveSkills();
         Require(
             registry.Skills.TryGetValue("standard:mashu", out var definition) &&
-            definition is { LegacyKind: null, Program.RuntimeVersion: "skill-program-v58" } &&
+            definition is { LegacyKind: null, Program.RuntimeVersion: "skill-program-v59" } &&
             definition.Program.Modifiers.Single() is
             {
                 Query: SkillRuleQuery.OutgoingDistance,
@@ -16,13 +16,6 @@ internal static class DistanceSkillChecks
                 Value: -1
             },
             "The current Mashu content definition must use the formal rule-query program.");
-
-        var skill = SkillRegistry.Get(SkillKind.Mashu);
-        var context = new PlayerSkillContext(0, 4, 4, 4, TurnPhase.Play);
-        Require(
-            skill.Numeric!.ModifyOutgoingDistance(context, 2) == 1 &&
-            skill.Numeric!.ModifyOutgoingDistance(context, 1) == 0,
-            "Mashu must reduce outgoing distance by exactly one before the engine clamp.");
 
         var game = FindMashuGame(registry);
         Require(game.GetSeatDistance(0, 2) == 2, "The five-seat ring baseline must remain distance two.");

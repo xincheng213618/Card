@@ -4,7 +4,6 @@ public sealed partial class GameEngine
 {
     private void InitializeStructuredConversionSkills()
     {
-        if (_contentRegistry is null) return;
         foreach (var player in _players)
             foreach (var skillId in EnabledContentSkillIds(player))
                 RegisterTaggedConversionSkill(player, skillId);
@@ -12,7 +11,6 @@ public sealed partial class GameEngine
 
     private void RegisterTaggedConversionSkill(CharacterState player, string skillId)
     {
-        if (_contentRegistry is null) return;
         var definition = _contentRegistry.GetSkill(skillId);
         // Programs own their declared per-instance states. Only unmigrated modules
         // use the older generic polarity store.

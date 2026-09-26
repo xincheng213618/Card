@@ -21,7 +21,7 @@ internal static class ZhuHuanChecks
                 general.SkillIds.SequenceEqual([SkillId]) &&
                 registry.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
                 registry.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId) &&
-                skill.Program is { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } &&
+                skill.Program is { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } &&
                 skill.Program.Triggers.Single().Window == SkillProgramTriggerWindow.TurnEnding &&
                 (int)SkillProgramConditionKind.BoundCardsMatchKinds == 20,
             "Zhu Huan must be a formal Wu/Fame IV general using the reusable schema-54 condition.");

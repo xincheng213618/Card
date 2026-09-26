@@ -4,7 +4,8 @@ using CardGame.Core;
 internal static class WushengResponseScenario
 {
     public static GameEngine Find(CardKind incoming)
-        => FindResponse(incoming, SkillKind.Wusheng, DecisionKind.RespondSlash);
+        => FindResponse(incoming, SkillKind.Wusheng, DecisionKind.RespondSlash,
+            skillContentId: "standard:wusheng");
 
     public static GameEngine FindLongdanDodge(
         ContentRegistry? registry = null,
@@ -16,7 +17,7 @@ internal static class WushengResponseScenario
             DecisionKind.RespondDodge,
             registry,
             modeId,
-            skillContentId);
+            skillContentId ?? "standard:longdan");
 
     public static GameEngine FindClassicWushengHand(ContentRegistry registry)
         => FindResponse(
@@ -36,7 +37,7 @@ internal static class WushengResponseScenario
             DecisionKind.RespondDodge,
             StandardContentRegistry.CreateWithClassicGenerals(),
             "identity:classic-8",
-            skillContentId);
+            skillContentId ?? "classic:qingguo");
 
     public static GameEngine FindClassicWushengEquipmentResponse()
     {

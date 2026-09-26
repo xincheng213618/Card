@@ -6,8 +6,8 @@ internal static class CardUseCompletedChecks
     public static void FinishedSlashOpensReplayableProgramWindow()
     {
         const string rules = """
-            {"schemaVersion":58,"skills":[{"id":"fixture:after-slash","revision":1,
-              "minimumRulesVersion":168,"triggers":[{"id":"draw-after-finish",
+            {"schemaVersion":59,"skills":[{"id":"fixture:after-slash","revision":1,
+              "minimumRulesVersion":169,"triggers":[{"id":"draw-after-finish",
               "window":"cardUseCompleted","ownerRelation":"actor","cardKinds":["slash"],
               "optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]}]}
             """;
@@ -76,8 +76,8 @@ internal static class CardUseCompletedChecks
     public static void CompletedUseFreezesActualDamageFact()
     {
         const string rules = """
-            {"schemaVersion":58,"skills":[{"id":"fixture:after-slash","revision":2,
-              "minimumRulesVersion":168,"triggers":[
+            {"schemaVersion":59,"skills":[{"id":"fixture:after-slash","revision":2,
+              "minimumRulesVersion":169,"triggers":[
                 {"id":"after-damage","window":"cardUseCompleted","ownerRelation":"actor",
                  "cardKinds":["slash"],"condition":{"kind":"cardUseCausedDamage"},
                  "optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]},
@@ -140,8 +140,8 @@ internal static class CardUseCompletedChecks
     public static void CompletedUseFiltersFrozenConversionSource()
     {
         const string rules = """
-            {"schemaVersion":58,"skills":[{"id":"fixture:after-slash","revision":3,
-              "minimumRulesVersion":168,"viewAs":[{"id":"dodge-as-slash",
+            {"schemaVersion":59,"skills":[{"id":"fixture:after-slash","revision":3,
+              "minimumRulesVersion":169,"viewAs":[{"id":"dodge-as-slash",
                 "inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash",
                 "forPlay":true,"forResponse":false}],
               "triggers":[{"id":"after-conversion","window":"cardUseCompleted",
@@ -237,8 +237,8 @@ internal static class CardUseCompletedChecks
     public static void ConfiguredSlashCanBecomeFireSlashWithoutZhuqueFan()
     {
         const string rules = """
-            {"schemaVersion":58,"skills":[{"id":"fixture:after-slash","revision":4,
-              "minimumRulesVersion":168,"viewAs":[{"id":"slash-as-fire-slash",
+            {"schemaVersion":59,"skills":[{"id":"fixture:after-slash","revision":4,
+              "minimumRulesVersion":169,"viewAs":[{"id":"slash-as-fire-slash",
                 "inputKinds":["slash"],"inputSuits":[],"outputKind":"fireSlash",
                 "forPlay":true,"forResponse":false}]}]}
             """;

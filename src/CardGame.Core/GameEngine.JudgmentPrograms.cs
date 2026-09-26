@@ -8,7 +8,6 @@ public sealed partial class GameEngine
         Suit effectiveSuit,
         bool succeeded)
     {
-        if (_contentRegistry is null) return false;
         if (!_players[pending.TargetSeat].IsAlive) return false;
         var candidates = _players.Where(player => player.IsAlive).OrderBy(player => player.Seat)
             .SelectMany(owner => EnabledUniqueProgramTriggers(owner, SkillProgramTriggerWindow.JudgmentFinalized)

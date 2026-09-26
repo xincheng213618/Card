@@ -66,9 +66,9 @@ internal static class SkillProgramTargetOrderChecks
         public void Register(IContentRegistryBuilder builder)
         {
             var catalog = SkillProgramCatalog.Load("""
-                {"schemaVersion":58,"skills":[
+                {"schemaVersion":59,"skills":[
                   {"id":"target-order:swap","revision":1,"viewAs":[{"id":"slash","inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash","forPlay":true,"forResponse":false}]},
-                  {"id":"target-order:draw","revision":1,"minimumRulesVersion":168,"triggers":[{"id":"after-use","window":"cardUseTargetsFinalized","ownerRelation":"conversionSource","sourceSkillId":"target-order:swap","sourceViewAsId":"slash","optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]}
+                  {"id":"target-order:draw","revision":1,"minimumRulesVersion":169,"triggers":[{"id":"after-use","window":"cardUseTargetsFinalized","ownerRelation":"conversionSource","sourceSkillId":"target-order:swap","sourceViewAsId":"slash","optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]}
                 ]}
                 """, """
                 {"schemaVersion":3,"skills":{

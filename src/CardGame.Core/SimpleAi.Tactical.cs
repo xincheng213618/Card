@@ -13,43 +13,57 @@ public sealed partial class SimpleAiBrain
             return (0d, "不是国战明置动作。");
         }
 
-        var skill = action.Skill ?? SkillKind.None;
+        var printedSkills = action.GeneralSlot switch
+        {
+            GeneralSelectionSlot.Primary => self.Skills,
+            GeneralSelectionSlot.Secondary => self.SecondarySkills,
+            _ => null
+        } ?? [];
         var hasLivingOpponent = view.Players.Any(player => player.IsAlive && player.Seat != Seat);
-        var redConvertibleCount = self.Hand.Count(card =>
-            IsRedCard(card.Suit) && !IsSlashCard(card.Kind));
         var nativeSlashCount = self.Hand.Count(card => IsSlashCard(card.Kind));
-        var dodgeConvertibleCount = self.Hand.Count(card => IsSlashCard(card.Kind));
         var wounded = self.Hp < self.MaxHp;
         var handIsEmpty = self.HandCount == 0;
 
-        var immediateValue = skill switch
+        var bestSkill = printedSkills.Select(entry =>
         {
-            SkillKind.Wusheng when hasLivingOpponent && redConvertibleCount > 0 =>
-                46d + Math.Min(redConvertibleCount, 3) * 4d,
-            SkillKind.Longdan when hasLivingOpponent && dodgeConvertibleCount > 0 =>
-                38d + Math.Min(dodgeConvertibleCount, 3) * 4d,
-            SkillKind.Paoxiao when nativeSlashCount >= 2 =>
-                42d + Math.Min(nativeSlashCount - 1, 3) * 5d,
-            SkillKind.Kongcheng when handIsEmpty => 56d,
-            SkillKind.Jianxiong or SkillKind.Feedback or SkillKind.Yiji or
-                SkillKind.Jieming or SkillKind.Yuanhu or SkillKind.Ganglie
-                when wounded => 31d,
-            SkillKind.Qingnang or SkillKind.Huichun when wounded => 28d,
-            SkillKind.Kujin or SkillKind.Zhiheng when self.HandCount >= 2 => 24d,
-            SkillKind.Mashu or SkillKind.Qicai => 20d,
-            SkillKind.Yingzi => 18d,
-            SkillKind.Guicai or SkillKind.Jijiu => 16d,
-            _ => 4d
-        };
+            var slashConversions = CountHandViewAsConversions(self, entry, CardKind.Slash, forPlay: true);
+            var dodgeConversions = CountHandViewAsConversions(self, entry, CardKind.Dodge, forPlay: false);
+            var conversionValue = slashConversions > 0
+                ? 46d + Math.Min(slashConversions, 3) * 4d
+                : dodgeConversions > 0
+                    ? 38d + Math.Min(dodgeConversions, 3) * 4d
+                    : 4d;
+            var legacyValue = entry.Kind switch
+            {
+                SkillKind.Paoxiao when nativeSlashCount >= 2 =>
+                    42d + Math.Min(nativeSlashCount - 1, 3) * 5d,
+                SkillKind.Kongcheng when handIsEmpty => 56d,
+                SkillKind.Jianxiong or SkillKind.Feedback or SkillKind.Yiji or
+                    SkillKind.Jieming or SkillKind.Yuanhu or SkillKind.Ganglie
+                    when wounded => 31d,
+                SkillKind.Qingnang or SkillKind.Huichun when wounded => 28d,
+                SkillKind.Kujin or SkillKind.Zhiheng when self.HandCount >= 2 => 24d,
+                SkillKind.Mashu or SkillKind.Qicai => 20d,
+                SkillKind.Yingzi => 18d,
+                SkillKind.Guicai or SkillKind.Jijiu => 16d,
+                _ => 4d
+            };
+            return (Kind: entry.Kind, Value: Math.Max(hasLivingOpponent ? conversionValue : 4d, legacyValue),
+                SlashConversions: slashConversions, DodgeConversions: dodgeConversions);
+        })
+            .OrderByDescending(entry => entry.Value)
+            .FirstOrDefault((Kind: SkillKind.None, Value: 4d, SlashConversions: 0, DodgeConversions: 0));
+        var skill = bestSkill.Kind;
+        var immediateValue = bestSkill.Value;
 
         var exposureCost = self.FactionId is null || self.IsFactionRevealed ? 0d : 3d;
         var score = 24d + immediateValue - exposureCost;
         var opportunity = skill switch
         {
-            SkillKind.Wusheng when redConvertibleCount > 0 =>
-                $"当前有 {redConvertibleCount} 张红色非杀牌可转化为杀",
-            SkillKind.Longdan when dodgeConvertibleCount > 0 =>
-                $"当前有 {dodgeConvertibleCount} 张杀牌可转化为闪",
+            _ when bestSkill.SlashConversions > 0 =>
+                $"当前有 {bestSkill.SlashConversions} 张手牌可转化为杀",
+            _ when bestSkill.DodgeConversions > 0 =>
+                $"当前有 {bestSkill.DodgeConversions} 张手牌可转化为闪",
             SkillKind.Paoxiao when nativeSlashCount >= 2 =>
                 $"当前有 {nativeSlashCount} 张杀，可突破本回合次数限制",
             SkillKind.Kongcheng when handIsEmpty => "当前空手，可立即获得空城的防护收益",
@@ -57,9 +71,22 @@ public sealed partial class SimpleAiBrain
             _ => "当前没有确定的即时触发机会，保留明置信息成本"
         };
         var reason =
-            $"明置{action.GeneralSlot switch { GeneralSelectionSlot.Primary => "主将", GeneralSelectionSlot.Secondary => "副将", _ => "武将" }}「{action.Description}」；{opportunity}；评分只使用自己的手牌、体力、公开对手和当前动作，不读取暗牌。";
+            $"明置{action.GeneralSlot switch { GeneralSelectionSlot.Primary => "主将", GeneralSelectionSlot.Secondary => "副将", _ => "武将" }}「{action.Description}」；{opportunity}；评分只使用自己的私有技能、手牌、体力、公开对手和当前动作，不读取暗牌。";
         return (score, reason);
     }
+
+    private static int CountHandViewAsConversions(
+        PlayerSnapshot self, GeneralSkillDefinition skill, CardKind outputKind, bool forPlay) =>
+        self.Hand.Count(card => CanViewAs(skill, card, outputKind, forPlay));
+
+    private static bool CanViewAs(
+        GeneralSkillDefinition skill, CardSnapshot card, CardKind outputKind, bool forPlay) =>
+        card.Kind != outputKind &&
+        skill.ViewAsOpportunities?.Any(rule =>
+            rule.OutputKind == outputKind &&
+            (forPlay ? rule.ForPlay : rule.ForResponse) &&
+            (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&
+            (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(card.Suit))) == true;
 
     // Version 2 evaluates only the supplied viewer snapshot, legal actions and
     // accumulated public evidence. Version 1 remains unchanged for checkpoint replay.

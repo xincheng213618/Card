@@ -29,8 +29,8 @@ internal static class WangYiChecks
                     LegacyKind: null,
                     Program:
                     {
-                        RuntimeVersion: "skill-program-v58",
-                        MinimumRulesVersion: 168,
+                        RuntimeVersion: "skill-program-v59",
+                        MinimumRulesVersion: 169,
                         Triggers.Count: 1
                     } zhenlieProgram,
                     ExecutionForms: SkillExecutionForm.Trigger,
@@ -41,8 +41,8 @@ internal static class WangYiChecks
                     LegacyKind: null,
                     Program:
                     {
-                        RuntimeVersion: "skill-program-v58",
-                        MinimumRulesVersion: 168,
+                        RuntimeVersion: "skill-program-v59",
+                        MinimumRulesVersion: 169,
                         Triggers.Count: 1
                     } program,
                     ExecutionForms: SkillExecutionForm.Trigger,

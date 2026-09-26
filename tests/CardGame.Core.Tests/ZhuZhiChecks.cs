@@ -21,7 +21,7 @@ internal static class ZhuZhiChecks
                 general.SkillIds.SequenceEqual([SkillId]) &&
                 registry.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
                 registry.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId) &&
-                skill.Program is { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } &&
+                skill.Program is { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } &&
                 skill.Program.Activations.Single() is { UsesPerPhase: 1, MinTargets: 0, MaxTargets: 0 } &&
                 (int)SkillProgramConditionKind.AttackRangeCoverageDecreased == 22,
             "Zhu Zhi must be a formal Wu/Fame V general with phase-limited schema-55 Anguo.");
@@ -401,8 +401,8 @@ internal static class ZhuZhiChecks
             if (rangeRescueTargets)
             {
                 const string rules = """
-                {"schemaVersion":58,"skills":[{"id":"fixture:range-rescue","revision":1,
-                 "minimumRulesVersion":168,"triggers":[{"id":"restore-public-range",
+                {"schemaVersion":59,"skills":[{"id":"fixture:range-rescue","revision":1,
+                 "minimumRulesVersion":169,"triggers":[{"id":"restore-public-range",
                  "window":"cardsMoved","subject":"owner","sourceZones":["equipment"],
                  "movementOccurrence":"perBatch","optional":false,"priority":0,
                  "effects":[{"op":"grantTurnRuleModifier","target":"owner",
@@ -419,8 +419,8 @@ internal static class ZhuZhiChecks
             if (rangePlusTwoTargets)
             {
                 const string rules = """
-                {"schemaVersion":58,"skills":[{"id":"fixture:range-plus-two","revision":1,
-                 "minimumRulesVersion":168,"modifiers":[{"id":"public-plus-two",
+                {"schemaVersion":59,"skills":[{"id":"fixture:range-plus-two","revision":1,
+                 "minimumRulesVersion":169,"modifiers":[{"id":"public-plus-two",
                  "query":"attackRange","operation":"add","value":2,"priority":0}]}]}
                 """;
                 const string presentation = """
@@ -434,8 +434,8 @@ internal static class ZhuZhiChecks
             if (lethalLossTargets)
             {
                 const string rules = """
-                {"schemaVersion":58,"skills":[{"id":"fixture:range-lethal","revision":1,
-                 "minimumRulesVersion":168,"triggers":[{"id":"lose-life-on-equipment-loss",
+                {"schemaVersion":59,"skills":[{"id":"fixture:range-lethal","revision":1,
+                 "minimumRulesVersion":169,"triggers":[{"id":"lose-life-on-equipment-loss",
                  "window":"cardsMoved","subject":"owner","sourceZones":["equipment"],
                  "movementOccurrence":"perBatch","optional":false,"priority":0,
                  "effects":[{"op":"loseHp","target":"owner","amount":1}]}]}]}

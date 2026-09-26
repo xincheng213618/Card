@@ -117,7 +117,7 @@ internal static class TargetCardChecks
                 UseInteractiveSetup = true,
                 AiPolicyVersion = 2,
                 MaxTurns = 120
-            });
+            }, StandardContentRegistry.Create());
             True(game.Submit(new StartGameCommand()).Accepted, "AI target-card fixture failed to start.");
             var request = game.Events.Select(item => item.Payload)
                 .OfType<TargetCardSelectionRequestedEvent>()

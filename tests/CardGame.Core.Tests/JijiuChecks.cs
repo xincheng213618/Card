@@ -20,9 +20,10 @@ internal static class JijiuChecks
                 "standard-rescue-skills@1.0.0"]),
             "The rescue package signature must be explicit and dependency ordered.");
         Require(rescue.Skills.TryGetValue("standard:jijiu", out var contentSkill) &&
-                contentSkill.LegacyKind == SkillKind.Jijiu &&
+                contentSkill.Program?.ViewAs.Single() is
+                    { OutputKind: CardKind.Peach, ForResponse: true, ForPlay: false } &&
                 contentSkill.Description.Contains("红色牌", StringComparison.Ordinal),
-            "The Jijiu content definition must expose its typed legacy projection.");
+            "The Jijiu content definition must expose a configured rescue conversion.");
         Require(rescue.Generals.TryGetValue("standard:demo-jijiu", out var contentGeneral) &&
                 contentGeneral.SkillId == "standard:jijiu",
             "The demo general must point at the namespaced Jijiu definition.");
@@ -33,18 +34,14 @@ internal static class JijiuChecks
             .Contains("standard:demo-jijiu", StringComparer.Ordinal),
             "The rescue-enabled mode must publish the Jijiu general.");
 
-        var skill = SkillRegistry.Get(SkillKind.Jijiu);
-        var context = new PlayerSkillContext(0, 2, 4, 3, TurnPhase.Play);
         var redHeart = new Card(101, CardKind.Slash, Suit.Heart, 7);
         var redDiamond = new Card(102, CardKind.Alcohol, Suit.Diamond, 9);
         var blackCard = new Card(103, CardKind.Slash, Suit.Spade, 7);
         var peach = new Card(104, CardKind.Peach, Suit.Heart, 3);
-        Require(skill.Conversion!.CanUseAsDyingRescue(context, redHeart) &&
-                skill.Conversion!.CanUseAsDyingRescue(context, redDiamond),
-            "Jijiu must accept red physical cards as dying Peach candidates.");
-        Require(!skill.Conversion!.CanUseAsDyingRescue(context, blackCard) &&
-                !skill.Conversion!.CanUseAsDyingRescue(context, peach),
-            "Jijiu must reject black cards and leave native Peach to the base rule.");
+        var rescueConversion = rescue.Skills["standard:jijiu"].Program!.ViewAs.Single();
+        Require(rescueConversion.InputSuits.SequenceEqual([Suit.Heart, Suit.Diamond]) &&
+                rescueConversion.Condition.Kind == SkillProgramConditionKind.NotOwnTurn,
+            "Jijiu must accept red cards only outside the owner's turn; native Peach stays separate.");
 
         var self = new PlayerSnapshot(
             Seat: 0,
@@ -155,6 +152,9 @@ internal static class JijiuChecks
         Require(events.OfType<CardUseDeclaredEvent>().Any(item =>
                 item.CardId == convertedCard.Id && item.CardKind == CardKind.Peach),
             "The recovery resolution must publish Peach as its effective card kind.");
+        Require(convertedChoice.Parameters["conversion-skill-id"] == "standard:jijiu" &&
+                !string.IsNullOrWhiteSpace(convertedChoice.Parameters["conversion-instance-id"]),
+            "The private rescue choice must freeze the exact configured skill instance.");
         Require(events.OfType<CardUseFinishedEvent>().Any(item =>
                 item.CardId == convertedCard.Id && item.CardKind == CardKind.Peach),
             "The converted recovery must finish through the normal card-use lifecycle.");
@@ -202,7 +202,7 @@ internal static class JijiuChecks
         var equipment = owner.Equipment.Single(card => card.Id == choice.Cards[0]);
 
         Require(owner.GeneralId == "classic:hua-tuo" &&
-                owner.Skills?.Any(skill => skill.Kind == SkillKind.Jijiu) == true &&
+                owner.Skills?.Any(skill => skill.ContentId == "classic:jijiu") == true &&
                 equipment.Suit is Suit.Heart or Suit.Diamond &&
                 game.State.CurrentSeat != 0 &&
                 choice.Description.Contains("当作【桃】", StringComparison.Ordinal),
@@ -287,7 +287,7 @@ internal static class JijiuChecks
                 if (result.Status == EngineStatus.AwaitingHumanDying &&
                     game.PendingDecision is { } prompt &&
                     game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Skills?
-                        .Any(skill => skill.Kind == SkillKind.Jijiu) == true)
+                        .Any(skill => skill.ContentId == "standard:jijiu") == true)
                 {
                     var hand = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hand;
                     var converted = prompt.Choices

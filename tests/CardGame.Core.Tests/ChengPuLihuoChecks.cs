@@ -32,7 +32,7 @@ internal static class ChengPuLihuoChecks
         var latest = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = latest.Skills[LihuoSkillId];
         Require(skill.Program is
-                { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } currentProgram &&
+                { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } currentProgram &&
                 currentProgram.Modifiers.Single() is
                 { Query: SkillRuleQuery.CardTargetCount, Operation: SkillRuleOperation.Add, Value: 1 } &&
                 currentProgram.Modifiers.Single().CardKinds.SequenceEqual([CardKind.FireSlash]) &&
@@ -333,11 +333,11 @@ internal static class ChengPuLihuoChecks
         try
         {
             SkillProgramCatalog.Load(
-                rules.Replace("\"schemaVersion\": 58", "\"schemaVersion\": 57", StringComparison.Ordinal),
+                rules.Replace("\"schemaVersion\": 59", "\"schemaVersion\": 57", StringComparison.Ordinal),
                 presentation);
             throw new InvalidOperationException("Unsupported schema 57 accepted variable owned-card selection.");
         }
-        catch (InvalidOperationException error) when (error.Message.Contains("expected 58", StringComparison.Ordinal))
+        catch (InvalidOperationException error) when (error.Message.Contains("expected 59", StringComparison.Ordinal))
         {
         }
 
@@ -346,11 +346,11 @@ internal static class ChengPuLihuoChecks
         try
         {
             SkillProgramCatalog.Load(
-                rescueRules.Replace("\"schemaVersion\": 58", "\"schemaVersion\": 57", StringComparison.Ordinal),
+                rescueRules.Replace("\"schemaVersion\": 59", "\"schemaVersion\": 57", StringComparison.Ordinal),
                 presentation);
             throw new InvalidOperationException("Unsupported schema 57 accepted cross-seat dying response.");
         }
-        catch (InvalidOperationException error) when (error.Message.Contains("expected 58", StringComparison.Ordinal))
+        catch (InvalidOperationException error) when (error.Message.Contains("expected 59", StringComparison.Ordinal))
         {
         }
 
@@ -407,7 +407,7 @@ internal static class ChengPuLihuoChecks
             choice.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards"));
 
         var owner = Player(game, HumanSeat);
-        Require(owner.HandCount == handBefore - selectedIds.Length &&
+        Require(owner.Hand.All(card => !selectedIds.Contains(card.Id)) &&
                 owner.ChunlaoCount == selectedIds.Length &&
                 owner.ChunlaoCards?.Select(card => card.Id).SequenceEqual(selectedIds) == true &&
                 game.CardMovements.Count(move =>
@@ -760,8 +760,8 @@ internal static class ChengPuLihuoChecks
         public void Register(IContentRegistryBuilder builder)
         {
             const string woundRules = """
-                {"schemaVersion":58,"skills":[{"id":"fixture:lihuo-pre-wound","revision":1,
-                  "minimumRulesVersion":168,"triggers":[{"id":"pre-wound",
+                {"schemaVersion":59,"skills":[{"id":"fixture:lihuo-pre-wound","revision":1,
+                  "minimumRulesVersion":169,"triggers":[{"id":"pre-wound",
                     "window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,
                     "effects":[{"op":"loseHp","target":"owner","amount":1}]}]}]}
                 """;

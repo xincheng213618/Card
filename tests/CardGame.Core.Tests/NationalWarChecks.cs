@@ -183,7 +183,7 @@ internal static class NationalWarChecks
                 {
                     var catalog = SkillProgramCatalog.Load(
                         """
-                        {"schemaVersion":58,"skills":[{"id":"national:test-program","revision":1,"minimumRulesVersion":168,"modifiers":[{"id":"extra-draw","priority":0,"query":"drawCount","operation":"add","value":1,"condition":{"kind":"ownTurn"}}]}]}
+                        {"schemaVersion":59,"skills":[{"id":"national:test-program","revision":1,"minimumRulesVersion":169,"modifiers":[{"id":"extra-draw","priority":0,"query":"drawCount","operation":"add","value":1,"condition":{"kind":"ownTurn"}}]}]}
                         """,
                         """
                         {"schemaVersion":3,"skills":{"national:test-program":{"name":"试验程序技","description":"摸牌阶段额外摸一张牌。"}}}
@@ -244,10 +244,8 @@ internal static class NationalWarChecks
             var projected = slot == GeneralSelectionSlot.Primary ? own.Skills : own.SecondarySkills;
             Require(projected is { Count: 3 } && projected.Select(skill => skill.ContentId)
                     .SequenceEqual(["standard:paoxiao", "standard:wusheng", programId]) &&
-                    projected.Select(skill => skill.Kind)
-                    .SequenceEqual([SkillKind.None, SkillKind.Wusheng, SkillKind.None]) &&
                     projected[2].Name == "试验程序技",
-                "Rules 89 did not privately project every ordered legacy and program skill for the selected national slot.");
+                "The private national slot did not project every ordered configured skill.");
             Require((slot == GeneralSelectionSlot.Primary ? observer.Skills : observer.SecondarySkills) is null,
                 "An observer saw a multi-skill list before its national slot was revealed.");
 
@@ -258,16 +256,16 @@ internal static class NationalWarChecks
             Require(EnabledKinds(game).Length == 0 && EnabledPrograms(game).Length == 0,
                 "Revealing the other national slot enabled the hidden multi-skill general.");
             Reveal(game, slot);
-            Require(EnabledKinds(game).SequenceEqual([SkillKind.Wusheng]) &&
-                    EnabledPrograms(game).SequenceEqual([programId, "standard:paoxiao"]),
-                "Rules 89 did not enable every legacy and program skill on the revealed national general.");
+            Require(EnabledKinds(game).Length == 0 &&
+                    EnabledPrograms(game).SequenceEqual([programId, "standard:paoxiao", "standard:wusheng"]),
+                "The revealed national general did not enable every configured skill.");
             var publicView = game.CreateSnapshot(1).Players[0];
             Require((slot == GeneralSelectionSlot.Primary ? publicView.Skills : publicView.SecondarySkills) is { Count: 3 },
                 "The revealed national multi-skill list stayed hidden from another viewer.");
             var replay = GameReplay.Restore(game.CreateCheckpoint(), registry);
             Require(SnapshotJson.Serialize(replay.CreateSnapshot(1, revealAll: true)) ==
                     SnapshotJson.Serialize(game.CreateSnapshot(1, revealAll: true)),
-                "Rules 89 national multi-skill reveal did not replay exactly.");
+                "National multi-skill reveal did not replay exactly.");
 
         }
 
@@ -352,6 +350,12 @@ internal static class NationalWarChecks
             GeneralSelectionSlot.Primary,
             requireRed: true);
         var view = game.CreateSnapshot(0);
+        Require(view.Players[0].Skills?.Any(skill =>
+                    skill.ContentId == "standard:wusheng" &&
+                    skill.ViewAsOpportunities?.Any(rule =>
+                        rule.OutputKind == CardKind.Slash && rule.ForPlay) == true) == true &&
+                game.CreateSnapshot(1).Players[0].Skills is null,
+            "The hidden general's conversion capability must be visible only to its owner.");
         var revealActions = game.GetHumanLegalActions()
             .Where(action => action.Kind == LegalActionKind.RevealGeneral)
             .ToArray();
@@ -366,7 +370,7 @@ internal static class NationalWarChecks
         var secondary = decision.Thought.Candidates.Single(candidate =>
             candidate.Action.GeneralSlot == GeneralSelectionSlot.Secondary);
         Require(primary.Score > secondary.Score &&
-                primary.Reason.Contains("红色非杀牌", StringComparison.Ordinal) &&
+                primary.Reason.Contains("转化为杀", StringComparison.Ordinal) &&
                 !primary.Reason.Contains("牌堆", StringComparison.Ordinal),
             "National AI reveal thought did not expose a private-view-safe, opportunity-based reason.");
         var repeated = new SimpleAiBrain(0, game.Seed, policyVersion: 2)
@@ -380,7 +384,12 @@ internal static class NationalWarChecks
         {
             Players = view.Players
                 .Select(player => player.Seat == 0
-                    ? player with { Hand = [], HandCount = 0 }
+                    ? player with
+                    {
+                        Hand = [], HandCount = 0,
+                        Skills = [new GeneralSkillDefinition(SkillKind.None, "无技能", "")],
+                        SecondarySkills = [new GeneralSkillDefinition(SkillKind.Kongcheng, "空城", "")]
+                    }
                     : player)
                 .ToArray()
         };
@@ -388,8 +397,7 @@ internal static class NationalWarChecks
             LegalActionKind.RevealGeneral,
             null,
             null,
-            "明置【空城】",
-            Skill: SkillKind.Kongcheng)
+            "明置【空城】")
         {
             GeneralSlot = GeneralSelectionSlot.Secondary
         };
@@ -397,8 +405,7 @@ internal static class NationalWarChecks
             LegalActionKind.RevealGeneral,
             null,
             null,
-            "明置【无技能】",
-            Skill: SkillKind.None)
+            "明置【无技能】")
         {
             GeneralSlot = GeneralSelectionSlot.Primary
         };

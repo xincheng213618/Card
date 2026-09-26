@@ -19,7 +19,7 @@ internal static class SelfDyingStateProgramChecks
                     Tags: SkillTag.Limited,
                     ExecutionForms: SkillExecutionForm.Trigger,
                     Program: not null,
-                    Program.MinimumRulesVersion: 168
+                    Program.MinimumRulesVersion: 169
                 } &&
                 trigger is
                 {
@@ -162,9 +162,8 @@ internal static class SelfDyingStateProgramChecks
                 chained is { BindingId: "activation", OwnerSeat: 0, IsChained: false } &&
                 resolved is { Activated: true, Completed: true } &&
                 discardMoves == 3 &&
-                drawMoves == 3 &&
-                !payloads.OfType<NiepanResolvedEvent>().Any(),
-            "Current Niepan must clear owned zones and chaining, recover to three, draw three, and avoid the historical branch.");
+                drawMoves == 3,
+            "Current Niepan must clear owned zones and chaining, recover to three, and draw three.");
     }
 
     private static GameEngine FindFixture(ContentRegistry registry)
@@ -308,7 +307,7 @@ internal static class SelfDyingStateProgramChecks
         }
 
         private const string DyingRules = """
-            {"schemaVersion":58,"skills":[{"id":"fixture:schema-22-lose-hp","revision":1,
+            {"schemaVersion":59,"skills":[{"id":"fixture:schema-22-lose-hp","revision":1,
             "modifiers":[],"viewAs":[],"activations":[{"id":"invoke","minCards":0,"maxCards":0,
             "minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,
             "effects":[{"op":"loseHp","target":"owner","amount":5}]}]}]}
@@ -321,7 +320,7 @@ internal static class SelfDyingStateProgramChecks
     }
 
     private const string Rules = """
-        {"schemaVersion":58,"skills":[{"id":"classic:niepan","revision":1,"minimumRulesVersion":168,
+        {"schemaVersion":59,"skills":[{"id":"classic:niepan","revision":1,"minimumRulesVersion":169,
         "modifiers":[],"viewAs":[],"activations":[],"triggers":[{"id":"activation",
         "window":"selfDyingResponse","subject":"owner","optional":true,"priority":0,
         "usageScope":"game","usageLimit":1,"effects":[

@@ -76,7 +76,8 @@ internal static class CharacterSkillSetChecks
     }
 
     private static GeneralDefinition Template(string name, string skillId) =>
-        new($"fixture:{name}", name, name, SkillKind.None, "Skill", "Test") { SkillContentId = skillId };
+        new($"fixture:{name}", name, name,
+            [new GeneralSkillDefinition(SkillKind.None, "Skill", "Test") { ContentId = skillId }]);
 
     private static CharacterState Character(GeneralDefinition template) => new()
     {

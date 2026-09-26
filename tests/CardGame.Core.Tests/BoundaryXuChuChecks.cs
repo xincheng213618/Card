@@ -14,7 +14,7 @@ internal static class BoundaryXuChuChecks
             new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage());
         Require(current.Generals[GeneralId] is { BaseHp: 4, FactionId: "wei" } general &&
                 general.SkillIds.SequenceEqual([SkillId]) &&
-                current.Skills[SkillId].Program?.MinimumRulesVersion == 168 &&
+                current.Skills[SkillId].Program?.MinimumRulesVersion == 169 &&
                 current.Modes["identity:classic-5"].GeneralPoolIds?.Contains(GeneralId) == true &&
                 current.Modes["identity:classic-8"].GeneralPoolIds?.Contains(GeneralId) == true,
             "2014 Xu Chu must remain an independent Wei four-HP general in both current formal pools.");
@@ -51,7 +51,7 @@ internal static class BoundaryXuChuChecks
             nested.Add($$"""{"op":"moveBoundCards","target":"owner","sourceBind":"s{{index}}","exceptBind":"s{{index + 1}}","destination":"discardPile"}""");
         nested.Add("""{"op":"moveBoundCards","target":"owner","sourceBind":"root","exceptBind":"s0","destination":"discardPile"}""");
         var legacyNested = $$"""
-            {"schemaVersion":58,"skills":[{"id":"fixture:filter","revision":1,"minimumRulesVersion":168,
+            {"schemaVersion":59,"skills":[{"id":"fixture:filter","revision":1,"minimumRulesVersion":169,
             "triggers":[{"id":"check","window":"drawPhaseStarting","subject":"owner","optional":true,
             "drawPhaseMode":"replacement","effects":[{{string.Join(',', nested)}}]}]}]}
             """;
@@ -388,7 +388,7 @@ internal static class BoundaryXuChuChecks
     }
 
     private static string GenericRules(string filter, bool cleanUp = true) => $$"""
-        {"schemaVersion":58,"skills":[{"id":"fixture:filter","revision":1,"minimumRulesVersion":168,
+        {"schemaVersion":59,"skills":[{"id":"fixture:filter","revision":1,"minimumRulesVersion":169,
         "triggers":[{"id":"check","window":"drawPhaseStarting","subject":"owner","optional":true,
         "drawPhaseMode":"replacement","effects":[
         {"op":"revealTopCards","target":"owner","amount":3,"resultBind":"cards","visibility":"public"},

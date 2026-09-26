@@ -9,7 +9,7 @@ internal static class SpGuanYuChecks
     private const string MashuSkillId = "sp:guan-yu-mashu";
     private const string NuzhanSkillId = "sp:nuzhan";
     private const string ValidationRules =
-        """{"schemaVersion":58,"skills":[{"id":"fixture:awakening","revision":1,"minimumRulesVersion":168,"modifiers":[],"viewAs":[],"activations":[],"triggers":[{"id":"awakening","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"condition":{"kind":"all","children":[{"kind":"compare","left":{"kind":"currentHandCount"},"operator":"greaterThan","right":{"kind":"currentHp"}},{"kind":"lordGeneralNotIn","generalIds":["classic:liu-bei"]}]},"effects":[{"op":"changeMaximumHp","target":"owner","amount":-1},{"op":"grantSkills","target":"owner","skillIds":["sp:guan-yu-mashu","sp:nuzhan"]}]}],"contributions":[],"cardIdentities":[]}]}""";
+        """{"schemaVersion":59,"skills":[{"id":"fixture:awakening","revision":1,"minimumRulesVersion":169,"modifiers":[],"viewAs":[],"activations":[],"triggers":[{"id":"awakening","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"condition":{"kind":"all","children":[{"kind":"compare","left":{"kind":"currentHandCount"},"operator":"greaterThan","right":{"kind":"currentHp"}},{"kind":"lordGeneralNotIn","generalIds":["classic:liu-bei"]}]},"effects":[{"op":"changeMaximumHp","target":"owner","amount":-1},{"op":"grantSkills","target":"owner","skillIds":["sp:guan-yu-mashu","sp:nuzhan"]}]}],"contributions":[],"cardIdentities":[]}]}""";
     private const string ValidationPresentation =
         """{"schemaVersion":3,"skills":{"fixture:awakening":{"name":"觉醒夹具","description":"验证通用觉醒状态节点。"}}}""";
 
@@ -18,7 +18,7 @@ internal static class SpGuanYuChecks
         var program = SkillProgramCatalog.Load(ValidationRules, ValidationPresentation)
             .Programs["fixture:awakening"];
         var trigger = program.Triggers.Single();
-        Require(program is { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } &&
+        Require(program is { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } &&
                 trigger.Condition.Evaluate(new SkillProgramTriggerFacts(
                     0, 3, true, CurrentHandCount: 4, LordGeneralId: "classic:cao-cao")) &&
                 !trigger.Condition.Evaluate(new SkillProgramTriggerFacts(
@@ -73,8 +73,8 @@ internal static class SpGuanYuChecks
             LegacyKind: null,
             Tags: SkillTag.Awakening | SkillTag.Locked | SkillTag.Limited,
             ExecutionForms: SkillExecutionForm.Trigger,
-            Program.RuntimeVersion: "skill-program-v58",
-            Program.MinimumRulesVersion: 168
+            Program.RuntimeVersion: "skill-program-v59",
+            Program.MinimumRulesVersion: 169
         } &&
             awakening is
             {
@@ -101,7 +101,7 @@ internal static class SpGuanYuChecks
             current.Skills[MashuSkillId] is
             {
                 LegacyKind: null,
-                Program.RuntimeVersion: "skill-program-v58",
+                Program.RuntimeVersion: "skill-program-v59",
                 Tags: SkillTag.Locked,
                 ExecutionForms: SkillExecutionForm.State
             } &&

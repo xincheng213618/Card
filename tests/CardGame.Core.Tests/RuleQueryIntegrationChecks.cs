@@ -36,8 +36,8 @@ internal static class RuleQueryIntegrationChecks
             Require(currentSkill.LegacyKind is null &&
                     currentSkill.Program is
                     {
-                        MinimumRulesVersion: 168,
-                        RuntimeVersion: "skill-program-v58"
+                        MinimumRulesVersion: 169,
+                        RuntimeVersion: "skill-program-v59"
                     } program &&
                     program.Id == expected.Key &&
                     program.Modifiers.Count > 0,
@@ -137,8 +137,8 @@ internal static class RuleQueryIntegrationChecks
     {
         private static readonly SkillProgram Program = SkillProgramCatalog.Load(
             """
-            {"schemaVersion":58,"skills":[{"id":"fixture:engine-rule-query","revision":1,
-              "minimumRulesVersion":168,"modifiers":[
+            {"schemaVersion":59,"skills":[{"id":"fixture:engine-rule-query","revision":1,
+              "minimumRulesVersion":169,"modifiers":[
                 {"id":"range-plus-two","query":"attackRange","operation":"add","value":2,"priority":0},
                 {"id":"distance-minus-one","query":"outgoingDistance","operation":"add","value":-1,"priority":0}],
               "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]}]}

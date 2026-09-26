@@ -83,11 +83,10 @@ internal static class WuyanChecks
             .GetValue(game)!).Cast<object>().ToArray();
         var player = players[seat];
         player.GetType().GetProperty("General")!.SetValue(player, new GeneralDefinition(
-            "test:xu-shu-wuyan", "徐庶", "xu_shu", SkillKind.Wuyan, "无言",
-            "锁定技，当锦囊牌造成伤害时，若你为来源或受伤角色，防止此伤害。", "shu", BaseHp: 3)
-        {
-            SkillContentId = "classic:wuyan"
-        });
+            "test:xu-shu-wuyan", "徐庶", "xu_shu",
+            [new GeneralSkillDefinition(SkillKind.Wuyan, "无言",
+                "锁定技，当锦囊牌造成伤害时，若你为来源或受伤角色，防止此伤害。")
+            { ContentId = "classic:wuyan" }], "shu", BaseHp: 3));
         Require(((CharacterState)player).SkillGrants.EffectiveSkillIds.Contains("classic:wuyan"),
             "The Wuyan fixture must grant the registered skill identity, not only legacy template metadata.");
     }

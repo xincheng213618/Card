@@ -306,7 +306,6 @@ public enum DecisionKind
     QinglongCrescentBlade,
     IceSword,
     QilinBow,
-    Shuangxiong,
     ZhuqueFan,
     Mengjin,
     QuhuPindian,
@@ -527,7 +526,17 @@ public sealed partial record GeneralSkillDefinition(
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public SkillActionForm ActionForms { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<SkillViewAsOpportunity>? ViewAsOpportunities { get; init; }
 }
+
+public sealed record SkillViewAsOpportunity(
+    CardKind OutputKind,
+    IReadOnlyList<CardKind> InputKinds,
+    IReadOnlyList<Suit> InputSuits,
+    bool ForPlay,
+    bool ForResponse);
 
 public sealed record SkillUsageStateSnapshot(
     string UsageId,
@@ -555,79 +564,17 @@ public sealed partial record GeneralDefinition(
     string Id,
     string Name,
     string PortraitKey,
-    SkillKind Skill,
-    string SkillName,
-    string SkillDescription,
+    IReadOnlyList<GeneralSkillDefinition> Skills,
     string? FactionId = null,
     int BaseHp = 4,
-    IReadOnlyList<GeneralSkillDefinition>? AdditionalSkills = null,
     GeneralGender Gender = GeneralGender.Male)
 {
-    public string? SkillContentId { get; init; }
-    public SkillTag SkillTags { get; init; }
-    public SkillExecutionForm SkillExecutionForms { get; init; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public SkillActionForm SkillActionForms { get; init; }
-
-    public IReadOnlyList<GeneralSkillDefinition> Skills => AdditionalSkills is { Count: > 0 }
-        ? new[]
-            {
-                new GeneralSkillDefinition(Skill, SkillName, SkillDescription)
-                {
-                    ContentId = SkillContentId,
-                    Tags = SkillTags,
-                    ExecutionForms = SkillExecutionForms,
-                    ActionForms = SkillActionForms
-                }
-            }
-            .Concat(AdditionalSkills)
-            .ToArray()
-        :
-        [
-            new GeneralSkillDefinition(Skill, SkillName, SkillDescription)
-            {
-                ContentId = SkillContentId,
-                Tags = SkillTags,
-                ExecutionForms = SkillExecutionForms,
-                ActionForms = SkillActionForms
-            }
-        ];
-
-    public IReadOnlyList<SkillKind> SkillKinds => Skills.Select(skill => skill.Kind).ToArray();
-
     public string SkillSummary => string.Join(" / ", Skills.Select(skill => skill.Name));
 
     public string SkillDescriptionSummary => string.Join(
         Environment.NewLine,
         Skills.Select(skill => $"{skill.Name}：{skill.Description}"));
 
-    public bool HasSkill(SkillKind kind) => Skills.Any(skill => skill.Kind == kind);
-}
-
-public static class GeneralCatalog
-{
-    /// <summary>
-    /// Ten skills are implemented in the minimum legacy demo. The remaining generals
-    /// deliberately have no skill so an eight-seat table does not require ten
-    /// different mechanics on every seat.
-    /// PortraitKey is resolved by the WPF project; the rules project never loads images.
-    /// </summary>
-    public static IReadOnlyList<GeneralDefinition> DemoGenerals { get; } =
-    [
-        new("cao-cao", "曹操", "cao_cao", SkillKind.Jianxiong, "奸雄", "受到杀造成的伤害后，获得这张杀。"),
-        new("zhang-fei", "张飞", "zhang_fei", SkillKind.Paoxiao, "咆哮", "出牌阶段使用杀没有次数限制。"),
-        new("zhou-yu", "周瑜", "zhou_yu", SkillKind.Yingzi, "英姿", "摸牌阶段额外摸一张牌。"),
-        new("zhuge-liang", "诸葛亮", "zhuge_liang", SkillKind.Kongcheng, "空城", "没有手牌时不能成为杀的目标。"),
-        new("liu-bei", "刘备", "liu_bei", SkillKind.None, "无", "演示版暂未启用技能。"),
-        new("guan-yu", "关羽", "guan_yu", SkillKind.Wusheng, "武圣", "红色牌可当作杀使用。"),
-        new("zhao-yun", "赵云", "zhao_yun", SkillKind.Longdan, "龙胆", "杀可当闪，闪可当杀使用。"),
-        new("sun-quan", "孙权", "sun_quan", SkillKind.None, "无", "演示版暂未启用技能。"),
-        new("hua-tuo", "华佗", "hua_tuo", SkillKind.Feedback, "反馈", "受到伤害且伤害牌仍在处理区时，可选择发动并获得造成伤害的牌。"),
-        new("xun-yu", "荀彧", "xun_yu", SkillKind.Jieming, "节命", "受到伤害后，可令一名手牌数少于体力上限的角色摸牌至上限。"),
-        new("demo-yuanhu", "援护者", "supporter", SkillKind.Yuanhu, "援护", "其他角色受到伤害后，可弃置一张牌令其回复 1 点体力。"),
-        new("demo-ganglie", "刚烈者", "ganglie", SkillKind.Ganglie, "刚烈", "受到伤害后可进行判定；若为红色，伤害来源选择弃置两张手牌或受到 1 点伤害。")
-    ];
 }
 
 public sealed record CardSnapshot(

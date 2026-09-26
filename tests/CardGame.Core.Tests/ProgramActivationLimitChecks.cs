@@ -9,7 +9,7 @@ internal static class ProgramActivationLimitChecks
     private const string GeneralId = "fixture:phase-exchange-owner";
     private const string ModeId = "identity:classic-phase-exchange";
     private const string Rules = """
-        {"schemaVersion":58,"skills":[{"id":"fixture:turn-draw","revision":1,
+        {"schemaVersion":59,"skills":[{"id":"fixture:turn-draw","revision":1,
         "activations":[{"id":"draw","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,
         "targetKind":"anyLiving","usesPerTurn":1,"usesPerPhase":1,
         "effects":[{"op":"draw","target":"owner","amount":1}]}]}]}
@@ -21,8 +21,8 @@ internal static class ProgramActivationLimitChecks
     public static void DefinitionsAndCurrentBoundary()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(current.Skills[SkillId] is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v58",
-                    MinimumRulesVersion: 168 } program } &&
+        Require(current.Skills[SkillId] is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v59",
+                    MinimumRulesVersion: 169 } program } &&
                 program.Activations.Single() is { MaxCards: int.MaxValue, UsesPerPhase: 1, UsesPerTurn: null } &&
                 program.Activations.Single().SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]),
             "The current exchange must use shared nodes with phase limits.");

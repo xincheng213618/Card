@@ -22,7 +22,7 @@ internal static class JijiuChecks
 
             var engine = Program.Engine(viewModel);
             Program.Assert(engine.State.Players.Single(player => player.Seat == 0).Skills?
-                    .Any(skill => skill.Kind == SkillKind.Jijiu) == true,
+                    .Any(skill => skill.ContentId == "standard:jijiu") == true,
                 "The selected WPF general must project Jijiu into the Core engine.");
             var prompt = viewModel.DyingChoices.First(choice =>
                 choice.Parameters.GetValueOrDefault("response") == "peach" &&

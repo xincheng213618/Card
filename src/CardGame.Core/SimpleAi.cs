@@ -471,7 +471,7 @@ public sealed partial class SimpleAiBrain
                 return new AiGeneralCandidateScore(
                     candidate.Id,
                     candidate.Name,
-                    candidate.SkillName,
+                    candidate.SkillSummary,
                     score,
                     reason);
             })
@@ -487,7 +487,7 @@ public sealed partial class SimpleAiBrain
             selected.Id,
             selected.Name,
             scored,
-            $"在 {scored.Length} 个私有候选中选择 {selected.Name}（{selected.SkillName}）。");
+            $"在 {scored.Length} 个私有候选中选择 {selected.Name}（{selected.SkillSummary}）。");
         return (selected, thought);
     }
 
@@ -625,14 +625,11 @@ public sealed partial class SimpleAiBrain
     public (bool UseDodge, bool UseBagua, AiThoughtRecord Thought) ChooseHujiaResponse(
         GameSnapshot view,
         int ownerSeat,
+        bool hasDodge,
         int thoughtSequence)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var owner = view.Players.Single(player => player.Seat == ownerSeat);
-        var hasLongdan = self.Skills?.Any(skill => skill.Kind == SkillKind.Longdan) == true;
-        var hasDodge = self.Hand.Any(card =>
-            card.Kind == CardKind.Dodge ||
-            hasLongdan && IsSlashCard(card.Kind));
         var hasBagua = self.Equipment.Any(card => card.Kind == CardKind.BaguaFormation);
         var shouldHelp = self.Role == Role.Loyalist ||
                          self.Role == Role.Renegade && view.Players.Count(player => player.IsAlive) > 2;
@@ -2378,7 +2375,8 @@ public sealed partial class SimpleAiBrain
         Role role,
         GeneralDefinition candidate)
     {
-        var score = candidate.Skill switch
+        var skillKind = candidate.Skills.FirstOrDefault()?.Kind ?? SkillKind.None;
+        var score = skillKind switch
         {
             SkillKind.Jianxiong => role == Role.Lord ? 42d : 26d,
             SkillKind.Paoxiao => role == Role.Rebel ? 40d : 24d,
@@ -2405,7 +2403,7 @@ public sealed partial class SimpleAiBrain
             SkillKind.Qixi => role is Role.Rebel or Role.Renegade ? 39d : 35d,
             _ => 12d
         };
-        var reason = candidate.Skill switch
+        var reason = skillKind switch
         {
             SkillKind.Jianxiong => "伤害后取得牌，适合持续制造资源优势。",
             SkillKind.Paoxiao => "不受杀次数限制，适合主动施压。",
@@ -2849,12 +2847,9 @@ public sealed partial class SimpleAiBrain
 
         if (action.Kind == LegalActionKind.Alcohol)
         {
-            var hasWusheng = self.Skills?.Any(skill => skill.Kind == SkillKind.Wusheng) == true;
-            var hasLongdan = self.Skills?.Any(skill => skill.Kind == SkillKind.Longdan) == true;
             var slashCount = self.Hand.Count(card =>
                 IsSlashCard(card.Kind) ||
-                hasWusheng && IsRedCard(card.Suit) ||
-                hasLongdan && card.Kind == CardKind.Dodge);
+                self.Skills?.Any(skill => CanViewAs(skill, card, CardKind.Slash, forPlay: true)) == true);
             var score = slashCount == 0
                 ? -10d
                 : cardProfile.AiPlayValue + Math.Min(slashCount, 2) * 10d;

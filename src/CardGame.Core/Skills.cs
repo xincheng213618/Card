@@ -148,30 +148,18 @@ public sealed class JiuyuanSkill : ISkillRuleIdentity
     public string Name => "救援";
 }
 
-public sealed class QixiSkill : ISkillRuleIdentity, ICardConversionSkillRule
+public sealed class QixiSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Qixi;
     public string Name => "奇袭";
 
-    public bool CanUseAsDismantlement(PlayerSkillContext owner, Card card) =>
-        card.Kind != CardKind.Dismantlement &&
-        card.Suit is Suit.Spade or Suit.Club;
 }
 
-public sealed class DuanliangSkill : ISkillRuleIdentity, INumericSkillRule, ICardConversionSkillRule
+public sealed class DuanliangSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Duanliang;
     public string Name => "断粮";
 
-    public bool CanUseAsSupplyShortage(PlayerSkillContext owner, Card card) =>
-        card.Kind != CardKind.SupplyShortage &&
-        card.Suit is Suit.Spade or Suit.Club &&
-        (CardCatalog.Get(card.Kind).CategoryName == "基本牌" ||
-         EquipmentCatalog.IsEquipment(card.Kind));
-
-    public int ModifySupplyShortageDistanceLimit(
-        PlayerSkillContext owner,
-        int currentLimit) => Math.Max(currentLimit, 2);
 }
 
 public sealed class LuoshenSkill : ISkillRuleIdentity
@@ -180,18 +168,11 @@ public sealed class LuoshenSkill : ISkillRuleIdentity
     public string Name => "洛神";
 }
 
-public sealed class QingguoSkill : ISkillRuleIdentity, ICardConversionSkillRule
+public sealed class QingguoSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Qingguo;
     public string Name => "倾国";
 
-    public bool CanUseAsResponse(
-        PlayerSkillContext owner,
-        Card card,
-        CardKind requiredCardKind) =>
-        requiredCardKind == CardKind.Dodge &&
-        card.Kind != CardKind.Dodge &&
-        card.Suit is Suit.Spade or Suit.Club;
 }
 
 public sealed class JizhiSkill : ISkillRuleIdentity
@@ -444,45 +425,26 @@ public sealed class TianduSkill : ISkillRuleIdentity, IJudgmentSkillRule
         context.Owner.Seat == context.TargetSeat;
 }
 
-public sealed class WushengSkill : ISkillRuleIdentity, ICardConversionSkillRule
+public sealed class WushengSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Wusheng;
     public string Name => "武圣";
 
-    public bool CanUseAsSlash(PlayerSkillContext owner, Card card) =>
-        card.Kind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) &&
-        card.Suit is Suit.Heart or Suit.Diamond;
-
-    public bool CanUseAsResponse(PlayerSkillContext owner, Card card, CardKind requiredCardKind) =>
-        requiredCardKind == CardKind.Slash && CanUseAsSlash(owner, card);
 }
 
-public sealed class LongdanSkill : ISkillRuleIdentity, ICardConversionSkillRule
+public sealed class LongdanSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Longdan;
     public string Name => "龙胆";
 
-    public bool CanUseAsSlash(PlayerSkillContext owner, Card card) => card.Kind == CardKind.Dodge;
-
-    public bool CanUseAsResponse(
-        PlayerSkillContext owner,
-        Card card,
-        CardKind requiredCardKind) => requiredCardKind switch
-        {
-            CardKind.Dodge => card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash,
-            CardKind.Slash => card.Kind == CardKind.Dodge,
-            _ => false
-        };
 }
 
-public sealed class GuoseSkill : ISkillRuleIdentity, ICardConversionSkillRule
+public sealed class GuoseSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Guose;
 
     public string Name => "国色";
 
-    public bool CanUseAsIndulgence(PlayerSkillContext owner, Card card) =>
-        owner.Phase == TurnPhase.Play && card.Suit == Suit.Diamond;
 }
 
 public sealed class ShuangxiongSkill : ISkillRuleIdentity
@@ -600,12 +562,11 @@ public sealed class XiaojiSkill : ISkillRuleIdentity
     public string Name => "枭姬";
 }
 
-public sealed class PaoxiaoSkill : ISkillRuleIdentity, INumericSkillRule
+public sealed class PaoxiaoSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Paoxiao;
     public string Name => "咆哮";
 
-    public int ModifySlashLimit(PlayerSkillContext owner, int currentLimit) => int.MaxValue;
 }
 
 public sealed class YingziSkill : ISkillRuleIdentity
@@ -614,30 +575,18 @@ public sealed class YingziSkill : ISkillRuleIdentity
     public string Name => "英姿";
 }
 
-public sealed class MashuSkill : ISkillRuleIdentity, INumericSkillRule
+public sealed class MashuSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Mashu;
     public string Name => "马术";
 
-    /// <summary>
-    /// Mashu is a public outgoing-distance modifier. The engine clamps the
-    /// final combat distance to one, so a source can never reach zero-distance
-    /// opponents through this passive hook.
-    /// </summary>
-    public int ModifyOutgoingDistance(PlayerSkillContext owner, int currentDistance) =>
-        currentDistance - 1;
 }
 
-public sealed class YicongSkill : ISkillRuleIdentity, INumericSkillRule
+public sealed class YicongSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Yicong;
     public string Name => "义从";
 
-    public int ModifyOutgoingDistance(PlayerSkillContext owner, int currentDistance) =>
-        owner.Hp > 2 ? currentDistance - 1 : currentDistance;
-
-    public int ModifyIncomingDistance(PlayerSkillContext owner, int currentDistance) =>
-        owner.Hp <= 2 ? currentDistance + 1 : currentDistance;
 }
 
 public sealed class QicaiSkill : ISkillRuleIdentity, ICardUseSkillRule
@@ -668,20 +617,11 @@ public sealed class QicaiSkill : ISkillRuleIdentity, ICardUseSkillRule
             CardKind.Lightning;
 }
 
-public sealed class JijiuSkill : ISkillRuleIdentity, ICardConversionSkillRule
+public sealed class JijiuSkill : ISkillRuleIdentity
 {
     public SkillKind Kind => SkillKind.Jijiu;
     public string Name => "急救";
 
-    /// <summary>
-    /// A red physical card may be used as Peach only while answering a dying
-    /// window. Native Peach remains a normal card and is matched separately by
-    /// the engine, so this hook never creates a duplicate candidate.
-    /// </summary>
-    public bool CanUseAsDyingRescue(PlayerSkillContext owner, Card card) =>
-        !owner.IsOwnTurn &&
-        card.Kind != CardKind.Peach &&
-        card.Suit is Suit.Heart or Suit.Diamond;
 }
 
 public sealed class KongchengSkill : ISkillRuleIdentity, ICardUseSkillRule

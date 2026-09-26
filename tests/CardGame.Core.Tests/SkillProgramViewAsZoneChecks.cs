@@ -3,8 +3,8 @@ using CardGame.Core;
 internal static class SkillProgramViewAsZoneChecks
 {
     private const string Rules = """
-        {"schemaVersion":58,"skills":[{"id":"test:owned-red-slash","revision":1,
-        "minimumRulesVersion":168,"viewAs":[{"id":"red-owned","sourceZones":["hand","equipment"],
+        {"schemaVersion":59,"skills":[{"id":"test:owned-red-slash","revision":1,
+        "minimumRulesVersion":169,"viewAs":[{"id":"red-owned","sourceZones":["hand","equipment"],
         "inputKinds":[],"inputSuits":["heart","diamond"],"outputKind":"slash",
         "forPlay":true,"forResponse":true}]}]}
         """;
@@ -15,7 +15,7 @@ internal static class SkillProgramViewAsZoneChecks
     public static void DefinitionAndZoneIsolation()
     {
         var program = SkillProgramCatalog.Load(Rules, Presentation).Programs["test:owned-red-slash"];
-        Require(program is { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } &&
+        Require(program is { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } &&
                 program.ViewAs.Single().SourceZones.SequenceEqual(
                     [CardZoneKind.Hand, CardZoneKind.Equipment]),
             "Schema 46 must keep the source-zone contract in the compiled viewAs rule.");
@@ -26,21 +26,27 @@ internal static class SkillProgramViewAsZoneChecks
         Reject(Rules.Replace("\"inputKinds\":[]", "\"inputCount\":2,\"inputKinds\":[]",
                 StringComparison.Ordinal),
             "sourceZones");
+        var categoryRules = Rules.Replace("\"inputKinds\":[]",
+            "\"inputKinds\":[],\"inputCategories\":[\"basic\",\"equipment\"]",
+            StringComparison.Ordinal);
+        Require(SkillProgramCatalog.Load(categoryRules, Presentation)
+                .Programs["test:owned-red-slash"].ViewAs.Single().InputCategories
+                .SequenceEqual([SkillProgramCardCategory.Basic, SkillProgramCardCategory.Equipment]),
+            "A conversion may use a public card-category input filter.");
+        Reject(categoryRules.Replace("[\"hand\",\"equipment\"]", "[\"hand\"]",
+                StringComparison.Ordinal)
+            .Replace("\"inputKinds\":[]", "\"inputCount\":2,\"inputKinds\":[]",
+                StringComparison.Ordinal), "inputCategories");
+        Reject(Rules.Replace("\"outputKind\":\"slash\"", "\"outputKind\":\"peach\"",
+            StringComparison.Ordinal), "forPlay");
+        Reject(Rules.Replace("\"outputKind\":\"slash\"", "\"outputKind\":\"fireAttack\"",
+                StringComparison.Ordinal)
+            .Replace("\"forResponse\":true", "\"forResponse\":false,\"allowChainedInput\":true",
+                StringComparison.Ordinal), "allowChainedInput");
 
-        var context = new PlayerSkillContext(0, 4, 5, 4, TurnPhase.Play);
-        var hand = new Card(7101, CardKind.Peach, Suit.Heart, 1);
-        var equipment = new Card(7102, CardKind.Crossbow, Suit.Diamond, 2);
-        var black = new Card(7103, CardKind.Peach, Suit.Spade, 3);
-        var rules = new SkillProgramRules([program], new HashSet<int> { hand.Id, black.Id },
-            new HashSet<int> { equipment.Id });
-        Require(rules.CanUseAsSlash(context, hand) &&
-                rules.CanUseAsSlash(context, equipment) &&
-                rules.CanUseAsResponse(context, equipment, CardKind.Slash) &&
-                !rules.CanUseAsSlash(context, black),
-            "Configured source zones must include owned red hand/equipment, not black cards.");
-        var handOnly = new SkillProgramRules([program], new HashSet<int> { hand.Id });
-        Require(!handOnly.CanUseAsSlash(context, equipment),
-            "An equipment card not owned by the rule context must not acquire a conversion.");
+        Require(program.ViewAs.Single().InputSuits.SequenceEqual([Suit.Heart, Suit.Diamond]) &&
+                program.ViewAs.Single().OutputKind == CardKind.Slash,
+            "The compiled conversion must retain its source filter and output kind.");
     }
 
     private static void Reject(string rules, string expected)

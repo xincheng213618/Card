@@ -30,7 +30,7 @@ internal static class GaoShunChecks
                     Id: "alcohol-hand-as-slash",
                     OutputKind: CardKind.Slash
                 } &&
-                jinjiu.Program!.MinimumRulesVersion == 168 &&
+                jinjiu.Program!.MinimumRulesVersion == 169 &&
                 identity.InputKinds.SequenceEqual([CardKind.Alcohol]) &&
                 identity.Zones.SequenceEqual([CardZoneKind.Hand]) &&
                 current.Modes[ScenarioPackage.ModeId].GeneralPoolIds!.Contains(GeneralId),
@@ -141,7 +141,10 @@ internal static class GaoShunChecks
             slash.TargetSeats,
             game.Revision,
             RequirePrompt(game, DecisionKind.PlayCard).PromptId,
-            slash.PlayedCardKind));
+            slash.PlayedCardKind) { ConversionSource = slash.ConversionSource,
+                AdditionalConversionSources = slash.AdditionalConversionSources,
+                CardKindModifierSkill = slash.CardKindModifierSkill,
+                TargetCountModifierSkill = slash.TargetCountModifierSkill });
         Require(played.Accepted &&
                 game.Events.Select(item => item.Payload).OfType<CardUsedEvent>().Last() is
                 { SourceSeat: 0, IgnoresArmor: true },

@@ -870,13 +870,6 @@ public sealed record DyingResolvedEvent(
     int VictimSeat,
     bool Survived) : IGameEvent;
 
-public sealed record NiepanResolvedEvent(
-    long DyingFrameId,
-    int PlayerSeat,
-    int DiscardedCardCount,
-    int DrawnCardCount,
-    int HpAfter) : IGameEvent;
-
 public sealed record DyingResponseEvent(
     long ResolutionId,
     int ResponderSeat,

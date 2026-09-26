@@ -343,7 +343,7 @@ internal static class TacticalAiChecks
 
     private static SkillProgramTrigger DrawAiTrigger(string effects, string mode = "additive")
     {
-        var rules = $$"""{"schemaVersion":58,"skills":[{"id":"fixture:draw-ai","revision":1,"minimumRulesVersion":168,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"cardIdentities":[],"triggers":[{"id":"plan","window":"drawPhaseStarting","subject":"owner","optional":true,"priority":0,"drawPhaseMode":"{{mode}}","effects":{{effects}}}]}]}""";
+        var rules = $$"""{"schemaVersion":59,"skills":[{"id":"fixture:draw-ai","revision":1,"minimumRulesVersion":169,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"cardIdentities":[],"triggers":[{"id":"plan","window":"drawPhaseStarting","subject":"owner","optional":true,"priority":0,"drawPhaseMode":"{{mode}}","effects":{{effects}}}]}]}""";
         const string presentation = """{"schemaVersion":3,"skills":{"fixture:draw-ai":{"name":"Draw AI","description":"Fixture"}}}""";
         return SkillProgramCatalog.Load(rules, presentation).Programs["fixture:draw-ai"].Triggers.Single();
     }

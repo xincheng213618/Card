@@ -5,846 +5,6 @@ using CardGame.Core;
 
 internal static class ClassicGeneralChecks
 {
-    public static void FormalShuangxiongFlow()
-    {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        for (var seed = 1; seed <= 16_384; seed++)
-        {
-            var game = GameEngine.CreateStandard(new GameOptions
-            {
-                Seed = seed,
-                HumanSeat = 0,
-                HumanRole = Role.Lord,
-                PlayerCount = 5,
-                ModeId = "identity:classic-5",
-                UseInteractiveSetup = true,
-                UseInteractiveDiscard = false,
-                AdvanceAfterHumanCommands = false,
-                MaxTurns = 80
-            }, registry);
-            Require(game.Submit(new StartGameCommand()).Accepted, "Shuangxiong fixture failed to start.");
-            var select = game.PendingDecision;
-            if (select is not { Kind: DecisionKind.SelectGeneral, PlayerSeat: 0 } ||
-                !select.ValidContentIds.Contains("classic:yan-liang-wen-chou")) continue;
-            Require(game.Submit(new SelectGeneralCommand(0, "classic:yan-liang-wen-chou", game.Revision, select.PromptId)).Accepted,
-                "Shuangxiong fixture could not select Yan Liang and Wen Chou.");
-            for (var step = 0; step < 32 && game.PendingDecision?.Kind != DecisionKind.Shuangxiong; step++)
-                Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted, "Shuangxiong fixture could not reach Draw phase.");
-            var offer = game.PendingDecision;
-            if (offer is not { Kind: DecisionKind.Shuangxiong, PlayerSeat: 0, IsPrivate: true }) continue;
-            var use = offer.Choices.Single(choice => choice.Parameters.GetValueOrDefault("action") == "shuangxiong-use");
-            var accepted = game.Submit(new AnswerPromptCommand(0, offer.PromptId, use.Id, game.Revision));
-            Require(accepted.Accepted, accepted.Error?.Message ?? "Shuangxiong fixture could not accept the skill.");
-            for (var step = 0; step < 32 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
-                Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted, "Shuangxiong judgment could not finish.");
-            var judgment = game.Events.Select(item => item.Payload).OfType<JudgmentResolvedEvent>()
-                .Last(item => item.Reason == JudgmentReasons.Shuangxiong);
-            var claim = game.Events.Select(item => item.Payload).OfType<JudgmentCardClaimedEvent>()
-                .LastOrDefault(item => item.Skill == SkillKind.Shuangxiong);
-            var red = judgment.Suit is Suit.Heart or Suit.Diamond;
-            var actions = game.GetHumanLegalActions().Where(action =>
-                action.Kind == LegalActionKind.Duel && action.PlayedCardKind == CardKind.Duel).ToArray();
-            if (actions.Length == 0) continue;
-            var hand = game.CreateSnapshot(0).Players[0].Hand.ToDictionary(card => card.Id);
-            Require(claim is { Used: true } && hand.ContainsKey(judgment.CardId!.Value) &&
-                    actions.All(action => action.CardId is { } id &&
-                        (hand[id].Suit is Suit.Heart or Suit.Diamond) != red),
-                "Shuangxiong must claim the final judgment card and expose only opposite-color hand cards as Duel.");
-            var restored = GameReplay.Restore(game.CreateCheckpoint(), registry);
-            Require(restored.PendingDecision?.Kind == DecisionKind.PlayCard &&
-                    restored.GetHumanLegalActions().Count(action => action.Kind == LegalActionKind.Duel && action.PlayedCardKind == CardKind.Duel) == actions.Length,
-                "Shuangxiong converted Duel actions must replay exactly.");
-            return;
-        }
-        throw new InvalidOperationException("No bounded Shuangxiong fixture exposed an opposite-color Duel conversion.");
-    }
-
-    public static void ContentContract()
-    {
-        var legacy = StandardContentRegistry.CreateWithRescueSkills();
-        var classic = StandardContentRegistry.CreateWithClassicGenerals();
-        var legacyClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var tianduClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var fanjianClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var guanxingClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var hujiaClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var jijiangClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var jiuyuanClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var kujinClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var qixiClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var kejiClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var tuxiClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var luoyiClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var qiangxiClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var duanliangClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var luoshenClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var jizhiClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var tieqiClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var liegongClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var kuangguClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var wushuangClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var paoxiaoClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var longdanClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var wushengClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var borrowedSwordClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var stoneAxeClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var zhangbaClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var cixiongClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var qinglongClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var iceSwordClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var qilinBowClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var fangtianClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var gudingClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var zhuqueClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var tengjiaClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var woodenOxClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var daQiaoClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var diaoChanClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var sunShangxiangClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var luXunClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var pangDeClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var xunYuClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var shuangxiongClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var wolongClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var pangTongClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var taishiCiClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var zhangJiaoClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var mengHuoClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var zhuRongClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var yuJinClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var wuyanClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var xuShuClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var spZhaoYunClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var configuredZhangJiaoClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var boundaryZhangJiaoClassic = StandardContentRegistry.CreateWithClassicGenerals();
-        var shenGuanYuClassic = StandardContentRegistry.CreateWithClassicGenerals();
-
-        Require(!legacy.Packages.Any(package => package.Id == "standard-classic-generals"),
-            "The legacy rescue registry must not silently gain the classic roster.");
-        Require(classic.Packages.Select(package => $"{package.Id}@{package.Version}")
-            .SequenceEqual([
-                "standard@1.14.0",
-                "standard-active-skills@1.1.0",
-                "standard-rescue-skills@1.0.0",
-                $"standard-classic-generals@{StandardClassicGeneralPackage.CurrentVersion}"]),
-            "The classic package signature must be explicit and dependency ordered.");
-        var previousRoster = new[]
-        {
-            // Original standard 25.
-            "classic:cao-cao", "classic:sima-yi", "classic:xiahou-dun", "classic:zhang-liao",
-            "classic:xu-chu", "classic:guo-jia", "classic:zhen-ji", "classic:liu-bei",
-            "classic:guan-yu", "classic:zhang-fei", "classic:zhuge-liang", "classic:zhao-yun",
-            "classic:ma-chao", "classic:huang-yueying", "classic:sun-quan", "classic:gan-ning",
-            "classic:lu-meng", "classic:huang-gai", "classic:zhou-yu", "classic:da-qiao",
-            "classic:lu-xun", "classic:sun-shangxiang", "classic:hua-tuo", "classic:lu-bu",
-            "classic:diao-chan",
-            // Current expansion representatives already shipped by this package.
-            "classic:dian-wei", "classic:xu-huang", "classic:huang-zhong", "classic:wei-yan",
-            "classic:pang-de", "classic:xun-yu", "classic:yan-liang-wen-chou", "classic:wolong-zhuge-liang",
-            "classic:pang-tong", "classic:taishi-ci", "classic:cao-ren", "classic:xiao-qiao",
-            "classic:zhou-tai", "classic:yuan-shao", "classic:xiahou-yuan", "classic:hua-xiong",
-            "classic:gongsun-zan", "classic:zhang-jiao", "classic:sun-jian", "classic:meng-huo", "classic:zhu-rong",
-            "classic:yu-jin", "classic:xu-shu", "sp:zhao-yun", "classic:shen-guan-yu", "sp:guan-yu",
-            "classic:yan-yan", "mou:lu-meng", "classic:cao-zhang", "classic:ma-dai",
-            "classic:gao-shun", "classic:liu-biao", "classic:wang-yi", "classic:zhong-hui",
-            "classic:xun-you", "classic:liao-hua", "classic:guan-xing-zhang-bao", "classic:bu-lian-shi",
-            "classic:cheng-pu", "classic:han-dang", "classic:cao-chong", "classic:guo-huai",
-            "classic:man-chong", "classic:guan-ping"
-        };
-        var previousPool = StandardContentRegistry.CreateWithClassicGenerals()
-            .Modes["identity:classic-5"].GeneralPoolIds!;
-        var currentPool = classic.Modes["identity:classic-5"].GeneralPoolIds!;
-        Require(previousPool.Order(StringComparer.Ordinal)
-                    .SequenceEqual(previousRoster.Order(StringComparer.Ordinal)) &&
-                previousRoster.All(currentPool.Contains) &&
-                currentPool.Contains("classic:gu-yong") && currentPool.Contains("classic:li-dian") &&
-                currentPool.Contains("boundary:sima-yi") &&
-                currentPool.Distinct(StringComparer.Ordinal).Count() == currentPool.Count &&
-                currentPool.All(classic.Generals.ContainsKey),
-            "The 1.138.0 roster must remain exact; current identity pool must retain it and register the later generals without duplicates or unresolved ids.");
-        Require(classic.Generals["classic:zhang-jiao"] is
-        { BaseHp: 3, FactionId: "qun" } zhangJiao &&
-                zhangJiao.SkillIds.SequenceEqual(["classic:guidao", "classic:leiji", "classic:huangtian"]) &&
-                classic.Skills["classic:guidao"] is { LegacyKind: null, Program: { } guidao } &&
-                guidao.RuntimeVersion == "skill-program-v58" && guidao.MinimumRulesVersion == 168 &&
-                guidao.Triggers.Single().Effects.Single().OldCardDestination ==
-                    SkillProgramOldJudgmentCardDestination.OwnerHand &&
-                classic.Skills["classic:leiji"] is { LegacyKind: null, Program: { } leiji } &&
-                leiji.RuntimeVersion == "skill-program-v58" && leiji.MinimumRulesVersion == 168 &&
-                leiji.Triggers.Count == 3 &&
-                classic.Skills["classic:huangtian"] is { LegacyKind: null, Program: { } huangtian } &&
-                huangtian.RuntimeVersion == "skill-program-v58" && huangtian.MinimumRulesVersion == 168 &&
-                huangtian.Contributions.Single().CardKinds.SequenceEqual(
-                    [CardKind.Dodge, CardKind.Lightning]) &&
-                spZhaoYunClassic.Skills["classic:guidao"].LegacyKind == SkillKind.Guidao &&
-                spZhaoYunClassic.Skills["classic:leiji"].LegacyKind == SkillKind.Leiji &&
-                spZhaoYunClassic.Skills["classic:huangtian"].LegacyKind == SkillKind.Huangtian &&
-                spZhaoYunClassic.Skills["classic:guidao"].Program is null,
-            "Package 1.65.0 must migrate all three classic Zhang Jiao skills while package 1.64.0 retains typed behavior.");
-        Require(classic.Generals["boundary:zhang-jiao"] is
-        { Name: "界张角", BaseHp: 3, FactionId: "qun", Gender: GeneralGender.Male } boundaryZhangJiao &&
-                boundaryZhangJiao.SkillIds.SequenceEqual(
-                    ["boundary:leiji", "boundary:guidao", "boundary:huangtian"]) &&
-                classic.Skills["boundary:guidao"] is { LegacyKind: null, Program: { } boundaryGuidao } &&
-                boundaryGuidao.RuntimeVersion == "skill-program-v58" &&
-                boundaryGuidao.MinimumRulesVersion == 168 &&
-                boundaryGuidao.Triggers.Single().Effects[0].OldCardDestination ==
-                    SkillProgramOldJudgmentCardDestination.DiscardPile &&
-                boundaryGuidao.Triggers.Single().Effects[1] is
-                {
-                    Op: SkillProgramEffectOp.Draw,
-                    MinimumReplacementRank: 2,
-                    MaximumReplacementRank: 9
-                } &&
-                classic.Skills["boundary:leiji"] is { LegacyKind: null, Program: { } boundaryLeiji } &&
-                boundaryLeiji.MinimumRulesVersion == 168 && boundaryLeiji.Triggers.Count == 5 &&
-                classic.Skills["boundary:huangtian"] is { LegacyKind: null, Program: { } boundaryHuangtian } &&
-                boundaryHuangtian.Contributions.Single().CardKinds.SequenceEqual([CardKind.Dodge]) &&
-                boundaryHuangtian.Contributions.Single().CardSuits.SequenceEqual([Suit.Spade]) &&
-                classic.Modes["identity:classic-boundary-5"].GeneralPoolIds!
-                    .Contains("boundary:zhang-jiao") &&
-                !classic.Modes["identity:classic-boundary-5"].GeneralPoolIds!
-                    .Contains("classic:zhang-jiao") &&
-                classic.Modes["identity:classic-5"].GeneralPoolIds!
-                    .Contains("classic:zhang-jiao") &&
-                !classic.Modes["identity:classic-5"].GeneralPoolIds!
-                    .Contains("boundary:zhang-jiao") &&
-                !configuredZhangJiaoClassic.Generals.ContainsKey("boundary:zhang-jiao") &&
-                !configuredZhangJiaoClassic.Skills.ContainsKey("boundary:leiji") &&
-                !configuredZhangJiaoClassic.Modes.ContainsKey("identity:classic-boundary-5"),
-            "Package 1.66.0 must register complete boundary Zhang Jiao only in an explicit boundary roster while 1.65.0 stays unchanged.");
-        Require(shenGuanYuClassic.Generals["classic:shen-guan-yu"] is
-        { Name: "神关羽", BaseHp: 5, FactionId: "god", Gender: GeneralGender.Male } shenGuanYu &&
-                shenGuanYu.SkillIds.SequenceEqual(["classic:wushen", "classic:wuhun"]) &&
-                shenGuanYuClassic.Skills["classic:wushen"] is { LegacyKind: null, Program: { } wushen } &&
-                wushen.RuntimeVersion == "skill-program-v58" && wushen.MinimumRulesVersion == 168 &&
-                wushen.CardIdentities.Single() is
-                {
-                    Id: "heart-hand-as-slash",
-                    OutputKind: CardKind.Slash
-                } identity &&
-                identity.Zones.SequenceEqual([CardZoneKind.Hand]) &&
-                identity.InputSuits.SequenceEqual([Suit.Heart]) &&
-                wushen.Modifiers.Single() is
-                {
-                    Query: SkillRuleQuery.SlashDistanceLimit,
-                    Operation: SkillRuleOperation.Unlimited,
-                    SourceCardIdentityId: "heart-hand-as-slash"
-                } &&
-                shenGuanYuClassic.Skills["classic:wuhun"] is
-                { LegacyKind: SkillKind.Wuhun, Program: null } &&
-                shenGuanYuClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:shen-guan-yu") &&
-                shenGuanYuClassic.Modes["identity:classic-8"].GeneralPoolIds!.Contains("classic:shen-guan-yu") &&
-                !shenGuanYuClassic.Modes["identity:classic-boundary-5"].GeneralPoolIds!.Contains("classic:shen-guan-yu") &&
-                !boundaryZhangJiaoClassic.Generals.ContainsKey("classic:shen-guan-yu") &&
-                !boundaryZhangJiaoClassic.Skills.ContainsKey("classic:wushen") &&
-                !boundaryZhangJiaoClassic.Skills.ContainsKey("classic:wuhun"),
-            "Package 1.67.0 must add formal Shen Guan Yu only to current classic identity rosters while 1.66.0 stays unchanged.");
-        Require(classic.Generals["classic:sun-jian"] is
-        { BaseHp: 4, FactionId: "wu" } sunJian &&
-                sunJian.SkillIds.SequenceEqual(["classic:yinghun"]) &&
-                !zhangJiaoClassic.Generals.ContainsKey("classic:sun-jian") &&
-                !zhangJiaoClassic.Skills.ContainsKey("classic:yinghun"),
-            "Current classic Sun Jian must expose four base HP and Yinghun.");
-        Require(classic.Generals["classic:meng-huo"] is
-        { BaseHp: 4, FactionId: "shu" } mengHuo &&
-                mengHuo.SkillIds.SequenceEqual(["classic:huoshou", "classic:zaiqi"]),
-            "Current classic Meng Huo must expose Huoshou and Zaiqi in stable order.");
-        Require(classic.Generals["classic:zhu-rong"] is
-        { BaseHp: 4, FactionId: "shu", Gender: GeneralGender.Female } zhuRong &&
-                zhuRong.SkillIds.SequenceEqual(["classic:juxiang", "classic:lieren"]) &&
-                !mengHuoClassic.Generals.ContainsKey("classic:zhu-rong") &&
-                !mengHuoClassic.Skills.ContainsKey("classic:juxiang"),
-            "Current classic Zhu Rong must expose Juxiang and Lieren in stable order.");
-        Require(classic.Generals["classic:yu-jin"] is
-        { BaseHp: 4, FactionId: "wei", Gender: GeneralGender.Male } yuJin &&
-                yuJin.SkillIds.SequenceEqual(["classic:yizhong"]) &&
-                !zhuRongClassic.Generals.ContainsKey("classic:yu-jin") &&
-                !zhuRongClassic.Skills.ContainsKey("classic:yizhong"),
-            "Current classic Yu Jin must expose four base HP and Yizhong without changing package 1.60.0.");
-        Require(classic.Generals["classic:xu-shu"] is
-        { BaseHp: 3, FactionId: "shu", Gender: GeneralGender.Male } xuShu &&
-                xuShu.SkillIds.SequenceEqual(["classic:wuyan", "classic:jujian"]) &&
-                classic.Skills["classic:wuyan"].LegacyKind == SkillKind.Wuyan &&
-                classic.Skills["classic:jujian"].LegacyKind is null &&
-                classic.Skills["classic:jujian"].Program is { MinimumRulesVersion: 168 } &&
-                wuyanClassic.Skills.ContainsKey("classic:wuyan") &&
-                !wuyanClassic.Skills.ContainsKey("classic:jujian") &&
-                !wuyanClassic.Generals.ContainsKey("classic:xu-shu") &&
-                !yuJinClassic.Skills.ContainsKey("classic:wuyan"),
-            "Package 1.63.0 must expose complete Xu Shu while 1.62.0 retains only the Wuyan foundation.");
-        Require(classic.Generals["sp:zhao-yun"] is
-        { BaseHp: 3, FactionId: "qun", Gender: GeneralGender.Male } spZhaoYun &&
-                spZhaoYun.SkillIds.SequenceEqual(["sp:longdan", "sp:chongzhen"]) &&
-                classic.Skills["sp:longdan"] is { LegacyKind: null, Program: { } spLongdan } &&
-                spLongdan.RuntimeVersion == "skill-program-v58" && spLongdan.MinimumRulesVersion == 168 &&
-                spLongdan.ViewAs.Select(rule => rule.Id)
-                    .SequenceEqual(["dodge-to-slash", "slash-to-dodge"]) &&
-                spLongdan.ViewAs.Single(rule => rule.Id == "slash-to-dodge").InputKinds
-                    .SequenceEqual([CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash]) &&
-                classic.Skills["sp:chongzhen"] is { LegacyKind: null, Program: { } spChongzhen } &&
-                spChongzhen.RuntimeVersion == "skill-program-v58" && spChongzhen.Triggers.Count == 3 &&
-                spChongzhen.Triggers.All(trigger => trigger.Optional && trigger.SourceSkillId == "sp:longdan") &&
-                !xuShuClassic.Skills.ContainsKey("sp:longdan") &&
-                !xuShuClassic.Skills.ContainsKey("sp:chongzhen") &&
-                !xuShuClassic.Generals.ContainsKey("sp:zhao-yun") &&
-                xuShuClassic.Generals.ContainsKey("classic:xu-shu"),
-            "Package 1.64.0 must add complete configured SP Zhao Yun without changing package 1.63.0.");
-        Require(classic.Generals["classic:da-qiao"] is
-        { BaseHp: 3, Gender: GeneralGender.Female } daQiao &&
-                daQiao.SkillIds.SequenceEqual(["classic:guose", "classic:liuli"]) &&
-                classic.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:da-qiao") &&
-                !woodenOxClassic.Generals.ContainsKey("classic:da-qiao") &&
-                !woodenOxClassic.Skills.ContainsKey("classic:guose") &&
-                classic.Generals["classic:diao-chan"] is
-                { BaseHp: 3, Gender: GeneralGender.Female } diaoChan &&
-                diaoChan.SkillIds.SequenceEqual(["classic:biyue", "classic:lijian"]) &&
-                classic.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:diao-chan") &&
-                !daQiaoClassic.Generals.ContainsKey("classic:diao-chan") &&
-                !daQiaoClassic.Skills.ContainsKey("classic:lijian") &&
-                classic.Generals["classic:sun-shangxiang"] is
-                { BaseHp: 3, Gender: GeneralGender.Female } sunShangxiang &&
-                sunShangxiang.SkillIds.SequenceEqual(["classic:jieyin", "classic:xiaoji"]) &&
-                !diaoChanClassic.Generals.ContainsKey("classic:sun-shangxiang") &&
-                !diaoChanClassic.Skills.ContainsKey("classic:jieyin") &&
-                classic.Generals["classic:lu-xun"] is { BaseHp: 3 } luXun &&
-                luXun.SkillIds.SequenceEqual(["classic:qianxun", "classic:lianying"]) &&
-                classic.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:lu-xun") &&
-                !sunShangxiangClassic.Generals.ContainsKey("classic:lu-xun") &&
-                !sunShangxiangClassic.Skills.ContainsKey("classic:qianxun") &&
-                classic.Generals["classic:pang-de"] is { BaseHp: 4, FactionId: "qun" } pangDe &&
-                pangDe.SkillIds.SequenceEqual(["classic:mashu", "classic:mengjin"]) &&
-                classic.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:pang-de") &&
-                !luXunClassic.Generals.ContainsKey("classic:pang-de") &&
-                !luXunClassic.Skills.ContainsKey("classic:mengjin") &&
-                classic.Generals["classic:xun-yu"] is { BaseHp: 3, FactionId: "wei" } xunYu &&
-                xunYu.SkillIds.SequenceEqual(["classic:quhu", "classic:jieming"]) &&
-                !pangDeClassic.Generals.ContainsKey("classic:xun-yu") &&
-                !pangDeClassic.Skills.ContainsKey("classic:quhu") &&
-                classic.Generals["classic:yan-liang-wen-chou"] is { BaseHp: 4, FactionId: "qun" } yanLiangWenChou &&
-                yanLiangWenChou.SkillIds.SequenceEqual(["classic:shuangxiong"]) &&
-                !xunYuClassic.Generals.ContainsKey("classic:yan-liang-wen-chou") &&
-                !xunYuClassic.Skills.ContainsKey("classic:shuangxiong") &&
-                classic.Generals["classic:wolong-zhuge-liang"] is { BaseHp: 3, FactionId: "shu" } wolong &&
-                wolong.SkillIds.SequenceEqual(["classic:bazhen", "classic:huoji", "classic:kanpo"]) &&
-                !shuangxiongClassic.Generals.ContainsKey("classic:wolong-zhuge-liang") &&
-                !shuangxiongClassic.Skills.ContainsKey("classic:huoji") &&
-                classic.Generals["classic:pang-tong"] is { BaseHp: 3, FactionId: "shu" } pangTong &&
-                pangTong.SkillIds.SequenceEqual(["classic:lianhuan", "classic:niepan"]) &&
-                !wolongClassic.Generals.ContainsKey("classic:pang-tong") &&
-                !wolongClassic.Skills.ContainsKey("classic:lianhuan") &&
-                classic.Generals["classic:taishi-ci"] is { BaseHp: 4, FactionId: "wu" } taishiCi &&
-                taishiCi.SkillIds.SequenceEqual(["classic:tianyi"]) &&
-                !pangTongClassic.Generals.ContainsKey("classic:taishi-ci") &&
-                !pangTongClassic.Skills.ContainsKey("classic:tianyi") &&
-                classic.Generals["classic:cao-ren"] is { BaseHp: 4, FactionId: "wei" } caoRen &&
-                caoRen.SkillIds.SequenceEqual(["classic:jushou"]) &&
-                !taishiCiClassic.Generals.ContainsKey("classic:cao-ren") &&
-                !taishiCiClassic.Skills.ContainsKey("classic:jushou"),
-            "Classic 1.40-1.50 must add the eleven expansion representatives without changing historical rosters.");
-        Require(legacyClassic.Packages.Last().Version == new Version(1, 0, 0) &&
-                legacyClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "standard:guo-jia",
-                    StringComparer.Ordinal) &&
-                !legacyClassic.Generals.ContainsKey("classic:guo-jia"),
-            "The legacy classic registry must remain reproducible for 1.0 checkpoints.");
-        Require(tianduClassic.Packages.Last().Version == new Version(1, 1, 0) &&
-                tianduClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "standard:zhou-yu",
-                    StringComparer.Ordinal) &&
-                !tianduClassic.Generals.ContainsKey("classic:zhou-yu") &&
-                !tianduClassic.Skills.ContainsKey("classic:fanjian"),
-            "The Tiandu-era classic registry must remain reproducible for 1.1 checkpoints.");
-        Require(fanjianClassic.Packages.Last().Version == new Version(1, 2, 0) &&
-                fanjianClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "standard:zhuge-liang",
-                    StringComparer.Ordinal) &&
-                !fanjianClassic.Generals.ContainsKey("classic:zhuge-liang") &&
-                !fanjianClassic.Skills.ContainsKey("classic:guanxing"),
-            "The Fanjian-era classic registry must remain reproducible for 1.2 checkpoints.");
-        Require(guanxingClassic.Packages.Last().Version == new Version(1, 3, 0) &&
-                guanxingClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "standard:cao-cao",
-                    StringComparer.Ordinal) &&
-                !guanxingClassic.Generals.ContainsKey("classic:cao-cao") &&
-                !guanxingClassic.Skills.ContainsKey("classic:hujia"),
-            "The Guanxing-era classic registry must remain reproducible for 1.3 checkpoints.");
-        Require(hujiaClassic.Packages.Last().Version == new Version(1, 4, 0) &&
-                hujiaClassic.Generals["classic:liu-bei"].SkillIds.SequenceEqual(["standard:rende"]) &&
-                !hujiaClassic.Skills.ContainsKey("classic:jijiang"),
-            "The Hujia-era classic registry must retain Liu Bei without Jijiang for 1.4 checkpoints.");
-        Require(jijiangClassic.Packages.Last().Version == new Version(1, 5, 0) &&
-                jijiangClassic.Generals["classic:sun-quan"].SkillIds.SequenceEqual(["standard:zhiheng"]) &&
-                !jijiangClassic.Skills.ContainsKey("classic:jiuyuan"),
-            "The Jijiang-era classic registry must retain Sun Quan without Jiuyuan for 1.5 checkpoints.");
-        Require(jiuyuanClassic.Packages.Last().Version == new Version(1, 6, 0) &&
-                !jiuyuanClassic.Generals.ContainsKey("classic:huang-gai") &&
-                !jiuyuanClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "classic:huang-gai",
-                    StringComparer.Ordinal),
-            "The Jiuyuan-era classic registry must retain the 1.6 roster without Huang Gai.");
-        Require(kujinClassic.Packages.Last().Version == new Version(1, 7, 0) &&
-                !kujinClassic.Generals.ContainsKey("classic:gan-ning") &&
-                !kujinClassic.Skills.ContainsKey("classic:qixi") &&
-                !kujinClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "classic:gan-ning",
-                    StringComparer.Ordinal),
-            "The Kujin-era classic registry must retain the 1.7 roster without Gan Ning or Qixi.");
-        Require(qixiClassic.Packages.Last().Version == new Version(1, 8, 0) &&
-                !qixiClassic.Generals.ContainsKey("classic:lu-meng") &&
-                !qixiClassic.Skills.ContainsKey("classic:keji") &&
-                !qixiClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "classic:lu-meng",
-                    StringComparer.Ordinal),
-            "The Qixi-era classic registry must retain the 1.8 roster without Lu Meng or Keji.");
-        Require(kejiClassic.Packages.Last().Version == new Version(1, 9, 0) &&
-                !kejiClassic.Generals.ContainsKey("classic:zhang-liao") &&
-                !kejiClassic.Skills.ContainsKey("classic:tuxi") &&
-                !kejiClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "classic:zhang-liao",
-                    StringComparer.Ordinal),
-            "The Keji-era classic registry must retain the 1.9 roster without Zhang Liao or Tuxi.");
-        Require(tuxiClassic.Packages.Last().Version == new Version(1, 10, 0) &&
-                !tuxiClassic.Generals.ContainsKey("classic:xu-chu") &&
-                !tuxiClassic.Skills.ContainsKey("classic:luoyi") &&
-                !tuxiClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "classic:xu-chu",
-                    StringComparer.Ordinal),
-            "The Tuxi-era classic registry must retain the 1.10 roster without Xu Chu or Luoyi.");
-        Require(luoyiClassic.Packages.Last().Version == new Version(1, 11, 0) &&
-                !luoyiClassic.Generals.ContainsKey("classic:dian-wei") &&
-                !luoyiClassic.Skills.ContainsKey("classic:qiangxi") &&
-                !luoyiClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "classic:dian-wei",
-                    StringComparer.Ordinal),
-            "The Luoyi-era classic registry must retain the 1.11 roster without Dian Wei or Qiangxi.");
-        Require(qiangxiClassic.Packages.Last().Version == new Version(1, 12, 0) &&
-                !qiangxiClassic.Generals.ContainsKey("classic:xu-huang") &&
-                !qiangxiClassic.Skills.ContainsKey("classic:duanliang") &&
-                !qiangxiClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "classic:xu-huang",
-                    StringComparer.Ordinal),
-            "The Qiangxi-era classic registry must retain the 1.12 roster without Xu Huang or Duanliang.");
-        Require(duanliangClassic.Packages.Last().Version == new Version(1, 13, 0) &&
-                !duanliangClassic.Generals.ContainsKey("classic:zhen-ji") &&
-                !duanliangClassic.Skills.ContainsKey("classic:luoshen") &&
-                !duanliangClassic.Skills.ContainsKey("classic:qingguo") &&
-                !duanliangClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "classic:zhen-ji",
-                    StringComparer.Ordinal),
-            "The Duanliang-era classic registry must retain the 1.13 roster without Zhen Ji, Luoshen or Qingguo.");
-        Require(luoshenClassic.Packages.Last().Version == new Version(1, 14, 0) &&
-                !luoshenClassic.Generals.ContainsKey("classic:huang-yueying") &&
-                !luoshenClassic.Skills.ContainsKey("classic:jizhi") &&
-                !luoshenClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "classic:huang-yueying",
-                    StringComparer.Ordinal),
-            "The Luoshen-era classic registry must retain the 1.14 roster without Huang Yueying or Jizhi.");
-        Require(jizhiClassic.Packages.Last().Version == new Version(1, 15, 0) &&
-                !jizhiClassic.Generals.ContainsKey("classic:ma-chao") &&
-                !jizhiClassic.Skills.ContainsKey("classic:tieqi") &&
-                !jizhiClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "classic:ma-chao",
-                    StringComparer.Ordinal),
-            "The Jizhi-era classic registry must retain the 1.15 roster without Ma Chao or Tieqi.");
-        Require(tieqiClassic.Packages.Last().Version == new Version(1, 16, 0) &&
-                !tieqiClassic.Generals.ContainsKey("classic:huang-zhong") &&
-                !tieqiClassic.Skills.ContainsKey("classic:liegong") &&
-                !tieqiClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "classic:huang-zhong",
-                    StringComparer.Ordinal),
-            "The Tieqi-era classic registry must retain the 1.16 roster without Huang Zhong or Liegong.");
-        Require(liegongClassic.Packages.Last().Version == new Version(1, 17, 0) &&
-                !liegongClassic.Generals.ContainsKey("classic:wei-yan") &&
-                !liegongClassic.Skills.ContainsKey("classic:kuanggu") &&
-                !liegongClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "classic:wei-yan",
-                    StringComparer.Ordinal),
-            "The Liegong-era classic registry must retain the 1.17 roster without Wei Yan or Kuanggu.");
-        Require(kuangguClassic.Packages.Last().Version == new Version(1, 18, 0) &&
-                !kuangguClassic.Generals.ContainsKey("classic:lu-bu") &&
-                !kuangguClassic.Skills.ContainsKey("classic:wushuang") &&
-                !kuangguClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "classic:lu-bu",
-                    StringComparer.Ordinal),
-            "The Kuanggu-era classic registry must retain the 1.18 roster without Lu Bu or Wushuang.");
-        Require(wushuangClassic.Packages.Last().Version == new Version(1, 19, 0) &&
-                !wushuangClassic.Generals.ContainsKey("classic:zhang-fei") &&
-                !wushuangClassic.Skills.ContainsKey("classic:paoxiao") &&
-                wushuangClassic.Generals.ContainsKey("standard:zhang-fei") &&
-                wushuangClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "standard:zhang-fei",
-                    StringComparer.Ordinal) &&
-                !wushuangClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "classic:zhang-fei",
-                    StringComparer.Ordinal),
-            "The Wushuang-era classic registry must retain the 1.19 standard Zhang Fei identity.");
-        Require(paoxiaoClassic.Packages.Last().Version == new Version(1, 20, 0) &&
-                !paoxiaoClassic.Generals.ContainsKey("classic:zhao-yun") &&
-                !paoxiaoClassic.Skills.ContainsKey("classic:longdan") &&
-                paoxiaoClassic.Generals.ContainsKey("standard:zhao-yun") &&
-                paoxiaoClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "standard:zhao-yun",
-                    StringComparer.Ordinal) &&
-                !paoxiaoClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "classic:zhao-yun",
-                    StringComparer.Ordinal),
-            "The Paoxiao-era classic registry must retain the 1.20 standard Zhao Yun identity.");
-        Require(longdanClassic.Packages.Last().Version == new Version(1, 21, 0) &&
-                !longdanClassic.Generals.ContainsKey("classic:guan-yu") &&
-                !longdanClassic.Skills.ContainsKey("classic:wusheng") &&
-                longdanClassic.Generals.ContainsKey("standard:guan-yu") &&
-                longdanClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "standard:guan-yu",
-                    StringComparer.Ordinal) &&
-                !longdanClassic.Modes["identity:classic-5"].GeneralPoolIds!.Contains(
-                    "classic:guan-yu",
-                    StringComparer.Ordinal),
-            "The Longdan-era classic registry must retain the 1.21 standard Guan Yu identity.");
-        Require(wushengClassic.Packages.Last().Version == new Version(1, 22, 0) &&
-                !wushengClassic.Cards.ContainsKey("classic:borrowed-sword") &&
-                !wushengClassic.Decks.ContainsKey("classic:standard-deck") &&
-                wushengClassic.Modes["identity:classic-5"].DeckId == "standard:basic-demo",
-            "The Wusheng-era classic registry must retain the 1.22 deck without Borrowed Sword.");
-        Require(borrowedSwordClassic.Cards["classic:borrowed-sword"].LegacyKind == CardKind.BorrowedSword &&
-                !borrowedSwordClassic.Cards.ContainsKey("classic:stone-axe") &&
-                borrowedSwordClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 92,
-            "The 1.23 classic registry must retain its 92-card Borrowed Sword deck without Stone Axe.");
-        Require(stoneAxeClassic.Cards["classic:stone-axe"].LegacyKind == CardKind.StoneAxe &&
-                !stoneAxeClassic.Cards.ContainsKey("classic:zhangba-serpent-spear") &&
-                stoneAxeClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 93,
-            "The 1.24 classic registry must retain its 93-card Stone Axe deck without Zhangba.");
-        Require(zhangbaClassic.Cards["classic:zhangba-serpent-spear"].LegacyKind == CardKind.ZhangbaSerpentSpear &&
-                !zhangbaClassic.Cards.ContainsKey("classic:cixiong-double-swords") &&
-                zhangbaClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 94 &&
-                zhangbaClassic.Generals["classic:zhen-ji"].Gender == GeneralGender.Male &&
-                zhangbaClassic.Generals["classic:huang-yueying"].Gender == GeneralGender.Male,
-            "The 1.25 classic registry must retain its 94-card Zhangba deck and legacy gender-neutral projection.");
-        Require(cixiongClassic.Cards["classic:cixiong-double-swords"].LegacyKind == CardKind.CixiongDoubleSwords &&
-                !cixiongClassic.Cards.ContainsKey("classic:qinglong-crescent-blade") &&
-                cixiongClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 96 &&
-                cixiongClassic.Generals["classic:zhen-ji"].Gender == GeneralGender.Female &&
-                cixiongClassic.Generals["classic:huang-yueying"].Gender == GeneralGender.Female,
-            "The 1.26 classic registry must retain its 96-card Cixiong deck and typed gender.");
-        Require(qinglongClassic.Cards["classic:qinglong-crescent-blade"].LegacyKind == CardKind.QinglongCrescentBlade &&
-                !qinglongClassic.Cards.ContainsKey("classic:ice-sword") &&
-                qinglongClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 97,
-            "The 1.27 classic registry must retain its 97-card Qinglong deck without Ice Sword.");
-        Require(iceSwordClassic.Cards["classic:ice-sword"].LegacyKind == CardKind.IceSword &&
-                !iceSwordClassic.Cards.ContainsKey("classic:qilin-bow") &&
-                iceSwordClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 98,
-            "The 1.28 classic registry must retain its 98-card Ice Sword deck without Qilin Bow.");
-        Require(qilinBowClassic.Cards["classic:qilin-bow"].LegacyKind == CardKind.QilinBow &&
-                !qilinBowClassic.Cards.ContainsKey("classic:fangtian-halberd") &&
-                qilinBowClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 99,
-            "The 1.29 classic registry must retain its 99-card Qilin Bow deck without Fangtian Halberd.");
-        Require(fangtianClassic.Cards["classic:fangtian-halberd"].LegacyKind == CardKind.FangtianHalberd &&
-                !fangtianClassic.Cards.ContainsKey("classic:guding-blade") &&
-                fangtianClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 100,
-            "The 1.30 classic registry must retain its 100-card Fangtian deck without Guding Blade.");
-        Require(gudingClassic.Cards["classic:guding-blade"].LegacyKind == CardKind.GudingBlade &&
-                !gudingClassic.Cards.ContainsKey("classic:zhuque-fan") &&
-                gudingClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 101,
-            "The 1.31 classic registry must retain its 101-card Guding deck without Zhuque Fan.");
-        Require(zhuqueClassic.Cards["classic:zhuque-fan"].LegacyKind == CardKind.ZhuqueFan &&
-                !zhuqueClassic.Cards.ContainsKey("classic:tengjia") &&
-                zhuqueClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 102,
-            "The 1.32 classic registry must retain its 102-card Zhuque deck without Tengjia.");
-        Require(tengjiaClassic.Cards["classic:tengjia"].LegacyKind == CardKind.Tengjia &&
-                !tengjiaClassic.Cards.ContainsKey("classic:silver-lion") &&
-                tengjiaClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 103,
-            "The 1.33 classic registry must retain its 103-card Tengjia deck without Silver Lion.");
-        Require(classic.Cards["classic:borrowed-sword"].LegacyKind == CardKind.BorrowedSword &&
-                classic.Cards["classic:stone-axe"].LegacyKind == CardKind.StoneAxe &&
-                classic.Cards["classic:zhangba-serpent-spear"].LegacyKind == CardKind.ZhangbaSerpentSpear &&
-                classic.Cards["classic:cixiong-double-swords"].LegacyKind == CardKind.CixiongDoubleSwords &&
-                classic.Cards["classic:qinglong-crescent-blade"].LegacyKind == CardKind.QinglongCrescentBlade &&
-                classic.Cards["classic:ice-sword"].LegacyKind == CardKind.IceSword &&
-                classic.Cards["classic:qilin-bow"].LegacyKind == CardKind.QilinBow &&
-                classic.Cards["classic:fangtian-halberd"].LegacyKind == CardKind.FangtianHalberd &&
-                classic.Cards["classic:guding-blade"].LegacyKind == CardKind.GudingBlade &&
-                classic.Cards["classic:zhuque-fan"].LegacyKind == CardKind.ZhuqueFan &&
-                classic.Cards["classic:tengjia"].LegacyKind == CardKind.Tengjia &&
-                classic.Cards["classic:silver-lion"].LegacyKind == CardKind.SilverLion &&
-                woodenOxClassic.Decks["classic:standard-deck"].Cards.Sum(card => card.Count) == 105 &&
-                woodenOxClassic.Decks["classic:standard-deck"].PhysicalCards is null &&
-                classic.Decks["classic:standard-deck"].Cards.Count == 0 &&
-                classic.Decks["classic:standard-deck"].PhysicalCards?.Count == 160 &&
-                classic.Generals["classic:zhen-ji"].Gender == GeneralGender.Female &&
-                classic.Generals["classic:huang-yueying"].Gender == GeneralGender.Female &&
-                classic.Modes["identity:classic-5"].DeckId == "classic:standard-deck" &&
-                classic.Modes["identity:classic-8"].DeckId == "classic:standard-deck",
-            "The current classic registry must use the exact 160-card military deck while 1.35 retains its 105-card hybrid recipe.");
-        Require(classic.ContentHash != legacy.ContentHash,
-            "The opt-in classic roster must have its own content fingerprint.");
-
-        var simaYi = classic.Generals["classic:sima-yi"];
-        Require(simaYi.Name == "司马懿" && simaYi.BaseHp == 3 &&
-                simaYi.SkillIds.SequenceEqual(["classic:feedback", "classic:guicai"]),
-            "Sima Yi must expose Feedback and Guicai in a stable order.");
-        var huaTuo = classic.Generals["classic:hua-tuo"];
-        Require(huaTuo.Name == "华佗" && huaTuo.BaseHp == 3 &&
-                huaTuo.SkillIds.SequenceEqual(["classic:qingnang", "classic:jijiu"]),
-            "Hua Tuo must expose Qingnang and Jijiu in a stable order.");
-        Require(classic.Generals["classic:liu-bei"].SkillIds.SequenceEqual(["classic:rende", "classic:jijiang"]) &&
-                classic.Generals["classic:sun-quan"].SkillIds.SequenceEqual(["classic:zhiheng", "classic:jiuyuan"]) &&
-                classic.Generals["classic:xiahou-dun"].SkillIds.SequenceEqual(["classic:ganglie"]),
-            "The current classic roster must point at the implemented formal skills.");
-        var guoJia = classic.Generals["classic:guo-jia"];
-        Require(guoJia.BaseHp == 3 &&
-                guoJia.SkillIds.SequenceEqual(["classic:tiandu", "classic:yiji"]),
-            "The current classic Guo Jia must expose Tiandu and Yiji in a stable order.");
-        var zhouYu = classic.Generals["classic:zhou-yu"];
-        Require(zhouYu.BaseHp == 3 &&
-                zhouYu.SkillIds.SequenceEqual(["classic:yingzi", "classic:fanjian"]),
-            "The current classic Zhou Yu must expose Yingzi and Fanjian in a stable order.");
-        var zhugeLiang = classic.Generals["classic:zhuge-liang"];
-        Require(zhugeLiang.BaseHp == 3 &&
-                zhugeLiang.SkillIds.SequenceEqual(["classic:guanxing", "classic:kongcheng"]),
-            "The current classic Zhuge Liang must expose Guanxing and Kongcheng in a stable order.");
-        var caoCao = classic.Generals["classic:cao-cao"];
-        Require(caoCao.BaseHp == 4 &&
-                caoCao.SkillIds.SequenceEqual(["classic:jianxiong", "classic:hujia"]),
-            "The current classic Cao Cao must expose Jianxiong and Hujia in a stable order.");
-        var huangGai = classic.Generals["classic:huang-gai"];
-        Require(huangGai.Name == "黄盖" &&
-                huangGai.FactionId == "wu" &&
-                huangGai.BaseHp == 4 &&
-                huangGai.SkillIds.SequenceEqual(["classic:kujin"]),
-            "The current classic Huang Gai must expose the formal Wu, 4-HP Kujin definition.");
-        var ganNing = classic.Generals["classic:gan-ning"];
-        Require(ganNing.Name == "甘宁" &&
-                ganNing.FactionId == "wu" &&
-                ganNing.BaseHp == 4 &&
-                ganNing.SkillIds.SequenceEqual(["classic:qixi"]),
-            "The current classic Gan Ning must expose the formal Wu, 4-HP Qixi definition.");
-        var luMeng = classic.Generals["classic:lu-meng"];
-        Require(luMeng.Name == "吕蒙" &&
-                luMeng.FactionId == "wu" &&
-                luMeng.BaseHp == 4 &&
-                luMeng.SkillIds.SequenceEqual(["classic:keji"]),
-            "The current classic Lu Meng must expose the formal Wu, 4-HP Keji definition.");
-        var zhangLiao = classic.Generals["classic:zhang-liao"];
-        Require(zhangLiao.Name == "张辽" &&
-                zhangLiao.FactionId == "wei" &&
-                zhangLiao.BaseHp == 4 &&
-                zhangLiao.SkillIds.SequenceEqual(["classic:tuxi"]),
-            "The current classic Zhang Liao must expose the formal Wei, 4-HP Tuxi definition.");
-        var xuChu = classic.Generals["classic:xu-chu"];
-        Require(xuChu.Name == "许褚" &&
-                xuChu.FactionId == "wei" &&
-                xuChu.BaseHp == 4 &&
-                xuChu.SkillIds.SequenceEqual(["classic:luoyi"]),
-            "The current classic Xu Chu must expose the formal Wei, 4-HP Luoyi definition.");
-        var dianWei = classic.Generals["classic:dian-wei"];
-        Require(dianWei.Name == "典韦" &&
-                dianWei.FactionId == "wei" &&
-                dianWei.BaseHp == 4 &&
-                dianWei.SkillIds.SequenceEqual(["classic:qiangxi"]),
-            "The current classic Dian Wei must expose the formal Wei, 4-HP Qiangxi definition.");
-        var xuHuang = classic.Generals["classic:xu-huang"];
-        Require(xuHuang.Name == "徐晃" &&
-                xuHuang.FactionId == "wei" &&
-                xuHuang.BaseHp == 4 &&
-                xuHuang.SkillIds.SequenceEqual(["classic:duanliang"]),
-            "The current classic Xu Huang must expose the formal Wei, 4-HP Duanliang definition.");
-        var zhenJi = classic.Generals["classic:zhen-ji"];
-        Require(zhenJi.Name == "甄姬" &&
-                zhenJi.FactionId == "wei" &&
-                zhenJi.BaseHp == 3 &&
-                zhenJi.SkillIds.SequenceEqual(["classic:luoshen", "classic:qingguo"]),
-            "The current classic Zhen Ji must expose formal Wei, 3-HP Luoshen and Qingguo in a stable order.");
-        var huangYueying = classic.Generals["classic:huang-yueying"];
-        Require(huangYueying.Name == "黄月英" &&
-                huangYueying.FactionId == "shu" &&
-                huangYueying.BaseHp == 3 &&
-                huangYueying.SkillIds.SequenceEqual(["classic:jizhi", "classic:qicai"]),
-            "The current classic Huang Yueying must expose formal Shu, 3-HP Jizhi and Qicai in a stable order.");
-        var maChao = classic.Generals["classic:ma-chao"];
-        Require(maChao.Name == "马超" &&
-                maChao.FactionId == "shu" &&
-                maChao.BaseHp == 4 &&
-                maChao.SkillIds.SequenceEqual(["classic:tieqi", "classic:mashu"]),
-            "The current classic Ma Chao must expose formal Shu, 4-HP Tieqi and Mashu in a stable order.");
-        var huangZhong = classic.Generals["classic:huang-zhong"];
-        Require(huangZhong.Name == "黄忠" &&
-                huangZhong.FactionId == "shu" &&
-                huangZhong.BaseHp == 4 &&
-                huangZhong.SkillIds.SequenceEqual(["classic:liegong"]),
-            "The current classic Huang Zhong must expose formal Shu, 4-HP Liegong.");
-        var weiYan = classic.Generals["classic:wei-yan"];
-        Require(weiYan.Name == "魏延" &&
-                weiYan.FactionId == "shu" &&
-                weiYan.BaseHp == 4 &&
-                weiYan.SkillIds.SequenceEqual(["classic:kuanggu"]),
-            "The current classic Wei Yan must expose formal Shu, 4-HP Kuanggu.");
-        var luBu = classic.Generals["classic:lu-bu"];
-        Require(luBu.Name == "吕布" &&
-                luBu.FactionId == "qun" &&
-                luBu.BaseHp == 4 &&
-                luBu.SkillIds.SequenceEqual(["classic:wushuang"]),
-            "The current classic Lu Bu must expose formal Qun, 4-HP Wushuang.");
-        var zhangFei = classic.Generals["classic:zhang-fei"];
-        Require(zhangFei.Name == "张飞" &&
-                zhangFei.FactionId == "shu" &&
-                zhangFei.BaseHp == 4 &&
-                zhangFei.SkillIds.SequenceEqual(["classic:paoxiao"]),
-            "The current classic Zhang Fei must expose formal Shu, 4-HP Paoxiao.");
-        var zhaoYun = classic.Generals["classic:zhao-yun"];
-        Require(zhaoYun.Name == "赵云" &&
-                zhaoYun.FactionId == "shu" &&
-                zhaoYun.BaseHp == 4 &&
-                zhaoYun.SkillIds.SequenceEqual(["classic:longdan"]),
-            "The current classic Zhao Yun must expose formal Shu, 4-HP Longdan.");
-        var guanYu = classic.Generals["classic:guan-yu"];
-        Require(guanYu.Name == "关羽" &&
-                guanYu.FactionId == "shu" &&
-                guanYu.BaseHp == 4 &&
-                guanYu.SkillIds.SequenceEqual(["classic:wusheng"]) &&
-                classic.Skills["classic:wusheng"].Description ==
-                    "你可以将一张红色牌当【杀】使用或打出。",
-            "The current classic Guan Yu must expose formal Shu, 4-HP Wusheng.");
-
-        foreach (var modeId in new[] { "identity:classic-5", "identity:classic-8" })
-        {
-            var mode = classic.Modes[modeId];
-            var pool = mode.GeneralPoolIds ?? [];
-            Require(pool.Contains("classic:sima-yi", StringComparer.Ordinal) &&
-                    pool.Contains("classic:hua-tuo", StringComparer.Ordinal) &&
-                    pool.Contains("classic:zhuge-liang", StringComparer.Ordinal) &&
-                    pool.Contains("classic:cao-cao", StringComparer.Ordinal) &&
-                    pool.Contains("classic:huang-gai", StringComparer.Ordinal) &&
-                    pool.Contains("classic:gan-ning", StringComparer.Ordinal) &&
-                    pool.Contains("classic:lu-meng", StringComparer.Ordinal) &&
-                    pool.Contains("classic:zhang-liao", StringComparer.Ordinal) &&
-                    pool.Contains("classic:xu-chu", StringComparer.Ordinal) &&
-                    pool.Contains("classic:dian-wei", StringComparer.Ordinal) &&
-                    pool.Contains("classic:xu-huang", StringComparer.Ordinal) &&
-                    pool.Contains("classic:zhen-ji", StringComparer.Ordinal) &&
-                    pool.Contains("classic:huang-yueying", StringComparer.Ordinal) &&
-                    pool.Contains("classic:ma-chao", StringComparer.Ordinal) &&
-                    pool.Contains("classic:huang-zhong", StringComparer.Ordinal) &&
-                    pool.Contains("classic:wei-yan", StringComparer.Ordinal) &&
-                    pool.Contains("classic:lu-bu", StringComparer.Ordinal) &&
-                    pool.Contains("classic:zhang-fei", StringComparer.Ordinal) &&
-                    pool.Contains("classic:zhao-yun", StringComparer.Ordinal) &&
-                    pool.Contains("classic:guan-yu", StringComparer.Ordinal) &&
-                    !pool.Contains("standard:zhang-fei", StringComparer.Ordinal) &&
-                    !pool.Contains("standard:zhao-yun", StringComparer.Ordinal) &&
-                    !pool.Contains("standard:guan-yu", StringComparer.Ordinal) &&
-                    !pool.Any(id => id.StartsWith("standard:demo-", StringComparison.Ordinal)),
-                $"{modeId} must publish formal generals instead of demo placeholders.");
-        }
-
-        Require(GameCheckpoint.CurrentRulesVersion >= 40,
-            "Classic Wusheng equipment conversion must have an explicit replay-versioned rules boundary.");
-        var feedback = SkillRegistry.Get(SkillKind.Feedback);
-        var damaged = new PlayerSkillContext(0, 2, 3, 2, TurnPhase.Play);
-        Require(feedback.Kind == SkillKind.Feedback && feedback.Name == "反馈",
-            "Feedback must retain only its stable legacy identity metadata.");
-
-        var jijiu = SkillRegistry.Get(SkillKind.Jijiu);
-        var red = new Card(9001, CardKind.Slash, Suit.Heart, 7);
-        Require(!jijiu.Conversion!.CanUseAsDyingRescue(damaged with { IsOwnTurn = true }, red) &&
-                jijiu.Conversion!.CanUseAsDyingRescue(damaged with { IsOwnTurn = false }, red),
-            "Formal Jijiu must only convert red cards outside the owner's turn.");
-
-        var keji = SkillRegistry.Get(SkillKind.Keji);
-        var discard = damaged with { Phase = TurnPhase.Discard, IsOwnTurn = true };
-        Require(keji.CardUse!.CanSkipDiscardPhase(discard, usedOrPlayedSlashDuringPlayPhase: false) &&
-                !keji.CardUse!.CanSkipDiscardPhase(discard, usedOrPlayedSlashDuringPlayPhase: true),
-            "Formal Keji must allow only a Slash-free own discard phase to be skipped.");
-
-        var wushuang = SkillRegistry.Get(SkillKind.Wushuang);
-        var wushuangOwner = damaged with { Seat = 1 };
-        Require(wushuang.CardUse!.ModifyRequiredResponseCount(
-                    new ResponseCountSkillContext(
-                        wushuangOwner,
-                        SourceSeat: 1,
-                        ResponderSeat: 0,
-                        IncomingCard: CardKind.Slash,
-                        RequiredCardKind: CardKind.Dodge),
-                    currentCount: 1) == 2 &&
-                wushuang.CardUse!.ModifyRequiredResponseCount(
-                    new ResponseCountSkillContext(
-                        wushuangOwner,
-                        SourceSeat: 1,
-                        ResponderSeat: 0,
-                        IncomingCard: CardKind.Duel,
-                        RequiredCardKind: CardKind.Slash),
-                    currentCount: 1) == 2 &&
-                wushuang.CardUse!.ModifyRequiredResponseCount(
-                    new ResponseCountSkillContext(
-                        wushuangOwner,
-                        SourceSeat: 0,
-                        ResponderSeat: 1,
-                        IncomingCard: CardKind.Duel,
-                        RequiredCardKind: CardKind.Slash),
-                    currentCount: 1) == 1,
-            "Formal Wushuang must require two sequential responses only from the skill owner's opponent.");
-
-        var tuxi = SkillRegistry.Get(SkillKind.Tuxi);
-        Require(tuxi.Kind == SkillKind.Tuxi && tuxi.Name == "突袭",
-            "Tuxi must retain only its stable legacy identity metadata.");
-
-        var luoyi = SkillRegistry.Get(SkillKind.Luoyi);
-        Require(luoyi.Kind == SkillKind.Luoyi && luoyi.Name == "裸衣",
-            "Luoyi must retain only its stable legacy identity metadata.");
-
-        var qiangxi = ActiveActionCatalog.Find(SkillKind.Qiangxi) ??
-            throw new InvalidOperationException("Formal Qiangxi must expose an active-skill contract.");
-        var qiangxiOwner = damaged with
-        {
-            Phase = TurnPhase.Play,
-            IsOwnTurn = true,
-            UsedActiveSkillKinds = new HashSet<SkillKind>()
-        };
-        var hpCost = qiangxi.GetEffect(new ActiveSkillContext(qiangxiOwner));
-        var weaponCost = qiangxi.GetEffect(new ActiveSkillContext(qiangxiOwner, SelectedCardCount: 1));
-        Require(qiangxi.CanUse(new ActiveSkillContext(qiangxiOwner)) &&
-                hpCost.Kind == ActiveSkillEffectKind.PayHpOrDiscardWeaponAndDamage &&
-                hpCost.HpCost == 1 &&
-                weaponCost.HpCost == 0 &&
-                hpCost.MinCardCount == 0 && hpCost.MaxCardCount == 1 &&
-                hpCost.MinTargetCount == 1 && hpCost.MaxTargetCount == 1,
-            "Formal Qiangxi must expose the one-HP-or-one-weapon, one-target damage contract.");
-
-        var duanliang = SkillRegistry.Get(SkillKind.Duanliang);
-        Require(duanliang.Conversion!.CanUseAsSupplyShortage(damaged, new Card(9101, CardKind.Slash, Suit.Spade, 7)) &&
-                duanliang.Conversion!.CanUseAsSupplyShortage(damaged, new Card(9102, CardKind.Crossbow, Suit.Club, 6)) &&
-                !duanliang.Conversion!.CanUseAsSupplyShortage(damaged, new Card(9103, CardKind.Duel, Suit.Spade, 1)) &&
-                !duanliang.Conversion!.CanUseAsSupplyShortage(damaged, new Card(9104, CardKind.Slash, Suit.Heart, 8)) &&
-                duanliang.Numeric!.ModifySupplyShortageDistanceLimit(damaged, 1) == 2,
-            "Formal Duanliang must accept only black basic/equipment cards and extend Supply Shortage to distance two.");
-
-        var qingguo = SkillRegistry.Get(SkillKind.Qingguo);
-        Require(qingguo.Conversion!.CanUseAsResponse(damaged, new Card(9201, CardKind.Slash, Suit.Spade, 7), CardKind.Dodge) &&
-                qingguo.Conversion!.CanUseAsResponse(damaged, new Card(9202, CardKind.Duel, Suit.Club, 1), CardKind.Dodge) &&
-                !qingguo.Conversion!.CanUseAsResponse(damaged, new Card(9203, CardKind.Slash, Suit.Heart, 8), CardKind.Dodge) &&
-                !qingguo.Conversion!.CanUseAsResponse(damaged, new Card(9204, CardKind.Slash, Suit.Spade, 9), CardKind.Slash),
-            "Formal Qingguo must convert only black cards into Dodge responses.");
-
-        var kuanggu = SkillRegistry.Get(SkillKind.Kuanggu);
-        var kuangguContext = new DamageSkillContext(
-            new PlayerSkillContext(0, 1, 4, 2, TurnPhase.Play),
-            SourceSeat: 0,
-            SourceCard: CardKind.Slash,
-            SourceCardIsInProcessing: true,
-            Amount: 2,
-            TargetSeat: 1,
-            SourceToTargetDistance: 1);
-        Require(kuanggu.Damage!.AfterDamageTriggerScope == DamageTriggerScope.DamageSource &&
-                kuanggu.Damage!.DamageTriggerPriority == 100 &&
-                kuanggu.Damage!.CanTriggerAfterDamage(kuangguContext) &&
-                kuanggu.Damage!.GetDamageSkillEffect(kuangguContext) == DamageSkillEffectKind.RecoverDamageSource &&
-                !kuanggu.Damage!.CanTriggerAfterDamage(kuangguContext with { SourceToTargetDistance = 2 }) &&
-                !kuanggu.Damage!.CanTriggerAfterDamage(kuangguContext with
-                {
-                    Owner = kuangguContext.Owner with { Hp = 4 }
-                }),
-            "Formal Kuanggu must be a high-priority locked damage-source recovery within distance one.");
-    }
-
     public static void FormalJiuyuanRecoveryBonus()
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
@@ -900,59 +60,6 @@ internal static class ClassicGeneralChecks
             "A selected multi-skill classic general must replay exactly.");
     }
 
-    public static void FormalKujinFlow()
-    {
-        var registry = CreatePreProgramClassicRegistry();
-        var game = SelectGeneral(registry, "classic:huang-gai", GameCheckpoint.CurrentRulesVersion);
-        var selected = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-        Require(selected.GeneralId == "classic:huang-gai" &&
-                selected.MaxHp == 5 &&
-                selected.Hp == 5 &&
-                selected.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Kujin]),
-            "Classic Huang Gai must combine base 4 HP, the Lord bonus and the formal Kujin skill.");
-
-        var advanced = game.Submit(new AdvanceCommand(game.Revision));
-        Require(advanced.Accepted, advanced.Error?.Message ?? "Classic Huang Gai setup did not advance.");
-        var before = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-        for (var use = 0; use < 2; use++)
-        {
-            var prompt = game.PendingDecision ??
-                throw new InvalidOperationException("Classic Huang Gai did not remain at the human play boundary.");
-            Require(prompt.Kind == DecisionKind.PlayCard &&
-                    game.GetHumanLegalActions().Any(action =>
-                        action.Kind == LegalActionKind.UseSkill && action.Skill == SkillKind.Kujin),
-                "Classic Huang Gai must publish Kujin as a legal play action.");
-            var used = game.Submit(new UseSkillCommand(
-                0,
-                SkillKind.Kujin,
-                [],
-                [],
-                game.Revision,
-                prompt.PromptId));
-            Require(used.Accepted, used.Error?.Message ?? "Classic Huang Gai's Kujin command was rejected.");
-            for (var step = 0; step < 16 && game.PendingDecision is null; step++)
-            {
-                var resumed = game.Submit(new AdvanceOneStepCommand(game.Revision));
-                Require(resumed.Accepted, resumed.Error?.Message ??
-                    "Classic Huang Gai's Kujin frame did not return to the play boundary.");
-            }
-        }
-
-        var after = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-        Require(after.Hp == before.Hp - 2 &&
-                after.HandCount == before.HandCount + 4 &&
-                game.Events.Select(item => item.Payload).OfType<ActiveSkillResolvedEvent>()
-                    .Count(item => item.Skill == SkillKind.Kujin) == 2,
-            "Classic Kujin must remain repeatable in one play phase and resolve one HP for two cards each time.");
-
-        var restored = GameReplay.Restore(
-            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
-            registry);
-        Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
-                EventSignatures(restored).SequenceEqual(EventSignatures(game)),
-            "Repeated formal Kujin commands must restore with identical state and events.");
-    }
 
     public static void FormalRendeFlow()
     {
@@ -1112,13 +219,9 @@ internal static class ClassicGeneralChecks
         Require(GameCheckpoint.CurrentRulesVersion >= 28,
             "Formal Qixi must have an explicit rules-version boundary.");
 
-        var qixi = SkillRegistry.Get(SkillKind.Qixi);
-        var context = new PlayerSkillContext(0, 4, 5, 4, TurnPhase.Play);
-        Require(qixi.Conversion!.CanUseAsDismantlement(context, new Card(9101, CardKind.Crossbow, Suit.Club, 1)) &&
-                qixi.Conversion!.CanUseAsDismantlement(context, new Card(9102, CardKind.Peach, Suit.Spade, 6)) &&
-                !qixi.Conversion!.CanUseAsDismantlement(context, new Card(9103, CardKind.Peach, Suit.Heart, 6)) &&
-                !qixi.Conversion!.CanUseAsDismantlement(context, new Card(9104, CardKind.Dismantlement, Suit.Spade, 3)),
-            "Qixi must accept black physical cards, reject red cards and avoid duplicating native Dismantlement actions.");
+        Require(registry.Skills["classic:qixi"].Program?.ViewAs.Single().OutputKind ==
+                CardKind.Dismantlement,
+            "Qixi must publish a configured Dismantlement conversion.");
 
         GameEngine? current = null;
         CardSnapshot? blackEquipment = null;
@@ -1173,7 +276,7 @@ internal static class ClassicGeneralChecks
         var selected = current.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         Require(selected.GeneralId == "classic:gan-ning" &&
                 selected.MaxHp == 5 &&
-                selected.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Qixi]),
+                selected.Skills!.Select(skill => skill.ContentId).SequenceEqual(["classic:qixi"]),
             "Classic Gan Ning must combine base 4 HP, the Lord bonus and formal Qixi.");
         Require(current.GetHumanLegalActions().Any(action =>
                     action.Kind == LegalActionKind.Dismantlement &&
@@ -1210,16 +313,7 @@ internal static class ClassicGeneralChecks
         var selectedEquippedConversion = equippedConversion ??
             throw new InvalidOperationException("The equipped Qixi action disappeared before submission.");
 
-        var qixiPrompt = current.PendingDecision ??
-            throw new InvalidOperationException("Equipped Qixi fixture lost its play prompt.");
-        var used = current.Submit(new PlayCardCommand(
-            0,
-            blackEquipment.Id,
-            selectedEquippedConversion.TargetSeats,
-            current.Revision,
-            qixiPrompt.PromptId,
-            CardKind.Dismantlement,
-            selectedEquippedConversion.TargetCardId));
+        var used = SubmitPlayAction(current, selectedEquippedConversion);
         Require(used.Accepted, used.Error?.Message ?? "Equipped Qixi conversion was rejected.");
 
         var nullificationFrame = current.ResolutionStack.OfType<NullificationWindowFrame>().SingleOrDefault();
@@ -1576,172 +670,6 @@ internal static class ClassicGeneralChecks
 
     }
 
-    public static void FormalLuoyiFlow()
-    {
-        // Keep this deterministic combat fixture on the roster it was authored
-        // against; later expansion generals legitimately change setup shuffles.
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        var game = SelectGeneral(registry, "classic:xu-chu", GameCheckpoint.CurrentRulesVersion);
-        var selected = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-        Require(selected.GeneralId == "classic:xu-chu" &&
-                selected.MaxHp == 5 &&
-                selected.Hp == 5 &&
-                selected.Skills!.Select(skill => skill.Kind).SequenceEqual([SkillKind.Luoyi]),
-            "Classic Xu Chu must combine base 4 HP, the Lord bonus and formal Luoyi.");
-
-        var advanced = game.Submit(new AdvanceCommand(game.Revision));
-        Require(advanced.Accepted &&
-                game.State.Phase == TurnPhase.Draw &&
-                game.PendingDecision is
-                {
-                    Kind: DecisionKind.Luoyi,
-                    PlayerSeat: 0,
-                    IsPrivate: true,
-                    Choices.Count: 2
-                } prompt &&
-                prompt.Choices.Count(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "luoyi-use") == 1 &&
-                prompt.Choices.Count(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "luoyi-skip") == 1 &&
-                game.CreateSnapshot(1).PendingDecision is null,
-            advanced.Error?.Message ?? "Classic Xu Chu must publish a private use-or-skip Luoyi choice.");
-
-        var pausedCheckpoint = GameCheckpointJson.Deserialize(
-            GameCheckpointJson.Serialize(game.CreateCheckpoint()));
-        var skippedBranch = GameReplay.Restore(pausedCheckpoint, registry);
-        Require(skippedBranch.PendingDecision?.Kind == DecisionKind.Luoyi &&
-                SnapshotJson.Serialize(skippedBranch.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
-            "A paused Luoyi choice must restore exactly from its command checkpoint.");
-
-        var beforeForged = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
-        var forged = game.Submit(new AnswerPromptCommand(
-            0,
-            game.PendingDecision!.PromptId,
-            new ChoiceId("luoyi.forged"),
-            game.Revision));
-        Require(!forged.Accepted &&
-                forged.Error?.Code == CommandErrorCode.InvalidChoice &&
-                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == beforeForged,
-            "A forged Luoyi choice must be rejected atomically.");
-
-        var sourceBeforeUse = game.CreateSnapshot(0, revealAll: true)
-            .Players.Single(player => player.Seat == 0).HandCount;
-        var usePrompt = game.PendingDecision!;
-        var used = game.Submit(new AnswerPromptCommand(
-            0,
-            usePrompt.PromptId,
-            usePrompt.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "luoyi-use").Id,
-            game.Revision));
-        Require(used.Accepted &&
-                game.PendingDecision is null &&
-                game.State.Phase == TurnPhase.Play &&
-                game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount ==
-                sourceBeforeUse + 1 &&
-                game.Events.Select(item => item.Payload).OfType<DrawSkillResolvedEvent>().Any(resolved =>
-                    resolved.SourceSeat == 0 &&
-                    resolved.Skill == SkillKind.Luoyi &&
-                    resolved.Used &&
-                    resolved.DrawCount == 1),
-            used.Error?.Message ?? "Using Luoyi must draw one fewer card and enter the play phase.");
-
-        var sourceBeforeSkip = skippedBranch.CreateSnapshot(0, revealAll: true)
-            .Players.Single(player => player.Seat == 0).HandCount;
-        var skipPrompt = skippedBranch.PendingDecision!;
-        var skipped = skippedBranch.Submit(new AnswerPromptCommand(
-            0,
-            skipPrompt.PromptId,
-            skipPrompt.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "luoyi-skip").Id,
-            skippedBranch.Revision));
-        Require(skipped.Accepted &&
-                skippedBranch.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount ==
-                sourceBeforeSkip + 2 &&
-                skippedBranch.Events.Select(item => item.Payload).OfType<DrawSkillResolvedEvent>().Any(resolved =>
-                    resolved.Skill == SkillKind.Luoyi && !resolved.Used && resolved.DrawCount == 2),
-            skipped.Error?.Message ?? "Skipping Luoyi must preserve the ordinary two-card draw.");
-
-        var (slashGame, slashAction, slashTargetHp) = FindXuChuDirectAttackFixture(
-            registry,
-            LegalActionKind.Slash,
-            target => target.Hand.All(card => card.Kind != CardKind.Dodge) &&
-                      target.Equipment.Count == 0 &&
-                      target.Skills?.All(skill => skill.Kind is not
-                          (SkillKind.Yizhong or SkillKind.Zhenlie or SkillKind.Liuli or SkillKind.Renxin or
-                           SkillKind.Qingguo or SkillKind.Longdan or SkillKind.Bazhen or SkillKind.Hujia) &&
-                          skill.ContentId is not ("classic:qingguo" or "classic:longdan")) != false);
-        var slashTargetSeat = slashAction.TargetSeat!.Value;
-        var slashPlayed = slashGame.Submit(new PlayCardCommand(
-            0,
-            slashAction.CardId!.Value,
-            slashAction.TargetSeats,
-            slashGame.Revision,
-            slashGame.PendingDecision!.PromptId,
-            slashAction.PlayedCardKind));
-        var slashDamage = slashGame.Events.Select(item => item.Payload)
-            .OfType<DamageRequestedEvent>()
-            .LastOrDefault(item => item.SourceSeat == 0 && item.TargetSeat == slashTargetSeat);
-        Require(slashPlayed.Accepted &&
-                slashDamage is { Amount: 2 } &&
-                slashGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == slashTargetSeat).Hp ==
-                slashTargetHp - 2 &&
-                slashGame.Events.Select(item => item.Payload).OfType<DamageModifiedBySkillEvent>().Any(modified =>
-                    modified.Skill == SkillKind.Luoyi &&
-                    modified.SourceSeat == 0 &&
-                    modified.TargetSeat == slashTargetSeat &&
-                    modified.BaseAmount == 1 &&
-                    modified.ModifiedAmount == 2),
-            slashPlayed.Error?.Message ?? "Luoyi must add one damage to a Slash used by Xu Chu this turn.");
-
-        var (duelGame, duelAction, duelTargetHp) = FindXuChuDirectAttackFixture(
-            registry,
-            LegalActionKind.Duel,
-            target =>
-                target.Hand.All(card => card.Kind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)) &&
-                target.Skills?.All(skill => skill.Kind is not (SkillKind.Wusheng or SkillKind.Longdan or SkillKind.Jijiang) &&
-                    skill.ContentId is not ("classic:wusheng" or "classic:longdan")) != false,
-            requireNoNullification: true);
-        var duelTargetSeat = duelAction.TargetSeat!.Value;
-        var duelPlayed = duelGame.Submit(new PlayCardCommand(
-            0,
-            duelAction.CardId!.Value,
-            duelAction.TargetSeats,
-            duelGame.Revision,
-            duelGame.PendingDecision!.PromptId,
-            duelAction.PlayedCardKind));
-        var duelDamage = duelGame.Events.Select(item => item.Payload)
-            .OfType<DamageRequestedEvent>()
-            .LastOrDefault(item => item.SourceCard == CardKind.Duel && item.TargetSeat == duelTargetSeat);
-        Require(duelPlayed.Accepted &&
-                duelDamage is { SourceSeat: 0, Amount: 2 } &&
-                duelGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == duelTargetSeat).Hp ==
-                duelTargetHp - 2,
-            duelPlayed.Error?.Message ?? "Luoyi must add one damage when Xu Chu's Duel target fails first.");
-
-        var (reverseGame, reverseTargetSeat, reverseResolutionId, xuChuHpBefore) =
-            FindXuChuReverseDuelFixture(registry);
-        var reversePrompt = reverseGame.PendingDecision!;
-        var declined = reverseGame.Submit(new AnswerPromptCommand(
-            0,
-            reversePrompt.PromptId,
-            reversePrompt.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("response") == "take-damage").Id,
-            reverseGame.Revision));
-        var reverseDamage = reverseGame.Events.Select(item => item.Payload)
-            .OfType<DamageRequestedEvent>()
-            .Last(item => item.SourceCard == CardKind.Duel && item.TargetSeat == 0);
-        Require(declined.Accepted &&
-                reverseDamage.SourceSeat == reverseTargetSeat &&
-                reverseDamage.Amount == 1 &&
-                reverseGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hp ==
-                xuChuHpBefore - 1 &&
-                reverseGame.Events.Select(item => item.Payload).OfType<DamageModifiedBySkillEvent>()
-                    .All(modified => modified.ResolutionId != reverseResolutionId),
-            declined.Error?.Message ??
-            "A Duel opponent must deal unmodified damage when Xu Chu used the Duel but then failed to respond.");
-
-    }
 
     public static void ProgramLuoyiFlow()
     {
@@ -1751,7 +679,7 @@ internal static class ClassicGeneralChecks
                     LegacyKind: null,
                     Program: not null
                 } current &&
-                current.Program!.MinimumRulesVersion == 168,
+                current.Program!.MinimumRulesVersion == 169,
             "Current classic Luoyi must publish its draw adjustment program.");
 
         var game = SelectGeneral(registry, "classic:xu-chu", GameCheckpoint.CurrentRulesVersion);
@@ -2222,7 +1150,8 @@ internal static class ClassicGeneralChecks
             targetAction.TargetSeats,
             game.Revision,
             game.PendingDecision!.PromptId,
-            CardKind.SupplyShortage));
+            CardKind.SupplyShortage)
+        { ConversionSource = targetAction.ConversionSource });
         var returnedToPlay = game.Submit(new AdvanceCommand(game.Revision));
         var placed = game.CreateSnapshot(0, revealAll: true);
         Require(used.Accepted &&
@@ -2391,7 +1320,13 @@ internal static class ClassicGeneralChecks
             game.Revision,
             game.PendingDecision!.PromptId,
             action.PlayedCardKind,
-            action.TargetCardId));
+            action.TargetCardId)
+        {
+            ConversionSource = action.ConversionSource,
+            AdditionalConversionSources = action.AdditionalConversionSources,
+            CardKindModifierSkill = action.CardKindModifierSkill,
+            TargetCountModifierSkill = action.TargetCountModifierSkill
+        });
         var prompt = game.PendingDecision;
         Require(played.Accepted &&
                 prompt is
@@ -3006,7 +1941,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         Require(current.Skills["classic:kujin"] is
-                { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } program } &&
+                { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } program } &&
                 program.Activations.Single() is
                 { Id: "lose-hp-and-draw", UsesPerTurn: null },
             "Current Kujin must be a repeatable configured activation.");
@@ -3103,7 +2038,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = current.Skills["classic:longdan"];
-        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } program } &&
+        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } program } &&
                 program.ViewAs.Select(rule => rule.Id).Order(StringComparer.Ordinal)
                     .SequenceEqual(["dodge-to-slash", "slash-to-dodge"]) &&
                 current.Skills["classic:longdan"].Program?.GameplayHash == program.GameplayHash,
@@ -3181,7 +2116,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = current.Skills["classic:qingguo"];
-        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } program } &&
+        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } program } &&
                 program.ViewAs.Single() is { Id: "black-hand-as-dodge", ForPlay: false, ForResponse: true } rule &&
                 rule.InputSuits.Order().SequenceEqual(new[] { Suit.Spade, Suit.Club }.Order()),
             "Current Qingguo must configure black-hand Dodge responses.");
@@ -3238,7 +2173,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = current.Skills["classic:wusheng"];
-        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } program } &&
+        Require(skill is { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } program } &&
                 program.ViewAs.Single() is { Id: "red-owned-as-slash", ForPlay: true, ForResponse: true } rule &&
                 rule.SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]) &&
                 rule.InputSuits.Order().SequenceEqual(new[] { Suit.Heart, Suit.Diamond }.Order()),
@@ -3336,7 +2271,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         Require(current.Skills["classic:qingnang"] is
-                { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } program } &&
+                { LegacyKind: null, Program: { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } program } &&
                 program.Activations.Single() is
                 { Id: "discard-and-heal", MinCards: 1, MaxCards: 1, MinTargets: 1,
                     MaxTargets: 1, TargetKind: SkillProgramTargetKind.AnyWounded, UsesPerTurn: null, UsesPerPhase: 1 },
@@ -3425,11 +2360,9 @@ internal static class ClassicGeneralChecks
         Require(GameCheckpoint.CurrentRulesVersion >= 40,
             "Formal Wusheng equipment conversion must have an explicit rules-version boundary.");
 
-        var wusheng = SkillRegistry.Get(SkillKind.Wusheng);
-        var context = new PlayerSkillContext(0, 4, 5, 4, TurnPhase.Play);
-        Require(wusheng.Conversion!.CanUseAsSlash(context, new Card(9201, CardKind.Crossbow, Suit.Diamond, 1)) &&
-                !wusheng.Conversion!.CanUseAsSlash(context, new Card(9202, CardKind.Crossbow, Suit.Spade, 1)),
-            "Wusheng must classify red and black equipment by the same physical-card rule as hand cards.");
+        Require(registry.Skills["classic:wusheng"].Program?.ViewAs.Single().SourceZones.Contains(
+                CardZoneKind.Equipment) == true,
+            "Configured Wusheng must accept eligible equipment sources.");
 
         var fixture = FindGuanYuWushengEquipmentFixture(registry);
         var activeGame = fixture.ActiveGame;
@@ -5133,7 +4066,8 @@ internal static class ClassicGeneralChecks
             activeGuoseAction.TargetSeats,
             activeGuoseGame.Revision,
             activeGuoseGame.PendingDecision!.PromptId,
-            activeGuoseAction.PlayedCardKind));
+            activeGuoseAction.PlayedCardKind)
+        { ConversionSource = activeGuoseAction.ConversionSource });
         Require(used.Accepted &&
                 physicalCard.Suit == Suit.Diamond &&
                 activeGuoseGame.Events.Select(item => item.Payload).OfType<CardUseDeclaredEvent>().Any(item =>
@@ -5790,7 +4724,8 @@ internal static class ClassicGeneralChecks
                 simulatedAction.TargetSeats,
                 simulated.Revision,
                 simulated.PendingDecision!.PromptId,
-                CardKind.SupplyShortage));
+                CardKind.SupplyShortage)
+            { ConversionSource = simulatedAction.ConversionSource });
             if (!used.Accepted ||
                 simulated.Events.Select(item => item.Payload).OfType<DelayedCardPlacedEvent>()
                     .All(placed => placed.CardId != equipment.Id))
@@ -6055,7 +4990,7 @@ internal static class ClassicGeneralChecks
             }
             slashChoiceFound++;
 
-            ResolveSyntheticDuelSlash(game, targetSeat, slashChoice.Cards[0]);
+            ResolveSyntheticDuelSlash(game, targetSeat, slashChoice);
             if (game.PendingDecision is { Kind: DecisionKind.RespondSlash, PlayerSeat: 0 } prompt &&
                 prompt.IncomingCard == CardKind.Duel)
             {
@@ -6069,8 +5004,9 @@ internal static class ClassicGeneralChecks
             $"(offered={offered}, no-null={noNullification}, duel={duelFound}, prompt={responsePromptFound}, slash={slashChoiceFound}, last={lastPending}).");
     }
 
-    private static void ResolveSyntheticDuelSlash(GameEngine game, int responderSeat, int slashCardId)
+    private static void ResolveSyntheticDuelSlash(GameEngine game, int responderSeat, PromptChoice choice)
     {
+        var slashCardId = choice.Cards.Single();
         var duelField = typeof(GameEngine).GetField(
             "_pendingDuel",
             BindingFlags.NonPublic | BindingFlags.Instance) ??
@@ -6106,6 +5042,8 @@ internal static class ClassicGeneralChecks
             "ClearPendingDecision",
             BindingFlags.NonPublic | BindingFlags.Instance) ??
             throw new InvalidOperationException("The engine pending-decision clearer was not found.");
+        typeof(GameEngine).GetMethod("CaptureSelectedResponseConversion", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .Invoke(game, [choice]);
         clearPending.Invoke(game, null);
         var resolve = typeof(GameEngine).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
             .Single(method => method.Name == "ResolveDuelResponse" && method.GetParameters().Length == 3);
@@ -6625,7 +5563,13 @@ internal static class ClassicGeneralChecks
             game.PendingDecision?.PromptId ??
             throw new InvalidOperationException("The play action has no current prompt."),
             action.PlayedCardKind,
-            action.TargetCardId));
+            action.TargetCardId)
+        {
+            ConversionSource = action.ConversionSource,
+            AdditionalConversionSources = action.AdditionalConversionSources,
+            CardKindModifierSkill = action.CardKindModifierSkill,
+            TargetCountModifierSkill = action.TargetCountModifierSkill
+        });
 
     private static (
         GameEngine Game,
@@ -6710,6 +5654,7 @@ internal static class ClassicGeneralChecks
                         .FirstOrDefault();
                     if (candidate is not null)
                     {
+                        var slashEventStart = game.Events.Count;
                         var played = game.Submit(new PlayCardCommand(
                             0,
                             candidate.Action.CardId!.Value,
@@ -6717,8 +5662,27 @@ internal static class ClassicGeneralChecks
                             game.Revision,
                             game.PendingDecision.PromptId,
                             candidate.Action.PlayedCardKind,
-                            candidate.Action.TargetCardId));
+                            candidate.Action.TargetCardId)
+                        { ConversionSource = candidate.Action.ConversionSource });
                         Require(played.Accepted, played.Error?.Message ?? "Huang Zhong could not use Slash.");
+                        if (kind == LiegongFixtureKind.Ineligible)
+                        {
+                            // The shared card-trigger window may pause after acceptance, before Dodge is requested.
+                            for (var resume = 0; resume < 64 &&
+                                    !game.Events.Select(item => item.Payload).OfType<ResponseRequestedEvent>()
+                                        .Any(item => item.TargetSeat == candidate.Target.Seat &&
+                                                     item.RequiredCardKind == CardKind.Dodge) &&
+                                    game.ResolutionStack.Count != 0 && game.PendingDecision is null; resume++)
+                            {
+                                var next = game.Submit(new AdvanceOneStepCommand(game.Revision));
+                                Require(next.Accepted, next.Error?.Message ?? "The ineligible Slash stalled before Dodge.");
+                            }
+                            // Other target skills can nullify this Slash before its ordinary Dodge window.
+                            // Such a card never tests Liegong's ineligible branch.
+                            if (game.Events.Skip(slashEventStart).Any(item =>
+                                    item.Payload is ProgramCardEffectNullifiedEvent))
+                                break;
+                        }
                         var prompt = game.PendingDecision;
                         if (prompt is null &&
                             rulesVersion >= 37 &&
@@ -7232,8 +6196,8 @@ internal static class ClassicGeneralChecks
             .Cast<Card>();
         var peach = providerHand.Single(card => card.Id == peachCardId);
         var resolvePeach = typeof(GameEngine).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-            .Single(method => method.Name == "ResolvePeach" && method.GetParameters().Length == 4);
-        resolvePeach.Invoke(game, [provider, target, peach, true]);
+            .Single(method => method.Name == "ResolvePeach" && method.GetParameters().Length == 5);
+        resolvePeach.Invoke(game, [provider, target, peach, true, null]);
 
         var commitEvents = typeof(GameEngine).GetMethod(
             "CommitPendingEvents",

@@ -180,7 +180,7 @@ internal static class SkillMetadataChecks
                     ExecutionForms: SkillExecutionForm.State
                 } definition && definition.LegacyKind == kind &&
                 (skillId != "classic:mashu" ||
-                 definition.Program is { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 }),
+                 definition.Program is { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 }),
                 $"Current classic content did not give {skillId} its locked-state identity.");
             Require(!previous.Skills.ContainsKey(skillId),
                 $"Package 1.71.0 unexpectedly contains {skillId}.");
@@ -210,7 +210,7 @@ internal static class SkillMetadataChecks
                     LegacyKind: null,
                     Tags: SkillTag.Locked,
                     ExecutionForms: SkillExecutionForm.State,
-                    Program.RuntimeVersion: "skill-program-v58"
+                    Program.RuntimeVersion: "skill-program-v59"
                 } &&
                 current.Skills["standard:qicai"].Tags == SkillTag.None,
             "The classic identity migration and current rule-query package must retain independent metadata.");
@@ -662,8 +662,8 @@ internal static class SkillMetadataChecks
             choice.Parameters.GetValueOrDefault("skill-id") == "classic:niepan");
         Require(game.Submit(new AnswerPromptCommand(0, dying.PromptId, niepan.Id, game.Revision)).Accepted,
             "Structured Niepan was rejected.");
-        Require(GetStructuredNiepanUsage(game) == 1 && !HasLegacyNiepanUsage(game),
-            "Current program Niepan must consume its instance-scoped game record rather than the legacy set.");
+        Require(GetStructuredNiepanUsage(game) == 1,
+            "Current program Niepan must consume its instance-scoped game record.");
 
         var checkpoint = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint()));
         var restored = GameReplay.Restore(checkpoint, registry);
@@ -704,16 +704,6 @@ internal static class SkillMetadataChecks
             "classic:niepan",
             "activation@template:primary:classic:niepan",
             SkillUsageScope.Game);
-    }
-
-    private static bool HasLegacyNiepanUsage(GameEngine game)
-    {
-        var field = typeof(GameEngine).GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!;
-        var players = (System.Collections.IList)field.GetValue(game)!;
-        var used = (HashSet<SkillKind>)players[0]!.GetType()
-            .GetProperty("UsedLimitedSkillKinds")!
-            .GetValue(players[0])!;
-        return used.Contains(SkillKind.Niepan);
     }
 
     private sealed class MetadataFixture(
@@ -803,7 +793,7 @@ internal static class SkillMetadataChecks
         }
 
         private const string DyingRules = """
-            {"schemaVersion":58,"skills":[{"id":"fixture:lose-hp","revision":1,
+            {"schemaVersion":59,"skills":[{"id":"fixture:lose-hp","revision":1,
             "modifiers":[],"viewAs":[],"activations":[{"id":"invoke","minCards":0,"maxCards":0,
             "minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,
             "effects":[{"op":"loseHp","target":"owner","amount":5}]}]}]}

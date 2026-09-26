@@ -17,7 +17,7 @@ public sealed partial class GameEngine
                 ? frame : null;
 
         public SkillProgram GetProgram(string skillId) =>
-            engine._contentRegistry?.Skills.GetValueOrDefault(skillId)?.Program
+            engine._contentRegistry.Skills.GetValueOrDefault(skillId)?.Program
                 ?? throw new InvalidOperationException("A running program is missing its compiled definition.");
 
         public SkillProgramActorState GetActor(int seat)

@@ -38,7 +38,7 @@ public sealed partial class GameEngine
         JudgmentTriggerCandidate candidate)
     {
         if (!candidate.IsProgram || candidate.ProgramId is null || candidate.ProgramTriggerId is null ||
-            candidate.GameplayHash is null || _contentRegistry is null)
+            candidate.GameplayHash is null)
             throw new InvalidOperationException("The judgment replacement candidate has no configured identity.");
         var program = _contentRegistry.Skills[candidate.ProgramId].Program ??
             throw new InvalidOperationException("The judgment replacement program is unavailable.");

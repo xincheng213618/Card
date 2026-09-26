@@ -26,7 +26,7 @@ internal static class GuoHuaiChecks
                     ActionForms: SkillActionForm.None,
                     Program:
                     {
-                        MinimumRulesVersion: 168
+                        MinimumRulesVersion: 169
                     } program
                 } && program.Triggers.Single() is
                 {

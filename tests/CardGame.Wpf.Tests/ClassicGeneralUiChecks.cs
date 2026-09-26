@@ -1252,6 +1252,7 @@ internal static class ClassicGeneralUiChecks
         var duanliangCard = duanliangViewModel.Hand.Single(card => card.Id == duanliangAction.CardId);
         var duanliangTarget = duanliangViewModel.Seats.Single(seat => seat.Seat == duanliangAction.TargetSeat);
         duanliangViewModel.SelectCardCommand.Execute(duanliangCard);
+        SelectConversion(duanliangViewModel, duanliangAction);
         duanliangViewModel.SelectTargetCommand.Execute(duanliangTarget);
         Program.Assert(duanliangViewModel.CanPlaySelectedAsSlash &&
                        duanliangViewModel.PlayButtonText == "当作兵粮寸断使用" &&
@@ -2302,11 +2303,18 @@ internal static class ClassicGeneralUiChecks
                        equipmentPlayChoice.Description.Contains("牌型转化", StringComparison.Ordinal),
             "Formal Qixi must render a dedicated equipment conversion entry.");
         qixiViewModel.SelectEquipmentPlayChoiceCommand.Execute(equipmentPlayChoice);
+        var qixiAction = qixiEngine.GetHumanLegalActions().First(action =>
+            action.CardId == blackEquipmentCard.Id &&
+            action.PlayedCardKind == CardKind.Dismantlement &&
+            action.ConversionSource?.SkillId == "classic:qixi");
+        SelectConversion(qixiViewModel, qixiAction);
         var qixiTarget = qixiViewModel.Seats.First(seat => seat.IsLegalTarget);
         qixiViewModel.SelectTargetCommand.Execute(qixiTarget);
         Program.Assert(qixiViewModel.CanPlaySelectedAsSlash &&
                        qixiViewModel.PlayButtonText == "当作过河拆桥使用" &&
-                       qixiViewModel.EquipmentPlayChoices.Single().Description.Contains("已选择", StringComparison.Ordinal),
+                       qixiViewModel.EquipmentPlayChoices.Any(choice =>
+                           choice.Parameters.GetValueOrDefault("conversion-skill-id") == "classic:qixi" &&
+                           choice.Description.StartsWith("✓", StringComparison.Ordinal)),
             "Selecting equipped Qixi cost must enable target selection and name the effective Dismantlement action.");
         Program.Render(qixiRoot, 1120, 740,
             Path.Combine(output, "83-classic-qixi-equipment.png"));
@@ -2951,6 +2959,17 @@ internal static class ClassicGeneralUiChecks
         throw new InvalidOperationException("Could not find a deterministic classic Qixi equipment WPF fixture.");
     }
 
+    private static void SelectConversion(MainViewModel viewModel, LegalAction action)
+    {
+        var source = action.ConversionSource ?? throw new InvalidOperationException("Expected a published conversion source.");
+        var choice = viewModel.EquipmentPlayChoices.Single(choice =>
+            choice.Cards.SequenceEqual([action.CardId!.Value]) &&
+            choice.Parameters.GetValueOrDefault("conversion-skill-id") == source.SkillId &&
+            choice.Parameters.GetValueOrDefault("conversion-binding-id") == source.BindingId &&
+            choice.Parameters.GetValueOrDefault("conversion-instance-id") == source.SkillInstanceId);
+        viewModel.SelectEquipmentPlayChoiceCommand.Execute(choice);
+    }
+
     private static MainViewModel FindClassicDuanliangViewModel()
     {
         for (var seed = 1; seed <= 8_192; seed++)
@@ -2973,7 +2992,7 @@ internal static class ClassicGeneralUiChecks
                 var engine = Program.Engine(candidate);
                 var snapshot = engine.CreateSnapshot(0, revealAll: true);
                 if (engine.PendingDecision?.Kind == DecisionKind.PlayCard &&
-                    snapshot.Players.All(player => player.Skills?.All(skill => skill.Kind != SkillKind.Kanpo) != false) &&
+                    snapshot.Players.All(player => player.Skills?.All(skill => skill.ContentId != "classic:kanpo") != false) &&
                     snapshot.Players.SelectMany(player => player.Hand)
                         .All(card => card.Kind != CardKind.Nullification) &&
                     engine.GetHumanLegalActions().Any(action =>

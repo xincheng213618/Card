@@ -8,7 +8,8 @@ internal static class SilverLionChecks
         var game = boundary.Game;
         var hp = game.CreateSnapshot(boundary.SourceSeat, revealAll: true).Players[boundary.TargetSeat].Hp;
         var result = game.Submit(new PlayCardCommand(boundary.SourceSeat, boundary.Action.CardId!.Value, [],
-            game.Revision, game.PendingDecision!.PromptId));
+            game.Revision, game.PendingDecision!.PromptId, boundary.Action.PlayedCardKind)
+        { ConversionSource = boundary.Action.ConversionSource });
         Require(result.Accepted, result.Error?.Message ?? "Alcohol was rejected.");
         if (game.PendingDecision is null)
         {
@@ -26,7 +27,8 @@ internal static class SilverLionChecks
         Require(scoredSlash.Reason.Contains("白银狮子", StringComparison.Ordinal),
             "AI Slash scoring must account for the target's public Silver Lion damage cap.");
         result = game.Submit(new PlayCardCommand(boundary.SourceSeat, slash!.CardId!.Value, slash.TargetSeats,
-            game.Revision, game.PendingDecision!.PromptId, slash.PlayedCardKind));
+            game.Revision, game.PendingDecision!.PromptId, slash.PlayedCardKind)
+        { ConversionSource = slash.ConversionSource });
         Require(result.Accepted, result.Error?.Message ?? "Silver Lion Slash was rejected.");
         var capped = game.Events.Select(item => item.Payload).OfType<SilverLionDamageCappedEvent>()
             .LastOrDefault(item => item.TargetSeat == boundary.TargetSeat);
@@ -53,7 +55,9 @@ internal static class SilverLionChecks
         var game = boundary.Game;
         var before = game.CreateSnapshot(boundary.SourceSeat, revealAll: true).Players[boundary.TargetSeat];
         var result = game.Submit(new PlayCardCommand(boundary.SourceSeat, boundary.Action.CardId!.Value,
-            boundary.Action.TargetSeats, game.Revision, game.PendingDecision!.PromptId));
+            boundary.Action.TargetSeats, game.Revision, game.PendingDecision!.PromptId,
+            boundary.Action.PlayedCardKind, boundary.Action.TargetCardId)
+        { ConversionSource = boundary.Action.ConversionSource });
         Require(result.Accepted, result.Error?.Message ?? "Silver Lion Dismantlement was rejected.");
         if (game.PendingDecision is { Kind: DecisionKind.SelectTargetCard, PlayerSeat: var seat } prompt)
         {

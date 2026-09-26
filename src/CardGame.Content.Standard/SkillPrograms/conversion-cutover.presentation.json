@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "standard:wusheng":{"name":"武圣","description":"红色牌可当作杀使用或打出。"},
+    "standard:longdan":{"name":"龙胆","description":"杀可当闪，闪可当杀使用或打出。"},
+    "standard:jijiu":{"name":"急救","description":"你的回合外可将一张红色牌当【桃】救援濒死角色。"},
+    "classic:jijiu":{"name":"急救","description":"你的回合外，你可以将一张红色牌当【桃】使用。"},
+    "classic:qixi":{"name":"奇袭","description":"你可以将一张黑色牌当【过河拆桥】使用。"},
+    "boundary:qixi":{"name":"奇袭","description":"你可以将一张黑色牌当【过河拆桥】使用。"},
+    "classic:duanliang":{"name":"断粮","description":"你可以将一张黑色基本牌或黑色装备牌当【兵粮寸断】使用；你可以对距离为2的角色使用【兵粮寸断】。"},
+    "classic:guose":{"name":"国色","description":"你可以将一张方块牌当【乐不思蜀】使用。"},
+    "classic:huoji":{"name":"火计","description":"你可以将一张红色手牌当【火攻】使用。"},
+    "classic:kanpo":{"name":"看破","description":"你可以将一张黑色手牌当【无懈可击】使用。"},
+    "classic:lianhuan":{"name":"连环","description":"出牌阶段，你可以将一张梅花手牌当【铁索连环】使用或重铸。"},
+    "sp:guan-yu-wusheng":{"name":"武圣","description":"你可以将一张红色牌当【杀】使用或打出；你使用或打出的方块【杀】无距离限制。"}
+  }
+}

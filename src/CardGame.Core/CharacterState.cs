@@ -56,7 +56,6 @@ public sealed class CharacterState
     public Dictionary<PlayerMarkerKind, int> Markers { get; } = [];
     public Dictionary<(PlayerMarkerKind Marker, int SkillOwnerSeat), int> MarkerSourceCounts { get; } = [];
     public HashSet<SkillKind> UsedActiveSkillKinds { get; } = [];
-    public HashSet<SkillKind> UsedLimitedSkillKinds { get; } = [];
     public CharacterSkillSet SkillGrants { get; } = new();
     public IReadOnlyList<string> AcquiredSkillIds => SkillGrants.Grants
         .Where(grant => grant.IsEnabled && grant.SourceId.StartsWith("acquired:", StringComparison.Ordinal))

@@ -18,7 +18,7 @@ internal static class ProgramCompositionDefinitionChecks
         Require(programs.Length > 0, "Current content must contain executable programs.");
         foreach (var program in programs)
         {
-            Require(program.RuntimeVersion == "skill-program-v58" && program.MinimumRulesVersion == 168,
+            Require(program.RuntimeVersion == "skill-program-v59" && program.MinimumRulesVersion == 169,
                 $"Program {program.Id} must use the current contract.");
             foreach (var activation in program.Activations)
                 Require(ProgramInstructionResolver.Default.Resolve(program, ProgramInstructionSourceKind.Activation,
@@ -317,7 +317,7 @@ internal static class ProgramCompositionDefinitionChecks
         """;
         var cardProgram = Load("fixture:card24", Rules("fixture:card24", cardEffects,
             $"\"activations\":[],\"triggers\":[{cardTrigger}]"));
-        Require(cardProgram.RuntimeVersion == "skill-program-v58" && cardProgram.MinimumRulesVersion == 168,
+        Require(cardProgram.RuntimeVersion == "skill-program-v59" && cardProgram.MinimumRulesVersion == 169,
             "Schema 24 card-action programs must use the shared executor without changing schema 23.");
         const string actorEffects = """[{"op":"draw","target":"actor","amount":1}]""";
         var actorTrigger = $$"""
@@ -347,8 +347,8 @@ internal static class ProgramCompositionDefinitionChecks
         """;
         var restrictionProgram = Load("fixture:restriction32", Rules("fixture:restriction32", restrictionEffects,
             $"\"activations\":[],\"triggers\":[{restrictionTrigger}]"));
-        Require(restrictionProgram.RuntimeVersion == "skill-program-v58" &&
-                restrictionProgram.MinimumRulesVersion == 168,
+        Require(restrictionProgram.RuntimeVersion == "skill-program-v59" &&
+                restrictionProgram.MinimumRulesVersion == 169,
             "Schema 32 hand-color restriction programs must retain their exact runtime boundary.");
 
         const string preventionEffects = """[{"op":"preventCurrentDamage","target":"owner"}]""";
@@ -359,8 +359,8 @@ internal static class ProgramCompositionDefinitionChecks
         """;
         var preventionProgram = Load("fixture:prevention33", Rules("fixture:prevention33", preventionEffects,
             $"\"activations\":[],\"triggers\":[{preventionTrigger}]"));
-        Require(preventionProgram.RuntimeVersion == "skill-program-v58" &&
-                preventionProgram.MinimumRulesVersion == 168 &&
+        Require(preventionProgram.RuntimeVersion == "skill-program-v59" &&
+                preventionProgram.MinimumRulesVersion == 169 &&
                 preventionProgram.Triggers.Single().Window == SkillProgramTriggerWindow.BeforeDamageApplied,
             "Schema 33 before-damage prevention programs must retain their exact runtime boundary.");
 
@@ -377,8 +377,8 @@ internal static class ProgramCompositionDefinitionChecks
         """;
         var categoryProgram = Load("fixture:category34", Rules("fixture:category34", categoryEffects,
             $"\"activations\":[{categoryActivation}],\"triggers\":[]"));
-        Require(categoryProgram.RuntimeVersion == "skill-program-v58" &&
-                categoryProgram.MinimumRulesVersion == 168 &&
+        Require(categoryProgram.RuntimeVersion == "skill-program-v59" &&
+                categoryProgram.MinimumRulesVersion == 169 &&
                 categoryProgram.Activations.Single() is { MinCards: 1, MaxCards: 3 } activation &&
                 activation.Effects.Select(effect => effect.Op).SequenceEqual([
                     SkillProgramEffectOp.CaptureSelectedCards,
@@ -389,8 +389,8 @@ internal static class ProgramCompositionDefinitionChecks
             "Schema 34 category challenges must retain variable activation cards, exact choice binding and bound-card draws.");
 
         static string MultiCardRules() => $$$"""
-        {"schemaVersion":58,"skills":[{"id":"fixture:multi-card","revision":1,
-         "minimumRulesVersion":168,"modifiers":[],
+        {"schemaVersion":59,"skills":[{"id":"fixture:multi-card","revision":1,
+         "minimumRulesVersion":169,"modifiers":[],
          "viewAs":[{"id":"two-as-slash","inputKinds":[],"inputSuits":[],"inputCount":2,
           "outputKind":"slash","forPlay":true,"forResponse":true,"condition":{"kind":"always"}}],
          "activations":[{"id":"two-as-slash","minCards":2,"maxCards":2,"sourceZones":["hand"],
@@ -404,8 +404,8 @@ internal static class ProgramCompositionDefinitionChecks
          "contributions":[],"cardIdentities":[]}]}
         """;
         var multiCardProgram = Load("fixture:multi-card", MultiCardRules());
-        Require(multiCardProgram.RuntimeVersion == "skill-program-v58" &&
-                multiCardProgram.MinimumRulesVersion == 168 &&
+        Require(multiCardProgram.RuntimeVersion == "skill-program-v59" &&
+                multiCardProgram.MinimumRulesVersion == 169 &&
                 multiCardProgram.ViewAs.Single() is { Id: "two-as-slash", InputCount: 2 } &&
                 multiCardProgram.Activations.Single().Effects.Single().Op ==
                     SkillProgramEffectOp.UseSelectedCardsAs &&
@@ -427,8 +427,8 @@ internal static class ProgramCompositionDefinitionChecks
         """;
         var allHandProgram = Load("fixture:all-hand-trick", Rules("fixture:all-hand-trick", allHandEffects,
             $"\"activations\":[{allHandActivation}],\"triggers\":[]"));
-        Require(allHandProgram.RuntimeVersion == "skill-program-v58" &&
-                allHandProgram.MinimumRulesVersion == 168 &&
+        Require(allHandProgram.RuntimeVersion == "skill-program-v59" &&
+                allHandProgram.MinimumRulesVersion == 169 &&
                 allHandProgram.Activations.Single().Effects.Single() is
                 {
                     Op: SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick,
@@ -450,7 +450,7 @@ internal static class ProgramCompositionDefinitionChecks
         var completeZoneProgram = Load("fixture:complete-zone", Rules("fixture:complete-zone", completeZoneEffects,
             $"\"activations\":[],\"triggers\":[{completeZoneTrigger}]"));
         var completeZoneProgramEffects = completeZoneProgram.Triggers.Single().Effects;
-        Require(completeZoneProgram.RuntimeVersion == "skill-program-v58" &&
+        Require(completeZoneProgram.RuntimeVersion == "skill-program-v59" &&
                 completeZoneProgramEffects[0].NumberExpression == SkillProgramNumberExpression.AllOwnedZoneCards &&
                 completeZoneProgramEffects[2].Condition.Kind == SkillProgramConditionKind.BoundCardsSameColor &&
                 completeZoneProgramEffects[2].SkipIfNoCards,
@@ -460,8 +460,8 @@ internal static class ProgramCompositionDefinitionChecks
             """[{"op":"grantTurnRuleModifier","target":"owner","ruleQuery":"attackRange","ruleOperation":"unlimited"}]""";
         var attackRangeProgram = Load("fixture:attack-range48", Rules("fixture:attack-range48", attackRangeEffects,
             Entries(attackRangeEffects, includeTriggers: false)));
-        Require(attackRangeProgram.RuntimeVersion == "skill-program-v58" &&
-                attackRangeProgram.MinimumRulesVersion == 168 &&
+        Require(attackRangeProgram.RuntimeVersion == "skill-program-v59" &&
+                attackRangeProgram.MinimumRulesVersion == 169 &&
                 attackRangeProgram.Activations.Single().Effects.Single() is
                 {
                     RuleQuery: SkillRuleQuery.AttackRange,
@@ -473,8 +473,8 @@ internal static class ProgramCompositionDefinitionChecks
             """[{"op":"draw","target":"owner","amount":2,"resultBind":"drawn"},{"op":"distributeOwnedCards","target":"owner","zones":["hand"],"numberExpression":"boundCardCount","sourceBind":"drawn","targetKind":"otherLiving","allowDeclineBeforeFirst":true}]""";
         var distributionProgram = Load("fixture:distribution49", Rules("fixture:distribution49", distributionEffects,
             Entries(distributionEffects, includeTriggers: false)));
-        Require(distributionProgram.RuntimeVersion == "skill-program-v58" &&
-                distributionProgram.MinimumRulesVersion == 168 &&
+        Require(distributionProgram.RuntimeVersion == "skill-program-v59" &&
+                distributionProgram.MinimumRulesVersion == 169 &&
                 distributionProgram.Activations.Single().Effects[1] is
                 {
                     Op: SkillProgramEffectOp.DistributeOwnedCards,
@@ -491,8 +491,8 @@ internal static class ProgramCompositionDefinitionChecks
             """{"id":"aid","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"usesPerGame":1,"effects":[{"op":"requestAttackRangeAid","target":"selectedTarget"}]}""";
         var attackRangeAidProgram = Load("fixture:attack-range-aid50", Rules("fixture:attack-range-aid50", attackRangeAidEffects,
             $"\"activations\":[{attackRangeAidActivation}],\"triggers\":[]"));
-        Require(attackRangeAidProgram.RuntimeVersion == "skill-program-v58" &&
-                attackRangeAidProgram.MinimumRulesVersion == 168 &&
+        Require(attackRangeAidProgram.RuntimeVersion == "skill-program-v59" &&
+                attackRangeAidProgram.MinimumRulesVersion == 169 &&
                 attackRangeAidProgram.Activations.Single() is
                 {
                     UsesPerGame: 1,
@@ -522,8 +522,8 @@ internal static class ProgramCompositionDefinitionChecks
             "must be owner");
         var nullifyProgram = Load("fixture:nullify51", Rules("fixture:nullify51", nullifyCardEffect,
             $"\"activations\":[],\"triggers\":[{NullifyTrigger(nullifyCondition, "\"slash\",\"duel\"")}]"));
-        Require(nullifyProgram.RuntimeVersion == "skill-program-v58" &&
-                nullifyProgram.MinimumRulesVersion == 168 &&
+        Require(nullifyProgram.RuntimeVersion == "skill-program-v59" &&
+                nullifyProgram.MinimumRulesVersion == 169 &&
                 nullifyProgram.Triggers.Single() is
                 {
                     Window: SkillProgramTriggerWindow.CardUseBeforeTargetEffects,
@@ -545,8 +545,8 @@ internal static class ProgramCompositionDefinitionChecks
             .Replace("\"modifiers\":[]", $"\"modifiers\":[{targetCountModifier}]", StringComparison.Ordinal)
             .Replace("\"viewAs\":[]", $"\"viewAs\":[{chainedViewAs}]", StringComparison.Ordinal);
         var schema52Program = Load("fixture:target-count52", schema52Rules);
-        Require(schema52Program.RuntimeVersion == "skill-program-v58" &&
-                schema52Program.MinimumRulesVersion == 168 &&
+        Require(schema52Program.RuntimeVersion == "skill-program-v59" &&
+                schema52Program.MinimumRulesVersion == 169 &&
                 schema52Program.Modifiers.Single() is
                 { Query: SkillRuleQuery.CardTargetCount, Operation: SkillRuleOperation.Add, Value: 1 } targetCount &&
                 targetCount.CardKinds.SequenceEqual([CardKind.FireSlash]) &&
@@ -620,7 +620,7 @@ internal static class ProgramCompositionDefinitionChecks
         })).Programs[id];
 
     private static string Rules(string id, string effects, string entries) => $$"""
-    {"schemaVersion":58,"skills":[{"id":"{{id}}","revision":1,"minimumRulesVersion":168,
+    {"schemaVersion":59,"skills":[{"id":"{{id}}","revision":1,"minimumRulesVersion":169,
     "modifiers":[],"viewAs":[],{{entries}},"contributions":[],"cardIdentities":[]}]}
     """;
 

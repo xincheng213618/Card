@@ -295,8 +295,8 @@ internal static class BoundaryCaoCaoChecks
         const string generalId = "fixture:bound-claim-owner";
         const string modeId = "identity:classic-bound-claim-check-5";
         const string rules = """
-            {"schemaVersion":58,"skills":[{"id":"fixture:bound-claim","revision":1,
-              "minimumRulesVersion":168,"triggers":[{"id":"draw-then-claim","window":"afterDamageApplied",
+            {"schemaVersion":59,"skills":[{"id":"fixture:bound-claim","revision":1,
+              "minimumRulesVersion":169,"triggers":[{"id":"draw-then-claim","window":"afterDamageApplied",
               "subject":"owner","damageOccurrence":"perDamage","optional":true,"priority":0,
               "effects":[{"op":"draw","target":"owner","amount":1,"resultBind":"drawn"},
               {"op":"claimDamageCards","target":"owner",

@@ -17,7 +17,7 @@ internal static class BoundaryGanNingChecks
         Require(current.Generals["classic:gan-ning"].SkillIds.SequenceEqual(["classic:qixi"]) &&
             general.Name == "界甘宁" && general.BaseHp == 4 && general.FactionId == "wu" &&
             general.SkillIds.SequenceEqual(["boundary:qixi", SkillId]) &&
-            current.Skills["boundary:qixi"].LegacyKind == SkillKind.Qixi &&
+            current.Skills["boundary:qixi"].Program?.ViewAs.Single().OutputKind == CardKind.Dismantlement &&
             current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
             current.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId) &&
             !current.Modes["identity:classic-boundary-5"].GeneralPoolIds!.Contains(GeneralId) &&
@@ -480,7 +480,14 @@ internal static class BoundaryGanNingChecks
     private static void Play(GameEngine game, LegalAction action)
     {
         var result = game.Submit(new PlayCardCommand(0, action.CardId!.Value,
-            action.TargetSeats, game.Revision, game.PendingDecision!.PromptId));
+            action.TargetSeats, game.Revision, game.PendingDecision!.PromptId,
+            action.PlayedCardKind, action.TargetCardId)
+        {
+            ConversionSource = action.ConversionSource,
+            AdditionalConversionSources = action.AdditionalConversionSources,
+            CardKindModifierSkill = action.CardKindModifierSkill,
+            TargetCountModifierSkill = action.TargetCountModifierSkill
+        });
         Require(result.Accepted, result.Error?.Message ?? "Fenwei fixture card use failed.");
     }
 
@@ -523,8 +530,8 @@ internal static class BoundaryGanNingChecks
             if (preEffectDeath)
             {
                 var catalog = SkillProgramCatalog.Load("""
-                    {"schemaVersion":58,"skills":[{"id":"fixture:before-effect-death","revision":1,
-                    "minimumRulesVersion":168,"triggers":[{"id":"die-first",
+                    {"schemaVersion":59,"skills":[{"id":"fixture:before-effect-death","revision":1,
+                    "minimumRulesVersion":169,"triggers":[{"id":"die-first",
                     "window":"cardUseBeforeTargetEffects","ownerRelation":"target",
                     "cardKinds":["barbarianAssault"],"optional":false,"priority":100,
                     "effects":[{"op":"loseHp","target":"owner","amount":4}]}]}]}
@@ -537,8 +544,8 @@ internal static class BoundaryGanNingChecks
             if (delayedTrickObserver)
             {
                 var catalog = SkillProgramCatalog.Load("""
-                    {"schemaVersion":58,"skills":[{"id":"fixture:delayed-trick-observer","revision":1,
-                    "minimumRulesVersion":168,"triggers":[{"id":"observe-delayed",
+                    {"schemaVersion":59,"skills":[{"id":"fixture:delayed-trick-observer","revision":1,
+                    "minimumRulesVersion":169,"triggers":[{"id":"observe-delayed",
                     "window":"cardUseBeforeTargetEffects","ownerRelation":"observer",
                     "cardKinds":["indulgence"],"cardCategories":["trick"],"optional":false,
                     "effects":[{"op":"draw","target":"owner","amount":1}]}]}]}

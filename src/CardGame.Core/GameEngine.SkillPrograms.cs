@@ -13,44 +13,30 @@ public sealed partial class GameEngine
 
     // The match-local index supplies the owner's distinct enabled programs.
     private IReadOnlyList<SkillProgram> EnabledSkillPrograms(CharacterState player) =>
-        _contentRegistry is null
-            ? []
-            : GetSkillBindingShard(player)!.Programs;
+        GetSkillBindingShard(player).Programs;
 
     private IReadOnlyList<SkillProgram> EnabledActivationPrograms(CharacterState player) =>
-        _contentRegistry is null
-            ? []
-            : GetSkillBindingShard(player)!.ActivationPrograms;
+        GetSkillBindingShard(player).ActivationPrograms;
 
     private IReadOnlyList<SkillProgram> EnabledContributionPrograms(CharacterState player) =>
-        _contentRegistry is null
-            ? []
-            : GetSkillBindingShard(player)!.ContributionPrograms;
+        GetSkillBindingShard(player).ContributionPrograms;
 
     private IReadOnlyList<SkillProgram> EnabledViewAsPrograms(CharacterState player) =>
-        _contentRegistry is null
-            ? []
-            : GetSkillBindingShard(player)!.ViewAsPrograms;
+        GetSkillBindingShard(player).ViewAsPrograms;
 
     private IReadOnlyList<SkillProgram> EnabledCardIdentityPrograms(CharacterState player) =>
-        _contentRegistry is null
-            ? []
-            : GetSkillBindingShard(player)!.CardIdentityPrograms;
+        GetSkillBindingShard(player).CardIdentityPrograms;
 
     private IReadOnlyList<SkillProgram> EnabledPassiveRulePrograms(CharacterState player) =>
-        _contentRegistry is null
-            ? []
-            : GetSkillBindingShard(player)!.PassiveRulePrograms;
+        GetSkillBindingShard(player).PassiveRulePrograms;
 
     private IReadOnlyList<IndexedSkillProgramTrigger> EnabledUniqueProgramTriggers(
         CharacterState player,
         SkillProgramTriggerWindow window) =>
-        _contentRegistry is null
-            ? []
-            : GetSkillBindingShard(player)!.GetUniqueTriggers(window);
+        GetSkillBindingShard(player).GetUniqueTriggers(window);
 
     private SkillProgram GetEnabledSkillProgram(CharacterState player, string skillId) =>
-        GetSkillBindingShard(player)?.GetProgram(skillId) ??
+        GetSkillBindingShard(player).GetProgram(skillId) ??
         throw new InvalidOperationException(
             $"Player {player.Seat} does not own enabled skill program '{skillId}'.");
 
@@ -473,7 +459,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.TriggerId is not null)
             return;
-        var program = _contentRegistry?.Skills.GetValueOrDefault(frame.SkillId)?.Program;
+        var program = _contentRegistry.Skills.GetValueOrDefault(frame.SkillId)?.Program;
         var activation = program?.Activations.SingleOrDefault(item => item.Id == frame.ActivationId);
         if (activation is null || frame.InstructionIndex == 0 ||
             activation.Effects[frame.InstructionIndex - 1].Op is not
@@ -495,7 +481,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
         var frames = _resolutionStack.OfType<ProgramSkillFrame>().ToArray();
         foreach (var frame in frames)
         {
-            var program = _contentRegistry?.Skills.GetValueOrDefault(frame.SkillId)?.Program;
+            var program = _contentRegistry.Skills.GetValueOrDefault(frame.SkillId)?.Program;
             if (!IsValidPlayerSeat(frame.OwnerSeat) ||
                 string.IsNullOrWhiteSpace(frame.SkillInstanceId) ||
                 program?.GameplayHash != frame.GameplayHash)

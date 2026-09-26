@@ -10,7 +10,9 @@ public sealed partial class GameEngine
         var actor = _players[command.ActorSeat];
         if (!GetHand(actor).Any(card => card.Id == command.CardId))
             return Reject(CommandErrorCode.InvalidCard, "The recast card is not in the actor's hand.");
-        var action = BuildLegalActions(actor).SingleOrDefault(action => action.Kind == LegalActionKind.Recast && action.CardId == command.CardId);
+        var action = BuildLegalActions(actor).SingleOrDefault(action =>
+            action.Kind == LegalActionKind.Recast && action.CardId == command.CardId &&
+            action.ConversionSource == command.ConversionSource);
         if (action is null) return Reject(CommandErrorCode.IllegalAction, "This card cannot be recast under the current rules.");
         return Accept(() =>
         {
@@ -23,9 +25,11 @@ public sealed partial class GameEngine
 
     private void ResolveRecast(CharacterState actor, Card card, CardKind? playedCardKind = null)
     {
+        _selectedUseConversion = null;
+        _hasSelectedUseConversionChoice = false;
         if ((playedCardKind is null && card.Kind != CardKind.IronChain) ||
             (playedCardKind is not null && playedCardKind != CardKind.IronChain))
-            throw new InvalidOperationException("Only Iron Chain may be recast under rules version 6.");
+            throw new InvalidOperationException("Only Iron Chain may be recast.");
         MoveCards([card], CardLocation.Hand(actor.Seat), CardLocation.DiscardPile, CardMoveReasons.RecastDiscard);
         var drawn = DrawCards(actor, 1, log: false, reason: CardMoveReasons.RecastDraw);
         if (_aiBrains.TryGetValue(actor.Seat, out var brain)) brain.ObserveRecast(_turnNumber, card.Id);
@@ -61,7 +65,8 @@ public sealed partial class GameEngine
             var selectedConversion = _selectedUseConversion ?? _selectedResponseConversion;
             _selectedUseConversion = null;
             _selectedResponseConversion = null;
-            _selectedSlashConversionChoice = false;
+            _hasSelectedUseConversionChoice = false;
+            _hasSelectedResponseConversionChoice = false;
             if (selectedConversion is not null && selectedConversion != explicitConversion)
             {
                 throw new InvalidOperationException("The explicit card-use conversion no longer matches the selected action.");
@@ -71,7 +76,7 @@ public sealed partial class GameEngine
         else
         {
             conversion = physicalIds.Count == 1
-                ? GetSelectedUseConversion(_players[provider], card, effectiveKind)
+                ? GetSelectedUseConversion(_players[actorSeat], _players[provider], card, effectiveKind)
                 : null;
         }
         var conversionChain = new List<CardConversionSource>();

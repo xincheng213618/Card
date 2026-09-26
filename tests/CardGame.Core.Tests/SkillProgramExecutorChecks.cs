@@ -140,7 +140,7 @@ internal static class SkillProgramExecutorChecks
         int maxTargets = 0)
     {
         var rules = $$"""
-            {"schemaVersion":58,"skills":[{"id":"fixture:executor","revision":1,"minimumRulesVersion":168,"modifiers":[],"viewAs":[],
+            {"schemaVersion":59,"skills":[{"id":"fixture:executor","revision":1,"minimumRulesVersion":169,"modifiers":[],"viewAs":[],
             "activations":[{"id":"run","minCards":{{minCards}},"maxCards":{{maxCards}},
             "minTargets":{{minTargets}},"maxTargets":{{maxTargets}},"targetKind":"anyLiving","usesPerTurn":1,
             "effects":[{{effects}}]}]}]}
@@ -510,6 +510,130 @@ internal static class SkillProgramExecutorChecks
             IReadOnlyList<CardKind> cardKinds, DirectedTurnCardPolicyEffect effects) =>
             Calls.Add($"grant-directed:{frame.OwnerSeat}:{actorReference.Kind}:{targetReference.Kind}:" +
                       $"{string.Join(',', cardKinds)}:{effects}");
+        public void DrawBoundCardCount(long frameId, int ownerSeat, int targetSeat, string sourceBind,
+        string? resultBind, SkillProgramCardSetVisibility visibility, CardMoveReason reason) =>
+            throw new NotSupportedException("The executor fixture does not exercise DrawBoundCardCount.");
+
+        public SkillProgramStepOutcome ChooseOption(ProgramSkillFrame frame, int chooserSeat,
+        string resultBind, IReadOnlyList<SkillProgramChoiceOption> options) =>
+            throw new NotSupportedException("The executor fixture does not exercise ChooseOption.");
+
+        public SkillProgramStepOutcome SelectOwnedCards(ProgramSkillFrame frame, int cardOwnerSeat,
+        int amount, SkillProgramNumberExpression? expression, IReadOnlyList<CardZoneKind> zones, string resultBind,
+        int minimumCards, int maximumCards, IReadOnlyList<CardKind> cardKinds) =>
+            throw new NotSupportedException("The executor fixture does not exercise SelectOwnedCards.");
+
+        public void CaptureSelectedCards(ProgramSkillFrame frame, string resultBind) =>
+            throw new NotSupportedException("The executor fixture does not exercise CaptureSelectedCards.");
+
+        public void RevealBoundCards(ProgramSkillFrame frame, string sourceBind) =>
+            throw new NotSupportedException("The executor fixture does not exercise RevealBoundCards.");
+
+        public void UseBoundCardAsDyingAlcohol(ProgramSkillFrame frame, string sourceBind, CardMoveReason reason) =>
+            throw new NotSupportedException("The executor fixture does not exercise UseBoundCardAsDyingAlcohol.");
+
+        public SkillProgramStepOutcome ChooseDifferentCategoryDiscard(
+        ProgramSkillFrame frame,
+        ProgramParticipantReference chooser,
+        ProgramParticipantReference cardOwner,
+        IReadOnlyList<CardZoneKind> zones,
+        string sourceBind,
+        string resultBind,
+        CardMoveReason reason) =>
+            throw new NotSupportedException("The executor fixture does not exercise ChooseDifferentCategoryDiscard.");
+
+        public void GrantTurnSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds) =>
+            throw new NotSupportedException("The executor fixture does not exercise GrantTurnSkills.");
+
+        public SkillProgramStepOutcome UseSelectedCardsAs(
+        ProgramSkillFrame frame,
+        int targetSeat,
+        string viewAsId,
+        CardKind outputKind) =>
+            throw new NotSupportedException("The executor fixture does not exercise UseSelectedCardsAs.");
+
+        public SkillProgramStepOutcome UseAllHandCardsAsOrdinaryTrick(
+        ProgramSkillFrame frame,
+        string viewAsId) =>
+            throw new NotSupportedException("The executor fixture does not exercise UseAllHandCardsAsOrdinaryTrick.");
+
+        public SkillProgramStepOutcome SelectTarget(
+        long frameId,
+        int ownerSeat,
+        SkillProgramTargetKind targetKind,
+        IReadOnlyList<CardZoneKind> zones,
+        PlayerMarkerKind? marker,
+        ProgramParticipantReference? actorReference = null,
+        bool skipIfNoTarget = false) =>
+            throw new NotSupportedException("The executor fixture does not exercise SelectTarget.");
+
+        public void ChangeAttributedMarker(
+        ProgramSkillFrame frame,
+        ProgramParticipantReference target,
+        PlayerMarkerKind marker,
+        int amount) =>
+            throw new NotSupportedException("The executor fixture does not exercise ChangeAttributedMarker.");
+
+        public SkillProgramStepOutcome CauseDeathUnlessBoundCardKind(
+        ProgramSkillFrame frame,
+        string sourceBind,
+        IReadOnlyList<CardKind> excludedCardKinds) =>
+            throw new NotSupportedException("The executor fixture does not exercise CauseDeathUnlessBoundCardKind.");
+
+        public SkillProgramStepOutcome DistributeOwnedCards(
+        ProgramSkillFrame frame,
+        IReadOnlyList<CardZoneKind> zones,
+        string sourceBind,
+        SkillProgramTargetKind targetKind,
+        bool allowDeclineBeforeFirst,
+        CardMoveReason reason) =>
+            throw new NotSupportedException("The executor fixture does not exercise DistributeOwnedCards.");
+
+        public SkillProgramStepOutcome RequestAttackRangeAid(
+        ProgramSkillFrame frame,
+        CardMoveReason reason) =>
+            throw new NotSupportedException("The executor fixture does not exercise RequestAttackRangeAid.");
+
+        public void GrantTurnHandColorRestriction(
+        ProgramSkillFrame frame,
+        string sourceBind,
+        int targetSeat) =>
+            throw new NotSupportedException("The executor fixture does not exercise GrantTurnHandColorRestriction.");
+
+        public void PreventCurrentDamage(ProgramSkillFrame frame) =>
+            throw new NotSupportedException("The executor fixture does not exercise PreventCurrentDamage.");
+
+        public void NullifyCurrentCardEffect(ProgramSkillFrame frame) =>
+            throw new NotSupportedException("The executor fixture does not exercise NullifyCurrentCardEffect.");
+
+        public void NullifySelectedCardEffects(ProgramSkillFrame frame) =>
+            throw new NotSupportedException("The executor fixture does not exercise NullifySelectedCardEffects.");
+
+        public SkillProgramStepOutcome SelectAndMoveOwnedCard(
+        ProgramSkillFrame frame,
+        ProgramParticipantReference chooser,
+        ProgramParticipantReference cardOwner,
+        IReadOnlyList<CardZoneKind> zones,
+        SkillProgramCardDestination destination,
+        ProgramParticipantReference? destinationRef,
+        string? resultBind,
+        CardMoveReason reason,
+        IReadOnlyList<SkillProgramCardCategory>? cardCategories = null,
+        bool skipIfNoCards = false,
+        bool allowSameOwnerHandReturn = false,
+        string? coverageResultBind = null,
+        bool awaitMovementTriggers = false, bool revealBeforeMove = false) =>
+            throw new NotSupportedException("The executor fixture does not exercise SelectAndMoveOwnedCard.");
+
+        public SkillProgramStepOutcome ChooseOtherOwnedCardDiscard(
+        ProgramSkillFrame frame,
+        ProgramParticipantReference chooser,
+        IReadOnlyList<CardZoneKind> zones,
+        CardMoveReason reason) =>
+            throw new NotSupportedException("The executor fixture does not exercise ChooseOtherOwnedCardDiscard.");
+
+        public void RefundCardUseDebit(ProgramSkillFrame frame) =>
+            throw new NotSupportedException("The executor fixture does not exercise RefundCardUseDebit.");
     }
 
     private sealed class DuplicateDrawHandler : ISkillProgramEffectHandler

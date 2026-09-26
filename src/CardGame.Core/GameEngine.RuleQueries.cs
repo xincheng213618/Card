@@ -147,6 +147,14 @@ public sealed partial class GameEngine
                     .Select(item => (RuleQueryContribution)new FiniteRuleQueryContribution(
                         $"turn:{item.GrantSequence}:card-target-count", SkillRuleOperation.Add, item.Amount))).ToArray());
 
+    private int GetCardUseDistanceLimit(CharacterState player, CardKind effectiveCardKind) =>
+        ConvertRuleValue(RuleQueryService.Evaluate(
+            SkillRuleQuery.CardUseDistanceLimit,
+            new RuleQueryBounds(1, int.MaxValue),
+            [new RuleQueryBaseTerm($"card:{effectiveCardKind}:base-use-distance", 1)],
+            CollectNumericRuleContributions(player, SkillRuleQuery.CardUseDistanceLimit,
+                effectiveCardKind)));
+
     private IReadOnlyList<RuleQueryContribution> CollectNumericRuleContributions(
         CharacterState player,
         SkillRuleQuery query,
@@ -160,53 +168,8 @@ public sealed partial class GameEngine
         var programContributions = SkillProgramRules.CollectIndexedContributions(
             query,
             context,
-            GetSkillBindingShard(player)?.GetNumericModifiers(query) ?? []);
-        return Array.AsReadOnly(programContributions
-            .Concat(CollectLegacyNumericRuleContributions(player, query, context.Owner))
-            .ToArray());
-    }
-
-    private IReadOnlyList<RuleQueryContribution> CollectLegacyNumericRuleContributions(
-        CharacterState player,
-        SkillRuleQuery query,
-        PlayerSkillContext context)
-    {
-        var skills = EnabledLegacyNumericSkills(player).ToArray();
-        var result = new List<RuleQueryContribution>();
-        foreach (var skill in skills)
-        {
-            var value = query switch
-            {
-                SkillRuleQuery.DrawCount => skill.Numeric?.ModifyDrawCount(context, 0) ?? 0,                SkillRuleQuery.SlashLimit => skill.Numeric?.ModifySlashLimit(context, 0) ?? 0,                SkillRuleQuery.OutgoingDistance => skill.Numeric?.ModifyOutgoingDistance(context, 0) ?? 0,                SkillRuleQuery.IncomingDistance => skill.Numeric?.ModifyIncomingDistance(context, 0) ?? 0,                                _ => 0
-            };
-            if (value == 0) continue;
-            var sourceId = $"legacy-skill:{player.Seat}:{skill.Kind}:{query}";
-            if (value == int.MaxValue && query == SkillRuleQuery.SlashLimit)
-                result.Add(new UnlimitedRuleQueryContribution(sourceId));
-            else
-                result.Add(new FiniteRuleQueryContribution(sourceId, SkillRuleOperation.Add, value));
-        }
-        return result;
-    }
-
-    private IEnumerable<SkillRuleDefinition> EnabledLegacyNumericSkills(CharacterState player)
-    {
-        if (_contentRegistry is null)
-        {
-            yield return SkillRegistry.Get(player.General.Skill);
-            yield break;
-        }
-
-        var emitted = new HashSet<SkillKind>();
-        foreach (var definition in GetSkillBindingShard(player)!.Definitions.Values)
-        {
-            if (definition.LegacyKind is not { } kind || kind == SkillKind.None ||
-                definition.Program is not null ||
-                kind == SkillKind.Yicong && !UsesFormalGongsunZan ||
-                !emitted.Add(kind))
-                continue;
-            yield return SkillRegistry.Get(kind);
-        }
+            GetSkillBindingShard(player).GetNumericModifiers(query));
+        return programContributions;
     }
 
     private static void AddFiniteContribution(
@@ -218,13 +181,13 @@ public sealed partial class GameEngine
             contributions.Add(new FiniteRuleQueryContribution(sourceId, SkillRuleOperation.Add, value));
     }
 
-    private static int ToLegacyRuleValue(RuleQueryEvaluation evaluation) =>
+    private static int ConvertRuleValue(RuleQueryEvaluation evaluation) =>
         evaluation.Value is UnlimitedRuleQueryValue
             ? int.MaxValue
             : ((FiniteRuleQueryValue)evaluation.Value).Value;
 
     private int GetSlashUseLimit(CharacterState player) =>
-        ToLegacyRuleValue(EvaluateSlashUseLimit(player));
+        ConvertRuleValue(EvaluateSlashUseLimit(player));
 
     private bool CanSpendSlashUse(CharacterState player, CharacterState target, bool ignoresCount,
         CardKind effectiveKind = CardKind.Slash) =>

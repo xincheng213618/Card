@@ -13,7 +13,7 @@ internal static class DrawPolicyProgramChecks
 
         Require(GameCheckpoint.CurrentRulesVersion >= 125 &&
                 StandardClassicGeneralPackage.CurrentVersion >= new Version(1, 106, 0) &&
-                jiangchi.MinimumRulesVersion == 168 &&
+                jiangchi.MinimumRulesVersion == 169 &&
                 jiangchi.Triggers.Count == 2 &&
                 jiangchi.Triggers.All(trigger => trigger.ChoiceGroup == "turn-mode" &&
                     trigger.ChoiceLabel is not null) &&
@@ -114,11 +114,11 @@ internal static class DrawPolicyProgramChecks
 
     private const string ActiveRules = """
         {
-          "schemaVersion": 58,
+          "schemaVersion": 59,
           "skills": [{
             "id": "fixture:active-op",
             "revision": 1,
-            "minimumRulesVersion": 168,
+            "minimumRulesVersion": 169,
             "modifiers": [],
             "viewAs": [],
             "activations": [{

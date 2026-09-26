@@ -22,7 +22,7 @@ public sealed record GameCheckpoint(
     // so checkpoints from any other rules version are rejected instead of
     // migrated. Adding content is versioned by its package and content hash.
     // 102-114 were retired development epochs; do not reuse one for new semantics.
-    public const int CurrentRulesVersion = 168;
+    public const int CurrentRulesVersion = 169;
 
     public int RulesVersion { get; init; }
 }
@@ -61,10 +61,11 @@ public static class GameReplay
     public static GameEngine Replay(
         GameOptions options,
         IEnumerable<GameCommand> commands,
-        ContentRegistry? contentRegistry = null)
+        ContentRegistry contentRegistry)
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(commands);
+        ArgumentNullException.ThrowIfNull(contentRegistry);
 
         var engine = GameEngine.CreateStandard(options, contentRegistry);
         var commandIndex = 0;
@@ -108,9 +109,10 @@ public static class GameReplay
     /// </summary>
     public static GameEngine Restore(
         GameCheckpoint checkpoint,
-        ContentRegistry? contentRegistry = null)
+        ContentRegistry contentRegistry)
     {
         ArgumentNullException.ThrowIfNull(checkpoint);
+        ArgumentNullException.ThrowIfNull(contentRegistry);
         if (checkpoint.SchemaVersion != GameCheckpoint.CurrentSchemaVersion)
         {
             throw new InvalidOperationException(
@@ -164,12 +166,11 @@ public static class GameReplay
         return engine;
     }
 
-    internal static IReadOnlyList<string> GetPackageSignatures(ContentRegistry? contentRegistry) =>
-        contentRegistry?.Packages
+    internal static IReadOnlyList<string> GetPackageSignatures(ContentRegistry contentRegistry) =>
+        contentRegistry.Packages
             .Select(package => $"{package.Id}@{package.Version}")
-            .ToArray() ??
-        [];
+            .ToArray();
 
-    internal static string GetContentHash(ContentRegistry? contentRegistry) =>
-        contentRegistry?.ContentHash ?? "legacy-core-v1";
+    internal static string GetContentHash(ContentRegistry contentRegistry) =>
+        contentRegistry.ContentHash;
 }

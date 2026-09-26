@@ -60,7 +60,7 @@ public sealed partial class GameEngine
         foreach (var converted in playableCards.Where(card =>
                      CardCatalog.Get(card.Kind).CategoryName == "锦囊牌"))
         {
-            var source = GetLegacyViewAsConversions(
+            var source = GetProgramViewAsConversions(
                     actor,
                     converted,
                     CardKind.Slash,
@@ -124,7 +124,8 @@ public sealed partial class GameEngine
 
     private CardConversionSource? _selectedResponseConversion;
     private CardConversionSource? _selectedUseConversion;
-    private bool _selectedSlashConversionChoice;
+    private bool _hasSelectedResponseConversionChoice;
+    private bool _hasSelectedUseConversionChoice;
 
     private string DescribeConversion(CardConversionSource? source, string description) =>
         source is null ? description : $"【{_contentRegistry!.Skills[source.SkillId].Name}】{description}";
@@ -137,20 +138,21 @@ public sealed partial class GameEngine
             return [];
 
         var context = CreateSkillContext(owner);
-        return EnabledCardIdentityPrograms(owner)
-            .SelectMany(program => program.CardIdentities
+        return GetSkillBindingShard(owner).ProgramInstances
+            .Where(instance => instance.Program.CardIdentities.Count != 0)
+            .SelectMany(instance => instance.Program.CardIdentities
                 .Where(identity => identity.Zones.Contains(CardZoneKind.Hand) &&
                                    identity.Condition.Evaluate(context) &&
                                    (identity.InputKinds.Count == 0 || identity.InputKinds.Contains(card.Kind)) &&
                                    (identity.InputSuits.Count == 0 || identity.InputSuits.Contains(card.Suit)))
                 .Select(identity => new ProgramCardIdentityMatch(
-                    program,
+                    instance.Program,
                     identity,
                     new CardConversionSource(
-                        program.Id,
+                        instance.SkillId,
                         identity.Id,
                         owner.Seat,
-                        $"seat-{owner.Seat}:{program.Id}"))))
+                        instance.SkillInstanceId))))
             .OrderBy(match => match.Source.SkillId, StringComparer.Ordinal)
             .ThenBy(match => match.Source.BindingId, StringComparer.Ordinal)
             .ThenBy(match => match.Source.SkillInstanceId, StringComparer.Ordinal)
@@ -182,8 +184,9 @@ public sealed partial class GameEngine
     {
         if (source is null || source.OwnerSeat != owner.Seat) return false;
         var context = CreateSkillContext(owner);
-        return GetSkillBindingShard(owner)!.GetNumericModifiers(SkillRuleQuery.SlashDistanceLimit).Any(binding =>
+        return GetSkillBindingShard(owner).GetNumericModifiers(SkillRuleQuery.SlashDistanceLimit).Any(binding =>
             binding.Source.SkillId == source.SkillId &&
+            binding.Source.SkillInstanceId == source.SkillInstanceId &&
             binding.Modifier is { } modifier &&
                 modifier.Query == SkillRuleQuery.SlashDistanceLimit &&
                 modifier.Operation == SkillRuleOperation.Unlimited &&
@@ -211,19 +214,22 @@ public sealed partial class GameEngine
                 : (CardZoneKind?)null;
         if (zone is null) return [];
         var context = CreateSkillContext(owner);
-        var configured = EnabledViewAsPrograms(owner)
-            .SelectMany(program => program.ViewAs
-                .Where(rule => rule.OutputKind == outputKind &&
+        var configured = GetSkillBindingShard(owner).ProgramInstances
+            .SelectMany(instance => instance.Program.ViewAs
+                .Where(rule => rule.InputCount == 1 &&
+                               rule.OutputKind == outputKind &&
                                rule.SourceZones.Contains(zone.Value) &&
                                (forResponse ? rule.ForResponse : rule.ForPlay) &&
                                rule.Condition.Evaluate(context) &&
                                (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&
+                               (rule.InputCategories.Count == 0 ||
+                                rule.InputCategories.Contains(GetProgramCardCategory(card.Kind))) &&
                                (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(card.Suit)))
                 .Select(rule => new CardConversionSource(
-                    program.Id,
+                    instance.SkillId,
                     rule.Id,
                     owner.Seat,
-                    $"seat-{owner.Seat}:{program.Id}")))
+                    instance.SkillInstanceId)))
             .ToArray();
         var turnScoped = forResponse || zone != CardZoneKind.Hand
             ? Array.Empty<CardConversionSource>()
@@ -268,8 +274,8 @@ public sealed partial class GameEngine
             .OrderBy(card => card.Id)
             .ToArray();
         var selections = new List<ProgramMultiCardViewAsSelection>();
-        foreach (var instance in GetSkillBindingShard(owner)?.ProgramInstances.Where(instance =>
-                     instance.Program.ViewAs.Count != 0) ?? [])
+        foreach (var instance in GetSkillBindingShard(owner).ProgramInstances.Where(instance =>
+                     instance.Program.ViewAs.Count != 0))
         foreach (var rule in instance.Program.ViewAs.Where(rule =>
                      rule.InputCount > 1 &&
                      rule.OutputKind == outputKind &&
@@ -323,18 +329,18 @@ public sealed partial class GameEngine
         IReadOnlyList<int> cardIds,
         CardKind outputKind,
         bool forResponse,
-        CardConversionSource? source = null)
+        CardConversionSource source)
     {
         if (cardIds.Count < 2 || cardIds.Distinct().Count() != cardIds.Count) return null;
         var ordered = cardIds.Order().ToArray();
         return GetProgramMultiCardViewAsSelections(owner, outputKind, forResponse)
             .FirstOrDefault(candidate =>
-                (source is null || candidate.Source == source) &&
+                candidate.Source == source &&
                 candidate.Cards.Select(card => card.Id).Order().SequenceEqual(ordered));
     }
 
     private string ProgramConversionName(CardConversionSource source) =>
-        _contentRegistry?.Skills.GetValueOrDefault(source.SkillId)?.Name ?? source.SkillId;
+        _contentRegistry.Skills.GetValueOrDefault(source.SkillId)?.Name ?? source.SkillId;
 
     private void ResolveProgramMultiCardSlash(
         CharacterState source,
@@ -470,48 +476,6 @@ public sealed partial class GameEngine
         CompleteAttack(attack);
     }
 
-    private bool HasLegacyViewAsConversion(
-        CharacterState owner,
-        Card card,
-        CardKind outputKind,
-        bool forResponse)
-    {
-        if (card.Kind == outputKind) return false;
-        var context = CreateSkillContext(owner);
-        return ConversionRules(owner).Any(skill => forResponse
-            ? skill.CanUseAsResponse(context, card, outputKind)
-            : outputKind == CardKind.Slash && skill.CanUseAsSlash(context, card));
-    }
-
-    private IReadOnlyList<CardConversionSource> GetLegacyViewAsConversions(
-        CharacterState owner,
-        Card card,
-        CardKind outputKind,
-        bool forResponse)
-    {
-        if (_contentRegistry is null || card.Kind == outputKind) return [];
-        var context = CreateSkillContext(owner);
-        return EnabledContentSkillIds(owner)
-            .Select(id => _contentRegistry.Skills[id])
-            .Where(skill => skill.LegacyKind is { } kind && kind != SkillKind.None &&
-                            skill.Program is null)
-            .Where(skill =>
-            {
-                var rules = SkillRegistry.Get(skill.LegacyKind!.Value);
-                return forResponse
-                    ? rules.Conversion?.CanUseAsResponse(context, card, outputKind) == true
-                    : outputKind == CardKind.Slash && rules.Conversion?.CanUseAsSlash(context, card) == true;
-            })
-            .Select(skill => new CardConversionSource(
-                skill.Id,
-                $"legacy:{skill.LegacyKind}",
-                owner.Seat,
-                $"seat-{owner.Seat}:{skill.Id}"))
-            .OrderBy(source => source.SkillId, StringComparer.Ordinal)
-            .ThenBy(source => source.BindingId, StringComparer.Ordinal)
-            .ToArray();
-    }
-
     private IReadOnlyList<Card> GetSlashUseCards(CharacterState owner)
     {
         if (SlashKinds.All(kind => IsCardUseForbidden(owner.Seat, kind, CardActionType.Use))) return [];
@@ -522,11 +486,10 @@ public sealed partial class GameEngine
             return identities.Count != 0
                 ? identities.Any(match => match.Identity.OutputKind == CardKind.Slash)
                 : IsSlashCard(card.Kind) ||
-                  GetLegacyViewAsConversions(owner, card, CardKind.Slash, forResponse: false).Count != 0 ||
                   GetProgramViewAsConversions(owner, card, CardKind.Slash, forResponse: false).Count != 0;
         });
-        if (UsesFormalWushengEquipment)
-            cards = cards.Concat(GetEquipment(owner).Where(card => CanUseAsFormalWushengSlash(owner, card)));
+        cards = cards.Concat(GetEquipment(owner).Where(card =>
+            GetProgramViewAsConversions(owner, card, CardKind.Slash, forResponse: false).Count != 0));
         return cards.DistinctBy(card => card.Id).ToArray();
     }
 
@@ -573,15 +536,13 @@ public sealed partial class GameEngine
         var hasIdentity = HasProgramCardIdentity(owner, card);
         var identitySources = GetProgramCardIdentitySources(owner, card, effectiveKind, forResponse);
         var programSources = GetProgramViewAsConversions(owner, card, effectiveKind, forResponse);
-        var legacySources = GetLegacyViewAsConversions(owner, card, effectiveKind, forResponse);
         var includeUnspecified = !hasIdentity &&
-            (card.Kind == effectiveKind || programSources.Count == 0 && legacySources.Count == 0);
+            (card.Kind == effectiveKind || programSources.Count == 0);
         var sources = new List<CardConversionSource?>();
         if (includeUnspecified) sources.Add(null);
         if (hasIdentity) sources.AddRange(identitySources);
         else
         {
-            sources.AddRange(legacySources);
             sources.AddRange(programSources);
         }
         for (var index = 0; index < sources.Count; index++)
@@ -621,9 +582,12 @@ public sealed partial class GameEngine
 
     private void CaptureSelectedResponseConversion(PromptChoice choice)
     {
+        if (choice.Cards.Count != 1 ||
+            !choice.Parameters.ContainsKey("response-card-kind")) return;
         if (TryReadConversionSource(choice.Parameters, out var source))
         {
             _selectedResponseConversion = source;
+            _hasSelectedResponseConversionChoice = true;
             return;
         }
 
@@ -631,7 +595,20 @@ public sealed partial class GameEngine
                                response is "dodge" or "slash" or "hujia-dodge" or
                                    "jijiang-slash" or "borrowed-sword-slash" ||
                                choice.Parameters.GetValueOrDefault("action") == "qinglong-slash";
-        if (startsCardAction) _selectedResponseConversion = null;
+        if (startsCardAction && choice.Cards.Count == 1)
+        {
+            _selectedResponseConversion = null;
+            _hasSelectedResponseConversionChoice = true;
+        }
+    }
+
+    private void CaptureAiCardResponseChoice(PendingDecision decision, Card card, CardKind effectiveKind)
+    {
+        var choice = decision.Choices.FirstOrDefault(candidate =>
+            candidate.Cards is [var cardId] && cardId == card.Id &&
+            candidate.Parameters.GetValueOrDefault("response-card-kind") == effectiveKind.ToString()) ??
+            throw new InvalidOperationException("The AI response has no published card choice.");
+        CaptureSelectedResponseConversion(choice);
     }
 
     private CardConversionSource? GetSelectedResponseConversion(
@@ -644,47 +621,51 @@ public sealed partial class GameEngine
             provider, responseCard, effectiveKind, forResponse: true);
         var candidates = hasIdentity
             ? identitySources.ToArray()
-            : GetLegacyViewAsConversions(provider, responseCard, effectiveKind, forResponse: true)
-                .Concat(GetProgramViewAsConversions(provider, responseCard, effectiveKind, forResponse: true))
-                .ToArray();
-        if (_selectedResponseConversion is { } selected)
+            : GetProgramViewAsConversions(provider, responseCard, effectiveKind, forResponse: true).ToArray();
+        var selected = _selectedResponseConversion;
+        var selectedChoice = _hasSelectedResponseConversionChoice;
+        _selectedResponseConversion = null;
+        _hasSelectedResponseConversionChoice = false;
+        if (selectedChoice)
         {
-            _selectedResponseConversion = null;
-            return candidates.Contains(selected)
-                ? selected
-                : throw new InvalidOperationException("The selected response conversion is no longer legal.");
+            if (selected is null && !hasIdentity && IsNativeResponseCard(responseCard, effectiveKind))
+                return null;
+            if (selected is not null && candidates.Contains(selected)) return selected;
+            throw new InvalidOperationException("The selected response conversion is no longer legal.");
         }
-
-        // AI and legacy local-host adapters do not select a serialized choice.
-        // Never infer a program when an equally legal legacy conversion exists.
-        return candidates.FirstOrDefault();
+        throw new InvalidOperationException("A card response requires its published source choice.");
     }
 
     private void SelectUseConversion(LegalAction action)
     {
         _selectedUseConversion = action.ConversionSource;
-        _selectedSlashConversionChoice = action.Kind == LegalActionKind.Slash;
+        _hasSelectedUseConversionChoice = true;
     }
 
     private CardConversionSource? GetSelectedUseConversion(
+        CharacterState actor,
         CharacterState provider,
         Card card,
         CardKind effectiveKind)
     {
         var hasIdentity = HasProgramCardIdentity(provider, card);
+        var fanConvertsSlash = effectiveKind == CardKind.FireSlash && HasZhuqueFan(actor);
         var identitySources = GetProgramCardIdentitySources(
             provider, card, effectiveKind, forResponse: false);
         var candidates = hasIdentity
             ? identitySources.ToArray()
-            : GetLegacyViewAsConversions(provider, card, effectiveKind, forResponse: false)
-                .Concat(GetProgramViewAsConversions(provider, card, effectiveKind, forResponse: false))
+            : GetProgramViewAsConversions(provider, card, effectiveKind, forResponse: false)
+                .Concat(fanConvertsSlash
+                    ? GetProgramViewAsConversions(provider, card, CardKind.Slash, forResponse: false)
+                    : [])
                 .Distinct()
                 .ToArray();
         var selected = _selectedUseConversion ?? _selectedResponseConversion;
-        var selectedSlashChoice = _selectedSlashConversionChoice;
+        var selectedChoice = _hasSelectedUseConversionChoice || _hasSelectedResponseConversionChoice;
         _selectedUseConversion = null;
         _selectedResponseConversion = null;
-        _selectedSlashConversionChoice = false;
+        _hasSelectedResponseConversionChoice = false;
+        _hasSelectedUseConversionChoice = false;
         if (selected is not null)
         {
             return candidates.Contains(selected)
@@ -692,6 +673,9 @@ public sealed partial class GameEngine
                 : throw new InvalidOperationException("The selected use conversion is no longer legal.");
         }
 
-        return selectedSlashChoice ? null : candidates.FirstOrDefault();
+        if (!hasIdentity &&
+            (card.Kind == effectiveKind || fanConvertsSlash && card.Kind == CardKind.Slash) &&
+            (selectedChoice || candidates.Length == 0)) return null;
+        throw new InvalidOperationException("A converted card use requires its published source choice.");
     }
 }

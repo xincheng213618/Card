@@ -117,6 +117,18 @@ internal static class SkillProgramCardTriggerChecks
         Require(!rejectedMissing.Accepted && before == SnapshotJson.Serialize(missing.CreateSnapshot(0, true)),
             "An ambiguous converted play without its exact source must be rejected atomically.");
 
+        var singleRegistry = ContentRegistry.Build(new StandardContentPackage(),
+            new TriggerFixturePackage(onlySourceA: true));
+        var single = Create(singleRegistry);
+        var onlyAction = single.GetHumanLegalActions().First(action =>
+            action.Kind == LegalActionKind.Slash &&
+            action.ConversionSource?.SkillId == "trigger-test:source-a");
+        before = SnapshotJson.Serialize(single.CreateSnapshot(0, true));
+        var rejectedSingle = single.Submit(new PlayCardCommand(0, onlyAction.CardId!.Value,
+            onlyAction.TargetSeats, single.Revision, single.PendingDecision!.PromptId, CardKind.Slash));
+        Require(!rejectedSingle.Accepted && before == SnapshotJson.Serialize(single.CreateSnapshot(0, true)),
+            "Even a single converted play must require its published source identity.");
+
         var forged = Create(registry);
         before = SnapshotJson.Serialize(forged.CreateSnapshot(0, true));
         var rejectedForged = forged.Submit(new PlayCardCommand(0, cardId, [target], forged.Revision,
@@ -187,7 +199,7 @@ internal static class SkillProgramCardTriggerChecks
         return game;
     }
 
-    private sealed class TriggerFixturePackage : IGameContentPackage
+    private sealed class TriggerFixturePackage(bool onlySourceA = false) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("program-trigger-fixture", new Version(1, 0, 0),
             [new PackageDependency("standard", new Version(1, 11, 0))]);
@@ -203,8 +215,10 @@ internal static class SkillProgramCardTriggerChecks
             var generalIds = Enumerable.Range(0, 5).Select(index => $"trigger-test:general-{index}").ToArray();
             foreach (var id in generalIds)
                 builder.AddGeneral(new ContentGeneralDefinition(id, "Trigger", "zhao_yun", "trigger-test:source-a",
-                    AdditionalSkillIds: ["trigger-test:source-b", "trigger-test:draw",
-                        "trigger-test:response-source", "trigger-test:response-source-b", "trigger-test:obtain"]));
+                    AdditionalSkillIds: onlySourceA
+                        ? ["trigger-test:draw", "trigger-test:response-source", "trigger-test:response-source-b", "trigger-test:obtain"]
+                        : ["trigger-test:source-b", "trigger-test:draw", "trigger-test:response-source",
+                            "trigger-test:response-source-b", "trigger-test:obtain"]));
             builder.AddDeck(new ContentDeckRecipe("trigger-test:dodge-deck", "Dodge", 2, 0,
                 [new ContentDeckCardCount("standard:dodge", 30)]));
             builder.AddDeck(new ContentDeckRecipe("trigger-test:slash-deck", "Slash", 4, 2,
@@ -225,13 +239,13 @@ internal static class SkillProgramCardTriggerChecks
     }
 
     private const string Rules = """
-        {"schemaVersion":58,"skills":[
+        {"schemaVersion":59,"skills":[
           {"id":"trigger-test:source-a","revision":1,"viewAs":[{"id":"slash","inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash","forPlay":true,"forResponse":false}]},
           {"id":"trigger-test:source-b","revision":1,"viewAs":[{"id":"slash","inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash","forPlay":true,"forResponse":false}]},
-          {"id":"trigger-test:draw","revision":1,"minimumRulesVersion":168,"triggers":[{"id":"after-use","window":"cardUseTargetsFinalized","sourceSkillId":"trigger-test:source-a","sourceViewAsId":"slash","ownerRelation":"conversionSource","optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]},
+          {"id":"trigger-test:draw","revision":1,"minimumRulesVersion":169,"triggers":[{"id":"after-use","window":"cardUseTargetsFinalized","sourceSkillId":"trigger-test:source-a","sourceViewAsId":"slash","ownerRelation":"conversionSource","optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]},
           {"id":"trigger-test:response-source","revision":1,"viewAs":[{"id":"dodge","inputKinds":["slash"],"inputSuits":[],"outputKind":"dodge","forPlay":false,"forResponse":true}]},
           {"id":"trigger-test:response-source-b","revision":1,"viewAs":[{"id":"dodge","inputKinds":["slash"],"inputSuits":[],"outputKind":"dodge","forPlay":false,"forResponse":true}]},
-          {"id":"trigger-test:obtain","revision":1,"minimumRulesVersion":168,"triggers":[{"id":"after-response","window":"cardResponseAccepted","sourceSkillId":"trigger-test:response-source","sourceViewAsId":"dodge","ownerRelation":"conversionSource","optional":true,"effects":[{"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"eventTarget"},"zones":["hand"],"count":1,"destination":"ownerHand","skipIfNoCards":true}]}]}
+          {"id":"trigger-test:obtain","revision":1,"minimumRulesVersion":169,"triggers":[{"id":"after-response","window":"cardResponseAccepted","sourceSkillId":"trigger-test:response-source","sourceViewAsId":"dodge","ownerRelation":"conversionSource","optional":true,"effects":[{"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"eventTarget"},"zones":["hand"],"count":1,"destination":"ownerHand","skipIfNoCards":true}]}]}
         ]}
         """;
     private const string Presentation = """

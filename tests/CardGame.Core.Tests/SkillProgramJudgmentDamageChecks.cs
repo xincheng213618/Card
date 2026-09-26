@@ -11,7 +11,7 @@ internal static class SkillProgramJudgmentDamageChecks
         var strike = program.Triggers.Single(trigger => trigger.Id == StrikeTriggerId);
         var selection = strike.Effects[0];
         var damage = strike.Effects[1];
-        Require(program is { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } &&
+        Require(program is { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } &&
                 recovery is { Optional: false } &&
                 recovery.Effects.Single() is
                 {
@@ -36,7 +36,7 @@ internal static class SkillProgramJudgmentDamageChecks
                 },
             "The shared executor must keep mandatory recovery separate from optional thunder damage.");
 
-        AssertReject(ValidV5.Replace("\"schemaVersion\":58", "\"schemaVersion\":57", StringComparison.Ordinal),
+        AssertReject(ValidV5.Replace("\"schemaVersion\":59", "\"schemaVersion\":57", StringComparison.Ordinal),
             "schema version");
         AssertReject(ValidV5.Replace("\"targetKind\":\"anyLiving\"", "\"targetKind\":\"missing\"", StringComparison.Ordinal),
             "targetKind");
@@ -329,7 +329,7 @@ internal static class SkillProgramJudgmentDamageChecks
     private const string StrikeTriggerId = "b-club-strike";
 
     private const string ValidV5 = """
-        {"schemaVersion":58,"skills":[
+        {"schemaVersion":59,"skills":[
           {"id":"judgment-damage-test:effects","revision":1,"triggers":[
             {"id":"a-club-recover","window":"judgmentFinalized","subject":"owner",
              "suits":["club"],"minimumRank":1,"maximumRank":13,"excludedReasons":[],

@@ -4,16 +4,13 @@ public sealed partial class GameEngine
 {
     private bool HasClassicGeneralPackage =>
         IsClassicIdentityMode &&
-        _contentRegistry?.Packages.Any(package => package.Id == "standard-classic-generals") == true;
+        _contentRegistry.Packages.Any(package => package.Id == "standard-classic-generals");
 
     private IReadOnlyList<string> AcquireRuntimeSkills(
         CharacterState player,
         string sourceSkillId,
         IReadOnlyList<string> skillIds)
     {
-        if (_contentRegistry is null)
-            throw new InvalidOperationException("Runtime skills require an active content registry.");
-
         var acquired = new List<string>();
         foreach (var skillId in skillIds.Distinct(StringComparer.Ordinal))
         {

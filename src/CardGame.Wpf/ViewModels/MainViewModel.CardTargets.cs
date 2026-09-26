@@ -8,15 +8,24 @@ public sealed partial class MainViewModel
     private readonly HashSet<int> _selectedCardTargetSeats = [];
     public ICommand RecastSelectedCommand { get; private set; } = null!;
     public bool ShowRecastAction => IsMultiTargetCardSelected;
-    public bool CanRecastSelected => ShowRecastAction && _selectedCardTargetSeats.Count == 0 && !IsTutorialActive &&
-        _game.GetHumanLegalActions().Any(action => action.Kind == LegalActionKind.Recast && action.CardId == _selectedCardId);
+    public bool CanRecastSelected => ShowRecastAction && _selectedCardTargetSeats.Count == 0 &&
+        !IsTutorialActive && SelectedRecastAction() is not null;
+
+    private LegalAction? SelectedRecastAction() => _selectedCardId is { } cardId
+        ? _game.GetHumanLegalActions().SingleOrDefault(action =>
+            action.Kind == LegalActionKind.Recast && action.CardId == cardId &&
+            action.ConversionSource == _selectedConversionSource)
+        : null;
 
     private void RecastSelected()
     {
         if (!CanRecastSelected || _selectedCardId is not { } cardId || _snapshot.PendingDecision is not { } prompt) return;
+        var action = SelectedRecastAction();
+        if (action is null) return;
         ExecuteSafely(() =>
         {
-            var result = SubmitCommand(new RecastCardCommand(_snapshot.HumanSeat, cardId, _snapshot.Revision, prompt.PromptId));
+            var result = SubmitCommand(new RecastCardCommand(_snapshot.HumanSeat, cardId, _snapshot.Revision, prompt.PromptId)
+            { ConversionSource = action.ConversionSource });
             if (!result.Accepted) return;
             ClearSelection();
             Refresh(result.State);
@@ -25,7 +34,8 @@ public sealed partial class MainViewModel
 
     public bool IsMultiTargetCardSelected => !IsActiveSkillSelectionPending &&
         _snapshot?.PendingDecision?.Kind == DecisionKind.PlayCard &&
-        _snapshot.Players.Single(player => player.IsHuman).Hand.Any(card => card.Id == _selectedCardId && card.Kind == CardKind.IronChain);
+        _game.GetHumanLegalActions().Any(action => action.CardId == _selectedCardId &&
+            action.Kind is LegalActionKind.IronChain or LegalActionKind.Recast);
 
     private LegalAction[] MultiTargetCardActions => IsMultiTargetCardSelected
         ? _game.GetHumanLegalActions().Where(action => action.CardId == _selectedCardId && action.Kind == LegalActionKind.IronChain).ToArray()

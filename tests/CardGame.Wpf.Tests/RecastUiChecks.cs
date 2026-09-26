@@ -10,6 +10,58 @@ using CardGame.Wpf.ViewModels;
 
 internal static class RecastUiChecks
 {
+    public static void ConvertedLianhuanSelectionAndReplay(string output)
+    {
+        for (var seed = 1; seed <= 2_048; seed++)
+        {
+            var saveStore = new FileGameSaveStore(Path.Combine(output, "lianhuan-saves"));
+            using var vm = new MainViewModel(autoAdvance: false, seed: seed, showSetup: false,
+                saveStore: saveStore, useExpandedContent: true) { IsMotionEnabled = false };
+            var general = vm.GeneralChoices.SingleOrDefault(choice => choice.GeneralId == "classic:pang-tong");
+            if (general is null) continue;
+            vm.SelectGeneralChoiceCommand.Execute(general);
+            Program.AdvanceToDecision(vm);
+            var engine = Program.Engine(vm);
+            if (engine.PendingDecision?.Kind != DecisionKind.PlayCard) continue;
+            var recast = engine.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.Recast && action.ConversionSource is
+                    { SkillId: "classic:lianhuan", BindingId: "club-hand-as-iron-chain" });
+            if (recast is null) continue;
+
+            var cardId = recast.CardId!.Value;
+            vm.SelectCardCommand.Execute(vm.Hand.Single(card => card.Id == cardId));
+            Require(!vm.CanRecastSelected,
+                "A converted recast must wait for an explicit conversion-source selection.");
+            var conversionChoice = vm.EquipmentPlayChoices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("conversion-skill-id") == "classic:lianhuan" &&
+                choice.Parameters.GetValueOrDefault("conversion-binding-id") == "club-hand-as-iron-chain" &&
+                choice.Cards.SequenceEqual([cardId]));
+            vm.SelectEquipmentPlayChoiceCommand.Execute(conversionChoice);
+            Require(vm.CanRecastSelected,
+                "Selecting the published Lianhuan source must enable converted recast.");
+            var before = engine.AcceptedCommands.Count;
+            vm.RecastSelectedCommand.Execute(null);
+            Require(engine.AcceptedCommands.Count == before + 1 &&
+                    engine.AcceptedCommands.Last() is RecastCardCommand command &&
+                    command.CardId == cardId && command.ConversionSource == recast.ConversionSource &&
+                    engine.Events.Any(entry => entry.Payload is CardRecastEvent evt &&
+                        evt.CardId == cardId && evt.CardKind == CardKind.IronChain),
+                "The WPF recast must submit the exact selected Program source and resolve as Iron Chain.");
+
+            vm.SaveGameCommand.Execute(null);
+            var saved = SnapshotJson.Serialize(engine.CreateSnapshot(0, revealAll: true));
+            vm.LoadManualGameCommand.Execute(null);
+            Require(!vm.HasSaveError &&
+                    SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(0, revealAll: true)) == saved &&
+                    Program.Engine(vm).AcceptedCommands.Last() is RecastCardCommand restored &&
+                    restored.ConversionSource == recast.ConversionSource,
+                "Converted Lianhuan recast must save and replay its exact source.");
+            return;
+        }
+
+        throw new InvalidOperationException("No bounded Pang Tong WPF fixture exposed a converted recast.");
+    }
+
     public static void ControlsAndOldSaves(string output)
     {
         var store = new FileGameSaveStore(Path.Combine(output, "recast-saves"));

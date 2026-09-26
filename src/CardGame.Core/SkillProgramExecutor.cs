@@ -39,8 +39,7 @@ public interface ISkillProgramEffectHost
         SkillProgramCardSetVisibility visibility, CardMoveReason reason);
     void DrawSelectedTargets(long frameId, int amount, CardMoveReason reason);
     void DrawBoundCardCount(long frameId, int ownerSeat, int targetSeat, string sourceBind,
-        string? resultBind, SkillProgramCardSetVisibility visibility, CardMoveReason reason) =>
-        throw new InvalidOperationException("The host does not provide bound-card-count draws.");
+        string? resultBind, SkillProgramCardSetVisibility visibility, CardMoveReason reason);
     void Recover(long frameId, int ownerSeat, int targetSeat, int amount,
         SkillProgramNumberExpression? numberExpression, string? sourceBind);
     SkillProgramStepOutcome LoseHp(long frameId, string skillId, int targetSeat, int amount);
@@ -72,18 +71,13 @@ public interface ISkillProgramEffectHost
         CardMoveReason reason);
     void SetChainedState(ProgramSkillFrame frame, bool chained, int? targetSeat = null);
     SkillProgramStepOutcome ChooseOption(ProgramSkillFrame frame, int chooserSeat,
-        string resultBind, IReadOnlyList<SkillProgramChoiceOption> options) =>
-        throw new InvalidOperationException("The host does not provide named program choices.");
+        string resultBind, IReadOnlyList<SkillProgramChoiceOption> options);
     SkillProgramStepOutcome SelectOwnedCards(ProgramSkillFrame frame, int cardOwnerSeat,
         int amount, SkillProgramNumberExpression? expression, IReadOnlyList<CardZoneKind> zones, string resultBind,
-        int minimumCards, int maximumCards, IReadOnlyList<CardKind> cardKinds) =>
-        throw new InvalidOperationException("The host does not provide private owned-card set selection.");
-    void CaptureSelectedCards(ProgramSkillFrame frame, string resultBind) =>
-        throw new InvalidOperationException("The host does not provide activation-card capture.");
-    void RevealBoundCards(ProgramSkillFrame frame, string sourceBind) =>
-        throw new InvalidOperationException("The host does not provide bound-card reveal.");
-    void UseBoundCardAsDyingAlcohol(ProgramSkillFrame frame, string sourceBind, CardMoveReason reason) =>
-        throw new InvalidOperationException("The host does not provide persistent-zone dying rescue.");
+        int minimumCards, int maximumCards, IReadOnlyList<CardKind> cardKinds);
+    void CaptureSelectedCards(ProgramSkillFrame frame, string resultBind);
+    void RevealBoundCards(ProgramSkillFrame frame, string sourceBind);
+    void UseBoundCardAsDyingAlcohol(ProgramSkillFrame frame, string sourceBind, CardMoveReason reason);
     SkillProgramStepOutcome ChooseDifferentCategoryDiscard(
         ProgramSkillFrame frame,
         ProgramParticipantReference chooser,
@@ -91,22 +85,18 @@ public interface ISkillProgramEffectHost
         IReadOnlyList<CardZoneKind> zones,
         string sourceBind,
         string resultBind,
-        CardMoveReason reason) =>
-        throw new InvalidOperationException("The host does not provide category-discard choices.");
+        CardMoveReason reason);
     void ChangeMaximumHp(ProgramSkillFrame frame, int amount);
     void GrantSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds);
-    void GrantTurnSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds) =>
-        throw new InvalidOperationException("The host does not provide turn-scoped skill grants.");
+    void GrantTurnSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds);
     SkillProgramStepOutcome UseSelectedCardsAs(
         ProgramSkillFrame frame,
         int targetSeat,
         string viewAsId,
-        CardKind outputKind) =>
-        throw new InvalidOperationException("The host does not provide selected-card uses.");
+        CardKind outputKind);
     SkillProgramStepOutcome UseAllHandCardsAsOrdinaryTrick(
         ProgramSkillFrame frame,
-        string viewAsId) =>
-        throw new InvalidOperationException("The host does not provide all-hand ordinary-trick uses.");
+        string viewAsId);
     void TurnOver(long frameId, int ownerSeat, int targetSeat);
     void SetFaceState(long frameId, int ownerSeat, int targetSeat, bool faceDown);
     SkillProgramStepOutcome StartJudgment(
@@ -162,18 +152,16 @@ public interface ISkillProgramEffectHost
         IReadOnlyList<CardZoneKind> zones,
         PlayerMarkerKind? marker,
         ProgramParticipantReference? actorReference = null,
-        bool skipIfNoTarget = false) => SelectTarget(frameId, ownerSeat, targetKind, zones);
+        bool skipIfNoTarget = false);
     void ChangeAttributedMarker(
         ProgramSkillFrame frame,
         ProgramParticipantReference target,
         PlayerMarkerKind marker,
-        int amount) =>
-        throw new InvalidOperationException("The host does not provide attributed marker mutation.");
+        int amount);
     SkillProgramStepOutcome CauseDeathUnlessBoundCardKind(
         ProgramSkillFrame frame,
         string sourceBind,
-        IReadOnlyList<CardKind> excludedCardKinds) =>
-        throw new InvalidOperationException("The host does not provide configured direct death.");
+        IReadOnlyList<CardKind> excludedCardKinds);
     SkillProgramStepOutcome SelectTargets(
         long frameId,
         int ownerSeat,
@@ -203,12 +191,10 @@ public interface ISkillProgramEffectHost
         string sourceBind,
         SkillProgramTargetKind targetKind,
         bool allowDeclineBeforeFirst,
-        CardMoveReason reason) =>
-        throw new InvalidOperationException("The host does not provide owned-card distribution.");
+        CardMoveReason reason);
     SkillProgramStepOutcome RequestAttackRangeAid(
         ProgramSkillFrame frame,
-        CardMoveReason reason) =>
-        throw new InvalidOperationException("The host does not provide attack-range aid responses.");
+        CardMoveReason reason);
     void ClaimDamageCards(long frameId, int ownerSeat, CardMoveReason reason);
     void TakeRandomHandCardFromSelectedTargets(
         long frameId,
@@ -229,14 +215,10 @@ public interface ISkillProgramEffectHost
     void GrantTurnHandColorRestriction(
         ProgramSkillFrame frame,
         string sourceBind,
-        int targetSeat) =>
-        throw new InvalidOperationException("The host does not provide hand-color turn restrictions.");
-    void PreventCurrentDamage(ProgramSkillFrame frame) =>
-        throw new InvalidOperationException("The host does not provide damage prevention.");
-    void NullifyCurrentCardEffect(ProgramSkillFrame frame) =>
-        throw new InvalidOperationException("The host does not provide current card-effect nullification.");
-    void NullifySelectedCardEffects(ProgramSkillFrame frame) =>
-        throw new InvalidOperationException("The host does not provide selected card-effect nullification.");
+        int targetSeat);
+    void PreventCurrentDamage(ProgramSkillFrame frame);
+    void NullifyCurrentCardEffect(ProgramSkillFrame frame);
+    void NullifySelectedCardEffects(ProgramSkillFrame frame);
     void GrantTurnRuleModifier(
         ProgramSkillFrame frame,
         SkillRuleQuery query,
@@ -265,16 +247,13 @@ public interface ISkillProgramEffectHost
         bool skipIfNoCards = false,
         bool allowSameOwnerHandReturn = false,
         string? coverageResultBind = null,
-        bool awaitMovementTriggers = false, bool revealBeforeMove = false) =>
-        throw new InvalidOperationException("The host does not provide card-action payments.");
+        bool awaitMovementTriggers = false, bool revealBeforeMove = false);
     SkillProgramStepOutcome ChooseOtherOwnedCardDiscard(
         ProgramSkillFrame frame,
         ProgramParticipantReference chooser,
         IReadOnlyList<CardZoneKind> zones,
-        CardMoveReason reason) =>
-        throw new InvalidOperationException("The host does not provide optional other-player card discards.");
-    void RefundCardUseDebit(ProgramSkillFrame frame) =>
-        throw new InvalidOperationException("The host does not provide card-use debit refunds.");
+        CardMoveReason reason);
+    void RefundCardUseDebit(ProgramSkillFrame frame);
     SkillProgramStepOutcome StartPindian(
         ProgramSkillFrame frame,
         ProgramParticipantReference opponentReference,

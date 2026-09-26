@@ -46,8 +46,8 @@ internal static class BoundaryZhangLiaoChecks
             {"schemaVersion":3,"skills":{"fixture:draw-plan":{"name":"通用摸牌计划","description":"测试"}}}
             """;
         const string genericPlan = """
-            {"schemaVersion":58,"skills":[{"id":"fixture:draw-plan","revision":1,
-            "minimumRulesVersion":168,"triggers":[{"id":"plan","window":"drawPhaseStarting",
+            {"schemaVersion":59,"skills":[{"id":"fixture:draw-plan","revision":1,
+            "minimumRulesVersion":169,"triggers":[{"id":"plan","window":"drawPhaseStarting",
             "subject":"owner","optional":true,"drawPhaseMode":"additive","effects":[
             {"op":"selectTargets","target":"owner","targetKind":"anyLiving",
              "minimumTargets":1,"maximumTargets":8,"numberExpression":"plannedNormalDrawCount",
@@ -345,8 +345,8 @@ internal static class BoundaryZhangLiaoChecks
             {
                 extra.Add("fixture:draw-adjustment");
                 var catalog = SkillProgramCatalog.Load($$"""
-                    {"schemaVersion":58,"skills":[{"id":"fixture:draw-adjustment","revision":1,
-                    "minimumRulesVersion":168,"triggers":[{"id":"adjust","window":"drawPhaseStarting",
+                    {"schemaVersion":59,"skills":[{"id":"fixture:draw-adjustment","revision":1,
+                    "minimumRulesVersion":169,"triggers":[{"id":"adjust","window":"drawPhaseStarting",
                     "subject":"owner","optional":false,"priority":200,"effects":[{"op":"adjustNormalDraw",
                     "target":"owner","amount":{{adjustment}}}]}]}]}
                     """, """
@@ -359,8 +359,8 @@ internal static class BoundaryZhangLiaoChecks
             {
                 extra.Add("fixture:pre-draw");
                 var catalog = SkillProgramCatalog.Load("""
-                    {"schemaVersion":58,"skills":[{"id":"fixture:pre-draw","revision":1,
-                    "minimumRulesVersion":168,"triggers":[{"id":"early","window":"drawPhaseStarting",
+                    {"schemaVersion":59,"skills":[{"id":"fixture:pre-draw","revision":1,
+                    "minimumRulesVersion":169,"triggers":[{"id":"early","window":"drawPhaseStarting",
                     "subject":"owner","optional":false,"priority":200,"effects":[
                     {"op":"draw","target":"owner","amount":1}]}]}]}
                     """, """

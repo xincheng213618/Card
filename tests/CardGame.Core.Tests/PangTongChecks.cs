@@ -28,7 +28,14 @@ internal static class PangTongChecks
 
             var physicalId = converted.CardId!.Value;
             var branch = game.CreateCheckpoint();
-            var recast = game.Submit(new RecastCardCommand(0, physicalId, game.Revision, play.PromptId));
+            Require(converted.ConversionSource is
+                    { SkillId: "classic:lianhuan", BindingId: "club-hand-as-iron-chain" },
+                "Lianhuan recast must publish its configured conversion source.");
+            var rejected = game.Submit(new RecastCardCommand(0, physicalId, game.Revision, play.PromptId));
+            Require(!rejected.Accepted && game.Revision == branch.Revision,
+                "A converted recast without its published source must be rejected.");
+            var recast = game.Submit(new RecastCardCommand(0, physicalId, game.Revision, play.PromptId)
+            { ConversionSource = converted.ConversionSource });
             Require(recast.Accepted && game.Events.Any(item => item.Payload is CardRecastEvent evt &&
                     evt.CardId == physicalId && evt.CardKind == CardKind.IronChain),
                 recast.Error?.Message ?? "Lianhuan recast was rejected.");
@@ -42,10 +49,18 @@ internal static class PangTongChecks
                 action.Kind == LegalActionKind.IronChain && action.CardId == physicalId &&
                 action.PlayedCardKind == CardKind.IronChain);
             var used = use.Submit(new PlayCardCommand(0, physicalId, ironChain.TargetSeats, use.Revision,
-                use.PendingDecision!.PromptId, CardKind.IronChain));
+                use.PendingDecision!.PromptId, CardKind.IronChain)
+            { ConversionSource = ironChain.ConversionSource });
             Require(used.Accepted && use.Events.Any(item => item.Payload is CardUseDeclaredEvent evt &&
                     evt.CardId == physicalId && evt.CardKind == CardKind.IronChain),
                 used.Error?.Message ?? "Lianhuan use was rejected.");
+            Require(use.ResolutionStack.OfType<CardUseFrame>().Any(frame =>
+                    frame.Action?.ConversionChain.SequenceEqual([ironChain.ConversionSource!]) == true),
+                "Lianhuan use must retain the selected skill instance in its pending card action.");
+            var restoredUse = GameReplay.Restore(use.CreateCheckpoint(), registry);
+            Require(SnapshotJson.Serialize(restoredUse.CreateSnapshot(0, revealAll: true)) ==
+                    SnapshotJson.Serialize(use.CreateSnapshot(0, revealAll: true)),
+                "Lianhuan use must replay exactly.");
             return;
         }
         throw new InvalidOperationException("No bounded Pang Tong fixture exposed a club Lianhuan conversion.");

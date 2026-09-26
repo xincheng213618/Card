@@ -11,7 +11,7 @@ internal static class PublicMarkerChecks
     private const string BystanderTwoId = "wuhun-marker:bystander-2";
     private const string WuhunSkillId = "wuhun-marker:wuhun";
     private const string WuhunRules = """
-    {"schemaVersion":58,"skills":[{"id":"wuhun-marker:wuhun","revision":2,"minimumRulesVersion":168,
+    {"schemaVersion":59,"skills":[{"id":"wuhun-marker:wuhun","revision":2,"minimumRulesVersion":169,
     "modifiers":[],"viewAs":[],"activations":[],"triggers":[
       {"id":"damage-nightmare","window":"afterDamageApplied","subject":"owner","damageOccurrence":"perDamagePoint","optional":false,"priority":0,
        "effects":[{"op":"changeAttributedMarker","target":"owner","targetRef":{"kind":"eventSource"},"marker":"nightmare","amount":1}]},
@@ -80,8 +80,8 @@ internal static class PublicMarkerChecks
                     LegacyKind: null,
                     Tags: SkillTag.Locked,
                     ExecutionForms: SkillExecutionForm.State,
-                    Program.RuntimeVersion: "skill-program-v58",
-                    Program.MinimumRulesVersion: 168
+                    Program.RuntimeVersion: "skill-program-v59",
+                    Program.MinimumRulesVersion: 169
                 } &&
                 wuhun.Program.Triggers.Select(trigger => trigger.Window)
                     .SequenceEqual([
@@ -93,7 +93,7 @@ internal static class PublicMarkerChecks
         try
         {
             _ = SkillProgramCatalog.Load(
-                WuhunRules.Replace("\"schemaVersion\":58", "\"schemaVersion\":57", StringComparison.Ordinal),
+                WuhunRules.Replace("\"schemaVersion\":59", "\"schemaVersion\":57", StringComparison.Ordinal),
                 WuhunPresentation);
         }
         catch (Exception exception)
@@ -101,7 +101,7 @@ internal static class PublicMarkerChecks
             schemaFailure = exception;
         }
         Require(schemaFailure is InvalidOperationException &&
-                schemaFailure.Message.Contains("expected 58", StringComparison.Ordinal),
+                schemaFailure.Message.Contains("expected 59", StringComparison.Ordinal),
             "Unsupported schema versions must be rejected before running the Wuhun graph.");
 
         var tiedCandidates = GameRules.GetMaximumMarkerCandidates(

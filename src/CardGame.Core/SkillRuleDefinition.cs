@@ -10,34 +10,13 @@ public interface ISkillRuleIdentity
 public sealed record SkillRuleDefinition(
     SkillKind Kind,
     string Name,
-    INumericSkillRule? Numeric,
-    ICardConversionSkillRule? Conversion,
     ICardUseSkillRule? CardUse,
     IDamageSkillRule? Damage,
     IJudgmentSkillRule? Judgment)
 {
     public static SkillRuleDefinition From(ISkillRuleIdentity rule) => new(
-        rule.Kind, rule.Name, rule as INumericSkillRule, rule as ICardConversionSkillRule,
+        rule.Kind, rule.Name,
         rule as ICardUseSkillRule, rule as IDamageSkillRule, rule as IJudgmentSkillRule);
-}
-
-public interface INumericSkillRule
-{
-    int ModifyDrawCount(PlayerSkillContext owner, int currentCount) => currentCount;
-    int ModifySlashLimit(PlayerSkillContext owner, int currentLimit) => currentLimit;
-    int ModifyOutgoingDistance(PlayerSkillContext owner, int currentDistance) => currentDistance;
-    int ModifyIncomingDistance(PlayerSkillContext owner, int currentDistance) => currentDistance;
-    int ModifySupplyShortageDistanceLimit(PlayerSkillContext owner, int currentLimit) => currentLimit;
-}
-
-public interface ICardConversionSkillRule
-{
-    bool CanUseAsSlash(PlayerSkillContext owner, Card card) => false;
-    bool CanUseAsDismantlement(PlayerSkillContext owner, Card card) => false;
-    bool CanUseAsSupplyShortage(PlayerSkillContext owner, Card card) => false;
-    bool CanUseAsIndulgence(PlayerSkillContext owner, Card card) => false;
-    bool CanUseAsResponse(PlayerSkillContext owner, Card card, CardKind requiredCardKind) => false;
-    bool CanUseAsDyingRescue(PlayerSkillContext owner, Card card) => false;
 }
 
 public interface ICardUseSkillRule

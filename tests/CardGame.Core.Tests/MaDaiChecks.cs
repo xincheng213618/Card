@@ -27,8 +27,8 @@ internal static class MaDaiChecks
                     Tags: SkillTag.None,
                     ExecutionForms: SkillExecutionForm.State | SkillExecutionForm.Trigger,
                     ActionForms: SkillActionForm.None,
-                    Program.RuntimeVersion: "skill-program-v58",
-                    Program.MinimumRulesVersion: 168
+                    Program.RuntimeVersion: "skill-program-v59",
+                    Program.MinimumRulesVersion: 169
                 } skill &&
                 skill.Program.Triggers.Single() is
                 {
@@ -175,7 +175,7 @@ internal static class MaDaiChecks
                 choice.Parameters.GetValueOrDefault("response") == "slash" &&
                 choice.Cards.Count == 1 &&
                 allowedSlashIds.Contains(choice.Cards[0]));
-            ResolveSyntheticDuelSlash(game, fixture.TargetSeat, allowedChoice.Cards[0]);
+            ResolveSyntheticDuelSlash(game, fixture.TargetSeat, allowedChoice);
             var ownerResponse = RequirePrompt(game, DecisionKind.RespondSlash);
             AnswerChoice(game, ownerResponse.Choices.Single(choice =>
                 choice.Parameters.GetValueOrDefault("response") == "take-damage"));
@@ -358,8 +358,9 @@ internal static class MaDaiChecks
         return (PendingDecision?)field.GetValue(game);
     }
 
-    private static void ResolveSyntheticDuelSlash(GameEngine game, int responderSeat, int slashCardId)
+    private static void ResolveSyntheticDuelSlash(GameEngine game, int responderSeat, PromptChoice choice)
     {
+        var slashCardId = choice.Cards.Single();
         var duelField = typeof(GameEngine).GetField(
             "_pendingDuel",
             BindingFlags.NonPublic | BindingFlags.Instance) ??
@@ -385,6 +386,8 @@ internal static class MaDaiChecks
             .Invoke(game, [resolutionId]);
         typeof(GameEngine).GetMethod("SetCardUseStep", BindingFlags.NonPublic | BindingFlags.Instance)!
             .Invoke(game, [resolutionId, ResolutionFrameStep.ResolvingEffect]);
+        typeof(GameEngine).GetMethod("CaptureSelectedResponseConversion", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .Invoke(game, [choice]);
         typeof(GameEngine).GetMethod("ClearPendingDecision", BindingFlags.NonPublic | BindingFlags.Instance)!
             .Invoke(game, null);
         var resolve = typeof(GameEngine).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)

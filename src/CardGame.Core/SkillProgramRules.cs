@@ -12,38 +12,10 @@ public sealed record SkillProgramRuleSource(
     SkillProgram Program);
 
 /// <summary>
-/// Evaluates compiled numeric contributions and card conversions from current program definitions.
+/// Evaluates compiled numeric contributions from current program definitions.
 /// </summary>
-public sealed class SkillProgramRules : ICardConversionSkillRule
+public static class SkillProgramRules
 {
-    private readonly IReadOnlyList<SkillProgram> _programs;
-    private readonly IReadOnlySet<int> _handCardIds;
-    private readonly IReadOnlySet<int> _equipmentCardIds;
-
-    public SkillProgramRules(IReadOnlyList<SkillProgram> programs, IReadOnlySet<int> handCardIds,
-        IReadOnlySet<int>? equipmentCardIds = null)
-    {
-        ArgumentNullException.ThrowIfNull(programs);
-        ArgumentNullException.ThrowIfNull(handCardIds);
-        if (programs.Any(program => program is null))
-            throw new ArgumentException("Configured skill programs cannot contain null entries.", nameof(programs));
-        if (programs.Select(program => program.Id).Distinct(StringComparer.Ordinal).Count() != programs.Count)
-            throw new ArgumentException("Configured skill program ids must be unique.", nameof(programs));
-
-        _programs = Array.AsReadOnly(programs.OrderBy(program => program.Id, StringComparer.Ordinal).ToArray());
-        _handCardIds = new HashSet<int>(handCardIds);
-        _equipmentCardIds = equipmentCardIds is null
-            ? new HashSet<int>()
-            : new HashSet<int>(equipmentCardIds);
-    }
-
-    public bool CanUseAsSlash(PlayerSkillContext owner, Card card) =>
-        MatchesViewAs(owner, card, CardKind.Slash, forResponse: false);
-
-    public bool CanUseAsResponse(PlayerSkillContext owner, Card card, CardKind requiredCardKind) =>
-        requiredCardKind is CardKind.Slash or CardKind.Dodge &&
-        MatchesViewAs(owner, card, requiredCardKind, forResponse: true);
-
     public static IReadOnlyList<RuleQueryContribution> CollectContributions(
         SkillRuleQuery query,
         SkillProgramRuleContext context,
@@ -209,19 +181,4 @@ public sealed class SkillProgramRules : ICardConversionSkillRule
         left.Children.Count == right.Children.Count &&
         left.Children.Zip(right.Children).All(pair => ConditionsEqual(pair.First, pair.Second));
 
-    private bool MatchesViewAs(PlayerSkillContext owner, Card card, CardKind outputKind, bool forResponse)
-    {
-        if ((!_handCardIds.Contains(card.Id) && !_equipmentCardIds.Contains(card.Id)) ||
-            card.Kind == outputKind)
-            return false;
-
-        return _programs.SelectMany(program => program.ViewAs).Any(rule =>
-            rule.OutputKind == outputKind &&
-            (rule.SourceZones.Contains(CardZoneKind.Hand) && _handCardIds.Contains(card.Id) ||
-             rule.SourceZones.Contains(CardZoneKind.Equipment) && _equipmentCardIds.Contains(card.Id)) &&
-            (forResponse ? rule.ForResponse : rule.ForPlay) &&
-            rule.Condition.Evaluate(owner) &&
-            (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&
-            (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(card.Suit)));
-    }
 }

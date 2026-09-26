@@ -323,10 +323,8 @@ public sealed class StandardContentPackage : IGameContentPackage
         builder.AddSkill(DrawPhaseSkillPrograms.Definition("standard:yingzi"));
         builder.AddSkill(new ContentSkillDefinition(
             "standard:kongcheng", "空城", "没有手牌时不能成为杀的目标。", SkillKind.Kongcheng));
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:wusheng", "武圣", "红色牌可当作杀使用。", SkillKind.Wusheng));
-        builder.AddSkill(new ContentSkillDefinition(
-            "standard:longdan", "龙胆", "杀可当闪，闪可当杀使用。", SkillKind.Longdan));
+        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("conversion-cutover", "standard:wusheng"));
+        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("conversion-cutover", "standard:longdan"));
         builder.AddSkill(DamageSkillPrograms.Definition("standard:yiji"));
         builder.AddSkill(DamageSkillPrograms.Definition("standard:jieming"));
         builder.AddSkill(new ContentSkillDefinition(

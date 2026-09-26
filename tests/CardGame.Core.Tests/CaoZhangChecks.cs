@@ -27,7 +27,7 @@ internal static class CaoZhangChecks
                     ExecutionForms: SkillExecutionForm.Trigger,
                     ActionForms: SkillActionForm.None
                 } skill &&
-                skill.Program is { MinimumRulesVersion: 168 },
+                skill.Program is { MinimumRulesVersion: 169 },
             "Current Cao Zhang must publish grouped Jiangchi through its program.");
 
         var fixture = FindFixture();
@@ -118,7 +118,7 @@ internal static class CaoZhangChecks
         }
         var targetSlash = targetPrompt.Choices.First(choice =>
             choice.Parameters.GetValueOrDefault("response") == "slash" && choice.Cards.Count == 1);
-        ResolveSyntheticDuelSlash(game, targetPrompt.PlayerSeat, targetSlash.Cards[0]);
+        ResolveSyntheticDuelSlash(game, targetPrompt.PlayerSeat, targetSlash);
         Require(game.PendingDecision is not { Kind: DecisionKind.RespondSlash, PlayerSeat: 0 } &&
                 game.CreateSnapshot(0, revealAll: true).Players[0].Hp == hpBefore - 1,
             "The extra-draw branch must also block playing Slash to answer Duel, without opening a forged response prompt.");
@@ -328,8 +328,9 @@ internal static class CaoZhangChecks
         return (PendingDecision?)field.GetValue(game);
     }
 
-    private static void ResolveSyntheticDuelSlash(GameEngine game, int responderSeat, int slashCardId)
+    private static void ResolveSyntheticDuelSlash(GameEngine game, int responderSeat, PromptChoice choice)
     {
+        var slashCardId = choice.Cards.Single();
         var duelField = typeof(GameEngine).GetField(
             "_pendingDuel",
             BindingFlags.NonPublic | BindingFlags.Instance) ??
@@ -355,6 +356,8 @@ internal static class CaoZhangChecks
             .Invoke(game, [resolutionId]);
         typeof(GameEngine).GetMethod("SetCardUseStep", BindingFlags.NonPublic | BindingFlags.Instance)!
             .Invoke(game, [resolutionId, ResolutionFrameStep.ResolvingEffect]);
+        typeof(GameEngine).GetMethod("CaptureSelectedResponseConversion", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .Invoke(game, [choice]);
         typeof(GameEngine).GetMethod("ClearPendingDecision", BindingFlags.NonPublic | BindingFlags.Instance)!
             .Invoke(game, null);
         var resolve = typeof(GameEngine).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)

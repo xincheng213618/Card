@@ -104,7 +104,7 @@ public sealed partial class GameEngine
     {
         var triggerId = frame.TriggerId ??
             throw new InvalidOperationException("The active program frame is not a trigger binding.");
-        var program = _contentRegistry?.GetSkill(frame.SkillId).Program ??
+        var program = _contentRegistry.GetSkill(frame.SkillId).Program ??
             throw new InvalidOperationException("The active program binding has no definition.");
         if (program.GameplayHash != frame.GameplayHash)
             throw new InvalidOperationException("The active program binding definition changed.");
@@ -1423,7 +1423,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
         CharacterState owner,
         SkillProgramTriggerWindow window,
         int occurrenceIndex = 0) =>
-        (GetSkillBindingShard(owner)?.GetInstanceTriggers(window) ?? [])
+        GetSkillBindingShard(owner).GetInstanceTriggers(window)
             .Select(binding => new ProgramTriggerCandidate(
                 owner.Seat,
                 binding.SkillId,
@@ -1482,7 +1482,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
         var owner = _players[candidate.OwnerSeat];
         if (context.Window != SkillProgramTriggerWindow.OwnerDied && !owner.IsAlive ||
             !HasRuntimeSkillInstance(owner, candidate.SkillId, candidate.SkillInstanceId) ||
-            _contentRegistry?.Skills.GetValueOrDefault(candidate.SkillId)?.Program is not { } program ||
+            _contentRegistry.Skills.GetValueOrDefault(candidate.SkillId)?.Program is not { } program ||
             program.GameplayHash != candidate.GameplayHash)
             return false;
         var trigger = program.Triggers.SingleOrDefault(item => item.Id == candidate.BindingId);
@@ -1742,7 +1742,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
     private SkillProgramTriggerFacts CaptureProgramTriggerFacts(CharacterState owner)
     {
         var states = new Dictionary<string, bool>(StringComparer.Ordinal);
-        foreach (var instance in GetSkillBindingShard(owner)?.ProgramInstances ?? [])
+        foreach (var instance in GetSkillBindingShard(owner).ProgramInstances)
         foreach (var definition in instance.Program.BooleanStates)
         {
             states[SkillProgramTriggerFacts.BooleanStateKey(

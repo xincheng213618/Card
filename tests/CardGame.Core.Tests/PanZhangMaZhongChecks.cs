@@ -27,8 +27,8 @@ internal static class PanZhangMaZhongChecks
             "The two skills must use effective Slash kinds and the generic reverse-range modifier.");
 
         var generic = """
-            {"schemaVersion":58,"skills":[{"id":"fixture:generic","revision":1,
-            "minimumRulesVersion":168,
+            {"schemaVersion":59,"skills":[{"id":"fixture:generic","revision":1,
+            "minimumRulesVersion":169,
             "damageModifiers":[{"id":"distance","cardKinds":["duel"],"amount":2,
             "condition":"always"}],
             "triggers":[{"id":"take-armor","window":"afterDamageApplied","subject":"owner",
@@ -427,8 +427,8 @@ internal static class PanZhangMaZhongChecks
             if (armorSynthetic)
             {
                 var catalog = SkillProgramCatalog.Load("""
-                    {"schemaVersion":58,"skills":[{"id":"fixture:take-source-armor","revision":1,
-                    "minimumRulesVersion":168,"triggers":[{"id":"take","window":"afterDamageApplied",
+                    {"schemaVersion":59,"skills":[{"id":"fixture:take-source-armor","revision":1,
+                    "minimumRulesVersion":169,"triggers":[{"id":"take","window":"afterDamageApplied",
                     "subject":"owner","damageOccurrence":"perDamage","damageCardKinds":["slash"],
                     "optional":false,"effects":[{"op":"selectSourceCard","target":"owner",
                     "zones":["equipment"],"equipmentSlots":["armor"],"skipIfNoCards":true,

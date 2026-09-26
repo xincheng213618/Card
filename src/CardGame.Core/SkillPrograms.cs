@@ -15,7 +15,8 @@ public enum SkillRuleQuery
     IncomingDistance,
     SlashDistanceLimit,
     AttackRange,
-    CardTargetCount
+    CardTargetCount,
+    CardUseDistanceLimit
 }
 public enum SkillRuleOperation { Add, Set, Unlimited }
 public enum SkillRuleValueExpression { LivingFactionCount, OwnedZoneCount, OwnerLostHp = 2 }
@@ -557,13 +558,15 @@ public sealed class SkillProgramViewAs
     internal SkillProgramViewAs(string id, IReadOnlyList<CardKind> inputKinds, IReadOnlyList<Suit> inputSuits,
         CardKind outputKind, bool forPlay, bool forResponse, SkillProgramCondition condition,
         int inputCount = 1, IReadOnlyList<CardZoneKind>? sourceZones = null,
-        bool allowChainedInput = false) =>
+        bool allowChainedInput = false,
+        IReadOnlyList<SkillProgramCardCategory>? inputCategories = null) =>
         (Id, InputKinds, InputSuits, OutputKind, ForPlay, ForResponse, Condition, InputCount, SourceZones,
-            AllowChainedInput) =
+            AllowChainedInput, InputCategories) =
         (id, inputKinds, inputSuits, outputKind, forPlay, forResponse, condition, inputCount,
-            sourceZones ?? [CardZoneKind.Hand], allowChainedInput);
+            sourceZones ?? [CardZoneKind.Hand], allowChainedInput, inputCategories ?? []);
     public string Id { get; }
     public IReadOnlyList<CardKind> InputKinds { get; }
+    public IReadOnlyList<SkillProgramCardCategory> InputCategories { get; }
     public IReadOnlyList<Suit> InputSuits { get; }
     public CardKind OutputKind { get; }
     public bool ForPlay { get; }
@@ -887,9 +890,9 @@ public sealed record ProgramBooleanStatePresentation(string TrueText, string Fal
 
 public sealed class SkillProgramCatalog
 {
-    public const int RulesSchemaVersion = 58;
+    public const int RulesSchemaVersion = 59;
     public const int PresentationSchemaVersion = 3;
-    public const string RuntimeVersion = "skill-program-v58";
+    public const string RuntimeVersion = "skill-program-v59";
     private const int MaximumDepth = 16;
     private const int MaximumItems = 256;
     private static readonly SkillProgramCondition Always = new(
@@ -948,7 +951,7 @@ public sealed class SkillProgramCatalog
         CheckProperties(root, "rules", "schemaVersion", "skills");
         RequireVersion(root, "rules", RulesSchemaVersion);
         var runtimeVersion = RuntimeVersion;
-        const int minimumRulesVersion = 168;
+        const int minimumRulesVersion = 169;
         var skills = Required(root, "skills", JsonValueKind.Array, "rules");
         CheckCount(skills.GetArrayLength(), "rules.skills");
         var result = new Dictionary<string, SkillProgram>(StringComparer.Ordinal);
@@ -1219,7 +1222,12 @@ public sealed class SkillProgramCatalog
         }
         else if (sourceCardIdentityId is not null)
             Fail(path + ".sourceCardIdentityId", "is supported only for slashDistanceLimit");
-        if (query == SkillRuleQuery.CardTargetCount)
+        if (query == SkillRuleQuery.CardUseDistanceLimit)
+        {
+            if (operation != SkillRuleOperation.Add || valueExpression is not null || cardKinds.Count == 0)
+                Fail(path, "cardUseDistanceLimit requires fixed additive value and effective card kinds");
+        }
+        else if (query == SkillRuleQuery.CardTargetCount)
         {
             if (operation != SkillRuleOperation.Add || value <= 0 || valueExpression is not null)
                 Fail(path, "cardTargetCount requires a positive fixed additive modifier");
@@ -1227,7 +1235,7 @@ public sealed class SkillProgramCatalog
                 Fail(path + ".cardKinds", "cardTargetCount requires at least one effective card kind");
         }
         else if (cardKinds.Count != 0)
-            Fail(path + ".cardKinds", "is supported only for cardTargetCount");
+            Fail(path + ".cardKinds", "is supported only for cardTargetCount or cardUseDistanceLimit");
         return new SkillProgramModifier(id, query, operation, value, valueExpression, valueZone, priority,
             sourceCardIdentityId, cardKinds, OptionalCondition(node, path));
     }
@@ -1269,10 +1277,13 @@ public sealed class SkillProgramCatalog
     private static SkillProgramViewAs ParseViewAs(JsonElement node, string path)
     {
         RequireObject(node, path);
-        CheckProperties(node, path, "id", "inputKinds", "inputSuits", "inputCount", "sourceZones",
+        CheckProperties(node, path, "id", "inputKinds", "inputSuits", "inputCategories", "inputCount", "sourceZones",
             "outputKind", "forPlay", "forResponse", "allowChainedInput", "condition");
         var id = Identifier(node, "id", path);
         var inputs = EnumArray<CardKind>(node, "inputKinds", path);
+        var inputCategories = node.TryGetProperty("inputCategories", out _)
+            ? EnumArray<SkillProgramCardCategory>(node, "inputCategories", path)
+            : [];
         var suits = EnumArray<Suit>(node, "inputSuits", path);
         var inputCount = node.TryGetProperty("inputCount", out _)
             ? PositiveInt(node, "inputCount", path)
@@ -1286,8 +1297,10 @@ public sealed class SkillProgramCatalog
         if (inputCount > 1 && !sourceZones.SequenceEqual([CardZoneKind.Hand]))
             Fail(path + ".sourceZones", "multi-card viewAs currently accepts hand cards only");
         var output = EnumValue<CardKind>(node, "outputKind", path);
-        if (output is not (CardKind.Slash or CardKind.Dodge or CardKind.FireSlash))
-            Fail(path + ".outputKind", "only slash, dodge or fireSlash is supported");
+        if (output is not (CardKind.Slash or CardKind.Dodge or CardKind.FireSlash or
+                CardKind.Dismantlement or CardKind.SupplyShortage or CardKind.Indulgence or
+                CardKind.IronChain or CardKind.FireAttack or CardKind.Nullification or CardKind.Peach))
+            Fail(path + ".outputKind", "this card kind has no configured viewAs use or response path");
         var forPlay = RequiredBool(node, "forPlay", path);
         var forResponse = RequiredBool(node, "forResponse", path);
         var allowChainedInput = node.TryGetProperty("allowChainedInput", out _) &&
@@ -1295,16 +1308,28 @@ public sealed class SkillProgramCatalog
         if (!forPlay && !forResponse) Fail(path, "at least one of forPlay or forResponse must be true");
         if (output == CardKind.Dodge && forPlay)
             Fail(path + ".forPlay", "dodge is response-only and cannot be played proactively");
+        if (inputCount > 1 && output is not (CardKind.Slash or CardKind.Dodge))
+            Fail(path + ".inputCount", "multi-card viewAs has no use or response executor for this output kind");
+        if (inputCount > 1 && inputCategories.Count != 0)
+            Fail(path + ".inputCategories", "multi-card viewAs does not support category input filters");
+        if (output is CardKind.Dismantlement or CardKind.SupplyShortage or CardKind.Indulgence or
+                CardKind.IronChain or CardKind.FireAttack && forResponse)
+            Fail(path + ".forResponse", "this trick cannot be used as a response");
+        if (output == CardKind.Nullification && forPlay)
+            Fail(path + ".forPlay", "nullification is only legal in the counterspell response window");
+        if (output == CardKind.Peach && forPlay)
+            Fail(path + ".forPlay", "proactive peach has no configured viewAs executor");
         if (output == CardKind.FireSlash &&
             (!forPlay || forResponse || inputCount != 1 ||
              inputs.Count != 1 || inputs[0] != CardKind.Slash))
             Fail(path, "fireSlash viewAs currently requires one physical slash for play only");
-        if (allowChainedInput && (!forPlay || forResponse || inputCount != 1))
-            Fail(path + ".allowChainedInput", "chained viewAs currently requires one input for play only");
+        if (allowChainedInput &&
+            (!forPlay || forResponse || inputCount != 1 || output != CardKind.FireSlash))
+            Fail(path + ".allowChainedInput", "chained viewAs currently supports one input for fireSlash play only");
         if (inputs.Count > 0 && inputs.All(kind => kind == output))
             Fail(path + ".inputKinds", "viewAs must change at least one accepted input kind");
         return new SkillProgramViewAs(id, inputs, suits, output, forPlay, forResponse,
-            OptionalCondition(node, path), inputCount, sourceZones, allowChainedInput);
+            OptionalCondition(node, path), inputCount, sourceZones, allowChainedInput, inputCategories);
     }
 
     private static SkillProgramActivation ParseActivation(JsonElement node, string path)

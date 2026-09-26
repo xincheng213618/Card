@@ -251,7 +251,7 @@ internal static class ProgramCompositionEntryChecks
     private static readonly string RevealRules = Rules(RevealSkillId, RevealEffects);
     private static readonly string GiftRules = Rules(GiftSkillId, GiftEffects);
     private static string Rules(string skillId, string effects) => $$"""
-    {"schemaVersion":58,"skills":[{"id":"{{skillId}}","revision":1,"minimumRulesVersion":168,
+    {"schemaVersion":59,"skills":[{"id":"{{skillId}}","revision":1,"minimumRulesVersion":169,
     "modifiers":[],"viewAs":[],
     "activations":[{"id":"active","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,"effects":{{effects}}}],
     "triggers":[

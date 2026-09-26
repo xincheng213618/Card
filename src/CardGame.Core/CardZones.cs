@@ -172,7 +172,6 @@ public static class CardMoveReasons
     public static CardMoveReason JuxiangGain { get; } = new("skill.juxiang.gain");
     public static CardMoveReason LierenGain { get; } = new("skill.lieren.gain");
     public static CardMoveReason TianduClaim { get; } = new("skill.tiandu.claim-judgment");
-    public static CardMoveReason ShuangxiongClaim { get; } = new("skill.shuangxiong.claim-judgment");
     public static CardMoveReason LuoshenClaim { get; } = new("skill.luoshen.claim-judgment");
     public static CardMoveReason JizhiDraw { get; } = new("skill.jizhi.draw");
     public static CardMoveReason FanjianGive { get; } = new("skill.fanjian.give-card");
@@ -201,8 +200,6 @@ public static class CardMoveReasons
     public static CardMoveReason RendeGive { get; } = new("skill.rende.give-card");
     public static CardMoveReason QingnangDiscard { get; } = new("skill.qingnang.discard");
     public static CardMoveReason HuichunDiscard { get; } = new("skill.huichun.discard");
-    public static CardMoveReason NiepanDiscard { get; } = new("skill.niepan.discard");
-    public static CardMoveReason NiepanDraw { get; } = new("skill.niepan.draw");
     public static CardMoveReason HandLimitDiscard { get; } = new("rule.hand-limit-discard");
     public static CardMoveReason DeathDiscard { get; } = new("rule.death-discard");
     public static CardMoveReason LordPenalty { get; } = new("mode.identity.lord-killed-loyalist");

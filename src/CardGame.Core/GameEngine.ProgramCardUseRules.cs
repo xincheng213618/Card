@@ -75,20 +75,24 @@ public sealed partial class GameEngine
         if (zone is null) return [];
 
         var context = CreateSkillContext(owner);
-        return EnabledViewAsPrograms(owner)
-            .SelectMany(program => program.ViewAs
+        return GetSkillBindingShard(owner).ProgramInstances
+            .Where(instance => instance.Program.ViewAs.Count != 0)
+            .SelectMany(instance => instance.Program.ViewAs
                 .Where(rule => rule.AllowChainedInput &&
+                               rule.InputCount == 1 &&
                                rule.OutputKind == outputKind &&
                                rule.SourceZones.Contains(zone.Value) &&
                                (forResponse ? rule.ForResponse : rule.ForPlay) &&
                                rule.Condition.Evaluate(context) &&
                                (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(inputKind)) &&
+                               (rule.InputCategories.Count == 0 ||
+                                rule.InputCategories.Contains(GetProgramCardCategory(inputKind))) &&
                                (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(physicalCard.Suit)))
                 .Select(rule => new CardConversionSource(
-                    program.Id,
+                    instance.SkillId,
                     rule.Id,
                     owner.Seat,
-                    $"seat-{owner.Seat}:{program.Id}")))
+                    instance.SkillInstanceId)))
             .Where(source => source != primaryConversionSource)
             .Distinct()
             .OrderBy(source => source.SkillId, StringComparer.Ordinal)
@@ -98,7 +102,7 @@ public sealed partial class GameEngine
     }
 
     private string DescribeAdditionalConversion(CardConversionSource source) =>
-        _contentRegistry?.Skills.TryGetValue(source.SkillId, out var skill) == true
+        _contentRegistry.Skills.TryGetValue(source.SkillId, out var skill)
             ? skill.Name
             : source.SkillId;
 

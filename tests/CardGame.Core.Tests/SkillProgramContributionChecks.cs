@@ -13,7 +13,7 @@ internal static class SkillProgramContributionChecks
         var classic = catalog.Programs[ClassicSkillId];
         var boundary = catalog.Programs[BoundarySkillId];
         var classicContribution = classic.Contributions.Single();
-        Require(classic is { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } &&
+        Require(classic is { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } &&
                 classicContribution is
                 {
                     Id: BindingId,
@@ -33,8 +33,8 @@ internal static class SkillProgramContributionChecks
         RequireThrows<NotSupportedException>(() =>
             ((IList<CardKind>)classicContribution.CardKinds).Add(CardKind.Peach));
 
-        AssertReject(Rules.Replace("\"schemaVersion\":58", "\"schemaVersion\":57", StringComparison.Ordinal),
-            "expected 58");
+        AssertReject(Rules.Replace("\"schemaVersion\":59", "\"schemaVersion\":57", StringComparison.Ordinal),
+            "expected 59");
         AssertReject(Rules.Replace("\"cardKinds\":[\"dodge\",\"lightning\"]",
             "\"cardKinds\":[]", StringComparison.Ordinal), "physical card kind or suit");
         AssertReject(Rules.Replace("\"providerFactions\":[\"qun\"]",
@@ -229,7 +229,7 @@ internal static class SkillProgramContributionChecks
     }
 
     private const string Rules = """
-        {"schemaVersion":58,"skills":[
+        {"schemaVersion":59,"skills":[
           {"id":"scenario:classic-huangtian","revision":1,"modifiers":[],"viewAs":[],"activations":[],"triggers":[],
            "contributions":[{"id":"contribute","providerFactions":["qun"],"ownerRole":"lord",
              "cardKinds":["dodge","lightning"],"cardSuits":[],"usesPerPlayPhase":1}]},

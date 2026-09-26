@@ -23,7 +23,7 @@ internal static class DamageProgramChecks
                  })
         {
             Require(currentStandard.Skills[skillId].Program is
-                        { MinimumRulesVersion: 168 },
+                        { MinimumRulesVersion: 169 },
                 $"{skillId} must use the current damage program.");
         }
 
@@ -33,7 +33,7 @@ internal static class DamageProgramChecks
                  })
         {
             Require(currentClassic.Skills[skillId].Program is
-                        { MinimumRulesVersion: 168 },
+                        { MinimumRulesVersion: 169 },
                 $"{skillId} must use the current damage program.");
         }
 
@@ -85,8 +85,8 @@ internal static class DamageProgramChecks
             StringComparison.Ordinal), expectedMessage: null);
 
         const string ownerSelectionRules = """
-            {"schemaVersion":58,"skills":[{"id":"fixture:damage","revision":1,
-            "minimumRulesVersion":168,"modifiers":[{"id":"authority-limit","query":"handLimit",
+            {"schemaVersion":59,"skills":[{"id":"fixture:damage","revision":1,
+            "minimumRulesVersion":169,"modifiers":[{"id":"authority-limit","query":"handLimit",
             "operation":"add","valueExpression":"ownedZoneCount","valueZone":"authority",
             "priority":0,"condition":{"kind":"always"}}],"viewAs":[],"activations":[],"triggers":[
             {"id":"owner-card","window":"afterDamageApplied","subject":"owner",
@@ -469,8 +469,8 @@ internal static class DamageProgramChecks
     }
 
     private const string ValidationRules = """
-        {"schemaVersion":58,"skills":[{"id":"fixture:damage","revision":1,
-        "minimumRulesVersion":168,"modifiers":[],"viewAs":[],"activations":[],"triggers":[
+        {"schemaVersion":59,"skills":[{"id":"fixture:damage","revision":1,
+        "minimumRulesVersion":169,"modifiers":[],"viewAs":[],"activations":[],"triggers":[
         {"id":"per-point","window":"afterDamageApplied","subject":"owner",
         "damageOccurrence":"perDamagePoint","optional":true,"priority":0,
         "effects":[

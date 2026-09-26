@@ -1,5 +1,6 @@
 using CardGame.Content.Standard;
 using CardGame.Core;
+using System.Reflection;
 
 internal static class SkillProgramCardIdentityChecks
 {
@@ -13,7 +14,7 @@ internal static class SkillProgramCardIdentityChecks
         var program = SkillProgramCatalog.Load(Rules, Presentation).Programs[ProgramId];
         var identity = program.CardIdentities.Single();
         var distance = program.Modifiers.Single();
-        Require(program is { RuntimeVersion: "skill-program-v58", MinimumRulesVersion: 168 } &&
+        Require(program is { RuntimeVersion: "skill-program-v59", MinimumRulesVersion: 169 } &&
                 identity is
                 {
                     Id: IdentityId,
@@ -29,8 +30,8 @@ internal static class SkillProgramCardIdentityChecks
                 },
             "Schema 10 must keep mandatory hand identity and action-scoped Slash distance as separate bindings.");
 
-        AssertReject(Rules.Replace("\"schemaVersion\":58", "\"schemaVersion\":57", StringComparison.Ordinal),
-            "expected 58");
+        AssertReject(Rules.Replace("\"schemaVersion\":59", "\"schemaVersion\":57", StringComparison.Ordinal),
+            "expected 59");
         AssertReject(Rules.Replace("\"sourceCardIdentityId\":\"heart-hand-as-slash\"",
                 "\"sourceCardIdentityId\":\"missing\"", StringComparison.Ordinal),
             "unknown card identity");
@@ -102,6 +103,66 @@ internal static class SkillProgramCardIdentityChecks
                     .SequenceEqual(restoredAtPrompt.Events.Select(item => item.Payload.GetType().Name)),
             "A paused mandatory card-identity action did not replay exactly.");
 
+        BindingOccurrenceTracksGrantChanges(registry);
+    }
+
+    private static void BindingOccurrenceTracksGrantChanges(ContentRegistry registry)
+    {
+        var game = GameEngine.CreateStandard(new GameOptions
+        {
+            Seed = 19,
+            PlayerCount = 4,
+            ModeId = ModeId,
+            HumanSeat = 0,
+            HumanRole = Role.Lord,
+            UseInteractiveSetup = true,
+            UseInteractiveDiscard = false,
+            AdvanceAfterHumanCommands = false,
+            AiPolicyVersion = 2,
+            MaxTurns = 20
+        }, registry);
+        Require(game.Submit(new StartGameCommand()).Accepted, "Grant fixture could not start.");
+        Require(game.Submit(new SelectGeneralCommand(
+            0, OwnerGeneralId, game.Revision, game.PendingDecision!.PromptId)).Accepted,
+            "Grant fixture could not select its owner.");
+        AdvanceToHumanPlay(game);
+
+        var players = (IReadOnlyList<CharacterState>)(typeof(GameEngine)
+            .GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .GetValue(game) ?? throw new InvalidOperationException("Grant fixture players are unavailable."));
+        var owner = players[0];
+        var template = owner.SkillGrants.Grants.Single(grant =>
+            grant.SkillId == ProgramId && grant.SourceId == CharacterState.PrimarySkillSource);
+        var cardId = game.CreateSnapshot(0, revealAll: true).Players[0].Hand[0].Id;
+        CardConversionSource[] Sources() => game.GetHumanLegalActions()
+            .Where(action => action.Kind == LegalActionKind.Slash &&
+                             action.CardId == cardId && action.TargetSeats.SequenceEqual([2]))
+            .Select(action => action.ConversionSource)
+            .OfType<CardConversionSource>()
+            .Distinct()
+            .ToArray();
+
+        Require(Sources().Select(source => source.SkillInstanceId)
+                .SequenceEqual([template.SkillInstanceId]),
+            "A mandatory identity must publish its real active template instance.");
+        owner.SkillGrants.Grant(new SkillGrant(
+            "fixture:shared", ProgramId, template.SkillInstanceId, "acquired:shared"));
+        owner.SkillGrants.Grant(new SkillGrant(
+            "fixture:distinct", ProgramId, "fixture:distinct-instance", "acquired:distinct"));
+        Require(Sources().Select(source => source.SkillInstanceId).Order(StringComparer.Ordinal)
+                .SequenceEqual(new[] { template.SkillInstanceId, "fixture:distinct-instance" }
+                    .Order(StringComparer.Ordinal)),
+            "A second source of one instance must collapse while a distinct grant publishes its own choice.");
+        owner.SkillGrants.RemoveGrant(template.GrantId);
+        Require(Sources().Length == 2,
+            "Removing the template source must preserve the shared live instance.");
+        owner.SkillGrants.SetEnabled("fixture:shared", false);
+        Require(Sources().Select(source => source.SkillInstanceId)
+                .SequenceEqual(["fixture:distinct-instance"]),
+            "Disabling the shared source must leave only the distinct identity instance.");
+        owner.SkillGrants.SetEnabled("fixture:distinct", false);
+        Require(Sources().Length == 0,
+            "Disabling the last grant must withdraw the mandatory identity action.");
     }
 
     private static void AdvanceToHumanPlay(GameEngine game)
@@ -218,7 +279,7 @@ internal static class SkillProgramCardIdentityChecks
     }
 
     private const string Rules = """
-        {"schemaVersion":58,"skills":[
+        {"schemaVersion":59,"skills":[
           {"id":"card-identity-test:wushen","revision":1,
            "modifiers":[
              {"id":"slash-distance","priority":0,"query":"slashDistanceLimit","operation":"unlimited","value":0,

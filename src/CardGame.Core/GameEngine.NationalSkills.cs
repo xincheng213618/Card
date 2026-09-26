@@ -53,7 +53,7 @@ public sealed partial class GameEngine
 
     private static bool IsEnabledTemplateSkill(CharacterState player, GeneralDefinition general, string? skillId)
     {
-        if (skillId is null) return true; // Legacy demo skills have no content binding.
+        if (skillId is null) return false;
         var source = general.Id == player.General.Id
             ? CharacterState.PrimarySkillSource : CharacterState.SecondarySkillSource;
         return player.SkillGrants.Grants.Any(grant =>
@@ -62,10 +62,12 @@ public sealed partial class GameEngine
 
     private GeneralSkillDefinition ToRuntimeSkillDefinition(string skillId)
     {
-        var skill = _contentRegistry?.GetSkill(skillId) ??
-            throw new InvalidOperationException(
-                $"Runtime skill '{skillId}' is unavailable in the active content registry.");
-        return new GeneralSkillDefinition(
+        var skill = _contentRegistry.GetSkill(skillId);
+        return ToRuntimeSkillDefinition(skill);
+    }
+
+    private static GeneralSkillDefinition ToRuntimeSkillDefinition(ContentSkillDefinition skill) =>
+        new GeneralSkillDefinition(
             skill.LegacyKind ?? SkillKind.None,
             skill.Name,
             skill.Description)
@@ -73,9 +75,17 @@ public sealed partial class GameEngine
             ContentId = skill.Id,
             Tags = skill.Tags,
             ExecutionForms = skill.ExecutionForms,
-            ActionForms = skill.ActionForms
+            ActionForms = skill.ActionForms,
+            ViewAsOpportunities = skill.Program?.ViewAs
+                .Where(rule => rule.Condition.Kind == SkillProgramConditionKind.Always &&
+                               rule.InputCount == 1 &&
+                               rule.SourceZones.Contains(CardZoneKind.Hand) &&
+                               rule.InputCategories.Count == 0)
+                .Select(rule => new SkillViewAsOpportunity(
+                    rule.OutputKind, rule.InputKinds, rule.InputSuits,
+                    rule.ForPlay, rule.ForResponse))
+                .ToArray()
         };
-    }
 
     private IEnumerable<GeneralSkillDefinition> OwnedRuntimeSkills(
         CharacterState player,
@@ -99,23 +109,8 @@ public sealed partial class GameEngine
         CharacterState player,
         GeneralDefinition general)
     {
-        var definitions = SupportsMultiSkillGenerals
-            ? general.Skills
-            :
-            [
-                new GeneralSkillDefinition(
-                    general.Skill,
-                    general.SkillName,
-                    general.SkillDescription)
-                {
-                    ContentId = general.SkillContentId,
-                    Tags = general.SkillTags,
-                    ExecutionForms = general.SkillExecutionForms,
-                    ActionForms = general.SkillActionForms
-                }
-            ];
         var emitted = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var skill in definitions.Where(skill => CanOwnPrintedSkill(player, skill.Tags) &&
+        foreach (var skill in general.Skills.Where(skill => CanOwnPrintedSkill(player, skill.Tags) &&
                      IsEnabledTemplateSkill(player, general, skill.ContentId)))
         {
             if (skill.ContentId is null || emitted.Add(skill.ContentId)) yield return skill;
@@ -127,12 +122,11 @@ public sealed partial class GameEngine
         }
     }
 
-    private SkillBindingShard? GetSkillBindingShard(CharacterState player) =>
-        _skillBindingIndex?.GetShard(player);
+    private SkillBindingShard GetSkillBindingShard(CharacterState player) =>
+        _skillBindingIndex.GetShard(player);
 
     private IReadOnlyList<string> EnabledPrintedContentSkillIds(CharacterState player)
     {
-        if (_contentRegistry is null) return [];
         return EnabledRuntimeSkillGrants(player)
             .Where(grant => grant.SourceId is CharacterState.PrimarySkillSource or
                 CharacterState.SecondarySkillSource)
@@ -153,34 +147,11 @@ public sealed partial class GameEngine
         EnabledRuntimeSkillGrants(player).Where(grant =>
             grant.SourceId is not CharacterState.PrimarySkillSource and not CharacterState.SecondarySkillSource);
 
-    private bool IsEnabledRuntimeSkillGrant(CharacterState player, SkillGrant grant)
-    {
-        if (!grant.IsEnabled) return false;
-        if (grant.SourceId == CharacterState.PrimarySkillSource)
-        {
-            if (IsNationalWarMode && (!player.GeneralSelected || !player.GeneralRevealed)) return false;
-            return _contentRegistry is null ||
-                CanOwnPrintedSkill(player, _contentRegistry.GetSkill(grant.SkillId).Tags);
-        }
-        if (grant.SourceId == CharacterState.SecondarySkillSource)
-        {
-            if (!IsNationalWarMode || player.SecondaryGeneral is null ||
-                !player.SecondaryGeneralSelected || !player.SecondaryGeneralRevealed)
-                return false;
-            return _contentRegistry is null ||
-                CanOwnPrintedSkill(player, _contentRegistry.GetSkill(grant.SkillId).Tags);
-        }
-        return true;
-    }
-
     private IEnumerable<SkillGrant> EnabledRuntimeSkillGrants(CharacterState player) =>
-        GetSkillBindingShard(player)?.ActiveGrants ??
-        player.SkillGrants.Grants.Where(grant => IsEnabledRuntimeSkillGrant(player, grant)).ToArray();
+        GetSkillBindingShard(player).ActiveGrants;
 
     private bool HasRuntimeSkillInstance(CharacterState player, string skillId, string skillInstanceId) =>
-        GetSkillBindingShard(player)?.HasInstance(skillId, skillInstanceId) ??
-        EnabledRuntimeSkillGrants(player).Any(grant =>
-            grant.SkillId == skillId && grant.SkillInstanceId == skillInstanceId);
+        GetSkillBindingShard(player).HasInstance(skillId, skillInstanceId);
 
     private string GetRuntimeSkillInstanceId(CharacterState player, string skillId) =>
         EnabledRuntimeSkillGrants(player)
@@ -191,26 +162,15 @@ public sealed partial class GameEngine
         throw new InvalidOperationException($"Player {player.Seat} does not own enabled skill '{skillId}'.");
 
     private bool HasRuntimeSkill(CharacterState player, string skillId) =>
-        GetSkillBindingShard(player)?.HasSkill(skillId) ??
-        EnabledContentSkillIds(player).Contains(skillId, StringComparer.Ordinal);
-
-    private bool HasLegacyRuntimeSkill(CharacterState player, string skillId) =>
-        GetSkillBindingShard(player)?.Definitions.GetValueOrDefault(skillId) is
-        {
-            Program: null
-        };
+        GetSkillBindingShard(player).HasSkill(skillId);
 
     private bool HasRuntimeSkill(CharacterState player, SkillKind skill) =>
-        _contentRegistry is null
-            ? player.General.HasSkill(skill)
-            : GetSkillBindingShard(player)!.Definitions.Values.Any(definition => definition.LegacyKind == skill);
+        GetSkillBindingShard(player).Definitions.Values.Any(definition => definition.LegacyKind == skill);
 
     private ContentSkillDefinition? GetEnabledContentSkill(CharacterState player, SkillKind skill) =>
-        _contentRegistry is null
-            ? null
-            : GetSkillBindingShard(player)!.Definitions.Values
-                .OrderBy(definition => definition.Id, StringComparer.Ordinal)
-                .FirstOrDefault(definition => definition.LegacyKind == skill);
+        GetSkillBindingShard(player).Definitions.Values
+            .OrderBy(definition => definition.Id, StringComparer.Ordinal)
+            .FirstOrDefault(definition => definition.LegacyKind == skill);
 
     private IEnumerable<SkillRuleDefinition> EnabledSkillRules(CharacterState player)
     {
@@ -258,24 +218,9 @@ public sealed partial class GameEngine
         }
     }
 
-    private int GetSupplyShortageDistanceLimit(CharacterState player, PlayerSkillContext context) =>
-        EnabledSkillRules(player).Select(skill => skill.Numeric).OfType<INumericSkillRule>()
-            .Aggregate(1, (limit, rule) => rule.ModifySupplyShortageDistanceLimit(context, limit));
-
     private IEnumerable<ICardUseSkillRule> CardUseRules(CharacterState player) =>
         EnabledSkillRules(player).Select(skill => skill.CardUse)
             .Where(rule => rule is not null).Cast<ICardUseSkillRule>();
-
-    private IEnumerable<ICardConversionSkillRule> ConversionRules(CharacterState player)
-    {
-        foreach (var rule in EnabledSkillRules(player).Select(skill => skill.Conversion)
-                     .OfType<ICardConversionSkillRule>())
-            yield return rule;
-        var programs = EnabledPassiveRulePrograms(player);
-        if (programs.Count != 0)
-            yield return new SkillProgramRules(programs,
-                GetHand(player).Select(card => card.Id).ToHashSet());
-    }
 
     private string EnabledSkillNames(CharacterState player)
     {

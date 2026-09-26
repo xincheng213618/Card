@@ -687,7 +687,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     DecisionKind.Fanjian or
                     DecisionKind.Guanxing or
                     DecisionKind.Keji or
-                    DecisionKind.Shuangxiong or
                     DecisionKind.Luoshen or
                     DecisionKind.Shensu or
                     DecisionKind.Jizhi or
@@ -731,7 +730,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.Fanjian or
             DecisionKind.Guanxing or
             DecisionKind.Keji or
-            DecisionKind.Shuangxiong or
             DecisionKind.Luoshen or
             DecisionKind.Shensu or
             DecisionKind.Jizhi or
@@ -1669,7 +1667,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             : [];
         var selectedActions = _selectedCardId is { } cardId
             ? legalActions.Where(action => action.CardId == cardId && action.Kind != LegalActionKind.Recast &&
-                (_selectedConversionSource is null || action.ConversionSource == _selectedConversionSource)).ToArray()
+                action.ConversionSource == _selectedConversionSource).ToArray()
             : [];
         var legalTargets = selectedActions
             .SelectMany(action => action.TargetSeats)
@@ -1740,7 +1738,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             (converted
                 ? action.PlayedCardKind is { } effectiveKind && effectiveKind != physicalKind
                 : action.PlayedCardKind is null || action.PlayedCardKind == physicalKind) &&
-            (conversionSource is null || action.ConversionSource == conversionSource)).ToArray();
+            action.ConversionSource == conversionSource).ToArray();
         return matches.Length == 1 ? matches[0] : null;
     }
 
@@ -1760,10 +1758,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private static bool ConversionSourceMatchesChoice(
         CardConversionSource? source,
-        IReadOnlyDictionary<string, string> parameters) =>
-        TryReadConversionSource(parameters, out var choiceSource)
-            ? source == choiceSource
-            : true;
+        IReadOnlyDictionary<string, string> parameters)
+    {
+        if (!parameters.ContainsKey("conversion-skill-id")) return source is null;
+        return TryReadConversionSource(parameters, out var choiceSource) &&
+               source == choiceSource;
+    }
 
     private static bool AdditionalConversionSourcesMatchChoice(
         IReadOnlyList<CardConversionSource>? sources,
@@ -2088,11 +2088,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             {
                 EventStack.Add("      Phase(Draw)");
                 EventStack.Add("        AskForSkill(Zishou)");
-            }
-            else if (pending.Kind == DecisionKind.Shuangxiong)
-            {
-                EventStack.Add("      Phase(Draw)");
-                EventStack.Add("        AskForSkill(Shuangxiong)");
             }
             else if (pending.Kind == DecisionKind.Luoshen)
             {

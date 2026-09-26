@@ -14,7 +14,7 @@ internal static class ProgramChoiceChecks
         var effects = current.Triggers.Single().Effects;
         var payment = effects.Single(effect => effect.Op == SkillProgramEffectOp.SelectAndMoveOwnedCard);
         var choice = effects.Single(effect => effect.Op == SkillProgramEffectOp.ChooseOption);
-        Require(current.RuntimeVersion == "skill-program-v58" && current.MinimumRulesVersion == 168 &&
+        Require(current.RuntimeVersion == "skill-program-v59" && current.MinimumRulesVersion == 169 &&
                 payment.CardCategories.SequenceEqual([
                     SkillProgramCardCategory.Trick,
                     SkillProgramCardCategory.Equipment
@@ -330,8 +330,8 @@ internal static class ProgramChoiceChecks
     }
 
     private static string BuildRules(string effects) => $$"""
-        {"schemaVersion":58,"skills":[{"id":"{{SkillId}}","revision":1,
-        "minimumRulesVersion":168,"modifiers":[],"viewAs":[],"activations":[],
+        {"schemaVersion":59,"skills":[{"id":"{{SkillId}}","revision":1,
+        "minimumRulesVersion":169,"modifiers":[],"viewAs":[],"activations":[],
         "triggers":[{"id":"support","window":"turnEnding","subject":"owner","optional":false,
         "priority":0,"usageScope":"turn","usageLimit":1,"effects":{{effects}}}],
         "contributions":[],"cardIdentities":[]}]}

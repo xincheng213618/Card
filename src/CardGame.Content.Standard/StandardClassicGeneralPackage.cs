@@ -381,11 +381,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "刚烈",
                 "当你受到伤害后，你可以判定，若结果不为红桃，伤害来源选择弃置两张手牌或受到 1 点伤害。",
                 SkillKind.Ganglie)));
-            builder.AddSkill(WithContinuousStateMetadata(new ContentSkillDefinition(
-                "classic:jijiu",
-                "急救",
-                "你的回合外，你可以将一张红色牌当【桃】使用。",
-                SkillKind.Jijiu)));
+            builder.AddSkill(WithContinuousStateMetadata(EmbeddedSkillProgramCatalog.Definition(
+                "conversion-cutover", "classic:jijiu")));
             builder.AddSkill(DamageSkillPrograms.Definition("classic:yiji"));
             builder.AddSkill(DrawPhaseSkillPrograms.Definition("classic:yingzi"));
             builder.AddSkill(DamageSkillPrograms.Definition("classic:jianxiong"));
@@ -621,11 +618,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 SkillKind.Jiuyuan), SkillTag.Lord | SkillTag.Locked, SkillExecutionForm.State));
         }
         {
-            builder.AddSkill(WithContinuousStateMetadata(new ContentSkillDefinition(
-                "classic:qixi",
-                "奇袭",
-                "你可以将一张黑色牌当【过河拆桥】使用。",
-                SkillKind.Qixi)));
+            builder.AddSkill(WithContinuousStateMetadata(EmbeddedSkillProgramCatalog.Definition(
+                "conversion-cutover", "classic:qixi")));
         }
         {
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
@@ -648,11 +642,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 SkillKind.Qiangxi)));
         }
         {
-            builder.AddSkill(WithContinuousStateMetadata(new ContentSkillDefinition(
-                "classic:duanliang",
-                "断粮",
-                "你可以将一张黑色基本牌或黑色装备牌当【兵粮寸断】使用；你可以对距离为2的角色使用【兵粮寸断】。",
-                SkillKind.Duanliang)));
+            builder.AddSkill(WithContinuousStateMetadata(EmbeddedSkillProgramCatalog.Definition(
+                "conversion-cutover", "classic:duanliang")));
         }
         {
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
@@ -710,11 +701,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(WithContinuousStateMetadata(EmbeddedSkillProgramCatalog.Definition("classic-wusheng-skills", "classic:wusheng")));
         }
         {
-            builder.AddSkill(WithContinuousStateMetadata(new ContentSkillDefinition(
-                "classic:guose",
-                "国色",
-                "你可以将一张方块牌当【乐不思蜀】使用。",
-                SkillKind.Guose)));
+            builder.AddSkill(WithContinuousStateMetadata(EmbeddedSkillProgramCatalog.Definition(
+                "conversion-cutover", "classic:guose")));
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
                 "classic:liuli",
                 "流离",
@@ -765,14 +753,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition("classic:bazhen", "八阵",
                 "锁定技，若你的装备区里没有防具牌，你视为装备着【八卦阵】。", SkillKind.Bazhen),
                 SkillTag.Locked, SkillExecutionForm.State));
-            builder.AddSkill(WithContinuousStateMetadata(new ContentSkillDefinition("classic:huoji", "火计",
-                "你可以将一张红色手牌当【火攻】使用。", SkillKind.Huoji)));
-            builder.AddSkill(WithContinuousStateMetadata(new ContentSkillDefinition("classic:kanpo", "看破",
-                "你可以将一张黑色手牌当【无懈可击】使用。", SkillKind.Kanpo)));
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("conversion-cutover", "classic:huoji"));
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("conversion-cutover", "classic:kanpo"));
         }
         {
-            builder.AddSkill(WithContinuousStateMetadata(new ContentSkillDefinition("classic:lianhuan", "连环",
-                "出牌阶段，你可以将一张梅花手牌当【铁索连环】使用或重铸。", SkillKind.Lianhuan)));
+            builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("conversion-cutover", "classic:lianhuan"));
             builder.AddSkill(SelfDyingSkillPrograms.Definition("classic:niepan"));
         }
         {
@@ -881,11 +866,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 });
         }
         {
-            builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
-                "sp:guan-yu-wusheng",
-                "武圣",
-                "你可以将一张红色牌当【杀】使用或打出；你使用或打出的方块【杀】无距离限制。",
-                SkillKind.Wusheng), SkillTag.None, SkillExecutionForm.State));
+            builder.AddSkill(WithStructuredSkillMetadata(EmbeddedSkillProgramCatalog.Definition(
+                "conversion-cutover", "sp:guan-yu-wusheng"), SkillTag.None, SkillExecutionForm.State));
             builder.AddSkill(AwakeningSkillPrograms.Definition("sp:danji"));
             builder.AddSkill(WithStructuredSkillMetadata(
                 RuleQuerySkillPrograms.Definition("sp:guan-yu-mashu"),
@@ -1001,8 +983,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 EmbeddedSkillProgramCatalog.Definition("boundary-zhang-liao", "boundary:tuxi")));
         }
         {
-            builder.AddSkill(WithContinuousStateMetadata(new ContentSkillDefinition(
-                "boundary:qixi", "奇袭", "你可以将一张黑色牌当【过河拆桥】使用。", SkillKind.Qixi)));
+            builder.AddSkill(WithContinuousStateMetadata(EmbeddedSkillProgramCatalog.Definition(
+                "conversion-cutover", "boundary:qixi")));
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("boundary-gan-ning", "boundary:fenwei") with
             {
                 Tags = SkillTag.Limited,

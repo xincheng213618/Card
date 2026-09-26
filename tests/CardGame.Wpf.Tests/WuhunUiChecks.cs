@@ -11,7 +11,7 @@ internal static class WuhunUiChecks
 {
     private const string WuhunSkillId = "wuhun-ui:wuhun";
     private const string WuhunRules = """
-    {"schemaVersion":58,"skills":[{"id":"wuhun-ui:wuhun","revision":3,"minimumRulesVersion":168,
+    {"schemaVersion":59,"skills":[{"id":"wuhun-ui:wuhun","revision":3,"minimumRulesVersion":169,
     "modifiers":[],"viewAs":[],"activations":[],"triggers":[
       {"id":"damage-nightmare","window":"damageAppliedBeforeDying","subject":"owner","damageOccurrence":"perDamagePoint","optional":false,"priority":0,
        "effects":[{"op":"changeAttributedMarker","target":"owner","targetRef":{"kind":"eventSource"},"marker":"nightmare","amount":1}]},

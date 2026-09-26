@@ -132,8 +132,8 @@ internal static class MatchSkillBindingIndexChecks
     {
         const string rich = "fixture:index-rich", plain = "fixture:index-plain", lord = "fixture:index-lord";
         var catalog = SkillProgramCatalog.Load("""
-            {"schemaVersion":58,"skills":[
-              {"id":"fixture:index-rich","revision":1,"minimumRulesVersion":168,
+            {"schemaVersion":59,"skills":[
+              {"id":"fixture:index-rich","revision":1,"minimumRulesVersion":169,
                "modifiers":[
                  {"id":"attack","query":"attackRange","operation":"add","value":1,"priority":0},
                  {"id":"draw","query":"drawCount","operation":"add","value":1,"priority":0}],
@@ -162,7 +162,7 @@ internal static class MatchSkillBindingIndexChecks
     {
         Seat = seat, Name = $"P{seat}", IsHuman = seat == 0, Role = role, RoleRevealed = true,
         FactionRevealed = true, General = new GeneralDefinition($"fixture:g{seat}", $"G{seat}", "supporter",
-            SkillKind.None, "", ""), GeneralSelected = true, GeneralRevealed = true, MaxHp = 4, Hp = 4
+            []), GeneralSelected = true, GeneralRevealed = true, MaxHp = 4, Hp = 4
     };
 
     private static void Require(bool condition, string message)

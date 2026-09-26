@@ -153,9 +153,16 @@ internal static class WushengResponseChecks
 
     private static GameEngine CreateNationalResponseFixture()
     {
+        const int seed = 721012;
+        return TryCreateNationalResponseFixture(seed) ??
+            throw new InvalidOperationException($"Seed {seed} no longer reaches the national Wusheng response boundary.");
+    }
+
+    private static GameEngine? TryCreateNationalResponseFixture(int seed)
+    {
         var game = GameEngine.CreateStandard(new GameOptions
         {
-            Seed = 721008,
+            Seed = seed,
             HumanSeat = 0,
             HumanRole = null,
             PlayerCount = 4,
@@ -173,7 +180,7 @@ internal static class WushengResponseChecks
             if (game.PendingDecision is { Kind: DecisionKind.SelectGeneral } prompt)
             {
                 var id = selected++ == 0 ? "national:shu-guan-yu" : "national:shu-zhang-fei";
-                Program.Assert(prompt.ValidContentIds.Contains(id), "National WPF response fixture could not select the expected general.");
+                if (!prompt.ValidContentIds.Contains(id)) return null;
                 Program.Assert(game.Submit(new SelectGeneralCommand(0, id, game.Revision, prompt.PromptId)).Accepted,
                     "National WPF response fixture could not select a general.");
             }
@@ -185,13 +192,15 @@ internal static class WushengResponseChecks
         }
 
         var play = game.PendingDecision;
-        Program.Assert(play is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 },
-            "National WPF response fixture did not reach human play.");
+        if (play is not { Kind: DecisionKind.PlayCard, PlayerSeat: 0 }) return null;
         Program.Assert(game.Submit(new EndPlayPhaseCommand(0, game.Revision, play!.PromptId)).Accepted,
             "National WPF response fixture could not end the human play phase.");
-        for (var step = 0; step < 5000; step++)
+        for (var step = 0; step < 5000 && game.State.Status != EngineStatus.Completed; step++)
         {
-            if (game.PendingDecision is { Kind: DecisionKind.RespondSlash, PlayerSeat: 0 }) return game;
+            if (game.PendingDecision is { Kind: DecisionKind.RespondSlash, PlayerSeat: 0 } &&
+                game.CreateSnapshot(0).Players[0].Hand.Any(card =>
+                    card.Suit is Suit.Heart or Suit.Diamond &&
+                    card.Kind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash))) return game;
             if (game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } nextPlay)
             {
                 Program.Assert(game.Submit(new EndPlayPhaseCommand(0, game.Revision, nextPlay.PromptId)).Accepted,
@@ -211,15 +220,18 @@ internal static class WushengResponseChecks
             }
             else if (game.PendingDecision?.PlayerSeat == 0)
             {
-                break;
+                return null;
             }
             else
             {
-                Program.Assert(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
-                    "National WPF response fixture could not advance the AI.");
+                var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
+                Program.Assert(advanced.Accepted,
+                    $"National WPF response fixture could not advance the AI at step {step}, " +
+                    $"prompt={game.PendingDecision?.Kind}, seat={game.PendingDecision?.PlayerSeat}: " +
+                    (advanced.Error?.Message ?? "unknown rejection"));
             }
         }
 
-        throw new InvalidOperationException("National WPF response fixture never reached a human Slash response.");
+        return null;
     }
 }

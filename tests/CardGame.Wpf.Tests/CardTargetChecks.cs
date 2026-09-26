@@ -111,17 +111,31 @@ internal static class CardTargetChecks
             var cardId = conversion.CardId!.Value;
             vm.SelectCardCommand.Execute(vm.Hand.Single(card => card.Id == cardId));
             vm.SelectTargetCommand.Execute(vm.Seats.Single(seat => seat.Seat == conversion.TargetSeats.Single()));
-            Require(vm.CanPlaySelected && vm.HasAlternateSlash, "One legal target should offer both Iron Chain and Wusheng.");
+            Require(vm.CanPlaySelected && !vm.CanPlaySelectedAsSlash,
+                "An unselected conversion must leave the physical Iron Chain action available.");
+            var source = conversion.ConversionSource ??
+                throw new InvalidOperationException("Wusheng did not publish its exact conversion source.");
+            var sourceChoice = vm.EquipmentPlayChoices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("conversion-skill-id") == source.SkillId &&
+                choice.Parameters.GetValueOrDefault("conversion-binding-id") == source.BindingId &&
+                choice.Parameters.GetValueOrDefault("conversion-instance-id") == source.SkillInstanceId &&
+                choice.Cards.SequenceEqual([cardId]));
+            vm.SelectEquipmentPlayChoiceCommand.Execute(sourceChoice);
+            vm.SelectTargetCommand.Execute(vm.Seats.Single(seat => seat.Seat == conversion.TargetSeats.Single()));
+            Require(!vm.CanPlaySelected && vm.CanPlaySelectedAsSlash,
+                "Selecting Wusheng must offer its Slash while keeping the physical Iron Chain separate.");
             var second = vm.Seats.First(seat => seat.IsLegalTarget && !seat.IsSelectedTarget);
             vm.SelectTargetCommand.Execute(second);
-            Require(vm.CanPlaySelected && !vm.CanPlaySelectedAsSlash, "Two targets must never enable converted Slash.");
+            Require(!vm.CanPlaySelectedAsSlash && Selected(vm).Length == 2,
+                "Two targets must never enable converted Slash.");
             vm.PlaySelectedAsSlashCommand.Execute(null);
             Require(vm.Hand.Any(card => card.Id == cardId), "Invalid multi-target conversion used a card.");
             vm.SelectTargetCommand.Execute(second);
             vm.PlaySelectedAsSlashCommand.Execute(null);
             Require(engine.CreateCheckpoint().Commands.Last() is PlayCardCommand played && played.CardId == cardId &&
-                played.PlayedCardKind == CardKind.Slash && played.TargetSeats.SequenceEqual(conversion.TargetSeats),
-                "Explicit conversion did not keep the chosen physical card and single target.");
+                played.PlayedCardKind == CardKind.Slash && played.TargetSeats.SequenceEqual(conversion.TargetSeats) &&
+                played.ConversionSource == source,
+                "Explicit conversion did not keep the physical card, exact source and single target.");
             Console.WriteLine($"  Direct Iron Chain: one/two targets resolved; Wusheng conversion seed {seed}.");
             return;
         }

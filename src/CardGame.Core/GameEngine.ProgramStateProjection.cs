@@ -20,7 +20,7 @@ public sealed partial class GameEngine
         var snapshot = _skillRuntimeState.CreateSnapshot(owner.Seat, skillId,
             IsRuntimeAcquiredSkill(owner, skillId));
         var states = new List<ProgramBooleanStateSnapshot>();
-        foreach (var instance in GetSkillBindingShard(owner)?.ProgramInstances ?? [])
+        foreach (var instance in GetSkillBindingShard(owner).ProgramInstances)
         {
             if (instance.SkillId != skillId) continue;
             foreach (var definition in instance.Program.BooleanStates)

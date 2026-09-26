@@ -235,9 +235,9 @@ public sealed partial class GameEngine
         if (!_players[subjectSeat].IsAlive || !GetEquipment(_players[subjectSeat])
                 .Any(card => card.Id == equipmentCardId)) return false;
         var subject = _players[subjectSeat];
-        var projectedRange = ToLegacyRuleValue(EvaluateAttackRange(subject, equipmentCardId));
+        var projectedRange = ConvertRuleValue(EvaluateAttackRange(subject, equipmentCardId));
         var projectedCount = _players.Count(player => player.IsAlive && player.Seat != subjectSeat &&
-            ToLegacyRuleValue(EvaluateDistance(subject, player, equipmentCardId)) <= projectedRange);
+            ConvertRuleValue(EvaluateDistance(subject, player, equipmentCardId)) <= projectedRange);
         return projectedCount < CountLivingInAttackRange(subjectSeat);
     }
 

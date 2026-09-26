@@ -4,11 +4,8 @@ using CardGame.Core;
 
 internal static class KongchengChecks
 {
-    public static void DuelTargetingAndLegacy()
+    public static void DuelTargeting()
     {
-        Require(GameCheckpoint.CurrentRulesVersion >= 15,
-            "Formal Kongcheng targeting must have an explicit rules version.");
-
         var rule = SkillRegistry.Get(SkillKind.Kongcheng);
         var empty = new PlayerSkillContext(1, 3, 3, 0, TurnPhase.Play);
         var holdingCards = empty with { HandCount = 1 };
@@ -23,7 +20,7 @@ internal static class KongchengChecks
 
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var seed = FindSeedWithHumanDuel(registry);
-        var current = CreateGame(registry, seed, GameCheckpoint.CurrentRulesVersion);
+        var current = CreateGame(registry, seed);
         ArrangeEmptyKongchengTarget(current, targetSeat: 1);
 
         var currentStart = current.Submit(new StartGameCommand());
@@ -39,7 +36,7 @@ internal static class KongchengChecks
                 action.Kind == LegalActionKind.Duel &&
                 action.CardId == duelId &&
                 action.TargetSeat == 1),
-            "Rules v15 must remove an empty-hand Kongcheng owner from Duel targets.");
+            "An empty-hand Kongcheng owner must not be a legal Duel target.");
         Require(current.GetHumanLegalActions().Any(action =>
                 action.Kind == LegalActionKind.Duel &&
                 action.CardId == duelId &&
@@ -72,7 +69,7 @@ internal static class KongchengChecks
     {
         for (var seed = 1; seed <= 4_096; seed++)
         {
-            var current = CreateGame(registry, seed, GameCheckpoint.CurrentRulesVersion);
+            var current = CreateGame(registry, seed);
             ArrangeEmptyKongchengTarget(current, targetSeat: 1);
             var currentStart = current.Submit(new StartGameCommand());
             var currentDuels = current.CreateSnapshot(0, revealAll: true).Players[0].Hand
@@ -89,7 +86,7 @@ internal static class KongchengChecks
         throw new InvalidOperationException("No deterministic classic fixture dealt Duel to the human seat.");
     }
 
-    private static GameEngine CreateGame(ContentRegistry registry, int seed, int rulesVersion)
+    private static GameEngine CreateGame(ContentRegistry registry, int seed)
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
@@ -104,9 +101,7 @@ internal static class KongchengChecks
             AiPolicyVersion = 2,
             MaxTurns = 220
         }, registry);
-        return rulesVersion == GameCheckpoint.CurrentRulesVersion
-            ? game
-            : GameReplay.Restore(game.CreateCheckpoint() with { RulesVersion = rulesVersion }, registry);
+        return game;
     }
 
     private static void ArrangeEmptyKongchengTarget(GameEngine game, int targetSeat)
@@ -123,7 +118,10 @@ internal static class KongchengChecks
             throw new InvalidOperationException("Player general property not found.");
         generalProperty.SetValue(
             target,
-            GeneralCatalog.DemoGenerals.Single(general => general.Skill == SkillKind.Kongcheng));
+            new GeneralDefinition("fixture:kongcheng", "诸葛亮", "zhuge_liang",
+                [new GeneralSkillDefinition(SkillKind.Kongcheng, "空城",
+                    "没有手牌时不能成为【杀】或【决斗】的目标。")
+                { ContentId = "classic:kongcheng" }]));
 
         var zonesField = typeof(GameEngine).GetField(
             "_cardZones",

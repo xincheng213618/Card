@@ -15,6 +15,12 @@ $violations = [Collections.Generic.List[object]]::new()
 $checks = @(
     @{ Name = 'retired passive contract'; Pattern = '\bIPassiveSkill\b'; Scope = 'all' },
     @{ Name = 'retired active contract'; Pattern = '\bIActiveSkill\b'; Scope = 'all' },
+    @{ Name = 'retired numeric and conversion contracts'; Pattern = '\b(?:INumericSkillRule|ICardConversionSkillRule)\b'; Scope = 'all' },
+    @{ Name = 'retired numeric and conversion adapters'; Pattern = '\b(?:CollectLegacyNumericRuleContributions|EnabledLegacyNumericSkills|GetLegacyViewAsConversions|HasLegacyViewAsConversion|HasLegacyRuntimeSkill)\b'; Scope = 'core' },
+    @{ Name = 'optional engine content registry'; Pattern = '\bContentRegistry\s*\?'; Scope = 'engine' },
+    @{ Name = 'retired duplicate content catalog'; Pattern = '\b(?:GeneralCatalog|StandardDeckCatalog|DeckDefinition|DeckCardCount)\b'; Scope = 'all' },
+    @{ Name = 'retired single-skill runtime projection'; Pattern = '\b(?:AdditionalSkills|SkillContentId|SkillExecutionForms)\b'; Scope = 'core' },
+    @{ Name = 'retired Niepan execution chain'; Pattern = '\b(?:CanUseNiepan|ResolveNiepan|HumanNiepanCore|UsedLimitedSkillKinds)\b'; Scope = 'core' },
     @{ Name = 'retired active registry entry'; Pattern = '\bSkillRegistry\s*\.\s*GetActive\s*\('; Scope = 'all' },
     @{ Name = 'retired program projection'; Pattern = '\b(?:SkillProgramTriggerEffect|SkillProgramTriggerEffectOp|SkillProgramTriggerEffectTarget|ToExecutionEffect)\b'; Scope = 'all' },
     @{ Name = 'retired executor selection'; Pattern = '\b(?:UsesCompositionKernel|UsesSharedExecutor|LegacyTriggerIds)\b'; Scope = 'all' },
@@ -44,7 +50,7 @@ foreach ($directory in @('src', 'tests')) {
                 if ($check.Scope -eq 'core' -and !$relative.StartsWith('src/CardGame.Core/')) { continue }
                 if ($check.Scope -eq 'engine' -and $file.Name -notlike 'GameEngine*.cs') { continue }
                 if ($check.Scope -eq 'pindian' -and $relative -ne 'src/CardGame.Core/GameEngine.Pindian.cs') { continue }
-                if ($line -match $check.Pattern) {
+                if ($line -cmatch $check.Pattern) {
                     $violations.Add([pscustomobject]@{
                         Boundary = $check.Name; File = $relative; Line = $lineNumber
                     })
