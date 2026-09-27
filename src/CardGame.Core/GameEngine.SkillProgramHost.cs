@@ -61,6 +61,10 @@ public sealed partial class GameEngine
                 (bind, suits) => engine.DoProgramBoundCardsMatchSuits(frame, bind, suits));
         }
 
+        public bool TryStartPostInstructionWindow(long frameId) =>
+            engine.TryBeginHpChangedProgramWindow(frameId, PostEventContinuation.Program) ||
+            engine.TryBeginCardsMovedProgramWindow(frameId);
+
         public void UpdateFrame(ProgramSkillFrame frame)
         {
             if (GetActiveFrame(frame.Id) is null)
@@ -129,8 +133,10 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome LoseHp(long frameId, string skillId, int targetSeat, int amount)
         {
             var target = engine._players[targetSeat];
+            var before = target.Hp;
             var lost = Math.Min(target.Hp, amount);
             target.Hp = Math.Max(0, target.Hp - amount);
+            engine.RecordHpChange(frameId, null, targetSeat, before, target.Hp, HpChangeKind.Loss);
             engine.QueueGameEvent(new ProgramSkillHpLostEvent(frameId, skillId, targetSeat, lost, target.Hp));
             if (target.Hp != 0) return SkillProgramStepOutcome.Continue;
             engine.BeginProgramSkillDying(frameId, target);

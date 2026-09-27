@@ -1663,11 +1663,17 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 _ => false
                 } &&
                 CanRunAfterDamageProgramTrigger(owner, trigger, context),
-            SkillProgramTriggerWindow.CardsMoved =>
+            SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHpRecovered =>
+                context.HpChange is { } change && change.TargetSeat == owner.Seat && change.Amount > 0 &&
+                _resolutionStack.OfType<HpChangedTriggerWindowFrame>().LastOrDefault() is { } hpWindow &&
+                hpWindow.Id == context.ParentFrameId && hpWindow.Change == change &&
+                hpWindow.Candidates[hpWindow.CandidateIndex] == candidate,
+            SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained =>
                 context.MovementBatch is { } batch &&
                 batch.Id == context.ParentFrameId &&
                 _resolutionStack.OfType<CardsMovedTriggerWindowFrame>().LastOrDefault()?.Id == batch.Id &&
-                batch.SourceCounts.Any(item => item.Location.OwnerSeat == owner.Seat),
+                (context.Window == SkillProgramTriggerWindow.CardsGained ? batch.DestinationCounts ?? [] : batch.SourceCounts)
+                    .Any(item => item.Location.OwnerSeat == owner.Seat),
             SkillProgramTriggerWindow.OwnerDied =>
                 !owner.IsAlive &&
                 _pendingDeath is { } death &&
@@ -2995,6 +3001,8 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 OccurrenceIndex: candidate.OccurrenceIndex,
                 Facts: lifecycle.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? lifecycle.Facts));
         }
+        if (_resolutionStack.LastOrDefault() is HpChangedTriggerWindowFrame hpChanged)
+            return (hpChanged.Candidates[hpChanged.CandidateIndex], hpChanged.Contexts[hpChanged.CandidateIndex]);
         if (_resolutionStack.LastOrDefault() is CardsMovedTriggerWindowFrame cardsMoved)
         {
             var candidate = cardsMoved.Candidates[cardsMoved.CandidateIndex];
@@ -3043,6 +3051,13 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
         {
             AdvanceProgramLifecycleCandidate(lifecycle, activated: false, completed: false);
             ContinueProgramLifecycleWindow();
+            return;
+        }
+        if (_resolutionStack.LastOrDefault() is HpChangedTriggerWindowFrame hpChanged &&
+            hpChanged.Candidates[hpChanged.CandidateIndex] == candidate)
+        {
+            AdvanceHpChangedProgramCandidate(hpChanged, activated: false, completed: false);
+            ContinueHpChangedProgramWindow();
             return;
         }
         if (_resolutionStack.LastOrDefault() is CardsMovedTriggerWindowFrame cardsMoved &&
@@ -3539,6 +3554,15 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                     throw new InvalidOperationException("The damage program lost its parent window.");
                 AdvanceDamageTriggerCandidate(damage);
                 break;
+            case SkillProgramTriggerWindow.AfterHpLost:
+            case SkillProgramTriggerWindow.AfterHpRecovered:
+                if (_resolutionStack.LastOrDefault() is not HpChangedTriggerWindowFrame hpChanged ||
+                    hpChanged.Id != context.ParentFrameId || hpChanged.Contexts[hpChanged.CandidateIndex] != context)
+                    throw new InvalidOperationException("The HP-change program lost its parent event cursor.");
+                AdvanceHpChangedProgramCursor(hpChanged);
+                ContinueHpChangedProgramWindow();
+                break;
+            case SkillProgramTriggerWindow.CardsGained:
             case SkillProgramTriggerWindow.CardsMoved:
                 if (_resolutionStack.LastOrDefault() is not CardsMovedTriggerWindowFrame cardsMoved ||
                     cardsMoved.Id != context.ParentFrameId ||

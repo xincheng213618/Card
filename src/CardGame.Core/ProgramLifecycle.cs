@@ -16,7 +16,8 @@ public sealed record ProgramSkillWindowContext(
     int? ResumeCandidateIndex = null,
     ProgramCardUseContext? CardUse = null,
     JudgmentFinalizedContext? Judgment = null,
-    ProgramJudgmentReplacementContext? JudgmentReplacement = null);
+    ProgramJudgmentReplacementContext? JudgmentReplacement = null,
+    HpChangeContext? HpChange = null);
 
 public sealed record ProgramSkillNumberBinding(string Name, int Value);
 public sealed record ProgramTopReorder(

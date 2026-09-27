@@ -11,7 +11,11 @@ public sealed record CardMovementBatchContext(
     int TurnNumber,
     IReadOnlyList<CardMovementRecord> Movements,
     IReadOnlyList<CardMovementSourceCount> SourceCounts,
-    long? AwaitingProgramFrameId = null);
+    long? AwaitingProgramFrameId = null,
+    IReadOnlyList<CardMovementSourceCount>? DestinationCounts = null,
+    string? OriginSkillId = null,
+    string? OriginSkillInstanceId = null,
+    int? OriginOwnerSeat = null);
 
 public sealed record CardMovementSourceCount(
     CardLocation Location,
@@ -28,5 +32,7 @@ public sealed record CardsMovedTriggerWindowFrame(
     CardMovementBatchContext Batch,
     IReadOnlyList<ProgramTriggerCandidate> Candidates,
     int CandidateIndex = 0,
-    ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
+    ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect,
+    IReadOnlyList<ProgramSkillWindowContext>? Contexts = null,
+    long? ResumeProgramFrameId = null)
     : ResolutionFrame(Id, ResolutionFrameKind.CardsMovedTriggerWindow, Step);

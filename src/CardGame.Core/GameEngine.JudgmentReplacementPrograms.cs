@@ -267,7 +267,7 @@ public sealed partial class GameEngine
         var oldTo = oldDestination == SkillProgramOldJudgmentCardDestination.OwnerHand
             ? CardLocation.Hand(owner.Seat)
             : CardLocation.DiscardPile;
-        var batch = BeginCardMovementBatch([oldFrom, replacementFrom, CardLocation.Processing]);
+        var batch = BeginCardMovementBatch([oldFrom, replacementFrom, CardLocation.Processing], [oldTo, CardLocation.Processing, oldFrom]);
         var movements = new List<CardMovementRecord>(3);
         var committed = false;
         try

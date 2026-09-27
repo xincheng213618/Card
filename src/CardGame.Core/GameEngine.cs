@@ -6141,14 +6141,17 @@ public sealed partial class GameEngine
             }
         }
 
+        if (!TryBeginHpChangedProgramWindow(group.ResolutionId, PostEventContinuation.GroupRecovery))
+            CompleteGroupRecoveryTarget();
+        PublishState();
+    }
+
+    private void CompleteGroupRecoveryTarget()
+    {
+        var group = _pendingGroupCard ?? throw new InvalidOperationException("A recovery continuation lost its group card.");
         group.TargetIndex++;
         SetCardUseTargetIndex(group.ResolutionId, group.TargetIndex);
-        if (group.TargetIndex >= group.TargetSeats.Count)
-        {
-            FinishGroupRecovery(group);
-        }
-
-        PublishState();
+        if (group.TargetIndex >= group.TargetSeats.Count) FinishGroupRecovery(group);
     }
 
     private void BeginGroupAttackResponse(GroupCardResolution group)
@@ -13227,7 +13230,7 @@ public sealed partial class GameEngine
             parentFrameId,
             sourceSeat,
             targetSeat,
-            amount));
+            amount, HpBefore: _players[targetSeat].Hp));
         return frameId;
     }
 
@@ -13383,6 +13386,7 @@ public sealed partial class GameEngine
         Card card,
         CardKind? playedCardKind = null)
     {
+        if (TryBeginHpChangedProgramWindow(frameId, PostEventContinuation.CardUse, card.Id, playedCardKind)) return;
         if (_resolutionStack.OfType<CardUseFrame>().SingleOrDefault(frame => frame.Id == frameId) is { } pendingUse)
         {
             foreach (var physicalCardId in pendingUse.PhysicalCardIds ?? [pendingUse.CardId])
@@ -13453,6 +13457,9 @@ public sealed partial class GameEngine
         }
 
         _resolutionStack.RemoveAt(_resolutionStack.Count - 1);
+        if (top is RecoveryFrame recovery)
+            RecordHpChange(recovery.ParentFrameId, recovery.SourceSeat, recovery.TargetSeat,
+                recovery.HpBefore, _players[recovery.TargetSeat].Hp, HpChangeKind.Recovery);
     }
 
     private bool CanUseSlashTarget(
@@ -15596,6 +15603,7 @@ public sealed partial class GameEngine
         _status = EngineStatus.Completed;
         _pendingDecision = null;
         _pendingCardsMovedBatches.Clear();
+        _pendingHpChanges.Clear();
         var winnerName = IsNationalWarMode
             ? _winnerFactionId is { } winnerFactionId
                 ? $"{GetFactionName(winnerFactionId)}势力"
@@ -15620,6 +15628,7 @@ public sealed partial class GameEngine
 
         _winner = Winner.Draw;
         _pendingCardsMovedBatches.Clear();
+        _pendingHpChanges.Clear();
         foreach (var player in _players)
         {
             player.RoleRevealed = true;
@@ -16030,7 +16039,7 @@ public sealed partial class GameEngine
         CardLocation to,
         CardMoveReason reason)
     {
-        var batch = BeginCardMovementBatch([from]);
+        var batch = BeginCardMovementBatch([from], [to]);
         var movements = new List<CardMovementRecord>(1);
         var committed = false;
         try
@@ -16054,7 +16063,7 @@ public sealed partial class GameEngine
         CardLocation to,
         CardMoveReason reason)
     {
-        var batch = BeginCardMovementBatch([from]);
+        var batch = BeginCardMovementBatch([from], [to]);
         var movements = new List<CardMovementRecord>(cards.Count);
         var committed = false;
         try
@@ -16080,7 +16089,7 @@ public sealed partial class GameEngine
         CardLocation to,
         CardMoveReason reason)
     {
-        var batch = BeginCardMovementBatch([from]);
+        var batch = BeginCardMovementBatch([from], [to]);
         var movements = new List<CardMovementRecord>();
         var committed = false;
         try
@@ -16238,6 +16247,7 @@ public sealed partial class GameEngine
     {
         var damageProgramDying = IsPendingDamageProgramDying();
         _turnCardUseEffects.AssertInvariants();
+        AssertPostEventProgramInvariants();
         AssertPindianInvariant();
         AssertProgramCardWindowState();
         AssertProgramJudgmentWindowState();
@@ -16289,7 +16299,7 @@ public sealed partial class GameEngine
             _pendingYingboGift is not null ||
             _pendingTargetCardSelection is not null ||
             _pendingJudgment is not null ||
-            _resolutionStack.Any(frame => frame is ProgramSkillFrame or ProgramCardTriggerWindowFrame or PindianFrame);
+            _resolutionStack.Any(frame => frame is ProgramSkillFrame or ProgramCardTriggerWindowFrame or PindianFrame or HpChangedTriggerWindowFrame);
         if (!hasActiveCardResolution && processing.Count != 0)
         {
             throw new InvalidOperationException("Processing contains cards without an active resolution.");
@@ -18034,7 +18044,7 @@ public sealed partial class GameEngine
 
     private void PublishState()
     {
-        TryBeginCardsMovedProgramWindow();
+        if (!TryBeginHpChangedProgramWindow()) TryBeginCardsMovedProgramWindow();
         _pendingStateSnapshot = State;
     }
 

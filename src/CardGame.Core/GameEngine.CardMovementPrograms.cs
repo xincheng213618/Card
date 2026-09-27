@@ -9,7 +9,9 @@ public sealed partial class GameEngine
         long? parentBatchId,
         long? awaitingProgramFrameId,
         int turnNumber,
-        IReadOnlyDictionary<CardLocation, int> sourceCountsBefore)
+        IReadOnlyDictionary<CardLocation, int> sourceCountsBefore,
+        IReadOnlyDictionary<CardLocation, int> destinationCountsBefore,
+        ProgramSkillFrame? originProgram)
     {
         public long Id { get; } = id;
         public long? ParentFrameId { get; } = parentFrameId;
@@ -17,9 +19,11 @@ public sealed partial class GameEngine
         public long? AwaitingProgramFrameId { get; } = awaitingProgramFrameId;
         public int TurnNumber { get; } = turnNumber;
         public IReadOnlyDictionary<CardLocation, int> SourceCountsBefore { get; } = sourceCountsBefore;
+        public IReadOnlyDictionary<CardLocation, int> DestinationCountsBefore { get; } = destinationCountsBefore;
+        public ProgramSkillFrame? OriginProgram { get; } = originProgram;
     }
 
-    private CardMovementBatchBuilder BeginCardMovementBatch(IEnumerable<CardLocation> sourceLocations)
+    private CardMovementBatchBuilder BeginCardMovementBatch(IEnumerable<CardLocation> sourceLocations, IEnumerable<CardLocation> destinationLocations)
     {
         var sources = sourceLocations.Distinct().ToDictionary(
             location => location,
@@ -28,10 +32,12 @@ public sealed partial class GameEngine
             ++_resolutionSequence,
             _resolutionStack.LastOrDefault()?.Id,
             _activeCardMovementBatchIds.TryPeek(out var parentBatchId) ? parentBatchId : null,
-            _resolutionStack.OfType<ProgramSkillFrame>()
-                .LastOrDefault(frame => frame.PendingMovementContinuation is not null)?.Id,
+            _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault() is
+                { PendingMovementContinuation: not null } awaited ? awaited.Id : null,
             _turnNumber,
-            sources);
+            sources,
+            destinationLocations.Distinct().ToDictionary(location => location, location => _cardZones.Count(location)),
+            _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault());
         _activeCardMovementBatchIds.Push(batch.Id);
         return batch;
     }
@@ -61,7 +67,10 @@ public sealed partial class GameEngine
             batch.TurnNumber,
             Array.AsReadOnly(movements.ToArray()),
             Array.AsReadOnly(sourceCounts),
-            batch.AwaitingProgramFrameId));
+            batch.AwaitingProgramFrameId,
+            batch.DestinationCountsBefore.OrderBy(item => item.Key.Zone).ThenBy(item => item.Key.OwnerSeat)
+                .Select(item => new CardMovementSourceCount(item.Key, item.Value, _cardZones.Count(item.Key))).ToArray(),
+            batch.OriginProgram?.SkillId, batch.OriginProgram?.SkillInstanceId, batch.OriginProgram?.OwnerSeat));
     }
 
     private bool HasCardsMovedProgramBoundaryFrame()
@@ -77,32 +86,33 @@ public sealed partial class GameEngine
         return true;
     }
 
-    private bool TryBeginCardsMovedProgramWindow()
+    private bool TryBeginCardsMovedProgramWindow(long? instructionFrameId = null)
     {
-        var awaitingFrame = _resolutionStack.LastOrDefault() is ProgramSkillFrame
-            { PendingMovementContinuation: not null } program ? program : null;
+        var awaitingFrame = _resolutionStack.LastOrDefault() is ProgramSkillFrame program &&
+            (program.PendingMovementContinuation is not null || program.Id == instructionFrameId) ? program : null;
+        bool Eligible(CardMovementBatchContext batch) => awaitingFrame is null
+            ? batch.AwaitingProgramFrameId is null
+            : batch.AwaitingProgramFrameId == awaitingFrame.Id ||
+              batch.AwaitingProgramFrameId is null && batch.ParentFrameId == awaitingFrame.Id;
         if (_pendingDecision is not null ||
             (_resolutionStack.Count != 0 && awaitingFrame is null) ||
             _winner != Winner.None || _status == EngineStatus.Completed)
             return false;
 
-        while (_pendingCardsMovedBatches.Any(batch => awaitingFrame is null
-                   ? batch.AwaitingProgramFrameId is null
-                   : batch.AwaitingProgramFrameId == awaitingFrame.Id))
+        // Equipment removal may have completed a nested recovery before this movement finished.
+        if (awaitingFrame?.PendingMovementContinuation is not null &&
+            TryBeginHpChangedProgramWindow(awaitingFrame.Id, PostEventContinuation.AwaitedProgramMovement)) return true;
+
+        while (_pendingCardsMovedBatches.Any(Eligible))
         {
-            var batch = _pendingCardsMovedBatches
-                .Where(item => awaitingFrame is null
-                    ? item.AwaitingProgramFrameId is null
-                    : item.AwaitingProgramFrameId == awaitingFrame.Id)
-                .OrderBy(item => item.Id)
-                .First();
+            var batch = _pendingCardsMovedBatches.Where(Eligible).OrderBy(item => item.Id).First();
             _pendingCardsMovedBatches.Remove(batch);
             var candidates = CollectCardsMovedProgramCandidates(batch);
             if (candidates.Count == 0) continue;
-            _resolutionStack.Add(new CardsMovedTriggerWindowFrame(
-                batch.Id,
-                batch,
-                candidates));
+            var window = new CardsMovedTriggerWindowFrame(batch.Id, batch, candidates,
+                ResumeProgramFrameId: awaitingFrame?.PendingMovementContinuation is null ? awaitingFrame?.Id : null);
+            window = window with { Contexts = candidates.Select(candidate => CreateCardsMovedProgramContext(window, candidate)).ToArray() };
+            _resolutionStack.Add(window);
             ContinueCardsMovedProgramWindow();
             return true;
         }
@@ -113,40 +123,27 @@ public sealed partial class GameEngine
         CardMovementBatchContext batch)
     {
         var candidates = new List<ProgramTriggerCandidate>();
-        foreach (var sourceCount in batch.SourceCounts.Where(item => item.Location.OwnerSeat is not null))
+        foreach (var window in new[] { SkillProgramTriggerWindow.CardsMoved, SkillProgramTriggerWindow.CardsGained })
+        foreach (var count in (window == SkillProgramTriggerWindow.CardsMoved ? batch.SourceCounts : batch.DestinationCounts ?? [])
+                     .Where(item => item.Location.OwnerSeat is not null))
         {
-            var ownerSeat = sourceCount.Location.OwnerSeat!.Value;
+            var ownerSeat = count.Location.OwnerSeat!.Value;
             if (!IsValidPlayerSeat(ownerSeat)) continue;
-            var owner = _players[ownerSeat];
-            foreach (var candidate in CollectProgramTriggerCandidates(
-                         owner, SkillProgramTriggerWindow.CardsMoved))
+            foreach (var candidate in CollectProgramTriggerCandidates(_players[ownerSeat], window))
             {
-                var trigger = _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers
-                    .Single(item => item.Id == candidate.BindingId);
-                if (!trigger.SourceZones.Contains(sourceCount.Location.Zone)) continue;
-                var matchingIndexes = batch.Movements
-                    .Select((movement, index) => (movement, index))
-                    .Where(item => item.movement.From == sourceCount.Location)
-                    .Select(item => item.index)
-                    .ToArray();
-                if (matchingIndexes.Length == 0) continue;
-                var facts = CaptureCardsMovedTriggerFacts(owner, matchingIndexes.Length, sourceCount);
+                var trigger = _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers.Single(item => item.Id == candidate.BindingId);
+                if (!(window == SkillProgramTriggerWindow.CardsMoved ? trigger.SourceZones : trigger.DestinationZones).Contains(count.Location.Zone)) continue;
+                var indexes = MatchingMovementIndexes(batch, candidate, trigger, count.Location);
+                if (indexes.Length == 0) continue;
+                var facts = CaptureCardsMovedTriggerFacts(_players[ownerSeat], indexes.Length, count, window);
                 if (!trigger.Condition.Evaluate(facts, candidate.SkillId, candidate.SkillInstanceId)) continue;
-                var occurrenceIndexes = trigger.MovementOccurrence switch
-                {
-                    SkillProgramMovementOccurrence.PerBatch => [0],
-                    SkillProgramMovementOccurrence.PerCard => matchingIndexes,
-                    _ => throw new InvalidOperationException(
-                        "A cards-moved trigger lost its occurrence policy.")
-                };
-                candidates.AddRange(occurrenceIndexes.Select(index => candidate with
-                {
-                    OccurrenceIndex = index
-                }));
+                var occurrences = trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerBatch ? [0] : indexes;
+                candidates.AddRange(occurrences.Select(index => candidate with { OccurrenceIndex = index }));
             }
         }
         return candidates
-            .OrderByDescending(candidate => candidate.Priority)
+            .OrderBy(candidate => (candidate.OwnerSeat - _currentSeat + _players.Count) % _players.Count)
+            .ThenByDescending(candidate => candidate.Priority)
             .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.SkillInstanceId, StringComparer.Ordinal)
@@ -154,17 +151,34 @@ public sealed partial class GameEngine
             .ToArray();
     }
 
+    private static int[] MatchingMovementIndexes(CardMovementBatchContext batch, ProgramTriggerCandidate candidate,
+        SkillProgramTrigger trigger, CardLocation location)
+    {
+        if (trigger.IgnoreOwnSkillMovements && batch.OriginOwnerSeat == candidate.OwnerSeat &&
+            batch.OriginSkillId == candidate.SkillId &&
+            batch.OriginSkillInstanceId == candidate.SkillInstanceId) return [];
+        return batch.Movements.Select((movement, index) => (movement, index))
+            .Where(item => (trigger.Window == SkillProgramTriggerWindow.CardsGained ? item.movement.To : item.movement.From) == location &&
+                item.movement.From != item.movement.To &&
+                (trigger.MovementReasons.Count == 0 || trigger.MovementReasons.Contains(item.movement.Reason.Value)) &&
+                !trigger.ExcludedMovementReasons.Contains(item.movement.Reason.Value))
+            .Select(item => item.index).ToArray();
+    }
+
     private SkillProgramTriggerFacts CaptureCardsMovedTriggerFacts(
         CharacterState owner,
         int movedCardCount,
-        CardMovementSourceCount sourceCount)
+        CardMovementSourceCount sourceCount,
+        SkillProgramTriggerWindow window)
     {
         var facts = CaptureProgramTriggerFacts(owner);
         return facts with
         {
             MovedCardCount = movedCardCount,
-            SourceZoneCountBefore = sourceCount.CountBefore,
-            SourceZoneCountAfter = sourceCount.CountAfter
+            SourceZoneCountBefore = window == SkillProgramTriggerWindow.CardsMoved ? sourceCount.CountBefore : 0,
+            SourceZoneCountAfter = window == SkillProgramTriggerWindow.CardsMoved ? sourceCount.CountAfter : 0,
+            DestinationZoneCountBefore = window == SkillProgramTriggerWindow.CardsGained ? sourceCount.CountBefore : 0,
+            DestinationZoneCountAfter = window == SkillProgramTriggerWindow.CardsGained ? sourceCount.CountAfter : 0
         };
     }
 
@@ -172,25 +186,21 @@ public sealed partial class GameEngine
         CardsMovedTriggerWindowFrame frame,
         ProgramTriggerCandidate candidate)
     {
-        var trigger = _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers
-            .Single(item => item.Id == candidate.BindingId);
-        var sourceZone = trigger.SourceZones.Single();
-        var sourceLocation = new CardLocation(sourceZone, candidate.OwnerSeat);
-        var sourceCount = frame.Batch.SourceCounts.Single(item => item.Location == sourceLocation);
-        var matchingIndexes = frame.Batch.Movements
-            .Select((movement, index) => (movement, index))
-            .Where(item => item.movement.From == sourceLocation)
-            .Select(item => item.index)
-            .ToArray();
+        if (frame.Contexts is { } contexts) return contexts[frame.CandidateIndex];
+        var trigger = _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers.Single(item => item.Id == candidate.BindingId);
+        var gained = trigger.Window == SkillProgramTriggerWindow.CardsGained;
+        var location = new CardLocation((gained ? trigger.DestinationZones : trigger.SourceZones).Single(), candidate.OwnerSeat);
+        var count = (gained ? frame.Batch.DestinationCounts! : frame.Batch.SourceCounts).Single(item => item.Location == location);
+        var matchingIndexes = MatchingMovementIndexes(frame.Batch, candidate, trigger, location);
         return new ProgramSkillWindowContext(
-            SkillProgramTriggerWindow.CardsMoved,
+            trigger.Window,
             frame.Id,
             candidate.OwnerSeat,
-            SourceSeat: candidate.OwnerSeat,
+            SourceSeat: gained ? frame.Batch.OriginOwnerSeat : candidate.OwnerSeat,
             TargetSeat: candidate.OwnerSeat,
             OccurrenceIndex: candidate.OccurrenceIndex,
             Facts: CaptureCardsMovedTriggerFacts(
-                _players[candidate.OwnerSeat], matchingIndexes.Length, sourceCount),
+                _players[candidate.OwnerSeat], matchingIndexes.Length, count, trigger.Window),
             MovementBatch: frame.Batch,
             MovementIndex: trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerCard
                 ? candidate.OccurrenceIndex
@@ -204,6 +214,11 @@ public sealed partial class GameEngine
             if (frame.CandidateIndex >= frame.Candidates.Count)
             {
                 PopResolutionFrame(frame.Id, ResolutionFrameKind.CardsMovedTriggerWindow);
+                if (frame.ResumeProgramFrameId is { } resume)
+                {
+                    ContinueProgramSkill(resume);
+                    return;
+                }
                 if (!TryBeginCardsMovedProgramWindow() &&
                     _resolutionStack.LastOrDefault() is ProgramSkillFrame
                         { PendingMovementContinuation: not null } awaited)
@@ -238,7 +253,7 @@ public sealed partial class GameEngine
     {
         QueueGameEvent(new ProgramBindingResolvedEvent(
             frame.Id, candidate.SkillId, candidate.BindingId, candidate.SkillInstanceId,
-            candidate.OwnerSeat, SkillProgramTriggerWindow.CardsMoved, activated, completed));
+            candidate.OwnerSeat, CreateCardsMovedProgramContext(frame, candidate).Window, activated, completed));
         AdvanceCardsMovedProgramCursor(frame);
     }
 

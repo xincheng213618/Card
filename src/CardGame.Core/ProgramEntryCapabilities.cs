@@ -36,6 +36,9 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.TurnEnding or
         SkillProgramTriggerWindow.PlayPhaseStarting or
         SkillProgramTriggerWindow.CardsMoved or
+        SkillProgramTriggerWindow.CardsGained or
+        SkillProgramTriggerWindow.AfterHpLost or
+        SkillProgramTriggerWindow.AfterHpRecovered or
         SkillProgramTriggerWindow.OwnerDied or
         SkillProgramTriggerWindow.CardUseCommitted or
         SkillProgramTriggerWindow.CardUseBeforeTargetEffects or

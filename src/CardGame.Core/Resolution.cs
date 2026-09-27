@@ -37,7 +37,8 @@ public enum ResolutionFrameKind
     PlayPhaseStartingBoundary,
     CardsMovedTriggerWindow,
     BeforeDamageProgramWindow,
-    ProgramDeathTriggerWindow
+    ProgramDeathTriggerWindow,
+    HpChangedTriggerWindow
 }
 
 public enum ResolutionFrameStep
@@ -60,6 +61,7 @@ public enum ResolutionFrameStep
 [JsonDerivedType(typeof(DamageFrame), "damage")]
 [JsonDerivedType(typeof(DamageTriggerWindowFrame), "damage-trigger-window")]
 [JsonDerivedType(typeof(RecoveryFrame), "recovery")]
+[JsonDerivedType(typeof(HpChangedTriggerWindowFrame), "hp-changed-trigger-window")]
 [JsonDerivedType(typeof(DyingFrame), "dying")]
 [JsonDerivedType(typeof(DeathFrame), "death")]
 [JsonDerivedType(typeof(NullificationWindowFrame), "nullification-window")]
@@ -216,7 +218,8 @@ public sealed record RecoveryFrame(
     int SourceSeat,
     int TargetSeat,
     int Amount,
-    ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
+    ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect,
+    int HpBefore = 0)
     : ResolutionFrame(Id, ResolutionFrameKind.Recovery, Step);
 
 public sealed record DyingFrame(

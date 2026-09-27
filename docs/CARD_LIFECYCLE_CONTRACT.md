@@ -18,8 +18,9 @@
 | 增伤，例如界徐盛破军 | `damageModifiers`、临时伤害修正 | 按来源/目标及牌类型判断，保留来源、实际数额和连环/转移边界。与目标阶段的扣牌效果分别组合。 |
 | 受伤后摸牌 | `damageAppliedBeforeDying` / `afterDamageApplied`，按次/按点策略 | 能区分濒死前事实记录和救援后的收益；不是所有“体力降低”都算伤害。 |
 | 失去装备，例如孙尚香枭姬、凌统旋风 | `cardsMoved`、`sourceZones: [equipment]`、按张/按批 | 枭姬已有数据定义。能力存在不等于所有旋风版本都已接入。普通牌流程的移动触发仍可能延迟到父结算空闲处，程序内移动已有局部续接。 |
-| 获得牌后再触发 | 移动账本已有 From/To、批次和父批次 | **缺口**：程序窗口目前以来源区拥有者筛选，尚缺目的地区拥有者及获得原因过滤。 |
-| 失去体力后摸牌 | `loseHp` 操作及独立濒死续接 | **缺口**：没有通用失去体力后/体力变化订阅入口。不得改用伤害事件冒充。 |
+| 获得牌后再触发 | `cardsGained`、`destinationZones: [hand]`、原因过滤、按张/按批 | 以获得者收集候选，冻结移动前后的目的区数量。程序内摸牌/交牌在下一条指令前续接；普通牌和旧流程的移动仍在其安全边界调度。 |
+| 失去体力后摸牌 | `afterHpLost`、`hpChangeOccurrence: perEvent / perPoint` | 记录实际失去量及变化前后体力，濒死结算完成后续接；伤害和直接设置体力不进入。 |
+| 回复体力后 | `afterHpRecovered`、按次/按点、来源角色 | 所有 `RecoveryFrame` 统一记录实际回复量；满血回复不触发。程序指令、桃/酒完成、桃园结义每个目标之间均有续接；其他旧入口在安全边界调度。 |
 | 封手牌，例如义绝 | 牌使用/打出禁止、手牌颜色限制、定向目标限制 | **部分**：已有潜袭式颜色过滤；完整义绝式区域、动作和期限组合尚需统一封牌策略。 |
 | 封非锁定技能，例如界铁骑 | 技能实例与绑定索引 | **缺口**：禁止闪不等于技能失效。尚缺按技能标签、实例、期限过滤的统一抑制层。 |
 
@@ -38,3 +39,40 @@
 每个真正上线的窗口必须同时具备：上下文能力声明、加载器拒绝无上下文的操作、冻结候选和事实、触发条件复查、可序列化游标、明确父流程续接、私密选择和公开事件边界、当前规则版本回放测试。仅增加枚举值或方法名不能算接口完成。
 
 当前可发现的实际入口/操作由 `ProgramEntryCapabilities` 和操作 descriptor 提供，可用 `tools/Inspect-SkillProgram.ps1` 查询。新增技能优先复用这些节点；表中的缺口先做公共能力及跨技能场景测试，再写人物配置。
+
+## rules 176：得牌、失去体力、回复后的配置契约
+
+三个新入口使用现有 schema 62，新增内容的 `minimumRulesVersion` 应为 176。规则号上升是因为程序指令之间新增了可暂停的子窗口，且恢复帧会记录实际体力变化；旧规则回放不混用。
+
+`cardsMoved` 仍是**离开指定区域**，例如手牌移入自己的装备区也属于失去手牌；它不等同于规则中失去所有权。`cardsGained` 是**移入手牌区**，目的区只接受 `["hand"]`，装备上身不算获得牌。两者共享如下字段：
+
+| 字段 | 契约 |
+| --- | --- |
+| `movementOccurrence` | 必填；`perBatch` 按底层原子移动批次，`perCard` 按符合过滤条件的实体牌。现有连续摸牌可能包含多个批次，不把一次摸牌指令自动视为一个批次。 |
+| `movementReasons` | 可选白名单，精确匹配移动账本的 namespaced 原因，例如 `rule.draw`；空列表不限制。 |
+| `excludedMovementReasons` | 可选黑名单；不能与白名单重叠。 |
+| `ignoreOwnSkillMovements` | 默认 `false`；设为 `true` 时排除同一拥有者、技能和技能实例所产生的移动。不会排除另一角色持有的同名技能。 |
+| `movedCardCount` | 该拥有者和区域内、经过原因过滤的移动张数。 |
+| `sourceZoneCountBefore/After` | 仅供 `cardsMoved` 条件使用，记录整个区域的变化前后数量。 |
+| `destinationZoneCountBefore/After` | 仅供 `cardsGained` 条件使用，记录整个区域的变化前后数量。 |
+
+例如“收到牌后摸一张，自己的这个技能摸牌不再次触发”：
+
+```json
+{
+  "id": "after-gain",
+  "window": "cardsGained",
+  "subject": "owner",
+  "destinationZones": ["hand"],
+  "movementOccurrence": "perBatch",
+  "ignoreOwnSkillMovements": true,
+  "optional": true,
+  "effects": [{ "op": "draw", "target": "owner", "amount": 1 }]
+}
+```
+
+`afterHpLost` / `afterHpRecovered` 目前订阅 `subject: owner`。`hpChangeOccurrence` 默认 `perEvent`，也可选 `perPoint`；条件可读取 `hpChangeAmount`、`hpBeforeChange`、`hpAfterChange`。这些值属于原事件，救援后的当前体力用 `currentHp`，二者不能混淆。失去体力没有伤害来源；回复保留回复来源角色。规则依据见[失去体力流程](https://gltjk.com/sanguosha/rules/flow/loselife.html)和[回复体力流程](https://gltjk.com/sanguosha/rules/flow/recoverlife.html)。
+
+候选、条件事实和出现索引在窗口开始时冻结，暂停后仍复查存活、技能实例和使用次数。触发效果造成的新事件作为子窗口完成，再恢复原事件。得牌后摸牌、失去体力后继续失去体力等定义，必须按具体规则配置原因、条件或次数限制；引擎不擅自吞掉规则允许的嵌套事件。
+
+尚未实现：移动前拦截、失去体力前防止、任意体力变化订阅、体力上限变化订阅、翻面/横置订阅，以及上表标记的完整目标阶段屏障和封牌/封技策略。新增枚举不能替代实际流程适配，这些能力须分别补齐续接和回放验证后开放。

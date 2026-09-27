@@ -28,6 +28,12 @@ if (args.FirstOrDefault() == "--ai-batch")
 // Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("shared post-event recipient batch counts and reason filters", SharedPostEventChecks.TransferFiltersAndBatchCountsUseTheRecipient),
+    ("shared post-event damage separation and group recovery", SharedPostEventChecks.DamageDoesNotBecomeHpLossAndGroupRecoveryWaitsPerTarget),
+    ("shared post-event gained cards pause and replay", SharedPostEventChecks.GainsPauseBeforeTheNextInstructionAndReplay),
+    ("shared post-event HP actual amounts and replay", SharedPostEventChecks.HpLossRecoveryAndActualAmountsReplay),
+    ("shared post-event dying recovery ordering and replay", SharedPostEventChecks.HpLossWaitsForDyingAndCardRecoveryFinishesFirst),
+    ("shared post-event definition context validation", SharedPostEventChecks.DefinitionFiltersRejectWrongContexts),
     ("shared use lifecycle nests rescue inside a suspended card window", CardUseLifecycleChecks.NestedRescueRetainsTheOuterUseWindow),
     ("shared card-use phase-owner movement context validation", CardUseLifecycleChecks.PhaseOwnerDestinationRequiresPhaseContext),
     ("Zhang Song equipment use, replacement and replay", ZhangSongChecks.EquipmentUsesReplaceAndResumeExactlyOnce),

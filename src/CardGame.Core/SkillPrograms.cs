@@ -60,7 +60,12 @@ public enum SkillProgramTriggerValueKind
     EventTargetHandCount = 13,
     CurrentAttackRange = 14,
     PlayPhaseKillCountByTurnOwner = 15,
-    PlayPhaseDamageDealtByTurnOwner = 16
+    PlayPhaseDamageDealtByTurnOwner = 16,
+    DestinationZoneCountBefore = 18,
+    DestinationZoneCountAfter = 19,
+    HpChangeAmount = 20,
+    HpBeforeChange = 21,
+    HpAfterChange = 22
 }
 public enum SkillProgramComparisonOperator
 {
@@ -208,10 +213,14 @@ public enum SkillProgramTriggerWindow
     SlashTargetRedirecting,
     SlashBeforeResponse,
     SlashFullyDodged,
-    PlayPhaseStarting
+    PlayPhaseStarting,
+    CardsGained,
+    AfterHpLost,
+    AfterHpRecovered
 }
 public enum SkillProgramTriggerSubject { Owner, Any, Source, DamageSource, DamageTarget }
 public enum SkillProgramMovementOccurrence { PerBatch, PerCard }
+public enum SkillProgramHpChangeOccurrence { PerEvent, PerPoint }
 public enum SkillProgramDamageOccurrence { PerDamage, PerDamagePoint }
 public enum SkillProgramDrawPhaseMode { Additive, Replacement }
 public enum SkillProgramOldJudgmentCardDestination { DiscardPile, OwnerHand }
@@ -467,7 +476,12 @@ public sealed record SkillProgramTriggerFacts(
     int CurrentAttackRange = 0,
     SkillProgramCardCategory? CardActionCategory = null,
     int PlayPhaseKillCountByTurnOwner = 0,
-    int PlayPhaseDamageDealtByTurnOwner = 0)
+    int PlayPhaseDamageDealtByTurnOwner = 0,
+    int DestinationZoneCountBefore = 0,
+    int DestinationZoneCountAfter = 0,
+    int HpChangeAmount = 0,
+    int HpBeforeChange = 0,
+    int HpAfterChange = 0)
 {
     public bool GetBooleanState(string skillId, string skillInstanceId, string stateId) =>
         BooleanStates?.GetValueOrDefault(BooleanStateKey(skillId, skillInstanceId, stateId)) ??
@@ -500,6 +514,11 @@ public sealed record SkillProgramTriggerValue(SkillProgramTriggerValueKind Kind,
         SkillProgramTriggerValueKind.CurrentMaxHp => facts.CurrentMaxHp,
         SkillProgramTriggerValueKind.CurrentHandCount => facts.CurrentHandCount,
         SkillProgramTriggerValueKind.CurrentOwnedZoneCount => facts.OwnedZoneCounts.Get(Zone!.Value),
+        SkillProgramTriggerValueKind.DestinationZoneCountBefore => facts.DestinationZoneCountBefore,
+        SkillProgramTriggerValueKind.DestinationZoneCountAfter => facts.DestinationZoneCountAfter,
+        SkillProgramTriggerValueKind.HpChangeAmount => facts.HpChangeAmount,
+        SkillProgramTriggerValueKind.HpBeforeChange => facts.HpBeforeChange,
+        SkillProgramTriggerValueKind.HpAfterChange => facts.HpAfterChange,
         SkillProgramTriggerValueKind.MovedCardCount => facts.MovedCardCount,
         SkillProgramTriggerValueKind.SourceZoneCountBefore => facts.SourceZoneCountBefore,
         SkillProgramTriggerValueKind.SourceZoneCountAfter => facts.SourceZoneCountAfter,
@@ -947,6 +966,11 @@ public sealed class SkillProgramTrigger
     public IReadOnlyList<CardKind> DamageCardKinds { get; }
     public IReadOnlyList<SkillProgramCardCategory> CardCategories { get; }
     public IReadOnlyList<CardZoneKind> SourceZones { get; }
+    public IReadOnlyList<CardZoneKind> DestinationZones { get; internal init; } = [];
+    public IReadOnlyList<string> MovementReasons { get; internal init; } = [];
+    public IReadOnlyList<string> ExcludedMovementReasons { get; internal init; } = [];
+    public bool IgnoreOwnSkillMovements { get; internal init; }
+    public SkillProgramHpChangeOccurrence HpChangeOccurrence { get; internal init; }
     public SkillProgramMovementOccurrence? MovementOccurrence { get; }
     public SkillProgramDamageOccurrence? DamageOccurrence { get; }
     public SkillProgramDrawPhaseMode DrawPhaseMode { get; }
@@ -1714,7 +1738,9 @@ public sealed class SkillProgramCatalog
             "cardCategories", "damageCardKinds", "sourceZones", "movementOccurrence", "damageOccurrence",
             "subject", "suits", "minimumRank", "maximumRank", "excludedReasons", "judgmentReasons",
             "judgmentSource", "optional", "condition", "priority", "usageScope", "usageLimit",
-            "drawPhaseMode", "choiceGroup", "ownerRelation", "turnOwnerScope", "effects");
+            "drawPhaseMode", "choiceGroup", "ownerRelation", "turnOwnerScope", "effects",
+            "destinationZones", "movementReasons", "excludedMovementReasons", "ignoreOwnSkillMovements",
+            "hpChangeOccurrence");
         var id = Identifier(node, "id", path);
         var window = EnumValue<SkillProgramTriggerWindow>(node, "window", path);
         string? sourceSkillId = null;
@@ -1728,6 +1754,26 @@ public sealed class SkillProgramCatalog
         IReadOnlyList<CardKind> damageCardKinds = [];
         IReadOnlyList<SkillProgramCardCategory> cardCategories = [];
         IReadOnlyList<CardZoneKind> sourceZones = Array.Empty<CardZoneKind>();
+        IReadOnlyList<CardZoneKind> destinationZones = [];
+        var isMovementWindow = window is SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained;
+        var isHpWindow = window is SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHpRecovered;
+        foreach (var field in new[] { "movementOccurrence", "movementReasons", "excludedMovementReasons", "ignoreOwnSkillMovements" })
+            if (!isMovementWindow && node.TryGetProperty(field, out _))
+                Fail(path + "." + field, "supported only by cardsMoved or cardsGained");
+        if (!isHpWindow && node.TryGetProperty("hpChangeOccurrence", out _))
+            Fail(path + ".hpChangeOccurrence", "requires afterHpLost or afterHpRecovered");
+        if (window != SkillProgramTriggerWindow.CardsGained && node.TryGetProperty("destinationZones", out _))
+            Fail(path + ".destinationZones", "requires cardsGained");
+        var movementReasons = node.TryGetProperty("movementReasons", out _) ? StringArray(node, "movementReasons", path) : [];
+        var excludedMovementReasons = node.TryGetProperty("excludedMovementReasons", out _) ? StringArray(node, "excludedMovementReasons", path) : [];
+        if (movementReasons.Concat(excludedMovementReasons).Any(reason => !reason.Contains('.')) ||
+            movementReasons.Intersect(excludedMovementReasons, StringComparer.Ordinal).Any())
+            Fail(path, "movement reasons must be distinct namespaced ids without overlapping includes and excludes");
+        var ignoreOwnSkillMovements = node.TryGetProperty("ignoreOwnSkillMovements", out _) &&
+            RequiredBool(node, "ignoreOwnSkillMovements", path);
+        var hpChangeOccurrence = node.TryGetProperty("hpChangeOccurrence", out _)
+            ? EnumValue<SkillProgramHpChangeOccurrence>(node, "hpChangeOccurrence", path)
+            : SkillProgramHpChangeOccurrence.PerEvent;
         SkillProgramMovementOccurrence? movementOccurrence = null;
         SkillProgramDamageOccurrence? damageOccurrence = null;
         var drawPhaseMode = SkillProgramDrawPhaseMode.Additive;
@@ -1767,7 +1813,7 @@ public sealed class SkillProgramCatalog
             if (cardCategories.Count == 0 || cardCategories.Distinct().Count() != cardCategories.Count)
                 Fail(path + ".cardCategories", "must contain distinct card categories");
         }
-        var isLifecycleWindow = window is SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
+        var isLifecycleWindow = isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or
             SkillProgramTriggerWindow.SelfDyingResponse or
@@ -1780,7 +1826,7 @@ public sealed class SkillProgramCatalog
             SkillProgramTriggerWindow.CardsMoved or
             SkillProgramTriggerWindow.OwnerDied or
             SkillProgramTriggerWindow.PlayPhaseStarting;
-        var supportsTriggerCondition = isCardActionWindow || window is SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
+        var supportsTriggerCondition = isCardActionWindow || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or
             SkillProgramTriggerWindow.DyingResponse or
@@ -1791,9 +1837,7 @@ public sealed class SkillProgramCatalog
             SkillProgramTriggerWindow.OwnerDied or
             SkillProgramTriggerWindow.PlayPhaseStarting ||
             window == SkillProgramTriggerWindow.AfterDamageApplied;
-        if (window != SkillProgramTriggerWindow.CardsMoved &&
-            (node.TryGetProperty("sourceZones", out _) ||
-             node.TryGetProperty("movementOccurrence", out _)))
+        if (window != SkillProgramTriggerWindow.CardsMoved && node.TryGetProperty("sourceZones", out _))
             Fail(path, "sourceZones and movementOccurrence are supported only by cardsMoved");
         if (window is not (SkillProgramTriggerWindow.AfterDamageApplied or
                 SkillProgramTriggerWindow.DamageAppliedBeforeDying) &&
@@ -1857,6 +1901,13 @@ public sealed class SkillProgramCatalog
                 if (supportsDamageSourceConversion &&
                     (node.TryGetProperty("sourceSkillId", out _) || node.TryGetProperty("sourceViewAsId", out _)))
                     Fail(path, "owner after-damage triggers do not accept card-conversion source fields");
+            }
+            if (window == SkillProgramTriggerWindow.CardsGained)
+            {
+                destinationZones = EnumArray<CardZoneKind>(node, "destinationZones", path);
+                if (!destinationZones.SequenceEqual([CardZoneKind.Hand]))
+                    Fail(path + ".destinationZones", "cardsGained requires exactly the hand destination zone");
+                movementOccurrence = EnumValue<SkillProgramMovementOccurrence>(node, "movementOccurrence", path);
             }
             if (window == SkillProgramTriggerWindow.CardsMoved)
             {
@@ -2042,9 +2093,17 @@ public sealed class SkillProgramCatalog
             window is not (SkillProgramTriggerWindow.CardUseCommitted or
                 SkillProgramTriggerWindow.CardUseCompleted or SkillProgramTriggerWindow.CardUseBeforeTargetEffects))
             Fail(path + ".condition", "cardActionCategoryIs requires a card-use trigger");
+        if (!isHpWindow && EnumerateTriggerValues(condition).Any(value => value.Kind is
+                SkillProgramTriggerValueKind.HpChangeAmount or SkillProgramTriggerValueKind.HpBeforeChange or
+                SkillProgramTriggerValueKind.HpAfterChange))
+            Fail(path + ".condition", "HP change values require afterHpLost or afterHpRecovered");
+        if (window != SkillProgramTriggerWindow.CardsGained && EnumerateTriggerValues(condition).Any(value => value.Kind is
+                SkillProgramTriggerValueKind.DestinationZoneCountBefore or SkillProgramTriggerValueKind.DestinationZoneCountAfter))
+            Fail(path + ".condition", "destination-zone values require cardsGained");
+        if (!isMovementWindow && EnumerateTriggerValues(condition).Any(value => value.Kind == SkillProgramTriggerValueKind.MovedCardCount))
+            Fail(path + ".condition", "card-movement values are supported only by cardsMoved or cardsGained");
         if (window != SkillProgramTriggerWindow.CardsMoved &&
             EnumerateTriggerValues(condition).Any(value => value.Kind is
-                SkillProgramTriggerValueKind.MovedCardCount or
                 SkillProgramTriggerValueKind.SourceZoneCountBefore or
                 SkillProgramTriggerValueKind.SourceZoneCountAfter))
             Fail(path + ".condition", "card-movement values are supported only by cardsMoved");
@@ -2136,7 +2195,12 @@ public sealed class SkillProgramCatalog
             minimumRank, maximumRank, excludedReasons, judgmentReasons, judgmentSource,
             cardKinds, sourceZones, movementOccurrence, damageOccurrence, drawPhaseMode, optional,
             condition, effects, priority, usageScope, usageLimit, choiceGroup, ownerRelation,
-            cardCategories: cardCategories, damageCardKinds: damageCardKinds, turnOwnerScope: turnOwnerScope);
+            cardCategories: cardCategories, damageCardKinds: damageCardKinds, turnOwnerScope: turnOwnerScope)
+        {
+            DestinationZones = destinationZones, MovementReasons = movementReasons,
+            ExcludedMovementReasons = excludedMovementReasons, IgnoreOwnSkillMovements = ignoreOwnSkillMovements,
+            HpChangeOccurrence = hpChangeOccurrence
+        };
     }
     private static void ValidateTriggerChoiceGroups(
         string path,

@@ -20,6 +20,7 @@ public sealed record SkillProgramActorState(PlayerSkillContext Context, bool IsA
 public interface ISkillProgramExecutionHost
 {
     ProgramSkillFrame? GetActiveFrame(long frameId);
+    bool TryStartPostInstructionWindow(long frameId) => false;
     SkillProgram GetProgram(string skillId);
     SkillProgramActorState GetActor(int seat);
     bool IsGameOver { get; }
@@ -1197,6 +1198,7 @@ public sealed class SkillProgramExecutor
         ArgumentNullException.ThrowIfNull(effects);
         while (state.GetActiveFrame(frameId) is { } frame)
         {
+            if (state.TryStartPostInstructionWindow(frameId)) return;
             if (frame.Id != frameId)
                 throw new InvalidOperationException(
                     $"Active skill-program frame '{frame.Id}' does not match requested frame '{frameId}'.");
