@@ -28,6 +28,18 @@ if (args.FirstOrDefault() == "--ai-batch")
 // Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("shared use lifecycle nests rescue inside a suspended card window", CardUseLifecycleChecks.NestedRescueRetainsTheOuterUseWindow),
+    ("shared card-use phase-owner movement context validation", CardUseLifecycleChecks.PhaseOwnerDestinationRequiresPhaseContext),
+    ("Zhang Song equipment use, replacement and replay", ZhangSongChecks.EquipmentUsesReplaceAndResumeExactlyOnce),
+    ("Zhang Song category mismatch and phase lifetime", ZhangSongChecks.CategoryMismatchAndPhaseLifetime),
+    ("Zhang Song Xiantu original cards and play-end timing", ZhangSongChecks.XiantuSelectsExistingCardsAndPenalizesBeforeDiscard),
+    ("Zhang Song Qiangzhi and Xiantu definition and content contract", ZhangSongChecks.DefinitionAndContentContract),
+    ("Classic Zhang Song Qiangzhi reveals a category and draws on matching uses", ZhangSongChecks.ClassicQiangzhiRevealsThenDrawsOnMatchingCategory),
+    ("Boundary Zhang Song Qiangzhi views the hand and chooses the revealed card", ZhangSongChecks.BoundaryQiangzhiViewsHandAndChoosesReveal),
+    ("Classic Zhang Song Xiantu gifts two cards and penalizes a killless phase", ZhangSongChecks.ClassicXiantuGiftsTwoAndPenalizesWithoutKill),
+    ("Boundary Zhang Song Xiantu chooses the gift amount and pays the damage penalty", ZhangSongChecks.BoundaryXiantuChoosesGiftAmountAndPenalty),
+    ("shared use lifecycle preserves dying rescue and replay", CardUseLifecycleChecks.DyingBasicUsesResumeTheirRescueParent),
+    ("shared use lifecycle covers basic equipment trick and multiple targets", CardUseLifecycleChecks.BasicEquipmentAndTricksShareReplayableUseWindows),
     ("current classic catalogue modes and skill references", CurrentClassicContentChecks.CatalogueAndModes),
     ("turn-ending Xiaoguo Tianxiang game over stops later observers", TurnEndingGameOverChecks.XiaoguoTianxiangVictoryStopsLaterObservers),
     ("2014 boundary Zhou Yu definition version and public gift resource contracts", BoundaryZhouYuChecks.DefinitionAndResourceContracts),

@@ -58,7 +58,7 @@ internal static class ProgramCompositionValidator
                 if (condition.Kind == SkillProgramConditionKind.BoundCardCountAtLeast)
                 {
                     var bound = Get(condition.SourceBind!);
-                    if (effect.Op != SkillProgramEffectOp.ChooseOption ||
+                    if (effect.Op is not (SkillProgramEffectOp.ChooseOption or SkillProgramEffectOp.SetBooleanState) ||
                         bound.CardOwner != effect.Target || bound.Root.AlreadyMoved)
                         Fail("bound-card count option must read the chooser's own stable cards");
                 }

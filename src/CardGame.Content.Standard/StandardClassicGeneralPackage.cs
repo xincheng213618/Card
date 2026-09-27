@@ -55,7 +55,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicLifecycleRulesResource),
             ReadEmbeddedText(ClassicLifecyclePresentationResource)));
-    public static Version CurrentVersion { get; } = new(1, 143, 0);
+    public static Version CurrentVersion { get; } = new(1, 145, 0);
 
     public StandardClassicGeneralPackage()
     {
@@ -904,6 +904,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             });
         }
 
+        builder.AddSkill(WithOptionalTriggerMetadata(
+            EmbeddedSkillProgramCatalog.Definition("classic-zhang-song", "classic:qiangzhi")));
+
+        builder.AddSkill(WithOptionalTriggerMetadata(
+            EmbeddedSkillProgramCatalog.Definition("classic-zhang-song", "classic:xiantu")));
+
+        builder.AddSkill(WithOptionalTriggerMetadata(
+            EmbeddedSkillProgramCatalog.Definition("boundary-zhang-song", "boundary:qiangzhi")));
+
+        builder.AddSkill(WithOptionalTriggerMetadata(
+            EmbeddedSkillProgramCatalog.Definition("boundary-zhang-song", "boundary:xiantu")));
+
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
             "刘备",
@@ -1500,6 +1512,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:duodao", "wu", BaseHp: 4,
                 AdditionalSkillIds: ["classic:anjian"]));
 
+        builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:zhang-song", "张松", "zhang_song",
+                "classic:qiangzhi", "shu", BaseHp: 3,
+                AdditionalSkillIds: ["classic:xiantu"]));
+
+        builder.AddGeneral(new ContentGeneralDefinition(
+                "boundary:zhang-song", "界张松", "boundary_zhang_song",
+                "boundary:qiangzhi", "shu", BaseHp: 3,
+                AdditionalSkillIds: ["boundary:xiantu"]));
+
         var generalPoolIds = CurrentGeneralIds;
 
         builder.AddMode(new ContentModeDefinition(
@@ -1800,6 +1822,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "boundary:zhou-yu",
         "classic:pan-zhang-ma-zhong",
         "sp:le-jin",
+        "classic:zhang-song",
+        "boundary:zhang-song",
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =

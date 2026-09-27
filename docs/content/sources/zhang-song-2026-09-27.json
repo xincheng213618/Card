@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-27",
+  "contentIds": [
+    "classic:zhang-song",
+    "boundary:zhang-song"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:zhang-song",
+      "url": "https://www.sanguosha.cn/pc/hero-detail-179.html",
+      "edition": "一将成名（经典身份场）张松",
+      "use": "蜀3体力。强识：出牌阶段开始时，你可以展示一名其他角色的一张手牌，然后本回合当你使用与展示的牌类别相同的牌时，你可以摸一张牌。献图：其他角色的出牌阶段开始时，你可以摸两张牌，然后将两张牌交给该角色；此阶段结束时，若其没有于此阶段内杀死过角色，你失去1点体力。"
+    },
+    {
+      "contentId": "boundary:zhang-song",
+      "url": "https://www.sanguosha.com/hero/753",
+      "edition": "三国杀OL 界张松",
+      "use": "蜀3体力。强识：出牌阶段开始，可观看其他角色手牌并自选一张展示；本阶段使用此类别牌时可摸一张。献图：其他角色出牌阶段开始，可摸至多两张再交给其等量牌；阶段结束时，该角色造成的伤害小于实际交牌数则失去1点体力。交牌可以选择原有牌。",
+      "verification": "直接核验原始 HTML；当前正文为使用此类别的牌时，搜索缓存中的使用后不作为本次依据。",
+      "htmlSha256": "61f7a63cf8b164feb10f977a7831ba42df82d3724e8e62e4663067783bc86c59"
+    },
+    {
+      "url": "https://gltjk.com/sanguosha/rules/flow/use.html",
+      "edition": "用户指定的官方规则集3.0网页整理",
+      "use": "核对使用时、目标时机与整张牌完成的区别；装备使用也有使用时机，多目标牌结算前按时机遍历全体目标。历史技能条目不覆盖现行界张松官方文本。"
+    }
+  ],
+  "versionBoundary": "经典强识有效至自己的回合结束，界强识仅自己的本出牌阶段；两版献图均在对方出牌阶段结束结算。官方页本次重新核验，纠正此前记录的界强识期限及固定交出新摸牌错误。",
+  "portraits": [
+    {
+      "contentId": "classic:zhang-song",
+      "id": "32600",
+      "name": "经典形象",
+      "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-179.html",
+      "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/32600.jpg",
+      "localPath": "src/CardGame.Wpf/Assets/official-zhang-song.jpg",
+      "sha256": "e49adbf4fe657c74ee015aa9e847f15fc722f87a24291f3c1da6d8c0bcceb364",
+      "pixelWidth": 530,
+      "pixelHeight": 750
+    },
+    {
+      "contentId": "boundary:zhang-song",
+      "id": "75300",
+      "name": "经典形象",
+      "sourcePage": "https://www.sanguosha.com/hero/753",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/75300.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-zhang-song.png",
+      "sha256": "8adc3b94cddf5d0f1e7dd30baf7fa6f28d54641ff2571201398b5d31baa64a81",
+      "pixelWidth": 750,
+      "pixelHeight": 950
+    }
+  ]
+}

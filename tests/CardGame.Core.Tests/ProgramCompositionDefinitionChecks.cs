@@ -149,7 +149,8 @@ internal static class ProgramCompositionDefinitionChecks
             [SkillProgramEffectOp.StartVirtualDuel] = """{"op":"startVirtualDuel","target":"owner"}""",
             [SkillProgramEffectOp.RequestFactionCard] = """{"op":"requestFactionCard","target":"selectedTarget","providerFactionId":"shu","requiredKind":"slash"}""",
             [SkillProgramEffectOp.TransferRandomOwnedCard] = """{"op":"transferRandomOwnedCard","target":"selectedTarget","resultBind":"publicGift"}""",
-            [SkillProgramEffectOp.AccumulateSelectedCardCount] = """{"op":"accumulateSelectedCardCount","target":"owner","usageId":"phase-count","threshold":2,"resultBind":"crossed"}"""
+            [SkillProgramEffectOp.AccumulateSelectedCardCount] = """{"op":"accumulateSelectedCardCount","target":"owner","usageId":"phase-count","threshold":2,"resultBind":"crossed"}""",
+            [SkillProgramEffectOp.RevealTargetHandCard] = """{"op":"revealTargetHandCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"selectedTarget"},"resultBind":"qiangzhi-shown","mode":"chooser"}"""
         };
         Require(nodes.Keys.ToHashSet().SetEquals(Enum.GetValues<SkillProgramEffectOp>()),
             "Catalog parse fixtures must cover every declared program operation exactly once.");

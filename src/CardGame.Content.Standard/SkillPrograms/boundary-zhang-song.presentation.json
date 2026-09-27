@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:qiangzhi": {
+      "name": "强识",
+      "booleanStates": {
+        "shown-basic": { "trueText": "本阶段已展示基本牌", "falseText": "未展示基本牌" },
+        "shown-trick": { "trueText": "本阶段已展示锦囊牌", "falseText": "未展示锦囊牌" },
+        "shown-equipment": { "trueText": "本阶段已展示装备牌", "falseText": "未展示装备牌" }
+      },
+      "description": "出牌阶段开始时，你可以观看一名其他角色的手牌并展示其中一张牌，然后本阶段当你使用与展示的牌类别相同的牌时，你可以摸一张牌。"
+    },
+    "boundary:xiantu": {
+      "name": "献图",
+      "booleanStates": {
+        "gifted-1": { "trueText": "本阶段已献图（一张）", "falseText": "本阶段未献图" },
+        "gifted-2": { "trueText": "本阶段已献图（两张）", "falseText": "本阶段未献图" }
+      },
+      "triggerChoices": {
+        "gift-one-card": "摸一张牌并交给该角色一张牌",
+        "gift-two-cards": "摸两张牌并交给该角色两张牌"
+      },
+      "description": "其他角色的出牌阶段开始时，你可以摸一至两张牌，然后将等量的牌交给该角色。此阶段结束时，若其于此阶段内造成的伤害小于你以此法交给其的牌数，你失去1点体力。"
+    }
+  }
+}

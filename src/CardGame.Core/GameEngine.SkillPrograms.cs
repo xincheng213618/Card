@@ -658,6 +658,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             }
             var paused = plan.Instructions[frame.InstructionIndex - 1];
             AssertProgramOwnedCardSelection(frame, paused);
+            AssertProgramRevealCardSelection(frame, paused);
             AssertProgramOwnedCardDistribution(frame, paused);
             AssertProgramAttackRangeAid(frame, paused);
             if (paused.Op == SkillProgramEffectOp.ChooseOption && ReferenceEquals(frame, _resolutionStack.LastOrDefault()) &&

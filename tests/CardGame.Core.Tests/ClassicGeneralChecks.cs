@@ -5468,8 +5468,8 @@ internal static class ClassicGeneralChecks
             .Cast<Card>();
         var peach = providerHand.Single(card => card.Id == peachCardId);
         var resolvePeach = typeof(GameEngine).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-            .Single(method => method.Name == "ResolvePeach" && method.GetParameters().Length == 5);
-        resolvePeach.Invoke(game, [provider, target, peach, true, null]);
+            .Single(method => method.Name == "ResolvePeach" && method.GetParameters().Length == 6);
+        resolvePeach.Invoke(game, [provider, target, peach, true, null, null]);
 
         var commitEvents = typeof(GameEngine).GetMethod(
             "CommitPendingEvents",

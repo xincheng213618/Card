@@ -34,6 +34,7 @@ public enum ResolutionFrameKind
     Pindian,
     ProgramLifecycleTriggerWindow,
     TurnEndingBoundary,
+    PlayPhaseStartingBoundary,
     CardsMovedTriggerWindow,
     BeforeDamageProgramWindow,
     ProgramDeathTriggerWindow
@@ -69,6 +70,7 @@ public enum ResolutionFrameStep
 [JsonDerivedType(typeof(PindianFrame), "pindian")]
 [JsonDerivedType(typeof(ProgramLifecycleTriggerWindowFrame), "program-lifecycle-trigger-window")]
 [JsonDerivedType(typeof(TurnEndingBoundaryFrame), "turn-ending-boundary")]
+[JsonDerivedType(typeof(PlayPhaseStartingBoundaryFrame), "play-phase-starting-boundary")]
 [JsonDerivedType(typeof(ProgramDeathTriggerWindowFrame), "program-death-trigger-window")]
 [JsonDerivedType(typeof(CardsMovedTriggerWindowFrame), "cards-moved-trigger-window")]
 [JsonDerivedType(typeof(BeforeDamageProgramWindowFrame), "before-damage-program-window")]
@@ -112,6 +114,9 @@ public sealed record ProgramSkillFrame(
     public ProgramOwnedCardSelection? OwnedCardSelection { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramRevealCardSelection? RevealCardSelection { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramOwnedCardDistribution? OwnedCardDistribution { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -138,6 +143,11 @@ public sealed record CardUseFrame(
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public CardActionContext? Action { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DyingResponseEvent? DyingResponse { get; init; }
+
+    public bool CausedDamage { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<int>? IneffectiveTargetSeats { get; init; }

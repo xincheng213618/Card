@@ -13,8 +13,18 @@ public enum CardActionType { Use, Response }
 
 public enum ProgramCardContinuation
 {
-    Slash, BeforeTargetEffects, BeforeTrickTargetEffects, CommittedSlash, Dodge, DuelSlash, GroupResponse, FactionDefenseDodge, FactionSlashDuelSlash, FactionSlashGroupResponse, DelayedCard, CompletedSlash, NullificationResponse, SlashTargetRedirecting, SlashBeforeResponse, SlashFullyDodged
+    Slash, BeforeTargetEffects, BeforeTrickTargetEffects, CommittedSlash, Dodge, DuelSlash, GroupResponse, FactionDefenseDodge, FactionSlashDuelSlash, FactionSlashGroupResponse, DelayedCard, CompletedSlash, NullificationResponse, SlashTargetRedirecting, SlashBeforeResponse, SlashFullyDodged,
+    CommittedTrick, CommittedSimpleCard, CompletedCard
 }
+
+public enum SimpleCardUseEffect { Equipment, Alcohol, Recovery }
+
+public sealed record ProgramRecoveryPolicySource(string SkillId, string PolicyId);
+
+/// <summary>Typed continuation for basic and equipment uses; never a skill-specific callback.</summary>
+public sealed record ProgramSimpleCardContinuation(
+    int CardId, SimpleCardUseEffect Effect, int RecoveryAmount = 1,
+    IReadOnlyList<ProgramRecoveryPolicySource>? RecoveryPolicySources = null);
 
 /// <summary>Replay-safe ordinary-trick state retained while a public before-target-effects window is suspended.</summary>
 public sealed record ProgramTrickContinuation(
@@ -96,7 +106,8 @@ public sealed record ProgramCardTriggerWindowFrame(
     long Id, long ParentFrameId, CardActionContext Action,
     ProgramCardContinuation Continuation, IReadOnlyList<ProgramCardTriggerCandidate> Candidates,
     int CandidateIndex = 0, bool Activated = false,
-    ProgramTrickContinuation? TrickContinuation = null)
+    ProgramTrickContinuation? TrickContinuation = null,
+    ProgramSimpleCardContinuation? SimpleContinuation = null)
     : ResolutionFrame(Id, ResolutionFrameKind.ProgramCardTriggerWindow, ResolutionFrameStep.ResolvingEffect);
 
 public sealed record ProgramCardTriggerResolvedEvent(

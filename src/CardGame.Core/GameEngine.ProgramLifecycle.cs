@@ -80,6 +80,28 @@ public sealed partial class GameEngine
         return true;
     }
 
+    private bool HasPlayPhaseStartingBoundaryFrame()
+    {
+        if (_resolutionStack.FirstOrDefault() is not PlayPhaseStartingBoundaryFrame frame)
+            return false;
+        if (frame.OwnerSeat != _currentSeat || frame.ItemIndex < 0 ||
+            frame.ItemIndex > frame.Items.Count)
+            throw new InvalidOperationException("The play-phase-starting boundary lost its owner or item cursor.");
+        if (_phase != TurnPhase.Play)
+            throw new InvalidOperationException("A play-phase-starting boundary must remain in its Play phase.");
+        if (_resolutionStack.Count == 1 && frame.Step == ResolutionFrameStep.AwaitingResponse)
+        {
+            var decisionKind = frame.Items[frame.ItemIndex].Kind switch
+            {
+                TurnEndingBoundaryItemKind.Program => DecisionKind.ProgramTrigger,
+                _ => throw new InvalidOperationException("Unsupported play-phase-starting item kind.")
+            };
+            if (_pendingDecision?.Kind != decisionKind)
+                throw new InvalidOperationException("The play-phase-starting boundary is waiting without its matching prompt.");
+        }
+        return true;
+    }
+
     private void BeginNormalTurnStartAfterProgramBindings(CharacterState current)
     {
         BeginTurnStartAfterProgramLifecycle(current);
@@ -1357,6 +1379,9 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             SkillProgramCardDestination.DrawPileBottom => CardLocation.DrawPile,
             SkillProgramCardDestination.SelectedTargetHand when frame.SelectedTargetSeats.Count == 1 =>
                 CardLocation.Hand(frame.SelectedTargetSeats.Single()),
+            SkillProgramCardDestination.PhaseOwnerHand when
+                frame.WindowContext is { Window: SkillProgramTriggerWindow.PlayPhaseStarting, SourceSeat: { } phaseSeat } &&
+                IsValidPlayerSeat(phaseSeat) => CardLocation.Hand(phaseSeat),
             SkillProgramCardDestination.OwnerPersistentZone when destinationZone is
                 CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or
                 CardZoneKind.Chunlao => new CardLocation(destinationZone.Value, ownerSeat),
@@ -1589,8 +1614,16 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 owner.Seat == _currentSeat && context.SourceSeat == owner.Seat &&
                 _phase == TurnPhase.Draw,
             SkillProgramTriggerWindow.PlayEnding =>
-                owner.Seat == _currentSeat && context.SourceSeat == owner.Seat &&
-                _phase == TurnPhase.Play,
+                context.SourceSeat == _currentSeat && _phase == TurnPhase.Play &&
+                (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own
+                    ? owner.Seat == _currentSeat : owner.Seat != _currentSeat),
+            SkillProgramTriggerWindow.PlayPhaseStarting =>
+                context.SourceSeat == _currentSeat && _phase == TurnPhase.Play &&
+                (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own
+                    ? owner.Seat == _currentSeat
+                    : owner.Seat != _currentSeat && _players[_currentSeat].IsAlive) &&
+                _resolutionStack.OfType<PlayPhaseStartingBoundaryFrame>().LastOrDefault() is { } starting &&
+                starting.Id == context.ParentFrameId && starting.OwnerSeat == _currentSeat,
             SkillProgramTriggerWindow.TurnEnding =>
                 context.SourceSeat == _currentSeat && context.TargetSeat == _currentSeat &&
                 (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own
@@ -1819,7 +1852,9 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 _cardZones.Count(CardLocation.BuquWound(owner.Seat)),
                 _cardZones.Count(CardLocation.Authority(owner.Seat)),
                 _cardZones.Count(CardLocation.Chunlao(owner.Seat))),
-            BooleanStates: states);
+            BooleanStates: states,
+            PlayPhaseKillCountByTurnOwner: _playPhaseKillCountByCurrentPlayer,
+            PlayPhaseDamageDealtByTurnOwner: _playPhaseDamageDealtByCurrentPlayer);
     }
 
     private SkillProgramTriggerFacts CaptureProgramTriggerFacts(CharacterState owner, CardActionContext action) =>
@@ -1828,6 +1863,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             CardActionActorIsCurrentTurn = action.ActorSeat == _currentSeat,
             CardActionActorIsOwner = action.ActorSeat == owner.Seat,
             CardActionPhaseIsPlay = _phase == TurnPhase.Play,
+            CardActionCategory = GetProgramCardCategory(action.EffectiveKind),
             CardUseDesignatedTargetCount = action.Type == CardActionType.Use
                 ? action.EffectiveDesignatedTargetSeats.Distinct().Count()
                 : 0,
@@ -1876,7 +1912,8 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
     {
         var skill = _contentRegistry!.GetSkill(candidate.SkillId);
         var facts = context.Facts;
-        var prompt = context.Window == SkillProgramTriggerWindow.PlayEnding && facts is not null
+        var prompt = context.Window == SkillProgramTriggerWindow.PlayEnding &&
+            context.SourceSeat == candidate.OwnerSeat && facts is not null
             ? $"出牌阶段结束：本回合已使用 {facts.CardsUsedThisTurn} 张牌，当前体力为 {facts.CurrentHp}。是否发动【{skill.Name}】？"
             : $"是否发动【{skill.Name}】？";
         Dictionary<string, string> Parameters(string action)
@@ -1958,17 +1995,23 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
         if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Play ||
             _pendingDecision is not null || _resolutionStack.Count != 0)
             return false;
-        var facts = CaptureProgramTriggerFacts(owner);
-        var candidates = CollectEligibleProgramTriggerCandidates(
-            owner, SkillProgramTriggerWindow.PlayEnding, facts);
-        if (candidates.Count == 0) return false;
+        var participants = _players.Where(player => player.IsAlive).ToArray();
+        var participantFacts = participants.ToDictionary(player => player.Seat, CaptureProgramTriggerFacts);
+        var facts = participantFacts[owner.Seat];
+        var candidates = participants.SelectMany(player =>
+                CollectEligibleProgramTriggerCandidates(player, SkillProgramTriggerWindow.PlayEnding,
+                    participantFacts[player.Seat])
+                    .Where(candidate => GetProgramTrigger(candidate).TurnOwnerScope ==
+                        (player.Seat == owner.Seat ? SkillProgramTurnOwnerScope.Own : SkillProgramTurnOwnerScope.OtherLiving)))
+            .OrderBy(candidate => (candidate.OwnerSeat - owner.Seat + _players.Count) % _players.Count)
+            .ThenByDescending(candidate => candidate.Priority)
+            .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray();
+        if (candidates.Length == 0) return false;
         var frame = new ProgramLifecycleTriggerWindowFrame(
-            ++_resolutionSequence,
-            owner.Seat,
-            SkillProgramTriggerWindow.PlayEnding,
-            candidates,
-            ProgramLifecycleContinuation.CompletePlayPhase,
-            facts);
+            ++_resolutionSequence, owner.Seat, SkillProgramTriggerWindow.PlayEnding,
+            candidates, ProgramLifecycleContinuation.CompletePlayPhase, facts)
+        { ParticipantFacts = participantFacts };
         _resolutionStack.Add(frame);
         ContinueProgramLifecycleWindow();
         return true;
@@ -2138,6 +2181,125 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
         };
     }
 
+    private bool TryBeginPlayPhaseStartingBoundary(CharacterState owner)
+    {
+        if (!owner.IsAlive || owner.Seat != _currentSeat || _pendingDecision is not null ||
+            _resolutionStack.Count != 0)
+            return false;
+
+        var facts = CaptureProgramTriggerFacts(owner);
+        var items = _players.Where(player => player.IsAlive)
+            .SelectMany(player =>
+            {
+                var playerFacts = player.Seat == owner.Seat ? facts : CaptureProgramTriggerFacts(player);
+                return CollectEligibleProgramTriggerCandidates(
+                        player, SkillProgramTriggerWindow.PlayPhaseStarting, playerFacts)
+                    .Where(candidate => GetProgramTrigger(candidate).TurnOwnerScope ==
+                        (player.Seat == owner.Seat ? SkillProgramTurnOwnerScope.Own :
+                            SkillProgramTurnOwnerScope.OtherLiving))
+                    .Select(candidate => new TurnEndingBoundaryItem(
+                        TurnEndingBoundaryItemKind.Program,
+                        candidate.Priority,
+                        $"program:{candidate.SkillId}:{candidate.BindingId}:{candidate.SkillInstanceId}",
+                        candidate, player.Seat == owner.Seat ? null : playerFacts));
+            }).ToList();
+        var ordered = items
+            .OrderBy(item => ((item.Candidate!.OwnerSeat - owner.Seat + _players.Count) % _players.Count))
+            .ThenByDescending(item => item.Priority)
+            .ThenBy(item => item.StableIdentity, StringComparer.Ordinal)
+            .ToArray();
+        if (ordered.Length == 0) return false;
+
+        _resolutionStack.Add(new PlayPhaseStartingBoundaryFrame(
+            ++_resolutionSequence, owner.Seat, Array.AsReadOnly(ordered), facts));
+        ContinuePlayPhaseStartingBoundary();
+        return true;
+    }
+
+    private ProgramSkillWindowContext CreatePlayPhaseStartingProgramContext(
+        PlayPhaseStartingBoundaryFrame frame,
+        ProgramTriggerCandidate candidate,
+        SkillProgramTriggerFacts? candidateFacts = null) =>
+        new(
+            SkillProgramTriggerWindow.PlayPhaseStarting,
+            frame.Id,
+            candidate.OwnerSeat,
+            SourceSeat: frame.OwnerSeat,
+            TargetSeat: frame.OwnerSeat,
+            OccurrenceIndex: candidate.OccurrenceIndex,
+            Facts: candidateFacts ?? frame.Facts);
+
+    private void ContinuePlayPhaseStartingBoundary()
+    {
+        while (_resolutionStack.LastOrDefault() is PlayPhaseStartingBoundaryFrame frame)
+        {
+            if (frame.ItemIndex >= frame.Items.Count)
+            {
+                PopResolutionFrame(frame.Id, ResolutionFrameKind.PlayPhaseStartingBoundary);
+                PublishState();
+                return;
+            }
+
+            var item = frame.Items[frame.ItemIndex];
+            if (item.Kind != TurnEndingBoundaryItemKind.Program)
+                throw new InvalidOperationException("Unsupported play-phase-starting boundary item.");
+            var candidate = item.Candidate ??
+                throw new InvalidOperationException("A program play-phase-starting item lost its candidate.");
+            var context = CreatePlayPhaseStartingProgramContext(frame, candidate, item.Facts);
+            if (!CanRunProgramTrigger(candidate, context))
+            {
+                AdvancePlayPhaseStartingCandidate(frame, candidate, activated: false, completed: false);
+                continue;
+            }
+            var trigger = _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers
+                .Single(current => current.Id == candidate.BindingId);
+            if (trigger.ChoiceGroup is { } choiceGroup)
+            {
+                var members = GetPlayPhaseStartingChoiceGroup(frame, candidate, choiceGroup);
+                if (members.Count > 1 || trigger.Optional)
+                {
+                    _resolutionStack[^1] = frame with { Step = ResolutionFrameStep.AwaitingResponse };
+                    ExposeProgramTriggerGroupDecision(members, candidate, context, choiceGroup);
+                    return;
+                }
+                BeginProgramBinding(candidate, context);
+                return;
+            }
+            if (trigger.Optional)
+            {
+                _resolutionStack[^1] = frame with { Step = ResolutionFrameStep.AwaitingResponse };
+                ExposeProgramTriggerDecision(candidate, context);
+                return;
+            }
+            BeginProgramBinding(candidate, context);
+            return;
+        }
+    }
+
+    private void AdvancePlayPhaseStartingCandidate(
+        PlayPhaseStartingBoundaryFrame frame,
+        ProgramTriggerCandidate candidate,
+        bool activated,
+        bool completed)
+    {
+        QueueGameEvent(new ProgramBindingResolvedEvent(
+            frame.Id, candidate.SkillId, candidate.BindingId, candidate.SkillInstanceId,
+            candidate.OwnerSeat, SkillProgramTriggerWindow.PlayPhaseStarting, activated, completed));
+        AdvancePlayPhaseStartingCursor(frame);
+    }
+
+    private void AdvancePlayPhaseStartingCursor(PlayPhaseStartingBoundaryFrame frame)
+    {
+        if (_resolutionStack.LastOrDefault() is not PlayPhaseStartingBoundaryFrame current ||
+            current.Id != frame.Id || current.ItemIndex != frame.ItemIndex)
+            throw new InvalidOperationException("The play-phase-starting item cursor is no longer current.");
+        _resolutionStack[^1] = current with
+        {
+            ItemIndex = current.ItemIndex + 1,
+            Step = ResolutionFrameStep.ResolvingEffect
+        };
+    }
+
     private void ContinueProgramLifecycleWindow()
     {
         while (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame frame)
@@ -2170,11 +2332,11 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             }
             var candidate = frame.Candidates[frame.CandidateIndex];
             var context = new ProgramSkillWindowContext(
-                frame.Window, frame.Id, frame.OwnerSeat,
+                frame.Window, frame.Id, candidate.OwnerSeat,
                 SourceSeat: frame.OwnerSeat,
                 TargetSeat: frame.OwnerSeat,
                 OccurrenceIndex: candidate.OccurrenceIndex,
-                Facts: frame.Facts);
+                Facts: frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts);
             if (!CanRunProgramTrigger(candidate, context))
             {
                 AdvanceProgramLifecycleCandidate(frame, activated: false, completed: false);
@@ -2186,7 +2348,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             {
                 var members = GetProgramTriggerChoiceGroup(frame, candidate, choiceGroup);
                 if (members.Count > 1 || trigger.Optional)
-                    ExposeProgramTriggerGroupDecision(frame, candidate, context, choiceGroup);
+                    ExposeProgramTriggerGroupDecision(members, candidate, context, choiceGroup);
                 else
                     BeginProgramBinding(candidate, context);
                 return;
@@ -2224,9 +2386,26 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
     private IReadOnlyList<ProgramTriggerCandidate> GetProgramTriggerChoiceGroup(
         ProgramLifecycleTriggerWindowFrame frame,
         ProgramTriggerCandidate first,
+        string choiceGroup) =>
+        GetTriggerChoiceGroupMembers(
+            frame.Candidates.Skip(frame.CandidateIndex), first, choiceGroup);
+
+    private IReadOnlyList<ProgramTriggerCandidate> GetPlayPhaseStartingChoiceGroup(
+        PlayPhaseStartingBoundaryFrame frame,
+        ProgramTriggerCandidate first,
+        string choiceGroup) =>
+        GetTriggerChoiceGroupMembers(
+            frame.Items.Skip(frame.ItemIndex)
+                .Select(item => item.Candidate)
+                .Where(candidate => candidate is not null)
+                .Select(candidate => candidate!), first, choiceGroup);
+
+    private IReadOnlyList<ProgramTriggerCandidate> GetTriggerChoiceGroupMembers(
+        IEnumerable<ProgramTriggerCandidate> candidatesFromCursor,
+        ProgramTriggerCandidate first,
         string choiceGroup)
     {
-        var members = frame.Candidates.Skip(frame.CandidateIndex)
+        var members = candidatesFromCursor
             .TakeWhile(candidate =>
                 candidate.OwnerSeat == first.OwnerSeat &&
                 candidate.SkillId == first.SkillId &&
@@ -2240,13 +2419,12 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
     }
 
     private void ExposeProgramTriggerGroupDecision(
-        ProgramLifecycleTriggerWindowFrame frame,
+        IReadOnlyList<ProgramTriggerCandidate> members,
         ProgramTriggerCandidate first,
         ProgramSkillWindowContext context,
         string choiceGroup)
     {
         var skill = _contentRegistry!.GetSkill(first.SkillId);
-        var members = GetProgramTriggerChoiceGroup(frame, first, choiceGroup);
         Dictionary<string, string> Parameters(ProgramTriggerCandidate candidate, string action) => new()
         {
             ["program-action"] = action,
@@ -2346,6 +2524,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             "select-owned-cards" or "finish-owned-cards" or
             "give-bound-card" or "keep-bound-cards" or
             "distribute-owned-card" or "decline-owned-card-distribution" or
+            "reveal-target-hand-card" or
             "attack-range-aid-discard-weapon" or "attack-range-aid-draw")
         {
             ResolveProgramInstructionChoice(selected, action);
@@ -2433,6 +2612,12 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             ResolveProgramTriggerGroupChoice(lifecycle, candidate, context, choiceGroup, selected, action);
             return;
         }
+        if (_resolutionStack.LastOrDefault() is PlayPhaseStartingBoundaryFrame starting &&
+            GetProgramTrigger(candidate).ChoiceGroup is { } startingGroup)
+        {
+            ResolvePlayPhaseStartingGroupChoice(starting, candidate, context, startingGroup, selected, action);
+            return;
+        }
         if (selected.Parameters.GetValueOrDefault("skill-id") != candidate.SkillId ||
             selected.Parameters.GetValueOrDefault("binding-id") != candidate.BindingId ||
             selected.Parameters.GetValueOrDefault("skill-instance-id") != candidate.SkillInstanceId)
@@ -2501,6 +2686,60 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 Activated: false, Completed: false));
             _resolutionStack[^1] = frame with { CandidateIndex = frame.CandidateIndex + members.Count };
             ContinueProgramLifecycleWindow();
+            return;
+        }
+        BeginProgramBinding(selectedCandidate, selectedContext);
+    }
+
+    private void ResolvePlayPhaseStartingGroupChoice(
+        PlayPhaseStartingBoundaryFrame frame,
+        ProgramTriggerCandidate first,
+        ProgramSkillWindowContext context,
+        string choiceGroup,
+        PromptChoice selected,
+        string? action)
+    {
+        var members = GetPlayPhaseStartingChoiceGroup(frame, first, choiceGroup);
+        if (selected.Parameters.GetValueOrDefault("choice-group") != choiceGroup ||
+            selected.Cards.Count != 0 || selected.Targets.Count != 0)
+            throw new InvalidOperationException("The program choice group identity changed.");
+        ClearPendingDecision();
+        if (action == "skip")
+        {
+            if (!GetProgramTrigger(first).Optional)
+                throw new InvalidOperationException("A mandatory program choice group cannot be skipped.");
+            foreach (var member in members)
+                QueueGameEvent(new ProgramBindingResolvedEvent(
+                    frame.Id, member.SkillId, member.BindingId, member.SkillInstanceId,
+                    member.OwnerSeat, SkillProgramTriggerWindow.PlayPhaseStarting, Activated: false, Completed: false));
+            _resolutionStack[^1] = frame with { ItemIndex = frame.ItemIndex + members.Count };
+            ContinuePlayPhaseStartingBoundary();
+            return;
+        }
+        if (action != "activate")
+            throw new InvalidOperationException("Unsupported program choice-group action.");
+        var selectedCandidate = members.SingleOrDefault(member =>
+            selected.Parameters.GetValueOrDefault("skill-id") == member.SkillId &&
+            selected.Parameters.GetValueOrDefault("binding-id") == member.BindingId &&
+            selected.Parameters.GetValueOrDefault("skill-instance-id") == member.SkillInstanceId) ??
+            throw new InvalidOperationException("The selected program branch is not in the pending choice group.");
+        foreach (var member in members.Where(member => member != selectedCandidate))
+            QueueGameEvent(new ProgramBindingResolvedEvent(
+                frame.Id, member.SkillId, member.BindingId, member.SkillInstanceId,
+                member.OwnerSeat, SkillProgramTriggerWindow.PlayPhaseStarting, Activated: false, Completed: false));
+        var selectedContext = context with
+        {
+            OccurrenceIndex = selectedCandidate.OccurrenceIndex,
+            ResumeCandidateIndex = frame.ItemIndex + members.Count
+        };
+        if (!CanRunProgramTrigger(selectedCandidate, selectedContext))
+        {
+            QueueGameEvent(new ProgramBindingResolvedEvent(
+                frame.Id, selectedCandidate.SkillId, selectedCandidate.BindingId,
+                selectedCandidate.SkillInstanceId, selectedCandidate.OwnerSeat,
+                SkillProgramTriggerWindow.PlayPhaseStarting, Activated: false, Completed: false));
+            _resolutionStack[^1] = frame with { ItemIndex = frame.ItemIndex + members.Count };
+            ContinuePlayPhaseStartingBoundary();
             return;
         }
         BeginProgramBinding(selectedCandidate, selectedContext);
@@ -2575,6 +2814,11 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                     SelectedTargetSeats = Array.AsReadOnly(selected.Targets.ToArray())
                 };
                 ContinueProgramSkill(frame.Id);
+                return;
+            }
+            case "reveal-target-hand-card":
+            {
+                ResolveProgramRevealCardSelection(selected);
                 return;
             }
             case "select-source-card":
@@ -2735,14 +2979,21 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             return (candidate, CreateTurnEndingProgramContext(turnEnding, candidate,
                 turnEnding.Items[turnEnding.ItemIndex].Facts));
         }
+        if (_resolutionStack.LastOrDefault() is PlayPhaseStartingBoundaryFrame playStarting)
+        {
+            var candidate = playStarting.Items[playStarting.ItemIndex].Candidate ??
+                throw new InvalidOperationException("The play-phase-starting item lost its candidate.");
+            return (candidate, CreatePlayPhaseStartingProgramContext(playStarting, candidate,
+                playStarting.Items[playStarting.ItemIndex].Facts));
+        }
         if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle)
         {
             var candidate = lifecycle.Candidates[lifecycle.CandidateIndex];
             return (candidate, new ProgramSkillWindowContext(
-                lifecycle.Window, lifecycle.Id, lifecycle.OwnerSeat,
+                lifecycle.Window, lifecycle.Id, candidate.OwnerSeat,
                 SourceSeat: lifecycle.OwnerSeat, TargetSeat: lifecycle.OwnerSeat,
                 OccurrenceIndex: candidate.OccurrenceIndex,
-                Facts: lifecycle.Facts));
+                Facts: lifecycle.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? lifecycle.Facts));
         }
         if (_resolutionStack.LastOrDefault() is CardsMovedTriggerWindowFrame cardsMoved)
         {
@@ -2778,6 +3029,14 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             AdvanceTurnEndingBoundaryCandidate(
                 turnEnding, candidate, activated: false, completed: false);
             ContinueTurnEndingBoundary();
+            return;
+        }
+        if (_resolutionStack.LastOrDefault() is PlayPhaseStartingBoundaryFrame playStarting &&
+            playStarting.Items[playStarting.ItemIndex].Candidate == candidate)
+        {
+            AdvancePlayPhaseStartingCandidate(
+                playStarting, candidate, activated: false, completed: false);
+            ContinuePlayPhaseStartingBoundary();
             return;
         }
         if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle)
@@ -2852,6 +3111,8 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 SkillProgramEffectOp.ChooseOtherOwnedCardDiscard =>
                     SelectAiProgramOtherOwnedCardDiscard(decision, frame),
                 SkillProgramEffectOp.SelectOwnedCards => SelectAiProgramOwnedCards(decision, frame),
+                SkillProgramEffectOp.RevealTargetHandCard => decision.Choices
+                    .OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First(),
                 SkillProgramEffectOp.DistributeOwnedCards =>
                     SelectAiProgramOwnedCardDistribution(decision, frame),
                 SkillProgramEffectOp.RequestAttackRangeAid =>
@@ -2940,8 +3201,15 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
         IReadOnlyList<PromptChoice> activateChoices,
         PromptChoice? skip)
     {
-        if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame lifecycle ||
-            lifecycle.OwnerSeat != decision.PlayerSeat)
+        var parentOwnerSeat = _resolutionStack.LastOrDefault() switch
+        {
+            ProgramLifecycleTriggerWindowFrame lifecycle => lifecycle.Candidates[lifecycle.CandidateIndex].OwnerSeat,
+            PlayPhaseStartingBoundaryFrame starting when starting.Items
+                .Skip(starting.ItemIndex)
+                .Any(item => item.Candidate?.OwnerSeat == decision.PlayerSeat) => decision.PlayerSeat,
+            _ => -1
+        };
+        if (parentOwnerSeat != decision.PlayerSeat)
             throw new InvalidOperationException("A program choice group lost its lifecycle parent.");
         var owner = _players[decision.PlayerSeat];
         var estimated = activateChoices.Select(choice =>
@@ -2980,7 +3248,10 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
         if (trigger.Window is SkillProgramTriggerWindow.CardUseCommitted or
             SkillProgramTriggerWindow.CardUseBeforeTargetEffects or
             SkillProgramTriggerWindow.CardUseTargetsFinalized or SkillProgramTriggerWindow.CardResponseAccepted or
-            SkillProgramTriggerWindow.CardUseCompleted)
+            SkillProgramTriggerWindow.CardUseCompleted or
+            SkillProgramTriggerWindow.SlashTargetRedirecting or
+            SkillProgramTriggerWindow.SlashBeforeResponse or
+            SkillProgramTriggerWindow.SlashFullyDodged)
         {
             var parent = _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().LastOrDefault() ??
                 throw new InvalidOperationException("A card-action estimate lost its frozen parent action.");
@@ -3224,6 +3495,33 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 AdvanceTurnEndingBoundaryCursor(turnEnding);
                 ContinueTurnEndingBoundary();
                 break;
+            case SkillProgramTriggerWindow.PlayPhaseStarting:
+                if (_resolutionStack.LastOrDefault() is not PlayPhaseStartingBoundaryFrame playStarting ||
+                    playStarting.Id != context.ParentFrameId)
+                    throw new InvalidOperationException("The play-phase-starting program lost its parent item.");
+                if (context.ResumeCandidateIndex is { } resumeItemIndex)
+                {
+                    if (resumeItemIndex > playStarting.Items.Count)
+                        throw new InvalidOperationException("The play-phase-starting resume cursor left the boundary.");
+                    _resolutionStack[^1] = playStarting with { ItemIndex = resumeItemIndex };
+                }
+                else
+                {
+                    if (playStarting.ItemIndex >= playStarting.Items.Count ||
+                        playStarting.Items[playStarting.ItemIndex].Candidate is not { } startingExpected ||
+                        startingExpected != new ProgramTriggerCandidate(
+                            frame.OwnerSeat,
+                            frame.SkillId,
+                            frame.TriggerId!,
+                            frame.SkillInstanceId,
+                            frame.GameplayHash,
+                            playStarting.Items[playStarting.ItemIndex].Priority,
+                            context.OccurrenceIndex))
+                        throw new InvalidOperationException("The play-phase-starting program lost its parent item.");
+                    AdvancePlayPhaseStartingCursor(playStarting);
+                }
+                ContinuePlayPhaseStartingBoundary();
+                break;
             case SkillProgramTriggerWindow.SelfDyingResponse:
             case SkillProgramTriggerWindow.DyingResponse:
                 CompleteDyingProgramBinding(frame, completed);
@@ -3280,6 +3578,15 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                     cardAction.Id != context.ParentFrameId)
                     throw new InvalidOperationException("The card-action program lost its parent cursor.");
                 AdvanceProgramCardCandidate(cardAction);
+                ContinueProgramCardWindow();
+                break;
+            case SkillProgramTriggerWindow.SlashTargetRedirecting:
+            case SkillProgramTriggerWindow.SlashBeforeResponse:
+            case SkillProgramTriggerWindow.SlashFullyDodged:
+                if (_resolutionStack.LastOrDefault() is not ProgramCardTriggerWindowFrame slashStage ||
+                    slashStage.Id != context.ParentFrameId)
+                    throw new InvalidOperationException("The Slash program lost its parent cursor.");
+                AdvanceProgramCardCandidate(slashStage);
                 ContinueProgramCardWindow();
                 break;
             case SkillProgramTriggerWindow.JudgmentFinalized:

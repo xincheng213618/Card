@@ -39,7 +39,8 @@ public enum SkillProgramTriggerConditionKind
     OtherDamageParticipantAlive,
     DirectCardUseDamage = 14,
     DamageCardIsRed = 15,
-    DamageTargetIsOther = 16
+    DamageTargetIsOther = 16,
+    CardActionCategoryIs = 17
 }
 public enum SkillProgramTriggerValueKind
 {
@@ -57,7 +58,9 @@ public enum SkillProgramTriggerValueKind
     SourceToTargetDistanceAtDamage = 11,
     EventTargetMaxHp = 12,
     EventTargetHandCount = 13,
-    CurrentAttackRange = 14
+    CurrentAttackRange = 14,
+    PlayPhaseKillCountByTurnOwner = 15,
+    PlayPhaseDamageDealtByTurnOwner = 16
 }
 public enum SkillProgramComparisonOperator
 {
@@ -176,7 +179,8 @@ public enum SkillProgramEffectOp
     RevealUniqueRankForDying = 70,
     ProhibitCurrentResponse,
     RedirectCurrentAttack,
-    RedirectCurrentDamage = 75
+    RedirectCurrentDamage = 75,
+    RevealTargetHandCard = 77
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play }
@@ -203,7 +207,8 @@ public enum SkillProgramTriggerWindow
     DamageAppliedBeforeDying,
     SlashTargetRedirecting,
     SlashBeforeResponse,
-    SlashFullyDodged
+    SlashFullyDodged,
+    PlayPhaseStarting
 }
 public enum SkillProgramTriggerSubject { Owner, Any, Source, DamageSource, DamageTarget }
 public enum SkillProgramMovementOccurrence { PerBatch, PerCard }
@@ -224,7 +229,10 @@ public enum SkillProgramNumberExpression
     LivingPlayerCount
 }
 public enum SkillProgramCardSetVisibility { Private, Public }
-public enum SkillProgramCardDestination { OwnerHand, DiscardPile, SelectedTargetHand, OwnerPersistentZone, DrawPileBottom }
+public enum SkillProgramCardDestination
+{
+    OwnerHand, DiscardPile, SelectedTargetHand, OwnerPersistentZone, DrawPileBottom, PhaseOwnerHand
+}
 public enum SkillProgramCardSource { DamageSource, Owner, EventTarget = 2 }
 public enum SkillProgramSubsetAiOrder { MostCardsThenRankSum }
 public enum SkillProgramTargetAiOrder { Stable, HostileThenHandCount, SupportFirstThenOpposeSecond, SupportDraw, CardEffectIntervention = 4 }
@@ -456,7 +464,10 @@ public sealed record SkillProgramTriggerFacts(
     int EventTargetMaxHp = 0,
     bool? DamageTargetIsOther = null,
     int EventTargetHandCount = 0,
-    int CurrentAttackRange = 0)
+    int CurrentAttackRange = 0,
+    SkillProgramCardCategory? CardActionCategory = null,
+    int PlayPhaseKillCountByTurnOwner = 0,
+    int PlayPhaseDamageDealtByTurnOwner = 0)
 {
     public bool GetBooleanState(string skillId, string skillInstanceId, string stateId) =>
         BooleanStates?.GetValueOrDefault(BooleanStateKey(skillId, skillInstanceId, stateId)) ??
@@ -499,6 +510,8 @@ public sealed record SkillProgramTriggerValue(SkillProgramTriggerValueKind Kind,
         SkillProgramTriggerValueKind.CardUseDesignatedTargetCount => facts.CardUseDesignatedTargetCount,
         SkillProgramTriggerValueKind.EventTargetHandCount => facts.EventTargetHandCount,
         SkillProgramTriggerValueKind.CurrentAttackRange => facts.CurrentAttackRange,
+        SkillProgramTriggerValueKind.PlayPhaseKillCountByTurnOwner => facts.PlayPhaseKillCountByTurnOwner,
+        SkillProgramTriggerValueKind.PlayPhaseDamageDealtByTurnOwner => facts.PlayPhaseDamageDealtByTurnOwner,
         _ => throw new InvalidOperationException($"Unsupported trigger value kind '{Kind}'.")
     };
 }
@@ -514,10 +527,13 @@ public sealed class SkillProgramTriggerCondition
         string? stateId = null,
         bool expectedValue = true,
         IReadOnlyList<string>? generalIds = null,
-        string? conversionSkillId = null) =>
-        (Kind, Children, Left, Comparison, Right, StateId, ExpectedValue, GeneralIds, ConversionSkillId) =
+        string? conversionSkillId = null,
+        IReadOnlyList<SkillProgramCardCategory>? cardCategories = null) =>
+        (Kind, Children, Left, Comparison, Right, StateId, ExpectedValue, GeneralIds, ConversionSkillId,
+            CardCategories) =
         (kind, children, left, comparison, right, stateId, expectedValue,
-            generalIds ?? Array.Empty<string>(), conversionSkillId);
+            generalIds ?? Array.Empty<string>(), conversionSkillId,
+            cardCategories ?? Array.Empty<SkillProgramCardCategory>());
 
     public SkillProgramTriggerConditionKind Kind { get; }
     public IReadOnlyList<SkillProgramTriggerCondition> Children { get; }
@@ -528,6 +544,7 @@ public sealed class SkillProgramTriggerCondition
     public bool ExpectedValue { get; }
     public IReadOnlyList<string> GeneralIds { get; }
     public string? ConversionSkillId { get; }
+    public IReadOnlyList<SkillProgramCardCategory> CardCategories { get; }
 
     public bool Evaluate(SkillProgramTriggerFacts facts, string? skillId = null, string? skillInstanceId = null) => Kind switch
     {
@@ -551,6 +568,8 @@ public sealed class SkillProgramTriggerCondition
         SkillProgramTriggerConditionKind.DirectCardUseDamage => facts.DirectCardUseDamage == true,
         SkillProgramTriggerConditionKind.DamageCardIsRed => facts.DamageCardIsRed == true,
         SkillProgramTriggerConditionKind.DamageTargetIsOther => facts.DamageTargetIsOther == true,
+        SkillProgramTriggerConditionKind.CardActionCategoryIs =>
+            facts.CardActionCategory is { } category && CardCategories.Contains(category),
         SkillProgramTriggerConditionKind.LordGeneralNotIn =>
             facts.LordGeneralId is null || !GeneralIds.Contains(facts.LordGeneralId, StringComparer.Ordinal),
         SkillProgramTriggerConditionKind.All => Children.All(child => child.Evaluate(facts, skillId, skillInstanceId)),
@@ -730,7 +749,8 @@ public sealed class SkillProgramEffect
         int minimumReplacementRank = 0,
         int maximumReplacementRank = 0,
         string? providerFactionId = null,
-        IReadOnlyList<SkillProgramTurnPhase>? skippedPhases = null) =>
+        IReadOnlyList<SkillProgramTurnPhase>? skippedPhases = null,
+        SkillProgramRevealMode? revealMode = null) =>
         (Op, Target, Amount, Condition, Phase, PhaseContinuation, NumberExpression, MinimumValue,
             ClampToMaxHp, SourceBind, ResultBind, ExceptBind, Visibility, MinimumCards, MaximumCards,
             MaximumRankSum, AiOrder, Destination, DestinationZone, CardSource, FaceDown, Zones, TargetKind,
@@ -742,7 +762,7 @@ public sealed class SkillProgramEffect
             DamageModifierExpiration, DamageModifierSourceScope, AllowSameOwnerHandReturn, CoverageResultBind, AwaitMovementTriggers,
             RevealBeforeMove, MatchSuitOfBind, AllowSameSource, SkipIfNoTarget,
             DamageNature, OldCardDestination, ReplacementSuits, MinimumReplacementRank, MaximumReplacementRank,
-            ProviderFactionId, SkippedPhases) =
+            ProviderFactionId, SkippedPhases, RevealMode) =
         (op, target, amount, condition, phase, phaseContinuation, numberExpression, minimumValue,
             clampToMaxHp, sourceBind, resultBind, exceptBind, visibility, minimumCards, maximumCards,
             maximumRankSum, aiOrder, destination, destinationZone, cardSource, faceDown,
@@ -760,7 +780,7 @@ public sealed class SkillProgramEffect
             revealBeforeMove, matchSuitOfBind, allowSameSource, skipIfNoTarget,
             damageNature, oldCardDestination, replacementSuits ?? Array.Empty<Suit>(),
             minimumReplacementRank, maximumReplacementRank, providerFactionId,
-            skippedPhases ?? Array.Empty<SkillProgramTurnPhase>());
+            skippedPhases ?? Array.Empty<SkillProgramTurnPhase>(), revealMode);
     public SkillProgramEffectOp Op { get; }
     public SkillProgramEffectTarget Target { get; }
     public int Amount { get; }
@@ -829,7 +849,10 @@ public sealed class SkillProgramEffect
     public IReadOnlyList<Suit> ReplacementSuits { get; }
     public int MinimumReplacementRank { get; }
     public int MaximumReplacementRank { get; }
+    public SkillProgramRevealMode? RevealMode { get; }
 }
+
+public enum SkillProgramRevealMode { Random, Chooser }
 
 public sealed class SkillProgramActivation
 {
@@ -1718,8 +1741,9 @@ public sealed class SkillProgramCatalog
         var turnOwnerScope = SkillProgramTurnOwnerScope.Own;
         if (node.TryGetProperty("turnOwnerScope", out _))
         {
-            if (window != SkillProgramTriggerWindow.TurnEnding)
-                Fail(path + ".turnOwnerScope", "requires a turnEnding trigger");
+            if (window is not (SkillProgramTriggerWindow.TurnEnding or
+                SkillProgramTriggerWindow.PlayEnding or SkillProgramTriggerWindow.PlayPhaseStarting))
+                Fail(path + ".turnOwnerScope", "requires a turnEnding, playEnding or playPhaseStarting trigger");
             turnOwnerScope = EnumValue<SkillProgramTurnOwnerScope>(node, "turnOwnerScope", path);
         }
         var isCardActionWindow = window is (
@@ -1754,7 +1778,8 @@ public sealed class SkillProgramCatalog
             SkillProgramTriggerWindow.PlayEnding or
             SkillProgramTriggerWindow.TurnEnding or
             SkillProgramTriggerWindow.CardsMoved or
-            SkillProgramTriggerWindow.OwnerDied;
+            SkillProgramTriggerWindow.OwnerDied or
+            SkillProgramTriggerWindow.PlayPhaseStarting;
         var supportsTriggerCondition = isCardActionWindow || window is SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or
@@ -1763,7 +1788,8 @@ public sealed class SkillProgramCatalog
             SkillProgramTriggerWindow.PlayEnding or
             SkillProgramTriggerWindow.TurnEnding or
             SkillProgramTriggerWindow.CardsMoved or
-            SkillProgramTriggerWindow.OwnerDied ||
+            SkillProgramTriggerWindow.OwnerDied or
+            SkillProgramTriggerWindow.PlayPhaseStarting ||
             window == SkillProgramTriggerWindow.AfterDamageApplied;
         if (window != SkillProgramTriggerWindow.CardsMoved &&
             (node.TryGetProperty("sourceZones", out _) ||
@@ -1776,9 +1802,10 @@ public sealed class SkillProgramCatalog
         if (window != SkillProgramTriggerWindow.DrawPhaseStarting && node.TryGetProperty("drawPhaseMode", out _))
             Fail(path, "drawPhaseMode is supported only by drawPhaseStarting");
         if (window is not (SkillProgramTriggerWindow.DrawPhaseStarting or
-                SkillProgramTriggerWindow.TurnStartBeforeNormalFlow) &&
+                SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
+                SkillProgramTriggerWindow.PlayPhaseStarting) &&
             node.TryGetProperty("choiceGroup", out _))
-            Fail(path, "choiceGroup is supported only by drawPhaseStarting or turnStartBeforeNormalFlow");
+            Fail(path, "choiceGroup is supported only by drawPhaseStarting, turnStartBeforeNormalFlow or playPhaseStarting");
         if (node.TryGetProperty("ownerRelation", out _) &&
             window is not (SkillProgramTriggerWindow.CardUseCommitted or
                 SkillProgramTriggerWindow.CardUseBeforeTargetEffects or
@@ -1915,8 +1942,8 @@ public sealed class SkillProgramCatalog
                     cardKinds = EnumArray<CardKind>(node, "cardKinds", path);
                     if (cardKinds.Count == 0) Fail(path + ".cardKinds", "must contain at least one effective card kind");
                 }
-                var supported = window is SkillProgramTriggerWindow.CardUseCompleted
-                    ? cardKinds.All(kind => kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)
+                var supported = window is SkillProgramTriggerWindow.CardUseCompleted or SkillProgramTriggerWindow.CardUseCommitted
+                    ? cardKinds.All(kind => kind is not (CardKind.Dodge or CardKind.Nullification))
                     : window == SkillProgramTriggerWindow.CardUseBeforeTargetEffects
                     ? cardKinds.All(kind => kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash ||
                         CardCatalog.Get(kind).CategoryName == "锦囊牌")
@@ -2010,6 +2037,11 @@ public sealed class SkillProgramCatalog
                 item.Kind == SkillProgramTriggerConditionKind.CardUseConversionSkillIs) &&
             window != SkillProgramTriggerWindow.CardUseCompleted)
             Fail(path + ".condition", "cardUseConversionSkillIs requires a cardUseCompleted trigger");
+        if (EnumerateTriggerConditions(condition).Any(item =>
+                item.Kind == SkillProgramTriggerConditionKind.CardActionCategoryIs) &&
+            window is not (SkillProgramTriggerWindow.CardUseCommitted or
+                SkillProgramTriggerWindow.CardUseCompleted or SkillProgramTriggerWindow.CardUseBeforeTargetEffects))
+            Fail(path + ".condition", "cardActionCategoryIs requires a card-use trigger");
         if (window != SkillProgramTriggerWindow.CardsMoved &&
             EnumerateTriggerValues(condition).Any(value => value.Kind is
                 SkillProgramTriggerValueKind.MovedCardCount or
@@ -2032,6 +2064,13 @@ public sealed class SkillProgramCatalog
                 SkillProgramTriggerValueKind.EventTargetHandCount or SkillProgramTriggerValueKind.CurrentAttackRange) &&
             window != SkillProgramTriggerWindow.SlashBeforeResponse)
             Fail(path + ".condition", "attack-range and target-hand comparison requires a Slash response boundary");
+        if (EnumerateTriggerValues(condition).Any(value => value.Kind is
+                SkillProgramTriggerValueKind.PlayPhaseKillCountByTurnOwner or
+                SkillProgramTriggerValueKind.PlayPhaseDamageDealtByTurnOwner) &&
+            window is not (SkillProgramTriggerWindow.TurnEnding or
+                SkillProgramTriggerWindow.PlayEnding or
+                SkillProgramTriggerWindow.PlayPhaseStarting))
+            Fail(path + ".condition", "play-phase kill and damage counters require a phase boundary trigger");
         var effects = ReadArray(node, "effects", path,
             (effect, effectPath) => ParseCompositionEffect(effect, effectPath,
                 isAfterDamageTrigger: window == SkillProgramTriggerWindow.AfterDamageApplied));
@@ -2131,7 +2170,8 @@ public sealed class SkillProgramCatalog
                     Fail(path + ".triggers",
                         $"turn-start choice group '{group.Key}' requires one shared game or turn usage limit");
             }
-            else if (window != SkillProgramTriggerWindow.DrawPhaseStarting)
+            else if (window is not (SkillProgramTriggerWindow.DrawPhaseStarting or
+                SkillProgramTriggerWindow.PlayPhaseStarting))
                 Fail(path + ".triggers", $"choice group '{group.Key}' uses unsupported window '{window}'");
             if (members.Select(trigger => trigger.Priority).Distinct().Count() != 1)
                 Fail(path + ".triggers", $"choice group '{group.Key}' requires one shared priority");
@@ -2207,7 +2247,7 @@ public sealed class SkillProgramCatalog
     {
         if (depth >= MaximumDepth) Fail(path, $"trigger condition nesting exceeds {MaximumDepth}");
         RequireObject(node, path);
-        CheckProperties(node, path, "kind", "children", "left", "operator", "right", "stateId", "expectedValue", "generalIds", "conversionSkillId");
+        CheckProperties(node, path, "kind", "children", "left", "operator", "right", "stateId", "expectedValue", "generalIds", "conversionSkillId", "categories");
         var kind = EnumValue<SkillProgramTriggerConditionKind>(node, "kind", path);
         var hasChildren = node.TryGetProperty("children", out var childrenNode);
         var hasLeft = node.TryGetProperty("left", out var leftNode);
@@ -2217,6 +2257,7 @@ public sealed class SkillProgramCatalog
         var hasExpectedValue = node.TryGetProperty("expectedValue", out _);
         var hasGeneralIds = node.TryGetProperty("generalIds", out _);
         var hasConversionSkillId = node.TryGetProperty("conversionSkillId", out _);
+        var hasCategories = node.TryGetProperty("categories", out var categoriesNode);
         var children = new List<SkillProgramTriggerCondition>();
         if (hasChildren)
         {
@@ -2256,6 +2297,16 @@ public sealed class SkillProgramCatalog
         if (conversionSkillIs != hasConversionSkillId)
             Fail(path, conversionSkillIs ? "cardUseConversionSkillIs requires conversionSkillId" :
                 "this trigger condition does not accept conversionSkillId");
+        var cardActionCategoryIs = kind == SkillProgramTriggerConditionKind.CardActionCategoryIs;
+        if (cardActionCategoryIs != hasCategories)
+            Fail(path, cardActionCategoryIs ? "cardActionCategoryIs requires categories" :
+                "this trigger condition does not accept categories");
+        var cardCategories = cardActionCategoryIs
+            ? EnumArray<SkillProgramCardCategory>(node, "categories", path)
+            : Array.Empty<SkillProgramCardCategory>();
+        if (cardActionCategoryIs && (cardCategories.Count == 0 ||
+                cardCategories.Distinct().Count() != cardCategories.Count))
+            Fail(path + ".categories", "must contain distinct card categories");
         var left = compare ? ParseTriggerValue(leftNode, path + ".left") : null;
         SkillProgramComparisonOperator? comparison = compare
             ? EnumValue<SkillProgramComparisonOperator>(node, "operator", path)
@@ -2270,7 +2321,8 @@ public sealed class SkillProgramCatalog
             booleanState ? Identifier(node, "stateId", path) : null,
             booleanState && (!hasExpectedValue || RequiredBool(node, "expectedValue", path)),
             generalIds,
-            conversionSkillIs ? Identifier(node, "conversionSkillId", path) : null);
+            conversionSkillIs ? Identifier(node, "conversionSkillId", path) : null,
+            cardCategories);
     }
 
     private static IEnumerable<SkillProgramTriggerValue> EnumerateTriggerValues(

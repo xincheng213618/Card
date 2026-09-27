@@ -2,6 +2,40 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "key": "zhang-song",
+      "characterName": "张松",
+      "defaultSkinId": "32600",
+      "skins": [
+        {
+          "id": "32600",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-179.html",
+          "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/32600.jpg",
+          "localPath": "src/CardGame.Wpf/Assets/official-zhang-song.jpg",
+          "sha256": "e49adbf4fe657c74ee015aa9e847f15fc722f87a24291f3c1da6d8c0bcceb364",
+          "pixelWidth": 530,
+          "pixelHeight": 750
+        }
+      ]
+    },
+    {
+      "key": "boundary-zhang-song",
+      "characterName": "界张松",
+      "defaultSkinId": "75300",
+      "skins": [
+        {
+          "id": "75300",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/753",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/75300.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-zhang-song.png",
+          "sha256": "8adc3b94cddf5d0f1e7dd30baf7fa6f28d54641ff2571201398b5d31baa64a81",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
       "key": "boundary-zhou-yu",
       "characterName": "界周瑜",
       "defaultSkinId": "30800",

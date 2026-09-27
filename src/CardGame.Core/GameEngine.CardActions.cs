@@ -38,7 +38,9 @@ public sealed partial class GameEngine
     }
 
     private long _cardActionSequence;
-    private AttackResolution? _programCardAttack;
+    private readonly Dictionary<long, AttackResolution?> _programCardAttacks = [];
+    private AttackResolution? _programCardAttack => _resolutionStack.OfType<ProgramCardTriggerWindowFrame>()
+        .Select(frame => _programCardAttacks.GetValueOrDefault(frame.Id)).LastOrDefault(attack => attack is not null);
     private readonly HashSet<long> _acceptedProgramUses = [];
     private readonly HashSet<long> _committedProgramUses = [];
     private readonly Dictionary<long, List<AttackResolution>> _preparedProgramTargets = [];
@@ -156,7 +158,8 @@ public sealed partial class GameEngine
 
     private bool TryBeginProgramCardWindow(AttackResolution? attack, CardActionContext action,
         SkillProgramTriggerWindow window, IReadOnlyList<int> opponents, ProgramCardContinuation continuation,
-        bool? cardUseCausedDamage = null, ProgramTrickContinuation? trickContinuation = null)
+        bool? cardUseCausedDamage = null, ProgramTrickContinuation? trickContinuation = null,
+        ProgramSimpleCardContinuation? simpleContinuation = null)
     {
         var candidates = CollectSharedCardActionCandidates(action, window, opponents,
             cardUseCausedDamage).ToList();
@@ -168,10 +171,8 @@ public sealed partial class GameEngine
             .ThenBy(candidate => candidate.TriggerId, StringComparer.Ordinal)
             .ToList();
         if (candidates.Count == 0) return false;
-        if (_resolutionStack.Any(frame => frame is ProgramCardTriggerWindowFrame))
-            throw new InvalidOperationException("Card trigger windows cannot overlap.");
-        _programCardAttack = attack;
         var frameId = ++_resolutionSequence;
+        _programCardAttacks.Add(frameId, attack);
         candidates = candidates.Select(candidate => candidate.FrozenContext is { } frozen
                 ? candidate with
                 {
@@ -185,7 +186,7 @@ public sealed partial class GameEngine
             .ToList();
         var frame = new ProgramCardTriggerWindowFrame(frameId,
             _resolutionStack[^1].Id, action, continuation, Array.AsReadOnly(candidates.ToArray()),
-            TrickContinuation: trickContinuation);
+            TrickContinuation: trickContinuation, SimpleContinuation: simpleContinuation);
         _resolutionStack.Add(frame);
         ContinueProgramCardWindow();
         return true;
@@ -313,7 +314,7 @@ public sealed partial class GameEngine
     }
 
     private static SkillProgramTriggerWindow GetCardActionWindow(ProgramCardTriggerWindowFrame frame) =>
-        frame.Continuation == ProgramCardContinuation.CompletedSlash
+        frame.Continuation is ProgramCardContinuation.CompletedSlash or ProgramCardContinuation.CompletedCard
             ? SkillProgramTriggerWindow.CardUseCompleted
             : frame.Continuation == ProgramCardContinuation.SlashTargetRedirecting
             ? SkillProgramTriggerWindow.SlashTargetRedirecting
@@ -321,7 +322,8 @@ public sealed partial class GameEngine
             ? SkillProgramTriggerWindow.SlashBeforeResponse
             : frame.Continuation == ProgramCardContinuation.SlashFullyDodged
             ? SkillProgramTriggerWindow.SlashFullyDodged
-            : frame.Continuation == ProgramCardContinuation.CommittedSlash
+            : frame.Continuation is ProgramCardContinuation.CommittedSlash or
+                ProgramCardContinuation.CommittedTrick or ProgramCardContinuation.CommittedSimpleCard
             ? SkillProgramTriggerWindow.CardUseCommitted
             : frame.Continuation is ProgramCardContinuation.BeforeTargetEffects or
                 ProgramCardContinuation.BeforeTrickTargetEffects
@@ -336,10 +338,16 @@ public sealed partial class GameEngine
         {
             if (frame.CandidateIndex == frame.Candidates.Count)
             {
-                var attack = _programCardAttack;
-                _programCardAttack = null;
+                _programCardAttacks.Remove(frame.Id, out var attack);
                 PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramCardTriggerWindow);
-                if (frame.Continuation == ProgramCardContinuation.CommittedSlash)
+                if (frame.Continuation == ProgramCardContinuation.CommittedSimpleCard)
+                    ContinueSimpleCardUse(frame.ParentFrameId, frame.SimpleContinuation ??
+                        throw new InvalidOperationException("The simple card use lost its continuation."));
+                else if (frame.Continuation == ProgramCardContinuation.CommittedTrick)
+                    ContinueCommittedTrickUse(frame);
+                else if (frame.Continuation == ProgramCardContinuation.CompletedCard)
+                    PopFinishedCardUse(frame.ParentFrameId);
+                else if (frame.Continuation == ProgramCardContinuation.CommittedSlash)
                     ContinueCommittedSlashAfterPrograms(attack ??
                         throw new InvalidOperationException("A committed Slash trigger lost its attack continuation."));
                 else if (frame.Continuation == ProgramCardContinuation.BeforeTargetEffects)
@@ -479,54 +487,61 @@ public sealed partial class GameEngine
         var frames = _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().ToArray();
         if (frames.Length == 0)
         {
-            if (_programCardAttack is not null)
+            if (_programCardAttacks.Count != 0)
                 throw new InvalidOperationException("A card trigger continuation lost its frame.");
             return;
         }
-        var frame = frames.Single();
-        var frameIndex = _resolutionStack.FindLastIndex(item => ReferenceEquals(item, frame));
-        var resolvingProgramJudgmentDamage =
-            _pendingAttack is { IsProgramJudgmentDamage: true } &&
-            _pendingJudgment?.Continuation == JudgmentContinuationKind.ProgramSkill;
-        var attackMatches = resolvingProgramJudgmentDamage ||
-            (frame.Continuation is ProgramCardContinuation.DelayedCard or
-                    ProgramCardContinuation.BeforeTrickTargetEffects or
-                    ProgramCardContinuation.NullificationResponse
-                ? _programCardAttack is null && _pendingAttack is null
-                : _programCardAttack is not null && ReferenceEquals(_programCardAttack, _pendingAttack));
-        var candidateCursorValid = frame.CandidateIndex >= 0 &&
-                                   frame.CandidateIndex < frame.Candidates.Count;
-        var candidate = candidateCursorValid ? frame.Candidates[frame.CandidateIndex] : null;
-        var sharedContext = candidate?.FrozenContext;
-        var sharedIdentityMatches = candidate is not null &&
-            sharedContext is { CardUse: { } cardUse } && sharedContext.ParentFrameId == frame.Id &&
-            cardUse.ParentCardUseFrameId == frame.ParentFrameId && cardUse.CardActionId == frame.Action.ActionId;
-        var sharedPromptMatches = sharedIdentityMatches && ReferenceEquals(_resolutionStack.Last(), frame) &&
-            _pendingDecision is { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } sharedPrompt &&
-            sharedPrompt.PlayerSeat == candidate!.OwnerSeat && sharedPrompt.SkillPrompt?.SkillId == candidate.SkillId &&
-            sharedPrompt.Choices.Count > 0;
-        var sharedChildMatches = sharedIdentityMatches && frameIndex + 1 < _resolutionStack.Count &&
-            _resolutionStack[frameIndex + 1] is ProgramSkillFrame child &&
-            child.WindowContext == sharedContext && child.OwnerSeat == candidate!.OwnerSeat &&
-            child.SkillId == candidate.SkillId && child.SkillInstanceId == candidate.SkillInstanceId &&
-            child.TriggerId == candidate.TriggerId && child.GameplayHash == candidate.GameplayHash;
-        var trickContinuationMatches = frame.Continuation == ProgramCardContinuation.BeforeTrickTargetEffects
-            ? frame.TrickContinuation is { } trick &&
-              frame.Action.Type == CardActionType.Use &&
-              frame.Action.PhysicalCards.Any(cost => cost.CardId == trick.EffectCardId)
-            : frame.TrickContinuation is null;
-        if (!attackMatches ||
-            frameIndex < 1 || _resolutionStack[frameIndex - 1].Id != frame.ParentFrameId ||
-            !trickContinuationMatches ||
-            !candidateCursorValid ||
-            !sharedPromptMatches && !sharedChildMatches ||
-             frame.Action.PhysicalCards.Any(cost =>
-                 frame.Continuation == ProgramCardContinuation.CompletedSlash
-                     ? _cardZones.GetLocation(cost.CardId).Zone is not
-                         (CardZoneKind.DiscardPile or CardZoneKind.Hand or CardZoneKind.DrawPile)
-                     : frame.Continuation == ProgramCardContinuation.NullificationResponse
-                         ? _cardZones.GetLocation(cost.CardId) != CardLocation.DiscardPile
-                     : _cardZones.GetLocation(cost.CardId) != CardLocation.Processing))
-            throw new InvalidOperationException("A card trigger window has an invalid cursor, prompt or paid card.");
+        if (frames.Length != _programCardAttacks.Count)
+            throw new InvalidOperationException("A card trigger continuation lost its frame.");
+        foreach (var frame in frames)
+        {
+            var frameIndex = _resolutionStack.FindLastIndex(item => ReferenceEquals(item, frame));
+            var resolvingProgramJudgmentDamage =
+                _pendingAttack is { IsProgramJudgmentDamage: true } &&
+                _pendingJudgment?.Continuation == JudgmentContinuationKind.ProgramSkill;
+            var attackMatches = frame != frames[^1] || resolvingProgramJudgmentDamage ||
+                (frame.Continuation is ProgramCardContinuation.DelayedCard or
+                        ProgramCardContinuation.BeforeTrickTargetEffects or
+                        ProgramCardContinuation.NullificationResponse or ProgramCardContinuation.CommittedTrick or
+                        ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.CompletedCard
+                    ? _programCardAttacks[frame.Id] is null
+                    : _programCardAttack is not null && ReferenceEquals(_programCardAttack, _pendingAttack));
+            var candidateCursorValid = frame.CandidateIndex >= 0 &&
+                                       frame.CandidateIndex < frame.Candidates.Count;
+            var candidate = candidateCursorValid ? frame.Candidates[frame.CandidateIndex] : null;
+            var sharedContext = candidate?.FrozenContext;
+            var sharedIdentityMatches = candidate is not null &&
+                sharedContext is { CardUse: { } cardUse } && sharedContext.ParentFrameId == frame.Id &&
+                cardUse.ParentCardUseFrameId == frame.ParentFrameId && cardUse.CardActionId == frame.Action.ActionId;
+            var sharedPromptMatches = sharedIdentityMatches && ReferenceEquals(_resolutionStack.Last(), frame) &&
+                _pendingDecision is { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } sharedPrompt &&
+                sharedPrompt.PlayerSeat == candidate!.OwnerSeat && sharedPrompt.SkillPrompt?.SkillId == candidate.SkillId &&
+                sharedPrompt.Choices.Count > 0;
+            var sharedChildMatches = sharedIdentityMatches && frameIndex + 1 < _resolutionStack.Count &&
+                _resolutionStack[frameIndex + 1] is ProgramSkillFrame child &&
+                child.WindowContext == sharedContext && child.OwnerSeat == candidate!.OwnerSeat &&
+                child.SkillId == candidate.SkillId && child.SkillInstanceId == candidate.SkillInstanceId &&
+                child.TriggerId == candidate.TriggerId && child.GameplayHash == candidate.GameplayHash;
+            var trickContinuationMatches = frame.Continuation is ProgramCardContinuation.BeforeTrickTargetEffects or ProgramCardContinuation.CommittedTrick
+                ? frame.TrickContinuation is { } trick &&
+                  frame.Action.Type == CardActionType.Use &&
+                  frame.Action.PhysicalCards.Any(cost => cost.CardId == trick.EffectCardId)
+                : frame.TrickContinuation is null;
+            if (!attackMatches ||
+                frameIndex < 1 || _resolutionStack[frameIndex - 1].Id != frame.ParentFrameId ||
+                !trickContinuationMatches ||
+                !candidateCursorValid ||
+                !sharedPromptMatches && !sharedChildMatches ||
+                 frame.Action.PhysicalCards.Any(cost =>
+                     frame.Continuation is ProgramCardContinuation.CompletedSlash or ProgramCardContinuation.CompletedCard
+                         ? _cardZones.GetLocation(cost.CardId).Zone is not
+                             (CardZoneKind.DiscardPile or CardZoneKind.Hand or CardZoneKind.DrawPile or CardZoneKind.Equipment or CardZoneKind.Judgment)
+                         : frame.Continuation == ProgramCardContinuation.NullificationResponse
+                             ? _cardZones.GetLocation(cost.CardId) != CardLocation.DiscardPile
+                         : frame.SimpleContinuation?.Effect == SimpleCardUseEffect.Equipment
+                             ? _cardZones.GetLocation(cost.CardId) != CardLocation.Equipment(frame.Action.ActorSeat)
+                         : _cardZones.GetLocation(cost.CardId) != CardLocation.Processing))
+                throw new InvalidOperationException("A card trigger window has an invalid cursor, prompt or paid card.");
+        }
     }
 }

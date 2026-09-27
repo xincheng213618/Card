@@ -224,6 +224,11 @@ public sealed partial class GameEngine
             engine.SelectProgramOwnedCards(frame, cardOwnerSeat, amount, expression, zones, resultBind,
                 minimumCards, maximumCards, cardKinds, suits);
 
+        public SkillProgramStepOutcome RevealTargetHandCard(ProgramSkillFrame frame,
+            ProgramParticipantReference chooser, ProgramParticipantReference cardOwner,
+            string resultBind, SkillProgramRevealMode mode) =>
+            engine.RevealProgramTargetHandCard(frame, chooser, cardOwner, resultBind, mode);
+
         public void CaptureSelectedCards(ProgramSkillFrame frame, string resultBind) =>
             engine.CaptureProgramSelectedCards(frame, resultBind);
 

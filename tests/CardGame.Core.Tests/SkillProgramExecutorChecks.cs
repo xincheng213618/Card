@@ -689,6 +689,11 @@ internal static class SkillProgramExecutorChecks
         int minimumCards, int maximumCards, IReadOnlyList<CardKind> cardKinds, IReadOnlyList<Suit> suits) =>
             throw new NotSupportedException("The executor fixture does not exercise SelectOwnedCards.");
 
+        public SkillProgramStepOutcome RevealTargetHandCard(ProgramSkillFrame frame,
+            ProgramParticipantReference chooser, ProgramParticipantReference cardOwner, string resultBind,
+            SkillProgramRevealMode mode) =>
+            throw new NotSupportedException("The executor fixture does not exercise RevealTargetHandCard.");
+
         public void RevealUniqueRankForDying(ProgramSkillFrame frame, CardZoneKind zone, int rescueHp) =>
             throw new NotSupportedException();
         public void RedirectCurrentDamage(ProgramSkillFrame frame, string sourceBind, bool drawLostHpAfterDamage) =>

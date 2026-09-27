@@ -582,7 +582,8 @@ internal sealed class MoveBoundCardsProgramOperationDescriptor : ProgramOperatio
         if (source == except) throw new InvalidOperationException($"Invalid skill program at {r.Path}: exceptBind must differ.");
         var destination = r.RequiredEnum<SkillProgramCardDestination>("destination");
         if (destination is not (SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.DiscardPile or
-                SkillProgramCardDestination.OwnerPersistentZone or SkillProgramCardDestination.DrawPileBottom))
+                SkillProgramCardDestination.OwnerPersistentZone or SkillProgramCardDestination.DrawPileBottom or
+                SkillProgramCardDestination.PhaseOwnerHand))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.destination: unsupported destination.");
         var destinationZone = r.Has("destinationZone") ? r.RequiredEnum<CardZoneKind>("destinationZone") : (CardZoneKind?)null;
         if ((destination == SkillProgramCardDestination.OwnerPersistentZone) != (destinationZone is not null))
@@ -601,7 +602,10 @@ internal sealed class MoveBoundCardsProgramOperationDescriptor : ProgramOperatio
         return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        [new MoveCardSet(effect.SourceBind!, effect.ExceptBind, effect.Destination!.Value)];
+        effect.Destination == SkillProgramCardDestination.PhaseOwnerHand
+            ? [new RequireContext(ProgramContextCapability.PhaseOwner),
+                new MoveCardSet(effect.SourceBind!, effect.ExceptBind, effect.Destination.Value)]
+            : [new MoveCardSet(effect.SourceBind!, effect.ExceptBind, effect.Destination!.Value)];
 }
 
 internal sealed class GiveBoundCardProgramOperationDescriptor : ProgramOperationDescriptorBase

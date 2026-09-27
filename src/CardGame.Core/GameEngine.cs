@@ -45,6 +45,8 @@ public sealed partial class GameEngine
     private int _turnNumber;
     private int _currentSeat;
     private int _slashCountThisTurn;
+    private int _playPhaseKillCountByCurrentPlayer;
+    private int _playPhaseDamageDealtByCurrentPlayer;
     private bool _usedOrPlayedSlashDuringPlayPhase;
     private bool _woodenOxUsedThisTurn;
     private int _logSequence;
@@ -3511,8 +3513,11 @@ public sealed partial class GameEngine
             _programPhaseUses.Remove(key);
         _skillRuntimeState.ResetPhase();
         _phase = TurnPhase.Play;
+        _playPhaseKillCountByCurrentPlayer = 0;
+        _playPhaseDamageDealtByCurrentPlayer = 0;
         AddLog("PhaseChanged", $"{current.Name} 进入出牌阶段。", current.Seat);
         QueueGameEvent(new PhaseChangedEvent(_phase, current.Seat));
+        TryBeginPlayPhaseStartingBoundary(current);
     }
 
     private static bool IsDelayedCard(CardKind kind) =>
@@ -4288,7 +4293,6 @@ public sealed partial class GameEngine
 
     private void ResolveEquip(CharacterState source, Card equipment)
     {
-        var definition = EquipmentCatalog.Get(equipment.Kind);
         var stillLegal = BuildLegalActions(source).Any(action =>
             action.Kind == LegalActionKind.Equip &&
             action.CardId == equipment.Id &&
@@ -4304,8 +4308,12 @@ public sealed partial class GameEngine
             FindOwnedCardLocation(source, equipment),
             CardLocation.Processing,
             CardMoveReasons.EquipmentUse);
-        SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
+        CompleteEquipmentUse(source, equipment, resolutionId);
+    }
 
+    private void CompleteEquipmentUse(CharacterState source, Card equipment, long resolutionId)
+    {
+        var definition = EquipmentCatalog.Get(equipment.Kind);
         var replaced = GetEquipment(source)
             .SingleOrDefault(card => EquipmentCatalog.Get(card.Kind).Slot == definition.Slot);
         if (replaced is not null)
@@ -4335,7 +4343,7 @@ public sealed partial class GameEngine
                 ? $"{source.Name} 装备【{definition.DisplayName}】。"
                 : $"{source.Name} 装备【{definition.DisplayName}】，替换并弃置原有{EquipmentCatalog.GetSlotName(definition.Slot)}。",
             source.Seat);
-        FinishCardUse(resolutionId, equipment);
+        BeginSimpleCardUse(resolutionId, new(equipment.Id, SimpleCardUseEffect.Equipment));
     }
 
     private void BeginJizhiOrNullificationWindow(
@@ -4349,6 +4357,8 @@ public sealed partial class GameEngine
         CardKind? playedCardKind = null)
     {
         var effectiveCardKind = playedCardKind ?? effectCard.Kind;
+        if (TryBeginCommittedCardUse(resolutionId, ProgramCardContinuation.CommittedTrick,
+                trick: new(effectCard.Id, actionKind, targetCardId, requiredCardKind))) return;
         var pending = new JizhiResolution(
             sourceSeat,
             resolutionId,
@@ -5294,9 +5304,14 @@ public sealed partial class GameEngine
             FindOwnedCardLocation(source, alcohol),
             CardLocation.Processing,
             CardMoveReasons.Use);
-        SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
-        source.HasAlcoholEffect = true;
+        // Spend the allowance at commitment, before an optional trigger can pause.
         source.UsedPlayPhaseAlcoholThisTurn = true;
+        BeginSimpleCardUse(resolutionId, new(alcohol.Id, SimpleCardUseEffect.Alcohol));
+    }
+
+    private void CompleteAlcoholUse(CharacterState source, Card alcohol, long resolutionId)
+    {
+        source.HasAlcoholEffect = true;
         QueueGameEvent(new AlcoholAppliedEvent(resolutionId, source.Seat, DamageBonus: 1));
         AddLog("CardEffect", $"{source.Name} 使用【酒】，本回合下一张直接杀造成的伤害 +1。", source.Seat);
         MoveCard(
@@ -5868,8 +5883,8 @@ public sealed partial class GameEngine
                 CardLocation.Processing,
                 CardLocation.DiscardPile,
                 CardMoveReasons.UseFinished);
-            FinishCardUse(pending.ResolutionId, pending.Card, pending.EffectiveCardKind);
             _pendingFireAttack = null;
+            FinishCardUse(pending.ResolutionId, pending.Card, pending.EffectiveCardKind);
             return;
         }
 
@@ -6068,11 +6083,11 @@ public sealed partial class GameEngine
         }
 
         SetCardUseTargetIndex(group.ResolutionId, group.TargetSeats.Count);
-        FinishCardUse(group.ResolutionId, group.Card);
         _pendingGroupCard = null;
         _pendingAttack = null;
         _pendingDuel = null;
         _pendingDecision = null;
+        FinishCardUse(group.ResolutionId, group.Card);
 
         if (_winner != Winner.None && _status != EngineStatus.Completed)
         {
@@ -6675,12 +6690,12 @@ public sealed partial class GameEngine
             CardLocation.Processing,
             CardLocation.DiscardPile,
             CardMoveReasons.UseFinished);
-        FinishCardUse(pending.ResolutionId, pending.Card, CardKind.BorrowedSword);
         _pendingBorrowedSword = null;
         if (_pendingFactionCardRequest?.BorrowedSword == pending)
         {
             _pendingFactionCardRequest = null;
         }
+        FinishCardUse(pending.ResolutionId, pending.Card, CardKind.BorrowedSword);
 
         if (_winner != Winner.None && _status != EngineStatus.Completed)
         {
@@ -11838,6 +11853,12 @@ public sealed partial class GameEngine
                 : GetCombatDistance(source.Seat, target.Seat));
             target.Hp = Math.Max(0, target.Hp - amount);
             attack.MarkDamageApplied();
+            var useIndex = _resolutionStack.FindLastIndex(frame => frame is CardUseFrame use &&
+                use.Id == attack.ResolutionId);
+            if (useIndex >= 0 && _resolutionStack[useIndex] is CardUseFrame damageUse)
+                _resolutionStack[useIndex] = damageUse with { CausedDamage = true };
+            if (source.Seat == _currentSeat && _phase == TurnPhase.Play)
+                _playPhaseDamageDealtByCurrentPlayer += amount;
             var natureLabel = GetDamageNatureLabel(nature);
             AddLog("Damage", $"{target.Name} 受到 {source.Name} 造成的 {amount} 点{natureLabel}伤害，剩余 {Math.Max(0, target.Hp)} 点体力。", source.Seat, target.Seat);
             QueueGameEvent(new DamageAppliedEvent(
@@ -12445,7 +12466,9 @@ public sealed partial class GameEngine
             usedPeachCardId = peach.Id;
             usedPeachPhysicalCardKind = peach.Kind == CardKind.Peach ? null : peach.Kind;
             ResolvePeach(responder, victim, peach, allowDying: true,
-                peachConversionSource);
+                peachConversionSource, new DyingResponseEvent(dying.FrameId, responder.Seat,
+                    true, peach.Id, false, null) { UsedPeachPhysicalCardKind = usedPeachPhysicalCardKind });
+            return;
         }
         if (useAlcohol)
         {
@@ -12461,9 +12484,11 @@ public sealed partial class GameEngine
             }
             ValidateAlcoholConversion(responder, alcohol, alcoholConversionSource, forResponse: true);
             usedAlcoholCardId = alcohol.Id;
-            ResolveDyingAlcohol(responder, victim, alcohol, alcoholConversionSource);
+            ResolveDyingAlcohol(responder, victim, alcohol, alcoholConversionSource,
+                new DyingResponseEvent(dying.FrameId, responder.Seat, false, null, true, alcohol.Id));
+            return;
         }
-        QueueGameEvent(new DyingResponseEvent(
+        CompleteDyingCardResponse(new DyingResponseEvent(
             dying.FrameId,
             responder.Seat,
             usePeach,
@@ -12473,6 +12498,15 @@ public sealed partial class GameEngine
         {
             UsedPeachPhysicalCardKind = usedPeachPhysicalCardKind
         });
+    }
+
+    private void CompleteDyingCardResponse(DyingResponseEvent response)
+    {
+        var dying = _pendingDying ?? throw new InvalidOperationException("The rescue use lost its dying parent.");
+        if (dying.FrameId != response.ResolutionId)
+            throw new InvalidOperationException("The rescue use returned to a different dying parent.");
+        var victim = _players[dying.VictimSeat];
+        QueueGameEvent(response);
         dying.ResponderIndex++;
 
         if (victim.Hp > 0)
@@ -12908,11 +12942,11 @@ public sealed partial class GameEngine
         }
 
         SetCardUseTargetIndex(group.ResolutionId, group.TargetSeats.Count);
-        FinishCardUse(group.ResolutionId, group.Card);
         _pendingGroupCard = null;
         _pendingAttack = null;
         _pendingDuel = null;
         _pendingDecision = null;
+        FinishCardUse(group.ResolutionId, group.Card);
 
         if (_winner != Winner.None && _status != EngineStatus.Completed)
         {
@@ -12949,11 +12983,11 @@ public sealed partial class GameEngine
         }
 
         SetCardUseTargetIndex(group.ResolutionId, group.TargetSeats.Count);
-        FinishCardUse(group.ResolutionId, group.Card);
         _pendingGroupCard = null;
         _pendingAttack = null;
         _pendingDuel = null;
         _pendingDecision = null;
+        FinishCardUse(group.ResolutionId, group.Card);
 
         if (_winner != Winner.None && _status != EngineStatus.Completed)
         {
@@ -12971,7 +13005,8 @@ public sealed partial class GameEngine
         CharacterState target,
         Card peach,
         bool allowDying,
-        CardConversionSource? conversionSource = null)
+        CardConversionSource? conversionSource = null,
+        DyingResponseEvent? dyingResponse = null)
     {
         if ((!allowDying && source.Hp >= source.MaxHp) ||
             (allowDying && target.Hp > 0) ||
@@ -12994,14 +13029,15 @@ public sealed partial class GameEngine
             playedCardKind: CardKind.Peach,
             recoveryAmount: 1 + recoveryPolicies.Sum(item => item.Policy.Value),
             recoveryPolicySources: recoveryPolicies.Select(item => (item.Source.SkillId, item.Policy.Id)).ToArray(),
-            conversionSource: conversionSource);
+            conversionSource: conversionSource, dyingResponse: dyingResponse);
     }
 
     private void ResolveDyingAlcohol(
         CharacterState source,
         CharacterState target,
         Card alcohol,
-        CardConversionSource? conversionSource = null)
+        CardConversionSource? conversionSource = null,
+        DyingResponseEvent? dyingResponse = null)
     {
         if ((source.Seat != target.Seat) ||
             target.Hp > 0 ||
@@ -13011,7 +13047,7 @@ public sealed partial class GameEngine
         }
 
         ResolveRecoveryCard(source, target, alcohol, "酒", playedCardKind: CardKind.Alcohol,
-            conversionSource: conversionSource);
+            conversionSource: conversionSource, dyingResponse: dyingResponse);
     }
 
     private void ResolveRecoveryCard(
@@ -13022,7 +13058,8 @@ public sealed partial class GameEngine
         CardKind? playedCardKind = null,
         int recoveryAmount = 1,
         IReadOnlyList<(string SkillId, string PolicyId)>? recoveryPolicySources = null,
-        CardConversionSource? conversionSource = null)
+        CardConversionSource? conversionSource = null,
+        DyingResponseEvent? dyingResponse = null)
     {
         var resolutionId = BeginCardUse(
             card,
@@ -13030,12 +13067,22 @@ public sealed partial class GameEngine
             [target.Seat],
             playedCardKind: playedCardKind,
             conversionSource: conversionSource);
+        var useIndex = _resolutionStack.FindLastIndex(frame => frame.Id == resolutionId);
+        _resolutionStack[useIndex] = ((CardUseFrame)_resolutionStack[useIndex]) with { DyingResponse = dyingResponse };
         MoveCard(
             card,
             FindOwnedCardLocation(source, card),
             CardLocation.Processing,
             CardMoveReasons.Use);
-        SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
+        BeginSimpleCardUse(resolutionId, new(card.Id, SimpleCardUseEffect.Recovery, recoveryAmount,
+            recoveryPolicySources?.Select(policy => new ProgramRecoveryPolicySource(policy.SkillId, policy.PolicyId)).ToArray()));
+    }
+
+    private void CompleteRecoveryCardUse(CharacterState source, CharacterState target, Card card,
+        long resolutionId, CardKind playedCardKind, int recoveryAmount,
+        IReadOnlyList<ProgramRecoveryPolicySource> recoveryPolicySources)
+    {
+        var cardName = CardCatalog.Get(playedCardKind).DisplayName;
         var recoveryFrameId = BeginRecovery(resolutionId, source.Seat, target.Seat, recoveryAmount);
         try
         {
@@ -13353,6 +13400,11 @@ public sealed partial class GameEngine
             }
         }
         QueueCardUseFinishedWithoutPop(frameId, card, playedCardKind);
+        var completedUse = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == frameId);
+        if (_winner == Winner.None && completedUse.Action is { } action &&
+            TryBeginProgramCardWindow(null, action, SkillProgramTriggerWindow.CardUseCompleted,
+                action.TargetSeats, ProgramCardContinuation.CompletedCard,
+                cardUseCausedDamage: completedUse.CausedDamage)) return;
         PopFinishedCardUse(frameId);
     }
 
@@ -13375,12 +13427,14 @@ public sealed partial class GameEngine
 
     private void PopFinishedCardUse(long frameId)
     {
+        var dyingResponse = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == frameId).DyingResponse;
         PopResolutionFrame(frameId, ResolutionFrameKind.CardUse);
         _acceptedProgramUses.Remove(frameId);
         _committedProgramUses.Remove(frameId);
         _preparedProgramTargets.Remove(frameId);
         ClearYingboCardUse(frameId);
         ContinueProgramAfterSelectedCardUse();
+        if (dyingResponse is not null) CompleteDyingCardResponse(dyingResponse);
     }
 
     private void PopResolutionFrame(long frameId, ResolutionFrameKind expectedKind)
@@ -15452,6 +15506,8 @@ public sealed partial class GameEngine
                 killer?.Seat,
                 victim.Seat);
             QueueGameEvent(new PlayerDiedEvent(victim.Seat, killer?.Seat));
+            if (killer is { } killerState && killerState.Seat == _currentSeat && _phase == TurnPhase.Play)
+                _playPhaseKillCountByCurrentPlayer++;
             ResetHengyeAfterKill(killer);
             if (!IsNationalWarMode)
             {
@@ -16837,6 +16893,7 @@ public sealed partial class GameEngine
 
         if (!hasActiveCardResolution && _resolutionStack.Count != 0 &&
             !HasProgramLifecycleBoundaryFrame() && !HasTurnEndingBoundaryFrame() &&
+            !HasPlayPhaseStartingBoundaryFrame() &&
             !HasCardsMovedProgramBoundaryFrame())
         {
             throw new InvalidOperationException("A completed card resolution left frames on the stack.");
@@ -17178,16 +17235,16 @@ public sealed partial class GameEngine
                     "An active judgment continuation must retain its private replacement or result prompt.");
             }
 
-            var expectedJudgmentStatus = isProgramJudgmentChoice && _pendingDecision is null
-                ? EngineStatus.Running
-                : _players[expectedJudgmentOwner].IsHuman
-                    ? EngineStatus.AwaitingHumanResponse
-                    : EngineStatus.Running;
-            if (activeJudgmentProgram is null && !belongsToProgramJudgmentDamage &&
-                _status != expectedJudgmentStatus)
+            if (activeJudgmentProgram is null && !belongsToProgramJudgmentDamage)
             {
-                throw new InvalidOperationException(
-                    "A judgment prompt status does not match its current owner.");
+                var expectedJudgmentStatus = isProgramJudgmentChoice && _pendingDecision is null
+                    ? EngineStatus.Running
+                    : _players[expectedJudgmentOwner].IsHuman
+                        ? EngineStatus.AwaitingHumanResponse
+                        : EngineStatus.Running;
+                if (_status != expectedJudgmentStatus)
+                    throw new InvalidOperationException(
+                        "A judgment prompt status does not match its current owner.");
             }
         }
 
@@ -17227,11 +17284,19 @@ public sealed partial class GameEngine
                     ParentFrameId: var pindianWindowId
                 } &&
                 pindianWindowId == pendingDamageTrigger.FrameId;
+            var activeDamageProgramJudgment = _pendingJudgment is { } nestedJudgment &&
+                _resolutionStack.OfType<ProgramSkillFrame>().Any(parent =>
+                    parent.Id == nestedJudgment.ParentFrameId &&
+                    parent.WindowContext is
+                    {
+                        Window: SkillProgramTriggerWindow.AfterDamageApplied,
+                        ParentFrameId: var damageWindowId
+                    } && damageWindowId == pendingDamageTrigger.FrameId);
             var awaitingDamageProgramPrompt = _pendingDecision is { Kind: DecisionKind.ProgramTrigger } &&
                 pendingDamageTrigger.CandidateIndex < pendingDamageTrigger.Candidates.Count;
             var expectedTop = damageProgramDying
                 ? true
-                : activeDamageProgram || activeDamageProgramPindian
+                : activeDamageProgram || activeDamageProgramPindian || activeDamageProgramJudgment
                 ? true
                 : _resolutionStack.LastOrDefault() is DamageTriggerWindowFrame triggerFrame &&
                   triggerFrame.Id == pendingDamageTrigger.FrameId &&
@@ -17242,7 +17307,7 @@ public sealed partial class GameEngine
                     "A damage trigger continuation must retain its window or skill frame at the stack top.");
             }
 
-            if (!activeDamageProgram && !activeDamageProgramPindian &&
+            if (!activeDamageProgram && !activeDamageProgramPindian && !activeDamageProgramJudgment &&
                 !awaitingDamageProgramPrompt &&
                 !damageProgramDying &&
                 _status != EngineStatus.Running)
@@ -17560,7 +17625,9 @@ public sealed partial class GameEngine
             _pendingJudgment is null &&
             _resolutionStack.OfType<ProgramCardTriggerWindowFrame>()
                 .All(frame => frame.Continuation is not
-                    (ProgramCardContinuation.DelayedCard or ProgramCardContinuation.BeforeTrickTargetEffects)) &&
+                    (ProgramCardContinuation.DelayedCard or ProgramCardContinuation.BeforeTrickTargetEffects or
+                     ProgramCardContinuation.CommittedTrick or ProgramCardContinuation.CommittedSimpleCard or
+                     ProgramCardContinuation.CompletedCard)) &&
             _pendingFactionCardRequest?.IsProgramSkillUse != true &&
             _pendingFactionCardRequest?.IsBorrowedSwordUse != true &&
             _pendingBorrowedSword is null &&
@@ -17629,6 +17696,16 @@ public sealed partial class GameEngine
         AttackResolution attack,
         IReadOnlyList<Card> processing)
     {
+        // A rescue card can be awaiting its own use triggers while the attack
+        // remains suspended below the dying frame. Its costs belong to that
+        // child use and are checked by the card-window invariant separately.
+        var rescueCosts = _resolutionStack.OfType<CardUseFrame>()
+            .Where(frame => frame.Id != attack.ResolutionId && frame.DyingResponse is { } response &&
+                response.ResolutionId == _pendingDying?.FrameId)
+            .SelectMany(frame => frame.Action?.PhysicalCards ?? [])
+            .Select(cost => cost.CardId).ToHashSet();
+        if (attack.PhysicalCards.Any(card => rescueCosts.Contains(card.Id))) return false;
+        processing = processing.Where(card => !rescueCosts.Contains(card.Id)).ToArray();
         if (_resolutionStack.LastOrDefault() is PindianFrame { Result: { } contest } pindian)
         {
             var contestIds = new[] { contest.SourceCardId, contest.OpponentCardId };
@@ -17786,7 +17863,7 @@ public sealed partial class GameEngine
         bool damageCardClaimed,
         IReadOnlyList<int> targetSeats) =>
         location == CardLocation.DiscardPile ||
-        damageCardClaimed && location.Zone == CardZoneKind.DrawPile ||
+        damageCardClaimed && location.Zone is CardZoneKind.DrawPile or CardZoneKind.Hand ||
         location is { Zone: CardZoneKind.Hand, OwnerSeat: { } ownerSeat } &&
         targetSeats.Contains(ownerSeat);
 

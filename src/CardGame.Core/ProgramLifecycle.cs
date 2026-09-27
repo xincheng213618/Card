@@ -41,6 +41,17 @@ public sealed record ProgramOwnedCardSelection(
     int MinimumCount = 0);
 
 /// <summary>
+/// Private draft for revealing one of another character's hand cards after the
+/// chooser has viewed the whole hand. Choices carry real card identities
+/// because the viewing is the skill's own effect.
+/// </summary>
+public sealed record ProgramRevealCardSelection(
+    int HolderSeat,
+    int ChooserSeat,
+    string ResultBind,
+    IReadOnlyList<int> CandidateCardIds);
+
+/// <summary>
 /// Private, committed distribution progress. A decline is legal only before the first transfer;
 /// after that, the frozen required count is an all-or-nothing continuation.
 /// </summary>
@@ -235,6 +246,20 @@ public sealed record TurnEndingBoundaryFrame(
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
     : ResolutionFrame(Id, ResolutionFrameKind.TurnEndingBoundary, Step);
 
+/// <summary>
+/// Serializable play-phase-start cursor over frozen ordered program
+/// opportunities from both the turn owner (own-scope triggers) and observers
+/// (other-living-scope triggers).
+/// </summary>
+public sealed record PlayPhaseStartingBoundaryFrame(
+    long Id,
+    int OwnerSeat,
+    IReadOnlyList<TurnEndingBoundaryItem> Items,
+    SkillProgramTriggerFacts Facts,
+    int ItemIndex = 0,
+    ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
+    : ResolutionFrame(Id, ResolutionFrameKind.PlayPhaseStartingBoundary, Step);
+
 public sealed record ProgramLifecycleTriggerWindowFrame(
     long Id,
     int OwnerSeat,
@@ -251,6 +276,8 @@ public sealed record ProgramLifecycleTriggerWindowFrame(
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? FrozenBaseDrawCount { get; init; }
+
+    public IReadOnlyDictionary<int, SkillProgramTriggerFacts>? ParticipantFacts { get; init; }
 }
 
 /// <summary>

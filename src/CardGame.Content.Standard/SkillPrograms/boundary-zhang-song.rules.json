@@ -1,0 +1,513 @@
+﻿{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:qiangzhi",
+      "revision": 1,
+      "minimumRulesVersion": 175,
+      "states": [
+        {
+          "id": "shown-basic",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        },
+        {
+          "id": "shown-trick",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        },
+        {
+          "id": "shown-equipment",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "reset-shown-category",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": false,
+          "priority": 100,
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shown-basic",
+              "value": false
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shown-trick",
+              "value": false
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shown-equipment",
+              "value": false
+            }
+          ]
+        },
+        {
+          "id": "reveal-hand-card",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingWithHand"
+            },
+            {
+              "op": "revealTargetHandCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "selectedTarget"
+              },
+              "resultBind": "qiangzhi-shown",
+              "mode": "chooser"
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shown-basic",
+              "value": true,
+              "condition": {
+                "kind": "boundCardsMatchCategories",
+                "sourceBind": "qiangzhi-shown",
+                "cardCategories": [
+                  "basic"
+                ]
+              }
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shown-trick",
+              "value": true,
+              "condition": {
+                "kind": "boundCardsMatchCategories",
+                "sourceBind": "qiangzhi-shown",
+                "cardCategories": [
+                  "trick"
+                ]
+              }
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shown-equipment",
+              "value": true,
+              "condition": {
+                "kind": "boundCardsMatchCategories",
+                "sourceBind": "qiangzhi-shown",
+                "cardCategories": [
+                  "equipment"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "draw-on-matching-category",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": true,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "cardActionActorIsCurrentTurn"
+              },
+              {
+                "kind": "cardActionPhaseIsPlay"
+              },
+              {
+                "kind": "any",
+                "children": [
+                  {
+                    "kind": "all",
+                    "children": [
+                      {
+                        "kind": "booleanState",
+                        "stateId": "shown-basic",
+                        "expectedValue": true
+                      },
+                      {
+                        "kind": "cardActionCategoryIs",
+                        "categories": [
+                          "basic"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "all",
+                    "children": [
+                      {
+                        "kind": "booleanState",
+                        "stateId": "shown-trick",
+                        "expectedValue": true
+                      },
+                      {
+                        "kind": "cardActionCategoryIs",
+                        "categories": [
+                          "trick"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "all",
+                    "children": [
+                      {
+                        "kind": "booleanState",
+                        "stateId": "shown-equipment",
+                        "expectedValue": true
+                      },
+                      {
+                        "kind": "cardActionCategoryIs",
+                        "categories": [
+                          "equipment"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "clear-shown-category",
+          "window": "playEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": false,
+          "priority": -100,
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shown-basic",
+              "value": false
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shown-trick",
+              "value": false
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "shown-equipment",
+              "value": false
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "boundary:xiantu",
+      "revision": 1,
+      "minimumRulesVersion": 175,
+      "states": [
+        {
+          "id": "gifted-1",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        },
+        {
+          "id": "gifted-2",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "reset-gift",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": false,
+          "priority": 100,
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "gifted-1",
+              "value": false
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "gifted-2",
+              "value": false
+            }
+          ]
+        },
+        {
+          "id": "gift-one-card",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": true,
+          "priority": 0,
+          "choiceGroup": "xiantu-choice",
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "amount": 1,
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "resultBind": "xiantu-gift"
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "gifted-1",
+              "value": true,
+              "condition": {
+                "kind": "boundCardCountAtLeast",
+                "sourceBind": "xiantu-gift",
+                "value": 1
+              }
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "gifted-1",
+              "value": false,
+              "condition": {
+                "kind": "boundCardCountAtLeast",
+                "sourceBind": "xiantu-gift",
+                "value": 2
+              }
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "gifted-2",
+              "value": true,
+              "condition": {
+                "kind": "boundCardCountAtLeast",
+                "sourceBind": "xiantu-gift",
+                "value": 2
+              }
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "xiantu-gift",
+              "destination": "phaseOwnerHand"
+            }
+          ]
+        },
+        {
+          "id": "gift-two-cards",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": true,
+          "priority": 0,
+          "choiceGroup": "xiantu-choice",
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2
+            },
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "amount": 2,
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "resultBind": "xiantu-gift"
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "gifted-1",
+              "value": true,
+              "condition": {
+                "kind": "boundCardCountAtLeast",
+                "sourceBind": "xiantu-gift",
+                "value": 1
+              }
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "gifted-1",
+              "value": false,
+              "condition": {
+                "kind": "boundCardCountAtLeast",
+                "sourceBind": "xiantu-gift",
+                "value": 2
+              }
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "gifted-2",
+              "value": true,
+              "condition": {
+                "kind": "boundCardCountAtLeast",
+                "sourceBind": "xiantu-gift",
+                "value": 2
+              }
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "xiantu-gift",
+              "destination": "phaseOwnerHand"
+            }
+          ]
+        },
+        {
+          "id": "penalty-two-cards",
+          "window": "playEnding",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": false,
+          "priority": 100,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "booleanState",
+                "stateId": "gifted-2",
+                "expectedValue": true
+              },
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "playPhaseDamageDealtByTurnOwner"
+                },
+                "operator": "lessThan",
+                "right": {
+                  "kind": "integerConstant",
+                  "value": 2
+                }
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "loseHp",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "penalty-one-card",
+          "window": "playEnding",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": false,
+          "priority": 100,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "booleanState",
+                "stateId": "gifted-1",
+                "expectedValue": true
+              },
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "playPhaseDamageDealtByTurnOwner"
+                },
+                "operator": "lessThan",
+                "right": {
+                  "kind": "integerConstant",
+                  "value": 1
+                }
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "loseHp",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "reset-gift-at-phase-end",
+          "window": "playEnding",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "gifted-1",
+              "value": false
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "gifted-2",
+              "value": false
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

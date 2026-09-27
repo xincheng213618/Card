@@ -85,6 +85,9 @@ public interface ISkillProgramEffectHost
     SkillProgramStepOutcome SelectOwnedCards(ProgramSkillFrame frame, int cardOwnerSeat,
         int amount, SkillProgramNumberExpression? expression, IReadOnlyList<CardZoneKind> zones, string resultBind,
         int minimumCards, int maximumCards, IReadOnlyList<CardKind> cardKinds, IReadOnlyList<Suit> suits);
+    SkillProgramStepOutcome RevealTargetHandCard(ProgramSkillFrame frame,
+        ProgramParticipantReference chooser, ProgramParticipantReference cardOwner,
+        string resultBind, SkillProgramRevealMode mode);
     void CaptureSelectedCards(ProgramSkillFrame frame, string resultBind);
     void RevealBoundCards(ProgramSkillFrame frame, string sourceBind);
     void UseBoundCardAsDyingAlcohol(ProgramSkillFrame frame, string sourceBind, CardMoveReason reason);

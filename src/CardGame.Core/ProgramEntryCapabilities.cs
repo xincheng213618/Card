@@ -15,7 +15,8 @@ internal enum ProgramContextCapability
     Death = 128,
     Dying = 256,
     JudgmentReplacement = 512,
-    PhaseSubstitution = 1024
+    PhaseSubstitution = 1024,
+    PhaseOwner = 2048
 }
 
 internal static class ProgramEntryCapabilities
@@ -33,6 +34,7 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.AfterDamageApplied or
         SkillProgramTriggerWindow.PlayEnding or
         SkillProgramTriggerWindow.TurnEnding or
+        SkillProgramTriggerWindow.PlayPhaseStarting or
         SkillProgramTriggerWindow.CardsMoved or
         SkillProgramTriggerWindow.OwnerDied or
         SkillProgramTriggerWindow.CardUseCommitted or
@@ -53,6 +55,8 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.DrawPhaseStarting => Common | ProgramContextCapability.DrawPlan | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.AfterNormalDraw => Common | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.PlayEnding or SkillProgramTriggerWindow.TurnEnding => Common | ProgramContextCapability.Judgment,
+        SkillProgramTriggerWindow.PlayPhaseStarting =>
+            Common | ProgramContextCapability.Judgment | ProgramContextCapability.PhaseOwner,
         SkillProgramTriggerWindow.BeforeDamageApplied or
             SkillProgramTriggerWindow.DamageAppliedBeforeDying or
             SkillProgramTriggerWindow.AfterDamageApplied =>
