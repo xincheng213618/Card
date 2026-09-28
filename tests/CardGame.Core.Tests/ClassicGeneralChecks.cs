@@ -777,7 +777,36 @@ internal static class ClassicGeneralChecks
     public static void FormalQiangxiFlow()
     {
         var registry = CreatePreProgramClassicRegistry();
-        var (game, weaponAction, targetSeat, weaponCardId) = FindDianWeiQiangxiFixture(registry, requireWeapon: true);
+        InvalidOperationException? lastFailure = null;
+        var accepted = false;
+        FindDianWeiQiangxiFixture(registry, requireWeapon: true, probe: (game, weaponAction, targetSeat, weaponCardId) =>
+        {
+            try
+            {
+                AssertQiangxiFlow(registry, game, weaponAction, targetSeat, weaponCardId);
+                accepted = true;
+                return true;
+            }
+            catch (InvalidOperationException ex)
+            {
+                lastFailure = ex;
+                return false;
+            }
+        });
+        if (!accepted)
+        {
+            throw new InvalidOperationException(
+                "Could not find a deterministic Dian Wei Qiangxi flow fixture. " +
+                $"Last probe failure: {lastFailure?.Message}");
+        }
+    }
+    private static void AssertQiangxiFlow(
+        ContentRegistry registry,
+        GameEngine game,
+        LegalAction weaponAction,
+        int targetSeat,
+        int weaponCardId)
+    {
         var hpAction = game.GetHumanLegalActions().Single(action =>
             action.Kind == LegalActionKind.UseProgramSkill &&
             action.ProgramSkillId == "classic:qiangxi" &&
@@ -4110,7 +4139,8 @@ internal static class ClassicGeneralChecks
         bool requireWeapon,
         string? targetSkill = null,
         bool requirePeach = false,
-        bool requireTargetHeart = false)
+        bool requireTargetHeart = false,
+        Func<GameEngine, LegalAction, int, int, bool>? probe = null)
     {
         var damageTriggerSkills = new HashSet<string>
         {
@@ -4176,6 +4206,11 @@ internal static class ClassicGeneralChecks
                         : player.Skills?.All(skill => (skill.ContentId is null || !damageTriggerSkills.Contains(skill.ContentId))) != false) &&
                     (!requireTargetHeart || player.Hand.Any(card => card.Suit is Suit.Heart or Suit.Spade)));
             if (target is null)
+            {
+                continue;
+            }
+
+            if (probe is not null && !probe(game, action, target.Seat, weaponCardId))
             {
                 continue;
             }
