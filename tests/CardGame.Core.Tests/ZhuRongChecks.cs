@@ -160,9 +160,14 @@ internal static class ZhuRongChecks
                     var processing = game.CreateCardZoneDiagnostics()
                         .Where(item => item.Location == CardLocation.Processing)
                         .Select(item => item.CardId).ToHashSet();
-                    Require(parentCards.All(processing.Contains) &&
-                            parentCards.All(contest.ParentProcessingCardIds!.Contains),
-                        "Nested Lieren Pindian must retain the parent Slash in Processing.");
+                    var claimedByJianxiong = parentCards.All(cardId => game.CardMovements.Any(move =>
+                        move.CardId == cardId && move.From == CardLocation.Processing &&
+                        move.To.Zone == CardZoneKind.Hand && move.Reason.Value ==
+                        "skill-program.boundary:jianxiong.ClaimDamageCards"));
+                    Require((parentCards.All(processing.Contains) &&
+                             parentCards.All(contest.ParentProcessingCardIds!.Contains)) ||
+                            (claimedByJianxiong && (contest.ParentProcessingCardIds?.Count ?? 0) == 0),
+                        $"Nested Lieren Pindian must preserve the parent Slash or its resolved Jianxiong claim: parent={string.Join(',', parentCards)}, frozen={string.Join(',', contest.ParentProcessingCardIds ?? [])}, processing={string.Join(',', processing)}, moves={string.Join(';', game.CardMovements.Where(item => parentCards.Contains(item.CardId)).Select(item => item.From + ">" + item.To + "/" + item.Reason.Value))}.");
                 }
                 var choice = decision.Kind == DecisionKind.SkillModule
                     ? decision.Choices.OrderByDescending(c => game.CreateSnapshot(0, revealAll: true).Players[0].Hand

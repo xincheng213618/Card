@@ -10,13 +10,29 @@ public sealed partial class GameEngine
         int amount)
     {
         var active = GetActiveProgramFrame(frame.Id);
-        if (active.WindowContext is not
-            { Window: SkillProgramTriggerWindow.DamageAppliedBeforeDying or
-                SkillProgramTriggerWindow.AfterDamageApplied } ||
-            targetReference.Kind != ProgramParticipantRef.EventSource || amount is < 1 or > 20)
-            throw new InvalidOperationException("Attributed marker mutation requires an after-damage event source.");
+        if (targetReference.Kind == ProgramParticipantRef.EventSource)
+        {
+            if (active.WindowContext is not
+                { Window: SkillProgramTriggerWindow.DamageAppliedBeforeDying or
+                    SkillProgramTriggerWindow.AfterDamageApplied } || amount is < 1 or > 20)
+                throw new InvalidOperationException(
+                    "Attributed marker mutation requires an after-damage event source.");
+        }
+        else if (targetReference.Kind == ProgramParticipantRef.Owner)
+        {
+            if (active.WindowContext is not
+                { Window: SkillProgramTriggerWindow.AfterDamageApplied or
+                    SkillProgramTriggerWindow.CardsMoved } || amount is < 1 or > 20)
+                throw new InvalidOperationException(
+                    "Owner-attributed marker mutation requires an after-damage or card-movement trigger.");
+        }
+        else
+        {
+            throw new InvalidOperationException("Attributed marker mutation requires an owner or event source.");
+        }
         var targetSeat = ResolveProgramParticipant(active, targetReference);
-        if (!IsValidPlayerSeat(targetSeat) || targetSeat == active.OwnerSeat)
+        if (!IsValidPlayerSeat(targetSeat) ||
+            targetSeat == active.OwnerSeat && targetReference.Kind != ProgramParticipantRef.Owner)
             return;
 
         var target = _players[targetSeat];
@@ -245,6 +261,167 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The owner-death program window lost its optional trigger prompt.");
     }
 
+    private bool TryBeginKillDiedProgramWindow(DeathResolution death)
+    {
+        if (_winner != Winner.None)
+        {
+            death.KillerProgramsResolved = true;
+            return false;
+        }
+
+        var collected = new List<(ProgramTriggerCandidate Candidate, SkillProgramTriggerFacts Facts)>();
+        foreach (var player in _players.Where(item => item.IsAlive))
+        {
+            var facts = CaptureProgramTriggerFacts(player) with
+            {
+                DeathKillerIsOwner = death.KillerSeat == player.Seat,
+                DeathVictimCleanupCardCount = death.CleanedUpCardIds.Count
+            };
+            foreach (var candidate in CollectEligibleProgramTriggerCandidates(
+                player, SkillProgramTriggerWindow.CharacterDied, facts))
+                collected.Add((candidate, facts));
+        }
+
+        if (collected.Count == 0)
+        {
+            death.KillerProgramsResolved = true;
+            return false;
+        }
+
+        var ordered = collected
+            .OrderBy(item => (item.Candidate.OwnerSeat - _currentSeat + _players.Count) % _players.Count)
+            .ThenByDescending(item => item.Candidate.Priority)
+            .ThenBy(item => item.Candidate.SkillId, StringComparer.Ordinal)
+            .ThenBy(item => item.Candidate.BindingId, StringComparer.Ordinal)
+            .ThenBy(item => item.Candidate.SkillInstanceId, StringComparer.Ordinal)
+            .ThenBy(item => item.Candidate.OccurrenceIndex)
+            .ToArray();
+        var frameId = ++_resolutionSequence;
+        var frame = new ProgramKillTriggerWindowFrame(
+            frameId,
+            death.FrameId,
+            death.VictimSeat,
+            death.KillerSeat,
+            ordered.Select(item => item.Candidate).ToArray(),
+            ordered.Select(item => new ProgramSkillWindowContext(
+                SkillProgramTriggerWindow.CharacterDied,
+                frameId,
+                item.Candidate.OwnerSeat,
+                SourceSeat: death.KillerSeat,
+                TargetSeat: death.VictimSeat,
+                OccurrenceIndex: item.Candidate.OccurrenceIndex,
+                Facts: item.Facts)).ToArray());
+        _resolutionStack.Add(frame);
+        ContinueKillDiedProgramWindow();
+        return true;
+    }
+
+    private void ContinueKillDiedProgramWindow()
+    {
+        while (_resolutionStack.LastOrDefault() is ProgramKillTriggerWindowFrame frame)
+        {
+            if (_pendingDeath is not { } death || death.FrameId != frame.DeathFrameId)
+                throw new InvalidOperationException("The killer-death program window lost its death parent.");
+
+            if (frame.CandidateIndex >= frame.Candidates.Count)
+            {
+                PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramDeathTriggerWindow);
+                death.KillerProgramsResolved = true;
+                ContinueDeathResolution(death);
+                return;
+            }
+
+            var candidate = frame.Candidates[frame.CandidateIndex];
+            var context = frame.Contexts[frame.CandidateIndex];
+            if (!CanRunProgramTrigger(candidate, context))
+            {
+                AdvanceKillDiedProgramCandidate(frame, candidate, activated: false, completed: false);
+                continue;
+            }
+
+            var trigger = GetProgramTrigger(candidate);
+            if (trigger.Optional)
+            {
+                ExposeProgramTriggerDecision(candidate, context);
+                return;
+            }
+
+            BeginProgramBinding(candidate, context);
+            return;
+        }
+    }
+
+    private void AdvanceKillDiedProgramCandidate(
+        ProgramKillTriggerWindowFrame frame,
+        ProgramTriggerCandidate candidate,
+        bool activated,
+        bool completed)
+    {
+        if (_resolutionStack.LastOrDefault() is not ProgramKillTriggerWindowFrame current ||
+            current.Id != frame.Id ||
+            current.Candidates[current.CandidateIndex] != candidate)
+            throw new InvalidOperationException("The killer-death program cursor changed before it advanced.");
+
+        QueueGameEvent(new ProgramBindingResolvedEvent(
+            current.Id,
+            candidate.SkillId,
+            candidate.BindingId,
+            candidate.SkillInstanceId,
+            candidate.OwnerSeat,
+            SkillProgramTriggerWindow.CharacterDied,
+            activated,
+            completed));
+        _resolutionStack[^1] = current with { CandidateIndex = current.CandidateIndex + 1 };
+    }
+
+    private void AssertKillDiedProgramInvariant()
+    {
+        var death = _pendingDeath ??
+            throw new InvalidOperationException("A killer-death program invariant requires an active death.");
+        var deathIndex = _resolutionStack.FindLastIndex(frame =>
+            frame is DeathFrame deathFrame && deathFrame.Id == death.FrameId);
+        if (deathIndex < 0 ||
+            _resolutionStack[deathIndex] is not DeathFrame parent ||
+            parent.VictimSeat != death.VictimSeat ||
+            parent.KillerSeat != death.KillerSeat)
+            throw new InvalidOperationException("An active death lost its public death frame.");
+
+        var window = _resolutionStack.OfType<ProgramKillTriggerWindowFrame>().LastOrDefault();
+        if (window is null)
+            throw new InvalidOperationException("An unfinished death has no killer-death program window.");
+        if (window.DeathFrameId != death.FrameId ||
+            window.CandidateIndex < 0 ||
+            window.CandidateIndex >= window.Candidates.Count ||
+            death.KillerProgramsResolved)
+            throw new InvalidOperationException("The killer-death program window has an invalid parent or cursor.");
+
+        var windowIndex = _resolutionStack.FindLastIndex(frame =>
+            frame is ProgramKillTriggerWindowFrame candidate && candidate.Id == window.Id);
+        var programs = _resolutionStack
+            .Skip(windowIndex + 1)
+            .OfType<ProgramSkillFrame>()
+            .Where(program => program.WindowContext is
+            {
+                Window: SkillProgramTriggerWindow.CharacterDied,
+                ParentFrameId: var parentFrameId
+            } && parentFrameId == window.Id)
+            .ToArray();
+        if (programs is [var program])
+        {
+            if (program.WindowContext is not { Window: SkillProgramTriggerWindow.CharacterDied } context ||
+                context.ParentFrameId != window.Id)
+                throw new InvalidOperationException("The active killer-death program binding lost its window.");
+            return;
+        }
+        if (programs.Length > 1)
+            throw new InvalidOperationException("A killer-death program window has multiple active bindings.");
+
+        if (_resolutionStack.LastOrDefault() is not ProgramKillTriggerWindowFrame top || top.Id != window.Id ||
+            _pendingDecision is not { Kind: DecisionKind.ProgramTrigger, PlayerSeat: var responder } ||
+            responder != top.Candidates[top.CandidateIndex].OwnerSeat)
+            throw new InvalidOperationException("The killer-death program window lost its optional trigger prompt.");
+    }
+
     private void ContinueDeathResolution(DeathResolution death)
     {
         if (!ReferenceEquals(_pendingDeath, death))
@@ -252,6 +429,8 @@ public sealed partial class GameEngine
         var owner = _players[death.VictimSeat];
         if (!death.OwnerDiedProgramsResolved && TryBeginOwnerDiedProgramWindow(death, owner)) return;
         death.OwnerDiedProgramsResolved = true;
+        if (!death.KillerProgramsResolved && TryBeginKillDiedProgramWindow(death)) return;
+        death.KillerProgramsResolved = true;
         CompleteDeathResolution(death);
     }
 
@@ -279,6 +458,36 @@ public sealed partial class GameEngine
 
     private int GetMarkerSourceCount(CharacterState player, PlayerMarkerKind marker, int skillOwnerSeat) =>
         player.MarkerSourceCounts.GetValueOrDefault((marker, skillOwnerSeat));
+
+    internal void ClaimProgramDeathCleanupCards(ProgramSkillFrame frame)
+    {
+        var active = GetActiveProgramFrame(frame.Id);
+        if (active.OwnerSeat != frame.OwnerSeat || active.SkillId != frame.SkillId)
+            throw new InvalidOperationException("A death-claim requires the active program frame.");
+        var context = active.WindowContext ??
+            throw new InvalidOperationException("A death-claim requires a trigger window context.");
+        if (context.Window is not SkillProgramTriggerWindow.CharacterDied)
+            throw new InvalidOperationException("A death-claim requires a characterDied window.");
+        var window = _resolutionStack.OfType<ProgramKillTriggerWindowFrame>()
+            .LastOrDefault(item => item.Id == context.ParentFrameId) ??
+            throw new InvalidOperationException("A death-claim lost its killer-death window.");
+        var death = _pendingDeath;
+        while (death is not null && death.FrameId != window.DeathFrameId)
+            death = death.Parent;
+        if (death is null)
+            throw new InvalidOperationException("A death-claim lost its death parent.");
+        if (frame.OwnerSeat == death.VictimSeat)
+            throw new InvalidOperationException("A death-claim cannot target its own death.");
+
+        var claimable = death.CleanedUpCardIds
+            .Where(cardId => _cardZones.GetLocation(cardId) == CardLocation.DiscardPile)
+            .Select(cardId => _cardZones.CardsAt(CardLocation.DiscardPile).Single(item => item.Id == cardId))
+            .ToArray();
+        if (claimable.Length == 0) return;
+        var reason = new CardMoveReason(
+            $"skill-program.{frame.SkillId}.{GetProgramBindingId(active)}.claim-death-cleanup");
+        MoveCards(claimable, CardLocation.DiscardPile, CardLocation.Hand(frame.OwnerSeat), reason);
+    }
 
     private void ClearAttributedMarkerSources(CharacterState owner, long resolutionId)
     {
@@ -326,6 +535,8 @@ public sealed partial class GameEngine
         public long? CausingProgramSkillFrameId { get; } = causingProgramSkillFrameId;
         public DeathResolution? Parent { get; } = parent;
         public bool OwnerDiedProgramsResolved { get; set; }
+        public bool KillerProgramsResolved { get; set; }
+        public IReadOnlyList<int> CleanedUpCardIds { get; set; } = [];
     }
 }
 
@@ -335,3 +546,8 @@ public sealed record ProgramSkillCauseDeathDeclaredEvent(
     string BindingId,
     int SourceSeat,
     int TargetSeat) : IGameEvent;
+
+public sealed record ProgramExtraTurnPendedEvent(
+    long FrameId,
+    string SkillId,
+    int Seat) : IGameEvent;

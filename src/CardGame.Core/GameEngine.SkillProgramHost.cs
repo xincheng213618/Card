@@ -169,6 +169,15 @@ public sealed partial class GameEngine
             CardKind cardKind, bool ignoreDistance) =>
             engine.BeginProgramVirtualCardUse(frame, targetSeat, cardKind, ignoreDistance);
 
+        public SkillProgramStepOutcome UseBoundCardByTarget(ProgramSkillFrame frame, int targetSeat,
+            string sourceBind) =>
+            engine.UseProgramBoundCardByTarget(frame, targetSeat, sourceBind);
+
+        public void PendExtraTurn(ProgramSkillFrame frame) => engine.PendProgramExtraTurn(frame);
+
+        public void ClaimDeathCleanupCards(ProgramSkillFrame frame) =>
+            engine.ClaimProgramDeathCleanupCards(frame);
+
         public SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat) =>
             engine.BeginProgramSkillPindian(frame, targetSeat);
 
@@ -229,6 +238,10 @@ public sealed partial class GameEngine
             int minimumCards, int maximumCards, IReadOnlyList<CardKind> cardKinds, IReadOnlyList<Suit> suits) =>
             engine.SelectProgramOwnedCards(frame, cardOwnerSeat, amount, expression, zones, resultBind,
                 minimumCards, maximumCards, cardKinds, suits);
+
+        public SkillProgramStepOutcome HoldTargetCards(ProgramSkillFrame frame, int chooserSeat, int holderSeat,
+            IReadOnlyList<CardZoneKind> zones, string resultBind, int minimumCards) =>
+            engine.HoldProgramTargetCards(frame, chooserSeat, holderSeat, zones, resultBind, minimumCards);
 
         public SkillProgramStepOutcome RevealTargetHandCard(ProgramSkillFrame frame,
             ProgramParticipantReference chooser, ProgramParticipantReference cardOwner,
@@ -450,6 +463,15 @@ public sealed partial class GameEngine
             string sourceBind,
             int targetSeat) =>
             engine.GrantProgramTurnHandColorRestriction(frame, sourceBind, targetSeat);
+
+        public void GrantTurnHandCardProhibition(ProgramSkillFrame frame, int targetSeat) =>
+            engine.GrantProgramTurnHandCardProhibition(frame, targetSeat);
+
+        public void AbolishOwnerAreas(ProgramSkillFrame frame, IReadOnlyList<CardZoneKind> zones) =>
+            engine.AbolishProgramOwnerAreas(frame, zones);
+
+        public void LoseDeathSourceSkills(ProgramSkillFrame frame) =>
+            engine.LoseProgramDeathSourceSkills(frame);
 
         public void PreventCurrentDamage(ProgramSkillFrame frame) =>
             engine.PreventProgramCurrentDamage(frame);

@@ -57,7 +57,7 @@ internal static class RuleQueryReducerChecks
     public static void ProgramContributionsUseInstanceIdentityAndDynamicValues()
     {
         var program = LoadPrograms("""
-            {"id":"fixture:zongshi","revision":1,"minimumRulesVersion":170,
+            {"id":"fixture:zongshi","revision":1,"minimumRulesVersion": 171,
              "modifiers":[{"id":"living-factions","query":"handLimit","operation":"add",
                "valueExpression":"livingFactionCount","priority":0}],
              "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]}
@@ -80,10 +80,10 @@ internal static class RuleQueryReducerChecks
             "The same skill instance must not repeat across grants, while independent instances retain dynamic values.");
 
         var ambiguousSegments = LoadPrograms("""
-            {"id":"fixture:a","revision":1,"minimumRulesVersion":170,
+            {"id":"fixture:a","revision":1,"minimumRulesVersion": 171,
              "modifiers":[{"id":"d","query":"handLimit","operation":"add","value":1,"priority":0}],
              "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]},
-            {"id":"fixture:a:b","revision":1,"minimumRulesVersion":170,
+            {"id":"fixture:a:b","revision":1,"minimumRulesVersion": 171,
              "modifiers":[{"id":"d","query":"handLimit","operation":"add","value":1,"priority":0}],
              "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]}
             """).ToDictionary(item => item.Id, StringComparer.Ordinal);
@@ -115,24 +115,24 @@ internal static class RuleQueryReducerChecks
     public static void StaticSetConflictsAreRejectedBeforePlay()
     {
         var sameValue = LoadPrograms("""
-            {"id":"fixture:set-a","revision":1,"minimumRulesVersion":170,
+            {"id":"fixture:set-a","revision":1,"minimumRulesVersion": 171,
              "modifiers":[{"id":"set","query":"handLimit","operation":"set","value":5,"priority":10}],
              "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]},
-            {"id":"fixture:set-b","revision":1,"minimumRulesVersion":170,
+            {"id":"fixture:set-b","revision":1,"minimumRulesVersion": 171,
              "modifiers":[{"id":"set","query":"handLimit","operation":"set","value":5,"priority":10}],
              "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]},
-            {"id":"fixture:set-c","revision":1,"minimumRulesVersion":170,
+            {"id":"fixture:set-c","revision":1,"minimumRulesVersion": 171,
              "modifiers":[{"id":"set","query":"handLimit","operation":"set","value":7,"priority":20}],
              "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]}
             """);
         SkillProgramRules.ValidateSetModifierConflicts(sameValue);
 
         var conflict = LoadPrograms("""
-            {"id":"fixture:set-left","revision":1,"minimumRulesVersion":170,
+            {"id":"fixture:set-left","revision":1,"minimumRulesVersion": 171,
              "modifiers":[{"id":"future-hp","query":"handLimit","operation":"set","value":5,"priority":10,
                "condition":{"kind":"hpAtLeast","value":2}}],
              "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]},
-            {"id":"fixture:set-right","revision":1,"minimumRulesVersion":170,
+            {"id":"fixture:set-right","revision":1,"minimumRulesVersion": 171,
              "modifiers":[{"id":"future-hp","query":"handLimit","operation":"set","value":6,"priority":10,
                "condition":{"kind":"hpAtLeast","value":3}}],
              "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]}
@@ -147,17 +147,17 @@ internal static class RuleQueryReducerChecks
     public static void SchemaTwelveRequiresExplicitModifierIdentityAndPriority()
     {
         Throws<InvalidOperationException>(() => LoadPrograms("""
-            {"id":"fixture:missing-priority","revision":1,"minimumRulesVersion":170,
+            {"id":"fixture:missing-priority","revision":1,"minimumRulesVersion": 171,
              "modifiers":[{"id":"add","query":"handLimit","operation":"add","value":1}],
              "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]}
             """));
         Throws<InvalidOperationException>(() => LoadPrograms("""
-            {"id":"fixture:add-priority","revision":1,"minimumRulesVersion":170,
+            {"id":"fixture:add-priority","revision":1,"minimumRulesVersion": 171,
              "modifiers":[{"id":"add","query":"handLimit","operation":"add","value":1,"priority":1}],
              "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]}
             """));
         Throws<InvalidOperationException>(() => LoadPrograms("""
-            {"id":"fixture:bad-unlimited","revision":1,"minimumRulesVersion":170,
+            {"id":"fixture:bad-unlimited","revision":1,"minimumRulesVersion": 171,
              "modifiers":[{"id":"unlimited","query":"handLimit","operation":"unlimited","value":0,"priority":0}],
              "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]}
             """));
@@ -301,7 +301,7 @@ internal static class RuleQueryReducerChecks
         var presentation = "{\"schemaVersion\":3,\"skills\":{" + string.Join(",", ids.Select(id =>
             $"\"{id}\":{{\"name\":\"Fixture\",\"description\":\"Fixture\"}}")) + "}}";
         var catalog = SkillProgramCatalog.Load(
-            $"{{\"schemaVersion\":61,\"skills\":[{skills}]}}",
+            $"{{\"schemaVersion\":{SkillProgramCatalog.RulesSchemaVersion},\"skills\":[{skills}]}}",
             presentation);
         return catalog.Programs.Values.OrderBy(program => program.Id, StringComparer.Ordinal).ToArray();
     }

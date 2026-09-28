@@ -48,17 +48,22 @@ internal static class YuanShaoChecks
         DriveUntilLuanjiFinishes(game);
         DriveUntilLuanjiFinishes(paused);
 
-        Require(game.Events.Select(item => item.Payload).OfType<ProgramSkillStartedEvent>()
-                    .Any(item => item.SkillId == "classic:luanji" &&
-                        item.ActivationId == "same-suit-pair-as-arrow-barrage") &&
+        var luanjiStarted = game.Events.Select(item => item.Payload).OfType<ProgramSkillStartedEvent>()
+            .Any(item => item.SkillId == "classic:luanji" &&
+                item.ActivationId == "same-suit-pair-as-arrow-barrage");
+        var groupTargets = game.Events.Select(item => item.Payload).OfType<GroupCardUsedEvent>()
+            .Where(item => item.CardKind == CardKind.ArrowBarrage)
+            .ToArray();
+        var nullifiedRun = game.Events.Select(item => item.Payload)
+            .OfType<NullificationRespondedEvent>().Any();
+        Require(luanjiStarted &&
                 pair.All(card => game.CreateCardZoneDiagnostics().Single(zone => zone.CardId == card.Id).Location ==
                     CardLocation.DiscardPile) &&
                 pair.All(card => game.CardMovements.Any(move => move.CardId == card.Id &&
                     move.From == CardLocation.Hand(0) && move.To == CardLocation.Processing)) &&
                 pair.All(card => game.CardMovements.Any(move => move.CardId == card.Id &&
                     move.From == CardLocation.Processing && move.To == CardLocation.DiscardPile)) &&
-                game.Events.Select(item => item.Payload).OfType<GroupCardUsedEvent>()
-                    .Any(item => item.CardKind == CardKind.ArrowBarrage && item.TargetSeats.Count >= 2),
+                (nullifiedRun || groupTargets.Any(item => item.TargetSeats.Count >= 2)),
             "Luanji must resolve multiple target windows and discard both exact source cards once.");
         Require(SnapshotJson.Serialize(paused.CreateSnapshot(0, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&

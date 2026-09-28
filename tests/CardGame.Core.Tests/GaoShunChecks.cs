@@ -30,7 +30,7 @@ internal static class GaoShunChecks
                     Id: "alcohol-hand-as-slash",
                     OutputKind: CardKind.Slash
                 } &&
-                jinjiu.Program!.MinimumRulesVersion == 171 &&
+                jinjiu.Program!.MinimumRulesVersion == 172 &&
                 identity.InputKinds.SequenceEqual([CardKind.Alcohol]) &&
                 identity.Zones.SequenceEqual([CardZoneKind.Hand]) &&
                 current.Modes[ScenarioPackage.ModeId].GeneralPoolIds!.Contains(GeneralId),

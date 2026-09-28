@@ -28,8 +28,8 @@ internal static class GuanXingZhangBaoChecks
                 fuhun.ActionForms == SkillActionForm.Active &&
                 fuhun.Program is
                 {
-                    RuntimeVersion: "skill-program-v61",
-                    MinimumRulesVersion: 171,
+                    RuntimeVersion: "skill-program-v62",
+                    MinimumRulesVersion: 172,
                     ViewAs.Count: 1,
                     Activations.Count: 1,
                     Triggers.Count: 1

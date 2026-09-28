@@ -337,6 +337,9 @@
                         <Border Visibility="{Binding HasChunlao, Converter={StaticResource BoolToVisibility}}" Background="#D5724A2E" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,78,0,0" Padding="5,2" ToolTip="{Binding ChunlaoTooltip}">
                             <TextBlock Text="{Binding ChunlaoText}" FontSize="9" Foreground="#FFF0C9" />
                         </Border>
+                        <Border Visibility="{Binding HasPojunHold, Converter={StaticResource BoolToVisibility}}" Background="#D53E5C4E" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,95,0,0" Padding="5,2" ToolTip="{Binding PojunHoldTooltip}">
+                            <TextBlock Text="{Binding PojunHoldText}" FontSize="9" Foreground="#CDEBD8" />
+                        </Border>
                         <Border Visibility="{Binding HasJudgment, Converter={StaticResource BoolToVisibility}}" Background="#D6593B41" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,55,0,0" Padding="4,2" ToolTip="{Binding JudgmentText}">
                             <TextBlock Text="{Binding ShortJudgment}" FontSize="9" Foreground="#F4DADA" MaxWidth="125" TextTrimming="CharacterEllipsis" />
                         </Border>

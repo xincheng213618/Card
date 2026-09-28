@@ -27,6 +27,31 @@ public sealed partial class GameEngine
         CardKind? effectiveKind = null) =>
         CardPolicies(owner, kind, effectiveKind).Any();
 
+    private bool IsNearbyTargetResponseProhibited(int sourceSeat, int responderSeat,
+        CardKind incomingKind, IReadOnlyList<int> targetSeats)
+    {
+        if ((!IsSlashCard(incomingKind) && !IsOrdinaryTrick(incomingKind)) ||
+            sourceSeat == responderSeat || !targetSeats.Contains(responderSeat) ||
+            !_players[sourceSeat].IsAlive || !_players[responderSeat].IsAlive)
+            return false;
+
+        var distance = GetCombatDistance(sourceSeat, responderSeat);
+        return CardPolicies(_players[sourceSeat],
+                SkillProgramCardPolicyKind.ProhibitNearbyTargetResponse, incomingKind)
+            .Any(item => distance <= item.Policy.Value);
+    }
+
+    private bool IsSuitSlashResponseProhibited(AttackResolution attack)
+    {
+        if (attack.EffectiveCardKind is not { } kind || !IsSlashCard(kind) ||
+            attack.CardUserSeat == attack.TargetSeat || attack.PhysicalCards.Count == 0)
+            return false;
+        var source = _players[attack.CardUserSeat];
+        return CardPolicies(source, SkillProgramCardPolicyKind.ProhibitTargetSlashResponseBySuit, kind)
+            .Any(item => attack.PhysicalCards.Any(card =>
+                EffectiveSuit(source, card) == item.Policy.InputSuit));
+    }
+
     private int GetProgramRequiredResponseCount(CharacterState owner, int sourceSeat,
         CardKind incomingKind, CardKind requiredKind) =>
         sourceSeat == owner.Seat

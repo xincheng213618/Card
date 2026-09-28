@@ -86,6 +86,8 @@ internal static class TargetLossChecks
                     .Any(item => item.Reason == JudgmentReasons.Ganglie) &&
                 candidate.Events.Select(item => item.Payload).OfType<DamageRequestedEvent>()
                     .Any(item => item.SourceCard is null && item.Amount == 1 &&
+                        candidate.Events.Select(eventItem => eventItem.Payload).OfType<AfterDamageEvent>()
+                            .Any(after => after.ResolutionId == item.ResolutionId && after.RemainingHp == 0) &&
                         candidate.Events.Select(eventItem => eventItem.Payload).OfType<PlayerDiedEvent>()
                             .Any(death => death.VictimSeat == item.TargetSeat)))
             {
@@ -100,9 +102,11 @@ internal static class TargetLossChecks
             $"Lethal Ganglie should finish with a Rebel victory (status={match.State.Status}, winner={match.State.Winner}, turns={match.State.TurnNumber}, events={match.Events.Count}, stack={match.ResolutionStack.Count}, pending={match.PendingDecision?.Kind}).");
         var events = match.Events.Select(item => item.Payload).ToArray();
         var punishmentDamage = events.OfType<DamageRequestedEvent>()
-            .SingleOrDefault(item =>
+            .LastOrDefault(item =>
                 item.Amount == 1 &&
                 item.SourceCard is null &&
+                events.OfType<AfterDamageEvent>().Any(after =>
+                    after.ResolutionId == item.ResolutionId && after.RemainingHp == 0) &&
                 events.OfType<PlayerDiedEvent>().Any(death => death.VictimSeat == item.TargetSeat));
         Require(punishmentDamage is not null, "Lethal Ganglie must publish a nested typed damage request.");
         Require(events.OfType<DamageAppliedEvent>().Any(item =>
@@ -117,7 +121,8 @@ internal static class TargetLossChecks
             item.SourceSeat == lethalPunishmentDamage.SourceSeat &&
             item.TargetSeat == lethalPunishmentDamage.TargetSeat &&
             item.Amount == 1 &&
-            item.RemainingHp == 0), "Lethal Ganglie must close its nested damage frame.");
+            item.RemainingHp == 0),
+            $"Lethal Ganglie must close its nested damage frame: requested={lethalPunishmentDamage.ResolutionId}/{lethalPunishmentDamage.SourceSeat}>{lethalPunishmentDamage.TargetSeat}, after={string.Join(';', events.OfType<AfterDamageEvent>().Select(item => item.ResolutionId + "/" + item.SourceSeat + ">" + item.TargetSeat + "/" + item.RemainingHp))}.");
         Require(match.ResolutionStack.Count == 0 && match.State.ProcessingCardCount == 0 && match.PendingDecision is null, "Lethal counterattack left a pending continuation.");
         Require(match.Events.Count(item => item.Payload is GameEndedEvent) == 1, "Game end must be published exactly once.");
         Require(match.Events.Last().Payload is GameEndedEvent, "Nothing should resolve after terminal game over.");

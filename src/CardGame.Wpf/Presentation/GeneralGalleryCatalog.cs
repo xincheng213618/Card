@@ -70,13 +70,14 @@ public static class GeneralGalleryCatalog
         Add("standard", "liu-bei guan-yu zhang-fei zhuge-liang zhao-yun ma-chao huang-yueying sun-quan gan-ning lu-meng huang-gai zhou-yu da-qiao lu-xun sun-shangxiang cao-cao sima-yi xiahou-dun zhang-liao xu-chu guo-jia zhen-ji hua-tuo lu-bu diao-chan hua-xiong");
         Add("myth-wind", "xiahou-yuan cao-ren huang-zhong wei-yan xiao-qiao zhou-tai zhang-jiao");
         Add("myth-fire", "dian-wei xun-yu pang-tong wolong-zhuge-liang taishi-ci yuan-shao yan-liang-wen-chou pang-de");
-        Add("myth-forest", "xu-huang sun-jian meng-huo zhu-rong");
+        Add("myth-forest", "cao-pi xu-huang sun-jian meng-huo zhu-rong");
         Add("fame-1", "yu-jin xu-shu gao-shun");
         Add("fame-2", "cao-zhang wang-yi xun-you zhong-hui ma-dai liao-hua guan-xing-zhang-bao bu-lian-shi cheng-pu han-dang liu-biao");
-        Add("fame-3", "cao-chong guo-huai man-chong guan-ping pan-zhang-ma-zhong");
+        Add("fame-3", "cao-chong guo-huai man-chong guan-ping pan-zhang-ma-zhong xu-sheng");
         Add("fame-4", "gu-yong zhu-huan zhang-song");
         Add("fame-5", "zhu-zhi");
-        Add("god", "shen-guan-yu");
+        Add("god", "shen-guan-yu shen-sima-yi");
+        groups.Add("classic:qu-yi", "other");
         Add("sp", "gongsun-zan");
         groups.Add("sp:le-jin", "sp");
         Add("myth-yin", "yan-yan");
@@ -90,6 +91,7 @@ public static class GeneralGalleryCatalog
         groups.Add("boundary:gan-ning", "boundary");
         groups.Add("boundary:xu-chu", "boundary");
         groups.Add("boundary:zhou-yu", "boundary");
+        groups.Add("boundary:xu-sheng", "boundary-fame");
         groups.Add("boundary:zhang-song", "boundary-fame");
         return groups;
 

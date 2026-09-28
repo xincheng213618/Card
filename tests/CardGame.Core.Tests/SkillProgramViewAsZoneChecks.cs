@@ -3,8 +3,8 @@ using CardGame.Core;
 internal static class SkillProgramViewAsZoneChecks
 {
     private const string Rules = """
-        {"schemaVersion":61,"skills":[{"id":"test:owned-red-slash","revision":1,
-        "minimumRulesVersion":170,"viewAs":[{"id":"red-owned","sourceZones":["hand","equipment"],
+        {"schemaVersion":62,"skills":[{"id":"test:owned-red-slash","revision":1,
+        "minimumRulesVersion": 171,"viewAs":[{"id":"red-owned","sourceZones":["hand","equipment"],
         "inputKinds":[],"inputSuits":["heart","diamond"],"outputKind":"slash",
         "forPlay":true,"forResponse":true}]}]}
         """;
@@ -15,7 +15,7 @@ internal static class SkillProgramViewAsZoneChecks
     public static void DefinitionAndZoneIsolation()
     {
         var program = SkillProgramCatalog.Load(Rules, Presentation).Programs["test:owned-red-slash"];
-        Require(program is { RuntimeVersion: "skill-program-v61", MinimumRulesVersion: 171 } &&
+        Require(program is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 171 } &&
                 program.ViewAs.Single().SourceZones.SequenceEqual(
                     [CardZoneKind.Hand, CardZoneKind.Equipment]),
             "Schema 46 must keep the source-zone contract in the compiled viewAs rule.");

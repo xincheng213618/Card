@@ -239,13 +239,13 @@ internal static class SkillProgramCardTriggerChecks
     }
 
     private const string Rules = """
-        {"schemaVersion":61,"skills":[
+        {"schemaVersion":62,"skills":[
           {"id":"trigger-test:source-a","revision":1,"viewAs":[{"id":"slash","inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash","forPlay":true,"forResponse":false}]},
           {"id":"trigger-test:source-b","revision":1,"viewAs":[{"id":"slash","inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash","forPlay":true,"forResponse":false}]},
-          {"id":"trigger-test:draw","revision":1,"minimumRulesVersion":170,"triggers":[{"id":"after-use","window":"cardUseTargetsFinalized","sourceSkillId":"trigger-test:source-a","sourceViewAsId":"slash","ownerRelation":"conversionSource","optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]},
+          {"id":"trigger-test:draw","revision":1,"minimumRulesVersion": 171,"triggers":[{"id":"after-use","window":"cardUseTargetsFinalized","sourceSkillId":"trigger-test:source-a","sourceViewAsId":"slash","ownerRelation":"conversionSource","optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]},
           {"id":"trigger-test:response-source","revision":1,"viewAs":[{"id":"dodge","inputKinds":["slash"],"inputSuits":[],"outputKind":"dodge","forPlay":false,"forResponse":true}]},
           {"id":"trigger-test:response-source-b","revision":1,"viewAs":[{"id":"dodge","inputKinds":["slash"],"inputSuits":[],"outputKind":"dodge","forPlay":false,"forResponse":true}]},
-          {"id":"trigger-test:obtain","revision":1,"minimumRulesVersion":170,"triggers":[{"id":"after-response","window":"cardResponseAccepted","sourceSkillId":"trigger-test:response-source","sourceViewAsId":"dodge","ownerRelation":"conversionSource","optional":true,"effects":[{"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"eventTarget"},"zones":["hand"],"count":1,"destination":"ownerHand","skipIfNoCards":true}]}]}
+          {"id":"trigger-test:obtain","revision":1,"minimumRulesVersion": 171,"triggers":[{"id":"after-response","window":"cardResponseAccepted","sourceSkillId":"trigger-test:response-source","sourceViewAsId":"dodge","ownerRelation":"conversionSource","optional":true,"effects":[{"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"eventTarget"},"zones":["hand"],"count":1,"destination":"ownerHand","skipIfNoCards":true}]}]}
         ]}
         """;
     private const string Presentation = """

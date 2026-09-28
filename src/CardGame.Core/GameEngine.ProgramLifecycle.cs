@@ -1572,6 +1572,22 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             return false;
         // Only an initial, unconditional payment is a prerequisite. A later payment
         // may intentionally use cards or participants produced by earlier nodes.
+        var initialPayments = trigger.Effects.SkipWhile(effect => effect.Op == SkillProgramEffectOp.SelectTarget)
+            .TakeWhile(effect => effect.Op == SkillProgramEffectOp.SelectAndMoveOwnedCard &&
+                                 effect.Condition.Kind == SkillProgramConditionKind.Always &&
+                                 effect.CardOwnerRef?.Kind == ProgramParticipantRef.Owner &&
+                                 effect.Destination == SkillProgramCardDestination.DiscardPile)
+            .ToArray();
+        if (initialPayments.Length > 1)
+        {
+            var available = initialPayments.SelectMany(effect => effect.Zones)
+                .Distinct().SelectMany(zone => _cardZones.CardsAt(new CardLocation(zone, owner.Seat))
+                    .Where(card => zone != CardZoneKind.Equipment ||
+                        !IsActiveProgramSourceEquipmentCard(owner.Seat, candidate.SkillId,
+                            candidate.SkillInstanceId, card)))
+                .Select(card => card.Id).Distinct().Count();
+            if (available < initialPayments.Sum(effect => effect.Amount)) return false;
+        }
         if (trigger.Effects.SkipWhile(effect => effect.Op == SkillProgramEffectOp.SelectTarget).FirstOrDefault() is
             { Op: SkillProgramEffectOp.SelectAndMoveOwnedCard,
               Condition.Kind: SkillProgramConditionKind.Always } payment)
@@ -1585,7 +1601,11 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             };
             if (payer is { } payerSeat && (!IsValidPlayerSeat(payerSeat) ||
                 !payment.Zones.Any(zone => _cardZones.CardsAt(new CardLocation(zone, payerSeat)).Any(card =>
-                    payment.CardCategories.Count == 0 || MatchesProgramCardCategory(card.Kind, payment.CardCategories)))))
+                    (payment.CardCategories.Count == 0 ||
+                     MatchesProgramCardCategory(card.Kind, payment.CardCategories)) &&
+                    (zone != CardZoneKind.Equipment || payerSeat != owner.Seat ||
+                     !IsActiveProgramSourceEquipmentCard(owner.Seat, candidate.SkillId,
+                         candidate.SkillInstanceId, card))))))
                 return false;
         }
         if (trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.SelectTarget &&
@@ -1660,6 +1680,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                         _pendingDamageTrigger is { } sourceDamage &&
                         MatchesAfterDamageProgramSource(sourceDamage.Attack, trigger),
                     SkillProgramTriggerSubject.DamageSource => context.SourceSeat == owner.Seat,
+                    SkillProgramTriggerSubject.Any => true,
                 _ => false
                 } &&
                 CanRunAfterDamageProgramTrigger(owner, trigger, context),
@@ -1684,6 +1705,17 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 deathWindow.DeathFrameId == death.FrameId &&
                 deathWindow.OwnerSeat == owner.Seat &&
                 deathWindow.Candidates[deathWindow.CandidateIndex] == candidate,
+            SkillProgramTriggerWindow.CharacterDied =>
+                owner.IsAlive &&
+                _pendingDeath is { } death &&
+                death.KillerSeat == context.SourceSeat &&
+                death.VictimSeat == context.TargetSeat &&
+                _resolutionStack.OfType<ProgramKillTriggerWindowFrame>().LastOrDefault() is { } killWindow &&
+                killWindow.Id == context.ParentFrameId &&
+                killWindow.DeathFrameId == death.FrameId &&
+                killWindow.CandidateIndex < killWindow.Candidates.Count &&
+                killWindow.Candidates[killWindow.CandidateIndex] == candidate &&
+                killWindow.Contexts[killWindow.CandidateIndex] == context,
             SkillProgramTriggerWindow.JudgmentFinalized =>
                 context.Judgment is { } finalized &&
                 _pendingJudgment is { } pendingJudgment &&
@@ -1718,6 +1750,16 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().LastOrDefault() is { } cardFrame &&
                 cardFrame.Id == context.ParentFrameId && cardFrame.Action.ActionId == cardUse.CardActionId &&
                 cardFrame.Candidates.Any(item => item.OwnerSeat == candidate.OwnerSeat &&
+                    item.SkillId == candidate.SkillId && item.SkillInstanceId == candidate.SkillInstanceId &&
+                    item.TriggerId == candidate.BindingId && item.GameplayHash == candidate.GameplayHash),
+            SkillProgramTriggerWindow.SlashTargetRedirecting or
+                SkillProgramTriggerWindow.SlashBeforeResponse or
+                SkillProgramTriggerWindow.SlashFullyDodged =>
+                context.CardUse is { } slashUse &&
+                _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().LastOrDefault() is { } slashFrame &&
+                slashFrame.Id == context.ParentFrameId && slashFrame.Action.ActionId == slashUse.CardActionId &&
+                _pendingAttack is { } pendingSlash && pendingSlash.TargetSeat == context.TargetSeat &&
+                slashFrame.Candidates.Any(item => item.OwnerSeat == candidate.OwnerSeat &&
                     item.SkillId == candidate.SkillId && item.SkillInstanceId == candidate.SkillInstanceId &&
                     item.TriggerId == candidate.BindingId && item.GameplayHash == candidate.GameplayHash),
                 _ => false
@@ -1860,7 +1902,10 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 _cardZones.Count(CardLocation.Chunlao(owner.Seat))),
             BooleanStates: states,
             PlayPhaseKillCountByTurnOwner: _playPhaseKillCountByCurrentPlayer,
-            PlayPhaseDamageDealtByTurnOwner: _playPhaseDamageDealtByCurrentPlayer);
+            PlayPhaseDamageDealtByTurnOwner: _playPhaseDamageDealtByCurrentPlayer,
+            MarkerCounts: owner.Markers.Count > 0
+                ? new Dictionary<PlayerMarkerKind, int>(owner.Markers)
+                : null);
     }
 
     private SkillProgramTriggerFacts CaptureProgramTriggerFacts(CharacterState owner, CardActionContext action) =>
@@ -2897,6 +2942,15 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             }
             case "select-owned-cards":
             case "finish-owned-cards":
+                if (effect.Op == SkillProgramEffectOp.HoldTargetCards)
+                {
+                    if (selected.Parameters.GetValueOrDefault("frame-id") !=
+                        frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) ||
+                        frame.InstructionIndex == 0)
+                        throw new InvalidOperationException("The card-hold choice has a stale frame identity.");
+                    ResolveProgramHoldCardSelection(frame, selected);
+                    return;
+                }
                 ResolveProgramOwnedCardSelection(frame, effect, selected);
                 return;
             case "distribute-owned-card":
@@ -3013,6 +3067,9 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             var candidate = deathWindow.Candidates[deathWindow.CandidateIndex];
             return (candidate, CreateOwnerDiedProgramContext(deathWindow, candidate));
         }
+        if (_resolutionStack.LastOrDefault() is ProgramKillTriggerWindowFrame killWindow)
+            return (killWindow.Candidates[killWindow.CandidateIndex],
+                killWindow.Contexts[killWindow.CandidateIndex]);
         if (_resolutionStack.LastOrDefault() is BeforeDamageProgramWindowFrame beforeDamage)
         {
             var item = beforeDamage.Candidates[beforeDamage.CandidateIndex];
@@ -3031,6 +3088,13 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
 
     private void CompleteSkippedProgramCandidate(ProgramTriggerCandidate candidate)
     {
+        if (_resolutionStack.LastOrDefault() is ProgramKillTriggerWindowFrame killWindow &&
+            killWindow.Candidates[killWindow.CandidateIndex] == candidate)
+        {
+            AdvanceKillDiedProgramCandidate(killWindow, candidate, activated: false, completed: false);
+            ContinueKillDiedProgramWindow();
+            return;
+        }
         if (_resolutionStack.LastOrDefault() is TurnEndingBoundaryFrame turnEnding &&
             turnEnding.Items[turnEnding.ItemIndex].Candidate == candidate)
         {
@@ -3126,6 +3190,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 SkillProgramEffectOp.ChooseOtherOwnedCardDiscard =>
                     SelectAiProgramOtherOwnedCardDiscard(decision, frame),
                 SkillProgramEffectOp.SelectOwnedCards => SelectAiProgramOwnedCards(decision, frame),
+                SkillProgramEffectOp.HoldTargetCards => SelectAiProgramHoldCards(decision, frame),
                 SkillProgramEffectOp.RevealTargetHandCard => decision.Choices
                     .OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First(),
                 SkillProgramEffectOp.DistributeOwnedCards =>
@@ -3438,6 +3503,22 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             .ThenBy(choice => choice.Cards[0]).First();
     }
 
+    private PromptChoice SelectAiProgramHoldCards(PendingDecision decision, ProgramSkillFrame frame)
+    {
+        var draft = frame.HoldCardSelection ??
+            throw new InvalidOperationException("The card-hold choice lost its draft.");
+        if (draft.SelectedCardIds.Count >= draft.RequiredCount)
+            return decision.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards");
+        // Public equipment is held first; hidden hand slots follow in fixed order.
+        return decision.Choices
+            .Where(choice => choice.Parameters.GetValueOrDefault("program-action") == "select-owned-cards")
+            .OrderByDescending(choice =>
+                choice.Parameters.GetValueOrDefault("source-zone") == nameof(CardZoneKind.Equipment))
+            .ThenBy(choice => choice.Id.Value, StringComparer.Ordinal)
+            .First();
+    }
+
     private void CompleteProgramBinding(ProgramSkillFrame frame, bool completed)
     {
         var context = frame.WindowContext ??
@@ -3592,6 +3673,22 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                     throw new InvalidOperationException("The owner-death program lost its parent cursor.");
                 AdvanceOwnerDiedProgramCursor(deathWindow);
                 ContinueOwnerDiedProgramWindow();
+                break;
+            case SkillProgramTriggerWindow.CharacterDied:
+                if (_resolutionStack.LastOrDefault() is not ProgramKillTriggerWindowFrame killWindow ||
+                    killWindow.Id != context.ParentFrameId ||
+                    killWindow.CandidateIndex >= killWindow.Candidates.Count ||
+                    killWindow.Candidates[killWindow.CandidateIndex] != new ProgramTriggerCandidate(
+                        frame.OwnerSeat,
+                        frame.SkillId,
+                        frame.TriggerId!,
+                        frame.SkillInstanceId,
+                        frame.GameplayHash,
+                        killWindow.Candidates[killWindow.CandidateIndex].Priority,
+                        context.OccurrenceIndex))
+                    throw new InvalidOperationException("The killer-death program lost its parent cursor.");
+                _resolutionStack[^1] = killWindow with { CandidateIndex = killWindow.CandidateIndex + 1 };
+                ContinueKillDiedProgramWindow();
                 break;
             case SkillProgramTriggerWindow.CardUseCommitted:
             case SkillProgramTriggerWindow.CardUseBeforeTargetEffects:

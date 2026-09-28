@@ -41,7 +41,15 @@ internal static class QinglongCrescentBladeScenario
                             "classic:tieqi" or
                             "classic:liegong" or
                             "classic:wusheng" or
-                            "classic:longdan")));
+                            "classic:longdan")) &&
+                    // The private follow-up prompt lists conversion-eligible cards, so a
+                    // general whose program turns other cards into Slash breaks the naive
+                    // physical-hand expectation below. Keep such generals out of this fixture.
+                    registry.Generals[choice.ContentIds[0]].SkillIds
+                        .Select(registry.GetSkill)
+                        .All(skill => skill.Program is not { } program ||
+                            program.CardIdentities.All(identity => identity.OutputKind != CardKind.Slash) &&
+                            program.ViewAs.All(view => view.OutputKind != CardKind.Slash)));
             if (generalChoice is null)
             {
                 continue;

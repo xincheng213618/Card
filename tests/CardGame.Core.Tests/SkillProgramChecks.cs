@@ -14,7 +14,7 @@ internal static class SkillProgramChecks
             "Equivalent rule JSON must have the same gameplay hash regardless of formatting and property order.");
         Require(first.Presentations[program.Id].Description != second.Presentations[program.Id].Description,
             "The fixture must actually vary presentation text.");
-        Require(SkillProgramCatalog.RuntimeVersion == "skill-program-v61" &&
+        Require(SkillProgramCatalog.RuntimeVersion == "skill-program-v62" &&
                 program.GameplayHash.Length == 64 && program.GameplayHash.All(Uri.IsHexDigit) &&
                 program.GameplayHash == program.GameplayHash.ToLowerInvariant(),
             "GameplayHash must be a lowercase SHA-256 value.");
@@ -45,7 +45,7 @@ internal static class SkillProgramChecks
         AssertReject(RulesA.Replace("\"revision\":1", "\"revision\":1,\"revision\":1", StringComparison.Ordinal),
             PresentationA, "duplicate property");
         AssertReject(RulesA.Replace("\"minTargets\":1", "\"minTargets\":0", StringComparison.Ordinal),
-            PresentationA, "exact initial target count");
+            PresentationA, "selectedTarget must be produced");
         AssertReject(RulesA, PresentationA.Replace("scenario:composed", "scenario:missing", StringComparison.Ordinal),
             "unknown skill");
         AssertReject("{", PresentationA, "rules");
@@ -383,7 +383,7 @@ internal static class SkillProgramChecks
     }
 
     private const string DyingRules = """
-        {"schemaVersion":61,"skills":[{"id":"scenario:dying","revision":1,"modifiers":[],"viewAs":[],
+        {"schemaVersion":62,"skills":[{"id":"scenario:dying","revision":1,"modifiers":[],"viewAs":[],
         "activations":[{"id":"invoke","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,
         "targetKind":"anyLiving","usesPerTurn":1,"effects":[{"op":"loseHp","target":"owner","amount":5},
         {"op":"draw","target":"owner","amount":1}]},
@@ -445,7 +445,7 @@ internal static class SkillProgramChecks
 
     private const string RulesA = """
         {
-          "schemaVersion":61,
+          "schemaVersion":62,
           "skills":[{
             "id":"scenario:composed",
             "revision":1,
@@ -494,7 +494,7 @@ internal static class SkillProgramChecks
               "id": "scenario:composed"
             }
           ],
-          "schemaVersion": 61
+          "schemaVersion": 62
         }
         """;
 }

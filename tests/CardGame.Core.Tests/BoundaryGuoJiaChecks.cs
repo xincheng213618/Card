@@ -17,9 +17,10 @@ internal static class BoundaryGuoJiaChecks
                 general.SkillIds.SequenceEqual(["boundary:tiandu", Yiji]) &&
                 registry.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId),
             "2019 Guo Jia must be an independent Wei 3-HP identity general in the formal pool.");
-        Require(registry.Skills["boundary:tiandu"].Id == "classic:tiandu" &&
-                registry.Skills["boundary:tiandu"].Program is null,
-            "New Tiandu ID must reuse the shared legacy skill, without pretending it is a program.");
+        Require(registry.Skills["boundary:tiandu"].Id == "boundary:tiandu" &&
+                registry.Skills["boundary:tiandu"].Program?.Triggers.Single().Effects.Single().Op ==
+                    SkillProgramEffectOp.ClaimJudgmentCard,
+            "Boundary Tiandu must use the shared judgment-card claim operation.");
         var trigger = registry.Skills[Yiji].Program!.Triggers.Single();
         Require(trigger.Window == SkillProgramTriggerWindow.AfterDamageApplied &&
                 trigger.DamageOccurrence == SkillProgramDamageOccurrence.PerDamagePoint &&
@@ -119,27 +120,29 @@ internal static class BoundaryGuoJiaChecks
         var use = game.Submit(new PlayCardCommand(0, lightning.CardId!.Value, lightning.TargetSeats,
             game.Revision, Prompt(game).PromptId, lightning.PlayedCardKind, lightning.TargetCardId));
         Require(use.Accepted, use.Error?.Message ?? "Guo Jia could not play Lightning.");
-        for (var step = 0; step < 700 && game.PendingDecision?.Kind != DecisionKind.ProgramTrigger; step++)
+        for (var step = 0; step < 700 && game.PendingDecision?.Kind != DecisionKind.ProgramJudgmentTrigger; step++)
             Require(AdvanceConservatively(game),
                 $"Could not reach Guo Jia's own effective judgment: step={step}, status={game.State.Status}, " +
                 $"winner={game.State.Winner}, prompt={game.PendingDecision?.Kind}, " +
                 $"judgments={string.Join(',', game.Events.Select(item => item.Payload).OfType<JudgmentResolvedEvent>().Select(item => $"{item.TargetSeat}:{item.Reason}"))}, " +
                 $"hp={game.CreateSnapshot(0, true).Players[0].Hp}.");
         var prompt = Prompt(game);
-        Require(prompt.Kind == DecisionKind.ProgramTrigger && prompt.PlayerSeat == 0 &&
+        Require(prompt.Kind == DecisionKind.ProgramJudgmentTrigger && prompt.PlayerSeat == 0 &&
                 prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
-                    .Order(StringComparer.Ordinal).SequenceEqual(["tiandu-claim", "tiandu-skip"]),
+                    .Order(StringComparer.Ordinal).SequenceEqual([
+                        "program-judgment-trigger-activate", "program-judgment-trigger-skip"]),
             "Boundary Tiandu must use the shared own-judgment claim prompt.");
         var judgment = game.Events.Select(item => item.Payload).OfType<JudgmentResolvedEvent>()
             .Last(item => item.TargetSeat == 0 && item.Reason == JudgmentReasons.Lightning);
         var paused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
-        var claim = prompt.Choices.Single(choice => choice.Parameters.GetValueOrDefault("action") == "tiandu-claim");
+        var claim = prompt.Choices.Single(choice => choice.Parameters.GetValueOrDefault("action") ==
+            "program-judgment-trigger-activate");
         Answer(game, claim);
         Answer(paused, Prompt(paused).Choices.Single(choice => choice.Id == claim.Id));
         Require(game.CreateCardZoneDiagnostics().Any(item => item.CardId == judgment.CardId &&
                     item.Location == CardLocation.Hand(0)) &&
                 game.Events.Select(item => item.Payload).OfType<ProgramJudgmentCardClaimedEvent>()
-                    .Any(item => item.OwnerSeat == 0 && item.SkillId == "classic:tiandu") &&
+                    .Any(item => item.OwnerSeat == 0 && item.SkillId == "boundary:tiandu") &&
                 State(game) == State(paused) && Events(game).SequenceEqual(Events(paused)),
             "Boundary Tiandu must claim the exact own effective card and resume from checkpoint.");
         var offers = 0;

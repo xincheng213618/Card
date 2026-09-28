@@ -29,17 +29,21 @@ internal static class TurnEndingGameOverChecks
             .OfType<ProgramBindingStartedEvent>().Count(item => item.SkillId == Xiaoguo);
         Answer(game, option.Choices.Single(choice =>
             choice.Parameters.GetValueOrDefault("option-id") == "take-damage"));
-        for (var i = 0; i < 40 && game.PendingDecision?.Kind != DecisionKind.ProgramTrigger; i++)
+        for (var i = 0; i < 40 && game.PendingDecision?.SkillPrompt?.SkillId != "classic:tianxiang"; i++)
             Step(game);
         var tianxiang = RequirePrompt(game, DecisionKind.ProgramTrigger);
         Require(tianxiang.PlayerSeat == 0 && tianxiang.Choices.Any(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "tianxiang-use" &&
-            choice.Targets.SequenceEqual([lordSeat])),
+            choice.Parameters.GetValueOrDefault("program-action") == "activate"),
             "Xiao Qiao must be able to redirect Xiaoguo's one damage to the one-HP lord.");
-        var selected = tianxiang.Choices.First(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "tianxiang-use" &&
-            choice.Targets.SequenceEqual([lordSeat]));
-        Answer(game, selected);
+        Answer(game, tianxiang.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "activate"));
+        var targetPrompt = RequirePrompt(game, DecisionKind.ProgramTrigger);
+        Answer(game, targetPrompt.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "select-target" &&
+            choice.Targets.SequenceEqual([lordSeat])));
+        var cardPrompt = RequirePrompt(game, DecisionKind.ProgramTrigger);
+        Answer(game, cardPrompt.Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "select-owned-cards"));
         for (var i = 0; i < 80 && !HasWinner(game); i++)
             Step(game);
         Require(HasWinner(game) && !game.State.Players[lordSeat].IsAlive &&

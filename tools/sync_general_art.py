@@ -53,7 +53,7 @@ CLASSIC_HEROES = {
     "ma-dai": 301,
     "wolong-zhuge-liang": 38, "pang-de": 40,
     "yan-liang-wen-chou": 41,
-    "zhu-zhi": 339,
+    "zhu-zhi": 339, "cao-pi": 44,
 }
 
 # These variants have independent GeneralArt IDs and independent official pages.
@@ -67,7 +67,8 @@ OTHER_HEROES = {
     "cheng-pu": 303, "han-dang": 304, "cao-chong": 310,
     "guo-huai": 311, "man-chong": 312, "guan-ping": 313,
     "gu-yong": 329, "li-dian": 411,
-    "zhu-huan": 328,
+    "zhu-huan": 328, "cao-ang": 404, "qu-yi": 1053,
+    "shen-sima-yi": 208,
 }
 
 OL_HEROES = {
@@ -81,7 +82,7 @@ OL_HEROES = {
     "boundary-xu-chu": (315, "许褚"),
 }
 
-NEW_OL_DEFAULTS = {"boundary-gan-ning", "boundary-xu-chu"}
+NEW_OFFICIAL_DEFAULTS = {"boundary-gan-ning", "boundary-xu-chu", "qu-yi"}
 
 EXISTING_SOURCES = {
     "gu-yong": ("https://www.sanguosha.com/hero/329", "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/32900.png"),
@@ -358,7 +359,7 @@ def main() -> None:
         selected = [canonical] if args.phase == "classic" else page_items
         for skin in selected:
             existing_default = ASSETS / f"official-{key}.png"
-            if args.phase == "classic" or (skin["id"] == entry["defaultSkinId"] and (key in CLASSIC_HEROES or key == "boundary-zhang-jiao" or key in NEW_OL_DEFAULTS)):
+            if args.phase == "classic" or (skin["id"] == entry["defaultSkinId"] and (key in CLASSIC_HEROES or key == "boundary-zhang-jiao" or key in NEW_OFFICIAL_DEFAULTS)):
                 path = existing_default
             else:
                 path = ASSETS / "Skins" / key / f"{skin['id']}.png"

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "special:xingtian-axe-effect",
+      "revision": 1,
+      "minimumRulesVersion": 180,
+      "triggers": [
+        {
+          "id": "single-target-card",
+          "window": "cardUseBeforeTargetEffects",
+          "ownerRelation": "actor",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "cardActionPhaseIsPlay" },
+              {
+                "kind": "compare",
+                "left": { "kind": "cardUseDesignatedTargetCount" },
+                "operator": "equal",
+                "right": { "kind": "integerConstant", "value": 1 }
+              }
+            ]
+          },
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "eventTarget" },
+            {
+              "op": "selectAndMoveOwnedCard", "target": "owner",
+              "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand", "equipment"], "count": 1,
+              "destination": "discardPile"
+            },
+            {
+              "op": "selectAndMoveOwnedCard", "target": "owner",
+              "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand", "equipment"], "count": 1,
+              "destination": "discardPile"
+            },
+            { "op": "grantTurnHandCardProhibition", "target": "selectedTarget" },
+            {
+              "op": "grantDirectedTurnCardPolicy", "target": "owner",
+              "actorRef": { "kind": "owner" },
+              "targetRef": { "kind": "selectedTarget" },
+              "effects": ["ignoreArmor"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -71,10 +71,16 @@ internal static class PacedCommandChecks
                 command = new DiscardCardsCommand(0, prompt.ValidCardIds.Take(prompt.RequiredCardCount).ToArray(), prompt.PromptId, game.Revision);
             else if (prompt.Kind == DecisionKind.PlayCard)
             {
-                var action = game.GetHumanLegalActions().FirstOrDefault(action => action.CardId is not null);
+                var action = game.GetHumanLegalActions().FirstOrDefault(action =>
+                    action.CardId is not null && action.Kind != LegalActionKind.UseProgramSkill);
                 command = action is null ? new EndPlayPhaseCommand(0, game.Revision, prompt.PromptId)
                     : action.Kind == LegalActionKind.Recast ? new RecastCardCommand(0, action.CardId!.Value, game.Revision, prompt.PromptId)
-                    : new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats.ToArray(), game.Revision, prompt.PromptId, action.PlayedCardKind, action.TargetCardId);
+                    : new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats.ToArray(), game.Revision,
+                        prompt.PromptId, action.PlayedCardKind, action.TargetCardId)
+                    {
+                        ConversionSource = action.ConversionSource,
+                        AdditionalConversionSources = action.AdditionalConversionSources
+                    };
             }
             else command = new AnswerPromptCommand(0, prompt.PromptId, prompt.Choices[0].Id, game.Revision);
 

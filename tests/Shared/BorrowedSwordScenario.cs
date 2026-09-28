@@ -67,10 +67,11 @@ internal static class BorrowedSwordScenario
             "No bounded classic Borrowed Sword source fixture with an equipped target was found.");
     }
 
-    public static GameEngine FindHumanOwnerResponse(bool requireFactionSlash = false)
+    public static GameEngine FindHumanOwnerResponse(bool requireFactionSlash = false,
+        string ownerGeneralId = "classic:liu-bei")
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        for (var seed = 1; seed <= 16_384; seed++)
+        for (var seed = 1; seed <= 65_536; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {
@@ -88,19 +89,19 @@ internal static class BorrowedSwordScenario
             var started = game.Submit(new StartGameCommand());
             Require(started.Accepted, "Borrowed Sword fixture failed to start.");
             if (game.PendingDecision?.Choices.Any(choice =>
-                    choice.ContentIds.SequenceEqual(["classic:liu-bei"])) != true)
+                    choice.ContentIds.SequenceEqual([ownerGeneralId])) != true)
             {
                 continue;
             }
 
             var selected = game.Submit(new SelectGeneralCommand(
                 0,
-                "classic:liu-bei",
+                ownerGeneralId,
                 game.Revision,
                 game.PendingDecision.PromptId));
-            Require(selected.Accepted, "Borrowed Sword fixture could not select Liu Bei.");
+            Require(selected.Accepted, "Borrowed Sword fixture could not select its owner general.");
             var advanced = game.Submit(new AdvanceCommand(game.Revision));
-            Require(advanced.Accepted, "Borrowed Sword fixture did not reach Liu Bei's play phase.");
+            Require(advanced.Accepted, "Borrowed Sword fixture did not reach its owner's play phase.");
             if (game.PendingDecision is not { Kind: DecisionKind.PlayCard } play)
             {
                 continue;
@@ -120,7 +121,7 @@ internal static class BorrowedSwordScenario
                 [],
                 game.Revision,
                 play.PromptId));
-            Require(equipped.Accepted, "Borrowed Sword fixture could not equip Liu Bei's weapon.");
+            Require(equipped.Accepted, "Borrowed Sword fixture could not equip the owner's weapon.");
             if (game.PendingDecision?.Kind != DecisionKind.PlayCard)
             {
                 var resumed = game.Submit(new AdvanceCommand(game.Revision));
@@ -130,7 +131,7 @@ internal static class BorrowedSwordScenario
             var nextPlay = game.PendingDecision ??
                 throw new InvalidOperationException("Borrowed Sword fixture lost its play prompt.");
             var ended = game.Submit(new EndPlayPhaseCommand(0, game.Revision, nextPlay.PromptId));
-            Require(ended.Accepted, "Borrowed Sword fixture could not end Liu Bei's play phase.");
+            Require(ended.Accepted, "Borrowed Sword fixture could not end the owner's play phase.");
 
             for (var step = 0; step < 4_000 && game.State.Status != EngineStatus.Completed; step++)
             {
@@ -152,7 +153,20 @@ internal static class BorrowedSwordScenario
                         throw new InvalidOperationException("Borrowed Sword prompt omitted its Slash target.");
                     var slashTarget = game.CreateSnapshot(0, revealAll: true).Players
                         .Single(player => player.Seat == slashTargetSeat);
-                    var canPauseForDodge = slashTarget.Hand.Any(card =>
+                    var forcedSlashKind = game.CreateSnapshot(0, revealAll: true).Players[0].Hand
+                        .Concat(game.CreateSnapshot(0, revealAll: true).Players[0].Equipment)
+                        .Where(card => response.Choices.Any(choice =>
+                            choice.Parameters.GetValueOrDefault("response") == "borrowed-sword-slash" &&
+                            choice.Cards.Contains(card.Id)))
+                        .Select(card => (CardKind?)card.Kind)
+                        .FirstOrDefault() ?? CardKind.Slash;
+                    // Only the owner's own ordinary Slash is nullified by Tengjia; a
+                    // FactionSlash provider may supply a fire or thunder Slash.
+                    var tengjiaBlocks = !requireFactionSlash &&
+                                        slashTarget.Equipment.Any(card => card.Kind == CardKind.Tengjia) &&
+                                        forcedSlashKind == CardKind.Slash;
+                    var canPauseForDodge = !tengjiaBlocks &&
+                                           (slashTarget.Hand.Any(card =>
                                                 card.Kind == CardKind.Dodge ||
                                                 slashTarget.Skills?.Any(skill =>
                                                     skill.ContentId == "classic:longdan" &&
@@ -161,7 +175,7 @@ internal static class BorrowedSwordScenario
                                                     skill.ContentId == "classic:qingguo" &&
                                                     card.Suit is Suit.Spade or Suit.Club) == true) ||
                                             slashTarget.Equipment.Any(card =>
-                                                card.Kind == CardKind.BaguaFormation);
+                                                card.Kind == CardKind.BaguaFormation));
                     if (canPauseForDodge)
                     {
                         return game;

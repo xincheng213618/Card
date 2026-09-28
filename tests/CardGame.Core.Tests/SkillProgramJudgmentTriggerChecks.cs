@@ -8,7 +8,7 @@ internal static class SkillProgramJudgmentTriggerChecks
         var catalog = SkillProgramCatalog.Load(ValidV3, Presentation);
         var program = catalog.Programs["judgment-test:reward"];
         var trigger = program.Triggers.Single();
-        Require(program.RuntimeVersion == "skill-program-v61" && program.MinimumRulesVersion == 171 &&
+        Require(program.RuntimeVersion == "skill-program-v62" && program.MinimumRulesVersion == 171 &&
                 trigger.Window == SkillProgramTriggerWindow.JudgmentFinalized &&
                 trigger.SourceSkillId is null && trigger.SourceViewAsId is null &&
                 trigger.Subject == SkillProgramTriggerSubject.Owner && trigger.Optional &&
@@ -23,7 +23,7 @@ internal static class SkillProgramJudgmentTriggerChecks
         RequireThrows<NotSupportedException>(() =>
             ((ICollection<string>)trigger.ExcludedReasons).Clear());
 
-        AssertReject(ValidV3.Replace("\"schemaVersion\":61", "\"schemaVersion\":57", StringComparison.Ordinal),
+        AssertReject(ValidV3.Replace("\"schemaVersion\":62", "\"schemaVersion\":57", StringComparison.Ordinal),
             "schema version");
         AssertReject(ValidV3.Replace("\"suits\":[\"club\"]", "\"suits\":[]", StringComparison.Ordinal),
             "at least one final suit");
@@ -64,7 +64,12 @@ internal static class SkillProgramJudgmentTriggerChecks
                 replacement.NewSuit == judgment.Suit && before.Hp == before.MaxHp - 1 &&
                 game.CreateCardZoneDiagnostics().Single(card => card.CardId == judgment.CardId).Location ==
                     CardLocation.Judgment(0),
-            "The final replacement result must be frozen before judgment-card cleanup.");
+            $"The final replacement result must be frozen before judgment-card cleanup: " +
+            $"prompt={prompt.Kind}/{prompt.PlayerSeat}/{prompt.IsPrivate}/{prompt.Choices.Count}/" +
+            $"{string.Join(',', prompt.Choices.Select(choice => choice.Cards.Count))}, " +
+            $"frame={frame.Judgment.SubjectSeat}/{frame.Judgment.Reason}/{frame.Judgment.Suit}/{frame.Judgment.Rank}, " +
+            $"judgment={judgment.Suit}/{judgment.CardId}, replacement={replacement.NewSuit}/{replacement.NewCardId}, " +
+            $"hp={before.Hp}/{before.MaxHp}, zone={game.CreateCardZoneDiagnostics().Single(card => card.CardId == judgment.CardId).Location}.");
         Require(game.CreateSnapshot(1, revealAll: false).PendingDecision is null,
             "Other seats must not receive the owner's optional judgment trigger prompt.");
         var paused = game.CreateCheckpoint();
@@ -181,7 +186,7 @@ internal static class SkillProgramJudgmentTriggerChecks
                 if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 } ganglie)
                 {
                     var invoke = ganglie.Choices.Single(choice =>
-                        choice.Parameters.GetValueOrDefault("response") == "ganglie");
+                        choice.Parameters.GetValueOrDefault("program-action") == "activate");
                     var accepted = game.Submit(new AnswerPromptCommand(
                         0, ganglie.PromptId, invoke.Id, game.Revision));
                     Require(accepted.Accepted, accepted.Error?.Message ?? "Ganglie judgment was rejected.");
@@ -299,7 +304,7 @@ internal static class SkillProgramJudgmentTriggerChecks
     }
 
     private const string ValidV3 = """
-        {"schemaVersion":61,"skills":[
+        {"schemaVersion":62,"skills":[
           {"id":"judgment-test:reward","revision":1,"triggers":[{
             "id":"after-club-judgment","window":"judgmentFinalized","subject":"owner",
             "suits":["club"],"minimumRank":1,"maximumRank":13,"excludedReasons":["skill.leiji"],

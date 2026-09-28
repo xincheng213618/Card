@@ -44,8 +44,8 @@ internal static class MengjinChecks
         var targetAfterSkip = skipped.CreateSnapshot(boundary.SourceSeat, revealAll: true)
             .Players[boundary.TargetSeat];
         Require(skippedResult.Accepted &&
-                skipped.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
-                    .Any(item => item.SkillId == "classic:mengjin" && !item.Activated && item.Completed) &&
+                skipped.Events.Select(item => item.Payload).OfType<ProgramCardTriggerResolvedEvent>()
+                    .Any(item => item.SkillId == "classic:mengjin" && !item.Activated) &&
                 targetAfterSkip.Hp == targetBeforeSkip.Hp &&
                 targetAfterSkip.Hand.Count == targetBeforeSkip.Hand.Count &&
                 targetAfterSkip.Equipment.Count == targetBeforeSkip.Equipment.Count,

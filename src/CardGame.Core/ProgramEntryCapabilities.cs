@@ -40,6 +40,7 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.AfterHpLost or
         SkillProgramTriggerWindow.AfterHpRecovered or
         SkillProgramTriggerWindow.OwnerDied or
+        SkillProgramTriggerWindow.CharacterDied or
         SkillProgramTriggerWindow.CardUseCommitted or
         SkillProgramTriggerWindow.CardUseBeforeTargetEffects or
         SkillProgramTriggerWindow.CardUseTargetsFinalized or
@@ -67,6 +68,7 @@ internal static class ProgramEntryCapabilities
             ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.OwnerDied =>
             Common | ProgramContextCapability.Judgment | ProgramContextCapability.Death,
+        SkillProgramTriggerWindow.CharacterDied => Common | ProgramContextCapability.Death,
         SkillProgramTriggerWindow.JudgmentReplacing =>
             Common | ProgramContextCapability.Judgment | ProgramContextCapability.JudgmentReplacement,
         SkillProgramTriggerWindow.JudgmentFinalized =>

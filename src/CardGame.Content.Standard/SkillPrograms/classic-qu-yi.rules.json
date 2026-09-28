@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:fuqi",
+      "revision": 1,
+      "minimumRulesVersion": 178,
+      "cardPolicies": [
+        {
+          "id": "nearby-target-cannot-respond",
+          "kind": "prohibitNearbyTargetResponse",
+          "cardKinds": [],
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "classic:jiaozi",
+      "revision": 1,
+      "minimumRulesVersion": 178,
+      "damageModifiers": [
+        {
+          "id": "unique-most-hand",
+          "cardKinds": [],
+          "amount": 1,
+          "condition": "ownerUniqueMaximumHand",
+          "sourceScope": "damageParticipant"
+        }
+      ]
+    }
+  ]
+}

@@ -227,7 +227,7 @@ internal static class SkillProgramExecutorChecks
     private static SkillProgram ProgramWithActivations(string activations)
     {
         var rules = $$"""
-            {"schemaVersion":61,"skills":[{"id":"fixture:executor","revision":1,"minimumRulesVersion":170,
+            {"schemaVersion":62,"skills":[{"id":"fixture:executor","revision":1,"minimumRulesVersion": 171,
             "modifiers":[],"viewAs":[],"activations":[{{activations}}]}]}
             """;
         const string presentation =
@@ -243,7 +243,7 @@ internal static class SkillProgramExecutorChecks
         int maxTargets = 0)
     {
         var rules = $$"""
-            {"schemaVersion":61,"skills":[{"id":"fixture:executor","revision":1,"minimumRulesVersion":170,"modifiers":[],"viewAs":[],
+            {"schemaVersion":62,"skills":[{"id":"fixture:executor","revision":1,"minimumRulesVersion": 171,"modifiers":[],"viewAs":[],
             "activations":[{"id":"run","minCards":{{minCards}},"maxCards":{{maxCards}},
             "minTargets":{{minTargets}},"maxTargets":{{maxTargets}},"targetKind":"anyLiving","usesPerTurn":1,
             "effects":[{{effects}}]}]}]}
@@ -446,6 +446,18 @@ internal static class SkillProgramExecutorChecks
             return SkillProgramStepOutcome.AwaitChild;
         }
 
+        public SkillProgramStepOutcome UseBoundCardByTarget(ProgramSkillFrame frame, int targetSeat,
+            string sourceBind)
+        {
+            Calls.Add($"bound-card-use:{frame.OwnerSeat}:{targetSeat}:{sourceBind}");
+            return SkillProgramStepOutcome.AwaitChild;
+        }
+
+        public void PendExtraTurn(ProgramSkillFrame frame)
+        {
+            Calls.Add($"extra-turn:{frame.OwnerSeat}");
+        }
+
         public SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat)
         {
             Calls.Add($"pindian:{frame.OwnerSeat}:{targetSeat}");
@@ -611,6 +623,9 @@ internal static class SkillProgramExecutorChecks
         public void ClaimDamageCards(long frameId, int ownerSeat, CardMoveReason reason) =>
             Calls.Add($"claim-damage:{ownerSeat}:{reason.Value}");
 
+        public void ClaimDeathCleanupCards(ProgramSkillFrame frame) =>
+            Calls.Add($"claim-death-cleanup:{frame.OwnerSeat}");
+
         public void TakeRandomHandCardFromSelectedTargets(
             long frameId,
             int ownerSeat,
@@ -688,6 +703,10 @@ internal static class SkillProgramExecutorChecks
         int amount, SkillProgramNumberExpression? expression, IReadOnlyList<CardZoneKind> zones, string resultBind,
         int minimumCards, int maximumCards, IReadOnlyList<CardKind> cardKinds, IReadOnlyList<Suit> suits) =>
             throw new NotSupportedException("The executor fixture does not exercise SelectOwnedCards.");
+
+        public SkillProgramStepOutcome HoldTargetCards(ProgramSkillFrame frame, int chooserSeat, int holderSeat,
+            IReadOnlyList<CardZoneKind> zones, string resultBind, int minimumCards) =>
+            throw new NotSupportedException("The executor fixture does not exercise HoldTargetCards.");
 
         public SkillProgramStepOutcome RevealTargetHandCard(ProgramSkillFrame frame,
             ProgramParticipantReference chooser, ProgramParticipantReference cardOwner, string resultBind,
@@ -777,6 +796,15 @@ internal static class SkillProgramExecutorChecks
         string sourceBind,
         int targetSeat) =>
             throw new NotSupportedException("The executor fixture does not exercise GrantTurnHandColorRestriction.");
+
+        public void GrantTurnHandCardProhibition(ProgramSkillFrame frame, int targetSeat) =>
+            throw new NotSupportedException("The executor fixture does not exercise GrantTurnHandCardProhibition.");
+
+        public void AbolishOwnerAreas(ProgramSkillFrame frame, IReadOnlyList<CardZoneKind> zones) =>
+            throw new NotSupportedException("The executor fixture does not exercise AbolishOwnerAreas.");
+
+        public void LoseDeathSourceSkills(ProgramSkillFrame frame) =>
+            throw new NotSupportedException("The executor fixture does not exercise LoseDeathSourceSkills.");
 
         public void PreventCurrentDamage(ProgramSkillFrame frame) =>
             throw new NotSupportedException("The executor fixture does not exercise PreventCurrentDamage.");

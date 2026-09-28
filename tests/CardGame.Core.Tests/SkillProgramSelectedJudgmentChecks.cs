@@ -46,22 +46,22 @@ internal static class SkillProgramSelectedJudgmentChecks
                 },
             "The unified program must freeze selected judgment subjects, initiator filters and direct subject damage.");
         var raisedMinimum = SkillProgramCatalog.Load(
-            Rules.Replace("\"minimumRulesVersion\":170", "\"minimumRulesVersion\":171",
+            Rules.Replace("\"minimumRulesVersion\": 171", "\"minimumRulesVersion\": 172",
                 StringComparison.Ordinal),
             Presentation);
-        Require(raisedMinimum.Programs.Values.All(item => item.MinimumRulesVersion == 171) &&
+        Require(raisedMinimum.Programs.Values.All(item => item.MinimumRulesVersion == 172) &&
                 raisedMinimum.Programs[ProgramId].GameplayHash != program.GameplayHash,
             "Program content must hash its concrete rules floor.");
 
-        AssertReject(Rules.Replace("\"schemaVersion\":61", "\"schemaVersion\":57", StringComparison.Ordinal),
-            "expected 60");
-        AssertReject(Rules.Replace("\"minimumRulesVersion\":170", "\"minimumRulesVersion\":167",
+        AssertReject(Rules.Replace("\"schemaVersion\":62", "\"schemaVersion\":57", StringComparison.Ordinal),
+            "expected 62");
+        AssertReject(Rules.Replace("\"minimumRulesVersion\": 171", "\"minimumRulesVersion\": 170",
                 StringComparison.Ordinal),
-            "schema minimum 170");
+            "schema minimum 171");
         var forwardCapability = SkillProgramCatalog.Load(
             Rules.Replace(
-                "\"minimumRulesVersion\":170",
-                $"\"minimumRulesVersion\":{GameCheckpoint.CurrentRulesVersion + 1}",
+                "\"minimumRulesVersion\": 171",
+                $"\"minimumRulesVersion\": {GameCheckpoint.CurrentRulesVersion + 1}",
                 StringComparison.Ordinal),
             Presentation);
         Require(forwardCapability.Programs.Values.All(item =>
@@ -418,8 +418,8 @@ internal static class SkillProgramSelectedJudgmentChecks
     }
 
     private const string Rules = """
-        {"schemaVersion":61,"skills":[
-          {"id":"selected-judgment-test:leiji","revision":1,"minimumRulesVersion":170,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
+        {"schemaVersion":62,"skills":[
+          {"id":"selected-judgment-test:leiji","revision":1,"minimumRulesVersion": 171,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
             {"id":"after-dodge","window":"cardResponseAccepted","ownerRelation":"actor","cardKinds":["dodge"],
              "optional":true,"effects":[
               {"op":"selectTarget","target":"owner","targetKind":"otherLiving"},
@@ -437,7 +437,7 @@ internal static class SkillProgramSelectedJudgmentChecks
               {"op":"damage","target":"owner","targetRef":{"kind":"eventTarget"},"amount":1,"nature":"thunder"}
              ]}
           ]},
-          {"id":"selected-judgment-test:observer","revision":1,"minimumRulesVersion":170,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
+          {"id":"selected-judgment-test:observer","revision":1,"minimumRulesVersion": 171,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
             {"id":"observer-spade","window":"judgmentFinalized","subject":"any","judgmentSource":"owner",
              "judgmentReasons":["skill.selected-judgment-test.leiji"],"suits":["spade"],
              "minimumRank":1,"maximumRank":13,"excludedReasons":[],"optional":false,"effects":[
@@ -459,15 +459,15 @@ internal static class SkillProgramSelectedJudgmentChecks
         """;
 
     private const string OrderingRules = """
-        {"schemaVersion":61,"skills":[
-          {"id":"selected-judgment-test:leiji","revision":1,"minimumRulesVersion":170,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
+        {"schemaVersion":62,"skills":[
+          {"id":"selected-judgment-test:leiji","revision":1,"minimumRulesVersion": 171,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
             {"id":"after-dodge","window":"cardResponseAccepted","ownerRelation":"actor","cardKinds":["dodge"],
              "optional":true,"effects":[
               {"op":"selectTarget","target":"owner","targetKind":"otherLiving"},
               {"op":"startJudgment","target":"selectedTarget","judgmentReason":"skill.judgment-ordering-test","resultBind":"judgment-card","visibility":"public"},{"op":"moveBoundCards","target":"owner","sourceBind":"judgment-card","destination":"discardPile"}
              ]}
           ]},
-          {"id":"judgment-ordering-test:replace","revision":1,"minimumRulesVersion":170,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
+          {"id":"judgment-ordering-test:replace","revision":1,"minimumRulesVersion": 171,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"triggers":[
             {"id":"replace","window":"judgmentReplacing","subject":"any","excludedReasons":[],
              "optional":true,"effects":[
               {"op":"replaceJudgment","target":"owner","zones":["hand"],"suits":["spade","club"],

@@ -54,7 +54,14 @@ internal static class PangTongChecks
             Require(used.Accepted && use.Events.Any(item => item.Payload is CardUseDeclaredEvent evt &&
                     evt.CardId == physicalId && evt.CardKind == CardKind.IronChain),
                 used.Error?.Message ?? "Lianhuan use was rejected.");
-            Require(use.ResolutionStack.OfType<CardUseFrame>().Any(frame =>
+            var lianhuanFrames = use.ResolutionStack.OfType<CardUseFrame>().ToArray();
+            if (lianhuanFrames.Length == 0)
+            {
+                // Nobody paused the resolved Iron Chain (no nullification holder), so
+                // there is no pending card action to inspect; try the next fixture seed.
+                continue;
+            }
+            Require(lianhuanFrames.Any(frame =>
                     frame.Action?.ConversionChain.SequenceEqual([ironChain.ConversionSource!]) == true),
                 "Lianhuan use must retain the selected skill instance in its pending card action.");
             var restoredUse = GameReplay.Restore(use.CreateCheckpoint(), registry);

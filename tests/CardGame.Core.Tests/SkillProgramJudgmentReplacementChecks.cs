@@ -11,7 +11,7 @@ internal static class SkillProgramJudgmentReplacementChecks
         var discard = program.Triggers.Single(trigger => trigger.Id == DiscardTriggerId);
         var replacement = exchange.Effects[0];
         var followUp = exchange.Effects[1];
-        Require(program.RuntimeVersion == "skill-program-v61" && program.MinimumRulesVersion == 171 &&
+        Require(program.RuntimeVersion == "skill-program-v62" && program.MinimumRulesVersion == 171 &&
                 exchange.Window == SkillProgramTriggerWindow.JudgmentReplacing &&
                 exchange.Subject == SkillProgramTriggerSubject.Any && exchange.Optional &&
                 exchange.ExcludedReasons.SequenceEqual([JudgmentReasons.Leiji]) &&
@@ -46,7 +46,7 @@ internal static class SkillProgramJudgmentReplacementChecks
             currentActorSeat: 0,
             playerCount: 1));
 
-        AssertReject(ValidV4.Replace("\"schemaVersion\":61", "\"schemaVersion\":57", StringComparison.Ordinal),
+        AssertReject(ValidV4.Replace("\"schemaVersion\":62", "\"schemaVersion\":57", StringComparison.Ordinal),
             "schema version");
         AssertReject(ValidV4.Replace("\"zones\":[\"hand\",\"equipment\"]", "\"zones\":[]", StringComparison.Ordinal),
             "replacement requires hand or equipment");
@@ -80,7 +80,7 @@ internal static class SkillProgramJudgmentReplacementChecks
         })
         {
             var activeRules = $$"""
-                {"schemaVersion":61,"skills":[{"id":"judgment-replace-test:both","revision":1,
+                {"schemaVersion":62,"skills":[{"id":"judgment-replace-test:both","revision":1,
                   "activations":[{"id":"activate","minCards":0,"maxCards":0,"minTargets":0,
                   "maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,"effects":[{{effect}}]}]}]}
                 """;
@@ -90,7 +90,9 @@ internal static class SkillProgramJudgmentReplacementChecks
 
     internal static void WindowDestinationsAndReplay()
     {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new FixturePackage());
+        var registry = ContentRegistry.Build(new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(), new StandardRescueSkillExpansionPackage(),
+            new StandardClassicGeneralPackage(), new FixturePackage());
         var (boundary, equipmentId) = FindBoundary(registry);
         var boundaryPrompt = boundary.PendingDecision ??
             throw new InvalidOperationException("Judgment replacement prompt was lost.");
@@ -158,6 +160,13 @@ internal static class SkillProgramJudgmentReplacementChecks
                     move.To == CardLocation.Processing && move.Reason == CardMoveReasons.ProgramJudgmentReplace),
             "OwnerHand replacement must atomically exchange the cards, freeze Spade 5 and draw once.");
         AnswerSkip(exchange);
+        for (var step = 0; step < 32 &&
+             exchange.CreateCardZoneDiagnostics().Single(card => card.CardId == equipmentId).Location ==
+                 CardLocation.Processing; step++)
+        {
+            var advanced = exchange.Submit(new AdvanceOneStepCommand(exchange.Revision));
+            Require(advanced.Accepted, advanced.Error?.Message ?? "Judgment cleanup could not advance.");
+        }
         var exchangeAfter = exchange.CreateSnapshot(0, revealAll: true).Players[0];
         Require(exchangeAfter.HandCount == before.HandCount + 2 &&
                 exchangeAfter.Hand.Any(card => card.Id == oldCardId) &&
@@ -165,7 +174,7 @@ internal static class SkillProgramJudgmentReplacementChecks
                     CardLocation.DiscardPile &&
                 exchange.Events.Select(item => item.Payload).OfType<JudgmentResolvedEvent>()
                     .Any(item => item.ResolutionId == boundaryFrame.Id && item.CardId == equipmentId),
-            "After later candidates skip, the exchanged old card and extra draw must remain while judgment cleans up.");
+            $"After later candidates skip, the exchanged old card and extra draw must remain while judgment cleans up: hand={exchangeAfter.HandCount}/{before.HandCount}, old={exchangeAfter.Hand.Any(card => card.Id == oldCardId)}, replacement={exchange.CreateCardZoneDiagnostics().Single(card => card.CardId == equipmentId).Location}, resolved={exchange.Events.Select(item => item.Payload).OfType<JudgmentResolvedEvent>().Any(item => item.ResolutionId == boundaryFrame.Id && item.CardId == equipmentId)}, pending={exchange.PendingDecision?.Kind}/{exchange.PendingDecision?.SkillPrompt?.SkillId}.");
         AssertCompletedReplay(exchange, registry, expectedActivatedTrigger: ExchangeTriggerId);
 
         var discard = GameReplay.Restore(checkpoint, registry);
@@ -374,7 +383,7 @@ internal static class SkillProgramJudgmentReplacementChecks
                         DecisionKind.PlayCard =>
                             new EndPlayPhaseCommand(0, game.Revision, pending.PromptId),
                         DecisionKind.ProgramTrigger =>
-                            Answer(pending, game, "response", "ganglie"),
+                            Answer(pending, game, "program-action", "activate"),
                         DecisionKind.RespondDodge =>
                             Answer(pending, game, "response", "take-damage"),
                         DecisionKind.RescueDying =>
@@ -508,7 +517,7 @@ internal static class SkillProgramJudgmentReplacementChecks
             { Program = program });
             builder.AddGeneral(new ContentGeneralDefinition(
                 OwnerGeneralId, "改判程序测试", "zhang_jiao", ProgramId, "qun", BaseHp: 4,
-                AdditionalSkillIds: ["standard:ganglie"]));
+                AdditionalSkillIds: ["classic:ganglie"]));
             foreach (var id in OtherGeneralIds)
                 builder.AddGeneral(new ContentGeneralDefinition(
                     id, "改判陪测", "cao_cao", "standard:none", "wei", BaseHp: 4));
@@ -617,7 +626,7 @@ internal static class SkillProgramJudgmentReplacementChecks
     private const string DiscardTriggerId = "b-discard";
 
     private const string ValidV4 = """
-        {"schemaVersion":61,"skills":[
+        {"schemaVersion":62,"skills":[
           {"id":"judgment-replace-test:both","revision":1,"triggers":[
             {"id":"a-exchange","window":"judgmentReplacing","subject":"any",
              "excludedReasons":["skill.leiji"],"optional":true,"effects":[
@@ -636,7 +645,7 @@ internal static class SkillProgramJudgmentReplacementChecks
         """;
 
     private const string InvalidOrderV4 = """
-        {"schemaVersion":61,"skills":[{"id":"invalid:order","revision":1,"triggers":[{
+        {"schemaVersion":62,"skills":[{"id":"invalid:order","revision":1,"triggers":[{
           "id":"replace","window":"judgmentReplacing","subject":"owner","excludedReasons":[],
           "optional":true,"effects":[
             {"op":"draw","target":"owner","amount":1,"replacementSuits":["spade"],
@@ -647,7 +656,7 @@ internal static class SkillProgramJudgmentReplacementChecks
         """;
 
     private const string InvalidFollowUpV4 = """
-        {"schemaVersion":61,"skills":[{"id":"invalid:follow-up","revision":1,"triggers":[{
+        {"schemaVersion":62,"skills":[{"id":"invalid:follow-up","revision":1,"triggers":[{
           "id":"replace","window":"judgmentReplacing","subject":"owner","excludedReasons":[],
           "optional":true,"effects":[
             {"op":"replaceJudgment","target":"owner","zones":["hand"],"suits":["spade"],
@@ -665,7 +674,7 @@ internal static class SkillProgramJudgmentReplacementChecks
         """;
 
     private const string BaguaRules = """
-        {"schemaVersion":61,"skills":[
+        {"schemaVersion":62,"skills":[
           {"id":"program-guidao-bagua:guidao","revision":1,"triggers":[
             {"id":"replace","window":"judgmentReplacing","subject":"any","excludedReasons":[],
              "optional":true,"effects":[

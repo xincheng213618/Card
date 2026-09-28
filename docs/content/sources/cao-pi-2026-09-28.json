@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-28",
+  "contentIds": [
+    "classic:cao-pi"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:cao-pi",
+      "url": "https://www.sanguosha.cn/pc/hero-detail-43.html",
+      "edition": "神话再临-林包（2010，魏，霸业的继承者 WEI 014）曹丕",
+      "use": "魏3体力。行殇：当其他角色死亡时，你可以获得其所有的牌。放逐：当你受到伤害后，你可以令一名其他角色翻面，然后该角色摸X张牌（X为你已损失的体力值）。颂威：主公技，当其他魏势力角色的黑色判定牌生效后，其可以令你摸一张牌。"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero/44.html",
+      "edition": "三国杀官方网站武将库 gid 44（曹丕）",
+      "use": "确认官方武将索引中经典曹丕的独立条目；经典形象皮肤 104401 自该条目下载。"
+    }
+  ],
+  "versionBoundary": "现行官方文本中放逐的X为曹丕自己已损失的体力值（2010年林包初印为“补X张牌然后其翻面”，现行文本顺序为先翻面再摸牌，以官方现行页面为准）。行殇按死亡结算清理完成后从弃牌堆获得实现，与“获得其所有的牌”等价：死者的手牌、装备、判定区与特殊区牌在死亡流程中先行移入弃牌堆。主公技颂威需要势力类触发事实与判定角色决策权两类新引擎语义，本批未实现，记录于批次边界。",
+  "portraits": [
+    {
+      "contentId": "classic:cao-pi",
+      "id": "104401",
+      "name": "经典形象*曹丕",
+      "sourcePage": "https://x.sanguosha.com/hero/44.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/104401.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-cao-pi.png",
+      "sha256": "b35dd49e0046ad6a8a9fb73b6f434211c785f0b3b3049cdd59e8b7fba94ca7a3",
+      "pixelWidth": 574,
+      "pixelHeight": 761
+    }
+  ]
+}

@@ -45,6 +45,11 @@ internal static class ProgramChoiceAi
                 case SkillProgramEffectOp.Draw:
                     score += effect.Amount * 8d;
                     break;
+                case SkillProgramEffectOp.UseBoundCardByTarget
+                    when effect.SourceBind is { } giftBind &&
+                         chooserOwnedBoundCardCount?.Invoke(giftBind) == 1:
+                    score += 8d;
+                    break;
                 case SkillProgramEffectOp.ClaimDamageCards when context.HasClaimableDamageCards:
                     score += 8d;
                     break;

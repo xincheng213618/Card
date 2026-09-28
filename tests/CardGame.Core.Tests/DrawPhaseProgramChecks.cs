@@ -10,7 +10,7 @@ internal static class DrawPhaseProgramChecks
     {
         Require(GameCheckpoint.CurrentRulesVersion >= 125,
             "Schema-20 draw-policy programs require at least rules version 125.");
-        Require(StandardContentPackage.CurrentVersion == new Version(1, 14, 0) &&
+        Require(StandardContentPackage.CurrentVersion >= new Version(1, 14, 0) &&
                 StandardClassicGeneralPackage.CurrentVersion >= new Version(1, 106, 0),
             "The current standard and classic packages must expose their draw-phase-program boundaries.");
 
@@ -23,13 +23,13 @@ internal static class DrawPhaseProgramChecks
         var luoyi = currentClassic.Skills["classic:luoyi"];
 
         Require(standard is { Program: not null } &&
-                standard.Program!.MinimumRulesVersion == 171,
+                standard.Program!.MinimumRulesVersion == 172,
             "Standard Yingzi must use its configured program.");
         Require(classic is { Program: not null } &&
-                classic.Program!.MinimumRulesVersion == 171,
+                classic.Program!.MinimumRulesVersion == 172,
             "Classic Yingzi must use its configured program.");
         Require(tuxi is { Program: not null } &&
-                tuxi.Program!.MinimumRulesVersion == 171 &&
+                tuxi.Program!.MinimumRulesVersion == 172 &&
                 tuxi.Program.Triggers.Single() is
                 {
                     Window: SkillProgramTriggerWindow.DrawPhaseStarting,
@@ -48,7 +48,7 @@ internal static class DrawPhaseProgramChecks
                 },
             "Classic Tuxi did not preserve the classic@1.102/schema-17 replacement boundary.");
         Require(zaiqi is { Program: not null } &&
-                zaiqi.Program!.MinimumRulesVersion == 171 &&
+                zaiqi.Program!.MinimumRulesVersion == 172 &&
                 zaiqi.Program.Triggers.Single() is
                 {
                     Window: SkillProgramTriggerWindow.DrawPhaseStarting,
@@ -75,7 +75,7 @@ internal static class DrawPhaseProgramChecks
                 },
             "Classic Zaiqi did not preserve the classic@1.103/schema-18 reveal replacement boundary.");
         Require(luoyi is { Program: not null } &&
-                luoyi.Program!.MinimumRulesVersion == 171 &&
+                luoyi.Program!.MinimumRulesVersion == 172 &&
                 luoyi.Program.Triggers.Single() is
                 {
                     Window: SkillProgramTriggerWindow.DrawPhaseStarting,
@@ -387,8 +387,8 @@ internal static class DrawPhaseProgramChecks
     }
 
     private const string ValidationRules =
-        "{\"schemaVersion\":61,\"skills\":[{\"id\":\"fixture:draw-validation\",\"revision\":1," +
-        "\"minimumRulesVersion\":170,\"modifiers\":[],\"viewAs\":[],\"activations\":[]," +
+        "{\"schemaVersion\":62,\"skills\":[{\"id\":\"fixture:draw-validation\",\"revision\":1," +
+        "\"minimumRulesVersion\":171,\"modifiers\":[],\"viewAs\":[],\"activations\":[]," +
         "\"triggers\":[{\"id\":\"draw\",\"window\":\"drawPhaseStarting\",\"subject\":\"owner\"," +
         "\"optional\":false,\"priority\":0,\"effects\":[{\"op\":\"draw\",\"target\":\"owner\",\"amount\":1}]}]," +
         "\"contributions\":[],\"cardIdentities\":[]}]}";
@@ -397,8 +397,8 @@ internal static class DrawPhaseProgramChecks
         "{\"schemaVersion\":3,\"skills\":{\"fixture:draw-validation\":{\"name\":\"Draw\",\"description\":\"Fixture\"}}}";
 
     private const string ReplacementValidationRules =
-        "{\"schemaVersion\":61,\"skills\":[{\"id\":\"fixture:draw-replacement-validation\",\"revision\":1," +
-        "\"minimumRulesVersion\":170,\"modifiers\":[],\"viewAs\":[],\"activations\":[]," +
+        "{\"schemaVersion\":62,\"skills\":[{\"id\":\"fixture:draw-replacement-validation\",\"revision\":1," +
+        "\"minimumRulesVersion\":171,\"modifiers\":[],\"viewAs\":[],\"activations\":[]," +
         "\"triggers\":[{\"id\":\"replace\",\"window\":\"drawPhaseStarting\",\"subject\":\"owner\"," +
         "\"optional\":true,\"priority\":100,\"drawPhaseMode\":\"replacement\",\"effects\":[" +
         "{\"op\":\"selectTargets\",\"target\":\"owner\",\"targetKind\":\"otherLivingWithHand\"," +
@@ -407,8 +407,8 @@ internal static class DrawPhaseProgramChecks
         "\"contributions\":[],\"cardIdentities\":[]}]}";
 
     private const string RevealReplacementValidationRules =
-        "{\"schemaVersion\":61,\"skills\":[{\"id\":\"fixture:draw-reveal-validation\",\"revision\":1," +
-        "\"minimumRulesVersion\":170,\"modifiers\":[],\"viewAs\":[],\"activations\":[]," +
+        "{\"schemaVersion\":62,\"skills\":[{\"id\":\"fixture:draw-reveal-validation\",\"revision\":1," +
+        "\"minimumRulesVersion\":171,\"modifiers\":[],\"viewAs\":[],\"activations\":[]," +
         "\"triggers\":[{\"id\":\"replace\",\"window\":\"drawPhaseStarting\",\"subject\":\"owner\"," +
         "\"optional\":true,\"priority\":90,\"drawPhaseMode\":\"replacement\",\"effects\":[" +
         "{\"op\":\"revealTopCards\",\"target\":\"owner\",\"numberExpression\":\"ownerLostHp\"," +
@@ -420,8 +420,8 @@ internal static class DrawPhaseProgramChecks
         "\"contributions\":[],\"cardIdentities\":[]}]}";
 
     private const string AdjustmentValidationRules =
-        "{\"schemaVersion\":61,\"skills\":[{\"id\":\"fixture:draw-adjustment-validation\",\"revision\":1," +
-        "\"minimumRulesVersion\":170,\"modifiers\":[],\"viewAs\":[],\"activations\":[]," +
+        "{\"schemaVersion\":62,\"skills\":[{\"id\":\"fixture:draw-adjustment-validation\",\"revision\":1," +
+        "\"minimumRulesVersion\":171,\"modifiers\":[],\"viewAs\":[],\"activations\":[]," +
         "\"triggers\":[{\"id\":\"adjust\",\"window\":\"drawPhaseStarting\",\"subject\":\"owner\"," +
         "\"optional\":true,\"priority\":80,\"effects\":[" +
         "{\"op\":\"adjustNormalDraw\",\"target\":\"owner\",\"amount\":-1}," +
@@ -430,12 +430,12 @@ internal static class DrawPhaseProgramChecks
         "\"contributions\":[],\"cardIdentities\":[]}]}";
 
     private const string CompositionRules = """
-        {"schemaVersion":61,"skills":[
-        {"id":"fixture:draw-alpha","revision":1,"minimumRulesVersion":170,
+        {"schemaVersion":62,"skills":[
+        {"id":"fixture:draw-alpha","revision":1,"minimumRulesVersion": 171,
         "modifiers":[],"viewAs":[],"activations":[],"triggers":[
         {"id":"extra","window":"drawPhaseStarting","subject":"owner","optional":false,"priority":0,
         "effects":[{"op":"draw","target":"owner","amount":1}]}],"contributions":[],"cardIdentities":[]},
-        {"id":"fixture:draw-beta","revision":1,"minimumRulesVersion":170,
+        {"id":"fixture:draw-beta","revision":1,"minimumRulesVersion": 171,
         "modifiers":[],"viewAs":[],"activations":[],"triggers":[
         {"id":"extra","window":"drawPhaseStarting","subject":"owner","optional":false,"priority":0,
         "effects":[{"op":"draw","target":"owner","amount":1}]}],"contributions":[],"cardIdentities":[]}

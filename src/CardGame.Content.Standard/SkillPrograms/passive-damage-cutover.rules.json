@@ -63,7 +63,7 @@
         "id": "red-judgment-punishment", "window": "afterDamageApplied", "subject": "owner",
         "damageOccurrence": "perDamage", "optional": true, "priority": 0,
         "effects": [
-          { "op": "startJudgment", "target": "owner", "judgmentReason": "ganglie",
+          { "op": "startJudgment", "target": "owner", "judgmentReason": "skill.ganglie",
             "resultBind": "judgment", "visibility": "public" },
           { "op": "chooseOption", "target": "owner", "chooserRef": { "kind": "eventSource" },
             "resultBind": "punishment", "condition": { "kind": "boundCardsMatchSuits",
@@ -93,7 +93,7 @@
         "id": "non-heart-judgment-punishment", "window": "afterDamageApplied", "subject": "owner",
         "damageOccurrence": "perDamage", "optional": true, "priority": 0,
         "effects": [
-          { "op": "startJudgment", "target": "owner", "judgmentReason": "ganglie",
+          { "op": "startJudgment", "target": "owner", "judgmentReason": "skill.ganglie",
             "resultBind": "judgment", "visibility": "public" },
           { "op": "chooseOption", "target": "owner", "chooserRef": { "kind": "eventSource" },
             "resultBind": "punishment", "condition": { "kind": "boundCardsMatchSuits",

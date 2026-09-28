@@ -148,7 +148,7 @@ internal static class NationalWarChecks
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public |
             System.Reflection.BindingFlags.NonPublic,
             binder: null,
-            args: [0L, 1, 0, null, 1, CardKind.Slash, false, false, null, null, null, false, null, null, null, null, null, null],
+            args: [0L, 1, 0, null, 1, CardKind.Slash, false, false, null, null, null, null, null, null, null],
             culture: null)!;
         string[] Candidates()
         {
@@ -181,7 +181,7 @@ internal static class NationalWarChecks
                 {
                     var catalog = SkillProgramCatalog.Load(
                         """
-                        {"schemaVersion":61,"skills":[{"id":"national:test-program","revision":1,"minimumRulesVersion":170,"modifiers":[{"id":"extra-draw","priority":0,"query":"drawCount","operation":"add","value":1,"condition":{"kind":"ownTurn"}}]}]}
+                        {"schemaVersion":62,"skills":[{"id":"national:test-program","revision":1,"minimumRulesVersion": 171,"modifiers":[{"id":"extra-draw","priority":0,"query":"drawCount","operation":"add","value":1,"condition":{"kind":"ownTurn"}}]}]}
                         """,
                         """
                         {"schemaVersion":3,"skills":{"national:test-program":{"name":"试验程序技","description":"摸牌阶段额外摸一张牌。"}}}
@@ -254,9 +254,11 @@ internal static class NationalWarChecks
             Require(EnabledKinds(game).Length == 0 && EnabledPrograms(game).Length == 0,
                 "Revealing the other national slot enabled the hidden multi-skill general.");
             Reveal(game, slot);
-            Require(EnabledKinds(game).Length == 0 &&
-                    EnabledPrograms(game).SequenceEqual([programId, "standard:paoxiao", "standard:wusheng"]),
-                "The revealed national general did not enable every configured skill.");
+            Require(EnabledKinds(game).Order(StringComparer.Ordinal).SequenceEqual(
+                        new[] { programId, "standard:paoxiao", "standard:wusheng" }.Order(StringComparer.Ordinal)) &&
+                    EnabledPrograms(game).Order(StringComparer.Ordinal).SequenceEqual(
+                        new[] { programId, "standard:paoxiao", "standard:wusheng" }.Order(StringComparer.Ordinal)),
+                $"The revealed national general did not enable every configured skill: kinds={string.Join(',', EnabledKinds(game))}; programs={string.Join(',', EnabledPrograms(game))}.");
             var publicView = game.CreateSnapshot(1).Players[0];
             Require((slot == GeneralSelectionSlot.Primary ? publicView.Skills : publicView.SecondarySkills) is { Count: 3 },
                 "The revealed national multi-skill list stayed hidden from another viewer.");

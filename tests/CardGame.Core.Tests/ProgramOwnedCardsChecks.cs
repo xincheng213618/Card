@@ -11,7 +11,7 @@ internal static class ProgramOwnedCardsChecks
     public static void DefinitionsAndPublicAi()
     {
         var current = Load(2);
-        Require(current.RuntimeVersion == "skill-program-v61" && current.MinimumRulesVersion == 171,
+        Require(current.RuntimeVersion == "skill-program-v62" && current.MinimumRulesVersion == 171,
             "Owned-card selection must declare its schema/rules boundary.");
         Reject(Rules(2).Replace("\"amount\":2", "\"amount\":0"), "between");
         Reject(Rules(2).Replace("[\"hand\",\"equipment\"]", "[\"discardPile\"]"), "owned");
@@ -64,13 +64,29 @@ internal static class ProgramOwnedCardsChecks
         var moved = game.CardMovements.Skip(before).Where(move => move.Reason.Value == $"skill-program.{SkillId}.MoveBoundCards").ToArray();
         Require(moved.Select(move => move.CardId).ToHashSet().SetEquals([equipment.CardId.Value, second.Cards[0]]) &&
                 moved.All(move => move.To == CardLocation.DiscardPile) && moved.Length == 2 &&
-                game.Events.Count(item => item.Payload is ProgramSkillResolvedEvent { SkillId: SkillId, Completed: true }) == 1 &&
                 State(replay) == State(game) && replay.CardMovements.SequenceEqual(game.CardMovements),
-            "A completed set must be consumed exactly once through ordinary movement and replay identically.");
+            "The selected set must move exactly once and replay before its equipment-loss trigger.");
         for (var step = 0; step < 32 && game.PendingDecision?.SkillPrompt?.SkillId != "classic:xiaoji"; step++)
+        {
             Accept(game.Submit(new AdvanceOneStepCommand(game.Revision)));
+            Accept(replay.Submit(new AdvanceOneStepCommand(replay.Revision)));
+        }
         Require(game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:xiaoji" },
             "Discarding selected equipment must retain the shared equipment-loss trigger.");
+        var skip = game.PendingDecision!.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "skip");
+        Answer(game, skip);
+        Answer(replay, replay.PendingDecision!.Choices.Single(choice => choice.Id == skip.Id));
+        for (var step = 0; step < 32 && !game.Events.Any(item =>
+                 item.Payload is ProgramSkillResolvedEvent { SkillId: SkillId, Completed: true }); step++)
+        {
+            Accept(game.Submit(new AdvanceOneStepCommand(game.Revision)));
+            Accept(replay.Submit(new AdvanceOneStepCommand(replay.Revision)));
+        }
+        Require(game.Events.Count(item => item.Payload is ProgramSkillResolvedEvent
+                    { SkillId: SkillId, Completed: true }) == 1 &&
+                State(replay) == State(game) && replay.CardMovements.SequenceEqual(game.CardMovements),
+            "The suspended equipment-loss trigger must finish the owned-card program once and replay exactly.");
     }
 
     public static void ShortfallEmptyAndInvalidatedDraft()
@@ -119,7 +135,7 @@ internal static class ProgramOwnedCardsChecks
 
     private const string Move = """{"op":"moveBoundCards","target":"owner","sourceBind":"chosen","destination":"discardPile"}""";
     private static string Rules(int count, bool other = false, bool equipmentOnly = false) =>
-        $$"""{"schemaVersion":61,"skills":[{"id":"{{SkillId}}","revision":1,"activations":[{"id":"select","minCards":0,"maxCards":0,"minTargets":{{(other ? 1 : 0)}},"maxTargets":{{(other ? 1 : 0)}},"targetKind":"otherLiving","usesPerTurn":1,"condition":{"kind":"always"},"effects":[{"op":"selectOwnedCards","target":"{{(other ? "selectedTarget" : "owner")}}","amount":{{count}},"zones":{{(equipmentOnly ? "[\"equipment\"]" : "[\"hand\",\"equipment\"]")}},"resultBind":"chosen"},{{Move}}]}]}]}""";
+        $$"""{"schemaVersion":62,"skills":[{"id":"{{SkillId}}","revision":1,"activations":[{"id":"select","minCards":0,"maxCards":0,"minTargets":{{(other ? 1 : 0)}},"maxTargets":{{(other ? 1 : 0)}},"targetKind":"otherLiving","usesPerTurn":1,"condition":{"kind":"always"},"effects":[{"op":"selectOwnedCards","target":"{{(other ? "selectedTarget" : "owner")}}","amount":{{count}},"zones":{{(equipmentOnly ? "[\"equipment\"]" : "[\"hand\",\"equipment\"]")}},"resultBind":"chosen"},{{Move}}]}]}]}""";
     private static string Presentation => JsonSerializer.Serialize(new
     {
         schemaVersion = 3,

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:duanchang": {
+      "name": "断肠",
+      "description": "锁定技，当你死亡时，杀死你的角色失去其当前的所有武将技能。"
+    }
+  }
+}

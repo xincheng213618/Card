@@ -28,7 +28,7 @@ internal static class CaoChongChecks
                 {
                     Program:
                     {
-                        MinimumRulesVersion: 171,
+                        MinimumRulesVersion: 172,
                         Triggers.Count: 1
                     },
                     ExecutionForms: SkillExecutionForm.Trigger,

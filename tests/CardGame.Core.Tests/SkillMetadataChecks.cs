@@ -125,7 +125,7 @@ internal static class SkillMetadataChecks
         foreach (var skillId in general.SkillIds)
         {
             var skill = registry.GetSkill(skillId);
-            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v61",
+            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v62",
                 $"{general.Id} / {skillId} must be backed by the current compiled program.");
         }
     }
@@ -137,7 +137,7 @@ internal static class SkillMetadataChecks
         foreach (var skillId in general.SkillIds)
         {
             var skill = registry.GetSkill(skillId);
-            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v61",
+            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v62",
                 $"{general.Id} / {skillId} must be backed by the current compiled program.");
         }
     }
@@ -149,7 +149,7 @@ internal static class SkillMetadataChecks
         foreach (var skillId in general.SkillIds)
         {
             var skill = registry.GetSkill(skillId);
-            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v61",
+            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v62",
                 $"{general.Id} / {skillId} must be backed by the current compiled program.");
         }
     }
@@ -161,7 +161,7 @@ internal static class SkillMetadataChecks
         foreach (var skillId in general.SkillIds)
         {
             var skill = registry.GetSkill(skillId);
-            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v61",
+            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v62",
                 $"{general.Id} / {skillId} must be backed by the current compiled program.");
         }
     }
@@ -173,7 +173,7 @@ internal static class SkillMetadataChecks
         foreach (var skillId in general.SkillIds)
         {
             var skill = registry.GetSkill(skillId);
-            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v61",
+            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v62",
                 $"{general.Id} / {skillId} must be backed by the current compiled program.");
         }
     }
@@ -352,7 +352,7 @@ internal static class SkillMetadataChecks
         }
 
         private const string DyingRules = """
-            {"schemaVersion":61,"skills":[{"id":"fixture:lose-hp","revision":1,
+            {"schemaVersion":62,"skills":[{"id":"fixture:lose-hp","revision":1,
             "modifiers":[],"viewAs":[],"activations":[{"id":"invoke","minCards":0,"maxCards":0,
             "minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,
             "effects":[{"op":"loseHp","target":"owner","amount":5}]}]}]}

@@ -19,8 +19,10 @@ internal static class GroupClaimChecks
                     CardLocation.DiscardPile, damageCardClaimed: false, [1, 2]) &&
                 GameEngine.IsResolvedGroupPhysicalCardDestinationAllowed(
                     CardLocation.Hand(2), damageCardClaimed: false, [1, 2]) &&
-                !GameEngine.IsResolvedGroupPhysicalCardDestinationAllowed(
+                GameEngine.IsResolvedGroupPhysicalCardDestinationAllowed(
                     CardLocation.Hand(3), damageCardClaimed: true, [1, 2]) &&
+                !GameEngine.IsResolvedGroupPhysicalCardDestinationAllowed(
+                    CardLocation.Hand(3), damageCardClaimed: false, [1, 2]) &&
                 GameEngine.RecordClaimedGroupPhysicalCard(
                     claimedIds, 17, physicalCards, 17, physicalCards[1].Id) &&
                 claimedIds.SetEquals([physicalCards[1].Id]) &&
@@ -28,7 +30,7 @@ internal static class GroupClaimChecks
                     claimedIds, 17, physicalCards, 18, physicalCards[0].Id) &&
                 !GameEngine.RecordClaimedGroupPhysicalCard(
                     claimedIds, 17, physicalCards, 17, 999),
-            "Only a corresponding physical group card claimed by a damage skill may finish from a reshuffled draw pile; hand destinations remain target-scoped.");
+            "Only a corresponding physical group card claimed by a damage skill may finish from another hand or a reshuffled draw pile.");
     }
 
     public static void ClaimantDeathContinues()
@@ -115,8 +117,8 @@ internal static class GroupClaimChecks
         public void Register(IContentRegistryBuilder builder)
         {
             var catalog = SkillProgramCatalog.Load("""
-                {"schemaVersion":61,"skills":[{"id":"fixture:claimant-after-damage-loss",
-                "revision":1,"minimumRulesVersion":170,"modifiers":[],"viewAs":[],"activations":[],
+                {"schemaVersion":62,"skills":[{"id":"fixture:claimant-after-damage-loss",
+                "revision":1,"minimumRulesVersion": 171,"modifiers":[],"viewAs":[],"activations":[],
                 "triggers":[{"id":"lose-after-claim","window":"afterDamageApplied","subject":"owner",
                 "damageOccurrence":"perDamage","optional":false,"priority":-1,
                 "effects":[{"op":"loseHp","target":"owner","amount":1}]}],

@@ -172,7 +172,7 @@ public sealed partial class GameEngine
         {
             var facts = context with { ChoiceResult = bind => bind == choice.Parameters["result-bind"]
                 ? choice.Parameters["option-id"] : frame.ChoiceBindings.SingleOrDefault(item => item.Name == bind)?.OptionId };
-            var score = ProgramChoiceAi.Score(plan.Instructions.Skip(frame.InstructionIndex + 1), owner, chooser,
+            var score = ProgramChoiceAi.Score(plan.Instructions.Skip(frame.InstructionIndex), owner, chooser,
                 facts, bind => TryCountChooserProgramBoundCards(frame, bind, decision.PlayerSeat));
             return (Choice: choice, Score: score);
         }).OrderByDescending(item => item.Score).ThenBy(item => item.Choice.Id.Value, StringComparer.Ordinal).First().Choice;
@@ -181,6 +181,11 @@ public sealed partial class GameEngine
     private int? TryCountChooserProgramBoundCards(ProgramSkillFrame frame, string bind, int chooserSeat)
     {
         var cards = frame.CardSetBindings.SingleOrDefault(item => item.Name == bind);
+        if (cards is { Visibility: SkillProgramCardSetVisibility.Public })
+            return cards.CardIds.Count(cardId =>
+                _cardZones.GetLocation(cardId) is
+                { OwnerSeat: var seat, Zone: CardZoneKind.Hand or CardZoneKind.Equipment } &&
+                seat == chooserSeat);
         return cards is not null && cards.SourceLocations.All(location => location.OwnerSeat == chooserSeat &&
             location.Zone is CardZoneKind.Hand or CardZoneKind.Equipment)
             ? CountChooserProgramBoundCards(frame, bind, chooserSeat) : null;

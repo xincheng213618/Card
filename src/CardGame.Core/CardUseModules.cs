@@ -134,7 +134,7 @@ public sealed record ProgramCardDamageModifiedEvent(
     long ResolutionId,
     CardUseEffectSource Source,
     int TargetSeat,
-    CardKind CardKind,
+    CardKind? CardKind,
     int BaseAmount,
     int ModifiedAmount) : IGameEvent;
 

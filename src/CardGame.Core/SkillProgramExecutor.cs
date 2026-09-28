@@ -58,6 +58,10 @@ public interface ISkillProgramEffectHost
         IReadOnlyList<SkillProgramTurnPhase> phases);
     SkillProgramStepOutcome UseVirtualCard(ProgramSkillFrame frame, int targetSeat,
         CardKind cardKind, bool ignoreDistance);
+    SkillProgramStepOutcome UseBoundCardByTarget(ProgramSkillFrame frame, int targetSeat,
+        string sourceBind);
+    void PendExtraTurn(ProgramSkillFrame frame);
+    void ClaimDeathCleanupCards(ProgramSkillFrame frame);
     SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat);
     SkillProgramStepOutcome MoveSelected(
         ProgramSkillFrame frame,
@@ -86,6 +90,8 @@ public interface ISkillProgramEffectHost
     SkillProgramStepOutcome SelectOwnedCards(ProgramSkillFrame frame, int cardOwnerSeat,
         int amount, SkillProgramNumberExpression? expression, IReadOnlyList<CardZoneKind> zones, string resultBind,
         int minimumCards, int maximumCards, IReadOnlyList<CardKind> cardKinds, IReadOnlyList<Suit> suits);
+    SkillProgramStepOutcome HoldTargetCards(ProgramSkillFrame frame, int chooserSeat, int holderSeat,
+        IReadOnlyList<CardZoneKind> zones, string resultBind, int minimumCards);
     SkillProgramStepOutcome RevealTargetHandCard(ProgramSkillFrame frame,
         ProgramParticipantReference chooser, ProgramParticipantReference cardOwner,
         string resultBind, SkillProgramRevealMode mode);
@@ -238,6 +244,9 @@ public interface ISkillProgramEffectHost
         ProgramSkillFrame frame,
         string sourceBind,
         int targetSeat);
+    void GrantTurnHandCardProhibition(ProgramSkillFrame frame, int targetSeat);
+    void AbolishOwnerAreas(ProgramSkillFrame frame, IReadOnlyList<CardZoneKind> zones);
+    void LoseDeathSourceSkills(ProgramSkillFrame frame);
     void PreventCurrentDamage(ProgramSkillFrame frame);
     void NullifyCurrentCardEffect(ProgramSkillFrame frame);
     void NullifySelectedCardEffects(ProgramSkillFrame frame);
@@ -1155,6 +1164,14 @@ public sealed class UseVirtualCardSkillProgramEffectHandler : ISkillProgramEffec
         effect.TargetRestriction == SkillProgramCardTargetRestriction.DistanceUnlimitedAgainstTarget);
 }
 
+public sealed class UseBoundCardByTargetSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.UseBoundCardByTarget;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host) => host.UseBoundCardByTarget(frame, targetSeat,
+        effect.SourceBind!);
+}
+
 public sealed class RequestFactionCardSkillProgramEffectHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RequestFactionCard;
@@ -1275,7 +1292,8 @@ public sealed class SkillProgramExecutor
                 return;
             }
             if (!target.IsAlive && !(allowsDeadOwner && effect.Op is
-                    (SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets)))
+                    (SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets or
+                     SkillProgramEffectOp.LoseDeathSourceSkills)))
             {
                 if (effect.Op is SkillProgramEffectOp.ChooseOption or SkillProgramEffectOp.SelectOwnedCards)
                 {

@@ -82,6 +82,7 @@ public sealed partial class GameEngine
         long frameId, int chooserSeat, int cardOwnerSeat, IReadOnlyList<CardZoneKind> zones,
         IReadOnlyList<SkillProgramCardCategory>? cardCategories = null)
     {
+        var frame = GetActiveProgramFrame(frameId);
         var result = new List<PromptChoice>();
         foreach (var zone in zones)
         {
@@ -95,6 +96,10 @@ public sealed partial class GameEngine
             for (var slot = 0; slot < cards.Count; slot++)
             {
                 if (cardCategories is { Count: > 0 } && !MatchesProgramCardCategory(cards[slot].Kind, cardCategories))
+                    continue;
+                if (zone == CardZoneKind.Equipment && cardOwnerSeat == frame.OwnerSeat &&
+                    IsActiveProgramSourceEquipmentCard(cardOwnerSeat, frame.SkillId,
+                        frame.SkillInstanceId, cards[slot]))
                     continue;
                 var hidden = zone == CardZoneKind.Hand && chooserSeat != cardOwnerSeat;
                 var parameters = new Dictionary<string, string>
@@ -146,6 +151,13 @@ public sealed partial class GameEngine
             return;
         }
         var card = cards[slot];
+        if (zone == CardZoneKind.Equipment && ownerSeat == frame.OwnerSeat &&
+            IsActiveProgramSourceEquipmentCard(ownerSeat, frame.SkillId, frame.SkillInstanceId, card))
+        {
+            ClearPendingDecision();
+            CancelProgramBindingAndCleanup(frame, "提供当前技能的装备牌不能用于支付。");
+            return;
+        }
         if (effect.CardCategories.Count > 0 &&
             !MatchesProgramCardCategory(card.Kind, effect.CardCategories))
         {

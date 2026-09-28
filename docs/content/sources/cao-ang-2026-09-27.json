@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-27",
+  "contentIds": ["classic:cao-ang"],
+  "rulesSources": [
+    {
+      "contentId": "classic:cao-ang",
+      "url": "https://www.sanguosha.com/hero/404",
+      "edition": "星火燎原-天府（2017 官方武将页）慷忾",
+      "use": "魏4体力（经典定位防御、辅助）。当一名角色成为【杀】的目标后，若你与其距离1以内，你可以摸一张牌，然后交给其一张牌并展示之；若此牌为装备牌，该角色可以使用此牌。"
+    },
+    {
+      "contentId": "classic:cao-ang",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E6%98%82",
+      "edition": "官方FAQ（bwiki 转录，2023-12-15 版本）",
+      "use": "FAQ1：曹昂被【杀】可以发动“慷忾”吗？——可以，自己与自己始终距离为0。FAQ2：为什么曹昂被【杀】时发动“慷忾”，不能使用手牌中的装备？——自己不能交给自己牌，所以曹昂不能执行后续操作（即只摸一张牌，无赠牌与使用结算）。"
+    }
+  ],
+  "versionBoundary": "本定义实现经典版慷忾并把官方FAQ两条结论编码为两个触发：自己成为【杀】的目标（距离0）只摸一张牌；其他距离1以内的角色成为【杀】的目标时摸牌并公开转交一张手牌，受赠者对装备牌可选择立即使用。不采用十周年/OL后续改版（如谋曹昂“谋毒士鸩计”变体，官方 gid 1660）的任何文本。",
+  "portraits": "官方立绘已同步：x.sanguosha.com 武将 gid 404（十周年 resource 140401），默认皮肤 140401“经典形象*曹昂”下载为 src/CardGame.Wpf/Assets/official-cao-ang.png（SHA-256 8c61a7fe384ff4f392ca44e6a6aee592d7c4a6456f46f1045e537c187ec998cf，574x761）；共8个官方皮肤收录于 docs/content/general-art-catalog.json 的 cao-ang 条目，由 tools/sync_general_art.py --key cao-ang 生成。"
+}

@@ -42,9 +42,24 @@ public sealed record ProgramOwnedCardSelection(
     int MinimumCount = 0);
 
 /// <summary>
+/// Private draft for holding another character's cards on their own general card.
+/// The skill owner chooses among opaque hand slots and visible equipment; no card
+/// moves until the hold completes, then all selected cards transfer together.
+/// </summary>
+public sealed record ProgramHoldCardSelection(
+    int HolderSeat,
+    int ChooserSeat,
+    string ResultBind,
+    int RequiredCount,
+    IReadOnlyList<int> CandidateCardIds,
+    IReadOnlyList<CardLocation> CandidateLocations,
+    IReadOnlyList<int> SelectedCardIds,
+    int MinimumCount = 0);
+
+/// <summary>
 /// Private draft for revealing one of another character's hand cards after the
-/// chooser has viewed the whole hand. Choices carry real card identities
-/// because the viewing is the skill's own effect.
+/// chooser has viewed the whole hand. Unlike the hold draft, choices carry the
+/// real card identities because the viewing is the skill's own effect.
 /// </summary>
 public sealed record ProgramRevealCardSelection(
     int HolderSeat,
@@ -293,6 +308,18 @@ public sealed record ProgramDeathTriggerWindowFrame(
     int? KillerSeat,
     IReadOnlyList<ProgramTriggerCandidate> Candidates,
     SkillProgramTriggerFacts Facts,
+    int CandidateIndex = 0,
+    ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
+    : ResolutionFrame(Id, ResolutionFrameKind.ProgramDeathTriggerWindow, Step);
+
+/// <summary>Frozen killer-side death programs observed by living characters.</summary>
+public sealed record ProgramKillTriggerWindowFrame(
+    long Id,
+    long DeathFrameId,
+    int VictimSeat,
+    int? KillerSeat,
+    IReadOnlyList<ProgramTriggerCandidate> Candidates,
+    IReadOnlyList<ProgramSkillWindowContext> Contexts,
     int CandidateIndex = 0,
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
     : ResolutionFrame(Id, ResolutionFrameKind.ProgramDeathTriggerWindow, Step);

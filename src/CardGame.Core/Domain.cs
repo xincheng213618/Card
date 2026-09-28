@@ -84,7 +84,10 @@ public enum CardKind
     Zixing,
     Dilu,
     Zhaohuangfeidian,
-    Hualiu
+    Hualiu,
+    GhostDragonCrescentBlade,
+    ScarletBloodSword,
+    XingtianAxe
 }
 
 public enum Suit
@@ -108,7 +111,8 @@ public enum DamageNature
 /// </summary>
 public enum PlayerMarkerKind
 {
-    Nightmare
+    Nightmare,
+    Ren
 }
 
 public static class PlayerMarkerCatalog
@@ -116,6 +120,7 @@ public static class PlayerMarkerCatalog
     public static string GetDisplayName(PlayerMarkerKind marker) => marker switch
     {
         PlayerMarkerKind.Nightmare => "梦魇",
+        PlayerMarkerKind.Ren => "忍",
         _ => throw new InvalidOperationException($"Unknown public player marker '{marker}'.")
     };
 }
@@ -492,6 +497,9 @@ public sealed partial record PlayerSnapshot
     /// </summary>
     public IReadOnlyList<CardSnapshot> Equipment { get; init; } = Array.Empty<CardSnapshot>();
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool IsEquipmentAreaAbolished { get; init; }
+
     /// <summary>Public elemental-link state. Hidden cards and identities remain filtered separately.</summary>
     public bool IsChained { get; init; }
 
@@ -501,6 +509,9 @@ public sealed partial record PlayerSnapshot
     /// with older hosts that construct snapshots directly.
     /// </summary>
     public IReadOnlyList<CardSnapshot> Judgment { get; init; } = Array.Empty<CardSnapshot>();
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool IsJudgmentAreaAbolished { get; init; }
 
     /// <summary>Public wound cards kept on Zhou Tai by classic Buqu.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -519,6 +530,16 @@ public sealed partial record PlayerSnapshot
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int ChunlaoCount { get; init; }
+
+    /// <summary>
+    /// Cards held face-down on this character's general card by Xu Sheng's Pojun.
+    /// The movement is public, so every viewer sees the held identities.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<CardSnapshot>? PojunHoldCards { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int PojunHoldCount { get; init; }
 
     /// <summary>
     /// Private/public effective faction metadata. In national war, a viewer may

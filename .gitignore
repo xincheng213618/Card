@@ -14,3 +14,5 @@ TestResults/
 # Local WPF UI check output (screenshots and generated save/history fixtures).
 /ChengPu/
 **/*_wpftmp.csproj
+# One-off diagnostic and repair scripts in the repository root.
+/.tmp_*.py

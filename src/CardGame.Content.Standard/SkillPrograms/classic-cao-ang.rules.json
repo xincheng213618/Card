@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:kangkai",
+      "revision": 1,
+      "minimumRulesVersion": 176,
+      "triggers": [
+        {
+          "id": "self-targeted-by-slash",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "target",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            { "op": "draw", "target": "owner", "amount": 1 }
+          ]
+        },
+        {
+          "id": "nearby-slash-target",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "observer",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "not",
+                "children": [
+                  { "kind": "cardActionTargetIsOwner" }
+                ]
+              },
+              {
+                "kind": "compare",
+                "left": { "kind": "ownerEventTargetDistance" },
+                "operator": "lessThanOrEqual",
+                "right": { "kind": "integerConstant", "value": 1 }
+              }
+            ]
+          },
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "eventTarget" },
+            { "op": "draw", "target": "owner", "amount": 1 },
+            {
+              "op": "selectAndMoveOwnedCard", "target": "owner",
+              "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand"], "count": 1,
+              "destination": "selectedTargetHand",
+              "targetRef": { "kind": "selectedTarget" },
+              "resultBind": "gift", "revealBeforeMove": true, "awaitMovementTriggers": true
+            },
+            {
+              "op": "chooseOption", "target": "selectedTarget", "resultBind": "use-gift",
+              "condition": {
+                "kind": "boundCardsMatchCategories", "sourceBind": "gift",
+                "cardCategories": ["equipment"]
+              },
+              "options": [
+                { "id": "use-equipment", "condition": { "kind": "always" } },
+                { "id": "keep", "condition": { "kind": "always" } }
+              ]
+            },
+            {
+              "op": "useBoundCardByTarget", "target": "selectedTarget", "sourceBind": "gift",
+              "condition": {
+                "kind": "choiceIs", "sourceBind": "use-gift", "optionId": "use-equipment"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

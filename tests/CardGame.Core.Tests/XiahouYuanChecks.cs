@@ -3,10 +3,12 @@ using CardGame.Core;
 
 internal static class XiahouYuanChecks
 {
+    private const string FocusedModeId = "identity:classic-shensu-focused-5";
+
     public static void ShensuPhaseSkipsAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        var game = FindFixture(registry);
+        var registry = CreateFocusedRegistry();
+        var game = FindFixture(registry, FocusedModeId);
         var prompt = game.PendingDecision!;
         var paused = GameReplay.Restore(game.CreateCheckpoint(), registry);
         Require(paused.PendingDecision is { Kind: DecisionKind.ProgramTrigger } restoredPrompt &&
@@ -25,14 +27,14 @@ internal static class XiahouYuanChecks
                     .Any(item => item.CardId == 0 && item.CardKind == CardKind.Slash) &&
                 game.CreateSnapshot(0, revealAll: true).Players[0].Hand.Select(card => card.Id).Order().SequenceEqual(handBefore) &&
                 game.CreateSnapshot(0, revealAll: true).Phase == TurnPhase.Play && game.ResolutionStack.Count == 0,
-            "Shensu option one must skip judgment/draw, consume no card and resume at Play after its virtual Slash.");
+            $"Shensu option one must skip judgment/draw, consume no card and resume at Play after its virtual Slash: initial={prompt.Choices.First().Parameters.GetValueOrDefault("binding-id")}, turn={game.State.TurnNumber}, phase={game.State.Phase}, prompt={game.PendingDecision?.Kind}/{game.PendingDecision?.SkillPrompt?.SkillId}, stack={game.ResolutionStack.Count}, hand={string.Join(',', game.CreateSnapshot(0, true).Players[0].Hand.Select(card => card.Id))}, before={string.Join(',', handBefore)}, bindings={string.Join(',', game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Where(item => item.SkillId == "classic:shensu").Select(item => item.BindingId + '/' + item.Activated + '/' + item.Completed))}, declared={string.Join(',', game.Events.Select(item => item.Payload).OfType<CardUseDeclaredEvent>().Select(item => item.CardId + '/' + item.CardKind))}, draws={string.Join(',', game.CardMovements.Where(item => item.To == CardLocation.Hand(0)).Select(item => item.CardId + '/' + item.Reason.Value))}.");
 
         var replay = GameReplay.Restore(game.CreateCheckpoint(), registry);
         Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
             "Completed Shensu option one must replay exactly.");
 
-        var stageTwoGame = FindFixture(registry);
+        var stageTwoGame = FindFixture(registry, FocusedModeId);
         EquipFirstHandEquipment(stageTwoGame);
         var nextStageOne = stageTwoGame.PendingDecision!;
         var skipOne = nextStageOne.Choices.Single(choice => choice.Parameters.GetValueOrDefault("program-action") == "skip");
@@ -66,8 +68,9 @@ internal static class XiahouYuanChecks
             "The consecutive Shensu fixture could not use its first virtual Slash.");
         DriveToStageTwo(chained);
         var secondPrompt = chained.PendingDecision!;
-        Require(secondPrompt.Kind == DecisionKind.ProgramTrigger && chained.ResolutionStack.Count == 0,
-            "Finishing the first Shensu Slash must preserve the newly created second-stage prompt.");
+        Require(secondPrompt.Kind == DecisionKind.ProgramTrigger &&
+                chained.ResolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame,
+            "Finishing the first Shensu Slash must preserve the second-stage lifecycle prompt.");
         var resumed = GameReplay.Restore(chained.CreateCheckpoint(), chainedRegistry);
         Require(SnapshotJson.Serialize(resumed.CreateSnapshot(0, revealAll: true)) ==
                 SnapshotJson.Serialize(chained.CreateSnapshot(0, revealAll: true)),
@@ -155,6 +158,28 @@ internal static class XiahouYuanChecks
             $"hp={game.CreateSnapshot(0).Players[0].Hp}, equipment={game.CreateSnapshot(0).Players[0].Equipment.Count}.");
     }
 
+    private static ContentRegistry CreateFocusedRegistry() => ContentRegistry.Build(
+        new StandardContentPackage(),
+        new StandardActiveSkillExpansionPackage(includeJijiu: true),
+        new StandardRescueSkillExpansionPackage(),
+        new StandardClassicGeneralPackage(),
+        new SyntheticPackage("shensu-focused-fixture", builder =>
+            builder.AddMode(new ContentModeDefinition(
+                FocusedModeId, "神速回归身份局", 5, 5,
+                new Dictionary<string, int>
+                {
+                    [nameof(Role.Lord)] = 1,
+                    [nameof(Role.Loyalist)] = 1,
+                    [nameof(Role.Rebel)] = 2,
+                    [nameof(Role.Renegade)] = 1
+                },
+                "standard:basic-demo", GeneralCandidateCount: 5,
+                GeneralPoolIds:
+                [
+                    "classic:xiahou-yuan", "classic:liu-bei", "classic:sun-quan",
+                    "classic:hua-tuo", "classic:cao-cao"
+                ]))));
+
     private static GameEngine FindFixture(ContentRegistry registry, string modeId = "identity:classic-5")
     {
         for (var seed = 1; seed <= 4096; seed++)
@@ -174,7 +199,8 @@ internal static class XiahouYuanChecks
                 if (!game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted) break;
             if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 } prompt &&
                 prompt.SkillPrompt?.SkillId == "classic:shensu" &&
-                prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate") &&
+                prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate" &&
+                    choice.Parameters.GetValueOrDefault("binding-id") == "skip-judgment-and-draw") &&
                 game.CreateSnapshot(0, revealAll: true).Players[0].Hand.Any(card => EquipmentCatalog.IsEquipment(card.Kind)))
                 return game;
         }

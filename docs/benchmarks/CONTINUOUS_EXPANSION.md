@@ -4,6 +4,11 @@
 
 第五批已完成冻结整合验收：SP乐进2015、界周瑜2014、潘璋马忠（将三，2015公告版）。rules166/schema56/经典1.141.0/Checkpoint3；Core547/547、WPF123/123，Release构建0警告0错误。独立交付约39–45分钟，父审另修复骁果天香响应父帧与致胜边界清理。详见[第五批实测](2026-09-26-observer-and-gift-generals.md)。后续核对纠正原报告的84人数：当前完整注册表106位武将，正式身份5/8人模式池均为83位，界限模式池均为49位；历史包清理前后这些ID集合一致。
 
+曹昂（星火燎原-天府，慷忾）已完成单武将交付：schema62/最低规则176/经典包1.146.0。新增用牌窗口观察距离事实 ownerEventTargetDistance、目标自指条件 cardActionTargetIsOwner 与受赠者用牌 useBoundCardByTarget；定向检查 CaoAngChecks 5项，当时 Core 545/545、0警告0错误。官方立绘8皮肤入 general-art-catalog，classic:cao-ang 不再缺立绘（同断言的 xu-sheng 属另一并行批次）。详见[曹昂批记录](2026-09-27-cao-ang-kangkai.md)与[Runtime v57](../content/skill-composition/RUNTIME_V57.md)。
+
+神司马懿（神话再临-山，2010）已完成单武将交付：schema62/最低规则177/经典包1.147.0。新增归属标记计数 ownerAttributedMarkerCount、击杀者事实 deathKillerIsOwner 与挂起额外回合 pendExtraTurn（挂起槽位单一、回合收尾消费、额外回合内可连锁），并修复 ProgramKillTriggerWindowFrame 的可选触发候选回填；定向检查 ShenSimaYiChecks 7项，当时 Core 551/552（唯一失败为孟津系并行批次既有回归）。官方立绘3皮肤入 general-art-catalog，图鉴 god 组新增神司马懿（同断言的 xu-sheng 属另一并行批次）。适配说明：官方拜印奖励“极略”因完杀、放逐、集智等借用药技未收录而未实现，连破并入觉醒奖励并记录于来源 versionBoundary。详见[神司马懿批记录](2026-09-27-shen-sima-yi.md)与[Runtime v58](../content/skill-composition/RUNTIME_V58.md)。
+曹丕（神话再临-林，2010）已完成单武将交付：schema62/最低规则179/经典包1.149.0。新增死亡遗留牌申领操作 claimDeathCleanupCards、触发事实 deathVictimHasCards，并把 characterDied 窗口能力位扩为 Common|Death，BeginPlayerDeath 的死亡清理移动统一记录进 DeathResolution.CleanedUpCardIds；放逐复用 turnOver 与 ownerLostHp 无新表达式。定向检查 CaoPiChecks 4项，Release构建0警告0错误；当时 Core 全量 562/565（3失败与更早中间态的借刀失败均属并行批次在制面：绑定戳/天香对应其体力伤害时机改动、计数对应其新增鬼龙斩月刀），WPF 全量被鬼龙斩月刀缺牌面阻断，本批 WPF 面按过滤器验证通过（缺立绘断言不含 classic:cao-pi、complete matches 含图鉴分类通过；format 仅报并行在制的钟会/王异文件）。官方立绘（gid 44，经典形豢104401）入 general-art-catalog；顺带修复该目录既有遗留：zhang-song 条目改以JPEG直接登记导致 --phase verify 中断，已无损转为PNG。主公技“颂威”需势力触发事实与非持有者决策权两类新语义，本批未实现并记录于边界。详见[曹丕批记录](2026-09-28-cao-pi-xingshang-fangzhu.md)与[Runtime v59](../content/skill-composition/RUNTIME_V59.md)。
+
 最新协作约束：最多3个Sol；用户随后要求两个对话停止互发消息，今后以隔离副本、已提交基线和写回哈希保护并行修改。下一批先落实场景前置检查（正式模式前缀、选将候选、真人/AI暂停），再筛选能力复用候选；不把只读方案视为已取得的提速。下文是历史批次记录，其旧版本/未提交/后续候选状态以各自当时为准。
 
 第四批朱治2015、界甘宁2014、界许褚2014首发已完成整合验收：rules165/schema55/经典1.140.0/Checkpoint3，冻结Full为Core525/525、WPF116/116，构建0警告0错误。三路独立交付约35–45分钟，包含新增公共能力与返工；首次Full拦住延时锦囊续接兼容问题，修复后第二次通过。详见[第四批实测](2026-09-26-movement-and-target-generals.md)。本任务保留其他任务仍在实施的音频改动，并按用户授权及时本地提交。

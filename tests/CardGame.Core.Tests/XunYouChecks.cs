@@ -25,8 +25,8 @@ internal static class XunYouChecks
                 qice.ActionForms == SkillActionForm.Active &&
                 qice.Program is
                 {
-                    RuntimeVersion: "skill-program-v61",
-                    MinimumRulesVersion: 171,
+                    RuntimeVersion: "skill-program-v62",
+                    MinimumRulesVersion: 172,
                     Activations.Count: 1
                 } && qice.Program.Activations.Single().Effects.Single().Op ==
                     SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick,
@@ -38,8 +38,8 @@ internal static class XunYouChecks
                 zhiyu.ActionForms == SkillActionForm.None &&
                 zhiyu.Program is
                 {
-                    RuntimeVersion: "skill-program-v61",
-                    MinimumRulesVersion: 171,
+                    RuntimeVersion: "skill-program-v62",
+                    MinimumRulesVersion: 172,
                     Triggers.Count: 1
                 },
             $"Zhiyu metadata drifted: id={zhiyu.Id}, tags={zhiyu.Tags}, " +

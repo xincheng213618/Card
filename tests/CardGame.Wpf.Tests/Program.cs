@@ -242,6 +242,7 @@ internal static class Program
             Check("guide modal preserves selection and pauses then resumes the original timer policy", PlayerGuideChecks.ModalLifecycle);
             Check("general portraits share selected skins across gallery, choices and battle and persist locally", () => GeneralPortraitChecks.SelectionAndPersistence(output));
             Check("general gallery combines registered series, faction and text filters without changing the match", () => CheckGeneralGallery(output));
+            Check("Qu Yi gallery and official portrait", QuYiUiChecks.GalleryAndOfficialPortrait);
             Check("general selection previews candidates before one explicit confirmation", () => CheckGeneralSelectionPreview(output));
             Check("new games reveal only the player's identity and objective before general selection", () => CheckIdentityReveal(output));
             Check("the human skill rail distinguishes available active and automatic skills", () => CheckHumanSkillRail(output));

@@ -57,11 +57,13 @@ public sealed partial class GameEngine
             .ToArray();
         if (candidates.Length == 0) return false;
 
-        var parent = _resolutionStack.LastOrDefault() ??
-            throw new InvalidOperationException("Before-damage programs require an active parent frame.");
+        var parentFrameId = _resolutionStack.LastOrDefault()?.Id ??
+            (continuation == BeforeDamageProgramContinuation.Attack
+                ? _pendingAttack?.ResolutionId : null) ??
+            throw new InvalidOperationException("Before-damage programs require an attack continuation.");
         var frame = new BeforeDamageProgramWindowFrame(
             ++_resolutionSequence,
-            parent.Id,
+            parentFrameId,
             sourceSeat,
             targetSeat,
             amount,

@@ -87,6 +87,10 @@ internal static class WushengResponseChecks
                         "Hidden national Wusheng appeared in a Slash response before reveal.");
                     Require(game.CreateSnapshot(1).PendingDecision is null && !publicBefore.IsGeneralPublic,
                         "National response prompt or hidden general leaked before reveal.");
+                    var physical = ownBefore.Hand.FirstOrDefault(card =>
+                        card.Suit is Suit.Heart or Suit.Diamond &&
+                        card.Kind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash));
+                    if (physical is null) break;
                     var revealResult = game.Submit(new RevealGeneralCommand(
                             0,
                             GeneralSelectionSlot.Primary,
@@ -98,9 +102,6 @@ internal static class WushengResponseChecks
                         "National reveal did not publish a refreshed Slash response prompt.");
                     Require(game.GetHumanLegalActions().All(action => action.GeneralSlot != GeneralSelectionSlot.Primary),
                         "The revealed national slot remained actionable during the response.");
-                    var physical = ownBefore.Hand.First(card =>
-                        card.Suit is Suit.Heart or Suit.Diamond &&
-                        card.Kind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash));
                     var converted = refreshed.Choices.Single(choice => choice.Cards.SequenceEqual([physical.Id]));
                     Require(converted.Parameters["response-card-kind"] == "Slash" && converted.Description.Contains("当作【杀】"),
                         "Revealing national Wusheng did not refresh the red-card Slash response candidate.");

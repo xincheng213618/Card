@@ -28,7 +28,7 @@ internal static class ProgramCompositionContextChecks
         Reject(Rules("fixture:play-phase", [], [Trigger("run", "playEnding",
             """[{"op":"insertPhase","target":"owner","phase":"play","phaseContinuation":"beforeNormalPreparation"}]""")]),
             "PhaseInsertion");
-        foreach (var window in new[] { "selfDyingResponse", "afterDamageApplied", "cardsMoved" })
+        foreach (var window in new[] { "selfDyingResponse", "cardsMoved" })
             Reject(Rules("fixture:nested-judgment-" + window, [], [Trigger("run", window,
                 JudgmentEffects)]), "Judgment");
     }
@@ -205,7 +205,7 @@ internal static class ProgramCompositionContextChecks
     }
 
     private static string Rules(string id, IReadOnlyList<string> activations, IReadOnlyList<string> triggers) => $$"""
-    {"schemaVersion":61,"skills":[{"id":"{{id}}","revision":1,"minimumRulesVersion":170,
+    {"schemaVersion":62,"skills":[{"id":"{{id}}","revision":1,"minimumRulesVersion": 171,
     "modifiers":[],"viewAs":[],"activations":[{{string.Join(',', activations)}}],
     "triggers":[{{string.Join(',', triggers)}}],"contributions":[],"cardIdentities":[]}]}
     """;

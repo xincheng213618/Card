@@ -4,6 +4,7 @@ namespace CardGame.Core;
 
 internal readonly record struct SkillBindingIndexStamp(
     long SkillRevision,
+    int CurrentHp,
     bool PrimarySelected,
     bool PrimaryRevealed,
     bool HasSecondary,
@@ -150,16 +151,19 @@ internal sealed class MatchSkillBindingIndex
 {
     private readonly Func<string, ContentSkillDefinition> _resolveDefinition;
     private readonly bool _isNationalWarMode;
+    private readonly Func<CharacterState, bool>? _hasHpSensitiveSuppression;
     private readonly Dictionary<int, SkillBindingShard> _shards = [];
     private readonly Dictionary<int, int> _rebuildCounts = [];
 
     internal MatchSkillBindingIndex(
         Func<string, ContentSkillDefinition> resolveDefinition,
-        bool isNationalWarMode)
+        bool isNationalWarMode,
+        Func<CharacterState, bool>? hasHpSensitiveSuppression = null)
     {
         ArgumentNullException.ThrowIfNull(resolveDefinition);
         _resolveDefinition = resolveDefinition;
         _isNationalWarMode = isNationalWarMode;
+        _hasHpSensitiveSuppression = hasHpSensitiveSuppression;
     }
 
     internal int CachedSeatCount => _shards.Count;
@@ -169,7 +173,10 @@ internal sealed class MatchSkillBindingIndex
     internal SkillBindingShard GetShard(CharacterState player)
     {
         ArgumentNullException.ThrowIfNull(player);
-        var stamp = CaptureStamp(player);
+        var stamp = CaptureStamp(player) with
+        {
+            CurrentHp = _hasHpSensitiveSuppression?.Invoke(player) == true ? player.Hp : 0
+        };
         if (_shards.TryGetValue(player.Seat, out var existing) && existing.Stamp == stamp)
             return existing;
 
@@ -181,6 +188,7 @@ internal sealed class MatchSkillBindingIndex
 
     internal static SkillBindingIndexStamp CaptureStamp(CharacterState player) => new(
         player.SkillGrants.Revision,
+        0,
         player.GeneralSelected,
         player.GeneralRevealed,
         player.SecondaryGeneral is not null,
@@ -207,6 +215,21 @@ internal sealed class MatchSkillBindingIndex
                 continue;
             activeGrants.Add(grant);
             definitions.TryAdd(grant.SkillId, definition);
+        }
+
+        var suppressors = activeGrants.Where(grant =>
+                definitions[grant.SkillId].SuppressionRule is { } rule &&
+                player.Hp == rule.OwnerHpEquals)
+            .Select(grant => grant.SkillId).ToHashSet(StringComparer.Ordinal);
+        if (suppressors.Count > 0)
+        {
+            activeGrants.RemoveAll(grant =>
+                !suppressors.Contains(grant.SkillId) &&
+                !grant.SourceId.StartsWith("equipment:", StringComparison.Ordinal));
+            var remainingSkillIds = activeGrants.Select(grant => grant.SkillId)
+                .ToHashSet(StringComparer.Ordinal);
+            foreach (var skillId in definitions.Keys.Where(id => !remainingSkillIds.Contains(id)).ToArray())
+                definitions.Remove(skillId);
         }
 
         if (activeGrants.Count == 0)

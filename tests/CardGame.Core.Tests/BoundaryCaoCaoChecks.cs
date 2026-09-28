@@ -30,8 +30,8 @@ internal static class BoundaryCaoCaoChecks
                     SkillProgramConditionKind.HasClaimableDamageCards &&
                 trigger.Effects[2].Condition.CanEvaluateWithoutProgramFrame() == false &&
                 trigger.Effects[0].Condition.CanEvaluateWithoutProgramFrame() &&
-                registry.Skills["boundary:hujia"].Id == "classic:hujia" &&
-                registry.Skills["boundary:hujia"].Program is null,
+                registry.Skills["boundary:hujia"].Id == "boundary:hujia" &&
+                registry.Skills["boundary:hujia"].Program?.CardPolicies.Count > 0,
             "Jianxiong must choose draw or currently claimable damage cards once per hit; FactionDefense must reuse the lord kind.");
         var owner = new PlayerSkillContext(0, 3, 5, 2, TurnPhase.Play);
         var effects = trigger.Effects.ToArray();
@@ -295,8 +295,8 @@ internal static class BoundaryCaoCaoChecks
         const string generalId = "fixture:bound-claim-owner";
         const string modeId = "identity:classic-bound-claim-check-5";
         const string rules = """
-            {"schemaVersion":61,"skills":[{"id":"fixture:bound-claim","revision":1,
-              "minimumRulesVersion":170,"triggers":[{"id":"draw-then-claim","window":"afterDamageApplied",
+            {"schemaVersion":62,"skills":[{"id":"fixture:bound-claim","revision":1,
+              "minimumRulesVersion": 171,"triggers":[{"id":"draw-then-claim","window":"afterDamageApplied",
               "subject":"owner","damageOccurrence":"perDamage","optional":true,"priority":0,
               "effects":[{"op":"draw","target":"owner","amount":1,"resultBind":"drawn"},
               {"op":"claimDamageCards","target":"owner",

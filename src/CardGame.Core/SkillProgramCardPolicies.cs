@@ -16,7 +16,9 @@ public enum SkillProgramCardPolicyKind
     RescueRecoveryBonus,
     FactionHandLimitBonus,
     PreventTrickDamage,
-    NullifyBlackSlashWithoutArmor
+    NullifyBlackSlashWithoutArmor,
+    ProhibitNearbyTargetResponse,
+    ProhibitTargetSlashResponseBySuit
 }
 
 public sealed record SkillProgramCardPolicy(

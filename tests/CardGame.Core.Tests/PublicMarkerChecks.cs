@@ -11,7 +11,7 @@ internal static class PublicMarkerChecks
     private const string BystanderTwoId = "wuhun-marker:bystander-2";
     private const string WuhunSkillId = "wuhun-marker:wuhun";
     private const string WuhunRules = """
-    {"schemaVersion":61,"skills":[{"id":"wuhun-marker:wuhun","revision":2,"minimumRulesVersion":170,
+    {"schemaVersion":62,"skills":[{"id":"wuhun-marker:wuhun","revision":2,"minimumRulesVersion": 171,
     "modifiers":[],"viewAs":[],"activations":[],"triggers":[
       {"id":"damage-nightmare","window":"afterDamageApplied","subject":"owner","damageOccurrence":"perDamagePoint","optional":false,"priority":0,
        "effects":[{"op":"changeAttributedMarker","target":"owner","targetRef":{"kind":"eventSource"},"marker":"nightmare","amount":1}]},
@@ -79,8 +79,8 @@ internal static class PublicMarkerChecks
                 {
                     Tags: SkillTag.Locked,
                     ExecutionForms: SkillExecutionForm.State,
-                    Program.RuntimeVersion: "skill-program-v61",
-                    Program.MinimumRulesVersion: 171
+                    Program.RuntimeVersion: "skill-program-v62",
+                    Program.MinimumRulesVersion: 172
                 } &&
                 wuhun.Program.Triggers.Select(trigger => trigger.Window)
                     .SequenceEqual([
@@ -92,7 +92,7 @@ internal static class PublicMarkerChecks
         try
         {
             _ = SkillProgramCatalog.Load(
-                WuhunRules.Replace("\"schemaVersion\":61", "\"schemaVersion\":57", StringComparison.Ordinal),
+                WuhunRules.Replace("\"schemaVersion\":62", "\"schemaVersion\":57", StringComparison.Ordinal),
                 WuhunPresentation);
         }
         catch (Exception exception)
@@ -100,7 +100,7 @@ internal static class PublicMarkerChecks
             schemaFailure = exception;
         }
         Require(schemaFailure is InvalidOperationException &&
-                schemaFailure.Message.Contains("expected 60", StringComparison.Ordinal),
+                schemaFailure.Message.Contains("expected 62", StringComparison.Ordinal),
             "Unsupported schema versions must be rejected before running the Wuhun graph.");
 
         var tiedCandidates = GameRules.GetMaximumMarkerCandidates(
@@ -671,10 +671,8 @@ internal static class PublicMarkerChecks
                     });
                     if (attackerSkill == "classic:guicai")
                     {
-                        builder.AddSkill(new ContentSkillDefinition(
-                            "wuhun-marker:guicai",
-                            "鬼才",
-                            "一名角色的判定牌生效前，你可以打出一张手牌替换之。"));
+                        builder.AddSkill(StandardContentRegistry.CreateWithClassicGenerals()
+                            .Skills["classic:guicai"]);
                     }
                     if (attackerSkill == "classic:quhu")
                     {
@@ -687,7 +685,7 @@ internal static class PublicMarkerChecks
                         "guan_yu",
                         attackerSkill switch
                         {
-                            "classic:guicai" => "wuhun-marker:guicai",
+                            "classic:guicai" => "classic:guicai",
                             "classic:wuhun" => WuhunSkillId,
                             "classic:quhu" => WuhunSkillId,
                             _ => "standard:none"

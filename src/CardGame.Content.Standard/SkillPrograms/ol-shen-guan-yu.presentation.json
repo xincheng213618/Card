@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:wushen": {
+      "name": "武神",
+      "description": "锁定技，你的红桃手牌视为杀；你使用红桃杀无距离限制，且此杀不能被响应。"
+    }
+  }
+}

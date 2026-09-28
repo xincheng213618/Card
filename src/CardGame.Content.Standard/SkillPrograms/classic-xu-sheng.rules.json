@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:pojun",
+      "revision": 1,
+      "minimumRulesVersion": 173,
+      "triggers": [
+        {
+          "id": "hold-slash-target-cards",
+          "window": "slashBeforeResponse",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "cardActionActorIsCurrentTurn"
+              },
+              {
+                "kind": "cardActionPhaseIsPlay"
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "holdTargetCards",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "eventTarget"
+              },
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "resultBind": "pojun-hold",
+              "minimumCards": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

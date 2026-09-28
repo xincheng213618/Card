@@ -208,9 +208,11 @@ public sealed partial class GameEngine
     {
         if (!ReferenceEquals(_pendingAttack, attack))
             throw new InvalidOperationException("The Slash program stage lost its active attack.");
+        // Legacy and virtual Slash flows can reach the Dodge boundary without a
+        // frozen card action. They have no card-action facts for program triggers.
         var action = _resolutionStack.OfType<CardUseFrame>()
-            .Single(frame => frame.Id == attack.ResolutionId).Action ??
-            throw new InvalidOperationException("A Slash program stage requires its accepted card action.");
+            .Single(frame => frame.Id == attack.ResolutionId).Action;
+        if (action is null) return false;
         return TryBeginProgramCardWindow(attack, action, window, [attack.TargetSeat], continuation);
     }
 
@@ -271,7 +273,11 @@ public sealed partial class GameEngine
                 {
                     CardUseCausedDamage = cardUseCausedDamage,
                     EventTargetHandCount = eventTarget >= 0 ? GetHand(_players[eventTarget]).Count : 0,
-                    CurrentAttackRange = GetAttackRange(owner.Seat)
+                    CurrentAttackRange = GetAttackRange(owner.Seat),
+                    OwnerEventTargetDistance = eventTarget >= 0
+                        ? GetCombatDistance(owner.Seat, eventTarget)
+                        : int.MaxValue,
+                    CardActionTargetIsOwner = targets.Contains(owner.Seat)
                 };
                 var context = CreateCardActionProgramContext(action, window, parentFrameId: 0,
                     owner.Seat, eventTarget, facts);

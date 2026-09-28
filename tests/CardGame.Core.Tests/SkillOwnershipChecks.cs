@@ -198,7 +198,7 @@ internal static class SkillOwnershipChecks
         }
 
         private const string ProgramRules = """
-            {"schemaVersion":61,"skills":[{"id":"fixture:lord-program","revision":1,
+            {"schemaVersion":62,"skills":[{"id":"fixture:lord-program","revision":1,
             "modifiers":[],"viewAs":[],"activations":[{"id":"prepare","minCards":0,"maxCards":0,
             "minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,
             "effects":[{"op":"draw","target":"owner","amount":1}]}]},

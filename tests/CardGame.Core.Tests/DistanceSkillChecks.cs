@@ -8,7 +8,7 @@ internal static class DistanceSkillChecks
         var registry = StandardContentRegistry.CreateWithActiveSkills();
         Require(
             registry.Skills.TryGetValue("standard:mashu", out var definition) &&
-            definition is { Program.RuntimeVersion: "skill-program-v61" } &&
+            definition is { Program.RuntimeVersion: "skill-program-v62" } &&
             definition.Program.Modifiers.Single() is
             {
                 Query: SkillRuleQuery.OutgoingDistance,
@@ -39,7 +39,7 @@ internal static class DistanceSkillChecks
         var registry = StandardContentRegistry.CreateWithActiveSkills();
         Require(
             registry.Skills.TryGetValue("standard:qicai", out var definition) &&
-            definition.Program is { RuntimeVersion: "skill-program-v61" },
+            definition.Program is { RuntimeVersion: "skill-program-v62" },
             "The Qicai content definition must use the current program.");
 
         var distancePolicy = (definition?.Program ?? throw new InvalidOperationException("Missing Qicai program."))

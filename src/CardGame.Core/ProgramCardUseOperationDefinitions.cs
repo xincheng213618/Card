@@ -38,6 +38,35 @@ internal sealed class UseSelectedCardsAsProgramOperationDescriptor : ProgramOper
             : [new ConsumeSelectedCards(0)];
 }
 
+internal sealed class UseBoundCardByTargetProgramOperationDescriptor : ProgramOperationDescriptorBase
+{
+    public override SkillProgramEffectOp Op => SkillProgramEffectOp.UseBoundCardByTarget;
+    public override ISkillProgramEffectHandler Handler { get; } =
+        new UseBoundCardByTargetSkillProgramEffectHandler();
+    public override ProgramContextCapability RequiredCapabilities => ProgramContextCapability.CardAction;
+    public override ProgramOperationAiPolicy AiPolicy { get; } = new(
+        ProgramOperationAiSemantic.UseBoundCardByTarget,
+        static (effect, context) => context.UseBoundCardByTarget(effect));
+
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
+    {
+        r.AllowOnly("op", "target", "sourceBind", "condition");
+        var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
+        if (target != SkillProgramEffectTarget.SelectedTarget)
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}.target: useBoundCardByTarget requires selectedTarget.");
+        return new SkillProgramEffect(
+            Op,
+            target,
+            0,
+            r.Condition(),
+            sourceBind: r.RequiredIdentifier("sourceBind"));
+    }
+
+    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
+        [new ReadSelectedTarget(), new ReadCardSet(effect.SourceBind!)];
+}
+
 internal sealed class GrantTurnSkillsProgramOperationDescriptor : ProgramOperationDescriptorBase
 {
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.GrantTurnSkills;

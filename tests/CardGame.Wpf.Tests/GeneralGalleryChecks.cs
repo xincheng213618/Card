@@ -49,6 +49,11 @@ internal static class GeneralGalleryChecks
         Program.Assert(zhuZhi.Kingdom == "吴" && zhuZhi.SkillDescription.Contains("安国") &&
                        zhuZhi.SkillDescription.Contains("攻击范围") && zhuZhi.GroupId == "fame-5",
             "2015 Zhu Zhi needs the Wu/Fame V gallery group and Anguo text.");
+        var quYi = vm.GeneralGalleryEntries.Single(entry => entry.GeneralId == "classic:qu-yi");
+        Program.Assert(quYi.Kingdom == "群" && quYi.GroupId == "other" &&
+                       quYi.SkillDescription.Contains("伏骑") &&
+                       quYi.SkillDescription.Contains("骄恣") && GeneralArt.HasPortrait(quYi.GeneralId),
+            "Qu Yi needs both skills and his own official portrait in the other-expansion gallery.");
 
         Program.Render(root, 1440, 880, Path.Combine(output, "140-gallery-all.png"));
         var panel = (GeneralGalleryPanel)window.FindName("GeneralGallery");

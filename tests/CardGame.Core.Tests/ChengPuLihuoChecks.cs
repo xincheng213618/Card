@@ -32,7 +32,7 @@ internal static class ChengPuLihuoChecks
         var latest = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = latest.Skills[LihuoSkillId];
         Require(skill.Program is
-                { RuntimeVersion: "skill-program-v61", MinimumRulesVersion: 171 } currentProgram &&
+                { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } currentProgram &&
                 currentProgram.Modifiers.Single() is
                 { Query: SkillRuleQuery.CardTargetCount, Operation: SkillRuleOperation.Add, Value: 1 } &&
                 currentProgram.Modifiers.Single().CardKinds.SequenceEqual([CardKind.FireSlash]) &&
@@ -314,11 +314,11 @@ internal static class ChengPuLihuoChecks
         try
         {
             SkillProgramCatalog.Load(
-                rules.Replace("\"schemaVersion\": 61", "\"schemaVersion\": 57", StringComparison.Ordinal),
+                rules.Replace("\"schemaVersion\": 62", "\"schemaVersion\": 57", StringComparison.Ordinal),
                 presentation);
             throw new InvalidOperationException("Unsupported schema 57 accepted variable owned-card selection.");
         }
-        catch (InvalidOperationException error) when (error.Message.Contains("expected 60", StringComparison.Ordinal))
+        catch (InvalidOperationException error) when (error.Message.Contains("expected 62", StringComparison.Ordinal))
         {
         }
 
@@ -327,11 +327,11 @@ internal static class ChengPuLihuoChecks
         try
         {
             SkillProgramCatalog.Load(
-                rescueRules.Replace("\"schemaVersion\": 61", "\"schemaVersion\": 57", StringComparison.Ordinal),
+                rescueRules.Replace("\"schemaVersion\": 62", "\"schemaVersion\": 57", StringComparison.Ordinal),
                 presentation);
             throw new InvalidOperationException("Unsupported schema 57 accepted cross-seat dying response.");
         }
-        catch (InvalidOperationException error) when (error.Message.Contains("expected 60", StringComparison.Ordinal))
+        catch (InvalidOperationException error) when (error.Message.Contains("expected 62", StringComparison.Ordinal))
         {
         }
 
@@ -739,8 +739,8 @@ internal static class ChengPuLihuoChecks
         public void Register(IContentRegistryBuilder builder)
         {
             const string woundRules = """
-                {"schemaVersion":61,"skills":[{"id":"fixture:lihuo-pre-wound","revision":1,
-                  "minimumRulesVersion":170,"triggers":[{"id":"pre-wound",
+                {"schemaVersion":62,"skills":[{"id":"fixture:lihuo-pre-wound","revision":1,
+                  "minimumRulesVersion": 171,"triggers":[{"id":"pre-wound",
                     "window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,
                     "effects":[{"op":"loseHp","target":"owner","amount":1}]}]}]}
                 """;

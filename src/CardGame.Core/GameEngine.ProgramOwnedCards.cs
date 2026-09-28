@@ -122,7 +122,9 @@ public sealed partial class GameEngine
         var draft = frame.OwnedCardSelection ?? throw new InvalidOperationException("Missing owned-card draft.");
         var finish = selected.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards";
         if (effect.Op != SkillProgramEffectOp.SelectOwnedCards || draft.ResultBind != effect.ResultBind ||
-            draft.CardOwnerSeat != ResolveProgramEffectTarget(frame, effect.Target) ||
+            draft.CardOwnerSeat != (effect.TargetReference is { } cardOwner
+                ? ResolveProgramParticipant(frame, cardOwner)
+                : ResolveProgramEffectTarget(frame, effect.Target)) ||
             selected.Parameters.GetValueOrDefault("result-bind") != draft.ResultBind ||
             selected.Parameters.GetValueOrDefault("selection-index") != draft.SelectedCardIds.Count.ToString(System.Globalization.CultureInfo.InvariantCulture) ||
             selected.Targets.Count != 0 ||
@@ -165,7 +167,9 @@ public sealed partial class GameEngine
         if (frame.OwnedCardSelection is not { } draft)
             throw new InvalidOperationException("A suspended owned-card selection lost its private draft.");
         if (draft.ResultBind != paused.ResultBind ||
-            draft.CardOwnerSeat != ResolveProgramEffectTarget(frame, paused.Target) || draft.RequiredCount <= 0 ||
+            draft.CardOwnerSeat != (paused.TargetReference is { } cardOwner
+                ? ResolveProgramParticipant(frame, cardOwner)
+                : ResolveProgramEffectTarget(frame, paused.Target)) || draft.RequiredCount <= 0 ||
             draft.RequiredCount > draft.CandidateCardIds.Count || draft.SelectedCardIds.Count >= draft.RequiredCount ||
             draft.MinimumCount != paused.MinimumCards ||
             draft.MinimumCount > draft.RequiredCount ||

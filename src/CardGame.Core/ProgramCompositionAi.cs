@@ -409,8 +409,13 @@ internal sealed class ProgramAiEstimateContext
             _canUseSlashOnOther = false;
     }
 
-    internal void StartJudgment(SkillProgramEffect effect) =>
+    internal void StartJudgment(SkillProgramEffect effect)
+    {
         _bindings[effect.ResultBind!] = UnknownCards(1d, ownerHeld: false);
+        // A free public judgment can enable later conditional effects. Its
+        // unknown suit must not make an optional judgment look strictly inert.
+        _otherAdjustment += 1d;
+    }
 
     internal void StartPindian(SkillProgramEffect effect) =>
         _otherAdjustment += 2d; // Public-only neutral contest prior; no hand cards are inspected.
@@ -440,6 +445,23 @@ internal sealed class ProgramAiEstimateContext
         if (TargetsOwner(effect)) _otherAdjustment += value;
         else _targetAdjustment += value;
     }
+
+    internal void HoldTargetCards(SkillProgramEffect effect)
+    {
+        var target = _publicContext.SelectedTarget;
+        if (target is null) return;
+        // Public prior: the target's visible hand count plus one possible equipment card.
+        var available = Math.Max(0, target.HandCount) + 1d;
+        var held = Math.Min(Math.Max(1, target.Hp), available);
+        _otherAdjustment += held * 6d;
+    }
+
+    internal void UseBoundCardByTarget(SkillProgramEffect effect) =>
+        _otherAdjustment += 8d;
+
+    internal void PendExtraTurn() => _otherAdjustment += 20d;
+
+    internal void ClaimDeathCleanupCards() => _otherAdjustment += 10d;
 
     internal void SelectAndMoveOwnedCard(SkillProgramEffect effect)
     {

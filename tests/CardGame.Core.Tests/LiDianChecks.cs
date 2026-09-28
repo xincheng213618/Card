@@ -135,7 +135,8 @@ internal static class LiDianChecks
             Play(candidate, slash);
             for (var step = 0; step < 80; step++)
             {
-                if (candidate.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 })
+                if (candidate.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 } punishmentPrompt &&
+                    punishmentPrompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("option-id") == "damage"))
                 {
                     selected = candidate;
                     ganglieSeat = xiahouDun.Seat;
@@ -152,8 +153,12 @@ internal static class LiDianChecks
         Require(selected is not null, "No deterministic Li Dian Slash to successful Ganglie punishment was found.");
         var game = selected!;
         var punishment = Prompt(game);
-        var loseHp = punishment.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("response") == "ganglie-lose-hp");
+        var loseHp = punishment.Choices.SingleOrDefault(choice =>
+            choice.Parameters.GetValueOrDefault("option-id") == "damage") ??
+            throw new InvalidOperationException($"Ganglie punishment was not reached: " +
+                $"skill={punishment.SkillPrompt?.SkillId}, choices=" +
+                string.Join(';', punishment.Choices.Select(choice =>
+                    JsonSerializer.Serialize(choice.Parameters))));
         Answer(game, loseHp);
         Require(game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>().Any(item =>
                 item.SourceSeat == ganglieSeat && item.TargetSeat == 0 && item.Amount == 1),

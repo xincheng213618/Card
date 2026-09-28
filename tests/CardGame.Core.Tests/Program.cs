@@ -36,16 +36,6 @@ var tests = new (string Name, Action Body)[]
     ("shared post-event definition context validation", SharedPostEventChecks.DefinitionFiltersRejectWrongContexts),
     ("shared use lifecycle nests rescue inside a suspended card window", CardUseLifecycleChecks.NestedRescueRetainsTheOuterUseWindow),
     ("shared card-use phase-owner movement context validation", CardUseLifecycleChecks.PhaseOwnerDestinationRequiresPhaseContext),
-    ("Zhang Song equipment use, replacement and replay", ZhangSongChecks.EquipmentUsesReplaceAndResumeExactlyOnce),
-    ("Zhang Song category mismatch and phase lifetime", ZhangSongChecks.CategoryMismatchAndPhaseLifetime),
-    ("Zhang Song Xiantu original cards and play-end timing", ZhangSongChecks.XiantuSelectsExistingCardsAndPenalizesBeforeDiscard),
-    ("Zhang Song Qiangzhi and Xiantu definition and content contract", ZhangSongChecks.DefinitionAndContentContract),
-    ("Classic Zhang Song Qiangzhi reveals a category and draws on matching uses", ZhangSongChecks.ClassicQiangzhiRevealsThenDrawsOnMatchingCategory),
-    ("Boundary Zhang Song Qiangzhi views the hand and chooses the revealed card", ZhangSongChecks.BoundaryQiangzhiViewsHandAndChoosesReveal),
-    ("Classic Zhang Song Xiantu gifts two cards and penalizes a killless phase", ZhangSongChecks.ClassicXiantuGiftsTwoAndPenalizesWithoutKill),
-    ("Boundary Zhang Song Xiantu chooses the gift amount and pays the damage penalty", ZhangSongChecks.BoundaryXiantuChoosesGiftAmountAndPenalty),
-    ("shared use lifecycle preserves dying rescue and replay", CardUseLifecycleChecks.DyingBasicUsesResumeTheirRescueParent),
-    ("shared use lifecycle covers basic equipment trick and multiple targets", CardUseLifecycleChecks.BasicEquipmentAndTricksShareReplayableUseWindows),
     ("current classic catalogue modes and skill references", CurrentClassicContentChecks.CatalogueAndModes),
     ("turn-ending Xiaoguo Tianxiang game over stops later observers", TurnEndingGameOverChecks.XiaoguoTianxiangVictoryStopsLaterObservers),
     ("2014 boundary Zhou Yu definition version and public gift resource contracts", BoundaryZhouYuChecks.DefinitionAndResourceContracts),
@@ -56,6 +46,36 @@ var tests = new (string Name, Action Body)[]
     ("2014 boundary Zhou Yu Yingzi respects Luoyi draw replacement", BoundaryZhouYuChecks.YingziRespectsDrawReplacement),
     ("2014 boundary Zhou Yu Yingzi tracks actual lost HP", BoundaryZhouYuChecks.YingziTracksActualLostHp),
     ("2014 boundary Zhou Yu Fanjian discards matching equipment", BoundaryZhouYuChecks.FanjianDiscardsMatchingEquipment),
+    ("2017 Cao Ang definition and observer distance schema", CaoAngChecks.DefinitionAndObserverDistanceSchema),
+    ("2017 Cao Ang nearby gift reveals and recipient may equip with replay", CaoAngChecks.NearbyTargetGiftRevealsAndRecipientMayEquip),
+    ("2017 Cao Ang non-equipment gift stays without use prompt", CaoAngChecks.NonEquipmentGiftKeepsRecipientHandWithoutUsePrompt),
+    ("2017 Cao Ang distance beyond one does not trigger", CaoAngChecks.DistanceBeyondOneDoesNotTrigger),
+    ("2017 Cao Ang self-target draws only without gift", CaoAngChecks.SelfTargetSlashDrawsOnlyWithoutGift),
+    ("Qu Yi definition and shared response and damage rules", QuYiChecks.DefinitionAndSharedRules),
+    ("Qu Yi nearby Slash response precedes Jiaozi damage", QuYiChecks.NearbySlashCannotRespondBeforeDamageBonus),
+    ("Qu Yi global trick checks each target response range", QuYiChecks.GlobalTrickResponseUsesEachTargetsDistance),
+    ("Qu Yi Arrow Barrage checks each target response range", QuYiChecks.ArrowBarrageResponseUsesEachTargetsDistance),
+    ("Qu Yi nearby Duel response precedes damage", QuYiChecks.NearbyDuelCannotRequestSlash),
+    ("Qu Yi Jiaozi modifies cardless damage", QuYiChecks.CardlessDamageUsesTheSameDamageModifier),
+    ("Qu Yi original trick nullification skips nearby target", QuYiChecks.OriginalTrickNullificationSkipsNearbyTarget),
+    ("Qu Yi Jiaozi rejects a hand-count tie at damage time", QuYiChecks.TiedHandCountDoesNotIncreaseCardlessDamage),
+    ("Qu Yi Jiaozi raises incoming damage for its owner", QuYiChecks.IncomingDamageChecksTheTargetOwner),
+    ("response equipment and Chanyuan keep temporary suppression distinct", ResponseAndSkillSuppressionChecks.DefinitionsAndChanyuanRestoresSkills),
+    ("Zhang Xiu Xiongluan abolishes areas and blocks hand without armor bypass", ResponseAndSkillSuppressionChecks.XiongluanBlocksHandButDoesNotIgnoreArmor),
+    ("Xingtian Axe pays two cards then blocks hand and armor", ResponseAndSkillSuppressionChecks.XingtianPaysTwoAndBlocksOnlyHandCards),
+    ("Cai Wenji Duanchang permanently removes killer skills", ResponseAndSkillSuppressionChecks.DuanchangPermanentlyRemovesKillersSkills),
+    ("red Slash and Scarlet Blood Sword gate response before damage", ResponseAndSkillSuppressionChecks.SlashResponseRestrictionsRespectWeaponAndSuit),
+    ("2026 Shen Sima Yi definition and kill-window schema", ShenSimaYiChecks.DefinitionAndKillWindowSchema),
+    ("2026 Shen Sima Yi damage and discard both grant Ren markers", ShenSimaYiChecks.DamageAndDiscardBothGrantRenMarkers),
+    ("2026 Shen Sima Yi hand-limit discards grant Ren markers", ShenSimaYiChecks.HandLimitDiscardsGrantRenMarkers),
+    ("2026 Shen Sima Yi awakening at four markers grants Lianpo", ShenSimaYiChecks.AwakeningAtFourMarkersGrantsLianpo),
+    ("2026 Shen Sima Yi kill grants exactly one extra turn with replay", ShenSimaYiChecks.KillGrantsExactlyOneExtraTurnAndReplays),
+    ("2026 Shen Sima Yi declined kill keeps normal rotation", ShenSimaYiChecks.DeclinedKillKeepsNormalRotation),
+    ("2026 Shen Sima Yi extra-turn kill chains another extra turn", ShenSimaYiChecks.ExtraTurnKillChainsAnotherExtraTurn),
+    ("2010 Cao Pi definition and trigger schema", CaoPiChecks.DefinitionAndTriggerSchema),
+    ("2010 Cao Pi Xingshang claims died player cards and replays", CaoPiChecks.XingShangClaimsDiedPlayerCardsAndReplays),
+    ("2010 Cao Pi declined Xingshang keeps victim cards in discard", CaoPiChecks.XingShangSkipKeepsVictimCardsInDiscard),
+    ("2010 Cao Pi Fangzhu flips target and draws owner lost HP", CaoPiChecks.FangZhuFlipsTargetAndDrawsOwnerLostHp),
     ("2013 Pan Zhang Ma Zhong definition and generic schema 56", PanZhangMaZhongChecks.DefinitionAndGenericSchema),
     ("2013 Pan Zhang Ma Zhong natural far Slash and replay", PanZhangMaZhongChecks.NaturalSlashReverseRangeAndReplay),
     ("2013 Pan Zhang Ma Zhong Duodao pays and claims weapon with replay", PanZhangMaZhongChecks.NaturalDuodaoPaymentWeaponAndReplay),
@@ -63,6 +83,19 @@ var tests = new (string Name, Action Body)[]
     ("2013 Pan Zhang Ma Zhong Duodao unarmed source payment and decline", PanZhangMaZhongChecks.DuodaoMayPayWithoutSourceWeaponAndMayDecline),
     ("2013 Pan Zhang Ma Zhong Anjian amount survives Tianxiang transfer", PanZhangMaZhongChecks.AnjianAmountIsFrozenAcrossTianxiangTransfer),
     ("2014 boundary Xu Chu registers and validates general card filter", BoundaryXuChuChecks.DefinitionAndGeneralFilterContract),
+    ("Xu Sheng Pojun definition and generic hold contract", XuShengChecks.DefinitionAndContentContract),
+    ("Xu Sheng Pojun holds target cards and returns them at turn end", XuShengChecks.ClassicPojunHoldsAndReturnsAtTurnEnd),
+    ("Boundary Xu Sheng Pojun damage bonus tracks hand and equipment counts", XuShengChecks.BoundaryPojunDamageBonusTracksCardCounts),
+    ("Boundary Xu Sheng Pojun triggers for an off-turn Borrowed Sword Slash", XuShengChecks.BoundaryPojunTriggersOutsideOwnTurn),
+    ("Pojun hold cards are discarded when the holder dies", XuShengChecks.PojunHoldsAreDiscardedWhenHolderDies),
+    ("Zhang Song equipment use, replacement and replay", ZhangSongChecks.EquipmentUsesReplaceAndResumeExactlyOnce),
+    ("Zhang Song category mismatch and phase lifetime", ZhangSongChecks.CategoryMismatchAndPhaseLifetime),
+    ("Zhang Song Xiantu original cards and play-end timing", ZhangSongChecks.XiantuSelectsExistingCardsAndPenalizesBeforeDiscard),
+    ("Zhang Song Qiangzhi and Xiantu definition and content contract", ZhangSongChecks.DefinitionAndContentContract),
+    ("Classic Zhang Song Qiangzhi reveals a category and draws on matching uses", ZhangSongChecks.ClassicQiangzhiRevealsThenDrawsOnMatchingCategory),
+    ("Boundary Zhang Song Qiangzhi views the hand and chooses the revealed card", ZhangSongChecks.BoundaryQiangzhiViewsHandAndChoosesReveal),
+    ("Classic Zhang Song Xiantu gifts two cards and penalizes a killless phase", ZhangSongChecks.ClassicXiantuGiftsTwoAndPenalizesWithoutKill),
+    ("Boundary Zhang Song Xiantu chooses the gift amount and pays the damage penalty", ZhangSongChecks.BoundaryXiantuChoosesGiftAmountAndPenalty),
     ("2014 boundary Xu Chu Luoyi partitions zero to three revealed cards and replays", BoundaryXuChuChecks.RevealedCardsPartitionAndReplay),
     ("2014 boundary Xu Chu damage scope duration and natural Slash replay", BoundaryXuChuChecks.DamageScopeAndDuration),
     ("2014 boundary Xu Chu reverse Duel after Slash and replay", BoundaryXuChuChecks.NaturalReverseDuelAndReplay),
@@ -137,6 +170,8 @@ var tests = new (string Name, Action Body)[]
     ("Program choice AI predicts one branch from public state", ProgramChoiceAiChecks.PublicStatePredictsExactlyOneOption),
     ("Program choice revalidates options and exact skill instance", ProgramChoiceChecks.RevalidatesChoiceAndExactInstanceBeforeResolving),
     ("composition kernel descriptor contracts", ProgramCompositionDefinitionChecks.CatalogDiscoversCompleteOperations),
+    ("shared use lifecycle preserves dying rescue and replay", CardUseLifecycleChecks.DyingBasicUsesResumeTheirRescueParent),
+    ("shared use lifecycle covers basic equipment trick and multiple targets", CardUseLifecycleChecks.BasicEquipmentAndTricksShareReplayableUseWindows),
     ("completed Slash program window follows finished card use and replays", CardUseCompletedChecks.FinishedSlashOpensReplayableProgramWindow),
     ("card-action judgment windows resume and replay", ProgramCardJudgmentWindowChecks.AllCardActionWindowsStartPublicJudgmentsAndReplay),
     ("completed Slash freezes actual damage for conditional programs", CardUseCompletedChecks.CompletedUseFreezesActualDamageFact),
@@ -1138,7 +1173,7 @@ static void WinnerRules()
 
 static void CardCatalogDefinitions()
 {
-    Equal(45, CardCatalog.ImplementedCards.Count);
+    Equal(48, CardCatalog.ImplementedCards.Count);
     Equal("杀", CardCatalog.Get(CardKind.Slash).DisplayName);
     Equal("闪", CardCatalog.Get(CardKind.Dodge).DisplayName);
     Equal("桃", CardCatalog.Get(CardKind.Peach).DisplayName);
@@ -1830,12 +1865,12 @@ static void DamageTriggerOrdering()
 {
     var ordered = CardGame.Core.DamageTriggerOrdering.Order(
     [
-        new DamageTriggerCandidate(3, "seat3:feedback", Priority: 10, ProgramId: "standard:feedback"),
-        new DamageTriggerCandidate(1, "seat1:jianxiong", Priority: 10, ProgramId: "standard:jianxiong"),
-        new DamageTriggerCandidate(2, "feedback-b", Priority: 10, ProgramId: "standard:feedback"),
-        new DamageTriggerCandidate(2, "feedback-a", Priority: 10, ProgramId: "standard:feedback"),
-        new DamageTriggerCandidate(2, "seat2:jianxiong", Priority: 10, ProgramId: "standard:jianxiong"),
-        new DamageTriggerCandidate(0, "wusheng", Priority: 20, ProgramId: "standard:wusheng")
+        new DamageTriggerCandidate(3, "seat3:feedback", Priority: 10, ProgramId: "standard:feedback", ProgramTriggerId: "hit", SkillInstanceId: "seat3:feedback", GameplayHash: "fixture"),
+        new DamageTriggerCandidate(1, "seat1:jianxiong", Priority: 10, ProgramId: "standard:jianxiong", ProgramTriggerId: "hit", SkillInstanceId: "seat1:jianxiong", GameplayHash: "fixture"),
+        new DamageTriggerCandidate(2, "feedback-b", Priority: 10, ProgramId: "standard:feedback", ProgramTriggerId: "hit", SkillInstanceId: "feedback-b", GameplayHash: "fixture"),
+        new DamageTriggerCandidate(2, "feedback-a", Priority: 10, ProgramId: "standard:feedback", ProgramTriggerId: "hit", SkillInstanceId: "feedback-a", GameplayHash: "fixture"),
+        new DamageTriggerCandidate(2, "seat2:jianxiong", Priority: 10, ProgramId: "standard:jianxiong", ProgramTriggerId: "hit", SkillInstanceId: "seat2:jianxiong", GameplayHash: "fixture"),
+        new DamageTriggerCandidate(0, "wusheng", Priority: 20, ProgramId: "standard:wusheng", ProgramTriggerId: "hit", SkillInstanceId: "wusheng", GameplayHash: "fixture")
     ],
     currentActorSeat: 7,
     playerCount: 8);
@@ -1844,9 +1879,9 @@ static void DamageTriggerOrdering()
     [
         "wusheng",
         "seat1:jianxiong",
-        "seat2:jianxiong",
         "feedback-a",
         "feedback-b",
+        "seat2:jianxiong",
         "seat3:feedback",
     ]));
     Equal(1, CardGame.Core.DamageTriggerOrdering.GetRelativeSeatOrder(7, 0, 8));
@@ -1948,7 +1983,7 @@ static void CheckpointRestore()
     Equal(1, checkpoint.Commands.Count);
     Equal(GameCheckpoint.CurrentRulesVersion, checkpoint.RulesVersion);
     TrueWithMessage(
-        checkpoint.ContentPackages.SequenceEqual(["standard@1.14.0"]),
+        checkpoint.ContentPackages.SequenceEqual(["standard@" + StandardContentPackage.CurrentVersion]),
         "checkpoint records the content package signature");
     Equal(StandardContentRegistry.Create().ContentHash, checkpoint.ContentHash);
 
@@ -4270,7 +4305,7 @@ static void PublicTargetCardFlow()
 
 static void EquipmentFlow()
 {
-    Equal(24, EquipmentCatalog.Implemented.Count);
+    Equal(27, EquipmentCatalog.Implemented.Count);
     Equal(EquipmentSlot.Weapon, EquipmentCatalog.Get(CardKind.Crossbow).Slot);
     Equal(1, EquipmentCatalog.Get(CardKind.Crossbow).WeaponAttackRange);
     Equal(int.MaxValue, EquipmentCatalog.Get(CardKind.Crossbow).SlashLimitBonus);
@@ -4556,6 +4591,7 @@ static void BaguaJudgmentFlow()
 
                     result = prompt.Kind switch
                     {
+                        DecisionKind.ProgramTrigger => ResolveIncidentalProgramTrigger(game),
                         DecisionKind.RespondSlash => game.DriveHumanRespondSlash(
                             useSlash: false,
                             advanceToHumanBoundary: false),
@@ -4728,6 +4764,7 @@ static void BaguaDefendsArrowBarrage()
 
                 result = prompt.Kind switch
                 {
+                    DecisionKind.ProgramTrigger => ResolveIncidentalProgramTrigger(game),
                     DecisionKind.RespondSlash => game.DriveHumanRespondSlash(
                         useSlash: false,
                         advanceToHumanBoundary: false),
@@ -5821,6 +5858,12 @@ static void YuanhuCrossSeatFlow()
     PendingDecision? selectedPrompt = null;
     CardSnapshot? selectedAttackCard = null;
     var targetSeat = -1;
+    var offered = 0;
+    var readyCount = 0;
+    var attackCount = 0;
+    var resultStates = new Dictionary<string, int>();
+    var damageCount = 0;
+    var sample = "";
     for (var seed = 1; seed <= 4_096 && selectedGame is null; seed++)
     {
         var game = GameEngine.CreateStandard(
@@ -5841,6 +5884,7 @@ static void YuanhuCrossSeatFlow()
         {
             continue;
         }
+        offered++;
 
         _ = game.DriveHumanSelectGeneral("standard:demo-yuanhu", advanceToHumanBoundary: false);
         var ready = game.DriveAdvance();
@@ -5848,6 +5892,7 @@ static void YuanhuCrossSeatFlow()
         {
             continue;
         }
+        readyCount++;
 
         var revealed = game.CreateSnapshot(0, revealAll: true);
         var human = revealed.Players.Single(player => player.Seat == 0);
@@ -5875,21 +5920,33 @@ static void YuanhuCrossSeatFlow()
         {
             continue;
         }
+        attackCount++;
 
-        var result = game.DriveHumanPlay(
-            action.CardId!.Value,
-            action.TargetSeat,
-            advanceToHumanBoundary: true,
-            playedCardKind: action.PlayedCardKind);
-        if (result.Status == EngineStatus.AwaitingHumanResponse &&
-            result.PendingDecision is
+        var played = game.Submit(new PlayCardCommand(0, action.CardId!.Value,
+            action.TargetSeats, game.Revision, game.PendingDecision!.PromptId,
+            action.PlayedCardKind));
+        if (!played.Accepted) continue;
+        for (var step = 0; step < 48 &&
+             game.PendingDecision?.SkillPrompt?.SkillId != "standard:yuanhu" &&
+             game.ResolutionStack.Count > 0 &&
+             game.PendingDecision is null; step++)
+        {
+            if (!game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted) break;
+        }
+        var resultKey = $"{game.State.Status}/{game.PendingDecision?.Kind}/{game.PendingDecision?.SkillPrompt?.SkillId}";
+        resultStates[resultKey] = resultStates.GetValueOrDefault(resultKey) + 1;
+        if (game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>()
+            .Any(item => item.TargetSeat == action.TargetSeat)) damageCount++;
+        if (sample.Length == 0) sample = $"seed={seed}, target={action.TargetSeat}, beforeHp={revealed.Players.Single(player => player.Seat == action.TargetSeat).Hp}, afterHp={game.CreateSnapshot(0,true).Players.Single(player => player.Seat == action.TargetSeat).Hp}, ownerHand={game.CreateSnapshot(0,true).Players[0].HandCount}, candidates={string.Join(',', game.Events.Select(item => item.Payload).OfType<DamageTriggerWindowOpenedEvent>().LastOrDefault()?.Candidates.Select(item => item.ProgramId) ?? [])}, status={resultKey}, stack={string.Join(',', game.ResolutionStack.Select(frame => frame.GetType().Name + '/' + frame.Step))}, events={string.Join(',', game.Events.TakeLast(12).Select(item => item.Payload.GetType().Name))}";
+        if (game.State.Status == EngineStatus.AwaitingHumanResponse &&
+            game.PendingDecision is
             {
                 Kind: DecisionKind.ProgramTrigger,
                 SkillPrompt.SkillId: "standard:yuanhu"
             })
         {
             selectedGame = game;
-            selectedPrompt = result.PendingDecision;
+            selectedPrompt = game.PendingDecision;
             selectedAttackCard = human.Hand.Single(card => card.Id == action.CardId);
             targetSeat = action.TargetSeat!.Value;
         }
@@ -5897,7 +5954,7 @@ static void YuanhuCrossSeatFlow()
 
     if (selectedGame is null || selectedPrompt is null || selectedAttackCard is null || targetSeat < 0)
     {
-        throw new InvalidOperationException("No deterministic cross-seat Yuanhu trigger was found.");
+        throw new InvalidOperationException($"No deterministic cross-seat Yuanhu trigger was found: offered={offered}, ready={readyCount}, attack={attackCount}, damage={damageCount}, results={string.Join(';', resultStates.Select(item => item.Key + '=' + item.Value))}, sample={sample}.");
     }
 
     var gameWithYuanhu = selectedGame!;
@@ -6288,7 +6345,7 @@ static void GuicaiFlow()
                         .Hand;
                     var choice = prompt.Choices.FirstOrDefault(candidate =>
                     {
-                        if (candidate.Parameters.GetValueOrDefault("response") != "guicai-replace" ||
+                        if (candidate.Parameters.GetValueOrDefault("action") != "program-judgment-replace" ||
                             candidate.Cards.Count != 1)
                         {
                             return false;
@@ -6398,12 +6455,12 @@ static void GuicaiFlow()
 
     var replacementEvent = gameWithGuicai.Events
         .Select(eventItem => eventItem.Payload)
-        .OfType<JudgmentReplacementResolvedEvent>()
-        .Single(eventItem => eventItem.ResolutionId == finalFrame.Id && eventItem.Used);
+        .OfType<ProgramJudgmentReplacementResolvedEvent>()
+        .Single(eventItem => eventItem.JudgmentFrameId == finalFrame.Id && eventItem.Activated);
     Equal(0, replacementEvent.OwnerSeat);
-    Equal(finalFrame.TargetSeat, replacementEvent.TargetSeat);
+    Equal(finalFrame.TargetSeat, replacementEvent.SubjectSeat);
     Equal(oldCardId, replacementEvent.OldCardId);
-    Equal(replacementCardId, replacementEvent.NewCardId);
+    Equal(replacementCardId, replacementEvent.ReplacementCardId);
     TrueWithMessage(gameWithGuicai.Events.Any(eventItem =>
         eventItem.Payload is JudgmentReplacementRequestedEvent requested &&
         requested.ResolutionId == finalFrame.Id &&
@@ -6417,17 +6474,17 @@ static void GuicaiFlow()
         movement.CardId == oldCardId &&
         movement.From == CardLocation.Judgment(finalFrame.TargetSeat) &&
         movement.To == CardLocation.DiscardPile &&
-        movement.Reason == CardMoveReasons.JudgmentFinish), "old judgment is discarded");
+        movement.Reason == CardMoveReasons.ProgramJudgmentOldCard), "old judgment is discarded");
     TrueWithMessage(gameWithGuicai.CardMovements.Any(movement =>
         movement.CardId == replacementCardId &&
         movement.From == CardLocation.Hand(0) &&
         movement.To == CardLocation.Processing &&
-        movement.Reason == CardMoveReasons.GuicaiReplace), "replacement enters processing");
+        movement.Reason == CardMoveReasons.ProgramJudgmentReplace), "replacement enters processing");
     TrueWithMessage(gameWithGuicai.CardMovements.Any(movement =>
         movement.CardId == replacementCardId &&
         movement.From == CardLocation.Processing &&
         movement.To == CardLocation.Judgment(finalFrame.TargetSeat) &&
-        movement.Reason == CardMoveReasons.GuicaiReplace), "replacement enters judgment");
+        movement.Reason == CardMoveReasons.ProgramJudgmentReplace), "replacement enters judgment");
     TrueWithMessage(gameWithGuicai.CardMovements.Any(movement =>
         movement.CardId == replacementCardId &&
         movement.From == CardLocation.Judgment(finalFrame.TargetSeat) &&
@@ -8519,6 +8576,7 @@ static EngineRunResult ResolveIncidentalProgramTrigger(GameEngine game)
             candidate.Parameters.GetValueOrDefault("program-action") == "skip") ??
         prompt.Choices.FirstOrDefault(candidate =>
             candidate.Parameters.GetValueOrDefault("program-action") == "activate") ??
+        prompt.Choices.FirstOrDefault() ??
         throw new InvalidOperationException("The published skill trigger has no executable choice.");
     var answer = game.Submit(new AnswerPromptCommand(
         prompt.PlayerSeat, prompt.PromptId, choice.Id, game.Revision));

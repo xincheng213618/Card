@@ -35,8 +35,9 @@
       "name": "经典形象",
       "sourcePage": "https://www.sanguosha.cn/pc/hero-detail-179.html",
       "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/32600.jpg",
-      "localPath": "src/CardGame.Wpf/Assets/official-zhang-song.jpg",
-      "sha256": "e49adbf4fe657c74ee015aa9e847f15fc722f87a24291f3c1da6d8c0bcceb364",
+      "localPath": "src/CardGame.Wpf/Assets/official-zhang-song.png",
+      "note": "2026-09-28 由JPEG无损转存为PNG以通过 general-art-catalog 校验，视觉内容不变。",
+      "sha256": "4577d2e2597e74b793af9686c977b5a2300a00f00cdf9b0eef7555e561fd1539",
       "pixelWidth": 530,
       "pixelHeight": 750
     },

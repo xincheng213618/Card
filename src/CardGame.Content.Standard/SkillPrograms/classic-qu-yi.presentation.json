@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:fuqi": {
+      "name": "伏骑",
+      "description": "锁定技，当你使用【杀】或普通锦囊牌指定目标后，你距离其为1的其他角色不能响应此牌。"
+    },
+    "classic:jiaozi": {
+      "name": "骄恣",
+      "description": "锁定技，当你造成或受到伤害时，若你的手牌数是全场唯一最多，此伤害+1。"
+    }
+  }
+}

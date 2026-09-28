@@ -5,6 +5,9 @@ public sealed partial class GameEngine
     private bool IsTurnHandCardRestricted(CharacterState player, Card card)
     {
         if (_cardZones.GetLocation(card.Id) != CardLocation.Hand(player.Seat)) return false;
+        if (_pendingAttack is { ProhibitsTargetHandResponses: true } attack &&
+            attack.TargetSeat == player.Seat && attack.CardUserSeat != player.Seat)
+            return true;
         return _turnCardUseEffects.IsHandColorRestricted(
             _turnNumber,
             _currentSeat,
@@ -175,6 +178,21 @@ public sealed partial class GameEngine
             targetSeat,
             IsRedSuit(EffectiveSuit(_players[frame.OwnerSeat], card)));
         QueueGameEvent(new HandCardColorRestrictionGrantedEvent(granted));
+    }
+
+    private void GrantProgramTurnHandCardProhibition(ProgramSkillFrame frame, int targetSeat)
+    {
+        ValidateProgramTurnEffectGrant(frame);
+        if (!IsValidPlayerSeat(targetSeat) || targetSeat == frame.OwnerSeat || !_players[targetSeat].IsAlive)
+            throw new InvalidOperationException("A hand-card prohibition requires one living other character.");
+        var effectIndex = frame.InstructionIndex - 1;
+        foreach (var isRed in new[] { false, true })
+        {
+            var granted = _turnCardUseEffects.GrantHandColorRestriction(
+                _turnNumber, _currentSeat, frame.Id, -2 * effectIndex - (isRed ? 2 : 1),
+                CreateProgramTurnEffectSource(frame), targetSeat, isRed);
+            QueueGameEvent(new HandCardColorRestrictionGrantedEvent(granted));
+        }
     }
 
     private void GrantProgramTurnRuleModifier(

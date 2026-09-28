@@ -116,6 +116,9 @@ public sealed record ProgramSkillFrame(
     public ProgramOwnedCardSelection? OwnedCardSelection { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramHoldCardSelection? HoldCardSelection { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramRevealCardSelection? RevealCardSelection { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

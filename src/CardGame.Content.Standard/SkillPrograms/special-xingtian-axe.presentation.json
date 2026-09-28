@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "special:xingtian-axe-effect": {
+      "name": "刑天破军斧",
+      "description": "出牌阶段，你对一名角色使用牌后，可弃两张牌，令其本回合不能使用或打出手牌且防具失效。"
+    }
+  }
+}

@@ -766,6 +766,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 ChunlaoTooltip = player.ChunlaoCards is { Count: > 0 }
                     ? $"公开的“醇”：{string.Join("、", player.ChunlaoCards.Select(card => $"{card.DisplayName} {card.Suit}{card.Rank}"))}"
                     : string.Empty,
+                PojunHoldText = player.PojunHoldCount > 0
+                    ? $"破 ×{player.PojunHoldCount}"
+                    : string.Empty,
+                PojunHoldTooltip = player.PojunHoldCount > 0
+                    ? $"被【破军】扣置的牌 {player.PojunHoldCount} 张（回合结束后回到其手牌）"
+                    : string.Empty,
                 HasAlcoholEffect = player.HasAlcoholEffect,
                 SkillName = IsNationalSnapshot
                     ? $"{VisibleSkillNames(player.Skills)} / {VisibleSkillNames(player.SecondarySkills)}"
@@ -869,6 +875,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 (human.WoodenOxGrainCount > 0 ? $" · 木牛粮 {human.WoodenOxGrainCount}" : string.Empty) +
                 (human.AuthorityCount > 0 ? $" · 权 {human.AuthorityCount}" : string.Empty) +
                 (human.ChunlaoCount > 0 ? $" · 醇 {human.ChunlaoCount}" : string.Empty) +
+                (human.PojunHoldCount > 0 ? $" · 破 {human.PojunHoldCount}" : string.Empty) +
                 (human.HasAlcoholEffect ? " · 酒效待下一张杀" : string.Empty);
         }
         else

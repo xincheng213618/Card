@@ -106,6 +106,25 @@ public static class EquipmentCatalog
                 EquipmentSlot.Weapon,
                 "装备至武器槽；攻击范围 4，你可以将使用的普通杀改为火杀。",
                 WeaponAttackRange: 4),
+            [CardKind.GhostDragonCrescentBlade] = new(
+                CardKind.GhostDragonCrescentBlade,
+                "鬼龙斩月刀",
+                EquipmentSlot.Weapon,
+                "装备至武器槽；攻击范围 3，你使用的红色杀不能被闪响应。",
+                WeaponAttackRange: 3),
+            [CardKind.ScarletBloodSword] = new(
+                CardKind.ScarletBloodSword,
+                "赤血青锋",
+                EquipmentSlot.Weapon,
+                "装备至武器槽；攻击范围 2，你的杀无视目标防具，目标不能使用或打出手牌响应。",
+                WeaponAttackRange: 2,
+                IgnoresArmor: true),
+            [CardKind.XingtianAxe] = new(
+                CardKind.XingtianAxe,
+                "刑天破军斧",
+                EquipmentSlot.Weapon,
+                "装备至武器槽；攻击范围 4，你对单一目标用牌后可弃两张牌，令其本回合不能使用或打出手牌且防具失效。",
+                WeaponAttackRange: 4),
             [CardKind.BaguaFormation] = new(
                 CardKind.BaguaFormation,
                 "八卦阵",

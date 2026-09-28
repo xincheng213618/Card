@@ -301,10 +301,11 @@ internal static class TacticalAiChecks
                 loyal, lord, JudgmentReasons.SupplyShortage, [1000, 1001], CardKind.Dodge,
                 Suit.Spade, 1, null, 7).CardId == 1001,
             "Guicai did not turn an allied Supply Shortage judgment into Club.");
-        Require(new SimpleAiBrain(0, 271, 2).ChooseJudgmentReplacement(
+        var lightningChoice = new SimpleAiBrain(0, 271, 2).ChooseJudgmentReplacement(
                 loyal, lord, JudgmentReasons.Lightning, [1000, 1001], CardKind.Dodge,
-                Suit.Spade, 1, null, 5).CardId == 1000,
-            "Guicai did not turn an allied Lightning hit into a miss.");
+                Suit.Spade, 5, null, 5);
+        Require(lightningChoice.CardId == 1000,
+            $"Guicai did not turn an allied Lightning hit into a miss: picked={lightningChoice.CardId}, candidates={string.Join(';', lightningChoice.Thought.Candidates.Select(item => item.Action.CardId + "/" + item.Score))}.");
         Require(new SimpleAiBrain(0, 271, 2).ChooseJudgmentReplacement(
                 loyal, lord, JudgmentReasons.Ganglie, [1000, 1001], CardKind.Dodge,
                 Suit.Heart, 1, [Suit.Spade, Suit.Club, Suit.Diamond], 7).CardId == 1001,
@@ -332,7 +333,7 @@ internal static class TacticalAiChecks
 
     private static SkillProgramTrigger DrawAiTrigger(string effects, string mode = "additive")
     {
-        var rules = $$"""{"schemaVersion":61,"skills":[{"id":"fixture:draw-ai","revision":1,"minimumRulesVersion":170,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"cardIdentities":[],"triggers":[{"id":"plan","window":"drawPhaseStarting","subject":"owner","optional":true,"priority":0,"drawPhaseMode":"{{mode}}","effects":{{effects}}}]}]}""";
+        var rules = $$"""{"schemaVersion":62,"skills":[{"id":"fixture:draw-ai","revision":1,"minimumRulesVersion": 171,"modifiers":[],"viewAs":[],"activations":[],"contributions":[],"cardIdentities":[],"triggers":[{"id":"plan","window":"drawPhaseStarting","subject":"owner","optional":true,"priority":0,"drawPhaseMode":"{{mode}}","effects":{{effects}}}]}]}""";
         const string presentation = """{"schemaVersion":3,"skills":{"fixture:draw-ai":{"name":"Draw AI","description":"Fixture"}}}""";
         return SkillProgramCatalog.Load(rules, presentation).Programs["fixture:draw-ai"].Triggers.Single();
     }

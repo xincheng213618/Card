@@ -17,6 +17,9 @@ public sealed class CharacterSkillSet
         .Where(grant => grant.IsEnabled).Select(grant => grant.SkillId)
         .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray());
 
+    public bool HasEnabledSkill(IReadOnlySet<string> skillIds) =>
+        _grants.Values.Any(grant => grant.IsEnabled && skillIds.Contains(grant.SkillId));
+
     public bool Grant(SkillGrant grant)
     {
         ArgumentNullException.ThrowIfNull(grant);

@@ -66,6 +66,9 @@ public sealed record ContentCardDefinition(
 
 public enum SkillImplementationStatus { Complete, Partial, Planned }
 
+/// <summary>A passive rule that suspends the owner's other skills while its condition holds.</summary>
+public sealed record SkillSuppressionRule(int OwnerHpEquals);
+
 public sealed record ContentSkillDefinition(
     string Id,
     string Name,
@@ -78,6 +81,7 @@ public sealed record ContentSkillDefinition(
     public SkillTag Tags { get; init; }
     public SkillExecutionForm ExecutionForms { get; init; }
     public SkillActionForm ActionForms { get; init; }
+    public SkillSuppressionRule? SuppressionRule { get; init; }
     public IReadOnlyDictionary<Role, double>? SelectionWeights { get; init; }
     public SkillRevealWeights? RevealWeights { get; init; }
 }

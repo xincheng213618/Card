@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:xiongluan": {
+      "name": "雄乱",
+      "description": "限定技，出牌阶段，你废除判定区和装备区并指定一名其他角色；本回合你对其使用牌无距离和次数限制，且其不能使用或打出手牌。"
+    }
+  }
+}

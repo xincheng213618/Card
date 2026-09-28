@@ -9,26 +9,46 @@ internal static class XiaoQiaoChecks
         var game = FindTianxiangPrompt(registry);
         var prompt = game.PendingDecision!;
         var before = game.CreateSnapshot(0, revealAll: true);
-        var ownerHp = before.Players[0].Hp;
-        var use = prompt.Choices.First(choice => choice.Parameters.GetValueOrDefault("action") == "tianxiang-use");
+        var beforeEventCount = game.Events.Count;
+        var paused = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint()));
+        var activate = prompt.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "activate");
+        Require(game.Submit(new AnswerPromptCommand(0, prompt.PromptId, activate.Id, game.Revision)).Accepted,
+            "Tianxiang activation was rejected.");
+        var targetPrompt = game.PendingDecision!;
+        var target = targetPrompt.Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "select-target");
+        Require(game.Submit(new AnswerPromptCommand(0, targetPrompt.PromptId, target.Id, game.Revision)).Accepted,
+            "Tianxiang target choice was rejected.");
+        var cardPrompt = game.PendingDecision!;
+        var use = cardPrompt.Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "select-owned-cards");
         var card = before.Players[0].Hand.Single(item => item.Id == use.Cards.Single());
         Require(card.Suit is Suit.Heart or Suit.Spade,
             "Tianxiang must publish physical Hearts and Hongyan Spades, but no other hand cards.");
 
-        var paused = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint()));
-        var answered = game.Submit(new AnswerPromptCommand(0, prompt.PromptId, use.Id, game.Revision));
+        var restored = GameReplay.Restore(paused, registry);
+        Require(restored.PendingDecision?.Kind == DecisionKind.ProgramTrigger,
+            "The pending Tianxiang activation must restore exactly.");
+        var answered = game.Submit(new AnswerPromptCommand(0, cardPrompt.PromptId, use.Id, game.Revision));
         Require(answered.Accepted, answered.Error?.Message ?? "Tianxiang transfer choice was rejected.");
         for (var step = 0; step < 32 && !game.Events.Any(item => item.Payload is ProgramDamageTransferCardsDrawnEvent); step++)
             Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
                 "Tianxiang transfer did not finish its damage continuation.");
         var transfer = game.Events.Select(item => item.Payload).OfType<ProgramDamageTransferredEvent>().Last();
         var draw = game.Events.Select(item => item.Payload).OfType<ProgramDamageTransferCardsDrawnEvent>().Last();
-        var after = game.CreateSnapshot(0, revealAll: true);
-        Require(after.Players[0].Hp == ownerHp && transfer.SkillId == "classic:tianxiang" &&
-                transfer.TargetSeat == use.Targets.Single() &&
+        var transferredDamage = game.Events.Skip(beforeEventCount)
+            .Select(item => item.Payload)
+            .TakeWhile(item => item is not ProgramDamageTransferCardsDrawnEvent)
+            .OfType<DamageAppliedEvent>()
+            .ToArray();
+        Require(transferredDamage.Length == 1 &&
+                transferredDamage[0].TargetSeat == transfer.TargetSeat &&
+                transfer.SkillId == "classic:tianxiang" &&
+                transfer.TargetSeat == target.Targets.Single() &&
                 transfer.DamageAmount > 0 && draw.TargetSeat == transfer.TargetSeat &&
-                game.CardMovements.Any(move => move.CardId == card.Id && move.Reason == CardMoveReasons.TianxiangDiscard),
-            "Tianxiang must prevent the owner's full damage, discard the exact private card and transfer that damage.");
+                game.CardMovements.Any(move => move.CardId == card.Id && move.To == CardLocation.DiscardPile),
+            "Tianxiang must prevent the owner's direct damage, discard the exact private card and transfer that damage.");
 
         var replay = GameReplay.Restore(game.CreateCheckpoint(), registry);
         Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
@@ -54,8 +74,9 @@ internal static class XiaoQiaoChecks
 
             for (var step = 0; step < 1400; step++)
             {
-                if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 } tianxiang &&
-                    tianxiang.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action") == "tianxiang-use"))
+                if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
+                    SkillPrompt.SkillId: "classic:tianxiang" } tianxiang &&
+                    tianxiang.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate"))
                     return game;
                 if (game.PendingDecision is { PlayerSeat: 0 } prompt)
                 {

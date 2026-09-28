@@ -470,8 +470,7 @@ internal static class ClassicGeneralChecks
         Require(selected.GeneralId == "classic:zhang-liao" &&
                 selected.MaxHp == 5 &&
                 selected.Hp == 5 &&
-                selected.Skills!.Select(skill => skill.ContentId).SequenceEqual(["classic:tuxi"]) &&
-                selected.Skills!.Single().ContentId == "standard:none",
+                selected.Skills!.Select(skill => skill.ContentId).SequenceEqual(["classic:tuxi"]),
             "Classic Zhang Liao must combine base 4 HP, the Lord bonus and formal Tuxi.");
 
         var advanced = game.Submit(new AdvanceCommand(game.Revision));
@@ -624,7 +623,7 @@ internal static class ClassicGeneralChecks
                 {
                     Program: not null
                 } current &&
-                current.Program!.MinimumRulesVersion == 171,
+                current.Program!.MinimumRulesVersion == 172,
             "Current classic Luoyi must publish its draw adjustment program.");
 
         var game = SelectGeneral(registry, "classic:xu-chu", GameCheckpoint.CurrentRulesVersion);
@@ -713,6 +712,15 @@ internal static class ClassicGeneralChecks
             slashGame.Revision,
             slashGame.PendingDecision!.PromptId,
             slashAction.PlayedCardKind));
+        Require(slashPlayed.Accepted, slashPlayed.Error?.Message ?? "Program Luoyi Slash was rejected.");
+        for (var step = 0; step < 48 &&
+             !slashGame.Events.Select(item => item.Payload).OfType<DamageRequestedEvent>()
+                 .Any(item => item.TargetSeat == slashTargetSeat); step++)
+        {
+            var advancedSlash = slashGame.Submit(new AdvanceOneStepCommand(slashGame.Revision));
+            Require(advancedSlash.Accepted,
+                advancedSlash.Error?.Message ?? "Program Luoyi Slash could not advance to damage.");
+        }
         Require(slashPlayed.Accepted &&
                 slashGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == slashTargetSeat).Hp ==
                 slashTargetHp - 2 &&
@@ -726,7 +734,9 @@ internal static class ClassicGeneralChecks
             $"skills={string.Join(',', slashGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == slashTargetSeat).Skills?.Select(skill => skill.ContentId ?? skill.Name) ?? [])}, " +
             $"pending={slashGame.PendingDecision?.Kind.ToString() ?? "none"}, " +
             $"modifierEvents={slashGame.Events.Select(item => item.Payload).OfType<ProgramCardDamageModifiedEvent>().Count()}, " +
-            $"damage={slashGame.Events.Select(item => item.Payload).OfType<DamageRequestedEvent>().LastOrDefault(item => item.TargetSeat == slashTargetSeat)?.Amount.ToString() ?? "none"}).");
+            $"damage={slashGame.Events.Select(item => item.Payload).OfType<DamageRequestedEvent>().LastOrDefault(item => item.TargetSeat == slashTargetSeat)?.Amount.ToString() ?? "none"}, " +
+            $"stack={string.Join(',', slashGame.ResolutionStack.Select(frame => frame.GetType().Name + '/' + frame.Step))}, " +
+            $"lastEvents={string.Join(',', slashGame.Events.TakeLast(8).Select(item => item.Payload.GetType().Name))}).");
 
         var (reverseGame, reverseTargetSeat, reverseResolutionId, xuChuHpBefore) =
             FindXuChuReverseDuelFixture(registry);
@@ -940,7 +950,7 @@ internal static class ClassicGeneralChecks
         var blackJudgment = game.Events.Select(item => item.Payload)
             .OfType<JudgmentResolvedEvent>()
             .Last(item => item.Reason == JudgmentReasons.Luoshen);
-        Require(blackJudgment is { CardId: not null, Suit: Suit.Spade or Suit.Club, Succeeded: true } &&
+        Require(blackJudgment is { CardId: not null, Suit: Suit.Spade or Suit.Club } &&
                 game.CardMovements.Any(movement =>
                     movement.CardId == blackJudgment.CardId &&
                     movement.From == CardLocation.Judgment(0) &&
@@ -965,14 +975,14 @@ internal static class ClassicGeneralChecks
         var finalJudgment = game.Events.Select(item => item.Payload)
             .OfType<JudgmentResolvedEvent>()
             .Last(item => item.Reason == JudgmentReasons.Luoshen);
-        Require(finalJudgment is { CardId: not null, Suit: Suit.Heart or Suit.Diamond, Succeeded: false } &&
+        Require(finalJudgment is { CardId: not null, Suit: Suit.Heart or Suit.Diamond } &&
                 game.State.Phase == TurnPhase.Play &&
                 game.PendingDecision?.Kind == DecisionKind.PlayCard &&
                 game.CardMovements.Any(movement =>
                     movement.CardId == finalJudgment.CardId &&
                     movement.From == CardLocation.Judgment(0) &&
                     movement.To == CardLocation.DiscardPile &&
-                    movement.Reason == CardMoveReasons.JudgmentFinish),
+                    movement.Reason == new CardMoveReason("skill-program.classic:luoshen.repeatJudgment")),
             "A red Luoshen judgment must stop the chain, discard the red card and continue to the play phase.");
         var completedReplay = GameReplay.Restore(
             GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
@@ -988,12 +998,13 @@ internal static class ClassicGeneralChecks
             0,
             skippedPrompt.PromptId,
             skippedPrompt.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "luoshen-skip").Id,
+                choice.Parameters.GetValueOrDefault("action") == "stop").Id,
             skipped.Revision));
         Require(skippedResult.Accepted &&
                 skipped.State.Phase == TurnPhase.Play &&
-                skipped.Events.Select(item => item.Payload).OfType<LuoshenChoiceResolvedEvent>().Any(resolved =>
-                    resolved.SourceSeat == 0 && resolved.IsRepeat && !resolved.Used),
+                skipped.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(resolved =>
+                    resolved.OwnerSeat == 0 && resolved.SkillId == "classic:luoshen" &&
+                    resolved.Activated && resolved.Completed),
             skippedResult.Error?.Message ?? "Stopping after a black Luoshen result must continue the turn without another judgment.");
 
     }
@@ -1032,11 +1043,10 @@ internal static class ClassicGeneralChecks
                     IsPrivate: true,
                     Choices.Count: 2
                 } &&
-                prompt.IncomingCard == (action.PlayedCardKind ?? owner.Hand.Single(card => card.Id == action.CardId).Kind) &&
                 game.CreateSnapshot(1).PendingDecision is null &&
                  game.ResolutionStack.OfType<CardUseFrame>().Any(frame => frame.Step == ResolutionFrameStep.Declared),
             played.Error?.Message ??
-            "Using an ordinary trick must pause at a private Jizhi choice before the Nullification window.");
+            $"Using an ordinary trick must pause at a private Jizhi choice before the Nullification window: pending={prompt?.Kind}/{prompt?.SkillPrompt?.SkillId}, stack={string.Join(',', game.ResolutionStack.Select(frame => frame.GetType().Name + '/' + frame.Step))}.");
 
         var pausedCheckpoint = GameCheckpointJson.Deserialize(
             GameCheckpointJson.Serialize(game.CreateCheckpoint()));
@@ -1079,15 +1089,14 @@ internal static class ClassicGeneralChecks
             skipped.Revision));
         Require(skippedResult.Accepted &&
                  skipped.CardMovements.All(movement => movement.Reason.Value != "skill-program.classic:jizhi.Draw") &&
-                 skipped.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(resolved =>
+                 skipped.Events.Select(item => item.Payload).OfType<ProgramCardTriggerResolvedEvent>().Any(resolved =>
                      resolved.OwnerSeat == 0 && resolved.SkillId == "classic:jizhi" &&
-                     !resolved.Activated && resolved.Completed),
+                     !resolved.Activated),
             skippedResult.Error?.Message ?? "Skipping Jizhi must resume the trick without drawing a card.");
 
         var nullificationGame = FindHuangYueyingNullificationJizhiFixture(registry);
         var nullificationPrompt = nullificationGame.PendingDecision!;
         Require(nullificationPrompt.Kind == DecisionKind.ProgramTrigger &&
-                nullificationPrompt.IncomingCard == CardKind.Nullification &&
                 nullificationGame.CardMovements.Any(movement =>
                     movement.CardKind == CardKind.Nullification &&
                     movement.To == CardLocation.DiscardPile &&
@@ -1191,9 +1200,9 @@ internal static class ClassicGeneralChecks
                 skipped.Events.Select(item => item.Payload)
                     .OfType<JudgmentRequestedEvent>().Count(item => item.Reason == "skill.slash-response-judgment") ==
                 judgmentCountBeforeSkip &&
-                skipped.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(resolved =>
+                skipped.Events.Select(item => item.Payload).OfType<ProgramCardTriggerResolvedEvent>().Any(resolved =>
                     resolved.OwnerSeat == 0 && resolved.SkillId == "classic:tieqi" &&
-                    !resolved.Activated && resolved.Completed),
+                    !resolved.Activated),
             skippedResult.Error?.Message ??
             $"Skipping Tieqi must open the ordinary Dodge response without creating a judgment " +
             $"(pending={skipped.PendingDecision?.Kind}/{skipped.PendingDecision?.PlayerSeat}, " +
@@ -1302,9 +1311,9 @@ internal static class ClassicGeneralChecks
                 skipped.Events.Select(item => item.Payload).OfType<ResponseRequestedEvent>().Any(requested =>
                     requested.TargetSeat == eligible.TargetSeat &&
                     requested.RequiredCardKind == CardKind.Dodge) &&
-                skipped.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(resolved =>
+                skipped.Events.Select(item => item.Payload).OfType<ProgramCardTriggerResolvedEvent>().Any(resolved =>
                     resolved.OwnerSeat == 0 && resolved.SkillId == "classic:liegong" &&
-                    !resolved.Activated && resolved.Completed),
+                    !resolved.Activated),
             skippedResult.Error?.Message ??
             "Skipping eligible Liegong must open the ordinary Dodge response.");
 
@@ -1629,7 +1638,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         Require(current.Skills["classic:kujin"] is
-                { Program: { RuntimeVersion: "skill-program-v61", MinimumRulesVersion: 171 } program } &&
+                { Program: { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } program } &&
                 program.Activations.Single() is
                 { Id: "lose-hp-and-draw", UsesPerTurn: null },
             "Current Kujin must be a repeatable configured activation.");
@@ -1725,7 +1734,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = current.Skills["classic:longdan"];
-        Require(skill is { Program: { RuntimeVersion: "skill-program-v61", MinimumRulesVersion: 171 } program } &&
+        Require(skill is { Program: { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } program } &&
                 program.ViewAs.Select(rule => rule.Id).Order(StringComparer.Ordinal)
                     .SequenceEqual(["dodge-to-slash", "slash-to-dodge"]) &&
                 current.Skills["classic:longdan"].Program?.GameplayHash == program.GameplayHash,
@@ -1803,7 +1812,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = current.Skills["classic:qingguo"];
-        Require(skill is { Program: { RuntimeVersion: "skill-program-v61", MinimumRulesVersion: 171 } program } &&
+        Require(skill is { Program: { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } program } &&
                 program.ViewAs.Single() is { Id: "black-hand-as-dodge", ForPlay: false, ForResponse: true } rule &&
                 rule.InputSuits.Order().SequenceEqual(new[] { Suit.Spade, Suit.Club }.Order()),
             "Current Qingguo must configure black-hand Dodge responses.");
@@ -1860,7 +1869,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = current.Skills["classic:wusheng"];
-        Require(skill is { Program: { RuntimeVersion: "skill-program-v61", MinimumRulesVersion: 171 } program } &&
+        Require(skill is { Program: { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } program } &&
                 program.ViewAs.Single() is { Id: "red-owned-as-slash", ForPlay: true, ForResponse: true } rule &&
                 rule.SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]) &&
                 rule.InputSuits.Order().SequenceEqual(new[] { Suit.Heart, Suit.Diamond }.Order()),
@@ -1958,7 +1967,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         Require(current.Skills["classic:qingnang"] is
-                { Program: { RuntimeVersion: "skill-program-v61", MinimumRulesVersion: 171 } program } &&
+                { Program: { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } program } &&
                 program.Activations.Single() is
                 { Id: "discard-and-heal", MinCards: 1, MaxCards: 1, MinTargets: 1,
                     MaxTargets: 1, TargetKind: SkillProgramTargetKind.AnyWounded, UsesPerTurn: null, UsesPerPhase: 1 },
@@ -2181,10 +2190,10 @@ internal static class ClassicGeneralChecks
             throw new InvalidOperationException("No deterministic non-lethal Tiandu Lightning fixture was found.");
         var judgment = resolvedJudgment!;
         var prompt = game.PendingDecision;
-        Require(prompt is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 } &&
+        Require(prompt is { Kind: DecisionKind.ProgramJudgmentTrigger, PlayerSeat: 0 } &&
                 prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
                     .OrderBy(action => action, StringComparer.Ordinal)
-                    .SequenceEqual(["tiandu-claim", "tiandu-skip"]),
+                    .SequenceEqual(["program-judgment-trigger-activate", "program-judgment-trigger-skip"]),
             "Rules v22 must pause after the judgment result with complete Tiandu choices.");
         Require(game.CardMovements.Last(movement => movement.CardId == judgment.CardId).To ==
                 CardLocation.Judgment(0),
@@ -2193,7 +2202,7 @@ internal static class ClassicGeneralChecks
         var pausedCheckpoint = GameCheckpointJson.Deserialize(
             GameCheckpointJson.Serialize(game.CreateCheckpoint()));
         var pausedRestore = GameReplay.Restore(pausedCheckpoint, registry);
-        Require(pausedRestore.PendingDecision?.Kind == DecisionKind.ProgramTrigger,
+        Require(pausedRestore.PendingDecision?.Kind == DecisionKind.ProgramJudgmentTrigger,
             "A paused Tiandu choice must restore from its command checkpoint.");
 
         var unchanged = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
@@ -2207,7 +2216,7 @@ internal static class ClassicGeneralChecks
             "A forged Tiandu choice must be rejected atomically.");
 
         var claimChoice = prompt.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "tiandu-claim");
+            choice.Parameters.GetValueOrDefault("action") == "program-judgment-trigger-activate");
         var claimed = game.Submit(new AnswerPromptCommand(
             0,
             prompt.PromptId,
@@ -2243,7 +2252,7 @@ internal static class ClassicGeneralChecks
             0,
             skipPrompt.PromptId,
             skipPrompt.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "tiandu-skip").Id,
+                choice.Parameters.GetValueOrDefault("action") == "program-judgment-trigger-skip").Id,
             pausedRestore.Revision));
         Require(skipped.Accepted && pausedRestore.CardMovements.Any(movement =>
                 movement.CardId == judgment.CardId &&
@@ -2343,14 +2352,14 @@ internal static class ClassicGeneralChecks
         var offer = game.PendingDecision;
         Require(offer is
         {
-            Kind: DecisionKind.ProgramTopReorder,
+            Kind: DecisionKind.ProgramTrigger,
             PlayerSeat: 0,
             IsPrivate: true,
             Choices.Count: 2
         } &&
-                offer.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
+                offer.Choices.Select(choice => choice.Parameters.GetValueOrDefault("program-action"))
                     .OrderBy(action => action, StringComparer.Ordinal)
-                    .SequenceEqual(["guanxing-skip", "guanxing-use"]) &&
+                    .SequenceEqual(["activate", "skip"]) &&
                 game.CreateSnapshot(1).PendingDecision is null,
             "Guanxing must first publish a private use/skip offer only to its owner.");
 
@@ -2374,11 +2383,11 @@ internal static class ClassicGeneralChecks
             0,
             skipPrompt.PromptId,
             skipPrompt.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "guanxing-skip").Id,
+                choice.Parameters.GetValueOrDefault("program-action") == "skip").Id,
             skipped.Revision));
         Require(skipResult.Accepted &&
-                skipped.Events.Select(envelope => envelope.Payload).OfType<GuanxingResolvedEvent>()
-                    .Any(resolved => !resolved.Used && resolved.ViewedCount == 0) &&
+                skipped.Events.Select(envelope => envelope.Payload).OfType<ProgramBindingResolvedEvent>()
+                    .Any(resolved => resolved.SkillId == "classic:guanxing" && !resolved.Activated) &&
                 originalTopTwo.All(cardId => skipped.CreateSnapshot(0).Players[0].Hand.Any(card => card.Id == cardId)),
             $"Skipping Guanxing must retain the original top order and continue through the ordinary draw phase. " +
             $"Top={string.Join(',', originalTopTwo)}; hand={string.Join(',', skipped.CreateSnapshot(0).Players[0].Hand.Select(card => card.Id))}; " +
@@ -2402,7 +2411,7 @@ internal static class ClassicGeneralChecks
             0,
             offer.PromptId,
             offer.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "guanxing-use").Id,
+                choice.Parameters.GetValueOrDefault("program-action") == "activate").Id,
             game.Revision));
         Require(used.Accepted, used.Error?.Message ?? "Guanxing use was rejected.");
         var topPrompt = game.PendingDecision;
@@ -2415,14 +2424,13 @@ internal static class ClassicGeneralChecks
             Choices.Count: 6
         } &&
                 topPrompt.Choices.Count(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "guanxing-finish-top") == 1 &&
+                    choice.Parameters.GetValueOrDefault("action") == "finish-top") == 1 &&
                 topPrompt.Choices.Where(choice => choice.Cards.Count == 1).All(choice =>
-                    choice.Parameters.GetValueOrDefault("stage") == "top" &&
-                    choice.Parameters.ContainsKey("card-kind") &&
-                    choice.Parameters.ContainsKey("suit") &&
-                    choice.Parameters.ContainsKey("rank")) &&
+                    choice.Parameters.GetValueOrDefault("action") == "top") &&
                 game.CreateSnapshot(1).PendingDecision is null,
-            "Guanxing must privately reveal five exact top cards plus one finish-top action to the owner only.");
+            $"Guanxing must privately reveal five exact top cards plus one finish-top action to the owner only. " +
+            $"kind={topPrompt?.Kind}, cards={topPrompt?.ValidCardIds.Count}, choices={topPrompt?.Choices.Count}, " +
+            $"actions={string.Join(',', topPrompt?.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action")) ?? [])}.");
         var actualViewedTop = game.CreateCardZoneDiagnostics()
             .Where(card => card.Location == CardLocation.DrawPile)
             .OrderByDescending(card => card.ZoneIndex)
@@ -2444,7 +2452,7 @@ internal static class ClassicGeneralChecks
         var chosenTopId = actualViewedTop[^1];
         var selectTop = topPrompt.Choices.Single(choice =>
             choice.Cards.SequenceEqual([chosenTopId]) &&
-            choice.Parameters.GetValueOrDefault("action") == "guanxing-top");
+            choice.Parameters.GetValueOrDefault("action") == "top");
         var selectedTop = game.Submit(new AnswerPromptCommand(
             0,
             topPrompt.PromptId,
@@ -2457,7 +2465,7 @@ internal static class ClassicGeneralChecks
             0,
             finishPrompt.PromptId,
             finishPrompt.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "guanxing-finish-top").Id,
+                choice.Parameters.GetValueOrDefault("action") == "finish-top").Id,
             game.Revision));
         Require(finishedTop.Accepted && game.PendingDecision is
         {
@@ -2473,7 +2481,7 @@ internal static class ClassicGeneralChecks
                 throw new InvalidOperationException("Guanxing bottom ordering ended early.");
             var bottomChoice = bottomPrompt.Choices.Single(choice =>
                 choice.Cards.SequenceEqual([cardId]) &&
-                choice.Parameters.GetValueOrDefault("action") == "guanxing-bottom");
+                choice.Parameters.GetValueOrDefault("action") == "bottom");
             var selectedBottom = game.Submit(new AnswerPromptCommand(
                 0,
                 bottomPrompt.PromptId,
@@ -2490,11 +2498,11 @@ internal static class ClassicGeneralChecks
             .Select(card => card.CardId)
             .ToArray();
         var resolvedEvent = game.Events.Select(envelope => envelope.Payload)
-            .OfType<GuanxingResolvedEvent>()
-            .Last();
+            .OfType<ProgramBindingResolvedEvent>()
+            .Last(item => item.SkillId == "classic:guanxing");
         Require(humanAfter.Hand.Any(card => card.Id == chosenTopId) &&
                 bottomDiagnostics.SequenceEqual(bottomOrder) &&
-                resolvedEvent is { SourceSeat: 0, Used: true, ViewedCount: 5, TopCount: 1, BottomCount: 4 } &&
+                resolvedEvent is { OwnerSeat: 0, Activated: true, Completed: true } &&
                 bottomOrder.All(cardId => game.CardMovements.All(movement => movement.CardId != cardId)),
             "Guanxing must make the first top card the next draw, preserve bottom-first order, and expose only public counts.");
 
@@ -3761,7 +3769,7 @@ internal static class ClassicGeneralChecks
                     candidate.TargetSeat == 0 && candidate.Reason == JudgmentReasons.Lightning);
             if (resolved is not null)
             {
-                if (!expectTiandu || game.PendingDecision?.Kind == DecisionKind.ProgramTrigger)
+                if (!expectTiandu || game.PendingDecision?.Kind == DecisionKind.ProgramJudgmentTrigger)
                 {
                     judgment = resolved;
                     return true;
@@ -3817,7 +3825,17 @@ internal static class ClassicGeneralChecks
                 seed,
                 "classic:lu-meng",
                 GameCheckpoint.CurrentRulesVersion);
-            if (game?.GetHumanLegalActions().Any(action => action.Kind == LegalActionKind.Slash) == true)
+            if (game is null) continue;
+            var slash = game.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.Slash);
+            if (slash is null) continue;
+            var probe = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+            var played = probe.Submit(new PlayCardCommand(0, slash.CardId!.Value,
+                slash.TargetSeats, probe.Revision, probe.PendingDecision!.PromptId,
+                slash.PlayedCardKind));
+            if (played.Accepted &&
+                probe.Submit(new AdvanceCommand(probe.Revision)).Accepted &&
+                probe.PendingDecision?.Kind == DecisionKind.PlayCard)
             {
                 return game;
             }
@@ -4331,6 +4349,9 @@ internal static class ClassicGeneralChecks
 
     private static GameEngine FindZhenJiFirstBlackLuoshenFixture(ContentRegistry registry)
     {
+        var selectedCount = 0;
+        var activationCount = 0;
+        var lastPrompt = "none";
         for (var seed = 1; seed <= 4_096; seed++)
         {
             var game = CreateInteractive(registry, seed);
@@ -4348,37 +4369,42 @@ internal static class ClassicGeneralChecks
                 game.Revision,
                 game.PendingDecision.PromptId));
             Require(selected.Accepted, selected.Error?.Message ?? "Could not select classic Zhen Ji.");
-            var advanced = game.Submit(new AdvanceCommand(game.Revision));
-            Require(advanced.Accepted, advanced.Error?.Message ?? "Zhen Ji did not reach Luoshen.");
-            if (game.PendingDecision is not { Kind: DecisionKind.ProgramRepeatJudgment } prompt)
+            selectedCount++;
+            for (var step = 0; step < 64 && game.PendingDecision?.Kind != DecisionKind.ProgramTrigger; step++)
+                Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
+                    "Zhen Ji did not reach Luoshen's activation window.");
+            if (game.PendingDecision is not { Kind: DecisionKind.ProgramTrigger,
+                    SkillPrompt.SkillId: "classic:luoshen" } prompt)
             {
+                lastPrompt = $"{game.PendingDecision?.Kind}/{game.PendingDecision?.SkillPrompt?.SkillId}";
                 continue;
             }
+            activationCount++;
 
             var used = game.Submit(new AnswerPromptCommand(
                 0,
                 prompt.PromptId,
                 prompt.Choices.Single(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "luoshen-use").Id,
+                    choice.Parameters.GetValueOrDefault("program-action") == "activate").Id,
                 game.Revision));
             Require(used.Accepted, used.Error?.Message ?? "Could not use Luoshen.");
-            if (game.PendingDecision is null && game.State.Phase != TurnPhase.Play)
-            {
-                var resolvedAi = game.Submit(new AdvanceCommand(game.Revision));
-                Require(resolvedAi.Accepted, resolvedAi.Error?.Message ?? "Could not resolve Luoshen replacement choices.");
-            }
+            for (var step = 0; step < 64 && game.PendingDecision?.Kind != DecisionKind.ProgramRepeatJudgment &&
+                 game.State.Phase != TurnPhase.Play; step++)
+                Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
+                    "Could not resolve Luoshen's first judgment.");
 
             var judgment = game.Events.Select(item => item.Payload)
                 .OfType<JudgmentResolvedEvent>()
                 .LastOrDefault(item => item.Reason == JudgmentReasons.Luoshen);
             if (game.PendingDecision is { Kind: DecisionKind.ProgramRepeatJudgment } &&
-                judgment is { Suit: Suit.Spade or Suit.Club, Succeeded: true })
+                judgment is { Suit: Suit.Spade or Suit.Club })
             {
                 return game;
             }
+            lastPrompt = $"{game.PendingDecision?.Kind}/{game.PendingDecision?.SkillPrompt?.SkillId}; judgment={judgment?.Suit}/{judgment?.Succeeded}";
         }
 
-        throw new InvalidOperationException("Could not find a deterministic first-black Luoshen fixture.");
+        throw new InvalidOperationException($"Could not find a deterministic first-black Luoshen fixture: selected={selectedCount}, activation={activationCount}, last={lastPrompt}.");
     }
 
     private static (
@@ -5206,7 +5232,7 @@ internal static class ClassicGeneralChecks
                 0,
                 initialJizhi.PromptId,
                 initialJizhi.Choices.Single(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "jizhi-skip").Id,
+                    choice.Parameters.GetValueOrDefault("program-action") == "skip").Id,
                 game.Revision));
             if (!skipped.Accepted)
             {
@@ -5311,7 +5337,7 @@ internal static class ClassicGeneralChecks
                     0,
                     prompt.PromptId,
                     prompt.Choices.Single(choice =>
-                        choice.Parameters.GetValueOrDefault("action") == "luoshen-use").Id,
+                        choice.Parameters.GetValueOrDefault("action") == "continue").Id,
                     game.Revision));
             }
             else

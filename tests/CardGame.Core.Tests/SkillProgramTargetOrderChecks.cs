@@ -31,11 +31,12 @@ internal static class SkillProgramTargetOrderChecks
         for (var step = 0; step < 10 && game.PendingDecision?.Kind != DecisionKind.ProgramTrigger; step++)
             Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted, "Target prepass did not advance.");
         Require(game.PendingDecision?.Kind == DecisionKind.ProgramTrigger, "Final targets did not open a program window.");
-        var redirects = game.Events.Select(item => item.Payload).OfType<LiuliRedirectedEvent>().ToArray();
+        var redirects = game.Events.Select(item => item.Payload).OfType<ProgramCardTriggerResolvedEvent>()
+            .Where(item => item.SkillId == "target-order:liuli" && item.Activated).ToArray();
         var use = game.Events.Select(item => item.Payload).OfType<CardActionAcceptedEvent>()
             .Single(item => item.Action.Type == CardActionType.Use).Action;
         Require(redirects.Length == 2 && use.TargetSeats.SequenceEqual([2, 4]),
-            "Both Liuli choices must finish before triggers; redirected targets must stay distinct.");
+            $"Both Liuli choices must finish before triggers; redirected targets must stay distinct: redirects={redirects.Length}, targets={string.Join(',', use.TargetSeats)}.");
         Require(!game.Events.Any(item => item.Payload is CardRespondedEvent),
             "No target may respond before all conversion-use triggers finish.");
         var paused = game.CreateCheckpoint();
@@ -52,8 +53,9 @@ internal static class SkillProgramTargetOrderChecks
         for (var step = 0; step < 50 && game.ResolutionStack.Count > 0; step++)
             Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted, "Prepared attack did not finish.");
         Require(game.ResolutionStack.Count == 0 &&
-                game.Events.Select(item => item.Payload).OfType<LiuliRedirectedEvent>().Count() == 2,
-            "Prepared targets must not run Liuli again during effect resolution.");
+                game.Events.Select(item => item.Payload).OfType<ProgramCardTriggerResolvedEvent>()
+                    .Count(item => item.SkillId == "target-order:liuli" && item.Activated) == 2,
+            $"Prepared targets must not run Liuli again during effect resolution: stack={string.Join(',', game.ResolutionStack.Select(frame => frame.GetType().Name))}, redirects={game.Events.Select(item => item.Payload).OfType<ProgramCardTriggerResolvedEvent>().Count(item => item.SkillId == "target-order:liuli" && item.Activated)}, generals={string.Join(',', game.CreateSnapshot(0, true).Players.Select(item => item.Seat + ":" + item.GeneralId))}.");
         var replay = GameReplay.Restore(game.CreateCheckpoint(), registry);
         Require(SnapshotJson.Serialize(game.State) == SnapshotJson.Serialize(replay.State),
             "Multi-target trigger and Liuli continuation did not replay exactly.");
@@ -66,14 +68,16 @@ internal static class SkillProgramTargetOrderChecks
         public void Register(IContentRegistryBuilder builder)
         {
             var catalog = SkillProgramCatalog.Load("""
-                {"schemaVersion":61,"skills":[
+                {"schemaVersion":62,"skills":[
                   {"id":"target-order:swap","revision":1,"viewAs":[{"id":"slash","inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash","forPlay":true,"forResponse":false}]},
-                  {"id":"target-order:draw","revision":1,"minimumRulesVersion":170,"triggers":[{"id":"after-use","window":"cardUseTargetsFinalized","ownerRelation":"conversionSource","sourceSkillId":"target-order:swap","sourceViewAsId":"slash","optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]}
+                  {"id":"target-order:draw","revision":1,"minimumRulesVersion": 171,"triggers":[{"id":"after-use","window":"cardUseTargetsFinalized","ownerRelation":"conversionSource","sourceSkillId":"target-order:swap","sourceViewAsId":"slash","optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]},
+                  {"id":"target-order:liuli","revision":1,"minimumRulesVersion":172,"triggers":[{"id":"redirect-slash","window":"slashTargetRedirecting","ownerRelation":"target","cardKinds":["slash","fireSlash","thunderSlash"],"optional":false,"effects":[{"op":"selectTarget","target":"owner","targetKind":"slashRedirectable"},{"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"owner"},"zones":["hand","equipment"],"count":1,"destination":"discardPile","awaitMovementTriggers":true},{"op":"redirectCurrentAttack","target":"selectedTarget"}]}]}
                 ]}
                 """, """
                 {"schemaVersion":3,"skills":{
                   "target-order:swap":{"name":"转换","description":"测试转换"},
-                  "target-order:draw":{"name":"摸牌","description":"测试触发"}
+                  "target-order:draw":{"name":"摸牌","description":"测试触发"},
+                  "target-order:liuli":{"name":"流离","description":"测试重定向"}
                 }}
                 """);
             foreach (var program in catalog.Programs.Values)
@@ -81,11 +85,12 @@ internal static class SkillProgramTargetOrderChecks
                 var text = catalog.Presentations[program.Id];
                 builder.AddSkill(new ContentSkillDefinition(program.Id, text.Name, text.Description) { Program = program });
             }
-            builder.AddSkill(new ContentSkillDefinition("target-order:liuli", "流离", "测试流离"));
             var generals = Enumerable.Range(0, 5).Select(index => $"target-order:general-{index}").ToArray();
-            foreach (var id in generals)
+            foreach (var (id, index) in generals.Select((id, index) => (id, index)))
                 builder.AddGeneral(new ContentGeneralDefinition(id, "测试", "zhao_yun", "target-order:swap",
-                    AdditionalSkillIds: ["target-order:draw", "target-order:liuli"]));
+                    AdditionalSkillIds: index is 2 or 3
+                        ? ["target-order:draw", "target-order:liuli"]
+                        : ["target-order:draw"]));
             builder.AddDeck(new ContentDeckRecipe("target-order:deck", "测试", 2, 0,
                 [new ContentDeckCardCount("classic:fangtian-halberd", 8),
                  new ContentDeckCardCount("standard:dodge", 24), new ContentDeckCardCount("standard:peach", 28)]));

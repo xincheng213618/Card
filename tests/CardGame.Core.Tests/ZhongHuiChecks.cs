@@ -22,19 +22,19 @@ internal static class ZhongHuiChecks
         var quanji = current.Skills[QuanjiSkillId].Program;
         var zili = current.Skills[ZiliSkillId].Program;
         var paiyi = current.Skills[PaiyiSkillId].Program;
-        Require(quanji is { RuntimeVersion: "skill-program-v61", MinimumRulesVersion: 171,
+        Require(quanji is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172,
                             Triggers.Count: 1, Modifiers.Count: 1 } &&
                 quanji.Triggers.Single().Effects.Select(effect => effect.Op).SequenceEqual([
                     SkillProgramEffectOp.Draw,
                     SkillProgramEffectOp.SelectSourceCard,
                     SkillProgramEffectOp.MoveBoundCards
                 ]) &&
-                zili is { RuntimeVersion: "skill-program-v61", MinimumRulesVersion: 171,
+                zili is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172,
                            Triggers.Count: 2 } &&
                 zili.Triggers.All(trigger => trigger.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow &&
                     trigger.ChoiceGroup == "awakening-benefit" && !trigger.Optional &&
                     trigger.UsageScope == SkillUsageScope.Game && trigger.UsageLimit == 1) &&
-                paiyi is { RuntimeVersion: "skill-program-v61", MinimumRulesVersion: 171,
+                paiyi is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172,
                             Activations.Count: 1 } &&
                 paiyi.Activations.Single().SourceZones.SequenceEqual([CardZoneKind.Authority]) &&
                 paiyi.Activations.Single().Effects.Select(effect => effect.Op).SequenceEqual([
@@ -155,7 +155,7 @@ internal static class ZhongHuiChecks
         ReachPrompt(game, DecisionKind.PlayCard, 512);
         var awakened = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat];
         Require(awakened.Skills?.Any(skill => skill.ContentId == PaiyiSkillId &&
-                    skill.ContentId == "standard:none" && skill.ActionForms == SkillActionForm.Active) == true &&
+                    skill.ActionForms == SkillActionForm.Active) == true &&
                 awakened.SkillRuntimeStates?.Single(state => state.SkillId == PaiyiSkillId).IsAcquired == true &&
                 awakened.Hp == Math.Min(recoveryHp + 1, awakened.MaxHp) &&
                 awakened.MaxHp == beforeAwakening.MaxHp - 1 &&

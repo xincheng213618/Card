@@ -315,6 +315,18 @@ public static class CardCatalog
                 AiPlayValue: 41,
                 AiResponseValue: 0,
                 HandKeepValue: 44),
+            [CardKind.GhostDragonCrescentBlade] = new(
+                CardKind.GhostDragonCrescentBlade, "鬼龙斩月刀", "装备牌",
+                "攻击范围 3，你使用的红色杀不能被闪响应。",
+                AiPlayValue: 40, AiResponseValue: 0, HandKeepValue: 43),
+            [CardKind.ScarletBloodSword] = new(
+                CardKind.ScarletBloodSword, "赤血青锋", "装备牌",
+                "攻击范围 2，你的杀无视防具，目标不能使用或打出手牌响应。",
+                AiPlayValue: 41, AiResponseValue: 0, HandKeepValue: 44),
+            [CardKind.XingtianAxe] = new(
+                CardKind.XingtianAxe, "刑天破军斧", "装备牌",
+                "攻击范围 4，单一目标用牌后可弃两张牌，令其本回合不能使用或打出手牌且防具失效。",
+                AiPlayValue: 42, AiResponseValue: 0, HandKeepValue: 45),
             [CardKind.Tengjia] = new(
                 CardKind.Tengjia,
                 "藤甲",

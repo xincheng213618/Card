@@ -508,6 +508,74 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
         return SkillProgramStepOutcome.AwaitChild;
     }
 
+    private void PendProgramExtraTurn(ProgramSkillFrame frame)
+    {
+        var active = GetActiveProgramFrame(frame.Id);
+        if (active.OwnerSeat != frame.OwnerSeat || active.SkillId != frame.SkillId)
+            throw new InvalidOperationException("An extra turn requires the active program frame.");
+        var owner = _players[active.OwnerSeat];
+        if (!owner.IsAlive || _winner != Winner.None)
+            return;
+        _pendingExtraTurnSeat = active.OwnerSeat;
+        AddLog("ExtraTurnPended",
+            $"{owner.Name} 将在当前回合结束后获得一个额外回合。", active.OwnerSeat);
+        QueueGameEvent(new ProgramExtraTurnPendedEvent(active.Id, active.SkillId, active.OwnerSeat));
+    }
+
+    private SkillProgramStepOutcome UseProgramBoundCardByTarget(
+        ProgramSkillFrame frame,
+        int userSeat,
+        string sourceBind)
+    {
+        var active = GetActiveProgramFrame(frame.Id);
+        if (active.OwnerSeat != frame.OwnerSeat || active.SkillId != frame.SkillId ||
+            _resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id)
+            throw new InvalidOperationException(
+                "A bound-card use requires the current active program frame.");
+        var user = _players[userSeat];
+        var binding = frame.CardSetBindings.SingleOrDefault(item => item.Name == sourceBind) ??
+            throw new InvalidOperationException("A bound-card use references a missing card set.");
+        var cancel = (string message) =>
+        {
+            ClearPendingDecision();
+            CancelProgramBindingAndCleanup(GetActiveProgramFrame(frame.Id), message);
+        };
+        if (binding.CardIds.Count != 1 || binding.Visibility != SkillProgramCardSetVisibility.Public)
+            throw new InvalidOperationException(
+                "A bound-card use requires exactly one public card.");
+        if (!user.IsAlive)
+        {
+            cancel("用牌角色已失效，技能剩余结算已取消。");
+            return SkillProgramStepOutcome.AwaitChild;
+        }
+        var cardId = binding.CardIds[0];
+        var location = _cardZones.GetLocation(cardId);
+        var card = _cardZones.CardsAt(location).SingleOrDefault(item => item.Id == cardId);
+        if (location.OwnerSeat != user.Seat || location.Zone != CardZoneKind.Hand || card is null)
+        {
+            cancel("赠出的牌已离开用牌者手牌，使用步骤取消。");
+            return SkillProgramStepOutcome.AwaitChild;
+        }
+        if (!EquipmentCatalog.IsEquipment(card.Kind))
+            throw new InvalidOperationException(
+                "A bound-card use requires an equipment card.");
+        ClearPendingDecision();
+        _resolutionStack[^1] = frame with
+        {
+            PendingMovementContinuation = new ProgramMovementContinuation(frame.OwnerSeat, 0, null)
+        };
+        var reason = new CardMoveReason($"skill-program.{frame.SkillId}.{SkillProgramEffectOp.UseBoundCardByTarget}");
+        var resolutionId = BeginCardUse(card, user.Seat, []);
+        MoveCard(card, location, CardLocation.Processing, reason);
+        CompleteEquipmentUse(user, card, resolutionId);
+        if (_resolutionStack.LastOrDefault() is ProgramSkillFrame)
+        {
+            if (!TryBeginCardsMovedProgramWindow())
+                CompleteAwaitedProgramMovement(frame.Id);
+        }
+        return SkillProgramStepOutcome.AwaitChild;
+    }
+
     private void ContinueProgramAfterSelectedCardUse()
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.TriggerId is not null)
@@ -650,21 +718,24 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                         ChooseDifferentCategoryDiscardProgramOperationDescriptor.DeclinedOption,
                         _ => false
                 };
-                var chooserSeat = producer?.Op == SkillProgramEffectOp.ChooseDifferentCategoryDiscard
-                    ? ResolveProgramParticipant(frame, producer.ChooserRef!)
+                var chooserSeat = producer?.ChooserRef is { } producerChooser
+                    ? ResolveProgramParticipant(frame, producerChooser)
                     : producer is null ? -1 : ResolveProgramEffectTarget(frame, producer.Target);
                 if (producer is null || !validOption || binding.ChooserSeat != chooserSeat)
                     throw new InvalidOperationException("An active program choice does not match its committed producer.");
             }
             var paused = plan.Instructions[frame.InstructionIndex - 1];
             AssertProgramOwnedCardSelection(frame, paused);
+            AssertProgramHoldCardSelection(frame, paused);
             AssertProgramRevealCardSelection(frame, paused);
             AssertProgramOwnedCardDistribution(frame, paused);
             AssertProgramAttackRangeAid(frame, paused);
             if (paused.Op == SkillProgramEffectOp.ChooseOption && ReferenceEquals(frame, _resolutionStack.LastOrDefault()) &&
                 !frame.ChoiceBindings.Any(binding => binding.Name == paused.ResultBind) &&
                 (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } choiceDecision ||
-                 choiceDecision.PlayerSeat != ResolveProgramEffectTarget(frame, paused.Target) ||
+                 choiceDecision.PlayerSeat != (paused.ChooserRef is { } chooser
+                     ? ResolveProgramParticipant(frame, chooser)
+                     : ResolveProgramEffectTarget(frame, paused.Target)) ||
                  choiceDecision.Choices.Count == 0 || choiceDecision.Choices.Any(choice =>
                      choice.Parameters.GetValueOrDefault("program-action") != "choose-option" ||
                      choice.Parameters.GetValueOrDefault("result-bind") != paused.ResultBind ||

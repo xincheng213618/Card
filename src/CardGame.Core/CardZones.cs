@@ -16,7 +16,8 @@ public enum CardZoneKind
     BuquWound,
     Authority,
     OutsideGame,
-    Chunlao
+    Chunlao,
+    PojunHold
 }
 
 public readonly record struct CardLocation
@@ -24,7 +25,7 @@ public readonly record struct CardLocation
     [System.Text.Json.Serialization.JsonConstructor]
     public CardLocation(CardZoneKind zone, int? ownerSeat = null)
     {
-        var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.Chunlao;
+        var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.Chunlao or CardZoneKind.PojunHold;
         if (owned && ownerSeat is null or < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(ownerSeat), $"Zone {zone} requires a non-negative owner seat.");
@@ -64,6 +65,8 @@ public readonly record struct CardLocation
     public static CardLocation Authority(int seat) => new(CardZoneKind.Authority, seat);
 
     public static CardLocation Chunlao(int seat) => new(CardZoneKind.Chunlao, seat);
+
+    public static CardLocation PojunHold(int seat) => new(CardZoneKind.PojunHold, seat);
 
     public override string ToString() => OwnerSeat is { } seat ? $"{Zone}[{seat}]" : Zone.ToString();
 }
@@ -186,6 +189,9 @@ public static class CardMoveReasons
     public static CardMoveReason ChunlaoStore { get; } = new("skill.chunlao.store-chun");
     public static CardMoveReason ChunlaoRescue { get; } = new("skill.chunlao.rescue");
     public static CardMoveReason ChunlaoDeathDiscard { get; } = new("skill.chunlao.death-discard");
+    public static CardMoveReason PojunHold { get; } = new("skill.pojun.hold");
+    public static CardMoveReason PojunHoldReturn { get; } = new("skill.pojun.return");
+    public static CardMoveReason PojunHoldDeathDiscard { get; } = new("skill.pojun.death-discard");
     public static CardMoveReason GongqiCost { get; } = new("skill.gongqi.cost");
     public static CardMoveReason GongqiDiscard { get; } = new("skill.gongqi.discard-target-card");
     public static CardMoveReason LongyinDiscard { get; } = new("skill.longyin.discard");
@@ -247,6 +253,7 @@ internal sealed class CardZoneStore
             AddZone(CardLocation.BuquWound(seat));
             AddZone(CardLocation.Authority(seat));
             AddZone(CardLocation.Chunlao(seat));
+            AddZone(CardLocation.PojunHold(seat));
         }
     }
 

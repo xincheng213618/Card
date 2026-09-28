@@ -30,6 +30,9 @@ public sealed class SeatViewModel : ObservableObject
     public string ChunlaoText { get; init; } = string.Empty;
     public string ChunlaoTooltip { get; init; } = string.Empty;
     public bool HasChunlao => ChunlaoText.Length > 0;
+    public string PojunHoldText { get; init; } = string.Empty;
+    public string PojunHoldTooltip { get; init; } = string.Empty;
+    public bool HasPojunHold => PojunHoldText.Length > 0;
     public bool HasAlcoholEffect { get; init; }
     public bool HasPortrait => GeneralArt.HasPortrait(GeneralId);
     private GeneralPortraitViewModel? _portrait;

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-28",
+  "contentIds": ["classic:qu-yi"],
+  "rulesSources": [
+    {
+      "contentId": "classic:qu-yi",
+      "url": "https://x.sanguosha.com/hero/1053.html",
+      "edition": "官方武将页：麴义",
+      "use": "群势力4体力。伏骑：你距离其为1的其他角色不能响应你使用的【杀】或普通锦囊牌。骄恣：当你造成或受到伤害时，若你的手牌数为全场唯一最多，此伤害+1。"
+    }
+  ],
+  "versionBoundary": "最低规则178、经典包1.148.0。伏骑在响应入口按用牌目标与战斗距离判断；骄恣在通用伤害数值结算处按当前手牌数判断，包含非牌伤害和受到的伤害。",
+  "portraits": "官方武将页 gid 1053，默认皮肤1105301，574x761，SHA-256 efd09c1bee9a864cf32d28fd3b6023c9a7e4eb9c7d89135a3bf82013191b4a4c；8个皮肤见 general-art-catalog.json 的 qu-yi 条目。"
+}

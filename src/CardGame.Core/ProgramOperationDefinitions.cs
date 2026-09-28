@@ -21,7 +21,8 @@ internal enum ProgramOperationAiSemantic
     RevealBoundCards, ChooseDifferentCategoryDiscard, UseSelectedCardsAs, GrantTurnSkills,
     ChangeAttributedMarker, CauseDeath, ReplaceJudgment, DyingRescue, ChooseOtherOwnedCardDiscard,
     DistributeOwnedCards, RequestAttackRangeAid, NullifyCurrentCardEffect, NullifySelectedCardEffects,
-    RevealUniqueRankForDying, ProhibitCurrentResponse, RedirectCurrentAttack, RedirectCurrentDamage
+    RevealUniqueRankForDying, ProhibitCurrentResponse, RedirectCurrentAttack, RedirectCurrentDamage,
+    HoldTargetCards, UseBoundCardByTarget, PendExtraTurn, ClaimDeathCleanupCards
 }
 internal sealed record ProgramOperationAiPolicy(
     ProgramOperationAiSemantic Semantic,

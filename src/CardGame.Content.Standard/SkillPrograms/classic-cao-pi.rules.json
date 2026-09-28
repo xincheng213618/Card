@@ -1,0 +1,71 @@
+{
+ "schemaVersion": 62,
+ "skills": [
+  {
+   "id": "classic:xingshang",
+   "revision": 1,
+   "minimumRulesVersion": 179,
+   "modifiers": [],
+   "viewAs": [],
+   "activations": [],
+   "triggers": [
+    {
+     "id": "claim-died-cards",
+     "window": "characterDied",
+     "subject": "owner",
+     "optional": true,
+     "priority": 0,
+     "condition": {
+      "kind": "deathVictimHasCards"
+     },
+     "effects": [
+      {
+       "op": "claimDeathCleanupCards",
+       "target": "owner"
+      }
+     ]
+    }
+   ],
+   "contributions": [],
+   "cardIdentities": [],
+   "states": []
+  },
+  {
+   "id": "classic:fangzhu",
+   "revision": 1,
+   "minimumRulesVersion": 179,
+   "modifiers": [],
+   "viewAs": [],
+   "activations": [],
+   "triggers": [
+    {
+     "id": "injury-exile",
+     "window": "afterDamageApplied",
+     "subject": "owner",
+     "damageOccurrence": "perDamage",
+     "optional": true,
+     "priority": 0,
+     "effects": [
+      {
+       "op": "selectTarget",
+       "target": "owner",
+       "targetKind": "otherLiving"
+      },
+      {
+       "op": "turnOver",
+       "target": "selectedTarget"
+      },
+      {
+       "op": "draw",
+       "target": "selectedTarget",
+       "numberExpression": "ownerLostHp"
+      }
+     ]
+    }
+   ],
+   "contributions": [],
+   "cardIdentities": [],
+   "states": []
+  }
+ ]
+}

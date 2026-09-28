@@ -1,0 +1,13 @@
+{
+ "schemaVersion": 3,
+ "skills": {
+  "classic:xingshang": {
+   "name": "行殇",
+   "description": "当其他角色死亡时，你可以获得其所有的牌。"
+  },
+  "classic:fangzhu": {
+   "name": "放逐",
+   "description": "当你受到伤害后，你可以令一名其他角色翻面，然后该角色摸X张牌（X为你已损失的体力值）。"
+  }
+ }
+}

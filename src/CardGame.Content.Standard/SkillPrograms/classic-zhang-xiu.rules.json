@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:xiongluan",
+      "revision": 1,
+      "minimumRulesVersion": 180,
+      "activations": [
+        {
+          "id": "abolish-zones-and-designate",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerGame": 1,
+          "effects": [
+            { "op": "abolishOwnerAreas", "target": "owner", "zones": ["equipment", "judgment"] },
+            { "op": "discardOwnedZoneCards", "target": "owner", "zones": ["equipment", "judgment"] },
+            {
+              "op": "grantDirectedTurnCardPolicy",
+              "target": "owner",
+              "actorRef": { "kind": "owner" },
+              "targetRef": { "kind": "selectedTarget" },
+              "effects": ["ignoreDistance", "bypassSlashLimit"]
+            },
+            { "op": "grantTurnHandCardProhibition", "target": "selectedTarget" }
+          ]
+        }
+      ]
+    }
+  ]
+}

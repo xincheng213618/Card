@@ -53,10 +53,10 @@ internal static class GuidaoChecks
                     var accepted = game.Submit(new AnswerPromptCommand(0, prompt.PromptId, choice.Id, game.Revision));
                     Require(accepted.Accepted && game.CardMovements.Any(move =>
                             move.CardId == equipmentId && move.From == CardLocation.Equipment(0) &&
-                            move.To == CardLocation.Processing && move.Reason == CardMoveReasons.GuidaoReplace) &&
-                            game.Events.Any(item => item.Payload is JudgmentReplacementResolvedEvent
+                            move.To == CardLocation.Processing && move.Reason == CardMoveReasons.ProgramJudgmentReplace) &&
+                            game.Events.Any(item => item.Payload is ProgramJudgmentReplacementResolvedEvent
                             {
-                                OwnerSeat: 0, Used: true
+                                OwnerSeat: 0, Activated: true
                             }),
                         accepted.Error?.Message ?? "Guidao did not replace the judgment with its exact equipped black card.");
                     return;
@@ -82,10 +82,8 @@ internal static class GuidaoChecks
 
         public void Register(IContentRegistryBuilder builder)
         {
-            builder.AddSkill(new ContentSkillDefinition("scenario:guidao", "鬼道",
-                "判定牌生效前，你可以打出一张黑色牌替换之。"));
             builder.AddGeneral(new ContentGeneralDefinition(GeneralId, "张角（鬼道测试）", "zhang_jiao",
-                "scenario:guidao", "qun", BaseHp: 3));
+                "classic:guidao", "qun", BaseHp: 3));
             builder.AddMode(new ContentModeDefinition(ModeId, "鬼道判定场景", 5, 5,
                 new Dictionary<string, int>
                 {

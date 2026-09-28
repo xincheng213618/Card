@@ -1,0 +1,110 @@
+{
+ "schemaVersion": 62,
+ "skills": [
+  {
+   "id": "classic:renjie",
+   "revision": 1,
+   "minimumRulesVersion": 177,
+   "modifiers": [],
+   "viewAs": [],
+   "activations": [],
+   "triggers": [
+    {
+     "id": "damage-ren",
+     "window": "afterDamageApplied",
+     "subject": "owner",
+     "damageOccurrence": "perDamagePoint",
+     "optional": false,
+     "priority": 0,
+     "effects": [
+      {
+       "op": "changeAttributedMarker",
+       "target": "owner",
+       "targetRef": {"kind": "owner"},
+       "marker": "ren",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "id": "discard-ren",
+     "window": "cardsMoved",
+     "subject": "owner",
+     "sourceZones": ["hand"],
+     "movementOccurrence": "perCard",
+     "movementReasons": ["rule.hand-limit-discard"],
+     "optional": false,
+     "priority": 0,
+     "effects": [
+      {
+       "op": "changeAttributedMarker",
+       "target": "owner",
+       "targetRef": {"kind": "owner"},
+       "marker": "ren",
+       "amount": 1
+      }
+     ]
+    }
+   ],
+   "contributions": [],
+   "cardIdentities": [],
+   "states": []
+  },
+  {
+   "id": "classic:baiyin",
+   "revision": 1,
+   "minimumRulesVersion": 177,
+   "modifiers": [],
+   "viewAs": [],
+   "activations": [],
+   "triggers": [
+    {
+     "id": "awakening",
+     "window": "turnStartBeforeNormalFlow",
+     "subject": "owner",
+     "optional": false,
+     "priority": 0,
+     "usageScope": "game",
+     "usageLimit": 1,
+     "condition": {
+      "kind": "compare",
+      "left": {"kind": "ownerAttributedMarkerCount", "marker": "ren"},
+      "operator": "greaterThanOrEqual",
+      "right": {"kind": "integerConstant", "value": 4}
+     },
+     "effects": [
+      {"op": "changeMaximumHp", "target": "owner", "amount": -1},
+      {"op": "grantSkills", "target": "owner", "skillIds": ["classic:lianpo"]}
+     ]
+    }
+   ],
+   "contributions": [],
+   "cardIdentities": [],
+   "states": []
+  },
+  {
+   "id": "classic:lianpo",
+   "revision": 1,
+   "minimumRulesVersion": 177,
+   "modifiers": [],
+   "viewAs": [],
+   "activations": [],
+   "triggers": [
+    {
+     "id": "kill-extra-turn",
+     "window": "characterDied",
+     "subject": "owner",
+     "optional": true,
+     "priority": 0,
+     "condition": {"kind": "deathKillerIsOwner"},
+     "effects": [
+      {"op": "pendExtraTurn", "target": "owner"}
+     ]
+    }
+   ],
+   "contributions": [],
+   "cardIdentities": [],
+   "states": []
+  }
+ ]
+}

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-27",
+  "contentIds": ["classic:shen-sima-yi"],
+  "rulesSources": [
+    {
+      "contentId": "classic:shen-sima-yi",
+      "url": "https://wiki.biligame.com/sgs/index.php?curid=2632",
+      "edition": "神话再临-山包（2010；bwiki 转录）忍戒 / 连破",
+      "use": "神4体力。忍戒：锁定技，当你受到伤害后，或于弃牌阶段弃置手牌后，你获得X枚“忍”标记（X为伤害值或弃置的手牌数）。连破：当你杀死一名角色后，你可以于此回合结束后获得一个额外的回合（现行官方转录为“一名角色的回合结束时，若你本回合杀死过角色，你可以执行一个额外的回合”）。"
+    },
+    {
+      "contentId": "classic:shen-sima-yi",
+      "url": "https://wiki.biligame.com/sgs/index.php?curid=2632",
+      "edition": "官方FAQ（bwiki 转录）",
+      "use": "FAQ1：因“连破”获得的额外回合内又杀死角色，可以继续发动“连破”。FAQ2：一回合内杀死两名角色，只能获得一个额外回合。FAQ3：直到当前回合结束，“连破”的额外回合才开始。FAQ4：额外回合的规则和正常回合一样（觉醒可在额外回合进行）。"
+    }
+  ],
+  "versionBoundary": "忍戒、连破按官方文本实现，FAQ1–FAQ4 分别编码为：额外回合内再击杀可继续衔接；同一回合多次击杀每回合只补一个额外回合（挂起槽位单一，回合收尾消费）；击杀窗口先询问、额外回合推迟到当前回合结束；觉醒窗口不区分正常/额外回合。适配说明：官方“拜印”觉醒奖励为“极略”及其衍生技（鬼才/放逐/完杀/制衡/集智，连破为常驻技），其中完杀、放逐、集智等借用药技尚未收录于本库经典内容，故本定义将连破并入觉醒奖励（觉醒前无连破），不实现“极略”改组的任何文本；后续收录借用药技后可回补为官方觉醒奖励。",
+  "portraits": "官方立绘已同步：x.sanguosha.com 武将 gid 208（十周年 resource 120801），默认皮肤 120801“经典形象*神司马懿”下载为 src/CardGame.Wpf/Assets/official-shen-sima-yi.png（SHA-256 4d0d4e015fdba93ca5fb95494826419b356035c01a1922ef33e29abb8b86f8ac，574x761）；共3个官方皮肤收录于 docs/content/general-art-catalog.json 的 shen-sima-yi 条目，由 tools/sync_general_art.py --key shen-sima-yi 生成。"
+}

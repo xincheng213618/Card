@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:duanchang",
+      "revision": 1,
+      "minimumRulesVersion": 180,
+      "triggers": [
+        {
+          "id": "killer-loses-skills",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            { "op": "loseDeathSourceSkills", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}

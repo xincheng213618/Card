@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:wushen",
+      "revision": 1,
+      "minimumRulesVersion": 180,
+      "modifiers": [
+        {
+          "id": "heart-slash-distance",
+          "query": "slashDistanceLimit",
+          "operation": "unlimited",
+          "value": 0,
+          "priority": 0,
+          "sourceCardIdentityId": "heart-hand-as-slash",
+          "condition": { "kind": "always" }
+        }
+      ],
+      "cardIdentities": [
+        {
+          "id": "heart-hand-as-slash",
+          "zones": ["hand"],
+          "inputKinds": [],
+          "inputSuits": ["heart"],
+          "outputKind": "slash",
+          "condition": { "kind": "always" }
+        }
+      ],
+      "cardPolicies": [
+        {
+          "id": "heart-slash-unrespondable",
+          "kind": "prohibitTargetSlashResponseBySuit",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "inputSuit": "heart"
+        }
+      ]
+    }
+  ]
+}

@@ -28,8 +28,8 @@ internal static class WangYiChecks
                 {
                     Program:
                     {
-                        RuntimeVersion: "skill-program-v61",
-                        MinimumRulesVersion: 171,
+                        RuntimeVersion: "skill-program-v62",
+                        MinimumRulesVersion: 172,
                         Triggers.Count: 1
                     } zhenlieProgram,
                     ExecutionForms: SkillExecutionForm.Trigger,
@@ -39,8 +39,8 @@ internal static class WangYiChecks
                 {
                     Program:
                     {
-                        RuntimeVersion: "skill-program-v61",
-                        MinimumRulesVersion: 171,
+                        RuntimeVersion: "skill-program-v62",
+                        MinimumRulesVersion: 172,
                         Triggers.Count: 1
                     } program,
                     ExecutionForms: SkillExecutionForm.Trigger,

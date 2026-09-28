@@ -12,9 +12,12 @@ internal sealed class ChangeAttributedMarkerProgramOperationDescriptor : Program
         reader.AllowOnly("op", "target", "targetRef", "marker", "amount", "condition");
         var target = FilterBoundCardsProgramOperationDescriptor.Owner(reader);
         var targetRef = reader.RequiredParticipantReference("targetRef");
-        if (targetRef.Kind != ProgramParticipantRef.EventSource)
+        if (targetRef.Kind is not (ProgramParticipantRef.Owner or ProgramParticipantRef.EventSource))
             throw new InvalidOperationException(
-                $"Invalid skill program at {reader.Path}.targetRef: attributed damage markers require eventSource.");
+                $"Invalid skill program at {reader.Path}.targetRef: attributed markers require an owner or eventSource target.");
+        if (targetRef.Kind == ProgramParticipantRef.Owner && target != SkillProgramEffectTarget.Owner)
+            throw new InvalidOperationException(
+                $"Invalid skill program at {reader.Path}.targetRef: owner-attributed markers require the owner target.");
         var amount = reader.RequiredInt("amount");
         if (amount is < 1 or > 20)
             throw new InvalidOperationException(

@@ -27,8 +27,8 @@ internal static class PanZhangMaZhongChecks
             "The two skills must use effective Slash kinds and the generic reverse-range modifier.");
 
         var generic = """
-            {"schemaVersion":61,"skills":[{"id":"fixture:generic","revision":1,
-            "minimumRulesVersion":170,
+            {"schemaVersion":62,"skills":[{"id":"fixture:generic","revision":1,
+            "minimumRulesVersion": 171,
             "damageModifiers":[{"id":"distance","cardKinds":["duel"],"amount":2,
             "condition":"always"}],
             "triggers":[{"id":"take-armor","window":"afterDamageApplied","subject":"owner",
@@ -279,17 +279,26 @@ internal static class PanZhangMaZhongChecks
                 modifierEvents += game.Events.Select(item => item.Payload)
                     .OfType<ProgramCardDamageModifiedEvent>().Count(item => item.Source.SkillId == Anjian);
                 if (prompt is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 2 } &&
-                    prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action") == "tianxiang-use") &&
+                    prompt.SkillPrompt?.SkillId == "classic:tianxiang" &&
+                    prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate") &&
                     game.Events.Select(item => item.Payload).OfType<ProgramCardDamageModifiedEvent>()
                         .Any(item => item.Source.SkillId == Anjian && item.TargetSeat == 2 &&
                                      item.ModifiedAmount == 2))
                 {
                     var paused = GameReplay.Restore(GameCheckpointJson.Deserialize(
                         GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
-                    var use = prompt.Choices.First(choice =>
-                        choice.Parameters.GetValueOrDefault("action") == "tianxiang-use");
+                    var use = prompt.Choices.Single(choice =>
+                        choice.Parameters.GetValueOrDefault("program-action") == "activate");
                     Answer(game, use);
                     Answer(paused, paused.PendingDecision!.Choices.Single(choice => choice.Id == use.Id));
+                    var target = game.PendingDecision!.Choices.First(choice =>
+                        choice.Parameters.GetValueOrDefault("program-action") == "select-target");
+                    Answer(game, target);
+                    Answer(paused, paused.PendingDecision!.Choices.Single(choice => choice.Id == target.Id));
+                    var card = game.PendingDecision!.Choices.First(choice =>
+                        choice.Parameters.GetValueOrDefault("program-action") == "select-owned-cards");
+                    Answer(game, card);
+                    Answer(paused, paused.PendingDecision!.Choices.Single(choice => choice.Id == card.Id));
                     for (var follow = 0; follow < 70 &&
                          !game.Events.Select(item => item.Payload).OfType<ProgramDamageTransferredEvent>()
                              .Any(item => item.OwnerSeat == 2); follow++)
@@ -427,8 +436,8 @@ internal static class PanZhangMaZhongChecks
             if (armorSynthetic)
             {
                 var catalog = SkillProgramCatalog.Load("""
-                    {"schemaVersion":61,"skills":[{"id":"fixture:take-source-armor","revision":1,
-                    "minimumRulesVersion":170,"triggers":[{"id":"take","window":"afterDamageApplied",
+                    {"schemaVersion":62,"skills":[{"id":"fixture:take-source-armor","revision":1,
+                    "minimumRulesVersion": 171,"triggers":[{"id":"take","window":"afterDamageApplied",
                     "subject":"owner","damageOccurrence":"perDamage","damageCardKinds":["slash"],
                     "optional":false,"effects":[{"op":"selectSourceCard","target":"owner",
                     "zones":["equipment"],"equipmentSlots":["armor"],"skipIfNoCards":true,

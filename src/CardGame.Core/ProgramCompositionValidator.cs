@@ -51,9 +51,14 @@ internal static class ProgramCompositionValidator
                     effect.Op == SkillProgramEffectOp.ChooseOption)
                 {
                     var bound = Get(condition.SourceBind!);
-                    if (effect.Target != SkillProgramEffectTarget.Owner ||
-                        effect.ChooserRef is not null || !bound.Root.OwnerHeld || bound.Root.AlreadyMoved)
-                        Fail("bound-card category option must read the owner's stable held cards");
+                    var ownerHeld = effect.Target == SkillProgramEffectTarget.Owner &&
+                        effect.ChooserRef is null && bound.Root.OwnerHeld && !bound.Root.AlreadyMoved;
+                    var revealedRecipient = effect.Target == SkillProgramEffectTarget.SelectedTarget &&
+                        effect.ChooserRef is null &&
+                        bound.CardOwner == SkillProgramEffectTarget.SelectedTarget &&
+                        bound.Root.AlreadyMoved && frozenSuitBindings.Contains(condition.SourceBind!);
+                    if (!ownerHeld && !revealedRecipient)
+                        Fail("bound-card category option must read stable owner cards or a revealed recipient card");
                 }
                 if (condition.Kind == SkillProgramConditionKind.BoundCardCountAtLeast)
                 {
