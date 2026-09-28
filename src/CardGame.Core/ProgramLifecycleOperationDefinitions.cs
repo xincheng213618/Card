@@ -160,7 +160,8 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
         if (kind is not (SkillProgramTargetKind.OtherLivingWithHand or SkillProgramTargetKind.OtherLivingUnequalHandPair or
             SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.OtherLivingHandAtLeastOwner or
             SkillProgramTargetKind.CurrentCardUseTargets or SkillProgramTargetKind.OtherLivingMale or
-            SkillProgramTargetKind.AnyWounded or SkillProgramTargetKind.OtherLivingPair))
+            SkillProgramTargetKind.AnyWounded or SkillProgramTargetKind.OtherLivingPair or
+            SkillProgramTargetKind.LivingPairDistinct))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.targetKind: unsupported target set.");
         var minimum = r.RequiredInt("minimumTargets");
         var maximum = r.RequiredInt("maximumTargets");
@@ -179,6 +180,8 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: hand-ordered pairs require exactly two targets.");
         if (kind == SkillProgramTargetKind.OtherLivingMale && (minimum != 2 || maximum != 2))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: ordered male pairs require exactly two targets.");
+        if (kind == SkillProgramTargetKind.LivingPairDistinct && (minimum != 2 || maximum != 2))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: ordered living pairs require exactly two targets.");
         var aiOrder = r.RequiredEnum<SkillProgramTargetAiOrder>("targetAiOrder");
         if (aiOrder == SkillProgramTargetAiOrder.CardEffectIntervention &&
             kind != SkillProgramTargetKind.CurrentCardUseTargets)

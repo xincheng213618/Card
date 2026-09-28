@@ -112,7 +112,8 @@ public enum SkillProgramTargetKind
     OtherLivingPair = 22,
     OtherLivingLeastHandCount = 23,
     OtherLivingWhoseAttackRangeIncludesOwner = 24,
-    OtherLivingWithQinggangSword = 25
+    OtherLivingWithQinggangSword = 25,
+    LivingPairDistinct = 26
 }
 public enum SkillProgramCardCategory { Basic, Trick, Equipment }
 public enum SkillProgramTurnOwnerScope { Own = 0, OtherLiving = 1 }
@@ -218,7 +219,7 @@ public enum SkillProgramEffectOp
     RequestSlashByTarget
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets }
-public enum SkillProgramTurnPhase { Judgment, Draw, Play }
+public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
 public enum SkillProgramTriggerWindow
 {
     CardUseTargetsFinalized,
@@ -234,6 +235,7 @@ public enum SkillProgramTriggerWindow
     BeforeDamageApplied,
     AfterDamageApplied,
     PlayEnding,
+    DiscardPhaseStarting,
     TurnEnding,
     CardsMoved,
     OwnerDied,
@@ -276,7 +278,8 @@ public enum SkillProgramNumberExpression
 public enum SkillProgramCardSetVisibility { Private, Public }
 public enum SkillProgramCardDestination
 {
-    OwnerHand, DiscardPile, SelectedTargetHand, OwnerPersistentZone, DrawPileBottom, PhaseOwnerHand
+    OwnerHand, DiscardPile, SelectedTargetHand, OwnerPersistentZone, DrawPileBottom, PhaseOwnerHand,
+    SelectedTargetCorrespondingZone
 }
 public enum SkillProgramCardSource { DamageSource, Owner, EventTarget = 2 }
 public enum SkillProgramSubsetAiOrder { MostCardsThenRankSum }
@@ -1942,6 +1945,7 @@ public sealed class SkillProgramCatalog
             SkillProgramTriggerWindow.DamageAppliedBeforeDying or
             SkillProgramTriggerWindow.AfterDamageApplied or
             SkillProgramTriggerWindow.PlayEnding or
+            SkillProgramTriggerWindow.DiscardPhaseStarting or
             SkillProgramTriggerWindow.TurnEnding or
             SkillProgramTriggerWindow.CardsMoved or
             SkillProgramTriggerWindow.OwnerDied or
@@ -1953,6 +1957,7 @@ public sealed class SkillProgramCatalog
             SkillProgramTriggerWindow.DyingResponse or
             SkillProgramTriggerWindow.BeforeDamageApplied or
             SkillProgramTriggerWindow.PlayEnding or
+            SkillProgramTriggerWindow.DiscardPhaseStarting or
             SkillProgramTriggerWindow.TurnEnding or
             SkillProgramTriggerWindow.CardsMoved or
             SkillProgramTriggerWindow.OwnerDied or
@@ -2295,6 +2300,8 @@ public sealed class SkillProgramCatalog
                     effect.SkippedPhases.All(phase => phase is SkillProgramTurnPhase.Judgment or SkillProgramTurnPhase.Draw),
                 SkillProgramTriggerWindow.AfterNormalDraw =>
                     effect.SkippedPhases.SequenceEqual([SkillProgramTurnPhase.Play]),
+                SkillProgramTriggerWindow.DiscardPhaseStarting =>
+                    effect.SkippedPhases.SequenceEqual([SkillProgramTurnPhase.Discard]),
                 _ => false
             };
             if (!valid) Fail(path + ".effects", "phase substitution does not match its lifecycle boundary");

@@ -213,6 +213,61 @@ internal static class ClassicGeneralChecks
             blackEquipment = candidateEquipment;
             redCard = candidateRed;
             handConversion = conversion;
+            Require(current.GetHumanLegalActions().Any(action =>
+                        action.Kind == LegalActionKind.Dismantlement &&
+                        action.CardId == blackEquipment.Id &&
+                        action.PlayedCardKind == CardKind.Dismantlement) &&
+                    !current.GetHumanLegalActions().Any(action =>
+                        action.Kind == LegalActionKind.Dismantlement &&
+                        action.CardId == redCard.Id &&
+                        action.PlayedCardKind == CardKind.Dismantlement),
+                "Formal Qixi must publish black hand-card conversions without converting red hand cards.");
+
+            // The later assertions need the equipped conversion to leave a live
+            // nullification window on the stack, which the cheap hand filters
+            // cannot see. Probe the full conversion flow and reject seeds whose
+            // nullification window resolves without staying open.
+            var fixturePrompt = current.PendingDecision ??
+                throw new InvalidOperationException("Gan Ning fixture lost its play prompt.");
+            var stateBeforeInvalid = SnapshotJson.Serialize(current.CreateSnapshot(0, revealAll: true));
+            var invalid = current.Submit(new PlayCardCommand(
+                0,
+                blackEquipment.Id,
+                handConversion.TargetSeats,
+                current.Revision,
+                fixturePrompt.PromptId,
+                CardKind.Snatch,
+                handConversion.TargetCardId));
+            if (invalid.Accepted ||
+                SnapshotJson.Serialize(current.CreateSnapshot(0, revealAll: true)) != stateBeforeInvalid)
+            {
+                current = null;
+                blackEquipment = null;
+                redCard = null;
+                handConversion = null;
+                continue;
+            }
+
+            Equip(current, blackEquipment.Id);
+            var equippedConversion = current.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.Dismantlement &&
+                action.CardId == blackEquipment.Id &&
+                action.PlayedCardKind == CardKind.Dismantlement &&
+                action.TargetCardId is null);
+            CommandResult? used = null;
+            if (equippedConversion is { } conversionAction)
+            {
+                used = SubmitPlayAction(current, conversionAction);
+            }
+            var liveWindow = current.ResolutionStack.OfType<NullificationWindowFrame>().SingleOrDefault();
+            if (used is null || !used.Accepted || liveWindow is null)
+            {
+                current = null;
+                blackEquipment = null;
+                redCard = null;
+                handConversion = null;
+                continue;
+            }
         }
 
         if (current is null || blackEquipment is null || redCard is null || handConversion is null)
@@ -225,44 +280,6 @@ internal static class ClassicGeneralChecks
                 selected.MaxHp == 5 &&
                 selected.Skills!.Select(skill => skill.ContentId).SequenceEqual(["classic:qixi"]),
             "Classic Gan Ning must combine base 4 HP, the Lord bonus and formal Qixi.");
-        Require(current.GetHumanLegalActions().Any(action =>
-                    action.Kind == LegalActionKind.Dismantlement &&
-                    action.CardId == blackEquipment.Id &&
-                    action.PlayedCardKind == CardKind.Dismantlement) &&
-                !current.GetHumanLegalActions().Any(action =>
-                    action.Kind == LegalActionKind.Dismantlement &&
-                    action.CardId == redCard.Id &&
-                    action.PlayedCardKind == CardKind.Dismantlement),
-            "Formal Qixi must publish black hand-card conversions without converting red hand cards.");
-        var prompt = current.PendingDecision ??
-            throw new InvalidOperationException("Gan Ning fixture lost its play prompt.");
-        var stateBeforeInvalid = SnapshotJson.Serialize(current.CreateSnapshot(0, revealAll: true));
-        var invalid = current.Submit(new PlayCardCommand(
-            0,
-            blackEquipment.Id,
-            handConversion.TargetSeats,
-            current.Revision,
-            prompt.PromptId,
-            CardKind.Snatch,
-            handConversion.TargetCardId));
-        Require(!invalid.Accepted &&
-                SnapshotJson.Serialize(current.CreateSnapshot(0, revealAll: true)) == stateBeforeInvalid,
-            "A mismatched Qixi effective kind must reject atomically.");
-
-        Equip(current, blackEquipment.Id);
-        var equippedConversion = current.GetHumanLegalActions().FirstOrDefault(action =>
-            action.Kind == LegalActionKind.Dismantlement &&
-            action.CardId == blackEquipment.Id &&
-            action.PlayedCardKind == CardKind.Dismantlement &&
-            action.TargetCardId is null);
-        Require(equippedConversion is not null,
-            "Formal Qixi must convert a black card from the equipment zone.");
-        var selectedEquippedConversion = equippedConversion ??
-            throw new InvalidOperationException("The equipped Qixi action disappeared before submission.");
-
-        var used = SubmitPlayAction(current, selectedEquippedConversion);
-        Require(used.Accepted, used.Error?.Message ?? "Equipped Qixi conversion was rejected.");
-
         var nullificationFrame = current.ResolutionStack.OfType<NullificationWindowFrame>().SingleOrDefault();
         Require(nullificationFrame is not null &&
                 nullificationFrame.EffectCardId == blackEquipment.Id &&
@@ -4755,7 +4772,8 @@ internal static class ClassicGeneralChecks
                     Target = full.Players.Single(player => player.Seat == action.TargetSeat)
                 })
                 .Where(item => item.Target.GeneralId is "classic:lu-meng" or "classic:zhang-fei" or
-                           "classic:xu-huang" or "classic:gan-ning" or "classic:dian-wei" &&
+                           "classic:xu-huang" or "classic:gan-ning" or "classic:dian-wei" or
+                           "classic:zhang-he" &&
                                item.Target.Hand.Count(card => card.Kind == CardKind.Dodge) >= 2 &&
                                item.Target.Equipment.All(card =>
                                    card.Kind is not (CardKind.BaguaFormation or CardKind.RenwangShield)) &&
@@ -4811,13 +4829,11 @@ internal static class ClassicGeneralChecks
                     Action = action,
                     Target = full.Players.Single(player => player.Seat == action.TargetSeat)
                 })
-                .Where(item => item.Target.GeneralId is "classic:lu-meng" or "classic:zhang-fei" or
-                           "classic:xu-huang" or "classic:gan-ning" or "classic:dian-wei" &&
-                               item.Target.Hand.Count(card =>
+                .Where(item => item.Target.Hand.Count(card =>
                                    card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) == 1 &&
                                item.Target.Skills?.All(skill =>
-                                   skill.ContentId is not ("classic:wusheng" or "classic:longdan") &&
-                                   skill.ContentId != "classic:jijiang") != false)
+                                   skill.ContentId is not ("classic:wusheng" or "classic:longdan" or
+                                       "classic:jijiang" or "classic:longhun")) != false)
                 .OrderBy(item => item.Action.CardId)
                 .ThenBy(item => item.Action.TargetSeat)
                 .FirstOrDefault();
@@ -4826,14 +4842,81 @@ internal static class ClassicGeneralChecks
                 continue;
             }
 
+            // The hand filters cannot see skills that convert another card into
+            // a Slash response mid-duel, so probe the actual Wushuang sequence
+            // and only accept seeds whose target pays its one Slash and fails
+            // the second required response.
+            var probeEventCount = game.Events.Count;
+            SetPlayerHp(game, candidate.Target.Seat, hp: 1);
+            var probeUse = SubmitPlayAction(game, candidate.Action);
+            if (!probeUse.Accepted || !DriveWushuangDuelProbe(game, probeEventCount, candidate.Target.Seat))
+            {
+                continue;
+            }
+
+            var pristine = StartClassicGeneralAtPlay(
+                registry,
+                seed,
+                "classic:lu-bu",
+                GameCheckpoint.CurrentRulesVersion) ??
+                throw new InvalidOperationException("The probed Lu Bu fixture lost determinism.");
+            var pristineAction = pristine.GetHumanLegalActions()
+                .Where(action => action.Kind == LegalActionKind.Duel &&
+                                action.TargetSeat == candidate.Target.Seat)
+                .OrderBy(action => action.CardId)
+                .ThenBy(action => action.TargetSeat)
+                .FirstOrDefault();
+            if (pristineAction is null)
+            {
+                continue;
+            }
+
             return (
-                game,
-                GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
-                candidate.Action,
+                pristine,
+                GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(pristine.CreateCheckpoint())),
+                pristineAction,
                 candidate.Target.Seat);
         }
 
         throw new InvalidOperationException("Could not find a deterministic classic Lu Bu one-Slash Duel fixture.");
+    }
+
+    private static bool DriveWushuangDuelProbe(GameEngine game, int eventCount, int targetSeat)
+    {
+        for (var step = 0; step < 32; step++)
+        {
+            var events = game.Events.Skip(eventCount).Select(item => item.Payload).ToArray();
+            var paid = events.OfType<DuelResponseEvent>().Count(response =>
+                response.ResponderSeat == targetSeat && response.UsedSlash) == 1;
+            var failed = events.OfType<DuelResponseEvent>().Any(response =>
+                response.ResponderSeat == targetSeat && !response.UsedSlash);
+            var progressed = events.OfType<RequiredResponseProgressEvent>().Any(progress =>
+                progress.SkillOwnerSeat == 0 &&
+                progress.ResponderSeat == targetSeat &&
+                progress.IncomingCard == CardKind.Duel &&
+                progress.RequiredCardKind == CardKind.Slash &&
+                progress.ResponseCount == 1 &&
+                progress.RequiredResponseCount == 2);
+            var damaged = events.OfType<DamageAppliedEvent>().Any(damage =>
+                damage.TargetSeat == targetSeat);
+            if (paid && failed && progressed && damaged)
+            {
+                return true;
+            }
+
+            if (game.PendingDecision is { PlayerSeat: 0 })
+            {
+                return false;
+            }
+
+            var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
+            if (!advanced.Accepted)
+            {
+                return false;
+            }
+        }
+
+        return false;
     }
 
     private static void DriveAiUntil(GameEngine game, Func<bool> completed)

@@ -15361,6 +15361,18 @@ public sealed partial class GameEngine
         var current = _players[_currentSeat];
         AddLog("PhaseChanged", $"{current.Name} 进入弃牌阶段。", _currentSeat);
         QueueGameEvent(new PhaseChangedEvent(_phase, _currentSeat));
+        if (TryBeginDiscardPhaseProgramWindow(current)) return;
+        CompleteDiscardPhaseAfterProgramWindow(current);
+    }
+
+    private void CompleteDiscardPhaseAfterProgramWindow(CharacterState current)
+    {
+        if (_pendingTurnDelayedEffects.HasFlag(DelayedTurnEffects.SkipDiscardPhase))
+        {
+            AddLog("DelayedCardEffect", $"{current.Name} 跳过弃牌阶段。", current.Seat);
+            EndTurn();
+            return;
+        }
         if (!_usedOrPlayedSlashDuringPlayPhase &&
             CardPolicies(current, SkillProgramCardPolicyKind.OfferSkipDiscard).Any())
         {
@@ -17292,7 +17304,15 @@ public sealed partial class GameEngine
                         ParentFrameId: var dyingParentId
                     }
                 } && dyingParentId == dyingContinuation.FrameId;
-                if (!topMatchesDying && !topMatchesDyingProgram)
+                var dyingFrameIndex = _resolutionStack.FindLastIndex(frame => frame is DyingFrame dying &&
+                    dying.Id == dyingContinuation.FrameId &&
+                    dying.ParentFrameId == dyingContinuation.ParentFrameId);
+                var nestedResponseUseOnDying = dyingFrameIndex >= 0 &&
+                    _resolutionStack
+                        .Skip(dyingFrameIndex + 1)
+                        .All(frame => frame is CardUseFrame or ProgramCardTriggerWindowFrame or
+                            ProgramSkillFrame or HpChangedTriggerWindowFrame);
+                if (!topMatchesDying && !topMatchesDyingProgram && !nestedResponseUseOnDying)
                 {
                     var top = _resolutionStack.LastOrDefault();
                     var topShape = top is ProgramSkillFrame diagnosticProgram
@@ -18916,7 +18936,8 @@ public sealed partial class GameEngine
         None = 0,
         SkipDrawPhase = 1,
         SkipPlayPhase = 2,
-        SkipJudgmentPhase = 4
+        SkipJudgmentPhase = 4,
+        SkipDiscardPhase = 8
     }
 
     private enum JudgmentContinuationKind

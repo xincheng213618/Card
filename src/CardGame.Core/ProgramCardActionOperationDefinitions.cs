@@ -22,10 +22,17 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.zones: must contain hand, equipment, or judgment.");
         var destination = r.RequiredEnum<SkillProgramCardDestination>("destination");
         if (destination is not (SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.DiscardPile or
-                SkillProgramCardDestination.SelectedTargetHand))
+                SkillProgramCardDestination.SelectedTargetHand or
+                SkillProgramCardDestination.SelectedTargetCorrespondingZone))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.destination: unsupported destination.");
-        if ((destination == SkillProgramCardDestination.SelectedTargetHand) != r.Has("targetRef"))
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}: selectedTargetHand requires targetRef only.");
+        if ((destination == SkillProgramCardDestination.SelectedTargetHand ||
+                destination == SkillProgramCardDestination.SelectedTargetCorrespondingZone) != r.Has("targetRef"))
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}: selectedTargetHand and selectedTargetCorrespondingZone require targetRef only.");
+        if (destination == SkillProgramCardDestination.SelectedTargetCorrespondingZone &&
+            zones.Any(zone => zone is not (CardZoneKind.Equipment or CardZoneKind.Judgment)))
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}: corresponding-zone moves accept equipment and judgment cards only.");
         var chooserRef = r.RequiredParticipantReference("chooserRef");
         var cardOwnerRef = r.RequiredParticipantReference("cardOwnerRef");
         var cardCategories = r.OptionalEnumArray<SkillProgramCardCategory>("cardCategories");

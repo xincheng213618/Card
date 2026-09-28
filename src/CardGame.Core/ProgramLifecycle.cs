@@ -236,7 +236,7 @@ public sealed record ProgramPhaseSchedule(
     TurnPhase Phase,
     SkillProgramPhaseContinuation Continuation);
 
-public enum ProgramLifecycleContinuation { NormalTurnStart, CompleteDrawPhase, CompletePlayPhase, CompleteAfterNormalDraw }
+public enum ProgramLifecycleContinuation { NormalTurnStart, CompleteDrawPhase, CompletePlayPhase, CompleteAfterNormalDraw, CompleteDiscardPhase }
 
 public enum TurnEndingBoundaryItemKind { Program }
 

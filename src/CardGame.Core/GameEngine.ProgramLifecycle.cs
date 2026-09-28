@@ -50,12 +50,15 @@ public sealed partial class GameEngine
         if (frame.Window is (SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw) && _phase != TurnPhase.Draw)
             throw new InvalidOperationException("A DrawPhaseStarting lifecycle frame must remain in its Draw phase.");
+        if (frame.Window == SkillProgramTriggerWindow.DiscardPhaseStarting && _phase != TurnPhase.Discard)
+            throw new InvalidOperationException("A DiscardPhaseStarting lifecycle frame must remain in its Discard phase.");
         if (frame.Window != SkillProgramTriggerWindow.DrawPhaseStarting && frame.NormalDrawAdjustment != 0)
             throw new InvalidOperationException("Only a DrawPhaseStarting lifecycle frame may adjust normal draws.");
         if (frame.Window is not (SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or
-            SkillProgramTriggerWindow.PlayEnding))
+            SkillProgramTriggerWindow.PlayEnding or
+            SkillProgramTriggerWindow.DiscardPhaseStarting))
             throw new InvalidOperationException("This lifecycle window cannot own a clean phase boundary.");
         return true;
     }
@@ -718,6 +721,8 @@ public sealed partial class GameEngine
                         GetHand(peer).Count != GetHand(target).Count),
                 SkillProgramTargetKind.OtherLivingPair => target.Seat != ownerSeat &&
                     _players.Count(peer => peer.IsAlive && peer.Seat != ownerSeat) >= 2,
+                SkillProgramTargetKind.LivingPairDistinct =>
+                    _players.Count(peer => peer.IsAlive) >= 2,
                 SkillProgramTargetKind.OtherLivingLeastHandCount => target.Seat != ownerSeat &&
                     GetHand(target).Count ==
                     _players.Where(peer => peer.IsAlive && peer.Seat != ownerSeat)
@@ -799,9 +804,19 @@ public sealed partial class GameEngine
                     Array.Sort(seats, (left, right) =>
                         GetHand(_players[left]).Count.CompareTo(GetHand(_players[right]).Count));
                 }
-                selections.Add(Array.AsReadOnly(seats));
-                if (targetKind == SkillProgramTargetKind.OtherLivingMale)
+                if (targetKind == SkillProgramTargetKind.LivingPairDistinct)
+                {
+                    // Ordered pair: the first pick is the card source, the second the
+                    // destination, so both permutations are exposed as distinct options.
+                    selections.Add(Array.AsReadOnly(seats));
                     selections.Add(Array.AsReadOnly(new[] { seats[1], seats[0] }));
+                }
+                else
+                {
+                    selections.Add(Array.AsReadOnly(seats));
+                    if (targetKind == SkillProgramTargetKind.OtherLivingMale)
+                        selections.Add(Array.AsReadOnly(new[] { seats[1], seats[0] }));
+                }
             }
             if (current.Count == cappedMaximum) return;
             for (var index = next; index < targetSeats.Count; index++)
@@ -1817,6 +1832,9 @@ public sealed partial class GameEngine
                 slashFrame.Candidates.Any(item => item.OwnerSeat == candidate.OwnerSeat &&
                     item.SkillId == candidate.SkillId && item.SkillInstanceId == candidate.SkillInstanceId &&
                     item.TriggerId == candidate.BindingId && item.GameplayHash == candidate.GameplayHash),
+            SkillProgramTriggerWindow.DiscardPhaseStarting =>
+                owner.Seat == _currentSeat && context.SourceSeat == owner.Seat &&
+                _phase == TurnPhase.Discard,
             _ => false
         };
     }
@@ -2175,6 +2193,22 @@ public sealed partial class GameEngine
         return true;
     }
 
+    private bool TryBeginDiscardPhaseProgramWindow(CharacterState owner)
+    {
+        if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Discard ||
+            _pendingDecision is not null || _resolutionStack.Count != 0)
+            return false;
+        var facts = CaptureProgramTriggerFacts(owner);
+        var candidates = CollectEligibleProgramTriggerCandidates(
+            owner, SkillProgramTriggerWindow.DiscardPhaseStarting, facts);
+        if (candidates.Count == 0) return false;
+        _resolutionStack.Add(new ProgramLifecycleTriggerWindowFrame(
+            ++_resolutionSequence, owner.Seat, SkillProgramTriggerWindow.DiscardPhaseStarting,
+            candidates, ProgramLifecycleContinuation.CompleteDiscardPhase, facts));
+        ContinueProgramLifecycleWindow();
+        return true;
+    }
+
     private bool TryBeginTurnEndingBoundary(CharacterState owner)
     {
         if (!owner.IsAlive || owner.Seat != _currentSeat || _pendingDecision is not null ||
@@ -2444,6 +2478,9 @@ public sealed partial class GameEngine
                     case ProgramLifecycleContinuation.CompleteAfterNormalDraw:
                         CompleteTurnStartAfterDraw(_players[frame.OwnerSeat], _pendingTurnDelayedEffects,
                             afterNormalDrawProgramsCompleted: true);
+                        break;
+                    case ProgramLifecycleContinuation.CompleteDiscardPhase:
+                        CompleteDiscardPhaseAfterProgramWindow(_players[frame.OwnerSeat]);
                         break;
                     default:
                         throw new InvalidOperationException("Unsupported lifecycle continuation.");
@@ -2937,6 +2974,10 @@ public sealed partial class GameEngine
                         (selected.Targets.Count != 2 ||
                          GetHand(_players[selected.Targets[0]]).Count > GetHand(_players[selected.Targets[1]]).Count))
                         throw new InvalidOperationException("The selected pair must be two players in ascending hand order.");
+                    if (targetKind == SkillProgramTargetKind.LivingPairDistinct &&
+                        (selected.Targets.Count != 2 ||
+                         selected.Targets[0] == selected.Targets[1]))
+                        throw new InvalidOperationException("The selected ordered pair must name two distinct players.");
                     ClearPendingDecision();
                     _resolutionStack[^1] = frame with
                     {
@@ -3668,6 +3709,14 @@ public sealed partial class GameEngine
                     playEnding.Continuation != ProgramLifecycleContinuation.CompletePlayPhase)
                     throw new InvalidOperationException("The play-ending program lost its parent window.");
                 AdvanceProgramLifecycleCursor(playEnding);
+                ContinueProgramLifecycleWindow();
+                break;
+            case SkillProgramTriggerWindow.DiscardPhaseStarting:
+                if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame discardPhase ||
+                    discardPhase.Id != context.ParentFrameId ||
+                    discardPhase.Continuation != ProgramLifecycleContinuation.CompleteDiscardPhase)
+                    throw new InvalidOperationException("The discard-phase program lost its parent window.");
+                AdvanceProgramLifecycleCursor(discardPhase);
                 ContinueProgramLifecycleWindow();
                 break;
             case SkillProgramTriggerWindow.TurnEnding:

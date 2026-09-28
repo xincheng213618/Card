@@ -190,6 +190,8 @@ public sealed partial class GameEngine
             SkillProgramCardDestination.OwnerHand => CardLocation.Hand(frame.OwnerSeat),
             SkillProgramCardDestination.SelectedTargetHand => CardLocation.Hand(
                 ResolveProgramParticipant(frame, effect.TargetReference!)),
+            SkillProgramCardDestination.SelectedTargetCorrespondingZone => ProgramCorrespondingZoneLocation(
+                card, ResolveProgramParticipant(frame, effect.TargetReference!)),
             SkillProgramCardDestination.DiscardPile => CardLocation.DiscardPile,
             _ => throw new InvalidOperationException("Unsupported selected-card destination.")
         };
@@ -207,6 +209,19 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A same-owner hand return requires an authorized public source zone.");
         if (effect.CoverageResultBind is not null && zone != CardZoneKind.Equipment)
             throw new InvalidOperationException("Attack-range coverage requires a public equipment movement.");
+        if (effect.Destination == SkillProgramCardDestination.SelectedTargetCorrespondingZone &&
+            destination.Zone == CardZoneKind.Equipment)
+        {
+            var recipient = destination.OwnerSeat!.Value;
+            var replacedSlot = EquipmentCatalog.Get(card.Kind).Slot;
+            var replaced = GetEquipment(_players[recipient])
+                .SingleOrDefault(item => EquipmentCatalog.Get(item.Kind).Slot == replacedSlot);
+            if (replaced is not null && replaced.Id != card.Id)
+            {
+                MoveCard(replaced, CardLocation.Equipment(recipient), CardLocation.DiscardPile,
+                    CardMoveReasons.EquipmentReplace);
+            }
+        }
         ClearPendingDecision();
         var beforeCoverage = effect.CoverageResultBind is null ? 0 : CountLivingInAttackRange(ownerSeat);
         if (effect.AwaitMovementTriggers)
@@ -242,6 +257,16 @@ public sealed partial class GameEngine
             SetProgramAttackRangeCoverage(frame.Id, coverageBind, ownerSeat, beforeCoverage,
                 CountLivingInAttackRange(ownerSeat));
         ContinueProgramSkill(frame.Id);
+    }
+
+    private CardLocation ProgramCorrespondingZoneLocation(Card card, int destinationSeat)
+    {
+        if (!IsValidPlayerSeat(destinationSeat) || !_players[destinationSeat].IsAlive)
+            throw new InvalidOperationException("A corresponding-zone transfer requires a living recipient.");
+        if (IsDelayedCard(card.Kind)) return CardLocation.Judgment(destinationSeat);
+        if (EquipmentCatalog.IsEquipment(card.Kind)) return CardLocation.Equipment(destinationSeat);
+        throw new InvalidOperationException(
+            $"Card '{card.Kind}' has no corresponding zone; only delayed tricks and equipment are transferable.");
     }
 
     private int CountLivingInAttackRange(int subjectSeat)
