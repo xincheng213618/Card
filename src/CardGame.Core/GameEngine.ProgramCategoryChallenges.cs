@@ -28,6 +28,19 @@ public sealed partial class GameEngine
         });
     }
 
+    private bool DoProgramBoundCardCategoryMatchAction(ProgramSkillFrame frame, string sourceBind)
+    {
+        var actionCategory = frame.WindowContext?.Facts?.CardActionCategory;
+        if (actionCategory is null) return false;
+        var binding = GetProgramCardSet(frame, sourceBind);
+        return binding.CardIds.Count > 0 && binding.CardIds.All(cardId =>
+        {
+            var location = _cardZones.GetLocation(cardId);
+            var card = _cardZones.CardsAt(location).Single(candidate => candidate.Id == cardId);
+            return GetProgramCardCategory(card.Kind) == actionCategory;
+        });
+    }
+
     private bool DoProgramBoundCardsMatchKinds(
         ProgramSkillFrame frame,
         string sourceBind,

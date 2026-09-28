@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-29",
+  "contentIds": [
+    "classic:shen-lu-meng"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:shen-lu-meng",
+      "url": "https://x.sanguosha.com/hero/202.html",
+      "edition": "三国杀官方网站武将库 gid 202（神吕蒙，神）",
+      "use": "涉猎：摸牌阶段开始时，你可以放弃摸牌，从牌堆顶亮出五张牌，然后获得其中不同花色的牌各一张，将其余的牌置入弃牌堆；攻心：出牌阶段限1次，你可以观看1名其他角色的手牌，然后你可以展示其中1张红桃牌，选择1项：1.弃置此牌；2.将此牌置于牌堆顶。"
+    },
+    {
+      "contentId": "classic:shen-lu-meng",
+      "url": "https://wiki.biligame.com/sgs/%E7%A5%9E%E5%90%95%E8%92%99",
+      "edition": "BWIKI 三国杀WIKI 武将页（二手核对）",
+      "use": "体力/势力/性别/包归属核对：神、男、经典版 3 勾玉、神话再临·风（神将）（2010）。技能措辞与官方页一致的以官方页为准。"
+    }
+  ],
+  "versionBoundary": "官方 gid 202 页面攻心文本含编号选项（原页多行），此处保持语义逐字合并。观看他人手牌已有 ProgramReveals“观看手牌”公开原语可评估复用；红桃牌置牌堆顶/弃置与观星族置顶能力同族。体力值官方页不渲染，3 勾玉取 BWIKI 口径。立绘 120201 URL 已验证（HTTP 206），尚未下载入库。",
+  "portraits": [
+    {
+      "contentId": "classic:shen-lu-meng",
+      "id": "120201",
+      "name": "经典形象*神吕蒙",
+      "sourcePage": "https://x.sanguosha.com/hero/202.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/120201.png"
+    }
+  ]
+}

@@ -31,6 +31,11 @@ public sealed partial class GameEngine
             null => amount,
             SkillProgramNumberExpression.OwnerLostHp => GetProgramOwnerLostHp(active),
             SkillProgramNumberExpression.AllOwnedZoneCards => candidates.Length,
+            SkillProgramNumberExpression.HandHalfFloor => GetHand(_players[cardOwnerSeat]).Count / 2,
+            SkillProgramNumberExpression.SelectedPairHandDifference => active.SelectedTargetSeats is { Count: 2 } pair
+                ? Math.Abs(GetHand(_players[pair[0]]).Count - GetHand(_players[pair[1]]).Count)
+                : throw new InvalidOperationException(
+                    "A selected-pair hand difference requires two resolved program targets."),
             _ => throw new InvalidOperationException("Unsupported owned-card selection amount.")
         };
         var count = Math.Min(requested, candidates.Length);

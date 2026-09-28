@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-29",
+  "contentIds": [
+    "classic:liu-shan"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:liu-shan",
+      "url": "https://x.sanguosha.com/hero/54.html",
+      "edition": "三国杀官方网站武将库 gid 54（刘禅，蜀）",
+      "use": "享乐：锁定技，当你成为一名角色使用【杀】的目标后，除非该角色弃置一张基本牌，否则此【杀】对你无效。；放权：你可以跳过出牌阶段，若如此做，此回合结束时，你可以弃置一张手牌并选择一名其他角色，令其获得一个额外的回合；若愚：主公技，觉醒技，准备阶段开始时，若你是当前的体力值最小的角色（或之一），你加1点体力上限，回复1点体力，然后获得“激将”"
+    },
+    {
+      "contentId": "classic:liu-shan",
+      "url": "https://wiki.biligame.com/sgs/%E5%88%98%E7%A6%85",
+      "edition": "BWIKI 三国杀WIKI 武将页（二手核对）",
+      "use": "体力/势力/性别/包归属核对：蜀、男、经典版 3 勾玉、神话再临·山（2011）。技能措辞与官方页一致的以官方页为准。"
+    }
+  ],
+  "versionBoundary": "若愚觉醒授予 classic:jijiang（激将已有定义，且已有 AdditionalSkillIds 授予先例）；放权需额外回合指向其他角色——现有 PendProgramExtraTurn 挂起槽位存在但当前固定为 active.OwnerSeat（神司马懿连破语义），需目标参数化评估；享乐为“成为杀目标后要求使用者弃基本牌否则无效”的响应型锁定。BWIKI 放权/享乐措辞与官方页语义一致。体力值官方页不渲染，3 勾玉取 BWIKI 口径。立绘 105401 URL 已验证（HTTP 206），尚未下载入库。",
+  "portraits": [
+    {
+      "contentId": "classic:liu-shan",
+      "id": "105401",
+      "name": "经典形象*刘禅",
+      "sourcePage": "https://x.sanguosha.com/hero/54.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105401.png"
+    }
+  ]
+}

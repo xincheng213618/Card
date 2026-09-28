@@ -211,7 +211,9 @@ public sealed partial class GameEngine
             ? CardZoneKind.Hand
             : location == CardLocation.Equipment(owner.Seat)
                 ? CardZoneKind.Equipment
-                : (CardZoneKind?)null;
+                : location == CardLocation.Authority(owner.Seat)
+                    ? CardZoneKind.Authority
+                    : (CardZoneKind?)null;
         if (zone is null) return [];
         var context = CreateSkillContext(owner);
         var configured = GetSkillBindingShard(owner).ProgramInstances

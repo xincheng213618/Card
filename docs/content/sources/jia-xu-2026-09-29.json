@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-29",
+  "contentIds": [
+    "classic:jia-xu"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:jia-xu",
+      "url": "https://x.sanguosha.com/hero/49.html",
+      "edition": "三国杀官方网站武将库 gid 49（贾诩，群）",
+      "use": "完杀：锁定技，不处于濒死状态的其他角色于你的回合内不能使用【桃】；乱武：限定技，出牌阶段，你可以选择所有其他角色，这些角色各需对距离最近的另一名角色使用一张【杀】，否则失去1点体力；帷幕：锁定技，你不能被选择为黑色锦囊牌的目标"
+    },
+    {
+      "contentId": "classic:jia-xu",
+      "url": "https://wiki.biligame.com/sgs/%E8%B4%BE%E8%AF%A9",
+      "edition": "BWIKI 三国杀WIKI 武将页（二手核对）",
+      "use": "体力/势力/性别/包归属核对：群、男、经典版 3 勾玉、神话再临·林（2010）。技能措辞与官方页一致的以官方页为准。"
+    }
+  ],
+  "versionBoundary": "完杀需在濒死救援窗口对“不处于濒死状态的其他角色于贾诩回合内使用桃”增加资格限制；乱武为限定技全场强制出杀否则失去体力（借刀/决斗族强制出杀模式的扩展）；帷幕为黑色锦囊目标资格过滤。体力值官方页不渲染，3 勾玉取 BWIKI 口径。立绘 104901 URL 已验证（HTTP 206），尚未下载入库。",
+  "portraits": [
+    {
+      "contentId": "classic:jia-xu",
+      "id": "104901",
+      "name": "经典形象*贾诩",
+      "sourcePage": "https://x.sanguosha.com/hero/49.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/104901.png"
+    }
+  ]
+}

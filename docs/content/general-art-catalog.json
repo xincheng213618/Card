@@ -869,6 +869,23 @@
       ]
     },
     {
+      "key": "cai-wen-ji",
+      "characterName": "蔡文姬",
+      "defaultSkinId": "105801",
+      "skins": [
+        {
+          "id": "105801",
+          "name": "经典形象*蔡文姬",
+          "sourcePage": "https://x.sanguosha.com/hero/58.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105801.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-cai-wen-ji.png",
+          "sha256": "3a0932634b8c29f7c68baacb9156eb99f94b676f15b04e85dbf1bccf69f46691",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "cao-ang",
       "characterName": "曹昂",
       "defaultSkinId": "140401",
@@ -1669,6 +1686,103 @@
           "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/607201.png",
           "localPath": "src/CardGame.Wpf/Assets/Skins/da-qiao/607201.png",
           "sha256": "402b13779c4a4efaa93372daa6fe8ea8a60dbc2ec7c2aee132227638b1293455",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
+      "key": "deng-ai",
+      "characterName": "邓艾",
+      "defaultSkinId": "105201",
+      "skins": [
+        {
+          "id": "105201",
+          "name": "经典形象*邓艾",
+          "sourcePage": "https://x.sanguosha.com/hero/52.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105201.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-deng-ai.png",
+          "sha256": "9599843d4c8ad44df27179a61c4641e27769fcb5f938817a89f489c30058c966",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "205201",
+          "name": "远见卓识*邓艾",
+          "sourcePage": "https://x.sanguosha.com/hero/52.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/205201.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/deng-ai/205201.png",
+          "sha256": "6fc483aedebbf23614d0198356982514e9e80385b19cc8877d70e0583e10b2de",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "305201",
+          "name": "偷渡阴平*邓艾",
+          "sourcePage": "https://x.sanguosha.com/hero/52.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/305201.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/deng-ai/305201.png",
+          "sha256": "e2be22e260ab72e1ac5c6f17e399175bf5174b3bd95424171374405a4c0078e7",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "305202",
+          "name": "凛冬将至*邓艾",
+          "sourcePage": "https://x.sanguosha.com/hero/52.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/305202.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/deng-ai/305202.png",
+          "sha256": "1e4462517b2748f233e18fb2770174ec638db9606a961ecf2fb213e9d452aec1",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "305203",
+          "name": "积粟富民*邓艾",
+          "sourcePage": "https://x.sanguosha.com/hero/52.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/305203.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/deng-ai/305203.png",
+          "sha256": "e8de9ed5e132820c1fc467a51b95f18accf6977be73aec7f2673207a977a5ea6",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "405201",
+          "name": "手执耒耜*邓艾",
+          "sourcePage": "https://x.sanguosha.com/hero/52.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/405201.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/deng-ai/405201.png",
+          "sha256": "236fe87a71528b543b610b9d500b31ca07ff6b264856f8caa032244c166ab4fe",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "505201",
+          "name": "神兵天降*邓艾",
+          "sourcePage": "https://x.sanguosha.com/hero/52.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/505201.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/deng-ai/505201.png",
+          "sha256": "a244eaf4e2c887b3e813b446d326ce103f12bed1415bc5221f051b444acd9e4b",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "505202",
+          "name": "五谷蕃盛*邓艾",
+          "sourcePage": "https://x.sanguosha.com/hero/52.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/505202.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/deng-ai/505202.png",
+          "sha256": "22cb9ae74dd3941262523a0512b5ee8575132e6f15145b111817fe8d191557f7",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "505203",
+          "name": "虚拟天团*邓艾",
+          "sourcePage": "https://x.sanguosha.com/hero/52.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/505203.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/deng-ai/505203.png",
+          "sha256": "0955809a2630fb794054d61c899787e2119f56206a67252e6bae18fccb221269",
           "pixelWidth": 574,
           "pixelHeight": 761
         }
@@ -4396,6 +4510,23 @@
       ]
     },
     {
+      "key": "lu-su",
+      "characterName": "鲁肃",
+      "defaultSkinId": "105001",
+      "skins": [
+        {
+          "id": "105001",
+          "name": "经典形象*鲁肃",
+          "sourcePage": "https://x.sanguosha.com/hero/50.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105001.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-lu-su.png",
+          "sha256": "b0452e1c1d13b3948144ee2b9ed6ddbb66b78f650ab087c06bc3d53f31520343",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "lu-xun",
       "characterName": "陆逊",
       "defaultSkinId": "101401",
@@ -5180,6 +5311,63 @@
           "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/6105301.png",
           "localPath": "src/CardGame.Wpf/Assets/Skins/qu-yi/6105301.png",
           "sha256": "39e80d66e1f38340818613ff749f49dc7236770470def758dfd428897b24f446",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
+      "key": "sha-mo-ke",
+      "characterName": "沙摩柯",
+      "defaultSkinId": "165001",
+      "skins": [
+        {
+          "id": "165001",
+          "name": "经典形象*沙摩柯",
+          "sourcePage": "https://x.sanguosha.com/hero/650.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/165001.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-sha-mo-ke.png",
+          "sha256": "e7172accce61b6b16f2f69041551da9d8fb0cb2f681caa6f43a09ec09e56bc2e",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "465001",
+          "name": "力破千军*沙摩柯",
+          "sourcePage": "https://x.sanguosha.com/hero/650.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/465001.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/sha-mo-ke/465001.png",
+          "sha256": "7a16e95e714300f7bb0acb81f21405b31bb36146116d8493ac996eea963ba425",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "565001",
+          "name": "狂喜胜战*沙摩柯",
+          "sourcePage": "https://x.sanguosha.com/hero/650.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/565001.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/sha-mo-ke/565001.png",
+          "sha256": "9f58b5f04faa32cac122381ae1bd3319c6c91ac972132ac355121082ce9c4356",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "565002",
+          "name": "战场绝版*沙摩柯",
+          "sourcePage": "https://x.sanguosha.com/hero/650.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/565002.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/sha-mo-ke/565002.png",
+          "sha256": "867ffe72e8565b6ab7381a1198bca227698736143c586807ee83818e218aa7e2",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "665001",
+          "name": "骁勇金衔*沙摩柯",
+          "sourcePage": "https://x.sanguosha.com/hero/650.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/665001.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/sha-mo-ke/665001.png",
+          "sha256": "61d29bf54b990ab73abec694659c76cafc0929a6773144ebfe063727e5cd13d7",
           "pixelWidth": 574,
           "pixelHeight": 761
         }

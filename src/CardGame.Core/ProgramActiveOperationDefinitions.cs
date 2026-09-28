@@ -85,3 +85,23 @@ internal sealed class AccumulateSelectedCardCountProgramOperationDescriptor : Pr
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new CreateChoiceResult(effect.ResultBind!, ["crossed", "not-crossed"])];
 }
+
+internal sealed class ExchangeSelectedTargetHandsProgramOperationDescriptor : ProgramOperationDescriptorBase
+{
+    public override SkillProgramEffectOp Op => SkillProgramEffectOp.ExchangeSelectedTargetHands;
+    public override ISkillProgramEffectHandler Handler { get; } = new ExchangeSelectedTargetHandsSkillProgramEffectHandler();
+    public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.ExchangeSelectedTargetHands,
+        static (effect, context) => context.ExchangeSelectedTargetHands(effect));
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
+    {
+        r.AllowOnly("op", "target", "condition");
+        var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
+        if (target != SkillProgramEffectTarget.Owner)
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: a hand exchange reads the ordered target pair.");
+        var effect = new SkillProgramEffect(Op, target, 1, r.Condition());
+        RequireAlways(effect, r.Path);
+        return effect;
+    }
+    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
+        [new ReadTargetSet(2, 2)];
+}

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-29",
+  "contentIds": [
+    "classic:zuo-ci"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:zuo-ci",
+      "url": "https://x.sanguosha.com/hero/57.html",
+      "edition": "三国杀官方网站武将库 gid 57（左慈，群）",
+      "use": "化身：游戏开始时，你随机获得两张武将牌作为“化身”牌，然后亮出其中一张，获得该“化身”牌的一个技能。回合开始时或结束后，你可以更改亮出的“化身”牌。你的性别与势力视为与亮出的化身牌相同。；新生：每当你受到1点伤害后，你可以随机将一张游戏外的武将牌置入【化身牌堆】"
+    },
+    {
+      "contentId": "classic:zuo-ci",
+      "url": "https://wiki.biligame.com/sgs/%E5%B7%A6%E6%85%88",
+      "edition": "BWIKI 三国杀WIKI 武将页（二手核对）",
+      "use": "体力/势力/性别/包归属核对：群、男、经典版 3 勾玉、神话再临·山（2011）。技能措辞与官方页一致的以官方页为准。"
+    }
+  ],
+  "versionBoundary": "化身/新生需要游戏外武将牌堆（化身牌堆）、随机发牌、动态技能声明与性别/势力视同四类全新子系统，为本次范围内预计引擎增量最大者；BWIKI 口径补充声明技能“限定、觉醒、主公技除外”限制，官方页现行文本未载，实施前须按正式角色卡/官方 FAQ 核定。体力值官方页不渲染，3 勾玉取 BWIKI 口径。立绘 105701 URL 已验证（HTTP 206），尚未下载入库。",
+  "portraits": [
+    {
+      "contentId": "classic:zuo-ci",
+      "id": "105701",
+      "name": "经典形象*左慈",
+      "sourcePage": "https://x.sanguosha.com/hero/57.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105701.png"
+    }
+  ]
+}

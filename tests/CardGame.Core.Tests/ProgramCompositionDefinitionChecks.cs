@@ -169,7 +169,8 @@ internal static class ProgramCompositionDefinitionChecks
             [SkillProgramEffectOp.GrantTurnHandCardProhibition] = """{"op":"grantTurnHandCardProhibition","target":"selectedTarget"}""",
             [SkillProgramEffectOp.AbolishOwnerAreas] = """{"op":"abolishOwnerAreas","target":"owner","zones":["equipment","judgment"]}""",
             [SkillProgramEffectOp.LoseDeathSourceSkills] = """{"op":"loseDeathSourceSkills","target":"owner"}""",
-            [SkillProgramEffectOp.ChooseOwnCardDiscard] = """{"op":"chooseOwnCardDiscard","target":"owner","chooserRef":{"kind":"eventSource"},"zones":["hand","equipment"],"condition":{"kind":"always"}}"""
+            [SkillProgramEffectOp.ChooseOwnCardDiscard] = """{"op":"chooseOwnCardDiscard","target":"owner","chooserRef":{"kind":"eventSource"},"zones":["hand","equipment"],"condition":{"kind":"always"}}""",
+            [SkillProgramEffectOp.ExchangeSelectedTargetHands] = """{"op":"exchangeSelectedTargetHands","target":"owner","condition":{"kind":"always"}}"""
         };
         Require(nodes.Keys.ToHashSet().SetEquals(Enum.GetValues<SkillProgramEffectOp>()),
             "Catalog parse fixtures must cover every declared program operation exactly once.");
@@ -332,7 +333,7 @@ internal static class ProgramCompositionDefinitionChecks
         Reject(() => Parse(ProgramOperationCatalog.Default,
             """{"op":"recover","target":"owner","amount":1,"numberExpression":"boundCardCount","sourceBind":"r"}"""), "amount or numberExpression");
         Reject(() => Parse(ProgramOperationCatalog.Default,
-            """{"op":"moveBoundCards","target":"owner","sourceBind":"r","destination":"selectedTargetHand"}"""), "unsupported destination");
+            """{"op":"moveBoundCards","target":"owner","sourceBind":"r","destination":"processing"}"""), "unsupported SkillProgramCardDestination value");
 
         const string oldEffects = """[{"op":"draw","target":"owner","amount":21}]""";
         Reject(() => Load("fixture:new23", Rules("fixture:new23", oldEffects,

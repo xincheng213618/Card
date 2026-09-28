@@ -77,7 +77,8 @@ internal static class ShenSimaYiChecks
         Require(SkillProgramCatalog.Load(damageSkill, presentation).Programs["fixture:renjie"]
                 .Triggers.Single().Effects.Count == 1,
             "An owner-attributed Ren marker composition must be independently definable.");
-        Reject(damageSkill.Replace("\"marker\":\"ren\"},\n\"operator\"", "},\n\"operator\""),
+        Reject(damageSkill.Replace("\"kind\":\"ownerAttributedMarkerCount\",\"marker\":\"ren\"",
+                "\"kind\":\"ownerAttributedMarkerCount\""),
             presentation, "ownerAttributedMarkerCount requires its marker");
         Reject(damageSkill.Replace("\"target\":\"owner\",\n\"targetRef\":{\"kind\":\"owner\"}",
                 "\"target\":\"selectedTarget\",\"targetRef\":{\"kind\":\"owner\"}"),

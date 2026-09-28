@@ -392,6 +392,12 @@ internal static class SkillProgramExecutorChecks
             return SkillProgramStepOutcome.AwaitChild;
         }
 
+        public SkillProgramStepOutcome ExchangeSelectedTargetHands(ProgramSkillFrame frame)
+        {
+            Calls.Add($"exchange-hands:{frame.OwnerSeat}");
+            return SkillProgramStepOutcome.AwaitChild;
+        }
+
         public void AccumulateSelectedCardCount(ProgramSkillFrame frame, string usageId,
             int threshold, string resultBind) =>
             Calls.Add($"accumulate-selected:{frame.OwnerSeat}:{usageId}:{threshold}:{resultBind}");

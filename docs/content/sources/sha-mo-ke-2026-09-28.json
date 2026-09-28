@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-28",
+  "contentIds": [
+    "classic:sha-mo-ke"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:sha-mo-ke",
+      "url": "https://www.sanguosha.cn/pc/hero-detail-650.html",
+      "edition": "一将成名2015（蜀）沙摩柯",
+      "use": "蒺藜：当你于一回合内使用或打出第X张牌时，你可以摸X张牌（X为你的攻击范围）。"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero/650.html",
+      "edition": "三国杀官方网站武将库 gid 650（沙摩柯）",
+      "use": "确认官方武将索引中经典沙摩柯的独立条目；经典形象皮肤 165001 及 4 款其余皮肤自该条目下载。"
+    }
+  ],
+  "versionBoundary": "官方详情页未渲染体力值；4勾玉取自两处独立二手资料（百科与聚合条目一致），批次记录如实标注该口径。蒺藜的“第X张牌”计数为本回合内使用与打出张数之和（含本牌），攻击范围取触发时点的实时值（含武器与技能修正）；打出以 cardResponseAccepted 窗口承载，使用以 cardUseCommitted 承载，均按 ownerRelation: actor 只对技能拥有者自己的用牌/打牌动作生效。",
+  "portraits": [
+    {
+      "contentId": "classic:sha-mo-ke",
+      "id": "165001",
+      "name": "经典形象*沙摩柯",
+      "sourcePage": "https://x.sanguosha.com/hero/650.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/165001.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-sha-mo-ke.png",
+      "sha256": "e7172accce61b6b16f2f69041551da9d8fb0cb2f681caa6f43a09ec09e56bc2e",
+      "pixelWidth": 574,
+      "pixelHeight": 761
+    }
+  ]
+}

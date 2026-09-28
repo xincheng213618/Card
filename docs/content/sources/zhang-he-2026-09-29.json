@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-29",
+  "contentIds": [
+    "classic:zhang-he"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:zhang-he",
+      "url": "https://x.sanguosha.com/hero/51.html",
+      "edition": "三国杀官方网站武将库 gid 51（张郃，魏）",
+      "use": "巧变：你可以弃置一张手牌，跳过除准备阶段和结束阶段外的一个阶段，然后若你以此法：跳过摸牌阶段，你可以选择一至两名有手牌的其他角色，然后获得这些角色的各一张手牌；跳过出牌阶段，你可以将一名角色判定区/装备区里的一张牌置入另一名角色的判定区/装备区。"
+    },
+    {
+      "contentId": "classic:zhang-he",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E9%83%83",
+      "edition": "BWIKI 三国杀WIKI 武将页（二手核对）",
+      "use": "体力/势力/性别/包归属核对：魏、男、经典版 4 勾玉、神话再临·山（2011）。技能措辞与官方页一致的以官方页为准。"
+    }
+  ],
+  "versionBoundary": "巧变为单技能多分支：跳过任意阶段（延时锦囊已有跳过摸牌/出牌阶段原语，需参数化为玩家可选阶段）；跳摸牌分支的获得他人手牌与突袭（tuxi）同族；跳出牌分支的“判定区/装备区牌置入另一角色对应区域”与张昭张纮直谏的装备置入共享移牌能力。体力值官方页不渲染，4 勾玉取 BWIKI 口径。立绘 105101 URL 已验证（HTTP 206），尚未下载入库。",
+  "portraits": [
+    {
+      "contentId": "classic:zhang-he",
+      "id": "105101",
+      "name": "经典形象*张郃",
+      "sourcePage": "https://x.sanguosha.com/hero/51.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105101.png"
+    }
+  ]
+}

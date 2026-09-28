@@ -124,6 +124,9 @@ public sealed partial class GameEngine
                         SkillProgramTargetKind.OtherLivingInAttackRange =>
                             target.Seat != owner.Seat &&
                             GetCombatDistance(owner.Seat, target.Seat) <= GetAttackRange(owner.Seat),
+                        SkillProgramTargetKind.OtherLivingWhoseAttackRangeIncludesOwner =>
+                            target.Seat != owner.Seat &&
+                            GetCombatDistance(target.Seat, owner.Seat) <= GetAttackRange(target.Seat),
                         SkillProgramTargetKind.OtherLivingSlashable =>
                             CanUseProvidedSlashTarget(owner, target),
                         SkillProgramTargetKind.OtherLivingWithHand =>
@@ -136,6 +139,8 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                             target.Seat != owner.Seat && target.Hp < target.MaxHp,
                         SkillProgramTargetKind.AnyWounded => target.Hp < target.MaxHp,
                         SkillProgramTargetKind.AnyLivingHandBelowMaxHp => GetHand(target).Count < target.MaxHp,
+                        SkillProgramTargetKind.OtherLivingPair => target.Seat != owner.Seat &&
+                            _players.Count(peer => peer.IsAlive && peer.Seat != owner.Seat) >= 2,
                         SkillProgramTargetKind.EventTarget => false,
                         _ => false
                     }) &&

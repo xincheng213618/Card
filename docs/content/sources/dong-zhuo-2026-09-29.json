@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-29",
+  "contentIds": [
+    "classic:dong-zhuo"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:dong-zhuo",
+      "url": "https://x.sanguosha.com/hero/46.html",
+      "edition": "三国杀官方网站武将库 gid 46（董卓，群）",
+      "use": "酒池：你可以将一张黑桃手牌当【酒】使用；肉林：锁定技，每当你使用【杀】指定一名女性目标角色后，其需依次使用两张【闪】才能抵消；锁定技，每当你成为女性角色使用【杀】的目标后，你需依次使用两张【闪】才能抵消；崩坏：锁定技，结束阶段，若有当前的体力值比你小的角色，你选择一项：1.失去1点体力；2.减1点体力上限。；暴虐：主公技，每当其他群势力角色造成伤害后，其可以进行判定，若结果为黑桃，你回复1点体力"
+    },
+    {
+      "contentId": "classic:dong-zhuo",
+      "url": "https://wiki.biligame.com/sgs/%E8%91%A3%E5%8D%93",
+      "edition": "BWIKI 三国杀WIKI 武将页（二手核对）",
+      "use": "体力/势力/性别/包归属核对：群、男、经典版 8 勾玉、神话再临·林（2010）。技能措辞与官方页一致的以官方页为准。"
+    }
+  ],
+  "versionBoundary": "BWIKI 崩坏作“若你不是全场体力值最低的角色”、暴虐作“当其他群势力角色造成伤害后”，与官方页“若有当前的体力值比你小的角色”“每当”语义一致，以官方页措辞为准。暴虐的判定者与决定者是造成伤害的其他群势力角色，属主公技非持有者决策族（与颂威/制霸同类已记录未实现语义）；判定来源语义可参考悲歌批 sourceRef。体力值官方页不渲染，8 勾玉（经典版×8）取 BWIKI 口径，为全武将库最高体力，实施时按正式角色卡复核对模式体力上限影响。立绘 104601 URL 已验证（HTTP 206），尚未下载入库。",
+  "portraits": [
+    {
+      "contentId": "classic:dong-zhuo",
+      "id": "104601",
+      "name": "经典形象*董卓",
+      "sourcePage": "https://x.sanguosha.com/hero/46.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/104601.png"
+    }
+  ]
+}

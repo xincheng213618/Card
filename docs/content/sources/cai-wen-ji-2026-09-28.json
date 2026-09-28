@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-28",
+  "contentIds": [
+    "classic:cai-wen-ji"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:cai-wen-ji",
+      "url": "https://x.sanguosha.com/hero/58.html",
+      "edition": "三国杀官方网站武将库 gid 58（蔡文姬，群）",
+      "use": "悲歌：每当一名角色受到【杀】造成的伤害后，若其存活，你可以弃置一张牌，令其判定，若结果为：红桃，其回复1点体力；方块，其摸两张牌；梅花，来源弃置两张牌；黑桃，来源翻面。断肠：锁定技，当你死亡时，杀死你的角色失去其当前的所有武将技能。经典形象皮肤 105801 自该条目下载。"
+    }
+  ],
+  "versionBoundary": "官方 gid 58 页面未单独渲染体力值；3勾玉取自二手资料通行口径（山包蔡文姬 3 血），批次记录如实标注。悲歌的判定来源（sourceRef eventSource）本批新增引擎能力：伤害来源作为判定 SourceSeat，四分支经 judgmentFinalized 触发器按判定牌花色分派；judgmentSource 匹配按 owner 座位比对、与来源语义冲突，故分支仅以判定原因 skill.classic.beige 限定作用域。梅花分支的“来源弃置两张牌”新增 chooseOwnCardDiscard 操作：由来源自行选择其手牌/装备区的两张牌弃置，每次一张、顺序结算，无 decline 分支；来源手牌与装备区均为空时该分支无效果。黑桃分支的 turnOver 以新增 targetRef（eventSource）指向来源翻面。",
+  "portraits": [
+    {
+      "contentId": "classic:cai-wen-ji",
+      "id": "105801",
+      "name": "经典形象*蔡文姬",
+      "sourcePage": "https://x.sanguosha.com/hero/58.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105801.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-cai-wen-ji.png",
+      "sha256": "3a0932634b8c29f7c68baacb9156eb99f94b676f15b04e85dbf1bccf69f46691",
+      "pixelWidth": 574,
+      "pixelHeight": 761
+    }
+  ]
+}

@@ -31,6 +31,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "CardGame.Content.Standard.SkillPrograms.classic-sun-ce.rules.json";
     private const string ClassicSunCePresentationResource =
         "CardGame.Content.Standard.SkillPrograms.classic-sun-ce.presentation.json";
+    private const string ClassicDengAiRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-deng-ai.rules.json";
+    private const string ClassicDengAiPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-deng-ai.presentation.json";
+    private const string ClassicShaMoKeRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-sha-mo-ke.rules.json";
+    private const string ClassicShaMoKePresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-sha-mo-ke.presentation.json";
+    private const string ClassicLuSuRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-lu-su.rules.json";
+    private const string ClassicLuSuPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-lu-su.presentation.json";
     private const string ClassicShenGuanYuRulesResource =
         "CardGame.Content.Standard.SkillPrograms.classic-shen-guan-yu.rules.json";
     private const string ClassicShenGuanYuPresentationResource =
@@ -71,6 +83,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicSunCeRulesResource),
             ReadEmbeddedText(ClassicSunCePresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicDengAiCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicDengAiRulesResource),
+            ReadEmbeddedText(ClassicDengAiPresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicShaMoKeCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicShaMoKeRulesResource),
+            ReadEmbeddedText(ClassicShaMoKePresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicLuSuCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicLuSuRulesResource),
+            ReadEmbeddedText(ClassicLuSuPresentationResource)));
     private static readonly Lazy<SkillProgramCatalog> ClassicGaoShunCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicGaoShunRulesResource),
@@ -79,7 +103,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicLifecycleRulesResource),
             ReadEmbeddedText(ClassicLifecyclePresentationResource)));
-    public static Version CurrentVersion { get; } = new(1, 152, 0);
+    public static Version CurrentVersion { get; } = new(1, 154, 0);
 
     public StandardClassicGeneralPackage()
     {
@@ -1007,6 +1031,23 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 SunCeProgram("classic:hunzi"), SkillTag.Awakening, SkillExecutionForm.Trigger));
         }
 
+        {
+            builder.AddSkill(WithOptionalTriggerMetadata(DengAiProgram("classic:tuntian")));
+            builder.AddSkill(WithStructuredSkillMetadata(
+                DengAiProgram("classic:zaoxian"), SkillTag.Awakening, SkillExecutionForm.Trigger));
+            builder.AddSkill(WithContinuousStateMetadata(DengAiProgram("classic:jixi")));
+        }
+
+        {
+            builder.AddSkill(WithOptionalTriggerMetadata(ShaMoKeProgram("classic:jili")));
+        }
+
+        {
+            builder.AddSkill(WithOptionalTriggerMetadata(LuSuProgram("classic:haoshi")));
+            builder.AddSkill(WithOptionalTriggerMetadata(LuSuProgram("classic:haoshi-give")));
+            builder.AddSkill(LuSuProgram("classic:dimeng"));
+        }
+
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
             "刘备",
@@ -1655,9 +1696,23 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 AdditionalSkillIds: ["classic:hunzi"]));
 
         builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:deng-ai", "邓艾", "deng_ai",
+                "classic:tuntian", "wei", BaseHp: 4,
+                AdditionalSkillIds: ["classic:zaoxian"]));
+
+        builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:sha-mo-ke", "沙摩柯", "sha_mo_ke",
+                "classic:jili", "shu", BaseHp: 4));
+
+        builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:cai-wen-ji", "蔡文姬", "cai_wen_ji",
                 "classic:beige", "qun", BaseHp: 3,
                 AdditionalSkillIds: ["classic:duanchang"]));
+
+        builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:lu-su", "鲁肃", "lu_su",
+                "classic:haoshi", "wu", BaseHp: 3,
+                AdditionalSkillIds: ["classic:dimeng"]));
 
         var generalPoolIds = CurrentGeneralIds;
 
@@ -1878,6 +1933,33 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         };
     }
 
+    private static ContentSkillDefinition DengAiProgram(string skillId)
+    {
+        var presentation = ClassicDengAiCatalog.Value.Presentations[skillId];
+        return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
+        {
+            Program = ClassicDengAiCatalog.Value.Programs[skillId]
+        };
+    }
+
+    private static ContentSkillDefinition ShaMoKeProgram(string skillId)
+    {
+        var presentation = ClassicShaMoKeCatalog.Value.Presentations[skillId];
+        return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
+        {
+            Program = ClassicShaMoKeCatalog.Value.Programs[skillId]
+        };
+    }
+
+    private static ContentSkillDefinition LuSuProgram(string skillId)
+    {
+        var presentation = ClassicLuSuCatalog.Value.Presentations[skillId];
+        return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
+        {
+            Program = ClassicLuSuCatalog.Value.Programs[skillId]
+        };
+    }
+
     private ContentSkillDefinition WithOptionalTriggerMetadata(ContentSkillDefinition definition) =>
         WithStructuredSkillMetadata(
             definition,
@@ -1998,6 +2080,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:cao-pi",
         "classic:sun-ce",
         "classic:cai-wen-ji",
+        "classic:deng-ai",
+        "classic:sha-mo-ke",
+        "classic:lu-su",
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =

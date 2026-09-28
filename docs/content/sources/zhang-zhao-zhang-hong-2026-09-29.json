@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-29",
+  "contentIds": [
+    "classic:zhang-zhao-zhang-hong"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:zhang-zhao-zhang-hong",
+      "url": "https://x.sanguosha.com/hero/56.html",
+      "edition": "三国杀官方网站武将库 gid 56（张昭张纮，吴）",
+      "use": "直谏：出牌阶段，你可以将手牌中的一张装备牌置于一名其他角色的装备区里，摸一张牌；固政：其他角色的弃牌阶段结束时，你可以令该角色获得弃牌堆里的其于此阶段内弃置的一张手牌，若如此做，你可以获得弃牌堆里的其余于此阶段内弃置的牌。"
+    },
+    {
+      "contentId": "classic:zhang-zhao-zhang-hong",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E6%98%AD%E5%BC%A0%E7%BA%AE",
+      "edition": "BWIKI 三国杀WIKI 武将页（二手核对）",
+      "use": "体力/势力/性别/包归属核对：吴、男、经典版 3 勾玉、神话再临·山（2011）。技能措辞与官方页一致的以官方页为准。"
+    }
+  ],
+  "versionBoundary": "直谏的“手牌装备牌置入他人装备区”与张郃巧变跳出牌分支共享移牌能力；BWIKI 直谏补充“不可替换原装备”细则，实施时按正式角色卡核对装备槽冲突语义。固政需“其他角色弃牌阶段结束时”触发时机与从弃牌堆取回牌的操作（现有从弃牌堆获得无直接先例）。体力值官方页不渲染，3 勾玉取 BWIKI 口径。立绘 105601 URL 已验证（HTTP 206），尚未下载入库。",
+  "portraits": [
+    {
+      "contentId": "classic:zhang-zhao-zhang-hong",
+      "id": "105601",
+      "name": "经典形象*张昭张纮",
+      "sourcePage": "https://x.sanguosha.com/hero/56.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105601.png"
+    }
+  ]
+}

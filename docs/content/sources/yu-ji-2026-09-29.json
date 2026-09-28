@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-29",
+  "contentIds": [
+    "classic:yu-ji"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:yu-ji",
+      "url": "https://x.sanguosha.com/hero/34.html",
+      "edition": "三国杀官方网站武将库 gid 34（于吉，群）",
+      "use": "蛊惑：每名角色的回合限一次，你可以扣置一张手牌当任意一张基本牌或普通锦囊牌使用或打出。此时，一旦有其他角色质疑则翻开此牌：若为假则此牌作废，若为真则质疑角色获得技能“缠怨”"
+    },
+    {
+      "contentId": "classic:yu-ji",
+      "url": "https://wiki.biligame.com/sgs/%E4%BA%8E%E5%90%89",
+      "edition": "BWIKI 三国杀WIKI 武将页（二手核对）",
+      "use": "体力/势力/性别/包归属核对：群、男、经典版 3 勾玉、神话再临·风（2010）。技能措辞与官方页一致的以官方页为准。"
+    }
+  ],
+  "versionBoundary": "官方 gid 34 页面仅列蛊惑一技，缠怨以引文技能名出现；缠怨完整文本“锁定技，你不能质疑蛊惑；体力值为 1 时，你的其他技能失效。”已作为 classic:chanyuan 定义存在于 StandardClassicGeneralPackage.cs（含 SkillSuppressionRule(1)），于吉本体未注册。现行官方蛊惑文本以质疑成立（为真）授予缠怨、为假仅作废，与风包 2010 首发口径的质疑惩罚不同；实施前须按目标版本正式角色卡再核对历史边界。体力值官方页不渲染，3 勾玉取 BWIKI 经典版口径。立绘 103401 URL 已于 2026-09-29 以 Range 请求验证可访问（HTTP 206），尚未下载入库。",
+  "portraits": [
+    {
+      "contentId": "classic:yu-ji",
+      "id": "103401",
+      "name": "经典形象*于吉",
+      "sourcePage": "https://x.sanguosha.com/hero/34.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/103401.png"
+    }
+  ]
+}

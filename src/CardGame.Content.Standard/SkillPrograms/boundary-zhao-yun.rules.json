@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:longdan",
+      "revision": 1,
+      "minimumRulesVersion": 182,
+      "viewAs": [
+        {
+          "id": "dodge-to-slash",
+          "inputKinds": ["dodge"],
+          "inputSuits": [],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": true
+        },
+        {
+          "id": "slash-to-dodge",
+          "inputKinds": ["slash", "fireSlash", "thunderSlash"],
+          "inputSuits": [],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true
+        },
+        {
+          "id": "alcohol-to-peach",
+          "inputKinds": ["alcohol"],
+          "inputSuits": [],
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": true
+        },
+        {
+          "id": "peach-to-alcohol",
+          "inputKinds": ["peach"],
+          "inputSuits": [],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": true
+        }
+      ]
+    },
+    {
+      "id": "boundary:yajiao",
+      "revision": 1,
+      "minimumRulesVersion": 182,
+      "triggers": [
+        {
+          "id": "reveal-on-hand-card-use",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "not",
+                "children": [
+                  {
+                    "kind": "ownerIsTurnPlayer"
+                  }
+                ]
+              },
+              {
+                "kind": "cardActionFromOwnerHand"
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "revealTopCards",
+              "target": "owner",
+              "amount": 1,
+              "resultBind": "revealed",
+              "visibility": "public"
+            },
+            {
+              "op": "giveBoundCard",
+              "target": "owner",
+              "sourceBind": "revealed",
+              "targetKind": "anyLiving",
+              "condition": {
+                "kind": "boundCardCategoryMatchesCardAction",
+                "sourceBind": "revealed"
+              }
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingWhoseAttackRangeIncludesOwner",
+              "zones": ["hand", "equipment", "judgment"],
+              "skipIfNoTarget": true,
+              "condition": {
+                "kind": "not",
+                "children": [
+                  {
+                    "kind": "boundCardCategoryMatchesCardAction",
+                    "sourceBind": "revealed"
+                  }
+                ]
+              }
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "selectedTarget" },
+              "zones": ["hand", "equipment", "judgment"],
+              "count": 1,
+              "destination": "discardPile",
+              "skipIfNoCards": true,
+              "condition": {
+                "kind": "not",
+                "children": [
+                  {
+                    "kind": "boundCardCategoryMatchesCardAction",
+                    "sourceBind": "revealed"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "reveal-on-hand-card-response",
+          "window": "cardResponseAccepted",
+          "ownerRelation": "actor",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "not",
+                "children": [
+                  {
+                    "kind": "ownerIsTurnPlayer"
+                  }
+                ]
+              },
+              {
+                "kind": "cardActionFromOwnerHand"
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "revealTopCards",
+              "target": "owner",
+              "amount": 1,
+              "resultBind": "revealed",
+              "visibility": "public"
+            },
+            {
+              "op": "giveBoundCard",
+              "target": "owner",
+              "sourceBind": "revealed",
+              "targetKind": "anyLiving",
+              "condition": {
+                "kind": "boundCardCategoryMatchesCardAction",
+                "sourceBind": "revealed"
+              }
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingWhoseAttackRangeIncludesOwner",
+              "zones": ["hand", "equipment", "judgment"],
+              "skipIfNoTarget": true,
+              "condition": {
+                "kind": "not",
+                "children": [
+                  {
+                    "kind": "boundCardCategoryMatchesCardAction",
+                    "sourceBind": "revealed"
+                  }
+                ]
+              }
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "selectedTarget" },
+              "zones": ["hand", "equipment", "judgment"],
+              "count": 1,
+              "destination": "discardPile",
+              "skipIfNoCards": true,
+              "condition": {
+                "kind": "not",
+                "children": [
+                  {
+                    "kind": "boundCardCategoryMatchesCardAction",
+                    "sourceBind": "revealed"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

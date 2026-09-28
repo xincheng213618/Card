@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:jili",
+      "revision": 1,
+      "minimumRulesVersion": 183,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "draw-on-xth-use",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "cardsUsedOrRespondedThisTurn"
+            },
+            "operator": "equal",
+            "right": {
+              "kind": "currentAttackRange"
+            }
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "currentAttackRange"
+            }
+          ]
+        },
+        {
+          "id": "draw-on-xth-response",
+          "window": "cardResponseAccepted",
+          "ownerRelation": "actor",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "cardsUsedOrRespondedThisTurn"
+            },
+            "operator": "equal",
+            "right": {
+              "kind": "currentAttackRange"
+            }
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "currentAttackRange"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    }
+  ]
+}

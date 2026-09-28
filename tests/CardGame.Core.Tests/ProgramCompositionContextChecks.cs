@@ -28,9 +28,11 @@ internal static class ProgramCompositionContextChecks
         Reject(Rules("fixture:play-phase", [], [Trigger("run", "playEnding",
             """[{"op":"insertPhase","target":"owner","phase":"play","phaseContinuation":"beforeNormalPreparation"}]""")]),
             "PhaseInsertion");
-        foreach (var window in new[] { "selfDyingResponse", "cardsMoved" })
+        foreach (var window in new[] { "selfDyingResponse" })
             Reject(Rules("fixture:nested-judgment-" + window, [], [Trigger("run", window,
                 JudgmentEffects)]), "Judgment");
+        _ = Load(Rules("fixture:cards-moved-judgment", [], [Trigger("run", "cardsMoved",
+            JudgmentEffects)]));
     }
 
     public static void TargetSetIsConsumedOnce()

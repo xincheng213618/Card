@@ -681,6 +681,9 @@ public sealed partial class GameEngine
                 SkillProgramTargetKind.OtherLivingInAttackRange =>
                     target.Seat != ownerSeat &&
                     GetCombatDistance(ownerSeat, target.Seat) <= GetAttackRange(ownerSeat),
+                SkillProgramTargetKind.OtherLivingWhoseAttackRangeIncludesOwner =>
+                    target.Seat != ownerSeat &&
+                    GetCombatDistance(target.Seat, ownerSeat) <= GetAttackRange(target.Seat),
                 SkillProgramTargetKind.OtherLivingSlashable =>
                     CanUseProvidedSlashTarget(_players[ownerSeat], target),
                 SkillProgramTargetKind.SlashRedirectable =>
@@ -701,6 +704,12 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 SkillProgramTargetKind.OtherLivingUnequalHandPair => target.Seat != ownerSeat &&
                     _players.Any(peer => peer.IsAlive && peer.Seat != ownerSeat && peer.Seat != target.Seat &&
                         GetHand(peer).Count != GetHand(target).Count),
+                SkillProgramTargetKind.OtherLivingPair => target.Seat != ownerSeat &&
+                    _players.Count(peer => peer.IsAlive && peer.Seat != ownerSeat) >= 2,
+                SkillProgramTargetKind.OtherLivingLeastHandCount => target.Seat != ownerSeat &&
+                    GetHand(target).Count ==
+                    _players.Where(peer => peer.IsAlive && peer.Seat != ownerSeat)
+                        .Select(peer => GetHand(peer).Count).Min(),
                 SkillProgramTargetKind.OtherLivingAtDistanceOne =>
                     target.Seat != ownerSeat && GetCombatDistance(ownerSeat, target.Seat) == 1,
                 SkillProgramTargetKind.AnyLiving => true,
@@ -769,9 +778,11 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             if (current.Count >= minimumTargets)
             {
                 var seats = current.ToArray();
-                if (targetKind == SkillProgramTargetKind.OtherLivingUnequalHandPair)
+                if (targetKind is SkillProgramTargetKind.OtherLivingUnequalHandPair or
+                    SkillProgramTargetKind.OtherLivingPair)
                 {
-                    if (GetHand(_players[seats[0]]).Count == GetHand(_players[seats[1]]).Count)
+                    if (targetKind == SkillProgramTargetKind.OtherLivingUnequalHandPair &&
+                        GetHand(_players[seats[0]]).Count == GetHand(_players[seats[1]]).Count)
                         return;
                     Array.Sort(seats, (left, right) =>
                         GetHand(_players[left]).Count.CompareTo(GetHand(_players[right]).Count));
@@ -1916,6 +1927,8 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             owner.Hp,
             IsClassicIdentityMode,
             CardsUsedOrRespondedThisTurn: CountCardsUsedOrRespondedByPlayerThisTurn(owner.Seat),
+            OwnerIsTurnPlayer: owner.Seat == _currentSeat,
+            CurrentAttackRange: GetAttackRange(owner.Seat),
             CurrentMaxHp: owner.MaxHp,
             CurrentHandCount: GetHand(owner).Count,
             LordGeneralId: _players.SingleOrDefault(player => player.Role == Role.Lord)?.General.Id,
@@ -1939,6 +1952,10 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             CardActionActorIsOwner = action.ActorSeat == owner.Seat,
             CardActionPhaseIsPlay = _phase == TurnPhase.Play,
             CardActionCategory = GetProgramCardCategory(action.EffectiveKind),
+            CardActionFromOwnerHand = action.PhysicalCards.Count > 0 &&
+                action.PhysicalCards.All(cost =>
+                    cost.From is { Zone: CardZoneKind.Hand, OwnerSeat: { } holder } &&
+                    holder == action.ActorSeat),
             CardActionCardIsRed = action.PhysicalCards.Count > 0 &&
                 action.PhysicalCards.All(cost =>
                     _cardZones.CardsAt(_cardZones.GetLocation(cost.CardId))
@@ -2888,6 +2905,10 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                     (selected.Targets.Count != 2 ||
                      GetHand(_players[selected.Targets[0]]).Count >= GetHand(_players[selected.Targets[1]]).Count))
                     throw new InvalidOperationException("The selected unequal-hand pair is no longer legal.");
+                if (targetKind == SkillProgramTargetKind.OtherLivingPair &&
+                    (selected.Targets.Count != 2 ||
+                     GetHand(_players[selected.Targets[0]]).Count > GetHand(_players[selected.Targets[1]]).Count))
+                    throw new InvalidOperationException("The selected pair must be two players in ascending hand order.");
                 ClearPendingDecision();
                 _resolutionStack[^1] = frame with
                 {
@@ -3417,6 +3438,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             !HasTurnCardTargetRestriction(owner.Seat, SkillProgramCardTargetRestriction.SelfOnly) &&
             new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash }
                 .Any(kind => !IsCardUseForbidden(owner.Seat, kind, CardActionType.Use)),
+            AttackRange: GetAttackRange(owner.Seat),
             AttackRangeCoverageDecreased: _ => _players.Where(player => player.IsAlive && player.Seat != owner.Seat)
                 .Any(player => GetEquipment(player).Any(card =>
                     WouldEquipmentRemovalReduceCoverage(player.Seat, card.Id))));

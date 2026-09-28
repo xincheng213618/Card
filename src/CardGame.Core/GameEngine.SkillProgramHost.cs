@@ -58,7 +58,8 @@ public sealed partial class GameEngine
                 bind => engine.CountChooserProgramBoundCards(frame, bind, context.Seat),
                 frame.SelectedCardIds.Count,
                 (cardBind, choiceBind) => engine.DoesProgramFrozenSuitMatchChoice(frame, cardBind, choiceBind),
-                (bind, suits) => engine.DoProgramBoundCardsMatchSuits(frame, bind, suits));
+                (bind, suits) => engine.DoProgramBoundCardsMatchSuits(frame, bind, suits),
+                (bind, _) => engine.DoProgramBoundCardCategoryMatchAction(frame, bind));
         }
 
         public bool TryStartPostInstructionWindow(long frameId) =>
@@ -309,6 +310,9 @@ public sealed partial class GameEngine
 
         public SkillProgramStepOutcome TransferRandomOwnedCard(ProgramSkillFrame frame, int targetSeat, string resultBind) =>
             engine.TransferProgramRandomOwnedCard(frame, targetSeat, resultBind);
+
+        public SkillProgramStepOutcome ExchangeSelectedTargetHands(ProgramSkillFrame frame) =>
+            engine.ExchangeProgramSelectedTargetHands(frame);
 
         public void AccumulateSelectedCardCount(ProgramSkillFrame frame, string usageId,
             int threshold, string resultBind) =>

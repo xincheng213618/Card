@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:haoshi",
+      "revision": 1,
+      "minimumRulesVersion": 184,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "draw-phase-extra-draw",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2
+            },
+            {
+              "op": "grantTurnSkills",
+              "target": "owner",
+              "skillIds": ["classic:haoshi-give"]
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:haoshi-give",
+      "revision": 1,
+      "minimumRulesVersion": 184,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "give-half-hand",
+          "window": "afterNormalDraw",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "currentHandCount"
+            },
+            "operator": "greaterThan",
+            "right": {
+              "kind": "integerConstant",
+              "value": 5
+            }
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingLeastHandCount"
+            },
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "zones": ["hand"],
+              "numberExpression": "handHalfFloor",
+              "resultBind": "haoshi-gift"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "haoshi-gift",
+              "destination": "selectedTargetHand"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:dimeng",
+      "revision": 1,
+      "minimumRulesVersion": 184,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "alliance-pact",
+          "minCards": 0,
+          "maxCards": 0,
+          "sourceZones": ["hand"],
+          "minTargets": 2,
+          "maxTargets": 2,
+          "targetKind": "otherLivingPair",
+          "usesPerTurn": 1,
+          "usesPerPhase": null,
+          "usesPerGame": null,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "zones": ["hand", "equipment"],
+              "numberExpression": "selectedPairHandDifference",
+              "resultBind": "dimeng-cost"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "dimeng-cost",
+              "destination": "discardPile"
+            },
+            {
+              "op": "exchangeSelectedTargetHands",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

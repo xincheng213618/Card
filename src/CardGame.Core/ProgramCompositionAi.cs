@@ -27,7 +27,8 @@ internal sealed record ProgramAiPublicContext(
     Func<string, bool>? AttackRangeCoverageDecreased = null,
     Func<IReadOnlyList<CardZoneKind>, IReadOnlyList<SkillProgramCardCategory>, bool>? HasOwnedCardCategory = null,
     double CardEffectInterventionScore = 0d,
-    Func<string, int>? PhaseUsageCount = null);
+    Func<string, int>? PhaseUsageCount = null,
+    int AttackRange = 0);
 
 /// <summary>
 /// Pure, public-state estimate for schema-23 program compositions. Unknown cards use a
@@ -101,7 +102,8 @@ internal static class ProgramCompositionAi
             context?.CardUseIsRed, context?.ChoiceResult,
             attackRangeCoverageDecreased: context?.AttackRangeCoverageDecreased,
             activationCardCount: context?.ActivationCardCount,
-            boundCardSuitMatchesChoice: (_, _) => false);
+            boundCardSuitMatchesChoice: (_, _) => false,
+            boundCardCategoryMatchesCardAction: (_, _) => false);
     }
 }
 
@@ -158,6 +160,8 @@ internal sealed class ProgramAiEstimateContext
                         ? Math.Max(0, target.MaxHp - target.HandCount)
                         : 1d,
             SkillProgramNumberExpression.BoundCardCount => Binding(effect.SourceBind).Count,
+            SkillProgramNumberExpression.CurrentAttackRange =>
+                Math.Max(1, _publicContext.AttackRange > 0 ? _publicContext.AttackRange : 1),
             _ => effect.Amount
         };
         if (TargetsOwner(effect))
@@ -300,8 +304,14 @@ internal sealed class ProgramAiEstimateContext
     internal void SelectOwnedCards(SkillProgramEffect effect)
     {
         var count = effect.MinimumCards > 0 ? effect.MinimumCards :
-            effect.NumberExpression == SkillProgramNumberExpression.OwnerLostHp
-                ? Math.Max(0, _player.MaxHp - _player.Hp) : effect.Amount;
+            effect.NumberExpression switch
+            {
+                SkillProgramNumberExpression.OwnerLostHp => Math.Max(0, _player.MaxHp - _player.Hp),
+                SkillProgramNumberExpression.HandHalfFloor => (int)(_estimatedHandCount / 2d),
+                SkillProgramNumberExpression.SelectedPairHandDifference => Math.Max(0,
+                    (_publicContext.SelectedTarget?.HandCount ?? 0) - _estimatedHandCount),
+                _ => effect.Amount
+            };
         var ownedByActor = TargetsOwner(effect);
         // Only hand counts and a bounded public-zone prior are available here.
         var knownHand = ownedByActor ? _estimatedHandCount
@@ -494,6 +504,15 @@ internal sealed class ProgramAiEstimateContext
 
     internal void ChooseOwnCardDiscard(SkillProgramEffect effect) =>
         _otherAdjustment += effect.ChooserRef is null ? -8d : 8d;
+
+    internal void ExchangeSelectedTargetHands(SkillProgramEffect effect)
+    {
+        // The pair is ordered ascending by hand count, so the exchange moves the
+        // smaller hand toward the larger one from the actor's scoring view.
+        var gain = Math.Max(0, (_publicContext.SelectedTarget?.HandCount ?? 0) - _estimatedHandCount);
+        _ownerDraw += gain;
+        _otherAdjustment += 4d;
+    }
 
     internal void RefundCardUseDebit(SkillProgramEffect effect)
     {

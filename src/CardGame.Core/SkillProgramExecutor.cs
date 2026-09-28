@@ -123,6 +123,7 @@ public interface ISkillProgramEffectHost
     SkillProgramStepOutcome RequestFactionCard(ProgramSkillFrame frame, int targetSeat,
         string providerFactionId, CardKind requiredKind);
     SkillProgramStepOutcome TransferRandomOwnedCard(ProgramSkillFrame frame, int targetSeat, string resultBind);
+    SkillProgramStepOutcome ExchangeSelectedTargetHands(ProgramSkillFrame frame);
     void AccumulateSelectedCardCount(ProgramSkillFrame frame, string usageId,
         int threshold, string resultBind);
     void TurnOver(long frameId, int ownerSeat, int targetSeat);
@@ -1213,6 +1214,14 @@ public sealed class TransferRandomOwnedCardSkillProgramEffectHandler : ISkillPro
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host)
         => host.TransferRandomOwnedCard(frame, targetSeat, effect.ResultBind!);
+}
+
+public sealed class ExchangeSelectedTargetHandsSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.ExchangeSelectedTargetHands;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host)
+        => host.ExchangeSelectedTargetHands(frame);
 }
 
 public sealed class AccumulateSelectedCardCountSkillProgramEffectHandler : ISkillProgramEffectHandler

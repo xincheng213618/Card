@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:tuntian": {
+      "name": "屯田",
+      "description": "当你于回合外失去牌后，你可以进行判定，然后将生效后的非红桃判定牌置于你的武将牌上，称为田；你计算与其他角色的距离-X（X为田的数量）。"
+    },
+    "classic:zaoxian": {
+      "name": "凿险",
+      "description": "觉醒技，准备阶段，若田的数量不小于3，你减1点体力上限，然后获得技能急袭（你可以将一张田当【顺手牵羊】使用）。"
+    },
+    "classic:jixi": {
+      "name": "急袭",
+      "description": "你可以将一张田当【顺手牵羊】使用。"
+    }
+  }
+}

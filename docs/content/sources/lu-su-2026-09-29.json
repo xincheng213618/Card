@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-29",
+  "contentIds": [
+    "classic:lu-su"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:lu-su",
+      "url": "https://x.sanguosha.com/hero/50.html",
+      "edition": "三国杀官方网站武将库 gid 50（鲁肃，吴）",
+      "use": "好施：摸牌阶段，你可以多摸两张牌，然后若你的手牌数大于5，你将一半的手牌交给一名手牌最少的其他角色（向下取整）；缔盟：出牌阶段限一次，你可以选择两名其他角色并弃置X张牌（X为这两名角色手牌数的差），令这两名角色交换手牌"
+    },
+    {
+      "contentId": "classic:lu-su",
+      "url": "https://wiki.biligame.com/sgs/%E9%B2%81%E8%82%83",
+      "edition": "BWIKI 三国杀WIKI 武将页（二手核对）",
+      "use": "体力/势力/性别/包归属核对：吴、男、经典版 3 勾玉、神话再临·林（2010）。技能措辞与官方页一致的以官方页为准。"
+    },
+    {
+      "contentId": "classic:lu-su",
+      "url": "https://www.sanguosha.cn/pc/hero-detail-49.html",
+      "edition": "三国杀官方网站武将详情页 gid 50（detail-49）",
+      "use": "技能全文逐字核对：好施=摸牌阶段可多摸两张、手牌大于5交一半（向下取整）给手牌最少的一名其他角色；缔盟=出牌阶段限一次，选两名其他角色弃X张牌（手牌数差）后二者交换手牌。"
+    }
+  ],
+  "versionBoundary": "好施的“手牌最少的其他角色”目标约束与“一半手牌（向下取整）”集合计算、缔盟的“两名角色交换手牌”整区交换与“手牌数差值”动态费用均无直接先例，预检为新增公共操作候选（本批已实现：otherLivingLeastHandCount / handHalfFloor / otherLivingPair / selectedPairHandDifference / exchangeSelectedTargetHands）。好施选择多摸后，给予段以 grantTurnSkills 挂本轮技能 classic:haoshi-give 承载，在 afterNormalDraw 窗口强制检查手牌>5——官方为“摸牌阶段结束时”检查，本实现等价（摸牌阶段内无其他摸牌事件），且拒绝多摸即不给予，与官方因果一致；“手牌最少”并列时候选按座位序枚举、由玩家任选其一。缔盟结算序按手牌数升序确定（确定性回放），X 在选中后求值，X=0 自动跳过弃置；交换为双方全部手牌互换的公开移动记录。缔盟边界：要求手牌+装备区牌数≥X，不足则技能取消（弃置不足的官方细则未收录，如与裁定冲突以后续批次修正）。体力值官方页不渲染，3 勾玉取 BWIKI 口径。",
+  "portraits": [
+    {
+      "contentId": "classic:lu-su",
+      "id": "105001",
+      "name": "经典形象*鲁肃",
+      "sourcePage": "https://x.sanguosha.com/hero/50.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105001.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-lu-su.png",
+      "sha256": "b0452e1c1d13b3948144ee2b9ed6ddbb66b78f650ab087c06bc3d53f31520343",
+      "pixelWidth": 574,
+      "pixelHeight": 761
+    }
+  ]
+}

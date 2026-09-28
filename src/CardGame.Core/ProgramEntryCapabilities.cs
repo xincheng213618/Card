@@ -66,6 +66,8 @@ internal static class ProgramEntryCapabilities
             SkillProgramTriggerWindow.AfterDamageApplied =>
             Common | ProgramContextCapability.Damage | ProgramContextCapability.Pindian |
             ProgramContextCapability.Judgment,
+        SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained =>
+            Common | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.OwnerDied =>
             Common | ProgramContextCapability.Judgment | ProgramContextCapability.Death,
         SkillProgramTriggerWindow.CharacterDied => Common | ProgramContextCapability.Death,

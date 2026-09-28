@@ -32,12 +32,17 @@ internal sealed class SelectOwnedCardsProgramOperationDescriptor : ProgramOperat
         var expression = r.Has("numberExpression")
             ? r.RequiredEnum<SkillProgramNumberExpression>("numberExpression") : (SkillProgramNumberExpression?)null;
         if (expression is not null && (r.Has("amount") || expression is not
-                (SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.AllOwnedZoneCards)))
+                (SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.AllOwnedZoneCards or
+                 SkillProgramNumberExpression.HandHalfFloor or SkillProgramNumberExpression.SelectedPairHandDifference)))
             throw new InvalidOperationException(
-                $"Invalid skill program at {r.Path}: selection accepts a constant, ownerLostHp or allOwnedZoneCards.");
+                $"Invalid skill program at {r.Path}: selection accepts a constant, ownerLostHp, allOwnedZoneCards, handHalfFloor or selectedPairHandDifference.");
         var zones = r.RequiredEnumArray<CardZoneKind>("zones");
         if (zones.Count == 0 || zones.Any(zone => zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment)))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.zones: requires owned hand, equipment or judgment zones.");
+        if (expression == SkillProgramNumberExpression.HandHalfFloor &&
+            !zones.SequenceEqual([CardZoneKind.Hand]))
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}: handHalfFloor counts the owner hand and requires the hand zone only.");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         var targetRef = r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null;
         if (targetRef is not null && (target != SkillProgramEffectTarget.Owner ||

@@ -4197,7 +4197,8 @@ public sealed partial class GameEngine
                     actor,
                     _players[action.TargetSeat.Value],
                     card,
-                    action.TargetCardId);
+                    action.TargetCardId,
+                    action.PlayedCardKind);
                 break;
             case LegalActionKind.FireAttack:
                 if (action.TargetSeat is null)
@@ -5610,14 +5611,16 @@ public sealed partial class GameEngine
         CharacterState source,
         CharacterState target,
         Card snatch,
-        int? targetCardId) =>
+        int? targetCardId,
+        CardKind? playedCardKind = null) =>
         BeginTargetCardEffect(
             source,
             target,
             snatch,
             LegalActionKind.Snatch,
             TargetCardEffect.Take,
-            targetCardId);
+            targetCardId,
+            playedCardKind);
 
     private void BeginTargetCardEffect(
         CharacterState source,
@@ -14246,6 +14249,40 @@ public sealed partial class GameEngine
             }
         }
 
+        {
+            var jixiCandidates = GetHand(actor)
+                .Concat(GetEquipment(actor))
+                .Concat(GetAuthority(actor))
+                .Where(card => !IsTurnHandCardRestricted(actor, card) && !HasProgramCardIdentity(actor, card))
+                .Where(card => GetProgramViewAsConversions(actor, card,
+                    CardKind.Snatch, forResponse: false).Count != 0);
+            foreach (var converted in jixiCandidates)
+            foreach (var conversionSource in GetProgramViewAsConversions(
+                         actor, converted, CardKind.Snatch, forResponse: false))
+            {
+                var ignoresDistance = HasCardPolicy(actor, SkillProgramCardPolicyKind.IgnoreUseDistance,
+                    CardKind.Snatch);
+                foreach (var target in _players.Where(player =>
+                             player.IsAlive &&
+                             player.Seat != actor.Seat &&
+                             (HasCardDistanceExemption(actor, player, CardKind.Snatch) ||
+                              ignoresDistance ||
+                              GetCombatDistance(actor.Seat, player.Seat) == 1) &&
+                             !IsDirectedCardTargetProhibited(actor.Seat, player.Seat, CardKind.Snatch) &&
+                             HasTargetCard(player)))
+                {
+                    AddTargetCardActions(
+                        actions,
+                        LegalActionKind.Snatch,
+                        converted,
+                        target,
+                        "顺手牵羊",
+                        CardKind.Snatch,
+                        conversionSource);
+                }
+            }
+        }
+
         if (UsesFormalBorrowedSword)
         {
             foreach (var borrowedSword in playableCards.Where(card => card.Kind == CardKind.BorrowedSword))
@@ -14503,7 +14540,8 @@ public sealed partial class GameEngine
 
         return GetHand(actor).SingleOrDefault(card => card.Id == requestedCardId) ??
                GetWoodenOxGrain(actor).SingleOrDefault(card => card.Id == requestedCardId) ??
-               GetEquipment(actor).SingleOrDefault(card => card.Id == requestedCardId);
+               GetEquipment(actor).SingleOrDefault(card => card.Id == requestedCardId) ??
+               GetAuthority(actor).SingleOrDefault(card => card.Id == requestedCardId);
     }
 
     private static bool IsOwnedPlayableLocation(CharacterState actor, CardLocation location) =>
@@ -14525,6 +14563,11 @@ public sealed partial class GameEngine
         if (GetWoodenOxGrain(actor).Any(candidate => candidate.Id == card.Id))
         {
             return CardLocation.WoodenOxGrain(actor.Seat);
+        }
+
+        if (GetAuthority(actor).Any(candidate => candidate.Id == card.Id))
+        {
+            return CardLocation.Authority(actor.Seat);
         }
 
         throw new InvalidOperationException("The chosen card is no longer in the actor's playable zones.");

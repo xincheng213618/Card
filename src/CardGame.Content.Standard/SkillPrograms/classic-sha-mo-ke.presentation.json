@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:jili": {
+      "name": "蒺藜",
+      "description": "当你于一回合内使用或打出第X张牌时，你可以摸X张牌（X为你的攻击范围）。"
+    }
+  }
+}
