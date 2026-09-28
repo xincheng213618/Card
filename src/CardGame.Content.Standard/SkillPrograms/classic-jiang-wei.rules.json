@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:tiaoxin",
+      "revision": 1,
+      "minimumRulesVersion": 185,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "taunt",
+          "minCards": 0,
+          "maxCards": 0,
+          "sourceZones": ["hand"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingWhoseAttackRangeIncludesOwner",
+          "usesPerTurn": 1,
+          "usesPerPhase": null,
+          "usesPerGame": null,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "requestSlashByTarget",
+              "target": "selectedTarget",
+              "resultBind": "tiaoxin-answer"
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "selectedTarget" },
+              "zones": ["hand", "equipment"],
+              "count": 1,
+              "destination": "discardPile",
+              "skipIfNoCards": true,
+              "awaitMovementTriggers": true,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "tiaoxin-answer",
+                "optionId": "declined"
+              }
+            }
+          ]
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:zhiji",
+      "revision": 1,
+      "minimumRulesVersion": 185,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "awakening",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "currentHandCount"
+            },
+            "operator": "equal",
+            "right": {
+              "kind": "integerConstant",
+              "value": 0
+            }
+          },
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "zhiji-choice",
+              "options": [
+                { "id": "recover", "condition": { "kind": "always" } },
+                { "id": "draw-two", "condition": { "kind": "always" } }
+              ]
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "zhiji-choice",
+                "optionId": "recover"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "zhiji-choice",
+                "optionId": "draw-two"
+              }
+            },
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": -1
+            },
+            {
+              "op": "grantSkills",
+              "target": "owner",
+              "skillIds": ["classic:guanxing"]
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

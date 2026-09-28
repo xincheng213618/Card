@@ -1,0 +1,104 @@
+using CardGame.Content.Standard;
+using CardGame.Core;
+
+internal static class ZhangHeChecks
+{
+    private const string General = "classic:zhang-he";
+    private const string Qiaobian = "classic:qiaobian";
+    private const string Mode = "identity:classic-zhang-he-check-5";
+
+    public static void DefinitionAndTriggerSchema()
+    {
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(current.Generals[General] is { BaseHp: 4, FactionId: "wei" } general &&
+                general.SkillIds.SequenceEqual([Qiaobian]) &&
+                current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(General) &&
+                current.Modes["identity:classic-8"].GeneralPoolIds!.Contains(General),
+            "Zhang He must be in the current Wei roster with four HP and Qiaobian.");
+
+        var qiaobian = current.Skills[Qiaobian].Program!;
+        var windows = qiaobian.Triggers.Select(item => item.Window).ToArray();
+        Require(windows.Count(item => item == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow) == 2 &&
+                windows.Contains(SkillProgramTriggerWindow.AfterNormalDraw) &&
+                windows.Contains(SkillProgramTriggerWindow.DiscardPhaseStarting),
+            "Qiaobian must expose one branch per skippable phase boundary.");
+
+        foreach (var trigger in qiaobian.Triggers)
+        {
+            Require(trigger.Optional &&
+                    trigger.Condition.Kind == SkillProgramTriggerConditionKind.Compare &&
+                    trigger.Effects[0].Op == SkillProgramEffectOp.SelectOwnedCards &&
+                    trigger.Effects[1] is { Op: SkillProgramEffectOp.MoveBoundCards, Destination: SkillProgramCardDestination.DiscardPile } &&
+                    trigger.Effects.Any(item => item.Op == SkillProgramEffectOp.SkipTurnPhases),
+                "Every Qiaobian branch must discard one hand card before declaring the phase substitution.");
+        }
+
+        var judgmentBranch = qiaobian.Triggers.Single(item =>
+            item.Effects.Any(effect => effect.SkippedPhases.SequenceEqual([SkillProgramTurnPhase.Judgment])));
+        var drawBranch = qiaobian.Triggers.Single(item =>
+            item.Effects.Any(effect => effect.SkippedPhases.SequenceEqual([SkillProgramTurnPhase.Draw])));
+        var playBranch = qiaobian.Triggers.Single(item =>
+            item.Effects.Any(effect => effect.SkippedPhases.SequenceEqual([SkillProgramTurnPhase.Play])));
+        var discardBranch = qiaobian.Triggers.Single(item =>
+            item.Effects.Any(effect => effect.SkippedPhases.SequenceEqual([SkillProgramTurnPhase.Discard])));
+        Require(drawBranch.Effects.OfType<SkillProgramEffect>().Any(effect =>
+                effect.Op == SkillProgramEffectOp.SelectTargets &&
+                effect.TargetKind == SkillProgramTargetKind.OtherLivingWithHand &&
+                effect.MinimumTargets == 1 && effect.MaximumTargets == 2) &&
+                drawBranch.Effects.Any(effect => effect.Op == SkillProgramEffectOp.TakeRandomHandCardFromSelectedTargets),
+            "The draw branch must offer one or two opponents with hand cards and take one card from each.");
+        Require(playBranch.Effects.Any(effect =>
+                effect.Op == SkillProgramEffectOp.SelectTargets &&
+                effect.TargetKind == SkillProgramTargetKind.LivingPairDistinct) &&
+                playBranch.Effects.Any(effect =>
+                    effect.Op == SkillProgramEffectOp.SelectAndMoveOwnedCard &&
+                    effect.Destination == SkillProgramCardDestination.SelectedTargetCorrespondingZone &&
+                    effect.Zones.SetEquals([CardZoneKind.Judgment, CardZoneKind.Equipment])),
+            "The play branch must pick an ordered pair and move a judgment or equipment card to the paired corresponding zone.");
+
+        const string windowTemplate = """
+            {"schemaVersion":62,"skills":[{"id":"fixture:qiaobian-window","revision":1,
+            "minimumRulesVersion": 186,
+            "triggers":[{"id":"t","window":"WINDOW","subject":"owner","optional":true,
+            "condition":{"kind":"compare","left":{"kind":"currentHandCount"},"operator":"greaterThanOrEqual","right":{"kind":"integerConstant","value":1}},
+            "effects":[{"op":"selectOwnedCards","target":"owner","amount":1,"zones":["hand"],"resultBind":"cost"},
+            {"op":"moveBoundCards","target":"owner","sourceBind":"cost","destination":"discardPile"},
+            {"op":"skipTurnPhases","target":"owner","phases":["PHASE"]}]}]}]}
+            """;
+        const string windowPresentation = """
+            {"schemaVersion":3,"skills":{"fixture:qiaobian-window":{"name":"测试","description":"测试"}}}
+            """;
+        Load(windowTemplate.Replace("WINDOW", "turnStartBeforeNormalFlow").Replace("PHASE", "judgment"),
+            windowPresentation);
+        Load(windowTemplate.Replace("WINDOW", "turnStartBeforeNormalFlow").Replace("PHASE", "draw"),
+            windowPresentation);
+        Load(windowTemplate.Replace("WINDOW", "discardPhaseStarting").Replace("PHASE", "discard"),
+            windowPresentation);
+        Reject(windowTemplate.Replace("WINDOW", "discardPhaseStarting").Replace("PHASE", "draw"),
+            windowPresentation, "each lifecycle boundary admits only its own phase substitution");
+        Reject(windowTemplate.Replace("WINDOW", "turnEnding").Replace("PHASE", "discard"),
+            windowPresentation, "the discard substitution belongs to the discard-phase boundary");
+    }
+
+    private static void Load(string rules, string presentation) =>
+        _ = SkillProgramCatalog.Load(rules, presentation);
+
+    private static void Reject(string rules, string presentation, string because = "")
+    {
+        try
+        {
+            _ = SkillProgramCatalog.Load(rules, presentation);
+        }
+        catch (InvalidOperationException)
+        {
+            return;
+        }
+        throw new InvalidOperationException(
+            $"Expected invalid Qiaobian composition to be rejected{(because.Length == 0 ? "" : $": {because}")}.");
+    }
+
+    private static void Require(bool value, string message)
+    {
+        if (!value) throw new InvalidOperationException(message);
+    }
+}

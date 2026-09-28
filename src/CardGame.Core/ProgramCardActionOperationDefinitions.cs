@@ -10,7 +10,7 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "targetRef", "resultBind", "cardCategories", "skipIfNoCards", "allowSameOwnerHandReturn", "coverageResultBind", "awaitMovementTriggers", "revealBeforeMove", "condition");
+        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "targetRef", "resultBind", "cardCategories", "cardKinds", "skipIfNoCards", "allowSameOwnerHandReturn", "coverageResultBind", "awaitMovementTriggers", "revealBeforeMove", "condition");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.target: must be owner.");
@@ -33,6 +33,9 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.cardCategories: must not be empty when specified.");
         if (cardCategories is not null && chooserRef != cardOwnerRef)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.cardCategories: category filtering requires chooserRef and cardOwnerRef to name the same participant.");
+        var cardKinds = r.OptionalEnumArray<CardKind>("cardKinds");
+        if (cardKinds is { Count: 0 })
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.cardKinds: must not be empty when specified.");
         var skipIfNoCards = r.Has("skipIfNoCards") && r.RequiredBool("skipIfNoCards");
         var allowSameOwnerHandReturn = r.Has("allowSameOwnerHandReturn") && r.RequiredBool("allowSameOwnerHandReturn");
         var coverageResultBind = r.Has("coverageResultBind") ? r.OptionalIdentifier("coverageResultBind") : null;
@@ -57,7 +60,7 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
             targetReference: r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null,
             skipIfNoCards: skipIfNoCards, allowSameOwnerHandReturn: allowSameOwnerHandReturn,
             coverageResultBind: coverageResultBind, awaitMovementTriggers: awaitMovementTriggers,
-            revealBeforeMove: revealBeforeMove);
+            revealBeforeMove: revealBeforeMove, cardKinds: cardKinds);
         if (effect.Condition.Kind != SkillProgramConditionKind.Always && effect.ResultBind is not null)
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}.condition: conditional card movement cannot produce a result binding.");

@@ -35,7 +35,8 @@ public sealed partial class GameEngine
         bool allowSameOwnerHandReturn = false,
         string? coverageResultBind = null,
         bool awaitMovementTriggers = false,
-        bool revealBeforeMove = false)
+        bool revealBeforeMove = false,
+        IReadOnlyList<CardKind>? cardKinds = null)
     {
         var active = GetActiveProgramFrame(frame.Id);
         var chooserSeat = ResolveProgramParticipant(active, chooser);
@@ -45,7 +46,7 @@ public sealed partial class GameEngine
             (destinationSeat is not { } seat || !_players[seat].IsAlive ||
              seat == cardOwnerSeat && !allowSameOwnerHandReturn))
             throw new InvalidOperationException("A selected-target transfer requires a distinct living recipient.");
-        var choices = BuildOwnedCardPaymentChoices(active.Id, chooserSeat, cardOwnerSeat, zones, cardCategories);
+        var choices = BuildOwnedCardPaymentChoices(active.Id, chooserSeat, cardOwnerSeat, zones, cardCategories, cardKinds);
         if (choices.Count == 0)
         {
             if (skipIfNoCards)
@@ -80,7 +81,8 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<PromptChoice> BuildOwnedCardPaymentChoices(
         long frameId, int chooserSeat, int cardOwnerSeat, IReadOnlyList<CardZoneKind> zones,
-        IReadOnlyList<SkillProgramCardCategory>? cardCategories = null)
+        IReadOnlyList<SkillProgramCardCategory>? cardCategories = null,
+        IReadOnlyList<CardKind>? cardKinds = null)
     {
         var frame = GetActiveProgramFrame(frameId);
         var result = new List<PromptChoice>();
@@ -96,6 +98,8 @@ public sealed partial class GameEngine
             for (var slot = 0; slot < cards.Count; slot++)
             {
                 if (cardCategories is { Count: > 0 } && !MatchesProgramCardCategory(cards[slot].Kind, cardCategories))
+                    continue;
+                if (cardKinds is { Count: > 0 } && !cardKinds.Contains(cards[slot].Kind))
                     continue;
                 if (zone == CardZoneKind.Equipment && cardOwnerSeat == frame.OwnerSeat &&
                     IsActiveProgramSourceEquipmentCard(cardOwnerSeat, frame.SkillId,
@@ -163,6 +167,12 @@ public sealed partial class GameEngine
         {
             ClearPendingDecision();
             CancelProgramBindingAndCleanup(frame, "公布的支付牌类别已失效，技能结算已取消。");
+            return;
+        }
+        if (effect.CardKinds.Count > 0 && !effect.CardKinds.Contains(card.Kind))
+        {
+            ClearPendingDecision();
+            CancelProgramBindingAndCleanup(frame, "公布的支付牌种类已失效，技能结算已取消。");
             return;
         }
         if (!(zone == CardZoneKind.Hand && chooserSeat != ownerSeat) &&

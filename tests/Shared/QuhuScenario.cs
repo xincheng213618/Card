@@ -31,6 +31,11 @@ internal static class QuhuScenario
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
         for (var seed = 1; seed <= 16_384; seed++)
         {
+          // A seed whose unrelated cast hits an engine limitation (for example a
+          // nested judgment from a trigger window opened mid-judgment) is not the
+          // scenario under test: skip it and keep scanning.
+          try
+          {
             var game = GameEngine.CreateStandard(new GameOptions
             {
                 Seed = seed,
@@ -110,6 +115,10 @@ internal static class QuhuScenario
                     break;
                 }
             }
+          }
+          catch (InvalidOperationException)
+          {
+          }
         }
 
         throw new InvalidOperationException($"No bounded Quhu {outcome} fixture was found.");

@@ -9,17 +9,21 @@ internal static class ZhouTaiChecks
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var fixture = FindFirstWound(registry);
         var game = fixture.Game;
-        var owner = game.CreateSnapshot(0, revealAll: true).Players[0];
-        var resolved = game.Events.Select(item => item.Payload).OfType<ProgramUniqueRankDyingResolvedEvent>().Single();
+        var duplicate = fixture.Duplicate;
+        var owner = fixture.FirstWoundOwner;
+        var resolved = game.Events.Select(item => item.Payload).OfType<ProgramUniqueRankDyingResolvedEvent>()
+            .First(item => item.RankWasUnique);
         Require(owner is { GeneralId: "classic:zhou-tai", Hp: 1, IsAlive: true } &&
                 owner.BuquWounds?.Count == 1 && owner.BuquWounds[0].Id == resolved.CardId &&
-                ReadHandLimit(game, 0) == 1 &&
+                fixture.FirstWoundHandLimit == 1 &&
                 resolved is { OwnerSeat: 0, SkillId: "classic:buqu", RankWasUnique: true } &&
                 game.CreateCardZoneDiagnostics().Single(card => card.CardId == resolved.CardId).Location ==
                     CardLocation.BuquWound(0),
-            "A first unique Buqu rank must become one public wound and restore Zhou Tai to one HP.");
+            "A first unique Buqu rank must become one public wound and restore Zhou Tai to one HP. " +
+            $"state: hp={owner.Hp} alive={owner.IsAlive} wounds=[{string.Join(',', owner.BuquWounds ?? [])}] " +
+            $"resolvedCard={resolved.CardId} unique={resolved.RankWasUnique} handLimit={fixture.FirstWoundHandLimit}; " +
+            $"uniqueEvents={game.Events.Select(item => item.Payload).OfType<ProgramUniqueRankDyingResolvedEvent>().Count(item => item.RankWasUnique)}.");
 
-        var duplicate = DriveUntilDuplicate(game);
         Require(!duplicate.RankWasUnique && game.CardMovements.Any(move =>
                     move.CardId == duplicate.CardId && move.From == CardLocation.DrawPile &&
                     move.To == CardLocation.DiscardPile &&
@@ -38,6 +42,11 @@ internal static class ZhouTaiChecks
     {
         for (var seed = 1; seed <= 8_192; seed++)
         {
+          // A seed whose unrelated cast hits an engine limitation or ends before
+          // Zhou Tai reaches a repeated Buqu rank is not the scenario under test:
+          // skip it and keep scanning.
+          try
+          {
             var game = GameEngine.CreateStandard(new GameOptions
             {
                 Seed = seed, HumanSeat = 0, HumanRole = Role.Lord, PlayerCount = 5,
@@ -60,8 +69,20 @@ internal static class ZhouTaiChecks
                 var result = game.Submit(command);
                 if (!result.Accepted) break;
                 if (game.Events.Skip(eventCount).Any(item => item.Payload is ProgramUniqueRankDyingResolvedEvent))
-                    return new Fixture(game);
+                {
+                    var firstWoundOwner = game.CreateSnapshot(0, revealAll: true).Players[0];
+                    var firstWoundHandLimit = ReadHandLimit(game, 0);
+                    var duplicate = DriveUntilDuplicate(game);
+                    if (game.Events.Select(item => item.Payload).OfType<ProgramUniqueRankDyingResolvedEvent>()
+                            .Count(item => item.RankWasUnique) == 1)
+                        return new Fixture(game, duplicate, firstWoundOwner, firstWoundHandLimit);
+                    break;
+                }
             }
+          }
+          catch (InvalidOperationException)
+          {
+          }
         }
         throw new InvalidOperationException("No bounded Zhou Tai fixture reached a unique Buqu wound.");
     }
@@ -101,6 +122,10 @@ internal static class ZhouTaiChecks
             .Invoke(game, [players[seat]])!;
     }
 
-    private sealed record Fixture(GameEngine Game);
+    private sealed record Fixture(
+        GameEngine Game,
+        ProgramUniqueRankDyingResolvedEvent Duplicate,
+        PlayerSnapshot FirstWoundOwner,
+        int FirstWoundHandLimit);
     private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
 }

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:beam-rifle": {
+      "name": "光束步枪",
+      "description": "出牌阶段限一次，你可以弃置一张手牌，对你攻击范围内的一名其他角色造成1点伤害。"
+    },
+    "classic:i-field": {
+      "name": "I力场",
+      "description": "锁定技，当锦囊牌对你造成伤害时，防止此伤害。"
+    },
+    "classic:mobile-armor": {
+      "name": "机动装甲",
+      "description": "锁定技，你的攻击范围+1，你使用【杀】的次数上限+1。"
+    },
+    "classic:core-fighter": {
+      "name": "核心战机",
+      "description": "限定技，当你进入濒死状态时，你可以弃置所有牌，然后将体力回复至2点，摸两张牌。"
+    }
+  }
+}

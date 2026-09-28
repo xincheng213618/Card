@@ -23,8 +23,8 @@ internal static class SkillProgramExecutorChecks
             "A completed program must finish once after its last instruction.");
         Require(runtime.Calls.SequenceEqual([
                 "draw:0:0:2:::Private:skill-program.fixture:executor.Draw",
-                "recover:0:1:1",
-                "move:0:1:10:give:skill-program.fixture:executor.GiveSelected"
+            "recover:0:1:1",
+            "move:0:1:10:give:skill-program.fixture:executor.GiveSelected"
             ]),
             "The executor must preserve effect order, skip false conditions and route selected cards once.");
         Require(runtime.UpdatedCursors.SequenceEqual([1, 2, 3, 4]),
@@ -218,7 +218,7 @@ internal static class SkillProgramExecutorChecks
         new SkillProgramExecutor().Run(countRuntime.Frame!.Id, countRuntime, countRuntime);
         Require(countRuntime.Calls.SequenceEqual([
                 "move:0:0:10:discard:skill-program.fixture:executor.DiscardSelected",
-                "accumulate-selected:0:phase-gifts:2:thresholdResult"
+            "accumulate-selected:0:phase-gifts:2:thresholdResult"
             ]) &&
                 countRuntime.Completed is { Completed: true },
             "The phase counter must dispatch to the explicit host and finish exactly once.");
@@ -457,6 +457,13 @@ internal static class SkillProgramExecutorChecks
         {
             Calls.Add($"bound-card-use:{frame.OwnerSeat}:{targetSeat}:{sourceBind}");
             return SkillProgramStepOutcome.AwaitChild;
+        }
+
+        public SkillProgramStepOutcome RequestSlashByTarget(ProgramSkillFrame frame, int targetSeat,
+            string resultBind)
+        {
+            Calls.Add($"slash-request:{frame.OwnerSeat}:{targetSeat}:{resultBind}");
+            return SkillProgramStepOutcome.AwaitChoice;
         }
 
         public void PendExtraTurn(ProgramSkillFrame frame)
@@ -842,7 +849,8 @@ internal static class SkillProgramExecutorChecks
         bool skipIfNoCards = false,
         bool allowSameOwnerHandReturn = false,
         string? coverageResultBind = null,
-        bool awaitMovementTriggers = false, bool revealBeforeMove = false) =>
+        bool awaitMovementTriggers = false, bool revealBeforeMove = false,
+        IReadOnlyList<CardKind>? cardKinds = null) =>
             throw new NotSupportedException("The executor fixture does not exercise SelectAndMoveOwnedCard.");
 
         public SkillProgramStepOutcome ChooseOtherOwnedCardDiscard(

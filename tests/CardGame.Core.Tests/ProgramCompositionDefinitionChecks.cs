@@ -170,7 +170,8 @@ internal static class ProgramCompositionDefinitionChecks
             [SkillProgramEffectOp.AbolishOwnerAreas] = """{"op":"abolishOwnerAreas","target":"owner","zones":["equipment","judgment"]}""",
             [SkillProgramEffectOp.LoseDeathSourceSkills] = """{"op":"loseDeathSourceSkills","target":"owner"}""",
             [SkillProgramEffectOp.ChooseOwnCardDiscard] = """{"op":"chooseOwnCardDiscard","target":"owner","chooserRef":{"kind":"eventSource"},"zones":["hand","equipment"],"condition":{"kind":"always"}}""",
-            [SkillProgramEffectOp.ExchangeSelectedTargetHands] = """{"op":"exchangeSelectedTargetHands","target":"owner","condition":{"kind":"always"}}"""
+            [SkillProgramEffectOp.ExchangeSelectedTargetHands] = """{"op":"exchangeSelectedTargetHands","target":"owner","condition":{"kind":"always"}}""",
+            [SkillProgramEffectOp.RequestSlashByTarget] = """{"op":"requestSlashByTarget","target":"selectedTarget","resultBind":"answer"}"""
         };
         Require(nodes.Keys.ToHashSet().SetEquals(Enum.GetValues<SkillProgramEffectOp>()),
             "Catalog parse fixtures must cover every declared program operation exactly once.");
@@ -668,10 +669,24 @@ internal static class ProgramCompositionDefinitionChecks
 
     private static string Project(SkillProgramEffect effect) => JsonSerializer.Serialize(new
     {
-        effect.Op, effect.Target, effect.Amount, Condition = effect.Condition.Kind, effect.NumberExpression,
-        effect.SourceBind, effect.ResultBind, effect.ExceptBind, effect.Visibility, effect.MinimumCards,
-        effect.MaximumCards, effect.MaximumRankSum, effect.AiOrder, effect.Destination, effect.FaceDown,
-        Zones = effect.Zones.ToArray(), Suits = effect.Suits.ToArray(), effect.TargetKind
+        effect.Op,
+        effect.Target,
+        effect.Amount,
+        Condition = effect.Condition.Kind,
+        effect.NumberExpression,
+        effect.SourceBind,
+        effect.ResultBind,
+        effect.ExceptBind,
+        effect.Visibility,
+        effect.MinimumCards,
+        effect.MaximumCards,
+        effect.MaximumRankSum,
+        effect.AiOrder,
+        effect.Destination,
+        effect.FaceDown,
+        Zones = effect.Zones.ToArray(),
+        Suits = effect.Suits.ToArray(),
+        effect.TargetKind
     });
 
     private static void Reject(Action action, string expected)

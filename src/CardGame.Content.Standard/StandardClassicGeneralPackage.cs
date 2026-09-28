@@ -43,10 +43,26 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "CardGame.Content.Standard.SkillPrograms.classic-lu-su.rules.json";
     private const string ClassicLuSuPresentationResource =
         "CardGame.Content.Standard.SkillPrograms.classic-lu-su.presentation.json";
+    private const string ClassicJiangWeiRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-jiang-wei.rules.json";
+    private const string ClassicJiangWeiPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-jiang-wei.presentation.json";
     private const string ClassicShenGuanYuRulesResource =
         "CardGame.Content.Standard.SkillPrograms.classic-shen-guan-yu.rules.json";
     private const string ClassicShenGuanYuPresentationResource =
         "CardGame.Content.Standard.SkillPrograms.classic-shen-guan-yu.presentation.json";
+    private const string BoundaryZhaoYunRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.boundary-zhao-yun.rules.json";
+    private const string BoundaryZhaoYunPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.boundary-zhao-yun.presentation.json";
+    private const string ClassicShenZhaoYunRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-shen-zhao-yun.rules.json";
+    private const string ClassicShenZhaoYunPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-shen-zhao-yun.presentation.json";
+    private const string ClassicGaoDaYiHaoRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-gao-da-yi-hao.rules.json";
+    private const string ClassicGaoDaYiHaoPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-gao-da-yi-hao.presentation.json";
     private const string ClassicGaoShunRulesResource =
         "CardGame.Content.Standard.SkillPrograms.classic-gao-shun.rules.json";
     private const string ClassicGaoShunPresentationResource =
@@ -71,6 +87,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicShenGuanYuRulesResource),
             ReadEmbeddedText(ClassicShenGuanYuPresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicShenZhaoYunCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicShenZhaoYunRulesResource),
+            ReadEmbeddedText(ClassicShenZhaoYunPresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicGaoDaYiHaoCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicGaoDaYiHaoRulesResource),
+            ReadEmbeddedText(ClassicGaoDaYiHaoPresentationResource)));
     private static readonly Lazy<SkillProgramCatalog> ClassicShenSimaYiCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicShenSimaYiRulesResource),
@@ -83,6 +107,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicSunCeRulesResource),
             ReadEmbeddedText(ClassicSunCePresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> BoundaryZhaoYunCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(BoundaryZhaoYunRulesResource),
+            ReadEmbeddedText(BoundaryZhaoYunPresentationResource)));
     private static readonly Lazy<SkillProgramCatalog> ClassicDengAiCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicDengAiRulesResource),
@@ -95,6 +123,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicLuSuRulesResource),
             ReadEmbeddedText(ClassicLuSuPresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicJiangWeiCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicJiangWeiRulesResource),
+            ReadEmbeddedText(ClassicJiangWeiPresentationResource)));
     private static readonly Lazy<SkillProgramCatalog> ClassicGaoShunCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicGaoShunRulesResource),
@@ -103,7 +135,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicLifecycleRulesResource),
             ReadEmbeddedText(ClassicLifecyclePresentationResource)));
-    public static Version CurrentVersion { get; } = new(1, 154, 0);
+    public static Version CurrentVersion { get; } = new(1, 156, 0);
 
     public StandardClassicGeneralPackage()
     {
@@ -463,9 +495,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
 
         {
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("hand-color-restriction-skills", "classic:qianxi") with
-                {
-                    ExecutionForms = SkillExecutionForm.State | SkillExecutionForm.Trigger
-                });
+            {
+                ExecutionForms = SkillExecutionForm.State | SkillExecutionForm.Trigger
+            });
         }
 
         {
@@ -493,14 +525,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         {
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition(
                     "classic-zhenlie-skills", "classic:zhenlie") with
-                {
-                    ExecutionForms = SkillExecutionForm.Trigger
-                });
+            {
+                ExecutionForms = SkillExecutionForm.Trigger
+            });
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition(
                     "owned-card-distribution-skills", "classic:miji") with
-                {
-                    ExecutionForms = SkillExecutionForm.Trigger
-                });
+            {
+                ExecutionForms = SkillExecutionForm.Trigger
+            });
         }
 
         {
@@ -511,13 +543,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
 
         {
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("all-hand-trick-skills", "classic:qice") with
-                {
-                    ActionForms = SkillActionForm.Active
-                });
+            {
+                ActionForms = SkillActionForm.Active
+            });
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("all-hand-trick-skills", "classic:zhiyu") with
-                {
-                    ExecutionForms = SkillExecutionForm.Trigger
-                });
+            {
+                ExecutionForms = SkillExecutionForm.Trigger
+            });
         }
 
         {
@@ -527,9 +559,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                     dangxian.Id,
                     dangxianPresentation.Name,
                     dangxianPresentation.Description)
-                {
-                    Program = dangxian
-                },
+            {
+                Program = dangxian
+            },
                 SkillTag.Locked,
                 SkillExecutionForm.State));
             var fuli = ClassicLifecycleCatalog.Value.Programs["classic:fuli"];
@@ -538,9 +570,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                     fuli.Id,
                     fuliPresentation.Name,
                     fuliPresentation.Description)
-                {
-                    Program = fuli
-                },
+            {
+                Program = fuli
+            },
                 SkillTag.Limited,
                 SkillExecutionForm.Trigger));
         }
@@ -548,47 +580,47 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         {
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition(
                     "multi-card-conversion-skills", "classic:fuhun") with
-                {
-                    ExecutionForms = SkillExecutionForm.State | SkillExecutionForm.Trigger,
-                    ActionForms = SkillActionForm.Active
-                });
+            {
+                ExecutionForms = SkillExecutionForm.State | SkillExecutionForm.Trigger,
+                ActionForms = SkillActionForm.Active
+            });
         }
 
         {
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("unequal-hand-transfer-skills", "classic:anxu") with
-                {
-                    ActionForms = SkillActionForm.Active
-                });
+            {
+                ActionForms = SkillActionForm.Active
+            });
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("death-benefit-skills", "classic:zhuiyi") with
-                {
-                    ExecutionForms = SkillExecutionForm.Trigger
-                });
+            {
+                ExecutionForms = SkillExecutionForm.Trigger
+            });
         }
 
         {
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition(
                     "lihuo-program-skills", "classic:lihuo") with
-                {
-                    ExecutionForms = SkillExecutionForm.State | SkillExecutionForm.Trigger
-                });
+            {
+                ExecutionForms = SkillExecutionForm.State | SkillExecutionForm.Trigger
+            });
         }
         {
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("owned-zone-dying-rescue-skills", "classic:chunlao") with
-                {
-                    ExecutionForms = SkillExecutionForm.Trigger
-                });
+            {
+                ExecutionForms = SkillExecutionForm.Trigger
+            });
         }
         {
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("classic-gongqi-skills", "classic:gongqi") with
-                {
-                    ActionForms = SkillActionForm.Active,
-                    ExecutionForms = SkillExecutionForm.State
-                });
+            {
+                ActionForms = SkillActionForm.Active,
+                ExecutionForms = SkillExecutionForm.State
+            });
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("classic-jiefan-skills", "classic:jiefan") with
-                {
-                    ActionForms = SkillActionForm.Active,
-                    Tags = SkillTag.Limited
-                });
+            {
+                ActionForms = SkillActionForm.Active,
+                Tags = SkillTag.Limited
+            });
         }
         {
             var chengxiang = ClassicLifecycleCatalog.Value.Programs["classic:chengxiang"];
@@ -601,9 +633,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 Program = chengxiang
             }));
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("damage-prevention-skills", "classic:renxin") with
-                {
-                    ExecutionForms = SkillExecutionForm.Trigger
-                });
+            {
+                ExecutionForms = SkillExecutionForm.Trigger
+            });
         }
         {
             builder.AddSkill(WithOptionalTriggerMetadata(
@@ -611,13 +643,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         {
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("category-challenge-skills", "classic:junxing") with
-                {
-                    ActionForms = SkillActionForm.Active
-                });
+            {
+                ActionForms = SkillActionForm.Active
+            });
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("category-challenge-skills", "classic:yuce") with
-                {
-                    ExecutionForms = SkillExecutionForm.Trigger
-                });
+            {
+                ExecutionForms = SkillExecutionForm.Trigger
+            });
         }
         {
             builder.AddSkill(ClassicCardActionSkillPrograms.Definition("classic:longyin"));
@@ -833,10 +865,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition(
                     "nightmare-death-skills-v53",
                     "classic:wuhun") with
-                {
-                    Tags = SkillTag.Locked,
-                    ExecutionForms = SkillExecutionForm.State
-                });
+            {
+                Tags = SkillTag.Locked,
+                ExecutionForms = SkillExecutionForm.State
+            });
         }
         {
             builder.AddSkill(WithStructuredSkillMetadata(EmbeddedSkillProgramCatalog.Definition(
@@ -993,7 +1025,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             SkillTag.Locked, SkillExecutionForm.State));
         builder.AddSkill(WithStructuredSkillMetadata(
             EmbeddedSkillProgramCatalog.Definition("classic-zhang-xiu", "classic:xiongluan"),
-            SkillTag.Limited, SkillExecutionForm.State) with { ActionForms = SkillActionForm.Active });
+            SkillTag.Limited, SkillExecutionForm.State) with
+        { ActionForms = SkillActionForm.Active });
         builder.AddSkill(WithStructuredSkillMetadata(
             EmbeddedSkillProgramCatalog.Definition("ol-shen-guan-yu", "ol:wushen"),
             SkillTag.Locked, SkillExecutionForm.State));
@@ -1032,6 +1065,27 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
 
         {
+            builder.AddSkill(WithStructuredSkillMetadata(ShenZhaoYunProgram("classic:juejing"),
+                SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithStructuredSkillMetadata(ShenZhaoYunProgram("classic:longhun"),
+                SkillTag.None, SkillExecutionForm.State));
+            builder.AddSkill(WithOptionalTriggerMetadata(ShenZhaoYunProgram("classic:zhanjiang")));
+        }
+        {
+            builder.AddSkill(WithActiveActionMetadata(GaoDaYiHaoProgram("classic:beam-rifle")));
+            builder.AddSkill(WithStructuredSkillMetadata(GaoDaYiHaoProgram("classic:i-field"),
+                SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithStructuredSkillMetadata(GaoDaYiHaoProgram("classic:mobile-armor"),
+                SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithOptionalTriggerMetadata(GaoDaYiHaoProgram("classic:core-fighter")));
+        }
+
+        {
+            builder.AddSkill(WithContinuousStateMetadata(BoundaryZhaoYunProgram("boundary:longdan")));
+            builder.AddSkill(WithOptionalTriggerMetadata(BoundaryZhaoYunProgram("boundary:yajiao")));
+        }
+
+        {
             builder.AddSkill(WithOptionalTriggerMetadata(DengAiProgram("classic:tuntian")));
             builder.AddSkill(WithStructuredSkillMetadata(
                 DengAiProgram("classic:zaoxian"), SkillTag.Awakening, SkillExecutionForm.Trigger));
@@ -1046,6 +1100,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(WithOptionalTriggerMetadata(LuSuProgram("classic:haoshi")));
             builder.AddSkill(WithOptionalTriggerMetadata(LuSuProgram("classic:haoshi-give")));
             builder.AddSkill(LuSuProgram("classic:dimeng"));
+        }
+
+        {
+            builder.AddSkill(WithActiveActionMetadata(JiangWeiProgram("classic:tiaoxin")));
+            builder.AddSkill(WithStructuredSkillMetadata(
+                JiangWeiProgram("classic:zhiji"), SkillTag.Awakening, SkillExecutionForm.Trigger));
         }
 
         builder.AddGeneral(new ContentGeneralDefinition(
@@ -1473,6 +1533,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         {
             builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:shen-zhao-yun", "神赵云", "shen_zhao_yun",
+                "classic:juejing", "god", BaseHp: 2,
+                AdditionalSkillIds: ["classic:longhun", "classic:zhanjiang"]));
+        }
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:gao-da-yi-hao", "高达一号", "gao_da_yi_hao",
+                "classic:beam-rifle", "god", BaseHp: 4,
+                AdditionalSkillIds: ["classic:i-field", "classic:mobile-armor", "classic:core-fighter"]));
+        }
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
                 "sp:guan-yu", "SP关羽", "guan_yu",
                 "sp:guan-yu-wusheng", "wei", BaseHp: 4,
                 AdditionalSkillIds: ["sp:danji"]));
@@ -1696,6 +1768,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 AdditionalSkillIds: ["classic:hunzi"]));
 
         builder.AddGeneral(new ContentGeneralDefinition(
+                "boundary:zhao-yun", "界赵云", "boundary_zhao_yun",
+                "boundary:longdan", "shu", BaseHp: 4,
+                AdditionalSkillIds: ["boundary:yajiao"]));
+
+        builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:deng-ai", "邓艾", "deng_ai",
                 "classic:tuntian", "wei", BaseHp: 4,
                 AdditionalSkillIds: ["classic:zaoxian"]));
@@ -1713,6 +1790,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:lu-su", "鲁肃", "lu_su",
                 "classic:haoshi", "wu", BaseHp: 3,
                 AdditionalSkillIds: ["classic:dimeng"]));
+
+        builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:jiang-wei", "姜维", "jiang_wei",
+                "classic:tiaoxin", "shu", BaseHp: 4,
+                AdditionalSkillIds: ["classic:zhiji"]));
 
         var generalPoolIds = CurrentGeneralIds;
 
@@ -1933,6 +2015,33 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         };
     }
 
+    private static ContentSkillDefinition BoundaryZhaoYunProgram(string skillId)
+    {
+        var presentation = BoundaryZhaoYunCatalog.Value.Presentations[skillId];
+        return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
+        {
+            Program = BoundaryZhaoYunCatalog.Value.Programs[skillId]
+        };
+    }
+
+    private static ContentSkillDefinition ShenZhaoYunProgram(string skillId)
+    {
+        var presentation = ClassicShenZhaoYunCatalog.Value.Presentations[skillId];
+        return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
+        {
+            Program = ClassicShenZhaoYunCatalog.Value.Programs[skillId]
+        };
+    }
+
+    private static ContentSkillDefinition GaoDaYiHaoProgram(string skillId)
+    {
+        var presentation = ClassicGaoDaYiHaoCatalog.Value.Presentations[skillId];
+        return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
+        {
+            Program = ClassicGaoDaYiHaoCatalog.Value.Programs[skillId]
+        };
+    }
+
     private static ContentSkillDefinition DengAiProgram(string skillId)
     {
         var presentation = ClassicDengAiCatalog.Value.Presentations[skillId];
@@ -1957,6 +2066,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
             Program = ClassicLuSuCatalog.Value.Programs[skillId]
+        };
+    }
+
+    private static ContentSkillDefinition JiangWeiProgram(string skillId)
+    {
+        var presentation = ClassicJiangWeiCatalog.Value.Presentations[skillId];
+        return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
+        {
+            Program = ClassicJiangWeiCatalog.Value.Programs[skillId]
         };
     }
 
@@ -2077,13 +2195,19 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:zhang-xiu",
         "ol:shen-guan-yu",
         "classic:shen-sima-yi",
+        "classic:shen-zhao-yun",
         "classic:cao-pi",
         "classic:sun-ce",
         "classic:cai-wen-ji",
         "classic:deng-ai",
         "classic:sha-mo-ke",
         "classic:lu-su",
+        "classic:jiang-wei",
+        "boundary:zhao-yun",
     ];
+
+    /// <summary>Registered generals kept out of the classic identity pools (fan-made roster).</summary>
+    internal static IReadOnlyList<string> FanGeneralIds { get; } = ["classic:gao-da-yi-hao"];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =
     [

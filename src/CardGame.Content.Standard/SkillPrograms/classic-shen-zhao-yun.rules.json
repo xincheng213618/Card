@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:juejing",
+      "revision": 1,
+      "minimumRulesVersion": 184,
+      "modifiers": [
+        {
+          "id": "fixed-hand-count",
+          "query": "handLimit",
+          "operation": "set",
+          "value": 4,
+          "priority": 100
+        }
+      ],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "no-normal-draw",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": false,
+          "priority": 100,
+          "drawPhaseMode": "replacement",
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 0
+            }
+          ]
+        },
+        {
+          "id": "refill-to-fixed-hand-count",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": ["hand"],
+          "movementOccurrence": "perBatch",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "handLimitMinusHandCount"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:longhun",
+      "revision": 1,
+      "minimumRulesVersion": 184,
+      "modifiers": [],
+      "viewAs": [
+        {
+          "id": "heart-to-peach",
+          "sourceZones": ["hand", "equipment"],
+          "inputKinds": [],
+          "inputSuits": ["heart"],
+          "outputKind": "peach",
+          "forPlay": false,
+          "forResponse": true
+        },
+        {
+          "id": "diamond-to-fire-slash",
+          "sourceZones": ["hand", "equipment"],
+          "inputKinds": [],
+          "inputSuits": ["diamond"],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": false
+        },
+        {
+          "id": "club-to-dodge",
+          "sourceZones": ["hand", "equipment"],
+          "inputKinds": [],
+          "inputSuits": ["club"],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true
+        },
+        {
+          "id": "spade-to-nullification",
+          "sourceZones": ["hand", "equipment"],
+          "inputKinds": [],
+          "inputSuits": ["spade"],
+          "outputKind": "nullification",
+          "forPlay": false,
+          "forResponse": true
+        }
+      ],
+      "activations": [],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:zhanjiang",
+      "revision": 1,
+      "minimumRulesVersion": 184,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "take-qinggang-sword",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingWithQinggangSword",
+              "zones": ["equipment"],
+              "skipIfNoTarget": true
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "selectedTarget" },
+              "zones": ["equipment"],
+              "count": 1,
+              "destination": "ownerHand",
+              "skipIfNoCards": true,
+              "cardKinds": ["qinggangSword"]
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

@@ -116,10 +116,13 @@ public sealed partial class GameEngine
             if (engine.GetActiveProgramFrame(frameId).WindowContext?.JudgmentReplacement is { } replacement)
             {
                 var active = engine.GetActiveProgramFrame(frameId);
-                engine._resolutionStack[^1] = active with { WindowContext = active.WindowContext! with
+                engine._resolutionStack[^1] = active with
                 {
-                    JudgmentReplacement = replacement with { RecoveredHp = replacement.RecoveredHp + recovered }
-                } };
+                    WindowContext = active.WindowContext! with
+                    {
+                        JudgmentReplacement = replacement with { RecoveredHp = replacement.RecoveredHp + recovered }
+                    }
+                };
             }
         }
 
@@ -173,6 +176,10 @@ public sealed partial class GameEngine
         public SkillProgramStepOutcome UseBoundCardByTarget(ProgramSkillFrame frame, int targetSeat,
             string sourceBind) =>
             engine.UseProgramBoundCardByTarget(frame, targetSeat, sourceBind);
+
+        public SkillProgramStepOutcome RequestSlashByTarget(ProgramSkillFrame frame, int targetSeat,
+            string resultBind) =>
+            engine.RequestProgramSlashByTarget(frame, targetSeat, resultBind);
 
         public void PendExtraTurn(ProgramSkillFrame frame) => engine.PendProgramExtraTurn(frame);
 
@@ -533,10 +540,10 @@ public sealed partial class GameEngine
             CardMoveReason reason, IReadOnlyList<SkillProgramCardCategory>? cardCategories = null,
             bool skipIfNoCards = false, bool allowSameOwnerHandReturn = false,
             string? coverageResultBind = null, bool awaitMovementTriggers = false,
-            bool revealBeforeMove = false) =>
+            bool revealBeforeMove = false, IReadOnlyList<CardKind>? cardKinds = null) =>
             engine.SelectAndMoveProgramOwnedCard(frame, chooser, cardOwner, zones, destination, destinationRef, resultBind,
                 reason, cardCategories, skipIfNoCards, allowSameOwnerHandReturn,
-                coverageResultBind, awaitMovementTriggers, revealBeforeMove);
+                coverageResultBind, awaitMovementTriggers, revealBeforeMove, cardKinds);
 
         public SkillProgramStepOutcome ChooseOtherOwnedCardDiscard(
             ProgramSkillFrame frame,

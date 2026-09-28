@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:beam-rifle",
+      "revision": 1,
+      "minimumRulesVersion": 184,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "beam-shot",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": ["hand"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingSlashable",
+          "usesPerTurn": 1,
+          "condition": { "kind": "always" },
+          "effects": [
+            { "op": "discardSelected", "target": "owner", "amount": 1 },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": { "kind": "always" }
+            }
+          ]
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:i-field",
+      "revision": 1,
+      "minimumRulesVersion": 184,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": [],
+      "cardPolicies": [
+        {
+          "id": "i-field-trick-immunity",
+          "kind": "preventTrickDamage",
+          "cardKinds": [
+            "duel",
+            "drawTwo",
+            "barbarianAssault",
+            "arrowBarrage",
+            "peachGarden",
+            "fiveGrains",
+            "dismantlement",
+            "snatch",
+            "fireAttack",
+            "nullification",
+            "ironChain",
+            "borrowedSword"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:mobile-armor",
+      "revision": 1,
+      "minimumRulesVersion": 184,
+      "modifiers": [
+        { "id": "long-range-cannon", "query": "attackRange", "operation": "add", "value": 1, "priority": 0 },
+        { "id": "vulcan-cannons", "query": "slashLimit", "operation": "add", "value": 1, "priority": 0 }
+      ],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:core-fighter",
+      "revision": 1,
+      "minimumRulesVersion": 184,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "eject-core-fighter",
+          "window": "selfDyingResponse",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "discardOwnedZoneCards",
+              "target": "owner",
+              "zones": ["hand", "equipment", "judgment"]
+            },
+            {
+              "op": "recoverTo",
+              "target": "owner",
+              "numberExpression": "integerConstant",
+              "minimumValue": 2,
+              "clampToMaxHp": true
+            },
+            { "op": "draw", "target": "owner", "amount": 2 }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

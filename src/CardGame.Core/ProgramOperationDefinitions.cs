@@ -24,7 +24,8 @@ internal enum ProgramOperationAiSemantic
     RevealUniqueRankForDying, ProhibitCurrentResponse, RedirectCurrentAttack, RedirectCurrentDamage,
     HoldTargetCards, UseBoundCardByTarget, PendExtraTurn, ClaimDeathCleanupCards,
     ChooseOwnCardDiscard,
-    ExchangeSelectedTargetHands
+    ExchangeSelectedTargetHands,
+    RequestSlashByTarget
 }
 internal sealed record ProgramOperationAiPolicy(
     ProgramOperationAiSemantic Semantic,
@@ -100,10 +101,11 @@ internal sealed class ProgramOperationCatalog
     internal SkillProgramEffect Parse(
         JsonElement node,
         string path,
-        Func<JsonElement, string, SkillProgramCondition> conditionParser)
+        Func<JsonElement, string, SkillProgramCondition> conditionParser,
+        bool allowZeroDraw = false)
     {
         ArgumentNullException.ThrowIfNull(conditionParser);
-        var reader = new ProgramOperationNodeReader(node, path, conditionParser);
+        var reader = new ProgramOperationNodeReader(node, path, conditionParser, allowZeroDraw);
         var op = reader.RequiredEnum<SkillProgramEffectOp>("op");
         var descriptor = Resolve(op);
         var effect = descriptor.Parse(reader);
@@ -141,16 +143,19 @@ internal sealed class ProgramOperationNodeReader
     private readonly Func<JsonElement, string, SkillProgramCondition> _conditionParser;
 
     internal ProgramOperationNodeReader(JsonElement node, string path,
-        Func<JsonElement, string, SkillProgramCondition> conditionParser)
+        Func<JsonElement, string, SkillProgramCondition> conditionParser,
+        bool allowZeroDraw = false)
     {
         if (node.ValueKind != JsonValueKind.Object) Fail(path, "must be an object");
         RejectDuplicateProperties(node, path);
         _node = node;
         Path = path;
         _conditionParser = conditionParser;
+        AllowZeroDraw = allowZeroDraw;
     }
 
     internal string Path { get; }
+    internal bool AllowZeroDraw { get; }
     internal bool Has(string name) => _node.TryGetProperty(name, out _);
     internal void AllowOnly(params string[] names)
     {
@@ -363,12 +368,12 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
         if (expression is not null && (r.Has("amount") || expression is not
                 (SkillProgramNumberExpression.LivingFactionCount or SkillProgramNumberExpression.TargetMaxHpMinusHandCount or
                  SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.BoundCardCount or
-                 SkillProgramNumberExpression.CurrentAttackRange)))
+                 SkillProgramNumberExpression.CurrentAttackRange or SkillProgramNumberExpression.HandLimitMinusHandCount)))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: draw accepts a constant or a supported public-state expression.");
         var source = r.OptionalIdentifier("sourceBind");
         if ((expression == SkillProgramNumberExpression.BoundCardCount) != (source is not null))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: sourceBind is required only for boundCardCount draws.");
-        var amount = expression is null ? Amount(r, 20) : 0;
+        var amount = expression is null ? Amount(r, 20, allowZero: r.AllowZeroDraw) : 0;
         var bind = r.OptionalIdentifier("resultBind");
         var targetRef = r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null;
         if (targetRef is not null && (target != SkillProgramEffectTarget.Owner ||
@@ -393,19 +398,20 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
         return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        [..WithSelectedTarget(effect,
+        [.. WithSelectedTarget(effect,
             (effect.NumberExpression == SkillProgramNumberExpression.BoundCardCount
                 ? new ProgramResourceOperation[] { new ReadCardSet(effect.SourceBind!) }
                 : Array.Empty<ProgramResourceOperation>())
             .Concat(effect.ResultBind is { } bind
                 ? new ProgramResourceOperation[] { new CreateCardSet(bind, effect.NumberExpression is null ? effect.Amount : int.MaxValue, false) }
                 : Array.Empty<ProgramResourceOperation>())),
-            ..ParticipantResources(effect.TargetReference)];
-    internal static int Amount(ProgramOperationNodeReader r, int maximum)
+            .. ParticipantResources(effect.TargetReference)];
+    internal static int Amount(ProgramOperationNodeReader r, int maximum, bool allowZero = false)
     {
         var amount = r.RequiredInt("amount");
-        if (amount is < 1 || amount > maximum)
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}.amount: must be between 1 and {maximum}.");
+        if (amount < 0 || amount > maximum || (amount == 0 && !allowZero))
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}.amount: must be between {(allowZero ? 0 : 1)} and {maximum}.");
         return amount;
     }
 }
@@ -539,7 +545,7 @@ internal sealed class FilterBoundCardsProgramOperationDescriptor : ProgramOperat
         [new DeriveCardSet(effect.SourceBind!, effect.ResultBind!, effect.Suits,
             Categories: effect.CardCategories, EquipmentSlots: effect.EquipmentSlots,
             CardKinds: effect.CardKinds, MatchSuitOfBind: effect.MatchSuitOfBind),
-            ..ParticipantResources(effect.TargetReference)];
+            .. ParticipantResources(effect.TargetReference)];
     internal static SkillProgramEffectTarget Owner(ProgramOperationNodeReader r)
     {
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");

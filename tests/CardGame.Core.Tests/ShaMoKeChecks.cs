@@ -181,14 +181,14 @@ internal static class ShaMoKeChecks
                     continue;
                 case DecisionKind.RespondDodge:
                 case DecisionKind.RespondSlash:
-                {
-                    var answer = prompt.Choices.FirstOrDefault(choice =>
-                        choice.Parameters.GetValueOrDefault("response") == "dodge" ||
-                        choice.Parameters.GetValueOrDefault("response") == "slash");
-                    if (answer is null) return false;
-                    Answer(game, answer);
-                    continue;
-                }
+                    {
+                        var answer = prompt.Choices.FirstOrDefault(choice =>
+                            choice.Parameters.GetValueOrDefault("response") == "dodge" ||
+                            choice.Parameters.GetValueOrDefault("response") == "slash");
+                        if (answer is null) return false;
+                        Answer(game, answer);
+                        continue;
+                    }
                 case DecisionKind.DiscardCards:
                     Accept(game.Submit(new DiscardCardsCommand(0,
                         prompt.ValidCardIds.Take(prompt.RequiredCardCount).ToArray(),
