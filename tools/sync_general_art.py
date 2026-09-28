@@ -54,6 +54,7 @@ CLASSIC_HEROES = {
     "wolong-zhuge-liang": 38, "pang-de": 40,
     "yan-liang-wen-chou": 41,
     "zhu-zhi": 339, "cao-pi": 44,
+    "sun-ce": 55,
 }
 
 # These variants have independent GeneralArt IDs and independent official pages.

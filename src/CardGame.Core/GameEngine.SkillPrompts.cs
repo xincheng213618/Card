@@ -27,4 +27,15 @@ public sealed partial class GameEngine
         return _events.Skip(turnStart + 1).Count(envelope =>
             envelope.Payload is CardUseDeclaredEvent declared && declared.SourceSeat == ownerSeat);
     }
+
+    private int CountCardsUsedOrRespondedByPlayerThisTurn(int ownerSeat)
+    {
+        var turnStart = _events.FindLastIndex(envelope => envelope.Payload is TurnStartedEvent started &&
+            started.TurnNumber == _turnNumber && started.ActorSeat == ownerSeat);
+        return _events.Skip(turnStart + 1).Count(envelope =>
+            envelope.Payload is CardUseDeclaredEvent declared && declared.SourceSeat == ownerSeat ||
+            envelope.Payload is CardActionAcceptedEvent accepted &&
+            accepted.Action.Type == CardActionType.Response &&
+            accepted.Action.ActorSeat == ownerSeat);
+    }
 }

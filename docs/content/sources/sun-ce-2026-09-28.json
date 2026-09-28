@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-28",
+  "contentIds": [
+    "classic:sun-ce"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:sun-ce",
+      "url": "https://www.sanguosha.cn/pc/hero-detail-54.html",
+      "edition": "神话再临-山（2011年7月发行，吴）孙策",
+      "use": "激昂：当你使用【决斗】或红色【杀】指定目标后，或成为【决斗】或红色【杀】的目标后，你可以摸一张牌。魂姿：觉醒技，准备阶段，若你的体力值为1，你减1点体力上限，然后获得技能英姿（摸牌阶段，你可以额外摸一张牌）和英魂（准备阶段开始时，若你已受伤，你可以选择一项：1.令一名其他角色摸X张牌，然后其弃置一张牌；2.令一名其他角色摸一张牌，然后其弃置X张牌。（X为你已损失的体力值））。制霸：主公技，其他吴势力角色的出牌阶段限一次，该角色可以与你拼点（若你已觉醒，你可以拒绝此拼点），若其没赢，你可以获得拼点的两张牌。（制霸本批未实现，见批次边界。）"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero/55.html",
+      "edition": "三国杀官方网站武将库 gid 55（孙策）",
+      "use": "确认官方武将索引中经典孙策的独立条目；经典形象皮肤 105501 自该条目下载。"
+    }
+  ],
+  "versionBoundary": "官方详情页未渲染体力值；4勾玉取自两处独立二手资料（百科与聚合条目一致），批次记录如实标注该口径。魂姿授予的英姿/英魂直接复用现行已注册的经典内容技能 classic:yingzi（周瑜英姿，draw-phase-skills，摸牌阶段额外摸一张）与 classic:yinghun（孙坚英魂，owned-card-exchange-skills，准备阶段开始时已受伤可选摸X弃1或摸1弃X），两者结算语义与孙策官方授予版一致；英魂的选择顺序沿用孙坚版（先选择目标角色再执行分支）。主公技制霸需要拼点公共能力与“其他角色决策+主公技”族语义（与颂威同因），本批未实现。激昂的“指定目标后”以 cardUseBeforeTargetEffects 窗口实现（指定目标后、结算目标效果前）。",
+  "portraits": [
+    {
+      "contentId": "classic:sun-ce",
+      "id": "105501",
+      "name": "经典形象*孙策",
+      "sourcePage": "https://x.sanguosha.com/hero/55.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105501.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-sun-ce.png",
+      "sha256": "e13ad6b1e56c70d41f75135553dcab9aea25bef43cd3b16ff23eac4f8bfa0073",
+      "pixelWidth": 574,
+      "pixelHeight": 761
+    }
+  ]
+}

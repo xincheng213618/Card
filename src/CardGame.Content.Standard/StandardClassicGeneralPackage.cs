@@ -27,6 +27,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "CardGame.Content.Standard.SkillPrograms.classic-cao-pi.rules.json";
     private const string ClassicCaoPiPresentationResource =
         "CardGame.Content.Standard.SkillPrograms.classic-cao-pi.presentation.json";
+    private const string ClassicSunCeRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-sun-ce.rules.json";
+    private const string ClassicSunCePresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-sun-ce.presentation.json";
     private const string ClassicShenGuanYuRulesResource =
         "CardGame.Content.Standard.SkillPrograms.classic-shen-guan-yu.rules.json";
     private const string ClassicShenGuanYuPresentationResource =
@@ -63,6 +67,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicCaoPiRulesResource),
             ReadEmbeddedText(ClassicCaoPiPresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicSunCeCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicSunCeRulesResource),
+            ReadEmbeddedText(ClassicSunCePresentationResource)));
     private static readonly Lazy<SkillProgramCatalog> ClassicGaoShunCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicGaoShunRulesResource),
@@ -71,7 +79,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicLifecycleRulesResource),
             ReadEmbeddedText(ClassicLifecyclePresentationResource)));
-    public static Version CurrentVersion { get; } = new(1, 150, 0);
+    public static Version CurrentVersion { get; } = new(1, 152, 0);
 
     public StandardClassicGeneralPackage()
     {
@@ -970,6 +978,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         builder.AddSkill(WithStructuredSkillMetadata(
             EmbeddedSkillProgramCatalog.Definition("classic-cai-wen-ji", "classic:duanchang"),
             SkillTag.Locked, SkillExecutionForm.Trigger));
+        builder.AddSkill(WithOptionalTriggerMetadata(
+            EmbeddedSkillProgramCatalog.Definition("classic-cai-wen-ji", "classic:beige")));
         builder.AddSkill(new ContentSkillDefinition(
             "classic:chanyuan", "缠怨",
             "锁定技，你不能质疑蛊惑；体力值为 1 时，你的其他技能失效。")
@@ -989,6 +999,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         {
             builder.AddSkill(WithOptionalTriggerMetadata(CaoPiProgram("classic:xingshang")));
             builder.AddSkill(WithOptionalTriggerMetadata(CaoPiProgram("classic:fangzhu")));
+        }
+
+        {
+            builder.AddSkill(WithOptionalTriggerMetadata(SunCeProgram("classic:jiang")));
+            builder.AddSkill(WithStructuredSkillMetadata(
+                SunCeProgram("classic:hunzi"), SkillTag.Awakening, SkillExecutionForm.Trigger));
         }
 
         builder.AddGeneral(new ContentGeneralDefinition(
@@ -1633,6 +1649,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:xingshang", "wei", BaseHp: 3,
                 AdditionalSkillIds: ["classic:fangzhu"]));
 
+        builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:sun-ce", "孙策", "sun_ce",
+                "classic:jiang", "wu", BaseHp: 4,
+                AdditionalSkillIds: ["classic:hunzi"]));
+
+        builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:cai-wen-ji", "蔡文姬", "cai_wen_ji",
+                "classic:beige", "qun", BaseHp: 3,
+                AdditionalSkillIds: ["classic:duanchang"]));
+
         var generalPoolIds = CurrentGeneralIds;
 
         builder.AddMode(new ContentModeDefinition(
@@ -1843,6 +1869,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         };
     }
 
+    private static ContentSkillDefinition SunCeProgram(string skillId)
+    {
+        var presentation = ClassicSunCeCatalog.Value.Presentations[skillId];
+        return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
+        {
+            Program = ClassicSunCeCatalog.Value.Programs[skillId]
+        };
+    }
+
     private ContentSkillDefinition WithOptionalTriggerMetadata(ContentSkillDefinition definition) =>
         WithStructuredSkillMetadata(
             definition,
@@ -1961,6 +1996,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "ol:shen-guan-yu",
         "classic:shen-sima-yi",
         "classic:cao-pi",
+        "classic:sun-ce",
+        "classic:cai-wen-ji",
     ];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =

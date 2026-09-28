@@ -22,7 +22,8 @@ internal enum ProgramOperationAiSemantic
     ChangeAttributedMarker, CauseDeath, ReplaceJudgment, DyingRescue, ChooseOtherOwnedCardDiscard,
     DistributeOwnedCards, RequestAttackRangeAid, NullifyCurrentCardEffect, NullifySelectedCardEffects,
     RevealUniqueRankForDying, ProhibitCurrentResponse, RedirectCurrentAttack, RedirectCurrentDamage,
-    HoldTargetCards, UseBoundCardByTarget, PendExtraTurn, ClaimDeathCleanupCards
+    HoldTargetCards, UseBoundCardByTarget, PendExtraTurn, ClaimDeathCleanupCards,
+    ChooseOwnCardDiscard
 }
 internal sealed record ProgramOperationAiPolicy(
     ProgramOperationAiSemantic Semantic,
@@ -739,8 +740,20 @@ internal sealed class TurnOverProgramOperationDescriptor : ProgramOperationDescr
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.TurnOver,
         static (effect, context) => context.TurnOver(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
-    { r.AllowOnly("op", "target", "condition"); return new(Op, r.RequiredEnum<SkillProgramEffectTarget>("target"), 0, r.Condition()); }
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => WithSelectedTarget(effect);
+    {
+        r.AllowOnly("op", "target", "targetRef", "condition");
+        var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
+        var targetRef = r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null;
+        if (targetRef is not null && (target != SkillProgramEffectTarget.Owner ||
+            targetRef.Kind is not (ProgramParticipantRef.EventSource or ProgramParticipantRef.EventTarget)))
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}.targetRef: turnOver participant targets require an owner placeholder and eventSource or eventTarget.");
+        return new(Op, target, 0, r.Condition(), targetReference: targetRef);
+    }
+    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
+        effect.TargetReference is { } reference
+            ? ParticipantResources(reference)
+            : WithSelectedTarget(effect);
 }
 
 internal sealed class SetFaceStateProgramOperationDescriptor : ProgramOperationDescriptorBase

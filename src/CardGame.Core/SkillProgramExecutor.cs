@@ -132,7 +132,13 @@ public interface ISkillProgramEffectHost
         int targetSeat,
         string reason,
         string resultBind,
-        SkillProgramCardSetVisibility visibility);
+        SkillProgramCardSetVisibility visibility,
+        int sourceSeat);
+    SkillProgramStepOutcome ChooseOwnCardDiscard(
+        ProgramSkillFrame frame,
+        ProgramParticipantReference? chooser,
+        IReadOnlyList<CardZoneKind> zones,
+        CardMoveReason reason);
     void RevealTopCards(
         long frameId,
         int ownerSeat,
@@ -720,7 +726,10 @@ public sealed class TurnOverSkillProgramEffectHandler : ISkillProgramEffectHandl
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host)
     {
-        host.TurnOver(frame.Id, frame.OwnerSeat, targetSeat);
+        var flipSeat = effect.TargetReference is { } reference
+            ? host.ResolveParticipant(frame, reference)
+            : targetSeat;
+        host.TurnOver(frame.Id, frame.OwnerSeat, flipSeat);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -756,7 +765,10 @@ public sealed class StartJudgmentSkillProgramEffectHandler : ISkillProgramEffect
             throw new InvalidOperationException("startJudgment has no stable reason."),
             effect.ResultBind ??
             throw new InvalidOperationException("startJudgment has no result bind."),
-            effect.Visibility);
+            effect.Visibility,
+            effect.SourceRef is { } sourceRef
+                ? host.ResolveParticipant(frame, sourceRef)
+                : frame.OwnerSeat);
 }
 
 public sealed class RevealTopCardsSkillProgramEffectHandler : ISkillProgramEffectHandler
@@ -987,6 +999,21 @@ public sealed class ChooseOtherOwnedCardDiscardSkillProgramEffectHandler : ISkil
         ISkillProgramEffectHost host) => host.ChooseOtherOwnedCardDiscard(
         frame,
         effect.ChooserRef ?? throw new InvalidOperationException("chooseOtherOwnedCardDiscard has no chooserRef."),
+        effect.Zones,
+        new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
+}
+
+public sealed class ChooseOwnCardDiscardSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseOwnCardDiscard;
+
+    public SkillProgramStepOutcome Execute(
+        SkillProgramEffect effect,
+        ProgramSkillFrame frame,
+        int targetSeat,
+        ISkillProgramEffectHost host) => host.ChooseOwnCardDiscard(
+        frame,
+        effect.ChooserRef,
         effect.Zones,
         new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
 }

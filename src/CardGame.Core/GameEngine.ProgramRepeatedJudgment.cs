@@ -16,7 +16,7 @@ public sealed partial class GameEngine
         };
         _resolutionStack[^1] = active;
         return StartProgramJudgment(active, frame.OwnerSeat, reason, resultBind,
-            SkillProgramCardSetVisibility.Public);
+            SkillProgramCardSetVisibility.Public, frame.OwnerSeat);
     }
 
     private void ResumeProgramRepeatedJudgment(JudgmentResolution pending)
@@ -105,7 +105,7 @@ public sealed partial class GameEngine
         frame = frame with { RepeatedJudgment = state with { LastMatched = null } };
         _resolutionStack[^1] = frame;
         _ = StartProgramJudgment(frame, frame.OwnerSeat, state.Reason, state.ResultBind,
-            SkillProgramCardSetVisibility.Public);
+            SkillProgramCardSetVisibility.Public, frame.OwnerSeat);
     }
 
     private bool IsAiProgramRepeatJudgmentPending() => _pendingDecision is

@@ -128,3 +128,35 @@ internal sealed class ChooseOtherOwnedCardDiscardProgramOperationDescriptor : Pr
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         ParticipantResources(effect.ChooserRef);
 }
+
+internal sealed class ChooseOwnCardDiscardProgramOperationDescriptor : ProgramOperationDescriptorBase
+{
+    public override SkillProgramEffectOp Op => SkillProgramEffectOp.ChooseOwnCardDiscard;
+    public override ISkillProgramEffectHandler Handler { get; } = new ChooseOwnCardDiscardSkillProgramEffectHandler();
+    public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
+    public override ProgramOperationAiPolicy AiPolicy { get; } = new(
+        ProgramOperationAiSemantic.ChooseOwnCardDiscard,
+        static (effect, context) => context.ChooseOwnCardDiscard(effect));
+
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
+    {
+        r.AllowOnly("op", "target", "chooserRef", "zones", "condition");
+        var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
+        if (target != SkillProgramEffectTarget.Owner)
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.target: must be owner.");
+        var zones = r.RequiredEnumArray<CardZoneKind>("zones");
+        if (zones.Count == 0 || zones.Any(zone => zone is not
+                (CardZoneKind.Hand or CardZoneKind.Equipment)))
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}.zones: must contain hand or equipment.");
+        var chooserRef = r.Has("chooserRef") ? r.RequiredParticipantReference("chooserRef") : null;
+        if (chooserRef is not null && chooserRef.Kind is not
+            (ProgramParticipantRef.EventSource or ProgramParticipantRef.EventTarget))
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}.chooserRef: own-card discard choosers must be eventSource or eventTarget.");
+        return new SkillProgramEffect(Op, target, 1, r.Condition(), zones: zones, chooserRef: chooserRef);
+    }
+
+    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
+        ParticipantResources(effect.ChooserRef);
+}

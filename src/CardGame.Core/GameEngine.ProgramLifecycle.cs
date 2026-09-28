@@ -384,7 +384,8 @@ public sealed partial class GameEngine
         int targetSeat,
         string reason,
         string resultBind,
-        SkillProgramCardSetVisibility visibility)
+        SkillProgramCardSetVisibility visibility,
+        int sourceSeat)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
             !MatchesProgramJudgmentInstruction(frame, targetSeat, reason, resultBind, visibility))
@@ -400,7 +401,7 @@ public sealed partial class GameEngine
             frame.Id,
             sourceCard: frame.WindowContext?.CardUse?.EffectiveKind,
             JudgmentContinuationKind.ProgramSkill,
-            sourceSeat: frame.OwnerSeat,
+            sourceSeat: sourceSeat,
             programResultBind: resultBind,
             programResultVisibility: visibility);
         return SkillProgramStepOutcome.AwaitChild;
@@ -410,12 +411,23 @@ public sealed partial class GameEngine
         ProgramSkillFrame? frame)
     {
         if (pending.Continuation != JudgmentContinuationKind.ProgramSkill || frame is null ||
-            pending.ParentFrameId != frame.Id || pending.SourceSeat != frame.OwnerSeat ||
+            pending.ParentFrameId != frame.Id ||
             pending.ProgramResultBind is not { } bind ||
             pending.ProgramResultVisibility is not { } visibility)
             return false;
-        return MatchesProgramJudgmentInstruction(frame, pending.TargetSeat, pending.Reason,
-            bind, visibility);
+        if (!MatchesProgramJudgmentInstruction(frame, pending.TargetSeat, pending.Reason,
+                bind, visibility))
+            return false;
+        var judged = ProgramInstructionResolver.Default.Resolve(frame,
+                _contentRegistry!.GetSkill(frame.SkillId).Program!)
+            .Instructions;
+        if (frame.InstructionIndex < 1 || frame.InstructionIndex > judged.Count ||
+            judged[frame.InstructionIndex - 1] is not { Op: SkillProgramEffectOp.StartJudgment } effect)
+            return true;
+        var expectedSourceSeat = effect.SourceRef is { } sourceRef
+            ? ResolveProgramParticipant(frame, sourceRef)
+            : frame.OwnerSeat;
+        return pending.SourceSeat == expectedSourceSeat;
     }
 
     private bool MatchesProgramJudgmentInstruction(ProgramSkillFrame frame, int targetSeat,
@@ -537,6 +549,10 @@ public sealed partial class GameEngine
             SkillProgramNumberExpression.LivingFactionCount => GetLivingFactionCount(),
             SkillProgramNumberExpression.TargetMaxHpMinusHandCount =>
                 Math.Max(0, target.MaxHp - GetHand(target).Count),
+            SkillProgramNumberExpression.CurrentAttackRange =>
+                frame.WindowContext?.Facts is { } facts && facts.CurrentAttackRange > 0
+                    ? facts.CurrentAttackRange
+                    : GetAttackRange(target.Seat),
             _ => throw new InvalidOperationException(
                 $"Unsupported draw number expression '{numberExpression}'.")
         };
@@ -597,6 +613,13 @@ public sealed partial class GameEngine
                 _resolutionStack.OfType<TurnEndingBoundaryFrame>().SingleOrDefault(item =>
                     item.Id == windowContext.ParentFrameId && item.OwnerSeat == endingSeat) is not null)
                 return _players[endingSeat].IsAlive ? [endingSeat] : [];
+            if (windowContext is
+                {
+                    Window: SkillProgramTriggerWindow.AfterDamageApplied or
+                        SkillProgramTriggerWindow.DamageAppliedBeforeDying,
+                    TargetSeat: { } damageSeat
+                })
+                return _players[damageSeat].IsAlive ? [damageSeat] : [];
             var actionId = windowContext?.CardUse?.CardActionId ??
                 throw new InvalidOperationException("Event-target selection requires card-action context.");
             var parent = _resolutionStack.OfType<ProgramCardTriggerWindowFrame>()
@@ -1824,7 +1847,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             {
                 case SkillProgramEffectOp.SelectTarget:
                     if (effect.TargetKind is not { } targetKind ||
-                        GetProgramTargetSeats(owner.Seat, targetKind, marker: effect.Marker).Count == 0)
+                        GetProgramTargetSeats(owner.Seat, targetKind, context, effect.Marker).Count == 0)
                         return false;
                     break;
                 case SkillProgramEffectOp.SelectSourceCard:
@@ -1892,6 +1915,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             CountCardsUsedByCurrentPlayerThisTurn(owner.Seat),
             owner.Hp,
             IsClassicIdentityMode,
+            CardsUsedOrRespondedThisTurn: CountCardsUsedOrRespondedByPlayerThisTurn(owner.Seat),
             CurrentMaxHp: owner.MaxHp,
             CurrentHandCount: GetHand(owner).Count,
             LordGeneralId: _players.SingleOrDefault(player => player.Role == Role.Lord)?.General.Id,
@@ -1915,6 +1939,10 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             CardActionActorIsOwner = action.ActorSeat == owner.Seat,
             CardActionPhaseIsPlay = _phase == TurnPhase.Play,
             CardActionCategory = GetProgramCardCategory(action.EffectiveKind),
+            CardActionCardIsRed = action.PhysicalCards.Count > 0 &&
+                action.PhysicalCards.All(cost =>
+                    _cardZones.CardsAt(_cardZones.GetLocation(cost.CardId))
+                        .Single(card => card.Id == cost.CardId).Suit is Suit.Heart or Suit.Diamond),
             CardUseDesignatedTargetCount = action.Type == CardActionType.Use
                 ? action.EffectiveDesignatedTargetSeats.Distinct().Count()
                 : 0,
@@ -2572,6 +2600,7 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
         }
         if (action is "select-target" or "select-targets" or "select-source-card" or "select-and-move-owned-card" or
             "choose-other-owned-card-discard" or "choose-other-owned-card-decline" or
+            "choose-own-card-discard" or
             "select-owned-cards" or "finish-owned-cards" or
             "give-bound-card" or "keep-bound-cards" or
             "distribute-owned-card" or "decline-owned-card-distribution" or
@@ -2972,6 +3001,9 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             case "choose-other-owned-card-decline":
                 ResolveProgramOtherOwnedCardDiscardChoice(selected);
                 return;
+            case "choose-own-card-discard":
+                ResolveProgramOwnCardDiscardChoice(selected);
+                return;
             case "give-bound-card":
             case "keep-bound-cards":
             {
@@ -3189,6 +3221,8 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                     SelectAiProgramCategoryDiscard(decision, frame),
                 SkillProgramEffectOp.ChooseOtherOwnedCardDiscard =>
                     SelectAiProgramOtherOwnedCardDiscard(decision, frame),
+                SkillProgramEffectOp.ChooseOwnCardDiscard =>
+                    SelectAiProgramOwnCardDiscard(decision, frame),
                 SkillProgramEffectOp.SelectOwnedCards => SelectAiProgramOwnedCards(decision, frame),
                 SkillProgramEffectOp.HoldTargetCards => SelectAiProgramHoldCards(decision, frame),
                 SkillProgramEffectOp.RevealTargetHandCard => decision.Choices
@@ -3255,7 +3289,8 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
         var owner = _players[decision.PlayerSeat];
         var estimate = EstimateCompositionForAi(owner, trigger.Effects,
             WithProgramConditionFacts(CreateProgramAiPublicContext(trigger, owner, decision.PlayerSeat),
-                owner, skillId, skillInstanceId)).Estimate;
+                owner, skillId, skillInstanceId),
+            windowContext: GetPendingProgramTriggerCandidate().Context).Estimate;
         var shouldActivate = !estimate.IsSelfLethal && estimate.Score > 0d;
         var activateAction = new LegalAction(
             LegalActionKind.UseProgramSkill, null, null, $"发动【{skill.Name}】");
@@ -3298,7 +3333,8 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
             var trigger = skill.Program!.Triggers.Single(item => item.Id == choice.Parameters["binding-id"]);
             var estimate = EstimateCompositionForAi(owner, trigger.Effects,
                 WithProgramConditionFacts(CreateProgramAiPublicContext(trigger, owner, decision.PlayerSeat),
-                    owner, skill.Id, choice.Parameters["skill-instance-id"])).Estimate;
+                    owner, skill.Id, choice.Parameters["skill-instance-id"]),
+                windowContext: GetPendingProgramTriggerCandidate().Context).Estimate;
             var action = new LegalAction(LegalActionKind.UseProgramSkill, null, null,
                 $"发动【{skill.Name}】");
             return (Choice: choice, Action: action, Estimate: estimate);
@@ -3407,12 +3443,13 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
 
     private (ProgramAiEstimate Estimate, int? TargetSeat) EstimateCompositionForAi(
         CharacterState owner, IEnumerable<SkillProgramEffect> sourceEffects,
-        ProgramAiPublicContext publicContext, IReadOnlyList<int>? publishedTargets = null)
+        ProgramAiPublicContext publicContext, IReadOnlyList<int>? publishedTargets = null,
+        ProgramSkillWindowContext? windowContext = null)
     {
         var effects = sourceEffects.ToArray();
         var selection = effects.FirstOrDefault(effect => effect.Op == SkillProgramEffectOp.SelectTarget);
         var targets = publishedTargets ?? (selection?.TargetKind is { } kind
-            ? GetProgramTargetSeats(owner.Seat, kind, marker: selection.Marker) : Array.Empty<int>());
+            ? GetProgramTargetSeats(owner.Seat, kind, windowContext, selection.Marker) : Array.Empty<int>());
         var context = CreateSkillContext(owner);
         if (targets.Count == 0)
             return (ProgramCompositionAi.Estimate(effects, context, owner.IsFaceDown, publicContext), null);
@@ -3840,6 +3877,8 @@ SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                 damage.Attack.Card is not null &&
                 damage.Attack.CardUserSeat == damage.Attack.SourceSeat,
             DamageCardIsRed = damage.Attack.Card?.Suit is Suit.Heart or Suit.Diamond,
+            DamageCardIsSlash = damage.Attack.EffectiveCardKind is
+                CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash,
             SourceToTargetDistanceAtDamage = damage.Attack.SourceToTargetDistanceAtDamage,
             EventTargetHp = _players[damage.Attack.TargetSeat].Hp,
             EventTargetMaxHp = _players[damage.Attack.TargetSeat].MaxHp,

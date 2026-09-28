@@ -2,6 +2,201 @@
   "schemaVersion": 62,
   "skills": [
     {
+      "id": "classic:beige",
+      "revision": 1,
+      "minimumRulesVersion": 182,
+      "triggers": [
+        {
+          "id": "slash-damage-prompt",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "amount": 1,
+              "zones": [
+                "hand"
+              ],
+              "resultBind": "beige-cost"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "beige-cost",
+              "destination": "discardPile"
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "eventTarget"
+            },
+            {
+              "op": "startJudgment",
+              "target": "selectedTarget",
+              "judgmentReason": "skill.classic.beige",
+              "resultBind": "beige-judgment",
+              "visibility": "public",
+              "sourceRef": {
+                "kind": "eventSource"
+              }
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "beige-judgment",
+              "destination": "discardPile"
+            }
+          ],
+          "damageOccurrence": "perDamage",
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "damageCardIsSlash"
+              },
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "eventTargetHp"
+                },
+                "operator": "greaterThan",
+                "right": {
+                  "kind": "integerConstant",
+                  "value": 0
+                }
+              },
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "currentHandCount"
+                },
+                "operator": "greaterThan",
+                "right": {
+                  "kind": "integerConstant",
+                  "value": 0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "heart-recover",
+          "window": "judgmentFinalized",
+          "subject": "any",
+          "judgmentReasons": [
+            "skill.classic.beige"
+          ],
+          "suits": [
+            "heart"
+          ],
+          "excludedReasons": [],
+          "minimumRank": 1,
+          "maximumRank": 13,
+          "optional": false,
+          "effects": [
+            {
+              "op": "recover",
+              "target": "owner",
+              "targetRef": {
+                "kind": "eventTarget"
+              },
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "diamond-draw",
+          "window": "judgmentFinalized",
+          "subject": "any",
+          "judgmentReasons": [
+            "skill.classic.beige"
+          ],
+          "suits": [
+            "diamond"
+          ],
+          "excludedReasons": [],
+          "minimumRank": 1,
+          "maximumRank": 13,
+          "optional": false,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "targetRef": {
+                "kind": "eventTarget"
+              },
+              "amount": 2
+            }
+          ]
+        },
+        {
+          "id": "club-source-discard",
+          "window": "judgmentFinalized",
+          "subject": "any",
+          "judgmentReasons": [
+            "skill.classic.beige"
+          ],
+          "suits": [
+            "club"
+          ],
+          "excludedReasons": [],
+          "minimumRank": 1,
+          "maximumRank": 13,
+          "optional": false,
+          "effects": [
+            {
+              "op": "chooseOwnCardDiscard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "eventSource"
+              },
+              "zones": [
+                "hand",
+                "equipment"
+              ]
+            },
+            {
+              "op": "chooseOwnCardDiscard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "eventSource"
+              },
+              "zones": [
+                "hand",
+                "equipment"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "spade-source-turn-over",
+          "window": "judgmentFinalized",
+          "subject": "any",
+          "judgmentReasons": [
+            "skill.classic.beige"
+          ],
+          "suits": [
+            "spade"
+          ],
+          "excludedReasons": [],
+          "minimumRank": 1,
+          "maximumRank": 13,
+          "optional": false,
+          "effects": [
+            {
+              "op": "turnOver",
+              "target": "owner",
+              "targetRef": {
+                "kind": "eventSource"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "classic:duanchang",
       "revision": 1,
       "minimumRulesVersion": 180,
@@ -13,7 +208,10 @@
           "optional": false,
           "priority": 0,
           "effects": [
-            { "op": "loseDeathSourceSkills", "target": "owner" }
+            {
+              "op": "loseDeathSourceSkills",
+              "target": "owner"
+            }
           ]
         }
       ]

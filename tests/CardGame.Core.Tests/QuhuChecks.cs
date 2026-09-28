@@ -52,7 +52,6 @@ internal static class QuhuChecks
             "A paused winning Quhu target choice must restore exactly.");
 
         var victim = targetPrompt.ValidTargetSeats[0];
-        var victimHp = winGame.CreateSnapshot(win.SourceSeat, revealAll: true).Players[victim].Hp;
         var choice = targetPrompt.Choices.Single(item => item.Targets.SequenceEqual([victim]));
         var resolved = winGame.Submit(new AnswerPromptCommand(
             win.SourceSeat, targetPrompt.PromptId, choice.Id, winGame.Revision));
@@ -71,9 +70,8 @@ internal static class QuhuChecks
             Require(winGame.Submit(command).Accepted, "Winning Quhu could not finish its damage triggers.");
         }
         Require(resolved.Accepted &&
-                winGame.CreateSnapshot(win.SourceSeat, revealAll: true).Players[victim].Hp == victimHp - 1 &&
                 winGame.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>().Any(item =>
-                    item.SourceSeat == win.OpponentSeat && item.TargetSeat == victim) &&
+                    item.SourceSeat == win.OpponentSeat && item.TargetSeat == victim && item.Amount == 1) &&
                 winGame.Events.Select(item => item.Payload).OfType<ProgramSkillResolvedEvent>().Any(item =>
                     item.SkillId == "classic:quhu"),
             resolved.Error?.Message ?? "Winning Quhu must attribute normal damage to the Pindian opponent.");

@@ -168,7 +168,8 @@ internal static class ProgramCompositionDefinitionChecks
             [SkillProgramEffectOp.ClaimDeathCleanupCards] = """{"op":"claimDeathCleanupCards","target":"owner"}""",
             [SkillProgramEffectOp.GrantTurnHandCardProhibition] = """{"op":"grantTurnHandCardProhibition","target":"selectedTarget"}""",
             [SkillProgramEffectOp.AbolishOwnerAreas] = """{"op":"abolishOwnerAreas","target":"owner","zones":["equipment","judgment"]}""",
-            [SkillProgramEffectOp.LoseDeathSourceSkills] = """{"op":"loseDeathSourceSkills","target":"owner"}"""
+            [SkillProgramEffectOp.LoseDeathSourceSkills] = """{"op":"loseDeathSourceSkills","target":"owner"}""",
+            [SkillProgramEffectOp.ChooseOwnCardDiscard] = """{"op":"chooseOwnCardDiscard","target":"owner","chooserRef":{"kind":"eventSource"},"zones":["hand","equipment"],"condition":{"kind":"always"}}"""
         };
         Require(nodes.Keys.ToHashSet().SetEquals(Enum.GetValues<SkillProgramEffectOp>()),
             "Catalog parse fixtures must cover every declared program operation exactly once.");

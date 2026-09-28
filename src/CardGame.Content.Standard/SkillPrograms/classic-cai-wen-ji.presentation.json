@@ -1,6 +1,10 @@
 {
   "schemaVersion": 3,
   "skills": {
+    "classic:beige": {
+      "name": "悲歌",
+      "description": "每当一名角色受到【杀】造成的伤害后，若其存活，你可以弃置一张牌，令其判定，若结果为：红桃，其回复1点体力；方块，其摸两张牌；梅花，来源弃置两张牌；黑桃，来源翻面。"
+    },
     "classic:duanchang": {
       "name": "断肠",
       "description": "锁定技，当你死亡时，杀死你的角色失去其当前的所有武将技能。"

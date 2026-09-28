@@ -5528,6 +5528,23 @@
       ]
     },
     {
+      "key": "sun-ce",
+      "characterName": "孙策",
+      "defaultSkinId": "105501",
+      "skins": [
+        {
+          "id": "105501",
+          "name": "经典形象*孙策",
+          "sourcePage": "https://x.sanguosha.com/hero/55.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105501.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-sun-ce.png",
+          "sha256": "e13ad6b1e56c70d41f75135553dcab9aea25bef43cd3b16ff23eac4f8bfa0073",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "sun-jian",
       "characterName": "孙坚",
       "defaultSkinId": "104501",

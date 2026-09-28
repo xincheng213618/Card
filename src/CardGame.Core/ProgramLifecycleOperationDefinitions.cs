@@ -461,7 +461,7 @@ internal sealed class StartJudgmentProgramOperationDescriptor : ProgramOperation
         static (effect, context) => context.StartJudgment(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "judgmentReason", "resultBind", "visibility", "condition");
+        r.AllowOnly("op", "target", "judgmentReason", "resultBind", "visibility", "sourceRef", "condition");
         var visibility = r.RequiredEnum<SkillProgramCardSetVisibility>("visibility");
         if (visibility != SkillProgramCardSetVisibility.Public)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.visibility: judgment results must remain public.");
@@ -469,9 +469,14 @@ internal sealed class StartJudgmentProgramOperationDescriptor : ProgramOperation
         if (target is not (SkillProgramEffectTarget.Owner or SkillProgramEffectTarget.SelectedTarget))
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}.target: judgments support owner or selectedTarget.");
+        var sourceRef = r.Has("sourceRef") ? r.RequiredParticipantReference("sourceRef") : null;
+        if (sourceRef is not null && sourceRef.Kind is not
+            (ProgramParticipantRef.EventSource or ProgramParticipantRef.EventTarget))
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}.sourceRef: judgment source must be eventSource or eventTarget.");
         var effect = new SkillProgramEffect(Op, target, 0,
             r.Condition(), resultBind: r.RequiredIdentifier("resultBind"), visibility: visibility,
-            judgmentReason: r.RequiredIdentifier("judgmentReason"));
+            judgmentReason: r.RequiredIdentifier("judgmentReason"), sourceRef: sourceRef);
         RequireAlways(effect, r.Path);
         return effect;
     }

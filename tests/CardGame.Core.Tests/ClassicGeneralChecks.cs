@@ -1678,7 +1678,8 @@ internal static class ClassicGeneralChecks
     public static void ConfiguredKujinDyingContinuation()
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        var game = SelectGeneral(registry, "classic:huang-gai", GameCheckpoint.CurrentRulesVersion);
+        var game = SelectGeneral(registry, "classic:huang-gai", GameCheckpoint.CurrentRulesVersion,
+            fixture => fixture.CreateSnapshot(0, true).Players[0].Hand.Any(card => card.Kind == CardKind.Peach));
         Require(game.Submit(new AdvanceCommand(game.Revision)).Accepted,
             "Configured Kujin dying fixture could not reach play.");
         for (var use = 0; use < 4; use++)
@@ -5378,7 +5379,8 @@ internal static class ClassicGeneralChecks
     private static ContentRegistry CreatePreProgramClassicRegistry() =>
         StandardContentRegistry.CreateWithClassicGenerals();
 
-    private static GameEngine SelectGeneral(ContentRegistry registry, string generalId, int rulesVersion)
+    private static GameEngine SelectGeneral(ContentRegistry registry, string generalId, int rulesVersion,
+        Func<GameEngine, bool>? fixtureFilter = null)
     {
         for (var seed = 1; seed <= 4_096; seed++)
         {
@@ -5395,6 +5397,18 @@ internal static class ClassicGeneralChecks
                 game.Revision,
                 game.PendingDecision!.PromptId));
             Require(selected.Accepted, selected.Error?.Message ?? $"Could not select {generalId}.");
+            if (fixtureFilter is not null)
+            {
+                for (var step = 0; step < 80 &&
+                        game.CreateSnapshot(0, true).Players[0].Hand.Count == 0 &&
+                        game.State.Status != EngineStatus.Completed; step++)
+                {
+                    var dealt = game.Submit(new AdvanceOneStepCommand(game.Revision));
+                    Require(dealt.Accepted, dealt.Error?.Message ?? "Classic selection fixture did not deal.");
+                }
+                if (!fixtureFilter(game))
+                    continue;
+            }
             return game;
         }
 

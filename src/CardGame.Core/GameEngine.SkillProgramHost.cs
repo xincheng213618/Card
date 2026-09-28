@@ -325,8 +325,16 @@ public sealed partial class GameEngine
             int targetSeat,
             string reason,
             string resultBind,
-            SkillProgramCardSetVisibility visibility) =>
-            engine.StartProgramJudgment(frame, targetSeat, reason, resultBind, visibility);
+            SkillProgramCardSetVisibility visibility,
+            int sourceSeat) =>
+            engine.StartProgramJudgment(frame, targetSeat, reason, resultBind, visibility, sourceSeat);
+
+        public SkillProgramStepOutcome ChooseOwnCardDiscard(
+            ProgramSkillFrame frame,
+            ProgramParticipantReference? chooser,
+            IReadOnlyList<CardZoneKind> zones,
+            CardMoveReason reason) =>
+            engine.ChooseProgramOwnCardDiscard(frame, chooser, zones, reason);
 
         public void RevealTopCards(long frameId, int ownerSeat, int amount,
             SkillProgramNumberExpression? numberExpression, string resultBind,

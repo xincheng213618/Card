@@ -492,6 +492,9 @@ internal sealed class ProgramAiEstimateContext
     internal void ChooseOtherOwnedCardDiscard(SkillProgramEffect effect) =>
         _otherAdjustment += 8d;
 
+    internal void ChooseOwnCardDiscard(SkillProgramEffect effect) =>
+        _otherAdjustment += effect.ChooserRef is null ? -8d : 8d;
+
     internal void RefundCardUseDebit(SkillProgramEffect effect)
     {
         if (_publicContext.CardUseDebitActive) _otherAdjustment += 8d;

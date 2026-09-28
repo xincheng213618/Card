@@ -1798,6 +1798,48 @@ public sealed partial class SimpleAiBrain
             $"通用区域牌后续：{selected.Candidate.Action.Description}（{selected.Candidate.Score:0.###} 分）。"));
     }
 
+    /// <summary>
+    /// Chooses which of the decider's own cards to discard. Only public card values
+    /// contribute: the least valuable own card is discarded first.
+    /// </summary>
+    public (PromptChoice Choice, AiThoughtRecord Thought) ChooseOwnCardDiscard(
+        GameSnapshot view,
+        IReadOnlyList<PromptChoice> choices,
+        string skillName,
+        int thoughtSequence)
+    {
+        var self = view.Players.Single(player => player.Seat == Seat);
+        var ownValues = self.Hand.Concat(self.Equipment)
+            .GroupBy(card => card.Id)
+            .ToDictionary(group => group.Key, group => CardCatalog.Get(group.First().Kind).HandKeepValue);
+        var scored = choices.Select(choice =>
+        {
+            var keepValue = choice.Cards.Count == 1 && ownValues.TryGetValue(choice.Cards[0], out var value)
+                ? value
+                : 0d;
+            var score = Math.Round(8d - keepValue + _random.NextDouble() * .001d, 3);
+            return new
+            {
+                Choice = choice,
+                Candidate = new AiCandidateScore(
+                    new LegalAction(LegalActionKind.UseProgramSkill, null, Seat, choice.Description),
+                    score,
+                    "只评估自己公开可见的牌价值；弃置保留价值最低的牌。")
+            };
+        }).ToArray();
+        var selected = scored
+            .OrderByDescending(item => item.Candidate.Score)
+            .ThenBy(item => item.Choice.Id.Value, StringComparer.Ordinal)
+            .First();
+        return (selected.Choice, new AiThoughtRecord(
+            thoughtSequence,
+            view.TurnNumber,
+            Seat,
+            selected.Candidate.Action.Description,
+            scored.Select(item => item.Candidate).OrderByDescending(candidate => candidate.Score).ToArray(),
+            $"自身弃牌后续：{selected.Candidate.Action.Description}（{selected.Candidate.Score:0.###} 分）。"));
+    }
+
     /// <summary>Chooses a mandatory attack-range aid branch from public target and weapon state.</summary>
     public (PromptChoice Choice, AiThoughtRecord Thought) ChooseProgramAttackRangeAidResponse(
         GameSnapshot view,

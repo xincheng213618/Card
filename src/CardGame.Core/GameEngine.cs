@@ -16328,6 +16328,26 @@ public sealed partial class GameEngine
                    } && dyingParentId == dying.FrameId;
     }
 
+    private ResolutionFrame? DamageCursorEffectiveTop()
+    {
+        var index = _resolutionStack.Count - 1;
+        while (index >= 1 && DamageFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]))
+            index--;
+        return index >= 0 ? _resolutionStack[index] : null;
+    }
+
+    private static bool DamageFrameRidesOn(ResolutionFrame ride, ResolutionFrame beneath) => ride switch
+    {
+        // Movement and HP-change windows legitimately ride on the in-flight
+        // program frame their continuation suspended at; a verified ride does
+        // not displace the underlying damage cursor.
+        CardsMovedTriggerWindowFrame movement =>
+            movement.Batch.AwaitingProgramFrameId == beneath.Id ||
+            movement.Batch.AwaitingProgramFrameId is null && movement.Batch.ParentFrameId == beneath.Id,
+        HpChangedTriggerWindowFrame changed => changed.ResumeFrameId == beneath.Id,
+        _ => false
+    };
+
     private void AssertCoreInvariants()
     {
         var damageProgramDying = IsPendingDamageProgramDying();
@@ -17166,11 +17186,12 @@ public sealed partial class GameEngine
             }
             else if (_pendingDamageTrigger is { } triggerContinuation)
             {
-                var topMatchesWindow = _resolutionStack.LastOrDefault() is DamageTriggerWindowFrame frame &&
+                var effectiveTop = DamageCursorEffectiveTop();
+                var topMatchesWindow = effectiveTop is DamageTriggerWindowFrame frame &&
                     frame.Id == triggerContinuation.FrameId &&
                     frame.ParentFrameId == triggerContinuation.DamageFrameId &&
                     frame.CandidateIndex == triggerContinuation.CandidateIndex;
-                var topMatchesProgram = _resolutionStack.LastOrDefault() is ProgramSkillFrame program &&
+                var topMatchesProgram = effectiveTop is ProgramSkillFrame program &&
                     program.WindowContext is
                     {
                         Window: SkillProgramTriggerWindow.DamageAppliedBeforeDying or
@@ -17368,7 +17389,8 @@ public sealed partial class GameEngine
                     "A damage trigger continuation must retain a valid trigger window frame.");
             }
 
-            var activeDamageProgram = _resolutionStack.LastOrDefault() is ProgramSkillFrame programFrame &&
+            var damageCursorTop = DamageCursorEffectiveTop();
+            var activeDamageProgram = damageCursorTop is ProgramSkillFrame programFrame &&
                 programFrame.WindowContext is
                 {
                     Window: SkillProgramTriggerWindow.DamageAppliedBeforeDying or
@@ -17400,7 +17422,7 @@ public sealed partial class GameEngine
                 ? true
                 : activeDamageProgram || activeDamageProgramPindian || activeDamageProgramJudgment
                 ? true
-                : _resolutionStack.LastOrDefault() is DamageTriggerWindowFrame triggerFrame &&
+                : damageCursorTop is DamageTriggerWindowFrame triggerFrame &&
                   triggerFrame.Id == pendingDamageTrigger.FrameId &&
                   triggerFrame.CandidateIndex == pendingDamageTrigger.CandidateIndex;
             if (!expectedTop)

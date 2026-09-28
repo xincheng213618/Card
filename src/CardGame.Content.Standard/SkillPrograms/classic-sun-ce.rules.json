@@ -1,0 +1,129 @@
+{
+ "schemaVersion": 62,
+ "skills": [
+  {
+   "id": "classic:jiang",
+   "revision": 1,
+   "minimumRulesVersion": 181,
+   "modifiers": [],
+   "viewAs": [],
+   "activations": [],
+   "triggers": [
+    {
+     "id": "draw-on-using-duel",
+     "window": "cardUseBeforeTargetEffects",
+     "ownerRelation": "actor",
+     "cardKinds": ["duel"],
+     "optional": true,
+     "priority": 0,
+     "effects": [
+      {
+       "op": "draw",
+       "target": "owner",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "id": "draw-on-using-red-slash",
+     "window": "cardUseBeforeTargetEffects",
+     "ownerRelation": "actor",
+     "cardKinds": ["slash", "fireSlash"],
+     "optional": true,
+     "priority": 0,
+     "condition": {
+      "kind": "cardActionCardIsRed"
+     },
+     "effects": [
+      {
+       "op": "draw",
+       "target": "owner",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "id": "draw-on-targeted-by-duel",
+     "window": "cardUseBeforeTargetEffects",
+     "ownerRelation": "target",
+     "cardKinds": ["duel"],
+     "optional": true,
+     "priority": 0,
+     "effects": [
+      {
+       "op": "draw",
+       "target": "owner",
+       "amount": 1
+      }
+     ]
+    },
+    {
+     "id": "draw-on-targeted-by-red-slash",
+     "window": "cardUseBeforeTargetEffects",
+     "ownerRelation": "target",
+     "cardKinds": ["slash", "fireSlash"],
+     "optional": true,
+     "priority": 0,
+     "condition": {
+      "kind": "cardActionCardIsRed"
+     },
+     "effects": [
+      {
+       "op": "draw",
+       "target": "owner",
+       "amount": 1
+      }
+     ]
+    }
+   ],
+   "contributions": [],
+   "cardIdentities": [],
+   "states": []
+  },
+  {
+   "id": "classic:hunzi",
+   "revision": 1,
+   "minimumRulesVersion": 181,
+   "modifiers": [],
+   "viewAs": [],
+   "activations": [],
+   "triggers": [
+    {
+     "id": "awakening",
+     "window": "turnStartBeforeNormalFlow",
+     "subject": "owner",
+     "optional": false,
+     "priority": 0,
+     "usageScope": "game",
+     "usageLimit": 1,
+     "condition": {
+      "kind": "compare",
+      "left": {
+       "kind": "currentHp"
+      },
+      "operator": "equal",
+      "right": {
+       "kind": "integerConstant",
+       "value": 1
+      }
+     },
+     "effects": [
+      {
+       "op": "changeMaximumHp",
+       "target": "owner",
+       "amount": -1
+      },
+      {
+       "op": "grantSkills",
+       "target": "owner",
+       "skillIds": ["classic:yingzi", "classic:yinghun"]
+      }
+     ]
+    }
+   ],
+   "contributions": [],
+   "cardIdentities": [],
+   "states": []
+  }
+ ]
+}

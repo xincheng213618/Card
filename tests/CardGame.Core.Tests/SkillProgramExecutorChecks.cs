@@ -521,11 +521,19 @@ internal static class SkillProgramExecutorChecks
             int targetSeat,
             string reason,
             string resultBind,
-            SkillProgramCardSetVisibility visibility)
+            SkillProgramCardSetVisibility visibility,
+            int sourceSeat)
         {
-            Calls.Add($"start-judgment:{frame.OwnerSeat}:{targetSeat}:{reason}:{resultBind}:{visibility}");
+            Calls.Add($"start-judgment:{frame.OwnerSeat}:{targetSeat}:{reason}:{resultBind}:{visibility}:{sourceSeat}");
             return SkillProgramStepOutcome.AwaitChild;
         }
+
+        public SkillProgramStepOutcome ChooseOwnCardDiscard(
+            ProgramSkillFrame frame,
+            ProgramParticipantReference? chooser,
+            IReadOnlyList<CardZoneKind> zones,
+            CardMoveReason reason) =>
+            throw new NotSupportedException("The executor fixture does not exercise ChooseOwnCardDiscard.");
 
         public void RevealTopCards(
             long frameId,
