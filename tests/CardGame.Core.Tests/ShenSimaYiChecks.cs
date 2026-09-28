@@ -80,8 +80,8 @@ internal static class ShenSimaYiChecks
         Reject(damageSkill.Replace("\"kind\":\"ownerAttributedMarkerCount\",\"marker\":\"ren\"",
                 "\"kind\":\"ownerAttributedMarkerCount\""),
             presentation, "ownerAttributedMarkerCount requires its marker");
-        Reject(damageSkill.Replace("\"target\":\"owner\",\n\"targetRef\":{\"kind\":\"owner\"}",
-                "\"target\":\"selectedTarget\",\"targetRef\":{\"kind\":\"owner\"}"),
+        Reject(damageSkill.Replace("\"target\":\"owner\",",
+                "\"target\":\"selectedTarget\","),
             presentation, "owner-referenced markers require the owner target");
 
         const string killSkill = """
