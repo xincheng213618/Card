@@ -3460,7 +3460,7 @@ public sealed partial class GameEngine
     {
         if (delayedEffects.HasFlag(DelayedTurnEffects.SkipDrawPhase))
         {
-            AddLog("DelayedCardEffect", $"{current.Name} 因【兵粮寸断】跳过摸牌阶段。", current.Seat);
+            AddLog("DelayedCardEffect", $"{current.Name} 跳过摸牌阶段。", current.Seat);
         }
         else if (TryBeginDrawPhaseProgramWindow(
                      current,
@@ -3504,7 +3504,7 @@ public sealed partial class GameEngine
         if (delayedEffects.HasFlag(DelayedTurnEffects.SkipPlayPhase))
         {
             BeginDiscardPhase();
-            AddLog("DelayedCardEffect", $"{current.Name} 因【乐不思蜀】跳过出牌阶段。", current.Seat);
+            AddLog("DelayedCardEffect", $"{current.Name} 跳过出牌阶段。", current.Seat);
         }
         else
         {
