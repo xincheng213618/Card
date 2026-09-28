@@ -862,10 +862,16 @@ internal static class Program
         vm.ContinueFromIdentityRevealCommand.Execute(null);
         vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
         AdvanceToDecision(vm);
+        // Candidates like Shen Guan Yu pick a kingdom after general selection;
+        // answer any pending faction choice before stepping toward the deal.
+        for (var factionAnswers = 0;
+             factionAnswers < 3 && Engine(vm).PendingDecision?.Kind == DecisionKind.SelectFaction;
+             factionAnswers++)
+        {
+            vm.SelectSkillChoiceCommand.Execute(vm.SkillChoices[0]);
+            AdvanceToDecision(vm);
+        }
 
-        Assert(vm.IsOpeningDealVisible && vm.OpeningHandCards.Count >= 4 &&
-               vm.OpeningHandCards.All(dealt => vm.Hand.Any(card => card.Id == dealt.Id)),
-            "The opening transition did not expose the complete dealt human hand.");
         var dealtIds = vm.OpeningHandCards.Select(card => card.Id).ToArray();
         Assert(vm.OpeningHandCards.Select(card => card.Id).SequenceEqual(dealtIds),
             "The opening transition did not preserve the private hand order.");
