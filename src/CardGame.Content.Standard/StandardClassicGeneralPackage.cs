@@ -63,6 +63,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "CardGame.Content.Standard.SkillPrograms.classic-zhang-he.rules.json";
     private const string ClassicZhangHePresentationResource =
         "CardGame.Content.Standard.SkillPrograms.classic-zhang-he.presentation.json";
+    private const string ClassicZhangZhaoZhangHongRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-zhang-zhao-zhang-hong.rules.json";
+    private const string ClassicZhangZhaoZhangHongPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-zhang-zhao-zhang-hong.presentation.json";
     private const string ClassicShenGuanYuRulesResource =
         "CardGame.Content.Standard.SkillPrograms.classic-shen-guan-yu.rules.json";
     private const string ClassicShenGuanYuPresentationResource =
@@ -159,6 +163,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicZhangHeRulesResource),
             ReadEmbeddedText(ClassicZhangHePresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicZhangZhaoZhangHongCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicZhangZhaoZhangHongRulesResource),
+            ReadEmbeddedText(ClassicZhangZhaoZhangHongPresentationResource)));
     private static readonly Lazy<SkillProgramCatalog> ClassicGaoShunCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicGaoShunRulesResource),
@@ -1163,6 +1171,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(WithOptionalTriggerMetadata(ZhangHeProgram("classic:qiaobian")));
         }
 
+        {
+            builder.AddSkill(WithActiveActionMetadata(ZhangZhaoZhangHongProgram("classic:zhijian")));
+            builder.AddSkill(WithOptionalTriggerMetadata(ZhangZhaoZhangHongProgram("classic:guzheng")));
+        }
+
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
             "刘备",
@@ -1841,6 +1854,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:qiaobian", "wei", BaseHp: 4));
 
         builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:zhang-zhao-zhang-hong", "张昭张纮", "zhang_zhao_zhang_hong",
+                "classic:zhijian", "wu", BaseHp: 3,
+                AdditionalSkillIds: ["classic:guzheng"]));
+
+        builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:cai-wen-ji", "蔡文姬", "cai_wen_ji",
                 "classic:beige", "qun", BaseHp: 3,
                 AdditionalSkillIds: ["classic:duanchang"]));
@@ -2318,6 +2336,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:zhang-zhao-zhang-hong",
         "boundary:zhao-yun",
         "classic:zhang-he",
+        "classic:zhang-zhao-zhang-hong",
     ];
 
     /// <summary>Registered generals kept out of the classic identity pools (fan-made roster).</summary>

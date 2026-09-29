@@ -53,6 +53,69 @@ internal static class BoundaryCaoCaoIntegrationChecks
         AssertReplay(claimed, registry);
     }
 
+    public static void ZhangbaTwoPhysicalCardsClaimAllOrRemainingOnly()
+    {
+        var registry = Registry();
+        var boundary = FindSpearDamage(registry);
+        var pending = boundary.Game;
+        var ids = boundary.CostCardIds;
+        Require(ids.Count == 2 && ids.Distinct().Count() == 2 &&
+                pending.Events.Select(item => item.Payload).OfType<ZhangbaSerpentSpearConvertedEvent>()
+                    .Any(item => item.IsUse && item.PhysicalCardIds.SequenceEqual(ids)) &&
+                ids.All(id => pending.CreateCardZoneDiagnostics().Any(item =>
+                    item.CardId == id && item.Location == CardLocation.Processing)),
+            "Actual Zhangba use must carry two distinct physical costs into this damage window.");
+        var paused = RoundTrip(pending.CreateCheckpoint());
+        var all = GameReplay.Restore(paused, registry);
+        AdvanceAiToClaim(all, expectedClaimCount: 2);
+        var allClaim = all.Events.Select(item => item.Payload).OfType<ProgramDamageCardsClaimedEvent>()
+            .Single(item => item.SkillId == Jianxiong);
+        Require(allClaim.CardIds.Order().SequenceEqual(ids.Order()) &&
+                allClaim.CardIds.Distinct().Count() == 2 &&
+                ids.All(id => all.CreateCardZoneDiagnostics().Any(item =>
+                    item.CardId == id && item.Location == CardLocation.Hand(boundary.CaoSeat))),
+            "Cao Cao must receive both Zhangba physical cards exactly once.");
+        AssertReplay(all, registry);
+
+        var partial = GameReplay.Restore(paused, registry);
+        var store = (CardZoneStore)typeof(GameEngine)
+            .GetField("_cardZones", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .GetValue(partial)!;
+        var first = store.CardsAt(CardLocation.Processing).Single(card => card.Id == ids[0]);
+        typeof(GameEngine).GetMethod("MoveCard", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .Invoke(partial, [first, CardLocation.Processing, CardLocation.Hand(boundary.SourceSeat),
+                new CardMoveReason("fixture.earlier-claim")]);
+        Require(store.GetLocation(ids[0]) == CardLocation.Hand(boundary.SourceSeat) &&
+                store.GetLocation(ids[1]) == CardLocation.Processing,
+            "The controlled prior claim must leave exactly one of the two damage cards available.");
+        AdvanceAiToClaim(partial, expectedClaimCount: 1);
+        var remainder = partial.Events.Select(item => item.Payload).OfType<ProgramDamageCardsClaimedEvent>()
+            .Single(item => item.SkillId == Jianxiong);
+        Require(remainder.CardIds.SequenceEqual([ids[1]]) &&
+                store.GetLocation(ids[0]) == CardLocation.Hand(boundary.SourceSeat) &&
+                store.GetLocation(ids[1]) == CardLocation.Hand(boundary.CaoSeat) &&
+                partial.CardMovements.Count(item => item.CardId == ids[1] &&
+                    item.To == CardLocation.Hand(boundary.CaoSeat) &&
+                    item.Reason.Value == $"skill-program.{Jianxiong}.ClaimDamageCards") == 1,
+            "After an earlier claimant takes one cost, Jianxiong must take only the remaining cost once.");
+        // The injected prior movement is intentionally not represented by an accepted command;
+        // only the natural two-card branch above asserts command-log replay.
+    }
+
+    private static void AdvanceAiToClaim(GameEngine game, int expectedClaimCount)
+    {
+        for (var step = 0; step < 24 &&
+             game.Events.Select(item => item.Payload).OfType<ProgramDamageCardsClaimedEvent>()
+                 .All(item => item.SkillId != Jianxiong); step++)
+        {
+            var result = game.Submit(new AdvanceOneStepCommand(game.Revision));
+            Require(result.Accepted, result.Error?.Message ?? "AI Jianxiong continuation failed.");
+        }
+        Require(game.Events.Select(item => item.Payload).OfType<ProgramDamageCardsClaimedEvent>()
+                    .Any(item => item.SkillId == Jianxiong && item.CardIds.Count == expectedClaimCount),
+            "Shared AI must choose the available physical-card claim branch.");
+    }
+
     private static (GameEngine Game, int SourceSeat, int CaoSeat, IReadOnlyList<int> CostCardIds)
         FindSpearDamage(ContentRegistry registry)
     {

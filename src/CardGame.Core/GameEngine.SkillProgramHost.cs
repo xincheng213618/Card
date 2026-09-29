@@ -544,10 +544,12 @@ public sealed partial class GameEngine
             CardMoveReason reason, IReadOnlyList<SkillProgramCardCategory>? cardCategories = null,
             bool skipIfNoCards = false, bool allowSameOwnerHandReturn = false,
             string? coverageResultBind = null, bool awaitMovementTriggers = false,
-            bool revealBeforeMove = false, IReadOnlyList<CardKind>? cardKinds = null) =>
+            bool revealBeforeMove = false, IReadOnlyList<CardKind>? cardKinds = null,
+            bool prohibitReplacingEquipment = false) =>
             engine.SelectAndMoveProgramOwnedCard(frame, chooser, cardOwner, zones, destination, destinationRef, resultBind,
                 reason, cardCategories, skipIfNoCards, allowSameOwnerHandReturn,
-                coverageResultBind, awaitMovementTriggers, revealBeforeMove, cardKinds);
+                coverageResultBind, awaitMovementTriggers, revealBeforeMove, cardKinds,
+                prohibitReplacingEquipment);
 
         public SkillProgramStepOutcome ChooseOtherOwnedCardDiscard(
             ProgramSkillFrame frame,
@@ -555,6 +557,12 @@ public sealed partial class GameEngine
             IReadOnlyList<CardZoneKind> zones,
             CardMoveReason reason) =>
             engine.ChooseProgramOtherOwnedCardDiscard(frame, chooser, zones, reason);
+
+        public SkillProgramStepOutcome RestorePhaseHandDiscards(
+            ProgramSkillFrame frame,
+            ProgramParticipantReference chooser,
+            ProgramParticipantReference phaseOwner) =>
+            engine.RestoreProgramPhaseHandDiscards(frame, chooser, phaseOwner);
 
         public void RefundCardUseDebit(ProgramSkillFrame frame) =>
             engine.RefundProgramCardUseDebit(frame);

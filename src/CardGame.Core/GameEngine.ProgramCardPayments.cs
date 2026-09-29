@@ -36,7 +36,8 @@ public sealed partial class GameEngine
         string? coverageResultBind = null,
         bool awaitMovementTriggers = false,
         bool revealBeforeMove = false,
-        IReadOnlyList<CardKind>? cardKinds = null)
+        IReadOnlyList<CardKind>? cardKinds = null,
+        bool prohibitReplacingEquipment = false)
     {
         var active = GetActiveProgramFrame(frame.Id);
         var chooserSeat = ResolveProgramParticipant(active, chooser);
@@ -50,13 +51,17 @@ public sealed partial class GameEngine
             (destinationSeat is not { } recipientSeat || !_players[recipientSeat].IsAlive ||
              recipientSeat == cardOwnerSeat))
             throw new InvalidOperationException("An equipment gift requires a distinct living recipient.");
-        var choices = BuildOwnedCardPaymentChoices(active.Id, chooserSeat, cardOwnerSeat, zones, cardCategories,
-            cardKinds,
+        if (prohibitReplacingEquipment &&
+            (destination != SkillProgramCardDestination.SelectedTargetCorrespondingZone ||
+             destinationSeat is not { } recipient || !_players[recipient].IsAlive))
+            throw new InvalidOperationException("A no-replace corresponding-zone transfer requires a living selected target.");
+        var choices = BuildOwnedCardPaymentChoices(active.Id, chooserSeat, cardOwnerSeat, zones,
+            cardCategories, cardKinds,
             destination == SkillProgramCardDestination.SelectedTargetCorrespondingZone
                 ? (zone, card) => destinationSeat is { } seat &&
                     CanMoveProgramCardToCorrespondingZone(card, zone, seat)
                 : null,
-            destination, destinationSeat);
+            destination, destinationSeat, prohibitReplacingEquipment);
         if (choices.Count == 0)
         {
             if (skipIfNoCards)
@@ -95,7 +100,8 @@ public sealed partial class GameEngine
         IReadOnlyList<CardKind>? cardKinds = null,
         Func<CardZoneKind, Card, bool>? canSelect = null,
         SkillProgramCardDestination destination = SkillProgramCardDestination.DiscardPile,
-        int? destinationSeat = null)
+        int? destinationSeat = null,
+        bool prohibitReplacingEquipment = false, int? correspondingZoneSeat = null)
     {
         var frame = GetActiveProgramFrame(frameId);
         var result = new List<PromptChoice>();
@@ -123,6 +129,11 @@ public sealed partial class GameEngine
                 if (zone == CardZoneKind.Equipment && cardOwnerSeat == frame.OwnerSeat &&
                     IsActiveProgramSourceEquipmentCard(cardOwnerSeat, frame.SkillId,
                         frame.SkillInstanceId, cards[slot]))
+                    continue;
+                if (prohibitReplacingEquipment && correspondingZoneSeat is { } recipientSeat &&
+                    EquipmentCatalog.IsEquipment(cards[slot].Kind) &&
+                    GetEquipment(_players[recipientSeat]).Any(item =>
+                        EquipmentCatalog.Get(item.Kind).Slot == EquipmentCatalog.Get(cards[slot].Kind).Slot))
                     continue;
                 var hidden = zone == CardZoneKind.Hand && chooserSeat != cardOwnerSeat;
                 var parameters = new Dictionary<string, string>
@@ -261,6 +272,12 @@ public sealed partial class GameEngine
                 .SingleOrDefault(item => EquipmentCatalog.Get(item.Kind).Slot == replacedSlot);
             if (replaced is not null && replaced.Id != card.Id)
             {
+                if (effect.ProhibitReplacingEquipment)
+                {
+                    ClearPendingDecision();
+                    CancelProgramBindingAndCleanup(frame, "目标装备栏已有牌，不能替换原有装备，技能结算已取消。");
+                    return;
+                }
                 MoveCard(replaced, CardLocation.Equipment(recipient), CardLocation.DiscardPile,
                     CardMoveReasons.EquipmentReplace);
             }
@@ -323,7 +340,7 @@ public sealed partial class GameEngine
             return !recipient.JudgmentAreaAbolished &&
                 IsDelayedCard(GetJudgmentEffectiveCardKind(card)) &&
                 !HasJudgmentEffectiveCard(recipient, GetJudgmentEffectiveCardKind(card));
-        return sourceZone == CardZoneKind.Equipment &&
+        return sourceZone is CardZoneKind.Hand or CardZoneKind.Equipment &&
             EquipmentCatalog.IsEquipment(card.Kind) && !recipient.EquipmentAreaAbolished;
     }
 
@@ -333,7 +350,8 @@ public sealed partial class GameEngine
         if (!CanMoveProgramCardToCorrespondingZone(card, sourceZone, destinationSeat))
             throw new InvalidOperationException("The corresponding-zone recipient cannot receive this card.");
         if (sourceZone == CardZoneKind.Judgment) return CardLocation.Judgment(destinationSeat);
-        if (sourceZone == CardZoneKind.Equipment) return CardLocation.Equipment(destinationSeat);
+        if (sourceZone is CardZoneKind.Hand or CardZoneKind.Equipment)
+            return CardLocation.Equipment(destinationSeat);
         throw new InvalidOperationException(
             $"Card '{card.Kind}' has no corresponding zone; only delayed tricks and equipment are transferable.");
     }

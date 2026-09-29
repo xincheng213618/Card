@@ -8,6 +8,64 @@ internal static class LiuBiaoChecks
     private const string ZishouSkillId = "classic:zishou";
     private const string ZongshiSkillId = "classic:zongshi";
 
+    public static void ContentPromptAndRulesBoundary()
+    {
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        var zishou = current.Skills[ZishouSkillId];
+        Require(current.Packages.Any(package =>
+                    package.Id == "standard-classic-generals" &&
+                    package.Version == StandardClassicGeneralPackage.CurrentVersion) &&
+                current.Generals[GeneralId] is
+                {
+                    FactionId: "qun",
+                    BaseHp: 3,
+                    Gender: GeneralGender.Male,
+                    PortraitKey: "liu_biao",
+                    SkillIds: var skillIds
+                } && skillIds.SequenceEqual([ZishouSkillId, ZongshiSkillId]) &&
+                zishou.Program is { MinimumRulesVersion: 172 } &&
+                current.Skills.ContainsKey(ZongshiSkillId),
+            "Current Liu Biao must publish Zishou and Zongshi.");
+
+        var fixture = FindFixture();
+        var game = fixture.Game;
+        var prompt = RequirePrompt(game, DecisionKind.ProgramTrigger);
+        Require(prompt.IsPrivate &&
+                prompt.Choices.Count == 2 &&
+                prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("program-action"))
+                    .Order(StringComparer.Ordinal)
+                    .SequenceEqual(["activate", "skip"]) &&
+                zishou.Program!.Triggers.Single().Effects[0].NumberExpression ==
+                    SkillProgramNumberExpression.LivingFactionCount,
+            "Zishou must publish one generic private choice backed by livingFactionCount.");
+
+        var before = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
+        var restored = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
+        Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) == before &&
+                restored.PendingDecision is { Kind: DecisionKind.ProgramTrigger, IsPrivate: true },
+            "A paused Zishou draw choice must replay exactly.");
+
+        var revision = game.Revision;
+        var forged = game.Submit(new AnswerPromptCommand(
+            0,
+            prompt.PromptId,
+            new ChoiceId("zishou.forged"),
+            game.Revision));
+        Require(!forged.Accepted && game.Revision == revision &&
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == before,
+            "A forged Zishou answer must be rejected atomically.");
+
+        var skipped = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
+        var skippedBefore = skipped.CreateSnapshot(0, revealAll: true).Players[0].HandCount;
+        Answer(skipped, "zishou-skip");
+        ReachHumanPlay(skipped);
+        Require(skipped.CreateSnapshot(0, revealAll: true).Players[0].HandCount == skippedBefore + 2 &&
+                skipped.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
+                    item.SkillId == ZishouSkillId && !item.Activated),
+            "Skipping Zishou must keep normal drawing and create no turn restriction.");
+
+    }
+
     public static void ZishouTargetsAndZongshiHandLimit()
     {
         var fixture = FindFixture();

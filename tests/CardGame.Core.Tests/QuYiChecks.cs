@@ -3,6 +3,27 @@ using CardGame.Core;
 
 internal static class QuYiChecks
 {
+    private const string General = "classic:qu-yi";
+    private const string DamageGeneral = "fixture:qu-yi-damage";
+
+    public static void DefinitionAndSharedRules()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var general = registry.Generals[General];
+        Require(general is { BaseHp: 4, FactionId: "qun" } &&
+                general.SkillIds.SequenceEqual(["classic:fuqi", "classic:jiaozi"]) &&
+                registry.Modes["identity:classic-5"].GeneralPoolIds!.Contains(General),
+            "Qu Yi must be a selectable Qun general with both locked skills.");
+        var fuqi = registry.Skills["classic:fuqi"].Program!.CardPolicies.Single();
+        var jiaozi = registry.Skills["classic:jiaozi"].Program!.DamageModifiers.Single();
+        Require(fuqi.Kind == SkillProgramCardPolicyKind.ProhibitNearbyTargetResponse &&
+                fuqi.Value == 1 && fuqi.CardKinds.Count == 0 &&
+                jiaozi.Condition == SkillProgramDamageModifierCondition.OwnerUniqueMaximumHand &&
+                jiaozi.SourceScope == SkillProgramDamageModifierSourceScope.DamageParticipant &&
+                jiaozi.CardKinds.Count == 0,
+            "Fuqi must gate Slash and ordinary trick responses; Jiaozi must gate damage, independent of cards.");
+    }
+
     public static void NearbySlashCannotRespondBeforeDamageBonus()
     {
         var registry = Registry();
@@ -31,9 +52,183 @@ internal static class QuYiChecks
         throw new InvalidOperationException("No nearby Slash fixture with a Dodge was found.");
     }
 
+    public static void GlobalTrickResponseUsesEachTargetsDistance()
+    {
+        var registry = Registry();
+        for (var seed = 1; seed <= 120; seed++)
+        {
+            var game = Start(registry, seed, General, "fixture:qu-yi-assault");
+            ReachPlay(game);
+            var snapshot = game.CreateSnapshot(0, true);
+            var assault = game.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.BarbarianAssault);
+            if (assault is null || !snapshot.Players[1].Hand.Any(card => card.Kind == CardKind.Slash) ||
+                !snapshot.Players[2].Hand.Any(card => card.Kind == CardKind.Slash)) continue;
+            Play(game, assault);
+            FinishResolution(game);
+            var events = game.Events.Select(item => item.Payload).ToArray();
+            Require(!events.OfType<ResponseRequestedEvent>().Any(item =>
+                    item.IncomingCard == CardKind.BarbarianAssault && item.TargetSeat == 1) &&
+                    events.OfType<ResponseRequestedEvent>().Any(item =>
+                        item.IncomingCard == CardKind.BarbarianAssault && item.TargetSeat == 2),
+                "Fuqi must block a nearby Assault response while still offering a distant target's response.");
+            Require(events.OfType<DamageRequestedEvent>().Any(item =>
+                    item.SourceSeat == 0 && item.TargetSeat == 1 && item.Amount == 2),
+                "Jiaozi must apply to Barbarian Assault damage after Fuqi's response check.");
+            return;
+        }
+        throw new InvalidOperationException("No global trick fixture with both response ranges was found.");
+    }
 
-    private const string General = "classic:qu-yi";
-    private const string DamageGeneral = "fixture:qu-yi-damage";
+    public static void ArrowBarrageResponseUsesEachTargetsDistance()
+    {
+        var registry = Registry();
+        for (var seed = 1; seed <= 120; seed++)
+        {
+            var game = Start(registry, seed, General, "fixture:qu-yi-barrage");
+            ReachPlay(game);
+            var snapshot = game.CreateSnapshot(0, true);
+            var barrage = game.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.ArrowBarrage);
+            if (barrage is null || !snapshot.Players[1].Hand.Any(card => card.Kind == CardKind.Dodge) ||
+                !snapshot.Players[2].Hand.Any(card => card.Kind == CardKind.Dodge)) continue;
+            Play(game, barrage);
+            FinishResolution(game);
+            var events = game.Events.Select(item => item.Payload).ToArray();
+            Require(!events.OfType<ResponseRequestedEvent>().Any(item =>
+                    item.IncomingCard == CardKind.ArrowBarrage && item.TargetSeat == 1) &&
+                    events.OfType<ResponseRequestedEvent>().Any(item =>
+                        item.IncomingCard == CardKind.ArrowBarrage && item.TargetSeat == 2),
+                "Fuqi must block a nearby Barrage response while offering a distant target's response.");
+            Require(events.OfType<DamageRequestedEvent>().Any(item =>
+                    item.SourceSeat == 0 && item.TargetSeat == 1 && item.Amount == 2),
+                "Jiaozi must apply to Arrow Barrage damage after Fuqi's response check.");
+            return;
+        }
+        throw new InvalidOperationException("No Arrow Barrage fixture with both response ranges was found.");
+    }
+
+    public static void NearbyDuelCannotRequestSlash()
+    {
+        var registry = Registry();
+        for (var seed = 1; seed <= 120; seed++)
+        {
+            var game = Start(registry, seed, General, "fixture:qu-yi-duel");
+            ReachPlay(game);
+            var target = game.CreateSnapshot(0, true).Players[1];
+            var duel = game.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.Duel && action.TargetSeat == 1);
+            if (duel is null || !target.Hand.Any(card => card.Kind == CardKind.Slash)) continue;
+            Play(game, duel);
+            FinishResolution(game);
+            var events = game.Events.Select(item => item.Payload).ToArray();
+            Require(!events.OfType<ResponseRequestedEvent>().Any(item =>
+                    item.IncomingCard == CardKind.Duel && item.TargetSeat == 1) &&
+                    events.OfType<DuelResponseEvent>().Any(item =>
+                        item.ResponderSeat == 1 && !item.UsedSlash) &&
+                    events.OfType<DamageRequestedEvent>().Any(item =>
+                        item.SourceSeat == 0 && item.TargetSeat == 1 && item.Amount == 2),
+                "Fuqi must settle whether Duel can be answered before Jiaozi modifies its damage.");
+            return;
+        }
+        throw new InvalidOperationException("No nearby Duel fixture with a Slash was found.");
+    }
+
+    public static void CardlessDamageUsesTheSameDamageModifier()
+    {
+        var registry = Registry();
+        var game = Start(registry, 1, DamageGeneral, "fixture:qu-yi-mixed");
+        ReachPlay(game);
+        var result = game.Submit(new UseProgramSkillCommand(0, "fixture:damage-driver", "hit",
+            [], [1], game.Revision, game.PendingDecision!.PromptId));
+        Require(result.Accepted, result.Error?.Message ?? "The cardless damage skill failed.");
+        FinishResolution(game);
+        var events = game.Events.Select(item => item.Payload).ToArray();
+        Require(events.OfType<DamageRequestedEvent>().Any(item =>
+                item.SourceSeat == 0 && item.TargetSeat == 1 && item.SourceCard is null && item.Amount == 2) &&
+                events.OfType<ProgramCardDamageModifiedEvent>().Any(item =>
+                    item.Source.SkillId == "classic:jiaozi" && item.CardKind is null &&
+                    item.ModifiedAmount == 2),
+            "Jiaozi must modify damage with no source card through the shared damage pipeline.");
+    }
+
+    public static void OriginalTrickNullificationSkipsNearbyTarget()
+    {
+        var registry = Registry();
+        for (var seed = 1; seed <= 120; seed++)
+        {
+            var game = Start(registry, seed, General, "fixture:qu-yi-nullification");
+            ReachPlay(game);
+            var snapshot = game.CreateSnapshot(0, true);
+            var dismantlement = game.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.Dismantlement && action.TargetSeat == 1);
+            if (dismantlement is null ||
+                !snapshot.Players[1].Hand.Any(card => card.Kind == CardKind.Nullification) ||
+                !snapshot.Players[2].Hand.Any(card => card.Kind == CardKind.Nullification)) continue;
+            Play(game, dismantlement);
+            for (var step = 0; step < 30 && !game.Events.Select(item => item.Payload)
+                     .OfType<NullificationRequestedEvent>().Any(item =>
+                         item.ResponderSeat == 2 && item.ChainDepth == 0); step++)
+                Advance(game);
+            var requests = game.Events.Select(item => item.Payload)
+                .OfType<NullificationRequestedEvent>()
+                .Where(item => item.ChainDepth == 0 && item.EffectCardKind == CardKind.Dismantlement)
+                .ToArray();
+            Require(requests.Any(item => item.ResponderSeat == 2) &&
+                    requests.All(item => item.ResponderSeat != 1),
+                "A nearby trick target cannot nullify the original trick, but a distant character can.");
+            return;
+        }
+        throw new InvalidOperationException("No Dismantlement fixture with near and distant Nullification was found.");
+    }
+
+    public static void TiedHandCountDoesNotIncreaseCardlessDamage()
+    {
+        var registry = Registry();
+        var game = Start(registry, 1, DamageGeneral, "fixture:qu-yi-mixed");
+        ReachPlay(game);
+        var cards = game.CreateSnapshot(0, true).Players[0].Hand.Take(2).Select(card => card.Id).ToArray();
+        Require(cards.Length == 2, "The damage-cost fixture needs two hand cards.");
+        var result = game.Submit(new UseProgramSkillCommand(0, "fixture:damage-driver",
+            "hit-after-discard", cards, [1], game.Revision, game.PendingDecision!.PromptId));
+        Require(result.Accepted, result.Error?.Message ?? "The paid damage skill failed.");
+        FinishResolution(game);
+        var events = game.Events.Select(item => item.Payload).ToArray();
+        Require(events.OfType<DamageRequestedEvent>().Any(item =>
+                item.SourceSeat == 0 && item.TargetSeat == 1 && item.SourceCard is null && item.Amount == 1) &&
+                !events.OfType<ProgramCardDamageModifiedEvent>().Any(item =>
+                    item.Source.SkillId == "classic:jiaozi"),
+            "Jiaozi must check current hand counts after the cost and reject a tie.");
+    }
+
+    public static void IncomingDamageChecksTheTargetOwner()
+    {
+        var registry = Registry();
+        for (var seed = 1; seed <= 80; seed++)
+        {
+            var game = Start(registry, seed, DamageGeneral, "fixture:qu-yi-incoming");
+            ReachPlay(game);
+            var owner = game.CreateSnapshot(0, true).Players.FirstOrDefault(player =>
+                player.GeneralId == General);
+            if (owner is null) continue;
+            var cards = game.CreateSnapshot(0, true).Players[0].Hand.Take(2)
+                .Select(card => card.Id).ToArray();
+            var used = game.Submit(new UseProgramSkillCommand(0, "fixture:damage-driver",
+                "feed-and-hit", cards, [owner.Seat], game.Revision, game.PendingDecision!.PromptId));
+            Require(used.Accepted, used.Error?.Message ?? "The incoming damage fixture failed.");
+            FinishResolution(game);
+            var events = game.Events.Select(item => item.Payload).ToArray();
+            Require(events.OfType<DamageRequestedEvent>().Any(item =>
+                    item.SourceSeat == 0 && item.TargetSeat == owner.Seat &&
+                    item.SourceCard is null && item.Amount == 2) &&
+                    events.OfType<ProgramCardDamageModifiedEvent>().Any(item =>
+                        item.Source.SkillId == "classic:jiaozi" &&
+                        item.Source.OwnerSeat == owner.Seat && item.ModifiedAmount == 2),
+                "Jiaozi must increase incoming cardless damage when its owner alone has the most cards.");
+            return;
+        }
+        throw new InvalidOperationException("No incoming damage fixture selected Qu Yi as an opponent.");
+    }
 
     private static ContentRegistry Registry() => ContentRegistry.Build(
         new StandardContentPackage(), new StandardActiveSkillExpansionPackage(includeJijiu: true),

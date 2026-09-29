@@ -19,14 +19,14 @@ internal static class SpLeJinChecks
             general.SkillIds.SequenceEqual([SkillId]) &&
             current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
             current.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId) &&
-            skill.Program is { RuntimeVersion: SkillProgramCatalog.RuntimeVersion, MinimumRulesVersion: 172 } &&
+            skill.Program is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } &&
             skill.Program.Triggers.Single().TurnOwnerScope == SkillProgramTurnOwnerScope.OtherLiving &&
             (int)SkillProgramConditionKind.HasOwnedCardCategory == 23,
             "SP Le Jin must register with its schema-56 observer trigger in the current identity roster.");
         var rules = Resource(RulesResource);
         var presentation = Resource(PresentationResource);
         Reject(rules.Replace("\"window\": \"turnEnding\"", "\"window\": \"afterNormalDraw\""),
-            presentation, "turnEnding, playEnding or playPhaseStarting trigger");
+            presentation, "turnEnding, playEnding, playPhaseStarting or discardPhaseEnded trigger");
         Reject(rules.Replace("\"kind\": \"hasOwnedCardCategory\", \"zones\": [\"hand\", \"equipment\"]",
                 "\"kind\": \"hasOwnedCardCategory\", \"zones\": [\"judgment\"]"),
             presentation, "hand or equipment only");
@@ -87,6 +87,244 @@ internal static class SpLeJinChecks
             "Xiaoguo target option and damage continuation must finish identically after checkpoint replay.");
     }
 
+    public static void EquipmentOptionAndAiPaymentReplay()
+    {
+        GameEngine? game = null;
+        ContentRegistry? registry = null;
+        for (var seed = 1; seed <= 80; seed++)
+        {
+            var candidate = Create(mixedDeck: true, seed: seed);
+            ReachHumanPlay(candidate.Game);
+            if (!candidate.Game.CreateSnapshot(0, true).Players[0].Hand.Any(card =>
+                    Card(candidate.Game, card.Id) == CardKind.Slash)) continue;
+            Answer(candidate.Game, new EndPlayPhaseCommand(0, candidate.Game.Revision,
+                candidate.Game.PendingDecision!.PromptId));
+            ReachSkill(candidate.Game);
+            var target = candidate.Game.State.CurrentSeat;
+            if (!candidate.Game.CreateCardZoneDiagnostics().Any(card => card.Location.OwnerSeat == target &&
+                    card.Location.Zone == CardZoneKind.Equipment &&
+                    card.CardKind == CardKind.Crossbow)) continue;
+            if (candidate.Game.CreateCardZoneDiagnostics().Any(card => card.Location == CardLocation.Hand(target) &&
+                    card.CardKind == CardKind.Crossbow)) continue;
+            game = candidate.Game;
+            registry = candidate.Registry;
+            break;
+        }
+        if (game is null || registry is null)
+            throw new InvalidOperationException("No recorded mixed deck provided a basic cost and target equipment.");
+        var turnOwner = game.State.CurrentSeat;
+        AnswerAction(game, "activate");
+        AnswerTarget(game, turnOwner);
+        AnswerChoice(game, Prompt(game).Choices.First(choice =>
+            Card(game, choice.Cards.Single()) == CardKind.Slash));
+        var atOption = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+        var option = InternalPrompt(game)!;
+        Require(option.PlayerSeat == turnOwner && option.IsPrivate &&
+            option.Choices.Select(choice => choice.Parameters.GetValueOrDefault("option-id"))
+                .Order().SequenceEqual(new[] { "discard-equipment", "take-damage" }),
+            "The target's private equipment option must be available from hand or equipment zone.");
+        Advance(game);
+        Advance(atOption);
+        var chosen = game.Events.Select(item => item.Payload).OfType<ProgramOptionChosenEvent>().LastOrDefault();
+        Require(chosen is { OptionId: "discard-equipment", ChooserSeat: var chooser } &&
+            chooser == turnOwner,
+            "The shared AI must prefer a payable equipment card over one damage point.");
+        for (var i = 0; i < 30 && game.ResolutionStack.OfType<ProgramSkillFrame>().Any(); i++)
+        {
+            Advance(game); Advance(atOption);
+        }
+        Require(game.CardMovements.Any(move => move.Reason.Value ==
+                $"skill-program.{SkillId}.SelectAndMoveOwnedCard" &&
+                move.From.OwnerSeat == turnOwner &&
+                move.From.Zone == CardZoneKind.Equipment &&
+                Card(game, move.CardId) == CardKind.Crossbow && move.To == CardLocation.DiscardPile) &&
+            game.CardMovements.Count(move => move.Reason.Value == $"skill-program.{SkillId}.Draw") == 1 &&
+            game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>()
+                .All(item => item.SourceSeat != 0 || item.TargetSeat != turnOwner) &&
+            Snapshot(game) == Snapshot(atOption) && Events(game).SequenceEqual(Events(atOption)),
+            "Paying equipment from a legal zone must draw Le Jin one card and replay the AI option exactly.");
+    }
+
+    public static void HumanTargetPaysHandEquipmentAcrossObservers()
+    {
+        GameEngine? game = null;
+        ContentRegistry? registry = null;
+        var handMatches = 0;
+        var boundaryMatches = 0;
+        var choiceMatches = 0;
+        for (var seed = 1; seed <= 80; seed++)
+        {
+            var candidate = CreateObserverScenario(seed);
+            ReachHumanPlay(candidate.Game);
+            if (!candidate.Game.CreateCardZoneDiagnostics().Any(card =>
+                    card.Location == CardLocation.Hand(0) && card.CardKind == CardKind.Crossbow)) continue;
+            handMatches++;
+            Answer(candidate.Game, new EndPlayPhaseCommand(0, candidate.Game.Revision,
+                candidate.Game.PendingDecision!.PromptId));
+            for (var step = 0; step < 20 &&
+                 !candidate.Game.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Any(); step++)
+                Advance(candidate.Game);
+            var ending = candidate.Game.ResolutionStack.OfType<TurnEndingBoundaryFrame>().SingleOrDefault();
+            if (ending is null || ending.Items.Count < 2) continue;
+            boundaryMatches++;
+            Require(ending.Items.Select(item => item.Candidate!.OwnerSeat).SequenceEqual(
+                ending.Items.Select(item => item.Candidate!.OwnerSeat).Order()),
+                "Multiple other-turn observers must be ordered by seat after the turn owner.");
+            for (var i = 0; i < 80 && candidate.Game.PendingDecision is not
+                 { PlayerSeat: 0, SkillPrompt.SkillId: SkillId } &&
+                 candidate.Game.State.Status != EngineStatus.Completed; i++) Advance(candidate.Game);
+            if (candidate.Game.PendingDecision is not { PlayerSeat: 0, SkillPrompt.SkillId: SkillId }) continue;
+            choiceMatches++;
+            if (candidate.Game.PendingDecision.Choices.All(choice =>
+                    choice.Parameters.GetValueOrDefault("option-id") != "discard-equipment")) continue;
+            game = candidate.Game;
+            registry = candidate.Registry;
+            break;
+        }
+        if (game is null || registry is null)
+            throw new InvalidOperationException($"No multi-observer replay fixture reached a human equipment choice: hand={handMatches}, boundary={boundaryMatches}, choice={choiceMatches}.");
+        var humanOption = Prompt(game);
+        var observerSeat = game.ResolutionStack.OfType<ProgramSkillFrame>().Single().OwnerSeat;
+        Require(humanOption.IsPrivate && humanOption.PlayerSeat == 0 &&
+            humanOption.Choices.Any(choice => choice.Parameters.GetValueOrDefault("option-id") == "take-damage"),
+            "A human turn owner must get both authentic Xiaoguo response commands when holding equipment.");
+        Require(game.CreateSnapshot(observerSeat).PendingDecision is null &&
+            game.CreateSnapshot(observerSeat).Players[0].Hand.Count == 0,
+            "The observer must not receive the target's private equipment option or hidden hand identity.");
+        var atOption = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+        AnswerChoice(game, humanOption.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("option-id") == "discard-equipment"));
+        AnswerChoice(atOption, Prompt(atOption).Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("option-id") == "discard-equipment"));
+        var payment = Prompt(game);
+        Require(payment.PlayerSeat == 0 && payment.IsPrivate &&
+            payment.Choices.Any(choice => choice.Parameters.GetValueOrDefault("source-zone") == "Hand" &&
+                Card(game, choice.Cards.Single()) == CardKind.Crossbow),
+            "A target's private equipment card in hand must be payable by its own command.");
+        var atPayment = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+        var handChoice = payment.Choices.First(choice =>
+            choice.Parameters.GetValueOrDefault("source-zone") == "Hand" &&
+            Card(game, choice.Cards.Single()) == CardKind.Crossbow);
+        AnswerChoice(game, handChoice);
+        AnswerChoice(atOption, Prompt(atOption).Choices.Single(choice => choice.Id == handChoice.Id));
+        AnswerChoice(atPayment, Prompt(atPayment).Choices.Single(choice => choice.Id == handChoice.Id));
+        Require(game.CardMovements.Any(move => move.Reason.Value ==
+                $"skill-program.{SkillId}.SelectAndMoveOwnedCard" &&
+                move.From == CardLocation.Hand(0) && move.To == CardLocation.DiscardPile &&
+                Card(game, move.CardId) == CardKind.Crossbow) &&
+            game.CardMovements.Any(move => move.Reason.Value == $"skill-program.{SkillId}.Draw") &&
+            Snapshot(game) == Snapshot(atOption) && Snapshot(game) == Snapshot(atPayment) &&
+            Events(game).SequenceEqual(Events(atPayment)),
+            "Human target equipment payment and observer draw must survive both option and payment checkpoints.");
+    }
+
+    public static void LethalOtherTurnDamageClearsBoundary()
+    {
+        GameEngine? game = null;
+        ContentRegistry? registry = null;
+        for (var seed = 1; seed <= 80; seed++)
+        {
+            var candidate = CreateObserverScenario(seed, lethal: true);
+            for (var i = 0; i < 500 && candidate.Game.PendingDecision?.Kind != DecisionKind.PlayCard &&
+                 candidate.Game.State.Status != EngineStatus.Completed; i++) Advance(candidate.Game);
+            if (candidate.Game.PendingDecision?.Kind != DecisionKind.PlayCard) continue;
+            Answer(candidate.Game, new EndPlayPhaseCommand(0, candidate.Game.Revision,
+                candidate.Game.PendingDecision!.PromptId));
+            for (var i = 0; i < 100 && candidate.Game.PendingDecision is not
+                 { PlayerSeat: 0, SkillPrompt.SkillId: SkillId } &&
+                 candidate.Game.State.Status != EngineStatus.Completed; i++) Advance(candidate.Game);
+            if (candidate.Game.PendingDecision is not { PlayerSeat: 0, SkillPrompt.SkillId: SkillId }) continue;
+            game = candidate.Game;
+            registry = candidate.Registry;
+            break;
+        }
+        if (game is null || registry is null)
+            throw new InvalidOperationException("No lethal observer fixture reached the human turn owner.");
+        Require(game.State.Players[0].Hp == 1 &&
+            Prompt(game).Choices.Select(choice => choice.Parameters.GetValueOrDefault("option-id"))
+                .SequenceEqual(["take-damage"]) &&
+            game.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Single().Items.Count >= 2,
+            $"A one-HP turn owner without equipment must face only lethal damage inside a multi-observer boundary: hp={game.State.Players[0].Hp}, options={string.Join(',', Prompt(game).Choices.Select(x => x.Parameters.GetValueOrDefault("option-id")))}, items={game.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Single().Items.Count}.");
+        var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+        AnswerChoice(game, Prompt(game).Choices.Single());
+        AnswerChoice(replay, Prompt(replay).Choices.Single());
+        for (var i = 0; i < 40 && game.State.Players[0].IsAlive; i++)
+        {
+            Require(game.PendingDecision?.PlayerSeat != 0, "Unexpected human rescue with the all-Slash deck.");
+            Advance(game); Advance(replay);
+        }
+        Require(!game.State.Players[0].IsAlive &&
+            !game.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Any() &&
+            !replay.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Any() &&
+            game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>()
+                .Any(item => item.TargetSeat == 0 && item.SourceSeat is > 0 && item.Amount == 1) &&
+            Snapshot(game) == Snapshot(replay) && Events(game).SequenceEqual(Events(replay)),
+            "Lethal Xiaoguo damage must finish victory and clear the observer and skill frames without replay divergence.");
+    }
+
+    public static void NoBasicCardDoesNotOfferTrigger()
+    {
+        var (game, _) = Create(allEquipment: true);
+        ReachHumanPlay(game);
+        Require(game.CreateCardZoneDiagnostics().Where(card => card.Location == CardLocation.Hand(0))
+            .All(card => card.CardKind == CardKind.Crossbow),
+            "The no-basic fixture must naturally deal only equipment cards.");
+        Answer(game, new EndPlayPhaseCommand(0, game.Revision, game.PendingDecision!.PromptId));
+        for (var i = 0; i < 300 && game.State.TurnNumber <= 2 &&
+             game.State.Status != EngineStatus.Completed; i++)
+        {
+            Require(game.PendingDecision?.SkillPrompt?.SkillId != SkillId,
+                "Xiaoguo must not offer activation without a basic card to pay.");
+            Advance(game);
+        }
+        Require(game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                .All(item => item.SkillId != SkillId || !item.Activated && !item.Completed) &&
+            game.CardMovements.All(move => !move.Reason.Value.StartsWith($"skill-program.{SkillId}.",
+                StringComparison.Ordinal)),
+            "The absent cost must prevent activation and all Xiaoguo effects.");
+    }
+
+    public static void GenericOwnedCategoryChoiceUsesPrivateChooserCards()
+    {
+        foreach (var basic in new[] { true, false })
+        {
+            var registry = ContentRegistry.Build(new StandardContentPackage(),
+                new StandardActiveSkillExpansionPackage(includeJijiu: true),
+                new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(),
+                new GenericChoiceScenario(basic));
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                Seed = 9, HumanSeat = 0, HumanRole = Role.Lord, PlayerCount = 4,
+                ModeId = GenericChoiceScenario.ModeId, UseInteractiveSetup = true,
+                UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 8
+            }, registry);
+            Answer(game, new StartGameCommand());
+            Answer(game, new SelectGeneralCommand(0, GenericChoiceScenario.HumanGeneralId,
+                game.Revision, game.PendingDecision!.PromptId));
+            ReachHumanPlay(game);
+            var handBefore = game.State.Players[0].HandCount;
+            Answer(game, new EndPlayPhaseCommand(0, game.Revision, game.PendingDecision!.PromptId));
+            for (var i = 0; i < 24 && game.PendingDecision?.SkillPrompt?.SkillId !=
+                 GenericChoiceScenario.SkillId; i++) Advance(game);
+            var prompt = Prompt(game);
+            Require(prompt.PlayerSeat == 0 && prompt.IsPrivate &&
+                prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("option-id"))
+                    .Order().SequenceEqual(basic ? ["draw", "pass"] : ["pass"]),
+                "A generic other-turn choice must expose only what the chooser can pay from its own private hand.");
+            var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+            var optionId = basic ? "draw" : "pass";
+            AnswerChoice(game, prompt.Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("option-id") == optionId));
+            AnswerChoice(replay, Prompt(replay).Choices.Single(choice =>
+                choice.Parameters.GetValueOrDefault("option-id") == optionId));
+            Require(game.CardMovements.Count(move => move.Reason.Value ==
+                    $"skill-program.{GenericChoiceScenario.SkillId}.Draw") == (basic ? 1 : 0) &&
+                game.State.Players[0].HandCount == handBefore + (basic ? 1 : 0) &&
+                Snapshot(game) == Snapshot(replay) && Events(game).SequenceEqual(Events(replay)),
+                "A non-Xiaoguo graph must execute the shared private card-category query, choice and replay.");
+        }
+    }
+
     private static (GameEngine Game, ContentRegistry Registry) Create(bool mixedDeck = false,
         int seed = 17, bool allEquipment = false)
     {
@@ -140,6 +378,15 @@ internal static class SpLeJinChecks
         for (var i = 0; i < 600 && game.PendingDecision?.SkillPrompt?.SkillId != SkillId; i++) Advance(game);
         Require(game.PendingDecision?.SkillPrompt?.SkillId == SkillId,
             $"SP Le Jin did not reach an observed turn ending (turn={game.State.TurnNumber}, pending={game.PendingDecision?.Kind}).");
+    }
+
+    private static void EnsureCard(GameEngine game, int seat, CardKind kind, CardLocation destination)
+    {
+        var zones = (CardZoneStore)typeof(GameEngine).GetField("_cardZones",
+            BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
+        var card = game.CreateCardZoneDiagnostics().First(item => item.CardKind == kind &&
+            item.Location == CardLocation.DrawPile);
+        zones.Move(card.CardId, card.Location, destination);
     }
 
     private static CardKind Card(GameEngine game, int cardId) =>

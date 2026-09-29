@@ -138,6 +138,40 @@ internal static class CixiongDoubleSwordsChecks
 
     }
 
+    public static void AiRelationBranches()
+    {
+        VerifyAiBranch(Role.Loyalist, expectedDiscard: false);
+        VerifyAiBranch(Role.Rebel, expectedDiscard: true);
+    }
+
+    private static void VerifyAiBranch(Role targetRole, bool expectedDiscard)
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var boundary = CixiongDoubleSwordsScenario.FindHumanTrigger(targetRole);
+        var game = boundary.Game;
+        var activation = game.PendingDecision ??
+            throw new InvalidOperationException("Cixiong relation fixture lost its activation prompt.");
+        var use = activation.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "cixiong-use");
+        Require(game.Submit(new AnswerPromptCommand(
+                0,
+                activation.PromptId,
+                use.Id,
+                game.Revision)).Accepted,
+            "Cixiong relation fixture could not activate the weapon.");
+        Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
+            "Cixiong relation fixture AI could not choose its resource branch.");
+        var resolved = game.Events.Select(item => item.Payload)
+            .OfType<CixiongDoubleSwordsResolvedEvent>()
+            .LastOrDefault();
+        Require(resolved is { Activated: true } &&
+                resolved.TargetDiscarded == expectedDiscard &&
+                (expectedDiscard
+                    ? resolved.DiscardedCardId is not null && resolved.SourceDrawCount == 0
+                    : resolved.DiscardedCardId is null && resolved.SourceDrawCount == 1),
+            $"A {targetRole} target must choose the expected Cixiong relation branch.");
+    }
+
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
         GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint));
 

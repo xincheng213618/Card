@@ -518,6 +518,22 @@ internal sealed class ProgramAiEstimateContext
             _estimatedHandCount = Math.Max(0d, _estimatedHandCount - 1d);
             _otherAdjustment += 2d;
         }
+        else if (effect.CardOwnerRef?.Kind == ProgramParticipantRef.Owner &&
+                 effect.Destination == SkillProgramCardDestination.SelectedTargetCorrespondingZone)
+        {
+            // Equipping a selected target with an owned board card; the follow-up
+            // draw effect restores the owner's hand count separately.
+            _targetDraw += 1d;
+        }
+    }
+
+    internal void RestorePhaseHandDiscards(SkillProgramEffect effect)
+    {
+        // Returning a discarded card to the phase owner in exchange for the rest
+        // is only worthwhile when the phase produced at least two discards; the
+        // exact set is public discard-pile state the estimate does not model, so
+        // a single-card phase conservatively scores neutral.
+        _otherAdjustment += 4d;
     }
 
     internal void ChooseOtherOwnedCardDiscard(SkillProgramEffect effect) =>

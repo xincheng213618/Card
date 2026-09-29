@@ -4,150 +4,59 @@
     {
       "id": "classic:zhijian",
       "revision": 1,
-      "minimumRulesVersion": 188,
-      "modifiers": [],
-      "viewAs": [],
+      "minimumRulesVersion": 187,
       "activations": [
         {
-          "id": "gift-equipment",
+          "id": "equip-target",
+          "usesPerTurn": null,
           "minCards": 0,
           "maxCards": 0,
-          "sourceZones": [
-            "hand"
-          ],
+          "sourceZones": ["hand"],
           "minTargets": 1,
           "maxTargets": 1,
           "targetKind": "otherLiving",
-          "usesPerTurn": null,
-          "usesPerPhase": null,
-          "usesPerGame": null,
-          "condition": {
-            "kind": "always"
-          },
-          "targetRequiresEmptyEquipmentSlot": true,
+          "condition": { "kind": "always" },
           "effects": [
             {
               "op": "selectAndMoveOwnedCard",
               "target": "owner",
-              "chooserRef": {
-                "kind": "owner"
-              },
-              "cardOwnerRef": {
-                "kind": "owner"
-              },
-              "zones": [
-                "hand"
-              ],
-              "cardCategories": [
-                "equipment"
-              ],
+              "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand"],
               "count": 1,
-              "destination": "selectedTargetEquipment",
-              "targetRef": {
-                "kind": "selectedTarget"
-              }
+              "cardCategories": ["equipment"],
+              "destination": "selectedTargetCorrespondingZone",
+              "targetRef": { "kind": "selectedTarget" },
+              "prohibitReplacingEquipment": true
             },
-            {
-              "op": "draw",
-              "target": "owner",
-              "amount": 1
-            }
+            { "op": "draw", "target": "owner", "amount": 1 }
           ]
         }
-      ],
-      "triggers": [],
-      "contributions": [],
-      "cardIdentities": []
+      ]
     },
     {
       "id": "classic:guzheng",
       "revision": 1,
-      "minimumRulesVersion": 188,
-      "modifiers": [],
-      "viewAs": [],
-      "activations": [],
+      "minimumRulesVersion": 187,
       "triggers": [
         {
-          "id": "claim-discarded-hand",
-          "window": "turnEnding",
+          "id": "restore-at-discard-phase-end",
+          "window": "discardPhaseEnded",
           "subject": "owner",
           "turnOwnerScope": "otherLiving",
           "optional": true,
           "priority": 0,
-          "condition": {
-            "kind": "compare",
-            "left": {
-              "kind": "turnOwnerDiscardPhaseHandDiscardCount"
-            },
-            "operator": "greaterThan",
-            "right": {
-              "kind": "integerConstant",
-              "value": 0
-            }
-          },
+          "condition": { "kind": "always" },
           "effects": [
             {
-              "op": "bindDiscardPhaseDiscards",
+              "op": "restorePhaseHandDiscards",
               "target": "owner",
-              "resultBind": "guzheng-pool"
-            },
-            {
-              "op": "selectTarget",
-              "target": "owner",
-              "targetKind": "eventSource"
-            },
-            {
-              "op": "selectCardSubset",
-              "target": "owner",
-              "sourceBind": "guzheng-pool",
-              "resultBind": "guzheng-return",
-              "minimumCards": 1,
-              "maximumCards": 1,
-              "maximumRankSum": 208,
-              "aiOrder": "mostCardsThenRankSum"
-            },
-            {
-              "op": "moveBoundCards",
-              "target": "owner",
-              "sourceBind": "guzheng-return",
-              "destination": "selectedTargetHand"
-            },
-            {
-              "op": "chooseOption",
-              "target": "owner",
-              "resultBind": "guzheng-rest-answer",
-              "options": [
-                {
-                  "id": "take-rest",
-                  "condition": {
-                    "kind": "always"
-                  }
-                },
-                {
-                  "id": "decline",
-                  "condition": {
-                    "kind": "always"
-                  }
-                }
-              ]
-            },
-            {
-              "op": "moveBoundCards",
-              "target": "owner",
-              "sourceBind": "guzheng-pool",
-              "exceptBind": "guzheng-return",
-              "destination": "ownerHand",
-              "condition": {
-                "kind": "choiceIs",
-                "sourceBind": "guzheng-rest-answer",
-                "optionId": "take-rest"
-              }
+              "chooserRef": { "kind": "owner" },
+              "phaseOwnerRef": { "kind": "eventSource" }
             }
           ]
         }
-      ],
-      "contributions": [],
-      "cardIdentities": []
+      ]
     }
   ]
 }

@@ -4,6 +4,95 @@ using System.Reflection;
 
 internal static class PhysicalDeckRecipeChecks
 {
+    public static void ClassicPhysicalDecksMatchOfficialTables()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var deck = registry.Decks["classic:standard-108"];
+        var cards = deck.PhysicalCards ?? throw new InvalidOperationException(
+            "The current classic deck must use a physical-card recipe.");
+
+        Require(deck.Cards.Count == 0 && cards.Count == 108,
+            "The standard recipe must contain exactly 108 physical cards and no count recipe.");
+        foreach (var suit in Enum.GetValues<Suit>())
+        {
+            var suited = cards.Where(card => card.Suit == suit).ToArray();
+            Require(suited.Length == 27, $"{suit} must contain exactly 27 cards.");
+            for (var rank = 1; rank <= 13; rank++)
+            {
+                var expected = IsExRank(suit, rank) ? 3 : 2;
+                Require(suited.Count(card => card.Rank == rank) == expected,
+                    $"{suit} {rank} must contain {expected} physical cards.");
+            }
+        }
+
+        var counts = cards.GroupBy(card => card.CardDefinitionId)
+            .ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal);
+        Require(Count("standard:slash") == 30 &&
+                Count("standard:dodge") == 15 &&
+                Count("standard:peach") == 8,
+            "The standard basic-card split must be 30 Slash, 15 Dodge and 8 Peach.");
+        Require(cards.Count(card => registry.Cards[card.CardDefinitionId].CategoryName == "基本牌") == 53 &&
+                cards.Count(card => registry.Cards[card.CardDefinitionId].CategoryName == "锦囊牌") == 36 &&
+                cards.Count(card => registry.Cards[card.CardDefinitionId].CategoryName == "装备牌") == 19,
+            "The standard category split must be 53 basic, 36 trick and 19 equipment cards.");
+        Require(Has("standard:lightning", Suit.Heart, 12) &&
+                Has("classic:ice-sword", Suit.Spade, 2) &&
+                Has("standard:nullification", Suit.Diamond, 12) &&
+                Has("standard:renwang_shield", Suit.Club, 2),
+            "The four EX cards must occupy the canonical heart Q, spade 2, diamond Q and club 2 slots.");
+        Require(Has("standard:offensive_horse", Suit.Heart, 5) &&
+                Has("classic:dawan", Suit.Spade, 13) &&
+                Has("classic:zixing", Suit.Diamond, 13) &&
+                Has("standard:defensive_horse", Suit.Spade, 5) &&
+                Has("classic:dilu", Suit.Club, 5) &&
+                Has("classic:zhaohuangfeidian", Suit.Heart, 13),
+            "All six standard mounts must retain their canonical names, suits and ranks.");
+
+        var createDeck = typeof(GameEngine).GetMethod(
+            "CreateDeckFromRegistry", BindingFlags.Static | BindingFlags.NonPublic)!;
+        var runtimeCards = (IReadOnlyList<Card>)createDeck.Invoke(null, [registry, deck])!;
+        Require(RuntimeKind(Suit.Heart, 5, EquipmentSlot.OffensiveHorse) == CardKind.OffensiveHorse &&
+                RuntimeKind(Suit.Spade, 13, EquipmentSlot.OffensiveHorse) == CardKind.Dawan &&
+                RuntimeKind(Suit.Diamond, 13, EquipmentSlot.OffensiveHorse) == CardKind.Zixing &&
+                RuntimeKind(Suit.Spade, 5, EquipmentSlot.DefensiveHorse) == CardKind.DefensiveHorse &&
+                RuntimeKind(Suit.Club, 5, EquipmentSlot.DefensiveHorse) == CardKind.Dilu &&
+                RuntimeKind(Suit.Heart, 13, EquipmentSlot.DefensiveHorse) == CardKind.Zhaohuangfeidian,
+            "The physical recipe must preserve six distinct mount identities at runtime.");
+
+        var militaryCards = registry.Decks["classic:standard-deck"].PhysicalCards ?? [];
+        var expansion = militaryCards.Skip(108).ToArray();
+        Require(militaryCards.Count == 160 && expansion.Length == 52 &&
+                Enum.GetValues<Suit>().All(suit => expansion.Count(card => card.Suit == suit) == 13) &&
+                Enum.GetValues<Suit>().All(suit => Enumerable.Range(1, 13).All(rank =>
+                    expansion.Count(card => card.Suit == suit && card.Rank == rank) == 1)),
+            "The current classic deck must append one military card for every suit/rank to the 108-card standard deck.");
+        var expansionCounts = expansion.GroupBy(card => card.CardDefinitionId)
+            .ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal);
+        Require(ExpansionCount("standard:fire_slash") == 5 &&
+                ExpansionCount("standard:thunder_slash") == 9 &&
+                ExpansionCount("standard:dodge") == 9 &&
+                ExpansionCount("standard:peach") == 4 &&
+                ExpansionCount("standard:alcohol") == 5 &&
+                ExpansionCount("standard:nullification") == 3 &&
+                ExpansionCount("standard:fire_attack") == 3 &&
+                ExpansionCount("standard:supply_shortage") == 2 &&
+                ExpansionCount("standard:iron_chain") == 6 &&
+                expansion.Count(card => registry.Cards[card.CardDefinitionId].CategoryName == "装备牌") == 6 &&
+                expansion.Single(card => card.Suit == Suit.Diamond && card.Rank == 13).CardDefinitionId == "classic:hualiu",
+            "The 52-card military expansion must match its exact card-name distribution and diamond-K Hualiu.");
+
+        int Count(string id) => counts.GetValueOrDefault(id);
+        int ExpansionCount(string id) => expansionCounts.GetValueOrDefault(id);
+        bool Has(string id, Suit suit, int rank) => cards.Any(card =>
+            card.CardDefinitionId == id && card.Suit == suit && card.Rank == rank);
+        CardKind RuntimeKind(Suit suit, int rank, EquipmentSlot slot) => runtimeCards.Single(card =>
+            card.Suit == suit && card.Rank == rank &&
+            EquipmentCatalog.IsEquipment(card.Kind) && EquipmentCatalog.Get(card.Kind).Slot == slot).Kind;
+        static bool IsExRank(Suit suit, int rank) =>
+            (suit, rank) is (Suit.Heart, 12) or (Suit.Spade, 2) or
+                (Suit.Diamond, 12) or (Suit.Club, 2);
+    }
+
     public static void ExactSuitRankValidationAndHashing()
     {
         var physical = new[]

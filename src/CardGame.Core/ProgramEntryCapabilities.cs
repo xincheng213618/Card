@@ -34,6 +34,7 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.AfterDamageApplied or
         SkillProgramTriggerWindow.PlayEnding or
         SkillProgramTriggerWindow.DiscardPhaseStarting or
+        SkillProgramTriggerWindow.DiscardPhaseEnded or
         SkillProgramTriggerWindow.TurnEnding or
         SkillProgramTriggerWindow.PlayPhaseStarting or
         SkillProgramTriggerWindow.CardsMoved or
@@ -60,6 +61,7 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.DrawPhaseStarting => Common | ProgramContextCapability.DrawPlan | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.AfterNormalDraw => Common | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.DiscardPhaseStarting => Common | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Judgment,
+        SkillProgramTriggerWindow.DiscardPhaseEnded => Common | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.PlayEnding or SkillProgramTriggerWindow.TurnEnding => Common | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.PlayPhaseStarting =>
             Common | ProgramContextCapability.Judgment | ProgramContextCapability.PhaseOwner,

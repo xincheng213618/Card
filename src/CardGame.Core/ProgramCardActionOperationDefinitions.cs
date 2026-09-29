@@ -10,7 +10,7 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "targetRef", "resultBind", "cardCategories", "cardKinds", "skipIfNoCards", "allowSameOwnerHandReturn", "coverageResultBind", "awaitMovementTriggers", "revealBeforeMove", "condition");
+        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "targetRef", "resultBind", "cardCategories", "cardKinds", "skipIfNoCards", "allowSameOwnerHandReturn", "coverageResultBind", "awaitMovementTriggers", "revealBeforeMove", "prohibitReplacingEquipment", "condition");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.target: must be owner.");
@@ -37,9 +37,21 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}: an equipment gift moves one category-filtered hand card.");
         if (destination == SkillProgramCardDestination.SelectedTargetCorrespondingZone &&
-            zones.Any(zone => zone is not (CardZoneKind.Equipment or CardZoneKind.Judgment)))
+            zones.Any(zone => zone is not (CardZoneKind.Equipment or CardZoneKind.Judgment)) &&
+            !(zones.Count == 1 && zones[0] == CardZoneKind.Hand))
             throw new InvalidOperationException(
-                $"Invalid skill program at {r.Path}: corresponding-zone moves accept equipment and judgment cards only.");
+                $"Invalid skill program at {r.Path}: corresponding-zone moves accept equipment, judgment, or (with prohibitReplacingEquipment) hand cards only.");
+        var prohibitReplacingEquipment = r.Has("prohibitReplacingEquipment") && r.RequiredBool("prohibitReplacingEquipment");
+        if (prohibitReplacingEquipment && (destination != SkillProgramCardDestination.SelectedTargetCorrespondingZone ||
+            zones is not [CardZoneKind.Hand] ||
+            r.OptionalEnumArray<SkillProgramCardCategory>("cardCategories") is not [SkillProgramCardCategory.Equipment] ||
+            r.RequiredParticipantReference("targetRef").Kind != ProgramParticipantRef.SelectedTarget))
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}: prohibitReplacingEquipment requires a single hand source, equipment category, and a selected target.");
+        if (!prohibitReplacingEquipment && destination == SkillProgramCardDestination.SelectedTargetCorrespondingZone &&
+            zones.Count == 1 && zones[0] == CardZoneKind.Hand)
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}: hand-source corresponding-zone moves must set prohibitReplacingEquipment.");
         var chooserRef = r.RequiredParticipantReference("chooserRef");
         var cardOwnerRef = r.RequiredParticipantReference("cardOwnerRef");
         var cardCategories = r.OptionalEnumArray<SkillProgramCardCategory>("cardCategories");
@@ -74,7 +86,8 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
             targetReference: r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null,
             skipIfNoCards: skipIfNoCards, allowSameOwnerHandReturn: allowSameOwnerHandReturn,
             coverageResultBind: coverageResultBind, awaitMovementTriggers: awaitMovementTriggers,
-            revealBeforeMove: revealBeforeMove, cardKinds: cardKinds);
+            revealBeforeMove: revealBeforeMove, cardKinds: cardKinds,
+            prohibitReplacingEquipment: prohibitReplacingEquipment);
         if (effect.Condition.Kind != SkillProgramConditionKind.Always && effect.ResultBind is not null)
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}.condition: conditional card movement cannot produce a result binding.");
@@ -143,6 +156,36 @@ internal sealed class ChooseOtherOwnedCardDiscardProgramOperationDescriptor : Pr
             chooserRef: r.RequiredParticipantReference("chooserRef"));
     }
 
+    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
+        ParticipantResources(effect.ChooserRef);
+}
+
+internal sealed class RestorePhaseHandDiscardsProgramOperationDescriptor : ProgramOperationDescriptorBase
+{
+    public override SkillProgramEffectOp Op => SkillProgramEffectOp.RestorePhaseHandDiscards;
+    public override ISkillProgramEffectHandler Handler { get; } = new RestorePhaseHandDiscardsSkillProgramEffectHandler();
+    public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
+    public override ProgramOperationAiPolicy AiPolicy { get; } = new(
+        ProgramOperationAiSemantic.RestorePhaseHandDiscards,
+        static (effect, context) => context.RestorePhaseHandDiscards(effect));
+
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
+    {
+        r.AllowOnly("op", "target", "chooserRef", "phaseOwnerRef", "condition");
+        var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
+        if (target != SkillProgramEffectTarget.Owner)
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.target: must be owner.");
+        var chooserRef = r.RequiredParticipantReference("chooserRef");
+        var phaseOwnerRef = r.RequiredParticipantReference("phaseOwnerRef");
+        if (phaseOwnerRef.Kind != ProgramParticipantRef.EventSource)
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}.phaseOwnerRef: the phase owner must be the lifecycle eventSource.");
+        return new SkillProgramEffect(Op, target, 1, r.Condition(),
+            chooserRef: chooserRef, sourceRef: phaseOwnerRef);
+    }
+
+    // The discard-phase-ended boundary inherently supplies the phase owner as its
+    // event source, so no damage context resource is required for reading it.
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         ParticipantResources(effect.ChooserRef);
 }

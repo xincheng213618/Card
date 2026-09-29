@@ -99,6 +99,13 @@ internal static class PangTongChecks
         return null;
     }
 
+    private static void SetPlayerHp(GameEngine game, int seat, int hp)
+    {
+        var field = typeof(GameEngine).GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var players = (System.Collections.IList)field.GetValue(game)!;
+        players[seat]!.GetType().GetProperty("Hp")!.SetValue(players[seat], hp);
+    }
+
     private static void Require(bool value, string message)
     {
         if (!value) throw new InvalidOperationException(message);

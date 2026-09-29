@@ -52,13 +52,16 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A DrawPhaseStarting lifecycle frame must remain in its Draw phase.");
         if (frame.Window == SkillProgramTriggerWindow.DiscardPhaseStarting && _phase != TurnPhase.Discard)
             throw new InvalidOperationException("A DiscardPhaseStarting lifecycle frame must remain in its Discard phase.");
+        if (frame.Window == SkillProgramTriggerWindow.DiscardPhaseEnded && _phase != TurnPhase.Discard)
+            throw new InvalidOperationException("A DiscardPhaseEnded lifecycle frame must remain in its Discard phase.");
         if (frame.Window != SkillProgramTriggerWindow.DrawPhaseStarting && frame.NormalDrawAdjustment != 0)
             throw new InvalidOperationException("Only a DrawPhaseStarting lifecycle frame may adjust normal draws.");
         if (frame.Window is not (SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or
             SkillProgramTriggerWindow.PlayEnding or
-            SkillProgramTriggerWindow.DiscardPhaseStarting))
+            SkillProgramTriggerWindow.DiscardPhaseStarting or
+            SkillProgramTriggerWindow.DiscardPhaseEnded))
             throw new InvalidOperationException("This lifecycle window cannot own a clean phase boundary.");
         return true;
     }
@@ -1839,6 +1842,9 @@ public sealed partial class GameEngine
             SkillProgramTriggerWindow.DiscardPhaseStarting =>
                 owner.Seat == _currentSeat && context.SourceSeat == owner.Seat &&
                 _phase == TurnPhase.Discard,
+            SkillProgramTriggerWindow.DiscardPhaseEnded =>
+                owner.Seat != _currentSeat && owner.IsAlive &&
+                context.SourceSeat == _currentSeat && _phase == TurnPhase.Discard,
             _ => false
         };
     }
@@ -2215,6 +2221,34 @@ public sealed partial class GameEngine
         return true;
     }
 
+    private bool TryBeginDiscardPhaseEndedProgramWindow(CharacterState phaseOwner)
+    {
+        if (!phaseOwner.IsAlive || phaseOwner.Seat != _currentSeat || _phase != TurnPhase.Discard ||
+            _pendingDecision is not null || _resolutionStack.Count != 0)
+            return false;
+        var participants = _players.Where(player => player.IsAlive).ToArray();
+        var participantFacts = participants.ToDictionary(player => player.Seat, CaptureProgramTriggerFacts);
+        var candidates = participants.SelectMany(player =>
+                CollectEligibleProgramTriggerCandidates(player, SkillProgramTriggerWindow.DiscardPhaseEnded,
+                    participantFacts[player.Seat])
+                    .Where(candidate => GetProgramTrigger(candidate).TurnOwnerScope ==
+                        (player.Seat == phaseOwner.Seat ? SkillProgramTurnOwnerScope.Own :
+                            SkillProgramTurnOwnerScope.OtherLiving)))
+            .OrderBy(candidate => (candidate.OwnerSeat - phaseOwner.Seat + _players.Count) % _players.Count)
+            .ThenByDescending(candidate => candidate.Priority)
+            .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray();
+        if (candidates.Length == 0) return false;
+        var frame = new ProgramLifecycleTriggerWindowFrame(
+            ++_resolutionSequence, phaseOwner.Seat, SkillProgramTriggerWindow.DiscardPhaseEnded,
+            candidates, ProgramLifecycleContinuation.EndTurnAfterDiscardPhase,
+            participantFacts[phaseOwner.Seat])
+        { ParticipantFacts = participantFacts };
+        _resolutionStack.Add(frame);
+        ContinueProgramLifecycleWindow();
+        return true;
+    }
+
     private bool TryBeginTurnEndingBoundary(CharacterState owner)
     {
         if (!owner.IsAlive || owner.Seat != _currentSeat || _pendingDecision is not null ||
@@ -2488,6 +2522,9 @@ public sealed partial class GameEngine
                     case ProgramLifecycleContinuation.CompleteDiscardPhase:
                         CompleteDiscardPhaseAfterProgramWindow(_players[frame.OwnerSeat]);
                         break;
+                    case ProgramLifecycleContinuation.EndTurnAfterDiscardPhase:
+                        EndTurn();
+                        break;
                     default:
                         throw new InvalidOperationException("Unsupported lifecycle continuation.");
                 }
@@ -2684,6 +2721,7 @@ public sealed partial class GameEngine
         }
         if (action is "select-target" or "select-targets" or "select-source-card" or "select-and-move-owned-card" or
             "choose-other-owned-card-discard" or "choose-other-owned-card-decline" or
+            "restore-phase-hand-discard" or "restore-phase-hand-decline" or
             "choose-own-card-discard" or
             "select-owned-cards" or "finish-owned-cards" or
             "give-bound-card" or "keep-bound-cards" or
@@ -3100,6 +3138,10 @@ public sealed partial class GameEngine
             case "choose-other-owned-card-decline":
                 ResolveProgramOtherOwnedCardDiscardChoice(selected);
                 return;
+            case "restore-phase-hand-discard":
+            case "restore-phase-hand-decline":
+                ResolveProgramPhaseHandDiscardChoice(selected);
+                return;
             case "request-slash":
             case "request-slash-decline":
                 ResolveProgramRequestSlashChoice(selected);
@@ -3324,6 +3366,8 @@ public sealed partial class GameEngine
                     SelectAiProgramCategoryDiscard(decision, frame),
                 SkillProgramEffectOp.ChooseOtherOwnedCardDiscard =>
                     SelectAiProgramOtherOwnedCardDiscard(decision, frame),
+                SkillProgramEffectOp.RestorePhaseHandDiscards =>
+                    SelectAiProgramPhaseHandDiscardRestore(decision, frame),
                 SkillProgramEffectOp.ChooseOwnCardDiscard =>
                     SelectAiProgramOwnCardDiscard(decision, frame),
                 SkillProgramEffectOp.SelectOwnedCards => SelectAiProgramOwnedCards(decision, frame),
@@ -3725,6 +3769,14 @@ public sealed partial class GameEngine
                     discardPhase.Continuation != ProgramLifecycleContinuation.CompleteDiscardPhase)
                     throw new InvalidOperationException("The discard-phase program lost its parent window.");
                 AdvanceProgramLifecycleCursor(discardPhase);
+                ContinueProgramLifecycleWindow();
+                break;
+            case SkillProgramTriggerWindow.DiscardPhaseEnded:
+                if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame discardEnded ||
+                    discardEnded.Id != context.ParentFrameId ||
+                    discardEnded.Continuation != ProgramLifecycleContinuation.EndTurnAfterDiscardPhase)
+                    throw new InvalidOperationException("The discard-phase-ended program lost its parent window.");
+                AdvanceProgramLifecycleCursor(discardEnded);
                 ContinueProgramLifecycleWindow();
                 break;
             case SkillProgramTriggerWindow.TurnEnding:

@@ -159,6 +159,107 @@ internal static class DengAiChecks
         Require(completed == 1, "No seeded setup stored a field via Tuntian.");
     }
 
+    public static void HeartJudgmentStaysOutAndDistanceUnchanged()
+    {
+        var registry = Registry();
+        var completed = 0;
+        for (var seed = 1; seed <= 400 && completed < 1; seed++)
+        {
+            var game = Start(registry, seed);
+            ReachPlay(game);
+            EndPlay(game);
+            DriveAndCultivate(game, targetFields: 0, stopAtHeartJudgment: true);
+            var heartDiscard = game.CardMovements.FirstOrDefault(item =>
+                item.To == CardLocation.DiscardPile &&
+                item.Reason.Value.Contains(Tuntian, StringComparison.Ordinal) &&
+                game.CardMovements.Any(judged => judged.CardId == item.CardId &&
+                    judged.From == CardLocation.Judgment(0) &&
+                    judged.To == CardLocation.Processing));
+            if (game.State.Status == EngineStatus.Completed || heartDiscard is null)
+                continue;
+            Require(!game.CreateSnapshot(0, true).Players[0].AuthorityCards!.Any(card => card.Id == heartDiscard.CardId),
+                "A heart judgment must not become a field.");
+            var opponent = AliveOpponents(game).FirstOrDefault();
+            if (opponent < 0) continue;
+            Require(game.GetCombatDistance(0, opponent) == BaseDistance(game, 0, opponent),
+                "Without fields the outgoing distance must stay unchanged.");
+            completed++;
+        }
+        Require(completed == 1, "No seeded setup produced a heart Tuntian judgment.");
+    }
+
+    public static void ZaoxianAwakensGrantsJixiAndReplays()
+    {
+        var registry = Registry();
+        var completed = 0;
+        for (var seed = 1; seed <= 400 && completed < 1; seed++)
+        {
+            var game = Start(registry, seed);
+            ReachPlay(game);
+            EndPlay(game);
+            DriveAndCultivate(game, targetFields: 3, stopAtAwakening: true);
+            var awakened = game.Events.Select(item => item.Payload)
+                .OfType<SkillAwakenedEvent>()
+                .SingleOrDefault(item => item.SkillId == Zaoxian);
+            if (game.State.Status == EngineStatus.Completed || awakened is null)
+                continue;
+            Require(awakened.PlayerSeat == 0 && awakened.MaximumHp == 4 &&
+                    awakened.AcquiredSkillIds.SequenceEqual([Jixi]),
+                $"Zaoxian must reduce the lord Deng Ai's five maximum HP to four; got seat={awakened.PlayerSeat} maxHp={awakened.MaximumHp} acquired=[{string.Join(",", awakened.AcquiredSkillIds)}].");
+            var snapshot = game.CreateSnapshot(0, true).Players[0];
+            Require(snapshot.AuthorityCards!.Count >= 3 &&
+                    snapshot.Skills!.Select(item => item.ContentId).Contains(Jixi),
+                "The awakened Deng Ai must keep his fields and own Jixi.");
+            var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+            Require(Events(game).SequenceEqual(Events(replay)) && State(game) == State(replay),
+                "The Zaoxian awakening must replay identically.");
+            completed++;
+        }
+        Require(completed == 1, "No seeded setup awakened Zaoxian with three fields.");
+    }
+
+    public static void JixiConvertsFieldIntoSnatchAndReplays()
+    {
+        var registry = Registry();
+        var completed = 0;
+        for (var seed = 1; seed <= 400 && completed < 1; seed++)
+        {
+            var game = Start(registry, seed);
+            ReachPlay(game);
+            EndPlay(game);
+            DriveAndCultivate(game, targetFields: 3, stopAtAwakening: true);
+            if (game.Events.Select(item => item.Payload).OfType<SkillAwakenedEvent>()
+                    .SingleOrDefault(item => item.SkillId == Zaoxian) is null ||
+                game.State.Status == EngineStatus.Completed)
+                continue;
+            if (!TryReachOwnPlay(game)) continue;
+
+            var fields = game.CreateSnapshot(0, true).Players[0].AuthorityCards!;
+            if (fields.Count == 0) continue;
+            var fieldCardId = fields[0].Id;
+            var target = game.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.Snatch &&
+                action.CardId == fieldCardId &&
+                action.ConversionSource is { } source && source.SkillId == Jixi &&
+                action.PlayedCardKind == CardKind.Snatch);
+            if (target is null) continue;
+
+            var targetSeat = target.TargetSeat!.Value;
+            var beforeTargetCards = CountTargetCards(game, targetSeat);
+            Play(game, target);
+            DriveUntil(game, () => game.ResolutionStack.Count == 0);
+            Require(!game.CreateSnapshot(0, true).Players[0].AuthorityCards!.Any(card => card.Id == fieldCardId),
+                "The converted field must leave the authority zone when Jixi plays it.");
+            Require(game.CardMovements.Any(item => item.From == CardLocation.Authority(0) &&
+                        item.CardId == fieldCardId),
+                "The played field must be recorded as moving out of the authority zone.");
+            Require(CountTargetCards(game, targetSeat) < beforeTargetCards,
+                "The Jixi snatch must take one card from its target.");
+            completed++;
+        }
+        Require(completed == 1, "No seeded setup played a field as a Jixi snatch.");
+    }
+
     private static bool IsAwakened(GameEngine game) =>
         game.Events.Select(item => item.Payload).OfType<SkillAwakenedEvent>()
             .Any(item => item.SkillId == Zaoxian);
@@ -215,6 +316,36 @@ internal static class DengAiChecks
             .Where(player => player.IsAlive && player.Seat != 0)
             .Select(player => player.Seat).Order().ToArray();
 
+    private static void DriveUntil(GameEngine game, Func<bool> done, int budget = 500)
+    {
+        for (var step = 0; step < budget && !done() && game.State.Status != EngineStatus.Completed; step++)
+        {
+            var prompt = game.PendingDecision;
+            if (prompt is null || prompt.PlayerSeat != 0)
+            {
+                Advance(game);
+                continue;
+            }
+            switch (prompt.Kind)
+            {
+                case DecisionKind.PlayCard:
+                    Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision, prompt.PromptId)));
+                    continue;
+                case DecisionKind.DiscardCards:
+                    Accept(game.Submit(new DiscardCardsCommand(0,
+                        prompt.ValidCardIds.Take(prompt.RequiredCardCount).ToArray(),
+                        prompt.PromptId, game.Revision)));
+                    continue;
+                default:
+                    var choice = prompt.Choices.FirstOrDefault(item =>
+                        item.Parameters.GetValueOrDefault("program-action") == "skip") ??
+                        prompt.Choices.First();
+                    Answer(game, choice);
+                    continue;
+            }
+        }
+    }
+
     private static int BaseDistance(GameEngine game, int sourceSeat, int targetSeat)
     {
         var alive = game.CreateSnapshot(0, true).Players.Where(player => player.IsAlive)
@@ -232,6 +363,42 @@ internal static class DengAiChecks
         return alive.FirstOrDefault(seat =>
             seat != 0 && BaseDistance(game, 0, seat) == 2 &&
             game.GetCombatDistance(0, seat) == 1, -1);
+    }
+
+    private static int CountTargetCards(GameEngine game, int seat)
+    {
+        var player = game.CreateSnapshot(0, true).Players.Single(item => item.Seat == seat);
+        return player.Hand.Count + player.Equipment.Count;
+    }
+
+    private static bool TryReachOwnPlay(GameEngine game)
+    {
+        for (var step = 0; step < 400 && game.State.Status != EngineStatus.Completed; step++)
+        {
+            var prompt = game.PendingDecision;
+            if (prompt is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 })
+                return true;
+            if (prompt is null || prompt.PlayerSeat != 0)
+            {
+                Advance(game);
+                continue;
+            }
+            switch (prompt.Kind)
+            {
+                case DecisionKind.DiscardCards:
+                    Accept(game.Submit(new DiscardCardsCommand(0,
+                        prompt.ValidCardIds.Take(prompt.RequiredCardCount).ToArray(),
+                        prompt.PromptId, game.Revision)));
+                    continue;
+                default:
+                    var choice = prompt.Choices.FirstOrDefault(item =>
+                        item.Parameters.GetValueOrDefault("program-action") == "skip") ??
+                        prompt.Choices.First();
+                    Answer(game, choice);
+                    continue;
+            }
+        }
+        return false;
     }
 
     private static ContentRegistry Registry() => ContentRegistry.Build(

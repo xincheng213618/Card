@@ -291,12 +291,17 @@ public interface ISkillProgramEffectHost
         bool allowSameOwnerHandReturn = false,
         string? coverageResultBind = null,
         bool awaitMovementTriggers = false, bool revealBeforeMove = false,
-        IReadOnlyList<CardKind>? cardKinds = null);
+        IReadOnlyList<CardKind>? cardKinds = null,
+        bool prohibitReplacingEquipment = false);
     SkillProgramStepOutcome ChooseOtherOwnedCardDiscard(
         ProgramSkillFrame frame,
         ProgramParticipantReference chooser,
         IReadOnlyList<CardZoneKind> zones,
         CardMoveReason reason);
+    SkillProgramStepOutcome RestorePhaseHandDiscards(
+        ProgramSkillFrame frame,
+        ProgramParticipantReference chooser,
+        ProgramParticipantReference phaseOwner);
     void RefundCardUseDebit(ProgramSkillFrame frame);
     SkillProgramStepOutcome StartPindian(
         ProgramSkillFrame frame,
@@ -991,7 +996,7 @@ public sealed class SelectAndMoveOwnedCardSkillProgramEffectHandler : ISkillProg
         new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"), effect.CardCategories,
         effect.SkipIfNoCards, effect.AllowSameOwnerHandReturn,
         effect.CoverageResultBind, effect.AwaitMovementTriggers, effect.RevealBeforeMove,
-        effect.CardKinds);
+        effect.CardKinds, effect.ProhibitReplacingEquipment);
 }
 
 public sealed class ChooseOtherOwnedCardDiscardSkillProgramEffectHandler : ISkillProgramEffectHandler
@@ -1007,6 +1012,20 @@ public sealed class ChooseOtherOwnedCardDiscardSkillProgramEffectHandler : ISkil
         effect.ChooserRef ?? throw new InvalidOperationException("chooseOtherOwnedCardDiscard has no chooserRef."),
         effect.Zones,
         new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
+}
+
+public sealed class RestorePhaseHandDiscardsSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.RestorePhaseHandDiscards;
+
+    public SkillProgramStepOutcome Execute(
+        SkillProgramEffect effect,
+        ProgramSkillFrame frame,
+        int targetSeat,
+        ISkillProgramEffectHost host) => host.RestorePhaseHandDiscards(
+        frame,
+        effect.ChooserRef ?? throw new InvalidOperationException("restorePhaseHandDiscards has no chooserRef."),
+        effect.SourceRef ?? throw new InvalidOperationException("restorePhaseHandDiscards has no phaseOwnerRef."));
 }
 
 public sealed class ChooseOwnCardDiscardSkillProgramEffectHandler : ISkillProgramEffectHandler

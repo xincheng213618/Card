@@ -54,6 +54,7 @@ public sealed partial class GameEngine
             AddLog("CardsDiscarded", $"{actor.Name} 弃置 {cards.Length} 张手牌。", actor.Seat);
             QueueGameEvent(new HandLimitDiscardedEvent(actor.Seat,
                 Array.AsReadOnly(cards.Select(card => card.Id).ToArray())));
+            if (TryBeginDiscardPhaseEndedProgramWindow(actor)) return BuildResult();
             EndTurn();
             return BuildResult();
         });

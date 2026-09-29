@@ -80,6 +80,59 @@ internal static class ZhangbaChecks
 
     }
 
+    public static void SlashResponseAndReplay()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var boundary = ZhangbaScenario.FindHumanResponse();
+        var game = boundary.Game;
+        var prompt = game.PendingDecision ??
+            throw new InvalidOperationException("Zhangba response fixture lost its prompt.");
+        var handIds = game.CreateSnapshot(0, revealAll: true).Players[0].Hand
+            .Select(card => card.Id)
+            .Order()
+            .ToArray();
+        var pairChoices = prompt.Choices.Where(choice =>
+            choice.Parameters.GetValueOrDefault("response") == "zhangba-slash").ToArray();
+        Require(prompt.IsPrivate &&
+                pairChoices.Length == handIds.Length * (handIds.Length - 1) / 2 &&
+                pairChoices.All(choice =>
+                    choice.Cards.Count == 2 &&
+                    choice.Cards.Distinct().Count() == 2 &&
+                    choice.Cards.All(handIds.Contains)) &&
+                pairChoices.All(choice => !choice.Cards.Contains(boundary.WeaponCardId)),
+            "A Slash response must publish every exact Zhangba hand pair without exposing or spending the weapon.");
+
+        var paused = RoundTrip(game.CreateCheckpoint());
+        var restored = GameReplay.Restore(paused, registry);
+        Require(State(restored) == State(game) && Events(restored).SequenceEqual(Events(game)),
+            "An in-flight private Zhangba response prompt must restore exactly.");
+
+        var choice = pairChoices[0];
+        var answered = game.Submit(new AnswerPromptCommand(
+            0,
+            prompt.PromptId,
+            choice.Id,
+            game.Revision));
+        Require(answered.Accepted, answered.Error?.Message ??
+            "The exact Zhangba Slash response was rejected.");
+        var converted = game.Events.Select(item => item.Payload)
+            .OfType<ZhangbaSerpentSpearConvertedEvent>()
+            .LastOrDefault();
+        Require(converted is { IsUse: false } &&
+                converted.PhysicalCardIds.SequenceEqual(choice.Cards) &&
+                choice.Cards.All(cardId => game.CardMovements.Any(move =>
+                    move.CardId == cardId && move.From == CardLocation.Hand(0) &&
+                    move.To == CardLocation.Processing && move.Reason == CardMoveReasons.Respond)) &&
+                choice.Cards.All(cardId => game.CardMovements.Any(move =>
+                    move.CardId == cardId && move.To == CardLocation.DiscardPile &&
+                    move.Reason == CardMoveReasons.ResponseFinished)),
+            "Zhangba response must move and finish both exact physical hand cards.");
+
+        var replayed = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+        Require(State(replayed) == State(game) && Events(replayed).SequenceEqual(Events(game)),
+            "A completed Zhangba Slash response must replay exactly.");
+    }
+
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
         GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint));
 

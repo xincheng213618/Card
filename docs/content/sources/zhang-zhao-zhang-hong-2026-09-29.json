@@ -19,18 +19,14 @@
       "use": "体力/势力/性别/包归属核对：吴、男、经典版 3 勾玉、神话再临·山（2011）。技能措辞与官方页一致的以官方页为准。"
     }
   ],
-  "versionBoundary": "直谏的“手牌装备牌置入他人装备区”与张郃巧变跳出牌分支共享移牌能力；BWIKI 直谏补充“不可替换原装备”细则，已按正式角色卡核对：装备赠送不可替换已装备牌，目标须有匹配空闲装备槽。固政通过 turnEnding+otherLiving 触发与回合内弃牌阶段手牌账本落地；弃牌堆取回沿用行殇公开清理先例；选择原语最多枚举 8 张候选，账本按弃置顺序截取前 8 张（已记录的语义边界）。体力值官方页不渲染，3 勾玉取 BWIKI 口径。立绘 105601 已下载入库。",
+  "versionBoundary": "直谏的“手牌装备牌置入他人装备区”与张郃巧变跳出牌分支共享移牌能力；BWIKI 直谏补充“不可替换原装备”细则，实施时按正式角色卡核对装备槽冲突语义。固政需“其他角色弃牌阶段结束时”触发时机与从弃牌堆取回牌的操作（现有从弃牌堆获得无直接先例）。体力值官方页不渲染，3 勾玉取 BWIKI 口径。立绘 105601 已下载入库（official-zhang-zhao-zhang-hong.png）。本批实现：直谏按 BWIKI 细则固化“不得替换原装备”（解析/枚举/执行/激活门四重约束）；固政“获得其余的牌”实现为交还一张后自动获得（严格有利，无决策空间），触发窗口 discardPhaseEnded 于弃牌阶段两收尾点开窗，被跳过的弃牌阶段不开窗。",
   "portraits": [
     {
       "contentId": "classic:zhang-zhao-zhang-hong",
       "id": "105601",
       "name": "经典形象*张昭张纮",
       "sourcePage": "https://x.sanguosha.com/hero/56.html",
-      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105601.png",
-      "localPath": "src/CardGame.Wpf/Assets/official-zhang-zhao-zhang-hong.png",
-      "sha256": "a68956fab31afa06d6ce19defaadb685648db0a5d27a35a4e039d3f0dead78d7",
-      "pixelWidth": 574,
-      "pixelHeight": 761
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105601.png"
     }
   ]
 }

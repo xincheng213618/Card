@@ -89,6 +89,84 @@ internal static class NationalWarChecks
         Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, true)) == SnapshotJson.Serialize(game.CreateSnapshot(0, true)), "National reveal state did not replay.");
     }
 
+    public static void CompleteAiMatches()
+    {
+        var decisive = 0;
+        for (var seed = 721019; seed < 721027; seed++)
+        {
+            var game = Create(seed, -1);
+            Require(game.Submit(new StartGameCommand()).Accepted, "National AI match did not start.");
+            for (var step = 0; step < 16000 && game.State.Status != EngineStatus.Completed; step++)
+                Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted, "National AI continuation failed.");
+            Require(game.State.Status == EngineStatus.Completed, "National AI match stalled.");
+            if (game.State.Winner != Winner.Draw) decisive++;
+            var result = game.CreateSnapshot(-1);
+            Require(result.Players.All(player => player.IsGeneralPublic && player.IsSecondaryGeneralPublic && player.IsFactionRevealed), "Completed national match retained hidden generals.");
+            Require(result.Players.SelectMany(player => new[] { player.GeneralId, player.SecondaryGeneralId }).Distinct().Count() == 8,
+                "National setup reused a general.");
+            if (result.Winner != Winner.Draw)
+                Require(result.WinnerFactionId is not null && result.Players.Where(player => player.IsAlive).All(player => player.FactionId == result.WinnerFactionId),
+                    "National winner differs from the surviving faction.");
+            var restored = GameReplay.Restore(game.CreateCheckpoint(), StandardContentRegistry.CreateWithNationalWarLite());
+            Require(SnapshotJson.Serialize(restored.CreateSnapshot(-1, true)) == SnapshotJson.Serialize(game.CreateSnapshot(-1, true)), "Completed national match replay diverged.");
+        }
+        Require(decisive > 0, "All national games timed out instead of reaching a faction victory.");
+        Console.WriteLine($"  National War Lite: 8 complete AI matches, {decisive} faction victories, replay parity verified.");
+    }
+
+    public static void SkillGatingAndLegacy()
+    {
+        foreach (var slot in new[] { GeneralSelectionSlot.Primary, GeneralSelectionSlot.Secondary })
+        {
+            var game = SkillFixture("national:shu-guan-yu", "national:shu-zhang-fei", slot, requireRed: true);
+            bool Converts(GameEngine engine) => engine.GetHumanLegalActions().Any(action => action.PlayedCardKind == CardKind.Slash);
+            Require(!Converts(game), "An unrevealed Wusheng slot enabled conversion.");
+            var otherSlot = slot == GeneralSelectionSlot.Primary ? GeneralSelectionSlot.Secondary : GeneralSelectionSlot.Primary;
+            Reveal(game, otherSlot);
+            Require(!Converts(game), "Revealing the other general enabled hidden Wusheng.");
+            Reveal(game, slot);
+            Require(Converts(game), "A revealed Wusheng slot failed to enable red-card Slash.");
+            var restored = GameReplay.Restore(game.CreateCheckpoint(), StandardContentRegistry.CreateWithNationalWarLite());
+            Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, true)) == SnapshotJson.Serialize(game.CreateSnapshot(0, true)), "Version 7 skill reveal failed to replay.");
+        }
+
+        var response = SkillFixture("national:shu-zhao-yun", "national:shu-zhang-fei", GeneralSelectionSlot.Secondary, requireRed: false);
+        var runtime = ((System.Collections.IEnumerable)typeof(GameEngine).GetField("_players", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(response)!).Cast<object>().First();
+        var getResponses = typeof(GameEngine).GetMethod("GetResponseCards", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+        Card[] Responses(CardKind kind) => ((IReadOnlyList<Card>)getResponses.Invoke(response, [runtime, kind])!).ToArray();
+        var hand = response.CreateSnapshot(0).Players[0].Hand;
+        Require(Responses(CardKind.Dodge).All(card => card.Kind == CardKind.Dodge), "Hidden Longdan enabled a Dodge conversion.");
+        Reveal(response, GeneralSelectionSlot.Secondary);
+        Require(Responses(CardKind.Dodge).Select(card => card.Id).ToHashSet().SetEquals(hand.Where(card => card.Kind is CardKind.Dodge or CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash).Select(card => card.Id)) &&
+            Responses(CardKind.Dodge).Any(card => card.Kind != CardKind.Dodge), "Secondary Longdan failed to enable Slash-as-Dodge responses.");
+
+        var damage = SkillFixture("national:wei-cao-cao", "national:wei-guo-jia", GeneralSelectionSlot.Primary, requireRed: false);
+        var collect = typeof(GameEngine).GetMethod("CollectDamageTriggerCandidates", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+        var attackType = typeof(GameEngine).GetNestedType("AttackResolution",
+            System.Reflection.BindingFlags.NonPublic)!;
+        var attack = Activator.CreateInstance(attackType,
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public |
+            System.Reflection.BindingFlags.NonPublic,
+            binder: null,
+            args: [0L, 1, 0, null, 1, CardKind.Slash, false, false, null, null, null, null, null, null, null],
+            culture: null)!;
+        string[] Candidates()
+        {
+            return ((IReadOnlyList<DamageTriggerCandidate>)collect.Invoke(damage,
+                [attack, SkillProgramTriggerWindow.AfterDamageApplied])!)
+                .Select(candidate => candidate.ProgramId)
+                .ToArray();
+        }
+        Require(Candidates().Length == 0, "Hidden generals entered a damage trigger window.");
+        Reveal(damage, GeneralSelectionSlot.Primary);
+        Require(Candidates().SequenceEqual(["standard:jianxiong"]),
+            "Primary reveal did not enable only Jianxiong.");
+        Reveal(damage, GeneralSelectionSlot.Secondary);
+        Require(Candidates().ToHashSet(StringComparer.Ordinal)
+                .SetEquals(["standard:jianxiong", "standard:yiji"]),
+            "Two revealed damage skills lost their separate trigger identities.");
+    }
+
     public static void MultiSkillRevealAndLegacy()
     {
         const string modeId = "national:multi-skill-fixture-2";
@@ -262,6 +340,156 @@ internal static class NationalWarChecks
                 .Invoke(game, [players[0]])!;
             return enabled.Cast<SkillProgram>().Select(program => program.Id).ToArray();
         }
+    }
+
+    public static void AiRevealPolicy()
+    {
+        var game = SkillFixture(
+            "national:shu-guan-yu",
+            "national:shu-liu-bei",
+            GeneralSelectionSlot.Primary,
+            requireRed: true);
+        var view = game.CreateSnapshot(0);
+        Require(view.Players[0].Skills?.Any(skill =>
+                    skill.ContentId == "standard:wusheng" &&
+                    skill.ViewAsOpportunities?.Any(rule =>
+                        rule.OutputKind == CardKind.Slash && rule.ForPlay) == true) == true &&
+                game.CreateSnapshot(1).Players[0].Skills is null,
+            "The hidden general's conversion capability must be visible only to its owner.");
+        var revealActions = game.GetHumanLegalActions()
+            .Where(action => action.Kind == LegalActionKind.RevealGeneral)
+            .ToArray();
+        Require(revealActions.Length == 2, "National AI reveal fixture did not publish both slots.");
+
+        var brain = new SimpleAiBrain(0, game.Seed, policyVersion: 2);
+        var decision = brain.ChoosePlay(view, revealActions, thoughtSequence: 1);
+        Require(decision.Action.GeneralSlot == GeneralSelectionSlot.Primary,
+            "National AI did not prefer the revealed Wusheng slot when a red conversion was available.");
+        var primary = decision.Thought.Candidates.Single(candidate =>
+            candidate.Action.GeneralSlot == GeneralSelectionSlot.Primary);
+        var secondary = decision.Thought.Candidates.Single(candidate =>
+            candidate.Action.GeneralSlot == GeneralSelectionSlot.Secondary);
+        Require(primary.Score > secondary.Score &&
+                primary.Reason.Contains("转化为杀", StringComparison.Ordinal) &&
+                !primary.Reason.Contains("牌堆", StringComparison.Ordinal),
+            "National AI reveal thought did not expose a private-view-safe, opportunity-based reason.");
+        var repeated = new SimpleAiBrain(0, game.Seed, policyVersion: 2)
+            .ChoosePlay(view, revealActions, thoughtSequence: 1);
+        Require(repeated.Action.GeneralSlot == decision.Action.GeneralSlot &&
+                repeated.Thought.Candidates.Select(candidate => candidate.Score)
+                    .SequenceEqual(decision.Thought.Candidates.Select(candidate => candidate.Score)),
+            "National AI reveal scoring was not deterministic for the same view and seed.");
+
+        var emptyHand = view with
+        {
+            Players = view.Players
+                .Select(player => player.Seat == 0
+                    ? player with
+                    {
+                        Hand = [], HandCount = 0,
+                        Skills = [new GeneralSkillDefinition("无技能", "")],
+                        SecondarySkills = [new GeneralSkillDefinition("空城", "")]
+                    }
+                    : player)
+                .ToArray()
+        };
+        var kongcheng = new LegalAction(
+            LegalActionKind.RevealGeneral,
+            null,
+            null,
+            "明置【空城】")
+        {
+            GeneralSlot = GeneralSelectionSlot.Secondary
+        };
+        var neutral = new LegalAction(
+            LegalActionKind.RevealGeneral,
+            null,
+            null,
+            "明置【无技能】")
+        {
+            GeneralSlot = GeneralSelectionSlot.Primary
+        };
+        var emptyDecision = brain.ChoosePlay(emptyHand, [neutral, kongcheng], thoughtSequence: 2);
+        Require(emptyDecision.Action.GeneralSlot == GeneralSelectionSlot.Secondary,
+            "National AI did not prioritize Kongcheng when its private hand was empty.");
+    }
+
+    public static void AmbitiousFactionMode()
+    {
+        var registry = StandardContentRegistry.CreateWithNationalWarAmbitious();
+        var mode = registry.Modes["national:ambitious-6"];
+        Require(mode.FactionCounts is not null && mode.FactionCounts.Count == 3 &&
+            mode.FactionCounts["wei"] == 3 && mode.FactionCounts["shu"] == 2 && mode.FactionCounts["ambitious"] == 1,
+            "The ambitious mode did not register its three-faction distribution.");
+        Require(mode.SoloFactionIds is { Count: 1 } && mode.SoloFactionIds[0] == "ambitious" &&
+            registry.Packages.Any(package => package.Id == "standard-national-war-ambitious"),
+            "The ambitious mode lost its explicit solo-faction content contract.");
+        Require(registry.ContentHash != StandardContentRegistry.CreateWithNationalWarLite().ContentHash,
+            "The ambitious content package did not participate in content drift detection.");
+
+        var game = CreateAmbitious(721031);
+        Require(game.Submit(new StartGameCommand()).Accepted, "Six-player national setup failed to start.");
+        var selected = new List<string>();
+        for (var step = 0; step < 240 && game.State.Status != EngineStatus.AwaitingHumanPlay; step++)
+        {
+            if (game.PendingDecision is { Kind: DecisionKind.SelectGeneral } prompt)
+            {
+                Require(prompt.PlayerSeat == 0 && game.CreateSnapshot(1).PendingDecision is null,
+                    "Six-player national candidates leaked outside the human view.");
+                var id = prompt.ValidContentIds.First();
+                selected.Add(id);
+                Require(game.Submit(new SelectGeneralCommand(0, id, game.Revision, prompt.PromptId)).Accepted,
+                    "Six-player human general choice failed.");
+            }
+            else
+            {
+                Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
+                    "Six-player national AI setup could not advance.");
+            }
+        }
+
+        Require(game.State.Status == EngineStatus.AwaitingHumanPlay && selected.Count == 2 && selected.Distinct().Count() == 2,
+            "Six-player national setup did not reach play with two distinct human generals.");
+        var full = game.CreateSnapshot(-1, revealAll: true);
+        var factionCounts = full.Players.Where(player => player.FactionId is not null)
+            .GroupBy(player => player.FactionId!)
+            .ToDictionary(group => group.Key, group => group.Count());
+        Require(full.Players.Count == 6 && factionCounts.GetValueOrDefault("wei") == 3 &&
+            factionCounts.GetValueOrDefault("shu") == 2 && factionCounts.GetValueOrDefault("ambitious") == 1,
+            "Six-player national seats did not preserve the registered faction counts.");
+        Require(full.Players.All(player => player.SecondaryGeneralId is not null &&
+            player.GeneralId != player.SecondaryGeneralId), "Six-player setup did not reserve two distinct generals per seat.");
+        var own = game.CreateSnapshot(0).Players[0];
+        var hiddenOpponent = game.CreateSnapshot(1).Players[0];
+        Require(own.FactionId is not null && own.GeneralId == selected[0] && own.SecondaryGeneralId == selected[1] &&
+            !own.IsFactionRevealed && !own.IsGeneralPublic && !own.IsSecondaryGeneralPublic,
+            "The six-player human view did not retain private dual-general information.");
+        Require(hiddenOpponent.FactionId is null && !hiddenOpponent.IsGeneralPublic &&
+            hiddenOpponent.SecondaryGeneralId is null && hiddenOpponent.Hand.Count == 0,
+            "The six-player opponent view exposed hidden faction or general information.");
+        var restoredSetup = GameReplay.Restore(game.CreateCheckpoint(), registry);
+        Require(SnapshotJson.Serialize(restoredSetup.CreateSnapshot(0, true)) ==
+            SnapshotJson.Serialize(game.CreateSnapshot(0, true)), "Six-player setup replay diverged.");
+
+        var ai = CreateAmbitious(721032, human: -1);
+        Require(ai.Submit(new StartGameCommand()).Accepted, "Six-player AI match failed to start.");
+        for (var step = 0; step < 24000 && ai.State.Status != EngineStatus.Completed; step++)
+            Require(ai.Submit(new AdvanceOneStepCommand(ai.Revision)).Accepted, "Six-player AI continuation failed.");
+        Require(ai.State.Status == EngineStatus.Completed, "Six-player AI match stalled before a result.");
+        var result = ai.CreateSnapshot(-1);
+        Require(result.Winner != Winner.Draw && result.WinnerFactionId is not null &&
+            result.Players.Where(player => player.IsAlive).All(player => player.FactionId == result.WinnerFactionId) &&
+            result.Players.All(player => player.IsFactionRevealed && player.IsGeneralPublic && player.IsSecondaryGeneralPublic),
+            "Six-player AI match did not publish one surviving faction and all final information.");
+        Require(GameRules.EvaluateWinningFaction([
+            new FactionLifeState("wei", false),
+            new FactionLifeState("shu", false),
+            new FactionLifeState("ambitious", true)]) == "ambitious",
+            "Faction winner evaluation did not support the solo faction.");
+        var restored = GameReplay.Restore(ai.CreateCheckpoint(), StandardContentRegistry.CreateWithNationalWarAmbitious());
+        Require(SnapshotJson.Serialize(restored.CreateSnapshot(-1, true)) ==
+            SnapshotJson.Serialize(ai.CreateSnapshot(-1, true)), "Six-player national replay diverged at completion.");
+        Console.WriteLine($"  National M3: 6 seats, Wei 3 / Shu 2 / ambitious 1, winner {result.WinnerFactionId}, replay parity verified.");
     }
 
     public static void PublicEvidenceCheckpointReplay()

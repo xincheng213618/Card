@@ -222,7 +222,8 @@ public enum SkillProgramEffectOp
     ChooseOwnCardDiscard,
     ExchangeSelectedTargetHands,
     RequestSlashByTarget,
-    BindDiscardPhaseDiscards
+    BindDiscardPhaseDiscards,
+    RestorePhaseHandDiscards
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -242,6 +243,7 @@ public enum SkillProgramTriggerWindow
     AfterDamageApplied,
     PlayEnding,
     DiscardPhaseStarting,
+    DiscardPhaseEnded,
     TurnEnding,
     CardsMoved,
     OwnerDied,
@@ -869,7 +871,8 @@ public sealed class SkillProgramEffect
         string? providerFactionId = null,
         IReadOnlyList<SkillProgramTurnPhase>? skippedPhases = null,
         SkillProgramRevealMode? revealMode = null,
-        ProgramParticipantReference? sourceRef = null) =>
+        ProgramParticipantReference? sourceRef = null,
+        bool prohibitReplacingEquipment = false) =>
         (Op, Target, Amount, Condition, Phase, PhaseContinuation, NumberExpression, MinimumValue,
             ClampToMaxHp, SourceBind, ResultBind, ExceptBind, Visibility, MinimumCards, MaximumCards,
             MaximumRankSum, AiOrder, Destination, DestinationZone, CardSource, FaceDown, Zones, TargetKind,
@@ -881,7 +884,7 @@ public sealed class SkillProgramEffect
             DamageModifierExpiration, DamageModifierSourceScope, AllowSameOwnerHandReturn, CoverageResultBind, AwaitMovementTriggers,
             RevealBeforeMove, MatchSuitOfBind, AllowSameSource, SkipIfNoTarget,
             DamageNature, OldCardDestination, ReplacementSuits, MinimumReplacementRank, MaximumReplacementRank,
-            ProviderFactionId, SkippedPhases, RevealMode, SourceRef) =
+            ProviderFactionId, SkippedPhases, RevealMode, SourceRef, ProhibitReplacingEquipment) =
         (op, target, amount, condition, phase, phaseContinuation, numberExpression, minimumValue,
             clampToMaxHp, sourceBind, resultBind, exceptBind, visibility, minimumCards, maximumCards,
             maximumRankSum, aiOrder, destination, destinationZone, cardSource, faceDown,
@@ -899,7 +902,8 @@ public sealed class SkillProgramEffect
             revealBeforeMove, matchSuitOfBind, allowSameSource, skipIfNoTarget,
             damageNature, oldCardDestination, replacementSuits ?? Array.Empty<Suit>(),
             minimumReplacementRank, maximumReplacementRank, providerFactionId,
-            skippedPhases ?? Array.Empty<SkillProgramTurnPhase>(), revealMode, sourceRef);
+            skippedPhases ?? Array.Empty<SkillProgramTurnPhase>(), revealMode, sourceRef,
+            prohibitReplacingEquipment);
     public SkillProgramEffectOp Op { get; }
     public SkillProgramEffectTarget Target { get; }
     public int Amount { get; }
@@ -970,6 +974,7 @@ public sealed class SkillProgramEffect
     public int MaximumReplacementRank { get; }
     public SkillProgramRevealMode? RevealMode { get; }
     public ProgramParticipantReference? SourceRef { get; }
+    public bool ProhibitReplacingEquipment { get; }
 }
 
 public enum SkillProgramRevealMode { Random, Chooser }
@@ -1959,8 +1964,9 @@ public sealed class SkillProgramCatalog
         if (node.TryGetProperty("turnOwnerScope", out _))
         {
             if (window is not (SkillProgramTriggerWindow.TurnEnding or
-                SkillProgramTriggerWindow.PlayEnding or SkillProgramTriggerWindow.PlayPhaseStarting))
-                Fail(path + ".turnOwnerScope", "requires a turnEnding, playEnding or playPhaseStarting trigger");
+                SkillProgramTriggerWindow.PlayEnding or SkillProgramTriggerWindow.PlayPhaseStarting or
+                SkillProgramTriggerWindow.DiscardPhaseEnded))
+                Fail(path + ".turnOwnerScope", "requires a turnEnding, playEnding, playPhaseStarting or discardPhaseEnded trigger");
             turnOwnerScope = EnumValue<SkillProgramTurnOwnerScope>(node, "turnOwnerScope", path);
         }
         var isCardActionWindow = window is (
@@ -1994,6 +2000,7 @@ public sealed class SkillProgramCatalog
             SkillProgramTriggerWindow.AfterDamageApplied or
             SkillProgramTriggerWindow.PlayEnding or
             SkillProgramTriggerWindow.DiscardPhaseStarting or
+            SkillProgramTriggerWindow.DiscardPhaseEnded or
             SkillProgramTriggerWindow.TurnEnding or
             SkillProgramTriggerWindow.CardsMoved or
             SkillProgramTriggerWindow.OwnerDied or
@@ -2006,6 +2013,7 @@ public sealed class SkillProgramCatalog
             SkillProgramTriggerWindow.BeforeDamageApplied or
             SkillProgramTriggerWindow.PlayEnding or
             SkillProgramTriggerWindow.DiscardPhaseStarting or
+            SkillProgramTriggerWindow.DiscardPhaseEnded or
             SkillProgramTriggerWindow.TurnEnding or
             SkillProgramTriggerWindow.CardsMoved or
             SkillProgramTriggerWindow.OwnerDied or
@@ -2390,8 +2398,9 @@ public sealed class SkillProgramCatalog
                 .Any(reference => reference.Kind == ProgramParticipantRef.EventSource) &&
             window is not (SkillProgramTriggerWindow.AfterDamageApplied or
                 SkillProgramTriggerWindow.DamageAppliedBeforeDying or
-                SkillProgramTriggerWindow.JudgmentFinalized))
-            Fail(path + ".effects", "eventSource requires a damage-applied or judgment trigger");
+                SkillProgramTriggerWindow.JudgmentFinalized or
+                SkillProgramTriggerWindow.DiscardPhaseEnded))
+            Fail(path + ".effects", "eventSource requires a damage-applied, judgment or discard-phase-ended trigger");
         if (window == SkillProgramTriggerWindow.JudgmentReplacing &&
             (effects[0].Op != SkillProgramEffectOp.ReplaceJudgment ||
              effects.Skip(1).Any(effect => effect.Op is not

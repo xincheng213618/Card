@@ -76,6 +76,56 @@ internal static class ProgramCompositionAiIntegrationChecks
             $"last={lastObservation ?? "no damage reached"}.");
     }
 
+    public static void ZishouSelfOnlyPreventsWastefulJiangchiAssault()
+    {
+        var game = CreateAiGame(731_001, PolicyScenarioPackage.ModeId, CreatePolicyRegistry());
+        Require(Advance(game, 1_024, current =>
+        {
+            var zishou = current.Events.FirstOrDefault(envelope => envelope.Payload is ProgramBindingStartedEvent
+            {
+                SkillId: "classic:zishou",
+                BindingId: "extra-draw-self-only"
+            });
+            if (zishou?.Payload is not ProgramBindingStartedEvent binding) return false;
+            return current.Events.Any(envelope => envelope.Sequence > zishou.Sequence &&
+                envelope.Payload is PhaseChangedEvent
+                {
+                    Phase: TurnPhase.Play,
+                    ActorSeat: var seat
+                } && seat == binding.OwnerSeat);
+        }), "The policy fixture did not reach Play after the Zishou/Jiangchi draw window.");
+
+        var zishouEnvelope = game.Events.First(envelope => envelope.Payload is ProgramBindingStartedEvent
+        {
+            SkillId: "classic:zishou",
+            BindingId: "extra-draw-self-only"
+        });
+        var zishou = (ProgramBindingStartedEvent)zishouEnvelope.Payload;
+        Require(game.Events.Any(envelope => envelope.Sequence >= zishouEnvelope.Sequence &&
+                envelope.Payload is CardTargetRestrictionGrantedEvent granted &&
+                granted.Restriction.TurnSeat == zishou.OwnerSeat &&
+                granted.Restriction.Restriction == SkillProgramCardTargetRestriction.SelfOnly),
+            "The fixture did not apply Zishou's real self-only turn restriction before Jiangchi.");
+
+        var laterOwnerStarts = game.Events
+            .Where(envelope => envelope.Sequence > zishouEnvelope.Sequence)
+            .Select(envelope => envelope.Payload)
+            .OfType<ProgramBindingStartedEvent>()
+            .Where(item => item.OwnerSeat == zishou.OwnerSeat && item.SkillId == "classic:jiangchi")
+            .ToArray();
+        Require(laterOwnerStarts.All(item => item.BindingId != "mode-assault"),
+            "AI selected Jiangchi assault after Zishou had already made other-player Slash targets illegal.");
+        Require(!game.Events.Select(envelope => envelope.Payload).OfType<ProgramNormalDrawAdjustedEvent>()
+                .Any(item => item.OwnerSeat == zishou.OwnerSeat && item.SkillId == "classic:jiangchi" &&
+                    item.BindingId == "mode-assault" && item.Adjustment < 0),
+            "The incompatible Jiangchi assault branch reduced the real normal draw count.");
+        Require(!game.Events.Select(envelope => envelope.Payload).OfType<TurnRuleModifierGrantedEvent>()
+                .Any(item => item.Modifier.TurnSeat == zishou.OwnerSeat &&
+                    item.Modifier.Source.SkillId == "classic:jiangchi" &&
+                    item.Modifier.Source.BindingId == "mode-assault"),
+            "The incompatible Jiangchi assault branch granted real Slash modifiers.");
+    }
+
     private static GameEngine CreateAiGame(int seed, string modeId, ContentRegistry registry)
     {
         var game = GameEngine.CreateStandard(new GameOptions

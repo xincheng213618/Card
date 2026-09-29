@@ -69,6 +69,27 @@ internal static class RecastChecks
             "Recast did not return to the same player's play phase.");
     }
 
+    public static void CurrentRulesAndAi()
+    {
+        var game = Opening();
+        var actions = game.GetHumanLegalActions();
+        Require(actions.Any(action => action.Kind == LegalActionKind.IronChain && action.TargetSeats.SequenceEqual([0])) &&
+            actions.Any(action => action.Kind == LegalActionKind.IronChain && action.TargetSeats.Count == 2 && action.TargetSeats.Contains(0)),
+            "Current rules do not allow self-only and self-plus-other Iron Chain.");
+        var recast = actions.First(action => action.Kind == LegalActionKind.Recast);
+        var end = actions.Single(action => action.Kind == LegalActionKind.EndPlay);
+        var view = game.CreateSnapshot(0);
+        foreach (var policy in new[] { 1, 2 })
+        {
+            var brain = new SimpleAiBrain(0, 7, policy);
+            Require(brain.ChoosePlay(view, [recast, end], 1).Action.Kind == LegalActionKind.Recast, "AI did not prefer a useful recast to passing.");
+            brain.ObserveRecast(view.TurnNumber, recast.CardId!.Value);
+            Require(brain.ChoosePlay(view, [recast, end], 2).Action.Kind == LegalActionKind.EndPlay, "AI repeats the same recast within one turn.");
+            Require(brain.ChoosePlay(view with { TurnNumber = view.TurnNumber + 1 }, [recast, end], 3).Action.Kind == LegalActionKind.Recast,
+                "AI permanently banned a card after recasting it once.");
+        }
+    }
+
     private static string State(GameEngine game) => SnapshotJson.Serialize(game.CreateSnapshot(0, true));
     private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
 }

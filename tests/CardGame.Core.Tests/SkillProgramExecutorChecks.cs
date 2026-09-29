@@ -112,6 +112,26 @@ internal static class SkillProgramExecutorChecks
             "invalid operation");
     }
 
+    public static void ReflectionDiscoversEveryPrimitiveHandler()
+    {
+        var catalog = SkillProgramEffectCatalog.Discover(typeof(SkillProgramExecutor).Assembly);
+        Require(catalog.Handlers.Select(handler => handler.Op).Order().SequenceEqual(
+                Enum.GetValues<SkillProgramEffectOp>().Order()),
+            "Core reflection discovery must find one handler for every current primitive operation.");
+        Require(catalog.Handlers.Count == Enum.GetValues<SkillProgramEffectOp>().Length &&
+                catalog.Handlers.Select(handler => handler.GetType().FullName)
+                    .SequenceEqual(catalog.Handlers.Select(handler => handler.GetType().FullName)
+                        .Order(StringComparer.Ordinal)),
+            "Reflection discovery must return exactly one handler per operation in stable type-name order.");
+        Require(Enum.GetValues<SkillProgramEffectOp>()
+                .All(op => catalog.Resolve(op).Op == op) &&
+                SkillProgramEffectCatalog.Default.Handlers.Count == Enum.GetValues<SkillProgramEffectOp>().Length,
+            "Discovered and cached default catalogs must resolve each primitive operation.");
+        Throws<NotSupportedException>(
+            () => ((ICollection<ISkillProgramEffectHandler>)catalog.Handlers).Clear(),
+            null);
+    }
+
     public static void ActiveActivationContractsRejectInvalidDefinitionsAndPreserveOrder()
     {
         const string orderedPair =
@@ -863,7 +883,8 @@ internal static class SkillProgramExecutorChecks
         bool allowSameOwnerHandReturn = false,
         string? coverageResultBind = null,
         bool awaitMovementTriggers = false, bool revealBeforeMove = false,
-        IReadOnlyList<CardKind>? cardKinds = null) =>
+        IReadOnlyList<CardKind>? cardKinds = null,
+        bool prohibitReplacingEquipment = false) =>
             throw new NotSupportedException("The executor fixture does not exercise SelectAndMoveOwnedCard.");
 
         public SkillProgramStepOutcome ChooseOtherOwnedCardDiscard(
@@ -872,6 +893,12 @@ internal static class SkillProgramExecutorChecks
         IReadOnlyList<CardZoneKind> zones,
         CardMoveReason reason) =>
             throw new NotSupportedException("The executor fixture does not exercise ChooseOtherOwnedCardDiscard.");
+
+        public SkillProgramStepOutcome RestorePhaseHandDiscards(
+        ProgramSkillFrame frame,
+        ProgramParticipantReference chooser,
+        ProgramParticipantReference phaseOwner) =>
+            throw new NotSupportedException("The executor fixture does not exercise RestorePhaseHandDiscards.");
 
         public void RefundCardUseDebit(ProgramSkillFrame frame) =>
             throw new NotSupportedException("The executor fixture does not exercise RefundCardUseDebit.");
