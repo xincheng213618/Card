@@ -953,6 +953,63 @@ public sealed partial class GameEngine
             ownerSeat);
     }
 
+    /// <summary>
+    /// Takes one random card from every other living character in turn order, drawing the
+    /// candidate pool from the declared areas. Hand cards stay opaque: only the participating
+    /// seats and the total count reach the public event stream.
+    /// </summary>
+    private void TakeProgramRandomCardFromEveryOtherCharacter(
+        long frameId,
+        int ownerSeat,
+        IReadOnlyList<CardZoneKind> zones,
+        CardMoveReason reason)
+    {
+        var frame = GetActiveProgramFrame(frameId);
+        if (frame.OwnerSeat != ownerSeat || zones.Count == 0 ||
+            zones.Any(zone => zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment)) ||
+            !_players[ownerSeat].IsAlive)
+            throw new InvalidOperationException(
+                "A multi-character random transfer requires the active living owner and declared areas.");
+
+        var takenSeats = new List<int>();
+        foreach (var target in _players
+                     .Where(player => player.IsAlive && player.Seat != ownerSeat)
+                     .OrderBy(player => (player.Seat - ownerSeat + _playerCount) % _playerCount))
+        {
+            var candidates = zones
+                .SelectMany(zone => zone switch
+                {
+                    CardZoneKind.Hand => GetHand(target).Select(card =>
+                        (Card: card, Location: CardLocation.Hand(target.Seat))),
+                    CardZoneKind.Equipment => GetEquipment(target).Select(card =>
+                        (Card: card, Location: CardLocation.Equipment(target.Seat))),
+                    CardZoneKind.Judgment => GetJudgment(target).Select(card =>
+                        (Card: card, Location: CardLocation.Judgment(target.Seat))),
+                    _ => throw new InvalidOperationException($"Unsupported random-transfer area '{zone}'.")
+                })
+                .OrderBy(entry => entry.Card.Id)
+                .ToArray();
+            if (candidates.Length == 0) continue;
+            var pick = candidates[_random.Next(candidates.Length)];
+            MoveCard(pick.Card, pick.Location, CardLocation.Processing, reason);
+            MoveCard(pick.Card, CardLocation.Processing, CardLocation.Hand(ownerSeat), reason);
+            takenSeats.Add(target.Seat);
+        }
+
+        QueueGameEvent(new ProgramRandomCardsTakenFromCharactersEvent(
+            frame.Id,
+            frame.SkillId,
+            GetProgramBindingId(frame),
+            ownerSeat,
+            Array.AsReadOnly(takenSeats.ToArray()),
+            Array.AsReadOnly(zones.ToArray()),
+            takenSeats.Count));
+        AddLog("SkillEffect", takenSeats.Count == 0
+            ? $"{_players[ownerSeat].Name} 未从其他角色处获得牌。"
+            : $"{_players[ownerSeat].Name} 从 {string.Join("、", takenSeats.Select(seat => _players[seat].Name))} 各随机获得一张牌。",
+            ownerSeat);
+    }
+
     private SkillProgramStepOutcome SelectProgramTarget(
         long frameId,
         int ownerSeat,

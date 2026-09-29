@@ -78,7 +78,7 @@ public static class GeneralGalleryCatalog
         Add("fame-4", "gu-yong zhu-huan zhang-song");
         Add("fame-5", "zhu-zhi");
         Add("fame-5", "sha-mo-ke");
-        Add("god", "shen-guan-yu shen-sima-yi shen-lu-meng");
+        Add("god", "shen-guan-yu shen-sima-yi shen-lu-meng shen-cao-cao");
         groups.Add("classic:qu-yi", "other");
         Add("sp", "gongsun-zan");
         groups.Add("sp:le-jin", "sp");

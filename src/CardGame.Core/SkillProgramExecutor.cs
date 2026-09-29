@@ -243,6 +243,11 @@ public interface ISkillProgramEffectHost
         int ownerSeat,
         int amountPerTarget,
         CardMoveReason reason);
+    void TakeRandomCardFromEveryOtherCharacter(
+        long frameId,
+        int ownerSeat,
+        IReadOnlyList<CardZoneKind> zones,
+        CardMoveReason reason);
     void AdjustNormalDraw(ProgramSkillFrame frame, int amount);
     void GrantTurnCardDamageModifier(
         ProgramSkillFrame frame,
@@ -420,6 +425,25 @@ public sealed class TakeRandomHandCardFromSelectedTargetsSkillProgramEffectHandl
             frame.Id,
             frame.OwnerSeat,
             effect.Amount,
+            new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
+        return SkillProgramStepOutcome.Continue;
+    }
+}
+
+public sealed class TakeRandomCardFromEveryOtherCharacterSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.TakeRandomCardFromEveryOtherCharacter;
+
+    public SkillProgramStepOutcome Execute(
+        SkillProgramEffect effect,
+        ProgramSkillFrame frame,
+        int targetSeat,
+        ISkillProgramEffectHost host)
+    {
+        host.TakeRandomCardFromEveryOtherCharacter(
+            frame.Id,
+            frame.OwnerSeat,
+            effect.Zones,
             new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
         return SkillProgramStepOutcome.Continue;
     }

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:guixin": {
+      "name": "归心",
+      "description": "当你受到1点伤害后，你可以随机获得每名其他角色区域里的一张牌，然后你翻面。"
+    },
+    "classic:feiying": {
+      "name": "飞影",
+      "description": "锁定技，其他角色计算与你的距离+1。"
+    }
+  }
+}

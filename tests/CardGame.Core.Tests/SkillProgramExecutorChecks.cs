@@ -911,6 +911,13 @@ internal static class SkillProgramExecutorChecks
         ProgramParticipantReference phaseOwner) =>
             throw new NotSupportedException("The executor fixture does not exercise RestorePhaseHandDiscards.");
 
+        public void TakeRandomCardFromEveryOtherCharacter(
+        long frameId,
+        int ownerSeat,
+        IReadOnlyList<CardZoneKind> zones,
+        CardMoveReason reason) =>
+            throw new NotSupportedException("The executor fixture does not exercise TakeRandomCardFromEveryOtherCharacter.");
+
         public void RefundCardUseDebit(ProgramSkillFrame frame) =>
             throw new NotSupportedException("The executor fixture does not exercise RefundCardUseDebit.");
     }

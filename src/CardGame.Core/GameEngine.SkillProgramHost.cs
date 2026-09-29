@@ -472,6 +472,14 @@ public sealed partial class GameEngine
             engine.TakeProgramRandomHandCards(
                 frameId, ownerSeat, amountPerTarget, reason);
 
+        public void TakeRandomCardFromEveryOtherCharacter(
+            long frameId,
+            int ownerSeat,
+            IReadOnlyList<CardZoneKind> zones,
+            CardMoveReason reason) =>
+            engine.TakeProgramRandomCardFromEveryOtherCharacter(
+                frameId, ownerSeat, zones, reason);
+
         public void AdjustNormalDraw(ProgramSkillFrame frame, int amount) =>
             engine.AdjustProgramNormalDraw(frame, amount);
 

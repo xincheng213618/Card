@@ -1,29 +1,35 @@
-# RUNTIME V65 —— 规则 189 / 经典包 1.159.0
+# RUNTIME V65 —— 规则 188 / 经典包 1.159.0
 
-本版本号为曹植批次（落英 / 酒诗）使用。Checkpoint schema 仍为 3；规则版本 188 → 189，经典包 1.158.0 → 1.159.0。技能 JSON schema 62 不变（本批全部为加值节点）。旧规则的检查点按现有版本边界拒绝恢复。
+本批为单武将交付：神曹操（归心 / 飞影，神话再临·林包 2010，神 3 体力，最低规则 188）。经典包 1.158.0 → 1.159.0；规则 epoch 仍为 188，因为新增操作只被新内容消费，同一内容指纹下的既有命令结算、事件顺序、随机数消费与暂停恢复语义均未改变（Checkpoint schema 仍为 3，规则 JSON schemaVersion 仍为 62，`minimumRulesVersion 188` 表示本内容不需要更高 epoch）。
 
-## 曹植批次：落英 / 酒诗
-
-本批为单武将交付：曹植（落英/酒诗，一将成名2011，魏 3 体力，最低规则 189）。新增公共能力四项。
+## 神曹操批次：归心 / 飞影
 
 ### 新增公共能力
 
-1. **生命周期窗口 `discardPileReceived`**：`SkillProgramTriggerWindow` 枚举加值；解析侧并入 `isMovementWindow`（`excludedMovementReasons`、`sourceZones` 同族能力可用）并新增 `suits` 花色过滤（数组须互异，非移牌窗口声明 `suits` 仍拒收）；`ProgramEntryCapabilities` SupportsWindow/For（Common|Judgment）。语义：全体存活角色观察**其他角色**的牌置入弃牌堆，逐牌出现（`movementOccurrence` 缺省逐牌）；花色按当前弃牌堆实查，批量移动不误配；批次机制复用 `CardsMovedTriggerWindowFrame`（`CompleteCardMovementBatch` 入队、`PublishState` 开窗）。`CanRunProgramTrigger` 臂校验批次 Id 等于父帧 Id（最外层移牌窗口帧）且批次含“他人区段→弃牌堆”移动；`CompleteProgramBinding` 续接分支与 cardsMoved/cardsGained 同组；触发绑定发布 `ProgramBindingResolvedEvent`。挂接点与移牌批生命周期零新增——凡有牌进弃牌堆处自动开窗。
-2. **操作 `claimMovedCards`**：新 `SkillProgramEffectOp`；描述符要求目标必须 owner 且禁止效果条件（获得者即拥有者）。结算按触发绑定捕获的弃牌堆匹配索引逐张 Hand(owner)，发布 `ProgramMovedCardsClaimedEvent`（OwnerSeat/SourceSeat/BindingId/CardId），移动原因 `skill.<skillId>.<triggerId>` 族。多绑定/多张按牌序逐张提示获得，AI 估值接组合 AI 提示。
-3. **操作 `useVirtualDyingAlcohol` 的选项化**：濒死救援描述符由 RequireAlways 放宽为“无条件或 choice-gated”（choiceIs 门控）；执行校验收紧为**自我救援**——窗口须 SelfDyingResponse 且 victim==responder==owner（失配文案 "The configured rescue lost its dying owner."），原有他人救援语义（酾）不变。AI 估值 hp≤1 +100 否则 +18，并按 hp+1 递推后续估值。与既有 chooseOption/ChoiceIs 组合（志继先例）承载“可选自救”。
-4. **触发条件 `faceDown` + 冻结事实 `OwnerIsFaceDown`**：`SkillProgramTriggerConditionKind` 加值 27；`CaptureProgramTriggerFacts` 统一捕获 `owner.IsFaceDown`，供 afterDamageApplied 等有冻结事实的窗口声明。**selfDyingResponse 窗口维持拒收触发条件的既有不变式**（濒死上下文无 Facts，逐应答者活体评估是有意设计）——“正面朝上”类前提在该窗口内须下沉到选项级条件（选项条件按活体上下文求值，`ValidateOptionCondition` 白名单既有 FaceDown/not/All/Any）。
+1. **操作 `takeRandomCardFromEveryOtherCharacter`**：`SkillProgramEffectOp` 加值；效果描述符要求 `target=owner` 与显式 `zones`（`hand`/`equipment`/`judgment` 的子集，必须非空且不重复），不接受条件节点（`RequireAlways`）。结算按**当前回合顺序**（以拥有者为原点）遍历每名其他存活角色：按声明区域汇总候选（手牌、装备区、判定区），按牌 Id 稳定排序后以 `_random.Next` 抽取一张，经 `From → Processing → Hand(owner)` 两段移动进入拥有者手牌，移动原因 `skill-program.<skillId>.TakeRandomCardFromEveryOtherCharacter`；区域中没有牌的角色自然跳过。
+2. **公开脱敏事件 `ProgramRandomCardsTakenFromCharactersEvent`**：只发布拥有者、参与座位、声明区域与总数；手牌身份不进入事件流（与突袭 `ProgramRandomHandCardsTakenEvent` 同一脱敏口径），装备区/判定区牌的移动由移动账本与公开牌区自身体现。
+3. **AI 估值 `ProgramCompositionAi.TakeRandomCardFromEveryOtherCharacter`**：按“每名其他存活角色各得一张”计入 `ownerDraw`，公开区域（装备/判定）额外计入中性调整；无从公开上下文获得合格人数时以 1 为保守下限。
 
 ### 消费方
 
-- 落英：trigger `claim-discarded-club`，window discardPileReceived、subject owner、optional、suits [club]、excludedMovementReasons 排除 use-finished 族十一条（官方“因弃置或判定”不含使用/响应结算完毕的归堆，含铁索/火攻/拆顺及其判定分支的 effect 完结原因）；effects = claimMovedCards owner。
-- 酒诗濒死：trigger `flip-for-virtual-alcohol`，window selfDyingResponse、subject owner、optional:false（必答绑定，TryBeginMandatorySelfDyingProgram 自动开启、AttemptedSelfDyingBindings 去重）；effects = chooseOption（选项 flip 带 not[faceDown] 选项条件，pass 恒可，presentation optionLabels）→ turnOver + useVirtualDyingAlcohol（均 choiceIs 门控 flip）。
-- 酒诗翻回：trigger `flip-back-after-damage`，window afterDamageApplied、damageOccurrence perDamage、optional、condition faceDown（E4 冻结事实）；effects = turnOver owner（condition faceDown）。
+- 归心：`afterDamageApplied` 触发，`subject=owner`、`damageOccurrence=perDamagePoint`、可选；effects = `takeRandomCardFromEveryOtherCharacter(zones: hand+equipment+judgment)` + `turnOver(owner)`。每点伤害各发布一次私有发动/跳过 Choice（与神司马懿忍戒、曹丕放逐同型）。
+- 飞影：纯规则查询 `{"query":"incomingDistance","operation":"add","value":1}`，零新增 Core 代码（与义从的入距分支同型）；不影响神曹操计算与他人的距离。
 
-## 共享检查加固（诚实归因）
+### 复用与零增量
 
-- `ApplySyntheticDyingPeach`（ClassicGeneralChecks 共享反射注入）绕过命令管线，延迟移牌续接（如落英窗口）需要一步管线推进才发布续窗——补 32 步 AdvanceOneStep 排水循环。Jiuyuan 检查在入池位移后因此暴露停滞，加固后恢复。
-- 吕蒙无双顺序应答夹具的目标白名单扩容四武将（邓艾/司马懿/关羽/颜良文丑——技能均不改闪响应序列，逐条核验），原白名单在 459 吕蒙种子内零命中系入池位移所致（命中期望约 1–3/16384 的边缘夹具），规则断言未放宽。
+- 触发窗口、每点伤害游标、可选 Choice、绑定复验与暂停回放全部复用 `afterDamageApplied` 通行链。
+- 翻面复用 `turnOver`（曹丕放逐 / 蔡文姬悲歌先例），暗置时翻回正面。
+- 距离复用 `SkillRuleQuery.IncomingDistance` 与既有 `RuleQueryService.EvaluateDirectionalDistance`，不新增距离特例。
+- 全部内容由 `classic-shen-cao-cao.rules.json` / `.presentation.json` 承载，注册只增加资源常量、惰性目录、两条 `AddSkill`、一条 `AddGeneral` 与武将池条目。
 
 ## 验证口径
 
-定向检查 `CaoZhiChecks`（4 项）全部通过；解析器拒收面以 raw-string 模板单行变换覆盖（claim 目标非 owner、claim+触发条件、错误窗口、useVirtualDyingAlcohol 目标非 owner/非选项条件、afterDamage 缺 damageOccurrence、turnEnding+suits、selfDyingResponse+触发条件不变式锁定）。Debug 全量 Core 647/647 全绿；Release 构建 0 error 0 warning。批次记录见 [2026-09-30-cao-zhi](../../benchmarks/2026-09-30-cao-zhi.md)。
+定向检查 `ShenCaoCaoChecks`（3 项）：
+
+1. 定义与 schema：神 3 体力、双技能与身份池；归心触发形态（窗口/主体/每点/可选/两效果/三区域）、飞影 `incomingDistance +1`；四条解析拒收样例（空区域、非法区域、重复区域、非拥有者目标、带条件的随机取牌）。
+2. 归心随机取得并回放：人类神曹操用【决斗】主动承受伤害后，归心窗口按每点伤害发布一次；发动后公共事件列出的座位恰为“区域里仍有牌”的其他角色，每名被取牌角色恰有一张牌经 Processing 进入神曹操手牌、卡牌总数守恒、神曹操翻面；暂停检查点与结算完成后的状态/事件流重放全等。
+3. 飞影入距：其余四名角色计算与神曹操的距离 = 座位环距离 + 1，而神曹操计算与他人的距离保持环距离不变，自身距离仍为 0。
+
+门禁：定向 3/3；Release 全解构建 0 警告 0 错误；全量 Core 646/646 全绿（基线 643 + 本批 3 项）；WPF 图鉴过滤器通过（god 组 4 名成员，新增 147-gallery-god.png 渲染），缺立绘名单不含 classic:shen-cao-cao。入池位移另暴露并根治两处既有夹具脆面（鲁布无双闪夹具的 GeneralId 白名单 → 可观测量谓词 + 完整断言体深探针；救援夹具按引擎生效势力分类 + 合成桃注入探针），均未放宽断言。
+
+批次记录见 [2026-09-30-shen-cao-cao-guixin-feiying](../../benchmarks/2026-09-30-shen-cao-cao-guixin-feiying.md)。

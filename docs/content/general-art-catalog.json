@@ -5442,6 +5442,43 @@
       ]
     },
     {
+      "key": "shen-cao-cao",
+      "characterName": "神曹操",
+      "defaultSkinId": "120501",
+      "skins": [
+        {
+          "id": "120501",
+          "name": "经典形象*神曹操",
+          "sourcePage": "https://x.sanguosha.com/hero/205.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/120501.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-shen-cao-cao.png",
+          "sha256": "e671ffa5b78b098f624595fff44c62055f63bec5af780a8dce1d5391cac5212f",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "420501",
+          "name": "炼狱枭魂*神曹操",
+          "sourcePage": "https://x.sanguosha.com/hero/205.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/420501.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/shen-cao-cao/420501.png",
+          "sha256": "93666b08dadca0f7da9c29393c75a20db8bd47e12957dbf0a321b83fc46561ba",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "520501",
+          "name": "一统江山*神曹操",
+          "sourcePage": "https://x.sanguosha.com/hero/205.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/520501.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/shen-cao-cao/520501.png",
+          "sha256": "2ef4df75d24aef32e7168ed9262f19cf96f4bec70a31924b6bdfda95413b4b6c",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "shen-guan-yu",
       "characterName": "神关羽",
       "defaultSkinId": "current",

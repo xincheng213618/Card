@@ -226,6 +226,7 @@ public enum SkillProgramEffectOp
     BindDiscardPhaseDiscards,
     RestorePhaseHandDiscards,
     ClaimMovedCards,
+    TakeRandomCardFromEveryOtherCharacter,
     UseVirtualDyingAlcohol
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets }
