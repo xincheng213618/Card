@@ -34,7 +34,10 @@ public sealed record GameCheckpoint(
     // 190: Shen Lu Meng (shelie/gongxin) with the one-per-suit subset
     // constraint, the reveal-target-hand-card suit filter with decline, and
     // the drawPileTop destination.
-    public const int CurrentRulesVersion = 190;
+    // 191: the round-3 integration union (Jia Xu wansha/luanwu/weimu, Shen Lu
+    // Meng shelie/gongxin, Shen Cao Cao guixin/feiying); the merged pool
+    // replays every existing fixture differently than either parent line.
+    public const int CurrentRulesVersion = 191;
     // 189 was reserved by the parallel Jia Xu batch; 190 belongs to the
     // Shen Lu Meng batch. 187 was consumed by main-side Zhang He / Shen Zhao
     // Yun work.

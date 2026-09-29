@@ -260,7 +260,8 @@ internal sealed class ProgramAiEstimateContext
             _otherAdjustment += count * 4d;
             _estimatedHandCount = Math.Max(0d, _estimatedHandCount - count);
         }
-        if (source.TargetHeld && effect.Destination is SkillProgramCardDestination.DiscardPile or SkillProgramCardDestination.OwnerHand)
+        if (source.TargetHeld && effect.Destination is SkillProgramCardDestination.DiscardPile or
+                SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.DrawPileTop)
             _targetDraw -= count;
         // Bindings retain their original location. A move can consume only
         // part of a source through exceptBind; its remaining cards did not move.
@@ -338,6 +339,18 @@ internal sealed class ProgramAiEstimateContext
         var count = _estimatedSelectedTargetCount ?? effect.Amount;
         _ownerDraw += count;
         _estimatedHandCount += count;
+    }
+
+    internal void TakeRandomCardFromEveryOtherCharacter(SkillProgramEffect effect)
+    {
+        // Every other living character gives up exactly one card, and the public areas
+        // are known, so this is scored as one guaranteed card per other character. When
+        // the public context carries no eligible count, one card is the conservative prior.
+        var others = Math.Max(1, _publicContext.EligibleTargetCount ?? 1);
+        _ownerDraw += others;
+        _estimatedHandCount += others;
+        if (effect.Zones.Any(zone => zone is CardZoneKind.Equipment or CardZoneKind.Judgment))
+            _otherAdjustment += 1d;
     }
 
     internal void ClaimDamageCards(SkillProgramEffect effect) =>

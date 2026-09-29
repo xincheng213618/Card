@@ -964,6 +964,63 @@ public sealed partial class GameEngine
             ownerSeat);
     }
 
+    /// <summary>
+    /// Takes one random card from every other living character in turn order, drawing the
+    /// candidate pool from the declared areas. Hand cards stay opaque: only the participating
+    /// seats and the total count reach the public event stream.
+    /// </summary>
+    private void TakeProgramRandomCardFromEveryOtherCharacter(
+        long frameId,
+        int ownerSeat,
+        IReadOnlyList<CardZoneKind> zones,
+        CardMoveReason reason)
+    {
+        var frame = GetActiveProgramFrame(frameId);
+        if (frame.OwnerSeat != ownerSeat || zones.Count == 0 ||
+            zones.Any(zone => zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment)) ||
+            !_players[ownerSeat].IsAlive)
+            throw new InvalidOperationException(
+                "A multi-character random transfer requires the active living owner and declared areas.");
+
+        var takenSeats = new List<int>();
+        foreach (var target in _players
+                     .Where(player => player.IsAlive && player.Seat != ownerSeat)
+                     .OrderBy(player => (player.Seat - ownerSeat + _playerCount) % _playerCount))
+        {
+            var candidates = zones
+                .SelectMany(zone => zone switch
+                {
+                    CardZoneKind.Hand => GetHand(target).Select(card =>
+                        (Card: card, Location: CardLocation.Hand(target.Seat))),
+                    CardZoneKind.Equipment => GetEquipment(target).Select(card =>
+                        (Card: card, Location: CardLocation.Equipment(target.Seat))),
+                    CardZoneKind.Judgment => GetJudgment(target).Select(card =>
+                        (Card: card, Location: CardLocation.Judgment(target.Seat))),
+                    _ => throw new InvalidOperationException($"Unsupported random-transfer area '{zone}'.")
+                })
+                .OrderBy(entry => entry.Card.Id)
+                .ToArray();
+            if (candidates.Length == 0) continue;
+            var pick = candidates[_random.Next(candidates.Length)];
+            MoveCard(pick.Card, pick.Location, CardLocation.Processing, reason);
+            MoveCard(pick.Card, CardLocation.Processing, CardLocation.Hand(ownerSeat), reason);
+            takenSeats.Add(target.Seat);
+        }
+
+        QueueGameEvent(new ProgramRandomCardsTakenFromCharactersEvent(
+            frame.Id,
+            frame.SkillId,
+            GetProgramBindingId(frame),
+            ownerSeat,
+            Array.AsReadOnly(takenSeats.ToArray()),
+            Array.AsReadOnly(zones.ToArray()),
+            takenSeats.Count));
+        AddLog("SkillEffect", takenSeats.Count == 0
+            ? $"{_players[ownerSeat].Name} 未从其他角色处获得牌。"
+            : $"{_players[ownerSeat].Name} 从 {string.Join("、", takenSeats.Select(seat => _players[seat].Name))} 各随机获得一张牌。",
+            ownerSeat);
+    }
+
     private SkillProgramStepOutcome SelectProgramTarget(
         long frameId,
         int ownerSeat,
@@ -1298,16 +1355,25 @@ public sealed partial class GameEngine
             _cardZones.CardsAt(source.SourceLocations[index]).SingleOrDefault(card => card.Id == cardId) ??
             throw new InvalidOperationException("A bound card left its frozen source before selection."))
             .ToArray();
-        // A program may explicitly allow a depleted revealed set to satisfy an
-        // otherwise exact count. All existing exact-count programs remain strict.
-        // 涉猎's one-per-suit mode is instead bounded by the distinct suits present.
-        var distinctSuits = cards.Select(card => card.Suit).Distinct().Count();
-        var constraintMinimum = onePerSuit ? distinctSuits
-            : allowFewerWhenInsufficient ? Math.Min(minimumCards, cards.Length) : minimumCards;
-        var constraintMaximum = onePerSuit ? distinctSuits
-            : allowFewerWhenInsufficient ? Math.Min(maximumCards, cards.Length) : maximumCards;
-        var promptMinimum = constraintMinimum;
-        var promptMaximum = constraintMaximum;
+        // 涉猎-style one-per-suit subsets must take exactly one card of every
+        // distinct suit; the constraint leaves no room for partial takes.
+        var constraintMinimum = minimumCards;
+        var constraintMaximum = maximumCards;
+        var promptMinimum = minimumCards;
+        var promptMaximum = maximumCards;
+        if (onePerSuit)
+        {
+            var distinctSuits = cards.Select(card => card.Suit).Distinct().Count();
+            constraintMinimum = constraintMaximum = distinctSuits;
+            promptMinimum = promptMaximum = distinctSuits;
+        }
+        else
+        {
+            // A program may explicitly allow a depleted revealed set to satisfy an
+            // otherwise exact count. All existing exact-count programs remain strict.
+            constraintMinimum = allowFewerWhenInsufficient ? Math.Min(minimumCards, cards.Length) : minimumCards;
+            constraintMaximum = allowFewerWhenInsufficient ? Math.Min(maximumCards, cards.Length) : maximumCards;
+        }
         var options = CardSubsetSelector.Enumerate(
             cards.Select(card => new CardSubsetCandidate(card.Id, card.Rank, card.Suit)).ToArray(),
             new CardSubsetConstraint(constraintMinimum, constraintMaximum, maximumRankSum, onePerSuit));
@@ -1495,8 +1561,8 @@ public sealed partial class GameEngine
                     _cardZones.PlaceDrawPileCardsAtBottom(cards.Select(card => card.Id).ToArray());
                     break;
                 case SkillProgramCardDestination.DrawPileTop:
-                    // The moved segment sits at the pile's top; restore the binding
-                    // order so its first id is the next card drawn.
+                    // The moved segment sits at the pile's top; restore the
+                    // binding order so its first id is drawn next.
                     _cardZones.PlaceDrawPileCardsAtTop(cards.Select(card => card.Id).ToArray());
                     break;
             }
@@ -1586,6 +1652,13 @@ public sealed partial class GameEngine
             allowedParentIds.Add(borrowedSword.Card.Id);
         if (_resolutionStack.OfType<ProgramCardTriggerWindowFrame>().LastOrDefault() is { } programFrame)
             allowedParentIds.UnionWith(programFrame.Action.PhysicalCards.Select(cost => cost.CardId));
+        // A sibling program skill (for example Chengxiang's reveal) can hold
+        // bound cards in Processing while a nested program damage unwinds; the
+        // chain's outer attack card stays in Processing until the unwind ends.
+        for (var nested = _pendingProgramNestedDamage; nested is not null; nested = nested.Parent)
+            foreach (var card in nested.OuterAttack.PhysicalCards)
+                if (_cardZones.GetLocation(card.Id) == CardLocation.Processing)
+                    allowedParentIds.Add(card.Id);
 
         return processing.Where(card => !boundIds.Contains(card.Id))
             .All(card => allowedParentIds.Contains(card.Id));
@@ -2837,6 +2910,20 @@ public sealed partial class GameEngine
             var rankSum = cards.Sum(card => card.Rank);
             if (rankSum > effect.MaximumRankSum)
                 throw new InvalidOperationException("The selected subset exceeds its rank-sum limit.");
+            if (effect.OnePerSuit
+                    ? cards.Length !=
+                      source.CardIds.Select((cardId, index) =>
+                              _cardZones.CardsAt(source.SourceLocations[index])
+                                  .Single(card => card.Id == cardId).Suit)
+                          .Distinct().Count() ||
+                      cards.Select(card => card.Suit).Distinct().Count() != cards.Length
+                    : selected.Cards.Distinct().Count() != selected.Cards.Count ||
+                    selected.Cards.Any(cardId => !source.CardIds.Contains(cardId)) ||
+                    selected.Cards.Count < (effect.AllowFewerWhenInsufficient
+                        ? Math.Min(effect.MinimumCards, source.CardIds.Count) : effect.MinimumCards) ||
+                    selected.Cards.Count > (effect.AllowFewerWhenInsufficient
+                        ? Math.Min(effect.MaximumCards, source.CardIds.Count) : effect.MaximumCards))
+                throw new InvalidOperationException("The selected subset is no longer legal.");
             ClearPendingDecision();
             SetProgramCardSet(frame.Id, effect.ResultBind!, selected.Cards,
                 SkillProgramCardSetVisibility.Private);

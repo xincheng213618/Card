@@ -174,6 +174,7 @@ internal static class ProgramCompositionDefinitionChecks
             [SkillProgramEffectOp.RequestSlashByTarget] = """{"op":"requestSlashByTarget","target":"selectedTarget","resultBind":"answer"}""",
             [SkillProgramEffectOp.BindDiscardPhaseDiscards] = """{"op":"bindDiscardPhaseDiscards","target":"owner","resultBind":"guzheng-pool"}""",
             [SkillProgramEffectOp.RestorePhaseHandDiscards] = """{"op":"restorePhaseHandDiscards","target":"owner","chooserRef":{"kind":"owner"},"phaseOwnerRef":{"kind":"eventSource"},"condition":{"kind":"always"}}""",
+            [SkillProgramEffectOp.TakeRandomCardFromEveryOtherCharacter] = """{"op":"takeRandomCardFromEveryOtherCharacter","target":"owner","zones":["hand","equipment","judgment"]}""",
             [SkillProgramEffectOp.RequestNearestSlash] = """{"op":"requestNearestSlash","target":"owner"}"""
 
         };
@@ -238,10 +239,33 @@ internal static class ProgramCompositionDefinitionChecks
         """);
         Accept("one-per-suit partition", """
         [{"op":"revealTopCards","target":"owner","amount":5,"resultBind":"r","visibility":"public"},
-         {"op":"selectCardSubset","target":"owner","sourceBind":"r","resultBind":"t","minimumCards":1,"maximumCards":4,"maximumRankSum":208,"aiOrder":"mostCardsThenRankSum","onePerSuit":true},
-         {"op":"moveBoundCards","target":"owner","sourceBind":"t","destination":"ownerHand"},
-         {"op":"moveBoundCards","target":"owner","sourceBind":"r","exceptBind":"t","destination":"discardPile"}]
+         {"op":"selectCardSubset","target":"owner","sourceBind":"r","resultBind":"p","minimumCards":1,"maximumCards":4,"maximumRankSum":208,"aiOrder":"mostCardsThenRankSum","onePerSuit":true},
+         {"op":"moveBoundCards","target":"owner","sourceBind":"p","destination":"ownerHand"},
+         {"op":"moveBoundCards","target":"owner","sourceBind":"r","exceptBind":"p","destination":"discardPile"}]
         """);
+        {
+            const string choiceBranches = """
+            [{"op":"revealTargetHandCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"selectedTarget"},"resultBind":"shown","mode":"chooser","suits":["heart"],"allowDecline":true},
+             {"op":"chooseOption","target":"owner","resultBind":"disposition","condition":{"kind":"boundCardsMatchSuits","sourceBind":"shown","suits":["heart"]},"options":[{"id":"discard","condition":{"kind":"always"}},{"id":"top","condition":{"kind":"always"}}]},
+             {"op":"moveBoundCards","target":"owner","sourceBind":"shown","destination":"discardPile","condition":{"kind":"choiceIs","sourceBind":"disposition","optionId":"discard"}},
+             {"op":"moveBoundCards","target":"owner","sourceBind":"shown","destination":"drawPileTop","condition":{"kind":"choiceIs","sourceBind":"disposition","optionId":"top"}}]
+            """;
+            const string repeatOptionBranches = """
+            [{"op":"revealTargetHandCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"selectedTarget"},"resultBind":"shown","mode":"chooser","suits":["heart"],"allowDecline":true},
+             {"op":"chooseOption","target":"owner","resultBind":"disposition","condition":{"kind":"boundCardsMatchSuits","sourceBind":"shown","suits":["heart"]},"options":[{"id":"discard","condition":{"kind":"always"}},{"id":"top","condition":{"kind":"always"}}]},
+             {"op":"moveBoundCards","target":"owner","sourceBind":"shown","destination":"discardPile","condition":{"kind":"choiceIs","sourceBind":"disposition","optionId":"discard"}},
+             {"op":"moveBoundCards","target":"owner","sourceBind":"shown","destination":"ownerHand","condition":{"kind":"choiceIs","sourceBind":"disposition","optionId":"discard"}}]
+            """;
+            const string branchThenUnconditional = """
+            [{"op":"revealTargetHandCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"selectedTarget"},"resultBind":"shown","mode":"chooser","suits":["heart"],"allowDecline":true},
+             {"op":"chooseOption","target":"owner","resultBind":"disposition","condition":{"kind":"boundCardsMatchSuits","sourceBind":"shown","suits":["heart"]},"options":[{"id":"discard","condition":{"kind":"always"}},{"id":"top","condition":{"kind":"always"}}]},
+             {"op":"moveBoundCards","target":"owner","sourceBind":"shown","destination":"discardPile","condition":{"kind":"choiceIs","sourceBind":"disposition","optionId":"discard"}},
+             {"op":"moveBoundCards","target":"owner","sourceBind":"shown","destination":"ownerHand"}]
+            """;
+            AcceptChoiceBranches("choice-branch-moves", choiceBranches);
+            RejectChoiceBranches("repeat option branch", repeatOptionBranches, "more than once");
+            RejectChoiceBranches("branch then unconditional", branchThenUnconditional, "more than once");
+        }
         Accept("historical count", """
         [{"op":"revealTopCards","target":"owner","amount":2,"resultBind":"r","visibility":"public"},
          {"op":"moveBoundCards","target":"owner","sourceBind":"r","destination":"discardPile"},
@@ -265,24 +289,6 @@ internal static class ProgramCompositionDefinitionChecks
          {"op":"moveBoundCards","target":"owner","sourceBind":"a","destination":"discardPile"},
          {"op":"moveBoundCards","target":"owner","sourceBind":"b","destination":"discardPile"}]
         """, "same source root");
-        AcceptChoiceBranches("choice-branch-moves", """
-        [{"op":"revealTargetHandCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"selectedTarget"},"resultBind":"shown","mode":"chooser","suits":["heart"],"allowDecline":true},
-         {"op":"chooseOption","target":"owner","resultBind":"disposition","condition":{"kind":"boundCardsMatchSuits","sourceBind":"shown","suits":["heart"]},"options":[{"id":"discard","condition":{"kind":"always"}},{"id":"top","condition":{"kind":"always"}}]},
-         {"op":"moveBoundCards","target":"owner","sourceBind":"shown","destination":"discardPile","condition":{"kind":"choiceIs","sourceBind":"disposition","optionId":"discard"}},
-         {"op":"moveBoundCards","target":"owner","sourceBind":"shown","destination":"drawPileTop","condition":{"kind":"choiceIs","sourceBind":"disposition","optionId":"top"}}]
-        """);
-        RejectChoiceBranches("repeat option branch", """
-        [{"op":"revealTargetHandCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"selectedTarget"},"resultBind":"shown","mode":"chooser","suits":["heart"],"allowDecline":true},
-         {"op":"chooseOption","target":"owner","resultBind":"disposition","condition":{"kind":"boundCardsMatchSuits","sourceBind":"shown","suits":["heart"]},"options":[{"id":"discard","condition":{"kind":"always"}},{"id":"top","condition":{"kind":"always"}}]},
-         {"op":"moveBoundCards","target":"owner","sourceBind":"shown","destination":"discardPile","condition":{"kind":"choiceIs","sourceBind":"disposition","optionId":"discard"}},
-         {"op":"moveBoundCards","target":"owner","sourceBind":"shown","destination":"discardPile","condition":{"kind":"choiceIs","sourceBind":"disposition","optionId":"discard"}}]
-        """, "more than once");
-        RejectChoiceBranches("branch then unconditional", """
-        [{"op":"revealTargetHandCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"selectedTarget"},"resultBind":"shown","mode":"chooser","suits":["heart"],"allowDecline":true},
-         {"op":"chooseOption","target":"owner","resultBind":"disposition","condition":{"kind":"boundCardsMatchSuits","sourceBind":"shown","suits":["heart"]},"options":[{"id":"discard","condition":{"kind":"always"}},{"id":"top","condition":{"kind":"always"}}]},
-         {"op":"moveBoundCards","target":"owner","sourceBind":"shown","destination":"discardPile","condition":{"kind":"choiceIs","sourceBind":"disposition","optionId":"discard"}},
-         {"op":"moveBoundCards","target":"owner","sourceBind":"shown","destination":"ownerHand"}]
-        """, "more than once");
         RejectEffects("reverse non-subset", """
         [{"op":"revealTopCards","target":"owner","amount":2,"resultBind":"r","visibility":"public"},
          {"op":"filterBoundCards","target":"owner","sourceBind":"r","resultBind":"h","suits":["heart"]},
@@ -364,9 +370,11 @@ internal static class ProgramCompositionDefinitionChecks
         Reject(() => Parse(ProgramOperationCatalog.Default,
             """{"op":"moveBoundCards","target":"owner","sourceBind":"r","destination":"processing"}"""), "unsupported SkillProgramCardDestination value");
         Reject(() => Parse(ProgramOperationCatalog.Default,
-            """{"op":"revealTargetHandCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"selectedTarget"},"resultBind":"shown","mode":"chooser","suits":[]}"""), "must be nonempty");
+            """{"op":"revealTargetHandCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"selectedTarget"},"resultBind":"shown","mode":"chooser","suits":[]}"""),
+            "must be nonempty");
         Reject(() => Parse(ProgramOperationCatalog.Default,
-            """{"op":"revealTargetHandCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"selectedTarget"},"resultBind":"shown","mode":"chooser","allowDecline":true}"""), "decline requires");
+            """{"op":"revealTargetHandCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"selectedTarget"},"resultBind":"shown","mode":"chooser","allowDecline":true}"""),
+            "decline requires");
 
         const string oldEffects = """[{"op":"draw","target":"owner","amount":21}]""";
         Reject(() => Load("fixture:new23", Rules("fixture:new23", oldEffects,
@@ -653,6 +661,32 @@ internal static class ProgramCompositionDefinitionChecks
         _ = Load("fixture:" + id.Replace(' ', '-'), Rules("fixture:" + id.Replace(' ', '-'), effects,
             Entries(effects, includeTriggers: false)));
 
+    private static void AcceptChoiceBranches(string id, string effects)
+    {
+        var skillId = "fixture:" + id.Replace(' ', '-');
+        var activation = $$"""
+        {"id":"active","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,
+         "targetKind":"otherLivingWithHand","usesPerTurn":1,"effects":{{effects}}}
+        """;
+        var rules = Rules(skillId, effects, $"\"activations\":[{activation}],\"triggers\":[]");
+        var presentation = JsonSerializer.Serialize(new
+        {
+            schemaVersion = 3,
+            skills = new Dictionary<string, object>
+            {
+                [skillId] = new
+                {
+                    name = "Fixture", description = "Fixture",
+                    optionLabels = new { discard = "Discard", top = "Top" }
+                }
+            }
+        });
+        _ = SkillProgramCatalog.Load(rules, presentation).Programs[skillId];
+    }
+
+    private static void RejectChoiceBranches(string id, string effects, string expected) =>
+        Reject(() => AcceptChoiceBranches(id, effects), expected);
+
     private static void RejectEffects(string id, string effects, string expected) => Reject(() =>
         Accept(id, effects), expected);
 
@@ -673,36 +707,6 @@ internal static class ProgramCompositionDefinitionChecks
         Reject(() => Load(skillId, Rules(skillId, effects,
             $"\"activations\":[],\"triggers\":[{Trigger("trigger", "playEnding", effects)}]")), expected);
     }
-
-    private static void AcceptChoiceBranches(string id, string effects)
-    {
-        var skillId = "fixture:" + id.Replace(' ', '-');
-        var activation = $$"""
-        {"id":"active","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,
-         "targetKind":"otherLivingWithHand","usesPerTurn":1,"effects":{{effects}}}
-        """;
-        _ = SkillProgramCatalog.Load(Rules(skillId, effects,
-            $"\"activations\":[{activation}],\"triggers\":[]"), JsonSerializer.Serialize(new
-            {
-                schemaVersion = 3,
-                skills = new Dictionary<string, object>
-                {
-                    [skillId] = new
-                    {
-                        name = "Fixture",
-                        description = "Fixture",
-                        optionLabels = new Dictionary<string, string>
-                        {
-                            ["discard"] = "弃置",
-                            ["top"] = "置于牌堆顶"
-                        }
-                    }
-                }
-            })).Programs[skillId];
-    }
-
-    private static void RejectChoiceBranches(string id, string effects, string expected) =>
-        Reject(() => AcceptChoiceBranches(id, effects), expected);
 
     private static SkillProgram Load(string id, string rules) => SkillProgramCatalog.Load(rules,
         JsonSerializer.Serialize(new

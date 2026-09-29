@@ -4812,37 +4812,94 @@ internal static class ClassicGeneralChecks
             }
 
             var full = game.CreateSnapshot(0, revealAll: true);
-            var candidate = game.GetHumanLegalActions()
+            // A plain two-Dodge respondent is identified by observable properties, not by a
+            // general whitelist: the pool keeps growing and the whitelist drifted with it.
+            var candidates = game.GetHumanLegalActions()
                 .Where(action => action.Kind == LegalActionKind.Slash && action.TargetSeat is not null)
-                .Select(action => new
-                {
-                    Action = action,
-                    Target = full.Players.Single(player => player.Seat == action.TargetSeat)
-                })
-                .Where(item => item.Target.GeneralId is "classic:lu-meng" or "classic:zhang-fei" or
-                           "classic:xu-huang" or "classic:gan-ning" or "classic:dian-wei" or
-                           "classic:zhang-he" &&
-                               item.Target.Hand.Count(card => card.Kind == CardKind.Dodge) >= 2 &&
-                               item.Target.Equipment.All(card =>
-                                   card.Kind is not (CardKind.BaguaFormation or CardKind.RenwangShield)) &&
-                               item.Target.Skills?.All(skill =>
-                                   skill.ContentId is not ("classic:qingguo" or "classic:longdan" or "classic:hujia")) != false)
+                .Select(action => (Action: action, Target: full.Players.Single(player => player.Seat == action.TargetSeat)))
+                .Where(item => item.Target.Hand.Count(card => card.Kind == CardKind.Dodge) >= 2 &&
+                    item.Target.Equipment.All(card =>
+                        card.Kind is not (CardKind.BaguaFormation or CardKind.RenwangShield)))
                 .OrderBy(item => item.Action.CardId)
                 .ThenBy(item => item.Action.TargetSeat)
-                .FirstOrDefault();
-            if (candidate is null)
+                .ToArray();
+            foreach (var candidate in candidates)
             {
-                continue;
-            }
+                // Deep probe: replay the exact assertion body on a checkpoint copy so that
+                // Dodge conversions, Slash nullification or redirection disqualify the seat.
+                if (!ProbeWushuangSlash(game, candidate.Action, candidate.Target.Seat, registry))
+                {
+                    continue;
+                }
 
-            return (
-                game,
-                GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
-                candidate.Action,
-                candidate.Target.Seat);
+                return (
+                    game,
+                    GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+                    candidate.Action,
+                    candidate.Target.Seat);
+            }
         }
 
         throw new InvalidOperationException("Could not find a deterministic classic Lu Bu two-Dodge fixture.");
+    }
+
+    private static bool ProbeWushuangSlash(
+        GameEngine game,
+        LegalAction action,
+        int targetSeat,
+        ContentRegistry registry)
+    {
+        var probe = GameReplay.Restore(
+            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+            registry);
+        var before = probe.Events.Count;
+        if (!SubmitPlayAction(probe, action).Accepted) return false;
+        if (!DriveProbeUntilDodge(probe, before, 1)) return false;
+        if (probe.CreateSnapshot(targetSeat).PendingDecision is not
+            {
+                Kind: DecisionKind.RespondDodge,
+                PlayerSeat: var responderSeat,
+                RequiredCardKind: CardKind.Dodge
+            } prompt ||
+            responderSeat != targetSeat ||
+            !prompt.Prompt.Contains("第 2 张", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (!DriveProbeUntilDodge(probe, before, 2)) return false;
+        var events = probe.Events.Skip(before).Select(item => item.Payload).ToArray();
+        var progress = events.OfType<RequiredResponseProgressEvent>()
+            .Where(item => item.RequiredCardKind == CardKind.Dodge)
+            .ToArray();
+        return progress.Select(item => item.ResponseCount).SequenceEqual([1, 2]) &&
+               progress.All(item => item.SkillOwnerSeat == 0 &&
+                   item.ResponderSeat == targetSeat &&
+                   item.RequiredResponseCount == 2) &&
+               events.OfType<CardRespondedEvent>().Count(item => item.ResponderSeat == targetSeat) == 2 &&
+               events.OfType<DamageAppliedEvent>().All(item => item.TargetSeat != targetSeat);
+    }
+
+    private static bool DriveProbeUntilDodge(GameEngine probe, int eventCount, int dodgeCount)
+    {
+        for (var step = 0; step < 64; step++)
+        {
+            if (probe.Events.Skip(eventCount).Select(item => item.Payload)
+                    .OfType<RequiredResponseProgressEvent>()
+                    .Count(item => item.RequiredCardKind == CardKind.Dodge) >= dodgeCount)
+            {
+                return true;
+            }
+
+            if (probe.PendingDecision is { PlayerSeat: 0 } ||
+                probe.State.Status == EngineStatus.Completed ||
+                !probe.Submit(new AdvanceOneStepCommand(probe.Revision)).Accepted)
+            {
+                return false;
+            }
+        }
+
+        return false;
     }
 
     private static (
@@ -5578,31 +5635,33 @@ internal static class ClassicGeneralChecks
             var players = game.CreateSnapshot(0, revealAll: true).Players;
             var selfPeach = players.Single(player => player.Seat == 0).Hand
                 .FirstOrDefault(card => card.Kind == CardKind.Peach);
-            var provider = players
-                .Where(player => player.Seat != 0 &&
-                                 string.Equals(
-                                     registry.Generals[player.GeneralId].FactionId,
-                                     "wu",
-                                     StringComparison.Ordinal))
+            if (selfPeach is null)
+            {
+                continue;
+            }
+
+            // Providers are classified by their effective faction (the private projection does
+            // not publish it): a god general that chose Wu counts as Wu for Jiuyuan even though
+            // its printed registry faction is "god".
+            // Every candidate Peach must survive the synthetic injection probe first, because a
+            // conversion or card identity claiming that physical Peach cannot be used plainly.
+            var candidates = players
+                .Where(player => player.Seat != 0)
                 .Select(player => new
                 {
                     player.Seat,
+                    Faction = GetEffectiveFaction(game, player.Seat),
                     Peach = player.Hand.FirstOrDefault(card => card.Kind == CardKind.Peach)
                 })
-                .FirstOrDefault(candidate => candidate.Peach is not null);
-            var nonWuProvider = players
-                .Where(player => player.Seat != 0 &&
-                                 !string.Equals(
-                                     registry.Generals[player.GeneralId].FactionId,
-                                     "wu",
-                                     StringComparison.Ordinal))
-                .Select(player => new
-                {
-                    player.Seat,
-                    Peach = player.Hand.FirstOrDefault(card => card.Kind == CardKind.Peach)
-                })
-                .FirstOrDefault(candidate => candidate.Peach is not null);
-            if (provider is not null && selfPeach is not null && nonWuProvider is not null)
+                .Where(candidate => candidate.Peach is not null &&
+                                    CanInjectSyntheticPeach(game, candidate.Seat, candidate.Peach!.Id, registry))
+                .ToArray();
+            var provider = candidates.FirstOrDefault(candidate =>
+                string.Equals(candidate.Faction, "wu", StringComparison.Ordinal));
+            var nonWuProvider = candidates.FirstOrDefault(candidate =>
+                !string.Equals(candidate.Faction, "wu", StringComparison.Ordinal));
+            if (provider is not null && nonWuProvider is not null &&
+                CanInjectSyntheticPeach(game, 0, selfPeach.Id, registry))
             {
                 return (
                     game,
@@ -5615,6 +5674,39 @@ internal static class ClassicGeneralChecks
         }
 
         throw new InvalidOperationException("No deterministic Jiuyuan fixture exposed a Wu provider with Peach.");
+    }
+
+    private static string? GetEffectiveFaction(GameEngine game, int seat)
+    {
+        var players = (IReadOnlyList<CharacterState>)(typeof(GameEngine)
+            .GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)
+            ?.GetValue(game) ?? throw new InvalidOperationException("The engine player store was not found."));
+        return (string?)typeof(GameEngine)
+            .GetMethod("GetEffectiveFactionId", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .Invoke(game, [players[seat]]);
+    }
+
+    private static bool CanInjectSyntheticPeach(
+        GameEngine game,
+        int providerSeat,
+        int peachCardId,
+        ContentRegistry registry)
+    {
+        try
+        {
+            var probe = GameReplay.Restore(
+                GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
+                registry);
+            ApplySyntheticDyingPeach(probe, providerSeat, peachCardId);
+            // A usable synthetic Peach must recover the dying Lord in the same synchronous step;
+            // skills that claim or interrupt the physical Peach leave the target at zero HP and
+            // are rejected here instead of by a hardcoded general whitelist.
+            return probe.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hp is 1 or 2;
+        }
+        catch (Exception exception) when (exception is InvalidOperationException or TargetInvocationException)
+        {
+            return false;
+        }
     }
 
     private static void ApplySyntheticDyingPeach(

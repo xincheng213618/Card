@@ -4,7 +4,7 @@
     {
       "id": "classic:shelie",
       "revision": 1,
-      "minimumRulesVersion": 190,
+      "minimumRulesVersion": 188,
       "modifiers": [],
       "viewAs": [],
       "activations": [],
@@ -57,7 +57,7 @@
     {
       "id": "classic:gongxin",
       "revision": 1,
-      "minimumRulesVersion": 190,
+      "minimumRulesVersion": 188,
       "modifiers": [],
       "viewAs": [],
       "activations": [
