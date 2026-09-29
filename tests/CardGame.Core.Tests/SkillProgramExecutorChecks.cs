@@ -500,6 +500,7 @@ internal static class SkillProgramExecutorChecks
             Calls.Add($"participant-take:{frame.OwnerSeat}:{participantReference.Kind}:{amount}:" +
                 $"{string.Join('+', zones)}:{reason.Value}");
             return SkillProgramStepOutcome.Continue;
+        }
 
         public SkillProgramStepOutcome UseDesignatedVirtualSlash(ProgramSkillFrame frame, int targetSeat,
             string resultBind)

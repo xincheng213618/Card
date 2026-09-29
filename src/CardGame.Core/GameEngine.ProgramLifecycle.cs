@@ -1942,8 +1942,10 @@ public sealed partial class GameEngine
                 owner.Seat == _currentSeat && context.SourceSeat == owner.Seat &&
                 _phase == TurnPhase.Discard,
             SkillProgramTriggerWindow.DiscardPhaseEnded =>
-                owner.Seat != _currentSeat && owner.IsAlive &&
-                context.SourceSeat == _currentSeat && _phase == TurnPhase.Discard,
+                owner.IsAlive && context.SourceSeat == _currentSeat && _phase == TurnPhase.Discard &&
+                (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own
+                    ? owner.Seat == _currentSeat
+                    : owner.Seat != _currentSeat),
             _ => false
         };
     }

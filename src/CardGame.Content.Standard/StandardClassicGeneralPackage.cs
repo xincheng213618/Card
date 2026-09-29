@@ -67,6 +67,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "CardGame.Content.Standard.SkillPrograms.classic-chen-gong.rules.json";
     private const string ClassicChenGongPresentationResource =
         "CardGame.Content.Standard.SkillPrograms.classic-chen-gong.presentation.json";
+    private const string ClassicLingTongRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-ling-tong.rules.json";
+    private const string ClassicLingTongPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-ling-tong.presentation.json";
     private const string ClassicZhangZhaoZhangHongRulesResource =
         "CardGame.Content.Standard.SkillPrograms.classic-zhang-zhao-zhang-hong.rules.json";
     private const string ClassicZhangZhaoZhangHongPresentationResource =
@@ -191,6 +195,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicChenGongRulesResource),
             ReadEmbeddedText(ClassicChenGongPresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicLingTongCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicLingTongRulesResource),
+            ReadEmbeddedText(ClassicLingTongPresentationResource)));
     private static readonly Lazy<SkillProgramCatalog> ClassicZhangZhaoZhangHongCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicZhangZhaoZhangHongRulesResource),
@@ -207,7 +215,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicLifecycleRulesResource),
             ReadEmbeddedText(ClassicLifecyclePresentationResource)));
-    public static Version CurrentVersion { get; } = new(1, 162, 0);
+    public static Version CurrentVersion { get; } = new(1, 163, 0);
 
     public StandardClassicGeneralPackage()
     {
@@ -1203,11 +1211,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         {
             builder.AddSkill(WithOptionalTriggerMetadata(FaZhengProgram("classic:enyuan")));
             builder.AddSkill(WithOptionalTriggerMetadata(FaZhengProgram("classic:xuanhuo")));
-    }
-
             builder.AddSkill(WithActiveActionMetadata(ChenGongProgram("classic:mingce")));
             builder.AddSkill(WithStructuredSkillMetadata(
                 ChenGongProgram("classic:zhichi"), SkillTag.Locked, SkillExecutionForm.Trigger));
+            builder.AddSkill(WithOptionalTriggerMetadata(LingTongProgram("classic:xuanfeng")));
         }
 
         {
@@ -1959,9 +1966,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:enyuan", "shu", BaseHp: 3,
                 AdditionalSkillIds: ["classic:xuanhuo"]));
 
+        builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:chen-gong", "陈宫", "chen_gong",
                 "classic:mingce", "qun", BaseHp: 3,
                 AdditionalSkillIds: ["classic:zhichi"]));
+
+        builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:ling-tong", "凌统", "ling_tong",
+                "classic:xuanfeng", "wu", BaseHp: 4));
 
 
         var generalPoolIds = CurrentGeneralIds;
@@ -2291,6 +2303,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         };
     }
 
+    private static ContentSkillDefinition LingTongProgram(string skillId)
+    {
+        var presentation = ClassicLingTongCatalog.Value.Presentations[skillId];
+        return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
+        {
+            Program = ClassicLingTongCatalog.Value.Programs[skillId]
+        };
+    }
+
     private static ContentSkillDefinition ZhangHeProgram(string skillId)
     {
         var presentation = ClassicZhangHeCatalog.Value.Presentations[skillId];
@@ -2462,6 +2483,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:cao-zhi",
         "classic:fa-zheng",
         "classic:chen-gong",
+        "classic:ling-tong",
     ];
 
     /// <summary>Registered generals kept out of the classic identity pools (fan-made roster).</summary>

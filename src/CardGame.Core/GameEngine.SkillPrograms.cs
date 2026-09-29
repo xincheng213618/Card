@@ -805,6 +805,7 @@ public sealed partial class GameEngine
                         ? ResolveProgramEffectTarget(frame, producer.Target)
                         : frame.OwnerSeat)
                     : producer?.ChooserRef is { } producerChooser
+                        ? ResolveProgramParticipant(frame, producerChooser)
                         : producer is null ? -1
                         : producer.Op == SkillProgramEffectOp.RequestSlashByTarget &&
                           producer.TargetReference is { } responder
