@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:zhijian",
+      "revision": 1,
+      "minimumRulesVersion": 187,
+      "activations": [
+        {
+          "id": "equip-target",
+          "usesPerTurn": null,
+          "minCards": 0,
+          "maxCards": 0,
+          "sourceZones": ["hand"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "condition": { "kind": "always" },
+          "effects": [
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand"],
+              "count": 1,
+              "cardCategories": ["equipment"],
+              "destination": "selectedTargetCorrespondingZone",
+              "targetRef": { "kind": "selectedTarget" },
+              "prohibitReplacingEquipment": true
+            },
+            { "op": "draw", "target": "owner", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:guzheng",
+      "revision": 1,
+      "minimumRulesVersion": 187,
+      "triggers": [
+        {
+          "id": "restore-at-discard-phase-end",
+          "window": "discardPhaseEnded",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": true,
+          "priority": 0,
+          "condition": { "kind": "always" },
+          "effects": [
+            {
+              "op": "restorePhaseHandDiscards",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "phaseOwnerRef": { "kind": "eventSource" }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

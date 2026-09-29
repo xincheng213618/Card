@@ -850,7 +850,8 @@ internal static class SkillProgramExecutorChecks
         bool allowSameOwnerHandReturn = false,
         string? coverageResultBind = null,
         bool awaitMovementTriggers = false, bool revealBeforeMove = false,
-        IReadOnlyList<CardKind>? cardKinds = null) =>
+        IReadOnlyList<CardKind>? cardKinds = null,
+        bool prohibitReplacingEquipment = false) =>
             throw new NotSupportedException("The executor fixture does not exercise SelectAndMoveOwnedCard.");
 
         public SkillProgramStepOutcome ChooseOtherOwnedCardDiscard(
@@ -859,6 +860,12 @@ internal static class SkillProgramExecutorChecks
         IReadOnlyList<CardZoneKind> zones,
         CardMoveReason reason) =>
             throw new NotSupportedException("The executor fixture does not exercise ChooseOtherOwnedCardDiscard.");
+
+        public SkillProgramStepOutcome RestorePhaseHandDiscards(
+        ProgramSkillFrame frame,
+        ProgramParticipantReference chooser,
+        ProgramParticipantReference phaseOwner) =>
+            throw new NotSupportedException("The executor fixture does not exercise RestorePhaseHandDiscards.");
 
         public void RefundCardUseDebit(ProgramSkillFrame frame) =>
             throw new NotSupportedException("The executor fixture does not exercise RefundCardUseDebit.");

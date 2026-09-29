@@ -150,6 +150,12 @@ public sealed partial class GameEngine
                             SkillProgramTargetKind.EventTarget => false,
                             _ => false
                         }) &&
+                        (!activation.Effects.Any(effect => effect is
+                             {
+                                 Op: SkillProgramEffectOp.SelectAndMoveOwnedCard,
+                                 ProhibitReplacingEquipment: true
+                             }) ||
+                         HasFreeEquipmentSlotForOwnedHandEquipment(owner, target)) &&
                         (!activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.StartPindian) ||
                          GetHand(target).Count > 0))
                     .Select(target => target.Seat).Order().ToArray();
@@ -215,6 +221,14 @@ public sealed partial class GameEngine
                         SelectableTargetSeats = Array.AsReadOnly(new[] { skillOwner.Seat })
                     };
                 }
+    }
+
+    private bool HasFreeEquipmentSlotForOwnedHandEquipment(CharacterState owner, CharacterState target)
+    {
+        var occupiedSlots = GetEquipment(target)
+            .Select(item => EquipmentCatalog.Get(item.Kind).Slot).ToHashSet();
+        return GetHand(owner).Any(card => EquipmentCatalog.IsEquipment(card.Kind) &&
+            !occupiedSlots.Contains(EquipmentCatalog.Get(card.Kind).Slot));
     }
 
     private SkillProgramAiHint CreateProgramAiHint(

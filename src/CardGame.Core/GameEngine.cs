@@ -4003,6 +4003,7 @@ public sealed partial class GameEngine
             }
 
             AutoDiscard(current);
+            if (TryBeginDiscardPhaseEndedProgramWindow(current)) return;
             EndTurn();
             return;
         }

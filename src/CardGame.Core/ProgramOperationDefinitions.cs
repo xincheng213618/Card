@@ -25,7 +25,8 @@ internal enum ProgramOperationAiSemantic
     HoldTargetCards, UseBoundCardByTarget, PendExtraTurn, ClaimDeathCleanupCards,
     ChooseOwnCardDiscard,
     ExchangeSelectedTargetHands,
-    RequestSlashByTarget
+    RequestSlashByTarget,
+    RestorePhaseHandDiscards
 }
 internal sealed record ProgramOperationAiPolicy(
     ProgramOperationAiSemantic Semantic,

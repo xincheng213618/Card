@@ -2097,6 +2097,7 @@ public sealed partial class SimpleAiBrain
         var card = self.Hand
             .Concat(self.WoodenOxGrain ?? [])
             .Concat(self.Equipment)
+            .Concat(self.AuthorityCards ?? [])
             .Single(candidate => candidate.Id == action.CardId);
         var playedCardKind = action.PlayedCardKind ?? card.Kind;
         var cardProfile = CardCatalog.Get(playedCardKind);

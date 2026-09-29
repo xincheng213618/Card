@@ -26,7 +26,7 @@ internal static class SpLeJinChecks
         var rules = Resource(RulesResource);
         var presentation = Resource(PresentationResource);
         Reject(rules.Replace("\"window\": \"turnEnding\"", "\"window\": \"afterNormalDraw\""),
-            presentation, "turnEnding, playEnding or playPhaseStarting trigger");
+            presentation, "turnEnding, playEnding, playPhaseStarting or discardPhaseEnded trigger");
         Reject(rules.Replace("\"kind\": \"hasOwnedCardCategory\", \"zones\": [\"hand\", \"equipment\"]",
                 "\"kind\": \"hasOwnedCardCategory\", \"zones\": [\"judgment\"]"),
             presentation, "hand or equipment only");
