@@ -607,7 +607,8 @@ internal static class SkillProgramExecutorChecks
             int maximumCards,
             int maximumRankSum,
             SkillProgramSubsetAiOrder aiOrder,
-            bool allowFewerWhenInsufficient)
+            bool allowFewerWhenInsufficient,
+            bool onePerSuit)
         {
             Calls.Add($"select-subset:{ownerSeat}:{sourceBind}:{resultBind}:{minimumCards}:{maximumCards}:{maximumRankSum}:{aiOrder}");
             return SkillProgramStepOutcome.AwaitChoice;
@@ -770,7 +771,7 @@ internal static class SkillProgramExecutorChecks
 
         public SkillProgramStepOutcome RevealTargetHandCard(ProgramSkillFrame frame,
             ProgramParticipantReference chooser, ProgramParticipantReference cardOwner, string resultBind,
-            SkillProgramRevealMode mode) =>
+            SkillProgramRevealMode mode, IReadOnlyList<Suit> eligibleSuits, bool allowDecline) =>
             throw new NotSupportedException("The executor fixture does not exercise RevealTargetHandCard.");
 
         public void RevealUniqueRankForDying(ProgramSkillFrame frame, CardZoneKind zone, int rescueHp) =>

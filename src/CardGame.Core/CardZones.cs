@@ -466,6 +466,24 @@ internal sealed class CardZoneStore
         drawPile.InsertRange(0, moved);
     }
 
+    /// <summary>
+    /// Places cards just moved to the draw pile on its top. The first supplied
+    /// id becomes the next card drawn. Like the bottom placement this assumes
+    /// the cards still sit as the pile's most recently appended segment.
+    /// </summary>
+    public void PlaceDrawPileCardsAtTop(IReadOnlyList<int> cardIds)
+    {
+        ArgumentNullException.ThrowIfNull(cardIds);
+        var drawPile = GetZone(CardLocation.DrawPile);
+        if (cardIds.Count == 0) return;
+        if (!drawPile.TakeLast(cardIds.Count).Select(card => card.Id).SequenceEqual(cardIds))
+            throw new InvalidOperationException("The top placement must use the exact most recently moved cards.");
+        var moved = drawPile.TakeLast(cardIds.Count).ToArray();
+        drawPile.RemoveRange(drawPile.Count - cardIds.Count, cardIds.Count);
+        // The zone list ends at the top: reversing keeps cardIds[0] topmost.
+        drawPile.AddRange(moved.Reverse());
+    }
+
     public IReadOnlyList<CardZoneDiagnostic> CreateDiagnostics() =>
         _zones
             .SelectMany(pair => pair.Value.Select((card, index) =>

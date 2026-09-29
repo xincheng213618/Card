@@ -98,7 +98,8 @@ public interface ISkillProgramEffectHost
         IReadOnlyList<CardZoneKind> zones, string resultBind, int minimumCards);
     SkillProgramStepOutcome RevealTargetHandCard(ProgramSkillFrame frame,
         ProgramParticipantReference chooser, ProgramParticipantReference cardOwner,
-        string resultBind, SkillProgramRevealMode mode);
+        string resultBind, SkillProgramRevealMode mode,
+        IReadOnlyList<Suit> eligibleSuits, bool allowDecline);
     void CaptureSelectedCards(ProgramSkillFrame frame, string resultBind);
     void RevealBoundCards(ProgramSkillFrame frame, string sourceBind);
     void UseBoundCardAsDyingAlcohol(ProgramSkillFrame frame, string sourceBind, CardMoveReason reason);
@@ -170,7 +171,8 @@ public interface ISkillProgramEffectHost
         int maximumCards,
         int maximumRankSum,
         SkillProgramSubsetAiOrder aiOrder,
-        bool allowFewerWhenInsufficient);
+        bool allowFewerWhenInsufficient,
+        bool onePerSuit);
     SkillProgramStepOutcome MoveBoundCards(
         long frameId,
         int ownerSeat,
@@ -825,7 +827,7 @@ public sealed class SelectCardSubsetSkillProgramEffectHandler : ISkillProgramEff
             effect.ResultBind ?? throw new InvalidOperationException("selectCardSubset has no result bind."),
             effect.MinimumCards, effect.MaximumCards, effect.MaximumRankSum,
             effect.AiOrder ?? throw new InvalidOperationException("selectCardSubset has no AI order."),
-            effect.AllowFewerWhenInsufficient);
+            effect.AllowFewerWhenInsufficient, effect.OnePerSuit);
 }
 
 public sealed class MoveBoundCardsSkillProgramEffectHandler : ISkillProgramEffectHandler

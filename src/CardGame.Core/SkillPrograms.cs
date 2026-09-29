@@ -291,7 +291,8 @@ public enum SkillProgramCardDestination
 {
     OwnerHand, DiscardPile, SelectedTargetHand, OwnerPersistentZone, DrawPileBottom, PhaseOwnerHand,
     SelectedTargetEquipment,
-    SelectedTargetCorrespondingZone
+    SelectedTargetCorrespondingZone,
+    DrawPileTop
 }
 public enum SkillProgramCardSource { DamageSource, Owner, EventTarget = 2 }
 public enum SkillProgramSubsetAiOrder { MostCardsThenRankSum }
@@ -874,7 +875,9 @@ public sealed class SkillProgramEffect
         IReadOnlyList<SkillProgramTurnPhase>? skippedPhases = null,
         SkillProgramRevealMode? revealMode = null,
         ProgramParticipantReference? sourceRef = null,
-        bool prohibitReplacingEquipment = false) =>
+        bool prohibitReplacingEquipment = false,
+        bool onePerSuit = false,
+        bool allowDecline = false) =>
         (Op, Target, Amount, Condition, Phase, PhaseContinuation, NumberExpression, MinimumValue,
             ClampToMaxHp, SourceBind, ResultBind, ExceptBind, Visibility, MinimumCards, MaximumCards,
             MaximumRankSum, AiOrder, Destination, DestinationZone, CardSource, FaceDown, Zones, TargetKind,
@@ -886,7 +889,8 @@ public sealed class SkillProgramEffect
             DamageModifierExpiration, DamageModifierSourceScope, AllowSameOwnerHandReturn, CoverageResultBind, AwaitMovementTriggers,
             RevealBeforeMove, MatchSuitOfBind, AllowSameSource, SkipIfNoTarget,
             DamageNature, OldCardDestination, ReplacementSuits, MinimumReplacementRank, MaximumReplacementRank,
-            ProviderFactionId, SkippedPhases, RevealMode, SourceRef, ProhibitReplacingEquipment) =
+            ProviderFactionId, SkippedPhases, RevealMode, SourceRef, ProhibitReplacingEquipment,
+            OnePerSuit, AllowDecline) =
         (op, target, amount, condition, phase, phaseContinuation, numberExpression, minimumValue,
             clampToMaxHp, sourceBind, resultBind, exceptBind, visibility, minimumCards, maximumCards,
             maximumRankSum, aiOrder, destination, destinationZone, cardSource, faceDown,
@@ -905,7 +909,7 @@ public sealed class SkillProgramEffect
             damageNature, oldCardDestination, replacementSuits ?? Array.Empty<Suit>(),
             minimumReplacementRank, maximumReplacementRank, providerFactionId,
             skippedPhases ?? Array.Empty<SkillProgramTurnPhase>(), revealMode, sourceRef,
-            prohibitReplacingEquipment);
+            prohibitReplacingEquipment, onePerSuit, allowDecline);
     public SkillProgramEffectOp Op { get; }
     public SkillProgramEffectTarget Target { get; }
     public int Amount { get; }
@@ -977,6 +981,8 @@ public sealed class SkillProgramEffect
     public SkillProgramRevealMode? RevealMode { get; }
     public ProgramParticipantReference? SourceRef { get; }
     public bool ProhibitReplacingEquipment { get; }
+    public bool OnePerSuit { get; }
+    public bool AllowDecline { get; }
 }
 
 public enum SkillProgramRevealMode { Random, Chooser }

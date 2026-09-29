@@ -260,8 +260,10 @@ public sealed partial class GameEngine
 
         public SkillProgramStepOutcome RevealTargetHandCard(ProgramSkillFrame frame,
             ProgramParticipantReference chooser, ProgramParticipantReference cardOwner,
-            string resultBind, SkillProgramRevealMode mode) =>
-            engine.RevealProgramTargetHandCard(frame, chooser, cardOwner, resultBind, mode);
+            string resultBind, SkillProgramRevealMode mode,
+            IReadOnlyList<Suit> eligibleSuits, bool allowDecline) =>
+            engine.RevealProgramTargetHandCard(frame, chooser, cardOwner, resultBind, mode,
+                eligibleSuits, allowDecline);
 
         public void CaptureSelectedCards(ProgramSkillFrame frame, string resultBind) =>
             engine.CaptureProgramSelectedCards(frame, resultBind);
@@ -370,9 +372,9 @@ public sealed partial class GameEngine
 
         public SkillProgramStepOutcome SelectCardSubset(long frameId, int ownerSeat, string sourceBind,
             string resultBind, int minimumCards, int maximumCards, int maximumRankSum,
-            SkillProgramSubsetAiOrder aiOrder, bool allowFewerWhenInsufficient) =>
+            SkillProgramSubsetAiOrder aiOrder, bool allowFewerWhenInsufficient, bool onePerSuit) =>
             engine.SelectProgramCardSubset(frameId, ownerSeat, sourceBind, resultBind, minimumCards,
-                maximumCards, maximumRankSum, aiOrder, allowFewerWhenInsufficient);
+                maximumCards, maximumRankSum, aiOrder, allowFewerWhenInsufficient, onePerSuit);
 
         public SkillProgramStepOutcome MoveBoundCards(long frameId, int ownerSeat, string sourceBind, string? exceptBind,
             SkillProgramCardDestination destination, CardZoneKind? destinationZone, CardMoveReason reason) =>
