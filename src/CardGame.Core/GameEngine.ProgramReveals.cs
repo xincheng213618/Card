@@ -7,7 +7,9 @@ public sealed partial class GameEngine
         ProgramParticipantReference chooserRef,
         ProgramParticipantReference cardOwnerRef,
         string resultBind,
-        SkillProgramRevealMode mode)
+        SkillProgramRevealMode mode,
+        IReadOnlyList<Suit> eligibleSuits,
+        bool allowDecline)
     {
         var active = GetActiveProgramFrame(frame.Id);
         if (active.RevealCardSelection is not null ||
@@ -26,16 +28,32 @@ public sealed partial class GameEngine
             CancelProgramBindingAndCleanup(active, "目标没有手牌，技能结算已取消。");
             return SkillProgramStepOutcome.AwaitChild;
         }
+        var handCards = _cardZones.CardsAt(CardLocation.Hand(holderSeat)).ToDictionary(card => card.Id);
+        var eligible = eligibleSuits.Count == 0 ? candidates : candidates
+            .Where(cardId => eligibleSuits.Contains(handCards[cardId].Suit))
+            .ToArray();
+        if (eligible.Length == 0 && !allowDecline)
+        {
+            CancelProgramBindingAndCleanup(active, "目标没有符合花色条件的手牌，技能结算已取消。");
+            return SkillProgramStepOutcome.AwaitChild;
+        }
         if (mode == SkillProgramRevealMode.Random)
         {
+            if (eligible.Length == 0)
+            {
+                // Nothing eligible to blind-reveal: an allowed decline commits an
+                // empty private binding so downstream suit-gated branches stay dormant.
+                SetProgramCardSet(frame.Id, resultBind, [], SkillProgramCardSetVisibility.Private, []);
+                return SkillProgramStepOutcome.Continue;
+            }
             CommitProgramHandReveal(frame.Id, holderSeat, resultBind,
-                [candidates[_random.Next(candidates.Length)]]);
+                [eligible[_random.Next(eligible.Length)]]);
             return SkillProgramStepOutcome.Continue;
         }
         active = active with
         {
             RevealCardSelection = new(holderSeat, chooserSeat, resultBind,
-                Array.AsReadOnly(candidates))
+                Array.AsReadOnly(candidates), Array.AsReadOnly(eligible), allowDecline)
         };
         _resolutionStack[^1] = active;
         PublishProgramRevealCardSelection(active);
@@ -46,7 +64,7 @@ public sealed partial class GameEngine
     {
         var draft = frame.RevealCardSelection ?? throw new InvalidOperationException("Missing reveal draft.");
         var skill = _contentRegistry!.GetSkill(frame.SkillId);
-        var choices = draft.CandidateCardIds.Select(cardId =>
+        var choices = draft.EligibleCardIds.Select(cardId =>
         {
             var card = _cardZones.CardsAt(CardLocation.Hand(draft.HolderSeat))
                 .Single(item => item.Id == cardId);
@@ -60,14 +78,26 @@ public sealed partial class GameEngine
                     ["frame-id"] = frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture),
                     ["result-bind"] = draft.ResultBind
                 });
-        }).ToArray();
+        }).ToList();
+        if (draft.AllowDecline)
+            choices.Add(new PromptChoice(
+                new ChoiceId($"program-reveal.frame-{frame.Id}.decline"),
+                "不展示任何牌。", [], [],
+                new Dictionary<string, string>
+                {
+                    ["program-action"] = "reveal-target-hand-card-decline",
+                    ["frame-id"] = frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    ["result-bind"] = draft.ResultBind
+                }));
         _pendingDecision = new PendingDecision(DecisionKind.ProgramTrigger, draft.ChooserSeat,
             $"请选择要展示的 {_players[draft.HolderSeat].Name} 的一张手牌。",
             draft.CandidateCardIds.ToArray(), [], draft.ChooserSeat)
         {
-            PromptId = CreatePromptId(), IsPrivate = true, TargetSeat = draft.HolderSeat,
+            PromptId = CreatePromptId(),
+            IsPrivate = true,
+            TargetSeat = draft.HolderSeat,
             SkillPrompt = new(frame.SkillId, skill.Name, $"{skill.Name} · 观看手牌", skill.Description),
-            Choices = Array.AsReadOnly(choices)
+            Choices = choices.AsReadOnly()
         };
         _status = _players[draft.ChooserSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
@@ -81,12 +111,16 @@ public sealed partial class GameEngine
             .GetPausedInstruction(frame.InstructionIndex).Effect;
         var draft = frame.RevealCardSelection ??
             throw new InvalidOperationException("The reveal choice lost its suspended draft.");
+        var declining =
+            selected.Parameters.GetValueOrDefault("program-action") == "reveal-target-hand-card-decline";
         if (effect.Op != SkillProgramEffectOp.RevealTargetHandCard ||
             effect.ResultBind != draft.ResultBind ||
             selected.Parameters.GetValueOrDefault("frame-id") !=
                 frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) ||
             selected.Parameters.GetValueOrDefault("result-bind") != draft.ResultBind ||
-            selected.Cards.Count != 1 || !draft.CandidateCardIds.Contains(selected.Cards[0]))
+            declining && (!draft.AllowDecline || selected.Cards.Count != 0) ||
+            !declining && (selected.Cards.Count != 1 ||
+                !draft.EligibleCardIds.Contains(selected.Cards[0])))
             throw new InvalidOperationException("The reveal choice does not match its suspended instruction.");
         if (!_players[frame.OwnerSeat].IsAlive || !_players[draft.HolderSeat].IsAlive ||
             !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId) ||
@@ -99,7 +133,16 @@ public sealed partial class GameEngine
         }
         ClearPendingDecision();
         _resolutionStack[^1] = frame with { RevealCardSelection = null };
-        CommitProgramHandReveal(frame.Id, draft.HolderSeat, draft.ResultBind, [selected.Cards[0]]);
+        if (declining)
+        {
+            // A decline commits an empty private binding: the chain continues with
+            // nothing shown, so suit-gated branches stay dormant and no reveal event fires.
+            SetProgramCardSet(frame.Id, draft.ResultBind, [], SkillProgramCardSetVisibility.Private, []);
+        }
+        else
+        {
+            CommitProgramHandReveal(frame.Id, draft.HolderSeat, draft.ResultBind, [selected.Cards[0]]);
+        }
         ContinueProgramSkill(frame.Id);
     }
 
@@ -131,15 +174,22 @@ public sealed partial class GameEngine
             draft.CandidateCardIds.Distinct().Count() != draft.CandidateCardIds.Count ||
             draft.CandidateCardIds.Any(cardId =>
                 _cardZones.GetLocation(cardId) != CardLocation.Hand(draft.HolderSeat)) ||
+            draft.EligibleCardIds.Any(cardId => !draft.CandidateCardIds.Contains(cardId)) ||
             frame.CardSetBindings.Any(binding => binding.Name == draft.ResultBind) ||
             !ReferenceEquals(frame, _resolutionStack.LastOrDefault()) ||
             _pendingDecision is not { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } decision ||
             decision.PlayerSeat != draft.ChooserSeat ||
-            decision.Choices.Count != draft.CandidateCardIds.Count ||
+            decision.Choices.Count !=
+                draft.EligibleCardIds.Count + (draft.AllowDecline ? 1 : 0) ||
             decision.Choices.Any(choice =>
-                choice.Parameters.GetValueOrDefault("program-action") != "reveal-target-hand-card" ||
                 choice.Parameters.GetValueOrDefault("result-bind") != draft.ResultBind ||
-                choice.Cards.Count != 1 || !draft.CandidateCardIds.Contains(choice.Cards[0])))
+                choice.Parameters.GetValueOrDefault("program-action") switch
+                {
+                    "reveal-target-hand-card" => choice.Cards.Count != 1 ||
+                        !draft.EligibleCardIds.Contains(choice.Cards[0]),
+                    "reveal-target-hand-card-decline" => !draft.AllowDecline || choice.Cards.Count != 0,
+                    _ => true
+                }))
             throw new InvalidOperationException("A private reveal draft lost its exact instruction or prompt.");
     }
 }

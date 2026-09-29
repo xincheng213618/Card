@@ -24,7 +24,7 @@ internal static class LiDianChecks
             "Both skills must have composable original-edition timing and per-point damage semantics.");
         Require(xunxun.Triggers.Single().Effects[1].AllowFewerWhenInsufficient &&
                 !registry.Skills["classic:chengxiang"].Program!.Triggers.Single().Effects[1].AllowFewerWhenInsufficient &&
-                CardSubsetSelector.Enumerate([new CardSubsetCandidate(1, 1)],
+                CardSubsetSelector.Enumerate([new CardSubsetCandidate(1, 1, Suit.Club)],
                     new CardSubsetConstraint(2, 2, 208)).Count == 0,
             "Depleted-card relaxation must be opt-in; existing exact-count selection remains strict.");
         RejectInvalidWangxiTargetReferences();
@@ -504,11 +504,15 @@ internal static class LiDianChecks
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
-            Seed = seed, PlayerCount = 5,
+            Seed = seed,
+            PlayerCount = 5,
             ModeId = registry.Modes.ContainsKey(FragileMode) ? FragileMode : Mode,
             HumanSeat = 0,
-            HumanRole = Role.Lord, UseInteractiveSetup = true,
-            UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 10
+            HumanRole = Role.Lord,
+            UseInteractiveSetup = true,
+            UseInteractiveDiscard = false,
+            AdvanceAfterHumanCommands = false,
+            MaxTurns = 10
         }, registry);
         Require(game.Submit(new StartGameCommand()).Accepted, "Li Dian fixture start failed.");
         var select = Prompt(game);
@@ -573,17 +577,28 @@ internal static class LiDianChecks
             builder.AddMode(new ContentModeDefinition(fragileTargets ? FragileMode : Mode, "Li Dian", 5, 5,
                 new Dictionary<string, int>
                 {
-                    [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1,
-                    [nameof(Role.Rebel)] = 2, [nameof(Role.Renegade)] = 1
+                    [nameof(Role.Lord)] = 1,
+                    [nameof(Role.Loyalist)] = 1,
+                    [nameof(Role.Rebel)] = 2,
+                    [nameof(Role.Renegade)] = 1
                 }, "fixture:li-dian-deck", GeneralCandidateCount: 5,
                 GeneralPoolIds: fragileTargets
-                    ? ["classic:li-dian", "fixture:li-dian-target-1", "fixture:li-dian-target-2",
-                        "fixture:li-dian-target-3", "fixture:li-dian-target-4"]
+                    ? ["classic:li-dian",
+                        "fixture:li-dian-target-1",
+                        "fixture:li-dian-target-2",
+                        "fixture:li-dian-target-3",
+                        "fixture:li-dian-target-4"]
                     : ganglieTarget
-                        ? ["classic:li-dian", "classic:xiahou-dun", "classic:guan-yu",
-                            "classic:zhang-fei", "classic:sun-quan"]
-                        : ["classic:li-dian", "classic:liu-bei", "classic:guan-yu",
-                            "classic:zhang-fei", "classic:sun-quan"]));
+                        ? ["classic:li-dian",
+                            "classic:xiahou-dun",
+                            "classic:guan-yu",
+                            "classic:zhang-fei",
+                            "classic:sun-quan"]
+                        : ["classic:li-dian",
+                            "classic:liu-bei",
+                            "classic:guan-yu",
+                            "classic:zhang-fei",
+                            "classic:sun-quan"]));
         }
     }
 }

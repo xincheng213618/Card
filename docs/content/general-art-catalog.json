@@ -5442,6 +5442,23 @@
       ]
     },
     {
+      "key": "shen-lu-meng",
+      "characterName": "神吕蒙",
+      "defaultSkinId": "120201",
+      "skins": [
+        {
+          "id": "120201",
+          "name": "经典形象*神吕蒙",
+          "sourcePage": "https://x.sanguosha.com/hero/202.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/120201.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-shen-lu-meng.png",
+          "sha256": "153cf4b65047f37c689ca61fec423155ff378af0cd3fcefdcc688d93086b0bce",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "shen-sima-yi",
       "characterName": "神司马懿",
       "defaultSkinId": "120801",

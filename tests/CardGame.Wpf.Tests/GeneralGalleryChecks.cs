@@ -128,7 +128,7 @@ internal static class GeneralGalleryChecks
         vm.SelectGeneralGallerySeriesCommand.Execute("god");
         vm.SelectGeneralGalleryFactionCommand.Execute("god");
         Program.Assert(vm.GeneralGalleryEntries.Select(entry => entry.GeneralId).ToHashSet()
-                           .SetEquals(["classic:shen-guan-yu", "classic:shen-sima-yi"]) &&
+                           .SetEquals(["classic:shen-guan-yu", "classic:shen-sima-yi", "classic:shen-lu-meng"]) &&
                        vm.GeneralGalleryEntries.All(entry => entry.Kingdom == "神"),
             "God generals must be discoverable by the god faction filter without changing Core factions.");
 

@@ -31,8 +31,13 @@ public sealed record GameCheckpoint(
     // selectedTargetEquipment destination, the empty-slot activation target
     // filter, the turn-owner discard-phase hand-discard fact, and the
     // named-choice hand-gain move branch.
-    public const int CurrentRulesVersion = 188;
-    // 187 was consumed by main-side Zhang He / Shen Zhao Yun work.
+    // 190: Shen Lu Meng (shelie/gongxin) with the one-per-suit subset
+    // constraint, the reveal-target-hand-card suit filter with decline, and
+    // the drawPileTop destination.
+    public const int CurrentRulesVersion = 190;
+    // 189 was reserved by the parallel Jia Xu batch; 190 belongs to the
+    // Shen Lu Meng batch. 187 was consumed by main-side Zhang He / Shen Zhao
+    // Yun work.
 
     public int RulesVersion { get; init; }
 }

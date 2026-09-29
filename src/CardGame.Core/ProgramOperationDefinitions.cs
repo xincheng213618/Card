@@ -565,7 +565,7 @@ internal sealed class SelectCardSubsetProgramOperationDescriptor : ProgramOperat
         static (effect, context) => context.Subset(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "sourceBind", "resultBind", "minimumCards", "maximumCards", "maximumRankSum", "aiOrder", "allowFewerWhenInsufficient", "condition");
+        r.AllowOnly("op", "target", "sourceBind", "resultBind", "minimumCards", "maximumCards", "maximumRankSum", "aiOrder", "allowFewerWhenInsufficient", "onePerSuit", "condition");
         var target = FilterBoundCardsProgramOperationDescriptor.Owner(r);
         var source = r.RequiredIdentifier("sourceBind"); var result = r.RequiredIdentifier("resultBind");
         if (source == result) throw new InvalidOperationException($"Invalid skill program at {r.Path}: sourceBind and resultBind must differ.");
@@ -577,7 +577,8 @@ internal sealed class SelectCardSubsetProgramOperationDescriptor : ProgramOperat
         var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), sourceBind: source, resultBind: result,
             minimumCards: min, maximumCards: max, maximumRankSum: rank,
             aiOrder: r.RequiredEnum<SkillProgramSubsetAiOrder>("aiOrder"),
-            allowFewerWhenInsufficient: r.Has("allowFewerWhenInsufficient") && r.RequiredBool("allowFewerWhenInsufficient"));
+            allowFewerWhenInsufficient: r.Has("allowFewerWhenInsufficient") && r.RequiredBool("allowFewerWhenInsufficient"),
+            onePerSuit: r.Has("onePerSuit") && r.RequiredBool("onePerSuit"));
         RequireAlways(effect, r.Path); return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
@@ -599,7 +600,8 @@ internal sealed class MoveBoundCardsProgramOperationDescriptor : ProgramOperatio
         var destination = r.RequiredEnum<SkillProgramCardDestination>("destination");
         if (destination is not (SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.DiscardPile or
                 SkillProgramCardDestination.OwnerPersistentZone or SkillProgramCardDestination.DrawPileBottom or
-                SkillProgramCardDestination.PhaseOwnerHand or SkillProgramCardDestination.SelectedTargetHand))
+                SkillProgramCardDestination.PhaseOwnerHand or SkillProgramCardDestination.SelectedTargetHand or
+                SkillProgramCardDestination.DrawPileTop))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.destination: unsupported destination.");
         var destinationZone = r.Has("destinationZone") ? r.RequiredEnum<CardZoneKind>("destinationZone") : (CardZoneKind?)null;
         if ((destination == SkillProgramCardDestination.OwnerPersistentZone) != (destinationZone is not null))
@@ -609,11 +611,13 @@ internal sealed class MoveBoundCardsProgramOperationDescriptor : ProgramOperatio
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.destinationZone: must be a persistent owner zone.");
         var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), sourceBind: source,
             exceptBind: except, destination: destination, destinationZone: destinationZone);
-        // A named-choice branch may gate a discard or a gain into the owner's own
-        // hand (Pindian winnings, or Guzheng's optional claim of the remaining cards).
+        // A named-choice branch may gate a discard, a gain into the owner's own
+        // hand (Pindian winnings, or Guzheng's optional claim of the remaining
+        // cards), or a placement onto the draw pile top (Gongxin).
         if (effect.Condition.Kind != SkillProgramConditionKind.Always &&
             !(effect.Condition.Kind == SkillProgramConditionKind.ChoiceIs &&
-              destination is SkillProgramCardDestination.DiscardPile or SkillProgramCardDestination.OwnerHand) &&
+              destination is SkillProgramCardDestination.DiscardPile or SkillProgramCardDestination.OwnerHand or
+                SkillProgramCardDestination.DrawPileTop) &&
             !(effect.Condition.Kind == SkillProgramConditionKind.PindianWon &&
               destination == SkillProgramCardDestination.OwnerHand))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: conditional card movement requires a named-choice discard or gain branch.");

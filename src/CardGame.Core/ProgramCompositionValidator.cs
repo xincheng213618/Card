@@ -99,134 +99,159 @@ internal static class ProgramCompositionValidator
                 switch (resource)
                 {
                     case CreateCardSet create:
-                    {
-                        var root = new Root(create.Name, create.NeedsCleanup, !create.NeedsCleanup,
-                            typedCardAtoms, create.AlreadyMoved);
-                        roots.Add(root);
-                        Add(create.Name, new(root, root.Atoms.Keys.ToHashSet(), create.MaxCount, create.CardOwner));
-                        if (create.AlreadyMoved)
                         {
-                            root.Consumed.UnionWith(root.Atoms.Keys);
-                            if (!frozenSuitBindings.Add(create.Name) || create.MaxCount != 1)
-                                Fail("revealed transfer needs a unique single-card metadata binding");
-                        }
-                        break;
-                    }
-                    case CaptureSourceCard sourceCard:
-                    {
-                        var root = new Root(sourceCard.Name, false, sourceCard.OwnerHand, typedCardAtoms);
-                        roots.Add(root);
-                        Add(sourceCard.Name, new(root, root.Atoms.Keys.ToHashSet(), sourceCard.MaximumCount,
-                            sourceCard.CardOwner));
-                        break;
-                    }
-                    case CaptureActivationCards activationCards:
-                    {
-                        if (cardsConsumed || selectedCardCount <= 0)
-                            Fail("activation input cards must be captured exactly once after selecting at least one card");
-                        var root = new Root(activationCards.Name, true, true, typedCardAtoms);
-                        roots.Add(root);
-                        Add(activationCards.Name, new(root, root.Atoms.Keys.ToHashSet(), selectedCardCount));
-                        cardsConsumed = true;
-                        break;
-                    }
-                    case ReadSingleCardSet single:
-                    {
-                        var source = Get(single.Name);
-                        if (source.MaximumCount > 1 || source.Atoms.Overlaps(source.Root.Consumed) ||
-                            source.Atoms.Overlaps(source.Root.PossiblyGifted))
-                            Fail("the operation requires a stable single-card binding before movement");
-                        break;
-                    }
-                    case DeriveCardSet derive:
-                    {
-                        if (derive.MatchSuitOfBind is { } frozen && !frozenSuitBindings.Contains(frozen))
-                            Fail($"unknown public frozen suit binding '{frozen}'");
-                        var source = Get(derive.Source);
-                        if (source.Atoms.Overlaps(source.Root.Consumed) || source.Atoms.Overlaps(source.Root.PossiblyGifted))
-                            Fail("a derived set reads cards that may already have moved");
-                        HashSet<int> atoms;
-                        var maximum = source.MaximumCount;
-                        if (derive.SelectionMaximum is { } limit)
-                        {
-                            maximum = Math.Min(maximum, limit);
-                            atoms = [];
-                            if (limit > 0)
+                            var root = new Root(create.Name, create.NeedsCleanup, !create.NeedsCleanup,
+                                typedCardAtoms, create.AlreadyMoved);
+                            roots.Add(root);
+                            Add(create.Name, new(root, root.Atoms.Keys.ToHashSet(), create.MaxCount, create.CardOwner));
+                            if (create.AlreadyMoved)
                             {
-                                // Each selected atom and its unselected sibling retain the
-                                // same suit. Every earlier alias must include both children.
-                                foreach (var atom in source.Atoms.ToArray())
+                                root.Consumed.UnionWith(root.Atoms.Keys);
+                                if (!frozenSuitBindings.Add(create.Name) || create.MaxCount != 1)
+                                    Fail("revealed transfer needs a unique single-card metadata binding");
+                            }
+                            break;
+                        }
+                    case CaptureSourceCard sourceCard:
+                        {
+                            var root = new Root(sourceCard.Name, false, sourceCard.OwnerHand, typedCardAtoms);
+                            roots.Add(root);
+                            Add(sourceCard.Name, new(root, root.Atoms.Keys.ToHashSet(), sourceCard.MaximumCount,
+                                sourceCard.CardOwner));
+                            break;
+                        }
+                    case CaptureActivationCards activationCards:
+                        {
+                            if (cardsConsumed || selectedCardCount <= 0)
+                                Fail("activation input cards must be captured exactly once after selecting at least one card");
+                            var root = new Root(activationCards.Name, true, true, typedCardAtoms);
+                            roots.Add(root);
+                            Add(activationCards.Name, new(root, root.Atoms.Keys.ToHashSet(), selectedCardCount));
+                            cardsConsumed = true;
+                            break;
+                        }
+                    case ReadSingleCardSet single:
+                        {
+                            var source = Get(single.Name);
+                            if (source.MaximumCount > 1 || source.Atoms.Overlaps(source.Root.Consumed) ||
+                                source.Atoms.Overlaps(source.Root.PossiblyGifted))
+                                Fail("the operation requires a stable single-card binding before movement");
+                            break;
+                        }
+                    case DeriveCardSet derive:
+                        {
+                            if (derive.MatchSuitOfBind is { } frozen && !frozenSuitBindings.Contains(frozen))
+                                Fail($"unknown public frozen suit binding '{frozen}'");
+                            var source = Get(derive.Source);
+                            if (source.Atoms.Overlaps(source.Root.Consumed) || source.Atoms.Overlaps(source.Root.PossiblyGifted))
+                                Fail("a derived set reads cards that may already have moved");
+                            HashSet<int> atoms;
+                            var maximum = source.MaximumCount;
+                            if (derive.SelectionMaximum is { } limit)
+                            {
+                                maximum = Math.Min(maximum, limit);
+                                atoms = [];
+                                if (limit > 0)
                                 {
-                                    var selected = source.Root.NextAtom++;
-                                    source.Root.Atoms.Add(selected, source.Root.Atoms[atom]);
-                                    foreach (var prior in bindings.Values.Where(value =>
-                                                 ReferenceEquals(value.Root, source.Root) && value.Atoms.Contains(atom)))
-                                        prior.Atoms.Add(selected);
-                                    atoms.Add(selected);
+                                    // Each selected atom and its unselected sibling retain the
+                                    // same suit. Every earlier alias must include both children.
+                                    foreach (var atom in source.Atoms.ToArray())
+                                    {
+                                        var selected = source.Root.NextAtom++;
+                                        source.Root.Atoms.Add(selected, source.Root.Atoms[atom]);
+                                        foreach (var prior in bindings.Values.Where(value =>
+                                                     ReferenceEquals(value.Root, source.Root) && value.Atoms.Contains(atom)))
+                                            prior.Atoms.Add(selected);
+                                        atoms.Add(selected);
+                                    }
                                 }
                             }
-                        }
-                        else
-                        {
-                            atoms = source.Atoms.Where(atom =>
-                                    derive.MatchSuitOfBind is not null ||
-                                    ProgramCardSetFilter.Matches(source.Root.Atoms[atom].Kind,
-                                        source.Root.Atoms[atom].Suit, derive.Suits,
-                                        derive.Categories ?? [], derive.EquipmentSlots ?? [],
-                                        derive.CardKinds ?? []))
-                                .ToHashSet();
-                        }
-                        if (source.Root.Atoms.Count > 4096)
-                            Fail("symbolic card partitions exceed the bounded composition limit");
-                        Add(derive.Result, new(source.Root, atoms, maximum, source.CardOwner));
-                        if (derive.SelectionMaximum is not null)
-                        {
-                            try
+                            else
                             {
-                                CardSubsetSelector.ValidateDefinition(source.MaximumCount,
-                                    new(effect.MinimumCards, effect.MaximumCards, effect.MaximumRankSum));
+                                atoms = source.Atoms.Where(atom =>
+                                        derive.MatchSuitOfBind is not null ||
+                                        ProgramCardSetFilter.Matches(source.Root.Atoms[atom].Kind,
+                                            source.Root.Atoms[atom].Suit, derive.Suits,
+                                            derive.Categories ?? [], derive.EquipmentSlots ?? [],
+                                            derive.CardKinds ?? []))
+                                    .ToHashSet();
                             }
-                            catch (ArgumentException exception) { Fail(exception.Message); }
+                            if (source.Root.Atoms.Count > 4096)
+                                Fail("symbolic card partitions exceed the bounded composition limit");
+                            Add(derive.Result, new(source.Root, atoms, maximum, source.CardOwner));
+                            if (derive.SelectionMaximum is not null)
+                            {
+                                try
+                                {
+                                    CardSubsetSelector.ValidateDefinition(source.MaximumCount,
+                                        new(effect.MinimumCards, effect.MaximumCards, effect.MaximumRankSum,
+                                            effect.OnePerSuit));
+                                }
+                                catch (ArgumentException exception) { Fail(exception.Message); }
+                            }
+                            break;
                         }
-                        break;
-                    }
                     case ReadCardSet read:
                         _ = Get(read.Name);
                         break;
                     case MoveCardSet move:
-                    {
-                        var source = Get(move.Source);
-                        if (move.Destination == SkillProgramCardDestination.DrawPileBottom &&
-                            (window != SkillProgramTriggerWindow.DrawPhaseStarting ||
-                             source.Root.OwnerHeld || !source.Root.NeedsCleanup ||
-                             source.MaximumCount > 4))
-                            Fail("drawPileBottom requires at most four temporary revealed cards in drawPhaseStarting");
-                        if (source.Root.OwnerHeld && move.Destination == SkillProgramCardDestination.OwnerHand)
-                            Fail("cards already held by the owner cannot be moved to the same hand zone");
-                        var atoms = source.Atoms.ToHashSet();
-                        if (move.Except is { } exceptName)
                         {
-                            var except = Get(exceptName);
-                            if (!ReferenceEquals(source.Root, except.Root) || !except.Atoms.IsSubsetOf(source.Atoms))
-                                Fail("excluded cards must be a subset of the same source root");
-                            atoms.ExceptWith(except.Atoms);
+                            var source = Get(move.Source);
+                            if (move.Destination == SkillProgramCardDestination.DrawPileBottom &&
+                                (window != SkillProgramTriggerWindow.DrawPhaseStarting ||
+                                 source.Root.OwnerHeld || !source.Root.NeedsCleanup ||
+                                 source.MaximumCount > 4))
+                                Fail("drawPileBottom requires at most four temporary revealed cards in drawPhaseStarting");
+                            if (source.Root.OwnerHeld && move.Destination == SkillProgramCardDestination.OwnerHand)
+                                Fail("cards already held by the owner cannot be moved to the same hand zone");
+                            var atoms = source.Atoms.ToHashSet();
+                            if (move.Except is { } exceptName)
+                            {
+                                var except = Get(exceptName);
+                                if (!ReferenceEquals(source.Root, except.Root) || !except.Atoms.IsSubsetOf(source.Atoms))
+                                    Fail("excluded cards must be a subset of the same source root");
+                                atoms.ExceptWith(except.Atoms);
+                            }
+                            // Branches of one named choice are mutually exclusive at
+                            // play time, so they may partition the same cards; any
+                            // other overlap would move physical cards twice.
+                            var choiceBind = effect.Condition.Kind == SkillProgramConditionKind.ChoiceIs
+                                ? effect.Condition.SourceBind : null;
+                            var choiceOption = choiceBind is null ? null : effect.Condition.OptionId;
+                            if (source.Root.Consumed.Overlaps(atoms) || source.Root.PossiblyGifted.Overlaps(atoms))
+                            {
+                                if (choiceBind is null || choiceOption is null ||
+                                    !source.Root.ChoiceConsumed.TryGetValue(choiceBind, out var choiceAtoms) ||
+                                    !atoms.IsSubsetOf(choiceAtoms) ||
+                                    source.Root.ChoiceOptionConsumed.TryGetValue(
+                                        choiceBind + "\u001f" + choiceOption, out var optionAtoms) &&
+                                    optionAtoms.Overlaps(atoms))
+                                    Fail("cards may be moved more than once");
+                            }
+                            source.Root.Consumed.UnionWith(atoms);
+                            if (choiceBind is not null && choiceOption is not null)
+                            {
+                                if (!source.Root.ChoiceConsumed.TryGetValue(choiceBind, out var choiceAtoms))
+                                    source.Root.ChoiceConsumed[choiceBind] = choiceAtoms = [];
+                                choiceAtoms.UnionWith(atoms);
+                                var optionKey = choiceBind + "\u001f" + choiceOption;
+                                if (!source.Root.ChoiceOptionConsumed.TryGetValue(optionKey, out var optionAtoms))
+                                    source.Root.ChoiceOptionConsumed[optionKey] = optionAtoms = [];
+                                optionAtoms.UnionWith(atoms);
+                            }
+                            break;
                         }
-                        if (source.Root.Consumed.Overlaps(atoms) || source.Root.PossiblyGifted.Overlaps(atoms))
-                            Fail("cards may be moved more than once");
-                        source.Root.Consumed.UnionWith(atoms);
-                        break;
-                    }
                     case GiftCardSet gift:
-                    {
-                        var source = Get(gift.Source);
-                        if (!source.Root.OwnerHeld && !source.Root.NeedsCleanup)
-                            Fail("optional gifts require cards already held in hand or a temporary reveal binding");
-                        if (source.Atoms.Overlaps(source.Root.Consumed))
-                            Fail("a gift reads cards that have already been moved");
-                        if (!source.Root.OwnerHeld) source.Root.Consumed.UnionWith(source.Atoms);
-                        source.Root.PossiblyGifted.UnionWith(source.Atoms);
-                        break;
-                    }
+                        {
+                            var source = Get(gift.Source);
+                            if (!source.Root.OwnerHeld && !source.Root.NeedsCleanup)
+                                Fail("optional gifts require cards already held in hand or a temporary reveal binding");
+                            if (source.Atoms.Overlaps(source.Root.Consumed))
+                                Fail("a gift reads cards that have already been moved");
+                            if (!source.Root.OwnerHeld) source.Root.Consumed.UnionWith(source.Atoms);
+                            source.Root.PossiblyGifted.UnionWith(source.Atoms);
+                            break;
+                        }
                     case ConsumeSelectedCards consume:
                         if (cardsConsumed || selectedCardCount <= 0 ||
                             consume.Count != 0 && consume.Count != selectedCardCount)
@@ -259,16 +284,16 @@ internal static class ProgramCompositionValidator
                         if (!selectedTarget) Fail("selectedTarget must be produced before it is read");
                         break;
                     case ReadTargetSet read:
-                    {
-                        var selection = effects.Take(index)
-                            .LastOrDefault(item => item.Op == SkillProgramEffectOp.SelectTargets);
-                        var minimum = selection?.MinimumTargets ?? initialTargetSetCount;
-                        var maximum = selection?.MaximumTargets ?? initialTargetSetMaximum;
-                        if (!targetSetAvailable || minimum < read.Minimum ||
-                            read.Maximum is { } exactMaximum && maximum > exactMaximum)
-                            Fail("the required selected target set must be produced before it is read");
-                        break;
-                    }
+                        {
+                            var selection = effects.Take(index)
+                                .LastOrDefault(item => item.Op == SkillProgramEffectOp.SelectTargets);
+                            var minimum = selection?.MinimumTargets ?? initialTargetSetCount;
+                            var maximum = selection?.MaximumTargets ?? initialTargetSetMaximum;
+                            if (!targetSetAvailable || minimum < read.Minimum ||
+                                read.Maximum is { } exactMaximum && maximum > exactMaximum)
+                                Fail("the required selected target set must be produced before it is read");
+                            break;
+                        }
                     case RequireContext required:
                         if ((capabilities & required.Capability) != required.Capability)
                             Fail($"operation requires context {required.Capability}, supplied {capabilities}");
@@ -321,7 +346,7 @@ internal static class ProgramCompositionValidator
         {
             yield return condition;
             foreach (var child in condition.Children)
-            foreach (var nested in Conditions(child)) yield return nested;
+                foreach (var nested in Conditions(child)) yield return nested;
         }
     }
 
@@ -346,6 +371,8 @@ internal static class ProgramCompositionValidator
             ? Enum.GetValues<CardKind>().Length * Enum.GetValues<Suit>().Length : 4;
         internal HashSet<int> Consumed { get; } = [];
         internal HashSet<int> PossiblyGifted { get; } = [];
+        internal Dictionary<string, HashSet<int>> ChoiceConsumed { get; } = new(StringComparer.Ordinal);
+        internal Dictionary<string, HashSet<int>> ChoiceOptionConsumed { get; } = new(StringComparer.Ordinal);
     }
 
     private sealed record Binding(Root Root, HashSet<int> Atoms, int MaximumCount,

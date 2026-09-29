@@ -1,9 +1,10 @@
 namespace CardGame.Core;
 
-/// <summary>Only the physical identity and rank needed by a subset constraint.</summary>
-public readonly record struct CardSubsetCandidate(int CardId, int Rank);
+/// <summary>Only the physical identity, rank, and suit needed by a subset constraint.</summary>
+public readonly record struct CardSubsetCandidate(int CardId, int Rank, Suit Suit);
 
-public sealed record CardSubsetConstraint(int MinimumCards, int MaximumCards, int MaximumRankSum);
+public sealed record CardSubsetConstraint(
+    int MinimumCards, int MaximumCards, int MaximumRankSum, bool AtMostOnePerSuit = false);
 
 /// <summary>The mask identifies a choice in the frozen, ordered candidate list.</summary>
 public sealed record CardSubsetOption(int SelectionMask, IReadOnlyList<int> CardIds, int RankSum);
@@ -48,13 +49,21 @@ public static class CardSubsetSelector
         {
             var selected = new List<int>();
             var rankSum = 0;
+            var suits = new HashSet<Suit>();
+            var violatedSuitConstraint = false;
             for (var index = 0; index < source.Length; index++)
             {
                 if ((mask & (1 << index)) == 0) continue;
                 selected.Add(source[index].CardId);
                 rankSum += source[index].Rank;
+                if (constraint.AtMostOnePerSuit && !suits.Add(source[index].Suit))
+                {
+                    violatedSuitConstraint = true;
+                    break;
+                }
             }
-            if (selected.Count < constraint.MinimumCards || selected.Count > constraint.MaximumCards ||
+            if (violatedSuitConstraint ||
+                selected.Count < constraint.MinimumCards || selected.Count > constraint.MaximumCards ||
                 rankSum > constraint.MaximumRankSum)
                 continue;
             options.Add(new CardSubsetOption(mask, Array.AsReadOnly(selected.ToArray()), rankSum));
