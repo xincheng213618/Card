@@ -176,6 +176,7 @@ internal static class ProgramCompositionDefinitionChecks
             [SkillProgramEffectOp.RestorePhaseHandDiscards] = """{"op":"restorePhaseHandDiscards","target":"owner","chooserRef":{"kind":"owner"},"phaseOwnerRef":{"kind":"eventSource"},"condition":{"kind":"always"}}""",
             [SkillProgramEffectOp.ClaimMovedCards] = """{"op":"claimMovedCards","target":"owner"}""",
             [SkillProgramEffectOp.UseVirtualDyingAlcohol] = """{"op":"useVirtualDyingAlcohol","target":"owner"}""",
+            [SkillProgramEffectOp.UseDesignatedVirtualSlash] = """{"op":"useDesignatedVirtualSlash","target":"selectedTarget","resultBind":"designated"}""",
             [SkillProgramEffectOp.TakeRandomCardFromEveryOtherCharacter] = """{"op":"takeRandomCardFromEveryOtherCharacter","target":"owner","zones":["hand","equipment","judgment"]}"""
 
         };

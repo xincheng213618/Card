@@ -102,6 +102,7 @@ public sealed partial class GameEngine
                         .Where(card => activation.EquipmentSlots.Count == 0 ||
                             EquipmentCatalog.IsEquipment(card.Kind) &&
                             activation.EquipmentSlots.Contains(EquipmentCatalog.Get(card.Kind).Slot))
+                        .Where(card => MatchesActivationCardFilter(activation, card))
                         .Select(card => card.Id).Distinct().Order().ToArray();
                 var targets = selectedCardUse is { OutputKind: CardKind.ArrowBarrage } ? []
                     : selectedCardUse is not null
@@ -224,6 +225,11 @@ public sealed partial class GameEngine
                     };
                 }
     }
+
+    private static bool MatchesActivationCardFilter(SkillProgramActivation activation, Card card) =>
+        activation.CardCategories.Count == 0 && activation.CardKinds.Count == 0 ||
+        activation.CardCategories.Contains(GetProgramCardCategory(card.Kind)) ||
+        activation.CardKinds.Contains(card.Kind);
 
     private bool HasFreeEquipmentSlotForOwnedHandEquipment(CharacterState owner, CharacterState target)
     {
@@ -765,10 +771,15 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("An active program contains duplicate named choices.");
             foreach (var binding in frame.ChoiceBindings)
             {
+                var designatedProducer = plan.Instructions.Take(frame.InstructionIndex).FirstOrDefault(effect =>
+                    effect.Op == SkillProgramEffectOp.UseDesignatedVirtualSlash &&
+                    effect.ResultBind is { } designatedBind &&
+                    (binding.Name == designatedBind ||
+                     binding.Name == DesignatedSlashVictimBind(designatedBind)));
                 var producer = plan.Instructions.Take(frame.InstructionIndex).SingleOrDefault(effect =>
                     (effect.Op is SkillProgramEffectOp.ChooseOption or SkillProgramEffectOp.ChooseDifferentCategoryDiscard or
                         SkillProgramEffectOp.RequestSlashByTarget) &&
-                    effect.ResultBind == binding.Name);
+                    effect.ResultBind == binding.Name) ?? designatedProducer;
                 var validOption = producer?.Op switch
                 {
                     SkillProgramEffectOp.ChooseOption => producer.Options.Any(option => option.Id == binding.OptionId),
@@ -778,11 +789,24 @@ public sealed partial class GameEngine
                     SkillProgramEffectOp.RequestSlashByTarget => binding.OptionId is
                         RequestSlashByTargetProgramOperationDescriptor.UsedSlashOption or
                         RequestSlashByTargetProgramOperationDescriptor.DeclinedOption,
+                    SkillProgramEffectOp.UseDesignatedVirtualSlash => producer.ResultBind is { } designatedBind &&
+                        (binding.Name == designatedBind
+                            ? binding.OptionId is
+                                UseDesignatedVirtualSlashProgramOperationDescriptor.UsedSlashOption or
+                                UseDesignatedVirtualSlashProgramOperationDescriptor.DeclinedOption
+                            : binding.Name == DesignatedSlashVictimBind(designatedBind) &&
+                              binding.OptionId.StartsWith("seat-", StringComparison.Ordinal) &&
+                              int.TryParse(binding.OptionId["seat-".Length..],
+                                  System.Globalization.CultureInfo.InvariantCulture, out _)),
                     _ => false
                 };
-                var chooserSeat = producer?.ChooserRef is { } producerChooser
-                    ? ResolveProgramParticipant(frame, producerChooser)
-                    : producer is null ? -1 : ResolveProgramEffectTarget(frame, producer.Target);
+                var chooserSeat = producer?.Op == SkillProgramEffectOp.UseDesignatedVirtualSlash
+                    ? (binding.Name == producer.ResultBind
+                        ? ResolveProgramEffectTarget(frame, producer.Target)
+                        : frame.OwnerSeat)
+                    : producer?.ChooserRef is { } producerChooser
+                        ? ResolveProgramParticipant(frame, producerChooser)
+                        : producer is null ? -1 : ResolveProgramEffectTarget(frame, producer.Target);
                 if (producer is null || !validOption || binding.ChooserSeat != chooserSeat)
                     throw new InvalidOperationException("An active program choice does not match its committed producer.");
             }

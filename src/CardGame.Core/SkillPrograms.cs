@@ -227,7 +227,8 @@ public enum SkillProgramEffectOp
     RestorePhaseHandDiscards,
     ClaimMovedCards,
     TakeRandomCardFromEveryOtherCharacter,
-    UseVirtualDyingAlcohol
+    UseVirtualDyingAlcohol,
+    UseDesignatedVirtualSlash
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -1001,13 +1002,16 @@ public sealed class SkillProgramActivation
         bool selectedCardsSameSuit = false,
         IReadOnlyList<EquipmentSlot>? equipmentSlots = null,
         string? usageGroup = null,
-        bool targetRequiresEmptyEquipmentSlot = false) =>
+        bool targetRequiresEmptyEquipmentSlot = false,
+        IReadOnlyList<SkillProgramCardCategory>? cardCategories = null,
+        IReadOnlyList<CardKind>? cardKinds = null) =>
         (Id, MinCards, MaxCards, MinTargets, MaxTargets, TargetKind, UsesPerTurn, UsesPerPhase, UsesPerGame,
             Condition, Effects, SourceZones, SelectedCardsSameSuit, EquipmentSlots, UsageGroup,
-            TargetRequiresEmptyEquipmentSlot) =
+            TargetRequiresEmptyEquipmentSlot, CardCategories, CardKinds) =
         (id, minCards, maxCards, minTargets, maxTargets, targetKind, usesPerTurn, usesPerPhase, usesPerGame, condition, effects,
             sourceZones ?? Array.AsReadOnly(new[] { CardZoneKind.Hand }), selectedCardsSameSuit,
-            equipmentSlots ?? Array.Empty<EquipmentSlot>(), usageGroup ?? id, targetRequiresEmptyEquipmentSlot);
+            equipmentSlots ?? Array.Empty<EquipmentSlot>(), usageGroup ?? id, targetRequiresEmptyEquipmentSlot,
+            cardCategories ?? Array.Empty<SkillProgramCardCategory>(), cardKinds ?? Array.Empty<CardKind>());
     public string Id { get; }
     public int MinCards { get; }
     public int MaxCards { get; }
@@ -1029,6 +1033,14 @@ public sealed class SkillProgramActivation
     /// free matching slot (Zhijian: equipment gifts cannot replace an equipped card).
     /// </summary>
     public bool TargetRequiresEmptyEquipmentSlot { get; }
+
+    /// <summary>
+    /// Optional union filter over the activation's selectable cards: a card is
+    /// eligible when it matches any declared category or kind. Empty both means
+    /// every card of the source zones is selectable.
+    /// </summary>
+    public IReadOnlyList<SkillProgramCardCategory> CardCategories { get; }
+    public IReadOnlyList<CardKind> CardKinds { get; }
 }
 
 /// <summary>
@@ -1767,7 +1779,8 @@ public sealed class SkillProgramCatalog
         RequireObject(node, path);
         CheckProperties(node, path, "id", "minCards", "maxCards", "sourceZones", "minTargets", "maxTargets",
             "targetKind", "usesPerTurn", "usesPerPhase", "usesPerGame", "condition", "effects",
-            "selectedCardsSameSuit", "equipmentSlots", "usageGroup", "targetRequiresEmptyEquipmentSlot");
+            "selectedCardsSameSuit", "equipmentSlots", "usageGroup", "targetRequiresEmptyEquipmentSlot",
+            "cardCategories", "cardKinds");
         var id = Identifier(node, "id", path);
         var minCards = NonNegativeInt(node, "minCards", path);
         var allAvailableCards = node.TryGetProperty("maxCards", out var maximumNode) &&
@@ -1826,6 +1839,22 @@ public sealed class SkillProgramCatalog
                 maxCards != 0))
             Fail(path + ".targetRequiresEmptyEquipmentSlot",
                 "requires exactly one selected target and effect-level card selection");
+        var hasCardCategories = node.TryGetProperty("cardCategories", out _);
+        var hasCardKinds = node.TryGetProperty("cardKinds", out _);
+        var cardCategories = hasCardCategories
+            ? EnumArray<SkillProgramCardCategory>(node, "cardCategories", path)
+            : Array.Empty<SkillProgramCardCategory>();
+        var cardKinds = hasCardKinds
+            ? EnumArray<CardKind>(node, "cardKinds", path)
+            : Array.Empty<CardKind>();
+        if (hasCardCategories && cardCategories.Count == 0)
+            Fail(path + ".cardCategories", "a declared activation category filter must not be empty");
+        if (hasCardKinds && cardKinds.Count == 0)
+            Fail(path + ".cardKinds", "a declared activation kind filter must not be empty");
+        if ((hasCardCategories || hasCardKinds) &&
+            (node.TryGetProperty("selectedCardsSameSuit", out _) || maxCards == 0))
+            Fail(path + ".cardCategories",
+                "card filters require plain card selections without suit constraints");
         var effects = ReadArray<SkillProgramEffect>(node, "effects", path, (effect, effectPath) =>
             ParseCompositionEffect(effect, effectPath));
         if (effects.SelectMany(EnumerateParticipantReferences).Any(reference =>
@@ -1860,7 +1889,7 @@ public sealed class SkillProgramCatalog
             OptionalCondition(node, path), effects, sourceZones, usesPerPhase, usesPerGame,
             selectedCardsSameSuit, equipmentSlots,
             node.TryGetProperty("usageGroup", out _) ? Identifier(node, "usageGroup", path) : null,
-            targetRequiresEmptyEquipmentSlot);
+            targetRequiresEmptyEquipmentSlot, cardCategories, cardKinds);
     }
 
     private static SkillProgramContribution ParseContribution(JsonElement node, string path)

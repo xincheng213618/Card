@@ -578,6 +578,14 @@ internal sealed class ProgramAiEstimateContext
         _ownerHpLoss += 0.5d;
     }
 
+    internal void UseDesignatedVirtualSlash(SkillProgramEffect effect)
+    {
+        // Split prior: about half the time the user accepts the designated
+        // virtual Slash, otherwise it keeps the official fallback draw.
+        _targetDraw += 0.5d;
+        _targetHpLoss += 0.5d;
+    }
+
     internal void RefundCardUseDebit(SkillProgramEffect effect)
     {
         if (_publicContext.CardUseDebitActive) _otherAdjustment += 8d;

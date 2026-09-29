@@ -493,6 +493,13 @@ internal static class SkillProgramExecutorChecks
             return SkillProgramStepOutcome.AwaitChoice;
         }
 
+        public SkillProgramStepOutcome UseDesignatedVirtualSlash(ProgramSkillFrame frame, int targetSeat,
+            string resultBind)
+        {
+            Calls.Add($"designated-slash:{frame.OwnerSeat}:{targetSeat}:{resultBind}");
+            return SkillProgramStepOutcome.AwaitChoice;
+        }
+
         public void PendExtraTurn(ProgramSkillFrame frame, int? targetSeat)
         {
             Calls.Add($"extra-turn:{frame.OwnerSeat}:{targetSeat?.ToString() ?? "owner"}");
