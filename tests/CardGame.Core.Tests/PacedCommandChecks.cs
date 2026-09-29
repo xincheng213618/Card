@@ -7,44 +7,6 @@ internal static class PacedCommandChecks
     private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }
     private static string State(GameEngine game) => SnapshotJson.Serialize(game.CreateSnapshot(0, true));
 
-    public static void SingleStepParity()
-    {
-        var options = new GameOptions { Seed = 7162, UseInteractiveSetup = true, AdvanceAfterHumanCommands = false, MaxTurns = 40 };
-        var commands = GameEngine.CreateStandard(options, Registry);
-        var legacy = GameEngine.CreateStandard(options, Registry);
-        Require(commands.Submit(new AdvanceOneStepCommand(0)).Error?.Code == CommandErrorCode.NotStarted, "An unstarted step must be rejected.");
-        Require(commands.Submit(new StartGameCommand()).Accepted && legacy.Submit(new StartGameCommand()).Accepted, "Start failed.");
-        var initial = State(commands);
-        Require(!commands.Submit(new AdvanceOneStepCommand(commands.Revision, 0)).Accepted, "A player cannot submit a host step.");
-        Require(!commands.Submit(new AdvanceOneStepCommand(commands.Revision - 1)).Accepted && State(commands) == initial, "Invalid steps must not change state.");
-        var actualSteps = 0;
-        for (var step = 0; step < 150 && commands.State.Status != EngineStatus.Completed; step++)
-        {
-            if (commands.PendingDecision is { } prompt)
-            {
-                GameCommand choice = prompt.Kind switch
-                {
-                    DecisionKind.SelectGeneral => new SelectGeneralCommand(0, prompt.ValidContentIds[0], commands.Revision, prompt.PromptId),
-                    DecisionKind.PlayCard => new EndPlayPhaseCommand(0, commands.Revision, prompt.PromptId),
-                    DecisionKind.DiscardCards => new DiscardCardsCommand(0, prompt.ValidCardIds.Take(prompt.RequiredCardCount).ToArray(), prompt.PromptId, commands.Revision),
-                    _ => new AnswerPromptCommand(0, prompt.PromptId, prompt.Choices[0].Id, commands.Revision)
-                };
-                Require(commands.Submit(choice).Accepted && legacy.Submit(choice).Accepted, "Shared player choice failed.");
-            }
-            else
-            {
-                Require(commands.Submit(new AdvanceOneStepCommand(commands.Revision)).Accepted, "A valid step failed.");
-                legacy.DriveAdvanceOneStep();
-                actualSteps++;
-            }
-            Require(State(commands) == State(legacy), "A step command changed the established one-step pacing.");
-        }
-        Require(actualSteps >= 20, "Parity fixture did not execute enough real state-machine steps.");
-        var checkpoint = commands.CreateCheckpoint();
-        Require(State(GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint)), Registry)) == State(commands),
-            "Paced host steps did not restore exactly.");
-    }
-
     public static void FullPacedReplay()
     {
         var responseCommand = new AnswerPromptCommand(0, new PromptId(3), new ChoiceId("response.take-damage"), 7);

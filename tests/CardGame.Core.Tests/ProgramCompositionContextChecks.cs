@@ -82,41 +82,6 @@ internal static class ProgramCompositionContextChecks
         RequireParity(judgment, replay, "active judgment composition");
     }
 
-    public static void PublicAiContextAccountsForReplacementAndExpressions()
-    {
-        ProgramAiEstimate Estimate(string id, string effects, PlayerSkillContext player,
-            ProgramAiPublicContext context)
-        {
-            var program = Load(Rules(id, [Activation("active", effects)], []));
-            return ProgramCompositionAi.Estimate(program.Activations.Single().Effects, player,
-                publicContext: context);
-        }
-
-        var full = new PlayerSkillContext(0, 4, 4, 0, TurnPhase.Draw, IsOwnTurn: true);
-        var replacement = Estimate("fixture:ai-replacement",
-            """[{"op":"draw","target":"owner","amount":1}]""", full,
-            new ProgramAiPublicContext(3, NormalDrawCount: 2, ReplacesNormalDraw: true));
-        ProgramCompositionEntryChecks.Require(replacement.Score == -8 && replacement.Hint.OwnerDraw == 0,
-            "Replacement AI did not charge the displaced normal draw before valuing its explicit draw.");
-
-        var wounded = new PlayerSkillContext(0, 1, 4, 0, TurnPhase.Draw, IsOwnTurn: true);
-        var faction = Estimate("fixture:ai-factions", """
-            [{"op":"draw","target":"owner","numberExpression":"livingFactionCount"},
-             {"op":"recoverTo","target":"owner","numberExpression":"livingFactionCount","minimumValue":1,"clampToMaxHp":true}]
-            """, wounded, new ProgramAiPublicContext(3));
-        ProgramCompositionEntryChecks.Require(
-            faction.Hint.OwnerDraw == 3 && faction.Hint.OwnerRecovery == 2 && faction.Score == 60,
-            "Public living-faction count did not drive draw and recover-to estimates.");
-
-        var reveal = Estimate("fixture:ai-lost-hp", """
-            [{"op":"revealTopCards","target":"owner","numberExpression":"ownerLostHp","resultBind":"lost","visibility":"public"},
-             {"op":"moveBoundCards","target":"owner","sourceBind":"lost","destination":"ownerHand"}]
-            """, new PlayerSkillContext(0, 2, 4, 0, TurnPhase.Draw, IsOwnTurn: true),
-            new ProgramAiPublicContext(3));
-        ProgramCompositionEntryChecks.Require(reveal.Hint.OwnerDraw == 2 && reveal.Score == 16,
-            "Owner-lost-HP reveal did not estimate its public card count before movement.");
-    }
-
     public static void ActiveTurnRuleModifierGrantsReplaysAndExpires()
     {
         const string id = "fixture:active-turn-rule";

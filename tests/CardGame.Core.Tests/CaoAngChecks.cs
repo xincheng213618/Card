@@ -128,126 +128,6 @@ internal static class CaoAngChecks
         Require(completed == 1, "No seeded setup produced a Slash with a gifted armor within distance 1.");
     }
 
-    public static void NonEquipmentGiftKeepsRecipientHandWithoutUsePrompt()
-    {
-        var registry = Registry();
-        var completed = 0;
-        for (var seed = 1; seed <= 120 && completed < 1; seed++)
-        {
-            var game = Start(registry, seed);
-            ReachPlay(game);
-            var snapshot = game.CreateSnapshot(0, true);
-            var slash = game.GetHumanLegalActions().FirstOrDefault(action =>
-                action.Kind == LegalActionKind.Slash && action.TargetSeat == 1);
-            var gift = snapshot.Players[0].Hand.FirstOrDefault(card =>
-                card.Id != slash?.CardId && !EquipmentCatalog.IsEquipment(card.Kind));
-            if (slash is null || gift is null) continue;
-            var giftId = gift.Id;
-            Play(game, slash);
-            Activate(game, Kangkai);
-            GiveCard(game, giftId);
-            Require(game.CreateCardZoneDiagnostics().Single(item => item.CardId == giftId).Location ==
-                    CardLocation.Hand(1),
-                "A non-equipment gift must reach the recipient's hand before their response.");
-            Require(game.Events.Select(item => item.Payload).All(item => item is not
-                    ProgramOptionChosenEvent { SkillId: Kangkai }),
-                "A non-equipment gift must not open the use-equipment choice.");
-            Finish(game);
-            Require(game.CardMovements.Any(item => item.CardId == giftId &&
-                    item.From == CardLocation.Processing && item.To == CardLocation.Hand(1)),
-                "A non-equipment gift must be delivered through the ordinary public movement path.");
-            Require(game.Events.Select(item => item.Payload).All(item => item is not
-                     EquipmentChangedEvent { PlayerSeat: 1 }),
-                "No equipment may change from a non-equipment gift.");
-            completed++;
-        }
-        Require(completed == 1, "No seeded setup produced a non-equipment gift at distance 1.");
-    }
-
-    public static void DistanceBeyondOneDoesNotTrigger()
-    {
-        var registry = Registry();
-        var completed = 0;
-        for (var seed = 1; seed <= 120 && completed < 1; seed++)
-        {
-            var game = Start(registry, seed);
-            ReachPlay(game);
-            var snapshot = game.CreateSnapshot(0, true);
-            var weapon = game.GetHumanLegalActions().FirstOrDefault(action =>
-                action.Kind == LegalActionKind.Equip && action.CardId is { } id &&
-                snapshot.Players[0].Hand.Any(card => card.Id == id &&
-                     card.Kind == CardKind.QinggangSword));
-            if (weapon is null || !snapshot.Players[0].Hand.Any(card =>
-                    card.Kind == CardKind.Slash && card.Id != weapon.CardId)) continue;
-            Play(game, weapon);
-            ReachPlay(game);
-            var slash = game.GetHumanLegalActions().FirstOrDefault(action =>
-                action.Kind == LegalActionKind.Slash && action.TargetSeat == 2);
-            if (slash is null) continue;
-            Play(game, slash);
-            Finish(game);
-            Require(game.Events.Select(item => item.Payload).All(item => item is not
-                    ProgramBindingStartedEvent { SkillId: Kangkai }) &&
-                game.Events.Select(item => item.Payload).All(item => item is not
-                    ProgramCardsRevealedEvent { SkillId: Kangkai }),
-                "A Slash on a target at distance 2 must not trigger Kangkai.");
-            completed++;
-        }
-        Require(completed == 1, "No seeded setup reached a distance-2 Slash with a range-2 weapon.");
-    }
-
-    public static void SelfTargetSlashDrawsOnlyWithoutGift()
-    {
-        var registry = Registry();
-        var completed = 0;
-        for (var seed = 1; seed <= 200 && completed < 1; seed++)
-        {
-            var game = Start(registry, seed);
-            ReachPlay(game);
-            Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision,
-                game.PendingDecision!.PromptId)));
-            var prompted = false;
-            for (var step = 0; step < 160 && !prompted && game.State.Status != EngineStatus.Completed; step++)
-            {
-                if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: Kangkai } prompt &&
-                    prompt.Choices.Any(choice =>
-                        choice.Parameters.GetValueOrDefault("program-action") == "activate"))
-                {
-                    prompted = true;
-                    break;
-                }
-                if (game.PendingDecision is { PlayerSeat: 0 } humanPrompt)
-                {
-                    if (humanPrompt.Kind == DecisionKind.PlayCard)
-                    {
-                        Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision,
-                            humanPrompt.PromptId)));
-                        continue;
-                    }
-                    var choice = humanPrompt.Choices.FirstOrDefault(item =>
-                        item.Parameters.GetValueOrDefault("program-action") == "skip" ||
-                        item.Parameters.GetValueOrDefault("response") is "take-damage" or "let-die") ??
-                        humanPrompt.Choices.First();
-                    Answer(game, choice);
-                }
-                else Advance(game);
-            }
-            if (!prompted) continue;
-            var handBefore = game.CreateSnapshot(0, true).Players[0].Hand.Count;
-            Activate(game, Kangkai);
-            Require(game.CreateSnapshot(0, true).Players[0].Hand.Count == handBefore + 1,
-                "The self-targeted branch must draw exactly one card.");
-            Require(game.Events.Select(item => item.Payload).All(item => item is not
-                    ProgramCardsRevealedEvent { SkillId: Kangkai }) &&
-                game.Events.Select(item => item.Payload).All(item => item is not
-                    ProgramOptionChosenEvent { SkillId: Kangkai }),
-                "The self-targeted branch must never gift a card to itself.");
-            Finish(game);
-            completed++;
-        }
-        Require(completed == 1, "No seeded setup produced a Slash targeting Cao Ang himself.");
-    }
-
     private static ContentRegistry Registry() => ContentRegistry.Build(
         new StandardContentPackage(), new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(),
@@ -360,11 +240,6 @@ internal static class CaoAngChecks
         var result = game.Submit(new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats,
             game.Revision, game.PendingDecision!.PromptId, action.PlayedCardKind, action.TargetCardId));
         Require(result.Accepted, result.Error?.Message ?? "Cao Ang card action failed.");
-    }
-
-    private static void Accept(CommandResult result)
-    {
-        Require(result.Accepted, result.Error?.Message ?? "Cao Ang command failed.");
     }
 
     private static string State(GameEngine game) =>

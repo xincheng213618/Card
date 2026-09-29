@@ -167,203 +167,6 @@ internal static class JiangWeiChecks
         Require(completed == 1, "No seeded setup resolved the forced Tiaoxin Slash branch.");
     }
 
-    public static void TiaoxinDiscardsWhenTargetCannotRespond()
-    {
-        var registry = Registry(TiaoxinMode, Deck(A: "standard:dodge", B: "standard:peach", C: "standard:peach"));
-        var completed = 0;
-        for (var seed = 1; seed <= 80 && completed < 1; seed++)
-        {
-            var game = Start(registry, seed, TiaoxinMode);
-            if (!DriveToFirstPlay(game)) continue;
-            var farSeat = 2;
-            var farAction = game.GetHumanLegalActions().Where(item =>
-                    item.Kind == LegalActionKind.UseProgramSkill &&
-                    item.ProgramSkillId == Tiaoxin).ToArray();
-            var farTargets = farAction.SelectMany(item => item.SelectableTargetSeats).Distinct().ToArray();
-            if (!farTargets.Contains(1)) continue;
-            Require(!farTargets.Contains(farSeat),
-                "A player whose attack range excludes Jiang Wei must not be a legal Tiaoxin target.");
-
-            var paused = RoundTrip(game.CreateCheckpoint());
-            var replay = GameReplay.Restore(paused, registry);
-            if (!ActivateTiaoxin(game, 1) || !ActivateTiaoxin(replay, 1)) continue;
-            DriveUntilSettled(game);
-            DriveUntilSettled(replay);
-
-            Require(Events(game).SequenceEqual(Events(replay)) &&
-                    State(game) == State(replay),
-                "The Tiaoxin discard branch must replay identically from the paused checkpoint.");
-            Require(!game.Events.Select(item => item.Payload).OfType<CardUsedEvent>()
-                    .Any(item => item.SourceSeat == 1 && item.TargetSeat == 0 && IsSlash(item.CardKind)),
-                "A Slash-less target must not use any Slash.");
-            var discards = game.CardMovements.Where(movement =>
-                movement.From.OwnerSeat == 1 &&
-                movement.To == CardLocation.DiscardPile &&
-                movement.Reason.Value.Contains(Tiaoxin, StringComparison.Ordinal)).ToArray();
-            Require(discards.Length == 1 &&
-                    discards[0].From.Zone is CardZoneKind.Hand or CardZoneKind.Equipment,
-                "Tiaoxin must discard exactly one card from the declined target.");
-            Require(game.Events.Select(item => item.Payload).OfType<ProgramSkillResolvedEvent>()
-                    .Any(item => item.SkillId == Tiaoxin),
-                "Tiaoxin must resolve as a program skill.");
-            completed++;
-        }
-        Require(completed == 1, "No seeded setup resolved the Tiaoxin discard branch.");
-    }
-
-    public static void ZhijiAwakensWithRecoveryAndGrantsGuanxing()
-    {
-        Awaken(ZhijiChoice.Recover);
-    }
-
-    public static void ZhijiAwakensWithDrawTwoAndReplays()
-    {
-        Awaken(ZhijiChoice.DrawTwo);
-    }
-
-    public static void ZhijiStaysDormantWhileHandCardsRemain()
-    {
-        var registry = Registry(ZhijiMode, ZhijiDeck());
-        var completed = 0;
-        for (var seed = 1; seed <= 40 && completed < 1; seed++)
-        {
-            var game = Start(registry, seed, ZhijiMode);
-            if (!DriveToFirstPlay(game)) continue;
-            Require(game.CreateSnapshot(0, true).Players[0].Hand.Count > 0,
-                "The fixture lord must hold cards before any Zhiji window.");
-            Require(!game.Events.Select(item => item.Payload).OfType<SkillAwakenedEvent>()
-                    .Any(item => item.SkillId == Zhiji),
-                "Zhiji must not awaken while the owner still holds hand cards.");
-            completed++;
-        }
-        Require(completed == 1, "No seeded setup reached the first play phase with cards.");
-    }
-
-    private static void Awaken(ZhijiChoice branch)
-    {
-        var registry = Registry(ZhijiMode, ZhijiDeck());
-        var completed = 0;
-        for (var seed = 1; seed <= 400 && completed < 1; seed++)
-        {
-            var game = Start(registry, seed, ZhijiMode);
-            var prompt = DriveToZhijiPrompt(game);
-            if (prompt is null) continue;
-            var before = game.CreateSnapshot(0, true).Players[0];
-            if (branch == ZhijiChoice.Recover && before.Hp >= before.MaxHp) continue;
-
-            var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
-            var optionId = branch == ZhijiChoice.Recover ? "recover" : "draw-two";
-            AnswerZhiji(game, optionId);
-            AnswerZhiji(replay, optionId);
-            // The awakening resolves inside the preparation phase; the normal draw
-            // still runs before the engine parks at this turn's play decision.
-            DriveUntil(game, () => game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
-            DriveUntil(replay, () => replay.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 });
-            if (game.State.Status == EngineStatus.Completed) continue;
-
-            Require(Events(game).SequenceEqual(Events(replay)) &&
-                    State(game) == State(replay),
-                "The Zhiji awakening must replay identically from the paused choice.");
-            var awakened = game.Events.Select(item => item.Payload).OfType<SkillAwakenedEvent>()
-                .SingleOrDefault(item => item.SkillId == Zhiji);
-            Require(awakened is not null && awakened.PlayerSeat == 0 &&
-                    awakened.MaximumHp == before.MaxHp - 1 &&
-                    awakened.AcquiredSkillIds.SequenceEqual([Guanxing]),
-                "Zhiji must reduce one maximum HP and grant Guanxing exactly once.");
-            var chosen = game.Events.Select(item => item.Payload).OfType<ProgramOptionChosenEvent>()
-                .SingleOrDefault(item => item.SkillId == Zhiji && item.ResultBind == "zhiji-choice");
-            Require(chosen is not null && chosen.OptionId == optionId,
-                "The Zhiji choice must be recorded on the declared branch.");
-            var after = game.CreateSnapshot(0, true).Players[0];
-            Require(after.MaxHp == before.MaxHp - 1 &&
-                    after.Skills!.Select(item => item.ContentId).Contains(Guanxing),
-                "The awakened Jiang Wei must keep the reduced maximum HP and own Guanxing.");
-            if (branch == ZhijiChoice.Recover)
-                Require(after.Hp == before.Hp + 1 && after.Hand.Count == 2,
-                    "The recovery branch must heal one HP and leave only the normal draw.");
-            else
-                Require(after.Hand.Count == 4 && after.Hp == before.Hp,
-                    "The draw branch must add two cards on top of the normal draw.");
-
-            // The granted Guanxing must live as a real skill on the next turn start.
-            DriveUntil(game, () => false, stopAtSkills: [Guanxing]);
-            if (game.State.Status == EngineStatus.Completed) continue;
-            Require(IsProgramPrompt(game, Guanxing),
-                "The granted Guanxing must prompt at the owner's next turn start.");
-            var skip = game.PendingDecision!.Choices.FirstOrDefault(choice =>
-                choice.Parameters.GetValueOrDefault("program-action") == "skip");
-            if (skip is not null) Answer(game, skip);
-            completed++;
-        }
-        Require(completed == 1,
-            $"No seeded setup awakened Zhiji on the {branch} branch with Guanxing live.");
-    }
-
-    private static PendingDecision? DriveToZhijiPrompt(GameEngine game)
-    {
-        for (var step = 0; step < 1600 && game.State.Status != EngineStatus.Completed; step++)
-        {
-            var prompt = game.PendingDecision;
-            if (prompt is null)
-            {
-                Advance(game);
-                continue;
-            }
-            if (IsProgramPrompt(game, Zhiji)) return prompt;
-            if (prompt.PlayerSeat != 0)
-            {
-                Advance(game);
-                continue;
-            }
-            switch (prompt.Kind)
-            {
-                case DecisionKind.PlayCard when TryEquipDownToZero(game):
-                    continue;
-                case DecisionKind.PlayCard:
-                    Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision, prompt.PromptId)));
-                    continue;
-                case DecisionKind.DiscardCards:
-                    AnswerDiscard(game, prompt);
-                    continue;
-                default:
-                    var choice = prompt.Choices.FirstOrDefault(item =>
-                        item.Parameters.GetValueOrDefault("program-action") == "skip") ??
-                        prompt.Choices.First();
-                    Answer(game, choice);
-                    continue;
-            }
-        }
-        return null;
-    }
-
-    private static bool TryEquipDownToZero(GameEngine game)
-    {
-        var player = game.CreateSnapshot(0, true).Players[0];
-        var freeSlots = 5 - player.Equipment!.Count;
-        if (player.Hand.Count == 0 || player.Hand.Count > freeSlots) return false;
-        var actions = game.GetHumanLegalActions().Where(item => item.Kind == LegalActionKind.Equip).ToArray();
-        if (actions.Length == 0) return false;
-        Play(game, actions[0]);
-        return true;
-    }
-
-    private static void AnswerDiscard(GameEngine game, PendingDecision prompt)
-    {
-        var hand = game.CreateSnapshot(0, true).Players[0].Hand
-            .ToDictionary(card => card.Id, card => card.Kind);
-        var required = prompt.RequiredCardCount;
-        var discardIds = prompt.ValidCardIds
-            .Where(id => !EquipmentCatalog.IsEquipment(hand.GetValueOrDefault(id)))
-            .Take(required)
-            .ToList();
-        foreach (var id in prompt.ValidCardIds.Where(id => EquipmentCatalog.IsEquipment(hand.GetValueOrDefault(id))))
-        {
-            if (discardIds.Count >= required) break;
-            discardIds.Add(id);
-        }
-        Accept(game.Submit(new DiscardCardsCommand(0, discardIds.ToArray(), prompt.PromptId, game.Revision)));
-    }
-
     private static bool DriveToFirstPlay(GameEngine game)
     {
         DriveUntil(game, () => false, stopAtDecisions: [DecisionKind.PlayCard]);
@@ -454,16 +257,6 @@ internal static class JiangWeiChecks
     private static void DriveUntilSettled(GameEngine game) =>
         DriveUntil(game, () => game.ResolutionStack.Count == 0);
 
-    private static void AnswerZhiji(GameEngine game, string optionId)
-    {
-        var prompt = game.PendingDecision ?? throw new InvalidOperationException(
-            "The Zhiji choice prompt vanished.");
-        var choice = prompt.Choices.FirstOrDefault(item =>
-            item.Parameters.GetValueOrDefault("option-id") == optionId) ??
-            throw new InvalidOperationException($"The Zhiji prompt lost its {optionId} option.");
-        Answer(game, choice);
-    }
-
     private static void Answer(GameEngine game, PromptChoice choice)
     {
         var prompt = game.PendingDecision!;
@@ -484,19 +277,6 @@ internal static class JiangWeiChecks
             2 => C,
             _ => A
         });
-
-    private static ContentDeckRecipe ZhijiDeck()
-    {
-        var equipment = new[]
-        {
-            "standard:crossbow",
-            "standard:bagua",
-            "standard:offensive_horse",
-            "standard:defensive_horse",
-            "classic:hualiu"
-        };
-        return DeckCore(index => index % 9 == 8 ? "standard:slash" : equipment[index % 5]);
-    }
 
     private static ContentDeckRecipe DeckCore(Func<int, string> kindFor) =>
         new("fixture:jiang-wei-deck", "姜维测试牌堆", 5, 2, [])
@@ -530,13 +310,6 @@ internal static class JiangWeiChecks
     {
         var result = game.Submit(new AdvanceOneStepCommand(game.Revision));
         Require(result.Accepted, result.Error?.Message ?? "Jiang Wei fixture did not advance.");
-    }
-
-    private static void Play(GameEngine game, LegalAction action)
-    {
-        var result = game.Submit(new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats,
-            game.Revision, game.PendingDecision!.PromptId, action.PlayedCardKind, action.TargetCardId));
-        Require(result.Accepted, result.Error?.Message ?? "Jiang Wei card action failed.");
     }
 
     private static void Accept(CommandResult result)

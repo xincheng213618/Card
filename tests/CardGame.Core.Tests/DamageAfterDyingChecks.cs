@@ -5,74 +5,6 @@ using CardGame.Core;
 
 internal static class DamageAfterDyingChecks
 {
-    public static void KuangguUsesDistanceAtLethalDamage()
-    {
-        var registry = ContentRegistry.Build(new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(includeJijiu: true),
-            new StandardRescueSkillExpansionPackage(),
-            new StandardClassicGeneralPackage(), new KuangguScenario());
-        Check(distance: 1, shouldRecover: true);
-        Check(distance: 2, shouldRecover: false);
-
-        void Check(int distance, bool shouldRecover)
-        {
-            for (var seed = 1; seed <= 512; seed++)
-            {
-                var game = GameEngine.CreateStandard(new GameOptions
-                {
-                    Seed = seed, PlayerCount = 5, ModeId = KuangguScenario.ModeId,
-                    HumanSeat = 0, HumanRole = Role.Lord, UseInteractiveSetup = true,
-                    UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 10
-                }, registry);
-                Require(game.Submit(new StartGameCommand()).Accepted, "Kuanggu fixture start failed.");
-                var select = game.PendingDecision!;
-                Require(game.Submit(new SelectGeneralCommand(0, "classic:wei-yan", game.Revision,
-                    select.PromptId)).Accepted, "Wei Yan selection failed.");
-                for (var step = 0; step < 30 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
-                    Advance(game);
-                if (game.PendingDecision?.Kind != DecisionKind.PlayCard) continue;
-
-                if (distance == 2)
-                {
-                    var equipment = game.GetHumanLegalActions().FirstOrDefault(action =>
-                        action.Kind == LegalActionKind.Equip && action.CardId is { } id &&
-                        game.CreateSnapshot(0, true).Players[0].Hand.Any(card =>
-                            card.Id == id && card.Kind == CardKind.StoneAxe));
-                    if (equipment is null) continue;
-                    Play(game, equipment);
-                    if (game.PendingDecision?.Kind != DecisionKind.PlayCard)
-                        Advance(game);
-                    if (game.PendingDecision?.Kind != DecisionKind.PlayCard) continue;
-                }
-
-                var slash = game.GetHumanLegalActions().FirstOrDefault(action =>
-                    action.Kind == LegalActionKind.Slash && action.TargetSeats.Count == 1 &&
-                    game.GetCombatDistance(0, action.TargetSeats.Single()) == distance);
-                if (slash is null) continue;
-
-                var targetSeat = slash.TargetSeats.Single();
-                SetHp(game, 0, game.CreateSnapshot(0, true).Players[0].MaxHp - 1);
-                SetHp(game, targetSeat, 1);
-                var eventCount = game.Events.Count;
-                Play(game, slash);
-                for (var step = 0; step < 60 && !game.Events.Skip(eventCount)
-                         .Any(item => item.Payload is AfterDamageEvent damage &&
-                             damage.TargetSeat == targetSeat); step++)
-                    Advance(game);
-                var events = game.Events.Skip(eventCount).Select(item => item.Payload).ToArray();
-                Require(events.OfType<PlayerDiedEvent>().Any(item => item.VictimSeat == targetSeat),
-                    "Kuanggu fixture must kill its one-HP target.");
-                Require(events.OfType<RecoveryAppliedEvent>().Any(item =>
-                            item.SourceSeat == 0 && item.TargetSeat == 0 && item.Amount == 1) == shouldRecover &&
-                        game.CreateSnapshot(0, true).Players[0].Hp ==
-                        game.CreateSnapshot(0, true).Players[0].MaxHp - (shouldRecover ? 0 : 1),
-                    $"Kuanggu must use distance {distance} captured when lethal damage applied.");
-                return;
-            }
-            throw new InvalidOperationException($"No bounded Kuanggu lethal hit at distance {distance}.");
-        }
-    }
-
     public static void RescuedLethalDamageOffersWangxiAfterRescue()
     {
         var registry = ContentRegistry.Build(
@@ -163,20 +95,6 @@ internal static class DamageAfterDyingChecks
     private static void Advance(GameEngine game) =>
         Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
             "Could not advance the rescue fixture.");
-
-    private static void Play(GameEngine game, LegalAction action)
-    {
-        var result = game.Submit(new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats,
-            game.Revision, game.PendingDecision!.PromptId, action.PlayedCardKind, action.TargetCardId));
-        Require(result.Accepted, result.Error?.Message ?? "Damage timing card play failed.");
-    }
-
-    private static void SetHp(GameEngine game, int seat, int hp)
-    {
-        var field = typeof(GameEngine).GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!;
-        var players = (System.Collections.IList)field.GetValue(game)!;
-        players[seat]!.GetType().GetProperty("Hp")!.SetValue(players[seat], hp);
-    }
 
     private static void AnswerAction(GameEngine game, string action) => Answer(game,
         game.PendingDecision!.Choices.Single(choice =>

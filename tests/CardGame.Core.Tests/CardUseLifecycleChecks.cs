@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Diagnostics.CodeAnalysis;
 using CardGame.Content.Standard;
 using CardGame.Core;

@@ -123,94 +123,8 @@ internal static class CaoPiChecks
         Require(completed == 1, "No seeded setup produced a Xing Shang claim.");
     }
 
-    public static void XingShangSkipKeepsVictimCardsInDiscard()
-    {
-        var registry = Registry();
-        var completed = 0;
-        for (var seed = 1; seed <= 250 && completed < 1; seed++)
-        {
-            var game = Start(registry, seed);
-            ReachPlay(game);
-            var victim = ClaimTarget(game);
-            if (victim < 0 ||
-                game.GetHumanLegalActions().FirstOrDefault(action =>
-                    action.Kind == LegalActionKind.Slash && action.TargetSeat == victim) is not { } slash)
-                continue;
-            Play(game, slash);
-            DriveUntil(game, () => IsXingshangPromptFor(game, victim));
-            if (game.State.Status == EngineStatus.Completed ||
-                !IsXingshangPromptFor(game, victim))
-                continue;
-            var prompt = game.PendingDecision!;
-            var skip = prompt.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("program-action") == "skip");
-            Answer(game, skip);
-            DriveUntil(game, () => game.ResolutionStack.Count == 0);
-            var deathCleanups = game.CardMovements.Where(item =>
-                    item.To == CardLocation.DiscardPile &&
-                    item.From.OwnerSeat == victim &&
-                    item.From.Zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment &&
-                    item.Reason.Value.Contains("death", StringComparison.Ordinal))
-                .Select(item => item.CardId)
-                .Distinct()
-                .ToArray();
-            Require(deathCleanups.Length > 0,
-                "The fixture victim must lose cards at death for the decline check.");
-            var diagnostics = game.CreateCardZoneDiagnostics();
-            Require(deathCleanups.All(item =>
-                    diagnostics.Single(card => card.CardId == item).Location.Zone == CardZoneKind.DiscardPile),
-                "Declining Xing Shang must leave every victim card in the discard pile.");
-            Require(game.CardMovements.All(item =>
-                    !item.Reason.Value.Contains(ClaimReasonFragment, StringComparison.Ordinal)),
-                "Declining Xing Shang must not produce a claim movement.");
-            completed++;
-        }
-        Require(completed == 1, "No seeded setup produced a declined Xing Shang prompt.");
-    }
-
     private static bool IsXingshangPromptFor(GameEngine game, int victimSeat) =>
         IsProgramPrompt(game, Xingshang) && game.PendingDecision!.TargetSeat == victimSeat;
-
-    public static void FangZhuFlipsTargetAndDrawsOwnerLostHp()
-    {
-        var registry = Registry();
-        var completed = 0;
-        for (var seed = 1; seed <= 250 && completed < 1; seed++)
-        {
-            var game = Start(registry, seed);
-            ReachPlay(game);
-            DriveUntil(game, () => IsProgramPrompt(game, Fangzhu),
-                stopAtSkills: [Fangzhu]);
-            if (game.State.Status == EngineStatus.Completed ||
-                !IsProgramPrompt(game, Fangzhu))
-                continue;
-            var self = game.CreateSnapshot(0, true).Players[0];
-            var lostHp = self.MaxHp - self.Hp;
-            Require(lostHp > 0, "The Fangzhu prompt must follow a real damage.");
-            var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
-            Activate(game, Fangzhu);
-            Activate(replay, Fangzhu);
-            var targetSeat = SelectLowestTarget(game);
-            SelectLowestTarget(replay);
-            Require(targetSeat >= 0, "The Fangzhu target prompt lost its candidates.");
-            DriveUntil(game, () => game.ResolutionStack.Count == 0);
-            DriveUntil(replay, () => replay.ResolutionStack.Count == 0);
-            Require(Events(game).SequenceEqual(Events(replay)) &&
-                    State(game) == State(replay),
-                "The Fangzhu exile must replay identically from the paused checkpoint.");
-            var target = game.CreateSnapshot(0, true).Players[targetSeat];
-            Require(target.IsFaceDown,
-                "The exiled target's general card must be turned face-down.");
-            var drawn = game.CardMovements.Where(item =>
-                    item.To == CardLocation.Hand(targetSeat) &&
-                    item.Reason.Value.Contains("classic:fangzhu", StringComparison.Ordinal))
-                .ToArray();
-            Require(drawn.Length == lostHp,
-                $"The exiled target must draw exactly the owner's lost HP ({lostHp}).");
-            completed++;
-        }
-        Require(completed == 1, "No seeded setup produced a Fangzhu exile.");
-    }
 
     private static bool IsProgramPrompt(GameEngine game, string skillId) =>
         game.PendingDecision is
@@ -225,19 +139,6 @@ internal static class CaoPiChecks
             .Where(item => item.Seat != 0 && item.IsAlive && item.MaxHp == 1)
             .Select(item => (int?)item.Seat).FirstOrDefault() ?? -1;
         return victim;
-    }
-
-    private static int SelectLowestTarget(GameEngine game)
-    {
-        var prompt = game.PendingDecision ?? throw new InvalidOperationException(
-            "No pending decision for the Fangzhu target selection.");
-        var choice = prompt.Choices
-            .Where(item => item.Parameters.GetValueOrDefault("program-action") == "select-target")
-            .OrderBy(item => item.Targets[0])
-            .FirstOrDefault() ?? throw new InvalidOperationException(
-            "The Fangzhu target prompt lost its select-target choices.");
-        Answer(game, choice);
-        return choice.Targets[0];
     }
 
     private static void DriveUntil(

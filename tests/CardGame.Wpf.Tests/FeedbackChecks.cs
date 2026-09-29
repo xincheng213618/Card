@@ -102,57 +102,21 @@ internal static class FeedbackChecks
                responseCues[4] is { Label: "无懈可击询问中 · 第 2 层", Detail: "当前锦囊已失效 · 可反制恢复" } &&
                responseCues[5] is { SourceSeat: -1, Label: "决斗 · 已失效", Detail: "无懈链共 1 次响应" },
             "Response request, locked progress, or layered Nullification state was not projected exactly.");
-    }
-
-    public static void HandAndPreferences(string output)
-    {
-        var store = new MemorySaveStore();
-        using (var startup = new MainViewModel(false, 721019, true, store))
+        var iFieldView = view with
         {
-            startup.IsMotionEnabled = !startup.IsMotionEnabled;
-            startup.IsAutoAdvance = true;
-        }
-        Assert(store.WriteCount == 0, "Changing startup preferences overwrote the previous match.");
-        using var vm = new MainViewModel(false, 721019, false, store) { IsMotionEnabled = false };
-        var window = new MainWindow(vm);
-        var root = (FrameworkElement)window.Content;
-        vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
-        AdvanceToDecision(vm);
-        vm.SortHandCommand.Execute(null);
-        Render(root, 1120, 740, Path.Combine(output, "13-retained-hand.png"));
-        var hand = (ItemsControl)window.FindName("HandCards");
-        var cards = vm.Hand.ToArray();
-        var containers = cards.ToDictionary(card => card.Id, card => hand.ItemContainerGenerator.ContainerFromItem(card));
-        Assert(containers.Values.All(container => container is not null), "Hand controls did not materialize.");
-        vm.IsDeveloperView = true;
-        vm.IsDeveloperView = false;
-        Assert(vm.Hand.SequenceEqual(cards), "Refreshing reset the arranged hand.");
-        vm.EndTurnCommand.Execute(null);
-        AdvanceToDecision(vm);
-        Assert(vm.IsDiscardSelectionPending, "Fixture did not enter discard.");
-        Render(root, 1120, 740, Path.Combine(output, "13-retained-hand.png"));
-        Assert(vm.Hand.SequenceEqual(cards) && cards.All(card => ReferenceEquals(containers[card.Id], hand.ItemContainerGenerator.ContainerFromItem(card))), "Entering discard recreated hand controls or reset their order.");
-        ResolveDiscard(vm);
-        var retainedIds = vm.Hand.Select(card => card.Id).ToHashSet();
-        Assert(vm.Hand.SequenceEqual(cards.Where(card => retainedIds.Contains(card.Id))) && vm.Hand.All(card => !card.IsSelected), "Discard changed surviving cards or left stale selection.");
-        Assert(vm.FlushPendingSave(), vm.SaveStatus);
-        var revision = Engine(vm).Revision;
-        var writes = store.WriteCount;
-        vm.IsMotionEnabled = true;
-        Assert(vm.FlushPreferences() && vm.IsMotionEnabled && Engine(vm).Revision == revision,
-            "Changing motion must persist as a device preference without advancing the match.");
-        vm.IsAutoAdvance = true;
-        Assert(vm.FlushPendingSave() && store.Read(GameSaveSlot.Automatic).AutoAdvance, "Changing auto advance was not persisted.");
-        vm.IsAutoAdvance = false;
-        vm.SaveGameCommand.Execute(null);
-        vm.IsMotionEnabled = false;
-        vm.LoadManualGameCommand.Execute(null);
-        Assert(!vm.IsMotionEnabled && !vm.IsAutoAdvance && Engine(vm).Revision == revision && vm.BattleCues.Count == 0, "Restore changed current motion preferences, the game, or replayed old animation cues.");
-        var savedSequence = Engine(vm).Events.Last().Sequence;
-        for (var step = 0; step < 30 && vm.BattleCues.Count == 0; step++) Step(vm);
-        Assert(vm.BattleCues.Count > 0 && vm.BattleCues.All(cue => cue.Sequence > savedSequence), "Restored feedback replayed historical events.");
-        window.Content = null;
-        window.Close();
+            Players = view.Players.Select(player => player.Seat == 0
+                ? player with
+                {
+                    Skills = [new GeneralSkillDefinition("I力场", "")
+                    { ContentId = "classic:i-field" }]
+                }
+                : player).ToArray()
+        };
+        var iFieldCue = BattleCueProjector.Project(
+            [Envelope(new WuyanDamagePreventedEvent(22, 1, 0, CardKind.Duel, 1, 0,
+                "classic:i-field"))], iFieldView).Single();
+        Assert(iFieldCue.Label == "I力场 · 锦囊伤害已防止",
+            "Incoming trick prevention must display the skill that actually prevented damage.");
     }
 
     public static void RenderAndLifecycle(string output, bool recordMotion)

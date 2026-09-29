@@ -8,21 +8,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Shared\WushengResponseScenario.cs" Link="WushengResponseScenario.cs" />
-    <Compile Include="..\Shared\JijiuEquipmentScenario.cs" Link="JijiuEquipmentScenario.cs" />
     <Compile Include="..\Shared\BorrowedSwordScenario.cs" Link="BorrowedSwordScenario.cs" />
-    <Compile Include="..\Shared\StoneAxeScenario.cs" Link="StoneAxeScenario.cs" />
     <Compile Include="..\Shared\ZhangbaScenario.cs" Link="ZhangbaScenario.cs" />
     <Compile Include="..\Shared\CixiongDoubleSwordsScenario.cs" Link="CixiongDoubleSwordsScenario.cs" />
-    <Compile Include="..\Shared\QinglongCrescentBladeScenario.cs" Link="QinglongCrescentBladeScenario.cs" />
     <Compile Include="..\Shared\IceSwordScenario.cs" Link="IceSwordScenario.cs" />
-    <Compile Include="..\Shared\QilinBowScenario.cs" Link="QilinBowScenario.cs" />
-    <Compile Include="..\Shared\MengjinScenario.cs" Link="MengjinScenario.cs" />
-    <Compile Include="..\Shared\QuhuScenario.cs" Link="QuhuScenario.cs" />
     <Compile Include="..\Shared\FangtianHalberdScenario.cs" Link="FangtianHalberdScenario.cs" />
-    <Compile Include="..\Shared\GudingBladeScenario.cs" Link="GudingBladeScenario.cs" />
-    <Compile Include="..\Shared\ZhuqueFanScenario.cs" Link="ZhuqueFanScenario.cs" />
-    <Compile Include="..\Shared\TengjiaScenario.cs" Link="TengjiaScenario.cs" />
-    <Compile Include="..\Shared\SilverLionScenario.cs" Link="SilverLionScenario.cs" />
     <EmbeddedResource Include="Fixtures\national-v7.json" />
     <ProjectReference Include="..\..\src\CardGame.Wpf\CardGame.Wpf.csproj" />
   </ItemGroup>

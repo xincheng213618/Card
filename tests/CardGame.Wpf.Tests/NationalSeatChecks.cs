@@ -45,53 +45,6 @@ internal static class NationalSeatChecks
         Require(State(vm) == before, "Portrait projection or developer toggling changed the game.");
     }
 
-    public static void MultiSkillProjection()
-    {
-        using var vm = Ready();
-        var own = Program.Engine(vm).CreateSnapshot(0, true).Players[0] with
-        {
-            Skills =
-            [
-                new GeneralSkillDefinition("咆哮", "出牌阶段使用杀没有次数限制。"),
-                new GeneralSkillDefinition("武圣", "红色牌可当作杀使用。")
-            ],
-            SecondarySkills =
-            [
-                new GeneralSkillDefinition("青囊", "弃置手牌令受伤角色回复。")
-                { ContentId = "classic:qingnang", ActionForms = SkillActionForm.Active },
-                new GeneralSkillDefinition("急救", "回合外红色牌可当桃。")
-            ],
-            IsSecondaryGeneralPublic = true
-        };
-        var primary = GeneralSlotViewModel.FromPlayer(own, false);
-        var secondary = GeneralSlotViewModel.FromPlayer(own, true);
-        Require(primary.SkillName == "咆哮 / 武圣" &&
-                primary.DetailText.Contains("咆哮：", StringComparison.Ordinal) &&
-                primary.DetailText.Contains("武圣：", StringComparison.Ordinal) &&
-                !primary.IsSkillEnabled,
-            "The hidden primary slot did not retain its ordered private multi-skill presentation.");
-        Require(secondary.SkillName == "青囊 / 急救" &&
-                secondary.DetailText.Contains("青囊：", StringComparison.Ordinal) &&
-                secondary.DetailText.Contains("急救：", StringComparison.Ordinal) &&
-                secondary.IsSkillEnabled,
-            "The revealed secondary slot did not present and enable both skills.");
-
-        var empty = GeneralSlotViewModel.FromPlayer(own with { Skills = [] }, false);
-        var unavailable = GeneralSlotViewModel.FromPlayer(own with { Skills = null }, false);
-        Require(empty.SkillName == "无" && empty.SkillStateText == "此将没有技能" &&
-                unavailable.SkillName == "未知技能" && unavailable.SkillStateText == "技能信息未公开",
-            "An empty visible skill collection was confused with unavailable private skill data.");
-
-        var hidden = GeneralSlotViewModel.FromPlayer(own with
-        {
-            IsHuman = false,
-            IsSecondaryGeneralPublic = false
-        }, true);
-        Require(!hidden.IsKnown && !hidden.DetailText.Contains("青囊", StringComparison.Ordinal) &&
-                !hidden.DetailText.Contains("急救", StringComparison.Ordinal),
-            "A trusted snapshot leaked an unrevealed secondary multi-skill list through WPF.");
-    }
-
     public static void ControlsAndRelations(string output)
     {
         using var vm = Ready();

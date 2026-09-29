@@ -20,7 +20,7 @@ internal static class SkillProgramTriggerDefinitionChecks
     {
         var program = SkillProgramCatalog.Load(CurrentRules, Presentation).Programs["test:trigger"];
         var trigger = program.Triggers.Single();
-        Require(program.RuntimeVersion == "skill-program-v62" && program.MinimumRulesVersion == 172 &&
+        Require(program.RuntimeVersion == SkillProgramCatalog.RuntimeVersion && program.MinimumRulesVersion == 172 &&
                 program.Modifiers.Count == 0 && program.ViewAs.Count == 0 && program.Activations.Count == 0,
             "Current schema must support a trigger-only program.");
         Require(trigger.Window == SkillProgramTriggerWindow.CardResponseAccepted &&

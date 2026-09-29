@@ -46,7 +46,7 @@
       "cardPolicies": [
         {
           "id": "i-field-trick-immunity",
-          "kind": "preventTrickDamage",
+          "kind": "preventIncomingTrickDamage",
           "cardKinds": [
             "duel",
             "drawTwo",

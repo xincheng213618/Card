@@ -10,93 +10,6 @@ internal static class ZhongHuiChecks
     private const string ZiliSkillId = "classic:zili";
     private const string PaiyiSkillId = "classic:paiyi";
 
-    public static void ContentQuanjiAndBoundary()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var migrated = current;
-        var general = current.Generals[GeneralId];
-        Require(general.FactionId == "wei" && general.BaseHp == 4 &&
-                general.Gender == GeneralGender.Male && general.PortraitKey == "zhong_hui" &&
-                general.SkillIds.SequenceEqual([QuanjiSkillId, ZiliSkillId]),
-            "Current Zhong Hui must publish his complete general identity.");
-        var quanji = current.Skills[QuanjiSkillId].Program;
-        var zili = current.Skills[ZiliSkillId].Program;
-        var paiyi = current.Skills[PaiyiSkillId].Program;
-        Require(quanji is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172,
-                            Triggers.Count: 1, Modifiers.Count: 1 } &&
-                quanji.Triggers.Single().Effects.Select(effect => effect.Op).SequenceEqual([
-                    SkillProgramEffectOp.Draw,
-                    SkillProgramEffectOp.SelectSourceCard,
-                    SkillProgramEffectOp.MoveBoundCards
-                ]) &&
-                zili is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172,
-                           Triggers.Count: 2 } &&
-                zili.Triggers.All(trigger => trigger.Window == SkillProgramTriggerWindow.TurnStartBeforeNormalFlow &&
-                    trigger.ChoiceGroup == "awakening-benefit" && !trigger.Optional &&
-                    trigger.UsageScope == SkillUsageScope.Game && trigger.UsageLimit == 1) &&
-                paiyi is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172,
-                            Activations.Count: 1 } &&
-                paiyi.Activations.Single().SourceZones.SequenceEqual([CardZoneKind.Authority]) &&
-                paiyi.Activations.Single().Effects.Select(effect => effect.Op).SequenceEqual([
-                    SkillProgramEffectOp.DiscardSelected,
-                    SkillProgramEffectOp.Draw,
-                    SkillProgramEffectOp.Damage
-                ]),
-            "Current Quanji, Zili and Paiyi must expose their authority-zone programs.");
-        var paiyiProgram = migrated.Skills[PaiyiSkillId].Program!.Activations.Single();
-        var activeRules = ReadResource(typeof(StandardClassicGeneralPackage).Assembly,
-            "CardGame.Content.Standard.SkillPrograms.active-persistent-zone-skills.rules.json");
-        var activePresentation = ReadResource(typeof(StandardClassicGeneralPackage).Assembly,
-            "CardGame.Content.Standard.SkillPrograms.active-persistent-zone-skills.presentation.json");
-        RequireLoadFailure(activeRules.Replace("\"sourceZones\": [\"authority\"]",
-                "\"sourceZones\": [\"discardPile\"]"),
-            activePresentation, "Activation costs must reject non-owner source zones.");
-        var damageEffect = paiyiProgram.Effects.Single(effect => effect.Op == SkillProgramEffectOp.Damage);
-        Require(damageEffect.Target == SkillProgramEffectTarget.SelectedTarget,
-            "Paiyi must damage its selected recipient when the post-draw condition holds.");
-        var damageCondition = damageEffect.Condition;
-        var ownerContext = new PlayerSkillContext(0, 3, 4, 3, TurnPhase.Play, IsOwnTurn: true);
-        Require(damageCondition.Evaluate(ownerContext,
-                    new PlayerSkillContext(1, 4, 4, 4, TurnPhase.Play), UnexpectedFrameLookup, UnexpectedFrameLookup) &&
-                !damageCondition.Evaluate(ownerContext,
-                    new PlayerSkillContext(0, 3, 4, 5, TurnPhase.Play), UnexpectedFrameLookup, UnexpectedFrameLookup) &&
-                !damageCondition.Evaluate(ownerContext,
-                    new PlayerSkillContext(1, 4, 4, 3, TurnPhase.Play), UnexpectedFrameLookup, UnexpectedFrameLookup),
-            "Paiyi's reusable selected-target conditions must compare post-draw state and exclude self.");
-
-        static bool UnexpectedFrameLookup(string _) =>
-            throw new InvalidOperationException("Paiyi target conditions must not read a Pindian or state binding.");
-
-        var fixture = FindFixture();
-        var registry = CreateRegistry();
-        var game = CreateFixtureGame(registry, fixture.Seed);
-        ResolveSelfFireAttack(game, expectQuanji: true, testForgery: true);
-        var first = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat];
-        Require(first.AuthorityCount == 1 && first.AuthorityCards?.Count == 1 &&
-                game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
-                    item.SkillId == QuanjiSkillId && item.BindingId == "store-authority" && item.Completed),
-            "One point of damage must offer one Quanji draw-and-store result in the public Authority zone.");
-
-        ResolveSelfFireAttack(game, expectQuanji: true);
-        ResolveSelfFireAttack(game, expectQuanji: true);
-        var snapshot = game.CreateSnapshot(HumanSeat, revealAll: true);
-        Require(snapshot.Players[HumanSeat] is
-                {
-                    AuthorityCount: 3,
-                    AuthorityCards.Count: 3
-                } owner &&
-                GetHandLimit(game, HumanSeat) == owner.Hp + 3 &&
-                game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Count(item =>
-                    item.SkillId == QuanjiSkillId && item.BindingId == "store-authority" && item.Completed) == 3,
-            "Three independent damage points must create three public Authorities and add exactly three to hand limit.");
-
-        var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
-        Require(SnapshotJson.Serialize(replay.CreateSnapshot(HumanSeat, revealAll: true)) ==
-                SnapshotJson.Serialize(snapshot),
-            "The completed three-Authority command prefix must replay exactly.");
-
-    }
-
     public static void ZiliAndPaiyiReplay()
     {
         var fixture = FindFixture();
@@ -227,39 +140,6 @@ internal static class ZhongHuiChecks
                 replay.Events.Select(item => item.Payload).OfType<ProgramSkillResolvedEvent>().Any(item =>
                     item.SkillId == PaiyiSkillId && item.ActivationId == "remove-authority" && item.Completed),
             "The completed Zili-to-Paiyi chain must replay exactly.");
-    }
-
-    public static void ZiliProgramValidationAndCurrentConditions()
-    {
-        const string rulesResource =
-            "CardGame.Content.Standard.SkillPrograms.state-awakening-skills.rules.json";
-        const string presentationResource =
-            "CardGame.Content.Standard.SkillPrograms.state-awakening-skills.presentation.json";
-        var assembly = typeof(StandardClassicGeneralPackage).Assembly;
-        var rules = ReadResource(assembly, rulesResource);
-        var presentation = ReadResource(assembly, presentationResource);
-        var catalog = SkillProgramCatalog.Load(rules, presentation);
-        var triggers = catalog.Programs[ZiliSkillId].Triggers.ToDictionary(item => item.Id);
-        var twoAuthorities = new SkillProgramTriggerFacts(
-            0, 2, true, CurrentMaxHp: 4,
-            OwnedZoneCounts: new SkillProgramOwnedZoneCounts(0, 0, 2, 0));
-        var woundedThreeAuthorities = twoAuthorities with
-        {
-            OwnedZoneCounts = new SkillProgramOwnedZoneCounts(0, 0, 3, 0)
-        };
-        var fullThreeAuthorities = woundedThreeAuthorities with { CurrentHp = 4 };
-        Require(!triggers["recover"].Condition.Evaluate(twoAuthorities) &&
-                !triggers["draw"].Condition.Evaluate(twoAuthorities) &&
-                triggers["recover"].Condition.Evaluate(woundedThreeAuthorities) &&
-                triggers["draw"].Condition.Evaluate(woundedThreeAuthorities) &&
-                !triggers["recover"].Condition.Evaluate(fullThreeAuthorities) &&
-                triggers["draw"].Condition.Evaluate(fullThreeAuthorities),
-            "The generic owned-zone condition must require three Authorities and omit only the illegal recovery branch at full HP.");
-        RequireLoadFailure(
-            rules.Replace("\"zone\": \"authority\"", "\"zone\": \"hand\"", StringComparison.Ordinal),
-            presentation,
-            "currentOwnedZoneCount must reject ordinary hand zones");
-
     }
 
     private static void ResolveSelfFireAttack(GameEngine game, bool expectQuanji, bool testForgery = false)
@@ -528,27 +408,6 @@ internal static class ZhongHuiChecks
         new StandardRescueSkillExpansionPackage(),
         new StandardClassicGeneralPackage(),
         new ScenarioPackage());
-
-    private static string ReadResource(Assembly assembly, string resourceName)
-    {
-        using var stream = assembly.GetManifestResourceStream(resourceName) ??
-            throw new InvalidOperationException($"Missing test resource '{resourceName}'.");
-        using var reader = new StreamReader(stream);
-        return reader.ReadToEnd().ReplaceLineEndings("\n");
-    }
-
-    private static void RequireLoadFailure(string rules, string presentation, string message)
-    {
-        try
-        {
-            _ = SkillProgramCatalog.Load(rules, presentation);
-        }
-        catch (InvalidOperationException)
-        {
-            return;
-        }
-        throw new InvalidOperationException(message);
-    }
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
         GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint));

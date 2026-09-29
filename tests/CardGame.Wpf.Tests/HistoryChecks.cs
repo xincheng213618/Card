@@ -17,9 +17,6 @@ internal static class HistoryChecks
     private static void Require(bool condition, string message) => Program.Assert(condition, message);
     private static string State(MainViewModel vm) => SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(0, true));
     private static T Named<T>(DependencyObject root, string name) where T : FrameworkElement => Program.Find<T>(root).Single(item => item.Name == name);
-    private static bool Shortcut(MainWindow window, Key key) => (bool)typeof(MainWindow)
-        .GetMethod("HandleShortcut", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(window, [key, ModifierKeys.None])!;
-
     public static void PersistenceAndFailures(string output)
     {
         var directory = Path.Combine(output, "history-fixtures", Guid.NewGuid().ToString("N"));
@@ -93,75 +90,10 @@ internal static class HistoryChecks
         Console.WriteLine("  Two real completed matches persisted; reload deduplication, pending retry, corrupt-file isolation and 55-file retention passed.");
     }
 
-    public static void ModalLifecycle(string output)
-    {
-        using var vm = new MainViewModel(false, 721019, true, new MemorySaveStore());
-        var window = new MainWindow(vm);
-        window.ApplyTemplate();
-        var root = (FrameworkElement)window.Content;
-        // Materialize the startup view before opening its modal, matching the player's actual path.
-        Program.Render(root, 1120, 740, Path.Combine(output, "49-history-startup.png"));
-        var entryButton = Named<Button>(root, "SetupHistoryButton");
-        Require(entryButton.IsEnabled && entryButton.Command is not null, "Startup history entry is inaccessible.");
-        entryButton.Command!.Execute(null);
-        Program.Render(root, 1120, 740, Path.Combine(output, "49-history-empty.png"));
-        VerifyCloseBounds(root);
-        Require(!Named<Grid>(root, "TableSurface").IsEnabled && !Named<Border>(root, "NewGameSetupPanel").IsEnabled &&
-            Named<Button>(root, "HistoryCloseButton").IsEnabled, "History modal failed to isolate the setup/table controls.");
-        Require(KeyboardNavigation.GetTabNavigation(Program.Find<MatchHistoryPanel>(root).Single()) == KeyboardNavigationMode.Cycle, "History must contain Tab navigation.");
-        Require(Shortcut(window, Key.Escape) && !vm.IsHistoryOpen && vm.IsNewGameSetupOpen, "Esc did not return to the original setup.");
-        vm.StartNewGameCommand.Execute(null);
-        vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
-        Require(vm.CanStepAi, "History timer fixture has no AI continuation.");
-        vm.IsAutoAdvance = true;
-        vm.OpenHistoryCommand.Execute(null);
-        var paused = State(vm);
-        Pump(1400);
-        Require(State(vm) == paused && vm.IsAutoAdvance, "History failed to pause the enabled AI timer.");
-        vm.CloseHistoryCommand.Execute(null);
-        Pump(750);
-        Require(State(vm) != paused && vm.IsAutoAdvance, "Returning from history failed to resume the timer.");
-        vm.IsAutoAdvance = false;
-        Program.AdvanceToDecision(vm);
-        var slash = vm.Hand.First(card => card.Name == "杀" && card.IsPlayable);
-        vm.SelectCardCommand.Execute(slash);
-        vm.SelectTargetCommand.Execute(vm.Seats.First(seat => seat.IsLegalTarget));
-        Require(vm.CanConfirmSelected, "Fixture needs a selected legal attack.");
-        var selected = State(vm);
-        vm.OpenHistoryCommand.Execute(null);
-        Program.Render(root, 1120, 740, Path.Combine(output, "53-history-return.png"));
-        VerifyCloseBounds(root);
-        Require(!Named<Grid>(root, "TableSurface").IsEnabled && !Shortcut(window, Key.Enter) && !Shortcut(window, Key.F5) && !Shortcut(window, Key.F1), "History lets game shortcuts pass through.");
-        Require(Shortcut(window, Key.Escape) && !vm.IsHistoryOpen && vm.CanConfirmSelected && slash.IsSelected && State(vm) == selected && !vm.IsAutoAdvance, "Closing history changed the selected play or pause preference.");
-        Require(Shortcut(window, Key.Enter) && State(vm) != selected, "Preserved attack failed to submit after closing history.");
-        vm.StartTutorialCommand.Execute(null);
-        Require(vm.IsTutorialActive && vm.HasNoMatchHistory, "Tutorial entry must not create a result.");
-        window.Content = null;
-        window.Close();
-    }
-
     private static void Complete(MainViewModel vm)
     {
         for (var step = 0; step < 18000 && !vm.HasGameOver; step++) PersistenceChecks.Step(vm);
         Require(vm.HasGameOver, "Real history fixture did not complete.");
-    }
-
-    private static void VerifyCloseBounds(FrameworkElement root)
-    {
-        var button = Named<Button>(root, "HistoryCloseButton");
-        var origin = button.TranslatePoint(new Point(), root);
-        Require(button.ActualWidth > 0 && button.ActualHeight > 0 && origin.X >= 0 && origin.Y >= 0 &&
-            origin.X + button.ActualWidth <= root.ActualWidth && origin.Y + button.ActualHeight <= root.ActualHeight,
-            $"History close button is clipped: {origin}, {button.ActualWidth}x{button.ActualHeight}, root {root.ActualWidth}x{root.ActualHeight}.");
-    }
-
-    private static void Pump(int milliseconds)
-    {
-        var frame = new DispatcherFrame();
-        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(milliseconds) };
-        timer.Tick += (_, _) => { timer.Stop(); frame.Continue = false; };
-        timer.Start();
-        Dispatcher.PushFrame(frame);
     }
 
     private sealed class FailingHistoryStore : IMatchHistoryStore

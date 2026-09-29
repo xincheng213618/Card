@@ -18,7 +18,8 @@ public enum SkillProgramCardPolicyKind
     PreventTrickDamage,
     NullifyBlackSlashWithoutArmor,
     ProhibitNearbyTargetResponse,
-    ProhibitTargetSlashResponseBySuit
+    ProhibitTargetSlashResponseBySuit,
+    PreventIncomingTrickDamage
 }
 
 public sealed record SkillProgramCardPolicy(

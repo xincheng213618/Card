@@ -16147,27 +16147,22 @@ public sealed partial class GameEngine
 
         var source = _players[attack.SourceSeat];
         var target = _players[attack.TargetSeat];
-        var sourcePrevents = HasCardPolicy(source, SkillProgramCardPolicyKind.PreventTrickDamage,
-            cardKind);
-        var targetPrevents = HasCardPolicy(target, SkillProgramCardPolicyKind.PreventTrickDamage,
-            cardKind);
-        if (!sourcePrevents && !targetPrevents)
+        var sourcePolicy = CardPolicies(source, SkillProgramCardPolicyKind.PreventTrickDamage,
+            cardKind).FirstOrDefault().Source;
+        var targetPolicy = CardPolicies(target, SkillProgramCardPolicyKind.PreventTrickDamage,
+            cardKind).FirstOrDefault().Source ??
+            CardPolicies(target, SkillProgramCardPolicyKind.PreventIncomingTrickDamage,
+                cardKind).FirstOrDefault().Source;
+        if (sourcePolicy is null && targetPolicy is null)
         {
             return false;
         }
-        var skillOwner = sourcePrevents
-            ? source
-            : targetPrevents
-                ? target
-                : null;
-        if (skillOwner is null)
-        {
-            return false;
-        }
+        var skillOwner = sourcePolicy is not null ? source : target;
+        var skill = sourcePolicy ?? targetPolicy!;
 
         AddLog(
             "DamagePrevented",
-            $"{skillOwner.Name} 的【无言】防止了【{CardCatalog.Get(cardKind).DisplayName}】造成的 {amount} 点伤害。",
+            $"{skillOwner.Name} 的【{skill.Definition.Name}】防止了【{CardCatalog.Get(cardKind).DisplayName}】造成的 {amount} 点伤害。",
             skillOwner.Seat,
             skillOwner.Seat == source.Seat ? target.Seat : source.Seat);
         QueueGameEvent(new WuyanDamagePreventedEvent(
@@ -16176,7 +16171,8 @@ public sealed partial class GameEngine
             target.Seat,
             cardKind,
             amount,
-            skillOwner.Seat));
+            skillOwner.Seat,
+            skill.SkillId));
         return true;
     }
 
