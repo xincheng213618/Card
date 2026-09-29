@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:mingce",
+      "revision": 1,
+      "minimumRulesVersion": 191,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "advise",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": ["hand"],
+          "cardCategories": ["equipment"],
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": 1,
+          "condition": { "kind": "ownTurn" },
+          "effects": [
+            {
+              "op": "giveSelected",
+              "target": "selectedTarget"
+            },
+            {
+              "op": "useDesignatedVirtualSlash",
+              "target": "selectedTarget",
+              "resultBind": "designated-slash"
+            },
+            {
+              "op": "draw",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "designated-slash",
+                "optionId": "declined"
+              }
+            }
+          ]
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:zhichi",
+      "revision": 1,
+      "minimumRulesVersion": 191,
+      "states": [
+        {
+          "id": "delayed-guard",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "arm-after-out-of-turn-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "not",
+            "children": [
+              { "kind": "ownerIsTurnPlayer" }
+            ]
+          },
+          "effects": [
+            { "op": "setBooleanState", "target": "owner", "stateId": "delayed-guard", "value": true }
+          ]
+        },
+        {
+          "id": "nullify-targeted-card",
+          "window": "cardUseBeforeTargetEffects",
+          "ownerRelation": "target",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash",
+            "duel",
+            "drawTwo",
+            "barbarianAssault",
+            "arrowBarrage",
+            "peachGarden",
+            "fiveGrains",
+            "dismantlement",
+            "snatch",
+            "fireAttack",
+            "nullification",
+            "ironChain",
+            "borrowedSword"
+          ],
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "delayed-guard",
+            "expectedValue": true
+          },
+          "effects": [
+            { "op": "nullifyCurrentCardEffect", "target": "owner" }
+          ]
+        },
+        {
+          "id": "clear-at-turn-end",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": false,
+          "priority": -100,
+          "effects": [
+            { "op": "setBooleanState", "target": "owner", "stateId": "delayed-guard", "value": false }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

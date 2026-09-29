@@ -1459,6 +1459,17 @@ public sealed partial class SimpleAiBrain
             "按同一公开效果收益选择需要阻止的目标子集。"));
     }
 
+    /// <summary>
+    /// Public hostility estimate toward one seat; positive when attacking the
+    /// target is preferred, negative when the target is a protected ally.
+    /// </summary>
+    public double ScoreHostility(GameSnapshot view, int targetSeat)
+    {
+        var selfRole = view.Players.Single(player => player.Seat == Seat).Role ?? Role.Renegade;
+        var target = view.Players.Single(player => player.Seat == targetSeat);
+        return Math.Clamp(GetHostility(view, selfRole, target), -100d, 100d);
+    }
+
     private double ScoreHostileHandTargets(
         GameSnapshot view,
         Role selfRole,

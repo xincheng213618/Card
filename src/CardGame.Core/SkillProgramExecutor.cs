@@ -62,6 +62,9 @@ public interface ISkillProgramEffectHost
         string sourceBind);
     SkillProgramStepOutcome RequestSlashByTarget(ProgramSkillFrame frame, int targetSeat,
         int victimSeat, string resultBind);
+
+    SkillProgramStepOutcome UseDesignatedVirtualSlash(ProgramSkillFrame frame, int targetSeat,
+        string resultBind);
     void PendExtraTurn(ProgramSkillFrame frame, int? targetSeat = null);
     void ClaimDeathCleanupCards(ProgramSkillFrame frame);
     SkillProgramStepOutcome BindDiscardPhaseDiscards(ProgramSkillFrame frame, string resultBind);

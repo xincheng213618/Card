@@ -147,6 +147,36 @@ public sealed partial class GameEngine
             decision.Choices.First();
     }
 
+    private PromptChoice SelectAiProgramDesignatedSlash(PendingDecision decision, ProgramSkillFrame frame)
+    {
+        var action = decision.Choices[0].Parameters.GetValueOrDefault("program-action");
+        if (action == "designated-slash-victim")
+        {
+            // The owner designates the candidate its own relationship scoring
+            // ranks highest; public-state evidence only, deterministic tie-break.
+            var (choiceId, thought) = _aiBrains[decision.PlayerSeat].ChooseHostileHandTargets(
+                CreateSnapshot(decision.PlayerSeat), decision.Choices, _thoughtSequence++);
+            AddThought(thought);
+            return decision.Choices.Single(choice => choice.Id == choiceId);
+        }
+        // The user weighs the designated victim with the same public hostility
+        // scoring: a hostile victim outranks the neutral one-card fallback,
+        // while an ally-directed slash is declined.
+        var view = CreateSnapshot(decision.PlayerSeat);
+        var useChoice = decision.Choices.FirstOrDefault(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "designated-slash-use");
+        if (useChoice is null ||
+            _aiBrains[decision.PlayerSeat].ScoreHostility(view, useChoice.Targets[0]) <= 0d)
+        {
+            return decision.Choices.First(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "designated-slash-decline");
+        }
+        var (answerId, answerThought) = _aiBrains[decision.PlayerSeat].ChooseHostileHandTargets(
+            view, decision.Choices, _thoughtSequence++);
+        AddThought(answerThought);
+        return decision.Choices.Single(choice => choice.Id == answerId);
+    }
+
     private void CommitProgramChoiceResult(long frameId, string bind, string optionId,
         int chooserSeat, string label)
     {

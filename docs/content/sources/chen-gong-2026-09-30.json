@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-30",
+  "contentIds": [
+    "classic:chen-gong"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:chen-gong",
+      "url": "https://x.sanguosha.com/hero/297.html",
+      "edition": "三国杀官方网站武将库 gid 297（陈宫，群）",
+      "use": "明策：出牌阶段限一次，你可以将一张装备牌或【杀】交给一名其他角色，并选择其攻击范围内的另一名角色（若无则不选择），令其选择一项：1.视为对你选择的角色使用一张【杀】；2.摸一张牌。智迟：锁定技，每当你于回合外受到伤害后，本回合【杀】和非延时锦囊牌对你无效。"
+    },
+    {
+      "contentId": "classic:chen-gong",
+      "url": "https://wiki.biligame.com/sgs/%E9%99%88%E5%AE%AB",
+      "edition": "BWIKI 三国杀WIKI 武将页（二手核对）",
+      "use": "体力/势力/性别/包归属核对：群、男、经典版 3 勾玉、一将成名2011。技能措辞与官方页一致的以官方页为准。"
+    }
+  ],
+  "versionBoundary": "明策的“装备牌或【杀】”是并集约束，而效果级 selectAndMoveOwnedCard 的 cardCategories+cardKinds 相交，故新增激活级 cardCategories/cardKinds 并集过滤承载（加值可选节点，声明即非空、仅接受朴素选牌）。“视为使用【杀】”的用牌者是获牌角色且伤害来源须为该角色：既有 useVirtualCard（触发窗口限定、来源=帧拥有者）与 useBoundCardByTarget（要求装备实体牌）均不适用，selectTarget 又会顶替单一选中目标，故新增 useDesignatedVirtualSlash 操作把“指定→征询→视为使用→回填结果”封装为共享结算（无实体牌走标准 AttackResolution 管线，programSkillCardUseFrameId 续接既有回接）。官方“（若无则不选择）”固化为候选为空时直接记 declined 并续接兜底摸牌。智迟零引擎扩展：武装以 afterDamageApplied perDamage + not[ownerIsTurnPlayer] 承载“回合外受伤后”，无效化以 cardUseBeforeTargetEffects/ownerRelation target + booleanState 条件 → nullifyCurrentCardEffect 承载（贞烈模板同款【杀】+普通锦囊 15 种牌清单），回合结束清除以 turnEnding + turnOwnerScope otherLiving 承载。立绘 129701 已下载入库（official-chen-gong.png，sha256 b1d3324d…ef6011）。",
+  "portraits": [
+    {
+      "contentId": "classic:chen-gong",
+      "id": "129701",
+      "name": "经典形象*陈宫",
+      "sourcePage": "https://x.sanguosha.com/hero/297.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/129701.png"
+    }
+  ]
+}

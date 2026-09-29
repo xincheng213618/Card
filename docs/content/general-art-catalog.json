@@ -1445,6 +1445,23 @@
       ]
     },
     {
+      "key": "chen-gong",
+      "characterName": "陈宫",
+      "defaultSkinId": "129701",
+      "skins": [
+        {
+          "id": "129701",
+          "name": "经典形象*陈宫",
+          "sourcePage": "https://x.sanguosha.com/hero/297.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/129701.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-chen-gong.png",
+          "sha256": "b1d3324d25335306fce66bc8ead17644f83c16e7e637eb9f11dcbcd289ef6011",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "cheng-pu",
       "characterName": "程普",
       "defaultSkinId": "130301",

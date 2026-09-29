@@ -181,6 +181,10 @@ public sealed partial class GameEngine
             int victimSeat, string resultBind) =>
             engine.RequestProgramSlashByTarget(frame, targetSeat, victimSeat, resultBind);
 
+        public SkillProgramStepOutcome UseDesignatedVirtualSlash(ProgramSkillFrame frame, int targetSeat,
+            string resultBind) =>
+            engine.BeginProgramDesignatedVirtualSlash(frame, targetSeat, resultBind);
+
         public void PendExtraTurn(ProgramSkillFrame frame, int? targetSeat = null) =>
             engine.PendProgramExtraTurn(frame, targetSeat);
 

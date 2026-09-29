@@ -177,7 +177,8 @@ internal static class ProgramCompositionDefinitionChecks
             [SkillProgramEffectOp.ClaimMovedCards] = """{"op":"claimMovedCards","target":"owner"}""",
             [SkillProgramEffectOp.UseVirtualDyingAlcohol] = """{"op":"useVirtualDyingAlcohol","target":"owner"}""",
             [SkillProgramEffectOp.TakeRandomCardFromEveryOtherCharacter] = """{"op":"takeRandomCardFromEveryOtherCharacter","target":"owner","zones":["hand","equipment","judgment"]}""",
-            [SkillProgramEffectOp.TakeRandomCardsFromParticipant] = """{"op":"takeRandomCardsFromParticipant","target":"owner","participantRef":{"kind":"selectedSecond"},"amount":2,"zones":["hand","equipment"]}"""
+            [SkillProgramEffectOp.TakeRandomCardsFromParticipant] = """{"op":"takeRandomCardsFromParticipant","target":"owner","participantRef":{"kind":"selectedSecond"},"amount":2,"zones":["hand","equipment"]}""",
+            [SkillProgramEffectOp.UseDesignatedVirtualSlash] = """{"op":"useDesignatedVirtualSlash","target":"selectedTarget","resultBind":"designated"}""",
         };
         Require(nodes.Keys.ToHashSet().SetEquals(Enum.GetValues<SkillProgramEffectOp>()),
             "Catalog parse fixtures must cover every declared program operation exactly once.");

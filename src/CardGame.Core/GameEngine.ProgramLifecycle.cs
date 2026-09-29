@@ -2828,6 +2828,7 @@ public sealed partial class GameEngine
             "distribute-owned-card" or "decline-owned-card-distribution" or
             "reveal-target-hand-card" or "reveal-target-hand-card-decline" or
             "request-slash" or "request-slash-decline" or
+            "designated-slash-victim" or "designated-slash-use" or "designated-slash-decline" or
             "attack-range-aid-discard-weapon" or "attack-range-aid-draw")
         {
             ResolveProgramInstructionChoice(selected, action);
@@ -3142,6 +3143,17 @@ public sealed partial class GameEngine
                         SelectedTargetSeats = Array.AsReadOnly(selected.Targets.ToArray())
                     };
                     ContinueProgramSkill(frame.Id);
+                    return;
+                }
+            case "designated-slash-victim":
+                {
+                    ResolveProgramDesignatedSlashVictimChoice(frame, selected);
+                    return;
+                }
+            case "designated-slash-use":
+            case "designated-slash-decline":
+                {
+                    ResolveProgramDesignatedSlashAnswerChoice(frame, selected);
                     return;
                 }
             case "reveal-target-hand-card":
@@ -3492,6 +3504,8 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.SelectOwnedCards => SelectAiProgramOwnedCards(decision, frame),
                 SkillProgramEffectOp.HoldTargetCards => SelectAiProgramHoldCards(decision, frame),
                 SkillProgramEffectOp.RequestSlashByTarget => SelectAiProgramRequestSlash(decision, frame),
+                SkillProgramEffectOp.UseDesignatedVirtualSlash =>
+                    SelectAiProgramDesignatedSlash(decision, frame),
                 SkillProgramEffectOp.RevealTargetHandCard => decision.Choices
                     .OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First(),
                 SkillProgramEffectOp.DistributeOwnedCards =>

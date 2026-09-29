@@ -36,7 +36,9 @@ public sealed record GameCheckpoint(
     // 190: Fa Zheng (enyuan/xuanhuo) with the dominant foreign gain-source
     // fact, the ordered range pair target kind, the bound responder/victim
     // slash request, and the single-batch participant card take.
-    public const int CurrentRulesVersion = 190;
+    // 191: Chen Gong (mingce/zhichi) with the designated virtual slash and the
+    // activation-level cardCategories/cardKinds union filter.
+    public const int CurrentRulesVersion = 191;
     // 187 was consumed by main-side Zhang He / Shen Zhao Yun work.
 
     public int RulesVersion { get; init; }
