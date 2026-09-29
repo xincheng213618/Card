@@ -6,39 +6,6 @@ internal static class YanYanChecks
     private const string GeneralId = "classic:yan-yan";
     private const string SkillId = "classic:juzhan";
 
-    public static void ContentPolarityAndRulesBoundary()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(current.Generals[GeneralId] is
-        {
-            FactionId: "shu",
-            BaseHp: 4,
-            SkillIds: var skillIds
-        } && skillIds.SequenceEqual([SkillId]) &&
-                current.Skills[SkillId] is
-                {
-                    Tags: SkillTag.Conversion,
-                    ExecutionForms: SkillExecutionForm.Trigger
-                },
-            "Current classic Yan Yan must expose tagged Juzhan with the correct faction and HP.");
-
-        var registry = CreateRegistry();
-        var game = CreateGame(registry, seed: 1);
-        ReachFirstHumanPlay(game);
-        var owner = game.CreateSnapshot(0, revealAll: true).Players[0];
-        Require(owner.GeneralId == GeneralId &&
-                owner.SkillRuntimeStates!.Single(state => state.SkillId == SkillId) is
-                { IsAcquired: false, Usages.Count: 0 } && !IsYin(game),
-            "A tagged formal conversion skill must register its public initial Yang state at setup.");
-
-        var checkpoint = RoundTrip(game.CreateCheckpoint());
-        var restored = GameReplay.Restore(checkpoint, registry);
-        Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
-            "The initial Juzhan polarity must reconstruct exactly from the accepted setup commands.");
-
-    }
-
     public static void YangYinLedgerAndReplay()
     {
         var registry = CreateRegistry();

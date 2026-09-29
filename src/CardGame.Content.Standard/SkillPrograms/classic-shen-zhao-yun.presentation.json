@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:juejing": {
+      "name": "绝境",
+      "description": "锁定技，摸牌阶段，你不摸牌。你的手牌数始终为4。"
+    },
+    "classic:longhun": {
+      "name": "龙魂",
+      "description": "你的牌可以按以下规则使用或打出：红桃当【桃】；方块当火【杀】；梅花当【闪】；黑桃当【无懈可击】。"
+    },
+    "classic:zhanjiang": {
+      "name": "斩将",
+      "description": "准备阶段，如果场上有【青釭剑】，你可以获得之。"
+    }
+  }
+}

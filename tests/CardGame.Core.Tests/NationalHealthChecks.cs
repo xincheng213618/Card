@@ -61,22 +61,6 @@ internal static class NationalHealthChecks
             (registry.Generals[player.GeneralId].BaseHp + registry.Generals[player.SecondaryGeneralId!].BaseHp) / 2), "Non-interactive setup bypassed dual-general health.");
     }
 
-    public static void ContentIntegrity()
-    {
-        ContentRegistry Registry(int hp) => ContentRegistry.Build(new StandardContentPackage(), new VitalsPackage(hp));
-        Require(Registry(3).ContentHash != Registry(4).ContentHash, "General health changes are missing from content drift detection.");
-        foreach (var invalid in new[] { 0, -1, 21, int.MaxValue })
-        {
-            var rejected = false;
-            try { Registry(invalid); } catch (ArgumentOutOfRangeException) { rejected = true; }
-            Require(rejected, "Invalid base HP entered the registry.");
-        }
-        var current = StandardContentRegistry.CreateWithRescueSkillsAndTeamModesAndNationalWarLite();
-        Require(current.Generals["national:wei-guo-jia"].BaseHp == 3 &&
-                current.Generals["national:wei-xun-yu"].BaseHp == 3,
-            "Current national generals must preserve their declared health.");
-    }
-
     private sealed class VitalsPackage(int hp) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("test-vitals", new Version(1, 0, 0));

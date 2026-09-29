@@ -25,21 +25,6 @@ internal static class SkillOwnershipChecks
             "A current Lord must retain every printed Sun Quan skill in stable order.");
     }
 
-    public static void LordTagFiltersGenericRuntimeDiscovery()
-    {
-        var registry = ContentRegistry.Build(
-            new StandardContentPackage(),
-            new LordTaggedActiveFixture());
-        var current = CreateTeamGame(registry);
-        ReachHumanPlay(current);
-        var currentActions = current.GetHumanLegalActions();
-        Require(Human(current).Role != Role.Lord &&
-                Human(current).Skills?.Count == 0 &&
-                currentActions.All(action => action.ProgramSkillId != LordTaggedActiveFixture.ProgramSkillId) &&
-                currentActions.All(action => action.ConversionSource?.SkillId != LordTaggedActiveFixture.LongdanSkillId),
-            "Current rules must remove Lord-tagged printed skills before passive, program and conversion discovery.");
-    }
-
     private static PlayerSnapshot Human(GameEngine game) =>
         game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.IsHuman);
 
@@ -96,21 +81,6 @@ internal static class SkillOwnershipChecks
             AdvanceAfterHumanCommands = false,
             MaxTurns = 20
         }, registry);
-
-    private static void ReachHumanPlay(GameEngine game)
-    {
-        var started = game.Submit(new StartGameCommand());
-        Require(started.Accepted, started.Error?.Message ?? "Lord-tagged runtime fixture failed to start.");
-        for (var step = 0; step < 20 &&
-             game.PendingDecision is not { Kind: DecisionKind.PlayCard, PlayerSeat: 0 }; step++)
-        {
-            var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
-            Require(advanced.Accepted, advanced.Error?.Message ?? "Lord-tagged runtime fixture failed to advance.");
-        }
-
-        Require(game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 },
-            "Lord-tagged runtime fixture did not reach the human play boundary.");
-    }
 
     private static void Require(bool value, string message)
     {

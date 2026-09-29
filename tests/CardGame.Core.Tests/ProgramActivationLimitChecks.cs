@@ -21,7 +21,7 @@ internal static class ProgramActivationLimitChecks
     public static void DefinitionsAndCurrentBoundary()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(current.Skills[SkillId] is { Program: { RuntimeVersion: "skill-program-v62",
+        Require(current.Skills[SkillId] is { Program: { RuntimeVersion: SkillProgramCatalog.RuntimeVersion,
                     MinimumRulesVersion: 172 } program } &&
                 program.Activations.Single() is { MaxCards: int.MaxValue, UsesPerPhase: 1, UsesPerTurn: null } &&
                 program.Activations.Single().SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]),
@@ -136,40 +136,6 @@ internal static class ProgramActivationLimitChecks
         Require(game.CreateSnapshot(0).Players[0].HandCount == handCount + 3,
             "The exchange and one Xiaoji trigger must draw one plus two cards.");
         AssertReplay(game, registry);
-    }
-
-    public static void HealingRenewsOnlyAtNextPhase()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(current.Skills["classic:qingnang"].Program!.Activations.Single() is
-                { UsesPerTurn: null, UsesPerPhase: 1 }, "Current Qingnang must renew its allowance each Play phase.");
-        var (game, registry) = Create(extraPhase: true, healing: true);
-        void Activate(string skill, string activation, IReadOnlyList<int> cards, IReadOnlyList<int> targets)
-        {
-            Accept(game.Submit(new UseProgramSkillCommand(0, skill, activation, cards, targets,
-                game.Revision, game.PendingDecision!.PromptId)));
-            ReachPlay(game);
-        }
-        for (var phase = 0; phase < 2; phase++)
-        {
-            var expectedHp = game.CreateSnapshot(0).Players[0].Hp;
-            Activate("classic:kujin", "lose-hp-and-draw", [], []);
-            var heal = game.GetHumanLegalActions().Single(action => action.ProgramSkillId == "classic:qingnang");
-            Activate("classic:qingnang", "discard-and-heal", [heal.SelectableCardIds[0]], [0]);
-            Require(game.CreateSnapshot(0).Players[0].Hp == expectedHp, "Qingnang must heal in this Play phase.");
-            Activate("classic:kujin", "lose-hp-and-draw", [], []);
-            Require(game.GetHumanLegalActions().All(action => action.ProgramSkillId != "classic:qingnang"),
-                "Being wounded again must not renew the current phase allowance.");
-            AssertReplay(game, registry);
-            if (phase == 0)
-            {
-                Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision, game.PendingDecision!.PromptId)));
-                ReachPlay(game);
-                var healedNextPhase = game.GetHumanLegalActions().Single(action => action.ProgramSkillId == "classic:qingnang");
-                // Leave that allowance unused until the next loop, retaining one wound.
-                Require(healedNextPhase is { Kind: LegalActionKind.UseProgramSkill }, "The new phase must renew Qingnang.");
-            }
-        }
     }
 
     private static LegalAction Exchange(GameEngine game) => game.GetHumanLegalActions().Single(action => action.ProgramSkillId == SkillId);

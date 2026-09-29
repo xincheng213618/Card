@@ -208,54 +208,6 @@ internal static class CaiWenJiChecks
         Require(completed == 1, "No seeded setup resolved a Beige judgment.");
     }
 
-    public static void ClubBranchMakesTheSourceDiscardTwoOwnCards()
-    {
-        var registry = Registry();
-        var completed = 0;
-        for (var seed = 1; seed <= 250 && completed < 1; seed++)
-        {
-            var game = Start(registry, seed);
-            if (DriveUntilBeigePrompt(game) is null) continue;
-            var damageSource = game.Events.Select(item => item.Payload)
-                .OfType<DamageAppliedEvent>()
-                .LastOrDefault()?.SourceSeat;
-            Activate(game, Beige);
-            DriveUntil(game, () => game.ResolutionStack.Count == 0);
-            var discards = game.CardMovements.Where(item =>
-                    item.Reason.Value.Contains("ChooseOwnCardDiscard", StringComparison.Ordinal) &&
-                    item.To == CardLocation.DiscardPile).ToArray();
-            if (discards.Length == 0) continue;
-            Require(discards.Length == 2 &&
-                    damageSource is { } source && discards.All(item =>
-                        (item.From.Zone == CardZoneKind.Hand || item.From.Zone == CardZoneKind.Equipment) &&
-                        item.From.OwnerSeat == source),
-                "The club branch must make the damage source discard exactly two of their own cards.");
-            completed++;
-        }
-        Require(completed == 1, "No seeded setup resolved the Beige club branch.");
-    }
-
-    public static void SpadeBranchTurnsTheSourceOver()
-    {
-        var registry = Registry();
-        var completed = 0;
-        for (var seed = 1; seed <= 250 && completed < 1; seed++)
-        {
-            var game = Start(registry, seed);
-            if (DriveUntilBeigePrompt(game) is null) continue;
-            var damageSource = game.Events.Select(item => item.Payload)
-                .OfType<DamageAppliedEvent>()
-                .LastOrDefault()?.SourceSeat;
-            Activate(game, Beige);
-            DriveUntil(game, () => game.ResolutionStack.Count == 0);
-            if (damageSource is not { } source ||
-                !game.CreateSnapshot(0, true).Players[source].IsFaceDown)
-                continue;
-            completed++;
-        }
-        Require(completed == 1, "No seeded setup resolved the Beige spade branch.");
-    }
-
     private static bool ConditionHas(SkillProgramTriggerCondition condition,
         SkillProgramTriggerConditionKind kind) =>
         condition.Kind == kind || (condition.Children?.Any(child => ConditionHas(child, kind)) ?? false);

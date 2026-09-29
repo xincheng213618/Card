@@ -5,37 +5,6 @@ using CardGame.Core;
 
 internal static class ClassicGeneralChecks
 {
-    public static void FormalJiuyuanRecoveryBonus()
-    {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        var (current, providerSeat, peachCardId, selfPeachCardId, nonWuProviderSeat, nonWuPeachCardId) =
-            FindJiuyuanFixture(registry);
-        var checkpoint = current.CreateCheckpoint();
-        var selfRescue = GameReplay.Restore(checkpoint, registry);
-        var nonWuRescue = GameReplay.Restore(checkpoint, registry);
-
-        ApplySyntheticDyingPeach(current, providerSeat, peachCardId);
-        var currentSun = current.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-        var applied = current.Events.Select(item => item.Payload).OfType<ProgramRecoveryPolicyAppliedEvent>().Single();
-        Require(currentSun.Hp == 2 &&
-                applied.OwnerSeat == 0 &&
-                applied.ProviderSeat == providerSeat &&
-                applied.PeachCardId == peachCardId &&
-                applied.RecoveryAmount == 2 &&
-                current.Events.Select(item => item.Payload).OfType<RecoveryAppliedEvent>().Last().Amount == 2,
-            "A different Wu provider's Peach must recover the dying Lord Sun Quan for two through Jiuyuan.");
-
-        ApplySyntheticDyingPeach(selfRescue, 0, selfPeachCardId);
-        Require(selfRescue.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hp == 1 &&
-                selfRescue.Events.Select(item => item.Payload).OfType<ProgramRecoveryPolicyAppliedEvent>().Count() == 0,
-            "Sun Quan's own Peach must not receive Jiuyuan's recovery bonus.");
-
-        ApplySyntheticDyingPeach(nonWuRescue, nonWuProviderSeat, nonWuPeachCardId);
-        Require(nonWuRescue.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hp == 1 &&
-                nonWuRescue.Events.Select(item => item.Payload).OfType<ProgramRecoveryPolicyAppliedEvent>().Count() == 0,
-            "A non-Wu provider's Peach must not receive Jiuyuan's recovery bonus.");
-    }
-
     public static void SetupHealthAndReplay()
     {
         var registry = CreatePreProgramClassicRegistry();
@@ -61,7 +30,13 @@ internal static class ClassicGeneralChecks
     }
 
 
-    public static void FormalRendeFlow()
+
+    private static void AssertQiangxiFlow(
+        ContentRegistry registry,
+        GameEngine game,
+        LegalAction weaponAction,
+        int targetSeat,
+        int weaponCardId)
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
         Require(registry.Skills["classic:rende"] is
@@ -1890,7 +1865,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         var skill = current.Skills["classic:wusheng"];
-        Require(skill is { Program: { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } program } &&
+        Require(skill is { Program: { RuntimeVersion: SkillProgramCatalog.RuntimeVersion, MinimumRulesVersion: 172 } program } &&
                 program.ViewAs.Single() is { Id: "red-owned-as-slash", ForPlay: true, ForResponse: true } rule &&
                 rule.SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]) &&
                 rule.InputSuits.Order().SequenceEqual(new[] { Suit.Heart, Suit.Diamond }.Order()),
@@ -2169,901 +2144,6 @@ internal static class ClassicGeneralChecks
                     move.Reason == CardMoveReasons.ResponseFinished),
             answered.Error?.Message ??
             "Formal Wusheng must pay the equipped physical card through the Slash response chain.");
-    }
-
-    public static void FormalTianduJudgment()
-    {
-        var registry = CreatePreProgramClassicRegistry();
-        Require(GameCheckpoint.CurrentRulesVersion >= 22,
-            "Formal Tiandu must have an explicit rules version.");
-        GameEngine? current = null;
-        JudgmentResolvedEvent? resolvedJudgment = null;
-        for (var seed = 1; seed <= 8_192 && current is null; seed++)
-        {
-            var candidate = StartClassicGeneralAtPlay(
-                registry,
-                seed,
-                "classic:guo-jia",
-                GameCheckpoint.CurrentRulesVersion);
-            var lightningAction = candidate?.GetHumanLegalActions().FirstOrDefault(action =>
-                action.Kind == LegalActionKind.Lightning && action.CardId is not null);
-            if (candidate is null || lightningAction is null)
-            {
-                continue;
-            }
-
-            var usedLightning = candidate.Submit(new PlayCardCommand(
-                0,
-                lightningAction.CardId!.Value,
-                lightningAction.TargetSeats,
-                candidate.Revision,
-                candidate.PendingDecision!.PromptId));
-            if (!usedLightning.Accepted ||
-                !DriveUntilOwnLightningJudgment(candidate, expectTiandu: true, out var candidateJudgment) ||
-                candidateJudgment.Succeeded)
-            {
-                continue;
-            }
-
-            current = candidate;
-            resolvedJudgment = candidateJudgment;
-        }
-
-        var game = current ??
-            throw new InvalidOperationException("No deterministic non-lethal Tiandu Lightning fixture was found.");
-        var judgment = resolvedJudgment!;
-        var prompt = game.PendingDecision;
-        Require(prompt is { Kind: DecisionKind.ProgramJudgmentTrigger, PlayerSeat: 0 } &&
-                prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action"))
-                    .OrderBy(action => action, StringComparer.Ordinal)
-                    .SequenceEqual(["program-judgment-trigger-activate", "program-judgment-trigger-skip"]),
-            "Rules v22 must pause after the judgment result with complete Tiandu choices.");
-        Require(game.CardMovements.Last(movement => movement.CardId == judgment.CardId).To ==
-                CardLocation.Judgment(0),
-            "The resolved judgment card must remain in the public judgment zone while Tiandu is pending, even after a reshuffle reuses its physical card.");
-
-        var pausedCheckpoint = GameCheckpointJson.Deserialize(
-            GameCheckpointJson.Serialize(game.CreateCheckpoint()));
-        var pausedRestore = GameReplay.Restore(pausedCheckpoint, registry);
-        Require(pausedRestore.PendingDecision?.Kind == DecisionKind.ProgramJudgmentTrigger,
-            "A paused Tiandu choice must restore from its command checkpoint.");
-
-        var unchanged = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
-        var forged = game.Submit(new AnswerPromptCommand(
-            0,
-            prompt!.PromptId,
-            new ChoiceId("tiandu.unknown"),
-            game.Revision));
-        Require(!forged.Accepted && forged.Error?.Code == CommandErrorCode.InvalidChoice &&
-                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == unchanged,
-            "A forged Tiandu choice must be rejected atomically.");
-
-        var claimChoice = prompt.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "program-judgment-trigger-activate");
-        var claimed = game.Submit(new AnswerPromptCommand(
-            0,
-            prompt.PromptId,
-            claimChoice.Id,
-            game.Revision));
-        Require(claimed.Accepted,
-            claimed.Error?.Message ?? "Tiandu did not accept the claim choice.");
-        Require(game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0)
-                .Hand.Any(card => card.Id == judgment.CardId),
-            "Tiandu must add the exact resolved judgment card to its owner's hand.");
-        Require(game.CardMovements.Any(movement =>
-                movement.CardId == judgment.CardId &&
-                movement.From == CardLocation.Judgment(0) &&
-                movement.To == CardLocation.Hand(0) &&
-                movement.Reason == new CardMoveReason("skill-program.classic:tiandu.claimJudgmentCard")),
-            "Tiandu must publish the exact judgment-to-hand card movement.");
-        Require(game.Events.Any(envelope => envelope.Payload is ProgramJudgmentCardClaimedEvent
-        {
-            OwnerSeat: 0,
-            SkillId: "classic:tiandu"
-        }),
-            "Tiandu must publish its typed claim result event.");
-        var claimedReplay = GameReplay.Restore(
-            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
-            registry);
-        Require(SnapshotJson.Serialize(claimedReplay.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
-                EventSignatures(claimedReplay).SequenceEqual(EventSignatures(game)),
-            "The claimed Tiandu branch must replay exactly.");
-
-        var skipPrompt = pausedRestore.PendingDecision!;
-        var skipped = pausedRestore.Submit(new AnswerPromptCommand(
-            0,
-            skipPrompt.PromptId,
-            skipPrompt.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "program-judgment-trigger-skip").Id,
-            pausedRestore.Revision));
-        Require(skipped.Accepted && pausedRestore.CardMovements.Any(movement =>
-                movement.CardId == judgment.CardId &&
-                movement.From == CardLocation.Judgment(0) &&
-                movement.To == CardLocation.DiscardPile &&
-                movement.Reason == CardMoveReasons.JudgmentFinish),
-            skipped.Error?.Message ?? "Skipping Tiandu did not discard the judgment card normally.");
-
-    }
-
-    public static void FormalFanjianFlow()
-    {
-        var registry = CreatePreProgramClassicRegistry();
-        var game = ReachZhouYuPlayPhase(registry, GameCheckpoint.CurrentRulesVersion);
-        var action = game.GetHumanLegalActions().Single(item =>
-            item.Kind == LegalActionKind.UseProgramSkill && item.ProgramSkillId == "classic:fanjian");
-        Require(action.MinCardCount == 0 && action.MaxCardCount == 0 &&
-                action.MinTargetCount == 1 && action.MaxTargetCount == 1 &&
-                action.SelectableTargetSeats.Contains(1),
-            "Fanjian must publish a target-only action against another living player.");
-        var before = game.CreateSnapshot(0, revealAll: true);
-        var used = game.Submit(new UseProgramSkillCommand(0, "classic:fanjian",
-            action.ProgramActivationId!, [], [1], game.Revision, game.PendingDecision!.PromptId));
-        Require(used.Accepted, used.Error?.Message ?? "Fanjian activation failed.");
-        var prompt = game.CreateSnapshot(1).PendingDecision ??
-            throw new InvalidOperationException("Fanjian did not publish a suit choice.");
-        Require(prompt is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 1, IsPrivate: true } &&
-                prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("option-id"))
-                    .Order(StringComparer.Ordinal).SequenceEqual(["club", "diamond", "heart", "spade"]) &&
-                game.Events.Select(item => item.Payload).OfType<ProgramCardsRevealedEvent>()
-                    .All(item => item.SkillId != "classic:fanjian") &&
-                game.CreateSnapshot(1).Players[0].Hand.Count == 0,
-            "The recipient must guess privately before Zhou Yu's hand card is revealed.");
-        var paused = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint()));
-        var restored = GameReplay.Restore(paused, registry);
-        Require(restored.CreateSnapshot(1).PendingDecision?.PromptId == prompt.PromptId,
-            "A suspended Fanjian suit choice must replay.");
-        var state = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
-        var forged = game.Submit(new AnswerPromptCommand(1, prompt.PromptId,
-            new ChoiceId("program-option.forged"), game.Revision));
-        Require(!forged.Accepted && SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == state,
-            "A forged Fanjian guess must reject atomically.");
-
-        GameEngine? matched = null;
-        GameEngine? mismatched = null;
-        int? frozenCardId = null;
-        Suit? frozenSuit = null;
-        foreach (var suitId in new[] { "spade", "heart", "club", "diamond" })
-        {
-            var branch = GameReplay.Restore(paused, registry);
-            var branchPrompt = branch.CreateSnapshot(1).PendingDecision!;
-            var choice = branchPrompt.Choices.Single(item =>
-                item.Parameters.GetValueOrDefault("option-id") == suitId);
-            var answered = branch.Submit(new AnswerPromptCommand(
-                1, branchPrompt.PromptId, choice.Id, branch.Revision));
-            Require(answered.Accepted, answered.Error?.Message ?? $"Fanjian rejected {suitId}.");
-            var shown = branch.Events.Select(item => item.Payload).OfType<ProgramCardsRevealedEvent>()
-                .Single(item => item.SkillId == "classic:fanjian").Cards.Single();
-            frozenCardId ??= shown.Id;
-            frozenSuit ??= shown.Suit;
-            Require(shown.Id == frozenCardId && shown.Suit == frozenSuit &&
-                    branch.CardMovements.Any(move => move.CardId == shown.Id &&
-                        move.From == CardLocation.Hand(0) && move.To == CardLocation.Processing) &&
-                    branch.CardMovements.Any(move => move.CardId == shown.Id &&
-                        move.From == CardLocation.Processing && move.To == CardLocation.Hand(1)),
-                "All guesses must receive the same deterministic random physical card after selection.");
-            if (string.Equals(suitId, shown.Suit.ToString(), StringComparison.OrdinalIgnoreCase))
-                matched = branch;
-            else
-                mismatched ??= branch;
-        }
-        Require(matched is not null && mismatched is not null,
-            "One of the four choices must match the revealed suit and three must mismatch.");
-        var matchingGame = matched ?? throw new InvalidOperationException("No matching Fanjian branch.");
-        var mismatchingGame = mismatched ?? throw new InvalidOperationException("No mismatching Fanjian branch.");
-        Require(matchingGame.CreateSnapshot(0, revealAll: true).Players[1].Hp == before.Players[1].Hp &&
-                mismatchingGame.CreateSnapshot(0, revealAll: true).Players[1].Hp == before.Players[1].Hp - 1 &&
-                mismatchingGame.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>()
-                    .Any(item => item.SourceSeat == 0 && item.TargetSeat == 1 && item.Amount == 1) &&
-                matchingGame.CreateSnapshot(0, revealAll: true).Players[0].HandCount ==
-                    before.Players[0].HandCount - 1,
-            "Only a wrong suit guess may cause one ordinary damage after the card transfer.");
-        Require(SnapshotJson.Serialize(GameReplay.Restore(mismatchingGame.CreateCheckpoint(), registry)
-                    .CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(mismatchingGame.CreateSnapshot(0, revealAll: true)),
-            "Resolved Fanjian must replay the same state.");
-    }
-    public static void FormalGuanxingFlow()
-    {
-        var registry = CreatePreProgramClassicRegistry();
-        Require(GameCheckpoint.CurrentRulesVersion >= 24,
-            "Formal Guanxing must have an explicit rules version.");
-
-        var game = SelectGeneral(registry, "classic:zhuge-liang", GameCheckpoint.CurrentRulesVersion);
-        var reachedOffer = game.Submit(new AdvanceCommand(game.Revision));
-        Require(reachedOffer.Accepted, reachedOffer.Error?.Message ?? "Could not reach the Guanxing offer.");
-        var offer = game.PendingDecision;
-        Require(offer is
-        {
-            Kind: DecisionKind.ProgramTrigger,
-            PlayerSeat: 0,
-            IsPrivate: true,
-            Choices.Count: 2
-        } &&
-                offer.Choices.Select(choice => choice.Parameters.GetValueOrDefault("program-action"))
-                    .OrderBy(action => action, StringComparer.Ordinal)
-                    .SequenceEqual(["activate", "skip"]) &&
-                game.CreateSnapshot(1).PendingDecision is null,
-            "Guanxing must first publish a private use/skip offer only to its owner.");
-
-        var offerCheckpoint = GameCheckpointJson.Deserialize(
-            GameCheckpointJson.Serialize(game.CreateCheckpoint()));
-        var restoredOffer = GameReplay.Restore(offerCheckpoint, registry);
-        Require(SnapshotJson.Serialize(restoredOffer.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
-                EventSignatures(restoredOffer).SequenceEqual(EventSignatures(game)),
-            "A paused Guanxing offer must restore exactly.");
-
-        var originalTopTwo = game.CreateCardZoneDiagnostics()
-            .Where(card => card.Location == CardLocation.DrawPile)
-            .OrderByDescending(card => card.ZoneIndex)
-            .Take(2)
-            .Select(card => card.CardId)
-            .ToArray();
-        var skipped = GameReplay.Restore(offerCheckpoint, registry);
-        var skipPrompt = skipped.PendingDecision!;
-        var skipResult = skipped.Submit(new AnswerPromptCommand(
-            0,
-            skipPrompt.PromptId,
-            skipPrompt.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("program-action") == "skip").Id,
-            skipped.Revision));
-        Require(skipResult.Accepted &&
-                skipped.Events.Select(envelope => envelope.Payload).OfType<ProgramBindingResolvedEvent>()
-                    .Any(resolved => resolved.SkillId == "classic:guanxing" && !resolved.Activated) &&
-                originalTopTwo.All(cardId => skipped.CreateSnapshot(0).Players[0].Hand.Any(card => card.Id == cardId)),
-            $"Skipping Guanxing must retain the original top order and continue through the ordinary draw phase. " +
-            $"Top={string.Join(',', originalTopTwo)}; hand={string.Join(',', skipped.CreateSnapshot(0).Players[0].Hand.Select(card => card.Id))}; " +
-            $"accepted={skipResult.Accepted}.");
-
-        var unchangedSnapshot = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
-        var unchangedDiagnostics = game.CreateCardZoneDiagnostics().ToArray();
-        var unchangedCommands = game.AcceptedCommands.Count;
-        var forged = game.Submit(new AnswerPromptCommand(
-            0,
-            offer!.PromptId,
-            new ChoiceId("guanxing-forged"),
-            game.Revision));
-        Require(!forged.Accepted && forged.Error?.Code == CommandErrorCode.InvalidChoice &&
-                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == unchangedSnapshot &&
-                game.CreateCardZoneDiagnostics().SequenceEqual(unchangedDiagnostics) &&
-                game.AcceptedCommands.Count == unchangedCommands,
-            "A forged Guanxing offer answer must be rejected without changing state, deck order or journal.");
-
-        var used = game.Submit(new AnswerPromptCommand(
-            0,
-            offer.PromptId,
-            offer.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("program-action") == "activate").Id,
-            game.Revision));
-        Require(used.Accepted, used.Error?.Message ?? "Guanxing use was rejected.");
-        var topPrompt = game.PendingDecision;
-        Require(topPrompt is
-        {
-            Kind: DecisionKind.ProgramTopReorder,
-            PlayerSeat: 0,
-            IsPrivate: true,
-            ValidCardIds.Count: 5,
-            Choices.Count: 6
-        } &&
-                topPrompt.Choices.Count(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "finish-top") == 1 &&
-                topPrompt.Choices.Where(choice => choice.Cards.Count == 1).All(choice =>
-                    choice.Parameters.GetValueOrDefault("action") == "top") &&
-                game.CreateSnapshot(1).PendingDecision is null,
-            $"Guanxing must privately reveal five exact top cards plus one finish-top action to the owner only. " +
-            $"kind={topPrompt?.Kind}, cards={topPrompt?.ValidCardIds.Count}, choices={topPrompt?.Choices.Count}, " +
-            $"actions={string.Join(',', topPrompt?.Choices.Select(choice => choice.Parameters.GetValueOrDefault("action")) ?? [])}.");
-        var actualViewedTop = game.CreateCardZoneDiagnostics()
-            .Where(card => card.Location == CardLocation.DrawPile)
-            .OrderByDescending(card => card.ZoneIndex)
-            .Take(5)
-            .Select(card => card.CardId)
-            .ToArray();
-        Require(topPrompt!.ValidCardIds.SequenceEqual(actualViewedTop),
-            "The Guanxing prompt must preserve the actual draw-pile top-first order.");
-
-        var pausedOrderingCheckpoint = GameCheckpointJson.Deserialize(
-            GameCheckpointJson.Serialize(game.CreateCheckpoint()));
-        var restoredOrdering = GameReplay.Restore(pausedOrderingCheckpoint, registry);
-        Require(SnapshotJson.Serialize(restoredOrdering.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
-                restoredOrdering.CreateCardZoneDiagnostics().SequenceEqual(game.CreateCardZoneDiagnostics()) &&
-                EventSignatures(restoredOrdering).SequenceEqual(EventSignatures(game)),
-            "A paused private Guanxing card view must restore with identical deck order and events.");
-
-        var chosenTopId = actualViewedTop[^1];
-        var selectTop = topPrompt.Choices.Single(choice =>
-            choice.Cards.SequenceEqual([chosenTopId]) &&
-            choice.Parameters.GetValueOrDefault("action") == "top");
-        var selectedTop = game.Submit(new AnswerPromptCommand(
-            0,
-            topPrompt.PromptId,
-            selectTop.Id,
-            game.Revision));
-        Require(selectedTop.Accepted, selectedTop.Error?.Message ?? "Guanxing top-card selection was rejected.");
-
-        var finishPrompt = game.PendingDecision!;
-        var finishedTop = game.Submit(new AnswerPromptCommand(
-            0,
-            finishPrompt.PromptId,
-            finishPrompt.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "finish-top").Id,
-            game.Revision));
-        Require(finishedTop.Accepted && game.PendingDecision is
-        {
-            Kind: DecisionKind.ProgramTopReorder,
-            ValidCardIds.Count: 4
-        },
-            finishedTop.Error?.Message ?? "Guanxing did not enter bottom ordering.");
-
-        var bottomOrder = actualViewedTop.Where(cardId => cardId != chosenTopId).Reverse().ToArray();
-        foreach (var cardId in bottomOrder)
-        {
-            var bottomPrompt = game.PendingDecision ??
-                throw new InvalidOperationException("Guanxing bottom ordering ended early.");
-            var bottomChoice = bottomPrompt.Choices.Single(choice =>
-                choice.Cards.SequenceEqual([cardId]) &&
-                choice.Parameters.GetValueOrDefault("action") == "bottom");
-            var selectedBottom = game.Submit(new AnswerPromptCommand(
-                0,
-                bottomPrompt.PromptId,
-                bottomChoice.Id,
-                game.Revision));
-            Require(selectedBottom.Accepted, selectedBottom.Error?.Message ??
-                $"Guanxing bottom-card selection {cardId} was rejected.");
-        }
-
-        var humanAfter = game.CreateSnapshot(0, revealAll: true).Players[0];
-        var bottomDiagnostics = game.CreateCardZoneDiagnostics()
-            .Where(card => bottomOrder.Contains(card.CardId))
-            .OrderBy(card => card.ZoneIndex)
-            .Select(card => card.CardId)
-            .ToArray();
-        var resolvedEvent = game.Events.Select(envelope => envelope.Payload)
-            .OfType<ProgramBindingResolvedEvent>()
-            .Last(item => item.SkillId == "classic:guanxing");
-        Require(humanAfter.Hand.Any(card => card.Id == chosenTopId) &&
-                bottomDiagnostics.SequenceEqual(bottomOrder) &&
-                resolvedEvent is { OwnerSeat: 0, Activated: true, Completed: true } &&
-                bottomOrder.All(cardId => game.CardMovements.All(movement => movement.CardId != cardId)),
-            "Guanxing must make the first top card the next draw, preserve bottom-first order, and expose only public counts.");
-
-        var resolvedReplay = GameReplay.Restore(
-            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
-            registry);
-        Require(SnapshotJson.Serialize(resolvedReplay.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
-                resolvedReplay.CreateCardZoneDiagnostics().SequenceEqual(game.CreateCardZoneDiagnostics()) &&
-                EventSignatures(resolvedReplay).SequenceEqual(EventSignatures(game)),
-            "Guanxing top/bottom ordering and the following draw must replay exactly.");
-
-    }
-
-    public static void FormalFactionDefenseFlow()
-    {
-        var registry = CreatePreProgramClassicRegistry();
-        Require(GameCheckpoint.CurrentRulesVersion >= 25,
-            "Formal FactionDefense must have an explicit rules version.");
-
-        GameEngine? completed = null;
-        FactionDefenseResolvedEvent? completedEvent = null;
-        int ownerHpBefore = 0;
-        for (var seed = 1; seed <= 8_192 && completed is null; seed++)
-        {
-            var game = CreateInteractive(registry, seed);
-            var started = game.Submit(new StartGameCommand());
-            Require(started.Accepted, started.Error?.Message ?? "Classic FactionDefense fixture failed to start.");
-            if (started.Result.PendingDecision?.Choices.Any(choice =>
-                    choice.ContentIds.SequenceEqual(["classic:cao-cao"])) != true)
-            {
-                continue;
-            }
-
-            var selected = game.Submit(new SelectGeneralCommand(
-                0,
-                "classic:cao-cao",
-                game.Revision,
-                game.PendingDecision!.PromptId));
-            Require(selected.Accepted, selected.Error?.Message ?? "Classic Cao Cao selection was rejected.");
-            var advanced = game.Submit(new AdvanceCommand(game.Revision));
-            Require(advanced.Accepted, advanced.Error?.Message ?? "Classic FactionDefense setup did not advance.");
-
-            PendingDecision? ownerPrompt = null;
-            for (var step = 0; game.State.Status != EngineStatus.Completed && step < 4_000; step++)
-            {
-                var prompt = game.PendingDecision;
-                if (prompt is { Kind: DecisionKind.RespondDodge } &&
-                    prompt.Choices.Any(choice =>
-                        choice.Parameters.GetValueOrDefault("response") == "faction-defense-request"))
-                {
-                    ownerPrompt = prompt;
-                    break;
-                }
-
-                DeclineOrAdvance(game);
-            }
-
-            if (ownerPrompt is null)
-            {
-                continue;
-            }
-
-            var boundaryState = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
-            var boundaryRevision = game.Revision;
-            var forged = game.Submit(new AnswerPromptCommand(
-                0,
-                ownerPrompt.PromptId,
-                new ChoiceId("faction-defense.forged"),
-                game.Revision));
-            Require(!forged.Accepted && game.Revision == boundaryRevision &&
-                    SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == boundaryState,
-                "A forged FactionDefense choice must be rejected atomically.");
-
-            ownerHpBefore = game.CreateSnapshot(0, revealAll: true).Players[0].Hp;
-            var hujiaChoice = ownerPrompt.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("response") == "faction-defense-request");
-            var requested = game.Submit(new AnswerPromptCommand(
-                0,
-                ownerPrompt.PromptId,
-                hujiaChoice.Id,
-                game.Revision));
-            Require(requested.Accepted, requested.Error?.Message ?? "FactionDefense request was rejected.");
-
-            var providerSeats = Enumerable.Range(1, game.PlayerCount)
-                .Select(seat => seat % game.PlayerCount)
-                .Where(seat => game.CreateSnapshot(seat).PendingDecision?.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("response") is "faction-defense-dodge" or "faction-defense-bagua") == true)
-                .ToArray();
-            if (providerSeats.Length != 1)
-            {
-                continue;
-            }
-
-            var providerSeat = providerSeats[0];
-            Require(game.CreateSnapshot(0).PendingDecision is null &&
-                    Enumerable.Range(0, game.PlayerCount)
-                        .Where(seat => seat != providerSeat)
-                        .All(seat => game.CreateSnapshot(seat).PendingDecision is null),
-                "The FactionDefense provider prompt must remain private to exactly one Wei responder.");
-            var pausedCheckpoint = GameCheckpointJson.Deserialize(
-                GameCheckpointJson.Serialize(game.CreateCheckpoint()));
-            var restoredPaused = GameReplay.Restore(pausedCheckpoint, registry);
-            Require(SnapshotJson.Serialize(restoredPaused.CreateSnapshot(providerSeat, revealAll: true)) ==
-                    SnapshotJson.Serialize(game.CreateSnapshot(providerSeat, revealAll: true)) &&
-                    EventSignatures(restoredPaused).SequenceEqual(EventSignatures(game)),
-                "The paused private FactionDefense provider prompt must replay exactly.");
-
-            var eventCount = game.Events.Count;
-            for (var step = 0; step < 32 && game.State.Status != EngineStatus.Completed; step++)
-            {
-                var resolved = game.Events.Skip(eventCount).Select(envelope => envelope.Payload)
-                    .OfType<FactionDefenseResolvedEvent>()
-                    .LastOrDefault();
-                if (resolved is not null)
-                {
-                    if (resolved is { Succeeded: true, ResponseCardId: not null })
-                    {
-                        completed = game;
-                        completedEvent = resolved;
-                    }
-                    break;
-                }
-
-                if (game.PendingDecision is not null)
-                {
-                    break;
-                }
-
-                var stepResult = game.Submit(new AdvanceOneStepCommand(game.Revision));
-                Require(stepResult.Accepted, stepResult.Error?.Message ?? "FactionDefense AI responder did not advance.");
-            }
-        }
-
-        if (completed is null || completedEvent is null || completedEvent.ResponseCardId is not { } responseCardId)
-        {
-            throw new InvalidOperationException("No deterministic physical-Dodge FactionDefense boundary was found.");
-        }
-
-        Require(completedEvent.OwnerSeat == 0 &&
-                completedEvent.ProviderSeat is { } provider &&
-                completed.CreateSnapshot(0, revealAll: true).Players[0].Hp == ownerHpBefore &&
-                completed.CardMovements.Any(movement =>
-                    movement.CardId == responseCardId &&
-                    movement.From == CardLocation.Hand(provider) &&
-                    movement.To == CardLocation.Processing &&
-                    movement.Reason == CardMoveReasons.Respond) &&
-                completed.CardMovements.Any(movement =>
-                    movement.CardId == responseCardId &&
-                    movement.From == CardLocation.Processing &&
-                    movement.To == CardLocation.DiscardPile &&
-                    movement.Reason == CardMoveReasons.ResponseFinished) &&
-                completed.Events.Select(envelope => envelope.Payload)
-                    .OfType<CardRespondedEvent>()
-                    .Any(response => response.CardId == responseCardId && response.ResponderSeat == 0),
-            "FactionDefense must spend the provider's exact physical Dodge while publishing the effective response as Cao Cao's.");
-
-        var replayed = GameReplay.Restore(
-            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(completed.CreateCheckpoint())),
-            registry);
-        Require(SnapshotJson.Serialize(replayed.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(completed.CreateSnapshot(0, revealAll: true)) &&
-                EventSignatures(replayed).SequenceEqual(EventSignatures(completed)),
-            "The resolved physical-Dodge FactionDefense branch must replay exactly.");
-    }
-
-    public static void FormalFactionDefenseBaguaFallback()
-    {
-        const string modeId = "identity:classic-faction-defense-bagua-test";
-        var registry = ContentRegistry.Build(
-            new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(includeJijiu: true),
-            new StandardRescueSkillExpansionPackage(),
-            new StandardClassicGeneralPackage(),
-            new SyntheticPackage(
-                "faction-defense-bagua-test",
-                builder =>
-                {
-                    builder.AddDeck(new ContentDeckRecipe(
-                        "test:faction-defense-bagua-deck",
-                        "护驾八卦测试牌堆",
-                        InitialHandSize: 4,
-                        DrawPerTurn: 2,
-                        Cards:
-                        [
-                            new ContentDeckCardCount("standard:bagua", 20),
-                            new ContentDeckCardCount("standard:slash", 50),
-                            new ContentDeckCardCount("standard:peach", 20)
-                        ]));
-                    builder.AddMode(new ContentModeDefinition(
-                        modeId,
-                        "护驾八卦测试身份局",
-                        MinPlayers: 5,
-                        MaxPlayers: 5,
-                        RoleCounts: new Dictionary<string, int>
-                        {
-                            [nameof(Role.Lord)] = 1,
-                            [nameof(Role.Loyalist)] = 1,
-                            [nameof(Role.Rebel)] = 2,
-                            [nameof(Role.Renegade)] = 1
-                        },
-                        DeckId: "test:faction-defense-bagua-deck",
-                        GeneralCandidateCount: 1,
-                        GeneralPoolIds:
-                        [
-                            "classic:cao-cao",
-                            "classic:xiahou-dun",
-                            "standard:cao-cao",
-                            "standard:guo-jia",
-                            "standard:xun-yu"
-                        ]));
-                },
-                new PackageDependency("standard-classic-generals", new Version(1, 4, 0))));
-
-        GameEngine? failedBagua = null;
-        JudgmentResolvedEvent? failedJudgment = null;
-        int ownerSeat = -1;
-        int ownerHpBefore = -1;
-        var failedEventStart = -1;
-        for (var seed = 1; seed <= 4_096 && failedBagua is null; seed++)
-        {
-            var game = GameEngine.CreateStandard(new GameOptions
-            {
-                Seed = seed,
-                PlayerCount = 5,
-                HumanSeat = 1,
-                HumanRole = Role.Loyalist,
-                ModeId = modeId,
-                UseInteractiveSetup = false,
-                UseInteractiveDiscard = false,
-                AdvanceAfterHumanCommands = false,
-                MaxTurns = 120
-            }, registry);
-            var started = game.Submit(new StartGameCommand());
-            Require(started.Accepted, started.Error?.Message ?? "FactionDefense Bagua fixture failed to start.");
-            var full = game.CreateSnapshot(1, revealAll: true);
-            var lord = full.Players.Single(player => player.Role == Role.Lord);
-            if (lord.GeneralId != "classic:cao-cao" || full.Players[1].GeneralId == "classic:cao-cao")
-            {
-                continue;
-            }
-
-            var equippedBagua = false;
-            for (var step = 0; step < 2_000 && game.State.Status != EngineStatus.Completed; step++)
-            {
-                var prompt = game.PendingDecision;
-                if (prompt is { Kind: DecisionKind.RespondDodge } &&
-                    prompt.Choices.Any(choice =>
-                        choice.Parameters.GetValueOrDefault("response") == "faction-defense-bagua"))
-                {
-                    var beforeEvents = game.Events.Count;
-                    ownerSeat = prompt.TargetSeat ?? lord.Seat;
-                    ownerHpBefore = game.CreateSnapshot(1, revealAll: true).Players[ownerSeat].Hp;
-                    var bagua = prompt.Choices.Single(choice =>
-                        choice.Parameters.GetValueOrDefault("response") == "faction-defense-bagua");
-                    var answered = game.Submit(new AnswerPromptCommand(
-                        1,
-                        prompt.PromptId,
-                        bagua.Id,
-                        game.Revision));
-                    Require(answered.Accepted, answered.Error?.Message ?? "FactionDefense Bagua response was rejected.");
-                    var judgment = game.Events.Skip(beforeEvents).Select(envelope => envelope.Payload)
-                        .OfType<JudgmentResolvedEvent>()
-                        .LastOrDefault(item => item.TargetSeat == 1 && item.Reason == JudgmentReasons.BaguaDefense);
-                    if (judgment is { Succeeded: false })
-                    {
-                        failedBagua = game;
-                        failedJudgment = judgment;
-                        failedEventStart = beforeEvents;
-                    }
-                    break;
-                }
-
-                GameCommand command;
-                if (prompt is null)
-                {
-                    command = new AdvanceOneStepCommand(game.Revision);
-                }
-                else if (prompt.Kind == DecisionKind.PlayCard)
-                {
-                    var baguaAction = game.GetHumanLegalActions().FirstOrDefault(action =>
-                        action.Kind == LegalActionKind.Equip &&
-                        action.CardId is { } cardId &&
-                        game.CreateSnapshot(1).Players[1].Hand.Single(card => card.Id == cardId).Kind ==
-                        CardKind.BaguaFormation);
-                    if (!equippedBagua && baguaAction is not null)
-                    {
-                        command = new PlayCardCommand(
-                            1,
-                            baguaAction.CardId!.Value,
-                            baguaAction.TargetSeats,
-                            game.Revision,
-                            prompt.PromptId);
-                        equippedBagua = true;
-                    }
-                    else
-                    {
-                        command = new EndPlayPhaseCommand(1, game.Revision, prompt.PromptId);
-                    }
-                }
-                else if (prompt.Kind == DecisionKind.DiscardCards)
-                {
-                    command = new DiscardCardsCommand(
-                        1,
-                        prompt.ValidCardIds.Take(prompt.RequiredCardCount).ToArray(),
-                        prompt.PromptId,
-                        game.Revision);
-                }
-                else
-                {
-                    var decline = prompt.Choices.FirstOrDefault(choice =>
-                        choice.Parameters.GetValueOrDefault("program-action") == "skip") ??
-                        prompt.Choices.FirstOrDefault(choice =>
-                        choice.Parameters.Values.Any(value =>
-                            value.StartsWith("skip", StringComparison.Ordinal) ||
-                            value is "take-damage" or "no-nullification" or "ganglie-lose-hp")) ??
-                        prompt.Choices.First();
-                    command = new AnswerPromptCommand(1, prompt.PromptId, decline.Id, game.Revision);
-                }
-
-                var accepted = game.Submit(command);
-                if (!accepted.Accepted)
-                {
-                    break;
-                }
-            }
-        }
-
-        if (failedBagua is null || failedJudgment is null)
-        {
-            throw new InvalidOperationException("No deterministic failed FactionDefense Bagua judgment was found.");
-        }
-
-        Require(failedJudgment.Succeeded == false &&
-                failedBagua.CreateSnapshot(1, revealAll: true).Players[ownerSeat].Hp == ownerHpBefore &&
-                failedBagua.ResolutionStack.OfType<ResponseWindowFrame>().Any(frame =>
-                    frame.ResponderSeat == ownerSeat && frame.RequiredCardKind == CardKind.Dodge) &&
-                failedBagua.Events.Skip(failedEventStart).Select(envelope => envelope.Payload)
-                    .OfType<FactionDefenseResolvedEvent>()
-                    .All(resolved => !resolved.Succeeded),
-            "A failed allied Bagua judgment must keep Cao Cao unharmed and continue the original Dodge response window.");
-
-        var replayed = GameReplay.Restore(
-            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(failedBagua.CreateCheckpoint())),
-            registry);
-        Require(SnapshotJson.Serialize(replayed.CreateSnapshot(1, revealAll: true)) ==
-                SnapshotJson.Serialize(failedBagua.CreateSnapshot(1, revealAll: true)) &&
-                EventSignatures(replayed).SequenceEqual(EventSignatures(failedBagua)),
-            "The failed FactionDefense Bagua continuation must replay exactly.");
-    }
-
-    public static void FormalFactionSlashActiveFlow()
-    {
-        var (registry, modeId) = CreateFactionSlashFixtureRegistry(
-            "active",
-            [new ContentDeckCardCount("standard:slash", 100)]);
-        GameEngine? game = null;
-        LegalAction? jijiang = null;
-        int targetSeat = -1;
-        for (var seed = 1; seed <= 256 && game is null; seed++)
-        {
-            var candidate = StartFactionSlashLordAtPlay(registry, modeId, seed);
-            var full = candidate.CreateSnapshot(0, revealAll: true);
-            var action = candidate.GetHumanLegalActions().Single(item =>
-                item.Kind == LegalActionKind.UseProgramSkill &&
-                item.ProgramSkillId == "classic:jijiang" &&
-                item.ProgramActivationId == "request-shu-slash");
-            var rebelTarget = action.SelectableTargetSeats.FirstOrDefault(seat =>
-                full.Players[seat].Role == Role.Rebel, -1);
-            if (rebelTarget < 0)
-            {
-                continue;
-            }
-
-            game = candidate;
-            jijiang = action;
-            targetSeat = rebelTarget;
-        }
-
-        if (game is null || jijiang is null)
-        {
-            throw new InvalidOperationException("No deterministic active FactionSlash fixture exposed an in-range Rebel.");
-        }
-
-        var lord = game.CreateSnapshot(0, revealAll: true).Players[0];
-        Require(lord.MaxHp == 5 &&
-                lord.Skills!.Select(skill => skill.ContentId).SequenceEqual(["classic:rende", "classic:jijiang"]),
-            "Classic Liu Bei must combine the Lord HP bonus with Rende and FactionSlash in stable order.");
-        var publishedPrograms = game.GetHumanLegalActions()
-            .Where(action => action.Kind == LegalActionKind.UseProgramSkill).ToArray();
-        Require(publishedPrograms.Any(action => action.ProgramSkillId == "classic:rende") &&
-                publishedPrograms.Any(action => action.ProgramSkillId == "classic:jijiang") &&
-                jijiang.MinCardCount == 0 && jijiang.MaxCardCount == 0 &&
-                jijiang.MinTargetCount == 1 && jijiang.MaxTargetCount == 1 &&
-                jijiang.SelectableTargetSeats.Contains(targetSeat),
-            "The play boundary must publish Rende and FactionSlash as distinct typed active actions.");
-
-        var prompt = game.PendingDecision!;
-        var beforeForgery = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
-        var beforeForgeryRevision = game.Revision;
-        var forged = game.Submit(new UseProgramSkillCommand(
-            0,
-            "classic:jijiang",
-            "request-shu-slash",
-            [],
-            [0],
-            game.Revision,
-            prompt.PromptId));
-        Require(!forged.Accepted && game.Revision == beforeForgeryRevision &&
-                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == beforeForgery,
-            "A forged active FactionSlash target must be rejected atomically.");
-
-        var requested = game.Submit(new UseProgramSkillCommand(
-            0,
-            "classic:jijiang",
-            "request-shu-slash",
-            [],
-            [targetSeat],
-            game.Revision,
-            prompt.PromptId));
-        Require(requested.Accepted, requested.Error?.Message ?? "Active FactionSlash was rejected.");
-        var providerPrompts = Enumerable.Range(0, game.PlayerCount)
-            .Select(seat => game.CreateSnapshot(seat).PendingDecision)
-            .Where(decision => decision?.Choices.Any(choice =>
-                choice.Parameters.GetValueOrDefault("response") == "faction-slash-slash") == true)
-            .Cast<PendingDecision>()
-            .ToArray();
-        Require(providerPrompts is [{ Kind: DecisionKind.RespondSlash }],
-            "Active FactionSlash must pause at one private Shu provider prompt.");
-        var providerPrompt = providerPrompts[0];
-        var providerSeat = providerPrompt.PlayerSeat;
-        Require(game.CreateSnapshot(providerSeat).PendingDecision is not null &&
-                Enumerable.Range(0, game.PlayerCount)
-                    .Where(seat => seat != providerSeat)
-                    .All(seat => game.CreateSnapshot(seat).PendingDecision is null),
-            "The active FactionSlash provider prompt must be private to its current Shu candidate.");
-
-        var paused = GameReplay.Restore(
-            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
-            registry);
-        Require(SnapshotJson.Serialize(paused.CreateSnapshot(providerSeat, revealAll: true)) ==
-                SnapshotJson.Serialize(game.CreateSnapshot(providerSeat, revealAll: true)) &&
-                EventSignatures(paused).SequenceEqual(EventSignatures(game)),
-            "A paused active FactionSlash provider prompt must replay exactly.");
-
-        CardUsedEvent? usedSlash = null;
-        for (var step = 0; step < 16 && usedSlash is null; step++)
-        {
-            var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
-            Require(advanced.Accepted, advanced.Error?.Message ?? "The FactionSlash provider cursor did not advance.");
-            usedSlash = game.Events.Select(envelope => envelope.Payload)
-                .OfType<CardUsedEvent>()
-                .LastOrDefault(item => item.SourceSeat == 0 && item.TargetSeat == targetSeat &&
-                    item.CardKind == CardKind.Slash);
-        }
-
-        if (usedSlash is null)
-        {
-            throw new InvalidOperationException("No allied Shu provider completed active FactionSlash.");
-        }
-
-        var slashCardId = usedSlash.CardId;
-        var successfulProvider = game.CardMovements.Single(movement =>
-            movement.CardId == slashCardId && movement.To == CardLocation.Processing &&
-            movement.Reason == CardMoveReasons.Use).From.OwnerSeat!.Value;
-        Require(successfulProvider != 0 &&
-                game.CardMovements.Any(movement =>
-                    movement.CardId == slashCardId &&
-                    movement.From == CardLocation.Hand(successfulProvider) &&
-                    movement.To == CardLocation.Processing &&
-                    movement.Reason == CardMoveReasons.Use) &&
-                game.CardMovements.Any(movement =>
-                    movement.CardId == slashCardId &&
-                    movement.From == CardLocation.Processing &&
-                    movement.To == CardLocation.DiscardPile &&
-                    movement.Reason == CardMoveReasons.UseFinished) &&
-                game.Events.Select(envelope => envelope.Payload).OfType<CardUsedEvent>().Any(cardUse =>
-                    cardUse.CardId == slashCardId && cardUse.SourceSeat == 0 && cardUse.TargetSeat == targetSeat),
-            "Active FactionSlash must spend the provider's exact Slash while making Liu Bei the effective user.");
-
-        var returned = game.Submit(new AdvanceCommand(game.Revision));
-        Require(returned.Accepted && game.PendingDecision?.Kind == DecisionKind.PlayCard &&
-                game.GetHumanLegalActions().All(action => action.ProgramSkillId != "classic:jijiang"),
-            "A successful active FactionSlash Slash must consume Liu Bei's Slash allowance for the turn.");
-        var completed = GameReplay.Restore(
-            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
-            registry);
-        Require(SnapshotJson.Serialize(completed.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
-                EventSignatures(completed).SequenceEqual(EventSignatures(game)),
-            "A completed active FactionSlash Slash must replay exactly.");
-
-        var (failureRegistry, failureModeId) = CreateFactionSlashFixtureRegistry(
-            "active-failure",
-            [new ContentDeckCardCount("standard:peach", 100)]);
-        var failed = StartFactionSlashLordAtPlay(failureRegistry, failureModeId, seed: 1);
-        var failedAction = failed.GetHumanLegalActions().Single(action =>
-            action.Kind == LegalActionKind.UseProgramSkill &&
-            action.ProgramSkillId == "classic:jijiang" &&
-            action.ProgramActivationId == "request-shu-slash");
-        var failedTarget = failedAction.SelectableTargetSeats[0];
-        var failedPrompt = failed.PendingDecision!;
-        var failedEventStart = failed.Events.Count;
-        var result = failed.Submit(new UseProgramSkillCommand(
-            0,
-            "classic:jijiang",
-            "request-shu-slash",
-            [],
-            [failedTarget],
-            failed.Revision,
-            failedPrompt.PromptId));
-        Require(result.Accepted, result.Error?.Message ?? "A failed FactionSlash attempt was rejected before resolution.");
-        for (var step = 0; step < 16 &&
-            !failed.Events.Skip(failedEventStart).Select(envelope => envelope.Payload)
-                .OfType<ProgramSkillResolvedEvent>()
-                .Any(item => item.SkillId == "classic:jijiang" && item.ActivationId == "request-shu-slash"); step++)
-        {
-            var advanced = failed.Submit(new AdvanceOneStepCommand(failed.Revision));
-            Require(advanced.Accepted, advanced.Error?.Message ?? "The failed FactionSlash provider cursor did not advance.");
-        }
-
-        var failedEvents = failed.Events.Skip(failedEventStart).Select(envelope => envelope.Payload).ToArray();
-        var failedResumed = failed.Submit(new AdvanceCommand(failed.Revision));
-        Require(failedEvents.OfType<ProgramSkillResolvedEvent>().Count(item =>
-                    item.SkillId == "classic:jijiang" && item.ActivationId == "request-shu-slash" &&
-                    item.Completed) == 1 &&
-                failedEvents.OfType<CardUsedEvent>().All(item => item.SourceSeat != 0 ||
-                    item.TargetSeat != failedTarget) &&
-                failedResumed.Accepted && failed.PendingDecision?.Kind == DecisionKind.PlayCard &&
-                failed.GetHumanLegalActions().All(action => action.ProgramSkillId != "classic:jijiang"),
-            "A declined FactionSlash request must resolve once without a Slash and consume its turn use.");
-        var failedReplay = GameReplay.Restore(
-            GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(failed.CreateCheckpoint())),
-            failureRegistry);
-        Require(SnapshotJson.Serialize(failedReplay.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(failed.CreateSnapshot(0, revealAll: true)) &&
-                EventSignatures(failedReplay).SequenceEqual(EventSignatures(failed)),
-            "A completed declined FactionSlash request must replay exactly.");
     }
 
     public static void FormalFactionSlashResponseFlow()
@@ -3845,34 +2925,6 @@ internal static class ClassicGeneralChecks
         return game;
     }
 
-    private static GameEngine FindLuMengSlashFixture(ContentRegistry registry)
-    {
-        for (var seed = 1; seed <= 4_096; seed++)
-        {
-            var game = StartClassicGeneralAtPlay(
-                registry,
-                seed,
-                "classic:lu-meng",
-                GameCheckpoint.CurrentRulesVersion);
-            if (game is null) continue;
-            var slash = game.GetHumanLegalActions().FirstOrDefault(action =>
-                action.Kind == LegalActionKind.Slash);
-            if (slash is null) continue;
-            var probe = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
-            var played = probe.Submit(new PlayCardCommand(0, slash.CardId!.Value,
-                slash.TargetSeats, probe.Revision, probe.PendingDecision!.PromptId,
-                slash.PlayedCardKind));
-            if (played.Accepted &&
-                probe.Submit(new AdvanceCommand(probe.Revision)).Accepted &&
-                probe.PendingDecision?.Kind == DecisionKind.PlayCard)
-            {
-                return game;
-            }
-        }
-
-        throw new InvalidOperationException("Could not find a deterministic Lu Meng Slash fixture.");
-    }
-
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
         GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint));
 
@@ -4121,7 +3173,8 @@ internal static class ClassicGeneralChecks
         bool requireWeapon,
         string? targetSkill = null,
         bool requirePeach = false,
-        bool requireTargetHeart = false)
+        bool requireTargetHeart = false,
+        Func<GameEngine, LegalAction, int, int, bool>? probe = null)
     {
         var damageTriggerSkills = new HashSet<string>
         {
@@ -4188,6 +3241,11 @@ internal static class ClassicGeneralChecks
                         : player.Skills?.All(skill => (skill.ContentId is null || !damageTriggerSkills.Contains(skill.ContentId))) != false) &&
                     (!requireTargetHeart || player.Hand.Any(card => card.Suit is Suit.Heart or Suit.Spade)));
             if (target is null)
+            {
+                continue;
+            }
+
+            if (probe is not null && !probe(game, action, target.Seat, weaponCardId))
             {
                 continue;
             }
@@ -4867,20 +3925,68 @@ internal static class ClassicGeneralChecks
                 continue;
             }
 
+            // The hand filters cannot see skills that convert another card into
+            // a Slash response mid-duel, so probe the actual Wushuang sequence
+            // and only accept seeds whose target pays its one Slash and fails
+            // the second required response.
+            var probeEventCount = game.Events.Count;
+            SetPlayerHp(game, candidate.Target.Seat, hp: 1);
+            var probeUse = SubmitPlayAction(game, candidate.Action);
+            if (!probeUse.Accepted || !DriveWushuangDuelProbe(game, probeEventCount, candidate.Target.Seat))
+            {
+                continue;
+            }
+
+            var pristine = StartClassicGeneralAtPlay(
+                registry,
+                seed,
+                "classic:lu-bu",
+                GameCheckpoint.CurrentRulesVersion) ??
+                throw new InvalidOperationException("The probed Lu Bu fixture lost determinism.");
+            var pristineAction = pristine.GetHumanLegalActions()
+                .Where(action => action.Kind == LegalActionKind.Duel &&
+                                action.TargetSeat == candidate.Target.Seat)
+                .OrderBy(action => action.CardId)
+                .ThenBy(action => action.TargetSeat)
+                .FirstOrDefault();
+            if (pristineAction is null)
+            {
+                continue;
+            }
+
             return (
-                game,
-                GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())),
-                candidate.Action,
+                pristine,
+                GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(pristine.CreateCheckpoint())),
+                pristineAction,
                 candidate.Target.Seat);
         }
 
         throw new InvalidOperationException("Could not find a deterministic classic Lu Bu one-Slash Duel fixture.");
     }
 
-    private static void DriveAiUntil(GameEngine game, Func<bool> completed)
+    private static bool DriveWushuangDuelProbe(GameEngine game, int eventCount, int targetSeat)
     {
-        for (var step = 0; step < 32 && !completed(); step++)
+        for (var step = 0; step < 32; step++)
         {
+            var events = game.Events.Skip(eventCount).Select(item => item.Payload).ToArray();
+            var paid = events.OfType<DuelResponseEvent>().Count(response =>
+                response.ResponderSeat == targetSeat && response.UsedSlash) == 1;
+            var failed = events.OfType<DuelResponseEvent>().Any(response =>
+                response.ResponderSeat == targetSeat && !response.UsedSlash);
+            var progressed = events.OfType<RequiredResponseProgressEvent>().Any(progress =>
+                progress.SkillOwnerSeat == 0 &&
+                progress.ResponderSeat == targetSeat &&
+                progress.IncomingCard == CardKind.Duel &&
+                progress.RequiredCardKind == CardKind.Slash &&
+                progress.ResponseCount == 1 &&
+                progress.RequiredResponseCount == 2);
+            var damaged = events.OfType<DamageAppliedEvent>().Any(damage =>
+                damage.TargetSeat == targetSeat);
+            if (paid && failed && progressed && damaged)
+            {
+                return true;
+            }
+
             if (game.PendingDecision is { PlayerSeat: 0 })
             {
                 var dump = string.Join(", ", game.Events.TakeLast(16).Select(item => item.Payload switch
@@ -4896,10 +4002,13 @@ internal static class ClassicGeneralChecks
             }
 
             var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
-            Require(advanced.Accepted, advanced.Error?.Message ?? "Could not advance the Wushuang AI response.");
+            if (!advanced.Accepted)
+            {
+                return false;
+            }
         }
 
-        Require(completed(), "Wushuang fixture did not reach the expected response boundary.");
+        return false;
     }
 
     private static CommandResult SubmitPlayAction(GameEngine game, LegalAction action) =>
@@ -5470,33 +4579,6 @@ internal static class ClassicGeneralChecks
                 LegalActionKind.Duel) ??
             throw new InvalidOperationException("Huang Yueying has no ordinary trick action.");
         return (game, action);
-    }
-
-    private static void ContinueLuoshenUntilPlay(GameEngine game)
-    {
-        for (var step = 0; step < 256 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
-        {
-            CommandResult result;
-            if (game.PendingDecision is { Kind: DecisionKind.ProgramRepeatJudgment } prompt)
-            {
-                result = game.Submit(new AnswerPromptCommand(
-                    0,
-                    prompt.PromptId,
-                    prompt.Choices.Single(choice =>
-                        choice.Parameters.GetValueOrDefault("action") == "continue").Id,
-                    game.Revision));
-            }
-            else
-            {
-                result = game.Submit(new AdvanceCommand(game.Revision));
-            }
-
-            Require(result.Accepted, result.Error?.Message ?? "Could not continue the Luoshen chain.");
-        }
-
-        Require(game.State.Phase == TurnPhase.Play &&
-                game.PendingDecision?.Kind == DecisionKind.PlayCard,
-            "The bounded Luoshen chain did not reach the play phase.");
     }
 
     private static void Equip(GameEngine game, int cardId)

@@ -7994,6 +7994,83 @@
       ]
     },
     {
+      "key": "zhang-he",
+      "characterName": "张郃",
+      "defaultSkinId": "105101",
+      "skins": [
+        {
+          "id": "105101",
+          "name": "经典形象*张郃",
+          "sourcePage": "https://x.sanguosha.com/hero/51.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105101.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-zhang-he.png",
+          "sha256": "00919c1f265f4d6c1ef32e635b02d55a1a6ff9e6e0b0d2ff3b03412f482f8f33",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "205102",
+          "name": "街亭败蜀*张郃",
+          "sourcePage": "https://x.sanguosha.com/hero/51.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/205102.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/zhang-he/205102.png",
+          "sha256": "e11d414abb95e7c66bb80cf8a6fc1665d6abb4d376fa491ea5d3985afcc3fe27",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "205103",
+          "name": "善阵巧变*张郃",
+          "sourcePage": "https://x.sanguosha.com/hero/51.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/205103.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/zhang-he/205103.png",
+          "sha256": "b03e7ded321c50aa9de6b117d1672d0e948f8ac15a9cbe2664c6dd79d1b34bad",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "305101",
+          "name": "江陵破吴*张郃",
+          "sourcePage": "https://x.sanguosha.com/hero/51.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/305101.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/zhang-he/305101.png",
+          "sha256": "ed20c3453eb94bd312d0dab4bf9de0c0028d612d2b3ff993fb76cab24d78e215",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "305102",
+          "name": "巧魁儁乂*张郃",
+          "sourcePage": "https://x.sanguosha.com/hero/51.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/305102.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/zhang-he/305102.png",
+          "sha256": "6c59adbd9c8e4348a12d98376ef0e790bcc354cd3808e51557e446fd50e75deb",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "405101",
+          "name": "从征四方*张郃",
+          "sourcePage": "https://x.sanguosha.com/hero/51.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/405101.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/zhang-he/405101.png",
+          "sha256": "9245190a32b055c113fee305e3ac605894cc2b27963a9d04367ec284e8e515e8",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "505101",
+          "name": "汉中溃蜀*张郃",
+          "sourcePage": "https://x.sanguosha.com/hero/51.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/505101.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/zhang-he/505101.png",
+          "sha256": "5de3cf2e74d91df9fc90115f6e0b927c3c065eddc95e1c7e4ab2f8a53f2e026f",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "zhang-jiao",
       "characterName": "张角",
       "defaultSkinId": "103301",

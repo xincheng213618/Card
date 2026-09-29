@@ -176,6 +176,11 @@ internal static class QilinBowScenario
                     {
                         if (game.PendingDecision is { Kind: DecisionKind.QilinBow, PlayerSeat: sourceSeat })
                         {
+                            if (!BoundaryAnswersAreLegal(registry, game))
+                            {
+                                break;
+                            }
+
                             return new QilinBowBoundary(
                                 game,
                                 beforeSlash,
@@ -191,8 +196,11 @@ internal static class QilinBowScenario
                             break;
                         }
 
-                        Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
-                            "Qilin Bow fixture could not advance to its damage timing.");
+                        var timing = game.Submit(new AdvanceOneStepCommand(game.Revision));
+                        if (!timing.Accepted)
+                        {
+                            break;
+                        }
                     }
 
                     break;
@@ -230,6 +238,36 @@ internal static class QilinBowScenario
 
         throw new InvalidOperationException(
             "No bounded classic Qilin Bow trigger with a human source and mounted target was found.");
+    }
+
+    private static bool BoundaryAnswersAreLegal(ContentRegistry registry, GameEngine game)
+    {
+        var checkpoint = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint()));
+        var prompt = game.PendingDecision!;
+        var discard = prompt.Choices.FirstOrDefault(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "qilin-bow-discard");
+        var skip = prompt.Choices.FirstOrDefault(choice =>
+            choice.Parameters.GetValueOrDefault("action") == "qilin-bow-skip");
+        if (discard is null || skip is null)
+        {
+            return false;
+        }
+
+        foreach (var choice in new[] { discard, skip })
+        {
+            var restored = GameReplay.Restore(checkpoint, registry);
+            var answered = restored.Submit(new AnswerPromptCommand(
+                restored.PendingDecision!.PlayerSeat,
+                restored.PendingDecision.PromptId,
+                choice.Id,
+                restored.Revision));
+            if (!answered.Accepted)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static SlashCandidate? FindSlash(

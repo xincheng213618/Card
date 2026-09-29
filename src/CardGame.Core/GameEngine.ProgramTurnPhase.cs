@@ -18,7 +18,9 @@ public sealed partial class GameEngine
             phases.All(phase => phase is SkillProgramTurnPhase.Judgment or SkillProgramTurnPhase.Draw);
         var second = context.Window == SkillProgramTriggerWindow.AfterNormalDraw &&
             phases.Count == 1 && phases[0] == SkillProgramTurnPhase.Play;
-        if (!first && !second)
+        var third = context.Window == SkillProgramTriggerWindow.DiscardPhaseStarting &&
+            phases.Count == 1 && phases[0] == SkillProgramTurnPhase.Discard;
+        if (!first && !second && !third)
             throw new InvalidOperationException("The configured phase substitution does not match its boundary.");
 
         foreach (var phase in phases)
@@ -27,6 +29,7 @@ public sealed partial class GameEngine
                 SkillProgramTurnPhase.Judgment => DelayedTurnEffects.SkipJudgmentPhase,
                 SkillProgramTurnPhase.Draw => DelayedTurnEffects.SkipDrawPhase,
                 SkillProgramTurnPhase.Play => DelayedTurnEffects.SkipPlayPhase,
+                SkillProgramTurnPhase.Discard => DelayedTurnEffects.SkipDiscardPhase,
                 _ => throw new InvalidOperationException("Unknown turn phase.")
             };
         return SkillProgramStepOutcome.Continue;

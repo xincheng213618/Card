@@ -10,7 +10,7 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "targetRef", "resultBind", "cardCategories", "skipIfNoCards", "allowSameOwnerHandReturn", "coverageResultBind", "awaitMovementTriggers", "revealBeforeMove", "condition");
+        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "targetRef", "resultBind", "cardCategories", "cardKinds", "skipIfNoCards", "allowSameOwnerHandReturn", "coverageResultBind", "awaitMovementTriggers", "revealBeforeMove", "condition");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.target: must be owner.");
@@ -22,11 +22,13 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.zones: must contain hand, equipment, or judgment.");
         var destination = r.RequiredEnum<SkillProgramCardDestination>("destination");
         if (destination is not (SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.DiscardPile or
-                SkillProgramCardDestination.SelectedTargetHand or SkillProgramCardDestination.SelectedTargetEquipment))
+                SkillProgramCardDestination.SelectedTargetHand or SkillProgramCardDestination.SelectedTargetEquipment or
+                SkillProgramCardDestination.SelectedTargetCorrespondingZone))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.destination: unsupported destination.");
         if ((destination is SkillProgramCardDestination.SelectedTargetHand
-                or SkillProgramCardDestination.SelectedTargetEquipment) != r.Has("targetRef"))
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}: selectedTargetHand and selectedTargetEquipment require targetRef only.");
+                or SkillProgramCardDestination.SelectedTargetEquipment
+                or SkillProgramCardDestination.SelectedTargetCorrespondingZone) != r.Has("targetRef"))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: selectedTargetHand, selectedTargetEquipment, and selectedTargetCorrespondingZone require targetRef only.");
         if (destination == SkillProgramCardDestination.SelectedTargetEquipment &&
             (!r.Has("zones") || r.RequiredEnumArray<CardZoneKind>("zones").Count != 1 ||
              r.RequiredEnumArray<CardZoneKind>("zones")[0] != CardZoneKind.Hand ||
@@ -34,6 +36,10 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
              equipmentFilter[0] != SkillProgramCardCategory.Equipment))
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}: an equipment gift moves one category-filtered hand card.");
+        if (destination == SkillProgramCardDestination.SelectedTargetCorrespondingZone &&
+            zones.Any(zone => zone is not (CardZoneKind.Equipment or CardZoneKind.Judgment)))
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}: corresponding-zone moves accept equipment and judgment cards only.");
         var chooserRef = r.RequiredParticipantReference("chooserRef");
         var cardOwnerRef = r.RequiredParticipantReference("cardOwnerRef");
         var cardCategories = r.OptionalEnumArray<SkillProgramCardCategory>("cardCategories");
@@ -41,6 +47,9 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.cardCategories: must not be empty when specified.");
         if (cardCategories is not null && chooserRef != cardOwnerRef)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.cardCategories: category filtering requires chooserRef and cardOwnerRef to name the same participant.");
+        var cardKinds = r.OptionalEnumArray<CardKind>("cardKinds");
+        if (cardKinds is { Count: 0 })
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.cardKinds: must not be empty when specified.");
         var skipIfNoCards = r.Has("skipIfNoCards") && r.RequiredBool("skipIfNoCards");
         var allowSameOwnerHandReturn = r.Has("allowSameOwnerHandReturn") && r.RequiredBool("allowSameOwnerHandReturn");
         var coverageResultBind = r.Has("coverageResultBind") ? r.OptionalIdentifier("coverageResultBind") : null;
@@ -65,7 +74,7 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
             targetReference: r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null,
             skipIfNoCards: skipIfNoCards, allowSameOwnerHandReturn: allowSameOwnerHandReturn,
             coverageResultBind: coverageResultBind, awaitMovementTriggers: awaitMovementTriggers,
-            revealBeforeMove: revealBeforeMove);
+            revealBeforeMove: revealBeforeMove, cardKinds: cardKinds);
         if (effect.Condition.Kind != SkillProgramConditionKind.Always && effect.ResultBind is not null)
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}.condition: conditional card movement cannot produce a result binding.");

@@ -116,7 +116,9 @@ public enum SkillProgramTargetKind
     OtherLivingPair = 22,
     OtherLivingLeastHandCount = 23,
     OtherLivingWhoseAttackRangeIncludesOwner = 24,
-    EventSource = 25
+    EventSource = 25,
+    OtherLivingWithQinggangSword = 26,
+    LivingPairDistinct = 27
 }
 public enum SkillProgramCardCategory { Basic, Trick, Equipment }
 public enum SkillProgramTurnOwnerScope { Own = 0, OtherLiving = 1 }
@@ -223,7 +225,7 @@ public enum SkillProgramEffectOp
     BindDiscardPhaseDiscards
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets }
-public enum SkillProgramTurnPhase { Judgment, Draw, Play }
+public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
 public enum SkillProgramTriggerWindow
 {
     CardUseTargetsFinalized,
@@ -239,6 +241,7 @@ public enum SkillProgramTriggerWindow
     BeforeDamageApplied,
     AfterDamageApplied,
     PlayEnding,
+    DiscardPhaseStarting,
     TurnEnding,
     CardsMoved,
     OwnerDied,
@@ -276,13 +279,15 @@ public enum SkillProgramNumberExpression
     CurrentAttackRange = 11,
     HandHalfFloor = 12,
     SelectedPairHandDifference = 13,
-    LivingPlayersMinHp = 14
+    LivingPlayersMinHp = 14,
+    HandLimitMinusHandCount = 15
 }
 public enum SkillProgramCardSetVisibility { Private, Public }
 public enum SkillProgramCardDestination
 {
     OwnerHand, DiscardPile, SelectedTargetHand, OwnerPersistentZone, DrawPileBottom, PhaseOwnerHand,
-    SelectedTargetEquipment
+    SelectedTargetEquipment,
+    SelectedTargetCorrespondingZone
 }
 public enum SkillProgramCardSource { DamageSource, Owner, EventTarget = 2 }
 public enum SkillProgramSubsetAiOrder { MostCardsThenRankSum }
@@ -1710,10 +1715,26 @@ public sealed class SkillProgramCatalog
             Fail(path + ".forPlay", "nullification is only legal in the counterspell response window");
         if (output == CardKind.Peach && forPlay)
             Fail(path + ".forPlay", "proactive peach has no configured viewAs executor");
-        if (output == CardKind.FireSlash &&
-            (!forPlay || forResponse || inputCount != 1 ||
-             inputs.Count != 1 || inputs[0] != CardKind.Slash))
-            Fail(path, "fireSlash viewAs currently requires one physical slash for play only");
+        if (output == CardKind.FireSlash)
+        {
+            if (inputCount == 1 && inputs.Count == 1 && suits.Count == 0)
+            {
+                if (inputs[0] != CardKind.Slash || forResponse)
+                    Fail(path + ".forResponse",
+                        "fireSlash viewAs currently requires one physical slash for play only");
+            }
+            else if (inputs.Count == 0 && suits.Count == 1)
+            {
+                if (!forPlay || forResponse)
+                    Fail(path + ".forResponse",
+                        "fireSlash viewAs suited input is play-only");
+            }
+            else
+            {
+                Fail(path,
+                    "fireSlash viewAs currently requires one physical slash for play only");
+            }
+        }
         if (allowChainedInput &&
             (!forPlay || forResponse || inputCount != 1 || output != CardKind.FireSlash))
             Fail(path + ".allowChainedInput", "chained viewAs currently supports one input for fireSlash play only");
@@ -1858,14 +1879,15 @@ public sealed class SkillProgramCatalog
     }
 
     private static SkillProgramEffect ParseCompositionEffect(JsonElement node, string path,
-        bool isAfterDamageTrigger = false)
+        bool isAfterDamageTrigger = false, bool allowZeroDraw = false)
     {
         var effect = ProgramOperationCatalog.Default.Parse(node, path,
             (condition, conditionPath) => ParseCondition(condition, conditionPath, 0,
                 defaultPindianBind: true, allowChoice: true, allowBoundCards: true,
                 allowBoundCardCategories: true, allowBoundCardKinds: true,
                 allowClaimableDamageCards: true, allowAttackRangeCoverage: true,
-                allowBoundCardCount: true, allowOwnedCardCategory: true));
+                allowBoundCardCount: true, allowOwnedCardCategory: true),
+            allowZeroDraw);
         if ((effect.Condition.ContainsHasClaimableDamageCards() ||
              effect.Options.Any(option => option.Condition.ContainsHasClaimableDamageCards())) &&
             (!isAfterDamageTrigger || effect.Op != SkillProgramEffectOp.ChooseOption ||
@@ -1971,6 +1993,7 @@ public sealed class SkillProgramCatalog
             SkillProgramTriggerWindow.DamageAppliedBeforeDying or
             SkillProgramTriggerWindow.AfterDamageApplied or
             SkillProgramTriggerWindow.PlayEnding or
+            SkillProgramTriggerWindow.DiscardPhaseStarting or
             SkillProgramTriggerWindow.TurnEnding or
             SkillProgramTriggerWindow.CardsMoved or
             SkillProgramTriggerWindow.OwnerDied or
@@ -1982,6 +2005,7 @@ public sealed class SkillProgramCatalog
             SkillProgramTriggerWindow.DyingResponse or
             SkillProgramTriggerWindow.BeforeDamageApplied or
             SkillProgramTriggerWindow.PlayEnding or
+            SkillProgramTriggerWindow.DiscardPhaseStarting or
             SkillProgramTriggerWindow.TurnEnding or
             SkillProgramTriggerWindow.CardsMoved or
             SkillProgramTriggerWindow.OwnerDied or
@@ -2320,7 +2344,8 @@ public sealed class SkillProgramCatalog
             Fail(path + ".condition", "play-phase kill and damage counters require a phase boundary trigger");
         var effects = ReadArray(node, "effects", path,
             (effect, effectPath) => ParseCompositionEffect(effect, effectPath,
-                isAfterDamageTrigger: window == SkillProgramTriggerWindow.AfterDamageApplied));
+                isAfterDamageTrigger: window == SkillProgramTriggerWindow.AfterDamageApplied,
+                allowZeroDraw: drawPhaseMode == SkillProgramDrawPhaseMode.Replacement));
         foreach (var effect in effects.Where(item => item.Op == SkillProgramEffectOp.SkipTurnPhases))
         {
             var valid = window switch
@@ -2329,6 +2354,8 @@ public sealed class SkillProgramCatalog
                     effect.SkippedPhases.All(phase => phase is SkillProgramTurnPhase.Judgment or SkillProgramTurnPhase.Draw),
                 SkillProgramTriggerWindow.AfterNormalDraw =>
                     effect.SkippedPhases.SequenceEqual([SkillProgramTurnPhase.Play]),
+                SkillProgramTriggerWindow.DiscardPhaseStarting =>
+                    effect.SkippedPhases.SequenceEqual([SkillProgramTurnPhase.Discard]),
                 _ => false
             };
             if (!valid) Fail(path + ".effects", "phase substitution does not match its lifecycle boundary");

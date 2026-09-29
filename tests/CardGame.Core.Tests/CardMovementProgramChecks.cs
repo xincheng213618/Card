@@ -12,7 +12,7 @@ internal static class CardMovementProgramChecks
         var program = SkillProgramCatalog.Load(Rules, Presentation).Programs[ScenarioPackage.SkillId];
         var perCard = program.Triggers.Single(trigger => trigger.Id == "per-card");
         var emptyBatch = program.Triggers.Single(trigger => trigger.Id == "empty-batch");
-        Require(program.RuntimeVersion == "skill-program-v62" && program.MinimumRulesVersion == 171 &&
+        Require(program.RuntimeVersion == SkillProgramCatalog.RuntimeVersion && program.MinimumRulesVersion == 171 &&
                 perCard is
                 {
                     Window: SkillProgramTriggerWindow.CardsMoved,

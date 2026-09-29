@@ -11,7 +11,7 @@ internal static class ProgramOwnedCardsChecks
     public static void DefinitionsAndPublicAi()
     {
         var current = Load(2);
-        Require(current.RuntimeVersion == "skill-program-v62" && current.MinimumRulesVersion == 171,
+        Require(current.RuntimeVersion == SkillProgramCatalog.RuntimeVersion && current.MinimumRulesVersion == 171,
             "Owned-card selection must declare its schema/rules boundary.");
         Reject(Rules(2).Replace("\"amount\":2", "\"amount\":0"), "between");
         Reject(Rules(2).Replace("[\"hand\",\"equipment\"]", "[\"discardPile\"]"), "owned");

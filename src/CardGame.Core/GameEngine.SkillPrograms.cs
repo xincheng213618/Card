@@ -131,6 +131,9 @@ public sealed partial class GameEngine
                             SkillProgramTargetKind.OtherLivingWhoseAttackRangeIncludesOwner =>
                                 target.Seat != owner.Seat &&
                                 GetCombatDistance(target.Seat, owner.Seat) <= GetAttackRange(target.Seat),
+                            SkillProgramTargetKind.OtherLivingWithQinggangSword =>
+                                target.Seat != owner.Seat &&
+                                GetEquipment(target).Any(card => card.Kind == CardKind.QinggangSword),
                             SkillProgramTargetKind.OtherLivingSlashable =>
                                 CanUseProvidedSlashTarget(owner, target),
                             SkillProgramTargetKind.OtherLivingWithHand =>

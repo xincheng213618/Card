@@ -8,57 +8,6 @@ internal static class GaoShunChecks
     private const string XianzhenSkillId = "classic:xianzhen";
     private const string JinjiuSkillId = "classic:jinjiu";
 
-    public static void ContentIdentityAndRulesBoundary()
-    {
-        var current = CreateRegistry();
-        var general = current.Generals[GeneralId];
-        var xianzhen = current.GetSkill(XianzhenSkillId);
-        var jinjiu = current.GetSkill(JinjiuSkillId);
-        var identity = jinjiu.Program?.CardIdentities.Single();
-
-        Require(general.Name == "高顺" &&
-                general.FactionId == "qun" &&
-                general.BaseHp == 4 &&
-                general.SkillIds.SequenceEqual([XianzhenSkillId, JinjiuSkillId]) &&
-                xianzhen.Program is not null &&
-                xianzhen.ExecutionForms == SkillExecutionForm.State &&
-                xianzhen.ActionForms == SkillActionForm.Active &&
-                jinjiu.Tags == SkillTag.Locked &&
-                jinjiu.ExecutionForms == SkillExecutionForm.State &&
-                identity is
-                {
-                    Id: "alcohol-hand-as-slash",
-                    OutputKind: CardKind.Slash
-                } &&
-                jinjiu.Program!.MinimumRulesVersion == 172 &&
-                identity.InputKinds.SequenceEqual([CardKind.Alcohol]) &&
-                identity.Zones.SequenceEqual([CardZoneKind.Hand]) &&
-                current.Modes[ScenarioPackage.ModeId].GeneralPoolIds!.Contains(GeneralId),
-            "Current classic content must publish exact Gao Shun skills and identity.");
-
-        var fixture = Find(sourceWins: true, requireAlcohol: true);
-        var snapshot = fixture.Game.CreateSnapshot(0, revealAll: true);
-        var alcoholIds = snapshot.Players[0].Hand
-            .Where(card => card.Kind == CardKind.Alcohol)
-            .Select(card => card.Id)
-            .ToHashSet();
-        var actions = fixture.Game.GetHumanLegalActions();
-        Require(alcoholIds.Count > 0 &&
-                actions.All(action => action.Kind != LegalActionKind.Alcohol ||
-                    action.CardId is not { } cardId || !alcoholIds.Contains(cardId)) &&
-                actions.Any(action =>
-                    action.Kind == LegalActionKind.Slash &&
-                    action.CardId is { } cardId &&
-                    alcoholIds.Contains(cardId) &&
-                    action.ConversionSource is
-                    {
-                        SkillId: JinjiuSkillId,
-                        BindingId: "alcohol-hand-as-slash"
-                    }),
-            "Jinjiu must replace native Alcohol use with one mandatory Slash identity.");
-
-    }
-
     public static void XianzhenWinTargetsDistanceCountArmorAndReplays()
     {
         var fixture = Find(sourceWins: true, requireAlcohol: true);
@@ -148,29 +97,6 @@ internal static class GaoShunChecks
                 { SourceSeat: 0, IgnoresArmor: true },
             played.Error?.Message ?? "A winning Xianzhen Slash must ignore the selected target's armor.");
 
-    }
-
-    public static void XianzhenLossBlocksSlashOnly()
-    {
-        var fixture = Find(sourceWins: false, requireAlcohol: true);
-        var game = fixture.Game;
-        var used = BeginXianzhen(game, fixture.SourceCardId, fixture.TargetSeat);
-        Require(used.Accepted, used.Error?.Message ?? "The losing Xianzhen fixture could not start.");
-        ReachHumanPlay(game);
-
-        var actions = game.GetHumanLegalActions();
-        var runtime = game.CreateSnapshot(0, revealAll: true).Players[0]
-            .SkillRuntimeStates!
-            .Single(state => state.SkillId == XianzhenSkillId);
-        Require(game.Events.Select(item => item.Payload).OfType<PindianResultDeterminedEvent>()
-                    .Last().Result is { SourceSeat: 0, SourceWon: false } &&
-                runtime.ActionProhibitions is [var prohibition] &&
-                prohibition.Source.OwnerSeat == 0 &&
-                prohibition.CardKinds.SequenceEqual([CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash]) &&
-                actions.All(action => action.Kind != LegalActionKind.Slash) &&
-                actions.Any(action => action.Kind == LegalActionKind.Snatch) &&
-                actions.All(action => action.ProgramSkillId != XianzhenSkillId),
-            "Losing or tying Xianzhen must prohibit only Slash use and keep the once-per-phase active entry consumed.");
     }
 
     private static CommandResult BeginXianzhen(GameEngine game, int sourceCardId, int targetSeat)

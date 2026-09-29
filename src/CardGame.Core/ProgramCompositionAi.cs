@@ -535,6 +535,14 @@ internal sealed class ProgramAiEstimateContext
         _otherAdjustment += 4d;
     }
 
+    internal void RequestSlashByTarget(SkillProgramEffect effect)
+    {
+        // Split prior: about half the time the target declines and loses a card,
+        // otherwise the owner faces a dodgeable Slash.
+        _targetDraw -= 0.5d;
+        _ownerHpLoss += 0.5d;
+    }
+
     internal void RefundCardUseDebit(SkillProgramEffect effect)
     {
         if (_publicContext.CardUseDebitActive) _otherAdjustment += 8d;

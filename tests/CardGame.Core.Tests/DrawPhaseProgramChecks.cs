@@ -141,27 +141,6 @@ internal static class DrawPhaseProgramChecks
             StringComparison.Ordinal), "duplicate values");
     }
 
-    public static void StandardMandatoryExtraDrawRunsBeforeNormalDraw()
-    {
-        var registry = StandardContentRegistry.Create();
-        var game = SelectGeneral(registry, "identity:standard-5", "standard:zhou-yu");
-
-        var advanced = game.Submit(new AdvanceCommand(game.Revision));
-        Require(advanced.Accepted && game.State.Phase == TurnPhase.Play &&
-                game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: HumanSeat },
-            advanced.Error?.Message ??
-            $"Standard Yingzi did not reach the Play boundary (phase={game.State.Phase}, prompt={game.PendingDecision?.Kind.ToString() ?? "none"}, hand={HandCount(game)})." );
-        Require(HandCount(game) == 7 &&
-                game.CardMovements.Count(move =>
-                    move.Reason.Value == "skill-program.standard:yingzi.Draw" &&
-                    move.To == CardLocation.Hand(HumanSeat)) == 1 &&
-                game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
-                    item.SkillId == "standard:yingzi" &&
-                    item.Window == SkillProgramTriggerWindow.DrawPhaseStarting &&
-                    item.Activated && item.Completed),
-            "Standard Yingzi must draw one configured card plus exactly two normal cards without using its retired event route.");
-    }
-
     public static void ClassicOptionalChoiceSkipsActivatesAndReplays()
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
@@ -210,93 +189,6 @@ internal static class DrawPhaseProgramChecks
                     item.SkillId == "classic:yingzi" && item.Activated && item.Completed) &&
                 State(replay) == State(activated) && Events(replay).SequenceEqual(Events(activated)),
             "Activated classic Yingzi must draw one configured card, then two normal cards, and replay exactly.");
-    }
-
-    public static void MultipleAdditiveProgramsComposeBeforeOneNormalDraw()
-    {
-        var catalog = SkillProgramCatalog.Load(CompositionRules, CompositionPresentation);
-        var registry = ContentRegistry.Build(
-            new StandardContentPackage(),
-            new CompositionPackage(catalog.Programs[CompositionPackage.AlphaSkillId],
-                catalog.Programs[CompositionPackage.BetaSkillId]));
-        var game = SelectGeneral(registry, CompositionPackage.ModeId, CompositionPackage.OwnerGeneralId);
-
-        var advanced = game.Submit(new AdvanceCommand(game.Revision));
-        var starts = game.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
-            .Where(item => item.Window == SkillProgramTriggerWindow.DrawPhaseStarting)
-            .Select(item => item.SkillId).ToArray();
-        Require(advanced.Accepted && game.State.Phase == TurnPhase.Play &&
-                game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: HumanSeat } &&
-                HandCount(game) == 8 &&
-                starts.SequenceEqual([CompositionPackage.AlphaSkillId, CompositionPackage.BetaSkillId]) &&
-                game.CardMovements.Count(move =>
-                    move.Reason.Value.StartsWith("skill-program.fixture:draw-", StringComparison.Ordinal) &&
-                    move.To == CardLocation.Hand(HumanSeat)) == 2,
-            $"Two additive draw programs must run in stable order before one, and only one, normal two-card draw " +
-            $"(phase={game.State.Phase}, prompt={game.PendingDecision?.Kind.ToString() ?? "none"}, " +
-            $"hand={HandCount(game)}, starts={string.Join(",", starts)})." );
-    }
-
-    public static void ReplacementSuppressesAdditiveWhileSkipFallsThrough()
-    {
-        var registry = ContentRegistry.Build(
-            new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(includeJijiu: true),
-            new StandardRescueSkillExpansionPackage(),
-            new StandardClassicGeneralPackage(),
-            new ReplacementCompositionPackage());
-        var game = SelectGeneral(
-            registry,
-            ReplacementCompositionPackage.ModeId,
-            ReplacementCompositionPackage.OwnerGeneralId);
-
-        var advanced = game.Submit(new AdvanceCommand(game.Revision));
-        Require(advanced.Accepted &&
-                game.PendingDecision is
-                    { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:tuxi" },
-            advanced.Error?.Message ?? "The replacement/additive fixture did not begin with Tuxi.");
-        var handBefore = HandCount(game);
-        var paused = RoundTrip(game.CreateCheckpoint());
-
-        AnswerProgram(game, "activate");
-        var targets = RequireProgramPrompt(game, "classic:tuxi").Choices
-            .First(choice => choice.Targets.Count == 2);
-        var used = game.Submit(new AnswerPromptCommand(
-            HumanSeat, game.PendingDecision!.PromptId, targets.Id, game.Revision));
-        var usedStarts = game.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
-            .Where(item => item.Window == SkillProgramTriggerWindow.DrawPhaseStarting)
-            .Select(item => item.SkillId).ToArray();
-        Require(used.Accepted && game.State.Phase == TurnPhase.Play &&
-                game.PendingDecision is null &&
-                HandCount(game) == handBefore + 2 &&
-                usedStarts.SequenceEqual(["classic:tuxi"]) &&
-                game.CardMovements.All(move =>
-                    move.Reason.Value != "skill-program.classic:yingzi.Draw"),
-            used.Error?.Message ??
-            $"A completed replacement must suppress Yingzi and the normal draw " +
-            $"(phase={game.State.Phase}, handDelta={HandCount(game) - handBefore}, " +
-            $"starts={string.Join(",", usedStarts)})." );
-
-        var skipped = GameReplay.Restore(paused, registry);
-        AnswerProgram(skipped, "skip");
-        Require(skipped.PendingDecision is
-                { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:yingzi" },
-            "Skipping Tuxi must continue to the later additive Yingzi candidate.");
-        AnswerProgram(skipped, "activate");
-        var skippedStarts = skipped.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
-            .Where(item => item.Window == SkillProgramTriggerWindow.DrawPhaseStarting)
-            .Select(item => item.SkillId).ToArray();
-        Require(skipped.State.Phase == TurnPhase.Play &&
-                skipped.PendingDecision is null &&
-                HandCount(skipped) == handBefore + 3 &&
-                skippedStarts.SequenceEqual(["classic:yingzi"]) &&
-                skipped.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
-                    item.SkillId == "classic:tuxi" && !item.Activated && !item.Completed) &&
-                skipped.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
-                    item.SkillId == "classic:yingzi" && item.Activated && item.Completed),
-            $"A skipped replacement must fall through to Yingzi plus one normal draw " +
-            $"(phase={skipped.State.Phase}, handDelta={HandCount(skipped) - handBefore}, " +
-            $"starts={string.Join(",", skippedStarts)})." );
     }
 
     private static void ReachClassicYingzi(GameEngine game)

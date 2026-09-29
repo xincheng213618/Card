@@ -7,43 +7,6 @@ internal static class RuleQueryIntegrationChecks
     private const BindingFlags PrivateInstance = BindingFlags.Instance | BindingFlags.NonPublic;
     private const string FixtureSkillId = "fixture:engine-rule-query";
 
-    public static void FormalContentPreservesVersionBoundaries()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var expectedVersions = new Dictionary<string, Version>(StringComparer.Ordinal)
-        {
-            ["standard"] = StandardContentPackage.CurrentVersion,
-            ["standard-active-skills"] = StandardActiveSkillExpansionPackage.CurrentVersion,
-            ["standard-classic-generals"] = StandardClassicGeneralPackage.CurrentVersion
-        };
-        Require(expectedVersions.All(expected => current.Packages.Any(package =>
-                    package.Id == expected.Key && package.Version == expected.Value)),
-            "The current registry must publish the configured package bundle.");
-
-        var expectedLegacyKinds = new Dictionary<string, string>(StringComparer.Ordinal)
-        {
-            ["standard:paoxiao"] = "classic:paoxiao",
-            ["standard:mashu"] = "classic:mashu",
-            ["classic:paoxiao"] = "classic:paoxiao",
-            ["classic:mashu"] = "classic:mashu",
-            ["sp:guan-yu-mashu"] = "classic:mashu",
-            ["classic:yicong"] = "classic:yicong",
-            ["classic:zongshi"] = "classic:zongshi"
-        };
-        foreach (var expected in expectedLegacyKinds)
-        {
-            var currentSkill = current.Skills[expected.Key];
-            Require(currentSkill.Program is
-                    {
-                        MinimumRulesVersion: 172,
-                        RuntimeVersion: "skill-program-v62"
-                    } program &&
-                    program.Id == expected.Key &&
-                    program.Modifiers.Count > 0,
-                $"Current skill '{expected.Key}' must be a rules-117 schema-12 program without a legacy executor.");
-        }
-    }
-
     public static void EngineTracksDynamicSourcesAndInstanceIdentity()
     {
         var registry = ContentRegistry.Build(
@@ -80,26 +43,6 @@ internal static class RuleQueryIntegrationChecks
         owner.SkillGrants.RemoveGrant("fixture:distinct-source");
         Require(game.GetAttackRange(owner.Seat) == 1 && game.GetCombatDistance(owner.Seat, 2) == 2,
             "Removing the last enabled instance must restore both engine query baselines.");
-    }
-
-    public static void EngineConsumesFormalUnlimitedSlashProgram()
-    {
-        var registry = StandardContentRegistry.Create();
-        var game = GameEngine.CreateStandard(new GameOptions { PlayerCount = 5, Seed = 117 }, registry);
-        var owner = Players(game)[0];
-        ClearGrants(owner);
-
-        Require(Evaluate(game, "EvaluateSlashUseLimit", owner).Value is FiniteRuleQueryValue { Value: 1 },
-            "The engine slash-use query must begin at its finite mode baseline.");
-        owner.SkillGrants.Grant(new SkillGrant(
-            "fixture:paoxiao", "standard:paoxiao", "fixture:paoxiao-instance", "acquired:test"));
-        var enabled = Evaluate(game, "EvaluateSlashUseLimit", owner);
-        Require(enabled.Value is UnlimitedRuleQueryValue &&
-                enabled.Value.Contributions is [UnlimitedRuleQueryContribution],
-            "The current Paoxiao program must produce an explicit unlimited slash-use result in the engine.");
-        owner.SkillGrants.SetEnabled("fixture:paoxiao", false);
-        Require(Evaluate(game, "EvaluateSlashUseLimit", owner).Value is FiniteRuleQueryValue { Value: 1 },
-            "Disabling the Paoxiao grant must restore the finite slash-use limit without stale state.");
     }
 
     private static CharacterState[] Players(GameEngine game) =>

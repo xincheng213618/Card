@@ -121,11 +121,15 @@ internal static class GeneralGalleryChecks
         Program.Assert(vm.GeneralGalleryGroups is [{ IsEmpty: true, Id: "fame-7" }] && vm.GeneralGalleryEntries.Count == 0,
             "An empty numbered pack must not invent playable generals.");
         vm.SelectGeneralGallerySeriesCommand.Execute("boundary-fame");
-        Program.Assert(vm.GeneralGalleryGroups is [{ IsEmpty: true, Id: "boundary-fame" }],
-            "Boundary Fame needs its own honest empty group.");
+        Program.Assert(vm.GeneralGalleryGroups is [{ IsEmpty: false, Id: "boundary-fame" }] &&
+                       vm.GeneralGalleryEntries.Select(entry => entry.GeneralId).ToHashSet()
+                           .SetEquals(["boundary:xu-sheng", "boundary:zhang-song"]),
+            "Boundary Fame lists exactly its registered boundary-fame members.");
         vm.SelectGeneralGallerySeriesCommand.Execute("god");
         vm.SelectGeneralGalleryFactionCommand.Execute("god");
-        Program.Assert(vm.GeneralGalleryEntries is [{ GeneralId: "classic:shen-guan-yu", Kingdom: "神" }],
+        Program.Assert(vm.GeneralGalleryEntries.Select(entry => entry.GeneralId).ToHashSet()
+                           .SetEquals(["classic:shen-guan-yu", "classic:shen-sima-yi"]) &&
+                       vm.GeneralGalleryEntries.All(entry => entry.Kingdom == "神"),
             "God generals must be discoverable by the god faction filter without changing Core factions.");
 
         vm.SelectGeneralGalleryFactionCommand.Execute("all");

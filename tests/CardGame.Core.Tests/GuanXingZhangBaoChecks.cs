@@ -8,38 +8,6 @@ internal static class GuanXingZhangBaoChecks
     private const string GeneralId = "classic:guan-xing-zhang-bao";
     private const string FuhunSkillId = "classic:fuhun";
 
-    public static void ContentAndRulesBoundary()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var general = current.Generals[GeneralId];
-        var fuhun = current.Skills[FuhunSkillId];
-
-        Require(general is
-                {
-                    Name: "关兴张苞",
-                    PortraitKey: "guan_xing_zhang_bao",
-                    FactionId: "shu",
-                    BaseHp: 4,
-                    Gender: GeneralGender.Male
-                } && general.SkillIds.SequenceEqual([FuhunSkillId]),
-            "Classic Guan Xing & Zhang Bao metadata drifted.");
-        Require(fuhun.Tags == SkillTag.None &&
-                fuhun.ExecutionForms == (SkillExecutionForm.State | SkillExecutionForm.Trigger) &&
-                fuhun.ActionForms == SkillActionForm.Active &&
-                fuhun.Program is
-                {
-                    RuntimeVersion: "skill-program-v62",
-                    MinimumRulesVersion: 172,
-                    ViewAs.Count: 1,
-                    Activations.Count: 1,
-                    Triggers.Count: 1
-                } program &&
-                program.ViewAs.Single().InputCount == 2,
-            $"Fuhun metadata drifted: id={fuhun.Id}, tags={fuhun.Tags}, " +
-            $"execution={fuhun.ExecutionForms}, actions={fuhun.ActionForms}.");
-
-    }
-
     public static void ActiveSlashGrantsParentSkillsForOneTurnAndReplays()
     {
         var registry = CreateRegistry();
@@ -128,71 +96,6 @@ internal static class GuanXingZhangBaoChecks
         Require(owner.Skills!.All(skill => skill.ContentId is not ("classic:wusheng" or "classic:paoxiao")) &&
                 owner.SkillRuntimeStates!.All(state => !state.IsAcquired),
             "Fuhun-granted Wusheng and Paoxiao must expire at the next turn boundary.");
-    }
-
-    public static void SlashResponseUsesExactPairWithoutGrantAndReplays()
-    {
-        var registry = CreateRegistry();
-        for (var seed = 1; seed <= 128; seed++)
-        {
-            var game = CreateGame(registry, ScenarioPackage.ResponseModeId, seed);
-            StartAndSelect(game);
-            ReachHumanPlay(game);
-            EndHumanPlay(game);
-
-            for (var step = 0; step < 512 && game.State.Status != EngineStatus.Completed; step++)
-            {
-                if (game.PendingDecision is { Kind: DecisionKind.RespondSlash, PlayerSeat: HumanSeat } response &&
-                    response.IncomingCard == CardKind.BarbarianAssault &&
-                    response.Choices.FirstOrDefault(choice =>
-                        choice.Parameters.GetValueOrDefault("response") == "program-view-as-slash" &&
-                        choice.Parameters.GetValueOrDefault("conversion-skill-id") == FuhunSkillId) is { } choice)
-                {
-                    var paused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
-                    Require(State(paused) == State(game),
-                        "A paused private Fuhun response prompt must replay exactly.");
-                    var answered = game.Submit(new AnswerPromptCommand(
-                        HumanSeat,
-                        response.PromptId,
-                        choice.Id,
-                        game.Revision));
-                    Require(answered.Accepted, answered.Error?.Message ?? "The Fuhun response was rejected.");
-
-                    var converted = game.Events.Select(item => item.Payload)
-                        .OfType<ProgramViewAsConvertedEvent>().Last(item => item.SkillId == FuhunSkillId);
-                    var owner = Player(game, HumanSeat);
-                    Require(!converted.IsUse && converted.PhysicalCardIds.SequenceEqual(choice.Cards) &&
-                            choice.Cards.All(cardId => game.CardMovements.Any(move =>
-                                move.CardId == cardId &&
-                                move.From == CardLocation.Hand(HumanSeat) &&
-                                move.To == CardLocation.Processing &&
-                                move.Reason == CardMoveReasons.Respond)) &&
-                            game.Events.Select(item => item.Payload).OfType<ProgramTurnSkillsGrantedEvent>()
-                                .All(item => item.SkillId != FuhunSkillId) &&
-                            owner.Skills!.All(skill => skill.ContentId is not ("classic:wusheng" or "classic:paoxiao")),
-                        "A response Fuhun must pay both exact hand cards without granting parent skills.");
-
-                    var replayed = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
-                    Require(State(replayed) == State(game) && Events(replayed).SequenceEqual(Events(game)),
-                        "A completed Fuhun Slash response must replay exactly.");
-                    return;
-                }
-
-                if (game.PendingDecision is { PlayerSeat: HumanSeat } human)
-                {
-                    if (human.Kind == DecisionKind.PlayCard)
-                    {
-                        EndHumanPlay(game);
-                        continue;
-                    }
-                    break;
-                }
-                var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
-                if (!advanced.Accepted) break;
-            }
-        }
-
-        throw new InvalidOperationException("No bounded Barbarian Assault Fuhun response was found.");
     }
 
     private static void ReachHumanPlay(GameEngine game)

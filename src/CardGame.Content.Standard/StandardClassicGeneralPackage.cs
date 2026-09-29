@@ -59,10 +59,26 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "CardGame.Content.Standard.SkillPrograms.classic-zhang-zhao-zhang-hong.rules.json";
     private const string ClassicZhangZhaoZhangHongPresentationResource =
         "CardGame.Content.Standard.SkillPrograms.classic-zhang-zhao-zhang-hong.presentation.json";
+    private const string ClassicZhangHeRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-zhang-he.rules.json";
+    private const string ClassicZhangHePresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-zhang-he.presentation.json";
     private const string ClassicShenGuanYuRulesResource =
         "CardGame.Content.Standard.SkillPrograms.classic-shen-guan-yu.rules.json";
     private const string ClassicShenGuanYuPresentationResource =
         "CardGame.Content.Standard.SkillPrograms.classic-shen-guan-yu.presentation.json";
+    private const string BoundaryZhaoYunRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.boundary-zhao-yun.rules.json";
+    private const string BoundaryZhaoYunPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.boundary-zhao-yun.presentation.json";
+    private const string ClassicShenZhaoYunRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-shen-zhao-yun.rules.json";
+    private const string ClassicShenZhaoYunPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-shen-zhao-yun.presentation.json";
+    private const string ClassicGaoDaYiHaoRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-gao-da-yi-hao.rules.json";
+    private const string ClassicGaoDaYiHaoPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-gao-da-yi-hao.presentation.json";
     private const string ClassicGaoShunRulesResource =
         "CardGame.Content.Standard.SkillPrograms.classic-gao-shun.rules.json";
     private const string ClassicGaoShunPresentationResource =
@@ -87,6 +103,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicShenGuanYuRulesResource),
             ReadEmbeddedText(ClassicShenGuanYuPresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicShenZhaoYunCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicShenZhaoYunRulesResource),
+            ReadEmbeddedText(ClassicShenZhaoYunPresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicGaoDaYiHaoCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicGaoDaYiHaoRulesResource),
+            ReadEmbeddedText(ClassicGaoDaYiHaoPresentationResource)));
     private static readonly Lazy<SkillProgramCatalog> ClassicShenSimaYiCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicShenSimaYiRulesResource),
@@ -99,6 +123,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicSunCeRulesResource),
             ReadEmbeddedText(ClassicSunCePresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> BoundaryZhaoYunCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(BoundaryZhaoYunRulesResource),
+            ReadEmbeddedText(BoundaryZhaoYunPresentationResource)));
     private static readonly Lazy<SkillProgramCatalog> ClassicDengAiCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicDengAiRulesResource),
@@ -127,6 +155,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicZhangZhaoZhangHongRulesResource),
             ReadEmbeddedText(ClassicZhangZhaoZhangHongPresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicZhangHeCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicZhangHeRulesResource),
+            ReadEmbeddedText(ClassicZhangHePresentationResource)));
     private static readonly Lazy<SkillProgramCatalog> ClassicGaoShunCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicGaoShunRulesResource),
@@ -1065,6 +1097,27 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
 
         {
+            builder.AddSkill(WithStructuredSkillMetadata(ShenZhaoYunProgram("classic:juejing"),
+                SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithStructuredSkillMetadata(ShenZhaoYunProgram("classic:longhun"),
+                SkillTag.None, SkillExecutionForm.State));
+            builder.AddSkill(WithOptionalTriggerMetadata(ShenZhaoYunProgram("classic:zhanjiang")));
+        }
+        {
+            builder.AddSkill(WithActiveActionMetadata(GaoDaYiHaoProgram("classic:beam-rifle")));
+            builder.AddSkill(WithStructuredSkillMetadata(GaoDaYiHaoProgram("classic:i-field"),
+                SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithStructuredSkillMetadata(GaoDaYiHaoProgram("classic:mobile-armor"),
+                SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithOptionalTriggerMetadata(GaoDaYiHaoProgram("classic:core-fighter")));
+        }
+
+        {
+            builder.AddSkill(WithContinuousStateMetadata(BoundaryZhaoYunProgram("boundary:longdan")));
+            builder.AddSkill(WithOptionalTriggerMetadata(BoundaryZhaoYunProgram("boundary:yajiao")));
+        }
+
+        {
             builder.AddSkill(WithOptionalTriggerMetadata(DengAiProgram("classic:tuntian")));
             builder.AddSkill(WithStructuredSkillMetadata(
                 DengAiProgram("classic:zaoxian"), SkillTag.Awakening, SkillExecutionForm.Trigger));
@@ -1107,6 +1160,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 ZhangZhaoZhangHongProgram("classic:zhijian")));
             builder.AddSkill(WithOptionalTriggerMetadata(
                 ZhangZhaoZhangHongProgram("classic:guzheng")));
+            builder.AddSkill(WithOptionalTriggerMetadata(ZhangHeProgram("classic:qiaobian")));
         }
 
         builder.AddGeneral(new ContentGeneralDefinition(
@@ -1534,6 +1588,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         {
             builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:shen-zhao-yun", "神赵云", "shen_zhao_yun",
+                "classic:juejing", "god", BaseHp: 2,
+                AdditionalSkillIds: ["classic:longhun", "classic:zhanjiang"]));
+        }
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:gao-da-yi-hao", "高达一号", "gao_da_yi_hao",
+                "classic:beam-rifle", "god", BaseHp: 4,
+                AdditionalSkillIds: ["classic:i-field", "classic:mobile-armor", "classic:core-fighter"]));
+        }
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
                 "sp:guan-yu", "SP关羽", "guan_yu",
                 "sp:guan-yu-wusheng", "wei", BaseHp: 4,
                 AdditionalSkillIds: ["sp:danji"]));
@@ -1757,6 +1823,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 AdditionalSkillIds: ["classic:hunzi"]));
 
         builder.AddGeneral(new ContentGeneralDefinition(
+                "boundary:zhao-yun", "界赵云", "boundary_zhao_yun",
+                "boundary:longdan", "shu", BaseHp: 4,
+                AdditionalSkillIds: ["boundary:yajiao"]));
+
+        builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:deng-ai", "邓艾", "deng_ai",
                 "classic:tuntian", "wei", BaseHp: 4,
                 AdditionalSkillIds: ["classic:zaoxian"]));
@@ -1764,6 +1835,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:sha-mo-ke", "沙摩柯", "sha_mo_ke",
                 "classic:jili", "shu", BaseHp: 4));
+
+        builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:zhang-he", "张郃", "zhang_he",
+                "classic:qiaobian", "wei", BaseHp: 4));
 
         builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:cai-wen-ji", "蔡文姬", "cai_wen_ji",
@@ -2014,6 +2089,33 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         };
     }
 
+    private static ContentSkillDefinition BoundaryZhaoYunProgram(string skillId)
+    {
+        var presentation = BoundaryZhaoYunCatalog.Value.Presentations[skillId];
+        return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
+        {
+            Program = BoundaryZhaoYunCatalog.Value.Programs[skillId]
+        };
+    }
+
+    private static ContentSkillDefinition ShenZhaoYunProgram(string skillId)
+    {
+        var presentation = ClassicShenZhaoYunCatalog.Value.Presentations[skillId];
+        return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
+        {
+            Program = ClassicShenZhaoYunCatalog.Value.Programs[skillId]
+        };
+    }
+
+    private static ContentSkillDefinition GaoDaYiHaoProgram(string skillId)
+    {
+        var presentation = ClassicGaoDaYiHaoCatalog.Value.Presentations[skillId];
+        return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
+        {
+            Program = ClassicGaoDaYiHaoCatalog.Value.Programs[skillId]
+        };
+    }
+
     private static ContentSkillDefinition DengAiProgram(string skillId)
     {
         var presentation = ClassicDengAiCatalog.Value.Presentations[skillId];
@@ -2065,6 +2167,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
             Program = ClassicLiuShanCatalog.Value.Programs[skillId]
+        };
+    }
+
+    private static ContentSkillDefinition ZhangHeProgram(string skillId)
+    {
+        var presentation = ClassicZhangHeCatalog.Value.Presentations[skillId];
+        return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
+        {
+            Program = ClassicZhangHeCatalog.Value.Programs[skillId]
         };
     }
 
@@ -2194,6 +2305,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:zhang-xiu",
         "ol:shen-guan-yu",
         "classic:shen-sima-yi",
+        "classic:shen-zhao-yun",
         "classic:cao-pi",
         "classic:sun-ce",
         "classic:cai-wen-ji",
@@ -2204,7 +2316,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:dong-zhuo",
         "classic:liu-shan",
         "classic:zhang-zhao-zhang-hong",
+        "boundary:zhao-yun",
+        "classic:zhang-he",
     ];
+
+    /// <summary>Registered generals kept out of the classic identity pools (fan-made roster).</summary>
+    internal static IReadOnlyList<string> FanGeneralIds { get; } = ["classic:gao-da-yi-hao"];
 
     internal static IReadOnlyList<string> BoundaryGeneralIds { get; } =
     [

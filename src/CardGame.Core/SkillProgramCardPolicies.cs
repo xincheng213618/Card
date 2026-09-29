@@ -19,6 +19,7 @@ public enum SkillProgramCardPolicyKind
     NullifyBlackSlashWithoutArmor,
     ProhibitNearbyTargetResponse,
     ProhibitTargetSlashResponseBySuit,
+    PreventIncomingTrickDamage,
     MinimumResponseCountAsTarget = 16
 }
 

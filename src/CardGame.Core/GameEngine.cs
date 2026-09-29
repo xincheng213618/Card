@@ -3466,7 +3466,7 @@ public sealed partial class GameEngine
     {
         if (delayedEffects.HasFlag(DelayedTurnEffects.SkipDrawPhase))
         {
-            AddLog("DelayedCardEffect", $"{current.Name} 因【兵粮寸断】跳过摸牌阶段。", current.Seat);
+            AddLog("DelayedCardEffect", $"{current.Name} 跳过摸牌阶段。", current.Seat);
         }
         else if (TryBeginDrawPhaseProgramWindow(
                      current,
@@ -3510,7 +3510,7 @@ public sealed partial class GameEngine
         if (delayedEffects.HasFlag(DelayedTurnEffects.SkipPlayPhase))
         {
             BeginDiscardPhase();
-            AddLog("DelayedCardEffect", $"{current.Name} 因【乐不思蜀】跳过出牌阶段。", current.Seat);
+            AddLog("DelayedCardEffect", $"{current.Name} 跳过出牌阶段。", current.Seat);
         }
         else
         {
@@ -15423,6 +15423,18 @@ public sealed partial class GameEngine
         var current = _players[_currentSeat];
         AddLog("PhaseChanged", $"{current.Name} 进入弃牌阶段。", _currentSeat);
         QueueGameEvent(new PhaseChangedEvent(_phase, _currentSeat));
+        if (TryBeginDiscardPhaseProgramWindow(current)) return;
+        CompleteDiscardPhaseAfterProgramWindow(current);
+    }
+
+    private void CompleteDiscardPhaseAfterProgramWindow(CharacterState current)
+    {
+        if (_pendingTurnDelayedEffects.HasFlag(DelayedTurnEffects.SkipDiscardPhase))
+        {
+            AddLog("DelayedCardEffect", $"{current.Name} 跳过弃牌阶段。", current.Seat);
+            EndTurn();
+            return;
+        }
         if (!_usedOrPlayedSlashDuringPlayPhase &&
             CardPolicies(current, SkillProgramCardPolicyKind.OfferSkipDiscard).Any())
         {
@@ -16183,27 +16195,22 @@ public sealed partial class GameEngine
 
         var source = _players[attack.SourceSeat];
         var target = _players[attack.TargetSeat];
-        var sourcePrevents = HasCardPolicy(source, SkillProgramCardPolicyKind.PreventTrickDamage,
-            cardKind);
-        var targetPrevents = HasCardPolicy(target, SkillProgramCardPolicyKind.PreventTrickDamage,
-            cardKind);
-        if (!sourcePrevents && !targetPrevents)
+        var sourcePolicy = CardPolicies(source, SkillProgramCardPolicyKind.PreventTrickDamage,
+            cardKind).FirstOrDefault().Source;
+        var targetPolicy = CardPolicies(target, SkillProgramCardPolicyKind.PreventTrickDamage,
+            cardKind).FirstOrDefault().Source ??
+            CardPolicies(target, SkillProgramCardPolicyKind.PreventIncomingTrickDamage,
+                cardKind).FirstOrDefault().Source;
+        if (sourcePolicy is null && targetPolicy is null)
         {
             return false;
         }
-        var skillOwner = sourcePrevents
-            ? source
-            : targetPrevents
-                ? target
-                : null;
-        if (skillOwner is null)
-        {
-            return false;
-        }
+        var skillOwner = sourcePolicy is not null ? source : target;
+        var skill = sourcePolicy ?? targetPolicy!;
 
         AddLog(
             "DamagePrevented",
-            $"{skillOwner.Name} 的【无言】防止了【{CardCatalog.Get(cardKind).DisplayName}】造成的 {amount} 点伤害。",
+            $"{skillOwner.Name} 的【{skill.Definition.Name}】防止了【{CardCatalog.Get(cardKind).DisplayName}】造成的 {amount} 点伤害。",
             skillOwner.Seat,
             skillOwner.Seat == source.Seat ? target.Seat : source.Seat);
         QueueGameEvent(new WuyanDamagePreventedEvent(
@@ -16212,7 +16219,8 @@ public sealed partial class GameEngine
             target.Seat,
             cardKind,
             amount,
-            skillOwner.Seat));
+            skillOwner.Seat,
+            skill.SkillId));
         return true;
     }
 
@@ -17446,7 +17454,16 @@ public sealed partial class GameEngine
                     };
                 }
 
-                if (!topMatchesDying && !topMatchesDyingProgram && !topMatchesDyingCardWindow)
+                var dyingFrameIndex = _resolutionStack.FindLastIndex(frame => frame is DyingFrame dying &&
+                    dying.Id == dyingContinuation.FrameId &&
+                    dying.ParentFrameId == dyingContinuation.ParentFrameId);
+                var nestedResponseUseOnDying = dyingFrameIndex >= 0 &&
+                    _resolutionStack
+                        .Skip(dyingFrameIndex + 1)
+                        .All(frame => frame is CardUseFrame or ProgramCardTriggerWindowFrame or
+                            ProgramSkillFrame or HpChangedTriggerWindowFrame);
+                if (!topMatchesDying && !topMatchesDyingProgram && !topMatchesDyingCardWindow &&
+                    !nestedResponseUseOnDying)
                 {
                     var top = _resolutionStack.LastOrDefault();
                     var topShape = top is ProgramSkillFrame diagnosticProgram
@@ -19106,7 +19123,8 @@ public sealed partial class GameEngine
         None = 0,
         SkipDrawPhase = 1,
         SkipPlayPhase = 2,
-        SkipJudgmentPhase = 4
+        SkipJudgmentPhase = 4,
+        SkipDiscardPhase = 8
     }
 
     private enum JudgmentContinuationKind

@@ -62,7 +62,7 @@ public interface ISkillProgramEffectHost
         string sourceBind);
     SkillProgramStepOutcome RequestSlashByTarget(ProgramSkillFrame frame, int targetSeat,
         string resultBind);
-    void PendExtraTurn(ProgramSkillFrame frame, int? targetSeat);
+    void PendExtraTurn(ProgramSkillFrame frame, int? targetSeat = null);
     void ClaimDeathCleanupCards(ProgramSkillFrame frame);
     SkillProgramStepOutcome BindDiscardPhaseDiscards(ProgramSkillFrame frame, string resultBind);
     SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat);
@@ -290,7 +290,8 @@ public interface ISkillProgramEffectHost
         bool skipIfNoCards = false,
         bool allowSameOwnerHandReturn = false,
         string? coverageResultBind = null,
-        bool awaitMovementTriggers = false, bool revealBeforeMove = false);
+        bool awaitMovementTriggers = false, bool revealBeforeMove = false,
+        IReadOnlyList<CardKind>? cardKinds = null);
     SkillProgramStepOutcome ChooseOtherOwnedCardDiscard(
         ProgramSkillFrame frame,
         ProgramParticipantReference chooser,
@@ -989,7 +990,8 @@ public sealed class SelectAndMoveOwnedCardSkillProgramEffectHandler : ISkillProg
         effect.ResultBind,
         new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"), effect.CardCategories,
         effect.SkipIfNoCards, effect.AllowSameOwnerHandReturn,
-        effect.CoverageResultBind, effect.AwaitMovementTriggers, effect.RevealBeforeMove);
+        effect.CoverageResultBind, effect.AwaitMovementTriggers, effect.RevealBeforeMove,
+        effect.CardKinds);
 }
 
 public sealed class ChooseOtherOwnedCardDiscardSkillProgramEffectHandler : ISkillProgramEffectHandler

@@ -219,10 +219,11 @@ internal static class ProgramCompositionValidator
                     case GiftCardSet gift:
                     {
                         var source = Get(gift.Source);
-                        if (!source.Root.OwnerHeld)
-                            Fail("optional gifts require cards already held in hand, not unconsumed revealed cards");
+                        if (!source.Root.OwnerHeld && !source.Root.NeedsCleanup)
+                            Fail("optional gifts require cards already held in hand or a temporary reveal binding");
                         if (source.Atoms.Overlaps(source.Root.Consumed))
                             Fail("a gift reads cards that have already been moved");
+                        if (!source.Root.OwnerHeld) source.Root.Consumed.UnionWith(source.Atoms);
                         source.Root.PossiblyGifted.UnionWith(source.Atoms);
                         break;
                     }

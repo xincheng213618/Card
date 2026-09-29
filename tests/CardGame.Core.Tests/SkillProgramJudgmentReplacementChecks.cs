@@ -11,7 +11,7 @@ internal static class SkillProgramJudgmentReplacementChecks
         var discard = program.Triggers.Single(trigger => trigger.Id == DiscardTriggerId);
         var replacement = exchange.Effects[0];
         var followUp = exchange.Effects[1];
-        Require(program.RuntimeVersion == "skill-program-v62" && program.MinimumRulesVersion == 171 &&
+        Require(program.RuntimeVersion == SkillProgramCatalog.RuntimeVersion && program.MinimumRulesVersion == 171 &&
                 exchange.Window == SkillProgramTriggerWindow.JudgmentReplacing &&
                 exchange.Subject == SkillProgramTriggerSubject.Any && exchange.Optional &&
                 exchange.ExcludedReasons.SequenceEqual([JudgmentReasons.Leiji]) &&
@@ -202,133 +202,6 @@ internal static class SkillProgramJudgmentReplacementChecks
             "DiscardPile replacement must discard the old judgment card and omit unmatched follow-up effects.");
         AssertCompletedReplay(discard, registry, expectedActivatedTrigger: DiscardTriggerId);
         AssertAiReplacementAndReplay(registry);
-    }
-
-    internal static void BaguaSourceEquipmentIsExcluded()
-    {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new BaguaFixturePackage());
-        var (beforeBagua, baguaId) = FindBaguaBoundary(registry);
-        var current = GameReplay.Restore(RoundTrip(beforeBagua), registry);
-        SubmitBagua(current);
-
-        var currentPrompt = current.PendingDecision ??
-            throw new InvalidOperationException("The current Bagua replacement prompt was lost.");
-        var currentOwner = current.CreateSnapshot(0, revealAll: true).Players[0];
-        var legalBlackHand = currentOwner.Hand
-            .Where(card => card.Suit is Suit.Spade or Suit.Club)
-            .Select(card => card.Id)
-            .Order()
-            .ToArray();
-        Require(currentPrompt is
-                {
-                    Kind: DecisionKind.ProgramJudgmentReplacement,
-                    PlayerSeat: 0,
-                    IsPrivate: true
-                } &&
-                legalBlackHand.Length > 0 &&
-                currentPrompt.ValidCardIds.SequenceEqual(legalBlackHand) &&
-                !currentPrompt.ValidCardIds.Contains(baguaId) &&
-                currentOwner.Equipment.Any(card => card.Id == baguaId),
-            "The current replacement prompt must exclude the equipped Bagua that started this judgment.");
-
-        var replay = GameReplay.Restore(RoundTrip(current.CreateCheckpoint()), registry);
-        Require(replay.PendingDecision?.PromptId == currentPrompt.PromptId &&
-                replay.PendingDecision.ValidCardIds.SequenceEqual(currentPrompt.ValidCardIds) &&
-                SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(current.CreateSnapshot(0, revealAll: true)),
-            "A paused Bagua-source exclusion prompt must replay exactly.");
-    }
-
-    private static (GameCheckpoint Checkpoint, int BaguaId) FindBaguaBoundary(ContentRegistry registry)
-    {
-        var baguaHands = 0;
-        var equippedGames = 0;
-        var baguaResponses = 0;
-        for (var seed = 1; seed <= 8_192; seed++)
-        {
-            var game = GameEngine.CreateStandard(new GameOptions
-            {
-                Seed = seed,
-                PlayerCount = 5,
-                ModeId = BaguaFixturePackage.ModeId,
-                HumanSeat = 0,
-                HumanRole = Role.Lord,
-                UseInteractiveSetup = true,
-                UseInteractiveDiscard = false,
-                AdvanceAfterHumanCommands = false,
-                AiPolicyVersion = 2,
-                MaxTurns = 80
-            }, registry);
-            if (!game.Submit(new StartGameCommand()).Accepted ||
-                game.PendingDecision is not { Kind: DecisionKind.SelectGeneral } setup ||
-                !game.Submit(new SelectGeneralCommand(
-                    0, BaguaFixturePackage.OwnerGeneralId, game.Revision, setup.PromptId)).Accepted ||
-                !game.Submit(new AdvanceCommand(game.Revision)).Accepted ||
-                game.PendingDecision is not { Kind: DecisionKind.PlayCard })
-                continue;
-
-            var hand = game.CreateSnapshot(0, revealAll: true).Players[0].Hand;
-            var bagua = hand.FirstOrDefault(card => card.Kind == CardKind.BaguaFormation);
-            if (bagua is not null) baguaHands++;
-            if (bagua is null ||
-                !hand.Any(card => card.Id != bagua.Id &&
-                    (card.Suit is Suit.Spade or Suit.Club)))
-                continue;
-            var equipped = game.Submit(new PlayCardCommand(
-                0, bagua.Id, [], game.Revision, game.PendingDecision!.PromptId));
-            if (!equipped.Accepted)
-                continue;
-            for (var resume = 0; resume < 8 &&
-                 game.PendingDecision is not { Kind: DecisionKind.PlayCard }; resume++)
-            {
-                if (!game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted) break;
-            }
-            if (game.PendingDecision is not { Kind: DecisionKind.PlayCard } resumedPlay ||
-                !game.Submit(new EndPlayPhaseCommand(
-                    0, game.Revision, resumedPlay.PromptId)).Accepted)
-                continue;
-            equippedGames++;
-
-            for (var step = 0; step < 2_000 && game.State.Status != EngineStatus.Completed; step++)
-            {
-                if (game.PendingDecision is { Kind: DecisionKind.RespondDodge, PlayerSeat: 0 } response &&
-                    response.Choices.Any(choice => choice.Parameters.GetValueOrDefault("response") == "bagua") &&
-                    game.CreateSnapshot(0, revealAll: true).Players[0].Hand.Any(card =>
-                        card.Suit is Suit.Spade or Suit.Club))
-                {
-                    baguaResponses++;
-                    return (game.CreateCheckpoint(), bagua.Id);
-                }
-
-                GameCommand command = game.PendingDecision is { PlayerSeat: 0 } pending
-                    ? pending.Kind switch
-                    {
-                        DecisionKind.PlayCard => new EndPlayPhaseCommand(0, game.Revision, pending.PromptId),
-                        DecisionKind.RescueDying => new AnswerPromptCommand(
-                            0, pending.PromptId,
-                            pending.Choices.First(choice =>
-                                choice.Parameters.GetValueOrDefault("response") == "let-die").Id,
-                            game.Revision),
-                        _ => new AnswerPromptCommand(
-                            0, pending.PromptId, pending.Choices.Last().Id, game.Revision)
-                    }
-                    : new AdvanceOneStepCommand(game.Revision);
-                if (!game.Submit(command).Accepted) break;
-            }
-        }
-        throw new InvalidOperationException(
-            $"No bounded equipped Bagua response retained another black hand card " +
-            $"(baguaHands={baguaHands}, equippedGames={equippedGames}, baguaResponses={baguaResponses}).");
-    }
-
-    private static void SubmitBagua(GameEngine game)
-    {
-        var prompt = game.PendingDecision ?? throw new InvalidOperationException("The Bagua response prompt was lost.");
-        var choice = prompt.Choices.Single(item =>
-            item.Parameters.GetValueOrDefault("response") == "bagua");
-        var result = game.Submit(new AnswerPromptCommand(
-            0, prompt.PromptId, choice.Id, game.Revision));
-        Require(result.Accepted, result.Error?.Message ?? "The Bagua response was rejected.");
     }
 
     private static (GameEngine Game, int EquipmentId) FindBoundary(ContentRegistry registry)

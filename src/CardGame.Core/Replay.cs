@@ -32,6 +32,7 @@ public sealed record GameCheckpoint(
     // filter, the turn-owner discard-phase hand-discard fact, and the
     // named-choice hand-gain move branch.
     public const int CurrentRulesVersion = 188;
+    // 187 was consumed by main-side Zhang He / Shen Zhao Yun work.
 
     public int RulesVersion { get; init; }
 }

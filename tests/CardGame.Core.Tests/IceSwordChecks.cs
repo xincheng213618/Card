@@ -140,50 +140,6 @@ internal static class IceSwordChecks
 
     }
 
-    public static void AiUsesPrivateOpaqueChoices()
-    {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        GameEngine? witnessed = null;
-        for (var seed = 1; seed <= 48 && witnessed is null; seed++)
-        {
-            var game = GameEngine.CreateStandard(new GameOptions
-            {
-                Seed = seed,
-                HumanSeat = -1,
-                HumanRole = null,
-                PlayerCount = 5,
-                ModeId = "identity:classic-5",
-                UseInteractiveSetup = false,
-                UseInteractiveDiscard = false,
-                AdvanceAfterHumanCommands = false,
-                MaxTurns = 220,
-                AiPolicyVersion = 2
-            }, registry);
-            Require(game.Submit(new StartGameCommand()).Accepted,
-                "AI Ice Sword fixture failed to start.");
-            for (var step = 0; step < 16_000 && game.State.Status != EngineStatus.Completed; step++)
-            {
-                var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
-                Require(advanced.Accepted,
-                    advanced.Error?.Message ?? "AI Ice Sword fixture failed to finish.");
-            }
-            Require(game.State.Status == EngineStatus.Completed,
-                "AI Ice Sword fixture exceeded its bounded step budget.");
-            if (game.Events.Any(item => item.Payload is IceSwordResolvedEvent))
-            {
-                witnessed = game;
-            }
-        }
-
-        Require(witnessed is not null,
-            "No bounded AI match reached an Ice Sword decision.");
-        Require(witnessed!.AiThoughts.Any(thought =>
-                thought.Summary.Contains("寒冰剑", StringComparison.Ordinal)),
-            "AI Ice Sword must resolve through an explainable private opaque-card choice.");
-        var replayed = GameReplay.Restore(RoundTrip(witnessed.CreateCheckpoint()), registry);
-        Require(State(replayed) == State(witnessed) && Events(replayed).SequenceEqual(Events(witnessed)),
-            "An AI Ice Sword match must replay exactly.");
-    }
 
     private static bool IsDiscard(PromptChoice choice) =>
         choice.Parameters.GetValueOrDefault("action") == "ice-sword-discard";

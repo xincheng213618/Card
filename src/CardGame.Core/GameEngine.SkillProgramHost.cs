@@ -181,7 +181,7 @@ public sealed partial class GameEngine
             string resultBind) =>
             engine.RequestProgramSlashByTarget(frame, targetSeat, resultBind);
 
-        public void PendExtraTurn(ProgramSkillFrame frame, int? targetSeat) =>
+        public void PendExtraTurn(ProgramSkillFrame frame, int? targetSeat = null) =>
             engine.PendProgramExtraTurn(frame, targetSeat);
 
         public void ClaimDeathCleanupCards(ProgramSkillFrame frame) =>
@@ -544,10 +544,10 @@ public sealed partial class GameEngine
             CardMoveReason reason, IReadOnlyList<SkillProgramCardCategory>? cardCategories = null,
             bool skipIfNoCards = false, bool allowSameOwnerHandReturn = false,
             string? coverageResultBind = null, bool awaitMovementTriggers = false,
-            bool revealBeforeMove = false) =>
+            bool revealBeforeMove = false, IReadOnlyList<CardKind>? cardKinds = null) =>
             engine.SelectAndMoveProgramOwnedCard(frame, chooser, cardOwner, zones, destination, destinationRef, resultBind,
                 reason, cardCategories, skipIfNoCards, allowSameOwnerHandReturn,
-                coverageResultBind, awaitMovementTriggers, revealBeforeMove);
+                coverageResultBind, awaitMovementTriggers, revealBeforeMove, cardKinds);
 
         public SkillProgramStepOutcome ChooseOtherOwnedCardDiscard(
             ProgramSkillFrame frame,
