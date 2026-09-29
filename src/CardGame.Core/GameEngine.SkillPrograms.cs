@@ -382,15 +382,22 @@ public sealed partial class GameEngine
     private void FinishProgramSkill(ProgramSkillFrame frame, bool completed)
     {
         CleanupProgramBoundCards(frame, completed);
+        // Completion must wait for a quiet boundary: a program skill finishing inside
+        // an unwind (death triggers, chained attacks) can coincide with another
+        // in-flight response window (Stone Axe, dying rescue), whose pending
+        // decision must survive until it resolves.
+        if (_winner != Winner.None && _status != EngineStatus.Completed &&
+            _pendingDecision is null && _resolutionStack.Count == 0)
+        {
+            CompleteGame();
+        }
         if (frame.TriggerId is not null)
         {
             CompleteProgramBinding(frame, completed);
-            if (_winner != Winner.None && _status != EngineStatus.Completed) CompleteGame();
             return;
         }
         QueueGameEvent(new ProgramSkillResolvedEvent(frame.Id, frame.OwnerSeat, frame.SkillId, frame.ActivationId, completed));
         PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramSkill);
-        if (_winner != Winner.None && _status != EngineStatus.Completed) CompleteGame();
     }
 
     private void BeginProgramSkillDying(long parentFrameId, CharacterState victim)

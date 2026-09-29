@@ -575,13 +575,6 @@ internal sealed class ProgramAiEstimateContext
 
     internal void GiveSelected(SkillProgramEffect effect) => _givesSelected = true;
 
-    internal void RequestSlashByTarget(SkillProgramEffect effect)
-    {
-        // Split prior: about half the time the target declines and loses a card,
-        // otherwise the owner faces a dodgeable Slash.
-        _targetDraw -= 0.5d;
-        _ownerHpLoss += 0.5d;
-    }
 
     internal void DiscardSelected(SkillProgramEffect effect)
     {

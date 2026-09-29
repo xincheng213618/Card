@@ -39,8 +39,8 @@ internal static class DongZhuoChecks
         Require((int)SkillProgramConditionKind.EventTargetGenderIs == 30 &&
                 (int)SkillProgramConditionKind.EventSourceGenderIs == 31,
             "The participant gender conditions must keep values 30 and 31.");
-        Require((int)SkillProgramCardPolicyKind.MinimumResponseCountAsTarget == 16,
-            "minimumResponseCountAsTarget must stay card policy 16.");
+        Require((int)SkillProgramCardPolicyKind.MinimumResponseCountAsTarget == 17,
+            "minimumResponseCountAsTarget must stay card policy 17.");
 
         var jiuchi = current.Skills[Jiuchi].Program!;
         var conversion = jiuchi.ViewAs.Single();

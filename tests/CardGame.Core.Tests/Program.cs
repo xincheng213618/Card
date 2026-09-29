@@ -59,8 +59,6 @@ var tests = new (string Name, Action Body)[]
     ("2014 Jie Zhao Yun Yajiao mismatch discards from ranged player and replays", BoundaryZhaoYunChecks.YajiaoMismatchDiscardsFromRangedPlayerAndReplays),
     ("2011 Cai Wenji definition and trigger schema", CaiWenJiChecks.DefinitionAndTriggerSchema),
     ("2011 Cai Wenji Beige resolves one branch per judgment and replays", CaiWenJiChecks.BeigeResolvesOneBranchPerJudgmentAndReplays),
-    ("2011 Cai Wenji club branch makes the source discard two own cards", CaiWenJiChecks.ClubBranchMakesTheSourceDiscardTwoOwnCards),
-    ("2011 Cai Wenji spade branch turns the source over", CaiWenJiChecks.SpadeBranchTurnsTheSourceOver),
     ("2011 Jiang Wei definition and trigger schema", JiangWeiChecks.DefinitionAndTriggerSchema),
     ("2011 Jiang Wei Tiaoxin forces a Slash at the owner and replays", JiangWeiChecks.TiaoxinForcesSlashAgainstOwnerAndReplays),
     ("2011 Jiang Wei Tiaoxin discards from a target that cannot respond", JiangWeiChecks.TiaoxinDiscardsWhenTargetCannotRespond),

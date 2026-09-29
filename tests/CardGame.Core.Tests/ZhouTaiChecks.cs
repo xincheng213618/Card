@@ -42,53 +42,53 @@ internal static class ZhouTaiChecks
     {
         for (var seed = 1; seed <= 8_192; seed++)
         {
-          // A seed whose unrelated cast hits an engine limitation or ends before
-          // Zhou Tai reaches a repeated Buqu rank is not the scenario under test:
-          // skip it and keep scanning.
-          try
-          {
-            var game = GameEngine.CreateStandard(new GameOptions
+            // A seed whose unrelated cast hits an engine limitation or ends before
+            // Zhou Tai reaches a repeated Buqu rank is not the scenario under test:
+            // skip it and keep scanning.
+            try
             {
-                Seed = seed,
-                HumanSeat = 0,
-                HumanRole = Role.Lord,
-                PlayerCount = 5,
-                ModeId = "identity:classic-5",
-                UseInteractiveSetup = true,
-                UseInteractiveDiscard = false,
-                AdvanceAfterHumanCommands = false,
-                MaxTurns = 100
-            }, registry);
-            if (!game.Submit(new StartGameCommand()).Accepted ||
-                game.PendingDecision is not { Kind: DecisionKind.SelectGeneral, PlayerSeat: 0 } setup ||
-                !setup.ValidContentIds.Contains("classic:zhou-tai") ||
-                !game.Submit(new SelectGeneralCommand(0, "classic:zhou-tai", game.Revision, setup.PromptId)).Accepted)
-                continue;
-            for (var step = 0; step < 64 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
-                if (!game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted) break;
-            if (game.PendingDecision?.Kind != DecisionKind.PlayCard) continue;
-            for (var step = 0; step < 1200 && game.State.Status != EngineStatus.Completed; step++)
-            {
-                var command = NextCommand(game);
-                if (command is null) break;
-                var eventCount = game.Events.Count;
-                var result = game.Submit(command);
-                if (!result.Accepted) break;
-                if (game.Events.Skip(eventCount).Any(item => item.Payload is ProgramUniqueRankDyingResolvedEvent))
+                var game = GameEngine.CreateStandard(new GameOptions
                 {
-                    var firstWoundOwner = game.CreateSnapshot(0, revealAll: true).Players[0];
-                    var firstWoundHandLimit = ReadHandLimit(game, 0);
-                    var duplicate = DriveUntilDuplicate(game);
-                    if (game.Events.Select(item => item.Payload).OfType<ProgramUniqueRankDyingResolvedEvent>()
-                            .Count(item => item.RankWasUnique) == 1)
-                        return new Fixture(game, duplicate, firstWoundOwner, firstWoundHandLimit);
-                    break;
+                    Seed = seed,
+                    HumanSeat = 0,
+                    HumanRole = Role.Lord,
+                    PlayerCount = 5,
+                    ModeId = "identity:classic-5",
+                    UseInteractiveSetup = true,
+                    UseInteractiveDiscard = false,
+                    AdvanceAfterHumanCommands = false,
+                    MaxTurns = 100
+                }, registry);
+                if (!game.Submit(new StartGameCommand()).Accepted ||
+                    game.PendingDecision is not { Kind: DecisionKind.SelectGeneral, PlayerSeat: 0 } setup ||
+                    !setup.ValidContentIds.Contains("classic:zhou-tai") ||
+                    !game.Submit(new SelectGeneralCommand(0, "classic:zhou-tai", game.Revision, setup.PromptId)).Accepted)
+                    continue;
+                for (var step = 0; step < 64 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
+                    if (!game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted) break;
+                if (game.PendingDecision?.Kind != DecisionKind.PlayCard) continue;
+                for (var step = 0; step < 1200 && game.State.Status != EngineStatus.Completed; step++)
+                {
+                    var command = NextCommand(game);
+                    if (command is null) break;
+                    var eventCount = game.Events.Count;
+                    var result = game.Submit(command);
+                    if (!result.Accepted) break;
+                    if (game.Events.Skip(eventCount).Any(item => item.Payload is ProgramUniqueRankDyingResolvedEvent))
+                    {
+                        var firstWoundOwner = game.CreateSnapshot(0, revealAll: true).Players[0];
+                        var firstWoundHandLimit = ReadHandLimit(game, 0);
+                        var duplicate = DriveUntilDuplicate(game);
+                        if (game.Events.Select(item => item.Payload).OfType<ProgramUniqueRankDyingResolvedEvent>()
+                                .Count(item => item.RankWasUnique) == 1)
+                            return new Fixture(game, duplicate, firstWoundOwner, firstWoundHandLimit);
+                        break;
+                    }
                 }
             }
-          }
-          catch (InvalidOperationException)
-          {
-          }
+            catch (InvalidOperationException)
+            {
+            }
         }
         throw new InvalidOperationException(
             "No bounded Zhou Tai fixture reached a unique Buqu wound followed by a repeated rank.");

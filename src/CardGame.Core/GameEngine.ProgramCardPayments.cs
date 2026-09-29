@@ -51,6 +51,7 @@ public sealed partial class GameEngine
              recipientSeat == cardOwnerSeat))
             throw new InvalidOperationException("An equipment gift requires a distinct living recipient.");
         var choices = BuildOwnedCardPaymentChoices(active.Id, chooserSeat, cardOwnerSeat, zones, cardCategories,
+            cardKinds,
             destination == SkillProgramCardDestination.SelectedTargetCorrespondingZone
                 ? (zone, card) => destinationSeat is { } seat &&
                     CanMoveProgramCardToCorrespondingZone(card, zone, seat)
