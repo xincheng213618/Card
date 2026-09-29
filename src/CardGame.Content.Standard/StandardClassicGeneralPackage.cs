@@ -1185,7 +1185,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(WithActiveActionMetadata(JiaXuProgram("classic:luanwu")));
             builder.AddSkill(WithStructuredSkillMetadata(
                 JiaXuProgram("classic:weimu"), SkillTag.Locked, SkillExecutionForm.State));
-        }
             builder.AddSkill(WithOptionalTriggerMetadata(ShenLuMengProgram("classic:shelie")));
             builder.AddSkill(WithActiveActionMetadata(ShenLuMengProgram("classic:gongxin")));
         }

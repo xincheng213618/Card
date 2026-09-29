@@ -65,7 +65,7 @@ internal static class ClassicGeneralChecks
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
         Require(registry.Skills["classic:rende"] is
-                { Program: { } program } &&
+        { Program: { } program } &&
                 program.Activations.Single().Id == "give-and-heal-after-two",
             "Current Rende must be an independently registered Program activation.");
 
@@ -510,7 +510,7 @@ internal static class ClassicGeneralChecks
             GameCheckpointJson.Serialize(game.CreateCheckpoint()));
         var skippedBranch = GameReplay.Restore(pausedCheckpoint, registry);
         Require(skippedBranch.PendingDecision is
-                { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:tuxi" } &&
+        { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:tuxi" } &&
                 SnapshotJson.Serialize(skippedBranch.CreateSnapshot(0, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
             "A paused Tuxi activation must restore exactly from its command checkpoint.");
@@ -538,12 +538,12 @@ internal static class ClassicGeneralChecks
             player.Seat != 0 && player.IsAlive && player.HandCount > 0);
         var expectedChoiceCount = eligibleTargetCount + eligibleTargetCount * (eligibleTargetCount - 1) / 2;
         Require(activated.Accepted && targetPrompt is
-                {
-                    Kind: DecisionKind.ProgramTrigger,
-                    PlayerSeat: 0,
-                    IsPrivate: true,
-                    SkillPrompt.SkillId: "classic:tuxi"
-                } &&
+        {
+            Kind: DecisionKind.ProgramTrigger,
+            PlayerSeat: 0,
+            IsPrivate: true,
+            SkillPrompt.SkillId: "classic:tuxi"
+        } &&
                 targetPrompt.ValidTargetSeats.Count == eligibleTargetCount &&
                 targetPrompt.Choices.Count == expectedChoiceCount &&
                 targetPrompt.Choices.All(choice =>
@@ -637,21 +637,21 @@ internal static class ClassicGeneralChecks
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
         Require(registry.Skills["classic:luoyi"] is
-                {
-                    Program: not null
-                } current &&
+        {
+            Program: not null
+        } current &&
                 current.Program!.MinimumRulesVersion == 172,
             "Current classic Luoyi must publish its draw adjustment program.");
 
         var game = SelectGeneral(registry, "classic:xu-chu", GameCheckpoint.CurrentRulesVersion);
         var advanced = game.Submit(new AdvanceCommand(game.Revision));
         Require(advanced.Accepted && game.PendingDecision is
-                {
-                    Kind: DecisionKind.ProgramTrigger,
-                    PlayerSeat: 0,
-                    IsPrivate: true,
-                    SkillPrompt.SkillId: "classic:luoyi"
-                } prompt &&
+        {
+            Kind: DecisionKind.ProgramTrigger,
+            PlayerSeat: 0,
+            IsPrivate: true,
+            SkillPrompt.SkillId: "classic:luoyi"
+        } prompt &&
                 prompt.Choices.Count(choice =>
                     choice.Parameters.GetValueOrDefault("program-action") == "activate") == 1 &&
                 prompt.Choices.Count(choice =>
@@ -1684,7 +1684,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         Require(current.Skills["classic:kujin"] is
-                { Program: { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } program } &&
+        { Program: { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } program } &&
                 program.Activations.Single() is
                 { Id: "lose-hp-and-draw", UsesPerTurn: null },
             "Current Kujin must be a repeatable configured activation.");
@@ -1959,7 +1959,7 @@ internal static class ClassicGeneralChecks
         var equipmentFixture = FindGuanYuWushengEquipmentFixture(current);
         var action = equipmentFixture.ActiveAction;
         Require(action.ConversionSource is
-                { SkillId: "classic:wusheng", BindingId: "red-owned-as-slash", OwnerSeat: 0 },
+        { SkillId: "classic:wusheng", BindingId: "red-owned-as-slash", OwnerSeat: 0 },
             "Configured Wusheng must publish an attributed equipped-Slash play action.");
         var activeGame = equipmentFixture.ActiveGame;
         var forged = activeGame.Submit(new PlayCardCommand(
@@ -2014,10 +2014,12 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         Require(current.Skills["classic:qingnang"] is
-                { Program: { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } program } &&
+        { Program: { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } program } &&
                 program.Activations.Single() is
-                { Id: "discard-and-heal", MinCards: 1, MaxCards: 1, MinTargets: 1,
-                    MaxTargets: 1, TargetKind: SkillProgramTargetKind.AnyWounded, UsesPerTurn: null, UsesPerPhase: 1 },
+                {
+                    Id: "discard-and-heal", MinCards: 1, MaxCards: 1, MinTargets: 1,
+                    MaxTargets: 1, TargetKind: SkillProgramTargetKind.AnyWounded, UsesPerTurn: null, UsesPerPhase: 1
+                },
             "Current Qingnang must use its phase allowance.");
 
         GameEngine? selected = null;
@@ -3391,7 +3393,7 @@ internal static class ClassicGeneralChecks
             activate.Id,
             liuliGame.Revision));
         Require(activated.Accepted && liuliGame.PendingDecision is
-                { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:liuli" },
+        { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:liuli" },
             activated.Error?.Message ?? "Liuli must request a legal redirect target after activation.");
         var targetPrompt = liuliGame.PendingDecision!;
         var redirect = targetPrompt.Choices.First(choice =>
@@ -3399,7 +3401,7 @@ internal static class ClassicGeneralChecks
         var selected = liuliGame.Submit(new AnswerPromptCommand(
             oldTarget, targetPrompt.PromptId, redirect.Id, liuliGame.Revision));
         Require(selected.Accepted && liuliGame.PendingDecision is
-                { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:liuli" },
+        { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:liuli" },
             selected.Error?.Message ?? "Liuli must request a hand or equipment payment.");
         var paymentPrompt = liuliGame.PendingDecision!;
         var payment = paymentPrompt.Choices.First(choice =>
@@ -3510,7 +3512,7 @@ internal static class ClassicGeneralChecks
         Require(ended.Accepted, ended.Error?.Message ?? "Diao Chan could not end play.");
         var advanced = biyue.Submit(new AdvanceCommand(biyue.Revision));
         Require(advanced.Accepted && biyue.PendingDecision is
-                { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0, SkillPrompt.SkillId: "classic:biyue" },
+        { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0, SkillPrompt.SkillId: "classic:biyue" },
             advanced.Error?.Message ?? "Diao Chan must receive the optional Biyue end-phase prompt.");
         var prompt = biyue.PendingDecision!;
         var handBefore = biyue.CreateSnapshot(0, revealAll: true).Players[0].Hand.Count;
@@ -3579,15 +3581,17 @@ internal static class ClassicGeneralChecks
         }
 
         Require(xiaoji.PendingDecision is
-                { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
-                  SkillPrompt.SkillId: "classic:xiaoji" } &&
+        {
+            Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
+            SkillPrompt.SkillId: "classic:xiaoji"
+        } &&
                 xiaoji.PendingDecision.Choices.Count == 2,
             "Replacing Sun Shangxiang's equipment must publish an optional Xiaoji prompt.");
         var xiaojiPrompt = xiaoji.PendingDecision!;
         var paused = xiaoji.CreateCheckpoint();
         var pausedRestore = GameReplay.Restore(paused, registry);
         Require(pausedRestore.PendingDecision is
-                { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:xiaoji" },
+        { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:xiaoji" },
             "A paused Xiaoji prompt must replay exactly.");
         var handBeforeXiaoji = xiaoji.CreateSnapshot(0, revealAll: true).Players[0].Hand.Count;
         var drew = xiaoji.Submit(new AnswerPromptCommand(
@@ -3679,8 +3683,10 @@ internal static class ClassicGeneralChecks
             current.PendingDecision!.PromptId));
         Require(equipped.Accepted &&
                 current.PendingDecision is
-                { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
-                  SkillPrompt.SkillId: "classic:lianying" } &&
+                {
+                    Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
+                    SkillPrompt.SkillId: "classic:lianying"
+                } &&
                 current.PendingDecision.Choices.Count == 2,
             equipped.Error?.Message ?? "Losing Lu Xun's last hand card must publish an optional Lianying prompt.");
         var prompt = current.PendingDecision!;
@@ -3749,8 +3755,10 @@ internal static class ClassicGeneralChecks
             for (var boundary = 0; boundary < 80 && game.State.Status != EngineStatus.Completed; boundary++)
             {
                 if (game.PendingDecision is
-                    { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
-                      SkillPrompt.SkillId: "classic:liuli" } liuli &&
+                    {
+                        Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
+                        SkillPrompt.SkillId: "classic:liuli"
+                    } liuli &&
                     liuli.Choices.Any(choice =>
                         choice.Parameters.GetValueOrDefault("program-action") == "activate"))
                 {
@@ -4426,8 +4434,11 @@ internal static class ClassicGeneralChecks
             for (var step = 0; step < 64 && game.PendingDecision?.Kind != DecisionKind.ProgramTrigger; step++)
                 Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
                     "Zhen Ji did not reach Luoshen's activation window.");
-            if (game.PendingDecision is not { Kind: DecisionKind.ProgramTrigger,
-                    SkillPrompt.SkillId: "classic:luoshen" } prompt)
+            if (game.PendingDecision is not
+                {
+                    Kind: DecisionKind.ProgramTrigger,
+                    SkillPrompt.SkillId: "classic:luoshen"
+                } prompt)
             {
                 lastPrompt = $"{game.PendingDecision?.Kind}/{game.PendingDecision?.SkillPrompt?.SkillId}";
                 continue;
@@ -4786,7 +4797,9 @@ internal static class ClassicGeneralChecks
         LegalAction Action,
         int TargetSeat) FindLuBuWushuangSlashFixture(ContentRegistry registry)
     {
-        for (var seed = 1; seed <= 16_384; seed++)
+        // The identity pool has grown past fifty generals, so a fixed shallow scan
+        // dilutes below the hit rate; deep-scan like the shared fixture runners.
+        for (var seed = 1; seed <= 262_144; seed++)
         {
             var game = StartClassicGeneralAtPlay(
                 registry,
@@ -5634,6 +5647,33 @@ internal static class ClassicGeneralChecks
             BindingFlags.NonPublic | BindingFlags.Instance) ??
             throw new InvalidOperationException("The engine event commit method was not found.");
         commitEvents.Invoke(game, null);
+
+        // A reactive general seated at the provider (for example boundary Zhao Yun's
+        // Yajiao) can open an optional out-of-turn card-use trigger while the rescue
+        // resolves. Decline such prompts so the Jiuyuan fixture only measures the
+        // recovery policy itself, regardless of pool composition.
+        var pendingField = typeof(GameEngine).GetField(
+            "_pendingDecision",
+            BindingFlags.NonPublic | BindingFlags.Instance) ??
+            throw new InvalidOperationException("The engine pending decision store was not found.");
+        for (var guard = 0; guard < 16; guard++)
+        {
+            if (pendingField.GetValue(game) is not PendingDecision decision ||
+                decision.Kind != DecisionKind.ProgramTrigger ||
+                decision.Choices.Count == 0)
+            {
+                break;
+            }
+            var decline = decision.Choices.First(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "skip");
+            var answered = game.Submit(new AnswerPromptCommand(
+                decision.PlayerSeat,
+                decision.PromptId,
+                decline.Id,
+                game.Revision));
+            Require(answered.Accepted, answered.Error?.Message ?? "The fixture could not answer a skill prompt.");
+            commitEvents.Invoke(game, null);
+        }
     }
 
     private static GameEngine CreateInteractive(
