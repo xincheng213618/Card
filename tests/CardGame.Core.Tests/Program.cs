@@ -84,6 +84,12 @@ var tests = new (string Name, Action Body)[]
     ("2011 Cai Wenji Beige resolves one branch per judgment and replays", CaiWenJiChecks.BeigeResolvesOneBranchPerJudgmentAndReplays),
     ("2011 Cai Wenji club branch makes the source discard two own cards", CaiWenJiChecks.ClubBranchMakesTheSourceDiscardTwoOwnCards),
     ("2011 Cai Wenji spade branch turns the source over", CaiWenJiChecks.SpadeBranchTurnsTheSourceOver),
+    ("2011 Jiang Wei definition and trigger schema", JiangWeiChecks.DefinitionAndTriggerSchema),
+    ("2011 Jiang Wei Tiaoxin forces a Slash at the owner and replays", JiangWeiChecks.TiaoxinForcesSlashAgainstOwnerAndReplays),
+    ("2011 Jiang Wei Tiaoxin discards from a target that cannot respond", JiangWeiChecks.TiaoxinDiscardsWhenTargetCannotRespond),
+    ("2011 Jiang Wei Zhiji awakens with recovery and grants Guanxing", JiangWeiChecks.ZhijiAwakensWithRecoveryAndGrantsGuanxing),
+    ("2011 Jiang Wei Zhiji awakens with two drawn cards and replays", JiangWeiChecks.ZhijiAwakensWithDrawTwoAndReplays),
+    ("2011 Jiang Wei Zhiji stays dormant while hand cards remain", JiangWeiChecks.ZhijiStaysDormantWhileHandCardsRemain),
     ("2011 Lu Su definition and trigger schema", LuSuChecks.DefinitionAndTriggerSchema),
     ("2011 Lu Su Haoshi gives half hand after extra draw and replays", LuSuChecks.HaoshiGivesHalfHandAfterExtraDrawAndReplays),
     ("2011 Lu Su declining Haoshi skips the give", LuSuChecks.DecliningHaoshiSkipsTheGive),
@@ -1252,7 +1258,10 @@ static void StandardDeckContent()
     var definition = registry.GetDeck("standard:basic-demo");
     var game = GameEngine.CreateStandard(new GameOptions
     {
-        Seed = 1, PlayerCount = 5, HumanSeat = 0, HumanRole = Role.Lord,
+        Seed = 1,
+        PlayerCount = 5,
+        HumanSeat = 0,
+        HumanRole = Role.Lord,
         UseInteractiveSetup = false
     }, registry);
     var physical = game.CreateCardZoneDiagnostics();
@@ -1300,14 +1309,14 @@ static void StandardContentRegistryBuilds()
     Equal("standard:wusheng", registry.Generals["standard:guan-yu"].SkillId);
     Equal("standard:longdan", registry.Generals["standard:zhao-yun"].SkillId);
     TrueWithMessage(registry.GetSkill("standard:yingzi") is
-        { Program: not null },
+    { Program: not null },
         "current Yingzi uses the shared composition kernel");
     TrueWithMessage(registry.GetSkill("standard:yiji") is
-        { Program: not null },
+    { Program: not null },
         "current Yiji uses the shared composition kernel");
     Equal("standard:yiji", registry.Generals["standard:guo-jia"].SkillId);
     TrueWithMessage(registry.GetSkill("standard:jieming") is
-        { Program: not null },
+    { Program: not null },
         "current Jieming uses the shared composition kernel");
     Equal("standard:jieming", registry.Generals["standard:xun-yu"].SkillId);
     Equal("standard:yuanhu", registry.GetSkill("standard:yuanhu").Id);
@@ -5958,7 +5967,7 @@ static void YuanhuCrossSeatFlow()
         resultStates[resultKey] = resultStates.GetValueOrDefault(resultKey) + 1;
         if (game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>()
             .Any(item => item.TargetSeat == action.TargetSeat)) damageCount++;
-        if (sample.Length == 0) sample = $"seed={seed}, target={action.TargetSeat}, beforeHp={revealed.Players.Single(player => player.Seat == action.TargetSeat).Hp}, afterHp={game.CreateSnapshot(0,true).Players.Single(player => player.Seat == action.TargetSeat).Hp}, ownerHand={game.CreateSnapshot(0,true).Players[0].HandCount}, candidates={string.Join(',', game.Events.Select(item => item.Payload).OfType<DamageTriggerWindowOpenedEvent>().LastOrDefault()?.Candidates.Select(item => item.ProgramId) ?? [])}, status={resultKey}, stack={string.Join(',', game.ResolutionStack.Select(frame => frame.GetType().Name + '/' + frame.Step))}, events={string.Join(',', game.Events.TakeLast(12).Select(item => item.Payload.GetType().Name))}";
+        if (sample.Length == 0) sample = $"seed={seed}, target={action.TargetSeat}, beforeHp={revealed.Players.Single(player => player.Seat == action.TargetSeat).Hp}, afterHp={game.CreateSnapshot(0, true).Players.Single(player => player.Seat == action.TargetSeat).Hp}, ownerHand={game.CreateSnapshot(0, true).Players[0].HandCount}, candidates={string.Join(',', game.Events.Select(item => item.Payload).OfType<DamageTriggerWindowOpenedEvent>().LastOrDefault()?.Candidates.Select(item => item.ProgramId) ?? [])}, status={resultKey}, stack={string.Join(',', game.ResolutionStack.Select(frame => frame.GetType().Name + '/' + frame.Step))}, events={string.Join(',', game.Events.TakeLast(12).Select(item => item.Payload.GetType().Name))}";
         if (game.State.Status == EngineStatus.AwaitingHumanResponse &&
             game.PendingDecision is
             {

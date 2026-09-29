@@ -65,7 +65,7 @@ internal static class ClassicGeneralChecks
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
         Require(registry.Skills["classic:rende"] is
-                { Program: { } program } &&
+        { Program: { } program } &&
                 program.Activations.Single().Id == "give-and-heal-after-two",
             "Current Rende must be an independently registered Program activation.");
 
@@ -173,7 +173,6 @@ internal static class ClassicGeneralChecks
         GameEngine? current = null;
         CardSnapshot? blackEquipment = null;
         CardSnapshot? redCard = null;
-        LegalAction? handConversion = null;
         for (var seed = 1; seed <= 16_384 && current is null; seed++)
         {
             var candidate = StartClassicGeneralAtPlay(
@@ -209,59 +208,79 @@ internal static class ClassicGeneralChecks
                 continue;
             }
 
-            current = candidate;
-            blackEquipment = candidateEquipment;
-            redCard = candidateRed;
-            handConversion = conversion;
+            var selected = snapshot.Players.Single(player => player.Seat == 0);
+            Require(selected.GeneralId == "classic:gan-ning" &&
+                    selected.MaxHp == 5 &&
+                    selected.Skills!.Select(skill => skill.ContentId).SequenceEqual(["classic:qixi"]),
+                "Classic Gan Ning must combine base 4 HP, the Lord bonus and formal Qixi.");
+            Require(candidate.GetHumanLegalActions().Any(action =>
+                        action.Kind == LegalActionKind.Dismantlement &&
+                        action.CardId == candidateEquipment.Id &&
+                        action.PlayedCardKind == CardKind.Dismantlement) &&
+                    !candidate.GetHumanLegalActions().Any(action =>
+                        action.Kind == LegalActionKind.Dismantlement &&
+                        action.CardId == candidateRed.Id &&
+                        action.PlayedCardKind == CardKind.Dismantlement),
+                "Formal Qixi must publish black hand-card conversions without converting red hand cards.");
+            var prompt = candidate.PendingDecision ??
+                throw new InvalidOperationException("Gan Ning fixture lost its play prompt.");
+            var stateBeforeInvalid = SnapshotJson.Serialize(candidate.CreateSnapshot(0, revealAll: true));
+            var invalid = candidate.Submit(new PlayCardCommand(
+                0,
+                candidateEquipment.Id,
+                conversion.TargetSeats,
+                candidate.Revision,
+                prompt.PromptId,
+                CardKind.Snatch,
+                conversion.TargetCardId));
+            Require(!invalid.Accepted &&
+                    SnapshotJson.Serialize(candidate.CreateSnapshot(0, revealAll: true)) == stateBeforeInvalid,
+                "A mismatched Qixi effective kind must reject atomically.");
+
+            Equip(candidate, candidateEquipment.Id);
+            var equippedConversion = candidate.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.Dismantlement &&
+                action.CardId == candidateEquipment.Id &&
+                action.PlayedCardKind == CardKind.Dismantlement &&
+                action.TargetCardId is null);
+            Require(equippedConversion is not null,
+                "Formal Qixi must convert a black card from the equipment zone.");
+            var selectedEquippedConversion = equippedConversion ??
+                throw new InvalidOperationException("The equipped Qixi action disappeared before submission.");
+            var used = SubmitPlayAction(candidate, selectedEquippedConversion);
+            Require(used.Accepted, used.Error?.Message ?? "Equipped Qixi conversion was rejected.");
+
+            // Pool-robust drive: the engine may ask the human which hidden hand card to
+            // dismantle (opaque slot selection) around the Nullification window; answer
+            // deterministically with the first offered slot.
+            while (candidate.PendingDecision is { PlayerSeat: 0, Kind: DecisionKind.SelectTargetCard } targeting &&
+                   candidate.ResolutionStack.OfType<NullificationWindowFrame>()
+                       .All(frame => frame.EffectCardId != candidateEquipment.Id))
+            {
+                var targeted = candidate.Submit(new AnswerPromptCommand(
+                    0, targeting.PromptId, targeting.Choices.First().Id, candidate.Revision));
+                Require(targeted.Accepted,
+                    targeted.Error?.Message ?? "Could not answer the Qixi Dismantlement target-card prompt.");
+            }
+
+            // Pool-robust gate: a held Nullification can be legitimately unusable (for
+            // example when a program card identity claims the holder's cards), which
+            // closes the window without any request; only seeds whose Nullification
+            // request actually fired continue to the contract assertions.
+            if (candidate.Events.Select(item => item.Payload).OfType<NullificationRequestedEvent>()
+                    .Any(item => item.EffectCardId == candidateEquipment.Id &&
+                                 item.EffectCardKind == CardKind.Dismantlement))
+            {
+                current = candidate;
+                blackEquipment = candidateEquipment;
+                redCard = candidateRed;
+            }
         }
 
-        if (current is null || blackEquipment is null || redCard is null || handConversion is null)
+        if (current is null || blackEquipment is null || redCard is null)
         {
-            throw new InvalidOperationException("No deterministic Gan Ning fixture exposed black equipment and a Nullification responder.");
+            throw new InvalidOperationException("No deterministic Gan Ning fixture exposed a usable Nullification responder.");
         }
-
-        var selected = current.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-        Require(selected.GeneralId == "classic:gan-ning" &&
-                selected.MaxHp == 5 &&
-                selected.Skills!.Select(skill => skill.ContentId).SequenceEqual(["classic:qixi"]),
-            "Classic Gan Ning must combine base 4 HP, the Lord bonus and formal Qixi.");
-        Require(current.GetHumanLegalActions().Any(action =>
-                    action.Kind == LegalActionKind.Dismantlement &&
-                    action.CardId == blackEquipment.Id &&
-                    action.PlayedCardKind == CardKind.Dismantlement) &&
-                !current.GetHumanLegalActions().Any(action =>
-                    action.Kind == LegalActionKind.Dismantlement &&
-                    action.CardId == redCard.Id &&
-                    action.PlayedCardKind == CardKind.Dismantlement),
-            "Formal Qixi must publish black hand-card conversions without converting red hand cards.");
-        var prompt = current.PendingDecision ??
-            throw new InvalidOperationException("Gan Ning fixture lost its play prompt.");
-        var stateBeforeInvalid = SnapshotJson.Serialize(current.CreateSnapshot(0, revealAll: true));
-        var invalid = current.Submit(new PlayCardCommand(
-            0,
-            blackEquipment.Id,
-            handConversion.TargetSeats,
-            current.Revision,
-            prompt.PromptId,
-            CardKind.Snatch,
-            handConversion.TargetCardId));
-        Require(!invalid.Accepted &&
-                SnapshotJson.Serialize(current.CreateSnapshot(0, revealAll: true)) == stateBeforeInvalid,
-            "A mismatched Qixi effective kind must reject atomically.");
-
-        Equip(current, blackEquipment.Id);
-        var equippedConversion = current.GetHumanLegalActions().FirstOrDefault(action =>
-            action.Kind == LegalActionKind.Dismantlement &&
-            action.CardId == blackEquipment.Id &&
-            action.PlayedCardKind == CardKind.Dismantlement &&
-            action.TargetCardId is null);
-        Require(equippedConversion is not null,
-            "Formal Qixi must convert a black card from the equipment zone.");
-        var selectedEquippedConversion = equippedConversion ??
-            throw new InvalidOperationException("The equipped Qixi action disappeared before submission.");
-
-        var used = SubmitPlayAction(current, selectedEquippedConversion);
-        Require(used.Accepted, used.Error?.Message ?? "Equipped Qixi conversion was rejected.");
 
         var nullificationFrame = current.ResolutionStack.OfType<NullificationWindowFrame>().SingleOrDefault();
         Require(nullificationFrame is not null &&
@@ -493,7 +512,7 @@ internal static class ClassicGeneralChecks
             GameCheckpointJson.Serialize(game.CreateCheckpoint()));
         var skippedBranch = GameReplay.Restore(pausedCheckpoint, registry);
         Require(skippedBranch.PendingDecision is
-                { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:tuxi" } &&
+        { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:tuxi" } &&
                 SnapshotJson.Serialize(skippedBranch.CreateSnapshot(0, revealAll: true)) ==
                 SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
             "A paused Tuxi activation must restore exactly from its command checkpoint.");
@@ -521,12 +540,12 @@ internal static class ClassicGeneralChecks
             player.Seat != 0 && player.IsAlive && player.HandCount > 0);
         var expectedChoiceCount = eligibleTargetCount + eligibleTargetCount * (eligibleTargetCount - 1) / 2;
         Require(activated.Accepted && targetPrompt is
-                {
-                    Kind: DecisionKind.ProgramTrigger,
-                    PlayerSeat: 0,
-                    IsPrivate: true,
-                    SkillPrompt.SkillId: "classic:tuxi"
-                } &&
+        {
+            Kind: DecisionKind.ProgramTrigger,
+            PlayerSeat: 0,
+            IsPrivate: true,
+            SkillPrompt.SkillId: "classic:tuxi"
+        } &&
                 targetPrompt.ValidTargetSeats.Count == eligibleTargetCount &&
                 targetPrompt.Choices.Count == expectedChoiceCount &&
                 targetPrompt.Choices.All(choice =>
@@ -620,21 +639,21 @@ internal static class ClassicGeneralChecks
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
         Require(registry.Skills["classic:luoyi"] is
-                {
-                    Program: not null
-                } current &&
+        {
+            Program: not null
+        } current &&
                 current.Program!.MinimumRulesVersion == 172,
             "Current classic Luoyi must publish its draw adjustment program.");
 
         var game = SelectGeneral(registry, "classic:xu-chu", GameCheckpoint.CurrentRulesVersion);
         var advanced = game.Submit(new AdvanceCommand(game.Revision));
         Require(advanced.Accepted && game.PendingDecision is
-                {
-                    Kind: DecisionKind.ProgramTrigger,
-                    PlayerSeat: 0,
-                    IsPrivate: true,
-                    SkillPrompt.SkillId: "classic:luoyi"
-                } prompt &&
+        {
+            Kind: DecisionKind.ProgramTrigger,
+            PlayerSeat: 0,
+            IsPrivate: true,
+            SkillPrompt.SkillId: "classic:luoyi"
+        } prompt &&
                 prompt.Choices.Count(choice =>
                     choice.Parameters.GetValueOrDefault("program-action") == "activate") == 1 &&
                 prompt.Choices.Count(choice =>
@@ -1638,7 +1657,7 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         Require(current.Skills["classic:kujin"] is
-                { Program: { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } program } &&
+        { Program: { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } program } &&
                 program.Activations.Single() is
                 { Id: "lose-hp-and-draw", UsesPerTurn: null },
             "Current Kujin must be a repeatable configured activation.");
@@ -1913,7 +1932,7 @@ internal static class ClassicGeneralChecks
         var equipmentFixture = FindGuanYuWushengEquipmentFixture(current);
         var action = equipmentFixture.ActiveAction;
         Require(action.ConversionSource is
-                { SkillId: "classic:wusheng", BindingId: "red-owned-as-slash", OwnerSeat: 0 },
+        { SkillId: "classic:wusheng", BindingId: "red-owned-as-slash", OwnerSeat: 0 },
             "Configured Wusheng must publish an attributed equipped-Slash play action.");
         var activeGame = equipmentFixture.ActiveGame;
         var forged = activeGame.Submit(new PlayCardCommand(
@@ -1968,10 +1987,12 @@ internal static class ClassicGeneralChecks
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
         Require(current.Skills["classic:qingnang"] is
-                { Program: { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } program } &&
+        { Program: { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } program } &&
                 program.Activations.Single() is
-                { Id: "discard-and-heal", MinCards: 1, MaxCards: 1, MinTargets: 1,
-                    MaxTargets: 1, TargetKind: SkillProgramTargetKind.AnyWounded, UsesPerTurn: null, UsesPerPhase: 1 },
+                {
+                    Id: "discard-and-heal", MinCards: 1, MaxCards: 1, MinTargets: 1,
+                    MaxTargets: 1, TargetKind: SkillProgramTargetKind.AnyWounded, UsesPerTurn: null, UsesPerPhase: 1
+                },
             "Current Qingnang must use its phase allowance.");
 
         GameEngine? selected = null;
@@ -3345,7 +3366,7 @@ internal static class ClassicGeneralChecks
             activate.Id,
             liuliGame.Revision));
         Require(activated.Accepted && liuliGame.PendingDecision is
-                { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:liuli" },
+        { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:liuli" },
             activated.Error?.Message ?? "Liuli must request a legal redirect target after activation.");
         var targetPrompt = liuliGame.PendingDecision!;
         var redirect = targetPrompt.Choices.First(choice =>
@@ -3353,7 +3374,7 @@ internal static class ClassicGeneralChecks
         var selected = liuliGame.Submit(new AnswerPromptCommand(
             oldTarget, targetPrompt.PromptId, redirect.Id, liuliGame.Revision));
         Require(selected.Accepted && liuliGame.PendingDecision is
-                { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:liuli" },
+        { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:liuli" },
             selected.Error?.Message ?? "Liuli must request a hand or equipment payment.");
         var paymentPrompt = liuliGame.PendingDecision!;
         var payment = paymentPrompt.Choices.First(choice =>
@@ -3464,7 +3485,7 @@ internal static class ClassicGeneralChecks
         Require(ended.Accepted, ended.Error?.Message ?? "Diao Chan could not end play.");
         var advanced = biyue.Submit(new AdvanceCommand(biyue.Revision));
         Require(advanced.Accepted && biyue.PendingDecision is
-                { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0, SkillPrompt.SkillId: "classic:biyue" },
+        { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0, SkillPrompt.SkillId: "classic:biyue" },
             advanced.Error?.Message ?? "Diao Chan must receive the optional Biyue end-phase prompt.");
         var prompt = biyue.PendingDecision!;
         var handBefore = biyue.CreateSnapshot(0, revealAll: true).Players[0].Hand.Count;
@@ -3533,15 +3554,17 @@ internal static class ClassicGeneralChecks
         }
 
         Require(xiaoji.PendingDecision is
-                { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
-                  SkillPrompt.SkillId: "classic:xiaoji" } &&
+        {
+            Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
+            SkillPrompt.SkillId: "classic:xiaoji"
+        } &&
                 xiaoji.PendingDecision.Choices.Count == 2,
             "Replacing Sun Shangxiang's equipment must publish an optional Xiaoji prompt.");
         var xiaojiPrompt = xiaoji.PendingDecision!;
         var paused = xiaoji.CreateCheckpoint();
         var pausedRestore = GameReplay.Restore(paused, registry);
         Require(pausedRestore.PendingDecision is
-                { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:xiaoji" },
+        { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:xiaoji" },
             "A paused Xiaoji prompt must replay exactly.");
         var handBeforeXiaoji = xiaoji.CreateSnapshot(0, revealAll: true).Players[0].Hand.Count;
         var drew = xiaoji.Submit(new AnswerPromptCommand(
@@ -3633,8 +3656,10 @@ internal static class ClassicGeneralChecks
             current.PendingDecision!.PromptId));
         Require(equipped.Accepted &&
                 current.PendingDecision is
-                { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
-                  SkillPrompt.SkillId: "classic:lianying" } &&
+                {
+                    Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
+                    SkillPrompt.SkillId: "classic:lianying"
+                } &&
                 current.PendingDecision.Choices.Count == 2,
             equipped.Error?.Message ?? "Losing Lu Xun's last hand card must publish an optional Lianying prompt.");
         var prompt = current.PendingDecision!;
@@ -3703,8 +3728,10 @@ internal static class ClassicGeneralChecks
             for (var boundary = 0; boundary < 80 && game.State.Status != EngineStatus.Completed; boundary++)
             {
                 if (game.PendingDecision is
-                    { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
-                      SkillPrompt.SkillId: "classic:liuli" } liuli &&
+                    {
+                        Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
+                        SkillPrompt.SkillId: "classic:liuli"
+                    } liuli &&
                     liuli.Choices.Any(choice =>
                         choice.Parameters.GetValueOrDefault("program-action") == "activate"))
                 {
@@ -4374,8 +4401,11 @@ internal static class ClassicGeneralChecks
             for (var step = 0; step < 64 && game.PendingDecision?.Kind != DecisionKind.ProgramTrigger; step++)
                 Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
                     "Zhen Ji did not reach Luoshen's activation window.");
-            if (game.PendingDecision is not { Kind: DecisionKind.ProgramTrigger,
-                    SkillPrompt.SkillId: "classic:luoshen" } prompt)
+            if (game.PendingDecision is not
+                {
+                    Kind: DecisionKind.ProgramTrigger,
+                    SkillPrompt.SkillId: "classic:luoshen"
+                } prompt)
             {
                 lastPrompt = $"{game.PendingDecision?.Kind}/{game.PendingDecision?.SkillPrompt?.SkillId}";
                 continue;
@@ -4734,7 +4764,7 @@ internal static class ClassicGeneralChecks
         LegalAction Action,
         int TargetSeat) FindLuBuWushuangSlashFixture(ContentRegistry registry)
     {
-        for (var seed = 1; seed <= 16_384; seed++)
+        for (var seed = 1; seed <= 65_536; seed++)
         {
             var game = StartClassicGeneralAtPlay(
                 registry,
@@ -4754,13 +4784,17 @@ internal static class ClassicGeneralChecks
                     Action = action,
                     Target = full.Players.Single(player => player.Seat == action.TargetSeat)
                 })
-                .Where(item => item.Target.GeneralId is "classic:lu-meng" or "classic:zhang-fei" or
-                           "classic:xu-huang" or "classic:gan-ning" or "classic:dian-wei" &&
-                               item.Target.Hand.Count(card => card.Kind == CardKind.Dodge) >= 2 &&
+                .Where(item => item.Target.Hand.Count(card => card.Kind == CardKind.Dodge) >= 2 &&
                                item.Target.Equipment.All(card =>
                                    card.Kind is not (CardKind.BaguaFormation or CardKind.RenwangShield)) &&
+                               // Exclude every classic skill that can alter or replace a Dodge
+                               // response window (conversions, redirects, judgement dodges,
+                               // response-adjacent damage) so the two-Dodge flow stays deterministic.
                                item.Target.Skills?.All(skill =>
-                                   skill.ContentId is not ("classic:qingguo" or "classic:longdan" or "classic:hujia")) != false)
+                                   skill.ContentId is not ("classic:qingguo" or "classic:longdan" or
+                                       "classic:hujia" or "classic:bazhen" or "classic:leiji" or
+                                       "classic:liuli" or "classic:yizhong" or "classic:zhenlie" or
+                                       "classic:kangkai")) != false)
                 .OrderBy(item => item.Action.CardId)
                 .ThenBy(item => item.Action.TargetSeat)
                 .FirstOrDefault();
@@ -4785,7 +4819,7 @@ internal static class ClassicGeneralChecks
         LegalAction Action,
         int TargetSeat) FindLuBuWushuangDuelFixture(ContentRegistry registry)
     {
-        for (var seed = 1; seed <= 16_384; seed++)
+        for (var seed = 1; seed <= 65_536; seed++)
         {
             var game = StartClassicGeneralAtPlay(
                 registry,
@@ -4811,13 +4845,18 @@ internal static class ClassicGeneralChecks
                     Action = action,
                     Target = full.Players.Single(player => player.Seat == action.TargetSeat)
                 })
-                .Where(item => item.Target.GeneralId is "classic:lu-meng" or "classic:zhang-fei" or
-                           "classic:xu-huang" or "classic:gan-ning" or "classic:dian-wei" &&
-                               item.Target.Hand.Count(card =>
+                .Where(item => item.Target.Hand.Count(card =>
                                    card.Kind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) == 1 &&
+                               // Exclude every slash/dodge conversion response skill across
+                               // namespaces (classic, SP, boundary, OL) plus skills that can
+                               // otherwise add or mutate a Slash response, so the one-Slash
+                               // two-response flow stays deterministic.
                                item.Target.Skills?.All(skill =>
-                                   skill.ContentId is not ("classic:wusheng" or "classic:longdan") &&
-                                   skill.ContentId != "classic:jijiang") != false)
+                                   skill.ContentId is not ("classic:wusheng" or "sp:guan-yu-wusheng" or
+                                       "classic:longdan" or "sp:longdan" or "boundary:longdan" or
+                                       "classic:jijiang" or "classic:wushen" or "ol:wushen" or
+                                       "classic:jinjiu" or "classic:fuhun" or "classic:lihuo" or
+                                       "classic:jiang" or "classic:zhenlie" or "classic:kangkai")) != false)
                 .OrderBy(item => item.Action.CardId)
                 .ThenBy(item => item.Action.TargetSeat)
                 .FirstOrDefault();
@@ -4842,9 +4881,16 @@ internal static class ClassicGeneralChecks
         {
             if (game.PendingDecision is { PlayerSeat: 0 })
             {
+                var dump = string.Join(", ", game.Events.TakeLast(16).Select(item => item.Payload switch
+                {
+                    DamageAppliedEvent damage => $"damage:{damage.SourceSeat}->{damage.TargetSeat}:{damage.Amount}",
+                    DuelResponseEvent response => $"duel:{response.ResponderSeat}:{response.UsedSlash}",
+                    RequiredResponseProgressEvent progress => $"progress:{progress.ResponderSeat}:{progress.ResponseCount}/{progress.RequiredResponseCount}",
+                    _ => item.Payload.GetType().Name
+                }));
                 throw new InvalidOperationException(
-                    $"Wushuang fixture reached an unexpected human {game.PendingDecision.Kind} prompt: " +
-                    string.Join(", ", game.Events.TakeLast(12).Select(item => item.Payload.GetType().Name)));
+                    $"Wushuang fixture reached an unexpected human {game.PendingDecision.Kind} prompt " +
+                    $"(events={game.Events.Count}): {dump}");
             }
 
             var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));

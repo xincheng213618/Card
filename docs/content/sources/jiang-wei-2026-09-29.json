@@ -19,14 +19,18 @@
       "use": "体力/势力/性别/包归属核对：蜀、男、经典版 4 勾玉、神话再临·山（2011）。技能措辞与官方页一致的以官方页为准。"
     }
   ],
-  "versionBoundary": "志继觉醒复用现行 classic:guanxing（观星已有完整定义），觉醒承载（changeMaximumHp(-1)+grantSkills）有魂姿先例；挑衅为强制出杀否则弃牌（借刀族模式扩展）。体力值官方页不渲染，4 勾玉取 BWIKI 口径。立绘 105301 URL 已验证（HTTP 206），尚未下载入库。",
+  "versionBoundary": "志继觉醒复用现行 classic:guanxing（观星已有完整定义），觉醒承载（changeMaximumHp(-1)+grantSkills）有魂姿先例；挑衅为强制出杀否则弃牌（借刀族模式扩展）。体力值官方页不渲染，4 勾玉取 BWIKI 口径。立绘 105301 已下载入库并通过 verify（574×761，sha256 见 portraits）。",
   "portraits": [
     {
       "contentId": "classic:jiang-wei",
       "id": "105301",
       "name": "经典形象*姜维",
       "sourcePage": "https://x.sanguosha.com/hero/53.html",
-      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105301.png"
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105301.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-jiang-wei.png",
+      "sha256": "359079ffbcfa1de2b6afe2df76a55bc151315ee113dd3ddc7304f5625c0e214a",
+      "pixelWidth": 574,
+      "pixelHeight": 761
     }
   ]
 }

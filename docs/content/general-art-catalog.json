@@ -3778,6 +3778,23 @@
       ]
     },
     {
+      "key": "jiang-wei",
+      "characterName": "姜维",
+      "defaultSkinId": "105301",
+      "skins": [
+        {
+          "id": "105301",
+          "name": "经典形象*姜维",
+          "sourcePage": "https://x.sanguosha.com/hero/53.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105301.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-jiang-wei.png",
+          "sha256": "359079ffbcfa1de2b6afe2df76a55bc151315ee113dd3ddc7304f5625c0e214a",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "li-dian",
       "characterName": "李典",
       "defaultSkinId": "current",

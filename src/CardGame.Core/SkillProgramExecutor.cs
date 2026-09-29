@@ -60,6 +60,8 @@ public interface ISkillProgramEffectHost
         CardKind cardKind, bool ignoreDistance);
     SkillProgramStepOutcome UseBoundCardByTarget(ProgramSkillFrame frame, int targetSeat,
         string sourceBind);
+    SkillProgramStepOutcome RequestSlashByTarget(ProgramSkillFrame frame, int targetSeat,
+        string resultBind);
     void PendExtraTurn(ProgramSkillFrame frame);
     void ClaimDeathCleanupCards(ProgramSkillFrame frame);
     SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat);
@@ -1305,16 +1307,16 @@ public sealed class SkillProgramExecutor
                   effect.TargetReference is { } targetReference
                 ? effects.ResolveParticipant(frame, targetReference)
                 : effect.Target switch
-            {
-                SkillProgramEffectTarget.Owner => frame.OwnerSeat,
-                SkillProgramEffectTarget.Actor => frame.WindowContext?.CardUse?.ActorSeat ??
-                    throw new InvalidOperationException(
-                        $"Skill program '{frame.SkillId}' requires a frozen card-action actor."),
-                SkillProgramEffectTarget.SelectedTarget => frame.SelectedTargetSeats.Single(),
-                SkillProgramEffectTarget.SelectedTargets => frame.OwnerSeat,
-                _ => throw new InvalidOperationException(
-                    $"Skill program '{frame.SkillId}' uses unsupported target '{effect.Target}'.")
-            };
+                {
+                    SkillProgramEffectTarget.Owner => frame.OwnerSeat,
+                    SkillProgramEffectTarget.Actor => frame.WindowContext?.CardUse?.ActorSeat ??
+                        throw new InvalidOperationException(
+                            $"Skill program '{frame.SkillId}' requires a frozen card-action actor."),
+                    SkillProgramEffectTarget.SelectedTarget => frame.SelectedTargetSeats.Single(),
+                    SkillProgramEffectTarget.SelectedTargets => frame.OwnerSeat,
+                    _ => throw new InvalidOperationException(
+                        $"Skill program '{frame.SkillId}' uses unsupported target '{effect.Target}'.")
+                };
             var target = state.GetActor(targetSeat);
             var activation = program.Activations.SingleOrDefault(item => item.Id == frame.ActivationId);
             if (effect.Op is SkillProgramEffectOp.GiveSelected or SkillProgramEffectOp.DiscardSelected &&

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:tiaoxin": {
+      "name": "挑衅",
+      "description": "出牌阶段限一次，你可以选择一名攻击范围内含有你的其他角色，该角色需对你使用一张【杀】，否则你弃置其一张牌。"
+    },
+    "classic:zhiji": {
+      "name": "志继",
+      "description": "觉醒技，准备阶段开始时，若你没有手牌，你选择一项：1.回复1点体力；2.摸两张牌。然后你减1点体力上限，获得“观星”。",
+      "optionLabels": { "recover": "回复1点体力", "draw-two": "摸两张牌" }
+    }
+  }
+}

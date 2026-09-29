@@ -48,7 +48,8 @@ internal static class ShenSimaYiChecks
                 awakening.UsageScope == SkillUsageScope.Game && awakening.UsageLimit == 1 &&
                 awakening.Condition.Kind == SkillProgramTriggerConditionKind.Compare &&
                 awakening.Effects.Select(item => item.Op).SequenceEqual([
-                    SkillProgramEffectOp.ChangeMaximumHp, SkillProgramEffectOp.GrantSkills]) &&
+                    SkillProgramEffectOp.ChangeMaximumHp,
+                    SkillProgramEffectOp.GrantSkills]) &&
                 awakening.Effects.Single(item => item.Op == SkillProgramEffectOp.GrantSkills)
                     .SkillIds.SequenceEqual([Lianpo]),
             "Baiyin must awaken once per game at the owner's turn start, losing one maximum HP and granting Lianpo.");
@@ -80,8 +81,7 @@ internal static class ShenSimaYiChecks
         Reject(damageSkill.Replace("\"kind\":\"ownerAttributedMarkerCount\",\"marker\":\"ren\"",
                 "\"kind\":\"ownerAttributedMarkerCount\""),
             presentation, "ownerAttributedMarkerCount requires its marker");
-        Reject(damageSkill.Replace("\"target\":\"owner\",\n\"targetRef\":{\"kind\":\"owner\"}",
-                "\"target\":\"selectedTarget\",\"targetRef\":{\"kind\":\"owner\"}"),
+        Reject(damageSkill.Replace("\"target\":\"owner\"", "\"target\":\"selectedTarget\""),
             presentation, "owner-referenced markers require the owner target");
 
         const string killSkill = """
@@ -494,9 +494,15 @@ internal static class ShenSimaYiChecks
     {
         var game = GameEngine.CreateStandard(new GameOptions
         {
-            Seed = seed, PlayerCount = 5, HumanSeat = 0, HumanRole = Role.Lord,
-            ModeId = mode, UseInteractiveSetup = true, UseInteractiveDiscard = true,
-            AdvanceAfterHumanCommands = false, MaxTurns = 10
+            Seed = seed,
+            PlayerCount = 5,
+            HumanSeat = 0,
+            HumanRole = Role.Lord,
+            ModeId = mode,
+            UseInteractiveSetup = true,
+            UseInteractiveDiscard = true,
+            AdvanceAfterHumanCommands = false,
+            MaxTurns = 10
         }, registry);
         Require(game.Submit(new StartGameCommand()).Accepted, "Shen Sima Yi fixture did not start.");
         var choice = game.PendingDecision!;
@@ -601,8 +607,11 @@ internal static class ShenSimaYiChecks
                     [nameof(Role.Rebel)] = 2,
                     [nameof(Role.Renegade)] = 1
                 }, "fixture:shen-deck", GeneralCandidateCount: 5,
-                GeneralPoolIds: [General, "fixture:shen-victim-a", "fixture:shen-bystander-b",
-                    "fixture:shen-bystander-c", "fixture:shen-victim-d"]));
+                GeneralPoolIds: [General,
+                    "fixture:shen-victim-a",
+                    "fixture:shen-bystander-b",
+                    "fixture:shen-bystander-c",
+                    "fixture:shen-victim-d"]));
         }
     }
 
@@ -640,8 +649,11 @@ internal static class ShenSimaYiChecks
                     [nameof(Role.Rebel)] = 2,
                     [nameof(Role.Renegade)] = 2
                 }, "fixture:shen-kill-deck", GeneralCandidateCount: 5,
-                GeneralPoolIds: [General, "fixture:shen-kill-victim-a", "fixture:shen-kill-victim-b",
-                    "fixture:shen-kill-victim-c", "fixture:shen-kill-bystander"]));
+                GeneralPoolIds: [General,
+                    "fixture:shen-kill-victim-a",
+                    "fixture:shen-kill-victim-b",
+                    "fixture:shen-kill-victim-c",
+                    "fixture:shen-kill-bystander"]));
         }
     }
 }

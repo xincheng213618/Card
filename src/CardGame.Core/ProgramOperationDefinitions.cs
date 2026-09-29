@@ -24,7 +24,8 @@ internal enum ProgramOperationAiSemantic
     RevealUniqueRankForDying, ProhibitCurrentResponse, RedirectCurrentAttack, RedirectCurrentDamage,
     HoldTargetCards, UseBoundCardByTarget, PendExtraTurn, ClaimDeathCleanupCards,
     ChooseOwnCardDiscard,
-    ExchangeSelectedTargetHands
+    ExchangeSelectedTargetHands,
+    RequestSlashByTarget
 }
 internal sealed record ProgramOperationAiPolicy(
     ProgramOperationAiSemantic Semantic,
@@ -393,14 +394,14 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
         return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        [..WithSelectedTarget(effect,
+        [.. WithSelectedTarget(effect,
             (effect.NumberExpression == SkillProgramNumberExpression.BoundCardCount
                 ? new ProgramResourceOperation[] { new ReadCardSet(effect.SourceBind!) }
                 : Array.Empty<ProgramResourceOperation>())
             .Concat(effect.ResultBind is { } bind
                 ? new ProgramResourceOperation[] { new CreateCardSet(bind, effect.NumberExpression is null ? effect.Amount : int.MaxValue, false) }
                 : Array.Empty<ProgramResourceOperation>())),
-            ..ParticipantResources(effect.TargetReference)];
+            .. ParticipantResources(effect.TargetReference)];
     internal static int Amount(ProgramOperationNodeReader r, int maximum)
     {
         var amount = r.RequiredInt("amount");
@@ -539,7 +540,7 @@ internal sealed class FilterBoundCardsProgramOperationDescriptor : ProgramOperat
         [new DeriveCardSet(effect.SourceBind!, effect.ResultBind!, effect.Suits,
             Categories: effect.CardCategories, EquipmentSlots: effect.EquipmentSlots,
             CardKinds: effect.CardKinds, MatchSuitOfBind: effect.MatchSuitOfBind),
-            ..ParticipantResources(effect.TargetReference)];
+            .. ParticipantResources(effect.TargetReference)];
     internal static SkillProgramEffectTarget Owner(ProgramOperationNodeReader r)
     {
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");

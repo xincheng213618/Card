@@ -325,7 +325,8 @@ internal sealed class ProgramAiEstimateContext
 
     internal void CaptureSelectedCards(SkillProgramEffect effect) =>
         _bindings[effect.ResultBind!] = UnknownCards(_publicContext.ActivationCardCount ?? 1d, ownerHeld: true)
-            with { ActivationInput = true };
+            with
+        { ActivationInput = true };
 
     internal void TakeRandomHandCards(SkillProgramEffect effect)
     {
@@ -545,6 +546,14 @@ internal sealed class ProgramAiEstimateContext
     }
 
     internal void GiveSelected(SkillProgramEffect effect) => _givesSelected = true;
+
+    internal void RequestSlashByTarget(SkillProgramEffect effect)
+    {
+        // Split prior: about half the time the target declines and loses a card,
+        // otherwise the owner faces a dodgeable Slash.
+        _targetDraw -= 0.5d;
+        _ownerHpLoss += 0.5d;
+    }
 
     internal void DiscardSelected(SkillProgramEffect effect)
     {
