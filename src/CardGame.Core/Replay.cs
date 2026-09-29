@@ -31,7 +31,14 @@ public sealed record GameCheckpoint(
     // selectedTargetEquipment destination, the empty-slot activation target
     // filter, the turn-owner discard-phase hand-discard fact, and the
     // named-choice hand-gain move branch.
-    public const int CurrentRulesVersion = 189;
+    // 189: Cao Zhi (luoying/jiushi) with the discardPileReceived window, the
+    // claimMovedCards operation, the choice-gated virtual dying alcohol and the
+    // faceDown trigger condition.
+    // 190-191 are reserved by parallel batches.
+    // 192: Ling Tong (xuanfeng) reusing the existing vocabulary; the only
+    // engine change lets a discardPhaseEnded trigger declare turnOwnerScope own
+    // (the phase owner itself), mirroring the turnEnding arm shape.
+    public const int CurrentRulesVersion = 192;
     // 187 was consumed by main-side Zhang He / Shen Zhao Yun work.
 
     public int RulesVersion { get; init; }

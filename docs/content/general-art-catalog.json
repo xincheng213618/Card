@@ -3973,6 +3973,23 @@
       ]
     },
     {
+      "key": "ling-tong",
+      "characterName": "凌统",
+      "defaultSkinId": "129201",
+      "skins": [
+        {
+          "id": "129201",
+          "name": "经典形象*凌统",
+          "sourcePage": "https://x.sanguosha.com/hero/292.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/129201.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ling-tong.png",
+          "sha256": "a72f3dc9bf49f013fd07206991056f0eba1d7a131fdd31ca05e9f79b07ecb1cd",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "liu-bei",
       "characterName": "刘备",
       "defaultSkinId": "100101",

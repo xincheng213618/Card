@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-30",
+  "contentIds": [
+    "classic:ling-tong"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:ling-tong",
+      "url": "https://x.sanguosha.com/hero/292.html",
+      "edition": "三国杀官方网站武将库 gid 292（凌统，吴）",
+      "use": "旋风：弃牌阶段结束时（若你于此阶段内弃置过你的至少两张手牌）或每当你失去装备区里的牌后，你可以依次弃置一名有牌的其他角色的两张牌，或选择两名有牌的其他角色，弃置这些角色的各一张牌。"
+    },
+    {
+      "contentId": "classic:ling-tong",
+      "url": "https://wiki.biligame.com/sgs/%E5%87%8C%E7%BB%9F",
+      "edition": "BWIKI 三国杀WIKI 武将页（二手核对）",
+      "use": "体力/势力/性别/包归属核对：吴、男、经典版 4 勾玉、一将成名2011。技能措辞与官方页一致的以官方页为准；细则核对：失去装备区里的牌含装备变更、主公杀死忠臣奖惩、贯石斧及英魂甘露等效果弃置/交换、被顺手牵羊获得，每次失去发动一次（寒冰剑逐张弃逐张触发）；弃牌阶段分支以弃置两张以上手牌为条件。"
+    },
+    {
+      "contentId": "classic:ling-tong",
+      "url": "https://www.sanguosha.com/news/20140418_2046_5959",
+      "edition": "三国杀官方一将成名2011武将名单公告（图鉴分组核对）",
+      "use": "确认凌统位列官方一将成名2011十一人名单（曹植、高顺、陈宫、法正、凌统、马谡、吴国太、徐盛、徐庶、于禁、张春华），图鉴归入一将成名一组。"
+    }
+  ],
+  "versionBoundary": "旋风存在两个历史版本：一将成名2011 原版两分支文本（弃牌阶段弃置过至少两张手牌、或失去装备区里的牌）与 2014 修订版单分支文本（仅失去装备区里的牌）。本批以十周年官方武将库（x.sanguosha.com）gid 292 现行页面文本为唯一口径：页面展示的是保留弃牌阶段分支的两分支文本（官方润色措辞：『弃牌阶段结束时（若你于此阶段内弃置过你的至少两张手牌）或每当你失去装备区里的牌后，你可以依次弃置一名有牌的其他角色的两张牌，或选择两名有牌的其他角色，弃置这些角色的各一张牌』），即 2011 原版而非 2014 修订版，本批照此实现并冻结该选型。实现口径：弃牌阶段分支以引擎既有回合弃牌阶段手牌台账（turnOwnerDiscardPhaseHandDiscardCount）承载『至少两张手牌』；装备区分支以 cardsMoved 窗口 sourceZones [equipment] perBatch 承载，按 BWIKI 细则不排除任何移动原因、不排除自身技能移动（装备变更/被拆/被顺/技能弃置交换均属『失去』，每次失去一批触发一次）；『依次弃置…两名其他角色的各一张/一名的两张』以既有 chooseOtherOwnedCardDiscard（弓骑同款弃置他人牌操作，手牌暗置槽位+装备区明置）两步组合承载，弃置区域沿用弓骑先例取手牌+装备区（不含判定区）；两步均可单独拒绝（既有选项语义），故可观察行为为 0/1/2 张的超集，与官方『整组 0 或 2 张』的差异照实记录于批次记录。立绘 129201 已下载入库（official-ling-tong.png，sha256 a72f3dc9…cb1cd）。",
+  "portraits": [
+    {
+      "contentId": "classic:ling-tong",
+      "id": "129201",
+      "name": "经典形象*凌统",
+      "sourcePage": "https://x.sanguosha.com/hero/292.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/129201.png"
+    }
+  ]
+}
