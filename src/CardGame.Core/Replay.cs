@@ -31,7 +31,11 @@ public sealed record GameCheckpoint(
     // selectedTargetEquipment destination, the empty-slot activation target
     // filter, the turn-owner discard-phase hand-discard fact, and the
     // named-choice hand-gain move branch.
-    public const int CurrentRulesVersion = 188;
+    // 189: Jia Xu (wansha/luanwu/weimu) with the dying-peach prohibition by
+    // others on the policy owner's turn, the OtherLivingNearest target kind,
+    // the owner-driven nearest-slash request loop, and suit/category target
+    // prohibition filters on card policies.
+    public const int CurrentRulesVersion = 189;
     // 187 was consumed by main-side Zhang He / Shen Zhao Yun work.
 
     public int RulesVersion { get; init; }

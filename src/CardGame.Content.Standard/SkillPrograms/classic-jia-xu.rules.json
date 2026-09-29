@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:wansha",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "cardPolicies": [
+        {
+          "id": "wansha-no-rescue-peach",
+          "kind": "prohibitDyingPeachByOthers",
+          "cardKinds": ["peach"]
+        }
+      ]
+    },
+    {
+      "id": "classic:luanwu",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "activations": [
+        {
+          "id": "luanwu",
+          "minCards": 0,
+          "maxCards": 0,
+          "sourceZones": ["hand"],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": null,
+          "usesPerGame": 1,
+          "condition": { "kind": "always" },
+          "effects": [
+            { "op": "requestNearestSlash", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:weimu",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "cardPolicies": [
+        {
+          "id": "weimu-black-trick-target",
+          "kind": "prohibitTarget",
+          "cardCategories": ["trick"],
+          "suits": ["spade", "club"]
+        }
+      ]
+    }
+  ]
+}

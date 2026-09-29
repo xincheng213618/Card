@@ -153,10 +153,10 @@ public sealed partial class GameEngine
                             _ => false
                         }) &&
                         (!activation.Effects.Any(effect => effect is
-                             {
-                                 Op: SkillProgramEffectOp.SelectAndMoveOwnedCard,
-                                 ProhibitReplacingEquipment: true
-                             }) ||
+                        {
+                            Op: SkillProgramEffectOp.SelectAndMoveOwnedCard,
+                            ProhibitReplacingEquipment: true
+                        }) ||
                          HasFreeEquipmentSlotForOwnedHandEquipment(owner, target)) &&
                         (!activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.StartPindian) ||
                          GetHand(target).Count > 0))
@@ -389,6 +389,11 @@ public sealed partial class GameEngine
 
     private void ContinueProgramSkill(long frameId)
     {
+        // A nearest-slash loop is op-internal: once its cursor is recorded on the
+        // frame it keeps republishing responder prompts without returning to the
+        // executor, so continuation entry points must hand control back to the
+        // loop first (mirrors the attack-range-aid resume contract).
+        if (ContinueProgramNearestSlashIfResumable(frameId)) return;
         var host = new ProgramSkillHost(this);
         new SkillProgramExecutor().Run(frameId, host, host);
     }
@@ -792,6 +797,7 @@ public sealed partial class GameEngine
             AssertProgramRevealCardSelection(frame, paused);
             AssertProgramOwnedCardDistribution(frame, paused);
             AssertProgramAttackRangeAid(frame, paused);
+            AssertProgramNearestSlash(frame, paused);
             if (paused.Op == SkillProgramEffectOp.ChooseOption && ReferenceEquals(frame, _resolutionStack.LastOrDefault()) &&
                 !frame.ChoiceBindings.Any(binding => binding.Name == paused.ResultBind) &&
                 (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } choiceDecision ||

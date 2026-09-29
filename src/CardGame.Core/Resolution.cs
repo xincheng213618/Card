@@ -128,6 +128,9 @@ public sealed record ProgramSkillFrame(
     public ProgramAttackRangeAid? AttackRangeAid { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramNearestSlashRequest? NearestSlashRequest { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramTopReorder? TopReorder { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

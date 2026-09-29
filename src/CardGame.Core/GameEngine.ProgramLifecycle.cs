@@ -685,6 +685,17 @@ public sealed partial class GameEngine
                     player.IsAlive,
                     GetMarkerSourceCount(player, markerKind, ownerSeat))));
         }
+        if (targetKind == SkillProgramTargetKind.OtherLivingNearest)
+        {
+            var candidates = _players
+                .Where(target => target.IsAlive && target.Seat != ownerSeat)
+                .Select(target => (Seat: target.Seat, Distance: GetCombatDistance(ownerSeat, target.Seat)))
+                .ToArray();
+            if (candidates.Length == 0) return [];
+            var nearest = candidates.Min(item => item.Distance);
+            return candidates.Where(item => item.Distance == nearest)
+                .Select(item => item.Seat).Order().ToArray();
+        }
         return _players
             .Where(target => target.IsAlive && targetKind switch
             {
@@ -2728,6 +2739,7 @@ public sealed partial class GameEngine
             "distribute-owned-card" or "decline-owned-card-distribution" or
             "reveal-target-hand-card" or
             "request-slash" or "request-slash-decline" or
+            "request-nearest-slash" or "request-nearest-slash-decline" or
             "attack-range-aid-discard-weapon" or "attack-range-aid-draw")
         {
             ResolveProgramInstructionChoice(selected, action);
@@ -3146,6 +3158,10 @@ public sealed partial class GameEngine
             case "request-slash-decline":
                 ResolveProgramRequestSlashChoice(selected);
                 return;
+            case "request-nearest-slash":
+            case "request-nearest-slash-decline":
+                ResolveProgramNearestSlashChoice(selected);
+                return;
             case "choose-own-card-discard":
                 ResolveProgramOwnCardDiscardChoice(selected);
                 return;
@@ -3373,6 +3389,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.SelectOwnedCards => SelectAiProgramOwnedCards(decision, frame),
                 SkillProgramEffectOp.HoldTargetCards => SelectAiProgramHoldCards(decision, frame),
                 SkillProgramEffectOp.RequestSlashByTarget => SelectAiProgramRequestSlash(decision, frame),
+                SkillProgramEffectOp.RequestNearestSlash => SelectAiProgramNearestSlash(decision, frame),
                 SkillProgramEffectOp.RevealTargetHandCard => decision.Choices
                     .OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First(),
                 SkillProgramEffectOp.DistributeOwnedCards =>

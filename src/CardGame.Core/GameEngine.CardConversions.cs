@@ -278,25 +278,25 @@ public sealed partial class GameEngine
         var selections = new List<ProgramMultiCardViewAsSelection>();
         foreach (var instance in GetSkillBindingShard(owner).ProgramInstances.Where(instance =>
                      instance.Program.ViewAs.Count != 0))
-        foreach (var rule in instance.Program.ViewAs.Where(rule =>
-                     rule.InputCount > 1 &&
-                     rule.OutputKind == outputKind &&
-                     (forResponse ? rule.ForResponse : rule.ForPlay) &&
-                     rule.Condition.Evaluate(context)))
-        {
-            var candidates = eligibleHand.Where(card =>
-                (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&
-                (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(card.Suit))).ToArray();
-            if (candidates.Length < rule.InputCount) continue;
-            var source = new CardConversionSource(
-                instance.SkillId,
-                rule.Id,
-                owner.Seat,
-                instance.SkillInstanceId);
-            foreach (var cards in EnumerateCardCombinations(candidates, rule.InputCount))
-                if (!rule.SameSuit || cards.Select(card => card.Suit).Distinct().Count() == 1)
-                    selections.Add(new(cards, source, outputKind));
-        }
+            foreach (var rule in instance.Program.ViewAs.Where(rule =>
+                         rule.InputCount > 1 &&
+                         rule.OutputKind == outputKind &&
+                         (forResponse ? rule.ForResponse : rule.ForPlay) &&
+                         rule.Condition.Evaluate(context)))
+            {
+                var candidates = eligibleHand.Where(card =>
+                    (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&
+                    (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(card.Suit))).ToArray();
+                if (candidates.Length < rule.InputCount) continue;
+                var source = new CardConversionSource(
+                    instance.SkillId,
+                    rule.Id,
+                    owner.Seat,
+                    instance.SkillInstanceId);
+                foreach (var cards in EnumerateCardCombinations(candidates, rule.InputCount))
+                    if (!rule.SameSuit || cards.Select(card => card.Suit).Distinct().Count() == 1)
+                        selections.Add(new(cards, source, outputKind));
+            }
         return selections
             .OrderBy(item => item.Source.SkillId, StringComparer.Ordinal)
             .ThenBy(item => item.Source.BindingId, StringComparer.Ordinal)

@@ -85,4 +85,41 @@ public sealed partial class GameEngine
             if (item.Policy.InputSuit == suit) suit = item.Policy.OutputSuit!.Value;
         return suit;
     }
+
+    /// <summary>
+    /// Weimu: a target prohibition may additionally filter by effective card
+    /// category and the physical card suit. A conversion candidate without a
+    /// single frozen physical suit fails open (never matches a suit filter) so
+    /// kind-only call sites keep their existing behavior.
+    /// </summary>
+    private bool IsSuitFilteredCardTargetProhibited(CharacterState target, CardKind effectiveKind,
+        Suit? physicalSuit)
+    {
+        return CardPolicies(target, SkillProgramCardPolicyKind.ProhibitTarget, effectiveKind)
+            .Any(item => MatchesPolicySuitAndCategory(item.Policy, effectiveKind, physicalSuit));
+    }
+
+    private static bool MatchesPolicySuitAndCategory(
+        SkillProgramCardPolicy policy, CardKind effectiveKind, Suit? physicalSuit)
+    {
+        if (policy.CardCategories.Count > 0 &&
+            !policy.CardCategories.Contains(ProgramFilterCategoryOf(effectiveKind)))
+            return false;
+        if (policy.Suits.Count > 0)
+            return physicalSuit is { } suit && policy.Suits.Contains(suit);
+        return true;
+    }
+
+    private static SkillProgramCardCategory ProgramFilterCategoryOf(CardKind kind)
+    {
+        switch (CardCatalog.Get(kind).CategoryName)
+        {
+            case "基本牌": return SkillProgramCardCategory.Basic;
+            case "锦囊牌": return SkillProgramCardCategory.Trick;
+            case "装备牌": return SkillProgramCardCategory.Equipment;
+        }
+        return EquipmentCatalog.IsEquipment(kind)
+            ? SkillProgramCardCategory.Equipment
+            : throw new InvalidOperationException($"The card kind {kind} has no filter category.");
+    }
 }

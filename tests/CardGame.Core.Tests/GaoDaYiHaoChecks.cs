@@ -37,10 +37,18 @@ internal static class GaoDaYiHaoChecks
         Require(policy.Kind == SkillProgramCardPolicyKind.PreventIncomingTrickDamage &&
                 policy.CardKinds.SequenceEqual(
                 [
-                    CardKind.Duel, CardKind.DrawTwo, CardKind.BarbarianAssault,
-                    CardKind.ArrowBarrage, CardKind.PeachGarden, CardKind.FiveGrains,
-                    CardKind.Dismantlement, CardKind.Snatch, CardKind.FireAttack,
-                    CardKind.Nullification, CardKind.IronChain, CardKind.BorrowedSword
+                    CardKind.Duel,
+                    CardKind.DrawTwo,
+                    CardKind.BarbarianAssault,
+                    CardKind.ArrowBarrage,
+                    CardKind.PeachGarden,
+                    CardKind.FiveGrains,
+                    CardKind.Dismantlement,
+                    CardKind.Snatch,
+                    CardKind.FireAttack,
+                    CardKind.Nullification,
+                    CardKind.IronChain,
+                    CardKind.BorrowedSword
                 ]),
             "I-Field must prevent incoming trick damage from every damaging trick card.");
 
@@ -60,8 +68,9 @@ internal static class GaoDaYiHaoChecks
                 eject.UsageScope == SkillUsageScope.Game &&
                 eject.UsageLimit == 1 &&
                 eject.Effects.Select(effect => effect.Op).SequenceEqual(
-                    [SkillProgramEffectOp.DiscardOwnedZoneCards, SkillProgramEffectOp.RecoverTo,
-                     SkillProgramEffectOp.Draw]) &&
+                    [SkillProgramEffectOp.DiscardOwnedZoneCards,
+                        SkillProgramEffectOp.RecoverTo,
+                        SkillProgramEffectOp.Draw]) &&
                 eject.Effects[2].Amount == 2,
             "Core Fighter must be a once-per-game dying rescue that recovers to two and draws two.");
     }
@@ -74,9 +83,9 @@ internal static class GaoDaYiHaoChecks
         var action = game.GetHumanLegalActions().FirstOrDefault(item =>
             item.Kind == LegalActionKind.UseProgramSkill &&
             item.ProgramSkillId == BeamRifle &&
-            item.ProgramActivationId == "beam-shot");
-        Require(action is not null,
-            "Beam Rifle must offer its activation during Shen Zhao Yun's play phase.");
+            item.ProgramActivationId == "beam-shot") ??
+            throw new InvalidOperationException(
+                "Beam Rifle must offer its activation during Shen Zhao Yun's play phase.");
         var before = game.CreateSnapshot(0, true);
         Require(before.Players[1].IsAlive && action.SelectableCardIds.Count > 0 &&
                 action.SelectableCardIds.All(cardId =>

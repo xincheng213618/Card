@@ -3795,6 +3795,23 @@
       ]
     },
     {
+      "key": "jia-xu",
+      "characterName": "贾诩",
+      "defaultSkinId": "104901",
+      "skins": [
+        {
+          "id": "104901",
+          "name": "经典形象*贾诩",
+          "sourcePage": "https://x.sanguosha.com/hero/49.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/104901.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-jia-xu.png",
+          "sha256": "bd512f2c65396eb9c291e0fd7167209a6f67d85a61fb6707c4ae35e84fdc9104",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "jiang-wei",
       "characterName": "姜维",
       "defaultSkinId": "105301",

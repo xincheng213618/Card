@@ -63,6 +63,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "CardGame.Content.Standard.SkillPrograms.classic-zhang-he.rules.json";
     private const string ClassicZhangHePresentationResource =
         "CardGame.Content.Standard.SkillPrograms.classic-zhang-he.presentation.json";
+    private const string ClassicJiaXuRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-jia-xu.rules.json";
+    private const string ClassicJiaXuPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-jia-xu.presentation.json";
     private const string ClassicShenGuanYuRulesResource =
         "CardGame.Content.Standard.SkillPrograms.classic-shen-guan-yu.rules.json";
     private const string ClassicShenGuanYuPresentationResource =
@@ -159,6 +163,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicZhangHeRulesResource),
             ReadEmbeddedText(ClassicZhangHePresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicJiaXuCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicJiaXuRulesResource),
+            ReadEmbeddedText(ClassicJiaXuPresentationResource)));
     private static readonly Lazy<SkillProgramCatalog> ClassicGaoShunCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicGaoShunRulesResource),
@@ -167,7 +175,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicLifecycleRulesResource),
             ReadEmbeddedText(ClassicLifecyclePresentationResource)));
-    public static Version CurrentVersion { get; } = new(1, 158, 0);
+    public static Version CurrentVersion { get; } = new(1, 159, 0);
 
     public StandardClassicGeneralPackage()
     {
@@ -1163,6 +1171,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(WithOptionalTriggerMetadata(ZhangHeProgram("classic:qiaobian")));
         }
 
+        {
+            builder.AddSkill(WithStructuredSkillMetadata(
+                JiaXuProgram("classic:wansha"), SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithActiveActionMetadata(JiaXuProgram("classic:luanwu")));
+            builder.AddSkill(WithStructuredSkillMetadata(
+                JiaXuProgram("classic:weimu"), SkillTag.Locked, SkillExecutionForm.State));
+        }
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -1871,6 +1886,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:xiangle", "shu", BaseHp: 3,
                 AdditionalSkillIds: ["classic:fangquan", "classic:ruoyu"]));
 
+        builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:jia-xu", "贾诩", "jia_xu",
+                "classic:wansha", "qun", BaseHp: 3,
+                AdditionalSkillIds: ["classic:luanwu", "classic:weimu"]));
 
         var generalPoolIds = CurrentGeneralIds;
 
@@ -2181,6 +2200,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         };
     }
 
+    private static ContentSkillDefinition JiaXuProgram(string skillId)
+    {
+        var presentation = ClassicJiaXuCatalog.Value.Presentations[skillId];
+        return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
+        {
+            Program = ClassicJiaXuCatalog.Value.Programs[skillId]
+        };
+    }
+
     private static ContentSkillDefinition ZhangZhaoZhangHongProgram(string skillId)
     {
         var presentation = ClassicZhangZhaoZhangHongCatalog.Value.Presentations[skillId];
@@ -2320,6 +2348,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:zhang-zhao-zhang-hong",
         "boundary:zhao-yun",
         "classic:zhang-he",
+        "classic:jia-xu",
     ];
 
     /// <summary>Registered generals kept out of the classic identity pools (fan-made roster).</summary>

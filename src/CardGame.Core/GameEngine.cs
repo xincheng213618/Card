@@ -12316,6 +12316,7 @@ public sealed partial class GameEngine
 
     private Card[] GetDyingPeaches(CharacterState responder)
     {
+        if (IsDyingPeachProhibitedFor(responder)) return [];
         var handCandidates = GetPlayableCards(responder)
             .Where(card => !IsTurnHandCardRestricted(responder, card))
             .Where(card => !HasProgramCardIdentity(responder, card))
@@ -12326,6 +12327,22 @@ public sealed partial class GameEngine
             .Concat(GetEquipment(responder).Where(card =>
                 GetDyingPeachConversionSources(responder, card).Count != 0))
             .ToArray();
+    }
+
+    /// <summary>
+    /// Wansha: the dying-peach prohibition attributes to the current turn owner,
+    /// so the victim may still rescue themselves with peaches while every other
+    /// responder is blocked for the whole dying settlement.
+    /// </summary>
+    private bool IsDyingPeachProhibitedFor(CharacterState responder)
+    {
+        if (_pendingDying is not { } dying || responder.Seat == dying.VictimSeat ||
+            !IsValidPlayerSeat(_currentSeat))
+        {
+            return false;
+        }
+        return CardPolicies(_players[_currentSeat],
+            SkillProgramCardPolicyKind.ProhibitDyingPeachByOthers, CardKind.Peach).Any();
     }
 
     private IReadOnlyList<CardConversionSource> GetDyingPeachConversionSources(
@@ -14466,9 +14483,14 @@ public sealed partial class GameEngine
             var targets = action.TargetSeats.Count > 0
                 ? action.TargetSeats
                 : action.TargetSeat is { } targetSeat ? [targetSeat] : [];
+            var physicalSuit = action.CardId is { } actionCardId &&
+                allPhysicalPlayableCards.FirstOrDefault(card => card.Id == actionCardId) is { } physicalCard
+                    ? EffectiveSuit(actor, physicalCard)
+                    : (Suit?)null;
             return GetDeclaredCardTargets(actor, action.Kind, targets).All(target =>
                 !IsDirectedCardTargetProhibited(actor.Seat, target, effectiveKind.Value) &&
-                !IsCardTargetProhibited(_players[target], effectiveKind.Value));
+                !IsCardTargetProhibited(_players[target], effectiveKind.Value) &&
+                !IsSuitFilteredCardTargetProhibited(_players[target], effectiveKind.Value, physicalSuit));
         });
         return FilterTurnCardUseRestrictions(actor, permittedActions);
     }
@@ -15052,7 +15074,11 @@ public sealed partial class GameEngine
     }
 
     private bool IsCardTargetProhibited(CharacterState target, CardKind cardKind) =>
-        HasCardPolicy(target, SkillProgramCardPolicyKind.ProhibitTarget, cardKind);
+        // Kind-only consumers must not see policies that carry the additive
+        // category and suit filters; those are evaluated with the physical
+        // suit by the suit-aware target gate instead.
+        CardPolicies(target, SkillProgramCardPolicyKind.ProhibitTarget, cardKind)
+            .Any(item => item.Policy.CardCategories.Count == 0 && item.Policy.Suits.Count == 0);
 
     private bool IsSlashProhibited(CharacterState source, CharacterState target, Card slashCard)
     {

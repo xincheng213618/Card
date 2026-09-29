@@ -87,6 +87,11 @@ public sealed record ProgramAttackRangeAid(
     IReadOnlyList<int> ResponderSeats,
     int ResponderIndex);
 
+/// <summary>Frozen sequential responders for one nearest-slash request instruction.</summary>
+public sealed record ProgramNearestSlashRequest(
+    IReadOnlyList<int> ResponderSeats,
+    int ResponderIndex);
+
 public sealed record ProgramChoiceResultBinding(string Name, string OptionId, int ChooserSeat);
 
 public sealed record ProgramOptionChosenEvent(
@@ -147,6 +152,16 @@ public sealed record ProgramAttackRangeAidChoiceResolvedEvent(
     int TargetSeat,
     int? DiscardedWeaponCardId,
     IReadOnlyList<int> DrawnCardIds) : IGameEvent;
+
+public sealed record ProgramNearestSlashAnsweredEvent(
+    long FrameId,
+    string SkillId,
+    string BindingId,
+    int OwnerSeat,
+    int ResponderSeat,
+    int? TargetSeat,
+    int? SlashCardId,
+    bool LostHp) : IGameEvent;
 
 public sealed record ProgramDamageCardsClaimedEvent(
     long FrameId,

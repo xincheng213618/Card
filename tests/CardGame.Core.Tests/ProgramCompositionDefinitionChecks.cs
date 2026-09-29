@@ -173,7 +173,8 @@ internal static class ProgramCompositionDefinitionChecks
             [SkillProgramEffectOp.ExchangeSelectedTargetHands] = """{"op":"exchangeSelectedTargetHands","target":"owner","condition":{"kind":"always"}}""",
             [SkillProgramEffectOp.RequestSlashByTarget] = """{"op":"requestSlashByTarget","target":"selectedTarget","resultBind":"answer"}""",
             [SkillProgramEffectOp.BindDiscardPhaseDiscards] = """{"op":"bindDiscardPhaseDiscards","target":"owner","resultBind":"guzheng-pool"}""",
-            [SkillProgramEffectOp.RestorePhaseHandDiscards] = """{"op":"restorePhaseHandDiscards","target":"owner","chooserRef":{"kind":"owner"},"phaseOwnerRef":{"kind":"eventSource"},"condition":{"kind":"always"}}"""
+            [SkillProgramEffectOp.RestorePhaseHandDiscards] = """{"op":"restorePhaseHandDiscards","target":"owner","chooserRef":{"kind":"owner"},"phaseOwnerRef":{"kind":"eventSource"},"condition":{"kind":"always"}}""",
+            [SkillProgramEffectOp.RequestNearestSlash] = """{"op":"requestNearestSlash","target":"owner"}"""
 
         };
         Require(nodes.Keys.ToHashSet().SetEquals(Enum.GetValues<SkillProgramEffectOp>()),

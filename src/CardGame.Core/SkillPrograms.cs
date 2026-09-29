@@ -118,7 +118,8 @@ public enum SkillProgramTargetKind
     OtherLivingWhoseAttackRangeIncludesOwner = 24,
     EventSource = 25,
     OtherLivingWithQinggangSword = 26,
-    LivingPairDistinct = 27
+    LivingPairDistinct = 27,
+    OtherLivingNearest = 28
 }
 public enum SkillProgramCardCategory { Basic, Trick, Equipment }
 public enum SkillProgramTurnOwnerScope { Own = 0, OtherLiving = 1 }
@@ -223,7 +224,8 @@ public enum SkillProgramEffectOp
     ExchangeSelectedTargetHands,
     RequestSlashByTarget,
     BindDiscardPhaseDiscards,
-    RestorePhaseHandDiscards
+    RestorePhaseHandDiscards,
+    RequestNearestSlash
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -1425,7 +1427,7 @@ public sealed class SkillProgramCatalog
     {
         RequireObject(node, path);
         CheckProperties(node, path, "id", "kind", "cardKinds", "requiredCardKinds", "value",
-            "inputSuit", "outputSuit", "condition", "factionId", "ownerRole");
+            "inputSuit", "outputSuit", "condition", "factionId", "ownerRole", "cardCategories", "suits");
         var id = Identifier(node, "id", path);
         var kind = EnumValue<SkillProgramCardPolicyKind>(node, "kind", path);
         var factionId = node.TryGetProperty("factionId", out _)
@@ -1447,6 +1449,16 @@ public sealed class SkillProgramCatalog
         if (cardKinds.Distinct().Count() != cardKinds.Count ||
             requiredKinds.Distinct().Count() != requiredKinds.Count)
             Fail(path, "card kind filters must contain distinct values");
+        var cardCategories = node.TryGetProperty("cardCategories", out _)
+            ? EnumArray<SkillProgramCardCategory>(node, "cardCategories", path) : [];
+        var suits = node.TryGetProperty("suits", out _)
+            ? EnumArray<Suit>(node, "suits", path) : [];
+        if (cardCategories.Distinct().Count() != cardCategories.Count ||
+            suits.Distinct().Count() != suits.Count)
+            Fail(path, "category and suit filters must contain distinct values");
+        if ((cardCategories.Count > 0 || suits.Count > 0) &&
+            kind != SkillProgramCardPolicyKind.ProhibitTarget)
+            Fail(path, "category and suit filters require a target prohibition policy");
         var value = node.TryGetProperty("value", out _) ? RequiredInt(node, "value", path) : 0;
         Suit? inputSuit = node.TryGetProperty("inputSuit", out _)
             ? EnumValue<Suit>(node, "inputSuit", path) : null;
@@ -1499,6 +1511,12 @@ public sealed class SkillProgramCatalog
                     CardKind.IronChain or CardKind.BorrowedSword)))
                 Fail(path, "nearby response prohibition requires Slash or ordinary trick kinds and distance 1..20");
         }
+        else if (kind == SkillProgramCardPolicyKind.ProhibitDyingPeachByOthers)
+        {
+            if (requiredKinds.Count != 0 || value != 0 ||
+                cardKinds.Count != 1 || cardKinds[0] != CardKind.Peach)
+                Fail(path, "a dying-peach prohibition requires exactly the peach kind and no other filters");
+        }
         else if (requiredKinds.Count != 0 || value != 0)
             Fail(path, "requiredCardKinds and value require a minimum response count policy");
         if (kind is SkillProgramCardPolicyKind.OfferSkipDiscard or
@@ -1507,15 +1525,19 @@ public sealed class SkillProgramCatalog
         {
             if (cardKinds.Count != 0) Fail(path + ".cardKinds", "this policy does not accept card kinds");
         }
-        else if (cardKinds.Count == 0 && kind is not (
+        else if (cardKinds.Count == 0 && cardCategories.Count == 0 && kind is not (
                      SkillProgramCardPolicyKind.FactionResponseRequest or
                      SkillProgramCardPolicyKind.ProhibitNearbyTargetResponse))
-            Fail(path + ".cardKinds", "this policy requires effective card kinds");
+            Fail(path + ".cardKinds", "this policy requires effective card kinds or categories");
+        if (kind == SkillProgramCardPolicyKind.ProhibitTarget &&
+            cardKinds.Count == 0 && cardCategories.Count == 0)
+            Fail(path + ".cardCategories", "a target prohibition must filter by kinds or categories");
         if (kind == SkillProgramCardPolicyKind.VirtualEquipment &&
             cardKinds.Any(card => !EquipmentCatalog.IsEquipment(card)))
             Fail(path, "virtualEquipment requires equipment card kinds");
         return new SkillProgramCardPolicy(id, kind, cardKinds, requiredKinds, value,
-            inputSuit, outputSuit, OptionalCondition(node, path), factionId, ownerRole);
+            inputSuit, outputSuit, OptionalCondition(node, path), factionId, ownerRole,
+            cardCategories, suits);
     }
 
     private static SkillProgramDamageModifier ParseDamageModifier(JsonElement node, string path)

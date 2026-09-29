@@ -181,6 +181,9 @@ public sealed partial class GameEngine
             string resultBind) =>
             engine.RequestProgramSlashByTarget(frame, targetSeat, resultBind);
 
+        public SkillProgramStepOutcome RequestNearestSlash(ProgramSkillFrame frame) =>
+            engine.RequestProgramNearestSlash(frame);
+
         public void PendExtraTurn(ProgramSkillFrame frame, int? targetSeat = null) =>
             engine.PendProgramExtraTurn(frame, targetSeat);
 

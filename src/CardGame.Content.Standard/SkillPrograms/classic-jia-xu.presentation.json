@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:wansha": {
+      "name": "完杀",
+      "description": "锁定技，不处于濒死状态的其他角色于你的回合内不能使用【桃】。"
+    },
+    "classic:luanwu": {
+      "name": "乱武",
+      "description": "限定技，出牌阶段，你可以选择所有其他角色，这些角色各需对距离最近的另一名角色使用一张【杀】，否则失去1点体力。"
+    },
+    "classic:weimu": {
+      "name": "帷幕",
+      "description": "锁定技，你不能被选择为黑色锦囊牌的目标。"
+    }
+  }
+}
