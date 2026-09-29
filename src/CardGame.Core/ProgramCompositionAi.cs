@@ -486,6 +486,12 @@ internal sealed class ProgramAiEstimateContext
         _bindings[effect.ResultBind!] = UnknownCards(
             Math.Max(0, _publicContext.TurnOwnerDiscardPhaseHandDiscardCount ?? 0), ownerHeld: false);
 
+    internal void ClaimMovedCards()
+    {
+        _ownerDraw += 1d;
+        _estimatedHandCount += 1d;
+    }
+
     internal void SelectAndMoveOwnedCard(SkillProgramEffect effect)
     {
         if (effect.CardOwnerRef?.Kind == ProgramParticipantRef.Owner &&

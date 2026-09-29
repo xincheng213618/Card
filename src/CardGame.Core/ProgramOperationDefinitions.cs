@@ -27,7 +27,9 @@ internal enum ProgramOperationAiSemantic
     ExchangeSelectedTargetHands,
     RequestSlashByTarget,
     BindDiscardPhaseDiscards,
-    RestorePhaseHandDiscards
+    RestorePhaseHandDiscards,
+    ClaimMovedCards,
+    UseVirtualDyingAlcohol
 }
 internal sealed record ProgramOperationAiPolicy(
     ProgramOperationAiSemantic Semantic,

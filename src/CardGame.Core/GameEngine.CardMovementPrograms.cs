@@ -108,6 +108,7 @@ public sealed partial class GameEngine
             var batch = _pendingCardsMovedBatches.Where(Eligible).OrderBy(item => item.Id).First();
             _pendingCardsMovedBatches.Remove(batch);
             var candidates = CollectCardsMovedProgramCandidates(batch);
+            candidates = candidates.Concat(CollectDiscardPileReceivedCandidates(batch)).ToArray();
             if (candidates.Count == 0) continue;
             var window = new CardsMovedTriggerWindowFrame(batch.Id, batch, candidates,
                 ResumeProgramFrameId: awaitingFrame?.PendingMovementContinuation is null ? awaitingFrame?.Id : null);
@@ -157,6 +158,77 @@ public sealed partial class GameEngine
             .ToArray();
     }
 
+    private IReadOnlyList<ProgramTriggerCandidate> CollectDiscardPileReceivedCandidates(
+        CardMovementBatchContext batch)
+    {
+        var additions = new List<ProgramTriggerCandidate>();
+        for (var seat = 0; seat < _players.Count; seat++)
+        {
+            if (!_players[seat].IsAlive) continue;
+            foreach (var candidate in CollectProgramTriggerCandidates(
+                         _players[seat], SkillProgramTriggerWindow.DiscardPileReceived))
+            {
+                var trigger = _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers
+                    .Single(item => item.Id == candidate.BindingId);
+                var indexes = MatchingDiscardPileIndexes(batch, candidate, trigger);
+                if (indexes.Length == 0) continue;
+                var occurrences = trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerBatch
+                    ? new[] { 0 }
+                    : indexes;
+                additions.AddRange(occurrences.Select(index => candidate with { OccurrenceIndex = index }));
+            }
+        }
+        return additions;
+    }
+
+    private int[] MatchingDiscardPileIndexes(CardMovementBatchContext batch,
+        ProgramTriggerCandidate candidate, SkillProgramTrigger trigger)
+    {
+        if (trigger.IgnoreOwnSkillMovements && batch.OriginOwnerSeat == candidate.OwnerSeat &&
+            batch.OriginSkillId == candidate.SkillId &&
+            batch.OriginSkillInstanceId == candidate.SkillInstanceId) return [];
+        var discardPile = _cardZones.CardsAt(CardLocation.DiscardPile)
+            .Select(card => (card.Id, card.Suit)).ToDictionary(item => item.Id, item => item.Suit);
+        return batch.Movements.Select((movement, index) => (movement, index))
+            .Where(item => item.movement.To == CardLocation.DiscardPile &&
+                item.movement.From.OwnerSeat is { } source && source != candidate.OwnerSeat &&
+                item.movement.From != item.movement.To &&
+                (trigger.MovementReasons.Count == 0 ||
+                    trigger.MovementReasons.Contains(item.movement.Reason.Value)) &&
+                !trigger.ExcludedMovementReasons.Contains(item.movement.Reason.Value) &&
+                (trigger.Suits.Count == 0 ||
+                    discardPile.TryGetValue(item.movement.CardId, out var suit) && trigger.Suits.Contains(suit)))
+            .Select(item => item.index).ToArray();
+    }
+
+    private void ClaimProgramMovedCards(ProgramSkillFrame frame)
+    {
+        var active = GetActiveProgramFrame(frame.Id);
+        if (active.WindowContext is not
+            {
+                Window: SkillProgramTriggerWindow.DiscardPileReceived,
+                MovementBatch: { } batch,
+                MovementIndex: { } index
+            } || index < 0 || index >= batch.Movements.Count)
+            throw new InvalidOperationException("The moved-card claim lost its discard window.");
+        var movement = batch.Movements[index];
+        if (movement.To != CardLocation.DiscardPile ||
+            movement.From.OwnerSeat is not { } source || source == active.OwnerSeat)
+            throw new InvalidOperationException(
+                "A moved-card claim must answer another player's discard into the discard pile.");
+        var owner = _players[active.OwnerSeat];
+        if (!owner.IsAlive || _cardZones.GetLocation(movement.CardId) != CardLocation.DiscardPile)
+            return;
+        var card = _cardZones.CardsAt(CardLocation.DiscardPile).Single(item => item.Id == movement.CardId);
+        MoveCard(card, CardLocation.DiscardPile, CardLocation.Hand(active.OwnerSeat),
+            new CardMoveReason($"skill-program.{active.SkillId}.{SkillProgramEffectOp.ClaimMovedCards}"));
+        QueueGameEvent(new ProgramMovedCardsClaimedEvent(
+            active.Id, active.SkillId, active.TriggerId!, active.OwnerSeat, source, card.Id));
+        AddLog("SkillTriggered",
+            $"{owner.Name} 发动【{_contentRegistry!.GetSkill(active.SkillId).Name}】，获得 {card.DisplayName}。",
+            active.OwnerSeat, source);
+    }
+
     private static int[] MatchingMovementIndexes(CardMovementBatchContext batch, ProgramTriggerCandidate candidate,
         SkillProgramTrigger trigger, CardLocation location)
     {
@@ -194,6 +266,20 @@ public sealed partial class GameEngine
     {
         if (frame.Contexts is { } contexts) return contexts[frame.CandidateIndex];
         var trigger = _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers.Single(item => item.Id == candidate.BindingId);
+        if (trigger.Window == SkillProgramTriggerWindow.DiscardPileReceived)
+        {
+            var movement = frame.Batch.Movements[candidate.OccurrenceIndex];
+            return new ProgramSkillWindowContext(
+                trigger.Window,
+                frame.Id,
+                candidate.OwnerSeat,
+                SourceSeat: movement.From.OwnerSeat,
+                OccurrenceIndex: candidate.OccurrenceIndex,
+                Facts: CaptureCardsMovedTriggerFacts(_players[candidate.OwnerSeat], 1,
+                    new CardMovementSourceCount(CardLocation.DiscardPile, 0, 0), trigger.Window),
+                MovementBatch: frame.Batch,
+                MovementIndex: candidate.OccurrenceIndex);
+        }
         var gained = trigger.Window == SkillProgramTriggerWindow.CardsGained;
         var location = new CardLocation((gained ? trigger.DestinationZones : trigger.SourceZones).Single(), candidate.OwnerSeat);
         var count = (gained ? frame.Batch.DestinationCounts! : frame.Batch.SourceCounts).Single(item => item.Location == location);

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:luoying": {
+      "name": "落英",
+      "description": "当其他角色的一张梅花牌因弃置或判定而置入弃牌堆时，你可以获得之。"
+    },
+    "classic:jiushi": {
+      "name": "酒诗",
+      "description": "当你需要使用【酒】时，若你的武将牌正面朝上，你可以翻面，视为使用一张【酒】；当你受到伤害后，若你的武将牌背面朝上，你可以翻回正面。",
+      "optionLabels": { "flip": "翻面并视为使用【酒】", "pass": "放弃" }
+    }
+  }
+}

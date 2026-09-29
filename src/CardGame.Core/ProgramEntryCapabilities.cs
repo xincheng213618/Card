@@ -39,6 +39,7 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.PlayPhaseStarting or
         SkillProgramTriggerWindow.CardsMoved or
         SkillProgramTriggerWindow.CardsGained or
+        SkillProgramTriggerWindow.DiscardPileReceived or
         SkillProgramTriggerWindow.AfterHpLost or
         SkillProgramTriggerWindow.AfterHpRecovered or
         SkillProgramTriggerWindow.OwnerDied or
@@ -70,7 +71,8 @@ internal static class ProgramEntryCapabilities
             SkillProgramTriggerWindow.AfterDamageApplied =>
             Common | ProgramContextCapability.Damage | ProgramContextCapability.Pindian |
             ProgramContextCapability.Judgment,
-        SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained =>
+        SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained or
+        SkillProgramTriggerWindow.DiscardPileReceived =>
             Common | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.OwnerDied =>
             Common | ProgramContextCapability.Judgment | ProgramContextCapability.Death,

@@ -781,6 +781,16 @@ internal static class SkillProgramExecutorChecks
         public void RevealBoundCards(ProgramSkillFrame frame, string sourceBind) =>
             throw new NotSupportedException("The executor fixture does not exercise RevealBoundCards.");
 
+        public void UseVirtualDyingAlcohol(ProgramSkillFrame frame)
+        {
+            Calls.Add($"virtual-dying-alcohol:{frame.OwnerSeat}");
+        }
+
+        public void ClaimMovedCards(ProgramSkillFrame frame)
+        {
+            Calls.Add($"claim-moved-cards:{frame.OwnerSeat}");
+        }
+
         public void UseBoundCardAsDyingAlcohol(ProgramSkillFrame frame, string sourceBind, CardMoveReason reason) =>
             throw new NotSupportedException("The executor fixture does not exercise UseBoundCardAsDyingAlcohol.");
 

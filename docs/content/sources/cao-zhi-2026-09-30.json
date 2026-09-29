@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-30",
+  "contentIds": [
+    "classic:cao-zhi"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:cao-zhi",
+      "url": "https://x.sanguosha.com/hero/294.html",
+      "edition": "三国杀官方网站武将库 gid 294（曹植，魏）",
+      "use": "落英：每当其他角色的一张梅花牌因弃置或判定而置入弃牌堆时，你可以获得之；酒诗：每当你需要使用【酒】时，若你的武将牌正面朝上，你可以将你的武将牌翻面，视为使用一张【酒】；若你因受到伤害而扣减体力前你的武将牌背面朝上，当此伤害结算结束后，你可以将你背面朝上的武将牌翻面。"
+    },
+    {
+      "contentId": "classic:cao-zhi",
+      "url": "https://wiki.biligame.com/sgs/%E6%9B%B9%E6%A4%8D",
+      "edition": "BWIKI 三国杀WIKI 武将页（二手核对）",
+      "use": "体力/势力/性别/包归属核对：魏、男、经典版 3 勾玉、一将成名2011。技能措辞与官方页一致的以官方页为准。"
+    }
+  ],
+  "versionBoundary": "落英需“其他角色的牌置入弃牌堆”的逐牌观察窗口与从弃牌堆获得牌的操作（此前 cardsMoved/cardsGained 均只覆盖拥有者自身区段），本批新增 discardPileReceived 窗口与 claimMovedCards 操作承载；“因弃置或判定”不含使用/响应结算完毕的归堆，故排除 use-finished 族移动原因。酒诗濒死自救以 selfDyingResponse 窗口承载（自我救援限定），翻面→视为使用【酒】→回复体力按官方顺序固化；官方“需要使用【酒】时”在现有濒死框架下固化为濒死自救形态（与本仓既有濒死救援机制同构），“正面朝上”前提以选项级 not[faceDown] 条件承载（selfDyingResponse 窗口按冻结事实不变式拒收触发条件，见 Runtime v65）。背面朝上受伤害后翻回正面以 afterDamageApplied perDamage 触发 + faceDown 触发条件（新增 FaceDown 触发条件与 OwnerIsFaceDown 冻结事实）承载。立绘 129401 已下载入库（official-cao-zhi.png，sha256 de2a3960…4f94e77）。",
+  "portraits": [
+    {
+      "contentId": "classic:cao-zhi",
+      "id": "129401",
+      "name": "经典形象*曹植",
+      "sourcePage": "https://x.sanguosha.com/hero/294.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/129401.png"
+    }
+  ]
+}

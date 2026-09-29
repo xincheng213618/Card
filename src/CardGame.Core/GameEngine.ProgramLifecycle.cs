@@ -1798,6 +1798,12 @@ public sealed partial class GameEngine
                 _resolutionStack.OfType<CardsMovedTriggerWindowFrame>().LastOrDefault()?.Id == batch.Id &&
                 (context.Window == SkillProgramTriggerWindow.CardsGained ? batch.DestinationCounts ?? [] : batch.SourceCounts)
                     .Any(item => item.Location.OwnerSeat == owner.Seat),
+            SkillProgramTriggerWindow.DiscardPileReceived =>
+                context.MovementBatch is { } batch &&
+                batch.Id == context.ParentFrameId &&
+                _resolutionStack.OfType<CardsMovedTriggerWindowFrame>().LastOrDefault()?.Id == batch.Id &&
+                batch.Movements.Any(item => item.To == CardLocation.DiscardPile &&
+                    item.From.OwnerSeat is { } source && source != owner.Seat),
             SkillProgramTriggerWindow.OwnerDied =>
                 !owner.IsAlive &&
                 _pendingDeath is { } death &&
@@ -2022,7 +2028,8 @@ public sealed partial class GameEngine
             PlayPhaseDamageDealtByTurnOwner: _playPhaseDamageDealtByCurrentPlayer,
             MarkerCounts: owner.Markers.Count > 0
                 ? new Dictionary<PlayerMarkerKind, int>(owner.Markers)
-                : null);
+                : null,
+            OwnerIsFaceDown: owner.IsFaceDown);
     }
 
     private SkillProgramTriggerFacts CaptureProgramTriggerFacts(CharacterState owner, CardActionContext action) =>
@@ -3887,6 +3894,7 @@ public sealed partial class GameEngine
                 break;
             case SkillProgramTriggerWindow.CardsGained:
             case SkillProgramTriggerWindow.CardsMoved:
+            case SkillProgramTriggerWindow.DiscardPileReceived:
                 if (_resolutionStack.LastOrDefault() is not CardsMovedTriggerWindowFrame cardsMoved ||
                     cardsMoved.Id != context.ParentFrameId ||
                     cardsMoved.Candidates[cardsMoved.CandidateIndex] != new ProgramTriggerCandidate(

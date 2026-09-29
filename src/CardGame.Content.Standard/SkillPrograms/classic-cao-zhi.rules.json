@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:luoying",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "claim-discarded-club",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "suits": ["club"],
+          "optional": true,
+          "priority": 0,
+          "excludedMovementReasons": [
+            "card.use-finished",
+            "card.response-finished",
+            "card.respond.nullification-finished",
+            "card.effect.iron-chain-finished",
+            "card.effect.delayed-finish",
+            "card.effect.fire-attack-finished",
+            "card.effect.fire-attack-discard-finished",
+            "card.effect.dismantlement-finished",
+            "card.effect.snatch-finished",
+            "card.effect.dismantlement-judgment-finished",
+            "card.effect.snatch-judgment-finished"
+          ],
+          "effects": [
+            {
+              "op": "claimMovedCards",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:jiushi",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "flip-for-virtual-alcohol",
+          "window": "selfDyingResponse",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "jiushi-choice",
+              "options": [
+                {
+                  "id": "flip",
+                  "condition": {
+                    "kind": "not",
+                    "children": [
+                      { "kind": "faceDown" }
+                    ]
+                  }
+                },
+                { "id": "pass", "condition": { "kind": "always" } }
+              ]
+            },
+            {
+              "op": "turnOver",
+              "target": "owner",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "jiushi-choice",
+                "optionId": "flip"
+              }
+            },
+            {
+              "op": "useVirtualDyingAlcohol",
+              "target": "owner",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "jiushi-choice",
+                "optionId": "flip"
+              }
+            }
+          ]
+        },
+        {
+          "id": "flip-back-after-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "priority": 0,
+          "condition": { "kind": "faceDown" },
+          "effects": [
+            {
+              "op": "turnOver",
+              "target": "owner",
+              "condition": { "kind": "faceDown" }
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

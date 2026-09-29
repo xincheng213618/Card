@@ -58,7 +58,7 @@ CLASSIC_HEROES = {
     "deng-ai": 52, "sha-mo-ke": 650, "lu-su": 50, "zhang-he": 51, "jiang-wei": 53,
     "dong-zhuo": 46,
     "liu-shan": 54,
-    "zhang-zhao-zhang-hong": 56,
+    "zhang-zhao-zhang-hong": 56, "cao-zhi": 294,
 }
 
 # These variants have independent GeneralArt IDs and independent official pages.

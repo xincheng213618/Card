@@ -4799,6 +4799,9 @@ internal static class ClassicGeneralChecks
             }
 
             var full = game.CreateSnapshot(0, revealAll: true);
+            // The allowlist only admits generals whose skills cannot alter a
+            // Dodge response sequence (no damage, judgment, or card-conversion
+            // prompts interleave with the two required Dodges).
             var candidate = game.GetHumanLegalActions()
                 .Where(action => action.Kind == LegalActionKind.Slash && action.TargetSeat is not null)
                 .Select(action => new
@@ -4808,7 +4811,8 @@ internal static class ClassicGeneralChecks
                 })
                 .Where(item => item.Target.GeneralId is "classic:lu-meng" or "classic:zhang-fei" or
                            "classic:xu-huang" or "classic:gan-ning" or "classic:dian-wei" or
-                           "classic:zhang-he" &&
+                           "classic:zhang-he" or "classic:deng-ai" or "classic:sima-yi" or
+                           "classic:guan-yu" or "classic:yan-liang-wen-chou" &&
                                item.Target.Hand.Count(card => card.Kind == CardKind.Dodge) >= 2 &&
                                item.Target.Equipment.All(card =>
                                    card.Kind is not (CardKind.BaguaFormation or CardKind.RenwangShield)) &&
@@ -5634,6 +5638,14 @@ internal static class ClassicGeneralChecks
             BindingFlags.NonPublic | BindingFlags.Instance) ??
             throw new InvalidOperationException("The engine event commit method was not found.");
         commitEvents.Invoke(game, null);
+        // The synthetic call bypasses the command pipeline, so deferred movement
+        // continuations need one pipeline step to publish and resume.
+        for (var step = 0; step < 32 && game.ResolutionStack.Count > 0 &&
+             game.PendingDecision is null; step++)
+        {
+            var advance = game.Submit(new AdvanceOneStepCommand(game.Revision));
+            if (!advance.Accepted) break;
+        }
     }
 
     private static GameEngine CreateInteractive(
