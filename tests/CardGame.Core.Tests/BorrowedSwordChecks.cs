@@ -132,7 +132,7 @@ internal static class BorrowedSwordChecks
     public static void FactionSlashProvidesForcedSlash()
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        var game = BorrowedSwordScenario.FindHumanOwnerResponse(requireFactionSlash: true);
+        var game = BorrowedSwordScenario.FindHumanOwnerResponse(requireFactionSlash: true, maxSeeds: 262_144);
         var prompt = game.PendingDecision ??
             throw new InvalidOperationException("Borrowed Sword FactionSlash fixture lost its owner prompt.");
         var targetSeat = prompt.TargetSeat ??

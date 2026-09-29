@@ -68,10 +68,13 @@ internal static class BorrowedSwordScenario
     }
 
     public static GameEngine FindHumanOwnerResponse(bool requireFactionSlash = false,
-        string ownerGeneralId = "classic:liu-bei")
+        string ownerGeneralId = "classic:liu-bei", int maxSeeds = 65_536)
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        for (var seed = 1; seed <= 65_536; seed++)
+        // Pool dilution: every classic general that enters the identity pool lowers
+        // the per-seed hit rate of the (owner offered, weapon in hand, faction
+        // provider alive) conjunction, so the faction-slash variant scans deeper.
+        for (var seed = 1; seed <= maxSeeds; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {

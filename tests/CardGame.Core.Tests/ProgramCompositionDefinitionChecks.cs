@@ -172,8 +172,7 @@ internal static class ProgramCompositionDefinitionChecks
             [SkillProgramEffectOp.ChooseOwnCardDiscard] = """{"op":"chooseOwnCardDiscard","target":"owner","chooserRef":{"kind":"eventSource"},"zones":["hand","equipment"],"condition":{"kind":"always"}}""",
             [SkillProgramEffectOp.ExchangeSelectedTargetHands] = """{"op":"exchangeSelectedTargetHands","target":"owner","condition":{"kind":"always"}}""",
             [SkillProgramEffectOp.RequestSlashByTarget] = """{"op":"requestSlashByTarget","target":"selectedTarget","resultBind":"answer"}""",
-            [SkillProgramEffectOp.BindDiscardPhaseDiscards] = """{"op":"bindDiscardPhaseDiscards","target":"owner","resultBind":"guzheng-pool"}"""
-
+            [SkillProgramEffectOp.BindDiscardPhaseDiscards] = """{"op":"bindDiscardPhaseDiscards","target":"owner","resultBind":"guzheng-pool"}""",
             [SkillProgramEffectOp.RestorePhaseHandDiscards] = """{"op":"restorePhaseHandDiscards","target":"owner","chooserRef":{"kind":"owner"},"phaseOwnerRef":{"kind":"eventSource"},"condition":{"kind":"always"}}"""
 
         };
