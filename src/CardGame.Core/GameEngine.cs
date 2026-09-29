@@ -8394,6 +8394,21 @@ public sealed partial class GameEngine
                GetFactionSlashCandidateSeats(source.Seat).Count > 0;
     }
 
+    // A multi-target continuation (Fangtian Halberd, group response attacks)
+    // publishes its next target's response window inside CompleteAttack; a
+    // Qinglong follow-up Slash must not start on top of that freshly published
+    // window, so the blade waits until the current target is the last living
+    // one and its chain finalizes the whole use.
+    private bool MultiTargetContinuationDefersQinglong(AttackResolution attack) =>
+        (_pendingFangtianHalberd is { } fangtian &&
+         ReferenceEquals(fangtian.CurrentAttack, attack) &&
+         fangtian.TargetSeats.Skip(fangtian.TargetIndex + 1)
+             .Any(seat => _players[seat].IsAlive)) ||
+        (_pendingGroupCard is { Effect: GroupCardEffect.ResponseAttack } group &&
+         ReferenceEquals(group.CurrentAttack, attack) &&
+         group.TargetSeats.Skip(group.TargetIndex + 1)
+             .Any(seat => _players[seat].IsAlive));
+
     private bool TryBeginQinglongCrescentBladeChoice(AttackResolution attack)
     {
         var source = _players[attack.SourceSeat];
@@ -8401,6 +8416,11 @@ public sealed partial class GameEngine
         var effectiveKind = RequireAttackCardKind(attack);
         if (!UsesFormalQinglongCrescentBlade ||
             effectiveKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash))
+        {
+            return false;
+        }
+
+        if (MultiTargetContinuationDefersQinglong(attack))
         {
             return false;
         }
@@ -18034,8 +18054,18 @@ public sealed partial class GameEngine
                 _cardZones.GetLocation(card.Id).Zone is CardZoneKind.DiscardPile or
                     CardZoneKind.Hand or CardZoneKind.DrawPile);
         }
-        if (processing.Count == attack.PhysicalCards.Count &&
-            processing.All(card => attackCardIds.Contains(card.Id)))
+        // An outer multi-target use keeps its own card in Processing for the
+        // whole resolution while an inner triggered resolution (such as a
+        // nested attack) runs above its response window; its live frame on the
+        // stack proves the card is held, not leaked. Once that frame pops, any
+        // residue fails this invariant again.
+        var heldByOuterUses = _resolutionStack.OfType<CardUseFrame>()
+            .Where(frame => frame.Id != attack.ResolutionId && frame.CardId != 0)
+            .Select(frame => frame.CardId).ToHashSet();
+        var toleratedProcessing = processing
+            .Where(card => !heldByOuterUses.Contains(card.Id)).ToArray();
+        if (toleratedProcessing.Length == attack.PhysicalCards.Count &&
+            toleratedProcessing.All(card => attackCardIds.Contains(card.Id)))
         {
             return true;
         }
