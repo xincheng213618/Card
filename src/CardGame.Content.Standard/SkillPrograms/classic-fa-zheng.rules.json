@@ -1,0 +1,120 @@
+﻿{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:enyuan",
+      "revision": 1,
+      "minimumRulesVersion": 190,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "contributions": [],
+      "cardIdentities": [],
+      "triggers": [
+        {
+          "id": "favor-for-gained-pair",
+          "window": "cardsGained",
+          "subject": "owner",
+          "destinationZones": ["hand"],
+          "movementOccurrence": "perBatch",
+          "optional": true,
+          "priority": 0,
+          "condition": { "kind": "gainedTwoPlusFromSingleOther" },
+          "effects": [
+            { "op": "draw", "target": "owner", "amount": 1, "targetRef": { "kind": "eventSource" } }
+          ]
+        },
+        {
+          "id": "grudge-choice-after-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": true,
+          "priority": 0,
+          "condition": { "kind": "otherDamageParticipantAlive" },
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "chooserRef": { "kind": "eventSource" },
+              "resultBind": "enyuan-grudge-choice",
+              "options": [
+                { "id": "give", "condition": { "kind": "handCountAtLeast", "value": 1 } },
+                { "id": "loseHp", "condition": { "kind": "always" } }
+              ]
+            },
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "targetRef": { "kind": "eventSource" },
+              "zones": ["hand"],
+              "amount": 1,
+              "resultBind": "enyuan-given",
+              "condition": { "kind": "choiceIs", "sourceBind": "enyuan-grudge-choice", "optionId": "give" }
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "enyuan-given",
+              "destination": "ownerHand",
+              "condition": { "kind": "choiceIs", "sourceBind": "enyuan-grudge-choice", "optionId": "give" }
+            },
+            {
+              "op": "loseHp",
+              "target": "owner",
+              "amount": 1,
+              "targetRef": { "kind": "eventSource" },
+              "condition": { "kind": "choiceIs", "sourceBind": "enyuan-grudge-choice", "optionId": "loseHp" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:xuanhuo",
+      "revision": 1,
+      "minimumRulesVersion": 190,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "contributions": [],
+      "cardIdentities": [],
+      "triggers": [
+        {
+          "id": "replace-draw-with-ordered-pair",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 100,
+          "drawPhaseMode": "replacement",
+          "effects": [
+            {
+              "op": "selectTargets",
+              "target": "owner",
+              "targetKind": "otherLivingRangeOrderedPair",
+              "minimumTargets": 2,
+              "maximumTargets": 2,
+              "targetAiOrder": "stable"
+            },
+            { "op": "draw", "target": "owner", "amount": 2, "targetRef": { "kind": "selectedFirst" } },
+            {
+              "op": "requestSlashByTarget",
+              "target": "owner",
+              "responderRef": { "kind": "selectedFirst" },
+              "victimRef": { "kind": "selectedSecond" },
+              "resultBind": "xuanhuo-answer"
+            },
+            {
+              "op": "takeRandomCardsFromParticipant",
+              "target": "owner",
+              "participantRef": { "kind": "selectedSecond" },
+              "amount": 2,
+              "zones": ["hand", "equipment"],
+              "condition": { "kind": "choiceIs", "sourceBind": "xuanhuo-answer", "optionId": "declined" }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

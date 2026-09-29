@@ -30,7 +30,8 @@ internal enum ProgramOperationAiSemantic
     RestorePhaseHandDiscards,
     ClaimMovedCards,
     TakeRandomCardFromEveryOtherCharacter,
-    UseVirtualDyingAlcohol
+    UseVirtualDyingAlcohol,
+    TakeRandomCardsFromParticipant
 }
 internal sealed record ProgramOperationAiPolicy(
     ProgramOperationAiSemantic Semantic,
@@ -341,7 +342,8 @@ internal abstract class ProgramOperationDescriptorBase : IProgramOperationDescri
                 new ProgramResourceOperation[] { new RequireAnyContext(ProgramContextCapability.CardAction |
                     ProgramContextCapability.Damage | ProgramContextCapability.Judgment) },
             ProgramParticipantRef.EventSource =>
-                new ProgramResourceOperation[] { new RequireContext(ProgramContextCapability.Damage) },
+                new ProgramResourceOperation[] { new RequireAnyContext(ProgramContextCapability.Damage |
+                    ProgramContextCapability.Movement) },
             ProgramParticipantRef.SelectedTarget =>
                 new ProgramResourceOperation[] { new ReadSelectedTarget() },
             ProgramParticipantRef.SelectedFirst =>
@@ -385,8 +387,9 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
             expression is not null || source is not null || bind is not null))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.targetRef: participant draws require owner placeholder, fixed amount and no card binding.");
         if (targetRef is not null && targetRef.Kind is not
-            (ProgramParticipantRef.EventSource or ProgramParticipantRef.EventTarget))
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}.targetRef: draw requires eventSource or eventTarget.");
+            (ProgramParticipantRef.EventSource or ProgramParticipantRef.EventTarget or
+                ProgramParticipantRef.SelectedFirst or ProgramParticipantRef.SelectedSecond))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.targetRef: draw requires eventSource, eventTarget or a selected participant.");
         var replacementSuits = r.OptionalEnumArray<Suit>("replacementSuits") ?? [];
         var minimumReplacementRank = r.Has("minimumReplacementRank") ? r.RequiredInt("minimumReplacementRank") : 0;
         var maximumReplacementRank = r.Has("maximumReplacementRank") ? r.RequiredInt("maximumReplacementRank") : 0;
@@ -480,11 +483,18 @@ internal sealed class LoseHpProgramOperationDescriptor : ProgramOperationDescrip
         static (effect, context) => context.LoseHp(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "amount", "condition");
-        return new(Op, r.RequiredEnum<SkillProgramEffectTarget>("target"),
-            DrawProgramOperationDescriptor.Amount(r, 20), r.Condition());
+        r.AllowOnly("op", "target", "amount", "targetRef", "condition");
+        var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
+        var targetRef = r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null;
+        if (targetRef is not null && (target != SkillProgramEffectTarget.Owner ||
+            targetRef.Kind is not (ProgramParticipantRef.EventSource or ProgramParticipantRef.EventTarget)))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.targetRef: an HP loss requires an event participant and owner placeholder.");
+        var effect = new SkillProgramEffect(Op, target,
+            DrawProgramOperationDescriptor.Amount(r, 20), r.Condition(), targetReference: targetRef);
+        return effect;
     }
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => WithSelectedTarget(effect);
+    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
+        WithSelectedTarget(effect).Concat(ParticipantResources(effect.TargetReference)).ToArray();
 }
 
 internal sealed class RevealTopCardsProgramOperationDescriptor : ProgramOperationDescriptorBase

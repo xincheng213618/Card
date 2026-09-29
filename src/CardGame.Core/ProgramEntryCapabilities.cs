@@ -16,7 +16,8 @@ internal enum ProgramContextCapability
     Dying = 256,
     JudgmentReplacement = 512,
     PhaseSubstitution = 1024,
-    PhaseOwner = 2048
+    PhaseOwner = 2048,
+    Movement = 4096
 }
 
 internal static class ProgramEntryCapabilities
@@ -73,7 +74,7 @@ internal static class ProgramEntryCapabilities
             ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained or
         SkillProgramTriggerWindow.DiscardPileReceived =>
-            Common | ProgramContextCapability.Judgment,
+            Common | ProgramContextCapability.Judgment | ProgramContextCapability.Movement,
         SkillProgramTriggerWindow.OwnerDied =>
             Common | ProgramContextCapability.Judgment | ProgramContextCapability.Death,
         SkillProgramTriggerWindow.CharacterDied => Common | ProgramContextCapability.Death,

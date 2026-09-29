@@ -50,7 +50,8 @@ public enum SkillProgramTriggerConditionKind
     CardActionFromOwnerHand = 24,
     DamageSourceIsOwner = 25,
     DamageSourceFactionIs = 26,
-    FaceDown = 27
+    FaceDown = 27,
+    GainedTwoPlusFromSingleOther = 28
 }
 public enum SkillProgramTriggerValueKind
 {
@@ -119,7 +120,8 @@ public enum SkillProgramTargetKind
     OtherLivingWhoseAttackRangeIncludesOwner = 24,
     EventSource = 25,
     OtherLivingWithQinggangSword = 26,
-    LivingPairDistinct = 27
+    LivingPairDistinct = 27,
+    OtherLivingRangeOrderedPair = 28
 }
 public enum SkillProgramCardCategory { Basic, Trick, Equipment }
 public enum SkillProgramTurnOwnerScope { Own = 0, OtherLiving = 1 }
@@ -227,7 +229,8 @@ public enum SkillProgramEffectOp
     RestorePhaseHandDiscards,
     ClaimMovedCards,
     TakeRandomCardFromEveryOtherCharacter,
-    UseVirtualDyingAlcohol
+    UseVirtualDyingAlcohol,
+    TakeRandomCardsFromParticipant
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -566,7 +569,8 @@ public sealed record SkillProgramTriggerFacts(
     bool? DamageSourceIsOwner = null,
     string? DamageSourceFactionId = null,
     int TurnOwnerDiscardPhaseHandDiscardCount = 0,
-    bool OwnerIsFaceDown = false)
+    bool OwnerIsFaceDown = false,
+    int? DominantForeignGainSourceSeat = null)
 {
     public bool GetBooleanState(string skillId, string skillInstanceId, string stateId) =>
         BooleanStates?.GetValueOrDefault(BooleanStateKey(skillId, skillInstanceId, stateId)) ??
@@ -696,6 +700,8 @@ public sealed class SkillProgramTriggerCondition
         SkillProgramTriggerConditionKind.DamageSourceFactionIs => facts.DamageSourceFactionId is { } faction &&
             Factions.Contains(faction, StringComparer.Ordinal),
         SkillProgramTriggerConditionKind.FaceDown => facts.OwnerIsFaceDown,
+        SkillProgramTriggerConditionKind.GainedTwoPlusFromSingleOther =>
+            facts.DominantForeignGainSourceSeat is not null,
         SkillProgramTriggerConditionKind.LordGeneralNotIn =>
             facts.LordGeneralId is null || !GeneralIds.Contains(facts.LordGeneralId, StringComparer.Ordinal),
         SkillProgramTriggerConditionKind.All => Children.All(child => child.Evaluate(facts, skillId, skillInstanceId)),
@@ -2302,6 +2308,10 @@ public sealed class SkillProgramCatalog
             window != SkillProgramTriggerWindow.AfterDamageApplied)
             Fail(path + ".condition", "damageCardIsSlash requires an afterDamageApplied trigger");
         if (EnumerateTriggerConditions(condition).Any(item =>
+                item.Kind == SkillProgramTriggerConditionKind.GainedTwoPlusFromSingleOther) &&
+            window != SkillProgramTriggerWindow.CardsGained)
+            Fail(path + ".condition", "gainedTwoPlusFromSingleOther requires a cardsGained trigger");
+        if (EnumerateTriggerConditions(condition).Any(item =>
                 item.Kind == SkillProgramTriggerConditionKind.DamageTargetIsOther) &&
             window != SkillProgramTriggerWindow.AfterDamageApplied)
             Fail(path + ".condition", "damageTargetIsOther requires an afterDamageApplied trigger");
@@ -2421,8 +2431,9 @@ public sealed class SkillProgramCatalog
             window is not (SkillProgramTriggerWindow.AfterDamageApplied or
                 SkillProgramTriggerWindow.DamageAppliedBeforeDying or
                 SkillProgramTriggerWindow.JudgmentFinalized or
-                SkillProgramTriggerWindow.DiscardPhaseEnded))
-            Fail(path + ".effects", "eventSource requires a damage-applied, judgment or discard-phase-ended trigger");
+                SkillProgramTriggerWindow.DiscardPhaseEnded or
+                SkillProgramTriggerWindow.CardsGained))
+            Fail(path + ".effects", "eventSource requires a damage-applied, judgment, discard-phase-ended or cardsGained trigger");
         if (window == SkillProgramTriggerWindow.JudgmentReplacing &&
             (effects[0].Op != SkillProgramEffectOp.ReplaceJudgment ||
              effects.Skip(1).Any(effect => effect.Op is not

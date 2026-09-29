@@ -782,7 +782,11 @@ public sealed partial class GameEngine
                 };
                 var chooserSeat = producer?.ChooserRef is { } producerChooser
                     ? ResolveProgramParticipant(frame, producerChooser)
-                    : producer is null ? -1 : ResolveProgramEffectTarget(frame, producer.Target);
+                    : producer is null ? -1
+                    : producer.Op == SkillProgramEffectOp.RequestSlashByTarget &&
+                      producer.TargetReference is { } responder
+                        ? ResolveProgramParticipant(frame, responder)
+                        : ResolveProgramEffectTarget(frame, producer.Target);
                 if (producer is null || !validOption || binding.ChooserSeat != chooserSeat)
                     throw new InvalidOperationException("An active program choice does not match its committed producer.");
             }

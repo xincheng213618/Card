@@ -203,6 +203,15 @@ internal sealed class ProgramAiEstimateContext
         else _targetHpLoss += effect.Amount;
     }
 
+    internal void TakeRandomCardsFromParticipant(SkillProgramEffect effect)
+    {
+        // A random take from a bound participant enriches the owner by the configured
+        // amount at the participant's expense; the exact hidden identity is irrelevant.
+        _ownerDraw += effect.Amount;
+        _estimatedHandCount += effect.Amount;
+        _otherAdjustment += effect.Amount * 2d;
+    }
+
     internal void Reveal(SkillProgramEffect effect)
     {
         var amount = effect.NumberExpression == SkillProgramNumberExpression.OwnerLostHp

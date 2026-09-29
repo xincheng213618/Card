@@ -487,10 +487,19 @@ internal static class SkillProgramExecutorChecks
         }
 
         public SkillProgramStepOutcome RequestSlashByTarget(ProgramSkillFrame frame, int targetSeat,
-            string resultBind)
+            int victimSeat, string resultBind)
         {
-            Calls.Add($"slash-request:{frame.OwnerSeat}:{targetSeat}:{resultBind}");
+            Calls.Add($"slash-request:{frame.OwnerSeat}:{targetSeat}:{victimSeat}:{resultBind}");
             return SkillProgramStepOutcome.AwaitChoice;
+        }
+
+        public SkillProgramStepOutcome TakeRandomCardsFromParticipant(ProgramSkillFrame frame,
+            ProgramParticipantReference participantReference, int amount,
+            IReadOnlyList<CardZoneKind> zones, CardMoveReason reason)
+        {
+            Calls.Add($"participant-take:{frame.OwnerSeat}:{participantReference.Kind}:{amount}:" +
+                $"{string.Join('+', zones)}:{reason.Value}");
+            return SkillProgramStepOutcome.Continue;
         }
 
         public void PendExtraTurn(ProgramSkillFrame frame, int? targetSeat)

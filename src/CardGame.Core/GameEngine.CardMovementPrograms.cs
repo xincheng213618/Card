@@ -136,7 +136,8 @@ public sealed partial class GameEngine
                 if (!(window == SkillProgramTriggerWindow.CardsMoved ? trigger.SourceZones : trigger.DestinationZones).Contains(count.Location.Zone)) continue;
                 var indexes = MatchingMovementIndexes(batch, candidate, trigger, count.Location);
                 if (indexes.Length == 0) continue;
-                var facts = CaptureCardsMovedTriggerFacts(_players[ownerSeat], indexes.Length, count, window);
+                var facts = CaptureCardsMovedTriggerFacts(_players[ownerSeat], indexes.Length, count, window,
+                    DominantForeignGainSource(batch, indexes, ownerSeat));
                 if (!trigger.Condition.Evaluate(facts, candidate.SkillId, candidate.SkillInstanceId)) continue;
                 // A judgment still in flight (for example while another skill replaces its
                 // card) owns its judgment zone churn; starting a second judgment from that
@@ -247,7 +248,8 @@ public sealed partial class GameEngine
         CharacterState owner,
         int movedCardCount,
         CardMovementSourceCount sourceCount,
-        SkillProgramTriggerWindow window)
+        SkillProgramTriggerWindow window,
+        int? dominantForeignGainSourceSeat = null)
     {
         var facts = CaptureProgramTriggerFacts(owner);
         return facts with
@@ -256,8 +258,33 @@ public sealed partial class GameEngine
             SourceZoneCountBefore = window == SkillProgramTriggerWindow.CardsMoved ? sourceCount.CountBefore : 0,
             SourceZoneCountAfter = window == SkillProgramTriggerWindow.CardsMoved ? sourceCount.CountAfter : 0,
             DestinationZoneCountBefore = window == SkillProgramTriggerWindow.CardsGained ? sourceCount.CountBefore : 0,
-            DestinationZoneCountAfter = window == SkillProgramTriggerWindow.CardsGained ? sourceCount.CountAfter : 0
+            DestinationZoneCountAfter = window == SkillProgramTriggerWindow.CardsGained ? sourceCount.CountAfter : 0,
+            DominantForeignGainSourceSeat = window == SkillProgramTriggerWindow.CardsGained
+                ? dominantForeignGainSourceSeat : null
         };
+    }
+
+    /// <summary>
+    /// Freezes the single other-character source of a gain batch: returns the foreign seat
+    /// that sent the most matched movements into the owner's hand when that count reaches
+    /// two, or null when the batch has no such dominant foreign source.
+    /// </summary>
+    private static int? DominantForeignGainSource(
+        CardMovementBatchContext batch, IReadOnlyList<int> indexes, int ownerSeat)
+    {
+        var counts = new Dictionary<int, int>();
+        foreach (var index in indexes)
+        {
+            var source = batch.Movements[index].From.OwnerSeat;
+            if (source is not { } seat || seat == ownerSeat) continue;
+            counts[seat] = counts.GetValueOrDefault(seat) + 1;
+        }
+        return counts.Count == 0
+            ? null
+            : counts.OrderByDescending(item => item.Value).ThenBy(item => item.Key)
+                .Where(item => item.Value >= 2)
+                .Select(item => (int?)item.Key)
+                .FirstOrDefault();
     }
 
     private ProgramSkillWindowContext CreateCardsMovedProgramContext(
@@ -284,15 +311,18 @@ public sealed partial class GameEngine
         var location = new CardLocation((gained ? trigger.DestinationZones : trigger.SourceZones).Single(), candidate.OwnerSeat);
         var count = (gained ? frame.Batch.DestinationCounts! : frame.Batch.SourceCounts).Single(item => item.Location == location);
         var matchingIndexes = MatchingMovementIndexes(frame.Batch, candidate, trigger, location);
+        var dominantForeignSource = gained
+            ? DominantForeignGainSource(frame.Batch, matchingIndexes, candidate.OwnerSeat) : null;
         return new ProgramSkillWindowContext(
             trigger.Window,
             frame.Id,
             candidate.OwnerSeat,
-            SourceSeat: gained ? frame.Batch.OriginOwnerSeat : candidate.OwnerSeat,
+            SourceSeat: gained ? dominantForeignSource : candidate.OwnerSeat,
             TargetSeat: candidate.OwnerSeat,
             OccurrenceIndex: candidate.OccurrenceIndex,
             Facts: CaptureCardsMovedTriggerFacts(
-                _players[candidate.OwnerSeat], matchingIndexes.Length, count, trigger.Window),
+                _players[candidate.OwnerSeat], matchingIndexes.Length, count, trigger.Window,
+                dominantForeignSource),
             MovementBatch: frame.Batch,
             MovementIndex: trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerCard
                 ? candidate.OccurrenceIndex

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-30",
+  "contentIds": [
+    "classic:fa-zheng"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:fa-zheng",
+      "url": "https://x.sanguosha.com/hero/288.html",
+      "edition": "三国杀官方网站武将库 gid 288（法正，蜀）",
+      "use": "恩怨：当你一次性获得一名其他角色的至少两张牌后，你可以令其摸一张牌；当你受到1点伤害后，你可以令伤害来源选择一项：1.交给你一张手牌；2.失去1点体力。眩惑：摸牌阶段，你可以改为令一名其他角色摸两张牌，并选择其攻击范围内的另一名其他角色，然后令该角色选择一项：1.对你选择的角色使用一张【杀】；2.令你获得其两张牌。"
+    },
+    {
+      "contentId": "classic:fa-zheng",
+      "url": "https://wiki.biligame.com/sgs/%E6%B3%95%E6%AD%A3",
+      "edition": "BWIKI 三国杀WIKI 武将页（二手核对）",
+      "use": "体力/势力/性别/包归属核对：蜀、男、经典版 3 勾玉、一将成名2011。技能措辞与官方页一致的以官方页为准；眩惑选项2与恩怨①的一次性获得联动为文本逻辑推断，页面未单列 ruling。"
+    }
+  ],
+  "versionBoundary": "恩怨①需“一次性获得一名其他角色的至少两张牌”的批次级来源判定：新增冻结事实 DominantForeignGainSourceSeat（批次内向拥有者手牌贡献最多匹配移牌的单个他人来源，须≥2张）与触发条件 gainedTwoPlusFromSingleOther（仅限 cardsGained 窗口），eventSource 参与者白名单同批放开 cardsGained。眩惑第二步“选择其攻击范围内的另一名其他角色”依赖第一步结果，顺序两次 selectTarget 相互覆盖，固化为一次有序对选择：新增目标种类 otherLivingRangeOrderedPair（暴露全部方向对并按第一位对第二位的可攻击距离过滤）。眩惑第三步“对你选择的角色使用一张【杀】”扩展 requestSlashByTarget 的可选 responderRef/victimRef（不声明时维持挑衅语义）。眩惑选项2“获得其两张牌”新增操作 takeRandomCardsFromParticipant（单个绑定参与者、固定多张、hand/equipment 白名单，单原子批次直移保留来源）。恩怨②交牌分支暴露 selectOwnedCards 共享描述符的 CaptureSourceCard.OwnerHand 静态标记忽略 targetRef 的既有缺陷（他人牌误标持有者持有），修正为 targetRef 为空才记持有者——既有刚烈（移向弃牌堆）零行为变化。眩惑摸牌阶段替换以 drawPhaseMode replacement + priority 100 承载（询询先例）。立绘 128801 已下载入库（official-fa-zheng.png，sha256 874c45e2…e561d28a）。",
+  "portraits": [
+    {
+      "contentId": "classic:fa-zheng",
+      "id": "128801",
+      "name": "经典形象*法正",
+      "sourcePage": "https://x.sanguosha.com/hero/288.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/128801.png"
+    }
+  ]
+}

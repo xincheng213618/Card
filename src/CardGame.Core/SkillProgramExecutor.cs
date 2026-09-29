@@ -61,7 +61,7 @@ public interface ISkillProgramEffectHost
     SkillProgramStepOutcome UseBoundCardByTarget(ProgramSkillFrame frame, int targetSeat,
         string sourceBind);
     SkillProgramStepOutcome RequestSlashByTarget(ProgramSkillFrame frame, int targetSeat,
-        string resultBind);
+        int victimSeat, string resultBind);
     void PendExtraTurn(ProgramSkillFrame frame, int? targetSeat = null);
     void ClaimDeathCleanupCards(ProgramSkillFrame frame);
     SkillProgramStepOutcome BindDiscardPhaseDiscards(ProgramSkillFrame frame, string resultBind);
@@ -248,6 +248,9 @@ public interface ISkillProgramEffectHost
         int ownerSeat,
         IReadOnlyList<CardZoneKind> zones,
         CardMoveReason reason);
+    SkillProgramStepOutcome TakeRandomCardsFromParticipant(ProgramSkillFrame frame,
+        ProgramParticipantReference participantReference, int amount,
+        IReadOnlyList<CardZoneKind> zones, CardMoveReason reason);
     void AdjustNormalDraw(ProgramSkillFrame frame, int amount);
     void GrantTurnCardDamageModifier(
         ProgramSkillFrame frame,
@@ -533,8 +536,12 @@ public sealed class LoseHpSkillProgramEffectHandler : ISkillProgramEffectHandler
         SkillProgramEffect effect,
         ProgramSkillFrame frame,
         int targetSeat,
-        ISkillProgramEffectHost host) =>
-        host.LoseHp(frame.Id, frame.SkillId, targetSeat, effect.Amount);
+        ISkillProgramEffectHost host)
+    {
+        if (effect.TargetReference is { } targetReference)
+            targetSeat = host.ResolveParticipant(frame, targetReference);
+        return host.LoseHp(frame.Id, frame.SkillId, targetSeat, effect.Amount);
+    }
 }
 
 public sealed class DistributeOwnedCardsSkillProgramEffectHandler : ISkillProgramEffectHandler
@@ -1356,6 +1363,9 @@ public sealed class SkillProgramExecutor
                 : effect.Op == SkillProgramEffectOp.Damage &&
                   effect.TargetReference is { } targetReference
                 ? effects.ResolveParticipant(frame, targetReference)
+                : effect.Op == SkillProgramEffectOp.RequestSlashByTarget &&
+                  effect.TargetReference is { } responderReference
+                ? effects.ResolveParticipant(frame, responderReference)
                 : effect.Target switch
                 {
                     SkillProgramEffectTarget.Owner => frame.OwnerSeat,

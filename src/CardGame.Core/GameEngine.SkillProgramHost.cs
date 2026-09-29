@@ -178,8 +178,8 @@ public sealed partial class GameEngine
             engine.UseProgramBoundCardByTarget(frame, targetSeat, sourceBind);
 
         public SkillProgramStepOutcome RequestSlashByTarget(ProgramSkillFrame frame, int targetSeat,
-            string resultBind) =>
-            engine.RequestProgramSlashByTarget(frame, targetSeat, resultBind);
+            int victimSeat, string resultBind) =>
+            engine.RequestProgramSlashByTarget(frame, targetSeat, victimSeat, resultBind);
 
         public void PendExtraTurn(ProgramSkillFrame frame, int? targetSeat = null) =>
             engine.PendProgramExtraTurn(frame, targetSeat);
@@ -479,6 +479,15 @@ public sealed partial class GameEngine
             CardMoveReason reason) =>
             engine.TakeProgramRandomCardFromEveryOtherCharacter(
                 frameId, ownerSeat, zones, reason);
+
+        public SkillProgramStepOutcome TakeRandomCardsFromParticipant(
+            ProgramSkillFrame frame,
+            ProgramParticipantReference participantReference,
+            int amount,
+            IReadOnlyList<CardZoneKind> zones,
+            CardMoveReason reason) =>
+            engine.TakeProgramRandomCardsFromParticipant(
+                frame, participantReference, amount, zones, reason);
 
         public void AdjustNormalDraw(ProgramSkillFrame frame, int amount) =>
             engine.AdjustProgramNormalDraw(frame, amount);

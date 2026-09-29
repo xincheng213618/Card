@@ -2097,6 +2097,23 @@
       ]
     },
     {
+      "key": "fa-zheng",
+      "characterName": "法正",
+      "defaultSkinId": "128801",
+      "skins": [
+        {
+          "id": "128801",
+          "name": "经典形象*法正",
+          "sourcePage": "https://x.sanguosha.com/hero/288.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/128801.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-fa-zheng.png",
+          "sha256": "874c45e2c9c74a595bb2e89f6e803c400613068a67e562c897992352e561d28a",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "gan-ning",
       "characterName": "甘宁",
       "defaultSkinId": "100901",

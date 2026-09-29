@@ -726,6 +726,7 @@ public sealed partial class GameEngine
                         GetHand(peer).Count != GetHand(target).Count),
                 SkillProgramTargetKind.OtherLivingPair => target.Seat != ownerSeat &&
                     _players.Count(peer => peer.IsAlive && peer.Seat != ownerSeat) >= 2,
+                SkillProgramTargetKind.OtherLivingRangeOrderedPair => target.Seat != ownerSeat,
                 SkillProgramTargetKind.LivingPairDistinct =>
                     _players.Count(peer => peer.IsAlive) >= 2,
                 SkillProgramTargetKind.OtherLivingLeastHandCount => target.Seat != ownerSeat &&
@@ -817,6 +818,15 @@ public sealed partial class GameEngine
                     // destination, so both permutations are exposed as distinct options.
                     selections.Add(Array.AsReadOnly(seats));
                     selections.Add(Array.AsReadOnly(new[] { seats[1], seats[0] }));
+                }
+                else if (targetKind == SkillProgramTargetKind.OtherLivingRangeOrderedPair)
+                {
+                    // Ordered pair where the second participant stands inside the first
+                    // one's attack range; only directions that satisfy the range bound
+                    // are exposed as distinct options.
+                    foreach (var ordered in new[] { seats, new[] { seats[1], seats[0] } })
+                        if (GetCombatDistance(ordered[0], ordered[1]) <= GetAttackRange(ordered[0]))
+                            selections.Add(Array.AsReadOnly(ordered));
                 }
                 else
                 {
@@ -3119,6 +3129,13 @@ public sealed partial class GameEngine
                         (selected.Targets.Count != 2 ||
                          selected.Targets[0] == selected.Targets[1]))
                         throw new InvalidOperationException("The selected ordered pair must name two distinct players.");
+                    if (targetKind == SkillProgramTargetKind.OtherLivingRangeOrderedPair &&
+                        (selected.Targets.Count != 2 ||
+                         selected.Targets[0] == selected.Targets[1] ||
+                         GetCombatDistance(selected.Targets[0], selected.Targets[1]) >
+                             GetAttackRange(selected.Targets[0])))
+                        throw new InvalidOperationException(
+                            "The selected range pair is no longer legal.");
                     ClearPendingDecision();
                     _resolutionStack[^1] = frame with
                     {

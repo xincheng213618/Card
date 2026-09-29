@@ -31,7 +31,12 @@ public sealed record GameCheckpoint(
     // selectedTargetEquipment destination, the empty-slot activation target
     // filter, the turn-owner discard-phase hand-discard fact, and the
     // named-choice hand-gain move branch.
-    public const int CurrentRulesVersion = 189;
+    // 189: Cao Zhi (luoying/jiushi) with the discard-pile-received claim
+    // window, the virtual dying alcohol choice, and the face-down fact.
+    // 190: Fa Zheng (enyuan/xuanhuo) with the dominant foreign gain-source
+    // fact, the ordered range pair target kind, the bound responder/victim
+    // slash request, and the single-batch participant card take.
+    public const int CurrentRulesVersion = 190;
     // 187 was consumed by main-side Zhang He / Shen Zhao Yun work.
 
     public int RulesVersion { get; init; }

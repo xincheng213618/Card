@@ -5,16 +5,17 @@ public sealed partial class GameEngine
     private SkillProgramStepOutcome RequestProgramSlashByTarget(
         ProgramSkillFrame frame,
         int targetSeat,
+        int victimSeat,
         string resultBind)
     {
         var active = GetActiveProgramFrame(frame.Id);
         if (active.ChoiceBindings.Any(binding => binding.Name == resultBind))
             throw new InvalidOperationException("A named program choice cannot be answered twice.");
-        var owner = _players[frame.OwnerSeat];
+        var victim = _players[victimSeat];
         var user = _players[targetSeat];
-        if (!owner.IsAlive)
+        if (!victim.IsAlive)
         {
-            CancelProgramBindingAndCleanup(active, "技能拥有者已失效，技能剩余结算已取消。");
+            CancelProgramBindingAndCleanup(active, "被迫用杀的目标已失效，技能剩余结算已取消。");
             return SkillProgramStepOutcome.AwaitChild;
         }
         var slashes = GetHand(user).Where(card => IsSlashCard(card.Kind)).ToArray();
@@ -29,9 +30,9 @@ public sealed partial class GameEngine
         var skill = _contentRegistry!.GetSkill(frame.SkillId);
         var choices = slashes.Select(card => new PromptChoice(
             new ChoiceId($"program-request-slash.frame-{active.Id}.card-{card.Id}"),
-            $"使用【{card.DisplayName}】攻击 {owner.Name}。",
+            $"使用【{card.DisplayName}】攻击 {victim.Name}。",
             [card.Id],
-            [frame.OwnerSeat],
+            [victimSeat],
             new Dictionary<string, string>
             {
                 ["program-action"] = "request-slash",
@@ -53,9 +54,11 @@ public sealed partial class GameEngine
         _pendingDecision = new PendingDecision(
             DecisionKind.ProgramTrigger,
             user.Seat,
-            $"【{skill.Name}】需对 {owner.Name} 使用一张【杀】，否则其弃置你的一张牌。",
+            victimSeat == frame.OwnerSeat
+                ? $"【{skill.Name}】需对 {victim.Name} 使用一张【杀】，否则其弃置你的一张牌。"
+                : $"【{skill.Name}】需对 {victim.Name} 使用一张【杀】。",
             slashes.Select(card => card.Id).Order().ToArray(),
-            [frame.OwnerSeat],
+            [victimSeat],
             frame.OwnerSeat)
         {
             PromptId = CreatePromptId(),
@@ -81,11 +84,17 @@ public sealed partial class GameEngine
                 frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) ||
             selected.Parameters.GetValueOrDefault("result-bind") != resultBind)
             throw new InvalidOperationException("The slash request does not match its suspended instruction.");
-        var userSeat = frame.SelectedTargetSeats.Single();
+        var userSeat = effect.TargetReference is { } responderReference
+            ? ResolveProgramParticipant(frame, responderReference)
+            : frame.SelectedTargetSeats.Single();
         if (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } decision ||
             decision.PlayerSeat != userSeat)
             throw new InvalidOperationException("The slash request responder changed while suspended.");
+        var victimSeat = effect.ActorReference is { } victimReference
+            ? ResolveProgramParticipant(frame, victimReference)
+            : frame.OwnerSeat;
         if (!_players[frame.OwnerSeat].IsAlive || !_players[userSeat].IsAlive ||
+            !_players[victimSeat].IsAlive ||
             !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId))
         {
             ClearPendingDecision();
@@ -110,7 +119,7 @@ public sealed partial class GameEngine
                 System.Globalization.NumberStyles.Integer,
                 System.Globalization.CultureInfo.InvariantCulture, out var cardId) ||
             selected.Cards.Count != 1 || selected.Cards[0] != cardId ||
-            selected.Targets.Count != 1 || selected.Targets[0] != frame.OwnerSeat)
+            selected.Targets.Count != 1 || selected.Targets[0] != victimSeat)
             throw new InvalidOperationException("The slash request answer is malformed.");
         var location = _cardZones.GetLocation(cardId);
         var card = location.Zone == CardZoneKind.Hand && location.OwnerSeat == userSeat
@@ -124,7 +133,7 @@ public sealed partial class GameEngine
         CommitProgramChoiceResult(frame.Id, resultBind,
             RequestSlashByTargetProgramOperationDescriptor.UsedSlashOption,
             userSeat, $"使用【{card.DisplayName}】。");
-        ResolveSlashCore(_players[userSeat], _players[frame.OwnerSeat], card, card.Kind, userSeat,
+        ResolveSlashCore(_players[userSeat], _players[victimSeat], card, card.Kind, userSeat,
             physicalCards: [card], countsTowardSlashLimit: false,
             programSkillCardUseFrameId: frame.Id);
     }
