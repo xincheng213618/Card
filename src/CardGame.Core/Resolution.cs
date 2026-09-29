@@ -135,6 +135,33 @@ public sealed record ProgramSkillFrame(
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramRepeatedJudgment? RepeatedJudgment { get; init; }
+
+    /// <summary>
+    /// Frozen declaration of a placed-card declared use (Guhuo): the announced
+    /// card kind, its execution shape and the remaining doubt-window cursor.
+    /// The placed physical card stays hidden in the owner hand until flipped.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramDeclaredCardUse? DeclaredCardUse { get; init; }
+}
+
+/// <summary>
+/// Committed Guhuo declaration plus the doubt-window cursor. The declared
+/// identity is public from the moment of declaration; the physical card is not.
+/// </summary>
+public sealed record ProgramDeclaredCardUse(
+    CardKind DeclaredKind,
+    LegalActionKind ActionKind,
+    IReadOnlyList<int> TargetSeats,
+    int? TargetCardId,
+    CardKind? RequiredCardKind,
+    int DoubtCursorSeat)
+{
+    public static ProgramDeclaredCardUse Create(
+        CardKind declaredKind, LegalActionKind actionKind, IReadOnlyList<int> targetSeats,
+        int? targetCardId, CardKind? requiredCardKind, int firstDoubtSeat) =>
+        new(declaredKind, actionKind, Array.AsReadOnly(targetSeats.ToArray()), targetCardId,
+            requiredCardKind, firstDoubtSeat);
 }
 
 public sealed record CardUseFrame(

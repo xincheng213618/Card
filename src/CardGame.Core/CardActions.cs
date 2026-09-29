@@ -84,6 +84,32 @@ public sealed class CardActionContext
 /// <summary>Trusted-host audit event; not a player-facing notification.</summary>
 public sealed record CardActionAcceptedEvent(CardActionContext Action) : IGameEvent;
 
+/// <summary>
+/// Public Guhuo declaration: the owner announced the declared kind. The placed
+/// physical card id is deliberately absent — it stays hidden until flipped.
+/// </summary>
+public sealed record ProgramCardDeclaredEvent(
+    long FrameId,
+    string SkillId,
+    int OwnerSeat,
+    CardKind DeclaredKind,
+    IReadOnlyList<int> DoubtCandidateSeats) : IGameEvent;
+
+/// <summary>
+/// Public Guhuo flip: someone questioned the placed card, which is now public.
+/// <see cref="IsTrue"/> reports whether the card matches the declared kind; a
+/// false declaration voids the use, a true one grants Chanyuan to the doubter.
+/// </summary>
+public sealed record ProgramGuhuoCardFlippedEvent(
+    long FrameId,
+    string SkillId,
+    int OwnerSeat,
+    int DoubterSeat,
+    int PlacedCardId,
+    CardKind DeclaredKind,
+    CardKind ActualKind,
+    bool IsTrue) : IGameEvent;
+
 public sealed record ProgramViewAsConvertedEvent(
     long FrameId,
     string SkillId,

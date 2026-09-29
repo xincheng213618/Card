@@ -8,6 +8,7 @@ public sealed partial class GameEngine
     // keyed by content identities, never by translated presentation text.
     private readonly Dictionary<(int Seat, string Skill, string Activation), int> _programUses = new();
     private readonly Dictionary<(int Seat, string Skill, string Activation), int> _programPhaseUses = new();
+    private readonly Dictionary<(int Seat, string Skill, string Activation), int> _programAnyTurnUses = new();
     private readonly Dictionary<(int ProviderSeat, int SkillOwnerSeat, string Skill, string Contribution), int>
         _programContributionUses = new();
 
@@ -50,6 +51,8 @@ public sealed partial class GameEngine
                 if (!activation.Condition.Evaluate(context) ||
                     activation.UsesPerTurn is { } limit &&
                     _programUses.GetValueOrDefault((owner.Seat, program.Id, activation.UsageGroup)) >= limit ||
+                    activation.UsesPerAnyTurn is { } anyTurnLimit &&
+                    _programAnyTurnUses.GetValueOrDefault((owner.Seat, program.Id, activation.UsageGroup)) >= anyTurnLimit ||
                     activation.UsesPerPhase is { } phaseLimit &&
                     _programPhaseUses.GetValueOrDefault((owner.Seat, program.Id, activation.UsageGroup)) >= phaseLimit ||
                     activation.UsesPerGame is { } gameLimit &&
@@ -342,6 +345,8 @@ public sealed partial class GameEngine
         }
         var key = (owner.Seat, program.Id, activation.UsageGroup);
         _programUses[key] = _programUses.GetValueOrDefault(key) + 1;
+        if (activation.UsesPerAnyTurn is not null)
+            _programAnyTurnUses[key] = _programAnyTurnUses.GetValueOrDefault(key) + 1;
         if (activation.UsesPerPhase is not null)
             _programPhaseUses[key] = _programPhaseUses.GetValueOrDefault(key) + 1;
         var frame = new ProgramSkillFrame(++_resolutionSequence, owner.Seat, program.Id, activation.Id,
@@ -639,7 +644,8 @@ public sealed partial class GameEngine
         if (activation is null || frame.InstructionIndex == 0 ||
             activation.Effects[frame.InstructionIndex - 1].Op is not
                 (SkillProgramEffectOp.UseSelectedCardsAs or
-                 SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick))
+                 SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick or
+                 SkillProgramEffectOp.UsePlacedCardAsDeclared))
             return;
         ContinueProgramSkill(frame.Id);
     }

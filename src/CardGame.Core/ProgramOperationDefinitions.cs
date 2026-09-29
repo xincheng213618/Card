@@ -29,7 +29,8 @@ internal enum ProgramOperationAiSemantic
     BindDiscardPhaseDiscards,
     RestorePhaseHandDiscards,
     RequestNearestSlash,
-    TakeRandomCardFromEveryOtherCharacter
+    TakeRandomCardFromEveryOtherCharacter,
+    UsePlacedCardAsDeclared
 }
 internal sealed record ProgramOperationAiPolicy(
     ProgramOperationAiSemantic Semantic,

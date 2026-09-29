@@ -226,7 +226,8 @@ public enum SkillProgramEffectOp
     BindDiscardPhaseDiscards,
     RestorePhaseHandDiscards,
     RequestNearestSlash,
-    TakeRandomCardFromEveryOtherCharacter
+    TakeRandomCardFromEveryOtherCharacter,
+    UsePlacedCardAsDeclared
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -997,13 +998,15 @@ public sealed class SkillProgramActivation
         bool selectedCardsSameSuit = false,
         IReadOnlyList<EquipmentSlot>? equipmentSlots = null,
         string? usageGroup = null,
-        bool targetRequiresEmptyEquipmentSlot = false) =>
+        bool targetRequiresEmptyEquipmentSlot = false,
+        int? usesPerAnyTurn = null) =>
         (Id, MinCards, MaxCards, MinTargets, MaxTargets, TargetKind, UsesPerTurn, UsesPerPhase, UsesPerGame,
             Condition, Effects, SourceZones, SelectedCardsSameSuit, EquipmentSlots, UsageGroup,
-            TargetRequiresEmptyEquipmentSlot) =
+            TargetRequiresEmptyEquipmentSlot, UsesPerAnyTurn) =
         (id, minCards, maxCards, minTargets, maxTargets, targetKind, usesPerTurn, usesPerPhase, usesPerGame, condition, effects,
             sourceZones ?? Array.AsReadOnly(new[] { CardZoneKind.Hand }), selectedCardsSameSuit,
-            equipmentSlots ?? Array.Empty<EquipmentSlot>(), usageGroup ?? id, targetRequiresEmptyEquipmentSlot);
+            equipmentSlots ?? Array.Empty<EquipmentSlot>(), usageGroup ?? id, targetRequiresEmptyEquipmentSlot,
+            usesPerAnyTurn);
     public string Id { get; }
     public int MinCards { get; }
     public int MaxCards { get; }
@@ -1013,6 +1016,13 @@ public sealed class SkillProgramActivation
     public int? UsesPerTurn { get; }
     public int? UsesPerPhase { get; }
     public int? UsesPerGame { get; }
+
+    /// <summary>
+    /// Usage limit that resets at the start of every turn regardless of whose
+    /// turn it is ("once during each character's turn", Guhuo). The ordinary
+    /// <see cref="UsesPerTurn"/> ledger only resets when its owner's own turn starts.
+    /// </summary>
+    public int? UsesPerAnyTurn { get; }
     public SkillProgramCondition Condition { get; }
     public IReadOnlyList<SkillProgramEffect> Effects { get; }
     public IReadOnlyList<CardZoneKind> SourceZones { get; }
@@ -1272,7 +1282,8 @@ public sealed class SkillProgramCatalog
                 var first = group.First();
                 if (group.Any(item => item.UsesPerTurn != first.UsesPerTurn ||
                                       item.UsesPerPhase != first.UsesPerPhase ||
-                                      item.UsesPerGame != first.UsesPerGame))
+                                      item.UsesPerGame != first.UsesPerGame ||
+                                      item.UsesPerAnyTurn != first.UsesPerAnyTurn))
                     Fail(skillPath + ".activations",
                         $"usageGroup '{group.Key}' must use identical turn, phase and game limits");
             }
@@ -1302,6 +1313,17 @@ public sealed class SkillProgramCatalog
                          activation.SourceZones.Count != 1 || activation.SourceZones[0] != CardZoneKind.Hand))
                         Fail(skillPath + ".activations",
                             "global same-suit card use requires two hand cards and no initial target");
+                }
+            foreach (var activation in activations)
+                foreach (var effect in activation.Effects.Where(item =>
+                             item.Op == SkillProgramEffectOp.UsePlacedCardAsDeclared))
+                {
+                    if (activation.MinCards != 1 || activation.MaxCards != 1)
+                        Fail(skillPath + ".activations",
+                            "a placed-card declared use requires exactly one selected card");
+                    if (activation.SourceZones.Count != 1 || activation.SourceZones[0] != CardZoneKind.Hand)
+                        Fail(skillPath + ".activations",
+                            "a placed-card declared use accepts hand cards only");
                 }
             var declaredStateIds = booleanStates.Select(item => item.Id).ToHashSet(StringComparer.Ordinal);
             foreach (var trigger in triggers)
@@ -1783,7 +1805,8 @@ public sealed class SkillProgramCatalog
         RequireObject(node, path);
         CheckProperties(node, path, "id", "minCards", "maxCards", "sourceZones", "minTargets", "maxTargets",
             "targetKind", "usesPerTurn", "usesPerPhase", "usesPerGame", "condition", "effects",
-            "selectedCardsSameSuit", "equipmentSlots", "usageGroup", "targetRequiresEmptyEquipmentSlot");
+            "selectedCardsSameSuit", "equipmentSlots", "usageGroup", "targetRequiresEmptyEquipmentSlot",
+            "usesPerAnyTurn");
         var id = Identifier(node, "id", path);
         var minCards = NonNegativeInt(node, "minCards", path);
         var allAvailableCards = node.TryGetProperty("maxCards", out var maximumNode) &&
@@ -1872,11 +1895,18 @@ public sealed class SkillProgramCatalog
                     sourceZones[0] != CardZoneKind.Hand))
                 Fail(path, "Pindian requires one owner hand card and one required target");
         }
+        int? usesPerAnyTurn = null;
+        if (node.TryGetProperty("usesPerAnyTurn", out var anyTurnNode) &&
+            anyTurnNode.ValueKind != JsonValueKind.Null)
+        {
+            usesPerAnyTurn = GetInt(anyTurnNode, path + ".usesPerAnyTurn");
+            if (usesPerAnyTurn <= 0) Fail(path + ".usesPerAnyTurn", "must be positive or null");
+        }
         return new SkillProgramActivation(id, minCards, maxCards, minTargets, maxTargets, targetKind, uses,
             OptionalCondition(node, path), effects, sourceZones, usesPerPhase, usesPerGame,
             selectedCardsSameSuit, equipmentSlots,
             node.TryGetProperty("usageGroup", out _) ? Identifier(node, "usageGroup", path) : null,
-            targetRequiresEmptyEquipmentSlot);
+            targetRequiresEmptyEquipmentSlot, usesPerAnyTurn);
     }
 
     private static SkillProgramContribution ParseContribution(JsonElement node, string path)

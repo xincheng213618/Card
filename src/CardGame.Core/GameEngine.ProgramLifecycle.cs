@@ -2845,6 +2845,14 @@ public sealed partial class GameEngine
             ResolveProgramOrdinaryTrickUseChoice(selected);
             return;
         }
+        if (action is "guhuo-declare" or "guhuo-doubt")
+        {
+            if (action == "guhuo-declare")
+                ResolveProgramGuhuoDeclarationChoice(selected);
+            else
+                ResolveProgramGuhuoDoubtChoice(selected);
+            return;
+        }
         if (action == "order-bound-cards")
         {
             var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -3535,6 +3543,8 @@ public sealed partial class GameEngine
                     .OrderBy(choice => choice.Parameters.GetValueOrDefault("card-kind") == nameof(CardKind.DrawTwo) ? 0 : 1)
                     .ThenBy(choice => choice.Id.Value, StringComparer.Ordinal)
                     .First(),
+                SkillProgramEffectOp.UsePlacedCardAsDeclared =>
+                    SelectAiProgramGuhuoChoice(decision, frame),
                 _ => throw new InvalidOperationException(
                     $"The AI does not support suspended program instruction '{paused.Op}'.")
             };
@@ -3545,6 +3555,28 @@ public sealed partial class GameEngine
         }
         ResolveProgramTriggerChoice(selected);
         PublishState();
+    }
+
+    private PromptChoice SelectAiProgramGuhuoChoice(PendingDecision decision, ProgramSkillFrame frame)
+    {
+        // 质疑方只有公开信息：无中生有是最典型的蛊惑目标，确定性 AI 只质疑
+        // 声明为无中生有的扣置；其余声明一律不质疑。
+        // 拥有者可以看自己扣置的牌，优先声明与实际牌一致的牌名（为真则质疑者反受缠怨）。
+        if (decision.PlayerSeat != frame.OwnerSeat)
+        {
+            var shouldDoubt = frame.DeclaredCardUse?.DeclaredKind == CardKind.DrawTwo;
+            return decision.Choices.First(choice =>
+                (choice.Parameters.GetValueOrDefault("decision") == "doubt") == shouldDoubt);
+        }
+        var placed = _cardZones.CardsAt(_cardZones.GetLocation(frame.SelectedCardIds[0]))
+            .Single(card => card.Id == frame.SelectedCardIds[0]);
+        return decision.Choices
+            .OrderBy(choice => choice.Parameters.GetValueOrDefault("card-kind") ==
+                placed.Kind.ToString() ? 0 : 1)
+            .ThenBy(choice => choice.Parameters.GetValueOrDefault("card-kind") ==
+                nameof(CardKind.DrawTwo) ? 0 : 1)
+            .ThenBy(choice => choice.Id.Value, StringComparer.Ordinal)
+            .First();
     }
 
     private PromptChoice SelectAiProgramActivation(PendingDecision decision)

@@ -815,6 +815,9 @@ internal static class SkillProgramExecutorChecks
         string viewAsId) =>
             throw new NotSupportedException("The executor fixture does not exercise UseAllHandCardsAsOrdinaryTrick.");
 
+        public SkillProgramStepOutcome UsePlacedCardAsDeclared(ProgramSkillFrame frame) =>
+            throw new NotSupportedException("The executor fixture does not exercise UsePlacedCardAsDeclared.");
+
         public SkillProgramStepOutcome SelectTarget(
         long frameId,
         int ownerSeat,

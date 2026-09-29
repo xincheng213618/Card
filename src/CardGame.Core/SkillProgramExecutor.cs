@@ -124,6 +124,7 @@ public interface ISkillProgramEffectHost
     SkillProgramStepOutcome UseAllHandCardsAsOrdinaryTrick(
         ProgramSkillFrame frame,
         string viewAsId);
+    SkillProgramStepOutcome UsePlacedCardAsDeclared(ProgramSkillFrame frame);
     SkillProgramStepOutcome StartVirtualDuel(ProgramSkillFrame frame);
     SkillProgramStepOutcome RequestFactionCard(ProgramSkillFrame frame, int targetSeat,
         string providerFactionId, CardKind requiredKind);
@@ -650,6 +651,14 @@ public sealed class UseAllHandCardsAsOrdinaryTrickSkillProgramEffectHandler : IS
             frame,
             effect.SourceBind ?? throw new InvalidOperationException(
                 "An all-hand ordinary-trick use lost its view-as identity."));
+}
+
+public sealed class UsePlacedCardAsDeclaredSkillProgramEffectHandler : ISkillProgramEffectHandler
+{
+    public SkillProgramEffectOp Op => SkillProgramEffectOp.UsePlacedCardAsDeclared;
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
+        int targetSeat, ISkillProgramEffectHost host) =>
+        host.UsePlacedCardAsDeclared(frame);
 }
 
 public sealed class GiveSelectedSkillProgramEffectHandler : ISkillProgramEffectHandler

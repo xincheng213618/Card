@@ -175,7 +175,8 @@ internal static class ProgramCompositionDefinitionChecks
             [SkillProgramEffectOp.BindDiscardPhaseDiscards] = """{"op":"bindDiscardPhaseDiscards","target":"owner","resultBind":"guzheng-pool"}""",
             [SkillProgramEffectOp.RestorePhaseHandDiscards] = """{"op":"restorePhaseHandDiscards","target":"owner","chooserRef":{"kind":"owner"},"phaseOwnerRef":{"kind":"eventSource"},"condition":{"kind":"always"}}""",
             [SkillProgramEffectOp.TakeRandomCardFromEveryOtherCharacter] = """{"op":"takeRandomCardFromEveryOtherCharacter","target":"owner","zones":["hand","equipment","judgment"]}""",
-            [SkillProgramEffectOp.RequestNearestSlash] = """{"op":"requestNearestSlash","target":"owner"}"""
+            [SkillProgramEffectOp.RequestNearestSlash] = """{"op":"requestNearestSlash","target":"owner"}""",
+            [SkillProgramEffectOp.UsePlacedCardAsDeclared] = """{"op":"usePlacedCardAsDeclared","target":"owner"}"""
 
         };
         Require(nodes.Keys.ToHashSet().SetEquals(Enum.GetValues<SkillProgramEffectOp>()),
@@ -676,7 +677,8 @@ internal static class ProgramCompositionDefinitionChecks
             {
                 [skillId] = new
                 {
-                    name = "Fixture", description = "Fixture",
+                    name = "Fixture",
+                    description = "Fixture",
                     optionLabels = new { discard = "Discard", top = "Top" }
                 }
             }

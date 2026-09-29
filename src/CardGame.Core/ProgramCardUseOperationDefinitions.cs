@@ -122,3 +122,29 @@ internal sealed class UseAllHandCardsAsOrdinaryTrickProgramOperationDescriptor :
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new ConsumeSelectedCards(0)];
 }
+
+internal sealed class UsePlacedCardAsDeclaredProgramOperationDescriptor : ProgramOperationDescriptorBase
+{
+    public override SkillProgramEffectOp Op => SkillProgramEffectOp.UsePlacedCardAsDeclared;
+    public override ISkillProgramEffectHandler Handler { get; } =
+        new UsePlacedCardAsDeclaredSkillProgramEffectHandler();
+    public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
+    public override ProgramOperationAiPolicy AiPolicy { get; } = new(
+        ProgramOperationAiSemantic.UsePlacedCardAsDeclared,
+        static (effect, context) => context.UsePlacedCardAsDeclared(effect));
+
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
+    {
+        r.AllowOnly("op", "target", "condition");
+        var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
+        if (target != SkillProgramEffectTarget.Owner)
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}.target: usePlacedCardAsDeclared requires owner.");
+        var effect = new SkillProgramEffect(Op, target, 0, r.Condition());
+        RequireAlways(effect, r.Path);
+        return effect;
+    }
+
+    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
+        [new ConsumeSelectedCards(0)];
+}

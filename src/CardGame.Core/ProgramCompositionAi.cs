@@ -627,6 +627,10 @@ internal sealed class ProgramAiEstimateContext
             CardKind.ArrowBarrage => Math.Max(1d, _publicContext.EligibleTargetCount ?? 2),
             _ => 0d
         };
+    internal void UsePlacedCardAsDeclared(SkillProgramEffect effect) =>
+        // 声明集里最常见的收益是无中生有（摸二）；为避免 AI 无信息乱诈，
+        // 以保守的中性估计参与激活评估。
+        _ownerDraw += 2d * 0.5d;
     internal ProgramAiEstimate Build()
     {
         var ownerDraw = Rounded(Math.Max(0, _ownerDraw));

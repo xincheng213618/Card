@@ -7714,6 +7714,73 @@
       ]
     },
     {
+      "key": "yu-ji",
+      "characterName": "于吉",
+      "defaultSkinId": "103401",
+      "skins": [
+        {
+          "id": "103401",
+          "name": "经典形象*于吉",
+          "sourcePage": "https://x.sanguosha.com/hero/34.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/103401.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-yu-ji.png",
+          "sha256": "ad675aebb17566d494dfc87657cf153a5661ea9e6bbcc12ca60e8ac114590a21",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "203401",
+          "name": "琅琊道士*于吉",
+          "sourcePage": "https://x.sanguosha.com/hero/34.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/203401.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/yu-ji/203401.png",
+          "sha256": "ef275179f1cb6dcdd511a2190162fc334d6b85d8b86ce2ac94eb87d24410bf81",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "403401",
+          "name": "幻惑众心*于吉",
+          "sourcePage": "https://x.sanguosha.com/hero/34.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/403401.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/yu-ji/403401.png",
+          "sha256": "e9101f492473f6435c77f801b51a10fa6828367353d68d9cb2f5b9c06d9cbbcc",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "503401",
+          "name": "符水道人*于吉",
+          "sourcePage": "https://x.sanguosha.com/hero/34.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/503401.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/yu-ji/503401.png",
+          "sha256": "7a9e054e7035b091ec752349b035e950161c68d87a61e97b8713261243ece322",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "503402",
+          "name": "变幻万相*于吉",
+          "sourcePage": "https://x.sanguosha.com/hero/34.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/503402.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/yu-ji/503402.png",
+          "sha256": "5ecf91b075dd3160d865109baf81036c29741a31ca7bfd5b2a3bcec2b2bd48d4",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "503403",
+          "name": "虚拟天团*于吉",
+          "sourcePage": "https://x.sanguosha.com/hero/34.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/503403.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/yu-ji/503403.png",
+          "sha256": "9d57cf3b58700d047183fd28bc8c82dd9f209ea55e729b16d6198894629b699c",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "yu-jin",
       "characterName": "于禁",
       "defaultSkinId": "129601",

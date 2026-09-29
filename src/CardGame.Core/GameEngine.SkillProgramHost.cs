@@ -313,6 +313,9 @@ public sealed partial class GameEngine
             string viewAsId) =>
             engine.UseProgramAllHandCardsAsOrdinaryTrick(frame, viewAsId);
 
+        public SkillProgramStepOutcome UsePlacedCardAsDeclared(ProgramSkillFrame frame) =>
+            engine.UseProgramPlacedCardAsDeclared(frame);
+
         public SkillProgramStepOutcome StartVirtualDuel(ProgramSkillFrame frame) =>
             engine.BeginProgramVirtualDuel(frame);
 

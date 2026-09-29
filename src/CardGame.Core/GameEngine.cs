@@ -333,6 +333,9 @@ public sealed partial class GameEngine
     /// <summary>A snapshot filtered for the configured human seat.</summary>
     public GameSnapshot State => CreateSnapshot(_options.HumanSeat);
 
+    /// <summary>Trusted-host view of one live character state, including grants.</summary>
+    internal CharacterState GetLivePlayer(int seat) => _players[seat];
+
     public PendingDecision? PendingDecision => State.PendingDecision;
 
     public IReadOnlyList<GameLogEntry> Log => _log.AsReadOnly();
@@ -3394,6 +3397,8 @@ public sealed partial class GameEngine
                 character.SkillGrants.RemoveGrant(grant.GrantId);
         foreach (var key in _programUses.Keys.Where(key => key.Seat == current.Seat).ToArray())
             _programUses.Remove(key);
+        // "Once during each character's turn" limits reset at every turn start.
+        _programAnyTurnUses.Clear();
         _phase = TurnPhase.Draw;
         AddLog(
             "TurnStarted",

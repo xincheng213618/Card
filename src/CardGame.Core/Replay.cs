@@ -37,7 +37,12 @@ public sealed record GameCheckpoint(
     // 191: the round-3 integration union (Jia Xu wansha/luanwu/weimu, Shen Lu
     // Meng shelie/gongxin, Shen Cao Cao guixin/feiying); the merged pool
     // replays every existing fixture differently than either parent line.
-    public const int CurrentRulesVersion = 191;
+    // 192: Yu Ji (guhuo/chanyuan) with the placed-card declared-use pipeline:
+    // the usePlacedCardAsDeclared operation, the sequential public doubt
+    // window, the runtime Chanyuan grant on a true flip, the void-on-false
+    // placement, and the usesPerAnyTurn activation limit that resets at every
+    // turn start.
+    public const int CurrentRulesVersion = 192;
     // 189 was reserved by the parallel Jia Xu batch; 190 belongs to the
     // Shen Lu Meng batch. 187 was consumed by main-side Zhang He / Shen Zhao
     // Yun work.

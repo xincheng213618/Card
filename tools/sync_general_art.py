@@ -61,6 +61,7 @@ CLASSIC_HEROES = {
     "zhang-zhao-zhang-hong": 56,
     "jia-xu": 49,
     "shen-lu-meng": 202,
+    "yu-ji": 34,
 }
 
 # These variants have independent GeneralArt IDs and independent official pages.
