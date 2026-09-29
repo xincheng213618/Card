@@ -223,7 +223,8 @@ public enum SkillProgramEffectOp
     ExchangeSelectedTargetHands,
     RequestSlashByTarget,
     BindDiscardPhaseDiscards,
-    RestorePhaseHandDiscards
+    RestorePhaseHandDiscards,
+    TakeRandomCardFromEveryOtherCharacter
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }

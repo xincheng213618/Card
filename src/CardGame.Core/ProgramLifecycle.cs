@@ -167,6 +167,20 @@ public sealed record ProgramRandomHandCardsTakenEvent(
     IReadOnlyList<int> TargetSeats,
     int CardCount) : IGameEvent;
 
+/// <summary>
+/// Public, desensitized result of taking one random card from every other living
+/// character's declared areas. Only the participating seats and the total count are
+/// published; hand cards stay opaque and public-area cards were already visible.
+/// </summary>
+public sealed record ProgramRandomCardsTakenFromCharactersEvent(
+    long FrameId,
+    string SkillId,
+    string BindingId,
+    int OwnerSeat,
+    IReadOnlyList<int> SourceSeats,
+    IReadOnlyList<CardZoneKind> Zones,
+    int CardCount) : IGameEvent;
+
 public sealed record ProgramOwnedZoneCardsDiscardedEvent(
     long FrameId,
     string SkillId,

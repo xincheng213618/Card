@@ -27,7 +27,8 @@ internal enum ProgramOperationAiSemantic
     ExchangeSelectedTargetHands,
     RequestSlashByTarget,
     BindDiscardPhaseDiscards,
-    RestorePhaseHandDiscards
+    RestorePhaseHandDiscards,
+    TakeRandomCardFromEveryOtherCharacter
 }
 internal sealed record ProgramOperationAiPolicy(
     ProgramOperationAiSemantic Semantic,

@@ -283,6 +283,28 @@ internal sealed class TakeRandomHandCardFromSelectedTargetsProgramOperationDescr
         [new ConsumeTargetSet()];
 }
 
+internal sealed class TakeRandomCardFromEveryOtherCharacterProgramOperationDescriptor : ProgramOperationDescriptorBase
+{
+    public override SkillProgramEffectOp Op => SkillProgramEffectOp.TakeRandomCardFromEveryOtherCharacter;
+    public override ISkillProgramEffectHandler Handler { get; } = new TakeRandomCardFromEveryOtherCharacterSkillProgramEffectHandler();
+    public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.TakeRandomCardFromEveryOtherCharacter,
+        static (effect, context) => context.TakeRandomCardFromEveryOtherCharacter(effect));
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
+    {
+        r.AllowOnly("op", "target", "zones", "condition");
+        var target = FilterBoundCardsProgramOperationDescriptor.Owner(r);
+        var zones = r.RequiredEnumArray<CardZoneKind>("zones");
+        if (zones.Count == 0 || zones.Distinct().Count() != zones.Count ||
+            zones.Any(zone => zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment)))
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}.zones: requires distinct hand/equipment/judgment areas.");
+        var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), zones: zones);
+        RequireAlways(effect, r.Path);
+        return effect;
+    }
+    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
+}
+
 internal sealed class AdjustNormalDrawProgramOperationDescriptor : ProgramOperationDescriptorBase
 {
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.AdjustNormalDraw;

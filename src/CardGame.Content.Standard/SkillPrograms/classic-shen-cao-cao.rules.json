@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:guixin",
+      "revision": 1,
+      "minimumRulesVersion": 188,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "claim-every-other-character",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": true,
+          "priority": 0,
+          "condition": { "kind": "always" },
+          "effects": [
+            {
+              "op": "takeRandomCardFromEveryOtherCharacter",
+              "target": "owner",
+              "zones": ["hand", "equipment", "judgment"]
+            },
+            { "op": "turnOver", "target": "owner" }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "classic:feiying",
+      "revision": 1,
+      "minimumRulesVersion": 188,
+      "modifiers": [
+        {
+          "id": "incoming-distance-plus-one",
+          "query": "incomingDistance",
+          "operation": "add",
+          "value": 1,
+          "priority": 0
+        }
+      ],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    }
+  ]
+}

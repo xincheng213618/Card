@@ -87,6 +87,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "CardGame.Content.Standard.SkillPrograms.classic-shen-lu-meng.rules.json";
     private const string ClassicShenLuMengPresentationResource =
         "CardGame.Content.Standard.SkillPrograms.classic-shen-lu-meng.presentation.json";
+    private const string ClassicShenCaoCaoRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-shen-cao-cao.rules.json";
+    private const string ClassicShenCaoCaoPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-shen-cao-cao.presentation.json";
     private const string ClassicLifecycleRulesResource =
         "CardGame.Content.Standard.SkillPrograms.classic-lifecycle-skills.rules.json";
     private const string ClassicLifecyclePresentationResource =
@@ -95,6 +99,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicShenLuMengRulesResource),
             ReadEmbeddedText(ClassicShenLuMengPresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicShenCaoCaoCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicShenCaoCaoRulesResource),
+            ReadEmbeddedText(ClassicShenCaoCaoPresentationResource)));
     private static readonly Lazy<SkillProgramCatalog> SpZhaoYunCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(SpZhaoYunRulesResource),
@@ -175,7 +183,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicLifecycleRulesResource),
             ReadEmbeddedText(ClassicLifecyclePresentationResource)));
-    public static Version CurrentVersion { get; } = new(1, 158, 0);
+    public static Version CurrentVersion { get; } = new(1, 159, 0);
 
     public StandardClassicGeneralPackage()
     {
@@ -1176,6 +1184,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(WithActiveActionMetadata(ShenLuMengProgram("classic:gongxin")));
         }
 
+        {
+            builder.AddSkill(WithOptionalTriggerMetadata(ShenCaoCaoProgram("classic:guixin")));
+            builder.AddSkill(WithStructuredSkillMetadata(
+                ShenCaoCaoProgram("classic:feiying"), SkillTag.Locked, SkillExecutionForm.State));
+        }
+
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -1617,6 +1631,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:shen-lu-meng", "神吕蒙", "shen_lu_meng",
                 "classic:shelie", "god", BaseHp: 3,
                 AdditionalSkillIds: ["classic:gongxin"]));
+        }
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:shen-cao-cao", "神曹操", "shen_cao_cao",
+                "classic:guixin", "god", BaseHp: 3,
+                AdditionalSkillIds: ["classic:feiying"]));
         }
         {
             builder.AddGeneral(new ContentGeneralDefinition(
@@ -2218,6 +2238,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         };
     }
 
+    private static ContentSkillDefinition ShenCaoCaoProgram(string skillId)
+    {
+        var presentation = ClassicShenCaoCaoCatalog.Value.Presentations[skillId];
+        return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
+        {
+            Program = ClassicShenCaoCaoCatalog.Value.Programs[skillId]
+        };
+    }
+
     private ContentSkillDefinition WithOptionalTriggerMetadata(ContentSkillDefinition definition) =>
         WithStructuredSkillMetadata(
             definition,
@@ -2349,6 +2378,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "boundary:zhao-yun",
         "classic:zhang-he",
         "classic:shen-lu-meng",
+        "classic:shen-cao-cao",
     ];
 
     /// <summary>Registered generals kept out of the classic identity pools (fan-made roster).</summary>

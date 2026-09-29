@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-30",
+  "contentIds": ["classic:shen-cao-cao"],
+  "rulesSources": [
+    {
+      "contentId": "classic:shen-cao-cao",
+      "url": "https://wiki.biligame.com/sgs/index.php?curid=2637",
+      "edition": "神话再临-林包（2010；bwiki 转录）归心 / 飞影",
+      "use": "神3体力。归心：当你受到1点伤害后，你可以随机获得每名其他角色区域里的一张牌，然后你翻面。飞影：锁定技，其他角色计算与你的距离+1。"
+    },
+    {
+      "contentId": "classic:shen-cao-cao",
+      "url": "https://wiki.biligame.com/sgs/index.php?curid=2637",
+      "edition": "官方FAQ（bwiki 转录）",
+      "use": "FAQ1：归心按每点伤害各触发一次，一次受到2点伤害可发动两次。FAQ2：结算时先获得每名其他角色区域里的一张牌，再翻面；已有暗置状态的角色发动归心会翻回正面。FAQ3：飞影只在其他角色计算与神曹操的距离时生效，神曹操计算与他人的距离不受影响。"
+    }
+  ],
+  "versionBoundary": "归心、飞影按官方经典文本实现。归心的“区域”覆盖手牌区、装备区与判定区：手牌区保持不透明随机（公共事件只发布参与座位与数量），装备区与判定区按既有公开牌移动链进入神曹操手牌；区域里没有任何牌的角色被自然跳过；“然后你翻面”使用与放逐/悲歌相同的 turnOver 语义（暗置时翻回正面）。飞影复用既有 incomingDistance 规则查询，与义从“受伤时的距离+1”同形态，不新增距离特例。",
+  "portraits": "官方立绘已同步：x.sanguosha.com 武将 gid 205，三个官方皮肤收录于 docs/content/general-art-catalog.json 的 shen-cao-cao 条目。默认皮肤 120501“经典形象*神曹操”下载为 src/CardGame.Wpf/Assets/official-shen-cao-cao.png（SHA-256 e671ffa5b78b098f624595fff44c62055f63bec5af780a8dce1d5391cac5212f，574x761）；420501“炼狱枭魂*神曹操”与 520501“一统江山*神曹操”分别记录在 src/CardGame.Wpf/Assets/Skins/shen-cao-cao/。"
+}

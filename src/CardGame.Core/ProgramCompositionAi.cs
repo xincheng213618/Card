@@ -341,6 +341,18 @@ internal sealed class ProgramAiEstimateContext
         _estimatedHandCount += count;
     }
 
+    internal void TakeRandomCardFromEveryOtherCharacter(SkillProgramEffect effect)
+    {
+        // Every other living character gives up exactly one card, and the public areas
+        // are known, so this is scored as one guaranteed card per other character. When
+        // the public context carries no eligible count, one card is the conservative prior.
+        var others = Math.Max(1, _publicContext.EligibleTargetCount ?? 1);
+        _ownerDraw += others;
+        _estimatedHandCount += others;
+        if (effect.Zones.Any(zone => zone is CardZoneKind.Equipment or CardZoneKind.Judgment))
+            _otherAdjustment += 1d;
+    }
+
     internal void ClaimDamageCards(SkillProgramEffect effect) =>
         _otherAdjustment += 8d; // The concrete processing-card count is outside PlayerSkillContext.
 

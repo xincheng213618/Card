@@ -127,8 +127,9 @@ internal static class GeneralGalleryChecks
             "Boundary Fame lists exactly its registered boundary-fame members.");
         vm.SelectGeneralGallerySeriesCommand.Execute("god");
         vm.SelectGeneralGalleryFactionCommand.Execute("god");
+        Program.Render(root, 1120, 740, Path.Combine(output, "147-gallery-god.png"));
         Program.Assert(vm.GeneralGalleryEntries.Select(entry => entry.GeneralId).ToHashSet()
-                           .SetEquals(["classic:shen-guan-yu", "classic:shen-sima-yi", "classic:shen-lu-meng"]) &&
+                           .SetEquals(["classic:shen-guan-yu", "classic:shen-sima-yi", "classic:shen-lu-meng", "classic:shen-cao-cao"]) &&
                        vm.GeneralGalleryEntries.All(entry => entry.Kingdom == "神"),
             "God generals must be discoverable by the god faction filter without changing Core factions.");
 
