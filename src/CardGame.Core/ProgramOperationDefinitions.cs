@@ -30,7 +30,9 @@ internal enum ProgramOperationAiSemantic
     RestorePhaseHandDiscards,
     RequestNearestSlash,
     TakeRandomCardFromEveryOtherCharacter,
-    UsePlacedCardAsDeclared
+    UsePlacedCardAsDeclared,
+    // Zuo Ci batch. An explicit value keeps the parallel batch from colliding.
+    HuaShenAvatarGain = 90
 }
 internal sealed record ProgramOperationAiPolicy(
     ProgramOperationAiSemantic Semantic,

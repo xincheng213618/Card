@@ -5120,7 +5120,11 @@ internal static class ClassicGeneralChecks
                                 EligibleByRange = eligibleByRange
                             };
                         })
-                        .Where(item => item.Target.Hand.Any(card => card.Kind == CardKind.Dodge))
+                        // A heart hand Dodge counts as a Slash under ol:shen-guan-yu's
+                        // Wushen identity, so only a non-heart Dodge guarantees the
+                        // response window opens regardless of pool composition.
+                        .Where(item => item.Target.Hand.Any(card =>
+                            card.Kind == CardKind.Dodge && card.Suit is not Suit.Heart))
                         .Where(item => item.Target.GeneralId != "classic:da-qiao")
                         .Where(item => item.Target.Equipment.All(card =>
                             !EquipmentCatalog.IsEquipment(card.Kind) ||

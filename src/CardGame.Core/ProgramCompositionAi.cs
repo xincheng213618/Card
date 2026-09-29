@@ -356,6 +356,13 @@ internal sealed class ProgramAiEstimateContext
     internal void ClaimDamageCards(SkillProgramEffect effect) =>
         _otherAdjustment += 8d; // The concrete processing-card count is outside PlayerSkillContext.
 
+    internal void HuaShenAvatarGain(SkillProgramEffect effect)
+    {
+        // One extra out-of-game general card is a modest strategic option, not a
+        // hand card; half a drawn card keeps the AI willing to trigger Xinsheng.
+        if (TargetsOwner(effect)) _otherAdjustment += 0.5d;
+    }
+
     internal void InsertPhase(SkillProgramEffect effect) => _otherAdjustment += 16d;
 
     internal void RecoverTo(SkillProgramEffect effect)

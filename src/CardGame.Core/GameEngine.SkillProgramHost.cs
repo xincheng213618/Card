@@ -480,6 +480,13 @@ public sealed partial class GameEngine
             engine.TakeProgramRandomCardFromEveryOtherCharacter(
                 frameId, ownerSeat, zones, reason);
 
+        public void DeclareHuaShenXinSheng(long frameId, int ownerSeat) =>
+            engine.DeclareProgramHuaShenXinSheng(frameId, ownerSeat);
+
+        public SkillProgramStepOutcome ChangeHuaShenAvatar(ProgramSkillFrame frame, int ownerSeat,
+            IReadOnlyList<SkillTag> declaredSkillTags) =>
+            engine.ChangeProgramHuaShenAvatar(frame, ownerSeat, declaredSkillTags);
+
         public void AdjustNormalDraw(ProgramSkillFrame frame, int amount) =>
             engine.AdjustProgramNormalDraw(frame, amount);
 

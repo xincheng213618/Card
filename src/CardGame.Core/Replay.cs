@@ -42,7 +42,11 @@ public sealed record GameCheckpoint(
     // window, the runtime Chanyuan grant on a true flip, the void-on-false
     // placement, and the usesPerAnyTurn activation limit that resets at every
     // turn start.
-    public const int CurrentRulesVersion = 192;
+    // 193: the round-5 integration union adds Zuo Ci (huashen/xinsheng); the setup-time avatar draw consumes the
+    // deterministic seed before the initial shuffle and the avatar declaration
+    // grants a runtime skill, so the same content fingerprint settles commands
+    // differently than the pre-Zuo Ci epoch.
+    public const int CurrentRulesVersion = 193;
     // 189 was reserved by the parallel Jia Xu batch; 190 belongs to the
     // Shen Lu Meng batch. 187 was consumed by main-side Zhang He / Shen Zhao
     // Yun work.

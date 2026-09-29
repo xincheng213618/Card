@@ -176,7 +176,9 @@ internal static class ProgramCompositionDefinitionChecks
             [SkillProgramEffectOp.RestorePhaseHandDiscards] = """{"op":"restorePhaseHandDiscards","target":"owner","chooserRef":{"kind":"owner"},"phaseOwnerRef":{"kind":"eventSource"},"condition":{"kind":"always"}}""",
             [SkillProgramEffectOp.TakeRandomCardFromEveryOtherCharacter] = """{"op":"takeRandomCardFromEveryOtherCharacter","target":"owner","zones":["hand","equipment","judgment"]}""",
             [SkillProgramEffectOp.RequestNearestSlash] = """{"op":"requestNearestSlash","target":"owner"}""",
-            [SkillProgramEffectOp.UsePlacedCardAsDeclared] = """{"op":"usePlacedCardAsDeclared","target":"owner"}"""
+            [SkillProgramEffectOp.UsePlacedCardAsDeclared] = """{"op":"usePlacedCardAsDeclared","target":"owner"}""",
+            [SkillProgramEffectOp.HuaShenXinSheng] = """{"op":"huaShenXinSheng","target":"owner"}""",
+            [SkillProgramEffectOp.HuaShenChangeAvatar] = """{"op":"huaShenChangeAvatar","target":"owner","declaredSkillTags":["limited","awakening","lord"]}"""
 
         };
         Require(nodes.Keys.ToHashSet().SetEquals(Enum.GetValues<SkillProgramEffectOp>()),

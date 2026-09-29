@@ -189,7 +189,10 @@ public enum DecisionKind
     ProgramRepeatJudgment,
     SelectFaction,
     SkillModule,
-    ProgramTrigger
+    ProgramTrigger,
+    // Zuo Ci avatar declaration. An explicit value keeps this parallel content
+    // batch clear of decision kinds the neighboring batch may append at the end.
+    HuaShen = 50
 }
 
 public enum JiangchiMode

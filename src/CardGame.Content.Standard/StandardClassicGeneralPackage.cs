@@ -99,6 +99,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "CardGame.Content.Standard.SkillPrograms.classic-yu-ji.rules.json";
     private const string ClassicYuJiPresentationResource =
         "CardGame.Content.Standard.SkillPrograms.classic-yu-ji.presentation.json";
+    private const string ClassicZuoCiRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-zuo-ci.rules.json";
+    private const string ClassicZuoCiPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-zuo-ci.presentation.json";
     private const string ClassicLifecycleRulesResource =
         "CardGame.Content.Standard.SkillPrograms.classic-lifecycle-skills.rules.json";
     private const string ClassicLifecyclePresentationResource =
@@ -119,6 +123,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicYuJiRulesResource),
             ReadEmbeddedText(ClassicYuJiPresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicZuoCiCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicZuoCiRulesResource),
+            ReadEmbeddedText(ClassicZuoCiPresentationResource)));
     private static readonly Lazy<SkillProgramCatalog> SpZhaoYunCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(SpZhaoYunRulesResource),
@@ -199,7 +207,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicGaoShunRulesResource),
             ReadEmbeddedText(ClassicGaoShunPresentationResource)));
-    public static Version CurrentVersion { get; } = new(1, 162, 0);
+    public static Version CurrentVersion { get; } = new(1, 163, 0);
 
     public StandardClassicGeneralPackage()
     {
@@ -1213,6 +1221,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
 
         {
             builder.AddSkill(WithActiveActionMetadata(YuJiProgram("classic:guhuo")));
+            builder.AddSkill(WithOptionalTriggerMetadata(ZuoCiProgram("classic:huashen")));
+            builder.AddSkill(WithOptionalTriggerMetadata(ZuoCiProgram("classic:xinsheng")));
         }
 
 
@@ -1667,6 +1677,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:yu-ji", "于吉", "yu_ji",
                 "classic:guhuo", "qun", BaseHp: 3));
+        }
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:zuo-ci", "左慈", "zuo_ci",
+                "classic:huashen", "qun", BaseHp: 3,
+                AdditionalSkillIds: ["classic:xinsheng"]));
         }
         {
             builder.AddGeneral(new ContentGeneralDefinition(
@@ -2300,6 +2316,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         };
     }
 
+    private static ContentSkillDefinition ZuoCiProgram(string skillId)
+    {
+        var presentation = ClassicZuoCiCatalog.Value.Presentations[skillId];
+        return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
+        {
+            Program = ClassicZuoCiCatalog.Value.Programs[skillId]
+        };
+    }
+
     private ContentSkillDefinition WithOptionalTriggerMetadata(ContentSkillDefinition definition) =>
         WithStructuredSkillMetadata(
             definition,
@@ -2434,6 +2459,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:shen-lu-meng",
         "classic:shen-cao-cao",
         "classic:yu-ji",
+        "classic:zuo-ci",
     ];
 
     /// <summary>Registered generals kept out of the classic identity pools (fan-made roster).</summary>

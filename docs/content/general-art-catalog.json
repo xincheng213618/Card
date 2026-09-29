@@ -9115,7 +9115,7 @@
           "sourcePage": "https://x.sanguosha.com/hero/12.html",
           "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/201203.png",
           "localPath": "src/CardGame.Wpf/Assets/Skins/zhou-yu/201203.png",
-          "sha256": "3741dad2c5fb8a7d046e18c9e69a4bcab0a503561a9130baf64a6e250a80c94f",
+          "sha256": "d3bd4a1acc28205b63153a4156585af5b30b7224fb12a52464db9c1fa2a95458",
           "pixelWidth": 574,
           "pixelHeight": 761
         },
@@ -9624,6 +9624,83 @@
           "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/500404.png",
           "localPath": "src/CardGame.Wpf/Assets/Skins/zhuge-liang/500404.png",
           "sha256": "5cc041a95389ec4043fd53d699f6a912d1071ad6c3c49f72c6577cdc518a4ea8",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
+      "key": "zuo-ci",
+      "characterName": "左慈",
+      "defaultSkinId": "105701",
+      "skins": [
+        {
+          "id": "105701",
+          "name": "经典形象*左慈",
+          "sourcePage": "https://x.sanguosha.com/hero/57.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105701.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-zuo-ci.png",
+          "sha256": "5890d08becc65707c4abdbb38a5c1b24e0e4ba47a073822fc64afe531f21b8a6",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "205701",
+          "name": "亦幻亦真*左慈",
+          "sourcePage": "https://x.sanguosha.com/hero/57.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/205701.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/zuo-ci/205701.png",
+          "sha256": "af2ef8c91ad4d98b6d3a3c9e3774d1d054f8f4d1219d14c72861b0a4e859fee9",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "305701",
+          "name": "驾鹤飞天*左慈",
+          "sourcePage": "https://x.sanguosha.com/hero/57.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/305701.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/zuo-ci/305701.png",
+          "sha256": "b9fa8011205dbf2812195031bf7dbed4cd014a56eab00a62afe03d09578f2ba8",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "305702",
+          "name": "腾云驭风*左慈",
+          "sourcePage": "https://x.sanguosha.com/hero/57.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/305702.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/zuo-ci/305702.png",
+          "sha256": "9bfe8280b5455bc087bc16a2fffc9a0515cbc6d8c483b8e3e81b43ff883c16e4",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "405701",
+          "name": "妙笔为龙*左慈",
+          "sourcePage": "https://x.sanguosha.com/hero/57.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/405701.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/zuo-ci/405701.png",
+          "sha256": "b3254602bd546ac3bdd3df05a59e49f027994f053311a6901427b0d72f688510",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "505701",
+          "name": "仙人之怒*左慈",
+          "sourcePage": "https://x.sanguosha.com/hero/57.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/505701.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/zuo-ci/505701.png",
+          "sha256": "166162fc9e0728a549d1a52fd770705701a5fb4f50e3f6891d14654fd0f4b94b",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        },
+        {
+          "id": "505702",
+          "name": "幻化众生*左慈",
+          "sourcePage": "https://x.sanguosha.com/hero/57.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/505702.png",
+          "localPath": "src/CardGame.Wpf/Assets/Skins/zuo-ci/505702.png",
+          "sha256": "3107af0e35e2d5f32bbf9ac22e814aee68dc17634c3a9e5eee82d94d2503d327",
           "pixelWidth": 574,
           "pixelHeight": 761
         }
