@@ -22,7 +22,7 @@ internal static class ManChongChecks
                 {
                     Program:
                     {
-                        RuntimeVersion: "skill-program-v62",
+                        RuntimeVersion: SkillProgramCatalog.RuntimeVersion,
                         MinimumRulesVersion: 172,
                         Activations.Count: 1
                     },
@@ -33,7 +33,7 @@ internal static class ManChongChecks
                 {
                     Program:
                     {
-                        RuntimeVersion: "skill-program-v62",
+                        RuntimeVersion: SkillProgramCatalog.RuntimeVersion,
                         MinimumRulesVersion: 172,
                         Triggers.Count: 1
                     },

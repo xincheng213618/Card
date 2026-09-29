@@ -19,7 +19,7 @@ internal static class SpLeJinChecks
             general.SkillIds.SequenceEqual([SkillId]) &&
             current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
             current.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId) &&
-            skill.Program is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } &&
+            skill.Program is { RuntimeVersion: SkillProgramCatalog.RuntimeVersion, MinimumRulesVersion: 172 } &&
             skill.Program.Triggers.Single().TurnOwnerScope == SkillProgramTurnOwnerScope.OtherLiving &&
             (int)SkillProgramConditionKind.HasOwnedCardCategory == 23,
             "SP Le Jin must register with its schema-56 observer trigger in the current identity roster.");

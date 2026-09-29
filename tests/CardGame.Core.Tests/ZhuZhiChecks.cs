@@ -21,7 +21,7 @@ internal static class ZhuZhiChecks
                 general.SkillIds.SequenceEqual([SkillId]) &&
                 registry.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
                 registry.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId) &&
-                skill.Program is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } &&
+                skill.Program is { RuntimeVersion: SkillProgramCatalog.RuntimeVersion, MinimumRulesVersion: 172 } &&
                 skill.Program.Activations.Single() is { UsesPerPhase: 1, MinTargets: 0, MaxTargets: 0 } &&
                 (int)SkillProgramConditionKind.AttackRangeCoverageDecreased == 22,
             "Zhu Zhi must be a formal Wu/Fame V general with phase-limited schema-55 Anguo.");

@@ -79,7 +79,7 @@ internal static class PublicMarkerChecks
                 {
                     Tags: SkillTag.Locked,
                     ExecutionForms: SkillExecutionForm.State,
-                    Program.RuntimeVersion: "skill-program-v62",
+                    Program.RuntimeVersion: SkillProgramCatalog.RuntimeVersion,
                     Program.MinimumRulesVersion: 172
                 } &&
                 wuhun.Program.Triggers.Select(trigger => trigger.Window)

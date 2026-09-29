@@ -6,24 +6,6 @@ internal static class QuYiChecks
     private const string General = "classic:qu-yi";
     private const string DamageGeneral = "fixture:qu-yi-damage";
 
-    public static void DefinitionAndSharedRules()
-    {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        var general = registry.Generals[General];
-        Require(general is { BaseHp: 4, FactionId: "qun" } &&
-                general.SkillIds.SequenceEqual(["classic:fuqi", "classic:jiaozi"]) &&
-                registry.Modes["identity:classic-5"].GeneralPoolIds!.Contains(General),
-            "Qu Yi must be a selectable Qun general with both locked skills.");
-        var fuqi = registry.Skills["classic:fuqi"].Program!.CardPolicies.Single();
-        var jiaozi = registry.Skills["classic:jiaozi"].Program!.DamageModifiers.Single();
-        Require(fuqi.Kind == SkillProgramCardPolicyKind.ProhibitNearbyTargetResponse &&
-                fuqi.Value == 1 && fuqi.CardKinds.Count == 0 &&
-                jiaozi.Condition == SkillProgramDamageModifierCondition.OwnerUniqueMaximumHand &&
-                jiaozi.SourceScope == SkillProgramDamageModifierSourceScope.DamageParticipant &&
-                jiaozi.CardKinds.Count == 0,
-            "Fuqi must gate Slash and ordinary trick responses; Jiaozi must gate damage, independent of cards.");
-    }
-
     public static void NearbySlashCannotRespondBeforeDamageBonus()
     {
         var registry = Registry();

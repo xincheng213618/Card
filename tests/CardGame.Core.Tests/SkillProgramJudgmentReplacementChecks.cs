@@ -11,7 +11,7 @@ internal static class SkillProgramJudgmentReplacementChecks
         var discard = program.Triggers.Single(trigger => trigger.Id == DiscardTriggerId);
         var replacement = exchange.Effects[0];
         var followUp = exchange.Effects[1];
-        Require(program.RuntimeVersion == "skill-program-v62" && program.MinimumRulesVersion == 171 &&
+        Require(program.RuntimeVersion == SkillProgramCatalog.RuntimeVersion && program.MinimumRulesVersion == 171 &&
                 exchange.Window == SkillProgramTriggerWindow.JudgmentReplacing &&
                 exchange.Subject == SkillProgramTriggerSubject.Any && exchange.Optional &&
                 exchange.ExcludedReasons.SequenceEqual([JudgmentReasons.Leiji]) &&

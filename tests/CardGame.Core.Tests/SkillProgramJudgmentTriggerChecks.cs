@@ -8,7 +8,7 @@ internal static class SkillProgramJudgmentTriggerChecks
         var catalog = SkillProgramCatalog.Load(ValidV3, Presentation);
         var program = catalog.Programs["judgment-test:reward"];
         var trigger = program.Triggers.Single();
-        Require(program.RuntimeVersion == "skill-program-v62" && program.MinimumRulesVersion == 171 &&
+        Require(program.RuntimeVersion == SkillProgramCatalog.RuntimeVersion && program.MinimumRulesVersion == 171 &&
                 trigger.Window == SkillProgramTriggerWindow.JudgmentFinalized &&
                 trigger.SourceSkillId is null && trigger.SourceViewAsId is null &&
                 trigger.Subject == SkillProgramTriggerSubject.Owner && trigger.Optional &&

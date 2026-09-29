@@ -21,7 +21,7 @@ internal static class ProgramActivationLimitChecks
     public static void DefinitionsAndCurrentBoundary()
     {
         var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(current.Skills[SkillId] is { Program: { RuntimeVersion: "skill-program-v62",
+        Require(current.Skills[SkillId] is { Program: { RuntimeVersion: SkillProgramCatalog.RuntimeVersion,
                     MinimumRulesVersion: 172 } program } &&
                 program.Activations.Single() is { MaxCards: int.MaxValue, UsesPerPhase: 1, UsesPerTurn: null } &&
                 program.Activations.Single().SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]),

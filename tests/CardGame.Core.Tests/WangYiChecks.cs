@@ -28,7 +28,7 @@ internal static class WangYiChecks
                 {
                     Program:
                     {
-                        RuntimeVersion: "skill-program-v62",
+                        RuntimeVersion: SkillProgramCatalog.RuntimeVersion,
                         MinimumRulesVersion: 172,
                         Triggers.Count: 1
                     } zhenlieProgram,
@@ -39,7 +39,7 @@ internal static class WangYiChecks
                 {
                     Program:
                     {
-                        RuntimeVersion: "skill-program-v62",
+                        RuntimeVersion: SkillProgramCatalog.RuntimeVersion,
                         MinimumRulesVersion: 172,
                         Triggers.Count: 1
                     } program,

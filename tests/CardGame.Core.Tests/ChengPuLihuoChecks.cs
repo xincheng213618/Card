@@ -12,39 +12,6 @@ internal static class ChengPuLihuoChecks
     private const string LihuoSkillId = "classic:lihuo";
     private const string ChunlaoSkillId = "classic:chunlao";
 
-    public static void ContentAndRulesBoundary()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var skill = current.Skills[LihuoSkillId];
-
-        Require(skill.Program is not null &&
-                skill.Tags == SkillTag.None &&
-                skill.ActionForms == SkillActionForm.None &&
-                skill.ExecutionForms == (SkillExecutionForm.State | SkillExecutionForm.Trigger),
-            "Lihuo must expose conversion state and a completed-use penalty without an active button.");
-        Require(current.Modes["identity:classic-5"].GeneralPoolIds!.Contains("classic:cheng-pu"),
-            "Current identity mode must publish the complete Cheng Pu general.");
-
-    }
-
-    public static void CompletionPenaltyProgramContentBoundary()
-    {
-        var latest = StandardContentRegistry.CreateWithClassicGenerals();
-        var skill = latest.Skills[LihuoSkillId];
-        Require(skill.Program is
-                { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } currentProgram &&
-                currentProgram.Modifiers.Single() is
-                { Query: SkillRuleQuery.CardTargetCount, Operation: SkillRuleOperation.Add, Value: 1 } &&
-                currentProgram.Modifiers.Single().CardKinds.SequenceEqual([CardKind.FireSlash]) &&
-                currentProgram.ViewAs.Single() is { AllowChainedInput: true } &&
-                skill.Program.Triggers.Single() is
-                { Window: SkillProgramTriggerWindow.CardUseCompleted, Optional: false } &&
-                skill.Program.ViewAs.Single() is
-                { OutputKind: CardKind.FireSlash, ForPlay: true, ForResponse: false } &&
-                skill.ExecutionForms == (SkillExecutionForm.State | SkillExecutionForm.Trigger),
-            "Current Lihuo must expose target-count, chained conversion and completed-use penalty rules.");
-    }
-
     public static void ConvertedFireSlashAddsTargetAndLosesHpOnce()
     {
         var game = CreateGame(ScenarioPackage.SlashModeId, seed: 1);

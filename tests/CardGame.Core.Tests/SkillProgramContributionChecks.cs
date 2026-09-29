@@ -13,7 +13,7 @@ internal static class SkillProgramContributionChecks
         var classic = catalog.Programs[ClassicSkillId];
         var boundary = catalog.Programs[BoundarySkillId];
         var classicContribution = classic.Contributions.Single();
-        Require(classic is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 171 } &&
+        Require(classic is { RuntimeVersion: SkillProgramCatalog.RuntimeVersion, MinimumRulesVersion: 171 } &&
                 classicContribution is
                 {
                     Id: BindingId,

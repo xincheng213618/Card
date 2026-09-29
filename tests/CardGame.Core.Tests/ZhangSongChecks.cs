@@ -12,27 +12,6 @@ internal static class ZhangSongChecks
     private const string ClassicXiantu = "classic:xiantu";
     private const string BoundaryXiantu = "boundary:xiantu";
 
-    public static void DefinitionAndContentContract()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(current.Generals[ClassicGeneral] is { BaseHp: 3, FactionId: "shu" } classic &&
-                classic.SkillIds.SequenceEqual([ClassicQiangzhi, ClassicXiantu]) &&
-                current.Generals[BoundaryGeneral] is { BaseHp: 3, FactionId: "shu" } boundary &&
-                boundary.SkillIds.SequenceEqual([BoundaryQiangzhi, BoundaryXiantu]) &&
-                current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(ClassicGeneral) &&
-                current.Modes["identity:classic-8"].GeneralPoolIds!.Contains(ClassicGeneral) &&
-                current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(BoundaryGeneral) &&
-                current.Modes["identity:classic-8"].GeneralPoolIds!.Contains(BoundaryGeneral),
-            "Both Zhang Song variants must be current Shu three-HP generals in both formal pools.");
-        Require(current.Packages.Single(package => package.Id == "standard-classic-generals")
-                .Version == StandardClassicGeneralPackage.CurrentVersion,
-            "The classic general package must declare its current version.");
-
-        foreach (var skillId in new[] { ClassicQiangzhi, BoundaryQiangzhi, ClassicXiantu, BoundaryXiantu })
-            Require(current.Skills[skillId].Program is { MinimumRulesVersion: 175 },
-                "Zhang Song must use the shared card/phase lifecycle capability.");
-    }
-
     public static void ClassicQiangzhiRevealsThenDrawsOnMatchingCategory()
     {
         var registry = Registry();

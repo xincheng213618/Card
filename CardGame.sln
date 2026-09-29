@@ -1,6 +1,7 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.11.12217.175 insiders
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardGame.Core", "src\CardGame.Core\CardGame.Core.csproj", "{E1F9C7C7-E021-4BD9-900C-34DC4D080B70}"
 EndProject
@@ -45,6 +46,10 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{675CB958-A95A-4FDB-8698-2C5A284A25FC} = {9D62AB7F-FC0B-4E84-8335-D527E418A344}
 		{54354F2F-92F6-41FA-8699-A7CB62E5CA7F} = {9D62AB7F-FC0B-4E84-8335-D527E418A344}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {59896EB3-6128-4887-AA3E-726D7A90486F}
 	EndGlobalSection
 EndGlobal

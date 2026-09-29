@@ -25,7 +25,7 @@ internal static class XunYouChecks
                 qice.ActionForms == SkillActionForm.Active &&
                 qice.Program is
                 {
-                    RuntimeVersion: "skill-program-v62",
+                    RuntimeVersion: SkillProgramCatalog.RuntimeVersion,
                     MinimumRulesVersion: 172,
                     Activations.Count: 1
                 } && qice.Program.Activations.Single().Effects.Single().Op ==
@@ -38,7 +38,7 @@ internal static class XunYouChecks
                 zhiyu.ActionForms == SkillActionForm.None &&
                 zhiyu.Program is
                 {
-                    RuntimeVersion: "skill-program-v62",
+                    RuntimeVersion: SkillProgramCatalog.RuntimeVersion,
                     MinimumRulesVersion: 172,
                     Triggers.Count: 1
                 },

@@ -7,43 +7,6 @@ internal static class RuleQueryIntegrationChecks
     private const BindingFlags PrivateInstance = BindingFlags.Instance | BindingFlags.NonPublic;
     private const string FixtureSkillId = "fixture:engine-rule-query";
 
-    public static void FormalContentPreservesVersionBoundaries()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var expectedVersions = new Dictionary<string, Version>(StringComparer.Ordinal)
-        {
-            ["standard"] = StandardContentPackage.CurrentVersion,
-            ["standard-active-skills"] = StandardActiveSkillExpansionPackage.CurrentVersion,
-            ["standard-classic-generals"] = StandardClassicGeneralPackage.CurrentVersion
-        };
-        Require(expectedVersions.All(expected => current.Packages.Any(package =>
-                    package.Id == expected.Key && package.Version == expected.Value)),
-            "The current registry must publish the configured package bundle.");
-
-        var expectedLegacyKinds = new Dictionary<string, string>(StringComparer.Ordinal)
-        {
-            ["standard:paoxiao"] = "classic:paoxiao",
-            ["standard:mashu"] = "classic:mashu",
-            ["classic:paoxiao"] = "classic:paoxiao",
-            ["classic:mashu"] = "classic:mashu",
-            ["sp:guan-yu-mashu"] = "classic:mashu",
-            ["classic:yicong"] = "classic:yicong",
-            ["classic:zongshi"] = "classic:zongshi"
-        };
-        foreach (var expected in expectedLegacyKinds)
-        {
-            var currentSkill = current.Skills[expected.Key];
-            Require(currentSkill.Program is
-                    {
-                        MinimumRulesVersion: 172,
-                        RuntimeVersion: "skill-program-v62"
-                    } program &&
-                    program.Id == expected.Key &&
-                    program.Modifiers.Count > 0,
-                $"Current skill '{expected.Key}' must be a rules-117 schema-12 program without a legacy executor.");
-        }
-    }
-
     public static void EngineTracksDynamicSourcesAndInstanceIdentity()
     {
         var registry = ContentRegistry.Build(

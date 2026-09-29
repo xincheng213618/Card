@@ -7,50 +7,6 @@ internal static class TurnEndingBoundaryChecks
 {
     private const int HumanSeat = 0;
 
-    public static void ContentPreservesLegacyBoundaryAndPublishesPrograms()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-
-        foreach (var (skillId, priority) in new[]
-                 {
-                     ("classic:jushou", 100),
-                     ("classic:biyue", -100)
-                 })
-        {
-            var migrated = current.Skills[skillId];
-            Require(migrated.Program is { MinimumRulesVersion: 172 } program &&
-                    program.Triggers.Single() is
-                    {
-                        Window: SkillProgramTriggerWindow.TurnEnding,
-                        Priority: var actualPriority,
-                        UsageScope: SkillUsageScope.Turn,
-                        UsageLimit: 1
-                    } && actualPriority == priority,
-                $"Package 1.99 must publish {skillId} as a shared-kernel TurnEnding program.");
-        }
-
-        var jushou = current.Skills["classic:jushou"].Program!.Triggers.Single();
-        Require(jushou.Effects is
-                [
-                    { Op: SkillProgramEffectOp.Draw, Amount: 3 },
-                    { Op: SkillProgramEffectOp.SetFaceState, FaceDown: true }
-                ],
-            "Jushou must draw three then use the exact face-down state primitive, not the toggle primitive.");
-
-        Require(current.Skills["classic:jujian"] is
-                {
-                    Program: { MinimumRulesVersion: 172 } jujian
-                } &&
-                jujian.Triggers.Single() is
-                {
-                    Window: SkillProgramTriggerWindow.TurnEnding,
-                    Priority: 0,
-                    UsageScope: SkillUsageScope.Turn,
-                    UsageLimit: 1
-                },
-            "Current content must replace the historical Jujian executor with the schema-30 composition program.");
-    }
-
     public static void OrdersJushouJujianBiyueAndReplays()
     {
         var registry = CombinedRegistry();

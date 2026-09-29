@@ -18,7 +18,7 @@ internal static class SpGuanYuChecks
         var program = SkillProgramCatalog.Load(ValidationRules, ValidationPresentation)
             .Programs["fixture:awakening"];
         var trigger = program.Triggers.Single();
-        Require(program is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 171 } &&
+        Require(program is { RuntimeVersion: SkillProgramCatalog.RuntimeVersion, MinimumRulesVersion: 171 } &&
                 trigger.Condition.Evaluate(new SkillProgramTriggerFacts(
                     0, 3, true, CurrentHandCount: 4, LordGeneralId: "classic:cao-cao")) &&
                 !trigger.Condition.Evaluate(new SkillProgramTriggerFacts(
@@ -72,7 +72,7 @@ internal static class SpGuanYuChecks
         {
             Tags: SkillTag.Awakening | SkillTag.Locked | SkillTag.Limited,
             ExecutionForms: SkillExecutionForm.Trigger,
-            Program.RuntimeVersion: "skill-program-v62",
+            Program.RuntimeVersion: SkillProgramCatalog.RuntimeVersion,
             Program.MinimumRulesVersion: 172
         } &&
             awakening is
@@ -99,7 +99,7 @@ internal static class SpGuanYuChecks
             } &&
             current.Skills[MashuSkillId] is
             {
-                Program.RuntimeVersion: "skill-program-v62",
+                Program.RuntimeVersion: SkillProgramCatalog.RuntimeVersion,
                 Tags: SkillTag.Locked,
                 ExecutionForms: SkillExecutionForm.State
             } &&

@@ -14,8 +14,7 @@ internal static class SkillProgramChecks
             "Equivalent rule JSON must have the same gameplay hash regardless of formatting and property order.");
         Require(first.Presentations[program.Id].Description != second.Presentations[program.Id].Description,
             "The fixture must actually vary presentation text.");
-        Require(SkillProgramCatalog.RuntimeVersion == "skill-program-v62" &&
-                program.GameplayHash.Length == 64 && program.GameplayHash.All(Uri.IsHexDigit) &&
+        Require(program.GameplayHash.Length == 64 && program.GameplayHash.All(Uri.IsHexDigit) &&
                 program.GameplayHash == program.GameplayHash.ToLowerInvariant(),
             "GameplayHash must be a lowercase SHA-256 value.");
         Require(program.Modifiers.Count == 2 &&

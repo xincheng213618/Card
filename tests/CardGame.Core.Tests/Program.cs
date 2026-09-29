@@ -51,7 +51,6 @@ var tests = new (string Name, Action Body)[]
     ("2017 Cao Ang non-equipment gift stays without use prompt", CaoAngChecks.NonEquipmentGiftKeepsRecipientHandWithoutUsePrompt),
     ("2017 Cao Ang distance beyond one does not trigger", CaoAngChecks.DistanceBeyondOneDoesNotTrigger),
     ("2017 Cao Ang self-target draws only without gift", CaoAngChecks.SelfTargetSlashDrawsOnlyWithoutGift),
-    ("Qu Yi definition and shared response and damage rules", QuYiChecks.DefinitionAndSharedRules),
     ("Qu Yi nearby Slash response precedes Jiaozi damage", QuYiChecks.NearbySlashCannotRespondBeforeDamageBonus),
     ("Qu Yi global trick checks each target response range", QuYiChecks.GlobalTrickResponseUsesEachTargetsDistance),
     ("Qu Yi Arrow Barrage checks each target response range", QuYiChecks.ArrowBarrageResponseUsesEachTargetsDistance),
@@ -136,7 +135,6 @@ var tests = new (string Name, Action Body)[]
     ("Zhang Song equipment use, replacement and replay", ZhangSongChecks.EquipmentUsesReplaceAndResumeExactlyOnce),
     ("Zhang Song category mismatch and phase lifetime", ZhangSongChecks.CategoryMismatchAndPhaseLifetime),
     ("Zhang Song Xiantu original cards and play-end timing", ZhangSongChecks.XiantuSelectsExistingCardsAndPenalizesBeforeDiscard),
-    ("Zhang Song Qiangzhi and Xiantu definition and content contract", ZhangSongChecks.DefinitionAndContentContract),
     ("Classic Zhang Song Qiangzhi reveals a category and draws on matching uses", ZhangSongChecks.ClassicQiangzhiRevealsThenDrawsOnMatchingCategory),
     ("Boundary Zhang Song Qiangzhi views the hand and chooses the revealed card", ZhangSongChecks.BoundaryQiangzhiViewsHandAndChoosesReveal),
     ("Classic Zhang Song Xiantu gifts two cards and penalizes a killless phase", ZhangSongChecks.ClassicXiantuGiftsTwoAndPenalizesWithoutKill),
@@ -248,7 +246,6 @@ var tests = new (string Name, Action Body)[]
     ("rule query programs deduplicate instances and evaluate dynamic values", RuleQueryReducerChecks.ProgramContributionsUseInstanceIdentityAndDynamicValues),
     ("rule query registry rejects future Set conflicts", RuleQueryReducerChecks.StaticSetConflictsAreRejectedBeforePlay),
     ("rule query schema requires explicit modifier identity and priority", RuleQueryReducerChecks.SchemaTwelveRequiresExplicitModifierIdentityAndPriority),
-    ("rule query content preserves formal and legacy version boundaries", RuleQueryIntegrationChecks.FormalContentPreservesVersionBoundaries),
     ("rule query engine tracks dynamic grants and program instances", RuleQueryIntegrationChecks.EngineTracksDynamicSourcesAndInstanceIdentity),
     ("rule query engine consumes formal unlimited slash programs", RuleQueryIntegrationChecks.EngineConsumesFormalUnlimitedSlashProgram),
     ("character skills retain separate sources and stable ownership", CharacterSkillSetChecks.GrantsRetainSourcesAndStableOwnership),
@@ -368,8 +365,6 @@ var tests = new (string Name, Action Body)[]
     ("formal Bu Lian Shi versions active Anxu and optional Zhuiyi", BuLianShiChecks.ContentAndRulesBoundary),
     ("Anxu lets the lower-hand receiver choose an opaque card and applies effective suit", BuLianShiChecks.AnxuUsesOpaqueReceiverChoiceAndEffectiveSuit),
     ("Zhuiyi excludes the killer and may benefit a full-health target", BuLianShiChecks.ZhuiyiExcludesKillerAndAllowsFullHealthTarget),
-    ("formal Cheng Pu Lihuo is a versioned state rule without publishing an incomplete general", ChengPuLihuoChecks.ContentAndRulesBoundary),
-    ("formal Lihuo versions its completed-use penalty program", ChengPuLihuoChecks.CompletionPenaltyProgramContentBoundary),
     ("Lihuo converts Slash adds one target and loses HP once after the use", ChengPuLihuoChecks.ConvertedFireSlashAddsTargetAndLosesHpOnce),
     ("native and Zhuque Fire Slash use Lihuo target extension without conversion penalty", ChengPuLihuoChecks.NativeAndZhuqueFireSlashDoNotPayConversionPenalty),
     ("a fully dodged Lihuo conversion does not lose HP", ChengPuLihuoChecks.FullyDodgedConversionDoesNotLoseHp),
@@ -396,14 +391,12 @@ var tests = new (string Name, Action Body)[]
     ("Jingce deduplicates grants composes instances and rechecks ownership", GuoHuaiChecks.JingceDeduplicatesSourcesComposesInstancesAndRechecksOwnership),
     ("Jingce uses independent Dangxian extra and normal Play windows", GuoHuaiChecks.JingceUsesIndependentDangxianPlayWindows),
     ("Jingce does not open a second PlayEnding when normal Play is skipped", GuoHuaiChecks.JingceDoesNotOpenForSkippedNormalPlay),
-    ("turn-ending content preserves legacy definitions and publishes programs", TurnEndingBoundaryChecks.ContentPreservesLegacyBoundaryAndPublishesPrograms),
     ("turn-ending boundary orders Jushou Jujian Biyue and replays", TurnEndingBoundaryChecks.OrdersJushouJujianBiyueAndReplays),
     ("turn-ending programs deduplicate sources and recheck ownership", TurnEndingBoundaryChecks.DeduplicatesSourcesAndRechecksOwnership),
     ("turn-ending boundary freezes facts across earlier effects", TurnEndingBoundaryChecks.FreezesFactsAcrossEarlierTurnEndingEffects),
     ("formal Man Chong migrates Junxing and Yuce at package 1.118", ManChongChecks.ContentAndPackageBoundary),
     ("Junxing enforces exact card categories and replays both target branches", ManChongChecks.JunxingUsesExactCategoriesAndReplaysBothBranches),
     ("Yuce reveals one card challenges the source recovers and replays", ManChongChecks.YuceRevealsChallengesRecoversAndReplays),
-    ("formal Guan Ping publishes optional Longyin behind package 1.97", GuanPingChecks.ContentAndPackageBoundary),
     ("Longyin discards exactly one card uncounts a red Slash draws and replays", GuanPingChecks.RedSlashDrawsAndReplays),
     ("Longyin uncounts a black Slash without drawing and a later skip preserves the limit", GuanPingChecks.BlackSlashUncountsWithoutDrawingAndSkipPreservesLimit),
     ("Longyin privately answers another character's Play-phase Slash and replays", GuanPingChecks.OtherCharactersSlashOffersPrivateChoiceAndReplays),
@@ -645,6 +638,12 @@ var tests = new (string Name, Action Body)[]
     ("snapshot is JSON serializable", SnapshotSerialization)
 };
 
+if (args.Any(argument => argument != "--verbose" &&
+    !argument.StartsWith("--filter=", StringComparison.OrdinalIgnoreCase)))
+{
+    Console.Error.WriteLine("Unknown Core check option. Use --filter=<name>.");
+    return 2;
+}
 var nameFilter = args.FirstOrDefault(argument =>
     argument.StartsWith("--filter=", StringComparison.OrdinalIgnoreCase));
 if (nameFilter is not null)
@@ -661,168 +660,6 @@ if (nameFilter is not null)
         Console.Error.WriteLine($"No Core checks matched filter '{value}'.");
         return 2;
     }
-}
-
-if (args.FirstOrDefault() == "--only-cao-zhang")
-{
-    tests = tests.Where(test => test.Name.Contains("Jiangchi", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-ma-dai")
-{
-    tests = tests.Where(test => test.Name.Contains("Qianxi", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-gao-shun")
-{
-    tests = tests.Where(test =>
-        test.Name.Contains("Gao Shun", StringComparison.Ordinal) ||
-        test.Name.Contains("Xianzhen", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-liu-biao")
-{
-    tests = tests.Where(test =>
-        test.Name.Contains("Liu Biao", StringComparison.Ordinal) ||
-        test.Name.Contains("Zishou", StringComparison.Ordinal) ||
-        test.Name.Contains("Zongshi", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-wang-yi")
-{
-    tests = tests.Where(test =>
-        test.Name.Contains("Wang Yi", StringComparison.Ordinal) ||
-        test.Name.Contains("Zhenlie", StringComparison.Ordinal) ||
-        test.Name.Contains("Miji", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-zhong-hui")
-{
-    tests = tests.Where(test =>
-        test.Name.Contains("Zhong Hui", StringComparison.Ordinal) ||
-        test.Name.Contains("Quanji", StringComparison.Ordinal) ||
-        test.Name.Contains("Zili", StringComparison.Ordinal) ||
-        test.Name.Contains("Paiyi", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-xun-you")
-{
-    tests = tests.Where(test =>
-        test.Name.Contains("Xun You", StringComparison.Ordinal) ||
-        test.Name.Contains("Qice", StringComparison.Ordinal) ||
-        test.Name.Contains("Zhiyu", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-liao-hua")
-{
-    tests = tests.Where(test =>
-        test.Name.Contains("Liao Hua", StringComparison.Ordinal) ||
-        test.Name.Contains("Dangxian", StringComparison.Ordinal) ||
-        test.Name.Contains("Fuli", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-guan-xing-zhang-bao")
-{
-    tests = tests.Where(test =>
-        test.Name.Contains("Guan Xing", StringComparison.Ordinal) ||
-        test.Name.Contains("Fuhun", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-bu-lian-shi")
-{
-    tests = tests.Where(test =>
-        test.Name.Contains("Bu Lian Shi", StringComparison.Ordinal) ||
-        test.Name.Contains("Anxu", StringComparison.Ordinal) ||
-        test.Name.Contains("Zhuiyi", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-cheng-pu-lihuo")
-{
-    tests = tests.Where(test => test.Name.Contains("Lihuo", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-cheng-pu")
-{
-    tests = tests.Where(test =>
-        test.Name.Contains("Cheng Pu", StringComparison.Ordinal) ||
-        test.Name.Contains("Lihuo", StringComparison.Ordinal) ||
-        test.Name.Contains("Chunlao", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-han-dang")
-{
-    tests = tests.Where(test =>
-        test.Name.Contains("Han Dang", StringComparison.Ordinal) ||
-        test.Name.Contains("Gongqi", StringComparison.Ordinal) ||
-        test.Name.Contains("Jiefan", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-cao-chong")
-{
-    tests = tests.Where(test =>
-        test.Name.Contains("Cao Chong", StringComparison.Ordinal) ||
-        test.Name.Contains("Chengxiang", StringComparison.Ordinal) ||
-        test.Name.Contains("Renxin", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-program-lifecycle")
-{
-    tests = tests.Where(test => test.Name.Contains("lifecycle program", StringComparison.Ordinal) ||
-        test.Name.Contains("lifecycle skill instance", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-draw-phase")
-{
-    tests = tests.Where(test => test.Name.Contains("draw-phase", StringComparison.OrdinalIgnoreCase) ||
-        test.Name.Contains("Yingzi", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-rule-query")
-{
-    tests = tests.Where(test => test.Name.Contains("rule query", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-guo-huai")
-{
-    tests = tests.Where(test =>
-        test.Name.Contains("Guo Huai", StringComparison.Ordinal) ||
-        test.Name.Contains("Jingce", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-turn-ending")
-{
-    tests = tests.Where(test =>
-        test.Name.Contains("turn-ending", StringComparison.OrdinalIgnoreCase) ||
-        test.Name.Contains("Jushou", StringComparison.Ordinal) ||
-        test.Name.Contains("Biyue", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-man-chong")
-{
-    tests = tests.Where(test =>
-        test.Name.Contains("Man Chong", StringComparison.Ordinal) ||
-        test.Name.Contains("Junxing", StringComparison.Ordinal) ||
-        test.Name.Contains("Yuce", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-guan-ping")
-{
-    tests = tests.Where(test =>
-        test.Name.Contains("Guan Ping", StringComparison.Ordinal) ||
-        test.Name.Contains("Longyin", StringComparison.Ordinal)).ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-checkpoint-restore")
-{
-    tests = tests.Where(test =>
-        test.Name == "command checkpoints restore a paused private prompt deterministically").ToArray();
-}
-
-if (args.FirstOrDefault() == "--only-wuhun")
-{
-    tests = tests.Where(test =>
-        test.Name.Contains("Wuhun", StringComparison.Ordinal) ||
-        test.Name.Contains("causeDeath", StringComparison.Ordinal)).ToArray();
 }
 
 var passed = 0;

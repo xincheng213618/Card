@@ -33,6 +33,14 @@ internal static class Program
             return 2;
         }
 
+        if (args.Any(argument => argument.StartsWith("--", StringComparison.Ordinal) &&
+            argument != "--record-motion" && argument != "--verify-native-audio" &&
+            !argument.StartsWith("--filter=", StringComparison.OrdinalIgnoreCase) &&
+            !argument.StartsWith("--start-after=", StringComparison.OrdinalIgnoreCase)))
+        {
+            Console.Error.WriteLine("Unknown WPF check option. Use --filter=<name>.");
+            return 2;
+        }
         var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
         app.Resources.MergedDictionaries.Add(new ResourceDictionary
         {
@@ -58,182 +66,7 @@ internal static class Program
                 !argument.StartsWith("--", StringComparison.Ordinal)) ??
                 Path.Combine(Path.GetTempPath(), "card-ui-check");
             Directory.CreateDirectory(output);
-            if (args.Contains("--only-classic-rende", StringComparer.Ordinal))
-            {
-                Check("classic Rende remains repeatable before FactionSlash opens its separate target draft",
-                    () => ClassicGeneralUiChecks.FactionSlashActiveAction(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-classic-shared-skills", StringComparer.Ordinal))
-            {
-                Check("classic shared skills render their distinct trigger and state identities",
-                    () => ClassicGeneralUiChecks.SharedSkillIdentityMetadata(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-classic-multi-skill", StringComparer.Ordinal))
-            {
-                Check("classic identity renders and restores multiple skills with base HP",
-                    () => ClassicGeneralUiChecks.MultiSkillSelectionAndRestore(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-mou-lu-meng", StringComparer.Ordinal))
-            {
-                Check("formal Mou Lu Meng renders compound skill metadata and Hengye growth",
-                    () => ClassicGeneralUiChecks.MouLuMengSkillState(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-sp-guan-yu", StringComparer.Ordinal))
-            {
-                Check("formal SP Guan Yu renders independent official art and complete skills",
-                    () => ClassicGeneralUiChecks.SpGuanYuPortraitAndCard(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-yan-yan", StringComparer.Ordinal))
-            {
-                Check("formal Yan Yan renders independent official art and Juzhan state",
-                    () => ClassicGeneralUiChecks.YanYanConversionCard(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-cao-zhang", StringComparer.Ordinal))
-            {
-                Check("formal Cao Zhang renders official art and the original Jiangchi choice",
-                    () => ClassicGeneralUiChecks.CaoZhangJiangchiCard(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-ma-dai", StringComparer.Ordinal))
-            {
-                Check("formal Ma Dai renders official art and staged Qianxi",
-                    () => ClassicGeneralUiChecks.MaDaiQianxiCard(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-gao-shun", StringComparer.Ordinal))
-            {
-                Check("formal Gao Shun renders official art and exact Xianzhen state",
-                    () => ClassicGeneralUiChecks.GaoShunXianzhenCard(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-liu-biao", StringComparer.Ordinal))
-            {
-                Check("formal Liu Biao renders official art and exact Zishou state",
-                    () => ClassicGeneralUiChecks.LiuBiaoZishouCard(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-wang-yi", StringComparer.Ordinal))
-            {
-                Check("formal Wang Yi renders official art and public-program Zhenlie/Miji prompts",
-                    () => WangYiUiChecks.CardAndPrivatePrompts(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-zhong-hui", StringComparer.Ordinal))
-            {
-                Check("formal Zhong Hui renders official art, Authority and acquired Paiyi",
-                    () => ZhongHuiUiChecks.CardPromptsAuthorityAndPaiyi(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-xun-you", StringComparer.Ordinal))
-            {
-                Check("formal Xun You renders official art and private Qice/Zhiyu interactions",
-                    () => XunYouUiChecks.CardAndPrivatePrompts(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-liao-hua", StringComparer.Ordinal))
-            {
-                Check("formal Liao Hua renders official art, Dangxian and the private Fuli choice",
-                    () => LiaoHuaUiChecks.CardExtraPhaseAndFuli(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-guan-xing-zhang-bao", StringComparer.Ordinal))
-            {
-                Check("formal Guan Xing and Zhang Bao render Fuhun draft and turn grant",
-                    () => GuanXingZhangBaoUiChecks.CardDraftAndTurnGrant(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-bu-lian-shi", StringComparer.Ordinal))
-            {
-                Check("formal Bu Lian Shi renders official art, Anxu draft and Zhuiyi prompt",
-                    () => BuLianShiUiChecks.CardAnxuAndZhuiyi(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-cheng-pu", StringComparer.Ordinal))
-            {
-                Check("formal Cheng Pu renders official art, Chunlao storage and dying rescue",
-                    () => ChengPuUiChecks.CardStorageAndRescue(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-han-dang", StringComparer.Ordinal))
-            {
-                Check("formal Han Dang renders official art, Gongqi and Jiefan prompts",
-                    () => HanDangUiChecks.CardGongqiAndJiefan(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-cao-chong", StringComparer.Ordinal))
-            {
-                Check("formal Cao Chong renders official art, Chengxiang and Renxin prompts",
-                    () => CaoChongUiChecks.CardAndDamagePrompts(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-guo-huai", StringComparer.Ordinal))
-            {
-                Check("formal Guo Huai renders official art and Jingce prompt",
-                    () => GuoHuaiUiChecks.CardAndJingcePrompt(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-man-chong", StringComparer.Ordinal))
-            {
-                Check("formal Man Chong renders official art, Junxing selection and Yuce prompt",
-                    () => ManChongUiChecks.CardActiveSelectionAndYucePrompt(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
-            if (args.Contains("--only-guan-ping", StringComparer.Ordinal))
-            {
-                Check("formal Guan Ping renders official art and the private Longyin prompt",
-                    () => GuanPingUiChecks.CardAndLongyinPrompt(output));
-                Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-                Console.WriteLine($"{_passed} targeted WPF check passed. Renders: {output}");
-                return 0;
-            }
+
             Check("original card artwork preserves physical card identity and interaction", () => CardArtworkChecks.FacesAndInteractions(output));
             Check("reference table layout preserves equipment and skill controls", () => TableSurfaceChecks.EquipmentAndSkillControls(output));
             Check("action dock keeps confirm cancel and end stable through real selection", () => TableSurfaceChecks.ActionDockSelection(output));

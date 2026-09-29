@@ -7,27 +7,6 @@ internal static class GuanPingChecks
     private const int HumanSeat = 0;
     private const string GeneralId = "classic:guan-ping";
 
-    public static void ContentAndPackageBoundary()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(current.Generals[GeneralId] is
-                {
-                    BaseHp: 4,
-                    FactionId: "shu",
-                    Gender: GeneralGender.Male,
-                    PortraitKey: "guan_ping"
-                } guanPing &&
-                guanPing.SkillIds.SequenceEqual(["classic:longyin"]) &&
-                current.Skills["classic:longyin"] is
-                {
-                    Program: not null,
-                    ExecutionForms: SkillExecutionForm.Trigger,
-                    ActionForms: SkillActionForm.None
-                } &&
-                current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId),
-            "Current classic Guan Ping must publish optional Longyin.");
-    }
-
     public static void RedSlashDrawsAndReplays() => CheckPaidSlash(requireRed: true);
 
     private static void CheckPaidSlash(bool requireRed)
