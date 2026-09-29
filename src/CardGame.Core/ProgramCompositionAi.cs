@@ -260,7 +260,8 @@ internal sealed class ProgramAiEstimateContext
             _otherAdjustment += count * 4d;
             _estimatedHandCount = Math.Max(0d, _estimatedHandCount - count);
         }
-        if (source.TargetHeld && effect.Destination is SkillProgramCardDestination.DiscardPile or SkillProgramCardDestination.OwnerHand)
+        if (source.TargetHeld && effect.Destination is SkillProgramCardDestination.DiscardPile or
+                SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.DrawPileTop)
             _targetDraw -= count;
         // Bindings retain their original location. A move can consume only
         // part of a source through exceptBind; its remaining cards did not move.

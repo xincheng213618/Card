@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:shelie",
+      "revision": 1,
+      "minimumRulesVersion": 188,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "replace-draw-with-distinct-suits",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 90,
+          "drawPhaseMode": "replacement",
+          "effects": [
+            {
+              "op": "revealTopCards",
+              "target": "owner",
+              "amount": 5,
+              "resultBind": "revealed",
+              "visibility": "public"
+            },
+            {
+              "op": "selectCardSubset",
+              "target": "owner",
+              "sourceBind": "revealed",
+              "resultBind": "taken",
+              "minimumCards": 1,
+              "maximumCards": 4,
+              "maximumRankSum": 208,
+              "aiOrder": "mostCardsThenRankSum",
+              "onePerSuit": true
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "taken",
+              "destination": "ownerHand"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "revealed",
+              "exceptBind": "taken",
+              "destination": "discardPile"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:gongxin",
+      "revision": 1,
+      "minimumRulesVersion": 188,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "watch-and-dispose",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingWithHand",
+          "usesPerPhase": 1,
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "revealTargetHandCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "selectedTarget"
+              },
+              "resultBind": "shown",
+              "mode": "chooser",
+              "suits": [
+                "heart"
+              ],
+              "allowDecline": true
+            },
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "disposition",
+              "condition": {
+                "kind": "boundCardsMatchSuits",
+                "sourceBind": "shown",
+                "suits": [
+                  "heart"
+                ]
+              },
+              "options": [
+                {
+                  "id": "discard",
+                  "condition": {
+                    "kind": "always"
+                  }
+                },
+                {
+                  "id": "top",
+                  "condition": {
+                    "kind": "always"
+                  }
+                }
+              ]
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "shown",
+              "destination": "discardPile",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "disposition",
+                "optionId": "discard"
+              }
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "shown",
+              "destination": "drawPileTop",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "disposition",
+                "optionId": "top"
+              }
+            }
+          ]
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

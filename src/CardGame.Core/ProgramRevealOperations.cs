@@ -16,7 +16,7 @@ internal sealed class RevealTargetHandCardProgramOperationDescriptor : ProgramOp
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "resultBind", "mode", "condition");
+        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "resultBind", "mode", "suits", "allowDecline", "condition");
         var target = FilterBoundCardsProgramOperationDescriptor.Owner(r);
         var chooser = r.RequiredParticipantReference("chooserRef", ProgramParticipantRef.Owner);
         if (chooser.Kind != ProgramParticipantRef.Owner)
@@ -26,10 +26,19 @@ internal sealed class RevealTargetHandCardProgramOperationDescriptor : ProgramOp
         if (cardOwner.Kind != ProgramParticipantRef.SelectedTarget)
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}.cardOwnerRef: the revealed card must come from the selected target.");
+        var suits = r.OptionalEnumArray<Suit>("suits") ?? Array.Empty<Suit>();
+        if (r.Has("suits") && suits.Count == 0)
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}.suits: the eligible suit list must be nonempty.");
+        var allowDecline = r.Has("allowDecline") && r.RequiredBool("allowDecline");
+        if (allowDecline && suits.Count == 0)
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}.allowDecline: decline requires an eligible suit filter.");
         var effect = new SkillProgramEffect(Op, target, 0, r.Condition(),
             chooserRef: chooser, cardOwnerRef: cardOwner,
             resultBind: r.RequiredIdentifier("resultBind"),
-            revealMode: r.RequiredEnum<SkillProgramRevealMode>("mode"));
+            revealMode: r.RequiredEnum<SkillProgramRevealMode>("mode"),
+            suits: suits, allowDecline: allowDecline);
         RequireAlways(effect, r.Path);
         return effect;
     }
@@ -53,5 +62,7 @@ public sealed class RevealTargetHandCardSkillProgramEffectHandler : ISkillProgra
             effect.ChooserRef ?? throw new InvalidOperationException("revealTargetHandCard has no chooser."),
             effect.CardOwnerRef ?? throw new InvalidOperationException("revealTargetHandCard has no card owner."),
             effect.ResultBind ?? throw new InvalidOperationException("revealTargetHandCard has no result bind."),
-            effect.RevealMode ?? throw new InvalidOperationException("revealTargetHandCard has no mode."));
+            effect.RevealMode ?? throw new InvalidOperationException("revealTargetHandCard has no mode."),
+            effect.Suits,
+            effect.AllowDecline);
 }

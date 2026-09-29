@@ -83,10 +83,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "CardGame.Content.Standard.SkillPrograms.classic-gao-shun.rules.json";
     private const string ClassicGaoShunPresentationResource =
         "CardGame.Content.Standard.SkillPrograms.classic-gao-shun.presentation.json";
+    private const string ClassicShenLuMengRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-shen-lu-meng.rules.json";
+    private const string ClassicShenLuMengPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-shen-lu-meng.presentation.json";
     private const string ClassicLifecycleRulesResource =
         "CardGame.Content.Standard.SkillPrograms.classic-lifecycle-skills.rules.json";
     private const string ClassicLifecyclePresentationResource =
         "CardGame.Content.Standard.SkillPrograms.classic-lifecycle-skills.presentation.json";
+    private static readonly Lazy<SkillProgramCatalog> ClassicShenLuMengCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicShenLuMengRulesResource),
+            ReadEmbeddedText(ClassicShenLuMengPresentationResource)));
     private static readonly Lazy<SkillProgramCatalog> SpZhaoYunCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(SpZhaoYunRulesResource),
@@ -1163,6 +1171,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(WithOptionalTriggerMetadata(ZhangHeProgram("classic:qiaobian")));
         }
 
+        {
+            builder.AddSkill(WithOptionalTriggerMetadata(ShenLuMengProgram("classic:shelie")));
+            builder.AddSkill(WithActiveActionMetadata(ShenLuMengProgram("classic:gongxin")));
+        }
+
 
         builder.AddGeneral(new ContentGeneralDefinition(
             "classic:liu-bei",
@@ -1598,6 +1611,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:gao-da-yi-hao", "高达一号", "gao_da_yi_hao",
                 "classic:beam-rifle", "god", BaseHp: 4,
                 AdditionalSkillIds: ["classic:i-field", "classic:mobile-armor", "classic:core-fighter"]));
+        }
+        {
+            builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:shen-lu-meng", "神吕蒙", "shen_lu_meng",
+                "classic:shelie", "god", BaseHp: 3,
+                AdditionalSkillIds: ["classic:gongxin"]));
         }
         {
             builder.AddGeneral(new ContentGeneralDefinition(
@@ -2190,6 +2209,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         };
     }
 
+    private static ContentSkillDefinition ShenLuMengProgram(string skillId)
+    {
+        var presentation = ClassicShenLuMengCatalog.Value.Presentations[skillId];
+        return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
+        {
+            Program = ClassicShenLuMengCatalog.Value.Programs[skillId]
+        };
+    }
+
     private ContentSkillDefinition WithOptionalTriggerMetadata(ContentSkillDefinition definition) =>
         WithStructuredSkillMetadata(
             definition,
@@ -2320,6 +2348,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:zhang-zhao-zhang-hong",
         "boundary:zhao-yun",
         "classic:zhang-he",
+        "classic:shen-lu-meng",
     ];
 
     /// <summary>Registered generals kept out of the classic identity pools (fan-made roster).</summary>

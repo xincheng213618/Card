@@ -24,7 +24,7 @@ internal static class LiDianChecks
             "Both skills must have composable original-edition timing and per-point damage semantics.");
         Require(xunxun.Triggers.Single().Effects[1].AllowFewerWhenInsufficient &&
                 !registry.Skills["classic:chengxiang"].Program!.Triggers.Single().Effects[1].AllowFewerWhenInsufficient &&
-                CardSubsetSelector.Enumerate([new CardSubsetCandidate(1, 1)],
+                CardSubsetSelector.Enumerate([new CardSubsetCandidate(1, 1, Suit.Club)],
                     new CardSubsetConstraint(2, 2, 208)).Count == 0,
             "Depleted-card relaxation must be opt-in; existing exact-count selection remains strict.");
         RejectInvalidWangxiTargetReferences();

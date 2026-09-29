@@ -59,13 +59,17 @@ public sealed record ProgramHoldCardSelection(
 /// <summary>
 /// Private draft for revealing one of another character's hand cards after the
 /// chooser has viewed the whole hand. Unlike the hold draft, choices carry the
-/// real card identities because the viewing is the skill's own effect.
+/// real card identities because the viewing is the skill's own effect. An
+/// optional suit filter and decline let 攻心-style reveals pick among eligible
+/// cards or walk away without revealing anything.
 /// </summary>
 public sealed record ProgramRevealCardSelection(
     int HolderSeat,
     int ChooserSeat,
     string ResultBind,
-    IReadOnlyList<int> CandidateCardIds);
+    IReadOnlyList<int> CandidateCardIds,
+    IReadOnlyList<int> EligibleCardIds,
+    bool AllowDecline);
 
 /// <summary>
 /// Private, committed distribution progress. A decline is legal only before the first transfer;

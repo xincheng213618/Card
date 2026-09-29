@@ -184,7 +184,8 @@ internal static class ProgramCompositionValidator
                             try
                             {
                                 CardSubsetSelector.ValidateDefinition(source.MaximumCount,
-                                    new(effect.MinimumCards, effect.MaximumCards, effect.MaximumRankSum));
+                                    new(effect.MinimumCards, effect.MaximumCards, effect.MaximumRankSum,
+                                        effect.OnePerSuit));
                             }
                             catch (ArgumentException exception) { Fail(exception.Message); }
                         }
@@ -211,9 +212,33 @@ internal static class ProgramCompositionValidator
                                 Fail("excluded cards must be a subset of the same source root");
                             atoms.ExceptWith(except.Atoms);
                         }
+                        // Branches of one named choice are mutually exclusive at
+                        // play time, so they may partition the same cards; any
+                        // other overlap would move physical cards twice.
+                        var choiceBind = effect.Condition.Kind == SkillProgramConditionKind.ChoiceIs
+                            ? effect.Condition.SourceBind : null;
+                        var choiceOption = choiceBind is null ? null : effect.Condition.OptionId;
                         if (source.Root.Consumed.Overlaps(atoms) || source.Root.PossiblyGifted.Overlaps(atoms))
-                            Fail("cards may be moved more than once");
+                        {
+                            if (choiceBind is null || choiceOption is null ||
+                                !source.Root.ChoiceConsumed.TryGetValue(choiceBind, out var choiceAtoms) ||
+                                !atoms.IsSubsetOf(choiceAtoms) ||
+                                source.Root.ChoiceOptionConsumed.TryGetValue(
+                                    $"{choiceBind}\u001f{choiceOption}", out var optionAtoms) &&
+                                optionAtoms.Overlaps(atoms))
+                                Fail("cards may be moved more than once");
+                        }
                         source.Root.Consumed.UnionWith(atoms);
+                        if (choiceBind is not null && choiceOption is not null)
+                        {
+                            if (!source.Root.ChoiceConsumed.TryGetValue(choiceBind, out var choiceAtoms))
+                                source.Root.ChoiceConsumed[choiceBind] = choiceAtoms = [];
+                            choiceAtoms.UnionWith(atoms);
+                            var optionKey = $"{choiceBind}\u001f{choiceOption}";
+                            if (!source.Root.ChoiceOptionConsumed.TryGetValue(optionKey, out var optionAtoms))
+                                source.Root.ChoiceOptionConsumed[optionKey] = optionAtoms = [];
+                            optionAtoms.UnionWith(atoms);
+                        }
                         break;
                     }
                     case GiftCardSet gift:
@@ -346,6 +371,8 @@ internal static class ProgramCompositionValidator
             ? Enum.GetValues<CardKind>().Length * Enum.GetValues<Suit>().Length : 4;
         internal HashSet<int> Consumed { get; } = [];
         internal HashSet<int> PossiblyGifted { get; } = [];
+        internal Dictionary<string, HashSet<int>> ChoiceConsumed { get; } = new(StringComparer.Ordinal);
+        internal Dictionary<string, HashSet<int>> ChoiceOptionConsumed { get; } = new(StringComparer.Ordinal);
     }
 
     private sealed record Binding(Root Root, HashSet<int> Atoms, int MaximumCount,
