@@ -8318,6 +8318,23 @@
       ]
     },
     {
+      "key": "zhang-zhao-zhang-hong",
+      "characterName": "张昭张纮",
+      "defaultSkinId": "105601",
+      "skins": [
+        {
+          "id": "105601",
+          "name": "经典形象*张昭张纮",
+          "sourcePage": "https://x.sanguosha.com/hero/56.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105601.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-zhang-zhao-zhang-hong.png",
+          "sha256": "a68956fab31afa06d6ce19defaadb685648db0a5d27a35a4e039d3f0dead78d7",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "zhao-yun",
       "characterName": "赵云",
       "defaultSkinId": "100501",
