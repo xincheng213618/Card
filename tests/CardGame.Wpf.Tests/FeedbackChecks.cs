@@ -102,6 +102,21 @@ internal static class FeedbackChecks
                responseCues[4] is { Label: "无懈可击询问中 · 第 2 层", Detail: "当前锦囊已失效 · 可反制恢复" } &&
                responseCues[5] is { SourceSeat: -1, Label: "决斗 · 已失效", Detail: "无懈链共 1 次响应" },
             "Response request, locked progress, or layered Nullification state was not projected exactly.");
+        var iFieldView = view with
+        {
+            Players = view.Players.Select(player => player.Seat == 0
+                ? player with
+                {
+                    Skills = [new GeneralSkillDefinition("I力场", "")
+                    { ContentId = "classic:i-field" }]
+                }
+                : player).ToArray()
+        };
+        var iFieldCue = BattleCueProjector.Project(
+            [Envelope(new WuyanDamagePreventedEvent(22, 1, 0, CardKind.Duel, 1, 0,
+                "classic:i-field"))], iFieldView).Single();
+        Assert(iFieldCue.Label == "I力场 · 锦囊伤害已防止",
+            "Incoming trick prevention must display the skill that actually prevented damage.");
     }
 
     public static void HandAndPreferences(string output)

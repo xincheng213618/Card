@@ -89,6 +89,7 @@ var tests = new (string Name, Action Body)[]
     ("Gundam One beam rifle discards one card and deals damage once per turn", GaoDaYiHaoChecks.BeamRifleDiscardsOneAndDamagesOncePerTurn),
     ("Gundam One mobile armor extends range and grants second slash", GaoDaYiHaoChecks.MobileArmorExtendsRangeAndGrantsSecondSlash),
     ("Gundam One I-field prevents incoming trick damage", GaoDaYiHaoChecks.IFieldPreventsIncomingTrickDamage),
+    ("Gundam One I-field permits outgoing trick damage", GaoDaYiHaoChecks.IFieldDoesNotPreventOutgoingTrickDamage),
     ("Gundam One core fighter revives once per game", GaoDaYiHaoChecks.CoreFighterRevivesOncePerGame),
     ("2014 Jie Zhao Yun Longdan converts slash to dodge and fires Yajiao", BoundaryZhaoYunChecks.LongdanConvertsSlashToDodgeAndFiresYajiao),
     ("2014 Jie Zhao Yun Yajiao does not fire on own turn use", BoundaryZhaoYunChecks.YajiaoDoesNotFireOnOwnTurnUse),

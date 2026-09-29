@@ -34,7 +34,7 @@ internal static class GaoDaYiHaoChecks
 
         var iField = current.Skills[IField].Program!;
         var policy = iField.CardPolicies.Single();
-        Require(policy.Kind == SkillProgramCardPolicyKind.PreventTrickDamage &&
+        Require(policy.Kind == SkillProgramCardPolicyKind.PreventIncomingTrickDamage &&
                 policy.CardKinds.SequenceEqual(
                 [
                     CardKind.Duel, CardKind.DrawTwo, CardKind.BarbarianAssault,
@@ -75,8 +75,9 @@ internal static class GaoDaYiHaoChecks
             item.Kind == LegalActionKind.UseProgramSkill &&
             item.ProgramSkillId == BeamRifle &&
             item.ProgramActivationId == "beam-shot");
-        Require(action is not null,
-            "Beam Rifle must offer its activation during Shen Zhao Yun's play phase.");
+        if (action is null)
+            throw new InvalidOperationException(
+                "Beam Rifle must offer its activation during Gundam One's play phase.");
         var before = game.CreateSnapshot(0, true);
         Require(before.Players[1].IsAlive && action.SelectableCardIds.Count > 0 &&
                 action.SelectableCardIds.All(cardId =>
@@ -190,6 +191,34 @@ internal static class GaoDaYiHaoChecks
         }
         Require(verified,
             "No seeded setup exercised I-Field's trick damage prevention.");
+    }
+
+    public static void IFieldDoesNotPreventOutgoingTrickDamage()
+    {
+        var registry = Registry();
+        for (var seed = 1; seed <= 300; seed++)
+        {
+            var game = Start(registry, Mode, seed);
+            ReachPlay(game);
+            var duel = game.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.Duel && action.TargetSeat is > 0);
+            if (duel is null) continue;
+            Play(game, duel);
+            SettleResolution(game);
+            var requested = game.Events.Select(item => item.Payload)
+                .OfType<DamageRequestedEvent>().FirstOrDefault(item =>
+                    item.SourceSeat == 0 && item.TargetSeat == duel.TargetSeat &&
+                    item.SourceCard == CardKind.Duel);
+            if (requested is null) continue;
+            Require(game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>()
+                    .Any(item => item.SourceSeat == 0 && item.TargetSeat == duel.TargetSeat) &&
+                    !game.Events.Select(item => item.Payload).OfType<WuyanDamagePreventedEvent>()
+                        .Any(item => item.ResolutionId == requested.ResolutionId),
+                "I-Field must not prevent a Duel's outgoing damage.");
+            return;
+        }
+        throw new InvalidOperationException(
+            "No seeded setup exercised Gundam One's outgoing Duel damage.");
     }
 
     public static void CoreFighterRevivesOncePerGame()
