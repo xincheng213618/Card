@@ -31,6 +31,8 @@ internal enum ProgramOperationAiSemantic
     RequestNearestSlash,
     TakeRandomCardFromEveryOtherCharacter,
     UsePlacedCardAsDeclared,
+    ClaimMovedCards,
+    UseVirtualDyingAlcohol,
     // Zuo Ci batch. An explicit value keeps the parallel batch from colliding.
     HuaShenAvatarGain = 90
 }

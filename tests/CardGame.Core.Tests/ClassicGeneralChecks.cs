@@ -5743,32 +5743,40 @@ internal static class ClassicGeneralChecks
             BindingFlags.NonPublic | BindingFlags.Instance) ??
             throw new InvalidOperationException("The engine event commit method was not found.");
         commitEvents.Invoke(game, null);
-
-        // A reactive general seated at the provider (for example boundary Zhao Yun's
-        // Yajiao) can open an optional out-of-turn card-use trigger while the rescue
-        // resolves. Decline such prompts so the Jiuyuan fixture only measures the
-        // recovery policy itself, regardless of pool composition.
+        // The synthetic call bypasses the command pipeline, so deferred movement
+        // continuations need one pipeline step to publish and resume. A reactive
+        // general seated at the provider (for example boundary Zhao Yun's Yajiao)
+        // can also open an optional out-of-turn card-use trigger while the rescue
+        // resolves; decline such prompts so fixtures only measure their own
+        // policy, regardless of pool composition.
         var pendingField = typeof(GameEngine).GetField(
             "_pendingDecision",
             BindingFlags.NonPublic | BindingFlags.Instance) ??
             throw new InvalidOperationException("The engine pending decision store was not found.");
-        for (var guard = 0; guard < 16; guard++)
+        for (var guard = 0; guard < 48; guard++)
         {
-            if (pendingField.GetValue(game) is not PendingDecision decision ||
-                decision.Kind != DecisionKind.ProgramTrigger ||
-                decision.Choices.Count == 0)
+            if (pendingField.GetValue(game) is PendingDecision decision &&
+                decision.Kind == DecisionKind.ProgramTrigger &&
+                decision.Choices.Count > 0)
             {
-                break;
+                var decline = decision.Choices.First(choice =>
+                    choice.Parameters.GetValueOrDefault("program-action") == "skip");
+                var answered = game.Submit(new AnswerPromptCommand(
+                    decision.PlayerSeat,
+                    decision.PromptId,
+                    decline.Id,
+                    game.Revision));
+                Require(answered.Accepted, answered.Error?.Message ?? "The fixture could not answer a skill prompt.");
+                commitEvents.Invoke(game, null);
+                continue;
             }
-            var decline = decision.Choices.First(choice =>
-                choice.Parameters.GetValueOrDefault("program-action") == "skip");
-            var answered = game.Submit(new AnswerPromptCommand(
-                decision.PlayerSeat,
-                decision.PromptId,
-                decline.Id,
-                game.Revision));
-            Require(answered.Accepted, answered.Error?.Message ?? "The fixture could not answer a skill prompt.");
-            commitEvents.Invoke(game, null);
+            if (game.ResolutionStack.Count > 0 && game.PendingDecision is null)
+            {
+                var advance = game.Submit(new AdvanceOneStepCommand(game.Revision));
+                if (!advance.Accepted) break;
+                continue;
+            }
+            break;
         }
     }
 

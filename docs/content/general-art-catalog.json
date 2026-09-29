@@ -1428,6 +1428,23 @@
       ]
     },
     {
+      "key": "cao-zhi",
+      "characterName": "曹植",
+      "defaultSkinId": "129401",
+      "skins": [
+        {
+          "id": "129401",
+          "name": "经典形象*曹植",
+          "sourcePage": "https://x.sanguosha.com/hero/294.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/129401.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-cao-zhi.png",
+          "sha256": "de2a396010faf1eee49adda32a6fdd1cd3aebec462107d9df25dc608f2f94e77",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "cheng-pu",
       "characterName": "程普",
       "defaultSkinId": "130301",

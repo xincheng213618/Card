@@ -65,6 +65,10 @@ internal static class ProgramChoiceAi
                     score += recovery * (hp <= 1 ? 100d : 18d);
                     hp += recovery;
                     break;
+                case SkillProgramEffectOp.UseVirtualDyingAlcohol:
+                    score += hp <= 1 ? 100d : 18d;
+                    hp += 1;
+                    break;
                 case SkillProgramEffectOp.SetFaceState when effect.FaceDown != faceDown:
                     faceDown = effect.FaceDown!.Value;
                     score += faceDown ? -24d : 24d;

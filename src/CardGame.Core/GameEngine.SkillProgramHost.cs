@@ -274,6 +274,12 @@ public sealed partial class GameEngine
         public void UseBoundCardAsDyingAlcohol(ProgramSkillFrame frame, string sourceBind, CardMoveReason reason) =>
             engine.UseProgramBoundCardAsDyingAlcohol(frame, sourceBind, reason);
 
+        public void UseVirtualDyingAlcohol(ProgramSkillFrame frame) =>
+            engine.UseProgramVirtualDyingAlcohol(frame);
+
+        public void ClaimMovedCards(ProgramSkillFrame frame) =>
+            engine.ClaimProgramMovedCards(frame);
+
         public void RevealUniqueRankForDying(ProgramSkillFrame frame, CardZoneKind zone, int rescueHp) =>
             engine.RevealProgramUniqueRankForDying(frame, zone, rescueHp);
 

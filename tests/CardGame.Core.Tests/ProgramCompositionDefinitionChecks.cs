@@ -177,6 +177,8 @@ internal static class ProgramCompositionDefinitionChecks
             [SkillProgramEffectOp.TakeRandomCardFromEveryOtherCharacter] = """{"op":"takeRandomCardFromEveryOtherCharacter","target":"owner","zones":["hand","equipment","judgment"]}""",
             [SkillProgramEffectOp.RequestNearestSlash] = """{"op":"requestNearestSlash","target":"owner"}""",
             [SkillProgramEffectOp.UsePlacedCardAsDeclared] = """{"op":"usePlacedCardAsDeclared","target":"owner"}""",
+            [SkillProgramEffectOp.ClaimMovedCards] = """{"op":"claimMovedCards","target":"owner"}""",
+            [SkillProgramEffectOp.UseVirtualDyingAlcohol] = """{"op":"useVirtualDyingAlcohol","target":"owner"}""",
             [SkillProgramEffectOp.HuaShenXinSheng] = """{"op":"huaShenXinSheng","target":"owner"}""",
             [SkillProgramEffectOp.HuaShenChangeAvatar] = """{"op":"huaShenChangeAvatar","target":"owner","declaredSkillTags":["limited","awakening","lord"]}"""
 

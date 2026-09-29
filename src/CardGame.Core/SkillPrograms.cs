@@ -49,7 +49,8 @@ public enum SkillProgramTriggerConditionKind
     OwnerIsTurnPlayer = 23,
     CardActionFromOwnerHand = 24,
     DamageSourceIsOwner = 25,
-    DamageSourceFactionIs = 26
+    DamageSourceFactionIs = 26,
+    FaceDown = 27
 }
 public enum SkillProgramTriggerValueKind
 {
@@ -228,6 +229,8 @@ public enum SkillProgramEffectOp
     RequestNearestSlash,
     TakeRandomCardFromEveryOtherCharacter,
     UsePlacedCardAsDeclared,
+    ClaimMovedCards,
+    UseVirtualDyingAlcohol,
     // Zuo Ci (hua shen / xin sheng). The explicit high values keep this parallel
     // content batch clear of values the neighboring batch may append at the end.
     HuaShenXinSheng = 110,
@@ -263,6 +266,7 @@ public enum SkillProgramTriggerWindow
     SlashFullyDodged,
     PlayPhaseStarting,
     CardsGained,
+    DiscardPileReceived,
     AfterHpLost,
     AfterHpRecovered,
     CharacterDied
@@ -568,7 +572,8 @@ public sealed record SkillProgramTriggerFacts(
     int LivingPlayersMinHp = 0,
     bool? DamageSourceIsOwner = null,
     string? DamageSourceFactionId = null,
-    int TurnOwnerDiscardPhaseHandDiscardCount = 0)
+    int TurnOwnerDiscardPhaseHandDiscardCount = 0,
+    bool OwnerIsFaceDown = false)
 {
     public bool GetBooleanState(string skillId, string skillInstanceId, string stateId) =>
         BooleanStates?.GetValueOrDefault(BooleanStateKey(skillId, skillInstanceId, stateId)) ??
@@ -697,6 +702,7 @@ public sealed class SkillProgramTriggerCondition
         SkillProgramTriggerConditionKind.DamageSourceIsOwner => facts.DamageSourceIsOwner == true,
         SkillProgramTriggerConditionKind.DamageSourceFactionIs => facts.DamageSourceFactionId is { } faction &&
             Factions.Contains(faction, StringComparer.Ordinal),
+        SkillProgramTriggerConditionKind.FaceDown => facts.OwnerIsFaceDown,
         SkillProgramTriggerConditionKind.LordGeneralNotIn =>
             facts.LordGeneralId is null || !GeneralIds.Contains(facts.LordGeneralId, StringComparer.Ordinal),
         SkillProgramTriggerConditionKind.All => Children.All(child => child.Evaluate(facts, skillId, skillInstanceId)),
@@ -1997,7 +2003,8 @@ public sealed class SkillProgramCatalog
         IReadOnlyList<SkillProgramCardCategory> cardCategories = [];
         IReadOnlyList<CardZoneKind> sourceZones = Array.Empty<CardZoneKind>();
         IReadOnlyList<CardZoneKind> destinationZones = [];
-        var isMovementWindow = window is SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained;
+        var isMovementWindow = window is SkillProgramTriggerWindow.CardsMoved or
+            SkillProgramTriggerWindow.CardsGained or SkillProgramTriggerWindow.DiscardPileReceived;
         var isHpWindow = window is SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHpRecovered;
         foreach (var field in new[] { "movementOccurrence", "movementReasons", "excludedMovementReasons", "ignoreOwnSkillMovements" })
             if (!isMovementWindow && node.TryGetProperty(field, out _))
@@ -2116,9 +2123,11 @@ public sealed class SkillProgramCatalog
         if (isLifecycleWindow)
         {
             var supportsDamageSourceConversion = window == SkillProgramTriggerWindow.AfterDamageApplied;
+            var supportsDiscardSuitFilter = window == SkillProgramTriggerWindow.DiscardPileReceived;
             if ((!supportsDamageSourceConversion &&
                  (node.TryGetProperty("sourceSkillId", out _) || node.TryGetProperty("sourceViewAsId", out _))) ||
-                node.TryGetProperty("cardKinds", out _) || node.TryGetProperty("cardCategories", out _) || node.TryGetProperty("suits", out _) ||
+                node.TryGetProperty("cardKinds", out _) || node.TryGetProperty("cardCategories", out _) ||
+                (!supportsDiscardSuitFilter && node.TryGetProperty("suits", out _)) ||
                 node.TryGetProperty("minimumRank", out _) || node.TryGetProperty("maximumRank", out _) ||
                 node.TryGetProperty("excludedReasons", out _) || node.TryGetProperty("judgmentReasons", out _) ||
                 node.TryGetProperty("judgmentSource", out _))
@@ -2150,6 +2159,12 @@ public sealed class SkillProgramCatalog
                 if (supportsDamageSourceConversion &&
                     (node.TryGetProperty("sourceSkillId", out _) || node.TryGetProperty("sourceViewAsId", out _)))
                     Fail(path, "owner after-damage triggers do not accept card-conversion source fields");
+            }
+            if (supportsDiscardSuitFilter && node.TryGetProperty("suits", out _))
+            {
+                suits = EnumArray<Suit>(node, "suits", path);
+                if (suits.Distinct().Count() != suits.Count)
+                    Fail(path + ".suits", "must contain distinct suits");
             }
             if (window == SkillProgramTriggerWindow.CardsGained)
             {

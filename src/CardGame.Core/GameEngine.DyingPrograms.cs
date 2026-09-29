@@ -84,4 +84,45 @@ public sealed partial class GameEngine
             $"{_players[active.OwnerSeat].Name} 发动【{skill.Name}】，令 {victim.Name} 视为使用【酒】并回复1点体力。",
             active.OwnerSeat, victim.Seat);
     }
+
+    private void UseProgramVirtualDyingAlcohol(ProgramSkillFrame frame)
+    {
+        var active = GetActiveProgramFrame(frame.Id);
+        var dying = _pendingDying ??
+            throw new InvalidOperationException("The configured rescue has no dying occurrence.");
+        if (active.WindowContext is not
+            { Window: SkillProgramTriggerWindow.SelfDyingResponse } context ||
+            context.ParentFrameId != dying.FrameId || context.TargetSeat != dying.VictimSeat ||
+            dying.VictimSeat != active.OwnerSeat || dying.ResponderSeat != active.OwnerSeat ||
+            !_players[active.OwnerSeat].IsAlive || !_players[dying.VictimSeat].IsAlive ||
+            _players[dying.VictimSeat].Hp > 0)
+            throw new InvalidOperationException("The configured rescue lost its dying owner.");
+
+        var victim = _players[dying.VictimSeat];
+        var resolutionId = ++_resolutionSequence;
+        _resolutionStack.Add(new CardUseFrame(resolutionId, victim.Seat, 0, CardKind.Alcohol,
+            Array.AsReadOnly(new[] { victim.Seat }),
+            PhysicalCardIds: Array.AsReadOnly(Array.Empty<int>())));
+        QueueGameEvent(new CardUseDeclaredEvent(resolutionId, 0, CardKind.Alcohol, victim.Seat));
+        QueueGameEvent(new TargetsConfirmedEvent(resolutionId, Array.AsReadOnly(new[] { victim.Seat })));
+        SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
+        var recoveryFrameId = BeginRecovery(resolutionId, victim.Seat, victim.Seat, 1);
+        try
+        {
+            victim.Hp = Math.Min(victim.MaxHp, victim.Hp + 1);
+            QueueGameEvent(new RecoveryAppliedEvent(victim.Seat, victim.Seat, 1, victim.Hp));
+        }
+        finally
+        {
+            PopResolutionFrame(recoveryFrameId, ResolutionFrameKind.Recovery);
+        }
+        QueueGameEvent(new ProgramDyingRescueEvent(
+            dying.FrameId, active.SkillId, active.OwnerSeat, victim.Seat,
+            0, 1, victim.Hp));
+        var skill = _contentRegistry!.GetSkill(active.SkillId);
+        AddLog("SkillTriggered",
+            $"{_players[active.OwnerSeat].Name} 发动【{skill.Name}】，视为使用【酒】并回复1点体力。",
+            active.OwnerSeat, victim.Seat);
+        PopFinishedCardUse(resolutionId);
+    }
 }

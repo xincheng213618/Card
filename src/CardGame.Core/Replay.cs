@@ -45,11 +45,13 @@ public sealed record GameCheckpoint(
     // 193: the round-5 integration union adds Zuo Ci (huashen/xinsheng); the setup-time avatar draw consumes the
     // deterministic seed before the initial shuffle and the avatar declaration
     // grants a runtime skill, so the same content fingerprint settles commands
-    // differently than the pre-Zuo Ci epoch.
+    // differently than the pre-Zuo Ci epoch. The round-6 union folds main-side
+    // Cao Zhi (luoying/jiushi) into this epoch as well.
     public const int CurrentRulesVersion = 193;
-    // 189 was reserved by the parallel Jia Xu batch; 190 belongs to the
-    // Shen Lu Meng batch. 187 was consumed by main-side Zhang He / Shen Zhao
-    // Yun work.
+    // 189 was consumed twice across parallel lines: the Jia Xu batch reserved
+    // it and main-side Cao Zhi later took it; both ride this union at 193.
+    // 190 belongs to the Shen Lu Meng batch. 187 was consumed by main-side
+    // Zhang He / Shen Zhao Yun work.
 
     public int RulesVersion { get; init; }
 }

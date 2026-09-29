@@ -103,6 +103,8 @@ public interface ISkillProgramEffectHost
     void CaptureSelectedCards(ProgramSkillFrame frame, string resultBind);
     void RevealBoundCards(ProgramSkillFrame frame, string sourceBind);
     void UseBoundCardAsDyingAlcohol(ProgramSkillFrame frame, string sourceBind, CardMoveReason reason);
+    void UseVirtualDyingAlcohol(ProgramSkillFrame frame);
+    void ClaimMovedCards(ProgramSkillFrame frame);
     void RevealUniqueRankForDying(ProgramSkillFrame frame, CardZoneKind zone, int rescueHp);
     void RedirectCurrentDamage(ProgramSkillFrame frame, string sourceBind, bool drawLostHpAfterDamage);
     SkillProgramStepOutcome ChooseDifferentCategoryDiscard(

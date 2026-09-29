@@ -174,6 +174,14 @@ public sealed record ProgramDamageCardsClaimedEvent(
     int OwnerSeat,
     IReadOnlyList<int> CardIds) : IGameEvent;
 
+public sealed record ProgramMovedCardsClaimedEvent(
+    long FrameId,
+    string SkillId,
+    string BindingId,
+    int OwnerSeat,
+    int SourceSeat,
+    int CardId) : IGameEvent;
+
 public sealed record ProgramRandomHandCardsTakenEvent(
     long FrameId,
     string SkillId,
