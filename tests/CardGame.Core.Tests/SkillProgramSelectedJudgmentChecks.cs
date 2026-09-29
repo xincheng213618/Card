@@ -153,6 +153,48 @@ internal static class SkillProgramSelectedJudgmentChecks
             RoundTrip(restored.CreateCheckpoint()) with { RulesVersion = 167 }, registry));
     }
 
+    internal static void ReplacementOrderUsesTurnActor()
+    {
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new OrderingFixturePackage());
+        var game = FindActivationBoundary(
+            registry,
+            OrderingFixturePackage.ModeId,
+            OrderingFixturePackage.OwnerGeneralId);
+        var activationPrompt = game.PendingDecision ??
+            throw new InvalidOperationException("The ordering activation prompt was lost.");
+        var activate = activationPrompt.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "activate");
+        var activated = game.Submit(new AnswerPromptCommand(
+            0, activationPrompt.PromptId, activate.Id, game.Revision));
+        Require(activated.Accepted,
+            activated.Error?.Message ?? "The ordering fixture rejected its trigger activation.");
+        var targetPrompt = game.PendingDecision ??
+            throw new InvalidOperationException("The ordering fixture lost its target choice.");
+        Require(targetPrompt.Kind == DecisionKind.ProgramTrigger,
+            "The ordering fixture did not publish its target choice.");
+
+        var turnActorSeat = game.State.CurrentSeat;
+        var targetSeat = targetPrompt.ValidTargetSeats.First(seat => seat != turnActorSeat);
+        var beforeTarget = RoundTrip(game.CreateCheckpoint());
+        var current = GameReplay.Restore(beforeTarget, registry);
+        SubmitTarget(current, targetSeat);
+
+        var currentCandidates = current.ResolutionStack.OfType<JudgmentFrame>().Single()
+            .ReplacementCandidateSeats ?? [];
+        var expectedCurrent = Enumerable.Range(0, 5)
+            .Select(offset => (turnActorSeat + offset) % 5)
+            .ToArray();
+        Require(targetSeat != turnActorSeat &&
+                currentCandidates.SequenceEqual(expectedCurrent),
+            "Current rules must order frozen replacement candidates from the current turn actor.");
+
+        var replay = GameReplay.Restore(RoundTrip(current.CreateCheckpoint()), registry);
+        Require(replay.ResolutionStack.OfType<JudgmentFrame>().Single()
+                    .ReplacementCandidateSeats?.SequenceEqual(expectedCurrent) == true &&
+                replay.PendingDecision?.PromptId == current.PendingDecision?.PromptId,
+            "A paused turn-actor-ordered replacement cursor must replay exactly.");
+    }
+
     private static GameEngine FindActivationBoundary(
         ContentRegistry registry,
         string modeId = FixturePackage.ModeId,
@@ -225,6 +267,16 @@ internal static class SkillProgramSelectedJudgmentChecks
             Require(advanced.Accepted, advanced.Error?.Message ?? "The fixture could not reach human play.");
         }
         throw new InvalidOperationException("The selected-judgment fixture did not reach human play.");
+    }
+
+    private static void SubmitTarget(GameEngine game, int targetSeat)
+    {
+        var prompt = game.PendingDecision ??
+            throw new InvalidOperationException("The selected-judgment target prompt was lost.");
+        var choice = prompt.Choices.Single(item => item.Targets.SequenceEqual([targetSeat]));
+        var result = game.Submit(new AnswerPromptCommand(
+            0, prompt.PromptId, choice.Id, game.Revision));
+        Require(result.Accepted, result.Error?.Message ?? "The selected judgment target was rejected.");
     }
 
     private static void FinishResolution(GameEngine game)

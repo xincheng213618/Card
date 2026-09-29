@@ -105,6 +105,94 @@ internal static class ShenSimaYiChecks
             killPresentation, "an extra turn always belongs to the owner");
     }
 
+    public static void DamageAndDiscardBothGrantRenMarkers()
+    {
+        var registry = Registry();
+        var completed = 0;
+        for (var seed = 1; seed <= 150 && completed < 1; seed++)
+        {
+            var game = Start(registry, seed);
+            ReachPlay(game);
+            DriveUntil(game, () => TurnsStarted(game) >= 2, DriveMode.BankDuels);
+            var banked = RenMarkers(game);
+            var bankedDamage = DamageOnShen(game);
+            if (banked < 1 || game.CreateSnapshot(0, true).Players[0].Hp < 1) continue;
+            var damageSeen = 0;
+            DriveUntil(game, () =>
+                (damageSeen = DamageOnShen(game) - bankedDamage) >= 1 &&
+                RenMarkers(game) >= banked + damageSeen);
+            Require(DamageOnShen(game) - bankedDamage >= 1,
+                "The AI turns must damage Shen Sima Yi at least once.");
+            Require(RenMarkers(game) == banked + (DamageOnShen(game) - bankedDamage),
+                $"Every damage point suffered must add exactly one Ren marker: banked={banked}, " +
+                $"damage={DamageOnShen(game) - bankedDamage}, markers={RenMarkers(game)}.");
+            completed++;
+        }
+        Require(completed == 1, "No seeded setup produced a damaging AI turn for the Ren marker test.");
+    }
+
+    public static void HandLimitDiscardsGrantRenMarkers()
+    {
+        var registry = Registry();
+        var completed = 0;
+        for (var seed = 1; seed <= 60 && completed < 1; seed++)
+        {
+            var game = Start(registry, seed);
+            ReachPlay(game);
+            Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision,
+                game.PendingDecision!.PromptId)));
+            for (var step = 0; step < 24 &&
+                 game.PendingDecision is not { Kind: DecisionKind.DiscardCards, PlayerSeat: 0 }; step++)
+            {
+                if (game.PendingDecision is null) Advance(game);
+            }
+            if (game.PendingDecision is not { Kind: DecisionKind.DiscardCards, PlayerSeat: 0 } discard) continue;
+            var required = discard.RequiredCardCount;
+            if (required < 1) continue;
+            Accept(game.Submit(new DiscardCardsCommand(0,
+                discard.ValidCardIds.Take(required).ToArray(), discard.PromptId, game.Revision)));
+            var changes = game.Events.Select(item => item.Payload)
+                .OfType<PlayerMarkerChangedEvent>()
+                .Where(item => item.PlayerSeat == 0 && item.Marker == PlayerMarkerKind.Ren).ToList();
+            Require(changes.Count == required && changes.All(item => item.Delta == 1) &&
+                    RenMarkers(game) == required,
+                "The hand-limit discard must add exactly one Ren marker per discarded card.");
+            var movements = game.CardMovements
+                .Where(item => item.Reason.Value == DiscardReason &&
+                    item.From == CardLocation.Hand(0)).ToList();
+            Require(movements.Count >= required,
+                "The counted discards must be ordinary hand-limit discard movements.");
+            completed++;
+        }
+        Require(completed == 1, "No seeded setup produced a hand-limit discard for the Ren marker test.");
+    }
+
+    public static void AwakeningAtFourMarkersGrantsLianpo()
+    {
+        var registry = Registry();
+        var completed = 0;
+        for (var seed = 1; seed <= 150 && completed < 1; seed++)
+        {
+            var game = Start(registry, seed);
+            ReachPlay(game);
+            DriveUntil(game, () => TurnsStarted(game) >= 2, DriveMode.BankDuels);
+            DriveUntil(game, () => IsAwakened(game));
+            if (!IsAwakened(game)) continue;
+            var awakened = game.Events.Select(item => item.Payload)
+                .OfType<SkillAwakenedEvent>()
+                .Single(item => item.SkillId == Baiyin);
+            Require(awakened.PlayerSeat == 0 && awakened.MaximumHp == 4 &&
+                    awakened.AcquiredSkillIds.SequenceEqual([Lianpo]),
+                "Baiyin must reduce the maximum HP from five to four and grant Lianpo.");
+            Require(game.CreateSnapshot(0, true).Players[0].Skills!
+                        .Any(item => item.ContentId == Lianpo) &&
+                    RenMarkers(game) >= 4,
+                "The awakened Shen Sima Yi must own Lianpo with at least four Ren markers.");
+            completed++;
+        }
+        Require(completed == 1, "No seeded setup reached four Ren markers before a Shen Sima Yi turn.");
+    }
+
     public static void KillGrantsExactlyOneExtraTurnAndReplays()
     {
         var registry = KillRegistry();
@@ -142,6 +230,92 @@ internal static class ShenSimaYiChecks
             completed++;
         }
         Require(completed == 1, "No seeded setup produced an activated Lianpo extra turn.");
+    }
+
+    public static void DeclinedKillKeepsNormalRotation()
+    {
+        var registry = KillRegistry();
+        var completed = 0;
+        for (var seed = 1; seed <= 150 && completed < 1; seed++)
+        {
+            var game = Start(registry, seed, KillMode);
+            ReachPlay(game);
+            if (!DriveToAwakenedPlay(game)) continue;
+            var killTurn = game.CreateSnapshot(0, true).TurnNumber;
+            var victim = FirstLivingVictim(game, preferred: -1);
+            if (victim < 0 || HumanSlashOn(game, victim) is not { } slash) continue;
+            Play(game, slash);
+            DriveUntil(game, () => false, DriveMode.Pass, stopAtSkills: [Lianpo]);
+            if (game.State.Status == EngineStatus.Completed) continue;
+            if (game.PendingDecision is not { Kind: DecisionKind.ProgramTrigger } prompt ||
+                prompt.SkillPrompt?.SkillId != Lianpo) continue;
+            var skip = prompt.Choices.Single(item =>
+                item.Parameters.GetValueOrDefault("program-action") == "skip");
+            Answer(game, skip);
+            DriveUntil(game, () => TurnsStarted(game) >= killTurn + 1);
+            var started = game.Events.Select(item => item.Payload).OfType<TurnStartedEvent>().ToList();
+            var killIndex = started.FindIndex(item => item.TurnNumber == killTurn);
+            Require(killIndex >= 0 && killIndex + 1 < started.Count &&
+                    started[killIndex + 1] is { ActorSeat: var nextSeat, TurnNumber: var nextNumber } &&
+                    nextSeat != 0 && nextNumber == killTurn + 1,
+                $"Declining must keep the rotation: killTurn={killTurn}, status={game.State.Status}, " +
+                "turns=[" + string.Join(",", started.Select(item => $"{item.TurnNumber}:{item.ActorSeat}")) + "].");
+            completed++;
+        }
+        Require(completed == 1, "No seeded setup produced a declined Lianpo prompt.");
+    }
+
+    public static void ExtraTurnKillChainsAnotherExtraTurn()
+    {
+        var registry = KillRegistry();
+        var completed = 0;
+        for (var seed = 1; seed <= 500 && completed < 1; seed++)
+        {
+            var game = Start(registry, seed, KillMode);
+            ReachPlay(game);
+            if (!DriveToAwakenedPlay(game)) continue;
+            var killTurn = game.CreateSnapshot(0, true).TurnNumber;
+            // First kill: equip the crossbow and bring a wounded victim down.
+            var crossbow = game.CreateSnapshot(0, true).Players[0].Hand
+                .FirstOrDefault(item => item.Kind == CardKind.Crossbow);
+            var firstVictim = WoundedVictim(game, preferred: -1);
+            if (crossbow is null || firstVictim < 0) continue;
+            var equip = game.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.Equip && action.CardId == crossbow.Id);
+            if (equip is null || HumanSlashOn(game, firstVictim) is null) continue;
+            Play(game, equip);
+            DriveUntil(game, () => AtHumanPlay(game));
+            SlashUntilPrompt(game, firstVictim);
+            if (game.State.Status == EngineStatus.Completed) continue;
+            if (game.PendingDecision is not { Kind: DecisionKind.ProgramTrigger } prompt ||
+                prompt.SkillPrompt?.SkillId != Lianpo) continue;
+            Activate(game, Lianpo);
+            // The kill only pends the extra turn; drive through the turn end into it.
+            DriveUntil(game, () => TurnsStarted(game) >= killTurn + 1 && AtHumanPlay(game));
+            var extraTurn = game.CreateSnapshot(0, true).TurnNumber;
+            Require(extraTurn == killTurn + 1, "The first extra turn must follow the killing turn.");
+            var secondVictim = WoundedVictim(game, preferred: -1);
+            if (secondVictim < 0 || HumanSlashOn(game, secondVictim) is null) continue;
+            SlashUntilPrompt(game, secondVictim);
+            if (game.State.Status == EngineStatus.Completed) continue;
+            if (game.PendingDecision is not { Kind: DecisionKind.ProgramTrigger } followUpPrompt ||
+                followUpPrompt.SkillPrompt?.SkillId != Lianpo) continue;
+            Activate(game, followUpPrompt.SkillPrompt!.SkillId);
+            DriveUntil(game, () => TurnsStarted(game) >= killTurn + 3);
+            var started = game.Events.Select(item => item.Payload).OfType<TurnStartedEvent>().ToList();
+            var killIndex = started.FindIndex(item => item.TurnNumber == killTurn);
+            Require(killIndex >= 0 && killIndex + 3 < started.Count &&
+                    started[killIndex + 1] is { ActorSeat: 0, TurnNumber: var firstExtra } &&
+                    firstExtra == killTurn + 1 &&
+                    started[killIndex + 2] is { ActorSeat: 0, TurnNumber: var secondExtra } &&
+                    secondExtra == killTurn + 2 &&
+                    started[killIndex + 3] is { ActorSeat: var afterSeat, TurnNumber: var afterNumber } &&
+                    afterSeat != 0 && afterNumber == killTurn + 3,
+                $"A kill inside the extra turn must chain into one more extra turn: killTurn={killTurn}, " +
+                "turns=[" + string.Join(",", started.Select(item => $"{item.TurnNumber}:{item.ActorSeat}")) + "].");
+            completed++;
+        }
+        Require(completed == 1, "No seeded setup produced a chained extra-turn kill.");
     }
 
     private enum DriveMode { Pass, BankDuels }
@@ -182,6 +356,31 @@ internal static class ShenSimaYiChecks
         return game.GetHumanLegalActions().FirstOrDefault(action =>
             action.Kind == LegalActionKind.Slash && action.TargetSeat == victimSeat &&
             snapshot.Players[0].Hand.Any(card => card.Id == action.CardId));
+    }
+
+    private static int WoundedVictim(GameEngine game, int preferred)
+    {
+        var snapshot = game.CreateSnapshot(0, true);
+        if (preferred >= 0 && snapshot.Players[preferred].Hp > 0 &&
+            snapshot.Players[preferred].MaxHp <= 4) return preferred;
+        foreach (var seat in new[] { 1, 4, 2, 3 })
+            if (seat != preferred && snapshot.Players[seat].Hp > 0 &&
+                snapshot.Players[seat].MaxHp <= 4) return seat;
+        return -1;
+    }
+
+    private static void SlashUntilPrompt(GameEngine game, int targetSeat)
+    {
+        // The equipped crossbow lifts the once-per-turn limit, so a full-HP
+        // four-card victim still falls inside one turn.
+        for (var slashIndex = 0; slashIndex < 5; slashIndex++)
+        {
+            if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger }) return;
+            if (HumanSlashOn(game, targetSeat) is not { } slash) return;
+            Play(game, slash);
+            DriveUntil(game, () => AtHumanPlay(game), stopAtSkills: [Lianpo]);
+            if (game.State.Status == EngineStatus.Completed) return;
+        }
     }
 
     private static bool DriveToAwakenedPlay(GameEngine game)

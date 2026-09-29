@@ -9,7 +9,7 @@ internal static class SunJianChecks
     public static void YinghunChoiceAndReplay()
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(registry.Skills[SkillId] is { Program.RuntimeVersion: SkillProgramCatalog.RuntimeVersion },
+        Require(registry.Skills[SkillId] is { Program.RuntimeVersion: "skill-program-v62" },
             "Current Yinghun must use its configured program.");
         for (var seed = 1; seed <= 4096; seed++)
         {
@@ -74,6 +74,53 @@ internal static class SunJianChecks
             return;
         }
         throw new InvalidOperationException("No bounded wounded Sun Jian fixture exposed the configured exchange.");
+    }
+
+    private static void VerifyHistoricalPackageDoesNotReviveLegacyYinghun(ContentRegistry historical)
+    {
+        GameEngine? game = null;
+        for (var seed = 1; seed <= 4096 && game is null; seed++)
+        {
+            var candidate = GameEngine.CreateStandard(new GameOptions
+            {
+                Seed = seed, HumanSeat = 0, HumanRole = Role.Lord, PlayerCount = 5,
+                ModeId = "identity:classic-5", UseInteractiveSetup = true,
+                UseInteractiveDiscard = true, AdvanceAfterHumanCommands = false, MaxTurns = 24
+            }, historical);
+            if (!candidate.Submit(new StartGameCommand()).Accepted ||
+                candidate.PendingDecision is not { Kind: DecisionKind.SelectGeneral } setup ||
+                !setup.ValidContentIds.Contains("classic:sun-jian") ||
+                !candidate.Submit(new SelectGeneralCommand(0, "classic:sun-jian", candidate.Revision, setup.PromptId)).Accepted)
+                continue;
+            game = candidate;
+        }
+        if (game is null)
+            throw new InvalidOperationException("The historical package fixture could not select Sun Jian.");
+        for (var step = 0; step < 256 && game.PendingDecision is not { Kind: DecisionKind.PlayCard, PlayerSeat: 0 }; step++)
+            Require(AdvanceConservatively(game), "The historical package fixture could not reach Sun Jian's first Play phase.");
+        Require(game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 },
+            "The historical package fixture did not reach Sun Jian's first Play phase.");
+
+        // Test-only setup: isolate the old package boundary without depending on combat damage RNG.
+        var players = (IReadOnlyList<CharacterState>)typeof(GameEngine)
+            .GetField("_players", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
+        players[0].Hp = Math.Max(1, players[0].MaxHp - 2);
+        var firstTurnStarts = game.Events.Count(item => item.Payload is TurnStartedEvent { ActorSeat: 0 });
+        for (var step = 0; step < 1200; step++)
+        {
+            Require(game.PendingDecision is not { Kind: DecisionKind.ProgramTrigger } &&
+                    game.PendingDecision?.SkillPrompt?.SkillId != SkillId,
+                "The historical package revived the removed Yinghun execution route.");
+            if (game.Events.Count(item => item.Payload is TurnStartedEvent { ActorSeat: 0 }) > firstTurnStarts &&
+                game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 })
+            {
+                Require(!game.ResolutionStack.OfType<ProgramSkillFrame>().Any(frame => frame.SkillId == SkillId),
+                    "Historical Yinghun metadata must not auto-bind the current program.");
+                return;
+            }
+            Require(AdvanceConservatively(game), "The historical package fixture stopped before Sun Jian's next Play phase.");
+        }
+        throw new InvalidOperationException("The historical package fixture did not reach Sun Jian's next Play phase.");
     }
 
     private static void AnswerBranch(GameEngine game, string branch, int targetSeat)

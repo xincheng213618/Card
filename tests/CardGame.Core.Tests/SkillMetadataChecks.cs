@@ -118,6 +118,66 @@ internal static class SkillMetadataChecks
             "Skill reset must restore the registered initial side and clear every usage scope.");
     }
 
+    public static void ClassicLockedStateMetadataIsVersioned()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        foreach (var general in registry.Generals.Values.Where(general => general.Id.StartsWith("classic:", StringComparison.Ordinal)))
+        foreach (var skillId in general.SkillIds)
+        {
+            var skill = registry.GetSkill(skillId);
+            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v62",
+                $"{general.Id} / {skillId} must be backed by the current compiled program.");
+        }
+    }
+
+    public static void ClassicSharedLockedSkillsReceiveDistinctIdentities()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        foreach (var general in registry.Generals.Values.Where(general => general.Id.StartsWith("classic:", StringComparison.Ordinal)))
+        foreach (var skillId in general.SkillIds)
+        {
+            var skill = registry.GetSkill(skillId);
+            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v62",
+                $"{general.Id} / {skillId} must be backed by the current compiled program.");
+        }
+    }
+
+    public static void ClassicOptionalTriggerMetadataIsVersioned()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        foreach (var general in registry.Generals.Values.Where(general => general.Id.StartsWith("classic:", StringComparison.Ordinal)))
+        foreach (var skillId in general.SkillIds)
+        {
+            var skill = registry.GetSkill(skillId);
+            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v62",
+                $"{general.Id} / {skillId} must be backed by the current compiled program.");
+        }
+    }
+
+    public static void ClassicContinuousCardConversionMetadataIsVersioned()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        foreach (var general in registry.Generals.Values.Where(general => general.Id.StartsWith("classic:", StringComparison.Ordinal)))
+        foreach (var skillId in general.SkillIds)
+        {
+            var skill = registry.GetSkill(skillId);
+            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v62",
+                $"{general.Id} / {skillId} must be backed by the current compiled program.");
+        }
+    }
+
+    public static void ClassicRemainingSharedSkillsReceiveDistinctIdentities()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        foreach (var general in registry.Generals.Values.Where(general => general.Id.StartsWith("classic:", StringComparison.Ordinal)))
+        foreach (var skillId in general.SkillIds)
+        {
+            var skill = registry.GetSkill(skillId);
+            Require(skill.Program is not null && skill.Program.RuntimeVersion == "skill-program-v62",
+                $"{general.Id} / {skillId} must be backed by the current compiled program.");
+        }
+    }
+
     public static void StructuredNiepanUsageReplays()
     {
         var registry = ContentRegistry.Build(

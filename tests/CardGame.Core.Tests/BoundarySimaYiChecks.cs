@@ -120,6 +120,45 @@ internal static class BoundarySimaYiChecks
         throw new InvalidOperationException("No bounded real damage from an empty-handed source was found.");
     }
 
+    public static void GuicaiHandEquipmentJudgmentAndReplay()
+    {
+        var registry = Registry();
+        VerifyJudgmentReplacement(registry, useEquipment: false);
+        VerifyJudgmentReplacement(registry, useEquipment: true);
+    }
+
+    private static void VerifyJudgmentReplacement(ContentRegistry registry, bool useEquipment)
+    {
+        var (game, cardId, judgedSeat) = FindJudgment(registry, useEquipment);
+        var prompt = Prompt(game);
+        var frame = game.ResolutionStack.OfType<JudgmentFrame>().Single();
+        var oldCardId = frame.CardId ?? throw new InvalidOperationException("Guicai has no old judgment card.");
+        var card = game.CreateSnapshot(0, true).Players[0].Hand
+            .Concat(game.CreateSnapshot(0, true).Players[0].Equipment).Single(item => item.Id == cardId);
+        var originalZone = useEquipment ? CardLocation.Equipment(0) : CardLocation.Hand(0);
+        Require(prompt is { Kind: DecisionKind.ProgramJudgmentReplacement, PlayerSeat: 0, IsPrivate: true } &&
+                frame.TargetSeat == judgedSeat && judgedSeat != 0 &&
+                prompt.ValidCardIds.Contains(cardId) && game.CreateSnapshot(judgedSeat).PendingDecision is null &&
+                (!useEquipment || card.Suit is Suit.Heart or Suit.Diamond),
+            "Guicai must privately accept the owner's hand or red equipped card for another player's judgment.");
+        var choice = prompt.Choices.Single(item => item.Cards.SequenceEqual([cardId]));
+        var paused = RoundTrip(game.CreateCheckpoint());
+        var replay = GameReplay.Restore(paused, registry);
+        Answer(game, choice);
+        Answer(replay, Prompt(replay).Choices.Single(item => item.Id == choice.Id));
+        var resolved = game.Events.Select(item => item.Payload).OfType<ProgramJudgmentReplacementResolvedEvent>()
+            .Single(item => item.SkillId == GuicaiId && item.Activated);
+        Require(resolved is { OwnerSeat: 0, OldCardDestination: SkillProgramOldJudgmentCardDestination.DiscardPile } &&
+                resolved.SubjectSeat == judgedSeat && resolved.OldCardId == oldCardId &&
+                resolved.ReplacementCardId == cardId &&
+                game.CardMovements.Any(move => move.CardId == cardId && move.From == originalZone &&
+                    move.To == CardLocation.Processing && move.Reason == CardMoveReasons.ProgramJudgmentReplace) &&
+                game.CreateCardZoneDiagnostics().Single(item => item.CardId == oldCardId).Location ==
+                    CardLocation.DiscardPile &&
+                State(game) == State(replay) && Events(game).SequenceEqual(Events(replay)),
+            "Guicai must pay the exact card, discard the old public judgment, and replay the paused replacement.");
+    }
+
     private static (GameEngine Game, int SourceSeat) FindFeedback(
         ContentRegistry registry, int amount = 1, bool requireSourceEquipment = false)
     {

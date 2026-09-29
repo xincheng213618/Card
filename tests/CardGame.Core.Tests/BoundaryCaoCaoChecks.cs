@@ -122,6 +122,237 @@ internal static class BoundaryCaoCaoChecks
             "A competing earlier claim must make the stale option reject atomically at submission.");
     }
 
+    public static void LightningDamageOnlyOffersDrawOnce()
+    {
+        var registry = Registry(lightningOnly: true);
+        GameEngine? found = null;
+        for (var seed = 1; seed <= 128 && found is null; seed++)
+        {
+            var game = Start(registry, seed);
+            for (var step = 0; step < 30 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
+                Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
+                    "Could not reach boundary Cao Cao's Lightning play.");
+            var lightning = game.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.Lightning && action.TargetSeats.SequenceEqual([0]));
+            if (lightning is null) continue;
+            var use = game.Submit(new PlayCardCommand(0, lightning.CardId!.Value, lightning.TargetSeats,
+                game.Revision, Prompt(game).PromptId, lightning.PlayedCardKind, lightning.TargetCardId));
+            if (!use.Accepted) continue;
+            for (var step = 0; step < 700 && game.State.Winner == Winner.None; step++)
+            {
+                if (game.PendingDecision?.SkillPrompt?.SkillId == Jianxiong &&
+                    game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>()
+                        .LastOrDefault() is { TargetSeat: 0, Amount: 3 })
+                {
+                    found = game;
+                    break;
+                }
+                if (!Step(game)) break;
+            }
+        }
+        Require(found is not null, "No bounded three-point Lightning damage to boundary Cao Cao was found.");
+        var damaged = found!;
+        var checkpoint = RoundTrip(damaged.CreateCheckpoint());
+        var before = damaged.CreateSnapshot(0, true).Players[0].HandCount;
+        Answer(damaged, "activate");
+        var optionPrompt = Prompt(damaged);
+        Require(optionPrompt.Choices.Count == 1 &&
+                optionPrompt.Choices.Single().Parameters.GetValueOrDefault("option-id") == "draw" &&
+                damaged.CreateCardZoneDiagnostics().All(item => item.Location != CardLocation.Processing ||
+                    item.CardKind == CardKind.Lightning),
+            "One cardless Lightning damage event must offer draw only, even when it causes three points.");
+        var beforeForge = State(damaged);
+        Require(!damaged.Submit(new AnswerPromptCommand(0, optionPrompt.PromptId,
+                    new ChoiceId("program-option.forged.claim"), damaged.Revision)).Accepted &&
+                State(damaged) == beforeForge,
+            "A fabricated claim option must be rejected without changing game state.");
+        var skillDrawsBefore = damaged.CardMovements.Count(move =>
+            move.To == CardLocation.Hand(0) && move.Reason.Value == $"skill-program.{Jianxiong}.Draw");
+        AnswerOption(damaged, "draw");
+        Require(damaged.CardMovements.Count(move =>
+                    move.To == CardLocation.Hand(0) && move.Reason.Value == $"skill-program.{Jianxiong}.Draw") ==
+                skillDrawsBefore + 1 &&
+                damaged.Events.Select(item => item.Payload).OfType<ProgramOptionChosenEvent>()
+                    .Count(item => item.SkillId == Jianxiong) == 1,
+            "Three-point Lightning must resolve one Jianxiong draw, not one per damage point.");
+        AssertReplay(damaged, registry);
+
+        var declined = GameReplay.Restore(checkpoint, registry);
+        Answer(declined, "skip");
+        Require(declined.CardMovements.All(move =>
+                    move.Reason.Value != $"skill-program.{Jianxiong}.Draw") &&
+                declined.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                    .Any(item => item.SkillId == Jianxiong && !item.Activated),
+            "Lightning Jianxiong can be declined entirely.");
+    }
+
+    public static void FactionDefenseRequiresLordAndUsesSharedResponse()
+    {
+        var registry = Registry(hujiaDeck: true);
+        GameEngine? lord = null;
+        var responses = 0;
+        string? firstSeats = null;
+        for (var seed = 1; seed <= 256 && lord is null; seed++)
+        {
+            var game = Start(registry, seed);
+            for (var step = 0; step < 900 && game.State.Winner == Winner.None; step++)
+            {
+                if (game.PendingDecision is { Kind: DecisionKind.RespondDodge, PlayerSeat: 0 })
+                {
+                    responses++;
+                    firstSeats ??= string.Join(",", game.CreateSnapshot(0, true).Players.Select(item =>
+                        $"{item.Seat}:{item.GeneralId}:{item.Role}"));
+                }
+                if (game.PendingDecision is { Kind: DecisionKind.RespondDodge, PlayerSeat: 0 } prompt &&
+                    prompt.Choices.Any(item => item.Parameters.GetValueOrDefault("response") == "faction-defense-request"))
+                {
+                    lord = game;
+                    break;
+                }
+                if (!Step(game)) break;
+            }
+        }
+        Require(lord is not null,
+            $"No bounded boundary Cao Cao FactionDefense request was found: seats={firstSeats}, responses={responses}.");
+        var request = Prompt(lord!).Choices.Single(item =>
+            item.Parameters.GetValueOrDefault("response") == "faction-defense-request");
+        var checkpoint = RoundTrip(lord!.CreateCheckpoint());
+        var result = lord.Submit(new AnswerPromptCommand(0, Prompt(lord).PromptId, request.Id, lord.Revision));
+        Require(result.Accepted && lord.Events.Select(item => item.Payload).OfType<FactionDefenseRequestedEvent>()
+                    .Any(item => item.OwnerSeat == 0),
+            "Boundary lord Cao Cao must enter the existing Wei FactionDefense response flow.");
+        AssertReplay(lord, registry);
+        var declined = GameReplay.Restore(checkpoint, registry);
+        Require(declined.PendingDecision?.Choices.Any(item =>
+                item.Parameters.GetValueOrDefault("response") == "faction-defense-request") == true,
+            "FactionDefense offer must survive checkpoint restoration.");
+
+        var checkedResponse = false;
+        for (var seed = 1; seed <= 128 && !checkedResponse; seed++)
+        {
+            var nonlord = Start(registry, seed, Role.Loyalist);
+            Require(nonlord.CreateSnapshot(0, true).Players[0].Role == Role.Loyalist,
+                "Nonlord FactionDefense fixture must really be a loyalist.");
+            for (var step = 0; step < 900 && nonlord.State.Winner == Winner.None; step++)
+            {
+                if (nonlord.PendingDecision is { Kind: DecisionKind.RespondDodge, PlayerSeat: 0 } prompt)
+                {
+                    checkedResponse = true;
+                    Require(prompt.Choices.All(item => item.Parameters.GetValueOrDefault("response") != "faction-defense-request"),
+                        "Boundary Cao Cao cannot request lord-only FactionDefense as a loyalist.");
+                    break;
+                }
+                if (!Step(nonlord)) break;
+            }
+        }
+        Require(checkedResponse, "No bounded nonlord Dodge response reached FactionDefense gating.");
+    }
+
+    public static void TwoPointDamageOffersOneChoice()
+    {
+        var registry = Registry();
+        GameEngine? found = null;
+        for (var seed = 1; seed <= 256 && found is null; seed++)
+        {
+            var game = Start(registry, seed);
+            foreach (var player in (IReadOnlyList<CharacterState>)typeof(GameEngine)
+                         .GetField("_players", BindingFlags.Instance | BindingFlags.NonPublic)!
+                         .GetValue(game)!)
+                if (player.Seat != 0) player.HasAlcoholEffect = true;
+            for (var step = 0; step < 1200 && game.State.Winner == Winner.None; step++)
+            {
+                if (game.PendingDecision?.SkillPrompt?.SkillId == Jianxiong &&
+                    game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>()
+                        .LastOrDefault() is { TargetSeat: 0, Amount: 2 })
+                {
+                    found = game;
+                    break;
+                }
+                if (!Step(game)) break;
+            }
+        }
+        Require(found is not null, "No bounded actual two-point Slash damage with an injected Alcohol bonus was found.");
+        var actual = found!;
+        var before = actual.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
+            .Count(item => item.SkillId == Jianxiong);
+        var chosenBefore = actual.Events.Select(item => item.Payload).OfType<ProgramOptionChosenEvent>()
+            .Count(item => item.SkillId == Jianxiong);
+        Answer(actual, "activate");
+        AnswerOption(actual, "draw");
+        Require(actual.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
+                    .Count(item => item.SkillId == Jianxiong) == before + 1 &&
+                actual.Events.Select(item => item.Payload).OfType<ProgramOptionChosenEvent>()
+                    .Count(item => item.SkillId == Jianxiong) == chosenBefore + 1,
+            "A single actual two-point hit must start and choose Jianxiong once, not once per point.");
+        // The Alcohol bonus is injected into the generic damage fixture, so its earlier
+        // setup has no command-log entry; the natural Slash and Lightning paths above
+        // independently verify command-log replay.
+    }
+
+    public static void AfterDamagePreflightDefersFrameBoundClaimCondition()
+    {
+        const string skillId = "fixture:bound-claim";
+        const string generalId = "fixture:bound-claim-owner";
+        const string modeId = "identity:classic-bound-claim-check-5";
+        const string rules = """
+            {"schemaVersion":62,"skills":[{"id":"fixture:bound-claim","revision":1,
+              "minimumRulesVersion": 171,"triggers":[{"id":"draw-then-claim","window":"afterDamageApplied",
+              "subject":"owner","damageOccurrence":"perDamage","optional":true,"priority":0,
+              "effects":[{"op":"draw","target":"owner","amount":1,"resultBind":"drawn"},
+              {"op":"claimDamageCards","target":"owner",
+               "condition":{"kind":"boundCardsSameColor","sourceBind":"drawn"}}]}]}]}
+            """;
+        const string presentation = """
+            {"schemaVersion":3,"skills":{"fixture:bound-claim":{"name":"绑定领取","description":"通用伤害后绑定验证"}}}
+            """;
+        var catalog = SkillProgramCatalog.Load(rules, presentation);
+        var trigger = catalog.Programs[skillId].Triggers.Single();
+        Require(trigger.Effects[1].Condition.Kind == SkillProgramConditionKind.BoundCardsSameColor &&
+                !trigger.Effects[1].Condition.CanEvaluateWithoutProgramFrame(),
+            "The non-choice bound-card claim must require a running program frame.");
+        var registry = ContentRegistry.Build(new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(), new StandardRescueSkillExpansionPackage(),
+            new StandardClassicGeneralPackage(), new FrameGateScenario(
+                catalog.Programs[skillId], catalog.Presentations[skillId]));
+        GameEngine? found = null;
+        for (var seed = 1; seed <= 128 && found is null; seed++)
+        {
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                Seed = seed, PlayerCount = 5, ModeId = modeId, HumanSeat = 0,
+                HumanRole = Role.Lord, UseInteractiveSetup = true, UseInteractiveDiscard = false,
+                AdvanceAfterHumanCommands = false, MaxTurns = 12
+            }, registry);
+            Require(game.Submit(new StartGameCommand()).Accepted, "Generic frame-gate fixture failed to start.");
+            var setup = Prompt(game);
+            Require(game.Submit(new SelectGeneralCommand(0, generalId, game.Revision, setup.PromptId)).Accepted,
+                "Generic frame-gate owner could not be selected.");
+            for (var step = 0; step < 1000 && game.State.Winner == Winner.None; step++)
+            {
+                if (game.PendingDecision?.SkillPrompt?.SkillId == skillId)
+                {
+                    found = game;
+                    break;
+                }
+                if (!Step(game)) break;
+            }
+        }
+        Require(found is not null, "No real damage reached the generic bound-card preflight fixture.");
+        var actual = found!;
+        var paused = RoundTrip(actual.CreateCheckpoint());
+        Answer(actual, "activate");
+        Require(actual.Events.Select(item => item.Payload).OfType<ProgramDamageCardsClaimedEvent>()
+                    .Any(item => item.SkillId == skillId && item.CardIds.Count > 0) &&
+                actual.CardMovements.Any(item => item.Reason.Value == $"skill-program.{skillId}.Draw"),
+            "A non-ChoiceIs card binding must resolve before evaluating conditional claimDamageCards.");
+        AssertReplay(actual, registry);
+        var declined = GameReplay.Restore(paused, registry);
+        Answer(declined, "skip");
+        Require(declined.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                .Any(item => item.SkillId == skillId && !item.Activated),
+            "The same generic after-damage program must remain optional.");
+    }
+
     private static void Reject(string rules, string presentation, string message)
     {
         try { SkillProgramCatalog.Load(rules, presentation); }

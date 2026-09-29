@@ -149,6 +149,116 @@ internal static class LuSuChecks
         Require(completed == 1, "No seeded setup resolved the Haoshi give.");
     }
 
+    public static void DecliningHaoshiSkipsTheGive()
+    {
+        var registry = Registry();
+        var completed = 0;
+        for (var seed = 1; seed <= 250 && completed < 1; seed++)
+        {
+            var game = Start(registry, seed);
+            if (DriveUntilHaoshiPrompt(game) is null) continue;
+            var prompt = game.PendingDecision!;
+            var skip = prompt.Choices.FirstOrDefault(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "skip") ??
+                throw new InvalidOperationException("The Haoshi prompt lost its skip choice.");
+            Answer(game, skip);
+            DriveUntil(game, () => game.ResolutionStack.Count == 0);
+            var given = game.CardMovements.Where(item =>
+                item.Reason.Value.Contains(HaoshiGive, StringComparison.Ordinal)).ToArray();
+            if (given.Length != 0) continue;
+            completed++;
+        }
+        Require(completed == 1, "No seeded setup verified declining Haoshi skips the give.");
+    }
+
+    public static void DimengSwapsEqualHandsWithoutDiscard()
+    {
+        var registry = Registry();
+        var completed = 0;
+        for (var seed = 1; seed <= 250 && completed < 1; seed++)
+        {
+            var game = Start(registry, seed);
+            if (DriveToFirstPlayPhase(game) is null) continue;
+            var snapshot = game.CreateSnapshot(0, true);
+            var pair = snapshot.Players.Where(item => item.Seat != 0)
+                .Where(item => item.Hand.Count == snapshot.Players.Where(peer => peer.Seat != 0)
+                    .Min(peer => peer.Hand.Count))
+                .Select(item => item.Seat).OrderBy(seat => seat).Take(2).ToArray();
+            if (pair.Length < 2) continue;
+            var before = game.CreateSnapshot(0, true);
+            var paused = RoundTrip(game.CreateCheckpoint());
+            var replay = GameReplay.Restore(paused, registry);
+            if (!UseDimeng(game, pair)) continue;
+            if (!UseDimeng(replay, pair)) continue;
+            DriveUntil(game, () => game.ResolutionStack.Count == 0);
+            DriveUntil(replay, () => replay.ResolutionStack.Count == 0);
+            Require(Events(game).SequenceEqual(Events(replay)) &&
+                    State(game) == State(replay),
+                "Dimeng must replay identically from the paused checkpoint.");
+            Require(game.Events.Select(item => item.Payload).OfType<ProgramSkillResolvedEvent>()
+                    .Any(item => item.SkillId == Dimeng),
+                "Dimeng must resolve as a program skill.");
+            var after = game.CreateSnapshot(0, true);
+            var discards = game.CardMovements.Where(item =>
+                item.Reason.Value.Contains(Dimeng, StringComparison.Ordinal) &&
+                item.To == CardLocation.DiscardPile).ToArray();
+            Require(discards.Length == 0,
+                "An equal-hand pair must not require any Dimeng discard.");
+            var firstHands = before.Players.Single(item => item.Seat == pair[0]).Hand
+                .Select(card => card.Id).Order().ToArray();
+            var secondHands = before.Players.Single(item => item.Seat == pair[1]).Hand
+                .Select(card => card.Id).Order().ToArray();
+            Require(after.Players.Single(item => item.Seat == pair[0]).Hand
+                    .Select(card => card.Id).Order().SequenceEqual(secondHands) &&
+                after.Players.Single(item => item.Seat == pair[1]).Hand
+                    .Select(card => card.Id).Order().SequenceEqual(firstHands),
+                "Dimeng must swap the pair's hand zones exactly.");
+            completed++;
+        }
+        Require(completed == 1, "No seeded setup resolved an equal-hand Dimeng.");
+    }
+
+    public static void DimengDiscardsTheDifferenceBeforeSwapping()
+    {
+        var registry = Registry();
+        var completed = 0;
+        for (var seed = 1; seed <= 250 && completed < 1; seed++)
+        {
+            var game = Start(registry, seed);
+            if (DriveUntilHaoshiPrompt(game) is null) continue;
+            Activate(game, Haoshi);
+            CompleteGive(game);
+            var playPhase = DriveToFirstPlayPhase(game);
+            if (playPhase is null) continue;
+            var snapshot = game.CreateSnapshot(0, true);
+            var others = snapshot.Players.Where(item => item.Seat != 0).ToArray();
+            if (others.Length < 2 || others.All(item => item.Hand.Count == others[0].Hand.Count)) continue;
+            var ordered = others.OrderBy(item => item.Hand.Count).ThenBy(item => item.Seat).ToArray();
+            var difference = ordered[^1].Hand.Count - ordered[0].Hand.Count;
+            var pair = new[] { ordered[0].Seat, ordered[^1].Seat };
+            if (!UseDimeng(game, pair)) continue;
+            DriveUntil(game, () => game.ResolutionStack.Count == 0);
+            var discards = game.CardMovements.Where(item =>
+                item.Reason.Value.Contains(Dimeng, StringComparison.Ordinal) &&
+                item.To == CardLocation.DiscardPile &&
+                item.From.OwnerSeat == 0).ToArray();
+            if (discards.Length == 0) continue;
+            Require(discards.Length == difference &&
+                    discards.All(item => item.From.Zone is CardZoneKind.Hand or CardZoneKind.Equipment),
+                "Dimeng must discard exactly the pair's hand-count difference from Lu Su.");
+            var after = game.CreateSnapshot(0, true);
+            var afterFirst = after.Players.Single(item => item.Seat == pair[0]).Hand.Count;
+            var afterSecond = after.Players.Single(item => item.Seat == pair[1]).Hand.Count;
+            Require(afterFirst == ordered[^1].Hand.Count && afterSecond == ordered[0].Hand.Count,
+                "Dimeng must swap the pair's hand sizes exactly.");
+            Require(game.Events.Select(item => item.Payload).OfType<ProgramSkillResolvedEvent>()
+                    .Any(item => item.SkillId == Dimeng),
+                "Dimeng must resolve as a program skill.");
+            completed++;
+        }
+        Require(completed == 1, "No seeded setup resolved a difference discard for Dimeng.");
+    }
+
     private static bool ConditionHas(SkillProgramTriggerCondition condition,
         SkillProgramTriggerConditionKind kind) =>
         condition.Kind == kind || (condition.Children?.Any(child => ConditionHas(child, kind)) ?? false);
@@ -160,9 +270,38 @@ internal static class LuSuChecks
             IsProgramPrompt(game, Haoshi) ? game.PendingDecision : null;
     }
 
+    private static PendingDecision? DriveToFirstPlayPhase(GameEngine game)
+    {
+        DriveUntil(game, () => false, stopAtSkills: [Haoshi]);
+        if (IsProgramPrompt(game, Haoshi))
+        {
+            var skip = game.PendingDecision!.Choices.First(choice =>
+                choice.Parameters.GetValueOrDefault("program-action") == "skip");
+            Answer(game, skip);
+        }
+        DriveUntil(game, () => false, stopAtDecisions: [DecisionKind.PlayCard]);
+        return game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 }
+            ? game.PendingDecision
+            : null;
+    }
+
     private static void CompleteGive(GameEngine game)
     {
         DriveUntil(game, () => game.ResolutionStack.Count == 0);
+    }
+
+    private static bool UseDimeng(GameEngine game, int[] pair)
+    {
+        var prompt = game.PendingDecision;
+        if (prompt is not { Kind: DecisionKind.PlayCard, PlayerSeat: 0 }) return false;
+        var action = game.GetHumanLegalActions().SingleOrDefault(candidate =>
+            candidate.Kind == LegalActionKind.UseProgramSkill &&
+            candidate.ProgramSkillId == Dimeng && candidate.ProgramActivationId == "alliance-pact");
+        if (action is null) return false;
+        var result = game.Submit(new UseProgramSkillCommand(0, Dimeng, "alliance-pact",
+            [], pair, game.Revision, prompt.PromptId));
+        Require(result.Accepted, result.Error?.Message ?? "Dimeng activation failed.");
+        return true;
     }
 
     private static bool IsProgramPrompt(GameEngine game, string skillId) =>

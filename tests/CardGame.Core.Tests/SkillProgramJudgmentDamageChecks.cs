@@ -12,7 +12,7 @@ internal static class SkillProgramJudgmentDamageChecks
         var strike = program.Triggers.Single(trigger => trigger.Id == StrikeTriggerId);
         var selection = strike.Effects[0];
         var damage = strike.Effects[1];
-        Require(program is { RuntimeVersion: SkillProgramCatalog.RuntimeVersion, MinimumRulesVersion: 171 } &&
+        Require(program is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 171 } &&
                 recovery is { Optional: false } &&
                 recovery.Effects.Single() is
                 {

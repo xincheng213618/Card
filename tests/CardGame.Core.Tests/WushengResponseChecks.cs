@@ -53,4 +53,137 @@ internal static class WushengResponseChecks
         }
     }
 
+    public static void NationalRevealDuringResponse()
+    {
+        for (var seed = 721000; seed < 721200; seed++)
+        {
+            GameEngine game;
+            try
+            {
+                game = NationalWarChecks.SkillFixture(
+                    "national:shu-guan-yu",
+                    "national:shu-zhang-fei",
+                    GeneralSelectionSlot.Primary,
+                    requireRed: true,
+                    exactSeed: seed);
+            }
+            catch (InvalidOperationException)
+            {
+                continue;
+            }
+
+            var play = game.PendingDecision ?? throw new InvalidOperationException("National skill fixture lost its play prompt.");
+            Require(game.Submit(new EndPlayPhaseCommand(0, game.Revision, play.PromptId)).Accepted, "National response fixture could not end the human play phase.");
+
+            for (var step = 0; step < 5000 && game.State.Status != EngineStatus.Completed; step++)
+            {
+                if (game.PendingDecision is { Kind: DecisionKind.RespondSlash, PlayerSeat: 0 } response)
+                {
+                    var ownBefore = game.CreateSnapshot(0).Players[0];
+                    var publicBefore = game.CreateSnapshot(1).Players[0];
+                    Require(response.Choices.All(choice =>
+                        !choice.Cards.Any(cardId => ownBefore.Hand.Single(card => card.Id == cardId).Kind is not
+                            (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash))),
+                        "Hidden national Wusheng appeared in a Slash response before reveal.");
+                    Require(game.CreateSnapshot(1).PendingDecision is null && !publicBefore.IsGeneralPublic,
+                        "National response prompt or hidden general leaked before reveal.");
+                    var physical = ownBefore.Hand.FirstOrDefault(card =>
+                        card.Suit is Suit.Heart or Suit.Diamond &&
+                        card.Kind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash));
+                    if (physical is null) break;
+                    var revealResult = game.Submit(new RevealGeneralCommand(
+                            0,
+                            GeneralSelectionSlot.Primary,
+                            game.Revision,
+                            response.PromptId));
+                    Require(revealResult.Accepted, "National general reveal was rejected during Slash response.");
+                    var refreshed = game.PendingDecision ?? throw new InvalidOperationException("National response prompt disappeared after reveal.");
+                    Require(refreshed.Kind == DecisionKind.RespondSlash && refreshed.PromptId != response.PromptId,
+                        "National reveal did not publish a refreshed Slash response prompt.");
+                    Require(game.GetHumanLegalActions().All(action => action.GeneralSlot != GeneralSelectionSlot.Primary),
+                        "The revealed national slot remained actionable during the response.");
+                    var converted = refreshed.Choices.Single(choice => choice.Cards.SequenceEqual([physical.Id]));
+                    Require(converted.Parameters["response-card-kind"] == "Slash" && converted.Description.Contains("当作【杀】"),
+                        "Revealing national Wusheng did not refresh the red-card Slash response candidate.");
+                    Require(game.CreateSnapshot(1).PendingDecision is null && game.CreateSnapshot(1).Players[0].IsGeneralPublic,
+                        "Refreshing a private national response leaked its prompt to another viewer.");
+
+                    var restored = GameReplay.Restore(game.CreateCheckpoint(), StandardContentRegistry.CreateWithNationalWarLite());
+                    Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, true)) == SnapshotJson.Serialize(game.CreateSnapshot(0, true)),
+                        "National response reveal did not replay exactly.");
+                    Require(game.Submit(new AnswerPromptCommand(0, refreshed.PromptId, converted.Id, game.Revision)).Accepted,
+                        "Refreshed national Wusheng response was rejected.");
+                    Require(game.Events.Any(item => item.Payload is NationalGeneralRevealedEvent revealed &&
+                        revealed.Seat == 0 && revealed.Slot == GeneralSelectionSlot.Primary) &&
+                        game.Events.Any(item => item.Payload is CardRespondedEvent responded &&
+                            responded.ResponderSeat == 0 && responded.CardId == physical.Id &&
+                            responded.EffectiveCardKind == CardKind.Slash),
+                        "National response reveal did not retain typed reveal and response events.");
+                    Console.WriteLine($"  National Wusheng response reveal: seed {game.Seed}, physical {physical.Kind}, refreshed and replayed.");
+                    return;
+                }
+
+                if (game.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 } nextPlay)
+                {
+                    Require(game.Submit(new EndPlayPhaseCommand(0, game.Revision, nextPlay.PromptId)).Accepted,
+                        "National response fixture could not advance past a later human play phase.");
+                }
+                else if (game.PendingDecision is { Kind: DecisionKind.DiscardCards, PlayerSeat: 0 } discard)
+                {
+                    Require(game.Submit(new DiscardCardsCommand(
+                        0,
+                        discard.ValidCardIds.Take(discard.RequiredCardCount).ToArray(),
+                        discard.PromptId,
+                        game.Revision)).Accepted,
+                        "National response fixture could not advance past a human discard prompt.");
+                }
+                else if (game.PendingDecision is { Kind: DecisionKind.RespondDodge or DecisionKind.RespondSlash, PlayerSeat: 0 } otherResponse)
+                {
+                    Require(game.Submit(new AnswerPromptCommand(
+                        0,
+                        otherResponse.PromptId,
+                        otherResponse.Choices.Single(choice => choice.Parameters.GetValueOrDefault("response") == "take-damage").Id,
+                        game.Revision)).Accepted,
+                        "National response fixture could not answer an unrelated human response.");
+                }
+                else if (game.PendingDecision?.PlayerSeat == 0)
+                {
+                    break;
+                }
+                else
+                {
+                    Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
+                        "National response fixture could not advance the AI.");
+                }
+            }
+        }
+
+        throw new InvalidOperationException("Bounded national matches never produced a human Slash response with hidden Wusheng.");
+    }
+
+    public static void AiResponseAndReplay()
+    {
+        for (var seed = 1; seed <= 64; seed++)
+        {
+            var registry = StandardContentRegistry.Create();
+            var game = GameEngine.CreateStandard(new GameOptions { Seed = seed, HumanSeat = -1, HumanRole = null, UseInteractiveSetup = false, MaxTurns = 100, AiPolicyVersion = 2, AdvanceAfterHumanCommands = false }, registry);
+            if (!game.CreateSnapshot(-1, true).Players.Any(player => player.Skills?.Any(skill => skill.ContentId == "standard:wusheng") == true)) continue;
+            Require(game.Submit(new StartGameCommand()).Accepted, "AI Wusheng fixture failed to start.");
+            for (var step = 0; step < 12000 && game.State.Status != EngineStatus.Completed; step++)
+                Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted, "AI Wusheng response stalled.");
+            Require(game.State.Status == EngineStatus.Completed, "AI Wusheng match did not finish.");
+            var generals = game.CreateSnapshot(-1, true).Players;
+            var converted = game.Events.Select(item => item.Payload).OfType<CardRespondedEvent>().Count(response =>
+                generals.Single(player => player.Seat == response.ResponderSeat).Skills?
+                    .Any(skill => skill.ContentId == "standard:wusheng") == true && response.EffectiveCardKind == CardKind.Slash &&
+                game.CardMovements.Last(move => move.CardId == response.CardId && move.Reason == CardMoveReasons.Respond).CardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash));
+            if (converted == 0) continue;
+            var replay = GameReplay.Restore(game.CreateCheckpoint(), registry);
+            Require(SnapshotJson.Serialize(replay.CreateSnapshot(-1, true)) == SnapshotJson.Serialize(game.CreateSnapshot(-1, true)), "AI response choices did not replay deterministically.");
+            Console.WriteLine($"  AI Wusheng: seed {seed}, {converted} converted Slash responses, completed and replayed.");
+            return;
+        }
+        throw new InvalidOperationException("Bounded AI matches never used a Wusheng response.");
+    }
+
 }

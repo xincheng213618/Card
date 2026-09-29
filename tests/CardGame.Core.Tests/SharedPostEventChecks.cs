@@ -28,6 +28,32 @@ internal static class SharedPostEventChecks
             "Two gained cards, two gain rewards and one HP-loss reward must each resolve exactly once.");
     }
 
+    public static void HpLossRecoveryAndActualAmountsReplay()
+    {
+        var (game, registry) = Create();
+        Use(game, "wound");
+        var loss = game.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Single();
+        Require(loss.Change is { Kind: HpChangeKind.Loss, Amount: 2 } && loss.Candidates.Count == 2,
+            "A two-point loss must retain one actual event with two per-point occurrences.");
+        var restored = GameReplay.Restore(game.CreateCheckpoint(), registry);
+        foreach (var branch in new[] { game, restored })
+        {
+            Answer(branch);
+            Answer(branch);
+            var recovery = branch.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Single();
+            Require(recovery.Change is { Kind: HpChangeKind.Recovery, Amount: 2 } &&
+                    recovery.Change.HpAfter - recovery.Change.HpBefore == 2 && recovery.Candidates.Count == 1,
+                "Overhealing must publish only the actual recovered amount, once per event.");
+        }
+        var recoveryReplay = GameReplay.Restore(game.CreateCheckpoint(), registry);
+        foreach (var branch in new[] { game, restored, recoveryReplay }) Drain(branch);
+        Require(State(game) == State(restored) && State(game) == State(recoveryReplay),
+            "HP windows must replay from both loss and recovery prompts.");
+        Require(game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                .Count(item => item.Window == SkillProgramTriggerWindow.AfterHpRecovered && item.Activated) == 1,
+            "Recovery at full HP must not emit a second recovery event.");
+    }
+
     public static void HpLossWaitsForDyingAndCardRecoveryFinishesFirst()
     {
         var (game, registry) = Create();

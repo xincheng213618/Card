@@ -7,6 +7,111 @@ internal static class CaoChongChecks
     private const int HumanSeat = 0;
     private const string GeneralId = "classic:cao-chong";
 
+    public static void ContentAndPackageBoundary()
+    {
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(current.Generals[GeneralId] is
+                {
+                    BaseHp: 3,
+                    FactionId: "wei",
+                    Gender: GeneralGender.Male,
+                    PortraitKey: "cao_chong"
+                } caoChong &&
+                caoChong.SkillIds.SequenceEqual(["classic:chengxiang", "classic:renxin"]) &&
+                current.Skills["classic:chengxiang"] is
+                {
+                    Program: not null,
+                    ExecutionForms: SkillExecutionForm.Trigger,
+                    ActionForms: SkillActionForm.None
+                } &&
+                current.Skills["classic:renxin"] is
+                {
+                    Program:
+                    {
+                        MinimumRulesVersion: 172,
+                        Triggers.Count: 1
+                    },
+                    ExecutionForms: SkillExecutionForm.Trigger,
+                    ActionForms: SkillActionForm.None
+                } &&
+                current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId),
+            "Current Cao Chong must expose Chengxiang and Renxin programs.");
+    }
+
+    public static void ChengxiangRevealsLegalSubsetAndReplays()
+    {
+        var fixture = FindHumanPrompt(DecisionKind.ProgramTrigger, "classic:chengxiang");
+        var game = fixture.Game;
+        var registry = fixture.Registry;
+        var firstPrompt = RequirePrompt(game, DecisionKind.ProgramTrigger);
+        Require(firstPrompt.IsPrivate &&
+                firstPrompt.SkillPrompt?.SkillId == "classic:chengxiang" &&
+                firstPrompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("program-action"))
+                    .Order(StringComparer.Ordinal)
+                    .SequenceEqual(["activate", "skip"]),
+            "Chengxiang must first publish a private optional use/skip decision.");
+
+        var firstPaused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+        AnswerProgramAction(game, "activate");
+        AnswerProgramAction(firstPaused, "activate");
+        var subsetPrompt = RequirePrompt(game, DecisionKind.ProgramTrigger);
+        var publicCards = game.CreateSnapshot(HumanSeat).PublicRevealedCards;
+        Require(publicCards.Count == 4 && subsetPrompt.ValidCardIds.Order().SequenceEqual(
+                    publicCards.Select(card => card.Id).Order()) &&
+                subsetPrompt.Choices.Count > 0 &&
+                subsetPrompt.Choices.All(choice =>
+                    choice.Parameters.GetValueOrDefault("program-action") == "select-subset" &&
+                    choice.Cards.Sum(cardId => publicCards.Single(card => card.Id == cardId).Rank) <= 13),
+            "Chengxiang must publicly reveal four physical cards and publish only subsets with rank sum at most 13.");
+
+        var forged = new ChoiceId("chengxiang.obtain.forged-over-thirteen");
+        var revision = game.Revision;
+        var rejected = game.Submit(new AnswerPromptCommand(
+            HumanSeat,
+            subsetPrompt.PromptId,
+            forged,
+            revision));
+        Require(!rejected.Accepted && game.Revision == revision,
+            "An unpublished Chengxiang subset must be rejected without changing the state.");
+
+        var subsetPaused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+        var selected = subsetPrompt.Choices
+            .Where(choice => choice.Cards.Count > 0)
+            .OrderByDescending(choice => choice.Cards.Count)
+            .ThenByDescending(choice => choice.Cards.Sum(cardId =>
+                publicCards.Single(card => card.Id == cardId).Rank))
+            .First();
+        Answer(game, selected);
+        Answer(firstPaused, RequirePrompt(firstPaused, DecisionKind.ProgramTrigger).Choices.Single(choice => choice.Id == selected.Id));
+        Answer(subsetPaused, RequirePrompt(subsetPaused, DecisionKind.ProgramTrigger).Choices.Single(choice => choice.Id == selected.Id));
+
+        var revealed = game.Events.Select(item => item.Payload).OfType<ProgramCardsRevealedEvent>()
+            .Last(item => item.SkillId == "classic:chengxiang");
+        var selectedEvent = game.Events.Select(item => item.Payload).OfType<ProgramCardSubsetSelectedEvent>()
+            .Last(item => item.SkillId == "classic:chengxiang");
+        var resolved = game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+            .Last(item => item.SkillId == "classic:chengxiang" && item.Activated);
+        var discardedIds = revealed.Cards.Select(card => card.Id).Except(selected.Cards).ToArray();
+        Require(resolved is
+                {
+                    OwnerSeat: HumanSeat,
+                    Window: SkillProgramTriggerWindow.AfterDamageApplied,
+                    Completed: true
+                } && revealed.Cards.Count == 4 &&
+                selectedEvent.CardIds.Order().SequenceEqual(selected.Cards.Order()) &&
+                selectedEvent.RankSum <= 13 &&
+                game.CardMovements.Count(move => selected.Cards.Contains(move.CardId) &&
+                    move.Reason.Value == "skill-program.classic:chengxiang.MoveBoundCards" &&
+                    move.To == CardLocation.Hand(HumanSeat)) == selected.Cards.Count &&
+                game.CardMovements.Count(move => discardedIds.Contains(move.CardId) &&
+                    move.Reason.Value == "skill-program.classic:chengxiang.MoveBoundCards" &&
+                    move.To == CardLocation.DiscardPile) == discardedIds.Length,
+            "Chengxiang must move the exact chosen subset to hand and every remainder to discard.");
+        Require(State(firstPaused) == State(game) && Events(firstPaused).SequenceEqual(Events(game)) &&
+                State(subsetPaused) == State(game) && Events(subsetPaused).SequenceEqual(Events(game)),
+            "Both paused Chengxiang decision stages must replay to the same state and event stream.");
+    }
+
     public static void RenxinDiscardsEquipmentTurnsOverPreventsAndReplays()
     {
         var fixture = FindHumanPrompt(DecisionKind.ProgramTrigger, "classic:renxin");
@@ -155,6 +260,13 @@ internal static class CaoChongChecks
             prompt.PromptId));
         Require(selected.Accepted, selected.Error?.Message ?? "The Cao Chong fixture could not select Cao Chong.");
         return game;
+    }
+
+    private static void AnswerAction(GameEngine game, string action)
+    {
+        var prompt = game.PendingDecision ?? throw new InvalidOperationException("No prompt is pending.");
+        Answer(game, prompt.Choices.Single(choice =>
+            choice.Parameters.GetValueOrDefault("action") == action));
     }
 
     private static void AnswerProgramAction(GameEngine game, string action)

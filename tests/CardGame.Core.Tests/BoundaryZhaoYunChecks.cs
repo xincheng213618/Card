@@ -107,6 +107,67 @@ internal static class BoundaryZhaoYunChecks
         Reject(giftTemplate, handPresentation, "giveBoundCard with a non-branch condition");
     }
 
+    public static void LongdanConvertsSlashToDodgeAndFiresYajiao()
+    {
+        var registry = Registry();
+        var completed = 0;
+        for (var seed = 1; seed <= 400 && completed < 1; seed++)
+        {
+            var game = Start(registry, BasicMode, seed);
+            if (!AwaitIncomingSlash(game)) continue;
+            var prompt = game.PendingDecision!;
+            var hand = game.CreateSnapshot(0, true).Players[0].Hand;
+            var converted = prompt.Choices.Where(choice => choice.Cards.Count == 1 &&
+                hand.Single(card => card.Id == choice.Cards[0]).Kind is CardKind.Slash).ToList();
+            if (converted.Count == 0) continue;
+            Answer(game, converted[0]);
+            DriveUntil(game, () => false, stopAtSkills: [Yajiao]);
+            if (game.State.Status == EngineStatus.Completed || !IsProgramPrompt(game, Yajiao)) continue;
+            var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+            Require(Events(game).SequenceEqual(Events(replay)) && State(game) == State(replay),
+                "The Longdan-response Yajiao prompt must pause at an identical checkpoint.");
+            Activate(game, Yajiao);
+            Activate(replay, Yajiao);
+            DriveUntil(game, () => game.ResolutionStack.Count == 0, resolveSkillIds: [Yajiao]);
+            DriveUntil(replay, () => replay.ResolutionStack.Count == 0, resolveSkillIds: [Yajiao]);
+            var gave = game.CardMovements.Count(item =>
+                item.To.Zone == CardZoneKind.Hand &&
+                item.Reason.Value.Contains("GiveBoundCard", StringComparison.Ordinal));
+            Require(Events(game).SequenceEqual(Events(replay)) && State(game) == State(replay),
+                "The Yajiao gift branch must replay identically from the paused checkpoint.");
+            if (gave == 0) continue;
+            Require(gave == 1, "A matching revealed card must be given to exactly one player via Yajiao.");
+            completed++;
+        }
+        Require(completed == 1, "No seeded setup produced a Longdan slash-to-dodge response.");
+    }
+
+    public static void YajiaoDoesNotFireOnOwnTurnUse()
+    {
+        var registry = Registry();
+        var completed = 0;
+        for (var seed = 1; seed <= 400 && completed < 1; seed++)
+        {
+            var game = Start(registry, BasicMode, seed);
+            ReachPlay(game);
+            var hand = game.CreateSnapshot(0, true).Players[0].Hand;
+            var slash = game.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.Slash &&
+                hand.Any(card => card.Id == action.CardId && card.Kind == CardKind.Slash));
+            if (slash is null) continue;
+            var beforeEvents = game.Events.Count;
+            Play(game, slash);
+            DriveUntil(game, () => game.ResolutionStack.Count == 0);
+            if (game.State.Status == EngineStatus.Completed) continue;
+            Require(game.Events.Skip(beforeEvents).Select(item => item.Payload)
+                    .OfType<ProgramBindingStartedEvent>()
+                    .All(item => item.SkillId != Yajiao),
+                "Using a hand card during the owner's own turn must not bind Yajiao.");
+            completed++;
+        }
+        Require(completed == 1, "No seeded setup produced an own-turn hand-card use.");
+    }
+
     public static void YajiaoMismatchDiscardsFromRangedPlayerAndReplays()
     {
         var registry = Registry();
@@ -268,6 +329,14 @@ internal static class BoundaryZhaoYunChecks
         return game;
     }
 
+    private static void ReachPlay(GameEngine game)
+    {
+        for (var step = 0; step < 80 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
+            Advance(game);
+        Require(game.PendingDecision?.Kind == DecisionKind.PlayCard,
+            "Zhao Yun fixture did not reach Play.");
+    }
+
     private static void Advance(GameEngine game)
     {
         var result = game.Submit(new AdvanceOneStepCommand(game.Revision));
@@ -282,6 +351,13 @@ internal static class BoundaryZhaoYunChecks
             : new AdvanceOneStepCommand(game.Revision);
         var result = game.Submit(command);
         Require(result.Accepted, $"Zhao Yun fixture could not continue: {result.Error?.Message}");
+    }
+
+    private static void Play(GameEngine game, LegalAction action)
+    {
+        var result = game.Submit(new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats,
+            game.Revision, game.PendingDecision!.PromptId, action.PlayedCardKind, action.TargetCardId));
+        Require(result.Accepted, result.Error?.Message ?? "Zhao Yun card action failed.");
     }
 
     private static void Accept(CommandResult result)

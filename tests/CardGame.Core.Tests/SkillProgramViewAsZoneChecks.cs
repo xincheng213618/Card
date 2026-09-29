@@ -15,7 +15,7 @@ internal static class SkillProgramViewAsZoneChecks
     public static void DefinitionAndZoneIsolation()
     {
         var program = SkillProgramCatalog.Load(Rules, Presentation).Programs["test:owned-red-slash"];
-        Require(program is { RuntimeVersion: SkillProgramCatalog.RuntimeVersion, MinimumRulesVersion: 171 } &&
+        Require(program is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 171 } &&
                 program.ViewAs.Single().SourceZones.SequenceEqual(
                     [CardZoneKind.Hand, CardZoneKind.Equipment]),
             "Schema 46 must keep the source-zone contract in the compiled viewAs rule.");

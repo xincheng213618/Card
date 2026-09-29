@@ -112,6 +112,26 @@ internal static class SkillProgramExecutorChecks
             "invalid operation");
     }
 
+    public static void ReflectionDiscoversEveryPrimitiveHandler()
+    {
+        var catalog = SkillProgramEffectCatalog.Discover(typeof(SkillProgramExecutor).Assembly);
+        Require(catalog.Handlers.Select(handler => handler.Op).Order().SequenceEqual(
+                Enum.GetValues<SkillProgramEffectOp>().Order()),
+            "Core reflection discovery must find one handler for every current primitive operation.");
+        Require(catalog.Handlers.Count == Enum.GetValues<SkillProgramEffectOp>().Length &&
+                catalog.Handlers.Select(handler => handler.GetType().FullName)
+                    .SequenceEqual(catalog.Handlers.Select(handler => handler.GetType().FullName)
+                        .Order(StringComparer.Ordinal)),
+            "Reflection discovery must return exactly one handler per operation in stable type-name order.");
+        Require(Enum.GetValues<SkillProgramEffectOp>()
+                .All(op => catalog.Resolve(op).Op == op) &&
+                SkillProgramEffectCatalog.Default.Handlers.Count == Enum.GetValues<SkillProgramEffectOp>().Length,
+            "Discovered and cached default catalogs must resolve each primitive operation.");
+        Throws<NotSupportedException>(
+            () => ((ICollection<ISkillProgramEffectHandler>)catalog.Handlers).Clear(),
+            null);
+    }
+
     public static void ActiveActivationContractsRejectInvalidDefinitionsAndPreserveOrder()
     {
         const string orderedPair =
@@ -163,6 +183,45 @@ internal static class SkillProgramExecutorChecks
         Throws<InvalidOperationException>(() => ProgramWithActivations(first + "," +
             second.Replace("\"usesPerTurn\":1", "\"usesPerTurn\":2", StringComparison.Ordinal)),
             "usageGroup");
+    }
+
+    public static void ActivePrimitiveHandlersUseTheExplicitSharedHost()
+    {
+        var variableGift = ProgramWithActivations(
+            """{"id":"gift","minCards":1,"maxCards":null,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"giveSelected","target":"selectedTarget"}]}""");
+        var giftRuntime = Runtime(variableGift, selectedCards: [10, 11], selectedTargets: [1], activationId: "gift");
+        new SkillProgramExecutor().Run(giftRuntime.Frame!.Id, giftRuntime, giftRuntime);
+        Require(giftRuntime.Calls.SequenceEqual([
+                "move:0:1:10,11:give:skill-program.fixture:executor.GiveSelected"
+            ]) && giftRuntime.Completed is { Completed: true },
+            "A variable-size selected gift must consume the complete frozen selection once.");
+
+        var random = ProgramWithActivations(
+            """{"id":"random","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":1,"effects":[{"op":"transferRandomOwnedCard","target":"selectedTarget","resultBind":"publicGift"}]}""");
+        var randomRuntime = Runtime(random, selectedTargets: [1], activationId: "random");
+        new SkillProgramExecutor().Run(randomRuntime.Frame!.Id, randomRuntime, randomRuntime);
+        Require(randomRuntime.Calls.SequenceEqual(["random-transfer:0:1:publicGift"]) &&
+                randomRuntime.Frame is { InstructionIndex: 1 },
+            "Random transfer must dispatch through the explicit host and retain its awaiting frame.");
+
+        var faction = ProgramWithActivations(
+            """{"id":"request","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLivingSlashable","usesPerTurn":1,"effects":[{"op":"requestFactionCard","target":"selectedTarget","providerFactionId":"shu","requiredKind":"slash"}]}""");
+        var factionRuntime = Runtime(faction, selectedTargets: [1], activationId: "request");
+        new SkillProgramExecutor().Run(factionRuntime.Frame!.Id, factionRuntime, factionRuntime);
+        Require(factionRuntime.Calls.SequenceEqual(["faction-card:0:1:shu:Slash"]) &&
+                factionRuntime.Frame is { InstructionIndex: 1 },
+            "Faction request must carry its selected target, faction and card kind to the shared host.");
+
+        var count = ProgramWithActivations(
+            """{"id":"count","minCards":1,"maxCards":1,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"discardSelected","target":"owner","amount":1},{"op":"accumulateSelectedCardCount","target":"owner","usageId":"phase-gifts","threshold":2,"resultBind":"thresholdResult"}]}""");
+        var countRuntime = Runtime(count, selectedCards: [10], activationId: "count");
+        new SkillProgramExecutor().Run(countRuntime.Frame!.Id, countRuntime, countRuntime);
+        Require(countRuntime.Calls.SequenceEqual([
+                "move:0:0:10:discard:skill-program.fixture:executor.DiscardSelected",
+            "accumulate-selected:0:phase-gifts:2:thresholdResult"
+            ]) &&
+                countRuntime.Completed is { Completed: true },
+            "The phase counter must dispatch to the explicit host and finish exactly once.");
     }
 
     private static SkillProgram ProgramWithActivations(string activations)

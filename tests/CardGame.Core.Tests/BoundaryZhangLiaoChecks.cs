@@ -116,6 +116,89 @@ internal static class BoundaryZhangLiaoChecks
         CheckPlan(-2, 0);
     }
 
+    public static void HandThresholdAndPriorReplacement()
+    {
+        var boostedRegistry = Registry(0, preDraw: true);
+        var boosted = Start(boostedRegistry);
+        for (var step = 0; step < 30 && boosted.State.Phase != TurnPhase.Play; step++)
+            Advance(boosted);
+        var boostedView = boosted.CreateSnapshot(0, true);
+        Require(boosted.State.Phase == TurnPhase.Play &&
+                boostedView.Players[0].HandCount == 7 &&
+                boostedView.Players.Skip(1).All(player => player.HandCount == 4) &&
+                boosted.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
+                    .All(item => item.SkillId != SkillId),
+            "A five-card owner must not select four-card targets after an earlier extra draw.");
+
+        var replacementRegistry = Registry(0, replacement: true);
+        var replacement = Start(replacementRegistry);
+        for (var step = 0; step < 30 &&
+             replacement.PendingDecision?.SkillPrompt?.SkillId != "classic:tuxi"; step++)
+            Advance(replacement);
+        Require(replacement.PendingDecision?.SkillPrompt?.SkillId == "classic:tuxi",
+            "The prior replacement must be offered before the additive plan.");
+        Answer(replacement, "activate");
+        Answer(replacement, replacement.PendingDecision!.Choices.First(choice => choice.Targets.Count == 1));
+        Require(replacement.State.Phase == TurnPhase.Play &&
+                replacement.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
+                    .All(item => item.SkillId != SkillId),
+            "A completed replacement must suppress later draw-plan selection without a missing-plan error.");
+    }
+
+    public static void SupplyShortageSkipsTheDrawWindow()
+    {
+        var registry = ContentRegistry.Build(
+            new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(),
+            new StandardClassicGeneralPackage(),
+            new SupplyScenario());
+        for (var seed = 1; seed <= 128; seed++)
+        {
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                Seed = seed, PlayerCount = 5, ModeId = SupplyScenario.ModeId,
+                HumanSeat = 0, HumanRole = Role.Lord, UseInteractiveSetup = true,
+                UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 10
+            }, registry);
+            if (!game.Submit(new StartGameCommand()).Accepted) continue;
+            var selection = game.PendingDecision!;
+            if (!game.Submit(new SelectGeneralCommand(0, SupplyScenario.HumanId,
+                game.Revision, selection.PromptId)).Accepted) continue;
+            for (var step = 0; step < 40 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
+                AdvanceOne(game);
+            if (game.PendingDecision?.Kind != DecisionKind.PlayCard) continue;
+            var owner = game.CreateSnapshot(0, true).Players.Single(player =>
+                player.GeneralId == GeneralId).Seat;
+            var action = game.GetHumanLegalActions().FirstOrDefault(item =>
+                item.Kind == LegalActionKind.SupplyShortage && item.TargetSeat == owner);
+            if (action is null) continue;
+            var played = game.Submit(new PlayCardCommand(0, action.CardId!.Value,
+                action.TargetSeats, game.Revision, game.PendingDecision.PromptId));
+            Require(played.Accepted, played.Error?.Message ?? "Supply Shortage could not target Zhang Liao.");
+            for (var step = 0; step < 60 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
+                AdvanceOne(game);
+            if (game.PendingDecision?.Kind != DecisionKind.PlayCard) continue;
+            var ended = game.Submit(new EndPlayPhaseCommand(0, game.Revision,
+                game.PendingDecision.PromptId));
+            Require(ended.Accepted, ended.Error?.Message ?? "Supply Shortage fixture could not end Play.");
+            for (var step = 0; step < 600 && !game.Events.Select(item => item.Payload)
+                     .OfType<DelayedCardResolvedEvent>()
+                     .Any(item => item.CardKind == CardKind.SupplyShortage && item.TargetSeat == owner); step++)
+                AdvanceOne(game);
+            var resolution = game.Events.Select(item => item.Payload)
+                .OfType<DelayedCardResolvedEvent>().FirstOrDefault(item =>
+                    item.CardKind == CardKind.SupplyShortage && item.TargetSeat == owner);
+            if (resolution?.SkippedDrawPhase != true) continue;
+            Require(game.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
+                    .All(item => item.SkillId != SkillId) &&
+                    State(GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry)) == State(game),
+                "Supply Shortage must skip the entire draw phase, including boundary Tuxi.");
+            return;
+        }
+        throw new InvalidOperationException("No deterministic Supply Shortage skip fixture reached boundary Zhang Liao.");
+    }
+
     private static void CheckPlan(int adjustment, int expectedPlan)
     {
         var registry = Registry(adjustment);
@@ -208,6 +291,12 @@ internal static class BoundaryZhangLiaoChecks
     {
         var result = game.Submit(new AdvanceCommand(game.Revision));
         Require(result.Accepted, result.Error?.Message ?? "Fixture could not advance.");
+    }
+
+    private static void AdvanceOne(GameEngine game)
+    {
+        var result = game.Submit(new AdvanceOneStepCommand(game.Revision));
+        Require(result.Accepted, result.Error?.Message ?? "Supply Shortage fixture did not advance.");
     }
 
     private static void Answer(GameEngine game, string action) =>

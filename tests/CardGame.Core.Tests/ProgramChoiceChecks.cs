@@ -14,7 +14,7 @@ internal static class ProgramChoiceChecks
         var effects = current.Triggers.Single().Effects;
         var payment = effects.Single(effect => effect.Op == SkillProgramEffectOp.SelectAndMoveOwnedCard);
         var choice = effects.Single(effect => effect.Op == SkillProgramEffectOp.ChooseOption);
-        Require(current.RuntimeVersion == SkillProgramCatalog.RuntimeVersion && current.MinimumRulesVersion == 171 &&
+        Require(current.RuntimeVersion == "skill-program-v62" && current.MinimumRulesVersion == 171 &&
                 payment.CardCategories.SequenceEqual([
                     SkillProgramCardCategory.Trick,
                     SkillProgramCardCategory.Equipment

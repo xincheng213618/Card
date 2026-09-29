@@ -3,6 +3,36 @@ using CardGame.Core;
 
 internal static class GroupClaimChecks
 {
+    public static void OnlyClaimedCardsMayFinishFromTheDrawPile()
+    {
+        var claimedIds = new HashSet<int>();
+        var physicalCards = new[]
+        {
+            new Card(101, CardKind.Slash, Suit.Spade, 1),
+            new Card(102, CardKind.Dodge, Suit.Spade, 2)
+        };
+        Require(GameEngine.IsResolvedGroupPhysicalCardDestinationAllowed(
+                    CardLocation.DrawPile, damageCardClaimed: true, [1, 2]) &&
+                !GameEngine.IsResolvedGroupPhysicalCardDestinationAllowed(
+                    CardLocation.DrawPile, damageCardClaimed: false, [1, 2]) &&
+                GameEngine.IsResolvedGroupPhysicalCardDestinationAllowed(
+                    CardLocation.DiscardPile, damageCardClaimed: false, [1, 2]) &&
+                GameEngine.IsResolvedGroupPhysicalCardDestinationAllowed(
+                    CardLocation.Hand(2), damageCardClaimed: false, [1, 2]) &&
+                GameEngine.IsResolvedGroupPhysicalCardDestinationAllowed(
+                    CardLocation.Hand(3), damageCardClaimed: true, [1, 2]) &&
+                !GameEngine.IsResolvedGroupPhysicalCardDestinationAllowed(
+                    CardLocation.Hand(3), damageCardClaimed: false, [1, 2]) &&
+                GameEngine.RecordClaimedGroupPhysicalCard(
+                    claimedIds, 17, physicalCards, 17, physicalCards[1].Id) &&
+                claimedIds.SetEquals([physicalCards[1].Id]) &&
+                !GameEngine.RecordClaimedGroupPhysicalCard(
+                    claimedIds, 17, physicalCards, 18, physicalCards[0].Id) &&
+                !GameEngine.RecordClaimedGroupPhysicalCard(
+                    claimedIds, 17, physicalCards, 17, 999),
+            "Only a corresponding physical group card claimed by a damage skill may finish from another hand or a reshuffled draw pile.");
+    }
+
     public static void ClaimantDeathContinues()
     {
         var registry = ContentRegistry.Build(new StandardContentPackage(),

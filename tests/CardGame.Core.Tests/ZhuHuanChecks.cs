@@ -21,7 +21,7 @@ internal static class ZhuHuanChecks
                 general.SkillIds.SequenceEqual([SkillId]) &&
                 registry.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
                 registry.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId) &&
-                skill.Program is { RuntimeVersion: SkillProgramCatalog.RuntimeVersion, MinimumRulesVersion: 172 } &&
+                skill.Program is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } &&
                 skill.Program.Triggers.Single().Window == SkillProgramTriggerWindow.TurnEnding &&
                 (int)SkillProgramConditionKind.BoundCardsMatchKinds == 20,
             "Zhu Huan must be a formal Wu/Fame IV general using the reusable schema-54 condition.");
@@ -114,6 +114,126 @@ internal static class ZhuHuanChecks
             Require(State(paused) == State(game) && Events(paused).SequenceEqual(Events(game)),
                 "The opponent's private discard checkpoint diverged.");
         }
+    }
+
+    public static void EquipmentEmptySourceAndWholeSkillDecline()
+    {
+        var (equip, registry) = Create("standard:crossbow", initialHand: 1, drawPerTurn: 0);
+        var card = equip.CreateSnapshot(0, revealAll: true).Players[0].Hand.Single();
+        var play = equip.PendingDecision ?? throw new InvalidOperationException("No play prompt for equipment setup.");
+        Accept(equip.Submit(new PlayCardCommand(0, card.Id, [], equip.Revision, play.PromptId)));
+        for (var i = 0; i < 32 && !equip.CreateCardZoneDiagnostics()
+                 .Any(item => item.CardId == card.Id && item.Location == CardLocation.Equipment(0)); i++) Advance(equip);
+        for (var i = 0; i < 32 && equip.PendingDecision?.Kind != DecisionKind.PlayCard; i++) Advance(equip);
+        ReachYoudi(equip);
+        AnswerAction(equip, "activate");
+        AnswerTarget(equip, 1);
+        var chooser = RequirePrompt(equip, 1);
+        Require(chooser.Choices.Count == 1 && chooser.Choices.Single().Cards.SequenceEqual([card.Id]),
+            "The target must see and be forced to discard Zhu Huan's equipped card.");
+        RunPastAiDiscard(equip);
+        Require(equip.CardMovements.Any(move => move.CardId == card.Id &&
+                move.From == CardLocation.Equipment(0) && move.To == CardLocation.DiscardPile),
+            "The equipped card did not pay the first part.");
+        RequirePrompt(equip, 0);
+        Answer(equip, equip.PendingDecision!.Choices.Single());
+        Require(equip.CardMovements.Any(move =>
+                move.Reason.Value == $"skill-program.{SkillId}.SelectAndMoveOwnedCard" &&
+                move.To == CardLocation.Hand(0)), "Equipment discard must unlock one target card.");
+        Require(State(GameReplay.Restore(RoundTrip(equip.CreateCheckpoint()), registry)) == State(equip),
+            "Equipment branch checkpoint failed.");
+
+        var (emptyOwner, _) = Create("standard:dodge", initialHand: 0, drawPerTurn: 0);
+        Accept(emptyOwner.Submit(new EndPlayPhaseCommand(0, emptyOwner.Revision, emptyOwner.PendingDecision!.PromptId)));
+        for (var i = 0; i < 32 && emptyOwner.State.TurnNumber == 1; i++)
+        {
+            Require(emptyOwner.PendingDecision?.SkillPrompt?.SkillId != SkillId,
+                "An owner with no hand/equipment must not be offered Youdi.");
+            Advance(emptyOwner);
+        }
+
+        var (emptyTarget, _) = Create("standard:dodge", initialHand: 0, drawPerTurn: 1);
+        ReachYoudi(emptyTarget);
+        AnswerAction(emptyTarget, "activate");
+        AnswerTarget(emptyTarget, 1);
+        RunPastAiDiscard(emptyTarget);
+        Require(emptyTarget.CardMovements.Count(move =>
+                    move.Reason.Value == $"skill-program.{SkillId}.SelectAndMoveOwnedCard" &&
+                    move.To == CardLocation.DiscardPile) == 1 &&
+                !emptyTarget.CardMovements.Any(move =>
+                    move.Reason.Value == $"skill-program.{SkillId}.SelectAndMoveOwnedCard" &&
+                    move.To == CardLocation.Hand(0)),
+            "A target without cards still discards Zhu Huan's card, but no phantom return occurs.");
+
+        var (decline, _) = Create("standard:dodge", initialHand: 1, drawPerTurn: 0);
+        ReachYoudi(decline);
+        AnswerAction(decline, "skip");
+        Require(decline.CardMovements.All(move =>
+                move.Reason.Value != $"skill-program.{SkillId}.SelectAndMoveOwnedCard"),
+            "Declining the whole optional skill must not move cards.");
+    }
+
+    public static void BoundKindConditionExecutesForAnotherSkillAndAiUsesPublicEstimate()
+    {
+        var (game, registry) = Create("standard:slash", initialHand: 1, drawPerTurn: 0,
+            synthetic: true);
+        Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision, game.PendingDecision!.PromptId)));
+        for (var i = 0; i < 64 && game.PendingDecision?.SkillPrompt?.SkillId != SyntheticSkillId; i++)
+            Advance(game);
+        Require(game.PendingDecision?.SkillPrompt?.SkillId == SyntheticSkillId,
+            "The unrelated synthetic skill did not reach its shared turn-ending window.");
+        AnswerAction(game, "activate");
+        AnswerTarget(game, 1);
+        var paused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+        RunPastAiDiscard(game);
+        RunPastAiDiscard(paused);
+        Require(game.CardMovements.Any(move =>
+                move.Reason.Value == $"skill-program.{SyntheticSkillId}.SelectAndMoveOwnedCard" &&
+                move.CardKind == CardKind.Slash && move.To == CardLocation.DiscardPile) &&
+                RequirePrompt(game, 0).Choices.Single().Parameters.GetValueOrDefault("card-owner-seat") == "1",
+            "The same bound-kind predicate must enable a positive Slash branch on another skill ID.");
+        Answer(game, game.PendingDecision!.Choices.Single());
+        Answer(paused, paused.PendingDecision!.Choices.Single());
+        Require(game.CardMovements.Any(move =>
+                move.Reason.Value == $"skill-program.{SyntheticSkillId}.SelectAndMoveOwnedCard" &&
+                move.To == CardLocation.Hand(0)) &&
+                State(paused) == State(game) && Events(paused).SequenceEqual(Events(game)),
+            "The synthetic skill's bound-card branch must transfer and replay.");
+
+        var zhuProgram = StandardContentRegistry.CreateWithClassicGenerals().Skills[SkillId].Program!;
+        var owner = new PlayerSkillContext(0, 4, 4, 1, TurnPhase.Play, IsOwnTurn: true);
+        var target = new PlayerSkillContext(1, 4, 4, 1, TurnPhase.Play, IsOwnTurn: false);
+        var estimate = ProgramCompositionAi.Estimate(
+            zhuProgram.Triggers.Single().Effects,
+            owner, publicContext: new ProgramAiPublicContext(0, SelectedTarget: target));
+        Require(estimate.Hint.TargetValueAdjustment < 0 && estimate.Score == 0,
+            "Shared public AI must count one conditional target-to-owner transfer against one own discard.");
+    }
+
+    public static void ExistingJuzhanTransferAiUsesOnlyPublicTargetState()
+    {
+        var juzhan = StandardContentRegistry.CreateWithClassicGenerals().Skills["classic:juzhan"].Program!;
+        var effects = juzhan.Triggers.Single(trigger => trigger.Id == "yin-attacking")
+            .Effects.ToArray();
+        var owner = new PlayerSkillContext(0, 4, 4, 2, TurnPhase.Play, IsOwnTurn: true);
+        ProgramAiEstimate Estimate(int publiclyKnownHandCount, bool omitTransfer)
+        {
+            var target = new PlayerSkillContext(1, 4, 4, publiclyKnownHandCount, TurnPhase.Play);
+            var context = new ProgramAiPublicContext(0, SelectedTarget: target,
+                CardActionActorIsOwner: true, BooleanState: stateId => stateId == "yin");
+            return ProgramCompositionAi.Estimate(omitTransfer
+                ? effects.Where(effect => effect.Op != SkillProgramEffectOp.SelectAndMoveOwnedCard)
+                : effects, owner, publicContext: context);
+        }
+
+        var withoutTransfer = Estimate(2, omitTransfer: true);
+        var withTransfer = Estimate(2, omitTransfer: false);
+        var withDifferentUnknownHand = Estimate(5, omitTransfer: false);
+        Require(withTransfer.Hint.OwnerDraw == withoutTransfer.Hint.OwnerDraw + 1 &&
+                withTransfer.Hint.TargetValueAdjustment == withoutTransfer.Hint.TargetValueAdjustment - 7 &&
+                withTransfer.Score == withoutTransfer.Score + 8 &&
+                withDifferentUnknownHand == withTransfer,
+            "Existing Juzhan must value the selected-target transfer using public participant and zone facts, without reading hidden card identities.");
     }
 
     private static (GameEngine Game, ContentRegistry Registry) Create(

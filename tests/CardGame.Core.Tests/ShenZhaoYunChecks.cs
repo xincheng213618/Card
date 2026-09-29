@@ -143,6 +143,124 @@ internal static class ShenZhaoYunChecks
         Require(completed == 1, "No seeded setup exercised Juejing's draw skip, refill and cap.");
     }
 
+    public static void LonghunRespondsWithClubDodgeAndPlaysDiamondFireSlash()
+    {
+        var registry = Registry();
+        var completed = 0;
+        for (var seed = 1; seed <= 400 && completed < 1; seed++)
+        {
+            var game = Start(registry, BasicMode, seed);
+            if (!AwaitIncomingSlash(game)) continue;
+            var prompt = game.PendingDecision!;
+            var hand = game.CreateSnapshot(0, true).Players[0].Hand;
+            var converted = prompt.Choices.Where(choice => choice.Cards.Count == 1)
+                .Where(choice => hand.Any(card => card.Id == choice.Cards[0] &&
+                    card.Suit == Suit.Club && card.Kind != CardKind.Dodge))
+                .ToList();
+            if (converted.Count == 0) continue;
+            Answer(game, converted[0]);
+            DriveUntil(game, () => game.ResolutionStack.Count == 0);
+            if (game.State.Status == EngineStatus.Completed) continue;
+            var afterResponse = game.CreateSnapshot(0, true).Players[0].Hand;
+            Require(afterResponse.Count == 4,
+                "Juejing must refill the hand after the converted dodge response.");
+            ReachPlay(game);
+            hand = game.CreateSnapshot(0, true).Players[0].Hand;
+            var fireSlash = game.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.Slash &&
+                action.PlayedCardKind == CardKind.FireSlash &&
+                hand.Any(card => card.Id == action.CardId && card.Suit == Suit.Diamond));
+            if (fireSlash is null) continue;
+            Play(game, fireSlash);
+            DriveUntil(game, () => game.ResolutionStack.Count == 0);
+            if (game.State.Status == EngineStatus.Completed) continue;
+            Require(game.CreateSnapshot(0, true).Players[0].Hand.Count == 4,
+                "The diamond fire-slash use must leave the hand refilled at four.");
+            completed++;
+        }
+        Require(completed == 1, "No seeded setup exercised Longhun's club dodge and diamond fire slash.");
+    }
+
+    public static void ZhanjiangTakesQinggangSwordFromField()
+    {
+        var registry = Registry();
+        var completed = 0;
+        for (var seed = 1; seed <= 400 && completed < 1; seed++)
+        {
+            var game = Start(registry, EquipMode, seed);
+            if (!AwaitZhanjiangPrompt(game)) continue;
+            if (!IsProgramPrompt(game, Zhanjiang)) continue;
+            var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+            Activate(game, Zhanjiang);
+            Activate(replay, Zhanjiang);
+            DriveUntil(game, () => game.ResolutionStack.Count == 0, resolveSkillIds: [Zhanjiang]);
+            DriveUntil(replay, () => replay.ResolutionStack.Count == 0, resolveSkillIds: [Zhanjiang]);
+            var take = game.CardMovements.SingleOrDefault(item =>
+                item.Reason.Value.Contains("SelectAndMoveOwnedCard", StringComparison.Ordinal) &&
+                item.From.Zone == CardZoneKind.Equipment &&
+                item.To == CardLocation.Hand(0));
+            if (take is null) continue;
+            Require(Events(game).SequenceEqual(Events(replay)) && State(game) == State(replay),
+                "The Zhanjiang takeover must replay identically from the paused checkpoint.");
+            completed++;
+        }
+        Require(completed == 1, "No seeded setup produced a Zhanjiang sword takeover.");
+    }
+
+    private static bool AwaitZhanjiangPrompt(GameEngine game)
+    {
+        for (var step = 0; step < 3000 && game.State.Status != EngineStatus.Completed; step++)
+        {
+            if (IsProgramPrompt(game, Zhanjiang)) return true;
+            Step(game);
+        }
+        return false;
+    }
+
+    private static void DriveToDiscardOrNext(GameEngine game)
+    {
+        for (var step = 0; step < 200 && game.State.Status != EngineStatus.Completed; step++)
+        {
+            var prompt = game.PendingDecision;
+            if (prompt is null)
+            {
+                Advance(game);
+                continue;
+            }
+            if (prompt.Kind == DecisionKind.DiscardCards) return;
+            if (prompt.PlayerSeat != 0)
+            {
+                Advance(game);
+                continue;
+            }
+            switch (prompt.Kind)
+            {
+                case DecisionKind.PlayCard:
+                    Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision, prompt.PromptId)));
+                    continue;
+                default:
+                    var choice = prompt.Choices.FirstOrDefault(item =>
+                        item.Parameters.GetValueOrDefault("program-action") == "skip") ??
+                        prompt.Choices.First();
+                    Answer(game, choice);
+                    continue;
+            }
+        }
+    }
+
+    private static bool AwaitIncomingSlash(GameEngine game)
+    {
+        for (var step = 0; step < 2500 && game.State.Status != EngineStatus.Completed; step++)
+        {
+            if (game.PendingDecision is { PlayerSeat: 0 } prompt &&
+                prompt.Kind == DecisionKind.RespondDodge &&
+                prompt.IncomingCard == CardKind.Slash)
+                return true;
+            Step(game);
+        }
+        return false;
+    }
+
     private static void DriveToOwnTurnDecision(GameEngine game)
     {
         for (var step = 0; step < 600 && game.State.Status != EngineStatus.Completed; step++)
@@ -241,6 +359,20 @@ internal static class ShenZhaoYunChecks
         new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(),
         new Scenario());
 
+    private static void Activate(GameEngine game, string skillId)
+    {
+        var prompt = game.PendingDecision ?? throw new InvalidOperationException(
+            $"No pending decision to activate {skillId}.");
+        Require(prompt.Kind == DecisionKind.ProgramTrigger,
+            $"The {skillId} prompt must be a program trigger.");
+        var activate = prompt.Choices.FirstOrDefault(choice =>
+            choice.Parameters.GetValueOrDefault("program-action") == "activate") ??
+            throw new InvalidOperationException($"The {skillId} prompt lost its activate choice.");
+        var result = game.Submit(new AnswerPromptCommand(prompt.PlayerSeat, prompt.PromptId,
+            activate.Id, game.Revision));
+        Require(result.Accepted, result.Error?.Message ?? $"{skillId} activation failed.");
+    }
+
     private static void Answer(GameEngine game, PromptChoice choice)
     {
         var prompt = game.PendingDecision!;
@@ -291,6 +423,16 @@ internal static class ShenZhaoYunChecks
     {
         var result = game.Submit(new AdvanceOneStepCommand(game.Revision));
         Require(result.Accepted, result.Error?.Message ?? "Shen Zhao Yun fixture did not advance.");
+    }
+
+    private static void Step(GameEngine game)
+    {
+        GameCommand command = game.PendingDecision is { PlayerSeat: 0 } prompt
+            ? prompt.Kind == DecisionKind.PlayCard ? new EndPlayPhaseCommand(0, game.Revision, prompt.PromptId)
+                : new AnswerPromptCommand(0, prompt.PromptId, prompt.Choices.Last().Id, game.Revision)
+            : new AdvanceOneStepCommand(game.Revision);
+        var result = game.Submit(command);
+        Require(result.Accepted, $"Shen Zhao Yun fixture could not continue: {result.Error?.Message}");
     }
 
     private static void Play(GameEngine game, LegalAction action)

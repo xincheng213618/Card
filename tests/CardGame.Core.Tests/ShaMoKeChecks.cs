@@ -97,6 +97,26 @@ internal static class ShaMoKeChecks
         Require(completed == 1, "No seeded setup exercised two Jili uses in one turn.");
     }
 
+    public static void FirstResponseDuringForeignTurnDrawsAndReplays()
+    {
+        var registry = Registry();
+        var completed = 0;
+        for (var seed = 1; seed <= 400 && completed < 1; seed++)
+        {
+            var game = Start(registry, seed);
+            if (!DriveToFirstJiliPrompt(game)) continue;
+            Activate(game, Jili);
+            DrivePlayResolution(game);
+            Require(JiliDraws(game) == 1,
+                "The range-one first response in a foreign turn must draw exactly one card.");
+            var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+            Require(Events(game).SequenceEqual(Events(replay)) && State(game) == State(replay),
+                "The Jili response draw must replay identically.");
+            completed++;
+        }
+        Require(completed == 1, "No seeded setup let Sha Mo Ke respond during a foreign turn.");
+    }
+
     private static int JiliDraws(GameEngine game) => game.CardMovements.Count(item =>
         item.To == CardLocation.Hand(0) &&
         item.Reason.Value.Contains(Jili, StringComparison.Ordinal));
@@ -134,6 +154,59 @@ internal static class ShaMoKeChecks
                     continue;
             }
         }
+    }
+
+    private static bool DriveToFirstJiliPrompt(GameEngine game)
+    {
+        for (var step = 0; step < 3_000 && game.State.Status != EngineStatus.Completed; step++)
+        {
+            var prompt = game.PendingDecision;
+            if (prompt is null)
+            {
+                Advance(game);
+                continue;
+            }
+            if (prompt.Kind == DecisionKind.ProgramTrigger &&
+                prompt.SkillPrompt?.SkillId == Jili && prompt.PlayerSeat == 0)
+                return true;
+            if (prompt.PlayerSeat != 0)
+            {
+                Advance(game);
+                continue;
+            }
+            switch (prompt.Kind)
+            {
+                case DecisionKind.PlayCard:
+                    Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision, prompt.PromptId)));
+                    continue;
+                case DecisionKind.RespondDodge:
+                case DecisionKind.RespondSlash:
+                    {
+                        var answer = prompt.Choices.FirstOrDefault(choice =>
+                            choice.Parameters.GetValueOrDefault("response") == "dodge" ||
+                            choice.Parameters.GetValueOrDefault("response") == "slash");
+                        if (answer is null) return false;
+                        Answer(game, answer);
+                        continue;
+                    }
+                case DecisionKind.DiscardCards:
+                    Accept(game.Submit(new DiscardCardsCommand(0,
+                        prompt.ValidCardIds.Take(prompt.RequiredCardCount).ToArray(),
+                        prompt.PromptId, game.Revision)));
+                    continue;
+                default:
+                    var choice = prompt.Choices.FirstOrDefault(item =>
+                        item.Parameters.GetValueOrDefault("program-action") == "skip") ??
+                        prompt.Choices.FirstOrDefault(item =>
+                            item.Parameters.GetValueOrDefault("response") == "take-damage") ??
+                        prompt.Choices.FirstOrDefault(item =>
+                            item.Parameters.GetValueOrDefault("response") == "pass") ??
+                        prompt.Choices.First();
+                    Answer(game, choice);
+                    continue;
+            }
+        }
+        return false;
     }
 
     private static ContentRegistry Registry() => ContentRegistry.Build(

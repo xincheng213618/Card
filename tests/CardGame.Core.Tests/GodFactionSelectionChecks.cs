@@ -90,6 +90,67 @@ internal static class GodFactionSelectionChecks
             "The automatic god-faction choice did not replay exactly.");
     }
 
+    internal static void EffectiveFactionFeedsConfiguredLordSkill()
+    {
+        var registry = CreateRegistry();
+        for (var seed = 1; seed <= 4_096; seed++)
+        {
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                Seed = seed,
+                PlayerCount = 4,
+                ModeId = ModeId,
+                HumanSeat = 0,
+                HumanRole = Role.Loyalist,
+                UseInteractiveSetup = true,
+                UseInteractiveDiscard = false,
+                AdvanceAfterHumanCommands = false,
+                AiPolicyVersion = 2,
+                MaxTurns = 30
+            }, registry);
+            Require(game.Submit(new StartGameCommand()).Accepted,
+                "The effective-faction fixture could not start.");
+
+            for (var step = 0; step < 32; step++)
+            {
+                if (game.PendingDecision is { Kind: DecisionKind.SelectGeneral, PlayerSeat: 0 } selection)
+                {
+                    if (!selection.ValidContentIds.Contains(GodGeneralId, StringComparer.Ordinal)) break;
+                    var selected = game.Submit(new SelectGeneralCommand(
+                        0, GodGeneralId, game.Revision, selection.PromptId));
+                    Require(selected.Accepted, selected.Error?.Message ?? "The god provider could not be selected.");
+                    continue;
+                }
+                if (game.PendingDecision is { Kind: DecisionKind.SelectFaction, PlayerSeat: 0 } &&
+                    game.CreateSnapshot(0, revealAll: true).Players.Any(player =>
+                        player.Role == Role.Lord && player.GeneralId == LordGeneralId))
+                {
+                    var checkpoint = RoundTrip(game.CreateCheckpoint());
+                    var qun = GameReplay.Restore(checkpoint, registry);
+                    var wei = GameReplay.Restore(checkpoint, registry);
+                    ChooseFaction(qun, qun.PendingDecision!.Choices.Single(choice =>
+                        choice.Parameters.GetValueOrDefault("faction-id") == "qun"));
+                    ChooseFaction(wei, wei.PendingDecision!.Choices.Single(choice =>
+                        choice.Parameters.GetValueOrDefault("faction-id") == "wei"));
+                    if (!TryAdvanceToHumanPlay(qun) || !TryAdvanceToHumanPlay(wei)) break;
+
+                    if (HasClassicHuangtianContribution(qun.PendingDecision!) &&
+                        !HasClassicHuangtianContribution(wei.PendingDecision!))
+                    {
+                        return;
+                    }
+                    break;
+                }
+
+                var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
+                if (!advanced.Accepted) break;
+            }
+        }
+
+        throw new InvalidOperationException(
+            "No bounded scenario proved that a chosen Qun faction feeds the configured Huangtian contribution.");
+    }
+
     private static bool HasClassicHuangtianContribution(PendingDecision prompt) =>
         prompt.Choices.Any(choice =>
             choice.Parameters.GetValueOrDefault("action") == "use-program-skill" &&

@@ -104,6 +104,44 @@ internal static class TargetCardChecks
             "An AI target-card thought included a hidden card id.");
     }
 
+    public static void AiUsesOpaqueSlots()
+    {
+        for (var seed = 1; seed <= 256; seed++)
+        {
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                Seed = seed,
+                PlayerCount = 5,
+                HumanSeat = -1,
+                HumanRole = null,
+                UseInteractiveSetup = true,
+                AiPolicyVersion = 2,
+                MaxTurns = 120
+            }, StandardContentRegistry.Create());
+            True(game.Submit(new StartGameCommand()).Accepted, "AI target-card fixture failed to start.");
+            var request = game.Events.Select(item => item.Payload)
+                .OfType<TargetCardSelectionRequestedEvent>()
+                .FirstOrDefault();
+            if (request is null) continue;
+
+            var outcome = game.Events.Select(item => item.Payload)
+                .FirstOrDefault(payload =>
+                    payload is TargetCardDiscardedEvent discarded && discarded.ResolutionId == request.ResolutionId ||
+                    payload is TargetCardTakenEvent taken && taken.ResolutionId == request.ResolutionId);
+            True(outcome is not null, "AI target-card choice did not reach a typed result.");
+            var thought = game.AiThoughts.FirstOrDefault(item =>
+                item.Summary.Contains("不透明牌位", StringComparison.Ordinal));
+            True(thought is not null, "AI target-card choice did not record its opaque-slot reasoning.");
+            True(thought!.Candidates.All(candidate =>
+                candidate.Action.CardId is null &&
+                candidate.Action.TargetSeat == request.TargetSeat &&
+                candidate.Reason.Contains("不可见", StringComparison.Ordinal)));
+            return;
+        }
+
+        throw new InvalidOperationException("Could not find an AI target-card slot fixture.");
+    }
+
     private static (GameEngine Game, LegalAction Action) FindHumanFixture()
     {
         for (var seed = 1; seed <= 1_024; seed++)

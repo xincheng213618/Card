@@ -21,7 +21,7 @@ internal static class ZhuZhiChecks
                 general.SkillIds.SequenceEqual([SkillId]) &&
                 registry.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId) &&
                 registry.Modes["identity:classic-8"].GeneralPoolIds!.Contains(GeneralId) &&
-                skill.Program is { RuntimeVersion: SkillProgramCatalog.RuntimeVersion, MinimumRulesVersion: 172 } &&
+                skill.Program is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 172 } &&
                 skill.Program.Activations.Single() is { UsesPerPhase: 1, MinTargets: 0, MaxTargets: 0 } &&
                 (int)SkillProgramConditionKind.AttackRangeCoverageDecreased == 22,
             "Zhu Zhi must be a formal Wu/Fame V general with phase-limited schema-55 Anguo.");
@@ -91,9 +91,215 @@ internal static class ZhuZhiChecks
             "Anguo must not be usable twice in one Play phase.");
     }
 
+    public static void AnguoAwaitsXiaojiBeforeDrawing()
+    {
+        var (game, registry) = Create("classic:qilin-bow", xiaojiTargets: true);
+        ReachNextPlayAfterAiEquips(game);
+        var selectedSeat = game.CreateCardZoneDiagnostics()
+            .Where(card => card.Location.Zone == CardZoneKind.Equipment && card.Location.OwnerSeat is > 0)
+            .Select(card => card.Location.OwnerSeat!.Value).First();
+        var zones = (CardZoneStore)typeof(GameEngine)
+            .GetField("_cardZones", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
+        var nextThreeIds = zones.CardsAt(CardLocation.DrawPile).TakeLast(3)
+            .Reverse().Select(card => card.Id).ToArray();
+        Accept(game.Submit(new UseProgramSkillCommand(0, SkillId, "return-equipment", [], [],
+            game.Revision, game.PendingDecision!.PromptId)));
+        AnswerTarget(game, selectedSeat);
+        Answer(game, RequirePrompt(game).Choices.First());
+        var internalPrompt = (PendingDecision?)typeof(GameEngine)
+            .GetField("_pendingDecision", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game);
+        Require(internalPrompt is { Kind: DecisionKind.ProgramTrigger } &&
+                game.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>()
+                    .Any(window => window.Batch.AwaitingProgramFrameId is not null) &&
+                game.ResolutionStack.OfType<ProgramSkillFrame>()
+                    .Any(frame => frame.PendingMovementContinuation is not null) &&
+                game.CardMovements.All(move => move.Reason.Value != $"skill-program.{SkillId}.Draw"),
+            "Anguo must remain paused inside the scoped Xiaoji movement window before its own draw.");
+        var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+        for (var i = 0; i < 30 && game.ResolutionStack.OfType<ProgramSkillFrame>()
+                 .Any(frame => frame.SkillId == SkillId); i++)
+        {
+            Advance(game);
+            Advance(replay);
+        }
+        var xiaojiDraw = game.CardMovements.Select((move, index) => (move, index))
+            .Where(item => item.move.Reason.Value == "skill-program.classic:xiaoji.Draw")
+            .Select(item => item.index).ToArray();
+        var anguoDraw = game.CardMovements.Select((move, index) => (move, index))
+            .Where(item => item.move.Reason.Value == $"skill-program.{SkillId}.Draw")
+            .Select(item => item.index).ToArray();
+        var actualDrawIds = game.CardMovements
+            .Where(move => move.Reason.Value == "skill-program.classic:xiaoji.Draw" ||
+                move.Reason.Value == $"skill-program.{SkillId}.Draw")
+            .Select(move => move.CardId).ToArray();
+        Require(xiaojiDraw.Length >= 2 && anguoDraw.Length == 1 &&
+                xiaojiDraw[^1] < anguoDraw[0] && State(game) == State(replay) &&
+                Events(game).SequenceEqual(Events(replay)) &&
+                actualDrawIds.SequenceEqual(nextThreeIds),
+            "Xiaoji must draw two through its nested response before Anguo tests coverage and draws one, with replay.");
+    }
+
+    public static void AnguoMeasuresAfterNestedRangeResponse()
+    {
+        var (game, registry) = Create("classic:qilin-bow", rangeRescueTargets: true);
+        ReachNextPlayAfterAiEquips(game);
+        var selectedSeat = game.CreateCardZoneDiagnostics()
+            .Where(card => card.Location.Zone == CardZoneKind.Equipment && card.Location.OwnerSeat is > 0)
+            .Select(card => card.Location.OwnerSeat!.Value).First();
+        var before = CountCoverage(game, selectedSeat);
+        Require(before > 2, "The fixture weapon must initially extend coverage.");
+        Accept(game.Submit(new UseProgramSkillCommand(0, SkillId, "return-equipment", [], [],
+            game.Revision, game.PendingDecision!.PromptId)));
+        AnswerTarget(game, selectedSeat);
+        Answer(game, RequirePrompt(game).Choices.First());
+        Require(game.Events.Any(item => item.Payload is TurnRuleModifierGrantedEvent granted &&
+                    granted.Modifier.Source.SkillId == "fixture:range-rescue") &&
+                CountCoverage(game, selectedSeat) == before &&
+                game.CardMovements.All(move => move.Reason.Value != $"skill-program.{SkillId}.Draw"),
+            "A nested equipment-loss response must restore coverage before Anguo decides whether to draw.");
+        var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+        Require(State(game) == State(replay) && Events(game).SequenceEqual(Events(replay)),
+            "The nested public range response must replay without an extra Anguo draw.");
+    }
+
+    public static void AnguoCountsLivingCoverageRatherThanPrintedRange()
+    {
+        foreach (var (cardId, expectedDecline) in new[]
+                 {
+                     ("standard:crossbow", false),
+                     ("standard:defensive_horse", false),
+                     ("standard:offensive_horse", true),
+                     ("classic:silver-lion", false)
+                 })
+        {
+            var (game, _) = Create(cardId);
+            ReachNextPlayAfterAiEquips(game);
+            var equipped = game.CreateCardZoneDiagnostics().First(card =>
+                card.Location.Zone == CardZoneKind.Equipment && card.Location.OwnerSeat is > 0);
+            var seat = equipped.Location.OwnerSeat!.Value;
+            var before = CountCoverage(game, seat);
+            Accept(game.Submit(new UseProgramSkillCommand(0, SkillId, "return-equipment", [], [],
+                game.Revision, game.PendingDecision!.PromptId)));
+            AnswerTarget(game, seat);
+            Answer(game, RequirePrompt(game).Choices.First());
+            var after = CountCoverage(game, seat);
+            var drew = game.CardMovements.Count(move => move.Reason.Value == $"skill-program.{SkillId}.Draw");
+            Require((after < before) == expectedDecline && drew == (expectedDecline ? 1 : 0),
+                $"Anguo must compare living-seat coverage for {cardId}, before={before}, after={after}, drew={drew}.");
+        }
+    }
+
+    public static void AnguoDoesNotDrawWhenRangeFallsButCoverageStays()
+    {
+        var (game, _) = Create("classic:qilin-bow", rangePlusTwoTargets: true);
+        ReachNextPlayAfterAiEquips(game);
+        var seat = game.CreateCardZoneDiagnostics().First(card =>
+            card.Location.Zone == CardZoneKind.Equipment && card.Location.OwnerSeat is > 0)
+            .Location.OwnerSeat!.Value;
+        var beforeRange = game.GetAttackRange(seat);
+        var beforeCoverage = CountCoverage(game, seat);
+        Accept(game.Submit(new UseProgramSkillCommand(0, SkillId, "return-equipment", [], [],
+            game.Revision, game.PendingDecision!.PromptId)));
+        AnswerTarget(game, seat);
+        Answer(game, RequirePrompt(game).Choices.First());
+        Require(game.GetAttackRange(seat) < beforeRange &&
+                CountCoverage(game, seat) == beforeCoverage &&
+                game.CardMovements.All(move => move.Reason.Value != $"skill-program.{SkillId}.Draw"),
+            "Printed attack range can fall without reducing any living target coverage; Anguo must not draw.");
+    }
+
+    public static void GenericCoverageBindingSupportsDiscardAndRecover()
+    {
+        var (game, _) = Create("classic:qilin-bow", syntheticDiscardOwner: true);
+        ReachNextPlayAfterAiEquips(game);
+        var seat = game.CreateCardZoneDiagnostics().First(card =>
+            card.Location.Zone == CardZoneKind.Equipment && card.Location.OwnerSeat is > 0)
+            .Location.OwnerSeat!.Value;
+        var players = (IReadOnlyList<CharacterState>)typeof(GameEngine)
+            .GetField("_players", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
+        players[0].Hp = 3; // Explicit fixture damage; main Anguo replay tests use commands only.
+        Accept(game.Submit(new UseProgramSkillCommand(0, SyntheticSkillId, "return-equipment", [], [],
+            game.Revision, game.PendingDecision!.PromptId)));
+        AnswerTarget(game, seat);
+        Answer(game, RequirePrompt(game).Choices.First());
+        Require(game.CardMovements.Any(move => move.Reason.Value ==
+                    $"skill-program.{SyntheticSkillId}.SelectAndMoveOwnedCard" &&
+                    move.From == CardLocation.Equipment(seat) && move.To == CardLocation.DiscardPile) &&
+                players[0].Hp == 4,
+            "A different skill ID must bind public coverage after equipment-to-discard and conditionally recover.");
+    }
+
+    public static void AnguoCancelsWhenNestedMovementKillsSubject()
+    {
+        var (game, _) = Create("classic:qilin-bow", lethalLossTargets: true);
+        ReachNextPlayAfterAiEquips(game);
+        var seat = game.CreateCardZoneDiagnostics().First(card =>
+            card.Location.Zone == CardZoneKind.Equipment && card.Location.OwnerSeat is > 0)
+            .Location.OwnerSeat!.Value;
+        var players = (IReadOnlyList<CharacterState>)typeof(GameEngine)
+            .GetField("_players", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
+        players[seat].Hp = 1; // Explicit lethal fixture; no Replay claim for injected setup.
+        Accept(game.Submit(new UseProgramSkillCommand(0, SkillId, "return-equipment", [], [],
+            game.Revision, game.PendingDecision!.PromptId)));
+        AnswerTarget(game, seat);
+        Answer(game, RequirePrompt(game).Choices.First());
+        for (var i = 0; i < 100 && game.ResolutionStack.OfType<ProgramSkillFrame>()
+                 .Any(frame => frame.SkillId == SkillId); i++) Advance(game);
+        Require(!players[seat].IsAlive &&
+                game.ResolutionStack.OfType<ProgramSkillFrame>().All(frame => frame.SkillId != SkillId) &&
+                game.CardMovements.All(move => move.Reason.Value != $"skill-program.{SkillId}.Draw"),
+            "A lethal nested movement response must cancel the waiting coverage result and avoid an Anguo draw.");
+    }
+
+    public static void AnguoPreservesImmediateEquipmentRemovalHooks()
+    {
+        var (lion, _) = Create("classic:silver-lion");
+        const int lionSeat = 1;
+        EquipFixtureCard(lion, lionSeat, CardKind.SilverLion);
+        var players = (IReadOnlyList<CharacterState>)typeof(GameEngine)
+            .GetField("_players", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(lion)!;
+        players[lionSeat].Hp = 3; // Wound is an explicit fixture injection; command-path tests cover Replay.
+        Accept(lion.Submit(new UseProgramSkillCommand(0, SkillId, "return-equipment", [], [],
+            lion.Revision, lion.PendingDecision!.PromptId)));
+        AnswerTarget(lion, lionSeat);
+        Answer(lion, RequirePrompt(lion).Choices.First());
+        Require(players[lionSeat].Hp == 4 &&
+                lion.Events.Any(item => item.Payload is SilverLionRemovedRecoveryEvent) &&
+                lion.CardMovements.All(move => move.Reason.Value != $"skill-program.{SkillId}.Draw"),
+            "Returning Silver Lion must run its immediate recovery and still avoid a false Anguo draw.");
+
+        var (ox, _) = Create("classic:wooden-ox");
+        const int oxSeat = 1;
+        EquipFixtureCard(ox, oxSeat, CardKind.WoodenOx);
+        var grainId = ox.CreateSnapshot(0, revealAll: true).Players[oxSeat].Hand.First().Id;
+        var zones = typeof(GameEngine).GetField("_cardZones", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .GetValue(ox)!;
+        zones.GetType().GetMethod("Move")!.Invoke(zones,
+            [grainId, CardLocation.Hand(oxSeat), CardLocation.WoodenOxGrain(oxSeat)]);
+        Accept(ox.Submit(new UseProgramSkillCommand(0, SkillId, "return-equipment", [], [],
+            ox.Revision, ox.PendingDecision!.PromptId)));
+        AnswerTarget(ox, oxSeat);
+        Answer(ox, RequirePrompt(ox).Choices.First());
+        Require(ox.CardMovements.Any(move => move.CardId == grainId &&
+                    move.From == CardLocation.WoodenOxGrain(oxSeat) &&
+                    move.To == CardLocation.DiscardPile &&
+                    move.Reason == CardMoveReasons.WoodenOxGrainDiscard) &&
+                ox.CardMovements.All(move => move.Reason.Value != $"skill-program.{SkillId}.Draw"),
+            "Returning Wooden Ox through Processing must discard stored grain through the synchronous hook.");
+    }
+
     private static int CountCoverage(GameEngine game, int seat) =>
         Enumerable.Range(0, 4).Count(target => target != seat &&
             game.State.Players[target].IsAlive && game.GetCombatDistance(seat, target) <= game.GetAttackRange(seat));
+
+    private static void EquipFixtureCard(GameEngine game, int seat, CardKind kind)
+    {
+        var card = game.CreateCardZoneDiagnostics().First(item =>
+            item.CardKind == kind && item.Location == CardLocation.DrawPile);
+        var zones = (CardZoneStore)typeof(GameEngine)
+            .GetField("_cardZones", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
+        _ = zones.Move(card.CardId, card.Location, CardLocation.Equipment(seat));
+    }
 
     private static (GameEngine Game, ContentRegistry Registry) Create(string equipmentCardId,
         bool xiaojiTargets = false, bool rangeRescueTargets = false,

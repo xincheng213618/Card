@@ -8,8 +8,80 @@ internal static class MaDaiChecks
     private const string GeneralId = "classic:ma-dai";
     private const string SkillId = "classic:qianxi";
 
+    public static void ContentPromptAndRulesBoundary()
+    {
+        var current = StandardContentRegistry.CreateWithClassicGenerals();
+        Require(current.Packages.Any(package =>
+                    package.Id == "standard-classic-generals" &&
+                    package.Version == StandardClassicGeneralPackage.CurrentVersion) &&
+                current.Generals[GeneralId] is
+                {
+                    FactionId: "shu",
+                    BaseHp: 4,
+                    PortraitKey: "ma_dai",
+                    SkillIds: var skillIds
+                } && skillIds.SequenceEqual(["classic:mashu", SkillId]) &&
+                current.Skills[SkillId] is
+                {
+                    Tags: SkillTag.None,
+                    ExecutionForms: SkillExecutionForm.State | SkillExecutionForm.Trigger,
+                    ActionForms: SkillActionForm.None,
+                    Program.RuntimeVersion: "skill-program-v62",
+                    Program.MinimumRulesVersion: 172
+                } skill &&
+                skill.Program.Triggers.Single() is
+                {
+                    Window: SkillProgramTriggerWindow.TurnStartBeforeNormalFlow,
+                    Optional: true
+                } &&
+                skill.Description ==
+                "准备阶段开始时，你可以摸一张牌然后弃置一张牌。若如此做，你选择距离为1的一名其他角色，然后直到回合结束，该角色不能使用或打出与你以此法弃置的牌颜色相同的手牌。",
+            "Current Ma Dai must publish Qianxi with its printed text and program.");
+
+        var fixture = FindFixture(CardColor.Red, stopAfterPaymentPrompt: false);
+        var game = fixture.Game;
+        var prompt = RequireQianxiPrompt(game);
+        Require(prompt.IsPrivate &&
+                prompt.Choices.Count == 2 &&
+                prompt.Choices.Select(choice => choice.Parameters.GetValueOrDefault("program-action"))
+                    .Order(StringComparer.Ordinal)
+                    .SequenceEqual(new[] { "activate", "skip" }) &&
+                prompt.SkillPrompt is { SkillId: SkillId, Title: "潜袭 · 是否发动" },
+            "Qianxi must begin on the shared private program-trigger surface.");
+
+        var beforeRevision = game.Revision;
+        var beforeState = SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true));
+        var forged = game.Submit(new AnswerPromptCommand(
+            0,
+            prompt.PromptId,
+            new ChoiceId("qianxi.forged"),
+            game.Revision));
+        Require(!forged.Accepted &&
+                game.Revision == beforeRevision &&
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) == beforeState,
+            "A forged Qianxi program branch must be rejected atomically.");
+
+        var restored = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
+        Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) == beforeState &&
+                IsQianxiPrompt(restored.PendingDecision),
+            "A paused Qianxi program offer must replay exactly.");
+
+        var handBefore = game.CreateSnapshot(0, revealAll: true).Players[0].HandCount;
+        AnswerProgramAction(game, "skip");
+        ReachHumanPlay(game);
+        Require(game.CreateSnapshot(0, revealAll: true).Players[0].HandCount == handBefore + 2 &&
+                game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                    .Any(item => item.SkillId == SkillId && !item.Activated && !item.Completed) &&
+                ActiveQianxiRestrictions(game).Count == 0,
+            "Skipping Qianxi must continue with normal drawing and create no turn restriction.");
+
+    }
+
     public static void RedRestrictionFiltersHandResponsesAndReplays() =>
         VerifyColorRestriction(CardColor.Red);
+
+    public static void BlackRestrictionFiltersHandResponsesAndExpires() =>
+        VerifyColorRestriction(CardColor.Black);
 
     private static void VerifyColorRestriction(CardColor restrictedColor)
     {

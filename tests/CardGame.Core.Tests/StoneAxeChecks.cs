@@ -88,6 +88,50 @@ internal static class StoneAxeChecks
 
     }
 
+    public static void AiUsesPrivatePublishedChoices()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        GameEngine? witnessed = null;
+        for (var seed = 1; seed <= 48 && witnessed is null; seed++)
+        {
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                Seed = seed,
+                HumanSeat = -1,
+                HumanRole = null,
+                PlayerCount = 5,
+                ModeId = "identity:classic-5",
+                UseInteractiveSetup = false,
+                UseInteractiveDiscard = false,
+                AdvanceAfterHumanCommands = false,
+                MaxTurns = 220,
+                AiPolicyVersion = 2
+            }, registry);
+            Require(game.Submit(new StartGameCommand()).Accepted,
+                "AI Stone Axe fixture failed to start.");
+            for (var step = 0; step < 16_000 && game.State.Status != EngineStatus.Completed; step++)
+            {
+                var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
+                Require(advanced.Accepted,
+                    advanced.Error?.Message ?? "AI Stone Axe fixture failed to finish.");
+            }
+            Require(game.State.Status == EngineStatus.Completed,
+                "AI Stone Axe fixture exceeded its bounded step budget.");
+            if (game.Events.Any(item => item.Payload is StoneAxeResolvedEvent))
+            {
+                witnessed = game;
+            }
+        }
+
+        Require(witnessed is not null,
+            "No bounded AI match reached a Stone Axe decision.");
+        Require(witnessed!.State.Status == EngineStatus.Completed &&
+                witnessed.AiThoughts.Any(thought => thought.Decision.Contains("贯石斧", StringComparison.Ordinal)),
+            "AI Stone Axe must finish through an explainable private-choice decision.");
+        var replayed = GameReplay.Restore(RoundTrip(witnessed.CreateCheckpoint()), registry);
+        Require(State(replayed) == State(witnessed) && Events(replayed).SequenceEqual(Events(witnessed)),
+            "An AI Stone Axe match must replay exactly.");
+    }
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
         GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint));

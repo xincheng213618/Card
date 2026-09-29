@@ -14,7 +14,7 @@ internal static class SkillProgramCardIdentityChecks
         var program = SkillProgramCatalog.Load(Rules, Presentation).Programs[ProgramId];
         var identity = program.CardIdentities.Single();
         var distance = program.Modifiers.Single();
-        Require(program is { RuntimeVersion: SkillProgramCatalog.RuntimeVersion, MinimumRulesVersion: 171 } &&
+        Require(program is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 171 } &&
                 identity is
                 {
                     Id: IdentityId,

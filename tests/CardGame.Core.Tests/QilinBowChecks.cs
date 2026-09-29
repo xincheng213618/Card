@@ -115,6 +115,51 @@ internal static class QilinBowChecks
 
     }
 
+    public static void AiUsesPublicMountChoices()
+    {
+        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        GameEngine? witnessed = null;
+        for (var seed = 1; seed <= 64 && witnessed is null; seed++)
+        {
+            var game = GameEngine.CreateStandard(new GameOptions
+            {
+                Seed = seed,
+                HumanSeat = -1,
+                HumanRole = null,
+                PlayerCount = 5,
+                ModeId = "identity:classic-5",
+                UseInteractiveSetup = false,
+                UseInteractiveDiscard = false,
+                AdvanceAfterHumanCommands = false,
+                MaxTurns = 220,
+                AiPolicyVersion = 2
+            }, registry);
+            Require(game.Submit(new StartGameCommand()).Accepted,
+                "AI Qilin Bow fixture failed to start.");
+            for (var step = 0; step < 16_000 && game.State.Status != EngineStatus.Completed; step++)
+            {
+                var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
+                Require(advanced.Accepted,
+                    advanced.Error?.Message ?? "AI Qilin Bow fixture failed to finish.");
+            }
+            Require(game.State.Status == EngineStatus.Completed,
+                "AI Qilin Bow fixture exceeded its bounded step budget.");
+            if (game.Events.Any(item => item.Payload is QilinBowResolvedEvent))
+            {
+                witnessed = game;
+            }
+        }
+
+        Require(witnessed is not null,
+            "No bounded AI match reached a Qilin Bow decision.");
+        Require(witnessed!.AiThoughts.Any(thought =>
+                thought.Summary.Contains("麒麟弓", StringComparison.Ordinal)),
+            "AI Qilin Bow must resolve through an explainable public-mount choice.");
+        var replayed = GameReplay.Restore(RoundTrip(witnessed.CreateCheckpoint()), registry);
+        Require(State(replayed, 0) == State(witnessed, 0) &&
+                Events(replayed).SequenceEqual(Events(witnessed)),
+            "An AI Qilin Bow match must replay exactly.");
+    }
 
     private static bool IsDiscard(PromptChoice choice) =>
         choice.Parameters.GetValueOrDefault("action") == "qilin-bow-discard";

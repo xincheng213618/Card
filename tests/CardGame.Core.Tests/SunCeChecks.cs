@@ -125,6 +125,113 @@ internal static class SunCeChecks
         Require(completed == 1, "No seeded setup produced a Jiang duel-use draw.");
     }
 
+    public static void JiangDrawsWhenTargetedButNotOnBlackSlash()
+    {
+        TargetedDraw();
+        BlackSlashUseDoesNotDraw();
+    }
+
+    private static void TargetedDraw()
+    {
+        var registry = Registry();
+        var completed = 0;
+        for (var seed = 1; seed <= 250 && completed < 1; seed++)
+        {
+            var game = Start(registry, seed);
+            ReachPlay(game);
+            EndPlay(game);
+            DriveUntil(game, () => false, stopAtSkills: [Jiang]);
+            if (game.State.Status == EngineStatus.Completed ||
+                !IsProgramPrompt(game, Jiang))
+                continue;
+            var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+            Activate(game, Jiang);
+            Activate(replay, Jiang);
+            DriveUntil(game, () => game.ResolutionStack.Count == 0);
+            DriveUntil(replay, () => replay.ResolutionStack.Count == 0);
+            Require(Events(game).SequenceEqual(Events(replay)) &&
+                    State(game) == State(replay),
+                "The targeted Jiang draw must replay identically from the paused checkpoint.");
+            Require(game.CardMovements.Count(item => item.To == CardLocation.Hand(0) &&
+                        item.Reason.Value.Contains(Jiang, StringComparison.Ordinal)) == 1,
+                "Being targeted by a duel or red slash must draw exactly one card via Jiang.");
+            completed++;
+        }
+        Require(completed == 1, "No seeded setup produced a targeted Jiang draw.");
+    }
+
+    private static void BlackSlashUseDoesNotDraw()
+    {
+        var registry = Registry();
+        var completed = 0;
+        for (var seed = 1; seed <= 250 && completed < 1; seed++)
+        {
+            var game = Start(registry, seed);
+            ReachPlay(game);
+            var hand = game.CreateSnapshot(0, true).Players[0].Hand;
+            var blackSlash = game.GetHumanLegalActions().FirstOrDefault(action =>
+                action.Kind == LegalActionKind.Slash &&
+                hand.Any(card => card.Id == action.CardId &&
+                    card.Suit is Suit.Spade or Suit.Club));
+            if (blackSlash is null) continue;
+            var beforeEvents = game.Events.Count;
+            Play(game, blackSlash);
+            DriveUntil(game, () => game.ResolutionStack.Count == 0);
+            if (game.State.Status == EngineStatus.Completed) continue;
+            Require(game.Events.Skip(beforeEvents).Select(item => item.Payload)
+                    .OfType<ProgramBindingStartedEvent>()
+                    .All(item => item.SkillId != Jiang),
+                "Using a black slash must not bind Jiang.");
+            completed++;
+        }
+        Require(completed == 1, "No seeded setup produced a black-slash use.");
+    }
+
+    public static void HunziAwakensGrantsSkillsAndReplays()
+    {
+        var registry = Registry();
+        var completed = 0;
+        for (var seed = 1; seed <= 250 && completed < 1; seed++)
+        {
+            var game = Start(registry, seed);
+            ReachPlay(game);
+            EndPlay(game);
+            DriveUntil(game, () => IsAwakened(game));
+            if (!IsAwakened(game)) continue;
+            var awakened = game.Events.Select(item => item.Payload)
+                .OfType<SkillAwakenedEvent>()
+                .Single(item => item.SkillId == Hunzi);
+            Require(awakened.PlayerSeat == 0 && awakened.MaximumHp == 4 &&
+                    awakened.AcquiredSkillIds.SequenceEqual([Yingzi, Yinghun]),
+                "Hunzi must reduce the lord's five maximum HP to four and grant Yingzi and Yinghun.");
+            var skills = game.CreateSnapshot(0, true).Players[0].Skills!
+                .Select(item => item.ContentId).ToArray();
+            Require(skills.Contains(Yingzi) && skills.Contains(Yinghun),
+                "The awakened Sun Ce must own the granted Yingzi and Yinghun skills.");
+            var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+            Require(Events(game).SequenceEqual(Events(replay)) &&
+                    State(game) == State(replay),
+                "The Hunzi awakening must replay identically from the paused checkpoint.");
+            // The granted Yinghun must prompt at the wounded owner's next turn start.
+            DriveUntil(game, () => false, stopAtSkills: [Yinghun]);
+            if (game.State.Status == EngineStatus.Completed ||
+                !IsProgramPrompt(game, Yinghun))
+                continue;
+            // The granted Yingzi must offer its extra draw in the following draw phase.
+            DriveUntil(game, () => false, stopAtSkills: [Yingzi]);
+            if (game.State.Status == EngineStatus.Completed ||
+                !IsProgramPrompt(game, Yingzi))
+                continue;
+            Activate(game, Yingzi);
+            DriveUntil(game, () => game.ResolutionStack.Count == 0);
+            Require(game.CardMovements.Count(item => item.To == CardLocation.Hand(0) &&
+                        item.Reason.Value.Contains(Yingzi, StringComparison.Ordinal)) == 1,
+                "The granted Yingzi must draw exactly one extra card in the draw phase.");
+            completed++;
+        }
+        Require(completed == 1, "No seeded setup awakened Hunzi with the granted skills live.");
+    }
+
     private static bool IsAwakened(GameEngine game) =>
         game.CreateSnapshot(0, true).Players[0].MaxHp == 4;
 
@@ -233,6 +340,14 @@ internal static class SunCeChecks
             Advance(game);
         Require(game.PendingDecision?.Kind == DecisionKind.PlayCard,
             "Sun Ce fixture did not reach Play.");
+    }
+
+    private static void EndPlay(GameEngine game)
+    {
+        var prompt = game.PendingDecision;
+        Require(prompt is { Kind: DecisionKind.PlayCard, PlayerSeat: 0 },
+            "Sun Ce fixture lost the play decision before ending the phase.");
+        Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision, prompt!.PromptId)));
     }
 
     private static void Advance(GameEngine game)
