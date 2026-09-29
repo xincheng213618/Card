@@ -1060,6 +1060,7 @@ internal static class ClassicGeneralChecks
                     Kind: DecisionKind.ProgramTrigger,
                     PlayerSeat: 0,
                     IsPrivate: true,
+                    SkillPrompt.SkillId: "classic:jizhi",
                     Choices.Count: 2
                 } &&
                 game.CreateSnapshot(1).PendingDecision is null &&
@@ -4128,7 +4129,8 @@ internal static class ClassicGeneralChecks
             "classic:yiji",
             "classic:jieming",
             "standard:yuanhu",
-            "classic:ganglie"
+            "classic:ganglie",
+            "classic:tianxiang"
         };
         for (var seed = 1; seed <= 16_384; seed++)
         {
@@ -5092,6 +5094,20 @@ internal static class ClassicGeneralChecks
             {
                 continue;
             }
+
+            // Seed trial: the paused prompt must be the Tieqi activation itself. New-table
+            // generals can open an intervening prompt for seat 0 first (e.g. a locked
+            // Xiangle-style choose-option when the Slash target carries one); such seeds are
+            // discarded instead of being probed with the Tieqi choices.
+            if (prompt.PlayerSeat != 0 ||
+                prompt.TargetSeat != targetSeat ||
+                prompt.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("program-action") == "activate") != true ||
+                prompt.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("program-action") == "skip") != true)
+            {
+                continue;
+            }
             tieqiPrompts++;
 
             var probe = GameReplay.Restore(game.CreateCheckpoint(), registry);
@@ -5107,12 +5123,53 @@ internal static class ClassicGeneralChecks
                 continue;
             }
 
-            var judgment = probe.Events.Select(item => item.Payload)
-                .OfType<JudgmentResolvedEvent>()
-                .LastOrDefault(item => item.Reason == "skill.slash-response-judgment");
+            var probeEvents = probe.Events.Select(item => item.Payload).ToArray();
+            if (probeEvents.OfType<ProgramBindingResolvedEvent>().Any(resolved =>
+                    resolved.OwnerSeat == 0 && resolved.SkillId == "classic:tieqi" &&
+                    resolved.Activated && resolved.Completed) != true)
+            {
+                continue;
+            }
+
+            var judgment = probeEvents.OfType<JudgmentResolvedEvent>()
+                .LastOrDefault(item => item.Reason == "skill.slash-response-judgment" &&
+                                       item.TargetSeat == 0);
             if (judgment is not null) resolvedJudgments++;
-            if (judgment is not null &&
-                (judgment.Suit is Suit.Heart or Suit.Diamond) == requireRedJudgment)
+            if (judgment is null || (judgment.Suit is Suit.Heart or Suit.Diamond) != requireRedJudgment)
+            {
+                continue;
+            }
+
+            var dodgeRequested = probeEvents.OfType<ResponseRequestedEvent>().Any(requested =>
+                requested.TargetSeat == targetSeat && requested.RequiredCardKind == CardKind.Dodge);
+            var damageApplied = probeEvents.OfType<DamageAppliedEvent>().Any(damage =>
+                damage.TargetSeat == targetSeat);
+            if (requireRedJudgment ? dodgeRequested || !damageApplied : !dodgeRequested)
+            {
+                continue;
+            }
+
+            var skipProbe = GameReplay.Restore(game.CreateCheckpoint(), registry);
+            var skipProbePrompt = skipProbe.PendingDecision!;
+            var judgmentRequestsBeforeSkip = skipProbe.Events.Select(item => item.Payload)
+                .OfType<JudgmentRequestedEvent>()
+                .Count(item => item.Reason == "skill.slash-response-judgment");
+            var skipUsed = skipProbe.Submit(new AnswerPromptCommand(
+                0,
+                skipProbePrompt.PromptId,
+                skipProbePrompt.Choices.Single(choice =>
+                    choice.Parameters.GetValueOrDefault("program-action") == "skip").Id,
+                skipProbe.Revision));
+            var skipEvents = skipProbe.Events.Select(item => item.Payload).ToArray();
+            if (skipUsed.Accepted &&
+                skipEvents.OfType<ResponseRequestedEvent>().Any(requested =>
+                    requested.TargetSeat == targetSeat && requested.RequiredCardKind == CardKind.Dodge) &&
+                skipEvents.OfType<JudgmentRequestedEvent>()
+                    .Count(item => item.Reason == "skill.slash-response-judgment") ==
+                judgmentRequestsBeforeSkip &&
+                skipEvents.OfType<ProgramCardTriggerResolvedEvent>().Any(resolved =>
+                    resolved.OwnerSeat == 0 && resolved.SkillId == "classic:tieqi" &&
+                    !resolved.Activated))
             {
                 return (game, prompt, targetSeat, seed);
             }
@@ -5238,7 +5295,41 @@ internal static class ClassicGeneralChecks
                 .OrderBy(candidate => candidate.Kind == LegalActionKind.DrawTwo ? 0 : 1)
                 .ThenBy(candidate => candidate.CardId)
                 .FirstOrDefault();
-            if (action is not null)
+            if (action is null)
+            {
+                continue;
+            }
+
+            // Seed trial: the trick's next pause must be Huang Yueying's own private Jizhi
+            // choice. A new-table locked skill can open an intervening program prompt for
+            // seat 0 first; probe-drive the candidate on a restored copy and discard seeds
+            // whose pause is not the Jizhi activation prompt.
+            var probe = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+            var probePlayed = probe.Submit(new PlayCardCommand(
+                0,
+                action.CardId!.Value,
+                action.TargetSeats,
+                probe.Revision,
+                probe.PendingDecision!.PromptId,
+                action.PlayedCardKind,
+                action.TargetCardId)
+            {
+                ConversionSource = action.ConversionSource,
+                AdditionalConversionSources = action.AdditionalConversionSources,
+            });
+            if (probePlayed.Accepted &&
+                probe.PendingDecision is
+                {
+                    Kind: DecisionKind.ProgramTrigger,
+                    PlayerSeat: 0,
+                    IsPrivate: true,
+                    Choices.Count: 2
+                } probePrompt &&
+                probePrompt.SkillPrompt?.SkillId == "classic:jizhi" &&
+                probePrompt.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("program-action") == "activate") &&
+                probePrompt.Choices.Any(choice =>
+                    choice.Parameters.GetValueOrDefault("program-action") == "skip"))
             {
                 return (game, action);
             }
@@ -5270,7 +5361,11 @@ internal static class ClassicGeneralChecks
                 game.PendingDecision!.PromptId,
                 action.PlayedCardKind,
                 action.TargetCardId));
-            if (!played.Accepted || game.PendingDecision is not { Kind: DecisionKind.ProgramTrigger } initialJizhi)
+            if (!played.Accepted || game.PendingDecision is not { Kind: DecisionKind.ProgramTrigger } initialJizhi ||
+                // The pause must be Huang Yueying's own Jizhi choice, not an intervening
+                // new-table program prompt for seat 0.
+                initialJizhi.SkillPrompt?.SkillId != "classic:jizhi" ||
+                initialJizhi.Choices.Count != 2)
             {
                 continue;
             }
@@ -5306,7 +5401,11 @@ internal static class ClassicGeneralChecks
                         nullificationPrompt.PromptId,
                         choice.Id,
                         game.Revision));
-                    if (used.Accepted && game.PendingDecision?.Kind == DecisionKind.ProgramTrigger)
+                    if (used.Accepted && game.PendingDecision is
+                        {
+                            Kind: DecisionKind.ProgramTrigger,
+                            SkillPrompt.SkillId: "classic:jizhi"
+                        })
                     {
                         return game;
                     }

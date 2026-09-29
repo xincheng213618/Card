@@ -19,14 +19,18 @@
       "use": "体力/势力/性别/包归属核对：群、男、经典版 8 勾玉、神话再临·林（2010）。技能措辞与官方页一致的以官方页为准。"
     }
   ],
-  "versionBoundary": "BWIKI 崩坏作“若你不是全场体力值最低的角色”、暴虐作“当其他群势力角色造成伤害后”，与官方页“若有当前的体力值比你小的角色”“每当”语义一致，以官方页措辞为准。暴虐的判定者与决定者是造成伤害的其他群势力角色，属主公技非持有者决策族（与颂威/制霸同类已记录未实现语义）；判定来源语义可参考悲歌批 sourceRef。体力值官方页不渲染，8 勾玉（经典版×8）取 BWIKI 口径，为全武将库最高体力，实施时按正式角色卡复核对模式体力上限影响。立绘 104601 URL 已验证（HTTP 206），尚未下载入库。",
+  "versionBoundary": "BWIKI 崩坏作“若你不是全场体力值最低的角色”、暴虐作“当其他群势力角色造成伤害后”，与官方页“若有当前的体力值比你小的角色”“每当”语义一致，以官方页措辞为准。暴虐的判定者与决定者是造成伤害的其他群势力角色，属主公技非持有者决策族（与颂威/制霸同类已记录未实现语义）；判定来源语义可参考悲歌批 sourceRef。体力值官方页不渲染，8 勾玉（经典版×8）取 BWIKI 口径，为全武将库最高体力，实施时按正式角色卡复核对模式体力上限影响。立绘 104601 已按官方 URL 下载入库（official-dong-zhuo.png，sha256 见 portraits）。",
   "portraits": [
     {
       "contentId": "classic:dong-zhuo",
       "id": "104601",
       "name": "经典形象*董卓",
       "sourcePage": "https://x.sanguosha.com/hero/46.html",
-      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/104601.png"
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/104601.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-dong-zhuo.png",
+      "sha256": "b1e6339609c86a37a69599fe8788d198f19f9a446ed5c5ac891531e702b13aa8",
+      "pixelWidth": 574,
+      "pixelHeight": 761
     }
   ]
 }

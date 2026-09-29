@@ -73,8 +73,13 @@ internal static class ZhangbaScenario
                 [],
                 game.Revision,
                 play.PromptId));
-            Require(equipped.Accepted, equipped.Error?.Message ??
-                "Zhangba fixture could not equip the weapon.");
+            if (!equipped.Accepted)
+            {
+                // Pool drift: conversion-locked generals can declare their hand cards as
+                // Slashes, so an arbitrary Zhangba card may not be equippable; abandon
+                // this seed the same way the response fixture below does.
+                continue;
+            }
             if (game.PendingDecision?.Kind != DecisionKind.PlayCard)
             {
                 Require(game.Submit(new AdvanceCommand(game.Revision)).Accepted,

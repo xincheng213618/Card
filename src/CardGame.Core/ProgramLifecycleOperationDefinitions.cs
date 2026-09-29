@@ -129,8 +129,9 @@ internal sealed class RecoverToProgramOperationDescriptor : ProgramOperationDesc
         r.AllowOnly("op", "target", "numberExpression", "minimumValue", "clampToMaxHp", "condition");
         var expression = r.RequiredEnum<SkillProgramNumberExpression>("numberExpression");
         if (expression is not (SkillProgramNumberExpression.LivingFactionCount or
+            SkillProgramNumberExpression.LivingPlayersMinHp or
             SkillProgramNumberExpression.IntegerConstant))
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}.numberExpression: recoverTo supports livingFactionCount or integerConstant.");
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.numberExpression: recoverTo supports livingFactionCount, livingPlayersMinHp or integerConstant.");
         var minimum = r.RequiredInt("minimumValue");
         if (minimum < 0 || expression == SkillProgramNumberExpression.IntegerConstant && minimum is not (>= 1 and <= 20))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.minimumValue: must be non-negative, or 1..20 for integerConstant.");
@@ -479,7 +480,11 @@ internal sealed class StartJudgmentProgramOperationDescriptor : ProgramOperation
         var effect = new SkillProgramEffect(Op, target, 0,
             r.Condition(), resultBind: r.RequiredIdentifier("resultBind"), visibility: visibility,
             judgmentReason: r.RequiredIdentifier("judgmentReason"), sourceRef: sourceRef);
-        RequireAlways(effect, r.Path);
+        // A named-choice branch may gate the judgment itself (Baonve: the damage
+        // source chooses whether to judge); resource cleanup of the conditional
+        // binding is validated at the composition level.
+        if (effect.Condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.ChoiceIs))
+            RequireAlways(effect, r.Path);
         return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>

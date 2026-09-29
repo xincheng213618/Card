@@ -6,7 +6,9 @@ public sealed partial class GameEngine
         CharacterState owner,
         SkillProgramCardPolicyKind kind,
         CardKind? effectiveKind = null,
-        CardKind? requiredKind = null)
+        CardKind? requiredKind = null,
+        bool? eventTargetIsFemale = null,
+        bool? eventSourceIsFemale = null)
     {
         var context = CreateSkillContext(owner);
         return GetSkillBindingShard(owner).ProgramInstances
@@ -19,7 +21,8 @@ public sealed partial class GameEngine
                      effectiveKind is { } card && policy.CardKinds.Contains(card)) &&
                     (policy.RequiredCardKinds.Count == 0 ||
                      requiredKind is { } response && policy.RequiredCardKinds.Contains(response)) &&
-                    policy.Condition.Evaluate(context))
+                    policy.Condition.Evaluate(context, null, eventTargetIsFemale,
+                        eventSourceIsFemale))
                 .Select(policy => (instance, policy)));
     }
 
@@ -52,12 +55,28 @@ public sealed partial class GameEngine
                 EffectiveSuit(source, card) == item.Policy.InputSuit));
     }
 
-    private int GetProgramRequiredResponseCount(CharacterState owner, int sourceSeat,
-        CardKind incomingKind, CardKind requiredKind) =>
-        sourceSeat == owner.Seat
-            ? Math.Max(1, CardPolicies(owner, SkillProgramCardPolicyKind.MinimumResponseCount,
-                    incomingKind, requiredKind).Select(item => item.Policy.Value).DefaultIfEmpty(1).Max())
+    private int GetProgramRequiredResponseCount(CharacterState owner, int sourceSeat, int responderSeat,
+        CardKind incomingKind, CardKind requiredKind)
+    {
+        // Roulin's two directions share the response-count query: an attacker-side
+        // MinimumResponseCount policy keys on the attack target's gender while a
+        // defender-side MinimumResponseCountAsTarget policy keys on the attacker's.
+        // The max (never a product) matches the Wushuang aggregation precedent.
+        var attackerSide = sourceSeat == owner.Seat
+            ? CardPolicies(owner, SkillProgramCardPolicyKind.MinimumResponseCount,
+                    incomingKind, requiredKind,
+                    eventTargetIsFemale: _players[responderSeat].Gender == GeneralGender.Female,
+                    eventSourceIsFemale: _players[sourceSeat].Gender == GeneralGender.Female)
+                .Select(item => item.Policy.Value).DefaultIfEmpty(1).Max()
             : 1;
+        var targetSide = CardPolicies(_players[responderSeat],
+                SkillProgramCardPolicyKind.MinimumResponseCountAsTarget,
+                incomingKind, requiredKind,
+                eventTargetIsFemale: _players[responderSeat].Gender == GeneralGender.Female,
+                eventSourceIsFemale: _players[sourceSeat].Gender == GeneralGender.Female)
+            .Select(item => item.Policy.Value).DefaultIfEmpty(0).Max();
+        return Math.Max(attackerSide, targetSide);
+    }
 
     private Suit GetProgramEffectiveSuit(CharacterState owner, Card card)
     {

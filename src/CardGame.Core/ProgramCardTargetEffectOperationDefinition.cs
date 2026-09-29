@@ -19,7 +19,11 @@ internal sealed class NullifyCurrentCardEffectProgramOperationDescriptor : Progr
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}.target: must be owner.");
         var effect = new SkillProgramEffect(Op, target, 0, r.Condition());
-        RequireAlways(effect, r.Path);
+        // A nullification may sit behind a named choice (the attacker either
+        // pays the skill's price or the effect is nullified); unconditional
+        // programs keep the historic always-only shape.
+        if (effect.Condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.ChoiceIs))
+            RequireAlways(effect, r.Path);
         return effect;
     }
 

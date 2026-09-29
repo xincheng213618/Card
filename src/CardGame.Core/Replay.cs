@@ -22,7 +22,16 @@ public sealed record GameCheckpoint(
     // so checkpoints from any other rules version are rejected instead of
     // migrated. Adding content is versioned by its package and content hash.
     // 102-114 were retired development epochs; do not reuse one for new semantics.
-    public const int CurrentRulesVersion = 185;
+    // 186: Dong Zhuo (jiuchi/roulin/benghuai/baonve) with the shared
+    // livingPlayersMinHp fact, participant gender card-policy conditions and the
+    // EventSource target kind; the lord-skill damage-source faction facts.
+    // 187: Liu Shan (xiangle/fangquan/ruoyu) with extra-turn target
+    // parameterization and the target-payer nullification conditions.
+    // 188: Zhang Zhao & Zhang Hong (zhijian/guzheng) with the
+    // selectedTargetEquipment destination, the empty-slot activation target
+    // filter, the turn-owner discard-phase hand-discard fact, and the
+    // named-choice hand-gain move branch.
+    public const int CurrentRulesVersion = 188;
 
     public int RulesVersion { get; init; }
 }

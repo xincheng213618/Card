@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:jiuchi",
+      "revision": 1,
+      "minimumRulesVersion": 186,
+      "viewAs": [
+        {
+          "id": "spade-hand-as-alcohol",
+          "inputKinds": [],
+          "inputSuits": ["spade"],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": true
+        }
+      ]
+    },
+    {
+      "id": "classic:roulin",
+      "revision": 1,
+      "minimumRulesVersion": 186,
+      "cardPolicies": [
+        {
+          "id": "female-target-needs-two-dodges",
+          "kind": "minimumResponseCount",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "requiredCardKinds": ["dodge"],
+          "value": 2,
+          "condition": {
+            "kind": "eventTargetGenderIs",
+            "gender": "female"
+          }
+        },
+        {
+          "id": "female-source-slash-needs-two-dodges",
+          "kind": "minimumResponseCountAsTarget",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "requiredCardKinds": ["dodge"],
+          "value": 2,
+          "condition": {
+            "kind": "eventSourceGenderIs",
+            "gender": "female"
+          }
+        }
+      ]
+    },
+    {
+      "id": "classic:benghuai",
+      "revision": 1,
+      "minimumRulesVersion": 186,
+      "triggers": [
+        {
+          "id": "benghuai-decay",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "currentHp"
+            },
+            "operator": "greaterThan",
+            "right": {
+              "kind": "livingPlayersMinHp"
+            }
+          },
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "benghuai-choice",
+              "options": [
+                { "id": "lose-hp", "condition": { "kind": "always" } },
+                { "id": "reduce-max-hp", "condition": { "kind": "always" } }
+              ]
+            },
+            {
+              "op": "loseHp",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "benghuai-choice",
+                "optionId": "lose-hp"
+              }
+            },
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": -1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "benghuai-choice",
+                "optionId": "reduce-max-hp"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:baonve",
+      "revision": 1,
+      "minimumRulesVersion": 186,
+      "triggers": [
+        {
+          "id": "baonve-judge-prompt",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "optional": false,
+          "priority": 0,
+          "damageOccurrence": "perDamage",
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "not",
+                "children": [
+                  { "kind": "damageSourceIsOwner" }
+                ]
+              },
+              {
+                "kind": "damageSourceFactionIs",
+                "factions": ["qun"]
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "chooserRef": { "kind": "eventSource" },
+              "resultBind": "baonve-choice",
+              "options": [
+                { "id": "judge", "condition": { "kind": "always" } },
+                { "id": "no-judge", "condition": { "kind": "always" } }
+              ]
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "eventSource"
+            },
+            {
+              "op": "startJudgment",
+              "target": "selectedTarget",
+              "judgmentReason": "skill.classic.baonve",
+              "resultBind": "baonve-judgment",
+              "visibility": "public",
+              "sourceRef": { "kind": "eventSource" },
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "baonve-choice",
+                "optionId": "judge"
+              }
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "baonve-judgment",
+              "destination": "discardPile",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "baonve-choice",
+                "optionId": "judge"
+              }
+            }
+          ]
+        },
+        {
+          "id": "baonve-spade-recover",
+          "window": "judgmentFinalized",
+          "subject": "any",
+          "judgmentReasons": ["skill.classic.baonve"],
+          "suits": ["spade"],
+          "excludedReasons": [],
+          "minimumRank": 1,
+          "maximumRank": 13,
+          "optional": false,
+          "effects": [
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

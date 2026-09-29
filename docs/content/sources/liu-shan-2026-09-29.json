@@ -19,14 +19,18 @@
       "use": "体力/势力/性别/包归属核对：蜀、男、经典版 3 勾玉、神话再临·山（2011）。技能措辞与官方页一致的以官方页为准。"
     }
   ],
-  "versionBoundary": "若愚觉醒授予 classic:jijiang（激将已有定义，且已有 AdditionalSkillIds 授予先例）；放权需额外回合指向其他角色——现有 PendProgramExtraTurn 挂起槽位存在但当前固定为 active.OwnerSeat（神司马懿连破语义），需目标参数化评估；享乐为“成为杀目标后要求使用者弃基本牌否则无效”的响应型锁定。BWIKI 放权/享乐措辞与官方页语义一致。体力值官方页不渲染，3 勾玉取 BWIKI 口径。立绘 105401 URL 已验证（HTTP 206），尚未下载入库。",
+  "versionBoundary": "若愚觉醒授予 classic:jijiang（激将已有定义，且已有 AdditionalSkillIds 授予先例）；放权需额外回合指向其他角色——现有 PendProgramExtraTurn 挂起槽位存在但当前固定为 active.OwnerSeat（神司马懿连破语义），需目标参数化评估；享乐为“成为杀目标后要求使用者弃基本牌否则无效”的响应型锁定。BWIKI 放权/享乐措辞与官方页语义一致。体力值官方页不渲染，3 勾玉取 BWIKI 口径。立绘 105401 已下载入库并通过 verify（574×761，sha256 见 portraits）。",
   "portraits": [
     {
       "contentId": "classic:liu-shan",
       "id": "105401",
       "name": "经典形象*刘禅",
       "sourcePage": "https://x.sanguosha.com/hero/54.html",
-      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105401.png"
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105401.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-liu-shan.png",
+      "sha256": "f5c65e3d59e42f871a2b0470a6f12b45d6fcb23fffc4a7f21b4b2129156905d6",
+      "pixelWidth": 574,
+      "pixelHeight": 761
     }
   ]
 }

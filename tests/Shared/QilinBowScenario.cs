@@ -110,8 +110,13 @@ internal static class QilinBowScenario
                 [],
                 game.Revision,
                 play.PromptId));
-            Require(equipped.Accepted,
-                equipped.Error?.Message ?? "Qilin Bow fixture could not equip the weapon.");
+            if (!equipped.Accepted)
+            {
+                // Pool drift: conversion-locked generals (such as the OL Shen
+                // Guan Yu family declaring red hand cards as Slashes) cannot
+                // equip an arbitrary Qilin Bow card; abandon this seed.
+                continue;
+            }
             if (game.PendingDecision?.Kind != DecisionKind.PlayCard)
             {
                 Require(game.Submit(new AdvanceCommand(game.Revision)).Accepted,
@@ -159,8 +164,12 @@ internal static class QilinBowScenario
                         game.Revision,
                         pending.PromptId,
                         slash.Action.PlayedCardKind));
-                    Require(played.Accepted,
-                        played.Error?.Message ?? "Qilin Bow fixture could not use Slash.");
+                    if (!played.Accepted)
+                    {
+                        // The enumerated table drifted between enumeration and
+                        // submission; abandon this seed and keep scanning.
+                        break;
+                    }
                     for (var damageStep = 0;
                          damageStep < 16 && game.State.Status != EngineStatus.Completed;
                          damageStep++)

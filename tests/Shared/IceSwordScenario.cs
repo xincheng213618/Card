@@ -69,8 +69,13 @@ internal static class IceSwordScenario
                 [],
                 game.Revision,
                 play.PromptId));
-            Require(equipped.Accepted,
-                equipped.Error?.Message ?? "Ice Sword fixture could not equip the weapon.");
+            if (!equipped.Accepted)
+            {
+                // Pool drift: conversion-locked generals can declare their hand cards as
+                // Slashes, so an arbitrary Ice Sword card may not be equippable; abandon
+                // this seed the same way the Qilin Bow fixture does.
+                continue;
+            }
             if (game.PendingDecision?.Kind != DecisionKind.PlayCard)
             {
                 Require(game.Submit(new AdvanceCommand(game.Revision)).Accepted,

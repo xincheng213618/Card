@@ -62,8 +62,9 @@ public interface ISkillProgramEffectHost
         string sourceBind);
     SkillProgramStepOutcome RequestSlashByTarget(ProgramSkillFrame frame, int targetSeat,
         string resultBind);
-    void PendExtraTurn(ProgramSkillFrame frame);
+    void PendExtraTurn(ProgramSkillFrame frame, int? targetSeat);
     void ClaimDeathCleanupCards(ProgramSkillFrame frame);
+    SkillProgramStepOutcome BindDiscardPhaseDiscards(ProgramSkillFrame frame, string resultBind);
     SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat);
     SkillProgramStepOutcome MoveSelected(
         ProgramSkillFrame frame,

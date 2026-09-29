@@ -58,8 +58,10 @@ internal static class MengjinChecks
         var activated = used.Submit(new AnswerPromptCommand(
             boundary.SourceSeat, usedPrompt.PromptId, activate.Id, used.Revision));
         Require(activated.Accepted && used.PendingDecision is
-                { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
-                  SkillPrompt.SkillId: "classic:mengjin" },
+        {
+            Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
+            SkillPrompt.SkillId: "classic:mengjin"
+        },
             activated.Error?.Message ?? "Activating Mengjin must publish its card-payment choice.");
         var payment = used.PendingDecision!;
         var before = used.CreateSnapshot(boundary.SourceSeat, revealAll: true)
@@ -86,6 +88,24 @@ internal static class MengjinChecks
             : use.Cards.Single();
         var usedResult = used.Submit(new AnswerPromptCommand(
             boundary.SourceSeat, payment.PromptId, use.Id, used.Revision));
+        // A new-table target can open an out-of-turn loss trigger (e.g. Tuntian's
+        // cardsMoved judgment window) on the Mengjin discard; the binding completes
+        // only after that nested window resolves, so drive the accepted payment
+        // forward instead of assuming synchronous completion.
+        for (var step = 0; step < 64; step++)
+        {
+            if (used.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
+                    .Any(item => item.SkillId == "classic:mengjin" && item.Activated && item.Completed) ||
+                used.PendingDecision is { } pendingDecision &&
+                pendingDecision.PlayerSeat == boundary.SourceSeat)
+            {
+                break;
+            }
+
+            Require(used.Submit(new AdvanceOneStepCommand(used.Revision)).Accepted,
+                "Mengjin fixture could not advance past the target's out-of-turn trigger.");
+        }
+
         var movement = used.CardMovements.LastOrDefault(move =>
             move.CardId == expectedCardId && move.Reason.Value == "skill-program.classic:mengjin.SelectAndMoveOwnedCard");
         var after = used.CreateSnapshot(boundary.SourceSeat, revealAll: true)

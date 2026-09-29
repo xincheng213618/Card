@@ -28,7 +28,9 @@ internal sealed record ProgramAiPublicContext(
     Func<IReadOnlyList<CardZoneKind>, IReadOnlyList<SkillProgramCardCategory>, bool>? HasOwnedCardCategory = null,
     double CardEffectInterventionScore = 0d,
     Func<string, int>? PhaseUsageCount = null,
-    int AttackRange = 0);
+    int AttackRange = 0,
+    int? LivingPlayersMinHp = null,
+    int? TurnOwnerDiscardPhaseHandDiscardCount = null);
 
 /// <summary>
 /// Pure, public-state estimate for schema-23 program compositions. Unknown cards use a
@@ -153,6 +155,7 @@ internal sealed class ProgramAiEstimateContext
         {
             SkillProgramNumberExpression.OwnerLostHp => Math.Max(0, _player.MaxHp - _player.Hp),
             SkillProgramNumberExpression.LivingFactionCount => _publicContext.LivingFactionCount,
+            SkillProgramNumberExpression.LivingPlayersMinHp => _publicContext.LivingPlayersMinHp ?? _player.Hp,
             SkillProgramNumberExpression.TargetMaxHpMinusHandCount =>
                 TargetsOwner(effect)
                     ? Math.Max(0, _player.MaxHp - _estimatedHandCount)
@@ -308,6 +311,8 @@ internal sealed class ProgramAiEstimateContext
             {
                 SkillProgramNumberExpression.OwnerLostHp => Math.Max(0, _player.MaxHp - _player.Hp),
                 SkillProgramNumberExpression.HandHalfFloor => (int)(_estimatedHandCount / 2d),
+                SkillProgramNumberExpression.LivingPlayersMinHp =>
+                    _publicContext.LivingPlayersMinHp ?? _player.Hp,
                 SkillProgramNumberExpression.SelectedPairHandDifference => Math.Max(0,
                     (_publicContext.SelectedTarget?.HandCount ?? 0) - _estimatedHandCount),
                 _ => effect.Amount
@@ -347,6 +352,8 @@ internal sealed class ProgramAiEstimateContext
             SkillProgramNumberExpression.IntegerConstant => effect.MinimumValue,
             SkillProgramNumberExpression.LivingFactionCount =>
                 Math.Max(effect.MinimumValue, _publicContext.LivingFactionCount),
+            SkillProgramNumberExpression.LivingPlayersMinHp =>
+                Math.Max(effect.MinimumValue, _publicContext.LivingPlayersMinHp ?? _player.Hp),
             _ => effect.MinimumValue
         };
         if (TargetsOwner(effect))
@@ -474,6 +481,10 @@ internal sealed class ProgramAiEstimateContext
 
     internal void ClaimDeathCleanupCards() => _otherAdjustment += 10d;
 
+    internal void BindDiscardPhaseDiscards(SkillProgramEffect effect) =>
+        _bindings[effect.ResultBind!] = UnknownCards(
+            Math.Max(0, _publicContext.TurnOwnerDiscardPhaseHandDiscardCount ?? 0), ownerHeld: false);
+
     internal void SelectAndMoveOwnedCard(SkillProgramEffect effect)
     {
         if (effect.CardOwnerRef?.Kind == ProgramParticipantRef.Owner &&
@@ -497,6 +508,15 @@ internal sealed class ProgramAiEstimateContext
             _ownerDraw += 1d;
             _estimatedHandCount += 1d;
             _targetDraw -= 1d;
+        }
+        else if (effect.CardOwnerRef?.Kind == ProgramParticipantRef.Owner &&
+                 effect.Destination == SkillProgramCardDestination.SelectedTargetEquipment)
+        {
+            // An equipment gift trades one owner hand card for public board value
+            // on the target; the accompanying draw refunds the card count.
+            _ownerDraw -= 1d;
+            _estimatedHandCount = Math.Max(0d, _estimatedHandCount - 1d);
+            _otherAdjustment += 2d;
         }
     }
 

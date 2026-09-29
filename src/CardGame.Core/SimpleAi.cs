@@ -2094,9 +2094,12 @@ public sealed partial class SimpleAiBrain
             return (0d, "结束出牌是所有局面的保底动作。");
         }
 
+        // Jixi-style conversions may play an authority-zone card (e.g. a Tuntian
+        // field as Snatch), so the lookup must mirror the engine's playable sources.
         var card = self.Hand
             .Concat(self.WoodenOxGrain ?? [])
             .Concat(self.Equipment)
+            .Concat(self.AuthorityCards ?? [])
             .Single(candidate => candidate.Id == action.CardId);
         var playedCardKind = action.PlayedCardKind ?? card.Kind;
         var cardProfile = CardCatalog.Get(playedCardKind);

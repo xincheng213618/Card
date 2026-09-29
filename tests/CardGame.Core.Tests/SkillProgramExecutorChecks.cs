@@ -222,6 +222,33 @@ internal static class SkillProgramExecutorChecks
             ]) &&
                 countRuntime.Completed is { Completed: true },
             "The phase counter must dispatch to the explicit host and finish exactly once.");
+
+        var targetedTurn = Program(
+            """{"op":"pendExtraTurn","target":"owner","targetRef":{"kind":"selectedTarget"}}""",
+            minTargets: 1,
+            maxTargets: 1);
+        var targetedRuntime = Runtime(targetedTurn, selectedTargets: [1]);
+        new SkillProgramExecutor().Run(targetedRuntime.Frame!.Id, targetedRuntime, targetedRuntime);
+        Require(targetedRuntime.Calls.SequenceEqual(["extra-turn:0:1"]) &&
+                targetedRuntime.Completed is { Completed: true },
+            "A targeted extra turn must pend the selected beneficiary through the shared host.");
+
+        var selfTurn = Program("""{"op":"pendExtraTurn","target":"owner"}""");
+        var selfRuntime = Runtime(selfTurn);
+        new SkillProgramExecutor().Run(selfRuntime.Frame!.Id, selfRuntime, selfRuntime);
+        Require(selfRuntime.Calls.SequenceEqual(["extra-turn:0:owner"]) &&
+                selfRuntime.Completed is { Completed: true },
+            "An untargeted extra turn must keep defaulting to the skill owner.");
+
+        var discardBind = ProgramWithActivations(
+            """{"id":"bind","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"bindDiscardPhaseDiscards","target":"owner","resultBind":"guzhengPool"},{"op":"moveBoundCards","target":"owner","sourceBind":"guzhengPool","destination":"discardPile"}]}""");
+        var bindRuntime = Runtime(discardBind, activationId: "bind");
+        new SkillProgramExecutor().Run(bindRuntime.Frame!.Id, bindRuntime, bindRuntime);
+        Require(bindRuntime.Calls.Count == 2 &&
+                bindRuntime.Calls[0] == "bind-discard-phase:0:guzhengPool" &&
+                bindRuntime.Calls[1].StartsWith("move-bound:0:guzhengPool::DiscardPile::skill-program.fixture", StringComparison.Ordinal) &&
+                bindRuntime.Completed is { Completed: true },
+            "The discard-phase bind must dispatch through the shared host and finish exactly once.");
     }
 
     private static SkillProgram ProgramWithActivations(string activations)
@@ -466,9 +493,9 @@ internal static class SkillProgramExecutorChecks
             return SkillProgramStepOutcome.AwaitChoice;
         }
 
-        public void PendExtraTurn(ProgramSkillFrame frame)
+        public void PendExtraTurn(ProgramSkillFrame frame, int? targetSeat)
         {
-            Calls.Add($"extra-turn:{frame.OwnerSeat}");
+            Calls.Add($"extra-turn:{frame.OwnerSeat}:{targetSeat?.ToString() ?? "owner"}");
         }
 
         public SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat)
@@ -646,6 +673,12 @@ internal static class SkillProgramExecutorChecks
 
         public void ClaimDeathCleanupCards(ProgramSkillFrame frame) =>
             Calls.Add($"claim-death-cleanup:{frame.OwnerSeat}");
+
+        public SkillProgramStepOutcome BindDiscardPhaseDiscards(ProgramSkillFrame frame, string resultBind)
+        {
+            Calls.Add($"bind-discard-phase:{frame.OwnerSeat}:{resultBind}");
+            return SkillProgramStepOutcome.Continue;
+        }
 
         public void TakeRandomHandCardFromSelectedTargets(
             long frameId,

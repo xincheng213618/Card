@@ -110,6 +110,8 @@ public sealed partial class GameEngine
                     : allHandTrickUse is not null ? []
                     : activation.MaxTargets == 0 ? [] : _players
                     .Where(target => target.IsAlive &&
+                        (!activation.TargetRequiresEmptyEquipmentSlot ||
+                         HasEmptyEquipmentSlotForOwnerHandEquipment(owner, target)) &&
                         (!activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.RequestFactionCard) ||
                          CanUseProvidedSlashTarget(owner, target)) &&
                         (target.Seat != owner.Seat || !activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.GiveSelected)) &&
@@ -521,7 +523,7 @@ public sealed partial class GameEngine
         return SkillProgramStepOutcome.AwaitChild;
     }
 
-    private void PendProgramExtraTurn(ProgramSkillFrame frame)
+    private void PendProgramExtraTurn(ProgramSkillFrame frame, int? targetSeat)
     {
         var active = GetActiveProgramFrame(frame.Id);
         if (active.OwnerSeat != frame.OwnerSeat || active.SkillId != frame.SkillId)
@@ -529,10 +531,20 @@ public sealed partial class GameEngine
         var owner = _players[active.OwnerSeat];
         if (!owner.IsAlive || _winner != Winner.None)
             return;
-        _pendingExtraTurnSeat = active.OwnerSeat;
+        // The historic single pending slot now names the beneficiary. Without an
+        // explicit target reference (Lianpo) the owner benefits; a later pend
+        // overwrites an earlier one ("latest declaration wins").
+        var beneficiarySeat = targetSeat ?? active.OwnerSeat;
+        var beneficiary = _players[beneficiarySeat];
+        if (!beneficiary.IsAlive)
+            return;
+        _pendingExtraTurnSeat = beneficiarySeat;
         AddLog("ExtraTurnPended",
-            $"{owner.Name} 将在当前回合结束后获得一个额外回合。", active.OwnerSeat);
-        QueueGameEvent(new ProgramExtraTurnPendedEvent(active.Id, active.SkillId, active.OwnerSeat));
+            beneficiarySeat == active.OwnerSeat
+                ? $"{owner.Name} 将在当前回合结束后获得一个额外回合。"
+                : $"{owner.Name} 令 {beneficiary.Name} 将在当前回合结束后获得一个额外回合。",
+            active.OwnerSeat, beneficiarySeat);
+        QueueGameEvent(new ProgramExtraTurnPendedEvent(active.Id, active.SkillId, beneficiarySeat));
     }
 
     private SkillProgramStepOutcome UseProgramBoundCardByTarget(
@@ -677,8 +689,15 @@ public sealed partial class GameEngine
                     AwaitMovementTriggers: true
                 } &&
                     paidEffect.CoverageResultBind == pendingMovement.CoverageResultBind;
+                // A hand-exchange effect suspends its program behind the nested
+                // cards-moved trigger window opened by the exchanged cards.
+                var awaitsExchangedMovement =
+                    paidEffect?.Op == SkillProgramEffectOp.ExchangeSelectedTargetHands &&
+                    pendingMovement.CoverageResultBind is null &&
+                    pendingMovement.SubjectSeat == frame.OwnerSeat;
                 if (!awaitsSelectedMovement && !awaitsRandomTransfer &&
-                    !awaitsJudgmentClaim && !awaitsRepeatedJudgment && !awaitsOwnedMovement)
+                    !awaitsJudgmentClaim && !awaitsRepeatedJudgment && !awaitsOwnedMovement &&
+                    !awaitsExchangedMovement)
                     throw new InvalidOperationException("A movement continuation lost its paid instruction.");
             }
             foreach (var coverage in frame.AttackRangeCoverageBindings)

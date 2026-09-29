@@ -22,10 +22,18 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.zones: must contain hand, equipment, or judgment.");
         var destination = r.RequiredEnum<SkillProgramCardDestination>("destination");
         if (destination is not (SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.DiscardPile or
-                SkillProgramCardDestination.SelectedTargetHand))
+                SkillProgramCardDestination.SelectedTargetHand or SkillProgramCardDestination.SelectedTargetEquipment))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.destination: unsupported destination.");
-        if ((destination == SkillProgramCardDestination.SelectedTargetHand) != r.Has("targetRef"))
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}: selectedTargetHand requires targetRef only.");
+        if ((destination is SkillProgramCardDestination.SelectedTargetHand
+                or SkillProgramCardDestination.SelectedTargetEquipment) != r.Has("targetRef"))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: selectedTargetHand and selectedTargetEquipment require targetRef only.");
+        if (destination == SkillProgramCardDestination.SelectedTargetEquipment &&
+            (!r.Has("zones") || r.RequiredEnumArray<CardZoneKind>("zones").Count != 1 ||
+             r.RequiredEnumArray<CardZoneKind>("zones")[0] != CardZoneKind.Hand ||
+             r.OptionalEnumArray<SkillProgramCardCategory>("cardCategories") is not { Count: 1 } equipmentFilter ||
+             equipmentFilter[0] != SkillProgramCardCategory.Equipment))
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}: an equipment gift moves one category-filtered hand card.");
         var chooserRef = r.RequiredParticipantReference("chooserRef");
         var cardOwnerRef = r.RequiredParticipantReference("cardOwnerRef");
         var cardCategories = r.OptionalEnumArray<SkillProgramCardCategory>("cardCategories");
@@ -76,7 +84,8 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
             .Concat(effect.ResultBind is { } bind
                 ? new ProgramResourceOperation[] { new CreateCardSet(bind, 1, false,
                     AlreadyMoved: effect.RevealBeforeMove,
-                    CardOwner: effect.Destination == SkillProgramCardDestination.SelectedTargetHand
+                    CardOwner: effect.Destination is SkillProgramCardDestination.SelectedTargetHand
+                        or SkillProgramCardDestination.SelectedTargetEquipment
                         ? SkillProgramEffectTarget.SelectedTarget : SkillProgramEffectTarget.Owner) }
                 : Array.Empty<ProgramResourceOperation>()).ToArray();
 }

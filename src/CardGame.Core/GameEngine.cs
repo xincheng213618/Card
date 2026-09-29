@@ -48,6 +48,11 @@ public sealed partial class GameEngine
     private int _playPhaseKillCountByCurrentPlayer;
     private int? _pendingExtraTurnSeat;
     private int _playPhaseDamageDealtByCurrentPlayer;
+    // Guzheng ledger: hand cards the current turn owner moved into the discard
+    // pile during this turn's discard phase. Scoped to its owning turn number so
+    // an interrupted turn can never serve a stale pool to the next boundary.
+    private readonly List<int> _discardPhaseHandDiscardIds = new();
+    private int _discardPhaseHandDiscardTurnNumber = -1;
     private bool _usedOrPlayedSlashDuringPlayPhase;
     private bool _woodenOxUsedThisTurn;
     private int _logSequence;
@@ -73,6 +78,7 @@ public sealed partial class GameEngine
     private StoneAxeResolution? _pendingStoneAxe;
     private CixiongDoubleSwordsResolution? _pendingCixiongDoubleSwords;
     private QinglongCrescentBladeResolution? _pendingQinglongCrescentBlade;
+    private QinglongFollowupSuspension? _pendingQinglongFollowupSuspension;
     private IceSwordResolution? _pendingIceSword;
     private QilinBowResolution? _pendingQilinBow;
     private FangtianHalberdResolution? _pendingFangtianHalberd;
@@ -8611,6 +8617,7 @@ public sealed partial class GameEngine
             target.Seat);
 
         CompleteAttack(attack);
+        SuspendContinuationForQinglongFollowup(attack.ResolutionId);
         ResolveSlashCore(
             source,
             target,
@@ -8621,6 +8628,55 @@ public sealed partial class GameEngine
             physicalCards: physicalCards,
             countsTowardSlashLimit: false,
             conversionSource: conversionSource);
+    }
+
+    private void SuspendContinuationForQinglongFollowup(long outerResolutionId)
+    {
+        if (_pendingAttack is null && _pendingDecision is null && _pendingFangtianHalberd is null)
+        {
+            return;
+        }
+
+        _pendingQinglongFollowupSuspension = new QinglongFollowupSuspension(
+            outerResolutionId,
+            _pendingAttack,
+            _pendingDecision,
+            _pendingFangtianHalberd,
+            _status);
+        _pendingAttack = null;
+        _pendingDecision = null;
+        _pendingFangtianHalberd = null;
+    }
+
+    private bool RestoreContinuationAfterQinglongFollowup(AttackResolution completedAttack)
+    {
+        if (_pendingQinglongFollowupSuspension is not { } suspension ||
+            completedAttack.ResolutionId == suspension.OuterResolutionId)
+        {
+            return false;
+        }
+
+        // The follow-up restores the outer continuation only after every nested
+        // card use has unwound back to the suspended parent's frame.
+        if (_resolutionStack.Any(frame => frame is CardUseFrame use && use.Id != suspension.OuterResolutionId))
+        {
+            return false;
+        }
+
+        _pendingQinglongFollowupSuspension = null;
+        if (_status == EngineStatus.Completed)
+        {
+            // The match ended during the nested follow-up; a completed game
+            // must not resurrect the outer continuation's pending state.
+            _pendingFangtianHalberd = null;
+            return true;
+        }
+
+        _pendingAttack = suspension.NextAttack;
+        _pendingDecision = suspension.NextDecision;
+        _pendingFangtianHalberd = suspension.FangtianContinuation;
+        _status = suspension.Status;
+        return true;
     }
 
     private bool TryBeginStoneAxeChoice(AttackResolution attack)
@@ -12883,6 +12939,10 @@ public sealed partial class GameEngine
 
     private void CompleteAttackAfterCardResolution(AttackResolution attack)
     {
+        if (RestoreContinuationAfterQinglongFollowup(attack))
+        {
+            return;
+        }
         var borrowedSword = _pendingBorrowedSword is { ActiveAttack: { } borrowedAttack } pendingBorrowedSword &&
                             ReferenceEquals(borrowedAttack, attack)
             ? pendingBorrowedSword
@@ -15357,6 +15417,8 @@ public sealed partial class GameEngine
     private void BeginDiscardPhase()
     {
         _phase = TurnPhase.Discard;
+        _discardPhaseHandDiscardTurnNumber = -1;
+        _discardPhaseHandDiscardIds.Clear();
         _status = EngineStatus.Running;
         var current = _players[_currentSeat];
         AddLog("PhaseChanged", $"{current.Name} 进入弃牌阶段。", _currentSeat);
@@ -16027,7 +16089,7 @@ public sealed partial class GameEngine
         CardKind incomingCard,
         CardKind requiredCardKind)
     {
-        return GetProgramRequiredResponseCount(skillOwner, sourceSeat, incomingCard, requiredCardKind);
+        return GetProgramRequiredResponseCount(skillOwner, sourceSeat, responderSeat, incomingCard, requiredCardKind);
     }
 
     private bool CanRequestFactionSlashResponse(CharacterState owner, AttackResolution attack)
@@ -16071,6 +16133,13 @@ public sealed partial class GameEngine
                GetCombatDistance(owner.Seat, target.Seat) <= GetAttackRange(owner.Seat)) &&
               !IsSlashProhibited(target)
             : SlashKinds.Any(candidate => CanUseProvidedSlashTarget(owner, target, candidate));
+
+    /// <summary>
+    /// Zhijian activation filter: the target keeps at least one free equipment slot
+    /// matching an equipment card in the owner's hand (gifts never replace equipment).
+    /// </summary>
+    private bool HasEmptyEquipmentSlotForOwnerHandEquipment(CharacterState owner, CharacterState target) =>
+        !target.EquipmentAreaAbolished && GetHand(owner).Any(card => CanEnterEquipmentSlot(target.Seat, card));
 
     private IReadOnlyList<int> GetFactionProviderSeats(int ownerSeat, string factionId) =>
         Enumerable.Range(0, _playerCount)
@@ -16166,6 +16235,55 @@ public sealed partial class GameEngine
             player.IsChained,
             IsClassicIdentityMode);
 
+    private void CollectDiscardPhaseHandDiscard(Card card, CardLocation from, CardLocation to)
+    {
+        if (_phase != TurnPhase.Discard ||
+            from is not { Zone: CardZoneKind.Hand, OwnerSeat: { } ownerSeat } || ownerSeat != _currentSeat ||
+            to.Zone != CardZoneKind.DiscardPile)
+        {
+            return;
+        }
+
+        if (_discardPhaseHandDiscardTurnNumber != _turnNumber)
+        {
+            _discardPhaseHandDiscardTurnNumber = _turnNumber;
+            _discardPhaseHandDiscardIds.Clear();
+        }
+        _discardPhaseHandDiscardIds.Add(card.Id);
+    }
+
+    /// <summary>
+    /// Cards the current turn owner discarded from hand during this turn's discard
+    /// phase. Zero unless the ledger still belongs to the turn in progress.
+    /// </summary>
+    private int TurnOwnerDiscardPhaseHandDiscardCount =>
+        _discardPhaseHandDiscardTurnNumber == _turnNumber ? _discardPhaseHandDiscardIds.Count : 0;
+
+    /// <summary>
+    /// Guzheng: binds the turn owner's discard-phase hand discards that are still
+    /// resting in the discard pile. Cards that left the pile meanwhile (shuffled
+    /// into the deck, claimed by another skill) are excluded, mirroring the
+    /// death-cleanup precedent. At most the earliest eight cards (discard order)
+    /// bind because the subset-return primitive enumerates eight candidates.
+    /// </summary>
+    internal SkillProgramStepOutcome BindProgramDiscardPhaseDiscards(ProgramSkillFrame frame, string resultBind)
+    {
+        var active = GetActiveProgramFrame(frame.Id);
+        if (active.OwnerSeat != frame.OwnerSeat || active.SkillId != frame.SkillId)
+            throw new InvalidOperationException("A discard-phase bind requires the active program frame.");
+        var context = active.WindowContext ??
+            throw new InvalidOperationException("A discard-phase bind requires a trigger window context.");
+        if (context.Window is not SkillProgramTriggerWindow.TurnEnding)
+            throw new InvalidOperationException("A discard-phase bind requires a turnEnding window.");
+        var discardPileIds = _cardZones.CardsAt(CardLocation.DiscardPile).Select(card => card.Id).ToHashSet();
+        var poolIds = _discardPhaseHandDiscardTurnNumber == _turnNumber
+            ? _discardPhaseHandDiscardIds.Where(discardPileIds.Contains)
+                .Take(CardSubsetSelector.MaximumCandidateCount).ToArray()
+            : [];
+        SetProgramCardSet(frame.Id, resultBind, poolIds, SkillProgramCardSetVisibility.Public);
+        return SkillProgramStepOutcome.Continue;
+    }
+
     private void MoveCard(
         Card card,
         CardLocation from,
@@ -16183,6 +16301,7 @@ public sealed partial class GameEngine
             ClearJudgmentEffectiveKindAfterMove(card, from, to);
             ResolveSilverLionRemoval(card, from, reason);
             ResolveWoodenOxMove(card, from, to);
+            CollectDiscardPhaseHandDiscard(card, from, to);
             committed = true;
         }
         finally
@@ -16210,6 +16329,7 @@ public sealed partial class GameEngine
                 ClearJudgmentEffectiveKindAfterMove(card, from, to);
                 ResolveSilverLionRemoval(card, from, reason);
                 ResolveWoodenOxMove(card, from, to);
+                CollectDiscardPhaseHandDiscard(card, from, to);
             }
             committed = true;
         }
@@ -16237,6 +16357,7 @@ public sealed partial class GameEngine
                 ClearJudgmentEffectiveKindAfterMove(card, from, to);
                 ResolveSilverLionRemoval(card, from, reason);
                 ResolveWoodenOxMove(card, from, to);
+                CollectDiscardPhaseHandDiscard(card, from, to);
             }
             committed = true;
         }
@@ -18052,6 +18173,22 @@ public sealed partial class GameEngine
             return true;
         }
 
+        if (_pendingQinglongFollowupSuspension is { } qinglongSuspension &&
+            qinglongSuspension.OuterResolutionId != attack.ResolutionId)
+        {
+            // A Qinglong Crescent Blade follow-up runs nested while its parent
+            // attack is suspended with targets still awaiting their dodge
+            // windows, so the parent's physical cards legitimately remain in
+            // Processing until the parent resumes.
+            var suspendedParentIds = qinglongSuspension.NextAttack?.PhysicalCards
+                .Select(card => card.Id).ToHashSet() ?? new HashSet<int>();
+            return processing.All(card =>
+                       attackCardIds.Contains(card.Id) || suspendedParentIds.Contains(card.Id)) &&
+                   attack.PhysicalCards.All(card =>
+                       _cardZones.GetLocation(card.Id).Zone is CardZoneKind.Processing or
+                           CardZoneKind.DrawPile or CardZoneKind.Hand or CardZoneKind.DiscardPile);
+        }
+
         if (_pendingDamageTrigger is not null)
         {
             return processing.All(card => attackCardIds.Contains(card.Id)) &&
@@ -18824,6 +18961,26 @@ public sealed partial class GameEngine
     {
         public AttackResolution Attack { get; } = attack;
         public bool FactionSlashAttempted { get; set; }
+    }
+
+    // A Qinglong follow-up Slash resolves while its dodged parent attack may
+    // still own a multi-target continuation. Finishing the parent can yield on
+    // the next target's response (Fangtian Halberd or a program target-count
+    // policy, or a group-card response cursor), so the follow-up suspends that
+    // yielded state and restores it once its nested card uses unwind back to
+    // the parent's frame.
+    private sealed class QinglongFollowupSuspension(
+        long outerResolutionId,
+        AttackResolution? nextAttack,
+        PendingDecision? nextDecision,
+        FangtianHalberdResolution? fangtianContinuation,
+        EngineStatus status)
+    {
+        public long OuterResolutionId { get; } = outerResolutionId;
+        public AttackResolution? NextAttack { get; } = nextAttack;
+        public PendingDecision? NextDecision { get; } = nextDecision;
+        public FangtianHalberdResolution? FangtianContinuation { get; } = fangtianContinuation;
+        public EngineStatus Status { get; } = status;
     }
 
     private sealed class IceSwordResolution(

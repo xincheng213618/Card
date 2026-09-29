@@ -175,7 +175,13 @@ internal static class BorrowedSwordScenario
                                                     skill.ContentId == "classic:qingguo" &&
                                                     card.Suit is Suit.Spade or Suit.Club) == true) ||
                                             slashTarget.Equipment.Any(card =>
-                                                card.Kind == CardKind.BaguaFormation));
+                                                card.Kind == CardKind.BaguaFormation)) &&
+                                           // Locked card-window triggers that preempt or
+                                           // void the dodge response: Liu Shan's Xianle
+                                           // nullifies the Slash up front and Da Qiao's
+                                           // Liuli transfers it to a third player.
+                                           slashTarget.Skills?.Any(skill =>
+                                               skill.ContentId is "classic:xiangle" or "classic:liuli") != true;
                     if (canPauseForDodge)
                     {
                         return game;

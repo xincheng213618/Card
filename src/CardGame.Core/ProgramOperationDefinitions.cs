@@ -25,7 +25,8 @@ internal enum ProgramOperationAiSemantic
     HoldTargetCards, UseBoundCardByTarget, PendExtraTurn, ClaimDeathCleanupCards,
     ChooseOwnCardDiscard,
     ExchangeSelectedTargetHands,
-    RequestSlashByTarget
+    RequestSlashByTarget,
+    BindDiscardPhaseDiscards
 }
 internal sealed record ProgramOperationAiPolicy(
     ProgramOperationAiSemantic Semantic,
@@ -602,12 +603,14 @@ internal sealed class MoveBoundCardsProgramOperationDescriptor : ProgramOperatio
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.destinationZone: must be a persistent owner zone.");
         var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), sourceBind: source,
             exceptBind: except, destination: destination, destinationZone: destinationZone);
+        // A named-choice branch may gate a discard or a gain into the owner's own
+        // hand (Pindian winnings, or Guzheng's optional claim of the remaining cards).
         if (effect.Condition.Kind != SkillProgramConditionKind.Always &&
             !(effect.Condition.Kind == SkillProgramConditionKind.ChoiceIs &&
-              destination == SkillProgramCardDestination.DiscardPile) &&
+              destination is SkillProgramCardDestination.DiscardPile or SkillProgramCardDestination.OwnerHand) &&
             !(effect.Condition.Kind == SkillProgramConditionKind.PindianWon &&
               destination == SkillProgramCardDestination.OwnerHand))
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}: conditional card movement requires a named-choice discard or winning Pindian gain branch.");
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: conditional card movement requires a named-choice discard or gain branch.");
         return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>

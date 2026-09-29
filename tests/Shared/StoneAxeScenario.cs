@@ -64,13 +64,19 @@ internal static class StoneAxeScenario
                 continue;
             }
 
-            Require(game.Submit(new PlayCardCommand(
+            var equipResult = game.Submit(new PlayCardCommand(
                 0,
                 stoneAxe.Id,
                 [],
                 game.Revision,
-                play.PromptId)).Accepted,
-                "Stone Axe fixture could not equip the weapon.");
+                play.PromptId));
+            if (!equipResult.Accepted)
+            {
+                // Pool drift: conversion-locked generals can declare their hand cards as
+                // Slashes, so an arbitrary Stone Axe card may not be equippable; abandon
+                // this seed the same way the Qilin Bow fixture does.
+                continue;
+            }
             var playAfterEquip = game.PendingDecision;
             if (playAfterEquip?.Kind != DecisionKind.PlayCard)
             {

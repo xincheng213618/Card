@@ -181,10 +181,14 @@ public sealed partial class GameEngine
             string resultBind) =>
             engine.RequestProgramSlashByTarget(frame, targetSeat, resultBind);
 
-        public void PendExtraTurn(ProgramSkillFrame frame) => engine.PendProgramExtraTurn(frame);
+        public void PendExtraTurn(ProgramSkillFrame frame, int? targetSeat) =>
+            engine.PendProgramExtraTurn(frame, targetSeat);
 
         public void ClaimDeathCleanupCards(ProgramSkillFrame frame) =>
             engine.ClaimProgramDeathCleanupCards(frame);
+
+        public SkillProgramStepOutcome BindDiscardPhaseDiscards(ProgramSkillFrame frame, string resultBind) =>
+            engine.BindProgramDiscardPhaseDiscards(frame, resultBind);
 
         public SkillProgramStepOutcome Pindian(ProgramSkillFrame frame, int targetSeat) =>
             engine.BeginProgramSkillPindian(frame, targetSeat);

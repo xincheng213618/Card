@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:xiangle",
+      "revision": 1,
+      "minimumRulesVersion": 187,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "nullify-unless-actor-discards-basic",
+          "window": "cardUseBeforeTargetEffects",
+          "ownerRelation": "target",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "actor",
+              "resultBind": "xianle-answer",
+              "options": [
+                {
+                  "id": "pay",
+                  "condition": {
+                    "kind": "hasOwnedCardCategory",
+                    "zones": ["hand"],
+                    "cardCategories": ["basic"]
+                  }
+                },
+                {
+                  "id": "decline",
+                  "condition": { "kind": "always" }
+                }
+              ]
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "actor" },
+              "cardOwnerRef": { "kind": "actor" },
+              "zones": ["hand"],
+              "cardCategories": ["basic"],
+              "count": 1,
+              "destination": "discardPile",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "xianle-answer",
+                "optionId": "pay"
+              }
+            },
+            {
+              "op": "nullifyCurrentCardEffect",
+              "target": "owner",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "xianle-answer",
+                "optionId": "decline"
+              }
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:fangquan",
+      "revision": 1,
+      "minimumRulesVersion": 187,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "reset-pending",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "priority": 100,
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "fangquan-pending",
+              "value": false
+            }
+          ]
+        },
+        {
+          "id": "declare-skip-play",
+          "window": "afterNormalDraw",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "skipTurnPhases",
+              "target": "owner",
+              "phases": ["play"]
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "fangquan-pending",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "grant-extra-turn",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "booleanState",
+                "stateId": "fangquan-pending",
+                "expectedValue": true
+              },
+              {
+                "kind": "compare",
+                "left": { "kind": "currentHandCount" },
+                "operator": "greaterThanOrEqual",
+                "right": { "kind": "integerConstant", "value": 1 }
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "amount": 1,
+              "zones": ["hand"],
+              "resultBind": "fangquan-cost"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "fangquan-cost",
+              "destination": "discardPile"
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "pendExtraTurn",
+              "target": "owner",
+              "targetRef": { "kind": "selectedTarget" }
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": [
+        {
+          "id": "fangquan-pending",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ]
+    },
+    {
+      "id": "classic:ruoyu",
+      "revision": 1,
+      "minimumRulesVersion": 187,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "awakening",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "currentHp" },
+            "operator": "lessThanOrEqual",
+            "right": { "kind": "livingPlayersMinHp" }
+          },
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "grantSkills",
+              "target": "owner",
+              "skillIds": ["classic:jijiang"]
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

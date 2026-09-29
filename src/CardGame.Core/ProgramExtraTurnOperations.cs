@@ -10,15 +10,20 @@ internal sealed class PendExtraTurnProgramOperationDescriptor : ProgramOperation
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "condition");
+        r.AllowOnly("op", "target", "targetRef", "condition");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}.target: an extra turn always belongs to the skill owner.");
-        return new(Op, target, 0, r.Condition());
+        var targetRef = r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null;
+        if (targetRef is not null && targetRef.Kind != ProgramParticipantRef.SelectedTarget)
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}.targetRef: an extra turn beneficiary must be the selected target.");
+        return new(Op, target, 0, r.Condition(), targetReference: targetRef);
     }
 
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
+    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
+        ParticipantResources(effect.TargetReference);
 }
 
 public sealed class PendExtraTurnSkillProgramEffectHandler : ISkillProgramEffectHandler
@@ -31,7 +36,8 @@ public sealed class PendExtraTurnSkillProgramEffectHandler : ISkillProgramEffect
         int targetSeat,
         ISkillProgramEffectHost host)
     {
-        host.PendExtraTurn(frame);
+        host.PendExtraTurn(frame,
+            effect.TargetReference is { } reference ? host.ResolveParticipant(frame, reference) : null);
         return SkillProgramStepOutcome.Continue;
     }
 }

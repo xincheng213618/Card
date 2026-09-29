@@ -32,6 +32,7 @@ public sealed partial class GameEngine
             SkillProgramNumberExpression.OwnerLostHp => GetProgramOwnerLostHp(active),
             SkillProgramNumberExpression.AllOwnedZoneCards => candidates.Length,
             SkillProgramNumberExpression.HandHalfFloor => GetHand(_players[cardOwnerSeat]).Count / 2,
+            SkillProgramNumberExpression.LivingPlayersMinHp => GetLivingPlayersMinHp(),
             SkillProgramNumberExpression.SelectedPairHandDifference => active.SelectedTargetSeats is { Count: 2 } pair
                 ? Math.Abs(GetHand(_players[pair[0]]).Count - GetHand(_players[pair[1]]).Count)
                 : throw new InvalidOperationException(

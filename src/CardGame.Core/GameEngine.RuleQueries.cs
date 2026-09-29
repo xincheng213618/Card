@@ -10,6 +10,12 @@ public sealed partial class GameEngine
             .Distinct(StringComparer.Ordinal)
             .Count();
 
+    private int GetLivingPlayersMinHp() =>
+        _players
+            .Where(player => player.IsAlive)
+            .Select(player => player.Hp)
+            .Min();
+
     private RuleQueryEvaluation EvaluateDistance(CharacterState source, CharacterState target,
         int? excludedEquipmentId = null)
     {

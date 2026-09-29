@@ -40,9 +40,15 @@ internal static class ZhouTaiChecks
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {
-                Seed = seed, HumanSeat = 0, HumanRole = Role.Lord, PlayerCount = 5,
-                ModeId = "identity:classic-5", UseInteractiveSetup = true,
-                UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 100
+                Seed = seed,
+                HumanSeat = 0,
+                HumanRole = Role.Lord,
+                PlayerCount = 5,
+                ModeId = "identity:classic-5",
+                UseInteractiveSetup = true,
+                UseInteractiveDiscard = false,
+                AdvanceAfterHumanCommands = false,
+                MaxTurns = 100
             }, registry);
             if (!game.Submit(new StartGameCommand()).Accepted ||
                 game.PendingDecision is not { Kind: DecisionKind.SelectGeneral, PlayerSeat: 0 } setup ||
@@ -60,10 +66,25 @@ internal static class ZhouTaiChecks
                 var result = game.Submit(command);
                 if (!result.Accepted) break;
                 if (game.Events.Skip(eventCount).Any(item => item.Payload is ProgramUniqueRankDyingResolvedEvent))
-                    return new Fixture(game);
+                {
+                    // Seed trial: the full scenario needs a later repeated rank inside
+                    // the same bounded game. A late first wound (new-table compositions
+                    // can push it near the turn cap) can end the game before any
+                    // repeated rank occurs; such seeds are discarded and the scan
+                    // continues. The returned game is restored at the first-wound
+                    // checkpoint so its event log holds exactly one wound resolution.
+                    var woundCheckpoint = game.CreateCheckpoint();
+                    if (TryDriveUntilDuplicate(game) is not null)
+                    {
+                        return new Fixture(GameReplay.Restore(woundCheckpoint, registry));
+                    }
+
+                    break;
+                }
             }
         }
-        throw new InvalidOperationException("No bounded Zhou Tai fixture reached a unique Buqu wound.");
+        throw new InvalidOperationException(
+            "No bounded Zhou Tai fixture reached a unique Buqu wound followed by a repeated rank.");
     }
 
     private static GameCommand? NextCommand(GameEngine game)
@@ -77,20 +98,28 @@ internal static class ZhouTaiChecks
         return choice is null ? null : new AnswerPromptCommand(0, prompt.PromptId, choice.Id, game.Revision);
     }
 
-    private static ProgramUniqueRankDyingResolvedEvent DriveUntilDuplicate(GameEngine game)
+    private static ProgramUniqueRankDyingResolvedEvent? TryDriveUntilDuplicate(GameEngine game)
     {
         for (var step = 0; step < 5_000 && game.State.Status != EngineStatus.Completed; step++)
         {
             var duplicate = game.Events.Select(item => item.Payload).OfType<ProgramUniqueRankDyingResolvedEvent>()
                 .LastOrDefault(item => !item.RankWasUnique);
             if (duplicate is not null) return duplicate;
-            var command = NextCommand(game) ?? throw new InvalidOperationException("Buqu duplicate fixture lost its command path.");
-            var result = game.Submit(command);
-            Require(result.Accepted, result.Error?.Message ?? "Could not advance to a repeated Buqu rank.");
+            var command = NextCommand(game);
+            if (command is null || !game.Submit(command).Accepted)
+            {
+                return null;
+            }
         }
-        var finalDuplicate = game.Events.Select(item => item.Payload).OfType<ProgramUniqueRankDyingResolvedEvent>()
+        return game.Events.Select(item => item.Payload).OfType<ProgramUniqueRankDyingResolvedEvent>()
             .LastOrDefault(item => !item.RankWasUnique);
-        return finalDuplicate ?? throw new InvalidOperationException("No repeated Buqu rank occurred before the bounded game ended.");
+    }
+
+    private static ProgramUniqueRankDyingResolvedEvent DriveUntilDuplicate(GameEngine game)
+    {
+        var duplicate = TryDriveUntilDuplicate(game) ??
+            throw new InvalidOperationException("No repeated Buqu rank occurred before the bounded game ended.");
+        return duplicate;
     }
 
     private static int ReadHandLimit(GameEngine game, int seat)

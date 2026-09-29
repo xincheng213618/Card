@@ -248,6 +248,7 @@ public sealed partial class GameEngine
         {
             SkillProgramNumberExpression.IntegerConstant => minimumValue,
             SkillProgramNumberExpression.LivingFactionCount => GetLivingFactionCount(),
+            SkillProgramNumberExpression.LivingPlayersMinHp => GetLivingPlayersMinHp(),
             _ => throw new InvalidOperationException($"Unsupported numeric expression '{expression}'.")
         };
         value = Math.Max(minimumValue, value);
@@ -548,6 +549,7 @@ public sealed partial class GameEngine
             null => amount,
             SkillProgramNumberExpression.OwnerLostHp => GetProgramOwnerLostHp(frame),
             SkillProgramNumberExpression.LivingFactionCount => GetLivingFactionCount(),
+            SkillProgramNumberExpression.LivingPlayersMinHp => GetLivingPlayersMinHp(),
             SkillProgramNumberExpression.TargetMaxHpMinusHandCount =>
                 Math.Max(0, target.MaxHp - GetHand(target).Count),
             SkillProgramNumberExpression.CurrentAttackRange =>
@@ -727,6 +729,8 @@ public sealed partial class GameEngine
                     GetHand(target).Count < target.MaxHp,
                 SkillProgramTargetKind.OtherLivingExceptSource =>
                     target.Seat != ownerSeat && target.Seat != windowContext?.SourceSeat,
+                SkillProgramTargetKind.EventSource =>
+                    target.Seat == windowContext?.SourceSeat,
                 _ => false
             })
             .Select(target => target.Seat)
@@ -1950,6 +1954,8 @@ public sealed partial class GameEngine
             CurrentAttackRange: GetAttackRange(owner.Seat),
             CurrentMaxHp: owner.MaxHp,
             CurrentHandCount: GetHand(owner).Count,
+            LivingPlayersMinHp: GetLivingPlayersMinHp(),
+            TurnOwnerDiscardPhaseHandDiscardCount: TurnOwnerDiscardPhaseHandDiscardCount,
             LordGeneralId: _players.SingleOrDefault(player => player.Role == Role.Lord)?.General.Id,
             OwnedZoneCounts: new SkillProgramOwnedZoneCounts(
                 _cardZones.Count(CardLocation.WoodenOxGrain(owner.Seat)),
@@ -3472,7 +3478,9 @@ public sealed partial class GameEngine
             AttackRange: GetAttackRange(owner.Seat),
             AttackRangeCoverageDecreased: _ => _players.Where(player => player.IsAlive && player.Seat != owner.Seat)
                 .Any(player => GetEquipment(player).Any(card =>
-                    WouldEquipmentRemovalReduceCoverage(player.Seat, card.Id))));
+                    WouldEquipmentRemovalReduceCoverage(player.Seat, card.Id))),
+            LivingPlayersMinHp: GetLivingPlayersMinHp(),
+            TurnOwnerDiscardPhaseHandDiscardCount: TurnOwnerDiscardPhaseHandDiscardCount);
 
     private ProgramAiPublicContext WithProgramConditionFacts(ProgramAiPublicContext context,
         CharacterState owner, string skillId, string skillInstanceId)
@@ -3938,7 +3946,9 @@ public sealed partial class GameEngine
             SourceToTargetDistanceAtDamage = damage.Attack.SourceToTargetDistanceAtDamage,
             EventTargetHp = _players[damage.Attack.TargetSeat].Hp,
             EventTargetMaxHp = _players[damage.Attack.TargetSeat].MaxHp,
-            DamageTargetIsOther = candidate.OwnerSeat != damage.Attack.TargetSeat
+            DamageTargetIsOther = candidate.OwnerSeat != damage.Attack.TargetSeat,
+            DamageSourceIsOwner = candidate.OwnerSeat == damage.Attack.SourceSeat,
+            DamageSourceFactionId = GetEffectiveFactionId(_players[damage.Attack.SourceSeat])
         };
         return new(
             damage.Window,

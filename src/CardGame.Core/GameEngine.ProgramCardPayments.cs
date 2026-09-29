@@ -45,7 +45,12 @@ public sealed partial class GameEngine
             (destinationSeat is not { } seat || !_players[seat].IsAlive ||
              seat == cardOwnerSeat && !allowSameOwnerHandReturn))
             throw new InvalidOperationException("A selected-target transfer requires a distinct living recipient.");
-        var choices = BuildOwnedCardPaymentChoices(active.Id, chooserSeat, cardOwnerSeat, zones, cardCategories);
+        if (destination == SkillProgramCardDestination.SelectedTargetEquipment &&
+            (destinationSeat is not { } recipientSeat || !_players[recipientSeat].IsAlive ||
+             recipientSeat == cardOwnerSeat))
+            throw new InvalidOperationException("An equipment gift requires a distinct living recipient.");
+        var choices = BuildOwnedCardPaymentChoices(active.Id, chooserSeat, cardOwnerSeat, zones, cardCategories,
+            destination, destinationSeat);
         if (choices.Count == 0)
         {
             if (skipIfNoCards)
@@ -80,7 +85,9 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<PromptChoice> BuildOwnedCardPaymentChoices(
         long frameId, int chooserSeat, int cardOwnerSeat, IReadOnlyList<CardZoneKind> zones,
-        IReadOnlyList<SkillProgramCardCategory>? cardCategories = null)
+        IReadOnlyList<SkillProgramCardCategory>? cardCategories = null,
+        SkillProgramCardDestination destination = SkillProgramCardDestination.DiscardPile,
+        int? destinationSeat = null)
     {
         var frame = GetActiveProgramFrame(frameId);
         var result = new List<PromptChoice>();
@@ -96,6 +103,10 @@ public sealed partial class GameEngine
             for (var slot = 0; slot < cards.Count; slot++)
             {
                 if (cardCategories is { Count: > 0 } && !MatchesProgramCardCategory(cards[slot].Kind, cardCategories))
+                    continue;
+                if (destination == SkillProgramCardDestination.SelectedTargetEquipment &&
+                    (destinationSeat is not { } recipient ||
+                        !CanEnterEquipmentSlot(recipient, cards[slot])))
                     continue;
                 if (zone == CardZoneKind.Equipment && cardOwnerSeat == frame.OwnerSeat &&
                     IsActiveProgramSourceEquipmentCard(cardOwnerSeat, frame.SkillId,
@@ -142,7 +153,7 @@ public sealed partial class GameEngine
             CardZoneKind.Hand => GetHand(_players[ownerSeat]),
             CardZoneKind.Equipment => GetEquipment(_players[ownerSeat]),
             CardZoneKind.Judgment => GetJudgment(_players[ownerSeat]),
-                _ => throw new InvalidOperationException("Unsupported payment card zone.")
+            _ => throw new InvalidOperationException("Unsupported payment card zone.")
         };
         if (slot < 0 || slot >= cards.Count)
         {
@@ -180,6 +191,8 @@ public sealed partial class GameEngine
             SkillProgramCardDestination.OwnerHand => CardLocation.Hand(frame.OwnerSeat),
             SkillProgramCardDestination.SelectedTargetHand => CardLocation.Hand(
                 ResolveProgramParticipant(frame, effect.TargetReference!)),
+            SkillProgramCardDestination.SelectedTargetEquipment => CardLocation.Equipment(
+                ResolveProgramParticipant(frame, effect.TargetReference!)),
             SkillProgramCardDestination.DiscardPile => CardLocation.DiscardPile,
             _ => throw new InvalidOperationException("Unsupported selected-card destination.")
         };
@@ -188,6 +201,19 @@ public sealed partial class GameEngine
             ClearPendingDecision();
             CancelProgramBindingAndCleanup(frame, "受牌角色已失效，技能结算已取消。");
             return;
+        }
+        if (effect.Destination == SkillProgramCardDestination.SelectedTargetEquipment)
+        {
+            var recipient = _players[destination.OwnerSeat!.Value];
+            var slotAvailable = !recipient.EquipmentAreaAbolished && CanEnterEquipmentSlot(recipient.Seat, card);
+            if (!slotAvailable)
+            {
+                // The target's corresponding slot was filled (or the area was
+                // abolished) between selection and resolution: the gift cancels.
+                ClearPendingDecision();
+                CancelProgramBindingAndCleanup(frame, "目标装备槽不可用，技能结算已取消。");
+                return;
+            }
         }
         if (destination == CardLocation.Hand(ownerSeat) && source == CardLocation.Hand(ownerSeat))
             throw new InvalidOperationException("A same-hand card movement is not a payment.");
@@ -218,6 +244,17 @@ public sealed partial class GameEngine
             MoveCard(card, CardLocation.Processing, destination, reason);
         }
         else MoveCard(card, source, destination, reason);
+        if (effect.Destination == SkillProgramCardDestination.SelectedTargetEquipment)
+        {
+            // Mirror CompleteEquipmentUse's public entry trio (move + event + log);
+            // a gifted card never replaces anything, so there is no replaced card.
+            QueueGameEvent(new EquipmentChangedEvent(frame.Id, destination.OwnerSeat!.Value,
+                EquipmentCatalog.Get(card.Kind).Slot, card.Id, card.Kind, ReplacedCardId: null));
+            AddLog("EquipmentChanged",
+                $"{_players[frame.OwnerSeat].Name} 将【{EquipmentCatalog.Get(card.Kind).DisplayName}】置于 " +
+                $"{_players[destination.OwnerSeat.Value].Name} 的装备区。",
+                destination.OwnerSeat.Value);
+        }
         if (effect.ResultBind is { } bind)
             SetProgramCardSet(frame.Id, bind, [card.Id],
                 effect.RevealBeforeMove ? SkillProgramCardSetVisibility.Public : SkillProgramCardSetVisibility.Private,
@@ -300,6 +337,12 @@ public sealed partial class GameEngine
     {
         return categories.Contains(GetProgramCardCategory(kind));
     }
+
+    /// <summary>Equipment gifts cannot replace an equipped card: the matching slot must be free.</summary>
+    private bool CanEnterEquipmentSlot(int recipientSeat, Card card) =>
+        EquipmentCatalog.IsEquipment(card.Kind) &&
+        GetEquipment(_players[recipientSeat]).All(equipped =>
+            EquipmentCatalog.Get(equipped.Kind).Slot != EquipmentCatalog.Get(card.Kind).Slot);
 
     private static SkillProgramCardCategory GetProgramCardCategory(CardKind kind)
     {

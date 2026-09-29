@@ -137,6 +137,12 @@ public sealed partial class GameEngine
                 if (indexes.Length == 0) continue;
                 var facts = CaptureCardsMovedTriggerFacts(_players[ownerSeat], indexes.Length, count, window);
                 if (!trigger.Condition.Evaluate(facts, candidate.SkillId, candidate.SkillInstanceId)) continue;
+                // A judgment still in flight (for example while another skill replaces its
+                // card) owns its judgment zone churn; starting a second judgment from that
+                // movement would collide with the pending one and self-feedback the same
+                // judgment, so such triggers wait for a settled zone instead.
+                if (_pendingJudgment is not null &&
+                    trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.StartJudgment)) continue;
                 var occurrences = trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerBatch ? [0] : indexes;
                 candidates.AddRange(occurrences.Select(index => candidate with { OccurrenceIndex = index }));
             }

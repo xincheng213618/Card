@@ -2063,6 +2063,23 @@
       ]
     },
     {
+      "key": "dong-zhuo",
+      "characterName": "董卓",
+      "defaultSkinId": "104601",
+      "skins": [
+        {
+          "id": "104601",
+          "name": "经典形象*董卓",
+          "sourcePage": "https://x.sanguosha.com/hero/46.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/104601.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-dong-zhuo.png",
+          "sha256": "b1e6339609c86a37a69599fe8788d198f19f9a446ed5c5ac891531e702b13aa8",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "gan-ning",
       "characterName": "甘宁",
       "defaultSkinId": "100901",
@@ -4207,6 +4224,23 @@
           "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/userInfoStatic/630901.png",
           "localPath": "src/CardGame.Wpf/Assets/Skins/liu-biao/630901.png",
           "sha256": "5f17a3c81977d090beb2a690b28c58611ecc07a219eb04746455cfb4d342fe44",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
+      "key": "liu-shan",
+      "characterName": "刘禅",
+      "defaultSkinId": "105401",
+      "skins": [
+        {
+          "id": "105401",
+          "name": "经典形象*刘禅",
+          "sourcePage": "https://x.sanguosha.com/hero/54.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105401.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-liu-shan.png",
+          "sha256": "f5c65e3d59e42f871a2b0470a6f12b45d6fcb23fffc4a7f21b4b2129156905d6",
           "pixelWidth": 574,
           "pixelHeight": 761
         }
@@ -8237,6 +8271,23 @@
           "sha256": "4577d2e2597e74b793af9686c977b5a2300a00f00cdf9b0eef7555e561fd1539",
           "pixelWidth": 530,
           "pixelHeight": 750
+        }
+      ]
+    },
+    {
+      "key": "zhang-zhao-zhang-hong",
+      "characterName": "张昭张纮",
+      "defaultSkinId": "105601",
+      "skins": [
+        {
+          "id": "105601",
+          "name": "经典形象*张昭张纮",
+          "sourcePage": "https://x.sanguosha.com/hero/56.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/105601.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-zhang-zhao-zhang-hong.png",
+          "sha256": "a68956fab31afa06d6ce19defaadb685648db0a5d27a35a4e039d3f0dead78d7",
+          "pixelWidth": 574,
+          "pixelHeight": 761
         }
       ]
     },

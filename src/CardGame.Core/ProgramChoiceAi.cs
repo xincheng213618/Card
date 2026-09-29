@@ -5,12 +5,12 @@ internal static class ProgramChoiceAi
 {
     internal static PlayerSkillContext? Target(SkillProgramEffectTarget target,
         PlayerSkillContext owner, ProgramAiPublicContext context) => target switch
-    {
-        SkillProgramEffectTarget.Owner => owner,
-        SkillProgramEffectTarget.SelectedTarget => context.SelectedTarget,
-        SkillProgramEffectTarget.Actor => context.Actor ?? (context.CardActionActorIsOwner ? owner : null),
-        _ => null
-    };
+        {
+            SkillProgramEffectTarget.Owner => owner,
+            SkillProgramEffectTarget.SelectedTarget => context.SelectedTarget,
+            SkillProgramEffectTarget.Actor => context.Actor ?? (context.CardActionActorIsOwner ? owner : null),
+            _ => null
+        };
 
     internal static double Score(IEnumerable<SkillProgramEffect> effects, PlayerSkillContext owner,
         PlayerSkillContext chooser, ProgramAiPublicContext context,
@@ -37,6 +37,13 @@ internal static class ProgramChoiceAi
                 // The chooser knows its own card cost; its exact hidden card identity is not
                 // needed to compare a generic one-card payment with a visible damage effect.
                 score -= effect.CardCategories.Contains(SkillProgramCardCategory.Equipment) ? 10d : 8d;
+                continue;
+            }
+            if (effect.Op == SkillProgramEffectOp.NullifyCurrentCardEffect)
+            {
+                // The nullified card use is the chooser's own; losing it is the
+                // real cost of declining the skill's payment branch.
+                score -= 30d;
                 continue;
             }
             if (Target(effect.Target, owner, context)?.Seat != chooser.Seat) continue;
