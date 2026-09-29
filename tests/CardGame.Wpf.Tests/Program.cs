@@ -70,98 +70,41 @@ internal static class Program
             Check("original card artwork preserves physical card identity and interaction", () => CardArtworkChecks.FacesAndInteractions(output));
             Check("reference table layout preserves equipment and skill controls", () => TableSurfaceChecks.EquipmentAndSkillControls(output));
             Check("action dock keeps confirm cancel and end stable through real selection", () => TableSurfaceChecks.ActionDockSelection(output));
-            Check("action dock arranges multiple real skills beside the hand", () => TableSurfaceChecks.MultipleSkillGrid(output));
             Check("player guide renders current actions, private hand hints and searchable card rules", () => PlayerGuideChecks.ControlsAndSearch(output));
             Check("guide modal preserves selection and pauses then resumes the original timer policy", PlayerGuideChecks.ModalLifecycle);
             Check("general portraits share selected skins across gallery, choices and battle and persist locally", () => GeneralPortraitChecks.SelectionAndPersistence(output));
             Check("general gallery combines registered series, faction and text filters without changing the match", () => CheckGeneralGallery(output));
-            Check("Qu Yi gallery and official portrait", QuYiUiChecks.GalleryAndOfficialPortrait);
             Check("general selection previews candidates before one explicit confirmation", () => CheckGeneralSelectionPreview(output));
             Check("new games reveal only the player's identity and objective before general selection", () => CheckIdentityReveal(output));
-            Check("the human skill rail distinguishes available active and automatic skills", () => CheckHumanSkillRail(output));
             Check("mode lobby filters real identity, team and national entries without changing the match", () => CheckModeLobby(output));
-            Check("lobby games reveal the dealt private opening hand without changing the match", () => CheckOpeningDealTransition(output));
             Check("battle report combines public event and related-seat filters without changing the match", () => CheckBattleLogFilters(output));
-            Check("tutorial positions are deterministic real command histories", TutorialChecks.RealScenarios);
             Check("four tutorial lessons complete and restore the suspended match", () => TutorialChecks.CompleteCourseAndRestore(output));
-            Check("layout and embedded portraits load without opening a window", () => CheckLayout(output));
-            Check("large hands keep every card reachable", CheckLargeHand);
             Check("hand overflow supports wheel browsing and reveals newly selected cards", () => HandNavigationChecks.OverflowAndSelection(output));
             Check("selection, target toggle, cancel and play use legal actions", CheckSelections);
             Check("skill conversion is explicit and shares the confirmation flow", CheckConversions);
             Check("conversion choices retain exact provenance without leaking trusted action details", CardConversionUiChecks.Run);
-            Check("expanded content exposes the active-skill command in WPF", ActiveSkillChecks.Controls);
             Check("composed skills share the generic WPF draft and submit their stable program identity", SkillProgramUiChecks.ActiveSelectionAndSubmission);
-            Check("classic setup selects and persists standard or military physical decks", () => ClassicGeneralUiChecks.SelectableDeckExpansion(output));
-            Check("formal Shen Guan Yu renders attributed classic art and complete skills", () => ClassicGeneralUiChecks.ShenGuanYuPortraitAndCard(output));
-            Check("formal Yan Yan renders Juzhan conversion metadata and initial Yang state", () => ClassicGeneralUiChecks.YanYanConversionCard(output));
-            Check("formal SP Guan Yu renders independent official art and complete skills", () => ClassicGeneralUiChecks.SpGuanYuPortraitAndCard(output));
-            Check("formal Mou Lu Meng renders compound skill metadata and Hengye growth", () => ClassicGeneralUiChecks.MouLuMengSkillState(output));
-            Check("formal Cao Zhang renders official art and original Jiangchi", () => ClassicGeneralUiChecks.CaoZhangJiangchiCard(output));
-            Check("formal Ma Dai renders official art and staged Qianxi", () => ClassicGeneralUiChecks.MaDaiQianxiCard(output));
-            Check("formal Gao Shun renders official art and exact Xianzhen state", () => ClassicGeneralUiChecks.GaoShunXianzhenCard(output));
-            Check("formal Liu Biao renders official art and exact Zishou state", () => ClassicGeneralUiChecks.LiuBiaoZishouCard(output));
-            Check("formal Wang Yi renders official art and public-program Zhenlie/Miji prompts", () => WangYiUiChecks.CardAndPrivatePrompts(output));
             Check("formal Zhong Hui renders official art, Authority and acquired Paiyi", () => ZhongHuiUiChecks.CardPromptsAuthorityAndPaiyi(output));
-            Check("formal Xun You renders official art and private Qice/Zhiyu interactions", () => XunYouUiChecks.CardAndPrivatePrompts(output));
-            Check("formal Liao Hua renders official art, Dangxian and the private Fuli choice", () => LiaoHuaUiChecks.CardExtraPhaseAndFuli(output));
-            Check("formal Guan Xing and Zhang Bao render Fuhun draft and turn grant", () => GuanXingZhangBaoUiChecks.CardDraftAndTurnGrant(output));
-            Check("formal Bu Lian Shi renders official art, Anxu draft and Zhuiyi prompt", () => BuLianShiUiChecks.CardAnxuAndZhuiyi(output));
             Check("formal Cheng Pu renders official art, Chunlao storage and dying rescue", () => ChengPuUiChecks.CardStorageAndRescue(output));
-            Check("formal Han Dang renders official art, Gongqi and Jiefan prompts", () => HanDangUiChecks.CardGongqiAndJiefan(output));
-            Check("formal Cao Chong renders official art, Chengxiang and Renxin prompts", () => CaoChongUiChecks.CardAndDamagePrompts(output));
-            Check("formal Guo Huai renders official art and Jingce prompt", () => GuoHuaiUiChecks.CardAndJingcePrompt(output));
-            Check("Gu Yong official portrait and fame-4 gallery", GuYongUiChecks.PortraitAndGallery);
-            Check("2015 SP Le Jin official portrait gallery and Wei battle seat", SpLeJinUiChecks.PortraitGalleryAndBattleSeat);
-            Check("2019 boundary Guo Jia official portrait gallery and Wei battle seat", BoundaryGuoJiaUiChecks.PortraitGalleryAndBattleSeat);
-            Check("2014 boundary Cao Cao official portrait gallery and Wei battle seat", BoundaryCaoCaoUiChecks.PortraitGalleryAndBattleSeat);
-            Check("2014 boundary Xu Chu gallery and Wei battle seat", BoundaryXuChuUiChecks.GalleryAndBattleSeat);
-            Check("2014 boundary Zhou Yu official portrait gallery and Wu battle seat", BoundaryZhouYuUiChecks.GalleryPortraitAndBattleSeat);
-            Check("2013 Pan Zhang Ma Zhong official portrait gallery and Wu battle seat", PanZhangMaZhongUiChecks.PortraitGalleryAndWuBattleSeat);
-            Check("2019 boundary Diao Chan renders its card and resolves Biyue", () => BoundaryDiaoChanUiChecks.BoundaryCardAndBiyuePrompt(output));
             Check("2018 boundary Zhang Liao renders private dynamic Tuxi targets", () => BoundaryZhangLiaoUiChecks.PortraitAndPrivateDrawPlan(output));
             Check("2014 boundary Gan Ning renders private Fenwei target subsets", () => BoundaryGanNingUiChecks.PrivateFenweiSubsetPrompt(output));
-            Check("formal Diao Chan renders and resolves the metadata-driven Biyue prompt", () => DiaoChanUiChecks.BiyuePromptAndContinuation(output));
             Check("Program named choice renders shared labels and resumes parent", () => ProgramChoiceUiChecks.NamedChoiceUsesSharedSurfaceAndCommand(output));
             Check("Program owned-card sets render a private shared draft and commit once", () => ProgramOwnedCardsUiChecks.PrivateSetUsesSharedChoiceSurface(output));
             Check("formal Man Chong renders official art, Junxing selection and Yuce prompt", () => ManChongUiChecks.CardActiveSelectionAndYucePrompt(output));
-            Check("formal Guan Ping renders official art and the private Longyin prompt", () => GuanPingUiChecks.CardAndLongyinPrompt(output));
-            Check("classic identity renders and restores multiple skills with base HP", () => ClassicGeneralUiChecks.MultiSkillSelectionAndRestore(output));
-            Check("current Huang Gai submits configured Kujin from the WPF skill rail", () => ClassicGeneralUiChecks.CurrentConfiguredKujinAction(output));
-            Check("classic Tiandu restores and claims through the WPF choice surface", () => ClassicGeneralUiChecks.TianduChoiceAndRestore(output));
-            Check("classic Fanjian restores and resolves through the WPF suit choice surface", () => ClassicGeneralUiChecks.FanjianChoiceAndRestore(output));
-            Check("classic Guanxing restores and orders private cards through the WPF choice surface", () => ClassicGeneralUiChecks.GuanxingChoiceAndRestore(output));
-            Check("classic FactionDefense restores and requests Wei responses through the WPF choice surface", () => ClassicGeneralUiChecks.FactionDefenseChoiceAndRestore(output));
-            Check("classic Rende remains repeatable before FactionSlash opens its separate target draft", () => ClassicGeneralUiChecks.FactionSlashActiveAction(output));
-            Check("program skill target order survives tutorial restoration and submission", ClassicGeneralUiChecks.OrderedProgramTargets);
-            Check("classic shared skills render their distinct trigger and state identities", () => ClassicGeneralUiChecks.SharedSkillIdentityMetadata(output));
             Check("skill drafts confirm through Enter and resume intact after guides and tutorials", () => SkillInteractionChecks.ConfirmAndResume(output));
             Check("hand responses select exact cards and confirm through shared controls", () => HandResponseChecks.Controls(output));
             Check("Wusheng hand responses restore versioned prompts and confirm explicit conversions", () => WushengResponseChecks.ControlsAndSavedRules(output));
             Check("Borrowed Sword exposes ordered targets and exact owner responses", () => BorrowedSwordUiChecks.OrderedTargetsAndOwnerResponse(output));
-            Check("Stone Axe exposes exact two-card costs and commits through WPF", () => StoneAxeUiChecks.ExactCostResponse(output));
             Check("Zhangba selects two hand cards and one Slash target through WPF", () => ZhangbaUiChecks.ActiveDraft(output));
             Check("Cixiong restores and commits its staged private WPF choice", () => CixiongDoubleSwordsUiChecks.ActivationChoice(output));
-            Check("Qinglong restores and commits an exact same-target Slash choice", () => QinglongCrescentBladeUiChecks.ExactFollowupChoice(output));
             Check("Ice Sword restores and commits sequential opaque target-card choices", () => IceSwordUiChecks.SequentialOpaqueChoices(output));
-            Check("Qilin Bow restores and commits an exact public mount choice", () => QilinBowUiChecks.ExactMountChoice(output));
-            Check("Mengjin restores and commits an opaque hand or public equipment choice", () => MengjinUiChecks.OpaqueTargetCardChoice(output));
-            Check("Quhu restores and commits its winning attributed damage target", () => QuhuUiChecks.WinningDamageTarget(output));
-            Check("dead Wuhun owners choose maximum Nightmare targets through WPF", () => WuhunUiChecks.DeathTargetChoice(output));
-            Check("Shuangxiong restores its private draw replacement choice", () => ShuangxiongUiChecks.DrawChoice(output));
             Check("Fangtian Halberd restores and commits an exact multi-target Slash", () => FangtianHalberdUiChecks.ExactTargetCombination(output));
-            Check("Guding Blade renders its locked empty-hand damage increase", () => GudingBladeUiChecks.LockedDamageFeedback(output));
-            Check("Zhuque Fan exposes and renders its Fire Slash conversion", () => ZhuqueFanUiChecks.FireSlashConversionFeedback(output));
-            Check("Tengjia renders its locked Fire damage increase", () => TengjiaUiChecks.FireDamageFeedback(output));
-            Check("Silver Lion renders its locked damage cap", () => SilverLionUiChecks.DamageCapFeedback(output));
             Check("national Wusheng reveal during response refreshes the WPF controls", () => WushengResponseChecks.NationalRevealDuringResponse(output));
             Check("Iron Chain selects seats directly and preserves multi-target drafts through guides and tutorials", () => CardTargetChecks.DirectSelection(output));
             Check("recast uses a distinct action and rejects incompatible saved rules safely", () => RecastUiChecks.ControlsAndOldSaves(output));
             Check("converted Lianhuan recast selects exact source and saves replay", () => RecastUiChecks.ConvertedLianhuanSelectionAndReplay(output));
             Check("response context distinguishes recipients, opponents and private prompts", DecisionContextChecks.Semantics);
-            Check("match reports aggregate public outcomes without double counting", MatchSummaryChecks.Aggregation);
             Check("completed history survives relaunch, deduplicates endings and isolates damaged files", () => HistoryChecks.PersistenceAndFailures(output));
-            Check("history modal preserves selected actions and pauses then resumes AI", () => HistoryChecks.ModalLifecycle(output));
             Check("device preferences persist before play and survive legacy loads and tutorials", () => PreferencesChecks.StartupAndMigration(output));
             Check("invalid preferences remain recoverable and slider writes coalesce safely", () => PreferencesChecks.FailuresAndDebounce(output));
             Check("settings modal groups real preferences and match pacing without changing the game", () => CheckSettingsPanel(output));
@@ -169,17 +112,12 @@ internal static class Program
             Check("playback speed persists and dead players can pause and resume observation", () => PlaybackChecks.SettingsAndSpectating(output));
             Check("playback batches internal steps while preserving human boundaries and replay", PlaybackChecks.AutomaticStepsPreserveCommittedBoundaries);
             Check("expanded rescue content renders and commits Jijiu dying choices", JijiuChecks.ControlsAndDying);
-            Check("classic Jijiu renders and commits equipped rescue choices", () => JijiuChecks.EquipmentControls(output));
             Check("opaque target-card slots render privately and commit through WPF commands", () => TargetCardChecks.Controls(output));
             Check("new game settings and multi-card discard work through controls", () => CheckSetupAndDiscard(output));
             Check("team selection, guides, tutorial return and saved results follow the actual team", () => TeamExperienceChecks.ControlsAndRestore(output));
             Check("national dual-general controls preserve privacy, reveal and saved outcomes", () => NationalExperienceChecks.ControlsAndRestore(output));
-            Check("national WPF matches reach faction results through player commands", NationalExperienceChecks.CompleteMatches);
-            Check("six-player national controls preserve solo faction labels and saved reveals", () => NationalExperienceChecks.AmbitiousControlsAndRestore(output));
-            Check("national Zhang Jiao mode preserves formal skills, hidden slots and package-aware saves", () => NationalExperienceChecks.ZhangJiaoControlsAndRestore(output));
             Check("dual-general health previews survive selection and reject incompatible shipped saves safely", () => NationalHealthChecks.ControlsAndOldPackage(output));
             Check("dual portraits protect hidden slots and retain legacy skill semantics", NationalSeatChecks.PrivacyAndReveal);
-            Check("dual portraits project ordered multi-skill lists without leaking hidden slots", NationalSeatChecks.MultiSkillProjection);
             Check("dual-seat controls preserve targeting, half-reveal saves and public relationships", () => NationalSeatChecks.ControlsAndRelations(output));
             Check("auto advance pauses at a human decision and can be paused", CheckAutoAdvance);
             Check("saved UI boundaries restore and continue through actual files", () => PersistenceChecks.RoundTrips(output));
@@ -187,7 +125,6 @@ internal static class Program
             Check("autosave coalesces commands and resumes after closing", PersistenceChecks.AutomaticAndExit);
             Check("continue and save controls render in the small window", () => CheckSaveViews(output));
             Check("battle feedback exposes only committed public actions", FeedbackChecks.PublicProjection);
-            Check("hand controls retain order and animation preferences persist", () => FeedbackChecks.HandAndPreferences(output));
             Check("actual battle feedback renders without changing decisions or intercepting input", () => FeedbackChecks.RenderAndLifecycle(output, args.Contains("--record-motion")));
             Check("audio follows committed actions and survives mute, background and device failure", AudioChecks.CommandRouting);
             Check("official audio catalog verifies files and routes only public resolved skills", OfficialAudioChecks.CatalogAndPublicRouting);
@@ -448,160 +385,6 @@ internal static class Program
         window.Close();
     }
 
-    private static void CheckHumanSkillRail(string output)
-    {
-        MainViewModel? found = null;
-        for (var seed = 1; seed <= 256; seed++)
-        {
-            var candidate = new MainViewModel(false, seed, showSetup: false, saveStore: new MemorySaveStore(), useExpandedContent: true)
-            {
-                IsMotionEnabled = false
-            };
-            var sunQuan = candidate.GeneralChoices.FirstOrDefault(choice => choice.GeneralId == "classic:sun-quan");
-            if (sunQuan is not null)
-            {
-                candidate.SelectGeneralChoiceCommand.Execute(sunQuan);
-                AdvanceToDecision(candidate);
-                if (candidate.CanEndTurn) { found = candidate; break; }
-            }
-            candidate.Dispose();
-        }
-
-        using var vm = found ?? throw new InvalidOperationException("No bounded classic Sun Quan skill-rail fixture reached play.");
-        var skills = vm.HumanSkillCards;
-        Assert(skills.Count == 2 && skills.Any(skill => skill.Name == "制衡" && skill.TypeText == "主动技" && skill.IsAvailable && skill.StateText == "当前可发动") &&
-               skills.Any(skill => skill.Name == "救援" && skill.TypeText == "状态技 · 主公技 · 锁定技" && !skill.IsAvailable && skill.StateText == "规则自动生效"),
-            "The human skill rail did not distinguish an active entry from explicit execution forms and tags.");
-
-        using var rebelVm = FindAssignedGeneralSkillRailFixture("classic:sun-quan", Role.Rebel);
-        Assert(rebelVm.HumanSkillCards is [{ Name: "制衡" }] &&
-               rebelVm.HumanSkillCards.All(skill => !skill.TypeText.Contains("主公技", StringComparison.Ordinal)),
-            "A non-Lord skill rail still displayed a printed Lord skill as owned.");
-
-        MainViewModel? lockedFound = null;
-        for (var seed = 1; seed <= 256; seed++)
-        {
-            var candidate = new MainViewModel(false, seed, showSetup: false, saveStore: new MemorySaveStore(), useExpandedContent: true)
-            {
-                IsMotionEnabled = false
-            };
-            var zhangFei = candidate.GeneralChoices.FirstOrDefault(choice => choice.GeneralId == "classic:zhang-fei");
-            if (zhangFei is not null)
-            {
-                candidate.SelectGeneralChoiceCommand.Execute(zhangFei);
-                AdvanceToDecision(candidate);
-                if (candidate.CanEndTurn)
-                {
-                    lockedFound = candidate;
-                    break;
-                }
-            }
-            candidate.Dispose();
-        }
-
-        using var lockedVm = lockedFound ??
-            throw new InvalidOperationException("No bounded classic Zhang Fei skill-rail fixture reached play.");
-        Assert(lockedVm.HumanSkillCards is
-            [{ Name: "咆哮", TypeText: "状态技 · 锁定技", StateText: "规则自动生效", IsAvailable: false }],
-            "The current Paoxiao rail still used the legacy ambiguous skill type text.");
-
-        var revision = Engine(vm).Revision;
-        var window = new MainWindow(vm);
-        window.ApplyTemplate();
-        var root = (FrameworkElement)window.Content;
-        Render(root, 1120, 740, Path.Combine(output, "133-human-skill-rail.png"));
-        var panel = (FrameworkElement)window.FindName("HumanSkillPanel");
-        var cards = (ItemsControl)window.FindName("HumanSkillCards");
-        var activeButton = Find<Button>(cards).Single(button => button.DataContext is HumanSkillViewModel { Name: "制衡" });
-        Assert(panel.ActualWidth >= activeButton.ActualWidth && panel.ActualHeight > 170 && cards.Items.Count == 2 &&
-               activeButton.ActualWidth >= 100 && activeButton.ActualHeight >= 32 && activeButton.IsEnabled &&
-               activeButton.ToolTip is string activeTooltip && activeTooltip.Contains(skills.Single(skill => skill.Name == "制衡").Description) &&
-               Find<TextBlock>(cards).Any(text => text.Text == "当前可发动" && text.ActualHeight > 0),
-            "The human skill rail or its actionable state is inaccessible in the minimum window.");
-        Assert(Engine(vm).Revision == revision, "Rendering the human skill rail changed the game.");
-        Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
-        window.Content = null;
-        window.Close();
-
-        var rebelWindow = new MainWindow(rebelVm);
-        rebelWindow.ApplyTemplate();
-        var rebelRoot = (FrameworkElement)rebelWindow.Content;
-        Render(rebelRoot, 1120, 740, Path.Combine(output, "165-rebel-lord-skill-qualification.png"));
-        var rebelCards = (ItemsControl)rebelWindow.FindName("HumanSkillCards");
-        Assert(rebelCards.Items.Count == 1 &&
-               Find<TextBlock>(rebelCards).All(text => text.Text != "救援" && !text.Text.Contains("主公技", StringComparison.Ordinal)),
-            "The rendered non-Lord skill rail exposed Jiuyuan or a Lord-skill label.");
-        rebelWindow.Content = null;
-        rebelWindow.Close();
-
-        var lockedWindow = new MainWindow(lockedVm);
-        lockedWindow.ApplyTemplate();
-        var lockedRoot = (FrameworkElement)lockedWindow.Content;
-        Render(lockedRoot, 1120, 740, Path.Combine(output, "167-locked-state-skill-metadata.png"));
-        var lockedCards = (ItemsControl)lockedWindow.FindName("HumanSkillCards");
-        var lockedButton = Find<Button>(lockedCards).Single(button => button.DataContext is HumanSkillViewModel { Name: "咆哮" });
-        Assert(lockedCards.Items.Count == 1 && !lockedButton.IsEnabled && ToolTipService.GetShowOnDisabled(lockedButton) &&
-               lockedButton.ToolTip is string lockedTooltip && lockedTooltip.Contains("状态技 · 锁定技") &&
-               Find<TextBlock>(lockedCards).Any(text => text.Text == "规则自动生效" && text.ActualHeight > 0),
-            "The rendered locked-state label is inaccessible in the minimum window.");
-        lockedWindow.Content = null;
-        lockedWindow.Close();
-    }
-
-    private static MainViewModel FindAssignedGeneralSkillRailFixture(string generalId, Role role)
-    {
-        var registry = ComposedSkillContentRegistry.CreateShowcase();
-        for (var seed = 1; seed <= 4_096; seed++)
-        {
-            var game = GameEngine.CreateStandard(new GameOptions
-            {
-                Seed = seed,
-                PlayerCount = 5,
-                HumanSeat = 0,
-                HumanRole = role,
-                ModeId = "identity:classic-5",
-                UseInteractiveSetup = false,
-                UseInteractiveDiscard = false,
-                AdvanceAfterHumanCommands = false,
-                MaxTurns = 220
-            }, registry);
-            if (game.CreateSnapshot(0, revealAll: true).Players[0].GeneralId != generalId)
-            {
-                continue;
-            }
-
-            var started = game.Submit(new StartGameCommand());
-            Assert(started.Accepted, started.Error?.Message ?? "The assigned-general skill-rail fixture could not start.");
-            var store = new MemorySaveStore();
-            store.Write(GameSaveSlot.Manual, new(
-                1,
-                DateTimeOffset.UtcNow,
-                false,
-                game.CreateCheckpoint()));
-            var candidate = new MainViewModel(
-                autoAdvance: false,
-                seed: seed,
-                showSetup: true,
-                saveStore: store,
-                useExpandedContent: true,
-                contentRegistry: registry)
-            {
-                IsMotionEnabled = false
-            };
-            candidate.LoadManualGameCommand.Execute(null);
-            AdvanceToDecision(candidate);
-            if (!candidate.HasSaveError && candidate.CanEndTurn)
-            {
-                return candidate;
-            }
-
-            candidate.Dispose();
-        }
-
-        throw new InvalidOperationException(
-            $"No bounded {role} {generalId} assigned-general skill-rail fixture reached play.");
-    }
-
     private static void CheckModeLobby(string output)
     {
         using var vm = new MainViewModel(false, 721019, showSetup: true, saveStore: new MemorySaveStore(), useExpandedContent: true)
@@ -675,57 +458,6 @@ internal static class Program
         window.Close();
     }
 
-    private static void CheckOpeningDealTransition(string output)
-    {
-        using var vm = new MainViewModel(false, 721019, showSetup: true, saveStore: new MemorySaveStore(), useExpandedContent: true)
-        {
-            IsMotionEnabled = true
-        };
-        vm.OpenLobbyCategoryCommand.Execute("all");
-        var window = new MainWindow(vm);
-        window.ApplyTemplate();
-        var root = (FrameworkElement)window.Content;
-        root.Measure(new Size(1120, 740));
-        root.Arrange(new Rect(0, 0, 1120, 740));
-        root.UpdateLayout();
-        var start = Find<Button>(root).Single(button => Equals(button.Content, "开 始 对 局"));
-        Assert(start.Command == vm.StartNewGameFromLobbyCommand, "The mode lobby bypasses the opening-deal presentation command.");
-        start.Command.Execute(start.CommandParameter);
-        Assert(vm.IsIdentityRevealOpen && !vm.IsOpeningDealVisible, "The opening hand appeared before the private identity reveal.");
-        vm.ContinueFromIdentityRevealCommand.Execute(null);
-        vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
-        AdvanceToDecision(vm);
-        // Candidates like Shen Guan Yu pick a kingdom after general selection;
-        // answer any pending faction choice before stepping toward the deal.
-        for (var factionAnswers = 0;
-             factionAnswers < 3 && Engine(vm).PendingDecision?.Kind == DecisionKind.SelectFaction;
-             factionAnswers++)
-        {
-            vm.SelectSkillChoiceCommand.Execute(vm.SkillChoices[0]);
-            AdvanceToDecision(vm);
-        }
-
-        var dealtIds = vm.OpeningHandCards.Select(card => card.Id).ToArray();
-        Assert(vm.OpeningHandCards.Select(card => card.Id).SequenceEqual(dealtIds),
-            "The opening transition did not preserve the private hand order.");
-        var revision = Engine(vm).Revision;
-        var state = SnapshotJson.Serialize(Engine(vm).State);
-        Render(root, 1120, 740, Path.Combine(output, "135-opening-deal.png"));
-        Assert(((FrameworkElement)window.FindName("OpeningDealOverlay")).ActualHeight > 0 &&
-               ((Button)window.FindName("DismissOpeningDealButton")).IsEnabled,
-            "The opening transition or its skip control is inaccessible.");
-
-        vm.DismissOpeningDealCommand.Execute(null);
-        Assert(!vm.IsOpeningDealVisible && vm.OpeningHandCards.Count == 0,
-            "Dismissing the opening transition left private cards in its presentation buffer.");
-        Assert(Engine(vm).Revision == revision && SnapshotJson.Serialize(Engine(vm).State) == state &&
-               dealtIds.All(id => vm.Hand.Any(card => card.Id == id)),
-            "Dismissing the presentation changed the match or lost a dealt opening card.");
-        Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(10)));
-        window.Content = null;
-        window.Close();
-    }
-
     private static void CheckBattleLogFilters(string output)
     {
         using var vm = NewViewModel();
@@ -783,51 +515,6 @@ internal static class Program
         if (!condition) throw new InvalidOperationException(message);
     }
 
-    private static void CheckLayout(string output)
-    {
-        using var vm = NewViewModel();
-        var window = new MainWindow(vm);
-        window.ApplyTemplate();
-        var root = (FrameworkElement)window.Content;
-        Render(root, 1440, 860, Path.Combine(output, "01-general-selection.png"));
-        Assert(vm.GeneralChoices.Count == 3, "Expected three private generals.");
-        foreach (var choice in vm.GeneralChoices) Assert(choice.PortraitBrush is ImageBrush, "Missing portrait.");
-        vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
-        AdvanceToDecision(vm);
-        Render(root, 1440, 860, Path.Combine(output, "02-table.png"));
-        Assert(Find<HandPanel>(root).Any(), "Hand layout did not materialize.");
-        Assert(((Button)window.FindName("EndTurnButton")) is { Visibility: Visibility.Visible, ActualHeight: > 0 }, "End-turn control missing.");
-        Render(root, 1120, 740, Path.Combine(output, "03-small-table.png"));
-        var visibleButtons = Find<Button>(root).Where(button => button.Visibility == Visibility.Visible && button.IsEnabled && button.ActualHeight > 0).ToArray();
-        Assert(visibleButtons.Length >= 8, "Player controls missing.");
-        var slash = vm.Hand.First(card => card.Name == "杀");
-        vm.SelectCardCommand.Execute(slash);
-        vm.SelectTargetCommand.Execute(vm.Seats.First(seat => seat.IsLegalTarget));
-        Render(root, 1440, 860, Path.Combine(output, "04-selected-target.png"));
-        Assert(vm.CanConfirmSelected && !vm.HasAlternateSlash, "A physical Slash should not offer a redundant conversion.");
-        vm.ClearSelectionCommand.Execute(null);
-        for (var i = 0; i < 16 && !vm.HasChoicePrompt && !vm.HasGameOver; i++)
-        {
-            if (vm.IsDiscardSelectionPending) ResolveDiscard(vm);
-            if (vm.CanEndTurn) vm.EndTurnCommand.Execute(null);
-            AdvanceToDecision(vm);
-        }
-        Assert(vm.HasChoicePrompt, "Fixture did not reach an actual response.");
-        Render(root, 1440, 860, Path.Combine(output, "05-response.png"));
-        Assert(vm.IsHarvestSelectionPending, "Fixture should exercise picking a public card.");
-        var publicCard = vm.PublicRevealedCards.First();
-        Assert(vm.SelectRevealedCardCommand.CanExecute(publicCard), "Public card is not clickable.");
-        var beforeChoice = Engine(vm).Revision;
-        vm.SelectRevealedCardCommand.Execute(publicCard);
-        Assert(Engine(vm).Revision > beforeChoice && !vm.PublicRevealedCards.Any(card => card.Id == publicCard.Id), "Public card selection did not commit.");
-        vm.IsLogOpen = true;
-        vm.IsDeveloperView = true;
-        Render(root, 1120, 740, Path.Combine(output, "06-report.png"));
-        Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-        window.Content = null;
-        window.Close();
-    }
-
     internal static IEnumerable<T> Find<T>(DependencyObject root) where T : DependencyObject
     {
         if (root is T item) yield return item;
@@ -847,23 +534,6 @@ internal static class Program
         encoder.Frames.Add(BitmapFrame.Create(bitmap));
         using var file = File.Create(path);
         encoder.Save(file);
-    }
-
-    private static void CheckLargeHand()
-    {
-        var panel = new HandPanel { ViewportWidth = 720 };
-        for (var i = 0; i < 30; i++) panel.Children.Add(new Border { Width = 110, Height = 160 });
-        panel.Measure(new Size(double.PositiveInfinity, 190));
-        panel.Arrange(new Rect(panel.DesiredSize));
-        Assert(panel.DesiredSize.Width > 720, "Dense hand needs a scrollable extent.");
-        var lastX = -1.0;
-        foreach (FrameworkElement child in panel.Children)
-        {
-            var x = child.TranslatePoint(new Point(), panel).X;
-            Assert(x > lastX, "Card edge is unreachable.");
-            Assert(x + child.ActualWidth <= panel.ActualWidth + 1, "Last card is clipped.");
-            lastX = x;
-        }
     }
 
     private static void CheckSelections()

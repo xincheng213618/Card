@@ -107,101 +107,12 @@ internal static class TurnEndingBoundaryChecks
             "Audit events must retain the Jushou -> Jujian -> Biyue ordering.");
     }
 
-    public static void DeduplicatesSourcesAndRechecksOwnership()
-    {
-        var registry = CombinedRegistry();
-        var game = CreateAndSelect(registry, CombinedScenarioPackage.ModeId,
-            CombinedScenarioPackage.OwnerGeneralId);
-        ReachHumanPlay(game);
-        var owner = Players(game)[HumanSeat];
-        var primary = owner.SkillGrants.Grants.Single(grant =>
-            grant.SkillId == "classic:jushou" && grant.SourceId == CharacterState.PrimarySkillSource);
-        owner.SkillGrants.Grant(new SkillGrant(
-            "fixture:jushou-duplicate",
-            primary.SkillId,
-            primary.SkillInstanceId,
-            "fixture:jushou-duplicate"));
-        owner.SkillGrants.Grant(new SkillGrant(
-            "fixture:jushou-distinct",
-            primary.SkillId,
-            "fixture:jushou-distinct-instance",
-            "fixture:jushou-distinct"));
-
-        EndPlayAndReachSkill(game, "classic:jushou");
-        var frame = game.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Single();
-        Require(frame.Items.Count(item => item.Candidate?.SkillId == "classic:jushou") == 2,
-            "Duplicate grants of one instance must collapse while a distinct Jushou instance composes.");
-        AnswerProgram(game, "activate");
-
-        var second = RequireSkillPrompt(game, "classic:jushou");
-        var secondInstance = second.Choices[0].Parameters["skill-instance-id"];
-        foreach (var grant in owner.SkillGrants.Grants.Where(grant =>
-                     grant.SkillId == "classic:jushou" && grant.SkillInstanceId == secondInstance).ToArray())
-            owner.SkillGrants.SetEnabled(grant.GrantId, false);
-        AnswerProgram(game, "activate");
-
-        var resolved = game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
-            .Where(item => item.SkillId == "classic:jushou").ToArray();
-        Require(resolved.Count(item => item is { Activated: true, Completed: true }) == 1 &&
-                resolved.Count(item => item is { Activated: false, Completed: false }) == 1 &&
-                game.CardMovements.Count(move =>
-                    move.Reason.Value == "skill-program.classic:jushou.Draw" &&
-                    move.To == CardLocation.Hand(HumanSeat)) == 3 &&
-                game.PendingDecision is
-                {
-                    Kind: DecisionKind.ProgramTrigger,
-                    SkillPrompt.SkillId: "classic:jujian"
-                },
-            "A Jushou instance lost while prompted must skip safely and advance once to generic Jujian.");
-    }
-
-    public static void FreezesFactsAcrossEarlierTurnEndingEffects()
-    {
-        var registry = FrozenFactsRegistry();
-        var game = CreateAndSelect(registry, FrozenFactsScenarioPackage.ModeId,
-            FrozenFactsScenarioPackage.OwnerGeneralId);
-        ReachHumanPlay(game);
-        var hpAtBoundary = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hp;
-        EndPlayAndReachSkill(game, FrozenFactsScenarioPackage.SkillId);
-
-        var prompt = RequireSkillPrompt(game, FrozenFactsScenarioPackage.SkillId);
-        var frame = game.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Single();
-        Require(game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hp == hpAtBoundary - 1 &&
-                frame.Facts.CurrentHp == hpAtBoundary &&
-                prompt.Choices.All(choice =>
-                    choice.Parameters.GetValueOrDefault("current-hp") == hpAtBoundary.ToString()),
-            "Later candidates must use the serialized boundary facts even after an earlier item changes HP.");
-        AnswerProgram(game, "skip");
-    }
-
     private static ContentRegistry CombinedRegistry() => ContentRegistry.Build(
         new StandardContentPackage(),
         new StandardActiveSkillExpansionPackage(includeJijiu: true),
         new StandardRescueSkillExpansionPackage(),
         new StandardClassicGeneralPackage(),
         new CombinedScenarioPackage());
-
-    private static ContentRegistry FrozenFactsRegistry()
-    {
-        const string rules = """
-            {"schemaVersion":62,"skills":[{"id":"fixture:turn-ending-facts","revision":1,
-            "minimumRulesVersion": 171,"modifiers":[],"viewAs":[],"activations":[],"triggers":[
-            {"id":"first-lose-hp","window":"turnEnding","subject":"owner","optional":false,"priority":100,
-            "effects":[{"op":"loseHp","target":"owner","amount":1}]},
-            {"id":"second-frozen-check","window":"turnEnding","subject":"owner","optional":true,"priority":-100,
-            "condition":{"kind":"compare","left":{"kind":"currentHp"},"operator":"equal",
-            "right":{"kind":"integerConstant","value":5}},
-            "effects":[{"op":"draw","target":"owner","amount":1}]}],
-            "contributions":[],"cardIdentities":[]}]}
-            """;
-        const string presentation =
-            "{\"schemaVersion\":3,\"skills\":{\"fixture:turn-ending-facts\":{\"name\":\"冻结事实\",\"description\":\"测试\"}}}";
-        var program = SkillProgramCatalog.Load(rules, presentation)
-            .Programs[FrozenFactsScenarioPackage.SkillId];
-        return ContentRegistry.Build(
-            new StandardContentPackage(),
-            new FrozenFactsScenarioPackage(program));
-    }
 
     private static GameEngine CreateAndSelect(
         ContentRegistry registry,

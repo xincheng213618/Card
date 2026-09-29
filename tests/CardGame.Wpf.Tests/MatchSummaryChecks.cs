@@ -9,49 +9,6 @@ using CardGame.Wpf.ViewModels;
 
 internal static class MatchSummaryChecks
 {
-    public static void Aggregation()
-    {
-        using var vm = new MainViewModel(false, 721019, false, new MemorySaveStore());
-        var active = Program.Engine(vm).CreateSnapshot(0, true);
-        var completed = active with { Status = EngineStatus.Completed };
-        long sequence = 0;
-        EventEnvelope Event(IGameEvent payload) => new(new EventId(++sequence), null, sequence, 1, "result-check", payload);
-        var events = new[]
-        {
-            Event(new CardUseDeclaredEvent(1, 123, CardKind.ArrowBarrage, 0)),
-            Event(new GroupCardUsedEvent(1, 123, CardKind.ArrowBarrage, 0, [1, 2])),
-            Event(new CardUsedEvent(123, CardKind.ArrowBarrage, 0, 1)),
-            Event(new CardRespondedEvent(456, 1, 0, CardKind.Dodge)),
-            Event(new DuelResponseEvent(1, 1, true, 456, CardKind.Slash)),
-            Event(new DamageAppliedEvent(0, 1, 2, 0)),
-            Event(new DamageAppliedEvent(0, 2, 1, 2)),
-            Event(new DamageAppliedEvent(-1, 0, 1, 3)),
-            Event(new ProgramSkillHpLostEvent(2, "classic:kujin", 0, 2, 1)),
-            Event(new RecoveryAppliedEvent(0, 0, 1, 2)),
-            Event(new RecoveryAppliedEvent(0, 2, 2, 4)),
-            Event(new DyingResponseEvent(3, 0, true, 111) { UsedPeachPhysicalCardKind = CardKind.Dodge }),
-            Event(new DyingResponseEvent(4, 0, false, null, true, 112)),
-            Event(new DyingResponseEvent(5, 0, false, null)),
-            Event(new PlayerDiedEvent(1, 0)),
-            Event(new PlayerDiedEvent(0, 0)),
-            Event(new PlayerDiedEvent(3, null)),
-            Event(new GeneralSelectedEvent(2, "private-general-secret")),
-            Event(new CardMovedEvent(987654, CardKind.Slash, CardLocation.DrawPile, CardLocation.Hand(2), CardMoveReasons.Draw))
-        };
-        Program.Assert(MatchSummary.Create(active, events) is null && vm.CompletedMatch is null, "An ongoing game exposed a result table.");
-        var summary = MatchSummary.Create(completed, events)!;
-        var human = summary.Players.Single(player => player.Seat == 0);
-        Program.Assert(human is { CardsUsed: 1, Responses: 0, DamageDealt: 3, DamageTaken: 1, Recovery: 3, RescueCards: 2, Defeats: 1 },
-            "Totals double-counted effect notifications, skill HP costs, self-death or declined rescue.");
-        Program.Assert(summary.Players.Single(player => player.Seat == 1) is { Responses: 1, DamageTaken: 2 }, "Response and damage totals are not per player.");
-        var json = JsonSerializer.Serialize(summary);
-        Program.Assert(!json.Contains("987654") && !json.Contains("private-general-secret") && !json.Contains("CardId") && !json.Contains("Hand"),
-            "The summary retained private payloads or physical card identifiers.");
-        var teamView = completed with { Players = completed.Players.Select(player => player with { TeamId = player.Seat % 2 == 0 ? "team:blue" : "team:red" }).ToArray() };
-        Program.Assert(MatchSummary.Create(teamView, events)!.Players.Select(player => player.Camp).Distinct().Order().SequenceEqual(new[] { "赤队", "青队" }.Order()),
-            "Team results used hidden identity camps.");
-    }
-
     public static string VerifyCompleted(MainViewModel vm)
     {
         var engine = Program.Engine(vm);

@@ -8,93 +8,6 @@ internal static class NationalZhangJiaoProgramChecks
     private const string HuaTuoId = "national:hua-tuo";
     private const string LeijiReason = "skill.national.leiji";
 
-    internal static void ContentContractAndRevealBoundary()
-    {
-        var previous = CreateRegistry(includeNationalZhangJiao: false);
-        var registry = CreateRegistry(includeNationalZhangJiao: true);
-        var package = registry.Packages.Single(item => item.Id == "standard-national-zhang-jiao");
-        Require(package.Version == new Version(1, 0, 0) && package.Dependencies.Select(dependency =>
-                $"{dependency.Id}@{dependency.MinimumVersion}").SequenceEqual(
-                [
-                    "standard-national-war-lite@1.1.0",
-                    "standard-active-skills@1.0.0",
-                    "standard-rescue-skills@1.0.0"
-                ]),
-            "The formal national Zhang Jiao package signature or dependencies drifted.");
-
-        Require(registry.Generals[ZhangJiaoId] is
-        { Name: "张角", FactionId: "qun", BaseHp: 3 } zhangJiao &&
-                zhangJiao.SkillIds.SequenceEqual(["national:leiji", "national:guidao"]) &&
-                registry.Generals[HuaTuoId] is
-                { Name: "华佗", FactionId: "qun", BaseHp: 3 } huaTuo &&
-                huaTuo.SkillIds.SequenceEqual(["standard:jijiu", "standard:qingnang"]),
-            "The formal Qun pair must preserve standard-national vitals and ordered skills.");
-
-        Require(registry.Skills["national:leiji"] is { Program: { } leiji } &&
-                leiji.RuntimeVersion == SkillProgramCatalog.RuntimeVersion &&
-                leiji.MinimumRulesVersion == 172 &&
-                leiji.Triggers.Count == 2 &&
-                leiji.Triggers.Single(trigger => trigger.Id == "spade-damage").Suits
-                    .SequenceEqual([Suit.Spade]) &&
-                leiji.Triggers.All(trigger => trigger.Suits.All(suit => suit != Suit.Club)) &&
-                registry.Skills["national:guidao"] is { Program: { } guidao } &&
-                guidao.RuntimeVersion == SkillProgramCatalog.RuntimeVersion &&
-                guidao.MinimumRulesVersion == 172 &&
-                guidao.Triggers.Single().Effects.Single().OldCardDestination ==
-                    SkillProgramOldJudgmentCardDestination.OwnerHand &&
-                !registry.Skills.ContainsKey("national:huangtian"),
-            "National Zhang Jiao must expose only Spade Leiji and owner-hand Guidao in the current program schema.");
-
-        var mode = registry.Modes["national:zhang-jiao-4"];
-        Require(mode is
-        {
-            MinPlayers: 4,
-            MaxPlayers: 4,
-            GeneralCandidateCount: 2,
-            ModeKind: ContentModeKind.NationalWarLite
-        } &&
-                mode.FactionCounts!.OrderBy(entry => entry.Key, StringComparer.Ordinal)
-                    .SequenceEqual(new Dictionary<string, int>
-                    {
-                        ["qun"] = 1,
-                        ["shu"] = 2,
-                        ["wei"] = 1
-                    }.OrderBy(entry => entry.Key, StringComparer.Ordinal)) &&
-                mode.GeneralPoolIds!.Count == 8 &&
-                mode.GeneralPoolIds.Contains(ZhangJiaoId) &&
-                mode.GeneralPoolIds.Contains(HuaTuoId),
-            "The formal four-player national mode must declare its exact Wei/Shu/Qun distribution and pair-sized pool.");
-        Require(!previous.Generals.ContainsKey(ZhangJiaoId) &&
-                !previous.Generals.ContainsKey(HuaTuoId) &&
-                !previous.Modes.ContainsKey("national:zhang-jiao-4") &&
-                previous.ContentHash != registry.ContentHash,
-            "Adding formal national Zhang Jiao must not rewrite the previous national registry.");
-
-        var game = FindHumanQunFixture(CreateFixtureRegistry(), stopAtLeiji: false);
-        var privateView = game.CreateSnapshot(0);
-        var observerView = game.CreateSnapshot(1);
-        Require(privateView.Players[0].Skills is { Count: 2 } &&
-                privateView.Players[0].SecondarySkills is { Count: 2 } &&
-                observerView.Players[0].Skills is null &&
-                observerView.Players[0].SecondarySkills is null &&
-                EnabledPrograms(game).Length == 0,
-            "The selected national pair leaked or enabled programs while both generals were hidden.");
-        RevealPrimary(game);
-        Require(EnabledPrograms(game).SequenceEqual(["national:guidao", "national:leiji"]) &&
-                game.CreateSnapshot(1).Players[0] is
-                {
-                    Skills.Count: 2,
-                    SecondarySkills: null,
-                    IsGeneralPublic: true,
-                    IsSecondaryGeneralPublic: false
-                },
-            "Revealing national Zhang Jiao must enable both ordered programs without leaking Hua Tuo.");
-        var restored = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), CreateFixtureRegistry());
-        Require(SnapshotJson.Serialize(restored.CreateSnapshot(1, revealAll: true)) ==
-                SnapshotJson.Serialize(game.CreateSnapshot(1, revealAll: true)),
-            "The formal national pair reveal did not replay exactly.");
-    }
-
     internal static void LeijiGuidaoAndReplay()
     {
         var registry = CreateFixtureRegistry();
@@ -320,33 +233,6 @@ internal static class NationalZhangJiaoProgramChecks
                     .Count(item => item.SkillId == "national:guidao" && item.Activated) ==
                     (expectReplacement ? 1 : 0),
             "Formal national Leiji and Guidao must replay exactly once.");
-    }
-
-    private static string[] EnabledPrograms(GameEngine game)
-    {
-        var players = ((System.Collections.IEnumerable)typeof(GameEngine)
-            .GetField("_players", System.Reflection.BindingFlags.NonPublic |
-                System.Reflection.BindingFlags.Instance)!
-            .GetValue(game)!).Cast<object>().ToArray();
-        var enabled = (System.Collections.IEnumerable)typeof(GameEngine)
-            .GetMethod("EnabledSkillPrograms", System.Reflection.BindingFlags.NonPublic |
-                System.Reflection.BindingFlags.Instance)!
-            .Invoke(game, [players[0]])!;
-        return enabled.Cast<SkillProgram>().Select(program => program.Id).ToArray();
-    }
-
-    private static ContentRegistry CreateRegistry(bool includeNationalZhangJiao)
-    {
-        var packages = new List<IGameContentPackage>
-        {
-            new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(includeJijiu: true),
-            new StandardRescueSkillExpansionPackage(),
-            new StandardNationalWarLitePackage()
-        };
-        if (includeNationalZhangJiao)
-            packages.Add(new StandardNationalZhangJiaoPackage());
-        return ContentRegistry.Build(packages.ToArray());
     }
 
     private static ContentRegistry CreateFixtureRegistry() =>

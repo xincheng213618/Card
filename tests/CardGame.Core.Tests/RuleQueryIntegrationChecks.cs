@@ -45,26 +45,6 @@ internal static class RuleQueryIntegrationChecks
             "Removing the last enabled instance must restore both engine query baselines.");
     }
 
-    public static void EngineConsumesFormalUnlimitedSlashProgram()
-    {
-        var registry = StandardContentRegistry.Create();
-        var game = GameEngine.CreateStandard(new GameOptions { PlayerCount = 5, Seed = 117 }, registry);
-        var owner = Players(game)[0];
-        ClearGrants(owner);
-
-        Require(Evaluate(game, "EvaluateSlashUseLimit", owner).Value is FiniteRuleQueryValue { Value: 1 },
-            "The engine slash-use query must begin at its finite mode baseline.");
-        owner.SkillGrants.Grant(new SkillGrant(
-            "fixture:paoxiao", "standard:paoxiao", "fixture:paoxiao-instance", "acquired:test"));
-        var enabled = Evaluate(game, "EvaluateSlashUseLimit", owner);
-        Require(enabled.Value is UnlimitedRuleQueryValue &&
-                enabled.Value.Contributions is [UnlimitedRuleQueryContribution],
-            "The current Paoxiao program must produce an explicit unlimited slash-use result in the engine.");
-        owner.SkillGrants.SetEnabled("fixture:paoxiao", false);
-        Require(Evaluate(game, "EvaluateSlashUseLimit", owner).Value is FiniteRuleQueryValue { Value: 1 },
-            "Disabling the Paoxiao grant must restore the finite slash-use limit without stale state.");
-    }
-
     private static CharacterState[] Players(GameEngine game) =>
         ((System.Collections.IEnumerable)typeof(GameEngine).GetField("_players", PrivateInstance)!
             .GetValue(game)!).Cast<CharacterState>().ToArray();

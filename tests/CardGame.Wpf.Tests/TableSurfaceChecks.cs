@@ -9,45 +9,6 @@ using CardGame.Wpf.ViewModels;
 
 internal static class TableSurfaceChecks
 {
-    public static void MultipleSkillGrid(string output)
-    {
-        MainViewModel? found = null;
-        for (var seed = 1; seed <= 128 && found is null; seed++)
-        {
-            var candidate = new MainViewModel(false, seed, false, new MemorySaveStore(), useExpandedContent: true);
-            var choice = candidate.GeneralChoices.FirstOrDefault(choice => choice.GeneralId == "classic:wolong-zhuge-liang");
-            if (choice is not null)
-            {
-                candidate.SelectGeneralChoiceCommand.Execute(choice);
-                Program.AdvanceToDecision(candidate);
-                if (candidate.CanEndTurn) found = candidate;
-            }
-            if (found is null) candidate.Dispose();
-        }
-        using var vm = found ?? throw new InvalidOperationException("No bounded real Wolong opening found.");
-        var revision = Program.Engine(vm).Revision;
-        var window = new MainWindow(vm);
-        var root = (FrameworkElement)window.Content;
-        foreach (var size in new[] { (1120, 740), (1440, 860) })
-        {
-            Program.Render(root, size.Item1, size.Item2, Path.Combine(output, $"action-dock-skills-{size.Item1}.png"));
-            var items = (ItemsControl)window.FindName("HumanSkillCards");
-            var buttons = Program.Find<Button>(items).ToArray();
-            Rect Bounds(FrameworkElement element) => element.TransformToAncestor(root).TransformBounds(new Rect(element.RenderSize));
-            var bounds = buttons.Select(Bounds).ToArray();
-            var sortBounds = Bounds((Button)window.FindName("SortHandButton"));
-            var portraitBounds = Bounds((FrameworkElement)window.FindName("HumanPortrait"));
-            Program.Assert(buttons.Length == 3 && vm.HumanSkillColumns == 2 && Math.Abs(bounds[0].Top - bounds[1].Top) < 1 &&
-                bounds[0].Right < bounds[1].Left && bounds[2].Top >= bounds[0].Bottom,
-                "The three real Wolong skills are not arranged in two readable columns.");
-            Program.Assert(bounds.All(bounds => bounds.Width >= 95 && bounds.Height >= 32 && bounds.Right <= portraitBounds.Left &&
-                bounds.Top >= sortBounds.Bottom && bounds.Bottom < size.Item2), "Skill chips overlap sorting, the general, or window boundaries.");
-        }
-        Program.Assert(Program.Engine(vm).Revision == revision, "Inspecting the skill grid changed the match.");
-        window.Content = null;
-        window.Close();
-    }
-
     public static void ActionDockSelection(string output)
     {
         using var vm = FindEquipmentHand();

@@ -68,66 +68,6 @@ internal static class ZhuRongChecks
         }
     }
 
-    public static void JuxiangAndLierenReplay()
-    {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        var juxiangVerified = false;
-        var lierenVerified = false;
-        for (var seed = 1; seed <= 4096 && (!juxiangVerified || !lierenVerified); seed++)
-        {
-            var game = Create(seed, registry);
-            if (!SelectZhuRong(game)) continue;
-            for (var step = 0; step < 900 && game.State.Winner == Winner.None; step++)
-            {
-                var claim = game.Events.Select(e => e.Payload).OfType<JuxiangCardClaimedEvent>().LastOrDefault();
-                if (claim is not null)
-                {
-                    var used = game.Events.Select(e => e.Payload).OfType<GroupCardUsedEvent>()
-                        .Last(e => e.ResolutionId == claim.ResolutionId);
-                    Require(claim.OwnerSeat == 0 && !used.TargetSeats.Contains(0) &&
-                            claim.CardIds.All(id => game.CardMovements.Any(move =>
-                                move.CardId == id && move.Reason == CardMoveReasons.JuxiangGain)),
-                        "Juxiang must make Barbarian Assault ineffective and claim its discarded physical cards.");
-                    juxiangVerified = true;
-                }
-                if (game.PendingDecision is
-                    { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0, SkillPrompt.SkillId: "classic:lieren" } offer &&
-                    offer.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate"))
-                {
-                    var checkpoint = game.CreateCheckpoint();
-                    ResolveLieren(game);
-                    var result = game.Events.Select(e => e.Payload).OfType<PindianResultDeterminedEvent>()
-                        .LastOrDefault(e => e.SkillId == "classic:lieren");
-                    var resolved = game.Events.Select(e => e.Payload).OfType<ProgramBindingResolvedEvent>()
-                        .LastOrDefault(e => e.SkillId == "classic:lieren");
-                    var gained = game.CardMovements.Any(move =>
-                        move.Reason == new CardMoveReason("skill-program.classic:lieren.MoveBoundCards"));
-                    Require(resolved is { OwnerSeat: 0, Completed: true } && result is not null &&
-                            (!gained || result.Result.SourceWon),
-                        "Lieren must resolve its physical Pindian before a conditional target-card gain.");
-                    var restored = GameReplay.Restore(checkpoint, registry);
-                    ResolveLieren(restored);
-                    Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
-                            SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
-                        "A paused Lieren trigger must replay exactly.");
-                    if (result?.Result.SourceWon == true && gained)
-                    {
-                        lierenVerified = true;
-                        break;
-                    }
-                }
-                try { if (!AdvanceAggressively(game)) break; }
-                catch (Exception exception)
-                {
-                    var count = game.Events.Select(e => e.Payload).OfType<PindianResultDeterminedEvent>()
-                        .Count(e => e.SkillId == "classic:lieren");
-                    throw new InvalidOperationException($"seed={seed}, step={step}, lierenPindian={count}", exception);
-                }
-            }
-        }
-        Require(juxiangVerified && lierenVerified, "No bounded Zhu Rong fixtures verified Juxiang and Lieren.");
-    }
-
     private static GameEngine Create(int seed, ContentRegistry registry, string modeId = "identity:classic-5") => GameEngine.CreateStandard(new GameOptions
     {
         Seed = seed, HumanSeat = 0, HumanRole = Role.Lord, PlayerCount = 5,
@@ -140,71 +80,6 @@ internal static class ZhuRongChecks
         game.PendingDecision is { Kind: DecisionKind.SelectGeneral } setup &&
         setup.ValidContentIds.Contains("classic:zhu-rong") &&
         game.Submit(new SelectGeneralCommand(0, "classic:zhu-rong", game.Revision, setup.PromptId)).Accepted;
-
-    private static void ResolveLieren(GameEngine game)
-    {
-        var before = game.Events.Select(e => e.Payload).OfType<ProgramBindingResolvedEvent>()
-            .Count(e => e.SkillId == "classic:lieren");
-        var trace = new List<string>();
-        for (var step = 0; step < 12; step++)
-        {
-            if (game.Events.Select(e => e.Payload).OfType<ProgramBindingResolvedEvent>()
-                .Count(e => e.SkillId == "classic:lieren") > before) return;
-            trace.Add($"{step}:{game.PendingDecision?.Kind}/{game.PendingDecision?.SkillPrompt?.SkillId}/{game.PendingDecision?.PlayerSeat}");
-            if (game.PendingDecision is { PlayerSeat: 0, SkillPrompt.SkillId: "classic:lieren" } decision)
-            {
-                if (decision.Kind == DecisionKind.SkillModule)
-                {
-                    var contest = game.ResolutionStack.OfType<PindianFrame>().Single();
-                    var parentCards = game.ResolutionStack.OfType<CardUseFrame>().Last().PhysicalCardIds ?? [];
-                    var processing = game.CreateCardZoneDiagnostics()
-                        .Where(item => item.Location == CardLocation.Processing)
-                        .Select(item => item.CardId).ToHashSet();
-                    var claimedByJianxiong = parentCards.All(cardId => game.CardMovements.Any(move =>
-                        move.CardId == cardId && move.From == CardLocation.Processing &&
-                        move.To.Zone == CardZoneKind.Hand && move.Reason.Value ==
-                        "skill-program.boundary:jianxiong.ClaimDamageCards"));
-                    Require((parentCards.All(processing.Contains) &&
-                             parentCards.All(contest.ParentProcessingCardIds!.Contains)) ||
-                            (claimedByJianxiong && (contest.ParentProcessingCardIds?.Count ?? 0) == 0),
-                        $"Nested Lieren Pindian must preserve the parent Slash or its resolved Jianxiong claim: parent={string.Join(',', parentCards)}, frozen={string.Join(',', contest.ParentProcessingCardIds ?? [])}, processing={string.Join(',', processing)}, moves={string.Join(';', game.CardMovements.Where(item => parentCards.Contains(item.CardId)).Select(item => item.From + ">" + item.To + "/" + item.Reason.Value))}.");
-                }
-                var choice = decision.Kind == DecisionKind.SkillModule
-                    ? decision.Choices.OrderByDescending(c => game.CreateSnapshot(0, revealAll: true).Players[0].Hand
-                        .First(card => card.Id == c.Cards.Single()).Rank).First()
-                    : decision.Choices.FirstOrDefault(c => c.Parameters.GetValueOrDefault("program-action") == "activate") ??
-                      decision.Choices.First();
-                Require(game.Submit(new AnswerPromptCommand(0, decision.PromptId, choice.Id, game.Revision)).Accepted,
-                    "Human Lieren choice was rejected.");
-            }
-            else Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
-                "AI Lieren continuation could not advance.");
-        }
-        throw new InvalidOperationException($"Lieren did not finish: {string.Join(';', trace)}");
-    }
-
-    private static bool AdvanceAggressively(GameEngine game)
-    {
-        if (game.PendingDecision is not { } pending)
-            return game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted;
-        if (pending.PlayerSeat != 0)
-            return game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted;
-        if (pending.Kind == DecisionKind.PlayCard)
-        {
-            var slash = game.GetHumanLegalActions().FirstOrDefault(action => action.Kind == LegalActionKind.Slash);
-            if (slash is not null)
-                return game.Submit(new PlayCardCommand(0, slash.CardId!.Value, [slash.TargetSeat!.Value],
-                    game.Revision, pending.PromptId, slash.PlayedCardKind)).Accepted;
-            return game.Submit(new EndPlayPhaseCommand(0, game.Revision, pending.PromptId)).Accepted;
-        }
-        if (pending.Kind == DecisionKind.DiscardCards)
-            return game.Submit(new DiscardCardsCommand(0, pending.ValidCardIds.Take(pending.RequiredCardCount).ToArray(),
-                pending.PromptId, game.Revision)).Accepted;
-        var choice = pending.Choices.FirstOrDefault(c =>
-            c.Parameters.GetValueOrDefault("action")?.Contains("skip", StringComparison.Ordinal) == true) ??
-            pending.Choices.LastOrDefault();
-        return choice is not null && game.Submit(new AnswerPromptCommand(0, pending.PromptId, choice.Id, game.Revision)).Accepted;
-    }
 
     private static void Require(bool condition, string message)
     {

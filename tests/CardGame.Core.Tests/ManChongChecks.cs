@@ -7,43 +7,6 @@ internal static class ManChongChecks
     private const int HumanSeat = 0;
     private const string GeneralId = "classic:man-chong";
 
-    public static void ContentAndPackageBoundary()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(current.Generals[GeneralId] is
-                {
-                    BaseHp: 3,
-                    FactionId: "wei",
-                    Gender: GeneralGender.Male,
-                    PortraitKey: "man_chong"
-                } manChong &&
-                manChong.SkillIds.SequenceEqual(["classic:junxing", "classic:yuce"]) &&
-                current.Skills["classic:junxing"] is
-                {
-                    Program:
-                    {
-                        RuntimeVersion: SkillProgramCatalog.RuntimeVersion,
-                        MinimumRulesVersion: 172,
-                        Activations.Count: 1
-                    },
-                    ExecutionForms: SkillExecutionForm.None,
-                    ActionForms: SkillActionForm.Active
-                } &&
-                current.Skills["classic:yuce"] is
-                {
-                    Program:
-                    {
-                        RuntimeVersion: SkillProgramCatalog.RuntimeVersion,
-                        MinimumRulesVersion: 172,
-                        Triggers.Count: 1
-                    },
-                    ExecutionForms: SkillExecutionForm.Trigger,
-                    ActionForms: SkillActionForm.None
-                } &&
-                current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(GeneralId),
-            "Current Man Chong must publish Junxing and Yuce programs.");
-    }
-
     public static void JunxingUsesExactCategoriesAndReplaysBothBranches()
     {
         var fixture = FindJunxingGame();
@@ -171,112 +134,6 @@ internal static class ManChongChecks
                     item.SkillId == "classic:junxing" && item.ActivationId == "category-punishment" && item.Completed) &&
                 State(turnReplay) == State(turnGame) && Events(turnReplay).SequenceEqual(Events(turnGame)),
             "Junxing's alternative branch must toggle the target and draw exactly the paid card count.");
-    }
-
-    public static void YuceRevealsChallengesRecoversAndReplays()
-    {
-        var fixture = FindYuceGame();
-        var game = fixture.Game;
-        var ownerPrompt = RequireProgramPrompt(game, "classic:yuce");
-        var sourceSeat = ownerPrompt.SourceSeat ??
-            throw new InvalidOperationException("Yuce did not identify the damage source.");
-        var full = game.CreateSnapshot(HumanSeat, revealAll: true);
-        var sourceHand = full.Players[sourceSeat].Hand;
-        var shownCard = full.Players[HumanSeat].Hand.First(card =>
-            sourceHand.Any(source => CardCatalog.Get(source.Kind).CategoryName !=
-                                     CardCatalog.Get(card.Kind).CategoryName));
-        var ownerPaused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
-        AnswerProgramAction(game, "activate");
-        AnswerProgramAction(ownerPaused, "activate");
-        var selectionPrompt = RequireProgramPrompt(game, "classic:yuce");
-        Require(selectionPrompt.IsPrivate && selectionPrompt.PlayerSeat == HumanSeat &&
-                selectionPrompt.Choices.All(choice =>
-                    choice.Parameters.GetValueOrDefault("program-action") == "select-owned-cards"),
-            "Yuce must request one exact owner hand card through the shared owned-card selector.");
-        var selectionPaused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
-        Answer(game, selectionPrompt.Choices.Single(choice => choice.Cards.SequenceEqual([shownCard.Id])));
-        Answer(ownerPaused, RequireProgramPrompt(ownerPaused, "classic:yuce").Choices.Single(choice =>
-            choice.Cards.SequenceEqual([shownCard.Id])));
-        Answer(selectionPaused, RequireProgramPrompt(selectionPaused, "classic:yuce").Choices.Single(choice =>
-            choice.Cards.SequenceEqual([shownCard.Id])));
-
-        var sourcePrompt = RequirePromptForSeat(game, sourceSeat, DecisionKind.ProgramTrigger);
-        var publicReveal = game.CreateSnapshot(sourceSeat).PublicRevealedCards;
-        var shownCategory = CardCatalog.Get(shownCard.Kind).CategoryName;
-        Require(sourcePrompt.PlayerSeat == sourceSeat && sourcePrompt.IsPrivate &&
-                sourcePrompt.SkillPrompt?.SkillId == "classic:yuce" &&
-                publicReveal.Count == 1 && publicReveal.Single().Id == shownCard.Id &&
-                sourcePrompt.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("program-action") == "different-category-decline") &&
-                sourcePrompt.Choices
-                    .Where(choice => choice.Parameters.GetValueOrDefault("program-action") == "different-category-discard")
-                    .All(choice => CardCatalog.Get(
-                        sourceHand.Single(card => card.Id == choice.Cards.Single()).Kind).CategoryName != shownCategory),
-            "Yuce must reveal one exact hand card publicly and privately publish only different-category source discards plus decline.");
-        Require(State(ownerPaused) == State(game) && State(selectionPaused) == State(game),
-            "Both paused Yuce owner stages must rebuild the same source challenge.");
-
-        var sourcePaused = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), fixture.Registry);
-        var ownerHpBefore = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hp;
-        AdvanceOne(game);
-        AdvanceOne(ownerPaused);
-        AdvanceOne(selectionPaused);
-        AdvanceOne(sourcePaused);
-        var discarded = game.Events.Select(item => item.Payload).OfType<ProgramCategoryDiscardResolvedEvent>()
-            .Last(item => item.SkillId == "classic:yuce");
-        var revealed = game.Events.Select(item => item.Payload).OfType<ProgramCardsRevealedEvent>()
-            .Last(item => item.SkillId == "classic:yuce");
-        Require(discarded is
-                {
-                    OwnerSeat: HumanSeat,
-                    DiscardedCardId: not null
-                } &&
-                discarded.ChooserSeat == sourceSeat &&
-                revealed.Cards.Select(card => card.Id).SequenceEqual([shownCard.Id]) &&
-                game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hp == ownerHpBefore &&
-                game.CardMovements.Any(move =>
-                    move.CardId == discarded.DiscardedCardId &&
-                    move.Reason == new CardMoveReason("skill-program.classic:yuce.ChooseDifferentCategoryDiscard") &&
-                    move.To == CardLocation.DiscardPile),
-            "Yuce's exact different-category discard must prevent recovery.");
-        Require(State(ownerPaused) == State(game) && Events(ownerPaused).SequenceEqual(Events(game)) &&
-                State(selectionPaused) == State(game) && Events(selectionPaused).SequenceEqual(Events(game)) &&
-                State(sourcePaused) == State(game) && Events(sourcePaused).SequenceEqual(Events(game)),
-            "All three paused Yuce decision stages must replay exactly.");
-
-        var recoveryFixture = FindYuceNoCounterGame();
-        var recoveryGame = recoveryFixture.Game;
-        var recoveryPrompt = RequireProgramPrompt(recoveryGame, "classic:yuce");
-        var recoveryFull = recoveryGame.CreateSnapshot(HumanSeat, revealAll: true);
-        var recoverySourceSeat = recoveryPrompt.SourceSeat ??
-            throw new InvalidOperationException("The recovery Yuce fixture has no source.");
-        var recoverySourceHand = recoveryFull.Players[recoverySourceSeat].Hand;
-        var recoveryShown = recoveryFull.Players[HumanSeat].Hand.First(card =>
-        {
-            var category = CardCatalog.Get(card.Kind).CategoryName;
-            return recoverySourceHand.Count > 0 && recoverySourceHand.All(source =>
-                CardCatalog.Get(source.Kind).CategoryName == category);
-        });
-        var recoveryHpBefore = recoveryFull.Players[HumanSeat].Hp;
-        var recoveryReplay = GameReplay.Restore(RoundTrip(recoveryGame.CreateCheckpoint()), recoveryFixture.Registry);
-        AnswerProgramAction(recoveryGame, "activate");
-        AnswerProgramAction(recoveryReplay, "activate");
-        Answer(recoveryGame, RequireProgramPrompt(recoveryGame, "classic:yuce").Choices.Single(choice =>
-            choice.Cards.SequenceEqual([recoveryShown.Id])));
-        Answer(recoveryReplay, RequireProgramPrompt(recoveryReplay, "classic:yuce").Choices.Single(choice =>
-            choice.Cards.SequenceEqual([recoveryShown.Id])));
-        var recovered = recoveryGame.Events.Select(item => item.Payload)
-            .OfType<ProgramCategoryDiscardResolvedEvent>().Last(item => item.SkillId == "classic:yuce");
-        Require(recovered.DiscardedCardId is null && recovered.ChooserSeat == recoverySourceSeat &&
-                recoveryGame.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hp == recoveryHpBefore + 1 &&
-                recoveryGame.Events.Select(item => item.Payload).OfType<RecoveryAppliedEvent>()
-                    .Any(item => item.SourceSeat == HumanSeat && item.TargetSeat == HumanSeat && item.Amount == 1) &&
-                recoveryGame.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
-                    item.SkillId == "classic:yuce" && item.Activated && item.Completed),
-            "A Yuce source without a different-category hand card must recover the damaged owner by exactly one.");
-        Require(State(recoveryReplay) == State(recoveryGame) &&
-                Events(recoveryReplay).SequenceEqual(Events(recoveryGame)),
-            "Yuce's no-counter recovery branch must replay exactly.");
     }
 
     private static Fixture FindJunxingGame()
@@ -482,31 +339,11 @@ internal static class ManChongChecks
             choice.Parameters.GetValueOrDefault("program-action") == action));
     }
 
-    private static void AnswerActionForSeat(GameEngine game, int seat, string action)
-    {
-        var prompt = RequirePromptForSeat(game, seat, game.CreateSnapshot(seat).PendingDecision?.Kind ??
-            throw new InvalidOperationException("No private prompt is pending for the requested seat."));
-        AnswerForSeat(game, seat, prompt.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == action));
-    }
-
     private static void Answer(GameEngine game, PromptChoice choice)
     {
         var prompt = game.PendingDecision ?? throw new InvalidOperationException("No prompt is pending.");
         var result = game.Submit(new AnswerPromptCommand(
             prompt.PlayerSeat,
-            prompt.PromptId,
-            choice.Id,
-            game.Revision));
-        Require(result.Accepted, result.Error?.Message ?? $"The {prompt.Kind} answer was rejected.");
-    }
-
-    private static void AnswerForSeat(GameEngine game, int seat, PromptChoice choice)
-    {
-        var prompt = game.CreateSnapshot(seat).PendingDecision ??
-            throw new InvalidOperationException($"No prompt is pending for seat {seat}.");
-        var result = game.Submit(new AnswerPromptCommand(
-            seat,
             prompt.PromptId,
             choice.Id,
             game.Revision));

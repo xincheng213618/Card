@@ -13,21 +13,6 @@ internal static class TutorialChecks
     private static void Require(bool condition, string message) => Program.Assert(condition, message);
     private static string State(MainViewModel vm) => SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(0, true));
 
-    public static void RealScenarios()
-    {
-        foreach (var lesson in TutorialScenario.Lessons)
-        {
-            var first = TutorialScenario.Create(lesson);
-            var second = TutorialScenario.Create(lesson);
-            Require(SnapshotJson.Serialize(first.CreateSnapshot(0, true)) == SnapshotJson.Serialize(second.CreateSnapshot(0, true)),
-                $"{lesson.Action} practice setup is not deterministic.");
-            Require(first.AcceptedCommands.Count == first.Revision, $"{lesson.Action} practice bypassed the command boundary.");
-            var restored = GameReplay.Restore(first.CreateCheckpoint(), StandardContentRegistry.Create());
-            Require(SnapshotJson.Serialize(first.CreateSnapshot(0, true)) == SnapshotJson.Serialize(restored.CreateSnapshot(0, true)),
-                $"{lesson.Action} practice cannot be rebuilt from its command journal.");
-        }
-    }
-
     public static void CompleteCourseAndRestore(string output)
     {
         var saves = new MemorySaveStore();

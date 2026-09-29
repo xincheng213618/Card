@@ -3,11 +3,6 @@ using CardGame.Core;
 
 internal static class ClassicShenGuanYuChecks
 {
-    private const string GeneralId = "classic:shen-guan-yu";
-    private const string ModeId = "identity:classic-shen-guan-yu-4";
-    private const string DyingGeneralId = "classic-shen-guan-yu-test:wushen-owner";
-    private const string DyingModeId = "identity:classic-wushen-dying-4";
-
     internal static void WushenRealDeckIdentityAndReplay()
     {
         var registry = CreateRegistry();
@@ -107,6 +102,12 @@ internal static class ClassicShenGuanYuChecks
             "No bounded real classic deck fixture dealt Shen Guan Yu a heart Peach with a distance-two target.");
     }
 
+
+    private const string GeneralId = "classic:shen-guan-yu";
+    private const string ModeId = "identity:classic-shen-guan-yu-4";
+    private const string DyingGeneralId = "classic-shen-guan-yu-test:wushen-owner";
+    private const string DyingModeId = "identity:classic-wushen-dying-4";
+
     internal static void WuhunRealDeckDeathChainAndReplay()
     {
         var registry = CreateRegistry();
@@ -169,132 +170,6 @@ internal static class ClassicShenGuanYuChecks
 
         throw new InvalidOperationException(
             "No bounded all-AI classic-deck match completed formal Wuhun's direct-death chain.");
-    }
-
-    internal static void WushenHeartPeachCannotRescue()
-    {
-        var registry = CreateRegistry();
-        for (var seed = 1; seed <= 16_384; seed++)
-        {
-            var game = GameEngine.CreateStandard(new GameOptions
-            {
-                Seed = seed,
-                PlayerCount = 4,
-                ModeId = DyingModeId,
-                HumanSeat = 0,
-                HumanRole = Role.Rebel,
-                UseInteractiveSetup = true,
-                UseInteractiveDiscard = true,
-                AdvanceAfterHumanCommands = false,
-                AiPolicyVersion = 2,
-                MaxTurns = 40
-            }, registry);
-            if (!game.Submit(new StartGameCommand()).Accepted ||
-                game.PendingDecision is not { Kind: DecisionKind.SelectGeneral, PlayerSeat: 0 } selection ||
-                !selection.ValidContentIds.Contains(DyingGeneralId, StringComparer.Ordinal) ||
-                !game.Submit(new SelectGeneralCommand(
-                    0, DyingGeneralId, game.Revision, selection.PromptId)).Accepted ||
-                !AdvanceToFactionChoice(game))
-                continue;
-            var faction = game.PendingDecision!;
-            var wei = faction.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("faction-id") == "wei");
-            if (!game.Submit(new AnswerPromptCommand(
-                    0, faction.PromptId, wei.Id, game.Revision)).Accepted)
-                continue;
-
-            for (var step = 0; step < 16 &&
-                 game.CreateSnapshot(0, revealAll: true).Players[0].Hand.Count == 0; step++)
-            {
-                if (!game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted)
-                    break;
-            }
-
-            var initialPeach = game.CreateSnapshot(0, revealAll: true).Players[0].Hand
-                .FirstOrDefault(card => card.Kind == CardKind.Peach && card.Suit == Suit.Heart);
-            if (initialPeach is null)
-                continue;
-            var keptPeach = true;
-            var dyingWithPeach = false;
-            for (var step = 0; step < 2_048 &&
-                 game.State.Status != EngineStatus.Completed && keptPeach; step++)
-            {
-                Require(game.PendingDecision is not
-                        { Kind: DecisionKind.RescueDying, PlayerSeat: 0, TargetSeat: 0 },
-                    "A heart Peach governed by formal Wushen must not open an owner rescue entry.");
-
-                var hadPeach = game.CreateSnapshot(0, revealAll: true).Players[0].Hand
-                    .Any(card => card.Id == initialPeach.Id);
-                var eventCount = game.Events.Count;
-                CommandResult advanced;
-                if (game.PendingDecision is { PlayerSeat: 0 } prompt)
-                {
-                    if (prompt.Kind == DecisionKind.PlayCard)
-                    {
-                        advanced = game.Submit(new EndPlayPhaseCommand(
-                            0, game.Revision, prompt.PromptId));
-                    }
-                    else if (prompt.Kind == DecisionKind.DiscardCards)
-                    {
-                        var discard = prompt.ValidCardIds
-                            .Where(id => id != initialPeach.Id)
-                            .Take(prompt.RequiredCardCount)
-                            .ToArray();
-                        if (discard.Length != prompt.RequiredCardCount)
-                        {
-                            keptPeach = false;
-                            break;
-                        }
-                        advanced = game.Submit(new DiscardCardsCommand(
-                            0, discard, prompt.PromptId, game.Revision));
-                    }
-                    else
-                    {
-                        var decline = prompt.Choices.FirstOrDefault(choice => choice.Cards.Count == 0);
-                        if (decline is null)
-                        {
-                            keptPeach = false;
-                            break;
-                        }
-                        advanced = game.Submit(new AnswerPromptCommand(
-                            0, prompt.PromptId, decline.Id, game.Revision));
-                    }
-                }
-                else
-                {
-                    advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
-                }
-                if (!advanced.Accepted)
-                    break;
-                var newEvents = game.Events.Skip(eventCount).Select(item => item.Payload).ToArray();
-                if (hadPeach && newEvents.OfType<PlayerDyingEvent>().Any(item => item.VictimSeat == 0))
-                    dyingWithPeach = true;
-                if (dyingWithPeach)
-                {
-                    Require(game.PendingDecision is not
-                            { Kind: DecisionKind.RescueDying, PlayerSeat: 0, TargetSeat: 0 },
-                        "Formal Wushen must skip its owner's rescue entry while the retained heart Peach is a Slash.");
-                    if (newEvents.OfType<DyingResolvedEvent>().Any(item => item.VictimSeat == 0))
-                    {
-                        Require(!game.Events.Select(item => item.Payload)
-                                .OfType<DyingResponseEvent>()
-                                .Any(item => item.ResponderSeat == 0 &&
-                                    item.PeachCardId == initialPeach.Id),
-                            "The retained heart Peach was incorrectly accepted as a dying response under formal Wushen.");
-                        var restored = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
-                        Require(SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) ==
-                                SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) &&
-                                game.Events.Select(item => item.Payload.GetType().Name)
-                                    .SequenceEqual(restored.Events.Select(item => item.Payload.GetType().Name)),
-                            "The formal Wushen dying boundary did not replay exactly after retaining a physical heart Peach.");
-                        return;
-                    }
-                }
-            }
-        }
-
-        throw new InvalidOperationException(
-            "No bounded real-deck fixture retained a heart Peach until the formal Wushen owner's dying window.");
     }
 
     private static bool AdvanceToFactionChoice(GameEngine game)

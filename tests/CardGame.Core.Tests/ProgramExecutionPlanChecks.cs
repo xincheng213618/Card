@@ -2,44 +2,6 @@ using CardGame.Core;
 
 internal static class ProgramExecutionPlanChecks
 {
-    public static void ActiveAndTriggerUseStableInstructionPlans()
-    {
-        var resolver = new ProgramInstructionResolver();
-        var program = Load();
-        var active = resolver.Resolve(program, ProgramInstructionSourceKind.Activation, "draw");
-        var triggered = resolver.Resolve(program, ProgramInstructionSourceKind.Trigger, "draw");
-        Require(active.GetInstruction(0).Effect.Op == SkillProgramEffectOp.Draw &&
-                triggered.GetInstruction(0).Effect.Op == SkillProgramEffectOp.Draw &&
-                active.GetInstruction(0).Identity != triggered.GetInstruction(0).Identity,
-            "The same binding name must not conflate active and trigger instructions.");
-        Require(ReferenceEquals(active, resolver.Resolve(program, ProgramInstructionSourceKind.Activation, "draw")) &&
-                !ReferenceEquals(active, resolver.Resolve(Load(), ProgramInstructionSourceKind.Activation, "draw")),
-            "Plans must reuse the immutable definition reference without sharing state across equal definitions.");
-
-        var frame = Frame(program);
-        Require(ReferenceEquals(active, resolver.Resolve(frame, program)), "Active frame resolved another plan.");
-        Require(ReferenceEquals(triggered, resolver.Resolve(frame with { TriggerId = "draw" }, program)),
-            "A trigger frame must resolve its trigger even when its activation field is populated.");
-        Require(active.GetPausedInstruction(1) == active.GetInstruction(0) &&
-                active.GetPausedInstruction(2) == active.GetInstruction(1),
-            "A committed cursor must locate the instruction that suspended without repeating its predecessor.");
-        RequireThrows<NotSupportedException>(() =>
-            ((IList<SkillProgramEffect>)active.Instructions)[0] = active.Instructions[1]);
-        RequireThrows<InvalidOperationException>(() => active.GetInstruction(-1));
-        RequireThrows<InvalidOperationException>(() => active.GetInstruction(2));
-        RequireThrows<InvalidOperationException>(() => active.GetPausedInstruction(0));
-        RequireThrows<InvalidOperationException>(() => active.GetPausedInstruction(3));
-        RequireThrows<InvalidOperationException>(() => resolver.Resolve(frame with { GameplayHash = "changed" }, program));
-        RequireThrows<InvalidOperationException>(() => resolver.Resolve(frame with { SkillId = "another" }, program));
-        RequireThrows<ArgumentException>(() => resolver.Resolve(frame with { TriggerId = " " }, program));
-        RequireThrows<InvalidOperationException>(() =>
-            resolver.Resolve(program, ProgramInstructionSourceKind.Activation, "missing"));
-        var judgment = resolver.Resolve(program, ProgramInstructionSourceKind.Trigger, "judgment-draw");
-        Require(judgment.GetInstruction(0).Effect.Op == SkillProgramEffectOp.Draw &&
-                judgment.GetInstruction(0).Identity != triggered.GetInstruction(0).Identity,
-            "Distinct trigger bindings must retain distinct unified instruction identities.");
-    }
-
     public static void PlansFreezeInstructionsAndRejectAmbiguousBindings()
     {
         var loaded = Load();

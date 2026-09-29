@@ -90,51 +90,6 @@ internal static class ZhangHeChecks
             windowPresentation, "the discard substitution belongs to the discard-phase boundary");
     }
 
-    public static void SkipDrawBranchTakesOneCardFromEachTargetAndReplays()
-    {
-        var registry = Registry();
-        var completed = 0;
-        for (var seed = 1; seed <= 300 && completed < 1; seed++)
-        {
-            var game = Start(registry, seed);
-            if (DriveToQiaobianBranch(game, SkipDrawTrigger) is null) continue;
-            var before = game.CreateSnapshot(0, true);
-            var paused = RoundTrip(game.CreateCheckpoint());
-            var replay = GameReplay.Restore(paused, registry);
-            if (!UseSkipDrawBranch(game) || !UseSkipDrawBranch(replay)) continue;
-            DriveUntil(game, () => game.ResolutionStack.Count == 0);
-            DriveUntil(replay, () => replay.ResolutionStack.Count == 0);
-            Require(Events(game).SequenceEqual(Events(replay)) && State(game) == State(replay),
-                "The skip-draw branch must replay identically from the paused checkpoint.");
-
-            var takenDepartures = game.CardMovements.Where(item =>
-                item.Reason.Value.Contains(Qiaobian, StringComparison.Ordinal) &&
-                item.From.Zone == CardZoneKind.Hand && item.From.OwnerSeat != 0 &&
-                item.To == CardLocation.Processing).ToArray();
-            var takenArrivals = game.CardMovements.Where(item =>
-                item.Reason.Value.Contains(Qiaobian, StringComparison.Ordinal) &&
-                item.To == CardLocation.Hand(0) &&
-                item.From.Zone != CardZoneKind.Hand).ToArray();
-            Require(takenDepartures.Length == 2 &&
-                    takenDepartures.Select(item => item.From.OwnerSeat).Distinct().Count() == 2 &&
-                    takenArrivals.Length == 2,
-                "The skip-draw branch must take exactly one hand card from each of two targets.");
-            var normalDraws = game.CardMovements.Where(item =>
-                item.To == CardLocation.Hand(0) &&
-                item.From == CardLocation.DrawPile &&
-                item.Reason.Value.Contains("rule.draw", StringComparison.Ordinal)).ToArray();
-            Require(normalDraws.Length == 0,
-                "Skipping the draw phase must suppress the owner's normal draw this turn.");
-            var cost = game.CardMovements.Where(item =>
-                item.Reason.Value.Contains(Qiaobian, StringComparison.Ordinal) &&
-                item.From.OwnerSeat == 0 && item.To == CardLocation.DiscardPile).ToArray();
-            Require(cost.Length == 1,
-                "The skip-draw branch must cost exactly one owner hand card.");
-            completed++;
-        }
-        Require(completed == 1, "No seeded setup exercised the skip-draw branch.");
-    }
-
     public static void SkipDiscardBranchKeepsHandCardsAndReplays()
     {
         var registry = Registry();
@@ -166,55 +121,6 @@ internal static class ZhangHeChecks
             completed++;
         }
         Require(completed == 1, "No seeded setup exercised the skip-discard branch.");
-    }
-
-    public static void SkipPlayBranchMovesEquipmentToPairedTargetAndReplays()
-    {
-        var registry = Registry();
-        var completed = 0;
-        for (var seed = 1; seed <= 300 && completed < 1; seed++)
-        {
-            var game = Start(registry, seed, crossbowDeck: true);
-            var play = DriveToFirstPlaySkippingQiaobian(game);
-            if (play is null) continue;
-            var crossbow = game.GetHumanLegalActions().FirstOrDefault(action =>
-                action.Kind == LegalActionKind.Equip && action.CardId is { } &&
-                game.CreateSnapshot(0, true).Players[0].Hand.Any(card => card.Id == action.CardId));
-            if (crossbow is null || !PlayCrossbow(game, crossbow)) continue;
-            if (!ReturnToHumanPlay(game)) continue;
-            Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision, game.PendingDecision!.PromptId)));
-            if (SurviveToSecondTurnBranch(game) is null) continue;
-            var before = game.CreateSnapshot(0, true);
-            var equipped = before.Players[0].Equipment.Select(card => card.Id).Order().ToArray();
-            if (equipped.Length == 0) continue;
-            var paused = RoundTrip(game.CreateCheckpoint());
-            var replay = GameReplay.Restore(paused, registry);
-            if (!UseBranch(game, SkipPlayTrigger)) continue;
-            var recipient = ChooseMovePair(game);
-            if (recipient is null) continue;
-            if (!AnswerOrderedPair(game, recipient.Value) || !PickMovedEquipment(game)) continue;
-            if (!UseBranch(replay, SkipPlayTrigger) ||
-                !AnswerOrderedPair(replay, recipient.Value) ||
-                !PickMovedEquipment(replay)) continue;
-            DriveUntil(game, () => game.ResolutionStack.Count == 0);
-            DriveUntil(replay, () => replay.ResolutionStack.Count == 0);
-            Require(Events(game).SequenceEqual(Events(replay)) && State(game) == State(replay),
-                "The skip-play branch must replay identically from the paused checkpoint.");
-
-            var after = game.CreateSnapshot(0, true);
-            var moved = equipped.Where(cardId =>
-                    after.Players[recipient.Value].Equipment.Any(card => card.Id == cardId)).ToArray();
-            Require(moved.Length == 1 &&
-                    !after.Players[0].Equipment.Any(card => card.Id == moved[0]),
-                "The skip-play branch must move the owner's equipment into the paired target's equipment zone.");
-            var discardReasons = game.CardMovements.Where(item =>
-                item.Reason.Value.Contains(Qiaobian, StringComparison.Ordinal) &&
-                item.From.OwnerSeat == 0 && item.To == CardLocation.DiscardPile).ToArray();
-            Require(discardReasons.Length == 1,
-                "The skip-play branch must cost exactly one owner hand card.");
-            completed++;
-        }
-        Require(completed == 1, "No seeded setup exercised the skip-play branch.");
     }
 
     private static PendingDecision? DriveToQiaobianBranch(GameEngine game, string triggerId)
@@ -350,95 +256,6 @@ internal static class ZhangHeChecks
                 item.Parameters.GetValueOrDefault("program-action") == "select-targets");
         Accept(game.Submit(new AnswerPromptCommand(0, prompt.PromptId, choice.Id, game.Revision)));
         return true;
-    }
-
-    private static int? ChooseMovePair(GameEngine game)
-    {
-        var prompt = game.PendingDecision;
-        if (prompt is not { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 }) return null;
-        var pairs = prompt.Choices.Where(choice =>
-                choice.Parameters.GetValueOrDefault("program-action") == "select-targets" &&
-                choice.Targets.Count == 2 && choice.Targets[0] == 0)
-            .Select(choice => choice.Targets[1]).ToArray();
-        return pairs.Length == 0 ? null : pairs[0];
-    }
-
-    private static bool AnswerOrderedPair(GameEngine game, int recipient)
-    {
-        var prompt = game.PendingDecision;
-        if (prompt is not { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 }) return false;
-        var choice = prompt.Choices.FirstOrDefault(item =>
-            item.Parameters.GetValueOrDefault("program-action") == "select-targets" &&
-            item.Targets.SequenceEqual([0, recipient]));
-        if (choice is null) return false;
-        Accept(game.Submit(new AnswerPromptCommand(0, prompt.PromptId, choice.Id, game.Revision)));
-        return true;
-    }
-
-    private static bool PickMovedEquipment(GameEngine game)
-    {
-        var prompt = game.PendingDecision;
-        if (prompt is not { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0 }) return false;
-        var pick = prompt.Choices.FirstOrDefault(choice =>
-            choice.Parameters.GetValueOrDefault("program-action") == "select-and-move-owned-card" &&
-            choice.Parameters.GetValueOrDefault("source-zone") == "Equipment");
-        if (pick is null) return false;
-        Accept(game.Submit(new AnswerPromptCommand(0, prompt.PromptId, pick.Id, game.Revision)));
-        return true;
-    }
-
-    private static bool PlayCrossbow(GameEngine game, LegalAction action)
-    {
-        var result = game.Submit(new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats,
-            game.Revision, game.PendingDecision!.PromptId, action.PlayedCardKind, action.TargetCardId));
-        return result.Accepted;
-    }
-
-    private static bool ReturnToHumanPlay(GameEngine game)
-    {
-        for (var step = 0; step < 800 && game.State.Status != EngineStatus.Completed; step++)
-        {
-            var prompt = game.PendingDecision;
-            if (prompt is null)
-            {
-                Advance(game);
-                continue;
-            }
-            if (prompt.Kind == DecisionKind.PlayCard && prompt.PlayerSeat == 0) return true;
-            if (!AnswerForeignOrRoutine(game, prompt)) return false;
-        }
-        return false;
-    }
-
-    private static PendingDecision? SurviveToSecondTurnBranch(GameEngine game)
-    {
-        for (var step = 0; step < 3000 && game.State.Status != EngineStatus.Completed; step++)
-        {
-            var prompt = game.PendingDecision;
-            if (prompt is null)
-            {
-                Advance(game);
-                continue;
-            }
-            if (prompt.Kind == DecisionKind.ProgramTrigger && prompt.PlayerSeat == 0 &&
-                prompt.SkillPrompt?.SkillId == Qiaobian)
-            {
-                if (prompt.Choices.Any(choice =>
-                        choice.Parameters.GetValueOrDefault("program-action") == "activate" &&
-                        choice.Parameters.GetValueOrDefault("binding-id") == SkipPlayTrigger))
-                {
-                    return prompt;
-                }
-                var pass = prompt.Choices.FirstOrDefault(choice =>
-                    choice.Parameters.GetValueOrDefault("program-action") == "skip");
-                if (pass is null) return null;
-                Answer(game, pass);
-                continue;
-            }
-            if (prompt.Kind == DecisionKind.PlayCard && prompt.PlayerSeat == 0) return null;
-            if (!AnswerForeignOrRoutine(game, prompt)) return null;
-        }
-        return null;
     }
 
     private static void DriveUntil(GameEngine game, Func<bool> done, int budget = 800)

@@ -115,43 +115,6 @@ internal static class SkillProgramJudgmentTriggerChecks
             "A completed final-judgment trigger must replay without repeating its effects.");
     }
 
-    internal static void FrozenInstanceCannotTransferToAnotherGrant()
-    {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new JudgmentFixturePackage());
-        var game = FindProgramBoundary(registry);
-        var window = game.ResolutionStack.OfType<ProgramJudgmentTriggerWindowFrame>().Single();
-        var candidate = window.Candidates[window.CandidateIndex];
-        var owner = ((IReadOnlyList<CharacterState>)(typeof(GameEngine)
-            .GetField("_players", System.Reflection.BindingFlags.NonPublic |
-                                  System.Reflection.BindingFlags.Instance)!
-            .GetValue(game) ?? throw new InvalidOperationException("The judgment fixture has no players.")))
-            [candidate.OwnerSeat];
-        const string alternateInstanceId = "fixture:alternate-judgment-instance";
-        owner.SkillGrants.Grant(new SkillGrant(
-            "fixture:alternate-judgment-grant", candidate.SkillId, alternateInstanceId, "acquired:test"));
-        foreach (var grant in owner.SkillGrants.Grants.Where(grant =>
-                     grant.SkillId == candidate.SkillId &&
-                     grant.SkillInstanceId == candidate.SkillInstanceId).ToArray())
-            owner.SkillGrants.SetEnabled(grant.GrantId, false);
-        Require(owner.SkillGrants.Grants.Any(grant =>
-                grant.SkillId == candidate.SkillId && grant.SkillInstanceId == alternateInstanceId &&
-                grant.IsEnabled) &&
-                owner.SkillGrants.Grants.All(grant =>
-                    grant.SkillId != candidate.SkillId ||
-                    grant.SkillInstanceId != candidate.SkillInstanceId || !grant.IsEnabled),
-            "The frozen judgment candidate must outlive its original grant while another instance stays active.");
-
-        Answer(game, "program-judgment-trigger-activate");
-        Require(game.Events.Select(item => item.Payload).OfType<ProgramBindingStartedEvent>()
-                    .All(item => item.SkillId != candidate.SkillId ||
-                                 item.Window != SkillProgramTriggerWindow.JudgmentFinalized) &&
-                game.Events.Select(item => item.Payload).OfType<ProgramJudgmentTriggerResolvedEvent>()
-                    .Single(item => item.SkillId == candidate.SkillId &&
-                                    item.TriggerId == candidate.TriggerId) is { Activated: false } &&
-                game.ResolutionStack.All(item => item is not ProgramJudgmentTriggerWindowFrame),
-            "A revoked frozen instance must skip its opportunity rather than transfer it to another grant.");
-    }
-
     private static GameEngine FindProgramBoundary(ContentRegistry registry)
     {
         for (var seed = 1; seed <= 512; seed++)

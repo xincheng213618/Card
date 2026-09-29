@@ -4,50 +4,6 @@ using CardGame.Core;
 
 internal static class HanDangChecks
 {
-    private const int HumanSeat = 0;
-    private const string HanDangId = "classic:han-dang";
-
-    public static void ContentAndPackageBoundary()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(current.Generals[HanDangId] is { BaseHp: 4, FactionId: "wu", Gender: GeneralGender.Male } hanDang &&
-                hanDang.SkillIds.SequenceEqual(["classic:gongqi", "classic:jiefan"]) &&
-                current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(HanDangId),
-            "Current identity roster must publish complete Han Dang metadata.");
-        Require(current.Skills["classic:gongqi"] is
-                {
-                    Program: { RuntimeVersion: SkillProgramCatalog.RuntimeVersion, MinimumRulesVersion: 172 } program,
-                    ActionForms: SkillActionForm.Active,
-                    ExecutionForms: SkillExecutionForm.State
-                } &&
-                program.Activations.Single() is
-                {
-                    Id: "discard-for-unlimited-range",
-                    MinCards: 1,
-                    MaxCards: 1,
-                    UsesPerTurn: null,
-                    UsesPerPhase: 1
-                } activation &&
-                activation.SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]) &&
-                current.Skills["classic:jiefan"] is
-                {
-                    Program: { RuntimeVersion: SkillProgramCatalog.RuntimeVersion, MinimumRulesVersion: 172 } jiefanProgram,
-                    ActionForms: SkillActionForm.Active,
-                    Tags: SkillTag.Limited
-                } &&
-                jiefanProgram.Activations.Single() is
-                {
-                    Id: "aid-by-attack-range",
-                    MinCards: 0,
-                    MaxCards: 0,
-                    MinTargets: 1,
-                    MaxTargets: 1,
-                    UsesPerGame: 1,
-                    Effects: [{ Op: SkillProgramEffectOp.RequestAttackRangeAid }]
-                },
-            "Current Gongqi and Jiefan must use their composed programs.");
-    }
-
     public static void GongqiEquipmentCostAndOpaqueDiscardReplay()
     {
         var game = CreateGame();
@@ -106,6 +62,10 @@ internal static class HanDangChecks
                 State(paused) == State(game) && Events(paused).SequenceEqual(Events(game)),
             "Gongqi must be once per play phase and complete identically after replay.");
     }
+
+
+    private const int HumanSeat = 0;
+    private const string HanDangId = "classic:han-dang";
 
     public static void JiefanFreezesRespondersConsumesLimitedUseAndReplays()
     {

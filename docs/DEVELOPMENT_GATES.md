@@ -12,7 +12,7 @@
 
 ```powershell
 .\tools\Test-Changed.ps1 -CoreFilter 'Jiangchi'
-.\tools\Test-Changed.ps1 -WpfFilter 'Guan Ping'
+.\tools\Test-Changed.ps1 -WpfFilter 'selection, target toggle'
 .\tools\Test-Changed.ps1 -Full
 ```
 
