@@ -247,6 +247,9 @@ public interface ISkillProgramEffectHost
         int ownerSeat,
         IReadOnlyList<CardZoneKind> zones,
         CardMoveReason reason);
+    void DeclareHuaShenXinSheng(long frameId, int ownerSeat);
+    SkillProgramStepOutcome ChangeHuaShenAvatar(ProgramSkillFrame frame, int ownerSeat,
+        IReadOnlyList<SkillTag> declaredSkillTags);
     void AdjustNormalDraw(ProgramSkillFrame frame, int amount);
     void GrantTurnCardDamageModifier(
         ProgramSkillFrame frame,

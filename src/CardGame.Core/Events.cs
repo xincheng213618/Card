@@ -28,6 +28,30 @@ public sealed record GodFactionSelectionRequestedEvent(
 
 public sealed record GodFactionSelectedEvent(int ActorSeat, string FactionId) : IGameEvent;
 
+/// <summary>
+/// 左慈化身：一次公开的化身牌亮出与技能声明。仅亮出的化身牌与技能进入事件流，
+/// 其余化身牌与牌堆内容保持私密。
+/// </summary>
+public sealed record HuaShenAvatarRevealedEvent(
+    long? ProgramFrameId,
+    string SkillId,
+    int OwnerSeat,
+    string GeneralId,
+    string GeneralName,
+    string DeclaredSkillId,
+    string DeclaredSkillName) : IGameEvent;
+
+/// <summary>
+/// 左慈新生：一张游戏外武将牌进入了化身牌堆。牌堆内容对其他角色私密，事件只
+/// 发布拥有者与新牌堆规模。
+/// </summary>
+public sealed record HuaShenAvatarGainedEvent(
+    long FrameId,
+    string SkillId,
+    string BindingId,
+    int OwnerSeat,
+    int PileCount) : IGameEvent;
+
 /// <summary>Trusted-host setup event for the second general in national war.</summary>
 public sealed record SecondaryGeneralSelectedEvent(int ActorSeat, string GeneralId) : IGameEvent;
 

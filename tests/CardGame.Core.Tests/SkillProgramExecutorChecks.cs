@@ -914,6 +914,13 @@ internal static class SkillProgramExecutorChecks
         CardMoveReason reason) =>
             throw new NotSupportedException("The executor fixture does not exercise TakeRandomCardFromEveryOtherCharacter.");
 
+        public void DeclareHuaShenXinSheng(long frameId, int ownerSeat) =>
+            throw new NotSupportedException("The executor fixture does not exercise DeclareHuaShenXinSheng.");
+
+        public SkillProgramStepOutcome ChangeHuaShenAvatar(ProgramSkillFrame frame, int ownerSeat,
+            IReadOnlyList<SkillTag> declaredSkillTags) =>
+            throw new NotSupportedException("The executor fixture does not exercise ChangeHuaShenAvatar.");
+
         public void RefundCardUseDebit(ProgramSkillFrame frame) =>
             throw new NotSupportedException("The executor fixture does not exercise RefundCardUseDebit.");
     }

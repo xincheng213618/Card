@@ -59,6 +59,7 @@ CLASSIC_HEROES = {
     "dong-zhuo": 46,
     "liu-shan": 54,
     "zhang-zhao-zhang-hong": 56,
+    "zuo-ci": 57,
     "jia-xu": 49,
     "shen-lu-meng": 202,
 }

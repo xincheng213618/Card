@@ -717,6 +717,10 @@ public sealed partial class GameEngine
         {
             return SubmitProgramTriggerAnswer(actorSeat, prompt, choice);
         }
+        if (_pendingDecision?.Kind == DecisionKind.HuaShen)
+        {
+            return SubmitHuaShenAnswer(actorSeat, prompt, choice);
+        }
 
         if (!_started)
         {
@@ -2908,7 +2912,8 @@ public sealed partial class GameEngine
     private string? GetEffectiveFactionId(CharacterState player) =>
         IsNationalWarMode
             ? player.NationalFactionId
-            : player.ChosenFactionId ?? player.General.FactionId;
+            : player.ChosenFactionId ?? GetHuaShenEffectiveFactionId(player) ??
+              player.General.FactionId;
 
     private bool RequiresGodFactionSelection(CharacterState player) =>
         SupportsGodFactionSelection &&
@@ -3598,6 +3603,10 @@ public sealed partial class GameEngine
                 return;
             }
 
+            // A setup-time avatar declaration parks the whole setup until it is
+            // answered; the pile already exists, so only the pending choice gates.
+            if (_pendingHuaShenChoice is { ProgramFrameId: null }) return;
+            if (TryBeginHuaShenSetup()) return;
             CompleteSetup();
             return;
         }

@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:huashen",
+      "revision": 1,
+      "minimumRulesVersion": 192,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "change-at-turn-start",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "condition": { "kind": "always" },
+          "effects": [
+            {
+              "op": "huaShenChangeAvatar",
+              "target": "owner",
+              "declaredSkillTags": ["limited", "awakening", "lord"]
+            }
+          ]
+        },
+        {
+          "id": "change-at-turn-end",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "condition": { "kind": "always" },
+          "effects": [
+            {
+              "op": "huaShenChangeAvatar",
+              "target": "owner",
+              "declaredSkillTags": ["limited", "awakening", "lord"]
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "classic:xinsheng",
+      "revision": 1,
+      "minimumRulesVersion": 192,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "replenish-after-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": true,
+          "priority": 0,
+          "condition": { "kind": "always" },
+          "effects": [
+            { "op": "huaShenXinSheng", "target": "owner" }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    }
+  ]
+}
