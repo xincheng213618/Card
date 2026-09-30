@@ -101,10 +101,16 @@ public sealed partial class GameEngine
         _resolutionStack[index] = cardUse with { IneffectiveTargetSeats = seats };
     }
 
-    private bool IsCardEffectIneffective(long resolutionId, int targetSeat) =>
-        _resolutionStack.OfType<CardUseFrame>()
-            .Single(frame => frame.Id == resolutionId)
-            .IneffectiveTargetSeats?.Contains(targetSeat) == true;
+    private bool IsCardEffectIneffective(long resolutionId, int targetSeat)
+    {
+        var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == resolutionId);
+        if (frame.IneffectiveTargetSeats?.Contains(targetSeat) == true) return true;
+        if (frame.Action is not { } action || !GrantTurnCardEffectImmunityProgramOperationDescriptor.CardEffectImmunityKinds.Contains(action.EffectiveKind) ||
+            _turnCardUseEffects.GetRuleModifiers(_turnNumber, _currentSeat, targetSeat, SkillRuleQuery.CardEffectImmunity, action.EffectiveKind).Count == 0) return false;
+        MarkCardEffectIneffective(resolutionId, targetSeat);
+        QueueGameEvent(new CardEffectSkippedEvent(resolutionId, action.ActorSeat, targetSeat, action.EffectiveKind, CardEffectSkipReason.SkillNullified));
+        return true;
+    }
 
     private void CompleteIneffectiveTrickTarget(
         NullificationResolution pending,
@@ -113,11 +119,7 @@ public sealed partial class GameEngine
         SetCardUseStep(pending.ResolutionId, ResolutionFrameStep.ResolvingEffect);
         foreach (var physicalCard in GetCardUsePhysicalCards(pending.ResolutionId))
         {
-            MoveCard(
-                physicalCard,
-                CardLocation.Processing,
-                CardLocation.DiscardPile,
-                CardMoveReasons.UseFinished);
+            MoveFinishedTrickCard(pending.ResolutionId, physicalCard);
         }
         AddLog(
             "CardEffect",

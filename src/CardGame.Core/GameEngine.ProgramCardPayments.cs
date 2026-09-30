@@ -283,6 +283,7 @@ public sealed partial class GameEngine
             }
         }
         ClearPendingDecision();
+        var frozenMovedSuit = effect.FreezeMovedCardSuit ? EffectiveSuit(_players[ownerSeat], card) : (Suit?)null;
         var beforeCoverage = effect.CoverageResultBind is null ? 0 : CountLivingInAttackRange(ownerSeat);
         if (effect.AwaitMovementTriggers)
         {
@@ -317,7 +318,7 @@ public sealed partial class GameEngine
         if (effect.ResultBind is { } bind)
             SetProgramCardSet(frame.Id, bind, [card.Id],
                 effect.RevealBeforeMove ? SkillProgramCardSetVisibility.Public : SkillProgramCardSetVisibility.Private,
-                [destination], effect.RevealBeforeMove ? card.Suit : null);
+                [destination], frozenMovedSuit ?? (effect.RevealBeforeMove ? card.Suit : null));
         if (effect.AwaitMovementTriggers)
         {
             if (!TryBeginCardsMovedProgramWindow())
@@ -426,8 +427,9 @@ public sealed partial class GameEngine
     /// <summary>Equipment gifts cannot replace an equipped card: the matching slot must be free.</summary>
     private bool CanEnterEquipmentSlot(int recipientSeat, Card card) =>
         EquipmentCatalog.IsEquipment(card.Kind) &&
-        GetEquipment(_players[recipientSeat]).All(equipped =>
-            EquipmentCatalog.Get(equipped.Kind).Slot != EquipmentCatalog.Get(card.Kind).Slot);
+        GetEquipment(_players[recipientSeat]).Count(equipped =>
+            EquipmentCatalog.Get(equipped.Kind).Slot == EquipmentCatalog.Get(card.Kind).Slot) <
+        _players[recipientSeat].EquipmentSlotCapacity(EquipmentCatalog.Get(card.Kind).Slot);
 
     private static SkillProgramCardCategory GetProgramCardCategory(CardKind kind)
     {

@@ -34,6 +34,20 @@ public interface ISkillProgramExecutionHost
 /// <summary>Primitive rules operations exposed to reusable effect handlers.</summary>
 public interface ISkillProgramEffectHost
 {
+    SkillProgramStepOutcome RequestSlashAgainstChosenTarget(ProgramSkillFrame frame, int actorSeat, string resultBind) => throw new NotSupportedException();
+    SkillProgramStepOutcome TakeSelectedTargetCards(ProgramSkillFrame frame, int sourceSeat, int count) => throw new NotSupportedException();
+    SkillProgramStepOutcome ExchangeSelectedTargetEquipment(ProgramSkillFrame frame) =>
+        throw new NotSupportedException("Equipment exchange requires the rules host.");
+    SkillProgramStepOutcome OfferVirtualSlashOrDraw(SkillProgramEffect effect, ProgramSkillFrame frame, int actorSeat) =>
+        throw new NotSupportedException("Assisted virtual card use requires the rules host.");
+    void GrantTurnCardEffectImmunity(ProgramSkillFrame frame, int targetSeat, IReadOnlyList<CardKind> cardKinds) =>
+        throw new NotSupportedException("Turn card-effect immunity requires the rules host.");
+    void DrawAllHandSelectedBonus(ProgramSkillFrame frame, int amount) =>
+        throw new NotSupportedException("This host does not support an all-hand selection bonus.");
+    SkillProgramStepOutcome ExecuteStrategicEffect(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat) =>
+        throw new NotSupportedException("The host does not provide strategic table operations.");
+    SkillProgramStepOutcome ExecuteAdvancedLifecycle(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat) =>
+        throw new NotSupportedException("Advanced lifecycle effects require the rules host.");
     int ResolveParticipant(ProgramSkillFrame frame, ProgramParticipantReference reference);
     void Draw(long frameId, int ownerSeat, int targetSeat, int amount,
         SkillProgramNumberExpression? numberExpression, string? resultBind,
@@ -262,7 +276,7 @@ public interface ISkillProgramEffectHost
     void GrantTurnHandColorRestriction(
         ProgramSkillFrame frame,
         string sourceBind,
-        int targetSeat);
+        int targetSeat, bool useFrozenSuit = false);
     void GrantTurnHandCardProhibition(ProgramSkillFrame frame, int targetSeat);
     void AbolishOwnerAreas(ProgramSkillFrame frame, IReadOnlyList<CardZoneKind> zones);
     void LoseDeathSourceSkills(ProgramSkillFrame frame);
@@ -861,12 +875,15 @@ public sealed class MoveBoundCardsSkillProgramEffectHandler : ISkillProgramEffec
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host)
     {
-        return host.MoveBoundCards(frame.Id, frame.OwnerSeat,
+        var outcome = host.MoveBoundCards(frame.Id, frame.OwnerSeat,
             effect.SourceBind ?? throw new InvalidOperationException("moveBoundCards has no source bind."),
             effect.ExceptBind,
             effect.Destination ?? throw new InvalidOperationException("moveBoundCards has no destination."),
             effect.DestinationZone,
             new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
+        return effect.AwaitMovementTriggers && outcome == SkillProgramStepOutcome.Continue
+            ? ((IBoundCardMovementContinuationHost)host).AwaitBoundCardMovements(frame.Id, frame.OwnerSeat)
+            : outcome;
     }
 }
 
@@ -931,7 +948,7 @@ public sealed class GrantTurnHandColorRestrictionSkillProgramEffectHandler : ISk
         host.GrantTurnHandColorRestriction(
             frame,
             effect.SourceBind ?? throw new InvalidOperationException("A hand-color restriction lost its source bind."),
-            targetSeat);
+            targetSeat, effect.UseFrozenSuit);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -1312,18 +1329,25 @@ public sealed class SkillProgramExecutor
             if (!string.Equals(program.GameplayHash, frame.GameplayHash, StringComparison.Ordinal))
                 throw new InvalidOperationException(
                     $"Running skill program '{frame.SkillId}' changed its gameplay hash.");
-            if (!state.OwnsSkillInstance(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId))
+            var allowsDeadOwner = frame.WindowContext?.Window == SkillProgramTriggerWindow.OwnerDied ||
+                program.Activations.SingleOrDefault(item => item.Id == frame.ActivationId)?.ContinueAfterOwnerDeath == true ||
+                program.Triggers.SingleOrDefault(item => item.Id == frame.ActivationId)?.Effects.Any(effect => effect.Op == SkillProgramEffectOp.LoseHpParticipants) == true;
+            if (!state.OwnsSkillInstance(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId) && (actor.IsAlive || !allowsDeadOwner))
             {
                 state.Complete(frame, completed: false, "技能实例在结算前已失效，剩余步骤取消。");
                 return;
             }
             var plan = ProgramInstructionResolver.Default.Resolve(frame, program);
+            if (frame.ReexecuteParticipantInstruction)
+            {
+                frame = frame with { InstructionIndex = frame.InstructionIndex - 1, ReexecuteParticipantInstruction = false };
+                state.UpdateFrame(frame);
+            }
             var instructions = plan.Instructions;
             if (frame.InstructionIndex < 0 || frame.InstructionIndex > instructions.Count)
                 throw new InvalidOperationException(
                     $"Running skill program '{frame.SkillId}' has an invalid instruction cursor.");
 
-            var allowsDeadOwner = frame.WindowContext?.Window == SkillProgramTriggerWindow.OwnerDied;
             if ((!actor.IsAlive && !allowsDeadOwner) || state.IsGameOver ||
                 frame.InstructionIndex >= instructions.Count)
             {
@@ -1381,7 +1405,7 @@ public sealed class SkillProgramExecutor
             }
             if (!target.IsAlive && !(allowsDeadOwner && effect.Op is
                     (SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets or
-                     SkillProgramEffectOp.LoseDeathSourceSkills)))
+                     SkillProgramEffectOp.LoseDeathSourceSkills or SkillProgramEffectOp.DamageParticipants or SkillProgramEffectOp.LoseHpParticipants)))
             {
                 if (effect.Op is SkillProgramEffectOp.ChooseOption or SkillProgramEffectOp.SelectOwnedCards)
                 {

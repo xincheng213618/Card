@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀OL",
+  "retrievedAt": "2026-09-30",
+  "batch": "一将成名2011缺口第二批",
+  "roster": [
+    {
+      "contentId": "classic:fa-zheng",
+      "officialId": 185,
+      "name": "法正",
+      "maxHp": 3,
+      "faction": "shu",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/185",
+      "officialSkillText": "当你获得一名其他角色至少两张牌后，你可以令其摸一张牌。当你受到1点伤害后，你可以令伤害来源选择一项：1.交给你一张手牌；2.失去1点体力。 摸牌阶段，你可以改为令一名其他角色摸两张牌，令其选择一项：1.对其攻击范围内你指定的另一名角色使用一张〖杀〗；2.你获得其两张牌。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-fa-zheng.png",
+        "sha256": "938CF246AA466DFA15458DE5BFA7E617884ACE4E805CEB67EFA5275C888E325B",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/18500.png"
+      }
+    },
+    {
+      "contentId": "classic:ma-su",
+      "officialId": 156,
+      "name": "马谡",
+      "maxHp": 3,
+      "faction": "shu",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/156",
+      "officialSkillText": "出牌阶段各限一次，你可以弃置一张牌对一名体力值/手牌数最大的角色造成1点伤害。 当你对其他角色造成伤害时，你可以防止此伤害，然后获得其区域里的一张牌。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-ma-su.png",
+        "sha256": "F54F0523CCF118149FAE1AE3C5D7229900EF951A41B5C77E56BE3E975BAD47DA",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/15600.png"
+      }
+    }
+  ],
+  "additionalSources": [
+    {
+      "url": "https://www.sanguosha.com/news/20161205_9021_5212",
+      "skill": "classic:xuanhuo",
+      "use": "一将2011归属及实际出杀、取得两牌后的恩怨交互"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20140925_1188_2315",
+      "skill": "classic:sanyao",
+      "use": "一将2011归属及旧心战挥泪已被修订替换"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20161101_2982_2319",
+      "skill": "classic:zhiman",
+      "use": "空区域仍可防止伤害及散谣装备牌支付；最新目标与区域范围以hero/156为准"
+    }
+  ],
+  "editionNotes": [
+    "马谡按OL官网hero/156当前普通版本实现，散谣体力值与手牌数分支各限一次，制蛮区域包括手牌、装备、判定。2014及2016攻略中的单项散谣与装备/判定范围仅作为不冲突的补充说明。",
+    "法正眩惑允许接受者拒绝出杀或无可用杀时交出两牌；使用实际合法杀，保留实体支付、响应、移动与回放边界。取得两牌按同次移动汇总，恩怨只统计同一其他来源角色。"
+  ]
+}

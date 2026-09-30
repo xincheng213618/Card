@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:shenduan": {
+      "name": "慎断",
+      "description": "当你的一张黑色基本牌被弃置后，你可以将此牌当无距离限制的【兵粮寸断】使用。"
+    },
+    "classic:yonglue": {
+      "name": "勇略",
+      "description": "其他角色判定阶段开始时，若其在你的攻击范围内，你可以弃置其判定区里的一张牌视为对其使用一张【杀】，若此【杀】未造成伤害，你摸一张牌。"
+    }
+  }
+}

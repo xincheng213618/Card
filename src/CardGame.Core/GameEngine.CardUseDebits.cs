@@ -23,6 +23,16 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A counted Slash has no frozen card-action identity.");
         var identity = new CardUseDebitIdentity(action.ActionId, actorSeat, SkillRuleQuery.SlashLimit,
             _turnNumber, _phase, _cardUseDebitPhaseInstanceId);
+        var suit = action.EffectiveSuit;
+        if (suit is null && action.PhysicalCards.Count == 1)
+        {
+            var cost = action.PhysicalCards[0];
+            var card = _cardZones.CardsAt(_cardZones.GetLocation(cost.CardId)).Single(item => item.Id == cost.CardId);
+            suit = EffectiveSuit(_players[actorSeat], card);
+        }
+        if (suit is { } usedSuit && CardPolicies(_players[actorSeat],
+                SkillProgramCardPolicyKind.BypassSlashLimitBySuit, action.EffectiveKind)
+            .Any(item => item.Policy.InputSuit == usedSuit)) return;
         if (!_cardUseDebits.TryAdd(action.ActionId, identity))
             throw new InvalidOperationException("A card action cannot debit its Slash quota twice.");
         _slashCountThisTurn++;

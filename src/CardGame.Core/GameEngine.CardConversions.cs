@@ -169,6 +169,7 @@ public sealed partial class GameEngine
         if (matches.Count == 0) return [];
         return matches
             .Where(match => match.Identity.OutputKind == effectiveKind ||
+                            forResponse && MatchesRequiredCard(match.Identity.OutputKind, effectiveKind) ||
                             !forResponse && match.Identity.OutputKind == CardKind.Slash &&
                             IsSlashCard(effectiveKind))
             .Select(match => match.Source)
@@ -194,14 +195,20 @@ public sealed partial class GameEngine
                 modifier.Condition.Evaluate(context));
     }
 
+    private bool IgnoresProgramSlashLimit(CharacterState owner, CardConversionSource? source) =>
+        source is not null && source.OwnerSeat == owner.Seat &&
+        GetSkillBindingShard(owner).GetNumericModifiers(SkillRuleQuery.SlashLimit).Any(binding =>
+            binding.Source.SkillId == source.SkillId && binding.Source.SkillInstanceId == source.SkillInstanceId &&
+            binding.Modifier.Operation == SkillRuleOperation.Unlimited && binding.Modifier.SourceCardIdentityId == source.BindingId &&
+            binding.Modifier.Condition.Evaluate(CreateSkillContext(owner)));
+
     private IReadOnlyList<CardConversionSource> GetProgramViewAsConversions(
         CharacterState owner,
         Card card,
         CardKind outputKind,
         bool forResponse)
     {
-        if (card.Kind == outputKind ||
-            HasProgramCardIdentity(owner, card))
+        if (HasProgramCardIdentity(owner, card))
         {
             return [];
         }
@@ -219,9 +226,11 @@ public sealed partial class GameEngine
         var configured = GetSkillBindingShard(owner).ProgramInstances
             .SelectMany(instance => instance.Program.ViewAs
                 .Where(rule => rule.InputCount == 1 &&
-                               rule.OutputKind == outputKind &&
+                               (rule.OutputKind == outputKind || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash) &&
                                rule.SourceZones.Contains(zone.Value) &&
                                (forResponse ? rule.ForResponse : rule.ForPlay) &&
+                               (card.Kind != outputKind || rule.InheritPreviousPlaySuit) &&
+                               CanUsePhaseLimitedViewAs(instance, rule, owner) &&
                                rule.Condition.Evaluate(context) &&
                                (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&
                                (rule.InputCategories.Count == 0 ||
@@ -257,8 +266,9 @@ public sealed partial class GameEngine
 
     private bool IsDirectProgramFireSlashConversion(
         CharacterState owner, Card card, CardConversionSource? source) =>
-        source is not null && GetProgramViewAsConversions(
-            owner, card, CardKind.FireSlash, forResponse: false).Contains(source);
+        source is not null && (GetProgramViewAsConversions(
+            owner, card, CardKind.FireSlash, forResponse: false).Contains(source) ||
+            GetProgramCardIdentitySources(owner, card, CardKind.FireSlash, forResponse: false).Contains(source));
 
     private IReadOnlyList<ProgramMultiCardViewAsSelection> GetProgramMultiCardViewAsSelections(
         CharacterState owner,
@@ -271,7 +281,7 @@ public sealed partial class GameEngine
             return [];
 
         var context = CreateSkillContext(owner);
-        var eligibleHand = GetHand(owner)
+        var eligibleHand = GetHand(owner).Concat(GetEquipment(owner))
             .Where(card => !IsTurnHandCardRestricted(owner, card) && !HasProgramCardIdentity(owner, card))
             .OrderBy(card => card.Id)
             .ToArray();
@@ -280,11 +290,12 @@ public sealed partial class GameEngine
                      instance.Program.ViewAs.Count != 0))
         foreach (var rule in instance.Program.ViewAs.Where(rule =>
                      rule.InputCount > 1 &&
-                     rule.OutputKind == outputKind &&
+                     (rule.OutputKind == outputKind || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash) &&
                      (forResponse ? rule.ForResponse : rule.ForPlay) &&
                      rule.Condition.Evaluate(context)))
         {
             var candidates = eligibleHand.Where(card =>
+                rule.SourceZones.Contains(_cardZones.GetLocation(card.Id).Zone) &&
                 (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&
                 (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(card.Suit))).ToArray();
             if (candidates.Length < rule.InputCount) continue;
@@ -375,7 +386,7 @@ public sealed partial class GameEngine
             conversionSource: current.Source);
     }
 
-    private void MoveProgramMultiCardResponse(
+    private CardActionContext MoveProgramMultiCardResponse(
         CharacterState responder,
         ProgramMultiCardViewAsSelection selection,
         long resolutionId,
@@ -392,10 +403,10 @@ public sealed partial class GameEngine
         var costs = current.Cards.Select(card => new CardActionCost(
             card.Id,
             card.Kind,
-            CardLocation.Hand(responder.Seat))).ToArray();
+            FindOwnedCardLocation(responder, card))).ToArray();
         foreach (var card in current.Cards)
         {
-            MoveCard(card, CardLocation.Hand(responder.Seat), CardLocation.Processing, CardMoveReasons.Respond);
+            MoveCard(card, FindOwnedCardLocation(responder, card), CardLocation.Processing, CardMoveReasons.Respond);
             QueueGameEvent(new CardRespondedEvent(
                 card.Id,
                 responder.Seat,
@@ -428,6 +439,7 @@ public sealed partial class GameEngine
             selection.OutputKind,
             IsUse: false,
             [responseTargetSeat]));
+        return action;
     }
 
     private void FinishProgramMultiCardResponse(ProgramMultiCardViewAsSelection selection)
@@ -487,7 +499,7 @@ public sealed partial class GameEngine
             if (IsTurnHandCardRestricted(owner, card)) return false;
             var identities = GetProgramCardIdentityMatches(owner, card);
             return identities.Count != 0
-                ? identities.Any(match => match.Identity.OutputKind == CardKind.Slash)
+                ? identities.Any(match => IsSlashCard(match.Identity.OutputKind))
                 : IsSlashCard(card.Kind) ||
                   GetProgramViewAsConversions(owner, card, CardKind.Slash, forResponse: false).Count != 0;
         });
@@ -500,7 +512,9 @@ public sealed partial class GameEngine
         pending.IsProgramSkillUse || pending.IsBorrowedSwordUse || pending.IsQinglongCrescentBladeUse;
 
     private IReadOnlyList<Card> GetFactionSlashSlashCards(FactionCardRequestResolution pending, CharacterState provider) =>
-        IsFactionSlashUse(pending) ? GetSlashUseCards(provider) : GetResponseCards(provider, CardKind.Slash);
+        pending.IsAssistedProgramUse
+            ? GetAssistedFactionSlashCards(pending, provider).Select(variant => variant.Card).DistinctBy(card => card.Id).ToArray()
+            : IsFactionSlashUse(pending) ? GetSlashUseCards(provider) : GetResponseCards(provider, CardKind.Slash);
 
     private CardKind GetFactionSlashEffectiveSlashKind(
         FactionCardRequestResolution pending,

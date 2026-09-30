@@ -3,7 +3,7 @@
   "skills": [
     {
       "id": "ol:wushen",
-      "revision": 1,
+      "revision": 2,
       "minimumRulesVersion": 180,
       "modifiers": [
         {
@@ -27,6 +27,12 @@
         }
       ],
       "cardPolicies": [
+        {
+          "id": "heart-slash-unlimited-count",
+          "kind": "bypassSlashLimitBySuit",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "inputSuit": "heart"
+        },
         {
           "id": "heart-slash-unrespondable",
           "kind": "prohibitTargetSlashResponseBySuit",

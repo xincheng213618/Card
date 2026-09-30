@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-30",
+  "contentIds": [
+    "classic:ju-shou",
+    "boundary:ju-shou"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:ju-shou",
+      "url": "https://www.sanguosha.com/hero/330",
+      "edition": "经典身份场沮授",
+      "use": "群3体力。出牌阶段连续使用牌花色或点数相同时可摸一张；每回合首次受伤回复1体力，后续受伤各失去1体力。"
+    },
+    {
+      "contentId": "boundary:ju-shou",
+      "url": "https://www.sanguosha.cn/hero-detail-492.html",
+      "edition": "三国杀移动版界沮授",
+      "use": "群3体力。保留渐营摸牌和矢北；增加每出牌阶段一次，以一张手牌或装备牌转化基本牌，继承本阶段上一张使用牌的花色。采用移动版规则。"
+    }
+  ],
+  "artwork": [
+    {
+      "contentId": "classic:ju-shou",
+      "sourcePage": "https://www.sanguosha.com/hero/330",
+      "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/33000.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-ju-shou.png",
+      "sha256": "024A328BC31A412244810CCD8952C7700D7DF9357CB478B8326CE31AD100E8A4",
+      "width": 750,
+      "height": 950
+    },
+    {
+      "contentId": "boundary:ju-shou",
+      "sourcePage": "https://www.sanguosha.cn/hero-detail-492.html",
+      "imageUrl": "https://www.sanguosha.cn/storage/uploads/images/skins/60400.jpg",
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-ju-shou.jpg",
+      "sha256": "193AC477A705F9A26849E3E97BEADEBAF02DBC10DD0249528834D0560A57E893",
+      "width": 530,
+      "height": 750
+    }
+  ],
+  "implementationNotes": [
+    "渐营按cardUseCommitted的已冻结牌花色、点数比较本阶段前一张使用牌，打出与重铸不计。",
+    "界渐营所有基本牌转化共享每出牌阶段一次额度，保留实际牌移动来源。",
+    "矢北统计实际DamageApplied事件的次数，不按伤害点数计数，失去体力不视为伤害。"
+  ]
+}

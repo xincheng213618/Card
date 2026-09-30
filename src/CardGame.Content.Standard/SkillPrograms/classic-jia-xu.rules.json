@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:wansha",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "cardPolicies": [
+        {
+          "id": "wansha-exclusive-peach-rescue",
+          "kind": "exclusiveDyingPeachRescue",
+          "cardKinds": ["peach"]
+        }
+      ]
+    },
+    {
+      "id": "classic:luanwu",
+      "revision": 1,
+      "minimumRulesVersion": 190,
+      "activations": [
+        {
+          "id": "force-nearest-slash",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerGame": 1,
+          "effects": [
+            {
+              "op": "requestSlashByNearest",
+              "target": "owner",
+              "targetKind": "otherLiving",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:weimu",
+      "revision": 1,
+      "minimumRulesVersion": 190,
+      "cardPolicies": [
+        {
+          "id": "weimu-spade-trick-immunity",
+          "kind": "prohibitTargetBySuit",
+          "inputSuit": "spade",
+          "cardKinds": ["duel", "dismantlement", "snatch", "fireAttack", "ironChain", "borrowedSword",
+                        "indulgence", "supplyShortage", "barbarianAssault", "arrowBarrage",
+                        "peachGarden", "fiveGrains"]
+        },
+        {
+          "id": "weimu-club-trick-immunity",
+          "kind": "prohibitTargetBySuit",
+          "inputSuit": "club",
+          "cardKinds": ["duel", "dismantlement", "snatch", "fireAttack", "ironChain", "borrowedSword",
+                        "indulgence", "supplyShortage", "barbarianAssault", "arrowBarrage",
+                        "peachGarden", "fiveGrains"]
+        }
+      ]
+    }
+  ]
+}

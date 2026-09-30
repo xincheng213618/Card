@@ -53,6 +53,8 @@ public sealed class CharacterState
     public bool UsedPlayPhaseAlcoholThisTurn { get; set; }
     public bool IsChained { get; set; }
     public bool EquipmentAreaAbolished { get; set; }
+    public Dictionary<EquipmentSlot, int> EquipmentSlotCapacities { get; } = [];
+    public int EquipmentSlotCapacity(EquipmentSlot slot) => EquipmentAreaAbolished ? 0 : EquipmentSlotCapacities.GetValueOrDefault(slot, 1);
     public bool JudgmentAreaAbolished { get; set; }
     public Dictionary<PlayerMarkerKind, int> Markers { get; } = [];
     public Dictionary<(PlayerMarkerKind Marker, int SkillOwnerSeat), int> MarkerSourceCounts { get; } = [];

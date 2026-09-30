@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:zongxuan": { "name": "纵玄", "description": "当你的牌因弃置而置入弃牌堆后，你可以将其中任意张牌置于牌堆顶。" },
+    "classic:zhiyan": { "name": "直言", "description": "结束阶段，你可以令一名角色摸一张牌并展示之，若为装备牌，其使用之并回复1点体力。" }
+  }
+}

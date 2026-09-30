@@ -14,7 +14,7 @@ public enum CardActionType { Use, Response }
 public enum ProgramCardContinuation
 {
     Slash, BeforeTargetEffects, BeforeTrickTargetEffects, CommittedSlash, Dodge, DuelSlash, GroupResponse, FactionDefenseDodge, FactionSlashDuelSlash, FactionSlashGroupResponse, DelayedCard, CompletedSlash, NullificationResponse, SlashTargetRedirecting, SlashBeforeResponse, SlashFullyDodged,
-    CommittedTrick, CommittedSimpleCard, CompletedCard
+    CommittedTrick, CommittedSimpleCard, CompletedCard, FinalizedTrick = 824
 }
 
 public enum SimpleCardUseEffect { Equipment, Alcohol, Recovery }
@@ -46,7 +46,8 @@ public sealed class CardActionContext
         int actorSeat, int providerSeat, int? requesterSeat, int? responderSeat,
         int? opponentSeat, CardKind effectiveKind, IReadOnlyList<int> targetSeats,
         IReadOnlyList<CardActionCost> physicalCards, IReadOnlyList<CardConversionSource> conversionChain,
-        IReadOnlyList<int>? designatedTargetSeats = null)
+        IReadOnlyList<int>? designatedTargetSeats = null,
+        Suit? effectiveSuit = null, int? effectiveRank = null)
     {
         ActionId = actionId;
         ParentActionId = parentActionId;
@@ -61,6 +62,8 @@ public sealed class CardActionContext
         DesignatedTargetSeats = designatedTargetSeats is null ? null : Array.AsReadOnly(designatedTargetSeats.ToArray());
         PhysicalCards = Array.AsReadOnly(physicalCards.ToArray());
         ConversionChain = Array.AsReadOnly(conversionChain.ToArray());
+        EffectiveSuit = effectiveSuit;
+        EffectiveRank = effectiveRank;
     }
 
     public long ActionId { get; }
@@ -79,10 +82,17 @@ public sealed class CardActionContext
     public IReadOnlyList<int> EffectiveDesignatedTargetSeats => DesignatedTargetSeats ?? TargetSeats;
     public IReadOnlyList<CardActionCost> PhysicalCards { get; }
     public IReadOnlyList<CardConversionSource> ConversionChain { get; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public Suit? EffectiveSuit { get; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? EffectiveRank { get; }
 }
 
 /// <summary>Trusted-host audit event; not a player-facing notification.</summary>
 public sealed record CardActionAcceptedEvent(CardActionContext Action) : IGameEvent;
+
+/// <summary>Opt-in frozen appearance at use commitment, including basic and equipment cards.</summary>
+public sealed record CardUseAppearanceCapturedEvent(CardActionContext Action) : IGameEvent;
 
 public sealed record ProgramViewAsConvertedEvent(
     long FrameId,

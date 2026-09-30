@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "retrievedAt": "2026-09-30",
+  "contentId": "classic:gao-da-yi-hao",
+  "assetType": "custom-project-illustration",
+  "generationTool": "built-in image_gen",
+  "prompt": "Use case: stylized-concept. Asset type: a standalone vertical portrait for the custom character Gao Da Yi Hao (高达一号) in a local Three Kingdoms card game. Create a polished painterly fantasy science-fiction illustration with a single original white-armored humanoid mecha, blue chest plating, modest red and gold accents, articulated armor, a luminous beam rifle held in its right hand, and a defensive glowing energy field near the other arm. Its pose conveys a mobile armored warrior advancing through a smoky battlefield, dramatic warm and blue rim light. Full detailed upper body and legs in a centered heroic three-quarter view, readable silhouette, face and weapon entirely within frame, suitable for portrait cropping in the game's gallery. Approximately 4:5 vertical composition, richly textured painted game artwork with an atmospheric backdrop. This is a custom project illustration, not an official game portrait. No words, letters, logos, watermarks, card frame, HUD, rank, suit, borders, or extra characters.",
+  "artwork": {
+    "localPath": "src/CardGame.Wpf/Assets/custom-gao-da-yi-hao.png",
+    "sha256": "899C36849E63C38F5D9F774D817BB409A6763E89CE22821B1A5C0A743071C8AD",
+    "width": 1122,
+    "height": 1402
+  },
+  "note": "独立生成的自制高达一号立绘，配合冻结的机动装甲、光束步枪、I力场与核心战机技能设定；不属于官方武将美术。"
+}

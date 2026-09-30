@@ -79,6 +79,11 @@ public sealed partial class GameEngine
         var frame = (PindianFrame)_resolutionStack[^1];
         if (_pendingDecision!.Choices.All(choice => choice.Id != selected.Id))
             throw new InvalidOperationException("The Pindian answer was not published.");
+        if (frame.PindianStep == PindianStep.ClaimResult)
+        {
+            ResolvePindianClaimChoice(selected);
+            return;
+        }
         ClearPendingDecision();
         switch (frame.PindianStep)
         {
@@ -114,7 +119,7 @@ public sealed partial class GameEngine
             (result.SourceWon ? "发起者获胜。" : "发起者未赢。"), source.Seat, opponent.Seat);
         frame = frame with { Result = result };
         _resolutionStack[^1] = frame;
-        CompletePindian(frame);
+        if (!BeginPindianClaims(frame)) CompletePindian((PindianFrame)_resolutionStack[^1]);
     }
 
     private int[] AvailablePindianCards(PindianResult result) => new[] { result.SourceCardId, result.OpponentCardId }
@@ -151,6 +156,12 @@ public sealed partial class GameEngine
     {
         var frame = (PindianFrame)_resolutionStack[^1];
         var decision = _pendingDecision!;
+        if (frame.PindianStep == PindianStep.ClaimResult)
+        {
+            ResolvePindianChoice(decision.Choices.First(choice => choice.Parameters.GetValueOrDefault("take") == "true"));
+            PublishState();
+            return;
+        }
         var selected = decision.Choices.OrderByDescending(choice => GetHand(_players[decision.PlayerSeat])
                     .Single(card => card.Id == choice.Cards.Single()).Rank)
                 .ThenBy(choice => choice.Cards.Single()).ThenBy(choice => choice.Targets.FirstOrDefault()).First();
@@ -182,6 +193,15 @@ public sealed partial class GameEngine
             (opponent == frame.SourceSeat || !_players[opponent].IsAlive) ||
             _status != (_players[decision.PlayerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running))
             throw new InvalidOperationException("Pindian prompt owner or participants are inconsistent.");
+        if (frame.PindianStep == PindianStep.ClaimResult)
+        {
+            if (frame.Result is null || frame.ClaimSeats is null || frame.ClaimIndex < 0 || frame.ClaimIndex >= frame.ClaimSeats.Count ||
+                decision.PlayerSeat != frame.ClaimSeats[frame.ClaimIndex] ||
+                decision.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action") != "pindian-claim" ||
+                    choice.Cards.Any(id => !contestCards.Contains(id))))
+                throw new InvalidOperationException("Pindian claim lost its public card or claimant.");
+            return;
+        }
             var owner = frame.PindianStep is PindianStep.ChooseParticipants or PindianStep.ChooseSourceCard
                 ? frame.SourceSeat : frame.OpponentSeat!.Value;
             if (decision.PlayerSeat != owner ||

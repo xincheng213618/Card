@@ -10,7 +10,7 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "targetRef", "resultBind", "cardCategories", "cardKinds", "skipIfNoCards", "allowSameOwnerHandReturn", "coverageResultBind", "awaitMovementTriggers", "revealBeforeMove", "prohibitReplacingEquipment", "condition");
+        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "targetRef", "resultBind", "cardCategories", "cardKinds", "skipIfNoCards", "allowSameOwnerHandReturn", "coverageResultBind", "awaitMovementTriggers", "revealBeforeMove", "freezeMovedCardSuit", "prohibitReplacingEquipment", "condition");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.target: must be owner.");
@@ -87,7 +87,10 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
             skipIfNoCards: skipIfNoCards, allowSameOwnerHandReturn: allowSameOwnerHandReturn,
             coverageResultBind: coverageResultBind, awaitMovementTriggers: awaitMovementTriggers,
             revealBeforeMove: revealBeforeMove, cardKinds: cardKinds,
-            prohibitReplacingEquipment: prohibitReplacingEquipment);
+            prohibitReplacingEquipment: prohibitReplacingEquipment,
+            freezeMovedCardSuit: r.Has("freezeMovedCardSuit") && r.RequiredBool("freezeMovedCardSuit"));
+        if (effect.FreezeMovedCardSuit && (effect.ResultBind is null || effect.SkipIfNoCards))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: freezing a moved suit requires a nonempty resultBind selection.");
         if (effect.Condition.Kind != SkillProgramConditionKind.Always && effect.ResultBind is not null)
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}.condition: conditional card movement cannot produce a result binding.");

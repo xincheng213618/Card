@@ -114,6 +114,10 @@ public sealed partial class GameEngine
     private IReadOnlyList<ProgramOrdinaryTrickUseOption> BuildProgramOrdinaryTrickUseOptions(CharacterState source)
     {
         var options = new List<ProgramOrdinaryTrickUseOption>();
+        // A multi-card virtual card only carries a suit while every physical card
+        // shares it; mixed-suit combinations are colorless and pass suit shields.
+        var handSuits = GetHand(source).Select(card => card.Suit).Distinct().ToArray();
+        var virtualSuit = handSuits.Length == 1 ? handSuits[0] : (Suit?)null;
         void Add(
             CardKind cardKind,
             LegalActionKind actionKind,
@@ -147,15 +151,19 @@ public sealed partial class GameEngine
                 .ToArray();
             var barbarianTargets = otherSeats.Where(seat =>
                     !HasCardPolicy(_players[seat], SkillProgramCardPolicyKind.ExcludeGlobalTarget,
-                        CardKind.BarbarianAssault))
+                        CardKind.BarbarianAssault) &&
+                    !IsCardTargetProhibited(_players[seat], CardKind.BarbarianAssault, virtualSuit))
                 .ToArray();
-            if (CanUseGlobalCard(source, CardKind.BarbarianAssault))
+            var arrowTargets = otherSeats.Where(seat =>
+                    !IsCardTargetProhibited(_players[seat], CardKind.ArrowBarrage, virtualSuit))
+                .ToArray();
+            if (CanUseGlobalCard(source, CardKind.BarbarianAssault) && barbarianTargets.Length > 0)
                 Add(CardKind.BarbarianAssault, LegalActionKind.BarbarianAssault,
                     "当【南蛮入侵】使用：其他角色依次响应【杀】", barbarianTargets,
                     requiredCardKind: CardKind.Slash);
-            if (CanUseGlobalCard(source, CardKind.ArrowBarrage))
+            if (CanUseGlobalCard(source, CardKind.ArrowBarrage) && arrowTargets.Length > 0)
                 Add(CardKind.ArrowBarrage, LegalActionKind.ArrowBarrage,
-                    "当【万箭齐发】使用：其他角色依次响应【闪】", otherSeats,
+                    "当【万箭齐发】使用：其他角色依次响应【闪】", arrowTargets,
                     requiredCardKind: CardKind.Dodge);
         }
 
@@ -165,21 +173,34 @@ public sealed partial class GameEngine
             .Select(player => player.Seat)
             .ToArray();
         if (CanUseGlobalCard(source, CardKind.PeachGarden))
-            Add(CardKind.PeachGarden, LegalActionKind.PeachGarden,
-                "当【桃园结义】使用：所有存活角色依次回复体力", allAliveSeats);
+        {
+            var peachTargets = allAliveSeats.Where(seat =>
+                    !IsCardTargetProhibited(_players[seat], CardKind.PeachGarden, virtualSuit))
+                .ToArray();
+            if (peachTargets.Length > 0)
+                Add(CardKind.PeachGarden, LegalActionKind.PeachGarden,
+                    "当【桃园结义】使用：所有存活角色依次回复体力", peachTargets);
+        }
         var availableCards = _cardZones.Count(CardLocation.DrawPile) + _cardZones.Count(CardLocation.DiscardPile);
         if (CanUseGlobalCard(source, CardKind.FiveGrains))
-            Add(CardKind.FiveGrains, LegalActionKind.FiveGrains,
-                "当【五谷丰登】使用：所有存活角色依次选牌", allAliveSeats.Take(availableCards).ToArray());
+        {
+            var grainTargets = allAliveSeats.Where(seat =>
+                    !IsCardTargetProhibited(_players[seat], CardKind.FiveGrains, virtualSuit))
+                .Take(availableCards).ToArray();
+            if (grainTargets.Length > 0)
+                Add(CardKind.FiveGrains, LegalActionKind.FiveGrains,
+                    "当【五谷丰登】使用：所有存活角色依次选牌", grainTargets);
+        }
 
         foreach (var target in _players.Where(player =>
                      player.IsAlive && player.Seat != source.Seat &&
-                     !IsCardTargetProhibited(player, CardKind.Duel) &&
+                     !IsCardTargetProhibited(player, CardKind.Duel, virtualSuit) &&
                      !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.Duel)))
             Add(CardKind.Duel, LegalActionKind.Duel, $"当【决斗】对 {target.Name} 使用", [target.Seat]);
 
         foreach (var target in _players.Where(player =>
                      player.IsAlive && player.Seat != source.Seat && HasTargetCard(player) &&
+                     !IsCardTargetProhibited(player, CardKind.Dismantlement, virtualSuit) &&
                      !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.Dismantlement)))
             AddProgramOrdinaryTrickTargetCardOptions(options, source, target, CardKind.Dismantlement,
                 LegalActionKind.Dismantlement, "过河拆桥");
@@ -190,18 +211,20 @@ public sealed partial class GameEngine
                       HasCardPolicy(source, SkillProgramCardPolicyKind.IgnoreUseDistance,
                           CardKind.Snatch) ||
                       GetCombatDistance(source.Seat, player.Seat) == 1) &&
-                     HasTargetCard(player) && !IsCardTargetProhibited(player, CardKind.Snatch) &&
+                     HasTargetCard(player) && !IsCardTargetProhibited(player, CardKind.Snatch, virtualSuit) &&
                      !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.Snatch)))
             AddProgramOrdinaryTrickTargetCardOptions(options, source, target, CardKind.Snatch,
                 LegalActionKind.Snatch, "顺手牵羊");
 
         foreach (var target in _players.Where(player =>
                      player.IsAlive && GetHand(player).Count > 0 &&
+                     !IsCardTargetProhibited(player, CardKind.FireAttack, virtualSuit) &&
                      !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.FireAttack)))
             Add(CardKind.FireAttack, LegalActionKind.FireAttack, $"当【火攻】对 {target.Name} 使用", [target.Seat]);
 
         var chainTargets = _players.Where(player =>
-                player.IsAlive && !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.IronChain))
+                player.IsAlive && !IsCardTargetProhibited(player, CardKind.IronChain, virtualSuit) &&
+                !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.IronChain))
             .OrderBy(player => player.Seat).ToArray();
         foreach (var target in chainTargets)
             Add(CardKind.IronChain, LegalActionKind.IronChain, $"当【铁索连环】对 {target.Name} 使用", [target.Seat]);
@@ -213,6 +236,7 @@ public sealed partial class GameEngine
 
         foreach (var weaponOwner in _players.Where(player =>
                      player.IsAlive && player.Seat != source.Seat && GetWeapon(player) is not null &&
+                     !IsCardTargetProhibited(player, CardKind.BorrowedSword, virtualSuit) &&
                      !IsDirectedCardTargetProhibited(source.Seat, player.Seat, CardKind.BorrowedSword)))
         foreach (var slashTarget in _players.Where(player => IsLegalBorrowedSwordSlashTarget(weaponOwner, player)))
             Add(CardKind.BorrowedSword, LegalActionKind.BorrowedSword,

@@ -237,7 +237,7 @@ internal static class SkillProgramStartedJudgmentChecks
                     (ProgramCardTriggerWindowFrame or JudgmentFrame or ProgramJudgmentTriggerWindowFrame)))
                 return;
             Require(game.PendingDecision is null,
-                "The mandatory configured judgment unexpectedly exposed another human prompt.");
+                $"The mandatory configured judgment unexpectedly exposed another human prompt: {game.PendingDecision?.Kind}/{game.PendingDecision?.SkillPrompt?.SkillId}; frames={string.Join(',', game.ResolutionStack.Select(frame => frame.GetType().Name))}.");
             var advanced = game.Submit(new AdvanceOneStepCommand(game.Revision));
             Require(advanced.Accepted,
                 advanced.Error?.Message ?? "The configured judgment could not resume its parent action.");

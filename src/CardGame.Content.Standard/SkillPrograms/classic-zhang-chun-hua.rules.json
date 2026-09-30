@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:jueqing",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "kind": "damageBecomesHpLoss",
+          "id": "replace-damage-with-hp-loss"
+        }
+      ],
+      "minimumRulesVersion": 189
+    },
+    {
+      "id": "classic:shangshi",
+      "revision": 1,
+      "triggers": [
+        {
+          "window": "cardsMoved",
+          "optional": true,
+          "condition": {
+            "right": {
+              "kind": "ownerLostHp"
+            },
+            "kind": "compare",
+            "operator": "lessThan",
+            "left": {
+              "kind": "currentHandCount"
+            }
+          },
+          "subject": "owner",
+          "movementOccurrence": "perBatch",
+          "effects": [
+            {
+              "numberExpression": "lostHpMinusHandCount",
+              "op": "draw",
+              "target": "owner"
+            }
+          ],
+          "ignoreOwnSkillMovements": true,
+          "id": "refill-after-hand-loss",
+          "sourceZones": [
+            "hand"
+          ],
+          "excludedMovementReasons": [
+            "card.use",
+            "card.respond",
+            "card.respond.nullification",
+            "card.effect.iron-chain",
+            "card.effect.delayed-place",
+            "equipment.use"
+          ]
+        },
+        {
+          "window": "afterHealthChanged",
+          "optional": true,
+          "effects": [
+            {
+              "numberExpression": "lostHpMinusHandCount",
+              "op": "draw",
+              "target": "owner"
+            }
+          ],
+          "id": "refill-after-health-change",
+          "subject": "owner",
+          "condition": {
+            "right": {
+              "kind": "ownerLostHp"
+            },
+            "kind": "compare",
+            "operator": "lessThan",
+            "left": {
+              "kind": "currentHandCount"
+            }
+          }
+        },
+        {
+          "id": "refill-after-hand-gain",
+          "window": "cardsGained",
+          "subject": "owner",
+          "destinationZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perBatch",
+          "ignoreOwnSkillMovements": true,
+          "optional": true,
+          "condition": {
+            "right": {
+              "kind": "ownerLostHp"
+            },
+            "kind": "compare",
+            "operator": "lessThan",
+            "left": {
+              "kind": "currentHandCount"
+            }
+          },
+          "effects": [
+            {
+              "numberExpression": "lostHpMinusHandCount",
+              "op": "draw",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "refill-before-dying-rescue",
+          "window": "dyingEntering",
+          "subject": "owner",
+          "optional": true,
+          "condition": {
+            "right": {
+              "kind": "ownerLostHp"
+            },
+            "kind": "compare",
+            "operator": "lessThan",
+            "left": {
+              "kind": "currentHandCount"
+            }
+          },
+          "effects": [
+            {
+              "numberExpression": "lostHpMinusHandCount",
+              "op": "draw",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "refill-on-cardUseCommitted",
+          "window": "cardUseCommitted",
+          "ownerRelation": "observer",
+          "optional": true,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "right": {
+                  "kind": "ownerLostHp"
+                },
+                "kind": "compare",
+                "operator": "lessThan",
+                "left": {
+                  "kind": "currentHandCount"
+                }
+              },
+              {
+                "right": {
+                  "kind": "integerConstant",
+                  "value": 0
+                },
+                "left": {
+                  "kind": "cardActionHandCardCount"
+                },
+                "kind": "compare",
+                "operator": "greaterThan"
+              }
+            ]
+          },
+          "effects": [
+            {
+              "numberExpression": "lostHpMinusHandCount",
+              "op": "draw",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "refill-on-cardResponseAccepted",
+          "window": "cardResponseAccepted",
+          "ownerRelation": "observer",
+          "optional": true,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "right": {
+                  "kind": "ownerLostHp"
+                },
+                "kind": "compare",
+                "operator": "lessThan",
+                "left": {
+                  "kind": "currentHandCount"
+                }
+              },
+              {
+                "right": {
+                  "kind": "integerConstant",
+                  "value": 0
+                },
+                "left": {
+                  "kind": "cardActionHandCardCount"
+                },
+                "kind": "compare",
+                "operator": "greaterThan"
+              }
+            ]
+          },
+          "effects": [
+            {
+              "numberExpression": "lostHpMinusHandCount",
+              "op": "draw",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "minimumRulesVersion": 189
+    }
+  ]
+}

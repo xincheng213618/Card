@@ -1,4 +1,5 @@
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -18,6 +19,28 @@ internal static class TableSurfaceChecks
         var card = vm.Hand.Single(card => card.Id == action.CardId);
         var window = new MainWindow(vm);
         var root = (FrameworkElement)window.Content;
+        var snapshotField = typeof(MainViewModel).GetField("_snapshot", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var originalSnapshot = (GameSnapshot)snapshotField.GetValue(vm)!;
+        try
+        {
+            var synthetic = originalSnapshot with
+            {
+                Players = originalSnapshot.Players.Select(player => player.IsHuman ? player with
+                {
+                    Equipment = [new CardSnapshot(900001, CardKind.GeneralWeapon, Suit.None, 0, "张飞", string.Empty),
+                        new CardSnapshot(900002, CardKind.RedBloodBlade, Suit.None, 0, "赤血刃", string.Empty)],
+                    EquipmentSlotCapacities = new Dictionary<EquipmentSlot, int> { [EquipmentSlot.Weapon] = 2 }
+                } : player).ToArray()
+            };
+            snapshotField.SetValue(vm, synthetic);
+            var weapons = vm.HumanEquipmentSlots.Where(item => item.Slot == EquipmentSlot.Weapon).ToArray();
+            Program.Assert(weapons.Length == 2 && weapons.All(item => item.IsOccupied) &&
+                           weapons[0].Name == "张飞" && weapons[0].HasDynamicWeaponName &&
+                           weapons.All(item => item.RankArtwork is null && item.SuitArtwork is null),
+                "Multiple weapon slots must retain generated names and omit absent rank/suit art.");
+            Program.Render(root, 1440, 860, Path.Combine(output, "table-multiple-weapons.png"));
+        }
+        finally { snapshotField.SetValue(vm, originalSnapshot); }
         Program.Render(root, 1440, 860, Path.Combine(output, "action-dock-idle.png"));
         var confirm = (Button)window.FindName("PlayCardButton");
         var cancel = (Button)window.FindName("CancelActionButton");

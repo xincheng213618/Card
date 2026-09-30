@@ -859,7 +859,7 @@ internal static class SkillProgramExecutorChecks
         public void GrantTurnHandColorRestriction(
         ProgramSkillFrame frame,
         string sourceBind,
-        int targetSeat) =>
+        int targetSeat, bool useFrozenSuit = false) =>
             throw new NotSupportedException("The executor fixture does not exercise GrantTurnHandColorRestriction.");
 
         public void GrantTurnHandCardProhibition(ProgramSkillFrame frame, int targetSeat) =>

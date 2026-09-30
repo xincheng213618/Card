@@ -26,13 +26,16 @@ public sealed partial class GameEngine
                 .Where(card => suits.Count == 0 || suits.Contains(GetProgramEffectiveSuit(_players[cardOwnerSeat], card)))
                 .Select(card => (card.Id, Location: location));
         }).ToArray();
-        var requested = minimumCards > 0 ? maximumCards : expression switch
+        var requested = minimumCards > 0 ? expression == SkillProgramNumberExpression.LivingPlayerCount
+            ? Math.Min(maximumCards, _players.Count(player => player.IsAlive)) : maximumCards : expression switch
         {
             null => amount,
+            SkillProgramNumberExpression.CategoryTargetTurnUsage => GetProgramCategoryTargetTurnUsage(active),
             SkillProgramNumberExpression.OwnerLostHp => GetProgramOwnerLostHp(active),
             SkillProgramNumberExpression.AllOwnedZoneCards => candidates.Length,
             SkillProgramNumberExpression.HandHalfFloor => GetHand(_players[cardOwnerSeat]).Count / 2,
             SkillProgramNumberExpression.LivingPlayersMinHp => GetLivingPlayersMinHp(),
+            SkillProgramNumberExpression.LivingPlayerCount => _players.Count(player => player.IsAlive),
             SkillProgramNumberExpression.SelectedPairHandDifference => active.SelectedTargetSeats is { Count: 2 } pair
                 ? Math.Abs(GetHand(_players[pair[0]]).Count - GetHand(_players[pair[1]]).Count)
                 : throw new InvalidOperationException(
@@ -84,6 +87,7 @@ public sealed partial class GameEngine
                     CardZoneKind.Hand => "手牌",
                     CardZoneKind.Equipment => "装备",
                     CardZoneKind.Judgment => "判定牌",
+                    CardZoneKind.PrivateReserve => "星",
                     _ => throw new InvalidOperationException("Unsupported owned-card selection zone.")
                 };
                 return new PromptChoice(new ChoiceId($"program-owned-set.frame-{frame.Id}.pick-{selected.Count}.card-{item.Id}"),

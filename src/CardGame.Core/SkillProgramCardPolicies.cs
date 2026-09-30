@@ -20,7 +20,19 @@ public enum SkillProgramCardPolicyKind
     ProhibitNearbyTargetResponse,
     ProhibitTargetSlashResponseBySuit,
     PreventIncomingTrickDamage,
-    MinimumResponseCountAsTarget = 17
+    MinimumResponseCountAsTarget = 17,
+    ProhibitTargetBySuit,
+    ExclusiveDyingPeachRescue = 550,
+    BypassSlashLimitBySuit = 551,
+    NextCardUnlimitedAfterNonLockedSkill = 500,
+    ForceChained = 450,
+    ChainedHandLimitAura = 451,
+    MarkerTurnBonuses = 452,
+    WoundedPopulationBonuses = 453,
+    WoundedInRangeHandLimitPenalty = 454,
+    DamageBecomesHpLoss = 600,
+    ForeignPublicPileSlash = 781,
+    PindianClaim = 784
 }
 
 public sealed record SkillProgramCardPolicy(

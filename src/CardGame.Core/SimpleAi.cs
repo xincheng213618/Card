@@ -304,6 +304,11 @@ public sealed partial class SimpleAiBrain
 
         var self = view.Players.Single(player => player.Seat == Seat);
         var selectableCards = GetActiveSkillSelectableCards(self, action);
+        if (action.SelectedCardsDistinctSuits)
+            return selectableCards.GroupBy(card => card.Suit)
+                .Select(group => group.OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue).ThenBy(card => card.Id).First())
+                .OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue).ThenBy(card => card.Id)
+                .Take(action.MinCardCount).Select(card => card.Id).ToArray();
         if (action.SelectedCardsSameSuit)
         {
             return selectableCards

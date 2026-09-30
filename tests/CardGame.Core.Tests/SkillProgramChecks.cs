@@ -14,6 +14,12 @@ internal static class SkillProgramChecks
             "Equivalent rule JSON must have the same gameplay hash regardless of formatting and property order.");
         Require(first.Presentations[program.Id].Description != second.Presentations[program.Id].Description,
             "The fixture must actually vary presentation text.");
+        var pilePresentation = SkillProgramCatalog.Load(RulesA,
+            PresentationA.Replace("\"name\":", "\"authorityName\":\"逆\",\"name\":", StringComparison.Ordinal));
+        Require(pilePresentation.Presentations[program.Id].AuthorityName == "逆" &&
+                first.Presentations[program.Id].AuthorityName is null &&
+                pilePresentation.Programs[program.Id].GameplayHash == program.GameplayHash,
+            "Optional public pile labels must remain presentation-only and preserve old defaults.");
         Require(SkillProgramCatalog.RuntimeVersion == "skill-program-v62" &&
                 program.GameplayHash.Length == 64 && program.GameplayHash.All(Uri.IsHexDigit) &&
                 program.GameplayHash == program.GameplayHash.ToLowerInvariant(),
@@ -49,6 +55,26 @@ internal static class SkillProgramChecks
         AssertReject(RulesA, PresentationA.Replace("scenario:composed", "scenario:missing", StringComparison.Ordinal),
             "unknown skill");
         AssertReject("{", PresentationA, "rules");
+        var ownDiscardRules = $$"""
+            {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"scenario:own-discard","revision":1,
+            "triggers":[{"id":"end","window":"discardPhaseEnded","turnOwnerScope":"own","allowOwnDiscardPhaseEnded":true,
+            "subject":"owner","optional":false,"effects":[{"op":"draw","target":"owner","amount":1}]}]}]}
+            """;
+        const string ownDiscardPresentation = """{"schemaVersion":3,"skills":{"scenario:own-discard":{"name":"Own discard","description":"Own discard"}}}""";
+        AssertReject(ownDiscardRules.Replace("discardPhaseEnded", "turnEnding", StringComparison.Ordinal),
+            ownDiscardPresentation, "allowOwnDiscardPhaseEnded");
+        AssertReject(ownDiscardRules.Replace("discardPhaseEnded", "turnEnding", StringComparison.Ordinal)
+                .Replace("\"allowOwnDiscardPhaseEnded\":true", "\"allowOwnDiscardPhaseEnded\":false", StringComparison.Ordinal),
+            ownDiscardPresentation, "allowOwnDiscardPhaseEnded");
+        AssertReject(ownDiscardRules.Replace("\"turnOwnerScope\":\"own\"", "\"turnOwnerScope\":\"otherLiving\"", StringComparison.Ordinal),
+            ownDiscardPresentation, "allowOwnDiscardPhaseEnded");
+        var withoutGate = ownDiscardRules.Replace(",\"allowOwnDiscardPhaseEnded\":true", "", StringComparison.Ordinal);
+        var legacyTrigger = SkillProgramCatalog.Load(withoutGate, ownDiscardPresentation).Programs["scenario:own-discard"].Triggers.Single();
+        Require(!System.Text.Json.JsonSerializer.Serialize(legacyTrigger).Contains("AllowOwnDiscardPhaseEnded", StringComparison.Ordinal),
+            "The absent opt-in must preserve serialized trigger defaults.");
+        Require(SkillProgramCatalog.Load(withoutGate, ownDiscardPresentation).Programs["scenario:own-discard"].GameplayHash !=
+                SkillProgramCatalog.Load(ownDiscardRules, ownDiscardPresentation).Programs["scenario:own-discard"].GameplayHash,
+            "Enabling own discard completion must change the content fingerprint.");
     }
 
     public static void LoadedProgramsAreDefensivelyImmutable()

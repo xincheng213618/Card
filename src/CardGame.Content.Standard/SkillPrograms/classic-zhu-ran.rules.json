@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "classic:danshou", "revision": 1, "minimumRulesVersion": 190,
+    "activations": [{
+      "id": "escalating-discard", "minCards": 1, "maxCards": null,
+      "cardCountExpression": "nextPhaseActivationOrdinal", "sourceZones": ["hand", "equipment"],
+      "minTargets": 1, "maxTargets": 1, "targetKind": "otherLivingInAttackRange", "usesPerTurn": null,
+      "effects": [
+        { "op": "captureSelectedCards", "target": "owner", "resultBind": "cost" },
+        { "op": "moveBoundCards", "target": "owner", "sourceBind": "cost", "destination": "discardPile", "awaitMovementTriggers": true },
+        {
+          "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" },
+          "cardOwnerRef": { "kind": "selectedTarget" }, "zones": ["hand", "equipment", "judgment"],
+          "count": 1, "destination": "discardPile", "skipIfNoCards": true, "awaitMovementTriggers": true,
+          "condition": { "kind": "not", "children": [{ "kind": "activationCardCountAtLeast", "value": 2 }] }
+        },
+        {
+          "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "selectedTarget" },
+          "cardOwnerRef": { "kind": "selectedTarget" }, "zones": ["hand", "equipment"],
+          "count": 1, "destination": "ownerHand", "skipIfNoCards": true, "awaitMovementTriggers": true,
+          "condition": { "kind": "all", "children": [
+            { "kind": "activationCardCountAtLeast", "value": 2 },
+            { "kind": "not", "children": [{ "kind": "activationCardCountAtLeast", "value": 3 }] }
+          ] }
+        },
+        { "op": "damage", "target": "selectedTarget", "amount": 1, "condition": { "kind": "all", "children": [
+          { "kind": "activationCardCountAtLeast", "value": 3 },
+          { "kind": "not", "children": [{ "kind": "activationCardCountAtLeast", "value": 4 }] }
+        ] } },
+        { "op": "draw", "target": "owner", "amount": 2, "condition": { "kind": "activationCardCountAtLeast", "value": 4 } },
+        { "op": "draw", "target": "selectedTarget", "amount": 2, "condition": { "kind": "activationCardCountAtLeast", "value": 4 } }
+      ]
+    }]
+  }]
+}

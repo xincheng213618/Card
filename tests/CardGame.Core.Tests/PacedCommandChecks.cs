@@ -9,6 +9,7 @@ internal static class PacedCommandChecks
 
     public static void SingleStepParity()
     {
+        StartupWithoutProgramsPreservesFirstTurnStep();
         var options = new GameOptions { Seed = 7162, UseInteractiveSetup = true, AdvanceAfterHumanCommands = false, MaxTurns = 40 };
         var commands = GameEngine.CreateStandard(options, Registry);
         var legacy = GameEngine.CreateStandard(options, Registry);
@@ -43,6 +44,33 @@ internal static class PacedCommandChecks
         var checkpoint = commands.CreateCheckpoint();
         Require(State(GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint)), Registry)) == State(commands),
             "Paced host steps did not restore exactly.");
+    }
+
+    private static void StartupWithoutProgramsPreservesFirstTurnStep()
+    {
+        var registry = ContentRegistry.Build(new StandardContentPackage());
+        var game = GameEngine.CreateStandard(new GameOptions
+        {
+            Seed = 7162, UseInteractiveSetup = true, AdvanceAfterHumanCommands = false,
+            HumanSeat = 0, HumanRole = Role.Lord, MaxTurns = 40
+        }, registry);
+        Require(game.Submit(new StartGameCommand()).Accepted, "Standard paced setup did not start.");
+        for (var step = 0; step < 100 && !game.Events.Any(entry => entry.Payload is SetupCompletedEvent); step++)
+        {
+            var command = game.PendingDecision is { } prompt
+                ? (GameCommand)new SelectGeneralCommand(0, prompt.ValidContentIds[0], game.Revision, prompt.PromptId)
+                : new AdvanceOneStepCommand(game.Revision);
+            Require(game.Submit(command).Accepted, "Standard paced setup command failed.");
+        }
+        Require(game.Events.Any(entry => entry.Payload is SetupCompletedEvent) && game.State.TurnNumber == 0,
+            "Setup must finish before the first turn step.");
+        Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted && game.State.TurnNumber == 1,
+            "A game without startup programs must begin its first turn in the first post-setup host step.");
+        var snapshot = State(game);
+        Require(!snapshot.Contains("PrivateReserve", StringComparison.Ordinal),
+            "Old standard snapshots must omit unused private reserve fields.");
+        Require(State(GameReplay.Restore(game.CreateCheckpoint(), registry)) == snapshot,
+            "The first post-setup turn step must survive checkpoint replay.");
     }
 
     public static void FullPacedReplay()

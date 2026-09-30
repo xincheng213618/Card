@@ -30,7 +30,10 @@ public sealed partial class GameEngine
             $"equipment:{card.Id}:incoming-distance",
             EquipmentCatalog.Get(card.Kind).IncomingDistanceModifier)));
 
-        var outgoing = CollectNumericRuleContributions(source, SkillRuleQuery.OutgoingDistance);
+        var outgoing = CollectNumericRuleContributions(source, SkillRuleQuery.OutgoingDistance).ToList();
+        outgoing.AddRange(_turnCardUseEffects.GetRuleModifiers(_turnNumber, _currentSeat, source.Seat, SkillRuleQuery.OutgoingDistance)
+            .Select(item => new FiniteRuleQueryContribution(
+                $"turn:{item.TurnNumber}:{item.Source.SkillId}:{item.Source.BindingId}:{item.GrantSequence}", SkillRuleOperation.Add, item.Amount)));
         var incoming = CollectNumericRuleContributions(target, SkillRuleQuery.IncomingDistance);
         return RuleQueryService.EvaluateDirectionalDistance(baseTerms, outgoing, incoming);
     }
@@ -38,14 +41,18 @@ public sealed partial class GameEngine
     private RuleQueryEvaluation EvaluateAttackRange(CharacterState player, int? excludedEquipmentId = null)
     {
         var baseTerms = new List<RuleQueryBaseTerm>();
+        var minimumRange = 1;
         {
             var weapon = GetEquipment(player).Where(card => card.Id != excludedEquipmentId)
-                .SingleOrDefault(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon);
+                .Where(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon)
+                .MaxBy(card => GetWeaponAttackRange(player, card));
+            if (weapon is { Kind: CardKind.RedBloodBlade } && GetWeaponAttackRange(player, weapon) == 0)
+                minimumRange = 0;
             baseTerms.Add(weapon is null
                 ? new RuleQueryBaseTerm($"mode:{_modeDefinition.Id}:attack-range", 1)
                 : new RuleQueryBaseTerm(
                     $"equipment:{weapon.Id}:printed-attack-range",
-                    EquipmentCatalog.Get(weapon.Kind).WeaponAttackRange ?? 1));
+                    GetWeaponAttackRange(player, weapon)));
         }
 
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.AttackRange).ToList();
@@ -59,7 +66,7 @@ public sealed partial class GameEngine
                 $"turn:{item.TurnNumber}:{item.Source.SkillId}:{item.Source.BindingId}:{item.GrantSequence}")));
         return RuleQueryService.Evaluate(
             SkillRuleQuery.AttackRange,
-            new RuleQueryBounds(1, int.MaxValue),
+            new RuleQueryBounds(minimumRange, int.MaxValue),
             baseTerms,
             contributions);
     }
@@ -91,7 +98,8 @@ public sealed partial class GameEngine
             new RuleQueryBaseTerm($"mode:{_modeDefinition.Id}:slash-use-limit", 1)
         };
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.SlashLimit).ToList();
-        foreach (var card in GetEquipment(player))
+        if (HasNextUnlimitedCard(player)) contributions.Add(new UnlimitedRuleQueryContribution($"skill:{player.Seat}:next-card-unlimited"));
+        foreach (var card in GetEquipmentRuleCards(player))
         {
             var bonus = EquipmentCatalog.Get(card.Kind).SlashLimitBonus;
             if (bonus == int.MaxValue)
@@ -177,7 +185,7 @@ public sealed partial class GameEngine
             query,
             context,
             GetSkillBindingShard(player).GetNumericModifiers(query));
-        return programContributions;
+        return programContributions.Concat(CollectStrategicRuleContributions(player, query)).ToArray();
     }
 
     private static void AddFiniteContribution(
@@ -198,11 +206,12 @@ public sealed partial class GameEngine
         ConvertRuleValue(EvaluateSlashUseLimit(player));
 
     private bool CanSpendSlashUse(CharacterState player, CharacterState target, bool ignoresCount,
-        CardKind effectiveKind = CardKind.Slash) =>
+        CardKind effectiveKind = CardKind.Slash, Card? physicalCard = null) =>
         !IsCardUseForbidden(player.Seat, effectiveKind, CardActionType.Use) &&
         !IsDirectedCardTargetProhibited(player.Seat, target.Seat, effectiveKind) &&
         (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount ||
          _slashCountThisTurn < GetSlashUseLimit(player) ||
+         physicalCard is not null && BypassesSlashLimitBySuit(player, physicalCard, effectiveKind) ||
          HasDirectedTurnCardPolicy(player.Seat, target.Seat, effectiveKind,
              DirectedTurnCardPolicyEffect.BypassSlashLimit));
 }

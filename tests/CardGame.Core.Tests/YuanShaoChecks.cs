@@ -16,9 +16,10 @@ internal static class YuanShaoChecks
                 .Where(second => second.Suit != first.Suit)
                 .Select(second => new[] { first, second }))
             .First();
+        // God generals publish their chosen faction; ordinary generals use their printed faction.
         var qunOthers = game.CreateSnapshot(0, revealAll: true).Players.Count(player =>
             player.Seat != 0 && player.IsAlive &&
-            registry.Generals.TryGetValue(player.GeneralId, out var general) && general.FactionId == "qun");
+            (player.FactionId ?? registry.Generals[player.GeneralId].FactionId) == "qun");
         Require(ReadHandLimit(game, 0) == owner.Hp + qunOthers * 2,
             "Xueyi must add twice the number of other living Qun characters to the lord's hand limit.");
 

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "classic:qiaoshui", "revision": 1, "minimumRulesVersion": 190,
+    "modifiers": [], "viewAs": [], "activations": [],
+    "triggers": [{
+      "id": "play-start-contest", "window": "playPhaseStarting", "subject": "owner",
+      "optional": true, "priority": 0, "condition": {"kind": "compare", "left": {"kind": "currentHandCount"}, "operator": "greaterThan", "right": {"kind": "integerConstant", "value": 0}},
+      "effects": [
+        {"op": "selectTarget", "target": "owner", "targetKind": "otherLivingWithHand"},
+        {"op": "startPindian", "target": "owner", "opponentRef": {"kind": "selectedTarget"}, "resultBind": "contest", "visibility": "public"},
+        {"op": "grantNextCardTargetAdjustment", "target": "owner", "condition": {"kind": "pindianWon", "sourceBind": "contest"}},
+        {"op": "grantTurnCardActionProhibition", "target": "owner", "actionTypes": ["use"],
+          "cardKinds": ["duel", "drawTwo", "barbarianAssault", "arrowBarrage", "peachGarden", "fiveGrains", "dismantlement", "snatch", "fireAttack", "ironChain", "borrowedSword", "nullification", "indulgence", "supplyShortage", "lightning"],
+          "condition": {"kind": "pindianNotWon", "sourceBind": "contest"}}
+      ]
+    }],
+    "contributions": [], "cardIdentities": [], "states": []
+  }, {
+    "id": "classic:zongshi-pindian", "revision": 1, "minimumRulesVersion": 190,
+    "modifiers": [], "viewAs": [], "activations": [], "triggers": [],
+    "cardPolicies": [{"id": "claim-contest-card", "kind": "pindianClaim"}],
+    "contributions": [], "cardIdentities": [], "states": []
+  }]
+}

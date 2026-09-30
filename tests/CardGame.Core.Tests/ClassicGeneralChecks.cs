@@ -481,8 +481,19 @@ internal static class ClassicGeneralChecks
 
     public static void FormalTuxiFlow()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        var game = SelectGeneral(registry, "classic:zhang-liao", GameCheckpoint.CurrentRulesVersion);
+        var registry = ContentRegistry.Build(new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(),
+            new TuxiTransferScenario());
+        var game = GameEngine.CreateStandard(new GameOptions
+        {
+            Seed = 1, HumanSeat = 0, HumanRole = Role.Lord, PlayerCount = 5,
+            ModeId = "identity:classic-tuxi-transfer", UseInteractiveSetup = true,
+            UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 220
+        }, registry);
+        Require(game.Submit(new StartGameCommand()).Accepted, "The fixed Tuxi fixture must start.");
+        Require(game.Submit(new SelectGeneralCommand(0, "classic:zhang-liao", game.Revision,
+            game.PendingDecision!.PromptId)).Accepted, "The fixed Tuxi fixture must select Zhang Liao.");
         var selected = game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
         Require(selected.GeneralId == "classic:zhang-liao" &&
                 selected.MaxHp == 5 &&
@@ -633,6 +644,27 @@ internal static class ClassicGeneralChecks
     }
 
 
+    private sealed class TuxiTransferScenario : IGameContentPackage
+    {
+        public PackageManifest Manifest { get; } = new("tuxi-transfer-check", new Version(1, 0, 0),
+            [new PackageDependency("standard-classic-generals", StandardClassicGeneralPackage.CurrentVersion)]);
+
+        public void Register(IContentRegistryBuilder builder)
+        {
+            var pool = new List<string> { "classic:zhang-liao" };
+            for (var index = 0; index < 4; index++)
+            {
+                var id = "fixture:tuxi-bank-" + index;
+                pool.Add(id);
+                builder.AddGeneral(new(id, "测试对手", "supporter", "standard:none", "qun"));
+            }
+            builder.AddMode(new("identity:classic-tuxi-transfer", "突袭转移测试", 5, 5,
+                new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1,
+                    [nameof(Role.Rebel)] = 2, [nameof(Role.Renegade)] = 1 },
+                "classic:standard-deck", GeneralCandidateCount: 5, GeneralPoolIds: pool));
+        }
+    }
+
     public static void ProgramLuoyiFlow()
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
@@ -719,7 +751,8 @@ internal static class ClassicGeneralChecks
                       target.Equipment.Count == 0 &&
                       target.Skills?.All(skill => skill.ContentId is not
                           ("classic:yizhong" or "classic:zhenlie" or "classic:liuli" or "classic:renxin" or
-                           "classic:qingguo" or "classic:longdan" or "classic:bazhen" or "classic:hujia") &&
+                           "classic:qingguo" or "classic:longdan" or "boundary:longdan" or
+                           "classic:bazhen" or "classic:hujia") &&
                           skill.ContentId is not ("classic:qingguo" or "classic:longdan")) != false);
         var slashTargetSeat = slashAction.TargetSeat!.Value;
         var slashPlayed = slashGame.Submit(new PlayCardCommand(
@@ -1725,7 +1758,14 @@ internal static class ClassicGeneralChecks
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var game = SelectGeneral(registry, "classic:huang-gai", GameCheckpoint.CurrentRulesVersion,
-            fixture => fixture.CreateSnapshot(0, true).Players[0].Hand.Any(card => card.Kind == CardKind.Peach));
+            fixture =>
+            {
+                var players = fixture.CreateSnapshot(0, true).Players;
+                // Isolate the solo Kujin continuation from unrelated observer rescue programs.
+                return players[0].Hand.Any(card => card.Kind == CardKind.Peach) && players.All(player =>
+                    player.Skills?.All(skill => skill.ContentId is null || registry.GetSkill(skill.ContentId).Program?.Triggers.Any(trigger =>
+                        trigger.Window == SkillProgramTriggerWindow.DyingEntering && trigger.Subject == SkillProgramTriggerSubject.Any) != true) != false);
+            });
         Require(game.Submit(new AdvanceCommand(game.Revision)).Accepted,
             "Configured Kujin dying fixture could not reach play.");
         for (var use = 0; use < 4; use++)

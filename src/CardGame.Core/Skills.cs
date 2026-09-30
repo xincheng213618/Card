@@ -9,7 +9,11 @@ public sealed record PlayerSkillContext(
     bool IsOwnTurn = false,
     bool IsFaceDown = false,
     bool IsChained = false,
-    bool IsClassicIdentityMode = false);
+    bool IsClassicIdentityMode = false,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    IReadOnlyDictionary<string, bool>? RuntimeBooleanStates = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    IReadOnlyDictionary<string, int>? PublicCounters = null);
 
 public static class GameRules
 {

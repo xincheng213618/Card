@@ -21,6 +21,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private string? _selectedProgramSkillId;
     private string? _selectedProgramActivationId;
     private int? _selectedProgramSkillOwnerSeat;
+    private IReadOnlyList<int>? _selectedActiveSkillTargetContract;
     private PromptId? _activeSkillPromptId;
     private bool _isSelectingActiveSkillCards;
     private int? _selectedTargetSeat;
@@ -421,6 +422,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _selectedProgramSkillId = null;
         _selectedProgramActivationId = null;
         _selectedProgramSkillOwnerSeat = null;
+            _selectedActiveSkillTargetContract = null;
         _activeSkillPromptId = null;
         _isSelectingActiveSkillCards = false;
         _selectedTargetSeat = null;
@@ -497,6 +499,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedProgramSkillId = null;
             _selectedProgramActivationId = null;
             _selectedProgramSkillOwnerSeat = null;
+            _selectedActiveSkillTargetContract = null;
             _isSelectingActiveSkillCards = false;
         }
 
@@ -512,6 +515,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedProgramSkillId = null;
             _selectedProgramActivationId = null;
             _selectedProgramSkillOwnerSeat = null;
+            _selectedActiveSkillTargetContract = null;
             _isSelectingActiveSkillCards = false;
             return;
         }
@@ -758,7 +762,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     ? $"创 {string.Join('/', player.BuquWounds.Select(card => card.Rank))}"
                     : string.Empty,
                 AuthorityText = player.AuthorityCount > 0
-                    ? $"权 ×{player.AuthorityCount}"
+                    ? $"{player.AuthorityName ?? "权"} ×{player.AuthorityCount}"
                     : string.Empty,
                 ChunlaoText = player.ChunlaoCount > 0
                     ? $"醇 ×{player.ChunlaoCount}"
@@ -873,9 +877,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             HumanSummary = $"{(IsNationalSnapshot ? FactionName(human.FactionId) : GetRoleName(human.Role ?? Role.Lord))} · {human.GeneralName} · {human.Hp}/{human.MaxHp} 体力" +
                 (!IsNationalSnapshot && human.FactionId is not null ? $" · 本局{FactionName(human.FactionId)}势力" : string.Empty) +
                 (human.WoodenOxGrainCount > 0 ? $" · 木牛粮 {human.WoodenOxGrainCount}" : string.Empty) +
-                (human.AuthorityCount > 0 ? $" · 权 {human.AuthorityCount}" : string.Empty) +
+                (human.AuthorityCount > 0 ? $" · {human.AuthorityName ?? "权"} {human.AuthorityCount}" : string.Empty) +
                 (human.ChunlaoCount > 0 ? $" · 醇 {human.ChunlaoCount}" : string.Empty) +
                 (human.PojunHoldCount > 0 ? $" · 破 {human.PojunHoldCount}" : string.Empty) +
+                (human.PrivateReserveCount > 0 ? $" · 星 {human.PrivateReserveCount}" : string.Empty) +
                 (human.HasAlcoholEffect ? " · 酒效待下一张杀" : string.Empty);
         }
         else
@@ -1188,14 +1193,18 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 new Dictionary<string, string>()));
         }
 
-        foreach (var authority in (human.AuthorityCards ?? []).Where(card => activeSkillCardIds.Contains(card.Id)))
+        var pileOwnerSeat = HumanActiveSkillAction?.ProgramSkillOwnerSeat ?? human.Seat;
+        var pileOwner = _snapshot.Players.SingleOrDefault(player => player.Seat == pileOwnerSeat);
+        var pileName = pileOwner?.AuthorityName ?? "权";
+        var ownerLabel = pileOwnerSeat == human.Seat ? string.Empty : $"{pileOwner?.GeneralName ?? $"角色 {pileOwnerSeat + 1}"}的";
+        foreach (var authority in (pileOwner?.AuthorityCards ?? []).Where(card => activeSkillCardIds.Contains(card.Id)))
         {
             var selected = _selectedActiveSkillCardIds.Contains(authority.Id);
             ActiveSkillEquipmentChoices.Add(new PromptChoice(
                 new ChoiceId($"active-skill.authority-{authority.Id}"),
                 selected
-                    ? $"✓ 已选择“权”【{authority.DisplayName}】；点击取消"
-                    : $"选择“权”【{authority.DisplayName}】",
+                    ? $"✓ 已选择{ownerLabel}“{pileName}”【{authority.DisplayName}】；点击取消"
+                    : $"选择{ownerLabel}“{pileName}”【{authority.DisplayName}】",
                 [authority.Id],
                 [],
                 new Dictionary<string, string>()));
@@ -1768,6 +1777,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _selectedProgramSkillId = action.ProgramSkillId;
         _selectedProgramActivationId = action.ProgramActivationId;
         _selectedProgramSkillOwnerSeat = action.ProgramSkillOwnerSeat;
+        _selectedActiveSkillTargetContract = action.TargetSeats.ToArray();
 
         var requiresCardSelection = action.MinCardCount > 0 || action.MaxCardCount > 0;
         var requiresTargetSelection = action.MinTargetCount > 0 || action.MaxTargetCount > 0;
@@ -1814,7 +1824,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         ExecuteSafely(() =>
         {
             var selectedCards = _selectedActiveSkillCardIds.Order().ToArray();
-            var selectedTargets = _selectedActiveSkillTargetSeats.ToArray();
+            var selectedTargets = action.TargetSeats.Count > 0 &&
+                action.TargetSeats.Count == _selectedActiveSkillTargetSeats.Count &&
+                action.TargetSeats.ToHashSet().SetEquals(_selectedActiveSkillTargetSeats)
+                    ? action.TargetSeats.ToArray() : _selectedActiveSkillTargetSeats.ToArray();
             var result = action.Kind == LegalActionKind.UseEquipmentEffect &&
                          action.EquipmentKind is { } equipment
                 ? SubmitCommand(new UseEquipmentEffectCommand(
@@ -1853,6 +1866,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedProgramSkillId = null;
             _selectedProgramActivationId = null;
             _selectedProgramSkillOwnerSeat = null;
+            _selectedActiveSkillTargetContract = null;
             _selectedCardId = null;
             _selectedTargetSeat = null;
             _selectedCardTargetSeats.Clear();
@@ -1873,6 +1887,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _selectedProgramSkillId = action.ProgramSkillId;
         _selectedProgramActivationId = action.ProgramActivationId;
         _selectedProgramSkillOwnerSeat = action.ProgramSkillOwnerSeat;
+        _selectedActiveSkillTargetContract = action.TargetSeats.ToArray();
         UseActiveSkill();
     }
 
@@ -1889,6 +1904,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedProgramSkillId = null;
             _selectedProgramActivationId = null;
             _selectedProgramSkillOwnerSeat = null;
+            _selectedActiveSkillTargetContract = null;
             _isSelectingActiveSkillCards = false;
             SelectedCardText = "未选择手牌";
             var result = SubmitCommand(new EndPlayPhaseCommand(_snapshot.HumanSeat, _snapshot.Revision, _snapshot.PendingDecision?.PromptId));
@@ -2257,6 +2273,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         Suit.Heart => "♥",
         Suit.Club => "♣",
         Suit.Diamond => "♦",
+        Suit.None => string.Empty,
         _ => "?"
     };
 

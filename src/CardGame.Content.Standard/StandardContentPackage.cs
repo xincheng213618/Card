@@ -311,6 +311,11 @@ public sealed class StandardContentPackage : IGameContentPackage
                 ["modifier"] = "draw-plus-one"
             }));
 
+        builder.AddCard(new ContentCardDefinition("ol:red-blood-blade", "赤血刃", "装备牌",
+            CardCatalog.Get(CardKind.RedBloodBlade).Description, CardKind.RedBloodBlade));
+        builder.AddCard(new ContentCardDefinition("ol:general-weapon", "武将武器", "装备牌",
+            CardCatalog.Get(CardKind.GeneralWeapon).Description, CardKind.GeneralWeapon));
+
         builder.AddSkill(new ContentSkillDefinition(
             "standard:none", "无", "演示版暂未启用技能。"));
         builder.AddSkill(DamageSkillPrograms.Definition("standard:jianxiong"));

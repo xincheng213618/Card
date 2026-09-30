@@ -37,6 +37,10 @@ public static class EquipmentCatalog
     private static readonly IReadOnlyDictionary<CardKind, EquipmentDefinition> Definitions =
         new Dictionary<CardKind, EquipmentDefinition>
         {
+            [CardKind.GeneralWeapon] = new(CardKind.GeneralWeapon, "武将武器", EquipmentSlot.Weapon,
+                "无花色点数，攻击范围为武将体力上限，具有牌上描述含杀的非觉醒、限定、转换、主公技能。离开装备区销毁。", WeaponAttackRange: 1),
+            [CardKind.RedBloodBlade] = new(CardKind.RedBloodBlade, "赤血刃", EquipmentSlot.Weapon,
+                "攻击范围3（若你未拥有神御，改为0）。每回合首次你的杀对攻击范围内最远角色造成伤害时，此伤害+1。首次替换其他武器牌后，获得其技能。", WeaponAttackRange: 3),
             [CardKind.Crossbow] = new(
                 CardKind.Crossbow,
                 "诸葛连弩",

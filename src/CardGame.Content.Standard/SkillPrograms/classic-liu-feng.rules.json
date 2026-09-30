@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "classic:xiansi", "revision": 1, "minimumRulesVersion": 190,
+    "modifiers": [], "viewAs": [], "activations": [],
+    "triggers": [{
+      "id": "collect-public-pile", "window": "turnStartBeforeNormalFlow", "subject": "owner",
+      "optional": true, "priority": 0, "condition": {"kind": "always"},
+      "effects": [{"op": "collectPublicPile", "target": "owner", "amount": 2,
+        "zones": ["hand", "equipment"], "destinationZone": "authority"}]
+    }],
+    "cardPolicies": [{"id": "public-pile-slash", "kind": "foreignPublicPileSlash"}],
+    "contributions": [], "cardIdentities": [], "states": []
+  }]
+}

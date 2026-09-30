@@ -1,0 +1,11 @@
+{"schemaVersion":62,"skills":[
+ {"id":"ol:juanjia","revision":1,"minimumRulesVersion":186,"triggers":[
+  {"id":"extra-weapon-slot","window":"gameStarting","subject":"owner","optional":false,"priority":0,"effects":[{"op":"alterEquipmentSlots","target":"owner","equipmentSlots":["armor"],"amount":0},{"op":"alterEquipmentSlots","target":"owner","equipmentSlots":["weapon"],"amount":2}]}
+ ]},
+ {"id":"ol:qiexie","revision":1,"minimumRulesVersion":186,"triggers":[
+  {"id":"sample-five-general-weapons","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"priority":0,"effects":[{"op":"equipSampledGenerals","target":"owner","amount":5}]}
+ ]},
+ {"id":"ol:cuijue","revision":1,"minimumRulesVersion":186,"activations":[
+  {"id":"discard-farthest-damage","targetKind":"otherLivingInAttackRange","minCards":1,"maxCards":1,"minTargets":0,"maxTargets":0,"usesPerTurn":null,"sourceZones":["hand","equipment"],"condition":{"kind":"always"},"effects":[{"op":"discardSelected","target":"owner","amount":1},{"op":"damageFarthestCharacter","target":"owner"}]}
+ ]}
+]}

@@ -24,13 +24,17 @@ public sealed partial class GameEngine
             _pendingHpChanges.Remove(change);
             var owner = _players[change.TargetSeat];
             if (!owner.IsAlive) continue;
-            var window = change.Kind == HpChangeKind.Loss
-                ? SkillProgramTriggerWindow.AfterHpLost : SkillProgramTriggerWindow.AfterHpRecovered;
+            var windows = change.Kind switch
+            {
+                HpChangeKind.Loss => new[] { SkillProgramTriggerWindow.AfterHpLost, SkillProgramTriggerWindow.AfterHealthChanged },
+                HpChangeKind.Recovery => new[] { SkillProgramTriggerWindow.AfterHpRecovered, SkillProgramTriggerWindow.AfterHealthChanged },
+                _ => new[] { SkillProgramTriggerWindow.AfterHealthChanged }
+            };
             var facts = CaptureProgramTriggerFacts(owner) with
             {
                 HpChangeAmount = change.Amount, HpBeforeChange = change.HpBefore, HpAfterChange = change.HpAfter
             };
-            var candidates = CollectProgramTriggerCandidates(owner, window).Where(candidate =>
+            var candidates = windows.SelectMany(window => CollectProgramTriggerCandidates(owner, window)).Where(candidate =>
                 _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers.Single(trigger => trigger.Id == candidate.BindingId)
                     .Condition.Evaluate(facts, candidate.SkillId, candidate.SkillInstanceId))
                 .SelectMany(candidate => Enumerable.Range(0,
@@ -38,7 +42,7 @@ public sealed partial class GameEngine
                         .HpChangeOccurrence == SkillProgramHpChangeOccurrence.PerPoint ? change.Amount : 1)
                     .Select(index => candidate with { OccurrenceIndex = index })).ToArray();
             if (candidates.Length == 0) continue;
-            var contexts = candidates.Select(candidate => new ProgramSkillWindowContext(window, change.Id,
+            var contexts = candidates.Select(candidate => new ProgramSkillWindowContext(GetProgramTrigger(candidate).Window, change.Id,
                 owner.Seat, SourceSeat: change.SourceSeat, TargetSeat: owner.Seat, Amount: change.Amount,
                 OccurrenceIndex: candidate.OccurrenceIndex, Facts: facts, HpChange: change)).ToArray();
             _resolutionStack.Add(new HpChangedTriggerWindowFrame(change.Id, change, candidates, contexts,
@@ -112,12 +116,18 @@ public sealed partial class GameEngine
                 if (movement.ResumeProgramFrameId is { } resume && (parent is not ProgramSkillFrame || parent.Id != resume))
                     throw new InvalidOperationException("A movement window lost its instruction continuation.");
             }
+            if (_resolutionStack[index] is ProgramLifecycleTriggerWindowFrame { ResumeDyingFrameId: { } dyingId } entry &&
+                (entry.Window != SkillProgramTriggerWindow.DyingEntering || entry.Continuation != ProgramLifecycleContinuation.ResumeDyingEntry ||
+                 parent is not DyingFrame || parent.Id != dyingId || _pendingDying?.FrameId != dyingId ||
+                 entry.OwnerSeat != _pendingDying.VictimSeat || entry.CandidateIndex < 0 || entry.CandidateIndex >= entry.Candidates.Count))
+                throw new InvalidOperationException("Dying entry lost its frozen parent or cursor.");
             if (_resolutionStack[index] is not HpChangedTriggerWindowFrame hp) continue;
             var window = hp.Change.Kind == HpChangeKind.Loss
-                ? SkillProgramTriggerWindow.AfterHpLost : SkillProgramTriggerWindow.AfterHpRecovered;
+                ? SkillProgramTriggerWindow.AfterHpLost : hp.Change.Kind == HpChangeKind.Recovery
+                    ? SkillProgramTriggerWindow.AfterHpRecovered : SkillProgramTriggerWindow.AfterHealthChanged;
             if (hp.Change.Id != hp.Id || hp.Change.Amount <= 0 || hp.Candidates.Count != hp.Contexts.Count ||
                 hp.CandidateIndex < 0 || hp.CandidateIndex >= hp.Candidates.Count ||
-                hp.Contexts.Where((context, cursor) => context.Window != window || context.ParentFrameId != hp.Id ||
+                hp.Contexts.Where((context, cursor) => context.Window != window && context.Window != SkillProgramTriggerWindow.AfterHealthChanged || context.ParentFrameId != hp.Id ||
                     context.OwnerSeat != hp.Candidates[cursor].OwnerSeat || context.HpChange != hp.Change).Any())
                 throw new InvalidOperationException("An HP-change window lost its frozen event or cursor.");
             var parentMatches = hp.Continuation switch

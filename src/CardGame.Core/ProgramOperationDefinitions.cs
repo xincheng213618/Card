@@ -43,8 +43,10 @@ internal sealed record CaptureSourceCard(string Name, int MaximumCount = 1, bool
     SkillProgramEffectTarget? CardOwner = null) : ProgramResourceOperation;
 internal sealed record CaptureActivationCards(string Name) : ProgramResourceOperation;
 internal sealed record ReadSingleCardSet(string Name) : ProgramResourceOperation;
+internal sealed record ReadFrozenSingleCardSet(string Name) : ProgramResourceOperation;
 internal sealed record SelectTargetSet(int Minimum, int Maximum) : ProgramResourceOperation;
 internal sealed record ConsumeTargetSet : ProgramResourceOperation;
+internal sealed record NarrowTargetSetToSingle : ProgramResourceOperation;
 internal sealed record DeriveCardSet(
     string Source, string Result, IReadOnlyList<Suit> Suits, int? SelectionMaximum = null,
     IReadOnlyList<SkillProgramCardCategory>? Categories = null,
@@ -56,6 +58,7 @@ internal sealed record GiftCardSet(string Source) : ProgramResourceOperation;
 internal sealed record ReadSelectedTarget : ProgramResourceOperation;
 internal sealed record ReadTargetSet(int Minimum, int? Maximum = null) : ProgramResourceOperation;
 internal sealed record RequireContext(ProgramContextCapability Capability) : ProgramResourceOperation;
+internal sealed record RequireTriggerWindow(SkillProgramTriggerWindow Window) : ProgramResourceOperation;
 internal sealed record RequireAnyContext(ProgramContextCapability Capabilities) : ProgramResourceOperation;
 internal sealed record SelectSingleTarget : ProgramResourceOperation;
 internal sealed record ReplaceSingleTarget : ProgramResourceOperation;
@@ -339,9 +342,9 @@ internal abstract class ProgramOperationDescriptorBase : IProgramOperationDescri
                 new ProgramResourceOperation[] { new RequireContext(ProgramContextCapability.CardAction) },
             ProgramParticipantRef.EventTarget =>
                 new ProgramResourceOperation[] { new RequireAnyContext(ProgramContextCapability.CardAction |
-                    ProgramContextCapability.Damage | ProgramContextCapability.Judgment) },
+                    ProgramContextCapability.Damage | ProgramContextCapability.Judgment | ProgramContextCapability.PhaseOwner) },
             ProgramParticipantRef.EventSource =>
-                new ProgramResourceOperation[] { new RequireContext(ProgramContextCapability.Damage) },
+                new ProgramResourceOperation[] { new RequireAnyContext(ProgramContextCapability.Damage | ProgramContextCapability.MovementSource) },
             ProgramParticipantRef.SelectedTarget =>
                 new ProgramResourceOperation[] { new ReadSelectedTarget() },
             ProgramParticipantRef.SelectedFirst =>
@@ -372,8 +375,9 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
             ? r.RequiredEnum<SkillProgramNumberExpression>("numberExpression") : (SkillProgramNumberExpression?)null;
         if (expression is not null && (r.Has("amount") || expression is not
                 (SkillProgramNumberExpression.LivingFactionCount or SkillProgramNumberExpression.TargetMaxHpMinusHandCount or
-                 SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.BoundCardCount or
-                 SkillProgramNumberExpression.CurrentAttackRange or SkillProgramNumberExpression.HandLimitMinusHandCount)))
+                 SkillProgramNumberExpression.CategoryTargetTurnUsage or SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.BoundCardCount or
+                 SkillProgramNumberExpression.CurrentAttackRange or SkillProgramNumberExpression.HandLimitMinusHandCount or
+                 SkillProgramNumberExpression.LostHpMinusHandCount)))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: draw accepts a constant or a supported public-state expression.");
         var source = r.OptionalIdentifier("sourceBind");
         if ((expression == SkillProgramNumberExpression.BoundCardCount) != (source is not null))
@@ -397,8 +401,8 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
             sourceBind: source, resultBind: bind, targetReference: targetRef,
             replacementSuits: replacementSuits, minimumReplacementRank: minimumReplacementRank,
             maximumReplacementRank: maximumReplacementRank);
-        if (bind is not null && target != SkillProgramEffectTarget.Owner)
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}: bound draws require owner target.");
+        if (bind is not null && target is not (SkillProgramEffectTarget.Owner or SkillProgramEffectTarget.SelectedTarget))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: bound draws require owner or selectedTarget.");
         if (bind is not null) RequireAlways(effect, r.Path);
         return effect;
     }
@@ -408,7 +412,7 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
                 ? new ProgramResourceOperation[] { new ReadCardSet(effect.SourceBind!) }
                 : Array.Empty<ProgramResourceOperation>())
             .Concat(effect.ResultBind is { } bind
-                ? new ProgramResourceOperation[] { new CreateCardSet(bind, effect.NumberExpression is null ? effect.Amount : int.MaxValue, false) }
+                ? new ProgramResourceOperation[] { new CreateCardSet(bind, effect.NumberExpression is null ? effect.Amount : int.MaxValue, false, CardOwner: effect.Target) }
                 : Array.Empty<ProgramResourceOperation>())),
             .. ParticipantResources(effect.TargetReference)];
     internal static int Amount(ProgramOperationNodeReader r, int maximum, bool allowZero = false)
@@ -596,7 +600,7 @@ internal sealed class MoveBoundCardsProgramOperationDescriptor : ProgramOperatio
         static (effect, context) => context.Move(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "sourceBind", "exceptBind", "destination", "destinationZone", "condition");
+        r.AllowOnly("op", "target", "sourceBind", "exceptBind", "destination", "destinationZone", "condition", "awaitMovementTriggers");
         var target = FilterBoundCardsProgramOperationDescriptor.Owner(r);
         var source = r.RequiredIdentifier("sourceBind"); var except = r.OptionalIdentifier("exceptBind");
         if (source == except) throw new InvalidOperationException($"Invalid skill program at {r.Path}: exceptBind must differ.");
@@ -612,8 +616,11 @@ internal sealed class MoveBoundCardsProgramOperationDescriptor : ProgramOperatio
         if (destinationZone is not null && destinationZone is not
                 (CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.Chunlao))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.destinationZone: must be a persistent owner zone.");
+        var awaitMovementTriggers = r.Has("awaitMovementTriggers") && r.RequiredBool("awaitMovementTriggers");
+        if (awaitMovementTriggers && destination is not (SkillProgramCardDestination.DiscardPile or SkillProgramCardDestination.DrawPileTop))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: awaited bound movement supports discardPile or drawPileTop.");
         var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), sourceBind: source,
-            exceptBind: except, destination: destination, destinationZone: destinationZone);
+            exceptBind: except, destination: destination, destinationZone: destinationZone, awaitMovementTriggers: awaitMovementTriggers);
         // A named-choice branch may gate a discard, a gain into the owner's own
         // hand (Pindian winnings, or Guzheng's optional claim of the remaining
         // cards), or a placement onto the draw pile top (Gongxin).

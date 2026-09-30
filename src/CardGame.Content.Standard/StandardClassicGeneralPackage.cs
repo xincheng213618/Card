@@ -191,7 +191,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicLifecycleRulesResource),
             ReadEmbeddedText(ClassicLifecyclePresentationResource)));
-    public static Version CurrentVersion { get; } = new(1, 160, 0);
+    public static Version CurrentVersion { get; } = new(1, 162, 0);
 
     public StandardClassicGeneralPackage()
     {
@@ -1072,6 +1072,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             EmbeddedSkillProgramCatalog.Definition("boundary-zhang-song", "boundary:xiantu")));
 
         builder.AddSkill(WithOptionalTriggerMetadata(
+            EmbeddedSkillProgramCatalog.Definition("classic-ju-shou", "classic:jianying")));
+        builder.AddSkill(WithOptionalTriggerMetadata(
+            EmbeddedSkillProgramCatalog.Definition("classic-ju-shou", "boundary:jianying")) with
+        { ActionForms = SkillActionForm.Active });
+        builder.AddSkill(WithStructuredSkillMetadata(
+            EmbeddedSkillProgramCatalog.Definition("classic-ju-shou", "classic:shibei"),
+            SkillTag.Locked, SkillExecutionForm.Trigger));
+
+        builder.AddSkill(WithOptionalTriggerMetadata(
             EmbeddedSkillProgramCatalog.Definition("classic-cao-ang", "classic:kangkai")));
         builder.AddSkill(WithStructuredSkillMetadata(
             EmbeddedSkillProgramCatalog.Definition("classic-qu-yi", "classic:fuqi"),
@@ -1081,6 +1090,22 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             SkillTag.Locked, SkillExecutionForm.State));
         builder.AddSkill(WithStructuredSkillMetadata(
             EmbeddedSkillProgramCatalog.Definition("classic-zhang-xiu", "classic:xiongluan"),
+            SkillTag.Limited, SkillExecutionForm.State) with
+        { ActionForms = SkillActionForm.Active });
+        builder.AddSkill(WithStructuredSkillMetadata(
+            EmbeddedSkillProgramCatalog.Definition("classic-jia-xu", "classic:wansha"),
+            SkillTag.Locked, SkillExecutionForm.State));
+        builder.AddSkill(WithStructuredSkillMetadata(
+            EmbeddedSkillProgramCatalog.Definition("classic-jia-xu", "classic:luanwu"),
+            SkillTag.Limited, SkillExecutionForm.State) with
+        { ActionForms = SkillActionForm.Active });
+        builder.AddSkill(WithStructuredSkillMetadata(
+            EmbeddedSkillProgramCatalog.Definition("classic-jia-xu", "classic:weimu"),
+            SkillTag.Locked, SkillExecutionForm.State));
+        builder.AddSkill(WithOptionalTriggerMetadata(
+            EmbeddedSkillProgramCatalog.Definition("classic-shen-zhou-yu", "classic:qinyin")));
+        builder.AddSkill(WithStructuredSkillMetadata(
+            EmbeddedSkillProgramCatalog.Definition("classic-shen-zhou-yu", "classic:yeyan"),
             SkillTag.Limited, SkillExecutionForm.State) with
         { ActionForms = SkillActionForm.Active });
         builder.AddSkill(WithStructuredSkillMetadata(
@@ -1843,6 +1868,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 AdditionalSkillIds: ["boundary:xiantu"]));
 
         builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:ju-shou", "沮授", "ju_shou",
+                "classic:jianying", "qun", BaseHp: 3,
+                AdditionalSkillIds: ["classic:shibei"]));
+        builder.AddGeneral(new ContentGeneralDefinition(
+                "boundary:ju-shou", "界沮授", "boundary_ju_shou",
+                "boundary:jianying", "qun", BaseHp: 3,
+                AdditionalSkillIds: ["classic:shibei"]));
+
+        builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:cao-ang", "曹昂", "cao_ang",
                 "classic:kangkai", "wei", BaseHp: 4));
 
@@ -1854,6 +1888,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:zhang-xiu", "张绣", "zhang_xiu",
                 "classic:xiongluan", "qun", BaseHp: 4));
+
+        builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:jia-xu", "贾诩", "jia_xu",
+                "classic:wansha", "qun", BaseHp: 3,
+                AdditionalSkillIds: ["classic:luanwu", "classic:weimu"]));
+
+        builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:shen-zhou-yu", "神周瑜", "shen_zhou_yu",
+                "classic:qinyin", "god", BaseHp: 4,
+                AdditionalSkillIds: ["classic:yeyan"]));
 
         builder.AddGeneral(new ContentGeneralDefinition(
                 "ol:shen-guan-yu", "神关羽·武神", "shen_guan_yu",
@@ -1929,6 +1973,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 AdditionalSkillIds: ["classic:jiushi"]));
 
 
+        OlGodContent.Register(builder);
+        Fame2011Content.Register(builder);
+        Fame2013Content.Register(builder);
+        Fame2014Content.Register(builder);
         var generalPoolIds = CurrentGeneralIds;
 
         builder.AddMode(new ContentModeDefinition(
@@ -2386,6 +2434,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "boundary:xu-sheng",
         "classic:zhang-song",
         "boundary:zhang-song",
+        "classic:ju-shou",
+        "boundary:ju-shou",
         "classic:cao-ang",
         "classic:qu-yi",
         "classic:zhang-xiu",
@@ -2407,6 +2457,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:shen-lu-meng",
         "classic:shen-cao-cao",
         "classic:cao-zhi",
+        "classic:jia-xu",
+        "classic:shen-zhou-yu",
+        .. OlGodContent.AddedGeneralIds,
+        .. Fame2011Content.AddedGeneralIds,
+        .. Fame2013Content.AddedGeneralIds,
+        .. Fame2014Content.AddedGeneralIds
     ];
 
     /// <summary>Registered generals kept out of the classic identity pools (fan-made roster).</summary>

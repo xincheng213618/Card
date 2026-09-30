@@ -52,16 +52,32 @@ public sealed partial class GameEngine
             return SkillProgramStepOutcome.Continue;
 
         var resolutionId = ++_resolutionSequence;
+        var instruction = ProgramInstructionResolver.Default.Resolve(active, _contentRegistry.GetSkill(active.SkillId).Program!)
+            .GetPausedInstruction(active.InstructionIndex).Effect;
+        var action = instruction.UseCardActionWindows
+            ? new CardActionContext(++_cardActionSequence, _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
+                CardActionType.Use, source.Seat, source.Seat, null, null, null, cardKind, [targetSeat], [], [],
+                effectiveSuit: Suit.None, effectiveRank: 0) : null;
         _resolutionStack.Add(new CardUseFrame(resolutionId, source.Seat, 0, cardKind,
             Array.AsReadOnly(new[] { targetSeat }),
-            PhysicalCardIds: Array.AsReadOnly(Array.Empty<int>())));
+            PhysicalCardIds: Array.AsReadOnly(Array.Empty<int>())) { Action = action });
+        if (action is not null && TracksPlayCardHistory) QueueGameEvent(new CardUseAppearanceCapturedEvent(action));
         QueueGameEvent(new CardUseDeclaredEvent(resolutionId, 0, cardKind, source.Seat));
         QueueGameEvent(new TargetsConfirmedEvent(resolutionId, Array.AsReadOnly(new[] { targetSeat })));
         var attack = new AttackResolution(resolutionId, source.Seat, targetSeat, card: null,
-            playedCardKind: cardKind, programSkillCardUseFrameId: frame.Id);
+            damageAmount: action is not null && source.HasAlcoholEffect ? 2 : 1,
+            playedCardKind: cardKind, ignoresArmor: action is not null && HasCardArmorBypass(source, target, cardKind),
+            programSkillCardUseFrameId: frame.Id);
+        if (action is not null) source.HasAlcoholEffect = false;
         _pendingAttack = attack;
         QueueGameEvent(new CardUsedEvent(0, cardKind, source.Seat, targetSeat));
-        ContinueSlashAfterResponsePrograms(attack);
+        if (action is not null)
+        {
+            _committedProgramUses.Add(resolutionId);
+            if (!TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardUseCommitted,
+                action.TargetSeats, ProgramCardContinuation.CommittedSlash)) BeginSlashTargetResolution(attack);
+        }
+        else ContinueSlashAfterResponsePrograms(attack);
         return SkillProgramStepOutcome.AwaitChild;
     }
 }

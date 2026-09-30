@@ -6,8 +6,8 @@ internal static class QinglongCrescentBladeChecks
 {
     public static void SameTargetFollowupAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var boundary = QinglongCrescentBladeScenario.FindHumanTrigger();
+        var registry = boundary.Registry;
         var game = boundary.Game;
         var prompt = game.PendingDecision ??
             throw new InvalidOperationException("Qinglong fixture lost its private trigger prompt.");
@@ -140,8 +140,8 @@ internal static class QinglongCrescentBladeChecks
 
     public static void FactionSlashProviderOpensFollowupSlash()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
         var boundary = QinglongCrescentBladeScenario.FindHumanTrigger(requireFactionSlash: true);
+        var registry = boundary.Registry;
         var game = boundary.Game;
         var prompt = game.PendingDecision ??
             throw new InvalidOperationException("Qinglong FactionSlash fixture lost its trigger prompt.");

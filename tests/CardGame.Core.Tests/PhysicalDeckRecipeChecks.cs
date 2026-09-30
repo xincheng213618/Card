@@ -13,7 +13,10 @@ internal static class PhysicalDeckRecipeChecks
 
         Require(deck.Cards.Count == 0 && cards.Count == 108,
             "The standard recipe must contain exactly 108 physical cards and no count recipe.");
-        foreach (var suit in Enum.GetValues<Suit>())
+        Suit[] deckSuits = [Suit.Spade, Suit.Club, Suit.Heart, Suit.Diamond];
+        Require(cards.All(card => deckSuits.Contains(card.Suit)),
+            "The standard physical deck must not contain generated cards without a suit.");
+        foreach (var suit in deckSuits)
         {
             var suited = cards.Where(card => card.Suit == suit).ToArray();
             Require(suited.Length == 27, $"{suit} must contain exactly 27 cards.");
@@ -62,8 +65,9 @@ internal static class PhysicalDeckRecipeChecks
         var militaryCards = registry.Decks["classic:standard-deck"].PhysicalCards ?? [];
         var expansion = militaryCards.Skip(108).ToArray();
         Require(militaryCards.Count == 160 && expansion.Length == 52 &&
-                Enum.GetValues<Suit>().All(suit => expansion.Count(card => card.Suit == suit) == 13) &&
-                Enum.GetValues<Suit>().All(suit => Enumerable.Range(1, 13).All(rank =>
+                expansion.All(card => deckSuits.Contains(card.Suit)) &&
+                deckSuits.All(suit => expansion.Count(card => card.Suit == suit) == 13) &&
+                deckSuits.All(suit => Enumerable.Range(1, 13).All(rank =>
                     expansion.Count(card => card.Suit == suit && card.Rank == rank) == 1)),
             "The current classic deck must append one military card for every suit/rank to the 108-card standard deck.");
         var expansionCounts = expansion.GroupBy(card => card.CardDefinitionId)

@@ -17,7 +17,8 @@ public enum CardZoneKind
     Authority,
     OutsideGame,
     Chunlao,
-    PojunHold
+    PojunHold,
+    PrivateReserve = 400
 }
 
 public readonly record struct CardLocation
@@ -25,7 +26,7 @@ public readonly record struct CardLocation
     [System.Text.Json.Serialization.JsonConstructor]
     public CardLocation(CardZoneKind zone, int? ownerSeat = null)
     {
-        var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.Chunlao or CardZoneKind.PojunHold;
+        var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.Chunlao or CardZoneKind.PojunHold or CardZoneKind.PrivateReserve;
         if (owned && ownerSeat is null or < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(ownerSeat), $"Zone {zone} requires a non-negative owner seat.");
@@ -254,10 +255,18 @@ internal sealed class CardZoneStore
             AddZone(CardLocation.Authority(seat));
             AddZone(CardLocation.Chunlao(seat));
             AddZone(CardLocation.PojunHold(seat));
+            AddZone(new CardLocation(CardZoneKind.PrivateReserve, seat));
         }
     }
 
     public int TotalCards => _locations.Count;
+    internal void AddGeneratedCard(Card card)
+    {
+        if (card.Id <= 0 || _locations.ContainsKey(card.Id))
+            throw new InvalidOperationException("A generated card needs a new positive physical identity.");
+        _locations.Add(card.Id, CardLocation.OutsideGame);
+        GetZone(CardLocation.OutsideGame).Add(card);
+    }
 
     public IReadOnlyList<Card> CardsAt(CardLocation location) =>
         _zoneViews.TryGetValue(location, out var cards)

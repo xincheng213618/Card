@@ -8,6 +8,7 @@ public sealed partial class GameEngine
         int targetSeat,
         string reason) =>
         trigger.Window == SkillProgramTriggerWindow.JudgmentReplacing &&
+        CanPayProgramMarkerCost(owner, trigger.MarkerCost) &&
         (trigger.Subject == SkillProgramTriggerSubject.Any || owner.Seat == targetSeat) &&
         !trigger.ExcludedReasons.Contains(reason, StringComparer.Ordinal) &&
         trigger.Effects[0].Condition.Evaluate(CreateSkillContext(owner));

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:ganlu", "revision": 1, "minimumRulesVersion": 189,
+      "activations": [{
+        "id": "exchange-equipment", "minCards": 0, "maxCards": 0,
+        "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [
+          {"op": "selectTargets", "target": "owner", "targetKind": "equipmentExchangePair",
+           "minimumTargets": 2, "maximumTargets": 2, "targetAiOrder": "stable"},
+          {"op": "exchangeSelectedTargetEquipment", "target": "owner"}
+        ]
+      }]
+    },
+    {
+      "id": "classic:buyi", "revision": 1, "minimumRulesVersion": 189,
+      "triggers": [{
+        "id": "support-dying-character", "window": "dyingEntering", "subject": "any",
+        "optional": true, "priority": 0,
+        "effects": [
+          {"op": "selectTarget", "target": "owner", "targetKind": "eventTargetWithHand"},
+          {"op": "revealTargetHandCard", "target": "owner", "chooserRef": {"kind": "owner"},
+           "cardOwnerRef": {"kind": "selectedTarget"}, "resultBind": "revealed", "mode": "selfChoiceOtherwiseRandom"},
+          {"op": "filterBoundCards", "target": "owner", "sourceBind": "revealed", "resultBind": "nonbasic",
+           "categories": ["trick", "equipment"]},
+          {"op": "moveBoundCards", "target": "owner", "sourceBind": "nonbasic", "destination": "discardPile"},
+          {"op": "recover", "target": "selectedTarget", "amount": 1,
+           "condition": {"kind": "boundCardsMatchCategories", "sourceBind": "revealed", "cardCategories": ["trick", "equipment"]}}
+        ]
+      }]
+    }
+  ]
+}

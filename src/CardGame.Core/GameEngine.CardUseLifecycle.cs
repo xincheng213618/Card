@@ -17,13 +17,18 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The committed trick lost its continuation.");
         var card = _cardZones.CardsAt(CardLocation.Processing)
             .Single(item => item.Id == continuation.EffectCardId);
-        BeginJizhiOrNullificationWindow(frame.ParentFrameId, card, frame.Action.ActorSeat,
-            frame.Action.TargetSeats, continuation.ActionKind, continuation.TargetCardId,
-            continuation.RequiredCardKind, frame.Action.EffectiveKind);
+        var action = _resolutionStack.OfType<CardUseFrame>().Single(use => use.Id == frame.ParentFrameId).Action!;
+        BeginJizhiOrNullificationWindow(frame.ParentFrameId, card, action.ActorSeat,
+            action.TargetSeats, continuation.ActionKind, continuation.TargetCardId,
+            continuation.RequiredCardKind, action.EffectiveKind);
     }
 
     private void BeginSimpleCardUse(long frameId, ProgramSimpleCardContinuation continuation)
     {
+        var use = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == frameId);
+        if (_adjustedTargetCardUses.Contains(frameId) && use.TargetSeats.Count > 1 &&
+            continuation.Effect is SimpleCardUseEffect.Recovery or SimpleCardUseEffect.Alcohol)
+            _adjustedSimpleCardContinuations[frameId] = continuation;
         if (!TryBeginCommittedCardUse(frameId, ProgramCardContinuation.CommittedSimpleCard,
                 simple: continuation))
             ContinueSimpleCardUse(frameId, continuation);
@@ -49,7 +54,7 @@ public sealed partial class GameEngine
                 CompleteAlcoholUse(source, card, frameId);
                 break;
             case SimpleCardUseEffect.Recovery:
-                CompleteRecoveryCardUse(source, _players[frame.TargetSeats.Single()], card,
+                CompleteRecoveryCardUse(source, _players[frame.TargetSeats[frame.TargetIndex]], card,
                     frameId, frame.CardKind, continuation.RecoveryAmount,
                     continuation.RecoveryPolicySources ?? []);
                 break;

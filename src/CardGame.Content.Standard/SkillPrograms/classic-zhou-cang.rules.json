@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "classic:zhongyong", "revision": 1, "minimumRulesVersion": 190,
+    "triggers": [{
+      "id": "gift-completed-slash-or-dodge", "window": "cardUseCompleted", "ownerRelation": "actor",
+      "cardKinds": ["slash", "fireSlash", "thunderSlash"], "optional": false, "priority": 0,
+      "effects": [{ "op": "offerCompletedCardGift", "target": "owner" }]
+    }]
+  }]
+}

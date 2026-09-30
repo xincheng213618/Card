@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:pindi", "revision": 1, "minimumRulesVersion": 190,
+      "activations": [{
+        "id": "rank-category-target", "categoryTargetLedgerId": "rank-category-target",
+        "minCards": 1, "maxCards": 1, "sourceZones": ["hand", "equipment"],
+        "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving", "usesPerTurn": null,
+        "effects": [
+          { "op": "consumeCategoryTargetLedger", "target": "owner", "usageId": "rank-category-target" },
+          { "op": "captureSelectedCards", "target": "owner", "resultBind": "cost" },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "cost", "destination": "discardPile", "awaitMovementTriggers": true },
+          { "op": "chooseOption", "target": "owner", "resultBind": "rank-effect", "options": [{ "id": "draw" }, { "id": "discard" }] },
+          { "op": "draw", "target": "selectedTarget", "numberExpression": "categoryTargetTurnUsage",
+            "condition": { "kind": "choiceIs", "sourceBind": "rank-effect", "optionId": "draw" } },
+          { "op": "selectOwnedCards", "target": "selectedTarget", "zones": ["hand", "equipment"], "numberExpression": "categoryTargetTurnUsage", "resultBind": "discard-cards",
+            "condition": { "kind": "choiceIs", "sourceBind": "rank-effect", "optionId": "discard" } },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "discard-cards", "destination": "discardPile", "awaitMovementTriggers": true,
+            "condition": { "kind": "choiceIs", "sourceBind": "rank-effect", "optionId": "discard" } },
+          { "op": "setChainedState", "target": "owner", "chained": true, "condition": { "kind": "selectedTargetWounded" } }
+        ]
+      }]
+    },
+    {
+      "id": "classic:faen", "revision": 1, "minimumRulesVersion": 190,
+      "triggers": [
+        { "id": "face-up-benefit", "window": "characterTurnedFaceUp", "subject": "any", "optional": true,
+          "effects": [{ "op": "selectTarget", "target": "owner", "targetKind": "eventTarget" }, { "op": "draw", "target": "selectedTarget", "amount": 1 }] },
+        { "id": "chain-entry-benefit", "window": "characterEnteredChain", "subject": "any", "optional": true,
+          "effects": [{ "op": "selectTarget", "target": "owner", "targetKind": "eventTarget" }, { "op": "draw", "target": "selectedTarget", "amount": 1 }] }
+      ]
+    }
+  ]
+}

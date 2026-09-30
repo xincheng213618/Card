@@ -87,7 +87,9 @@ public enum CardKind
     Hualiu,
     GhostDragonCrescentBlade,
     ScarletBloodSword,
-    XingtianAxe
+    XingtianAxe,
+    RedBloodBlade = 500,
+    GeneralWeapon
 }
 
 public enum Suit
@@ -95,7 +97,8 @@ public enum Suit
     Spade,
     Heart,
     Club,
-    Diamond
+    Diamond,
+    None = 500
 }
 
 public enum DamageNature
@@ -112,7 +115,13 @@ public enum DamageNature
 public enum PlayerMarkerKind
 {
     Nightmare,
-    Ren
+    Ren,
+    Rage = 400,
+    Gale,
+    Mist,
+    Junlue = 450,
+    Camp = 451,
+    Huang = 500
 }
 
 public static class PlayerMarkerCatalog
@@ -120,7 +129,13 @@ public static class PlayerMarkerCatalog
     public static string GetDisplayName(PlayerMarkerKind marker) => marker switch
     {
         PlayerMarkerKind.Nightmare => "梦魇",
+        PlayerMarkerKind.Huang => "黄",
         PlayerMarkerKind.Ren => "忍",
+        PlayerMarkerKind.Rage => "暴怒",
+        PlayerMarkerKind.Gale => "狂风",
+        PlayerMarkerKind.Mist => "大雾",
+        PlayerMarkerKind.Junlue => "军略",
+        PlayerMarkerKind.Camp => "营",
         _ => throw new InvalidOperationException($"Unknown public player marker '{marker}'.")
     };
 }
@@ -340,10 +355,15 @@ public sealed record GameOptions
 
 public sealed record Card(int Id, CardKind Kind, Suit Suit, int Rank)
 {
-    public string DisplayName => CardCatalog.Get(Kind).DisplayName;
+    public string? PrintedName { get; init; }
+    public int? PrintedAttackRange { get; init; }
+    public IReadOnlyList<string> GrantedSkillIds { get; init; } = [];
+    public bool IsGeneralWeapon { get; init; }
+    public string DisplayName => PrintedName ?? CardCatalog.Get(Kind).DisplayName;
 
     public string RankText => Rank switch
     {
+        0 => "",
         1 => "A",
         11 => "J",
         12 => "Q",
@@ -416,6 +436,8 @@ public sealed partial record GeneralDefinition(
     GeneralGender Gender = GeneralGender.Male)
 {
     public string SkillSummary => string.Join(" / ", Skills.Select(skill => skill.Name));
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? InitialHp { get; init; }
 
     public string SkillDescriptionSummary => string.Join(
         Environment.NewLine,
@@ -455,6 +477,12 @@ public sealed partial record PlayerSnapshot(
 
 public sealed partial record PlayerSnapshot
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyDictionary<EquipmentSlot, int>? EquipmentSlotCapacities { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int PrivateReserveCount { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<CardSnapshot>? PrivateReserveCards { get; init; }
     /// <summary>
     /// Public typed counters. Null preserves the serialized shape of old rules
     /// and of players that currently have no marks.
@@ -517,9 +545,12 @@ public sealed partial record PlayerSnapshot
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<CardSnapshot>? BuquWounds { get; init; }
 
-    /// <summary>Public "权" cards placed on classic Zhong Hui's general card.</summary>
+    /// <summary>Public cards placed in the authority pile on a general card.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<CardSnapshot>? AuthorityCards { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? AuthorityName { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int AuthorityCount { get; init; }
@@ -668,6 +699,7 @@ public sealed record LegalAction
 
     /// <summary>Selected activation cards must all share one printed suit.</summary>
     public bool SelectedCardsSameSuit { get; init; }
+    public bool SelectedCardsDistinctSuits { get; init; }
 
     /// <summary>Identifies the equipment whose active conversion creates this action.</summary>
     public CardKind? EquipmentKind { get; init; }

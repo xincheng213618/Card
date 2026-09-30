@@ -47,7 +47,8 @@ public sealed partial class GameEngine
         foreach (var program in EnabledActivationPrograms(owner))
             foreach (var activation in program.Activations)
             {
-                if (!activation.Condition.Evaluate(context) ||
+                var requiredCards = GetProgramActivationMinimumCards(owner.Seat, program.Id, activation);
+                if (!activation.Condition.Evaluate(context) || !CanPayProgramMarkerCost(owner, activation.MarkerCost) ||
                     activation.UsesPerTurn is { } limit &&
                     _programUses.GetValueOrDefault((owner.Seat, program.Id, activation.UsageGroup)) >= limit ||
                     activation.UsesPerPhase is { } phaseLimit &&
@@ -62,6 +63,9 @@ public sealed partial class GameEngine
                 if (activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.StartPindian) &&
                     GetHand(owner).Count == 0)
                     continue;
+                if (activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.DamageFarthestCharacter) &&
+                    !_players.Any(target => target.IsAlive && target.Seat != owner.Seat && IsFarthestInRange(owner, target) &&
+                        _skillRuntimeState.GetUsage(owner.Seat, program.Id, $"target:{target.Seat}", SkillUsageScope.Turn) == 0)) continue;
                 if (activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.SelectTargets &&
                     effect.TargetKind is { } kind &&
                     GetProgramTargetSeats(owner.Seat, kind).Count < effect.MinimumTargets))
@@ -99,23 +103,27 @@ public sealed partial class GameEngine
                             : GetHand(owner).Select(card => card.Id).Order().ToArray()
                     : activation.MaxCards == 0 ? [] : activation.SourceZones
                         .SelectMany(zone => _cardZones.CardsAt(new CardLocation(zone, owner.Seat)))
+                        .Where(card => CanSelectProgramActivationCard(activation, card))
                         .Where(card => activation.EquipmentSlots.Count == 0 ||
                             EquipmentCatalog.IsEquipment(card.Kind) &&
                             activation.EquipmentSlots.Contains(EquipmentCatalog.Get(card.Kind).Slot))
                         .Select(card => card.Id).Distinct().Order().ToArray();
                 var targets = selectedCardUse is { OutputKind: CardKind.ArrowBarrage } ? []
+                    : selectedCardUse is { OutputKind: CardKind.Peach } ? []
                     : selectedCardUse is not null
                     ? _players.Where(target => CanUseVirtualSlashTarget(owner, target))
                         .Select(target => target.Seat).Order().ToArray()
                     : allHandTrickUse is not null ? []
                     : activation.MaxTargets == 0 ? [] : _players
                     .Where(target => target.IsAlive &&
+                        IsAdvancedActivationTargetAllowed(owner, target, program.Id, activation) &&
                         (!activation.TargetRequiresEmptyEquipmentSlot ||
                          HasEmptyEquipmentSlotForOwnerHandEquipment(owner, target)) &&
                         (!activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.RequestFactionCard) ||
                          CanUseProvidedSlashTarget(owner, target)) &&
                         (target.Seat != owner.Seat || !activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.GiveSelected)) &&
-                        (activation.TargetKind is SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.AnyWounded ||
+                        (activation.TargetKind is SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.AnyWounded or
+                         SkillProgramTargetKind.AnyLivingHighestHp or SkillProgramTargetKind.AnyLivingHighestHand ||
                          target.Seat != owner.Seat) &&
                         (activation.TargetKind switch
                         {
@@ -133,16 +141,20 @@ public sealed partial class GameEngine
                                 GetCombatDistance(target.Seat, owner.Seat) <= GetAttackRange(target.Seat),
                             SkillProgramTargetKind.OtherLivingWithQinggangSword =>
                                 target.Seat != owner.Seat &&
-                                GetEquipment(target).Any(card => card.Kind == CardKind.QinggangSword),
+                                HasWeaponAbility(target, CardKind.QinggangSword),
                             SkillProgramTargetKind.OtherLivingSlashable =>
                                 CanUseProvidedSlashTarget(owner, target),
                             SkillProgramTargetKind.OtherLivingWithHand =>
                                 target.Seat != owner.Seat && GetHand(target).Count > 0,
+                            SkillProgramTargetKind.OtherLivingEmptyHand =>
+                                target.Seat != owner.Seat && GetHand(target).Count == 0,
                             SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                                                     target.Seat != owner.Seat && GetHand(target).Count > 0 && target.Hp > owner.Hp,
                             SkillProgramTargetKind.OtherLivingAtDistanceOne =>
                                                     target.Seat != owner.Seat && GetCombatDistance(owner.Seat, target.Seat) == 1,
                             SkillProgramTargetKind.AnyLiving => true,
+                            SkillProgramTargetKind.AnyLivingHighestHp or SkillProgramTargetKind.AnyLivingHighestHand =>
+                                GetProgramTargetSeats(owner.Seat, activation.TargetKind).Contains(target.Seat),
                             SkillProgramTargetKind.OtherWounded =>
                                 target.Seat != owner.Seat && target.Hp < target.MaxHp,
                             SkillProgramTargetKind.AnyWounded => target.Hp < target.MaxHp,
@@ -161,7 +173,13 @@ public sealed partial class GameEngine
                         (!activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.StartPindian) ||
                          GetHand(target).Count > 0))
                     .Select(target => target.Seat).Order().ToArray();
-                if (cards.Length < activation.MinCards || targets.Length < activation.MinTargets ||
+                if (activation.CategoryTargetLedgerId is { } ledgerId)
+                {
+                    cards = cards.Where(id => targets.Any(seat => CanActivateCategoryTargetLedger(owner.Seat, program.Id, ledgerId, [id], [seat]))).ToArray();
+                    targets = targets.Where(seat => cards.Any(id => CanActivateCategoryTargetLedger(owner.Seat, program.Id, ledgerId, [id], [seat]))).ToArray();
+                }
+                if (cards.Length < requiredCards || targets.Length < activation.MinTargets ||
+                    activation.SelectedCardsDistinctSuits && cards.Select(id => _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(card => card.Id == id).Suit).Distinct().Count() < activation.MinCards ||
                     activation.SelectedCardsSameSuit && !cards
                         .Select(id => _cardZones.CardsAt(_cardZones.GetLocation(id))
                             .Single(card => card.Id == id).Suit)
@@ -180,17 +198,21 @@ public sealed partial class GameEngine
                         .Any(seat => IsProgramTargetEligible(owner.Seat, dynamicKind,
                             dynamicSelection.Zones, seat, dynamicSelection.Marker)))
                     continue;
-                var minCardCount = allHandTrickUse is null ? activation.MinCards : cards.Length;
-                var maxCardCount = allHandTrickUse is not null || activation.MaxCards == int.MaxValue
-                    ? cards.Length : activation.MaxCards;
+                var minCardCount = allHandTrickUse is null ? requiredCards : cards.Length;
+                var maxCardCount = activation.CardCountExpression is not null ? requiredCards :
+                    allHandTrickUse is not null || activation.MaxCards == int.MaxValue ? cards.Length : activation.MaxCards;
+                var activationLabel = _contentRegistry!.Skills[program.Id].ProgramPresentation?.ActivationLabels
+                    .GetValueOrDefault(activation.Id);
                 yield return new LegalAction(LegalActionKind.UseProgramSkill, null, null,
-                    $"发动【{_contentRegistry!.Skills[program.Id].Name}】",
+                    $"发动【{_contentRegistry!.Skills[program.Id].Name}】" +
+                    (activationLabel is null ? string.Empty : $" · {activationLabel}"),
                     MinCardCount: minCardCount, MaxCardCount: maxCardCount,
                     MinTargetCount: activation.MinTargets, MaxTargetCount: activation.MaxTargets)
                 {
                     ProgramSkillId = program.Id,
                     ProgramActivationId = activation.Id,
                     SelectedCardsSameSuit = activation.SelectedCardsSameSuit,
+                    SelectedCardsDistinctSuits = activation.SelectedCardsDistinctSuits,
                     ProgramAiHint = CreateProgramAiHint(program, activation, context, owner.IsFaceDown),
                     SelectableCardIds = Array.AsReadOnly(cards),
                     SelectableTargetSeats = Array.AsReadOnly(targets)
@@ -233,6 +255,20 @@ public sealed partial class GameEngine
             !occupiedSlots.Contains(EquipmentCatalog.Get(card.Kind).Slot));
     }
 
+    private int GetProgramActivationMinimumCards(int ownerSeat, string skillId, SkillProgramActivation activation) =>
+        activation.CardCountExpression switch
+        {
+            null => activation.MinCards,
+            SkillProgramCardCountExpression.NextPhaseActivationOrdinal =>
+                checked(_programPhaseUses.GetValueOrDefault((ownerSeat, skillId, activation.UsageGroup)) + 1),
+            _ => throw new InvalidOperationException("Unsupported activation card-count expression.")
+        };
+
+    private static bool CanSelectProgramActivationCard(SkillProgramActivation activation, Card card) =>
+        (activation.CardKinds.Count == 0 || activation.CardKinds.Contains(card.Kind)) &&
+        (activation.CardSuits.Count == 0 || activation.CardSuits.Contains(card.Suit)) &&
+        (activation.CardCategories.Count == 0 || activation.CardCategories.Contains(GetProgramCardCategory(card.Kind)));
+
     private SkillProgramAiHint CreateProgramAiHint(
         SkillProgram program,
         SkillProgramActivation activation,
@@ -244,7 +280,7 @@ public sealed partial class GameEngine
         return ProgramCompositionAi.Estimate(activation.Effects, context, faceDown,
             CreateProgramAiPublicContext(owner) with
             {
-                ActivationCardCount = activation.MinCards,
+                ActivationCardCount = GetProgramActivationMinimumCards(owner.Seat, program.Id, activation),
                 EligibleTargetCount = activation.Effects.FirstOrDefault(effect =>
                     effect.Op == SkillProgramEffectOp.SelectTargets) is { TargetKind: { } selectedKind }
                     ? GetProgramTargetSeats(owner.Seat, selectedKind).Count
@@ -275,11 +311,27 @@ public sealed partial class GameEngine
                 .Distinct().Skip(1).Any())
             return new CommandError(CommandErrorCode.InvalidCard,
                 "The selected physical cards must share one printed suit.");
+        if (action.ProgramSkillOwnerSeat is null && action.ProgramSkillId is { } selectedSkill &&
+            _contentRegistry.GetSkill(selectedSkill).Program?.Activations.SingleOrDefault(item => item.Id == action.ProgramActivationId)
+                is { SelectedCardsDistinctSuits: true } && cards.Select(id => _cardZones.CardsAt(_cardZones.GetLocation(id))
+                .Single(card => card.Id == id).Suit).Distinct().Count() != cards.Count)
+            return new CommandError(CommandErrorCode.InvalidCard, "The selected cards must have distinct printed suits.");
+        if (action.ProgramSkillOwnerSeat is null && action.ProgramSkillId is { } filterSkill &&
+            _contentRegistry.GetSkill(filterSkill).Program?.Activations.SingleOrDefault(item => item.Id == action.ProgramActivationId)
+                is { } filtered && cards.Any(id => !CanSelectProgramActivationCard(filtered,
+                    _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(card => card.Id == id))))
+            return new CommandError(CommandErrorCode.InvalidCard, "The selected cards do not satisfy the activation filters.");
+        if (action.ProgramSkillOwnerSeat is null && action.ProgramSkillId is { } ledgerSkill &&
+            _contentRegistry.GetSkill(ledgerSkill).Program?.Activations.SingleOrDefault(item => item.Id == action.ProgramActivationId)
+                is { CategoryTargetLedgerId: { } ledgerId } &&
+            !CanActivateCategoryTargetLedger(_currentSeat, ledgerSkill, ledgerId, cards, targets))
+            return new CommandError(CommandErrorCode.IllegalAction, "This card category or target was already used in this phase.");
         return null;
     }
 
     private CommandResult SubmitUseProgramSkill(UseProgramSkillCommand command)
     {
+        if (TrySubmitForeignPublicPileSlash(command, out var foreignPileResult)) return foreignPileResult;
         var error = ValidateHumanPrompt(command.ActorSeat, DecisionKind.PlayCard, command.PromptId,
             CommandErrorCode.IllegalAction);
         if (error is not null) return Reject(error.Code, error.Message);
@@ -309,6 +361,7 @@ public sealed partial class GameEngine
     private void ExecuteProgramSkill(CharacterState owner, LegalAction action,
         IReadOnlyList<int> cards, IReadOnlyList<int> targets)
     {
+        if (TryExecuteForeignPublicPileSlash(owner, action, cards, targets)) return;
         var current = BuildProgramActions(owner).SingleOrDefault(candidate =>
             candidate.ProgramSkillId == action.ProgramSkillId &&
             candidate.ProgramActivationId == action.ProgramActivationId &&
@@ -324,6 +377,7 @@ public sealed partial class GameEngine
         var program = GetEnabledSkillProgram(owner, action.ProgramSkillId ??
             throw new InvalidOperationException("The program action has no skill identity."));
         var activation = program.Activations.Single(item => item.Id == action.ProgramActivationId);
+        PayProgramMarkerCost(owner, activation.MarkerCost, program.Id, activation.Id);
         if (activation.UsesPerGame is { } gameLimit)
         {
             if (!_skillRuntimeState.TryConsumeUsage(
@@ -342,12 +396,14 @@ public sealed partial class GameEngine
         }
         var key = (owner.Seat, program.Id, activation.UsageGroup);
         _programUses[key] = _programUses.GetValueOrDefault(key) + 1;
-        if (activation.UsesPerPhase is not null)
+        if (activation.UsesPerPhase is not null || activation.CardCountExpression is not null)
             _programPhaseUses[key] = _programPhaseUses.GetValueOrDefault(key) + 1;
         var frame = new ProgramSkillFrame(++_resolutionSequence, owner.Seat, program.Id, activation.Id,
             program.GameplayHash, 0, Array.AsReadOnly(cards.ToArray()), Array.AsReadOnly(targets.ToArray()))
         {
-            SkillInstanceId = GetRuntimeSkillInstanceId(owner, program.Id)
+            SkillInstanceId = GetRuntimeSkillInstanceId(owner, program.Id),
+            SelectedAllOwnerHandCards = activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.DrawAllHandSelectedBonus)
+                ? GetHand(owner).Count > 0 && GetHand(owner).All(card => cards.Contains(card.Id)) : null
         };
         _resolutionStack.Add(frame);
         QueueGameEvent(new ProgramSkillStartedEvent(frame.Id, owner.Seat, program.Id, activation.Id));
@@ -425,7 +481,7 @@ public sealed partial class GameEngine
             DyingContinuation.ProgramSkill);
         QueueGameEvent(new PlayerDyingEvent(id, victim.Seat, null));
         _status = EngineStatus.Running;
-        if (!TryBeginMandatorySelfDyingProgram(_pendingDying!)) ExposeHumanDyingPrompt();
+        if (!TryBeginMandatorySelfDyingProgram(_pendingDying!) && !TryBeginDyingEntryProgramWindow(_pendingDying!)) ExposeHumanDyingPrompt();
     }
 
     private SkillProgramStepOutcome BeginProgramSkillDamage(
@@ -513,7 +569,7 @@ public sealed partial class GameEngine
         var active = GetActiveProgramFrame(frame.Id);
         if (active.TriggerId is not null || active.OwnerSeat != frame.OwnerSeat ||
             active.SkillId != frame.SkillId ||
-            outputKind is not (CardKind.Slash or CardKind.ArrowBarrage) ||
+            outputKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.Peach or CardKind.ArrowBarrage) ||
             _resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id)
             throw new InvalidOperationException(
                 "A selected-card use requires the current active program activation.");
@@ -532,6 +588,13 @@ public sealed partial class GameEngine
             "The selected physical cards no longer satisfy the configured view-as rule.");
         if (outputKind == CardKind.ArrowBarrage)
             return UseProgramSelectedCardsAsGlobal(frame, selection);
+        if (outputKind == CardKind.Peach)
+        {
+            var rule = GetEnabledSkillProgram(owner, frame.SkillId).ViewAs.Single(item => item.Id == viewAsId);
+            ResolveRecoveryCard(owner, owner, selection.Cards[0], "桃", CardKind.Peach,
+                1 + rule.RecoveryBonus, conversionSource: source, physicalCards: selection.Cards);
+            return SkillProgramStepOutcome.AwaitChild;
+        }
         var target = _players.SingleOrDefault(player => player.Seat == targetSeat) ??
             throw new InvalidOperationException("The selected card-use target no longer exists.");
         if (!CanUseVirtualSlashTarget(owner, target))
@@ -673,7 +736,9 @@ public sealed partial class GameEngine
                     frame.CardSetBindings.Count ||
                 frame.CardSetBindings.Any(binding =>
                     binding.CardIds.Count != binding.SourceLocations.Count ||
-                    binding.CardIds.Distinct().Count() != binding.CardIds.Count) ||
+                    binding.CardIds.Distinct().Count() != binding.CardIds.Count ||
+                    plan.Instructions.Any(instruction => instruction is { FreezeMovedCardSuit: true } frozen && frozen.ResultBind == binding.Name) &&
+                    (binding.CardIds.Count != 1 || binding.FrozenRevealedSuit is not { } frozenSuit || !Enum.IsDefined(frozenSuit))) ||
                 frame.PindianResultBindings.Select(binding => binding.Name)
                     .Distinct(StringComparer.Ordinal).Count() != frame.PindianResultBindings.Count ||
                 frame.AttackRangeCoverageBindings.Select(binding => binding.Name)
@@ -716,12 +781,14 @@ public sealed partial class GameEngine
                 // A hand-exchange effect suspends its program behind the nested
                 // cards-moved trigger window opened by the exchanged cards.
                 var awaitsExchangedMovement =
-                    paidEffect?.Op == SkillProgramEffectOp.ExchangeSelectedTargetHands &&
+                    paidEffect?.Op is (SkillProgramEffectOp.ExchangeSelectedTargetHands or SkillProgramEffectOp.ExchangeSelectedTargetEquipment) &&
                     pendingMovement.CoverageResultBind is null &&
                     pendingMovement.SubjectSeat == frame.OwnerSeat;
                 if (!awaitsSelectedMovement && !awaitsRandomTransfer &&
                     !awaitsJudgmentClaim && !awaitsRepeatedJudgment && !awaitsOwnedMovement &&
-                    !awaitsExchangedMovement)
+                    !awaitsExchangedMovement && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
+                    !(paidEffect is { Op: SkillProgramEffectOp.MoveBoundCards, AwaitMovementTriggers: true } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
+                    !(paidEffect?.Op is SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamage && frame.DiscardChallenge is { } challenge && challenge.ChooserSeat == pendingMovement.SubjectSeat && pendingMovement.CoverageResultBind is null))
                     throw new InvalidOperationException("A movement continuation lost its paid instruction.");
             }
             foreach (var coverage in frame.AttackRangeCoverageBindings)
@@ -735,7 +802,9 @@ public sealed partial class GameEngine
 
             var executedSelection = plan.Instructions.Take(frame.InstructionIndex)
                 .LastOrDefault(effect => effect.Op is
-                    SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets);
+                    SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets or
+                    SkillProgramEffectOp.SelectChainedByMarker or SkillProgramEffectOp.SelectOneSelectedTarget or
+                    SkillProgramEffectOp.DamageFarthestCharacter or SkillProgramEffectOp.OfferCompletedCardGift);
             var awaitingCurrentSelection = executedSelection is not null &&
                 ReferenceEquals(executedSelection, plan.Instructions[frame.InstructionIndex - 1]) &&
                 ReferenceEquals(frame, _resolutionStack.LastOrDefault()) &&
@@ -746,16 +815,23 @@ public sealed partial class GameEngine
                     choice.Parameters.GetValueOrDefault("program-action") ==
                     (executedSelection.Op == SkillProgramEffectOp.SelectTarget
                         ? "select-target"
-                        : "select-targets"));
+                        : executedSelection.Op == SkillProgramEffectOp.SelectTargets ? "select-targets" :
+                            executedSelection.Op == SkillProgramEffectOp.DamageFarthestCharacter ? "advanced-lifecycle" : "strategic-choice"));
             var dynamicTargetsValid = executedSelection is null || executedSelection.Op switch
             {
+                SkillProgramEffectOp.OfferCompletedCardGift => frame.SelectedTargetSeats.Count == 0 && frame.CompletedCardGiftDraft?.RecipientSeat is null || IsValidCompletedGiftTargetSelection(frame),
                 SkillProgramEffectOp.SelectTarget =>
+                    frame.SelectedTargetSeats.Count == 1 || awaitingCurrentSelection && frame.SelectedTargetSeats.Count == 0,
+                SkillProgramEffectOp.DamageFarthestCharacter =>
                     frame.SelectedTargetSeats.Count == 1 || awaitingCurrentSelection && frame.SelectedTargetSeats.Count == 0,
                 SkillProgramEffectOp.SelectTargets =>
                     awaitingCurrentSelection && frame.SelectedTargetSeats.Count == 0 ||
                     frame.SelectedTargetSeats.Count >= executedSelection.MinimumTargets &&
                     frame.SelectedTargetSeats.Count <= executedSelection.MaximumTargets &&
                     frame.SelectedTargetSeats.Distinct().Count() == frame.SelectedTargetSeats.Count,
+                SkillProgramEffectOp.SelectChainedByMarker => frame.SelectedTargetSeats.Count <= _players.Count &&
+                    frame.SelectedTargetSeats.Distinct().Count() == frame.SelectedTargetSeats.Count,
+                SkillProgramEffectOp.SelectOneSelectedTarget => frame.SelectedTargetSeats.Count <= 1 || awaitingCurrentSelection,
                 _ => false
             };
             if (!dynamicTargetsValid)
@@ -767,8 +843,8 @@ public sealed partial class GameEngine
             {
                 var producer = plan.Instructions.Take(frame.InstructionIndex).SingleOrDefault(effect =>
                     (effect.Op is SkillProgramEffectOp.ChooseOption or SkillProgramEffectOp.ChooseDifferentCategoryDiscard or
-                        SkillProgramEffectOp.RequestSlashByTarget) &&
-                    effect.ResultBind == binding.Name);
+                        SkillProgramEffectOp.RequestSlashByTarget or SkillProgramEffectOp.RequestSlashAgainstChosenTarget) &&
+                    effect.ResultBind == binding.Name || effect.Op == SkillProgramEffectOp.OfferCompletedCardGift && binding.Name == CompletedGiftFactionResultBind && IsValidCompletedGiftTargetSelection(frame));
                 var validOption = producer?.Op switch
                 {
                     SkillProgramEffectOp.ChooseOption => producer.Options.Any(option => option.Id == binding.OptionId),
@@ -778,20 +854,34 @@ public sealed partial class GameEngine
                     SkillProgramEffectOp.RequestSlashByTarget => binding.OptionId is
                         RequestSlashByTargetProgramOperationDescriptor.UsedSlashOption or
                         RequestSlashByTargetProgramOperationDescriptor.DeclinedOption,
+                    SkillProgramEffectOp.RequestSlashAgainstChosenTarget => binding.OptionId is "used-slash" or "declined",
+                    SkillProgramEffectOp.OfferCompletedCardGift => binding.OptionId is "used-slash" or "declined",
                     _ => false
                 };
                 var chooserSeat = producer?.ChooserRef is { } producerChooser
                     ? ResolveProgramParticipant(frame, producerChooser)
+                    : producer?.Op == SkillProgramEffectOp.OfferCompletedCardGift ? frame.CompletedCardGiftDraft!.RecipientSeat!.Value
                     : producer is null ? -1 : ResolveProgramEffectTarget(frame, producer.Target);
                 if (producer is null || !validOption || binding.ChooserSeat != chooserSeat)
                     throw new InvalidOperationException("An active program choice does not match its committed producer.");
             }
             var paused = plan.Instructions[frame.InstructionIndex - 1];
+            if (ReferenceEquals(frame, _resolutionStack.LastOrDefault())) AssertProgramCompoundCardTarget(frame, paused);
+            AssertParticipantReserveDraft(frame, paused);
+            ValidateProgramDiscardChallengeState(frame);
+            AssertProgramDiscardTopPlacement(frame);
+            AssertStrategicProgramSelection(frame, paused);
             AssertProgramOwnedCardSelection(frame, paused);
             AssertProgramHoldCardSelection(frame, paused);
             AssertProgramRevealCardSelection(frame, paused);
             AssertProgramOwnedCardDistribution(frame, paused);
             AssertProgramAttackRangeAid(frame, paused);
+            AssertProgramVirtualSlashOffer(frame, paused);
+            if (!frame.CardSetBindings.Any(binding => binding.Name == paused.ResultBind))
+                AssertProgramEquipmentColorDiscardChoice(frame, paused);
+            AssertAssistedPhysicalCardDrafts(frame, paused);
+            AssertCompletedCardGiftDraft(frame, paused);
+            AssertCurrentCardEnhancementDraft(frame, paused);
             if (paused.Op == SkillProgramEffectOp.ChooseOption && ReferenceEquals(frame, _resolutionStack.LastOrDefault()) &&
                 !frame.ChoiceBindings.Any(binding => binding.Name == paused.ResultBind) &&
                 (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } choiceDecision ||
@@ -841,6 +931,10 @@ public sealed partial class GameEngine
             if (activation is null ||
                 frame.SelectedCardIds.Count < activation.MinCards ||
                 frame.SelectedCardIds.Count > activation.MaxCards ||
+                frame.SelectedCardIds.Any(id => !CanSelectProgramActivationCard(activation,
+                    _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(card => card.Id == id))) ||
+                activation.CardCountExpression is not null && frame.SelectedCardIds.Count !=
+                    _programPhaseUses.GetValueOrDefault((frame.OwnerSeat, frame.SkillId, activation.UsageGroup)) ||
                 executedSelection is null &&
                 (frame.SelectedTargetSeats.Count < activation.MinTargets ||
                  frame.SelectedTargetSeats.Count > activation.MaxTargets))

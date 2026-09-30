@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:xuanfeng",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "triggers": [
+        {
+          "id": "equipment-left-discard",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": ["equipment"],
+          "movementOccurrence": "perBatch",
+          "optional": true,
+          "effects": [
+            { "op": "chooseOtherOwnedCardDiscard", "target": "owner", "chooserRef": { "kind": "owner" }, "zones": ["hand", "equipment"] },
+            { "op": "chooseOtherOwnedCardDiscard", "target": "owner", "chooserRef": { "kind": "owner" }, "zones": ["hand", "equipment"] }
+          ]
+        },
+        {
+          "id": "discard-phase-discard",
+          "window": "discardPhaseEnded",
+          "turnOwnerScope": "own",
+          "allowOwnDiscardPhaseEnded": true,
+          "subject": "owner",
+          "optional": true,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "turnOwnerDiscardPhaseHandDiscardCount" },
+            "operator": "greaterThanOrEqual",
+            "right": { "kind": "integerConstant", "value": 2 }
+          },
+          "effects": [
+            { "op": "chooseOtherOwnedCardDiscard", "target": "owner", "chooserRef": { "kind": "owner" }, "zones": ["hand", "equipment"] },
+            { "op": "chooseOtherOwnedCardDiscard", "target": "owner", "chooserRef": { "kind": "owner" }, "zones": ["hand", "equipment"] }
+          ]
+        }
+      ]
+    }
+  ]
+}

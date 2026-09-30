@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:mingce": {
+      "name": "明策",
+      "description": "出牌阶段限一次，你可以交给一名其他角色一张【杀】或装备牌，然后其选择一项：1.视为对其攻击范围内你选择的另一名角色使用一张【杀】；2.摸一张牌。",
+      "activationLabels": {
+        "offer-command": "明策"
+      }
+    },
+    "classic:zhichi": {
+      "name": "智迟",
+      "description": "锁定技，当你于回合外受到伤害后，本回合【杀】和普通锦囊牌对你无效。"
+    }
+  }
+}

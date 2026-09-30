@@ -2,6 +2,7 @@ using CardGame.Content.Standard;
 using CardGame.Core;
 
 internal sealed record QinglongCrescentBladeBoundary(
+    ContentRegistry Registry,
     GameEngine Game,
     GameCheckpoint BeforeSlash,
     LegalAction SlashAction,
@@ -12,8 +13,14 @@ internal static class QinglongCrescentBladeScenario
 {
     public static QinglongCrescentBladeBoundary FindHumanTrigger(bool requireFactionSlash = false)
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        for (var seed = 1; seed <= 32_768; seed++)
+        var registry = requireFactionSlash
+            ? ContentRegistry.Build(new StandardContentPackage(),
+                new StandardActiveSkillExpansionPackage(includeJijiu: true),
+                new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(),
+                new FactionFollowupScenarioPackage())
+            : StandardContentRegistry.CreateWithClassicGenerals();
+        var maxSeeds = requireFactionSlash ? 128 : 32_768;
+        for (var seed = 1; seed <= maxSeeds; seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {
@@ -21,7 +28,7 @@ internal static class QinglongCrescentBladeScenario
                 HumanSeat = 0,
                 HumanRole = Role.Lord,
                 PlayerCount = 5,
-                ModeId = "identity:classic-5",
+                ModeId = requireFactionSlash ? "identity:classic-qinglong-faction-5" : "identity:classic-5",
                 UseInteractiveSetup = true,
                 UseInteractiveDiscard = false,
                 AdvanceAfterHumanCommands = false,
@@ -152,6 +159,7 @@ internal static class QinglongCrescentBladeScenario
                     }
 
                     return new QinglongCrescentBladeBoundary(
+                        registry,
                         game,
                         beforeSlash,
                         slash.Action,
@@ -181,11 +189,34 @@ internal static class QinglongCrescentBladeScenario
             player.Seat != 0 &&
             player.Seat != targetSeat &&
             player.Role is Role.Loyalist or Role.Renegade &&
-            string.Equals(registry.Generals[player.GeneralId].FactionId, "shu", StringComparison.Ordinal) &&
+            string.Equals(player.FactionId ?? registry.Generals[player.GeneralId].FactionId,
+                "shu", StringComparison.Ordinal) &&
             (player.Hand.Any(card => card.Kind is
                  CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) ||
              player.Equipment.Any(card => card.Kind == CardKind.ZhangbaSerpentSpear) &&
              player.Hand.Count >= 2));
+
+    private sealed class FactionFollowupScenarioPackage : IGameContentPackage
+    {
+        public PackageManifest Manifest { get; } = new("qinglong-faction-scenario", new Version(1, 0, 0),
+            [new PackageDependency("standard-classic-generals", new Version(1, 0, 0))]);
+
+        public void Register(IContentRegistryBuilder builder)
+        {
+            builder.AddDeck(new ContentDeckRecipe("qinglong-faction-scenario:deck", "青龙激将场景牌堆", 4, 2,
+                [new ContentDeckCardCount("classic:qinglong-crescent-blade", 8),
+                    new ContentDeckCardCount("standard:slash", 24),
+                    new ContentDeckCardCount("standard:dodge", 28)]));
+            builder.AddMode(new ContentModeDefinition("identity:classic-qinglong-faction-5", "青龙激将场景", 5, 5,
+                new Dictionary<string, int>
+                {
+                    [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1,
+                    [nameof(Role.Rebel)] = 2, [nameof(Role.Renegade)] = 1
+                }, "qinglong-faction-scenario:deck", GeneralCandidateCount: 5,
+                GeneralPoolIds: ["classic:liu-bei", "classic:guan-yu", "classic:zhang-fei",
+                    "classic:huang-yueying", "classic:lu-xun"]));
+        }
+    }
 
     private static void Require(bool value, string message)
     {

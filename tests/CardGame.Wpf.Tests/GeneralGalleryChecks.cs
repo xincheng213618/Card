@@ -35,6 +35,10 @@ internal static class GeneralGalleryChecks
                 $"{id} has an incorrect gallery expansion.");
         Program.Assert(GeneralGalleryCatalog.Classify("classic:unclassified-future-general").Id == "other",
             "A new unknown general was silently presented as a standard general.");
+        var olGods = vm.GeneralGalleryEntries.Where(entry => entry.GeneralId.StartsWith("ol:shen-", StringComparison.Ordinal)).ToArray();
+        Program.Assert(olGods.Length == 14 && olGods.All(entry => entry.GroupId == "god" && GeneralArt.HasPortrait(entry.GeneralId)) &&
+                       vm.GeneralGalleryEntries.Single(entry => entry.GeneralId == "ol:shen-gan-ning").HealthText == "3/6 体力",
+            "All current OL definitions require god grouping, portraits, and Gan Ning's distinct initial/maximum HP.");
         var simaYi = vm.GeneralGalleryEntries.Single(entry => entry.GeneralId == "boundary:sima-yi");
         Program.Assert(simaYi.Kingdom == "魏" && simaYi.SkillDescription.Contains("反馈") &&
                        simaYi.SkillDescription.Contains("鬼才") &&
@@ -55,8 +59,27 @@ internal static class GeneralGalleryChecks
                        quYi.SkillDescription.Contains("骄恣") && GeneralArt.HasPortrait(quYi.GeneralId),
             "Qu Yi needs both skills and his own official portrait in the other-expansion gallery.");
 
+        foreach (var generalId in new[] { "classic:zhang-chun-hua", "classic:ling-tong", "classic:chen-gong", "classic:wu-guo-tai", "classic:fa-zheng", "classic:ma-su" })
+        {
+            var entry = vm.GeneralGalleryEntries.Single(item => item.GeneralId == generalId);
+            Program.Assert(entry.GroupId == "fame-1" && GeneralArt.HasPortrait(generalId),
+                $"{generalId} must be visible in Fame I with its official portrait.");
+        }
+
         Program.Render(root, 1440, 880, Path.Combine(output, "140-gallery-all.png"));
+        foreach (var generalId in new[] { "classic:li-ru", "classic:liu-feng", "classic:jian-yong", "classic:yu-fan", "classic:zhu-ran" })
+        {
+            var entry = vm.GeneralGalleryEntries.Single(item => item.GeneralId == generalId);
+            Program.Assert(entry.GroupId == "fame-3" && GeneralArt.HasPortrait(generalId),
+                $"{generalId} must be visible in Fame III with its official portrait.");
+        }
         var panel = (GeneralGalleryPanel)window.FindName("GeneralGallery");
+        foreach (var generalId in new[] { "classic:cao-zhen", "classic:han-hao-shi-huan", "classic:chen-qun", "classic:wu-yi", "classic:zhou-cang", "classic:sun-lu-ban" })
+        {
+            var entry = vm.GeneralGalleryEntries.Single(item => item.GeneralId == generalId);
+            Program.Assert(entry.GroupId == "fame-4" && GeneralArt.HasPortrait(generalId),
+                $"{generalId} must appear in Fame IV with its official portrait.");
+        }
         panel.RaiseEvent(new RoutedEventArgs(FrameworkElement.LoadedEvent));
         var scroller = (ScrollViewer)panel.FindName("GalleryScroller");
         scroller.ScrollToBottom();
@@ -105,6 +128,7 @@ internal static class GeneralGalleryChecks
                            .SequenceEqual(Enumerable.Range(1, 7).Select(index => $"fame-{index}")),
             "Fame must keep all seven numbered groups, including currently empty groups.");
         vm.SelectGeneralGalleryGroupCommand.Execute("fame-3");
+        Program.Render(root, 1440, 880, Path.Combine(output, "148-gallery-fame-three.png"));
         var fullFameThreeIds = vm.GeneralGalleryEntries.Select(entry => entry.GeneralId).ToHashSet();
         vm.SelectGeneralGalleryFactionCommand.Execute("wei");
         Program.Assert(vm.GeneralGalleryEntries.Select(entry => entry.GeneralId).ToHashSet()
@@ -116,6 +140,10 @@ internal static class GeneralGalleryChecks
         Program.Assert(vm.SelectedGeneralGallerySeries == "fame" && vm.SelectedGeneralGalleryGroup == "fame-3" &&
                        vm.GeneralGalleryEntries.Select(entry => entry.GeneralId).ToHashSet().SetEquals(fullFameThreeIds),
             "Clearing search should preserve the active series and pack and restore every member.");
+        vm.SelectGeneralGalleryGroupCommand.Execute("fame-4");
+        Program.Render(root, 1440, 880, Path.Combine(output, "149-gallery-fame-four.png"));
+        Program.Assert(vm.GeneralGalleryEntries.Count == 10 && vm.GeneralGalleryEntries.All(entry => entry.GroupId == "fame-4"),
+            "Fame IV must show all ten registered generals in its own group.");
         vm.SelectGeneralGalleryGroupCommand.Execute("fame-7");
         Program.Render(root, 1120, 740, Path.Combine(output, "145-gallery-fame-seven.png"));
         Program.Assert(vm.GeneralGalleryGroups is [{ IsEmpty: true, Id: "fame-7" }] && vm.GeneralGalleryEntries.Count == 0,
@@ -123,13 +151,13 @@ internal static class GeneralGalleryChecks
         vm.SelectGeneralGallerySeriesCommand.Execute("boundary-fame");
         Program.Assert(vm.GeneralGalleryGroups is [{ IsEmpty: false, Id: "boundary-fame" }] &&
                        vm.GeneralGalleryEntries.Select(entry => entry.GeneralId).ToHashSet()
-                           .SetEquals(["boundary:xu-sheng", "boundary:zhang-song"]),
+                           .SetEquals(["boundary:xu-sheng", "boundary:zhang-song", "boundary:ju-shou"]),
             "Boundary Fame lists exactly its registered boundary-fame members.");
         vm.SelectGeneralGallerySeriesCommand.Execute("god");
         vm.SelectGeneralGalleryFactionCommand.Execute("god");
         Program.Render(root, 1120, 740, Path.Combine(output, "147-gallery-god.png"));
         Program.Assert(vm.GeneralGalleryEntries.Select(entry => entry.GeneralId).ToHashSet()
-                           .SetEquals(["classic:shen-guan-yu", "classic:shen-sima-yi", "classic:shen-lu-meng", "classic:shen-cao-cao"]) &&
+                           .SetEquals(allIds.Where(id => GeneralGalleryCatalog.Classify(id).SeriesId == "god")) &&
                        vm.GeneralGalleryEntries.All(entry => entry.Kingdom == "神"),
             "God generals must be discoverable by the god faction filter without changing Core factions.");
 

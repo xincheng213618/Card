@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:yizhao",
+      "revision": 1,
+      "minimumRulesVersion": 186,
+      "triggers": [
+        {
+          "id": "used-card-rank",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "accumulateCardRank",
+              "target": "owner",
+              "marker": "huang"
+            }
+          ]
+        },
+        {
+          "id": "responded-card-rank",
+          "window": "cardResponseAccepted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "accumulateCardRank",
+              "target": "owner",
+              "marker": "huang"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:sijun",
+      "revision": 1,
+      "minimumRulesVersion": 186,
+      "triggers": [
+        {
+          "id": "exact-thirty-six",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "obtainDeckRankSum",
+              "target": "owner",
+              "marker": "huang",
+              "maximumRankSum": 36
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:tianjie",
+      "revision": 1,
+      "minimumRulesVersion": 186,
+      "triggers": [
+        {
+          "id": "shuffle-thunder",
+          "window": "turnEnding",
+          "turnOwnerScope": "otherLiving",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "damageAfterDeckShuffle",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "shuffle-thunder-own",
+          "window": "turnEnding",
+          "turnOwnerScope": "own",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "damageAfterDeckShuffle",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

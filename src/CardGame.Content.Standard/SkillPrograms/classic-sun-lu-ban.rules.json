@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:zenhui", "revision": 1, "minimumRulesVersion": 190,
+      "triggers": [{
+        "id": "single-target-role-choice", "window": "cardUseTargetsFinalized", "ownerRelation": "actor", "optional": true,
+        "cardKinds": ["slash", "fireSlash", "thunderSlash", "duel", "drawTwo", "barbarianAssault", "arrowBarrage", "peachGarden", "fiveGrains", "dismantlement", "snatch", "fireAttack", "ironChain", "borrowedSword"],
+        "usageScope": "phase", "usageLimit": 1,
+        "condition": { "kind": "all", "children": [
+          { "kind": "cardActionPhaseIsPlay" },
+          { "kind": "cardActionActorIsCurrentTurn" },
+          { "kind": "compare", "left": { "kind": "cardUseDesignatedTargetCount" }, "operator": "equal", "right": { "kind": "integerConstant", "value": 1 } },
+          { "kind": "any", "children": [{ "kind": "cardActionCategoryIs", "categories": ["basic"] }, { "kind": "cardActionCardIsBlack" }] }
+        ] },
+        "effects": [
+          { "op": "selectTarget", "target": "owner", "targetKind": "otherLegalCurrentCardTarget" },
+          { "op": "chooseOption", "target": "selectedTarget", "resultBind": "role-choice", "options": [
+            { "id": "become-user", "condition": { "kind": "any", "children": [{ "kind": "handCountAtLeast", "value": 1 }, { "kind": "hasOwnedCardCategory", "zones": ["equipment"], "cardCategories": ["equipment"] }] } },
+            { "id": "extra-target" }
+          ] },
+          { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "selectedTarget" }, "cardOwnerRef": { "kind": "selectedTarget" }, "zones": ["hand", "equipment"], "count": 1, "destination": "ownerHand", "awaitMovementTriggers": true,
+            "condition": { "kind": "choiceIs", "sourceBind": "role-choice", "optionId": "become-user" } },
+          { "op": "replaceCurrentCardUseActor", "target": "selectedTarget", "condition": { "kind": "choiceIs", "sourceBind": "role-choice", "optionId": "become-user" } },
+          { "op": "addCurrentCardUseTarget", "target": "selectedTarget", "condition": { "kind": "choiceIs", "sourceBind": "role-choice", "optionId": "extra-target" } }
+        ]
+      }]
+    },
+    {
+      "id": "classic:jiaojin", "revision": 1, "minimumRulesVersion": 190,
+      "triggers": [{
+        "id": "equipment-reduce-male-damage", "window": "beforeDamageApplied", "subject": "damageTarget", "optional": true,
+        "condition": { "kind": "damageSourceGenderIs", "gender": "male" },
+        "effects": [
+          { "op": "selectOwnedCards", "target": "owner", "zones": ["hand", "equipment"], "minimumCards": 1, "maximumCards": 1, "resultBind": "equipment-cost",
+            "cardKinds": ["crossbow", "baguaFormation", "renwangShield", "offensiveHorse", "defensiveHorse", "jadeSeal", "qinggangSword", "stoneAxe", "zhangbaSerpentSpear", "cixiongDoubleSwords", "qinglongCrescentBlade", "iceSword", "qilinBow", "fangtianHalberd", "gudingBlade", "zhuqueFan", "tengjia", "silverLion", "woodenOx", "dawan", "zixing", "dilu", "zhaohuangfeidian", "hualiu", "ghostDragonCrescentBlade", "scarletBloodSword", "xingtianAxe", "redBloodBlade", "generalWeapon"] },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "equipment-cost", "destination": "discardPile", "awaitMovementTriggers": true },
+          { "op": "reduceCurrentDamage", "target": "owner", "amount": 1 }
+        ]
+      }]
+    }
+  ]
+}

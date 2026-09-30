@@ -1,0 +1,11 @@
+{"schemaVersion":62,"skills":[
+ {"id":"ol:shenyu","revision":1,"minimumRulesVersion":186,"triggers":[
+  {"id":"slash-and-place-blade","window":"playPhaseStarting","subject":"owner","optional":true,"priority":0,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLiving"},{"op":"useVirtualCard","target":"selectedTarget","outputKind":"slash","useCardActionWindows":true,"targetRestriction":"distanceUnlimitedAgainstTarget"},{"op":"placeNamedWeapon","target":"selectedTarget","outputKind":"redBloodBlade"}]},
+  {"id":"reclaim-blade-own-turn","window":"turnEnding","subject":"owner","optional":true,"priority":0,"effects":[{"op":"reclaimNamedWeapon","target":"owner","outputKind":"redBloodBlade"}]},
+  {"id":"reclaim-blade-other-turn","window":"turnEnding","turnOwnerScope":"otherLiving","subject":"owner","optional":true,"priority":0,"effects":[{"op":"reclaimNamedWeapon","target":"owner","outputKind":"redBloodBlade"}]}
+ ]},
+ {"id":"ol:huaren","revision":1,"minimumRulesVersion":186,"triggers":[
+  {"id":"permanently-inherit-weapon","window":"turnStartBeforeNormalFlow","subject":"owner","optional":true,"priority":0,"usageScope":"game","usageLimit":1,"effects":[{"op":"inheritWeapon","target":"owner"}]}
+ ]}
+]}
+

@@ -646,6 +646,8 @@ internal sealed class TurnCardUseEffectStore
                 item.ActionTypes.Distinct().Count() != item.ActionTypes.Count) ||
             _handColorRestrictions.Any(item => item.AffectedSeat < 0) ||
             _ruleModifiers.Any(item =>
+                item.Query == SkillRuleQuery.OutgoingDistance &&
+                    (item.Operation != SkillRuleOperation.Add || item.Amount is < -20 or > 20 || item.Amount == 0 || item.CardKinds is { Count: > 0 }) ||
                 item.Query == SkillRuleQuery.SlashLimit &&
                     (item.Operation != SkillRuleOperation.Add || item.Amount <= 0) ||
                 item.Query == SkillRuleQuery.SlashDistanceLimit &&
@@ -656,8 +658,11 @@ internal sealed class TurnCardUseEffectStore
                     (item.Operation != SkillRuleOperation.Add || item.Amount <= 0 ||
                      item.CardKinds is not { Count: > 0 } cardKinds ||
                      cardKinds.Distinct().Count() != cardKinds.Count) ||
+                item.Query == SkillRuleQuery.CardEffectImmunity &&
+                    (item.Operation != SkillRuleOperation.Set || item.Amount != 1 || item.CardKinds is not { Count: > 0 } ||
+                     item.CardKinds.Any(kind => !GrantTurnCardEffectImmunityProgramOperationDescriptor.CardEffectImmunityKinds.Contains(kind))) ||
                 item.Query is not (SkillRuleQuery.SlashLimit or SkillRuleQuery.SlashDistanceLimit or
-                    SkillRuleQuery.AttackRange or SkillRuleQuery.CardTargetCount)) ||
+                    SkillRuleQuery.AttackRange or SkillRuleQuery.CardTargetCount or SkillRuleQuery.CardEffectImmunity or SkillRuleQuery.OutgoingDistance)) ||
             _targetRestrictions.Any(item => item.Restriction == SkillProgramCardTargetRestriction.SelfOnly
                 ? item.TargetSeat is not null
                 : item.TargetSeat is null or < 0) ||

@@ -6,10 +6,11 @@ public sealed partial class GameEngine
         [CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash];
 
     private bool HasCardDistanceExemption(CharacterState actor, CharacterState target, CardKind kind) =>
-        HasDirectedTurnCardPolicy(actor.Seat, target.Seat, kind, DirectedTurnCardPolicyEffect.IgnoreDistance);
+        HasNextUnlimitedCard(actor) || HasDirectedTurnCardPolicy(actor.Seat, target.Seat, kind, DirectedTurnCardPolicyEffect.IgnoreDistance);
 
     private bool HasCardArmorBypass(CharacterState actor, CharacterState target, CardKind kind) =>
         HasArmorBypass(actor) ||
+        IsArmorIneffectiveForTurn(target) ||
         HasDirectedTurnCardPolicy(actor.Seat, target.Seat, kind, DirectedTurnCardPolicyEffect.IgnoreArmor);
 
     private bool HasDirectedCardArmorBypass(long resolutionId, int targetSeat)
@@ -28,7 +29,8 @@ public sealed partial class GameEngine
             (kinds ?? SlashKinds).Any(kind =>
                 !IsCardUseForbidden(actor.Seat, kind, CardActionType.Use) &&
                 !IsDirectedCardTargetProhibited(actor.Seat, target.Seat, kind) &&
-                CanSpendSlashUse(actor, target, ignoresCount: false, kind)));
+                (CanSpendSlashUse(actor, target, ignoresCount: false, kind) ||
+                 GetHand(actor).Any(card => BypassesSlashLimitBySuit(actor, card, kind)))));
 
     private bool CanUseGlobalCard(CharacterState actor, CardKind kind) =>
         GetDeclaredGlobalCardTargets(actor, kind).All(target =>

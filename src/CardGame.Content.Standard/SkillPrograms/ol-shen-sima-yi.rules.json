@@ -1,0 +1,440 @@
+{
+  "skills": [
+    {
+      "id": "ol:renjie",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "damage-ren",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "changeAttributedMarker",
+              "target": "owner",
+              "targetRef": {
+                "kind": "owner"
+              },
+              "marker": "ren",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "discard-ren",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perCard",
+          "movementReasons": [
+            "rule.hand-limit-discard"
+          ],
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "changeAttributedMarker",
+              "target": "owner",
+              "targetRef": {
+                "kind": "owner"
+              },
+              "marker": "ren",
+              "amount": 1
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "ol:baiyin",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "awakening",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "ownerAttributedMarkerCount",
+              "marker": "ren"
+            },
+            "operator": "greaterThanOrEqual",
+            "right": {
+              "kind": "integerConstant",
+              "value": 4
+            }
+          },
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": -1
+            },
+            {
+              "op": "grantSkills",
+              "target": "owner",
+              "skillIds": [
+                "ol:jilue"
+              ]
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "ol:lianpo",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "triggers": [
+        {
+          "id": "kill-extra-turn-own",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "condition": {
+            "kind": "ownerKilledThisTurn"
+          },
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "pendExtraTurn",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "kill-extra-turn-otherLiving",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": true,
+          "condition": {
+            "kind": "ownerKilledThisTurn"
+          },
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "pendExtraTurn",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:jilue",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "activations": [
+        {
+          "id": "exchange-owned-cards",
+          "minCards": 1,
+          "maxCards": null,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "captureSelectedCards",
+              "target": "owner",
+              "resultBind": "exchange-cards"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "exchange-cards",
+              "destination": "discardPile"
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "boundCardCount",
+              "sourceBind": "exchange-cards"
+            },
+            {
+              "op": "drawAllHandSelectedBonus",
+              "target": "owner",
+              "amount": 1
+            }
+          ],
+          "markerCost": {
+            "marker": "ren",
+            "amount": 1
+          }
+        },
+        {
+          "id": "turn-wansha",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": 1,
+          "markerCost": {
+            "marker": "ren",
+            "amount": 1
+          },
+          "effects": [
+            {
+              "skillIds": [
+                "ol:jilue-wansha"
+              ],
+              "op": "grantTurnSkills",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "replace-judgment",
+          "window": "judgmentReplacing",
+          "subject": "any",
+          "excludedReasons": [],
+          "optional": true,
+          "effects": [
+            {
+              "op": "replaceJudgment",
+              "target": "owner",
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "suits": [
+                "spade",
+                "club",
+                "heart",
+                "diamond"
+              ],
+              "oldCardDestination": "discardPile"
+            }
+          ],
+          "markerCost": {
+            "marker": "ren",
+            "amount": 1
+          }
+        },
+        {
+          "id": "injury-exile",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "turnOver",
+              "target": "selectedTarget"
+            },
+            {
+              "op": "draw",
+              "target": "selectedTarget",
+              "numberExpression": "ownerLostHp"
+            }
+          ],
+          "markerCost": {
+            "marker": "ren",
+            "amount": 1
+          }
+        },
+        {
+          "id": "trick-used",
+          "window": "cardUseBeforeTargetEffects",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "duel",
+            "drawTwo",
+            "barbarianAssault",
+            "arrowBarrage",
+            "peachGarden",
+            "fiveGrains",
+            "dismantlement",
+            "snatch",
+            "fireAttack",
+            "ironChain",
+            "borrowedSword"
+          ],
+          "optional": true,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "resultBind": "drawn"
+            },
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "draw-disposition",
+              "options": [
+                {
+                  "id": "keep",
+                  "condition": {
+                    "kind": "always"
+                  }
+                },
+                {
+                  "id": "discard",
+                  "condition": {
+                    "kind": "boundCardsMatchCategories",
+                    "sourceBind": "drawn",
+                    "cardCategories": [
+                      "basic"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "drawn",
+              "destination": "discardPile",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "draw-disposition",
+                "optionId": "discard"
+              }
+            },
+            {
+              "op": "grantTurnRuleModifier",
+              "target": "owner",
+              "ruleQuery": "handLimit",
+              "ruleOperation": "add",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "draw-disposition",
+                "optionId": "discard"
+              }
+            }
+          ],
+          "markerCost": {
+            "marker": "ren",
+            "amount": 1
+          }
+        },
+        {
+          "id": "nullification-responded",
+          "window": "cardResponseAccepted",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "nullification"
+          ],
+          "optional": true,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "resultBind": "drawn"
+            },
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "draw-disposition",
+              "options": [
+                {
+                  "id": "keep",
+                  "condition": {
+                    "kind": "always"
+                  }
+                },
+                {
+                  "id": "discard",
+                  "condition": {
+                    "kind": "boundCardsMatchCategories",
+                    "sourceBind": "drawn",
+                    "cardCategories": [
+                      "basic"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "drawn",
+              "destination": "discardPile",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "draw-disposition",
+                "optionId": "discard"
+              }
+            },
+            {
+              "op": "grantTurnRuleModifier",
+              "target": "owner",
+              "ruleQuery": "handLimit",
+              "ruleOperation": "add",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "draw-disposition",
+                "optionId": "discard"
+              }
+            }
+          ],
+          "markerCost": {
+            "marker": "ren",
+            "amount": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "ol:jilue-wansha",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "cardPolicies": [
+        {
+          "kind": "exclusiveDyingPeachRescue",
+          "id": "exclusive-peach-rescue",
+          "cardKinds": [
+            "peach"
+          ]
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 62
+}

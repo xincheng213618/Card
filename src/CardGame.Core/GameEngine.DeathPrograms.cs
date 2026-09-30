@@ -21,7 +21,7 @@ public sealed partial class GameEngine
         else if (targetReference.Kind == ProgramParticipantRef.Owner)
         {
             if (active.WindowContext is not
-                { Window: SkillProgramTriggerWindow.AfterDamageApplied or
+                { Window: SkillProgramTriggerWindow.GameStarting or SkillProgramTriggerWindow.AfterDamageApplied or
                     SkillProgramTriggerWindow.CardsMoved } || amount is < 1 or > 20)
                 throw new InvalidOperationException(
                     "Owner-attributed marker mutation requires an after-damage or card-movement trigger.");

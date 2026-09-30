@@ -313,7 +313,8 @@ public sealed partial class MainViewModel
                 action.EquipmentKind == _selectedEquipmentEffectKind &&
                 action.ProgramSkillId == _selectedProgramSkillId &&
                 action.ProgramActivationId == _selectedProgramActivationId &&
-                action.ProgramSkillOwnerSeat == _selectedProgramSkillOwnerSeat)
+                action.ProgramSkillOwnerSeat == _selectedProgramSkillOwnerSeat &&
+                (_selectedActiveSkillTargetContract is null || action.TargetSeats.SequenceEqual(_selectedActiveSkillTargetContract)))
             : HumanActiveSkillActions.FirstOrDefault();
     private bool IsActiveSkillCardSelectionPending =>
         _isSelectingActiveSkillCards &&
@@ -615,6 +616,7 @@ public sealed partial class MainViewModel
         _selectedProgramSkillId = null;
         _selectedProgramActivationId = null;
         _selectedProgramSkillOwnerSeat = null;
+        _selectedActiveSkillTargetContract = null;
         _isSelectingActiveSkillCards = false;
         foreach (var card in Hand) card.IsSelected = false;
         SelectedCardText = "未选择手牌";

@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀OL",
+  "retrievedAt": "2026-09-30",
+  "batch": "一将成名2011缺口第一批",
+  "roster": [
+    {
+      "contentId": "classic:zhang-chun-hua",
+      "officialId": 161,
+      "name": "张春华",
+      "maxHp": 3,
+      "faction": "wei",
+      "gender": "female",
+      "sourcePage": "https://www.sanguosha.com/hero/161",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-zhang-chun-hua.png",
+        "sha256": "938310AC7FC292B96A642BC206510B70525FE12CF59AFAC2CCD84BACEC4183FF",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/16100.png"
+      },
+      "officialSkillText": "锁定技，你即将造成的伤害视为失去体力。 当你的手牌数小于X后，你可以将手牌摸至X张。（X为你已损失体力值）"
+    },
+    {
+      "contentId": "classic:ling-tong",
+      "officialId": 155,
+      "name": "凌统",
+      "maxHp": 4,
+      "faction": "wu",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/155",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-ling-tong.png",
+        "sha256": "FDF8774B5BEE75B9E9A6EC150325BC10D58483A5F3E2D414441D8EF8E22730F5",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/15500.png"
+      },
+      "officialSkillText": "当你于弃牌阶段弃置过至少两张牌，或失去装备区里的牌后，你可以弃置至多两名其他角色共计至多两张牌。"
+    },
+    {
+      "contentId": "classic:chen-gong",
+      "officialId": 153,
+      "name": "陈宫",
+      "maxHp": 3,
+      "faction": "qun",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/153",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-chen-gong.png",
+        "sha256": "BED000E77C55E56C7AEA1ACD899471024F82F5FCB51E2635260305CAF11276D5",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/15300.png"
+      },
+      "officialSkillText": "出牌阶段限一次，你可以交给一名其他角色一张〖杀〗或装备牌，然后其选择一项：1.视为对其攻击范围内你选择的另一名角色使用一张〖杀〗；2.摸一张牌。 锁定技，当你于回合外受到伤害后，本回合〖杀〗和普通锦囊牌对你无效。"
+    },
+    {
+      "contentId": "classic:wu-guo-tai",
+      "officialId": 157,
+      "name": "吴国太",
+      "maxHp": 3,
+      "faction": "wu",
+      "gender": "female",
+      "sourcePage": "https://www.sanguosha.com/hero/157",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-wu-guo-tai.png",
+        "sha256": "2DD475EB68AAF83A8085BD4C6B6788A420F1F69C4D52F0280CFBF95352CD5EF6",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/15700.png"
+      },
+      "officialSkillText": "出牌阶段限一次，你可以交换两名角色装备区里的牌（两者装备区里牌数之差不大于你已损失体力值，且牌数之和不小于1）。 当一名角色进入濒死状态时，你可以展示其一张手牌，若为非基本牌，其弃置之并回复1点体力。"
+    }
+  ],
+  "additionalSources": [
+    {
+      "url": "https://www.sanguosha.com/news/20161101_5386_2619",
+      "skill": "classic:jueqing",
+      "use": "伤害替换与武器、防具、属性连环交互"
+    },
+    {
+      "url": "https://x.sanguosha.com/hero/297.html",
+      "skill": "classic:mingce",
+      "use": "攻击范围没有合法目标时只能摸牌"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20170619_5564_1015",
+      "skill": "classic:ganlu",
+      "use": "装备交换的非空限制及辅助定位"
+    }
+  ],
+  "editionNotes": [
+    "只新增当前官网普通版本；不静默替换已有界限突破或国战版本。",
+    "未变更规则时代、JSON架构或内容包版本。"
+  ],
+  "interpretationNotes": [
+    {
+      "limitation": "官网技能正文未明确他人暗手牌的选牌方式；当前按盲取解释实现并验证隐私。",
+      "skill": "classic:buyi",
+      "implementation": "本人选择自己的手牌；其他角色手牌按不公开身份的随机单张展示，不公开完整手牌。"
+    },
+    {
+      "limitation": "官网正文没有覆盖本项目生成武器、多武器及废除栏的组合；以下边界沿用共享装备规则，已用原子交换、逐批旋风、逐牌枭姬及回放检查验证。",
+      "skill": "classic:ganlu",
+      "implementation": "交换整批装备；离区生成武器销毁，目标废除栏及超容量装备按确定顺序弃置。"
+    },
+    {
+      "limitation": "当前官网武将正文未单独解释负体力时的已损失体力值。本批沿用项目共享计算：负体力按0计算，已损失体力值最多等于体力上限。",
+      "skill": "classic:shangshi",
+      "implementation": "体力变化、实际手牌使用或响应、失去或获得手牌后按当时牌数补齐；濒死进入时先处理补牌再进入普通救援，可使用刚摸到的桃。"
+    }
+  ]
+}

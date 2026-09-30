@@ -12,7 +12,7 @@ public sealed record PindianResult(
         seat == OpponentSeat ? OpponentCardId : throw new ArgumentOutOfRangeException(nameof(seat));
 }
 
-public enum PindianStep { ChooseParticipants, ChooseSourceCard, ChooseOpponentCard }
+public enum PindianStep { ChooseParticipants, ChooseSourceCard, ChooseOpponentCard, ClaimResult = 780 }
 
 /// <summary>Trusted-host data only. It is not included in player snapshots.</summary>
 public sealed record PindianFrame(
@@ -23,7 +23,9 @@ public sealed record PindianFrame(
     string? ProgramResultBind = null,
     SkillProgramCardSetVisibility ProgramResultVisibility = SkillProgramCardSetVisibility.Public,
     IReadOnlyList<int>? ParentProcessingCardIds = null,
-    ResolutionFrameStep Step = ResolutionFrameStep.AwaitingResponse)
+    ResolutionFrameStep Step = ResolutionFrameStep.AwaitingResponse,
+    IReadOnlyList<int>? ClaimSeats = null,
+    int ClaimIndex = 0)
     : ResolutionFrame(Id, ResolutionFrameKind.Pindian, Step);
 
 public sealed record PindianResultDeterminedEvent(

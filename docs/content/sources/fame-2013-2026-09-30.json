@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀OL",
+  "retrievedAt": "2026-09-30",
+  "batch": "一将成名2013缺口",
+  "roster": [
+    {
+      "contentId": "classic:li-ru",
+      "officialId": 184,
+      "name": "李儒",
+      "maxHp": 3,
+      "faction": "qun",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/184",
+      "officialSkillText": "武将技能： 灭计 绝策 焚城 出牌阶段限一次，你可以将一张黑色锦囊牌置于牌堆顶并令一名有手牌的其他角色选择一项：1.弃置一张锦囊牌；2.依次弃置两张非锦囊牌。 结束阶段，你可以对一名没有手牌的其他角色造成1点伤害。 限定技，出牌阶段，你可以令所有其他角色依次选择一项：1.弃置任意张牌（须比上家弃置的牌多）；2.受到你造成的2点火焰伤害。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-li-ru.png",
+        "sha256": "DD0CD59A862F01397DAC684469F2F6360C821FCD5E410239130E549512F0348D",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/18400.png"
+      }
+    },
+    {
+      "contentId": "classic:liu-feng",
+      "officialId": 179,
+      "name": "刘封",
+      "maxHp": 4,
+      "faction": "shu",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/179",
+      "officialSkillText": "武将技能： 陷嗣 准备阶段，你可以将至多两名角色的各一张牌置于你的武将牌上，称为“逆”。其他角色可以移去两张“逆”视为对你使用一张【杀】。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-liu-feng.png",
+        "sha256": "DEDACDDBB0778D17F3AF949D6109EA7235F1408BAF0A76EB2796CF4D29F1468D",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/17900.png"
+      }
+    },
+    {
+      "contentId": "classic:jian-yong",
+      "officialId": 178,
+      "name": "简雍",
+      "maxHp": 3,
+      "faction": "shu",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/178",
+      "officialSkillText": "武将技能： 巧说 纵适 出牌阶段开始时，你可以拼点：若你赢，你本回合使用的下一张牌可以多指定或少指定一个目标（至少指定一个目标）；若你没赢，你本回合不能使用锦囊牌。 当你拼点赢时，你可以获得点数较小的拼点牌；当你拼点没赢时，你可以获得你的拼点牌。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-jian-yong.png",
+        "sha256": "BAC8BC876300609B7263538CD43FE679A6422750140958AB7DA3A0E67DE0AC73",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/17800.png"
+      }
+    },
+    {
+      "contentId": "classic:yu-fan",
+      "officialId": 181,
+      "name": "虞翻",
+      "maxHp": 3,
+      "faction": "wu",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/181",
+      "officialSkillText": "武将技能： 纵玄 直言 当你的牌因弃置而置入弃牌堆后，你可以将其中任意张牌置于牌堆顶。 结束阶段，你可以令一名角色摸一张牌并展示之，若为装备牌，其使用之并回复1点体力。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-yu-fan.png",
+        "sha256": "C236590DEC3D7099F8D96D0A70BD6022A1031182935A5EF2BC23E337270C2047",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/18100.png"
+      }
+    },
+    {
+      "contentId": "classic:zhu-ran",
+      "officialId": 182,
+      "name": "朱然",
+      "maxHp": 4,
+      "faction": "wu",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/182",
+      "officialSkillText": "武将技能： 胆守 出牌阶段，你可以弃置X张牌并选择你攻击范围内的一名其他角色（X为你本阶段发动本技能的次数），若X为：1，你弃置其一张牌；2，其交给你一张牌；3，你对其造成1点伤害；不小于4，你与其各摸两张牌。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-zhu-ran.png",
+        "sha256": "BB59B2829C38ED25164F66061E8EC5606FA05F25AB4F78BC3E4AD5CDF4ACF2AD",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/18200.png"
+      }
+    }
+  ],
+  "additionalSources": [
+    {
+      "skill": "classic:mieji",
+      "use": "发行平台攻略补充依次弃置装备与旋风分次结算，技能正文以OL官网当前页面为准",
+      "url": "https://sanguosha.game.360.cn/211282862/211290418/211372539.html"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20150420_6819_0618",
+      "skill": "classic:qiaoshui",
+      "use": "OL简雍攻略确认双桃、双酒、无中、借刀及增减目标，普通额定目标先合法"
+    },
+    {
+      "url": "https://sanguosha.game.360.cn/211282862/211290418/211372773.html",
+      "skill": "classic:qiaoshui",
+      "use": "发行平台官方FAQ确认额外目标忽略距离，桃酒可增加其他角色，限定至少一个额定合法目标"
+    }
+  ],
+  "editionNotes": [
+    "朱然采用OL当前胆守版本，动态弃牌数量按出牌阶段发动序号增长，四次以上继续双方摸两张，无四次上限。",
+    "简雍按当前巧说的下一张牌与至少一目标文案处理，失利禁用范围包括延时锦囊，纵适适用于所有拼点。",
+    "虞翻纵玄仅因弃置进入弃牌堆的自身牌，同批手牌装备聚合，允许选择子集及顺序。",
+    "刘封逆使用公开实体牌堆，他人移去两张逆后实际进入普通杀的距离、次数、响应与回放结算。"
+  ]
+}

@@ -19,7 +19,8 @@ internal static class ProgramCardSetFilter
         IReadOnlyList<EquipmentSlot> equipmentSlots,
         IReadOnlyList<CardKind> cardKinds)
     {
-        var kinds = Enum.GetValues<CardKind>();
+        var kinds = Enum.GetValues<CardKind>()
+            .Where(kind => kind is not (CardKind.RedBloodBlade or CardKind.GeneralWeapon)).ToArray();
         return kinds.Count(kind => Matches(kind, suit, suits, categories, equipmentSlots, cardKinds)) /
                (double)kinds.Length;
     }

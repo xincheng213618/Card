@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:benxi": {
+      "name": "奔袭",
+      "description": "锁定技，当你于回合内使用牌时，你本回合计算与其他角色的距离-1。当你于回合内使用仅指定单一目标的【杀】或普通锦囊牌时，若你与所有其他角色的距离均为1，你依次选择至多两项，令此牌：1.目标数+1；2.无视防具；3.不能被抵消；4.造成伤害后，你摸一张牌。",
+      "triggerChoices": { "use-shortens-turn-distance": "本回合距离-1", "choose-current-card-enhancements": "依次选择至多两项效果" }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:zhongyong": {
+      "name": "忠勇",
+      "description": "当你使用【杀】后，你可以将此【杀】或目标角色响应的【闪】交给一名其他角色，若此牌为红色，其可以对你攻击范围内一名角色使用一张【杀】。",
+      "triggerChoices": { "gift-completed-slash-or-dodge": "将结算后的杀或闪交给其他角色" }
+    }
+  }
+}

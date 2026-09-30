@@ -1,0 +1,705 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:longnu",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "modifiers": [
+        {
+          "id": "fire-distance",
+          "query": "slashDistanceLimit",
+          "operation": "unlimited",
+          "value": 0,
+          "priority": 0,
+          "sourceCardIdentityId": "red-hand-fire-slash",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "longnu-yang-phase"
+          }
+        },
+        {
+          "id": "thunder-count",
+          "query": "slashLimit",
+          "operation": "unlimited",
+          "value": 0,
+          "priority": 0,
+          "sourceCardIdentityId": "trick-hand-thunder-slash",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "longnu-yin-phase"
+          }
+        }
+      ],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "yang",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "longnu-yang",
+            "expectedValue": true
+          },
+          "effects": [
+            {
+              "op": "loseHp",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "longnu-yang-phase",
+              "value": true
+            },
+            {
+              "op": "toggleBooleanState",
+              "target": "owner",
+              "stateId": "longnu-yang"
+            }
+          ]
+        },
+        {
+          "id": "yin",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "longnu-yang",
+            "expectedValue": false
+          },
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": -1
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "longnu-yin-phase",
+              "value": true
+            },
+            {
+              "op": "toggleBooleanState",
+              "target": "owner",
+              "stateId": "longnu-yang"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [
+        {
+          "id": "red-hand-fire-slash",
+          "zones": [
+            "hand"
+          ],
+          "inputKinds": [],
+          "inputSuits": [
+            "heart",
+            "diamond"
+          ],
+          "outputKind": "fireSlash",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "longnu-yang-phase"
+          }
+        },
+        {
+          "id": "trick-hand-thunder-slash",
+          "zones": [
+            "hand"
+          ],
+          "inputKinds": [
+            "duel",
+            "drawTwo",
+            "barbarianAssault",
+            "arrowBarrage",
+            "peachGarden",
+            "fiveGrains",
+            "dismantlement",
+            "snatch",
+            "fireAttack",
+            "ironChain",
+            "borrowedSword",
+            "nullification",
+            "indulgence",
+            "supplyShortage",
+            "lightning"
+          ],
+          "inputSuits": [],
+          "outputKind": "thunderSlash",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "longnu-yin-phase"
+          }
+        }
+      ],
+      "states": [
+        {
+          "id": "longnu-yang",
+          "initialValue": true,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        },
+        {
+          "id": "longnu-yang-phase",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "playPhase",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        },
+        {
+          "id": "longnu-yin-phase",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "playPhase",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ]
+    },
+    {
+      "id": "ol:shen-liu-bei-jieying",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "window": "gameStarting",
+          "effects": [
+            {
+              "op": "setChainedState",
+              "target": "owner",
+              "chained": true
+            }
+          ],
+          "id": "initial-chain",
+          "condition": {
+            "kind": "always"
+          },
+          "subject": "owner",
+          "optional": false,
+          "priority": 0
+        },
+        {
+          "id": "chain-other",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "setChainedState",
+              "target": "selectedTarget",
+              "chained": true
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": [],
+      "cardPolicies": [
+        {
+          "id": "permanent-chain",
+          "kind": "forceChained",
+          "condition": {
+            "kind": "always"
+          }
+        },
+        {
+          "id": "chained-hand-bonus",
+          "kind": "chainedHandLimitAura",
+          "condition": {
+            "kind": "always"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ol:junlue",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "damage-received",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "setMarkerAmount",
+              "target": "owner",
+              "marker": "junlue",
+              "amount": 1
+            }
+          ],
+          "damageOccurrence": "perDamagePoint"
+        },
+        {
+          "id": "damage-dealt",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "setMarkerAmount",
+              "target": "owner",
+              "marker": "junlue",
+              "amount": 1
+            }
+          ],
+          "damageOccurrence": "perDamagePoint"
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "ol:cuike",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "odd-damage",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "markerParity",
+              "marker": "junlue"
+            },
+            "operator": "equal",
+            "right": {
+              "kind": "integerConstant",
+              "value": 1
+            }
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "anyLiving"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "even-discard-chain",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "markerParity",
+              "marker": "junlue"
+            },
+            "operator": "equal",
+            "right": {
+              "kind": "integerConstant",
+              "value": 0
+            }
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "anyLiving"
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "selectedTarget"
+              },
+              "zones": [
+                "hand",
+                "equipment",
+                "judgment"
+              ],
+              "destination": "discardPile",
+              "skipIfNoCards": true,
+              "count": 1
+            },
+            {
+              "op": "setChainedState",
+              "target": "selectedTarget",
+              "chained": true
+            }
+          ]
+        },
+        {
+          "id": "mass-damage",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": -10,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "ownerAttributedMarkerCount",
+              "marker": "junlue"
+            },
+            "operator": "greaterThan",
+            "right": {
+              "kind": "integerConstant",
+              "value": 7
+            }
+          },
+          "effects": [
+            {
+              "op": "setMarkerAmount",
+              "target": "owner",
+              "marker": "junlue",
+              "amount": -1
+            },
+            {
+              "op": "damageOtherLiving",
+              "target": "owner",
+              "amount": 1
+            }
+          ],
+          "evaluateConditionAtResolution": true
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "ol:zhanhuo",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "limited-fire",
+          "targetKind": "anyLiving",
+          "usesPerGame": 1,
+          "effects": [
+            {
+              "op": "selectChainedByMarker",
+              "target": "owner",
+              "marker": "junlue"
+            },
+            {
+              "op": "discardTargetEquipment",
+              "target": "owner"
+            },
+            {
+              "target": "owner",
+              "op": "selectOneSelectedTarget"
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "amount": 1,
+              "nature": "fire",
+              "skipIfNoTarget": true
+            }
+          ],
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "usesPerTurn": null
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "ol:poxi",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "four-suit-discard",
+          "targetKind": "otherLiving",
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "selectDistinctSuitHandDiscards",
+              "target": "selectedTarget",
+              "resultBind": "four-suit-hands"
+            },
+            {
+              "op": "applyHandDiscardShare",
+              "target": "owner",
+              "sourceBind": "four-suit-hands"
+            }
+          ],
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "usesPerTurn": null
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "ol:shen-gan-ning-jieying",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "receive-camp",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "globalMarkerCount",
+              "marker": "camp"
+            },
+            "operator": "equal",
+            "right": {
+              "kind": "integerConstant",
+              "value": 0
+            }
+          },
+          "effects": [
+            {
+              "op": "setMarkerAmount",
+              "target": "owner",
+              "marker": "camp",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "give-camp",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "ownerAttributedMarkerCount",
+              "marker": "camp"
+            },
+            "operator": "greaterThan",
+            "right": {
+              "kind": "integerConstant",
+              "value": 0
+            }
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "anyLiving"
+            },
+            {
+              "op": "moveUniqueMarker",
+              "target": "selectedTarget",
+              "marker": "camp"
+            }
+          ]
+        },
+        {
+          "id": "claim-camp-hand",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "claimMarkedHand",
+              "target": "owner",
+              "marker": "camp"
+            }
+          ],
+          "turnOwnerScope": "otherLiving"
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": [],
+      "cardPolicies": [
+        {
+          "id": "camp-bonuses",
+          "kind": "markerTurnBonuses",
+          "condition": {
+            "kind": "always"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ol:duorui",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "suppress-skill",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "ownerIsTurnPlayer"
+              },
+              {
+                "kind": "damageTargetIsOther"
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "eventTarget"
+            },
+            {
+              "op": "suppressGeneralSkill",
+              "target": "selectedTarget"
+            }
+          ],
+          "damageOccurrence": "perDamage"
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "ol:zhiti",
+      "revision": 1,
+      "minimumRulesVersion": 189,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "abolish-equipment",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "livingWoundedCount"
+            },
+            "operator": "greaterThanOrEqual",
+            "right": {
+              "kind": "integerConstant",
+              "value": 5
+            }
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "abolishRandomEquipmentSlot",
+              "target": "selectedTarget"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": [],
+      "cardPolicies": [
+        {
+          "id": "wounded-bonuses",
+          "kind": "woundedPopulationBonuses",
+          "condition": {
+            "kind": "always"
+          }
+        },
+        {
+          "id": "wounded-range-penalty",
+          "kind": "woundedInRangeHandLimitPenalty",
+          "condition": {
+            "kind": "always"
+          }
+        }
+      ]
+    }
+  ]
+}

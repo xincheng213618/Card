@@ -50,7 +50,7 @@ internal static class ProgramCompositionDefinitionChecks
         var split = Estimate("""
         [{"op":"revealTopCards","target":"owner","amount":4,"resultBind":"r","visibility":"public"},
          {"op":"filterBoundCards","target":"owner","sourceBind":"r","resultBind":"h","suits":["heart"]},
-         {"op":"filterBoundCards","target":"owner","sourceBind":"r","resultBind":"n","suits":["spade","club","diamond"]},
+         {"op":"filterBoundCards","target":"owner","sourceBind":"r","resultBind":"n","suits":["spade","club","diamond","none"]},
          {"op":"moveBoundCards","target":"owner","sourceBind":"r","exceptBind":"h","destination":"ownerHand"},
          {"op":"moveBoundCards","target":"owner","sourceBind":"r","exceptBind":"n","destination":"discardPile"}]
         """);
@@ -176,7 +176,64 @@ internal static class ProgramCompositionDefinitionChecks
             [SkillProgramEffectOp.RestorePhaseHandDiscards] = """{"op":"restorePhaseHandDiscards","target":"owner","chooserRef":{"kind":"owner"},"phaseOwnerRef":{"kind":"eventSource"},"condition":{"kind":"always"}}""",
             [SkillProgramEffectOp.ClaimMovedCards] = """{"op":"claimMovedCards","target":"owner"}""",
             [SkillProgramEffectOp.UseVirtualDyingAlcohol] = """{"op":"useVirtualDyingAlcohol","target":"owner"}""",
-            [SkillProgramEffectOp.TakeRandomCardFromEveryOtherCharacter] = """{"op":"takeRandomCardFromEveryOtherCharacter","target":"owner","zones":["hand","equipment","judgment"]}"""
+            [SkillProgramEffectOp.TakeRandomCardFromEveryOtherCharacter] = """{"op":"takeRandomCardFromEveryOtherCharacter","target":"owner","zones":["hand","equipment","judgment"]}""",
+            [SkillProgramEffectOp.DamageParticipants] = """{"op":"damageParticipants","target":"owner","targetKind":"otherLiving","amount":1}""",
+            [SkillProgramEffectOp.LoseHpParticipants] = """{"op":"loseHpParticipants","target":"owner","targetKind":"anyLiving","amount":1}""",
+            [SkillProgramEffectOp.DiscardParticipantCards] = """{"op":"discardParticipantCards","target":"owner","targetKind":"otherLiving","amount":4,"zones":["hand"]}""",
+            [SkillProgramEffectOp.InitializePrivatePile] = """{"op":"initializePrivatePile","target":"owner","amount":7}""",
+            [SkillProgramEffectOp.ExchangePrivatePile] = """{"op":"exchangePrivatePile","target":"owner"}""",
+            [SkillProgramEffectOp.GrantAttributedNatureEffect] = """{"op":"grantAttributedNatureEffect","target":"selectedTargets","marker":"mist","nature":"thunder","prevent":true}""",
+            [SkillProgramEffectOp.RecoverAllLiving] = """{"op":"recoverAllLiving","target":"owner","amount":1}""",
+            [SkillProgramEffectOp.SpendMarkerOrLoseHp] = """{"op":"spendMarkerOrLoseHp","target":"owner","marker":"rage","amount":1}""",
+            [SkillProgramEffectOp.LoseHpUnclamped] = """{"op":"loseHpUnclamped","target":"owner","amount":3}""",
+            [SkillProgramEffectOp.RequestSlashByNearest] = """{"op":"requestSlashByNearest","target":"owner","targetKind":"otherLiving","amount":1}""",
+            [SkillProgramEffectOp.SelectDistinctSuitHandDiscards] = """{"op":"selectDistinctSuitHandDiscards","target":"selectedTarget","resultBind":"discard-choice"}""",
+            [SkillProgramEffectOp.ApplyHandDiscardShare] = """{"op":"applyHandDiscardShare","target":"owner","sourceBind":"discard-choice"}""",
+            [SkillProgramEffectOp.SuppressGeneralSkill] = """{"op":"suppressGeneralSkill","target":"selectedTarget"}""",
+            [SkillProgramEffectOp.SetMarkerAmount] = """{"op":"setMarkerAmount","target":"owner","marker":"junlue","amount":1}""",
+            [SkillProgramEffectOp.MoveUniqueMarker] = """{"op":"moveUniqueMarker","target":"selectedTarget","marker":"camp"}""",
+            [SkillProgramEffectOp.ClaimMarkedHand] = """{"op":"claimMarkedHand","target":"owner","marker":"camp"}""",
+            [SkillProgramEffectOp.DamageOtherLiving] = """{"op":"damageOtherLiving","target":"owner","amount":1}""",
+            [SkillProgramEffectOp.SelectChainedByMarker] = """{"op":"selectChainedByMarker","target":"owner","marker":"junlue"}""",
+            [SkillProgramEffectOp.DiscardTargetEquipment] = """{"op":"discardTargetEquipment","target":"owner"}""",
+            [SkillProgramEffectOp.EndCurrentPlay] = """{"op":"endCurrentPlay","target":"owner"}""",
+            [SkillProgramEffectOp.SelectOneSelectedTarget] = """{"op":"selectOneSelectedTarget","target":"owner"}""",
+            [SkillProgramEffectOp.AlterEquipmentSlots] = """{"op":"alterEquipmentSlots","target":"owner","equipmentSlots":["weapon","armor"],"amount":2}""",
+            [SkillProgramEffectOp.AbolishRandomEquipmentSlot] = """{"op":"abolishRandomEquipmentSlot","target":"selectedTarget"}""",
+            [SkillProgramEffectOp.SampleFactionSkills] = """{"op":"sampleFactionSkills","target":"owner","providerFactionId":"wu"}""",
+            [SkillProgramEffectOp.ExpireSampledSkills] = """{"op":"expireSampledSkills","target":"owner","stateId":"faction-samples"}""",
+            [SkillProgramEffectOp.ReplaceSkillsOnAwakening] = """{"op":"replaceSkillsOnAwakening","target":"owner","skillIds":["classic:wusheng"]}""",
+            [SkillProgramEffectOp.AccumulateCardRank] = """{"op":"accumulateCardRank","target":"owner","marker":"huang"}""",
+            [SkillProgramEffectOp.ObtainDeckRankSum] = """{"op":"obtainDeckRankSum","target":"owner","marker":"huang","maximumRankSum":36}""",
+            [SkillProgramEffectOp.DamageAfterDeckShuffle] = """{"op":"damageAfterDeckShuffle","target":"owner"}""",
+            [SkillProgramEffectOp.EquipSampledGenerals] = """{"op":"equipSampledGenerals","target":"owner","amount":5}""",
+            [SkillProgramEffectOp.DamageFarthestCharacter] = """{"op":"damageFarthestCharacter","target":"selectedTarget"}""",
+            [SkillProgramEffectOp.PlaceNamedWeapon] = """{"op":"placeNamedWeapon","target":"selectedTarget","outputKind":"redBloodBlade"}""",
+            [SkillProgramEffectOp.ReclaimNamedWeapon] = """{"op":"reclaimNamedWeapon","target":"owner","outputKind":"redBloodBlade"}""",
+            [SkillProgramEffectOp.InheritWeapon] = """{"op":"inheritWeapon","target":"owner"}""",
+            [SkillProgramEffectOp.BalanceHandAttackTricks] = """{"op":"balanceHandAttackTricks","target":"owner"}""",
+            [SkillProgramEffectOp.ReplaceJudgmentPhase] = """{"op":"replaceJudgmentPhase","target":"owner"}""",
+            [SkillProgramEffectOp.DrawAllHandSelectedBonus] = """{"op":"drawAllHandSelectedBonus","target":"owner","amount":1}""",
+            [SkillProgramEffectOp.OfferVirtualSlashOrDraw] = """{"op":"offerVirtualSlashOrDraw","target":"selectedTarget"}""",
+            [SkillProgramEffectOp.GrantTurnCardEffectImmunity] = """{"op":"grantTurnCardEffectImmunity","target":"owner","cardKinds":["slash"]}""",
+            [SkillProgramEffectOp.ExchangeSelectedTargetEquipment] = """{"op":"exchangeSelectedTargetEquipment","target":"owner"}""",
+            [SkillProgramEffectOp.RequestSlashAgainstChosenTarget] = """{"op":"requestSlashAgainstChosenTarget","target":"selectedTarget","resultBind":"physical-request"}""",
+            [SkillProgramEffectOp.TakeSelectedTargetCards] = """{"op":"takeSelectedTargetCards","target":"selectedTarget","amount":2}""",
+            [SkillProgramEffectOp.ChooseCategoryAlternativeDiscard] = """{"op":"chooseCategoryAlternativeDiscard","target":"selectedTarget","amount":1,"secondaryAmount":2,"cardCategories":["trick"],"zones":["hand","equipment"]}""",
+            [SkillProgramEffectOp.EscalatingDiscardOrDamage] = """{"op":"escalatingDiscardOrDamage","target":"owner","amount":2,"nature":"fire","zones":["hand","equipment"]}""",
+            [SkillProgramEffectOp.PutDiscardedCardsOnDrawPileTop] = """{"op":"putDiscardedCardsOnDrawPileTop","target":"owner"}""",
+            [SkillProgramEffectOp.CollectPublicPile] = """{"op":"collectPublicPile","target":"owner","amount":2,"zones":["hand","equipment"],"destinationZone":"authority"}""",
+            [SkillProgramEffectOp.GrantNextCardTargetAdjustment] = """{"op":"grantNextCardTargetAdjustment","target":"owner"}""",
+            [SkillProgramEffectOp.UseDiscardedCardAsDelayedTrick] = """{"op":"useDiscardedCardAsDelayedTrick","target":"selectedTarget","outputKind":"supplyShortage"}""",
+            [SkillProgramEffectOp.UseVirtualSlash] = """{"op":"useVirtualSlash","target":"selectedTarget"}""",
+            [SkillProgramEffectOp.PayEquipmentColorDiscard] = """{"op":"payEquipmentColorDiscard","target":"owner","resultBind":"cost"}""",
+            [SkillProgramEffectOp.GrantPlayPhaseColorRestriction] = """{"op":"grantPlayPhaseColorRestriction","target":"owner","sourceBind":"cost","targetRef":{"kind":"eventTarget"}}""",
+            [SkillProgramEffectOp.OfferCompletedCardGift] = """{"op":"offerCompletedCardGift","target":"owner"}""",
+            [SkillProgramEffectOp.ApplyCurrentCardEnhancements] = """{"op":"applyCurrentCardEnhancements","target":"owner","amount":2}""",
+            [SkillProgramEffectOp.ConsumeCategoryTargetLedger] = """{"op":"consumeCategoryTargetLedger","target":"owner","usageId":"phase-categories"}""",
+            [SkillProgramEffectOp.ReplaceCurrentCardUseActor] = """{"op":"replaceCurrentCardUseActor","target":"selectedTarget"}""",
+            [SkillProgramEffectOp.AddCurrentCardUseTarget] = """{"op":"addCurrentCardUseTarget","target":"selectedTarget"}""",
+            [SkillProgramEffectOp.ReduceCurrentDamage] = """{"op":"reduceCurrentDamage","target":"owner","amount":1}"""
 
         };
         Require(nodes.Keys.ToHashSet().SetEquals(Enum.GetValues<SkillProgramEffectOp>()),
@@ -230,6 +287,7 @@ internal static class ProgramCompositionDefinitionChecks
 
     public static void ResourceGraphsRejectAliasingLeaksAndMissingInputs()
     {
+        CardDomainCompatibilityKeepsLegacyProofsAndRejectsUnsafeCombinations();
         Accept("partition", """
         [{"op":"revealTopCards","target":"owner","amount":4,"resultBind":"r","visibility":"public"},
          {"op":"filterBoundCards","target":"owner","sourceBind":"r","resultBind":"h","suits":["heart"]},
@@ -687,6 +745,63 @@ internal static class ProgramCompositionDefinitionChecks
 
     private static void RejectChoiceBranches(string id, string effects, string expected) =>
         Reject(() => AcceptChoiceBranches(id, effects), expected);
+
+    private static void CardDomainCompatibilityKeepsLegacyProofsAndRejectsUnsafeCombinations()
+    {
+        const string fourSuitPartition = """
+        [{"op":"revealTopCards","target":"owner","amount":4,"resultBind":"r","visibility":"public"},
+         {"op":"filterBoundCards","target":"owner","sourceBind":"r","resultBind":"h","suits":["heart"]},
+         {"op":"filterBoundCards","target":"owner","sourceBind":"r","resultBind":"n","suits":["spade","club","diamond"]},
+         {"op":"moveBoundCards","target":"owner","sourceBind":"r","exceptBind":"h","destination":"ownerHand"},
+         {"op":"moveBoundCards","target":"owner","sourceBind":"r","exceptBind":"n","destination":"discardPile"}]
+        """;
+        var ordinary = Load("fixture:ordinary-domain", Rules("fixture:ordinary-domain", fourSuitPartition, Entries(fourSuitPartition, false)));
+        var ordinaryRegistry = ContentRegistry.Build(new CardDomainPackage([ordinary]));
+        Require(ordinaryRegistry.Skills[ordinary.Id].Program!.GameplayHash == ordinary.GameplayHash,
+            "A historical four-suit partition must retain its standalone and ordinary-registry proof without changing its gameplay fingerprint.");
+
+        const string generating = """[{"op":"equipSampledGenerals","target":"owner","amount":1}]""";
+        var generator = Load("fixture:generated-domain", Rules("fixture:generated-domain", generating, Entries(generating, false)));
+        Reject(() => ContentRegistry.Build(new CardDomainPackage([ordinary, generator])), "more than once");
+        Reject(() => ContentRegistry.Build(new CardDomainPackage([ordinary], CardKind.GeneralWeapon)), "more than once");
+        Reject(() => ContentRegistry.Build(new CardDomainPackage([ordinary], CardKind.RedBloodBlade)), "more than once");
+
+        var explicitNone = fourSuitPartition.Replace("\"spade\",\"club\",\"diamond\"", "\"spade\",\"club\",\"diamond\",\"none\"", StringComparison.Ordinal);
+        var complete = Load("fixture:complete-domain", Rules("fixture:complete-domain", explicitNone, Entries(explicitNone, false)));
+        var combined = ContentRegistry.Build(new CardDomainPackage([complete, generator], CardKind.GeneralWeapon));
+        Require(combined.Skills.ContainsKey(complete.Id) && combined.Skills.ContainsKey(generator.Id),
+            "A partition explicitly covering suitless cards must load and remain safe when combined with generated equipment.");
+
+        var sameProgramGeneration = fourSuitPartition.Replace(
+            "[{\"op\":\"revealTopCards\"", "[{\"op\":\"equipSampledGenerals\",\"target\":\"owner\",\"amount\":1},{\"op\":\"revealTopCards\"", StringComparison.Ordinal);
+        Reject(() => Load("fixture:local-generated-domain", Rules("fixture:local-generated-domain", sameProgramGeneration, Entries(sameProgramGeneration, false))), "more than once");
+
+        var oldNonSlashKinds = JsonSerializer.Serialize(Enum.GetValues<CardKind>()
+            .Where(kind => kind is not (CardKind.Slash or CardKind.RedBloodBlade or CardKind.GeneralWeapon))
+            .Select(kind => JsonNamingPolicy.CamelCase.ConvertName(kind.ToString())).ToArray());
+        var oldKindPartition = fourSuitPartition.Replace("\"suits\":[\"heart\"]", "\"cardKinds\":[\"slash\"]", StringComparison.Ordinal)
+            .Replace("\"suits\":[\"spade\",\"club\",\"diamond\"]", "\"cardKinds\":" + oldNonSlashKinds, StringComparison.Ordinal);
+        var kindPartition = Load("fixture:ordinary-kind-domain", Rules("fixture:ordinary-kind-domain", oldKindPartition, Entries(oldKindPartition, false)));
+        _ = ContentRegistry.Build(new CardDomainPackage([kindPartition]));
+        Reject(() => ContentRegistry.Build(new CardDomainPackage([kindPartition, generator])), "more than once");
+        var expandedNonSlashKinds = JsonSerializer.Serialize(Enum.GetValues<CardKind>().Where(kind => kind != CardKind.Slash)
+            .Select(kind => JsonNamingPolicy.CamelCase.ConvertName(kind.ToString())).ToArray());
+        var completeKindPartition = oldKindPartition.Replace(oldNonSlashKinds, expandedNonSlashKinds, StringComparison.Ordinal);
+        var completeKinds = Load("fixture:complete-kind-domain", Rules("fixture:complete-kind-domain", completeKindPartition, Entries(completeKindPartition, false)));
+        _ = ContentRegistry.Build(new CardDomainPackage([completeKinds, generator], CardKind.RedBloodBlade));
+    }
+
+    private sealed class CardDomainPackage(IReadOnlyList<SkillProgram> programs, CardKind? generatedKind = null) : IGameContentPackage
+    {
+        public PackageManifest Manifest { get; } = new("card-domain-fixture", new Version(1, 0, 0), []);
+        public void Register(IContentRegistryBuilder builder)
+        {
+            foreach (var program in programs)
+                builder.AddSkill(new ContentSkillDefinition(program.Id, "Fixture", "Fixture") { Program = program });
+            if (generatedKind is { } kind)
+                builder.AddCard(new ContentCardDefinition("fixture:generated-card", "Fixture", "装备牌", "Fixture", kind));
+        }
+    }
 
     private static void RejectEffects(string id, string effects, string expected) => Reject(() =>
         Accept(id, effects), expected);

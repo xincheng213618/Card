@@ -265,7 +265,9 @@ public sealed record ProgramPhaseSchedule(
 public enum ProgramLifecycleContinuation
 {
     NormalTurnStart, CompleteDrawPhase, CompletePlayPhase, CompleteAfterNormalDraw,
-    CompleteDiscardPhase, EndTurnAfterDiscardPhase
+    CompleteDiscardPhase, EndTurnAfterDiscardPhase, CompleteGameStarting,
+    ResumeParentProgram = 500, ResumeDyingEntry = 660,
+    CompleteJudgmentPhaseStarting = 800, ResumeCharacterStateChange = 820
 }
 
 public enum TurnEndingBoundaryItemKind { Program }
@@ -322,8 +324,17 @@ public sealed record ProgramLifecycleTriggerWindowFrame(
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? FrozenBaseDrawCount { get; init; }
+    public long? ResumeProgramFrameId { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public long? ResumeDyingFrameId { get; init; }
 
     public IReadOnlyDictionary<int, SkillProgramTriggerFacts>? ParticipantFacts { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public CharacterStateContinuation? CharacterStateContinuation { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? ResumeCardId { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public CardKind? ResumeCardKind { get; init; }
 }
 
 /// <summary>

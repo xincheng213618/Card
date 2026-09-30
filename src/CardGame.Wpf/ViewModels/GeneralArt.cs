@@ -28,6 +28,56 @@ public static class GeneralArt
     private static readonly IReadOnlyDictionary<string, string> StandalonePortraits =
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
+            // Official artwork and hashes: docs/content/sources/fame-2011-2026-09-30.json.
+            ["zhang-chun-hua"] = "official-zhang-chun-hua.png",
+            ["ling-tong"] = "official-ling-tong.png",
+            ["chen-gong"] = "official-chen-gong.png",
+            ["wu-guo-tai"] = "official-wu-guo-tai.png",
+            // Official artwork and hashes: docs/content/sources/fame-2011-next-2026-09-30.json.
+            ["fa-zheng"] = "official-fa-zheng.png",
+            ["ma-su"] = "official-ma-su.png",
+            // Official artwork and hashes: docs/content/sources/fame-2013-2026-09-30.json.
+            ["li-ru"] = "official-li-ru.png",
+            ["cao-zhen"] = "official-cao-zhen.png",
+            ["han-hao-shi-huan"] = "official-han-hao-shi-huan.png",
+            ["chen-qun"] = "official-chen-qun.png",
+            ["wu-yi"] = "official-wu-yi.png",
+            ["zhou-cang"] = "official-zhou-cang.png",
+            ["sun-lu-ban"] = "official-sun-lu-ban.png",
+            ["liu-feng"] = "official-liu-feng.png",
+            ["jian-yong"] = "official-jian-yong.png",
+            ["yu-fan"] = "official-yu-fan.png",
+            ["zhu-ran"] = "official-zhu-ran.png",
+            // Recovered official artwork and hashes: docs/content/sources/missing-artwork-2026-09-30.json.
+            ["xu-sheng"] = "official-xu-sheng.png",
+            ["boundary-xu-sheng"] = "official-boundary-xu-sheng.png",
+            ["boundary-zhao-yun"] = "official-boundary-zhao-yun.png",
+            ["zhang-xiu"] = "official-zhang-xiu.png",
+            ["jia-xu"] = "official-jia-xu.png",
+            // Custom project illustration and generation prompt: docs/content/sources/gao-da-yi-hao-art-2026-09-30.json.
+            ["gao-da-yi-hao"] = "custom-gao-da-yi-hao.png",
+            // Official artwork and hashes: docs/content/sources/ju-shou-2026-09-30.json.
+            ["ju-shou"] = "official-ju-shou.png",
+            ["boundary-ju-shou"] = "official-boundary-ju-shou.jpg",
+            // Current OL roster, official sources and hashes: docs/content/sources/ol-gods-2026-09-30.json.
+            ["shen-lu-meng"] = "official-ol-shen-lu-meng.png",
+            ["shen-zhao-yun"] = "official-ol-shen-zhao-yun.png",
+            ["ol-shen-guan-yu"] = "official-ol-shen-guan-yu.png",
+            ["ol-shen-lu-meng"] = "official-ol-shen-lu-meng.png",
+            ["ol-shen-zhou-yu"] = "official-ol-shen-zhou-yu.png",
+            ["ol-shen-zhuge-liang"] = "official-ol-shen-zhuge-liang.png",
+            ["ol-shen-cao-cao"] = "official-ol-shen-cao-cao.png",
+            ["ol-shen-lu-bu"] = "official-ol-shen-lu-bu.png",
+            ["ol-shen-zhao-yun"] = "official-ol-shen-zhao-yun.png",
+            ["ol-shen-sima-yi"] = "official-ol-shen-sima-yi.png",
+            ["ol-shen-liu-bei"] = "official-ol-shen-liu-bei.png",
+            ["ol-shen-lu-xun"] = "official-ol-shen-lu-xun.png",
+            ["ol-shen-gan-ning"] = "official-ol-shen-gan-ning.png",
+            ["ol-shen-zhang-liao"] = "official-ol-shen-zhang-liao.png",
+            ["ol-shen-sun-quan"] = "official-ol-shen-sun-quan.png",
+            ["ol-shen-zhang-jiao"] = "official-ol-shen-zhang-jiao.png",
+            ["ol-shen-dian-wei"] = "official-ol-shen-dian-wei.png",
+            ["ol-shen-huang-zhong"] = "official-ol-shen-huang-zhong.png",
             ["da-qiao"] = "official-da-qiao.png",
             ["diao-chan"] = "official-diao-chan.png",
             ["sun-shangxiang"] = "official-sun-shangxiang.png",
@@ -177,7 +227,7 @@ public static class GeneralArt
         var key = id;
         foreach (var prefix in new[] { "standard:", "classic:", "national:wei-", "national:shu-", "national:ambitious-", "national:" })
             if (key.StartsWith(prefix, StringComparison.Ordinal)) { key = key[prefix.Length..]; break; }
-        foreach (var prefix in new[] { "mou:", "boundary:", "sp:" })
+        foreach (var prefix in new[] { "mou:", "boundary:", "sp:", "ol:" })
             if (key.StartsWith(prefix, StringComparison.Ordinal)) { key = prefix[..^1] + "-" + key[prefix.Length..]; break; }
         return PortraitAliases.GetValueOrDefault(key, key);
     }

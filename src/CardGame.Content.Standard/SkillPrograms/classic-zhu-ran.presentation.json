@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:danshou": {
+      "name": "胆守",
+      "description": "出牌阶段，你可以弃置X张牌并选择你攻击范围内的一名其他角色（X为你本阶段发动本技能的次数），若X为：1，你弃置其一张牌；2，其交给你一张牌；3，你对其造成1点伤害；不小于4，你与其各摸两张牌。",
+      "activationLabels": { "escalating-discard": "弃置本阶段第X次发动所需的X张牌" }
+    }
+  }
+}

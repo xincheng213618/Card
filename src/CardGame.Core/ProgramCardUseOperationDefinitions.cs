@@ -16,7 +16,7 @@ internal sealed class UseSelectedCardsAsProgramOperationDescriptor : ProgramOper
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}.target: useSelectedCardsAs requires selectedTarget or owner.");
         var output = r.RequiredEnum<CardKind>("outputKind");
-        if (output != CardKind.Slash && output != CardKind.ArrowBarrage ||
+        if (output is not (CardKind.Slash or CardKind.FireSlash or CardKind.Peach or CardKind.ArrowBarrage) ||
             output == CardKind.Slash && target != SkillProgramEffectTarget.SelectedTarget ||
             output == CardKind.ArrowBarrage && target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException(
@@ -43,7 +43,6 @@ internal sealed class UseBoundCardByTargetProgramOperationDescriptor : ProgramOp
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.UseBoundCardByTarget;
     public override ISkillProgramEffectHandler Handler { get; } =
         new UseBoundCardByTargetSkillProgramEffectHandler();
-    public override ProgramContextCapability RequiredCapabilities => ProgramContextCapability.CardAction;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(
         ProgramOperationAiSemantic.UseBoundCardByTarget,
         static (effect, context) => context.UseBoundCardByTarget(effect));

@@ -58,6 +58,7 @@ CLASSIC_HEROES = {
     "deng-ai": 52, "sha-mo-ke": 650, "lu-su": 50, "zhang-he": 51, "jiang-wei": 53,
     "dong-zhuo": 46,
     "liu-shan": 54,
+    "jia-xu": 49,
     "zhang-zhao-zhang-hong": 56, "cao-zhi": 294,
 }
 
@@ -74,6 +75,7 @@ OTHER_HEROES = {
     "gu-yong": 329, "li-dian": 411,
     "zhu-huan": 328, "cao-ang": 404, "qu-yi": 1053,
     "shen-sima-yi": 208,
+    "shen-zhou-yu": 203,
 }
 
 OL_HEROES = {
@@ -87,7 +89,7 @@ OL_HEROES = {
     "boundary-xu-chu": (315, "许褚"),
 }
 
-NEW_OFFICIAL_DEFAULTS = {"boundary-gan-ning", "boundary-xu-chu", "qu-yi"}
+NEW_OFFICIAL_DEFAULTS = {"boundary-gan-ning", "boundary-xu-chu", "qu-yi", "shen-zhou-yu"}
 
 EXISTING_SOURCES = {
     "gu-yong": ("https://www.sanguosha.com/hero/329", "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/32900.png"),

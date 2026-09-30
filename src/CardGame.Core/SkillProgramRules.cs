@@ -100,8 +100,8 @@ public static class SkillProgramRules
     private static bool MatchesEffectiveCardKind(
         SkillProgramModifier modifier,
         SkillProgramRuleContext context) =>
-        modifier.CardKinds.Count == 0 ||
-        context.EffectiveCardKind is { } effectiveKind && modifier.CardKinds.Contains(effectiveKind);
+        !(modifier.Query == SkillRuleQuery.SlashLimit && modifier.SourceCardIdentityId is not null) && (modifier.CardKinds.Count == 0 ||
+        context.EffectiveCardKind is { } effectiveKind && modifier.CardKinds.Contains(effectiveKind));
 
     public static void ValidateSetModifierConflicts(IEnumerable<SkillProgram> programs)
     {

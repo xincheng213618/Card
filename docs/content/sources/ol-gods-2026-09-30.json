@@ -1,0 +1,327 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀OL",
+  "retrievedAt": "2026-09-30",
+  "rosterSource": "https://www.sanguosha.com/hero",
+  "roster": [
+    {
+      "contentId": "ol:shen-guan-yu",
+      "officialId": 201,
+      "name": "神关羽",
+      "maxHp": 5,
+      "initialHp": 5,
+      "sourcePage": "https://www.sanguosha.com/hero/201",
+      "officialSkillText": "锁定技，你的红桃手牌视为【杀】。你的红桃【杀】无距离和次数限制且不能被抵消。 锁定技，当你受到1点伤害后，你令伤害来源获得1枚“梦魇”标记。当你死亡时，你令“梦魇”数最多的一名其他角色判定，若结果不为【桃】或【桃园结义】，你令其死亡。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/20100.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-guan-yu.png",
+        "sha256": "F7B3A445E7171A463317F936D8E1FD89584CA9E07501110DADA6C180A2E411B6",
+        "width": 750,
+        "height": 950
+      }
+    },
+    {
+      "contentId": "classic:shen-lu-meng",
+      "officialId": 202,
+      "name": "神吕蒙",
+      "maxHp": 3,
+      "initialHp": 3,
+      "sourcePage": "https://www.sanguosha.com/hero/202",
+      "officialSkillText": "摸牌阶段，你可以改为亮出牌堆顶的五张牌，然后获得每种花色的牌各一张。 出牌阶段限一次，你可以观看一名其他角色的手牌，然后你可以展示其中一张红桃牌并选择一项：1.弃置此牌；2.将此牌置于牌堆顶。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/20200.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-lu-meng.png",
+        "sha256": "0A63C8ED0A8F897A6B15D74C1BF9153E07F03CA5F052B003D2599A11839237BC",
+        "width": 750,
+        "height": 950
+      }
+    },
+    {
+      "contentId": "ol:shen-zhou-yu",
+      "officialId": 203,
+      "name": "神周瑜",
+      "maxHp": 4,
+      "initialHp": 4,
+      "sourcePage": "https://www.sanguosha.com/hero/203",
+      "officialSkillText": "弃牌阶段结束时，若你本阶段弃置过至少两张手牌，你可以选择令所有角色：1.各回复1点体力；2.各失去1点体力。 限定技，出牌阶段，你可以选择至多三名角色，对其造成共计至多3点火焰伤害。若你将对一名角色分配至少2点伤害，你须先弃置四张花色各不相同的手牌并失去3点体力。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/20300.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-zhou-yu.png",
+        "sha256": "121C1175672F049CC25CFAC47FC2C71B82FE24BAC8DD559B090A88184708FE76",
+        "width": 750,
+        "height": 950
+      }
+    },
+    {
+      "contentId": "ol:shen-zhuge-liang",
+      "officialId": 204,
+      "name": "神诸葛亮",
+      "maxHp": 3,
+      "initialHp": 3,
+      "sourcePage": "https://www.sanguosha.com/hero/204",
+      "officialSkillText": "游戏开始时，你将牌堆顶的七张牌暗置于你的武将牌上，称为“星”，然后你可以用任意张手牌替换等量“星”。摸牌阶段结束时，你可以用任意张手牌替换等量“星”。 结束阶段，你可以移去一张“星”并选择一名角色，然后直到你的下回合开始，当其受到火焰伤害时，此伤害+1。 结束阶段，你可以移去任意张“星”并选择等量角色，然后直到你的下回合开始，当其受到非雷电伤害时，防止此伤害。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/20400.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-zhuge-liang.png",
+        "sha256": "25D2EBF3BE26558C2634BB7C477FB4C09C5CD56FE61C6119F7E781722259BD76",
+        "width": 750,
+        "height": 950
+      }
+    },
+    {
+      "contentId": "classic:shen-cao-cao",
+      "officialId": 205,
+      "name": "神曹操",
+      "maxHp": 3,
+      "initialHp": 3,
+      "sourcePage": "https://www.sanguosha.com/hero/205",
+      "officialSkillText": "当你受到1点伤害后，你可以随机获得每名其他角色区域里的一张牌，然后翻面。 锁定技，其他角色计算与你的距离+1。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/20500.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-cao-cao.png",
+        "sha256": "F04003B2C251B7355E9E2FFAC63A0FE719495123AEF62E9749A944A57D582D61",
+        "width": 750,
+        "height": 950
+      }
+    },
+    {
+      "contentId": "ol:shen-lu-bu",
+      "officialId": 206,
+      "name": "神吕布",
+      "maxHp": 5,
+      "initialHp": 5,
+      "sourcePage": "https://www.sanguosha.com/hero/206",
+      "officialSkillText": "锁定技，游戏开始时，你获得2枚“暴怒”标记。当你造成或受到1点伤害后，你获得1枚“暴怒”标记。 锁定技，当你使用普通锦囊牌时，你移除1枚“暴怒”标记或失去1点体力。 出牌阶段，你可以移除2枚“暴怒”标记并选择一名其他角色，然后你本回合获得“ 无双 ”且其防具失效。 出牌阶段限一次，你可以移除6枚“暴怒”标记，对所有其他角色各造成1点伤害，令这些角色先各弃置装备区里的所有牌，再弃置四张手牌，然后你翻面。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/20600.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-lu-bu.png",
+        "sha256": "E79C9B40F1B22D64E85B6A52D102FDE04E509F23280B181B3352771B78A94DDF",
+        "width": 750,
+        "height": 950
+      }
+    },
+    {
+      "contentId": "ol:shen-zhao-yun",
+      "officialId": 207,
+      "name": "神赵云",
+      "maxHp": 2,
+      "initialHp": 2,
+      "sourcePage": "https://www.sanguosha.com/hero/207",
+      "officialSkillText": "锁定技，你的手牌上限+2。当你进入或脱离濒死状态时，你摸一张牌。 你可以将至多两张花色相同的牌按以下规则使用或打出：红桃当【桃】；方片当火【杀】；梅花当【闪】；黑桃当【无懈可击】。若你以此法转化使用了两张：红色牌，此牌回复值或伤害值+1；黑色牌，你弃置当前回合角色一张牌。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/20700.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-zhao-yun.png",
+        "sha256": "D750ED4C2D6CF443C797AF550E8B219A0281D6B1893FFD7A0E2B438AED9C614D",
+        "width": 750,
+        "height": 950
+      }
+    },
+    {
+      "contentId": "ol:shen-sima-yi",
+      "officialId": 208,
+      "name": "神司马懿",
+      "maxHp": 4,
+      "initialHp": 4,
+      "sourcePage": "https://www.sanguosha.com/hero/208",
+      "officialSkillText": "锁定技，当你受到1点伤害或于弃牌阶段弃置一张手牌后，你获得1枚“忍”标记。 觉醒技，准备阶段，若你“忍”的数量不小于4，你减少1点体力上限并获得“ 极略 ”。 你杀死过角色的回合结束后，你可以执行一个额外的回合。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/20800.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-sima-yi.png",
+        "sha256": "F4FF3CAB33DD403EEC0121A594C403BE60AD3BB6D6188D8AA28D4516ECFD0712",
+        "width": 750,
+        "height": 950
+      }
+    },
+    {
+      "contentId": "ol:shen-liu-bei",
+      "officialId": 220,
+      "name": "神刘备",
+      "maxHp": 6,
+      "initialHp": 6,
+      "sourcePage": "https://www.sanguosha.com/hero/220",
+      "officialSkillText": "转换技，锁定技，出牌阶段开始时，阳：你失去1点体力并摸一张牌，然后本阶段你的红色手牌均视为火【杀】且无距离限制；阴：你减少1点体力上限并摸一张牌，然后本阶段你的锦囊牌均视为雷【杀】且无次数限制。 锁定技，你始终处于连环状态。所有连环状态的角色手牌上限+2。结束阶段，你令一名其他角色进入连环状态。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/22000.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-liu-bei.png",
+        "sha256": "317B7B45E90114690A201372B0860BA03141F5C6F525E291D62FDEEB1C668DA3",
+        "width": 750,
+        "height": 950
+      }
+    },
+    {
+      "contentId": "ol:shen-lu-xun",
+      "officialId": 221,
+      "name": "神陆逊",
+      "maxHp": 4,
+      "initialHp": 4,
+      "sourcePage": "https://www.sanguosha.com/hero/221",
+      "officialSkillText": "锁定技，当你受到或造成1点伤害后，你获得1枚“军略”标记。 出牌阶段开始时，若“军略”数：为奇数，你可以对一名角色造成1点伤害；为偶数，你可以弃置一名角色区域里一张牌并令其进入连环状态。然后若大于7，你可以移除所有“军略”并对所有其他角色造成1点伤害。 限定技，出牌阶段，你可以移除所有“军略”，令至多等量的连环状态角色弃置所有装备区里的牌，然后对其中一名角色造成1点火焰伤害。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/22100.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-lu-xun.png",
+        "sha256": "816E74D893FE31F5DF0A4053BD8FD392E85D3FA319FDBB3A4A0457E2A15278E0",
+        "width": 750,
+        "height": 950
+      }
+    },
+    {
+      "contentId": "ol:shen-gan-ning",
+      "officialId": 224,
+      "name": "神甘宁",
+      "maxHp": 6,
+      "initialHp": 3,
+      "sourcePage": "https://www.sanguosha.com/hero/224",
+      "officialSkillText": "出牌阶段限一次，你可以观看一名其他角色的手牌并可以弃置你与其手牌中共计四张不同花色的牌，若如此做，你根据弃置牌中你的牌的数量执行效果：0张，减少1点体力上限；1张，结束出牌阶段且本回合手牌上限-1；3张，回复1点体力；4张，摸四张牌。 回合开始时，若场上没有“营”标记，你获得“营”。结束阶段，你可以将“营”置于一名角色的武将牌上。有“营”的角色摸牌阶段多摸一张牌、出牌阶段使用【杀】的限制次数+1、手牌上限+1。有“营”的其他角色回合结束后，你获得其所有手牌和“营”。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/22400.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-gan-ning.png",
+        "sha256": "1F847B6468FEDE63C1B2E84E49F3E86A6AD27955E357351DABBA1F21244EDD65",
+        "width": 750,
+        "height": 950
+      }
+    },
+    {
+      "contentId": "ol:shen-zhang-liao",
+      "officialId": 225,
+      "name": "神张辽",
+      "maxHp": 4,
+      "initialHp": 4,
+      "sourcePage": "https://www.sanguosha.com/hero/225",
+      "officialSkillText": "当你于出牌阶段对其他角色造成伤害后，若其技能未因本技能失效，你可以令其武将牌上的一个技能于下回合结束前失效，然后结束出牌阶段。 锁定技，你攻击范围内已受伤角色的手牌上限-1。若已受伤角色数不小于：1,你的手牌上限+1；3,你摸牌阶段摸牌数+1；5,结束阶段，你废除一名其他角色随机一个装备栏。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/22500.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-zhang-liao.png",
+        "sha256": "523AD60160AB2B9086140A8677C7F71984F81878D14EE249B6E68F0CADD11929",
+        "width": 750,
+        "height": 950
+      }
+    },
+    {
+      "contentId": "ol:shen-sun-quan",
+      "officialId": 226,
+      "name": "神孙权",
+      "maxHp": 4,
+      "initialHp": 4,
+      "sourcePage": "https://www.sanguosha.com/hero/226",
+      "officialSkillText": "锁定技，回合开始时，你弃置任意张花色不同的牌，随机获得等量吴势力武将的技能。回合结束时，你失去以此法获得的技能，摸等量张牌。 觉醒技，当你的技能数超过体力上限后，你减少1点体力上限，失去任意个其他技能并获得“ 圣质 ”“ 权道 ”“ 持纲 ”中的前等量个。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/22600.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-sun-quan.png",
+        "sha256": "5FDA178F9919FA4D743CF34B1BDC60D497F5F523689EC307C6ECBB34F46EF7D6",
+        "width": 750,
+        "height": 950
+      }
+    },
+    {
+      "contentId": "ol:shen-zhang-jiao",
+      "officialId": 227,
+      "name": "神张角",
+      "maxHp": 3,
+      "initialHp": 3,
+      "sourcePage": "https://www.sanguosha.com/hero/227",
+      "officialSkillText": "锁定技，当你使用或打出牌时，你获得此牌点数的“黄”标记，若“黄”的十位数变化，你获得牌堆中一张与变化后十位数点数相同的牌。 准备阶段，若“黄”标记数大于牌堆牌数，你可以移除所有“黄”并获得牌堆中若干张点数和为36的牌。 牌堆洗过牌的回合结束时，你可以对至多三名其他角色各造成X点雷电伤害（X为其手牌中【闪】的数量且至少为1）。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/22700.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-zhang-jiao.png",
+        "sha256": "9C015B5AFA7B6E75823697A153BA4BBFC587029B0DBE908A20458167C29C08D7",
+        "width": 750,
+        "height": 950
+      }
+    },
+    {
+      "contentId": "ol:shen-dian-wei",
+      "officialId": 229,
+      "name": "神典韦",
+      "maxHp": 4,
+      "initialHp": 4,
+      "sourcePage": "https://www.sanguosha.com/hero/229",
+      "officialSkillText": "锁定技，游戏开始时，你废除防具栏并获得一个额外的武器栏。 锁定技，准备阶段，你从随机五张武将牌中选择任意张当武器牌置于装备区，此类牌：无花色点数、攻击范围为牌上的体力上限、效果为牌上描述中含有“【杀】”的技能（觉醒技、限定技、转换技、主公技除外）、离开装备区时销毁。 出牌阶段，你可以弃置一张牌，然后对一名攻击范围内距离最远的其他角色造成1点伤害，每名角色每回合限一次。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/22900.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-dian-wei.png",
+        "sha256": "2F889806CC2C31D38500687FC88DAF71F556892C3ECF65B4E0A9214D7CFFE060",
+        "width": 750,
+        "height": 950
+      }
+    },
+    {
+      "contentId": "ol:shen-huang-zhong",
+      "officialId": 230,
+      "name": "神黄忠",
+      "maxHp": 4,
+      "initialHp": 4,
+      "sourcePage": "https://www.sanguosha.com/hero/230",
+      "officialSkillText": "出牌阶段开始时，你可视为使用一张无距离限制的【杀】，然后将【 赤血刃 】置入唯一目标角色的装备区（替换原装备）。每个结束阶段，若你本回合造成过伤害或使用过至少两张伤害牌，且【赤血刃】在其他角色装备区，你可将其移动至你的装备区（替换原装备），获得其和其与你之间角色各随机一张牌。 限定技，准备阶段，你可将场上或你的一张武器牌永久移出游戏，摸等同于其攻击范围数量的牌，视为拥有其技能。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/23000.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-shen-huang-zhong.png",
+        "sha256": "0432C12F6F90100E781A80C6E7B2637D5BB6F43F55B51915495CD56D0199FBE9",
+        "width": 750,
+        "height": 950
+      }
+    }
+  ],
+  "derivedRuleSources": [
+    {
+      "url": "https://www.sanguosha.com/news/20200420_5154_3219",
+      "use": "OL 极略采用界鬼才、界集智、界制衡，并保留放逐和完杀。"
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20221206_3507_5113",
+      "use": "神孙权帝力派生圣质、权道、持纲技能文本。"
+    },
+    {
+      "url": "https://www.taptap.cn/moment/838728171804166584",
+      "use": "三国杀官方账号公布赤血刃技能。"
+    }
+  ],
+  "editionNotes": [
+    "复用现有正式神吕蒙、神曹操内容；保留历史经典和自定义版本。",
+    "其余当前 OL 定义使用 ol 命名空间，与旧版身份分离。",
+    "本批仅更新内容与追加可选规则节点；未变更规则时代、JSON 架构或包版本。",
+    "驭衡技能抽样范围为当前内容注册表中已实现的吴势力武将技能；尚未注册的 OL 技能不在该抽样池中。"
+  ],
+  "generatedWeaponArtwork": {
+    "kind": "repository-native",
+    "generator": "tools/Build-GeneratedWeaponArtwork.ps1",
+    "use": "生成装备的通用牌框与武器图标；武将名称、花色和点数由运行时独立叠加。",
+    "assets": [
+      {
+        "localPath": "src/CardGame.Wpf/Assets/Cards/RedBloodBlade.png",
+        "sha256": "2AFA148B482FEDF1F473E871421E089937A2BA30A560979DC526C65AA0659FA9"
+      },
+      {
+        "localPath": "src/CardGame.Wpf/Assets/Cards/equip-RedBloodBlade.png",
+        "sha256": "90744B8FC8EE45037CD9565FB6E04CF863B59E45894C601B7B02AE8C3D8864B6"
+      },
+      {
+        "localPath": "src/CardGame.Wpf/Assets/Cards/GeneralWeapon.png",
+        "sha256": "562CF9B5808ECF8784352C155568A33EFE368CC89178C03980C49E047EA61BE5"
+      },
+      {
+        "localPath": "src/CardGame.Wpf/Assets/Cards/equip-GeneralWeapon.png",
+        "sha256": "812ACE8990F778D4EFC0A4F5DC521ADA7E2BDB6C260F0F4E01C8D02EA60CE7A4"
+      }
+    ]
+  },
+  "interpretationNotes": [
+    {
+      "skill": "ol:shenyu",
+      "officialText": "获得其和其与你之间角色各随机一张牌",
+      "implementation": "含赤血刃原持有者，排除神御发动者；取人数较少的存活座次路径，等长时顺时针。区域牌随机获得。",
+      "limitation": "官网正文未明确座次方向；未找到官方 FAQ 对该方向的补充，此处是当前引擎解释。"
+    },
+    {
+      "interaction": "borrowed-sword.multi-weapon",
+      "sourcePage": "https://www.sanguosha.com/news/20161121_6612_3914",
+      "implementation": "拒绝出杀时收取目标装备区的武器牌集合；普通武器进入用牌者手牌，武将武器按离开装备区销毁。单武器场景保持原流程。",
+      "limitation": "官网攻略说明借刀获得武器牌，未找到官方 FAQ 对双武器场景的补充；集合解释已由行为检查固定。"
+    },
+    {
+      "skill": "ol:qiexie",
+      "officialText": "选择任意张当武器牌置于装备区",
+      "implementation": "按选择顺序将所选武将武器置入装备区；武器栏容量满时沿用装备替换流程，被替换的武将武器离开装备区销毁。",
+      "limitation": "官网正文未限定空武器栏，也未明确多张置入时的替换顺序；当前采用顺序置入解释。"
+    }
+  ]
+}

@@ -111,6 +111,7 @@ internal static class ProgramCompositionAi
 
 internal sealed class ProgramAiEstimateContext
 {
+    private static readonly Suit[] EstimatedSuits = Enum.GetValues<Suit>();
     private sealed record CardSetEstimate(double Count, double[] Suits, bool OwnerHeld, bool TargetHeld = false,
         bool ActivationInput = false);
 
@@ -154,6 +155,7 @@ internal sealed class ProgramAiEstimateContext
         var amount = effect.NumberExpression switch
         {
             SkillProgramNumberExpression.OwnerLostHp => Math.Max(0, _player.MaxHp - _player.Hp),
+              SkillProgramNumberExpression.LostHpMinusHandCount => Math.Max(0, _player.MaxHp - Math.Max(0, _player.Hp) - _estimatedHandCount),
             SkillProgramNumberExpression.LivingFactionCount => _publicContext.LivingFactionCount,
             SkillProgramNumberExpression.LivingPlayersMinHp => _publicContext.LivingPlayersMinHp ?? _player.Hp,
             SkillProgramNumberExpression.TargetMaxHpMinusHandCount =>
@@ -214,10 +216,10 @@ internal sealed class ProgramAiEstimateContext
     internal void Filter(SkillProgramEffect effect)
     {
         var source = Binding(effect.SourceBind);
-        var suits = new double[4];
-        foreach (var suit in Enum.GetValues<Suit>())
-            suits[(int)suit] = source.Suits[(int)suit] *
-                ProgramCardSetFilter.PriorForSuit(suit, effect.Suits, effect.CardCategories,
+        var suits = new double[EstimatedSuits.Length];
+        for (var index = 0; index < EstimatedSuits.Length; index++)
+            suits[index] = source.Suits[index] *
+                ProgramCardSetFilter.PriorForSuit(EstimatedSuits[index], effect.Suits, effect.CardCategories,
                     effect.EquipmentSlots, effect.CardKinds);
         _bindings[effect.ResultBind!] = new CardSetEstimate(suits.Sum(), suits, source.OwnerHeld, source.TargetHeld,
             source.ActivationInput);
@@ -325,8 +327,7 @@ internal sealed class ProgramAiEstimateContext
         var available = (effect.Zones.Contains(CardZoneKind.Hand) ? Math.Max(0, knownHand) : 0) +
             effect.Zones.Count(zone => zone is CardZoneKind.Equipment or CardZoneKind.Judgment);
         var selected = Math.Min(count, available);
-        _bindings[effect.ResultBind!] = new(selected, Enumerable.Repeat(selected / 4d, 4).ToArray(),
-            ownedByActor, !ownedByActor);
+        _bindings[effect.ResultBind!] = UnknownCards(selected, ownedByActor) with { TargetHeld = !ownedByActor };
     }
 
     internal void CaptureSelectedCards(SkillProgramEffect effect) =>
@@ -620,6 +621,14 @@ internal sealed class ProgramAiEstimateContext
         effect.Condition.Kind == SkillProgramConditionKind.BoundCardSuitMatchesChoice
             ? effect.Amount * 0.75d : effect.Amount;
     internal void Pindian(SkillProgramEffect effect) => _otherAdjustment += 4d;
+    internal void CategoryAlternativeDiscard(SkillProgramEffect effect) =>
+        // The chooser's concealed categories are unknown. Price the configured
+        // two alternatives evenly using only the public hand count.
+        _targetDraw -= Math.Min(_publicContext.SelectedTarget?.HandCount ?? effect.MinimumValue,
+            (effect.Amount + effect.MinimumValue) / 2d);
+    internal void EscalatingDiscardOrDamage(SkillProgramEffect effect) =>
+        // Multi-participant attacks carry a conservative field-wide prior.
+        _otherAdjustment += effect.Amount * 8d;
     internal void ChangeMaximumHp(SkillProgramEffect effect) =>
         _otherAdjustment += effect.Amount * 18d;
     internal void GrantSkills(SkillProgramEffect effect) =>
@@ -663,7 +672,8 @@ internal sealed class ProgramAiEstimateContext
         effect.Target == SkillProgramEffectTarget.Actor && _publicContext.CardActionActorIsOwner;
 
     private static CardSetEstimate UnknownCards(double count, bool ownerHeld) =>
-        new(count, Enumerable.Repeat(count / 4d, 4).ToArray(), ownerHeld);
+        // Ordinary unknown cards retain the four-suit prior; generated suitless cards have no unknown-deck mass.
+        new(count, EstimatedSuits.Select(suit => suit == Suit.None ? 0d : count / 4d).ToArray(), ownerHeld);
 
     private static int Rounded(double value) => (int)Math.Round(value, MidpointRounding.AwayFromZero);
 }

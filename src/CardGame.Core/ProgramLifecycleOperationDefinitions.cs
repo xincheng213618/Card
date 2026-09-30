@@ -19,7 +19,7 @@ internal sealed class DamageProgramOperationDescriptor : ProgramOperationDescrip
                                           (ProgramParticipantRef.EventTarget or ProgramParticipantRef.EventSource)))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.targetRef: event damage participant requires owner placeholder.");
         var nature = r.Has("nature") ? r.RequiredEnum<DamageNature>("nature") : (DamageNature?)null;
-        if (sourceRef?.Kind is not null and not (ProgramParticipantRef.Owner or
+        if (sourceRef?.Kind is not null and not (ProgramParticipantRef.Owner or ProgramParticipantRef.SelectedTarget or
             ProgramParticipantRef.ResultSource or ProgramParticipantRef.ResultOpponent))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.sourceRef: unsupported damage source.");
         var skip = r.Has("skipIfNoTarget") && r.RequiredBool("skipIfNoTarget");
@@ -32,6 +32,7 @@ internal sealed class DamageProgramOperationDescriptor : ProgramOperationDescrip
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         (effect.Target == SkillProgramEffectTarget.SelectedTarget
             ? [new ReadSelectedTarget()] : Array.Empty<ProgramResourceOperation>())
+        .Concat(effect.ActorReference?.Kind == ProgramParticipantRef.SelectedTarget ? [new ReadSelectedTarget()] : Array.Empty<ProgramResourceOperation>())
         .Concat(effect.ActorReference is { Kind: ProgramParticipantRef.ResultOpponent or ProgramParticipantRef.ResultSource } reference
             ? [new ReadPindianResult(reference.ResultBind!)] : Array.Empty<ProgramResourceOperation>())
         .Concat(effect.TargetReference is null ? [] :
@@ -162,14 +163,14 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
             SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.OtherLivingHandAtLeastOwner or
             SkillProgramTargetKind.CurrentCardUseTargets or SkillProgramTargetKind.OtherLivingMale or
             SkillProgramTargetKind.AnyWounded or SkillProgramTargetKind.OtherLivingPair or
-            SkillProgramTargetKind.LivingPairDistinct))
+            SkillProgramTargetKind.LivingPairDistinct or SkillProgramTargetKind.EquipmentExchangePair))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.targetKind: unsupported target set.");
         var minimum = r.RequiredInt("minimumTargets");
         var maximum = r.RequiredInt("maximumTargets");
         var numberExpression = r.Has("numberExpression")
             ? r.RequiredEnum<SkillProgramNumberExpression>("numberExpression") : (SkillProgramNumberExpression?)null;
         if (numberExpression is not null and not (SkillProgramNumberExpression.CurrentHandCount or
-            SkillProgramNumberExpression.PlannedNormalDrawCount))
+            SkillProgramNumberExpression.PlannedNormalDrawCount or SkillProgramNumberExpression.BoundCardCount))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: unsupported target maximum expression.");
         if (minimum < 1 || maximum < minimum || maximum > (kind == SkillProgramTargetKind.CurrentCardUseTargets
             ? 64 : kind is SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.AnyWounded or
@@ -183,6 +184,8 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: ordered male pairs require exactly two targets.");
         if (kind == SkillProgramTargetKind.LivingPairDistinct && (minimum != 2 || maximum != 2))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: ordered living pairs require exactly two targets.");
+        if (kind == SkillProgramTargetKind.EquipmentExchangePair && (minimum != 2 || maximum != 2))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: equipment exchange requires exactly two targets.");
         var aiOrder = r.RequiredEnum<SkillProgramTargetAiOrder>("targetAiOrder");
         if (aiOrder == SkillProgramTargetAiOrder.CardEffectIntervention &&
             kind != SkillProgramTargetKind.CurrentCardUseTargets)
@@ -392,13 +395,14 @@ internal sealed class GrantTurnHandColorRestrictionProgramOperationDescriptor : 
         static (effect, context) => context.GrantTurnHandColorRestriction(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "sourceBind", "condition");
+        r.AllowOnly("op", "target", "sourceBind", "useFrozenSuit", "condition");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.SelectedTarget)
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}.target: hand-color restriction requires selectedTarget.");
         var effect = new SkillProgramEffect(Op, target, 0, r.Condition(),
-            sourceBind: r.RequiredIdentifier("sourceBind"));
+            sourceBind: r.RequiredIdentifier("sourceBind"),
+            useFrozenSuit: r.Has("useFrozenSuit") && r.RequiredBool("useFrozenSuit"));
         RequireAlways(effect, r.Path);
         return effect;
     }
@@ -433,6 +437,14 @@ internal sealed class GrantTurnRuleModifierProgramOperationDescriptor : TurnEffe
     {
         var query = r.RequiredEnum<SkillRuleQuery>("ruleQuery");
         var operation = r.RequiredEnum<SkillRuleOperation>("ruleOperation");
+        if (query == SkillRuleQuery.OutgoingDistance && operation == SkillRuleOperation.Add)
+        {
+            r.AllowOnly("op", "target", "ruleQuery", "ruleOperation", "amount", "condition");
+            var amount = r.RequiredInt("amount");
+            if (amount is < -20 or > 20 || amount == 0)
+                throw new InvalidOperationException($"Invalid skill program at {r.Path}.amount: outgoing distance requires a nonzero value in -20..20.");
+            return new(Op, Owner(r), amount, r.Condition(), ruleQuery: query, ruleOperation: operation);
+        }
         if (query == SkillRuleQuery.CardTargetCount && operation == SkillRuleOperation.Add)
         {
             r.AllowOnly("op", "target", "ruleQuery", "ruleOperation", "amount", "cardKinds", "condition");

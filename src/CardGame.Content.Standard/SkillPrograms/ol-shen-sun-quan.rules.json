@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:yuheng",
+      "revision": 1,
+      "minimumRulesVersion": 186,
+      "triggers": [
+        {
+          "id": "sample-wu-skills",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "priority": 100,
+          "effects": [
+            {
+              "op": "sampleFactionSkills",
+              "target": "owner",
+              "providerFactionId": "wu"
+            }
+          ]
+        },
+        {
+          "id": "expire-wu-skills",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "expireSampledSkills",
+              "target": "owner",
+              "stateId": "ol:yuheng"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:dili",
+      "revision": 1,
+      "minimumRulesVersion": 186,
+      "triggers": [
+        {
+          "id": "awaken-on-acquisition",
+          "window": "skillsChanged",
+          "subject": "owner",
+          "optional": false,
+          "priority": 100,
+          "effects": [
+            {
+              "op": "replaceSkillsOnAwakening",
+              "target": "owner",
+              "skillIds": [
+                "ol:shengzhi",
+                "ol:quandao",
+                "ol:chigang"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "awaken-at-turn-start",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "replaceSkillsOnAwakening",
+              "target": "owner",
+              "skillIds": [
+                "ol:shengzhi",
+                "ol:quandao",
+                "ol:chigang"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:shengzhi",
+      "revision": 1,
+      "minimumRulesVersion": 186,
+      "cardPolicies": [
+        {
+          "id": "next-card-after-skill",
+          "kind": "nextCardUnlimitedAfterNonLockedSkill"
+        }
+      ]
+    },
+    {
+      "id": "ol:quandao",
+      "revision": 1,
+      "minimumRulesVersion": 186,
+      "triggers": [
+        {
+          "id": "balance-after-card",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "priority": 0,
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash",
+            "duel",
+            "drawTwo",
+            "barbarianAssault",
+            "arrowBarrage",
+            "peachGarden",
+            "fiveGrains",
+            "dismantlement",
+            "snatch",
+            "fireAttack",
+            "ironChain",
+            "borrowedSword"
+          ],
+          "effects": [
+            {
+              "op": "balanceHandAttackTricks",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:chigang",
+      "revision": 1,
+      "minimumRulesVersion": 186,
+      "triggers": [
+        {
+          "id": "replace-judgment",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "priority": -100,
+          "effects": [
+            {
+              "op": "replaceJudgmentPhase",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

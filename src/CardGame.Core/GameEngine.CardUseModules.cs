@@ -4,6 +4,7 @@ public sealed partial class GameEngine
 {
     private bool IsTurnHandCardRestricted(CharacterState player, Card card)
     {
+        if (IsPlayPhasePhysicalCardRestricted(player, card)) return true;
         if (_cardZones.GetLocation(card.Id) != CardLocation.Hand(player.Seat)) return false;
         if (_pendingAttack is { ProhibitsTargetHandResponses: true } attack &&
             attack.TargetSeat == player.Seat && attack.CardUserSeat != player.Seat)
@@ -38,7 +39,9 @@ public sealed partial class GameEngine
                     return false;
             }
             if (!TryGetLegalActionEffectiveCardKind(actor, action, out var effectiveKind)) return true;
-            return !IsCardUseForbidden(actor.Seat, effectiveKind, CardActionType.Use) &&
+            return !(action.CardId is { } id && IsPlayPhasePhysicalCardRestricted(actor,
+                _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(card => card.Id == id))) &&
+                !IsCardUseForbidden(actor.Seat, effectiveKind, CardActionType.Use) &&
                 GetDeclaredCardTargets(actor, action.Kind, action.TargetSeats).All(targetSeat =>
                     !IsDirectedCardTargetProhibited(actor.Seat, targetSeat, effectiveKind));
         }).ToArray();
@@ -100,6 +103,7 @@ public sealed partial class GameEngine
 
     private void ExpireOwnerTurnStartDamageModifiers(int ownerSeat)
     {
+        ExpireAttributedNatureMarkers(ownerSeat);
         var expired = _turnCardUseEffects.ExpireDamageModifiersAtOwnerTurnStart(ownerSeat, _turnNumber);
         if (expired.Count > 0)
             QueueGameEvent(new TurnCardUseEffectsExpiredEvent(_turnNumber, ownerSeat, expired));
@@ -158,17 +162,19 @@ public sealed partial class GameEngine
     private void GrantProgramTurnHandColorRestriction(
         ProgramSkillFrame frame,
         string sourceBind,
-        int targetSeat)
+        int targetSeat, bool useFrozenSuit = false)
     {
         ValidateProgramTurnEffectGrant(frame);
         if (!IsValidPlayerSeat(targetSeat) || targetSeat == frame.OwnerSeat || !_players[targetSeat].IsAlive)
             throw new InvalidOperationException("A hand-color restriction requires one living other character.");
         var binding = GetProgramCardSet(frame, sourceBind);
         if (binding.CardIds.Count != 1 || binding.SourceLocations.Count != 1 ||
-            _cardZones.GetLocation(binding.CardIds[0]) != binding.SourceLocations[0])
+            (!useFrozenSuit && _cardZones.GetLocation(binding.CardIds[0]) != binding.SourceLocations[0]))
             throw new InvalidOperationException("A hand-color restriction requires one stable bound card.");
-        var card = _cardZones.CardsAt(binding.SourceLocations[0])
-            .Single(item => item.Id == binding.CardIds[0]);
+        var effectiveSuit = useFrozenSuit
+            ? binding.FrozenRevealedSuit ?? throw new InvalidOperationException("A frozen hand-color restriction requires its captured suit.")
+            : EffectiveSuit(_players[frame.OwnerSeat], _cardZones.CardsAt(binding.SourceLocations[0])
+                .Single(item => item.Id == binding.CardIds[0]));
         var granted = _turnCardUseEffects.GrantHandColorRestriction(
             _turnNumber,
             _currentSeat,
@@ -176,7 +182,7 @@ public sealed partial class GameEngine
             frame.InstructionIndex - 1,
             CreateProgramTurnEffectSource(frame),
             targetSeat,
-            IsRedSuit(EffectiveSuit(_players[frame.OwnerSeat], card)));
+            IsRedSuit(effectiveSuit));
         QueueGameEvent(new HandCardColorRestrictionGrantedEvent(granted));
     }
 
@@ -205,6 +211,7 @@ public sealed partial class GameEngine
         ValidateProgramTurnEffectGrant(frame);
         var valid = query is (SkillRuleQuery.SlashLimit or SkillRuleQuery.HandLimit) &&
                     operation == SkillRuleOperation.Add && amount > 0 ||
+                    query == SkillRuleQuery.OutgoingDistance && operation == SkillRuleOperation.Add && amount is >= -20 and <= 20 && amount != 0 ||
                     (query is SkillRuleQuery.SlashDistanceLimit or SkillRuleQuery.AttackRange) &&
                     operation == SkillRuleOperation.Unlimited && amount == 0 ||
                     query == SkillRuleQuery.CardTargetCount && operation == SkillRuleOperation.Add &&

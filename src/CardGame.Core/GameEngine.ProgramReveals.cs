@@ -19,7 +19,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A hand reveal requires exactly one selected target.");
         var chooserSeat = ResolveProgramParticipant(active, chooserRef);
         var holderSeat = ResolveProgramParticipant(active, cardOwnerRef);
-        if (chooserSeat != frame.OwnerSeat || holderSeat == frame.OwnerSeat)
+        if (chooserSeat != frame.OwnerSeat || holderSeat == frame.OwnerSeat &&
+            mode != SkillProgramRevealMode.SelfChoiceOtherwiseRandom)
             throw new InvalidOperationException(
                 "A hand reveal must target another character's hand and be chosen by the skill owner.");
         var candidates = GetHand(_players[holderSeat]).Select(card => card.Id).ToArray();
@@ -35,13 +36,14 @@ public sealed partial class GameEngine
                 _players[holderSeat],
                 _cardZones.CardsAt(CardLocation.Hand(holderSeat)).Single(card => card.Id == cardId))))
                 .ToArray();
-        if (mode == SkillProgramRevealMode.Random && eligible.Length == 0 ||
+        if ((mode is SkillProgramRevealMode.Random or SkillProgramRevealMode.SelfChoiceOtherwiseRandom) && eligible.Length == 0 ||
             mode == SkillProgramRevealMode.Chooser && eligible.Length == 0 && !allowDecline)
         {
             CancelProgramBindingAndCleanup(active, "目标没有符合条件的牌，技能结算已取消。");
             return SkillProgramStepOutcome.AwaitChild;
         }
-        if (mode == SkillProgramRevealMode.Random)
+        if (mode == SkillProgramRevealMode.Random ||
+            mode == SkillProgramRevealMode.SelfChoiceOtherwiseRandom && holderSeat != chooserSeat)
         {
             CommitProgramHandReveal(frame.Id, holderSeat, resultBind,
                 [eligible[_random.Next(eligible.Length)]]);
@@ -167,7 +169,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A suspended reveal lost its private draft.");
         var expectedChoices = draft.EligibleCardIds.Count + (draft.AllowDecline ? 1 : 0);
         if (draft.ResultBind != paused.ResultBind || draft.ChooserSeat != frame.OwnerSeat ||
-            draft.HolderSeat == frame.OwnerSeat ||
+            (draft.HolderSeat == frame.OwnerSeat && paused.RevealMode != SkillProgramRevealMode.SelfChoiceOtherwiseRandom) ||
             draft.AllowDecline != paused.AllowDecline ||
             draft.CandidateCardIds.Count == 0 ||
             draft.CandidateCardIds.Distinct().Count() != draft.CandidateCardIds.Count ||

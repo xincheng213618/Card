@@ -1,0 +1,1 @@
+{"schemaVersion":3,"skills":{"classic:qiaoshui":{"name":"巧说","description":"出牌阶段开始时，你可以拼点：若你赢，你本回合使用的下一张牌可以多指定或少指定一个目标（至少指定一个目标）；若你没赢，你本回合不能使用锦囊牌。"},"classic:zongshi-pindian":{"name":"纵适","description":"当你拼点赢时，你可以获得点数较小的拼点牌；当你拼点没赢时，你可以获得你的拼点牌。"}}}

@@ -28,10 +28,20 @@ public sealed partial class MainViewModel
     private static bool MatchesSkill(LegalAction action, HumanSkillViewModel skill) =>
         skill.ContentId is not null && action.ProgramSkillId == skill.ContentId;
 
-    public IReadOnlyList<EquipmentSlotViewModel> HumanEquipmentSlots => Enum.GetValues<EquipmentSlot>()
-        .Select(slot => new EquipmentSlotViewModel(slot, _snapshot?.Players.SingleOrDefault(player => player.IsHuman)?
-            .Equipment.SingleOrDefault(card => EquipmentCatalog.Get(card.Kind).Slot == slot)))
-        .ToArray();
+    public IReadOnlyList<EquipmentSlotViewModel> HumanEquipmentSlots
+    {
+        get
+        {
+            var human = _snapshot?.Players.SingleOrDefault(player => player.IsHuman);
+            return Enum.GetValues<EquipmentSlot>().SelectMany(slot =>
+            {
+                var cards = human?.Equipment.Where(card => EquipmentCatalog.Get(card.Kind).Slot == slot).ToArray() ?? [];
+                var count = Math.Max(human?.EquipmentSlotCapacities?.GetValueOrDefault(slot, 1) ?? 1, cards.Length);
+                return Enumerable.Range(0, count).Select(index => new EquipmentSlotViewModel(slot,
+                    index < cards.Length ? cards[index] : null));
+            }).ToArray();
+        }
+    }
 
     private ICommand? _activateHumanSkillCommand;
     public ICommand ActivateHumanSkillCommand => _activateHumanSkillCommand ??= new RelayCommand<HumanSkillViewModel>(skill =>
@@ -48,6 +58,8 @@ public sealed record EquipmentSlotViewModel(EquipmentSlot Slot, CardSnapshot? Ca
 {
     public string SlotName => EquipmentCatalog.GetSlotName(Slot);
     public bool IsOccupied => Card is not null;
+    public bool HasDynamicWeaponName => Card?.Kind == CardKind.GeneralWeapon;
+    public string Name => Card?.DisplayName ?? string.Empty;
     public ImageSource? Artwork => Card is { } card ? CardArt.GetEquipment(card.Kind) : null;
     private string Suit => Card?.Suit switch
     {

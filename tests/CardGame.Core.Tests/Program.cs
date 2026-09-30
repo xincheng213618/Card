@@ -37,6 +37,77 @@ var tests = new (string Name, Action Body)[]
     ("shared use lifecycle nests rescue inside a suspended card window", CardUseLifecycleChecks.NestedRescueRetainsTheOuterUseWindow),
     ("shared card-use phase-owner movement context validation", CardUseLifecycleChecks.PhaseOwnerDestinationRequiresPhaseContext),
     ("current classic catalogue modes and skill references", CurrentClassicContentChecks.CatalogueAndModes),
+    ("OL strategic gods Longnu chain aura and replay", OlStrategicGodsChecks.LongnuChainAuraAndReplay),
+    ("OL shared gods marker costs all-hand bonus and replay", OlGodSharedChecks.MarkerCostsAllHandBonusAndReplay),
+    ("OL shared gods heart Slash allowance and replay", OlGodSharedChecks.HeartSlashAllowanceAndReplay),
+    ("OL shared gods initial HP and content fingerprint", OlGodSharedChecks.InitialHpAndContentFingerprint),
+    ("OL shared gods kill extra turn at turn end and replay", OlGodSharedChecks.KillExtraTurnAtTurnEndAndReplay),
+    ("OL shared gods activation presentation and validation", OlGodSharedChecks.ActivationPresentationAndValidation),
+    ("OL modern gods sampling awakening and replay", OlModernGodsChecks.SamplingAwakeningAndReplay),
+    ("OL modern gods exact deck sum and card rank replay", OlModernGodsChecks.ExactDeckSumAndCardRankReplay),
+    ("OL modern gods general weapons slots and per-target damage", OlModernGodsChecks.GeneralWeaponsSlotsAndPerTargetDamage),
+    ("OL modern gods permanent weapon inheritance and replay", OlModernGodsChecks.PermanentWeaponInheritanceAndReplay),
+    ("OL modern gods named blade placement reclaim and replay", OlModernGodsChecks.NamedBladePlacementReclaimAndReplay),
+    ("OL modern gods shuffle thunder targets and replay", OlModernGodsChecks.ShuffleThunderTargetsAndReplay),
+    ("OL modern gods shared advanced definition validation", OlModernGodsChecks.AdvancedDefinitionValidation),
+    ("OL classic gods stars private exchange and fog replay", OlClassicGodChecks.StarsPrivateExchangeAndFogReplay),
+    ("OL classic gods rage costs and Shenfen ordering", OlClassicGodChecks.RageCostsAndShenfenOrdering),
+    ("OL classic gods Longhun two-card recovery fire and dying draw", OlClassicGodChecks.LonghunTwoCardRecoveryFireAndDyingDraw),
+    ("OL classic gods Yeyan distinct-suit cost and limited damage", OlClassicGodChecks.YeyanDistinctSuitCostAndLimitedDamage),
+    ("OL classic gods black responses and QinYin", OlClassicGodChecks.LonghunBlackResponsesAndQinyin),
+    ("OL strategic gods Poxi camp and private replay", OlStrategicGodsChecks.PoxiCampAndPrivateReplay),
+    ("OL strategic gods Junlue Zhanhuo and suppression", OlStrategicGodsChecks.JunlueZhanhuoAndSuppression),
+    ("Fame 2011 damage replacement refill and replay", Fame2011DamageChecks.ReplacementAndRefillProgramsLoadAndRun),
+    ("Fame 2011 assisted Slash turn immunity and replay", Fame2011CommandChecks.AssistedSlashAndTurnImmunitySurviveCheckpoints),
+    ("Fame 2011 equipment loss optional discards and replay", Fame2011MovementChecks.EquipmentLossOptionalDiscardsAndReplay),
+    ("Fame 2011 equipment atomic exchange and replay", Fame2011EquipmentChecks.GanluAtomicEquipmentAndReplay),
+    ("Fame 2011 equipment capacity loss movement occurrences", Fame2011EquipmentChecks.GanluCapacityLossAndMovementOccurrences),
+    ("Fame 2011 equipment dying reveal privacy and replay", Fame2011EquipmentChecks.BuyiSelfChoiceBlindOtherPrivacyAndReplay),
+    ("Fame 2011 maximum targets source prevention privacy and replay", Fame2011MaSuChecks.MaximumTargetsAndSourcePreventionReplay),
+    ("Fame 2011 transfer rewards repayments physical Slash and replay", Fame2011FaZhengChecks.TransferRewardsRepaymentsAndPhysicalSlashReplay),
+    ("Fame 2014 Wei Shenduan real discard and replay", Fame2014WeiChecks.ShenduanRealDiscardAndReplay),
+    ("Program trigger resource contracts", ProgramTriggerResourceChecks.TriggerWindowAndFrozenSuitContracts),
+    ("Fame 2014 control Pindi categories targets physical cost and replay", Fame2014ControlChecks.PindiPhysicalCategoriesTargetLimitsAndReplay),
+    ("Fame 2014 control Pindi inserted Play phase ledger and turn ordinal", Fame2014ControlChecks.PindiInsertedPlayResetsPhaseLedgerRetainsTurnOrdinal),
+    ("Fame 2014 control Zenhui extra target actor provider and replay", Fame2014ControlChecks.ZenhuiExtraTargetAndActorProviderReplay),
+    ("Fame 2014 control Zenhui Borrowed Sword compound targets and replay", Fame2014ControlChecks.ZenhuiBorrowedSwordCompoundTargetsCompleteAndReplay),
+    ("Fame 2014 control Faen state edges Jiaojin gender reduction replay", Fame2014ControlChecks.FaenStateEdgesAndJiaojinGenderReductionReplay),
+    ("Fame 2014 Wei Sidi payment privacy and replay", Fame2014WeiChecks.SidiPaymentPrivacyAndReplay),
+    ("Fame 2014 Wei Yonglue real judgment and replay", Fame2014WeiChecks.YonglueRealJudgmentAndReplay),
+    ("Fame 2014 Wei Yonglue no damage draw and replay", Fame2014WeiChecks.YonglueNoDamageDrawAndReplay),
+    ("Fame 2014 Shu Benxi enhancements and replay", Fame2014ShuChecks.BenxiCurrentEnhancementsAndReplay),
+    ("Fame 2014 Shu AI enhancement gift replay", Fame2014ShuChecks.AiCurrentEnhancementAndCompletedGiftReplay),
+    ("Fame 2014 Shu Benxi uncancelable Slash consumes Dodge", Fame2014ShuChecks.BenxiUncancelableSlashConsumesDodgeAndDealsDamage),
+    ("Fame 2014 Shu Benxi uncancelable trick pays Nullification", Fame2014ShuChecks.BenxiUncancelableTrickPaysPhysicalNullification),
+    ("Fame 2014 Shu Benxi ignores real Silver Lion on Duel", Fame2014ShuChecks.BenxiIgnoreArmorBypassesPhysicalSilverLionForDuel),
+    ("Fame 2014 Shu Benxi Borrowed Sword compound targets and replay", Fame2014ShuChecks.BenxiBorrowedSwordCompoundTargetsAndReplay),
+    ("Fame 2014 interaction enhancement draw retains owner after actor replacement", Fame2014InteractionChecks.EnhancementDrawRetainsOwnerAfterActorReplacement),
+    ("Fame 2014 Shu Zhongyong physical gifts red Slash and replay", Fame2014ShuChecks.ZhongyongPhysicalGiftsAndRedSlashReplay),
+    ("Fame 2014 Shu Zhongyong responded Dodge provenance", Fame2014ShuChecks.ZhongyongRespondedDodgePhysicalProvenance),
+    ("Fame 2014 Shu Zhongyong faction actor provider physical replay", Fame2014ShuChecks.ZhongyongFactionActorAndProviderPhysicalReplay),
+    ("Fame 2013 Li Ru category discard physical cost and replay", Fame2013LiRuChecks.CategoryDiscardAndPhysicalCostReplay),
+    ("Fame 2013 Li Ru escalating discard damage reset and replay", Fame2013LiRuChecks.EscalatingDiscardDamageResetAndReplay),
+    ("Fame 2013 Li Ru empty hand optional damage and replay", Fame2013LiRuChecks.EmptyHandOptionalDamageAndReplay),
+    ("Fame 2013 Li Ru sequential non tricks resume and replay", Fame2013LiRuChecks.SequentialNonTricksResumeAndReplay),
+    ("Fame 2013 Li Ru fire chain dying resume and replay", Fame2013LiRuChecks.FireChainAndDyingResumeReplay),
+    ("Fame 2013 Li Ru topdeck movement triggers before challenge", Fame2013LiRuChecks.TopdeckMovementTriggersPrecedeChallenge),
+    ("Fame 2013 Wu Danshou escalation and replay", Fame2013WuChecks.DanshouEscalationAndReplay),
+    ("Fame 2013 Wu Zongxuan subset order and replay", Fame2013WuChecks.ZongxuanSubsetOrderAndReplay),
+    ("Fame 2013 Wu Zhiyan real equipment and basic branches", Fame2013WuChecks.ZhiyanRealEquipmentUseAndBasicBranch),
+    ("Fame 2013 Shu public pile collection privacy and replay", Fame2013ShuChecks.PublicPileCollectionPrivacyAndReplay),
+    ("Fame 2013 Shu foreign public pile Slash payment limits and replay", Fame2013ShuChecks.ForeignPublicPileSlashPaymentLimitsAndReplay),
+    ("Fame 2013 Shu next card double basics ordered Borrowed Sword and distance", Fame2013ShuChecks.NextCardDoublePeachAlcoholAndBorrowedSword),
+    ("Fame 2013 Shu Pindian claims outcomes and next card expiry", Fame2013ShuChecks.PindianClaimsWinLossTieAndNextCardExpiry),
+    ("Fame 2013 sequential trick targets physical use and replay", SequentialTrickTargetChecks.AllFiveTricksResolveEveryTargetAndReplay),
+    ("Fame 2013 discard movement origin native FireAttack and replay", DiscardMovementOriginChecks.NativeFireAttackDiscardPreservesOriginAndReplay),
+    ("Fame 2013 discard movement origin native Dismantlement and replay", DiscardMovementOriginChecks.NativeDismantlementDiscardPreservesOriginAndReplay),
+    ("Qianxi frozen discard color survives Luoying and replay", WuyanChecks.QianxiFrozenDiscardColorSurvivesLuoying),
+    ("Assisted faction provider payment exhaustion and replay", AssistedFactionSlashChecks.ProviderPaymentAndExhaustionResumeAndReplay),
+    ("Ju Shou consecutive suit rank optional draw phase reset and replay", JuShouChecks.ConsecutiveSuitRankAndReplay),
+    ("Ju Shou boundary basic conversions inherited suit shared phase limit and replay", JuShouChecks.BoundaryBasicConversionsAndPhaseAllowance),
+    ("Ju Shou boundary equipped cost and first-use suit", JuShouChecks.BoundaryEquipmentCostAndFirstUse),
+    ("Ju Shou Shibei damage instances HP loss and turn reset", JuShouChecks.ShibeiCountsDamageInstancesAndResets),
+    ("shared play-card history and phase view-as definition validation", JuShouChecks.SharedDefinitionValidation),
     ("turn-ending Xiaoguo Tianxiang game over stops later observers", TurnEndingGameOverChecks.XiaoguoTianxiangVictoryStopsLaterObservers),
     ("2014 boundary Zhou Yu definition version and public gift resource contracts", BoundaryZhouYuChecks.DefinitionAndResourceContracts),
     ("2014 boundary Zhou Yu Yingzi Fanjian transfer choice and replay", BoundaryZhouYuChecks.TransferChoiceAndReplay),
@@ -157,6 +228,14 @@ var tests = new (string Name, Action Body)[]
     ("God Shen Cao Cao definition and trigger schema", ShenCaoCaoChecks.DefinitionAndTriggerSchema),
     ("God Shen Cao Cao Guixin claims from every other character and replays", ShenCaoCaoChecks.GuixinClaimsFromEveryOtherCharacterAndReplays),
     ("God Shen Cao Cao Feiying raises incoming distance", ShenCaoCaoChecks.FeiyingRaisesIncomingDistance),
+    ("2010 Jia Xu definition and policy schema", JiaXuChecks.DefinitionAndPolicySchema),
+    ("2010 Jia Xu Luanwu forces a Slash at the nearest character and replays", JiaXuChecks.LuanwuForcesNearestSlashAndReplays),
+    ("2010 Jia Xu Luanwu drains slashless participants in turn order and replays", JiaXuChecks.LuanwuMakesSlashlessParticipantsLoseHpInTurnOrder),
+    ("2010 Jia Xu Weimu keeps black tricks off him and admits red ones", JiaXuChecks.WeimuExcludesBlackTrickTargets),
+    ("God Shen Zhou Yu definition and roster schema", ShenZhouYuChecks.DefinitionAndRosterSchema),
+    ("God Shen Zhou Yu Qinyin heals or drains every living character and replays", ShenZhouYuChecks.QinyinHealsOrDrainsEveryLivingCharacterAndReplays),
+    ("God Shen Zhou Yu small Blaze burns up to three targets once per game", ShenZhouYuChecks.SmallBlazeBurnsUpToThreeTargetsOncePerGameAndReplays),
+    ("God Shen Zhou Yu big Blaze pays four suits and own HP", ShenZhouYuChecks.BigBlazePaysFourSuitsAndOwnHpAndBurnsTwoPoints),
     ("2013 Pan Zhang Ma Zhong definition and generic schema 56", PanZhangMaZhongChecks.DefinitionAndGenericSchema),
     ("2013 Pan Zhang Ma Zhong natural far Slash and replay", PanZhangMaZhongChecks.NaturalSlashReverseRangeAndReplay),
     ("2013 Pan Zhang Ma Zhong Duodao pays and claims weapon with replay", PanZhangMaZhongChecks.NaturalDuodaoPaymentWeaponAndReplay),
@@ -877,6 +956,7 @@ foreach (var (name, body) in tests)
         failed++;
         Console.WriteLine($"[FAIL] {name}");
         Console.WriteLine($"       {exception.GetType().Name}: {exception.Message}");
+        Console.WriteLine(exception.StackTrace);
         if (args.Contains("--verbose", StringComparer.OrdinalIgnoreCase)) Console.WriteLine(exception);
     }
 }
@@ -1254,7 +1334,7 @@ static void WinnerRules()
 
 static void CardCatalogDefinitions()
 {
-    Equal(48, CardCatalog.ImplementedCards.Count);
+    Equal(50, CardCatalog.ImplementedCards.Count);
     Equal("杀", CardCatalog.Get(CardKind.Slash).DisplayName);
     Equal("闪", CardCatalog.Get(CardKind.Dodge).DisplayName);
     Equal("桃", CardCatalog.Get(CardKind.Peach).DisplayName);
@@ -1345,7 +1425,7 @@ static void StandardContentRegistryBuilds()
     Equal("standard", registry.Packages[0].Id);
     TrueWithMessage(!string.IsNullOrWhiteSpace(registry.ContentHash), "registry exposes a content hash");
     Equal(registry.ContentHash, secondRegistry.ContentHash);
-    Equal(27, registry.Cards.Count);
+    Equal(29, registry.Cards.Count);
     Equal(13, registry.Skills.Count);
     Equal(
         "装备至防具槽；成为普通/火/雷杀的直接目标时可选择公开判定，红色判定牌视为闪。",
@@ -4389,7 +4469,7 @@ static void PublicTargetCardFlow()
 
 static void EquipmentFlow()
 {
-    Equal(27, EquipmentCatalog.Implemented.Count);
+    Equal(29, EquipmentCatalog.Implemented.Count);
     Equal(EquipmentSlot.Weapon, EquipmentCatalog.Get(CardKind.Crossbow).Slot);
     Equal(1, EquipmentCatalog.Get(CardKind.Crossbow).WeaponAttackRange);
     Equal(int.MaxValue, EquipmentCatalog.Get(CardKind.Crossbow).SlashLimitBonus);

@@ -19,7 +19,7 @@
               "op": "selectAndMoveOwnedCard", "target": "owner",
               "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" },
               "zones": ["hand", "equipment"], "count": 1,
-              "destination": "discardPile", "resultBind": "discarded"
+              "destination": "discardPile", "resultBind": "discarded", "freezeMovedCardSuit": true
             },
             {
               "op": "selectTarget", "target": "owner",
@@ -27,7 +27,7 @@
             },
             {
               "op": "grantTurnHandColorRestriction", "target": "selectedTarget",
-              "sourceBind": "discarded"
+              "sourceBind": "discarded", "useFrozenSuit": true
             }
           ]
         }

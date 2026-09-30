@@ -547,6 +547,18 @@
         260
       ],
       "sha256": "06013324B4AF5EC750B30B6A31B82902CD14622DA5B2BDC9FF34FD4C36965DD5"
+    },
+    {
+      "kind": "GhostDragonCrescentBlade",
+      "frame": "GuiLongZhanYueDao_png.png",
+      "file": "GhostDragonCrescentBlade.png",
+      "rectangle": [
+        392,
+        932,
+        186,
+        260
+      ],
+      "sha256": "42C5BFA54B7AABFCC327F83D6EB189964137E604E1C08E323A499AF973233F7C"
     }
   ],
   "components": [
@@ -1197,6 +1209,42 @@
         50
       ],
       "sha256": "B4D910F8CD65B5CB076202A57607AB07F866A119129D3F8D9998ED17B82B5FD5"
+    },
+    {
+      "key": "equipment:GhostDragonCrescentBlade",
+      "frame": "Equip_GuiLongZhanYueDao_S.png",
+      "file": "equip-GhostDragonCrescentBlade.png",
+      "rectangle": [
+        1134,
+        120,
+        284,
+        50
+      ],
+      "sha256": "E0E8D19F7C6E152261E620F63D90925B597EE5803F7ADFE0115EFC3605489137"
+    },
+    {
+      "key": "equipment:ScarletBloodSword",
+      "frame": "Equip_ChiXueQingFeng_S.png",
+      "file": "equip-ScarletBloodSword.png",
+      "rectangle": [
+        2886,
+        4,
+        284,
+        50
+      ],
+      "sha256": "49703AC30A079318D8EF450693371581D4312DF93D6C42F69FCEF097DD1088C0"
+    },
+    {
+      "key": "equipment:XingtianAxe",
+      "frame": "Equip_XingTianPoJunFu_S.png",
+      "file": "equip-XingtianAxe.png",
+      "rectangle": [
+        3470,
+        352,
+        284,
+        50
+      ],
+      "sha256": "4DC3ECBD77B5E1E426F7AE9ACAFC449AB88CA65C33CAFB13C7AE0CE6BB5C9783"
     }
   ]
 }

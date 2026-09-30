@@ -16,7 +16,8 @@ internal enum ProgramContextCapability
     Dying = 256,
     JudgmentReplacement = 512,
     PhaseSubstitution = 1024,
-    PhaseOwner = 2048
+    PhaseOwner = 2048,
+    MovementSource = 4096
 }
 
 internal static class ProgramEntryCapabilities
@@ -24,6 +25,10 @@ internal static class ProgramEntryCapabilities
     internal const ProgramContextCapability Common = ProgramContextCapability.TurnEffects;
 
     internal static bool SupportsWindow(SkillProgramTriggerWindow window) => window is
+        SkillProgramTriggerWindow.SkillsChanged or
+        SkillProgramTriggerWindow.GameStarting or
+        SkillProgramTriggerWindow.DyingEntering or SkillProgramTriggerWindow.DyingEntered or
+        SkillProgramTriggerWindow.DyingExited or
         SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
         SkillProgramTriggerWindow.DrawPhaseStarting or
         SkillProgramTriggerWindow.AfterNormalDraw or
@@ -37,11 +42,15 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.DiscardPhaseEnded or
         SkillProgramTriggerWindow.TurnEnding or
         SkillProgramTriggerWindow.PlayPhaseStarting or
+        SkillProgramTriggerWindow.JudgmentPhaseStarting or
+        SkillProgramTriggerWindow.CharacterTurnedFaceUp or
+        SkillProgramTriggerWindow.CharacterEnteredChain or
         SkillProgramTriggerWindow.CardsMoved or
         SkillProgramTriggerWindow.CardsGained or
         SkillProgramTriggerWindow.DiscardPileReceived or
         SkillProgramTriggerWindow.AfterHpLost or
         SkillProgramTriggerWindow.AfterHpRecovered or
+        SkillProgramTriggerWindow.AfterHealthChanged or
         SkillProgramTriggerWindow.OwnerDied or
         SkillProgramTriggerWindow.CharacterDied or
         SkillProgramTriggerWindow.CardUseCommitted or
@@ -63,16 +72,20 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.AfterNormalDraw => Common | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.DiscardPhaseStarting => Common | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.DiscardPhaseEnded => Common | ProgramContextCapability.Judgment,
-        SkillProgramTriggerWindow.PlayEnding or SkillProgramTriggerWindow.TurnEnding => Common | ProgramContextCapability.Judgment,
+        SkillProgramTriggerWindow.PlayEnding => Common | ProgramContextCapability.Judgment | ProgramContextCapability.PhaseOwner,
+        SkillProgramTriggerWindow.TurnEnding => Common | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.PlayPhaseStarting =>
-            Common | ProgramContextCapability.Judgment | ProgramContextCapability.PhaseOwner,
+            Common | ProgramContextCapability.Judgment | ProgramContextCapability.PhaseOwner | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Pindian,
+        SkillProgramTriggerWindow.JudgmentPhaseStarting => Common | ProgramContextCapability.Judgment | ProgramContextCapability.PhaseOwner,
+        SkillProgramTriggerWindow.CharacterTurnedFaceUp or SkillProgramTriggerWindow.CharacterEnteredChain => Common | ProgramContextCapability.PhaseOwner,
         SkillProgramTriggerWindow.BeforeDamageApplied or
             SkillProgramTriggerWindow.DamageAppliedBeforeDying or
             SkillProgramTriggerWindow.AfterDamageApplied =>
             Common | ProgramContextCapability.Damage | ProgramContextCapability.Pindian |
             ProgramContextCapability.Judgment,
-        SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained or
-        SkillProgramTriggerWindow.DiscardPileReceived =>
+        SkillProgramTriggerWindow.CardsGained => Common | ProgramContextCapability.Judgment | ProgramContextCapability.MovementSource,
+        SkillProgramTriggerWindow.DiscardPileReceived => Common | ProgramContextCapability.Judgment | ProgramContextCapability.MovementSource,
+        SkillProgramTriggerWindow.CardsMoved =>
             Common | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.OwnerDied =>
             Common | ProgramContextCapability.Judgment | ProgramContextCapability.Death,

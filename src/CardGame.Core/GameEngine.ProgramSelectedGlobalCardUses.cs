@@ -18,7 +18,10 @@ public sealed partial class GameEngine
 
         var targets = Enumerable.Range(1, _playerCount - 1)
             .Select(offset => _players[(owner.Seat + offset) % _playerCount])
-            .Where(player => player.IsAlive)
+            .Where(player => player.IsAlive &&
+                // The two cards share one suit, so the virtual Arrow Barrage
+                // carries that suit into suit-based target shields.
+                !IsCardTargetProhibited(player, CardKind.ArrowBarrage, selection.Cards[0].Suit))
             .Select(player => player.Seat)
             .ToArray();
         var representative = selection.Cards[0];

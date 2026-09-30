@@ -125,7 +125,7 @@ public sealed partial class GameEngine
         var usesFangtian = UsesFormalFangtianHalberd &&
                            GetHand(actor).Count == 1 &&
                            GetHand(actor)[0].Id == physicalCard.Id &&
-                           GetEquipment(actor).Any(card => card.Kind == CardKind.FangtianHalberd);
+                           HasWeaponAbility(actor, CardKind.FangtianHalberd);
         var existingMaximum = usesFangtian ? 3 : 1;
         var maximum = Math.Min(existingMaximum + programBonus, legalTargets.Count);
         if (maximum <= existingMaximum) return;
@@ -193,7 +193,7 @@ public sealed partial class GameEngine
         var usesFangtian = UsesFormalFangtianHalberd &&
                            GetHand(source).Count == 1 &&
                            GetHand(source)[0].Id == physicalCard.Id &&
-                           GetEquipment(source).Any(card => card.Kind == CardKind.FangtianHalberd);
+                           HasWeaponAbility(source, CardKind.FangtianHalberd);
         var existingMaximum = usesFangtian ? 3 : 1;
         return targetCount > existingMaximum &&
                ((FiniteRuleQueryValue)EvaluateCardTargetCount(source, effectiveKind).Value).Value > 1;

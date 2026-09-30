@@ -12,8 +12,10 @@ internal static class ProgramCompositionValidator
         SkillProgramTriggerWindow? window = null,
         SkillProgramDrawPhaseMode drawPhaseMode = SkillProgramDrawPhaseMode.Additive,
         int initialTargetSetCount = 0,
-        int initialTargetSetMaximum = 0)
+        int initialTargetSetMaximum = 0,
+        bool expandedCardDomain = false)
     {
+        expandedCardDomain |= RequiresExpandedCardDomain(effects);
         var bindings = new Dictionary<string, Binding>(StringComparer.Ordinal);
         var roots = new List<Root>();
         var selectedTarget = initialSelectedTarget;
@@ -101,7 +103,7 @@ internal static class ProgramCompositionValidator
                     case CreateCardSet create:
                     {
                         var root = new Root(create.Name, create.NeedsCleanup, !create.NeedsCleanup,
-                            typedCardAtoms, create.AlreadyMoved);
+                            typedCardAtoms, expandedCardDomain, create.AlreadyMoved);
                         roots.Add(root);
                         Add(create.Name, new(root, root.Atoms.Keys.ToHashSet(), create.MaxCount, create.CardOwner));
                         if (create.AlreadyMoved)
@@ -114,7 +116,7 @@ internal static class ProgramCompositionValidator
                     }
                     case CaptureSourceCard sourceCard:
                     {
-                        var root = new Root(sourceCard.Name, false, sourceCard.OwnerHand, typedCardAtoms);
+                        var root = new Root(sourceCard.Name, false, sourceCard.OwnerHand, typedCardAtoms, expandedCardDomain);
                         roots.Add(root);
                         Add(sourceCard.Name, new(root, root.Atoms.Keys.ToHashSet(), sourceCard.MaximumCount,
                             sourceCard.CardOwner));
@@ -124,7 +126,7 @@ internal static class ProgramCompositionValidator
                     {
                         if (cardsConsumed || selectedCardCount <= 0)
                             Fail("activation input cards must be captured exactly once after selecting at least one card");
-                        var root = new Root(activationCards.Name, true, true, typedCardAtoms);
+                        var root = new Root(activationCards.Name, true, true, typedCardAtoms, expandedCardDomain);
                         roots.Add(root);
                         Add(activationCards.Name, new(root, root.Atoms.Keys.ToHashSet(), selectedCardCount));
                         cardsConsumed = true;
@@ -136,6 +138,13 @@ internal static class ProgramCompositionValidator
                         if (source.MaximumCount > 1 || source.Atoms.Overlaps(source.Root.Consumed) ||
                             source.Atoms.Overlaps(source.Root.PossiblyGifted))
                             Fail("the operation requires a stable single-card binding before movement");
+                        break;
+                    }
+                    case ReadFrozenSingleCardSet frozen:
+                    {
+                        var source = Get(frozen.Name);
+                        if (source.MaximumCount != 1 || !frozenSuitBindings.Contains(frozen.Name))
+                            Fail("the operation requires a previously frozen single-card metadata binding");
                         break;
                     }
                     case DeriveCardSet derive:
@@ -294,6 +303,10 @@ internal static class ProgramCompositionValidator
                             Fail("the required selected target set must be produced before it is read");
                         break;
                     }
+                    case RequireTriggerWindow required:
+                        if (window != required.Window)
+                            Fail($"operation requires trigger window {required.Window}, supplied {window}");
+                        break;
                     case RequireContext required:
                         if ((capabilities & required.Capability) != required.Capability)
                             Fail($"operation requires context {required.Capability}, supplied {capabilities}");
@@ -304,6 +317,11 @@ internal static class ProgramCompositionValidator
                         break;
                     case SelectSingleTarget:
                         if (selectedTarget || targetSetAvailable) Fail("a composition may select its target only once");
+                        selectedTarget = true;
+                        break;
+                    case NarrowTargetSetToSingle:
+                        if (!targetSetAvailable) Fail("narrowing a target set requires an existing selection");
+                        targetSetAvailable = false;
                         selectedTarget = true;
                         break;
                     case ReplaceSingleTarget:
@@ -353,8 +371,26 @@ internal static class ProgramCompositionValidator
     private static InvalidOperationException Error(string path, string message) =>
         new($"Invalid skill program at {path}: {message}.");
 
+    // Ordinary historical programs were proven over these physical card types.
+    // Adding an enum member must not silently alter their standalone load contract.
+    private static readonly Suit[] OrdinarySuits = [Suit.Spade, Suit.Heart, Suit.Club, Suit.Diamond];
+    private static readonly CardKind[] OrdinaryKinds = Enum.GetValues<CardKind>()
+        .Where(kind => kind <= CardKind.XingtianAxe).ToArray();
+    internal static bool IsExpandedCardKind(CardKind kind) => kind > CardKind.XingtianAxe;
+
+    internal static bool RequiresExpandedCardDomain(IReadOnlyList<SkillProgramEffect> effects) => effects.Any(effect =>
+        effect.Op is SkillProgramEffectOp.EquipSampledGenerals or SkillProgramEffectOp.PlaceNamedWeapon ||
+        effect.OutputKind is { } output && IsExpandedCardKind(output) ||
+        effect.CardKinds.Any(IsExpandedCardKind) || effect.Suits.Contains(Suit.None) ||
+        effect.ReplacementSuits.Contains(Suit.None) || ConditionRequiresExpandedDomain(effect.Condition) ||
+        effect.Options.Any(option => ConditionRequiresExpandedDomain(option.Condition)));
+
+    private static bool ConditionRequiresExpandedDomain(SkillProgramCondition condition) =>
+        condition.Suits.Contains(Suit.None) || condition.CardKinds.Any(IsExpandedCardKind) ||
+        condition.Children.Any(ConditionRequiresExpandedDomain);
+
     private sealed class Root(string name, bool needsCleanup, bool ownerHeld, bool typedCardAtoms,
-        bool alreadyMoved = false)
+        bool expandedCardDomain, bool alreadyMoved = false)
     {
         internal string Name { get; } = name;
         internal bool NeedsCleanup { get; } = needsCleanup;
@@ -362,13 +398,15 @@ internal static class ProgramCompositionValidator
         internal bool AlreadyMoved { get; } = alreadyMoved;
         internal Dictionary<int, (CardKind Kind, Suit Suit)> Atoms { get; } =
             (typedCardAtoms
-                ? Enum.GetValues<CardKind>()
-                    .SelectMany(kind => Enum.GetValues<Suit>().Select(suit => (kind, suit)))
-                : Enum.GetValues<Suit>().Select(suit => (CardKind.Slash, suit)))
+                ? (expandedCardDomain ? Enum.GetValues<CardKind>() : OrdinaryKinds)
+                    .SelectMany(kind => (expandedCardDomain ? Enum.GetValues<Suit>() : OrdinarySuits).Select(suit => (kind, suit)))
+                : (expandedCardDomain ? Enum.GetValues<Suit>() : OrdinarySuits).Select(suit => (CardKind.Slash, suit)))
             .Select((value, index) => (value, index))
             .ToDictionary(item => item.index, item => (item.value.Item1, item.value.Item2));
         internal int NextAtom { get; set; } = typedCardAtoms
-            ? Enum.GetValues<CardKind>().Length * Enum.GetValues<Suit>().Length : 4;
+            ? (expandedCardDomain ? Enum.GetValues<CardKind>().Length : OrdinaryKinds.Length) *
+              (expandedCardDomain ? Enum.GetValues<Suit>().Length : OrdinarySuits.Length)
+            : expandedCardDomain ? Enum.GetValues<Suit>().Length : OrdinarySuits.Length;
         internal HashSet<int> Consumed { get; } = [];
         internal HashSet<int> PossiblyGifted { get; } = [];
         internal Dictionary<string, HashSet<int>> ChoiceConsumed { get; } = new(StringComparer.Ordinal);

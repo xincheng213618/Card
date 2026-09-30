@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:enyuan",
+      "revision": 1,
+      "minimumRulesVersion": 190,
+      "triggers": [
+        {
+          "id": "reward-card-giver",
+          "window": "cardsGained",
+          "subject": "owner",
+          "destinationZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perSourceOwner",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "movedCardCount"
+            },
+            "operator": "greaterThanOrEqual",
+            "right": {
+              "kind": "integerConstant",
+              "value": 2
+            }
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "targetRef": {
+                "kind": "eventSource"
+              },
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "repay-each-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "otherDamageParticipantAlive"
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "eventSource"
+            },
+            {
+              "op": "chooseOption",
+              "target": "selectedTarget",
+              "resultBind": "damage-repayment",
+              "options": [
+                {
+                  "id": "gift",
+                  "condition": {
+                    "kind": "handCountAtLeast",
+                    "value": 1
+                  }
+                },
+                {
+                  "id": "lose-hp",
+                  "condition": {
+                    "kind": "always"
+                  }
+                }
+              ]
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "eventSource"
+              },
+              "cardOwnerRef": {
+                "kind": "eventSource"
+              },
+              "zones": [
+                "hand"
+              ],
+              "count": 1,
+              "destination": "selectedTargetHand",
+              "targetRef": {
+                "kind": "owner"
+              },
+              "awaitMovementTriggers": true,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "damage-repayment",
+                "optionId": "gift"
+              }
+            },
+            {
+              "op": "loseHp",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "damage-repayment",
+                "optionId": "lose-hp"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:xuanhuo",
+      "revision": 1,
+      "minimumRulesVersion": 190,
+      "triggers": [
+        {
+          "id": "replace-draw-with-request",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "drawPhaseMode": "replacement",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "draw",
+              "target": "selectedTarget",
+              "amount": 2
+            },
+            {
+              "op": "requestSlashAgainstChosenTarget",
+              "target": "selectedTarget",
+              "resultBind": "command-answer"
+            },
+            {
+              "op": "takeSelectedTargetCards",
+              "target": "selectedTarget",
+              "amount": 2,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "command-answer",
+                "optionId": "declined"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

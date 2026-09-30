@@ -65,7 +65,8 @@ public sealed partial class MainViewModel
             EquipmentEffectKind = _selectedEquipmentEffectKind,
             ProgramSkillId = _selectedProgramSkillId,
             ProgramActivationId = _selectedProgramActivationId,
-            ProgramSkillOwnerSeat = _selectedProgramSkillOwnerSeat
+            ProgramSkillOwnerSeat = _selectedProgramSkillOwnerSeat,
+            TargetContract = _selectedActiveSkillTargetContract?.ToArray()
         };
         _saveTimer?.Stop();
         _isDeveloperView = false;
@@ -134,6 +135,7 @@ public sealed partial class MainViewModel
         _selectedProgramSkillId = original.ProgramSkillId;
         _selectedProgramActivationId = original.ProgramActivationId;
         _selectedProgramSkillOwnerSeat = original.ProgramSkillOwnerSeat;
+        _selectedActiveSkillTargetContract = original.TargetContract?.ToArray();
         _selectedActiveSkillCardIds.UnionWith(original.ActiveSkillCardIds);
         _selectedActiveSkillTargetSeats.AddRange(original.ActiveSkillTargets.Distinct());
         SelectedCardText = original.SelectedCardText;
@@ -236,5 +238,6 @@ public sealed partial class MainViewModel
         public string? ProgramSkillId { get; init; }
         public string? ProgramActivationId { get; init; }
         public int? ProgramSkillOwnerSeat { get; init; }
+        public IReadOnlyList<int>? TargetContract { get; init; }
     }
 }

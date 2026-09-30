@@ -29,7 +29,15 @@ internal static class CurrentClassicContentChecks
                      "classic:guo-huai", "classic:man-chong", "classic:guan-ping", "classic:gu-yong",
                      "classic:li-dian", "classic:zhu-huan", "classic:zhu-zhi", "boundary:sima-yi",
                      "boundary:cao-cao", "boundary:xu-chu", "boundary:gan-ning", "boundary:zhou-yu",
-                     "sp:le-jin"
+                     "sp:le-jin", "classic:ju-shou", "boundary:ju-shou",
+                     "classic:zhang-chun-hua", "classic:ling-tong", "classic:chen-gong", "classic:wu-guo-tai",
+                     "classic:fa-zheng", "classic:ma-su",
+                     "classic:li-ru", "classic:liu-feng", "classic:jian-yong", "classic:yu-fan", "classic:zhu-ran",
+                     "classic:cao-zhen", "classic:han-hao-shi-huan", "classic:chen-qun", "classic:wu-yi", "classic:zhou-cang", "classic:sun-lu-ban",
+                     "ol:shen-guan-yu", "classic:shen-lu-meng", "classic:shen-cao-cao",
+                     "ol:shen-zhou-yu", "ol:shen-zhuge-liang", "ol:shen-lu-bu", "ol:shen-zhao-yun",
+                     "ol:shen-sima-yi", "ol:shen-liu-bei", "ol:shen-lu-xun", "ol:shen-gan-ning",
+                     "ol:shen-zhang-liao", "ol:shen-sun-quan", "ol:shen-zhang-jiao", "ol:shen-dian-wei", "ol:shen-huang-zhong"
                  })
             Require(fivePool.Contains(generalId), $"Current identity pool is missing {generalId}.");
 

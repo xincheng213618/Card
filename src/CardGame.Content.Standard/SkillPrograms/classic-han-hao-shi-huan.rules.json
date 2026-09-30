@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:shenduan", "revision": 1, "minimumRulesVersion": 190,
+      "triggers": [{
+        "id": "reuse-black-basic-discard", "window": "discardPileReceived", "subject": "owner",
+        "movementOccurrence": "perCard", "discardOwnerScope": "own", "movementDiscardOnly": true, "suits": ["spade", "club"], "cardCategories": ["basic"],
+        "optional": true,
+        "effects": [
+          { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingDelayedTrickTarget" },
+          { "op": "useDiscardedCardAsDelayedTrick", "target": "selectedTarget", "outputKind": "supplyShortage" }
+        ]
+      }]
+    },
+    {
+      "id": "classic:yonglue", "revision": 1, "minimumRulesVersion": 190,
+      "triggers": [
+        {
+          "id": "discard-judgment-and-slash", "window": "judgmentPhaseStarting", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": true,
+          "condition": { "kind": "compare", "left": { "kind": "ownerEventTargetDistance" }, "operator": "lessThanOrEqual", "right": { "kind": "currentAttackRange" } },
+          "effects": [
+            { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "eventTarget" }, "zones": ["judgment"], "count": 1, "destination": "discardPile", "awaitMovementTriggers": true },
+            { "op": "useVirtualSlash", "target": "owner", "targetRef": { "kind": "eventTarget" } }
+          ]
+        },
+        {
+          "id": "draw-after-no-damage", "window": "cardUseCompleted", "ownerRelation": "actor", "cardKinds": ["slash"], "optional": false,
+          "condition": { "kind": "all", "children": [
+            { "kind": "not", "children": [{ "kind": "cardUseCausedDamage" }] },
+            { "kind": "cardUseConversionSkillIs", "conversionSkillId": "classic:yonglue" }
+          ] },
+          "effects": [{ "op": "draw", "target": "owner", "amount": 1 }]
+        }
+      ]
+    }
+  ]
+}
+

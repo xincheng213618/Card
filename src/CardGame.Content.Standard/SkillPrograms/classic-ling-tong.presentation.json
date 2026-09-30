@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:xuanfeng": {
+      "name": "旋风",
+      "description": "当你于弃牌阶段弃置过至少两张牌，或失去装备区里的牌后，你可以弃置至多两名其他角色共计至多两张牌。"
+    }
+  }
+}

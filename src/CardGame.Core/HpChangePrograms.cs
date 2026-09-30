@@ -1,6 +1,6 @@
 namespace CardGame.Core;
 
-public enum HpChangeKind { Loss, Recovery }
+public enum HpChangeKind { Loss, Recovery, Damage = 600, MaximumHp = 601 }
 public enum PostEventContinuation { Boundary, Program, CardUse, GroupRecovery, AwaitedProgramMovement }
 
 /// <summary>Actual committed HP delta. Damage and setting HP are separate rules operations.</summary>

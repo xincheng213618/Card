@@ -31,13 +31,16 @@ internal sealed class RevealTargetHandCardProgramOperationDescriptor : ProgramOp
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}.suits: the eligible suit list must be nonempty.");
         var allowDecline = r.Has("allowDecline") && r.RequiredBool("allowDecline");
+        var mode = r.RequiredEnum<SkillProgramRevealMode>("mode");
+        if (mode == SkillProgramRevealMode.SelfChoiceOtherwiseRandom && (suits.Count != 0 || allowDecline))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: blind self-or-random reveal cannot filter or decline cards.");
         if (allowDecline && suits.Count == 0)
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}.allowDecline: decline requires an eligible suit filter.");
         var effect = new SkillProgramEffect(Op, target, 0, r.Condition(),
             chooserRef: chooser, cardOwnerRef: cardOwner,
             resultBind: r.RequiredIdentifier("resultBind"),
-            revealMode: r.RequiredEnum<SkillProgramRevealMode>("mode"),
+            revealMode: mode,
             suits: suits, allowDecline: allowDecline);
         RequireAlways(effect, r.Path);
         return effect;

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "classic:sidi", "revision": 1, "minimumRulesVersion": 190,
+    "triggers": [{
+      "id": "restrict-other-play-color", "window": "playPhaseStarting", "subject": "owner",
+      "turnOwnerScope": "otherLiving", "optional": true,
+      "effects": [
+        { "op": "payEquipmentColorDiscard", "target": "owner", "resultBind": "cost" },
+        { "op": "grantPlayPhaseColorRestriction", "target": "owner", "sourceBind": "cost", "targetRef": { "kind": "eventTarget" } }
+      ]
+    }, {
+      "id": "slash-after-no-slash-play", "window": "playEnding", "subject": "owner",
+      "turnOwnerScope": "otherLiving", "optional": false,
+      "condition": { "kind": "hasUnfulfilledPlayPhaseColorRestriction" },
+      "effects": [{ "op": "useVirtualSlash", "target": "owner", "targetRef": { "kind": "eventTarget" } }]
+    }]
+  }]
+}

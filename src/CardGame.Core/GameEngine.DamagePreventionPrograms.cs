@@ -34,7 +34,14 @@ public sealed partial class GameEngine
             .Where(owner => owner.IsAlive)
             .SelectMany(owner =>
             {
-                var facts = CaptureProgramTriggerFacts(owner) with { EventTargetHp = target.Hp };
+                var facts = CaptureProgramTriggerFacts(owner) with
+                {
+                    EventTargetHp = target.Hp,
+                    DamageSourceGender = _pendingAttack?.IsDelayedJudgmentDamage != true &&
+                        _contentRegistry.Skills.Values.Any(skill => skill.Program?.Triggers.Any(trigger =>
+                            HasTriggerCondition(trigger.Condition, SkillProgramTriggerConditionKind.DamageSourceGenderIs)) == true)
+                        ? _players[sourceSeat].Gender : null
+                };
                 return CollectProgramTriggerCandidates(owner, SkillProgramTriggerWindow.BeforeDamageApplied)
                     .Where(candidate => GetProgramTrigger(candidate).Subject switch
                     {
@@ -42,6 +49,7 @@ public sealed partial class GameEngine
                             (_pendingAttack?.DamageRedirected != true ||
                              !GetProgramTrigger(candidate).Effects.Any(effect =>
                                  effect.Op == SkillProgramEffectOp.RedirectCurrentDamage)),
+                        SkillProgramTriggerSubject.DamageSource => owner.Seat == sourceSeat && owner.Seat != targetSeat,
                         SkillProgramTriggerSubject.Owner => owner.Seat != targetSeat,
                         _ => false
                     })

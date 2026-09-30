@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-30",
+  "contentIds": [
+    "classic:shen-zhou-yu"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:shen-zhou-yu",
+      "url": "https://x.sanguosha.com/hero/203.html",
+      "edition": "三国杀官方网站武将库 gid 203（神周瑜，神）",
+      "use": "琴音：弃牌阶段结束时，若你于此阶段内弃置过你的至少两张手牌，你可以选择一项：1.令所有角色各回复1点体力；2.令所有角色各失去1点体力；业炎：限定技，出牌阶段，你可以选择一至三名角色，对这些角色造成至多共3点火焰伤害（你选择目标时任意分配每名目标角色受到的伤害点数，若你将对一名角色分配的火焰伤害点数大于等于2，你须先弃置四张花色各不相同的手牌并失去3点体力）"
+    },
+    {
+      "contentId": "classic:shen-zhou-yu",
+      "url": ".artifacts/portrait-refresh/heroes.json（官方客户端武将目录导出，2026-09-26 抓取）",
+      "edition": "gid 203 条目：name 神周瑜 / country 神 / gender 男 / hp 4 / resource 120301 / level_one_general_lamp_txt 神话 / level_two_general_lamp_txt 神",
+      "use": "体力（4 勾玉）、势力、性别与皮肤 ID 口径；官方页不渲染体力值。"
+    }
+  ],
+  "versionBoundary": "经典线神周瑜（classic:shen-zhou-yu）在仓内尚无注册；OL 线 ol:shen-zhou-yu（ol:qinyin 琴音 discardPhaseEnded 窗口、ol:yeyu 业炎 small/two/three/two-and-one 四激活）已以现行原语实现，最低规则号 187，故本批预计零引擎增量：琴音 = discardPhaseEnded 触发 + 阶段弃置手牌数事实（restorePhaseHandDiscards 一族）+ chooseOption → recoverAllLiving(1) | loseHpParticipants(1)；业炎 = 限定技激活 + selectDistinctSuitHandDiscards(4 花色各异) + loseHpUnclamped(3) + damageParticipants(nature fire)。包归属口径不一致处如实记录：官方页「版本」字段渲染为「一将成名」，而客户端目录 lamp 标注为「神话·神」，预检文档按神话再临·火（2011）归类；本批内容按预检文档归类进图鉴，技能文本一律以官方页 gid 203 为准。立绘已入库：sync_general_art --phase skins --key shen-zhou-yu 取 gid 203 页面全部 4 张皮肤，默认经典形象 120301（574×761，sha256 e4671273f74fa312ff868bf5b3890ffa66f584e12a450c0b04e33076d12bcd9d）落 src/CardGame.Wpf/Assets/official-shen-zhou-yu.png，其余 420301 琴音袅袅/520301/520302 落 Assets/Skins/shen-zhou-yu/，并登记 general-art-catalog.json。",
+  "portraits": [
+    {
+      "contentId": "classic:shen-zhou-yu",
+      "id": "120301",
+      "name": "经典形象*神周瑜",
+      "sourcePage": "https://x.sanguosha.com/hero/203.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/120301.png",
+      "sha256": "e4671273f74fa312ff868bf5b3890ffa66f584e12a450c0b04e33076d12bcd9d",
+      "localPath": "src/CardGame.Wpf/Assets/official-shen-zhou-yu.png"
+    }
+  ]
+}

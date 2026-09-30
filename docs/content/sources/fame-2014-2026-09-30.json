@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀OL",
+  "retrievedAt": "2026-09-30",
+  "batch": "一将成名2014缺口",
+  "roster": [
+    {
+      "contentId": "classic:cao-zhen",
+      "officialId": 321,
+      "name": "曹真",
+      "maxHp": 4,
+      "faction": "wei",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/321",
+      "officialSkillText": "其他角色出牌阶段开始时，你可以弃置一张与你装备区里任意牌颜色相同的非基本牌，令其本阶段不能使用和打出与此牌颜色相同的牌，然后此阶段结束时，若其本阶段未使用过【杀】，你视为对其使用一张【杀】。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-cao-zhen.png",
+        "sha256": "AB84D35C4D67183CC8C3FBBF425D04BA0AD01279491DC3374AE748FC888D06BB",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/32100.png"
+      }
+    },
+    {
+      "contentId": "classic:han-hao-shi-huan",
+      "officialId": 322,
+      "name": "韩浩史涣",
+      "maxHp": 4,
+      "faction": "wei",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/322",
+      "officialSkillText": "当你的一张黑色基本牌被弃置后，你可以将此牌当无距离限制的【兵粮寸断】使用。 其他角色判定阶段开始时，若其在你的攻击范围内，你可以弃置其判定区里的一张牌视为对其使用一张【杀】，若此【杀】未造成伤害，你摸一张牌。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-han-hao-shi-huan.png",
+        "sha256": "8836B30444231E8982E8FB7976BD0670BCF6EA3B475501BE358A33CE318252C7",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/32200.png"
+      }
+    },
+    {
+      "contentId": "classic:chen-qun",
+      "officialId": 323,
+      "name": "陈群",
+      "maxHp": 3,
+      "faction": "wei",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/323",
+      "officialSkillText": "出牌阶段，每名角色限一次，你可以弃置一张本阶段未以此法弃置过的类型的牌，令一名其他角色摸X张牌或弃置X张牌（X为本回合本技能发动次数），若其已受伤，你进入连环状态。 当一名角色翻至正面或进入连环状态后，你可以令其摸一张牌。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-chen-qun.png",
+        "sha256": "84CADBD566D8DDAA65E4A0089DFC0EA43AB35369730E88FBFD7B95E29A50536C",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/32300.png"
+      }
+    },
+    {
+      "contentId": "classic:wu-yi",
+      "officialId": 324,
+      "name": "吴懿",
+      "maxHp": 4,
+      "faction": "shu",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/324",
+      "officialSkillText": "锁定技，当你于回合内使用牌时，你本回合计算与其他角色的距离-1。当你于回合内使用仅指定单一目标的【杀】或普通锦囊牌时，若你与所有其他角色的距离均为1，你依次选择至多两项，令此牌：1.目标数+1；2.无视防具；3.不能被抵消；4.造成伤害后，你摸一张牌。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-wu-yi.png",
+        "sha256": "F1CF4F16982694C3C2D16E00846268AF85C3B58976286A87642393E766F884D8",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/32400.png"
+      }
+    },
+    {
+      "contentId": "classic:zhou-cang",
+      "officialId": 325,
+      "name": "周仓",
+      "maxHp": 4,
+      "faction": "shu",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/325",
+      "officialSkillText": "当你使用【杀】后，你可以将此【杀】或目标角色响应的【闪】交给一名其他角色，若此牌为红色，其可以对你攻击范围内一名角色使用一张【杀】。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-zhou-cang.png",
+        "sha256": "AD4B4FAB53DE109913B67ED6DD7138EFE88892B09AC0F262146426A0BC7C4540",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/32500.png"
+      }
+    },
+    {
+      "contentId": "classic:sun-lu-ban",
+      "officialId": 327,
+      "name": "孙鲁班",
+      "maxHp": 3,
+      "faction": "wu",
+      "gender": "female",
+      "sourcePage": "https://www.sanguosha.com/hero/327",
+      "officialSkillText": "出牌阶段限一次，当你使用【杀】或黑色普通锦囊牌指定唯一目标时，你可以令另一名能成为此牌目标的角色选择一项：1.交给你一张牌并代替你成为此牌的使用者；2.成为此牌的额外目标。 当男性角色对你造成伤害时，你可以弃置一张装备牌，然后此伤害-1。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-sun-lu-ban.png",
+        "sha256": "A0D1CBB076C07B5265576C03C902E73885951FAE7E26542D9A9FAF8C23C93B96",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/32700.png"
+      }
+    }
+  ],
+  "additionalSources": [
+    {
+      "url": "https://www.sanguosha.com/news/20161121_6612_3914",
+      "usage": "历史官方FAQ：谮毁邀请目标的合法性与骄矜实体装备费用；历史忠勇的受赠限制不覆盖当前官网正文。"
+    },
+    {
+      "url": "https://bug.sanguosha.com/announce?id=76&mod=announce",
+      "usage": "官方用牌目标时机说明；未查到谮毁退还原杀次数的明确依据，不据此添加退还次数。"
+    }
+  ],
+  "editionNotes": [
+    "曹真采用OL当前司敌的弃置与装备颜色相同非基本牌版本，限制同色牌使用及打出，阶段结束未使用杀才视为使用杀，不采用较旧钤牌或杀次数减少版本。",
+    "韩浩史涣慎断使用真实弃置黑色基本牌作为无距离限制兵粮寸断；勇略在他人判定阶段开始时弃置判定牌，杀未造成伤害才摸牌。",
+    "陈群采用OL当前品第版本，弃牌类别与目标按本阶段限制，X为本回合本技能发动次数；目标受伤时陈群进入连环状态。",
+    "吴懿采用OL当前奔袭依次选择至多两项版本，每次于回合内使用牌降低本回合距离；回合内单目标杀或普通锦囊满足所有他人距离均为1时获得选择。",
+    "周仓采用OL当前忠勇版本，杀牌或目标响应的闪均可交给任意一名其他角色，原目标没有额外受赠禁令；红牌受赠者可以对周仓攻击范围内角色使用杀。",
+    "孙鲁班采用OL当前谮毁与骄矜版本，保持一次目标流程和伤害来源边界。"
+  ]
+}

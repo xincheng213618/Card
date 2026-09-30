@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:pindi": {
+      "name": "品第",
+      "description": "出牌阶段，每名角色限一次，你可以弃置一张本阶段未以此法弃置过的类型的牌，令一名其他角色摸X张牌或弃置X张牌（X为本回合本技能发动次数），若其已受伤，你进入连环状态。",
+      "activationLabels": { "rank-category-target": "弃牌品第" },
+      "optionLabels": { "draw": "令其摸牌", "discard": "令其弃牌" }
+    },
+    "classic:faen": { "name": "法恩", "description": "当一名角色翻至正面或进入连环状态后，你可以令其摸一张牌。" }
+  }
+}

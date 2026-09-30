@@ -13,6 +13,12 @@ internal sealed record QuhuBoundary(
 
 internal static class QuhuScenario
 {
+    private const string Mode = "identity:classic-quhu-fixture-5";
+
+    public static ContentRegistry CreateRegistry() => ContentRegistry.Build(new StandardContentPackage(),
+        new StandardActiveSkillExpansionPackage(includeJijiu: true), new StandardRescueSkillExpansionPackage(),
+        new StandardClassicGeneralPackage(), new QuhuFixturePackage());
+
     public static QuhuBoundary Find(bool sourceWins)
         => Find(
             (sourceRank, opponentRank) => (sourceRank > opponentRank) == sourceWins,
@@ -28,7 +34,8 @@ internal static class QuhuScenario
         string outcome)
     {
         const int sourceSeat = 0;
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = CreateRegistry();
+        InvalidOperationException? firstFixtureError = null;
         for (var seed = 1; seed <= 16_384; seed++)
         {
           // A seed whose unrelated cast hits an engine limitation (for example a
@@ -42,7 +49,7 @@ internal static class QuhuScenario
                 HumanSeat = sourceSeat,
                 HumanRole = Role.Rebel,
                 PlayerCount = 5,
-                ModeId = "identity:classic-5",
+                ModeId = Mode,
                 UseInteractiveSetup = true,
                 UseInteractiveDiscard = false,
                 AdvanceAfterHumanCommands = false,
@@ -116,16 +123,36 @@ internal static class QuhuScenario
                 }
             }
           }
-          catch (InvalidOperationException)
+          catch (InvalidOperationException error)
           {
+              firstFixtureError ??= error;
           }
         }
 
-        throw new InvalidOperationException($"No bounded Quhu {outcome} fixture was found.");
+        throw new InvalidOperationException($"No bounded Quhu {outcome} fixture was found. {firstFixtureError?.Message}", firstFixtureError);
     }
 
     private static void Require(bool value, string message)
     {
         if (!value) throw new InvalidOperationException(message);
+    }
+
+    private sealed class QuhuFixturePackage : IGameContentPackage
+    {
+        public PackageManifest Manifest { get; } = new("fixture-quhu", new Version(1, 0, 0), []);
+        public void Register(IContentRegistryBuilder builder)
+        {
+            // This scenario verifies Quhu's attributed damage. Unrelated source
+            // replacement skills such as Zhiman have their own behavior checks.
+            var banks = Enumerable.Range(1, 8).Select(index => $"fixture:quhu-bank-{index}").ToArray();
+            foreach (var bank in banks)
+                builder.AddGeneral(new ContentGeneralDefinition(bank, "驱虎对手", "supporter", "standard:none", "qun", BaseHp: 4));
+            builder.AddMode(new ContentModeDefinition(Mode, "驱虎拼点与伤害", 5, 5,
+                new Dictionary<string, int>
+                {
+                    [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1,
+                    [nameof(Role.Rebel)] = 2, [nameof(Role.Renegade)] = 1
+                }, "classic:standard-deck", GeneralCandidateCount: 3, GeneralPoolIds: ["classic:xun-yu", .. banks]));
+        }
     }
 }

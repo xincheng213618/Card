@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:mieji", "revision": 1, "minimumRulesVersion": 190,
+      "activations": [{
+        "id": "topdeck-black-trick", "minCards": 1, "maxCards": 1, "sourceZones": ["hand"],
+        "cardCategories": ["trick"], "cardSuits": ["spade", "club"],
+        "minTargets": 1, "maxTargets": 1, "targetKind": "otherLivingWithHand", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [
+          { "op": "captureSelectedCards", "target": "owner", "resultBind": "cost" },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "cost", "destination": "drawPileTop", "awaitMovementTriggers": true },
+          { "op": "chooseCategoryAlternativeDiscard", "target": "selectedTarget", "amount": 1, "secondaryAmount": 2,
+            "cardCategories": ["trick"], "zones": ["hand", "equipment"] }
+        ]
+      }]
+    },
+    {
+      "id": "classic:juece", "revision": 1, "minimumRulesVersion": 190,
+      "triggers": [{
+        "id": "damage-empty-hand-character", "window": "turnEnding", "subject": "owner", "optional": true, "priority": 0,
+        "effects": [
+          { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingEmptyHand" },
+          { "op": "damage", "target": "selectedTarget", "amount": 1 }
+        ]
+      }]
+    },
+    {
+      "id": "classic:fencheng", "revision": 1, "minimumRulesVersion": 190,
+      "activations": [{
+        "id": "escalating-fire-walk", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0,
+        "targetKind": "otherLiving", "usesPerTurn": null, "usesPerGame": 1,
+        "effects": [{ "op": "escalatingDiscardOrDamage", "target": "owner", "amount": 2,
+          "nature": "fire", "zones": ["hand", "equipment"] }]
+      }]
+    }
+  ]
+}

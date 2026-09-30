@@ -105,6 +105,8 @@ public sealed record ProgramSkillFrame(
     public ProgramSkillWindowContext? WindowContext { get; init; }
 
     public IReadOnlyList<ProgramSkillNumberBinding> NumberBindings { get; init; } = [];
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? SelectedAllOwnerHandCards { get; init; }
     public IReadOnlyList<ProgramAttackRangeCoverageBinding> AttackRangeCoverageBindings { get; init; } = [];
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramMovementContinuation? PendingMovementContinuation { get; init; }
@@ -114,6 +116,19 @@ public sealed record ProgramSkillFrame(
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramOwnedCardSelection? OwnedCardSelection { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramAssistedSlashRequest? AssistedSlashRequest { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramOtherCardSelection? OtherCardSelection { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramDiscardChallengeDraft? DiscardChallenge { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramDiscardTopPlacement? DiscardTopPlacement { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramCompletedCardGiftDraft? CompletedCardGiftDraft { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramCardEnhancementDraft? CardEnhancementDraft { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramHoldCardSelection? HoldCardSelection { get; init; }
@@ -132,6 +147,11 @@ public sealed record ProgramSkillFrame(
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramRepeatedJudgment? RepeatedJudgment { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramAdvancedSelection? AdvancedSelection { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramPrivateReserveDraft? PrivateReserveDraft { get; init; }
+    public bool ReexecuteParticipantInstruction { get; init; }
 }
 
 public sealed record CardUseFrame(
@@ -156,7 +176,15 @@ public sealed record CardUseFrame(
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<int>? IneffectiveTargetSeats { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SequentialTrickUse? SequentialTrick { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public CurrentCardEnhancement Enhancements { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? EnhancementOwnerSeat { get; init; }
 }
+
+public sealed record SequentialTrickUse(LegalActionKind ActionKind, int? FirstTargetCardId, CardKind? RequiredCardKind);
 
 public sealed record ResponseWindowFrame(
     long Id,

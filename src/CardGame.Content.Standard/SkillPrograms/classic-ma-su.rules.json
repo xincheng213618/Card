@@ -1,0 +1,102 @@
+{
+  "skills": [
+    {
+      "id": "classic:sanyao",
+      "minimumRulesVersion": 190,
+      "revision": 1,
+      "activations": [
+        {
+          "minTargets": 1,
+          "maxCards": 1,
+          "usesPerPhase": 1,
+          "targetKind": "anyLivingHighestHp",
+          "id": "highest-hp",
+          "effects": [
+            {
+              "amount": 1,
+              "op": "discardSelected",
+              "target": "owner"
+            },
+            {
+              "amount": 1,
+              "op": "damage",
+              "target": "selectedTarget"
+            }
+          ],
+          "maxTargets": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "usesPerTurn": null,
+          "minCards": 1
+        },
+        {
+          "minTargets": 1,
+          "maxCards": 1,
+          "usesPerPhase": 1,
+          "targetKind": "anyLivingHighestHand",
+          "id": "highest-hand",
+          "effects": [
+            {
+              "amount": 1,
+              "op": "discardSelected",
+              "target": "owner"
+            },
+            {
+              "amount": 1,
+              "op": "damage",
+              "target": "selectedTarget"
+            }
+          ],
+          "maxTargets": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "usesPerTurn": null,
+          "minCards": 1
+        }
+      ]
+    },
+    {
+      "id": "classic:zhiman",
+      "minimumRulesVersion": 190,
+      "triggers": [
+        {
+          "id": "prevent-source-damage-and-gain",
+          "effects": [
+            {
+              "op": "preventCurrentDamage",
+              "target": "owner"
+            },
+            {
+              "zones": [
+                "hand",
+                "equipment",
+                "judgment"
+              ],
+              "skipIfNoCards": true,
+              "count": 1,
+              "op": "selectAndMoveOwnedCard",
+              "awaitMovementTriggers": true,
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "target": "owner",
+              "cardOwnerRef": {
+                "kind": "eventTarget"
+              },
+              "destination": "ownerHand"
+            }
+          ],
+          "window": "beforeDamageApplied",
+          "subject": "damageSource",
+          "optional": true
+        }
+      ],
+      "revision": 1
+    }
+  ],
+  "schemaVersion": 62
+}

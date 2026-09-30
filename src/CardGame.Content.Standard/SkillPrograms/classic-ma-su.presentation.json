@@ -1,0 +1,13 @@
+{
+  "skills": {
+    "classic:zhiman": {
+      "name": "制蛮",
+      "description": "当你对其他角色造成伤害时，你可以防止此伤害，然后获得其区域里的一张牌。"
+    },
+    "classic:sanyao": {
+      "name": "散谣",
+      "description": "出牌阶段各限一次，你可以弃置一张牌对一名体力值/手牌数最大的角色造成1点伤害。"
+    }
+  },
+  "schemaVersion": 3
+}

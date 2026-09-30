@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "retrievedAt": "2026-09-30",
+  "purpose": "Repair missing original artwork for previously registered content; preserve existing rules and test contracts.",
+  "portraits": [
+    {
+      "contentId": "classic:xu-sheng",
+      "portraitKey": "xu-sheng",
+      "id": "129301",
+      "sourcePage": "https://x.sanguosha.com/hero/293.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/129301.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-xu-sheng.png",
+      "sha256": "4B1A4ED4150DA4F4466EA047AAFA76ABC2B09ECD3B749106832301192C2520FD",
+      "pixelWidth": 574,
+      "pixelHeight": 761
+    },
+    {
+      "contentId": "boundary:xu-sheng",
+      "portraitKey": "boundary-xu-sheng",
+      "id": "191301",
+      "sourcePage": "https://x.sanguosha.com/hero/293.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/191301.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-xu-sheng.png",
+      "sha256": "8558B149D6BB792EDCE3FC6A195077BE182CBD7B6FBA17CF52A2A02EC7D757E9",
+      "pixelWidth": 574,
+      "pixelHeight": 761
+    },
+    {
+      "contentId": "classic:zhang-xiu",
+      "portraitKey": "zhang-xiu",
+      "id": "110501",
+      "sourcePage": "https://x.sanguosha.com/hero/105.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/110501.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-zhang-xiu.png",
+      "sha256": "692BCB8D33DFBC9AD267F501C06B730E76E6238496FA1B11096417CC0EE68012",
+      "pixelWidth": 574,
+      "pixelHeight": 761
+    },
+    {
+      "contentId": "classic:jia-xu",
+      "portraitKey": "jia-xu",
+      "id": "104901",
+      "sourcePage": "https://x.sanguosha.com/hero/49.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/104901.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-jia-xu.png",
+      "sha256": "BD512F2C65396EB9C291E0FD7167209A6F67D85A61FB6707C4AE35E84FDC9104",
+      "pixelWidth": 574,
+      "pixelHeight": 761
+    },
+    {
+      "contentId": "boundary:zhao-yun",
+      "portraitKey": "boundary-zhao-yun",
+      "id": "30200",
+      "sourcePage": "https://www.sanguosha.com/hero/302",
+      "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30200.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-zhao-yun.png",
+      "sha256": "20802ABCA1C29ED15B089646BC41A49BF639E5E5F98956E13D09370FE953EC54",
+      "pixelWidth": 750,
+      "pixelHeight": 950
+    }
+  ],
+  "customPortrait": "Gao Da Yi Hao now has an independent custom illustration; generation prompt and hash are recorded in docs/content/sources/gao-da-yi-hao-art-2026-09-30.json.",
+  "cardArtwork": {
+    "officialAtlasCatalog": "docs/content/card-art-catalog.json",
+    "addedOriginalFaces": [
+      "GhostDragonCrescentBlade"
+    ],
+    "addedEquipmentStrips": [
+      "GhostDragonCrescentBlade",
+      "ScarletBloodSword",
+      "XingtianAxe"
+    ],
+    "missingOriginalFaces": [
+      "ScarletBloodSword",
+      "XingtianAxe"
+    ],
+    "notes": "The fixed-hash official cards atlas contains GhostDragonCrescentBlade face and all three equipment strips. ScarletBloodSword and XingtianAxe full faces are absent from this atlas. Unverified third-party image pages were not imported or substituted."
+  }
+}

@@ -15,7 +15,7 @@ internal sealed class SelectOwnedCardsProgramOperationDescriptor : ProgramOperat
             "cardKinds", "suits", "zones", "resultBind", "targetRef", "condition");
         var variable = r.Has("minimumCards") || r.Has("maximumCards");
         if (variable != (r.Has("minimumCards") && r.Has("maximumCards")) ||
-            variable && (r.Has("amount") || r.Has("numberExpression")))
+            variable && (r.Has("amount") || r.Has("numberExpression") && r.RequiredEnum<SkillProgramNumberExpression>("numberExpression") != SkillProgramNumberExpression.LivingPlayerCount))
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}: variable selection requires both card bounds and no fixed amount.");
         var minimum = variable ? r.RequiredInt("minimumCards") : 0;
@@ -32,13 +32,13 @@ internal sealed class SelectOwnedCardsProgramOperationDescriptor : ProgramOperat
         var expression = r.Has("numberExpression")
             ? r.RequiredEnum<SkillProgramNumberExpression>("numberExpression") : (SkillProgramNumberExpression?)null;
         if (expression is not null && (r.Has("amount") || expression is not
-                (SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.AllOwnedZoneCards or
+                (SkillProgramNumberExpression.CategoryTargetTurnUsage or SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.AllOwnedZoneCards or
                  SkillProgramNumberExpression.HandHalfFloor or SkillProgramNumberExpression.SelectedPairHandDifference or
-                 SkillProgramNumberExpression.LivingPlayersMinHp)))
+                 SkillProgramNumberExpression.LivingPlayersMinHp or SkillProgramNumberExpression.LivingPlayerCount)))
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}: selection accepts a constant, ownerLostHp, allOwnedZoneCards, handHalfFloor, livingPlayersMinHp or selectedPairHandDifference.");
         var zones = r.RequiredEnumArray<CardZoneKind>("zones");
-        if (zones.Count == 0 || zones.Any(zone => zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment)))
+        if (zones.Count == 0 || zones.Any(zone => zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.PrivateReserve)))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.zones: requires owned hand, equipment or judgment zones.");
         if (expression == SkillProgramNumberExpression.HandHalfFloor &&
             !zones.SequenceEqual([CardZoneKind.Hand]))

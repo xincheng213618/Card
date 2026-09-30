@@ -100,6 +100,8 @@ public sealed record ContentGeneralDefinition(
     public string? CharacterId { get; init; }
     public string? VariantId { get; init; }
     public string? RulesetId { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? InitialHp { get; init; }
     /// <summary>
     /// Complete ordered skill identities used by the current runtime.
     /// </summary>
@@ -245,7 +247,33 @@ public sealed class ContentRegistry
         SkillProgramRules.ValidateSetModifierConflicts(registry.Skills.Values
             .Select(skill => skill.Program)
             .OfType<SkillProgram>());
+        ValidateExpandedProgramCardDomain(registry);
         return registry;
+    }
+
+    private static void ValidateExpandedProgramCardDomain(ContentRegistry registry)
+    {
+        var programs = registry.Skills.Values.Select(skill => skill.Program).OfType<SkillProgram>().ToArray();
+        if (!registry.Cards.Values.Any(card => card.LegacyKind is { } kind && ProgramCompositionValidator.IsExpandedCardKind(kind)) &&
+            !registry.Decks.Values.Any(deck => deck.PhysicalCards?.Any(card => card.Suit == Suit.None) == true) &&
+            !programs.Any(program => program.Activations.Any(activation => ProgramCompositionValidator.RequiresExpandedCardDomain(activation.Effects)) ||
+                program.Triggers.Any(trigger => ProgramCompositionValidator.RequiresExpandedCardDomain(trigger.Effects)))) return;
+
+        // New physical cards can pass between skills. Recheck every program in
+        // this distinct content combination, including programs loaded on their
+        // historical ordinary-card domain before the generating package joined.
+        foreach (var program in programs)
+        {
+            foreach (var activation in program.Activations)
+                ProgramCompositionValidator.Validate($"registry.skills[{program.Id}].activations[{activation.Id}]", activation.Effects,
+                    activation.MinTargets == 1 && activation.MaxTargets == 1, activation.MaxCards,
+                    initialTargetSetCount: activation.MaxTargets > 1 ? activation.MinTargets : 0,
+                    initialTargetSetMaximum: activation.MaxTargets > 1 ? activation.MaxTargets : 0,
+                    expandedCardDomain: true);
+            foreach (var trigger in program.Triggers)
+                ProgramCompositionValidator.Validate($"registry.skills[{program.Id}].triggers[{trigger.Id}]", trigger.Effects,
+                    window: trigger.Window, drawPhaseMode: trigger.DrawPhaseMode, expandedCardDomain: true);
+        }
     }
 
     private static IReadOnlyList<PackageManifest> TopologicallyOrderPackages(
@@ -354,13 +382,7 @@ public sealed class ContentRegistry
                     program.Id, program.RuntimeVersion, program.MinimumRulesVersion, program.GameplayHash
                 } : null
             }).ToArray(),
-            Generals = generals.Values.OrderBy(general => general.Id, StringComparer.Ordinal).Select(general => new
-            {
-                general.CharacterId, general.VariantId, general.RulesetId,
-                general.Id, general.Name, general.PortraitKey, general.FactionId, general.BaseHp,
-                Gender = general.Gender.ToString(),
-                Skills = general.SkillIds.ToArray()
-            }).ToArray(),
+            Generals = generals.Values.OrderBy(general => general.Id, StringComparer.Ordinal).Select(GeneralFingerprint).ToArray(),
             Decks = decks.Values.OrderBy(deck => deck.Id, StringComparer.Ordinal).Select(deck => new
             {
                 deck.Id, deck.Name, deck.InitialHandSize, deck.DrawPerTurn,
@@ -386,6 +408,20 @@ public sealed class ContentRegistry
             }).ToArray()
         });
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical)));
+
+        static object GeneralFingerprint(ContentGeneralDefinition general) => general.InitialHp is null
+            ? new
+            {
+                general.CharacterId, general.VariantId, general.RulesetId,
+                general.Id, general.Name, general.PortraitKey, general.FactionId, general.BaseHp,
+                Gender = general.Gender.ToString(), Skills = general.SkillIds.ToArray()
+            }
+            : new
+            {
+                general.CharacterId, general.VariantId, general.RulesetId,
+                general.Id, general.Name, general.PortraitKey, general.FactionId, general.BaseHp,
+                Gender = general.Gender.ToString(), Skills = general.SkillIds.ToArray(), general.InitialHp
+            };
     }
     private static PackageManifest ValidateManifest(PackageManifest manifest)
     {
@@ -777,6 +813,8 @@ public sealed class ContentRegistry
             ArgumentNullException.ThrowIfNull(definition);
             if (definition.BaseHp is < 1 or > 20)
                 throw new ArgumentOutOfRangeException(nameof(definition), "General base HP must be between 1 and 20.");
+            if (definition.InitialHp is { } initialHp && (initialHp < 1 || initialHp > definition.BaseHp))
+                throw new ArgumentOutOfRangeException(nameof(definition), "Initial HP must be between 1 and base maximum HP.");
             var additionalSkillIds = definition.AdditionalSkillIds?.ToArray() ?? [];
             if (string.IsNullOrWhiteSpace(definition.SkillId) ||
                 additionalSkillIds.Any(string.IsNullOrWhiteSpace) ||

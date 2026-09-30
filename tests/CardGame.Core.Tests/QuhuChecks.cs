@@ -6,7 +6,7 @@ internal static class QuhuChecks
 {
     public static void PindianWinLossDamageAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = QuhuScenario.CreateRegistry();
         var win = QuhuScenario.Find(sourceWins: true);
         var pindianStage = GameReplay.Restore(RoundTrip(win.AtPindianPrompt), registry);
         var opponentPrompt = pindianStage.CreateSnapshot(win.OpponentSeat).PendingDecision;
@@ -74,7 +74,10 @@ internal static class QuhuChecks
                     item.SourceSeat == win.OpponentSeat && item.TargetSeat == victim && item.Amount == 1) &&
                 winGame.Events.Select(item => item.Payload).OfType<ProgramSkillResolvedEvent>().Any(item =>
                     item.SkillId == "classic:quhu"),
-            resolved.Error?.Message ?? "Winning Quhu must attribute normal damage to the Pindian opponent.");
+            resolved.Error?.Message ?? $"Winning Quhu must attribute normal damage to the Pindian opponent. " +
+            $"opponent={winGame.CreateSnapshot(0, true).Players[win.OpponentSeat].GeneralId}; victim={victim}; " +
+            $"pending={winGame.PendingDecision?.Kind}; frames={string.Join(',', winGame.ResolutionStack.Select(frame => frame.Kind))}; " +
+            $"damage={string.Join(',', winGame.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>().Select(item => $"{item.SourceSeat}>{item.TargetSeat}:{item.Amount}"))}");
         var replayed = GameReplay.Restore(RoundTrip(winGame.CreateCheckpoint()), registry);
         Require(State(replayed) == State(winGame) && Events(replayed).SequenceEqual(Events(winGame)),
             "Completed winning Quhu must replay exactly.");

@@ -6,9 +6,13 @@ public sealed partial class GameEngine
     /// Bridges shared game primitives to the independent program executor.
     /// No skill identities, trigger rules or instruction dispatch belong here.
     /// </summary>
-    private sealed class ProgramSkillHost(GameEngine engine) :
+    private sealed partial class ProgramSkillHost(GameEngine engine) :
         ISkillProgramExecutionHost, ISkillProgramEffectHost
     {
+        public SkillProgramStepOutcome ExchangeSelectedTargetEquipment(ProgramSkillFrame frame) =>
+            engine.ExchangeProgramSelectedTargetEquipment(frame);
+        public SkillProgramStepOutcome ExecuteStrategicEffect(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat) =>
+            engine.ExecuteStrategicProgramEffect(effect, frame, targetSeat);
         public int ResolveParticipant(ProgramSkillFrame frame, ProgramParticipantReference reference) =>
             engine.ResolveProgramParticipant(frame, reference);
 
@@ -63,8 +67,9 @@ public sealed partial class GameEngine
         }
 
         public bool TryStartPostInstructionWindow(long frameId) =>
+            engine.TryBeginCharacterStateProgramWindow(frameId, CharacterStateContinuation.Program) ||
             engine.TryBeginHpChangedProgramWindow(frameId, PostEventContinuation.Program) ||
-            engine.TryBeginCardsMovedProgramWindow(frameId);
+            engine.TryBeginCardsMovedProgramWindow(frameId) || engine.TryBeginAdvancedSkillsChanged(frameId) || engine.TryContinueAdvancedDamage(frameId);
 
         public void UpdateFrame(ProgramSkillFrame frame)
         {
@@ -500,8 +505,8 @@ public sealed partial class GameEngine
         public void GrantTurnHandColorRestriction(
             ProgramSkillFrame frame,
             string sourceBind,
-            int targetSeat) =>
-            engine.GrantProgramTurnHandColorRestriction(frame, sourceBind, targetSeat);
+            int targetSeat, bool useFrozenSuit = false) =>
+            engine.GrantProgramTurnHandColorRestriction(frame, sourceBind, targetSeat, useFrozenSuit);
 
         public void GrantTurnHandCardProhibition(ProgramSkillFrame frame, int targetSeat) =>
             engine.GrantProgramTurnHandCardProhibition(frame, targetSeat);
