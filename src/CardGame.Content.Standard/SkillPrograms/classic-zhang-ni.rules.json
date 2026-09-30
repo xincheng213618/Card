@@ -1,0 +1,28 @@
+{
+  "schemaVersion":62,
+  "skills":[
+    {
+      "id":"classic:wurong","revision":1,"minimumRulesVersion":190,
+      "activations":[{
+        "id":"paired-hand-reveal","minCards":1,"maxCards":1,"sourceZones":["hand"],
+        "minTargets":1,"maxTargets":1,"targetKind":"otherLivingWithHand","usesPerTurn":null,"usesPerPhase":1,
+        "effects":[
+          {"op":"revealSelectedHandAgainstTarget","target":"owner","resultBind":"shown-match"},
+          {"op":"discardSelected","target":"owner","amount":1,"condition":{"kind":"any","children":[
+            {"kind":"choiceIs","sourceBind":"shown-match","optionId":"damage"},
+            {"kind":"choiceIs","sourceBind":"shown-match","optionId":"obtain"}
+          ]}},
+          {"op":"damage","target":"selectedTarget","amount":1,"condition":{"kind":"choiceIs","sourceBind":"shown-match","optionId":"damage"}},
+          {"op":"selectAndMoveOwnedCard","target":"owner","chooserRef":{"kind":"owner"},"cardOwnerRef":{"kind":"selectedTarget"},
+           "zones":["hand","equipment","judgment"],"count":1,"destination":"ownerHand","skipIfNoCards":true,
+           "condition":{"kind":"choiceIs","sourceBind":"shown-match","optionId":"obtain"}}
+        ]
+      }]
+    },
+    {
+      "id":"classic:shizhi","revision":1,"minimumRulesVersion":190,
+      "cardIdentities":[{"id":"one-hp-dodge-as-slash","zones":["hand"],"inputKinds":["dodge"],"inputSuits":[],"outputKind":"slash",
+        "condition":{"kind":"all","children":[{"kind":"hpAtLeast","value":1},{"kind":"not","children":[{"kind":"hpAtLeast","value":2}]}]}}]
+    }
+  ]
+}

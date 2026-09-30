@@ -54,6 +54,16 @@ CLASSIC_HEROES = {
     "wolong-zhuge-liang": 38, "pang-de": 40,
     "yan-liang-wen-chou": 41,
     "zhu-zhi": 339, "cao-pi": 44,
+    "cao-rui": 332,
+    "cao-xiu": 333,
+    "zhong-yao": 334,
+    "liu-chen": 335,
+    "xiahou-shi": 336,
+    "zhang-ni": 337,
+    "sun-xiu": 338,
+    "quan-cong": 340,
+    "gongsun-yuan": 341,
+    "guo-tu-feng-ji": 342,
     "sun-ce": 55, "cai-wen-ji": 58,
     "deng-ai": 52, "sha-mo-ke": 650, "lu-su": 50, "zhang-he": 51, "jiang-wei": 53,
     "dong-zhuo": 46,
@@ -76,6 +86,7 @@ OTHER_HEROES = {
     "zhu-huan": 328, "cao-ang": 404, "qu-yi": 1053,
     "shen-sima-yi": 208,
     "shen-zhou-yu": 203,
+    "shen-lu-bu": 206,
 }
 
 OL_HEROES = {
@@ -89,7 +100,7 @@ OL_HEROES = {
     "boundary-xu-chu": (315, "许褚"),
 }
 
-NEW_OFFICIAL_DEFAULTS = {"boundary-gan-ning", "boundary-xu-chu", "qu-yi", "shen-zhou-yu"}
+NEW_OFFICIAL_DEFAULTS = {"boundary-gan-ning", "boundary-xu-chu", "qu-yi", "shen-zhou-yu", "shen-lu-bu"}
 
 EXISTING_SOURCES = {
     "gu-yong": ("https://www.sanguosha.com/hero/329", "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/32900.png"),

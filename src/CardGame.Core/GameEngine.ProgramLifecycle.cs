@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 /// <summary>Generic lifecycle-program host. It contains no character or skill ids.</summary>
 public sealed partial class GameEngine
@@ -679,7 +679,7 @@ public sealed partial class GameEngine
         {
             if (windowContext is not
                 {
-                    Window: SkillProgramTriggerWindow.CardUseBeforeTargetEffects,
+                    Window: SkillProgramTriggerWindow.CardUseBeforeTargetEffects or SkillProgramTriggerWindow.CardUseTargetsFinalized,
                     CardUse: { } cardUse
                 } ||
                 _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().LastOrDefault() is not { } window ||
@@ -702,7 +702,7 @@ public sealed partial class GameEngine
             var actorSeat = ResolveProgramParticipant(frame, reference);
             if (!_players[actorSeat].IsAlive) return [];
             return _players.Where(target => target.IsAlive && target.Seat != actorSeat &&
-                    GetCombatDistance(actorSeat, target.Seat) <= GetAttackRange(actorSeat))
+                    IsWithinAttackRange(actorSeat, target.Seat))
                 .Select(target => target.Seat).Order().ToArray();
         }
         if (targetKind == SkillProgramTargetKind.MaximumAttributedMarker)
@@ -726,10 +726,10 @@ public sealed partial class GameEngine
                     target.Hp < target.MaxHp,
                 SkillProgramTargetKind.OtherLivingInAttackRange =>
                     target.Seat != ownerSeat &&
-                    GetCombatDistance(ownerSeat, target.Seat) <= GetAttackRange(ownerSeat),
+                    IsWithinAttackRange(ownerSeat, target.Seat),
                 SkillProgramTargetKind.OtherLivingWhoseAttackRangeIncludesOwner =>
                     target.Seat != ownerSeat &&
-                    GetCombatDistance(target.Seat, ownerSeat) <= GetAttackRange(target.Seat),
+                    IsWithinAttackRange(target.Seat, ownerSeat),
                 SkillProgramTargetKind.OtherLivingWithQinggangSword =>
                     target.Seat != ownerSeat &&
                     HasWeaponAbility(target, CardKind.QinggangSword),
@@ -747,6 +747,8 @@ public sealed partial class GameEngine
                     IsProgramDiscardedDelayedTrickTarget(ownerSeat, target, windowContext),
                 SkillProgramTargetKind.OtherLivingWithHand =>
                     target.Seat != ownerSeat && GetHand(target).Count > 0,
+                SkillProgramTargetKind.OtherLivingWithHandOrEquipment =>
+                    target.Seat != ownerSeat && GetHand(target).Count + GetEquipment(target).Count > 0,
                 SkillProgramTargetKind.OtherLivingEmptyHand =>
                     target.Seat != ownerSeat && GetHand(target).Count == 0,
                 SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
@@ -1771,6 +1773,7 @@ public sealed partial class GameEngine
         if (trigger is null || trigger.Window != context.Window || !CanPayProgramMarkerCost(owner, trigger.MarkerCost))
             return false;
         if (!AdvancedTriggerPrerequisites(owner, candidate.SkillId, trigger)) return false;
+        if (!CanOfferProgramHandControl(owner, trigger)) return false;
         if (trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.SuppressGeneralSkill) &&
             (_phase != TurnPhase.Play || owner.Seat != _currentSeat || context.TargetSeat is not { } target ||
              _programSuppressions.Any(item => item.SourceSeat == owner.Seat && item.TargetSeat == target))) return false;
@@ -1896,7 +1899,7 @@ public sealed partial class GameEngine
                 _resolutionStack.OfType<BeforeDamageProgramWindowFrame>().LastOrDefault() is { } beforeDamage &&
                 beforeDamage.Id == context.ParentFrameId &&
                 beforeDamage.TargetSeat == context.TargetSeat &&
-                beforeDamage.SourceSeat == context.SourceSeat &&
+                context.SourceSeat == (BeforeDamageHasNoSource(beforeDamage) ? null : beforeDamage.SourceSeat) &&
                 beforeDamage.Amount == context.Amount &&
                 !beforeDamage.Prevented && beforeDamage.RedirectedTargetSeat is null &&
                 (trigger.Subject == SkillProgramTriggerSubject.DamageTarget
@@ -1904,7 +1907,7 @@ public sealed partial class GameEngine
                       !(trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.RedirectCurrentDamage) &&
                         _pendingAttack?.DamageRedirected == true)
                     : trigger.Subject == SkillProgramTriggerSubject.DamageSource
-                        ? owner.Seat == beforeDamage.SourceSeat && owner.Seat != beforeDamage.TargetSeat
+                        ? !BeforeDamageHasNoSource(beforeDamage) && owner.Seat == beforeDamage.SourceSeat && owner.Seat != beforeDamage.TargetSeat
                         : owner.Seat != beforeDamage.TargetSeat),
             SkillProgramTriggerWindow.DamageAppliedBeforeDying or
                 SkillProgramTriggerWindow.AfterDamageApplied =>
@@ -2170,6 +2173,8 @@ public sealed partial class GameEngine
                     .Any(item => item.KillerSeat == owner.Seat) : null,
             LivingWoundedCount: UsesStrategicTriggerValue(SkillProgramTriggerValueKind.LivingWoundedCount)
                 ? _players.Count(player => player.IsAlive && player.Hp < player.MaxHp) : 0,
+            PlayPhaseDamageTakenByAny: UsesStrategicTriggerValue(SkillProgramTriggerValueKind.PlayPhaseDamageTakenByAny)
+                ? CountPlayPhaseDamageTakenByAny() : 0,
             GlobalMarkerCounts: UsesStrategicTriggerValue(SkillProgramTriggerValueKind.GlobalMarkerCount)
                 ? Enum.GetValues<PlayerMarkerKind>().Where(marker => marker is PlayerMarkerKind.Camp or PlayerMarkerKind.Junlue).ToDictionary(marker => marker,
                     marker => _players.Where(player => player.IsAlive).Sum(player => player.Markers.GetValueOrDefault(marker))) : null);
@@ -2181,6 +2186,9 @@ public sealed partial class GameEngine
             CardActionActorIsCurrentTurn = action.ActorSeat == _currentSeat,
             CardActionActorIsOwner = action.ActorSeat == owner.Seat,
             CardActionPhaseIsPlay = _phase == TurnPhase.Play,
+            CardActionSuit = _contentRegistry.Skills.Values.Any(skill => skill.Program?.Triggers.Any(trigger =>
+                HasTriggerCondition(trigger.Condition, SkillProgramTriggerConditionKind.CardActionSuitIs)) == true)
+                ? action.EffectiveSuit : null,
             CardActionHandCardCount = _contentRegistry.Skills.Values.Any(skill => skill.Program?.Triggers.Any(trigger =>
                 HasTriggerValue(trigger.Condition, SkillProgramTriggerValueKind.CardActionHandCardCount)) == true)
                 ? action.PhysicalCards.Count(cost => cost.From == CardLocation.Hand(owner.Seat)) : null,
@@ -2454,6 +2462,9 @@ public sealed partial class GameEngine
             .SelectMany(player =>
             {
                 var playerFacts = player.Seat == owner.Seat ? facts : CaptureProgramTriggerFacts(player);
+                if (EnabledUniqueProgramTriggers(player, SkillProgramTriggerWindow.TurnEnding).Any(binding =>
+                    HasTriggerValue(binding.Trigger.Condition, SkillProgramTriggerValueKind.EventTargetHandCount)))
+                    playerFacts = playerFacts with { EventTargetHandCount = GetHand(owner).Count };
                 return CollectEligibleProgramTriggerCandidates(
                         player, SkillProgramTriggerWindow.TurnEnding, playerFacts)
                     .Where(candidate => GetProgramTrigger(candidate).TurnOwnerScope ==
@@ -2922,6 +2933,10 @@ public sealed partial class GameEngine
     private void ResolveProgramTriggerChoice(PromptChoice selected)
     {
         var action = selected.Parameters.GetValueOrDefault("program-action");
+        if (action == "faction-recovery") { ResolveFactionRecoveryChoice(selected); return; }
+        if (action == "weapon-damage") { ResolveWeaponDamageChoice(selected); return; }
+        if (action == "paired-hand-reveal") { ResolvePairedHandRevealChoice(selected); return; }
+        if (action == "hand-control") { ResolveProgramHandControlChoice(selected); return; }
         if (action == "equipment-color-discard")
         {
             ResolveProgramEquipmentColorDiscardChoice(selected);
@@ -3660,6 +3675,12 @@ public sealed partial class GameEngine
                 .GetPausedInstruction(frame.InstructionIndex).Effect;
             selected = paused.Op switch
             {
+                SkillProgramEffectOp.RequestFactionRecovery => SelectAiFactionRecovery(decision, frame),
+                SkillProgramEffectOp.WeaponDiscardOrDamageBonus => SelectAiWeaponDamage(decision, frame),
+                SkillProgramEffectOp.RevealSelectedHandAgainstTarget => decision.Choices[0],
+                SkillProgramEffectOp.ChooseHandCountIntervention or SkillProgramEffectOp.RevealHandColorDiscardAndTake or
+                    SkillProgramEffectOp.DrawThenPutOwnedCardOnTopParticipants or SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge =>
+                    SelectAiProgramHandControlChoice(decision, frame),
                 SkillProgramEffectOp.SampleFactionSkills or SkillProgramEffectOp.ReplaceSkillsOnAwakening or
                     SkillProgramEffectOp.ObtainDeckRankSum or SkillProgramEffectOp.DamageAfterDeckShuffle or
                     SkillProgramEffectOp.EquipSampledGenerals or SkillProgramEffectOp.InheritWeapon or
@@ -4321,7 +4342,7 @@ public sealed partial class GameEngine
             GetProgramTrigger(candidate).Window,
             dying.FrameId,
             candidate.OwnerSeat,
-            SourceSeat: dying.Attack?.SourceSeat,
+            SourceSeat: dying.Attack is { IsSourceLess: false } attack ? attack.SourceSeat : null,
             TargetSeat: dying.VictimSeat,
             DamageFrameId: dying.DamageFrameId,
             OccurrenceIndex: candidate.OccurrenceIndex);
@@ -4371,25 +4392,25 @@ public sealed partial class GameEngine
         var owner = _players[candidate.OwnerSeat];
         var facts = CaptureProgramTriggerFacts(owner) with
         {
-            CardActionActorIsCurrentTurn = damage.Attack.SourceSeat == _currentSeat,
+            CardActionActorIsCurrentTurn = !damage.Attack.IsSourceLess && damage.Attack.SourceSeat == _currentSeat,
             CardActionPhaseIsPlay = _phase == TurnPhase.Play,
-            OtherDamageParticipantAlive = IsValidPlayerSeat(damage.Attack.SourceSeat) &&
+            OtherDamageParticipantAlive = !damage.Attack.IsSourceLess && IsValidPlayerSeat(damage.Attack.SourceSeat) &&
                 IsValidPlayerSeat(damage.Attack.TargetSeat) &&
                 damage.Attack.SourceSeat != damage.Attack.TargetSeat &&
                 _players[damage.Attack.SourceSeat].IsAlive &&
                 _players[damage.Attack.TargetSeat].IsAlive,
-            DirectCardUseDamage = !damage.Attack.IsChainPropagation &&
+            DirectCardUseDamage = !damage.Attack.IsSourceLess && !damage.Attack.IsChainPropagation &&
                 damage.Attack.Card is not null &&
                 damage.Attack.CardUserSeat == damage.Attack.SourceSeat,
-            DamageCardIsRed = damage.Attack.Card?.Suit is Suit.Heart or Suit.Diamond,
-            DamageCardIsSlash = damage.Attack.EffectiveCardKind is
+            DamageCardIsRed = !damage.Attack.IsSourceLess && damage.Attack.Card?.Suit is Suit.Heart or Suit.Diamond,
+            DamageCardIsSlash = !damage.Attack.IsSourceLess && damage.Attack.EffectiveCardKind is
                 CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash,
-            SourceToTargetDistanceAtDamage = damage.Attack.SourceToTargetDistanceAtDamage,
+            SourceToTargetDistanceAtDamage = damage.Attack.IsSourceLess ? null : damage.Attack.SourceToTargetDistanceAtDamage,
             EventTargetHp = _players[damage.Attack.TargetSeat].Hp,
             EventTargetMaxHp = _players[damage.Attack.TargetSeat].MaxHp,
             DamageTargetIsOther = candidate.OwnerSeat != damage.Attack.TargetSeat,
-            DamageSourceIsOwner = candidate.OwnerSeat == damage.Attack.SourceSeat,
-            DamageSourceFactionId = GetEffectiveFactionId(_players[damage.Attack.SourceSeat]),
+            DamageSourceIsOwner = !damage.Attack.IsSourceLess && candidate.OwnerSeat == damage.Attack.SourceSeat,
+            DamageSourceFactionId = damage.Attack.IsSourceLess ? null : GetEffectiveFactionId(_players[damage.Attack.SourceSeat]),
             DamageInstancesTakenThisTurn =
                 GetSkillBindingShard(owner).ProgramInstances.Any(instance => instance.Program.Triggers.Any(trigger =>
                     HasTriggerValue(trigger.Condition, SkillProgramTriggerValueKind.DamageInstancesTakenThisTurn)))
@@ -4399,7 +4420,7 @@ public sealed partial class GameEngine
             damage.Window,
             damage.FrameId,
             candidate.OwnerSeat,
-            SourceSeat: damage.Attack.SourceSeat,
+            SourceSeat: damage.Attack.IsSourceLess ? null : damage.Attack.SourceSeat,
             TargetSeat: damage.Attack.TargetSeat,
             DamageFrameId: damage.DamageFrameId,
             Amount: damage.Attack.DamageAmount,

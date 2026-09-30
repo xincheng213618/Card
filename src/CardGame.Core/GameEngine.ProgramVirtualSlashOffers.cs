@@ -20,7 +20,7 @@ public sealed partial class GameEngine
 
     private int[] GetProgramVirtualSlashOfferTargets(int actorSeat) => _players.Where(target =>
         _players[actorSeat].IsAlive && target.IsAlive && target.Seat != actorSeat &&
-        GetCombatDistance(actorSeat, target.Seat) <= GetAttackRange(actorSeat) &&
+        IsWithinAttackRange(actorSeat, target.Seat) &&
         !IsCardUseForbidden(actorSeat, CardKind.Slash, CardActionType.Use) &&
         !IsDirectedCardTargetProhibited(actorSeat, target.Seat, CardKind.Slash) &&
         !IsSlashProhibited(target)).Select(target => target.Seat).ToArray();

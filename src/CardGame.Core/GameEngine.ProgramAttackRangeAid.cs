@@ -15,7 +15,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The attack-range aid target is no longer alive.");
         var responders = _players
             .Where(player => player.IsAlive && player.Seat != targetSeat &&
-                             GetCombatDistance(player.Seat, targetSeat) <= GetAttackRange(player.Seat))
+                             IsWithinAttackRange(player.Seat, targetSeat))
             .OrderBy(player => (player.Seat - active.OwnerSeat + _playerCount) % _playerCount)
             .Select(player => player.Seat)
             .ToArray();

@@ -5,6 +5,7 @@ using CardGame.Core;
 internal static class XuShuChecks
 {
     private const int OwnerSeat = 0;
+    private const int FixtureTargetSeat = 1;
 
     public static void JujianBenefitsAndReplay()
     {
@@ -19,7 +20,7 @@ internal static class XuShuChecks
                 prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate"),
             "Xu Shu must receive the ordinary private optional-program prompt at the turn-ending boundary.");
 
-        const int targetSeat = 1;
+        const int targetSeat = FixtureTargetSeat;
         var draw = RunBranch(ownerCheckpoint, registry, targetSeat, "draw", _ => { });
         Require(draw.Choice is { ResultBind: "benefit", OptionId: "draw", ChooserSeat: targetSeat } &&
                 draw.AfterTarget.HandCount == draw.BeforeTarget.HandCount + 2 &&
@@ -126,7 +127,21 @@ internal static class XuShuChecks
                         PlayerSeat: OwnerSeat,
                         SkillPrompt.SkillId: "classic:jujian"
                     })
-                    return game.CreateCheckpoint();
+                {
+                    var checkpoint = game.CreateCheckpoint();
+                    // The branches below drive one fixed target seat, so the boundary is only usable
+                    // when the engine's own restore branch can really clear that seat's chaining and
+                    // face-down state. Probing it here keeps the assertions untouched instead of
+                    // letting a shared-pool addition hand the fixture an immune character.
+                    var probe = RunBranch(checkpoint, registry, FixtureTargetSeat, "restore", player =>
+                    {
+                        player.IsFaceDown = true;
+                        player.IsChained = true;
+                    });
+                    if (probe.Choice is { OptionId: "restore", ChooserSeat: FixtureTargetSeat } &&
+                        !probe.AfterTarget.IsFaceDown && !probe.AfterTarget.IsChained)
+                        return checkpoint;
+                }
                 if (game.PendingDecision is { Kind: DecisionKind.DiscardCards, PlayerSeat: OwnerSeat } discard)
                 {
                     if (!game.Submit(new DiscardCardsCommand(

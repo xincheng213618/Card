@@ -28,7 +28,7 @@ public sealed partial class GameEngine
     private int[] CompletedGiftSlashTargets(ProgramSkillFrame frame, int actorSeat) => _players.Where(target =>
         _players[frame.OwnerSeat].IsAlive && _players[actorSeat].IsAlive && target.IsAlive &&
         target.Seat != actorSeat && target.Seat != frame.OwnerSeat &&
-        GetCombatDistance(frame.OwnerSeat, target.Seat) <= GetAttackRange(frame.OwnerSeat)).Select(target => target.Seat).ToArray();
+        IsWithinAttackRange(frame.OwnerSeat, target.Seat)).Select(target => target.Seat).ToArray();
 
     private SkillProgramStepOutcome OfferProgramCompletedCardGift(ProgramSkillFrame frame)
     {

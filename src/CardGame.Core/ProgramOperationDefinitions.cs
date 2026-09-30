@@ -834,7 +834,11 @@ internal sealed class DiscardSelectedProgramOperationDescriptor : ProgramOperati
         r.AllowOnly("op", "target", "amount", "condition");
         var target = FilterBoundCardsProgramOperationDescriptor.Owner(r);
         var effect = new SkillProgramEffect(Op, target, DrawProgramOperationDescriptor.Amount(r, 20), r.Condition());
-        RequireAlways(effect, r.Path); return effect;
+        if (effect.Condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.ChoiceIs) &&
+            !(effect.Condition.Kind == SkillProgramConditionKind.Any &&
+              effect.Condition.Children.All(child => child.Kind == SkillProgramConditionKind.ChoiceIs)))
+            throw new InvalidOperationException("Selected-card payment permits only unconditional or named-choice branches.");
+        return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
         [new ConsumeSelectedCards(effect.Amount)];

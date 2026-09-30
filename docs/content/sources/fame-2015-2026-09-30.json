@@ -1,0 +1,246 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀OL",
+  "retrievedAt": "2026-09-30",
+  "batch": "一将成名2015缺口",
+  "roster": [
+    {
+      "contentId": "classic:zhong-yao",
+      "officialId": 334,
+      "name": "钟繇",
+      "maxHp": 3,
+      "faction": "wei",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/334",
+      "officialSkillText": "【活墨】你可以将一张黑色非基本牌置于牌堆顶，视为使用一张与你本回合使用过的牌牌名不同的基本牌。 【佐定】当其他角色在其出牌阶段使用黑桃牌指定目标后，若本阶段没有角色受到过伤害，你可以令其中一个目标摸一张牌。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-zhong-yao.png",
+        "sha256": "475c4b0b09abc5bdf85d951ad62684a075587531116f02d5757b43d70edaad00",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/33400.png"
+      },
+      "primaryFaqUrls": [
+        "https://www.sanguosha.com/news/20171212_8340_1417",
+        "https://guozhan.sanguosha.com/a/kapaiyilan/youxipai/jibenpai/2013/0129/146.html",
+        "https://www.sanguosha.com/news/20190326_2610_2717"
+      ],
+      "versionDecisions": [
+        "活墨只允许使用，决斗及南蛮的打出杀响应不可用；桃及本人酒的濒死救援属于真实使用，允许实体黑色非基本牌顶牌费用。",
+        "使用记录合并三种杀为同一牌名，实体与转换使用均计入当前回合；官网索引为三体力，详情OG的零体力未采用。",
+        "依据官方闪牌规则，本人以闪抵消杀属于使用，活墨允许且计入本回合使用闪历史；万箭齐发、护驾要求打出闪，不能通过只允许使用的活墨提供，也不计入使用闪历史。"
+      ]
+    },
+    {
+      "contentId": "classic:cao-xiu",
+      "officialId": 333,
+      "name": "曹休",
+      "maxHp": 4,
+      "faction": "wei",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/333",
+      "officialSkillText": "【千驹】锁定技，你计算与其他角色的距离-X（X为你已损失体力值）。 【倾袭】当你使用【杀】对目标角色造成伤害时，若你的装备区里有武器牌，你可以令其选择一项：1.弃置与此牌攻击范围等量张数的手牌，然后弃置此牌；2.令此【杀】伤害+1。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-cao-xiu.png",
+        "sha256": "9f889e90fadb19071725c6f28911283ad43a24e48b4603ebf5d22e5a51c491d7",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/33300.png"
+      }
+    },
+    {
+      "contentId": "classic:liu-chen",
+      "officialId": 335,
+      "name": "刘谌",
+      "maxHp": 4,
+      "faction": "shu",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/335",
+      "officialSkillText": "【战绝】你可以将所有手牌当〖决斗〗使用，然后你与因此受伤的角色各摸一张牌，若你本阶段以此法摸过至少两张牌，本技能失效。 【勤王】主公技，你可以弃置一张牌发动“激将”，响应此“激将”使用或打出〖杀〗的角色摸一张牌。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-liu-chen.png",
+        "sha256": "64ceae4442a9c66c19da12391358b5e1e18aea20048da74b3698788b21cdfbec",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/33500.png"
+      },
+      "primaryFaqUrls": [
+        "https://www.sanguosha.com/news/20161121_3283_3816"
+      ],
+      "versionDecisions": [
+        "当前正文按本出牌阶段实际技能摸牌累计到二张失效；自己实际受伤时总计摸二，死亡目标仍保留原技能拥有者摸牌。",
+        "历史官网常见问题仅补充主人先摸、实体手牌或装备支付勤王、自愿响应及提供者奖励；不采用旧文失效直到回合结束或绝情下不摸牌的差异描述。"
+      ]
+    },
+    {
+      "contentId": "classic:cao-rui",
+      "officialId": 332,
+      "name": "曹叡",
+      "maxHp": 3,
+      "faction": "wei",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/332",
+      "officialSkillText": "【恢拓】当你受到伤害后，你可以令一名角色判定，若结果为：红色，其回复1点体力；黑色，其摸与此伤害值等量张牌。 【明鉴】出牌阶段限一次，你可以交给一名其他角色所有手牌，然后其下回合手牌上限+1且使用【杀】的限制次数+1。 【兴衰】主公技，限定技，当你进入濒死状态时，你可以令其他魏势力角色依次选择是否令你回复1点体力。选择是的角色在此次濒死结算结束后受到1点伤害。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-cao-rui.png",
+        "sha256": "a0cd14d119aba1b5f6c8fa5c7c9e1ee45af761fd249ce86726657fd204744c50",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/33200.png"
+      },
+      "primaryFaqUrls": [
+        "https://sanguosha.com/news/20161108_5179_0519"
+      ]
+    },
+    {
+      "contentId": "classic:quan-cong",
+      "officialId": 340,
+      "name": "全琮",
+      "maxHp": 4,
+      "faction": "wu",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/340",
+      "officialSkillText": "【邀名】每回合限一次，当你造成或受到伤害后，你可以选择一项：1.弃置手牌数大于你的一名角色一张手牌；2.令手牌数小于你的一名角色摸一张牌。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-quan-cong.png",
+        "sha256": "8019b971dbda4c875aaef88dee7620d902ef880a13fbdb900e04778623ed557d",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/34000.png"
+      },
+      "primaryFaqUrls": [],
+      "versionDecisions": [
+        "Damage dealt and received share the same turn ledger.",
+        "Use fresh strict hand-count comparison; discard only a real target hand card."
+      ]
+    },
+    {
+      "contentId": "classic:zhang-ni",
+      "officialId": 337,
+      "name": "张嶷",
+      "maxHp": 4,
+      "faction": "shu",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/337",
+      "officialSkillText": "【怃戎】出牌阶段限一次，你可以和一名其他角色同时展示一张手牌：若你的展示牌为〖杀〗且其展示牌不为〖闪〗，你弃置此〖杀〗并对其造成1点伤害；若你的展示牌不为〖杀〗且其展示牌为〖闪〗，你弃置此牌并获得其一张牌。 【矢志】锁定技，若你的体力值为1，你的〖闪〗视为〖杀〗。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-zhang-ni.png",
+        "sha256": "38f2676637c7639fc4671a533ef14c18cd0f057208749f7f54b2cbe21db12b62",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/33700.png"
+      },
+      "primaryFaqUrls": [
+        "https://www.sanguosha.com/news/20161121_9389_5516"
+      ]
+    },
+    {
+      "contentId": "classic:xiahou-shi",
+      "officialId": 336,
+      "name": "夏侯氏",
+      "maxHp": 3,
+      "faction": "shu",
+      "gender": "female",
+      "sourcePage": "https://www.sanguosha.com/hero/336",
+      "officialSkillText": "【樵拾】其他角色的结束阶段，若你与其手牌数相等，你可以与其各摸一张牌。 【燕语】出牌阶段，你可以重铸〖杀〗。出牌阶段结束时，若你于本阶段重铸过至少两张〖杀〗，你可以令一名男性角色摸两张牌。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-xiahou-shi.png",
+        "sha256": "0ef0d47c64d1a17cf42af1af84b0d5924368891b34fa8441b8820c0e8eb43d18",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/33600.png"
+      },
+      "primaryFaqUrls": [
+        "https://www.sanguosha.com/news/20161121_6968_4516"
+      ]
+    },
+    {
+      "contentId": "classic:sun-xiu",
+      "officialId": 338,
+      "name": "孙休",
+      "maxHp": 3,
+      "faction": "wu",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/338",
+      "officialSkillText": "【宴诛】出牌阶段限一次，你可以令一名其他角色选择一项：1.你获得其装备区里的所有牌，失去本技能并修改‘兴学’；2.弃置一张牌。 【兴学】结束阶段，你可以令至多X名角色依次摸一张牌并将一张牌置于牌堆顶（X为你的体力值）。 【诏缚】主公技，限定技，出牌阶段，你可以选择至多两名角色，本局以此法选择的角色视为在所有其他吴势力角色的攻击范围内。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-sun-xiu.png",
+        "sha256": "a0b5584a4eb69b9e2e3d970d7584c12cc49c2e60b00aee2103118d1c8e5f6d2c",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/33800.png"
+      },
+      "primaryFaqUrls": [
+        "https://www.sanguosha.com/news/20161121_3956_3917",
+        "https://x.sanguosha.com/hero/338.html"
+      ],
+      "versionDecisions": [
+        "Historical primary FAQ supplies the unspecified modified Xingxue X=maximum HP; retain that detail while freezing current active limited Zhaofu text.",
+        "The target chooses its own discard from hand/equipment, or transfers its entire nonempty equipment zone.",
+        "Xingxue includes equipment as a top-placement source and resolves draw then placement individually in seat order starting at the turn owner.",
+        "Current Zhaofu selects permanent game targets. Historical passive distance-one aura is superseded; no distance mutation."
+      ]
+    },
+    {
+      "contentId": "classic:gongsun-yuan",
+      "officialId": 341,
+      "name": "公孙渊",
+      "maxHp": 4,
+      "faction": "qun",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/341",
+      "officialSkillText": "【怀异】出牌阶段限一次，你可以展示所有手牌，弃置其中一种颜色的牌，然后获得至多X名角色的各一张牌（X为弃置的手牌数）。若你以此法获得了至少两张牌，你失去1点体力。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-gongsun-yuan.png",
+        "sha256": "504d6d6f720c1a1449496804f71a693c5ad72dcab7cba8920a449e3a744b5c21",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/34100.png"
+      },
+      "primaryFaqUrls": [
+        "https://www.sanguosha.com/news/20161121_2342_3618"
+      ],
+      "versionDecisions": [
+        "Current text removed the historical requirement to show two colors; a monochrome hand may pay its one existing color.",
+        "Reveal the complete actual hand publicly, discard all actual cards of the chosen effective color, and choose distinct other targets with hand/equipment cards without distance constraints.",
+        "Obtain at most one real card per target and lose exactly one HP only if at least two actual cards were obtained.",
+        "Historical FAQ clarifies gains from other characters; it must not reinstate the superseded monochrome-hand failure rule.",
+        "Primary official strategy explicitly allows hand/equipment gain and excludes another character's judgment-zone cards; preserve that HE boundary."
+      ]
+    },
+    {
+      "contentId": "classic:guo-tu-feng-ji",
+      "officialId": 342,
+      "name": "郭图逢纪",
+      "maxHp": 3,
+      "faction": "qun",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/342",
+      "officialSkillText": "【急攻】出牌阶段开始时，你可以摸两张牌，然后你本回合手牌上限等于你本阶段造成的伤害值。 【饰非】当你需要使用或打出【闪】时，你可以令当前回合角色摸一张牌，若其不是手牌数全场唯一最多的角色，你弃置最多的角色一张牌，视为你使用或打出一张【闪】。",
+      "artwork": {
+        "localPath": "src/CardGame.Wpf/Assets/official-guo-tu-feng-ji.png",
+        "sha256": "f40c979c49f4cfa10e055b2c61b1f5f8171d68e39f19d91d20b1bc01c674b5d3",
+        "width": 750,
+        "height": 950,
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/34200.png"
+      },
+      "primaryFaqUrls": [
+        "https://www.sanguosha.com/news/20161122_6915_2715"
+      ],
+      "versionDecisions": [
+        "Hand limit is set to committed damage caused in the initiating play phase; receiving damage does not count, and a later inserted play phase does not extend the earlier phase promise.",
+        "Current Shifei changed historical not-maximum to not-unique-maximum, so tied maximum turn actors are eligible.",
+        "The real current turn actor draws first; complete movement triggers and compare fresh alive hand counts, then discard one real maximum participant hand/equipment/judgment card before a virtual Dodge commits.",
+        "If the current actor becomes the sole maximum or no eligible real discard exists, retain the draw and restore the unresolved response window.",
+        "The linked official article is a primary strategy guide, not a detailed FAQ. No exclusion of judgment-zone cards was found; current unqualified one-card discard is implemented as HEJ, with real equipment and judgment discard/replay checks. Earlier HE-only inference was corrected."
+      ]
+    }
+  ],
+  "rosterSource": "https://www.sanguosha.com/hero",
+  "editionNotes": [
+    "正文以当前官网为准，旧版FAQ仅补充不冲突的结算细节。",
+    "当前诏缚为主动限定永久范围效果；当前倾袭为伤害前武器范围弃牌选择。",
+    "当前饰非按唯一最多比较；怀异不添加旧版双色前置条件。",
+    "兴学按当前正文每位参与者先摸一再置顶一，不引入旧版手牌数大于体力的条件；修改后人数上限取体力上限，历史官网仅补充正文未写明的修改细节。"
+  ]
+}

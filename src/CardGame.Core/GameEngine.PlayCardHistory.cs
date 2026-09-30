@@ -8,7 +8,8 @@ public sealed partial class GameEngine
         skill.Program is { } program &&
         (program.ViewAs.Any(rule => rule.InheritPreviousPlaySuit) ||
          program.Triggers.Any(trigger => HasTriggerCondition(trigger.Condition,
-             SkillProgramTriggerConditionKind.CardActionMatchesPreviousPlayCard)))) == true;
+             SkillProgramTriggerConditionKind.CardActionMatchesPreviousPlayCard) ||
+             HasTriggerCondition(trigger.Condition, SkillProgramTriggerConditionKind.CardActionSuitIs)))) == true;
 
     private static bool HasTriggerCondition(SkillProgramTriggerCondition condition,
         SkillProgramTriggerConditionKind kind) => condition.Kind == kind ||
@@ -100,7 +101,7 @@ public sealed partial class GameEngine
             foreach (var kind in new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash,
                          CardKind.Peach, CardKind.Alcohol })
                 foreach (var source in GetProgramViewAsConversions(actor, card, kind, forResponse: false)
-                             .Where(source => ViewAsRule(source)?.UsesPerPhase is not null))
+                             .Where(source => ViewAsRule(source) is { } rule && (rule.UsesPerPhase is not null || rule.UseOnly)))
                 {
                     if (actions.Any(action => action.CardId == card.Id && action.ConversionSource == source &&
                         action.PlayedCardKind == kind)) continue;

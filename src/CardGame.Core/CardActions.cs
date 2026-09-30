@@ -14,10 +14,10 @@ public enum CardActionType { Use, Response }
 public enum ProgramCardContinuation
 {
     Slash, BeforeTargetEffects, BeforeTrickTargetEffects, CommittedSlash, Dodge, DuelSlash, GroupResponse, FactionDefenseDodge, FactionSlashDuelSlash, FactionSlashGroupResponse, DelayedCard, CompletedSlash, NullificationResponse, SlashTargetRedirecting, SlashBeforeResponse, SlashFullyDodged,
-    CommittedTrick, CommittedSimpleCard, CompletedCard, FinalizedTrick = 824
+    CommittedTrick, CommittedSimpleCard, CompletedCard, FinalizedTrick = 824, FinalizedSimpleCard = 900
 }
 
-public enum SimpleCardUseEffect { Equipment, Alcohol, Recovery }
+public enum SimpleCardUseEffect { Equipment, Alcohol, Recovery, EquipmentPlacement = 900 }
 
 public sealed record ProgramRecoveryPolicySource(string SkillId, string PolicyId);
 

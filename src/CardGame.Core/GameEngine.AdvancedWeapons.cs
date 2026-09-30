@@ -122,7 +122,7 @@ public sealed partial class GameEngine
     private SkillProgramStepOutcome BeginWeaponReclaim(ProgramSkillFrame frame, SkillProgramEffect effect)
     {
         var turns = EventsSinceLastBoundary(item => item is TurnStartedEvent).ToArray();
-        var damaged = turns.OfType<DamageAppliedEvent>().Any(item => item.SourceSeat == frame.OwnerSeat && item.Amount > 0);
+        var damaged = turns.OfType<DamageAppliedEvent>().Any(item => !item.SourceLess && item.SourceSeat == frame.OwnerSeat && item.Amount > 0);
         var uses = turns.OfType<CardUseDeclaredEvent>().Where(item => item.SourceSeat == frame.OwnerSeat)
             .Count(item => item.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Duel or CardKind.FireAttack or CardKind.BarbarianAssault or CardKind.ArrowBarrage);
         if (!damaged && uses < 2) return SkillProgramStepOutcome.Continue;

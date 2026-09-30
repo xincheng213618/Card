@@ -578,7 +578,11 @@ public sealed record DamageAppliedEvent(
     int TargetSeat,
     int Amount,
     int RemainingHp,
-    DamageNature Nature = DamageNature.Normal) : IGameEvent;
+    DamageNature Nature = DamageNature.Normal) : IGameEvent
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool SourceLess { get; init; }
+}
 
 /// <summary>
 /// Public, typed marker mutation. SkillOwnerSeat identifies the character
@@ -599,7 +603,11 @@ public sealed record DamageRequestedEvent(
     int TargetSeat,
     int Amount,
     CardKind? SourceCard,
-    DamageNature Nature = DamageNature.Normal) : IGameEvent;
+    DamageNature Nature = DamageNature.Normal) : IGameEvent
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool SourceLess { get; init; }
+}
 
 public sealed record AfterDamageEvent(
     long ResolutionId,
@@ -607,7 +615,11 @@ public sealed record AfterDamageEvent(
     int TargetSeat,
     int Amount,
     int RemainingHp,
-    DamageNature Nature = DamageNature.Normal) : IGameEvent;
+    DamageNature Nature = DamageNature.Normal) : IGameEvent
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool SourceLess { get; init; }
+}
 
 /// <summary>
 /// Trusted-host lifecycle event for a frozen after-damage trigger window. The

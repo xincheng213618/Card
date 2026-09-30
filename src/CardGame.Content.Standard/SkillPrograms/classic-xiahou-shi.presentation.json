@@ -1,0 +1,7 @@
+{
+  "schemaVersion":3,
+  "skills":{
+    "classic:qiaoshi":{"name":"樵拾","description":"其他角色的结束阶段，若你与其手牌数相等，你可以与其各摸一张牌。"},
+    "classic:yanyu":{"name":"燕语","description":"出牌阶段，你可以重铸〖杀〗。出牌阶段结束时，若你于本阶段重铸过至少两张〖杀〗，你可以令一名男性角色摸两张牌。"}
+  }
+}

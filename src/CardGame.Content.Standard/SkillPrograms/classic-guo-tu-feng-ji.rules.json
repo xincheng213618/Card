@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "classic:jigong", "revision": 1, "minimumRulesVersion": 190,
+      "triggers": [{ "id": "draw-for-damage-hand-limit", "window": "playPhaseStarting", "subject": "owner", "optional": true,
+        "effects": [{ "op": "draw", "target": "owner", "amount": 2 }, { "op": "setTurnHandLimitFromPlayDamage", "target": "owner" }] }]
+    },
+    { "id": "classic:shifei", "revision": 1, "minimumRulesVersion": 190,
+      "activations": [{ "id": "draw-current-then-discard-max", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0,
+        "targetKind": "otherLiving", "usesPerTurn": null,
+        "effects": [{ "op": "drawTurnOwnerThenDiscardMaximumHandForDodge", "target": "owner" }] }]
+    }
+  ]
+}

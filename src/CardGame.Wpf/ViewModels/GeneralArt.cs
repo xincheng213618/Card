@@ -29,6 +29,16 @@ public static class GeneralArt
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
             // Official artwork and hashes: docs/content/sources/fame-2011-2026-09-30.json.
+            ["cao-rui"] = "official-cao-rui.png",
+            ["cao-xiu"] = "official-cao-xiu.png",
+            ["zhong-yao"] = "official-zhong-yao.png",
+            ["liu-chen"] = "official-liu-chen.png",
+            ["xiahou-shi"] = "official-xiahou-shi.png",
+            ["zhang-ni"] = "official-zhang-ni.png",
+            ["sun-xiu"] = "official-sun-xiu.png",
+            ["quan-cong"] = "official-quan-cong.png",
+            ["gongsun-yuan"] = "official-gongsun-yuan.png",
+            ["guo-tu-feng-ji"] = "official-guo-tu-feng-ji.png",
             ["zhang-chun-hua"] = "official-zhang-chun-hua.png",
             ["ling-tong"] = "official-ling-tong.png",
             ["chen-gong"] = "official-chen-gong.png",

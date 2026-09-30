@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-30",
+  "contentIds": ["classic:shen-lu-bu"],
+  "rulesSources": [
+    {
+      "contentId": "classic:shen-lu-bu",
+      "url": "https://x.sanguosha.com/hero/206.html",
+      "edition": "三国杀官方网站武将库 gid 206（神吕布，神）",
+      "use": "狂暴：锁定技，游戏开始时，你获得2枚【暴怒】标记；锁定技，每当你造成或受到1点伤害后，你获得1枚【暴怒】标记。无谋：锁定技，每当你使用非延时类锦囊牌时，你选择一项：1.弃1枚【暴怒】标记；2.失去1点体力。无前：出牌阶段，你可以弃2枚【暴怒】标记并选择一名角色，直到回合结束，你拥有【无双】且该角色的防具技能无效。神愤：出牌阶段限一次，你可以弃6枚【暴怒】标记并选择所有其他角色，对这些角色各造成1点伤害，然后这些角色先各弃置其装备区里的所有牌，再各弃置四张手牌，最后你将你的武将牌翻面。衍生技：无双。标记名：【暴怒】。"
+    },
+    {
+      "contentId": "classic:shen-lu-bu",
+      "url": ".artifacts/portrait-refresh/heroes.json（官方客户端武将目录导出，2026-09-26 抓取）",
+      "edition": "gid 206 条目：name 神吕布 / country 神（country_py shen）/ gender 男 / hp 5 / star SSS / resource 120601 / level_one_general_lamp_txt 神话 / level_two_general_lamp_txt 神",
+      "use": "体力（5 勾玉）、势力、性别与默认皮肤 ID 口径；官方页不渲染体力值。"
+    },
+    {
+      "contentId": "classic:shen-lu-bu",
+      "url": "data/reference/bwiki/skills.json（BWIKI「技能版本=经典」转录，二手旁证）",
+      "edition": "神吕布 狂暴/无谋/无前/神愤 与衍生 无双 的经典条目",
+      "use": "口径分歧记录：BWIKI 经典版无前作「并选择一名其他角色，本阶段：你获得技能无双，该角色的防具失效」，官方页作「并选择一名角色，直到回合结束，你拥有无双且该角色的防具技能无效」。本批以官方页现行文本为准取「直到回合结束」（grantTurnSkills + armorIneffectiveForTurn）；目标资格取 otherLiving，理由是引擎对目标限定型防具失效授予设有硬不变量（GameEngine.CardUseModules.cs 的 GrantProgramTurnCardTargetRestriction 在 targetSeat == frame.OwnerSeat 时抛 InvalidOperationException），且「该角色防具技能无效」对使用者自身只有负收益，两种印刷文本在该不变量下收敛为同一可选集合。BWIKI 标记名为「暴怒」，与官方页一致（早先口头写作「暴虐」属误记）。"
+    }
+  ],
+  "versionBoundary": "经典线神吕布（classic:shen-lu-bu）此前未注册；OL 线 ol:shen-lu-bu（ol:kuangbao / ol:wumou / ol:wuqian / ol:shenfen，最低规则号 187）已用现行原语实现，且机制形状与官方页经典文本逐条吻合，故本批为零引擎增量：狂暴 = gameStarting changeAttributedMarker(rage, 2) + afterDamageApplied perDamagePoint 的 owner 与 damageSource 两支各 +1；无谋 = cardUseCommitted（11 种非延时锦囊：决斗、无中生有、南蛮入侵、万箭齐发、桃园结义、五谷丰登、过河拆桥、顺手牵羊、火攻、铁索连环、借刀杀人）与 cardResponseAccepted（无懈可击）上的 spendMarkerOrLoseHp(rage, 1)，该操作描述符 Interaction = Choice，正好承载经典文本「选择一项：弃标记／失去1点体力」，且失去体力走 ProgramSkillHost.LoseHp 保留濒死链；无前 = 激活 rage-attack（markerCost rage 2、1 名 otherLiving）→ grantTurnSkills([classic:wushuang]) + grantTurnCardTargetRestriction(armorIneffectiveForTurn)；神愤 = 激活 rage-destruction（markerCost rage 6、usesPerPhase 1）→ damageParticipants(otherLiving, 1) → discardParticipantCards(equipment, 64) → discardParticipantCards(hand, 4) → turnOver，参与者游标按座位序环绕。规则号因此保持 187，全局规则纪元不因本批上抬（仍 190），schema 62 与 presentation schema 3 均不变；经典包 1.162.0 → 1.163.0。图鉴归 god 组（神话再临·林，2010 神将）。行为语义已由 OlClassicGodChecks 覆盖（暴怒初始化与每点伤害增减、无前付费与授予无双、银狮甲对技能伤害封顶、神愤全体伤害后先弃装备再弃四手牌并翻面、出牌阶段限一次、检查点-重放逐事件与快照等价），按 AGENTS.md「纯配置消费既有能力不重复加检查」口径本批不新增定向行为检查。",
+  "portraits": [
+    {
+      "contentId": "classic:shen-lu-bu",
+      "id": "120601",
+      "name": "经典形象*神吕布",
+      "sourcePage": "https://x.sanguosha.com/hero/206.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/120601.png",
+      "sha256": "af12fedeb0a78c1246d82a5674092bf54a5a8bc3b97ce8b9bfd4c205272d276c",
+      "dimensions": "574x761",
+      "localPath": "src/CardGame.Wpf/Assets/official-shen-lu-bu.png"
+    }
+  ],
+  "portraitNote": "sync_general_art --phase skins --key shen-lu-bu 取 gid 206 的 5 张皮肤：默认经典形象 120601 落 Assets/official-shen-lu-bu.png（NEW_OFFICIAL_DEFAULTS 路径口径），420601/520601/520602/520603 落 Assets/Skins/shen-lu-bu/，条目已写入 docs/content/general-art-catalog.json。--phase verify 对本条目通过；仍在既有的 zhou-yu/201203 皮肤摘要漂移处中断（早于本批条目，非本批引入）。"
+}

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:huituo", "revision": 1, "minimumRulesVersion": 190,
+      "triggers": [{
+        "id": "judge-for-damage-benefit", "window": "afterDamageApplied", "subject": "owner",
+        "optional": true, "damageOccurrence": "perDamage",
+        "effects": [
+          { "op": "selectTarget", "target": "owner", "targetKind": "anyLiving" },
+          { "op": "startJudgment", "target": "selectedTarget", "judgmentReason": "huituo", "resultBind": "huituo-judgment", "visibility": "public" },
+          { "op": "resolveJudgmentColorBenefit", "target": "selectedTarget", "sourceBind": "huituo-judgment", "amount": 1 },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "huituo-judgment", "destination": "discardPile" }
+        ]
+      }]
+    },
+    {
+      "id": "classic:mingjian", "revision": 1, "minimumRulesVersion": 190,
+      "activations": [{
+        "id": "give-all-hand-next-turn", "minCards": 0, "maxCards": 0,
+        "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "condition": { "kind": "handCountAtLeast", "value": 1 },
+        "effects": [
+          { "op": "selectOwnedCards", "target": "owner", "zones": ["hand"], "numberExpression": "allOwnedZoneCards", "resultBind": "all-hand" },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "all-hand", "destination": "selectedTargetHand" },
+          { "op": "setNextTurnRuleModifier", "target": "selectedTarget", "query": "handLimit", "amount": 1 },
+          { "op": "setNextTurnRuleModifier", "target": "selectedTarget", "query": "slashLimit", "amount": 1 }
+        ]
+      }]
+    },
+    {
+      "id": "classic:xingshuai", "revision": 1, "minimumRulesVersion": 190,
+      "states": [{ "id": "used", "initialValue": false, "visibility": "public", "resetScope": "game", "reacquirePolicy": "preserveUntilGameEnd" }],
+      "triggers": [{
+        "id": "limited-faction-dying-aid", "window": "dyingEntering", "subject": "owner", "optional": true,
+        "condition": { "kind": "not", "children": [{ "kind": "booleanState", "stateId": "used", "expectedValue": true }] },
+        "effects": [
+          { "op": "setBooleanState", "target": "owner", "stateId": "used", "value": true },
+          { "op": "requestFactionRecovery", "target": "owner", "providerFactionId": "wei" }
+        ]
+      }]
+    }
+  ]
+}

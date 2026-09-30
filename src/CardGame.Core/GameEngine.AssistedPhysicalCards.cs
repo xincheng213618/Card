@@ -37,7 +37,7 @@ public sealed partial class GameEngine
             pair.First.Parameters.OrderBy(item => item.Key).SequenceEqual(pair.Second.Parameters.OrderBy(item => item.Key)));
 
     private int[] AssistedPhysicalSlashTargets(int actorSeat) => _players.Where(target => _players[actorSeat].IsAlive && target.IsAlive && target.Seat != actorSeat &&
-        GetCombatDistance(actorSeat, target.Seat) <= GetAttackRange(actorSeat)).Select(target => target.Seat).ToArray();
+        IsWithinAttackRange(actorSeat, target.Seat)).Select(target => target.Seat).ToArray();
 
     private SkillProgramStepOutcome RequestProgramSlashAgainstChosenTarget(ProgramSkillFrame frame, int actorSeat, string bind)
     {

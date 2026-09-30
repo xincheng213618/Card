@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:yanzhu": { "name": "宴诛", "description": "出牌阶段限一次，你可以令一名其他角色选择一项：1.你获得其装备区里的所有牌，失去本技能并修改‘兴学’；2.弃置一张牌。", "optionLabels": { "equipment": "交出全部装备，令其失去宴诛并修改兴学", "discard": "自己弃置一张牌" } },
+    "classic:xingxue": { "name": "兴学", "description": "结束阶段，你可以令至多X名角色依次摸一张牌并将一张牌置于牌堆顶（X为你的体力值）。" },
+    "classic:xingxue-upgraded": { "name": "兴学", "description": "结束阶段，你可以令至多X名角色依次摸一张牌并将一张牌置于牌堆顶（X为你的体力上限）。" },
+    "classic:zhaofu": { "name": "诏缚", "description": "主公技，限定技，出牌阶段，你可以选择至多两名角色，本局以此法选择的角色视为在所有其他吴势力角色的攻击范围内。" }
+  }
+}

@@ -103,7 +103,7 @@ internal sealed class UseAllHandCardsAsOrdinaryTrickProgramOperationDescriptor :
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "viewAsId", "condition");
+        r.AllowOnly("op", "target", "viewAsId", "outputKind", "condition");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException(
@@ -113,7 +113,9 @@ internal sealed class UseAllHandCardsAsOrdinaryTrickProgramOperationDescriptor :
             target,
             0,
             r.Condition(),
-            sourceBind: r.RequiredIdentifier("viewAsId"));
+            sourceBind: r.RequiredIdentifier("viewAsId"), outputKind: r.Has("outputKind") ? r.RequiredEnum<CardKind>("outputKind") : null);
+        if (effect.OutputKind is { } output && CardUseCategoryCatalog.Get(output) != CardUseCategories.InstantTrick)
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.outputKind: requires an ordinary trick.");
         RequireAlways(effect, r.Path);
         return effect;
     }

@@ -47,6 +47,9 @@ public sealed partial class GameEngine
         foreach (var program in EnabledActivationPrograms(owner))
             foreach (var activation in program.Activations)
             {
+                if (activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge) ||
+                    owner.Role != Role.Lord && activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.GrantGameFactionAttackRangeTargets))
+                    continue;
                 var requiredCards = GetProgramActivationMinimumCards(owner.Seat, program.Id, activation);
                 if (!activation.Condition.Evaluate(context) || !CanPayProgramMarkerCost(owner, activation.MarkerCost) ||
                     activation.UsesPerTurn is { } limit &&
@@ -135,10 +138,10 @@ public sealed partial class GameEngine
                                 target.Hp < target.MaxHp,
                             SkillProgramTargetKind.OtherLivingInAttackRange =>
                                 target.Seat != owner.Seat &&
-                                GetCombatDistance(owner.Seat, target.Seat) <= GetAttackRange(owner.Seat),
+                                IsWithinAttackRange(owner.Seat, target.Seat),
                             SkillProgramTargetKind.OtherLivingWhoseAttackRangeIncludesOwner =>
                                 target.Seat != owner.Seat &&
-                                GetCombatDistance(target.Seat, owner.Seat) <= GetAttackRange(target.Seat),
+                                IsWithinAttackRange(target.Seat, owner.Seat),
                             SkillProgramTargetKind.OtherLivingWithQinggangSword =>
                                 target.Seat != owner.Seat &&
                                 HasWeaponAbility(target, CardKind.QinggangSword),
@@ -146,6 +149,8 @@ public sealed partial class GameEngine
                                 CanUseProvidedSlashTarget(owner, target),
                             SkillProgramTargetKind.OtherLivingWithHand =>
                                 target.Seat != owner.Seat && GetHand(target).Count > 0,
+                            SkillProgramTargetKind.OtherLivingWithHandOrEquipment =>
+                                target.Seat != owner.Seat && GetHand(target).Count + GetEquipment(target).Count > 0,
                             SkillProgramTargetKind.OtherLivingEmptyHand =>
                                 target.Seat != owner.Seat && GetHand(target).Count == 0,
                             SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
@@ -188,7 +193,7 @@ public sealed partial class GameEngine
                     selectedCardUse is { OutputKind: CardKind.ArrowBarrage } &&
                     !CanUseGlobalCard(owner, CardKind.ArrowBarrage) ||
                     allHandTrickUse is not null &&
-                    (cards.Length == 0 || BuildProgramOrdinaryTrickUseOptions(owner).Count == 0)) continue;
+                    (cards.Length == 0 || BuildProgramOrdinaryTrickUseOptions(owner, allHandTrickUse.OutputKind).Count == 0)) continue;
                 if (activation.Effects.FirstOrDefault() is
                     {
                         Op: SkillProgramEffectOp.SelectTarget,
@@ -445,6 +450,7 @@ public sealed partial class GameEngine
 
     private void ContinueProgramSkill(long frameId)
     {
+        if (TryContinueFactionRecoveryDebts(frameId)) return;
         var host = new ProgramSkillHost(this);
         new SkillProgramExecutor().Run(frameId, host, host);
     }
@@ -489,7 +495,8 @@ public sealed partial class GameEngine
         int targetSeat,
         int amount,
         ProgramParticipantReference? sourceReference = null,
-        DamageNature? nature = null)
+        DamageNature? nature = null,
+        bool sourceLess = false)
     {
         var judgmentNested = frame.WindowContext?.Judgment is { } frozenJudgment &&
             _pendingJudgment is { } pendingJudgment &&
@@ -510,7 +517,7 @@ public sealed partial class GameEngine
             damageNatureOverride: nature ?? DamageNature.Normal,
             programJudgmentFrameId: frame.WindowContext?.Window == SkillProgramTriggerWindow.JudgmentFinalized
                 ? frame.WindowContext.ParentFrameId : null,
-            programSkillFrameId: frame.Id);
+            programSkillFrameId: frame.Id) { IsSourceLess = sourceLess };
         if (frame.WindowContext?.Judgment is { } judgment)
         {
             QueueGameEvent(new ProgramJudgmentDamageRequestedEvent(
@@ -843,7 +850,8 @@ public sealed partial class GameEngine
             {
                 var producer = plan.Instructions.Take(frame.InstructionIndex).SingleOrDefault(effect =>
                     (effect.Op is SkillProgramEffectOp.ChooseOption or SkillProgramEffectOp.ChooseDifferentCategoryDiscard or
-                        SkillProgramEffectOp.RequestSlashByTarget or SkillProgramEffectOp.RequestSlashAgainstChosenTarget) &&
+                        SkillProgramEffectOp.RequestSlashByTarget or SkillProgramEffectOp.RequestSlashAgainstChosenTarget or
+                        SkillProgramEffectOp.RevealSelectedHandAgainstTarget) &&
                     effect.ResultBind == binding.Name || effect.Op == SkillProgramEffectOp.OfferCompletedCardGift && binding.Name == CompletedGiftFactionResultBind && IsValidCompletedGiftTargetSelection(frame));
                 var validOption = producer?.Op switch
                 {
@@ -856,6 +864,7 @@ public sealed partial class GameEngine
                         RequestSlashByTargetProgramOperationDescriptor.DeclinedOption,
                     SkillProgramEffectOp.RequestSlashAgainstChosenTarget => binding.OptionId is "used-slash" or "declined",
                     SkillProgramEffectOp.OfferCompletedCardGift => binding.OptionId is "used-slash" or "declined",
+                    SkillProgramEffectOp.RevealSelectedHandAgainstTarget => binding.OptionId is "damage" or "obtain" or "none",
                     _ => false
                 };
                 var chooserSeat = producer?.ChooserRef is { } producerChooser
@@ -882,6 +891,10 @@ public sealed partial class GameEngine
             AssertAssistedPhysicalCardDrafts(frame, paused);
             AssertCompletedCardGiftDraft(frame, paused);
             AssertCurrentCardEnhancementDraft(frame, paused);
+            ValidateFactionRecoveryDraft(frame);
+            ValidateWeaponDamageDraft(frame);
+            AssertProgramHandControlDraft(frame, paused);
+            AssertPairedHandRevealChoice(frame, paused);
             if (paused.Op == SkillProgramEffectOp.ChooseOption && ReferenceEquals(frame, _resolutionStack.LastOrDefault()) &&
                 !frame.ChoiceBindings.Any(binding => binding.Name == paused.ResultBind) &&
                 (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } choiceDecision ||

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:qianju", "revision": 1, "minimumRulesVersion": 190,
+      "modifiers": [{ "id": "lost-hp-distance", "query": "outgoingDistance", "operation": "add", "valueExpression": "negatedOwnerLostHp", "priority": 0 }]
+    },
+    {
+      "id": "classic:qingxi", "revision": 1, "minimumRulesVersion": 190,
+      "triggers": [{
+        "id": "weapon-discard-or-slash-bonus", "window": "beforeDamageApplied", "subject": "damageSource", "optional": true,
+        "condition": { "kind": "all", "children": [{ "kind": "directCardUseDamage" }, { "kind": "damageCardIsSlash" }] },
+        "effects": [{ "op": "weaponDiscardOrDamageBonus", "target": "owner", "amount": 1 }]
+      }]
+    }
+  ]
+}

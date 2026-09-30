@@ -36,6 +36,7 @@ public sealed partial class GameEngine
 
     private void ContinueSimpleCardUse(long frameId, ProgramSimpleCardContinuation continuation)
     {
+        if (TryBeginFinalizedSimpleCardPrograms(frameId, continuation)) return;
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == frameId);
         var card = _cardZones.CardsAt(_cardZones.GetLocation(continuation.CardId)).Single(item => item.Id == continuation.CardId);
         var source = _players[frame.SourceSeat];
@@ -47,6 +48,9 @@ public sealed partial class GameEngine
         }
         switch (continuation.Effect)
         {
+            case SimpleCardUseEffect.EquipmentPlacement:
+                CompleteEquipmentUse(source, card, frameId);
+                break;
             case SimpleCardUseEffect.Equipment:
                 FinishCardUse(frameId, card);
                 break;

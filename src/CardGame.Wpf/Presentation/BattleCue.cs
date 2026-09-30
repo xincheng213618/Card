@@ -133,7 +133,7 @@ public static class BattleCueProjector
                     Seats([judgment.TargetSeat]),
                     $"{JudgmentName(judgment.Reason)} · {JudgmentCard(judgment.Suit, judgment.Rank)}", Name(judgment.TargetSeat),
                     Detail: JudgmentOutcome(judgment)),
-                DamageAppliedEvent damage when damage.Amount > 0 => new(envelope.Sequence, BattleCueKind.Damage, damage.SourceSeat,
+                DamageAppliedEvent damage when damage.Amount > 0 => new(envelope.Sequence, BattleCueKind.Damage, damage.SourceLess ? -1 : damage.SourceSeat,
                     Seats([damage.TargetSeat]), $"−{damage.Amount}", Name(damage.TargetSeat), damage.Nature),
                 RecoveryAppliedEvent recovery when recovery.Amount > 0 => new(envelope.Sequence, BattleCueKind.Recovery, recovery.SourceSeat,
                     Seats([recovery.TargetSeat]), $"+{recovery.Amount}", Name(recovery.TargetSeat)),
@@ -156,7 +156,7 @@ public static class BattleCueProjector
                 DyingResponseEvent { UsedAlcohol: true } dying => (dying.AlcoholCardId, dying.ResponderSeat, CardKind.Alcohol),
                 _ => (null, -1, null)
             };
-            if (response.Card is { } cardId && responseCards.Add(cardId))
+            if (response.Card is { } cardId && (cardId < 0 || responseCards.Add(cardId)))
                 cue = new(envelope.Sequence, BattleCueKind.Response, response.Seat, [],
                     response.Kind is { } kind ? $"打出{CardCatalog.Get(kind).DisplayName}" : "打出响应牌", Name(response.Seat));
             if (cue is not null) cues.Add(cue);

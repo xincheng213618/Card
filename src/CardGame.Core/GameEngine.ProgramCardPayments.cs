@@ -362,7 +362,7 @@ public sealed partial class GameEngine
         if (!_players[subjectSeat].IsAlive) return 0;
         var range = GetAttackRange(subjectSeat);
         return _players.Count(player => player.IsAlive && player.Seat != subjectSeat &&
-            GetCombatDistance(subjectSeat, player.Seat) <= range);
+            IsWithinAttackRange(subjectSeat, player.Seat));
     }
 
     private bool WouldEquipmentRemovalReduceCoverage(int subjectSeat, int equipmentCardId)
@@ -372,7 +372,8 @@ public sealed partial class GameEngine
         var subject = _players[subjectSeat];
         var projectedRange = ConvertRuleValue(EvaluateAttackRange(subject, equipmentCardId));
         var projectedCount = _players.Count(player => player.IsAlive && player.Seat != subjectSeat &&
-            ConvertRuleValue(EvaluateDistance(subject, player, equipmentCardId)) <= projectedRange);
+            (IsGameFactionAttackRangeTarget(subjectSeat, player.Seat) ||
+             ConvertRuleValue(EvaluateDistance(subject, player, equipmentCardId)) <= projectedRange));
         return projectedCount < CountLivingInAttackRange(subjectSeat);
     }
 

@@ -191,7 +191,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicLifecycleRulesResource),
             ReadEmbeddedText(ClassicLifecyclePresentationResource)));
-    public static Version CurrentVersion { get; } = new(1, 162, 0);
+    public static Version CurrentVersion { get; } = new(1, 163, 0);
 
     public StandardClassicGeneralPackage()
     {
@@ -1109,6 +1109,16 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             SkillTag.Limited, SkillExecutionForm.State) with
         { ActionForms = SkillActionForm.Active });
         builder.AddSkill(WithStructuredSkillMetadata(
+            EmbeddedSkillProgramCatalog.Definition("classic-shen-lu-bu", "classic:kuangbao"),
+            SkillTag.Locked, SkillExecutionForm.Trigger));
+        builder.AddSkill(WithStructuredSkillMetadata(
+            EmbeddedSkillProgramCatalog.Definition("classic-shen-lu-bu", "classic:wumou"),
+            SkillTag.Locked, SkillExecutionForm.Trigger));
+        builder.AddSkill(WithActiveActionMetadata(
+            EmbeddedSkillProgramCatalog.Definition("classic-shen-lu-bu", "classic:wuqian")));
+        builder.AddSkill(WithActiveActionMetadata(
+            EmbeddedSkillProgramCatalog.Definition("classic-shen-lu-bu", "classic:shenfen")));
+        builder.AddSkill(WithStructuredSkillMetadata(
             EmbeddedSkillProgramCatalog.Definition("ol-shen-guan-yu", "ol:wushen"),
             SkillTag.Locked, SkillExecutionForm.State));
         builder.AddSkill(WithOptionalTriggerMetadata(
@@ -1900,6 +1910,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 AdditionalSkillIds: ["classic:yeyan"]));
 
         builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:shen-lu-bu", "神吕布", "shen_lu_bu",
+                "classic:kuangbao", "god", BaseHp: 5,
+                AdditionalSkillIds: ["classic:wumou", "classic:wuqian", "classic:shenfen"]));
+
+        builder.AddGeneral(new ContentGeneralDefinition(
                 "ol:shen-guan-yu", "神关羽·武神", "shen_guan_yu",
                 "ol:wushen", "god", BaseHp: 5,
                 AdditionalSkillIds: ["classic:wuhun"]));
@@ -1977,6 +1992,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         Fame2011Content.Register(builder);
         Fame2013Content.Register(builder);
         Fame2014Content.Register(builder);
+        Fame2015Content.Register(builder);
         var generalPoolIds = CurrentGeneralIds;
 
         builder.AddMode(new ContentModeDefinition(
@@ -2459,10 +2475,12 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:cao-zhi",
         "classic:jia-xu",
         "classic:shen-zhou-yu",
+        "classic:shen-lu-bu",
         .. OlGodContent.AddedGeneralIds,
         .. Fame2011Content.AddedGeneralIds,
         .. Fame2013Content.AddedGeneralIds,
-        .. Fame2014Content.AddedGeneralIds
+        .. Fame2014Content.AddedGeneralIds,
+        .. Fame2015Content.AddedGeneralIds
     ];
 
     /// <summary>Registered generals kept out of the classic identity pools (fan-made roster).</summary>

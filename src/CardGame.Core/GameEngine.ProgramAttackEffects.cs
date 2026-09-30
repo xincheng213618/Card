@@ -13,7 +13,7 @@ public sealed partial class GameEngine
                 !_resolutionStack.OfType<CardUseFrame>()
                     .Single(frame => frame.Id == attack.ResolutionId).TargetSeats.Contains(targetSeat)) &&
                (HasCardDistanceExemption(_players[attack.SourceSeat], _players[targetSeat], kind) ||
-                GetCombatDistance(redirectorSeat, targetSeat) <= GetAttackRange(redirectorSeat)) &&
+                IsWithinAttackRange(redirectorSeat, targetSeat)) &&
                !IsDirectedCardTargetProhibited(attack.SourceSeat, targetSeat, kind) &&
                !IsSlashProhibited(_players[targetSeat]);
     }

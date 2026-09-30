@@ -132,7 +132,7 @@ public sealed partial class GameEngine
         (_pendingFactionCardRequest is { IsAssistedProgramUse: true, ProgramSkillFrameId: { } giftFrameId } &&
          _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(frame => frame.Id == giftFrameId) is { CompletedCardGiftDraft.RecipientSeat: { } recipient } giftFrame && recipient == actorSeat
             ? CompletedGiftSlashTargets(giftFrame, actorSeat).Contains(targetSeat)
-            : GetCombatDistance(actorSeat, targetSeat) <= GetAttackRange(actorSeat)) &&
+            : IsWithinAttackRange(actorSeat, targetSeat)) &&
         CanSpendSlashUse(_players[actorSeat], _players[targetSeat], ignoresCount: true, kind) &&
         !IsSlashProhibited(_players[targetSeat]);
 

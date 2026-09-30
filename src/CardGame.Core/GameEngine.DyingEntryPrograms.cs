@@ -11,7 +11,9 @@ public sealed partial class GameEngine
         { EventTargetHp = _players[dying.VictimSeat].Hp, EventTargetMaxHp = _players[dying.VictimSeat].MaxHp,
             EventTargetHandCount = GetHand(_players[dying.VictimSeat]).Count });
         var candidates = participants.SelectMany(player => CollectEligibleProgramTriggerCandidates(player,
-            SkillProgramTriggerWindow.DyingEntering, facts[player.Seat])).OrderBy(candidate =>
+            SkillProgramTriggerWindow.DyingEntering, facts[player.Seat])
+            .Where(candidate => GetProgramTrigger(candidate).Subject != SkillProgramTriggerSubject.Owner ||
+                player.Seat == dying.VictimSeat)).OrderBy(candidate =>
             (candidate.OwnerSeat - _currentSeat + _players.Count) % _players.Count).ThenByDescending(candidate => candidate.Priority)
             .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal).ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray();
         if (candidates.Length == 0) return false;

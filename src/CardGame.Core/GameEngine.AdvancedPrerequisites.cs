@@ -24,7 +24,7 @@ public sealed partial class GameEngine
     private bool CanReclaimNamedWeapon(CharacterState owner, SkillProgramEffect effect)
     {
         var turns = EventsSinceLastBoundary(item => item is TurnStartedEvent).ToArray();
-        return (turns.OfType<DamageAppliedEvent>().Any(item => item.SourceSeat == owner.Seat && item.Amount > 0) ||
+        return (turns.OfType<DamageAppliedEvent>().Any(item => !item.SourceLess && item.SourceSeat == owner.Seat && item.Amount > 0) ||
             turns.OfType<CardUseDeclaredEvent>().Count(item => item.SourceSeat == owner.Seat && item.CardKind is
                 CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Duel or CardKind.FireAttack or CardKind.BarbarianAssault or CardKind.ArrowBarrage) >= 2) &&
             _players.Where(player => player.IsAlive && player.Seat != owner.Seat).SelectMany(GetEquipment).Any(card => card.Kind == effect.OutputKind);

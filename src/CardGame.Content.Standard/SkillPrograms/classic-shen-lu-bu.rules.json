@@ -1,0 +1,217 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:kuangbao",
+      "revision": 1,
+      "minimumRulesVersion": 187,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "initial-rage",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "condition": { "kind": "always" },
+          "effects": [
+            {
+              "op": "changeAttributedMarker",
+              "target": "owner",
+              "targetRef": { "kind": "owner" },
+              "marker": "rage",
+              "amount": 2
+            }
+          ]
+        },
+        {
+          "id": "gain-on-owner",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": false,
+          "priority": 0,
+          "condition": { "kind": "always" },
+          "effects": [
+            {
+              "op": "changeAttributedMarker",
+              "target": "owner",
+              "targetRef": { "kind": "owner" },
+              "marker": "rage",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "gain-on-damage-source",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "damageOccurrence": "perDamagePoint",
+          "optional": false,
+          "priority": 0,
+          "condition": { "kind": "always" },
+          "effects": [
+            {
+              "op": "changeAttributedMarker",
+              "target": "owner",
+              "targetRef": { "kind": "owner" },
+              "marker": "rage",
+              "amount": 1
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "classic:wumou",
+      "revision": 1,
+      "minimumRulesVersion": 187,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "ordinary-trick-payment",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "priority": 0,
+          "condition": { "kind": "always" },
+          "cardKinds": [
+            "duel",
+            "drawTwo",
+            "barbarianAssault",
+            "arrowBarrage",
+            "peachGarden",
+            "fiveGrains",
+            "dismantlement",
+            "snatch",
+            "fireAttack",
+            "ironChain",
+            "borrowedSword"
+          ],
+          "effects": [
+            {
+              "op": "spendMarkerOrLoseHp",
+              "target": "owner",
+              "marker": "rage",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "nullification-payment",
+          "window": "cardResponseAccepted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "priority": 0,
+          "condition": { "kind": "always" },
+          "cardKinds": [
+            "nullification"
+          ],
+          "effects": [
+            {
+              "op": "spendMarkerOrLoseHp",
+              "target": "owner",
+              "marker": "rage",
+              "amount": 1
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "classic:wuqian",
+      "revision": 1,
+      "minimumRulesVersion": 187,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "rage-attack",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "markerCost": { "marker": "rage", "amount": 2 },
+          "effects": [
+            {
+              "op": "grantTurnSkills",
+              "target": "owner",
+              "skillIds": ["classic:wushuang"]
+            },
+            {
+              "op": "grantTurnCardTargetRestriction",
+              "target": "selectedTarget",
+              "targetRestriction": "armorIneffectiveForTurn"
+            }
+          ]
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "classic:shenfen",
+      "revision": 1,
+      "minimumRulesVersion": 187,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "rage-destruction",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "markerCost": { "marker": "rage", "amount": 6 },
+          "effects": [
+            {
+              "op": "damageParticipants",
+              "target": "owner",
+              "targetKind": "otherLiving",
+              "amount": 1
+            },
+            {
+              "op": "discardParticipantCards",
+              "target": "owner",
+              "targetKind": "otherLiving",
+              "zones": ["equipment"],
+              "amount": 64
+            },
+            {
+              "op": "discardParticipantCards",
+              "target": "owner",
+              "targetKind": "otherLiving",
+              "zones": ["hand"],
+              "amount": 4
+            },
+            {
+              "op": "turnOver",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    }
+  ]
+}

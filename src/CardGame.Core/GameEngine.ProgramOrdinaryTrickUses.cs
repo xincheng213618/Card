@@ -20,7 +20,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException(
                 "The all-hand ordinary-trick use no longer owns exactly its selected unrestricted hand cards.");
 
-        var options = BuildProgramOrdinaryTrickUseOptions(owner);
+        var paused = ProgramInstructionResolver.Default.Resolve(active, _contentRegistry.GetSkill(active.SkillId).Program!).GetPausedInstruction(active.InstructionIndex).Effect;
+        var options = BuildProgramOrdinaryTrickUseOptions(owner, paused.OutputKind);
         if (options.Count == 0)
             throw new InvalidOperationException("No ordinary trick is currently legal for the selected hand cards.");
         var skill = _contentRegistry!.GetSkill(active.SkillId);
@@ -64,7 +65,7 @@ public sealed partial class GameEngine
             hand.Any(card => IsTurnHandCardRestricted(owner, card)))
             throw new InvalidOperationException(
                 "The ordinary-trick choice lost its owner, skill instance or exact all-hand cost.");
-        var option = BuildProgramOrdinaryTrickUseOptions(owner)
+        var option = BuildProgramOrdinaryTrickUseOptions(owner, effect.OutputKind)
             .SingleOrDefault(candidate => candidate.Id == selected.Id) ??
             throw new InvalidOperationException("The selected ordinary-trick use is no longer legal.");
         if (!selected.Targets.SequenceEqual(option.TargetSeats))
@@ -111,7 +112,7 @@ public sealed partial class GameEngine
             option.EffectiveCardKind);
     }
 
-    private IReadOnlyList<ProgramOrdinaryTrickUseOption> BuildProgramOrdinaryTrickUseOptions(CharacterState source)
+    private IReadOnlyList<ProgramOrdinaryTrickUseOption> BuildProgramOrdinaryTrickUseOptions(CharacterState source, CardKind? outputKind = null)
     {
         var options = new List<ProgramOrdinaryTrickUseOption>();
         // A multi-card virtual card only carries a suit while every physical card
@@ -243,7 +244,7 @@ public sealed partial class GameEngine
                 $"当【借刀杀人】使用：令 {weaponOwner.Name} 对 {slashTarget.Name} 使用【杀】，否则获得其武器",
                 [weaponOwner.Seat, slashTarget.Seat]);
 
-        return Array.AsReadOnly(options.ToArray());
+        return Array.AsReadOnly(options.Where(option => outputKind is null || option.EffectiveCardKind == outputKind).ToArray());
     }
 
     private void AddProgramOrdinaryTrickTargetCardOptions(

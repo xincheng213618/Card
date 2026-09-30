@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id":"classic:qiaoshi","revision":1,"minimumRulesVersion":190,
+      "triggers":[{
+        "id":"equal-hand-ending","window":"turnEnding","subject":"owner","turnOwnerScope":"otherLiving","optional":true,
+        "condition":{"kind":"compare","left":{"kind":"currentHandCount"},"operator":"equal","right":{"kind":"eventTargetHandCount"}},
+        "effects":[
+          {"op":"selectTarget","target":"owner","targetKind":"eventTarget"},
+          {"op":"draw","target":"owner","amount":1},
+          {"op":"draw","target":"selectedTarget","amount":1}
+        ]
+      }]
+    },
+    {
+      "id":"classic:yanyu","revision":1,"minimumRulesVersion":190,
+      "states":[{"id":"yanyu-two-recasts","initialValue":false,"visibility":"public","resetScope":"playPhase","reacquirePolicy":"preserveUntilGameEnd"}],
+      "activations":[{
+        "id":"recast-slash","minCards":1,"maxCards":1,"sourceZones":["hand"],"cardKinds":["slash","fireSlash","thunderSlash"],
+        "minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,
+        "effects":[{"op":"recastSelectedCards","target":"owner","stateId":"yanyu-two-recasts","threshold":2}]
+      }],
+      "triggers":[{
+        "id":"two-recasts-support-male","window":"playEnding","subject":"owner","optional":true,
+        "condition":{"kind":"booleanState","stateId":"yanyu-two-recasts","expectedValue":true},
+        "effects":[
+          {"op":"selectTarget","target":"owner","targetKind":"otherLivingMale"},
+          {"op":"draw","target":"selectedTarget","amount":2}
+        ]
+      }]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:zhanjue":{"name":"战绝","description":"你可以将所有手牌当〖决斗〗使用，然后你与因此受伤的角色各摸一张牌，若你本阶段以此法摸过至少两张牌，本技能失效。"},
+    "classic:qinwang":{"name":"勤王","description":"主公技，你可以弃置一张牌发动“激将”，响应此“激将”使用或打出〖杀〗的角色摸一张牌。"}
+  }
+}

@@ -62,7 +62,7 @@ public sealed partial class GameEngine
                 SkillProgramCardPolicyKind.MarkerTurnBonuses when player.MarkerSourceCounts.GetValueOrDefault((PlayerMarkerKind.Camp, source.Seat)) > 0 && query is SkillRuleQuery.DrawCount or SkillRuleQuery.SlashLimit or SkillRuleQuery.HandLimit => 1,
                 SkillProgramCardPolicyKind.WoundedPopulationBonuses when source.Seat == player.Seat && query == SkillRuleQuery.HandLimit && wounded >= 1 => 1,
                 SkillProgramCardPolicyKind.WoundedPopulationBonuses when source.Seat == player.Seat && query == SkillRuleQuery.DrawCount && wounded >= 3 => 1,
-                SkillProgramCardPolicyKind.WoundedInRangeHandLimitPenalty when query == SkillRuleQuery.HandLimit && source.Seat != player.Seat && player.Hp < player.MaxHp && GetCombatDistance(source.Seat, player.Seat) <= GetAttackRange(source.Seat) => -1,
+                SkillProgramCardPolicyKind.WoundedInRangeHandLimitPenalty when query == SkillRuleQuery.HandLimit && source.Seat != player.Seat && player.Hp < player.MaxHp && IsWithinAttackRange(source.Seat, player.Seat) => -1,
                 _ => 0
             };
             if (value != 0) yield return new FiniteRuleQueryContribution($"aura:{source.Seat}:{instance.SkillId}:{instance.SkillInstanceId}:{policy.Id}", SkillRuleOperation.Add, value);

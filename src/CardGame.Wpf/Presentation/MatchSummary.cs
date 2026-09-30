@@ -33,7 +33,7 @@ public sealed record MatchSummary(int TurnCount, IReadOnlyList<PlayerMatchResult
                     if (totals.TryGetValue(response.ResponderSeat, out var responder)) responder.Responses++;
                     break;
                 case DamageAppliedEvent damage:
-                    if (totals.TryGetValue(damage.SourceSeat, out var source)) source.DamageDealt += damage.Amount;
+                    if (!damage.SourceLess && totals.TryGetValue(damage.SourceSeat, out var source)) source.DamageDealt += damage.Amount;
                     if (totals.TryGetValue(damage.TargetSeat, out var target)) target.DamageTaken += damage.Amount;
                     break;
                 case RecoveryAppliedEvent recovery:

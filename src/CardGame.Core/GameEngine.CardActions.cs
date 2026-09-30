@@ -6,10 +6,7 @@ public sealed partial class GameEngine
 
     private bool TryBeginFinalizedTrickPrograms(JizhiResolution pending)
     {
-        if (CardUseCategoryCatalog.Get(pending.EffectiveCardKind) != CardUseCategories.InstantTrick ||
-            !_contentRegistry.Skills.Values.Any(skill => skill.Program?.Triggers.Any(trigger =>
-            trigger.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
-            trigger.CardKinds.Contains(pending.EffectiveCardKind)) == true) ||
+        if (!HasFinalizedTargetProgram(pending.EffectiveCardKind) ||
             !_finalizedTrickProgramUses.Add(pending.ResolutionId)) return false;
         var use = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == pending.ResolutionId);
         var action = use.Action!;
@@ -128,6 +125,8 @@ public sealed partial class GameEngine
         var action = new CardActionContext(++_cardActionSequence, parent?.Action?.ActionId,
             CardActionType.Response, actor.Seat, provider.Seat, requesterSeat, actor.Seat,
             opponentSeat, effectiveKind, [], costs, conversionSource is null ? [] : [conversionSource]);
+        if (actor.Seat == provider.Seat && requesterSeat is null && IsProgramResponseCardUse(actor, effectiveKind))
+            RecordProgramUsedBasicCard(actor.Seat, effectiveKind);
         QueueGameEvent(new CardActionAcceptedEvent(action));
         return TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardResponseAccepted,
             [opponentSeat], continuation);
@@ -289,6 +288,9 @@ public sealed partial class GameEngine
                 ? targets.Where(seat => _players[seat].IsAlive).Order().ToArray()
                 : [relation == SkillProgramCardActionOwnerRelation.Target
                     ? owner.Seat : targets.Count == 1 ? targets.Single() : -1];
+            if (relation == SkillProgramCardActionOwnerRelation.ConversionSource &&
+                eventTargetsForBinding.Length == 0 && trigger.AllowNoEventTarget)
+                eventTargetsForBinding = [-1];
             foreach (var eventTarget in eventTargetsForBinding)
             {
                 var facts = CaptureProgramTriggerFacts(owner, action) with
@@ -368,7 +370,7 @@ public sealed partial class GameEngine
             {
                 _programCardAttacks.Remove(frame.Id, out var attack);
                 PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramCardTriggerWindow);
-                if (frame.Continuation == ProgramCardContinuation.CommittedSimpleCard)
+                if (frame.Continuation is ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.FinalizedSimpleCard)
                     ContinueSimpleCardUse(frame.ParentFrameId, frame.SimpleContinuation ??
                         throw new InvalidOperationException("The simple card use lost its continuation."));
                 else if (frame.Continuation == ProgramCardContinuation.CommittedTrick)
@@ -440,6 +442,7 @@ public sealed partial class GameEngine
     private bool TryBeginDelayedCardUsePrograms(long resolutionId)
     {
         if (!_acceptedProgramUses.Add(resolutionId)) return false;
+        _finalizedTrickProgramUses.Add(resolutionId);
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == resolutionId);
         var action = frame.Action ??
             throw new InvalidOperationException("A direct delayed-card trigger requires a captured card action.");
@@ -536,7 +539,7 @@ public sealed partial class GameEngine
                 (frame.Continuation is ProgramCardContinuation.DelayedCard or
                         ProgramCardContinuation.BeforeTrickTargetEffects or ProgramCardContinuation.FinalizedTrick or
                         ProgramCardContinuation.NullificationResponse or ProgramCardContinuation.CommittedTrick or
-                        ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.CompletedCard
+                        ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.FinalizedSimpleCard or ProgramCardContinuation.CompletedCard
                     ? _programCardAttacks[frame.Id] is null
                     : _programCardAttack is not null && ReferenceEquals(_programCardAttack, _pendingAttack));
             var candidateCursorValid = frame.CandidateIndex >= 0 &&
@@ -571,6 +574,8 @@ public sealed partial class GameEngine
                              (CardZoneKind.DiscardPile or CardZoneKind.Hand or CardZoneKind.DrawPile or CardZoneKind.Equipment or CardZoneKind.Judgment)
                          : frame.Continuation == ProgramCardContinuation.NullificationResponse
                              ? _cardZones.GetLocation(cost.CardId) != CardLocation.DiscardPile
+                         : IsProgramAlternativeCost(frame.Action, cost.CardId)
+                             ? _cardZones.GetLocation(cost.CardId) == CardLocation.Processing
                          : frame.SimpleContinuation?.Effect == SimpleCardUseEffect.Equipment
                              ? _cardZones.GetLocation(cost.CardId) != CardLocation.Equipment(frame.Action.ActorSeat)
                          : IsForeignPublicPileSlashUse(frame.ParentFrameId) && cost.From.Zone == CardZoneKind.Authority

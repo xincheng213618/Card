@@ -45,4 +45,8 @@ public sealed record SkillProgramCardPolicy(
     Suit? OutputSuit,
     SkillProgramCondition Condition,
     string? FactionId = null,
-    Role? OwnerRole = null);
+    Role? OwnerRole = null)
+{
+    public int DiscardCost { get; init; }
+    public int ProviderDrawCount { get; init; }
+}

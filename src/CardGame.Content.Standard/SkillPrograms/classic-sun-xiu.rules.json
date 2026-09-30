@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "classic:yanzhu", "revision": 1, "minimumRulesVersion": 190,
+      "activations": [{ "id": "equipment-or-discard", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1,
+        "targetKind": "otherLivingWithHandOrEquipment", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [
+          { "op": "chooseOption", "target": "selectedTarget", "resultBind": "target-choice", "options": [
+            { "id": "equipment", "condition": { "kind": "hasOwnedCardCategory", "zones": ["equipment"], "cardCategories": ["equipment"] } },
+            { "id": "discard" }
+          ] },
+          { "op": "selectOwnedCards", "target": "selectedTarget", "zones": ["equipment"], "numberExpression": "allOwnedZoneCards", "resultBind": "all-equipment",
+            "condition": { "kind": "choiceIs", "sourceBind": "target-choice", "optionId": "equipment" } },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "all-equipment", "destination": "ownerHand",
+            "condition": { "kind": "choiceIs", "sourceBind": "target-choice", "optionId": "equipment" } },
+          { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "selectedTarget" }, "cardOwnerRef": { "kind": "selectedTarget" },
+            "zones": ["hand", "equipment"], "count": 1, "destination": "discardPile", "awaitMovementTriggers": true,
+            "condition": { "kind": "choiceIs", "sourceBind": "target-choice", "optionId": "discard" } },
+          { "op": "loseOwnerSkillsAndGrant", "target": "owner", "skillIds": ["classic:yanzhu", "classic:xingxue"], "sourceBind": "classic:xingxue-upgraded",
+            "condition": { "kind": "choiceIs", "sourceBind": "target-choice", "optionId": "equipment" } }
+        ] }]
+    },
+    { "id": "classic:xingxue", "revision": 1, "minimumRulesVersion": 190,
+      "triggers": [{ "id": "draw-then-put-top", "window": "turnEnding", "subject": "owner", "optional": true,
+        "effects": [{ "op": "drawThenPutOwnedCardOnTopParticipants", "target": "owner" }] }]
+    },
+    { "id": "classic:xingxue-upgraded", "revision": 1, "minimumRulesVersion": 190,
+      "triggers": [{ "id": "draw-then-put-top", "window": "turnEnding", "subject": "owner", "optional": true,
+        "effects": [{ "op": "drawThenPutOwnedCardOnTopParticipants", "target": "owner", "useMaximumHp": true }] }]
+    },
+    { "id": "classic:zhaofu", "revision": 1, "minimumRulesVersion": 190,
+      "activations": [{ "id": "permanent-faction-targets", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 2,
+        "targetKind": "anyLiving", "usesPerTurn": null, "usesPerGame": 1,
+        "effects": [{ "op": "grantGameFactionAttackRangeTargets", "target": "owner", "providerFactionId": "wu" }] }]
+    }
+  ]
+}

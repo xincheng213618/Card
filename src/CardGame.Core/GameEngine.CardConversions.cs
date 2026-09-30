@@ -206,7 +206,7 @@ public sealed partial class GameEngine
         CharacterState owner,
         Card card,
         CardKind outputKind,
-        bool forResponse)
+        bool forResponse, bool dyingUse = false)
     {
         if (HasProgramCardIdentity(owner, card))
         {
@@ -228,7 +228,8 @@ public sealed partial class GameEngine
                 .Where(rule => rule.InputCount == 1 &&
                                (rule.OutputKind == outputKind || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash) &&
                                rule.SourceZones.Contains(zone.Value) &&
-                               (forResponse ? rule.ForResponse : rule.ForPlay) &&
+                               (dyingUse ? rule.ForResponse || rule.UseOnly && rule.ForPlay : forResponse ? rule.ForResponse && (!rule.UseOnly || IsProgramResponseCardUse(owner, outputKind)) : rule.ForPlay) &&
+                               (!rule.UnusedOutputThisTurn || !HasProgramUsedBasicCardThisTurn(owner.Seat, outputKind)) &&
                                (card.Kind != outputKind || rule.InheritPreviousPlaySuit) &&
                                CanUsePhaseLimitedViewAs(instance, rule, owner) &&
                                rule.Condition.Evaluate(context) &&
@@ -548,11 +549,12 @@ public sealed partial class GameEngine
         string description,
         IReadOnlyList<int> cards,
         IReadOnlyList<int> targets,
-        IReadOnlyDictionary<string, string> baseParameters)
+        IReadOnlyDictionary<string, string> baseParameters,
+        bool dyingUse = false)
     {
         var hasIdentity = HasProgramCardIdentity(owner, card);
         var identitySources = GetProgramCardIdentitySources(owner, card, effectiveKind, forResponse);
-        var programSources = GetProgramViewAsConversions(owner, card, effectiveKind, forResponse);
+        var programSources = GetProgramViewAsConversions(owner, card, effectiveKind, forResponse, dyingUse);
         var includeUnspecified = !hasIdentity &&
             (card.Kind == effectiveKind || programSources.Count == 0);
         var sources = new List<CardConversionSource?>();
@@ -638,7 +640,8 @@ public sealed partial class GameEngine
             provider, responseCard, effectiveKind, forResponse: true);
         var candidates = hasIdentity
             ? identitySources.ToArray()
-            : GetProgramViewAsConversions(provider, responseCard, effectiveKind, forResponse: true).ToArray();
+            : GetProgramViewAsConversions(provider, responseCard, effectiveKind, forResponse: true,
+                dyingUse: _pendingDying is not null && effectiveKind is CardKind.Peach or CardKind.Alcohol).ToArray();
         var selected = _selectedResponseConversion;
         var selectedChoice = _hasSelectedResponseConversionChoice;
         _selectedResponseConversion = null;

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "classic:yaoming", "revision": 1, "minimumRulesVersion": 190,
+    "triggers": [
+      { "id": "damage-participant-intervention", "window": "afterDamageApplied", "subject": "any", "optional": true,
+        "damageOccurrence": "perDamage", "usageScope": "turn", "usageLimit": 1,
+        "condition": { "kind": "any", "children": [
+          { "kind": "damageSourceIsOwner" }, { "kind": "not", "children": [{ "kind": "damageTargetIsOther" }] }
+        ] },
+        "effects": [{ "op": "chooseHandCountIntervention", "target": "owner" }] }
+    ]
+  }]
+}

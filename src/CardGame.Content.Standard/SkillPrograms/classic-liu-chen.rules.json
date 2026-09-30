@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:zhanjue", "revision": 1, "minimumRulesVersion": 190,
+      "states": [{"id":"zhanjue-exhausted","initialValue":false,"visibility":"public","resetScope":"playPhase","reacquirePolicy":"preserveUntilGameEnd"}],
+      "activations": [{
+        "id":"all-hand-duel", "minCards":1,"maxCards":64,"sourceZones":["hand"],
+        "minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,
+        "condition":{"kind":"runtimeBooleanState","stateId":"zhanjue-exhausted","expectedValue":false},
+        "effects":[{"op":"useAllHandCardsAsOrdinaryTrick","target":"owner","viewAsId":"all-hand-duel","outputKind":"duel"}]
+      }],
+      "triggers":[{
+        "id":"completed-duel-draws","window":"cardUseCompleted","ownerRelation":"conversionSource",
+        "sourceSkillId":"classic:zhanjue","sourceViewAsId":"all-hand-duel","optional":false,"allowNoEventTarget":true,
+        "effects":[{"op":"drawCompletedCardParticipants","target":"owner","stateId":"zhanjue-exhausted","threshold":2}]
+      }]
+    },
+    {
+      "id":"classic:qinwang","revision":1,"minimumRulesVersion":190,
+      "cardPolicies":[{"id":"costed-allied-slash","kind":"factionResponseRequest","requiredCardKinds":["slash"],"factionId":"shu","ownerRole":"lord","discardCost":1,"providerDrawCount":1}],
+      "activations":[{
+        "id":"request-shu-slash","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,
+        "targetKind":"otherLivingSlashable","usesPerTurn":null,"condition":{"kind":"classicIdentityMode"},
+        "effects":[{"op":"requestFactionCard","target":"selectedTarget","providerFactionId":"shu","requiredKind":"slash"}]
+      }]
+    }
+  ]
+}

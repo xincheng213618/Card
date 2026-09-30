@@ -123,7 +123,7 @@ public sealed partial class GameEngine
     private bool IsFarthestInRange(CharacterState owner, CharacterState target)
     {
         var range = GetAttackRange(owner.Seat);
-        var legal = _players.Where(player => player.IsAlive && player.Seat != owner.Seat && GetCombatDistance(owner.Seat, player.Seat) <= range).ToArray();
+        var legal = _players.Where(player => player.IsAlive && player.Seat != owner.Seat && IsWithinAttackRange(owner.Seat, player.Seat)).ToArray();
         return legal.Contains(target) && GetCombatDistance(owner.Seat, target.Seat) == legal.Max(player => GetCombatDistance(owner.Seat, player.Seat));
     }
     private void ObtainAdvancedCards(ProgramSkillFrame frame, IReadOnlyList<Card> cards)

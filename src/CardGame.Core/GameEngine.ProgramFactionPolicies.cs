@@ -3,13 +3,14 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private sealed record FactionResponsePolicySource(string SkillId, string SkillInstanceId,
-        string PolicyId, string FactionId, CardKind RequiredKind);
+        string PolicyId, string FactionId, CardKind RequiredKind, int DiscardCost = 0, int ProviderDrawCount = 0);
 
     private FactionResponsePolicySource? GetFactionResponsePolicy(CharacterState owner, CardKind requiredKind) =>
         CardPolicies(owner, SkillProgramCardPolicyKind.FactionResponseRequest, requiredKind: requiredKind)
             .Where(item => GetFactionProviderSeats(owner.Seat, item.Policy.FactionId!).Count > 0)
+            .Where(item => item.Policy.DiscardCost == 0 || GetHand(owner).Count + GetEquipment(owner).Count >= item.Policy.DiscardCost)
             .Select(item => new FactionResponsePolicySource(item.Source.SkillId, item.Source.SkillInstanceId,
-                item.Policy.Id, item.Policy.FactionId!, requiredKind)).FirstOrDefault();
+                item.Policy.Id, item.Policy.FactionId!, requiredKind, item.Policy.DiscardCost, item.Policy.ProviderDrawCount)).FirstOrDefault();
 
     private string FactionPolicyName(FactionResponsePolicySource source) =>
         _contentRegistry!.GetSkill(source.SkillId).Name;

@@ -233,7 +233,21 @@ internal static class ProgramCompositionDefinitionChecks
             [SkillProgramEffectOp.ConsumeCategoryTargetLedger] = """{"op":"consumeCategoryTargetLedger","target":"owner","usageId":"phase-categories"}""",
             [SkillProgramEffectOp.ReplaceCurrentCardUseActor] = """{"op":"replaceCurrentCardUseActor","target":"selectedTarget"}""",
             [SkillProgramEffectOp.AddCurrentCardUseTarget] = """{"op":"addCurrentCardUseTarget","target":"selectedTarget"}""",
-            [SkillProgramEffectOp.ReduceCurrentDamage] = """{"op":"reduceCurrentDamage","target":"owner","amount":1}"""
+            [SkillProgramEffectOp.ReduceCurrentDamage] = """{"op":"reduceCurrentDamage","target":"owner","amount":1}""",
+            [SkillProgramEffectOp.RequestFactionRecovery] = """{"op":"requestFactionRecovery","target":"owner","providerFactionId":"wei"}""",
+            [SkillProgramEffectOp.SetNextTurnRuleModifier] = """{"op":"setNextTurnRuleModifier","target":"selectedTarget","query":"handLimit","amount":1}""",
+            [SkillProgramEffectOp.WeaponDiscardOrDamageBonus] = """{"op":"weaponDiscardOrDamageBonus","target":"owner","amount":1}""",
+            [SkillProgramEffectOp.ResolveJudgmentColorBenefit] = """{"op":"resolveJudgmentColorBenefit","target":"selectedTarget","sourceBind":"judgment","amount":1}""",
+            [SkillProgramEffectOp.RecastSelectedCards] = """{"op":"recastSelectedCards","target":"owner","stateId":"ready","threshold":2}""",
+            [SkillProgramEffectOp.DrawCompletedCardParticipants] = """{"op":"drawCompletedCardParticipants","target":"owner","stateId":"spent","threshold":2}""",
+            [SkillProgramEffectOp.RevealSelectedHandAgainstTarget] = """{"op":"revealSelectedHandAgainstTarget","target":"owner","resultBind":"paired"}""",
+            [SkillProgramEffectOp.ChooseHandCountIntervention] = """{"op":"chooseHandCountIntervention","target":"owner"}""",
+            [SkillProgramEffectOp.RevealHandColorDiscardAndTake] = """{"op":"revealHandColorDiscardAndTake","target":"owner"}""",
+            [SkillProgramEffectOp.DrawThenPutOwnedCardOnTopParticipants] = """{"op":"drawThenPutOwnedCardOnTopParticipants","target":"owner"}""",
+            [SkillProgramEffectOp.LoseOwnerSkillsAndGrant] = """{"op":"loseOwnerSkillsAndGrant","target":"owner","skillIds":["old"],"sourceBind":"new"}""",
+            [SkillProgramEffectOp.SetTurnHandLimitFromPlayDamage] = """{"op":"setTurnHandLimitFromPlayDamage","target":"owner"}""",
+            [SkillProgramEffectOp.GrantGameFactionAttackRangeTargets] = """{"op":"grantGameFactionAttackRangeTargets","target":"owner","providerFactionId":"wu"}""",
+            [SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge] = """{"op":"drawTurnOwnerThenDiscardMaximumHandForDodge","target":"owner"}"""
 
         };
         Require(nodes.Keys.ToHashSet().SetEquals(Enum.GetValues<SkillProgramEffectOp>()),

@@ -229,7 +229,9 @@ public sealed partial class GameEngine
         if (frame.ReexecuteParticipantInstruction && paused.Op is not (SkillProgramEffectOp.DamageParticipants or
                 SkillProgramEffectOp.LoseHpParticipants or SkillProgramEffectOp.DiscardParticipantCards or
                 SkillProgramEffectOp.RequestSlashByNearest or SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or
-                SkillProgramEffectOp.EscalatingDiscardOrDamage))
+                SkillProgramEffectOp.EscalatingDiscardOrDamage or SkillProgramEffectOp.ChooseHandCountIntervention or
+                SkillProgramEffectOp.RevealHandColorDiscardAndTake or SkillProgramEffectOp.DrawThenPutOwnedCardOnTopParticipants or
+                SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge))
             throw new InvalidOperationException("A participant cursor must resume its own committed instruction.");
         if (frame.PrivateReserveDraft is not { } draft) return;
         if (!IsValidPlayerSeat(draft.ChooserSeat) || draft.RequiredCount < 1 || draft.RequiredCount > 64 ||

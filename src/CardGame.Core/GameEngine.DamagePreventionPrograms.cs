@@ -37,7 +37,9 @@ public sealed partial class GameEngine
                 var facts = CaptureProgramTriggerFacts(owner) with
                 {
                     EventTargetHp = target.Hp,
-                    DamageSourceGender = _pendingAttack?.IsDelayedJudgmentDamage != true &&
+                    DamageCardIsSlash = _pendingAttack is { EffectiveCardKind: { } beforeDamageKind, IsChainPropagation: false, IsSourceLess: false } && IsSlashCard(beforeDamageKind),
+                    DirectCardUseDamage = _pendingAttack is { Card: not null, IsChainPropagation: false, IsSourceLess: false },
+                    DamageSourceGender = _pendingAttack?.IsDelayedJudgmentDamage != true && _pendingAttack?.IsSourceLess != true &&
                         _contentRegistry.Skills.Values.Any(skill => skill.Program?.Triggers.Any(trigger =>
                             HasTriggerCondition(trigger.Condition, SkillProgramTriggerConditionKind.DamageSourceGenderIs)) == true)
                         ? _players[sourceSeat].Gender : null
@@ -49,7 +51,7 @@ public sealed partial class GameEngine
                             (_pendingAttack?.DamageRedirected != true ||
                              !GetProgramTrigger(candidate).Effects.Any(effect =>
                                  effect.Op == SkillProgramEffectOp.RedirectCurrentDamage)),
-                        SkillProgramTriggerSubject.DamageSource => owner.Seat == sourceSeat && owner.Seat != targetSeat,
+                        SkillProgramTriggerSubject.DamageSource => _pendingAttack?.IsSourceLess != true && owner.Seat == sourceSeat && owner.Seat != targetSeat,
                         SkillProgramTriggerSubject.Owner => owner.Seat != targetSeat,
                         _ => false
                     })
@@ -90,11 +92,14 @@ public sealed partial class GameEngine
             SkillProgramTriggerWindow.BeforeDamageApplied,
             frame.Id,
             item.Candidate.OwnerSeat,
-            SourceSeat: frame.SourceSeat,
+            SourceSeat: BeforeDamageHasNoSource(frame) ? null : frame.SourceSeat,
             TargetSeat: frame.TargetSeat,
             Amount: frame.Amount,
             OccurrenceIndex: item.Candidate.OccurrenceIndex,
             Facts: item.Facts);
+
+    private bool BeforeDamageHasNoSource(BeforeDamageProgramWindowFrame frame) =>
+        frame.Continuation == BeforeDamageProgramContinuation.Attack && _pendingAttack?.IsSourceLess == true;
 
     private void ContinueBeforeDamageProgramWindow()
     {

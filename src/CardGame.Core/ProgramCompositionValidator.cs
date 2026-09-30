@@ -34,6 +34,13 @@ internal static class ProgramCompositionValidator
             var effect = effects[index];
             var nodePath = $"{path}.effects[{index}]";
             var descriptor = ProgramOperationCatalog.Default.Resolve(effect.Op);
+            if (effect.Op == SkillProgramEffectOp.LoseOwnerSkillsAndGrant &&
+                (window is not null || index != effects.Count - 1))
+                throw Error(nodePath, "Owner skill replacement must terminate an activation.");
+            if (effect.Op == SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge &&
+                (window is not null || effects.Count != 1 || selectedCardCount != 0 || initialSelectedTarget ||
+                 initialTargetSetCount != 0 || initialTargetSetMaximum != 0))
+                throw Error(nodePath, "Response-only Dodge requires a single zero-card zero-target activation.");
             foreach (var condition in Conditions(effect.Condition)
                          .Concat(effect.Options.SelectMany(option => Conditions(option.Condition))))
             {

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:huomo", "revision": 1, "minimumRulesVersion": 190,
+      "viewAs": [
+        { "id": "black-nonbasic-slash", "inputKinds": [], "inputCategories": ["trick", "equipment"], "inputSuits": ["spade", "club"], "sourceZones": ["hand", "equipment"], "outputKind": "slash", "forPlay": true, "forResponse": false, "extendedUse": true, "costDestination": "drawPileTop", "unusedOutputThisTurn": true, "useOnly": true },
+        { "id": "black-nonbasic-fire-slash", "inputKinds": [], "inputCategories": ["trick", "equipment"], "inputSuits": ["spade", "club"], "sourceZones": ["hand", "equipment"], "outputKind": "fireSlash", "forPlay": true, "forResponse": false, "extendedUse": true, "costDestination": "drawPileTop", "unusedOutputThisTurn": true, "useOnly": true },
+        { "id": "black-nonbasic-thunder-slash", "inputKinds": [], "inputCategories": ["trick", "equipment"], "inputSuits": ["spade", "club"], "sourceZones": ["hand", "equipment"], "outputKind": "thunderSlash", "forPlay": true, "forResponse": false, "extendedUse": true, "costDestination": "drawPileTop", "unusedOutputThisTurn": true, "useOnly": true },
+        { "id": "black-nonbasic-peach", "inputKinds": [], "inputCategories": ["trick", "equipment"], "inputSuits": ["spade", "club"], "sourceZones": ["hand", "equipment"], "outputKind": "peach", "forPlay": true, "forResponse": false, "extendedUse": true, "costDestination": "drawPileTop", "unusedOutputThisTurn": true, "useOnly": true },
+        { "id": "black-nonbasic-alcohol", "inputKinds": [], "inputCategories": ["trick", "equipment"], "inputSuits": ["spade", "club"], "sourceZones": ["hand", "equipment"], "outputKind": "alcohol", "forPlay": true, "forResponse": false, "extendedUse": true, "costDestination": "drawPileTop", "unusedOutputThisTurn": true, "useOnly": true },
+        { "id": "black-nonbasic-dodge", "inputKinds": [], "inputCategories": ["trick", "equipment"], "inputSuits": ["spade", "club"], "sourceZones": ["hand", "equipment"], "outputKind": "dodge", "forPlay": false, "forResponse": true, "extendedUse": true, "costDestination": "drawPileTop", "unusedOutputThisTurn": true, "useOnly": true }
+      ]
+    },
+    {
+      "id": "classic:zuoding", "revision": 1, "minimumRulesVersion": 190,
+      "triggers": [{
+        "id": "spade-target-draw-before-play-damage", "window": "cardUseTargetsFinalized", "ownerRelation": "observer", "optional": true,
+        "condition": { "kind": "all", "children": [
+          { "kind": "not", "children": [{ "kind": "cardActionActorIsOwner" }] },
+          { "kind": "cardActionActorIsCurrentTurn" }, { "kind": "cardActionPhaseIsPlay" },
+          { "kind": "cardActionSuitIs", "suits": ["spade"] },
+          { "kind": "compare", "left": { "kind": "playPhaseDamageTakenByAny" }, "operator": "equal", "right": { "kind": "integerConstant", "value": 0 } }
+        ] },
+        "effects": [
+          { "op": "selectTargets", "target": "owner", "targetKind": "currentCardUseTargets", "minimumTargets": 1, "maximumTargets": 1, "targetAiOrder": "supportDraw" },
+          { "op": "draw", "target": "selectedTargets", "amount": 1 }
+        ]
+      }]
+    }
+  ]
+}

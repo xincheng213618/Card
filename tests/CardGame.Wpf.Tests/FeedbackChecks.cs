@@ -47,6 +47,18 @@ internal static class FeedbackChecks
         Assert(cues.Count == 4 && cues.Select(cue => cue.Sequence).Distinct().Count() == 4, "Public response duplicated or zero damage rendered.");
         Assert(cues[0].Label == "杀" && cues[0].TargetSeats.SequenceEqual([1]), "Declared card or detached public targets differ.");
         Assert(cues[1].Label == "打出杀" && cues[2].Label == "−2" && cues[2].Nature == DamageNature.Fire && cues[3].Label == "+1", "Response, damage, or recovery feedback differs from committed events.");
+        var sourceFreeEvents = new[] { Envelope(new DamageAppliedEvent(1, 1, 1, 0) { SourceLess = true }) };
+        Assert(BattleCueProjector.Project(sourceFreeEvents, view).Single() is
+            { Kind: BattleCueKind.Damage, SourceSeat: -1, TargetSeats: [1] },
+            "Source-free damage feedback falsely attributes its internal continuation seat.");
+        var sourceFreeReport = MatchSummary.Create(view with { Status = EngineStatus.Completed }, sourceFreeEvents)!;
+        Assert(sourceFreeReport.Players.Single(player => player.Seat == 1) is { DamageDealt: 0, DamageTaken: 1 },
+            "Source-free debt damage must count as received damage without crediting a damage dealer.");
+        var virtualResponses = BattleCueProjector.Project(
+            [Envelope(new CardRespondedEvent(-1, 1, 0, CardKind.Dodge)),
+             Envelope(new CardRespondedEvent(-1, 2, 0, CardKind.Dodge))], view);
+        Assert(virtualResponses.Count == 2 && virtualResponses.All(cue => cue.Label == "打出闪"),
+            "Distinct virtual responses must not be collapsed by their shared nonphysical card sentinel.");
         var armorCues = BattleCueProjector.Project(
         [
             Envelope(new ArmorEffectAppliedEvent(8, CardKind.RenwangShield, 0, 1, CardKind.Slash)),

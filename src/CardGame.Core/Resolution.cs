@@ -103,6 +103,8 @@ public sealed record ProgramSkillFrame(
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramSkillWindowContext? WindowContext { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public PendingDecision? ResponseDecision { get; init; }
 
     public IReadOnlyList<ProgramSkillNumberBinding> NumberBindings { get; init; } = [];
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -123,6 +125,12 @@ public sealed record ProgramSkillFrame(
     public ProgramOtherCardSelection? OtherCardSelection { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramDiscardChallengeDraft? DiscardChallenge { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramFactionRecoveryDraft? FactionRecoveryDraft { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramWeaponDamageDraft? WeaponDamageDraft { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramHandControlDraft? HandControlDraft { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramDiscardTopPlacement? DiscardTopPlacement { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

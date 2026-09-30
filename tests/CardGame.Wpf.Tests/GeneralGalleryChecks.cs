@@ -144,6 +144,11 @@ internal static class GeneralGalleryChecks
         Program.Render(root, 1440, 880, Path.Combine(output, "149-gallery-fame-four.png"));
         Program.Assert(vm.GeneralGalleryEntries.Count == 10 && vm.GeneralGalleryEntries.All(entry => entry.GroupId == "fame-4"),
             "Fame IV must show all ten registered generals in its own group.");
+        vm.SelectGeneralGalleryGroupCommand.Execute("fame-5");
+        Program.Render(root, 1440, 880, Path.Combine(output, "150-gallery-fame-five.png"));
+        Program.Assert(vm.GeneralGalleryEntries.Count == 12 && vm.GeneralGalleryEntries.All(entry =>
+            entry.GroupId == "fame-5" && GeneralArt.HasPortrait(entry.GeneralId)),
+            "Fame V must display its twelve registered entries, including the retained Sha Mo Ke grouping, with portraits.");
         vm.SelectGeneralGalleryGroupCommand.Execute("fame-7");
         Program.Render(root, 1120, 740, Path.Combine(output, "145-gallery-fame-seven.png"));
         Program.Assert(vm.GeneralGalleryGroups is [{ IsEmpty: true, Id: "fame-7" }] && vm.GeneralGalleryEntries.Count == 0,

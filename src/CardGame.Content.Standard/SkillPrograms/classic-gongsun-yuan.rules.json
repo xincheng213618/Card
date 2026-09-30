@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "classic:huaiyi", "revision": 1, "minimumRulesVersion": 190,
+    "activations": [{ "id": "reveal-color-take", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0,
+      "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1,
+      "condition": { "kind": "handCountAtLeast", "value": 1 },
+      "effects": [{ "op": "revealHandColorDiscardAndTake", "target": "owner" }] }]
+  }]
+}

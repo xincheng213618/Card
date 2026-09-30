@@ -144,7 +144,10 @@ internal static class WushengResponseScenario
         string? modeId = null,
         string? skillContentId = null)
     {
-        for (var seed = 1; seed <= (skillContentId is null ? 256 : 4_096); seed++)
+        // The non-interactive setup assigns the human general from the shared identity pool, so every
+        // pool addition shifts which seeds hand out the responder at all. The configured-skill path
+        // therefore needs headroom; the assertions themselves are unchanged by this bound.
+        for (var seed = 1; seed <= (skillContentId is null ? 256 : 40_000); seed++)
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {
