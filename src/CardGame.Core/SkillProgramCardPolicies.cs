@@ -20,7 +20,8 @@ public enum SkillProgramCardPolicyKind
     ProhibitNearbyTargetResponse,
     ProhibitTargetSlashResponseBySuit,
     PreventIncomingTrickDamage,
-    MinimumResponseCountAsTarget = 17
+    MinimumResponseCountAsTarget = 17,
+    ConvertOutgoingDamageToHpLoss = 18
 }
 
 public sealed record SkillProgramCardPolicy(

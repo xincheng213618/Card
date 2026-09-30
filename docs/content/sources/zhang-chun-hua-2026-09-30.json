@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-30",
+  "contentIds": [
+    "classic:zhang-chun-hua"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:zhang-chun-hua",
+      "url": "https://x.sanguosha.com/hero/295.html",
+      "edition": "三国杀官方网站武将库 gid 295（张春华，魏）",
+      "use": "绝情：锁定技，你即将造成的伤害视为失去体力。伤逝：每当你的手牌数小于你已损失的体力值时，你可以将手牌数补至等同于你已损失的体力值。"
+    },
+    {
+      "contentId": "classic:zhang-chun-hua",
+      "url": "https://wiki.biligame.com/sgs/%E5%BC%A0%E6%98%A5%E5%8D%8E",
+      "edition": "BWIKI 三国杀WIKI 武将页（二手核对）",
+      "use": "体力/势力/性别/包归属核对：魏、女、经典版 3 勾玉、一将成名-2011。技能措辞与官方页一致的以官方页为准；BWIKI 伤逝作『当你的手牌数小于X时，你可以将手牌摸至X张（X为你已损失的体力值）』，与 x 站现行文本同义异措。BWIKI 页与 x 站页均无绝情/伤逝单列 FAQ 细则。"
+    },
+    {
+      "contentId": "classic:zhang-chun-hua",
+      "url": "https://www.sanguosha.com/news/20140418_2046_5959",
+      "edition": "三国杀官方一将成名2011武将名单公告（图鉴分组核对）",
+      "use": "确认张春华位列官方一将成名2011十一人名单（曹植、高顺、陈宫、法正、凌统、马谡、吴国太、徐盛、徐庶、于禁、张春华），图鉴归入一将成名一组（fame-1）。"
+    }
+  ],
+  "versionBoundary": "本批以十周年官方武将库（x.sanguosha.com）gid 295 现行页面文本为唯一口径并冻结：绝情=『锁定技，你即将造成的伤害视为失去体力』；伤逝=『每当你的手牌数小于你已损失的体力值时，你可以将手牌数补至等同于你已损失的体力值』（可选，非锁定）。gid 1605 为另一版张春华（界/晋势），非本批口径。实现边界（页面无细则，按通行规则通读并照实记录于批次记录诚实归因）：绝情转化不产生伤害事件、不传导铁索、无伤害来源死亡奖惩；武器 rider 与锦囊伤害防护先于转化结算（对既有管线零位移的顺序选型）；伤逝只在受伤后、非伤害体力流失后、手牌离开后三个时机检查（获得/摸牌方向不触发，沿十周年实装惯例）。绝情体力流失记账复用 ProgramSkillHpLostEvent（skillId=classic:jueqing）；伤逝补牌用新表达式 ownerLostHpMinusHandCount（补至已损失体力值）。立绘 129501 已下载入库（official-zhang-chun-hua.png，574×761，sha256 1cca3cbca055384559bf491263e3fe23269adb493691acb84e0faef31b0718c4）。",
+  "portraits": [
+    {
+      "contentId": "classic:zhang-chun-hua",
+      "id": "129501",
+      "name": "经典形象*张春华",
+      "sourcePage": "https://x.sanguosha.com/hero/295.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/129501.png"
+    }
+  ]
+}

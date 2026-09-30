@@ -7962,6 +7962,23 @@
       ]
     },
     {
+      "key": "zhang-chun-hua",
+      "characterName": "张春华",
+      "defaultSkinId": "129501",
+      "skins": [
+        {
+          "id": "129501",
+          "name": "经典形象*张春华",
+          "sourcePage": "https://x.sanguosha.com/hero/295.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/129501.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-zhang-chun-hua.png",
+          "sha256": "1cca3cbca055384559bf491263e3fe23269adb493691acb84e0faef31b0718c4",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "zhang-fei",
       "characterName": "张飞",
       "defaultSkinId": "100301",

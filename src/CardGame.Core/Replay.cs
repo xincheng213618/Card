@@ -42,7 +42,10 @@ public sealed record GameCheckpoint(
     // 192: Ling Tong (xuanfeng) reusing the existing vocabulary; the only
     // engine change lets a discardPhaseEnded trigger declare turnOwnerScope own
     // (the phase owner itself), mirroring the turnEnding arm shape.
-    public const int CurrentRulesVersion = 192;
+    // 193: Zhang Chun Hua (jueqing/shangshi) with the outgoing-damage-to-hp-loss
+    // card policy consumed by the attack damage funnel, the currentLostHp trigger
+    // value, and the ownerLostHpMinusHandCount draw expression.
+    public const int CurrentRulesVersion = 193;
     // 187 was consumed by main-side Zhang He / Shen Zhao Yun work.
 
     public int RulesVersion { get; init; }

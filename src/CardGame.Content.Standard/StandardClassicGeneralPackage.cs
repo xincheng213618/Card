@@ -71,6 +71,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "CardGame.Content.Standard.SkillPrograms.classic-ling-tong.rules.json";
     private const string ClassicLingTongPresentationResource =
         "CardGame.Content.Standard.SkillPrograms.classic-ling-tong.presentation.json";
+    private const string ClassicZhangChunHuaRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-zhang-chun-hua.rules.json";
+    private const string ClassicZhangChunHuaPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-zhang-chun-hua.presentation.json";
     private const string ClassicZhangZhaoZhangHongRulesResource =
         "CardGame.Content.Standard.SkillPrograms.classic-zhang-zhao-zhang-hong.rules.json";
     private const string ClassicZhangZhaoZhangHongPresentationResource =
@@ -199,6 +203,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicLingTongRulesResource),
             ReadEmbeddedText(ClassicLingTongPresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicZhangChunHuaCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicZhangChunHuaRulesResource),
+            ReadEmbeddedText(ClassicZhangChunHuaPresentationResource)));
     private static readonly Lazy<SkillProgramCatalog> ClassicZhangZhaoZhangHongCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicZhangZhaoZhangHongRulesResource),
@@ -215,7 +223,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicLifecycleRulesResource),
             ReadEmbeddedText(ClassicLifecyclePresentationResource)));
-    public static Version CurrentVersion { get; } = new(1, 163, 0);
+    public static Version CurrentVersion { get; } = new(1, 164, 0);
 
     public StandardClassicGeneralPackage()
     {
@@ -1215,6 +1223,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(WithStructuredSkillMetadata(
                 ChenGongProgram("classic:zhichi"), SkillTag.Locked, SkillExecutionForm.Trigger));
             builder.AddSkill(WithOptionalTriggerMetadata(LingTongProgram("classic:xuanfeng")));
+            builder.AddSkill(WithStructuredSkillMetadata(
+                ZhangChunHuaProgram("classic:jueqing"), SkillTag.Locked, SkillExecutionForm.State));
+            builder.AddSkill(WithOptionalTriggerMetadata(ZhangChunHuaProgram("classic:shangshi")));
         }
 
         {
@@ -1975,6 +1986,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:ling-tong", "凌统", "ling_tong",
                 "classic:xuanfeng", "wu", BaseHp: 4));
 
+        builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:zhang-chun-hua", "张春华", "zhang_chun_hua",
+                "classic:jueqing", "wei", BaseHp: 3,
+                AdditionalSkillIds: ["classic:shangshi"]));
+
 
         var generalPoolIds = CurrentGeneralIds;
 
@@ -2312,6 +2328,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         };
     }
 
+    private static ContentSkillDefinition ZhangChunHuaProgram(string skillId)
+    {
+        var presentation = ClassicZhangChunHuaCatalog.Value.Presentations[skillId];
+        return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
+        {
+            Program = ClassicZhangChunHuaCatalog.Value.Programs[skillId]
+        };
+    }
+
     private static ContentSkillDefinition ZhangHeProgram(string skillId)
     {
         var presentation = ClassicZhangHeCatalog.Value.Presentations[skillId];
@@ -2484,6 +2509,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:fa-zheng",
         "classic:chen-gong",
         "classic:ling-tong",
+        "classic:zhang-chun-hua",
     ];
 
     /// <summary>Registered generals kept out of the classic identity pools (fan-made roster).</summary>

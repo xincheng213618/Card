@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:jueqing",
+      "revision": 1,
+      "minimumRulesVersion": 193,
+      "cardPolicies": [
+        {
+          "id": "outgoing-damage-to-hp-loss",
+          "kind": "convertOutgoingDamageToHpLoss"
+        }
+      ],
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:shangshi",
+      "revision": 1,
+      "minimumRulesVersion": 193,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "shangshi-after-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "currentHandCount" },
+            "operator": "lessThan",
+            "right": { "kind": "currentLostHp" }
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "ownerLostHpMinusHandCount"
+            }
+          ]
+        },
+        {
+          "id": "shangshi-after-hp-lost",
+          "window": "afterHpLost",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "currentHandCount" },
+            "operator": "lessThan",
+            "right": { "kind": "currentLostHp" }
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "ownerLostHpMinusHandCount"
+            }
+          ]
+        },
+        {
+          "id": "shangshi-hand-reduce",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": ["hand"],
+          "movementOccurrence": "perBatch",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "currentHandCount" },
+            "operator": "lessThan",
+            "right": { "kind": "currentLostHp" }
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "ownerLostHpMinusHandCount"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}
