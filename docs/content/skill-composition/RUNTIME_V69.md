@@ -26,5 +26,6 @@
 ## 验证口径
 
 - 行为语义由既有共享检查 `OlClassicGodChecks` 覆盖（暴怒初始化与每点伤害增减、无前付费与授予无双、银狮甲对技能伤害封顶、神愤全体伤害后先弃装备再弃四手牌并翻面、出牌阶段限一次、检查点-重放等价），按 AGENTS.md「纯配置消费既有能力不重复加检查」口径本批不新增定向行为检查。
-- 共享门禁：`current classic catalogue modes and skill references`、`composition kernel descriptor contracts`、全量 Core 与 Release 构建。
+- 共享门禁：`current classic catalogue modes and skill references` **PASS**（注册表整体构造即覆盖本批四技能的解析与引用），`--filter="2010 Jia Xu"` 4/4、`--filter="God Shen Zhou Yu"` 4/4 保持全绿，被入池位移暴露的 `Xu Shu … Jujian` 与 `Zhen Ji … Qingguo` 两项加固后 **PASS**，构建 0 error。
+- 全量 Core：本批代码随并行会话的整树快照 `a002b13` 入库；对该提交的隔离复验为 **742 passed / 7 failed（749 total）**，7 项失败全在并行「共享运行时改动」面（张松、留礼多目标、借刀势力杀、张巴两杀响应、麒麟弓坐骑、曹仁忍戒、许褚武彦），不含本批与贾诩/神周瑜的任何检查。提交时点主树未达「绿灯整树」，如实记录为被并行快照带走而非自有绿灯。
 - 入池副作用：见批次记录 [2026-09-30-shen-lu-bu](../../benchmarks/2026-09-30-shen-lu-bu.md)——两处既有夹具的脆面被池位移暴露，已按「不放宽断言」原则加固（`XuShuChecks` 的举荐边界改为引擎自身可观测的 restore 探针；`WushengResponseScenario` 的非互动发牌路径放宽搜索边界并注明原因）。
