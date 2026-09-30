@@ -34,7 +34,11 @@ public sealed partial class GameEngine
             .Where(owner => owner.IsAlive)
             .SelectMany(owner =>
             {
-                var facts = CaptureProgramTriggerFacts(owner) with { EventTargetHp = target.Hp };
+                var facts = CaptureProgramTriggerFacts(owner) with
+                {
+                    EventTargetHp = target.Hp,
+                    DamageSourceIsOwner = owner.Seat == sourceSeat
+                };
                 return CollectProgramTriggerCandidates(owner, SkillProgramTriggerWindow.BeforeDamageApplied)
                     .Where(candidate => GetProgramTrigger(candidate).Subject switch
                     {

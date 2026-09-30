@@ -733,6 +733,8 @@ public sealed partial class GameEngine
                     GetHand(target).Count ==
                     _players.Where(peer => peer.IsAlive && peer.Seat != ownerSeat)
                         .Select(peer => GetHand(peer).Count).Min(),
+                SkillProgramTargetKind.LivingMaxHp => target.Hp ==
+                    _players.Where(peer => peer.IsAlive).Select(peer => peer.Hp).Max(),
                 SkillProgramTargetKind.OtherLivingAtDistanceOne =>
                     target.Seat != ownerSeat && GetCombatDistance(ownerSeat, target.Seat) == 1,
                 SkillProgramTargetKind.AnyLiving => true,

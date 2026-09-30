@@ -42,7 +42,10 @@ public sealed record GameCheckpoint(
     // 192: Ling Tong (xuanfeng) reusing the existing vocabulary; the only
     // engine change lets a discardPhaseEnded trigger declare turnOwnerScope own
     // (the phase owner itself), mirroring the turnEnding arm shape.
-    public const int CurrentRulesVersion = 192;
+    // 194: Ma Su (sanyao/ziman); the livingMaxHp activation target kind and the
+    // damageSourceIsOwner fact extended to the before-damage window (193 is
+    // reserved for the parallel Zhang Chunhua batch).
+    public const int CurrentRulesVersion = 194;
     // 187 was consumed by main-side Zhang He / Shen Zhao Yun work.
 
     public int RulesVersion { get; init; }

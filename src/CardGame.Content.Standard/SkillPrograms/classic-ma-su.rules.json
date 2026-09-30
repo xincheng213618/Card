@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:sanyao",
+      "revision": 1,
+      "minimumRulesVersion": 194,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "spread-rumor",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": ["hand", "equipment"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "livingMaxHp",
+          "usesPerTurn": 1,
+          "condition": { "kind": "ownTurn" },
+          "effects": [
+            { "op": "discardSelected", "target": "owner", "amount": 1 },
+            { "op": "damage", "target": "selectedTarget", "amount": 1 }
+          ]
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:ziman",
+      "revision": 1,
+      "minimumRulesVersion": 194,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "prevent-and-take",
+          "window": "beforeDamageApplied",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "condition": { "kind": "damageSourceIsOwner" },
+          "effects": [
+            { "op": "preventCurrentDamage", "target": "owner" },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "eventTarget" },
+              "zones": ["equipment", "judgment"],
+              "count": 1,
+              "destination": "ownerHand",
+              "skipIfNoCards": true
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

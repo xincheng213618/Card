@@ -116,7 +116,9 @@ public sealed partial class GameEngine
                         (!activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.RequestFactionCard) ||
                          CanUseProvidedSlashTarget(owner, target)) &&
                         (target.Seat != owner.Seat || !activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.GiveSelected)) &&
-                        (activation.TargetKind is SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.AnyWounded ||
+                        (activation.TargetKind is SkillProgramTargetKind.AnyLiving or
+                                SkillProgramTargetKind.AnyWounded or
+                                SkillProgramTargetKind.LivingMaxHp ||
                          target.Seat != owner.Seat) &&
                         (activation.TargetKind switch
                         {
@@ -150,6 +152,8 @@ public sealed partial class GameEngine
                             SkillProgramTargetKind.AnyLivingHandBelowMaxHp => GetHand(target).Count < target.MaxHp,
                             SkillProgramTargetKind.OtherLivingPair => target.Seat != owner.Seat &&
                                 _players.Count(peer => peer.IsAlive && peer.Seat != owner.Seat) >= 2,
+                            SkillProgramTargetKind.LivingMaxHp => target.Hp ==
+                                _players.Where(peer => peer.IsAlive).Select(peer => peer.Hp).Max(),
                             SkillProgramTargetKind.EventTarget => false,
                             _ => false
                         }) &&

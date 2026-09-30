@@ -121,7 +121,8 @@ public enum SkillProgramTargetKind
     EventSource = 25,
     OtherLivingWithQinggangSword = 26,
     LivingPairDistinct = 27,
-    OtherLivingRangeOrderedPair = 28
+    OtherLivingRangeOrderedPair = 28,
+    LivingMaxHp = 29
 }
 public enum SkillProgramCardCategory { Basic, Trick, Equipment }
 public enum SkillProgramTurnOwnerScope { Own = 0, OtherLiving = 1 }
@@ -2345,11 +2346,17 @@ public sealed class SkillProgramCatalog
             window != SkillProgramTriggerWindow.AfterDamageApplied)
             Fail(path + ".condition", "damageTargetIsOther requires an afterDamageApplied trigger");
         if (EnumerateTriggerConditions(condition).Any(item =>
-                item.Kind is SkillProgramTriggerConditionKind.DamageSourceIsOwner or
-                    SkillProgramTriggerConditionKind.DamageSourceFactionIs) &&
+                item.Kind == SkillProgramTriggerConditionKind.DamageSourceFactionIs) &&
             window is not (SkillProgramTriggerWindow.AfterDamageApplied or
                 SkillProgramTriggerWindow.DamageAppliedBeforeDying))
-            Fail(path + ".condition", "damage-source facts require a damage-applied trigger");
+            Fail(path + ".condition", "damage-source faction facts require a damage-applied trigger");
+        if (EnumerateTriggerConditions(condition).Any(item =>
+                item.Kind == SkillProgramTriggerConditionKind.DamageSourceIsOwner) &&
+            window is not (SkillProgramTriggerWindow.AfterDamageApplied or
+                SkillProgramTriggerWindow.DamageAppliedBeforeDying or
+                SkillProgramTriggerWindow.BeforeDamageApplied))
+            Fail(path + ".condition",
+                "the damage-source-is-owner fact requires a damage-applied or before-damage trigger");
         if (EnumerateTriggerConditions(condition).Any(item =>
                 item.Kind == SkillProgramTriggerConditionKind.CardUseCausedDamage) &&
             window != SkillProgramTriggerWindow.CardUseCompleted)
@@ -2447,7 +2454,8 @@ public sealed class SkillProgramCatalog
             Fail(path + ".effects", "damageAppliedBeforeDying supports only owner attributed-marker records");
         if (effects.Any(effect => ContainsCardUseColorCondition(effect.Condition)) && !isCardActionWindow)
             Fail(path + ".effects", "cardUseIsRed requires a card-action trigger");
-        if (window != SkillProgramTriggerWindow.AfterDamageApplied &&
+        if (window is not (SkillProgramTriggerWindow.AfterDamageApplied or
+                SkillProgramTriggerWindow.BeforeDamageApplied) &&
             window is not (SkillProgramTriggerWindow.JudgmentReplacing or SkillProgramTriggerWindow.JudgmentFinalized) &&
             ownerRelation is not (SkillProgramCardActionOwnerRelation.Target or
                 SkillProgramCardActionOwnerRelation.ConversionSource) &&

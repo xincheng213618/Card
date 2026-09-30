@@ -537,6 +537,16 @@ internal sealed class ProgramAiEstimateContext
             _estimatedHandCount += 1d;
             _targetDraw -= 1d;
         }
+        else if (effect.CardOwnerRef?.Kind == ProgramParticipantRef.EventTarget &&
+                 effect.Destination == SkillProgramCardDestination.OwnerHand)
+        {
+            // A before-damage event transfer (Ziman) takes one visible board card
+            // from the damage target; the public value matches the selected-target
+            // take, with the event target standing in for the selected one.
+            _ownerDraw += 1d;
+            _estimatedHandCount += 1d;
+            _targetDraw -= 1d;
+        }
         else if (effect.CardOwnerRef?.Kind == ProgramParticipantRef.Owner &&
                  effect.Destination == SkillProgramCardDestination.SelectedTargetEquipment)
         {

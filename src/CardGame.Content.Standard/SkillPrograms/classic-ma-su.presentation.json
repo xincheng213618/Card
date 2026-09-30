@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:sanyao": {
+      "name": "散谣",
+      "description": "出牌阶段限一次，你可以弃置一张牌并指定一名体力最多（或之一）的角色，你对其造成1点伤害。"
+    },
+    "classic:ziman": {
+      "name": "制蛮",
+      "description": "当你对一名其他角色造成伤害时，你可以防止此伤害，然后获得其装备区或判定区的一张牌。"
+    }
+  }
+}
