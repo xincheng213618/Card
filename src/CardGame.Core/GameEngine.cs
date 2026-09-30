@@ -11908,8 +11908,10 @@ public sealed partial class GameEngine
     /// riders; it still pushes the victim into a source-less dying when it
     /// empties their HP.
     /// </summary>
-    private bool TryConvertOutgoingDamageToHpLoss(AttackResolution attack, int amount, DamageNature nature)
+    private bool TryConvertOutgoingDamageToHpLoss(
+        AttackResolution attack, int amount, DamageNature nature, out bool awaitingDying)
     {
+        awaitingDying = false;
         if (amount <= 0 || !attack.DamageAmountFinalized) return false;
         var source = _players[attack.SourceSeat];
         var target = _players[attack.TargetSeat];
@@ -11919,7 +11921,6 @@ public sealed partial class GameEngine
         if (policy is null || skillInstance is null || !target.IsAlive) return false;
 
         var damageFrameId = BeginDamage(attack.ResolutionId, source.Seat, target.Seat, amount, nature);
-        var awaitingDying = false;
         try
         {
             var before = target.Hp;
@@ -11945,7 +11946,7 @@ public sealed partial class GameEngine
                 PopResolutionFrame(damageFrameId, ResolutionFrameKind.Damage);
             }
         }
-        return awaitingDying;
+        return true;
     }
 
     private bool ApplyAttackDamage(AttackResolution attack)
@@ -11965,10 +11966,6 @@ public sealed partial class GameEngine
         {
             return false;
         }
-        if (TryPreventWuyanDamage(attack, amount))
-        {
-            return false;
-        }
         if (TryBeginBeforeDamageProgramWindowForAttack(attack, amount, nature))
         {
             return true;
@@ -11981,9 +11978,9 @@ public sealed partial class GameEngine
         {
             return true;
         }
-        if (TryConvertOutgoingDamageToHpLoss(attack, amount, nature))
+        if (TryConvertOutgoingDamageToHpLoss(attack, amount, nature, out var lossAwaitingDying))
         {
-            return true;
+            return lossAwaitingDying;
         }
         if (!attack.IsChainPropagation &&
             (nature is DamageNature.Fire or DamageNature.Thunder) &&
