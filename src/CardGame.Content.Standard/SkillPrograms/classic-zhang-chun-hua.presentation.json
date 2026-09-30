@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:jueqing": {
+      "name": "绝情",
+      "description": "锁定技，你即将造成的伤害视为失去体力。"
+    },
+    "classic:shangshi": {
+      "name": "伤逝",
+      "description": "每当你的手牌数小于你已损失的体力值时，你可以将手牌数补至等同于你已损失的体力值。"
+    }
+  }
+}

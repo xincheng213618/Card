@@ -11900,6 +11900,54 @@ public sealed partial class GameEngine
         }
     }
 
+    /// <summary>
+    /// Converts one finalized outgoing damage into target HP loss for policy
+    /// holders (jueqing family). The conversion happens after weapon and
+    /// before-damage programs have spoken and before chain propagation, so the
+    /// loss propagates no chains, opens no damage windows and grants no weapon
+    /// riders; it still pushes the victim into a source-less dying when it
+    /// empties their HP.
+    /// </summary>
+    private bool TryConvertOutgoingDamageToHpLoss(AttackResolution attack, int amount, DamageNature nature)
+    {
+        if (amount <= 0 || !attack.DamageAmountFinalized) return false;
+        var source = _players[attack.SourceSeat];
+        var target = _players[attack.TargetSeat];
+        var (skillInstance, policy) = CardPolicies(source,
+            SkillProgramCardPolicyKind.ConvertOutgoingDamageToHpLoss, attack.EffectiveCardKind)
+            .FirstOrDefault();
+        if (policy is null || skillInstance is null || !target.IsAlive) return false;
+
+        var damageFrameId = BeginDamage(attack.ResolutionId, source.Seat, target.Seat, amount, nature);
+        var awaitingDying = false;
+        try
+        {
+            var before = target.Hp;
+            target.Hp = Math.Max(0, target.Hp - amount);
+            attack.MarkDamageConvertedToHpLoss();
+            var lost = before - target.Hp;
+            RecordHpChange(damageFrameId, source.Seat, target.Seat, before, target.Hp, HpChangeKind.Loss);
+            AddLog("HpLost",
+                $"{target.Name} 因 {source.Name} 的【{skillInstance.Definition.Name}】受到的伤害被视为失去 {lost} 点体力，剩余 {target.Hp} 点体力。",
+                source.Seat, target.Seat);
+            QueueGameEvent(new ProgramSkillHpLostEvent(
+                damageFrameId, skillInstance.SkillId, target.Seat, lost, target.Hp));
+            if (target.Hp <= 0)
+            {
+                BeginHpLossDying(damageFrameId, attack, target);
+                awaitingDying = true;
+            }
+        }
+        finally
+        {
+            if (!awaitingDying)
+            {
+                PopResolutionFrame(damageFrameId, ResolutionFrameKind.Damage);
+            }
+        }
+        return awaitingDying;
+    }
+
     private bool ApplyAttackDamage(AttackResolution attack)
     {
         var source = _players[attack.SourceSeat];
@@ -11917,6 +11965,10 @@ public sealed partial class GameEngine
         {
             return false;
         }
+        if (TryPreventWuyanDamage(attack, amount))
+        {
+            return false;
+        }
         if (TryBeginBeforeDamageProgramWindowForAttack(attack, amount, nature))
         {
             return true;
@@ -11926,6 +11978,10 @@ public sealed partial class GameEngine
             return true;
         }
         if (TryBeginQilinBowChoice(attack))
+        {
+            return true;
+        }
+        if (TryConvertOutgoingDamageToHpLoss(attack, amount, nature))
         {
             return true;
         }
@@ -12291,6 +12347,45 @@ public sealed partial class GameEngine
             parentFrameId ?? damageFrameId,
             DyingContinuation.Damage);
         QueueGameEvent(new PlayerDyingEvent(frameId, victim.Seat, killer.Seat));
+        _status = EngineStatus.Running;
+        if (TryBeginMandatorySelfDyingProgram(_pendingDying!))
+        {
+            return;
+        }
+        ExposeHumanDyingPrompt();
+    }
+
+    /// <summary>
+    /// Dying from HP loss (jueqing family) keeps the damage-frame continuation
+    /// so the attack still completes, but records no killer seat: a loss death
+    /// carries no kill attribution and no reward or penalty.
+    /// </summary>
+    private void BeginHpLossDying(long damageFrameId, AttackResolution attack, CharacterState victim)
+    {
+        if (_pendingDying is not null)
+        {
+            throw new InvalidOperationException("The engine cannot resolve two dying players at once.");
+        }
+
+        var responderSeats = Array.AsReadOnly(BuildDyingResponderSeats(victim.Seat).ToArray());
+        var frameId = ++_resolutionSequence;
+        _resolutionStack.Add(new DyingFrame(
+            frameId,
+            damageFrameId,
+            victim.Seat,
+            KillerSeat: null,
+            responderSeats,
+            ResponderIndex: 0));
+        _pendingDying = new DyingResolution(
+            frameId,
+            damageFrameId,
+            attack,
+            victim.Seat,
+            killerSeat: null,
+            responderSeats,
+            damageFrameId,
+            DyingContinuation.Damage);
+        QueueGameEvent(new PlayerDyingEvent(frameId, victim.Seat, null));
         _status = EngineStatus.Running;
         if (TryBeginMandatorySelfDyingProgram(_pendingDying!))
         {
@@ -12701,19 +12796,22 @@ public sealed partial class GameEngine
         var damageFrameId = dying.DamageFrameId ??
             throw new InvalidOperationException("A damage dying continuation has no damage frame.");
         attack.MarkDyingResolvedForDamage(damageFrameId);
-        if (_winner == Winner.None &&
-            TryBeginDamageTriggerWindow(attack, damageFrameId,
-                SkillProgramTriggerWindow.AfterDamageApplied))
+        if (!attack.DamageConvertedToHpLoss)
         {
-            return;
+            if (_winner == Winner.None &&
+                TryBeginDamageTriggerWindow(attack, damageFrameId,
+                    SkillProgramTriggerWindow.AfterDamageApplied))
+            {
+                return;
+            }
+            QueueGameEvent(new AfterDamageEvent(
+                damageFrameId,
+                attack.SourceSeat,
+                dying.VictimSeat,
+                attack.DamageAmount,
+                Math.Max(0, victim.Hp),
+                GetDamageNature(attack)));
         }
-        QueueGameEvent(new AfterDamageEvent(
-            damageFrameId,
-            attack.SourceSeat,
-            dying.VictimSeat,
-            attack.DamageAmount,
-            Math.Max(0, victim.Hp),
-            GetDamageNature(attack)));
         PopResolutionFrame(damageFrameId, ResolutionFrameKind.Damage);
         CompleteDamageAttack(attack);
     }
@@ -18784,6 +18882,7 @@ public sealed partial class GameEngine
         public bool IceSwordAttempted { get; private set; }
         public bool QilinBowAttempted { get; private set; }
         public bool DamageWasApplied { get; private set; }
+        public bool DamageConvertedToHpLoss { get; private set; }
         public int SourceToTargetDistanceAtDamage { get; private set; }
         private long? ResolvedDyingDamageFrameId { get; set; }
         public bool CardUseCausedDamage { get; private set; }
@@ -18823,6 +18922,8 @@ public sealed partial class GameEngine
         public void MarkBeforeDamageProgramsResolved() => BeforeDamageProgramsResolved = true;
 
         public void MarkDamageApplied() => DamageWasApplied = true;
+
+        public void MarkDamageConvertedToHpLoss() => DamageConvertedToHpLoss = true;
 
         public void CaptureDamageDistance(int distance) => SourceToTargetDistanceAtDamage = distance;
 

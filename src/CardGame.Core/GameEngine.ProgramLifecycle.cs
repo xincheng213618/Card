@@ -564,6 +564,8 @@ public sealed partial class GameEngine
                     : GetAttackRange(target.Seat),
             SkillProgramNumberExpression.HandLimitMinusHandCount =>
                 Math.Max(0, GetHandLimit(target) - GetHand(target).Count),
+            SkillProgramNumberExpression.OwnerLostHpMinusHandCount =>
+                Math.Max(0, GetProgramOwnerLostHp(frame) - GetHand(target).Count),
             _ => throw new InvalidOperationException(
                 $"Unsupported draw number expression '{numberExpression}'.")
         };

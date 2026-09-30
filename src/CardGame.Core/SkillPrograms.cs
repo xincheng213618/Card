@@ -81,7 +81,8 @@ public enum SkillProgramTriggerValueKind
     OwnerAttributedMarkerCount = 23,
     CardsUsedOrRespondedThisTurn = 24,
     LivingPlayersMinHp = 25,
-    TurnOwnerDiscardPhaseHandDiscardCount = 26
+    TurnOwnerDiscardPhaseHandDiscardCount = 26,
+    CurrentLostHp = 27
 }
 public enum SkillProgramComparisonOperator
 {
@@ -291,7 +292,8 @@ public enum SkillProgramNumberExpression
     HandHalfFloor = 12,
     SelectedPairHandDifference = 13,
     LivingPlayersMinHp = 14,
-    HandLimitMinusHandCount = 15
+    HandLimitMinusHandCount = 15,
+    OwnerLostHpMinusHandCount = 16
 }
 public enum SkillProgramCardSetVisibility { Private, Public }
 public enum SkillProgramCardDestination
@@ -608,6 +610,8 @@ public sealed record SkillProgramTriggerValue(SkillProgramTriggerValueKind Kind,
             facts.TurnOwnerDiscardPhaseHandDiscardCount,
         SkillProgramTriggerValueKind.CurrentMaxHp => facts.CurrentMaxHp,
         SkillProgramTriggerValueKind.CurrentHandCount => facts.CurrentHandCount,
+        SkillProgramTriggerValueKind.CurrentLostHp =>
+            Math.Max(0, facts.CurrentMaxHp - facts.CurrentHp),
         SkillProgramTriggerValueKind.CurrentOwnedZoneCount => facts.OwnedZoneCounts.Get(Zone!.Value),
         SkillProgramTriggerValueKind.DestinationZoneCountBefore => facts.DestinationZoneCountBefore,
         SkillProgramTriggerValueKind.DestinationZoneCountAfter => facts.DestinationZoneCountAfter,
@@ -1540,7 +1544,8 @@ public sealed class SkillProgramCatalog
         }
         else if (cardKinds.Count == 0 && kind is not (
                      SkillProgramCardPolicyKind.FactionResponseRequest or
-                     SkillProgramCardPolicyKind.ProhibitNearbyTargetResponse))
+                     SkillProgramCardPolicyKind.ProhibitNearbyTargetResponse or
+                     SkillProgramCardPolicyKind.ConvertOutgoingDamageToHpLoss))
             Fail(path + ".cardKinds", "this policy requires effective card kinds");
         if (kind == SkillProgramCardPolicyKind.VirtualEquipment &&
             cardKinds.Any(card => !EquipmentCatalog.IsEquipment(card)))

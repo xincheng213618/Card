@@ -376,7 +376,8 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
         if (expression is not null && (r.Has("amount") || expression is not
                 (SkillProgramNumberExpression.LivingFactionCount or SkillProgramNumberExpression.TargetMaxHpMinusHandCount or
                  SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.BoundCardCount or
-                 SkillProgramNumberExpression.CurrentAttackRange or SkillProgramNumberExpression.HandLimitMinusHandCount)))
+                 SkillProgramNumberExpression.CurrentAttackRange or SkillProgramNumberExpression.HandLimitMinusHandCount or
+                 SkillProgramNumberExpression.OwnerLostHpMinusHandCount)))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: draw accepts a constant or a supported public-state expression.");
         var source = r.OptionalIdentifier("sourceBind");
         if ((expression == SkillProgramNumberExpression.BoundCardCount) != (source is not null))
