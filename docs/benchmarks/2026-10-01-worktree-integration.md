@@ -25,6 +25,8 @@
 - 马谡、张春华：移除后被外部任务重新创建，保留其重新创建的目录和分支。`main-verify` 正被外部验证进程使用，也予以保留。
 - `batch/dong-zhuo`、`batch/jiang-wei-final`、`batch/zhang-zhao-zhang-hong`：存在缺失的提交或父对象，无法证明历史完整性，没有强制删除。
 
+收尾时外部任务又在主目录写入 `CardUseModules.cs`、`GameEngine.CardUseModules.cs` 和 `ProgramCompositionAi.cs`，内容为目标限制主体的后续调整。这三处在制改动原状保留，未混入本轮快照；下面的验证结果对应 `a002b13`／`132a72c` 的产品树，不覆盖这些后续调整。
+
 ## 验证边界
 
 - 在隔离输出目录构建 Solution 成功，0 错误、2 条已有空引用警告。
