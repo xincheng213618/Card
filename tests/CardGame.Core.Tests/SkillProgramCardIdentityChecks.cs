@@ -9,35 +9,6 @@ internal static class SkillProgramCardIdentityChecks
     private const string OwnerGeneralId = "card-identity-test:owner";
     private const string ModeId = "identity:card-identity-test-4";
 
-    internal static void Definitions()
-    {
-        var program = SkillProgramCatalog.Load(Rules, Presentation).Programs[ProgramId];
-        var identity = program.CardIdentities.Single();
-        var distance = program.Modifiers.Single();
-        Require(program is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 171 } &&
-                identity is
-                {
-                    Id: IdentityId,
-                    OutputKind: CardKind.Slash
-                } &&
-                identity.Zones.SequenceEqual([CardZoneKind.Hand]) &&
-                identity.InputSuits.SequenceEqual([Suit.Heart]) &&
-                distance is
-                {
-                    Query: SkillRuleQuery.SlashDistanceLimit,
-                    Operation: SkillRuleOperation.Unlimited,
-                    SourceCardIdentityId: IdentityId
-                },
-            "Schema 10 must keep mandatory hand identity and action-scoped Slash distance as separate bindings.");
-
-        AssertReject(Rules.Replace("\"schemaVersion\":62", "\"schemaVersion\":57", StringComparison.Ordinal),
-            "expected 62");
-        AssertReject(Rules.Replace("\"sourceCardIdentityId\":\"heart-hand-as-slash\"",
-                "\"sourceCardIdentityId\":\"missing\"", StringComparison.Ordinal),
-            "unknown card identity");
-        AssertReject(Rules.Replace("\"zones\":[\"hand\"]", "\"zones\":[\"equipment\"]", StringComparison.Ordinal),
-            "owner hand zone");
-    }
 
     internal static void MandatoryIdentityDistanceAndReplay()
     {

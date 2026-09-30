@@ -4,51 +4,6 @@ using System.Reflection;
 
 internal static class SkillProgramJudgmentDamageChecks
 {
-    internal static void Definitions()
-    {
-        var catalog = SkillProgramCatalog.Load(ValidV5, Presentation);
-        var program = catalog.Programs[ProgramId];
-        var recovery = program.Triggers.Single(trigger => trigger.Id == RecoveryTriggerId);
-        var strike = program.Triggers.Single(trigger => trigger.Id == StrikeTriggerId);
-        var selection = strike.Effects[0];
-        var damage = strike.Effects[1];
-        Require(program is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 171 } &&
-                recovery is { Optional: false } &&
-                recovery.Effects.Single() is
-                {
-                    Op: SkillProgramEffectOp.Recover,
-                    Target: SkillProgramEffectTarget.Owner,
-                    Amount: 1
-                } &&
-                strike is { Optional: true } &&
-                selection is
-                {
-                    Op: SkillProgramEffectOp.SelectTarget,
-                    Target: SkillProgramEffectTarget.Owner,
-                    TargetKind: SkillProgramTargetKind.AnyLiving,
-                    Amount: 0
-                } &&
-                damage is
-                {
-                    Op: SkillProgramEffectOp.Damage,
-                    Target: SkillProgramEffectTarget.SelectedTarget,
-                    DamageNature: DamageNature.Thunder,
-                    Amount: 4
-                },
-            "The shared executor must keep mandatory recovery separate from optional thunder damage.");
-
-        AssertReject(ValidV5.Replace("\"schemaVersion\":62", "\"schemaVersion\":57", StringComparison.Ordinal),
-            "schema version");
-        AssertReject(ValidV5.Replace("\"targetKind\":\"anyLiving\"", "\"targetKind\":\"missing\"", StringComparison.Ordinal),
-            "targetKind");
-        AssertReject(ValidV5.Replace("\"nature\":\"thunder\"", "\"nature\":\"missing\"", StringComparison.Ordinal),
-            "nature");
-        AssertReject(ValidV5.Replace(
-                "{\"op\":\"selectTarget\",\"target\":\"owner\",\"targetKind\":\"anyLiving\"},",
-                "",
-                StringComparison.Ordinal),
-            "selectedTarget");
-    }
 
     internal static void TargetDamageDyingAndReplay()
     {

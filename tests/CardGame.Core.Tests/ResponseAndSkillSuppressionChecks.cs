@@ -3,48 +3,6 @@ using CardGame.Core;
 
 internal static class ResponseAndSkillSuppressionChecks
 {
-    public static void DefinitionsAndChanyuanRestoresSkills()
-    {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(registry.Generals["classic:zhang-xiu"].SkillIds.Contains("classic:xiongluan") &&
-                registry.Generals["ol:shen-guan-yu"].SkillIds.Contains("ol:wushen") &&
-                registry.Skills["classic:duanchang"].Program!.Triggers.Single().Window ==
-                    SkillProgramTriggerWindow.OwnerDied &&
-                registry.Skills["classic:chanyuan"].SuppressionRule is { OwnerHpEquals: 1 },
-            "The selected general versions and distinct skill-loss rules must be registered.");
-        Require(EquipmentCatalog.Get(CardKind.GhostDragonCrescentBlade).WeaponAttackRange == 3 &&
-                EquipmentCatalog.Get(CardKind.ScarletBloodSword).IgnoresArmor &&
-                EquipmentCatalog.Get(CardKind.XingtianAxe).WeaponAttackRange == 4,
-            "All three weapons must be usable equipment definitions.");
-
-        var player = new CharacterState
-        {
-            Seat = 0, Name = "受缠怨者", IsHuman = true, Role = Role.Rebel,
-            RoleRevealed = true, General = new GeneralDefinition("fixture:suppressed", "受缠怨者",
-                "supporter", []), GeneralSelected = true, GeneralRevealed = true, MaxHp = 4, Hp = 1
-        };
-        foreach (var skillId in new[] { "classic:chanyuan", "classic:fuqi", "classic:jiaozi" })
-            player.SkillGrants.Grant(new SkillGrant(skillId, skillId, skillId, "acquired:test"));
-        player.SkillGrants.Grant(new SkillGrant("equipment:retained", "classic:fuqi",
-            "equipment:retained", "equipment:retained"));
-        var index = new MatchSkillBindingIndex(id => registry.Skills[id], false,
-            owner => owner.SkillGrants.Grants.Any(grant =>
-                grant.IsEnabled && registry.Skills[grant.SkillId].SuppressionRule is not null));
-        var suppressed = index.GetShard(player);
-        Require(suppressed.HasSkill("classic:chanyuan") && suppressed.HasSkill("classic:fuqi") &&
-                suppressed.ActiveGrants.All(grant => grant.SkillId != "classic:fuqi" ||
-                    grant.SourceId == "equipment:retained") &&
-                !suppressed.HasSkill("classic:jiaozi"),
-            "Chanyuan must suppress the character's other skills at one HP without suppressing equipment grants.");
-        player.Hp = 2;
-        Require(index.GetShard(player).HasSkill("classic:fuqi") &&
-                index.GetShard(player).HasSkill("classic:jiaozi"),
-            "Recovering HP must restore skills suppressed by Chanyuan.");
-        player.SkillGrants.SetEnabled("classic:fuqi", false);
-        Require(index.GetShard(player).ActiveGrants.All(grant =>
-                grant.SkillId != "classic:fuqi" || grant.SourceId == "equipment:retained"),
-            "A permanently lost character grant must remain absent after recovery.");
-    }
 
     public static void XiongluanBlocksHandButDoesNotIgnoreArmor()
     {

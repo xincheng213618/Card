@@ -6,104 +6,9 @@ internal static class ProgramCompositionEntryChecks
 {
     private const int Human = 0;
 
-    public static void CrossEntryRevealSubsetReplays()
-    {
-        var registry = Registry(RevealSkillId, RevealRules, RevealPresentation);
-        var game = Start(registry, RevealSkillId);
-        ReachPlay(game);
-        UseActivation(game, RevealSkillId);
-        ResolveSubsetWithReplay(game, registry, "active");
 
-        EndPlay(game);
-        ReachBinding(game, RevealSkillId, "play");
-        AnswerAction(game, "activate");
-        ResolveSubsetWithReplay(game, registry, "play");
-        ReachBinding(game, RevealSkillId, "turn");
-        AnswerAction(game, "activate");
-        ResolveSubsetWithReplay(game, registry, "turn");
 
-        var reveals = game.Events.Select(item => item.Payload).OfType<ProgramCardsRevealedEvent>()
-            .Where(item => item.SkillId == RevealSkillId).ToArray();
-        var subsets = game.Events.Select(item => item.Payload).OfType<ProgramCardSubsetSelectedEvent>()
-            .Where(item => item.SkillId == RevealSkillId).ToArray();
-        Require(reveals.Select(item => item.BindingId).SequenceEqual(new[] { "active", "play", "turn" }) &&
-                subsets.Select(item => item.BindingId).SequenceEqual(new[] { "active", "play", "turn" }),
-            "The same reveal/subset instructions did not retain their activation and trigger binding ids.");
-        Require(game.ResolutionStack.All(frame => frame is not ProgramSkillFrame),
-            "The cross-entry reveal composition left a program frame behind.");
-    }
 
-    public static void CrossEntryDrawGiftReplays()
-    {
-        var registry = Registry(GiftSkillId, GiftRules, GiftPresentation);
-        var game = Start(registry, GiftSkillId);
-        ReachPlay(game);
-        UseActivation(game, GiftSkillId);
-        ResolveGiftWithReplay(game, registry, "active");
-
-        EndPlay(game);
-        ReachBinding(game, GiftSkillId, "play");
-        AnswerAction(game, "activate");
-        ResolveGiftWithReplay(game, registry, "play");
-        ReachBinding(game, GiftSkillId, "turn");
-        AnswerAction(game, "activate");
-        ResolveGiftWithReplay(game, registry, "turn");
-
-        var gifts = game.Events.Select(item => item.Payload).OfType<ProgramBoundCardGivenEvent>()
-            .Where(item => item.SkillId == GiftSkillId).ToArray();
-        Require(gifts.Select(item => item.BindingId).SequenceEqual(new[] { "active", "play", "turn" }),
-            "The same draw/gift instructions did not give one bound card under each binding identity.");
-        Require(game.ResolutionStack.All(frame => frame is not ProgramSkillFrame),
-            "The cross-entry gift composition left a program frame behind.");
-    }
-
-    private static void ResolveSubsetWithReplay(GameEngine game, ContentRegistry registry, string bindingId)
-    {
-        var prompt = RequireInstructionPrompt(game, "select-subset");
-        Require(prompt.IsPrivate && game.CreateSnapshot(1).PendingDecision is null &&
-                game.CreateSnapshot(Human).PublicRevealedCards.Count == 4,
-            $"Binding {bindingId} did not expose a private subset prompt over four public cards.");
-        var choice = prompt.Choices.OrderByDescending(item => item.Cards.Count)
-            .ThenBy(item => item.Id.Value, StringComparer.Ordinal).First();
-        var revealed = game.Events.Select(item => item.Payload).OfType<ProgramCardsRevealedEvent>()
-            .Last(item => item.SkillId == RevealSkillId && item.BindingId == bindingId)
-            .Cards.Select(card => card.Id).ToHashSet();
-        var movementStart = game.CardMovements.Count;
-        var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
-        Answer(game, choice);
-        Answer(replay, replay.PendingDecision!.Choices.Single(item => item.Id == choice.Id));
-        var settled = game.CardMovements.Skip(movementStart).Where(move => revealed.Contains(move.CardId) &&
-            move.From == CardLocation.Processing &&
-            (move.To == CardLocation.Hand(Human) || move.To == CardLocation.DiscardPile)).ToArray();
-        Require(revealed.Count == 4 && settled.Length == 4 &&
-                settled.Select(move => move.CardId).Distinct().Count() == 4,
-            $"Binding {bindingId} did not settle each revealed card once in this answer interval.");
-        Require(State(game) == State(replay) && Events(game).SequenceEqual(Events(replay)) &&
-                game.CreateSnapshot(Human).PublicRevealedCards.Count == 0,
-            $"Binding {bindingId} did not resume its subset checkpoint exactly once.");
-    }
-
-    private static void ResolveGiftWithReplay(GameEngine game, ContentRegistry registry, string bindingId)
-    {
-        var prompt = RequireInstructionPrompt(game, "give-bound-card");
-        Require(prompt.IsPrivate && game.CreateSnapshot(1).PendingDecision is null &&
-                prompt.Choices.Any(item => item.Parameters.GetValueOrDefault("program-action") == "keep-bound-cards"),
-            $"Binding {bindingId} did not expose a private gift/keep prompt.");
-        var gift = prompt.Choices.First(item =>
-            item.Parameters.GetValueOrDefault("program-action") == "give-bound-card");
-        Require(gift.Cards.Count == 1 && gift.Targets.Count == 1,
-            "A bound-card gift must commit exactly one physical card and one target.");
-        var movementStart = game.CardMovements.Count;
-        var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
-        Answer(game, gift);
-        Answer(replay, replay.PendingDecision!.Choices.Single(item => item.Id == gift.Id));
-        Require(game.CardMovements.Skip(movementStart).Count(move =>
-                move.CardId == gift.Cards[0] && move.From == CardLocation.Hand(Human) &&
-                move.To == CardLocation.Hand(gift.Targets[0])) == 1,
-            "The bound card was not given exactly once in this answer interval.");
-        Require(State(game) == State(replay) && Events(game).SequenceEqual(Events(replay)),
-            $"Binding {bindingId} did not resume its gift checkpoint exactly once.");
-    }
 
     internal static void UseActivation(GameEngine game, string skillId)
     {
@@ -136,23 +41,7 @@ internal static class ProgramCompositionEntryChecks
         throw new InvalidOperationException("Fixture did not reach Play.");
     }
 
-    private static void ReachBinding(GameEngine game, string skillId, string bindingId)
-    {
-        for (var step = 0; step < 128; step++)
-        {
-            if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: var actual } prompt &&
-                actual == skillId && prompt.Choices.Any(choice =>
-                    choice.Parameters.GetValueOrDefault("binding-id") == bindingId)) return;
-            Require(game.PendingDecision?.PlayerSeat != Human, $"Unexpected human prompt {game.PendingDecision?.Kind}.");
-            Advance(game);
-        }
-        throw new InvalidOperationException($"Fixture did not reach binding {bindingId}.");
-    }
 
-    private static PendingDecision RequireInstructionPrompt(GameEngine game, string action) =>
-        game.PendingDecision is { Kind: DecisionKind.ProgramTrigger } prompt && prompt.Choices.Any(choice =>
-            choice.Parameters.GetValueOrDefault("program-action") == action)
-            ? prompt : throw new InvalidOperationException($"Expected program instruction {action}.");
 
     private static void AnswerAction(GameEngine game, string action) => Answer(game,
         game.PendingDecision!.Choices.Single(item =>

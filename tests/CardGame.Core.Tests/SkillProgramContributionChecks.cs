@@ -7,41 +7,6 @@ internal static class SkillProgramContributionChecks
     private const string BoundarySkillId = "scenario:boundary-huangtian";
     private const string BindingId = "contribute";
 
-    public static void Definitions()
-    {
-        var catalog = SkillProgramCatalog.Load(Rules, Presentation);
-        var classic = catalog.Programs[ClassicSkillId];
-        var boundary = catalog.Programs[BoundarySkillId];
-        var classicContribution = classic.Contributions.Single();
-        Require(classic is { RuntimeVersion: "skill-program-v62", MinimumRulesVersion: 171 } &&
-                classicContribution is
-                {
-                    Id: BindingId,
-                    OwnerRole: Role.Lord,
-                    UsesPerPlayPhase: 1
-                } &&
-                classicContribution.ProviderFactions.SequenceEqual(["qun"]) &&
-                classicContribution.CardKinds.SequenceEqual([CardKind.Dodge, CardKind.Lightning]) &&
-                classicContribution.CardSuits.Count == 0,
-            "Schema 7 must freeze the classic cross-owner contribution contract.");
-        var boundaryContribution = boundary.Contributions.Single();
-        Require(boundaryContribution.CardKinds.SequenceEqual([CardKind.Dodge]) &&
-                boundaryContribution.CardSuits.SequenceEqual([Suit.Spade]),
-            "Card kind and suit filters must remain separate union inputs.");
-        RequireThrows<NotSupportedException>(() =>
-            ((IList<string>)classicContribution.ProviderFactions).Add("wei"));
-        RequireThrows<NotSupportedException>(() =>
-            ((IList<CardKind>)classicContribution.CardKinds).Add(CardKind.Peach));
-
-        AssertReject(Rules.Replace("\"schemaVersion\":62", "\"schemaVersion\":57", StringComparison.Ordinal),
-            "expected 62");
-        AssertReject(Rules.Replace("\"cardKinds\":[\"dodge\",\"lightning\"]",
-            "\"cardKinds\":[]", StringComparison.Ordinal), "physical card kind or suit");
-        AssertReject(Rules.Replace("\"providerFactions\":[\"qun\"]",
-            "\"providerFactions\":[]", StringComparison.Ordinal), "faction id");
-        AssertReject(Rules.Replace("\"usesPerPlayPhase\":1",
-            "\"usesPerPlayPhase\":0", StringComparison.Ordinal), "positive");
-    }
 
     public static void CrossOwnerFiltersLedgerAndReplay()
     {

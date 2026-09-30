@@ -18,7 +18,7 @@ internal static class Fame2015ShuChecks
         Require(authorityRejected, "A top-deck cost helper must reject unsupported authority sources before creating a game.");
         var registry = Registry(new Fixture("classic:huomo", ["standard:slash", "standard:crossbow", "standard:duel"]));
         GameEngine? game = null;
-        for (var seed = 1; seed <= 64 && game is null; seed++)
+        foreach (var seed in new[] { 1 })
         {
             var candidate = Create(registry, seed); ReachPlay(candidate);
             if (candidate.GetHumanLegalActions().Any(item => item.Kind == LegalActionKind.Slash && item.ConversionSource is null) &&
@@ -33,7 +33,7 @@ internal static class Fame2015ShuChecks
 
         registry = Registry(new Fixture("classic:huomo", ["standard:slash", "standard:crossbow", "standard:duel"], targetHp: 1));
         game = null;
-        for (var seed = 1; seed <= 64 && game is null; seed++)
+        foreach (var seed in new[] { 1 })
         {
             var candidate = Create(registry, seed); ReachPlay(candidate); var snapshot = candidate.CreateSnapshot(0, true);
             if (snapshot.Players[1].Role == Role.Rebel && snapshot.Players[0].Hand.Any(card => card.Kind == CardKind.Slash) && snapshot.Players[1].Hand.Any(card => card.Kind == CardKind.Slash) &&

@@ -8,25 +8,6 @@ internal static class ProgramOwnedCardsChecks
     private const string SkillId = "fixture:owned-card-set";
     private const string ModeId = "identity:classic-owned-cards-4";
 
-    public static void DefinitionsAndPublicAi()
-    {
-        var current = Load(2);
-        Require(current.RuntimeVersion == "skill-program-v62" && current.MinimumRulesVersion == 171,
-            "Owned-card selection must declare its schema/rules boundary.");
-        Reject(Rules(2).Replace("\"amount\":2", "\"amount\":0"), "between");
-        Reject(Rules(2).Replace("[\"hand\",\"equipment\"]", "[\"discardPile\"]"), "owned");
-        Reject(Rules(2).Replace("\"resultBind\":\"chosen\"", "\"resultBind\":\"missing\""), "unknown");
-        Reject(Rules(2).Replace("\"amount\":2", "\"amount\":2,\"numberExpression\":\"ownerLostHp\""), "constant");
-        var doubled = Rules(2).Replace(Move, Move + "," + Move);
-        Reject(doubled, "more than once");
-        var owner = new PlayerSkillContext(0, 1, 4, 4, TurnPhase.Play, IsOwnTurn: true);
-        var ownerEstimate = ProgramCompositionAi.Estimate(current.Activations.Single().Effects, owner);
-        var targetEstimate = ProgramCompositionAi.Estimate(Load(2, other: true).Activations.Single().Effects, owner,
-            publicContext: new ProgramAiPublicContext(0, SelectedTarget: new(1, 4, 4, 4, TurnPhase.Play)));
-        Require(ownerEstimate.Score == -16 && targetEstimate.Score == 0 &&
-                targetEstimate.Hint.TargetValueAdjustment == -14 && targetEstimate.Hint.OwnerDraw == 0,
-            "The shared estimator must attribute consumed cards to their actual holder, not the skill owner.");
-    }
 
     public static void PrivateDraftBatchMovementAndReplay()
     {

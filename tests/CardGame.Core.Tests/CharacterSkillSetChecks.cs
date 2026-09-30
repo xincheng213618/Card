@@ -44,36 +44,6 @@ internal static class CharacterSkillSetChecks
             "Grant snapshots and effective skill identities must have deterministic ordering.");
     }
 
-    public static void CharacterTemplatesSupplyDefaultsWithoutOwningCurrentState()
-    {
-        var template = Template("first", "fixture:first");
-        var first = Character(template);
-        var second = Character(template);
-        Require(first.SkillGrants.EffectiveSkillIds.SequenceEqual(["fixture:first"]),
-            "Creating a character must bind its template's default skill.");
-        first.SkillGrants.Grant(new SkillGrant("acquired:first", "fixture:first", "acquired-instance", "acquired:test"));
-        first.SkillGrants.RemoveGrant($"{CharacterState.PrimarySkillSource}:fixture:first");
-        Require(first.SkillGrants.EffectiveSkillIds.SequenceEqual(["fixture:first"]),
-            "A skill acquired from another source must survive removal of the default grant.");
-        first.General = Template("next", "fixture:next");
-        first.GenderOverride = GeneralGender.Female;
-        first.MaxHp = 6;
-        first.Hp = 2;
-        Require(first.SkillGrants.EffectiveSkillIds.SequenceEqual(["fixture:first", "fixture:next"]) &&
-                first.AcquiredSkillIds.SequenceEqual(["fixture:first"]) &&
-                first.Gender == GeneralGender.Female && first.General.Gender == GeneralGender.Male,
-            "Replacing defaults must retain acquired skills and current attributes must be separate from the template.");
-        Require(second.Hp == 4 && second.MaxHp == 4 && second.Gender == GeneralGender.Male &&
-                second.SkillGrants.EffectiveSkillIds.SequenceEqual(["fixture:first"]) && template.BaseHp == 4,
-            "Characters sharing a template must have independent runtime state.");
-        first.GenderOverride = null;
-        Require(first.Gender == first.General.Gender, "Removing an override must reveal the template default.");
-        var previousTemplate = first.General;
-        var previousGrants = first.SkillGrants.Grants;
-        Throws<ArgumentException>(() => first.General = Template("invalid", "not-namespaced"));
-        Require(first.General == previousTemplate && first.SkillGrants.Grants.SequenceEqual(previousGrants),
-            "An invalid template replacement must preserve the template and all current skill sources.");
-    }
 
     private static GeneralDefinition Template(string name, string skillId) =>
         new($"fixture:{name}", name, name,

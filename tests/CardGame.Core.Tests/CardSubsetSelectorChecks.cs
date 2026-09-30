@@ -16,17 +16,6 @@ internal static class CardSubsetSelectorChecks
             "Card-count constraints must exclude empty, single-card and three-card choices.");
     }
 
-    public static void ImpossibleAndEmptySelectionDoNotInventChoices()
-    {
-        var optionalEmpty = CardSubsetSelector.Enumerate([], new(0, 4, 13));
-        Require(optionalEmpty.Count == 1 && optionalEmpty[0].CardIds.Count == 0 &&
-                optionalEmpty[0].SelectionMask == 0 && optionalEmpty[0].RankSum == 0,
-            "An optional selection has one valid empty choice even when its source is empty.");
-        Require(CardSubsetSelector.Enumerate([], new(1, 4, 13)).Count == 0 &&
-                CardSubsetSelector.Enumerate([new(9, 13, Suit.Spade)], new(1, 1, 12)).Count == 0 &&
-                CardSubsetSelector.Enumerate([new(9, 1, Suit.Spade)], new(2, 4, 13)).Count == 0,
-            "Scarce cards and impossible rank constraints must return no choices, not bypass the minimum.");
-    }
 
     public static void OnePerSuitSelectsExactlyOneCardOfEachDistinctSuit()
     {

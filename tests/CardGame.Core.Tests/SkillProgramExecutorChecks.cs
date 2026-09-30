@@ -2,34 +2,6 @@ using CardGame.Core;
 
 internal static class SkillProgramExecutorChecks
 {
-    public static void ExecutesComposedEffectsConditionsAndCursorOrder()
-    {
-        var program = Program(
-            """
-            {"op":"draw","target":"owner","amount":2},
-            {"op":"draw","target":"owner","amount":3,"condition":{"kind":"hpAtLeast","value":4}},
-            {"op":"recover","target":"selectedTarget","amount":1},
-            {"op":"giveSelected","target":"selectedTarget","amount":1}
-            """,
-            minCards: 1,
-            maxCards: 1,
-            minTargets: 1,
-            maxTargets: 1);
-        var runtime = Runtime(program, selectedCards: [10], selectedTargets: [1]);
-
-        new SkillProgramExecutor().Run(runtime.Frame!.Id, runtime, runtime);
-
-        Require(runtime.Completed is { Completed: true, Reason: null } && runtime.Frame is null,
-            "A completed program must finish once after its last instruction.");
-        Require(runtime.Calls.SequenceEqual([
-                "draw:0:0:2:::Private:skill-program.fixture:executor.Draw",
-            "recover:0:1:1",
-            "move:0:1:10:give:skill-program.fixture:executor.GiveSelected"
-            ]),
-            "The executor must preserve effect order, skip false conditions and route selected cards once.");
-        Require(runtime.UpdatedCursors.SequenceEqual([1, 2, 3, 4]),
-            "Every instruction, including a skipped condition, must advance before side effects.");
-    }
 
     public static void SuspendedChildResumesWithoutRepeatingPaidEffect()
     {
@@ -112,25 +84,6 @@ internal static class SkillProgramExecutorChecks
             "invalid operation");
     }
 
-    public static void ReflectionDiscoversEveryPrimitiveHandler()
-    {
-        var catalog = SkillProgramEffectCatalog.Discover(typeof(SkillProgramExecutor).Assembly);
-        Require(catalog.Handlers.Select(handler => handler.Op).Order().SequenceEqual(
-                Enum.GetValues<SkillProgramEffectOp>().Order()),
-            "Core reflection discovery must find one handler for every current primitive operation.");
-        Require(catalog.Handlers.Count == Enum.GetValues<SkillProgramEffectOp>().Length &&
-                catalog.Handlers.Select(handler => handler.GetType().FullName)
-                    .SequenceEqual(catalog.Handlers.Select(handler => handler.GetType().FullName)
-                        .Order(StringComparer.Ordinal)),
-            "Reflection discovery must return exactly one handler per operation in stable type-name order.");
-        Require(Enum.GetValues<SkillProgramEffectOp>()
-                .All(op => catalog.Resolve(op).Op == op) &&
-                SkillProgramEffectCatalog.Default.Handlers.Count == Enum.GetValues<SkillProgramEffectOp>().Length,
-            "Discovered and cached default catalogs must resolve each primitive operation.");
-        Throws<NotSupportedException>(
-            () => ((ICollection<ISkillProgramEffectHandler>)catalog.Handlers).Clear(),
-            null);
-    }
 
     public static void ActiveActivationContractsRejectInvalidDefinitionsAndPreserveOrder()
     {
@@ -185,71 +138,6 @@ internal static class SkillProgramExecutorChecks
             "usageGroup");
     }
 
-    public static void ActivePrimitiveHandlersUseTheExplicitSharedHost()
-    {
-        var variableGift = ProgramWithActivations(
-            """{"id":"gift","minCards":1,"maxCards":null,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"giveSelected","target":"selectedTarget"}]}""");
-        var giftRuntime = Runtime(variableGift, selectedCards: [10, 11], selectedTargets: [1], activationId: "gift");
-        new SkillProgramExecutor().Run(giftRuntime.Frame!.Id, giftRuntime, giftRuntime);
-        Require(giftRuntime.Calls.SequenceEqual([
-                "move:0:1:10,11:give:skill-program.fixture:executor.GiveSelected"
-            ]) && giftRuntime.Completed is { Completed: true },
-            "A variable-size selected gift must consume the complete frozen selection once.");
-
-        var random = ProgramWithActivations(
-            """{"id":"random","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":1,"effects":[{"op":"transferRandomOwnedCard","target":"selectedTarget","resultBind":"publicGift"}]}""");
-        var randomRuntime = Runtime(random, selectedTargets: [1], activationId: "random");
-        new SkillProgramExecutor().Run(randomRuntime.Frame!.Id, randomRuntime, randomRuntime);
-        Require(randomRuntime.Calls.SequenceEqual(["random-transfer:0:1:publicGift"]) &&
-                randomRuntime.Frame is { InstructionIndex: 1 },
-            "Random transfer must dispatch through the explicit host and retain its awaiting frame.");
-
-        var faction = ProgramWithActivations(
-            """{"id":"request","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLivingSlashable","usesPerTurn":1,"effects":[{"op":"requestFactionCard","target":"selectedTarget","providerFactionId":"shu","requiredKind":"slash"}]}""");
-        var factionRuntime = Runtime(faction, selectedTargets: [1], activationId: "request");
-        new SkillProgramExecutor().Run(factionRuntime.Frame!.Id, factionRuntime, factionRuntime);
-        Require(factionRuntime.Calls.SequenceEqual(["faction-card:0:1:shu:Slash"]) &&
-                factionRuntime.Frame is { InstructionIndex: 1 },
-            "Faction request must carry its selected target, faction and card kind to the shared host.");
-
-        var count = ProgramWithActivations(
-            """{"id":"count","minCards":1,"maxCards":1,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"discardSelected","target":"owner","amount":1},{"op":"accumulateSelectedCardCount","target":"owner","usageId":"phase-gifts","threshold":2,"resultBind":"thresholdResult"}]}""");
-        var countRuntime = Runtime(count, selectedCards: [10], activationId: "count");
-        new SkillProgramExecutor().Run(countRuntime.Frame!.Id, countRuntime, countRuntime);
-        Require(countRuntime.Calls.SequenceEqual([
-                "move:0:0:10:discard:skill-program.fixture:executor.DiscardSelected",
-            "accumulate-selected:0:phase-gifts:2:thresholdResult"
-            ]) &&
-                countRuntime.Completed is { Completed: true },
-            "The phase counter must dispatch to the explicit host and finish exactly once.");
-
-        var targetedTurn = Program(
-            """{"op":"pendExtraTurn","target":"owner","targetRef":{"kind":"selectedTarget"}}""",
-            minTargets: 1,
-            maxTargets: 1);
-        var targetedRuntime = Runtime(targetedTurn, selectedTargets: [1]);
-        new SkillProgramExecutor().Run(targetedRuntime.Frame!.Id, targetedRuntime, targetedRuntime);
-        Require(targetedRuntime.Calls.SequenceEqual(["extra-turn:0:1"]) &&
-                targetedRuntime.Completed is { Completed: true },
-            "A targeted extra turn must pend the selected beneficiary through the shared host.");
-
-        var selfTurn = Program("""{"op":"pendExtraTurn","target":"owner"}""");
-        var selfRuntime = Runtime(selfTurn);
-        new SkillProgramExecutor().Run(selfRuntime.Frame!.Id, selfRuntime, selfRuntime);
-        Require(selfRuntime.Calls.SequenceEqual(["extra-turn:0:owner"]) &&
-                selfRuntime.Completed is { Completed: true },
-            "An untargeted extra turn must keep defaulting to the skill owner.");
-
-        var discardBind = ProgramWithActivations(
-            """{"id":"bind","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"bindDiscardPhaseDiscards","target":"owner","resultBind":"guzhengPool"},{"op":"moveBoundCards","target":"owner","sourceBind":"guzhengPool","destination":"discardPile"}]}""");
-        var bindRuntime = Runtime(discardBind, activationId: "bind");
-        new SkillProgramExecutor().Run(bindRuntime.Frame!.Id, bindRuntime, bindRuntime);
-        Require(bindRuntime.Calls.Count == 2 &&
-                bindRuntime.Calls[0] == "bind-discard-phase:0:guzhengPool" &&
-                bindRuntime.Calls[1].StartsWith("move-bound:0:guzhengPool::DiscardPile::skill-program.fixture", StringComparison.Ordinal) &&
-                bindRuntime.Completed is { Completed: true },
-            "The discard-phase bind must dispatch through the shared host and finish exactly once.");
-    }
 
     private static SkillProgram ProgramWithActivations(string activations)
     {

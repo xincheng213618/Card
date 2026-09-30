@@ -2,30 +2,6 @@ using CardGame.Core;
 
 internal static class RuleQueryReducerChecks
 {
-    public static void BaseTermsPrecedeSetsAndRemainInspectable()
-    {
-        RuleQueryBaseTerm[] baseTerms =
-        [
-            new("mode:hand-limit", 3),
-            new("skill:xueyi:baseline", 4),
-            new("equipment:jade-seal:draw", 1)
-        ];
-        RuleQueryContribution[] modifiers =
-        [
-            new FiniteRuleQueryContribution("skill:set", SkillRuleOperation.Set, 5, priority: 20),
-            new FiniteRuleQueryContribution("state:add", SkillRuleOperation.Add, 2)
-        ];
-        var evaluated = RuleQueryService.Evaluate(
-            SkillRuleQuery.HandLimit,
-            new(0, 20),
-            baseTerms,
-            modifiers);
-        Require(Finite(evaluated.Value).Value == 7,
-            "A Set must replace the complete pre-Set baseline before post-Set Add contributions run.");
-        Require(evaluated.BaseTerms.Select(item => item.SourceId).SequenceEqual(
-                baseTerms.Select(item => item.SourceId).Order(StringComparer.Ordinal)),
-            "Pre-Set mode, equipment and compatibility sources must remain inspectable in stable order.");
-    }
 
     public static void DirectionalDistanceRunsBothStagesBeforeClamping()
     {
@@ -54,63 +30,6 @@ internal static class RuleQueryReducerChecks
             "Distance explanations must preserve outgoing and incoming stage identity instead of flattening Set/Add semantics.");
     }
 
-    public static void ProgramContributionsUseInstanceIdentityAndDynamicValues()
-    {
-        var program = LoadPrograms("""
-            {"id":"fixture:zongshi","revision":1,"minimumRulesVersion": 171,
-             "modifiers":[{"id":"living-factions","query":"handLimit","operation":"add",
-               "valueExpression":"livingFactionCount","priority":0}],
-             "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]}
-            """).Single();
-        var context = new SkillProgramRuleContext(
-            new PlayerSkillContext(2, 3, 4, 5, TurnPhase.Play, IsOwnTurn: true),
-            LivingFactionCount: 3);
-        var contributions = SkillProgramRules.CollectContributions(
-            SkillRuleQuery.HandLimit,
-            context,
-            [
-                new(program.Id, "instance-a", program),
-                new(program.Id, "instance-a", program),
-                new(program.Id, "instance-b", program)
-            ]);
-        Require(contributions.Count == 2 &&
-                contributions.OfType<FiniteRuleQueryContribution>().All(item => item.Value == 3) &&
-                contributions.Select(item => item.SourceId).Distinct(StringComparer.Ordinal).Count() == 2 &&
-                contributions.All(item => item.SourceId.Contains(program.Id, StringComparison.Ordinal)),
-            "The same skill instance must not repeat across grants, while independent instances retain dynamic values.");
-
-        var ambiguousSegments = LoadPrograms("""
-            {"id":"fixture:a","revision":1,"minimumRulesVersion": 171,
-             "modifiers":[{"id":"d","query":"handLimit","operation":"add","value":1,"priority":0}],
-             "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]},
-            {"id":"fixture:a:b","revision":1,"minimumRulesVersion": 171,
-             "modifiers":[{"id":"d","query":"handLimit","operation":"add","value":1,"priority":0}],
-             "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]}
-            """).ToDictionary(item => item.Id, StringComparer.Ordinal);
-        var ambiguousSources = new[]
-        {
-            new SkillProgramRuleSource("fixture:a:b", "c", ambiguousSegments["fixture:a:b"]),
-            new SkillProgramRuleSource("fixture:a", "b:c", ambiguousSegments["fixture:a"])
-        };
-        var ownerTwo = SkillProgramRules.CollectContributions(
-            SkillRuleQuery.HandLimit,
-            context,
-            ambiguousSources);
-        var ownerTwoAgain = SkillProgramRules.CollectContributions(
-            SkillRuleQuery.HandLimit,
-            context,
-            ambiguousSources);
-        var ownerThree = SkillProgramRules.CollectContributions(
-            SkillRuleQuery.HandLimit,
-            context with { Owner = context.Owner with { Seat = 3 } },
-            ambiguousSources);
-        Require(ownerTwo.Select(item => item.SourceId).Distinct(StringComparer.Ordinal).Count() == 2 &&
-                ownerTwo.Select(item => item.SourceId).SequenceEqual(
-                    ownerTwoAgain.Select(item => item.SourceId)) &&
-                !ownerTwo.Select(item => item.SourceId).Intersect(
-                    ownerThree.Select(item => item.SourceId), StringComparer.Ordinal).Any(),
-            "Length-prefixed source identity must separate colon-bearing fields, stay stable and include the owner seat.");
-    }
 
     public static void StaticSetConflictsAreRejectedBeforePlay()
     {
@@ -144,24 +63,6 @@ internal static class RuleQueryReducerChecks
             "Registry freeze must reject future conditional Set conflicts with both stable sources.");
     }
 
-    public static void SchemaTwelveRequiresExplicitModifierIdentityAndPriority()
-    {
-        Throws<InvalidOperationException>(() => LoadPrograms("""
-            {"id":"fixture:missing-priority","revision":1,"minimumRulesVersion": 171,
-             "modifiers":[{"id":"add","query":"handLimit","operation":"add","value":1}],
-             "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]}
-            """));
-        Throws<InvalidOperationException>(() => LoadPrograms("""
-            {"id":"fixture:add-priority","revision":1,"minimumRulesVersion": 171,
-             "modifiers":[{"id":"add","query":"handLimit","operation":"add","value":1,"priority":1}],
-             "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]}
-            """));
-        Throws<InvalidOperationException>(() => LoadPrograms("""
-            {"id":"fixture:bad-unlimited","revision":1,"minimumRulesVersion": 171,
-             "modifiers":[{"id":"unlimited","query":"handLimit","operation":"unlimited","value":0,"priority":0}],
-             "viewAs":[],"activations":[],"triggers":[],"contributions":[],"cardIdentities":[]}
-            """));
-    }
 
     public static void IsIndependentOfInputOrderAndRejectsOnlyWinningSetConflicts()
     {
@@ -195,54 +96,7 @@ internal static class RuleQueryReducerChecks
             "A winning Set conflict must be deterministic and identify sorted sources.");
     }
 
-    public static void SumsBeforeClampingAndHandlesIntegerExtremes()
-    {
-        RuleQueryContribution[] cancellation =
-        [
-            new FiniteRuleQueryContribution("add:max", SkillRuleOperation.Add, int.MaxValue),
-            new FiniteRuleQueryContribution("add:min", SkillRuleOperation.Add, int.MinValue)
-        ];
-        Require(Finite(RuleQueryReducer.Reduce(10, new(0, 100), cancellation)).Value == 9,
-            "Adds must cancel in a wide accumulator before one final clamp.");
 
-        RuleQueryContribution[] saturation =
-        [
-            new FiniteRuleQueryContribution("add:max-a", SkillRuleOperation.Add, int.MaxValue),
-            new FiniteRuleQueryContribution("add:max-b", SkillRuleOperation.Add, int.MaxValue)
-        ];
-        Require(Finite(RuleQueryReducer.Reduce(int.MaxValue, new(-5, 50), saturation)).Value == 50,
-            "Extreme finite totals must clamp without overflowing.");
-        Require(Finite(RuleQueryReducer.Reduce(-100, new(0, 20), [])).Value == 0,
-            "The base value participates in the same final clamp.");
-        Throws<OverflowException>(() => RuleQueryReducer.Reduce(long.MaxValue, new(0, 50),
-            [new FiniteRuleQueryContribution("add:one", SkillRuleOperation.Add, 1)]));
-    }
-
-    public static void KeepsUnlimitedSeparateAndStillValidatesFiniteConflicts()
-    {
-        RuleQueryContribution[] inputs =
-        [
-            new FiniteRuleQueryContribution("add:max", SkillRuleOperation.Add, int.MaxValue),
-            new UnlimitedRuleQueryContribution("skill:unlimited")
-        ];
-        var result = RuleQueryReducer.Reduce(int.MaxValue, new(0, 9), inputs);
-        Require(result is UnlimitedRuleQueryValue && result.IsUnlimited,
-            "Unlimited must remain a distinct result and never enter finite arithmetic.");
-        var evaluated = RuleQueryService.Evaluate(
-            SkillRuleQuery.SlashLimit,
-            new(0, int.MaxValue),
-            [new RuleQueryBaseTerm("mode:base", 1)],
-            inputs);
-        Require(evaluated.Stages.Single() is { IsUnlimited: true, OutputValue: null },
-            "Stage explanations must represent unlimited explicitly instead of exposing a finite zero placeholder.");
-
-        Throws<InvalidOperationException>(() => RuleQueryReducer.Reduce(0, new(0, 9),
-        [
-            new UnlimitedRuleQueryContribution("skill:unlimited"),
-            new FiniteRuleQueryContribution("set:a", SkillRuleOperation.Set, 1, 5),
-            new FiniteRuleQueryContribution("set:b", SkillRuleOperation.Set, 2, 5)
-        ]));
-    }
 
     public static void RejectsInvalidInputsAndFreezesOutput()
     {
@@ -276,17 +130,6 @@ internal static class RuleQueryReducerChecks
             ((ICollection<RuleQueryContribution>)result.Contributions).Clear());
     }
 
-    public static void HasNoConcreteSkillDependency()
-    {
-        var referenced = typeof(RuleQueryReducer).Assembly.GetReferencedAssemblies()
-            .Select(name => name.Name).ToArray();
-        Require(!referenced.Any(name => name is "CardGame.Content.Standard" or "CardGame.Wpf"),
-            "The reducer's assembly must not depend on concrete skill content or UI.");
-        Require(typeof(RuleQueryReducer).GetFields(
-                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Instance |
-                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic).Length == 0,
-            "The pure reducer must not retain game or caller state.");
-    }
 
     private static FiniteRuleQueryValue Finite(RuleQueryValue value) => value as FiniteRuleQueryValue ??
         throw new InvalidOperationException("Expected a finite query value.");

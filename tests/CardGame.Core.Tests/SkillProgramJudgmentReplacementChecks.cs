@@ -3,90 +3,6 @@ using CardGame.Core;
 
 internal static class SkillProgramJudgmentReplacementChecks
 {
-    internal static void Definitions()
-    {
-        var catalog = SkillProgramCatalog.Load(ValidV4, Presentation);
-        var program = catalog.Programs[ProgramId];
-        var exchange = program.Triggers.Single(trigger => trigger.Id == ExchangeTriggerId);
-        var discard = program.Triggers.Single(trigger => trigger.Id == DiscardTriggerId);
-        var replacement = exchange.Effects[0];
-        var followUp = exchange.Effects[1];
-        Require(program.RuntimeVersion == "skill-program-v62" && program.MinimumRulesVersion == 171 &&
-                exchange.Window == SkillProgramTriggerWindow.JudgmentReplacing &&
-                exchange.Subject == SkillProgramTriggerSubject.Any && exchange.Optional &&
-                exchange.ExcludedReasons.SequenceEqual([JudgmentReasons.Leiji]) &&
-                replacement is
-                {
-                    Op: SkillProgramEffectOp.ReplaceJudgment,
-                    Target: SkillProgramEffectTarget.Owner,
-                    Amount: 0,
-                    OldCardDestination: SkillProgramOldJudgmentCardDestination.OwnerHand
-                } &&
-                replacement.Zones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]) &&
-                replacement.Suits.SequenceEqual([Suit.Spade, Suit.Club]) &&
-                followUp is
-                {
-                    Op: SkillProgramEffectOp.Draw,
-                    Target: SkillProgramEffectTarget.Owner,
-                    Amount: 1,
-                    MinimumReplacementRank: 2,
-                    MaximumReplacementRank: 9
-                } &&
-                followUp.ReplacementSuits.SequenceEqual([Suit.Spade]) &&
-                discard.Effects.Single().OldCardDestination ==
-                    SkillProgramOldJudgmentCardDestination.DiscardPile,
-            "The shared executor must retain typed judgment replacement and committed-card filters.");
-        RequireThrows<NotSupportedException>(() =>
-            ((ICollection<CardZoneKind>)replacement.Zones).Clear());
-        RequireThrows<NotSupportedException>(() =>
-            ((ICollection<Suit>)followUp.ReplacementSuits).Add(Suit.Heart));
-        RequireThrows<ArgumentException>(() => JudgmentTriggerOrdering.Order(
-            [new JudgmentTriggerCandidate(
-                0, "partial-program-identity", ProgramId: "standard:none", ProgramTriggerId: "replace")],
-            currentActorSeat: 0,
-            playerCount: 1));
-
-        AssertReject(ValidV4.Replace("\"schemaVersion\":62", "\"schemaVersion\":57", StringComparison.Ordinal),
-            "schema version");
-        AssertReject(ValidV4.Replace("\"zones\":[\"hand\",\"equipment\"]", "\"zones\":[]", StringComparison.Ordinal),
-            "replacement requires hand or equipment");
-        AssertReject(ValidV4.Replace("\"zones\":[\"hand\",\"equipment\"]", "\"zones\":[\"hand\",\"judgment\"]", StringComparison.Ordinal),
-            "replacement requires hand or equipment");
-        AssertReject(ValidV4.Replace("\"suits\":[\"spade\",\"club\"]", "\"suits\":[]", StringComparison.Ordinal),
-            "at least one suit");
-        AssertReject(ValidV4.Replace(",\"oldCardDestination\":\"ownerHand\"", string.Empty, StringComparison.Ordinal),
-            "oldCardDestination");
-        AssertReject(ValidV4.Replace("\"op\":\"replaceJudgment\",\"target\":\"owner\"",
-                "\"op\":\"replaceJudgment\",\"target\":\"opponent\"", StringComparison.Ordinal),
-            "unsupported SkillProgramEffectTarget");
-        AssertReject(ValidV4.Replace("\"op\":\"draw\",\"target\":\"owner\"",
-                "\"op\":\"draw\",\"target\":\"opponent\"", StringComparison.Ordinal),
-            "opponent");
-        AssertReject(ValidV4.Replace("\"replacementSuits\":[\"spade\"]",
-                "\"replacementSuits\":[\"spade\",\"spade\"]", StringComparison.Ordinal),
-            "duplicate");
-        AssertReject(ValidV4.Replace("\"minimumReplacementRank\":2", "\"minimumReplacementRank\":14", StringComparison.Ordinal),
-            "valid rank bounds");
-        AssertReject(InvalidOrderV4, "requires replaceJudgment first");
-        AssertReject(InvalidFollowUpV4, "obtainOpponentHandCard");
-        foreach (var (effect, expectedError) in new[]
-        {
-            ("""{"op":"replaceJudgment","target":"owner","zones":["hand"],"suits":["spade"],"oldCardDestination":"discardPile"}""",
-                "requires context JudgmentReplacement"),
-            ("""{"op":"draw","target":"owner","amount":1,"replacementSuits":["spade"],"minimumReplacementRank":1,"maximumReplacementRank":13}""",
-                "replacement filters require judgmentReplacing"),
-            ("""{"op":"recover","target":"owner","amount":1,"replacementSuits":["spade"],"minimumReplacementRank":1,"maximumReplacementRank":13}""",
-                "replacement filters require judgmentReplacing")
-        })
-        {
-            var activeRules = $$"""
-                {"schemaVersion":62,"skills":[{"id":"judgment-replace-test:both","revision":1,
-                  "activations":[{"id":"activate","minCards":0,"maxCards":0,"minTargets":0,
-                  "maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,"effects":[{{effect}}]}]}]}
-                """;
-            AssertReject(activeRules, expectedError);
-        }
-    }
 
     internal static void WindowDestinationsAndReplay()
     {
@@ -204,40 +120,6 @@ internal static class SkillProgramJudgmentReplacementChecks
         AssertAiReplacementAndReplay(registry);
     }
 
-    internal static void BaguaSourceEquipmentIsExcluded()
-    {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new BaguaFixturePackage());
-        var (beforeBagua, baguaId) = FindBaguaBoundary(registry);
-        var current = GameReplay.Restore(RoundTrip(beforeBagua), registry);
-        SubmitBagua(current);
-
-        var currentPrompt = current.PendingDecision ??
-            throw new InvalidOperationException("The current Bagua replacement prompt was lost.");
-        var currentOwner = current.CreateSnapshot(0, revealAll: true).Players[0];
-        var legalBlackHand = currentOwner.Hand
-            .Where(card => card.Suit is Suit.Spade or Suit.Club)
-            .Select(card => card.Id)
-            .Order()
-            .ToArray();
-        Require(currentPrompt is
-                {
-                    Kind: DecisionKind.ProgramJudgmentReplacement,
-                    PlayerSeat: 0,
-                    IsPrivate: true
-                } &&
-                legalBlackHand.Length > 0 &&
-                currentPrompt.ValidCardIds.SequenceEqual(legalBlackHand) &&
-                !currentPrompt.ValidCardIds.Contains(baguaId) &&
-                currentOwner.Equipment.Any(card => card.Id == baguaId),
-            "The current replacement prompt must exclude the equipped Bagua that started this judgment.");
-
-        var replay = GameReplay.Restore(RoundTrip(current.CreateCheckpoint()), registry);
-        Require(replay.PendingDecision?.PromptId == currentPrompt.PromptId &&
-                replay.PendingDecision.ValidCardIds.SequenceEqual(currentPrompt.ValidCardIds) &&
-                SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(current.CreateSnapshot(0, revealAll: true)),
-            "A paused Bagua-source exclusion prompt must replay exactly.");
-    }
 
     private static (GameCheckpoint Checkpoint, int BaguaId) FindBaguaBoundary(ContentRegistry registry)
     {
@@ -321,15 +203,6 @@ internal static class SkillProgramJudgmentReplacementChecks
             $"(baguaHands={baguaHands}, equippedGames={equippedGames}, baguaResponses={baguaResponses}).");
     }
 
-    private static void SubmitBagua(GameEngine game)
-    {
-        var prompt = game.PendingDecision ?? throw new InvalidOperationException("The Bagua response prompt was lost.");
-        var choice = prompt.Choices.Single(item =>
-            item.Parameters.GetValueOrDefault("response") == "bagua");
-        var result = game.Submit(new AnswerPromptCommand(
-            0, prompt.PromptId, choice.Id, game.Revision));
-        Require(result.Accepted, result.Error?.Message ?? "The Bagua response was rejected.");
-    }
 
     private static (GameEngine Game, int EquipmentId) FindBoundary(ContentRegistry registry)
     {

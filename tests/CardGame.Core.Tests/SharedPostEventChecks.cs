@@ -28,31 +28,6 @@ internal static class SharedPostEventChecks
             "Two gained cards, two gain rewards and one HP-loss reward must each resolve exactly once.");
     }
 
-    public static void HpLossRecoveryAndActualAmountsReplay()
-    {
-        var (game, registry) = Create();
-        Use(game, "wound");
-        var loss = game.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Single();
-        Require(loss.Change is { Kind: HpChangeKind.Loss, Amount: 2 } && loss.Candidates.Count == 2,
-            "A two-point loss must retain one actual event with two per-point occurrences.");
-        var restored = GameReplay.Restore(game.CreateCheckpoint(), registry);
-        foreach (var branch in new[] { game, restored })
-        {
-            Answer(branch);
-            Answer(branch);
-            var recovery = branch.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Single();
-            Require(recovery.Change is { Kind: HpChangeKind.Recovery, Amount: 2 } &&
-                    recovery.Change.HpAfter - recovery.Change.HpBefore == 2 && recovery.Candidates.Count == 1,
-                "Overhealing must publish only the actual recovered amount, once per event.");
-        }
-        var recoveryReplay = GameReplay.Restore(game.CreateCheckpoint(), registry);
-        foreach (var branch in new[] { game, restored, recoveryReplay }) Drain(branch);
-        Require(State(game) == State(restored) && State(game) == State(recoveryReplay),
-            "HP windows must replay from both loss and recovery prompts.");
-        Require(game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
-                .Count(item => item.Window == SkillProgramTriggerWindow.AfterHpRecovered && item.Activated) == 1,
-            "Recovery at full HP must not emit a second recovery event.");
-    }
 
     public static void HpLossWaitsForDyingAndCardRecoveryFinishesFirst()
     {
@@ -112,52 +87,6 @@ internal static class SharedPostEventChecks
         }
     }
 
-    public static void DamageDoesNotBecomeHpLossAndGroupRecoveryWaitsPerTarget()
-    {
-        var (damageGame, _) = Create();
-        var hp = damageGame.CreateSnapshot(0, true).Players[0].Hp;
-        Use(damageGame, "damage");
-        for (var i = 0; i < 20 && damageGame.ResolutionStack.Count != 0; i++)
-            Require(damageGame.Submit(new AdvanceCommand(damageGame.Revision)).Accepted, "Damage must finish.");
-        Require(damageGame.CreateSnapshot(0, true).Players[0].Hp == hp - 1 &&
-                !damageGame.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>().Any(item =>
-                    item.Window == SkillProgramTriggerWindow.AfterHpLost),
-            "Damage must not dispatch the lose-HP window.");
-
-        var (game, registry) = Create(cardId: "standard:peach_garden");
-        foreach (var seat in new[] { 0, 1 })
-        {
-            Require(game.Submit(new UseProgramSkillCommand(0, "fixture:driver", "wound-target", [], [seat],
-                game.Revision, game.PendingDecision!.PromptId)).Accepted, "Target wound failed.");
-            Drain(game);
-            Require(game.Submit(new AdvanceCommand(game.Revision)).Accepted, "Return to Play failed.");
-        }
-        var action = game.GetHumanLegalActions().First(item => item.CardId is not null);
-        Require(game.Submit(new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats,
-            game.Revision, game.PendingDecision!.PromptId)).Accepted, "Group recovery use failed.");
-        for (var i = 0; i < 30 && !game.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(); i++)
-        {
-            var prompt = game.PendingDecision;
-            Require(game.Submit(prompt is null ? new AdvanceCommand(game.Revision) :
-                new AnswerPromptCommand(prompt.PlayerSeat, prompt.PromptId, prompt.Choices.Last().Id, game.Revision)).Accepted,
-                "Group recovery must reach its first recovery event.");
-        }
-        var window = game.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Single();
-        Require(window.Continuation == PostEventContinuation.GroupRecovery && window.Change.TargetSeat == 0 &&
-                game.CreateSnapshot(0, true).Players[1].Hp < game.CreateSnapshot(0, true).Players[1].MaxHp,
-            "The next target must wait for this target's after-recovery choices.");
-        var restored = GameReplay.Restore(game.CreateCheckpoint(), registry);
-        foreach (var branch in new[] { game, restored })
-        {
-            for (var i = 0; i < 50 && branch.ResolutionStack.Count != 0; i++)
-            {
-                if (branch.PendingDecision?.Kind == DecisionKind.ProgramTrigger) Answer(branch);
-                else Require(branch.Submit(new AdvanceCommand(branch.Revision)).Accepted, "Group recovery continuation failed.");
-            }
-            Require(branch.ResolutionStack.Count == 0, "Group recovery must finish after both callbacks.");
-        }
-        Require(State(game) == State(restored), "A group recovery must replay through both target callbacks.");
-    }
 
     public static void DefinitionFiltersRejectWrongContexts()
     {

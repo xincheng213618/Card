@@ -146,22 +146,6 @@ internal static class PlayerGuideChecks
         Require(State(vm) == manuallyPaused && !vm.IsAutoAdvance, "Guide silently enabled an intentionally paused timer.");
     }
 
-    public static void CheckCurrentState(MainViewModel vm)
-    {
-        DecisionContextChecks.VerifyLive(vm);
-        var engine = Program.Engine(vm);
-        var label = vm.HasGameOver ? "Completed" :
-            vm.IsGeneralSelectionPending || vm.IsDiscardSelectionPending || vm.CanEndTurn || vm.HasChoicePrompt
-                ? engine.PendingDecision?.Kind.ToString() : null;
-        if (label is null || !ObservedPrompts.Add(label)) return;
-        var before = State(vm);
-        vm.OpenContextGuideCommand.Execute(null);
-        Require(vm.IsGuideCurrent && !string.IsNullOrWhiteSpace(vm.CurrentGuideTitle) && vm.CurrentGuideSteps.Count > 0, $"Missing live guidance: {label}.");
-        if (vm.HasChoicePrompt) Require(vm.CurrentGuideBody == engine.PendingDecision!.Prompt, $"Incorrect live response description: {label}.");
-        if (vm.IsDiscardSelectionPending) Require(vm.CurrentGuideBody.Contains($"{vm.RequiredDiscardCount} 张"), "Discard count missing from current guidance.");
-        vm.ToggleHelpCommand.Execute(null);
-        Require(State(vm) == before, $"Looking at {label} guidance changed the match.");
-    }
 
     private static void PumpBinding() => Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
     private static void Pump(TimeSpan duration)

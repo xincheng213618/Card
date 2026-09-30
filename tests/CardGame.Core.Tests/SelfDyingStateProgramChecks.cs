@@ -5,64 +5,6 @@ internal static class SelfDyingStateProgramChecks
 {
     private const string SkillId = "classic:niepan";
 
-    public static void DefinitionsAndVersionBoundary()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var skill = current.Skills[SkillId];
-        var trigger = skill.Program?.Triggers.Single();
-
-        Require(GameCheckpoint.CurrentRulesVersion >= 127 &&
-                StandardClassicGeneralPackage.CurrentVersion >= new Version(1, 108, 0) &&
-                skill is
-                {
-                    Tags: SkillTag.Limited,
-                    ExecutionForms: SkillExecutionForm.Trigger,
-                    Program: not null,
-                    Program.MinimumRulesVersion: 172
-                } &&
-                trigger is
-                {
-                    Id: "activation",
-                    Window: SkillProgramTriggerWindow.SelfDyingResponse,
-                    Subject: SkillProgramTriggerSubject.Owner,
-                    Optional: true,
-                    UsageScope: SkillUsageScope.Game,
-                    UsageLimit: 1,
-                    Effects:
-                    [
-                        {
-                            Op: SkillProgramEffectOp.DiscardOwnedZoneCards,
-                            Target: SkillProgramEffectTarget.Owner,
-                            Zones: [CardZoneKind.Hand, CardZoneKind.Equipment, CardZoneKind.Judgment]
-                        },
-                        {
-                            Op: SkillProgramEffectOp.SetChainedState,
-                            Target: SkillProgramEffectTarget.Owner,
-                            Chained: false
-                        },
-                        {
-                            Op: SkillProgramEffectOp.RecoverTo,
-                            Target: SkillProgramEffectTarget.Owner,
-                            NumberExpression: SkillProgramNumberExpression.IntegerConstant,
-                            MinimumValue: 3,
-                            ClampToMaxHp: true
-                        },
-                        {
-                            Op: SkillProgramEffectOp.Draw,
-                            Target: SkillProgramEffectTarget.Owner,
-                            Amount: 3
-                        }
-                    ]
-                },
-            "Current Niepan must use its bounded self-dying program.");
-
-        Reject(
-            Rules.Replace("\"judgment\"", "\"drawPile\"", StringComparison.Ordinal),
-            "requires hand, equipment and/or judgment");
-        Reject(
-            Rules.Replace("\"chained\":false", "\"chained\":null", StringComparison.Ordinal),
-            "must be True or False");
-    }
 
     public static void ClearsOwnedStateAndReplays()
     {

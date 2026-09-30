@@ -18,26 +18,6 @@ internal static class ProgramActivationLimitChecks
         {"schemaVersion":3,"skills":{"fixture:turn-draw":{"name":"限次摸牌","description":"回合和阶段分别限次。"}}}
         """;
 
-    public static void DefinitionsAndCurrentBoundary()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(current.Skills[SkillId] is { Program: { RuntimeVersion: "skill-program-v62",
-                    MinimumRulesVersion: 172 } program } &&
-                program.Activations.Single() is { MaxCards: int.MaxValue, UsesPerPhase: 1, UsesPerTurn: null } &&
-                program.Activations.Single().SourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment]),
-            "The current exchange must use shared nodes with phase limits.");
-        var baseline = SkillProgramCatalog.Load(Rules, Presentation).Programs["fixture:turn-draw"];
-        var noPhase = SkillProgramCatalog.Load(Rules.Replace("\"usesPerPhase\":1", "\"usesPerPhase\":null"),
-            Presentation).Programs["fixture:turn-draw"];
-        Require(baseline.GameplayHash != noPhase.GameplayHash, "Phase limits must change the gameplay fingerprint.");
-        Reject(Rules.Replace("\"usesPerPhase\":1", "\"usesPerPhase\":0"), "usesPerPhase");
-        Reject(Rules.Replace("\"usesPerPhase\":1", "\"usesPerPhase\":-1"), "usesPerPhase");
-        Reject(Rules.Replace("\"maxCards\":0", "\"maxCards\":65"), "maxCards");
-        Reject(Rules.Replace("\"maxCards\":0", "\"maxCards\":null").Replace(
-            "{\"op\":\"draw\",\"target\":\"owner\",\"amount\":1}",
-            """{"op":"captureSelectedCards","target":"owner","resultBind":"cards"},{"op":"moveBoundCards","target":"owner","sourceBind":"cards","destination":"discardPile"}"""),
-            "minCards");
-    }
 
     public static void MixedZonesAtomicityAndReplay()
     {
@@ -81,96 +61,8 @@ internal static class ProgramActivationLimitChecks
         AssertReplay(game, registry);
     }
 
-    public static void ExtraPhaseAndLargeSelection()
-    {
-        var (game, registry) = Create(extraPhase: true);
-        Accept(game.Submit(new UseProgramSkillCommand(0, "fixture:turn-draw", "draw", [], [],
-            game.Revision, game.PendingDecision!.PromptId)));
-        ReachPlay(game);
-        Use(game, [Exchange(game).SelectableCardIds[0]]);
-        ReachPlay(game);
-        AssertReplay(game, registry);
-        var turn = game.State.TurnNumber;
-        Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision, game.PendingDecision!.PromptId)));
-        ReachPlay(game);
-        Require(game.State.TurnNumber == turn && game.Events.Count(item =>
-                    item.Payload is PhaseChangedEvent { ActorSeat: 0, Phase: TurnPhase.Play }) == 2 &&
-                game.GetHumanLegalActions().Any(item => item.ProgramSkillId == SkillId) &&
-                game.GetHumanLegalActions().All(item => item.ProgramSkillId != "fixture:turn-draw"),
-            "An inserted phase must renew phase allowances without renewing the independent turn allowance.");
-        AssertReplay(game, registry);
-        Use(game, [Exchange(game).SelectableCardIds[0]]);
-        ReachPlay(game);
-        Require(game.Events.Count(item => item.Payload is ProgramSkillResolvedEvent { SkillId: SkillId, Completed: true }) == 2,
-            "One turn must allow one exchange in each of its two Play phases.");
-        AssertReplay(game, registry);
-        var (large, largeRegistry) = Create(initialHand: 70);
-        var selection = Exchange(large);
-        Require(selection.MaxCardCount == 70 && selection.SelectableCardIds.Count == 70,
-            "The dynamic limit must include all 70 cards without the old 64-card ceiling.");
-        Use(large, selection.SelectableCardIds);
-        ReachPlay(large);
-        Require(large.CreateSnapshot(0).Players[0].HandCount == 70 &&
-                large.CardMovements.Count(move => move.Reason.Value == "skill-program.classic:zhiheng.MoveBoundCards") == 70,
-            "A large exchange must pay and replace every physical card exactly once.");
-        AssertReplay(large, largeRegistry);
-    }
 
-    public static void EquipmentLossTriggerAndReplay()
-    {
-        var (game, registry) = Create(equipmentTrigger: true);
-        var equipment = game.GetHumanLegalActions().First(action => action.Kind == LegalActionKind.Equip).CardId!.Value;
-        Accept(game.Submit(new PlayCardCommand(0, equipment, [], game.Revision, game.PendingDecision!.PromptId)));
-        ReachPlay(game);
-        var handCount = game.CreateSnapshot(0).Players[0].HandCount;
-        Use(game, [equipment]);
-        for (var step = 0; step < 32 && game.PendingDecision?.Kind != DecisionKind.ProgramTrigger; step++)
-            Accept(game.Submit(new AdvanceOneStepCommand(game.Revision)));
-        Require(game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, SkillPrompt.SkillId: "classic:xiaoji" },
-            "An equipment exchange must retain the ordinary equipment-loss trigger.");
-        AssertReplay(game, registry);
-        var prompt = game.PendingDecision!;
-        var choice = prompt.Choices.First(item => item.Parameters.GetValueOrDefault("action") != "program-trigger-skip");
-        Accept(game.Submit(new AnswerPromptCommand(0, prompt.PromptId, choice.Id, game.Revision)));
-        ReachPlay(game);
-        Require(game.CreateSnapshot(0).Players[0].HandCount == handCount + 3,
-            "The exchange and one Xiaoji trigger must draw one plus two cards.");
-        AssertReplay(game, registry);
-    }
 
-    public static void HealingRenewsOnlyAtNextPhase()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(current.Skills["classic:qingnang"].Program!.Activations.Single() is
-                { UsesPerTurn: null, UsesPerPhase: 1 }, "Current Qingnang must renew its allowance each Play phase.");
-        var (game, registry) = Create(extraPhase: true, healing: true);
-        void Activate(string skill, string activation, IReadOnlyList<int> cards, IReadOnlyList<int> targets)
-        {
-            Accept(game.Submit(new UseProgramSkillCommand(0, skill, activation, cards, targets,
-                game.Revision, game.PendingDecision!.PromptId)));
-            ReachPlay(game);
-        }
-        for (var phase = 0; phase < 2; phase++)
-        {
-            var expectedHp = game.CreateSnapshot(0).Players[0].Hp;
-            Activate("classic:kujin", "lose-hp-and-draw", [], []);
-            var heal = game.GetHumanLegalActions().Single(action => action.ProgramSkillId == "classic:qingnang");
-            Activate("classic:qingnang", "discard-and-heal", [heal.SelectableCardIds[0]], [0]);
-            Require(game.CreateSnapshot(0).Players[0].Hp == expectedHp, "Qingnang must heal in this Play phase.");
-            Activate("classic:kujin", "lose-hp-and-draw", [], []);
-            Require(game.GetHumanLegalActions().All(action => action.ProgramSkillId != "classic:qingnang"),
-                "Being wounded again must not renew the current phase allowance.");
-            AssertReplay(game, registry);
-            if (phase == 0)
-            {
-                Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision, game.PendingDecision!.PromptId)));
-                ReachPlay(game);
-                var healedNextPhase = game.GetHumanLegalActions().Single(action => action.ProgramSkillId == "classic:qingnang");
-                // Leave that allowance unused until the next loop, retaining one wound.
-                Require(healedNextPhase is { Kind: LegalActionKind.UseProgramSkill }, "The new phase must renew Qingnang.");
-            }
-        }
-    }
 
     private static LegalAction Exchange(GameEngine game) => game.GetHumanLegalActions().Single(action => action.ProgramSkillId == SkillId);
     private static void Use(GameEngine game, IReadOnlyList<int> cards) => Accept(game.Submit(

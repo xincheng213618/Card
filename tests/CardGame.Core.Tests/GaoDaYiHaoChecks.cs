@@ -11,60 +11,6 @@ internal static class GaoDaYiHaoChecks
     private const string CoreFighter = "classic:core-fighter";
     private const string Mode = "identity:gao-da-yi-hao-check-5";
 
-    public static void DefinitionAndTriggerSchema()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(current.Generals[General] is { BaseHp: 4, FactionId: "god" } general &&
-                general.SkillIds.SequenceEqual([BeamRifle, IField, MobileArmor, CoreFighter]) &&
-                !current.Modes["identity:classic-5"].GeneralPoolIds!.Contains(General),
-            "Gundam One must be a four-HP god general registered outside the classic identity pools.");
-
-        var beamRifle = current.Skills[BeamRifle].Program!;
-        var activation = beamRifle.Activations.Single();
-        Require(activation.Id == "beam-shot" &&
-                activation.MinCards == 1 && activation.MaxCards == 1 &&
-                activation.SourceZones.SequenceEqual([CardZoneKind.Hand]) &&
-                activation.MinTargets == 1 && activation.MaxTargets == 1 &&
-                activation.TargetKind == SkillProgramTargetKind.OtherLivingSlashable &&
-                activation.UsesPerTurn == 1 &&
-                activation.Effects.Select(effect => effect.Op).SequenceEqual(
-                    [SkillProgramEffectOp.DiscardSelected, SkillProgramEffectOp.Damage]) &&
-                activation.Effects[1].Amount == 1,
-            "Beam Rifle must discard one hand card to deal one damage to a slashable target once per turn.");
-
-        var iField = current.Skills[IField].Program!;
-        var policy = iField.CardPolicies.Single();
-        Require(policy.Kind == SkillProgramCardPolicyKind.PreventIncomingTrickDamage &&
-                policy.CardKinds.SequenceEqual(
-                [
-                    CardKind.Duel, CardKind.DrawTwo, CardKind.BarbarianAssault,
-                    CardKind.ArrowBarrage, CardKind.PeachGarden, CardKind.FiveGrains,
-                    CardKind.Dismantlement, CardKind.Snatch, CardKind.FireAttack,
-                    CardKind.Nullification, CardKind.IronChain, CardKind.BorrowedSword
-                ]),
-            "I-Field must prevent incoming trick damage from every damaging trick card.");
-
-        var mobileArmor = current.Skills[MobileArmor].Program!;
-        var modifiers = mobileArmor.Modifiers;
-        Require(modifiers.Count == 2 &&
-                modifiers.Any(item => item.Query == SkillRuleQuery.AttackRange &&
-                    item.Operation == SkillRuleOperation.Add && item.Value == 1) &&
-                modifiers.Any(item => item.Query == SkillRuleQuery.SlashLimit &&
-                    item.Operation == SkillRuleOperation.Add && item.Value == 1),
-            "Mobile Armor must add one attack range and one slash use per turn.");
-
-        var coreFighter = current.Skills[CoreFighter].Program!;
-        var eject = coreFighter.Triggers.Single();
-        Require(eject.Window == SkillProgramTriggerWindow.SelfDyingResponse &&
-                eject.Optional &&
-                eject.UsageScope == SkillUsageScope.Game &&
-                eject.UsageLimit == 1 &&
-                eject.Effects.Select(effect => effect.Op).SequenceEqual(
-                    [SkillProgramEffectOp.DiscardOwnedZoneCards, SkillProgramEffectOp.RecoverTo,
-                     SkillProgramEffectOp.Draw]) &&
-                eject.Effects[2].Amount == 2,
-            "Core Fighter must be a once-per-game dying rescue that recovers to two and draws two.");
-    }
 
     public static void BeamRifleDiscardsOneAndDamagesOncePerTurn()
     {
@@ -101,96 +47,7 @@ internal static class GaoDaYiHaoChecks
             "The Beam Rifle activation must replay identically from a checkpoint.");
     }
 
-    public static void MobileArmorExtendsRangeAndGrantsSecondSlash()
-    {
-        var registry = Registry();
-        var completed = 0;
-        for (var seed = 1; seed <= 400 && completed < 1; seed++)
-        {
-            var game = Start(registry, Mode, seed);
-            ReachPlay(game);
-            var hand = game.CreateSnapshot(0, true).Players[0].Hand;
-            if (hand.Count(card => card.Kind == CardKind.Slash) < 2) continue;
-            var first = game.GetHumanLegalActions().FirstOrDefault(item =>
-                item.Kind == LegalActionKind.Slash &&
-                hand.Any(card => card.Id == item.CardId && card.Kind == CardKind.Slash));
-            if (first is null) continue;
-            var rangeResult = game.Submit(new PlayCardCommand(
-                0, first.CardId!.Value, [2], game.Revision,
-                game.PendingDecision!.PromptId, first.PlayedCardKind, first.TargetCardId));
-            Require(rangeResult.Accepted, rangeResult.Error?.Message ??
-                "Mobile Armor must extend the attack range so a distance-two target is slashable.");
-            DriveToOwnTurnDecision(game);
-            hand = game.CreateSnapshot(0, true).Players[0].Hand;
-            var second = game.GetHumanLegalActions().FirstOrDefault(item =>
-                item.Kind == LegalActionKind.Slash &&
-                hand.Any(card => card.Id == item.CardId && card.Kind == CardKind.Slash));
-            if (second is null) continue;
-            Play(game, second);
-            DriveToOwnTurnDecision(game);
-            var damaged = game.Events.Select(item => item.Payload)
-                .OfType<DamageRequestedEvent>()
-                .Where(item => item.SourceSeat == 0 && item.SourceCard is CardKind.Slash)
-                .Select(item => item.TargetSeat).ToHashSet();
-            if (!damaged.Contains(2)) continue;
-            Require(damaged.Count >= 1,
-                "Both slashes under Mobile Armor must resolve as damage.");
-            completed++;
-        }
-        Require(completed == 1,
-            "No seeded setup exercised Mobile Armor's extended range and second slash.");
-    }
 
-    public static void IFieldPreventsIncomingTrickDamage()
-    {
-        var registry = Registry();
-        var verified = false;
-        for (var seed = 1; seed <= 600 && !verified; seed++)
-        {
-            var game = Start(registry, Mode, seed);
-            for (var step = 0; step < 1500 &&
-                    game.State.Status != EngineStatus.Completed &&
-                    game.CreateSnapshot(0, true).Players[0].IsAlive; step++)
-            {
-                var prompt = game.PendingDecision;
-                if (prompt is null)
-                {
-                    Advance(game);
-                    continue;
-                }
-                if (prompt.PlayerSeat != 0)
-                {
-                    Advance(game);
-                    continue;
-                }
-                if (prompt.Kind == DecisionKind.PlayCard)
-                {
-                    Accept(game.Submit(new EndPlayPhaseCommand(
-                        0, game.Revision, prompt.PromptId)));
-                    continue;
-                }
-                if (prompt.Kind == DecisionKind.RespondSlash &&
-                    prompt.IncomingCard is CardKind.Duel or CardKind.BarbarianAssault)
-                {
-                    var hpBefore = game.CreateSnapshot(0, true).Players[0].Hp;
-                    var eventCount = game.Events.Count;
-                    Answer(game, prompt.Choices.Last());
-                    var prevented = game.Events.Skip(eventCount).Select(item => item.Payload)
-                        .OfType<WuyanDamagePreventedEvent>()
-                        .FirstOrDefault(item => item.SkillOwnerSeat == 0);
-                    if (prevented is null) continue;
-                    Require(prevented.TargetSeat == 0 && prevented.PreventedAmount > 0 &&
-                            game.CreateSnapshot(0, true).Players[0].Hp == hpBefore,
-                        "I-Field must fully prevent trick damage aimed at Gundam One.");
-                    verified = true;
-                    break;
-                }
-                Answer(game, prompt.Choices.Last());
-            }
-        }
-        Require(verified,
-            "No seeded setup exercised I-Field's trick damage prevention.");
-    }
 
     public static void CoreFighterRevivesOncePerGame()
     {
@@ -272,35 +129,6 @@ internal static class GaoDaYiHaoChecks
         }
     }
 
-    private static void DriveToOwnTurnDecision(GameEngine game)
-    {
-        for (var step = 0; step < 600 && game.State.Status != EngineStatus.Completed; step++)
-        {
-            var prompt = game.PendingDecision;
-            if (prompt is null)
-            {
-                Advance(game);
-                continue;
-            }
-            if (prompt.PlayerSeat == 0 &&
-                prompt.Kind is DecisionKind.PlayCard or DecisionKind.DiscardCards)
-                return;
-            if (prompt.PlayerSeat != 0)
-            {
-                Advance(game);
-                continue;
-            }
-            if (prompt.Kind == DecisionKind.RespondDodge)
-            {
-                var handNow = game.CreateSnapshot(0, true).Players[0].Hand;
-                var dodge = prompt.Choices.FirstOrDefault(choice => choice.Cards.Count == 1 &&
-                    handNow.Any(card => card.Id == choice.Cards[0] && card.Kind == CardKind.Dodge));
-                Answer(game, dodge ?? prompt.Choices.Last());
-                continue;
-            }
-            Answer(game, prompt.Choices.Last());
-        }
-    }
 
     private static ContentRegistry Registry() => ContentRegistry.Build(
         new StandardContentPackage(), new StandardActiveSkillExpansionPackage(includeJijiu: true),

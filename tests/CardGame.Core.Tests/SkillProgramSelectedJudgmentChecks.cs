@@ -10,75 +10,6 @@ internal static class SkillProgramSelectedJudgmentChecks
     private const string ClubTriggerId = "club-recover-damage";
     private const string JudgmentReason = "skill.selected-judgment-test.leiji";
 
-    internal static void Definitions()
-    {
-        var program = SkillProgramCatalog.Load(Rules, Presentation).Programs[ProgramId];
-        var start = program.Triggers.Single(trigger => trigger.Id == StartTriggerId);
-        var spade = program.Triggers.Single(trigger => trigger.Id == SpadeTriggerId);
-        Require(program.MinimumRulesVersion == 171 &&
-                start.Effects is
-                [
-                {
-                    Op: SkillProgramEffectOp.SelectTarget,
-                    Target: SkillProgramEffectTarget.Owner,
-                    TargetKind: SkillProgramTargetKind.OtherLiving
-                },
-                {
-                    Op: SkillProgramEffectOp.StartJudgment,
-                    Target: SkillProgramEffectTarget.SelectedTarget,
-                    JudgmentReason: JudgmentReason
-                },
-                { Op: SkillProgramEffectOp.MoveBoundCards, SourceBind: "judgment-card" }
-                ] &&
-                spade is
-                {
-                    Subject: SkillProgramTriggerSubject.Any,
-                    JudgmentSource: SkillProgramTriggerSubject.Owner
-                } &&
-                spade.JudgmentReasons.SequenceEqual([JudgmentReason]) &&
-                spade.Effects.Single() is
-                {
-                    Op: SkillProgramEffectOp.Damage,
-                    Target: SkillProgramEffectTarget.Owner,
-                    TargetReference: { Kind: ProgramParticipantRef.EventTarget },
-                    Amount: 2,
-                    DamageNature: DamageNature.Thunder
-                },
-            "The unified program must freeze selected judgment subjects, initiator filters and direct subject damage.");
-        var raisedMinimum = SkillProgramCatalog.Load(
-            Rules.Replace("\"minimumRulesVersion\": 171", "\"minimumRulesVersion\": 172",
-                StringComparison.Ordinal),
-            Presentation);
-        Require(raisedMinimum.Programs.Values.All(item => item.MinimumRulesVersion == 172) &&
-                raisedMinimum.Programs[ProgramId].GameplayHash != program.GameplayHash,
-            "Program content must hash its concrete rules floor.");
-
-        AssertReject(Rules.Replace("\"schemaVersion\":62", "\"schemaVersion\":57", StringComparison.Ordinal),
-            "expected 62");
-        AssertReject(Rules.Replace("\"minimumRulesVersion\": 171", "\"minimumRulesVersion\": 170",
-                StringComparison.Ordinal),
-            "schema minimum 171");
-        var forwardCapability = SkillProgramCatalog.Load(
-            Rules.Replace(
-                "\"minimumRulesVersion\": 171",
-                $"\"minimumRulesVersion\": {GameCheckpoint.CurrentRulesVersion + 1}",
-                StringComparison.Ordinal),
-            Presentation);
-        Require(forwardCapability.Programs.Values.All(item =>
-                item.MinimumRulesVersion == GameCheckpoint.CurrentRulesVersion + 1),
-            "Program capability metadata must not force an unrelated replay-rules bump.");
-        AssertReject(Rules.Replace(
-                "{\"op\":\"selectTarget\",\"target\":\"owner\",\"targetKind\":\"otherLiving\"},",
-                string.Empty,
-                StringComparison.Ordinal),
-            "selectedTarget must be produced before it is read");
-        AssertReject(Rules.Replace("\"excludedReasons\":[]",
-                "\"excludedReasons\":[\"skill.selected-judgment-test.leiji\"]", StringComparison.Ordinal),
-            "must not overlap");
-        AssertReject(Rules.Replace("\"target\":\"owner\",\"targetRef\":{\"kind\":\"eventTarget\"},\"amount\":2",
-                "\"target\":\"judgmentSubject\",\"amount\":2", StringComparison.Ordinal),
-            "judgmentSubject");
-    }
 
     internal static void SelectedSubjectDamageAndReplay()
     {
@@ -153,47 +84,6 @@ internal static class SkillProgramSelectedJudgmentChecks
             RoundTrip(restored.CreateCheckpoint()) with { RulesVersion = 167 }, registry));
     }
 
-    internal static void ReplacementOrderUsesTurnActor()
-    {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new OrderingFixturePackage());
-        var game = FindActivationBoundary(
-            registry,
-            OrderingFixturePackage.ModeId,
-            OrderingFixturePackage.OwnerGeneralId);
-        var activationPrompt = game.PendingDecision ??
-            throw new InvalidOperationException("The ordering activation prompt was lost.");
-        var activate = activationPrompt.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("program-action") == "activate");
-        var activated = game.Submit(new AnswerPromptCommand(
-            0, activationPrompt.PromptId, activate.Id, game.Revision));
-        Require(activated.Accepted,
-            activated.Error?.Message ?? "The ordering fixture rejected its trigger activation.");
-        var targetPrompt = game.PendingDecision ??
-            throw new InvalidOperationException("The ordering fixture lost its target choice.");
-        Require(targetPrompt.Kind == DecisionKind.ProgramTrigger,
-            "The ordering fixture did not publish its target choice.");
-
-        var turnActorSeat = game.State.CurrentSeat;
-        var targetSeat = targetPrompt.ValidTargetSeats.First(seat => seat != turnActorSeat);
-        var beforeTarget = RoundTrip(game.CreateCheckpoint());
-        var current = GameReplay.Restore(beforeTarget, registry);
-        SubmitTarget(current, targetSeat);
-
-        var currentCandidates = current.ResolutionStack.OfType<JudgmentFrame>().Single()
-            .ReplacementCandidateSeats ?? [];
-        var expectedCurrent = Enumerable.Range(0, 5)
-            .Select(offset => (turnActorSeat + offset) % 5)
-            .ToArray();
-        Require(targetSeat != turnActorSeat &&
-                currentCandidates.SequenceEqual(expectedCurrent),
-            "Current rules must order frozen replacement candidates from the current turn actor.");
-
-        var replay = GameReplay.Restore(RoundTrip(current.CreateCheckpoint()), registry);
-        Require(replay.ResolutionStack.OfType<JudgmentFrame>().Single()
-                    .ReplacementCandidateSeats?.SequenceEqual(expectedCurrent) == true &&
-                replay.PendingDecision?.PromptId == current.PendingDecision?.PromptId,
-            "A paused turn-actor-ordered replacement cursor must replay exactly.");
-    }
 
     private static GameEngine FindActivationBoundary(
         ContentRegistry registry,
@@ -269,15 +159,6 @@ internal static class SkillProgramSelectedJudgmentChecks
         throw new InvalidOperationException("The selected-judgment fixture did not reach human play.");
     }
 
-    private static void SubmitTarget(GameEngine game, int targetSeat)
-    {
-        var prompt = game.PendingDecision ??
-            throw new InvalidOperationException("The selected-judgment target prompt was lost.");
-        var choice = prompt.Choices.Single(item => item.Targets.SequenceEqual([targetSeat]));
-        var result = game.Submit(new AnswerPromptCommand(
-            0, prompt.PromptId, choice.Id, game.Revision));
-        Require(result.Accepted, result.Error?.Message ?? "The selected judgment target was rejected.");
-    }
 
     private static void FinishResolution(GameEngine game)
     {

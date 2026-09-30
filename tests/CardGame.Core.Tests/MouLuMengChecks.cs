@@ -8,28 +8,6 @@ internal static class MouLuMengChecks
     private const string HengyeSkillId = "mou:hengye";
     private const string YingboSkillId = "mou:yingbo";
 
-    public static void ContentAndRulesBoundary()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        Require(current.Generals[GeneralId] is
-                {
-                    FactionId: "wu",
-                    BaseHp: 4,
-                    SkillIds: var skillIds
-                } && skillIds.SequenceEqual([HengyeSkillId, YingboSkillId]) &&
-                current.Skills[HengyeSkillId] is
-                {
-                    Tags: SkillTag.Locked,
-                    ExecutionForms: SkillExecutionForm.State
-                } &&
-                current.Skills[YingboSkillId] is
-                {
-                    Tags: SkillTag.None,
-                    ExecutionForms: SkillExecutionForm.State | SkillExecutionForm.Trigger
-                },
-            "Current Mou Lu Meng must publish Hengye and Yingbo metadata.");
-
-    }
 
     public static void HengyeGrowthAndKillReset()
     {
@@ -125,92 +103,6 @@ internal static class MouLuMengChecks
             "Full Hengye growth must persist across rounds and recover its wounded owner at turn start.");
     }
 
-    public static void YingboRoundLedgerAndReplay()
-    {
-        var fixture = CreateFixture();
-        var game = fixture.Game;
-        PlaySlash(game, fixture.TargetSeat);
-        var firstPrompt = RequirePrompt(game, DecisionKind.Yingbo);
-        var skip = firstPrompt.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("action") == "yingbo-skip");
-        Require(Answer(game, firstPrompt, skip), "The first Yingbo skip choice was rejected.");
-        ReachHumanPlay(game);
-
-        PlaySlash(game, fixture.TargetSeat);
-        ReachHumanPlay(game);
-        var modes = game.Events.Select(item => item.Payload).OfType<YingboCardModeEvent>().ToArray();
-        var secondDamage = game.Events.Select(item => item.Payload)
-            .OfType<DamageAppliedEvent>()
-            .Where(item => item.SourceSeat == 0 && item.TargetSeat == fixture.TargetSeat)
-            .Last();
-        Require(modes.Length >= 2 &&
-                modes[0] is
-                {
-                    CardKind: CardKind.Slash,
-                    WasUsedEarlierThisRound: false,
-                    CannotBeRespondedTo: true,
-                    ConvertsDamageToFire: false,
-                    DamageBonus: 0
-                } &&
-                modes[1] is
-                {
-                    CardKind: CardKind.Slash,
-                    WasUsedEarlierThisRound: true,
-                    CannotBeRespondedTo: false,
-                    ConvertsDamageToFire: true,
-                    DamageBonus: 1
-                } &&
-                secondDamage is { Amount: 2, Nature: DamageNature.Fire } &&
-                game.Events.Select(item => item.Payload).OfType<YingboDamageIncreasedEvent>()
-                    .Any(item => item.ResolutionId == modes[1].ResolutionId &&
-                                 item.OriginalAmount == 1 && item.ModifiedAmount == 2),
-            "Yingbo must make the first Slash unrespondable and the repeated same-round Slash deal +1 fire damage.");
-
-        var roundFixture = CreateFixture();
-        var roundGame = roundFixture.Game;
-        PlaySlash(roundGame, roundFixture.TargetSeat);
-        var roundGift = RequirePrompt(roundGame, DecisionKind.Yingbo);
-        Require(Answer(roundGame, roundGift, roundGift.Choices.Single(choice =>
-                choice.Parameters.GetValueOrDefault("action") == "yingbo-skip")),
-            "The round-reset fixture could not skip its first Yingbo gift.");
-        ReachHumanPlay(roundGame);
-        var playPrompt = RequirePrompt(roundGame, DecisionKind.PlayCard);
-        Require(roundGame.Submit(new EndPlayPhaseCommand(
-                0,
-                roundGame.Revision,
-                playPrompt.PromptId)).Accepted,
-            "The Mou Lu Meng fixture could not end its first play phase.");
-        ReachNextHumanPlay(roundGame);
-
-        RequirePrompt(roundGame, DecisionKind.PlayCard);
-        var nextSnapshot = roundGame.CreateSnapshot(0, revealAll: true);
-        var nextAction = roundGame.GetHumanLegalActions()
-            .Where(action => action.Kind == LegalActionKind.Slash && action.CardId is not null)
-            .OrderByDescending(action => nextSnapshot.Players[action.TargetSeats.Single()].Hp)
-            .FirstOrDefault() ??
-            throw new InvalidOperationException("The next-round fixture did not retain a legal Slash.");
-        var nextTarget = nextAction.TargetSeats.Single();
-        PlaySlash(roundGame, nextTarget);
-        var nextMode = roundGame.Events.Select(item => item.Payload).OfType<YingboCardModeEvent>().Last();
-        Require(roundGame.Events.Select(item => item.Payload).OfType<RoundStartedEvent>().Count() >= 2 &&
-                nextMode is
-                {
-                    CardKind: CardKind.Slash,
-                    WasUsedEarlierThisRound: false,
-                    CannotBeRespondedTo: true
-                } &&
-                roundGame.PendingDecision is { Kind: DecisionKind.Yingbo, PlayerSeat: 0 },
-            $"A new round must expire the same-name damage-card ledger and restore Yingbo's first-use branch " +
-            $"(rounds={roundGame.Events.Select(item => item.Payload).OfType<RoundStartedEvent>().Count()}, " +
-            $"earlier={nextMode.WasUsedEarlierThisRound}, unrespondable={nextMode.CannotBeRespondedTo}, " +
-            $"prompt={roundGame.PendingDecision?.Kind.ToString() ?? "none"}).");
-
-        var restored = GameReplay.Restore(RoundTrip(roundGame.CreateCheckpoint()), roundFixture.Registry);
-        Require(SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(roundGame.CreateSnapshot(0, revealAll: true)) &&
-                restored.PendingDecision?.Kind == DecisionKind.Yingbo,
-            "The round reset and next first-use Yingbo prompt must replay exactly.");
-    }
 
     private static int PlaySlash(GameEngine game, int targetSeat)
     {

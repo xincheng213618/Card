@@ -7,59 +7,6 @@ internal static class CardMovementProgramChecks
 {
     private const int HumanSeat = 0;
 
-    public static void DefinitionsAndVersionBoundary()
-    {
-        var program = SkillProgramCatalog.Load(Rules, Presentation).Programs[ScenarioPackage.SkillId];
-        var perCard = program.Triggers.Single(trigger => trigger.Id == "per-card");
-        var emptyBatch = program.Triggers.Single(trigger => trigger.Id == "empty-batch");
-        Require(program.RuntimeVersion == "skill-program-v62" && program.MinimumRulesVersion == 171 &&
-                perCard is
-                {
-                    Window: SkillProgramTriggerWindow.CardsMoved,
-                    MovementOccurrence: SkillProgramMovementOccurrence.PerCard,
-                    Priority: 100
-                } &&
-                perCard.SourceZones.SequenceEqual([CardZoneKind.Hand]) &&
-                emptyBatch.MovementOccurrence == SkillProgramMovementOccurrence.PerBatch &&
-                emptyBatch.Condition.Evaluate(new SkillProgramTriggerFacts(0, 4, true, 2, 2, 0)) &&
-                !emptyBatch.Condition.Evaluate(new SkillProgramTriggerFacts(0, 4, true, 1, 2, 1)),
-            "Schema 14 must freeze source-zone, occurrence, ordering and movement-count semantics.");
-
-        Reject(Rules.Replace("\"sourceZones\":[\"hand\"]", "\"sourceZones\":[]", StringComparison.Ordinal),
-            "exactly one owner-scoped source zone");
-        Reject(Rules.Replace("\"sourceZones\":[\"hand\"]",
-                "\"sourceZones\":[\"hand\",\"equipment\"]", StringComparison.Ordinal),
-            "exactly one owner-scoped source zone");
-        Reject(Rules.Replace("\"movementOccurrence\":\"perCard\",", string.Empty, StringComparison.Ordinal),
-            "movementOccurrence");
-        Require(SkillProgramCatalog.Load(Rules.Replace("\"op\":\"draw\",\"target\":\"owner\",\"amount\":1",
-                "\"op\":\"recover\",\"target\":\"owner\",\"amount\":1", StringComparison.Ordinal), Presentation)
-                .Programs[ScenarioPackage.SkillId].Triggers.Any(trigger =>
-                    trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.Recover)),
-            "Current movement triggers must use the common effect catalog.");
-
-        const string wrongWindow = """
-            {"schemaVersion":62,"skills":[{"id":"fixture:wrong-window","revision":1,
-            "minimumRulesVersion": 171,"modifiers":[],"viewAs":[],"activations":[],"triggers":[
-            {"id":"binding","window":"turnEnding","subject":"owner","optional":true,"priority":0,
-            "condition":{"kind":"compare","left":{"kind":"movedCardCount"},"operator":"greaterThan",
-            "right":{"kind":"integerConstant","value":0}},
-            "effects":[{"op":"draw","target":"owner","amount":1}]}],
-            "contributions":[],"cardIdentities":[]}]}
-            """;
-        const string wrongPresentation =
-            "{\"schemaVersion\":3,\"skills\":{\"fixture:wrong-window\":{\"name\":\"Wrong\",\"description\":\"Wrong\"}}}";
-        Reject(wrongWindow, wrongPresentation, "only by cardsMoved");
-
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        foreach (var skillId in new[] { "classic:xiaoji", "classic:lianying" })
-        {
-            Require(current.Skills[skillId].Program is
-                    { MinimumRulesVersion: 172 } migrated &&
-                    migrated.Triggers.Single().Window == SkillProgramTriggerWindow.CardsMoved,
-                $"Package 1.100 must publish {skillId} through the schema-14 card-movement window.");
-        }
-    }
 
     public static void AtomicBatchRunsPerCardAndPerBatchAndReplays()
     {

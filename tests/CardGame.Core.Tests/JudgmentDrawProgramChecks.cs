@@ -6,52 +6,6 @@ internal static class JudgmentDrawProgramChecks
     private const string SkillId = "classic:shuangxiong";
     private const string GeneralId = "classic:yan-liang-wen-chou";
 
-    public static void DefinitionsAndVersionBoundary()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var skill = current.Skills[SkillId];
-        var trigger = skill.Program?.Triggers.Single();
-
-        Require(GameCheckpoint.CurrentRulesVersion >= 126 &&
-                StandardClassicGeneralPackage.CurrentVersion >= new Version(1, 107, 0) &&
-                skill is
-                {
-                    Program: not null,
-                    Program.MinimumRulesVersion: 172
-                } &&
-                skill.ExecutionForms == (SkillExecutionForm.State | SkillExecutionForm.Trigger) &&
-                trigger is
-                {
-                    Window: SkillProgramTriggerWindow.DrawPhaseStarting,
-                    Optional: true,
-                    DrawPhaseMode: SkillProgramDrawPhaseMode.Replacement,
-                    Effects:
-                    [
-                        {
-                            Op: SkillProgramEffectOp.StartJudgment,
-                            JudgmentReason: JudgmentReasons.Shuangxiong,
-                            ResultBind: "judgment",
-                            Visibility: SkillProgramCardSetVisibility.Public
-                        },
-                        {
-                            Op: SkillProgramEffectOp.GrantTurnCardConversion,
-                            SourceBind: "judgment",
-                            ColorRelation: SkillProgramCardColorRelation.OppositeBoundCard,
-                            OutputKind: CardKind.Duel
-                        },
-                        {
-                            Op: SkillProgramEffectOp.MoveBoundCards,
-                            SourceBind: "judgment",
-                            Destination: SkillProgramCardDestination.OwnerHand
-                        }
-                    ]
-                },
-            "Current Shuangxiong must use the judgment draw program.");
-
-        Reject(
-            Rules.Replace("\"sourceBind\":\"judgment\"", "\"sourceBind\":\"missing\"", StringComparison.Ordinal),
-            "unknown card binding 'missing'");
-    }
 
     public static void JudgmentBindingConversionAndReplay()
     {

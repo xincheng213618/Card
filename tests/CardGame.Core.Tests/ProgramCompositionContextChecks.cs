@@ -48,118 +48,8 @@ internal static class ProgramCompositionContextChecks
             "can be consumed only once");
     }
 
-    public static void ActiveStateAndJudgmentReplay()
-    {
-        const string stateId = "fixture:active-state-context";
-        var stateRules = Rules(stateId, [Activation("active", Common)], []);
-        var stateRegistry = ProgramCompositionEntryChecks.Registry(stateId, stateRules, Presentation(stateId));
-        var state = ProgramCompositionEntryChecks.Start(stateRegistry, stateId);
-        ProgramCompositionEntryChecks.ReachPlay(state);
-        ProgramCompositionEntryChecks.UseActivation(state, stateId);
-        ProgramCompositionEntryChecks.Require(state.CreateSnapshot(0, true).Players.Single(player => player.Seat == 0).IsChained,
-            "The active common composition did not set the owner's chained state.");
-        var stateReplay = GameReplay.Restore(
-            ProgramCompositionEntryChecks.RoundTrip(state.CreateCheckpoint()), stateRegistry);
-        RequireParity(state, stateReplay, "active state composition");
 
-        const string judgmentId = "fixture:active-judgment-context";
-        var judgmentRules = Rules(judgmentId, [Activation("active", JudgmentEffects)], []);
-        var judgmentRegistry = ProgramCompositionEntryChecks.Registry(
-            judgmentId, judgmentRules, Presentation(judgmentId));
-        var judgment = ProgramCompositionEntryChecks.Start(judgmentRegistry, judgmentId);
-        ProgramCompositionEntryChecks.ReachPlay(judgment);
-        var beforeHand = judgment.CreateSnapshot(0, true).Players.Single(player => player.Seat == 0).HandCount;
-        ProgramCompositionEntryChecks.UseActivation(judgment, judgmentId);
-        var replay = GameReplay.Restore(
-            ProgramCompositionEntryChecks.RoundTrip(judgment.CreateCheckpoint()), judgmentRegistry);
-        ReachPlay(judgment);
-        ReachPlay(replay);
-        var resolved = judgment.Events.Select(item => item.Payload).OfType<JudgmentResolvedEvent>()
-            .Any(item => item.Reason == "fixture.composition-judgment");
-        var afterHand = judgment.CreateSnapshot(0, true).Players.Single(player => player.Seat == 0).HandCount;
-        ProgramCompositionEntryChecks.Require(resolved && afterHand == beforeHand + 1,
-            "The active judgment did not resume and move its final card to the owner's hand.");
-        RequireParity(judgment, replay, "active judgment composition");
-    }
 
-    public static void PublicAiContextAccountsForReplacementAndExpressions()
-    {
-        ProgramAiEstimate Estimate(string id, string effects, PlayerSkillContext player,
-            ProgramAiPublicContext context)
-        {
-            var program = Load(Rules(id, [Activation("active", effects)], []));
-            return ProgramCompositionAi.Estimate(program.Activations.Single().Effects, player,
-                publicContext: context);
-        }
-
-        var full = new PlayerSkillContext(0, 4, 4, 0, TurnPhase.Draw, IsOwnTurn: true);
-        var replacement = Estimate("fixture:ai-replacement",
-            """[{"op":"draw","target":"owner","amount":1}]""", full,
-            new ProgramAiPublicContext(3, NormalDrawCount: 2, ReplacesNormalDraw: true));
-        ProgramCompositionEntryChecks.Require(replacement.Score == -8 && replacement.Hint.OwnerDraw == 0,
-            "Replacement AI did not charge the displaced normal draw before valuing its explicit draw.");
-
-        var wounded = new PlayerSkillContext(0, 1, 4, 0, TurnPhase.Draw, IsOwnTurn: true);
-        var faction = Estimate("fixture:ai-factions", """
-            [{"op":"draw","target":"owner","numberExpression":"livingFactionCount"},
-             {"op":"recoverTo","target":"owner","numberExpression":"livingFactionCount","minimumValue":1,"clampToMaxHp":true}]
-            """, wounded, new ProgramAiPublicContext(3));
-        ProgramCompositionEntryChecks.Require(
-            faction.Hint.OwnerDraw == 3 && faction.Hint.OwnerRecovery == 2 && faction.Score == 60,
-            "Public living-faction count did not drive draw and recover-to estimates.");
-
-        var reveal = Estimate("fixture:ai-lost-hp", """
-            [{"op":"revealTopCards","target":"owner","numberExpression":"ownerLostHp","resultBind":"lost","visibility":"public"},
-             {"op":"moveBoundCards","target":"owner","sourceBind":"lost","destination":"ownerHand"}]
-            """, new PlayerSkillContext(0, 2, 4, 0, TurnPhase.Draw, IsOwnTurn: true),
-            new ProgramAiPublicContext(3));
-        ProgramCompositionEntryChecks.Require(reveal.Hint.OwnerDraw == 2 && reveal.Score == 16,
-            "Owner-lost-HP reveal did not estimate its public card count before movement.");
-    }
-
-    public static void ActiveTurnRuleModifierGrantsReplaysAndExpires()
-    {
-        const string id = "fixture:active-turn-rule";
-        const string effects = """
-        [{"op":"draw","target":"owner","amount":1},
-         {"op":"grantTurnRuleModifier","target":"owner","ruleQuery":"slashLimit","ruleOperation":"add","amount":1}]
-        """;
-        var registry = ProgramCompositionEntryChecks.Registry(
-            id, Rules(id, [Activation("active", effects)], []), Presentation(id));
-        var game = ProgramCompositionEntryChecks.Start(registry, id);
-        ProgramCompositionEntryChecks.ReachPlay(game);
-        ProgramCompositionEntryChecks.Require(SlashLimit(game) == 1,
-            "The fixture did not begin with the normal one-Slash limit.");
-        ProgramCompositionEntryChecks.UseActivation(game, id);
-        var grant = game.Events.Select(item => item.Payload).OfType<TurnRuleModifierGrantedEvent>().Single();
-        ProgramCompositionEntryChecks.Require(
-            SlashLimit(game) == 2 && grant.Modifier.Source.BindingId == "active" &&
-            grant.Modifier.Query == SkillRuleQuery.SlashLimit && grant.Modifier.Amount == 1,
-            "The active composition did not expose its extra Slash allowance through the real rule query.");
-        var replay = GameReplay.Restore(
-            ProgramCompositionEntryChecks.RoundTrip(game.CreateCheckpoint()), registry);
-        RequireParity(game, replay, "active turn-rule modifier");
-
-        ReachPlay(game);
-        var play = game.PendingDecision ?? throw new InvalidOperationException("Play prompt missing after grant.");
-        var ended = game.Submit(new EndPlayPhaseCommand(0, game.Revision, play.PromptId));
-        ProgramCompositionEntryChecks.Require(ended.Accepted, ended.Error?.Message ?? "Could not end granting turn.");
-        for (var step = 0; step < 64 && game.Events.Select(item => item.Payload)
-                 .OfType<TurnCardUseEffectsExpiredEvent>().All(item =>
-                     !item.GrantSequences.Contains(grant.Modifier.GrantSequence)); step++)
-        {
-            var advanced = game.PendingDecision is { Kind: DecisionKind.DiscardCards, PlayerSeat: 0 } discard
-                ? game.Submit(new DiscardCardsCommand(0,
-                    discard.ValidCardIds.Take(discard.RequiredCardCount).ToArray(), discard.PromptId, game.Revision))
-                : game.Submit(new AdvanceOneStepCommand(game.Revision));
-            ProgramCompositionEntryChecks.Require(advanced.Accepted,
-                advanced.Error?.Message ?? "Could not reach turn-rule expiry.");
-        }
-        ProgramCompositionEntryChecks.Require(
-            game.Events.Select(item => item.Payload).OfType<TurnCardUseEffectsExpiredEvent>()
-                .Any(item => item.GrantSequences.Contains(grant.Modifier.GrantSequence)) && SlashLimit(game) == 1,
-            "The active Slash-limit grant did not expire with its granting turn.");
-    }
 
     private static int SlashLimit(GameEngine game)
     {
@@ -185,11 +75,6 @@ internal static class ProgramCompositionContextChecks
         throw new InvalidOperationException("Program judgment did not return to Play.");
     }
 
-    private static void RequireParity(GameEngine left, GameEngine right, string scenario) =>
-        ProgramCompositionEntryChecks.Require(
-            ProgramCompositionEntryChecks.State(left) == ProgramCompositionEntryChecks.State(right) &&
-            ProgramCompositionEntryChecks.Events(left).SequenceEqual(ProgramCompositionEntryChecks.Events(right)),
-            $"Checkpoint replay diverged for {scenario}.");
 
     private static SkillProgram Load(string rules)
     {

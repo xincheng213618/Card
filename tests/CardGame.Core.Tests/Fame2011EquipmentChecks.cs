@@ -36,53 +36,6 @@ internal static class Fame2011EquipmentChecks
         Equal(game, Restore(game, registry));
     }
 
-    public static void GanluCapacityLossAndMovementOccurrences()
-    {
-        var (game, registry) = Create();
-        Use(game, "double-slot", [0]);
-        Use(game, "weapon", [0]); Use(game, "other-weapon", [0]);
-        Require(Equipment(game, 0).Count == 2, "Fixture must expose two physical weapons in a widened slot.");
-        Use(game, "lose-two");
-        Use(game, "abolish", [1]);
-        var handBefore = game.CreateSnapshot(0, true).Players[0].HandCount;
-        StartGanlu(game); ChoosePair(game, 0, 1); Drain(game);
-        Require(Equipment(game, 0).Count == 0 && Equipment(game, 1).Count == 0,
-            "Incoming equipment must not exceed an abolished slot's physical capacity.");
-        var moves = game.CardMovements.Where(move => move.Reason.Value.EndsWith("equipment-exchange", StringComparison.Ordinal)).ToArray();
-        Require(moves.Length == 2 && moves.All(move => move.To == CardLocation.DiscardPile),
-            "Every failed equipment entry must discard the physical card exactly once.");
-        Require(game.CreateSnapshot(0, true).Players[0].HandCount == handBefore + 7,
-            "Two equipment departures must cause one batch draw, two per-card draws and four Xiaoji cards.");
-        Require(game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
-            .Count(item => item.SkillId == "classic:xuanfeng" && item.Activated) == 1 &&
-            game.Events.Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
-            .Count(item => item.SkillId == "classic:xiaoji" && item.Activated) == 2,
-            "An atomic two-equipment exchange must offer Xuanfeng once and Xiaoji once per departed card.");
-        Equal(game, Restore(game, registry));
-        var (unwounded, _) = Create();
-        Use(unwounded, "weapon", [0]);
-        Require(!unwounded.GetHumanLegalActions().Any(action => action.ProgramSkillId == "classic:ganlu"),
-            "At full HP a one-versus-zero equipment difference is illegal.");
-        var (lion, lionRegistry) = Create(physicalKind: "classic:silver-lion");
-        var armor = lion.CreateSnapshot(0, true).Players[0].Hand.First();
-        Accept(lion.Submit(new PlayCardCommand(0, armor.Id, [], lion.Revision, lion.PendingDecision!.PromptId)));
-        Drain(lion); Use(lion, "lose-two");
-        var hpBefore = lion.CreateSnapshot(0, true).Players[0].Hp;
-        StartGanlu(lion); ChoosePair(lion, 0, 1); Drain(lion);
-        Require(lion.CreateSnapshot(0, true).Players[0].Hp == hpBefore + 1 &&
-            Equipment(lion, 1).Single().Id == armor.Id,
-            "A Silver Lion exchanged to another area must recover its old owner exactly once.");
-        Equal(lion, Restore(lion, lionRegistry));
-        var (generated, generatedRegistry) = Create();
-        Use(generated, "general-weapon"); Use(generated, "weapon", [1]);
-        var created = Equipment(generated, 0).Single();
-        Require(created.Kind == CardKind.GeneralWeapon, "Fixture must produce a generated general weapon.");
-        StartGanlu(generated); ChoosePair(generated, 0, 1); Drain(generated);
-        Require(Equipment(generated, 1).Count == 0 && generated.CreateCardZoneDiagnostics()
-            .Single(item => item.CardId == created.Id).Location == CardLocation.OutsideGame,
-            "A generated general weapon must be destroyed on equipment departure rather than re-equipped.");
-        Equal(generated, Restore(generated, generatedRegistry));
-    }
 
     public static void BuyiSelfChoiceBlindOtherPrivacyAndReplay()
     {

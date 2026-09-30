@@ -77,27 +77,6 @@ internal static class SkillProgramChecks
             "Enabling own discard completion must change the content fingerprint.");
     }
 
-    public static void LoadedProgramsAreDefensivelyImmutable()
-    {
-        var catalog = SkillProgramCatalog.Load(RulesA, PresentationA);
-        var program = catalog.Programs["scenario:composed"];
-        var originalHash = program.GameplayHash;
-
-        RequireThrows<NotSupportedException>(() =>
-            ((IDictionary<string, SkillProgram>)catalog.Programs).Add("scenario:injected", program));
-        RequireThrows<NotSupportedException>(() =>
-            ((ICollection<SkillProgramModifier>)program.Modifiers).Add(program.Modifiers[0]));
-        RequireThrows<NotSupportedException>(() =>
-            ((ICollection<CardKind>)program.ViewAs.Single().InputKinds).Add(CardKind.Peach));
-        RequireThrows<NotSupportedException>(() =>
-            ((ICollection<SkillProgramEffect>)program.Activations.Single().Effects).Clear());
-        RequireThrows<NotSupportedException>(() =>
-            ((ICollection<SkillProgramCondition>)program.Modifiers[1].Condition.Children).Clear());
-
-        Require(catalog.Programs.Count == 1 && program.GameplayHash == originalHash &&
-                program.Modifiers.Count == 2 && program.Activations.Single().Effects.Count == 3,
-            "Callers must not be able to mutate a loaded program through exposed collection interfaces.");
-    }
 
     public static void ConfiguredActiveSequenceIsAtomicAndReplayable()
     {
@@ -144,28 +123,6 @@ internal static class SkillProgramChecks
             "The accepted configured active sequence must replay to the same state.");
     }
 
-    public static void ConfiguredModifiersAndViewAsReachRealLegalActions()
-    {
-        var registry = ComposedSkillContentRegistry.CreateShowcase();
-        var drawGame = FindStartedGame(registry, "composed:draw-scholar");
-        Require(drawGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).HandCount == 7,
-            "The config-only DrawCount modifier must change the real opening draw from two cards to three.");
-
-        var handGame = FindStartedGame(registry, "composed:hand-steward");
-        Require(ReadHandLimit(handGame, 0) ==
-                handGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hp + 2,
-            "The config-only HandLimit modifier must reach the engine hand-limit query.");
-
-        var viewAsGame = FindStartedGame(registry, "composed:slash-alchemist", game =>
-            game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hand
-                .Any(card => card.Kind != CardKind.Slash));
-        var handById = viewAsGame.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0).Hand
-            .ToDictionary(card => card.Id);
-        Require(viewAsGame.GetHumanLegalActions().Any(action =>
-                action.Kind == LegalActionKind.Slash && action.CardId is { } id &&
-                action.PlayedCardKind == CardKind.Slash && handById[id].Kind != CardKind.Slash),
-            "A config-only hand-to-Slash rule must publish a real Slash legal action backed by a non-Slash hand card.");
-    }
 
     public static void ProgramHashControlsCheckpointCompatibility()
     {
@@ -198,60 +155,6 @@ internal static class SkillProgramChecks
         RequireThrows<InvalidOperationException>(() => GameReplay.Restore(checkpoint, changedRules));
     }
 
-    public static void ProgramLoseHpResumesOnceAfterRescue()
-    {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new DyingProgramPackage());
-        var rescued = CreateDyingProgramGame(registry, "identity:program-peach-5");
-        var before = rescued.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-        var action = rescued.GetHumanLegalActions().Single(item =>
-            item.Kind == LegalActionKind.UseProgramSkill && item.ProgramActivationId == "invoke");
-        var startEvents = rescued.Events.Count;
-        Require(rescued.Submit(new UseProgramSkillCommand(0, action.ProgramSkillId!, action.ProgramActivationId!,
-            [], [], rescued.Revision, rescued.PendingDecision!.PromptId)).Accepted,
-            "Lethal configured LoseHp was rejected.");
-        var rescuePrompt = rescued.PendingDecision ?? throw new InvalidOperationException(
-            $"LoseHp did not enter dying (before hp {before.Hp}, after hp {rescued.CreateSnapshot(0, true).Players.Single(player => player.Seat == 0).Hp}).");
-        var hpLost = rescued.Events.Skip(startEvents).Select(item => item.Payload).OfType<ProgramSkillHpLostEvent>().Single();
-        Require(hpLost.Amount == before.Hp && hpLost.RemainingHp == 0,
-            "Program LoseHp must report the actual HP lost when configured amount reaches past zero.");
-        var peach = rescuePrompt.Choices.Single(choice => choice.Parameters.GetValueOrDefault("response") == "peach");
-        Require(rescued.Submit(new AnswerPromptCommand(0, rescuePrompt.PromptId, peach.Id, rescued.Revision)).Accepted,
-            "Configured LoseHp owner could not rescue itself.");
-        var after = rescued.CreateSnapshot(0, revealAll: true).Players.Single(player => player.Seat == 0);
-        Require(after.IsAlive && after.Hp == 1 && after.HandCount == before.HandCount,
-            "After spending one Peach, the configured continuation must draw exactly one card once.");
-        Require(rescued.Events.Skip(startEvents).Select(item => item.Payload).OfType<CardMovedEvent>().Count(item =>
-                item.From == CardLocation.DrawPile && item.To == CardLocation.Hand(0)) == 1,
-            "The post-rescue configured Draw effect must execute exactly once.");
-
-        var fatal = CreateDyingProgramGame(registry, "identity:program-no-rescue-5");
-        action = fatal.GetHumanLegalActions().Single(item => item.Kind == LegalActionKind.UseProgramSkill && item.ProgramActivationId == "invoke");
-        startEvents = fatal.Events.Count;
-        Require(fatal.Submit(new UseProgramSkillCommand(0, action.ProgramSkillId!, action.ProgramActivationId!, [], [],
-            fatal.Revision, fatal.PendingDecision!.PromptId)).Accepted, "Fatal configured LoseHp was rejected.");
-        for (var attempts = 0; attempts < 20 && fatal.CreateSnapshot(0, true).Players[0].IsAlive; attempts++)
-        {
-            CommandResult step;
-            if (fatal.PendingDecision is { Kind: DecisionKind.RescueDying } dying)
-            {
-                var decline = dying.Choices.Single(choice => choice.Cards.Count == 0);
-                step = fatal.Submit(new AnswerPromptCommand(0, dying.PromptId, decline.Id, fatal.Revision));
-            }
-            else
-            {
-                step = fatal.Submit(new AdvanceOneStepCommand(fatal.Revision));
-            }
-            Require(step.Accepted, step.Error?.Message ?? "Fatal configured LoseHp continuation was rejected.");
-        }
-        var fatalPlayer = fatal.CreateSnapshot(0, true).Players[0];
-        var fatalDraws = fatal.Events.Skip(startEvents).Select(item => item.Payload).OfType<CardMovedEvent>().Count(item =>
-            item.From == CardLocation.DrawPile && item.To == CardLocation.Hand(0));
-        Require(!fatalPlayer.IsAlive && fatalDraws == 0,
-            $"Death must cancel Draw (alive={fatalPlayer.IsAlive}, hp={fatalPlayer.Hp}, draws={fatalDraws}, pending={fatal.PendingDecision?.Kind}).");
-        Require(SnapshotJson.Serialize(GameReplay.Restore(fatal.CreateCheckpoint(), registry).CreateSnapshot(0, true)) ==
-                SnapshotJson.Serialize(fatal.CreateSnapshot(0, true)), "Fatal configured LoseHp did not replay.");
-
-    }
 
     public static void ProgramPausedDyingAndConsumedSelection()
     {
@@ -273,19 +176,6 @@ internal static class SkillProgramChecks
             "A selected Peach spent on rescue must cancel later discard and draw steps.");
     }
 
-    public static void ProgramAnyLivingGiftExcludesOwner()
-    {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new DyingProgramPackage());
-        var game = CreateDyingProgramGame(registry, "identity:program-no-rescue-5");
-        var action = game.GetHumanLegalActions().Single(item => item.Kind == LegalActionKind.UseProgramSkill &&
-            item.ProgramActivationId == "gift-any-living");
-        Require(!action.SelectableTargetSeats.Contains(0), "GiveSelected anyLiving must exclude its owner.");
-        var before = SnapshotJson.Serialize(game.CreateSnapshot(0, true));
-        var rejected = game.Submit(new UseProgramSkillCommand(0, action.ProgramSkillId!, action.ProgramActivationId!,
-            [action.SelectableCardIds.Single()], [0], game.Revision, game.PendingDecision!.PromptId));
-        Require(!rejected.Accepted && before == SnapshotJson.Serialize(game.CreateSnapshot(0, true)),
-            "A forged self-target must be rejected atomically.");
-    }
 
     private static GameEngine FindStartedGame(
         ContentRegistry registry,

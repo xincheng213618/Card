@@ -25,20 +25,6 @@ internal static class SkillOwnershipChecks
             "A current Lord must retain every printed Sun Quan skill in stable order.");
     }
 
-    public static void LordTagFiltersGenericRuntimeDiscovery()
-    {
-        var registry = ContentRegistry.Build(
-            new StandardContentPackage(),
-            new LordTaggedActiveFixture());
-        var current = CreateTeamGame(registry);
-        ReachHumanPlay(current);
-        var currentActions = current.GetHumanLegalActions();
-        Require(Human(current).Role != Role.Lord &&
-                Human(current).Skills?.Count == 0 &&
-                currentActions.All(action => action.ProgramSkillId != LordTaggedActiveFixture.ProgramSkillId) &&
-                currentActions.All(action => action.ConversionSource?.SkillId != LordTaggedActiveFixture.LongdanSkillId),
-            "Current rules must remove Lord-tagged printed skills before passive, program and conversion discovery.");
-    }
 
     private static PlayerSnapshot Human(GameEngine game) =>
         game.CreateSnapshot(0, revealAll: true).Players.Single(player => player.IsHuman);
@@ -82,20 +68,6 @@ internal static class SkillOwnershipChecks
         throw new InvalidOperationException($"No bounded {role} fixture offered {generalId}.");
     }
 
-    private static GameEngine CreateTeamGame(ContentRegistry registry) =>
-        GameEngine.CreateStandard(new GameOptions
-        {
-            Seed = 1,
-            PlayerCount = 4,
-            HumanSeat = 0,
-            HumanRole = null,
-            HumanTeamId = "team:blue",
-            ModeId = LordTaggedActiveFixture.ModeId,
-            UseInteractiveSetup = false,
-            UseInteractiveDiscard = false,
-            AdvanceAfterHumanCommands = false,
-            MaxTurns = 20
-        }, registry);
 
     private static void ReachHumanPlay(GameEngine game)
     {

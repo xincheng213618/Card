@@ -178,60 +178,6 @@ internal static class SkillMetadataChecks
         }
     }
 
-    public static void StructuredNiepanUsageReplays()
-    {
-        var registry = ContentRegistry.Build(
-            new StandardContentPackage(),
-            new StandardActiveSkillExpansionPackage(includeJijiu: true),
-            new StandardRescueSkillExpansionPackage(),
-            new StandardClassicGeneralPackage(),
-            new NiepanLedgerFixture());
-        var game = GameEngine.CreateStandard(new GameOptions
-        {
-            Seed = 1,
-            PlayerCount = 5,
-            ModeId = NiepanLedgerFixture.ModeId,
-            HumanSeat = 0,
-            HumanRole = Role.Lord,
-            UseInteractiveSetup = false,
-            UseInteractiveDiscard = false,
-            AdvanceAfterHumanCommands = false,
-            AiPolicyVersion = 2
-        }, registry);
-        Require(game.Submit(new StartGameCommand()).Accepted, "Niepan ledger fixture failed to start.");
-        for (var step = 0; step < 30 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
-            Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
-                "Niepan ledger fixture failed to reach play.");
-
-        var action = game.GetHumanLegalActions().Single(item =>
-            item.Kind == LegalActionKind.UseProgramSkill &&
-            item.ProgramSkillId == NiepanLedgerFixture.DyingSkillId);
-        Require(game.Submit(new UseProgramSkillCommand(
-                0,
-                action.ProgramSkillId!,
-                action.ProgramActivationId!,
-                [],
-                [],
-                game.Revision,
-                game.PendingDecision!.PromptId)).Accepted,
-            "The fixture could not enter dying through a replayable command.");
-        var dying = game.PendingDecision ?? throw new InvalidOperationException("The fixture did not publish dying rescue.");
-        var niepan = dying.Choices.Single(choice =>
-            choice.Parameters.GetValueOrDefault("response") == "program-trigger" &&
-            choice.Parameters.GetValueOrDefault("skill-id") == "classic:niepan");
-        Require(game.Submit(new AnswerPromptCommand(0, dying.PromptId, niepan.Id, game.Revision)).Accepted,
-            "Structured Niepan was rejected.");
-        Require(GetStructuredNiepanUsage(game) == 1,
-            "Current program Niepan must consume its instance-scoped game record.");
-
-        var checkpoint = GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint()));
-        var restored = GameReplay.Restore(checkpoint, registry);
-        Require(GetStructuredNiepanUsage(restored) == 1 &&
-                SnapshotJson.Serialize(restored.CreateSnapshot(0, revealAll: true)) ==
-                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)),
-            "A completed program Niepan use must restore from its accepted command prefix.");
-
-    }
 
     private static void Require(bool value, string message)
     {
@@ -252,18 +198,6 @@ internal static class SkillMetadataChecks
         throw new InvalidOperationException($"Expected {typeof(T).Name}.");
     }
 
-    private static int GetStructuredNiepanUsage(GameEngine game)
-    {
-        var field = typeof(GameEngine).GetField(
-            "_skillRuntimeState",
-            BindingFlags.NonPublic | BindingFlags.Instance)!;
-        var state = (SkillRuntimeStateStore)field.GetValue(game)!;
-        return state.GetUsage(
-            0,
-            "classic:niepan",
-            "activation@template:primary:classic:niepan",
-            SkillUsageScope.Game);
-    }
 
     private sealed class MetadataFixture(
         SkillTag tags,

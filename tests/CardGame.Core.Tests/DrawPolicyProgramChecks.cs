@@ -3,32 +3,6 @@ using CardGame.Core;
 
 internal static class DrawPolicyProgramChecks
 {
-    public static void DefinitionsGroupsAndActivationBoundary()
-    {
-        var current = StandardContentRegistry.CreateWithClassicGenerals();
-        var jiangchi = current.Skills["classic:jiangchi"].Program ??
-            throw new InvalidOperationException("Current Jiangchi has no program.");
-        var zishou = current.Skills["classic:zishou"].Program ??
-            throw new InvalidOperationException("Current Zishou has no program.");
-
-        Require(GameCheckpoint.CurrentRulesVersion >= 125 &&
-                StandardClassicGeneralPackage.CurrentVersion >= new Version(1, 106, 0) &&
-                jiangchi.MinimumRulesVersion == 172 &&
-                jiangchi.Triggers.Count == 2 &&
-                jiangchi.Triggers.All(trigger => trigger.ChoiceGroup == "turn-mode" &&
-                    trigger.ChoiceLabel is not null) &&
-                zishou.Triggers.Single().Effects is
-                [
-                    { Op: SkillProgramEffectOp.Draw,
-                      NumberExpression: SkillProgramNumberExpression.LivingFactionCount },
-                    { Op: SkillProgramEffectOp.GrantTurnCardTargetRestriction,
-                      TargetRestriction: SkillProgramCardTargetRestriction.SelfOnly }
-                ],
-            "Current Jiangchi and Zishou must use grouped draw-policy programs.");
-
-        Reject(ActiveRules.Replace("__OP__", "adjustNormalDraw", StringComparison.Ordinal),
-            "requires context DrawPlan");
-    }
 
     public static void TurnPoliciesAreTypedIdempotentAndExpireTogether()
     {

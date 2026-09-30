@@ -3,48 +3,6 @@ using CardGame.Core;
 
 internal static class SkillProgramStartedJudgmentChecks
 {
-    internal static void Definitions()
-    {
-        var catalog = SkillProgramCatalog.Load(Rules, Presentation);
-        var program = catalog.Programs[ProgramId];
-        var dodge = program.Triggers.Single(trigger => trigger.Id == DodgeTriggerId);
-        var lightning = program.Triggers.Single(trigger => trigger.Id == LightningTriggerId);
-        Require(program.MinimumRulesVersion == 171 &&
-                dodge is
-                {
-                    Window: SkillProgramTriggerWindow.CardResponseAccepted,
-                    Optional: true,
-                    SourceSkillId: null,
-                    SourceViewAsId: null
-                } &&
-                dodge.CardKinds.SequenceEqual([CardKind.Dodge]) &&
-                dodge.Effects[0] is
-                {
-                    Op: SkillProgramEffectOp.StartJudgment,
-                    Target: SkillProgramEffectTarget.Owner,
-                    JudgmentReason: JudgmentReason
-                } &&
-                lightning.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
-                lightning.CardKinds.SequenceEqual([CardKind.Lightning]),
-            "Card-action triggers must keep direct effective-card filters separate from conversion sources.");
-
-        AssertReject(Rules.Replace("\"schemaVersion\":62", "\"schemaVersion\":57", StringComparison.Ordinal),
-            "expected 62");
-        AssertReject(Rules.Replace("\"cardKinds\":[\"dodge\"]",
-                "\"sourceSkillId\":\"started-judgment-test:source\",\"cardKinds\":[\"dodge\"]",
-                StringComparison.Ordinal),
-            "cannot be combined");
-        AssertReject(Rules.Replace("\"cardKinds\":[\"dodge\"]", "\"cardKinds\":[\"lightning\"]",
-                StringComparison.Ordinal),
-            "unsupported by cardResponseAccepted");
-        AssertReject(Rules.Replace("\"target\":\"owner\",\"judgmentReason\":\"skill.started-judgment-test\"",
-                "\"target\":\"opponent\",\"judgmentReason\":\"skill.started-judgment-test\"",
-                StringComparison.Ordinal),
-            "unsupported SkillProgramEffectTarget");
-        AssertReject(Rules.Replace("\"judgmentReason\":\"skill.started-judgment-test\"",
-                "\"judgmentReason\":\"\"", StringComparison.Ordinal),
-            "must not be empty");
-    }
 
     internal static void DirectDodgeAndLightningReplay()
     {

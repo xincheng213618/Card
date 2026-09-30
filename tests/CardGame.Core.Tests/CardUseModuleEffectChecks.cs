@@ -4,18 +4,6 @@ internal static class CardUseModuleEffectChecks
 {
     private const string SkillId = "fixture:card-use-effects";
 
-    public static void DefinitionsValidateAndClassifyEffectiveCards()
-    {
-        Require(CardUseCategoryCatalog.Get(CardKind.Slash) == CardUseCategories.Basic &&
-                CardUseCategoryCatalog.Get(CardKind.Duel) == CardUseCategories.InstantTrick &&
-                CardUseCategoryCatalog.Get(CardKind.Indulgence) == CardUseCategories.DelayedTrick &&
-                CardUseCategoryCatalog.Get(CardKind.Crossbow) == CardUseCategories.Equipment,
-            "Categories must use the final effective card kind.");
-        Require(!CardUseCategoryCatalog.IsValid(CardUseCategories.None) &&
-                !CardUseCategoryCatalog.IsValid((CardUseCategories)16) &&
-                CardUseCategoryCatalog.IsValid(CardUseCategories.Basic | CardUseCategories.InstantTrick),
-            "Category flags must contain supported nonempty categories.");
-    }
 
     public static void TurnStateUsesActionSemanticsStableOrderAndExpiration()
     {

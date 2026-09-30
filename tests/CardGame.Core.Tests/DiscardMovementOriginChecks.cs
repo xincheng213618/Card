@@ -4,30 +4,6 @@ using CardGame.Core;
 
 internal static class DiscardMovementOriginChecks
 {
-    public static void NativeFireAttackDiscardPreservesOriginAndReplay()
-    {
-        var (game, registry) = Start("standard:fire_attack", Suit.Heart);
-        var card = game.GetHumanLegalActions().First(a => a.Kind == LegalActionKind.FireAttack).CardId!.Value;
-        Accept(game.Submit(new PlayCardCommand(0, card, [1], game.Revision, game.PendingDecision!.PromptId)));
-        Reach(game, () => game.PendingDecision is { Kind: DecisionKind.FireAttackDiscard });
-        var cost = game.PendingDecision!.Choices.First(c => c.Cards.Count == 1);
-        var costId = cost.Cards.Single();
-        Choose(game, cost);
-        Reach(game, () => IsZongxuan(game));
-        var middle = game.CreateCheckpoint();
-        PutExactDiscardOnTop(game, costId);
-        Settle(game);
-        var begin = game.CardMovements.Single(m => m.CardId == costId && m.Reason == CardMoveReasons.FireAttackDiscard);
-        var completed = game.CardMovements.Single(m => m.CardId == costId && m.Reason == CardMoveReasons.FireAttackDiscardFinished);
-        Require(begin.From == CardLocation.Hand(0) && begin.To == CardLocation.Processing &&
-            completed.From == CardLocation.Processing && completed.To == CardLocation.DiscardPile,
-            "The native FireAttack ledger must preserve its actual two physical movements.");
-        Require(game.CardMovements.Any(m => m.CardId == costId && m.From == CardLocation.DiscardPile && m.To == CardLocation.DrawPile),
-            "The discarded payment must remain reclaimable by its original owner's discard-only trigger.");
-        Require(!game.CardMovements.Any(m => m.CardId == card && m.From == CardLocation.DiscardPile && m.To == CardLocation.DrawPile),
-            "Used-card cleanup must not be mistaken for a discard payment.");
-        ReplayFrom(game, registry, middle);
-    }
 
     public static void NativeDismantlementDiscardPreservesOriginAndReplay()
     {

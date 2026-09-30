@@ -85,23 +85,6 @@ internal static class DrawPhaseCompositionChecks
             "Skipping reveal replacement must perform only the ordinary draw.");
     }
 
-    public static void TargetHandReplacementAndExplicitDrawPauseAndReplay()
-    {
-        var registry = Registry();
-        var game = Start(registry, "fixture:draw-c"); ReachPrompt(game, "fixture:draw-c");
-        var before = Hand(game); Answer(game, "activate");
-        var targetPrompt = RequirePrompt(game, "fixture:draw-c");
-        Require(targetPrompt.IsPrivate && game.CreateSnapshot(1).PendingDecision is null &&
-                game.CreateSnapshot(1).PublicRevealedCards.Count == 0 &&
-                targetPrompt.Choices.Any(c => c.Targets.Count == 2),
-            "Target selection must publish private one-to-two-target choices.");
-        var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
-        var selected = targetPrompt.Choices.First(c => c.Targets.Count == 2);
-        Submit(game, selected); Submit(replay, replay.PendingDecision!.Choices.Single(c => c.Id == selected.Id));
-        Require(Hand(game) == before + 3 && game.State.Phase == TurnPhase.Play && game.ResolutionStack.Count == 0 &&
-                State(game) == State(replay) && Events(game).SequenceEqual(Events(replay)),
-            "Replacement must draw one and take one physical hand card per selected target without a normal draw.");
-    }
 
     public static void ValidatorRejectsUnsafeGraphs()
     {

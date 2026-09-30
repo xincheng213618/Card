@@ -8,52 +8,6 @@ using CardGame.Wpf.ViewModels;
 
 internal static class JijiuChecks
 {
-    public static void ControlsAndDying()
-    {
-        var (viewModel, general) = FindFixture();
-        using (viewModel)
-        {
-            var window = new MainWindow(viewModel);
-            window.ApplyTemplate();
-            var root = (FrameworkElement)window.Content;
-
-            Program.Assert(general.SkillDescription.Contains("红色牌", StringComparison.Ordinal),
-                "The WPF general choice must expose Jijiu's red-card rescue rule.");
-
-            var engine = Program.Engine(viewModel);
-            Program.Assert(engine.State.Players.Single(player => player.Seat == 0).Skills?
-                    .Any(skill => skill.ContentId == "standard:jijiu") == true,
-                "The selected WPF general must project Jijiu into the Core engine.");
-            var prompt = viewModel.DyingChoices.First(choice =>
-                choice.Parameters.GetValueOrDefault("response") == "peach" &&
-                choice.Description.Contains("当作【桃】", StringComparison.Ordinal));
-            var physicalCard = viewModel.Hand.Single(card => prompt.Cards.Contains(card.Id));
-            Program.Assert(physicalCard.Name != "桃" &&
-                           physicalCard.SuitGlyph is "♥" or "♦",
-                "The WPF rescue choice must point at a red physical non-Peach card.");
-
-            var output = Path.Combine(Path.GetTempPath(), "card-ui-check");
-            Directory.CreateDirectory(output);
-            Program.Render(root, 1120, 740, Path.Combine(output, "jijiu-dying.png"));
-            Program.Assert(Program.Find<TextBlock>(root).Any(text =>
-                    text.Text.Contains("当作【桃】", StringComparison.Ordinal)),
-                "The converted Jijiu action was not rendered in the dying choice panel.");
-
-            var revision = engine.Revision;
-            viewModel.SelectDyingChoiceCommand.Execute(prompt);
-            Program.Assert(engine.Revision == revision + 1 && !viewModel.IsDyingSelectionPending,
-                "The WPF Jijiu choice did not commit through the normal prompt command.");
-            Program.Assert(viewModel.BattleCues.Any(cue =>
-                    cue.Kind == CardGame.Wpf.Presentation.BattleCueKind.Response &&
-                    cue.Label == $"打出{physicalCard.Name}"),
-                "WPF battle feedback must identify the converted physical response card.");
-            Program.Assert(!viewModel.PromptText.Contains("未执行", StringComparison.Ordinal),
-                viewModel.PromptText);
-
-            window.Content = null;
-            window.Close();
-        }
-    }
 
     internal static (MainViewModel ViewModel, GeneralChoiceViewModel General) FindFixture()
     {

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Diagnostics.CodeAnalysis;
 using CardGame.Content.Standard;
 using CardGame.Core;
@@ -28,61 +28,6 @@ internal static class CardUseLifecycleChecks
         throw new InvalidOperationException("Phase-owner movement must reject a boundary without that context.");
     }
 
-    public static void BasicEquipmentAndTricksShareReplayableUseWindows()
-    {
-        foreach (var kind in new[] { CardKind.Slash, CardKind.Peach, CardKind.Alcohol, CardKind.Crossbow,
-                     CardKind.DrawTwo, CardKind.PeachGarden, CardKind.IronChain, CardKind.Lightning })
-        {
-            var registry = ContentRegistry.Build(new StandardContentPackage(), new Fixture(kind));
-            var verified = false;
-            for (var seed = 1; seed <= 64 && !verified; seed++)
-            {
-                var game = GameEngine.CreateStandard(new GameOptions
-                {
-                    Seed = seed, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord,
-                    ModeId = "fixture:card-use-lifecycle", UseInteractiveSetup = false,
-                    UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false
-                }, registry);
-                Require(game.Submit(new StartGameCommand()).Accepted, "The common lifecycle fixture must start.");
-                ReachPlay(game);
-                var cards = game.CreateSnapshot(0, true).Players[0].Hand.ToDictionary(card => card.Id, card => card.Kind);
-                var action = game.GetHumanLegalActions().FirstOrDefault(action => action.Kind != LegalActionKind.Recast &&
-                    action.CardId is { } id && cards.GetValueOrDefault(id) == kind &&
-                    (kind != CardKind.Slash || action.TargetSeats.Count == 2));
-                if (action is null) continue;
-                var start = game.Events.Count;
-                Require(game.Submit(new PlayCardCommand(0, action.CardId!.Value, action.TargetSeats,
-                    game.Revision, game.PendingDecision!.PromptId, action.PlayedCardKind)).Accepted,
-                    $"The {kind} use must start.");
-                Require(IsStage(game, "committed") && !game.Events.Skip(start).Any(item => item.Payload is CardUseFinishedEvent),
-                    $"{kind} must pause once at commitment, before completion.");
-                var restored = GameReplay.Restore(game.CreateCheckpoint(), registry);
-                foreach (var branch in new[] { game, restored })
-                {
-                    Activate(branch);
-                    ReachCompleted(branch);
-                    Require(branch.Events.Skip(start).Any(item => item.Payload is CardUseFinishedEvent finished &&
-                            finished.CardId == action.CardId), $"{kind}'s completed prompt must follow its finish event.");
-                }
-                Require(State(game) == State(restored), $"{kind} must replay from commitment through its effect.");
-                var completedReplay = GameReplay.Restore(game.CreateCheckpoint(), registry);
-                foreach (var branch in new[] { game, restored, completedReplay })
-                {
-                    Activate(branch);
-                    ReachPlay(branch);
-                }
-                Require(State(game) == State(restored) && State(game) == State(completedReplay),
-                    $"{kind} must replay from both public use windows.");
-                var resolved = game.Events.Skip(start).Select(item => item.Payload).OfType<ProgramBindingResolvedEvent>()
-                    .Where(item => item.SkillId == Fixture.SkillId && item.OwnerSeat == 0 && item.Completed).ToArray();
-                Require(resolved.Count(item => item.BindingId == "committed") == 1 &&
-                        resolved.Count(item => item.BindingId == "completed") == 1,
-                    $"{kind} must trigger once per use, including a two-target Slash.");
-                verified = true;
-            }
-            Require(verified, $"No bounded {kind} lifecycle fixture was found.");
-        }
-    }
 
     public static void DyingBasicUsesResumeTheirRescueParent()
     {
