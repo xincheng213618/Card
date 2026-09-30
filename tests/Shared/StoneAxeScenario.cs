@@ -36,7 +36,10 @@ internal static class StoneAxeScenario
                     registry.Generals[choice.ContentIds[0]].SkillIds
                         .Select(registry.GetSkill)
                         .All(skill =>
-                            skill.Id is not ("classic:tieqi" or "classic:liegong")));
+                            // Ziman (2011 Ma Su) would interpose a before-damage
+                            // prevention prompt into the axe's own damage window,
+                            // so its holders cannot stage the axe contract.
+                            skill.Id is not ("classic:tieqi" or "classic:liegong" or "classic:ziman")));
             if (generalChoice is null)
             {
                 continue;

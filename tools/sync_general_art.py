@@ -59,7 +59,7 @@ CLASSIC_HEROES = {
     "dong-zhuo": 46,
     "liu-shan": 54,
     "zhang-zhao-zhang-hong": 56, "cao-zhi": 294,
-    "fa-zheng": 288, "chen-gong": 297, "ling-tong": 292,
+    "fa-zheng": 288, "chen-gong": 297, "ling-tong": 292, "ma-su": 289,
 }
 
 # These variants have independent GeneralArt IDs and independent official pages.

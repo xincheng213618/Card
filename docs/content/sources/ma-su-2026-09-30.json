@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-09-30",
+  "contentIds": [
+    "classic:ma-su"
+  ],
+  "rulesSources": [
+    {
+      "contentId": "classic:ma-su",
+      "url": "https://x.sanguosha.com/hero/289.html",
+      "edition": "三国杀官方网站武将库 gid 289（马谡，蜀）",
+      "use": "散谣：出牌阶段限一次，你可以弃置一张牌并指定一名体力最多（或之一）的角色，你对其造成1点伤害；制蛮：当你对一名其他角色造成伤害时，你可以防止此伤害，然后获得其装备区或判定区的一张牌。"
+    },
+    {
+      "contentId": "classic:ma-su",
+      "url": "https://wiki.biligame.com/sgs/%E9%A9%AC%E8%B0%A1",
+      "edition": "BWIKI 三国杀WIKI 武将页（二手核对）",
+      "use": "体力/势力/性别/包归属核对：蜀、男、经典版 3 勾玉、一将成名2011。技能措辞与官方页一致的以官方页为准；BWIKI 页未收录散谣/制蛮的裁定细则（目标可否为自身、场上无牌时可否发动等均无 ruling）。"
+    }
+  ],
+  "versionBoundary": "散谣的目标过滤“体力最多（或之一）”新增共享目标种类 livingMaxHp（SkillProgramTargetKind 尾值 29，候选=存活角色体力等于全场最大者，含并列、按 x 站与 BWIKI 经典文本不排除自身——界版明确“除你以外”反证经典版不含此排除）；激活成本“弃置一张牌”以 sourceZones hand+equipment + discardSelected 承载。制蛮的“防止此伤害”复用既有 beforeDamageApplied 窗口与 preventCurrentDamage 操作（仁心先例）；“你对一名其他角色造成伤害时”以既有 damageSourceIsOwner 条件承载——本批把该事实捕获从 after-damage 上下文扩展到 before-damage 窗口（owner.Seat == sourceSeat），并把解析门对该条件的窗口白名单从 damage-applied 扩到含 beforeDamageApplied（damageSourceFactionIs 仍限 damage-applied）。“获得其装备区或判定区的一张牌”以 selectAndMoveOwnedCard（chooser=owner、cardOwner=eventTarget、zones equipment+judgment、destination ownerHand、skipIfNoCards）承载，eventTarget 参与者引用的窗口白名单相应纳入 before-damage 窗口。立绘 128901 已下载入库（official-ma-su.png，sha256 a0470fdf…3a0d5d）。",
+  "portraits": [
+    {
+      "contentId": "classic:ma-su",
+      "id": "128901",
+      "name": "经典形象*马谡",
+      "sourcePage": "https://x.sanguosha.com/hero/289.html",
+      "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/128901.png"
+    }
+  ]
+}

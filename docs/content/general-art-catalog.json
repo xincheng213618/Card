@@ -4024,6 +4024,23 @@
       ]
     },
     {
+      "key": "ma-su",
+      "characterName": "马谡",
+      "defaultSkinId": "128901",
+      "skins": [
+        {
+          "id": "128901",
+          "name": "经典形象*马谡",
+          "sourcePage": "https://x.sanguosha.com/hero/289.html",
+          "imageUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/128901.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ma-su.png",
+          "sha256": "a0470fdf6034ae70f27638e49f311ac7b78c5bd993c2c4968cf3e49edf3a0d5d",
+          "pixelWidth": 574,
+          "pixelHeight": 761
+        }
+      ]
+    },
+    {
       "key": "liu-bei",
       "characterName": "刘备",
       "defaultSkinId": "100101",

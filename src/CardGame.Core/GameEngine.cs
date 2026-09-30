@@ -17372,14 +17372,21 @@ public sealed partial class GameEngine
                 Continuation: BeforeDamageProgramContinuation.Attack
             } beforeDamage)
             {
-                var topMatchesWindow = _resolutionStack.LastOrDefault() is BeforeDamageProgramWindowFrame topWindow &&
-                    topWindow.Id == beforeDamage.Id;
-                var topMatchesProgram = _resolutionStack.LastOrDefault() is ProgramSkillFrame topProgram &&
-                    topProgram.WindowContext is
+                var windowIndex = _resolutionStack.FindLastIndex(item =>
+                    item is BeforeDamageProgramWindowFrame frame && frame.Id == beforeDamage.Id);
+                var topMatchesWindow = windowIndex == _resolutionStack.Count - 1;
+                // A before-damage program's own effects may open legitimate child
+                // windows (e.g. a cardsMoved continuation raised while it moves a
+                // card into the owner's hand), so the whole subtree above the
+                // window belongs to its resolution.
+                var topMatchesProgram = _resolutionStack
+                    .Skip(windowIndex + 1)
+                    .OfType<ProgramSkillFrame>()
+                    .Any(program => program.WindowContext is
                     {
                         Window: SkillProgramTriggerWindow.BeforeDamageApplied,
                         ParentFrameId: var parentFrameId
-                    } && parentFrameId == beforeDamage.Id;
+                    } && parentFrameId == beforeDamage.Id);
                 if (beforeDamage.SourceSeat != pendingAttack.SourceSeat ||
                     (beforeDamage.RedirectedTargetSeat ?? beforeDamage.TargetSeat) != pendingAttack.TargetSeat ||
                     !topMatchesWindow && !topMatchesProgram)
