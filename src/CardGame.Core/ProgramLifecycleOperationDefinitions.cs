@@ -46,6 +46,7 @@ internal sealed class DamageProgramOperationDescriptor : ProgramOperationDescrip
 internal sealed class PindianProgramOperationDescriptor : ProgramOperationDescriptorBase
 {
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.Pindian;
+    public override ProgramOperationLegalityPolicy LegalityPolicy => ProgramOperationLegalityPolicy.HandContest;
     public override ISkillProgramEffectHandler Handler { get; } = new PindianSkillProgramEffectHandler();
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.Pindian,
@@ -470,7 +471,7 @@ internal sealed class GrantTurnRuleModifierProgramOperationDescriptor : TurnEffe
                 ruleQuery: query, ruleOperation: operation);
         }
         r.AllowOnly("op", "target", "ruleQuery", "ruleOperation", "condition");
-        if (query is not (SkillRuleQuery.SlashDistanceLimit or SkillRuleQuery.AttackRange) ||
+        if (query is not (SkillRuleQuery.CardUseDistanceLimit or SkillRuleQuery.SlashDistanceLimit or SkillRuleQuery.AttackRange) ||
             operation != SkillRuleOperation.Unlimited)
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}: supports slashLimit/handLimit add, slashDistanceLimit unlimited or attackRange unlimited.");

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:zhengrong": {
+      "name": "征荣",
+      "description": "当你使用【杀】或伤害锦囊牌时，你可以选择其中一个手牌数不小于你的目标角色，将其一张牌置于你的武将牌上，称为“荣”。",
+      "authorityName": "荣"
+    },
+    "classic:hongju": {
+      "name": "鸿举",
+      "description": "觉醒技，准备阶段，若“荣”的数量不小于3，你用任意手牌替换等量的“荣”，减少1点体力上限并获得“清侧”。"
+    },
+    "classic:qingce": {
+      "name": "清侧",
+      "description": "出牌阶段，你可以获得一张“荣”并弃置一张手牌，然后弃置场上的一张牌。"
+    }
+  }
+}

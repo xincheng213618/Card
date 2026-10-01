@@ -166,6 +166,14 @@ internal sealed class ProgramAiEstimateContext
         _otherAdjustment += effect.Op == SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd ? 4d : 6d;
     }
 
+    internal void FinalTargetPublicPile(SkillProgramEffect effect)
+    {
+        // Only the known public opportunity is priced; anonymous hands remain unknown.
+        if (effect.Op == SkillProgramEffectOp.ObtainPublicPileCard)
+            Draw(new SkillProgramEffect(SkillProgramEffectOp.Draw, SkillProgramEffectTarget.Owner, 1, effect.Condition));
+        else _otherAdjustment += effect.Op == SkillProgramEffectOp.ExchangePublicPileHand ? 1d : 8d;
+    }
+
     internal void PublicPersistentPile(SkillProgramEffect effect)
     {
         // Storage improves the public reserve/hand limit; optional exchange can finish

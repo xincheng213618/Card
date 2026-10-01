@@ -69,6 +69,8 @@ internal sealed record RequireAnyContext(ProgramContextCapability Capabilities) 
 internal sealed record SelectSingleTarget : ProgramResourceOperation;
 internal sealed record ReplaceSingleTarget : ProgramResourceOperation;
 internal sealed record ConsumeSelectedCards(int Count) : ProgramResourceOperation;
+internal sealed record RequireEquipmentSlotActivation : ProgramResourceOperation;
+internal sealed record RequireEquipmentRecastActivation : ProgramResourceOperation;
 internal sealed record CreatePindianResult(string Name) : ProgramResourceOperation;
 internal sealed record ReadPindianResult(string Name) : ProgramResourceOperation;
 internal sealed record CreateChoiceResult(string Name, IReadOnlyList<string> Options) : ProgramResourceOperation;

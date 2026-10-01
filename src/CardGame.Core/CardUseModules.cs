@@ -668,6 +668,8 @@ internal sealed class TurnCardUseEffectStore
                     (item.Operation != SkillRuleOperation.Add || item.Amount is < -20 or > 20 || item.Amount == 0 || item.CardKinds is { Count: > 0 }) ||
                 item.Query == SkillRuleQuery.SlashLimit &&
                     (item.Operation != SkillRuleOperation.Add || item.Amount <= 0) ||
+                item.Query == SkillRuleQuery.CardUseDistanceLimit &&
+                    (item.Operation != SkillRuleOperation.Unlimited || item.Amount != 0 || item.CardKinds is { Count: > 0 }) ||
                 item.Query == SkillRuleQuery.SlashDistanceLimit &&
                     item.Operation != SkillRuleOperation.Unlimited ||
                 item.Query == SkillRuleQuery.AttackRange &&
@@ -679,7 +681,7 @@ internal sealed class TurnCardUseEffectStore
                 item.Query == SkillRuleQuery.CardEffectImmunity &&
                     (item.Operation != SkillRuleOperation.Set || item.Amount != 1 || item.CardKinds is not { Count: > 0 } ||
                      item.CardKinds.Any(kind => !GrantTurnCardEffectImmunityProgramOperationDescriptor.CardEffectImmunityKinds.Contains(kind))) ||
-                item.Query is not (SkillRuleQuery.DrawCount or SkillRuleQuery.HandLimit or SkillRuleQuery.SlashLimit or SkillRuleQuery.SlashDistanceLimit or
+                item.Query is not (SkillRuleQuery.DrawCount or SkillRuleQuery.HandLimit or SkillRuleQuery.SlashLimit or SkillRuleQuery.CardUseDistanceLimit or SkillRuleQuery.SlashDistanceLimit or
                     SkillRuleQuery.AttackRange or SkillRuleQuery.CardTargetCount or SkillRuleQuery.CardEffectImmunity or SkillRuleQuery.OutgoingDistance)) ||
             _targetRestrictions.Any(item => item.Restriction == SkillProgramCardTargetRestriction.SelfOnly
                 ? item.TargetSeat is not null || item.SubjectSeat < 0

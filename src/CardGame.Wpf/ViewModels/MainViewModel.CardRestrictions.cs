@@ -5,11 +5,11 @@ namespace CardGame.Wpf.ViewModels;
 public sealed partial class MainViewModel
 {
     private static string PublicStateBadge(PlayerSnapshot player) =>
-        string.Join(" · ", new[] { PublicPileBadge(player), PublicMarkerBadge(player), DeferredHandAlignmentBadge(player), IssuedUseProhibitionBadge(player), SuitShieldBadge(player) }
+        string.Join(" · ", new[] { PublicPileBadge(player), PublicMarkerBadge(player), DeferredHandAlignmentBadge(player), IssuedUseProhibitionBadge(player), PhaseSuitAllowanceBadge(player), SuitShieldBadge(player) }
             .Where(text => text.Length > 0));
 
     private static string PublicStateTooltip(PlayerSnapshot player) =>
-        string.Join("\n", new[] { PublicPileTooltip(player), PublicMarkerBadge(player), DeferredHandAlignmentTooltip(player), IssuedUseProhibitionTooltip(player), SuitShieldTooltip(player) }
+        string.Join("\n", new[] { PublicPileTooltip(player), PublicMarkerBadge(player), DeferredHandAlignmentTooltip(player), IssuedUseProhibitionTooltip(player), PhaseSuitAllowanceTooltip(player), SuitShieldTooltip(player) }
             .Where(text => text.Length > 0));
 
     private static string PublicMarkerBadge(PlayerSnapshot player) =>
@@ -29,6 +29,18 @@ public sealed partial class MainViewModel
 
     private static string DeferredHandAlignmentBadge(PlayerSnapshot player) =>
         player.DeferredHandAlignments is { Count: > 0 } dues ? $"待对齐 ×{dues.Count}" : string.Empty;
+
+    private static string PhaseSuitAllowanceBadge(PlayerSnapshot player)
+    {
+        var suits = (player.IssuedPlayPhaseSuitUseAllowances ?? []).SelectMany(allowance => allowance.Suits)
+            .Distinct().OrderBy(suit => (int)suit).Select(GetSuitGlyph).ToArray();
+        return suits.Length > 0 ? $"{string.Join("／", suits)}距离/次数不限" : string.Empty;
+    }
+
+    private static string PhaseSuitAllowanceTooltip(PlayerSnapshot player) =>
+        player.IssuedPlayPhaseSuitUseAllowances is { Count: > 0 }
+            ? $"本出牌阶段使用{string.Join("、", player.IssuedPlayPhaseSuitUseAllowances.SelectMany(allowance => allowance.Suits).Distinct().OrderBy(suit => (int)suit).Select(GetSuitGlyph))}牌无距离和次数限制；其他使用条件仍适用。结束出牌阶段后解除。"
+            : string.Empty;
 
     private static string DeferredHandAlignmentTooltip(PlayerSnapshot player) =>
         string.Join("\n", (player.DeferredHandAlignments ?? []).Select(due =>

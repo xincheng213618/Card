@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:qianjie": {
+      "name": "谦节",
+      "description": "锁定技，当你进入连环状态时，你防止之。你不能成为延时锦囊牌和其他角色拼点的目标。"
+    },
+    "classic:jueyan": {
+      "name": "决堰",
+      "description": "出牌阶段限一次，你可以废除一个装备栏并于本回合获得对应效果：武器栏，使用【杀】的限制次数+3；防具栏，摸三张牌且手牌上限+3；坐骑栏，使用牌无距离限制；宝物栏，获得“集智”。",
+      "activationLabels": {
+        "weapon": "废除武器栏",
+        "armor": "废除防具栏",
+        "mounts": "废除两个坐骑栏",
+        "treasure": "废除宝物栏"
+      }
+    },
+    "classic:poshi": {
+      "name": "破势",
+      "description": "觉醒技，准备阶段，若你的装备栏均被废除或体力值为1，你减少1点体力上限，将手牌摸至体力上限，失去“决堰”并获得“怀柔”。"
+    },
+    "classic:huairou": {
+      "name": "怀柔",
+      "description": "出牌阶段，你可以重铸装备牌。"
+    }
+  }
+}

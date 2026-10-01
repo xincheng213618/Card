@@ -102,7 +102,7 @@ public sealed partial class GameEngine
             conversionChain.AddRange(additionalConversions);
         }
         ConsumeProgramViewAsUsage(conversionChain);
-        var trackAppearance = TracksPlayCardHistory;
+        var trackAppearance = TracksPlayCardHistory || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard);
         return new CardActionContext(++_cardActionSequence,
             _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
             CardActionType.Use, actorSeat, provider, provider == actorSeat ? null : actorSeat,
@@ -271,6 +271,8 @@ public sealed partial class GameEngine
         foreach (var binding in GetSkillBindingShard(owner)?.GetInstanceTriggers(window) ?? [])
         {
             var trigger = binding.Trigger;
+            if (ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.FirstCategoryCompletedTop) &&
+                (!IsFirstCategoryUse(owner.Seat,binding.SkillId,action) || AvailableCompletedTopCosts(action, _resolutionStack.OfType<CardUseFrame>().LastOrDefault(f=>f.Action?.ActionId==action.ActionId)?.Id ?? ActiveNullificationWindow?.Id ?? 0).Length==0)) continue;
             if (trigger.Effects.Any(e=>e.Op==SkillProgramEffectOp.IssueCardNoResponseAndPlayUseBan) &&
                 (_phase!=TurnPhase.Play || action.ActorSeat!=_currentSeat || owner.Seat!=action.ActorSeat || !IsEligibleIssuedNoResponseCard(action.EffectiveKind) || HasIssuedPolicyForAction(action.ActionId))) continue;
             if (window is (SkillProgramTriggerWindow.CardUseCompleted or SkillProgramTriggerWindow.CardUseCommitted) && action.Type == CardActionType.Response &&

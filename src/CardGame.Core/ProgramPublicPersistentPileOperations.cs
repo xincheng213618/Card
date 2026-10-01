@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 internal interface IPublicPersistentPileProgramHost
 {
@@ -50,7 +50,17 @@ public sealed class StoreTopCardInPublicPileHandler : PublicPileHandler { public
 public sealed class ExchangePublicPileHandler : PublicPileHandler { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ExchangePublicPile; }
 public sealed class DistributePublicPileIfAllSuitsHandler : PublicPileHandler { public override SkillProgramEffectOp Op => SkillProgramEffectOp.DistributePublicPileIfAllSuits; }
 
-public sealed record PublicPersistentPileSource(int OwnerSeat, string SkillId, string SkillInstanceId, int Capacity);
+public sealed record PublicPersistentPileSource(int OwnerSeat, string SkillId, string SkillInstanceId, int Capacity,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] string? PublicPileId = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore]
+    public CardLocation Location => new(CardZoneKind.PublicPersistentPile, OwnerSeat, PublicPileId);
+}
 public sealed record ProgramPublicPileDraft(int OwnerSeat, string SourceSkillId, string Stage, int Capacity,
     IReadOnlyList<int> OwnedIds, IReadOnlyList<CardLocation> OwnedLocations, IReadOnlyList<int> PileIds,
-    IReadOnlyList<int> RemainingIds);
+    IReadOnlyList<int> RemainingIds,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] string? SourceSkillInstanceId = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] CardLocation? SourceLocation = null);
+
+public sealed record PublicPersistentPileSnapshot(int OwnerSeat, string SourceSkillId, string SourceSkillInstanceId,
+    string? Name, IReadOnlyList<CardSnapshot> Cards, int Count, CardLocation Location);

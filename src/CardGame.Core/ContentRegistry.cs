@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -271,7 +271,7 @@ public sealed class ContentRegistry
                     activation.MinTargets == 1 && activation.MaxTargets == 1, activation.MaxCards,
                     initialTargetSetCount: activation.MaxTargets > 1 ? activation.MinTargets : 0,
                     initialTargetSetMaximum: activation.MaxTargets > 1 ? activation.MaxTargets : 0,
-                    expandedCardDomain: true, activationTargetKind: activation.TargetKind, activationSourceZones: activation.SourceZones, activationMinimumCards: activation.MinCards);
+                    expandedCardDomain: true, activationTargetKind: activation.TargetKind, activationSourceZones: activation.SourceZones, activationMinimumCards: activation.MinCards, activationCardCategories: activation.CardCategories);
             foreach (var trigger in program.Triggers)
                 ProgramCompositionValidator.Validate($"registry.skills[{program.Id}].triggers[{trigger.Id}]", trigger.Effects,
                     initialSelectedTarget: trigger.DeferredTurnEndOnly, window: trigger.Window, drawPhaseMode: trigger.DrawPhaseMode, expandedCardDomain: true, cardActionRelation: trigger.OwnerRelation, cardKinds: trigger.CardKinds, turnOwnerScope: trigger.TurnOwnerScope);
@@ -500,6 +500,21 @@ public sealed class ContentRegistry
                        !HasRequiredPositiveCondition(trigger.Condition,SkillProgramTriggerConditionKind.CardActionActorIsCurrentTurn) || !HasRequiredPositiveCondition(trigger.Condition,SkillProgramTriggerConditionKind.CardActionPhaseIsPlay))
                         throw new InvalidOperationException("Issued card policy requires a single own Play actor use.");
                 }
+                foreach (var trigger in skill.Program!.Triggers.Where(t =>
+                             t.Effects.Any(e => e.Op == SkillProgramEffectOp.ReplaceSkillsOnPreparation)))
+                {
+                    if (trigger.Window != SkillProgramTriggerWindow.TurnStartBeforeNormalFlow ||
+                        trigger.Subject != SkillProgramTriggerSubject.Owner ||
+                        trigger.TurnOwnerScope != SkillProgramTurnOwnerScope.Own || trigger.Optional ||
+                        trigger.UsageScope != SkillUsageScope.Game || trigger.UsageLimit != 1 ||
+                        trigger.Effects[^1].Op != SkillProgramEffectOp.ReplaceSkillsOnPreparation)
+                        throw new InvalidOperationException(
+                            "Preparation replacement requires its terminal forced once-game own preparation binding.");
+                    foreach (var replacement in trigger.Effects.Where(e => e.Op == SkillProgramEffectOp.ReplaceSkillsOnPreparation))
+                        foreach (var id in replacement.SkillIds.Append(replacement.SourceBind!))
+                            if (!_skills.ContainsKey(id))
+                                throw new InvalidOperationException("Preparation replacement references an unknown skill.");
+                }
                 foreach (var trigger in skill.Program!.Triggers.Where(trigger => trigger.DeferredTurnEndOnly ||
                              trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.ScheduleDeferredHandAlignment)))
                 {
@@ -521,8 +536,11 @@ public sealed class ContentRegistry
                 }
                 foreach (var grantedSkillId in skill.Program!.Triggers
                              .SelectMany(trigger => trigger.Effects)
-                             .Where(effect => effect.Op is SkillProgramEffectOp.GrantSkills or SkillProgramEffectOp.GrantRandomSkillAndSuitShield or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard)
-                             .SelectMany(effect => effect.SkillIds))
+                             .Where(effect => effect.Op is SkillProgramEffectOp.GrantSkills or SkillProgramEffectOp.GrantRandomSkillAndSuitShield or SkillProgramEffectOp.ExchangePublicPileHand or SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard)
+                             .SelectMany(effect => effect.SkillIds)
+                             .Concat(skill.Program.Activations.SelectMany(activation => activation.Effects)
+                                 .Where(effect => effect.Op == SkillProgramEffectOp.ObtainPublicPileCard)
+                                 .SelectMany(effect => effect.SkillIds)))
                 {
                     if (!_skills.ContainsKey(grantedSkillId))
                     {

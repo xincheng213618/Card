@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:qianjie",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "prevent-chain",
+          "kind": "preventEnteringChain"
+        },
+        {
+          "id": "no-other-pindian-target",
+          "kind": "prohibitPindianTarget"
+        },
+        {
+          "id": "no-delayed-target",
+          "kind": "prohibitDelayedTrickTarget"
+        }
+      ]
+    },
+    {
+      "id": "classic:jueyan",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "weapon",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "usageGroup": "slot-group",
+          "effects": [
+            {
+              "op": "abolishEquipmentSlotGroup",
+              "target": "owner",
+              "equipmentSlots": [
+                "weapon"
+              ]
+            },
+            {
+              "op": "grantTurnRuleModifier",
+              "target": "owner",
+              "ruleQuery": "slashLimit",
+              "ruleOperation": "add",
+              "amount": 3
+            }
+          ]
+        },
+        {
+          "id": "armor",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "usageGroup": "slot-group",
+          "effects": [
+            {
+              "op": "abolishEquipmentSlotGroup",
+              "target": "owner",
+              "equipmentSlots": [
+                "armor"
+              ]
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 3
+            },
+            {
+              "op": "grantTurnRuleModifier",
+              "target": "owner",
+              "ruleQuery": "handLimit",
+              "ruleOperation": "add",
+              "amount": 3
+            }
+          ]
+        },
+        {
+          "id": "mounts",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "usageGroup": "slot-group",
+          "effects": [
+            {
+              "op": "abolishEquipmentSlotGroup",
+              "target": "owner",
+              "equipmentSlots": [
+                "offensiveHorse",
+                "defensiveHorse"
+              ]
+            },
+            {
+              "op": "grantTurnRuleModifier",
+              "target": "owner",
+              "ruleQuery": "cardUseDistanceLimit",
+              "ruleOperation": "unlimited"
+            },
+            {
+              "op": "grantTurnRuleModifier",
+              "target": "owner",
+              "ruleQuery": "slashDistanceLimit",
+              "ruleOperation": "unlimited"
+            }
+          ]
+        },
+        {
+          "id": "treasure",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "usageGroup": "slot-group",
+          "effects": [
+            {
+              "op": "abolishEquipmentSlotGroup",
+              "target": "owner",
+              "equipmentSlots": [
+                "treasure"
+              ]
+            },
+            {
+              "op": "grantTurnSkills",
+              "target": "owner",
+              "skillIds": [
+                "classic:jizhi"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:poshi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "awaken",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "any",
+            "children": [
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "currentHp"
+                },
+                "operator": "equal",
+                "right": {
+                  "kind": "integerConstant",
+                  "value": 1
+                }
+              },
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "currentAvailableEquipmentSlotCount"
+                },
+                "operator": "equal",
+                "right": {
+                  "kind": "integerConstant",
+                  "value": 0
+                }
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": -1
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "targetMaxHpMinusHandCount"
+            },
+            {
+              "op": "replaceSkillsOnPreparation",
+              "target": "owner",
+              "skillIds": [
+                "classic:jueyan"
+              ],
+              "sourceBind": "classic:huairou"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:huairou",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "recast-equipment",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "cardCategories": [
+            "equipment"
+          ],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "effects": [
+            {
+              "op": "recastSelectedEquipment",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

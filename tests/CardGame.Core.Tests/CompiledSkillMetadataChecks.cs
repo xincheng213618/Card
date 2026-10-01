@@ -25,6 +25,20 @@ internal static class CompiledSkillMetadataChecks
             foreach (var op in Enum.GetValues<SkillProgramEffectOp>())
                 Require(dependencies.HasTriggerOperation(op) == triggers.Any(trigger => trigger.Effects.Any(effect => effect.Op == op)),
                     $"Activation effects must not alter the trigger-only operation opt-in {op}.");
+            foreach (var op in Enum.GetValues<SkillProgramEffectOp>())
+            {
+                Require(dependencies.HasActivationOperation(op) == programs.Any(program =>
+                    program.Activations.Any(activation => activation.Effects.Any(effect => effect.Op == op))),
+                    $"Unowned activation definitions must preserve the catalog appearance opt-in {op}.");
+                var expectedSkills = registry.Skills.Values.Where(skill => skill.Program?.Triggers
+                    .Any(trigger => trigger.Effects.Any(effect => effect.Op == op)) == true)
+                    .Select(skill => skill.Id).ToArray();
+                var capturedSkills = dependencies.GetTriggerOperationSkillIds(op);
+                Require(capturedSkills.SequenceEqual(expectedSkills),
+                    $"The unconditional trigger ledger must retain the exact catalog skill identities for {op}.");
+                Require(capturedSkills.Count == 0 || capturedSkills is ICollection<string> frozen && frozen.IsReadOnly,
+                    "Definition dependency lists cannot become mutable rule state.");
+            }
             foreach (var window in Enum.GetValues<SkillProgramTriggerWindow>())
                 Require(dependencies.HasTriggerWindow(window) == triggers.Any(trigger => trigger.Window == window),
                     $"The catalog lifecycle opt-in changed for {window}.");

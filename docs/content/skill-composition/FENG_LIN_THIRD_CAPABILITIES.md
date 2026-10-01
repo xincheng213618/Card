@@ -1,0 +1,21 @@
+# 风林火山第三批冻结工程契约
+
+当前OL普通毌丘俭413（魏4）、陆抗414（吴4）、许攸406（群3）。正文以2026-10-01捕获的www hero为准；index各唯一。来源原始字节与SHA位于Card-FengLin-third-candidates-20261001，当前网页再次浏览核对。清侧、怀柔、集智使用明确普通OL官方公告补充，不采用x产品、官渡模式或谋版。此文是工程解释，不冒称未捕获的当代FAQ。
+
+公共运行边界：新能力默认opt-in，非相关内容不改旧顺序/RNG/停顿点；枚举段分别1380–1399、1400–1419、1420–1439，无现有冲突。pending随拥有者frame，runtime push/replace/complete及typed return；成本游标先提交再等待移动子链。新事实AdvanceEventRulesAndQueueFact，新状态AdvanceRulesAndPublishState；集合事件CommittedEventProjection冻结。player私有状态只CreateSnapshot(viewerSeat)，不能泄露ResolutionStack。父负责WPF/媒体和一次批次Full。worker仅自己的独立副本，不写root/别人的副本/旧交付，不跑Full/WPF/Git，不升rules/schema/package版本，不恢复裁剪suite，焦点check覆盖新行为或修复。
+
+毌丘俭：征荣在真正使用Slash家族或伤害锦囊指定目标后的窗口，从该actual action真实final targets中选一名活目标且其手数>=owner；范围HE（其一张牌），手牌候选匿名、装备公开，转入命名公开荣pile，不从任意非目标取牌。多个真实目标仅一次选择；同一use不重触发。采用当前hero及2020补充，不退回伤害后/手牌严格更多旧规则。鸿举prep荣>=3觉醒，不要求已有死者；等量真hand/pile交换允许0张，完成后maxHP-1并grant清侧。清侧真实获得一张荣→弃置一张自己的手牌→弃置任意角色场上EJ一张牌（场上不是H），逐步等待gain/discard嵌套，不重复付款；获取荣后不能假定其仍在手中，按真实现手牌选费用。死亡/gameover、source失效按已承诺费用与既有cursor边界处理。
+
+陆抗：谦节live防进入chained，既有已横置状态不因grant自动清除，失去/压制时不防；覆盖真状态变化的所有入口。live拒绝延时锦囊及其他角色拼点target，不能只裁剪UI/普通主动操作。决堰own actual Play限一次，typed槽位分组选择+真废除费用+对应效果；武器Slash+3到本回合，防具draw3与handlimit+3到本回合，坐骑作为一个选项同时废除进攻/防御两槽（若已有一槽废除，只支付其余未废除槽；两槽全废除无选项），本回合Use无距离；宝物grant既有集智仅本回合。官方2019明确2个坐骑栏；不要把单槽generic套成2次发动。废除装备真实去牌/嵌套与effect精确续接，额外Play实例限次独立。破势prep全五槽废除或HP1，maxHP-1→手补至新max→失决堰/grant怀柔，仅一次觉醒；死亡/maxHP底限走已有觉醒边界。怀柔无次数限制重铸一张自己H或E装备，真离区弃置/重铸后draw1，不从别人区取；手牌/装备资格是按未限定装备牌及现有重铸协议的明确工程解释。
+
+许攸：成略初始阳，own actual Play限一次，阳draw1/discard2hand、阴draw2/discard1hand；真实手牌不足时按既有discard数量语义尽量弃至可用，不能造实体或强迫非法付款；交替状态与限次先承诺，draw/discard嵌套不会重复，授权实际弃置牌花色到本阶段。同花色Use无距离/次数限制（不无视其他target/card合法性/issued ban），覆盖native/viewAs/effective suit、Slash debit、borrowed-sword真实child及AI；跨phase过期。恃才whole actual turn三大类型basic/trick/equipment首次Use登记与技能当时有效/是否接受独立；Dodge与Nullif真Use计，Duel/AOE真正played不计；无效/拒绝后同类第二张不误作首次，loss/regrant不清首次。完成use后仅其actual physical cost仍在该use Processing/Discard，或其刚装入owner Equipment且同实体/完成use证明；不从别人手牌、已被其他技能领取的牌或已被替换装备取回，不复制成本。多成本按existing card-group排序契约，必须允许真实排序，不硬编码随机或静默顺序；无可用成本不触发置顶后的draw。选成本资格付款时再次核对。寸目是live all real Draw策略，正常/技能/嵌套draw按底逐张，补牌/洗牌沿原规则，非Draw获得/看顶不改；单纯顶牌后寸目仍从底摸。新bottom draw方向不污染非opt-in玩家/私有窥视。
+
+必要代表检查：真实human/AI、普通登记、非法输入原子性、实际移动/实体守恒、checkpoint/commandJSON多viewer隐私与停顿恢复。毌丘俭真实多targets/匿名H取牌、0与多张等量交换、清侧取得触发gain子链；陆抗横置多入口/target禁令/坐骑两槽/宝物临时grant/觉醒补牌与重铸；许攸全入口底draw/wholeturn首类型/真响应与played对照/装备及多实体置顶/取得后资格丢失/花色政策阶段过期。使用合法identity:classic-mode和固定小牌池或已验证seed；不得seed sweep。只添加必要行为checks，已有配置注册由共享测试覆盖。
+
+多来源公开牌堆：含征荣能力的完整program catalog启用多来源支持；同一owner可同时持有书、荣及同skill的多个真实grant实例。源以owner/skill/instance区分，实体仍只归CardZoneStore管理；source记录仅保存身份、容量与位置元数据。首源保留旧PublicPersistentPile默认地址，后续源以稳定skill+instance标识创建真正独立zone。CardLocation.PublicPileId为可空字段，仅PublicPersistentPile允许非空标识，缺省序列化不增加null属性。书沿用1..16容量契约，荣容量0表示无上限；容量、交换、获得与失源清理按实际源位置执行，死亡清理owner的全部来源，不共用总实体牌堆。
+
+来源计数：trigger facts可选PublicPersistentPileCounts按skill+instance冻结，存在该map时缺失键计0；program计数优先自己的instance，再匹配同grant SourceId的引用来源。跨来源消费有多个候选时，条件用单个来源计数的最大值判断是否存在合格源，不把牌数求和；交换再按冻结条件筛选，显式选择合格源。辟撰容量与手牌上限只看自己的书源，鸿举只看引用荣源。因此4书无荣、4书加1荣都不能满足鸿举；荣已达4张以上也不阻止书少于4张时继续辟撰。共享检查覆盖真实实体移动、多个同skill实例的选择、来源局部清理及这些负向边界；完整窃械复制链不属于本次已验证范围。
+
+快照兼容：PlayerSnapshot.PublicPersistentPiles为可选列表，仅实际存在多个source记录时输出；每项包含OwnerSeat、SourceSkillId、SourceSkillInstanceId、可空Name、Cards、Count与Location。多来源时旧PublicPersistentPileCards/Name/SkillId为空、Count为0，避免将混合牌面误标为单一书或荣。单来源继续使用旧四字段并省略新列表；缺省CardLocation JSON及原书事件、选择停顿点保持兼容。所有viewer看同一公开牌面与位置，外层列表及各项Cards在prepared view中深冻结；私人手牌费用仍只通过CreateSnapshot(viewerSeat)暴露给合法viewer。新增计数map在捕获时构造只读副本，新增集合事件仍须进入CommittedEventProjection冻结边界。
+
+支付后恢复：PublicPileDraft属于其ProgramSkillFrame，选源后保存精确SourceSkillInstanceId与SourceLocation；不存在或失效来源不能改用另一来源续付。等量交换在首次移动前验证双方真实位置，先登记PendingMovementContinuation并清掉已完成draft，再完成整批真移动，最后打开cards-moved子链；获得荣、场上弃置也先承诺movement再等待child，typed return按已付游标续接。零张交换直接推进；清侧获牌child结束后按当前真实手牌选择费用，不能假定取得实体仍在手中，也不能重复获得或付款。movement恢复校验中，四个公开牌堆op必须匹配owner且无CoverageResultBind；许攸两个op另须匹配AlternatingSuitTop的draw/discard-movement/top-movement/reward-draw阶段及同样owner/noCoverage边界，其他既有receipt条件保留。

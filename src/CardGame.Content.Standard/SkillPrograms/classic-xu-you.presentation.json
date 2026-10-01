@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:chenglue": {
+      "name": "成略",
+      "description": "转换技，出牌阶段限一次，阳：你可以摸一张牌并弃置两张手牌；阴：你可以摸两张牌并弃置一张手牌。然后你本阶段使用与弃置牌花色相同的牌无距离和次数限制。"
+    },
+    "classic:shicai": {
+      "name": "恃才",
+      "description": "当你每回合首次使用一种类型的牌后，你可以将之置于牌堆顶，然后摸一张牌。"
+    },
+    "classic:cunmu": {
+      "name": "寸目",
+      "description": "锁定技，当你摸牌时，你改为从牌堆底摸牌。"
+    }
+  }
+}

@@ -9,7 +9,7 @@ public sealed partial class GameEngine
     {
         if (_pendingDecision is not null || _resolutionStack.LastOrDefault()?.Id != parentId ||
             _resolutionStack.Any(item => item is PindianFrame) || !_players[sourceSeat].IsAlive ||
-            GetHand(_players[sourceSeat]).Count == 0)
+            GetHand(_players[sourceSeat]).Count == 0 || opponentSeat is { } opponent && !CanBePindianTarget(sourceSeat, opponent))
             throw new InvalidOperationException("Pindian requires one suspended parent and a living source with hand cards.");
         var frame = new PindianFrame(++_resolutionSequence, parentId, presentation.SkillId, presentation,
             sourceSeat, opponentSeat, sourceCardId,
@@ -29,9 +29,9 @@ public sealed partial class GameEngine
         var chooser = _players[selectingSource ? frame.SourceSeat : frame.OpponentSeat!.Value];
         var hand = GetHand(chooser);
         var targets = frame.PindianStep == PindianStep.ChooseParticipants ? _players.Where(player => player.IsAlive &&
-            player.Seat != chooser.Seat && GetHand(player).Count > 0).Select(player => player.Seat).ToArray() : [];
+            player.Seat != chooser.Seat && GetHand(player).Count > 0 && CanBePindianTarget(frame.SourceSeat, player.Seat)).Select(player => player.Seat).ToArray() : [];
         if (!chooser.IsAlive || hand.Count == 0 || frame.PindianStep == PindianStep.ChooseParticipants && targets.Length == 0 ||
-            !selectingSource && (chooser.Seat == frame.SourceSeat ||
+            !selectingSource && (chooser.Seat == frame.SourceSeat || !CanBePindianTarget(frame.SourceSeat, chooser.Seat) ||
                 !HasCurrentPindianSourceCard(frame)))
             throw new InvalidOperationException("Pindian participants no longer have legal hand cards.");
         var choices = new List<PromptChoice>();

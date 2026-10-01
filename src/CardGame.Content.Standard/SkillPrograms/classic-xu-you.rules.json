@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:chenglue",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "alternate",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0, "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "alternatingSuitDrawDiscard",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:shicai",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "first-category",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "optional": true,
+          "effects": [
+            {
+              "op": "firstCategoryCompletedTop",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:cunmu",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "bottom",
+          "kind": "drawFromBottom"
+        }
+      ]
+    }
+  ]
+}

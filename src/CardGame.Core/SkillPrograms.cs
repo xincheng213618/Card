@@ -63,7 +63,8 @@ public enum SkillProgramTriggerConditionKind
 }
 public enum SkillProgramTriggerValueKind
 {
-    IntegerConstant,
+    CurrentAvailableEquipmentSlotCount = 1400,
+    IntegerConstant = 0,
     CardsUsedThisTurn,
     CurrentHp,
     CurrentMaxHp,
@@ -170,6 +171,8 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    CollectFinalTargetCardInPublicPile = 1380, ExchangePublicPileHand = 1381, ObtainPublicPileCard = 1382, DiscardPublicZoneAfterHandPayment = 1383,
+    AlternatingSuitDrawDiscard = 1420, FirstCategoryCompletedTop = 1421,
     PeekTurnQuotaTop = 1320,
     NullifyFirstTurnTargetByHand = 1321,
     IssueCardNoResponseAndPlayUseBan = 1340,
@@ -182,6 +185,7 @@ public enum SkillProgramEffectOp
     DeclareNameForTargetDefense = 1120, DrawAndDraftLowHandPopulation = 1121,
     ApplyAlternatingChoiceBenefit = 1100,
     ObtainDeckCardWithConsecutiveTarget = 1101,
+    AbolishEquipmentSlotGroup = 1400, RecastSelectedEquipment = 1401, ReplaceSkillsOnPreparation = 1402,
     CompareSelectedHandWithHpHand = 1160,
     AdjustPersistentHandLimit = 1161,
     ProhibitSelfCardTargetsForTurn = 1162,
@@ -727,7 +731,9 @@ public sealed record SkillProgramTriggerFacts(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] bool? OtherDamageSourceAlive = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? BlockedDamageSourceSkills = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<int>? LowHandPopulationSeats = null,
-    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<PlayerMarkerKind,int>? EventTargetMarkerCounts = null)
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<PlayerMarkerKind,int>? EventTargetMarkerCounts = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? CurrentAvailableEquipmentSlotCount = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, int>? PublicPersistentPileCounts = null)
 {
     public bool GetBooleanState(string skillId, string skillInstanceId, string stateId) =>
         BooleanStates?.GetValueOrDefault(BooleanStateKey(skillId, skillInstanceId, stateId)) ??
@@ -766,6 +772,7 @@ public sealed record SkillProgramTriggerValue(SkillProgramTriggerValueKind Kind,
         SkillProgramTriggerValueKind.MarkerParity => facts.MarkerCounts?.GetValueOrDefault(Marker!.Value) % 2 ?? 0,
         SkillProgramTriggerValueKind.LivingWoundedCount => facts.LivingWoundedCount,
         SkillProgramTriggerValueKind.GlobalMarkerCount => facts.GlobalMarkerCounts?.GetValueOrDefault(Marker!.Value) ?? 0,
+        SkillProgramTriggerValueKind.CurrentAvailableEquipmentSlotCount => facts.CurrentAvailableEquipmentSlotCount ?? throw new InvalidOperationException("Equipment slot facts were not captured."),
         SkillProgramTriggerValueKind.CurrentHp => facts.CurrentHp,
         SkillProgramTriggerValueKind.LivingPlayersMinHp => facts.LivingPlayersMinHp,
         SkillProgramTriggerValueKind.TurnOwnerDiscardPhaseHandDiscardCount =>
@@ -835,7 +842,16 @@ public sealed class SkillProgramTriggerCondition
     public GeneralGender? Gender { get; }
     public IReadOnlyList<Suit> Suits { get; }
 
-    public bool Evaluate(SkillProgramTriggerFacts facts, string? skillId = null, string? skillInstanceId = null) => Kind switch
+    public bool Evaluate(SkillProgramTriggerFacts facts, string? skillId = null, string? skillInstanceId = null)
+    {
+        if (skillId is not null && skillInstanceId is not null && facts.PublicPersistentPileCounts is { } counts)
+        {
+            var key = $"{skillId.Length}:{skillId}{skillInstanceId.Length}:{skillInstanceId}";
+            facts = facts with { OwnedZoneCounts = facts.OwnedZoneCounts with { PublicPersistentPile = counts.GetValueOrDefault(key) } };
+        }
+        return EvaluateCore(facts, skillId, skillInstanceId);
+    }
+    private bool EvaluateCore(SkillProgramTriggerFacts facts, string? skillId, string? skillInstanceId) => Kind switch
     {
         SkillProgramTriggerConditionKind.Always => true,
         SkillProgramTriggerConditionKind.Compare => Compare(facts),
@@ -1824,7 +1840,8 @@ public sealed class SkillProgramCatalog
         }
         else if (kind != SkillProgramCardPolicyKind.PindianRankBySuit && (requiredKinds.Count != 0 || value != 0))
             Fail(path, "requiredCardKinds and value require a minimum response count policy");
-        if (kind is SkillProgramCardPolicyKind.OfferSkipDiscard or
+        if (kind is SkillProgramCardPolicyKind.OfferSkipDiscard or SkillProgramCardPolicyKind.DrawFromBottom or
+            SkillProgramCardPolicyKind.PreventEnteringChain or SkillProgramCardPolicyKind.ProhibitDelayedTrickTarget or SkillProgramCardPolicyKind.ProhibitPindianTarget or
             SkillProgramCardPolicyKind.FirstActualPlayUseDistanceUnlimited or SkillProgramCardPolicyKind.PindianTopCardChoice or SkillProgramCardPolicyKind.PindianRankBySuit or
             SkillProgramCardPolicyKind.RewriteSuit or
             SkillProgramCardPolicyKind.FactionHandLimitBonus or
@@ -2275,7 +2292,7 @@ public sealed class SkillProgramCatalog
         {
             ProgramCompositionValidator.Validate(path, effects, minTargets == 1 && maxTargets == 1,
                 maxCards, initialTargetSetCount: maxTargets > 1 ? minTargets : 0,
-                initialTargetSetMaximum: maxTargets > 1 ? maxTargets : 0, activationTargetKind: targetKind, activationSourceZones: sourceZones, activationMinimumCards: minCards);
+                initialTargetSetMaximum: maxTargets > 1 ? maxTargets : 0, activationTargetKind: targetKind, activationSourceZones: sourceZones, activationMinimumCards: minCards, activationCardCategories: cardCategories);
             if (effects.Any(effect => effect.Op == SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick) &&
                 (minCards != 1 || maxCards != 64 || minTargets != 0 || maxTargets != 0 ||
                  sourceZones.Count != 1 || sourceZones[0] != CardZoneKind.Hand))
@@ -2970,6 +2987,12 @@ public sealed class SkillProgramCatalog
         if (node.TryGetProperty("movementDiscardOnly", out _) && window is not (SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.DiscardPileReceived))
             Fail(path + ".movementDiscardOnly", "requires a cardsMoved boundary");
         var deferredOnly = node.TryGetProperty("deferredTurnEndOnly", out _) && RequiredBool(node, "deferredTurnEndOnly", path);
+        if (effects.Any(effect => effect.Op == SkillProgramEffectOp.ReplaceSkillsOnPreparation) &&
+            (window != SkillProgramTriggerWindow.TurnStartBeforeNormalFlow ||
+             subject != SkillProgramTriggerSubject.Owner || turnOwnerScope != SkillProgramTurnOwnerScope.Own ||
+             optional || usageScope != SkillUsageScope.Game || usageLimit != 1 ||
+             effects[^1].Op != SkillProgramEffectOp.ReplaceSkillsOnPreparation))
+            Fail(path, "preparation replacement requires a terminal forced once-game own preparation binding");
         if (effects.Any(effect => effect.Op == SkillProgramEffectOp.ScheduleDeferredHandAlignment) &&
             (window != SkillProgramTriggerWindow.TurnEnding || subject != SkillProgramTriggerSubject.Owner ||
                 turnOwnerScope != SkillProgramTurnOwnerScope.Own))

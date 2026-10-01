@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 // Snapshot construction and visibility rules live beside the observer projection.
 public sealed partial class GameEngine
@@ -80,6 +80,7 @@ public sealed partial class GameEngine
                 DeferredHandAlignments = _deferredHandAlignments.Where(d => d.TargetSeat == player.Seat).ToArray() is { Length: > 0 } alignments ? alignments : null,
                 ActualPlayPhaseCardUseState = TracksActualPlayPhaseCardUses && _phase == TurnPhase.Play && player.Seat == _currentSeat ? new(player.Seat, _turnNumber, _cardUseDebitPhaseInstanceId, GetActualPlayPhaseUseCount(player.Seat)) : null,
                 IssuedPlayPhaseUseProhibitions = _issuedPlayPhaseUseProhibitions.Where(p => p.ActorSeat == player.Seat && HasIssuedPlayPhaseUseBan(player.Seat)).ToArray() is { Length: > 0 } issuedBans ? issuedBans : null,
+                IssuedPlayPhaseSuitUseAllowances = GetIssuedPlayPhaseSuitUseAllowances(player.Seat),
                 WoodenOxGrainCount = woodenOxGrain.Count,
                 WoodenOxGrain = GetEquipment(player).Any(card => card.Kind == CardKind.WoodenOx) || woodenOxGrain.Count > 0
                     ? canSeeHand
@@ -95,8 +96,9 @@ public sealed partial class GameEngine
                 AuthorityCount = authority.Count,
                 PublicPersistentPileCards = PublicPileCards(player.Seat).Count > 0 ? PublicPileCards(player.Seat).Select(ToSnapshot).ToArray() : null,
                 PublicPersistentPileCount = PublicPileCards(player.Seat).Count,
-                PublicPersistentPileName = _publicPersistentPiles.GetValueOrDefault(player.Seat) is { } publicPile ? _contentRegistry.GetSkill(publicPile.SkillId).ProgramPresentation?.AuthorityName : null,
-                PublicPersistentPileSkillId = _publicPersistentPiles.GetValueOrDefault(player.Seat)?.SkillId,
+                PublicPersistentPileName = SinglePublicPileSource(player.Seat) is { } publicPile ? _contentRegistry.GetSkill(publicPile.SkillId).ProgramPresentation?.AuthorityName : null,
+                PublicPersistentPileSkillId = SinglePublicPileSource(player.Seat)?.SkillId,
+                PublicPersistentPiles = CreatePublicPersistentPileSnapshots(player.Seat),
                 PublicDeferredPileName = _deferredPublicPileDeposits.FirstOrDefault(item => item.OwnerSeat == player.Seat) is { } deposit ? _contentRegistry.GetSkill(deposit.SkillId).ProgramPresentation?.AuthorityName : null,
                 PublicDeferredPileCount = _cardZones.CardsAt(new CardLocation(CardZoneKind.PublicDeferredPile, player.Seat)).Count,
                 PublicDeferredPileCards = _cardZones.CardsAt(new CardLocation(CardZoneKind.PublicDeferredPile, player.Seat)).Count > 0 ? Array.AsReadOnly(_cardZones.CardsAt(new CardLocation(CardZoneKind.PublicDeferredPile, player.Seat)).Select(ToSnapshot).ToArray()) : null,
@@ -169,7 +171,10 @@ public sealed partial class GameEngine
             : null;
         var programRevealedCards = GetProgramPublicCards();
         if (_resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault()?.PublicPileDraft is { Stage: "pile" or "distribute" } pileDraft)
-            programRevealedCards = programRevealedCards.Concat(PublicPileCards(pileDraft.OwnerSeat).Select(ToSnapshot)).DistinctBy(card => card.Id).ToArray();
+            programRevealedCards = programRevealedCards.Concat(PublicPileDraftCards(pileDraft).Select(ToSnapshot)).DistinctBy(card => card.Id).ToArray();
+        if (_resolutionStack.LastOrDefault() is ProgramSkillFrame { InstructionIndex: > 0 } pileFrame &&
+            ProgramInstructionResolver.Default.Resolve(pileFrame,_contentRegistry.GetSkill(pileFrame.SkillId).Program!).GetPausedInstruction(pileFrame.InstructionIndex).Effect.Op == SkillProgramEffectOp.ObtainPublicPileCard)
+            programRevealedCards = programRevealedCards.Concat(ReferencedPublicPileSources(pileFrame.OwnerSeat, ProgramInstructionResolver.Default.Resolve(pileFrame, _contentRegistry.GetSkill(pileFrame.SkillId).Program!).GetPausedInstruction(pileFrame.InstructionIndex).Effect.SkillIds.Single(), pileFrame.SkillInstanceId).SelectMany(PublicPileCards).Select(ToSnapshot)).DistinctBy(card=>card.Id).ToArray();
         var publicRevealedCards = _resolutionStack.LastOrDefault() is PindianFrame { Result: { } contest }
             ? _cardZones.CardsAt(CardLocation.Processing)
                 .Where(card => card.Id == contest.SourceCardId || card.Id == contest.OpponentCardId)
@@ -185,6 +190,9 @@ public sealed partial class GameEngine
             : ActiveFireAttack is { FireAttackSelection.RevealedCardId: not null } fireAttack
                 ? [ToSnapshot(GetFireAttackRevealedCard(fireAttack))]
                 : Array.Empty<CardSnapshot>();
+
+        if (_resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault()?.AlternatingSuitTop is { Mode: "completed", Stage: "order" } orderedCosts)
+            publicRevealedCards = publicRevealedCards.Concat(orderedCosts.CardIds.Except(orderedCosts.SelectedIds).Select(id => ToSnapshot(_cardZones.CardsAt(_cardZones.GetLocation(id)).Single(c=>c.Id==id)))).DistinctBy(c=>c.Id).ToArray();
 
         return FreezePlayerView(new GameSnapshot(
             revealAll ? _options.Seed : null,
@@ -244,6 +252,8 @@ public sealed partial class GameEngine
         ChunlaoCards = FreezeViewList(player.ChunlaoCards),
         PublicDeferredPileCards = FreezeViewList(player.PublicDeferredPileCards),
         PublicPersistentPileCards = FreezeViewList(player.PublicPersistentPileCards),
+        PublicPersistentPiles = player.PublicPersistentPiles is { } piles
+            ? Array.AsReadOnly(piles.Select(pile => pile with { Cards = FreezeViewList(pile.Cards)! }).ToArray()) : null,
         PojunHoldCards = FreezeViewList(player.PojunHoldCards),
         EquipmentSlotCapacities = FreezeViewDictionary(player.EquipmentSlotCapacities),
         ConfiguredConversionTiers = FreezeViewDictionary(player.ConfiguredConversionTiers),
@@ -251,6 +261,8 @@ public sealed partial class GameEngine
         BeneficiarySuitShields = FreezeViewList(player.BeneficiarySuitShields),
         DeferredHandAlignments = FreezeViewList(player.DeferredHandAlignments),
         IssuedPlayPhaseUseProhibitions = FreezeViewList(player.IssuedPlayPhaseUseProhibitions),
+        IssuedPlayPhaseSuitUseAllowances = player.IssuedPlayPhaseSuitUseAllowances is null ? null :
+            Array.AsReadOnly(player.IssuedPlayPhaseSuitUseAllowances.Select(a => a with { Suits = Array.AsReadOnly(a.Suits.ToArray()) }).ToArray()),
         Skills = player.Skills is { } skills ? Array.AsReadOnly(skills.Select(FreezeViewSkill).ToArray()) : null,
         SecondarySkills = player.SecondarySkills is { } secondary ? Array.AsReadOnly(secondary.Select(FreezeViewSkill).ToArray()) : null,
         SkillRuntimeStates = player.SkillRuntimeStates is { } states ? Array.AsReadOnly(states.Select(state => state with

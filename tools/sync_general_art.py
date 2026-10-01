@@ -115,6 +115,8 @@ CURRENT_HEROES = {
     "hao-zhao": (408, "郝昭"),
     "zhuge-zhan": (410, "诸葛瞻"), "chen-dao": (409, "陈到"),
     "sun-liang": (403, "孙亮"),
+    "guanqiu-jian": (413, "毌丘俭"), "lu-kang": (414, "陆抗"),
+    "xu-you": (406, "许攸"),
 }
 
 NEW_OFFICIAL_DEFAULTS = {"boundary-gan-ning", "boundary-xu-chu", "qu-yi", "shen-zhou-yu", "shen-lu-bu", "fu-huanghou"}

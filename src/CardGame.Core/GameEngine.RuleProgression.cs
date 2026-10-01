@@ -11,6 +11,7 @@ public sealed partial class GameEngine
         ObserveBeneficiarySuitShield(payload);
         ObserveNextCardTargetAdjustmentEvent(payload);
         ObservePlayPhaseColorRestriction(payload);
+        ObserveFirstTurnCategoryUse(payload);
         QueueGameEvent(payload);
         if (_started)
         {

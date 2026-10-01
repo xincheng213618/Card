@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 /// <summary>Generic lifecycle-program host. It contains no character or skill ids.</summary>
 public sealed partial class GameEngine
@@ -24,7 +24,7 @@ public sealed partial class GameEngine
             frame.SelectedTargetSeats.Single();
         var source = _players[frame.OwnerSeat];
         var opponent = _players[opponentSeat];
-        if (!source.IsAlive || !opponent.IsAlive || opponentSeat == frame.OwnerSeat ||
+        if (!source.IsAlive || !opponent.IsAlive || opponentSeat == frame.OwnerSeat || !CanBePindianTarget(source.Seat, opponentSeat) ||
             GetHand(source).Count == 0 || GetHand(opponent).Count == 0)
             throw new InvalidOperationException("Program Pindian participants no longer have legal hand cards.");
         var skill = _contentRegistry!.GetSkill(frame.SkillId);
@@ -335,7 +335,7 @@ public sealed partial class GameEngine
         }
 
         var wasChained = _players[targetSeat].IsChained;
-        _players[targetSeat].IsChained = chained || HasCardPolicy(_players[targetSeat], SkillProgramCardPolicyKind.ForceChained);
+        _players[targetSeat].IsChained = ResolveEnteringChain(_players[targetSeat], chained || HasCardPolicy(_players[targetSeat], SkillProgramCardPolicyKind.ForceChained));
         if (!wasChained && _players[targetSeat].IsChained)
             RecordCharacterStateChange(targetSeat, SkillProgramTriggerWindow.CharacterEnteredChain);
         AdvanceEventRulesAndQueueFact(new ProgramChainedStateSetEvent(
@@ -1080,7 +1080,7 @@ public sealed partial class GameEngine
         var frame = GetActiveProgramFrame(frameId);
         var targetSeats = GetProgramTargetSeats(ownerSeat, targetKind, frame.WindowContext, marker, actorReference)
             .Where(seat => IsProgramTargetEligible(ownerSeat, targetKind, zones, seat, marker,
-                frame.WindowContext, actorReference)).ToArray();
+                frame.WindowContext, actorReference) && CanSelectProgramPindianOpponent(frame, seat)).ToArray();
         if (targetSeats.Length == 0)
         {
             if (skipIfNoTarget)
@@ -1839,6 +1839,7 @@ public sealed partial class GameEngine
                          candidate.SkillInstanceId, card))))))
                 return false;
         }
+        if (features.HasOperation(SkillProgramEffectOp.CollectFinalTargetCardInPublicPile) && !CanCollectFinalTargetPile(owner.Seat, context)) return false;
         if (features.ForOperation(SkillProgramEffectOp.SelectTarget).Any(effect =>
             effect.TargetKind is { } kind && !GetProgramTargetSeats(owner.Seat, kind, context, effect.Marker).Any(seat =>
                 effect.Zones.Count == 0 || effect.Zones.Any(zone => zone switch
@@ -2082,7 +2083,7 @@ public sealed partial class GameEngine
              !IsValidPlayerSeat(opponentSeat) || !owner.IsAlive || !_players[opponentSeat].IsAlive ||
              !features.Legality.CanStart(new(owner.Seat, GetHand(owner).Count)) ||
              !features.Legality.CanSelectTarget(new(owner.Seat, GetHand(owner).Count),
-                 new(opponentSeat, GetHand(_players[opponentSeat]).Count))))
+                 CreateProgramLegalityParticipant(opponentSeat))))
             return false;
         foreach (var effect in features.AfterDamagePrerequisites.Where(effect =>
                      effect.Condition.Evaluate(CreateSkillContext(owner))))
@@ -2166,6 +2167,7 @@ public sealed partial class GameEngine
             OwnerIsTurnPlayer: owner.Seat == _currentSeat,
             CurrentAttackRange: GetAttackRange(owner.Seat),
             CurrentMaxHp: owner.MaxHp,
+            CurrentAvailableEquipmentSlotCount: UsesStrategicTriggerValue(SkillProgramTriggerValueKind.CurrentAvailableEquipmentSlotCount) ? Enum.GetValues<EquipmentSlot>().Count(slot => owner.EquipmentSlotCapacity(slot) > 0) : null,
             CurrentHandCount: GetHand(owner).Count,
             LivingPlayersMinHp: GetLivingPlayersMinHp(),
             TurnOwnerDiscardPhaseHandDiscardCount: TurnOwnerDiscardPhaseHandDiscardCount,
@@ -2178,6 +2180,7 @@ public sealed partial class GameEngine
                 _cardZones.Count(CardLocation.Chunlao(owner.Seat)),
                 _cardZones.Count(new CardLocation(CardZoneKind.PublicPersistentPile, owner.Seat))),
             BooleanStates: states,
+            PublicPersistentPileCounts: CapturePublicPileProgramCounts(owner),
             PlayPhaseKillCountByTurnOwner: _playPhaseKillCountByCurrentPlayer,
             PlayPhaseDamageDealtByTurnOwner: _playPhaseDamageDealtByCurrentPlayer,
             MarkerCounts: owner.Markers.Count > 0
@@ -2973,9 +2976,11 @@ public sealed partial class GameEngine
         if (selected.Parameters.GetValueOrDefault("program-action") is { } namedAction && (namedAction.StartsWith("named-defense-", StringComparison.Ordinal) || namedAction.StartsWith("public-draft-", StringComparison.Ordinal)))
         { ResolveNamedDefenseAndDraftChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action")?.StartsWith("quota-top-", StringComparison.Ordinal) == true) { ResolveQuotaTopChoice(selected); return; }
+        if (selected.Parameters.GetValueOrDefault("program-action") == "alternating-suit-top") { ResolveAlternatingSuitTopChoice(selected); return; }
         var action = selected.Parameters.GetValueOrDefault("program-action");
         if (action == "relative-zone-target") { ResolveRelativeZoneTarget(selected); return; }
         if (action == "deck-end-exchange") { ResolveDeckEndChoice(selected); return; }
+        if (action == "public-pile-flow") { ResolveFinalTargetPileChoice(selected); return; }
         if (action == "public-pile") { ResolvePublicPileChoice(selected); return; }
         if (action == "hand-comparison") { ResolveHandComparison(selected); return; }
         if (action == "participant-discard") { ResolveSelectedParticipantDiscard(selected); return; }
@@ -3343,7 +3348,8 @@ public sealed partial class GameEngine
                         throw new InvalidOperationException("The selected target does not match the suspended instruction.");
                     var targetSeat = selected.Targets.Single();
                     if (!IsProgramTargetEligible(frame.OwnerSeat, targetKind, effect.Zones, targetSeat,
-                        effect.Marker, frame.WindowContext, effect.ActorReference))
+                        effect.Marker, frame.WindowContext, effect.ActorReference) ||
+                        !CanSelectProgramPindianOpponent(frame, targetSeat))
                         throw new InvalidOperationException("The selected program target is no longer legal.");
                     ClearPendingDecision();
                     ReplaceRuntimeTop(frame with
@@ -3763,6 +3769,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.SelectDistinctSuitHandDiscards or SkillProgramEffectOp.SuppressGeneralSkill or SkillProgramEffectOp.SelectChainedByMarker or SkillProgramEffectOp.SelectOneSelectedTarget => decision.Choices[0],
                 SkillProgramEffectOp.OfferCompletedCardGift or SkillProgramEffectOp.ApplyCurrentCardEnhancements or
                     SkillProgramEffectOp.PayEquipmentColorDiscard or SkillProgramEffectOp.AddCurrentCardUseTarget => decision.Choices[0],
+                SkillProgramEffectOp.AlternatingSuitDrawDiscard or SkillProgramEffectOp.FirstCategoryCompletedTop => decision.Choices[0],
                 SkillProgramEffectOp.PeekTurnQuotaTop => decision.Choices[0],
                 SkillProgramEffectOp.CompareSelectedHandWithHpHand => decision.Choices[0],
                 SkillProgramEffectOp.ChooseOption => SelectAiProgramOption(decision, frame),
@@ -3789,7 +3796,8 @@ public sealed partial class GameEngine
                     .OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First(),
                 SkillProgramEffectOp.DistributeOwnedCards =>
                     SelectAiProgramOwnedCardDistribution(decision, frame),
-                SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits =>
+                SkillProgramEffectOp.CollectFinalTargetCardInPublicPile or SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.DiscardPublicZoneAfterHandPayment => decision.Choices[0],
+                SkillProgramEffectOp.ExchangePublicPileHand or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits =>
                     SelectAiPublicPileChoice(decision, frame),
                 SkillProgramEffectOp.RequestAttackRangeAid =>
                     SelectAiProgramAttackRangeAid(decision, frame),

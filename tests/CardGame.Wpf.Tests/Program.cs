@@ -95,6 +95,10 @@ internal static class Program
             Check("Program private top quota restores exact faces and top order", () => QuotaTopUiChecks.NativePrivateViewAndOrder(output));
             Check("Program issued phase use ban restores native restrictions and controls", () => PhaseGiftUiChecks.IssuedPhaseBanRestores(output));
             Check("Program completed faction gift restores provider and Lord choices", () => PhaseGiftUiChecks.ProviderAndLordChoicesRestore(output));
+            Check("Program public pile exchange restores optional count and public faces", () => PublicPileExchangeUiChecks.OptionalHandCountAndPublicFacesRestore(output));
+            Check("Program public piles restore separate sources and local source loss", () => PublicPileExchangeUiChecks.MultipleSourcesRestoreSeparatePublicPiles(output));
+            Check("Program paid suit allowance restores source loss and phase expiry", () => PhaseSuitAllowanceUiChecks.PaidAllowanceSurvivesSourceLossAndExpires(output));
+            Check("Program completed multiple costs restore native face ordering", () => PhaseSuitAllowanceUiChecks.MultipleCompletedCostsRestoreFaceOrder(output));
             Check("Program owned-card sets render a private shared draft and commit once", () => ProgramOwnedCardsUiChecks.PrivateSetUsesSharedChoiceSurface(output));
             Check("public pile costs use the named foreign pile and shared confirmation draft", () => PublicPileSkillUiChecks.ForeignPublicPileCostsUseSharedDraft(output));
             Check("hand responses select exact cards and confirm through shared controls", () => HandResponseChecks.Controls(output));

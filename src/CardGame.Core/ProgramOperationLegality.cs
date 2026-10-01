@@ -1,7 +1,7 @@
 namespace CardGame.Core;
 
 /// <summary>Public facts shared by action generation, input validation and AI.</summary>
-internal readonly record struct ProgramLegalityParticipant(int Seat, int HandCount);
+internal readonly record struct ProgramLegalityParticipant(int Seat, int HandCount, bool ProhibitsOtherPindianTarget = false);
 
 /// <summary>
 /// Static operation prerequisites. They never read physical hand identities or
@@ -10,11 +10,12 @@ internal readonly record struct ProgramLegalityParticipant(int Seat, int HandCou
 internal sealed record ProgramOperationLegalityPolicy(
     bool RequiresOwnerHand = false,
     bool RequiresTargetHand = false,
-    bool ExcludesOwnerAsTarget = false)
+    bool ExcludesOwnerAsTarget = false,
+    bool RequiresPindianTarget = false)
 {
     internal static ProgramOperationLegalityPolicy None { get; } = new();
     internal static ProgramOperationLegalityPolicy HandContest { get; } = new(
-        RequiresOwnerHand: true, RequiresTargetHand: true);
+        RequiresOwnerHand: true, RequiresTargetHand: true, RequiresPindianTarget: true);
     internal static ProgramOperationLegalityPolicy OtherRecipient { get; } = new(
         ExcludesOwnerAsTarget: true);
 
@@ -23,7 +24,8 @@ internal sealed record ProgramOperationLegalityPolicy(
 
     internal bool CanSelectTarget(ProgramLegalityParticipant owner, ProgramLegalityParticipant target) =>
         (!RequiresTargetHand || target.HandCount > 0) &&
-        (!ExcludesOwnerAsTarget || target.Seat != owner.Seat);
+        (!ExcludesOwnerAsTarget || target.Seat != owner.Seat) &&
+        (!RequiresPindianTarget || owner.Seat == target.Seat || !target.ProhibitsOtherPindianTarget);
 
     // An unknown AI recipient remains a possible choice. A known recipient uses
     // exactly the same public prerequisite as the action and submitted input.

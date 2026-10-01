@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace CardGame.Core;
@@ -521,6 +521,8 @@ public sealed partial record PlayerSnapshot
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ActualPlayPhaseCardUseState? ActualPlayPhaseCardUseState { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public IReadOnlyList<IssuedPlayPhaseUseProhibition>? IssuedPlayPhaseUseProhibitions { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public IReadOnlyList<DeferredHandAlignment>? DeferredHandAlignments { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<IssuedPlayPhaseSuitUseAllowance>? IssuedPlayPhaseSuitUseAllowances { get; init; }
 
     /// <summary>
     /// Ordered skills visible with the primary general. Null means this viewer
@@ -603,6 +605,8 @@ public sealed partial record PlayerSnapshot
     public string? PublicPersistentPileSkillId { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int PublicPersistentPileCount { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<PublicPersistentPileSnapshot>? PublicPersistentPiles { get; init; }
 
     /// <summary>
     /// Cards held face-down on this character's general card by Xu Sheng's Pojun.

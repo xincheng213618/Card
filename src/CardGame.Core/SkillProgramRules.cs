@@ -1,10 +1,11 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 public sealed record SkillProgramRuleContext(
     PlayerSkillContext Owner,
     int LivingFactionCount,
     Func<CardZoneKind, int>? OwnedZoneCount = null,
-    CardKind? EffectiveCardKind = null);
+    CardKind? EffectiveCardKind = null,
+    Func<string, string, CardZoneKind, int>? SourceOwnedZoneCount = null);
 
 public sealed record SkillProgramRuleSource(
     string SkillId,
@@ -139,6 +140,8 @@ public static class SkillProgramRules
         SkillProgramModifier modifier,
         SkillProgramRuleContext context)
     {
+        if (context.SourceOwnedZoneCount is { } sourceCount)
+            context = context with { OwnedZoneCount = zone => sourceCount(source.SkillId, source.SkillInstanceId, zone) };
         var sourceId = CreateContributionSourceId(ownerSeat, source, modifier);
         return modifier.Operation switch
         {

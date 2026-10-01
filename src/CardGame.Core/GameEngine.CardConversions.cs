@@ -375,8 +375,8 @@ public sealed partial class GameEngine
             forResponse: false,
             selection.Source);
         if (current is null || !(borrowedSword is null
-                ? CanUseVirtualSlashTarget(source, target)
-                : IsLegalBorrowedSwordSlashTarget(source, target)))
+                ? CanUseVirtualSlashTarget(source, target, physicalSuit: PhysicalGroupSuit(source,current.Cards))
+                : IsLegalBorrowedSwordSlashTarget(source, target, physicalSuit:PhysicalGroupSuit(source,current.Cards), allowAnyPhysicalSuit:false)))
             throw new InvalidOperationException("The configured multi-card Slash is no longer legal.");
 
         ResolveSlashCore(

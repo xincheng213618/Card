@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 /// <summary>
 /// A synchronous, explicit state machine. Advance runs AI turns until it reaches
@@ -5050,7 +5050,7 @@ public sealed partial class GameEngine
             }
 
             var wasChained = target.IsChained;
-            target.IsChained = HasCardPolicy(target, SkillProgramCardPolicyKind.ForceChained) || !target.IsChained;
+            target.IsChained = ResolveEnteringChain(target, HasCardPolicy(target, SkillProgramCardPolicyKind.ForceChained) || !target.IsChained);
             if (!wasChained && target.IsChained)
                 RecordCharacterStateChange(target.Seat, SkillProgramTriggerWindow.CharacterEnteredChain, pending.ParentFrameId);
             changes.Add($"{target.Name}{(target.IsChained ? "横置" : "重置")}");
@@ -5355,6 +5355,11 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (HasCardPolicy(target, SkillProgramCardPolicyKind.ProhibitDelayedTrickTarget))
+        {
+            SkipUnavailableTargetCardEffect(pending, target, CardEffectSkipReason.SkillNullified);
+            return;
+        }
         if (!target.IsAlive || target.JudgmentAreaAbolished ||
             (!canTargetSelf && target.Seat == source.Seat) ||
             pending.ActionKind != expectedActionKind ||
@@ -6138,15 +6143,15 @@ public sealed partial class GameEngine
     private bool IsLegalBorrowedSwordSlashTarget(
         CharacterState weaponOwner,
         CharacterState target,
-        CardKind? effectiveKind = null) =>
+        CardKind? effectiveKind = null, Suit? physicalSuit = null, bool allowAnyPhysicalSuit = true) =>
         effectiveKind is { } kind
             ? target.IsAlive && target.Seat != weaponOwner.Seat &&
               !IsCardUseForbidden(weaponOwner.Seat, kind, CardActionType.Use) &&
-              (HasCardDistanceExemption(weaponOwner, target, kind) ||
+              (HasPhaseSuitAllowance(weaponOwner.Seat,physicalSuit) || (allowAnyPhysicalSuit && GetSlashUseCards(weaponOwner).Any(c=>HasPhaseSuitAllowance(weaponOwner,c))) || HasCardDistanceExemption(weaponOwner, target, kind) ||
                IsWithinAttackRange(weaponOwner.Seat, target.Seat)) &&
               !IsDirectedCardTargetProhibited(weaponOwner.Seat, target.Seat, kind) &&
               !IsSlashProhibited(target)
-            : SlashKinds.Any(candidate => IsLegalBorrowedSwordSlashTarget(weaponOwner, target, candidate));
+            : SlashKinds.Any(candidate => IsLegalBorrowedSwordSlashTarget(weaponOwner, target, candidate, physicalSuit, allowAnyPhysicalSuit));
 
     private IReadOnlyList<Card> GetBorrowedSwordSlashCards(
         CharacterState weaponOwner,
@@ -6163,7 +6168,7 @@ public sealed partial class GameEngine
             {
                 var baseKind = IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash;
                 if (!GetSlashUseVariants(weaponOwner, baseKind).Any(variant =>
-                        IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, variant.EffectiveKind)))
+                        (HasPhaseSuitAllowance(weaponOwner,card) || IsWithinAttackRange(weaponOwner.Seat,slashTarget.Seat) || HasCardDistanceExemption(weaponOwner,slashTarget,variant.EffectiveKind)) && IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, variant.EffectiveKind)))
                     return false;
                 var location = _cardZones.GetLocation(card.Id);
                 if (location != CardLocation.Equipment(weaponOwner.Seat) ||
@@ -6371,7 +6376,7 @@ public sealed partial class GameEngine
         {
             throw new InvalidOperationException("The selected Borrowed Sword Slash conversion is no longer legal.");
         }
-        if (!IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, effectiveKind))
+        if (!IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, effectiveKind) || !(HasPhaseSuitAllowance(weaponOwner,selected) || HasCardDistanceExemption(weaponOwner,slashTarget,effectiveKind) || IsWithinAttackRange(weaponOwner.Seat,slashTarget.Seat)))
         {
             throw new InvalidOperationException("The selected Borrowed Sword Slash target is no longer legal.");
         }
@@ -6400,7 +6405,7 @@ public sealed partial class GameEngine
         var slashTarget = _players[pending.SlashTargetSeat];
         if (!SameContinuationOwner(ActiveBorrowedSword, pending) ||
             !pending.AwaitingSlashChoice ||
-            !IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget) ||
+            !IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, physicalSuit:PhysicalGroupSuit(weaponOwner,pair), allowAnyPhysicalSuit:false) ||
             FindZhangbaSlashPair(weaponOwner, pair.Select(card => card.Id).ToArray()) is null)
         {
             throw new InvalidOperationException("The selected Borrowed Sword Zhangba Slash is no longer legal.");
@@ -6774,7 +6779,7 @@ public sealed partial class GameEngine
             physicalCards.Count != 2 ||
             physicalCards.Select(card => card.Id).Distinct().Count() != 2 ||
             physicalCards.Any(card => !IsOwnedPlayableLocation(source, _cardZones.GetLocation(card.Id))) ||
-            !CanUseVirtualSlashTarget(source, target))
+            !CanUseVirtualSlashTarget(source, target, physicalSuit:PhysicalGroupSuit(source,physicalCards)))
         {
             throw new InvalidOperationException("Zhangba Serpent Spear became illegal before resolution.");
         }
@@ -11119,6 +11124,7 @@ public sealed partial class GameEngine
                 .Select(offset => (target.Seat + offset) % _playerCount)
                 .FirstOrDefault(seat => _players[seat].IsAlive &&
                     !_players[seat].JudgmentAreaAbolished &&
+                    !HasCardPolicy(_players[seat], SkillProgramCardPolicyKind.ProhibitDelayedTrickTarget) &&
                     !HasJudgmentEffectiveCard(_players[seat], CardKind.Lightning), target.Seat);
             if (nextTargetSeat != target.Seat)
             {
@@ -11839,7 +11845,7 @@ public sealed partial class GameEngine
             attack.SetChainedTargets(propagatedTargets);
             foreach (var chainSeat in chainMembers)
             {
-                _players[chainSeat].IsChained = HasCardPolicy(_players[chainSeat], SkillProgramCardPolicyKind.ForceChained);
+                _players[chainSeat].IsChained = ResolveEnteringChain(_players[chainSeat], HasCardPolicy(_players[chainSeat], SkillProgramCardPolicyKind.ForceChained));
                 AdvanceEventRulesAndQueueFact(new IronChainStateChangedEvent(
                     attack.ResolutionId,
                     source.Seat,
@@ -13536,7 +13542,7 @@ public sealed partial class GameEngine
         !IsCardUseForbidden(source.Seat, effectiveKind, CardActionType.Use, ignoreIssuedPlayBan: existingUseFrameId is {} id && _resolutionStack.OfType<CardUseFrame>().Any(f=>f.Id==id&&f.Action?.ActorSeat==source.Seat)) &&
         target.IsAlive &&
         target.Seat != source.Seat &&
-        (ignoreDistance || HasCardDistanceExemption(source, target, effectiveKind) ||
+        (ignoreDistance || HasPhaseSuitAllowance(source,slashCard) || HasCardDistanceExemption(source, target, effectiveKind) ||
          IgnoresProgramSlashDistance(source, conversionSource) ||
          IgnoresSpGuanYuWushengDistance(source, slashCard) ||
          HasUnlimitedTurnRuleModifier(source.Seat, SkillRuleQuery.SlashDistanceLimit) ||
@@ -13547,12 +13553,12 @@ public sealed partial class GameEngine
     private bool CanUseVirtualSlashTarget(
         CharacterState source,
         CharacterState target,
-        CardKind effectiveKind = CardKind.Slash) =>
+        CardKind effectiveKind = CardKind.Slash, Suit? physicalSuit = null) =>
         !IsCardUseForbidden(source.Seat, effectiveKind, CardActionType.Use) &&
         target.IsAlive &&
         target.Seat != source.Seat &&
-        CanSpendSlashUse(source, target, ignoresCount: false, effectiveKind) &&
-        (HasCardDistanceExemption(source, target, effectiveKind) ||
+        CanSpendSlashUse(source, target, ignoresCount: HasPhaseSuitAllowance(source.Seat,physicalSuit), effectiveKind) &&
+        (HasPhaseSuitAllowance(source.Seat,physicalSuit) || HasCardDistanceExemption(source, target, effectiveKind) ||
          HasUnlimitedTurnRuleModifier(source.Seat, SkillRuleQuery.SlashDistanceLimit) ||
          IsWithinAttackRange(source.Seat, target.Seat)) &&
         !IsSlashProhibited(target);
@@ -13848,7 +13854,7 @@ public sealed partial class GameEngine
             if (CanUseZhangbaSerpentSpear(actor))
             {
                 var targets = SlashKinds
-                    .SelectMany(kind => _players.Where(target => CanUseVirtualSlashTarget(actor, target, kind)))
+                    .SelectMany(kind => _players.Where(target => GetZhangbaSlashPairs(actor).Any(pair => CanUseVirtualSlashTarget(actor, target, kind, PhysicalGroupSuit(actor,pair)))))
                     .Select(target => target.Seat)
                     .Distinct()
                     .Order()
@@ -14035,7 +14041,7 @@ public sealed partial class GameEngine
                          player.IsAlive &&
                          player.Seat != actor.Seat &&
                          !player.JudgmentAreaAbolished &&
-                         ((HasCardDistanceExemption(actor, player, CardKind.SupplyShortage) ||
+                         ((HasPhaseSuitAllowance(actor,supplyShortage) || HasCardDistanceExemption(actor, player, CardKind.SupplyShortage) ||
                                ignoresDistance ||
                                GetCombatDistance(actor.Seat, player.Seat) <= distanceLimit
 )) &&
@@ -14067,7 +14073,7 @@ public sealed partial class GameEngine
                                  player.IsAlive &&
                                  player.Seat != actor.Seat &&
                                  !player.JudgmentAreaAbolished &&
-                                 (HasCardDistanceExemption(actor, player, CardKind.SupplyShortage) ||
+                                 (HasPhaseSuitAllowance(actor,converted) || HasCardDistanceExemption(actor, player, CardKind.SupplyShortage) ||
                                   HasCardPolicy(actor, SkillProgramCardPolicyKind.IgnoreUseDistance,
                                       CardKind.SupplyShortage) ||
                                   GetCombatDistance(actor.Seat, player.Seat) <= distanceLimit) &&
@@ -14260,7 +14266,7 @@ public sealed partial class GameEngine
             foreach (var target in _players.Where(player =>
                          player.IsAlive &&
                          player.Seat != actor.Seat &&
-                         (HasCardDistanceExemption(actor, player, CardKind.Snatch) ||
+                         (HasPhaseSuitAllowance(actor,snatch) || HasCardDistanceExemption(actor, player, CardKind.Snatch) ||
                           ignoresDistance ||
                           GetCombatDistance(actor.Seat, player.Seat) == 1) &&
                          !IsDirectedCardTargetProhibited(actor.Seat, player.Seat, CardKind.Snatch) &&
@@ -14291,7 +14297,7 @@ public sealed partial class GameEngine
                     foreach (var target in _players.Where(player =>
                                  player.IsAlive &&
                                  player.Seat != actor.Seat &&
-                                 (HasCardDistanceExemption(actor, player, CardKind.Snatch) ||
+                                 (HasPhaseSuitAllowance(actor,converted) || HasCardDistanceExemption(actor, player, CardKind.Snatch) ||
                                   ignoresDistance ||
                                   GetCombatDistance(actor.Seat, player.Seat) == 1) &&
                                  !IsDirectedCardTargetProhibited(actor.Seat, player.Seat, CardKind.Snatch) &&
@@ -15028,6 +15034,7 @@ public sealed partial class GameEngine
     }
 
     private bool IsCardTargetProhibited(CharacterState target, CardKind cardKind, Suit? suit = null) =>
+        IsDelayedCard(cardKind) && HasCardPolicy(target, SkillProgramCardPolicyKind.ProhibitDelayedTrickTarget) ||
         HasCardPolicy(target, SkillProgramCardPolicyKind.ProhibitTarget, cardKind) ||
         suit is { } declaredSuit &&
         CardPolicies(target, SkillProgramCardPolicyKind.ProhibitTargetBySuit, cardKind)
@@ -15718,8 +15725,11 @@ public sealed partial class GameEngine
                 _cardZones.CardsAt(CardLocation.Chunlao(victim.Seat)),
                 CardLocation.Chunlao(victim.Seat),
                 CardMoveReasons.ChunlaoDeathDiscard);
-            MoveDiedCards(_cardZones.CardsAt(new CardLocation(CardZoneKind.PublicPersistentPile, victim.Seat)),
-                new CardLocation(CardZoneKind.PublicPersistentPile, victim.Seat), new CardMoveReason("skill-program.public-pile.owner-death"));
+            var publicPileSources = PublicPileSources(victim.Seat).ToArray();
+            if (publicPileSources.Length == 0)
+                MoveDiedCards(_cardZones.CardsAt(PublicPileLocation(victim.Seat)), PublicPileLocation(victim.Seat), new("skill-program.public-pile.owner-death"));
+            else foreach (var source in publicPileSources)
+                MoveDiedCards(PublicPileCards(source), source.Location, new("skill-program.public-pile.owner-death"));
             MoveDiedCards(_cardZones.CardsAt(new CardLocation(CardZoneKind.PublicDeferredPile, victim.Seat)),
                 new CardLocation(CardZoneKind.PublicDeferredPile, victim.Seat), new CardMoveReason("skill-program.deferred-pile.owner-death"));
             _deferredPublicPileDeposits.RemoveAll(item => item.OwnerSeat == victim.Seat);
@@ -15912,7 +15922,7 @@ public sealed partial class GameEngine
         }
 
         var drawPile = _cardZones.CardsAt(CardLocation.DrawPile);
-        var card = drawPile[^1];
+        var card = reason != CardMoveReasons.InitialDeal && HasCardPolicy(player, SkillProgramCardPolicyKind.DrawFromBottom) ? drawPile[0] : drawPile[^1];
         MoveCard(card, CardLocation.DrawPile, CardLocation.Hand(player.Seat), reason);
         return card;
     }
@@ -16155,7 +16165,7 @@ public sealed partial class GameEngine
     private bool CanUseProvidedSlashTarget(
         CharacterState owner,
         CharacterState target,
-        CardKind? effectiveKind = null) =>
+        CardKind? effectiveKind = null, Suit? physicalSuit = null, bool allowAnyPhysicalSuit = true) =>
         effectiveKind is { } kind
             ? target.IsAlive && target.Seat != owner.Seat &&
               CanSpendSlashUse(owner, target, ignoresCount: false, kind) &&

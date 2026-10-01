@@ -1,0 +1,369 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀OL",
+  "batch": "风林火山普通版毌丘俭陆抗许攸",
+  "retrievedAt": "2026-10-01",
+  "implementationStatus": "implementedMainFullAndRoutineVerified",
+  "rawArtifactDirectory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-third-candidates-20261001",
+  "roster": [
+    {
+      "contentId": "classic:guanqiu-jian",
+      "officialId": 413,
+      "name": "毌丘俭",
+      "maxHp": 4,
+      "faction": "wei",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/413",
+      "retrievedAt": "2026-10-01T15:33:47.799173+00:00",
+      "responseSha256": "0610d079b9c2b6f799e9beea5770c188f3e4666b00568868bd2c112cd67bdb61",
+      "officialSkills": [
+        {
+          "name": "征荣",
+          "text": "当你使用【杀】或伤害锦囊牌时，你可以选择其中一个手牌数不小于你的目标角色，将其一张牌置于你的武将牌上，称为“荣”。"
+        },
+        {
+          "name": "鸿举",
+          "text": "觉醒技，准备阶段，若“荣”的数量不小于3，你用任意手牌替换等量的“荣”，减少1点体力上限并获得“ 清侧 ”。"
+        }
+      ],
+      "indexFields": {
+        "gid": 413,
+        "name": "毌丘俭",
+        "resource": "41300",
+        "extend": "风林火山",
+        "hp": 4,
+        "initial_hp": 0,
+        "quality": "史诗",
+        "figure": "魏",
+        "figure_py": "wei",
+        "biography": "毌[guàn]丘俭，字仲恭，武威太守毌丘兴之子。毌丘兴去世后，毌丘俭袭封高阳乡侯，并担任平原侯文学一职。魏明帝曹叡即位后，拜尚书郎、羽林监，迁洛阳典农。劝说魏明帝停建皇宫工程，拜荆州刺史。青龙三年（235年），迁度辽将军、幽州刺史。景初二年（238年），跟从司马懿攻灭辽东公孙渊；正始年间，两次攻打高句丽，攻破丸都城，几亡其国。迁镇南将军、豫州刺史，转扬州都督，击退吴国诸葛恪进犯，军功累累。效忠魏国王室，感念魏明帝厚恩。正元二年（255年），司马师废黜魏帝曹芳后，联合文钦起兵勤王，成为“淮南三叛”[王淩、毌丘俭、诸葛诞]之一，可惜准备不足，兵败身亡。",
+        "characteristic": "要特别注意通过积攒\"荣\"，达成对场面的控制",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/413.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/41300.png",
+        "realname": "毌丘俭 (风林火山)"
+      },
+      "galleryGroup": "myth-thunder",
+      "operationRange": [
+        1380,
+        1399
+      ],
+      "implementationStatus": "implementedMainFullAndRoutineVerified",
+      "artwork": {
+        "id": "41300",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/413",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/41300.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-guanqiu-jian.png",
+        "sha256": "71c3b3a33ecfa05d9556c29852c07669246524d98cf8c7d8b56a1cbc32cf3ac8",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "integratedMainWpfFullVerified",
+        "boundary": "Official PNG bytes and offline local renders verified; actual client play acceptance not performed."
+      },
+      "genderEvidence": "Captured official historical biography, not a machine gender field or live client inspection."
+    },
+    {
+      "contentId": "classic:lu-kang",
+      "officialId": 414,
+      "name": "陆抗",
+      "maxHp": 4,
+      "faction": "wu",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/414",
+      "retrievedAt": "2026-10-01T15:33:48.188866+00:00",
+      "responseSha256": "a90d9ba1e5c7ec0e976c3d93b30599c6c55b8659892de01d9c604ade07a5d320",
+      "officialSkills": [
+        {
+          "name": "谦节",
+          "text": "锁定技，当你进入连环状态时，你防止之。你不能成为延时锦囊牌和其他角色拼点的目标。"
+        },
+        {
+          "name": "决堰",
+          "text": "出牌阶段限一次，你可以废除一个装备栏并于本回合获得对应效果：武器栏，使用【杀】的限制次数+3；防具栏，摸三张牌且手牌上限+3；坐骑栏，使用牌无距离限制；宝物栏，获得“ 集智 ”。"
+        },
+        {
+          "name": "破势",
+          "text": "觉醒技，准备阶段，若你的装备栏均被废除或体力值为1，你减少1点体力上限，将手牌摸至体力上限，失去“决堰”并获得“ 怀柔 ”。"
+        }
+      ],
+      "indexFields": {
+        "gid": 414,
+        "name": "陆抗",
+        "resource": "41400",
+        "extend": "风林火山",
+        "hp": 4,
+        "initial_hp": 0,
+        "quality": "史诗",
+        "figure": "吴",
+        "figure_py": "wu",
+        "biography": "字幼节，陆逊次子。陆抗袭父爵为江陵侯，为建武校尉，领其父众五千人。后迁立节中郎将、镇军将军等。孙皓为帝，任镇军大将军、都督西陵、信陵、夷道、乐乡、公安诸军事，驻乐乡（今湖北江陵西南）。吴凤凰元年（272年），击退晋将羊祜[hù]进攻，并攻杀叛将西陵督步阐。后拜大司马、荆州牧，卒于官，终年49岁。与陆逊皆是吴国的中流砥柱，并称“逊抗”，被誉为吴国最后的名将。",
+        "characteristic": "爆发力极强的武将，合理规划装备栏的废除顺序可以最大化降低其副作用。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/414.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/41400.png",
+        "realname": "陆抗 (风林火山)"
+      },
+      "galleryGroup": "myth-thunder",
+      "operationRange": [
+        1400,
+        1419
+      ],
+      "implementationStatus": "implementedMainFullAndRoutineVerified",
+      "artwork": {
+        "id": "41400",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/414",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/41400.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-lu-kang.png",
+        "sha256": "0db987229b0386a100736242a9d2d096c5fa28b259938281bfc2dcefeb8ba409",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "integratedMainWpfFullVerified",
+        "boundary": "Official PNG bytes and offline local renders verified; actual client play acceptance not performed."
+      },
+      "genderEvidence": "Captured official historical biography, not a machine gender field or live client inspection."
+    },
+    {
+      "contentId": "classic:xu-you",
+      "officialId": 406,
+      "name": "许攸",
+      "maxHp": 3,
+      "faction": "qun",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/406",
+      "retrievedAt": "2026-10-01T15:33:47.409410+00:00",
+      "responseSha256": "fab879eae05dd4f383c93a04649354a0fe537f1ba18a2953e47dae9c50750b69",
+      "officialSkills": [
+        {
+          "name": "成略",
+          "text": "转换技，出牌阶段限一次，阳：你可以摸一张牌并弃置两张手牌；阴：你可以摸两张牌并弃置一张手牌。然后你本阶段使用与弃置牌花色相同的牌无距离和次数限制。"
+        },
+        {
+          "name": "恃才",
+          "text": "当你每回合首次使用一种类型的牌后，你可以将之置于牌堆顶，然后摸一张牌。"
+        },
+        {
+          "name": "寸目",
+          "text": "锁定技，当你摸牌时，你改为从牌堆底摸牌。"
+        }
+      ],
+      "indexFields": {
+        "gid": 406,
+        "name": "许攸",
+        "resource": "40600",
+        "extend": "风林火山",
+        "hp": 3,
+        "initial_hp": 0,
+        "quality": "传说",
+        "figure": "群",
+        "figure_py": "qun",
+        "biography": "许攸[yōu]年轻时与曹操相友善，后来成为袁绍的谋士，多次为袁绍出谋划策，力主攻打曹操都城许昌。官渡之战之际，许攸因家人犯法被收治而投奔曹操，提供了重要情报，建议曹操偷袭乌巢，结果大获全胜。官渡之战后，许攸跟随曹操到达邺[yè]城，口出狂言，辱骂曹操，轻视曹军将士，被许褚一怒之下杀死，曹操见后深责许褚，下令厚葬许攸。",
+        "characteristic": "回合内爆发能力很强",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/406.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/40600.png",
+        "realname": "许攸 (风林火山)"
+      },
+      "galleryGroup": "myth-yin",
+      "operationRange": [
+        1420,
+        1439
+      ],
+      "implementationStatus": "implementedMainFullAndRoutineVerified",
+      "artwork": {
+        "id": "40600",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/406",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40600.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-xu-you.png",
+        "sha256": "0c635e728b97e0f600d146b357e243b8cef24f8f0cacca537b1268e323d5c5d2",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "integratedMainWpfFullVerified",
+        "boundary": "Official PNG bytes and offline local renders verified; actual client play acceptance not performed."
+      },
+      "genderEvidence": "Captured official historical biography, not a machine gender field or live client inspection."
+    }
+  ],
+  "supplementarySources": [
+    {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-third-candidates-20261001\\official-2019-lukang-supplement.html",
+      "url": "https://www.sanguosha.com/news/20190807_5910_5920",
+      "sha256": "553774e823a9d4d76a88768e40afdfc283a07c6a12ea92b8f3d1adc945b647e4",
+      "excerpts": [
+        {
+          "name": "决堰",
+          "body": "出牌阶段限一次，你可以废除你装备区里的一个装备栏，然后执行对应的一项：武器栏，本回合你可以多使用三张【杀】；防具栏，摸三张牌，本回合手牌上限+3；2个坐骑栏，本回合你使用牌无距离限制；宝物栏，本回合获得“集智”。"
+        },
+        {
+          "name": "怀柔",
+          "body": "出牌阶段，你可以重铸装备牌。"
+        },
+        {
+          "name": "集智",
+          "body": "当你使用普通锦囊牌时，你可以摸一张牌"
+        }
+      ],
+      "boundary": "Historical ordinary OL acquired-skill/card-slot supplement; current hero main wording takes priority.",
+      "struckHistoricalText": [
+        "原价：800元宝",
+        "原价：900元宝",
+        "300元宝",
+        "1200元宝",
+        "1800元宝",
+        "44500元宝"
+      ],
+      "normalization": "Only skill text; removed markup-struck historical clauses, listed separately. Raw HTML remains frozen unchanged."
+    },
+    {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-third-candidates-20261001\\official-2020-guanqiujian-supplement.html",
+      "url": "https://www.sanguosha.com/news/20200219_7779_4723",
+      "sha256": "d94f0be03961fa6b70f13d070818d720c38471e678d30a50f7b83080c1eb45dc",
+      "excerpts": [
+        {
+          "name": "征荣",
+          "body": "当你 使用【杀】或伤害类锦囊牌指定目标后 ，你可以选择其中一个手牌数 大于等于你的目标角色 ，其一张牌置于你的武将牌上，称为“荣”。"
+        },
+        {
+          "name": "鸿举",
+          "body": "觉醒技，准备阶段，若“荣”的数量大于等于3 ，则你可以用任意张手牌替换等量的“荣”，然后扣减1点体力上限并获得技能“清侧”。"
+        },
+        {
+          "name": "清侧",
+          "body": "出牌阶段， 你可以获得一张“荣”并弃置一张手牌 ，然后弃置场上的一张牌。"
+        }
+      ],
+      "boundary": "Historical ordinary OL acquired-skill/card-slot supplement; current hero main wording takes priority.",
+      "struckHistoricalText": [
+        "且场上有角色死亡"
+      ],
+      "normalization": "Only skill text; removed markup-struck historical clauses, listed separately. Raw HTML remains frozen unchanged."
+    }
+  ],
+  "engineeringContract": "../skill-composition/FENG_LIN_THIRD_CAPABILITIES.md",
+  "engineeringBoundary": "Explicit engineering interpretations; no captured current FAQ. Main Full and measured routine passed; offline WPF renders do not establish live OL play acceptance.",
+  "dispatch": {
+    "baselineFiles": 3377,
+    "baselineManifest": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThird-20261002\\baseline-manifest.json",
+    "baselineManifestSha256": "50a1f57151961f90da583455c5d5e66cab199ea94ca977970061086e5d15d236",
+    "sourceRootHead": "4354914c3c863997e6089c238bf0cce65eebb837",
+    "workers": {
+      "guanqiujian": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThird-20261002\\guanqiujian",
+      "lukang": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThird-20261002\\lukang",
+      "xuyou": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThird-20261002\\xuyou"
+    },
+    "initialCopyDrift": [],
+    "boundary": "Includes current source, Shared tests and 2324 data files; no old branch suite or binary/obj copied. Parent owns integration/WPF/Full. Root write hold during coordinated second-batch commit; third work is temp only."
+  },
+  "parentArtVerification": {
+    "dimensions": [
+      750,
+      950
+    ],
+    "byteShaMatchesCandidateCatalog": true,
+    "pngHeaderAndTailVerified": true,
+    "locallyViewedKeys": [
+      "guanqiu-jian",
+      "lu-kang",
+      "xu-you"
+    ],
+    "boundary": "Official byte/visual preparation only; no third skill or native gallery acceptance yet."
+  },
+  "supplementaryGalleryClassification": {
+    "url": "https://www.sanguosha.com/news/20210120_8136_5413",
+    "retrievedAt": "2026-10-01T16:45:40.196697+00:00",
+    "rawArtifact": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThird-20261002\\gallery-classification.html",
+    "sha256": "14975cb62675d5afe37a17efa7286e13465987b72de1fde1421740527a2e04a3",
+    "classification": {
+      "classic:guanqiu-jian": "myth-thunder",
+      "classic:lu-kang": "myth-thunder",
+      "classic:xu-you": "myth-yin"
+    },
+    "boundary": "Historical ordinary OL notice used only for gallery pack labels; current hero/index determine rules and registration."
+  },
+  "coordinatedSecondCommit": {
+    "head": "ed3789ec194e446415e99e8d08776e8b8d032fb4",
+    "fullCorePassed": 316,
+    "fullWpfPassed": 41,
+    "durationMs": 202391,
+    "pushed": false,
+    "supportProof": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThird-20261002\\coordinated-second-commit-support\\manifest.json",
+    "boundary": "Third workers remain on their original exact frozen source; new coordinated five-item optimization ABI still pending and must be three-way integrated later."
+  },
+  "runtimeIntegrationBase": {
+    "head": "f38f5e0bf373642c9cd4dd67ccc2a50ab695f8d2",
+    "baselineManifest": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThird-20261002\\runtime-current-baseline-manifest.json",
+    "boundary": "Keep single prepared command output, whole-catalog dependencies, reference-keyed plans, live legality, frame-owned batches, typed instructions and single GeneralModules declaration."
+  },
+  "integrationStatus": "threeFrozenDeliveriesIntegratedMainVerified",
+  "progressEvidence": [
+    {
+      "scope": "Xu UI discard allowance/source loss/actual phase expiry and completed multiple-cost sorting",
+      "summary": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThird-20261002\\validation-ui-xu-02\\summary.json",
+      "result": "2/2 WPF passed"
+    },
+    {
+      "scope": "Integrated Lu + Xu and whole-catalog dependencies/execution plans/shared legality",
+      "summary": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThird-20261002\\validation-integrated-lu-xu-core-02\\summary.json",
+      "result": "19/19 Core passed"
+    },
+    {
+      "scope": "Compact actual paid suit badge + cost sorting on integrated Lu + Xu",
+      "summary": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThird-20261002\\validation-integrated-lu-xu-01\\summary.json",
+      "result": "WPF 2/2 passed; Core filter spelling failure ran no Core checks; wrapper exit1 retained"
+    },
+    {
+      "scope": "Combined three generals, multi-source public piles, prepared views/events, prior batch and execution plans",
+      "summary": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThird-20261002\\validation-third-combined-02\\summary.json",
+      "result": "Core 51/51; WPF public pile exchange 1/1 passed"
+    }
+  ],
+  "sharedPileRepair": {
+    "reason": "Enabled GeneralWeapon -> RedBloodBlade skill copying can combine Bizhuan and Zhengrong on a single owner. Original per-owner single-source guard is insufficient.",
+    "status": "implementedMainFullAndRoutineVerified",
+    "boundary": "Separate true physical public-pile locations, capacity and source-local counts; source loss clears only its own pile; keep old single-source default addresses and omitted nullable view fields. Real dual-source moves, independent counts/loss/death, checkpoint and privacy checks passed. Complete equipment-copy acquisition chain is static reachability evidence only."
+  },
+  "frozenRuntimeDeliveries": [
+    {
+      "key": "xuyou",
+      "directory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThird-20261002\\port-xuyou\\delivery-runtime",
+      "manifestSha256": "227c8442f2362f780791e7f3a92df1d32ae99e2199091aac2b7cf5a0e1e031e1"
+    },
+    {
+      "key": "lukang",
+      "directory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThird-20261002\\port-lukang\\delivery-runtime",
+      "manifestSha256": "d33ae2285ef2a36eb6321201b37a809889c6f6724cd8460ea2d0abd048572b92"
+    },
+    {
+      "key": "guanqiujian",
+      "directory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThird-20261002\\port-guanqiujian-resume\\delivery-runtime",
+      "manifestSha256": "7aebcf2dc900a5296ee0a2213e446cc759f3723fbb66ad63164c02e1f4eff021"
+    }
+  ],
+  "mainAcceptance": {
+    "baseHead": "f38f5e0bf373642c9cd4dd67ccc2a50ab695f8d2",
+    "sourceWritebackProof": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThird-20261002\\main-writeback-applied.json",
+    "sourceDriftBeforeDocumentation": [],
+    "full": {
+      "corePassed": 347,
+      "coreFailed": 0,
+      "coreSkipped": 0,
+      "wpfPassed": 45,
+      "wpfFailed": 0,
+      "durationMs": 143780,
+      "summary": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThird-20261002\\main-full-evidence\\summary.json",
+      "durableLogs": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThird-20261002\\main-full-evidence\\logs"
+    },
+    "routine": {
+      "corePassed": 98,
+      "coreFailed": 0,
+      "coreSkipped": 0,
+      "wpfPassed": 11,
+      "wpfFailed": 0,
+      "durationMs": 43837,
+      "summary": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThird-20261002\\main-routine-evidence\\summary.json",
+      "durableLogs": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThird-20261002\\main-routine-evidence\\logs",
+      "incrementalBuild": true
+    },
+    "acceptedAt": "2026-10-01T18:40:32.625792+00:00",
+    "boundary": "Offline Core and WPF verification; no live OL client acceptance. Complete equipment-copy acquisition chain is static reachability evidence only. No push or release."
+  }
+}

@@ -15,7 +15,9 @@ internal static class ProgramCompositionValidator
         int initialTargetSetMaximum = 0,
         bool expandedCardDomain = false, SkillProgramCardActionOwnerRelation? cardActionRelation = null, IReadOnlyList<CardKind>? cardKinds = null,
         SkillProgramTurnOwnerScope? turnOwnerScope = null,
-        SkillProgramTargetKind? activationTargetKind = null, IReadOnlyList<CardZoneKind>? activationSourceZones = null, int? activationMinimumCards = null)
+        SkillProgramTargetKind? activationTargetKind = null,
+        IReadOnlyList<CardZoneKind>? activationSourceZones = null, int? activationMinimumCards = null,
+        IReadOnlyList<SkillProgramCardCategory>? activationCardCategories = null)
     {
         expandedCardDomain |= RequiresExpandedCardDomain(effects);
         var bindings = new Dictionary<string, Binding>(StringComparer.Ordinal);
@@ -312,9 +314,26 @@ internal static class ProgramCompositionValidator
                         source.Root.PossiblyGifted.UnionWith(source.Atoms);
                         break;
                     }
+                    case RequireActivationEntry:
+                        if (window is not null || selectedCardCount != 0 || initialSelectedTarget) Fail("operation requires a zero-input activation");
+                        break;
                     case RequireActivationHandComparison:
                         if (window is not null || selectedCardCount != 1 || activationMinimumCards != 1 || cardsConsumed || !initialSelectedTarget || activationTargetKind != SkillProgramTargetKind.OtherLiving || activationSourceZones is null || !activationSourceZones.SequenceEqual([CardZoneKind.Hand])) Fail("hand comparison needs exactly one unconsumed activation input");
                         cardsConsumed = true; // The instruction claims its selected input for reveal, without moving it.
+                        break;
+                    case RequireEquipmentSlotActivation:
+                        if (window is not null || selectedCardCount != 0 || initialSelectedTarget ||
+                            initialTargetSetCount != 0 || initialTargetSetMaximum != 0 || index != 0 ||
+                            effects.Count(e => e.Op == SkillProgramEffectOp.AbolishEquipmentSlotGroup) != 1)
+                            Fail("slot payment must be the first instruction of one zero-input activation");
+                        break;
+                    case RequireEquipmentRecastActivation:
+                        if (window is not null || selectedCardCount != 1 || activationMinimumCards != 1 ||
+                            initialSelectedTarget || initialTargetSetCount != 0 || initialTargetSetMaximum != 0 ||
+                            effects.Count != 1 || activationSourceZones is null || activationSourceZones.Count == 0 ||
+                            activationSourceZones.Any(z => z is not (CardZoneKind.Hand or CardZoneKind.Equipment)) ||
+                            activationCardCategories is not [SkillProgramCardCategory.Equipment])
+                            Fail("equipment recast needs one actual owner H/E equipment input and no targets");
                         break;
                     case ConsumeSelectedCards consume:
                         if (cardsConsumed || selectedCardCount <= 0 ||
@@ -375,6 +394,18 @@ internal static class ProgramCompositionValidator
                     }
                     case RequireMarkerLifecycle markerLifecycle:
                         if (markerLifecycle.Selected ? window != SkillProgramTriggerWindow.PlayPhaseStarting : window is not (SkillProgramTriggerWindow.GameStarting or SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.DrawPhaseStarting)) Fail("marker mutation requires an explicit supported lifecycle window");
+                        break;
+                    case RequirePublicPileActivation:
+                        if (window is not null || index != 0 || selectedCardCount != 0 || initialSelectedTarget || initialTargetSetMaximum != 0)
+                            Fail("public pile gain requires the first instruction of a zero-card zero-target activation");
+                        break;
+                    case RequireAwaitedHandPayment:
+                        if (window is not null || index != 2 || effects[0].Op != SkillProgramEffectOp.ObtainPublicPileCard ||
+                            effects[1] is not { Op: SkillProgramEffectOp.SelectAndMoveOwnedCard, Target: SkillProgramEffectTarget.Owner,
+                                Amount: 1, ChooserRef.Kind: ProgramParticipantRef.Owner, CardOwnerRef.Kind: ProgramParticipantRef.Owner,
+                                Zones: [CardZoneKind.Hand], Destination: SkillProgramCardDestination.DiscardPile,
+                                AwaitMovementTriggers: true, SkipIfNoCards: false, Condition.Kind: SkillProgramConditionKind.Always })
+                            Fail("field discard requires an awaited public-pile gain followed by an unconditional real owner hand discard");
                         break;
                     case RequireTriggerWindow required:
                         if (window != required.Window)

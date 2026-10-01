@@ -29,7 +29,7 @@ public sealed partial class GameEngine
         foreach(var effect in trigger.Effects.Where(e=>e.Op==SkillProgramEffectOp.StartCardActionPindian))
         {
             var opponent=effect.OpponentReference!.Kind==ProgramParticipantRef.Actor?context.CardUse?.ActorSeat:context.TargetSeat;
-            if(context.CardUse is not { } action || !IsSlashCard(action.EffectiveKind) || opponent is not { } seat || seat==owner.Seat || !_players[seat].IsAlive || GetHand(owner).Count==0 || GetHand(_players[seat]).Count==0) return false;
+            if(context.CardUse is not { } action || !IsSlashCard(action.EffectiveKind) || opponent is not { } seat || seat==owner.Seat || !_players[seat].IsAlive || GetHand(owner).Count==0 || GetHand(_players[seat]).Count==0 || !CanBePindianTarget(owner.Seat, seat)) return false;
         }
         return true;
     }
@@ -38,7 +38,7 @@ public sealed partial class GameEngine
         var context=frame.WindowContext??throw new InvalidOperationException("Card contest lost its boundary.");
         var opponent=effect.OpponentReference!.Kind==ProgramParticipantRef.Actor?context.CardUse!.ActorSeat:context.TargetSeat!.Value;
         var use=_resolutionStack.OfType<CardUseFrame>().Single(f=>f.Id==context.CardUse!.ParentCardUseFrameId);
-        if(!IsSlashCard(use.CardKind) || use.Action?.ActionId!=context.CardUse!.CardActionId || opponent==frame.OwnerSeat || GetHand(_players[frame.OwnerSeat]).Count==0 || GetHand(_players[opponent]).Count==0 || frame.PindianResultBindings.Any(b=>b.Name==effect.ResultBind)) throw new InvalidOperationException("Card contest lost its exact Slash or participants.");
+        if(!IsSlashCard(use.CardKind) || use.Action?.ActionId!=context.CardUse!.CardActionId || opponent==frame.OwnerSeat || GetHand(_players[frame.OwnerSeat]).Count==0 || GetHand(_players[opponent]).Count==0 || !CanBePindianTarget(frame.OwnerSeat, opponent) || frame.PindianResultBindings.Any(b=>b.Name==effect.ResultBind)) throw new InvalidOperationException("Card contest lost its exact Slash or participants.");
         var skill=_contentRegistry.GetSkill(frame.SkillId);
         BeginSharedPindian(frame.Id,new(frame.SkillId,skill.Name,skill.Name+" · 拼点",skill.Description),frame.OwnerSeat,opponent,programResultBind:effect.ResultBind!,programResultVisibility:effect.Visibility);
         return SkillProgramStepOutcome.AwaitChild;

@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -183,7 +183,10 @@ public sealed partial class GameEngine
             CreateSkillContext(player),
             GetLivingFactionCount(),
             zone => _cardZones.Count(new CardLocation(zone, player.Seat)),
-            effectiveCardKind);
+            effectiveCardKind,
+            (skill, instance, zone) => zone == CardZoneKind.PublicPersistentPile && SupportsMultiplePublicPiles
+                ? PublicPileProgramCount(player.Seat, skill, instance)
+                : _cardZones.Count(new CardLocation(zone, player.Seat)));
         var programContributions = SkillProgramRules.CollectIndexedContributions(
             query,
             context,

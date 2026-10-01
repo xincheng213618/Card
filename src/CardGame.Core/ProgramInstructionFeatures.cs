@@ -46,7 +46,8 @@ internal sealed class ProgramInstructionFeatures
             .Aggregate(ProgramOperationLegalityPolicy.None, static (current, policy) => new(
                 current.RequiresOwnerHand || policy.RequiresOwnerHand,
                 current.RequiresTargetHand || policy.RequiresTargetHand,
-                current.ExcludesOwnerAsTarget || policy.ExcludesOwnerAsTarget));
+                current.ExcludesOwnerAsTarget || policy.ExcludesOwnerAsTarget,
+                current.RequiresPindianTarget || policy.RequiresPindianTarget));
 
         var conditionKinds = new HashSet<SkillProgramTriggerConditionKind>();
         var valueKinds = new HashSet<SkillProgramTriggerValueKind>();

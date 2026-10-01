@@ -36,10 +36,11 @@ public sealed partial class MainViewModel
             DeferredPublicPiles.Add(new(player.Seat,
                 $"{player.GeneralName} · {player.PublicDeferredPileName ?? "牌堆"} {player.PublicDeferredPileCount}张",
                 player.PublicDeferredPileCards!.Select(card => CreateViewedCard(card, privateView: false)).ToArray()));
-        foreach (var player in _snapshot.Players.Where(player => player.PublicPersistentPileCards is { Count: > 0 }))
-            DeferredPublicPiles.Add(new(player.Seat,
-                $"{player.GeneralName} · {player.PublicPersistentPileName ?? "牌堆"} {player.PublicPersistentPileCount}张",
-                player.PublicPersistentPileCards!.Select(card => CreateViewedCard(card, privateView: false)).ToArray()));
+        foreach (var player in _snapshot.Players)
+            foreach (var pile in PublicPersistentOwnedPiles(player).Where(pile => pile.Count > 0))
+                DeferredPublicPiles.Add(new(player.Seat,
+                    $"{player.GeneralName} · {pile.Name} {pile.Count}张",
+                    pile.Cards.Select(card => CreateViewedCard(card, privateView: false)).ToArray()));
         RaisePropertyChanged(nameof(HasPrivatelyViewedCards));
         RaisePropertyChanged(nameof(HasDeferredPublicPiles));
         RaisePropertyChanged(nameof(PrivateRevealTitle));
@@ -49,7 +50,17 @@ public sealed partial class MainViewModel
     {
         if (player.PublicDeferredPileCount > 0)
             yield return (player.PublicDeferredPileName ?? "牌堆", player.PublicDeferredPileCount, player.PublicDeferredPileCards ?? []);
-        if (player.PublicPersistentPileCount > 0)
+        foreach (var pile in PublicPersistentOwnedPiles(player)) yield return pile;
+    }
+
+    private static IEnumerable<(string Name, int Count, IReadOnlyList<CardSnapshot> Cards)> PublicPersistentOwnedPiles(PlayerSnapshot player)
+    {
+        if (player.PublicPersistentPiles is { Count: > 0 } piles)
+        {
+            foreach (var pile in piles.Where(pile => pile.Count > 0))
+                yield return (pile.Name ?? "牌堆", pile.Count, pile.Cards);
+        }
+        else if (player.PublicPersistentPileCount > 0)
             yield return (player.PublicPersistentPileName ?? "牌堆", player.PublicPersistentPileCount, player.PublicPersistentPileCards ?? []);
     }
 

@@ -892,6 +892,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 (human.Markers is { Count: > 0 } ? " · " + PublicMarkerBadge(human) : string.Empty) +
                 (human.DeferredHandAlignments is { Count: > 0 } ? " · " + DeferredHandAlignmentBadge(human) : string.Empty) +
                 (HasIssuedUseProhibition(human) ? " · " + IssuedUseProhibitionBadge(human) : string.Empty) +
+                (human.IssuedPlayPhaseSuitUseAllowances is { Count: > 0 } ? " · " + PhaseSuitAllowanceBadge(human) : string.Empty) +
                 (human.BeneficiarySuitShields is { Count: > 0 } ? " · " + SuitShieldBadge(human) : string.Empty) +
                 (human.HasAlcoholEffect ? " · 酒效待下一张杀" : string.Empty);
         }

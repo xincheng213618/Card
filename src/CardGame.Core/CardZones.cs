@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 /// <summary>
 /// A physical card is always in exactly one zone. Owned zones require a seat;
@@ -26,7 +26,7 @@ public enum CardZoneKind
 public readonly record struct CardLocation
 {
     [System.Text.Json.Serialization.JsonConstructor]
-    public CardLocation(CardZoneKind zone, int? ownerSeat = null)
+    public CardLocation(CardZoneKind zone, int? ownerSeat = null, string? publicPileId = null)
     {
         var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.Chunlao or CardZoneKind.PojunHold or CardZoneKind.PrivateReserve or CardZoneKind.PublicDeferredPile or CardZoneKind.PublicPersistentPile;
         if (owned && ownerSeat is null or < 0)
@@ -39,6 +39,9 @@ public readonly record struct CardLocation
             throw new ArgumentException($"Shared zone {zone} cannot have an owner seat.", nameof(ownerSeat));
         }
 
+        if (publicPileId is not null && (zone != CardZoneKind.PublicPersistentPile || string.IsNullOrWhiteSpace(publicPileId)))
+            throw new ArgumentException("A named pile identity is valid only for a public persistent pile.", nameof(publicPileId));
+        PublicPileId = publicPileId;
         Zone = zone;
         OwnerSeat = ownerSeat;
     }
@@ -46,6 +49,9 @@ public readonly record struct CardLocation
     public CardZoneKind Zone { get; }
 
     public int? OwnerSeat { get; }
+
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? PublicPileId { get; }
 
     public static CardLocation DrawPile => new(CardZoneKind.DrawPile);
 
@@ -264,6 +270,13 @@ internal sealed class CardZoneStore
     }
 
     public int TotalCards => _locations.Count;
+    internal void EnsurePublicPersistentPile(CardLocation location)
+    {
+        if (location.Zone != CardZoneKind.PublicPersistentPile || location.OwnerSeat is not { } seat ||
+            !_zones.ContainsKey(CardLocation.Hand(seat)))
+            throw new ArgumentException("Named public pile requires an existing owner.", nameof(location));
+        if (!_zones.ContainsKey(location)) AddZone(location);
+    }
     internal void AddGeneratedCard(Card card)
     {
         if (card.Id <= 0 || _locations.ContainsKey(card.Id))

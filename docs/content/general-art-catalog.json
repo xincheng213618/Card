@@ -3146,6 +3146,23 @@
       ]
     },
     {
+      "key": "guanqiu-jian",
+      "characterName": "毌丘俭",
+      "defaultSkinId": "41300",
+      "skins": [
+        {
+          "id": "41300",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/413",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/41300.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-guanqiu-jian.png",
+          "sha256": "71c3b3a33ecfa05d9556c29852c07669246524d98cf8c7d8b56a1cbc32cf3ac8",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
       "key": "guo-huai",
       "characterName": "郭淮",
       "defaultSkinId": "131101",
@@ -4933,6 +4950,23 @@
           "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40200.png",
           "localPath": "src/CardGame.Wpf/Assets/official-lu-ji.png",
           "sha256": "f2cd9bc12d94542dc2b8928704afbe8bf232389e5b5472aad79a11dbe1b739ef",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "lu-kang",
+      "characterName": "陆抗",
+      "defaultSkinId": "41400",
+      "skins": [
+        {
+          "id": "41400",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/414",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/41400.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-lu-kang.png",
+          "sha256": "0db987229b0386a100736242a9d2d096c5fa28b259938281bfc2dcefeb8ba409",
           "pixelWidth": 750,
           "pixelHeight": 950
         }
@@ -8168,6 +8202,23 @@
           "sha256": "15262eb3bf5ce9f531a25faff22e360dacf19df34fb07a21c8e5d49a77d2af2c",
           "pixelWidth": 574,
           "pixelHeight": 761
+        }
+      ]
+    },
+    {
+      "key": "xu-you",
+      "characterName": "许攸",
+      "defaultSkinId": "40600",
+      "skins": [
+        {
+          "id": "40600",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/406",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40600.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-xu-you.png",
+          "sha256": "0c635e728b97e0f600d146b357e243b8cef24f8f0cacca537b1268e323d5c5d2",
+          "pixelWidth": 750,
+          "pixelHeight": 950
         }
       ]
     },

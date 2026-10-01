@@ -215,7 +215,7 @@ public sealed partial class GameEngine
 
         foreach (var target in _players.Where(player =>
                      player.IsAlive && player.Seat != source.Seat &&
-                     (HasCardDistanceExemption(source, player, CardKind.Snatch) ||
+                     (HasPhaseSuitAllowance(source.Seat,shieldSuit) || HasCardDistanceExemption(source, player, CardKind.Snatch) ||
                       HasCardPolicy(source, SkillProgramCardPolicyKind.IgnoreUseDistance,
                           CardKind.Snatch) ||
                       GetCombatDistance(source.Seat, player.Seat) == 1) &&

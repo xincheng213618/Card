@@ -65,6 +65,10 @@ public static class GeneralArt
             ["zhuge-zhan"] = "official-zhuge-zhan.png",
             ["chen-dao"] = "official-chen-dao.png",
             ["sun-liang"] = "official-sun-liang.png",
+            // Current OL editions and hashes: docs/content/sources/fenglin-third-2026-10-02.json.
+            ["guanqiu-jian"] = "official-guanqiu-jian.png",
+            ["lu-kang"] = "official-lu-kang.png",
+            ["xu-you"] = "official-xu-you.png",
             ["zhang-chun-hua"] = "official-zhang-chun-hua.png",
             ["ling-tong"] = "official-ling-tong.png",
             ["chen-gong"] = "official-chen-gong.png",

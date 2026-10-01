@@ -345,7 +345,7 @@ public sealed partial class GameEngine
             return false;
         var recipient = _players[destinationSeat];
         if (sourceZone == CardZoneKind.Judgment)
-            return !recipient.JudgmentAreaAbolished &&
+            return !recipient.JudgmentAreaAbolished && !HasCardPolicy(recipient, SkillProgramCardPolicyKind.ProhibitDelayedTrickTarget) &&
                 IsDelayedCard(GetJudgmentEffectiveCardKind(card)) &&
                 !HasJudgmentEffectiveCard(recipient, GetJudgmentEffectiveCardKind(card));
         return sourceZone is CardZoneKind.Hand or CardZoneKind.Equipment &&

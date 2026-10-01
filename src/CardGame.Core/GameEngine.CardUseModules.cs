@@ -216,7 +216,7 @@ public sealed partial class GameEngine
         var valid = query == SkillRuleQuery.SlashLimit && operation == SkillRuleOperation.Add && amount > 0 ||
                     query == SkillRuleQuery.HandLimit && operation == SkillRuleOperation.Add && amount is >= -20 and <= 20 && amount != 0 ||
                     query == SkillRuleQuery.OutgoingDistance && operation == SkillRuleOperation.Add && amount is >= -20 and <= 20 && amount != 0 ||
-                    (query is SkillRuleQuery.SlashDistanceLimit or SkillRuleQuery.AttackRange) &&
+                    (query is SkillRuleQuery.CardUseDistanceLimit or SkillRuleQuery.SlashDistanceLimit or SkillRuleQuery.AttackRange) &&
                     operation == SkillRuleOperation.Unlimited && amount == 0 ||
                     query == SkillRuleQuery.CardTargetCount && operation == SkillRuleOperation.Add &&
                     amount > 0 && cardKinds.Count > 0;
