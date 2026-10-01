@@ -314,3 +314,89 @@ remains in its developing chat. Its three portraits, three pending documents and
 four mapping/catalog hunks are retained in the working tree without staging;
 mixed files are staged only for the completed content. No whole-file rollback
 is used to separate those changes.
+
+## Five follow-up optimizations implemented (2026-10-02)
+
+The five proposals in the preceding review are implemented in the existing
+solution. The completed Zhuge Zhan, Chen Dao and Sun Liang batch was first
+validated and committed separately, then integrated without replacing its
+shared runtime, committed-event freezing or retained coverage.
+
+- Command operations now return no intermediate result. A publication marker
+  requests one final output view; command result, publication and observer
+  reentry rejection share that prepared immutable view. AI decisions and
+  explicit viewer reads still construct their necessary views.
+- The frozen registry compiles whole-catalog condition, value, operation,
+  trigger-window and card-policy dependencies. Unowned and disabled definitions
+  retain their historical contribution to nullable facts and event shape.
+- Reference-keyed execution plans retain activation/trigger bindings and static
+  operation features. Dynamic eligibility, skill-instance identity, priority,
+  relative seat ordering and ChoiceGroup behavior remain runtime decisions.
+  Operation descriptors share hand-contest and other-recipient prerequisites
+  between legal actions, submitted-input validation and public AI estimation.
+- Strategic damage batches and deferred provider rewards belong to their
+  ProgramSkillFrame. Child return preserves remaining targets and already-paid
+  costs; completion, owner death and skill loss retire the frame's state. A
+  repeat whose condition becomes false clears its instruction-owned batch before
+  a later damage instruction starts. Damage and LoseHp parameters are compiled
+  typed instructions. Remaining movement mechanisms are separate future slices;
+  this batch does not claim to eliminate every movement continuation.
+- A single ordered list declares 23 general modules. Their actual AddGeneral
+  declarations supply their pool membership; RegisterBundle loads each catalog's
+  skills without a second membership list. Explicit metadata overrides and the
+  historical Fame 2015, Ji Kang and Zhuge Zhan ordering exceptions remain.
+  A new module needs its content declaration and one GeneralModules entry, with
+  no separate AddedGeneralIds list or per-character version increment.
+
+Independent content probes compared all 17 StandardContentRegistry factories
+and four duplicate/reference rejection results against the completed-content
+baseline. The complete ordered JSON signatures match byte for byte, including
+fingerprints, metadata, presentation, AI weights and mode pools. The classic
+catalog has 365 skills, 200 generals and 176 pool entries; the boundary pool
+retains 49 entries. Evidence is outside the repository at
+`C:\Users\17917\.codex\tmp\card-modules-ed3789e-20261002\equivalence.json`.
+
+TEMP-only instrumentation compared an identical standard command prefix before
+and after final-output deduplication. Start used seven player projections before
+and one after; the next step used three before and one after. Result JSON, typed
+event bytes, notifications, every viewer and replay were identical. These are
+counts for the observed commands, not a promise that all AI-driven commands
+construct only one snapshot or a controlled elapsed-time speedup estimate.
+Instrumentation never entered production source.
+
+Cross-review checked all 66 Accept call sites and the preparation/commit/delivery
+failure boundaries. A real conditional-repeat regression was reproduced before
+repair: owner HP loss in the first damage child invalidated its parent condition,
+then an independent mass-damage node encountered the old batch. The repair
+retired that batch, preserving the expected ordered targets [1,1,2,3], four HP
+payments and one final draw. Existing normal and skill-loss cancellation checks
+remain, with exact checkpoint frame restoration, event bytes and every viewer.
+Only seven shared behavior registrations were added; no historical suite was
+restored and no rules/schema/package version was raised by these optimizations.
+
+The final combined-source Full wrapper passed 323/323 Core and 41/41 WPF
+checks in 111.563 seconds: build 7.747, Core 57.949, WPF 45.828. The subsequent
+routine wrapper passed 98/98 Core and 11/11 WPF checks in 38.904 seconds,
+including the incremental build (1.267 build, 9.975 Core, 27.601 WPF). This
+meets the approximate one-minute daily target on this observed run. Full
+coverage still has its separate batch acceptance role. A clean compilation
+reported only the two existing GaoDaYiHaoChecks nullable warnings; the
+incremental routine build reported none. All tracked source, tests and tools
+were SHA-256 checked against the verification snapshot after both runs.
+
+The complete immutable summary copies are
+`C:\Users\17917\.codex\tmp\card-runtime-next-20261002\final-full.json` and
+`C:\Users\17917\.codex\tmp\card-runtime-next-20261002\final-routine.json`.
+The latter does not replace the former; the full build log is also preserved.
+
+An independent TEMP-only trace probe then compared the completed-content
+baseline with the final repaired candidate: standard Start/Step, Taoluan,
+Xin Xianying and Zhuge Zhan private quota/top fixtures. All 59 accepted
+boundaries captured result JSON, exact typed event envelopes, every viewer
+and checkpoint replay events/views. The complete raw trace files match byte
+for byte (SHA-256 43B0C647EA7DA17C86555E2B31F79930525B282E7C85348D43369462F3E2391E).
+Their four final event counts are 5, 74, 55 and 46. Static cross-review of the
+whole-catalog summaries, binding caches, ordering and shared legality pilots
+found no additional actionable defect. These finite traces establish their
+observed behavior, not equivalence of every possible game or future program.
+Evidence: `C:\Users\17917\.codex\tmp\card-runtime-next-20261002\final-trace-verification.json`.
