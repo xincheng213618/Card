@@ -11,8 +11,7 @@ public sealed partial class GameEngine
     private void RecordCharacterStateChange(int targetSeat, SkillProgramTriggerWindow window, long? parentFrameId = null)
     {
         // Opt-in event boundaries leave command journals for older content unchanged.
-        if (!_setupComplete || !_contentRegistry.Skills.Values.Any(skill =>
-            skill.Program?.Triggers.Any(trigger => trigger.Window == window) == true)) return;
+        if (!_setupComplete || !_contentRegistry.ProgramDependencies.HasTriggerWindow(window)) return;
         var change = new CharacterStateChangeContext(++_resolutionSequence,
             parentFrameId ?? _resolutionStack.LastOrDefault()?.Id, targetSeat, window);
         _pendingCharacterStateChanges.Add(change);

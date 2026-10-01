@@ -13,7 +13,7 @@ public sealed partial class GameEngine
                         ["activation"] = activation.Id });
     }
 
-    private EngineRunResult BeginProgramDodgeResponse(PromptChoice choice, bool advanceToHumanBoundary)
+    private void BeginProgramDodgeResponse(PromptChoice choice, bool advanceToHumanBoundary)
     {
         var decision = _pendingDecision is { Kind: DecisionKind.RespondDodge } pending ? pending :
             throw new InvalidOperationException("A configured Dodge requires its current response prompt.");
@@ -23,7 +23,8 @@ public sealed partial class GameEngine
             !ProgramDodgeResponseChoices(owner).Any(item => item.Id == choice.Id && AssistedChoicesEqual([item], [choice])))
             throw new InvalidOperationException("Configured Dodge changed its living responder or published activation.");
         var program = GetEnabledSkillProgram(owner, choice.Parameters["skill"]);
-        var activation = program.Activations.Single(item => item.Id == choice.Parameters["activation"]);
+        var activation = ProgramInstructionResolver.Default.Resolve(program,
+            ProgramInstructionSourceKind.Activation, choice.Parameters["activation"]).Activation!;
         ClearPendingDecision();
         var frame = new ProgramSkillFrame(++_resolutionSequence, owner.Seat, program.Id, activation.Id,
             program.GameplayHash, 0, [], [])
@@ -32,7 +33,7 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new ProgramSkillStartedEvent(frame.Id, owner.Seat, program.Id, activation.Id));
         AdvanceRuntimeProgram(frame.Id);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
     private void CompleteProgramMaximumHandDodge(ProgramSkillFrame frame, bool succeeded)

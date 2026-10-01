@@ -4,12 +4,7 @@ public sealed partial class GameEngine
 {
     // The content fingerprint opts into the new facts. Historical catalogs keep
     // their original event shape and replay behavior.
-    private bool TracksPlayCardHistory => _contentRegistry?.Skills.Values.Any(skill =>
-        skill.Program is { } program &&
-        (program.Triggers.Any(t=>t.Effects.Any(e=>e.Op is SkillProgramEffectOp.ReplaceAllSlashTargets or SkillProgramEffectOp.GrantRandomSkillAndSuitShield)) || program.ViewAs.Any(rule => rule.InheritPreviousPlaySuit) ||
-         program.Triggers.Any(trigger => HasTriggerCondition(trigger.Condition,
-             SkillProgramTriggerConditionKind.CardActionMatchesPreviousPlayCard) ||
-             HasTriggerCondition(trigger.Condition, SkillProgramTriggerConditionKind.CardActionSuitIs)))) == true;
+    private bool TracksPlayCardHistory => _contentRegistry?.ProgramDependencies.TracksPlayCardHistory == true;
 
     private static bool HasTriggerCondition(SkillProgramTriggerCondition condition,
         SkillProgramTriggerConditionKind kind) => condition.Kind == kind ||

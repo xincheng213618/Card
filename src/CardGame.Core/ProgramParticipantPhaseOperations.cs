@@ -59,7 +59,7 @@ public sealed partial class GameEngine
     private void ConsumeProgramTargetPhaseLedger(ProgramSkillFrame frame,string usage)
     {
         var active=GetActiveProgramFrame(frame.Id);
-        var activation=_contentRegistry.GetSkill(frame.SkillId).Program!.Activations.Single(a=>a.Id==frame.ActivationId);
+        var activation=ProgramInstructionResolver.Default.Resolve(_contentRegistry.GetSkill(frame.SkillId).Program!,ProgramInstructionSourceKind.Activation,frame.ActivationId).Activation!;
         if(active.TriggerId is not null || active.SelectedTargetSeats is not [var target] || activation.TargetPhaseLedgerId != usage ||
             !CanActivateTargetPhaseLedger(active.OwnerSeat,active.SkillId,usage,target)) throw new InvalidOperationException("Participant phase usage is unavailable.");
         var key=$"{usage}:target:{target}";

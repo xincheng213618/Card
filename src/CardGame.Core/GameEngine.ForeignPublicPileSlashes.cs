@@ -61,7 +61,7 @@ public sealed partial class GameEngine
             ClearPendingDecision();
             TryExecuteForeignPublicPileSlash(actor, action, command.CardIds, command.TargetSeats);
             AdvanceRulesAndPublishState();
-            return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
+            if (_options.AdvanceAfterHumanCommands) AdvanceToHumanBoundary();
         });
         return true;
     }

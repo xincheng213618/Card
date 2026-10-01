@@ -13,6 +13,40 @@ internal static class EmbeddedSkillProgramCatalog
     private static readonly ConcurrentDictionary<string, Lazy<SkillProgramCatalog>> Catalogs =
         new(StringComparer.Ordinal);
 
+    /// <summary>
+    /// Registers every paired definition in the declared bundle, including granted
+    /// and upgraded skills that are not printed on a general's initial skill list.
+    /// Metadata remains explicit at the caller; ids come from the catalog itself.
+    /// </summary>
+    internal static void RegisterBundle(
+        IContentRegistryBuilder builder,
+        string bundleResourceName,
+        Func<ContentSkillDefinition, ContentSkillDefinition> configure,
+        IReadOnlyDictionary<string, SkillTag>? tagOverrides = null)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(configure);
+        var catalog = Catalog(bundleResourceName);
+        if (tagOverrides is not null)
+        {
+            foreach (var id in tagOverrides.Keys)
+                if (!catalog.Programs.ContainsKey(id))
+                    throw new InvalidOperationException(
+                        $"Skill-program bundle '{bundleResourceName}' has no metadata override target '{id}'.");
+        }
+
+        foreach (var id in catalog.Programs.Keys)
+        {
+            var definition = Definition(bundleResourceName, id);
+            if (tagOverrides is not null && tagOverrides.TryGetValue(id, out var tags))
+                definition = definition with { Tags = tags };
+            var configured = configure(definition);
+            if (configured.Id != id)
+                throw new InvalidOperationException("Bundle metadata cannot change a skill identity.");
+            builder.AddSkill(configured);
+        }
+    }
+
     internal static ContentSkillDefinition Definition(string bundleResourceName, string skillId)
     {
         if (string.IsNullOrWhiteSpace(bundleResourceName))

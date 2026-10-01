@@ -5,9 +5,6 @@ namespace CardGame.Content.Standard;
 // Current OL editions: docs/content/sources/fame-2014-2026-09-30.json.
 internal static class Fame2014Content
 {
-    internal static IReadOnlyList<string> AddedGeneralIds { get; } =
-        ["classic:cao-zhen", "classic:han-hao-shi-huan", "classic:chen-qun", "classic:wu-yi", "classic:zhou-cang", "classic:sun-lu-ban"];
-
     internal static void Register(IContentRegistryBuilder builder)
     {
         Add("cao-zhen", "曹真", "wei", 4, GeneralGender.Male, [("classic:sidi", SkillTag.None)]);
@@ -19,18 +16,16 @@ internal static class Fame2014Content
 
         void Add(string key, string name, string faction, int hp, GeneralGender gender, (string Id, SkillTag Tags)[] skills)
         {
-            foreach (var (id, tags) in skills)
+            EmbeddedSkillProgramCatalog.RegisterBundle(builder, "classic-" + key, definition =>
             {
-                var definition = EmbeddedSkillProgramCatalog.Definition("classic-" + key, id);
                 var program = definition.Program!;
-                builder.AddSkill(definition with
+                return definition with
                 {
-                    Tags = tags,
                     ExecutionForms = (program.Triggers.Count > 0 ? SkillExecutionForm.Trigger : SkillExecutionForm.None) |
                         (program.Modifiers.Count + program.CardPolicies.Count + program.CardIdentities.Count > 0 ? SkillExecutionForm.State : SkillExecutionForm.None),
                     ActionForms = program.Activations.Count > 0 || program.ViewAs.Any(rule => rule.ForPlay) ? SkillActionForm.Active : SkillActionForm.None
-                });
-            }
+                };
+            }, skills.ToDictionary(skill => skill.Id, skill => skill.Tags, StringComparer.Ordinal));
             builder.AddGeneral(new ContentGeneralDefinition("classic:" + key, name, key.Replace('-', '_'),
                 skills[0].Id, faction, hp, skills.Skip(1).Select(skill => skill.Id).ToArray(), gender)
             { CharacterId = "character:" + key, VariantId = "classic", RulesetId = "sanguosha-ol" });

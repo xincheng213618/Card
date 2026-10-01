@@ -43,8 +43,7 @@ public sealed partial class GameEngine
                     DamageCardIsSlash = CurrentDamageAttempt is { EffectiveCardKind: { } beforeDamageKind, IsChainPropagation: false, IsSourceLess: false } && IsSlashCard(beforeDamageKind),
                     DirectCardUseDamage = CurrentDamageAttempt is { Card: not null, IsChainPropagation: false, IsSourceLess: false },
                     DamageSourceGender = CurrentDamageAttempt?.IsDelayedJudgmentDamage != true && CurrentDamageAttempt?.IsSourceLess != true &&
-                        _contentRegistry.Skills.Values.Any(skill => skill.Program?.Triggers.Any(trigger =>
-                            HasTriggerCondition(trigger.Condition, SkillProgramTriggerConditionKind.DamageSourceGenderIs)) == true)
+                        _contentRegistry.ProgramDependencies.UsesTriggerCondition(SkillProgramTriggerConditionKind.DamageSourceGenderIs)
                         ? _players[sourceSeat].Gender : null
                 };
                 return CollectProgramTriggerCandidates(owner, SkillProgramTriggerWindow.BeforeDamageApplied)
@@ -52,8 +51,8 @@ public sealed partial class GameEngine
                     {
                         SkillProgramTriggerSubject.DamageTarget => owner.Seat == targetSeat &&
                             (CurrentDamageAttempt?.DamageRedirected != true ||
-                             !GetProgramTrigger(candidate).Effects.Any(effect =>
-                                 effect.Op == SkillProgramEffectOp.RedirectCurrentDamage)),
+                             !ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate))
+                                 .HasOperation(SkillProgramEffectOp.RedirectCurrentDamage)),
                         SkillProgramTriggerSubject.DamageSource => CurrentDamageAttempt?.IsSourceLess != true && owner.Seat == sourceSeat && owner.Seat != targetSeat,
                         SkillProgramTriggerSubject.Owner => owner.Seat != targetSeat,
                         _ => false

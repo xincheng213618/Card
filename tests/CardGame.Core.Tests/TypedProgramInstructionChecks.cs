@@ -53,6 +53,20 @@ internal static class TypedProgramInstructionChecks
         Require(!JsonSerializer.Serialize(reducedMaximum).Contains("CompiledInstruction", StringComparison.Ordinal) &&
                 !JsonSerializer.Serialize(populationGrowth).Contains("CompiledInstruction", StringComparison.Ordinal),
             "Maximum-HP instructions must stay outside the serialized rules definition and content fingerprint.");
+
+        var loss = Parse("""{"op":"loseHp","target":"selectedTarget","amount":2}""");
+        var damage = Parse("""{"op":"damage","target":"owner","amount":3,"sourceRef":{"kind":"owner"},"targetRef":{"kind":"eventTarget"},"nature":"thunder"}""");
+        Require(loss.CompiledInstruction is LoseHpProgramInstruction { Amount: 2 } &&
+                damage.CompiledInstruction is DamageProgramInstruction
+                {
+                    Amount: 3,
+                    SourceReference.Kind: ProgramParticipantRef.Owner,
+                    TargetReference.Kind: ProgramParticipantRef.EventTarget,
+                    Nature: DamageNature.Thunder
+                }, "Damage and HP loss must retain their own validated amount, participants and nature.");
+        Require(!JsonSerializer.Serialize(loss).Contains("CompiledInstruction", StringComparison.Ordinal) &&
+                !JsonSerializer.Serialize(damage).Contains("CompiledInstruction", StringComparison.Ordinal),
+            "Typed damage and HP loss instructions must not change serialized rules or their fingerprint.");
     }
 
     private static SkillProgramEffect Parse(string json)

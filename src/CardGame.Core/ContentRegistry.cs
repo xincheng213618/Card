@@ -168,6 +168,7 @@ public sealed class ContentRegistry
         _generals = generals;
         _decks = decks;
         _modes = modes;
+        ProgramDependencies = new SkillProgramDependencies(_skills.Values);
         ContentHash = ComputeContentHash(
             Packages,
             _cards,
@@ -196,6 +197,7 @@ public sealed class ContentRegistry
     public IReadOnlyDictionary<string, ContentDeckRecipe> Decks => _decks;
 
     public IReadOnlyDictionary<string, ContentModeDefinition> Modes => _modes;
+    internal SkillProgramDependencies ProgramDependencies { get; }
 
     public ContentCardDefinition GetCard(string id) =>
         _cards.TryGetValue(id, out var definition)

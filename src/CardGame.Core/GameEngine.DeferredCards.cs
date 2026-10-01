@@ -8,7 +8,6 @@ public sealed record DeferredPublicPileObtainedEvent(int OwnerSeat, int Provider
 public sealed partial class GameEngine
 {
     private readonly List<DeferredPublicPileDeposit> _deferredPublicPileDeposits = [];
-    private readonly Dictionary<long, IReadOnlyList<(int Seat, int Count)>> _deferredProviderRewards = [];
     private readonly Dictionary<long, (int Seat, IReadOnlyList<int> Ids)> _participantTopViews = [];
 
     private CardSnapshot[] GetPrivatelyViewedCards(int viewerSeat)
@@ -115,16 +114,17 @@ public sealed partial class GameEngine
         var deposits = _deferredPublicPileDeposits.Where(item => item.OwnerSeat == frame.OwnerSeat && item.SkillId == frame.SkillId && item.CreatedTurn < _turnNumber).ToArray();
         if (deposits.Length == 0) return SkillProgramStepOutcome.Continue;
         var pile = new CardLocation(CardZoneKind.PublicDeferredPile, frame.OwnerSeat);
-        var rewards = new List<(int Seat, int Count)>();
+        var rewards = new List<ProgramDeferredProviderReward>();
         foreach (var deposit in deposits)
         {
             _deferredPublicPileDeposits.Remove(deposit);
             var ids = deposit.CardIds.Where(id => _cardZones.GetLocation(id) == pile).ToArray();
-            rewards.Add((deposit.ProviderSeat, ids.Length));
+            rewards.Add(new(deposit.ProviderSeat, ids.Length));
             AdvanceEventRulesAndQueueFact(new DeferredPublicPileObtainedEvent(frame.OwnerSeat, deposit.ProviderSeat, ids));
         }
         var actual = deposits.SelectMany(item => item.CardIds).Distinct().Where(id => _cardZones.GetLocation(id) == pile).ToArray();
-        _deferredProviderRewards[frame.Id] = rewards;
+        frame = frame with { DeferredProviderRewards = Array.AsReadOnly(rewards.ToArray()) };
+        ReplaceRuntimeTop(frame);
         if (actual.Length == 0) return SkillProgramStepOutcome.Continue;
         ReplaceRuntimeTop(frame with { PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
         MoveCards(actual.Select(id => _cardZones.CardsAt(pile).Single(card => card.Id == id)).ToArray(), pile, CardLocation.Hand(frame.OwnerSeat), new("skill-program.deferred-pile.obtain"));
@@ -134,7 +134,9 @@ public sealed partial class GameEngine
 
     private void RewardDeferredProviders(ProgramSkillFrame frame)
     {
-        if (!_deferredProviderRewards.Remove(frame.Id, out var rewards)) return;
+        if (frame.DeferredProviderRewards is not { } rewards) return;
+        // Consume before drawing: a nested window may suspend, but cannot pay again.
+        ReplaceRuntimeTop(frame with { DeferredProviderRewards = null });
         foreach (var reward in rewards)
             if (_players[reward.Seat].IsAlive && reward.Count > 0)
                 DrawProgramCards(frame.Id, reward.Seat, reward.Count, null, null, SkillProgramCardSetVisibility.Private, new("skill-program.deferred-pile.provider-reward"));

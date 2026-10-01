@@ -79,6 +79,7 @@ internal interface IProgramOperationDescriptor
     ProgramOperationInteraction Interaction { get; }
     ProgramContextCapability RequiredCapabilities { get; }
     ProgramOperationAiPolicy AiPolicy { get; }
+    ProgramOperationLegalityPolicy LegalityPolicy => ProgramOperationLegalityPolicy.None;
     SkillProgramEffect Parse(ProgramOperationNodeReader reader);
     ProgramSkillInstruction? Compile(SkillProgramEffect effect) => null;
     IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect);
@@ -318,6 +319,7 @@ internal abstract class ProgramOperationDescriptorBase : IProgramOperationDescri
     public virtual ProgramOperationInteraction Interaction => ProgramOperationInteraction.Automatic;
     public virtual ProgramContextCapability RequiredCapabilities => ProgramContextCapability.None;
     public abstract ProgramOperationAiPolicy AiPolicy { get; }
+    public virtual ProgramOperationLegalityPolicy LegalityPolicy => ProgramOperationLegalityPolicy.None;
     public abstract SkillProgramEffect Parse(ProgramOperationNodeReader reader);
     public virtual ProgramSkillInstruction? Compile(SkillProgramEffect effect) => null;
     public abstract IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect);
@@ -507,6 +509,8 @@ internal sealed class LoseHpProgramOperationDescriptor : ProgramOperationDescrip
     public override ISkillProgramEffectHandler Handler { get; } = new LoseHpSkillProgramEffectHandler();
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.LoseHp,
         static (effect, context) => context.LoseHp(effect));
+    public override ProgramSkillInstruction Compile(SkillProgramEffect effect) =>
+        new LoseHpProgramInstruction(effect.Amount);
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
         r.AllowOnly("op", "target", "amount", "condition");
@@ -830,6 +834,7 @@ internal sealed class GiveSelectedProgramOperationDescriptor : ProgramOperationD
 {
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.GiveSelected;
     public override ISkillProgramEffectHandler Handler { get; } = new GiveSelectedSkillProgramEffectHandler();
+    public override ProgramOperationLegalityPolicy LegalityPolicy => ProgramOperationLegalityPolicy.OtherRecipient;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GiveSelected,
         static (effect, context) => context.GiveSelected(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)

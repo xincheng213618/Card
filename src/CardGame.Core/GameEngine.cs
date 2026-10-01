@@ -34,7 +34,7 @@ public sealed partial class GameEngine
     private readonly SkillRuntimeStateStore _skillRuntimeState = new();
     private readonly TurnCardUseEffectStore _turnCardUseEffects = new();
     private readonly MatchSkillBindingIndex _skillBindingIndex;
-    private GameSnapshot? _pendingStateSnapshot;
+    private bool _pendingStatePublication;
 
     private EngineStatus _status = EngineStatus.NotStarted;
     private Winner _winner = Winner.None;
@@ -1626,7 +1626,7 @@ public sealed partial class GameEngine
         return distance;
     }
 
-    private CommandResult Accept(Func<EngineRunResult> operation)
+    private CommandResult Accept(Action operation)
     {
         var result = ExecuteExclusive(() =>
         {
@@ -1639,16 +1639,16 @@ public sealed partial class GameEngine
                 CompleteGame();
             }
 
-            return BuildResult();
         });
         return new CommandResult(true, null, _revision, result);
     }
 
     private CommandResult Reject(CommandErrorCode code, string message) =>
-        new(false, new CommandError(code, message), _revision, BuildResult());
+        new(false, new CommandError(code, message), _revision,
+            _commandSession.ResultBeingDelivered ?? BuildResult());
 
 
-    private EngineRunResult StartCore()
+    private void StartCore()
     {
         if (_started)
         {
@@ -1715,7 +1715,7 @@ public sealed partial class GameEngine
         AddLog("Rules", delayedCardRules);
         AddLog("Rules", "闪电仅可对自己使用：黑桃 2 至 9 命中并造成 3 点雷电伤害，其他判定牌则移至下一名存活角色。 ");
         AdvanceRulesAndPublishState();
-        return AdvanceToHumanBoundary();
+        AdvanceToHumanBoundary();
     }
 
     public IReadOnlyList<LegalAction> GetHumanLegalActions()
@@ -1732,7 +1732,7 @@ public sealed partial class GameEngine
                 : [];
     }
 
-    private EngineRunResult HumanSelectGeneralCore(
+    private void HumanSelectGeneralCore(
         string generalId,
         bool advanceToHumanBoundary)
     {
@@ -1748,10 +1748,10 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The selected general is no longer available.");
         ApplyGeneralSelection(_players[pending.PlayerSeat], general);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanRevealGeneralCore(
+    private void HumanRevealGeneralCore(
         GeneralSelectionSlot slot,
         bool advanceToHumanBoundary)
     {
@@ -1791,11 +1791,11 @@ public sealed partial class GameEngine
         }
 
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
 
-    private EngineRunResult HumanPlayCore(
+    private void HumanPlayCore(
         int cardId,
         int? targetSeat,
         bool advanceToHumanBoundary,
@@ -1834,10 +1834,10 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         ExecuteAction(actor, action);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanUseEquipmentEffectCore(
+    private void HumanUseEquipmentEffectCore(
         CardKind equipmentKind,
         IReadOnlyList<int> cardIds,
         IReadOnlyList<int> targetSeats,
@@ -1873,21 +1873,21 @@ public sealed partial class GameEngine
             ResolveZhangbaSlash(actor, _players[selectedTargets[0]], cards);
         }
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
 
-    private EngineRunResult HumanEndPlayCore(bool advanceToHumanBoundary)
+    private void HumanEndPlayCore(bool advanceToHumanBoundary)
     {
         RequireHumanDecision(DecisionKind.PlayCard);
         ClearPendingDecision();
         CompleteCurrentPlayPhase();
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
 
-    private EngineRunResult HumanRequestFactionDefenseCore(bool advanceToHumanBoundary)
+    private void HumanRequestFactionDefenseCore(bool advanceToHumanBoundary)
     {
         RequireHumanDecision(DecisionKind.RespondDodge);
         var attack = ActiveCardAttack ??
@@ -1900,10 +1900,10 @@ public sealed partial class GameEngine
 
         BeginFactionDefenseRequest(attack);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanFactionDefenseResponseCore(
+    private void HumanFactionDefenseResponseCore(
         bool useDodge,
         bool useBagua,
         int? requestedCardId,
@@ -1919,10 +1919,10 @@ public sealed partial class GameEngine
 
         ResolveFactionDefenseCandidateResponse(pending, useDodge, useBagua, requestedCardId);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanRequestFactionSlashCore(bool advanceToHumanBoundary)
+    private void HumanRequestFactionSlashCore(bool advanceToHumanBoundary)
     {
         RequireHumanDecision(DecisionKind.RespondSlash);
         var attack = ActiveCardAttack ??
@@ -1935,10 +1935,10 @@ public sealed partial class GameEngine
 
         BeginFactionSlashResponseRequest(attack);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanFactionSlashResponseCore(
+    private void HumanFactionSlashResponseCore(
         bool useSlash,
         int? requestedCardId,
         CardKind? requestedEffectiveKind,
@@ -1958,10 +1958,10 @@ public sealed partial class GameEngine
             requestedCardId,
             requestedEffectiveKind);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanRespondCore(
+    private void HumanRespondCore(
         bool useDodge,
         bool useBagua,
         int? requestedDodgeCardId,
@@ -1970,20 +1970,22 @@ public sealed partial class GameEngine
     {
         if (_pendingDecision?.Kind == DecisionKind.Nullification)
         {
-            return HumanNullificationCore(
+            HumanNullificationCore(
                 useDodge,
                 requestedDodgeCardId,
                 advanceToHumanBoundary);
+            return;
         }
 
         if (ActiveGroupCard is { Effect: GroupCardEffect.ResponseAttack })
         {
-            return HumanGroupResponseCore(
+            HumanGroupResponseCore(
                 useResponse: useDodge,
                 useBagua: useBagua,
                 requestedResponseCardId: requestedDodgeCardId,
                 requestedResponseCardKind: requestedResponseCardKind,
                 advanceToHumanBoundary: advanceToHumanBoundary);
+            return;
         }
 
         RequireHumanDecision(DecisionKind.RespondDodge);
@@ -2041,10 +2043,10 @@ public sealed partial class GameEngine
         }
 
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanNullificationCore(
+    private void HumanNullificationCore(
         bool useNullification,
         int? requestedNullificationCardId,
         bool advanceToHumanBoundary,
@@ -2077,40 +2079,40 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         ResolveNullificationChoice(pending, _players[decision.PlayerSeat], selected, selectedConversionSource);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanStoneAxeCore(
+    private void HumanStoneAxeCore(
         IReadOnlyList<int> discardedCardIds,
         bool advanceToHumanBoundary)
     {
         RequireHumanDecision(DecisionKind.StoneAxe);
         ResolveStoneAxeChoice(discardedCardIds);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanCixiongDoubleSwordsCore(
+    private void HumanCixiongDoubleSwordsCore(
         PromptChoice selected,
         bool advanceToHumanBoundary)
     {
         RequireHumanDecision(DecisionKind.CixiongDoubleSwords);
         ResolveCixiongDoubleSwordsChoice(selected);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanQinglongCrescentBladeCore(
+    private void HumanQinglongCrescentBladeCore(
         PromptChoice selected,
         bool advanceToHumanBoundary)
     {
         RequireHumanDecision(DecisionKind.QinglongCrescentBlade);
         ResolveQinglongCrescentBladeChoice(selected);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanZhuqueFanCore(
+    private void HumanZhuqueFanCore(
         bool convertToFireSlash,
         bool advanceToHumanBoundary)
     {
@@ -2119,31 +2121,31 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("There is no FactionSlash Zhuque Fan continuation.");
         ResolveFactionSlashZhuqueFanChoice(pending, convertToFireSlash);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanIceSwordCore(
+    private void HumanIceSwordCore(
         PromptChoice selected,
         bool advanceToHumanBoundary)
     {
         RequireHumanDecision(DecisionKind.IceSword);
         ResolveIceSwordChoice(selected);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanQilinBowCore(
+    private void HumanQilinBowCore(
         PromptChoice selected,
         bool advanceToHumanBoundary)
     {
         RequireHumanDecision(DecisionKind.QilinBow);
         ResolveQilinBowChoice(selected);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
 
-    private EngineRunResult HumanDyingResponseCore(
+    private void HumanDyingResponseCore(
         bool usePeach,
         int? requestedPeachCardId,
         bool useAlcohol,
@@ -2208,10 +2210,10 @@ public sealed partial class GameEngine
             peachConversionSource,
             alcoholConversionSource);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanDyingProgramTriggerCore(
+    private void HumanDyingProgramTriggerCore(
         PromptChoice selected,
         bool advanceToHumanBoundary)
     {
@@ -2226,10 +2228,10 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The selected dying program binding is no longer eligible.");
         BeginDyingProgramBinding(candidate, dying);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanHarvestCardCore(
+    private void HumanHarvestCardCore(
         int cardId,
         bool advanceToHumanBoundary)
     {
@@ -2250,21 +2252,21 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         ResolveHarvestSelection(group, picker, cardId);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
 
 
 
-    private EngineRunResult HumanSkipDiscardPolicyCore(bool useSkill, bool advanceToHumanBoundary)
+    private void HumanSkipDiscardPolicyCore(bool useSkill, bool advanceToHumanBoundary)
     {
         RequireHumanDecision(DecisionKind.SkipDiscardPolicy);
         ResolveSkipDiscardPolicyChoice(useSkill);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanTargetCardSelectionCore(
+    private void HumanTargetCardSelectionCore(
         int slot,
         bool advanceToHumanBoundary)
     {
@@ -2279,10 +2281,10 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         ResolveTargetCardSelection(pending, slot);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanFireAttackCardCore(
+    private void HumanFireAttackCardCore(
         int cardId,
         bool advanceToHumanBoundary)
     {
@@ -2309,10 +2311,10 @@ public sealed partial class GameEngine
         }
 
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanFireAttackSkipCore(bool advanceToHumanBoundary)
+    private void HumanFireAttackSkipCore(bool advanceToHumanBoundary)
     {
         var pending = ActiveFireAttack ??
             throw new InvalidOperationException("There is no FireAttack discard selection awaiting a choice.");
@@ -2327,47 +2329,41 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         ResolveFireAttackDiscard(pending, selectedCardId: null);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanSlashResponseCore(
+    private void HumanSlashResponseCore(
         bool useSlash,
         int? requestedSlashCardId,
         CardKind? requestedResponseCardKind,
-        bool advanceToHumanBoundary) =>
-        ActiveFactionCardRequest is not null
-            ? HumanFactionSlashResponseCore(
-                useSlash,
-                requestedSlashCardId,
-                requestedResponseCardKind,
-                advanceToHumanBoundary)
-            : _pendingDecision?.Kind == DecisionKind.Nullification
-            ? HumanNullificationCore(
-                useNullification: false,
-                requestedNullificationCardId: null,
-                advanceToHumanBoundary: advanceToHumanBoundary)
-            : _pendingDecision?.Kind == DecisionKind.FireAttackReveal
-            ? HumanFireAttackCardCore(
-                _pendingDecision.ValidCardIds.First(),
-                advanceToHumanBoundary)
-            : _pendingDecision?.Kind == DecisionKind.FireAttackDiscard
-            ? _pendingDecision.ValidCardIds.Count > 0
-                ? HumanFireAttackCardCore(_pendingDecision.ValidCardIds.First(), advanceToHumanBoundary)
-                : HumanFireAttackSkipCore(advanceToHumanBoundary)
-            : ActiveGroupCard is { Effect: GroupCardEffect.ResponseAttack }
-            ? HumanGroupResponseCore(
-                useResponse: useSlash,
-                useBagua: false,
+        bool advanceToHumanBoundary)
+    {
+        if (ActiveFactionCardRequest is not null)
+            HumanFactionSlashResponseCore(useSlash, requestedSlashCardId,
+                requestedResponseCardKind, advanceToHumanBoundary);
+        else if (_pendingDecision?.Kind == DecisionKind.Nullification)
+            HumanNullificationCore(useNullification: false,
+                requestedNullificationCardId: null, advanceToHumanBoundary);
+        else if (_pendingDecision?.Kind == DecisionKind.FireAttackReveal)
+            HumanFireAttackCardCore(_pendingDecision.ValidCardIds.First(), advanceToHumanBoundary);
+        else if (_pendingDecision?.Kind == DecisionKind.FireAttackDiscard)
+        {
+            if (_pendingDecision.ValidCardIds.Count > 0)
+                HumanFireAttackCardCore(_pendingDecision.ValidCardIds.First(), advanceToHumanBoundary);
+            else
+                HumanFireAttackSkipCore(advanceToHumanBoundary);
+        }
+        else if (ActiveGroupCard is { Effect: GroupCardEffect.ResponseAttack })
+            HumanGroupResponseCore(useResponse: useSlash, useBagua: false,
                 requestedResponseCardId: requestedSlashCardId,
                 requestedResponseCardKind: requestedResponseCardKind,
-                advanceToHumanBoundary: advanceToHumanBoundary)
-            : HumanDuelResponseCore(
-                useSlash,
-                requestedSlashCardId,
-                requestedResponseCardKind,
-                advanceToHumanBoundary);
+                advanceToHumanBoundary: advanceToHumanBoundary);
+        else
+            HumanDuelResponseCore(useSlash, requestedSlashCardId,
+                requestedResponseCardKind, advanceToHumanBoundary);
+    }
 
-    private EngineRunResult HumanZhangbaSlashResponseCore(
+    private void HumanZhangbaSlashResponseCore(
         IReadOnlyList<int> requestedCardIds,
         bool advanceToHumanBoundary)
     {
@@ -2402,10 +2398,10 @@ public sealed partial class GameEngine
         }
 
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanProgramViewAsSlashResponseCore(
+    private void HumanProgramViewAsSlashResponseCore(
         IReadOnlyList<int> requestedCardIds,
         CardConversionSource source,
         bool advanceToHumanBoundary)
@@ -2453,10 +2449,10 @@ public sealed partial class GameEngine
         }
 
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanBorrowedSwordResponseCore(
+    private void HumanBorrowedSwordResponseCore(
         bool useSlash,
         int? requestedSlashCardId,
         CardKind? requestedEffectiveKind,
@@ -2490,10 +2486,10 @@ public sealed partial class GameEngine
         }
 
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanBorrowedSwordFactionSlashCore(bool advanceToHumanBoundary)
+    private void HumanBorrowedSwordFactionSlashCore(bool advanceToHumanBoundary)
     {
         RequireHumanDecision(DecisionKind.RespondSlash);
         var pending = ActiveBorrowedSword ??
@@ -2507,10 +2503,10 @@ public sealed partial class GameEngine
 
         BeginBorrowedSwordFactionSlashRequest(pending);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanDuelResponseCore(
+    private void HumanDuelResponseCore(
         bool useSlash,
         int? requestedSlashCardId,
         CardKind? requestedResponseCardKind,
@@ -2541,10 +2537,10 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         ResolveDuelResponse(duel, responder, selectedSlash);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private EngineRunResult HumanGroupResponseCore(
+    private void HumanGroupResponseCore(
         bool useResponse,
         bool useBagua,
         int? requestedResponseCardId,
@@ -2609,7 +2605,7 @@ public sealed partial class GameEngine
             ResolveGroupResponse(group, responder, selectedResponse);
         }
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
     /// <summary>
@@ -3633,14 +3629,14 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new GodFactionSelectedEvent(player.Seat, factionId));
     }
 
-    private EngineRunResult HumanSelectGodFactionCore(string factionId, bool advanceToHumanBoundary)
+    private void HumanSelectGodFactionCore(string factionId, bool advanceToHumanBoundary)
     {
         RequireHumanDecision(DecisionKind.SelectFaction);
         var pending = _pendingDecision ??
             throw new InvalidOperationException("There is no god-faction selection prompt.");
         ApplyGodFactionSelection(_players[pending.PlayerSeat], factionId);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
     private IReadOnlyList<GeneralDefinition> GetAvailableGeneralCandidates(CharacterState player) =>
@@ -18443,7 +18439,7 @@ public sealed partial class GameEngine
 
     private void PublishState()
     {
-        _pendingStateSnapshot = State;
+        _pendingStatePublication = true;
     }
 
     private void AddLog(string type, string message, int? actor = null, int? target = null)
@@ -18473,7 +18469,7 @@ public sealed partial class GameEngine
         }
     }
 
-    private void FlushNotifications()
+    private void FlushNotifications(GameSnapshot preparedSnapshot)
     {
         while (_pendingNotifications.TryDequeue(out var notification))
         {
@@ -18502,10 +18498,10 @@ public sealed partial class GameEngine
             }
         }
 
-        if (_pendingStateSnapshot is { } snapshot)
+        if (_pendingStatePublication)
         {
-            _pendingStateSnapshot = null;
-            InvokeObservers(StateChanged, snapshot, nameof(StateChanged));
+            _pendingStatePublication = false;
+            InvokeObservers(StateChanged, preparedSnapshot, nameof(StateChanged));
         }
     }
 

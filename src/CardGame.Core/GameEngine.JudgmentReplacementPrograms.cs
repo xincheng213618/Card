@@ -47,7 +47,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The judgment replacement program is unavailable.");
         if (!string.Equals(program.GameplayHash, candidate.GameplayHash, StringComparison.Ordinal))
             throw new InvalidOperationException("A running judgment replacement definition changed.");
-        var trigger = program.Triggers.Single(item => item.Id == candidate.ProgramTriggerId);
+        var trigger = ProgramInstructionResolver.Default.Resolve(program,
+            ProgramInstructionSourceKind.Trigger, candidate.ProgramTriggerId).Trigger!;
         if (trigger.Window != SkillProgramTriggerWindow.JudgmentReplacing)
             throw new InvalidOperationException("The configured judgment candidate no longer replaces judgments.");
         return (program, trigger);
@@ -139,7 +140,7 @@ public sealed partial class GameEngine
         {
             ResolveProgramJudgmentReplacementChoice(selected);
             AdvanceRulesAndPublishState();
-            return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
+            if (_options.AdvanceAfterHumanCommands) AdvanceToHumanBoundary();
         });
     }
 

@@ -30,15 +30,16 @@ public sealed partial class GameEngine
         public GameCommand? CommandAwaitingCommit;
         public Exception? FatalRuleFailure;
         public GameCheckpoint? LastTrustedCheckpoint;
+        public EngineRunResult? ResultBeingDelivered;
     }
 
-    private EngineRunResult ExecuteExclusive(Func<EngineRunResult> operation) =>
+    private EngineRunResult ExecuteExclusive(Action operation) =>
         ExecuteCommandOperation(operation, () => State, FlushNotifications);
 
     // Projection and delivery are explicit dependencies of the command pipeline,
     // not callbacks stored on the match or its resolution frames.
-    private EngineRunResult ExecuteCommandOperation(Func<EngineRunResult> operation,
-        Func<GameSnapshot> project, Action deliver)
+    private EngineRunResult ExecuteCommandOperation(Action operation,
+        Func<GameSnapshot> project, Action<GameSnapshot> deliver)
     {
         EnsureSessionHealthy();
         if (_isExecutingPublicOperation)
@@ -88,10 +89,10 @@ public sealed partial class GameEngine
             if (preparedEvents.Length > 0)
                 _eventSequence = preparedEvents[^1].Event.Sequence;
             _pendingEvents.Clear();
-            if (_pendingStateSnapshot is not null) _pendingStateSnapshot = snapshot;
             committed = true;
 
-            deliver();
+            _commandSession.ResultBeingDelivered = result;
+            deliver(snapshot);
             // Reuse the prepared projection. Delivery cannot trigger a second
             // BuildResult and invalidate an already observable commit.
             return result;
@@ -117,10 +118,14 @@ public sealed partial class GameEngine
             // InvokeObservers; this catches only pipeline/infrastructure failure.
             _pendingNotifications.Clear();
             _pendingEvents.Clear();
-            _pendingStateSnapshot = null;
+            _pendingStatePublication = false;
             throw;
         }
-        finally { _isExecutingPublicOperation = false; }
+        finally
+        {
+            _commandSession.ResultBeingDelivered = null;
+            _isExecutingPublicOperation = false;
+        }
     }
 
     private EventNotification[] PrepareCommandEvents(long revision)

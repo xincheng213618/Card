@@ -47,8 +47,12 @@ public sealed partial class GameEngine
         foreach (var program in EnabledActivationPrograms(owner))
             foreach (var activation in program.Activations)
             {
-                if (activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge) ||
-                    owner.Role != Role.Lord && activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.GrantGameFactionAttackRangeTargets))
+                var plan = ProgramInstructionResolver.Default.Resolve(program,
+                    ProgramInstructionSourceKind.Activation, activation.Id);
+                var features = plan.Features;
+                var ownerLegality = new ProgramLegalityParticipant(owner.Seat, context.HandCount);
+                if (features.HasOperation(SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge) ||
+                    owner.Role != Role.Lord && features.HasOperation(SkillProgramEffectOp.GrantGameFactionAttackRangeTargets))
                     continue;
                 var requiredCards = GetProgramActivationMinimumCards(owner.Seat, program.Id, activation);
                 if (!CanActivateHandComparison(owner, activation) || !activation.Condition.Evaluate(context) || !CanPayProgramMarkerCost(owner, activation.MarkerCost) ||
@@ -63,32 +67,25 @@ public sealed partial class GameEngine
                         activation.UsageGroup,
                         SkillUsageScope.Game) >= gameLimit)
                     continue;
-                if (activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.StartPindian) &&
-                    GetHand(owner).Count == 0)
+                if (!features.Legality.CanStart(ownerLegality))
                     continue;
-                if (activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.DamageFarthestCharacter) &&
+                if (features.HasOperation(SkillProgramEffectOp.DamageFarthestCharacter) &&
                     !_players.Any(target => target.IsAlive && target.Seat != owner.Seat && IsFarthestInRange(owner, target) &&
                         _skillRuntimeState.GetUsage(owner.Seat, program.Id, $"target:{target.Seat}", SkillUsageScope.Turn) == 0)) continue;
-                if (activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.SelectTargets &&
+                if (features.ForOperation(SkillProgramEffectOp.SelectTargets).Any(effect =>
                     effect.TargetKind is { } kind &&
                     GetProgramTargetSeats(owner.Seat, kind).Count < effect.MinimumTargets))
                     continue;
-                if (activation.Effects.FirstOrDefault(effect => effect.Op == SkillProgramEffectOp.RequestFactionCard)
+                if (features.First(SkillProgramEffectOp.RequestFactionCard)
                         is { } factionRequest &&
                     !CanUseFactionSlashRequest(owner, factionRequest.ProviderFactionId!))
                     continue;
-                if (activation.Effects.Any(effect => effect is
-                    {
-                        Op: SkillProgramEffectOp.SelectTargets,
-                        TargetKind: SkillProgramTargetKind.OtherLivingUnequalHandPair
-                    }) &&
+                if (features.SelectsUnequalHandPair &&
                     !_players.Where(player => player.IsAlive && player.Seat != owner.Seat)
                         .Select(player => GetHand(player).Count).Distinct().Skip(1).Any())
                     continue;
-                var selectedCardUse = activation.Effects.SingleOrDefault(effect =>
-                    effect.Op == SkillProgramEffectOp.UseSelectedCardsAs);
-                var allHandTrickUse = activation.Effects.SingleOrDefault(effect =>
-                    effect.Op == SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick);
+                var selectedCardUse = features.Single(SkillProgramEffectOp.UseSelectedCardsAs);
+                var allHandTrickUse = features.Single(SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick);
                 var multiCardUses = selectedCardUse is null
                     ? Array.Empty<ProgramMultiCardViewAsSelection>()
                     : GetProgramMultiCardViewAsSelections(
@@ -122,9 +119,10 @@ public sealed partial class GameEngine
                         IsAdvancedActivationTargetAllowed(owner, target, program.Id, activation) &&
                         (!activation.TargetRequiresEmptyEquipmentSlot ||
                          HasEmptyEquipmentSlotForOwnerHandEquipment(owner, target)) &&
-                        (!activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.RequestFactionCard) ||
+                        (!features.HasOperation(SkillProgramEffectOp.RequestFactionCard) ||
                          CanUseProvidedSlashTarget(owner, target)) &&
-                        (target.Seat != owner.Seat || !activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.GiveSelected)) &&
+                        features.Legality.CanSelectTarget(ownerLegality,
+                            new(target.Seat, GetHand(target).Count)) &&
                         (activation.TargetKind is SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.AnyWounded or
                          SkillProgramTargetKind.AnyLivingHighestHp or SkillProgramTargetKind.AnyLivingHighestHand ||
                          target.Seat != owner.Seat) &&
@@ -170,14 +168,8 @@ public sealed partial class GameEngine
                             SkillProgramTargetKind.EventTarget => false,
                             _ => false
                         }) &&
-                        (!activation.Effects.Any(effect => effect is
-                             {
-                                 Op: SkillProgramEffectOp.SelectAndMoveOwnedCard,
-                                 ProhibitReplacingEquipment: true
-                             }) ||
-                         HasFreeEquipmentSlotForOwnedHandEquipment(owner, target)) &&
-                        (!activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.StartPindian) ||
-                         GetHand(target).Count > 0))
+                        (!features.ProhibitsEquipmentReplacement ||
+                         HasFreeEquipmentSlotForOwnedHandEquipment(owner, target)))
                     .Select(target => target.Seat).Order().ToArray();
                 if (activation.TargetPhaseLedgerId is { } targetLedger)
                     targets = targets.Where(seat => CanActivateTargetPhaseLedger(owner.Seat, program.Id, targetLedger, seat)).ToArray();
@@ -197,7 +189,7 @@ public sealed partial class GameEngine
                     !CanUseGlobalCard(owner, CardKind.ArrowBarrage) ||
                     allHandTrickUse is not null &&
                     (cards.Length == 0 || BuildProgramOrdinaryTrickUseOptions(owner, allHandTrickUse.OutputKind).Count == 0)) continue;
-                if (activation.Effects.FirstOrDefault() is
+                if (features.FirstInstruction is
                     {
                         Op: SkillProgramEffectOp.SelectTarget,
                         TargetKind: { } dynamicKind
@@ -286,18 +278,14 @@ public sealed partial class GameEngine
     {
         var owner = _players[context.Seat];
         var instanceId = GetRuntimeSkillInstanceId(owner, program.Id);
+        var features = ProgramInstructionResolver.Default.Features(activation);
         var hint = ProgramCompositionAi.Estimate(activation.Effects, context, faceDown,
             CreateProgramAiPublicContext(owner) with
             {
                 ActivationCardCount = GetProgramActivationMinimumCards(owner.Seat, program.Id, activation),
-                EligibleTargetCount = activation.Effects.FirstOrDefault(effect =>
-                    effect.Op == SkillProgramEffectOp.SelectTargets) is { TargetKind: { } selectedKind }
+                EligibleTargetCount = features.First(SkillProgramEffectOp.SelectTargets) is { TargetKind: { } selectedKind }
                     ? GetProgramTargetSeats(owner.Seat, selectedKind).Count
-                    : activation.Effects.Any(effect => effect is
-                    {
-                        Op: SkillProgramEffectOp.UseSelectedCardsAs,
-                        OutputKind: CardKind.ArrowBarrage
-                    })
+                    : features.UsesArrowBarrageSelection
                         ? _players.Count(player => player.IsAlive && player.Seat != owner.Seat)
                         : null,
                 PhaseUsageCount = usageId => _skillRuntimeState.GetUsage(owner.Seat,
@@ -321,26 +309,32 @@ public sealed partial class GameEngine
                 .Distinct().Skip(1).Any())
             return new CommandError(CommandErrorCode.InvalidCard,
                 "The selected physical cards must share one printed suit.");
-        if (action.ProgramSkillOwnerSeat is null && action.ProgramSkillId is { } selectedSkill &&
-            _contentRegistry.GetSkill(selectedSkill).Program?.Activations.SingleOrDefault(item => item.Id == action.ProgramActivationId)
-                is { SelectedCardsDistinctSuits: true } && cards.Select(id => _cardZones.CardsAt(_cardZones.GetLocation(id))
+        var program = action.ProgramSkillOwnerSeat is null && action.ProgramSkillId is { } skillId
+            ? _contentRegistry.GetSkill(skillId).Program : null;
+        var plan = program is null ? null : ProgramInstructionResolver.Default.Find(program,
+            ProgramInstructionSourceKind.Activation, action.ProgramActivationId);
+        var activation = plan?.Activation;
+        if (activation is { SelectedCardsDistinctSuits: true } && cards.Select(id => _cardZones.CardsAt(_cardZones.GetLocation(id))
                 .Single(card => card.Id == id).Suit).Distinct().Count() != cards.Count)
             return new CommandError(CommandErrorCode.InvalidCard, "The selected cards must have distinct printed suits.");
-        if (action.ProgramSkillOwnerSeat is null && action.ProgramSkillId is { } filterSkill &&
-            _contentRegistry.GetSkill(filterSkill).Program?.Activations.SingleOrDefault(item => item.Id == action.ProgramActivationId)
-                is { } filtered && cards.Any(id => !CanSelectProgramActivationCard(filtered,
+        if (activation is { } filtered && cards.Any(id => !CanSelectProgramActivationCard(filtered,
                     _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(card => card.Id == id))))
             return new CommandError(CommandErrorCode.InvalidCard, "The selected cards do not satisfy the activation filters.");
-        if (action.ProgramSkillOwnerSeat is null && action.ProgramSkillId is { } ledgerSkill &&
-            _contentRegistry.GetSkill(ledgerSkill).Program?.Activations.SingleOrDefault(item => item.Id == action.ProgramActivationId)
-                is { CategoryTargetLedgerId: { } ledgerId } &&
-            !CanActivateCategoryTargetLedger(_currentSeat, ledgerSkill, ledgerId, cards, targets))
+        if (activation is { CategoryTargetLedgerId: { } ledgerId } &&
+            !CanActivateCategoryTargetLedger(_currentSeat, program!.Id, ledgerId, cards, targets))
             return new CommandError(CommandErrorCode.IllegalAction, "This card category or target was already used in this phase.");
-        if (action.ProgramSkillOwnerSeat is null && action.ProgramSkillId is { } targetLedgerSkill &&
-            _contentRegistry.GetSkill(targetLedgerSkill).Program?.Activations.SingleOrDefault(item => item.Id == action.ProgramActivationId)
-                is { TargetPhaseLedgerId: { } targetLedger } &&
-            (targets.Count != 1 || !CanActivateTargetPhaseLedger(_currentSeat, targetLedgerSkill, targetLedger, targets[0])))
+        if (activation is { TargetPhaseLedgerId: { } targetLedger } &&
+            (targets.Count != 1 || !CanActivateTargetPhaseLedger(_currentSeat, program!.Id, targetLedger, targets[0])))
             return new CommandError(CommandErrorCode.IllegalAction, "This target was already used in this play phase.");
+        if (plan is not null)
+        {
+            var owner = new ProgramLegalityParticipant(_currentSeat, GetHand(_players[_currentSeat]).Count);
+            if (!plan.Features.Legality.CanStart(owner))
+                return new CommandError(CommandErrorCode.IllegalAction, "The program's public prerequisites are no longer satisfied.");
+            if (targets.Any(seat => !plan.Features.Legality.CanSelectTarget(owner,
+                new(seat, GetHand(_players[seat]).Count))))
+                return new CommandError(CommandErrorCode.InvalidTarget, "The program's target prerequisites are no longer satisfied.");
+        }
         return null;
     }
 
@@ -369,7 +363,7 @@ public sealed partial class GameEngine
             ClearPendingDecision();
             ExecuteProgramSkill(owner, action, command.CardIds, command.TargetSeats);
             AdvanceRulesAndPublishState();
-            return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
+            if (_options.AdvanceAfterHumanCommands) AdvanceToHumanBoundary();
         });
     }
 
@@ -392,7 +386,9 @@ public sealed partial class GameEngine
         }
         var program = GetEnabledSkillProgram(owner, action.ProgramSkillId ??
             throw new InvalidOperationException("The program action has no skill identity."));
-        var activation = program.Activations.Single(item => item.Id == action.ProgramActivationId);
+        var plan = ProgramInstructionResolver.Default.Resolve(program,
+            ProgramInstructionSourceKind.Activation, action.ProgramActivationId!);
+        var activation = plan.Activation!;
         PayProgramMarkerCost(owner, activation.MarkerCost, program.Id, activation.Id);
         if (activation.UsesPerGame is { } gameLimit)
         {
@@ -418,7 +414,7 @@ public sealed partial class GameEngine
             program.GameplayHash, 0, Array.AsReadOnly(cards.ToArray()), Array.AsReadOnly(targets.ToArray()))
         {
             SkillInstanceId = GetRuntimeSkillInstanceId(owner, program.Id),
-            SelectedAllOwnerHandCards = activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.DrawAllHandSelectedBonus)
+            SelectedAllOwnerHandCards = plan.Features.HasOperation(SkillProgramEffectOp.DrawAllHandSelectedBonus)
                 ? GetHand(owner).Count > 0 && GetHand(owner).All(card => cards.Contains(card.Id)) : null
         };
         PushRuntimeFrame(frame);
@@ -702,7 +698,7 @@ public sealed partial class GameEngine
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.TriggerId is not null)
             return;
         var program = _contentRegistry.Skills.GetValueOrDefault(frame.SkillId)?.Program;
-        var activation = program?.Activations.SingleOrDefault(item => item.Id == frame.ActivationId);
+        var activation = program is null ? null : ProgramInstructionResolver.Default.FindActivation(program, frame.ActivationId);
         if (activation is null || frame.InstructionIndex == 0 ||
             activation.Effects[frame.InstructionIndex - 1].Op is not
                 (SkillProgramEffectOp.UseSelectedCardsAs or
@@ -968,7 +964,7 @@ public sealed partial class GameEngine
 
             if (frame.TriggerId is { } triggerId)
             {
-                var trigger = program.Triggers.SingleOrDefault(item => item.Id == triggerId);
+                var trigger = plan.Trigger;
                 if (trigger is null || frame.WindowContext is not { } context ||
                     context.OwnerSeat != frame.OwnerSeat || context.Window != trigger.Window ||
                     frame.ActivationId != triggerId || frame.SelectedCardIds.Count != 0 ||
@@ -977,7 +973,7 @@ public sealed partial class GameEngine
                 continue;
             }
 
-            var activation = program.Activations.SingleOrDefault(item => item.Id == frame.ActivationId);
+            var activation = plan.Activation;
             if (activation is null ||
                 frame.SelectedCardIds.Count < activation.MinCards ||
                 frame.SelectedCardIds.Count > activation.MaxCards ||

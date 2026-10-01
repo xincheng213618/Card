@@ -35,10 +35,10 @@ public sealed partial class GameEngine
                 HpChangeAmount = change.Amount, HpBeforeChange = change.HpBefore, HpAfterChange = change.HpAfter
             };
             var candidates = windows.SelectMany(window => CollectProgramTriggerCandidates(owner, window)).Where(candidate =>
-                _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers.Single(trigger => trigger.Id == candidate.BindingId)
+                GetProgramTrigger(candidate)
                     .Condition.Evaluate(facts, candidate.SkillId, candidate.SkillInstanceId))
                 .SelectMany(candidate => Enumerable.Range(0,
-                    _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers.Single(trigger => trigger.Id == candidate.BindingId)
+                    GetProgramTrigger(candidate)
                         .HpChangeOccurrence == SkillProgramHpChangeOccurrence.PerPoint ? change.Amount : 1)
                     .Select(index => candidate with { OccurrenceIndex = index })).ToArray();
             if (candidates.Length == 0) continue;
@@ -116,7 +116,7 @@ public sealed partial class GameEngine
                 AdvanceHpChangedProgramCandidate(frame, activated: false, completed: false);
                 continue;
             }
-            var trigger = _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers.Single(item => item.Id == candidate.BindingId);
+            var trigger = GetProgramTrigger(candidate);
             if (trigger.Optional)
             {
                 ReplaceRuntimeTop(frame with { Step = ResolutionFrameStep.AwaitingResponse });

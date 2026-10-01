@@ -79,7 +79,8 @@ public sealed partial class GameEngine
         if (active.TriggerId is not null)
             throw new InvalidOperationException("Only an active play binding can capture its initial cards.");
         var program = _contentRegistry!.GetSkill(active.SkillId).Program!;
-        var activation = program.Activations.Single(item => item.Id == active.ActivationId);
+        var activation = ProgramInstructionResolver.Default.Resolve(program,
+            ProgramInstructionSourceKind.Activation, active.ActivationId).Activation!;
         if (active.SelectedCardIds.Count < activation.MinCards ||
             active.SelectedCardIds.Count > activation.MaxCards || active.SelectedCardIds.Count == 0)
             throw new InvalidOperationException("The activation-card selection is outside its declared bounds.");

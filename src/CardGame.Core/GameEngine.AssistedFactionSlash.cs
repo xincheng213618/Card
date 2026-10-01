@@ -60,7 +60,7 @@ public sealed partial class GameEngine
         return choices;
     }
 
-    private EngineRunResult ResolveAssistedFactionSlashChoice(PromptChoice selected, bool advanceToHumanBoundary)
+    private void ResolveAssistedFactionSlashChoice(PromptChoice selected, bool advanceToHumanBoundary)
     {
         var pending = ActiveFactionCardRequest;
         if (pending is not { IsAssistedProgramUse: true, AwaitingProviders: true } ||
@@ -95,7 +95,8 @@ public sealed partial class GameEngine
                 if (TryBeginFactionSlashZhuqueFanChoice(pending, provider, cards, kind))
                 {
                     AdvanceRulesAndPublishState();
-                    return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+                    if (advanceToHumanBoundary) AdvanceToHumanBoundary();
+                    return;
                 }
                 conversion = variant.Source;
             }
@@ -103,7 +104,7 @@ public sealed partial class GameEngine
             BeginProvidedFactionSlashSlash(pending, provider, cards, kind, usesZhuqueFan: false, conversionSource: conversion);
         }
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
     private bool CanSupplyAssistedFactionSlash(FactionCardRequestHandle pending, CardKind kind, IReadOnlyList<Card> cards) =>

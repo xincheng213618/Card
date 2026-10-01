@@ -12,7 +12,7 @@ public sealed partial class GameEngine
         {
             ResolvePindianChoice(selected);
             AdvanceRulesAndPublishState();
-            return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
+            if (_options.AdvanceAfterHumanCommands) AdvanceToHumanBoundary();
         });
     }
 

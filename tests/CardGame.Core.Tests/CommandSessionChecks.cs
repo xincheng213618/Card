@@ -112,7 +112,7 @@ internal static class CommandSessionChecks
         // The projection dependency fails after invariants and decision refresh.
         InvokePipeline(game, new AdvanceOneStepCommand(revision), "AdvanceOneStepCore",
             () => throw new InvalidOperationException("forced preparation projection failure"),
-            () => InvokePrivate(game, "FlushNotifications"));
+            snapshot => InvokePrivate(game, "FlushNotifications", snapshot));
         Require(game.IsFaulted && game.Revision == revision &&
                 game.AcceptedCommands.Count == revision && game.Events.Count == events && observed == 0,
             "Preparation failure must expose neither a command, revision, event nor notification.");
@@ -134,9 +134,9 @@ internal static class CommandSessionChecks
             Require(game.Revision == 1 && game.AcceptedCommands.Count == 1,
                 "Observers must see the already committed command and revision.");
         };
-        InvokePipeline(game, new StartGameCommand(), "StartCore", () => game.State, () =>
+        InvokePipeline(game, new StartGameCommand(), "StartCore", () => game.State, snapshot =>
         {
-            InvokePrivate(game, "FlushNotifications");
+            InvokePrivate(game, "FlushNotifications", snapshot);
             throw new InvalidOperationException("forced post-commit delivery failure");
         });
         Require(eventsSeen > 0 && !game.IsFaulted && game.Revision == 1 &&
@@ -265,15 +265,14 @@ internal static class CommandSessionChecks
     }
 
     private static void InvokePipeline(GameEngine game, GameCommand input, string operationName,
-        Func<GameSnapshot> project, Action deliver)
+        Func<GameSnapshot> project, Action<GameSnapshot> deliver)
     {
         var awaiting = typeof(GameEngine).GetProperty("_commandAwaitingCommit",
             BindingFlags.NonPublic | BindingFlags.Instance)!;
         awaiting.SetValue(game, input);
         try
         {
-            var operation = new Func<EngineRunResult>(() =>
-                (EngineRunResult)InvokePrivate(game, operationName)!);
+            var operation = new Action(() => InvokePrivate(game, operationName));
             var method = typeof(GameEngine).GetMethod("ExecuteCommandOperation",
                 BindingFlags.NonPublic | BindingFlags.Instance)!;
             try { method.Invoke(game, [operation, project, deliver]); }
@@ -284,9 +283,9 @@ internal static class CommandSessionChecks
         finally { awaiting.SetValue(game, null); }
     }
 
-    private static object? InvokePrivate(GameEngine game, string name) =>
+    private static object? InvokePrivate(GameEngine game, string name, params object?[] args) =>
         typeof(GameEngine).GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance)!
-            .Invoke(game, null);
+            .Invoke(game, args);
 
     private static GameEngine Create(ContentRegistry? registry = null) =>
         GameEngine.CreateStandard(new GameOptions

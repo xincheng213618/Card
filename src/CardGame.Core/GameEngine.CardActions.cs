@@ -31,7 +31,7 @@ public sealed partial class GameEngine
             ClearPendingDecision();
             ExecuteAction(actor, action);
             AdvanceRulesAndPublishState();
-            return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
+            if (_options.AdvanceAfterHumanCommands) AdvanceToHumanBoundary();
         });
     }
 
@@ -307,7 +307,7 @@ public sealed partial class GameEngine
                     // payment. Other candidates retain their existing captured facts.
                     CardActionSuit = window == SkillProgramTriggerWindow.CardUseCompleted &&
                         action.Type == CardActionType.Response && trigger.IncludeResponseUses &&
-                        HasTriggerCondition(trigger.Condition, SkillProgramTriggerConditionKind.CardActionSuitIs)
+                        ProgramInstructionResolver.Default.Features(trigger).UsesCondition(SkillProgramTriggerConditionKind.CardActionSuitIs)
                         ? action.EffectiveSuit : capturedFacts.CardActionSuit,
                     CardUseCausedDamage = cardUseCausedDamage,
                     EventTargetHandCount = eventTarget >= 0 ? GetHand(_players[eventTarget]).Count : 0,
@@ -431,7 +431,8 @@ public sealed partial class GameEngine
             var program = _contentRegistry!.Skills[candidate.SkillId].Program!;
             if (program.GameplayHash != candidate.GameplayHash)
                 throw new InvalidOperationException("A running card trigger definition changed.");
-            var trigger = program.Triggers.Single(item => item.Id == candidate.TriggerId);
+            var trigger = ProgramInstructionResolver.Default.Resolve(program,
+                ProgramInstructionSourceKind.Trigger, candidate.TriggerId).Trigger!;
             var shared = ToSharedCandidate(candidate);
             var context = CreateCardActionProgramContext(frame, candidate);
             if (!CanRunProgramTrigger(shared, context))

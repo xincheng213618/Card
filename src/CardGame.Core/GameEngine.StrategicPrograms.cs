@@ -8,15 +8,12 @@ public sealed partial class GameEngine
     private sealed record ProgramSuppression(int SourceSeat, int TargetSeat, string SkillId, int CreatedTurn,
         IReadOnlyList<string> GrantIds);
     private readonly Dictionary<long, StrategicDraft> _strategicDrafts = [];
-    private readonly Dictionary<(long Frame, int Instruction), Queue<int>> _strategicDamageQueues = [];
     private readonly List<ProgramSuppression> _programSuppressions = [];
     private int _strategicEndPlayTurn = -1;
     private readonly Dictionary<int, int> _strategicHandLimitPenaltyTurns = [];
 
-    private bool UsesStrategicTriggerValue(SkillProgramTriggerValueKind kind) => _contentRegistry.Skills.Values.Any(skill =>
-        skill.Program?.Triggers.Any(trigger => ContainsStrategicValue(trigger.Condition, kind)) == true);
-    private static bool ContainsStrategicValue(SkillProgramTriggerCondition condition, SkillProgramTriggerValueKind kind) =>
-        condition.Left?.Kind == kind || condition.Right?.Kind == kind || condition.Children.Any(child => ContainsStrategicValue(child, kind));
+    private bool UsesStrategicTriggerValue(SkillProgramTriggerValueKind kind) =>
+        _contentRegistry.ProgramDependencies.UsesTriggerValue(kind);
 
     private IReadOnlyDictionary<string, bool>? GetPublicProgramBooleanStates(CharacterState player)
     {
@@ -33,7 +30,7 @@ public sealed partial class GameEngine
     private IReadOnlyDictionary<string, int>? GetProgramPublicCounters(CharacterState player)
     {
         var values = new Dictionary<string, int>(StringComparer.Ordinal);
-        if (_contentRegistry.Skills.Values.Any(skill => skill.Program?.CardPolicies.Any(policy => (int)policy.Kind >= 450) == true))
+        if (_contentRegistry.ProgramDependencies.HasCardPolicyKindAtOrAbove(450))
         {
             values["junlue"] = player.Markers.GetValueOrDefault(PlayerMarkerKind.Junlue);
             values["camp"] = player.Markers.GetValueOrDefault(PlayerMarkerKind.Camp);
@@ -125,14 +122,26 @@ public sealed partial class GameEngine
                 foreach (var seat in frame.SelectedTargetSeats) MoveCards(GetEquipment(seat).ToArray(), CardLocation.Equipment(seat), CardLocation.DiscardPile, reason);
                 return SkillProgramStepOutcome.Continue;
             case SkillProgramEffectOp.DamageOtherLiving:
-                var key = (frame.Id, frame.InstructionIndex);
-                if (!_strategicDamageQueues.TryGetValue(key, out var queue))
-                    _strategicDamageQueues[key] = queue = new Queue<int>(_players.Where(player => player.IsAlive && player.Seat != owner.Seat).Select(player => player.Seat));
-                while (queue.Count > 0 && !_players[queue.Peek()].IsAlive) queue.Dequeue();
-                if (queue.Count == 0) { _strategicDamageQueues.Remove(key); return SkillProgramStepOutcome.Continue; }
-                var damageSeat = queue.Dequeue();
+                var batch = frame.StrategicDamageBatch;
+                if (batch is null)
+                    batch = new(frame.InstructionIndex, Array.AsReadOnly(_players
+                        .Where(player => player.IsAlive && player.Seat != owner.Seat)
+                        .Select(player => player.Seat).ToArray()));
+                if (batch.InstructionIndex != frame.InstructionIndex)
+                    throw new InvalidOperationException("The strategic damage batch belongs to another instruction.");
+                var remaining = batch.RemainingTargetSeats.SkipWhile(seat => !_players[seat].IsAlive).ToArray();
+                if (remaining.Length == 0)
+                {
+                    ReplaceRuntimeTop(frame with { StrategicDamageBatch = null });
+                    return SkillProgramStepOutcome.Continue;
+                }
+                var damageSeat = remaining[0];
                 // The automatic instruction repeats until all frozen seats have resolved their complete damage windows.
-                ReplaceRuntimeTop(frame with { InstructionIndex = frame.InstructionIndex - 1 });
+                ReplaceRuntimeTop(frame with
+                {
+                    InstructionIndex = frame.InstructionIndex - 1,
+                    StrategicDamageBatch = batch with { RemainingTargetSeats = Array.AsReadOnly(remaining[1..]) }
+                });
                 return BeginProgramSkillDamage(frame, damageSeat, effect.Amount == 0 ? 1 : effect.Amount);
             case SkillProgramEffectOp.SelectDistinctSuitHandDiscards:
                 var candidates = GetHand(owner).Concat(GetHand(_players[targetSeat])).Select(card => card.Id).ToArray();

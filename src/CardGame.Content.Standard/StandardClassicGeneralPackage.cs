@@ -7,6 +7,32 @@ namespace CardGame.Content.Standard;
 /// </summary>
 public sealed class StandardClassicGeneralPackage : IGameContentPackage
 {
+    private static readonly IReadOnlyList<GeneralContentModule> GeneralModules =
+    [
+        new(OlGodContent.Register),
+        new(Fame2011Content.Register),
+        new(Fame2013Content.Register),
+        new(Fame2014Content.Register),
+        // Preserve the historical pool tail and separately appended upgraded skill.
+        new(Fame2015Content.Register, appendPoolLast: true, registerSkillsLast: ["classic:xingxue-upgraded"]),
+        new(Fame2016DeferredContent.Register),
+        new(Fame2016ConversionContent.Register),
+        new(Fame2016StateContent.Register),
+        new(Fame2017XinXianyingContent.Register),
+        new(Fame2016TaoluanContent.Register),
+        new(Fame2017CaoJieContent.Register),
+        new(Fame2017WuXianContent.Register),
+        new(Fame2017CaiYongContent.Register),
+        new(Fame2017QinMiContent.Register),
+        new(Fame2017XueZongContent.Register),
+        new(FengLinLuJiContent.Register),
+        new(Fame2017XuShiContent.Register),
+        new(FengLinWangPingContent.Register),
+        // Printed skills historically precede Ji Kang's four granted skills.
+        new(Fame2017JiKangContent.Register, registerGeneralSkillsFirst: true),
+        new(FengLinHaoZhaoContent.Register)
+    ];
+
     private static SkillProgramCatalog ClassicShenLuMengCatalog =>
         EmbeddedSkillProgramCatalog.Catalog("classic-shen-lu-meng");
     private static SkillProgramCatalog ClassicShenCaoCaoCatalog =>
@@ -1862,26 +1888,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 AdditionalSkillIds: ["classic:zhuikong"], Gender: GeneralGender.Female));
 
 
-        OlGodContent.Register(builder);
-        Fame2011Content.Register(builder);
-        Fame2013Content.Register(builder);
-        Fame2014Content.Register(builder);
-        Fame2015Content.Register(builder);
-        Fame2016DeferredContent.Register(builder);
-        Fame2016ConversionContent.Register(builder);
-        Fame2016StateContent.Register(builder);
-        Fame2017XinXianyingContent.Register(builder);
-        Fame2016TaoluanContent.Register(builder);
-        Fame2017CaoJieContent.Register(builder);
-        Fame2017WuXianContent.Register(builder);
-        Fame2017CaiYongContent.Register(builder);
-        Fame2017QinMiContent.Register(builder);
-        Fame2017XueZongContent.Register(builder);
-        FengLinLuJiContent.Register(builder);
-        Fame2017XuShiContent.Register(builder);
-        FengLinWangPingContent.Register(builder);
-        Fame2017JiKangContent.Register(builder);
-        FengLinHaoZhaoContent.Register(builder);
+        foreach (var module in GeneralModules) module.Register(builder);
         var generalPoolIds = CurrentGeneralIds;
 
         builder.AddMode(new ContentModeDefinition(
@@ -2367,26 +2374,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:shen-zhou-yu",
         "classic:shen-lu-bu",
         "classic:fu-huanghou",
-        .. OlGodContent.AddedGeneralIds,
-        .. Fame2011Content.AddedGeneralIds,
-        .. Fame2013Content.AddedGeneralIds,
-        .. Fame2014Content.AddedGeneralIds,
-        .. Fame2016DeferredContent.AddedGeneralIds,
-        .. Fame2016ConversionContent.AddedGeneralIds,
-        .. Fame2016StateContent.AddedGeneralIds,
-        .. Fame2017XinXianyingContent.AddedGeneralIds,
-        .. Fame2016TaoluanContent.AddedGeneralIds,
-        .. Fame2017CaoJieContent.AddedGeneralIds,
-        .. Fame2017WuXianContent.AddedGeneralIds,
-        .. Fame2017CaiYongContent.AddedGeneralIds,
-        .. Fame2017QinMiContent.AddedGeneralIds,
-        .. Fame2017XueZongContent.AddedGeneralIds,
-        .. FengLinLuJiContent.AddedGeneralIds,
-        .. Fame2017XuShiContent.AddedGeneralIds,
-        .. FengLinWangPingContent.AddedGeneralIds,
-        .. Fame2017JiKangContent.AddedGeneralIds,
-        .. FengLinHaoZhaoContent.AddedGeneralIds,
-        .. Fame2015Content.AddedGeneralIds
+        .. GeneralModules.OrderBy(module => module.AppendPoolLast).SelectMany(module => module.GeneralIds)
     ];
 
     /// <summary>Registered generals kept out of the classic identity pools (fan-made roster).</summary>

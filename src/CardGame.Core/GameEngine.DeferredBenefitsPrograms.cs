@@ -11,7 +11,8 @@ public sealed partial class GameEngine
         _programFactionRecoveryDebts.RemoveAll(item => item.DyingFrameId == dying.FrameId);
         var first = debts[0];
         var program = _contentRegistry.GetSkill(first.SkillId).Program!;
-        var trigger = program.Triggers.Single(item => item.Id == first.BindingId);
+        var trigger = ProgramInstructionResolver.Default.Resolve(program,
+            ProgramInstructionSourceKind.Trigger, first.BindingId).Trigger!;
         var id = ++_resolutionSequence;
         var debtReturn = new FactionRecoveryDebtReturn(dying.FrameId, dying.ParentFrameId,
             dying.VictimSeat, dying.Continuation, survived, CurrentDamageAttempt?.ResolutionId,

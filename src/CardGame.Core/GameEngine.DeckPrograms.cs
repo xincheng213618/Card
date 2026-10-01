@@ -11,7 +11,7 @@ public sealed partial class GameEngine
     {
         foreach (var owner in _players.Where(player => player.IsAlive && player.Seat != provider.Seat))
         foreach (var program in EnabledActivationPrograms(owner))
-        foreach (var activation in program.Activations.Where(item => item.Effects.Any(effect => effect.Op == SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd)))
+        foreach (var activation in program.Activations.Where(item => ProgramInstructionResolver.Default.Features(item).HasOperation(SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd)))
         {
             if (_programContributionUses.GetValueOrDefault((provider.Seat, owner.Seat, program.Id, activation.Id)) >= 1) continue;
             var cards = GetHand(provider).Concat(GetEquipment(provider)).Select(card => card.Id).ToArray();
@@ -29,9 +29,10 @@ public sealed partial class GameEngine
     private bool TryExecuteDeckEndContribution(CharacterState provider, CharacterState owner, LegalAction action, int cardId)
     {
         var program = GetEnabledSkillProgram(owner, action.ProgramSkillId!);
-        var activation = program.Activations.SingleOrDefault(item => item.Id == action.ProgramActivationId &&
-            item.Effects.Any(effect => effect.Op == SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd));
-        if (activation is null) return false;
+        var plan = ProgramInstructionResolver.Default.Find(program,
+            ProgramInstructionSourceKind.Activation, action.ProgramActivationId);
+        var activation = plan?.Activation;
+        if (activation is null || !plan!.Features.HasOperation(SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd)) return false;
         var key = (provider.Seat, owner.Seat, program.Id, activation.Id);
         if (_programContributionUses.GetValueOrDefault(key) >= 1 || provider.Seat == owner.Seat)
             throw new InvalidOperationException("Deck exchange contribution exhausted its own phase entry.");

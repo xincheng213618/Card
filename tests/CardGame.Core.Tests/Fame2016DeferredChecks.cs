@@ -123,6 +123,32 @@ internal static class Fame2016DeferredChecks
             "The interrupted deferred continuation must reward the original provider once."); Replay(game, registry);
     }
 
+    public static void ProviderRewardsRetireAfterNestedOwnerDeath()
+    {
+        var registry = Registry("sun-cancel"); var game = Start(registry);
+        Activate(game, "classic:kuangbi", "deferred-provider-pile", 1);
+        Answer(game, Prompt(game)!.Choices.First(c => c.Parameters.GetValueOrDefault("program-action") == "select-owned-cards"));
+        Answer(game, Prompt(game)!.Choices.Single(c => c.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards"));
+        Settle(game);
+        var card = game.CreateSnapshot(0, true).Players[0].PublicDeferredPileCards!.Single().Id;
+        Accept(game.Submit(new EndPlayPhaseCommand(0, game.Revision, Prompt(game)!.PromptId)));
+        Reach(game, p => p.Choices.Any(c => c.Parameters.GetValueOrDefault("result-bind") == "observe-obtain"));
+        var owner = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == "classic:kuangbi");
+        Require(owner.DeferredProviderRewards is [ { Seat: 1, Count: 1 } ],
+            "The suspended pile gain must retain its original reward on its owning frame.");
+        Replay(game, registry);
+        Answer(game, Prompt(game)!.Choices.Single());
+        for (var step = 0; step < 100 && game.ResolutionStack.Count > 0; step++)
+            if (Prompt(game) is { Kind: DecisionKind.RescueDying } rescue)
+                Answer(game, rescue.Choices.First(c => c.Cards.Count == 0));
+            else Advance(game);
+        Require(game.CardMovements.Count(move => move.CardId == card && move.Reason.Value == "skill-program.deferred-pile.obtain") == 1 &&
+                game.ResolutionStack.All(f => f.Id != owner.Id) &&
+                !game.CardMovements.Any(m => m.Reason.Value == "skill-program.deferred-pile.provider-reward"),
+            "Nested owner death must retire the reward with the parent while preserving its once-only completed gain.");
+        Replay(game, registry);
+    }
+
     public static void DeferredPileDeathLossAndFaceDownSkip()
     {
         foreach (var boundary in new[] { "provider-death", "owner-death", "skill-loss" })
@@ -210,18 +236,21 @@ internal static class Fame2016DeferredChecks
             ]}]}
             """, """{"schemaVersion":3,"skills":{"fixture:deferred-driver":{"name":"边界驱动","description":"真实死亡、技能替换和覆面"}}}""");
             b.AddSkill(new("fixture:deferred-driver", "边界驱动", "真实死亡、技能替换和覆面") { Program = catalog.Programs["fixture:deferred-driver"] });
-            if (kind == "sun-observer")
+            if (kind is "sun-observer" or "sun-cancel")
             {
+                var cancellation = kind == "sun-cancel"
+                    ? ",{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":20},{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":20}"
+                    : "";
                 var observer = SkillProgramCatalog.Load($$$"""
                 {"schemaVersion":{{{SkillProgramCatalog.RulesSchemaVersion}}},"skills":[{"id":"fixture:deferred-observer","revision":1,"triggers":[
                   {"id":"observe","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch",
                    "movementReasons":["skill-program.deferred-pile.obtain"],"optional":false,
-                   "effects":[{"op":"chooseOption","target":"owner","resultBind":"observe-obtain","options":[{"id":"continue"}]}]}
+                   "effects":[{"op":"chooseOption","target":"owner","resultBind":"observe-obtain","options":[{"id":"continue"}]}{{{cancellation}}}]}
                 ]}]}
                 """, """{"schemaVersion":3,"skills":{"fixture:deferred-observer":{"name":"获得观察","description":"获得后暂停","optionLabels":{"continue":"继续"}}}}""");
                 b.AddSkill(new("fixture:deferred-observer", "获得观察", "获得后暂停") { Program = observer.Programs["fixture:deferred-observer"] });
             }
-            b.AddGeneral(new("fixture:deferred-owner", "测试延迟将", "supporter", kind == "li" ? "classic:duliang" : "classic:kuangbi", "shu", kind == "li" ? 3 : 20, kind == "li" ? ["classic:fulin", "fixture:deferred-driver"] : kind == "sun-observer" ? ["fixture:deferred-driver", "fixture:deferred-observer"] : ["fixture:deferred-driver"]));
+            b.AddGeneral(new("fixture:deferred-owner", "测试延迟将", "supporter", kind == "li" ? "classic:duliang" : "classic:kuangbi", "shu", kind == "li" ? 3 : 20, kind == "li" ? ["classic:fulin", "fixture:deferred-driver"] : kind is "sun-observer" or "sun-cancel" ? ["fixture:deferred-driver", "fixture:deferred-observer"] : ["fixture:deferred-driver"]));
             for (var index = 1; index < 4; index++) b.AddGeneral(new($"fixture:deferred-{index}", $"目标{index}", "supporter", "standard:none", "wei", 20));
             b.AddDeck(new("fixture:deferred-deck", "延迟牌堆", 8, 2, []) { PhysicalCards = Enumerable.Range(0, 160).Select(i => new ContentDeckPhysicalCard(kind.StartsWith("sun") || i % 2 == 0 ? "standard:dodge" : "standard:bagua", Suit.Spade, i % 13 + 1)).ToArray() });
             b.AddMode(new("identity:deferred-check", "延迟机制测试", 4, 4, new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1, [nameof(Role.Rebel)] = 2 }, "fixture:deferred-deck", GeneralCandidateCount: 4, GeneralPoolIds: ["fixture:deferred-owner", "fixture:deferred-1", "fixture:deferred-2", "fixture:deferred-3"]));

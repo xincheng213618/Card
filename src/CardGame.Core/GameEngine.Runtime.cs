@@ -103,12 +103,12 @@ public sealed partial class GameEngine
     /// Calling this while input is already pending is harmless and returns immediately.
     /// </summary>
 
-    private EngineRunResult AdvanceToHumanBoundary()
+    private void AdvanceToHumanBoundary()
     {
         EnsureStarted();
         if (_status == EngineStatus.Completed || IsHumanDecisionPending())
         {
-            return BuildResult();
+            return;
         }
 
         var guard = 0;
@@ -150,7 +150,6 @@ public sealed partial class GameEngine
             RunOneEngineStep();
         }
 
-        return BuildResult();
     }
 
     /// <summary>
@@ -159,7 +158,7 @@ public sealed partial class GameEngine
     /// useful for a UI that wants to animate or inspect each AI decision.
     /// </summary>
 
-    private EngineRunResult AdvanceOneStepCore()
+    private void AdvanceOneStepCore()
     {
         EnsureStarted();
         if (_status != EngineStatus.Completed &&
@@ -179,8 +178,6 @@ public sealed partial class GameEngine
                 CompleteGame();
             }
         }
-
-        return BuildResult();
     }
 
     private void RunOneEngineStep()

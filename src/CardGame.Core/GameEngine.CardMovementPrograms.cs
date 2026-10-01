@@ -144,7 +144,7 @@ public sealed partial class GameEngine
             if (!IsValidPlayerSeat(ownerSeat)) continue;
             foreach (var candidate in CollectProgramTriggerCandidates(_players[ownerSeat], window))
             {
-                var trigger = _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers.Single(item => item.Id == candidate.BindingId);
+                var trigger = GetProgramTrigger(candidate);
                 if (discardOriginOnly && !trigger.MovementDiscardOnly) continue;
                 if (!(window == SkillProgramTriggerWindow.CardsMoved ? trigger.SourceZones : trigger.DestinationZones).Contains(count.Location.Zone)) continue;
                 if (trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerOwnerBatch)
@@ -309,7 +309,7 @@ public sealed partial class GameEngine
         ProgramTriggerCandidate candidate)
     {
         if (frame.Contexts is { } contexts) return contexts[frame.CandidateIndex];
-        var trigger = _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers.Single(item => item.Id == candidate.BindingId);
+        var trigger = GetProgramTrigger(candidate);
         if (trigger.Window == SkillProgramTriggerWindow.DiscardPileReceived)
         {
             var movement = frame.Batch.Movements[candidate.OccurrenceIndex];

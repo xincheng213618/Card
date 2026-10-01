@@ -90,7 +90,9 @@ internal static class ProgramCompositionAi
                 if (selected is not null) choices[effect.ResultBind!] = selected.Id;
                 continue;
             }
-            ProgramOperationCatalog.Default.Resolve(effect.Op).AiPolicy.Apply(effect, context);
+            var descriptor = ProgramOperationCatalog.Default.Resolve(effect.Op);
+            if (descriptor.LegalityPolicy.CanEstimate(player, facts.SelectedTarget))
+                descriptor.AiPolicy.Apply(effect, context);
         }
         return context.Build();
     }

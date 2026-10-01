@@ -26,7 +26,7 @@ public sealed partial class GameEngine
         }).ToArray();
     }
 
-    private EngineRunResult ResolveExtendedViewAsResponse(PromptChoice choice)
+    private void ResolveExtendedViewAsResponse(PromptChoice choice)
     {
         var owner = _players[_pendingDecision!.PlayerSeat];
         var kind = Enum.Parse<CardKind>(choice.Parameters["output-kind"]);
@@ -35,7 +35,7 @@ public sealed partial class GameEngine
             ?? throw new InvalidOperationException("The extended conversion lost its physical costs.");
         ResolveExtendedViewAsResponse(owner, selection);
         AdvanceRulesAndPublishState();
-        return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
+        if (_options.AdvanceAfterHumanCommands) AdvanceToHumanBoundary();
     }
 
     private void ResolveExtendedViewAsResponse(CharacterState owner, ProgramMultiCardViewAsSelection selection)

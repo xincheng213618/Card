@@ -249,12 +249,12 @@ public sealed partial class GameEngine
             advanceToHumanBoundary: _options.AdvanceAfterHumanCommands));
     }
 
-    private EngineRunResult HumanYingboCore(PromptChoice selected, bool advanceToHumanBoundary)
+    private void HumanYingboCore(PromptChoice selected, bool advanceToHumanBoundary)
     {
         RequireHumanDecision(DecisionKind.Yingbo);
         ResolveYingboGiftChoice(selected);
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
     private void ResolveYingboGiftChoice(PromptChoice selected)

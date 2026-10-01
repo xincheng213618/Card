@@ -23,6 +23,14 @@ internal sealed record RecoverProgramInstruction(
     ProgramAmount Amount,
     ProgramParticipantReference? TargetReference) : ProgramSkillInstruction;
 
+internal sealed record LoseHpProgramInstruction(int Amount) : ProgramSkillInstruction;
+
+internal sealed record DamageProgramInstruction(
+    int Amount,
+    ProgramParticipantReference? SourceReference,
+    ProgramParticipantReference? TargetReference,
+    DamageNature? Nature) : ProgramSkillInstruction;
+
 internal sealed record ChangeMaximumHpProgramInstruction(int Delta) : ProgramSkillInstruction;
 
 internal sealed record GrowMaximumHpAndHpProgramInstruction(

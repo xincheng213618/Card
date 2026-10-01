@@ -6,6 +6,7 @@ internal sealed class StartPindianProgramOperationDescriptor : ProgramOperationD
     public override ISkillProgramEffectHandler Handler { get; } = new StartPindianSkillProgramEffectHandler();
     public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice;
     public override ProgramContextCapability RequiredCapabilities => ProgramContextCapability.Pindian;
+    public override ProgramOperationLegalityPolicy LegalityPolicy => ProgramOperationLegalityPolicy.HandContest;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(
         ProgramOperationAiSemantic.StartPindian,
         static (effect, context) => context.StartPindian(effect));

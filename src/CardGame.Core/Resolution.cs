@@ -122,6 +122,10 @@ public sealed record ProgramSkillFrame(
     public ProgramSelectedCardPayment? SelectedCardPayment { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramSelectedCardPaymentResult? SelectedCardPaymentResult { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramStrategicDamageBatch? StrategicDamageBatch { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ProgramDeferredProviderReward>? DeferredProviderRewards { get; init; }
     public IReadOnlyList<ProgramChoiceResultBinding> ChoiceBindings { get; init; } = [];
     public IReadOnlyList<ProgramSkillCardSetBinding> CardSetBindings { get; init; } = [];
     public IReadOnlyList<ProgramPindianResultBinding> PindianResultBindings { get; init; } = [];

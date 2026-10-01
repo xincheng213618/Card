@@ -29,7 +29,7 @@ public sealed partial class GameEngine
         return true;
     }
 
-    private EngineRunResult ResolveFactionRequestCostChoice(PromptChoice selected, bool advanceToHumanBoundary)
+    private void ResolveFactionRequestCostChoice(PromptChoice selected, bool advanceToHumanBoundary)
     {
         var pending = ActiveFactionCardRequest ?? throw new InvalidOperationException("Faction request payment lost its pending request.");
         var canonical = FactionRequestCostChoices(pending).SingleOrDefault(choice => choice.Id == selected.Id);
@@ -44,7 +44,7 @@ public sealed partial class GameEngine
         MoveCard(card, from, CardLocation.DiscardPile, new CardMoveReason("program.faction-request.cost"));
         AdvanceFactionSlashCandidate();
         AdvanceRulesAndPublishState();
-        return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
+        if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
     private sealed record FactionProviderRewardReceipt(long OwnerFrameId, int DrawCount);

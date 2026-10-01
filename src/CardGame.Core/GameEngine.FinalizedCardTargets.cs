@@ -13,10 +13,7 @@ public sealed partial class GameEngine
             "装备牌" => SkillProgramCardCategory.Equipment,
             _ => SkillProgramCardCategory.Trick
         };
-        return _contentRegistry.Skills.Values.Any(skill => skill.Program?.Triggers.Any(trigger =>
-            trigger.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized &&
-            (trigger.CardKinds.Count == 0 || trigger.CardKinds.Contains(kind)) &&
-            (trigger.CardCategories.Count == 0 || trigger.CardCategories.Contains(category))) == true);
+        return _contentRegistry.ProgramDependencies.HasFinalizedCardTrigger(kind, category);
     }
 
     private IReadOnlyList<int> GetImplicitSelfCardUseTargets(CardKind kind, int sourceSeat,

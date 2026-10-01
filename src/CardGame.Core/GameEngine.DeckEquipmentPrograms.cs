@@ -92,8 +92,9 @@ public sealed partial class GameEngine
                 _ => null
             };
             var producer = _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(f => f.Id == resume);
-            if (producer?.TriggerId is { } binding && _contentRegistry.GetSkill(producer.SkillId).Program!.Triggers.Single(t => t.Id == binding) is { NoDyingAtActivation: true } trigger &&
-                trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.UseRandomDeckEquipment || e.Op == SkillProgramEffectOp.SelectAndMoveOwnedCard && e.FreezeMovedCardSuit && e.CardCategories is [SkillProgramCardCategory.Equipment]))
+            if (producer?.TriggerId is { } binding && ProgramInstructionResolver.Default.Resolve(_contentRegistry.GetSkill(producer.SkillId).Program!,
+                ProgramInstructionSourceKind.Trigger, binding).Trigger is { NoDyingAtActivation: true } trigger &&
+                ProgramInstructionResolver.Default.Features(trigger).HasEquipmentObserverInterruptOptIn)
                 return observer.Window == (beneath is HpChangedTriggerWindowFrame ? SkillProgramTriggerWindow.AfterHpRecovered : SkillProgramTriggerWindow.CardsMoved);
         }
         if (ride is ProgramSkillFrame { WindowContext: { } context } && beneath is ProgramCardTriggerWindowFrame window)

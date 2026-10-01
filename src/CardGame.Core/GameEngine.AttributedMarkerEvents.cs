@@ -1,20 +1,20 @@
 namespace CardGame.Core;
 public sealed partial class GameEngine
 {
- private ProgramAiPublicContext CreateAttributedPaymentAiContext(CharacterState owner,SkillProgramTrigger trigger)=>CreateProgramAiPublicContext(owner) with {AttributedMarkerPaymentCounts=trigger.Effects.Any(e=>e.Op==SkillProgramEffectOp.ChangeParticipantMarker) && trigger.Effects.Any(e=>e.Op==SkillProgramEffectOp.SpendMarkerOrLoseHp) ? new Dictionary<PlayerMarkerKind,int>(owner.Markers) : null};
- private bool HasAttributedEventOperations()=>_contentRegistry.Skills.Values.Any(s=>s.Program?.Triggers.Any(t=>t.Effects.Any(e=>e.Op is SkillProgramEffectOp.ConsumeMarkerPreventDamage or SkillProgramEffectOp.AddMarkerSubjectNormalDraw))==true);
- private bool IsMarkerSourceEnabled(int source,PlayerMarkerKind marker)=>_players[source].IsAlive && GetSkillBindingShard(_players[source]).GetInstanceTriggers(SkillProgramTriggerWindow.BeforeDamageApplied).Any(b=>b.Trigger.Effects.Any(e=>e.Op==SkillProgramEffectOp.ConsumeMarkerPreventDamage&&e.Marker==marker));
+ private ProgramAiPublicContext CreateAttributedPaymentAiContext(CharacterState owner,SkillProgramTrigger trigger)=>CreateProgramAiPublicContext(owner) with {AttributedMarkerPaymentCounts=ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.ChangeParticipantMarker) && ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.SpendMarkerOrLoseHp) ? new Dictionary<PlayerMarkerKind,int>(owner.Markers) : null};
+ private bool HasAttributedEventOperations()=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ConsumeMarkerPreventDamage) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.AddMarkerSubjectNormalDraw);
+ private bool IsMarkerSourceEnabled(int source,PlayerMarkerKind marker)=>_players[source].IsAlive && GetSkillBindingShard(_players[source]).GetInstanceTriggers(SkillProgramTriggerWindow.BeforeDamageApplied).Any(b=>ProgramInstructionResolver.Default.Features(b.Trigger).ForOperation(SkillProgramEffectOp.ConsumeMarkerPreventDamage).Any(e=>e.Marker==marker));
  private int ActiveSubjectMarkerCount(int subject,PlayerMarkerKind marker)=>!_players[subject].IsAlive ? 0 : _players[subject].MarkerSourceCounts.Where(p=>p.Key.Marker==marker&&IsMarkerSourceEnabled(p.Key.SkillOwnerSeat,marker)).Sum(p=>p.Value);
  private bool MarkerEventApplied(long parent,int subject,PlayerMarkerKind marker,SkillProgramEffectOp op)=>_events.Select(e=>e.Payload).Concat(_pendingEvents).OfType<ProgramMarkerEventAppliedEvent>().Any(e=>e.ParentFrameId==parent&&e.SubjectSeat==subject&&e.Marker==marker&&e.Operation==op);
  private bool CanOfferAttributedEvent(SkillProgramTrigger trigger,ProgramSkillWindowContext context)
  {
-  foreach(var e in trigger.Effects.Where(e=>e.Op is SkillProgramEffectOp.ConsumeMarkerPreventDamage or SkillProgramEffectOp.AddMarkerSubjectNormalDraw))
+  foreach(var e in ProgramInstructionResolver.Default.Features(trigger).AttributedEventOperations)
    if(context.TargetSeat is not {} subject || ActiveSubjectMarkerCount(subject,e.Marker!.Value)<1 || MarkerEventApplied(context.ParentFrameId,subject,e.Marker.Value,e.Op))return false;
   return true;
  }
  private IReadOnlyList<ProgramTriggerCandidate> IncludeAttributedDrawObservers(CharacterState subject,IReadOnlyList<ProgramTriggerCandidate> existing)
  {
-  var extra=_players.Where(p=>p.IsAlive&&p.Seat!=subject.Seat).SelectMany(p=>CollectProgramTriggerCandidates(p,SkillProgramTriggerWindow.DrawPhaseStarting)).Where(c=>GetProgramTrigger(c).Effects.Any(e=>e.Op==SkillProgramEffectOp.AddMarkerSubjectNormalDraw));
+  var extra=_players.Where(p=>p.IsAlive&&p.Seat!=subject.Seat).SelectMany(p=>CollectProgramTriggerCandidates(p,SkillProgramTriggerWindow.DrawPhaseStarting)).Where(c=>ProgramInstructionResolver.Default.Features(GetProgramTrigger(c)).HasOperation(SkillProgramEffectOp.AddMarkerSubjectNormalDraw));
   var observers=extra.ToArray();if(observers.Length==0)return existing;
   return existing.Concat(observers).Select((candidate,index)=>(candidate,index)).OrderByDescending(x=>x.candidate.Priority).ThenBy(x=>(x.candidate.OwnerSeat-subject.Seat+_playerCount)%_playerCount).ThenBy(x=>x.index).Select(x=>x.candidate).ToArray();
  }

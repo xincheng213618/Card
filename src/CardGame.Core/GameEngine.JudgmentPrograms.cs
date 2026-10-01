@@ -117,7 +117,8 @@ public sealed partial class GameEngine
             var program = _contentRegistry!.Skills[candidate.SkillId].Program!;
             if (program.GameplayHash != candidate.GameplayHash)
                 throw new InvalidOperationException("A running judgment trigger definition changed.");
-            var trigger = program.Triggers.Single(item => item.Id == candidate.TriggerId);
+            var trigger = ProgramInstructionResolver.Default.Resolve(program,
+                ProgramInstructionSourceKind.Trigger, candidate.TriggerId).Trigger!;
             var shared = new ProgramTriggerCandidate(
                 candidate.OwnerSeat, candidate.SkillId, candidate.TriggerId,
                 candidate.SkillInstanceId, candidate.GameplayHash, trigger.Priority);
@@ -248,7 +249,7 @@ public sealed partial class GameEngine
         {
             ResolveProgramJudgmentChoice(selected);
             AdvanceRulesAndPublishState();
-            return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
+            if (_options.AdvanceAfterHumanCommands) AdvanceToHumanBoundary();
         });
     }
 

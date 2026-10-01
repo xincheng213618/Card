@@ -575,8 +575,12 @@ public sealed class LoseHpSkillProgramEffectHandler : ISkillProgramEffectHandler
         SkillProgramEffect effect,
         ProgramSkillFrame frame,
         int targetSeat,
-        ISkillProgramEffectHost host) =>
-        host.LoseHp(frame.Id, frame.SkillId, targetSeat, effect.Amount);
+        ISkillProgramEffectHost host)
+    {
+        if (effect.CompiledInstruction is not LoseHpProgramInstruction instruction)
+            throw new InvalidOperationException("HP loss has no compiled operation instruction.");
+        return host.LoseHp(frame.Id, frame.SkillId, targetSeat, instruction.Amount);
+    }
 }
 
 public sealed class DistributeOwnedCardsSkillProgramEffectHandler : ISkillProgramEffectHandler
@@ -615,10 +619,14 @@ public sealed class DamageSkillProgramEffectHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.Damage;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
-        int targetSeat, ISkillProgramEffectHost host) =>
-        host.Damage(frame,
-            effect.TargetReference is { } reference ? host.ResolveParticipant(frame, reference) : targetSeat,
-            effect.Amount, effect.ActorReference, effect.DamageNature);
+        int targetSeat, ISkillProgramEffectHost host)
+    {
+        if (effect.CompiledInstruction is not DamageProgramInstruction instruction)
+            throw new InvalidOperationException("Damage has no compiled operation instruction.");
+        return host.Damage(frame,
+            instruction.TargetReference is { } reference ? host.ResolveParticipant(frame, reference) : targetSeat,
+            instruction.Amount, instruction.SourceReference, instruction.Nature);
+    }
 }
 
 public sealed class ReplaceJudgmentSkillProgramEffectHandler : ISkillProgramEffectHandler
@@ -1365,8 +1373,9 @@ public sealed class SkillProgramExecutor
                 throw new InvalidOperationException(
                     $"Running skill program '{frame.SkillId}' changed its gameplay hash.");
             var allowsDeadOwner = frame.WindowContext?.Window == SkillProgramTriggerWindow.OwnerDied ||
-                program.Activations.SingleOrDefault(item => item.Id == frame.ActivationId)?.ContinueAfterOwnerDeath == true ||
-                program.Triggers.SingleOrDefault(item => item.Id == frame.ActivationId)?.Effects.Any(effect => effect.Op == SkillProgramEffectOp.LoseHpParticipants) == true;
+                ProgramInstructionResolver.Default.FindActivation(program, frame.ActivationId)?.ContinueAfterOwnerDeath == true ||
+                ProgramInstructionResolver.Default.Find(program, ProgramInstructionSourceKind.Trigger, frame.ActivationId)
+                    ?.Features.HasOperation(SkillProgramEffectOp.LoseHpParticipants) == true;
             if (!state.OwnsSkillInstance(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId) && (actor.IsAlive || !allowsDeadOwner))
             {
                 state.Complete(frame, completed: false, "技能实例在结算前已失效，剩余步骤取消。");
@@ -1431,7 +1440,7 @@ public sealed class SkillProgramExecutor
                         $"Skill program '{frame.SkillId}' uses unsupported target '{effect.Target}'.")
                 };
             var target = state.GetActor(targetSeat);
-            var activation = program.Activations.SingleOrDefault(item => item.Id == frame.ActivationId);
+            var activation = ProgramInstructionResolver.Default.FindActivation(program, frame.ActivationId);
             if (effect.Op is SkillProgramEffectOp.GiveSelected or SkillProgramEffectOp.DiscardSelected &&
                 (activation is null || !target.IsAlive ||
                  !state.OwnsCards(frame.OwnerSeat, frame.SelectedCardIds, activation.SourceZones)))

@@ -94,9 +94,7 @@ public sealed partial class GameEngine
     private Suit? FreezeCompletedResponseUseSuit(CharacterState owner, IReadOnlyList<Card> cards, CardKind kind)
     {
         if (kind is not (CardKind.Dodge or CardKind.Nullification) ||
-            !_contentRegistry.Skills.Values.Any(skill => skill.Program?.Triggers.Any(trigger =>
-                trigger.Window == SkillProgramTriggerWindow.CardUseCompleted && trigger.IncludeResponseUses &&
-                HasTriggerCondition(trigger.Condition, SkillProgramTriggerConditionKind.CardActionSuitIs)) == true)) return null;
+            !_contentRegistry.ProgramDependencies.CapturesCompletedResponseSuit) return null;
         var suits = cards.Select(card => EffectiveSuit(owner, card)).Distinct().ToArray();
         return suits.Length == 1 ? suits[0] : null;
     }

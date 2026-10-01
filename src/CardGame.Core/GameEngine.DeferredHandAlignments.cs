@@ -27,7 +27,7 @@ public sealed partial class GameEngine
         var active=GetActiveProgramFrame(frame.Id);
         if(active.SelectedTargetSeats is not [var target]||target==frame.OwnerSeat||!_players[target].IsAlive||frame.WindowContext is not {Window:SkillProgramTriggerWindow.TurnEnding} context||_resolutionStack.Count<2||_resolutionStack[^2] is not TurnEndingBoundaryFrame parent||parent.Id!=context.ParentFrameId||parent.OwnerSeat!=frame.OwnerSeat||parent.TurnNumber!=_turnNumber)
             throw new InvalidOperationException("Deferred alignment requires the actual owner's ending parent and one other living target.");
-        var continuation=_contentRegistry.GetSkill(frame.SkillId).Program!.Triggers.Single(t=>t.Id==continuationId);
+        var continuation=ProgramInstructionResolver.Default.Resolve(_contentRegistry.GetSkill(frame.SkillId).Program!,ProgramInstructionSourceKind.Trigger,continuationId).Trigger!;
         var instruction=ProgramInstructionResolver.Default.Resolve(active,_contentRegistry.GetSkill(frame.SkillId).Program!).GetInstruction(active.InstructionIndex-1).Effect;
         if(instruction is not {Op:SkillProgramEffectOp.ScheduleDeferredHandAlignment}||instruction.StateId!=continuationId||context.SourceSeat!=parent.OwnerSeat||context.TargetSeat!=parent.OwnerSeat)
             throw new InvalidOperationException("Deferred scheduling requires its exact currently executing instruction and ending context.");
@@ -65,7 +65,7 @@ public sealed partial class GameEngine
             _deferredHandAlignments.Remove(due);
             var enabled=EnabledUniqueProgramTriggers(_players[due.Source.OwnerSeat],SkillProgramTriggerWindow.TurnEnding).Any(t=>t.SkillId==due.Source.SkillId&&t.SkillInstanceId==due.Source.SkillInstanceId&&t.Trigger.Id==due.Source.BindingId);
             AdvanceEventRulesAndQueueFact(new DeferredHandAlignmentConsumedEvent(due,enabled));if(!enabled)continue;
-            var program=_contentRegistry.GetSkill(due.Source.SkillId).Program!;var trigger=program.Triggers.Single(t=>t.Id==due.ContinuationId);
+            var program=_contentRegistry.GetSkill(due.Source.SkillId).Program!;var trigger=ProgramInstructionResolver.Default.Resolve(program,ProgramInstructionSourceKind.Trigger,due.ContinuationId).Trigger!;
             if(!trigger.DeferredTurnEndOnly)throw new InvalidOperationException("The exact continuation changed after scheduling.");
             ReplaceRuntimeTop(((DeferredTurnEndFrame)_resolutionStack[^1]) with{Current=due});
             var child=new ProgramSkillFrame(++_resolutionSequence,due.Source.OwnerSeat,due.Source.SkillId,due.ContinuationId,program.GameplayHash,0,[],[due.TargetSeat]){TriggerId=due.ContinuationId,SkillInstanceId=due.Source.SkillInstanceId!,WindowContext=new(SkillProgramTriggerWindow.TurnEnding,parent.Id,due.Source.OwnerSeat,TargetSeat:due.TargetSeat)};

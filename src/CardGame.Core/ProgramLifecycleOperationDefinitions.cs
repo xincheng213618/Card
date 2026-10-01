@@ -6,6 +6,9 @@ internal sealed class DamageProgramOperationDescriptor : ProgramOperationDescrip
     public override ISkillProgramEffectHandler Handler { get; } = new DamageSkillProgramEffectHandler();
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.Damage,
         static (effect, context) => context.Damage(effect));
+    public override ProgramSkillInstruction Compile(SkillProgramEffect effect) =>
+        new DamageProgramInstruction(effect.Amount, effect.ActorReference,
+            effect.TargetReference, effect.DamageNature);
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
         r.AllowOnly("op", "target", "amount", "condition", "sourceRef", "targetRef", "skipIfNoTarget", "nature");

@@ -50,7 +50,7 @@ public sealed partial class GameEngine
     {
         ResolveProgramTopReorderChoice(choice);
         AdvanceRulesAndPublishState();
-        return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
+        if (_options.AdvanceAfterHumanCommands) AdvanceToHumanBoundary();
     });
 
     private void ResolveProgramTopReorderChoice(PromptChoice choice)

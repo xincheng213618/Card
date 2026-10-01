@@ -205,7 +205,8 @@ public sealed partial class GameEngine
             bool toDiscard, CardMoveReason reason)
         {
             var program = GetProgram(frame.SkillId);
-            var activation = program.Activations.Single(item => item.Id == frame.ActivationId);
+            var activation = ProgramInstructionResolver.Default.Resolve(program,
+                ProgramInstructionSourceKind.Activation, frame.ActivationId).Activation!;
             var selected = cardIds.Select(id =>
             {
                 var locations = activation.SourceZones

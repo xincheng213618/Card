@@ -80,7 +80,7 @@ public sealed partial class GameEngine
     {
         ResolveProgramRepeatJudgmentChoice(choice);
         AdvanceRulesAndPublishState();
-        return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
+        if (_options.AdvanceAfterHumanCommands) AdvanceToHumanBoundary();
     });
 
     private void ResolveProgramRepeatJudgmentChoice(PromptChoice choice)

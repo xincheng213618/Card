@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Collections.Frozen;
 using System.Runtime.CompilerServices;
 
 namespace CardGame.Core;
@@ -31,7 +32,10 @@ internal sealed class ProgramExecutionPlan
         string gameplayHash,
         ProgramInstructionSourceKind sourceKind,
         string bindingId,
-        IReadOnlyList<SkillProgramEffect> instructions)
+        IReadOnlyList<SkillProgramEffect> instructions,
+        SkillProgramActivation? activation = null,
+        SkillProgramTrigger? trigger = null,
+        ProgramInstructionFeatures? features = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(skillId);
         ArgumentException.ThrowIfNullOrWhiteSpace(gameplayHash);
@@ -42,6 +46,9 @@ internal sealed class ProgramExecutionPlan
         SourceKind = sourceKind;
         BindingId = bindingId;
         _instructions = Array.AsReadOnly(instructions.ToArray());
+        Activation = activation;
+        Trigger = trigger;
+        Features = features ?? new ProgramInstructionFeatures(_instructions);
     }
 
     internal string SkillId { get; }
@@ -49,6 +56,9 @@ internal sealed class ProgramExecutionPlan
     internal ProgramInstructionSourceKind SourceKind { get; }
     internal string BindingId { get; }
     internal IReadOnlyList<SkillProgramEffect> Instructions => _instructions;
+    internal SkillProgramActivation? Activation { get; }
+    internal SkillProgramTrigger? Trigger { get; }
+    internal ProgramInstructionFeatures Features { get; }
 
     internal ResolvedProgramInstruction GetInstruction(int index)
     {
@@ -73,6 +83,37 @@ internal sealed class ProgramInstructionResolver
     internal static ProgramInstructionResolver Default { get; } = new();
 
     private readonly ConditionalWeakTable<SkillProgram, ProgramPlans> _cache = new();
+    private readonly ConditionalWeakTable<SkillProgramActivation, ProgramInstructionFeatures> _activationFeatures = new();
+    private readonly ConditionalWeakTable<SkillProgramTrigger, ProgramInstructionFeatures> _triggerFeatures = new();
+
+    internal ProgramInstructionFeatures Features(SkillProgramActivation activation) =>
+        _activationFeatures.GetValue(activation, static source => new(source.Effects));
+
+    internal ProgramInstructionFeatures Features(SkillProgramTrigger trigger) =>
+        _triggerFeatures.GetValue(trigger, static source => new(source.Effects, source.Condition));
+
+    internal ProgramExecutionPlan? Find(
+        SkillProgram program, ProgramInstructionSourceKind sourceKind, string? bindingId)
+    {
+        ArgumentNullException.ThrowIfNull(program);
+        if (bindingId is null) return null;
+        var plans = _cache.GetValue(program, BuildPlans);
+        return sourceKind switch
+        {
+            ProgramInstructionSourceKind.Activation => plans.Activations.GetValueOrDefault(bindingId),
+            ProgramInstructionSourceKind.Trigger => plans.Triggers.GetValueOrDefault(bindingId),
+            _ => throw new InvalidOperationException($"Unsupported program instruction source '{sourceKind}'.")
+        };
+    }
+
+    internal SkillProgramActivation? FindActivation(SkillProgram program, string? bindingId) =>
+        Find(program, ProgramInstructionSourceKind.Activation, bindingId)?.Activation;
+
+    internal SkillProgramTrigger? FindTrigger(SkillProgram program, string? bindingId) =>
+        Find(program, ProgramInstructionSourceKind.Trigger, bindingId)?.Trigger;
+
+    internal bool ProgramUsesTriggerValue(SkillProgram program, SkillProgramTriggerValueKind kind) =>
+        _cache.GetValue(program, BuildPlans).TriggerValues.Contains(kind);
 
     internal ProgramExecutionPlan Resolve(
         SkillProgram program,
@@ -104,12 +145,13 @@ internal sealed class ProgramInstructionResolver
             : Resolve(program, ProgramInstructionSourceKind.Activation, frame.ActivationId);
     }
 
-    private static ProgramPlans BuildPlans(SkillProgram program)
+    private ProgramPlans BuildPlans(SkillProgram program)
     {
         var activations = new Dictionary<string, ProgramExecutionPlan>(StringComparer.Ordinal);
         foreach (var activation in program.Activations)
             Add(activations, activation.Id, new(program.Id, program.GameplayHash,
-                ProgramInstructionSourceKind.Activation, activation.Id, activation.Effects), program.Id);
+                ProgramInstructionSourceKind.Activation, activation.Id, activation.Effects,
+                activation: activation, features: Features(activation)), program.Id);
 
         var triggers = new Dictionary<string, ProgramExecutionPlan>(StringComparer.Ordinal);
         var triggerIds = new HashSet<string>(StringComparer.Ordinal);
@@ -117,9 +159,12 @@ internal sealed class ProgramInstructionResolver
         {
             if (!triggerIds.Add(trigger.Id)) throw Duplicate(program.Id, trigger.Id);
             Add(triggers, trigger.Id, new(program.Id, program.GameplayHash,
-                ProgramInstructionSourceKind.Trigger, trigger.Id, trigger.Effects), program.Id);
+                ProgramInstructionSourceKind.Trigger, trigger.Id, trigger.Effects,
+                trigger: trigger, features: Features(trigger)), program.Id);
         }
-        return new(activations, triggers);
+        return new(activations.ToFrozenDictionary(StringComparer.Ordinal),
+            triggers.ToFrozenDictionary(StringComparer.Ordinal),
+            triggers.Values.SelectMany(plan => plan.Features.ValueKinds).ToFrozenSet());
     }
 
     private static void Add(
@@ -139,5 +184,6 @@ internal sealed class ProgramInstructionResolver
 
     private sealed record ProgramPlans(
         IReadOnlyDictionary<string, ProgramExecutionPlan> Activations,
-        IReadOnlyDictionary<string, ProgramExecutionPlan> Triggers);
+        IReadOnlyDictionary<string, ProgramExecutionPlan> Triggers,
+        FrozenSet<SkillProgramTriggerValueKind> TriggerValues);
 }
