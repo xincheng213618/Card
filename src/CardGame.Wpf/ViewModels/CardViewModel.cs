@@ -26,7 +26,8 @@ public sealed class CardViewModel : ObservableObject
     public required string Description { get; init; }
     public required bool IsPlayable { get => _isPlayable; set => SetProperty(ref _isPlayable, value); }
     public bool IsPublicChoice { get; init; }
-    public string PublicCardLabel => IsPublicChoice ? "点击选取" : "公开牌";
+    public bool IsPrivateReveal { get; init; }
+    public string PublicCardLabel => IsPrivateReveal ? "仅你可见" : IsPublicChoice ? "点击选取" : "公开牌";
     public string VerticalName => string.Join("\n", Name.ToCharArray());
     public double NameFontSize => Name.Length > 3 ? 23 : Name.Length == 1 ? 38 : 30;
     public double NameLineHeight => Name.Length > 3 ? 27 : 34;

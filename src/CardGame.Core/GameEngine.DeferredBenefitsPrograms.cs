@@ -85,7 +85,7 @@ public sealed partial class GameEngine
     private void QueueProgramNextTurnRuleModifier(ProgramSkillFrame frame, int targetSeat, SkillRuleQuery query, int amount)
     {
         if (!IsValidPlayerSeat(targetSeat) || targetSeat == frame.OwnerSeat || !_players[targetSeat].IsAlive ||
-            query is not (SkillRuleQuery.HandLimit or SkillRuleQuery.SlashLimit) || amount is < 1 or > 20)
+            query is not (SkillRuleQuery.HandLimit or SkillRuleQuery.SlashLimit or SkillRuleQuery.DrawCount) || amount is < 1 or > 20)
             throw new InvalidOperationException("A next-turn grant needs a living other target and a bounded hand or Slash allowance.");
         var grant = new ProgramNextTurnRuleModifier(frame.Id, frame.InstructionIndex - 1, targetSeat,
             CreateProgramTurnEffectSource(frame), query, amount);

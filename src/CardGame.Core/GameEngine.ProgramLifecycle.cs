@@ -572,6 +572,7 @@ public sealed partial class GameEngine
         {
             null => amount,
             SkillProgramNumberExpression.CategoryTargetTurnUsage => GetProgramCategoryTargetTurnUsage(frame),
+            SkillProgramNumberExpression.SelectedTargetsHandGreaterThanLord => CountSelectedTargetsHandGreaterThanLord(frame),
             SkillProgramNumberExpression.OwnerLostHp => GetProgramOwnerLostHp(frame),
             SkillProgramNumberExpression.LostHpMinusHandCount => Math.Max(0, target.MaxHp - Math.Max(0, target.Hp) - GetHand(target).Count),
             SkillProgramNumberExpression.LivingFactionCount => GetLivingFactionCount(),
@@ -631,6 +632,11 @@ public sealed partial class GameEngine
         PlayerMarkerKind? marker = null,
         ProgramParticipantReference? actorReference = null)
     {
+        if (targetKind == SkillProgramTargetKind.LivingWhoseAttackRangeIncludesLord)
+        {
+            var lord = _players.SingleOrDefault(p => p.IsAlive && p.Role == Role.Lord);
+            return lord is null ? [] : _players.Where(p => p.IsAlive && p.Seat != lord.Seat && IsWithinAttackRange(p.Seat, lord.Seat)).Select(p => p.Seat).ToArray();
+        }
         if (targetKind == SkillProgramTargetKind.CurrentTurnPlayer)
             return _players[_currentSeat].IsAlive ? [_currentSeat] : [];
         windowContext ??= _resolutionStack.LastOrDefault() switch
@@ -745,6 +751,7 @@ public sealed partial class GameEngine
                     !IsSlashProhibited(target),
                 SkillProgramTargetKind.OtherLivingDelayedTrickTarget =>
                     IsProgramDiscardedDelayedTrickTarget(ownerSeat, target, windowContext),
+                SkillProgramTargetKind.AnyLivingWithHand => GetHand(target).Count > 0,
                 SkillProgramTargetKind.OtherLivingWithHand =>
                     target.Seat != ownerSeat && GetHand(target).Count > 0,
                 SkillProgramTargetKind.OtherLivingWithHandOrEquipment =>
@@ -823,6 +830,7 @@ public sealed partial class GameEngine
         {
             SkillProgramNumberExpression.BoundCardCount => frame.CardSetBindings.Last().CardIds.Count,
             SkillProgramNumberExpression.CurrentHandCount => GetHand(_players[ownerSeat]).Count,
+            SkillProgramNumberExpression.CurrentHp => Math.Max(0, _players[ownerSeat].Hp),
             SkillProgramNumberExpression.PlannedNormalDrawCount =>
                 GetProgramPlannedNormalDrawCount(frame),
             _ => maximumTargets
@@ -1628,6 +1636,7 @@ public sealed partial class GameEngine
             .SelectMany(frame => frame.CardSetBindings)
             .Where(binding => binding.Visibility == SkillProgramCardSetVisibility.Public)
             .SelectMany(binding => binding.CardIds)
+            .Concat(GetProgramHandControlPublicCardIds())
             .Distinct()
             .Order()
             .ToArray();
@@ -1840,6 +1849,7 @@ public sealed partial class GameEngine
             GetProgramTargetSeats(owner.Seat, SkillProgramTargetKind.CurrentCardUseTargets, context).Count <
                 effect.MinimumTargets))
             return false;
+        if (trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.SelectTargets && effect.TargetKind == SkillProgramTargetKind.LivingWhoseAttackRangeIncludesLord && GetProgramTargetSeats(owner.Seat, effect.TargetKind.Value, context).Count < effect.MinimumTargets)) return false;
         return context.Window switch
         {
             SkillProgramTriggerWindow.SkillsChanged => true,
@@ -2153,6 +2163,7 @@ public sealed partial class GameEngine
             CurrentHandCount: GetHand(owner).Count,
             LivingPlayersMinHp: GetLivingPlayersMinHp(),
             TurnOwnerDiscardPhaseHandDiscardCount: TurnOwnerDiscardPhaseHandDiscardCount,
+            DiscardPhaseSuitsAllDistinct: owner.Seat == _currentSeat && FullDiscardPhaseSuitsAllDistinct,
             LordGeneralId: _players.SingleOrDefault(player => player.Role == Role.Lord)?.General.Id,
             OwnedZoneCounts: new SkillProgramOwnedZoneCounts(
                 _cardZones.Count(CardLocation.WoodenOxGrain(owner.Seat)),
@@ -2933,6 +2944,8 @@ public sealed partial class GameEngine
     private void ResolveProgramTriggerChoice(PromptChoice selected)
     {
         var action = selected.Parameters.GetValueOrDefault("program-action");
+        if (action == "participant-discard") { ResolveSelectedParticipantDiscard(selected); return; }
+        if (action == "damage-card-offer") { ResolveDamageCardOffer(selected); return; }
         if (action == "faction-recovery") { ResolveFactionRecoveryChoice(selected); return; }
         if (action == "weapon-damage") { ResolveWeaponDamageChoice(selected); return; }
         if (action == "paired-hand-reveal") { ResolvePairedHandRevealChoice(selected); return; }
@@ -2967,6 +2980,11 @@ public sealed partial class GameEngine
             ResolveProgramDiscardTopPlacementChoice(selected);
             return;
         }
+        if (action == "participant-top-view")
+        {
+            ResolveParticipantTopView(selected);
+            return;
+        }
         if (action == "public-pile-collection")
         {
             ResolvePublicPileCollectionChoice(selected);
@@ -2980,6 +2998,11 @@ public sealed partial class GameEngine
         if (action == "private-reserve-choice")
         {
             ResolvePrivateReserveChoice(selected);
+            return;
+        }
+        if (action == "configured-card-declaration")
+        {
+            ResolveConfiguredCardDeclaration(selected);
             return;
         }
         if (action == "strategic-choice")
@@ -3675,6 +3698,7 @@ public sealed partial class GameEngine
                 .GetPausedInstruction(frame.InstructionIndex).Effect;
             selected = paused.Op switch
             {
+                SkillProgramEffectOp.ViewTopCardsAndObtainMatchingCards => decision.Choices[0],
                 SkillProgramEffectOp.RequestFactionRecovery => SelectAiFactionRecovery(decision, frame),
                 SkillProgramEffectOp.WeaponDiscardOrDamageBonus => SelectAiWeaponDamage(decision, frame),
                 SkillProgramEffectOp.RevealSelectedHandAgainstTarget => decision.Choices[0],
@@ -3708,6 +3732,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.HoldTargetCards => SelectAiProgramHoldCards(decision, frame),
                 SkillProgramEffectOp.RequestSlashByTarget => SelectAiProgramRequestSlash(decision, frame),
                 SkillProgramEffectOp.RequestSlashByNearest => SelectAiProgramRequestSlashByNearest(decision),
+                SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention => decision.Choices[0],
                 SkillProgramEffectOp.OfferVirtualSlashOrDraw => decision.Choices[0],
                 SkillProgramEffectOp.RequestSlashAgainstChosenTarget or SkillProgramEffectOp.TakeSelectedTargetCards => decision.Choices[0],
                 SkillProgramEffectOp.RevealTargetHandCard => decision.Choices
@@ -3948,10 +3973,10 @@ public sealed partial class GameEngine
                     publicContext with
                     {
                         SelectedTarget = CreateSkillContext(_players[targetSeat]),
-                        HasOwnedCardCategory = (zones, categories) =>
+                        HasOwnedCardCategory = (zones, categories, kinds) =>
                             zones.Contains(CardZoneKind.Equipment) &&
                             GetEquipment(_players[targetSeat]).Any(card =>
-                                MatchesProgramCardCategory(card.Kind, categories)),
+                                MatchesProgramCardFilter(card.Kind, categories, kinds)),
                         AttackRangeCoverageDecreased = _ => GetEquipment(_players[targetSeat])
                             .Any(card => WouldEquipmentRemovalReduceCoverage(targetSeat, card.Id))
                     });

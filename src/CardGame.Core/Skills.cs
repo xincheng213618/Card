@@ -13,7 +13,9 @@ public sealed record PlayerSkillContext(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     IReadOnlyDictionary<string, bool>? RuntimeBooleanStates = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    IReadOnlyDictionary<string, int>? PublicCounters = null);
+    IReadOnlyDictionary<string, int>? PublicCounters = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? HandLimit = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] bool? HasUsableHandCard = null);
 
 public static class GameRules
 {

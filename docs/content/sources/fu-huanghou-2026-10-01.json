@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀",
+  "retrievedAt": "2026-10-01",
+  "contentIds": ["classic:fu-huanghou"],
+  "rulesSources": [
+    {
+      "contentId": "classic:fu-huanghou",
+      "url": "https://x.sanguosha.com/hero/319.html",
+      "edition": "三国杀官方武将库 gid 319（一将成名站页面，UTF-8 原文）",
+      "use": "惴恐：其他角色的准备阶段，若你已受伤，你可以与该角色拼点。若你赢，直到回合结束，该角色使用的牌不能指定除该角色外的角色为目标；若你没赢，直到回合结束，该角色与你的距离视为1。求援：当你成为【杀】的目标时，你可以令另一名其他角色(不能是此【杀】的使用者)选择一项：交给你一张【闪】；或成为此【杀】的额外目标。"
+    },
+    {
+      "contentId": "classic:fu-huanghou",
+      "url": ".artifacts/portrait-refresh/heroes.json（官方客户端武将目录缓存，2026-09-26 抓取）",
+      "edition": "gid 319 条目：name 伏皇后 / country 群 / country_py qun / gender 女 / hp 3 / star SS / resource 131901 / level_one_general_lamp_txt 一将 / level_two_general_lamp_txt 一将成名2013",
+      "use": "势力、性别、体力上限、包归属与默认皮肤 ID 口径（官方页不渲染体力值，与既有批次同口径由客户端目录补齐）。"
+    },
+    {
+      "contentId": "classic:fu-huanghou",
+      "url": "data/reference/bwiki/skills.json（BWIKI 技能版本=经典转录，二手旁证）",
+      "edition": "惴恐「其他角色的回合开始时…其本回合使用牌只能指定自己为目标，否则其本回合计算与你的距离视为1」；求援「当你成为其他角色使用【杀】的目标时，你可以选择另一名其他角色，除非其交给你一张【闪】，否则其也成为此【杀】的目标」",
+      "use": "口径差异记录与取舍。1) 时点：BWIKI 作「回合开始时」、官方页作「准备阶段」，本批落 playPhaseStarting（详见 RUNTIME_V70「惴恐时点取舍」），效果域同为「直到回合结束」。2) 求援主体：BWIKI 把选择权写在伏皇后一侧（“你可以选择…除非其交出”），官方页明确由被求援角色二选一，本批按官方页用 chooseOption(target=selectedTarget) 承载该选择权。3) 距离口径：官方页「该角色与你的距离视为1」与 DirectedTurnCardPolicyEffect.ignoreDistance（对其无距离限制）在目标资格上收敛，本批取后者并在文档标注。"
+    }
+  ],
+  "versionBoundary": "伏皇后（classic:fu-huanghou）此前未注册；本批为经典包首个 2013 一将成名女性群将。规则版本维持 190、schema 维持 62，经典包版本 1.163.0 → 1.164.0。",
+  "capabilityDelta": [
+    "TurnCardTargetRestriction 新增可选 SubjectSeat：selfOnly 限定可绑定被指名的他角色，而非仅授予帧的拥有者；旧授予（SubjectSeat=null）回落 Source.OwnerSeat，行为与历史一致。",
+    "hasOwnedCardCategory 选项条件新增可选 cardKinds 精确牌面过滤（求援需【闪】，类别词表 basic/trick/equipment 无法表达）；cardCategories 与 cardKinds 至少其一，cardKinds 仅 boundCardsMatchKinds/hasOwnedCardCategory 可用且须去重。",
+    "卡牌角色变更（addCurrentCardUseTarget）允许由「本牌的唯一指定目标」驱动：GetProgramRoleCardUse / GetProgramCardUseRoleTargets 的 actor==owner 前置放宽为 actor==owner 或（牌为【杀】系且 owner∈唯一指定目标），ReplaceCurrentCardUseActor 仍保持仅 actor 可用。"
+  ],
+  "artifacts": [
+    "src/CardGame.Content.Standard/SkillPrograms/classic-fu-huanghou.rules.json",
+    "src/CardGame.Content.Standard/SkillPrograms/classic-fu-huanghou.presentation.json",
+    "src/CardGame.Wpf/Assets/official-fu-huanghou.png（默认形象 131901，574x761）",
+    "src/CardGame.Wpf/Assets/Skins/fu-huanghou/*.png（10 张，docs/content/general-art-catalog.json 条目校验通过）"
+  ]
+}

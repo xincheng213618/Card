@@ -260,9 +260,20 @@ public sealed partial class MainViewModel
             : automaticText;
     }
 
-    private static string GetProgramRuntimeStateText(SkillRuntimeStateSnapshot state)
+    private string GetProgramRuntimeStateText(SkillRuntimeStateSnapshot state)
     {
         var parts = new List<string>();
+        var human = _snapshot?.Players.SingleOrDefault(player => player.IsHuman);
+        if (human is not null && _contentRegistry.Skills.TryGetValue(state.SkillId, out var skill))
+        {
+            var conversionStates = skill.Program?.ViewAs.Select(rule => rule.ConversionStateId)
+                .OfType<string>().Distinct(StringComparer.Ordinal).ToArray() ?? [];
+            foreach (var stateId in conversionStates)
+            {
+                var tier = human.ConfiguredConversionTiers?.GetValueOrDefault(stateId) ?? 0;
+                parts.Add($"当前第 {tier + 1} 级 · 已修改 {tier} 次");
+            }
+        }
         parts.AddRange((state.BooleanStates ?? []).Select(item => item.Text).Distinct());
         foreach (var policy in state.DirectedPolicies ?? [])
         {
@@ -378,7 +389,8 @@ public sealed partial class MainViewModel
     public string TurnHeadline => HasGameOver ? GameOverText : IsGeneralSelectionPending ? "点将出征" : IsDiscardSelectionPending ? "你的弃牌阶段" : CanEndTurn ? "你的出牌阶段" : CanStepAi ? $"{CenterTitle} 正在行动" : "等待你的响应";
     public bool HasChoicePrompt => IsDyingSelectionPending || IsHarvestSelectionPending || IsTargetCardSelectionPending || IsFireAttackSelectionPending || IsNullificationSelectionPending || IsResponseSelectionPending || IsSkillSelectionPending;
     public bool HasCenterChoices => HasChoicePrompt || HasPublicTargetChoices || HasTargetCombinationChoices ||
-        HasPublicRevealedCards || ActiveSkillEquipmentChoices.Count > 0 || EquipmentPlayChoices.Count > 0;
+        HasPublicRevealedCards || HasPrivatelyViewedCards || HasDeferredPublicPiles ||
+        ActiveSkillEquipmentChoices.Count > 0 || EquipmentPlayChoices.Count > 0;
     public bool HasPinnedPublicModuleChoices =>
         HasPublicRevealedCards &&
         _snapshot.PendingDecision is { SkillPrompt: not null, Choices.Count: 2 } &&

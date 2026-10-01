@@ -74,10 +74,11 @@ public static class GeneralGalleryCatalog
         Add("myth-mountain", "sun-ce cai-wen-ji deng-ai jiang-wei zhang-he liu-shan zhang-zhao-zhang-hong");
         Add("fame-1", "yu-jin xu-shu gao-shun cao-zhi zhang-chun-hua ling-tong chen-gong wu-guo-tai fa-zheng ma-su");
         Add("fame-2", "cao-zhang wang-yi xun-you zhong-hui ma-dai liao-hua guan-xing-zhang-bao bu-lian-shi cheng-pu han-dang liu-biao");
-        Add("fame-3", "cao-chong guo-huai man-chong guan-ping pan-zhang-ma-zhong xu-sheng li-ru liu-feng jian-yong yu-fan zhu-ran");
+        Add("fame-3", "cao-chong guo-huai man-chong guan-ping pan-zhang-ma-zhong xu-sheng li-ru liu-feng jian-yong yu-fan zhu-ran fu-huanghou");
         Add("fame-4", "gu-yong zhu-huan zhang-song ju-shou cao-zhen han-hao-shi-huan chen-qun wu-yi zhou-cang sun-lu-ban");
         Add("fame-5", "zhu-zhi cao-rui cao-xiu zhong-yao liu-chen xiahou-shi zhang-ni sun-xiu quan-cong gongsun-yuan guo-tu-feng-ji");
         Add("fame-5", "sha-mo-ke");
+        Add("fame-6", "guo-huanghou li-yan sun-deng liu-yu cen-hun sun-zi-liu-fang huang-hao zhang-rang");
         Add("god", "shen-guan-yu shen-sima-yi shen-lu-meng shen-cao-cao shen-zhao-yun shen-zhou-yu shen-lu-bu");
         foreach (var id in new[] { "guan-yu", "zhou-yu", "zhuge-liang", "lu-bu", "zhao-yun", "sima-yi",
                      "liu-bei", "lu-xun", "gan-ning", "zhang-liao", "sun-quan", "zhang-jiao", "dian-wei", "huang-zhong" })

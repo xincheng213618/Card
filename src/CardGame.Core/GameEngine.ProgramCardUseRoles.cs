@@ -7,19 +7,28 @@ public sealed record ProgramCardUseTargetAddedEvent(long FrameId, string SkillId
 
 public sealed partial class GameEngine
 {
-    private CardUseFrame GetProgramRoleCardUse(ProgramSkillFrame frame)
+    private CardUseFrame GetProgramRoleCardUse(ProgramSkillFrame frame, bool ownerMayBeTarget = false)
     {
         if (frame.WindowContext is not { Window: SkillProgramTriggerWindow.CardUseTargetsFinalized, CardUse: { } context } ||
             _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(use => use.Id == context.ParentCardUseFrameId) is not { Action: { } action } use ||
             action.ActionId != context.CardActionId || action.Type != CardActionType.Use ||
-            action.ActorSeat != frame.OwnerSeat || action.EffectiveDesignatedTargetSeats.Count != 1)
+            action.EffectiveDesignatedTargetSeats.Count != 1 ||
+            !IsProgramCardUseRoleOwner(frame.OwnerSeat, action, ownerMayBeTarget))
             throw new InvalidOperationException("A card-use role change requires the owner's unique-target designation window.");
         return use;
     }
 
-    private IReadOnlyList<int> GetProgramCardUseRoleTargets(ProgramSkillFrame frame)
+    // Role changes are normally driven by the card user. Adding a target can also be driven by a
+    // character who is already that card's sole designated target, which is how a Slash passes on
+    // to another character without moving away from the original target.
+    private static bool IsProgramCardUseRoleOwner(int ownerSeat, CardActionContext action, bool ownerMayBeTarget) =>
+        action.ActorSeat == ownerSeat ||
+        ownerMayBeTarget && action.EffectiveDesignatedTargetSeats.Contains(ownerSeat) &&
+        action.EffectiveKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash;
+
+    private IReadOnlyList<int> GetProgramCardUseRoleTargets(ProgramSkillFrame frame, bool ownerMayBeTarget = false)
     {
-        var use = GetProgramRoleCardUse(frame);
+        var use = GetProgramRoleCardUse(frame, ownerMayBeTarget);
         var action = use.Action!;
         return _players.Where(target => !action.EffectiveDesignatedTargetSeats.Contains(target.Seat) &&
             CanBeProgramCardUseRoleTarget(use, target)).Select(target => target.Seat).ToArray();
@@ -29,7 +38,8 @@ public sealed partial class GameEngine
     {
         if (context is not { Window: SkillProgramTriggerWindow.CardUseTargetsFinalized, CardUse: { } cardUse } ||
             _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(use => use.Id == cardUse.ParentCardUseFrameId) is not { Action: { } action } use ||
-            action.ActionId != cardUse.CardActionId || action.ActorSeat != ownerSeat ||
+            action.ActionId != cardUse.CardActionId ||
+            !IsProgramCardUseRoleOwner(ownerSeat, action, ownerMayBeTarget: true) ||
             action.EffectiveDesignatedTargetSeats.Count != 1) return [];
         return _players.Where(target => !action.EffectiveDesignatedTargetSeats.Contains(target.Seat) &&
             CanBeProgramCardUseRoleTarget(use, target)).Select(target => target.Seat).ToArray();
@@ -78,8 +88,8 @@ public sealed partial class GameEngine
 
     private SkillProgramStepOutcome AddCurrentProgramCardUseTarget(ProgramSkillFrame frame, int targetSeat)
     {
-        var use = GetProgramRoleCardUse(frame);
-        if (!GetProgramCardUseRoleTargets(frame).Contains(targetSeat))
+        var use = GetProgramRoleCardUse(frame, ownerMayBeTarget: true);
+        if (!GetProgramCardUseRoleTargets(frame, ownerMayBeTarget: true).Contains(targetSeat))
             throw new InvalidOperationException("The additional target is not legal for the current card.");
         if (use.CardKind == CardKind.BorrowedSword)
             return SelectProgramAddedBorrowedSwordVictim(frame, use, targetSeat);

@@ -25,7 +25,7 @@ internal sealed record ProgramAiPublicContext(
     bool HasClaimableDamageCards = false,
     int? EligibleTargetCount = null,
     Func<string, bool>? AttackRangeCoverageDecreased = null,
-    Func<IReadOnlyList<CardZoneKind>, IReadOnlyList<SkillProgramCardCategory>, bool>? HasOwnedCardCategory = null,
+    Func<IReadOnlyList<CardZoneKind>, IReadOnlyList<SkillProgramCardCategory>, IReadOnlyList<CardKind>, bool>? HasOwnedCardCategory = null,
     double CardEffectInterventionScore = 0d,
     Func<string, int>? PhaseUsageCount = null,
     int AttackRange = 0,
@@ -437,7 +437,8 @@ internal sealed class ProgramAiEstimateContext
     internal void GrantTurnCardTargetRestriction(SkillProgramEffect effect)
     {
         _otherAdjustment -= 5d;
-        if (effect.TargetRestriction == SkillProgramCardTargetRestriction.SelfOnly)
+        if (effect.TargetRestriction == SkillProgramCardTargetRestriction.SelfOnly &&
+            effect.Target == SkillProgramEffectTarget.Owner)
             _canUseSlashOnOther = false;
     }
 

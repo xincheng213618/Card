@@ -107,19 +107,20 @@ public sealed partial class GameEngine
     }
 
     private bool CanSupplyAssistedFactionSlash(FactionCardRequestResolution pending, CardKind kind, IReadOnlyList<Card> cards) =>
-        !pending.IsAssistedProgramUse || pending.TargetSeat is { } target &&
+        (!IsFactionSlashUse(pending) || !IsTurnPhysicalUseForbidden(pending.OwnerSeat,cards.Select(c=>c.Id).ToArray())) &&
+        (!pending.IsAssistedProgramUse || pending.TargetSeat is { } target &&
         (IsAssistedProvidedSlashTarget(pending.OwnerSeat, target, kind) ||
          kind == CardKind.Slash && HasZhuqueFan(_players[pending.OwnerSeat]) &&
          (cards.Count > 1 || cards is [var primary] && primary.Kind == CardKind.Slash) &&
-         IsAssistedProvidedSlashTarget(pending.OwnerSeat, target, CardKind.FireSlash));
+         IsAssistedProvidedSlashTarget(pending.OwnerSeat, target, CardKind.FireSlash)));
 
     private IReadOnlyList<IReadOnlyList<Card>> GetFactionRequestZhangbaPairs(FactionCardRequestResolution pending, CharacterState provider) =>
         GetZhangbaSlashPairs(provider).Where(pair => CanSupplyAssistedFactionSlash(pending, CardKind.Slash, pair)).ToArray();
 
     private IReadOnlyList<ProgramMultiCardViewAsSelection> GetFactionRequestMultiCardSelections(FactionCardRequestResolution pending, CharacterState provider) =>
         (pending.IsAssistedProgramUse
-            ? SlashKinds.SelectMany(kind => GetProgramMultiCardViewAsSelections(provider, kind, false))
-            : GetProgramMultiCardViewAsSelections(provider, pending.RequiredKind, !IsFactionSlashUse(pending)))
+            ? SlashKinds.SelectMany(kind => GetProgramMultiCardViewAsSelections(provider, kind, false,ignoreSuitUseProhibition:true))
+            : GetProgramMultiCardViewAsSelections(provider, pending.RequiredKind, !IsFactionSlashUse(pending),ignoreSuitUseProhibition:true))
             .Where(selection => CanSupplyAssistedFactionSlash(pending, selection.OutputKind, selection.Cards)).ToArray();
 
     private bool CanRequestAssistedProgramFactionSlash(int actorSeat, int targetSeat) =>

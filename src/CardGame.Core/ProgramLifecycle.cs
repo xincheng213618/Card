@@ -39,7 +39,8 @@ public sealed record ProgramOwnedCardSelection(
     IReadOnlyList<int> CandidateCardIds,
     IReadOnlyList<CardLocation> CandidateLocations,
     IReadOnlyList<int> SelectedCardIds,
-    int MinimumCount = 0);
+    int MinimumCount = 0,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)] bool AllowEarlyFinish = false);
 
 /// <summary>
 /// Private draft for holding another character's cards on their own general card.
@@ -54,7 +55,8 @@ public sealed record ProgramHoldCardSelection(
     IReadOnlyList<int> CandidateCardIds,
     IReadOnlyList<CardLocation> CandidateLocations,
     IReadOnlyList<int> SelectedCardIds,
-    int MinimumCount = 0);
+    int MinimumCount = 0,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)] bool AllowEarlyFinish = false);
 
 /// <summary>
 /// Private draft for revealing one of another character's hand cards after the

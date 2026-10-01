@@ -346,6 +346,9 @@
                         <Border Visibility="{Binding HasJudgment, Converter={StaticResource BoolToVisibility}}" Background="#D6593B41" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,55,0,0" Padding="4,2" ToolTip="{Binding JudgmentText}">
                             <TextBlock Text="{Binding ShortJudgment}" FontSize="9" Foreground="#F4DADA" MaxWidth="125" TextTrimming="CharacterEllipsis" />
                         </Border>
+                        <Border Visibility="{Binding HasDeferredPile, Converter={StaticResource BoolToVisibility}}" Background="#D53E5C4E" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,112,0,0" Padding="5,2" ToolTip="{Binding DeferredPileTooltip}">
+                            <TextBlock Text="{Binding DeferredPileText}" FontSize="9" Foreground="#CDEBD8" MaxWidth="100" TextTrimming="CharacterEllipsis" />
+                        </Border>
                         <Border x:Name="DeathShade" Visibility="Collapsed" Background="#BC0D1418">
                             <TextBlock Text="阵 亡" FontSize="26" FontFamily="KaiTi" Foreground="#D5C4A1" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>

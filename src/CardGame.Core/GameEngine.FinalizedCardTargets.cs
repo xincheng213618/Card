@@ -28,7 +28,10 @@ public sealed partial class GameEngine
     private bool TryBeginEquipmentTargetPrograms(CharacterState source, Card equipment, long frameId)
     {
         if (!HasFinalizedTargetProgram(equipment.Kind)) return false;
-        BeginSimpleCardUse(frameId, new(equipment.Id, SimpleCardUseEffect.EquipmentPlacement));
+        // Equipment commitment observes its installed slot, after target hooks finish.
+        if (!TryBeginFinalizedSimpleCardPrograms(frameId,
+                new(equipment.Id, SimpleCardUseEffect.EquipmentPlacement)))
+            CompleteEquipmentUse(source, equipment, frameId);
         return true;
     }
 

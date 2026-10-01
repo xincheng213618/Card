@@ -34,7 +34,7 @@ public interface ISkillProgramExecutionHost
 /// <summary>Primitive rules operations exposed to reusable effect handlers.</summary>
 public interface ISkillProgramEffectHost
 {
-    SkillProgramStepOutcome RequestSlashAgainstChosenTarget(ProgramSkillFrame frame, int actorSeat, string resultBind) => throw new NotSupportedException();
+    SkillProgramStepOutcome RequestSlashAgainstChosenTarget(ProgramSkillFrame frame, int actorSeat, string resultBind, bool actorChoosesTarget = false) => throw new NotSupportedException();
     SkillProgramStepOutcome TakeSelectedTargetCards(ProgramSkillFrame frame, int sourceSeat, int count) => throw new NotSupportedException();
     SkillProgramStepOutcome ExchangeSelectedTargetEquipment(ProgramSkillFrame frame) =>
         throw new NotSupportedException("Equipment exchange requires the rules host.");
@@ -102,6 +102,7 @@ public interface ISkillProgramEffectHost
         IReadOnlyList<CardZoneKind> zones,
         CardMoveReason reason);
     void SetChainedState(ProgramSkillFrame frame, bool chained, int? targetSeat = null);
+    void SetSelectedTargetsChainedState(ProgramSkillFrame frame, bool chained) => throw new NotSupportedException();
     SkillProgramStepOutcome ChooseOption(ProgramSkillFrame frame, int chooserSeat,
         string resultBind, IReadOnlyList<SkillProgramChoiceOption> options);
     SkillProgramStepOutcome SelectOwnedCards(ProgramSkillFrame frame, int cardOwnerSeat,
@@ -129,6 +130,7 @@ public interface ISkillProgramEffectHost
         string resultBind,
         CardMoveReason reason);
     void ChangeMaximumHp(ProgramSkillFrame frame, int amount);
+    void GrowMaximumHpAndHp(ProgramSkillFrame frame, SkillProgramNumberExpression expression) => throw new NotSupportedException();
     void GrantSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds);
     void GrantTurnSkills(ProgramSkillFrame frame, IReadOnlyList<string> skillIds);
     SkillProgramStepOutcome UseSelectedCardsAs(
@@ -765,6 +767,11 @@ public sealed class SetChainedStateSkillProgramEffectHandler : ISkillProgramEffe
         int targetSeat,
         ISkillProgramEffectHost host)
     {
+        if (effect.Target == SkillProgramEffectTarget.SelectedTargets)
+        {
+            host.SetSelectedTargetsChainedState(frame, effect.Chained!.Value);
+            return SkillProgramStepOutcome.Continue;
+        }
         host.SetChainedState(
             frame,
             effect.Chained ?? throw new InvalidOperationException("setChainedState has no chained value."), targetSeat);

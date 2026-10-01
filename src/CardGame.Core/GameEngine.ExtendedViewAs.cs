@@ -74,7 +74,7 @@ public sealed partial class GameEngine
             QueueGameEvent(new NullificationRespondedEvent(pending.ResolutionId, pending.EffectCard.Id,
                 pending.EffectiveCardKind, owner.Seat, selection.Cards[0].Id, pending.EffectNullified, pending.ChainDepth));
             if (!TryBeginProgramCardWindow(null, action, SkillProgramTriggerWindow.CardResponseAccepted, [],
-                ProgramCardContinuation.NullificationResponse)) ContinueNullificationWindow(pending);
+                ProgramCardContinuation.NullificationResponse)) ContinueNullificationAfterResponseUse(action);
             return;
         }
         var attack = _pendingAttack ?? throw new InvalidOperationException("Missing attack response.");

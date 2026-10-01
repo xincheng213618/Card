@@ -112,13 +112,13 @@ public sealed partial class GameEngine
             option.EffectiveCardKind);
     }
 
-    private IReadOnlyList<ProgramOrdinaryTrickUseOption> BuildProgramOrdinaryTrickUseOptions(CharacterState source, CardKind? outputKind = null)
+    private IReadOnlyList<ProgramOrdinaryTrickUseOption> BuildProgramOrdinaryTrickUseOptions(CharacterState source, CardKind? outputKind = null, Suit? physicalSuit = null, bool excludeOwner = false, bool enforceUsePermission = false)
     {
         var options = new List<ProgramOrdinaryTrickUseOption>();
         // A multi-card virtual card only carries a suit while every physical card
         // shares it; mixed-suit combinations are colorless and pass suit shields.
         var handSuits = GetHand(source).Select(card => card.Suit).Distinct().ToArray();
-        var virtualSuit = handSuits.Length == 1 ? handSuits[0] : (Suit?)null;
+        var virtualSuit = physicalSuit ?? (handSuits.Length == 1 ? handSuits[0] : (Suit?)null);
         void Add(
             CardKind cardKind,
             LegalActionKind actionKind,
@@ -140,7 +140,7 @@ public sealed partial class GameEngine
                 description));
         }
 
-        Add(CardKind.DrawTwo, LegalActionKind.DrawTwo, "当【无中生有】使用：摸两张牌");
+        if (!excludeOwner) Add(CardKind.DrawTwo, LegalActionKind.DrawTwo, "当【无中生有】使用：摸两张牌");
 
         if (CanUseGlobalCard(source, CardKind.BarbarianAssault) ||
             CanUseGlobalCard(source, CardKind.ArrowBarrage))
@@ -170,7 +170,7 @@ public sealed partial class GameEngine
 
         var allAliveSeats = Enumerable.Range(0, _playerCount)
             .Select(offset => _players[(source.Seat + offset) % _playerCount])
-            .Where(player => player.IsAlive)
+            .Where(player => player.IsAlive && (!excludeOwner || player.Seat != source.Seat))
             .Select(player => player.Seat)
             .ToArray();
         if (CanUseGlobalCard(source, CardKind.PeachGarden))
@@ -244,7 +244,9 @@ public sealed partial class GameEngine
                 $"当【借刀杀人】使用：令 {weaponOwner.Name} 对 {slashTarget.Name} 使用【杀】，否则获得其武器",
                 [weaponOwner.Seat, slashTarget.Seat]);
 
-        return Array.AsReadOnly(options.Where(option => outputKind is null || option.EffectiveCardKind == outputKind).ToArray());
+        return Array.AsReadOnly(options.Where(option => (outputKind is null || option.EffectiveCardKind == outputKind) &&
+            (!excludeOwner || !option.TargetSeats.Contains(source.Seat)) &&
+            (!enforceUsePermission || !IsCardUseForbidden(source.Seat, option.EffectiveCardKind, CardActionType.Use))).ToArray());
     }
 
     private void AddProgramOrdinaryTrickTargetCardOptions(

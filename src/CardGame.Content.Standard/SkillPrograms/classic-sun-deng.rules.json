@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:kuangbi",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "deferred-provider-pile",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingWithHandOrEquipment",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "selectedTarget",
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "minimumCards": 1,
+              "maximumCards": 3,
+              "allowDecline": true,
+              "resultBind": "provided"
+            },
+            {
+              "op": "depositBoundCardsUntilNextTurn",
+              "target": "owner",
+              "sourceBind": "provided"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "next-turn-obtain-and-reward",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "obtainDeferredPile",
+              "target": "owner"
+            },
+            {
+              "op": "rewardDeferredProviders",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

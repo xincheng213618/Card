@@ -275,7 +275,9 @@ public sealed partial class GameEngine
             var facts = CaptureProgramTriggerFacts(player) with
             {
                 DeathKillerIsOwner = death.KillerSeat == player.Seat,
-                DeathVictimCleanupCardCount = death.CleanedUpCardIds.Count
+                DeathVictimCleanupCardCount = death.CleanedUpCardIds.Count,
+                DeathExtinguishedFaction = GetEffectiveFactionId(_players[death.VictimSeat]) is { } faction &&
+                    !_players.Any(other => other.IsAlive && GetEffectiveFactionId(other) == faction)
             };
             foreach (var candidate in CollectEligibleProgramTriggerCandidates(
                 player, SkillProgramTriggerWindow.CharacterDied, facts))

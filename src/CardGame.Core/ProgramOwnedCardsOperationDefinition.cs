@@ -12,15 +12,15 @@ internal sealed class SelectOwnedCardsProgramOperationDescriptor : ProgramOperat
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
         r.AllowOnly("op", "target", "amount", "numberExpression", "minimumCards", "maximumCards",
-            "cardKinds", "suits", "zones", "resultBind", "targetRef", "condition");
+            "cardKinds", "suits", "zones", "resultBind", "targetRef", "allowDecline", "condition");
         var variable = r.Has("minimumCards") || r.Has("maximumCards");
         if (variable != (r.Has("minimumCards") && r.Has("maximumCards")) ||
             variable && (r.Has("amount") || r.Has("numberExpression") && r.RequiredEnum<SkillProgramNumberExpression>("numberExpression") != SkillProgramNumberExpression.LivingPlayerCount))
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}: variable selection requires both card bounds and no fixed amount.");
         var minimum = variable ? r.RequiredInt("minimumCards") : 0;
-        var maximum = variable ? r.RequiredInt("maximumCards") : 0;
-        if (variable && (minimum < 1 || maximum < minimum || maximum > 20))
+        var maximum = variable ? r.IsNull("maximumCards") ? int.MaxValue : r.RequiredInt("maximumCards") : 0;
+        if (variable && (minimum < 0 || maximum < minimum || maximum < 1 || maximum > 20 && maximum != int.MaxValue))
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}: owned-card bounds must satisfy 1 <= minimumCards <= maximumCards <= 20.");
         var cardKinds = r.OptionalEnumArray<CardKind>("cardKinds") ?? [];
@@ -53,7 +53,7 @@ internal sealed class SelectOwnedCardsProgramOperationDescriptor : ProgramOperat
             variable || expression is not null ? 0 : DrawProgramOperationDescriptor.Amount(r, 20), r.Condition(),
             numberExpression: expression, zones: zones, resultBind: r.RequiredIdentifier("resultBind"),
             minimumCards: minimum, maximumCards: maximum, cardKinds: cardKinds, suits: suits,
-            targetReference: targetRef);
+            targetReference: targetRef, allowDecline: r.Has("allowDecline") && r.RequiredBool("allowDecline"));
         return effect;
     }
 

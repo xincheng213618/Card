@@ -33,7 +33,9 @@ public sealed record GameCheckpoint(
     // named-choice hand-gain move branch.
     // 190: Jia Xu (wansha/luanwu/weimu) with the nearest-character forced Slash
     // participant operation and the suit-based trick target prohibition.
-    public const int CurrentRulesVersion = 190;
+    // 191: Finalized equipment targets precede installation and commitment;
+    // top-deck basic costs survive nested response observers and cleanup.
+    public const int CurrentRulesVersion = 191;
     // 187 was consumed by main-side Zhang He / Shen Zhao Yun work.
 
     public int RulesVersion { get; init; }

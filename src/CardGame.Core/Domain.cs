@@ -499,6 +499,9 @@ public sealed partial record PlayerSnapshot
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<CardSnapshot>? WoodenOxGrain { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyDictionary<string, int>? ConfiguredConversionTiers { get; init; }
+
     /// <summary>
     /// Ordered skills visible with the primary general. Null means this viewer
     /// cannot see the general; an empty collection means no visible skills.
@@ -561,6 +564,16 @@ public sealed partial record PlayerSnapshot
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int ChunlaoCount { get; init; }
+
+    /// <summary>Public cards deposited on this character until its next turn.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<CardSnapshot>? PublicDeferredPileCards { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? PublicDeferredPileName { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int PublicDeferredPileCount { get; init; }
 
     /// <summary>
     /// Cards held face-down on this character's general card by Xu Sheng's Pojun.
@@ -792,6 +805,10 @@ public sealed record GameSnapshot(
     /// This is separate from private hands and is empty outside that effect.
     /// </summary>
     public IReadOnlyList<CardSnapshot> PublicRevealedCards { get; init; } = Array.Empty<CardSnapshot>();
+
+    /// <summary>Cards privately viewed by this snapshot's viewer; absent for every other viewer.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<CardSnapshot>? PrivateRevealedCards { get; init; }
 
     /// <summary>Mode metadata used by view-scoped AI and presentation adapters.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]

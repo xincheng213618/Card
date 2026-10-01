@@ -52,7 +52,9 @@ internal sealed record DeriveCardSet(
     IReadOnlyList<SkillProgramCardCategory>? Categories = null,
     IReadOnlyList<EquipmentSlot>? EquipmentSlots = null,
     IReadOnlyList<CardKind>? CardKinds = null, string? MatchSuitOfBind = null) : ProgramResourceOperation;
+internal sealed record RequireOwnedCardSet(string Name, SkillProgramEffectTarget Owner, int? MaximumCount, IReadOnlyList<CardZoneKind> Zones) : ProgramResourceOperation;
 internal sealed record ReadCardSet(string Name) : ProgramResourceOperation;
+internal sealed record RetainOwnedCardSet(string Name) : ProgramResourceOperation;
 internal sealed record MoveCardSet(string Source, string? Except, SkillProgramCardDestination Destination) : ProgramResourceOperation;
 internal sealed record GiftCardSet(string Source) : ProgramResourceOperation;
 internal sealed record ReadSelectedTarget : ProgramResourceOperation;
@@ -165,6 +167,7 @@ internal sealed class ProgramOperationNodeReader
     internal string Path { get; }
     internal bool AllowZeroDraw { get; }
     internal bool Has(string name) => _node.TryGetProperty(name, out _);
+    internal bool IsNull(string name) => _node.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.Null;
     internal void AllowOnly(params string[] names)
     {
         var allowed = names.ToHashSet(StringComparer.Ordinal);
@@ -377,7 +380,7 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
                 (SkillProgramNumberExpression.LivingFactionCount or SkillProgramNumberExpression.TargetMaxHpMinusHandCount or
                  SkillProgramNumberExpression.CategoryTargetTurnUsage or SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.BoundCardCount or
                  SkillProgramNumberExpression.CurrentAttackRange or SkillProgramNumberExpression.HandLimitMinusHandCount or
-                 SkillProgramNumberExpression.LostHpMinusHandCount)))
+                 SkillProgramNumberExpression.LostHpMinusHandCount or SkillProgramNumberExpression.SelectedTargetsHandGreaterThanLord)))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: draw accepts a constant or a supported public-state expression.");
         var source = r.OptionalIdentifier("sourceBind");
         if ((expression == SkillProgramNumberExpression.BoundCardCount) != (source is not null))

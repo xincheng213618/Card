@@ -43,7 +43,7 @@ public sealed partial class GameEngine
     private IEnumerable<LegalAction> BuildProgramActions(CharacterState owner)
     {
         if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Play) yield break;
-        var context = CreateSkillContext(owner);
+        var context = CreateSkillContext(owner, includeHandLimit: true);
         foreach (var program in EnabledActivationPrograms(owner))
             foreach (var activation in program.Activations)
             {
@@ -147,6 +147,7 @@ public sealed partial class GameEngine
                                 HasWeaponAbility(target, CardKind.QinggangSword),
                             SkillProgramTargetKind.OtherLivingSlashable =>
                                 CanUseProvidedSlashTarget(owner, target),
+                            SkillProgramTargetKind.AnyLivingWithHand => GetHand(target).Count > 0,
                             SkillProgramTargetKind.OtherLivingWithHand =>
                                 target.Seat != owner.Seat && GetHand(target).Count > 0,
                             SkillProgramTargetKind.OtherLivingWithHandOrEquipment =>
@@ -178,6 +179,8 @@ public sealed partial class GameEngine
                         (!activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.StartPindian) ||
                          GetHand(target).Count > 0))
                     .Select(target => target.Seat).Order().ToArray();
+                if (activation.TargetPhaseLedgerId is { } targetLedger)
+                    targets = targets.Where(seat => CanActivateTargetPhaseLedger(owner.Seat, program.Id, targetLedger, seat)).ToArray();
                 if (activation.CategoryTargetLedgerId is { } ledgerId)
                 {
                     cards = cards.Where(id => targets.Any(seat => CanActivateCategoryTargetLedger(owner.Seat, program.Id, ledgerId, [id], [seat]))).ToArray();
@@ -331,6 +334,11 @@ public sealed partial class GameEngine
                 is { CategoryTargetLedgerId: { } ledgerId } &&
             !CanActivateCategoryTargetLedger(_currentSeat, ledgerSkill, ledgerId, cards, targets))
             return new CommandError(CommandErrorCode.IllegalAction, "This card category or target was already used in this phase.");
+        if (action.ProgramSkillOwnerSeat is null && action.ProgramSkillId is { } targetLedgerSkill &&
+            _contentRegistry.GetSkill(targetLedgerSkill).Program?.Activations.SingleOrDefault(item => item.Id == action.ProgramActivationId)
+                is { TargetPhaseLedgerId: { } targetLedger } &&
+            (targets.Count != 1 || !CanActivateTargetPhaseLedger(_currentSeat, targetLedgerSkill, targetLedger, targets[0])))
+            return new CommandError(CommandErrorCode.IllegalAction, "This target was already used in this play phase.");
         return null;
     }
 
@@ -791,9 +799,9 @@ public sealed partial class GameEngine
                     paidEffect?.Op is (SkillProgramEffectOp.ExchangeSelectedTargetHands or SkillProgramEffectOp.ExchangeSelectedTargetEquipment) &&
                     pendingMovement.CoverageResultBind is null &&
                     pendingMovement.SubjectSeat == frame.OwnerSeat;
-                if (!awaitsSelectedMovement && !awaitsRandomTransfer &&
+                if (!(paidEffect?.Op is SkillProgramEffectOp.DepositBoundCardsUntilNextTurn or SkillProgramEffectOp.ObtainDeferredPile or SkillProgramEffectOp.ViewTopCardsAndObtainMatchingCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsSelectedMovement && !awaitsRandomTransfer &&
                     !awaitsJudgmentClaim && !awaitsRepeatedJudgment && !awaitsOwnedMovement &&
-                    !awaitsExchangedMovement && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
+                    !awaitsExchangedMovement && !(paidEffect?.Op is SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(paidEffect is { Op: SkillProgramEffectOp.MoveBoundCards, AwaitMovementTriggers: true } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(paidEffect?.Op is SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamage && frame.DiscardChallenge is { } challenge && challenge.ChooserSeat == pendingMovement.SubjectSeat && pendingMovement.CoverageResultBind is null))
                     throw new InvalidOperationException("A movement continuation lost its paid instruction.");
@@ -880,6 +888,7 @@ public sealed partial class GameEngine
             ValidateProgramDiscardChallengeState(frame);
             AssertProgramDiscardTopPlacement(frame);
             AssertStrategicProgramSelection(frame, paused);
+            AssertConfiguredCardDeclaration(frame, paused);
             AssertProgramOwnedCardSelection(frame, paused);
             AssertProgramHoldCardSelection(frame, paused);
             AssertProgramRevealCardSelection(frame, paused);
@@ -889,6 +898,7 @@ public sealed partial class GameEngine
             if (!frame.CardSetBindings.Any(binding => binding.Name == paused.ResultBind))
                 AssertProgramEquipmentColorDiscardChoice(frame, paused);
             AssertAssistedPhysicalCardDrafts(frame, paused);
+            AssertPrivateOfferDrafts(frame, paused);
             AssertCompletedCardGiftDraft(frame, paused);
             AssertCurrentCardEnhancementDraft(frame, paused);
             ValidateFactionRecoveryDraft(frame);

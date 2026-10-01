@@ -55,6 +55,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "CardGame.Content.Standard.SkillPrograms.classic-liu-shan.rules.json";
     private const string ClassicLiuShanPresentationResource =
         "CardGame.Content.Standard.SkillPrograms.classic-liu-shan.presentation.json";
+    private const string ClassicFuHuanghouRulesResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-fu-huanghou.rules.json";
+    private const string ClassicFuHuanghouPresentationResource =
+        "CardGame.Content.Standard.SkillPrograms.classic-fu-huanghou.presentation.json";
     private const string ClassicCaoZhiRulesResource =
         "CardGame.Content.Standard.SkillPrograms.classic-cao-zhi.rules.json";
     private const string ClassicCaoZhiPresentationResource =
@@ -171,6 +175,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicLiuShanRulesResource),
             ReadEmbeddedText(ClassicLiuShanPresentationResource)));
+    private static readonly Lazy<SkillProgramCatalog> ClassicFuHuanghouCatalog = new(() =>
+        SkillProgramCatalog.Load(
+            ReadEmbeddedText(ClassicFuHuanghouRulesResource),
+            ReadEmbeddedText(ClassicFuHuanghouPresentationResource)));
     private static readonly Lazy<SkillProgramCatalog> ClassicCaoZhiCatalog = new(() =>
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicCaoZhiRulesResource),
@@ -191,7 +199,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         SkillProgramCatalog.Load(
             ReadEmbeddedText(ClassicLifecycleRulesResource),
             ReadEmbeddedText(ClassicLifecyclePresentationResource)));
-    public static Version CurrentVersion { get; } = new(1, 163, 0);
+    public static Version CurrentVersion { get; } = new(1, 164, 0);
 
     public StandardClassicGeneralPackage()
     {
@@ -1215,6 +1223,11 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
 
         {
+            builder.AddSkill(WithOptionalTriggerMetadata(FuHuanghouProgram("classic:qiuyuan")));
+            builder.AddSkill(WithOptionalTriggerMetadata(FuHuanghouProgram("classic:zhuikong")));
+        }
+
+        {
             builder.AddSkill(WithOptionalTriggerMetadata(CaoZhiProgram("classic:luoying")));
             builder.AddSkill(WithOptionalTriggerMetadata(CaoZhiProgram("classic:jiushi")));
         }
@@ -1987,12 +2000,20 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
                 "classic:luoying", "wei", BaseHp: 3,
                 AdditionalSkillIds: ["classic:jiushi"]));
 
+        builder.AddGeneral(new ContentGeneralDefinition(
+                "classic:fu-huanghou", "伏皇后", "fu_huanghou",
+                "classic:qiuyuan", "qun", BaseHp: 3,
+                AdditionalSkillIds: ["classic:zhuikong"], Gender: GeneralGender.Female));
+
 
         OlGodContent.Register(builder);
         Fame2011Content.Register(builder);
         Fame2013Content.Register(builder);
         Fame2014Content.Register(builder);
         Fame2015Content.Register(builder);
+        Fame2016DeferredContent.Register(builder);
+        Fame2016ConversionContent.Register(builder);
+        Fame2016StateContent.Register(builder);
         var generalPoolIds = CurrentGeneralIds;
 
         builder.AddMode(new ContentModeDefinition(
@@ -2293,6 +2314,15 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         };
     }
 
+    private static ContentSkillDefinition FuHuanghouProgram(string skillId)
+    {
+        var presentation = ClassicFuHuanghouCatalog.Value.Presentations[skillId];
+        return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
+        {
+            Program = ClassicFuHuanghouCatalog.Value.Programs[skillId]
+        };
+    }
+
     private static ContentSkillDefinition CaoZhiProgram(string skillId)
     {
         var presentation = ClassicCaoZhiCatalog.Value.Presentations[skillId];
@@ -2476,10 +2506,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         "classic:jia-xu",
         "classic:shen-zhou-yu",
         "classic:shen-lu-bu",
+        "classic:fu-huanghou",
         .. OlGodContent.AddedGeneralIds,
         .. Fame2011Content.AddedGeneralIds,
         .. Fame2013Content.AddedGeneralIds,
         .. Fame2014Content.AddedGeneralIds,
+        .. Fame2016DeferredContent.AddedGeneralIds,
+        .. Fame2016ConversionContent.AddedGeneralIds,
+        .. Fame2016StateContent.AddedGeneralIds,
         .. Fame2015Content.AddedGeneralIds
     ];
 

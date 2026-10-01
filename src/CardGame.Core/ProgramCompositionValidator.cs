@@ -207,6 +207,26 @@ internal static class ProgramCompositionValidator
                         }
                         break;
                     }
+                    case RequireOwnedCardSet owned:
+                    {
+                        var source = Get(owned.Name);
+                        var producer = effects.Take(index).SingleOrDefault(prior => prior.ResultBind == owned.Name && prior.Op == SkillProgramEffectOp.SelectOwnedCards);
+                        if (producer is null || producer.Target != owned.Owner || producer.TargetReference is not null ||
+                            producer.Condition.Kind != SkillProgramConditionKind.Always || producer.NumberExpression is not null ||
+                            source.CardOwner != owned.Owner || owned.MaximumCount is { } cap && source.MaximumCount > cap ||
+                            producer.Zones.Count == 0 || producer.Zones.Any(zone => !owned.Zones.Contains(zone)) ||
+                            source.Root.AlreadyMoved || source.Atoms.Overlaps(source.Root.Consumed) || source.Atoms.Overlaps(source.Root.PossiblyGifted))
+                            Fail("an owned card set must be a prior unconditional provider-owned zone selection before movement");
+                        break;
+                    }
+                    case RetainOwnedCardSet retained:
+                    {
+                        var source = Get(retained.Name);
+                        if (!source.Root.OwnerHeld || source.MaximumCount != 1 || source.Root.Consumed.Overlaps(source.Atoms) || source.Root.PossiblyGifted.Overlaps(source.Atoms))
+                            Fail("retention requires one stable owner-held entity");
+                        source.Root.Consumed.UnionWith(source.Atoms);
+                        break;
+                    }
                     case ReadCardSet read:
                         _ = Get(read.Name);
                         break;

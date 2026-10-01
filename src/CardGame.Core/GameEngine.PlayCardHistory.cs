@@ -79,6 +79,12 @@ public sealed partial class GameEngine
         foreach (var source in sources)
         {
             if (ViewAsRule(source) is not { UsesPerPhase: { } limit } rule) continue;
+            if (rule.ActivationUsageGroup is { } activationGroup)
+            {
+                var key = (source.OwnerSeat, source.SkillId, activationGroup);
+                if (_programPhaseUses.GetValueOrDefault(key) >= limit) throw new InvalidOperationException("The shared activation allowance was consumed.");
+                _programPhaseUses[key] = _programPhaseUses.GetValueOrDefault(key) + 1;
+            }
             if (!_skillRuntimeState.TryConsumeUsage(source.OwnerSeat, source.SkillId,
                     ViewAsUsageId(source, rule), SkillUsageScope.Phase, limit))
                 throw new InvalidOperationException("The view-as phase allowance was already consumed.");

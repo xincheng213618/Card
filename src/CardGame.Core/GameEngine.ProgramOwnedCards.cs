@@ -2,6 +2,9 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    private SkillProgramEffect GetOwnedSelectionEffect(ProgramSkillFrame frame) =>
+        ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect;
+
     private int GetProgramOwnerLostHp(ProgramSkillFrame frame)
     {
         // Lifecycle facts are frozen before earlier candidates can change HP.
@@ -26,7 +29,7 @@ public sealed partial class GameEngine
                 .Where(card => suits.Count == 0 || suits.Contains(GetProgramEffectiveSuit(_players[cardOwnerSeat], card)))
                 .Select(card => (card.Id, Location: location));
         }).ToArray();
-        var requested = minimumCards > 0 ? expression == SkillProgramNumberExpression.LivingPlayerCount
+        var requested = maximumCards > 0 ? expression == SkillProgramNumberExpression.LivingPlayerCount
             ? Math.Min(maximumCards, _players.Count(player => player.IsAlive)) : maximumCards : expression switch
         {
             null => amount,
@@ -65,7 +68,7 @@ public sealed partial class GameEngine
         {
             OwnedCardSelection = new(cardOwnerSeat, resultBind, count,
                 Array.AsReadOnly(candidates.Select(item => item.Id).ToArray()),
-                Array.AsReadOnly(candidates.Select(item => item.Location).ToArray()), [], minimumCards)
+                Array.AsReadOnly(candidates.Select(item => item.Location).ToArray()), [], minimumCards, maximumCards > 0)
         };
         _resolutionStack[^1] = active;
         PublishProgramOwnedCardSelection(active);
@@ -100,7 +103,7 @@ public sealed partial class GameEngine
                         ["selection-index"] = selected.Count.ToString(System.Globalization.CultureInfo.InvariantCulture)
                     });
             }).ToList();
-        if (draft.MinimumCount > 0 && selected.Count >= draft.MinimumCount)
+        if (draft.AllowEarlyFinish && selected.Count >= draft.MinimumCount || GetOwnedSelectionEffect(frame).AllowDecline)
         {
             choices.Add(new PromptChoice(
                 new ChoiceId($"program-owned-set.frame-{frame.Id}.finish-{selected.Count}"),
@@ -139,7 +142,7 @@ public sealed partial class GameEngine
             selected.Parameters.GetValueOrDefault("selection-index") != draft.SelectedCardIds.Count.ToString(System.Globalization.CultureInfo.InvariantCulture) ||
             selected.Targets.Count != 0 ||
             (finish
-                ? draft.MinimumCount <= 0 || draft.SelectedCardIds.Count < draft.MinimumCount || selected.Cards.Count != 0
+                ? !draft.AllowEarlyFinish && !effect.AllowDecline || draft.SelectedCardIds.Count < draft.MinimumCount && !effect.AllowDecline || selected.Cards.Count != 0
                 : selected.Parameters.GetValueOrDefault("program-action") != "select-owned-cards" ||
                   selected.Cards.Count != 1 || !draft.CandidateCardIds.Contains(selected.Cards[0]) ||
                   draft.SelectedCardIds.Contains(selected.Cards[0])))
@@ -162,7 +165,8 @@ public sealed partial class GameEngine
         }
         _resolutionStack[^1] = frame with { OwnedCardSelection = null };
         var locations = ids.Select(id => draft.CandidateLocations[draft.CandidateCardIds.ToList().IndexOf(id)]).ToArray();
-        SetProgramCardSet(frame.Id, draft.ResultBind, ids, SkillProgramCardSetVisibility.Private, locations);
+        SetProgramCardSet(frame.Id, draft.ResultBind, ids, SkillProgramCardSetVisibility.Private, locations,
+            ids.Length == 1 ? EffectiveSuit(_players[draft.CardOwnerSeat], _cardZones.CardsAt(locations[0]).Single(c => c.Id == ids[0])) : null);
         ContinueProgramSkill(frame.Id);
     }
 
@@ -181,7 +185,8 @@ public sealed partial class GameEngine
                 ? ResolveProgramParticipant(frame, cardOwner)
                 : ResolveProgramEffectTarget(frame, paused.Target)) || draft.RequiredCount <= 0 ||
             draft.RequiredCount > draft.CandidateCardIds.Count || draft.SelectedCardIds.Count >= draft.RequiredCount ||
-            draft.MinimumCount != paused.MinimumCards ||
+            draft.MinimumCount != paused.MinimumCards || draft.MinimumCount < 0 ||
+            draft.AllowEarlyFinish != (paused.MaximumCards > 0) ||
             draft.MinimumCount > draft.RequiredCount ||
             draft.CandidateCardIds.Count != draft.CandidateLocations.Count ||
             draft.CandidateCardIds.Distinct().Count() != draft.CandidateCardIds.Count ||
@@ -193,12 +198,12 @@ public sealed partial class GameEngine
             _pendingDecision is not { Kind: DecisionKind.ProgramTrigger, IsPrivate: true } decision ||
             decision.PlayerSeat != draft.CardOwnerSeat ||
             decision.Choices.Count != draft.CandidateCardIds.Count - draft.SelectedCardIds.Count +
-                (draft.MinimumCount > 0 && draft.SelectedCardIds.Count >= draft.MinimumCount ? 1 : 0) ||
+                ((draft.AllowEarlyFinish && draft.SelectedCardIds.Count >= draft.MinimumCount || paused.AllowDecline) ? 1 : 0) ||
             decision.Choices.Any(choice =>
                 choice.Parameters.GetValueOrDefault("frame-id") != frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) ||
                 choice.Parameters.GetValueOrDefault("result-bind") != draft.ResultBind ||
                 (choice.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards"
-                    ? draft.MinimumCount <= 0 || draft.SelectedCardIds.Count < draft.MinimumCount || choice.Cards.Count != 0
+                    ? !draft.AllowEarlyFinish && !paused.AllowDecline || draft.SelectedCardIds.Count < draft.MinimumCount && !paused.AllowDecline || choice.Cards.Count != 0
                     : choice.Parameters.GetValueOrDefault("program-action") != "select-owned-cards" ||
                       choice.Cards.Count != 1 || !draft.CandidateCardIds.Contains(choice.Cards[0]) ||
                       draft.SelectedCardIds.Contains(choice.Cards[0]))))

@@ -37,6 +37,8 @@ public sealed partial class GameEngine
                 var facts = CaptureProgramTriggerFacts(owner) with
                 {
                     EventTargetHp = target.Hp,
+                    OtherDamageSourceAlive = sourceSeat != owner.Seat && _pendingAttack?.IsSourceLess != true && _players[sourceSeat].IsAlive,
+                    BlockedDamageSourceSkills = GetSkillBindingShard(owner).ProgramInstances.Where(instance => IsDamageOfferPairBlocked(owner.Seat, instance.SkillId, sourceSeat)).Select(instance => instance.SkillId).Distinct().ToArray(),
                     DamageCardIsSlash = _pendingAttack is { EffectiveCardKind: { } beforeDamageKind, IsChainPropagation: false, IsSourceLess: false } && IsSlashCard(beforeDamageKind),
                     DirectCardUseDamage = _pendingAttack is { Card: not null, IsChainPropagation: false, IsSourceLess: false },
                     DamageSourceGender = _pendingAttack?.IsDelayedJudgmentDamage != true && _pendingAttack?.IsSourceLess != true &&

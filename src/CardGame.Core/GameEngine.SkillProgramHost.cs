@@ -7,8 +7,10 @@ public sealed partial class GameEngine
     /// No skill identities, trigger rules or instruction dispatch belong here.
     /// </summary>
     private sealed partial class ProgramSkillHost(GameEngine engine) :
-        ISkillProgramExecutionHost, ISkillProgramEffectHost
+        ISkillProgramExecutionHost, ISkillProgramEffectHost, IConfiguredConversionProgramHost
     {
+        public SkillProgramStepOutcome DeclareBoundCardName(ProgramSkillFrame frame, string sourceBind, string stateId) => engine.BeginConfiguredCardDeclaration(frame, sourceBind, stateId);
+        public void UpgradeConversionTier(ProgramSkillFrame frame, string stateId) => engine.UpgradeConfiguredConversionTier(frame, stateId);
         public SkillProgramStepOutcome ExchangeSelectedTargetEquipment(ProgramSkillFrame frame) =>
             engine.ExchangeProgramSelectedTargetEquipment(frame);
         public SkillProgramStepOutcome ExecuteStrategicEffect(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat) =>
@@ -27,7 +29,7 @@ public sealed partial class GameEngine
         public SkillProgramActorState GetActor(int seat)
         {
             var actor = engine._players[seat];
-            return new(engine.CreateSkillContext(actor), actor.IsAlive);
+            return new(engine.CreateSkillContext(actor, includeHandLimit: true), actor.IsAlive);
         }
 
         public bool IsGameOver => engine._winner != Winner.None;
@@ -243,6 +245,12 @@ public sealed partial class GameEngine
             CardMoveReason reason) =>
             engine.DiscardProgramOwnedZoneCards(frame, zones, reason);
 
+        public void SetSelectedTargetsChainedState(ProgramSkillFrame frame, bool chained)
+        {
+            foreach (var seat in frame.SelectedTargetSeats)
+                if (engine._players[seat].IsAlive) engine.SetProgramChainedState(frame, chained, seat);
+        }
+
         public void SetChainedState(ProgramSkillFrame frame, bool chained, int? targetSeat = null) =>
             engine.SetProgramChainedState(frame, chained, targetSeat ?? frame.OwnerSeat);
 
@@ -299,6 +307,8 @@ public sealed partial class GameEngine
             CardMoveReason reason) =>
             engine.ChooseProgramDifferentCategoryDiscard(
                 frame, chooser, cardOwner, zones, sourceBind, resultBind, reason);
+
+        public void GrowMaximumHpAndHp(ProgramSkillFrame frame, SkillProgramNumberExpression expression) => engine.GrowProgramMaximumHpAndHp(frame, expression);
 
         public void ChangeMaximumHp(ProgramSkillFrame frame, int amount) =>
             engine.ChangeProgramMaximumHp(frame, amount);

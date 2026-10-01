@@ -13,7 +13,8 @@ public sealed partial class GameEngine
         var choices = options.Where(option => option.Condition.EvaluateOption(context,
             () => GetClaimableProgramDamageCards(active).Length > 0,
             bind => IsProgramAttackRangeCoverageDecreased(active, bind),
-            hasOwnedCardCategory: (zones, categories) => HasOwnedProgramCardCategory(chooserSeat, zones, categories),
+            hasOwnedCardCategory: (zones, categories, kinds) =>
+                HasOwnedProgramCardCategory(chooserSeat, zones, categories, kinds),
             boundCardCount: bind => CountChooserProgramBoundCards(active, bind, chooserSeat),
             activationCardCount: active.SelectedCardIds.Count,
             boundCardSuitMatchesChoice: (cardBind, choiceBind) =>
@@ -69,7 +70,8 @@ public sealed partial class GameEngine
         var stillAvailable = option.Condition.EvaluateOption(CreateSkillContext(_players[chooserSeat]),
             () => GetClaimableProgramDamageCards(frame).Length > 0,
             bind => IsProgramAttackRangeCoverageDecreased(frame, bind),
-            hasOwnedCardCategory: (zones, categories) => HasOwnedProgramCardCategory(chooserSeat, zones, categories),
+            hasOwnedCardCategory: (zones, categories, kinds) =>
+                HasOwnedProgramCardCategory(chooserSeat, zones, categories, kinds),
             boundCardCount: bind => CountChooserProgramBoundCards(frame, bind, chooserSeat),
             activationCardCount: frame.SelectedCardIds.Count,
             boundCardSuitMatchesChoice: (cardBind, choiceBind) =>
@@ -116,7 +118,8 @@ public sealed partial class GameEngine
         return option.Condition.EvaluateOption(CreateSkillContext(_players[chooserSeat]),
             () => GetClaimableProgramDamageCards(frame).Length > 0,
             bind => IsProgramAttackRangeCoverageDecreased(frame, bind),
-            hasOwnedCardCategory: (zones, categories) => HasOwnedProgramCardCategory(chooserSeat, zones, categories),
+            hasOwnedCardCategory: (zones, categories, kinds) =>
+                HasOwnedProgramCardCategory(chooserSeat, zones, categories, kinds),
             boundCardCount: bind => CountChooserProgramBoundCards(frame, bind, chooserSeat),
             activationCardCount: frame.SelectedCardIds.Count,
             boundCardSuitMatchesChoice: (cardBind, choiceBind) =>
@@ -160,13 +163,13 @@ public sealed partial class GameEngine
             PindianWon = bind => frame.PindianResultBindings.SingleOrDefault(item => item.Name == bind)?.SourceWon ?? false,
             HasClaimableDamageCards = effect.Options.Any(option => option.Condition.ContainsHasClaimableDamageCards()) &&
                 GetClaimableProgramDamageCards(frame).Length > 0,
-            HasOwnedCardCategory = (zones, categories) =>
+            HasOwnedCardCategory = (zones, categories, kinds) =>
                 (zones.Contains(CardZoneKind.Equipment) &&
                  GetEquipment(_players[decision.PlayerSeat]).Any(card =>
-                     MatchesProgramCardCategory(card.Kind, categories))) ||
+                     MatchesProgramCardFilter(card.Kind, categories, kinds))) ||
                 (zones.Contains(CardZoneKind.Hand) &&
                  GetHand(_players[decision.PlayerSeat]).Any(card =>
-                     MatchesProgramCardCategory(card.Kind, categories)))
+                     MatchesProgramCardFilter(card.Kind, categories, kinds)))
         };
         return decision.Choices.Select(choice =>
         {

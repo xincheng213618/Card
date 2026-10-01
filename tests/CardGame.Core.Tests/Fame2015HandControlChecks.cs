@@ -20,6 +20,11 @@ internal static class Fame2015HandControlChecks
         Require(game.Events.Any(item => item.Payload is ProgramCardsRevealedEvent revealed && revealed.OwnerSeat == 0 && revealed.SkillId == "classic:huaiyi" &&
                 revealed.Cards.Select(card => card.Id).SequenceEqual(hand.Select(card => card.Id))),
             "All physical hand cards must be publicly revealed before selecting color.");
+        Require(Enumerable.Range(0, 5).All(seat =>
+                JsonSerializer.Serialize(game.CreateSnapshot(seat, revealAll: false).PublicRevealedCards.OrderBy(card => card.Id)) ==
+                JsonSerializer.Serialize(hand.OrderBy(card => card.Id)) &&
+                (seat == 0 || game.CreateSnapshot(seat, revealAll: false).PendingDecision is null)),
+            "Every ordinary viewer must see the complete actual revealed faces while only the owner sees its private color choices.");
         AssertReplay(game, registry);
         var red = hand.Count(card => card.Suit is Suit.Heart or Suit.Diamond) >= 2;
         var paid = hand.Where(card => (card.Suit is Suit.Heart or Suit.Diamond) == red).ToArray();
@@ -28,6 +33,9 @@ internal static class Fame2015HandControlChecks
         ReachHandChoice(game, "take-targets");
         Require(paid.All(card => game.CardMovements.Any(move => move.CardId == card.Id && move.From == CardLocation.Hand(0) && move.To == CardLocation.DiscardPile)),
             "Color payment must discard every physical card of that color.");
+        Require(Enumerable.Range(0, 5).All(seat => game.CreateSnapshot(seat, revealAll: false).PublicRevealedCards.Count == 0),
+            "The displayed hand must leave every public reveal panel after real color payment, before taking any target card.");
+        AssertReplay(game, registry);
         for (var index = 0; index < 2; index++)
         {
             var target = Pending(game)!.Choices.First(choice => choice.Parameters.GetValueOrDefault("hand-control-action") == "take-target");
@@ -54,9 +62,13 @@ internal static class Fame2015HandControlChecks
         var monoHp = mono.CreateSnapshot(0, true).Players[0].Hp;
         Activate(mono, "classic:huaiyi", "reveal-color-take");
         Require(Pending(mono)!.Choices.Count == 1, "A monochrome actual hand must allow payment of its one existing color in the current edition.");
+        Require(Enumerable.Range(0, 5).All(seat => mono.CreateSnapshot(seat, revealAll: false).PublicRevealedCards.Count == monoHand.Length),
+            "A monochrome reveal must also publish every actual face to all ordinary viewers.");
+        AssertReplay(mono, monoRegistry);
         AnswerAction(mono, "red"); ReachHandChoice(mono, "take-targets"); AnswerAction(mono, "finish"); Finish(mono); ReachPlay(mono);
         Require(mono.CreateSnapshot(0, true).Players[0].Hand.Count == 0 && mono.CreateSnapshot(0, true).Players[0].Hp == monoHp &&
-            monoHand.All(card => mono.CardMovements.Any(move => move.CardId == card.Id && move.To == CardLocation.DiscardPile)),
+            monoHand.All(card => mono.CardMovements.Any(move => move.CardId == card.Id && move.To == CardLocation.DiscardPile)) &&
+            Enumerable.Range(0, 5).All(seat => mono.CreateSnapshot(seat, revealAll: false).PublicRevealedCards.Count == 0),
             "A zero-target choice must still pay all actual monochrome cards and must not lose HP.");
         AssertReplay(mono, monoRegistry);
     }
@@ -408,13 +420,15 @@ internal static class Fame2015HandControlChecks
     {
         var replay = GameReplay.Restore(GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(game.CreateCheckpoint())), registry);
         Require(Enumerable.Range(0, 5).All(seat => JsonSerializer.Serialize(game.CreateSnapshot(seat, true)) == JsonSerializer.Serialize(replay.CreateSnapshot(seat, true))) &&
+            Enumerable.Range(0, 5).All(seat => JsonSerializer.Serialize(game.CreateSnapshot(seat, revealAll: false)) ==
+                JsonSerializer.Serialize(replay.CreateSnapshot(seat, revealAll: false))) &&
             JsonSerializer.Serialize(game.ResolutionStack) == JsonSerializer.Serialize(replay.ResolutionStack) &&
             JsonSerializer.Serialize(game.CardMovements) == JsonSerializer.Serialize(replay.CardMovements) &&
             game.Events.Select(EventJson).SequenceEqual(replay.Events.Select(EventJson)) &&
             Enumerable.Range(0, 5).All(seat => ReadHandLimit(game, seat) == ReadHandLimit(replay, seat)) &&
             Enumerable.Range(0, 5).All(actor => Enumerable.Range(0, 5).All(target =>
                 ReadWithinAttackRange(game, actor, target) == ReadWithinAttackRange(replay, actor, target))),
-            "Checkpoint command JSON must replay paused and final state, typed events, movements and effective hand-limit/range queries exactly.");
+            "Checkpoint command JSON must replay every ordinary private/public viewer, paused and final state, typed events, movements and effective hand-limit/range queries exactly.");
     }
     private static string EventJson(EventEnvelope item) => $"{item.Sequence}|{item.Payload.GetType().Name}|{JsonSerializer.Serialize(item.Payload, item.Payload.GetType())}";
     private static void Accept(CommandResult result) => Require(result.Accepted, result.Error?.Message ?? "Command rejected.");

@@ -87,6 +87,7 @@ OTHER_HEROES = {
     "shen-sima-yi": 208,
     "shen-zhou-yu": 203,
     "shen-lu-bu": 206,
+    "fu-huanghou": 319,
 }
 
 OL_HEROES = {
@@ -100,7 +101,15 @@ OL_HEROES = {
     "boundary-xu-chu": (315, "许褚"),
 }
 
-NEW_OFFICIAL_DEFAULTS = {"boundary-gan-ning", "boundary-xu-chu", "qu-yi", "shen-zhou-yu", "shen-lu-bu"}
+# These IDs belong to the current OL site, whose roster is independent of x.sanguosha.com.
+CURRENT_HEROES = {
+    "guo-huanghou": (380, "郭皇后"), "li-yan": (381, "李严"),
+    "sun-deng": (382, "孙登"), "liu-yu": (383, "刘虞"),
+    "cen-hun": (384, "岑昏"), "sun-zi-liu-fang": (385, "孙资刘放"),
+    "huang-hao": (386, "黄皓"), "zhang-rang": (387, "张让"),
+}
+
+NEW_OFFICIAL_DEFAULTS = {"boundary-gan-ning", "boundary-xu-chu", "qu-yi", "shen-zhou-yu", "shen-lu-bu", "fu-huanghou"}
 
 EXISTING_SOURCES = {
     "gu-yong": ("https://www.sanguosha.com/hero/329", "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/32900.png"),
@@ -130,9 +139,9 @@ def get(url: str) -> bytes:
 
 
 def parse_hero_index(html: str) -> list[dict]:
-    match = re.search(r"\bconst\s+heros\s*=\s*", html)
+    match = re.search(r"\bconst\s+(?:heros|Listdata)\s*=\s*", html)
     if match is None:
-        raise ValueError("Official hero page has no const heros index")
+        raise ValueError("Official hero page has no const heros/Listdata index")
     heroes, _ = json.JSONDecoder().raw_decode(html[match.end():])
     if not isinstance(heroes, list) or not heroes or any(
         not isinstance(item, dict) or not isinstance(item.get("gid"), int)
@@ -359,6 +368,8 @@ def main() -> None:
     targets = dict(CLASSIC_HEROES)
     if args.phase == "skins":
         targets.update({key: gid for key, gid in OTHER_HEROES.items() if gid is not None})
+    if args.phase in ("classic", "skins"):
+        targets.update({key: gid for key, (gid, _) in CURRENT_HEROES.items()})
     if args.phase == "ol":
         targets = {key: gid for key, (gid, _) in OL_HEROES.items()}
     if only_keys is not None:
@@ -368,16 +379,18 @@ def main() -> None:
         targets = {key: gid for key, gid in targets.items() if key in only_keys}
     def process(target: tuple[str, int]) -> tuple[str, dict, list[dict]]:
         key, gid = target
-        page_items = ol_page_skins(gid, "界" + OL_HEROES[key][1]) if args.phase == "ol" else page_skins(gid)
+        page_items = (ol_page_skins(gid, CURRENT_HEROES[key][1]) if key in CURRENT_HEROES else
+                      ol_page_skins(gid, "界" + OL_HEROES[key][1]) if args.phase == "ol" else page_skins(gid))
         canonical = next((x for x in page_items if x["name"].startswith("经典形象")), page_items[0])
-        character_name = OL_HEROES[key][1] if args.phase == "ol" else heroes[gid]["name"]
+        character_name = (CURRENT_HEROES[key][1] if key in CURRENT_HEROES else
+                          OL_HEROES[key][1] if args.phase == "ol" else heroes[gid]["name"])
         entry = entries.get(key, {"key": key, "characterName": character_name, "defaultSkinId": canonical["id"], "skins": []})
         known = {skin["id"]: skin for skin in entry["skins"]}
         errors = []
         selected = [canonical] if args.phase == "classic" else page_items
         for skin in selected:
             existing_default = ASSETS / f"official-{key}.png"
-            if args.phase == "classic" or (skin["id"] == entry["defaultSkinId"] and (key in CLASSIC_HEROES or key == "boundary-zhang-jiao" or key in NEW_OFFICIAL_DEFAULTS)):
+            if args.phase == "classic" or (skin["id"] == entry["defaultSkinId"] and (key in CLASSIC_HEROES or key in CURRENT_HEROES or key == "boundary-zhang-jiao" or key in NEW_OFFICIAL_DEFAULTS)):
                 path = existing_default
             else:
                 path = ASSETS / "Skins" / key / f"{skin['id']}.png"

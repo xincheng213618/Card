@@ -18,7 +18,8 @@ public enum CardZoneKind
     OutsideGame,
     Chunlao,
     PojunHold,
-    PrivateReserve = 400
+    PrivateReserve = 400,
+    PublicDeferredPile = 1000
 }
 
 public readonly record struct CardLocation
@@ -26,7 +27,7 @@ public readonly record struct CardLocation
     [System.Text.Json.Serialization.JsonConstructor]
     public CardLocation(CardZoneKind zone, int? ownerSeat = null)
     {
-        var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.Chunlao or CardZoneKind.PojunHold or CardZoneKind.PrivateReserve;
+        var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.Chunlao or CardZoneKind.PojunHold or CardZoneKind.PrivateReserve or CardZoneKind.PublicDeferredPile;
         if (owned && ownerSeat is null or < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(ownerSeat), $"Zone {zone} requires a non-negative owner seat.");
@@ -255,6 +256,7 @@ internal sealed class CardZoneStore
             AddZone(CardLocation.Authority(seat));
             AddZone(CardLocation.Chunlao(seat));
             AddZone(CardLocation.PojunHold(seat));
+            AddZone(new CardLocation(CardZoneKind.PublicDeferredPile, seat));
             AddZone(new CardLocation(CardZoneKind.PrivateReserve, seat));
         }
     }

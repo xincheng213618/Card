@@ -160,7 +160,7 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
         var target = FilterBoundCardsProgramOperationDescriptor.Owner(r);
         var kind = r.RequiredEnum<SkillProgramTargetKind>("targetKind");
         if (kind is not (SkillProgramTargetKind.OtherLivingWithHand or SkillProgramTargetKind.OtherLivingUnequalHandPair or
-            SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.OtherLivingHandAtLeastOwner or
+            SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.LivingWhoseAttackRangeIncludesLord or SkillProgramTargetKind.OtherLivingHandAtLeastOwner or
             SkillProgramTargetKind.CurrentCardUseTargets or SkillProgramTargetKind.OtherLivingMale or
             SkillProgramTargetKind.AnyWounded or SkillProgramTargetKind.OtherLivingPair or
             SkillProgramTargetKind.LivingPairDistinct or SkillProgramTargetKind.EquipmentExchangePair))
@@ -170,10 +170,10 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
         var numberExpression = r.Has("numberExpression")
             ? r.RequiredEnum<SkillProgramNumberExpression>("numberExpression") : (SkillProgramNumberExpression?)null;
         if (numberExpression is not null and not (SkillProgramNumberExpression.CurrentHandCount or
-            SkillProgramNumberExpression.PlannedNormalDrawCount or SkillProgramNumberExpression.BoundCardCount))
+            SkillProgramNumberExpression.PlannedNormalDrawCount or SkillProgramNumberExpression.BoundCardCount or SkillProgramNumberExpression.CurrentHp))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: unsupported target maximum expression.");
         if (minimum < 1 || maximum < minimum || maximum > (kind == SkillProgramTargetKind.CurrentCardUseTargets
-            ? 64 : kind is SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.AnyWounded or
+            ? 64 : kind is SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.LivingWhoseAttackRangeIncludesLord or SkillProgramTargetKind.AnyWounded or
                 SkillProgramTargetKind.OtherLivingHandAtLeastOwner ? 8 : 2))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: target bounds exceed the supported participant count.");
         if (kind == SkillProgramTargetKind.OtherLivingUnequalHandPair && (minimum != 2 || maximum != 2))
@@ -458,7 +458,10 @@ internal sealed class GrantTurnRuleModifierProgramOperationDescriptor : TurnEffe
             operation == SkillRuleOperation.Add)
         {
             r.AllowOnly("op", "target", "ruleQuery", "ruleOperation", "amount", "condition");
-            return new(Op, Owner(r), DrawProgramOperationDescriptor.Amount(r, 20), r.Condition(),
+            var amount = r.RequiredInt("amount");
+            if (amount is < -20 or > 20 || amount == 0 || query == SkillRuleQuery.SlashLimit && amount < 0)
+                throw new InvalidOperationException($"Invalid skill program at {r.Path}.amount: unsupported rule modifier amount.");
+            return new(Op, Owner(r), amount, r.Condition(),
                 ruleQuery: query, ruleOperation: operation);
         }
         r.AllowOnly("op", "target", "ruleQuery", "ruleOperation", "condition");
@@ -581,5 +584,5 @@ internal sealed class SetChainedStateProgramOperationDescriptor : ProgramOperati
         return new(Op, r.RequiredEnum<SkillProgramEffectTarget>("target"), 0, r.Condition(),
             chained: r.RequiredBool("chained"));
     }
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => WithSelectedTarget(effect);
+    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => effect.Target == SkillProgramEffectTarget.SelectedTargets ? [new ReadTargetSet(1)] : WithSelectedTarget(effect);
 }

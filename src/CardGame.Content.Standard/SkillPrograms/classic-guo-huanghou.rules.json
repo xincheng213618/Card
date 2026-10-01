@@ -1,0 +1,802 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:jiaozhao",
+      "revision": 1,
+      "minimumRulesVersion": 191,
+      "viewAs": [
+        {
+          "id": "declared-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 0,
+          "maximumTier": 1,
+          "declaredEntity": true
+        },
+        {
+          "id": "declared-fireSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 0,
+          "maximumTier": 1,
+          "declaredEntity": true
+        },
+        {
+          "id": "declared-thunderSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "thunderSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 0,
+          "maximumTier": 1,
+          "declaredEntity": true
+        },
+        {
+          "id": "declared-dodge",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 0,
+          "maximumTier": 1,
+          "declaredEntity": true
+        },
+        {
+          "id": "declared-peach",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 0,
+          "maximumTier": 1,
+          "declaredEntity": true
+        },
+        {
+          "id": "declared-alcohol",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 0,
+          "maximumTier": 1,
+          "declaredEntity": true
+        },
+        {
+          "id": "declared-drawTwo",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "drawTwo",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "declaredEntity": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declared-duel",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "duel",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "declaredEntity": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declared-barbarianAssault",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "barbarianAssault",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "declaredEntity": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declared-arrowBarrage",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "arrowBarrage",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "declaredEntity": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declared-peachGarden",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "peachGarden",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "declaredEntity": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declared-fiveGrains",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "fiveGrains",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "declaredEntity": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declared-dismantlement",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "dismantlement",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "declaredEntity": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declared-snatch",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "snatch",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "declaredEntity": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declared-fireAttack",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "fireAttack",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "declaredEntity": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declared-ironChain",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "ironChain",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "declaredEntity": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declared-borrowedSword",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "borrowedSword",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "declaredEntity": true,
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declared-nullification",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "nullification",
+          "forPlay": false,
+          "forResponse": true,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "declaredEntity": true
+        },
+        {
+          "id": "direct-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "declaredEntity": false,
+          "usesPerPhase": 1,
+          "usageGroup": "direct-card",
+          "activationUsageGroup": "declare-card"
+        },
+        {
+          "id": "direct-fireSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "declaredEntity": false,
+          "usesPerPhase": 1,
+          "usageGroup": "direct-card",
+          "activationUsageGroup": "declare-card"
+        },
+        {
+          "id": "direct-thunderSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "thunderSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "declaredEntity": false,
+          "usesPerPhase": 1,
+          "usageGroup": "direct-card",
+          "activationUsageGroup": "declare-card"
+        },
+        {
+          "id": "direct-dodge",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "declaredEntity": false,
+          "usesPerPhase": 1,
+          "usageGroup": "direct-card",
+          "activationUsageGroup": "declare-card"
+        },
+        {
+          "id": "direct-peach",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "declaredEntity": false,
+          "usesPerPhase": 1,
+          "usageGroup": "direct-card",
+          "activationUsageGroup": "declare-card"
+        },
+        {
+          "id": "direct-alcohol",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "declaredEntity": false,
+          "usesPerPhase": 1,
+          "usageGroup": "direct-card",
+          "activationUsageGroup": "declare-card"
+        },
+        {
+          "id": "direct-drawTwo",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "drawTwo",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "declaredEntity": false,
+          "singleCardTrickUse": true,
+          "usesPerPhase": 1,
+          "usageGroup": "direct-card",
+          "activationUsageGroup": "declare-card"
+        },
+        {
+          "id": "direct-duel",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "duel",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "declaredEntity": false,
+          "singleCardTrickUse": true,
+          "usesPerPhase": 1,
+          "usageGroup": "direct-card",
+          "activationUsageGroup": "declare-card"
+        },
+        {
+          "id": "direct-barbarianAssault",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "barbarianAssault",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "declaredEntity": false,
+          "singleCardTrickUse": true,
+          "usesPerPhase": 1,
+          "usageGroup": "direct-card",
+          "activationUsageGroup": "declare-card"
+        },
+        {
+          "id": "direct-arrowBarrage",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "arrowBarrage",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "declaredEntity": false,
+          "singleCardTrickUse": true,
+          "usesPerPhase": 1,
+          "usageGroup": "direct-card",
+          "activationUsageGroup": "declare-card"
+        },
+        {
+          "id": "direct-peachGarden",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "peachGarden",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "declaredEntity": false,
+          "singleCardTrickUse": true,
+          "usesPerPhase": 1,
+          "usageGroup": "direct-card",
+          "activationUsageGroup": "declare-card"
+        },
+        {
+          "id": "direct-fiveGrains",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "fiveGrains",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "declaredEntity": false,
+          "singleCardTrickUse": true,
+          "usesPerPhase": 1,
+          "usageGroup": "direct-card",
+          "activationUsageGroup": "declare-card"
+        },
+        {
+          "id": "direct-dismantlement",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "dismantlement",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "declaredEntity": false,
+          "singleCardTrickUse": true,
+          "usesPerPhase": 1,
+          "usageGroup": "direct-card",
+          "activationUsageGroup": "declare-card"
+        },
+        {
+          "id": "direct-snatch",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "snatch",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "declaredEntity": false,
+          "singleCardTrickUse": true,
+          "usesPerPhase": 1,
+          "usageGroup": "direct-card",
+          "activationUsageGroup": "declare-card"
+        },
+        {
+          "id": "direct-fireAttack",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "fireAttack",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "declaredEntity": false,
+          "singleCardTrickUse": true,
+          "usesPerPhase": 1,
+          "usageGroup": "direct-card",
+          "activationUsageGroup": "declare-card"
+        },
+        {
+          "id": "direct-ironChain",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "ironChain",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "declaredEntity": false,
+          "singleCardTrickUse": true,
+          "usesPerPhase": 1,
+          "usageGroup": "direct-card",
+          "activationUsageGroup": "declare-card"
+        },
+        {
+          "id": "direct-borrowedSword",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "borrowedSword",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "declaredEntity": false,
+          "singleCardTrickUse": true,
+          "usesPerPhase": 1,
+          "usageGroup": "direct-card",
+          "activationUsageGroup": "declare-card"
+        },
+        {
+          "id": "direct-nullification",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand"
+          ],
+          "outputKind": "nullification",
+          "forPlay": false,
+          "forResponse": true,
+          "useOnly": true,
+          "excludeOwnerEffects": true,
+          "conversionStateId": "declared-card-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "declaredEntity": false,
+          "usesPerPhase": 1,
+          "usageGroup": "direct-card",
+          "activationUsageGroup": "declare-card"
+        }
+      ],
+      "activations": [
+        {
+          "id": "declare-card",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "condition": {
+            "kind": "not",
+            "children": [
+              {
+                "kind": "publicCounterAtLeast",
+                "stateId": "declared-card-tier",
+                "value": 2
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "captureSelectedCards",
+              "target": "owner",
+              "resultBind": "revealed-hand"
+            },
+            {
+              "op": "revealBoundCards",
+              "target": "owner",
+              "sourceBind": "revealed-hand"
+            },
+            {
+              "op": "declareBoundCardNameUntilTurnEnd",
+              "target": "owner",
+              "sourceBind": "revealed-hand",
+              "stateId": "declared-card-tier"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:danxin",
+      "revision": 1,
+      "minimumRulesVersion": 191,
+      "triggers": [
+        {
+          "id": "draw-or-modify",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": true,
+          "damageOccurrence": "perDamage",
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "benefit",
+              "options": [
+                {
+                  "id": "draw"
+                },
+                {
+                  "id": "upgrade",
+                  "condition": {
+                    "kind": "not",
+                    "children": [
+                      {
+                        "kind": "publicCounterAtLeast",
+                        "stateId": "declared-card-tier",
+                        "value": 2
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "benefit",
+                "optionId": "draw"
+              }
+            },
+            {
+              "op": "upgradeConversionTier",
+              "target": "owner",
+              "stateId": "declared-card-tier",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "benefit",
+                "optionId": "upgrade"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

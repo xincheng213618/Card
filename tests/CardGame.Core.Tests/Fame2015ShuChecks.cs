@@ -18,11 +18,13 @@ internal static class Fame2015ShuChecks
         Require(authorityRejected, "A top-deck cost helper must reject unsupported authority sources before creating a game.");
         var registry = Registry(new Fixture("classic:huomo", ["standard:slash", "standard:crossbow", "standard:duel"]));
         GameEngine? game = null;
+        // Fixed seeds reach the same native and converted source boundary without a search.
         foreach (var seed in new[] { 1 })
         {
             var candidate = Create(registry, seed); ReachPlay(candidate);
             if (candidate.GetHumanLegalActions().Any(item => item.Kind == LegalActionKind.Slash && item.ConversionSource is null) &&
-                candidate.GetHumanLegalActions().Any(item => item.ConversionSource?.SkillId == "classic:huomo")) game = candidate;
+                candidate.GetHumanLegalActions().Any(item => item.ConversionSource?.SkillId == "classic:huomo"))
+                game = candidate;
         }
         Require(game is not null, "The fixture must expose native and converted basic-card sources together.");
         var native = game!.GetHumanLegalActions().First(item => item.Kind == LegalActionKind.Slash && item.ConversionSource is null);
@@ -31,6 +33,24 @@ internal static class Fame2015ShuChecks
         Require(game.GetHumanLegalActions().All(item => item.ConversionSource?.SkillId != "classic:huomo" || item.PlayedCardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)), "A native Slash must block every converted Slash name in this turn.");
         Equal(game, Restore(game, registry));
 
+        registry = Registry(new Fixture("classic:huomo", ["standard:crossbow"]));
+        game = Create(registry); ReachPlay(game);
+        var alcohol = game.GetHumanLegalActions().First(action => action.PlayedCardKind == CardKind.Alcohol && action.ConversionSource?.SkillId == "classic:huomo");
+        var alcoholCost = alcohol.CardId!.Value; var alcoholRestore = Restore(game, registry);
+        foreach (var branch in new[] { game, alcoholRestore })
+        {
+            var command = new PlayCardCommand(0, alcoholCost, alcohol.TargetSeats, branch.Revision, Prompt(branch)!.PromptId, alcohol.PlayedCardKind)
+                { ConversionSource = alcohol.ConversionSource };
+            Require(branch.Submit(CommandJson.Deserialize(CommandJson.Serialize([command])).Single()).Accepted, "A play-phase Huomo Alcohol use must survive command JSON.");
+            Settle(branch);
+        }
+        Equal(game, alcoholRestore); Equal(game, Restore(game, registry));
+        Require(game.CreateSnapshot(0, true).Players[0].HasAlcoholEffect &&
+            game.CardMovements.Count(move => move.CardId == alcoholCost && move.From == CardLocation.Hand(0) && move.To == CardLocation.DrawPile) == 1 &&
+            game.CardMovements.All(move => move.CardId != alcoholCost || move.To != CardLocation.Processing && move.To != CardLocation.DiscardPile) &&
+            game.GetHumanLegalActions().All(action => action.PlayedCardKind != CardKind.Alcohol || action.ConversionSource?.SkillId != "classic:huomo"),
+            "Actual play-phase Alcohol must grant its wine effect, preserve its top-deck cost and consume the same-turn Alcohol-use name.");
+
         registry = Registry(new Fixture("classic:huomo", ["standard:slash", "standard:crossbow", "standard:duel"], targetHp: 1));
         game = null;
         foreach (var seed in new[] { 1 })
@@ -38,7 +58,8 @@ internal static class Fame2015ShuChecks
             var candidate = Create(registry, seed); ReachPlay(candidate); var snapshot = candidate.CreateSnapshot(0, true);
             if (snapshot.Players[1].Role == Role.Rebel && snapshot.Players[0].Hand.Any(card => card.Kind == CardKind.Slash) && snapshot.Players[1].Hand.Any(card => card.Kind == CardKind.Slash) &&
                 candidate.GetHumanLegalActions().Any(item => item.Kind == LegalActionKind.Duel && item.TargetSeat == 1) &&
-                candidate.GetHumanLegalActions().Any(item => item.ConversionSource?.SkillId == "classic:huomo")) game = candidate;
+                candidate.GetHumanLegalActions().Any(item => item.ConversionSource?.SkillId == "classic:huomo"))
+                game = candidate;
         }
         Require(game is not null, "A Duel fixture must expose an ordinary Slash response alongside the use-only cost.");
         var duel = game!.GetHumanLegalActions().First(item => item.Kind == LegalActionKind.Duel && item.TargetSeat == 1);
@@ -63,6 +84,126 @@ internal static class Fame2015ShuChecks
             Both(game, restored, choice => choice.Id == selected.Id); Settle(game); Settle(restored); Equal(game, restored);
             Require(game.CreateSnapshot(0, true).Players[0].Hp == 1 && game.CardMovements.Count(move => move.CardId == cost && move.From == CardLocation.Hand(0) && move.To == CardLocation.DrawPile) == 1 && !game.CardMovements.Any(move => move.CardId == cost && move.To == CardLocation.DiscardPile), "A rescue Use must recover one HP while preserving the real nonbasic cost on draw-pile top.");
             Require(game.Events.Select(item => item.Payload).OfType<CardActionAcceptedEvent>().Any(item => item.Action.Type == CardActionType.Use && item.Action.EffectiveKind == output && item.Action.ConversionChain.Any(source => source.SkillId == "classic:huomo")), "Dying rescue must retain its explicit use-only source and Use classification.");
+        }
+
+        // These are actual incoming attacks, not an artificial response context:
+        // the AI equips a Crossbow and uses two Slashes in the same turn.
+        foreach (var converted in new[] { true, false })
+        {
+            registry = Registry(new Fixture("classic:huomo",
+                ["standard:slash", "standard:slash", "standard:crossbow", "standard:dodge"], responseDraw: true));
+            game = null;
+            foreach (var seed in new[] { 3 })
+            {
+                var candidate = Create(registry, seed);
+                if (FindDodge(candidate, prompt =>
+                {
+                    var full = candidate.CreateSnapshot(0, true); var attacker = full.Players[full.CurrentSeat];
+                    return prompt.IncomingCard is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash &&
+                        prompt.Choices.Any(IsHuomo) && prompt.Choices.Any(IsNativeDodge) &&
+                        attacker.Equipment.Any(card => card.Kind == CardKind.Crossbow) && attacker.Hand.Any(card => card.Kind == CardKind.Slash) &&
+                        full.Players[0].Hand.Any(card => card.Kind == CardKind.Dodge);
+                })) game = candidate;
+            }
+            Require(game is not null, "A real repeated Slash fixture must expose native and Huomo Dodge before a second same-turn attack.");
+            var g = game!; var prompt = Prompt(g)!; var turn = g.CreateSnapshot(0, true).TurnNumber;
+            var selected = prompt.Choices.First(converted ? IsHuomo : IsNativeDodge); var cost = selected.Cards.Single();
+            Require(g.CreateSnapshot(2).Players[0].Hand.Count == 0 &&
+                (g.CreateSnapshot(2).PendingDecision is null || g.CreateSnapshot(2).PendingDecision!.Choices.All(choice => !choice.Cards.Contains(cost))),
+                "An observer must not see the responder's private physical cost before it is accepted.");
+            Atomic(g, new AnswerPromptCommand(0, prompt.PromptId, new ChoiceId(selected.Id.Value + ".forged-source-owner-1"), g.Revision));
+            var restored = Restore(g, registry); Both(g, restored, choice => choice.Id == selected.Id);
+            Require(Prompt(g)?.SkillPrompt?.SkillId == "fixture:fame2015-response-draw", "Accepted Dodge must pause at a real optional response observer.");
+            if (converted)
+                Require(g.CardMovements.Count(move => move.CardId == cost && move.From == CardLocation.Hand(0) && move.To == CardLocation.DrawPile) == 1 &&
+                    g.CreateSnapshot(0, true).Players[0].Hand.All(card => card.Id != cost), "Huomo must place its actual black nonbasic card on the draw pile before response triggers.");
+            Equal(g, restored); var pausedRestore = Restore(g, registry); Equal(g, pausedRestore);
+            Both(g, restored, choice => choice.Parameters.GetValueOrDefault("program-action") == "activate");
+            Answer(pausedRestore, choice => choice.Parameters.GetValueOrDefault("program-action") == "activate");
+            Settle(g); Settle(restored); Settle(pausedRestore); Equal(g, restored); Equal(g, pausedRestore);
+            if (converted)
+            {
+                Require(g.CreateSnapshot(0, true).Players[0].Hand.Any(card => card.Id == cost) &&
+                    g.CardMovements.Any(move => move.CardId == cost && move.From == CardLocation.DrawPile && move.To == CardLocation.Hand(0)) &&
+                    g.CardMovements.All(move => move.CardId != cost || move.To != CardLocation.Processing && move.To != CardLocation.DiscardPile),
+                    "A nested draw must receive the actual top cost; accepted-response cleanup must not discard or reprocess it.");
+                Require(g.Events.Select(item => item.Payload).OfType<CardActionAcceptedEvent>().Any(item =>
+                    item.Action.EffectiveKind == CardKind.Dodge && item.Action.ActorSeat == 0 && item.Action.ProviderSeat == 0 &&
+                    item.Action.ConversionChain.Any(source => source.SkillId == "classic:huomo") &&
+                    item.Action.PhysicalCards.Any(physical => physical.CardId == cost && physical.From == CardLocation.Hand(0))),
+                    "The typed Dodge response must freeze its Huomo source and original physical provenance.");
+            }
+            Require(FindDodge(g, prompt => prompt.IncomingCard is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash, turn),
+                "The real Crossbow attacker must open a second Dodge window in this same turn.");
+            Require(g.CreateSnapshot(0, true).Players[0].Hand.Any(card => card.Kind == CardKind.Crossbow) && Prompt(g)!.Choices.All(choice => !IsHuomo(choice)),
+                "Both native and converted used Dodge must block Huomo Dodge again this turn despite an available black nonbasic cost.");
+            Equal(g, Restore(g, registry));
+        }
+
+        // Arrow Barrage and a Hujia provider play Dodge. Neither is a Dodge use.
+        foreach (var assistance in new[] { false, true })
+        {
+            var responseCandidates = new List<string>();
+            registry = Registry(new Fixture("classic:huomo", assistance
+                ? ["standard:slash", "standard:slash", "standard:crossbow", "standard:dodge"]
+                : ["standard:arrow_barrage", "standard:crossbow", "standard:dodge"], factionDefense: assistance, responseTarget: true));
+            game = null;
+            // The provider branch needs seed 49; the Arrow Barrage branch uses seed 1.
+            foreach (var seed in new[] { assistance ? 49 : 1 })
+            {
+                var candidate = Create(registry, seed, assistance ? Role.Loyalist : Role.Lord);
+                if (FindDodge(candidate, prompt =>
+                {
+                    var full = candidate.CreateSnapshot(0, true); var attacker = full.Players[full.CurrentSeat];
+                    responseCandidates.Add($"{seed}/{prompt.IncomingCard}:seat{full.CurrentSeat},role{attacker.Role},black{full.Players[0].Hand.Count(card => card.Kind == CardKind.Crossbow)},slash{attacker.Hand.Count(card => card.Kind == CardKind.Slash)},bow{attacker.Hand.Concat(attacker.Equipment).Count(card => card.Kind == CardKind.Crossbow)}");
+                    return full.CurrentSeat is 1 or 3 && full.Players[0].Hand.Any(card => card.Kind == CardKind.Crossbow) &&
+                        (assistance ? full.CurrentSeat == 1 && full.Players[2].Role == Role.Lord && prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("response") == "faction-defense-dodge")
+                        : attacker.Role == Role.Rebel &&
+                          prompt.IncomingCard == CardKind.ArrowBarrage && prompt.Choices.Any(IsNativeDodge));
+                })) game = candidate;
+            }
+            Require(game is not null, $"A real Arrow Barrage or Hujia provider must open a physical Dodge play window. assistance={assistance}, candidates={string.Join(";", responseCandidates.Take(24))}");
+            var g = game!; var prompt = Prompt(g)!; var turn = g.CreateSnapshot(0, true).TurnNumber;
+            Require(prompt.Choices.All(choice => !IsHuomo(choice)) && g.CreateSnapshot(0, true).Players[0].Hand.Any(card => card.Kind == CardKind.Crossbow),
+                "Huomo must reject played Dodge despite an available black nonbasic cost.");
+            Atomic(g, new AnswerPromptCommand(0, prompt.PromptId, new ChoiceId("black-nonbasic-dodge.forged-use"), g.Revision));
+            var nativeChoice = prompt.Choices.First(choice => choice.Cards.Count == 1 && !IsHuomo(choice));
+            var restored = Restore(g, registry); Both(g, restored, choice => choice.Id == nativeChoice.Id);
+            foreach (var branch in new[] { g, restored })
+                Require(FindDodge(branch, prompt => prompt.IncomingCard is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash &&
+                    prompt.Choices.All(choice => choice.Parameters.GetValueOrDefault("response") != "faction-defense-decline"), turn),
+                    $"After playing Dodge, the same turn must reach the provider's own actual Slash defense. assistance={assistance}, oldTurn={turn}, turn={branch.CreateSnapshot(0, true).TurnNumber}, seat={branch.CreateSnapshot(0, true).CurrentSeat}, pending={Prompt(branch)?.Kind}");
+            Equal(g, restored);
+            Require(Prompt(g)!.Choices.Any(IsHuomo), "Played Arrow/Hujia Dodge must not consume this turn's unused Dodge-use name.");
+            Equal(g, Restore(g, registry));
+        }
+
+        static bool IsHuomo(PromptChoice choice) => choice.Parameters.GetValueOrDefault("conversion-skill-id") == "classic:huomo";
+        static bool IsNativeDodge(PromptChoice choice) => choice.Cards.Count == 1 && !IsHuomo(choice);
+        static bool FindDodge(GameEngine candidate, Func<PendingDecision, bool> predicate, int? sameTurn = null)
+        {
+            for (var step = 0; step < 256; step++)
+            {
+                var snapshot = candidate.CreateSnapshot(0, true);
+                if (snapshot.Winner != Winner.None || sameTurn is { } turn && snapshot.TurnNumber != turn) return false;
+                var pending = Prompt(candidate);
+                if (pending is { PlayerSeat: 0, Kind: DecisionKind.RespondDodge } && predicate(pending)) return true;
+                if (pending is { PlayerSeat: 0, Kind: DecisionKind.PlayCard })
+                    Require(candidate.Submit(new EndPlayPhaseCommand(0, candidate.Revision, pending.PromptId)).Accepted, "The fixture must end its own phase while waiting for an actual incoming attack.");
+                else if (pending is { PlayerSeat: 0 })
+                {
+                    if (pending.Kind == DecisionKind.RespondDodge && (pending.IncomingCard == CardKind.ArrowBarrage ||
+                        pending.Choices.Any(choice => choice.Parameters.GetValueOrDefault("response") == "faction-defense-dodge")) && pending.Choices.Any(IsNativeDodge))
+                    { Answer(candidate, IsNativeDodge); continue; }
+                    var decline = pending.Choices.FirstOrDefault(choice => choice.Cards.Count == 0 &&
+                        (choice.Parameters.GetValueOrDefault("response") is "pass" or "decline" or "take-damage" or "faction-defense-decline" ||
+                         choice.Parameters.GetValueOrDefault("program-action") == "decline"));
+                    if (decline is null) return false;
+                    Answer(candidate, choice => choice.Id == decline.Id);
+                }
+                else Require(candidate.Submit(new AdvanceOneStepCommand(candidate.Revision)).Accepted, "A real AI attack must advance normally.");
+            }
+            return false;
         }
     }
     public static void IdentityOneHpBoundaryAndRealSlashReplay()
@@ -237,11 +378,12 @@ internal static class Fame2015ShuChecks
     }
 
     private static ContentRegistry Registry(Fixture fixture) => ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(includeJijiu: true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), fixture);
-    private static GameEngine Create(ContentRegistry registry, int seed = 31)
+    private static GameEngine Create(ContentRegistry registry, int seed = 31, Role humanRole = Role.Lord)
     {
-        var game = GameEngine.CreateStandard(new GameOptions { Seed = seed, HumanSeat = 0, HumanRole = Role.Lord, PlayerCount = 4,
+        var game = GameEngine.CreateStandard(new GameOptions { Seed = seed, HumanSeat = 0, HumanRole = humanRole, PlayerCount = 4,
             ModeId = "identity:classic-fame2015-shu", UseInteractiveSetup = true, UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 40 }, registry);
         Require(game.Submit(new StartGameCommand()).Accepted, "Fixture must start.");
+        Reach(game, prompt => prompt.PlayerSeat == 0 && prompt.Kind == DecisionKind.SelectGeneral);
         Require(game.Submit(new SelectGeneralCommand(0, "fixture:fame2015-shu-owner", game.Revision, Prompt(game)!.PromptId)).Accepted, "Fixture owner must be selected."); return game;
     }
     private static void Activate(GameEngine game, string skill, string activation, IReadOnlyList<int> cards, IReadOnlyList<int> targets) =>
@@ -268,7 +410,7 @@ internal static class Fame2015ShuChecks
     private static void Equal(GameEngine a, GameEngine b) => Require(SnapshotJson.Serialize(a.CreateSnapshot(0, true)) == SnapshotJson.Serialize(b.CreateSnapshot(0, true)) && a.CardMovements.SequenceEqual(b.CardMovements) &&
         a.Events.Select(item => System.Text.Json.JsonSerializer.Serialize(item.Payload, item.Payload.GetType())).SequenceEqual(b.Events.Select(item => System.Text.Json.JsonSerializer.Serialize(item.Payload, item.Payload.GetType()))), "Checkpoint replay must reproduce typed events, snapshots and the physical ledger.");
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
-    private sealed class Fixture(string skill, IReadOnlyList<string> cards, bool allShu = false, bool boundaryDriver = false, int targetHp = 10, bool actorReplacement = false) : IGameContentPackage
+    private sealed class Fixture(string skill, IReadOnlyList<string> cards, bool allShu = false, bool boundaryDriver = false, int targetHp = 10, bool actorReplacement = false, bool responseDraw = false, bool factionDefense = false, int ownerHp = 10, bool responseTarget = false) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("fixture-fame2015-shu", new Version(1, 0, 0), []);
         public void Register(IContentRegistryBuilder builder)
@@ -283,8 +425,34 @@ internal static class Fame2015ShuChecks
                 """, """{"schemaVersion":3,"skills":{"fixture:fame2015-health":{"name":"体力边界","description":"真实体力变化"}}}""");
                 builder.AddSkill(new("fixture:fame2015-health", "体力边界", "真实体力变化") { Program = catalog.Programs["fixture:fame2015-health"] });
             }
-            builder.AddGeneral(new("fixture:fame2015-shu-owner", "测试蜀将", "supporter", skill, "shu", BaseHp: 10, AdditionalSkillIds: boundaryDriver ? ["fixture:fame2015-health"] : actorReplacement ? ["classic:zenhui"] : [], Gender: skill == "classic:yanyu" ? GeneralGender.Female : GeneralGender.Male));
-            for (var index = 1; index < 4; index++) builder.AddGeneral(new($"fixture:fame2015-shu-target-{index}", $"目标{index}", "supporter", "standard:none", allShu ? "shu" : "wei", BaseHp: targetHp, Gender: GeneralGender.Male));
+            if (responseDraw)
+            {
+                var catalog = SkillProgramCatalog.Load($$$"""
+                {"schemaVersion":{{{SkillProgramCatalog.RulesSchemaVersion}}},"skills":[{"id":"fixture:fame2015-response-draw","revision":1,
+                 "triggers":[{"id":"draw-after-dodge","window":"cardResponseAccepted","ownerRelation":"actor","cardKinds":["dodge"],
+                   "optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]}]}
+                """, """{"schemaVersion":3,"skills":{"fixture:fame2015-response-draw":{"name":"响应摸牌","description":"响应后摸真实牌堆顶"}}}""");
+                builder.AddSkill(new("fixture:fame2015-response-draw", "响应摸牌", "响应后摸真实牌堆顶") { Program = catalog.Programs["fixture:fame2015-response-draw"] });
+            }
+            if (responseTarget)
+            {
+                var catalog = SkillProgramCatalog.Load($$$"""
+                {"schemaVersion":{{{SkillProgramCatalog.RulesSchemaVersion}}},"skills":[{"id":"fixture:fame2015-response-target","revision":1,
+                 "triggers":[{"id":"also-defend-this-slash","window":"cardUseTargetsFinalized","ownerRelation":"actor","cardKinds":["slash"],
+                  "condition":{"kind":"compare","left":{"kind":"cardUseDesignatedTargetCount"},"operator":"equal","right":{"kind":"integerConstant","value":1}},
+                  "optional":false,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLegalCurrentCardTarget"},{"op":"addCurrentCardUseTarget","target":"selectedTarget"}]},
+                 {"id":"slash-after-arrow","window":"cardUseCompleted","ownerRelation":"actor","cardKinds":["arrowBarrage"],"optional":false,
+                  "effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLiving"},
+                   {"op":"useVirtualSlash","target":"selectedTarget"}]}]}]}
+                """, """{"schemaVersion":3,"skills":{"fixture:fame2015-response-target":{"name":"追加响应目标","description":"同一张杀先护驾提供再本人防御"}}}""");
+                builder.AddSkill(new("fixture:fame2015-response-target", "追加响应目标", "同一张杀先护驾提供再本人防御")
+                {
+                    Program = catalog.Programs["fixture:fame2015-response-target"],
+                    SelectionWeights = new Dictionary<Role, double> { [Role.Lord] = 100 }
+                });
+            }
+            builder.AddGeneral(new("fixture:fame2015-shu-owner", "测试蜀将", "supporter", skill, factionDefense ? "wei" : "shu", BaseHp: ownerHp, AdditionalSkillIds: boundaryDriver ? ["fixture:fame2015-health"] : actorReplacement ? ["classic:zenhui"] : responseDraw ? ["fixture:fame2015-response-draw"] : [], Gender: skill == "classic:yanyu" ? GeneralGender.Female : GeneralGender.Male));
+            for (var index = 1; index < 4; index++) builder.AddGeneral(new($"fixture:fame2015-shu-target-{index}", $"目标{index}", "supporter", factionDefense ? "classic:hujia" : "standard:none", allShu ? "shu" : "wei", BaseHp: targetHp, AdditionalSkillIds: responseTarget ? ["fixture:fame2015-response-target"] : [], Gender: GeneralGender.Male));
             builder.AddDeck(new("fixture:fame2015-shu-deck", "测试牌堆", 8, 0, []) { PhysicalCards = Enumerable.Range(0, 160).Select(index => new ContentDeckPhysicalCard(cards[index % cards.Count], Suit.Spade, index % 13 + 1)).ToArray() });
             builder.AddMode(new("identity:classic-fame2015-shu", "蜀将机制测试", 4, 4, new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1, [nameof(Role.Rebel)] = 2 }, "fixture:fame2015-shu-deck", GeneralCandidateCount: 4,
                 GeneralPoolIds: ["fixture:fame2015-shu-owner", "fixture:fame2015-shu-target-1", "fixture:fame2015-shu-target-2", "fixture:fame2015-shu-target-3"]));

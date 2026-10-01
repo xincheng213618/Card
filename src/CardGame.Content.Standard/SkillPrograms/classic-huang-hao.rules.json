@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:qinqing",
+      "revision": 1,
+      "minimumRulesVersion": 190,
+      "triggers": [
+        {
+          "id": "range-lord-ending",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "effects": [
+            {
+              "op": "selectTargets",
+              "target": "owner",
+              "targetKind": "livingWhoseAttackRangeIncludesLord",
+              "minimumTargets": 1,
+              "maximumTargets": 8,
+              "targetAiOrder": "supportDraw"
+            },
+            {
+              "op": "discardSelectedParticipantCards",
+              "target": "selectedTargets"
+            },
+            {
+              "op": "draw",
+              "target": "selectedTargets",
+              "amount": 1
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "selectedTargetsHandGreaterThanLord"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:huisheng",
+      "revision": 1,
+      "minimumRulesVersion": 190,
+      "triggers": [
+        {
+          "id": "private-damage-offer",
+          "window": "beforeDamageApplied",
+          "subject": "damageTarget",
+          "optional": true,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "otherDamageSourceAlive"
+              },
+              {
+                "kind": "damageSourcePairUnused"
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "minimumCards": 0,
+              "maximumCards": null,
+              "resultBind": "offer"
+            },
+            {
+              "op": "offerBoundCardsForDamagePrevention",
+              "target": "owner",
+              "sourceBind": "offer"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

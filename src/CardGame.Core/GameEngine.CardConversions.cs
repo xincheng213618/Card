@@ -220,7 +220,7 @@ public sealed partial class GameEngine
                 ? CardZoneKind.Equipment
                 : location == CardLocation.Authority(owner.Seat)
                     ? CardZoneKind.Authority
-                    : (CardZoneKind?)null;
+                    : location == CardLocation.WoodenOxGrain(owner.Seat) ? CardZoneKind.WoodenOxGrain : (CardZoneKind?)null;
         if (zone is null) return [];
         var context = CreateSkillContext(owner);
         var configured = GetSkillBindingShard(owner).ProgramInstances
@@ -228,9 +228,10 @@ public sealed partial class GameEngine
                 .Where(rule => rule.InputCount == 1 &&
                                (rule.OutputKind == outputKind || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash) &&
                                rule.SourceZones.Contains(zone.Value) &&
-                               (dyingUse ? rule.ForResponse || rule.UseOnly && rule.ForPlay : forResponse ? rule.ForResponse && (!rule.UseOnly || IsProgramResponseCardUse(owner, outputKind)) : rule.ForPlay) &&
+                               (dyingUse ? rule.ForResponse || rule.UseOnly && rule.ForPlay : forResponse ? rule.ForResponse && (!rule.UseOnly || IsProgramResponseCardUse(owner, outputKind) || rule.ConversionStateId is not null && outputKind == CardKind.Nullification) : rule.ForPlay) &&
+                               IsConfiguredConversionAvailable(owner, card, instance, rule, dyingUse) &&
                                (!rule.UnusedOutputThisTurn || !HasProgramUsedBasicCardThisTurn(owner.Seat, outputKind)) &&
-                               (card.Kind != outputKind || rule.InheritPreviousPlaySuit) &&
+                               (card.Kind != outputKind || rule.InheritPreviousPlaySuit || rule.ConversionStateId is not null) &&
                                CanUsePhaseLimitedViewAs(instance, rule, owner) &&
                                rule.Condition.Evaluate(context) &&
                                (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&
@@ -274,7 +275,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<ProgramMultiCardViewAsSelection> GetProgramMultiCardViewAsSelections(
         CharacterState owner,
         CardKind outputKind,
-        bool forResponse)
+        bool forResponse, bool ignoreSuitUseProhibition = false)
     {
         if (!owner.IsAlive ||
             IsCardUseForbidden(owner.Seat, outputKind,
@@ -310,6 +311,7 @@ public sealed partial class GameEngine
                     selections.Add(new(cards, source, outputKind));
         }
         return selections
+            .Where(item => forResponse || ignoreSuitUseProhibition || !IsTurnPhysicalUseForbidden(owner.Seat,item.Cards.Select(c=>c.Id).ToArray()))
             .OrderBy(item => item.Source.SkillId, StringComparer.Ordinal)
             .ThenBy(item => item.Source.BindingId, StringComparer.Ordinal)
             .ThenBy(item => string.Join(',', item.Cards.Select(card => card.Id)), StringComparer.Ordinal)
@@ -492,7 +494,7 @@ public sealed partial class GameEngine
         CompleteAttack(attack);
     }
 
-    private IReadOnlyList<Card> GetSlashUseCards(CharacterState owner)
+    private IReadOnlyList<Card> GetSlashUseCards(CharacterState owner, bool ignoreSuitUseProhibition = false)
     {
         if (SlashKinds.All(kind => IsCardUseForbidden(owner.Seat, kind, CardActionType.Use))) return [];
         var cards = GetPlayableCards(owner).Where(card =>
@@ -506,16 +508,17 @@ public sealed partial class GameEngine
         });
         cards = cards.Concat(GetEquipment(owner).Where(card =>
             GetProgramViewAsConversions(owner, card, CardKind.Slash, forResponse: false).Count != 0));
-        return cards.DistinctBy(card => card.Id).ToArray();
+        return cards.Where(card => ignoreSuitUseProhibition || !IsTurnSuitUseForbidden(owner.Seat,EffectiveSuit(owner,card))).DistinctBy(card => card.Id).ToArray();
     }
 
     private static bool IsFactionSlashUse(FactionCardRequestResolution pending) =>
         pending.IsProgramSkillUse || pending.IsBorrowedSwordUse || pending.IsQinglongCrescentBladeUse;
 
     private IReadOnlyList<Card> GetFactionSlashSlashCards(FactionCardRequestResolution pending, CharacterState provider) =>
-        pending.IsAssistedProgramUse
+        (pending.IsAssistedProgramUse
             ? GetAssistedFactionSlashCards(pending, provider).Select(variant => variant.Card).DistinctBy(card => card.Id).ToArray()
-            : IsFactionSlashUse(pending) ? GetSlashUseCards(provider) : GetResponseCards(provider, CardKind.Slash);
+            : IsFactionSlashUse(pending) ? GetSlashUseCards(provider,ignoreSuitUseProhibition:true) : GetResponseCards(provider, CardKind.Slash))
+        .Where(card => !IsFactionSlashUse(pending) || !IsTurnPhysicalUseForbidden(pending.OwnerSeat,[card.Id])).ToArray();
 
     private CardKind GetFactionSlashEffectiveSlashKind(
         FactionCardRequestResolution pending,

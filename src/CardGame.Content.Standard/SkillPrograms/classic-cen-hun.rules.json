@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:jishe",
+      "revision": 1,
+      "minimumRulesVersion": 190,
+      "activations": [
+        {
+          "id": "draw-and-reduce-limit",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "condition": {
+            "kind": "positiveHandLimit"
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "grantTurnRuleModifier",
+              "target": "owner",
+              "ruleQuery": "handLimit",
+              "ruleOperation": "add",
+              "amount": -1
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "chain-at-ending",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "currentHandCount"
+            },
+            "operator": "equal",
+            "right": {
+              "kind": "integerConstant",
+              "value": 0
+            }
+          },
+          "effects": [
+            {
+              "op": "selectTargets",
+              "target": "owner",
+              "targetKind": "anyLiving",
+              "minimumTargets": 1,
+              "maximumTargets": 8,
+              "numberExpression": "currentHp",
+              "targetAiOrder": "supportDraw"
+            },
+            {
+              "op": "setChainedState",
+              "target": "selectedTargets",
+              "chained": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:lianhuo",
+      "revision": 1,
+      "minimumRulesVersion": 190,
+      "damageModifiers": [
+        {
+          "id": "fire-origin",
+          "cardKinds": [],
+          "amount": 1,
+          "condition": "chainedFirePropagationOrigin",
+          "sourceScope": "damageParticipant"
+        }
+      ]
+    }
+  ]
+}

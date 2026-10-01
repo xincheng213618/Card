@@ -73,7 +73,11 @@ public sealed record TurnCardActionProhibition(
     int EffectIndex,
     CardUseEffectSource Source,
     IReadOnlyList<CardKind> CardKinds,
-    IReadOnlyList<CardActionType> ActionTypes);
+    IReadOnlyList<CardActionType> ActionTypes)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<Suit>? Suits { get; init; }
+}
 
 public sealed record TurnHandCardColorRestriction(
     long GrantSequence,
@@ -107,7 +111,11 @@ public sealed record TurnCardTargetRestriction(
     int EffectIndex,
     CardUseEffectSource Source,
     SkillProgramCardTargetRestriction Restriction,
-    int? TargetSeat = null);
+    int? TargetSeat = null,
+    // A self-only restriction normally binds to the granting frame's owner. A skill can instead
+    // name another character as the subject, so the subject is stored separately and falls back
+    // to Source.OwnerSeat for every grant made before this option existed.
+    int? SubjectSeat = null);
 
 public sealed record TurnCardConversion(
     long GrantSequence,
@@ -315,8 +323,9 @@ internal sealed class TurnCardUseEffectStore
         int effectIndex,
         CardUseEffectSource source,
         IReadOnlyList<CardKind> cardKinds,
-        IReadOnlyList<CardActionType> actionTypes)
+        IReadOnlyList<CardActionType> actionTypes, IReadOnlyList<Suit>? suits = null)
     {
+        IReadOnlyList<Suit>? frozenSuits = suits is null ? null : Array.AsReadOnly(suits.Distinct().Order().ToArray());
         var frozenKinds = Array.AsReadOnly(cardKinds.Distinct().Order().ToArray());
         var frozenActions = Array.AsReadOnly(actionTypes.Distinct().Order().ToArray());
         var existing = _actionProhibitions.SingleOrDefault(item =>
@@ -325,14 +334,14 @@ internal sealed class TurnCardUseEffectStore
         {
             if (existing.TurnNumber != turnNumber || existing.TurnSeat != turnSeat ||
                 existing.Source != source || !existing.CardKinds.SequenceEqual(frozenKinds) ||
-                !existing.ActionTypes.SequenceEqual(frozenActions))
+                !existing.ActionTypes.SequenceEqual(frozenActions) || !(existing.Suits ?? []).SequenceEqual(frozenSuits ?? []))
                 throw new InvalidOperationException("A card-action prohibition grant key changed its meaning.");
             return existing;
         }
 
         var granted = new TurnCardActionProhibition(
             ++_grantSequence, turnNumber, turnSeat, parentFrameId, effectIndex, source,
-            frozenKinds, frozenActions);
+            frozenKinds, frozenActions) { Suits = frozenSuits };
         _actionProhibitions.Add(granted);
         return granted;
     }
@@ -401,7 +410,8 @@ internal sealed class TurnCardUseEffectStore
         int effectIndex,
         CardUseEffectSource source,
         SkillProgramCardTargetRestriction restriction,
-        int? targetSeat = null)
+        int? targetSeat = null,
+        int? subjectSeat = null)
     {
         var existing = _targetRestrictions.SingleOrDefault(item =>
             item.ParentFrameId == parentFrameId && item.EffectIndex == effectIndex);
@@ -409,13 +419,14 @@ internal sealed class TurnCardUseEffectStore
         {
             if (existing.TurnNumber != turnNumber || existing.TurnSeat != turnSeat ||
                 existing.Source != source || existing.Restriction != restriction ||
-                existing.TargetSeat != targetSeat)
+                existing.TargetSeat != targetSeat || existing.SubjectSeat != subjectSeat)
                 throw new InvalidOperationException("A card-target restriction grant key changed its meaning.");
             return existing;
         }
 
         var granted = new TurnCardTargetRestriction(
-            ++_grantSequence, turnNumber, turnSeat, parentFrameId, effectIndex, source, restriction, targetSeat);
+            ++_grantSequence, turnNumber, turnSeat, parentFrameId, effectIndex, source, restriction, targetSeat,
+            subjectSeat);
         _targetRestrictions.Add(granted);
         return granted;
     }
@@ -502,7 +513,7 @@ internal sealed class TurnCardUseEffectStore
         int? targetSeat = null) =>
         _targetRestrictions.Any(item =>
             item.TurnNumber == turnNumber && item.TurnSeat == turnSeat &&
-            item.Source.OwnerSeat == actorSeat && item.Restriction == restriction &&
+            (item.SubjectSeat ?? item.Source.OwnerSeat) == actorSeat && item.Restriction == restriction &&
             item.TargetSeat == targetSeat);
 
     internal IReadOnlyList<TurnCardConversion> GetConversions(
@@ -644,14 +655,15 @@ internal sealed class TurnCardUseEffectStore
                 item.CardKinds.Distinct().Count() != item.CardKinds.Count ||
                 !Enum.IsDefined(item.Expiration) || !Enum.IsDefined(item.SourceScope) ||
                 item.TurnNumber <= 0 || item.Source.OwnerSeat < 0) ||
-            _actionProhibitions.Any(item => item.CardKinds.Count == 0 || item.ActionTypes.Count == 0 ||
+            _actionProhibitions.Any(item => item.CardKinds.Count == 0 && item.Suits is not { Count: > 0 } || item.Suits is { Count: 0 } ||
+                item.Suits is not null && (item.CardKinds.Count != 0 || !item.ActionTypes.SequenceEqual([CardActionType.Use]) || item.Suits.Distinct().Count() != item.Suits.Count || item.Suits.Any(suit => !Enum.IsDefined(suit))) || item.ActionTypes.Count == 0 ||
                 item.CardKinds.Distinct().Count() != item.CardKinds.Count ||
                 item.ActionTypes.Distinct().Count() != item.ActionTypes.Count) ||
             _handColorRestrictions.Any(item => item.AffectedSeat < 0) ||
             _ruleModifiers.Any(item =>
                 item.AffectedSeat is < 0 ||
                 item.Query == SkillRuleQuery.HandLimit &&
-                    (item.Operation != SkillRuleOperation.Add || item.Amount <= 0 || item.CardKinds is { Count: > 0 }) ||
+                    (item.Operation != SkillRuleOperation.Add || item.Amount is < -20 or > 20 || item.Amount == 0 || item.CardKinds is { Count: > 0 }) ||
                 item.Query == SkillRuleQuery.OutgoingDistance &&
                     (item.Operation != SkillRuleOperation.Add || item.Amount is < -20 or > 20 || item.Amount == 0 || item.CardKinds is { Count: > 0 }) ||
                 item.Query == SkillRuleQuery.SlashLimit &&
@@ -667,10 +679,10 @@ internal sealed class TurnCardUseEffectStore
                 item.Query == SkillRuleQuery.CardEffectImmunity &&
                     (item.Operation != SkillRuleOperation.Set || item.Amount != 1 || item.CardKinds is not { Count: > 0 } ||
                      item.CardKinds.Any(kind => !GrantTurnCardEffectImmunityProgramOperationDescriptor.CardEffectImmunityKinds.Contains(kind))) ||
-                item.Query is not (SkillRuleQuery.HandLimit or SkillRuleQuery.SlashLimit or SkillRuleQuery.SlashDistanceLimit or
+                item.Query is not (SkillRuleQuery.DrawCount or SkillRuleQuery.HandLimit or SkillRuleQuery.SlashLimit or SkillRuleQuery.SlashDistanceLimit or
                     SkillRuleQuery.AttackRange or SkillRuleQuery.CardTargetCount or SkillRuleQuery.CardEffectImmunity or SkillRuleQuery.OutgoingDistance)) ||
             _targetRestrictions.Any(item => item.Restriction == SkillProgramCardTargetRestriction.SelfOnly
-                ? item.TargetSeat is not null
+                ? item.TargetSeat is not null || item.SubjectSeat < 0
                 : item.TargetSeat is null or < 0) ||
             _conversions.Any(item => string.IsNullOrWhiteSpace(item.SourceBind) ||
                 item.ColorRelation != SkillProgramCardColorRelation.OppositeBoundCard ||

@@ -1,0 +1,805 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀OL",
+  "retrievedAt": "2026-10-01",
+  "retrievedAtTimestamp": "2026-10-01T01:52:03+08:00",
+  "batch": "一将成名2016/原创设计2016缺口",
+  "snapshotStatus": "frozenSourcesImplementationInProgress",
+  "implementationStatus": "partiallyIntegrated",
+  "roster": [
+    {
+      "contentId": "classic:guo-huanghou",
+      "officialId": 380,
+      "name": "郭皇后",
+      "maxHp": 3,
+      "faction": "wei",
+      "gender": "female",
+      "genderEvidence": {
+        "sourcePage": "https://www.sanguosha.com/hero/380",
+        "basis": "Historical-person identification in official biography; gender is inferred from that identity.",
+        "boundary": "Captured Listdata and hero skill DOM have no explicit machine-readable gender field; live client gender was not independently inspected."
+      },
+      "sourcePage": "https://www.sanguosha.com/hero/380",
+      "officialSkillText": "【矫诏】出牌阶段限一次，你可以展示一张手牌，然后令你距离最近的角色声明一种基本牌，你本回合可以将展示牌当声明的牌使用（不能对自己使用）。 【殚心】当你受到伤害后，你可以摸一张牌或修改“矫诏”。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/38000.png",
+        "plannedLocalPath": "src/CardGame.Wpf/Assets/official-guo-huanghou.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-guo-huanghou.png",
+        "sha256": "6351bf92c990070cbc76e79439c6a7f5f956cf40eafcf4c097cd9a96899b7f6b",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "downloadedAndVerified"
+      },
+      "primaryFaqUrls": [
+        "https://www.sanguosha.com/news/20161220_8348_1418"
+      ],
+      "primaryFaqEvidenceBoundary": "Official historical strategy articles may contain FAQs; they supplement non-conflicting details and never override current hero text.",
+      "versionDecisions": [
+        "Current Jiaozhao permits use only and excludes use on the owner; exclude boundary/mobile/anniversary variants.",
+        "Current Danxin body does not enumerate upgrades. Linked official 2016 strategy supplements basic -> basic/ordinary trick -> owner-controlled conversion.",
+        "Official 2016 guide explicitly defines final Jiaozhao as direct single-hand-card use, once per play phase: omit the reveal and other-character declaration steps.",
+        "Official 2016 guide confirms no owner effect for Peach Garden and Amazing Grace and no owner Peach, Alcohol or Ex Nihilo benefit. Counterspell use affecting another character remains eligible."
+      ],
+      "implementationStatus": "integratedFocusedVerified",
+      "publicMechanisms": {
+        "assessment": "Full general cannot currently be configured using only existing primitives.",
+        "reusable": [
+          "Bound-card reveal",
+          "ChooseOption",
+          "Skill replacement",
+          "Fixed viewAs",
+          "Turn/game state"
+        ],
+        "gaps": [
+          "Nearest-character card-name declaration",
+          "Specific revealed physical-card conversion for this turn",
+          "Owner target/effect exclusion",
+          "Two persistent upgrade states"
+        ],
+        "assessmentBasis": "Frozen assessment before this batch extended shared capabilities."
+      },
+      "currentCapture": {
+        "skillSelector": ".character-tabs .character-tab paired with .skill-text > span",
+        "indexFields": {
+          "gid": 380,
+          "hp": 3,
+          "initial_hp": 0,
+          "figure_py": "wei",
+          "extend": "一将成名"
+        },
+        "detailOgDescription": "郭皇后是《三国杀OL》中的魏势力武将，0体力，拥有能够对技能进行两次升级，转化各种基本牌和锦囊牌。会成为敌人优先攻击的目标，没有牌时很脆弱。的特点。明元郭皇后[并非郭女王]，在三国志有正传。曹叡夫人，曹丕的儿媳妇，曹芳，曹髦[máo]，曹奂三朝太后，是唯一经历了曹魏全部皇帝时代的贵族女性。曹魏后三帝时期，由于皇帝年少，太后与重臣一同处理政务。史书上对郭皇后有两种截然不同的记载，一种是曹芳被废和曹髦死后郭太后发诏书斥责他们不配人君，另一种却提及曹芳被夺权期间，太后与曹芳相拥而泣，曹髦讨伐司马昭前，曾向太后禀报。",
+        "responseSha256": "876aaace790454e7e4502548f020c5167555175e370c48e8bdc6345ab9262d12"
+      },
+      "upgradeEvidence": {
+        "sourcePage": "https://www.sanguosha.com/news/20161220_8348_1418",
+        "verifiedAt": "2026-10-01",
+        "decision": "At upgrade 2 use the direct conversion form; preserve owner target/effect exclusion in all levels."
+      },
+      "verification": {
+        "core": "19 Fame 2016 checks, 3 response completion checks, 2 owned-card checks and 4 composition checks passed in current workspace",
+        "wpf": "3 shared checks passed for private top/deferred piles, actual conversion tiers and private damage offers",
+        "artifactDirectories": [
+          "%TEMP%/Card-Fame2016-Merged-20261001",
+          "%TEMP%/Card-Fame2016-MergedUI-20261001"
+        ],
+        "boundary": "Seven generals integrated. Zhang Rang and full batch verification remain in progress."
+      }
+    },
+    {
+      "contentId": "classic:li-yan",
+      "officialId": 381,
+      "name": "李严",
+      "maxHp": 3,
+      "faction": "shu",
+      "gender": "male",
+      "genderEvidence": {
+        "sourcePage": "https://www.sanguosha.com/hero/381",
+        "basis": "Historical-person identification in official biography; gender is inferred from that identity.",
+        "boundary": "Captured Listdata and hero skill DOM have no explicit machine-readable gender field; live client gender was not independently inspected."
+      },
+      "sourcePage": "https://www.sanguosha.com/hero/381",
+      "officialSkillText": "【督粮】出牌阶段限一次，你可以获得一名其他角色一张手牌并选择一项：1.令其观看牌堆顶的两张牌，获得其中的基本牌；2.令其下回合摸牌阶段多摸一张牌。 【腹鳞】锁定技，弃牌阶段，你于本回合获得的牌不计入手牌上限。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/38100.png",
+        "plannedLocalPath": "src/CardGame.Wpf/Assets/official-li-yan.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-li-yan.png",
+        "sha256": "98bbacc7a45baa7463e03b8581a2d282202ec33bbd1e48a3b6052e47464cb994",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "downloadedAndVerified"
+      },
+      "primaryFaqUrls": [
+        "https://www.sanguosha.com/news/20161102_8113_3614"
+      ],
+      "primaryFaqEvidenceBoundary": "Official historical strategy articles may contain FAQs; they supplement non-conflicting details and never override current hero text.",
+      "versionDecisions": [
+        "Freeze current Duliang option 2 as the target's next-turn draw phase. Historical FAQ says next draw phase and retains/accumulates benefits after a skip; do not silently replace the current wording.",
+        "Option 1 privately shows the top two cards to the target and obtains basics. Historical FAQ returns non-basics to the top in original order.",
+        "Fulin needs actual obtained-this-turn card identities still in hand at discard time; a scalar count cannot determine legal discard choices."
+      ],
+      "implementationStatus": "integratedFocusedVerified",
+      "publicMechanisms": {
+        "assessment": "Full general cannot currently be configured using only existing primitives.",
+        "reusable": [
+          "Real hand-card gain",
+          "RevealTopCards",
+          "FilterBoundCards by Basic",
+          "MoveBoundCards to DrawPileTop",
+          "Draw-phase lifecycle"
+        ],
+        "gaps": [
+          "Selected participant private top-card viewing",
+          "Next-turn draw benefit with explicit skip semantics",
+          "Obtained-this-turn physical-card ledger and discard exclusion"
+        ],
+        "assessmentBasis": "Frozen assessment before this batch extended shared capabilities."
+      },
+      "currentCapture": {
+        "skillSelector": ".character-tabs .character-tab paired with .skill-text > span",
+        "indexFields": {
+          "gid": 381,
+          "hp": 3,
+          "initial_hp": 0,
+          "figure_py": "shu",
+          "extend": "一将成名"
+        },
+        "detailOgDescription": "李严是《三国杀OL》中的蜀势力武将，0体力，拥有能够让队友多摸牌，能够抢夺敌人的牌削弱敌人，能积累较多的手牌。输出较弱。的特点。字正方，蜀汉重臣。初为刘表部下，曹操入主荆州时，李严西奔入蜀。刘备入川，李严率众投降，深得刘备器重，受命与诸葛亮、法正等人一同编制《蜀科》，又率军平定了蜀中盗贼。白帝城托孤，与诸葛亮共受遗诏同扶幼主。其人性格矜高难近，终因督粮不利且谎报实情而被流放，后在当地去世。",
+        "responseSha256": "ea496360208c09f55453edb3119815536f2047a0b08bbefeac9a1191645e5278"
+      },
+      "verification": {
+        "core": "19 Fame 2016 checks, 3 response completion checks, 2 owned-card checks and 4 composition checks passed in current workspace",
+        "wpf": "3 shared checks passed for private top/deferred piles, actual conversion tiers and private damage offers",
+        "artifactDirectories": [
+          "%TEMP%/Card-Fame2016-Merged-20261001",
+          "%TEMP%/Card-Fame2016-MergedUI-20261001"
+        ],
+        "boundary": "Seven generals integrated. Zhang Rang and full batch verification remain in progress."
+      }
+    },
+    {
+      "contentId": "classic:sun-deng",
+      "officialId": 382,
+      "name": "孙登",
+      "maxHp": 4,
+      "faction": "wu",
+      "gender": "male",
+      "genderEvidence": {
+        "sourcePage": "https://www.sanguosha.com/hero/382",
+        "basis": "Historical-person identification in official biography; gender is inferred from that identity.",
+        "boundary": "Captured Listdata and hero skill DOM have no explicit machine-readable gender field; live client gender was not independently inspected."
+      },
+      "sourcePage": "https://www.sanguosha.com/hero/382",
+      "officialSkillText": "【匡弼】出牌阶段限一次，你可以令一名其他角色将至多三张牌置于你的武将牌上，若如此做，你的下个回合开始时获得所有“匡弼”牌，然后其摸等量张牌。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/38200.png",
+        "plannedLocalPath": "src/CardGame.Wpf/Assets/official-sun-deng.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-sun-deng.png",
+        "sha256": "7770aa8f95bfc3f68fddd1747fd3a913a8fb7c69a5d4f28eed9217f9f65a33ab",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "downloadedAndVerified"
+      },
+      "primaryFaqUrls": [
+        "https://www.sanguosha.com/news/20161221_7708_5617"
+      ],
+      "primaryFaqEvidenceBoundary": "Official historical strategy articles may contain FAQs; they supplement non-conflicting details and never override current hero text.",
+      "versionDecisions": [
+        "Current Kuangbi lets the other character choose up to three cards. On Sun Deng's next turn start he obtains all Kuangbi cards, then the original provider draws the obtained amount.",
+        "Historical strategy says hand/equipment and at least one card. Current text omits a lower bound; zero-card confirmation must not create a false deferred reward.",
+        "Provider/owner death, skill loss, inserted turns and movement interruptions need explicit public-mechanism handling."
+      ],
+      "implementationStatus": "integratedFocusedVerified",
+      "publicMechanisms": {
+        "assessment": "Full general cannot currently be configured using only existing primitives.",
+        "reusable": [
+          "Provider SelectOwnedCards",
+          "Persistent-zone primitives",
+          "TurnStartBeforeNormalFlow",
+          "Real card movement",
+          "Draw"
+        ],
+        "gaps": [
+          "Cross-owner Kuangbi pile with provider attribution",
+          "Next-owner-turn obtain then original-provider reward",
+          "Replayable deferred-pile death/skill-loss cleanup"
+        ],
+        "assessmentBasis": "Frozen assessment before this batch extended shared capabilities."
+      },
+      "currentCapture": {
+        "skillSelector": ".character-tabs .character-tab paired with .skill-text > span",
+        "indexFields": {
+          "gid": 382,
+          "hp": 4,
+          "initial_hp": 0,
+          "figure_py": "wu",
+          "extend": "一将成名"
+        },
+        "detailOgDescription": "孙登是《三国杀OL》中的吴势力武将，0体力，拥有能够让队友获得大量的手牌，同时获得队友的牌。没有牌时很脆弱，会成为敌人优先攻击的目标。的特点。字子高，孙权长子。孙权称帝后其被立为太子，受诸葛恪等人辅佐。其人性情温和而能礼贤下士，加之爱民如子，因此深受爱戴。曾劝服孙权在孙虑之死时节哀，并劝谏孙权勿用吕壹[yī]苛政。后不幸早逝，临终前上书建言，推荐了多位良臣。其亡故令孙权极为悲伤，也为南鲁党争的祸乱埋下了伏笔。",
+        "responseSha256": "ae6ce0378ec2ac96375e7620c133c48138bb70ee7811fa82ec9b43761e029522"
+      },
+      "verification": {
+        "core": "19 Fame 2016 checks, 3 response completion checks, 2 owned-card checks and 4 composition checks passed in current workspace",
+        "wpf": "3 shared checks passed for private top/deferred piles, actual conversion tiers and private damage offers",
+        "artifactDirectories": [
+          "%TEMP%/Card-Fame2016-Merged-20261001",
+          "%TEMP%/Card-Fame2016-MergedUI-20261001"
+        ],
+        "boundary": "Seven generals integrated. Zhang Rang and full batch verification remain in progress."
+      }
+    },
+    {
+      "contentId": "classic:liu-yu",
+      "officialId": 383,
+      "name": "刘虞",
+      "maxHp": 2,
+      "faction": "qun",
+      "gender": "male",
+      "genderEvidence": {
+        "sourcePage": "https://www.sanguosha.com/hero/383",
+        "basis": "Historical-person identification in official biography; gender is inferred from that identity.",
+        "boundary": "Captured Listdata and hero skill DOM have no explicit machine-readable gender field; live client gender was not independently inspected."
+      },
+      "sourcePage": "https://www.sanguosha.com/hero/383",
+      "officialSkillText": "【止戈】出牌阶段限一次，若你的手牌数大于体力值，你可以令攻击范围内包含你的一名角色选择一项：1.使用一张【杀】；2.交给你一张装备区里的牌。 【宗祚】锁定技，游戏开始时，你增加X点体力上限和体力值（X为全场势力数）。当某势力最后一名角色死亡后，你减少1点体力上限。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/38300.png",
+        "plannedLocalPath": "src/CardGame.Wpf/Assets/official-liu-yu.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-liu-yu.png",
+        "sha256": "be16b0aeea941d37e95e525ab8314ffeacb58b675959ce4fb958ea87312da877",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "downloadedAndVerified"
+      },
+      "primaryFaqUrls": [],
+      "primaryFaqEvidenceBoundary": "Official historical strategy articles may contain FAQs; they supplement non-conflicting details and never override current hero text.",
+      "versionDecisions": [
+        "Take base HP 2 from the current OL index; exclude mobile Liu Yu's HP 3.",
+        "Current Zhige retains hand count > HP and real Slash use/equipment-zone payment; exclude the later variant with Slash/weapon payment and a virtual Slash.",
+        "Current Zongzuo adds faction-count maximum HP and HP at game start, and faction extinction only reduces maximum HP; no draw-two bonus.",
+        "Current body says a character whereas historical versions say another character; self-eligibility needs an explicit rules-boundary decision."
+      ],
+      "implementationStatus": "integratedFocusedVerified",
+      "publicMechanisms": {
+        "assessment": "Full general cannot currently be configured using only existing primitives.",
+        "reusable": [
+          "RequestSlashAgainstChosenTarget",
+          "SelectOwnedCards / GiveBoundCard for real equipment",
+          "GameStarting",
+          "CharacterDied",
+          "Constant ChangeMaximumHp"
+        ],
+        "gaps": [
+          "Dynamic faction-count maximum-HP/HP increase",
+          "Last-living-faction-character death fact",
+          "Hand-count-vs-HP active predicate",
+          "Attack-range/self-target policy"
+        ],
+        "assessmentBasis": "Frozen assessment before this batch extended shared capabilities."
+      },
+      "currentCapture": {
+        "skillSelector": ".character-tabs .character-tab paired with .skill-text > span",
+        "indexFields": {
+          "gid": 383,
+          "hp": 2,
+          "initial_hp": 0,
+          "figure_py": "qun",
+          "extend": "一将成名"
+        },
+        "detailOgDescription": "刘虞是《三国杀OL》中的群势力武将，0体力，拥有拥有高额的体力值，抢夺敌人的装备牌。没有牌时很脆弱。的特点。字伯安，幽州牧，汉室宗亲。在幽州两度任职，颇有威望。张纯、张举叛乱，刘虞恩威并施将其平定，又鼓励农商，大大改善了当地经济民生，青徐二州流民纷纷前来避难。后坚拒袁绍等人立其为帝的请求，派兵迎接献帝，却为袁术所扣，并因此事激化了与公孙瓒[zàn]的矛盾，最终被击败，为其所害。",
+        "responseSha256": "2b00b3c4880eb491462cef9734572ea1e3a2e0bc00ca29d6124f14c3ca9bb783"
+      },
+      "verification": {
+        "core": "19 Fame 2016 checks, 3 response completion checks, 2 owned-card checks and 4 composition checks passed in current workspace",
+        "wpf": "3 shared checks passed for private top/deferred piles, actual conversion tiers and private damage offers",
+        "artifactDirectories": [
+          "%TEMP%/Card-Fame2016-Merged-20261001",
+          "%TEMP%/Card-Fame2016-MergedUI-20261001"
+        ],
+        "boundary": "Seven generals integrated. Zhang Rang and full batch verification remain in progress."
+      }
+    },
+    {
+      "contentId": "classic:cen-hun",
+      "officialId": 384,
+      "name": "岑昏",
+      "maxHp": 3,
+      "faction": "wu",
+      "gender": "male",
+      "genderEvidence": {
+        "sourcePage": "https://www.sanguosha.com/hero/384",
+        "basis": "Historical-person identification in official biography; gender is inferred from that identity.",
+        "boundary": "Captured Listdata and hero skill DOM have no explicit machine-readable gender field; live client gender was not independently inspected."
+      },
+      "sourcePage": "https://www.sanguosha.com/hero/384",
+      "officialSkillText": "【极奢】出牌阶段，若你的手牌上限大于0，你可以摸一张牌，令你本回合手牌上限-1。结束阶段，若你没有手牌，你可以令至多X名角色进入连环状态（X为你的体力值）。 【链祸】锁定技，当你受到火焰伤害时，若你处于连环状态且是传导伤害的起点，此伤害+1。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/38400.png",
+        "plannedLocalPath": "src/CardGame.Wpf/Assets/official-cen-hun.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-cen-hun.png",
+        "sha256": "cfb2c5b0c4e4c9b4db3fa6fa7a359a0c886a5bc64a85738f7390fe25f93fae64",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "downloadedAndVerified"
+      },
+      "primaryFaqUrls": [
+        "https://www.sanguosha.com/news/20161102_4488_5214"
+      ],
+      "primaryFaqEvidenceBoundary": "Official historical strategy articles may contain FAQs; they supplement non-conflicting details and never override current hero text.",
+      "versionDecisions": [
+        "Use current normal OL base HP 3; exclude mobile HP 4.",
+        "Jishe first requires current hand limit > 0; each successful activation decreases this turn's hand limit by one.",
+        "Empty-hand ending-phase Jishe sets up to current HP characters to chained rather than toggling them.",
+        "Lianhuo increases fire damage only while chained at chain propagation origin, excluding propagated damage."
+      ],
+      "implementationStatus": "integratedFocusedVerified",
+      "publicMechanisms": {
+        "assessment": "Full general cannot currently be configured using only existing primitives.",
+        "reusable": [
+          "Draw",
+          "SetChainedState",
+          "TurnEnding",
+          "Turn rule/state primitives"
+        ],
+        "gaps": [
+          "Positive-current-hand-limit active predicate",
+          "Negative accumulating hand-limit modifier",
+          "Current-HP bounded target set",
+          "Fire nature and chain-origin damage facts",
+          "Generic incoming damage increment"
+        ],
+        "assessmentBasis": "Frozen assessment before this batch extended shared capabilities."
+      },
+      "currentCapture": {
+        "skillSelector": ".character-tabs .character-tab paired with .skill-text > span",
+        "indexFields": {
+          "gid": 384,
+          "hp": 3,
+          "initial_hp": 0,
+          "figure_py": "wu",
+          "extend": "一将成名"
+        },
+        "detailOgDescription": "岑昏是《三国杀OL》中的吴势力武将，0体力，拥有能够在回合内获得大量手牌，传导更高额的伤害。没有手牌时很脆弱，受到【乐不思蜀】和【铁索连环】的限制。的特点。岑昏为宦官，官列中常侍，孙皓即位后得到宠幸。280年，晋龙骧[xiāng]将军王濬[jùn]率军伐吴，岑昏建议以铁锁链封锁长江，阻挡晋军进攻。王濬以火船烧锁链破其计，沿途东吴将士或死或降。群臣上奏东吴衰败之因在于岑昏，将他与蜀汉的黄皓并列为误国之奸臣。",
+        "responseSha256": "e6b6d58b86e64b327477241a497e5daec9e4328849626d172fe7c8e9a77ae44d"
+      },
+      "verification": {
+        "core": "19 Fame 2016 checks, 3 response completion checks, 2 owned-card checks and 4 composition checks passed in current workspace",
+        "wpf": "3 shared checks passed for private top/deferred piles, actual conversion tiers and private damage offers",
+        "artifactDirectories": [
+          "%TEMP%/Card-Fame2016-Merged-20261001",
+          "%TEMP%/Card-Fame2016-MergedUI-20261001"
+        ],
+        "boundary": "Seven generals integrated. Zhang Rang and full batch verification remain in progress."
+      }
+    },
+    {
+      "contentId": "classic:sun-zi-liu-fang",
+      "officialId": 385,
+      "name": "孙资刘放",
+      "maxHp": 3,
+      "faction": "wei",
+      "gender": "male",
+      "genderEvidence": {
+        "sourcePage": "https://www.sanguosha.com/hero/385",
+        "basis": "Historical-person identification in official biography; gender is inferred from that identity.",
+        "boundary": "Captured Listdata and hero skill DOM have no explicit machine-readable gender field; live client gender was not independently inspected."
+      },
+      "sourcePage": "https://www.sanguosha.com/hero/385",
+      "officialSkillText": "【瑰藻】若你于弃牌阶段弃置过至少两张牌且这些牌花色均不相同，你可以回复1点体力或摸一张牌。 【讥谀】出牌阶段，每名角色限一次，若你有可以使用的手牌，你可以令一名角色弃置一张手牌，然后你本回合不能使用与之相同花色的牌，若此牌为黑桃，其失去1点体力，你翻面。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/38500.png",
+        "plannedLocalPath": "src/CardGame.Wpf/Assets/official-sun-zi-liu-fang.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-sun-zi-liu-fang.png",
+        "sha256": "20324638df66e69a55e2d78c61911c7aa33c5486688a023a1b5305bc5b005e20",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "downloadedAndVerified"
+      },
+      "primaryFaqUrls": [
+        "https://www.sanguosha.com/news/20161102_5303_0715"
+      ],
+      "primaryFaqEvidenceBoundary": "Official historical strategy articles may contain FAQs; they supplement non-conflicting details and never override current hero text.",
+      "versionDecisions": [
+        "Guizao examines all relevant discard-phase discarded cards, at least two with pairwise distinct suits; surviving discard-pile subsets are insufficient.",
+        "Jiyu is once per character per play phase and requires an actually usable hand card; the target selects a real hand card.",
+        "The discarded suit forbids use for this turn, not response/discard. Current spade text orders target HP loss before owner turnover.",
+        "Historical official strategy demonstrates self-targeting; preserve fresh legality after accumulated suit prohibitions."
+      ],
+      "implementationStatus": "integratedFocusedVerified",
+      "publicMechanisms": {
+        "assessment": "Full general cannot currently be configured using only existing primitives.",
+        "reusable": [
+          "Target self-selected hand discard",
+          "TurnOver",
+          "LoseHp",
+          "DiscardPhaseEnded"
+        ],
+        "gaps": [
+          "Full discard-phase suit history unaffected by pile movement",
+          "Dynamically chosen suit use prohibition",
+          "Actually usable hand-card predicate",
+          "Per-target play-phase usage ledger"
+        ],
+        "assessmentBasis": "Frozen assessment before this batch extended shared capabilities."
+      },
+      "currentCapture": {
+        "skillSelector": ".character-tabs .character-tab paired with .skill-text > span",
+        "indexFields": {
+          "gid": 385,
+          "hp": 3,
+          "initial_hp": 0,
+          "figure_py": "wei",
+          "extend": "一将成名"
+        },
+        "detailOgDescription": "孙资刘放是《三国杀OL》中的魏势力武将，0体力，拥有弃置敌人的牌使敌人变得脆弱，通过弃牌增强自己的防御。输出较弱。的特点。孙资在曹操手下历任县令，参丞相军事；刘放曾有劝王松归顺曹操之举，为曹操所欣赏，遂招为司空府官，又外放历任几处县令。魏国初建之际，孙资与刘放俱任秘书郎。曹丕继位后，二人一同掌握机密。曹睿病危时，二人力荐曹爽，又推荐招回司马懿辅政。最后，曹睿独召曹爽、司马懿、刘放、孙资同受诏命，而免去曹宇、夏侯献、曹肇[zhào]、秦朗的官职。",
+        "responseSha256": "4ba1b1d7f596e85eed6f721592a0332374b514e4cedaa43ef68358b92c4d1cd4"
+      },
+      "verification": {
+        "core": "19 Fame 2016 checks, 3 response completion checks, 2 owned-card checks and 4 composition checks passed in current workspace",
+        "wpf": "3 shared checks passed for private top/deferred piles, actual conversion tiers and private damage offers",
+        "artifactDirectories": [
+          "%TEMP%/Card-Fame2016-Merged-20261001",
+          "%TEMP%/Card-Fame2016-MergedUI-20261001"
+        ],
+        "boundary": "Seven generals integrated. Zhang Rang and full batch verification remain in progress."
+      }
+    },
+    {
+      "contentId": "classic:huang-hao",
+      "officialId": 386,
+      "name": "黄皓",
+      "maxHp": 3,
+      "faction": "shu",
+      "gender": "male",
+      "genderEvidence": {
+        "sourcePage": "https://www.sanguosha.com/hero/386",
+        "basis": "Historical-person identification in official biography; gender is inferred from that identity.",
+        "boundary": "Captured Listdata and hero skill DOM have no explicit machine-readable gender field; live client gender was not independently inspected."
+      },
+      "sourcePage": "https://www.sanguosha.com/hero/386",
+      "officialSkillText": "【寝情】结束阶段，你可以选择任意名攻击范围内包含主公的角色，依次弃置其一张牌，然后令其各摸一张牌，若如此做，你摸X张牌（X为其中手牌比主公多的角色数）。 【贿生】当你受到其他角色造成的伤害时，你可以令其观看你任意张牌并令其选择一项：1.获得其中一张，防止此伤害，然后你本局不能对其发动本技能；2.弃置等量张牌。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/38600.png",
+        "plannedLocalPath": "src/CardGame.Wpf/Assets/official-huang-hao.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-huang-hao.png",
+        "sha256": "b3f2068eb7ce470ebe421968e3054fb3d413c141acb698260a8386a488698700",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "downloadedAndVerified"
+      },
+      "primaryFaqUrls": [
+        "https://www.sanguosha.com/news/20161102_2642_3815"
+      ],
+      "primaryFaqEvidenceBoundary": "Official historical strategy articles may contain FAQs; they supplement non-conflicting details and never override current hero text.",
+      "versionDecisions": [
+        "Current Qinqing selects any number whose attack range includes the lord: sequential discard, then each draws, then owner draws the number whose hands exceed the lord's.",
+        "Do not restore historical one-other-target limitation; current text does not explicitly exclude the owner.",
+        "Huisheng permanently forbids reuse against a source only after it takes a shown card and damage is prevented; equal-card discard does not consume future eligibility.",
+        "Selected owner cards are privately shown only to the actual other damage source; preserve ownership and real movement boundaries."
+      ],
+      "implementationStatus": "integratedFocusedVerified",
+      "publicMechanisms": {
+        "assessment": "Full general cannot currently be configured using only existing primitives.",
+        "reusable": [
+          "Other-owned discard",
+          "Draw",
+          "ChooseOption",
+          "BeforeDamageApplied / PreventCurrentDamage",
+          "Real transfer"
+        ],
+        "gaps": [
+          "Lord attack-range multi-target filtering",
+          "Two-pass discard/draw continuation and fresh lord hand comparison",
+          "Shown set private only to damage source",
+          "Permanent successful-source pair ledger"
+        ],
+        "assessmentBasis": "Frozen assessment before this batch extended shared capabilities."
+      },
+      "currentCapture": {
+        "skillSelector": ".character-tabs .character-tab paired with .skill-text > span",
+        "indexFields": {
+          "gid": 386,
+          "hp": 3,
+          "initial_hp": 0,
+          "figure_py": "shu",
+          "extend": "一将成名"
+        },
+        "detailOgDescription": "黄皓是《三国杀OL》中的蜀势力武将，0体力，拥有减少敌人对主公的威胁，贿赂敌人以逃生。没有牌时很脆弱。的特点。宦官。为后主刘禅所宠，专秉朝政。黄皓与大将军姜维不睦，维启后主杀之，后主不从。皓阴以心腹阎宇替维。景耀六年，蜀亡，邓艾预欲杀之，皓贿赂左右得免。及后主迁洛阳，皓为司马昭凌迟处死。",
+        "responseSha256": "8f23db75dad4f93a9f51c9e40b5486b864fbf8e0f81504d631c6d48e4066e7d7"
+      },
+      "verification": {
+        "core": "19 Fame 2016 checks, 3 response completion checks, 2 owned-card checks and 4 composition checks passed in current workspace",
+        "wpf": "3 shared checks passed for private top/deferred piles, actual conversion tiers and private damage offers",
+        "artifactDirectories": [
+          "%TEMP%/Card-Fame2016-Merged-20261001",
+          "%TEMP%/Card-Fame2016-MergedUI-20261001"
+        ],
+        "boundary": "Seven generals integrated. Zhang Rang and full batch verification remain in progress."
+      }
+    },
+    {
+      "contentId": "classic:zhang-rang",
+      "officialId": 387,
+      "name": "张让",
+      "maxHp": 3,
+      "faction": "qun",
+      "gender": "male",
+      "genderEvidence": {
+        "sourcePage": "https://www.sanguosha.com/hero/387",
+        "basis": "Historical-person identification in official biography; gender is inferred from that identity.",
+        "boundary": "Captured Listdata and hero skill DOM have no explicit machine-readable gender field; live client gender was not independently inspected."
+      },
+      "sourcePage": "https://www.sanguosha.com/hero/387",
+      "officialSkillText": "【滔乱】你可以将一张牌当任意基本牌或普通锦囊牌使用（每种牌名限一次，且场上无人处于濒死状态），然后令一名其他角色选择一项：1.交给你一张与“滔乱”牌类型不同的牌；2.你失去1点体力，本回合本技能失效。",
+      "artwork": {
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/38700.png",
+        "plannedLocalPath": "src/CardGame.Wpf/Assets/official-zhang-rang.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-zhang-rang.png",
+        "sha256": "edce51cf5883d55c04a7e04ad7467895be05fc916b93d063c861814e6af821b0",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "downloadedAndVerified"
+      },
+      "primaryFaqUrls": [
+        "https://www.sanguosha.com/news/20161215_6101_0117"
+      ],
+      "primaryFaqEvidenceBoundary": "Official historical strategy articles may contain FAQs; they supplement non-conflicting details and never override current hero text.",
+      "versionDecisions": [
+        "Current Taoluan permits use only, each card name once per game, and only with nobody dying; no dying rescue conversion.",
+        "After converted use resolves, another character gives a real different-category card or owner loses one HP and Taoluan becomes disabled this turn.",
+        "Turn/round name ledgers and unrestricted response conversion conflict with current text.",
+        "Historical official strategy mentions Wooden Ox pile input. Current wording and shared source-zone policies need explicit review; no production support is claimed.",
+        "Official 2016 guide groups normal/fire/thunder Slash among four basic card names; use the shared Slash-name family for the game-scoped name ledger."
+      ],
+      "implementationStatus": "notImplemented",
+      "publicMechanisms": {
+        "assessment": "Full general cannot currently be configured using only existing primitives.",
+        "reusable": [
+          "Physical viewAs / ordinary trick use",
+          "CardUseCompleted",
+          "ChooseOption",
+          "Real card gift",
+          "LoseHp",
+          "Turn/game state"
+        ],
+        "gaps": [
+          "Per-game converted card-name ledger",
+          "Global no-dying eligibility",
+          "Post-conversion different-category gift-or-loss continuation",
+          "Current-turn conversion disable policy",
+          "Use-only response boundary"
+        ]
+      },
+      "currentCapture": {
+        "skillSelector": ".character-tabs .character-tab paired with .skill-text > span",
+        "indexFields": {
+          "gid": 387,
+          "hp": 3,
+          "initial_hp": 0,
+          "figure_py": "qun",
+          "extend": "一将成名"
+        },
+        "detailOgDescription": "张让是《三国杀OL》中的群势力武将，0体力，拥有能够转化装备牌之外的牌，在队友的帮助下对敌人进行输出和限制。没有手牌时很脆弱。的特点。汉中常侍。同赵忠、曹节、段珪等为“十常侍”，为灵帝所宠。让等专权乱政、卖官索财，朝野皆痛恨之。郎中张钧上书奏请诛杀十常侍，帝不允，让等阴杀钧。及灵帝崩，大将军何进欲杀让等，让阴结何太后，招进入宫，斩杀之。部将袁绍引兵攻让，让等劫帝走河上。追急，让投水自尽。",
+        "responseSha256": "ea7c2c6085998737b02e5f7f9611bc80c09ae3f5e495001baafc65d755ca2c18"
+      },
+      "cardNameEvidence": {
+        "sourcePage": "https://www.sanguosha.com/news/20161215_6101_0117",
+        "verifiedAt": "2026-10-01",
+        "decision": "Game-wide name ledger uses four basic-name families and twelve ordinary tricks; different costs do not reset a used output name."
+      }
+    }
+  ],
+  "rosterSource": "https://www.sanguosha.com/hero",
+  "rosterPackageEvidence": {
+    "sourcePage": "https://www.sanguosha.com/news/20170629_5821_5417",
+    "title": "超级武将宝箱详情 - 三国杀OL官网",
+    "basis": "Official 2017 super-general chest announcement explicitly labels these eight names original 6.",
+    "verifiedNames": [
+      "郭皇后",
+      "李严",
+      "孙登",
+      "刘虞",
+      "岑昏",
+      "孙资刘放",
+      "黄皓",
+      "张让"
+    ]
+  },
+  "editionNotes": [
+    "Current normal OL bodies were asynchronously fetched and extracted from actual DOM; exclude mobile, anniversary and boundary editions.",
+    "Current index embeds const Listdata. Use its hp/figure_py/cover, cross-checked with each detail page.",
+    "Reject zero-HP OG descriptions and initial_hp=0 as base-HP evidence; use index hp.",
+    "Local data/reference/bwiki/generals.json is a mobile sgs reference and is not evidence for these OL skills, HP or package membership.",
+    "Existing sync_general_art.py only recognizes const heros and needs compatibility with Listdata before future art synchronization.",
+    "Artwork URL only was verified in index/detail HTML. Images were not downloaded or checked for hash/dimensions/local existence.",
+    "Preparation only: no production registration, rules JSON, tests, rules/schema/package versions, 2015 source or gallery changes.",
+    "fame-6 exists but has no registered characters. Keep Sha Mo Ke's existing fame-5 placement; this roster does not authorize moving it.",
+    "Historical official strategy/FAQ supplements only non-conflicting details. Resolve marked evidence boundaries before implementation."
+  ],
+  "mechanismAssessmentEvidence": [
+    {
+      "path": "src/CardGame.Core/ProgramLifecycleOperationDefinitions.cs",
+      "limits": [
+        "ChangeMaximumHp is constant-only.",
+        "HandLimit additive GrantTurnRuleModifier uses positive Amount.",
+        "GrantTurnCardConversion only supports oppositeBoundCard -> Duel.",
+        "SelectTargets lacks CurrentHp maximum expression."
+      ]
+    },
+    {
+      "path": "src/CardGame.Core/ProgramHoldTargetCardsOperationDefinition.cs",
+      "limits": [
+        "Returns to original holder at current turn end; not Kuangbi next-owner-turn transfer/reward."
+      ]
+    },
+    {
+      "path": "src/CardGame.Core/ProgramDiscardPhaseLedgerOperation.cs",
+      "limits": [
+        "Binds only remaining discard-pile hand discards, capped at eight; not Guizao full phase suit history."
+      ]
+    },
+    {
+      "path": "src/CardGame.Core/ProgramDeferredBenefitsOperations.cs",
+      "limits": [
+        "SetNextTurnRuleModifier supports HandLimit/SlashLimit only, not a promised draw phase."
+      ]
+    },
+    {
+      "path": "src/CardGame.Core/SkillPrograms.cs",
+      "limits": [
+        "Inspected model lacks generic fire/chain-origin trigger facts, dynamic use-suit prohibition and declared card-name conversion."
+      ]
+    }
+  ],
+  "suggestedCapabilityGroups": [
+    {
+      "name": "Deferred benefits and real-card history",
+      "contentIds": [
+        "classic:li-yan",
+        "classic:sun-deng"
+      ]
+    },
+    {
+      "name": "Lifecycle, rule facts and participant selection",
+      "contentIds": [
+        "classic:liu-yu",
+        "classic:cen-hun",
+        "classic:sun-zi-liu-fang",
+        "classic:huang-hao"
+      ]
+    },
+    {
+      "name": "Declared conversion and game usage history",
+      "contentIds": [
+        "classic:guo-huanghou",
+        "classic:zhang-rang"
+      ]
+    }
+  ],
+  "sourceCaptures": [
+    {
+      "sourcePage": "https://www.sanguosha.com/hero",
+      "finalUrl": "https://www.sanguosha.com/hero",
+      "httpStatus": 200,
+      "title": "三国杀武将大全-武将技能介绍-三国杀OL官网",
+      "responseSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26"
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/news/20170629_5821_5417",
+      "finalUrl": "https://www.sanguosha.com/news/20170629_5821_5417",
+      "httpStatus": 200,
+      "title": "超级武将宝箱详情 - 三国杀OL官网",
+      "responseSha256": "cfd01e79e86942344c6f6a2a7adc1581e28e912728cc279d1f4b60ee16427d21"
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/hero/380",
+      "finalUrl": "https://www.sanguosha.com/hero/380",
+      "httpStatus": 200,
+      "title": "三国杀郭皇后 - 三国杀OL-三国杀官网-武将技能介绍",
+      "responseSha256": "876aaace790454e7e4502548f020c5167555175e370c48e8bdc6345ab9262d12"
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/hero/381",
+      "finalUrl": "https://www.sanguosha.com/hero/381",
+      "httpStatus": 200,
+      "title": "三国杀李严 - 三国杀OL-三国杀官网-武将技能介绍",
+      "responseSha256": "ea496360208c09f55453edb3119815536f2047a0b08bbefeac9a1191645e5278"
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/hero/382",
+      "finalUrl": "https://www.sanguosha.com/hero/382",
+      "httpStatus": 200,
+      "title": "三国杀孙登 - 三国杀OL-三国杀官网-武将技能介绍",
+      "responseSha256": "ae6ce0378ec2ac96375e7620c133c48138bb70ee7811fa82ec9b43761e029522"
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/hero/383",
+      "finalUrl": "https://www.sanguosha.com/hero/383",
+      "httpStatus": 200,
+      "title": "三国杀刘虞 - 三国杀OL-三国杀官网-武将技能介绍",
+      "responseSha256": "2b00b3c4880eb491462cef9734572ea1e3a2e0bc00ca29d6124f14c3ca9bb783"
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/hero/384",
+      "finalUrl": "https://www.sanguosha.com/hero/384",
+      "httpStatus": 200,
+      "title": "三国杀岑昏 - 三国杀OL-三国杀官网-武将技能介绍",
+      "responseSha256": "e6b6d58b86e64b327477241a497e5daec9e4328849626d172fe7c8e9a77ae44d"
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/hero/385",
+      "finalUrl": "https://www.sanguosha.com/hero/385",
+      "httpStatus": 200,
+      "title": "三国杀孙资刘放 - 三国杀OL-三国杀官网-武将技能介绍",
+      "responseSha256": "4ba1b1d7f596e85eed6f721592a0332374b514e4cedaa43ef68358b92c4d1cd4"
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/hero/386",
+      "finalUrl": "https://www.sanguosha.com/hero/386",
+      "httpStatus": 200,
+      "title": "三国杀黄皓 - 三国杀OL-三国杀官网-武将技能介绍",
+      "responseSha256": "8f23db75dad4f93a9f51c9e40b5486b864fbf8e0f81504d631c6d48e4066e7d7"
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/hero/387",
+      "finalUrl": "https://www.sanguosha.com/hero/387",
+      "httpStatus": 200,
+      "title": "三国杀张让 - 三国杀OL-三国杀官网-武将技能介绍",
+      "responseSha256": "ea7c2c6085998737b02e5f7f9611bc80c09ae3f5e495001baafc65d755ca2c18"
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/news/20161220_8348_1418",
+      "finalUrl": "https://www.sanguosha.com/news/20161220_8348_1418",
+      "httpStatus": 200,
+      "title": "[攻略] 一将成名2016武将：郭皇后攻略文  - 三国杀OL官网",
+      "responseSha256": "918952a3299cccc486a5916cb51c4635d95589b37e56bb8b7c23957424d26f73"
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/news/20161102_8113_3614",
+      "finalUrl": "https://www.sanguosha.com/news/20161102_8113_3614",
+      "httpStatus": 200,
+      "title": "[攻略] 一将成名2016武将：李严攻略文 - 三国杀OL官网",
+      "responseSha256": "e3dbb7ca67f7aa1adf6ea6570d8ee74bde402869357dd6d71fcec45b9cf8c74b"
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/news/20161221_7708_5617",
+      "finalUrl": "https://www.sanguosha.com/news/20161221_7708_5617",
+      "httpStatus": 200,
+      "title": "[攻略] 一将成名2016武将：孙登攻略文 - 三国杀OL官网",
+      "responseSha256": "75b0c4ddda3dcbe9ac4f0f4a40ff3488703edc1a1194ddccc496258b47adf832"
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/news/20161102_4488_5214",
+      "finalUrl": "https://www.sanguosha.com/news/20161102_4488_5214",
+      "httpStatus": 200,
+      "title": "[攻略] 一将成名2016武将：岑昏攻略文 - 三国杀OL官网",
+      "responseSha256": "eb4a9fdbf8445311ff3563ef9453e0df79cea0517aba67e1597c7464da09ee9f"
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/news/20161102_5303_0715",
+      "finalUrl": "https://www.sanguosha.com/news/20161102_5303_0715",
+      "httpStatus": 200,
+      "title": "[攻略] 一将成名2016武将：孙资刘放攻略文 - 三国杀OL官网",
+      "responseSha256": "a2dad7122ece250e574a4159dc537616556b06ba0134724ee7d46a877552a4dc"
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/news/20161102_2642_3815",
+      "finalUrl": "https://www.sanguosha.com/news/20161102_2642_3815",
+      "httpStatus": 200,
+      "title": "[攻略] 一将成名2016武将：黄皓攻略文 - 三国杀OL官网",
+      "responseSha256": "ebc04a2ea3c65f00651588eec5641d41ff3ab53655e75787bcc832a4efdeea97"
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/news/20161215_6101_0117",
+      "finalUrl": "https://www.sanguosha.com/news/20161215_6101_0117",
+      "httpStatus": 200,
+      "title": "[攻略] 一将成名2016武将：张让攻略文 - 三国杀OL官网",
+      "responseSha256": "b291230f66723ba22dc764f14c0ee018bfd041b72d35f60c3e5b9baa038e1936"
+    }
+  ],
+  "artworkVerification": {
+    "artifactDirectory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-Fame2016-Art-20261001-current",
+    "verifiedPngs": 8,
+    "parserCases": 5,
+    "productionSkillsVerified": false
+  }
+}

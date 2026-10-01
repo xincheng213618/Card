@@ -109,7 +109,7 @@ public sealed partial class GameEngine
             }
         }
         choices.Add(new(new ChoiceId($"completed-gift.{frame.Id}.decline"), draft.RecipientSeat is null ? "不交出牌" : "不使用杀", [], [], Parameters("decline")));
-        return choices;
+        return choices.Where(c => draft.RecipientSeat is not { } actorSeat || c.Parameters.GetValueOrDefault("gift-option") != "slash" || !IsTurnPhysicalUseForbidden(actorSeat,c.Cards)).ToArray();
     }
 
     private void PublishCompletedCardGiftPrompt(ProgramSkillFrame frame)

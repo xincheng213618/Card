@@ -37,6 +37,7 @@ internal sealed class ChooseOptionProgramOperationDescriptor : ProgramOperationD
             SkillProgramConditionKind.HpAtLeast or SkillProgramConditionKind.HandCountAtLeast or
             SkillProgramConditionKind.FaceDown or SkillProgramConditionKind.Chained or
             SkillProgramConditionKind.HasClaimableDamageCards or SkillProgramConditionKind.HasOwnedCardCategory or
+            SkillProgramConditionKind.PublicCounterAtLeast or SkillProgramConditionKind.PublicCounterOdd or
             SkillProgramConditionKind.BoundCardCountAtLeast or
             SkillProgramConditionKind.BoundCardsMatchCategories or
             SkillProgramConditionKind.All or SkillProgramConditionKind.Any or SkillProgramConditionKind.Not))

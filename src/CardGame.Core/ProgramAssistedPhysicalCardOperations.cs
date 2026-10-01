@@ -1,6 +1,6 @@
 namespace CardGame.Core;
 
-public sealed record ProgramAssistedSlashRequest(int ActorSeat, int? TargetSeat = null);
+public sealed record ProgramAssistedSlashRequest(int ActorSeat, int? TargetSeat = null, bool ActorChoosesTarget = false);
 public sealed record ProgramOtherCardSlot(CardZoneKind Zone, int SlotIndex);
 public sealed record ProgramOtherCardSelection(int SourceSeat, int RequiredCount, IReadOnlyList<ProgramOtherCardSlot> SelectedSlots);
 
@@ -12,10 +12,12 @@ internal sealed class RequestSlashAgainstChosenTargetProgramOperationDescriptor 
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.RequestSlashByTarget, static (_, _) => { });
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "resultBind", "condition");
+        r.AllowOnly("op", "target", "resultBind", "chooserRef", "condition");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.SelectedTarget) throw new InvalidOperationException("An assisted Slash requires a selected actor.");
-        var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), resultBind: r.RequiredIdentifier("resultBind"));
+        var chooser = r.Has("chooserRef") ? r.RequiredParticipantReference("chooserRef") : null;
+        if (chooser is not null && chooser.Kind != ProgramParticipantRef.SelectedTarget) throw new InvalidOperationException("An assisted Slash chooser must be its selected actor.");
+        var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), resultBind: r.RequiredIdentifier("resultBind"), chooserRef: chooser);
         RequireAlways(effect, r.Path);
         return effect;
     }
@@ -24,7 +26,7 @@ internal sealed class RequestSlashAgainstChosenTargetProgramOperationDescriptor 
 public sealed class RequestSlashAgainstChosenTargetSkillProgramEffectHandler : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RequestSlashAgainstChosenTarget;
-    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) => host.RequestSlashAgainstChosenTarget(frame, targetSeat, effect.ResultBind!);
+    public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host) => host.RequestSlashAgainstChosenTarget(frame, targetSeat, effect.ResultBind!, effect.ChooserRef?.Kind == ProgramParticipantRef.SelectedTarget);
 }
 internal sealed class TakeSelectedTargetCardsProgramOperationDescriptor : ProgramOperationDescriptorBase
 {

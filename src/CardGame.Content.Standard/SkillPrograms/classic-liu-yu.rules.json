@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:zhige",
+      "revision": 1,
+      "minimumRulesVersion": 190,
+      "activations": [
+        {
+          "id": "request-slash-or-equipment",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "condition": {
+            "kind": "handCountGreaterThanHp"
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingWhoseAttackRangeIncludesOwner"
+            },
+            {
+              "op": "requestSlashAgainstChosenTarget",
+              "target": "selectedTarget",
+              "resultBind": "request",
+              "chooserRef": {
+                "kind": "selectedTarget"
+              }
+            },
+            {
+              "op": "selectOwnedCards",
+              "target": "selectedTarget",
+              "amount": 1,
+              "zones": [
+                "equipment"
+              ],
+              "resultBind": "payment",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "request",
+                "optionId": "declined"
+              }
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "payment",
+              "destination": "ownerHand",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "request",
+                "optionId": "declined"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:zongzuo",
+      "revision": 1,
+      "minimumRulesVersion": 190,
+      "triggers": [
+        {
+          "id": "starting-factions",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "growMaximumHpAndHp",
+              "target": "owner",
+              "numberExpression": "livingFactionCount"
+            }
+          ]
+        },
+        {
+          "id": "faction-extinguished",
+          "window": "characterDied",
+          "subject": "owner",
+          "optional": false,
+          "condition": {
+            "kind": "deathExtinguishedFaction"
+          },
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": -1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

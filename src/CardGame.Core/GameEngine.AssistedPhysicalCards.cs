@@ -11,10 +11,10 @@ public sealed partial class GameEngine
         if (frame.AssistedSlashRequest is { } request)
         {
             if (paused.Op != SkillProgramEffectOp.RequestSlashAgainstChosenTarget || frame.SelectedTargetSeats is not [var actor] || actor != request.ActorSeat || actor == frame.OwnerSeat ||
-                request.TargetSeat is { } target && !AssistedPhysicalSlashTargets(actor).Contains(target) || frame.ChoiceBindings.Any(binding => binding.Name == paused.ResultBind))
+                request.TargetSeat is { } target && !AssistedPhysicalSlashTargets(actor).Contains(target) || frame.ChoiceBindings.Any(binding => binding.Name == paused.ResultBind) || request.ActorChoosesTarget != (paused.ChooserRef?.Kind == ProgramParticipantRef.SelectedTarget))
                 throw new InvalidOperationException("An assisted physical Slash draft lost its frozen instruction or participants.");
             if (ReferenceEquals(frame, _resolutionStack.LastOrDefault()) && (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } prompt ||
-                prompt.PlayerSeat != (request.TargetSeat is null ? frame.OwnerSeat : actor) || !AssistedChoicesEqual(prompt.Choices, AssistedPhysicalSlashChoices(frame))))
+                prompt.PlayerSeat != (request.TargetSeat is null && !request.ActorChoosesTarget ? frame.OwnerSeat : actor) || !AssistedChoicesEqual(prompt.Choices, AssistedPhysicalSlashChoices(frame))))
                 throw new InvalidOperationException("An assisted physical Slash prompt changed while suspended.");
         }
         if (frame.OtherCardSelection is { } draft)
@@ -39,7 +39,7 @@ public sealed partial class GameEngine
     private int[] AssistedPhysicalSlashTargets(int actorSeat) => _players.Where(target => _players[actorSeat].IsAlive && target.IsAlive && target.Seat != actorSeat &&
         IsWithinAttackRange(actorSeat, target.Seat)).Select(target => target.Seat).ToArray();
 
-    private SkillProgramStepOutcome RequestProgramSlashAgainstChosenTarget(ProgramSkillFrame frame, int actorSeat, string bind)
+    private SkillProgramStepOutcome RequestProgramSlashAgainstChosenTarget(ProgramSkillFrame frame, int actorSeat, string bind, bool actorChoosesTarget)
     {
         var active = GetActiveProgramFrame(frame.Id);
         if (active.AssistedSlashRequest is not null || active.SelectedTargetSeats.Count != 1 || active.SelectedTargetSeats[0] != actorSeat || actorSeat == active.OwnerSeat)
@@ -49,7 +49,7 @@ public sealed partial class GameEngine
             CommitProgramChoiceResult(active.Id, bind, "declined", actorSeat, "没有合法目标。");
             return SkillProgramStepOutcome.Continue;
         }
-        active = active with { AssistedSlashRequest = new(actorSeat) };
+        active = active with { AssistedSlashRequest = new(actorSeat, ActorChoosesTarget: actorChoosesTarget) };
         _resolutionStack[^1] = active;
         PublishAssistedPhysicalSlashPrompt(active);
         return SkillProgramStepOutcome.AwaitChoice;
@@ -116,7 +116,7 @@ public sealed partial class GameEngine
             choices.Add(new PromptChoice(new ChoiceId($"assisted-slash.{frame.Id}.faction"), "发动技能请求其他角色提供【杀】", [], [targetSeat], parameters));
         }
         choices.Add(new PromptChoice(new ChoiceId($"assisted-slash.{frame.Id}.decline"), "不使用【杀】", [], [], Parameters("decline")));
-        return choices;
+        return choices.Where(c => c.Parameters.GetValueOrDefault("request-option") != "use" || !IsTurnPhysicalUseForbidden(actor.Seat,c.Cards)).ToArray();
     }
 
     private bool AssistedSlashPaymentHasRange(CharacterState actor, int targetSeat, IReadOnlyList<Card> cards) =>
@@ -126,7 +126,7 @@ public sealed partial class GameEngine
     private void PublishAssistedPhysicalSlashPrompt(ProgramSkillFrame frame)
     {
         var draft = frame.AssistedSlashRequest!;
-        var chooserSeat = draft.TargetSeat is null ? frame.OwnerSeat : draft.ActorSeat;
+        var chooserSeat = draft.TargetSeat is null && !draft.ActorChoosesTarget ? frame.OwnerSeat : draft.ActorSeat;
         var choices = AssistedPhysicalSlashChoices(frame);
         var skill = _contentRegistry.GetSkill(frame.SkillId);
         _pendingDecision = new PendingDecision(DecisionKind.ProgramTrigger, chooserSeat, draft.TargetSeat is null ? "请选择受令角色攻击范围内的目标。" : "使用一张【杀】，或允许技能拥有者获得你的牌。", choices.SelectMany(c => c.Cards).Distinct().ToArray(), draft.TargetSeat is null ? AssistedPhysicalSlashTargets(draft.ActorSeat) : [draft.TargetSeat.Value], frame.OwnerSeat)
@@ -141,7 +141,7 @@ public sealed partial class GameEngine
         var effect = ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect;
         var draft = frame.AssistedSlashRequest ?? throw new InvalidOperationException("Assisted Slash draft disappeared.");
         if (effect.Op != SkillProgramEffectOp.RequestSlashAgainstChosenTarget || selected.Parameters.GetValueOrDefault("frame-id") != frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) ||
-            _pendingDecision?.PlayerSeat != (draft.TargetSeat is null ? frame.OwnerSeat : draft.ActorSeat) || !AssistedPhysicalSlashChoices(frame).Any(choice => choice.Id == selected.Id))
+            _pendingDecision?.PlayerSeat != (draft.TargetSeat is null && !draft.ActorChoosesTarget ? frame.OwnerSeat : draft.ActorSeat) || !AssistedPhysicalSlashChoices(frame).Any(choice => choice.Id == selected.Id))
             throw new InvalidOperationException("Assisted Slash choice changed its frozen instruction or participants.");
         ClearPendingDecision();
         if (!_players[frame.OwnerSeat].IsAlive || !_players[draft.ActorSeat].IsAlive || !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId))
@@ -278,7 +278,7 @@ public sealed partial class GameEngine
 
     private sealed partial class ProgramSkillHost
     {
-        public SkillProgramStepOutcome RequestSlashAgainstChosenTarget(ProgramSkillFrame frame, int actorSeat, string resultBind) => engine.RequestProgramSlashAgainstChosenTarget(frame, actorSeat, resultBind);
+        public SkillProgramStepOutcome RequestSlashAgainstChosenTarget(ProgramSkillFrame frame, int actorSeat, string resultBind, bool actorChoosesTarget = false) => engine.RequestProgramSlashAgainstChosenTarget(frame, actorSeat, resultBind, actorChoosesTarget);
         public SkillProgramStepOutcome TakeSelectedTargetCards(ProgramSkillFrame frame, int sourceSeat, int count) => engine.TakeProgramSelectedTargetCards(frame, sourceSeat, count);
     }
 }

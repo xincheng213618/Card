@@ -37,6 +37,7 @@ public sealed partial class GameEngine
     private void PaySingleCardResponse(Card card, CharacterState provider, CardKind effectiveKind,
         CardConversionSource? source)
     {
+        if (source is not null && ViewAsRule(source) is { ConversionStateId: not null, UsesPerPhase: not null }) ConsumeProgramViewAsUsage([source]);
         var alternative = IsProgramTopDeckDodgeSource(source);
         if (alternative && (source!.OwnerSeat != provider.Seat || !IsProgramResponseCardUse(provider, effectiveKind)))
             throw new InvalidOperationException("A top-deck response cost requires its own enabled Slash-defense Dodge use.");
@@ -53,6 +54,17 @@ public sealed partial class GameEngine
             return;
         }
         MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.ResponseFinished);
+    }
+
+    private void FinishSingleBasicCardUseCost(CardUseFrame use, Card card)
+    {
+        if (IsProgramAlternativeCost(use.Action, card.Id))
+        {
+            if (_cardZones.GetLocation(card.Id) == CardLocation.Processing)
+                throw new InvalidOperationException("A top-deck basic-card cost was incorrectly retained in Processing.");
+            return;
+        }
+        MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.UseFinished);
     }
 
     private CardLocation NormalizeProgramViewAsCostDestination(Card card, CardLocation from, CardLocation to, CardMoveReason reason)

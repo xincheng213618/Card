@@ -56,7 +56,7 @@ internal sealed class SetNextTurnRuleModifierDescriptor : ProgramOperationDescri
         var query = r.RequiredEnum<SkillRuleQuery>("query");
         var amount = r.RequiredInt("amount");
         if (target != SkillProgramEffectTarget.SelectedTarget ||
-            query is not (SkillRuleQuery.HandLimit or SkillRuleQuery.SlashLimit) || amount is < 1 or > 20)
+            query is not (SkillRuleQuery.HandLimit or SkillRuleQuery.SlashLimit or SkillRuleQuery.DrawCount) || amount is < 1 or > 20)
             throw new InvalidOperationException($"Invalid next-turn modifier at {r.Path}.");
         return new(Op, target, amount, r.Condition(), ruleQuery: query, ruleOperation: SkillRuleOperation.Add);
     }

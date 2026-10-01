@@ -2,6 +2,14 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    // Public only while the real revealed hand awaits its color payment. The
+    // shared snapshot projection resolves these IDs through the physical zones.
+    private IEnumerable<int> GetProgramHandControlPublicCardIds() =>
+        _resolutionStack.OfType<ProgramSkillFrame>()
+            .Where(frame => frame.HandControlDraft is
+                { Operation: SkillProgramEffectOp.RevealHandColorDiscardAndTake, Stage: "color", RevealedCardIds: not null })
+            .SelectMany(frame => frame.HandControlDraft!.RevealedCardIds!);
+
     private bool CanOfferProgramHandControl(CharacterState owner, SkillProgramTrigger trigger) =>
         !trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.ChooseHandCountIntervention) ||
         _players.Any(player => player.IsAlive && GetHand(player).Count != GetHand(owner).Count);

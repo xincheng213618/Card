@@ -227,7 +227,7 @@ public sealed partial class GameEngine
     private void AssertParticipantReserveDraft(ProgramSkillFrame frame, SkillProgramEffect paused)
     {
         if (frame.ReexecuteParticipantInstruction && paused.Op is not (SkillProgramEffectOp.DamageParticipants or
-                SkillProgramEffectOp.LoseHpParticipants or SkillProgramEffectOp.DiscardParticipantCards or
+                SkillProgramEffectOp.LoseHpParticipants or SkillProgramEffectOp.DiscardParticipantCards or SkillProgramEffectOp.DiscardSelectedParticipantCards or
                 SkillProgramEffectOp.RequestSlashByNearest or SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or
                 SkillProgramEffectOp.EscalatingDiscardOrDamage or SkillProgramEffectOp.ChooseHandCountIntervention or
                 SkillProgramEffectOp.RevealHandColorDiscardAndTake or SkillProgramEffectOp.DrawThenPutOwnedCardOnTopParticipants or

@@ -90,9 +90,10 @@ public sealed partial class GameEngine
     }
 
     private bool HasOwnedProgramCardCategory(int ownerSeat,
-        IReadOnlyList<CardZoneKind> zones, IReadOnlyList<SkillProgramCardCategory> categories) =>
+        IReadOnlyList<CardZoneKind> zones, IReadOnlyList<SkillProgramCardCategory> categories,
+        IReadOnlyList<CardKind> kinds) =>
         zones.Any(zone => _cardZones.CardsAt(new CardLocation(zone, ownerSeat))
-            .Any(card => MatchesProgramCardCategory(card.Kind, categories)));
+            .Any(card => MatchesProgramCardFilter(card.Kind, categories, kinds)));
 
     private IReadOnlyList<PromptChoice> BuildOwnedCardPaymentChoices(
         long frameId, int chooserSeat, int cardOwnerSeat, IReadOnlyList<CardZoneKind> zones,
@@ -424,6 +425,13 @@ public sealed partial class GameEngine
     {
         return categories.Contains(GetProgramCardCategory(kind));
     }
+
+    private static bool MatchesProgramCardFilter(
+        CardKind kind,
+        IReadOnlyList<SkillProgramCardCategory> categories,
+        IReadOnlyList<CardKind> kinds) =>
+        (categories.Count == 0 || MatchesProgramCardCategory(kind, categories)) &&
+        (kinds.Count == 0 || kinds.Contains(kind));
 
     /// <summary>Equipment gifts cannot replace an equipped card: the matching slot must be free.</summary>
     private bool CanEnterEquipmentSlot(int recipientSeat, Card card) =>

@@ -159,6 +159,10 @@ public sealed record ProgramSkillFrame(
     public ProgramAdvancedSelection? AdvancedSelection { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramPrivateReserveDraft? PrivateReserveDraft { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramSelectedParticipantDiscardDraft? SelectedParticipantDiscard { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramDamageCardOffer? DamageCardOffer { get; init; }
     public bool ReexecuteParticipantInstruction { get; init; }
 }
 

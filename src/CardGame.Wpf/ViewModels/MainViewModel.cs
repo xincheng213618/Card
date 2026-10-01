@@ -578,6 +578,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             });
         }
         HasPublicRevealedCards = PublicRevealedCards.Count > 0;
+        RebuildDeferredCardViews();
         if (_snapshot.PendingDecision is { Kind: DecisionKind.SelectGeneral } pending)
         {
             foreach (var choice in pending.Choices.Where(choice => choice.ContentIds.Count == 1))
@@ -776,6 +777,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 PojunHoldTooltip = player.PojunHoldCount > 0
                     ? $"被【破军】扣置的牌 {player.PojunHoldCount} 张（回合结束后回到其手牌）"
                     : string.Empty,
+                DeferredPileText = player.PublicDeferredPileCount > 0
+                    ? $"{player.PublicDeferredPileName ?? "牌堆"} ×{player.PublicDeferredPileCount}" : string.Empty,
+                DeferredPileTooltip = player.PublicDeferredPileCards is { Count: > 0 } pile
+                    ? $"{player.GeneralName}的公开“{player.PublicDeferredPileName ?? "牌堆"}”：{string.Join("、", pile.Select(card => $"{card.DisplayName} {card.Suit}{card.RankText}"))}"
+                    : string.Empty,
                 HasAlcoholEffect = player.HasAlcoholEffect,
                 SkillName = IsNationalSnapshot
                     ? $"{VisibleSkillNames(player.Skills)} / {VisibleSkillNames(player.SecondarySkills)}"
@@ -881,6 +887,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 (human.ChunlaoCount > 0 ? $" · 醇 {human.ChunlaoCount}" : string.Empty) +
                 (human.PojunHoldCount > 0 ? $" · 破 {human.PojunHoldCount}" : string.Empty) +
                 (human.PrivateReserveCount > 0 ? $" · 星 {human.PrivateReserveCount}" : string.Empty) +
+                (human.PublicDeferredPileCount > 0 ? $" · {human.PublicDeferredPileName ?? "牌堆"} {human.PublicDeferredPileCount}" : string.Empty) +
                 (human.HasAlcoholEffect ? " · 酒效待下一张杀" : string.Empty);
         }
         else

@@ -209,8 +209,8 @@ public sealed partial class GameEngine
         IReadOnlyList<CardKind> cardKinds)
     {
         ValidateProgramTurnEffectGrant(frame);
-        var valid = query is (SkillRuleQuery.SlashLimit or SkillRuleQuery.HandLimit) &&
-                    operation == SkillRuleOperation.Add && amount > 0 ||
+        var valid = query == SkillRuleQuery.SlashLimit && operation == SkillRuleOperation.Add && amount > 0 ||
+                    query == SkillRuleQuery.HandLimit && operation == SkillRuleOperation.Add && amount is >= -20 and <= 20 && amount != 0 ||
                     query == SkillRuleQuery.OutgoingDistance && operation == SkillRuleOperation.Add && amount is >= -20 and <= 20 && amount != 0 ||
                     (query is SkillRuleQuery.SlashDistanceLimit or SkillRuleQuery.AttackRange) &&
                     operation == SkillRuleOperation.Unlimited && amount == 0 ||
@@ -232,12 +232,14 @@ public sealed partial class GameEngine
     {
         ValidateProgramTurnEffectGrant(frame);
         var targetScoped = restriction != SkillProgramCardTargetRestriction.SelfOnly;
-        if (targetScoped && (!IsValidPlayerSeat(targetSeat) || targetSeat == frame.OwnerSeat) ||
-            !targetScoped && targetSeat != frame.OwnerSeat)
+        // A self-only restriction binds the character named by the instruction, which lets a skill
+        // pin another character to self-targeting instead of only its own owner.
+        if (!IsValidPlayerSeat(targetSeat) || targetScoped && targetSeat == frame.OwnerSeat)
             throw new InvalidOperationException("The turn card-target restriction has an invalid subject.");
         var granted = _turnCardUseEffects.GrantTargetRestriction(
             _turnNumber, _currentSeat, frame.Id, frame.InstructionIndex - 1,
-            CreateProgramTurnEffectSource(frame), restriction, targetScoped ? targetSeat : null);
+            CreateProgramTurnEffectSource(frame), restriction, targetScoped ? targetSeat : null,
+            targetScoped || targetSeat == frame.OwnerSeat ? null : targetSeat);
         QueueGameEvent(new CardTargetRestrictionGrantedEvent(granted));
     }
 

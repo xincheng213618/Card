@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:qiuyuan",
+      "revision": 1,
+      "minimumRulesVersion": 190,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "share-the-slash",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "target",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLegalCurrentCardTarget"
+            },
+            {
+              "op": "chooseOption",
+              "target": "selectedTarget",
+              "resultBind": "qiuyuan-answer",
+              "options": [
+                {
+                  "id": "give-dodge",
+                  "condition": {
+                    "kind": "hasOwnedCardCategory",
+                    "zones": [
+                      "hand"
+                    ],
+                    "cardKinds": [
+                      "dodge"
+                    ]
+                  }
+                },
+                {
+                  "id": "become-target",
+                  "condition": {
+                    "kind": "always"
+                  }
+                }
+              ]
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "selectedTarget"
+              },
+              "cardOwnerRef": {
+                "kind": "selectedTarget"
+              },
+              "zones": [
+                "hand"
+              ],
+              "cardKinds": [
+                "dodge"
+              ],
+              "count": 1,
+              "destination": "ownerHand",
+              "awaitMovementTriggers": true,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "qiuyuan-answer",
+                "optionId": "give-dodge"
+              }
+            },
+            {
+              "op": "addCurrentCardUseTarget",
+              "target": "selectedTarget",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "qiuyuan-answer",
+                "optionId": "become-target"
+              }
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "classic:zhuikong",
+      "revision": 1,
+      "minimumRulesVersion": 190,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "contest-other-play-phase",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "ownerLostHp"
+                },
+                "operator": "greaterThanOrEqual",
+                "right": {
+                  "kind": "integerConstant",
+                  "value": 1
+                }
+              },
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "currentHandCount"
+                },
+                "operator": "greaterThanOrEqual",
+                "right": {
+                  "kind": "integerConstant",
+                  "value": 1
+                }
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "eventSource"
+            },
+            {
+              "op": "startPindian",
+              "target": "owner",
+              "opponentRef": {
+                "kind": "selectedTarget"
+              },
+              "resultBind": "zhuikong-contest",
+              "visibility": "public"
+            },
+            {
+              "op": "grantTurnCardTargetRestriction",
+              "target": "selectedTarget",
+              "targetRestriction": "selfOnly",
+              "condition": {
+                "kind": "pindianWon",
+                "sourceBind": "zhuikong-contest"
+              }
+            },
+            {
+              "op": "grantDirectedTurnCardPolicy",
+              "target": "owner",
+              "actorRef": {
+                "kind": "selectedTarget"
+              },
+              "targetRef": {
+                "kind": "owner"
+              },
+              "effects": [
+                "ignoreDistance"
+              ],
+              "condition": {
+                "kind": "pindianNotWon",
+                "sourceBind": "zhuikong-contest"
+              }
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    }
+  ]
+}

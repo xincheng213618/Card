@@ -82,6 +82,7 @@ public sealed partial class GameEngine
                 EquipmentCatalog.Get(card.Kind).DrawCountBonus)));
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.DrawCount).ToList();
         AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
+        AddFiniteContribution(contributions, $"turn:{player.Seat}:draw-count", GetAdditiveTurnRuleModifier(player.Seat, SkillRuleQuery.DrawCount));
         return RuleQueryService.Evaluate(
             SkillRuleQuery.DrawCount,
             new RuleQueryBounds(0, int.MaxValue),

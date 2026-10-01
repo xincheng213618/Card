@@ -681,6 +681,9 @@ public sealed partial class GameEngine
                 "The equipment effect target selection is invalid.");
         }
 
+        if (command.EquipmentKind == CardKind.ZhangbaSerpentSpear && IsTurnPhysicalUseForbidden(actor.Seat, cardIds))
+            return Reject(CommandErrorCode.IllegalAction, "The effective suit of this card use is forbidden this turn.");
+
         return Accept(() => HumanUseEquipmentEffectCore(
             command.EquipmentKind,
             cardIds,
@@ -2579,6 +2582,7 @@ public sealed partial class GameEngine
                 IsEquipmentAreaAbolished = player.EquipmentAreaAbolished,
                 EquipmentSlotCapacities = player.EquipmentSlotCapacities.Count > 0
                     ? new Dictionary<EquipmentSlot, int>(player.EquipmentSlotCapacities) : null,
+                ConfiguredConversionTiers = GetConfiguredConversionTierSnapshot(player),
                 WoodenOxGrainCount = woodenOxGrain.Count,
                 WoodenOxGrain = GetEquipment(player).Any(card => card.Kind == CardKind.WoodenOx) || woodenOxGrain.Count > 0
                     ? canSeeHand
@@ -2592,6 +2596,9 @@ public sealed partial class GameEngine
                     ? Array.AsReadOnly(buquWounds.Select(ToSnapshot).ToArray())
                     : null,
                 AuthorityCount = authority.Count,
+                PublicDeferredPileName = _deferredPublicPileDeposits.FirstOrDefault(item => item.OwnerSeat == player.Seat) is { } deposit ? _contentRegistry.GetSkill(deposit.SkillId).ProgramPresentation?.AuthorityName : null,
+                PublicDeferredPileCount = _cardZones.CardsAt(new CardLocation(CardZoneKind.PublicDeferredPile, player.Seat)).Count,
+                PublicDeferredPileCards = _cardZones.CardsAt(new CardLocation(CardZoneKind.PublicDeferredPile, player.Seat)).Count > 0 ? Array.AsReadOnly(_cardZones.CardsAt(new CardLocation(CardZoneKind.PublicDeferredPile, player.Seat)).Select(ToSnapshot).ToArray()) : null,
                 AuthorityName = canSeeGeneral
                     ? OwnedRuntimeSkills(player, general, includeAcquired: true)
                         .Select(skill => skill.ContentId is { } contentId
@@ -2694,7 +2701,8 @@ public sealed partial class GameEngine
             WinnerTeamId = IsTeamMode ? _winnerTeamId : null,
             WinnerFactionId = IsNationalWarMode ? _winnerFactionId : null,
             ModeKind = _modeDefinition.ModeKind,
-            PublicRevealedCards = Array.AsReadOnly(publicRevealedCards)
+            PublicRevealedCards = Array.AsReadOnly(publicRevealedCards),
+            PrivateRevealedCards = GetPrivatelyViewedCards(viewerSeat) is { Length: > 0 } privateCards ? Array.AsReadOnly(privateCards) : null
         };
     }
 
@@ -3424,6 +3432,8 @@ public sealed partial class GameEngine
         QueueGameEvent(new TurnStartedEvent(_turnNumber, current.Seat));
         ResolveHengyeTurnStart(current);
 
+        ConsumeSkippedNextTurnDrawBenefits(current);
+        CleanupLostDeferredPileSources();
         if (current.IsFaceDown)
         {
             current.IsFaceDown = false;
@@ -4038,7 +4048,7 @@ public sealed partial class GameEngine
         {
             var current = _players[_currentSeat];
             if (_options.UseInteractiveDiscard && current.IsHuman && current.IsAlive &&
-                GetHand(current).Count > GetHandLimit(current))
+                GetDiscardEligibleHand(current).Count > GetHandLimit(current))
             {
                 RequestHumanDiscard(current);
                 return;
@@ -4132,6 +4142,7 @@ public sealed partial class GameEngine
 
         var card = FindOwnedPlayableCard(actor, action.CardId) ??
             throw new InvalidOperationException("The chosen card is no longer in the actor's playable zones.");
+        if (TryExecuteSingleCardTrickConversion(actor, card, action)) return;
         card = ApplyProgramUseAppearance(actor, card, action.ConversionSource);
 
         switch (action.Kind)
@@ -4709,6 +4720,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The selected Nullification card is not in the responder's hand.");
         }
         ValidateNullificationConversion(responder, card, selectedConversionSource);
+        if (selectedConversionSource is not null && ViewAsRule(selectedConversionSource) is { ConversionStateId: not null, UsesPerPhase: not null }) ConsumeProgramViewAsUsage([selectedConversionSource]);
 
         var responseFrom = FindOwnedCardLocation(responder, card);
         MoveCard(
@@ -4757,7 +4769,7 @@ public sealed partial class GameEngine
         if (TryBeginProgramCardWindow(null, responseAction,
                 SkillProgramTriggerWindow.CardResponseAccepted, [],
                 ProgramCardContinuation.NullificationResponse)) return;
-        ContinueNullificationWindow(pending);
+        ContinueNullificationAfterResponseUse(responseAction);
     }
 
     private void FinishNullificationWindow(NullificationResolution pending)
@@ -5402,11 +5414,8 @@ public sealed partial class GameEngine
             QueueGameEvent(new AlcoholAppliedEvent(resolutionId, target.Seat, DamageBonus: 1));
             AddLog("CardEffect", $"{source.Name} 使用【酒】，{target.Name} 的下一张直接杀造成的伤害 +1。", source.Seat, target.Seat);
         }
-        if (!HasRemainingAdjustedSimpleTargets(resolutionId)) MoveCard(
-            alcohol,
-            CardLocation.Processing,
-            CardLocation.DiscardPile,
-            CardMoveReasons.UseFinished);
+        if (!HasRemainingAdjustedSimpleTargets(resolutionId))
+            FinishSingleBasicCardUseCost(use, alcohol);
         FinishCardUse(resolutionId, alcohol);
     }
 
@@ -11611,6 +11620,13 @@ public sealed partial class GameEngine
                 CardMoveReasons.ResponseFinished);
         }
 
+        if (TryBeginCompletedResponseUsePrograms(attack, action, continuation)) return;
+        ContinueFinishedCardResponse(attack, action, continuation);
+    }
+
+    private void ContinueFinishedCardResponse(AttackResolution attack, CardActionContext action,
+        ProgramCardContinuation continuation)
+    {
         switch (continuation)
         {
             case ProgramCardContinuation.Dodge:
@@ -13898,7 +13914,7 @@ public sealed partial class GameEngine
         return actions;
     }
 
-    private IReadOnlyList<LegalAction> BuildLegalActions(CharacterState actor)
+    private IReadOnlyList<LegalAction> BuildLegalActions(CharacterState actor, bool includeProgramActions = true)
     {
         var actions = new List<LegalAction>();
         if (!actor.IsAlive || _phase != TurnPhase.Play || actor.Seat != _currentSeat)
@@ -14674,12 +14690,13 @@ public sealed partial class GameEngine
         }
 
         AddPhaseLimitedBasicCardActions(actions, actor, allPhysicalPlayableCards);
-        actions.AddRange(BuildProgramActions(actor));
+        AddSingleCardTrickConversionActions(actions, actor, allPhysicalPlayableCards);
+        if (includeProgramActions) actions.AddRange(BuildProgramActions(actor));
         actions.AddRange(BuildForeignPublicPileSlashActions(actor));
         AddNextCardTargetAdjustmentActions(actions, actor);
         actions.Add(new LegalAction(LegalActionKind.EndPlay, null, null, "结束出牌"));
         var physicalKinds = allPhysicalPlayableCards.ToDictionary(card => card.Id, card => card.Kind);
-        var physicalSuits = allPhysicalPlayableCards.ToDictionary(card => card.Id, card => card.Suit);
+        var physicalSuits = allPhysicalPlayableCards.ToDictionary(card => card.Id, card => EffectiveSuit(actor, card));
         var permittedActions = actions.Where(action =>
         {
             var effectiveKind = action.PlayedCardKind ??
@@ -14694,6 +14711,7 @@ public sealed partial class GameEngine
                 physicalSuits.TryGetValue(actionCardId, out var physicalSuit)
                     ? physicalSuit
                     : (Suit?)null;
+            if (action.Kind != LegalActionKind.Recast && action.MaxCardCount <= 1 && declaredSuit is { } useSuit && IsTurnSuitUseForbidden(actor.Seat, useSuit)) return false;
             // Global tricks drop individually shielded targets instead of the whole
             // use: a black Nanman still resolves against everyone a Curtain bearer
             // does not protect, and only loses its action when no target remains.
@@ -15246,9 +15264,17 @@ public sealed partial class GameEngine
                 .SelectMany(instance => instance.Program.DamageModifiers.Select(modifier =>
                     (seat, instance, modifier))))
             .Where(item => item.modifier.SourceScope == SkillProgramDamageModifierSourceScope.DamageParticipant
-                ? item.modifier.Condition == SkillProgramDamageModifierCondition.OwnerUniqueMaximumHand &&
-                  _players.Where(player => player.IsAlive && player.Seat != item.seat)
-                      .All(player => GetHand(player).Count < GetHand(_players[item.seat]).Count)
+                ? item.modifier.Condition switch
+                  {
+                      SkillProgramDamageModifierCondition.OwnerUniqueMaximumHand =>
+                          _players.Where(player => player.IsAlive && player.Seat != item.seat)
+                              .All(player => GetHand(player).Count < GetHand(_players[item.seat]).Count),
+                      SkillProgramDamageModifierCondition.ChainedFirePropagationOrigin =>
+                          item.seat == attack.TargetSeat && !attack.IsChainPropagation &&
+                          GetDamageNature(attack) == DamageNature.Fire && _players[item.seat].IsChained &&
+                          _players.Any(player => player.IsAlive && player.Seat != item.seat && player.IsChained),
+                      _ => false
+                  }
                 : item.seat == attack.SourceSeat &&
                   !attack.IsChainPropagation && !attack.IsDelayedJudgmentDamage &&
                   !attack.IsProgramJudgmentDamage && attack.CardUserSeat == attack.SourceSeat &&
@@ -15685,6 +15711,8 @@ public sealed partial class GameEngine
     private void BeginDiscardPhase()
     {
         _phase = TurnPhase.Discard;
+        _fullDiscardPhaseSuitTurn = -1;
+        _fullDiscardPhaseSuits.Clear();
         _discardPhaseHandDiscardTurnNumber = -1;
         _discardPhaseHandDiscardIds.Clear();
         _status = EngineStatus.Running;
@@ -15785,7 +15813,7 @@ public sealed partial class GameEngine
 
     private void AutoDiscard(CharacterState player)
     {
-        var hand = GetHand(player);
+        var hand = GetDiscardEligibleHand(player);
         var handLimit = GetHandLimit(player);
         var count = Math.Max(0, hand.Count - handLimit);
         if (count == 0)
@@ -15975,6 +16003,9 @@ public sealed partial class GameEngine
                 _cardZones.CardsAt(CardLocation.Chunlao(victim.Seat)),
                 CardLocation.Chunlao(victim.Seat),
                 CardMoveReasons.ChunlaoDeathDiscard);
+            MoveDiedCards(_cardZones.CardsAt(new CardLocation(CardZoneKind.PublicDeferredPile, victim.Seat)),
+                new CardLocation(CardZoneKind.PublicDeferredPile, victim.Seat), new CardMoveReason("skill-program.deferred-pile.owner-death"));
+            _deferredPublicPileDeposits.RemoveAll(item => item.OwnerSeat == victim.Seat);
             MoveDiedCards(
                 _cardZones.CardsAt(CardLocation.PojunHold(victim.Seat)),
                 CardLocation.PojunHold(victim.Seat),
@@ -16504,7 +16535,7 @@ public sealed partial class GameEngine
         GetSkillBindingShard(player).ProgramInstances.Any(instance =>
             string.Equals(instance.SkillId, skillId, StringComparison.Ordinal));
 
-    private PlayerSkillContext CreateSkillContext(CharacterState player) =>
+    private PlayerSkillContext CreateSkillContext(CharacterState player, bool includeHandLimit = false) =>
         new(
             player.Seat,
             player.Hp,
@@ -16516,7 +16547,9 @@ public sealed partial class GameEngine
             player.IsChained,
             IsClassicIdentityMode,
             GetPublicProgramBooleanStates(player),
-            GetProgramPublicCounters(player));
+            GetProgramPublicCounters(player),
+            includeHandLimit ? GetHandLimit(player) : null,
+            includeHandLimit ? HasActuallyUsableHandCard(player) : null);
 
     private void CollectDiscardPhaseHandDiscard(Card card, CardLocation from, CardLocation to)
     {
@@ -16764,6 +16797,7 @@ public sealed partial class GameEngine
             to,
             reason);
         _cardMovements.Add(movement);
+        CollectFullDiscardPhaseSuit(card, movement);
         if (_started)
         {
             _pendingNotifications.Enqueue(new CardMovedNotification(movement));
@@ -17008,7 +17042,7 @@ public sealed partial class GameEngine
         if (_pendingNullification is { } nullification)
         {
             var responseWindow = _resolutionStack.OfType<ProgramCardTriggerWindowFrame>()
-                .LastOrDefault(frame => frame.Continuation == ProgramCardContinuation.NullificationResponse &&
+                .LastOrDefault(frame => IsNullificationResponseProgramWindow(frame) &&
                     frame.ParentFrameId == nullification.FrameId);
             var nullificationCardUse = _resolutionStack.OfType<CardUseFrame>()
                 .SingleOrDefault(frame => frame.Id == nullification.ResolutionId);
@@ -18292,7 +18326,7 @@ public sealed partial class GameEngine
         var awaitingAiNullification = IsAiNullificationPending();
         var awaitingNullificationProgram = _resolutionStack
             .OfType<ProgramCardTriggerWindowFrame>()
-            .Any(frame => frame.Continuation == ProgramCardContinuation.NullificationResponse &&
+            .Any(frame => IsNullificationResponseProgramWindow(frame) &&
                 _pendingNullification?.FrameId == frame.ParentFrameId);
         if (_pendingAttack is null &&
             _pendingNullification is null &&
@@ -18371,8 +18405,6 @@ public sealed partial class GameEngine
         AttackResolution attack,
         IReadOnlyList<Card> processing)
     {
-        if (TryValidateProgramAlternativeCostAttack(attack, processing, out var alternativeCostValid))
-            return alternativeCostValid;
         // A rescue card can be awaiting its own use triggers while the attack
         // remains suspended below the dying frame. Its costs belong to that
         // child use and are checked by the card-window invariant separately.
@@ -18397,10 +18429,22 @@ public sealed partial class GameEngine
         if (_resolutionStack.OfType<ProgramCardTriggerWindowFrame>().LastOrDefault() is { } programFrame &&
             programFrame.Action.Type == CardActionType.Response)
         {
-            var responseIds = programFrame.Action.PhysicalCards.Select(cost => cost.CardId).ToHashSet();
-            if (responseIds.Any(id => processing.All(card => card.Id != id))) return false;
+            var alternativeResponseIds = programFrame.Action.PhysicalCards
+                .Where(cost => IsProgramAlternativeCost(programFrame.Action, cost.CardId))
+                .Select(cost => cost.CardId).ToHashSet();
+            if (processing.Any(card => alternativeResponseIds.Contains(card.Id))) return false;
+            var responseIds = programFrame.Action.PhysicalCards
+                .Where(cost => !alternativeResponseIds.Contains(cost.CardId))
+                .Select(cost => cost.CardId).ToHashSet();
+            if (programFrame.Continuation == ProgramCardContinuation.CompletedResponse)
+            {
+                if (processing.Any(card => responseIds.Contains(card.Id))) return false;
+            }
+            else if (responseIds.Any(id => processing.All(card => card.Id != id))) return false;
             processing = processing.Where(card => !responseIds.Contains(card.Id)).ToArray();
         }
+        if (TryValidateProgramAlternativeCostAttack(attack, processing, out var alternativeCostValid))
+            return alternativeCostValid;
         if (attack.IsProgramJudgmentDamage)
         {
             var retainedParentCardIds = _pendingJudgment?.Attack?.PhysicalCards
@@ -18743,6 +18787,7 @@ public sealed partial class GameEngine
 
     private void PublishState()
     {
+        CleanupLostDeferredPileSources();
         if (!TryBeginCharacterStateProgramWindow() && !TryBeginHpChangedProgramWindow()) TryBeginCardsMovedProgramWindow();
         _pendingStateSnapshot = State;
     }

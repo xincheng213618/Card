@@ -32,7 +32,8 @@ public enum SkillProgramCardPolicyKind
     WoundedInRangeHandLimitPenalty = 454,
     DamageBecomesHpLoss = 600,
     ForeignPublicPileSlash = 781,
-    PindianClaim = 784
+    PindianClaim = 784,
+    IgnoreTurnObtainedHandCardsForDiscard = 1000
 }
 
 public sealed record SkillProgramCardPolicy(

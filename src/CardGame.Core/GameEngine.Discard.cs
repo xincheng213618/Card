@@ -4,7 +4,7 @@ public sealed partial class GameEngine
 {
     private void RequestHumanDiscard(CharacterState player)
     {
-        var hand = GetHand(player);
+        var hand = GetDiscardEligibleHand(player);
         var handLimit = GetHandLimit(player);
         var count = hand.Count - handLimit;
         _pendingDecision = new PendingDecision(
@@ -36,7 +36,7 @@ public sealed partial class GameEngine
         if (ids.Length != prompt.RequiredCardCount || ids.Distinct().Count() != ids.Length)
             return Reject(CommandErrorCode.InvalidChoice, $"Select exactly {prompt.RequiredCardCount} distinct cards.");
 
-        var hand = GetHand(actor);
+        var hand = GetDiscardEligibleHand(actor);
         var handIds = hand.Select(card => card.Id).ToHashSet();
         if (ids.Any(id => !prompt.ValidCardIds.Contains(id) || !handIds.Contains(id)))
             return Reject(CommandErrorCode.InvalidCard, "Every selected card must be in the published hand.");
@@ -65,7 +65,7 @@ public sealed partial class GameEngine
         if (_pendingDecision is { Kind: DecisionKind.DiscardCards } prompt)
         {
             var owner = _players[prompt.PlayerSeat];
-            var hand = GetHand(owner);
+            var hand = GetDiscardEligibleHand(owner);
             if (!owner.IsHuman || !owner.IsAlive || _phase != TurnPhase.Discard ||
                 _currentSeat != owner.Seat || _status != EngineStatus.AwaitingHumanDiscard ||
                 prompt.RequiredCardCount <= 0 || prompt.RequiredCardCount != hand.Count - GetHandLimit(owner) ||

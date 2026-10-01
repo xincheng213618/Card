@@ -34,7 +34,9 @@ internal static class SkillProgramTargetOrderChecks
         var redirects = game.Events.Select(item => item.Payload).OfType<ProgramCardTriggerResolvedEvent>()
             .Where(item => item.SkillId == "target-order:liuli" && item.Activated).ToArray();
         var use = game.Events.Select(item => item.Payload).OfType<CardActionAcceptedEvent>()
-            .Single(item => item.Action.Type == CardActionType.Use).Action;
+            .Single(item => item.Action.Type == CardActionType.Use &&
+                item.Action.ActorSeat == 0 && item.Action.EffectiveKind == CardKind.Slash &&
+                item.Action.PhysicalCards.Any(card => card.CardId == selected.CardId)).Action;
         Require(redirects.Length == 2 && use.TargetSeats.SequenceEqual([2, 4]),
             $"Both Liuli choices must finish before triggers; redirected targets must stay distinct: redirects={redirects.Length}, targets={string.Join(',', use.TargetSeats)}.");
         Require(!game.Events.Any(item => item.Payload is CardRespondedEvent),

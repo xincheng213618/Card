@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:guizao",
+      "revision": 1,
+      "minimumRulesVersion": 190,
+      "triggers": [
+        {
+          "id": "full-phase-distinct-suits",
+          "window": "discardPhaseEnded",
+          "subject": "owner",
+          "optional": true,
+          "condition": {
+            "kind": "discardPhaseSuitsAllDistinct"
+          },
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "benefit",
+              "options": [
+                {
+                  "id": "recover",
+                  "condition": {
+                    "kind": "wounded"
+                  }
+                },
+                {
+                  "id": "draw",
+                  "condition": {
+                    "kind": "always"
+                  }
+                }
+              ]
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "benefit",
+                "optionId": "recover"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "benefit",
+                "optionId": "draw"
+              }
+            }
+          ],
+          "allowOwnDiscardPhaseEnded": true,
+          "turnOwnerScope": "own"
+        }
+      ]
+    },
+    {
+      "id": "classic:jiyu",
+      "revision": 1,
+      "minimumRulesVersion": 190,
+      "activations": [
+        {
+          "id": "hand-discard-restriction",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "anyLivingWithHand",
+          "usesPerTurn": null,
+          "condition": {
+            "kind": "hasUsableHandCard"
+          },
+          "targetPhaseLedgerId": "hand-discard-restriction",
+          "effects": [
+            {
+              "op": "consumeTargetPhaseLedger",
+              "target": "owner",
+              "usageId": "hand-discard-restriction"
+            },
+            {
+              "op": "selectOwnedCards",
+              "target": "selectedTarget",
+              "amount": 1,
+              "zones": [
+                "hand"
+              ],
+              "resultBind": "discard"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "discard",
+              "destination": "discardPile",
+              "awaitMovementTriggers": true
+            },
+            {
+              "op": "grantTurnBoundSuitUseProhibition",
+              "target": "owner",
+              "sourceBind": "discard"
+            },
+            {
+              "op": "loseHp",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "boundCardsMatchSuits",
+                "sourceBind": "discard",
+                "suits": [
+                  "spade"
+                ]
+              }
+            },
+            {
+              "op": "turnOver",
+              "target": "owner",
+              "condition": {
+                "kind": "boundCardsMatchSuits",
+                "sourceBind": "discard",
+                "suits": [
+                  "spade"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

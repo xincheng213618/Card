@@ -30,14 +30,19 @@ public sealed partial class GameEngine
         }
         return values.Count > 0 ? values : null;
     }
-    private IReadOnlyDictionary<string, int>? GetProgramPublicCounters(CharacterState player) =>
-        _contentRegistry.Skills.Values.Any(skill => skill.Program?.CardPolicies.Any(policy => (int)policy.Kind >= 450) == true)
-        ? new Dictionary<string, int>(StringComparer.Ordinal)
+    private IReadOnlyDictionary<string, int>? GetProgramPublicCounters(CharacterState player)
+    {
+        var values = new Dictionary<string, int>(StringComparer.Ordinal);
+        if (_contentRegistry.Skills.Values.Any(skill => skill.Program?.CardPolicies.Any(policy => (int)policy.Kind >= 450) == true))
         {
-            ["junlue"] = player.Markers.GetValueOrDefault(PlayerMarkerKind.Junlue),
-            ["camp"] = player.Markers.GetValueOrDefault(PlayerMarkerKind.Camp),
-            ["woundedPlayers"] = _players.Count(other => other.IsAlive && other.Hp < other.MaxHp)
-        } : null;
+            values["junlue"] = player.Markers.GetValueOrDefault(PlayerMarkerKind.Junlue);
+            values["camp"] = player.Markers.GetValueOrDefault(PlayerMarkerKind.Camp);
+            values["woundedPlayers"] = _players.Count(other => other.IsAlive && other.Hp < other.MaxHp);
+        }
+        foreach (var item in _configuredConversionTiers.Where(item => item.Key.Seat == player.Seat))
+            values[item.Key.State] = item.Value;
+        return values.Count > 0 ? values : null;
+    }
     private void ResetPlayPhaseProgramStates(int ownerSeat)
     {
         foreach (var key in _programBooleanStates.Keys.Where(key => key.OwnerSeat == ownerSeat).ToArray())
