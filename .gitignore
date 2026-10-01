@@ -7,6 +7,7 @@ TestResults/
 *.log
 /dist/
 /.artifacts/
+/.codex-artifacts/
 /artifacts/
 /--m3/
 /--output/
