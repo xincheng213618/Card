@@ -117,6 +117,8 @@ CURRENT_HEROES = {
     "sun-liang": (403, "孙亮"),
     "guanqiu-jian": (413, "毌丘俭"), "lu-kang": (414, "陆抗"),
     "xu-you": (406, "许攸"),
+    "wang-ji": (362, "王基"), "kuai-yue-kuai-liang": (404, "蒯越蒯良"),
+    "lu-zhi": (407, "卢植"),
 }
 
 NEW_OFFICIAL_DEFAULTS = {"boundary-gan-ning", "boundary-xu-chu", "qu-yi", "shen-zhou-yu", "shen-lu-bu", "fu-huanghou"}

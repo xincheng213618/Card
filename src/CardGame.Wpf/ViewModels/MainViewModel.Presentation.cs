@@ -190,8 +190,16 @@ public sealed partial class MainViewModel
         SkillTag tags = SkillTag.None,
         SkillRuntimeStateSnapshot? runtimeState = null)
     {
+        var polarityText = runtimeState?.Polarity switch
+        {
+            SkillPolarity.Yang => "当前：阳",
+            SkillPolarity.Yin => "当前：阴",
+            _ => null
+        };
         if (runtimeState is not null && GetProgramRuntimeStateText(runtimeState) is { Length: > 0 } programState)
-            return programState;
+            return polarityText is null ? programState : $"{polarityText} · {programState}";
+        if (polarityText is not null)
+            return isAvailable ? $"{polarityText} · 可发动" : polarityText;
         if (runtimeState?.SkillId == "classic:fuhun" &&
             runtimeState.Usages.Any(usage =>
                 usage.UsageId.StartsWith("grant-parent-skills@", StringComparison.Ordinal) &&
@@ -220,8 +228,6 @@ public sealed partial class MainViewModel
                     ? "等待触发时机 · 本局限一次"
                     : "本局限一次";
         }
-        if (runtimeState?.Polarity is { } polarity)
-            return polarity == SkillPolarity.Yang ? "当前：阳" : "当前：阴";
         if (runtimeState?.SkillId == "mou:hengye")
         {
             var growth = runtimeState.Usages.SingleOrDefault(usage =>

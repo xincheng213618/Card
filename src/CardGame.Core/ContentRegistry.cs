@@ -536,7 +536,7 @@ public sealed class ContentRegistry
                 }
                 foreach (var grantedSkillId in skill.Program!.Triggers
                              .SelectMany(trigger => trigger.Effects)
-                             .Where(effect => effect.Op is SkillProgramEffectOp.GrantSkills or SkillProgramEffectOp.GrantRandomSkillAndSuitShield or SkillProgramEffectOp.ExchangePublicPileHand or SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard)
+                             .Where(effect => effect.Op is SkillProgramEffectOp.DiscardHandToNamedTurnCount or SkillProgramEffectOp.GrantSkills or SkillProgramEffectOp.GrantRandomSkillAndSuitShield or SkillProgramEffectOp.ExchangePublicPileHand or SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard)
                              .SelectMany(effect => effect.SkillIds)
                              .Concat(skill.Program.Activations.SelectMany(activation => activation.Effects)
                                  .Where(effect => effect.Op == SkillProgramEffectOp.ObtainPublicPileCard)
@@ -548,6 +548,10 @@ public sealed class ContentRegistry
                             $"Skill '{skill.Id}' grants unknown skill '{grantedSkillId}'.");
                     }
                 }
+                foreach (var countSource in skill.Program.Triggers.SelectMany(t => t.Effects)
+                    .Where(e => e.Op == SkillProgramEffectOp.DiscardHandToNamedTurnCount).SelectMany(e => e.SkillIds))
+                    if (_skills[countSource].Program?.Triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardNonFinalTargetCardThenDraw)) != true)
+                        throw new InvalidOperationException($"Skill '{skill.Id}' requires a declared named-turn count producer '{countSource}'.");
             }
 
             foreach (var general in _generals.Values)

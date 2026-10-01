@@ -1,0 +1,53 @@
+{
+  "skills": [
+    {
+      "triggers": [
+        {
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "id": "discard-outside-final-targets",
+          "cardCategories": [
+            "basic",
+            "trick"
+          ],
+          "optional": true,
+          "effects": [
+            {
+              "op": "discardNonFinalTargetCardThenDraw",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "id": "classic:qizhi",
+      "revision": 1
+    },
+    {
+      "triggers": [
+        {
+          "subject": "owner",
+          "id": "draw-and-retain-turn-count",
+          "window": "turnEnding",
+          "effects": [
+            {
+              "target": "owner",
+              "op": "draw",
+              "amount": 2
+            },
+            {
+              "target": "owner",
+              "op": "discardHandToNamedTurnCount",
+              "skillIds": [
+                "classic:qizhi"
+              ]
+            }
+          ],
+          "optional": true
+        }
+      ],
+      "id": "classic:jinqu",
+      "revision": 1
+    }
+  ],
+  "schemaVersion": 62
+}

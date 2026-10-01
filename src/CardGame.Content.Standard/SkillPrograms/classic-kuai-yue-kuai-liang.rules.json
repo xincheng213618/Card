@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:jianxiang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "offer",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "target",
+          "onlyDesignatedCardTargets": true,
+          "optional": true,
+          "condition": {
+            "kind": "not",
+            "children": [
+              {
+                "kind": "cardActionActorIsOwner"
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "anyLivingLeastHandCount"
+            },
+            {
+              "op": "draw",
+              "target": "selectedTarget",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:shenshi",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "yang",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingHighestHand",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "giveSelectedOwnedCardAndDamage",
+              "target": "owner",
+              "amount": 4
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "yin",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "observeDamageSourceHandAndGive",
+              "target": "owner",
+              "amount": 4
+            }
+          ],
+          "damageOccurrence": "perDamage"
+        }
+      ]
+    }
+  ]
+}

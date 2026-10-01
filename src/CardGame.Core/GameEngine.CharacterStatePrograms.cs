@@ -84,6 +84,7 @@ public sealed partial class GameEngine
 
     private void CompleteFaceUpSkippedTurn(CharacterState current)
     {
+        ExpireGiftRetentionObligations();
         _phase = TurnPhase.Finished;
         AddLog("TurnEnded", $"{current.Name} 的翻面回合结束。", current.Seat);
         AdvanceEventRulesAndQueueFact(new TurnEndedEvent(_turnNumber, current.Seat));

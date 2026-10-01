@@ -1,0 +1,271 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀OL",
+  "batch": "风林火山普通版王基蒯越蒯良卢植",
+  "retrievedAt": "2026-10-02",
+  "implementationStatus": "implementedMainFullAndRoutineVerified",
+  "rawArtifactDirectory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-NextBatch-preflight-resume-20261002",
+  "roster": [
+    {
+      "contentId": "classic:wang-ji",
+      "officialId": 362,
+      "name": "王基",
+      "maxHp": 3,
+      "faction": "wei",
+      "gender": "male",
+      "genderEvidence": "Official historical biography; not a live gender field inspection.",
+      "sourcePage": "https://www.sanguosha.com/hero/362",
+      "retrievedAt": "2026-10-01T18:13:04.274056+00:00",
+      "responseSha256": "452a427935c690d776af20b46f3c1fb3f468f242b9bf9aa1022d133ca7a4abbc",
+      "officialSkillText": "武将技能：\n奇制\n进趋\n当你于回合内使用非装备牌指定目标后，你可以弃置另一名角色一张牌，然后令其摸一张牌。\n结束阶段，你可以摸两张牌，然后将手牌弃至X张（X为你本回合发动“奇制”的次数）。\n",
+      "indexFields": {
+        "gid": 362,
+        "name": "王基",
+        "resource": "36200",
+        "extend": "风林火山",
+        "hp": 3,
+        "initial_hp": 0,
+        "quality": "稀有",
+        "figure": "魏",
+        "figure_py": "wei",
+        "biography": "字伯舆，东莱曲城人。三国时期魏国将领。王基文武兼备，才高于世，德溥[pǔ]于时，深得司马懿、司马师、司马昭的器重，尤其在南征毌[guàn]丘俭，文钦之乱，东征诸葛诞之叛大规模军事活动中，王基与司马师、司马昭结下了深厚的军友情谊。魏景元二年王基去世，追赠司空，谥号为景侯。",
+        "characteristic": "通过使用牌来弃置敌人的装备牌，多次发动技能来获得奖励。会成为敌人优先攻击的目标。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/362.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/36200.png",
+        "realname": "王基 (风林火山)"
+      },
+      "galleryGroup": "myth-yin",
+      "operationRange": [
+        1440,
+        1459
+      ],
+      "implementationStatus": "implementedMainFullAndRoutineVerified",
+      "artwork": {
+        "id": "36200",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/362",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/36200.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-wang-ji.png",
+        "sha256": "8a6af1efb8ddc8c44dc9bcd69283573be309675045a3ad955bec52fb784ea8e5",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "http": {
+          "status": 200,
+          "retrievedAt": "2026-10-01T18:56:28.157724+00:00",
+          "bytes": 1074774,
+          "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/36200.png"
+        },
+        "status": "integratedMainWpfFullVerified",
+        "boundary": "Official main card PNG bytes, dimensions, SHA and actual local image verified; generic offline WPF controls verified; main Full pending."
+      }
+    },
+    {
+      "contentId": "classic:kuai-yue-kuai-liang",
+      "officialId": 404,
+      "name": "蒯越蒯良",
+      "maxHp": 3,
+      "faction": "wei",
+      "gender": "male",
+      "genderEvidence": "Official historical biography; not a live gender field inspection.",
+      "sourcePage": "https://www.sanguosha.com/hero/404",
+      "retrievedAt": "2026-10-01T18:13:04.302486+00:00",
+      "responseSha256": "9961ae93ee05c3f902016035d2f81b9390c0e8f66ac35376bffa61fbc97ffd71",
+      "officialSkillText": "武将技能：\n荐降\n审时\n当你成为其他角色使用牌的目标后，你可以令手牌数最少的一名角色摸一张牌。\n转换技，阳：出牌阶段限一次，你可以交给手牌数最多的其他角色一张牌，并对其造成1点伤害。若其因此死亡，你可以令一名角色将手牌摸至四张。 阴：当其他角色对你造成伤害后，你可以观看其手牌，并交给其一张牌。当前回合结束阶段，若其未失去此牌，你将手牌摸至四张。\n",
+      "indexFields": {
+        "gid": 404,
+        "name": "蒯越蒯良",
+        "resource": "40400",
+        "extend": "风林火山",
+        "hp": 3,
+        "initial_hp": 0,
+        "quality": "史诗",
+        "figure": "魏",
+        "figure_py": "wei",
+        "biography": "蒯[kuǎi]良，生卒年不详，字子柔；蒯越（?－214年），字异度，襄阳中庐人，蒯良之弟。两人活跃于汉末，都是荆州南郡望族之一蒯家的代表人物。190年，北军中侯刘表应朝廷命诏赴任荆州刺史，却对当时的局势感到彷徨，因此就在宜城筵请蒯良及其弟蒯越共谋大事。蒯良首先提出只要当政者能够并行仁义，百姓自然会乐于归附，征兵也不会成问题；但蒯越却认为乱世之中更应重视权谋。蒯良为刘表定下安抚荆楚的政治方向，佐其成业，被刘表誉为“雍季之论”；蒯越的计策得到了刘表的赞赏和采纳，称其有如臼[jiù]犯的谋略一般。两人遂归附刘表，帮助其铲除荆州一带的宗贼。蒯良被刘表擢升为主簿，蒯越被拜为章陵太守、封樊亭侯。蒯良此后事迹不详，蒯越在刘表病逝后与刘琮一同投降曹操，后来官至光禄勋。",
+        "characteristic": "有一定控制能力，在适合的时机使用转换技的不同状态，可以进行强力爆发",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/404.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/40400.png",
+        "realname": "蒯越蒯良 (风林火山)"
+      },
+      "galleryGroup": "myth-yin",
+      "operationRange": [
+        1460,
+        1479
+      ],
+      "implementationStatus": "implementedMainFullAndRoutineVerified",
+      "artwork": {
+        "id": "40400",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/404",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40400.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-kuai-yue-kuai-liang.png",
+        "sha256": "8dbd0182f5bbc8e5ca3754d6c337c779c7e533813ebc45a513a5708bf96fb6e8",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "http": {
+          "status": 200,
+          "retrievedAt": "2026-10-01T18:56:28.140820+00:00",
+          "bytes": 809199,
+          "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40400.png"
+        },
+        "status": "integratedMainWpfFullVerified",
+        "boundary": "Official main card PNG bytes, dimensions, SHA and actual local image verified; generic offline WPF controls verified; main Full pending."
+      }
+    },
+    {
+      "contentId": "classic:lu-zhi",
+      "officialId": 407,
+      "name": "卢植",
+      "maxHp": 3,
+      "faction": "qun",
+      "gender": "male",
+      "genderEvidence": "Official historical biography; not a live gender field inspection.",
+      "sourcePage": "https://www.sanguosha.com/hero/407",
+      "retrievedAt": "2026-10-01T18:13:04.679210+00:00",
+      "responseSha256": "62f800f65a2dc715d1697020ea1ccab60cddd0304f9677b6c7cc34bb6643855e",
+      "officialSkillText": "武将技能：\n明任\n贞良\n游戏开始时，你摸两张牌，然后将你的一张手牌置于你的武将牌上，称为“任”。结束阶段，你可以用手牌替换“任”。\n转换技，阳：出牌阶段限一次，你可以选择攻击范围内的一名其他角色，然后弃置一张与“任”颜色相同的牌对其造成1点伤害。阴：当你于回合外使用或打出的牌置入弃牌堆时，若此牌与“任”颜色相同，你可以令一名角色摸一张牌。\n",
+      "indexFields": {
+        "gid": 407,
+        "name": "卢植",
+        "resource": "40700",
+        "extend": "风林火山",
+        "hp": 3,
+        "initial_hp": 0,
+        "quality": "史诗",
+        "figure": "群",
+        "figure_py": "qun",
+        "biography": "字子干，涿[zhuō]郡涿县人。东汉末年经学家、将领。刘备和公孙瓒[zàn]都曾拜他为师。卢植身材高大，性格刚毅，文武双全，曾师从太尉陈球、大儒马融等，为郑玄、管宁、华歆[xīn]的同门师兄，先后担任九江、庐江太守，平定蛮族叛乱。后与马日磾[dī]、蔡邕[yōng]等一起在东观校勘儒学经典书籍，并参与续写《汉记》，另著有《尚书章句》、《三礼解诂[gǔ]》等。黄巾起义时，卢植北中郎将，率军与张角交战，后被诬陷下狱，经营救后复任为尚书。后来，他因为上谏激怒董卓被免官，隐居在上谷军都山，191年袁绍取得冀州，拜卢植为军师。第二年卢植去世，临终要求薄葬。207年曹操北伐乌桓经过卢植墓，撰文赞扬他，并派人为他扫墓。",
+        "characteristic": "有一定的进攻和辅助能力。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/407.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/40700.png",
+        "realname": "卢植 (风林火山)"
+      },
+      "galleryGroup": "myth-yin",
+      "operationRange": [
+        1480,
+        1499
+      ],
+      "implementationStatus": "implementedMainFullAndRoutineVerified",
+      "artwork": {
+        "id": "40700",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/407",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40700.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-lu-zhi.png",
+        "sha256": "298ed8dd502dfb848a3f00c1f17b2ca0c5c82b92a584abd9bff538c6db772f8a",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "http": {
+          "status": 200,
+          "retrievedAt": "2026-10-01T18:56:28.152055+00:00",
+          "bytes": 1177848,
+          "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40700.png"
+        },
+        "status": "integratedMainWpfFullVerified",
+        "boundary": "Official main card PNG bytes, dimensions, SHA and actual local image verified; generic offline WPF controls verified; main Full pending."
+      }
+    }
+  ],
+  "engineeringContract": "../skill-composition/FENG_LIN_FOURTH_CAPABILITIES.md",
+  "engineeringBoundary": "Current ordinary OL primary text with explicit engineering contract; no current FAQ claim. Main Full and measured routine passed; offline WPF does not establish live client acceptance.",
+  "dispatch": {
+    "baselineHead": "ce9fc853501919c1ad707120860f0cb64d48bcbf",
+    "baselineManifest": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourth-20261002\\baseline-manifest.json",
+    "baselineManifestSha256": "52bacc066f12c2bf60ffbef2b960d012962acaddec610d30d9e3c12c51f8de34",
+    "baselineFiles": 3407,
+    "initialCopyDrift": []
+  },
+  "classificationSources": [
+    "https://www.sanguosha.com/news/20210508_6467_2515",
+    "https://www.sanguosha.com/news/20200603_4694_1811"
+  ],
+  "parentMediaVerification": {
+    "pixelSize": [
+      750,
+      950
+    ],
+    "locallyViewed": [
+      "wang-ji",
+      "kuai-yue-kuai-liang",
+      "lu-zhi"
+    ],
+    "mainImageEqualsIndexCover": true,
+    "boundary": "Preparation only; not skill or live client acceptance."
+  },
+  "commonConversionOverlay": {
+    "manifestSha256": "15f5c9a2dfea6a609ce11abbdcaa012773ff486bd02ccc429e81070208787642",
+    "files": 8,
+    "actualChecks": "1/1 actual command state/replay passed in author workspace; no parent repeated test",
+    "transferProof": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourth-20261002\\common-overlay-luzhi\\proof.json",
+    "status": "frozenOverlayTransferredWithoutConflicts"
+  },
+  "frozenRuntimeDeliveries": [
+    {
+      "key": "wangji",
+      "manifestSha256": "29bd0dd77602fcc3f5317efd74217c24067f1a54b2e7c39e7b0a28108014433d",
+      "directory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourth-20261002\\wangji\\delivery-runtime"
+    },
+    {
+      "key": "kuai",
+      "manifestSha256": "aef7e49f6ff8f795d6334ce254c8e338f51d0b9779a9fbe894c752aaaa0167ba",
+      "directory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourth-20261002\\kuai\\delivery\\kuai-final"
+    },
+    {
+      "key": "luzhi-v2",
+      "manifestSha256": "f6689372fada7b7bc8780e2b36fc9df241ac92d628ae23cac44a4275ca19f953",
+      "directory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourth-20261002\\luzhi-parent-frozen"
+    },
+    {
+      "key": "kuai-ending-delta",
+      "manifestSha256": "4b3219b1a1101f4c342529a33f724cef5d2bf98bbbfc398004594ae5c14d0f50",
+      "directory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourth-20261002\\kuai\\delivery\\kuai-ending-delta",
+      "baseManifestSha256": "aef7e49f6ff8f795d6334ce254c8e338f51d0b9779a9fbe894c752aaaa0167ba"
+    }
+  ],
+  "progressEvidence": [
+    {
+      "scope": "Merged Wang Ji, Lu Zhi, shared conversion/piles and Fame2017 regression union; generic polarity WPF",
+      "result": "Core72/72 and WPF1/1 passed",
+      "durationMs": 43591,
+      "summary": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourth-20261002\\validation-parent-targeted-01\\summary.json"
+    },
+    {
+      "scope": "Merged Ending obligation repair, Kuai and command/movement ownership boundaries",
+      "result": "Core8/8 passed",
+      "durationMs": 6663,
+      "summary": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourth-20261002\\validation-parent-targeted-02\\summary.json"
+    }
+  ],
+  "verificationLimits": [
+    "Actual nonresponse out-of-turn Use and post-Discard reclamation are not separately exercised for Lu Zhi; scalar fact/action join and consumer independence are statically reviewed. Real Funan never-Discard negative is tested.",
+    "No live OL client or actual desktop match acceptance. Individual specialized boundaries listed in frozen delivery READMEs are not claimed as tested."
+  ],
+  "endingIssuedObligationRepair": {
+    "status": "implementedMainFullAndRoutineVerified",
+    "boundary": "Ending child obligations join the owning typed boundary suffix, retaining current/completed prefix. Merged Kuai and command/movement boundary checks 8/8 passed; main Full pending."
+  },
+  "mainAcceptance": {
+    "baseHead": "ce9fc853501919c1ad707120860f0cb64d48bcbf",
+    "sourceWritebackProof": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourth-20261002\\main-writeback-applied.json",
+    "sourceDriftBeforeDocumentation": [],
+    "full": {
+      "corePassed": 367,
+      "wpfPassed": 46,
+      "coreFailed": 0,
+      "wpfFailed": 0,
+      "durationMs": 133834,
+      "summary": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourth-20261002\\main-full-evidence\\summary.json"
+    },
+    "routine": {
+      "corePassed": 101,
+      "wpfPassed": 12,
+      "coreFailed": 0,
+      "wpfFailed": 0,
+      "durationMs": 43031,
+      "summary": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourth-20261002\\main-routine-evidence\\summary.json",
+      "incrementalBuild": true
+    },
+    "acceptedAt": "2026-10-01T19:51:02.282271+00:00",
+    "boundary": "Offline Core/WPF verification, no live OL client match acceptance; Lu Zhi nonresponse out-of-turn Use and post-Discard reclamation separately untested, static fact join reviewed. No push or release."
+  }
+}

@@ -99,6 +99,11 @@ public sealed record ProgramSkillFrame(
     /// <summary>The exact current grant selected when this execution was frozen.</summary>
     public string SkillInstanceId { get; init; } = "";
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SkillPolarity? ConversionPreviousPolarity { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramConvertingGiftDraft? ConvertingGift { get; init; }
+
     /// <summary>Null for a play activation; otherwise the stable trigger/binding id.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? TriggerId { get; init; }
@@ -174,6 +179,7 @@ public sealed record ProgramSkillFrame(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramQuotaTopDraft? QuotaTop { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public AlternatingSuitTopDraft? AlternatingSuitTop { get; init; }
+    public NamedTurnCountFlowDraft? NamedTurnCountFlow { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramRepeatedJudgment? RepeatedJudgment { get; init; }
@@ -183,6 +189,7 @@ public sealed record ProgramSkillFrame(
     public ProgramPrivateReserveDraft? PrivateReserveDraft { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramPublicPileDraft? PublicPileDraft { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public PublicPileColorPayment? PublicPileColorPayment {get;init;}
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramDeckEndExchange? DeckEndExchange { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramRelativeZoneDemand? RelativeZoneDemand { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramDeckSlashSequence? DeckSlashSequence { get; init; }

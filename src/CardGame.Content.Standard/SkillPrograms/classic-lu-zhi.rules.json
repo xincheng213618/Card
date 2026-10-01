@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:mingren",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "initial-reserve",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2
+            },
+            {
+              "op": "awaitOwnedCardMovement",
+              "target": "owner"
+            },
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "amount": 1,
+              "zones": [
+                "hand"
+              ],
+              "resultBind": "initial-reserve"
+            },
+            {
+              "op": "storeBoundHandInPublicPile",
+              "target": "owner",
+              "sourceBind": "initial-reserve"
+            }
+          ]
+        },
+        {
+          "id": "exchange-reserve",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "exchangePublicPileHand",
+              "target": "owner",
+              "skillIds": [
+                "classic:mingren"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:zhenliang",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "reserve-color-damage",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "publicPileColorDamage",
+              "target": "owner",
+              "skillIds": [
+                "classic:mingren"
+              ]
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "outside-action-discard",
+          "window": "discardPileReceived",
+          "optional": true,
+          "movementOccurrence": "perBatch",
+          "effects": [
+            {
+              "op": "rewardDiscardedActionColor",
+              "target": "owner",
+              "skillIds": [
+                "classic:mingren"
+              ]
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    }
+  ]
+}

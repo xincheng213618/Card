@@ -67,7 +67,7 @@ public sealed partial class GameEngine
     {
         var costs = physicalIds.Select(id => new CardActionCost(id,
             _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(item => item.Id == id).Kind,
-            _cardZones.GetLocation(id))).ToArray();
+            _cardZones.GetLocation(id), CapturePhysicalCardColor(actorSeat,_cardZones.CardsAt(_cardZones.GetLocation(id)).Single(c=>c.Id==id)))).ToArray();
         var provider = costs.FirstOrDefault()?.From.OwnerSeat ?? actorSeat;
         CardConversionSource? conversion;
         if (explicitConversion is not null)
@@ -109,7 +109,7 @@ public sealed partial class GameEngine
             null, null, effectiveKind, targets, costs, conversionChain,
             (designatedTargetSeats ?? targets ),
             effectiveSuit: trackAppearance ? CaptureUsedCardSuit(actorSeat, physicalIds, card) : null,
-            effectiveRank: trackAppearance && physicalIds.Count == 1 && card.Rank > 0 ? card.Rank : null);
+            effectiveRank: trackAppearance && physicalIds.Count == 1 && card.Rank > 0 ? card.Rank : null, effectiveIsRed: CaptureActionColor(costs,trackAppearance ? CaptureUsedCardSuit(actorSeat,physicalIds,card) : null));
     }
 
     private bool TryBeginCardResponsePrograms(CardAttackHandle attack, CharacterState actor,
@@ -120,7 +120,7 @@ public sealed partial class GameEngine
         var parent = _resolutionStack.OfType<CardUseFrame>().LastOrDefault(frame => frame.Id == attack.ResolutionId);
         var action = new CardActionContext(++_cardActionSequence, parent?.Action?.ActionId,
             CardActionType.Response, actor.Seat, provider.Seat, requesterSeat, actor.Seat,
-            opponentSeat, effectiveKind, [], costs, conversionSource is null ? [] : [conversionSource], effectiveSuit: completedResponseUseSuit);
+            opponentSeat, effectiveKind, [], costs, conversionSource is null ? [] : [conversionSource], effectiveSuit: completedResponseUseSuit,effectiveIsRed:CaptureActionColor(costs,completedResponseUseSuit));
         if (actor.Seat == provider.Seat && requesterSeat is null && IsProgramResponseCardUse(actor, effectiveKind))
         {
             RecordProgramUsedBasicCard(actor.Seat, effectiveKind);
@@ -164,7 +164,7 @@ public sealed partial class GameEngine
             captured.ActorSeat, captured.ProviderSeat, captured.RequesterSeat, captured.ResponderSeat,
             captured.OpponentSeat, captured.EffectiveKind, frame.TargetSeats, captured.PhysicalCards, captured.ConversionChain,
             (frame.TargetSeats.Where(seat => _players[seat].IsAlive).Distinct().ToArray() ),
-            captured.EffectiveSuit, captured.EffectiveRank);
+            captured.EffectiveSuit, captured.EffectiveRank,captured.EffectiveIsRed);
         var index = _resolutionStack.FindLastIndex(item => item.Id == frame.Id);
         ReplaceRuntimeFrame(_resolutionStack[index].Id, frame with { Action = finalized, ProgramUseAccepted = true });
         AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(finalized));
@@ -271,6 +271,8 @@ public sealed partial class GameEngine
         foreach (var binding in GetSkillBindingShard(owner)?.GetInstanceTriggers(window) ?? [])
         {
             var trigger = binding.Trigger;
+            if (ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.DiscardNonFinalTargetCardThenDraw) &&
+                result.Any(candidate => candidate.OwnerSeat == owner.Seat && candidate.SkillId == binding.SkillId && candidate.TriggerId == trigger.Id)) continue;
             if (ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.FirstCategoryCompletedTop) &&
                 (!IsFirstCategoryUse(owner.Seat,binding.SkillId,action) || AvailableCompletedTopCosts(action, _resolutionStack.OfType<CardUseFrame>().LastOrDefault(f=>f.Action?.ActionId==action.ActionId)?.Id ?? ActiveNullificationWindow?.Id ?? 0).Length==0)) continue;
             if (trigger.Effects.Any(e=>e.Op==SkillProgramEffectOp.IssueCardNoResponseAndPlayUseBan) &&

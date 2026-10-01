@@ -29,6 +29,9 @@ public sealed partial class GameEngine
         switch (_resolutionStack[index])
         {
             case ProgramSkillFrame:
+                if (ResumeNamedTurnFlow(frameId)) return;
+                if (TryResumeConvertingGift(frameId)) return;
+                if (ResumePublicPileColorPayment(frameId)) return;
                 if (ResumeAlternatingSuitTop(frameId)) return;
                 if (TryResumeQuotaTop(frameId)) return;
                 if (ResumeBudgetGift(frameId)) return;

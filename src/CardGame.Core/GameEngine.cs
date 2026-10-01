@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 /// <summary>
 /// A synchronous, explicit state machine. Advance runs AI turns until it reaches
@@ -4451,6 +4451,7 @@ public sealed partial class GameEngine
             (usageRule.UnusedOutputNameThisGame || usageRule.ConversionStateId is not null && usageRule.UsesPerPhase is not null)) ConsumeProgramViewAsUsage([selectedConversionSource]);
 
         var responseFrom = FindOwnedCardLocation(responder, card);
+        var responseCostIsRed = CapturePhysicalCardColor(responder.Seat,card);
         var completedResponseUseSuit = FreezeCompletedResponseUseSuit(responder, [card], CardKind.Nullification);
         MoveCard(
             card,
@@ -4495,8 +4496,8 @@ public sealed partial class GameEngine
         var responseAction = new CardActionContext(++_cardActionSequence, parentActionId,
             CardActionType.Response, responder.Seat, responder.Seat, null, responder.Seat,
             pending.SourceSeat, CardKind.Nullification, [],
-            [new CardActionCost(card.Id, card.Kind, responseFrom)],
-            selectedConversionSource is null ? [] : [selectedConversionSource], effectiveSuit: completedResponseUseSuit);
+            [new CardActionCost(card.Id, card.Kind, responseFrom,responseCostIsRed)],
+            selectedConversionSource is null ? [] : [selectedConversionSource], effectiveSuit: completedResponseUseSuit,effectiveIsRed:TracksActionDiscardColor?SuitColor(completedResponseUseSuit) ?? responseCostIsRed:null);
         RecordActualPlayPhaseUse(responseAction);
         AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(responseAction));
         if (TryBeginCommittedResponseUsePrograms(null, responseAction, ProgramCardContinuation.NullificationResponse)) return;
@@ -7545,6 +7546,7 @@ public sealed partial class GameEngine
                 CardKind.Slash);
             var responseConversion = GetSelectedResponseConversion(responder, slash, responseCardKind);
             var responseFrom = FindOwnedCardLocation(responder, slash);
+        var responseCostIsRed = CapturePhysicalCardColor(responder.Seat,slash);
             MoveCard(
                 slash,
                 responseFrom,
@@ -7571,7 +7573,7 @@ public sealed partial class GameEngine
                 UsedSlash: true,
                 SlashCardId: slash.Id,
                 ResponseCardKind: responseCardKind));
-            var responseCost = new CardActionCost(slash.Id, slash.Kind, responseFrom);
+            var responseCost = new CardActionCost(slash.Id, slash.Kind, responseFrom,responseCostIsRed);
             if (TryBeginCardResponsePrograms(
                     duel.Attack,
                     responder,
@@ -7689,6 +7691,7 @@ public sealed partial class GameEngine
                 requiredCardKind);
             var responseConversion = GetSelectedResponseConversion(responder, responseCard, responseCardKind);
             var responseFrom = FindOwnedCardLocation(responder, responseCard);
+        var responseCostIsRed = CapturePhysicalCardColor(responder.Seat,responseCard);
 
             PaySingleCardResponse(responseCard, responder, responseCardKind, responseConversion);
             var incomingName = CardCatalog.Get(group.Card.Kind).DisplayName;
@@ -7715,7 +7718,7 @@ public sealed partial class GameEngine
                 UsedResponse: true,
                 ResponseCardId: responseCard.Id,
                 ResponseCardKind: responseCardKind));
-            var responseCost = new CardActionCost(responseCard.Id, responseCard.Kind, responseFrom);
+            var responseCost = new CardActionCost(responseCard.Id, responseCard.Kind, responseFrom,responseCostIsRed);
             if (TryBeginCardResponsePrograms(
                     attack,
                     responder,
@@ -8046,11 +8049,13 @@ public sealed partial class GameEngine
         CardKind? responseCardKind = null;
         CardConversionSource? responseConversion = null;
         CardLocation? responseFrom = null;
+        bool? responseCostIsRed = null;
         if (selectedDodge is not null)
         {
             responseCardKind = GetEffectiveResponseKind(provider, selectedDodge, CardKind.Dodge);
             responseConversion = GetSelectedResponseConversion(provider, selectedDodge, responseCardKind.Value);
             responseFrom = FindOwnedCardLocation(provider, selectedDodge);
+            responseCostIsRed = CapturePhysicalCardColor(provider.Seat,selectedDodge);
             PaySingleCardResponse(selectedDodge, provider, responseCardKind.Value, responseConversion);
         }
 
@@ -8096,7 +8101,7 @@ public sealed partial class GameEngine
 
         if (selectedDodge is not null)
         {
-            var responseCost = new CardActionCost(selectedDodge.Id, selectedDodge.Kind, responseFrom!.Value);
+            var responseCost = new CardActionCost(selectedDodge.Id, selectedDodge.Kind, responseFrom!.Value,responseCostIsRed);
             if (TryBeginCardResponsePrograms(
                     attack,
                     owner,
@@ -9467,6 +9472,7 @@ public sealed partial class GameEngine
         var effectiveKind = GetEffectiveResponseKind(provider, selectedSlash, CardKind.Slash);
         var responseConversion = GetSelectedResponseConversion(provider, selectedSlash, effectiveKind);
         var responseFrom = FindOwnedCardLocation(provider, selectedSlash);
+        var responseCostIsRed = CapturePhysicalCardColor(provider.Seat,selectedSlash);
         var duel = pending.Purpose == FactionCardRequestPurpose.DuelResponse
             ? ActiveDuel ?? throw new InvalidOperationException("A Duel FactionSlash response has no Duel continuation.")
             : null;
@@ -9509,7 +9515,7 @@ public sealed partial class GameEngine
                 UsedSlash: true,
                 SlashCardId: selectedSlash.Id,
                 ResponseCardKind: effectiveKind));
-            var responseCost = new CardActionCost(selectedSlash.Id, selectedSlash.Kind, responseFrom);
+            var responseCost = new CardActionCost(selectedSlash.Id, selectedSlash.Kind, responseFrom,responseCostIsRed);
             if (TryBeginCardResponsePrograms(
                     attack,
                     owner,
@@ -9542,7 +9548,7 @@ public sealed partial class GameEngine
             UsedResponse: true,
             ResponseCardId: selectedSlash.Id,
             ResponseCardKind: effectiveKind));
-        var groupResponseCost = new CardActionCost(selectedSlash.Id, selectedSlash.Kind, responseFrom);
+        var groupResponseCost = new CardActionCost(selectedSlash.Id, selectedSlash.Kind, responseFrom,responseCostIsRed);
         if (TryBeginCardResponsePrograms(
                 attack,
                 owner,
@@ -11313,6 +11319,7 @@ public sealed partial class GameEngine
             CardKind.Dodge);
         var responseConversion = GetSelectedResponseConversion(defender, responseCard, responseCardKind);
         var responseFrom = FindOwnedCardLocation(defender, responseCard);
+        var responseCostIsRed = CapturePhysicalCardColor(defender.Seat,responseCard);
         var completedResponseUseSuit = FreezeCompletedResponseUseSuit(defender, [responseCard], responseCardKind);
         PaySingleCardResponse(responseCard, defender, responseCardKind, responseConversion);
         var incomingName = CardCatalog.Get(RequireAttackCardKind(attack)).DisplayName;
@@ -11333,7 +11340,7 @@ public sealed partial class GameEngine
             defender.Seat,
             attack.SourceSeat,
             responseCardKind));
-        var responseCost = new CardActionCost(responseCard.Id, responseCard.Kind, responseFrom);
+        var responseCost = new CardActionCost(responseCard.Id, responseCard.Kind, responseFrom,responseCostIsRed);
         if (TryBeginCardResponsePrograms(
                 attack,
                 defender,
@@ -14787,7 +14794,7 @@ public sealed partial class GameEngine
             return requiredCardKind;
         }
 
-        if (HasResponseEntityExchangeObservers() && GetProgramMultiCardViewAsSelections(responder,requiredCardKind,true).Any(selection=>selection.Cards[0].Id==responseCard.Id))
+        if ((HasResponseEntityExchangeObservers() || TracksActionDiscardColor) && GetProgramMultiCardViewAsSelections(responder,requiredCardKind,true).Any(selection=>selection.Cards[0].Id==responseCard.Id))
             return requiredCardKind;
         return CanConvertResponse(responder, responseCard, requiredCardKind)
             ? requiredCardKind
@@ -15588,6 +15595,7 @@ public sealed partial class GameEngine
         ExpireProgramSuppressions(previous.Seat);
         ReturnProgramPojunHoldsAtTurnEnd();
 
+        ExpireGiftRetentionObligations();
         _phase = TurnPhase.Finished;
         AddLog("TurnEnded", $"{previous.Name} 的回合结束。", previous.Seat);
         AdvanceEventRulesAndQueueFact(new TurnEndedEvent(_turnNumber, previous.Seat));
@@ -15748,6 +15756,7 @@ public sealed partial class GameEngine
                     : $"{victim.Name} 阵亡，身份是【{GetRoleName(victim.Role)}】。",
                 killer?.Seat,
                 victim.Seat);
+            MarkConvertingGiftExactDeath(deathFrameId, victim.Seat);
             AdvanceEventRulesAndQueueFact(new PlayerDiedEvent(victim.Seat, killer?.Seat));
             if (killer is { } killerState && killerState.Seat == _currentSeat && _phase == TurnPhase.Play)
                 _playPhaseKillCountByCurrentPlayer++;
@@ -17672,7 +17681,7 @@ public sealed partial class GameEngine
                     "A damage trigger continuation must retain a valid trigger window frame.");
             }
 
-            var damageCursorTop = DamageCursorEffectiveTop();
+            var damageCursorTop = DamageCursorEffectiveTop(includeNestedObservers: _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.ConvertingGift is { Observe: true } && f.WindowContext?.ParentFrameId == pendingDamageTrigger.Id));
             var activeDamageProgram = damageCursorTop is ProgramSkillFrame programFrame &&
                 programFrame.WindowContext is
                 {

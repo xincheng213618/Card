@@ -51,7 +51,7 @@ public sealed partial class GameEngine
         var payment=frame.CardSetBindings.Single(b=>b.Name==bind);
         if(context.Window!=SkillProgramTriggerWindow.CardUseCommitted || !IsSlashCard(use.CardKind) || action.ActionId!=context.CardUse!.CardActionId || action.ActorSeat==frame.OwnerSeat || use.TargetSeats.Count==0 || use.TargetSeats.Contains(frame.OwnerSeat) || payment.CardIds.Count!=1 || payment.SourceLocations is not [var location] || location!=CardLocation.DrawPile) throw new InvalidOperationException("Replacement lost its actual owner-hand payment or Slash.");
         var targets = Array.AsReadOnly(action.EffectiveSuit is Suit.Spade or Suit.Club ? Array.Empty<int>() : new[] { frame.OwnerSeat });
-        var updated=new CardActionContext(action.ActionId,action.ParentActionId,action.Type,action.ActorSeat,action.ProviderSeat,action.RequesterSeat,action.ResponderSeat,action.OpponentSeat,action.EffectiveKind,targets,action.PhysicalCards,action.ConversionChain,targets,action.EffectiveSuit,action.EffectiveRank);
+        var updated=new CardActionContext(action.ActionId,action.ParentActionId,action.Type,action.ActorSeat,action.ProviderSeat,action.RequesterSeat,action.ResponderSeat,action.OpponentSeat,action.EffectiveKind,targets,action.PhysicalCards,action.ConversionChain,targets,action.EffectiveSuit,action.EffectiveRank,action.EffectiveIsRed);
         var attack = ProgramCardAttack ?? throw new InvalidOperationException("Replacement lost Slash continuation.");
         if (attack.ResolutionId != use.Id)
             throw new InvalidOperationException("Replacement lost its exact Slash owner.");

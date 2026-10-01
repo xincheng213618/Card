@@ -1,0 +1,1 @@
+{"schemaVersion":3,"skills":{"classic:qizhi":{"name":"奇制","description":"当你于回合内使用非装备牌指定目标后，你可以弃置另一名角色一张牌，然后令其摸一张牌。"},"classic:jinqu":{"name":"进趋","description":"结束阶段，你可以摸两张牌，然后将手牌弃至X张（X为你本回合发动“奇制”的次数）。"}}}

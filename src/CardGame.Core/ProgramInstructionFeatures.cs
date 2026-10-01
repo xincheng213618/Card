@@ -18,6 +18,7 @@ internal sealed class ProgramInstructionFeatures
     {
         _operations = effects.GroupBy(effect => effect.Op).ToFrozenDictionary(
             group => group.Key, group => (IReadOnlyList<SkillProgramEffect>)Array.AsReadOnly(group.ToArray()));
+        UsesConversionPolarity = effects.Any(effect => ProgramOperationCatalog.Default.Resolve(effect.Op).UsesConversionPolarity);
         FirstInstruction = effects.FirstOrDefault();
         FirstNonTargetSelection = effects.SkipWhile(effect => effect.Op == SkillProgramEffectOp.SelectTarget).FirstOrDefault();
         InitialDiscardPayments = Array.AsReadOnly(effects
@@ -56,6 +57,7 @@ internal sealed class ProgramInstructionFeatures
         _valueKinds = valueKinds.ToFrozenSet();
     }
 
+    internal bool UsesConversionPolarity { get; }
     internal SkillProgramEffect? FirstInstruction { get; }
     internal SkillProgramEffect? FirstNonTargetSelection { get; }
     internal IReadOnlyList<SkillProgramEffect> InitialDiscardPayments { get; }

@@ -3,7 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private readonly Dictionary<(int Owner, string Skill, string Instance), PublicPersistentPileSource> _publicPersistentPiles = [];
-    private bool SupportsMultiplePublicPiles => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.CollectFinalTargetCardInPublicPile);
+    private bool SupportsMultiplePublicPiles => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.CollectFinalTargetCardInPublicPile) || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.StoreBoundHandInPublicPile);
     private static string PublicPileIdentity(string skill, string instance) => $"{skill.Length}:{skill}{instance.Length}:{instance}";
     private IEnumerable<PublicPersistentPileSource> PublicPileSources(int seat) => _publicPersistentPiles.Values.Where(s => s.OwnerSeat == seat);
     private PublicPersistentPileSource? SinglePublicPileSource(int seat) => PublicPileSources(seat).Take(2).ToArray() is [var source] ? source : null;
@@ -66,7 +66,7 @@ public sealed partial class GameEngine
         var program = _contentRegistry.GetSkill(skill).Program!;
         var sourceSkills = program.Triggers.SelectMany(t => t.Effects).Concat(program.Activations.SelectMany(a => a.Effects))
             .Where(e => e.Op is SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits or
-                SkillProgramEffectOp.ExchangePublicPileHand or SkillProgramEffectOp.ObtainPublicPileCard)
+                SkillProgramEffectOp.ExchangePublicPileHand or SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.PublicPileColorDamage or SkillProgramEffectOp.RewardDiscardedActionColor)
             .SelectMany(e => e.SkillIds).Distinct(StringComparer.Ordinal).ToArray();
         if (sourceSkills.Length == 0) sourceSkills = [skill];
         return sourceSkills.SelectMany(id => ReferencedPublicPileSources(seat, id, instance))

@@ -33,7 +33,7 @@ internal sealed class ExchangePublicPileHandDescriptor : FinalTargetPublicPileDe
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.ExchangePublicPileHand;
     public override ISkillProgramEffectHandler Handler { get; } = new ExchangePublicPileHandHandler();
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r) => ParseOwner(r, true);
-    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)];
+    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e) => [new RequirePublicPileExchangeBoundary()];
 }
 internal sealed class ObtainPublicPileCardDescriptor : FinalTargetPublicPileDescriptor
 {

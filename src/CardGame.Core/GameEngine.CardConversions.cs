@@ -408,7 +408,7 @@ public sealed partial class GameEngine
         var costs = current.Cards.Select(card => new CardActionCost(
             card.Id,
             card.Kind,
-            FindOwnedCardLocation(responder, card))).ToArray();
+            FindOwnedCardLocation(responder, card),CapturePhysicalCardColor(responder.Seat,card))).ToArray();
         var completedResponseUseSuit = actorSeat is null || actorSeat == responder.Seat
             ? FreezeCompletedResponseUseSuit(responder, current.Cards, selection.OutputKind) : null;
         foreach (var card in current.Cards)
@@ -435,7 +435,7 @@ public sealed partial class GameEngine
             selection.OutputKind,
             [],
             costs,
-            [selection.Source], effectiveSuit: completedResponseUseSuit);
+            [selection.Source], effectiveSuit: completedResponseUseSuit,effectiveIsRed:CaptureActionColor(costs,completedResponseUseSuit));
         if (action.ActorSeat == action.ProviderSeat && action.RequesterSeat is null &&
             (selection.OutputKind == CardKind.Nullification || IsProgramResponseCardUse(responder, selection.OutputKind)))
             RecordActualPlayPhaseUse(action);

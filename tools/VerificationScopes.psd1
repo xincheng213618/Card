@@ -13,12 +13,15 @@
         'configured active sequences', 'standard active programs', 'owned-card set',
         'turn card-use effects', 'active Program contracts', 'hand guidance',
         'actual marker payment', 'replacement draw and dying payment', 'two dynamic actual ends',
-        'ordered nested native owner', 'payment nested comparison', 'first target history'
+        'ordered nested native owner', 'payment nested comparison', 'first target history',
+        'program conversion polarity shared state and replay',
+        'Feng Lin Lu Zhi actual discard entry boundaries',
+        'Ending child gift joins current boundary'
     )
     Wpf = @(
         'original card artwork', 'composed skills', 'conversion choices',
         'response context', 'hand responses', 'opaque target-card',
         'playback batches', 'saved UI boundaries', 'failed writes', 'public markers',
-        'deferred hand alignment'
+        'deferred hand alignment', 'Program conversion polarity stays visible'
     )
 }

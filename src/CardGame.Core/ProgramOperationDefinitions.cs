@@ -83,6 +83,7 @@ internal interface IProgramOperationDescriptor
     ProgramOperationInteraction Interaction { get; }
     ProgramContextCapability RequiredCapabilities { get; }
     ProgramOperationAiPolicy AiPolicy { get; }
+    bool UsesConversionPolarity => false;
     ProgramOperationLegalityPolicy LegalityPolicy => ProgramOperationLegalityPolicy.None;
     SkillProgramEffect Parse(ProgramOperationNodeReader reader);
     ProgramSkillInstruction? Compile(SkillProgramEffect effect) => null;
@@ -323,6 +324,7 @@ internal abstract class ProgramOperationDescriptorBase : IProgramOperationDescri
     public virtual ProgramOperationInteraction Interaction => ProgramOperationInteraction.Automatic;
     public virtual ProgramContextCapability RequiredCapabilities => ProgramContextCapability.None;
     public abstract ProgramOperationAiPolicy AiPolicy { get; }
+    public virtual bool UsesConversionPolarity => false;
     public virtual ProgramOperationLegalityPolicy LegalityPolicy => ProgramOperationLegalityPolicy.None;
     public abstract SkillProgramEffect Parse(ProgramOperationNodeReader reader);
     public virtual ProgramSkillInstruction? Compile(SkillProgramEffect effect) => null;

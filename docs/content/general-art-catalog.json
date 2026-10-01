@@ -10554,6 +10554,57 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "wang-ji",
+      "characterName": "王基",
+      "defaultSkinId": "36200",
+      "skins": [
+        {
+          "id": "36200",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/362",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/36200.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-wang-ji.png",
+          "sha256": "8a6af1efb8ddc8c44dc9bcd69283573be309675045a3ad955bec52fb784ea8e5",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "kuai-yue-kuai-liang",
+      "characterName": "蒯越蒯良",
+      "defaultSkinId": "40400",
+      "skins": [
+        {
+          "id": "40400",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/404",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40400.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-kuai-yue-kuai-liang.png",
+          "sha256": "8dbd0182f5bbc8e5ca3754d6c337c779c7e533813ebc45a513a5708bf96fb6e8",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "lu-zhi",
+      "characterName": "卢植",
+      "defaultSkinId": "40700",
+      "skins": [
+        {
+          "id": "40700",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/407",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40700.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-lu-zhi.png",
+          "sha256": "298ed8dd502dfb848a3f00c1f17b2ca0c5c82b92a584abd9bff538c6db772f8a",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

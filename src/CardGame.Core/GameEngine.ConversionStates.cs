@@ -12,9 +12,10 @@ public sealed partial class GameEngine
     private void RegisterTaggedConversionSkill(CharacterState player, string skillId)
     {
         var definition = _contentRegistry.GetSkill(skillId);
-        // Programs own their declared per-instance states. Only unmigrated modules
-        // use the older generic polarity store.
-        if (definition.Program is null && (definition.Tags & SkillTag.Conversion) != 0)
+        var program = definition.Program;
+        var optIn = program is not null && (program.Activations.Any(binding => ProgramInstructionResolver.Default.Features(binding).UsesConversionPolarity) ||
+            program.Triggers.Any(binding => ProgramInstructionResolver.Default.Features(binding).UsesConversionPolarity));
+        if (optIn || program is null && (definition.Tags & SkillTag.Conversion) != 0)
             _skillRuntimeState.RegisterConversionSkill(player.Seat, skillId, SkillPolarity.Yang);
     }
 }

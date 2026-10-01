@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 /// <summary>Generic lifecycle-program host. It contains no character or skill ids.</summary>
 public sealed partial class GameEngine
@@ -785,6 +785,8 @@ public sealed partial class GameEngine
                 SkillProgramTargetKind.OtherLivingAtDistanceOne =>
                     target.Seat != ownerSeat && GetCombatDistance(ownerSeat, target.Seat) == 1,
                 SkillProgramTargetKind.AnyLivingHighestHp => target.Hp == _players.Where(player => player.IsAlive).Max(player => player.Hp),
+                SkillProgramTargetKind.AnyLivingLeastHandCount => GetHand(target).Count == _players.Where(player => player.IsAlive).Min(player => GetHand(player).Count),
+                SkillProgramTargetKind.OtherLivingHighestHand => target.Seat != ownerSeat && GetHand(target).Count == _players.Where(player => player.IsAlive && player.Seat != ownerSeat).Max(player => GetHand(player).Count),
                 SkillProgramTargetKind.AnyLivingHighestHand => GetHand(target).Count == _players.Where(player => player.IsAlive).Max(player => GetHand(player).Count),
                 SkillProgramTargetKind.AnyLiving => true,
                 SkillProgramTargetKind.OtherWounded =>
@@ -1729,6 +1731,8 @@ public sealed partial class GameEngine
                 binding.Program.GameplayHash,
                 binding.Trigger.Priority,
                 occurrenceIndex))
+            .DistinctBy(candidate => (candidate.SkillId, candidate.BindingId,
+                GetProgramTrigger(candidate).Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardHandToNamedTurnCount) ? "" : candidate.SkillInstanceId))
             .ToArray();
 
     private SkillProgramTrigger GetProgramTrigger(ProgramTriggerCandidate candidate) =>
@@ -1783,6 +1787,8 @@ public sealed partial class GameEngine
         if (trigger is null || trigger.Window != context.Window || !CanPayProgramMarkerCost(owner, trigger.MarkerCost))
             return false;
         var features = ProgramInstructionResolver.Default.Features(trigger);
+        if (!CanOfferConvertingGift(candidate, context, features)) return false;
+        if (!CanOfferPublicPileColor(owner,candidate,trigger,context)) return false;
         if (!AdvancedTriggerPrerequisites(owner, candidate.SkillId, trigger)) return false;
         if (!CanOfferCardActionContest(owner,trigger,context)) return false;
         if (features.HasOperation(SkillProgramEffectOp.UseDeckSlashesThenShuffle) &&
@@ -1840,6 +1846,7 @@ public sealed partial class GameEngine
                 return false;
         }
         if (features.HasOperation(SkillProgramEffectOp.CollectFinalTargetCardInPublicPile) && !CanCollectFinalTargetPile(owner.Seat, context)) return false;
+        if (features.HasOperation(SkillProgramEffectOp.DiscardNonFinalTargetCardThenDraw) && !CanOfferNonFinalTargetPayment(candidate, context)) return false;
         if (features.ForOperation(SkillProgramEffectOp.SelectTarget).Any(effect =>
             effect.TargetKind is { } kind && !GetProgramTargetSeats(owner.Seat, kind, context, effect.Marker).Any(seat =>
                 effect.Zones.Count == 0 || effect.Zones.Any(zone => zone switch
@@ -2280,6 +2287,7 @@ public sealed partial class GameEngine
         ProgramTriggerCandidate candidate,
         ProgramSkillWindowContext context)
     {
+        RecordPublicPileColorOffer(candidate,context);
         var skill = _contentRegistry!.GetSkill(candidate.SkillId);
         var facts = context.Facts;
         var prompt = context.Window == SkillProgramTriggerWindow.PlayEnding &&
@@ -2512,8 +2520,9 @@ public sealed partial class GameEngine
                         $"program:{candidate.SkillId}:{candidate.BindingId}:{candidate.SkillInstanceId}",
                         candidate, player.Seat == owner.Seat ? null : playerFacts));
             }).ToList();
+        AppendGiftRetentionEndingItems(items);
         var ordered = items
-            .OrderBy(item => ((item.Candidate!.OwnerSeat - owner.Seat + _players.Count) % _players.Count))
+            .OrderBy(item => (((item.Candidate?.OwnerSeat ?? item.RetentionOwnerSeat!.Value) - owner.Seat + _players.Count) % _players.Count))
             .ThenByDescending(item => item.Priority)
             .ThenBy(item => item.StableIdentity, StringComparer.Ordinal)
             .ToArray();
@@ -2565,6 +2574,9 @@ public sealed partial class GameEngine
             var item = frame.Items[frame.ItemIndex];
             switch (item.Kind)
             {
+                case TurnEndingBoundaryItemKind.GiftRetention:
+                    if (ConsumeGiftRetentionEndingItem(frame, item)) return;
+                    continue;
                 case TurnEndingBoundaryItemKind.Program:
                     {
                         var candidate = item.Candidate ??
@@ -2975,11 +2987,14 @@ public sealed partial class GameEngine
         if (selected.Parameters.GetValueOrDefault("program-action") == "public-suit-discard") { ResolvePublicSuitDiscard(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") is { } namedAction && (namedAction.StartsWith("named-defense-", StringComparison.Ordinal) || namedAction.StartsWith("public-draft-", StringComparison.Ordinal)))
         { ResolveNamedDefenseAndDraftChoice(selected); return; }
+        if (selected.Parameters.GetValueOrDefault("program-action") == "converting-gift") { ResolveConvertingGiftChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action")?.StartsWith("quota-top-", StringComparison.Ordinal) == true) { ResolveQuotaTopChoice(selected); return; }
+        if (selected.Parameters.GetValueOrDefault("program-action") == "named-turn-flow") { ResolveNamedTurnFlowChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "alternating-suit-top") { ResolveAlternatingSuitTopChoice(selected); return; }
         var action = selected.Parameters.GetValueOrDefault("program-action");
         if (action == "relative-zone-target") { ResolveRelativeZoneTarget(selected); return; }
         if (action == "deck-end-exchange") { ResolveDeckEndChoice(selected); return; }
+        if (action == "public-pile-color") {ResolvePublicPileColorChoice(selected);return;}
         if (action == "public-pile-flow") { ResolveFinalTargetPileChoice(selected); return; }
         if (action == "public-pile") { ResolvePublicPileChoice(selected); return; }
         if (action == "hand-comparison") { ResolveHandComparison(selected); return; }
@@ -3770,6 +3785,8 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.OfferCompletedCardGift or SkillProgramEffectOp.ApplyCurrentCardEnhancements or
                     SkillProgramEffectOp.PayEquipmentColorDiscard or SkillProgramEffectOp.AddCurrentCardUseTarget => decision.Choices[0],
                 SkillProgramEffectOp.AlternatingSuitDrawDiscard or SkillProgramEffectOp.FirstCategoryCompletedTop => decision.Choices[0],
+                SkillProgramEffectOp.DiscardNonFinalTargetCardThenDraw or SkillProgramEffectOp.DiscardHandToNamedTurnCount => decision.Choices[0],
+                SkillProgramEffectOp.PublicPileColorDamage or SkillProgramEffectOp.RewardDiscardedActionColor => SelectAiPublicPileColorChoice(decision,frame),
                 SkillProgramEffectOp.PeekTurnQuotaTop => decision.Choices[0],
                 SkillProgramEffectOp.CompareSelectedHandWithHpHand => decision.Choices[0],
                 SkillProgramEffectOp.ChooseOption => SelectAiProgramOption(decision, frame),

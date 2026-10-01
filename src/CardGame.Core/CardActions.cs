@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace CardGame.Core;
 
@@ -39,7 +39,8 @@ public sealed record ProgramTrickContinuation(
     CardKind? RequiredCardKind = null);
 
 /// <summary>A paid physical card and its original location, retained by the trusted rules host.</summary>
-public sealed record CardActionCost(int CardId, CardKind CardKind, CardLocation From);
+public sealed record CardActionCost(int CardId, CardKind CardKind, CardLocation From,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? EffectiveIsRed = null);
 
 /// <summary>
 /// Accepted rules input. Keeping provenance does not grant permission to apply
@@ -52,7 +53,7 @@ public sealed class CardActionContext
         int? opponentSeat, CardKind effectiveKind, IReadOnlyList<int> targetSeats,
         IReadOnlyList<CardActionCost> physicalCards, IReadOnlyList<CardConversionSource> conversionChain,
         IReadOnlyList<int>? designatedTargetSeats = null,
-        Suit? effectiveSuit = null, int? effectiveRank = null)
+        Suit? effectiveSuit = null, int? effectiveRank = null, bool? effectiveIsRed = null)
     {
         ActionId = actionId;
         ParentActionId = parentActionId;
@@ -69,6 +70,7 @@ public sealed class CardActionContext
         ConversionChain = Array.AsReadOnly(conversionChain.ToArray());
         EffectiveSuit = effectiveSuit;
         EffectiveRank = effectiveRank;
+        EffectiveIsRed = effectiveIsRed;
     }
 
     public long ActionId { get; }
@@ -91,6 +93,7 @@ public sealed class CardActionContext
     public Suit? EffectiveSuit { get; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? EffectiveRank { get; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public bool? EffectiveIsRed {get;}
 }
 
 /// <summary>Trusted-host audit event; not a player-facing notification.</summary>

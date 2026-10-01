@@ -314,6 +314,10 @@ internal static class ProgramCompositionValidator
                         source.Root.PossiblyGifted.UnionWith(source.Atoms);
                         break;
                     }
+                    case RequireSingleOwnedActivationGift:
+                        if (window is not null || selectedCardCount != 1 || activationMinimumCards != 1 || cardsConsumed || !initialSelectedTarget || activationTargetKind != SkillProgramTargetKind.OtherLivingHighestHand || activationSourceZones is null || !activationSourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment])) Fail("gift damage needs one unconsumed HE activation input and highest-hand other target");
+                        cardsConsumed = true;
+                        break;
                     case RequireActivationEntry:
                         if (window is not null || selectedCardCount != 0 || initialSelectedTarget) Fail("operation requires a zero-input activation");
                         break;
@@ -407,12 +411,29 @@ internal static class ProgramCompositionValidator
                                 AwaitMovementTriggers: true, SkipIfNoCards: false, Condition.Kind: SkillProgramConditionKind.Always })
                             Fail("field discard requires an awaited public-pile gain followed by an unconditional real owner hand discard");
                         break;
+                    case ConsumePublicPileCardSet reserve:
+                        var reserveSet=Get(reserve.Name);
+                        if(reserveSet.Root.Consumed.Overlaps(reserveSet.Atoms)||reserveSet.Root.PossiblyGifted.Overlaps(reserveSet.Atoms)) Fail("reserve entity is already consumed");
+                        reserveSet.Root.Consumed.UnionWith(reserveSet.Atoms);
+                        break;
+                    case RequirePrecedingOwnerDraw:
+                        if(index==0 || effects[index-1] is not {Op:SkillProgramEffectOp.Draw,Target:SkillProgramEffectTarget.Owner,TargetReference:null,Condition.Kind:SkillProgramConditionKind.Always}) Fail("await movement requires a preceding unconditional own draw");
+                        break;
+                    case RequirePublicPileColorActivation:
+                        if(window is not null || effects.Count!=1 || selectedCardCount!=0 || initialSelectedTarget || initialTargetSetCount!=0) Fail("public-pile color damage requires a standalone zero-card zero-target activation");
+                        break;
+                    case RequirePublicPileExchangeBoundary:
+                        if(window is not (SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or SkillProgramTriggerWindow.TurnEnding)) Fail("public-pile hand exchange requires preparation or Ending");
+                        break;
                     case RequireTriggerWindow required:
                         if (window != required.Window)
                             Fail($"operation requires trigger window {required.Window}, supplied {window}");
                         break;
                     case RequireCardActionActor:
                         if (cardActionRelation != SkillProgramCardActionOwnerRelation.Actor) Fail("operation requires the actual card-action actor");
+                        break;
+                    case RequireNonEquipmentAction:
+                        if (cardKinds?.Any(EquipmentCatalog.IsEquipment) == true) Fail("operation cannot accept an equipment card action");
                         break;
                     case RequireResponseActionObserver:
                         if (window != SkillProgramTriggerWindow.CardResponseAccepted || cardActionRelation != SkillProgramCardActionOwnerRelation.Observer)

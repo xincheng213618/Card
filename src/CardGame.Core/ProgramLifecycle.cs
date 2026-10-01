@@ -280,7 +280,7 @@ public enum ProgramLifecycleContinuation
     CompleteJudgmentPhaseStarting = 800, ResumeCharacterStateChange = 820, CompleteDrawPhaseEnded = 1140
 }
 
-public enum TurnEndingBoundaryItemKind { Program }
+public enum TurnEndingBoundaryItemKind { Program, GiftRetention = 1460 }
 
 /// <summary>One frozen, ordered item in the end-of-turn coordinator.</summary>
 public sealed record TurnEndingBoundaryItem(
@@ -288,7 +288,9 @@ public sealed record TurnEndingBoundaryItem(
     int Priority,
     string StableIdentity,
     ProgramTriggerCandidate? Candidate = null,
-    SkillProgramTriggerFacts? Facts = null);
+    SkillProgramTriggerFacts? Facts = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] long? RetentionId = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? RetentionOwnerSeat = null);
 
 /// <summary>
 /// Serializable end-of-turn cursor. Program bindings resume this one frame

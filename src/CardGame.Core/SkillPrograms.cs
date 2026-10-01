@@ -110,6 +110,7 @@ public enum SkillProgramComparisonOperator
 }
 public enum SkillProgramTargetKind
 {
+    AnyLivingLeastHandCount = 1460, OtherLivingHighestHand = 1461,
     AnyLivingWithHand = 1020, LivingWhoseAttackRangeIncludesLord = 1021,
     OtherLiving = 0,
     OtherLivingWithHand,
@@ -171,8 +172,11 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    DiscardNonFinalTargetCardThenDraw = 1440, DiscardHandToNamedTurnCount = 1441,
     CollectFinalTargetCardInPublicPile = 1380, ExchangePublicPileHand = 1381, ObtainPublicPileCard = 1382, DiscardPublicZoneAfterHandPayment = 1383,
+    CommitConversionPolarity = 1460, GiveSelectedOwnedCardAndDamage = 1461, ObserveDamageSourceHandAndGive = 1462, DrawToHandCount = 1463,
     AlternatingSuitDrawDiscard = 1420, FirstCategoryCompletedTop = 1421,
+    StoreBoundHandInPublicPile = 1480, PublicPileColorDamage = 1481, RewardDiscardedActionColor = 1482, AwaitOwnedCardMovement = 1483,
     PeekTurnQuotaTop = 1320,
     NullifyFirstTurnTargetByHand = 1321,
     IssueCardNoResponseAndPlayUseBan = 1340,

@@ -174,6 +174,12 @@ internal sealed class ProgramAiEstimateContext
         else _otherAdjustment += effect.Op == SkillProgramEffectOp.ExchangePublicPileHand ? 1d : 8d;
     }
 
+    internal void FinalTargetTurnCount(SkillProgramEffect effect)
+    {
+        // Prices only a public discard/draw opportunity; no other player's hand identities are inspected.
+        _otherAdjustment += effect.Op == SkillProgramEffectOp.DiscardNonFinalTargetCardThenDraw ? 4d : -2d;
+    }
+
     internal void PublicPersistentPile(SkillProgramEffect effect)
     {
         // Storage improves the public reserve/hand limit; optional exchange can finish
@@ -218,6 +224,26 @@ internal sealed class ProgramAiEstimateContext
             _bindings[bind] = UnknownCards(amount, ownerHeld: true);
     }
 
+    internal void ConvertingGiftDamage(int handLimit)
+    {
+        _givesSelected = true;
+        _targetDraw += 1d;
+        _targetHpLoss += 1d;
+        if (_publicContext.SelectedTarget is { Hp: <= 1 }) _ownerDraw += Math.Max(0, handLimit - _estimatedHandCount);
+    }
+    internal void ObserveDamageGift(int handLimit)
+    {
+        // Retention is uncertain; use public owner hand count and a bounded prior.
+        _targetDraw += 1d;
+        _ownerDraw += Math.Max(0, handLimit - Math.Max(0, _estimatedHandCount - 1)) * 0.5d;
+        _otherAdjustment += 1d;
+    }
+    internal void DrawToHandCount(SkillProgramEffect effect)
+    {
+        if (TargetsOwner(effect))
+        { var count=Math.Max(0,effect.Amount-_estimatedHandCount); _ownerDraw+=count; _estimatedHandCount+=count; }
+        else _targetDraw += Math.Max(0,effect.Amount-(_publicContext.SelectedTarget?.HandCount ?? effect.Amount));
+    }
     internal void DeferredHandAlignment()
     {
         // The immediate delta uses public hand counts. Future hand changes are

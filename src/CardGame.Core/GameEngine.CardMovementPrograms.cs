@@ -61,6 +61,7 @@ public sealed partial class GameEngine
                 item.Value,
                 _cardZones.Count(item.Key)))
             .ToArray();
+        CaptureActionDiscardFact(batch.Id,batch.TurnNumber,movements);
         _pendingCardsMovedBatches.Add(new CardMovementBatchContext(
             batch.Id,
             batch.ParentFrameId,
@@ -216,6 +217,11 @@ public sealed partial class GameEngine
     private int[] MatchingDiscardPileIndexes(CardMovementBatchContext batch,
         ProgramTriggerCandidate candidate, SkillProgramTrigger trigger)
     {
+        if(trigger.Effects.Any(e=>e.Op==SkillProgramEffectOp.RewardDiscardedActionColor))
+        {
+            var action=CompleteProgramEventHistory().OfType<ActionCardsDiscardedEvent>().LastOrDefault(e=>e.BatchId==batch.Id);
+            return action?.ActorSeat==candidate.OwnerSeat ? batch.Movements.Select((m,i)=>(m,i)).Where(x=>x.m.To==CardLocation.DiscardPile).Select(x=>x.i).ToArray():[];
+        }
         if (trigger.IgnoreOwnSkillMovements && batch.OriginOwnerSeat == candidate.OwnerSeat &&
             batch.OriginSkillId == candidate.SkillId &&
             batch.OriginSkillInstanceId == candidate.SkillInstanceId) return [];
@@ -266,6 +272,11 @@ public sealed partial class GameEngine
     private int[] MatchingMovementIndexes(CardMovementBatchContext batch, ProgramTriggerCandidate candidate,
         SkillProgramTrigger trigger, CardLocation location)
     {
+        if(trigger.Effects.Any(e=>e.Op==SkillProgramEffectOp.RewardDiscardedActionColor))
+        {
+            var action=CompleteProgramEventHistory().OfType<ActionCardsDiscardedEvent>().LastOrDefault(e=>e.BatchId==batch.Id);
+            return action?.ActorSeat==candidate.OwnerSeat ? batch.Movements.Select((m,i)=>(m,i)).Where(x=>x.m.To==CardLocation.DiscardPile).Select(x=>x.i).ToArray():[];
+        }
         if (trigger.IgnoreOwnSkillMovements && batch.OriginOwnerSeat == candidate.OwnerSeat &&
             batch.OriginSkillId == candidate.SkillId &&
             batch.OriginSkillInstanceId == candidate.SkillInstanceId) return [];

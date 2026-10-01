@@ -36,7 +36,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         new(FengLinChenDaoContent.Register),
         new(FengLinSunLiangContent.Register),
         new(FengLinXuYouContent.Register),
-        new(FengLinGuanqiuJianContent.Register)
+        new(FengLinGuanqiuJianContent.Register),
+        new(FengLinWangJiContent.Register),
+        new(FengLinKuaiYueKuaiLiangContent.Register),
+        new(FengLinLuZhiContent.Register)
     ];
 
     private static SkillProgramCatalog ClassicShenLuMengCatalog =>
