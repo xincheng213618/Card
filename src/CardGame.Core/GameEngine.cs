@@ -4221,7 +4221,7 @@ public sealed partial class GameEngine
         CardKind? playedCardKind = null)
     {
         targetSeats = FreezeSequentialTrickTarget(resolutionId, targetSeats, actionKind, targetCardId, requiredCardKind);
-        if (IsYingboUnrespondable(resolutionId))
+        if (IsYingboUnrespondable(resolutionId) || IsIssuedCardUnrespondable(resolutionId))
         {
             SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
             ResolveNullifiableEffect(new NullificationWindowFrame(
@@ -4264,6 +4264,13 @@ public sealed partial class GameEngine
 
     private void ContinueNullificationWindow(NullificationWindowFrame pending)
     {
+        if (pending.IssuedNoResponseNode is {} issuedNode)
+        {
+            if (issuedNode.ChainDepth != pending.ChainDepth || issuedNode.Policy.ParentFrameId != pending.Id || issuedNode.Policy.CardActionId != issuedNode.ActionId)
+                throw new InvalidOperationException("Issued counterspell node lost its exact typed parent.");
+            FinishNullificationWindow(pending);
+            return;
+        }
         if (_resolutionStack.LastOrDefault() is not NullificationWindowFrame frame ||
             frame.Id != pending.Id)
         {
@@ -4490,7 +4497,9 @@ public sealed partial class GameEngine
             pending.SourceSeat, CardKind.Nullification, [],
             [new CardActionCost(card.Id, card.Kind, responseFrom)],
             selectedConversionSource is null ? [] : [selectedConversionSource], effectiveSuit: completedResponseUseSuit);
+        RecordActualPlayPhaseUse(responseAction);
         AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(responseAction));
+        if (TryBeginCommittedResponseUsePrograms(null, responseAction, ProgramCardContinuation.NullificationResponse)) return;
         if (TryBeginProgramCardWindow(null, responseAction,
                 SkillProgramTriggerWindow.CardResponseAccepted, [],
                 ProgramCardContinuation.NullificationResponse)) return;
@@ -6045,7 +6054,7 @@ public sealed partial class GameEngine
             CompleteAttack(attack);
             return;
         }
-        if (IsYingboUnrespondable(group.ResolutionId) ||
+        if (IsYingboUnrespondable(group.ResolutionId) || IsIssuedCardUnrespondable(group.ResolutionId) ||
             IsNearbyTargetResponseProhibited(group.SourceSeat, target.Seat,
                 group.Card.Kind, group.TargetSeats))
         {
@@ -6199,7 +6208,7 @@ public sealed partial class GameEngine
             return;
         }
 
-        if (!IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget))
+        if (IsIssuedCardUnrespondable(pending.ResolutionId) || !IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget))
         {
             CompleteBorrowedSwordWithoutSlash(pending, transferWeapon: true);
             return;
@@ -7078,7 +7087,7 @@ public sealed partial class GameEngine
             return;
         }
 
-        if (IsYingboUnrespondable(resolutionId))
+        if (IsYingboUnrespondable(resolutionId) || IsIssuedCardUnrespondable(resolutionId))
         {
             SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
             if (!ApplyAttackDamage(attack))
@@ -7117,7 +7126,7 @@ public sealed partial class GameEngine
         }
 
         var dodges = GetResponseCards(target, CardKind.Dodge);
-        var hasBagua = !ignoresArmor && HasBagua(target);
+        var hasBagua = !ignoresArmor && HasBagua(target) && !HasIssuedPlayPhaseUseBan(target.Seat);
         var dodge = dodges.FirstOrDefault();
         var canRequestFactionDefense = CanRequestFactionDefense(target, attack);
         var responseOrdinal = attack.SuccessfulDodgeResponses + 1;
@@ -7438,7 +7447,7 @@ public sealed partial class GameEngine
 
         var responder = _players[duel.ResponderSeat];
         var opponent = _players[duel.OpponentSeat];
-        if (IsYingboUnrespondable(duel.ResolutionId) ||
+        if (IsYingboUnrespondable(duel.ResolutionId) || IsIssuedCardUnrespondable(duel.ResolutionId) ||
             IsNearbyTargetResponseProhibited(duel.Attack.CardUserSeat, responder.Seat,
                 CardKind.Duel, [duel.TargetSeat]))
         {
@@ -13225,6 +13234,8 @@ public sealed partial class GameEngine
             conversionSource,
             additionalConversionSources,
             designated);
+        var firstUseDistance = actionContext is not null && HasFirstActualPlayUseDistance(_players[sourceSeat]);
+        if (actionContext is not null) RecordActualPlayPhaseUse(actionContext);
         RecordProgramUsedBasicCard(sourceSeat, effectiveCardKind);
         PushRuntimeFrame(new CardUseFrame(
             resolutionId,
@@ -13234,7 +13245,7 @@ public sealed partial class GameEngine
             targets,
             IgnoresArmor: ignoresArmor,
             PhysicalCardIds: physicalIds)
-        { Action = actionContext, TargetsAdjusted = adjustedTargets is not null });
+        { Action = actionContext, TargetsAdjusted = adjustedTargets is not null, FirstOwnPlayUseDistanceUnlimited = firstUseDistance });
         AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(
             resolutionId,
             card.Id,
@@ -13521,8 +13532,8 @@ public sealed partial class GameEngine
         Card slashCard,
         CardConversionSource? conversionSource = null,
         CardKind effectiveKind = CardKind.Slash,
-        bool ignoreDistance = false) =>
-        !IsCardUseForbidden(source.Seat, effectiveKind, CardActionType.Use) &&
+        bool ignoreDistance = false, long? existingUseFrameId=null) =>
+        !IsCardUseForbidden(source.Seat, effectiveKind, CardActionType.Use, ignoreIssuedPlayBan: existingUseFrameId is {} id && _resolutionStack.OfType<CardUseFrame>().Any(f=>f.Id==id&&f.Action?.ActorSeat==source.Seat)) &&
         target.IsAlive &&
         target.Seat != source.Seat &&
         (ignoreDistance || HasCardDistanceExemption(source, target, effectiveKind) ||
@@ -14685,7 +14696,7 @@ public sealed partial class GameEngine
         CharacterState responder,
         CardKind requiredCardKind)
     {
-        if (requiredCardKind == CardKind.Slash &&
+        if (HasIssuedPlayPhaseUseBan(responder.Seat) && IsProgramResponseCardUse(responder, requiredCardKind) || requiredCardKind == CardKind.Slash &&
             IsCardUseForbidden(responder.Seat, CardKind.Slash, CardActionType.Response))
         {
             return [];
@@ -18120,7 +18131,7 @@ public sealed partial class GameEngine
             var responseIds = programFrame.Action.PhysicalCards
                 .Where(cost => !alternativeResponseIds.Contains(cost.CardId) && !IsExchangedCardClaim(programFrame.Action.ActionId,cost.CardId))
                 .Select(cost => cost.CardId).ToHashSet();
-            if (programFrame.CompletedResponseReturn is not null)
+            if (programFrame.CompletedResponseReturn is { IsCommitted: false } || programFrame.CompletedResponseReturn is { IsCommitted: true, Kind: ProgramCompletedResponseKind.Nullification })
             {
                 if (processing.Any(card => responseIds.Contains(card.Id))) return false;
             }

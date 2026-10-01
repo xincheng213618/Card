@@ -247,7 +247,11 @@ public sealed record BeforeDamageProgramWindowFrame(
     bool Prevented = false,
     int? RedirectedTargetSeat = null,
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
-    : ResolutionFrame(Id, ResolutionFrameKind.BeforeDamageProgramWindow, Step);
+    : ResolutionFrame(Id, ResolutionFrameKind.BeforeDamageProgramWindow, Step)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public long? ContinuationAttackResolutionId { get; init; }
+}
 
 public sealed record ProgramDamagePreventedEvent(
     long FrameId,

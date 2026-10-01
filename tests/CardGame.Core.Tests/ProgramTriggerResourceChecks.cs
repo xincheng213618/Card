@@ -55,7 +55,7 @@ internal static class ProgramTriggerResourceChecks
         var stack = (FrameStore)typeof(GameEngine).GetField("_resolutionStack", flags)!.GetValue(game)!;
         stack.Push(new DamageFrame(1000, 999, 1, 0, 1));
         var before = typeof(GameEngine).GetMethod("TryBeginBeforeDamageProgramWindow", flags)!;
-        if (!(bool)before.Invoke(game, [1, 0, 1, DamageNature.Normal, BeforeDamageProgramContinuation.Attack])!)
+        if (!(bool)before.Invoke(game, [1, 0, 1, DamageNature.Normal, BeforeDamageProgramContinuation.Attack, Type.Missing])!)
             throw new InvalidOperationException("Legacy before-damage fixture failed to pause.");
         var window = stack.OfType<BeforeDamageProgramWindowFrame>().Last();
         foreach (var candidate in window.Candidates) AssertOmitted(candidate.Facts, "DamageSourceGender");

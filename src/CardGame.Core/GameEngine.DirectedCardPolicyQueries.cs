@@ -5,8 +5,8 @@ public sealed partial class GameEngine
     private static readonly CardKind[] SlashKinds =
         [CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash];
 
-    private bool HasCardDistanceExemption(CharacterState actor, CharacterState target, CardKind kind) =>
-        HasNextUnlimitedCard(actor) || HasDirectedTurnCardPolicy(actor.Seat, target.Seat, kind, DirectedTurnCardPolicyEffect.IgnoreDistance);
+    private bool HasCardDistanceExemption(CharacterState actor, CharacterState target, CardKind kind, long? cardUseFrameId = null) =>
+        HasFirstActualPlayUseDistance(actor) || HasIssuedFirstPlayUseDistance(cardUseFrameId) || HasNextUnlimitedCard(actor) || HasDirectedTurnCardPolicy(actor.Seat, target.Seat, kind, DirectedTurnCardPolicyEffect.IgnoreDistance);
 
     private bool HasCardArmorBypass(CharacterState actor, CharacterState target, CardKind kind) =>
         HasArmorBypass(actor) ||

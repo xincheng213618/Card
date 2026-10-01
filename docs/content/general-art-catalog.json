@@ -1547,6 +1547,23 @@
       ]
     },
     {
+      "key": "chen-dao",
+      "characterName": "陈到",
+      "defaultSkinId": "40900",
+      "skins": [
+        {
+          "id": "40900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/409",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40900.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-chen-dao.png",
+          "sha256": "980a4ed62a64702650d044069c37b222a3f44d86269a5f78ee3d62f0384bf7dd",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
       "key": "chen-qun",
       "characterName": "陈群",
       "defaultSkinId": "32300",
@@ -6561,6 +6578,23 @@
       ]
     },
     {
+      "key": "sun-liang",
+      "characterName": "孙亮",
+      "defaultSkinId": "40300",
+      "skins": [
+        {
+          "id": "40300",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/403",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40300.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-sun-liang.png",
+          "sha256": "3f1f8fa2bb101e87b9c45fcc058b8501450e5cf20e6bcdc3c148789642938b08",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
       "key": "sun-lu-ban",
       "characterName": "孙鲁班",
       "defaultSkinId": "32700",
@@ -10450,6 +10484,23 @@
           "sha256": "5cc041a95389ec4043fd53d699f6a912d1071ad6c3c49f72c6577cdc518a4ea8",
           "pixelWidth": 574,
           "pixelHeight": 761
+        }
+      ]
+    },
+    {
+      "key": "zhuge-zhan",
+      "characterName": "诸葛瞻",
+      "defaultSkinId": "41000",
+      "skins": [
+        {
+          "id": "41000",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/410",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/41000.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-zhuge-zhan.png",
+          "sha256": "a7274a77294b26acc2b1e246cbdbfc0b6c10b2873b7bc233f70b0870e8db0f2a",
+          "pixelWidth": 750,
+          "pixelHeight": 950
         }
       ]
     }

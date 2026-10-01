@@ -26,11 +26,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         new(Fame2017QinMiContent.Register),
         new(Fame2017XueZongContent.Register),
         new(FengLinLuJiContent.Register),
+        new(FengLinZhugeZhanContent.Register, registerGeneralSkillsFirst: true),
         new(Fame2017XuShiContent.Register),
         new(FengLinWangPingContent.Register),
         // Printed skills historically precede Ji Kang's four granted skills.
         new(Fame2017JiKangContent.Register, registerGeneralSkillsFirst: true),
-        new(FengLinHaoZhaoContent.Register)
+        new(FengLinHaoZhaoContent.Register),
+        new(FengLinChenDaoContent.Register),
+        new(FengLinSunLiangContent.Register)
     ];
 
     private static SkillProgramCatalog ClassicShenLuMengCatalog =>

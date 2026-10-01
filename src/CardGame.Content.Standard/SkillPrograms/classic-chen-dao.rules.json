@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:wanglie",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "first-distance",
+          "kind": "firstActualPlayUseDistanceUnlimited"
+        }
+      ],
+      "triggers": [
+        {
+          "id": "issue",
+          "window": "cardUseCommitted",
+          "optional": true,
+          "ownerRelation": "actor",
+          "includeResponseUses": true,
+          "cardCategories": [
+            "basic",
+            "trick"
+          ],
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "cardActionActorIsCurrentTurn"
+              },
+              {
+                "kind": "cardActionPhaseIsPlay"
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "issueCardNoResponseAndPlayUseBan",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

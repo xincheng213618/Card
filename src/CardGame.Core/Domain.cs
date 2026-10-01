@@ -518,6 +518,8 @@ public sealed partial record PlayerSnapshot
     public IReadOnlyList<ProgramAlternatingChoiceStateSnapshot>? AlternatingChoiceStates { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<BeneficiarySuitShield>? BeneficiarySuitShields { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ActualPlayPhaseCardUseState? ActualPlayPhaseCardUseState { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public IReadOnlyList<IssuedPlayPhaseUseProhibition>? IssuedPlayPhaseUseProhibitions { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public IReadOnlyList<DeferredHandAlignment>? DeferredHandAlignments { get; init; }
 
     /// <summary>

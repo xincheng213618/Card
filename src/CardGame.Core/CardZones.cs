@@ -419,6 +419,17 @@ internal sealed class CardZoneStore
         zone.Insert(0, deferred[0]);
     }
 
+    /// <summary>Orders only surviving viewed entities after an obtaining child may have changed the pile.</summary>
+    public void ReorderDrawPileSubsetToTop(IReadOnlyList<int> viewedIds, IReadOnlyList<int> topFirst)
+    {
+        if (viewedIds.Distinct().Count() != viewedIds.Count || topFirst.Distinct().Count() != topFirst.Count ||
+            !viewedIds.Order().SequenceEqual(topFirst.Order()) || viewedIds.Any(id => GetLocation(id) != CardLocation.DrawPile))
+            throw new InvalidOperationException("Top ordering requires an exact live draw-pile entity partition.");
+        var pile = GetZone(CardLocation.DrawPile);
+        var cards = topFirst.Select(id => pile.Single(card => card.Id == id)).Reverse().ToArray();
+        var ids = viewedIds.ToHashSet(); pile.RemoveAll(card => ids.Contains(card.Id)); pile.AddRange(cards);
+    }
+
     /// <summary>
     /// Reorders an exact private view of the current draw-pile top. The first
     /// top id becomes the next card drawn; the first bottom id becomes the

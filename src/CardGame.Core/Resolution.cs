@@ -151,6 +151,10 @@ public sealed record ProgramSkillFrame(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramCompletedCardGiftDraft? CompletedCardGiftDraft { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramDiscardBudgetDraft? DiscardBudgetDraft { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramCompletedFactionGiftDraft? CompletedFactionGiftDraft { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramCardEnhancementDraft? CardEnhancementDraft { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -167,6 +171,7 @@ public sealed record ProgramSkillFrame(
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramTopReorder? TopReorder { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramQuotaTopDraft? QuotaTop { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramRepeatedJudgment? RepeatedJudgment { get; init; }
@@ -217,7 +222,11 @@ public sealed record AttackAttemptState(
     string? TransferSkillId = null,
     int? TransferOwnerSeat = null,
     int? TransferTargetSeat = null,
-    bool TransferDrawLostHp = false);
+    bool TransferDrawLostHp = false)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<int>? RangePreventionVisitedTargets { get; init; }
+}
 
 /// <summary>Identifies a suspended parent using existing frame IDs, without retaining its attack object.</summary>
 public sealed record ProgramAttackReturn(long? ParentAttackOwnerFrameId,
@@ -229,6 +238,8 @@ public sealed record FactionRecoveryDebtReturn(long DyingFrameId, long DyingPare
 
 public sealed record CardAttackState
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<int>? RangePreventionVisitedTargets { get; init; }
     public bool Active { get; init; }
     public int SourceSeat { get; init; }
     public int CardUserSeat { get; init; }
@@ -288,6 +299,10 @@ public sealed record CardUseFrame(
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public CardActionContext? Action { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool FirstOwnPlayUseDistanceUnlimited { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IssuedCardNoResponse? IssuedNoResponse { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public DyingResponseEvent? DyingResponse { get; init; }
@@ -486,7 +501,11 @@ public sealed record NullificationWindowFrame(
     int ChainDepth = 0,
     bool EffectNullified = false,
     ResolutionFrameStep Step = ResolutionFrameStep.AwaitingResponse)
-    : ResolutionFrame(Id, ResolutionFrameKind.NullificationWindow, Step);
+    : ResolutionFrame(Id, ResolutionFrameKind.NullificationWindow, Step)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IssuedCounterspellNode? IssuedNoResponseNode { get; init; }
+}
 
 /// <summary>
 /// A private source-side cursor for selecting one card from another player's

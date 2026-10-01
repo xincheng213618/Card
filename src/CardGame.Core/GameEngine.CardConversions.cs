@@ -436,6 +436,9 @@ public sealed partial class GameEngine
             [],
             costs,
             [selection.Source], effectiveSuit: completedResponseUseSuit);
+        if (action.ActorSeat == action.ProviderSeat && action.RequesterSeat is null &&
+            (selection.OutputKind == CardKind.Nullification || IsProgramResponseCardUse(responder, selection.OutputKind)))
+            RecordActualPlayPhaseUse(action);
         AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(action));
         AdvanceEventRulesAndQueueFact(new ProgramViewAsConvertedEvent(
             resolutionId,

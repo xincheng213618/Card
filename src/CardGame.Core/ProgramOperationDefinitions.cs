@@ -8,7 +8,8 @@ namespace CardGame.Core;
 internal enum ProgramOperationInteraction { Automatic, Choice }
 internal enum ProgramOperationAiSemantic
 {
-    GainCards, Recover, LoseHp, Reveal, Filter, Subset, Move, Gift, SelectTarget,
+    IssuePlayUsePolicy=1340,
+    GainCards=0, Recover, LoseHp, Reveal, Filter, Subset, Move, Gift, SelectTarget,
     TurnOver, SetFaceState, GiveSelected, DiscardSelected,
     InsertPhase, RecoverTo, SelectTargets, SelectSourceCard, ClaimDamageCards,
     TakeRandomHandCards, AdjustNormalDraw, GrantTurnCardDamageModifier,
@@ -61,6 +62,7 @@ internal sealed record ReadSelectedTarget : ProgramResourceOperation;
 internal sealed record RequireSelectedTargetKind(SkillProgramTargetKind Kind) : ProgramResourceOperation;
 internal sealed record ReadTargetSet(int Minimum, int? Maximum = null) : ProgramResourceOperation;
 internal sealed record RequireContext(ProgramContextCapability Capability) : ProgramResourceOperation;
+internal sealed record RequireCardActionActor : ProgramResourceOperation;
 internal sealed record RequireTriggerWindow(SkillProgramTriggerWindow Window) : ProgramResourceOperation;
 internal sealed record RequireCardActionRelation(SkillProgramCardActionOwnerRelation Relation, IReadOnlyList<CardKind> Kinds) : ProgramResourceOperation;
 internal sealed record RequireAnyContext(ProgramContextCapability Capabilities) : ProgramResourceOperation;

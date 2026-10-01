@@ -58,9 +58,9 @@ public sealed partial class GameEngine
         return kind switch
         {
             CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash =>
-                CanUseSlashTarget(actor, target, physical, action.ConversionChain.FirstOrDefault(), kind),
+                CanUseSlashTarget(actor, target, physical, action.ConversionChain.FirstOrDefault(), kind, HasIssuedFirstPlayUseDistance(use.Id), use.Id),
             CardKind.Duel => true,
-            CardKind.Snatch => HasTargetCard(target) && (HasCardDistanceExemption(actor, target, kind) ||
+            CardKind.Snatch => HasTargetCard(target) && (HasCardDistanceExemption(actor, target, kind, use.Id) ||
                 HasCardPolicy(actor, SkillProgramCardPolicyKind.IgnoreUseDistance, kind) || GetCombatDistance(actor.Seat, target.Seat) == 1),
             CardKind.Dismantlement => HasTargetCard(target),
             CardKind.FireAttack => GetHand(target).Count > 0,

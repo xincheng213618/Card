@@ -17,7 +17,8 @@ public sealed partial class GameEngine
             IsRedSuit(EffectiveSuit(player, card)));
     }
 
-    private bool IsCardUseForbidden(int actorSeat, CardKind effectiveKind, CardActionType actionType) =>
+    private bool IsCardUseForbidden(int actorSeat, CardKind effectiveKind, CardActionType actionType, bool ignoreIssuedPlayBan=false) =>
+        !ignoreIssuedPlayBan && (actionType == CardActionType.Use || actionType == CardActionType.Response && (effectiveKind == CardKind.Nullification || IsProgramResponseCardUse(_players[actorSeat], effectiveKind))) && HasIssuedPlayPhaseUseBan(actorSeat) ||
         _turnCardUseEffects.IsCardUseForbidden(
             _turnNumber,
             _currentSeat,

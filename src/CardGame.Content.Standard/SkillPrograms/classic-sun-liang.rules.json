@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:kuizhu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "discard-budget",
+          "window": "discardPhaseEnded",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "allowOwnDiscardPhaseEnded": true,
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolveDiscardBudgetParticipants",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:chezheng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "range-prevent",
+          "window": "beforeDamageApplied",
+          "subject": "damageSource",
+          "optional": false,
+          "effects": [
+            {
+              "op": "preventOwnPlayOutsideTargetRangeDamage",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "range-discard",
+          "window": "playEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "discardOutsideRangeAfterInsufficientUses",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:lijun",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "completed-faction-gift",
+          "window": "cardUseCompleted",
+          "ownerRelation": "observer",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": false,
+          "effects": [
+            {
+              "op": "offerCompletedFactionCostGift",
+              "target": "owner",
+              "providerFactionId": "wu"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

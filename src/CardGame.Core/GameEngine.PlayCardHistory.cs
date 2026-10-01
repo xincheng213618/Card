@@ -6,14 +6,6 @@ public sealed partial class GameEngine
     // their original event shape and replay behavior.
     private bool TracksPlayCardHistory => _contentRegistry?.ProgramDependencies.TracksPlayCardHistory == true;
 
-    private static bool HasTriggerCondition(SkillProgramTriggerCondition condition,
-        SkillProgramTriggerConditionKind kind) => condition.Kind == kind ||
-        condition.Children.Any(child => HasTriggerCondition(child, kind));
-
-    private static bool HasTriggerValue(SkillProgramTriggerCondition condition,
-        SkillProgramTriggerValueKind kind) => condition.Left?.Kind == kind || condition.Right?.Kind == kind ||
-        condition.Children.Any(child => HasTriggerValue(child, kind));
-
     private IEnumerable<IGameEvent> EventsSinceLastBoundary(Func<IGameEvent, bool> boundary)
     {
         var pendingBoundary = _pendingEvents.FindLastIndex(item => boundary(item));
