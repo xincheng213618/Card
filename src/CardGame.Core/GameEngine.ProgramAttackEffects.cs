@@ -12,7 +12,7 @@ public sealed partial class GameEngine
         return (ActiveFangtianHalberd is null ||
                 !_resolutionStack.OfType<CardUseFrame>()
                     .Single(frame => frame.Id == attack.ResolutionId).TargetSeats.Contains(targetSeat)) &&
-               (HasCardDistanceExemption(_players[attack.SourceSeat], _players[targetSeat], kind) ||
+               (HasCardDistanceExemption(_players[attack.SourceSeat], _players[targetSeat], kind, attack.ResolutionId) ||
                 IsWithinAttackRange(redirectorSeat, targetSeat)) &&
                !IsDirectedCardTargetProhibited(attack.SourceSeat, targetSeat, kind) &&
                !IsSlashProhibited(_players[targetSeat]);

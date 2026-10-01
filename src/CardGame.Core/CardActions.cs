@@ -20,7 +20,7 @@ public enum ProgramCardContinuation
 public enum ProgramCompletedResponseKind { Dodge, Nullification }
 
 /// <summary>The completed use of an accepted response returns to its original parent.</summary>
-public sealed record ProgramCompletedResponseReturn(ProgramCompletedResponseKind Kind);
+public sealed record ProgramCompletedResponseReturn(ProgramCompletedResponseKind Kind, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool IsCommitted = false);
 
 public enum SimpleCardUseEffect { Equipment, Alcohol, Recovery, EquipmentPlacement = 900 }
 

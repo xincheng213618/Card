@@ -492,6 +492,12 @@ public sealed class ContentRegistry
         {
             foreach (var skill in _skills.Values.Where(item => item.Program is not null))
             {
+                foreach (var trigger in skill.Program!.Triggers.Where(t=>t.IncludeResponseUses && t.Window==SkillProgramTriggerWindow.CardUseCommitted || t.Effects.Any(e=>e.Op==SkillProgramEffectOp.IssueCardNoResponseAndPlayUseBan)))
+                {
+                    if(trigger.Window!=SkillProgramTriggerWindow.CardUseCommitted || trigger.OwnerRelation!=SkillProgramCardActionOwnerRelation.Actor || trigger.Effects.Count!=1 || trigger.Effects[0].Op!=SkillProgramEffectOp.IssueCardNoResponseAndPlayUseBan ||
+                       !HasRequiredPositiveCondition(trigger.Condition,SkillProgramTriggerConditionKind.CardActionActorIsCurrentTurn) || !HasRequiredPositiveCondition(trigger.Condition,SkillProgramTriggerConditionKind.CardActionPhaseIsPlay))
+                        throw new InvalidOperationException("Issued card policy requires a single own Play actor use.");
+                }
                 foreach (var trigger in skill.Program!.Triggers.Where(trigger => trigger.DeferredTurnEndOnly ||
                              trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.ScheduleDeferredHandAlignment)))
                 {
@@ -926,4 +932,5 @@ public sealed class ContentRegistry
             public void AddMode(ContentModeDefinition definition) => owner.AddMode(definition);
         }
     }
+    private static bool HasRequiredPositiveCondition(SkillProgramTriggerCondition c, SkillProgramTriggerConditionKind kind) => c.Kind == kind || c.Kind == SkillProgramTriggerConditionKind.All && c.Children.Any(child => HasRequiredPositiveCondition(child, kind));
 }

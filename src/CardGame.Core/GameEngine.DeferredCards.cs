@@ -18,7 +18,7 @@ public sealed partial class GameEngine
             .SelectMany(view => view.Ids)
             .Select(id => _cardZones.CardsAt(CardLocation.Processing).Single(card => card.Id == id))
             .Select(ToSnapshot);
-        return topCards.Concat(GetOfferedPrivatelyViewedCards(viewerSeat)).ToArray();
+        return topCards.Concat(GetOfferedPrivatelyViewedCards(viewerSeat)).Concat(GetQuotaPrivatelyViewedCards(viewerSeat)).DistinctBy(card => card.Id).ToArray();
     }
 
     // Checkpoints replay the complete accepted command prefix. The event stream is never

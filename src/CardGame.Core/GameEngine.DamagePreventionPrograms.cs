@@ -3,18 +3,45 @@ namespace CardGame.Core;
 /// <summary>Generic before-damage program window. It contains no character or skill ids.</summary>
 public sealed partial class GameEngine
 {
+    private bool? _hasRangePreventionPrograms;
+    private bool HasRangePreventionPrograms => _hasRangePreventionPrograms ??= _contentRegistry.Skills.Values.Any(s =>
+        s.Program?.Triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage)) == true);
+
+    private bool TryVisitRangePreventionChainTarget(IDamageAttempt attack)
+    {
+        if (!SameAttackOwner(attack, CurrentDamageAttempt))
+            throw new InvalidOperationException("Chain range prevention lost its exact live attack owner.");
+        if (attack is ProgramAttackHandle)
+        {
+            var state = GetProgramAttackState(attack.ResolutionId);
+            if (state.RangePreventionVisitedTargets?.Contains(attack.TargetSeat) == true) return false;
+            UpdateProgramAttackState(attack.ResolutionId, current => current with
+            { RangePreventionVisitedTargets = Array.AsReadOnly((current.RangePreventionVisitedTargets ?? []).Append(attack.TargetSeat).ToArray()) });
+        }
+        else
+        {
+            var state = GetCardAttackState(attack.ResolutionId);
+            if (state.RangePreventionVisitedTargets?.Contains(attack.TargetSeat) == true) return false;
+            UpdateCardAttackState(attack.ResolutionId, current => current! with
+            { RangePreventionVisitedTargets = Array.AsReadOnly((current!.RangePreventionVisitedTargets ?? []).Append(attack.TargetSeat).ToArray()) });
+        }
+        return true;
+    }
     private bool TryBeginBeforeDamageProgramWindowForAttack(
         IDamageAttempt attack,
         int amount,
         DamageNature nature)
     {
-        if (attack.BeforeDamageProgramsResolved || amount <= 0) return false;
+        if (amount <= 0) return false;
+        var rangeChainOnly = attack.BeforeDamageProgramsResolved;
+        if (rangeChainOnly && (!attack.IsChainPropagation || !HasRangePreventionPrograms ||
+            !TryVisitRangePreventionChainTarget(attack))) return false;
         return TryBeginBeforeDamageProgramWindow(
             attack.SourceSeat,
             attack.TargetSeat,
             amount,
             nature,
-            BeforeDamageProgramContinuation.Attack);
+            BeforeDamageProgramContinuation.Attack, rangeChainOnly);
     }
 
     private bool TryBeginBeforeDamageProgramWindow(
@@ -22,7 +49,7 @@ public sealed partial class GameEngine
         int targetSeat,
         int amount,
         DamageNature nature,
-        BeforeDamageProgramContinuation continuation)
+        BeforeDamageProgramContinuation continuation, bool rangeChainOnly = false)
     {
         if (amount <= 0 ||
             !IsValidPlayerSeat(sourceSeat) || !IsValidPlayerSeat(targetSeat) ||
@@ -48,6 +75,7 @@ public sealed partial class GameEngine
                         ? _players[sourceSeat].Gender : null
                 };
                 return CollectProgramTriggerCandidates(owner, SkillProgramTriggerWindow.BeforeDamageApplied)
+                    .Where(candidate => !rangeChainOnly || GetProgramTrigger(candidate).Effects.Any(e => e.Op == SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage))
                     .Where(candidate => GetProgramTrigger(candidate).Subject switch
                     {
                         SkillProgramTriggerSubject.DamageTarget => owner.Seat == targetSeat &&
@@ -82,7 +110,8 @@ public sealed partial class GameEngine
             amount,
             nature,
             continuation,
-            Array.AsReadOnly(candidates));
+            Array.AsReadOnly(candidates))
+        { ContinuationAttackResolutionId = rangeChainOnly ? CurrentDamageAttempt!.ResolutionId : null };
         PushRuntimeFrame(frame);
         AdvanceRuntimeTop<BeforeDamageProgramWindowFrame>();
         return true;
@@ -196,7 +225,8 @@ public sealed partial class GameEngine
             {
                 var attack = CurrentDamageAttempt ??
                     throw new InvalidOperationException("The before-damage attack continuation is unavailable.");
-                if (attack.SourceSeat != frame.SourceSeat || attack.TargetSeat !=
+                if (frame.ContinuationAttackResolutionId is { } exactAttackId && attack.ResolutionId != exactAttackId ||
+                    attack.SourceSeat != frame.SourceSeat || attack.TargetSeat !=
                     (frame.RedirectedTargetSeat ?? frame.TargetSeat))
                     throw new InvalidOperationException("The before-damage attack participants changed.");
                 if (frame.RedirectedTargetSeat is null) attack.MarkBeforeDamageProgramsResolved();

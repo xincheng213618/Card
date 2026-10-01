@@ -1790,6 +1790,7 @@ public sealed partial class GameEngine
         if (trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.UseDeckSlashesThenShuffle) &&
             (context.TargetSeat is not { } deckTarget || _players[deckTarget].Gender != GeneralGender.Male ||
              owner.Hp <= 0 || _cardZones.Count(CardLocation.DrawPile) > owner.Hp * 10)) return false;
+        if (trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.NullifyFirstTurnTargetByHand) && !IsFirstTurnTarget(candidate, context)) return false;
         if (!CanOfferProgramHandControl(owner, trigger)) return false;
         if (!CanOfferResponseExchange(candidate, trigger, context)) return false;
         if (!CanOfferAttributedEvent(trigger,context)) return false;
@@ -2983,6 +2984,7 @@ public sealed partial class GameEngine
         if (selected.Parameters.GetValueOrDefault("program-action") == "public-suit-discard") { ResolvePublicSuitDiscard(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") is { } namedAction && (namedAction.StartsWith("named-defense-", StringComparison.Ordinal) || namedAction.StartsWith("public-draft-", StringComparison.Ordinal)))
         { ResolveNamedDefenseAndDraftChoice(selected); return; }
+        if (selected.Parameters.GetValueOrDefault("program-action")?.StartsWith("quota-top-", StringComparison.Ordinal) == true) { ResolveQuotaTopChoice(selected); return; }
         var action = selected.Parameters.GetValueOrDefault("program-action");
         if (action == "relative-zone-target") { ResolveRelativeZoneTarget(selected); return; }
         if (action == "deck-end-exchange") { ResolveDeckEndChoice(selected); return; }
@@ -3004,6 +3006,9 @@ public sealed partial class GameEngine
             ResolveProgramCompoundCardTarget(selected);
             return;
         }
+        if (action == "discard-budget") { ResolveDiscardBudgetChoice(selected); return; }
+        if (action == "outside-range-discard") { ResolveOutsideRangeDiscard(selected); return; }
+        if (action == "faction-cost-gift") { ResolveCompletedFactionGift(selected); return; }
         if (action == "completed-card-gift")
         {
             ResolveCompletedCardGiftChoice(selected);
@@ -3748,6 +3753,7 @@ public sealed partial class GameEngine
                 .GetPausedInstruction(frame.InstructionIndex).Effect;
             selected = paused.Op switch
             {
+                SkillProgramEffectOp.ResolveDiscardBudgetParticipants or SkillProgramEffectOp.DiscardOutsideRangeAfterInsufficientUses or SkillProgramEffectOp.OfferCompletedFactionCostGift => decision.Choices[0],
                 SkillProgramEffectOp.SelectRelativeZoneDemandTarget => decision.Choices[0],
                 SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd => decision.Choices[0],
                 SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard or SkillProgramEffectOp.DeclareNameForTargetDefense or SkillProgramEffectOp.DrawAndDraftLowHandPopulation => decision.Choices[0],
@@ -3769,6 +3775,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.SelectDistinctSuitHandDiscards or SkillProgramEffectOp.SuppressGeneralSkill or SkillProgramEffectOp.SelectChainedByMarker or SkillProgramEffectOp.SelectOneSelectedTarget => decision.Choices[0],
                 SkillProgramEffectOp.OfferCompletedCardGift or SkillProgramEffectOp.ApplyCurrentCardEnhancements or
                     SkillProgramEffectOp.PayEquipmentColorDiscard or SkillProgramEffectOp.AddCurrentCardUseTarget => decision.Choices[0],
+                SkillProgramEffectOp.PeekTurnQuotaTop => decision.Choices[0],
                 SkillProgramEffectOp.CompareSelectedHandWithHpHand => decision.Choices[0],
                 SkillProgramEffectOp.ChooseOption => SelectAiProgramOption(decision, frame),
                 SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamage =>
@@ -3928,6 +3935,8 @@ public sealed partial class GameEngine
         CharacterState owner,
         int ownerSeat)
     {
+        if (trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.PeekTurnQuotaTop))
+            return CreateAttributedPaymentAiContext(owner,trigger) with { TurnCriterionQuota = ComputeTurnCriterionQuota(owner.Seat) };
         if (trigger.Window is SkillProgramTriggerWindow.CardUseCommitted or
             SkillProgramTriggerWindow.CardUseBeforeTargetEffects or
             SkillProgramTriggerWindow.CardUseTargetsFinalized or SkillProgramTriggerWindow.CardResponseAccepted or

@@ -78,6 +78,8 @@ public sealed partial class GameEngine
                 AlternatingChoiceStates = GetAlternatingChoiceStateSnapshot(player),
                 BeneficiarySuitShields = _beneficiarySuitShields.Any(s => s.BeneficiarySeat == player.Seat) ? _beneficiarySuitShields.Where(s => s.BeneficiarySeat == player.Seat).ToArray() : null,
                 DeferredHandAlignments = _deferredHandAlignments.Where(d => d.TargetSeat == player.Seat).ToArray() is { Length: > 0 } alignments ? alignments : null,
+                ActualPlayPhaseCardUseState = TracksActualPlayPhaseCardUses && _phase == TurnPhase.Play && player.Seat == _currentSeat ? new(player.Seat, _turnNumber, _cardUseDebitPhaseInstanceId, GetActualPlayPhaseUseCount(player.Seat)) : null,
+                IssuedPlayPhaseUseProhibitions = _issuedPlayPhaseUseProhibitions.Where(p => p.ActorSeat == player.Seat && HasIssuedPlayPhaseUseBan(player.Seat)).ToArray() is { Length: > 0 } issuedBans ? issuedBans : null,
                 WoodenOxGrainCount = woodenOxGrain.Count,
                 WoodenOxGrain = GetEquipment(player).Any(card => card.Kind == CardKind.WoodenOx) || woodenOxGrain.Count > 0
                     ? canSeeHand
@@ -248,6 +250,7 @@ public sealed partial class GameEngine
         AlternatingChoiceStates = FreezeViewList(player.AlternatingChoiceStates),
         BeneficiarySuitShields = FreezeViewList(player.BeneficiarySuitShields),
         DeferredHandAlignments = FreezeViewList(player.DeferredHandAlignments),
+        IssuedPlayPhaseUseProhibitions = FreezeViewList(player.IssuedPlayPhaseUseProhibitions),
         Skills = player.Skills is { } skills ? Array.AsReadOnly(skills.Select(FreezeViewSkill).ToArray()) : null,
         SecondarySkills = player.SecondarySkills is { } secondary ? Array.AsReadOnly(secondary.Select(FreezeViewSkill).ToArray()) : null,
         SkillRuntimeStates = player.SkillRuntimeStates is { } states ? Array.AsReadOnly(states.Select(state => state with

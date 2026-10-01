@@ -256,7 +256,7 @@ public sealed partial class GameEngine
             !IsSelfTargetForbiddenAction(source, option.EffectiveCardKind, option.TargetSeats) &&
             (option.EffectiveCardKind is CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.PeachGarden or CardKind.FiveGrains ||
              (option.EffectiveCardKind == CardKind.BorrowedSword ? option.TargetSeats.Where((_, index) => index % 2 == 0) : option.TargetSeats).All(t => !HasBeneficiarySuitShield(source.Seat, t, shieldSuit))) &&
-            (!enforceUsePermission || !IsCardUseForbidden(source.Seat, option.EffectiveCardKind, CardActionType.Use))).ToArray());
+            !HasIssuedPlayPhaseUseBan(source.Seat) && (!enforceUsePermission || !IsCardUseForbidden(source.Seat, option.EffectiveCardKind, CardActionType.Use))).ToArray());
     }
 
     private void AddProgramOrdinaryTrickTargetCardOptions(

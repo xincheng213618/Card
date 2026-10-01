@@ -76,6 +76,7 @@ public sealed partial class GameEngine
             });
             AdvanceEventRulesAndQueueFact(new NullificationRespondedEvent(pending.ParentFrameId, pending.EffectCardId,
                 pending.EffectCardKind, owner.Seat, selection.Cards[0].Id, pending.EffectNullified, pending.ChainDepth));
+            if (TryBeginCommittedResponseUsePrograms(null, action, ProgramCardContinuation.NullificationResponse)) return;
             if (!TryBeginProgramCardWindow(null, action, SkillProgramTriggerWindow.CardResponseAccepted, [],
                 ProgramCardContinuation.NullificationResponse)) ContinueNullificationAfterResponseUse(action);
             return;
@@ -86,6 +87,7 @@ public sealed partial class GameEngine
         SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
         var responseAction = MoveProgramMultiCardResponse(owner, selection, attack.ResolutionId, attack.SourceSeat);
         var continuation = ActiveGroupCard is { } ? ProgramCardContinuation.GroupResponse : ProgramCardContinuation.Dodge;
+        if (TryBeginCommittedResponseUsePrograms(attack, responseAction, continuation)) return;
         if (!TryBeginProgramCardWindow(attack, responseAction, SkillProgramTriggerWindow.CardResponseAccepted, [], continuation))
             ContinueAcceptedCardResponse(attack, responseAction, continuation);
     }

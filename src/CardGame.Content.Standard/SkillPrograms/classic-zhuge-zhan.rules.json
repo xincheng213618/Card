@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:zuilun",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "ending",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "peekTurnQuotaTop",
+              "target": "owner",
+              "amount": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:fuyin",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "first-target",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "target",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash",
+            "duel"
+          ],
+          "onlyDesignatedCardTargets": true,
+          "optional": false,
+          "effects": [
+            {
+              "op": "nullifyFirstTurnTargetByHand",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

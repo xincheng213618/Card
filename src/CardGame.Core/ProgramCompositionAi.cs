@@ -31,7 +31,8 @@ internal sealed record ProgramAiPublicContext(
     int AttackRange = 0,
     int? LivingPlayersMinHp = null,
     int? TurnOwnerDiscardPhaseHandDiscardCount = null,
-    IReadOnlyDictionary<PlayerMarkerKind,int>? AttributedMarkerPaymentCounts = null);
+    IReadOnlyDictionary<PlayerMarkerKind,int>? AttributedMarkerPaymentCounts = null,
+    int? TurnCriterionQuota = null);
 
 /// <summary>
 /// Pure, public-state estimate for schema-23 program compositions. Unknown cards use a
@@ -169,6 +170,13 @@ internal sealed class ProgramAiEstimateContext
         // at zero cost. This prior reads no unknown deck or other player's private hand.
         _otherAdjustment += effect.Op == SkillProgramEffectOp.StoreTopCardInPublicPile ? 3d :
             effect.Op == SkillProgramEffectOp.ExchangePublicPile ? 1d : 0d;
+    }
+
+    internal void PriceTurnQuotaPeek(SkillProgramEffect effect)
+    {
+        var quota = _publicContext.TurnCriterionQuota ?? effect.Amount;
+        if (quota == 0) LoseHp(new SkillProgramEffect(SkillProgramEffectOp.LoseHp, SkillProgramEffectTarget.Owner, 1, effect.Condition));
+        else Draw(new SkillProgramEffect(SkillProgramEffectOp.Draw, SkillProgramEffectTarget.Owner, quota, effect.Condition));
     }
 
     internal void Draw(SkillProgramEffect effect)
@@ -469,6 +477,11 @@ internal sealed class ProgramAiEstimateContext
         _otherAdjustment += _publicContext.CardEffectInterventionScore;
 
     internal void ProhibitCurrentResponse() => _otherAdjustment += 20d;
+    internal void IssuePlayUsePolicy()
+    {
+        var offensive = _publicContext.CardUseEffectiveKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Duel or CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.FireAttack or CardKind.BorrowedSword;
+        _otherAdjustment += (offensive ? 20d : 2d)-Math.Min(16d, Math.Max(0,_player.HandCount-1)*2d);
+    }
 
     internal void RedirectCurrentAttack() => _otherAdjustment += 8d;
 

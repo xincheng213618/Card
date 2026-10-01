@@ -170,6 +170,10 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    PeekTurnQuotaTop = 1320,
+    NullifyFirstTurnTargetByHand = 1321,
+    IssueCardNoResponseAndPlayUseBan = 1340,
+    ResolveDiscardBudgetParticipants = 1360, PreventOwnPlayOutsideTargetRangeDamage = 1361, DiscardOutsideRangeAfterInsufficientUses = 1362, OfferCompletedFactionCostGift = 1363,
     ChangeParticipantMarker = 1280, ConsumeMarkerPreventDamage = 1281, AddMarkerSubjectNormalDraw = 1282,
     ScheduleDeferredHandAlignment = 1300,
     ResolveDeferredHandAlignment = 1301,
@@ -1821,7 +1825,7 @@ public sealed class SkillProgramCatalog
         else if (kind != SkillProgramCardPolicyKind.PindianRankBySuit && (requiredKinds.Count != 0 || value != 0))
             Fail(path, "requiredCardKinds and value require a minimum response count policy");
         if (kind is SkillProgramCardPolicyKind.OfferSkipDiscard or
-            SkillProgramCardPolicyKind.PindianTopCardChoice or SkillProgramCardPolicyKind.PindianRankBySuit or
+            SkillProgramCardPolicyKind.FirstActualPlayUseDistanceUnlimited or SkillProgramCardPolicyKind.PindianTopCardChoice or SkillProgramCardPolicyKind.PindianRankBySuit or
             SkillProgramCardPolicyKind.RewriteSuit or
             SkillProgramCardPolicyKind.FactionHandLimitBonus or
             SkillProgramCardPolicyKind.ForeignPublicPileSlash or SkillProgramCardPolicyKind.PindianClaim or SkillProgramCardPolicyKind.IgnoreTurnObtainedHandCardsForDiscard)
@@ -2381,8 +2385,8 @@ public sealed class SkillProgramCatalog
         if (node.TryGetProperty("singleActionInstance", out _) && window != SkillProgramTriggerWindow.CardUseCompleted) Fail(path, "singleActionInstance requires cardUseCompleted");
         var onlyDesignatedCardTargets = node.TryGetProperty("onlyDesignatedCardTargets", out _) && RequiredBool(node, "onlyDesignatedCardTargets", path);
         var includeResponseUses = node.TryGetProperty("includeResponseUses", out _) && RequiredBool(node, "includeResponseUses", path);
-        if (node.TryGetProperty("includeResponseUses", out _) && window != SkillProgramTriggerWindow.CardUseCompleted)
-            Fail(path + ".includeResponseUses", "requires a cardUseCompleted trigger");
+        if (node.TryGetProperty("includeResponseUses", out _) && window is not (SkillProgramTriggerWindow.CardUseCompleted or SkillProgramTriggerWindow.CardUseCommitted))
+            Fail(path + ".includeResponseUses", "requires a committed or completed card-use trigger");
         string? sourceSkillId = null;
         string? sourceViewAsId = null;
         SkillProgramTriggerSubject? subject = null;
@@ -2658,7 +2662,7 @@ public sealed class SkillProgramCatalog
                     cardKinds = EnumArray<CardKind>(node, "cardKinds", path);
                     if (cardKinds.Count == 0) Fail(path + ".cardKinds", "must contain at least one effective card kind");
                 }
-                var supported = window == SkillProgramTriggerWindow.CardUseCompleted && includeResponseUses
+                var supported = window is (SkillProgramTriggerWindow.CardUseCompleted or SkillProgramTriggerWindow.CardUseCommitted) && includeResponseUses
                     ? true
                     : window is SkillProgramTriggerWindow.CardUseCompleted or SkillProgramTriggerWindow.CardUseCommitted
                     ? cardKinds.All(kind => kind is not (CardKind.Dodge or CardKind.Nullification))
@@ -2867,6 +2871,14 @@ public sealed class SkillProgramCatalog
             (effect, effectPath) => ParseCompositionEffect(effect, effectPath,
                 isAfterDamageTrigger: window == SkillProgramTriggerWindow.AfterDamageApplied,
                 allowZeroDraw: drawPhaseMode == SkillProgramDrawPhaseMode.Replacement));
+        if (window == SkillProgramTriggerWindow.CardUseCommitted && includeResponseUses &&
+            (effects.Count != 1 || effects[0].Op != SkillProgramEffectOp.IssueCardNoResponseAndPlayUseBan))
+            Fail(path, "committed response uses require the single issued card-policy operation");
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.IssueCardNoResponseAndPlayUseBan) &&
+            (window != SkillProgramTriggerWindow.CardUseCommitted || ownerRelation != SkillProgramCardActionOwnerRelation.Actor || effects.Count != 1 ||
+             !RequiresPositiveTriggerCondition(condition, SkillProgramTriggerConditionKind.CardActionActorIsCurrentTurn) ||
+             !RequiresPositiveTriggerCondition(condition, SkillProgramTriggerConditionKind.CardActionPhaseIsPlay)))
+            Fail(path, "issued card policy requires a single own Play-use actor operation");
         if (window is SkillProgramTriggerWindow.DyingEntered or SkillProgramTriggerWindow.DyingExited &&
             (optional || effects.Any(effect => effect.Op != SkillProgramEffectOp.Draw || effect.Target != SkillProgramEffectTarget.Owner ||
                 effect.NumberExpression is not null || effect.Condition.Kind != SkillProgramConditionKind.Always)))
@@ -2969,6 +2981,18 @@ public sealed class SkillProgramCatalog
             Fail(path, "a deferred end continuation requires one resolver, mandatory own TurnEnding and deferredTurnEndOnly");
         ProgramCompositionValidator.Validate(path, effects, initialSelectedTarget: deferredOnly, window: window, drawPhaseMode: drawPhaseMode, cardActionRelation: ownerRelation, cardKinds: cardKinds, turnOwnerScope: turnOwnerScope);
         if (node.TryGetProperty("onlyDesignatedCardTargets", out _) && ownerRelation != SkillProgramCardActionOwnerRelation.Target) Fail(path + ".onlyDesignatedCardTargets", "requires a target-owner card trigger");
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.ResolveDiscardBudgetParticipants) &&
+            (window != SkillProgramTriggerWindow.DiscardPhaseEnded || subject != SkillProgramTriggerSubject.Owner || !allowOwnDiscardPhaseEnded || turnOwnerScope != SkillProgramTurnOwnerScope.Own))
+            Fail(path, "discard budget requires an actual own discard-phase end");
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage) &&
+            (window != SkillProgramTriggerWindow.BeforeDamageApplied || subject != SkillProgramTriggerSubject.DamageSource || optional))
+            Fail(path, "own play range prevention requires a mandatory damage-source window");
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.DiscardOutsideRangeAfterInsufficientUses) &&
+            (window != SkillProgramTriggerWindow.PlayEnding || subject != SkillProgramTriggerSubject.Owner || optional))
+            Fail(path, "range discard requires a mandatory own play ending window");
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.OfferCompletedFactionCostGift) &&
+            (window != SkillProgramTriggerWindow.CardUseCompleted || ownerRelation != SkillProgramCardActionOwnerRelation.Observer || includeResponseUses || optional || cardKinds.Count == 0 || cardKinds.Any(k => k is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash))))
+            Fail(path, "faction completed cost gift requires a mandatory observer of true completed Slash-family use");
         return new SkillProgramTrigger(id, window, sourceSkillId, sourceViewAsId, subject, suits,
             minimumRank, maximumRank, excludedReasons, judgmentReasons, judgmentSource,
             cardKinds, sourceZones, movementOccurrence, damageOccurrence, drawPhaseMode, optional,
@@ -3240,6 +3264,8 @@ public sealed class SkillProgramCatalog
             foreach (var value in EnumerateTriggerValues(child))
                 yield return value;
     }
+
+    private static bool RequiresPositiveTriggerCondition(SkillProgramTriggerCondition c, SkillProgramTriggerConditionKind kind) => c.Kind==kind || c.Kind==SkillProgramTriggerConditionKind.All && c.Children.Any(child=>RequiresPositiveTriggerCondition(child,kind));
 
     private static IEnumerable<SkillProgramTriggerCondition> EnumerateTriggerConditions(
         SkillProgramTriggerCondition condition)

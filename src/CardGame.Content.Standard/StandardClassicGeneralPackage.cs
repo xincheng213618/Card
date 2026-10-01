@@ -1878,10 +1878,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         Fame2017QinMiContent.Register(builder);
         Fame2017XueZongContent.Register(builder);
         FengLinLuJiContent.Register(builder);
+        FengLinZhugeZhanContent.Register(builder);
         Fame2017XuShiContent.Register(builder);
         FengLinWangPingContent.Register(builder);
         Fame2017JiKangContent.Register(builder);
         FengLinHaoZhaoContent.Register(builder);
+        FengLinChenDaoContent.Register(builder);
+        FengLinSunLiangContent.Register(builder);
         var generalPoolIds = CurrentGeneralIds;
 
         builder.AddMode(new ContentModeDefinition(
@@ -2382,10 +2385,13 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         .. Fame2017QinMiContent.AddedGeneralIds,
         .. Fame2017XueZongContent.AddedGeneralIds,
         .. FengLinLuJiContent.AddedGeneralIds,
+        .. FengLinZhugeZhanContent.AddedGeneralIds,
         .. Fame2017XuShiContent.AddedGeneralIds,
         .. FengLinWangPingContent.AddedGeneralIds,
         .. Fame2017JiKangContent.AddedGeneralIds,
         .. FengLinHaoZhaoContent.AddedGeneralIds,
+        .. FengLinChenDaoContent.AddedGeneralIds,
+        .. FengLinSunLiangContent.AddedGeneralIds,
         .. Fame2015Content.AddedGeneralIds
     ];
 

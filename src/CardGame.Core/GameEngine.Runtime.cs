@@ -29,6 +29,8 @@ public sealed partial class GameEngine
         switch (_resolutionStack[index])
         {
             case ProgramSkillFrame:
+                if (TryResumeQuotaTop(frameId)) return;
+                if (ResumeBudgetGift(frameId)) return;
                 if (TryResumeResponseEntityExchange(frameId)) return;
                 if (TryResumeDeckPrograms(frameId)) return;
                 if (TryResumeProgramTargetCommit(frameId)) return;

@@ -1,0 +1,278 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀OL",
+  "retrievedAt": "2026-10-01",
+  "batch": "风林火山普通版诸葛瞻陈到孙亮",
+  "snapshotStatus": "frozenSources",
+  "implementationStatus": "integratedWithTargetedRepairVerified",
+  "rosterIndex": {
+    "sourcePage": "https://www.sanguosha.com/hero",
+    "responseSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+    "boundary": "Unique current www OL gid/name fields supply HP and faction; historical pack notices only supply gallery classification."
+  },
+  "roster": [
+    {
+      "contentId": "classic:zhuge-zhan",
+      "officialId": 410,
+      "name": "诸葛瞻",
+      "maxHp": 3,
+      "faction": "shu",
+      "gender": "male",
+      "genderEvidence": "Historical identity in captured official biography; no machine gender field or live client inspection claimed.",
+      "sourcePage": "https://www.sanguosha.com/hero/410",
+      "responseSha256": "18bea5d1a8472628d3364560cbf9435c29fe8fd606cbfc3d11a34862c2a4cf8d",
+      "rawArtifactDirectory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-next-candidates-20261001",
+      "officialSkills": [
+        {
+          "name": "罪论",
+          "body": "结束阶段，你可以观看牌堆顶三张牌，然后获得其中X张牌，将剩余牌以任意顺序置于牌堆顶（X为你满足的项数：1.本回合造成过伤害；2.本回合未弃置过牌；3.手牌数全场最少）。若均不满足，你与一名其他角色失去1点体力。"
+        },
+        {
+          "name": "父荫",
+          "body": "锁定技，当你每回合首次成为其他角色【杀】或【决斗】的目标后，若其手牌数不小于你，此牌对你无效。"
+        }
+      ],
+      "indexFields": {
+        "gid": 410,
+        "hp": 3,
+        "initial_hp": 0,
+        "figure_py": "shu",
+        "extend": "风林火山"
+      },
+      "galleryGroup": "myth-thunder",
+      "operationRange": [
+        1320,
+        1339
+      ],
+      "implementationStatus": "integratedWithTargetedRepairVerified",
+      "artwork": {
+        "id": "41000",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/410",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/41000.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-zhuge-zhan.png",
+        "sha256": "a7274a77294b26acc2b1e246cbdbfc0b6c10b2873b7bc233f70b0870e8db0f2a",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "verifiedAndIntegrated",
+        "rawArtifactDirectory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSecond-20261001-parent-art"
+      }
+    },
+    {
+      "contentId": "classic:chen-dao",
+      "officialId": 409,
+      "name": "陈到",
+      "maxHp": 4,
+      "faction": "shu",
+      "gender": "male",
+      "genderEvidence": "Historical identity in captured official biography; no machine gender field or live client inspection claimed.",
+      "sourcePage": "https://www.sanguosha.com/hero/409",
+      "responseSha256": "e21ed791da50179beb6e5e9d8531cda1302c2549013e84322d7e43ad50a6103e",
+      "rawArtifactDirectory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-next-candidates-20261001",
+      "officialSkills": [
+        {
+          "name": "往烈",
+          "body": "你出牌阶段使用的首张牌无距离限制。当你于出牌阶段使用基本牌或普通锦囊牌时，你可以令此牌不能被响应，然后你本阶段不能再使用牌。"
+        }
+      ],
+      "indexFields": {
+        "gid": 409,
+        "hp": 4,
+        "initial_hp": 0,
+        "figure_py": "shu",
+        "extend": "风林火山"
+      },
+      "galleryGroup": "myth-thunder",
+      "operationRange": [
+        1340,
+        1359
+      ],
+      "implementationStatus": "integratedWithTargetedRepairVerified",
+      "artwork": {
+        "id": "40900",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/409",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40900.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-chen-dao.png",
+        "sha256": "980a4ed62a64702650d044069c37b222a3f44d86269a5f78ee3d62f0384bf7dd",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "verifiedAndIntegrated",
+        "rawArtifactDirectory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSecond-20261001-parent-art"
+      }
+    },
+    {
+      "contentId": "classic:sun-liang",
+      "officialId": 403,
+      "name": "孙亮",
+      "maxHp": 3,
+      "faction": "wu",
+      "gender": "male",
+      "genderEvidence": "Historical identity in captured official biography; no machine gender field or live client inspection claimed.",
+      "sourcePage": "https://www.sanguosha.com/hero/403",
+      "responseSha256": "9410bc2b7e296eabf76bc06a99b29f14422ae5544379e3e16066d394d457e82f",
+      "rawArtifactDirectory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-next-candidates-20261001",
+      "officialSkills": [
+        {
+          "name": "溃诛",
+          "body": "弃牌阶段结束时，你可以选择一项：1.令至多X名角色各摸一张牌；2.对任意名体力值之和为X的角色各造成1点伤害。（X为你本阶段弃置的牌数）"
+        },
+        {
+          "name": "掣政",
+          "body": "锁定技，你防止于你的出牌阶段对攻击范围内不包含你的角色造成的伤害。出牌阶段结束时，若你本阶段使用的牌数小于这些角色数，你弃置其中一名角色一张牌。"
+        },
+        {
+          "name": "立军",
+          "body": "主公技，其他吴势力角色出牌阶段限一次，当其使用【杀】后，其可以令你获得之，然后你可以令其摸一张牌且此回合使用【杀】的限制次数+1。"
+        }
+      ],
+      "indexFields": {
+        "gid": 403,
+        "hp": 3,
+        "initial_hp": 0,
+        "figure_py": "wu",
+        "extend": "风林火山"
+      },
+      "galleryGroup": "myth-yin",
+      "operationRange": [
+        1360,
+        1379
+      ],
+      "implementationStatus": "integratedWithTargetedRepairVerified",
+      "artwork": {
+        "id": "40300",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/403",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40300.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-sun-liang.png",
+        "sha256": "3f1f8fa2bb101e87b9c45fcc058b8501450e5cf20e6bcdc3c148789642938b08",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "verifiedAndIntegrated",
+        "rawArtifactDirectory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSecond-20261001-parent-art"
+      }
+    }
+  ],
+  "implementationChoices": {
+    "zhuge-zhan": [
+      "Freeze X from live whole-actual-turn damage, actual owned HEJ discard occurrences, and minimum living hand count (ties qualify) at private peek execution. Existing discard-origin reason classification excludes uses/responses/death/replacement/recast; discard attribution follows the physical owned source, including imposed discards. This attribution is an engineering choice, not a captured FAQ.",
+      "Peek up to three actual top entities privately; obtain exactly min(X, available count), reorder remaining only at the top, and await real gains without re-obtaining moved entities. First designation across Slash family and Duel is registered independently of the hand comparison and grant suppression/loss; one genuine use is counted once.",
+      "For X0 select the other living participant before loss; use actual loss-of-HP/dying continuations for both participants, with precommitted owner-first sequence and game-completion boundaries. Do not replace loss with damage, scalar HP editing, or broad dead-source/Processing relaxations."
+    ],
+    "chen-dao": [
+      "First used card is per actual own Play-phase instance, including equipment and one virtual/multi-cost use, excluding played responses. Apply ignore-distance before physical payment and in both human and AI legality.",
+      "No-response belongs to the exact issued CardUseAction; cover Dodge, Duel, both AOE responses, Nullification and Borrowed Sword request response according to existing typed response protocols. Ordinary effect choices, reveal/discard interactions and unrelated rescue/skill windows remain active.",
+      "After accepted activation prohibit subsequent card uses through the same actual Play-phase instance, including response uses but excluding played responses. Issued prohibition lasts to phase end after source loss/suppression, with recorded source identity; no shortcut EndPlay or turn-wide prohibition. These response/issued-effect choices are explicit engineering boundaries without a captured FAQ.",
+      "Use captured www.sanguosha.com/hero/409 first-card/basic-or-ordinary-trick/cannot-use text. Other product x.sanguosha.com/hero/98.html has first-two-to-others and different restrictions and is excluded."
+    ],
+    "sun-liang": [
+      "Count true HEJ discard occurrences across the entire actual own discard-phase instance, using owned physical discard origins and excluding uses/responses/death/replacement/recast. Count each real occurrence rather than distinct IDs or cards still in DiscardPile. This owned-source attribution is an explicit engineering choice.",
+      "Freeze discard X, chosen mode, target set and HP-sum budget before executing effects; allow owner in the target set. Damage participants must have positive HP at selection so the combination space stays bounded; X0 supports no-effect draw/skip, not a nonempty zero-HP damage set. These edge choices are not a captured FAQ.",
+      "Use live target attack range containing source (not the reverse), own actual Play-phase use count, and true BeforeDamage prevention including chain events; never prevent HP loss.",
+      "Provider controls giving genuine completed Slash-family costs; Lord controls optional reward after transfer and movement children. Gift only still-available actual costs in their action processing/discard domain, never recover from another hand. No physical cost means no gift.",
+      "Provider uses Lijun once per actual own Play-phase instance across eligible Lords/grant instances, consumed on accepted gift. Preserve exact Lord source, Wu provider, phase/action/cost provenance and live participant/grant checks; draw then issue recipient SlashLimit+1 through the current actual turn. These multiple-source/continuation choices are explicit engineering boundaries."
+    ]
+  },
+  "supplementaryClassificationSource": {
+    "sourcePage": "https://www.sanguosha.com/news/20210120_8136_5413",
+    "responseSha256": "14975cb62675d5afe37a17efa7286e13465987b72de1fde1421740527a2e04a3"
+  },
+  "faqSearch": {
+    "date": "2026-10-01",
+    "boundary": "Targeted primary www.sanguosha.com searches returned no relevant current FAQ. Different-product x results and user bug reports were not adopted as rule authority."
+  },
+  "verification": {
+    "status": "integratedWithTargetedRepairVerified",
+    "rootFull": {
+      "corePassed": 315,
+      "coreFailed": 1,
+      "wpfPassed": 41,
+      "wpfFailed": 0,
+      "exitCode": 1,
+      "durationMs": 231714,
+      "sourceDrift": [],
+      "failure": "Legacy reflection fixture omitted new optional parameter; fixed using Type.Missing."
+    },
+    "targetedRepair": {
+      "corePassed": 13,
+      "wpfPassed": 2,
+      "exitCode": 0,
+      "durationMs": 19600,
+      "buildMs": 8756
+    },
+    "routine": {
+      "corePassed": 92,
+      "wpfPassed": 11,
+      "exitCode": 0,
+      "durationMs": 49611,
+      "buildMs": 1487
+    },
+    "evidence": {
+      "full": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSecond-Full-20261001",
+      "repair": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSecond-Repair-20261002"
+    },
+    "evidenceLimitation": "Original Full logs remain; summary/build.log were overwritten by the first repair wrapper. full-summary-captured-fields.json is explicitly reconstructed. Its wrong Core filter executed no checks. Correct independent repair logs and routine logs are preserved separately.",
+    "boundary": "One Full only; targeted repair does not turn its 315/316 result into a green rerun. Native offline WPF controls/render/checkpoint checks do not establish a desktop human full match. Multiple actual Lords and exhaustive grant-loss/regrant or empty-deck combinations were not tested."
+  },
+  "implementationDispatch": {
+    "workers": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSecond-20261001-zhugezhan",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSecond-20261001-chendao",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSecond-20261001-sunliang"
+    ],
+    "baseline": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSecond-20261001-baseline",
+    "baselineManifestPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSecond-20261001-manifest.json",
+    "copiedFiles": 915,
+    "initialCopyDrift": {
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSecond-20261001-zhugezhan": [],
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSecond-20261001-chendao": [],
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSecond-20261001-sunliang": []
+    },
+    "scope": "post-first-FengLin integrated dirty Core/Content/current retained tests and new frozen source contract; no WPF/binaries",
+    "boundary": "Workers run only Core focused checks in isolated copies; parent owns WPF/media, reviewed three-way integration and one batch Full. Frozen baseline is not refreshed after dispatch.",
+    "workerOwners": {
+      "zhugezhan": "/root/fame2016_state",
+      "chendao": "/root/fame2016_delayed",
+      "sunliang": "/root/finish_fame2015_nested"
+    },
+    "parentWpfCandidates": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSecond-20261001-wpf-prepared",
+    "parentWpfBoundary": "Integrated generic issued-ban status, private quota choices/order, provider/Lord choices and neutral prompt label; three new UI checks passed in Full."
+  },
+  "responseClassificationSupport": {
+    "sourcePage": "https://www.sanguosha.com/news/20161215_4752_4616",
+    "publishedAt": "2016-12-15",
+    "retrievedAt": "2026-10-01",
+    "responseSha256": "db5227ec0e42a19ea86fb1deb34e29c2747a45933d734668c55016a1c20ae96e",
+    "rawArtifactDirectory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSecond-20261001-response-classification",
+    "scope": "Historical official FAQ distinguishes Borrowed Sword actual Slash uses from Duel/AOE played responses and Slash-Dodge uses from Arrow Barrage played Dodge. This is supporting card-protocol evidence, not a current Chen Dao or Sun Liang FAQ.",
+    "engineBoundary": "ResolveBorrowedSwordSlashChoice creates a genuine Slash child via ResolveSlashCore and BeginCardUse. Count the actual current-Play actor once; do not count a preliminary request or a distinct faction card supplier. Lijun uses genuine Action.ActorSeat, while actual physical costs may have another provider."
+  },
+  "parentArtVerification": {
+    "verifiedKeys": [
+      "zhuge-zhan",
+      "chen-dao",
+      "sun-liang"
+    ],
+    "dimensions": [
+      750,
+      950
+    ],
+    "byteShaMatchesCatalog": true,
+    "pngHeaderAndTailVerified": true,
+    "localVisualInspection": "All three actual downloaded PNGs inspected and integrated; native offline UI renders/checkpoint controls inspected separately, not a full desktop human match."
+  },
+  "acceptedAt": "2026-10-02",
+  "runtimePortDispatch": {
+    "effectiveBaselineFiles": 930,
+    "originalRuntimeBaselineFiles": 914,
+    "supportingSharedFiles": 16,
+    "committedSupportHead": "4354914c3c863997e6089c238bf0cce65eebb837",
+    "effectiveManifest": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSecond-runtime-port-20261001\\effective-manifest.json",
+    "rootReviews": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSecond-port-zhugezhan-root-review",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSecond-port-chendao-root-review",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSecond-port-sunliang-root-review"
+    ],
+    "boundary": "Original 915-file source and old deliveries remain frozen; runtime source was ported in new workers and SHA-guarded three-way integrated."
+  }
+}

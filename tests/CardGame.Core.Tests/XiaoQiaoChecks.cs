@@ -5,7 +5,9 @@ internal static class XiaoQiaoChecks
 {
     public static void HongyanTianxiangTransferAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = ContentRegistry.Build(new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true), new StandardRescueSkillExpansionPackage(),
+            new StandardClassicGeneralPackage(), new StableTianxiangPool());
         var game = FindTianxiangPrompt(registry);
         var prompt = game.PendingDecision!;
         var before = game.CreateSnapshot(0, revealAll: true);
@@ -49,6 +51,10 @@ internal static class XiaoQiaoChecks
                 transfer.DamageAmount > 0 && draw.TargetSeat == transfer.TargetSeat &&
                 game.CardMovements.Any(move => move.CardId == card.Id && move.To == CardLocation.DiscardPile),
             "Tianxiang must prevent the owner's direct damage, discard the exact private card and transfer that damage.");
+        Require(draw.DrawCount > 0 && game.CardMovements.Count(move =>
+                move.To == CardLocation.Hand(transfer.TargetSeat) &&
+                move.Reason.Value == "skill-program.damage-transfer.followup-draw") == draw.DrawCount,
+            "Transferred damage must draw the declared number of real top entities for the wounded recipient.");
 
         var replay = GameReplay.Restore(game.CreateCheckpoint(), registry);
         Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
@@ -58,44 +64,55 @@ internal static class XiaoQiaoChecks
 
     private static GameEngine FindTianxiangPrompt(ContentRegistry registry)
     {
-        for (var seed = 1; seed <= 16_384; seed++)
+        // Fixed legal pool keeps future registrations from replacing the transfer
+        // target with a general whose own prevention legitimately cancels damage.
+        var game = GameEngine.CreateStandard(new GameOptions
         {
-            var game = GameEngine.CreateStandard(new GameOptions
+            Seed = 117, HumanSeat = 0, HumanRole = Role.Lord, PlayerCount = 5,
+            ModeId = "identity:classic-tianxiang-check", UseInteractiveSetup = true,
+            UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 12
+        }, registry);
+        Require(game.Submit(new StartGameCommand()).Accepted &&
+            game.PendingDecision is { Kind: DecisionKind.SelectGeneral, PlayerSeat: 0 },
+            "Fixed Tianxiang setup must expose its legitimate human selection.");
+        var setup = game.PendingDecision!;
+        Require(setup.ValidContentIds.Contains("classic:xiao-qiao") &&
+            game.Submit(new SelectGeneralCommand(0, "classic:xiao-qiao", game.Revision, setup.PromptId)).Accepted,
+            "Fixed five-general pool must select actual Xiao Qiao.");
+        for (var step = 0; step < 1400; step++)
+        {
+            if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
+                SkillPrompt.SkillId: "classic:tianxiang" } tianxiang &&
+                tianxiang.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate"))
+                return game;
+            if (game.PendingDecision is { PlayerSeat: 0 } prompt)
             {
-                Seed = seed, HumanSeat = 0, HumanRole = Role.Lord, PlayerCount = 5,
-                ModeId = "identity:classic-5", UseInteractiveSetup = true,
-                UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 100
-            }, registry);
-            if (!game.Submit(new StartGameCommand()).Accepted ||
-                game.PendingDecision is not { Kind: DecisionKind.SelectGeneral, PlayerSeat: 0 } setup ||
-                !setup.ValidContentIds.Contains("classic:xiao-qiao") ||
-                !game.Submit(new SelectGeneralCommand(0, "classic:xiao-qiao", game.Revision, setup.PromptId)).Accepted)
-                continue;
-
-            for (var step = 0; step < 1400; step++)
-            {
-                if (game.PendingDecision is { Kind: DecisionKind.ProgramTrigger, PlayerSeat: 0,
-                    SkillPrompt.SkillId: "classic:tianxiang" } tianxiang &&
-                    tianxiang.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate"))
-                    return game;
-                if (game.PendingDecision is { PlayerSeat: 0 } prompt)
+                CommandResult result;
+                if (prompt.Kind == DecisionKind.PlayCard)
+                    result = game.Submit(new EndPlayPhaseCommand(0, game.Revision, prompt.PromptId));
+                else
                 {
-                    CommandResult result;
-                    if (prompt.Kind == DecisionKind.PlayCard)
-                        result = game.Submit(new EndPlayPhaseCommand(0, game.Revision, prompt.PromptId));
-                    else
-                    {
-                        var choice = prompt.Choices.FirstOrDefault(candidate => candidate.Cards.Count == 0) ??
-                                     prompt.Choices.FirstOrDefault();
-                        if (choice is null) break;
-                        result = game.Submit(new AnswerPromptCommand(0, prompt.PromptId, choice.Id, game.Revision));
-                    }
-                    if (!result.Accepted) break;
+                    var choice = prompt.Choices.FirstOrDefault(candidate => candidate.Cards.Count == 0) ??
+                                 prompt.Choices.FirstOrDefault();
+                    if (choice is null) break;
+                    result = game.Submit(new AnswerPromptCommand(0, prompt.PromptId, choice.Id, game.Revision));
                 }
-                else if (!game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted) break;
+                if (!result.Accepted) break;
             }
+            else if (!game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted) break;
         }
-        throw new InvalidOperationException("No bounded Xiao Qiao Tianxiang fixture was found.");
+        throw new InvalidOperationException("The fixed Xiao Qiao Tianxiang fixture did not reach real damage.");
+    }
+
+    private sealed class StableTianxiangPool : IGameContentPackage
+    {
+        public PackageManifest Manifest { get; } = new("fixture-tianxiang-fixed-pool", new(1, 0, 0), []);
+        public void Register(IContentRegistryBuilder builder) => builder.AddMode(new(
+            "identity:classic-tianxiang-check", "天香固定合法将池", 5, 5,
+            new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1,
+                [nameof(Role.Rebel)] = 2, [nameof(Role.Renegade)] = 1 }, "classic:standard-deck",
+            GeneralCandidateCount: 5,
+            GeneralPoolIds: ["classic:xiao-qiao", "classic:guan-yu", "classic:zhang-fei", "classic:zhao-yun", "classic:ma-chao"]));
     }
 
     private static void Require(bool value, string message) { if (!value) throw new InvalidOperationException(message); }

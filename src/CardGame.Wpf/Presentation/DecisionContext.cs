@@ -24,7 +24,7 @@ public sealed record DecisionContext(string Title, string Description, int? Sour
         {
             target ??= prompt.PlayerSeat;
             title = skillPrompt.Title;
-            targetLabel = "技能拥有者";
+            targetLabel = "正在选择";
         }
         else switch (prompt.Kind)
         {

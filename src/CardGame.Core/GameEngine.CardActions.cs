@@ -122,8 +122,12 @@ public sealed partial class GameEngine
             CardActionType.Response, actor.Seat, provider.Seat, requesterSeat, actor.Seat,
             opponentSeat, effectiveKind, [], costs, conversionSource is null ? [] : [conversionSource], effectiveSuit: completedResponseUseSuit);
         if (actor.Seat == provider.Seat && requesterSeat is null && IsProgramResponseCardUse(actor, effectiveKind))
+        {
             RecordProgramUsedBasicCard(actor.Seat, effectiveKind);
+            RecordActualPlayPhaseUse(action);
+        }
         AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(action));
+        if (TryBeginCommittedResponseUsePrograms(attack, action, continuation)) return true;
         if (TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardResponseAccepted,
                 [opponentSeat], continuation)) return true;
         if (!HasResponseUseCompletionObserver(action, continuation)) return false;
@@ -182,6 +186,7 @@ public sealed partial class GameEngine
     {
         if ((continuation is null) != (completedResponseReturn is not null))
             throw new InvalidOperationException("A card trigger window needs exactly one return continuation.");
+        RegisterFirstTurnTargetActions(action, window);
         var candidates = CollectSharedCardActionCandidates(action, window, opponents,
             cardUseCausedDamage).ToList();
         candidates = candidates
@@ -266,7 +271,9 @@ public sealed partial class GameEngine
         foreach (var binding in GetSkillBindingShard(owner)?.GetInstanceTriggers(window) ?? [])
         {
             var trigger = binding.Trigger;
-            if (window == SkillProgramTriggerWindow.CardUseCompleted && action.Type == CardActionType.Response &&
+            if (trigger.Effects.Any(e=>e.Op==SkillProgramEffectOp.IssueCardNoResponseAndPlayUseBan) &&
+                (_phase!=TurnPhase.Play || action.ActorSeat!=_currentSeat || owner.Seat!=action.ActorSeat || !IsEligibleIssuedNoResponseCard(action.EffectiveKind) || HasIssuedPolicyForAction(action.ActionId))) continue;
+            if (window is (SkillProgramTriggerWindow.CardUseCompleted or SkillProgramTriggerWindow.CardUseCommitted) && action.Type == CardActionType.Response &&
                 !trigger.IncludeResponseUses) continue;
             if (trigger.OwnerRelation is not { } relation ||
                 trigger.CardKinds.Count > 0 && !trigger.CardKinds.Contains(action.EffectiveKind) ||
@@ -358,6 +365,7 @@ public sealed partial class GameEngine
     }
 
     private static SkillProgramTriggerWindow GetCardActionWindow(ProgramCardTriggerWindowFrame frame) =>
+        frame.CompletedResponseReturn is { IsCommitted: true } ? SkillProgramTriggerWindow.CardUseCommitted :
         frame.CompletedResponseReturn is not null ||
         frame.Continuation is ProgramCardContinuation.CompletedSlash or ProgramCardContinuation.CompletedCard
             ? SkillProgramTriggerWindow.CardUseCompleted
@@ -392,6 +400,8 @@ public sealed partial class GameEngine
                     ContinueCommittedTrickUse(frame);
                 else if (frame.Continuation == ProgramCardContinuation.CompletedCard)
                     PopFinishedCardUse(frame.ParentFrameId);
+                else if (frame.CompletedResponseReturn is { IsCommitted: true })
+                    ContinueCommittedResponseUse(attack, frame);
                 else if (frame.CompletedResponseReturn is not null)
                     ContinueCompletedResponseUse(attack, frame);
                 else if (frame.Continuation == ProgramCardContinuation.CommittedSlash)
@@ -594,11 +604,11 @@ public sealed partial class GameEngine
                 !candidateCursorValid ||
                 !sharedPromptMatches && !sharedChildMatches ||
                  frame.Action.PhysicalCards.Where(cost => !IsExchangedCardClaim(frame.Action.ActionId,cost.CardId)).Any(cost =>
-                     frame.CompletedResponseReturn is not null ||
+                     frame.CompletedResponseReturn is { IsCommitted: false } ||
                      frame.Continuation is ProgramCardContinuation.CompletedSlash or ProgramCardContinuation.CompletedCard
                          ? _cardZones.GetLocation(cost.CardId).Zone is not
                              (CardZoneKind.DiscardPile or CardZoneKind.Hand or CardZoneKind.DrawPile or CardZoneKind.Equipment or CardZoneKind.Judgment)
-                         : frame.Continuation == ProgramCardContinuation.NullificationResponse
+                         : (frame.Continuation == ProgramCardContinuation.NullificationResponse || frame.CompletedResponseReturn is { IsCommitted: true, Kind: ProgramCompletedResponseKind.Nullification })
                              ? _cardZones.GetLocation(cost.CardId) != CardLocation.DiscardPile
                          : IsProgramAlternativeCost(frame.Action, cost.CardId)
                              ? _cardZones.GetLocation(cost.CardId) == CardLocation.Processing

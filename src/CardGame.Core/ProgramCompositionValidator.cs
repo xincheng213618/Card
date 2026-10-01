@@ -380,6 +380,9 @@ internal static class ProgramCompositionValidator
                         if (window != required.Window)
                             Fail($"operation requires trigger window {required.Window}, supplied {window}");
                         break;
+                    case RequireCardActionActor:
+                        if (cardActionRelation != SkillProgramCardActionOwnerRelation.Actor) Fail("operation requires the actual card-action actor");
+                        break;
                     case RequireResponseActionObserver:
                         if (window != SkillProgramTriggerWindow.CardResponseAccepted || cardActionRelation != SkillProgramCardActionOwnerRelation.Observer)
                             Fail("response entity exchange requires a response-action observer");

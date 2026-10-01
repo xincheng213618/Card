@@ -22,6 +22,7 @@ public sealed partial class GameEngine
     // opened implicitly, then captures the resulting state for notification.
     private void AdvanceRulesAndPublishState()
     {
+        CleanupIssuedPlayPhaseUseBans();
         CleanupLostDeferredPileSources();
         CleanupLostPublicPersistentPiles();
         if (!TryBeginCharacterStateProgramWindow() &&

@@ -569,6 +569,8 @@ public sealed partial class MainViewModel
             : IsDiscardSelectionPending ? $"手牌上限 {HumanPlayer?.Hp} · 请弃置 {RequiredDiscardCount} 张，已选 {SelectedDiscardCount} 张。再次点击可取消。"
             : IsHandResponsePending ? HandResponseHint
             : IsActiveSkillSelectionPending ? GetActiveSkillSelectionHint()
+            : CanEndTurn && _snapshot.Players.FirstOrDefault(player => player.IsHuman) is { } actor && HasIssuedUseProhibition(actor)
+                ? CanUseActiveSkill ? "本阶段不能使用牌 · 可发动技能或结束出牌" : "本阶段不能使用牌 · 可以结束出牌"
             : IsMultiTargetCardSelected ? MultiTargetSelectionHint
             : selectedName is not null ? target is not null ? CanConfirmSelected
                     ? $"{(!CanPlaySelected && CanPlaySelectedAsSlash ? $"{selectedName}{AlternatePlayText}" : selectedName)} → {target.GeneralName} · 确认后使用"

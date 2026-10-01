@@ -13,6 +13,7 @@ public sealed partial class GameEngine
     {
         _cardUseDebitPhaseInstanceId = checked(_cardUseDebitPhaseInstanceId + 1);
         _cardUseDebits.Clear();
+        _actualPlayPhaseUseActions.Clear();
         _refundedCardUseDebits.Clear();
     }
 
