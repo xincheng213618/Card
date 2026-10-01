@@ -229,8 +229,11 @@ internal static class DamageProgramChecks
 
     private static void VerifyClassicSourceCardSelection()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        var game = FindProgramBoundary(registry, "classic:sima-yi", "classic:feedback");
+        var registry = ContentRegistry.Build(new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(),
+            new StandardClassicGeneralPackage(), new ClassicFeedbackFixturePackage());
+        var game = CreateClassicFeedbackBoundary(registry);
         AnswerProgram(game, "activate");
         var prompt = RequireProgramPrompt(game, "classic:feedback", "select-source-card");
         Require(prompt.IsPrivate && prompt.Choices.Any(choice =>
@@ -264,6 +267,54 @@ internal static class DamageProgramChecks
             "Classic Feedback did not move the exact selected source card through the generic binding.");
         Require(State(replay) == State(game) && Events(replay).SequenceEqual(Events(game)),
             "A pending classic Feedback source-card choice did not replay exactly.");
+    }
+
+    private static GameEngine CreateClassicFeedbackBoundary(ContentRegistry registry)
+    {
+        var game = GameEngine.CreateStandard(new GameOptions
+        {
+            Seed = 1, PlayerCount = 4, HumanSeat = HumanSeat, HumanRole = Role.Lord,
+            ModeId = ClassicFeedbackFixturePackage.ModeId, UseInteractiveSetup = true,
+            UseInteractiveDiscard = false, AdvanceAfterHumanCommands = false, MaxTurns = 8
+        }, registry);
+        SubmitAccepted(game, new StartGameCommand());
+        SubmitAccepted(game, new SelectGeneralCommand(HumanSeat, "classic:sima-yi", game.Revision,
+            game.PendingDecision!.PromptId));
+        for (var step = 0; step < 64; step++)
+        {
+            if (game.PendingDecision is { PlayerSeat: HumanSeat, SkillPrompt.SkillId: "classic:feedback" } prompt &&
+                prompt.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") == "activate"))
+            {
+                var sourceSeat = game.ResolutionStack.OfType<DamageTriggerWindowFrame>().Single().SourceSeat;
+                Require(sourceSeat is { } seat && game.CreateSnapshot(HumanSeat, revealAll: true).Players[seat].HandCount > 0,
+                    "The fixed Feedback fixture must retain source hand cards after a real Slash payment.");
+                return game;
+            }
+            AdvanceFixture(game);
+        }
+        throw new InvalidOperationException("The fixed real-Slash Feedback fixture exceeded 64 steps.");
+    }
+
+    private sealed class ClassicFeedbackFixturePackage : IGameContentPackage
+    {
+        internal const string ModeId = "identity:classic-feedback-fixture";
+        private const string DeckId = "fixture:classic-feedback-deck";
+        public PackageManifest Manifest { get; } = new("fixture:classic-feedback", new Version(1, 0, 0), []);
+
+        public void Register(IContentRegistryBuilder builder)
+        {
+            var otherGenerals = Enumerable.Range(1, 3).Select(index => $"fixture:classic-feedback-other-{index}").ToArray();
+            foreach (var id in otherGenerals)
+                builder.AddGeneral(new(id, "普通伤害来源", "cao_cao", "standard:none", "wei", BaseHp: 4));
+            builder.AddDeck(new(DeckId, "固定杀牌堆", 4, 2, [])
+            {
+                PhysicalCards = Enumerable.Range(0, 40)
+                    .Select(_ => new ContentDeckPhysicalCard("standard:slash", Suit.Club, 5)).ToArray()
+            });
+            builder.AddMode(new(ModeId, "反馈暗置槽位", 4, 4,
+                new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Rebel)] = 3 },
+                DeckId: DeckId, GeneralCandidateCount: 4, GeneralPoolIds: ["classic:sima-yi", .. otherGenerals]));
+        }
     }
 
     private static void VerifyDamageCardSkip()

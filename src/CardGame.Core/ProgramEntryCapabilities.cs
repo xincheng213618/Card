@@ -25,6 +25,7 @@ internal static class ProgramEntryCapabilities
     internal const ProgramContextCapability Common = ProgramContextCapability.TurnEffects;
 
     internal static bool SupportsWindow(SkillProgramTriggerWindow window) => window is
+        SkillProgramTriggerWindow.AfterTurnEnded or
         SkillProgramTriggerWindow.FirstGameDomainCrossing or
         SkillProgramTriggerWindow.ProgramTargetCommitted or
         SkillProgramTriggerWindow.SkillsChanged or
@@ -68,6 +69,7 @@ internal static class ProgramEntryCapabilities
 
     internal static ProgramContextCapability For(SkillProgramTriggerWindow? window) => window switch
     {
+        SkillProgramTriggerWindow.AfterTurnEnded => Common,
         null => Common | ProgramContextCapability.Judgment | ProgramContextCapability.Pindian,
         SkillProgramTriggerWindow.TurnStartBeforeNormalFlow => Common | ProgramContextCapability.PhaseInsertion | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.DrawPhaseStarting => Common | ProgramContextCapability.DrawPlan | ProgramContextCapability.Judgment,

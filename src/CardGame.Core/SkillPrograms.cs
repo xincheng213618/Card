@@ -177,6 +177,7 @@ public enum SkillProgramEffectOp
     CollectFinalTargetCardInPublicPile = 1380, ExchangePublicPileHand = 1381, ObtainPublicPileCard = 1382, DiscardPublicZoneAfterHandPayment = 1383,
     CommitConversionPolarity = 1460, GiveSelectedOwnedCardAndDamage = 1461, ObserveDamageSourceHandAndGive = 1462, DrawToHandCount = 1463,
     AlternatingSuitDrawDiscard = 1420, FirstCategoryCompletedTop = 1421,
+    InitializePrivateGeneralLibrary = 1640, AcquirePrivateGeneralAvatar = 1641, ChoosePrivateGeneralAvatar = 1642,
     StoreArbitraryOwnedPublicPile = 1541, ResolveFirstGameDomainCrossing = 1540, UsePublicPileEquipmentSequence = 1542,
     StoreBoundHandInPublicPile = 1480, PublicPileColorDamage = 1481, RewardDiscardedActionColor = 1482, AwaitOwnedCardMovement = 1483,
     PeekTurnQuotaTop = 1320,
@@ -392,6 +393,7 @@ public enum SkillProgramTriggerWindow
     AfterHpRecovered,
     CharacterDied,
     FirstGameDomainCrossing = 1540,
+    AfterTurnEnded = 1643,
     GameStarting = 400,
     DyingEntered,
     DyingExited,
@@ -992,6 +994,8 @@ public sealed class SkillProgramCardIdentity
     public SkillProgramCondition Condition { get; }
 }
 
+public sealed record SkillProgramDeclarationValidation(string ChallengeGrantSkillId);
+
 public sealed class SkillProgramViewAs
 {
     internal SkillProgramViewAs(string id, IReadOnlyList<CardKind> inputKinds, IReadOnlyList<Suit> inputSuits,
@@ -1036,6 +1040,8 @@ public sealed class SkillProgramViewAs
     public string? ConversionStateId { get; internal init; }
     public int MinimumTier { get; internal init; }
     public int MaximumTier { get; internal init; } = 2;
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public SkillProgramDeclarationValidation? DeclarationValidation { get; internal init; }
     public bool DeclaredEntity { get; internal init; }
     public string? ActivationUsageGroup { get; internal init; }
 }
@@ -1147,6 +1153,8 @@ public sealed class SkillProgramEffect
             minimumReplacementRank, maximumReplacementRank, providerFactionId,
             skippedPhases ?? Array.Empty<SkillProgramTurnPhase>(), revealMode, sourceRef,
             prohibitReplacingEquipment, onePerSuit, allowDecline, useCardActionWindows, freezeMovedCardSuit, useFrozenSuit);
+    [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PrivateGeneralLibraryPolicy? GeneralLibraryPolicy {get;internal init;}
     public SkillProgramEffectOp Op { get; }
     // An internal execution view compiled by the operation descriptor after JSON validation.
     // The public definition and its serialized content fingerprint stay unchanged.
@@ -1398,12 +1406,13 @@ public sealed class SkillProgram
         IReadOnlyList<SkillProgramCardIdentity> cardIdentities,
         IReadOnlyList<SkillProgramBooleanStateDefinition>? booleanStates = null,
         IReadOnlyList<SkillProgramDamageModifier>? damageModifiers = null,
-        IReadOnlyList<SkillProgramCardPolicy>? cardPolicies = null, bool lordSkillProjection = false) =>
+        IReadOnlyList<SkillProgramCardPolicy>? cardPolicies = null, bool lordSkillProjection = false, bool cannotChallengeDeclarations = false) =>
         (Id, Revision, GameplayHash, RuntimeVersion, MinimumRulesVersion, Modifiers, ViewAs, Activations, Triggers,
-            Contributions, CardIdentities, BooleanStates, DamageModifiers, CardPolicies, LordSkillProjection) =
+            Contributions, CardIdentities, BooleanStates, DamageModifiers, CardPolicies, LordSkillProjection, CannotChallengeDeclarations) =
         (id, revision, gameplayHash, runtimeVersion, minimumRulesVersion, modifiers, viewAs, activations, triggers,
-            contributions, cardIdentities, booleanStates ?? [], damageModifiers ?? [], cardPolicies ?? [], lordSkillProjection);
+            contributions, cardIdentities, booleanStates ?? [], damageModifiers ?? [], cardPolicies ?? [], lordSkillProjection, cannotChallengeDeclarations);
     public bool LordSkillProjection { get; }
+    public bool CannotChallengeDeclarations { get; }
     public string Id { get; }
     public int Revision { get; }
     public string GameplayHash { get; }
@@ -1515,7 +1524,7 @@ public sealed class SkillProgramCatalog
             RequireObject(skill, path);
             CheckProperties(skill, path, "id", "revision", "minimumRulesVersion", "modifiers",
                 "damageModifiers", "viewAs", "activations", "triggers", "contributions",
-                "cardIdentities", "states", "cardPolicies", "lordSkillProjection");
+                "cardIdentities", "states", "cardPolicies", "lordSkillProjection", "cannotChallengeDeclarations");
             var id = Identifier(skill, "id", path);
             var skillPath = $"skill '{id}' ({path})";
             if (result.ContainsKey(id)) Fail(skillPath, $"duplicate skill id '{id}'");
@@ -1543,7 +1552,7 @@ public sealed class SkillProgramCatalog
             var booleanStates = ReadArray(skill, "states", skillPath, ParseBooleanState, optional: true);
             if (modifiers.Count == 0 && viewAs.Count == 0 && activations.Count == 0 && triggers.Count == 0 &&
                 contributions.Count == 0 && cardIdentities.Count == 0 && damageModifiers.Count == 0 &&
-                cardPolicies.Count == 0 && !(skill.TryGetProperty("lordSkillProjection", out _) && RequiredBool(skill, "lordSkillProjection", skillPath)))
+                cardPolicies.Count == 0 && !(skill.TryGetProperty("lordSkillProjection", out _) && RequiredBool(skill, "lordSkillProjection", skillPath)) && !(skill.TryGetProperty("cannotChallengeDeclarations", out _) && RequiredBool(skill, "cannotChallengeDeclarations", skillPath)))
                 Fail(skillPath, "must define at least one modifier, viewAs rule, activation, trigger, contribution, or card identity");
             EnsureUniqueIds(modifiers.Select(item => item.Id), skillPath + ".modifiers");
             EnsureUniqueIds(damageModifiers.Select(item => item.Id), skillPath + ".damageModifiers");
@@ -1619,7 +1628,7 @@ public sealed class SkillProgramCatalog
                 modifiers, viewAs, activations, triggers, contributions, cardIdentities,
                 booleanStates: booleanStates,
                 damageModifiers: damageModifiers,
-                cardPolicies: cardPolicies, lordSkillProjection: (skill.TryGetProperty("lordSkillProjection", out _) && RequiredBool(skill, "lordSkillProjection", skillPath))));
+                cardPolicies: cardPolicies, lordSkillProjection: (skill.TryGetProperty("lordSkillProjection", out _) && RequiredBool(skill, "lordSkillProjection", skillPath)), cannotChallengeDeclarations: (skill.TryGetProperty("cannotChallengeDeclarations", out _) && RequiredBool(skill, "cannotChallengeDeclarations", skillPath))));
         }
         var conversionStates = result.Values.SelectMany(program => program.ViewAs)
             .Where(rule => rule.ConversionStateId is not null).Select(rule => rule.ConversionStateId!).ToHashSet(StringComparer.Ordinal);
@@ -2030,7 +2039,14 @@ public sealed class SkillProgramCatalog
         CheckProperties(node, path, "id", "inputKinds", "inputSuits", "inputCategories", "inputCount", "sourceZones",
             "outputKind", "forPlay", "forResponse", "allowChainedInput", "sameSuit", "condition",
             "usesPerPhase", "usageGroup", "inheritPreviousPlaySuit", "extendedUse", "damageBonus", "recoveryBonus",
-            "costDestination", "unusedOutputThisTurn", "useOnly", "singleCardTrickUse", "excludeOwnerEffects", "conversionStateId", "minimumTier", "maximumTier", "declaredEntity", "activationUsageGroup", "allowSameKind", "noDying", "unusedOutputNameThisGame", "nameLedgerId");
+            "costDestination", "unusedOutputThisTurn", "useOnly", "singleCardTrickUse", "excludeOwnerEffects", "conversionStateId", "minimumTier", "maximumTier", "declaredEntity", "activationUsageGroup", "allowSameKind", "noDying", "unusedOutputNameThisGame", "nameLedgerId", "declarationValidation");
+        SkillProgramDeclarationValidation? declaration = null;
+        if (node.TryGetProperty("declarationValidation", out var declarationNode))
+        {
+            RequireObject(declarationNode, path + ".declarationValidation");
+            CheckProperties(declarationNode, path + ".declarationValidation", "challengeGrantSkillId");
+            declaration = new(Identifier(declarationNode, "challengeGrantSkillId", path + ".declarationValidation"));
+        }
         var allowSameKind = node.TryGetProperty("allowSameKind", out _) && RequiredBool(node, "allowSameKind", path);
         var noDying = node.TryGetProperty("noDying", out _) && RequiredBool(node, "noDying", path);
         var unusedName = node.TryGetProperty("unusedOutputNameThisGame", out _) && RequiredBool(node, "unusedOutputNameThisGame", path);
@@ -2136,7 +2152,7 @@ public sealed class SkillProgramCatalog
             Fail(path + ".forPlay", "nullification is only legal in the counterspell response window");
         if (output == CardKind.Peach && forPlay && usesPerPhase is null && !extended && !useOnly)
             Fail(path + ".forPlay", "proactive peach has no configured viewAs executor");
-        if (output == CardKind.ThunderSlash && usesPerPhase is null && !useOnly)
+        if (output == CardKind.ThunderSlash && usesPerPhase is null && !useOnly && declaration is null)
             Fail(path + ".outputKind", "thunderSlash requires phase-limited play viewAs");
         if (output == CardKind.FireSlash && usesPerPhase is null && !extended && !useOnly)
         {
@@ -2163,10 +2179,15 @@ public sealed class SkillProgramCatalog
             Fail(path + ".allowChainedInput", "chained viewAs currently supports one input for fireSlash play only");
         if (!allowSameKind && inputs.Count > 0 && inputs.All(kind => kind == output))
             Fail(path + ".inputKinds", "viewAs must change at least one accepted input kind");
+        if (declaration is not null && (inputCount != 1 || !sourceZones.SequenceEqual([CardZoneKind.Hand]) ||
+            CardUseCategoryCatalog.Get(output) is not (CardUseCategories.Basic or CardUseCategories.InstantTrick) ||
+            costDestination is not null || conversionState is not null || usesPerPhase is not null || unusedName || useOnly ||
+            allowChainedInput || sameSuit || inheritPreviousPlaySuit || unusedOutputThisTurn))
+            Fail(path + ".declarationValidation", "requires one hand entity and a basic or ordinary-trick output without another cost or usage mechanism");
         return new SkillProgramViewAs(id, inputs, suits, output, forPlay, forResponse,
             OptionalCondition(node, path), inputCount, sourceZones, allowChainedInput, inputCategories, sameSuit,
             usesPerPhase, usageGroup, inheritPreviousPlaySuit)
-        { AllowSameKind = allowSameKind, NoDying = noDying, UnusedOutputNameThisGame = unusedName, NameLedgerId = nameLedger, ConversionStateId = conversionState, MinimumTier = minimumTier, MaximumTier = maximumTier, DeclaredEntity = declaredEntity, ActivationUsageGroup = activationGroup, SingleCardTrickUse = singleTrick, ExcludeOwnerEffects = excludeOwner, ExtendedUse = extended, UseOnly = useOnly, UnusedOutputThisTurn = unusedOutputThisTurn, CostDestination = costDestination,
+        { DeclarationValidation = declaration, AllowSameKind = allowSameKind, NoDying = noDying, UnusedOutputNameThisGame = unusedName, NameLedgerId = nameLedger, ConversionStateId = conversionState, MinimumTier = minimumTier, MaximumTier = maximumTier, DeclaredEntity = declaredEntity, ActivationUsageGroup = activationGroup, SingleCardTrickUse = singleTrick, ExcludeOwnerEffects = excludeOwner, ExtendedUse = extended, UseOnly = useOnly, UnusedOutputThisTurn = unusedOutputThisTurn, CostDestination = costDestination,
           DamageBonus = node.TryGetProperty("damageBonus", out _) ? NonNegativeInt(node, "damageBonus", path) : 0,
           RecoveryBonus = node.TryGetProperty("recoveryBonus", out _) ? NonNegativeInt(node, "recoveryBonus", path) : 0 };
     }
@@ -2457,10 +2478,10 @@ public sealed class SkillProgramCatalog
         var turnOwnerScope = SkillProgramTurnOwnerScope.Own;
         if (node.TryGetProperty("turnOwnerScope", out _))
         {
-            if (window is not (SkillProgramTriggerWindow.TurnEnding or
+            if (window is not (SkillProgramTriggerWindow.AfterTurnEnded or SkillProgramTriggerWindow.TurnEnding or
                 SkillProgramTriggerWindow.PlayEnding or SkillProgramTriggerWindow.PlayPhaseStarting or
                 SkillProgramTriggerWindow.DiscardPhaseEnded or SkillProgramTriggerWindow.JudgmentPhaseStarting))
-                Fail(path + ".turnOwnerScope", "requires a turnEnding, playEnding, playPhaseStarting or discardPhaseEnded trigger");
+                Fail(path + ".turnOwnerScope", "requires an afterTurnEnded, turnEnding, playEnding, playPhaseStarting, judgmentPhaseStarting or discardPhaseEnded trigger");
             turnOwnerScope = EnumValue<SkillProgramTurnOwnerScope>(node, "turnOwnerScope", path);
         }
         var isCardActionWindow = window is (
@@ -2485,7 +2506,7 @@ public sealed class SkillProgramCatalog
             if (cardCategories.Count == 0 || cardCategories.Distinct().Count() != cardCategories.Count)
                 Fail(path + ".cardCategories", "must contain distinct card categories");
         }
-        var isLifecycleWindow = window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
+        var isLifecycleWindow = window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
             SkillProgramTriggerWindow.DyingEntering or SkillProgramTriggerWindow.DyingEntered or SkillProgramTriggerWindow.DyingExited or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or
@@ -2503,7 +2524,7 @@ public sealed class SkillProgramCatalog
             SkillProgramTriggerWindow.CharacterDied or
             SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.JudgmentPhaseStarting or
             SkillProgramTriggerWindow.CharacterTurnedFaceUp or SkillProgramTriggerWindow.CharacterEnteredChain;
-        var supportsTriggerCondition = window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isCardActionWindow || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
+        var supportsTriggerCondition = window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isCardActionWindow || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
             SkillProgramTriggerWindow.DyingEntering or SkillProgramTriggerWindow.DyingEntered or SkillProgramTriggerWindow.DyingExited or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or

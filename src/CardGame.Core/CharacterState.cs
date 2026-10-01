@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 /// <summary>
 /// One character in one match. General definitions supply initial content;
@@ -47,7 +47,8 @@ public sealed class CharacterState
     public required int MaxHp { get; set; }
     public required int Hp { get; set; }
     public GeneralGender? GenderOverride { get; set; }
-    public GeneralGender Gender => GenderOverride ?? General.Gender;
+    internal Func<CharacterState,GeneralGender?>? GeneralLibraryGenderQuery {get;set;}
+    public GeneralGender Gender => GeneralLibraryGenderQuery?.Invoke(this) ?? GenderOverride ?? General.Gender;
     public bool IsAlive { get; set; } = true;
     public bool HasAlcoholEffect { get; set; }
     public bool UsedPlayPhaseAlcoholThisTurn { get; set; }

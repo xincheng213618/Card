@@ -28,7 +28,10 @@ public sealed partial class GameEngine
         if (index != _resolutionStack.Count - 1) return;
         switch (_resolutionStack[index])
         {
+            case CardDeclarationFrame: ContinueCardDeclaration(frameId); break;
+            case CardDeclarationChallengeFrame: ContinueCardDeclarationChallenge(frameId); break;
             case ProgramSkillFrame:
+                if(ResumePrivateGeneralLibrarySelection(frameId))return;
                 if (ResumeNamedTurnFlow(frameId)) return;
                 if (ResumeFinalTargetGift(frameId)) return;
                 if (ResumeGameDomain(frameId)) return;
@@ -68,6 +71,8 @@ public sealed partial class GameEngine
         // to completed facts, so they are validated by their typed return path.
         var parentId = frame switch
         {
+            CardDeclarationFrame child => child.Return.ParentFrameId,
+            CardDeclarationChallengeFrame child => child.ParentFrameId,
             ResponseWindowFrame child => child.ParentFrameId,
             JudgmentFrame child => child.ParentFrameId,
             DamageFrame child => child.ParentFrameId,
@@ -190,6 +195,14 @@ public sealed partial class GameEngine
 
     private void RunOneEngineStep()
     {
+        if (_resolutionStack.LastOrDefault() is CardDeclarationChallengeFrame challenge)
+        {
+            if (_pendingDecision is null) ContinueCardDeclarationChallenge(challenge.Id);
+            else if (!_players[_pendingDecision.PlayerSeat].IsHuman) AnswerCardDeclaration(_pendingDecision.Choices.Single(choice => choice.Parameters.GetValueOrDefault("declaration-answer") == "pass"));
+            AdvanceRulesAndPublishState(); return;
+        }
+        if (_resolutionStack.LastOrDefault() is CardDeclarationFrame declaration)
+        { AdvanceRuntimeFrame(declaration.Id); AdvanceRulesAndPublishState(); return; }
         if (_pendingDecision is { Kind: DecisionKind.ProgramTrigger } programTriggerDecision)
         {
             if (!_players[programTriggerDecision.PlayerSeat].IsHuman)

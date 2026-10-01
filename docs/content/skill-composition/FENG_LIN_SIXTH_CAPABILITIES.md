@@ -1,0 +1,59 @@
+# 普通于吉、左慈与通用结束后窗口工程契约
+
+2026-10-02实施前冻结。共同生产基线是第五批已验收本地提交5e57e9ce117b64640b4b055385232ddd24312b3e：一次主区Full Core390/390、WPF46/46，含构建140.110秒；无过滤日常Core106/106、WPF12/12，含增量构建45.777秒。当前本文是设计合同，尚不是第六批实现或行为验收；不自动推送、发布或清理旧副本。
+
+## 来源、版本与旧成果
+
+普通www.sanguosha.com图鉴index与hero：于吉211，群男3HP，resource21100，蛊惑；左慈56，群男3HP，resource5600，化身、新生。原始HTML、JSON、URL、UTC和SHA见source-preflight/manifest.json，于吉HTML SHA681cd07605afea671b2f925a784f00cfc729484018cdbe180e6b4f13781a169b，左慈1d478c94ebfd758f05d11a44c18f23399814b22ec97e741bc11b93f404cd13be。图鉴补风/山缺口，不新建另一套人物。
+
+正文以当前普通hero为准。2014-03-05普通OL2.41公告 https://www.sanguosha.com/news/20140305_6018_5340 补缠怨禁止质疑及HP精确等于1；2014-05-21普通左慈攻略 https://www.sanguosha.com/news/20140521_8678_1419 补私密库、公开声明、真实性别/势力及限定/觉醒/主公排除。两篇fresh HTTP200原文与SHA在supplement-http.json；历史普通补充用于填当前简写缺口，不称新找到当前FAQ。不能迁入移动老红桃判定、界于吉额外摸弃/扣体力或HP<=1、界左慈初始3张/换库行为、其他产品线。
+
+旧于吉4937ee3291826a666b630023e1cc466ecdf795bc、旧左慈2d84c0a7233b64db09f3e64006afd469ed9c8eae工作副本已确认干净且都不是当前main祖先。只提取可复用定义/筛选与断言，不直接merge。旧于吉全pass会循环到owner/重复席位，且缺真实响应入口；旧左慈有parallel pending、固定seat借技来源、Ending早于结束后及属性未撤销。旧版本bump、minimumRulesVersion和seed扫测试不迁入；保留当前裁剪覆盖。
+
+## 通用回合结束后窗口（共同前置能力）
+
+新增SkillProgramTriggerWindow.AfterTurnEnded = 1643，仅有此窗口内容时启用。正常、翻面跳过、额外实际回合均在真实TurnEndedEvent已产生、Finished及现有清理/返还完成后，下一回合尚未开始时进入。先完成既有郝昭DeferredHandAlignment due，再冻结AfterTurnEnded候选/上下文并按现有priority/座次/稳定来源顺序运行，这是保持旧顺序的工程决定；不复用TurnEnding冒充结束后。
+
+扩展现有DeferredTurnEndFrame而非parallel pending：nullable typed阶段/候选/游标/当前child；每个child exact owner+skill+instance+binding、parent ID、turn和ended owner。候选只冻结一次，不因child恢复重复收集/结算已完成项。typed push/replace/complete及parent return。无新窗口内容的registry保持旧帧JSON省略字段和原事件/顺序路径，既有due-only invariants保持；新stage拥有独立严格invariant，不能放宽为任意Program合法。所有集合只读，新集合事件进CommittedEventProjection。只用少量固定fixture验证正常/跳过/额外回合、due子链后顺序、暂停恢复及无能力阴性。
+
+共同作者先冻结可编译可测的完整overlay，父SHA校验后增量合入并通知两个人物作者导入。人物作者在此之前做不依赖新窗口的源能力；不得写空枚举/占位host伪造实现。
+
+## 于吉：真实扣置声明及质疑
+
+用通用声明验证能力挂实际Use/Played conversion提交边界：默认null可选viewAs声明配置、全部已支持基本牌和普通非延时锦囊输出，含普通/火/雷杀、闪、桃、酒、无懈等实际语境。Reuse普通target legality、hand单实体来源、出牌次数/距离/禁止政策与exact runtime instance；不能用卡Use代替Duel/群体Played、Dodge、counterspell或dying-use。可不新增effect op；确需操作则保留1600–1639区间，只登记真实descriptor/handler/resources/AI，不创建未用空节点。
+
+合法声明被接受时提交原成本与owner+named skill的SkillRuntimeState Turn usage一次。Use、Played、provider共享每实际回合一次，多instance、额外Play、失去/重授不重开；quota属于实际扣牌provider，Requester/Lord不会代付次数。真假、无人质疑和后续作废都不退成本/次数。初始未进入真实turn不提供声明。私密实体仍只存在CardZoneStore Processing，长期没有useID/cardID侧账本。
+
+CardDeclaration owning typed frame冻结原单实体/原地址、declared kind、目标、exact conversion source/instance、真实typed父frame/阶段/用途、paid/revealed/continuation状态。挑战子帧冻结ordered eligible seats和单向游标；按从当前实际回合角色开始的现有行动顺序，排除owner。出票时复核当前存活/有效不能质疑能力，pass仅递增；终点无人质疑成功，第一位质疑立即停止后续、公开翻牌。此首席/停止顺序是工程裁决，不冒称新FAQ。绝不重新环绕已回答席位。
+
+真假按接受扣牌时冻结的实体印刷CardKind与明确声明具体CardKind比较；三种杀各自可声明，具体属性需相同，不额外创造“未指定属性杀”语义。合法替代输出复用现有转换的有效动作属性和归因；若当前强制身份规则对成本/输出有禁限，统一合法性应生效，不单独给蛊惑绕过。成功action的有效花色/点数按现有conversion成本规则冻结；普通viewer的声明公共DTO只公开所述牌名/目标，不从真实成本生成面牌或暴露原牌种/ID。花色/点数是否因已发生的公开规则结果可知要与既有真实effect一致，不能提前展示原cost face。
+
+无人质疑接回原用途成功续接一次；假牌无成功响应/use收益，真实清理并等待movement children后接原用途失败：Duel/群体未成功打出，provider未供应，counterspell不翻效力，dying-use不回血，主动Use不执行效果。真牌给唯一质疑者来源明确的缠怨grant，处理对应规则children后接成功；无需额外摸牌/弃牌/掉体力惩罚。来源在已接受paid链后失效不重新支付，按现有接受动作冻结语义完成；owner死亡/比赛结束或真实父消失时明确取消/清理，禁止取消错误父帧。
+
+缠怨定义复用HP==1既有SuppressionRule和其装备来源例外，不改变全局抑制规则。禁止质疑用通用declarative capability，按有效binding查询，不能hardcode classic:chanyuan。新可选能力参与canonical gameplay fingerprint；缺省null旧registry不得因添加默认字段擅改旧fingerprint或JSON形状。Public declaration snapshot只含声明身份/actor/declared kind/targets/揭示状态，揭示后才附真实face；owner可见自己的成本，其他viewer及质疑AI不能看到原成本、真假或trusted stack。未质疑的原牌不提前面向玩家公开，真正移动至既有公开Discard等区域后按该区域可见性处理，这是明确工程公开时点；不冒FAQ。
+
+CardActionAccepted/Appearance、CardMoved、checkpoint、ResolutionStack仍是可信规则诊断，带私密原实体不等于可直接喂给玩家UI/AI。保留observer trusted event合同；新玩家表面只用CreateSnapshot(viewerSeat)。公开集合DTO深freeze，新集合事件在CommittedEventProjection freeze。质疑AI只收公共声明及本人合法prompt，不能读真实card.Kind/rank/suit、truth、另一个角色手牌或来源私库。固定fixture覆盖全pass终止、真/假、共享quota、Dodge/Duel/群体/无懈/救援/provider确切父、cost/gift/reveal/成功或失败子链暂停与多viewer隐私及replay；按必要真实覆盖，不扫seed/跑整局找样本。
+
+## 左慈：来源明确的私有武将库与真实属性
+
+通用操作1640 InitializePrivateGeneralLibrary（GameStarting初始数量2并选择）、1641 AcquirePrivateGeneralAvatar（afterDamageApplied + perDamagePoint，每次1）、1642 ChoosePrivateGeneralAvatar（TurnStartBeforeNormalFlow和AfterTurnEnded），以descriptor引用库来源、amount和排除标签表达；若已有能力足够不新增空op。原文每个真实伤害点独立optional，不把一次两点damage当一次。两个private选择阶段与RNG已付游标都在所属ProgramSkillFrame，不能另建_pendingHuaShenChoice或nullable无父setup状态。
+
+持久PrivateGeneralLibrary按owner+能力grant/instance，保存Initialized、readonly GeneralIds、公开RevealedGeneralId/DeclaredSkillId、神展示独立SelectedFactionId、revision。初始两张消费随机并写initialized后再暂停选择，恢复/相同source重入不再次抽；非GameStarting失去/重授不冒一次初始2张。actual source移除清理该库/派生/属性并释放武将，暂disable/抑制保留库和独立本地disable，仅有效资格/展示属性即时失效；重启不覆盖本地disable或named使用/转换store。死亡释放库，其他源及他人不受影响。
+
+库随机候选以该模式正式可用_generalPool为准，稳定ordinal后由既有_random取；排除所有仍在场的主/副将、任意owner任意库已持有武将，形成共享无重复库。死亡且不在其他库的角色可成为新的库候选，按当前“未加入”模型解释。抽到无可复制技能的将仍是真实持有，不伪造替补抽/RNG或非法技能；暂无法选择时正常继续，后续新生可补。选择展示允许原同一将换技能；库不消耗展示将，被替换仍留库。共享池/同将换技是明确工程裁决，不称新版FAQ。武将元数据不是物理普通牌，不制造CardMoved或周妃跨域事实。
+
+展示候选排除SkillTag.Limited/Awakening/Lord，仅限真实registered可用Complete技能；支持原生被动、状态、contribution及Program，不用Program!=null筛掉原生。不递归从本能力派生grant创建新的源库或自引用来源资格。借得真实SkillId用nullable typed GeneralLibraryProjectionSource关联确切库source/展示将/skill，并稳定grant identity；替换只撤销本关系，不碰其他原生/复制来源。用统一exact binding/source qualification与cache依赖、实际rule/command边界同步，pure view/query不产rule事件。转换初始化沿RegisterTaggedConversionSkill，owner+namedskill使用/转换不因换库重授重置。源HP抑制、模板、死亡或本地disable均即时收敛，借缠怨等抑制者不能形成binding递归。
+
+性别/势力必须进入真实Gender/有效faction查询及snapshot/AI，不能仅改图鉴。来源资格有效时按展示将属性，源失效时回退原将，不能永久写无来源GenderOverride或ChosenFactionId。多个库时有效展示按来源instance ordinal稳定优先；神展示独立选势力，不污染原将ChosenFactionId。有效势力顺序：既有国战规则、有效化身的独立神选择/该将势力、原ChosenFactionId、原将势力；实际身份/TeamID/胜负/AI阵营不变。query缓存须包含会影响资格/公开属性的library/source revision，read不协调产生grant/event。
+
+Viewer-safe库DTO独立于CardSnapshot：所有viewer只有source/count/公开展示general+skill/公开有效属性，只有owner另有readonly private GeneralIds；不存在时nullable省略。选将/选skill/神势力均private合法prompt，真正声明完成才公开展示；新增嵌套集合在FreezePlayerView深freeze。库增加事件只公开count，秘密随机ID不进公共玩家事件；trusted库getter不接UI/AI。固定小fixture覆盖initial2及两stage恢复/RNG一次、4viewer库隔离、两个owner多个来源全局唯一/清理、原生和Program、real gender/faction及神回退、同将换skill、两点damage、结束后due顺序及跳过/额外turn、无能力旧形状。
+
+## 实施约束与交付
+
+使用PowerShell与当前AGENTS。三个GPT6.1 Sol作者各自隔离副本；共同afterTurnEnd先冻结overlay，再导入两路。只写本副本、不Full/WPF/Git/联网、不写main/旧副本/别的worker/已冻结交付；父负责官网图鉴与立绘、必要新UI/隐私surface、三方增量整合、主区一次Full、无过滤日常计时、授权本地提交。不得人物ID engine/UI分支、epoch/schema/package逐将bump、旧minimumRulesVersion或恢复已裁剪suite。
+
+新facts入口AdvanceEventRulesAndQueueFact，state入口AdvanceRulesAndPublishState；owning typed runtime/typed parent与paid cost幂等；command commit/recovery、prepared nested freeze、CreateSnapshot(viewerSeat)、CardZoneStore唯一账本保持。所有新能力缺省opt-in与旧registry阴性；严格参数/窗口/resources/AI入口，既有能力无需新增op。冻结manifest完整source与逐路径baseline/finalSHA、common overlay hash、真实原始日志及未测边界；旧交付字节保持。开发用相关existing name filters，小固定fixture；父只在整批最终字节运行Full和实测日常。不提前写“全部通过/实现完成”。
+
+## 实际整合补充
+
+上文保留实施前冻结的设计合同；实际实现与执行/未测边界以第六批source和benchmark及各冻结README为准。父审查新增返牌movement Prelude顺序保护、供牌Use完整声明入口、真实response选择及最终有效属性的typed返回；旧虚拟决斗校验修复依照相同fingerprint命令行为规则，统一更新Replay.cs唯一epoch源，未逐将更新版本。若已支付声明实体离开Processing，则成本/次数保留并向原父失败返回；现有合法能力无法构造该支付前取牌，因此此工程guard不冒命令replay实测。武将私库和声明UI只用viewer snapshot，实际离屏渲染先关闭大厅，公开后原牌不重复显示。

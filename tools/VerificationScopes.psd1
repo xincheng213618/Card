@@ -21,12 +21,19 @@
         'Feng Lin Yuan Shu qualified awakening persistent local loss',
         'Feng Lin Zhou Fei first domains and true equipment sequence',
         'Feng Lin Zhou Fei same-source association freeze',
-        'Feng Lin Congjian Equipment gift nested replay'
+        'Feng Lin Congjian Equipment gift nested replay',
+        'after turn ended return movement prelude ordering',
+        'after turn ended due before window nested replay',
+        'Feng Lin Zuo Ci initial privacy and replay',
+        'Feng Lin Zuo Ci layered suppression and local disable',
+        'Feng Lin Zuo Ci same avatar program and actual end',
+        'Feng Lin Yu Ji'
     )
     Wpf = @(
         'original card artwork', 'composed skills', 'conversion choices',
         'response context', 'hand responses', 'opaque target-card',
         'playback batches', 'saved UI boundaries', 'failed writes', 'public markers',
-        'deferred hand alignment', 'Program conversion polarity stays visible'
+        'deferred hand alignment', 'Program conversion polarity stays visible',
+        'declaration and general library views protect private faces'
     )
 }

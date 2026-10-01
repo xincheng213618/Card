@@ -74,6 +74,9 @@ public static class GeneralArt
             ["lu-zhi"] = "official-lu-zhi.png",
             ["yuan-shu"] = "official-yuan-shu.png",
             ["zhou-fei"] = "official-zhou-fei.png",
+            // Current OL portraits: docs/content/sources/fenglin-sixth-2026-10-02.json.
+            ["yu-ji"] = "official-yu-ji.png",
+            ["zuo-ci"] = "official-zuo-ci.png",
             ["zhang-chun-hua"] = "official-zhang-chun-hua.png",
             ["ling-tong"] = "official-ling-tong.png",
             ["chen-gong"] = "official-chen-gong.png",

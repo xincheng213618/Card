@@ -415,7 +415,7 @@ public sealed partial class MainViewModel
     public string TurnHeadline => HasGameOver ? GameOverText : IsGeneralSelectionPending ? "点将出征" : IsDiscardSelectionPending ? "你的弃牌阶段" : CanEndTurn ? "你的出牌阶段" : CanStepAi ? $"{CenterTitle} 正在行动" : "等待你的响应";
     public bool HasChoicePrompt => IsDyingSelectionPending || IsHarvestSelectionPending || IsTargetCardSelectionPending || IsFireAttackSelectionPending || IsNullificationSelectionPending || IsResponseSelectionPending || IsSkillSelectionPending;
     public bool HasCenterChoices => HasChoicePrompt || HasPublicTargetChoices || HasTargetCombinationChoices ||
-        HasPublicRevealedCards || HasPrivatelyViewedCards || HasDeferredPublicPiles ||
+        HasPublicRevealedCards || HasPrivatelyViewedCards || HasDeferredPublicPiles || HasDeclaredCards ||
         ActiveSkillEquipmentChoices.Count > 0 || EquipmentPlayChoices.Count > 0;
     public bool HasPinnedPublicModuleChoices =>
         HasPublicRevealedCards &&

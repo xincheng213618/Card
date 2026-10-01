@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
@@ -63,6 +63,7 @@ internal sealed record RequireSelectedTargetKind(SkillProgramTargetKind Kind) : 
 internal sealed record ReadTargetSet(int Minimum, int? Maximum = null) : ProgramResourceOperation;
 internal sealed record RequireContext(ProgramContextCapability Capability) : ProgramResourceOperation;
 internal sealed record RequireCardActionActor : ProgramResourceOperation;
+internal sealed record RequireTriggerWindows(IReadOnlyList<SkillProgramTriggerWindow> Windows) : ProgramResourceOperation;
 internal sealed record RequireTriggerWindow(SkillProgramTriggerWindow Window) : ProgramResourceOperation;
 internal sealed record RequireCardActionRelation(SkillProgramCardActionOwnerRelation Relation, IReadOnlyList<CardKind> Kinds) : ProgramResourceOperation;
 internal sealed record RequireAnyContext(ProgramContextCapability Capabilities) : ProgramResourceOperation;

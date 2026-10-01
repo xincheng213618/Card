@@ -276,6 +276,7 @@ public enum ProgramLifecycleContinuation
 {
     NormalTurnStart, CompleteDrawPhase, CompletePlayPhase, CompleteAfterNormalDraw,
     CompleteDiscardPhase, EndTurnAfterDiscardPhase, CompleteGameStarting,
+    ResumeCardDeclaration = 1600,
     ResumeParentProgram = 500, ResumeDyingEntry = 660,
     CompleteJudgmentPhaseStarting = 800, ResumeCharacterStateChange = 820, CompleteDrawPhaseEnded = 1140
 }

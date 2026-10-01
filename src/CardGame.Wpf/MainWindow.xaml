@@ -333,6 +333,24 @@
                                     <ItemsControl Grid.Row="1" x:Name="PinnedPublicModuleChoices" ItemsSource="{Binding SkillChoices}" ItemTemplate="{StaticResource SkillChoiceTemplate}" ItemsPanel="{StaticResource ChoicePanel}" Margin="0,0,0,6" Visibility="{Binding HasPinnedPublicModuleChoices, Converter={StaticResource BoolToVisibility}}" />
                                     <ScrollViewer Grid.Row="2" x:Name="ResponseViewport" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxWidth="760">
                                         <StackPanel>
+                                            <ItemsControl x:Name="DeclaredCards" ItemsSource="{Binding DeclaredCards}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border BorderBrush="#81735E" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,6">
+                                                            <StackPanel>
+                                                                <TextBlock Text="{Binding Title}" Foreground="{StaticResource GoldBrush}" FontSize="13" TextWrapping="Wrap" HorizontalAlignment="Center" />
+                                                                <TextBlock Text="{Binding Targets}" Foreground="#D1DCCB" FontSize="11" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,3,0,0" />
+                                                                <TextBlock Text="{Binding RevealStatus}" Foreground="#D1DCCB" FontSize="11" HorizontalAlignment="Center" Margin="0,3,0,3" />
+                                                                <ItemsControl x:Name="DeclaredPublicFaces" ItemsSource="{Binding PublicFaces}" ItemTemplate="{StaticResource RevealedCardTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
+                                                                <StackPanel Visibility="{Binding HasOwnerCost, Converter={StaticResource BoolToVisibility}}">
+                                                                    <TextBlock Text="{Binding OwnerCostTitle}" Foreground="{StaticResource GoldBrush}" FontSize="11" HorizontalAlignment="Center" Margin="0,5,0,3" />
+                                                                    <ItemsControl x:Name="DeclaredOwnerCosts" ItemsSource="{Binding OwnerCostFaces}" ItemTemplate="{StaticResource RevealedCardTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
+                                                                </StackPanel>
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
                                             <TextBlock x:Name="PublicRevealTitleText" Text="{Binding PublicRevealTitle}" Foreground="{StaticResource GoldBrush}" HorizontalAlignment="Center" FontSize="11" Margin="0,2,0,5" Visibility="{Binding HasPublicRevealedCards, Converter={StaticResource BoolToVisibility}}" />
                                             <ItemsControl x:Name="PublicRevealedCards" ItemsSource="{Binding PublicRevealedCards}" ItemTemplate="{StaticResource RevealedCardTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
                                             <TextBlock Text="{Binding PrivateRevealTitle}" Foreground="{StaticResource GoldBrush}" HorizontalAlignment="Center" FontSize="11" Margin="0,2,0,5" Visibility="{Binding HasPrivatelyViewedCards, Converter={StaticResource BoolToVisibility}}" />
@@ -389,6 +407,36 @@
                             <ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Message}" Foreground="#DDC188" FontSize="11" TextWrapping="Wrap" /></DataTemplate></ListBox.ItemTemplate>
                         </ListBox>
                         <StackPanel Grid.Row="2" VerticalAlignment="Center" Margin="8,10,8,8">
+                            <Expander x:Name="GeneralLibraryOverview" Header="武将库" Foreground="{StaticResource GoldBrush}" Margin="0,0,0,8" Visibility="{Binding HasGeneralLibraries, Converter={StaticResource BoolToVisibility}}">
+                                <ScrollViewer MaxHeight="180" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <ItemsControl x:Name="GeneralLibraries" ItemsSource="{Binding GeneralLibraries}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="#81735E" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,5,0,0">
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Title}" Foreground="{StaticResource GoldBrush}" FontSize="12" TextWrapping="Wrap" />
+                                                    <TextBlock Text="{Binding PublicDeclaration}" Foreground="#D1DCCB" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0" />
+                                                    <TextBlock Text="{Binding Attributes}" Foreground="#D1DCCB" FontSize="11" Margin="0,3,0,0" />
+                                                    <Expander x:Name="PrivateGeneralLibraryDetails" Header="{Binding PrivateTitle}" Foreground="{StaticResource GoldBrush}" Margin="0,6,0,0" Visibility="{Binding HasPrivateAvatars, Converter={StaticResource BoolToVisibility}}">
+                                                        <ItemsControl x:Name="PrivateGeneralAvatars" ItemsSource="{Binding PrivateAvatars}">
+                                                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <StackPanel Width="72" Margin="2,4">
+                                                                        <Image Source="{Binding Portrait.Image}" Width="64" Height="81" Stretch="Uniform" />
+                                                                        <TextBlock Text="{Binding Name}" FontSize="10" Foreground="#D1DCCB" TextWrapping="Wrap" TextAlignment="Center" Margin="0,3,0,0" />
+                                                                    </StackPanel>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </Expander>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                </ScrollViewer>
+                            </Expander>
                             <TextBlock Text="对 局 控 制" Foreground="#D1B98F" FontSize="10" HorizontalAlignment="Center" Margin="0,0,0,8" />
                             <CheckBox Content="自动推进" IsChecked="{Binding IsAutoAdvance}" ToolTip="每次推进一步，在需要你出牌或响应时自动停下。" HorizontalAlignment="Center" />
                             <ListBox x:Name="PlaybackSpeedSelector" ItemsSource="{Binding PlaybackSpeeds}" SelectedItem="{Binding SelectedPlaybackSpeed}" Width="108" Margin="0,6,0,0" Background="Transparent" BorderThickness="0" Padding="0" HorizontalAlignment="Center" ToolTip="对局速度：只影响自动推进节奏，不会替你出牌或响应。" AutomationProperties.Name="对局速度">

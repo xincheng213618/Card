@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 
 namespace CardGame.Core;
 
@@ -153,6 +153,7 @@ internal sealed class MatchSkillBindingIndex
     private readonly bool _isNationalWarMode;
     private readonly Func<CharacterState, bool>? _hasHpSensitiveSuppression;
     private readonly Func<CharacterState, SkillGrant, bool>? _grantQualification;
+    private readonly Func<CharacterState,IReadOnlySet<string>>? _suppressionInputs;
     private readonly Func<long>? _projectionStamp;
     private readonly Dictionary<int, SkillBindingShard> _shards = [];
     private readonly Dictionary<int, int> _rebuildCounts = [];
@@ -161,13 +162,13 @@ internal sealed class MatchSkillBindingIndex
         Func<string, ContentSkillDefinition> resolveDefinition,
         bool isNationalWarMode,
         Func<CharacterState, bool>? hasHpSensitiveSuppression = null,
-        Func<CharacterState, SkillGrant, bool>? grantQualification = null, Func<long>? projectionStamp = null)
+        Func<CharacterState, SkillGrant, bool>? grantQualification = null, Func<long>? projectionStamp = null, Func<CharacterState,IReadOnlySet<string>>? suppressionInputs = null)
     {
         ArgumentNullException.ThrowIfNull(resolveDefinition);
         _resolveDefinition = resolveDefinition;
         _isNationalWarMode = isNationalWarMode;
         _hasHpSensitiveSuppression = hasHpSensitiveSuppression;
-        _grantQualification = grantQualification; _projectionStamp = projectionStamp;
+        _grantQualification = grantQualification; _projectionStamp = projectionStamp; _suppressionInputs = suppressionInputs;
     }
 
     internal int CachedSeatCount => _shards.Count;
@@ -222,7 +223,7 @@ internal sealed class MatchSkillBindingIndex
             definitions.TryAdd(grant.SkillId, definition);
         }
 
-        var suppressors = activeGrants.Where(grant =>
+        var suppressors = _suppressionInputs?.Invoke(player) ?? activeGrants.Where(grant =>
                 definitions[grant.SkillId].SuppressionRule is { } rule &&
                 player.Hp == rule.OwnerHpEquals)
             .Select(grant => grant.SkillId).ToHashSet(StringComparer.Ordinal);

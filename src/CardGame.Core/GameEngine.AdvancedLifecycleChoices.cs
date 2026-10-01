@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private void PromptAdvancedSelection(long frameId)
@@ -112,7 +112,7 @@ public sealed partial class GameEngine
             case SkillProgramEffectOp.ReplaceSkillsOnAwakening:
                 foreach (var id in draft.Selected)
                     foreach (var grant in _players[frame.OwnerSeat].SkillGrants.Grants.Where(grant => grant.SkillId == id).ToArray())
-                        if (grant.LordProjection is not null)
+                        if (grant.LordProjection is not null || grant.GeneralLibraryProjection is not null)
                             _players[frame.OwnerSeat].SkillGrants.SetEnabled(grant.GrantId, false);
                         else _players[frame.OwnerSeat].SkillGrants.RemoveGrant(grant.GrantId);
                 AcquireRuntimeSkills(_players[frame.OwnerSeat], frame.SkillId, effect.SkillIds.Take(draft.Selected.Count).ToArray());

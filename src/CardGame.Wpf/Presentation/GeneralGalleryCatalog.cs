@@ -68,10 +68,10 @@ public static class GeneralGalleryCatalog
     {
         var groups = new Dictionary<string, string>(StringComparer.Ordinal);
         Add("standard", "liu-bei guan-yu zhang-fei zhuge-liang zhao-yun ma-chao huang-yueying sun-quan gan-ning lu-meng huang-gai zhou-yu da-qiao lu-xun sun-shangxiang cao-cao sima-yi xiahou-dun zhang-liao xu-chu guo-jia zhen-ji hua-tuo lu-bu diao-chan hua-xiong");
-        Add("myth-wind", "xiahou-yuan cao-ren huang-zhong wei-yan xiao-qiao zhou-tai zhang-jiao");
+        Add("myth-wind", "xiahou-yuan cao-ren huang-zhong wei-yan xiao-qiao zhou-tai zhang-jiao yu-ji");
         Add("myth-fire", "dian-wei xun-yu pang-tong wolong-zhuge-liang taishi-ci yuan-shao yan-liang-wen-chou pang-de");
         Add("myth-forest", "cao-pi xu-huang sun-jian meng-huo zhu-rong lu-su dong-zhuo jia-xu");
-        Add("myth-mountain", "sun-ce cai-wen-ji deng-ai jiang-wei zhang-he liu-shan zhang-zhao-zhang-hong");
+        Add("myth-mountain", "sun-ce cai-wen-ji deng-ai jiang-wei zhang-he liu-shan zhang-zhao-zhang-hong zuo-ci");
         Add("fame-1", "yu-jin xu-shu gao-shun cao-zhi zhang-chun-hua ling-tong chen-gong wu-guo-tai fa-zheng ma-su");
         Add("fame-2", "cao-zhang wang-yi xun-you zhong-hui ma-dai liao-hua guan-xing-zhang-bao bu-lian-shi cheng-pu han-dang liu-biao");
         Add("fame-3", "cao-chong guo-huai man-chong guan-ping pan-zhang-ma-zhong xu-sheng li-ru liu-feng jian-yong yu-fan zhu-ran fu-huanghou");

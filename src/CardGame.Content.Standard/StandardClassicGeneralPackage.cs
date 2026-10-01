@@ -41,7 +41,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         new(FengLinKuaiYueKuaiLiangContent.Register),
         new(FengLinLuZhiContent.Register),
         new(FengLinYuanShuContent.Register),
-        new(FengLinZhouFeiContent.Register)
+        new(FengLinZhouFeiContent.Register),
+        new(FengLinZuoCiContent.Register),
+        new(FengLinYuJiContent.Register)
     ];
 
     private static SkillProgramCatalog ClassicShenLuMengCatalog =>
@@ -1030,14 +1032,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             SkillTag.Locked, SkillExecutionForm.Trigger));
         builder.AddSkill(WithOptionalTriggerMetadata(
             EmbeddedSkillProgramCatalog.Definition("classic-cai-wen-ji", "classic:beige")));
-        builder.AddSkill(new ContentSkillDefinition(
-            "classic:chanyuan", "缠怨",
-            "锁定技，你不能质疑蛊惑；体力值为 1 时，你的其他技能失效。")
-        {
-            Tags = SkillTag.Locked,
-            ExecutionForms = SkillExecutionForm.State,
-            SuppressionRule = new SkillSuppressionRule(1)
-        });
+
         {
             builder.AddSkill(WithStructuredSkillMetadata(
                 ShenSimaYiProgram("classic:renjie"), SkillTag.Locked, SkillExecutionForm.Trigger));

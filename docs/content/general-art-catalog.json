@@ -10656,6 +10656,40 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "yu-ji",
+      "characterName": "于吉",
+      "defaultSkinId": "21100",
+      "skins": [
+        {
+          "id": "21100",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/211",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/21100.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-yu-ji.png",
+          "sha256": "8d8958af573f8857cb64a2046b5f817f3210d4a44a78795cfa2d70075532b538",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "zuo-ci",
+      "characterName": "左慈",
+      "defaultSkinId": "5600",
+      "skins": [
+        {
+          "id": "5600",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/56",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/5600.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-zuo-ci.png",
+          "sha256": "bd3a7367834813914bab70a4a2be549bec0853e12c44c6d06b6b99ad6598e82a",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

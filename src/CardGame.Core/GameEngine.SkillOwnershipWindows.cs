@@ -13,7 +13,8 @@ public sealed partial class GameEngine
             var candidates = CollectEligibleProgramTriggerCandidates(owner, SkillProgramTriggerWindow.SkillsChanged, facts);
             if (candidates.Count == 0) continue;
             PushRuntimeFrame(new ProgramLifecycleTriggerWindowFrame(++_resolutionSequence, owner.Seat,
-                SkillProgramTriggerWindow.SkillsChanged, candidates, ProgramLifecycleContinuation.ResumeParentProgram, facts)
+                SkillProgramTriggerWindow.SkillsChanged, candidates, _resolutionStack.LastOrDefault() is CardDeclarationFrame
+                    ? ProgramLifecycleContinuation.ResumeCardDeclaration : ProgramLifecycleContinuation.ResumeParentProgram, facts)
                 { ResumeProgramFrameId = parentFrameId });
             AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
             return true;

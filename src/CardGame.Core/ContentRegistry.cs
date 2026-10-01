@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -494,6 +494,9 @@ public sealed class ContentRegistry
         {
             foreach (var skill in _skills.Values.Where(item => item.Program is not null))
             {
+                foreach (var declaration in skill.Program!.ViewAs.Where(rule => rule.DeclarationValidation is not null))
+                    if (!_skills.ContainsKey(declaration.DeclarationValidation!.ChallengeGrantSkillId))
+                        throw new InvalidOperationException("A declaration validation references an unknown challenge grant skill.");
                 foreach (var trigger in skill.Program!.Triggers.Where(t=>t.IncludeResponseUses && t.Window==SkillProgramTriggerWindow.CardUseCommitted || t.Effects.Any(e=>e.Op==SkillProgramEffectOp.IssueCardNoResponseAndPlayUseBan)))
                 {
                     if(trigger.Window!=SkillProgramTriggerWindow.CardUseCommitted || trigger.OwnerRelation!=SkillProgramCardActionOwnerRelation.Actor || trigger.Effects.Count!=1 || trigger.Effects[0].Op!=SkillProgramEffectOp.IssueCardNoResponseAndPlayUseBan ||

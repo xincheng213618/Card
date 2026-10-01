@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 public sealed record LordSkillProjectionChangedEvent(int OwnerSeat, string GrantId, string SkillId,
     LordSkillProjectionSource Source, bool Added) : IGameEvent;
@@ -12,12 +12,12 @@ public sealed partial class GameEngine
     // Pure qualification. Local disable remains on the derived grant; upstream disable is never copied into it.
     private IEnumerable<SkillGrant> EffectiveUnprojectedGrants(CharacterState owner)
     {
-        var active = owner.SkillGrants.Grants.Where(g => g.LordProjection is null && g.IsEnabled &&
+        var active = owner.SkillGrants.Grants.Where(g => g.LordProjection is null && (g.GeneralLibraryProjection is null || IsGeneralLibraryGrantQualified(owner,g)) && g.IsEnabled &&
             (g.SourceId != CharacterState.PrimarySkillSource || !IsNationalWarMode || owner.GeneralSelected && owner.GeneralRevealed) &&
             (g.SourceId != CharacterState.SecondarySkillSource || IsNationalWarMode && owner.SecondaryGeneralSelected && owner.SecondaryGeneralRevealed) &&
             (g.SourceId is not (CharacterState.PrimarySkillSource or CharacterState.SecondarySkillSource) ||
              !_contentRegistry.GetSkill(g.SkillId).Tags.HasFlag(SkillTag.Lord) || owner.Role == Role.Lord)).ToArray();
-        var suppressors = active.Where(g => _contentRegistry.GetSkill(g.SkillId).SuppressionRule is {} r && owner.Hp == r.OwnerHpEquals)
+        var suppressors = HasPrivateGeneralLibraryCapability ? PrivateGeneralLibrarySuppressionInputs(owner) : active.Where(g => _contentRegistry.GetSkill(g.SkillId).SuppressionRule is {} r && owner.Hp == r.OwnerHpEquals)
             .Select(g => g.SkillId).ToHashSet(StringComparer.Ordinal);
         return suppressors.Count == 0 ? active : active.Where(g => suppressors.Contains(g.SkillId) || g.SourceId.StartsWith("equipment:", StringComparison.Ordinal));
     }
@@ -66,7 +66,7 @@ public sealed partial class GameEngine
     // Preserve the established local ownership semantics for ordinary grants. A retained,
     // upstream-disabled projection is not currently owned for skill-count/replacement rules.
     private IReadOnlyList<string> AdvancedOwnedSkillIds(CharacterState owner) => owner.SkillGrants.Grants
-        .Where(g => g.IsEnabled && (g.LordProjection is null || IsProjectedGrantQualified(owner, g)))
+        .Where(g => g.IsEnabled && (g.LordProjection is null || IsProjectedGrantQualified(owner, g)) && IsGeneralLibraryGrantQualified(owner,g))
         .Select(g => g.SkillId).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
 
     private void SynchronizeLordSkillProjections()

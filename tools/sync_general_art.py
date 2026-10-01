@@ -121,6 +121,7 @@ CURRENT_HEROES = {
     "lu-zhi": (407, "卢植"),
     "yuan-shu": (100, "袁术"), "zhou-fei": (411, "周妃"),
     "zhang-xiu": (415, "张绣"),
+    "yu-ji": (211, "于吉"), "zuo-ci": (56, "左慈"),
 }
 
 NEW_OFFICIAL_DEFAULTS = {"boundary-gan-ning", "boundary-xu-chu", "qu-yi", "shen-zhou-yu", "shen-lu-bu", "fu-huanghou"}

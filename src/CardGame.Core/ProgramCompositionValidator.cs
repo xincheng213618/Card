@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 /// <summary>
 /// Validates resource relationships independently of the operation or entry point.
@@ -424,6 +424,9 @@ internal static class ProgramCompositionValidator
                         break;
                     case RequirePublicPileExchangeBoundary:
                         if(window is not (SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or SkillProgramTriggerWindow.TurnEnding)) Fail("public-pile hand exchange requires preparation or Ending");
+                        break;
+                    case RequireTriggerWindows allowed:
+                        if (window is null || !allowed.Windows.Contains(window.Value)) Fail("operation requires one of its declared trigger windows");
                         break;
                     case RequireTriggerWindow required:
                         if (window != required.Window)

@@ -1,0 +1,450 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀OL",
+  "batch": "普通于吉左慈及真实回合结束后通用窗口",
+  "roster": [
+    {
+      "contentId": "classic:yu-ji",
+      "officialId": 211,
+      "name": "于吉",
+      "maxHp": 3,
+      "faction": "qun",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/211",
+      "retrievedAt": "2026-10-01T20:11:18.950089+00:00",
+      "responseSha256": "681cd07605afea671b2f925a784f00cfc729484018cdbe180e6b4f13781a169b",
+      "officialSkillText": "武将技能：\n蛊惑\n每回合限一次，你可以扣置一张手牌当任意基本牌或普通锦囊牌使用或打出，其他角色可以质疑并展示此牌：若为假则此牌作废，若为真则质疑者获得“\n缠怨\n”。\n",
+      "galleryGroup": "myth-wind",
+      "artworkResource": "21100",
+      "operationRange": [
+        1600,
+        1639
+      ],
+      "implementationStatus": "implementedMainFullAndRoutineVerified",
+      "indexFields": {
+        "gid": 211,
+        "name": "于吉",
+        "resource": "21100",
+        "extend": "风林火山",
+        "hp": 3,
+        "initial_hp": 0,
+        "quality": "普通",
+        "figure": "群",
+        "figure_py": "qun",
+        "biography": "自号太平道人，琅琊人，在吴郡、会稽一带为百姓治病，甚得人心。孙策怒之，以惑人心为由斩之，后策常受吉咒而亡。",
+        "characteristic": "与敌人进行心理战，可以教训鲁莽的敌人。没有牌时很脆弱。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/211.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/21100.png",
+        "realname": "于吉 (风林火山)"
+      },
+      "artwork": {
+        "id": "21100",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/211",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/21100.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-yu-ji.png",
+        "sha256": "8d8958af573f8857cb64a2046b5f817f3210d4a44a78795cfa2d70075532b538",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "http": {
+          "status": 200,
+          "retrievedAt": "2026-10-01T21:23:22.377535+00:00",
+          "bytes": 1011333,
+          "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/21100.png"
+        },
+        "status": "integratedCompiledResourceBytesAndRegisteredWpfFullVerified",
+        "boundary": "Official PNG bytes, dimensions, SHA and actual local pixels checked; exact embedded compiled WPF resource bytes match. Registered offline WPF Full passed; each new portrait was not separately rendered in a game window."
+      }
+    },
+    {
+      "contentId": "classic:zuo-ci",
+      "officialId": 56,
+      "name": "左慈",
+      "maxHp": 3,
+      "faction": "qun",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/56",
+      "retrievedAt": "2026-10-01T20:11:19.035227+00:00",
+      "responseSha256": "1d478c94ebfd758f05d11a44c18f23399814b22ec97e741bc11b93f404cd13be",
+      "officialSkillText": "武将技能：\n化身\n新生\n游戏开始时，你随机获得两张武将牌作为“化身”牌，然后展示其中一张，获得此“化身”牌上的一个技能。回合开始时和回合结束后，你可以替换展示的“化身”牌及因此获得的技能。\n当你受到1点伤害后，你可以获得一张新的“化身”牌。\n",
+      "galleryGroup": "myth-mountain",
+      "artworkResource": "5600",
+      "operationRange": [
+        1640,
+        1642
+      ],
+      "implementationStatus": "implementedMainFullAndRoutineVerified",
+      "indexFields": {
+        "gid": 56,
+        "name": "左慈",
+        "resource": "5600",
+        "extend": "风林火山",
+        "hp": 3,
+        "initial_hp": 0,
+        "quality": "史诗",
+        "figure": "群",
+        "figure_py": "qun",
+        "biography": "左慈，字元放，东汉末方士，汉族，庐江（今安徽庐江西南）人。在道教历史上，东汉时期的丹鼎派道术是从他一脉相传。",
+        "characteristic": "随心所欲地变化成其他武将，使用其他武将的技能。根据不同的技能具有不同的弱点。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/56.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/5600.png",
+        "realname": "左慈 (风林火山)"
+      },
+      "artwork": {
+        "id": "5600",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/56",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/5600.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-zuo-ci.png",
+        "sha256": "bd3a7367834813914bab70a4a2be549bec0853e12c44c6d06b6b99ad6598e82a",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "http": {
+          "status": 200,
+          "retrievedAt": "2026-10-01T21:23:22.377817+00:00",
+          "bytes": 825000,
+          "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/5600.png"
+        },
+        "status": "integratedCompiledResourceBytesAndRegisteredWpfFullVerified",
+        "boundary": "Official PNG bytes, dimensions, SHA and actual local pixels checked; exact embedded compiled WPF resource bytes match. Registered offline WPF Full passed; each new portrait was not separately rendered in a game window."
+      }
+    }
+  ],
+  "baselineHead": "5e57e9ce117b64640b4b055385232ddd24312b3e",
+  "baselineManifestSha256": "c8adaa5a34d41a661bd8e081cf118e2088f86dc0fd3c8f1807870427134ba157",
+  "supplements": [
+    {
+      "key": "normal-yuji-supplement",
+      "url": "https://www.sanguosha.com/news/20140305_6018_5340",
+      "status": 200,
+      "retrievedAt": "2026-10-01T21:04:20.098883+00:00",
+      "sha256": "99afb209f4db6fcfad5946b933ca1acc70e70f151a31d976c9db53961609cd8d",
+      "bytes": 37445,
+      "boundary": "Primary HTTP archive only; dated normal-version supplement, not a newly located current FAQ."
+    },
+    {
+      "key": "normal-zuoci-supplement",
+      "url": "https://www.sanguosha.com/news/20140521_8678_1419",
+      "status": 200,
+      "retrievedAt": "2026-10-01T21:04:20.014193+00:00",
+      "sha256": "e9c851ac079cfd1b54c8f1deb37945e87d67344e0828fc9402d94dfc260c3317",
+      "bytes": 41145,
+      "boundary": "Primary HTTP archive only; dated normal-version supplement, not a newly located current FAQ."
+    }
+  ],
+  "engineeringContract": "../skill-composition/FENG_LIN_SIXTH_CAPABILITIES.md",
+  "rulesInterpretationsAreExplicitEngineeringContract": true,
+  "implementationStatus": "implementedMainFullAndRoutineVerified",
+  "indexArchive": {
+    "url": "https://www.sanguosha.com/hero",
+    "sha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+    "boundary": "Frozen current OL index retrieved in preceding roster preflight."
+  },
+  "frozenRuntimeDeliveries": [
+    {
+      "key": "common-v2-delta",
+      "directory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\after-turn-end\\delivery-v2\\after-turn-ended-common-final",
+      "integratedManifestSha256": "4cca0ae0f7400363d3d495a29a3c73d9e6d8ef9de18ec83d67436f0b15a1013f",
+      "fullSourceManifestSha256": "5fd1abdcfb8910d22e0fdb0c668f53e69ab2132271da945670d6038d9da87472"
+    },
+    {
+      "key": "zuoci",
+      "directory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\zuoci\\delivery\\zuoci-final",
+      "integratedManifestSha256": "32b4a201940ffe7b76f551457772d2d8de1762ade6048bf2df54874999a8dba4",
+      "fullSourceManifestSha256": "32b4a201940ffe7b76f551457772d2d8de1762ade6048bf2df54874999a8dba4"
+    },
+    {
+      "key": "yuji",
+      "directory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\yuji\\delivery\\yuji-final",
+      "integratedManifestSha256": "dc423b3ac9a86d97d02a7a107a625f515708db2a3208df4df2ec43d2769c56c1",
+      "fullSourceManifestSha256": "dc423b3ac9a86d97d02a7a107a625f515708db2a3208df4df2ec43d2769c56c1"
+    },
+    {
+      "key": "yuji-v2",
+      "directory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\yuji\\delivery-v2\\yuji-final",
+      "integratedManifestSha256": "41e4ad1d77832eac3cb46bdb25c98f0a627569e589eba08787fff1d8c76c4604",
+      "fullSourceManifestSha256": "38de8231b13212bf7196c21100d250e3b7e923a4b1b176ca88578efab787cf72"
+    },
+    {
+      "key": "yuji-v3",
+      "directory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\yuji\\delivery-v3\\yuji-final",
+      "integratedManifestSha256": "91a9dd9ca3a05678fc72f87e4736aacd3a947444fb13e01d152c423fd0002626",
+      "fullSourceManifestSha256": "5f7d0b77c2fe153c1550029113eabd878c414917d85592efb993d23bdfad4ab7"
+    }
+  ],
+  "preReviewTargetedEvidence": {
+    "status": "passed",
+    "mode": "targeted",
+    "repository": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\parent-integration",
+    "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\validation-parent-targeted-01",
+    "coreFilters": [
+      "Feng Lin Yu Ji",
+      "Feng Lin Zuo Ci",
+      "after turn ended",
+      "Feng Lin Yuan Shu",
+      "match skill binding",
+      "prepared snapshot",
+      "program gameplay hashes",
+      "content registry",
+      "nested card movement"
+    ],
+    "wpfFilters": [
+      "declaration and general library",
+      "conversion choices",
+      "public pile",
+      "response context",
+      "original card artwork"
+    ],
+    "startedAt": "2026-10-02T06:16:38.3955052+08:00",
+    "durationMs": 29474,
+    "message": null,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 9968,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\validation-parent-targeted-01\\logs\\build.log"
+      },
+      {
+        "name": "Core selected checks (9 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 10079,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\validation-parent-targeted-01\\logs\\core-selected.log"
+      },
+      {
+        "name": "WPF selected checks (5 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 9373,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\validation-parent-targeted-01\\logs\\wpf-selected.log"
+      }
+    ]
+  },
+  "parentTargetedEvidence": {
+    "status": "passed",
+    "mode": "targeted",
+    "repository": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\parent-integration",
+    "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\validation-parent-targeted-02",
+    "coreFilters": [
+      "Feng Lin Yu Ji",
+      "Feng Lin Zuo Ci",
+      "after turn ended",
+      "Feng Lin Yuan Shu",
+      "match skill binding",
+      "prepared snapshot",
+      "program gameplay hashes",
+      "content registry",
+      "nested card movement"
+    ],
+    "wpfFilters": [
+      "declaration and general library",
+      "conversion choices",
+      "public pile",
+      "response context",
+      "original card artwork"
+    ],
+    "startedAt": "2026-10-02T06:38:36.7516497+08:00",
+    "durationMs": 29374,
+    "message": null,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 9426,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\validation-parent-targeted-02\\logs\\build.log"
+      },
+      {
+        "name": "Core selected checks (9 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 11148,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\validation-parent-targeted-02\\logs\\core-selected.log"
+      },
+      {
+        "name": "WPF selected checks (5 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 8748,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\validation-parent-targeted-02\\logs\\wpf-selected.log"
+      }
+    ]
+  },
+  "visibleInformationSurfaceEvidence": {
+    "status": "passed",
+    "mode": "targeted",
+    "repository": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\parent-integration",
+    "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\validation-parent-ui-visible-02",
+    "coreFilters": [],
+    "wpfFilters": [
+      "declaration and general library"
+    ],
+    "startedAt": "2026-10-02T06:18:33.5582245+08:00",
+    "durationMs": 10619,
+    "message": null,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 8362,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\validation-parent-ui-visible-02\\logs\\build.log"
+      },
+      {
+        "name": "WPF selected checks (1 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 2213,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\validation-parent-ui-visible-02\\logs\\wpf-selected.log"
+      }
+    ]
+  },
+  "engineeringBoundary": "Current ordinary OL primary text, dated ordinary supplements and explicit engineering contract. Shared old virtual-Duel and BorrowedSword faction continuation command fixes are gated by the unique Replay.cs rules epoch. Main Full and measured routine passed; offline checks are not live OL client acceptance.",
+  "parentReviewRepairs": [
+    "Return-card movement children drain before due alignments and AfterTurnEnded capture.",
+    "Exact-ID public card descriptions preserve unrevealed declaration cost privacy and leave other same-name entities unchanged.",
+    "Response-based use paths retain the actual selected conversion/native branch, declaration identity, final effective Slash kind and exact borrowed/faction/Qinglong parent.",
+    "Persistent general libraries occupy the sidebar without hiding recent plays; a revealed owner cost produces a single public face.",
+    "The visible WPF fixture closes the lobby before rendering; initial hidden-table renders are retained as failed visual evidence."
+  ],
+  "verificationLimits": [
+    "No live OL client match or interactive desktop acceptance; new official portraits individually viewed and compiled resource bytes checked separately.",
+    "WPF information-surface checks feed viewer DTO fixtures into the actual ViewModel/XAML; Core tests establish real command/replay privacy independently.",
+    "No current legal configuration operation takes a paid Processing declaration entity before successful action acceptance; the cancellation guard is implemented but that takeover is not claimed as a legal command replay test.",
+    "General-library HP/grant/local-disable/templated source mechanism fixtures are distinguished from real command fixtures; borrowed Lord host/binding coverage reuses existing actual Yuan Shu response chains.",
+    "Remaining source-loss/death/HP1 prohibition, Group/BorrowedSword/weapon/provider combinations not independently driven are documented in frozen author READMEs."
+  ],
+  "initialMainVerificationFailure": {
+    "status": "test-failed",
+    "corePassed": 407,
+    "coreFailed": 1,
+    "wpfPassed": 47,
+    "wpfFailed": 0,
+    "durationMs": 189120,
+    "cause": "Classic Feedback random fixture found a source with zero hand cards; fixed real-Slash fixture retains all original privacy, movement and replay assertions.",
+    "materialGateFailure": "Parent EOL helper altered a binary PNG byte; exact frozen official Zuo Ci PNG restored. Initial compiled assembly is not accepted.",
+    "rawEvidenceSha256": [
+      {
+        "path": "logs/build.log",
+        "sha256": "d0afbab45d9367c761ba6e63a404c486be941dd1391f05fbe227d3d97dac9d6b"
+      },
+      {
+        "path": "logs/core-full.log",
+        "sha256": "67ae3c953202b18eb199cdb7fd4aa139cf92af869dc40b7f731adb829f36ceaa"
+      },
+      {
+        "path": "logs/wpf-full.log",
+        "sha256": "33dc4452aa825e6e366b0e3a7b34ca702e035ede384a6da977b24f4f238ad849"
+      },
+      {
+        "path": "summary.json",
+        "sha256": "f7f6de316a15055a187feed544382362ee1639f01f4b1165fda65e07d1cdd698"
+      }
+    ],
+    "evidence": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\main-initial-full-failed-evidence\\failure-proof.json"
+  },
+  "postWritebackRepairs": {
+    "materialAndWhitespaceProof": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\parent-main-repair-proof.json",
+    "feedbackFixtureProof": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\main-feedback-fixture-proof.json"
+  },
+  "mainAcceptance": {
+    "baseHead": "5e57e9ce117b64640b4b055385232ddd24312b3e",
+    "sourceWritebackProof": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\final-source-proof.json",
+    "sourceDriftBeforeDocumentation": [],
+    "authorizedPostWritebackChanges": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\parent-main-repair-proof.json",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\main-feedback-fixture-proof.json",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\final-preparation-doc-proof.json"
+    ],
+    "initialFailedFullEvidence": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\main-initial-full-failed-evidence\\failure-proof.json",
+    "full": {
+      "corePassed": 408,
+      "wpfPassed": 47,
+      "coreFailed": 0,
+      "wpfFailed": 0,
+      "durationMs": 188354,
+      "summary": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\main-full-evidence\\summary.json",
+      "rawEvidenceSha256": [
+        {
+          "path": "logs/build.log",
+          "sha256": "e7cb7da846a0dcb34a8d5640e9bd7c5adf277db32ade08a729b20c838126722f"
+        },
+        {
+          "path": "logs/core-full.log",
+          "sha256": "025488b7c9169f4646e5cea4697a624eeb25e90a15ab24a0793b2bbe1559b16d"
+        },
+        {
+          "path": "logs/wpf-full.log",
+          "sha256": "6035caf93eb957bdb5117f86cf547d2d241c6e893c1185059dd6cffe3c4432f0"
+        },
+        {
+          "path": "summary.json",
+          "sha256": "c55077ceb6617488be948f75e78a3b8192da53237236436ab447fa51dc6958f2"
+        }
+      ]
+    },
+    "routine": {
+      "corePassed": 118,
+      "wpfPassed": 13,
+      "coreFailed": 0,
+      "wpfFailed": 0,
+      "durationMs": 57432,
+      "summary": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\main-routine-evidence\\summary.json",
+      "rawEvidenceSha256": [
+        {
+          "path": "logs/build.log",
+          "sha256": "f3838276b7e8eae94d9419a6d9fd2e1bb840c7789b4255f1ead304d17fc1c93f"
+        },
+        {
+          "path": "logs/core-selected.log",
+          "sha256": "44bee0b1ff082137cdce9ffb55cfcb336d6cf2e83d1d74b460e38d2eac22fbc8"
+        },
+        {
+          "path": "logs/wpf-selected.log",
+          "sha256": "5a59d7481a19b9831b437b3e792425a2fc6c939fb521363b8ce3e62eb6d2f18a"
+        },
+        {
+          "path": "summary.json",
+          "sha256": "94f647086389ea185dd4ae13825d495c3aba43727270e4f2b578cfaf2fef6b22"
+        }
+      ],
+      "incrementalBuild": true
+    },
+    "compiledArtworkEvidence": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\compiled-art-proof.json",
+    "acceptedAt": "2026-10-01T23:00:11.208342+00:00",
+    "boundary": "Offline actual Core command/replay checks and WPF renders; private UI DTO fixtures remain distinct from Core commands. No live OL match or interactive desktop acceptance. No push, release or cleanup.",
+    "postValidationWhitespaceProof": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\post-validation-whitespace-proof.json"
+  },
+  "compiledArtworkEvidence": {
+    "Assembly": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\validation-main-full-02\\bin\\CardGame.Wpf\\release\\CardGame.Wpf.dll",
+    "AssemblySha256": "629c35cf2bcd65ab6c358676720240db9308a98f64a8a0f177570deb1cf93e0a",
+    "VerifiedAt": "2026-10-02T06:57:04.7021602+08:00",
+    "Resources": [
+      {
+        "Resource": "assets/official-yu-ji.png",
+        "Bytes": 1011333,
+        "Sha256": "8d8958af573f8857cb64a2046b5f817f3210d4a44a78795cfa2d70075532b538",
+        "MatchesOfficialFrozen": true
+      },
+      {
+        "Resource": "assets/official-zuo-ci.png",
+        "Bytes": 825000,
+        "Sha256": "bd3a7367834813914bab70a4a2be549bec0853e12c44c6d06b6b99ad6598e82a",
+        "MatchesOfficialFrozen": true
+      }
+    ],
+    "Boundary": "Exact compiled WPF resource bytes verified against the official frozen PNGs. Actual official images were viewed separately; no individual portrait game-window or live OL match acceptance."
+  },
+  "compiledRosterEvidence": {
+    "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSixth-20261002\\final-compiled-roster-proof.json",
+    "sha256": "dfe9c42ca6a5eeda1891ea2de67cfa0fdc2f2c5a00b3fbca2626656fad77ccd1",
+    "fullShowcaseGeneralCount": 236,
+    "nextCandidateIdsAbsent": [
+      "boundary:lu-meng",
+      "boundary:huang-gai",
+      "boundary:lu-xun"
+    ]
+  }
+}

@@ -35,7 +35,11 @@ public sealed record GameCheckpoint(
     // participant operation and the suit-based trick target prohibition.
     // 191: Finalized equipment targets precede installation and commitment;
     // top-deck basic costs survive nested response observers and cleanup.
-    public const int CurrentRulesVersion = 191;
+    // 192: A Program-owned virtual Duel keeps its exact participants when
+    // the responder and opponent swap after a successful Slash response.
+    // Borrowed Sword faction supply validates reconstructed continuation
+    // handles by exact resolution identity instead of reference equality.
+    public const int CurrentRulesVersion = 192;
     // 187 was consumed by main-side Zhang He / Shen Zhao Yun work.
 
     public int RulesVersion { get; init; }

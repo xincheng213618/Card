@@ -82,6 +82,7 @@ internal static class Program
             Check("conversion choices retain exact provenance without leaking trusted action details", CardConversionUiChecks.Run);
             Check("composed skills share the generic WPF draft and submit their stable program identity", SkillProgramUiChecks.ActiveSelectionAndSubmission);
             Check("Program named choice renders shared labels and resumes parent", () => ProgramChoiceUiChecks.NamedChoiceUsesSharedSurfaceAndCommand(output));
+            Check("declaration and general library views protect private faces", () => RuleInformationUiChecks.PrivateFacesAndPublicDeclarations(output));
             Check("Program deferred cards preserve private views and public pile ownership", () => DeferredCardsUiChecks.PrivateViewAndPublicPileRestoreThroughSharedControls(output));
             Check("Program conversion tiers restore actual shared skill state", () => ConfiguredConversionsUiChecks.TierRestoresWithActualUpgrade(output));
             Check("Program conversion polarity stays visible with active entry and restore", () => ProgramConversionPolarityUiChecks.PolarityRemainsVisibleWithActiveEntryAndRestore(output));

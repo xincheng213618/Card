@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -6,6 +6,7 @@ public sealed partial class GameEngine
     // so they run before the event is queued for committed observers.
     private void AdvanceEventRulesAndQueueFact(IGameEvent payload)
     {
+        SynchronizePrivateGeneralLibraries();
         SynchronizeLordSkillProjections();
         ObserveProgramHealthChange(payload);
         ObserveAdvancedLifecycleEvent(payload);
@@ -24,6 +25,7 @@ public sealed partial class GameEngine
     // opened implicitly, then captures the resulting state for notification.
     private void AdvanceRulesAndPublishState()
     {
+        SynchronizePrivateGeneralLibraries();
         SynchronizeLordSkillProjections();
         CleanupIssuedPlayPhaseUseBans();
         CleanupLostDeferredPileSources();

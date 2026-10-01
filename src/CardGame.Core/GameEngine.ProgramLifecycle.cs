@@ -1883,6 +1883,8 @@ public sealed partial class GameEngine
             SkillProgramTriggerWindow.DrawPhaseStarting =>
                 (owner.Seat == _currentSeat && context.SourceSeat == owner.Seat && CanRunDrawPhaseProgramTrigger(owner, trigger) ||
                  features.HasOperation(SkillProgramEffectOp.AddMarkerSubjectNormalDraw) && context.SourceSeat==_currentSeat && context.TargetSeat==_currentSeat) && _phase == TurnPhase.Draw,
+            SkillProgramTriggerWindow.AfterTurnEnded =>
+                CanRunAfterTurnEndedCandidate(candidate, context, trigger),
             SkillProgramTriggerWindow.GameStarting =>
                 _phase == TurnPhase.NotStarted && _resolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>()
                     .Any(frame => frame.Id == context.ParentFrameId && frame.Window == SkillProgramTriggerWindow.GameStarting),
@@ -2278,6 +2280,7 @@ public sealed partial class GameEngine
             TriggerId = candidate.BindingId,
             WindowContext = context
         };
+        AttachAfterTurnEndedChild(frame, candidate, context);
         PushRuntimeFrame(frame);
         AdvanceEventRulesAndQueueFact(new ProgramBindingStartedEvent(
             frame.Id, frame.SkillId, candidate.BindingId, frame.SkillInstanceId,
@@ -2764,6 +2767,10 @@ public sealed partial class GameEngine
                     case ProgramLifecycleContinuation.ResumeDyingEntry:
                         CompleteDyingEntryProgramWindow(frame);
                         break;
+                    case ProgramLifecycleContinuation.ResumeCardDeclaration:
+                        if (_resolutionStack.LastOrDefault() is not CardDeclarationFrame declaration || declaration.Id != frame.ResumeProgramFrameId || declaration.Stage != CardDeclarationStage.Granting)
+                            throw new InvalidOperationException("A declaration grant lost its exact parent.");
+                        AdvanceRuntimeFrame(declaration.Id); break;
                     case ProgramLifecycleContinuation.ResumeParentProgram:
                         AdvanceRuntimeProgram(frame.ResumeProgramFrameId!.Value);
                         break;
@@ -3000,6 +3007,7 @@ public sealed partial class GameEngine
         var action = selected.Parameters.GetValueOrDefault("program-action");
         if (action == "relative-zone-target") { ResolveRelativeZoneTarget(selected); return; }
         if (action == "deck-end-exchange") { ResolveDeckEndChoice(selected); return; }
+        if (action == "private-general-library") {ResolvePrivateGeneralLibraryChoice(selected);return;}
         if (action == "game-domain") {ResolveGameDomainChoice(selected);return;}
         if (action == "public-pile-color") {ResolvePublicPileColorChoice(selected);return;}
         if (action == "public-pile-flow") { ResolveFinalTargetPileChoice(selected); return; }
@@ -3616,6 +3624,13 @@ public sealed partial class GameEngine
     private (ProgramTriggerCandidate Candidate, ProgramSkillWindowContext Context)
         GetPendingProgramTriggerCandidate()
     {
+        if (_resolutionStack.LastOrDefault() is DeferredTurnEndFrame { AfterTurnEnded: not null } afterTurnEnded)
+        {
+            var candidate = AfterTurnEndedCandidate(afterTurnEnded);
+            if (afterTurnEnded.AfterTurnEnded.CurrentChild is not null)
+                throw new InvalidOperationException("A pending after-turn-ended prompt cannot belong to a live child.");
+            return (candidate, CreateAfterTurnEndedContext(afterTurnEnded, candidate));
+        }
         if (_resolutionStack.LastOrDefault() is TurnEndingBoundaryFrame turnEnding)
         {
             var candidate = turnEnding.Items[turnEnding.ItemIndex].Candidate ??
@@ -3673,6 +3688,12 @@ public sealed partial class GameEngine
 
     private void CompleteSkippedProgramCandidate(ProgramTriggerCandidate candidate)
     {
+        if (_resolutionStack.LastOrDefault() is DeferredTurnEndFrame { AfterTurnEnded: not null } afterTurnEnded)
+        {
+            AdvanceAfterTurnEndedCandidate(afterTurnEnded, candidate, activated: false, completed: false);
+            ContinueDeferredTurnEnd();
+            return;
+        }
         if (_resolutionStack.LastOrDefault() is ProgramKillTriggerWindowFrame killWindow &&
             killWindow.Candidates[killWindow.CandidateIndex] == candidate)
         {
@@ -3793,6 +3814,7 @@ public sealed partial class GameEngine
                     SkillProgramEffectOp.PayEquipmentColorDiscard or SkillProgramEffectOp.AddCurrentCardUseTarget => decision.Choices[0],
                 SkillProgramEffectOp.AlternatingSuitDrawDiscard or SkillProgramEffectOp.FirstCategoryCompletedTop => decision.Choices[0],
                 SkillProgramEffectOp.DiscardNonFinalTargetCardThenDraw or SkillProgramEffectOp.DiscardHandToNamedTurnCount => decision.Choices[0],
+                SkillProgramEffectOp.InitializePrivateGeneralLibrary or SkillProgramEffectOp.AcquirePrivateGeneralAvatar or SkillProgramEffectOp.ChoosePrivateGeneralAvatar => decision.Choices[0],
                 SkillProgramEffectOp.ResolveFirstGameDomainCrossing or SkillProgramEffectOp.StoreArbitraryOwnedPublicPile or SkillProgramEffectOp.UsePublicPileEquipmentSequence => SelectAiDomainChoice(decision,frame),
                 SkillProgramEffectOp.PublicPileColorDamage or SkillProgramEffectOp.RewardDiscardedActionColor => SelectAiPublicPileColorChoice(decision,frame),
                 SkillProgramEffectOp.PeekTurnQuotaTop => decision.Choices[0],

@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:huashen",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "initial",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "target": "owner",
+              "excludedSkillTags": [
+                "limited",
+                "awakening",
+                "lord"
+              ],
+              "op": "initializePrivateGeneralLibrary",
+              "amount": 2
+            }
+          ]
+        },
+        {
+          "id": "start",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "target": "owner",
+              "excludedSkillTags": [
+                "limited",
+                "awakening",
+                "lord"
+              ],
+              "op": "choosePrivateGeneralAvatar"
+            }
+          ]
+        },
+        {
+          "id": "ended",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "target": "owner",
+              "excludedSkillTags": [
+                "limited",
+                "awakening",
+                "lord"
+              ],
+              "op": "choosePrivateGeneralAvatar"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:xinsheng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "optional": true,
+          "effects": [
+            {
+              "target": "owner",
+              "excludedSkillTags": [
+                "limited",
+                "awakening",
+                "lord"
+              ],
+              "op": "acquirePrivateGeneralAvatar",
+              "amount": 1,
+              "skillIds": [
+                "classic:huashen"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

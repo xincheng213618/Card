@@ -1,0 +1,261 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:guhuo",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "declare-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": true,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "declarationValidation": {
+            "challengeGrantSkillId": "classic:chanyuan"
+          }
+        },
+        {
+          "id": "declare-fireSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": true,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "declarationValidation": {
+            "challengeGrantSkillId": "classic:chanyuan"
+          }
+        },
+        {
+          "id": "declare-thunderSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "thunderSlash",
+          "forPlay": true,
+          "forResponse": true,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "declarationValidation": {
+            "challengeGrantSkillId": "classic:chanyuan"
+          }
+        },
+        {
+          "id": "declare-dodge",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "declarationValidation": {
+            "challengeGrantSkillId": "classic:chanyuan"
+          }
+        },
+        {
+          "id": "declare-peach",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": true,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "declarationValidation": {
+            "challengeGrantSkillId": "classic:chanyuan"
+          }
+        },
+        {
+          "id": "declare-alcohol",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": true,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "declarationValidation": {
+            "challengeGrantSkillId": "classic:chanyuan"
+          }
+        },
+        {
+          "id": "declare-nullification",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "nullification",
+          "forPlay": false,
+          "forResponse": true,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "declarationValidation": {
+            "challengeGrantSkillId": "classic:chanyuan"
+          }
+        },
+        {
+          "id": "declare-drawTwo",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "drawTwo",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "declarationValidation": {
+            "challengeGrantSkillId": "classic:chanyuan"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declare-duel",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "duel",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "declarationValidation": {
+            "challengeGrantSkillId": "classic:chanyuan"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declare-barbarianAssault",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "barbarianAssault",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "declarationValidation": {
+            "challengeGrantSkillId": "classic:chanyuan"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declare-arrowBarrage",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "arrowBarrage",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "declarationValidation": {
+            "challengeGrantSkillId": "classic:chanyuan"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declare-peachGarden",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "peachGarden",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "declarationValidation": {
+            "challengeGrantSkillId": "classic:chanyuan"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declare-fiveGrains",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "fiveGrains",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "declarationValidation": {
+            "challengeGrantSkillId": "classic:chanyuan"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declare-dismantlement",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "dismantlement",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "declarationValidation": {
+            "challengeGrantSkillId": "classic:chanyuan"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declare-snatch",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "snatch",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "declarationValidation": {
+            "challengeGrantSkillId": "classic:chanyuan"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declare-fireAttack",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "fireAttack",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "declarationValidation": {
+            "challengeGrantSkillId": "classic:chanyuan"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declare-ironChain",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "ironChain",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "declarationValidation": {
+            "challengeGrantSkillId": "classic:chanyuan"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "declare-borrowedSword",
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "borrowedSword",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "extendedUse": true,
+          "declarationValidation": {
+            "challengeGrantSkillId": "classic:chanyuan"
+          },
+          "singleCardTrickUse": true
+        }
+      ]
+    },
+    {
+      "id": "classic:chanyuan",
+      "revision": 1,
+      "cannotChallengeDeclarations": true
+    }
+  ]
+}

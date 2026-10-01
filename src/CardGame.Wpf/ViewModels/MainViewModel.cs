@@ -579,6 +579,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
         HasPublicRevealedCards = PublicRevealedCards.Count > 0;
         RebuildDeferredCardViews();
+        RebuildDeclaredCardViews();
+        RebuildGeneralLibraryViews();
         if (_snapshot.PendingDecision is { Kind: DecisionKind.SelectGeneral } pending)
         {
             foreach (var choice in pending.Choices.Where(choice => choice.ContentIds.Count == 1))

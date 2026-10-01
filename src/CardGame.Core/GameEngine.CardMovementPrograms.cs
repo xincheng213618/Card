@@ -93,12 +93,14 @@ public sealed partial class GameEngine
     {
         var awaitingFrame = _resolutionStack.LastOrDefault() is ProgramSkillFrame program &&
             (IsAwaitingProgramMovement(program) || program.Id == instructionFrameId) ? program : null;
-        bool Eligible(CardMovementBatchContext batch) => awaitingFrame is null
+        var declaration = _resolutionStack.LastOrDefault() is CardDeclarationFrame declared &&
+            declared.Id == instructionFrameId && declared.Stage is CardDeclarationStage.Paying or CardDeclarationStage.Cleaning ? declared : null;
+        bool Eligible(CardMovementBatchContext batch) => declaration is not null ? batch.ParentFrameId == declaration.Id : awaitingFrame is null
             ? batch.AwaitingProgramFrameId is null
             : batch.AwaitingProgramFrameId == awaitingFrame.Id ||
               batch.AwaitingProgramFrameId is null && batch.ParentFrameId == awaitingFrame.Id;
         if (_pendingDecision is not null ||
-            (_resolutionStack.Count != 0 && awaitingFrame is null) ||
+            (_resolutionStack.Count != 0 && awaitingFrame is null && declaration is null) ||
             _winner != Winner.None || _status == EngineStatus.Completed)
             return false;
 
@@ -111,13 +113,14 @@ public sealed partial class GameEngine
         {
             var batch = _pendingCardsMovedBatches.Where(Eligible).OrderBy(item => item.Id).First();
             _pendingCardsMovedBatches.Remove(batch);
-            var candidates = CollectCardsMovedProgramCandidates(batch);
-            candidates = candidates.Concat(CollectDiscardPileReceivedCandidates(batch)).Concat(CollectFirstDomainCandidates(batch)).ToArray();
-            if (candidates.Count == 0) continue;
-            var window = new CardsMovedTriggerWindowFrame(batch.Id, batch, candidates,
-                ResumeProgramFrameId: awaitingFrame is not null && !IsAwaitingProgramMovement(awaitingFrame)
-                    ? awaitingFrame.Id : null);
-            window = window with { Contexts = candidates.Select(candidate => CreateCardsMovedProgramContext(window, candidate)).ToArray() };
+            var window = CreateCardsMovedProgramWindow(batch,
+                awaitingFrame is not null && !IsAwaitingProgramMovement(awaitingFrame) ? awaitingFrame.Id : null);
+            if (window is null) continue;
+            if (declaration is not null)
+            {
+                window = window with { ResumeDeclarationFrameId = declaration.Id };
+                ReplaceRuntimeTop(declaration with { ActiveChildFrameId = window.Id });
+            }
             if (awaitingFrame?.SelectedCardPayment is { } payment &&
                 awaitingFrame.SelectedCardPaymentResult is null)
             {
@@ -378,6 +381,11 @@ public sealed partial class GameEngine
             if (frame.CandidateIndex >= frame.Candidates.Count)
             {
                 PopResolutionFrame(frame.Id, ResolutionFrameKind.CardsMovedTriggerWindow);
+                if (frame.DeferredTurnEndReturn is not null)
+                {
+                    ReturnDeferredTurnEndPrelude(frame);
+                    return;
+                }
                 if (_resolutionStack.LastOrDefault() is ProgramSkillFrame
                     { SelectedCardPayment: { } payment, SelectedCardPaymentResult: null } parent)
                 {
@@ -391,6 +399,13 @@ public sealed partial class GameEngine
                             LastCompletedChildFrameId = frame.Id
                         }
                     });
+                }
+                if (frame.ResumeDeclarationFrameId is { } declarationId)
+                {
+                    if (_resolutionStack.LastOrDefault() is not CardDeclarationFrame declarationParent || declarationParent.Id != declarationId || declarationParent.ActiveChildFrameId != frame.Id)
+                        throw new InvalidOperationException("A declaration payment lost its exact movement child.");
+                    ReplaceRuntimeTop(declarationParent with { ActiveChildFrameId = null });
+                    AdvanceRuntimeFrame(declarationId); return;
                 }
                 if (frame.ResumeProgramFrameId is { } resume)
                 {

@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 // Snapshot construction and visibility rules live beside the observer projection.
 public sealed partial class GameEngine
@@ -48,7 +48,7 @@ public sealed partial class GameEngine
             var canSeeFaction = effectiveFactionId is not null &&
                                 (IsNationalWarMode
                                     ? revealAll || player.FactionRevealed || player.Seat == viewerSeat
-                                    : hasIdentityGodFaction &&
+                                    : (hasIdentityGodFaction || GetPrivateGeneralLibraryFaction(player) is not null) &&
                                       (revealAll || player.GeneralRevealed || player.Seat == viewerSeat));
             return new PlayerSnapshot(
                 player.Seat,
@@ -99,6 +99,7 @@ public sealed partial class GameEngine
                 PublicPersistentPileName = SinglePublicPileSource(player.Seat) is { } publicPile ? _contentRegistry.GetSkill(publicPile.SkillId).ProgramPresentation?.AuthorityName : null,
                 PublicPersistentPileSkillId = SinglePublicPileSource(player.Seat)?.SkillId,
                 PublicPersistentPiles = CreatePublicPersistentPileSnapshots(player.Seat),
+                PrivateGeneralLibraries = ProjectPrivateGeneralLibraries(player,viewerSeat,revealAll),
                 PublicDeferredPileName = _deferredPublicPileDeposits.FirstOrDefault(item => item.OwnerSeat == player.Seat) is { } deposit ? _contentRegistry.GetSkill(deposit.SkillId).ProgramPresentation?.AuthorityName : null,
                 PublicDeferredPileCount = _cardZones.CardsAt(new CardLocation(CardZoneKind.PublicDeferredPile, player.Seat)).Count,
                 PublicDeferredPileCards = _cardZones.CardsAt(new CardLocation(CardZoneKind.PublicDeferredPile, player.Seat)).Count > 0 ? Array.AsReadOnly(_cardZones.CardsAt(new CardLocation(CardZoneKind.PublicDeferredPile, player.Seat)).Select(ToSnapshot).ToArray()) : null,
@@ -134,7 +135,7 @@ public sealed partial class GameEngine
                 FactionId = canSeeFaction ? effectiveFactionId : null,
                 IsFactionRevealed = IsNationalWarMode
                     ? player.FactionRevealed
-                    : hasIdentityGodFaction && player.GeneralRevealed,
+                    : (hasIdentityGodFaction || GetPrivateGeneralLibraryFaction(player) is not null) && player.GeneralRevealed,
                 SecondaryGeneralId = secondaryGeneral?.Id,
                 SecondaryGeneralName = secondaryGeneral?.Name,
                 SecondaryPortraitKey = secondaryGeneral?.PortraitKey,
@@ -209,6 +210,7 @@ public sealed partial class GameEngine
             _cardZones.Count(CardLocation.Processing),
             _revision)
         {
+            CardDeclarations = GetCardDeclarationSnapshots(viewerSeat, revealAll),
             WinnerTeamId = IsTeamMode ? _winnerTeamId : null,
             WinnerFactionId = IsNationalWarMode ? _winnerFactionId : null,
             ModeKind = _modeDefinition.ModeKind,
@@ -223,6 +225,8 @@ public sealed partial class GameEngine
     // to both its result and every observer. Never freeze live content/state in place.
     private static GameSnapshot FreezePlayerView(GameSnapshot snapshot) => snapshot with
     {
+        CardDeclarations = snapshot.CardDeclarations is { } declarations
+            ? Array.AsReadOnly(declarations.Select(item => item with { TargetSeats = FreezeViewList(item.TargetSeats)! }).ToArray()) : null,
         Players = Array.AsReadOnly(snapshot.Players.Select(FreezePlayer).ToArray()),
         PendingDecision = snapshot.PendingDecision is { } decision ? CloneDecision(decision) : null,
         PublicRevealedCards = FreezeViewList(snapshot.PublicRevealedCards)!,
@@ -254,6 +258,7 @@ public sealed partial class GameEngine
         PublicPersistentPileCards = FreezeViewList(player.PublicPersistentPileCards),
         PublicPersistentPiles = player.PublicPersistentPiles is { } piles
             ? Array.AsReadOnly(piles.Select(pile => pile with { Cards = FreezeViewList(pile.Cards)! }).ToArray()) : null,
+        PrivateGeneralLibraries = player.PrivateGeneralLibraries is {} libraries ? Array.AsReadOnly(libraries.Select(l => l with { GeneralIds = FreezeViewList(l.GeneralIds) }).ToArray()) : null,
         PojunHoldCards = FreezeViewList(player.PojunHoldCards),
         EquipmentSlotCapacities = FreezeViewDictionary(player.EquipmentSlotCapacities),
         ConfiguredConversionTiers = FreezeViewDictionary(player.ConfiguredConversionTiers),

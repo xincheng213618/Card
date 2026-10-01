@@ -67,7 +67,7 @@ public sealed partial class GameEngine
     {
         var costs = physicalIds.Select(id => new CardActionCost(id,
             _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(item => item.Id == id).Kind,
-            _cardZones.GetLocation(id), CapturePhysicalCardColor(actorSeat,_cardZones.CardsAt(_cardZones.GetLocation(id)).Single(c=>c.Id==id)))).ToArray();
+            CapturedDeclarationOrigin(id, _cardZones.GetLocation(id)), CapturePhysicalCardColor(actorSeat,_cardZones.CardsAt(_cardZones.GetLocation(id)).Single(c=>c.Id==id)))).ToArray();
         var provider = costs.FirstOrDefault()?.From.OwnerSeat ?? actorSeat;
         CardConversionSource? conversion;
         if (explicitConversion is not null)

@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -54,6 +54,7 @@ public sealed partial class GameEngine
         try
         {
             operation();
+            SynchronizePrivateGeneralLibraries();
             SynchronizeLordSkillProjections();
             AssertCoreInvariants();
 

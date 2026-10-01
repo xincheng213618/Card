@@ -127,8 +127,14 @@ public sealed partial class GameEngine
     private bool _hasSelectedResponseConversionChoice;
     private bool _hasSelectedUseConversionChoice;
 
-    private string DescribeConversion(CardConversionSource? source, string description) =>
-        source is null ? description : $"【{_contentRegistry!.Skills[source.SkillId].Name}】{description}";
+    private string DescribeConversion(CardConversionSource? source, string description)
+    {
+        if (source is null) return description;
+        if (ViewAsRule(source)?.DeclarationValidation is not null)
+            description = System.Text.RegularExpressions.Regex.Replace(description, "将【[^】]*】(?:当作|当|改为)【[^】]*】",
+                "声明【" + CardCatalog.Get(ViewAsRule(source)!.OutputKind).DisplayName + "】");
+        return $"【{_contentRegistry!.Skills[source.SkillId].Name}】{description}";
+    }
 
     private IReadOnlyList<ProgramCardIdentityMatch> GetProgramCardIdentityMatches(
         CharacterState owner,
@@ -208,6 +214,8 @@ public sealed partial class GameEngine
         CardKind outputKind,
         bool forResponse, bool dyingUse = false)
     {
+        if (UnclaimedDeclarationPayment(owner.Seat, card.Id) is { } paid &&
+            (paid.DeclaredKind == outputKind || forResponse && outputKind == CardKind.Slash && IsSlashCard(paid.DeclaredKind))) return [paid.Source];
         if (IsResponseEntityRestricted(owner.Seat,card.Id)) return [];
         if (HasProgramCardIdentity(owner, card))
         {
@@ -227,9 +235,10 @@ public sealed partial class GameEngine
         var configured = GetSkillBindingShard(owner).ProgramInstances
             .SelectMany(instance => instance.Program.ViewAs
                 .Where(rule => rule.InputCount == 1 &&
-                               (rule.OutputKind == outputKind || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash) &&
+                               (rule.OutputKind == outputKind || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash || forResponse && rule.DeclarationValidation is not null && outputKind == CardKind.Slash && IsSlashCard(rule.OutputKind)) &&
                                rule.SourceZones.Contains(zone.Value) &&
                                (dyingUse ? rule.ForResponse || rule.UseOnly && rule.ForPlay : forResponse ? rule.ForResponse && (!rule.UseOnly || IsProgramResponseCardUse(owner, outputKind) || (rule.ConversionStateId is not null || rule.UnusedOutputNameThisGame) && outputKind == CardKind.Nullification) : rule.ForPlay) &&
+                               (rule.DeclarationValidation is null || CanDeclareCard(owner, instance.SkillId)) &&
                                IsNamedUseConversionAvailable(owner, instance, rule) &&
                                IsConfiguredConversionAvailable(owner, card, instance, rule, dyingUse) &&
                                (!rule.UnusedOutputThisTurn || !HasProgramUsedBasicCardThisTurn(owner.Seat, outputKind)) &&

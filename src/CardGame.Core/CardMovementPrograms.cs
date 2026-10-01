@@ -35,4 +35,10 @@ public sealed record CardsMovedTriggerWindowFrame(
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect,
     IReadOnlyList<ProgramSkillWindowContext>? Contexts = null,
     long? ResumeProgramFrameId = null)
-    : ResolutionFrame(Id, ResolutionFrameKind.CardsMovedTriggerWindow, Step);
+    : ResolutionFrame(Id, ResolutionFrameKind.CardsMovedTriggerWindow, Step)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public long? ResumeDeclarationFrameId { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public DeferredTurnEndPreludeReturn? DeferredTurnEndReturn { get; init; }
+}

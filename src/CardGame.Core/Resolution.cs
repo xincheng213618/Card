@@ -18,6 +18,8 @@ public static class JudgmentReasons
 
 public enum ResolutionFrameKind
 {
+    CardDeclaration = 1600,
+    CardDeclarationChallenge = 1601,
     DeferredTurnEnd = 1300,
     CardUse = 0,
     ResponseWindow,
@@ -57,6 +59,8 @@ public enum ResolutionFrameStep
 /// </summary>
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
 [JsonDerivedType(typeof(DeferredTurnEndFrame), "deferred-turn-end")]
+[JsonDerivedType(typeof(CardDeclarationFrame), "card-declaration")]
+[JsonDerivedType(typeof(CardDeclarationChallengeFrame), "card-declaration-challenge")]
 [JsonDerivedType(typeof(CardUseFrame), "card-use")]
 [JsonDerivedType(typeof(ResponseWindowFrame), "response-window")]
 [JsonDerivedType(typeof(JudgmentFrame), "judgment")]
@@ -81,7 +85,11 @@ public enum ResolutionFrameStep
 public abstract record ResolutionFrame(
     long Id,
     ResolutionFrameKind Kind,
-    ResolutionFrameStep Step);
+    ResolutionFrameStep Step)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DeclaredCardPayment? AcceptedDeclarationPayment { get; init; }
+}
 
 /// <summary>A resumable program cursor; child resolutions cannot repeat paid effects.</summary>
 public sealed record ProgramSkillFrame(
@@ -107,6 +115,8 @@ public sealed record ProgramSkillFrame(
     public ProgramFinalTargetGiftDraft? FinalTargetGift { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramDomainCrossingDraft? DomainCrossing { get; init; }
+    [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramGeneralLibraryDraft? GeneralLibraryDraft {get;init;}
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramPileEquipmentDraft? PileEquipment { get; init; }
 
