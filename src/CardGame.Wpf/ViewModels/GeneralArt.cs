@@ -72,6 +72,8 @@ public static class GeneralArt
             ["wang-ji"] = "official-wang-ji.png",
             ["kuai-yue-kuai-liang"] = "official-kuai-yue-kuai-liang.png",
             ["lu-zhi"] = "official-lu-zhi.png",
+            ["yuan-shu"] = "official-yuan-shu.png",
+            ["zhou-fei"] = "official-zhou-fei.png",
             ["zhang-chun-hua"] = "official-zhang-chun-hua.png",
             ["ling-tong"] = "official-ling-tong.png",
             ["chen-gong"] = "official-chen-gong.png",

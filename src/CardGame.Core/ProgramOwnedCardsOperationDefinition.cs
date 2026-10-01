@@ -34,7 +34,7 @@ internal sealed class SelectOwnedCardsProgramOperationDescriptor : ProgramOperat
         if (expression is not null && (r.Has("amount") || expression is not
                 (SkillProgramNumberExpression.CategoryTargetTurnUsage or SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.AllOwnedZoneCards or
                  SkillProgramNumberExpression.HandHalfFloor or SkillProgramNumberExpression.SelectedPairHandDifference or
-                 SkillProgramNumberExpression.LivingPlayersMinHp or SkillProgramNumberExpression.LivingPlayerCount)))
+                 SkillProgramNumberExpression.LivingPlayersMinHp or SkillProgramNumberExpression.LivingPlayerCount or SkillProgramNumberExpression.LivingFactionCount)))
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}: selection accepts a constant, ownerLostHp, allOwnedZoneCards, handHalfFloor, livingPlayersMinHp or selectedPairHandDifference.");
         var zones = r.RequiredEnumArray<CardZoneKind>("zones");

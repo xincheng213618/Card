@@ -25,6 +25,7 @@ internal static class ProgramEntryCapabilities
     internal const ProgramContextCapability Common = ProgramContextCapability.TurnEffects;
 
     internal static bool SupportsWindow(SkillProgramTriggerWindow window) => window is
+        SkillProgramTriggerWindow.FirstGameDomainCrossing or
         SkillProgramTriggerWindow.ProgramTargetCommitted or
         SkillProgramTriggerWindow.SkillsChanged or
         SkillProgramTriggerWindow.GameStarting or

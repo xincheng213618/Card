@@ -30,6 +30,8 @@ public sealed partial class GameEngine
         {
             case ProgramSkillFrame:
                 if (ResumeNamedTurnFlow(frameId)) return;
+                if (ResumeFinalTargetGift(frameId)) return;
+                if (ResumeGameDomain(frameId)) return;
                 if (TryResumeConvertingGift(frameId)) return;
                 if (ResumePublicPileColorPayment(frameId)) return;
                 if (ResumeAlternatingSuitTop(frameId)) return;
@@ -540,6 +542,7 @@ public sealed partial class GameEngine
             case SkillProgramTriggerWindow.CardsGained:
             case SkillProgramTriggerWindow.CardsMoved:
             case SkillProgramTriggerWindow.DiscardPileReceived:
+            case SkillProgramTriggerWindow.FirstGameDomainCrossing:
                 if (_resolutionStack.LastOrDefault() is not CardsMovedTriggerWindowFrame cardsMoved ||
                     cardsMoved.Id != context.ParentFrameId ||
                     cardsMoved.Candidates[cardsMoved.CandidateIndex] != new ProgramTriggerCandidate(

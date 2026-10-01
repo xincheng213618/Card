@@ -16,7 +16,7 @@ public sealed partial class GameEngine
             .ThenBy(instance => instance.SkillInstanceId, StringComparer.Ordinal)
             .SelectMany(instance => instance.Program.CardPolicies
                 .Where(policy => policy.Kind == kind &&
-                    (policy.OwnerRole is null || policy.OwnerRole == owner.Role) &&
+                    (policy.OwnerRole is null || HasSkillRoleQualification(owner, instance.SkillId, instance.SkillInstanceId, policy.OwnerRole.Value)) &&
                     (policy.CardKinds.Count == 0 ||
                      effectiveKind is { } card && policy.CardKinds.Contains(card)) &&
                     (policy.RequiredCardKinds.Count == 0 ||

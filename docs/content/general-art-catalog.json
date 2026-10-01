@@ -10605,6 +10605,57 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "yuan-shu",
+      "characterName": "袁术",
+      "defaultSkinId": "10000",
+      "skins": [
+        {
+          "id": "10000",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/100",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/10000.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-yuan-shu.png",
+          "sha256": "0b2f83218462b5ea60de91ece0f696002092ce77142cec314502bb2937728b92",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "zhou-fei",
+      "characterName": "周妃",
+      "defaultSkinId": "41100",
+      "skins": [
+        {
+          "id": "41100",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/411",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/41100.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-zhou-fei.png",
+          "sha256": "9867aa089ab3fca92d249acb91f74348bf4c9bb31f65659f2fe82f197ad4e9e1",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "zhang-xiu",
+      "characterName": "张绣",
+      "defaultSkinId": "41500",
+      "skins": [
+        {
+          "id": "41500",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/415",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/41500.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-zhang-xiu.png",
+          "sha256": "732813097c02abad018562bea433e6ddeb5088a8addefc1d2a91ff995c1f8bce",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

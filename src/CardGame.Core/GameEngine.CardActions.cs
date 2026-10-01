@@ -334,8 +334,14 @@ public sealed partial class GameEngine
                     binding.Program.GameplayHash, binding.SkillInstanceId, trigger.Priority, context));
             }
         }
+        string GrantIdentity(ProgramCardTriggerCandidate candidate)
+        {
+            var trigger=_contentRegistry.GetSkill(candidate.SkillId).Program!.Triggers.Single(t=>t.Id==candidate.TriggerId);
+            return ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.GiveOwnedCardToOtherFinalTargetAndDraw)
+                ? "" : candidate.SkillInstanceId;
+        }
         return result.DistinctBy(candidate => (action.ActionId, candidate.OwnerSeat, candidate.SkillId,
-            candidate.SkillInstanceId, candidate.TriggerId, candidate.OpponentSeat)).ToArray();
+            GrantIdentity(candidate), candidate.TriggerId, candidate.OpponentSeat)).ToArray();
     }
 
     private static ProgramTriggerCandidate ToSharedCandidate(ProgramCardTriggerCandidate candidate) =>

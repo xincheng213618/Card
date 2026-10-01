@@ -1,7 +1,11 @@
 namespace CardGame.Core;
 
+public sealed record LordSkillProjectionSource(int LordSeat, string LordGrantId, string LordSkillInstanceId,
+    string CapabilityGrantId, string CapabilitySkillInstanceId);
 public sealed record SkillGrant(
-    string GrantId, string SkillId, string SkillInstanceId, string SourceId, bool IsEnabled = true);
+    string GrantId, string SkillId, string SkillInstanceId, string SourceId, bool IsEnabled = true,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    LordSkillProjectionSource? LordProjection = null);
 
 /// <summary>
 /// Source-aware skill ownership for one character. Definitions and execution

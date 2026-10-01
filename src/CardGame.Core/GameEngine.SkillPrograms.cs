@@ -52,7 +52,7 @@ public sealed partial class GameEngine
                 var features = plan.Features;
                 var ownerLegality = new ProgramLegalityParticipant(owner.Seat, context.HandCount);
                 if (features.HasOperation(SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge) ||
-                    owner.Role != Role.Lord && features.HasOperation(SkillProgramEffectOp.GrantGameFactionAttackRangeTargets))
+                    !HasSkillRoleQualification(owner, program.Id, null, Role.Lord) && features.HasOperation(SkillProgramEffectOp.GrantGameFactionAttackRangeTargets))
                     continue;
                 var requiredCards = GetProgramActivationMinimumCards(owner.Seat, program.Id, activation);
                 if (!CanActivateConvertingGift(owner, program.Id, features) || !CanActivatePublicPileColor(owner,program.Id,features) || !CanActivatePublicPileFlow(owner, features) || !CanPayEquipmentSlotGroup(owner, activation) || !CanActivateHandComparison(owner, activation) || !activation.Condition.Evaluate(context) || !CanPayProgramMarkerCost(owner, activation.MarkerCost) ||
@@ -227,7 +227,7 @@ public sealed partial class GameEngine
                     var key = (owner.Seat, skillOwner.Seat, program.Id, contribution.Id);
                     if (providerFaction is null ||
                         !contribution.ProviderFactions.Contains(providerFaction, StringComparer.Ordinal) ||
-                        skillOwner.Role != contribution.OwnerRole ||
+                        !HasSkillRoleQualification(skillOwner, program.Id, null, contribution.OwnerRole) ||
                         _programContributionUses.GetValueOrDefault(key) >= contribution.UsesPerPlayPhase)
                         continue;
                     var cards = GetHand(owner)
@@ -429,6 +429,11 @@ public sealed partial class GameEngine
         var program = GetEnabledSkillProgram(skillOwner, action.ProgramSkillId ??
             throw new InvalidOperationException("The contribution action has no skill identity."));
         var contribution = program.Contributions.Single(item => item.Id == action.ProgramActivationId);
+        var instanceId = GetRuntimeSkillInstanceId(skillOwner, program.Id);
+        if (!HasSkillRoleQualification(skillOwner, program.Id, instanceId, contribution.OwnerRole))
+            throw new InvalidOperationException("The contribution's exact skill source no longer qualifies.");
+        var projectedInstanceId = skillOwner.SkillGrants.Grants.Any(g => g.SkillId == program.Id &&
+            g.SkillInstanceId == instanceId && g.LordProjection is not null) ? instanceId : null;
         var key = (provider.Seat, skillOwner.Seat, program.Id, contribution.Id);
         if (_programContributionUses.GetValueOrDefault(key) >= contribution.UsesPerPlayPhase)
             throw new InvalidOperationException("The contribution was already used in this play phase.");
@@ -442,7 +447,7 @@ public sealed partial class GameEngine
         MoveCard(card, CardLocation.Hand(provider.Seat), CardLocation.Processing, reason);
         MoveCard(card, CardLocation.Processing, CardLocation.Hand(skillOwner.Seat), reason);
         AdvanceEventRulesAndQueueFact(new ProgramSkillContributionResolvedEvent(actionId, provider.Seat, skillOwner.Seat,
-            program.Id, contribution.Id, card.Id, card.Kind, card.Suit));
+            program.Id, contribution.Id, card.Id, card.Kind, card.Suit, projectedInstanceId));
         AddLog("ActiveSkill",
             $"{provider.Name} 响应【{_contentRegistry!.Skills[program.Id].Name}】，将【{card.DisplayName}】交给 {skillOwner.Name}。",
             provider.Seat, skillOwner.Seat);
@@ -761,6 +766,24 @@ public sealed partial class GameEngine
                     (!IsValidPlayerSeat(movement.SubjectSeat) || movement.BeforeCount < 0 ||
                      movement.BeforeCount >= _players.Count))
                 throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
+            if(frame.DomainCrossing is {} domain &&
+                (plan.Instructions[frame.InstructionIndex-1].Op!=SkillProgramEffectOp.ResolveFirstGameDomainCrossing ||
+                 frame.WindowContext?.Window!=SkillProgramTriggerWindow.FirstGameDomainCrossing ||
+                 domain.Stage is not ("target" or "participants" or "discard" or "heal" or "complete") ||
+                 domain.ReferenceSkillId!=plan.Instructions[frame.InstructionIndex-1].SkillIds.Single() ||
+                 domain.ReferenceSkillInstanceId is not null&&string.IsNullOrWhiteSpace(domain.ReferenceSkillInstanceId) ||
+                 domain.ReferencePileLocation is {} referencedLocation&&(domain.ReferenceSkillInstanceId is null||referencedLocation.Zone!=CardZoneKind.PublicPersistentPile||referencedLocation.OwnerSeat!=frame.OwnerSeat) ||
+                 domain.ParticipantIndex is <0 or >2 || domain.OtherSeat!=-1&&(!IsValidPlayerSeat(domain.OtherSeat)||domain.OtherSeat==frame.OwnerSeat)))
+                throw new InvalidOperationException("A first-domain reward lost its typed participant cursor.");
+            if(frame.PileEquipment is {} equipment &&
+                (plan.Instructions[frame.InstructionIndex-1].Op is not (SkillProgramEffectOp.StoreArbitraryOwnedPublicPile or SkillProgramEffectOp.UsePublicPileEquipmentSequence) ||
+                 equipment.PileLocation.Zone!=CardZoneKind.PublicPersistentPile || equipment.PileLocation.OwnerSeat!=frame.OwnerSeat ||
+                 string.IsNullOrWhiteSpace(equipment.PileInstance) || equipment.SelectedIds.Distinct().Count()!=equipment.SelectedIds.Count ||
+                 equipment.RecipientSeat is {} recipient&&!IsValidPlayerSeat(recipient) ||
+                 equipment.Stage is not ("store-choice" or "gain" or "recipient" or "equip-choice" or "equipment-use" or "hp-paid" or "complete") ||
+                 equipment.Stage=="hp-paid"&&!equipment.HadActualEquipmentUse ||
+                 equipment.Stage=="equipment-use"&&(equipment.ActiveCardId is null||equipment.ActiveUseFrameId is null||equipment.RecipientSeat is null)))
+                throw new InvalidOperationException("A public-pile equipment sequence lost its typed paid-use cursor.");
             if (frame.PublicPileColorPayment is { } colorPayment &&
                 (plan.Instructions[frame.InstructionIndex - 1].Op != SkillProgramEffectOp.PublicPileColorDamage ||
                  frame.ConversionPreviousPolarity != SkillPolarity.Yang ||
@@ -821,7 +844,7 @@ public sealed partial class GameEngine
                     paidEffect?.Op is (SkillProgramEffectOp.ExchangeSelectedTargetHands or SkillProgramEffectOp.ExchangeSelectedTargetEquipment) &&
                     pendingMovement.CoverageResultBind is null &&
                     pendingMovement.SubjectSeat == frame.OwnerSeat;
-                var awaitsConvertingGift = paidEffect?.Op is (SkillProgramEffectOp.GiveSelectedOwnedCardAndDamage or SkillProgramEffectOp.ObserveDamageSourceHandAndGive or SkillProgramEffectOp.DrawToHandCount) && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null;
+                var awaitsConvertingGift = paidEffect?.Op is (SkillProgramEffectOp.GiveOwnedCardToOtherFinalTargetAndDraw or SkillProgramEffectOp.GiveSelectedOwnedCardAndDamage or SkillProgramEffectOp.ObserveDamageSourceHandAndGive or SkillProgramEffectOp.DrawToHandCount) && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null;
                 var awaitsQuotaTop = paidEffect?.Op == SkillProgramEffectOp.PeekTurnQuotaTop &&
                     frame.QuotaTop is { Stage: "gain-movement" } &&
                     pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null;
@@ -831,7 +854,7 @@ public sealed partial class GameEngine
                 var awaitsAlternatingSuitTop = paidEffect?.Op is SkillProgramEffectOp.AlternatingSuitDrawDiscard or SkillProgramEffectOp.FirstCategoryCompletedTop && frame.AlternatingSuitTop is { Stage: "draw" or "discard-movement" or "top-movement" or "reward-draw" } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null;
                 var awaitsNamedTurnFlow = paidEffect?.Op is SkillProgramEffectOp.DiscardNonFinalTargetCardThenDraw or SkillProgramEffectOp.DiscardHandToNamedTurnCount && frame.NamedTurnCountFlow is { Stage: "target-movement" or "target-draw" or "hand-movement" } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null;
                 var awaitsFinalTargetPublicPile = paidEffect?.Op is SkillProgramEffectOp.CollectFinalTargetCardInPublicPile or SkillProgramEffectOp.ExchangePublicPileHand or SkillProgramEffectOp.ObtainPublicPileCard or SkillProgramEffectOp.DiscardPublicZoneAfterHandPayment && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null;
-                if (!awaitsNamedTurnFlow && !awaitsConvertingGift && !(paidEffect?.Op is SkillProgramEffectOp.AwaitOwnedCardMovement or SkillProgramEffectOp.StoreBoundHandInPublicPile or SkillProgramEffectOp.PublicPileColorDamage or SkillProgramEffectOp.RewardDiscardedActionColor && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsAlternatingSuitTop && !awaitsFinalTargetPublicPile && !awaitsQuotaTop && !awaitsBudgetOrGift && !(paidEffect?.Op == SkillProgramEffectOp.DrawOnFirstProgramTargetEncounter && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd or SkillProgramEffectOp.UseDeckSlashesThenShuffle && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.ExchangeRespondedCardEntities or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.CompareSelectedHandWithHpHand && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DeclareNameForTargetDefense or SkillProgramEffectOp.DrawAndDraftLowHandPopulation or SkillProgramEffectOp.ObtainDeckCardWithConsecutiveTarget && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.ChooseDifferentActionCategoryGift && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DepositBoundCardsUntilNextTurn or SkillProgramEffectOp.ObtainDeferredPile or SkillProgramEffectOp.ViewTopCardsAndObtainMatchingCards or SkillProgramEffectOp.StoreTopCardInPublicPile or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsRandomTransfer &&
+                if (!(paidEffect?.Op is SkillProgramEffectOp.ResolveFirstGameDomainCrossing or SkillProgramEffectOp.StoreArbitraryOwnedPublicPile or SkillProgramEffectOp.UsePublicPileEquipmentSequence && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsNamedTurnFlow && !awaitsConvertingGift && !(paidEffect?.Op is SkillProgramEffectOp.AwaitOwnedCardMovement or SkillProgramEffectOp.StoreBoundHandInPublicPile or SkillProgramEffectOp.PublicPileColorDamage or SkillProgramEffectOp.RewardDiscardedActionColor && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsAlternatingSuitTop && !awaitsFinalTargetPublicPile && !awaitsQuotaTop && !awaitsBudgetOrGift && !(paidEffect?.Op == SkillProgramEffectOp.DrawOnFirstProgramTargetEncounter && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd or SkillProgramEffectOp.UseDeckSlashesThenShuffle && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.ExchangeRespondedCardEntities or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.CompareSelectedHandWithHpHand && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DeclareNameForTargetDefense or SkillProgramEffectOp.DrawAndDraftLowHandPopulation or SkillProgramEffectOp.ObtainDeckCardWithConsecutiveTarget && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.ChooseDifferentActionCategoryGift && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DepositBoundCardsUntilNextTurn or SkillProgramEffectOp.ObtainDeferredPile or SkillProgramEffectOp.ViewTopCardsAndObtainMatchingCards or SkillProgramEffectOp.StoreTopCardInPublicPile or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsRandomTransfer &&
                     !awaitsJudgmentClaim && !awaitsRepeatedJudgment && !awaitsOwnedMovement &&
                     !awaitsExchangedMovement && !(paidEffect?.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.DeferredHandAlignmentResolution is { } deferredAlignment && pendingMovement.SubjectSeat == deferredAlignment.TargetSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseRandomDeckEquipment && frame.SelectedTargetSeats is [var equipmentUser] && pendingMovement.SubjectSeat == equipmentUser && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(paidEffect is { Op: SkillProgramEffectOp.MoveBoundCards, AwaitMovementTriggers: true } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
@@ -935,6 +958,7 @@ public sealed partial class GameEngine
             AssertNamedTurnFlow(frame, paused);
         AssertQuotaTop(frame, paused);
             AssertConvertingGift(frame, paused);
+            AssertFinalTargetGift(frame, paused);
             AssertNamedDefenseAndPublicDraft(frame, paused);
             AssertResponseEntityExchange(frame, paused);
             AssertProgramOwnedCardSelection(frame, paused);
@@ -1067,4 +1091,6 @@ public sealed record ProgramSkillStartedEvent(long FrameId, int OwnerSeat, strin
 public sealed record ProgramSkillResolvedEvent(long FrameId, int OwnerSeat, string SkillId, string ActivationId, bool Completed) : IGameEvent;
 public sealed record ProgramSkillHpLostEvent(long FrameId, string SkillId, int TargetSeat, int Amount, int RemainingHp) : IGameEvent;
 public sealed record ProgramSkillContributionResolvedEvent(long ActionId, int ProviderSeat, int SkillOwnerSeat,
-    string SkillId, string ContributionId, int CardId, CardKind CardKind, Suit CardSuit) : IGameEvent;
+    string SkillId, string ContributionId, int CardId, CardKind CardKind, Suit CardSuit,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    string? SkillInstanceId = null) : IGameEvent;

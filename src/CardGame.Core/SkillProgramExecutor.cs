@@ -265,6 +265,7 @@ public interface ISkillProgramEffectHost
         IReadOnlyList<CardZoneKind> zones,
         CardMoveReason reason);
     void AdjustNormalDraw(ProgramSkillFrame frame, int amount);
+    void AdjustNormalDrawByLivingFactionCount(ProgramSkillFrame frame) => throw new NotSupportedException();
     void GrantTurnCardDamageModifier(
         ProgramSkillFrame frame,
         IReadOnlyList<CardKind> cardKinds,
@@ -940,6 +941,8 @@ public sealed class AdjustNormalDrawSkillProgramEffectHandler : ISkillProgramEff
         int targetSeat,
         ISkillProgramEffectHost host)
     {
+        if (effect.NumberExpression == SkillProgramNumberExpression.LivingFactionCount)
+        { host.AdjustNormalDrawByLivingFactionCount(frame); return SkillProgramStepOutcome.Continue; }
         var amount = effect.NumberExpression == SkillProgramNumberExpression.SelectedTargetCount
             ? -frame.SelectedTargetSeats.Count : effect.Amount;
         host.AdjustNormalDraw(frame, amount);

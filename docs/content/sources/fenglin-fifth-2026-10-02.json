@@ -1,0 +1,365 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀OL",
+  "batch": "风林火山普通袁术周妃及张绣从谏补齐",
+  "retrievedAt": "2026-10-02",
+  "implementationStatus": "implementedMainFullAndRoutineVerified",
+  "roster": [
+    {
+      "contentId": "classic:yuan-shu",
+      "officialId": 100,
+      "name": "袁术",
+      "maxHp": 4,
+      "faction": "qun",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/100",
+      "retrievedAt": "2026-10-01T18:13:04.268643+00:00",
+      "responseSha256": "622b9216c63a2ec1092f08878fc60a812b18ddefa3df7214aa562301e850de24",
+      "officialSkillText": "武将技能：\n庸肆\n伪帝\n锁定技，摸牌阶段，你多摸X张牌；弃牌阶段开始时，你弃置X张牌。（X为全场势力数）\n锁定技，你视为拥有主公的主公技。\n",
+      "indexFields": {
+        "gid": 100,
+        "name": "袁术",
+        "resource": "10000",
+        "extend": "风林火山",
+        "hp": 4,
+        "initial_hp": 0,
+        "quality": "普通",
+        "figure": "群",
+        "figure_py": "qun",
+        "biography": "字公路，汝南汝阳人，袁绍之弟。初为虎贲[bēn]中郎将。董卓进京后以袁术为后将军，袁术因畏祸而出奔南阳。初平元年与袁绍、曹操等同时起兵，共讨董卓。后与袁绍对立，被袁绍、曹操击败，率馀众奔九江，割据扬州。建安二年称帝，建号仲氏。",
+        "characteristic": "能够在回合内获得大量的手牌，需要额外弃牌。没有牌时很脆弱，会成为敌人优先攻击的目标。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/100.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/10000.png",
+        "realname": "袁术 (风林火山)"
+      },
+      "galleryGroup": "myth-thunder",
+      "operationRange": [
+        1500,
+        1539
+      ],
+      "implementationStatus": "implementedMainFullAndRoutineVerified",
+      "scope": "newGeneral",
+      "artwork": {
+        "id": "10000",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/100",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/10000.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-yuan-shu.png",
+        "sha256": "0b2f83218462b5ea60de91ece0f696002092ce77142cec314502bb2937728b92",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "http": {
+          "status": 200,
+          "retrievedAt": "2026-10-01T20:04:07.654119+00:00",
+          "bytes": 746198,
+          "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/10000.png",
+          "replacedPreviousPortraitSha256": null
+        },
+        "status": "integratedCompiledResourceBytesAndRegisteredWpfFullVerified",
+        "boundary": "Official PNG bytes, dimensions, SHA and actual local pixels checked; exact embedded resource bytes in compiled WPF match. Registered offline WPF Full passed; each new portrait was not separately rendered in a game window."
+      }
+    },
+    {
+      "contentId": "classic:zhou-fei",
+      "officialId": 411,
+      "name": "周妃",
+      "maxHp": 3,
+      "faction": "wu",
+      "gender": "female",
+      "sourcePage": "https://www.sanguosha.com/hero/411",
+      "retrievedAt": "2026-10-01T18:13:04.683674+00:00",
+      "responseSha256": "abbeb2f0a2f893c340dd75ca787e32ac41a299acd5fab6a82bfe39e624355b80",
+      "officialSkillText": "武将技能：\n良姻\n箜声\n当每回合首次有牌移出/移入游戏后，你可以与一名其他角色各摸/弃置一张牌，然后你可以令其中一名手牌数为X的角色回复1点体力（X为“箜声”牌数）。\n准备阶段，你可以将任意张牌置于你的武将牌上。结束阶段，你获得“箜声”牌中的非装备牌，然后令一名角色使用剩余“箜声”牌并失去1点体力。\n",
+      "indexFields": {
+        "gid": 411,
+        "name": "周妃",
+        "resource": "41100",
+        "extend": "风林火山",
+        "hp": 3,
+        "initial_hp": 0,
+        "quality": "史诗",
+        "figure": "吴",
+        "figure_py": "wu",
+        "biography": "周瑜与小乔之女，生卒年不祥，一名为周彻，貌美贤淑，精通音律。黄武四年[公元225年），孙权为时年十七岁的王太子孙登聘娶她为太子妃，两人举行了极为隆重的婚礼。太常程秉负责主持婚礼，亲自以《关雎》教导孙登夫妇之道，在吴郡迎接周妃，一起乘大船顺江而上到武昌。孙权为表重视，也亲临程秉的船上，对周妃极为优待礼遇。周妃婚后与孙登琴瑟调和，与孙权二女孙鲁班、孙鲁育交好，她的两位兄弟周循和周辙也受到优待，先后娶了公主孙鲁班和宗室女为妻，周妃死后葬于句容县东南。",
+        "characteristic": "有存牌和辅助过牌能力，精准调节箜声牌数可以回血，同时也能用装备牌输出。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/411.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/41100.png",
+        "realname": "周妃 (风林火山)"
+      },
+      "galleryGroup": "myth-thunder",
+      "operationRange": [
+        1540,
+        1579
+      ],
+      "implementationStatus": "implementedMainFullAndRoutineVerified",
+      "scope": "newGeneral",
+      "artwork": {
+        "id": "41100",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/411",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/41100.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-zhou-fei.png",
+        "sha256": "9867aa089ab3fca92d249acb91f74348bf4c9bb31f65659f2fe82f197ad4e9e1",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "http": {
+          "status": 200,
+          "retrievedAt": "2026-10-01T20:04:07.684614+00:00",
+          "bytes": 1112106,
+          "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/41100.png",
+          "replacedPreviousPortraitSha256": null
+        },
+        "status": "integratedCompiledResourceBytesAndRegisteredWpfFullVerified",
+        "boundary": "Official PNG bytes, dimensions, SHA and actual local pixels checked; exact embedded resource bytes in compiled WPF match. Registered offline WPF Full passed; each new portrait was not separately rendered in a game window."
+      }
+    },
+    {
+      "contentId": "classic:zhang-xiu",
+      "officialId": 415,
+      "name": "张绣",
+      "maxHp": 4,
+      "faction": "qun",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/415",
+      "retrievedAt": "2026-10-01T19:09:33.764139+00:00",
+      "responseSha256": "4f1c85073b7dd756e6aadaa393ca2f5a4e3cdd11202b893040080325cfa7dc24",
+      "officialSkillText": "雄乱\n从谏\n限定技，出牌阶段，你可以指定一名其他角色并废除你的判定区和装备区，然后你本回合对其使用牌无距离和次数限制，其本回合不能使用和打出手牌。\n当你成为锦囊牌的目标时，若此牌的目标数大于1，你可以交给其中一名目标角色一张牌，然后摸一张牌，若你给出的牌是装备牌，改为摸两张牌。",
+      "indexFields": {
+        "gid": 415,
+        "name": "张绣",
+        "resource": "41500",
+        "extend": "风林火山",
+        "hp": 4,
+        "initial_hp": 0,
+        "quality": "传说",
+        "figure": "群",
+        "figure_py": "qun",
+        "biography": "（?—207年），武威祖厉人，骠骑将军张济的侄子，汉末群雄之一，割据宛城的军阀。\n张绣最初随张济征伐，张济死后与刘表联合，后来在贾诩的建议下投降曹操。但曹操强纳了张济的遗孀邹氏，张绣觉得很羞辱，于是突袭曹操，曹操战败，长子曹昂、侄子曹安民和猛将典韦都死于此役。张绣引兵追击，被曹操击退，于是退回防守穰[ráng]城，再次与刘表联盟。\n官渡之战前夕，张绣听从贾诩的建议再次投降曹操，曹操不计前嫌，欣然接纳，还与张绣结为儿女亲家。张绣随后参加了官渡之战，官至破羌将军，封宣威侯，每次作战立功得到的赏赐都超过他人。\n207年，张绣跟随曹操北征乌桓，于途中去世，谥号定侯。",
+        "characteristic": "爆发一波能秒人",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/415.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/41500.png",
+        "realname": "张绣 (风林火山)"
+      },
+      "galleryGroup": "myth-thunder",
+      "operationRange": [
+        1580,
+        1599
+      ],
+      "implementationStatus": "implementedMainFullAndRoutineVerified",
+      "scope": "addMissingCongjianPreserveXiongluan",
+      "artwork": {
+        "id": "41500",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/415",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/41500.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-zhang-xiu.png",
+        "sha256": "732813097c02abad018562bea433e6ddeb5088a8addefc1d2a91ff995c1f8bce",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "http": {
+          "status": 200,
+          "retrievedAt": "2026-10-01T20:04:07.660410+00:00",
+          "bytes": 909638,
+          "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/41500.png",
+          "replacedPreviousPortraitSha256": "692bcb8d33dfbc9ad267f501c06b730e76e6238496fa1b11096417cc0ee68012"
+        },
+        "status": "integratedCompiledResourceBytesAndRegisteredWpfFullVerified",
+        "boundary": "Official PNG bytes, dimensions, SHA and actual local pixels checked; exact embedded resource bytes in compiled WPF match. Registered offline WPF Full passed; each new portrait was not separately rendered in a game window."
+      }
+    }
+  ],
+  "dispatch": {
+    "baselineHead": "25e4d368f2986470602c1f3d977d050ffb071a1d",
+    "baselineManifestSha256": "2f84e55435f363dc6b4b6b2a72ce012ffb4c636447308b5553764477bde1b0e6",
+    "baselineFiles": 3431
+  },
+  "engineeringContract": "../skill-composition/FENG_LIN_FIFTH_CAPABILITIES.md",
+  "rulesInterpretationsAreExplicitEngineeringContract": true,
+  "zhouFeiZeroEquipmentDecision": "User explicitly chose lose1 HP only after actual equipment use in this conversation.",
+  "primaryUpdateSource": "https://www.sanguosha.com/news/20221031_1011_3010",
+  "engineeringBoundary": "Current ordinary OL primary text, explicit source/pile/game-domain contract and user actual-use HP decision. Main Full and measured routine passed; offline WPF is not live client match acceptance.",
+  "frozenRuntimeDeliveries": [
+    {
+      "key": "congjian",
+      "manifestSha256": "df217018b89cf1d28d7b5c16c273b0c2e2cd9833fcf07f1ce4c227ae5265c8e3",
+      "directory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFifth-20261002\\zhangxiu\\delivery\\congjian-final"
+    },
+    {
+      "key": "zhoufei-v2-final",
+      "manifestSha256": "7bdd3a1eb39e8c211fe54e3bd2ff2d9458137ada30c9adb220218cc4e6c84987",
+      "directory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFifth-20261002\\zhoufei\\delivery-v2\\zhoufei-final",
+      "deltaManifestSha256": "ce97bf4384bb95066526a60c5e300009455d57c305491a85476518f364a21669"
+    },
+    {
+      "key": "yuanshu-v2",
+      "manifestSha256": "52d1e7b5f6a5d885ae78218f428c046e54a6ff743c6b3966de3e88d0b3654471",
+      "directory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFifth-20261002\\yuanshu\\delivery-v2"
+    }
+  ],
+  "parentTargetedEvidence": {
+    "status": "passed",
+    "mode": "targeted",
+    "repository": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFifth-20261002\\parent-integration",
+    "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFifth-20261002\\validation-parent-targeted-01",
+    "coreFilters": [
+      "Feng Lin Yuan Shu",
+      "Feng Lin Zhou Fei",
+      "Feng Lin Congjian",
+      "Feng Lin Sun Liang",
+      "Zhang Xiu Xiongluan",
+      "skill program multi-target triggers wait for every Liuli redirection",
+      "match skill binding sources",
+      "content registry compiles",
+      "skill program contributions bind",
+      "nested card movement batches",
+      "card movement programs compose",
+      "prepared snapshot"
+    ],
+    "wpfFilters": [
+      "original card artwork",
+      "public pile",
+      "response context"
+    ],
+    "startedAt": "2026-10-02T04:47:31.8250999+08:00",
+    "durationMs": 25970,
+    "message": null,
+    "results": [
+      {
+        "name": "Build selected scope",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 8642,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFifth-20261002\\validation-parent-targeted-01\\logs\\build.log"
+      },
+      {
+        "name": "Core selected checks (12 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 10195,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFifth-20261002\\validation-parent-targeted-01\\logs\\core-selected.log"
+      },
+      {
+        "name": "WPF selected checks (3 filters, union)",
+        "status": "passed",
+        "exitCode": 0,
+        "durationMs": 7086,
+        "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFifth-20261002\\validation-parent-targeted-01\\logs\\wpf-selected.log"
+      }
+    ]
+  },
+  "verificationLimits": [
+    "No current OL client match or interactive desktop acceptance.",
+    "Zhou Fei one-batch simultaneous opposite directions, later skill acquisition after first crossing, X=0 healing and first cost removed before payment are not independently exercised. Same-source multiple-pile association is covered by a direct mechanism fixture, not external-mutation command replay.",
+    "Individual remaining combinations are listed in frozen delivery READMEs; static review is distinguished from executed behavior checks."
+  ],
+  "parentTargetedResults": {
+    "corePassed": 39,
+    "wpfPassed": 6,
+    "durationMs": 25970,
+    "summary": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFifth-20261002\\validation-parent-targeted-01\\summary.json",
+    "boundary": "Actual union run on all three integrated production paths; existing WPF public pile/private response/artwork controls, no new character UI test or live desktop acceptance."
+  },
+  "reviewRepairs": [
+    {
+      "issue": "Stable but upstream-ineligible Lord projection counted by awakening; removed projection recreated by sync.",
+      "repair": "Only projected ownership gets qualification filter; chosen lost projection keeps independent local disable.",
+      "verification": "Actual awakening, source suppression, later rule advancement and command checkpoint checked."
+    },
+    {
+      "issue": "Projected contribution did not explicitly attribute exact instance.",
+      "repair": "Resolve and recheck exact eligible instance before payment; only projected receipt sets null-omitted field.",
+      "verification": "Actual Huangtian contribution and old payload omission checked."
+    },
+    {
+      "issue": "Multiple same-source independent referenced piles caused SingleOrDefault failure.",
+      "repair": "Freeze exact referenced skill/instance and existing location on owning DomainCrossing draft, preferring exact instance then stable same-source order; child completion reads only its current count.",
+      "verification": "Direct grant/source/zone mechanism fixture covers reverse insertion, later creation and a later earlier-sorted grant without reselecting; original 7 command/replay checks pass. Not claimed as replay of external fixture mutation."
+    }
+  ],
+  "mainAcceptance": {
+    "baseHead": "25e4d368f2986470602c1f3d977d050ffb071a1d",
+    "sourceWritebackProof": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFifth-20261002\\main-writeback-applied.json",
+    "sourceDriftBeforeDocumentation": [],
+    "full": {
+      "corePassed": 390,
+      "wpfPassed": 46,
+      "coreFailed": 0,
+      "wpfFailed": 0,
+      "durationMs": 140110,
+      "summary": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFifth-20261002\\main-full-evidence\\summary.json",
+      "rawEvidenceSha256": [
+        {
+          "path": "logs\\build.log",
+          "sha256": "e42e40e70d158a3dda3c721ec7552ef7c5be93ce97e3abe25f5a698118fc4407"
+        },
+        {
+          "path": "logs\\core-full.log",
+          "sha256": "b866a7f9236cce45b1ac17e4fd1ac4a06a48d64cd7c8fbaea490d125b409c081"
+        },
+        {
+          "path": "logs\\wpf-full.log",
+          "sha256": "5ec835d35330af615a0e237ae103cfc34e80a4cc151bf7d857cba2cf4131242a"
+        },
+        {
+          "path": "summary.json",
+          "sha256": "d4f625a78024d277a2732949915fa463181d557f6f7b3c31b5b5edb3a80f9eda"
+        }
+      ]
+    },
+    "routine": {
+      "corePassed": 106,
+      "wpfPassed": 12,
+      "coreFailed": 0,
+      "wpfFailed": 0,
+      "durationMs": 45777,
+      "summary": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFifth-20261002\\main-routine-evidence\\summary.json",
+      "rawEvidenceSha256": [
+        {
+          "path": "logs\\build.log",
+          "sha256": "69e4d9ff65c71d8128d0f56edcdc24a9f2d8b7e255d71e9c9392a1efa420e13d"
+        },
+        {
+          "path": "logs\\core-selected.log",
+          "sha256": "bd25989d4e174bf397f52f57d39fa5d9af870265a1d02835328d38ac841aa132"
+        },
+        {
+          "path": "logs\\wpf-selected.log",
+          "sha256": "057a1e38819f7e011450ec3f46943920e7a974e61af8875bf5495b42b793ac81"
+        },
+        {
+          "path": "summary.json",
+          "sha256": "6f86e50fefe3854fd279c123234980bcbc5f719b93f1c24d7e3a3abcb361403e"
+        }
+      ],
+      "incrementalBuild": true
+    },
+    "acceptedAt": "2026-10-01T20:57:29.875181+00:00",
+    "boundary": "Offline Core/WPF verification; no live OL client match or interactive desktop acceptance. Explicit user rule actual equipment use before HP loss. Remaining combinations documented in source/benchmark and frozen READMEs. No push/release."
+  },
+  "compiledArtworkEvidence": {
+    "Assembly": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFifth-20261002\\validation-main-full-01\\bin\\CardGame.Wpf\\release\\CardGame.Wpf.dll",
+    "AssemblySha256": "a133f441acfb60b27c6cb2c5ba23342c1d1997bcc5a3ef2773f6a5475a959fd8",
+    "VerifiedAt": "2026-10-02T04:57:29.5325148+08:00",
+    "Resources": [
+      {
+        "Resource": "assets/official-yuan-shu.png",
+        "Bytes": 746198,
+        "Sha256": "0b2f83218462b5ea60de91ece0f696002092ce77142cec314502bb2937728b92",
+        "MatchesOfficialFrozen": true
+      },
+      {
+        "Resource": "assets/official-zhou-fei.png",
+        "Bytes": 1112106,
+        "Sha256": "9867aa089ab3fca92d249acb91f74348bf4c9bb31f65659f2fe82f197ad4e9e1",
+        "MatchesOfficialFrozen": true
+      },
+      {
+        "Resource": "assets/official-zhang-xiu.png",
+        "Bytes": 909638,
+        "Sha256": "732813097c02abad018562bea433e6ddeb5088a8addefc1d2a91ff995c1f8bce",
+        "MatchesOfficialFrozen": true
+      }
+    ],
+    "Boundary": "Exact compiled WPF resource bytes verified against the official frozen PNGs. Does not establish visual rendering of each new portrait or a live desktop match."
+  }
+}

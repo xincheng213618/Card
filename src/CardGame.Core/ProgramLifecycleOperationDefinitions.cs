@@ -326,7 +326,7 @@ internal sealed class AdjustNormalDrawProgramOperationDescriptor : ProgramOperat
         r.AllowOnly("op", "target", "amount", "numberExpression", "condition");
         var expression = r.Has("numberExpression")
             ? r.RequiredEnum<SkillProgramNumberExpression>("numberExpression") : (SkillProgramNumberExpression?)null;
-        if (expression is not null and not SkillProgramNumberExpression.SelectedTargetCount)
+        if (expression is not null and not SkillProgramNumberExpression.SelectedTargetCount and not SkillProgramNumberExpression.LivingFactionCount)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.numberExpression: only selectedTargetCount is supported.");
         var amount = r.Has("amount") ? r.RequiredInt("amount") : 0;
         if (expression is null && amount is < -20 or > 20 || expression is null && amount == 0 ||

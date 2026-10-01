@@ -307,10 +307,12 @@ public sealed partial class GameEngine
             .Where(skill => skill.SuppressionRule is not null)
             .Select(skill => skill.Id)
             .ToHashSet(StringComparer.Ordinal);
+        _hasLordProjectionCapability = contentRegistry.Skills.Values.Any(s => s.Program?.LordSkillProjection == true);
         _skillBindingIndex = new MatchSkillBindingIndex(
             contentRegistry.GetSkill,
             IsNationalWarMode,
-            player => player.SkillGrants.HasEnabledSkill(hpSensitiveSkillIds));
+            player => player.SkillGrants.HasEnabledSkill(hpSensitiveSkillIds),
+            IsProjectedGrantQualified, CaptureLordProjectionDependencyStamp);
         var deckDefinition = ResolveDeckDefinition(
             contentRegistry,
             options.DeckId ?? _modeDefinition.DeckId);
@@ -13534,6 +13536,7 @@ public sealed partial class GameEngine
     {
         var dyingResponse = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == frameId).DyingResponse;
         PopResolutionFrame(frameId, ResolutionFrameKind.CardUse);
+        ContinueProgramAfterPileEquipmentUse(frameId);
         ContinueProgramAfterRandomEquipmentUse();
         ContinueProgramAfterSelectedCardUse();
         if (dyingResponse is not null) CompleteDyingCardResponse(dyingResponse);
@@ -16571,6 +16574,7 @@ public sealed partial class GameEngine
     {
         var index = _resolutionStack.Count - 1;
         while (index >= 1 && (DamageFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) ||
+               PileEquipmentFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) ||
                RandomEquipmentFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) ||
                includeNestedObservers && DamageObserverRidesOn(_resolutionStack[index], _resolutionStack[index - 1])))
             index--;

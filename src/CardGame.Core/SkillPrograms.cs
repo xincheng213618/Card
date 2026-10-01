@@ -172,10 +172,12 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    GiveOwnedCardToOtherFinalTargetAndDraw = 1580,
     DiscardNonFinalTargetCardThenDraw = 1440, DiscardHandToNamedTurnCount = 1441,
     CollectFinalTargetCardInPublicPile = 1380, ExchangePublicPileHand = 1381, ObtainPublicPileCard = 1382, DiscardPublicZoneAfterHandPayment = 1383,
     CommitConversionPolarity = 1460, GiveSelectedOwnedCardAndDamage = 1461, ObserveDamageSourceHandAndGive = 1462, DrawToHandCount = 1463,
     AlternatingSuitDrawDiscard = 1420, FirstCategoryCompletedTop = 1421,
+    StoreArbitraryOwnedPublicPile = 1541, ResolveFirstGameDomainCrossing = 1540, UsePublicPileEquipmentSequence = 1542,
     StoreBoundHandInPublicPile = 1480, PublicPileColorDamage = 1481, RewardDiscardedActionColor = 1482, AwaitOwnedCardMovement = 1483,
     PeekTurnQuotaTop = 1320,
     NullifyFirstTurnTargetByHand = 1321,
@@ -389,6 +391,7 @@ public enum SkillProgramTriggerWindow
     AfterHpLost,
     AfterHpRecovered,
     CharacterDied,
+    FirstGameDomainCrossing = 1540,
     GameStarting = 400,
     DyingEntered,
     DyingExited,
@@ -1395,11 +1398,12 @@ public sealed class SkillProgram
         IReadOnlyList<SkillProgramCardIdentity> cardIdentities,
         IReadOnlyList<SkillProgramBooleanStateDefinition>? booleanStates = null,
         IReadOnlyList<SkillProgramDamageModifier>? damageModifiers = null,
-        IReadOnlyList<SkillProgramCardPolicy>? cardPolicies = null) =>
+        IReadOnlyList<SkillProgramCardPolicy>? cardPolicies = null, bool lordSkillProjection = false) =>
         (Id, Revision, GameplayHash, RuntimeVersion, MinimumRulesVersion, Modifiers, ViewAs, Activations, Triggers,
-            Contributions, CardIdentities, BooleanStates, DamageModifiers, CardPolicies) =
+            Contributions, CardIdentities, BooleanStates, DamageModifiers, CardPolicies, LordSkillProjection) =
         (id, revision, gameplayHash, runtimeVersion, minimumRulesVersion, modifiers, viewAs, activations, triggers,
-            contributions, cardIdentities, booleanStates ?? [], damageModifiers ?? [], cardPolicies ?? []);
+            contributions, cardIdentities, booleanStates ?? [], damageModifiers ?? [], cardPolicies ?? [], lordSkillProjection);
+    public bool LordSkillProjection { get; }
     public string Id { get; }
     public int Revision { get; }
     public string GameplayHash { get; }
@@ -1511,7 +1515,7 @@ public sealed class SkillProgramCatalog
             RequireObject(skill, path);
             CheckProperties(skill, path, "id", "revision", "minimumRulesVersion", "modifiers",
                 "damageModifiers", "viewAs", "activations", "triggers", "contributions",
-                "cardIdentities", "states", "cardPolicies");
+                "cardIdentities", "states", "cardPolicies", "lordSkillProjection");
             var id = Identifier(skill, "id", path);
             var skillPath = $"skill '{id}' ({path})";
             if (result.ContainsKey(id)) Fail(skillPath, $"duplicate skill id '{id}'");
@@ -1539,7 +1543,7 @@ public sealed class SkillProgramCatalog
             var booleanStates = ReadArray(skill, "states", skillPath, ParseBooleanState, optional: true);
             if (modifiers.Count == 0 && viewAs.Count == 0 && activations.Count == 0 && triggers.Count == 0 &&
                 contributions.Count == 0 && cardIdentities.Count == 0 && damageModifiers.Count == 0 &&
-                cardPolicies.Count == 0)
+                cardPolicies.Count == 0 && !(skill.TryGetProperty("lordSkillProjection", out _) && RequiredBool(skill, "lordSkillProjection", skillPath)))
                 Fail(skillPath, "must define at least one modifier, viewAs rule, activation, trigger, contribution, or card identity");
             EnsureUniqueIds(modifiers.Select(item => item.Id), skillPath + ".modifiers");
             EnsureUniqueIds(damageModifiers.Select(item => item.Id), skillPath + ".damageModifiers");
@@ -1615,7 +1619,7 @@ public sealed class SkillProgramCatalog
                 modifiers, viewAs, activations, triggers, contributions, cardIdentities,
                 booleanStates: booleanStates,
                 damageModifiers: damageModifiers,
-                cardPolicies: cardPolicies));
+                cardPolicies: cardPolicies, lordSkillProjection: (skill.TryGetProperty("lordSkillProjection", out _) && RequiredBool(skill, "lordSkillProjection", skillPath))));
         }
         var conversionStates = result.Values.SelectMany(program => program.ViewAs)
             .Where(rule => rule.ConversionStateId is not null).Select(rule => rule.ConversionStateId!).ToHashSet(StringComparer.Ordinal);
@@ -2481,7 +2485,7 @@ public sealed class SkillProgramCatalog
             if (cardCategories.Count == 0 || cardCategories.Distinct().Count() != cardCategories.Count)
                 Fail(path + ".cardCategories", "must contain distinct card categories");
         }
-        var isLifecycleWindow = window == SkillProgramTriggerWindow.ProgramTargetCommitted || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
+        var isLifecycleWindow = window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
             SkillProgramTriggerWindow.DyingEntering or SkillProgramTriggerWindow.DyingEntered or SkillProgramTriggerWindow.DyingExited or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or
@@ -2499,7 +2503,7 @@ public sealed class SkillProgramCatalog
             SkillProgramTriggerWindow.CharacterDied or
             SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.JudgmentPhaseStarting or
             SkillProgramTriggerWindow.CharacterTurnedFaceUp or SkillProgramTriggerWindow.CharacterEnteredChain;
-        var supportsTriggerCondition = window == SkillProgramTriggerWindow.ProgramTargetCommitted || isCardActionWindow || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
+        var supportsTriggerCondition = window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isCardActionWindow || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
             SkillProgramTriggerWindow.DyingEntering or SkillProgramTriggerWindow.DyingEntered or SkillProgramTriggerWindow.DyingExited or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or

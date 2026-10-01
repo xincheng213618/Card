@@ -103,6 +103,12 @@ public sealed record ProgramSkillFrame(
     public SkillPolarity? ConversionPreviousPolarity { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramConvertingGiftDraft? ConvertingGift { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramFinalTargetGiftDraft? FinalTargetGift { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramDomainCrossingDraft? DomainCrossing { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramPileEquipmentDraft? PileEquipment { get; init; }
 
     /// <summary>Null for a play activation; otherwise the stable trigger/binding id.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

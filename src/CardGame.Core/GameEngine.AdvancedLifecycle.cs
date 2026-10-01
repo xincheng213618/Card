@@ -46,11 +46,11 @@ public sealed partial class GameEngine
                 DrawCards(owner, grants.Select(grant => grant.SkillId).Distinct(StringComparer.Ordinal).Count(), true);
                 return SkillProgramStepOutcome.Continue;
             case SkillProgramEffectOp.ReplaceSkillsOnAwakening:
-                if (owner.SkillGrants.EffectiveSkillIds.Count <= owner.MaxHp ||
+                if (AdvancedOwnedSkillIds(owner).Count <= owner.MaxHp ||
                     !_skillRuntimeState.TryConsumeUsage(owner.Seat, frame.SkillId, "awakening", SkillUsageScope.Game, 1))
                     return SkillProgramStepOutcome.Continue;
                 ChangeProgramMaximumHp(frame, -1);
-                return BeginAdvancedSelection(frame, effect, owner.SkillGrants.EffectiveSkillIds.Where(id => id != frame.SkillId).ToArray());
+                return BeginAdvancedSelection(frame, effect, AdvancedOwnedSkillIds(owner).Where(id => id != frame.SkillId).ToArray());
             case SkillProgramEffectOp.AccumulateCardRank:
                 var context = frame.WindowContext?.CardUse;
                 var action = _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().LastOrDefault()?.Action ??
@@ -152,4 +152,3 @@ internal static class RankSubsetSearch
         return possible[target];
     }
 }
-

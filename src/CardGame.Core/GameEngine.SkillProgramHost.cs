@@ -510,6 +510,8 @@ public sealed partial class GameEngine
             engine.TakeProgramRandomCardFromEveryOtherCharacter(
                 frameId, ownerSeat, zones, reason);
 
+        public void AdjustNormalDrawByLivingFactionCount(ProgramSkillFrame frame) => engine.AdjustProgramNormalDraw(frame, engine.GetLivingFactionCount());
+
         public void AdjustNormalDraw(ProgramSkillFrame frame, int amount) =>
             engine.AdjustProgramNormalDraw(frame, amount);
 

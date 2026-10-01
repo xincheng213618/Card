@@ -88,7 +88,7 @@ public static class GeneralGalleryCatalog
         Add("sp", "gongsun-zan");
         groups.Add("sp:le-jin", "sp");
         Add("myth-yin", "yan-yan wang-ping lu-ji sun-liang xu-you wang-ji kuai-yue-kuai-liang lu-zhi");
-        Add("myth-thunder", "hao-zhao zhuge-zhan chen-dao guanqiu-jian lu-kang");
+        Add("myth-thunder", "hao-zhao zhuge-zhan chen-dao guanqiu-jian lu-kang yuan-shu zhou-fei zhang-xiu");
         groups.Add("boundary:zhang-jiao", "boundary");
         groups.Add("boundary:sima-yi", "boundary");
         groups.Add("boundary:diao-chan", "boundary");

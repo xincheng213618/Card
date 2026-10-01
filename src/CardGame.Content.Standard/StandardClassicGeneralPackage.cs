@@ -39,7 +39,9 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         new(FengLinGuanqiuJianContent.Register),
         new(FengLinWangJiContent.Register),
         new(FengLinKuaiYueKuaiLiangContent.Register),
-        new(FengLinLuZhiContent.Register)
+        new(FengLinLuZhiContent.Register),
+        new(FengLinYuanShuContent.Register),
+        new(FengLinZhouFeiContent.Register)
     ];
 
     private static SkillProgramCatalog ClassicShenLuMengCatalog =>
@@ -991,6 +993,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             EmbeddedSkillProgramCatalog.Definition("classic-zhang-xiu", "classic:xiongluan"),
             SkillTag.Limited, SkillExecutionForm.State) with
         { ActionForms = SkillActionForm.Active });
+        builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("classic-zhang-xiu", "classic:congjian"));
         builder.AddSkill(WithStructuredSkillMetadata(
             EmbeddedSkillProgramCatalog.Definition("classic-jia-xu", "classic:wansha"),
             SkillTag.Locked, SkillExecutionForm.State));
@@ -1801,7 +1804,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
 
         builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:zhang-xiu", "张绣", "zhang_xiu",
-                "classic:xiongluan", "qun", BaseHp: 4));
+                "classic:xiongluan", "qun", BaseHp: 4, AdditionalSkillIds: ["classic:congjian"]));
 
         builder.AddGeneral(new ContentGeneralDefinition(
                 "classic:jia-xu", "贾诩", "jia_xu",

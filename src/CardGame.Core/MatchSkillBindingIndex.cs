@@ -9,7 +9,7 @@ internal readonly record struct SkillBindingIndexStamp(
     bool PrimaryRevealed,
     bool HasSecondary,
     bool SecondarySelected,
-    bool SecondaryRevealed);
+    bool SecondaryRevealed, long ProjectionRevision = 0);
 
 internal sealed record IndexedSkillProgramInstance(
     string SkillId,
@@ -152,18 +152,22 @@ internal sealed class MatchSkillBindingIndex
     private readonly Func<string, ContentSkillDefinition> _resolveDefinition;
     private readonly bool _isNationalWarMode;
     private readonly Func<CharacterState, bool>? _hasHpSensitiveSuppression;
+    private readonly Func<CharacterState, SkillGrant, bool>? _grantQualification;
+    private readonly Func<long>? _projectionStamp;
     private readonly Dictionary<int, SkillBindingShard> _shards = [];
     private readonly Dictionary<int, int> _rebuildCounts = [];
 
     internal MatchSkillBindingIndex(
         Func<string, ContentSkillDefinition> resolveDefinition,
         bool isNationalWarMode,
-        Func<CharacterState, bool>? hasHpSensitiveSuppression = null)
+        Func<CharacterState, bool>? hasHpSensitiveSuppression = null,
+        Func<CharacterState, SkillGrant, bool>? grantQualification = null, Func<long>? projectionStamp = null)
     {
         ArgumentNullException.ThrowIfNull(resolveDefinition);
         _resolveDefinition = resolveDefinition;
         _isNationalWarMode = isNationalWarMode;
         _hasHpSensitiveSuppression = hasHpSensitiveSuppression;
+        _grantQualification = grantQualification; _projectionStamp = projectionStamp;
     }
 
     internal int CachedSeatCount => _shards.Count;
@@ -175,7 +179,8 @@ internal sealed class MatchSkillBindingIndex
         ArgumentNullException.ThrowIfNull(player);
         var stamp = CaptureStamp(player) with
         {
-            CurrentHp = _hasHpSensitiveSuppression?.Invoke(player) == true ? player.Hp : 0
+            CurrentHp = _hasHpSensitiveSuppression?.Invoke(player) == true ? player.Hp : 0,
+            ProjectionRevision = _projectionStamp?.Invoke() ?? 0
         };
         if (_shards.TryGetValue(player.Seat, out var existing) && existing.Stamp == stamp)
             return existing;
@@ -202,7 +207,7 @@ internal sealed class MatchSkillBindingIndex
         var resolvedDefinitions = new Dictionary<string, ContentSkillDefinition>(StringComparer.Ordinal);
         foreach (var grant in player.SkillGrants.Grants)
         {
-            if (!grant.IsEnabled || !CanUseSource(player, grant.SourceId)) continue;
+            if (!grant.IsEnabled || !CanUseSource(player, grant.SourceId) || _grantQualification?.Invoke(player, grant) == false) continue;
             if (!resolvedDefinitions.TryGetValue(grant.SkillId, out var definition))
             {
                 definition = _resolveDefinition(grant.SkillId);

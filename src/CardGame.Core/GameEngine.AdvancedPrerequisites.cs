@@ -7,7 +7,7 @@ public sealed partial class GameEngine
         foreach (var effect in trigger.Effects)
         {
             if (effect.Op == SkillProgramEffectOp.ReplaceSkillsOnAwakening &&
-                (owner.SkillGrants.EffectiveSkillIds.Count <= owner.MaxHp ||
+                (AdvancedOwnedSkillIds(owner).Count <= owner.MaxHp ||
                  _skillRuntimeState.GetUsage(owner.Seat, skillId, "awakening", SkillUsageScope.Game) > 0)) return false;
             if (effect.Op == SkillProgramEffectOp.ObtainDeckRankSum &&
                 (effect.Marker is not { } marker || owner.Markers.GetValueOrDefault(marker) <= _cardZones.Count(CardLocation.DrawPile) ||

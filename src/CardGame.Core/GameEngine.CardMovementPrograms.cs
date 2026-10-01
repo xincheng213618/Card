@@ -62,6 +62,7 @@ public sealed partial class GameEngine
                 _cardZones.Count(item.Key)))
             .ToArray();
         CaptureActionDiscardFact(batch.Id,batch.TurnNumber,movements);
+        CaptureFirstGameDomainCrossings(batch.Id,batch.TurnNumber,movements);
         _pendingCardsMovedBatches.Add(new CardMovementBatchContext(
             batch.Id,
             batch.ParentFrameId,
@@ -111,7 +112,7 @@ public sealed partial class GameEngine
             var batch = _pendingCardsMovedBatches.Where(Eligible).OrderBy(item => item.Id).First();
             _pendingCardsMovedBatches.Remove(batch);
             var candidates = CollectCardsMovedProgramCandidates(batch);
-            candidates = candidates.Concat(CollectDiscardPileReceivedCandidates(batch)).ToArray();
+            candidates = candidates.Concat(CollectDiscardPileReceivedCandidates(batch)).Concat(CollectFirstDomainCandidates(batch)).ToArray();
             if (candidates.Count == 0) continue;
             var window = new CardsMovedTriggerWindowFrame(batch.Id, batch, candidates,
                 ResumeProgramFrameId: awaitingFrame is not null && !IsAwaitingProgramMovement(awaitingFrame)
@@ -321,6 +322,7 @@ public sealed partial class GameEngine
     {
         if (frame.Contexts is { } contexts) return contexts[frame.CandidateIndex];
         var trigger = GetProgramTrigger(candidate);
+        if (trigger.Window == SkillProgramTriggerWindow.FirstGameDomainCrossing) return CreateFirstDomainContext(frame,candidate);
         if (trigger.Window == SkillProgramTriggerWindow.DiscardPileReceived)
         {
             var movement = frame.Batch.Movements[candidate.OccurrenceIndex];

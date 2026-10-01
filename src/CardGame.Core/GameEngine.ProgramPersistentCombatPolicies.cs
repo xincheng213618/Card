@@ -48,7 +48,7 @@ public sealed partial class GameEngine
 
     private void GrantProgramGameFactionAttackRangeTargets(ProgramSkillFrame frame, string factionId)
     {
-        if (_players[frame.OwnerSeat].Role != Role.Lord || frame.SelectedTargetSeats.Count is < 1 or > 2 ||
+        if (!HasSkillRoleQualification(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId, Role.Lord) || frame.SelectedTargetSeats.Count is < 1 or > 2 ||
             frame.SelectedTargetSeats.Distinct().Count() != frame.SelectedTargetSeats.Count ||
             frame.SelectedTargetSeats.Any(seat => !IsValidPlayerSeat(seat) || !_players[seat].IsAlive))
             throw new InvalidOperationException("A game-long faction range grant requires a lord and one or two distinct living targets.");

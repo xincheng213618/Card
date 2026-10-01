@@ -224,6 +224,14 @@ internal sealed class ProgramAiEstimateContext
             _bindings[bind] = UnknownCards(amount, ownerHeld: true);
     }
 
+    internal void FinalTargetGift()
+    {
+        _givesSelected = true;
+        _targetDraw += 1d;
+        // Public estimate only: one paid entity and a bounded two-category reward prior.
+        _ownerDraw += 0.5d;
+    }
+
     internal void ConvertingGiftDamage(int handLimit)
     {
         _givesSelected = true;
@@ -404,6 +412,7 @@ internal sealed class ProgramAiEstimateContext
             {
                 SkillProgramNumberExpression.OwnerLostHp => Math.Max(0, _player.MaxHp - _player.Hp),
                 SkillProgramNumberExpression.HandHalfFloor => (int)(_estimatedHandCount / 2d),
+                SkillProgramNumberExpression.LivingFactionCount => _publicContext.LivingFactionCount,
                 SkillProgramNumberExpression.LivingPlayersMinHp =>
                     _publicContext.LivingPlayersMinHp ?? _player.Hp,
                 SkillProgramNumberExpression.SelectedPairHandDifference => Math.Max(0,
@@ -476,7 +485,8 @@ internal sealed class ProgramAiEstimateContext
 
     internal void AdjustNormalDraw(SkillProgramEffect effect) =>
         _ownerDraw += effect.NumberExpression == SkillProgramNumberExpression.SelectedTargetCount
-            ? -(_estimatedSelectedTargetCount ?? 1) : effect.Amount;
+            ? -(_estimatedSelectedTargetCount ?? 1) : effect.NumberExpression == SkillProgramNumberExpression.LivingFactionCount
+                ? _publicContext.LivingFactionCount : effect.Amount;
 
     internal void GrantTurnCardDamageModifier(SkillProgramEffect effect) =>
         _otherAdjustment += effect.Amount *

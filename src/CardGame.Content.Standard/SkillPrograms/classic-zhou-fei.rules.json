@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:liangyin",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "first-domain",
+          "window": "firstGameDomainCrossing",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "resolveFirstGameDomainCrossing",
+              "target": "owner",
+              "skillIds": [
+                "classic:kongsheng"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:kongsheng",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "store",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "storeArbitraryOwnedPublicPile",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "equipment",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "usePublicPileEquipmentSequence",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

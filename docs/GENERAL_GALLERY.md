@@ -62,3 +62,5 @@ dotnet .artifacts\gallery-redesign\bin\CardGame.Wpf.Tests\release\CardGame.Wpf.T
 下载及复验工具：`tools/sync_general_art.py`；详情素材提取：`tools/extract_gallery_ui_assets.py`。原游戏的列传、稀有度、兑换价格、排名和语音未接入。
 
 `GeneralPortraitChecks` 覆盖全部正式立绘存在、错误人物借图消除、详情大图、皮肤点击、选择高亮、前后导航、1120×740 布局、选将与对局共享、对局状态不变、重开恢复及无效皮肤回退。另跑图鉴、偏好、暗将隐私、选将预览和新界武将相关 WPF 检查，共 14 条通过；预览为真实 WPF 控件离屏渲染，尚非桌面人工试玩。包验收另检查所有皮肤内容文件随包携带，并从解压目录实际解码可选皮肤。
+
+- 2026-10-02 普通OL雷包最后缺口为袁术、周妃两名新将与张绣从谏；雷组显式包含这三位及郝昭、诸葛瞻、陈到、毌丘俭、陆抗。张绣保留雄乱并补从谏，当前官网415立绘替换历史素材。技能整合与最终验收以第五批source/benchmark状态为准，名单分类不代表提前完成。

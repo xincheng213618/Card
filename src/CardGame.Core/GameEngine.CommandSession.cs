@@ -54,6 +54,7 @@ public sealed partial class GameEngine
         try
         {
             operation();
+            SynchronizeLordSkillProjections();
             AssertCoreInvariants();
 
             // Nothing is visible to callbacks yet. Project with the new decision

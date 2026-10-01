@@ -29,6 +29,17 @@
           ]
         }
       ]
+    },
+    {
+      "id": "classic:congjian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "give-final-target", "window": "cardUseTargetsFinalized", "ownerRelation": "target", "optional": true,
+          "cardCategories": ["trick"],
+          "effects": [{ "op": "giveOwnedCardToOtherFinalTargetAndDraw", "target": "owner" }]
+        }
+      ]
     }
   ]
 }

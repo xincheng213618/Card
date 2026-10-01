@@ -6,6 +6,7 @@ public sealed partial class GameEngine
     // so they run before the event is queued for committed observers.
     private void AdvanceEventRulesAndQueueFact(IGameEvent payload)
     {
+        SynchronizeLordSkillProjections();
         ObserveProgramHealthChange(payload);
         ObserveAdvancedLifecycleEvent(payload);
         ObserveBeneficiarySuitShield(payload);
@@ -23,6 +24,7 @@ public sealed partial class GameEngine
     // opened implicitly, then captures the resulting state for notification.
     private void AdvanceRulesAndPublishState()
     {
+        SynchronizeLordSkillProjections();
         CleanupIssuedPlayPhaseUseBans();
         CleanupLostDeferredPileSources();
         CleanupLostPublicPersistentPiles();

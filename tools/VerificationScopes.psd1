@@ -16,7 +16,12 @@
         'ordered nested native owner', 'payment nested comparison', 'first target history',
         'program conversion polarity shared state and replay',
         'Feng Lin Lu Zhi actual discard entry boundaries',
-        'Ending child gift joins current boundary'
+        'Ending child gift joins current boundary',
+        'Feng Lin Yuan Shu command loss regrant source suppression',
+        'Feng Lin Yuan Shu qualified awakening persistent local loss',
+        'Feng Lin Zhou Fei first domains and true equipment sequence',
+        'Feng Lin Zhou Fei same-source association freeze',
+        'Feng Lin Congjian Equipment gift nested replay'
     )
     Wpf = @(
         'original card artwork', 'composed skills', 'conversion choices',
