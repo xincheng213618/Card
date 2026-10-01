@@ -266,6 +266,8 @@ public sealed partial class MainViewModel
         var human = _snapshot?.Players.SingleOrDefault(player => player.IsHuman);
         if (human is not null && _contentRegistry.Skills.TryGetValue(state.SkillId, out var skill))
         {
+            foreach (var cycle in (human.AlternatingChoiceStates ?? []).Where(cycle => cycle.SkillId == state.SkillId))
+                parts.Add($"下次选择：摸牌 +{cycle.NextDrawBonus}／额外目标 +{cycle.NextTargetBonus}");
             var conversionStates = skill.Program?.ViewAs.Select(rule => rule.ConversionStateId)
                 .OfType<string>().Distinct(StringComparer.Ordinal).ToArray() ?? [];
             foreach (var stateId in conversionStates)
@@ -274,7 +276,25 @@ public sealed partial class MainViewModel
                 parts.Add($"当前第 {tier + 1} 级 · 已修改 {tier} 次");
             }
         }
+        if (human is not null && (_snapshot?.ProgramResponseExchangeStates ?? []).Any(exchange =>
+                exchange.OwnerSeat == human.Seat && exchange.SkillId == state.SkillId && exchange.IsUpgraded))
+            parts.Add("已修改：无需交出原牌，仍获得响应牌");
         parts.AddRange((state.BooleanStates ?? []).Select(item => item.Text).Distinct());
+        foreach (var rule in state.PublicRuleStates ?? [])
+        {
+            switch (rule.Kind)
+            {
+                case ProgramPublicRuleStateKind.ActivationLimit:
+                    parts.Add($"本阶段已发动 {rule.Used ?? 0}/{rule.Value} 次");
+                    break;
+                case ProgramPublicRuleStateKind.PersistentHandLimit:
+                    parts.Add($"手牌上限调整 {rule.Value:+0;-0;0}");
+                    break;
+                case ProgramPublicRuleStateKind.SelfTargetProhibition when rule.Value > 0:
+                    parts.Add("本回合不能对自己用牌");
+                    break;
+            }
+        }
         foreach (var policy in state.DirectedPolicies ?? [])
         {
             var effects = new List<string>();
@@ -393,8 +413,10 @@ public sealed partial class MainViewModel
         ActiveSkillEquipmentChoices.Count > 0 || EquipmentPlayChoices.Count > 0;
     public bool HasPinnedPublicModuleChoices =>
         HasPublicRevealedCards &&
-        _snapshot.PendingDecision is { SkillPrompt: not null, Choices.Count: 2 } &&
-        SkillChoices.Count == 2;
+        _snapshot.PendingDecision is { SkillPrompt: not null } prompt &&
+        SkillChoices.Count > 0 &&
+        (prompt.Choices.Count == 2 && SkillChoices.Count == 2 ||
+         prompt.Choices.Count <= 6 && prompt.Choices.All(choice => choice.Cards.Count == 0));
     public bool IsTableIdle => !HasCenterChoices;
     public bool HasSelection => _selectedCardId.HasValue || _discardCardIds.Count > 0 ||
         _isSelectingActiveSkillCards || _selectedActiveSkillCardIds.Count > 0 ||
@@ -440,9 +462,10 @@ public sealed partial class MainViewModel
         ClearSelectionCommand = new RelayCommand(ClearSelection);
         SelectRevealedCardCommand = new RelayCommand<CardViewModel>(card =>
         {
-            var choice = HarvestChoices.FirstOrDefault(option => option.Cards.Contains(card.Id));
-            if (choice is not null) SelectHarvestChoice(choice);
-        }, card => IsHarvestSelectionPending && HarvestChoices.Any(option => option.Cards.Contains(card.Id)));
+            if (card.IsPrivateReveal || !card.IsPublicChoice || RevealedCardChoice(card.Id) is not { } choice) return;
+            if (IsHarvestSelectionPending) SelectHarvestChoice(choice);
+            else SelectSkillChoice(choice);
+        }, card => !card.IsPrivateReveal && card.IsPublicChoice && RevealedCardChoice(card.Id) is not null);
         ConfirmSelectedCommand = new RelayCommand(() =>
         {
             if (!CanConfirmSelected) return;

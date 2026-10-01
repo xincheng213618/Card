@@ -33,7 +33,8 @@ public sealed partial class GameEngine
             _resolutionStack.LastOrDefault()?.Id,
             _activeCardMovementBatchIds.TryPeek(out var parentBatchId) ? parentBatchId : null,
             _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault() is
-                { PendingMovementContinuation: not null } awaited ? awaited.Id : null,
+                { } awaited && IsAwaitingProgramMovement(awaited)
+                    ? awaited.Id : null,
             _turnNumber,
             sources,
             destinationLocations.Distinct().ToDictionary(location => location, location => _cardZones.Count(location)),
@@ -89,7 +90,7 @@ public sealed partial class GameEngine
     private bool TryBeginCardsMovedProgramWindow(long? instructionFrameId = null)
     {
         var awaitingFrame = _resolutionStack.LastOrDefault() is ProgramSkillFrame program &&
-            (program.PendingMovementContinuation is not null || program.Id == instructionFrameId) ? program : null;
+            (IsAwaitingProgramMovement(program) || program.Id == instructionFrameId) ? program : null;
         bool Eligible(CardMovementBatchContext batch) => awaitingFrame is null
             ? batch.AwaitingProgramFrameId is null
             : batch.AwaitingProgramFrameId == awaitingFrame.Id ||
@@ -100,7 +101,8 @@ public sealed partial class GameEngine
             return false;
 
         // Equipment removal may have completed a nested recovery before this movement finished.
-        if (awaitingFrame?.PendingMovementContinuation is not null &&
+        if (awaitingFrame is not null &&
+            IsAwaitingProgramMovement(awaitingFrame) &&
             TryBeginHpChangedProgramWindow(awaitingFrame.Id, PostEventContinuation.AwaitedProgramMovement)) return true;
 
         while (_pendingCardsMovedBatches.Any(Eligible))
@@ -111,10 +113,21 @@ public sealed partial class GameEngine
             candidates = candidates.Concat(CollectDiscardPileReceivedCandidates(batch)).ToArray();
             if (candidates.Count == 0) continue;
             var window = new CardsMovedTriggerWindowFrame(batch.Id, batch, candidates,
-                ResumeProgramFrameId: awaitingFrame?.PendingMovementContinuation is null ? awaitingFrame?.Id : null);
+                ResumeProgramFrameId: awaitingFrame is not null && !IsAwaitingProgramMovement(awaitingFrame)
+                    ? awaitingFrame.Id : null);
             window = window with { Contexts = candidates.Select(candidate => CreateCardsMovedProgramContext(window, candidate)).ToArray() };
-            _resolutionStack.Add(window);
-            ContinueCardsMovedProgramWindow();
+            if (awaitingFrame?.SelectedCardPayment is { } payment &&
+                awaitingFrame.SelectedCardPaymentResult is null)
+            {
+                if (payment.ActiveChildFrameId is not null)
+                    throw new InvalidOperationException("A selected-card payment already has an active child frame.");
+                ReplaceRuntimeTop(awaitingFrame with
+                {
+                    SelectedCardPayment = payment with { ActiveChildFrameId = window.Id }
+                });
+            }
+            PushRuntimeFrame(window);
+            AdvanceRuntimeTop<CardsMovedTriggerWindowFrame>();
             return true;
         }
         return false;
@@ -161,7 +174,7 @@ public sealed partial class GameEngine
                 // card) owns its judgment zone churn; starting a second judgment from that
                 // movement would collide with the pending one and self-feedback the same
                 // judgment, so such triggers wait for a settled zone instead.
-                if (_pendingJudgment is not null &&
+                if (ActiveJudgment is not null &&
                     trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.StartJudgment)) continue;
                 var occurrences = trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerBatch ? [0] : indexes;
                 candidates.AddRange(occurrences.Select(index => candidate with { OccurrenceIndex = index }));
@@ -243,7 +256,7 @@ public sealed partial class GameEngine
         var card = _cardZones.CardsAt(CardLocation.DiscardPile).Single(item => item.Id == movement.CardId);
         MoveCard(card, CardLocation.DiscardPile, CardLocation.Hand(active.OwnerSeat),
             new CardMoveReason($"skill-program.{active.SkillId}.{SkillProgramEffectOp.ClaimMovedCards}"));
-        QueueGameEvent(new ProgramMovedCardsClaimedEvent(
+        AdvanceEventRulesAndQueueFact(new ProgramMovedCardsClaimedEvent(
             active.Id, active.SkillId, active.TriggerId!, active.OwnerSeat, source, card.Id));
         AddLog("SkillTriggered",
             $"{owner.Name} 发动【{_contentRegistry!.GetSkill(active.SkillId).Name}】，获得 {card.DisplayName}。",
@@ -345,22 +358,36 @@ public sealed partial class GameEngine
                 : null);
     }
 
-    private void ContinueCardsMovedProgramWindow()
+    private void ContinueCardsMovedProgramWindowCore()
     {
         while (_resolutionStack.LastOrDefault() is CardsMovedTriggerWindowFrame frame)
         {
             if (frame.CandidateIndex >= frame.Candidates.Count)
             {
                 PopResolutionFrame(frame.Id, ResolutionFrameKind.CardsMovedTriggerWindow);
+                if (_resolutionStack.LastOrDefault() is ProgramSkillFrame
+                    { SelectedCardPayment: { } payment, SelectedCardPaymentResult: null } parent)
+                {
+                    if (payment.ActiveChildFrameId != frame.Id)
+                        throw new InvalidOperationException("A selected-card payment lost its movement child frame.");
+                    ReplaceRuntimeTop(parent with
+                    {
+                        SelectedCardPayment = payment with
+                        {
+                            ActiveChildFrameId = null,
+                            LastCompletedChildFrameId = frame.Id
+                        }
+                    });
+                }
                 if (frame.ResumeProgramFrameId is { } resume)
                 {
-                    ContinueProgramSkill(resume);
+                    AdvanceRuntimeProgram(resume);
                     return;
                 }
                 if (!TryBeginCardsMovedProgramWindow() &&
                     _resolutionStack.LastOrDefault() is ProgramSkillFrame
-                        { PendingMovementContinuation: not null } awaited)
-                    CompleteAwaitedProgramMovement(awaited.Id);
+                        { } awaited && IsAwaitingProgramMovement(awaited))
+                    ReturnRuntimeProgramMovement(awaited.Id);
                 return;
             }
             var candidate = frame.Candidates[frame.CandidateIndex];
@@ -374,7 +401,7 @@ public sealed partial class GameEngine
                 .Single(item => item.Id == candidate.BindingId);
             if (trigger.Optional)
             {
-                _resolutionStack[^1] = frame with { Step = ResolutionFrameStep.AwaitingResponse };
+                ReplaceRuntimeTop(frame with { Step = ResolutionFrameStep.AwaitingResponse });
                 ExposeProgramTriggerDecision(candidate, context);
                 return;
             }
@@ -389,7 +416,7 @@ public sealed partial class GameEngine
         bool activated,
         bool completed)
     {
-        QueueGameEvent(new ProgramBindingResolvedEvent(
+        AdvanceEventRulesAndQueueFact(new ProgramBindingResolvedEvent(
             frame.Id, candidate.SkillId, candidate.BindingId, candidate.SkillInstanceId,
             candidate.OwnerSeat, CreateCardsMovedProgramContext(frame, candidate).Window, activated, completed));
         AdvanceCardsMovedProgramCursor(frame);
@@ -400,10 +427,10 @@ public sealed partial class GameEngine
         if (_resolutionStack.LastOrDefault() is not CardsMovedTriggerWindowFrame current ||
             current.Id != frame.Id || current.CandidateIndex != frame.CandidateIndex)
             throw new InvalidOperationException("The cards-moved trigger cursor is no longer current.");
-        _resolutionStack[^1] = current with
+        ReplaceRuntimeTop(current with
         {
             CandidateIndex = current.CandidateIndex + 1,
             Step = ResolutionFrameStep.ResolvingEffect
-        };
+        });
     }
 }

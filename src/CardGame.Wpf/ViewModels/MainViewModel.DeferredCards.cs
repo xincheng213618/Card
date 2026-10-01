@@ -13,6 +13,19 @@ public sealed partial class MainViewModel
     public bool HasDeferredPublicPiles => DeferredPublicPiles.Count > 0;
     public string PrivateRevealTitle => $"{_snapshot.PendingDecision?.SkillPrompt?.Name ?? "观看的牌"} · 仅你可见";
 
+    private PromptChoice? RevealedCardChoice(int cardId)
+    {
+        var prompt = _snapshot.PendingDecision;
+        if (prompt is null || prompt.PlayerSeat != _snapshot.HumanSeat ||
+            !_snapshot.PublicRevealedCards.Any(card => card.Id == cardId)) return null;
+        if (prompt.Kind == DecisionKind.SelectHarvestCard)
+            return prompt.Choices.FirstOrDefault(choice => choice.Cards.Contains(cardId));
+        if (prompt.SkillPrompt is null) return null;
+        var candidates = prompt.Choices.Where(choice => choice.Cards.Count == 1 &&
+            choice.Cards[0] == cardId).Take(2).ToArray();
+        return candidates.Length == 1 ? candidates[0] : null;
+    }
+
     private void RebuildDeferredCardViews()
     {
         PrivatelyViewedCards.Clear();
@@ -23,10 +36,29 @@ public sealed partial class MainViewModel
             DeferredPublicPiles.Add(new(player.Seat,
                 $"{player.GeneralName} · {player.PublicDeferredPileName ?? "牌堆"} {player.PublicDeferredPileCount}张",
                 player.PublicDeferredPileCards!.Select(card => CreateViewedCard(card, privateView: false)).ToArray()));
+        foreach (var player in _snapshot.Players.Where(player => player.PublicPersistentPileCards is { Count: > 0 }))
+            DeferredPublicPiles.Add(new(player.Seat,
+                $"{player.GeneralName} · {player.PublicPersistentPileName ?? "牌堆"} {player.PublicPersistentPileCount}张",
+                player.PublicPersistentPileCards!.Select(card => CreateViewedCard(card, privateView: false)).ToArray()));
         RaisePropertyChanged(nameof(HasPrivatelyViewedCards));
         RaisePropertyChanged(nameof(HasDeferredPublicPiles));
         RaisePropertyChanged(nameof(PrivateRevealTitle));
     }
+
+    private static IEnumerable<(string Name, int Count, IReadOnlyList<CardSnapshot> Cards)> PublicOwnedPiles(PlayerSnapshot player)
+    {
+        if (player.PublicDeferredPileCount > 0)
+            yield return (player.PublicDeferredPileName ?? "牌堆", player.PublicDeferredPileCount, player.PublicDeferredPileCards ?? []);
+        if (player.PublicPersistentPileCount > 0)
+            yield return (player.PublicPersistentPileName ?? "牌堆", player.PublicPersistentPileCount, player.PublicPersistentPileCards ?? []);
+    }
+
+    private static string PublicPileBadge(PlayerSnapshot player) =>
+        string.Join(" · ", PublicOwnedPiles(player).Select(pile => $"{pile.Name} ×{pile.Count}"));
+
+    private static string PublicPileTooltip(PlayerSnapshot player) =>
+        string.Join("\n", PublicOwnedPiles(player).Select(pile =>
+            $"{player.GeneralName}的公开“{pile.Name}”：{string.Join("、", pile.Cards.Select(card => $"{card.DisplayName} {GetSuitGlyph(card.Suit)}{card.RankText}"))}"));
 
     private CardViewModel CreateViewedCard(CardSnapshot card, bool privateView) => new()
     {

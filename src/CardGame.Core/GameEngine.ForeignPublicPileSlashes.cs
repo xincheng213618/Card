@@ -2,8 +2,8 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private readonly Dictionary<long, int> _foreignPublicPileSlashBaseDamage = [];
-    private int GetForeignPublicPileSlashBaseDamage(long resolutionId) => _foreignPublicPileSlashBaseDamage[resolutionId];
+    private int GetForeignPublicPileSlashBaseDamage(long resolutionId) => LifecycleCardUse(resolutionId)?.ForeignPublicPileSlashBaseDamage ??
+        throw new InvalidOperationException("The public-pile Slash lost its initial damage amount.");
     private bool IsForeignPublicPileSlashUse(long resolutionId) => _resolutionStack.OfType<CardUseFrame>()
         .Any(frame => frame.Id == resolutionId && frame.CardId == 0 && frame.Action is { } action &&
             action.PhysicalCards.Count == 2 && action.PhysicalCards.All(cost => cost.From.Zone == CardZoneKind.Authority) &&
@@ -60,7 +60,7 @@ public sealed partial class GameEngine
         {
             ClearPendingDecision();
             TryExecuteForeignPublicPileSlash(actor, action, command.CardIds, command.TargetSeats);
-            PublishState();
+            AdvanceRulesAndPublishState();
             return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
         });
         return true;
@@ -86,20 +86,20 @@ public sealed partial class GameEngine
             null, null, null, CardKind.Slash, targets, payments.Select(card => new CardActionCost(card.Id, card.Kind, from)).ToArray(),
             [conversion], effectiveSuit: Suit.None, effectiveRank: 0);
         MoveCards(payments, from, CardLocation.DiscardPile, new CardMoveReason("program.public-pile.slash-payment"));
-        _resolutionStack.Add(new CardUseFrame(resolutionId, actor.Seat, 0, CardKind.Slash, targets, PhysicalCardIds: []) { Action = context });
-        if (TracksPlayCardHistory) QueueGameEvent(new CardUseAppearanceCapturedEvent(context));
-        QueueGameEvent(new CardUseDeclaredEvent(resolutionId, 0, CardKind.Slash, actor.Seat));
-        QueueGameEvent(new TargetsConfirmedEvent(resolutionId, targets));
-        if (!_unlimitedCardUses.Contains(resolutionId)) RecordSlashUseDebit(resolutionId, actor.Seat);
+        PushRuntimeFrame(new CardUseFrame(resolutionId, actor.Seat, 0, CardKind.Slash, targets, PhysicalCardIds: []) { Action = context });
+        if (TracksPlayCardHistory) AdvanceEventRulesAndQueueFact(new CardUseAppearanceCapturedEvent(context));
+        AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(resolutionId, 0, CardKind.Slash, actor.Seat));
+        AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(resolutionId, targets));
+        if (!(LifecycleCardUse(resolutionId)?.UnlimitedUse == true)) RecordSlashUseDebit(resolutionId, actor.Seat);
         MarkSlashUsedOrPlayedDuringCurrentPlayPhase(actor.Seat, CardKind.Slash);
-        _foreignPublicPileSlashBaseDamage[resolutionId] = actor.HasAlcoholEffect ? 2 : 1;
-        var attack = new AttackResolution(resolutionId, actor.Seat, ownerSeat, card: null,
+        UpdateLifecycleCardUse(resolutionId, frame => frame with { ForeignPublicPileSlashBaseDamage = actor.HasAlcoholEffect ? 2 : 1 });
+        var attack = new CardAttackHandle(this, resolutionId, actor.Seat, ownerSeat, card: null,
             damageAmount: actor.HasAlcoholEffect ? 2 : 1, playedCardKind: CardKind.Slash,
             ignoresArmor: HasCardArmorBypass(actor, _players[ownerSeat], CardKind.Slash));
         actor.HasAlcoholEffect = false;
-        _pendingAttack = attack;
-        QueueGameEvent(new CardUsedEvent(0, CardKind.Slash, actor.Seat, ownerSeat));
-        _committedProgramUses.Add(resolutionId);
+        ActiveCardAttack = attack;
+        AdvanceEventRulesAndQueueFact(new CardUsedEvent(0, CardKind.Slash, actor.Seat, ownerSeat));
+        TryMarkProgramUseCommitted(resolutionId);
         if (!TryBeginProgramCardWindow(attack, context, SkillProgramTriggerWindow.CardUseCommitted, context.TargetSeats,
             ProgramCardContinuation.CommittedSlash)) BeginSlashTargetResolution(attack);
         return true;

@@ -2,8 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private sealed record FactionResponsePolicySource(string SkillId, string SkillInstanceId,
-        string PolicyId, string FactionId, CardKind RequiredKind, int DiscardCost = 0, int ProviderDrawCount = 0);
+
 
     private FactionResponsePolicySource? GetFactionResponsePolicy(CharacterState owner, CardKind requiredKind) =>
         CardPolicies(owner, SkillProgramCardPolicyKind.FactionResponseRequest, requiredKind: requiredKind)

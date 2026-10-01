@@ -37,7 +37,7 @@ public sealed partial class GameEngine
         if (!IsSlashCard(action.EffectiveKind) || CompletedGiftSources(frame).Count == 0 ||
             !_players.Any(player => player.IsAlive && player.Seat != frame.OwnerSeat)) return SkillProgramStepOutcome.Continue;
         frame = frame with { CompletedCardGiftDraft = new(action.ActionId) };
-        _resolutionStack[^1] = frame;
+        ReplaceRuntimeTop(frame);
         PublishCompletedCardGiftPrompt(frame);
         return SkillProgramStepOutcome.AwaitChoice;
     }
@@ -151,17 +151,17 @@ public sealed partial class GameEngine
                 committed = true;
             }
             finally { CompleteCardMovementBatch(batch, movements, committed); }
-            QueueGameEvent(new CompletedCardGiftedEvent(frame.Id, draft.CardActionId, frame.OwnerSeat, recipient, selected.Cards, red));
+            AdvanceEventRulesAndQueueFact(new CompletedCardGiftedEvent(frame.Id, draft.CardActionId, frame.OwnerSeat, recipient, selected.Cards, red));
             if (!red || !_players[recipient].IsAlive) { CompleteProgramCardGift(frame); return; }
             frame = frame with { CompletedCardGiftDraft = draft with { RecipientSeat = recipient, GiftWasRed = true }, SelectedTargetSeats = [recipient] };
-            _resolutionStack[^1] = frame;
+            ReplaceRuntimeTop(frame);
             PublishCompletedCardGiftPrompt(frame);
             return;
         }
         var actor = _players[draft.RecipientSeat.Value]; var target = selected.Targets.Single();
         if (selected.Parameters["gift-option"] == "faction")
         {
-            _resolutionStack[^1] = frame = frame with { CompletedCardGiftDraft = draft with { RequestTargetSeat = target } };
+            ReplaceRuntimeTop(frame = frame with { CompletedCardGiftDraft = draft with { RequestTargetSeat = target } });
             BeginAssistedProgramFactionSlashRequest(frame, actor.Seat, target, CompletedGiftFactionResultBind);
             return;
         }
@@ -180,8 +180,8 @@ public sealed partial class GameEngine
 
     private void CompleteProgramCardGift(ProgramSkillFrame frame)
     {
-        _resolutionStack[^1] = frame with { CompletedCardGiftDraft = null };
-        ContinueProgramSkill(frame.Id);
+        ReplaceRuntimeTop(frame with { CompletedCardGiftDraft = null });
+        AdvanceRuntimeProgram(frame.Id);
     }
 
     private bool IsValidCompletedGiftTargetSelection(ProgramSkillFrame frame) =>
@@ -199,7 +199,7 @@ public sealed partial class GameEngine
             (draft.RecipientSeat is null ? draft.GiftWasRed || frame.SelectedTargetSeats.Count != 0 || draft.RequestTargetSeat is not null : !IsValidCompletedGiftTargetSelection(frame)))
             throw new InvalidOperationException("A completed gift lost its action, recipient or physical gift provenance.");
         if (draft.RequestTargetSeat is { } target &&
-            (_pendingFactionCardRequest is not { IsAssistedProgramUse: true } faction || faction.ProgramSkillFrameId != frame.Id || faction.TargetSeat != target || faction.OwnerSeat != draft.RecipientSeat))
+            (ActiveFactionCardRequest is not { IsAssistedProgramUse: true } faction || faction.ProgramSkillFrameId != frame.Id || faction.TargetSeat != target || faction.OwnerSeat != draft.RecipientSeat))
             throw new InvalidOperationException("A completed gift faction request lost its frozen target or recipient.");
         if (!ReferenceEquals(frame, _resolutionStack.LastOrDefault()) && draft.RequestTargetSeat is null &&
             !_resolutionStack.OfType<CardUseFrame>().Any(child => child.Action is { } action && action.ParentActionId == draft.CardActionId &&

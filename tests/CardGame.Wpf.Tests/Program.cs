@@ -19,7 +19,10 @@ using CardGame.Wpf.Presentation;
 internal static class Program
 {
     private static int _passed;
-    private static string? _nameFilter;
+    private static int _failed;
+    private static string[] _nameFilters = [];
+    private static readonly HashSet<string> MatchedFilters = new(StringComparer.OrdinalIgnoreCase);
+    private static bool _verbose;
     private static string? _startAfterName;
     private static bool _startAfterReached;
     private static readonly BindingListener BindingErrors = new();
@@ -34,7 +37,7 @@ internal static class Program
         }
 
         if (args.Any(argument => argument.StartsWith("--", StringComparison.Ordinal) &&
-            argument != "--record-motion" && argument != "--verify-native-audio" &&
+            argument != "--record-motion" && argument != "--verify-native-audio" && argument != "--verbose" &&
             !argument.StartsWith("--filter=", StringComparison.OrdinalIgnoreCase) &&
             !argument.StartsWith("--start-after=", StringComparison.OrdinalIgnoreCase)))
         {
@@ -50,10 +53,10 @@ internal static class Program
         PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Warning;
         try
         {
-            _nameFilter = args.FirstOrDefault(argument =>
-                    argument.StartsWith("--filter=", StringComparison.OrdinalIgnoreCase))?
-                ["--filter=".Length..].Trim();
-            if (_nameFilter is { Length: 0 })
+            _verbose = args.Contains("--verbose", StringComparer.OrdinalIgnoreCase);
+            _nameFilters = args.Where(argument => argument.StartsWith("--filter=", StringComparison.OrdinalIgnoreCase))
+                .Select(argument => argument["--filter=".Length..].Trim()).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+            if (_nameFilters.Any(value => value.Length == 0))
             {
                 Console.Error.WriteLine("A WPF check filter cannot be empty.");
                 return 2;
@@ -82,6 +85,13 @@ internal static class Program
             Check("Program deferred cards preserve private views and public pile ownership", () => DeferredCardsUiChecks.PrivateViewAndPublicPileRestoreThroughSharedControls(output));
             Check("Program conversion tiers restore actual shared skill state", () => ConfiguredConversionsUiChecks.TierRestoresWithActualUpgrade(output));
             Check("Program private damage offers restore exact shared faces", () => ConfiguredConversionsUiChecks.PrivateOfferRestoresThroughSharedFaces(output));
+            Check("Program public card choices restore exact faces and submit current choices", () => PublicProgramCardsUiChecks.RevealedChoicesRestoreAndSubmit(output));
+            Check("Program public states restore choice cycle and persistent pile", () => PublicStateUiChecks.AlternatingStateAndPersistentPileRestore(output));
+            Check("Program public rule states restore quota limit and self prohibition", () => PublicStateUiChecks.PublicRuleStatesAndComparedHandsRestore(output));
+            Check("Program beneficiary suit shield restores actual death grant", () => BeneficiaryStateUiChecks.ActualDeathGiftShieldRestores(output));
+            Check("Program response exchange states restore entity restriction and upgrade", () => ResponseExchangeStateUiChecks.ActualEntityRestrictionAndUpgradeRestore(output));
+            Check("Program public markers restore actual payment transfer and consumption", () => PublicMarkerUiChecks.ActualMarkersRestoreAndTransfer(output));
+            Check("Program deferred hand alignment restores native private recipient and exact payment", () => DeferredHandAlignmentUiChecks.NativeRecipientDraftRestores(output));
             Check("Program owned-card sets render a private shared draft and commit once", () => ProgramOwnedCardsUiChecks.PrivateSetUsesSharedChoiceSurface(output));
             Check("public pile costs use the named foreign pile and shared confirmation draft", () => PublicPileSkillUiChecks.ForeignPublicPileCostsUseSharedDraft(output));
             Check("hand responses select exact cards and confirm through shared controls", () => HandResponseChecks.Controls(output));
@@ -102,11 +112,12 @@ internal static class Program
             if (args.Contains("--verify-native-audio")) Check("native WPF audio opens and completes every effect at zero volume", AudioChecks.NativeSilentPlayback);
             if (!_startAfterReached)
                 throw new InvalidOperationException($"No WPF check matched start-after '{_startAfterName}'.");
-            if (_nameFilter is not null && _passed == 0)
-                throw new InvalidOperationException($"No WPF checks matched filter '{_nameFilter}'.");
+            foreach (var filter in _nameFilters)
+                if (!MatchedFilters.Contains(filter))
+                    throw new InvalidOperationException($"No WPF checks matched filter '{filter}'.");
             Assert(BindingErrors.Errors.Count == 0, string.Join(Environment.NewLine, BindingErrors.Errors.Take(15)));
-            Console.WriteLine($"{_passed} WPF checks passed. Renders: {output}");
-            return 0;
+            Console.WriteLine($"{_passed} WPF checks passed, {_failed} failed. Renders: {output}");
+            return _failed == 0 ? 0 : 1;
         }
         catch (Exception exception)
         {
@@ -124,13 +135,26 @@ internal static class Program
                 _startAfterReached = true;
             return;
         }
-        if (_nameFilter is not null &&
-            !name.Contains(_nameFilter, StringComparison.OrdinalIgnoreCase))
+        var matchingFilters = _nameFilters.Where(filter => name.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToArray();
+        if (_nameFilters.Length > 0 && matchingFilters.Length == 0)
             return;
-
-        action();
-        _passed++;
-        Console.WriteLine($"[PASS] {name}");
+        foreach (var filter in matchingFilters) MatchedFilters.Add(filter);
+        var started = Stopwatch.GetTimestamp();
+        try
+        {
+            action();
+            _passed++;
+            Console.WriteLine($"[PASS] {name}");
+        }
+        catch (Exception exception)
+        {
+            _failed++;
+            Console.Error.WriteLine($"[FAIL] {name}: {exception}");
+        }
+        finally
+        {
+            if (_verbose) Console.WriteLine($"[TIME] {name}: {Stopwatch.GetElapsedTime(started).TotalMilliseconds.ToString("F3", System.Globalization.CultureInfo.InvariantCulture)} ms");
+        }
     }
 
     private static MainViewModel NewViewModel(int seed = 721019) => new(false, seed, showSetup: false, saveStore: new MemorySaveStore()) { IsMotionEnabled = false };

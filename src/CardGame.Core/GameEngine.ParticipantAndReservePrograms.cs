@@ -11,10 +11,10 @@ public sealed partial class GameEngine
             SkillProgramTriggerWindow.GameStarting, facts[player.Seat])).OrderBy(candidate => candidate.OwnerSeat)
             .ThenByDescending(candidate => candidate.Priority).ToArray();
         if (candidates.Length == 0) return false;
-        _resolutionStack.Add(new ProgramLifecycleTriggerWindowFrame(++_resolutionSequence, _currentSeat,
+        PushRuntimeFrame(new ProgramLifecycleTriggerWindowFrame(++_resolutionSequence, _currentSeat,
             SkillProgramTriggerWindow.GameStarting, candidates, ProgramLifecycleContinuation.CompleteGameStarting,
             facts[_currentSeat]) { ParticipantFacts = facts });
-        ContinueProgramLifecycleWindow();
+        AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
         return true;
     }
 
@@ -51,7 +51,7 @@ public sealed partial class GameEngine
             var before = owner.Hp;
             owner.Hp -= effect.Amount;
             RecordHpChange(frame.Id, null, owner.Seat, before, owner.Hp, HpChangeKind.Loss);
-            QueueGameEvent(new ProgramSkillHpLostEvent(frame.Id, frame.SkillId, owner.Seat, effect.Amount, owner.Hp));
+            AdvanceEventRulesAndQueueFact(new ProgramSkillHpLostEvent(frame.Id, frame.SkillId, owner.Seat, effect.Amount, owner.Hp));
             if (owner.Hp > 0) return SkillProgramStepOutcome.Continue;
             BeginProgramSkillDying(frame.Id, owner);
             return SkillProgramStepOutcome.AwaitChild;
@@ -66,13 +66,16 @@ public sealed partial class GameEngine
         {
             var choices = new List<PromptChoice>();
             if (owner.Markers.GetValueOrDefault(effect.Marker!.Value) >= effect.Amount)
-                choices.Add(new(new ChoiceId("marker-payment.spend"), "移去暴怒标记", [], [], new Dictionary<string, string>
+                choices.Add(new(new ChoiceId("marker-payment.spend"), "移去" + PlayerMarkerCatalog.GetDisplayName(effect.Marker!.Value) + "标记", [], [], new Dictionary<string, string>
                     { ["program-action"] = "marker-payment", ["pay"] = "marker" }));
             choices.Add(new(new ChoiceId("marker-payment.hp"), "失去1点体力", [], [], new Dictionary<string, string>
                 { ["program-action"] = "marker-payment", ["pay"] = "hp" }));
             var skill = _contentRegistry.GetSkill(frame.SkillId);
             _pendingDecision = new(DecisionKind.ProgramTrigger, owner.Seat, skill.Name + "：选择支付方式", [], [], owner.Seat)
-                { PromptId = CreatePromptId(), IsPrivate = true, Choices = choices.ToArray() };
+            {
+                PromptId = CreatePromptId(), IsPrivate = true, Choices = choices.ToArray(),
+                SkillPrompt = new(frame.SkillId, skill.Name, skill.Name, skill.Description)
+            };
             _status = owner.IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
             return SkillProgramStepOutcome.AwaitChoice;
         }
@@ -88,7 +91,7 @@ public sealed partial class GameEngine
         {
             var maximum = Math.Min(GetHand(owner).Count, _cardZones.CardsAt(new CardLocation(CardZoneKind.PrivateReserve, owner.Seat)).Count);
             if (maximum == 0) return SkillProgramStepOutcome.Continue;
-            _resolutionStack[^1] = frame with { PrivateReserveDraft = new(owner.Seat, "exchange-hand", maximum, [], []) };
+            ReplaceRuntimeTop(frame with { PrivateReserveDraft = new(owner.Seat, "exchange-hand", maximum, [], []) });
             PublishPrivateReserveChoice(GetActiveProgramFrame(frame.Id));
             return SkillProgramStepOutcome.AwaitChoice;
         }
@@ -110,8 +113,8 @@ public sealed partial class GameEngine
         if (cursor >= seats.Length) return SkillProgramStepOutcome.Continue;
         var seatNow = seats[cursor];
         var amount = cursor == 0 ? effect.Amount : effect.MinimumValue;
-        _resolutionStack[^1] = frame with { NumberBindings = frame.NumberBindings.Where(item => item.Name != key)
-            .Append(new ProgramSkillNumberBinding(key, cursor + 1)).ToArray(), ReexecuteParticipantInstruction = true };
+        ReplaceRuntimeTop(frame with { NumberBindings = frame.NumberBindings.Where(item => item.Name != key)
+            .Append(new ProgramSkillNumberBinding(key, cursor + 1)).ToArray(), ReexecuteParticipantInstruction = true });
         frame = GetActiveProgramFrame(frame.Id);
         if (!_players[seatNow].IsAlive) return SkillProgramStepOutcome.Continue;
         if (effect.Op == SkillProgramEffectOp.DamageParticipants)
@@ -129,8 +132,8 @@ public sealed partial class GameEngine
         var required = Math.Min(amount, GetHand(_players[seatNow]).Count);
         if (required == 0) return SkillProgramStepOutcome.Continue;
         // Restore the committed cursor for private input; the draft resumes this instruction.
-        _resolutionStack[^1] = frame with { ReexecuteParticipantInstruction = false,
-            PrivateReserveDraft = new(seatNow, "discard-hand", required, [], []) };
+        ReplaceRuntimeTop(frame with { ReexecuteParticipantInstruction = false,
+            PrivateReserveDraft = new(seatNow, "discard-hand", required, [], []) });
         PublishPrivateReserveChoice(GetActiveProgramFrame(frame.Id));
         return SkillProgramStepOutcome.AwaitChoice;
     }
@@ -190,11 +193,11 @@ public sealed partial class GameEngine
                 MoveCards(starCards, reserve, CardLocation.Hand(draft.ChooserSeat), reason);
                 MoveCards(handCards, CardLocation.Processing, reserve, reason);
             }
-            _resolutionStack[^1] = frame with { PrivateReserveDraft = null };
-            ContinueProgramSkill(frame.Id);
+            ReplaceRuntimeTop(frame with { PrivateReserveDraft = null });
+            AdvanceRuntimeProgram(frame.Id);
             return;
         }
-        _resolutionStack[^1] = frame with { PrivateReserveDraft = draft };
+        ReplaceRuntimeTop(frame with { PrivateReserveDraft = draft });
         PublishPrivateReserveChoice(GetActiveProgramFrame(frame.Id));
     }
 
@@ -208,10 +211,10 @@ public sealed partial class GameEngine
         if (choice.Parameters.GetValueOrDefault("pay") == "marker")
         {
             PayProgramMarkerCost(_players[frame.OwnerSeat], new SkillProgramMarkerCost(effect.Marker!.Value, effect.Amount), frame.SkillId, frame.ActivationId);
-            ContinueProgramSkill(frame.Id);
+            AdvanceRuntimeProgram(frame.Id);
         }
         else if (new ProgramSkillHost(this).LoseHp(frame.Id, frame.SkillId, frame.OwnerSeat, effect.Amount) == SkillProgramStepOutcome.Continue)
-            ContinueProgramSkill(frame.Id);
+            AdvanceRuntimeProgram(frame.Id);
     }
 
     private void SetAttributedNatureMarker(int source, int target, PlayerMarkerKind marker, int amount, long id)
@@ -222,7 +225,7 @@ public sealed partial class GameEngine
         var count = player.Markers.GetValueOrDefault(marker) + amount - previous;
         if (amount == 0) player.MarkerSourceCounts.Remove((marker, source));
         if (count == 0) player.Markers.Remove(marker); else player.Markers[marker] = count;
-        if (amount != previous) QueueGameEvent(new PlayerMarkerChangedEvent(id, target, marker, amount - previous, count, source, "program.nature-effect"));
+        if (amount != previous) AdvanceEventRulesAndQueueFact(new PlayerMarkerChangedEvent(id, target, marker, amount - previous, count, source, "program.nature-effect"));
     }
     private void AssertParticipantReserveDraft(ProgramSkillFrame frame, SkillProgramEffect paused)
     {
@@ -231,7 +234,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.RequestSlashByNearest or SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or
                 SkillProgramEffectOp.EscalatingDiscardOrDamage or SkillProgramEffectOp.ChooseHandCountIntervention or
                 SkillProgramEffectOp.RevealHandColorDiscardAndTake or SkillProgramEffectOp.DrawThenPutOwnedCardOnTopParticipants or
-                SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge))
+                SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge or SkillProgramEffectOp.DistributePublicPileIfAllSuits))
             throw new InvalidOperationException("A participant cursor must resume its own committed instruction.");
         if (frame.PrivateReserveDraft is not { } draft) return;
         if (!IsValidPlayerSeat(draft.ChooserSeat) || draft.RequiredCount < 1 || draft.RequiredCount > 64 ||

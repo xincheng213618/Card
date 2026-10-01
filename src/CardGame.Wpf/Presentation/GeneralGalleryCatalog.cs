@@ -79,6 +79,7 @@ public static class GeneralGalleryCatalog
         Add("fame-5", "zhu-zhi cao-rui cao-xiu zhong-yao liu-chen xiahou-shi zhang-ni sun-xiu quan-cong gongsun-yuan guo-tu-feng-ji");
         Add("fame-5", "sha-mo-ke");
         Add("fame-6", "guo-huanghou li-yan sun-deng liu-yu cen-hun sun-zi-liu-fang huang-hao zhang-rang");
+        Add("fame-7", "xin-xianying wu-xian xu-shi cao-jie ji-kang qin-mi xue-zong cai-yong");
         Add("god", "shen-guan-yu shen-sima-yi shen-lu-meng shen-cao-cao shen-zhao-yun shen-zhou-yu shen-lu-bu");
         foreach (var id in new[] { "guan-yu", "zhou-yu", "zhuge-liang", "lu-bu", "zhao-yun", "sima-yi",
                      "liu-bei", "lu-xun", "gan-ning", "zhang-liao", "sun-quan", "zhang-jiao", "dian-wei", "huang-zhong" })
@@ -86,7 +87,8 @@ public static class GeneralGalleryCatalog
         groups.Add("classic:qu-yi", "other");
         Add("sp", "gongsun-zan");
         groups.Add("sp:le-jin", "sp");
-        Add("myth-yin", "yan-yan");
+        Add("myth-yin", "yan-yan wang-ping lu-ji");
+        Add("myth-thunder", "hao-zhao");
         groups.Add("boundary:zhang-jiao", "boundary");
         groups.Add("boundary:sima-yi", "boundary");
         groups.Add("boundary:diao-chan", "boundary");

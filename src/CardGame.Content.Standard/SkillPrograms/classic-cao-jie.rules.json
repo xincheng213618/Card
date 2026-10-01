@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[
+ {"id":"classic:shouxi","revision":1,"triggers":[{"id":"name-defense","window":"cardUseTargetsFinalized","ownerRelation":"target","cardKinds":["slash","fireSlash","thunderSlash"],"optional":true,"effects":[{"op":"declareNameForTargetDefense","target":"owner","stateId":"declared-names","cardKinds":["slash","dodge","peach","alcohol","duel","drawTwo","barbarianAssault","arrowBarrage","peachGarden","fiveGrains","dismantlement","snatch","fireAttack","nullification","ironChain","indulgence","supplyShortage","lightning","borrowedSword"]}]}]},
+ {"id":"classic:huimin","revision":1,"triggers":[{"id":"population-draft","window":"turnEnding","subject":"owner","optional":true,"effects":[{"op":"drawAndDraftLowHandPopulation","target":"owner"}]}]}
+]}

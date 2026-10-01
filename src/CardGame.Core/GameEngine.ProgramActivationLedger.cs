@@ -24,12 +24,12 @@ public sealed partial class GameEngine
         }
 
         var result = previous < threshold && current >= threshold ? "crossed" : "not-crossed";
-        _resolutionStack[^1] = active with
+        ReplaceRuntimeTop(active with
         {
             ChoiceBindings = Array.AsReadOnly(active.ChoiceBindings.Append(
                 new ProgramChoiceResultBinding(resultBind, result, active.OwnerSeat)).ToArray())
-        };
-        QueueGameEvent(new SkillUsageConsumedEvent(
+        });
+        AdvanceEventRulesAndQueueFact(new SkillUsageConsumedEvent(
             active.OwnerSeat, active.SkillId, usageId, SkillUsageScope.Phase, current));
     }
 }

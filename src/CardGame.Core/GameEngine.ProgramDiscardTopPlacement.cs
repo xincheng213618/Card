@@ -61,7 +61,7 @@ public sealed partial class GameEngine
             .Select(move => move.CardId).Distinct().ToArray();
         if (ids.Length == 0 || !_players[active.OwnerSeat].IsAlive) return SkillProgramStepOutcome.Continue;
         active = active with { DiscardTopPlacement = new(ids, []) };
-        _resolutionStack[^1] = active;
+        ReplaceRuntimeTop(active);
         PublishProgramDiscardTopPlacement(active);
         return SkillProgramStepOutcome.AwaitChoice;
     }
@@ -112,14 +112,14 @@ public sealed partial class GameEngine
         {
             ClearPendingDecision();
             frame = frame with { DiscardTopPlacement = state with { SelectedCardIds = [..state.SelectedCardIds, id] } };
-            _resolutionStack[^1] = frame;
+            ReplaceRuntimeTop(frame);
             PublishProgramDiscardTopPlacement(frame);
             return;
         }
         if (action != "discard-top-finish" || choice.Cards.Count != 0)
             throw new InvalidOperationException("Invalid discard-top placement action.");
         ClearPendingDecision();
-        _resolutionStack[^1] = frame with { DiscardTopPlacement = null };
+        ReplaceRuntimeTop(frame with { DiscardTopPlacement = null });
         var cards = state.SelectedCardIds.Select(id => _cardZones.CardsAt(CardLocation.DiscardPile).Single(card => card.Id == id)).ToArray();
         if (cards.Length > 0)
         {
@@ -127,6 +127,6 @@ public sealed partial class GameEngine
                 new CardMoveReason($"skill-program.{frame.SkillId}.{SkillProgramEffectOp.PutDiscardedCardsOnDrawPileTop}"));
             _cardZones.PlaceDrawPileCardsAtTop(state.SelectedCardIds);
         }
-        ContinueProgramSkill(frame.Id);
+        AdvanceRuntimeProgram(frame.Id);
     }
 }

@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:feijun",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "relative-zone-demand",
+          "minCards": 1,
+          "maxCards": 1,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "effects": [
+            {
+              "op": "captureSelectedCards",
+              "target": "owner",
+              "resultBind": "payment"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "payment",
+              "destination": "discardPile",
+              "awaitMovementTriggers": true
+            },
+            {
+              "op": "selectRelativeZoneDemandTarget",
+              "target": "owner",
+              "sourceBind": "payment",
+              "resultBind": "demand"
+            },
+            {
+              "op": "selectOwnedCards",
+              "target": "selectedTarget",
+              "amount": 1,
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "resultBind": "given",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "demand",
+                "optionId": "hand"
+              }
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "given",
+              "destination": "ownerHand",
+              "awaitMovementTriggers": true,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "demand",
+                "optionId": "hand"
+              }
+            },
+            {
+              "op": "selectOwnedCards",
+              "target": "selectedTarget",
+              "amount": 1,
+              "zones": [
+                "equipment"
+              ],
+              "resultBind": "discarded",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "demand",
+                "optionId": "equipment"
+              }
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "discarded",
+              "destination": "discardPile",
+              "awaitMovementTriggers": true,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "demand",
+                "optionId": "equipment"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:binglue",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "first-relative-target",
+          "window": "programTargetCommitted",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "drawOnFirstProgramTargetEncounter",
+              "target": "owner",
+              "sourceProgramId": "classic:feijun",
+              "sourceActivationId": "relative-zone-demand",
+              "amount": 2
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

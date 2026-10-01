@@ -8,3 +8,11 @@
 - Preserve intentional test pruning when merging older branches or worktrees. Carry over only new checks for uncovered behavior or regressions; do not restore an entire historical test suite to match an old test count or branch convention. Resolve test conflicts against the current retained coverage and remove obsolete registrations, methods, and unused fixtures together.
 - Keep the default verification small enough to target about one minute including an incremental build. Prefer a small existing fixture or a verified seed over repeated seed searches and complete-match simulations. Retain representative integration coverage and all assertions for the behavior under test; measure the default run after a batch instead of assuming fewer checks means less time.
 - Preserve checkpoint, replay, content fingerprint, input validation, privacy, and card movement boundaries. Do not delete historical compatibility code or change stored data solely to reduce test count.
+
+## Runtime boundaries
+
+- Keep command commit and recovery in the command session. Prepare player views before commit; freeze all exposed nested collections so observers cannot change the prepared result. Player views must use `CreateSnapshot(viewerSeat)`; `ResolutionStack` is trusted diagnostics and may contain private state.
+- Freeze collection-bearing event payloads in commit preparation before they enter history or reach observers. A read-only record does not freeze its lists or nested policy/deposit objects; new built-in event collections must be covered by `CommittedEventProjection`.
+- Keep pending resolution state on its owning frame. Use runtime push/replace/complete methods and typed parent returns; do not add parallel pending objects or use-ID sidecars for migrated state. A resumed child must not pay a completed cost twice.
+- New rule events must use `AdvanceEventRulesAndQueueFact`; new state progression must use `AdvanceRulesAndPublishState`. `QueueGameEvent` and `PublishState` are output-only helpers and must not become rule entry points again.
+- Run `tools/Test-Changed.ps1` without filters for the measured routine scope in `tools/VerificationScopes.psd1`, relevant name filters while developing, and `-Full` after a batch. Routine coverage and all registered checks are different scopes; report actual timings and failures.

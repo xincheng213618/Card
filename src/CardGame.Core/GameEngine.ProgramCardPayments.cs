@@ -65,7 +65,11 @@ public sealed partial class GameEngine
         if (choices.Count == 0)
         {
             if (skipIfNoCards)
+            {
+                if (GetOwnedSelectionEffect(active).FreezeMovedCardSuit && resultBind is not null)
+                    SetProgramCardSet(frame.Id, resultBind, [], SkillProgramCardSetVisibility.Public, []);
                 return SkillProgramStepOutcome.Continue;
+            }
             CancelProgramBindingAndCleanup(active, "没有可支付的区域牌，技能结算已取消。");
             return SkillProgramStepOutcome.AwaitChild;
         }
@@ -235,6 +239,7 @@ public sealed partial class GameEngine
             SkillProgramCardDestination.SelectedTargetCorrespondingZone => ProgramCorrespondingZoneLocation(
                 card, zone, destinationSeat!.Value),
             SkillProgramCardDestination.DiscardPile => CardLocation.DiscardPile,
+            SkillProgramCardDestination.DrawPileTop => CardLocation.DrawPile,
             _ => throw new InvalidOperationException("Unsupported selected-card destination.")
         };
         if (destination.OwnerSeat is { } recipientSeat && !_players[recipientSeat].IsAlive)
@@ -288,15 +293,15 @@ public sealed partial class GameEngine
         var beforeCoverage = effect.CoverageResultBind is null ? 0 : CountLivingInAttackRange(ownerSeat);
         if (effect.AwaitMovementTriggers)
         {
-            _resolutionStack[^1] = frame with
+            ReplaceRuntimeTop(frame with
             {
                 PendingMovementContinuation = new ProgramMovementContinuation(
                     ownerSeat, beforeCoverage, effect.CoverageResultBind)
-            };
+            });
         }
         var reason = new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}");
         if (effect.RevealBeforeMove)
-            QueueGameEvent(new ProgramCardsRevealedEvent(frame.Id, frame.SkillId,
+            AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(frame.Id, frame.SkillId,
                 GetProgramBindingId(frame), frame.OwnerSeat, effect.ResultBind!,
                 Array.AsReadOnly(new[] { ToSnapshot(card) })));
         if (effect.Destination == SkillProgramCardDestination.SelectedTargetHand)
@@ -309,7 +314,7 @@ public sealed partial class GameEngine
         {
             // Mirror CompleteEquipmentUse's public entry trio (move + event + log);
             // a gifted card never replaces anything, so there is no replaced card.
-            QueueGameEvent(new EquipmentChangedEvent(frame.Id, destination.OwnerSeat!.Value,
+            AdvanceEventRulesAndQueueFact(new EquipmentChangedEvent(frame.Id, destination.OwnerSeat!.Value,
                 EquipmentCatalog.Get(card.Kind).Slot, card.Id, card.Kind, ReplacedCardId: null));
             AddLog("EquipmentChanged",
                 $"{_players[frame.OwnerSeat].Name} 将【{EquipmentCatalog.Get(card.Kind).DisplayName}】置于 " +
@@ -318,18 +323,19 @@ public sealed partial class GameEngine
         }
         if (effect.ResultBind is { } bind)
             SetProgramCardSet(frame.Id, bind, [card.Id],
-                effect.RevealBeforeMove ? SkillProgramCardSetVisibility.Public : SkillProgramCardSetVisibility.Private,
+                effect.RevealBeforeMove || effect.SkipIfNoCards && effect.FreezeMovedCardSuit && effect.Destination == SkillProgramCardDestination.DiscardPile && effect.CardOwnerRef?.Kind == ProgramParticipantRef.SelectedTarget
+                    ? SkillProgramCardSetVisibility.Public : SkillProgramCardSetVisibility.Private,
                 [destination], frozenMovedSuit ?? (effect.RevealBeforeMove ? card.Suit : null));
         if (effect.AwaitMovementTriggers)
         {
             if (!TryBeginCardsMovedProgramWindow())
-                CompleteAwaitedProgramMovement(frame.Id);
+                ReturnRuntimeProgramMovement(frame.Id);
             return;
         }
         if (effect.CoverageResultBind is { } coverageBind)
             SetProgramAttackRangeCoverage(frame.Id, coverageBind, ownerSeat, beforeCoverage,
                 CountLivingInAttackRange(ownerSeat));
-        ContinueProgramSkill(frame.Id);
+        AdvanceRuntimeProgram(frame.Id);
     }
 
     private bool CanMoveProgramCardToCorrespondingZone(Card card, CardZoneKind sourceZone,
@@ -384,39 +390,17 @@ public sealed partial class GameEngine
         var frame = GetActiveProgramFrame(frameId);
         if (frame.AttackRangeCoverageBindings.Any(item => item.Name == name))
             throw new InvalidOperationException("The attack-range coverage result was already produced.");
-        _resolutionStack[^1] = frame with
+        ReplaceRuntimeTop(frame with
         {
             AttackRangeCoverageBindings = Array.AsReadOnly(frame.AttackRangeCoverageBindings
                 .Append(new ProgramAttackRangeCoverageBinding(name, subjectSeat, beforeCount, afterCount)).ToArray())
-        };
+        });
     }
 
     private static bool IsProgramAttackRangeCoverageDecreased(ProgramSkillFrame frame, string bind)
     {
         var result = frame.AttackRangeCoverageBindings.Single(item => item.Name == bind);
         return result.AfterCount < result.BeforeCount;
-    }
-
-    private void CompleteAwaitedProgramMovement(long frameId)
-    {
-        var frame = GetActiveProgramFrame(frameId);
-        var pending = frame.PendingMovementContinuation ??
-            throw new InvalidOperationException("The movement continuation is missing.");
-        _resolutionStack[^1] = frame with { PendingMovementContinuation = null };
-        if (!_players[frame.OwnerSeat].IsAlive || !_players[pending.SubjectSeat].IsAlive ||
-            !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId))
-        {
-            CancelProgramBindingAndCleanup(GetActiveProgramFrame(frameId),
-                "移动响应后技能持有人、装备持有人或技能实例已失效。");
-            return;
-        }
-        if (pending.CoverageResultBind is { } bind)
-            SetProgramAttackRangeCoverage(frameId, bind, pending.SubjectSeat, pending.BeforeCount,
-                CountLivingInAttackRange(pending.SubjectSeat));
-        if (frame.RepeatedJudgment is { LastMatched: not null })
-            ContinueProgramRepeatedJudgmentAfterMovement(frameId);
-        else
-            ContinueProgramSkill(frameId);
     }
 
     private static bool MatchesProgramCardCategory(

@@ -51,10 +51,10 @@ public sealed partial class GameEngine
                     owner.Role != Role.Lord && activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.GrantGameFactionAttackRangeTargets))
                     continue;
                 var requiredCards = GetProgramActivationMinimumCards(owner.Seat, program.Id, activation);
-                if (!activation.Condition.Evaluate(context) || !CanPayProgramMarkerCost(owner, activation.MarkerCost) ||
+                if (!CanActivateHandComparison(owner, activation) || !activation.Condition.Evaluate(context) || !CanPayProgramMarkerCost(owner, activation.MarkerCost) ||
                     activation.UsesPerTurn is { } limit &&
                     _programUses.GetValueOrDefault((owner.Seat, program.Id, activation.UsageGroup)) >= limit ||
-                    activation.UsesPerPhase is { } phaseLimit &&
+                    HandComparisonPhaseLimit(owner, program, activation) is { } phaseLimit &&
                     _programPhaseUses.GetValueOrDefault((owner.Seat, program.Id, activation.UsageGroup)) >= phaseLimit ||
                     activation.UsesPerGame is { } gameLimit &&
                     _skillRuntimeState.GetUsage(
@@ -118,7 +118,7 @@ public sealed partial class GameEngine
                         .Select(target => target.Seat).Order().ToArray()
                     : allHandTrickUse is not null ? []
                     : activation.MaxTargets == 0 ? [] : _players
-                    .Where(target => target.IsAlive &&
+                    .Where(target => target.IsAlive && IsHandComparisonTarget(activation, target) &&
                         IsAdvancedActivationTargetAllowed(owner, target, program.Id, activation) &&
                         (!activation.TargetRequiresEmptyEquipmentSlot ||
                          HasEmptyEquipmentSlotForOwnerHandEquipment(owner, target)) &&
@@ -226,6 +226,7 @@ public sealed partial class GameEngine
                     SelectableTargetSeats = Array.AsReadOnly(targets)
                 };
             }
+        foreach (var exchange in BuildDeckEndExchangeActions(owner)) yield return exchange;
         foreach (var skillOwner in _players.Where(player => player.IsAlive && player.Seat != owner.Seat).OrderBy(player => player.Seat))
             foreach (var program in EnabledContributionPrograms(skillOwner))
                 foreach (var contribution in program.Contributions)
@@ -285,7 +286,7 @@ public sealed partial class GameEngine
     {
         var owner = _players[context.Seat];
         var instanceId = GetRuntimeSkillInstanceId(owner, program.Id);
-        return ProgramCompositionAi.Estimate(activation.Effects, context, faceDown,
+        var hint = ProgramCompositionAi.Estimate(activation.Effects, context, faceDown,
             CreateProgramAiPublicContext(owner) with
             {
                 ActivationCardCount = GetProgramActivationMinimumCards(owner.Seat, program.Id, activation),
@@ -303,6 +304,7 @@ public sealed partial class GameEngine
                     program.Id, usageId, SkillUsageScope.Phase),
                 BooleanState = stateId => GetProgramBooleanState(owner.Seat, program.Id, instanceId, stateId)
             }).Hint;
+        return EstimateProgramTargetReward(owner, program, activation, hint);
     }
 
     private CommandError? ValidateProgramSelection(LegalAction action,
@@ -366,7 +368,7 @@ public sealed partial class GameEngine
         {
             ClearPendingDecision();
             ExecuteProgramSkill(owner, action, command.CardIds, command.TargetSeats);
-            PublishState();
+            AdvanceRulesAndPublishState();
             return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
         });
     }
@@ -384,6 +386,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException(error.Message);
         if (current.ProgramSkillOwnerSeat is { } skillOwnerSeat)
         {
+            if (TryExecuteDeckEndContribution(owner, _players[skillOwnerSeat], current, cards[0])) return;
             ExecuteProgramContribution(owner, _players[skillOwnerSeat], current, cards[0]);
             return;
         }
@@ -400,7 +403,7 @@ public sealed partial class GameEngine
                     SkillUsageScope.Game,
                     gameLimit))
                 throw new InvalidOperationException("The skill activation already exhausted its game usage limit.");
-            QueueGameEvent(new SkillUsageConsumedEvent(
+            AdvanceEventRulesAndQueueFact(new SkillUsageConsumedEvent(
                 owner.Seat,
                 program.Id,
                 activation.UsageGroup,
@@ -409,7 +412,7 @@ public sealed partial class GameEngine
         }
         var key = (owner.Seat, program.Id, activation.UsageGroup);
         _programUses[key] = _programUses.GetValueOrDefault(key) + 1;
-        if (activation.UsesPerPhase is not null || activation.CardCountExpression is not null)
+        if (HandComparisonPhaseLimit(owner, program, activation) is not null || activation.CardCountExpression is not null)
             _programPhaseUses[key] = _programPhaseUses.GetValueOrDefault(key) + 1;
         var frame = new ProgramSkillFrame(++_resolutionSequence, owner.Seat, program.Id, activation.Id,
             program.GameplayHash, 0, Array.AsReadOnly(cards.ToArray()), Array.AsReadOnly(targets.ToArray()))
@@ -418,10 +421,10 @@ public sealed partial class GameEngine
             SelectedAllOwnerHandCards = activation.Effects.Any(effect => effect.Op == SkillProgramEffectOp.DrawAllHandSelectedBonus)
                 ? GetHand(owner).Count > 0 && GetHand(owner).All(card => cards.Contains(card.Id)) : null
         };
-        _resolutionStack.Add(frame);
-        QueueGameEvent(new ProgramSkillStartedEvent(frame.Id, owner.Seat, program.Id, activation.Id));
+        PushRuntimeFrame(frame);
+        AdvanceEventRulesAndQueueFact(new ProgramSkillStartedEvent(frame.Id, owner.Seat, program.Id, activation.Id));
         AddLog("ActiveSkill", $"{owner.Name} 发动【{_contentRegistry!.Skills[program.Id].Name}】。", owner.Seat);
-        ContinueProgramSkill(frame.Id);
+        AdvanceRuntimeProgram(frame.Id);
     }
 
     private void ExecuteProgramContribution(CharacterState provider, CharacterState skillOwner,
@@ -442,7 +445,7 @@ public sealed partial class GameEngine
         var reason = new CardMoveReason($"skill-program.{program.Id}.{contribution.Id}.contribute");
         MoveCard(card, CardLocation.Hand(provider.Seat), CardLocation.Processing, reason);
         MoveCard(card, CardLocation.Processing, CardLocation.Hand(skillOwner.Seat), reason);
-        QueueGameEvent(new ProgramSkillContributionResolvedEvent(actionId, provider.Seat, skillOwner.Seat,
+        AdvanceEventRulesAndQueueFact(new ProgramSkillContributionResolvedEvent(actionId, provider.Seat, skillOwner.Seat,
             program.Id, contribution.Id, card.Id, card.Kind, card.Suit));
         AddLog("ActiveSkill",
             $"{provider.Name} 响应【{_contentRegistry!.Skills[program.Id].Name}】，将【{card.DisplayName}】交给 {skillOwner.Name}。",
@@ -454,13 +457,6 @@ public sealed partial class GameEngine
         foreach (var key in _programContributionUses.Keys
                      .Where(key => key.ProviderSeat == providerSeat).ToArray())
             _programContributionUses.Remove(key);
-    }
-
-    private void ContinueProgramSkill(long frameId)
-    {
-        if (TryContinueFactionRecoveryDebts(frameId)) return;
-        var host = new ProgramSkillHost(this);
-        new SkillProgramExecutor().Run(frameId, host, host);
     }
 
     private void FinishProgramSkill(ProgramSkillFrame frame, bool completed)
@@ -477,25 +473,24 @@ public sealed partial class GameEngine
         }
         if (frame.TriggerId is not null)
         {
-            CompleteProgramBinding(frame, completed);
+            CompleteRuntimeProgramBinding(frame, completed);
             return;
         }
-        QueueGameEvent(new ProgramSkillResolvedEvent(frame.Id, frame.OwnerSeat, frame.SkillId, frame.ActivationId, completed));
+        AdvanceEventRulesAndQueueFact(new ProgramSkillResolvedEvent(frame.Id, frame.OwnerSeat, frame.SkillId, frame.ActivationId, completed));
         PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramSkill);
     }
 
     private void BeginProgramSkillDying(long parentFrameId, CharacterState victim)
     {
-        if (_pendingDying is not null || _resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != parentFrameId)
+        if (ActiveDying is not null || _resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != parentFrameId)
             throw new InvalidOperationException("A program dying continuation requires its program frame.");
         var responders = Array.AsReadOnly(BuildDyingResponderSeats(victim.Seat).ToArray());
         var id = ++_resolutionSequence;
-        _resolutionStack.Add(new DyingFrame(id, parentFrameId, victim.Seat, null, responders, 0));
-        _pendingDying = new DyingResolution(id, null, null, victim.Seat, null, responders, parentFrameId,
-            DyingContinuation.ProgramSkill);
-        QueueGameEvent(new PlayerDyingEvent(id, victim.Seat, null));
+        PushRuntimeFrame(new DyingFrame(id, parentFrameId, victim.Seat, null, responders, 0,
+            DyingContinuationKind.ProgramSkill));
+        AdvanceEventRulesAndQueueFact(new PlayerDyingEvent(id, victim.Seat, null));
         _status = EngineStatus.Running;
-        if (!TryBeginMandatorySelfDyingProgram(_pendingDying!) && !TryBeginDyingEntryProgramWindow(_pendingDying!)) ExposeHumanDyingPrompt();
+        if (!TryBeginMandatorySelfDyingProgram(ActiveDying!) && !TryBeginDyingEntryProgramWindow(ActiveDying!)) ExposeHumanDyingPrompt();
     }
 
     private SkillProgramStepOutcome BeginProgramSkillDamage(
@@ -507,28 +502,30 @@ public sealed partial class GameEngine
         bool sourceLess = false)
     {
         var judgmentNested = frame.WindowContext?.Judgment is { } frozenJudgment &&
-            _pendingJudgment is { } pendingJudgment &&
-            pendingJudgment.FrameId == frozenJudgment.JudgmentFrameId &&
-            ReferenceEquals(_pendingAttack, pendingJudgment.Attack);
+            ActiveJudgment is { } pendingJudgment &&
+            pendingJudgment.Id == frozenJudgment.JudgmentFrameId &&
+            SameAttackOwner(ActiveCardAttack, GetJudgmentAttack(pendingJudgment));
         var damageWindowNested = frame.WindowContext?.Window ==
-            SkillProgramTriggerWindow.AfterDamageApplied && _pendingDamageTrigger is not null;
-        if (_pendingAttack is not null && !judgmentNested && !damageWindowNested || _pendingDying is not null ||
+            SkillProgramTriggerWindow.AfterDamageApplied && ActiveDamageTrigger is { } outerWindow &&
+            outerWindow.Id == frame.WindowContext.ParentFrameId;
+        if (CurrentDamageAttempt is not null && !judgmentNested && !damageWindowNested &&
+            frame.FactionRecoveryDraft?.SettlingDebts != true || ActiveDying is not null ||
             _resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
             amount <= 0 || !IsValidPlayerSeat(targetSeat) || !_players[targetSeat].IsAlive)
             throw new InvalidOperationException("A program damage effect requires one active program and living target.");
-        var attack = new AttackResolution(
-            frame.Id,
+        var state = new AttackAttemptState(
             sourceReference is { } reference ? ResolveProgramParticipant(frame, reference) : frame.OwnerSeat,
-            targetSeat,
-            card: null,
-            damageAmount: amount,
-            damageNatureOverride: nature ?? DamageNature.Normal,
-            programJudgmentFrameId: frame.WindowContext?.Window == SkillProgramTriggerWindow.JudgmentFinalized
-                ? frame.WindowContext.ParentFrameId : null,
-            programSkillFrameId: frame.Id) { IsSourceLess = sourceLess };
+            targetSeat, amount, nature ?? DamageNature.Normal, sourceLess,
+            frame.WindowContext?.Window == SkillProgramTriggerWindow.JudgmentFinalized
+                ? frame.WindowContext.ParentFrameId : null);
+        var parentAttackId = CurrentDamageAttempt?.ResolutionId;
+        ReplaceRuntimeTop(current with { AttackAttempt = state,
+            AttackReturn = new(parentAttackId, damageWindowNested ? frame.WindowContext!.ParentFrameId : null,
+                judgmentNested ? frame.WindowContext!.Judgment!.JudgmentFrameId : null) });
+        IDamageAttempt attack = new ProgramAttackHandle(this, frame.Id);
         if (frame.WindowContext?.Judgment is { } judgment)
         {
-            QueueGameEvent(new ProgramJudgmentDamageRequestedEvent(
+            AdvanceEventRulesAndQueueFact(new ProgramJudgmentDamageRequestedEvent(
                 frame.WindowContext.ParentFrameId,
                 judgment.JudgmentFrameId,
                 frame.SkillId,
@@ -541,10 +538,7 @@ public sealed partial class GameEngine
                 $"{_players[attack.SourceSeat].Name} 的【{_contentRegistry!.Skills[frame.SkillId].Name}】将对 {_players[targetSeat].Name} 造成 {amount} 点{GetDamageNatureLabel(nature ?? DamageNature.Normal)}伤害。",
                 attack.SourceSeat, targetSeat);
         }
-        if (damageWindowNested && !TrySuspendProgramDamageParent(frame, attack))
-            throw new InvalidOperationException("A nested program damage lost its parent damage window.");
-        _pendingAttack = attack;
-        if (!ApplyAttackDamage(attack)) CompleteAttack(attack);
+        if (!ApplyAttackDamage(attack)) CompleteDamageAttack(attack);
         return SkillProgramStepOutcome.AwaitChild;
     }
 
@@ -646,7 +640,7 @@ public sealed partial class GameEngine
                 ? $"{owner.Name} 将在当前回合结束后获得一个额外回合。"
                 : $"{owner.Name} 令 {beneficiary.Name} 将在当前回合结束后获得一个额外回合。",
             active.OwnerSeat, beneficiarySeat);
-        QueueGameEvent(new ProgramExtraTurnPendedEvent(active.Id, active.SkillId, beneficiarySeat));
+        AdvanceEventRulesAndQueueFact(new ProgramExtraTurnPendedEvent(active.Id, active.SkillId, beneficiarySeat));
     }
 
     private SkillProgramStepOutcome UseProgramBoundCardByTarget(
@@ -687,10 +681,10 @@ public sealed partial class GameEngine
             throw new InvalidOperationException(
                 "A bound-card use requires an equipment card.");
         ClearPendingDecision();
-        _resolutionStack[^1] = frame with
+        ReplaceRuntimeTop(frame with
         {
             PendingMovementContinuation = new ProgramMovementContinuation(frame.OwnerSeat, 0, null)
-        };
+        });
         var reason = new CardMoveReason($"skill-program.{frame.SkillId}.{SkillProgramEffectOp.UseBoundCardByTarget}");
         var resolutionId = BeginCardUse(card, user.Seat, []);
         MoveCard(card, location, CardLocation.Processing, reason);
@@ -698,7 +692,7 @@ public sealed partial class GameEngine
         if (_resolutionStack.LastOrDefault() is ProgramSkillFrame)
         {
             if (!TryBeginCardsMovedProgramWindow())
-                CompleteAwaitedProgramMovement(frame.Id);
+                ReturnRuntimeProgramMovement(frame.Id);
         }
         return SkillProgramStepOutcome.AwaitChild;
     }
@@ -714,15 +708,19 @@ public sealed partial class GameEngine
                 (SkillProgramEffectOp.UseSelectedCardsAs or
                  SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick))
             return;
-        ContinueProgramSkill(frame.Id);
+        AdvanceRuntimeProgram(frame.Id);
     }
 
-    private void CompleteProgramSkillAfterDying(DyingResolution dying)
+    private void CompleteProgramSkillAfterDying(DyingCompletionReceipt dying)
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != dying.ParentFrameId)
             throw new InvalidOperationException("Program dying resolution lost its continuation.");
-        ContinueProgramSkill(frame.Id);
+        AdvanceRuntimeProgram(frame.Id);
     }
+
+    private static bool IsAwaitingProgramMovement(ProgramSkillFrame frame) =>
+        frame.PendingMovementContinuation is not null ||
+        frame.SelectedCardPayment is not null && frame.SelectedCardPaymentResult is null;
 
     private void AssertProgramSkillState()
     {
@@ -766,15 +764,32 @@ public sealed partial class GameEngine
                     (!IsValidPlayerSeat(movement.SubjectSeat) || movement.BeforeCount < 0 ||
                      movement.BeforeCount >= _players.Count))
                 throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
+            if (frame.SelectedCardPayment is { } selectedPayment)
+            {
+                if (selectedPayment.InstructionIndex < 1 || selectedPayment.InstructionIndex > frame.InstructionIndex ||
+                    plan.Instructions[selectedPayment.InstructionIndex - 1].Op != selectedPayment.Operation ||
+                    selectedPayment.Operation is not (SkillProgramEffectOp.GiveSelected or SkillProgramEffectOp.DiscardSelected) ||
+                    !selectedPayment.CardIds.SequenceEqual(frame.SelectedCardIds) ||
+                    !IsValidPlayerSeat(selectedPayment.RecipientSeat) ||
+                    selectedPayment.Operation == SkillProgramEffectOp.DiscardSelected &&
+                    selectedPayment.RecipientSeat != frame.OwnerSeat ||
+                    frame.SelectedCardPaymentResult is null && frame.PendingMovementContinuation is not null ||
+                    !selectedPayment.MovementCommitted &&
+                    (selectedPayment.ActiveChildFrameId is not null || frame.SelectedCardPaymentResult is not null) ||
+                    frame.SelectedCardPaymentResult is { } result &&
+                    (result.InstructionIndex != selectedPayment.InstructionIndex ||
+                     result.Operation != selectedPayment.Operation || !result.Completed ||
+                     result.LastChildFrameId != selectedPayment.LastCompletedChildFrameId ||
+                     selectedPayment.ActiveChildFrameId is not null))
+                    throw new InvalidOperationException("A selected-card payment lost its paid instruction or child result.");
+            }
+            else if (frame.SelectedCardPaymentResult is not null)
+                throw new InvalidOperationException("A selected-card movement result has no paid instruction.");
             if (frame.PendingMovementContinuation is { } pendingMovement)
             {
                 var paidEffect = frame.InstructionIndex > 0
                     ? plan.Instructions[frame.InstructionIndex - 1]
                     : null;
-                var awaitsSelectedMovement = paidEffect?.Op is
-                    (SkillProgramEffectOp.GiveSelected or SkillProgramEffectOp.DiscardSelected) &&
-                    pendingMovement.CoverageResultBind is null &&
-                    pendingMovement.SubjectSeat == frame.OwnerSeat;
                 var awaitsRandomTransfer = paidEffect?.Op == SkillProgramEffectOp.TransferRandomOwnedCard &&
                     pendingMovement.CoverageResultBind is null &&
                     frame.SelectedTargetSeats.Count == 1 &&
@@ -799,9 +814,9 @@ public sealed partial class GameEngine
                     paidEffect?.Op is (SkillProgramEffectOp.ExchangeSelectedTargetHands or SkillProgramEffectOp.ExchangeSelectedTargetEquipment) &&
                     pendingMovement.CoverageResultBind is null &&
                     pendingMovement.SubjectSeat == frame.OwnerSeat;
-                if (!(paidEffect?.Op is SkillProgramEffectOp.DepositBoundCardsUntilNextTurn or SkillProgramEffectOp.ObtainDeferredPile or SkillProgramEffectOp.ViewTopCardsAndObtainMatchingCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsSelectedMovement && !awaitsRandomTransfer &&
+                if (!(paidEffect?.Op == SkillProgramEffectOp.DrawOnFirstProgramTargetEncounter && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd or SkillProgramEffectOp.UseDeckSlashesThenShuffle && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.ExchangeRespondedCardEntities or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.CompareSelectedHandWithHpHand && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DeclareNameForTargetDefense or SkillProgramEffectOp.DrawAndDraftLowHandPopulation or SkillProgramEffectOp.ObtainDeckCardWithConsecutiveTarget && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.ChooseDifferentActionCategoryGift && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DepositBoundCardsUntilNextTurn or SkillProgramEffectOp.ObtainDeferredPile or SkillProgramEffectOp.ViewTopCardsAndObtainMatchingCards or SkillProgramEffectOp.StoreTopCardInPublicPile or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsRandomTransfer &&
                     !awaitsJudgmentClaim && !awaitsRepeatedJudgment && !awaitsOwnedMovement &&
-                    !awaitsExchangedMovement && !(paidEffect?.Op is SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
+                    !awaitsExchangedMovement && !(paidEffect?.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.DeferredHandAlignmentResolution is { } deferredAlignment && pendingMovement.SubjectSeat == deferredAlignment.TargetSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseRandomDeckEquipment && frame.SelectedTargetSeats is [var equipmentUser] && pendingMovement.SubjectSeat == equipmentUser && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(paidEffect is { Op: SkillProgramEffectOp.MoveBoundCards, AwaitMovementTriggers: true } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(paidEffect?.Op is SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamage && frame.DiscardChallenge is { } challenge && challenge.ChooserSeat == pendingMovement.SubjectSeat && pendingMovement.CoverageResultBind is null))
                     throw new InvalidOperationException("A movement continuation lost its paid instruction.");
@@ -817,7 +832,7 @@ public sealed partial class GameEngine
 
             var executedSelection = plan.Instructions.Take(frame.InstructionIndex)
                 .LastOrDefault(effect => effect.Op is
-                    SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets or
+                    SkillProgramEffectOp.SelectRelativeZoneDemandTarget or SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets or
                     SkillProgramEffectOp.SelectChainedByMarker or SkillProgramEffectOp.SelectOneSelectedTarget or
                     SkillProgramEffectOp.DamageFarthestCharacter or SkillProgramEffectOp.OfferCompletedCardGift);
             var awaitingCurrentSelection = executedSelection is not null &&
@@ -830,10 +845,12 @@ public sealed partial class GameEngine
                     choice.Parameters.GetValueOrDefault("program-action") ==
                     (executedSelection.Op == SkillProgramEffectOp.SelectTarget
                         ? "select-target"
+                        : executedSelection.Op == SkillProgramEffectOp.SelectRelativeZoneDemandTarget ? "relative-zone-target"
                         : executedSelection.Op == SkillProgramEffectOp.SelectTargets ? "select-targets" :
                             executedSelection.Op == SkillProgramEffectOp.DamageFarthestCharacter ? "advanced-lifecycle" : "strategic-choice"));
             var dynamicTargetsValid = executedSelection is null || executedSelection.Op switch
             {
+                SkillProgramEffectOp.SelectRelativeZoneDemandTarget => frame.SelectedTargetSeats.Count == 1 || awaitingCurrentSelection && frame.SelectedTargetSeats.Count == 0,
                 SkillProgramEffectOp.OfferCompletedCardGift => frame.SelectedTargetSeats.Count == 0 && frame.CompletedCardGiftDraft?.RecipientSeat is null || IsValidCompletedGiftTargetSelection(frame),
                 SkillProgramEffectOp.SelectTarget =>
                     frame.SelectedTargetSeats.Count == 1 || awaitingCurrentSelection && frame.SelectedTargetSeats.Count == 0,
@@ -857,12 +874,15 @@ public sealed partial class GameEngine
             foreach (var binding in frame.ChoiceBindings)
             {
                 var producer = plan.Instructions.Take(frame.InstructionIndex).SingleOrDefault(effect =>
-                    (effect.Op is SkillProgramEffectOp.ChooseOption or SkillProgramEffectOp.ChooseDifferentCategoryDiscard or
+                    (effect.Op is SkillProgramEffectOp.SelectRelativeZoneDemandTarget or SkillProgramEffectOp.ObtainDeckCardWithConsecutiveTarget or SkillProgramEffectOp.ChooseDifferentActionCategoryGift or SkillProgramEffectOp.ChooseOption or SkillProgramEffectOp.ChooseDifferentCategoryDiscard or
                         SkillProgramEffectOp.RequestSlashByTarget or SkillProgramEffectOp.RequestSlashAgainstChosenTarget or
                         SkillProgramEffectOp.RevealSelectedHandAgainstTarget) &&
                     effect.ResultBind == binding.Name || effect.Op == SkillProgramEffectOp.OfferCompletedCardGift && binding.Name == CompletedGiftFactionResultBind && IsValidCompletedGiftTargetSelection(frame));
                 var validOption = producer?.Op switch
                 {
+                    SkillProgramEffectOp.SelectRelativeZoneDemandTarget => binding.OptionId is "hand" or "equipment",
+                    SkillProgramEffectOp.ObtainDeckCardWithConsecutiveTarget => binding.OptionId is "repeat" or "new",
+                    SkillProgramEffectOp.ChooseDifferentActionCategoryGift => binding.OptionId is "gifted" or "declined",
                     SkillProgramEffectOp.ChooseOption => producer.Options.Any(option => option.Id == binding.OptionId),
                     SkillProgramEffectOp.ChooseDifferentCategoryDiscard => binding.OptionId is
                         ChooseDifferentCategoryDiscardProgramOperationDescriptor.DiscardedOption or
@@ -885,10 +905,17 @@ public sealed partial class GameEngine
             var paused = plan.Instructions[frame.InstructionIndex - 1];
             if (ReferenceEquals(frame, _resolutionStack.LastOrDefault())) AssertProgramCompoundCardTarget(frame, paused);
             AssertParticipantReserveDraft(frame, paused);
+            AssertPublicPileDraft(frame, paused);
+            AssertHandComparison(frame, paused);
+            AssertDeckProgramDrafts(frame, paused);
+            AssertProgramTargetDraft(frame, paused);
             ValidateProgramDiscardChallengeState(frame);
             AssertProgramDiscardTopPlacement(frame);
             AssertStrategicProgramSelection(frame, paused);
             AssertConfiguredCardDeclaration(frame, paused);
+            AssertDifferentActionCategoryGift(frame, paused);
+            AssertNamedDefenseAndPublicDraft(frame, paused);
+            AssertResponseEntityExchange(frame, paused);
             AssertProgramOwnedCardSelection(frame, paused);
             AssertProgramHoldCardSelection(frame, paused);
             AssertProgramRevealCardSelection(frame, paused);
@@ -945,7 +972,7 @@ public sealed partial class GameEngine
                 if (trigger is null || frame.WindowContext is not { } context ||
                     context.OwnerSeat != frame.OwnerSeat || context.Window != trigger.Window ||
                     frame.ActivationId != triggerId || frame.SelectedCardIds.Count != 0 ||
-                    executedSelection is null && frame.SelectedTargetSeats.Count != 0)
+                    executedSelection is null && frame.SelectedTargetSeats.Count != 0 && !(trigger.DeferredTurnEndOnly && IsExactDeferredChild(frame)))
                     throw new InvalidOperationException("An active trigger program has an invalid cursor or context.");
                 continue;
             }
@@ -969,7 +996,7 @@ public sealed partial class GameEngine
                          .Select(window => window.Batch.AwaitingProgramFrameId))
                      .OfType<long>())
         {
-            if (frames.Count(frame => frame.Id == scopeId && frame.PendingMovementContinuation is not null) != 1)
+            if (frames.Count(frame => frame.Id == scopeId && IsAwaitingProgramMovement(frame)) != 1)
                 throw new InvalidOperationException("A scoped card-movement batch lost its waiting program frame.");
         }
         for (var index = 0; index < _resolutionStack.Count; index++)
@@ -977,17 +1004,17 @@ public sealed partial class GameEngine
             if (_resolutionStack[index] is not CardsMovedTriggerWindowFrame
                 { Batch.AwaitingProgramFrameId: { } scopeId }) continue;
             if (!_resolutionStack.Take(index).OfType<ProgramSkillFrame>().Any(frame =>
-                    frame.Id == scopeId && frame.PendingMovementContinuation is not null))
+                    frame.Id == scopeId && IsAwaitingProgramMovement(frame)))
                 throw new InvalidOperationException("A scoped movement window lost its waiting ancestor.");
         }
 
-        if (_pendingDying is { ResumesProgramSkill: true } dying)
+        if (ActiveDying is { ResumesProgramSkill: true } dying)
         {
             var parentIndex = _resolutionStack.FindLastIndex(item => item is ProgramSkillFrame program &&
                 program.Id == dying.ParentFrameId);
             if (parentIndex < 0 || parentIndex + 1 >= _resolutionStack.Count ||
                 _resolutionStack[parentIndex + 1] is not DyingFrame child || child.Id != dying.FrameId ||
-                child.ParentFrameId != dying.ParentFrameId || dying.Attack is not null ||
+                child.ParentFrameId != dying.ParentFrameId || !dying.ResumesProgramSkill ||
                 dying.DamageFrameId is not null)
                 throw new InvalidOperationException("A program dying continuation is missing its parent program frame.");
         }

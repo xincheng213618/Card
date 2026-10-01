@@ -20,10 +20,10 @@ public sealed partial class GameEngine
         if (firstHand.Length == 0 && secondHand.Length == 0)
             return SkillProgramStepOutcome.Continue;
         var reason = new CardMoveReason($"skill-program.{frame.SkillId}.exchange");
-        _resolutionStack[^1] = active with
+        ReplaceRuntimeTop(active with
         {
             PendingMovementContinuation = new ProgramMovementContinuation(frame.OwnerSeat, 0, null)
-        };
+        });
         foreach (var card in firstHand)
         {
             MoveCard(card, CardLocation.Hand(first.Seat), CardLocation.Processing, reason);
@@ -35,7 +35,7 @@ public sealed partial class GameEngine
             MoveCard(card, CardLocation.Processing, CardLocation.Hand(first.Seat), reason);
         }
         if (!TryBeginCardsMovedProgramWindow())
-            CompleteAwaitedProgramMovement(frame.Id);
+            ReturnRuntimeProgramMovement(frame.Id);
         return SkillProgramStepOutcome.AwaitChild;
     }
 }

@@ -70,7 +70,7 @@ public sealed partial class GameEngine
         { CancelProgramBindingAndCleanup(frame, "参与者或技能实例已失效。"); return; }
         var targets = GetProgramVirtualSlashOfferTargets(actorSeat);
         if (option == "draw" || targets.Length == 0)
-        { DrawCards(_players[actorSeat], 1, log: true); ContinueProgramSkill(frame.Id); return; }
+        { DrawCards(_players[actorSeat], 1, log: true); AdvanceRuntimeProgram(frame.Id); return; }
         if (option == "slash" && selected.Targets.Count == 0)
         { SetProgramVirtualSlashOfferPrompt(frame, actorSeat, selectingTarget: true); return; }
         if (!selectingTarget || selected.Targets.Count != 1 || !targets.Contains(selected.Targets[0]) || option != $"target-{selected.Targets[0]}")
@@ -80,23 +80,23 @@ public sealed partial class GameEngine
 
     private void BeginOfferedProgramVirtualSlash(ProgramSkillFrame frame, int actorSeat, int targetSeat)
     {
-        if (_pendingAttack is not null || _pendingDuel is not null) throw new InvalidOperationException("A virtual Slash cannot overwrite an attack.");
+        if (ActiveCardAttack is not null || ActiveDuel is not null) throw new InvalidOperationException("A virtual Slash cannot overwrite an attack.");
         var source = _players[actorSeat];
         var target = _players[targetSeat];
         var resolutionId = ++_resolutionSequence;
         var action = new CardActionContext(++_cardActionSequence, _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
             CardActionType.Use, actorSeat, actorSeat, null, null, null, CardKind.Slash, [targetSeat], [], [], effectiveSuit: Suit.None, effectiveRank: 0);
-        _resolutionStack.Add(new CardUseFrame(resolutionId, actorSeat, 0, CardKind.Slash, [targetSeat], PhysicalCardIds: []) { Action = action });
-        if (TracksPlayCardHistory) QueueGameEvent(new CardUseAppearanceCapturedEvent(action));
-        QueueGameEvent(new CardUseDeclaredEvent(resolutionId, 0, CardKind.Slash, actorSeat));
-        QueueGameEvent(new TargetsConfirmedEvent(resolutionId, [targetSeat]));
-        var attack = new AttackResolution(resolutionId, actorSeat, targetSeat, card: null,
+        PushRuntimeFrame(new CardUseFrame(resolutionId, actorSeat, 0, CardKind.Slash, [targetSeat], PhysicalCardIds: []) { Action = action });
+        if (TracksPlayCardHistory) AdvanceEventRulesAndQueueFact(new CardUseAppearanceCapturedEvent(action));
+        AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(resolutionId, 0, CardKind.Slash, actorSeat));
+        AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(resolutionId, [targetSeat]));
+        var attack = new CardAttackHandle(this, resolutionId, actorSeat, targetSeat, card: null,
             damageAmount: source.HasAlcoholEffect ? 2 : 1, playedCardKind: CardKind.Slash,
             ignoresArmor: HasCardArmorBypass(source, target, CardKind.Slash), programSkillCardUseFrameId: frame.Id);
         source.HasAlcoholEffect = false;
-        _pendingAttack = attack;
-        QueueGameEvent(new CardUsedEvent(0, CardKind.Slash, actorSeat, targetSeat));
-        _committedProgramUses.Add(resolutionId);
+        ActiveCardAttack = attack;
+        AdvanceEventRulesAndQueueFact(new CardUsedEvent(0, CardKind.Slash, actorSeat, targetSeat));
+        TryMarkProgramUseCommitted(resolutionId);
         if (!TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardUseCommitted, action.TargetSeats, ProgramCardContinuation.CommittedSlash)) BeginSlashTargetResolution(attack);
     }
 
@@ -106,7 +106,7 @@ public sealed partial class GameEngine
         if (targetSeat != frame.OwnerSeat || cardKinds.Count == 0 || cardKinds.Any(kind => !GrantTurnCardEffectImmunityProgramOperationDescriptor.CardEffectImmunityKinds.Contains(kind)))
             throw new InvalidOperationException("The turn immunity grant has unsupported kinds or subject.");
         var granted = _turnCardUseEffects.GrantRuleModifier(_turnNumber, _currentSeat, frame.Id, frame.InstructionIndex - 1, CreateProgramTurnEffectSource(frame), SkillRuleQuery.CardEffectImmunity, SkillRuleOperation.Set, 1, cardKinds);
-        QueueGameEvent(new TurnRuleModifierGrantedEvent(granted));
+        AdvanceEventRulesAndQueueFact(new TurnRuleModifierGrantedEvent(granted));
     }
 
     private sealed partial class ProgramSkillHost

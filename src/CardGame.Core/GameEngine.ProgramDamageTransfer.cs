@@ -17,7 +17,7 @@ public sealed partial class GameEngine
             frame.SelectedTargetSeats.Count != 1)
             throw new InvalidOperationException("Damage redirection lost its selected recipient or parent window.");
 
-        var attack = _pendingAttack ??
+        var attack = CurrentDamageAttempt ??
             throw new InvalidOperationException("Damage redirection has no pending damage occurrence.");
         var recipientSeat = frame.SelectedTargetSeats[0];
         if (!IsValidPlayerSeat(recipientSeat) || !_players[recipientSeat].IsAlive ||
@@ -31,8 +31,8 @@ public sealed partial class GameEngine
         attack.RedirectFinalizedDamageTarget(recipientSeat,
             new ProgramDamageTransferFollowup(active.SkillId, active.OwnerSeat,
                 recipientSeat, drawLostHpAfterDamage));
-        _resolutionStack[^2] = window with { RedirectedTargetSeat = recipientSeat };
-        QueueGameEvent(new ProgramDamageTransferredEvent(
+        ReplaceRuntimeFrame(_resolutionStack[^2].Id, window with { RedirectedTargetSeat = recipientSeat });
+        AdvanceEventRulesAndQueueFact(new ProgramDamageTransferredEvent(
             attack.ResolutionId, active.SkillId, active.OwnerSeat, attack.SourceSeat,
             recipientSeat, cost.CardIds[0], window.Amount, window.Nature));
         AddLog("SkillTriggered",

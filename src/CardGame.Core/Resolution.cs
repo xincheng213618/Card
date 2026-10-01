@@ -18,7 +18,8 @@ public static class JudgmentReasons
 
 public enum ResolutionFrameKind
 {
-    CardUse,
+    DeferredTurnEnd = 1300,
+    CardUse = 0,
     ResponseWindow,
     Judgment,
     Damage,
@@ -55,6 +56,7 @@ public enum ResolutionFrameStep
 /// can inspect and later persist the stack without coupling it to the UI.
 /// </summary>
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+[JsonDerivedType(typeof(DeferredTurnEndFrame), "deferred-turn-end")]
 [JsonDerivedType(typeof(CardUseFrame), "card-use")]
 [JsonDerivedType(typeof(ResponseWindowFrame), "response-window")]
 [JsonDerivedType(typeof(JudgmentFrame), "judgment")]
@@ -103,8 +105,12 @@ public sealed record ProgramSkillFrame(
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramSkillWindowContext? WindowContext { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramNamedTargetDefense? NamedTargetDefense { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPublicHandDraft? PublicHandDraft { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public PendingDecision? ResponseDecision { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramResponseEntityExchangeDraft? ResponseEntityExchange { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPublicSuitDiscardDraft? PublicSuitDiscard { get; init; }
 
     public IReadOnlyList<ProgramSkillNumberBinding> NumberBindings { get; init; } = [];
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -112,12 +118,17 @@ public sealed record ProgramSkillFrame(
     public IReadOnlyList<ProgramAttackRangeCoverageBinding> AttackRangeCoverageBindings { get; init; } = [];
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramMovementContinuation? PendingMovementContinuation { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramSelectedCardPayment? SelectedCardPayment { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramSelectedCardPaymentResult? SelectedCardPaymentResult { get; init; }
     public IReadOnlyList<ProgramChoiceResultBinding> ChoiceBindings { get; init; } = [];
     public IReadOnlyList<ProgramSkillCardSetBinding> CardSetBindings { get; init; } = [];
     public IReadOnlyList<ProgramPindianResultBinding> PindianResultBindings { get; init; } = [];
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramOwnedCardSelection? OwnedCardSelection { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public DeferredHandAlignmentResolution? DeferredHandAlignmentResolution { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramAssistedSlashRequest? AssistedSlashRequest { get; init; }
@@ -160,11 +171,104 @@ public sealed record ProgramSkillFrame(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramPrivateReserveDraft? PrivateReserveDraft { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramPublicPileDraft? PublicPileDraft { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramDeckEndExchange? DeckEndExchange { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramRelativeZoneDemand? RelativeZoneDemand { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramDeckSlashSequence? DeckSlashSequence { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramSelectedParticipantDiscardDraft? SelectedParticipantDiscard { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramDamageCardOffer? DamageCardOffer { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramHandComparisonDraft? HandComparisonDraft { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public AttackAttemptState? AttackAttempt { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramAttackReturn? AttackReturn { get; init; }
+    public CardResolutionContinuations Continuations { get; init; } = new();
+    public CardAttackState? CardAttack { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public FactionRecoveryDebtReturn? FactionRecoveryDebtReturn { get; init; }
     public bool ReexecuteParticipantInstruction { get; init; }
 }
+
+/// <summary>One cardless program damage instruction, owned solely by its program frame.</summary>
+public sealed record AttackAttemptState(
+    int SourceSeat,
+    int TargetSeat,
+    int DamageAmount,
+    DamageNature Nature,
+    bool SourceLess,
+    long? ProgramJudgmentWindowId = null,
+    bool DamageAmountFinalized = false,
+    bool IgnoresArmor = false,
+    bool DamageWasApplied = false,
+    int SourceToTargetDistanceAtDamage = 0,
+    long? ResolvedDyingDamageFrameId = null,
+    bool BeforeDamageProgramsResolved = false,
+    bool DamageRedirected = false,
+    IReadOnlyList<int>? ChainedTargetSeats = null,
+    int ChainedTargetIndex = 0,
+    bool IsChainPropagation = false,
+    string? TransferSkillId = null,
+    int? TransferOwnerSeat = null,
+    int? TransferTargetSeat = null,
+    bool TransferDrawLostHp = false);
+
+/// <summary>Identifies a suspended parent using existing frame IDs, without retaining its attack object.</summary>
+public sealed record ProgramAttackReturn(long? ParentAttackOwnerFrameId,
+    long? ParentDamageWindowFrameId, long? ParentJudgmentFrameId);
+
+public sealed record FactionRecoveryDebtReturn(long DyingFrameId, long DyingParentFrameId,
+    int DyingVictimSeat, DyingContinuationKind DyingContinuation, bool Survived,
+    long? ParentAttackOwnerFrameId, long? ParentDamageWindowFrameId);
+
+public sealed record CardAttackState
+{
+    public bool Active { get; init; }
+    public int SourceSeat { get; init; }
+    public int CardUserSeat { get; init; }
+    public int TargetSeat { get; init; }
+    public int DamageAmount { get; init; }
+    public bool DamageAmountFinalized { get; init; }
+    public bool IgnoresArmor { get; init; }
+    public bool IsSourceLess { get; init; }
+    public IReadOnlyList<int> ChainedTargetSeats { get; init; } = [];
+    public int ChainedTargetIndex { get; init; }
+    public bool IsChainPropagation { get; init; }
+    public bool FactionDefenseAttempted { get; init; }
+    public bool FactionSlashAttempted { get; init; }
+    public bool CixiongDoubleSwordsResolved { get; init; }
+    public bool IceSwordAttempted { get; init; }
+    public bool QilinBowAttempted { get; init; }
+    public bool DamageWasApplied { get; init; }
+    public int SourceToTargetDistanceAtDamage { get; init; }
+    public long? ResolvedDyingDamageFrameId { get; init; }
+    public bool PendingRedBladeDamageBonus { get; init; }
+    public bool DamageRedirected { get; init; }
+    public bool BeforeDamageProgramsResolved { get; init; }
+    public bool ProhibitsDodge { get; init; }
+    public bool ProhibitsTargetHandResponses { get; init; }
+    public IReadOnlyList<string> ResponseProhibitingSkillNames { get; init; } = [];
+    public int RequiredDodgeResponses { get; init; } = 1;
+    public int SuccessfulDodgeResponses { get; init; }
+    public CardKind? EffectiveCardKind { get; init; }
+    public bool IsDelayedJudgmentDamage { get; init; }
+    public long? ProgramJudgmentFrameId { get; init; }
+    public long? ProgramSkillFrameId { get; init; }
+    public long? ProgramSkillCardUseFrameId { get; init; }
+    public int? DelayedJudgmentSeat { get; init; }
+    public DamageNature? DamageNatureOverride { get; init; }
+    public CardConversionSource? ConversionSource { get; init; }
+    public int? CardId { get; init; }
+    public CardKind? AppearanceKind { get; init; }
+    public Suit? AppearanceSuit { get; init; }
+    public int? AppearanceRank { get; init; }
+    public IReadOnlyList<int> PhysicalCardIds { get; init; } = [];
+    public ProgramDamageTransferReceipt? DamageTransferFollowup { get; init; }
+}
+
+public sealed record ProgramDamageTransferReceipt(string SkillId, int OwnerSeat, int TargetSeat, bool DrawLostHp);
 
 public sealed record CardUseFrame(
     long Id,
@@ -184,10 +288,28 @@ public sealed record CardUseFrame(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public DyingResponseEvent? DyingResponse { get; init; }
 
+    public CardResolutionContinuations Continuations { get; init; } = new();
+    public CardAttackState? CardAttack { get; init; }
+    public IReadOnlyList<CardAttackState>? PreparedTargetAttacks { get; init; }
     public bool CausedDamage { get; init; }
+    public bool ProgramUseAccepted { get; init; }
+    public bool ProgramUseCommitted { get; init; }
+    public bool FinalizedTrickProgramsStarted { get; init; }
+    public bool FinalizedSimpleProgramsStarted { get; init; }
+    public bool TargetsAdjusted { get; init; }
+    public bool SlashTargetsCancelled { get; init; }
+    public bool UnlimitedUse { get; init; }
+    public bool YingboUnrespondable { get; init; }
+    public bool YingboRepeated { get; init; }
+    public int? ProgramAdjustedSlashBaseDamage { get; init; }
+    public int? ForeignPublicPileSlashBaseDamage { get; init; }
+    public ProgramSimpleCardContinuation? AdjustedSimpleContinuation { get; init; }
+    public IReadOnlyList<int> CompletedDamageParticipants { get; init; } = [];
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<int>? IneffectiveTargetSeats { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public FireAttackSelectionState? FireAttackSelection { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public SequentialTrickUse? SequentialTrick { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -197,6 +319,9 @@ public sealed record CardUseFrame(
 }
 
 public sealed record SequentialTrickUse(LegalActionKind ActionKind, int? FirstTargetCardId, CardKind? RequiredCardKind);
+
+/// <summary>The revealed card becomes public only after the target chooses it.</summary>
+public sealed record FireAttackSelectionState(int? RevealedCardId);
 
 public sealed record ResponseWindowFrame(
     long Id,
@@ -213,6 +338,16 @@ public sealed record ResponseWindowFrame(
 /// physical card is in the owner's Judgment zone, which keeps automatic
 /// equipment defenses on the same serializable resolution stack as responses.
 /// </summary>
+public enum JudgmentContinuationKind
+{
+    Bagua,
+    FactionDefenseBagua,
+    ProgramSkill,
+    Indulgence,
+    SupplyShortage,
+    Lightning
+}
+
 public sealed record JudgmentFrame(
     long Id,
     long ParentFrameId,
@@ -223,9 +358,24 @@ public sealed record JudgmentFrame(
     Suit? Suit,
     bool? Succeeded,
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect,
-    IReadOnlyList<int>? ReplacementCandidateSeats = null,
     int ReplacementCandidateIndex = 0)
-    : ResolutionFrame(Id, ResolutionFrameKind.Judgment, Step);
+    : ResolutionFrame(Id, ResolutionFrameKind.Judgment, Step)
+{
+    public CardResolutionContinuations Continuations { get; init; } = new();
+    public CardAttackState? CardAttack { get; init; }
+    public int SourceSeat { get; init; }
+    public JudgmentContinuationKind Continuation { get; init; }
+    public long? ParentAttackId { get; init; }
+    public int? DelayedCardId { get; init; }
+    public string? ProgramResultBind { get; init; }
+    public SkillProgramCardSetVisibility? ProgramResultVisibility { get; init; }
+
+    /// <summary>Frozen, ordered replacement opportunities for this judgment.</summary>
+    public IReadOnlyList<JudgmentTriggerCandidate> ReplacementCandidates { get; init; } = [];
+
+    public IReadOnlyList<int> ReplacementCandidateSeats =>
+        ReplacementCandidates.Select(candidate => candidate.OwnerSeat).ToArray();
+}
 
 public sealed record DamageFrame(
     long Id,
@@ -251,6 +401,7 @@ public sealed record DamageTriggerWindowFrame(
     int? SourceCardId,
     CardKind? SourceCard,
     IReadOnlyList<DamageTriggerCandidate> Candidates,
+    SkillProgramTriggerWindow TriggerWindow,
     int CandidateIndex = 0,
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
     : ResolutionFrame(Id, ResolutionFrameKind.DamageTriggerWindow, Step);
@@ -265,6 +416,13 @@ public sealed record RecoveryFrame(
     int HpBefore = 0)
     : ResolutionFrame(Id, ResolutionFrameKind.Recovery, Step);
 
+public enum DyingContinuationKind
+{
+    Damage,
+    ProgramSkill,
+    AttackHpLoss
+}
+
 public sealed record DyingFrame(
     long Id,
     long ParentFrameId,
@@ -272,8 +430,23 @@ public sealed record DyingFrame(
     int? KillerSeat,
     IReadOnlyList<int> ResponderSeats,
     int ResponderIndex,
+    DyingContinuationKind Continuation,
     ResolutionFrameStep Step = ResolutionFrameStep.AwaitingResponse)
-    : ResolutionFrame(Id, ResolutionFrameKind.Dying, Step);
+    : ResolutionFrame(Id, ResolutionFrameKind.Dying, Step)
+{
+    public IReadOnlyList<string> AttemptedSelfDyingBindings { get; init; } = [];
+    public int ResponderSeat => ResponderSeats[ResponderIndex];
+    public bool ResumesProgramSkill => Continuation == DyingContinuationKind.ProgramSkill;
+    public bool ResumesAttackHpLoss => Continuation == DyingContinuationKind.AttackHpLoss;
+    public long FrameId => Id;
+    public long? DamageFrameId => Continuation == DyingContinuationKind.Damage ? ParentFrameId : null;
+}
+
+public enum DeathReturnKind
+{
+    Dying,
+    ProgramSkill
+}
 
 public sealed record DeathFrame(
     long Id,
@@ -281,7 +454,13 @@ public sealed record DeathFrame(
     int VictimSeat,
     int? KillerSeat,
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
-    : ResolutionFrame(Id, ResolutionFrameKind.Death, Step);
+    : ResolutionFrame(Id, ResolutionFrameKind.Death, Step)
+{
+    public DeathReturnKind? ReturnKind { get; init; }
+    public bool OwnerDiedProgramsResolved { get; init; }
+    public bool KillerProgramsResolved { get; init; }
+    public IReadOnlyList<int> CleanedUpCardIds { get; init; } = [];
+}
 
 /// <summary>
 /// A public trick-effect response cursor. It records only public card/use

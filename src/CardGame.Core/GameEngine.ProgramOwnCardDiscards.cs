@@ -127,7 +127,7 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         MoveCard(card, source, CardLocation.DiscardPile,
             new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
-        ContinueProgramSkill(frame.Id);
+        AdvanceRuntimeProgram(frame.Id);
     }
 
     private PromptChoice SelectAiProgramOwnCardDiscard(PendingDecision decision, ProgramSkillFrame frame)

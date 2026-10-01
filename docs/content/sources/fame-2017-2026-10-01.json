@@ -1,0 +1,589 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀OL",
+  "retrievedAt": "2026-10-01",
+  "retrievedAtTimestamp": "2026-10-01T16:57:40+08:00",
+  "batch": "原创设计2017",
+  "snapshotStatus": "frozenSources",
+  "implementationStatus": "eightIntegratedCoreFullVerifiedWpfBlockedByExistingArtwork",
+  "rosterIndex": {
+    "sourcePage": "https://www.sanguosha.com/hero",
+    "responseSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+    "boundary": "Hero detail meta currently reports 0 HP; the official grouped Listdata hp is authoritative."
+  },
+  "roster": [
+    {
+      "contentId": "classic:xin-xianying",
+      "officialId": 388,
+      "name": "辛宪英",
+      "maxHp": 3,
+      "faction": "wei",
+      "gender": "female",
+      "genderEvidence": {
+        "sourcePage": "https://www.sanguosha.com/news/20170918_7228_3217",
+        "basis": "Explicit official update gender"
+      },
+      "sourcePage": "https://www.sanguosha.com/hero/388",
+      "officialSkills": [
+        {
+          "name": "忠鉴",
+          "body": "出牌阶段限一次，你可以展示一张手牌，然后展示一名其他角色与其体力值等量张手牌，若其展示牌包含：与你展示牌颜色相同的牌，你摸一张牌或弃置一名其他角色一张牌；与你展示牌点数相同的牌，本回合本技能改为限两次。若皆不包含，你的手牌上限-1。"
+        },
+        {
+          "name": "才识",
+          "body": "摸牌阶段开始时，你可以选择一项：1.手牌上限+1；2.回复1点体力，本回合不能对自己使用牌。"
+        }
+      ],
+      "officialSkillText": "【忠鉴】出牌阶段限一次，你可以展示一张手牌，然后展示一名其他角色与其体力值等量张手牌，若其展示牌包含：与你展示牌颜色相同的牌，你摸一张牌或弃置一名其他角色一张牌；与你展示牌点数相同的牌，本回合本技能改为限两次。若皆不包含，你的手牌上限-1。 【才识】摸牌阶段开始时，你可以选择一项：1.手牌上限+1；2.回复1点体力，本回合不能对自己使用牌。",
+      "versionDecisions": [
+        "Current Caishi option 1 increases hand limit without the old 2017 restriction on targeting others; option 2 retains the current self-target prohibition.",
+        "Use current hero body for Zhongjian target qualification; do not silently substitute the historical excess-hand-count formula."
+      ],
+      "implementationStatus": "eightIntegratedCoreFullVerifiedWpfBlockedByExistingArtwork",
+      "publicMechanisms": {
+        "assessment": "Integrated shared capabilities; whole-batch Core full and WPF after the retained artwork gate passed. Physical desktop match acceptance not performed.",
+        "implementedCapabilities": [
+          "Multi-card reveal and color/rank comparison",
+          "Persistent hand-limit changes",
+          "Dynamic phase activation limit"
+        ]
+      },
+      "currentCapture": {
+        "responseSha256": "8310b34a5c960da1e743e0a6a071afa6b19047f9140f23ddf90db50bfc1792a4",
+        "skillSelector": ".character-tabs .character-tab paired with .skill-text > span",
+        "indexFields": {
+          "gid": 388,
+          "hp": 3,
+          "initial_hp": 0,
+          "figure_py": "wei",
+          "extend": "一将成名"
+        },
+        "rawArtifactDirectory": "%TEMP%/Card-Fame2017-sources-20261001"
+      },
+      "artwork": {
+        "id": "38800",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/388",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/38800.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-xin-xianying.png",
+        "sha256": "54e0efe31de95f07a5f0e1e10bd114d914f3e9bd20ef345582b27e9dcfdc06dd",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "verifiedAndMapped"
+      }
+    },
+    {
+      "contentId": "classic:wu-xian",
+      "officialId": 389,
+      "name": "吴苋",
+      "maxHp": 3,
+      "faction": "shu",
+      "gender": "female",
+      "genderEvidence": {
+        "sourcePage": "https://www.sanguosha.com/hero/389",
+        "basis": "Historical-person identification in official biography; live-client gender was not independently inspected."
+      },
+      "sourcePage": "https://www.sanguosha.com/hero/389",
+      "officialSkills": [
+        {
+          "name": "福绵",
+          "body": "准备阶段，你可以选择一项：1.摸牌阶段，你多摸1张牌；2.本回合限一次，你使用红色基本牌和红色普通锦囊牌可以多指定1个目标（无距离限制）。下次选择另一项时数值+1并复原本技能。"
+        },
+        {
+          "name": "怠宴",
+          "body": "结束阶段，你可以令一名其他角色获得牌堆中一张红桃基本牌，然后若你上回合对其发动过本技能，其失去1点体力。"
+        }
+      ],
+      "officialSkillText": "【福绵】准备阶段，你可以选择一项：1.摸牌阶段，你多摸1张牌；2.本回合限一次，你使用红色基本牌和红色普通锦囊牌可以多指定1个目标（无距离限制）。下次选择另一项时数值+1并复原本技能。 【怠宴】结束阶段，你可以令一名其他角色获得牌堆中一张红桃基本牌，然后若你上回合对其发动过本技能，其失去1点体力。",
+      "versionDecisions": [
+        "Current Fumian is at preparation and applies to the current turn; red Basic and ordinary Trick cards only, one optional activation per turn. Extra targets have no distance limit; other eligibility remains.",
+        "Current Daiyan is at ending and obtains a Heart Basic card, not specifically Peach. Consecutive own-turn target history determines the HP loss.",
+        "Repeated same Fumian option retains the base value; choosing the opposite option once increases that option to 2 and resets the cycle."
+      ],
+      "implementationStatus": "eightIntegratedCoreFullVerifiedWpfBlockedByExistingArtwork",
+      "publicMechanisms": {
+        "assessment": "Integrated shared capabilities; whole-batch Core full and WPF after the retained artwork gate passed. Physical desktop match acceptance not performed.",
+        "implementedCapabilities": [
+          "Conditional optional multiple extra targets",
+          "Alternating own-turn choice cycle",
+          "Deck predicate obtain and consecutive own-turn target history"
+        ]
+      },
+      "currentCapture": {
+        "responseSha256": "697078de643d0caeb93e097b5ce483d6723b1cebc7170a159e7b8acb6dee6b72",
+        "skillSelector": ".character-tabs .character-tab paired with .skill-text > span",
+        "indexFields": {
+          "gid": 389,
+          "hp": 3,
+          "initial_hp": 0,
+          "figure_py": "shu",
+          "extend": "一将成名"
+        },
+        "rawArtifactDirectory": "%TEMP%/Card-Fame2017-sources-20261001"
+      },
+      "artwork": {
+        "id": "38900",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/389",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/38900.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-wu-xian.png",
+        "sha256": "c07ab8e177123b420ea41c0f8fcc66e07c94e31b2cff4feef4b60d4f6068e124",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "verifiedAndMapped"
+      }
+    },
+    {
+      "contentId": "classic:xu-shi",
+      "officialId": 390,
+      "name": "徐氏",
+      "maxHp": 3,
+      "faction": "wu",
+      "gender": "female",
+      "genderEvidence": {
+        "sourcePage": "https://www.sanguosha.com/news/20170918_7228_3217",
+        "basis": "Explicit official update gender"
+      },
+      "sourcePage": "https://www.sanguosha.com/hero/390",
+      "officialSkills": [
+        {
+          "name": "问卦",
+          "body": "每名角色出牌阶段限一次，其可以选择一张牌，将之交给你，然后你可以将此牌置于牌堆顶或牌堆底，你与其各从另一端摸一张牌。"
+        },
+        {
+          "name": "伏诛",
+          "body": "每名男性角色的结束阶段，若牌堆剩余牌数不大于你体力值的十倍，你可以依次对其使用牌堆中所有【杀】（不能超过游戏人数），然后洗牌。"
+        }
+      ],
+      "officialSkillText": "【问卦】每名角色出牌阶段限一次，其可以选择一张牌，将之交给你，然后你可以将此牌置于牌堆顶或牌堆底，你与其各从另一端摸一张牌。 【伏诛】每名男性角色的结束阶段，若牌堆剩余牌数不大于你体力值的十倍，你可以依次对其使用牌堆中所有【杀】（不能超过游戏人数），然后洗牌。",
+      "versionDecisions": [
+        "Official 2.92 specifies owner activation skips giving a card to self and draws only one card from the opposite end.",
+        "Fuzhu uses physical deck Slash cards serially, capped by original game player count, then shuffles. It cannot be approximated by virtual free Slash loops."
+      ],
+      "implementationStatus": "eightIntegratedCoreFullVerifiedWpfBlockedByExistingArtwork",
+      "publicMechanisms": {
+        "assessment": "Integrated shared capabilities; whole-batch Core full and WPF after the retained artwork gate passed. Physical desktop match acceptance not performed.",
+        "implementedCapabilities": [
+          "Bottom deck draw",
+          "Serial physical deck card uses and final shuffle"
+        ]
+      },
+      "currentCapture": {
+        "responseSha256": "d32576221b6991c662978afaadc776c79a0546da369024ad25cbb16fe0c64e47",
+        "skillSelector": ".character-tabs .character-tab paired with .skill-text > span",
+        "indexFields": {
+          "gid": 390,
+          "hp": 3,
+          "initial_hp": 0,
+          "figure_py": "wu",
+          "extend": "一将成名"
+        },
+        "rawArtifactDirectory": "%TEMP%/Card-Fame2017-sources-20261001"
+      },
+      "artwork": {
+        "id": "39000",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/390",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/39000.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-xu-shi.png",
+        "sha256": "9cfda28df95ed9df946f3cf60a402bc653d489c5237ff62c0e539f86149ee150",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "verifiedAndMapped"
+      },
+      "implementationInferences": [
+        "Fuzhu scans the current DrawPile top-first after each real child use, never repeats an already declared physical ID, and caps uses by initial game player count. These are implementation choices, not a captured official FAQ."
+      ]
+    },
+    {
+      "contentId": "classic:cao-jie",
+      "officialId": 391,
+      "name": "曹节",
+      "maxHp": 3,
+      "faction": "qun",
+      "gender": "female",
+      "genderEvidence": {
+        "sourcePage": "https://www.sanguosha.com/news/20170918_7228_3217",
+        "basis": "Explicit official update gender"
+      },
+      "sourcePage": "https://www.sanguosha.com/hero/391",
+      "officialSkills": [
+        {
+          "name": "守玺",
+          "body": "当你成为【杀】的目标后，你可以声明一种非装备牌的牌名（每种牌名限一次），令使用者选择一项：1.弃置一张你声明的牌，并获得你一张牌；2.令此【杀】无效。"
+        },
+        {
+          "name": "惠民",
+          "body": "结束阶段，你可以摸X张牌（X为手牌数小于体力值的角色数），然后展示等量手牌，从你选择的一名角色开始依次获得其中一张。"
+        }
+      ],
+      "officialSkillText": "【守玺】当你成为【杀】的目标后，你可以声明一种非装备牌的牌名（每种牌名限一次），令使用者选择一项：1.弃置一张你声明的牌，并获得你一张牌；2.令此【杀】无效。 【惠民】结束阶段，你可以摸X张牌（X为手牌数小于体力值的角色数），然后展示等量手牌，从你选择的一名角色开始依次获得其中一张。",
+      "versionDecisions": [
+        "Current Shouxi declaration excludes equipment and is limited once per name for this game. Refusal invalidates this Slash for the owner only.",
+        "Official adjustment clarifies Huimin recipients are the hand-count-below-HP participants counted for X; the starting chosen seat determines clockwise order. Freeze eligibility before the draw."
+      ],
+      "implementationStatus": "eightIntegratedCoreFullVerifiedWpfBlockedByExistingArtwork",
+      "publicMechanisms": {
+        "assessment": "Integrated shared capabilities; whole-batch Core full and WPF after the retained artwork gate passed. Physical desktop match acceptance not performed.",
+        "implementedCapabilities": [
+          "Game-wide declaration/payment continuation",
+          "Public card pool with frozen clockwise recipients"
+        ]
+      },
+      "currentCapture": {
+        "responseSha256": "0b0f562b272b3ef13e2e71f0dd9ff10c7010f1f7f43753ea44d71a50fcee2100",
+        "skillSelector": ".character-tabs .character-tab paired with .skill-text > span",
+        "indexFields": {
+          "gid": 391,
+          "hp": 3,
+          "initial_hp": 0,
+          "figure_py": "qun",
+          "extend": "一将成名"
+        },
+        "rawArtifactDirectory": "%TEMP%/Card-Fame2017-sources-20261001"
+      },
+      "artwork": {
+        "id": "39100",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/391",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/39100.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-cao-jie.png",
+        "sha256": "6102014a2e5bdd222f30b9c949472729ac613ee34834dcc5eeb3948eb12b9c60",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "verifiedAndMapped"
+      }
+    },
+    {
+      "contentId": "classic:ji-kang",
+      "officialId": 392,
+      "name": "嵇康",
+      "maxHp": 3,
+      "faction": "wei",
+      "gender": "male",
+      "genderEvidence": {
+        "sourcePage": "https://www.sanguosha.com/news/20180314_3303_3110",
+        "basis": "Explicit official update gender"
+      },
+      "sourcePage": "https://www.sanguosha.com/hero/392",
+      "officialSkills": [
+        {
+          "name": "清弦",
+          "body": "当你受到伤害/回复体力后，若没有角色处于濒死状态，你可以令伤害来源/一名其他角色执行一项：1.失去1点体力，随机使用一张装备牌；2.回复1点体力，弃置一张装备牌。若其使用或弃置的牌为梅花牌，你摸一张牌。"
+        },
+        {
+          "name": "绝响",
+          "body": "当你死亡时，你可以令一名角色随机获得以下一个技能：“ 和弦 ”“ 柔弦 ”“ 烈弦 ”“ 激弦 ”。然后直到其下回合开始，其不能成为其他角色使用梅花牌的目标。"
+        }
+      ],
+      "officialSkillText": "【清弦】当你受到伤害/回复体力后，若没有角色处于濒死状态，你可以令伤害来源/一名其他角色执行一项：1.失去1点体力，随机使用一张装备牌；2.回复1点体力，弃置一张装备牌。若其使用或弃置的牌为梅花牌，你摸一张牌。 【绝响】当你死亡时，你可以令一名角色随机获得以下一个技能：“ 和弦 ”“ 柔弦 ”“ 烈弦 ”“ 激弦 ”。然后直到其下回合开始，其不能成为其他角色使用梅花牌的目标。",
+      "versionDecisions": [
+        "Official 2.97 supplies Jixian, Liexian, Rouxian and Hexian bodies.",
+        "DrawPile-only random equipment source and continuation after a genuine rescue are explicit implementation choices; no current official FAQ is claimed."
+      ],
+      "implementationStatus": "eightIntegratedCoreFullVerifiedWpfBlockedByExistingArtwork",
+      "publicMechanisms": {
+        "assessment": "Integrated shared capabilities; whole-batch Core full and WPF after the retained artwork gate passed. Physical desktop match acceptance not performed.",
+        "implementedCapabilities": [
+          "Random equipment real-use continuation",
+          "Random skill grants",
+          "Beneficiary-next-turn expiry target restriction"
+        ]
+      },
+      "currentCapture": {
+        "responseSha256": "bc5c331ac127cf03579c57f4c3cb38e157e69cebe9344d417a2a60d7f930a61e",
+        "skillSelector": ".character-tabs .character-tab paired with .skill-text > span",
+        "indexFields": {
+          "gid": 392,
+          "hp": 3,
+          "initial_hp": 0,
+          "figure_py": "wei",
+          "extend": "一将成名"
+        },
+        "rawArtifactDirectory": "%TEMP%/Card-Fame2017-sources-20261001"
+      },
+      "artwork": {
+        "id": "39200",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/392",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/39200.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ji-kang.png",
+        "sha256": "c9e0cb0aab6a7b159b44480a0c480d4cca7f9beb73f9658861bcf8f8ebcf3afb",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "verifiedAndMapped"
+      },
+      "implementationInferences": [
+        "Random equipment is chosen from currently legal physical DrawPile equipment before RNG or movement. An initially eligible HP-loss branch continues after a genuine rescue only while its target survives."
+      ]
+    },
+    {
+      "contentId": "classic:qin-mi",
+      "officialId": 393,
+      "name": "秦宓",
+      "maxHp": 3,
+      "faction": "shu",
+      "gender": "male",
+      "genderEvidence": {
+        "sourcePage": "https://www.sanguosha.com/hero/393",
+        "basis": "Historical-person identification in official biography; live-client gender was not independently inspected."
+      },
+      "sourcePage": "https://www.sanguosha.com/hero/393",
+      "officialSkills": [
+        {
+          "name": "谏征",
+          "body": "当其他角色使用【杀】指定其他角色为目标时，若你在使用者的攻击范围内，你可以将一张手牌置于牌堆顶，取消所有目标，然后若此【杀】不为黑色，你成为目标。"
+        },
+        {
+          "name": "专对",
+          "body": "当你使用【杀】指定目标后，你可以与其拼点，若你赢，其不能响应此【杀】；当你成为【杀】的目标后，你可以与使用者拼点，若你赢，此【杀】对你无效。"
+        },
+        {
+          "name": "天辩",
+          "body": "当你拼点时，你可以用牌堆顶的牌拼点。你的红桃拼点牌的点数视为K。"
+        }
+      ],
+      "officialSkillText": "【谏征】当其他角色使用【杀】指定其他角色为目标时，若你在使用者的攻击范围内，你可以将一张手牌置于牌堆顶，取消所有目标，然后若此【杀】不为黑色，你成为目标。 【专对】当你使用【杀】指定目标后，你可以与其拼点，若你赢，其不能响应此【杀】；当你成为【杀】的目标后，你可以与使用者拼点，若你赢，此【杀】对你无效。 【天辩】当你拼点时，你可以用牌堆顶的牌拼点。你的红桃拼点牌的点数视为K。",
+      "versionDecisions": [
+        "Tianbian must use the real top-deck entity as a Pindian source and override only the effective Heart comparison rank to 13.",
+        "Jianzheng cancels all original Slash targets and adds the owner for non-black Slash, preserving real action and response lifecycle."
+      ],
+      "implementationStatus": "eightIntegratedCoreFullVerifiedWpfBlockedByExistingArtwork",
+      "publicMechanisms": {
+        "assessment": "Integrated shared capabilities; whole-batch Core full and WPF after the retained artwork gate passed. Physical desktop match acceptance not performed.",
+        "implementedCapabilities": [
+          "All-target Slash replacement",
+          "Pindian entity source and effective point policy"
+        ]
+      },
+      "currentCapture": {
+        "responseSha256": "4a4dc81b9e572b348222a39c4b1281c36096920c9df6801ea9a6690ad5e6c43e",
+        "skillSelector": ".character-tabs .character-tab paired with .skill-text > span",
+        "indexFields": {
+          "gid": 393,
+          "hp": 3,
+          "initial_hp": 0,
+          "figure_py": "shu",
+          "extend": "一将成名"
+        },
+        "rawArtifactDirectory": "%TEMP%/Card-Fame2017-sources-20261001"
+      },
+      "artwork": {
+        "id": "39300",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/393",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/39300.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-qin-mi.png",
+        "sha256": "79f2b5760acfd59a5d2204f27dd6aa32169b6379b8706991c27741ff999d1385",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "verifiedAndMapped"
+      }
+    },
+    {
+      "contentId": "classic:xue-zong",
+      "officialId": 394,
+      "name": "薛综",
+      "maxHp": 3,
+      "faction": "wu",
+      "gender": "male",
+      "genderEvidence": {
+        "sourcePage": "https://www.sanguosha.com/news/20180314_3303_3110",
+        "basis": "Explicit official update gender"
+      },
+      "sourcePage": "https://www.sanguosha.com/hero/394",
+      "officialSkills": [
+        {
+          "name": "复难",
+          "body": "当其他角色响应你使用的牌时，你可以令其获得此牌，其本回合不能使用或打出此牌，然后你获得其响应时使用或打出的牌。"
+        },
+        {
+          "name": "诫训",
+          "body": "结束阶段，你可以令一名其他角色：摸与场上方片牌数等量张牌，然后弃置X张牌（X为此前本技能发动次数），若其因此弃置了所有牌，你失去本技能并修改“复难”。"
+        }
+      ],
+      "officialSkillText": "【复难】当其他角色响应你使用的牌时，你可以令其获得此牌，其本回合不能使用或打出此牌，然后你获得其响应时使用或打出的牌。 【诫训】结束阶段，你可以令一名其他角色：摸与场上方片牌数等量张牌，然后弃置X张牌（X为此前本技能发动次数），若其因此弃置了所有牌，你失去本技能并修改“复难”。",
+      "versionDecisions": [
+        "Official 2.97 confirms upgraded Funan omits giving the original use card and still obtains the response card.",
+        "Obtained original entity IDs are prohibited for both use and response for the turn, not every card with that name."
+      ],
+      "implementationStatus": "eightIntegratedCoreFullVerifiedWpfBlockedByExistingArtwork",
+      "publicMechanisms": {
+        "assessment": "Integrated shared capabilities; whole-batch Core full and WPF after the retained artwork gate passed. Physical desktop match acceptance not performed.",
+        "implementedCapabilities": [
+          "Linked original/response entity claims",
+          "Entity-specific use and response ban",
+          "Table suit facts and cumulative activations"
+        ]
+      },
+      "currentCapture": {
+        "responseSha256": "3a2378524efbfbd500556f81c8a9a675344a70e425f0a735cf3ee38821b208b4",
+        "skillSelector": ".character-tabs .character-tab paired with .skill-text > span",
+        "indexFields": {
+          "gid": 394,
+          "hp": 3,
+          "initial_hp": 0,
+          "figure_py": "wu",
+          "extend": "一将成名"
+        },
+        "rawArtifactDirectory": "%TEMP%/Card-Fame2017-sources-20261001"
+      },
+      "artwork": {
+        "id": "39400",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/394",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/39400.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-xue-zong.png",
+        "sha256": "014665ae873d3e1c131e402da772582d3547337b3babcacc7d98955cdec59f1d",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "verifiedAndMapped"
+      }
+    },
+    {
+      "contentId": "classic:cai-yong",
+      "officialId": 395,
+      "name": "蔡邕",
+      "maxHp": 3,
+      "faction": "qun",
+      "gender": "male",
+      "genderEvidence": {
+        "sourcePage": "https://www.sanguosha.com/news/20180314_3303_3110",
+        "basis": "Explicit official update gender"
+      },
+      "sourcePage": "https://www.sanguosha.com/hero/395",
+      "officialSkills": [
+        {
+          "name": "辟撰",
+          "body": "当你使用黑桃牌或成为其他角色黑桃牌的目标后，你可以将牌堆顶的一张牌置于你的武将牌上，称为“书”（至多四张）。你的手牌上限+X（X为你“书”的数量）。"
+        },
+        {
+          "name": "通博",
+          "body": "摸牌阶段结束后，你可以用任意张牌替换等量张“书”，然后若你的“书”包含四种花色，你将所有“书”交给任意名其他角色。"
+        }
+      ],
+      "officialSkillText": "【辟撰】当你使用黑桃牌或成为其他角色黑桃牌的目标后，你可以将牌堆顶的一张牌置于你的武将牌上，称为“书”（至多四张）。你的手牌上限+X（X为你“书”的数量）。 【通博】摸牌阶段结束后，你可以用任意张牌替换等量张“书”，然后若你的“书”包含四种花色，你将所有“书”交给任意名其他角色。",
+      "versionDecisions": [
+        "Book cards form a separate public persistent owned zone, capped at four, not a private reserve or next-turn deferred pile.",
+        "Tongbo exchanges equal physical entity sets with owner HE; after exchange, four suits require distributing every Book to other participants."
+      ],
+      "implementationStatus": "eightIntegratedCoreFullVerifiedWpfBlockedByExistingArtwork",
+      "publicMechanisms": {
+        "assessment": "Integrated shared capabilities; whole-batch Core full and WPF after the retained artwork gate passed. Physical desktop match acceptance not performed.",
+        "implementedCapabilities": [
+          "Public persistent pile lifecycle",
+          "Equal HE/book exchange",
+          "Four-suit full-pile distribution"
+        ]
+      },
+      "currentCapture": {
+        "responseSha256": "403f1e13517f87da636a48bdab7592e85d74e42922995d1c8f9af1923a6a1286",
+        "skillSelector": ".character-tabs .character-tab paired with .skill-text > span",
+        "indexFields": {
+          "gid": 395,
+          "hp": 3,
+          "initial_hp": 0,
+          "figure_py": "qun",
+          "extend": "一将成名"
+        },
+        "rawArtifactDirectory": "%TEMP%/Card-Fame2017-sources-20261001"
+      },
+      "artwork": {
+        "id": "39500",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/395",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/39500.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-cai-yong.png",
+        "sha256": "cddd9c3c9277eb4069387a8e7594e8daf398ffb05b4586e2c88ca5eaa69c83cb",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "verifiedAndMapped"
+      }
+    }
+  ],
+  "supplementarySources": [
+    {
+      "sourcePage": "https://www.sanguosha.com/news/20170704_8550_3716",
+      "responseSha256": "43d51be4f8e1c9f2a305551d824ee9bb5c28cd87c963f7cd4318e9fc51f18ffe",
+      "boundary": "Official historical supplementary text; current hero body takes precedence on conflicts."
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/news/20170918_7228_3217",
+      "responseSha256": "3088363e17dd6da9b2d0f6d2dce60153adcef69a674167521dd49641b49b9ebe",
+      "boundary": "Official historical supplementary text; current hero body takes precedence on conflicts."
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/news/20180314_3303_3110",
+      "responseSha256": "76c7451d1d42cdedfd1c7757956a1e66748aaba3f153f188e265d8823bbe6da6",
+      "boundary": "Official historical supplementary text; current hero body takes precedence on conflicts."
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/news/20180327_6293_5716",
+      "responseSha256": "441b0143180d61f3f2cc0d8653ce4fc11ebd44964466da6911b078683d512e6f",
+      "rawArtifactDirectory": "%TEMP%/Card-HaoZhao-prep-20261001",
+      "boundary": "Captured full official supplementary HTML for Ji Kang; historical text supplements but does not override current hero body."
+    }
+  ],
+  "verification": {
+    "status": "wholeBatchCoreVerifiedWpfArtworkGateRetained",
+    "firstGroup": {
+      "contentIds": [
+        "classic:cai-yong",
+        "classic:cao-jie",
+        "classic:wu-xian"
+      ],
+      "coreFullPassed": 231,
+      "coreFullFailed": 0,
+      "coreDurationMs": 106175,
+      "runnerDurationMs": 114413,
+      "wpfFullFailure": "Missing or invalid original face for 赤血青锋",
+      "wpfAfterExistingArtworkGatePassed": 32,
+      "sourceDrift": [],
+      "artifacts": "%TEMP%/Card-Fame2017-Full-20261001"
+    },
+    "secondGroup": {
+      "contentIds": [
+        "classic:qin-mi",
+        "classic:xin-xianying"
+      ],
+      "xinXianyingFinalFocusedPassed": 4,
+      "qinMiFocusedPassed": 10,
+      "compositionPassed": 4,
+      "completedSlashPassed": 1,
+      "existingPindianPassed": 1,
+      "finalWpfFocusedPassed": 3,
+      "finalMixedDurationMs": 18954,
+      "artifacts": [
+        "%TEMP%/Card-Fame2017-SecondIntegrated-20261001",
+        "%TEMP%/Card-Fame2017-SecondFinal-20261001"
+      ],
+      "boundary": "SecondIntegrated includes retained fixture/WPF filter failures; corrected Xin and UI final checks passed in SecondFinal. Qin/composition/completed Slash passed in SecondIntegrated."
+    },
+    "remainingContentIds": [],
+    "boundary": "All eight generals integrated. Full runner failed at the retained WPF artwork gate; Core 263/263 and subsequent WPF 35 checks passed independently. Core duration exceeds the roughly one-minute default target. No physical desktop match or release acceptance. Existing full artwork catalogue Zhou Yu SHA failure remains.",
+    "wholeBatch": {
+      "contentIds": [
+        "classic:xin-xianying",
+        "classic:wu-xian",
+        "classic:xu-shi",
+        "classic:cao-jie",
+        "classic:ji-kang",
+        "classic:qin-mi",
+        "classic:xue-zong",
+        "classic:cai-yong"
+      ],
+      "buildDurationMs": 10575,
+      "coreFullPassed": 263,
+      "coreFullFailed": 0,
+      "coreFullSkipped": 0,
+      "coreDurationMs": 228964,
+      "runnerDurationMs": 239855,
+      "driverDurationSeconds": 305.532,
+      "wpfFullFailure": "Missing or invalid original face for 赤血青锋",
+      "wpfAfterExistingArtworkGatePassed": 35,
+      "wpfAfterGateDurationSeconds": 54.553,
+      "sourceDrift": [],
+      "artifacts": "%TEMP%/Card-Fame2017-EightFull-20261001"
+    }
+  }
+}

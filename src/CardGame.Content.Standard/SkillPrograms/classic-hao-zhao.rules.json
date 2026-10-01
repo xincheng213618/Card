@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:zhengu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "schedule",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "scheduleDeferredHandAlignment",
+              "target": "selectedTarget",
+              "stateId": "settle"
+            }
+          ]
+        },
+        {
+          "id": "settle",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "deferredTurnEndOnly": true,
+          "effects": [
+            {
+              "op": "resolveDeferredHandAlignment",
+              "target": "owner",
+              "resultBind": "discarded"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

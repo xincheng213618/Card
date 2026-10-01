@@ -559,6 +559,118 @@
         260
       ],
       "sha256": "42C5BFA54B7AABFCC327F83D6EB189964137E604E1C08E323A499AF973233F7C"
+    },
+    {
+      "kind": "ScarletBloodSword",
+      "file": "ScarletBloodSword.png",
+      "sourceKind": "officialIllustration",
+      "source": {
+        "pageUrl": "https://www.sanguosha.com/news/20170814_6789_3217",
+        "imageUrl": "https://www.sanguosha.com/uploads/201708/59916dca239b0.jpg",
+        "imageSha256": "96B2000A98B52D77C1CA9DE3F2B310D550CA93C99B7A2F5D3966C143A9B645B4",
+        "originalSize": [
+          500,
+          500
+        ],
+        "rankSuitBakedIn": false
+      },
+      "transform": {
+        "mode": "contain",
+        "scaledSize": [
+          186,
+          186
+        ],
+        "outputSize": [
+          186,
+          260
+        ],
+        "padding": [
+          0,
+          37,
+          0,
+          37
+        ],
+        "background": "transparent",
+        "filter": "lanczos",
+        "renderer": {
+          "tool": "ffmpeg",
+          "version": "N-104863-g6cf55b9da2-20211213",
+          "pixelFormat": "rgba"
+        }
+      },
+      "notes": "Official original weapon illustration, not a native atlas full face. Preserve the complete sword and its aspect ratio; no title or rules are synthesized. Runtime card name, rank and suit remain separate overlays.",
+      "sha256": "3FE3F15450BBEC8D4B17079CFD7C8EC3BF2996DA23E6D7CD48A205B8D5EAD320"
+    },
+    {
+      "kind": "XingtianAxe",
+      "file": "XingtianAxe.png",
+      "sourceKind": "officialCardFace",
+      "source": {
+        "pageUrl": "https://www.sanguosha.com/news/20221206_3507_5113",
+        "imageUrl": "https://sanguosha.com/uploads/202212/639003930c183.png",
+        "imageSha256": "A43DD345CAC52D3FA6B6186144EAFAA0D36A354A054A2B118FE4D114F905DE88",
+        "originalSize": [
+          93,
+          130
+        ],
+        "rankSuitBakedIn": false
+      },
+      "transform": {
+        "mode": "scale",
+        "scaledSize": [
+          186,
+          260
+        ],
+        "outputSize": [
+          186,
+          260
+        ],
+        "padding": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "scale": 2,
+        "filter": "neighbor",
+        "renderer": {
+          "tool": "ffmpeg",
+          "version": "N-104863-g6cf55b9da2-20211213",
+          "pixelFormat": "rgba"
+        }
+      },
+      "notes": "Official complete UI card face from the article, not an atlas frame. Original 93 by 130 pixels enlarged uniformly 2x; detail remains limited by the low-resolution source. Printed rules are retained; runtime rank and suit are separate overlays.",
+      "sha256": "7A8C999CFA651D7C1DDCBE6DDF257580E69CADC26CC04D3B1881F1A22C54A61F"
+    },
+    {
+      "kind": "GeneralWeapon",
+      "file": "GeneralWeapon.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-GeneratedWeaponArtwork.ps1",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "562CF9B5808ECF8784352C155568A33EFE368CC89178C03980C49E047EA61BE5",
+      "notes": "Existing project-generated artwork from the frozen main snapshot. Metadata registration only; do not redraw or replace during official artwork import."
+    },
+    {
+      "kind": "RedBloodBlade",
+      "file": "RedBloodBlade.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-GeneratedWeaponArtwork.ps1",
+        "originalSize": [
+          186,
+          260
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "2AFA148B482FEDF1F473E871421E089937A2BA30A560979DC526C65AA0659FA9",
+      "notes": "Existing project-generated artwork from the frozen main snapshot. Metadata registration only; do not redraw or replace during official artwork import."
     }
   ],
   "components": [
@@ -1245,6 +1357,36 @@
         50
       ],
       "sha256": "4DC3ECBD77B5E1E426F7AE9ACAFC449AB88CA65C33CAFB13C7AE0CE6BB5C9783"
+    },
+    {
+      "id": "equipment:GeneralWeapon",
+      "file": "equip-GeneralWeapon.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-GeneratedWeaponArtwork.ps1",
+        "originalSize": [
+          284,
+          50
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "812ACE8990F778D4EFC0A4F5DC521ADA7E2BDB6C260F0F4E01C8D02EA60CE7A4",
+      "notes": "Existing project-generated artwork from the frozen main snapshot. Metadata registration only; do not redraw or replace during official artwork import."
+    },
+    {
+      "id": "equipment:RedBloodBlade",
+      "file": "equip-RedBloodBlade.png",
+      "sourceKind": "projectGenerated",
+      "source": {
+        "generator": "tools/Build-GeneratedWeaponArtwork.ps1",
+        "originalSize": [
+          284,
+          50
+        ],
+        "rankSuitBakedIn": false
+      },
+      "sha256": "90744B8FC8EE45037CD9565FB6E04CF863B59E45894C601B7B02AE8C3D8864B6",
+      "notes": "Existing project-generated artwork from the frozen main snapshot. Metadata registration only; do not redraw or replace during official artwork import."
     }
   ]
 }

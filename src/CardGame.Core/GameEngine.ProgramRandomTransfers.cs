@@ -33,11 +33,11 @@ public sealed partial class GameEngine
         var card = hand[_random.Next(hand.Length)];
         var snapshot = ToSnapshot(card);
         var reason = new CardMoveReason($"skill-program.{frame.SkillId}.transferRandomOwnedCard");
-        _resolutionStack[^1] = active with
+        ReplaceRuntimeTop(active with
         {
             PendingMovementContinuation = new ProgramMovementContinuation(targetSeat, 0, null)
-        };
-        QueueGameEvent(new ProgramCardsRevealedEvent(frame.Id, frame.SkillId,
+        });
+        AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(frame.Id, frame.SkillId,
             GetProgramBindingId(frame), frame.OwnerSeat, resultBind,
             Array.AsReadOnly(new[] { snapshot })));
         MoveCard(card, CardLocation.Hand(frame.OwnerSeat), CardLocation.Processing, reason);
@@ -45,7 +45,7 @@ public sealed partial class GameEngine
         SetProgramCardSet(frame.Id, resultBind, [card.Id], SkillProgramCardSetVisibility.Public,
             [CardLocation.Hand(targetSeat)], card.Suit);
         if (!TryBeginCardsMovedProgramWindow())
-            CompleteAwaitedProgramMovement(frame.Id);
+            ReturnRuntimeProgramMovement(frame.Id);
         return SkillProgramStepOutcome.AwaitChild;
     }
 }

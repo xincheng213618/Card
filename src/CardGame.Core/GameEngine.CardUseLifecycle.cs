@@ -2,11 +2,84 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
+    private CardUseFrame? LifecycleCardUse(long frameId) =>
+        _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(frame => frame.Id == frameId);
+
+    private void UpdateLifecycleCardUse(long frameId, Func<CardUseFrame, CardUseFrame> update)
+    {
+        var frame = LifecycleCardUse(frameId) ?? throw new InvalidOperationException("The card-use lifecycle owner is missing.");
+        ReplaceRuntimeFrame(frameId, update(frame));
+    }
+
+    private bool TryMarkProgramUseAccepted(long frameId)
+    {
+        var frame = LifecycleCardUse(frameId) ?? throw new InvalidOperationException("The card-use lifecycle owner is missing.");
+        if (frame.ProgramUseAccepted) return false;
+        ReplaceRuntimeFrame(frameId, frame with { ProgramUseAccepted = true });
+        return true;
+    }
+
+    private bool TryMarkProgramUseCommitted(long frameId)
+    {
+        var frame = LifecycleCardUse(frameId) ?? throw new InvalidOperationException("The card-use lifecycle owner is missing.");
+        if (frame.ProgramUseCommitted) return false;
+        ReplaceRuntimeFrame(frameId, frame with { ProgramUseCommitted = true });
+        return true;
+    }
+
+    private bool TryMarkFinalizedTrickProgramsStarted(long frameId)
+    {
+        var frame = LifecycleCardUse(frameId) ?? throw new InvalidOperationException("The card-use lifecycle owner is missing.");
+        if (frame.FinalizedTrickProgramsStarted) return false;
+        ReplaceRuntimeFrame(frameId, frame with { FinalizedTrickProgramsStarted = true });
+        return true;
+    }
+
+    private bool TryMarkFinalizedSimpleProgramsStarted(long frameId)
+    {
+        var frame = LifecycleCardUse(frameId) ?? throw new InvalidOperationException("The card-use lifecycle owner is missing.");
+        if (frame.FinalizedSimpleProgramsStarted) return false;
+        ReplaceRuntimeFrame(frameId, frame with { FinalizedSimpleProgramsStarted = true });
+        return true;
+    }
+
+    private bool TryMarkTargetsAdjusted(long frameId)
+    {
+        var frame = LifecycleCardUse(frameId) ?? throw new InvalidOperationException("The card-use lifecycle owner is missing.");
+        if (frame.TargetsAdjusted) return false;
+        ReplaceRuntimeFrame(frameId, frame with { TargetsAdjusted = true });
+        return true;
+    }
+
+    private bool TryMarkUnlimitedUse(long frameId)
+    {
+        var frame = LifecycleCardUse(frameId) ?? throw new InvalidOperationException("The card-use lifecycle owner is missing.");
+        if (frame.UnlimitedUse) return false;
+        ReplaceRuntimeFrame(frameId, frame with { UnlimitedUse = true });
+        return true;
+    }
+
+    private bool TryMarkYingboUnrespondable(long frameId)
+    {
+        var frame = LifecycleCardUse(frameId) ?? throw new InvalidOperationException("The card-use lifecycle owner is missing.");
+        if (frame.YingboUnrespondable) return false;
+        ReplaceRuntimeFrame(frameId, frame with { YingboUnrespondable = true });
+        return true;
+    }
+
+    private bool TryMarkYingboRepeated(long frameId)
+    {
+        var frame = LifecycleCardUse(frameId) ?? throw new InvalidOperationException("The card-use lifecycle owner is missing.");
+        if (frame.YingboRepeated) return false;
+        ReplaceRuntimeFrame(frameId, frame with { YingboRepeated = true });
+        return true;
+    }
+
     private bool TryBeginCommittedCardUse(long frameId, ProgramCardContinuation continuation,
         ProgramTrickContinuation? trick = null, ProgramSimpleCardContinuation? simple = null)
     {
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == frameId);
-        if (frame.Action is not { } action || !_committedProgramUses.Add(frameId)) return false;
+        if (frame.Action is not { } action || !TryMarkProgramUseCommitted(frameId)) return false;
         return TryBeginProgramCardWindow(null, action, SkillProgramTriggerWindow.CardUseCommitted,
             action.TargetSeats, continuation, trickContinuation: trick, simpleContinuation: simple);
     }
@@ -26,9 +99,10 @@ public sealed partial class GameEngine
     private void BeginSimpleCardUse(long frameId, ProgramSimpleCardContinuation continuation)
     {
         var use = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == frameId);
-        if (_adjustedTargetCardUses.Contains(frameId) && use.TargetSeats.Count > 1 &&
+        if ((LifecycleCardUse(frameId)?.TargetsAdjusted == true) && use.TargetSeats.Count > 1 &&
             continuation.Effect is SimpleCardUseEffect.Recovery or SimpleCardUseEffect.Alcohol)
-            _adjustedSimpleCardContinuations[frameId] = continuation;
+            UpdateLifecycleCardUse(frameId, frame => frame with { AdjustedSimpleContinuation = continuation with
+                { RecoveryPolicySources = continuation.RecoveryPolicySources is { } policies ? Array.AsReadOnly(policies.ToArray()) : null } });
         if (!TryBeginCommittedCardUse(frameId, ProgramCardContinuation.CommittedSimpleCard,
                 simple: continuation))
             ContinueSimpleCardUse(frameId, continuation);

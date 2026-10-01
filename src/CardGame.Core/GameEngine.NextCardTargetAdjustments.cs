@@ -4,26 +4,24 @@ public sealed partial class GameEngine
 {
     private readonly Dictionary<int, CardConversionSource> _nextCardTargetAdjustmentOwners = [];
     private IReadOnlyList<int>? _selectedNextCardTargetSeats;
-    private readonly HashSet<long> _adjustedTargetCardUses = [];
-    private readonly Dictionary<long, ProgramSimpleCardContinuation> _adjustedSimpleCardContinuations = [];
 
-    private bool HasRemainingAdjustedSimpleTargets(long frameId) => _adjustedSimpleCardContinuations.ContainsKey(frameId) &&
+    private bool HasRemainingAdjustedSimpleTargets(long frameId) => (LifecycleCardUse(frameId)?.AdjustedSimpleContinuation is not null) &&
         _resolutionStack.OfType<CardUseFrame>().Any(frame => frame.Id == frameId && frame.TargetIndex + 1 < frame.TargetSeats.Count);
 
     private bool TryContinueAdjustedSimpleCardUse(long frameId)
     {
-        if (!_adjustedSimpleCardContinuations.TryGetValue(frameId, out var continuation)) return false;
+        if (LifecycleCardUse(frameId)?.AdjustedSimpleContinuation is not { } continuation) return false;
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == frameId);
         if (frame.TargetIndex + 1 >= frame.TargetSeats.Count || _winner != Winner.None)
-        { _adjustedSimpleCardContinuations.Remove(frameId); return false; }
+        { UpdateLifecycleCardUse(frameId, use => use with { AdjustedSimpleContinuation = null }); return false; }
         SetCardUseTargetIndex(frameId, frame.TargetIndex + 1);
         ContinueSimpleCardUse(frameId, continuation);
         return true;
     }
 
-    private bool HasRemainingAdjustedBorrowedSwordTargets(long frameId) => _winner == Winner.None && _adjustedTargetCardUses.Contains(frameId) &&
+    private bool HasRemainingAdjustedBorrowedSwordTargets(long frameId) => _winner == Winner.None && (LifecycleCardUse(frameId)?.TargetsAdjusted == true) &&
         _resolutionStack.OfType<CardUseFrame>().Any(frame => frame.Id == frameId && frame.CardKind == CardKind.BorrowedSword &&
-            frame.TargetSeats.Count == 4 && frame.TargetIndex + 2 < frame.TargetSeats.Count);
+            frame.TargetSeats.Count >= 4 && frame.TargetSeats.Count % 2 == 0 && frame.TargetIndex + 2 < frame.TargetSeats.Count);
 
     private bool TryContinueAdjustedBorrowedSwordUse(long frameId)
     {
@@ -52,19 +50,19 @@ public sealed partial class GameEngine
         if (payload is TurnStartedEvent)
         {
             _nextCardTargetAdjustmentOwners.Clear();
-            _adjustedTargetCardUses.Clear();
+            _redAdditionalTargetGrants.Clear();
         }
         else if (payload is CardUseDeclaredEvent used)
             _nextCardTargetAdjustmentOwners.Remove(used.SourceSeat);
     }
 
-    private bool HasNextCardTargetAdjustment(CharacterState owner) =>
+    private bool HasLegacyNextCardTargetAdjustment(CharacterState owner) =>
         _nextCardTargetAdjustmentOwners.TryGetValue(owner.Seat, out var source) &&
         HasRuntimeSkillInstance(owner, source.SkillId, source.SkillInstanceId);
 
     private void AddNextCardTargetAdjustmentActions(List<LegalAction> actions, CharacterState actor)
     {
-        if (!HasNextCardTargetAdjustment(actor)) return;
+        if (!HasLegacyNextCardTargetAdjustment(actor)) return;
         var source = _nextCardTargetAdjustmentOwners[actor.Seat];
         var ordinary = actions.ToArray();
         foreach (var action in ordinary.Where(item => item.CardId is not null && item.Kind != LegalActionKind.Recast))
@@ -109,11 +107,12 @@ public sealed partial class GameEngine
         }
     }
 
-    private bool CanBeExtraNextCardTarget(CharacterState actor, CharacterState target, LegalAction action, CardKind kind)
+    private bool CanBeExtraNextCardTarget(CharacterState actor, CharacterState target, LegalAction action, CardKind kind, Suit? effectiveUseSuit = null)
     {
         var physical = FindOwnedPlayableCard(actor, action.CardId)!;
         if (!target.IsAlive || IsDirectedCardTargetProhibited(actor.Seat, target.Seat, kind) ||
-            IsCardTargetProhibited(target, kind, physical.Suit)) return false;
+            IsCardTargetProhibited(target, kind, effectiveUseSuit ?? physical.Suit) ||
+            HasBeneficiarySuitShield(actor.Seat, target.Seat, effectiveUseSuit ?? EffectiveSuit(actor, ApplyProgramUseAppearance(actor, physical, action.ConversionSource)))) return false;
         return action.Kind switch
         {
             LegalActionKind.Slash => CanUseSlashTarget(actor, target, physical, action.ConversionSource, kind, ignoreDistance: true),

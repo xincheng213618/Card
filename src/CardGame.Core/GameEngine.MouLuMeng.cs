@@ -9,10 +9,17 @@ public sealed partial class GameEngine
     private const string RoundDamageCardUsagePrefix = "card-name";
 
     private readonly HashSet<int> _roundTurnSeats = [];
-    private readonly HashSet<long> _yingboUnrespondableFrames = [];
-    private readonly HashSet<long> _yingboRepeatedFrames = [];
     private int _roundNumber;
-    private YingboGiftResolution? _pendingYingboGift;
+    private YingboGiftHandle? ActiveYingboGift
+    {
+        get => FindCardContinuationOwner(state => state.YingboGift?.Active == true) is { } id ? new(this, id) : null;
+        set
+        {
+            var id = value?.OwnerFrameId ?? FindCardContinuationOwner(state => state.YingboGift?.Active == true);
+            if (id is { } owner) UpdateCardContinuations(owner, state => state with
+                { YingboGift = state.YingboGift is { } current ? current with { Active = value is not null } : null });
+        }
+    }
 
     private bool UsesFormalMouLuMeng =>
         HasClassicGeneralPackage;
@@ -26,7 +33,7 @@ public sealed partial class GameEngine
             _roundNumber++;
             _roundTurnSeats.Clear();
             _skillRuntimeState.ResetRound();
-            QueueGameEvent(new RoundStartedEvent(_roundNumber, current.Seat));
+            AdvanceEventRulesAndQueueFact(new RoundStartedEvent(_roundNumber, current.Seat));
             AddLog("RoundStarted", $"第 {_roundNumber} 轮开始。", current.Seat);
         }
 
@@ -56,11 +63,11 @@ public sealed partial class GameEngine
         if (source.IsAlive && HasRuntimeSkill(source, YingboSkillId))
         {
             if (wasUsedEarlier)
-                _yingboRepeatedFrames.Add(resolutionId);
+                TryMarkYingboRepeated(resolutionId);
             else
-                _yingboUnrespondableFrames.Add(resolutionId);
+                TryMarkYingboUnrespondable(resolutionId);
 
-            QueueGameEvent(new YingboCardModeEvent(
+            AdvanceEventRulesAndQueueFact(new YingboCardModeEvent(
                 resolutionId,
                 sourceSeat,
                 cardKind,
@@ -92,16 +99,10 @@ public sealed partial class GameEngine
     }
 
     private bool IsYingboUnrespondable(long resolutionId) =>
-        UsesFormalMouLuMeng && _yingboUnrespondableFrames.Contains(resolutionId);
+        UsesFormalMouLuMeng && (LifecycleCardUse(resolutionId)?.YingboUnrespondable == true);
 
     private bool IsYingboRepeated(long resolutionId) =>
-        UsesFormalMouLuMeng && _yingboRepeatedFrames.Contains(resolutionId);
-
-    private void ClearYingboCardUse(long resolutionId)
-    {
-        _yingboUnrespondableFrames.Remove(resolutionId);
-        _yingboRepeatedFrames.Remove(resolutionId);
-    }
+        UsesFormalMouLuMeng && (LifecycleCardUse(resolutionId)?.YingboRepeated == true);
 
     private int GetHengyeGrowth(CharacterState player) =>
         UsesFormalMouLuMeng && HasRuntimeSkill(player, HengyeSkillId)
@@ -132,13 +133,13 @@ public sealed partial class GameEngine
             return;
 
         var current = previous + 1;
-        QueueGameEvent(new SkillUsageConsumedEvent(
+        AdvanceEventRulesAndQueueFact(new SkillUsageConsumedEvent(
             source.Seat,
             HengyeSkillId,
             HengyeGrowthUsageId,
             SkillUsageScope.Game,
             current));
-        QueueGameEvent(new HengyeGrowthChangedEvent(
+        AdvanceEventRulesAndQueueFact(new HengyeGrowthChangedEvent(
             damageFrameId,
             source.Seat,
             previous,
@@ -158,7 +159,7 @@ public sealed partial class GameEngine
         try
         {
             player.Hp++;
-            QueueGameEvent(new RecoveryAppliedEvent(player.Seat, player.Seat, 1, player.Hp));
+            AdvanceEventRulesAndQueueFact(new RecoveryAppliedEvent(player.Seat, player.Seat, 1, player.Hp));
             AddLog("SkillTriggered", $"{player.Name} 的【横野】已成长至 3，本回合开始时回复 1 点体力。", player.Seat);
         }
         finally
@@ -175,7 +176,7 @@ public sealed partial class GameEngine
 
         var previous = GetHengyeGrowth(killer);
         _skillRuntimeState.ResetSkill(killer.Seat, HengyeSkillId);
-        QueueGameEvent(new SkillResetEvent(killer.Seat, HengyeSkillId, previous));
+        AdvanceEventRulesAndQueueFact(new SkillResetEvent(killer.Seat, HengyeSkillId, previous));
         AddLog("SkillTriggered", $"{killer.Name} 杀死一名角色，重置【横野】至游戏开始时状态。", killer.Seat);
     }
 
@@ -186,12 +187,12 @@ public sealed partial class GameEngine
         CardKind cardKind,
         IReadOnlyList<Card> physicalCards,
         YingboGiftContinuation continuation,
-        AttackResolution? attack = null,
-        GroupCardResolution? group = null)
+        CardAttackHandle? attack = null,
+        GroupCardHandle? group = null)
     {
         if (_winner != Winner.None ||
             !IsYingboUnrespondable(resolutionId) ||
-            _pendingYingboGift is not null ||
+            ActiveYingboGift is not null ||
             physicalCards is not [var physicalCard] ||
             physicalCard.Id != card.Id ||
             _cardZones.GetLocation(card.Id) != CardLocation.Processing)
@@ -205,14 +206,9 @@ public sealed partial class GameEngine
         if (!source.IsAlive || !HasRuntimeSkill(source, YingboSkillId) || targets.Length == 0)
             return false;
 
-        _pendingYingboGift = new YingboGiftResolution(
-            resolutionId,
-            sourceSeat,
-            card,
-            cardKind,
-            continuation,
-            attack,
-            group);
+        UpdateCardContinuations(resolutionId, state => state with { YingboGift = new(sourceSeat,
+            new(card.Id, card.Kind, card.Suit, card.Rank), cardKind, continuation,
+            attack?.ResolutionId, group?.OwnerFrameId) });
         var choices = targets.Select(target => new PromptChoice(
                 new ChoiceId($"yingbo.gift.target-{target.Seat}.resolution-{resolutionId}"),
                 $"将【{card.DisplayName}】交给 {target.Name}。",
@@ -245,7 +241,7 @@ public sealed partial class GameEngine
 
     private CommandResult SubmitYingboPromptAnswer(PromptChoice selected)
     {
-        if (_pendingYingboGift is null || _pendingDecision is not { Kind: DecisionKind.Yingbo })
+        if (ActiveYingboGift is null || _pendingDecision is not { Kind: DecisionKind.Yingbo })
             return Reject(CommandErrorCode.InvalidPrompt, "没有等待响应的英博交牌选择。");
 
         return Accept(() => HumanYingboCore(
@@ -257,13 +253,13 @@ public sealed partial class GameEngine
     {
         RequireHumanDecision(DecisionKind.Yingbo);
         ResolveYingboGiftChoice(selected);
-        PublishState();
+        AdvanceRulesAndPublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
 
     private void ResolveYingboGiftChoice(PromptChoice selected)
     {
-        var pending = _pendingYingboGift ??
+        var pending = ActiveYingboGift ??
             throw new InvalidOperationException("There is no Yingbo gift to resolve.");
         if (_pendingDecision is not { Kind: DecisionKind.Yingbo, PlayerSeat: var ownerSeat } ||
             ownerSeat != pending.SourceSeat)
@@ -296,7 +292,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The Yingbo gift choice is malformed or no longer legal.");
         }
 
-        QueueGameEvent(new YingboGiftResolvedEvent(
+        AdvanceEventRulesAndQueueFact(new YingboGiftResolvedEvent(
             pending.ResolutionId,
             pending.SourceSeat,
             pending.Card.Id,
@@ -310,15 +306,16 @@ public sealed partial class GameEngine
             pending.SourceSeat,
             targetSeat);
 
-        _pendingYingboGift = null;
+        ActiveYingboGift = null;
         ClearPendingDecision();
         if (pending.Continuation == YingboGiftContinuation.Attack)
         {
             var attack = pending.Attack ??
                 throw new InvalidOperationException("The Yingbo attack gift lost its card continuation.");
+            var completion = CaptureAttackCompletion(attack);
             if (!FinishAttack(attack, allowYingboGift: false))
             {
-                CompleteAttackAfterCardResolution(attack);
+                CompleteAttackAfterCardResolution(completion);
             }
         }
         else
@@ -330,7 +327,7 @@ public sealed partial class GameEngine
     }
 
     private bool IsAiYingboPending() =>
-        _pendingYingboGift is { SourceSeat: var sourceSeat } &&
+        ActiveYingboGift is { SourceSeat: var sourceSeat } &&
         _pendingDecision is { Kind: DecisionKind.Yingbo, PlayerSeat: var decisionSeat } &&
         sourceSeat == decisionSeat && !_players[sourceSeat].IsHuman;
 
@@ -344,19 +341,19 @@ public sealed partial class GameEngine
         var selected = _pendingDecision!.Choices.Single(choice =>
             choice.Parameters.GetValueOrDefault("action") == "yingbo-skip");
         ResolveYingboGiftChoice(selected);
-        PublishState();
+        AdvanceRulesAndPublishState();
     }
 
     private void AssertYingboInvariant()
     {
-        if (_pendingYingboGift is null)
+        if (ActiveYingboGift is null)
         {
             if (_pendingDecision?.Kind == DecisionKind.Yingbo)
                 throw new InvalidOperationException("A Yingbo prompt cannot exist without its card continuation.");
             return;
         }
 
-        var pending = _pendingYingboGift;
+        var pending = ActiveYingboGift;
         if (!UsesFormalMouLuMeng ||
             _pendingDecision is not { Kind: DecisionKind.Yingbo, IsPrivate: true } decision ||
             decision.PlayerSeat != pending.SourceSeat ||
@@ -368,18 +365,17 @@ public sealed partial class GameEngine
         }
     }
 
-    private enum YingboGiftContinuation
+    private sealed class YingboGiftHandle(GameEngine engine, long ownerId) : ICardContinuationHandle
     {
-        Attack,
-        GroupAttack
+        public long OwnerFrameId => ownerId;
+        public long ResolutionId => ownerId;
+        private YingboGiftState State => engine.GetCardContinuations(ownerId).YingboGift ??
+            throw new InvalidOperationException("Yingbo gift lost its owner state.");
+        public int SourceSeat => State.SourceSeat;
+        public Card Card => engine.ReadCardAppearance(State.Card);
+        public CardKind CardKind => State.CardKind;
+        public YingboGiftContinuation Continuation => State.Continuation;
+        public CardAttackHandle? Attack => State.AttackOwnerId is { } id ? new(engine, id) : null;
+        public GroupCardHandle? Group => State.GroupOwnerId is { } id ? new(engine, id) : null;
     }
-
-    private sealed record YingboGiftResolution(
-        long ResolutionId,
-        int SourceSeat,
-        Card Card,
-        CardKind CardKind,
-        YingboGiftContinuation Continuation,
-        AttackResolution? Attack,
-        GroupCardResolution? Group);
 }

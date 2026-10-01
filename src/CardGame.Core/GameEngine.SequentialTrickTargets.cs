@@ -15,7 +15,7 @@ public sealed partial class GameEngine
         if (use.SequentialTrick is null && targets.Count > 1 && UsesSequentialTrickTargets(kind))
         {
             use = use with { SequentialTrick = new(kind, firstTargetCardId, requiredCardKind) };
-            _resolutionStack[index] = use;
+            ReplaceRuntimeFrame(_resolutionStack[index].Id, use);
         }
         return use.SequentialTrick is null ? targets : [use.TargetSeats[use.TargetIndex]];
     }
@@ -27,7 +27,7 @@ public sealed partial class GameEngine
 
     private void MoveFinishedTrickCard(long frameId, Card card)
     {
-        if (HasRemainingSequentialTrickTargets(frameId) || HasRemainingAdjustedBorrowedSwordTargets(frameId)) return;
+        if (IsExchangedUseCardClaim(frameId,card.Id) || HasRemainingSequentialTrickTargets(frameId) || HasRemainingAdjustedBorrowedSwordTargets(frameId)) return;
         MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.UseFinished);
     }
 
@@ -40,17 +40,17 @@ public sealed partial class GameEngine
         while (next < use.TargetSeats.Count && !_players[use.TargetSeats[next]].IsAlive) next++;
         if (_winner != Winner.None || next == use.TargetSeats.Count)
         {
-            _resolutionStack[index] = use with { TargetIndex = use.TargetSeats.Count, SequentialTrick = null };
+            ReplaceRuntimeFrame(_resolutionStack[index].Id, use with { TargetIndex = use.TargetSeats.Count, SequentialTrick = null });
             return false;
         }
         if (!ReferenceEquals(use, _resolutionStack.LastOrDefault()))
             throw new InvalidOperationException("A trick must finish its child before the next target.");
         var card = _cardZones.CardsAt(CardLocation.Processing).Single(card => card.Id == use.CardId);
-        _resolutionStack[index] = use with { TargetIndex = next, Step = ResolutionFrameStep.ResolvingEffect };
+        ReplaceRuntimeFrame(_resolutionStack[index].Id, use with { TargetIndex = next, Step = ResolutionFrameStep.ResolvingEffect });
         if (afterAttack)
         {
-            _pendingAttack = null;
-            _pendingDuel = null;
+            ActiveCardAttack = null;
+            ActiveDuel = null;
             ClearPendingDecision();
         }
         BeginNullificationWindow(frameId, card, use.SourceSeat, [use.TargetSeats[next]],

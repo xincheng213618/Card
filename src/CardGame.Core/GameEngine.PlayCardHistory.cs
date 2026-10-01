@@ -6,7 +6,7 @@ public sealed partial class GameEngine
     // their original event shape and replay behavior.
     private bool TracksPlayCardHistory => _contentRegistry?.Skills.Values.Any(skill =>
         skill.Program is { } program &&
-        (program.ViewAs.Any(rule => rule.InheritPreviousPlaySuit) ||
+        (program.Triggers.Any(t=>t.Effects.Any(e=>e.Op is SkillProgramEffectOp.ReplaceAllSlashTargets or SkillProgramEffectOp.GrantRandomSkillAndSuitShield)) || program.ViewAs.Any(rule => rule.InheritPreviousPlaySuit) ||
          program.Triggers.Any(trigger => HasTriggerCondition(trigger.Condition,
              SkillProgramTriggerConditionKind.CardActionMatchesPreviousPlayCard) ||
              HasTriggerCondition(trigger.Condition, SkillProgramTriggerConditionKind.CardActionSuitIs)))) == true;
@@ -78,6 +78,7 @@ public sealed partial class GameEngine
     {
         foreach (var source in sources)
         {
+            ConsumeNamedUseConversion(source);
             if (ViewAsRule(source) is not { UsesPerPhase: { } limit } rule) continue;
             if (rule.ActivationUsageGroup is { } activationGroup)
             {
@@ -88,7 +89,7 @@ public sealed partial class GameEngine
             if (!_skillRuntimeState.TryConsumeUsage(source.OwnerSeat, source.SkillId,
                     ViewAsUsageId(source, rule), SkillUsageScope.Phase, limit))
                 throw new InvalidOperationException("The view-as phase allowance was already consumed.");
-            QueueGameEvent(new SkillUsageConsumedEvent(source.OwnerSeat, source.SkillId,
+            AdvanceEventRulesAndQueueFact(new SkillUsageConsumedEvent(source.OwnerSeat, source.SkillId,
                 source.BindingId, SkillUsageScope.Phase, 1));
         }
     }

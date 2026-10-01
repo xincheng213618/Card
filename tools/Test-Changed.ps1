@@ -4,6 +4,10 @@
 Builds an isolated test scope once, then runs the built test executables directly.
 
 .EXAMPLE
+./tools/Test-Changed.ps1
+# Routine shared mechanisms and representative UI checks; see VerificationScopes.psd1.
+
+.EXAMPLE
 ./tools/Test-Changed.ps1 -CoreFilter @('draw-phase', 'lifecycle programs')
 
 .EXAMPLE
@@ -46,6 +50,7 @@ $message = $null
 $exitCode = 1
 $lock = $null
 $ownsLock = $false
+$routine = $false
 
 function Invoke-LoggedStep {
     param([string] $Name, [string] $LogName, [scriptblock] $Action)
@@ -88,17 +93,14 @@ function Invoke-TestAssembly {
     [string[]] $testArguments = if ($Scope -eq 'WPF') {
         @(Join-Path $ArtifactsPath 'renders')
     } else { @() }
+    if ($VerbosePreference -eq 'Continue') { $testArguments += '--verbose' }
     if ($RunFull) {
         return Invoke-LoggedStep "$Scope full checks" "$($Scope.ToLowerInvariant())-full.log" { & dotnet $Assembly @testArguments }
     }
-    $failed = 0
-    for ($index = 0; $index -lt $Filters.Count; $index++) {
-        $filter = $Filters[$index]
-        $safeName = "$($Scope.ToLowerInvariant())-filter-$($index + 1).log"
-        $code = Invoke-LoggedStep "$Scope filter: $filter" $safeName { & dotnet $Assembly @testArguments "--filter=$filter" }
-        if ($code -ne 0) { $failed = 1 }
+    $filterArguments = @($Filters | ForEach-Object { "--filter=$_" })
+    return Invoke-LoggedStep "$Scope selected checks ($($Filters.Count) filters, union)" "$($Scope.ToLowerInvariant())-selected.log" {
+        & dotnet $Assembly @testArguments @filterArguments
     }
-    return $failed
 }
 
 try {
@@ -119,7 +121,19 @@ try {
         throw '-Full cannot be combined with -CoreFilter or -WpfFilter.'
     }
     if (-not $Full -and $CoreFilter.Count -eq 0 -and $WpfFilter.Count -eq 0) {
-        throw 'Specify -Full or at least one explicit -CoreFilter/-WpfFilter.'
+        if ($PSBoundParameters.ContainsKey('CoreFilter') -or $PSBoundParameters.ContainsKey('WpfFilter')) {
+            throw 'Explicit filters cannot all be empty; omit filter parameters for the routine scope.'
+        }
+        $routine = $true
+        $routineScope = Import-PowerShellDataFile -LiteralPath (Join-Path $PSScriptRoot 'VerificationScopes.psd1')
+        $CoreFilter = @($routineScope.Core)
+        $WpfFilter = @($routineScope.Wpf)
+        Write-Host 'Routine scope: shared mechanisms and representative UI; use -Full for all registered checks.'
+    }
+    $CoreFilter = @($CoreFilter | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    $WpfFilter = @($WpfFilter | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    if (-not $Full -and $CoreFilter.Count -eq 0 -and $WpfFilter.Count -eq 0) {
+        throw 'The selected verification scope is empty; no build or checks were started.'
     }
 
     $usesWpf = $Full -or $WpfFilter.Count -gt 0
@@ -154,7 +168,7 @@ finally {
     $ended = [DateTimeOffset]::Now
     $summary = [ordered]@{
         status = $status
-        mode = $(if ($Full) { 'full' } else { 'targeted' })
+        mode = $(if ($Full) { 'full' } elseif ($routine) { 'routine' } else { 'targeted' })
         repository = $repoRoot
         artifactsPath = $ArtifactsPath
         coreFilters = @($CoreFilter)

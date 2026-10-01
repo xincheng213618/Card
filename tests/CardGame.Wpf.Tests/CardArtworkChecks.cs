@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using CardGame.Core;
 using CardGame.Wpf;
@@ -22,7 +23,13 @@ internal static class CardArtworkChecks
             "Card faces must be cached while Slash variants remain distinct.");
 
         // Render the real template with every original face and runtime rank/suit overlays.
-        var sheet = new WrapPanel { Width = 990, Background = System.Windows.Media.Brushes.DarkSlateGray };
+        const int previewColumns = 9;
+        const int previewCellWidth = 110;
+        const int previewCellHeight = 170;
+        const int previewCellPadding = 4;
+        var sheet = new WrapPanel { Width = previewColumns * previewCellWidth, Background = System.Windows.Media.Brushes.DarkSlateGray };
+        var faces = new Dictionary<CardKind, ContentControl>();
+        var cells = new Dictionary<CardKind, Border>();
         var index = 0;
         foreach (var definition in definitions)
         {
@@ -32,16 +39,64 @@ internal static class CardArtworkChecks
                 KindLabel = definition.CategoryName, SuitGlyph = index % 2 == 0 ? "♦" : "♠", Rank = "Q",
                 Description = definition.Description, IsPlayable = true
             };
-            sheet.Children.Add(new ContentControl
+            var face = new ContentControl
             {
-                Width = 110, Height = 170, Content = card,
+                Content = card,
+                HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                VerticalContentAlignment = VerticalAlignment.Stretch,
                 ContentTemplate = (DataTemplate)Application.Current.FindResource("CardTemplate")
-            });
+            };
+            // Measure the real template at its natural size, then fit it into a padded cell.
+            // Its fixed card border and top selection margin must not overflow adjacent cells.
+            var cell = new Border
+            {
+                Width = previewCellWidth, Height = previewCellHeight,
+                Padding = new Thickness(previewCellPadding),
+                Child = new Viewbox { Stretch = Stretch.Uniform, Child = face }
+            };
+            faces.Add(definition.Kind, face);
+            cells.Add(definition.Kind, cell);
+            sheet.Children.Add(cell);
         }
         // A Window provides the same command ancestor as the live hand.
         using var vm = new MainViewModel(false, 721019, false, new MemorySaveStore()) { IsMotionEnabled = false };
         var preview = new Window { Content = sheet, DataContext = vm };
-        Program.Render(sheet, 990, 850, Path.Combine(output, "card-artwork-catalog.png"));
+        Program.Render(sheet, previewColumns * previewCellWidth,
+            ((definitions.Length + previewColumns - 1) / previewColumns) * previewCellHeight,
+            Path.Combine(output, "card-artwork-catalog.png"));
+        foreach (var (kind, face) in faces)
+        {
+            var cell = cells[kind];
+            var cellBounds = cell.TransformToAncestor(sheet).TransformBounds(new Rect(cell.RenderSize));
+            var contentBounds = cell.TransformToAncestor(sheet).TransformBounds(new Rect(
+                previewCellPadding, previewCellPadding,
+                cell.ActualWidth - 2 * previewCellPadding, cell.ActualHeight - 2 * previewCellPadding));
+            var artwork = Program.Find<Image>(face).Single(image => image.Name == "CardArtwork");
+            var artworkBounds = artwork.TransformToAncestor(sheet).TransformBounds(new Rect(artwork.RenderSize));
+            const double tolerance = 0.1;
+            bool Fits(Rect bounds) => bounds.Width > 0 && bounds.Height > 0 &&
+                bounds.Left >= contentBounds.Left - tolerance && bounds.Right <= contentBounds.Right + tolerance &&
+                bounds.Top >= contentBounds.Top - tolerance && bounds.Bottom <= contentBounds.Bottom + tolerance;
+            Program.Assert(cellBounds.Left >= -tolerance && cellBounds.Right <= sheet.ActualWidth + tolerance &&
+                cellBounds.Top >= -tolerance && cellBounds.Bottom <= sheet.ActualHeight + tolerance && Fits(artworkBounds),
+                $"Gallery face {kind} must fit its padded cell and the complete output sheet.");
+            foreach (var name in Program.Find<TextBlock>(face).Where(text => text.Name == "RuntimeCardName" && text.Visibility == Visibility.Visible))
+                Program.Assert(Fits(name.TransformToAncestor(sheet).TransformBounds(new Rect(name.RenderSize))),
+                    $"Gallery runtime name for {kind} must remain inside its padded cell, including the final row.");
+        }
+        var scarletFace = faces[CardKind.ScarletBloodSword];
+        var scarletName = Program.Find<TextBlock>(scarletFace).Single(text => text.Name == "RuntimeCardName");
+        var scarletCanvas = (FrameworkElement)Program.Find<Image>(scarletFace).Single(image => image.Name == "CardArtwork").Parent;
+        var scarletNameBounds = scarletName.TransformToAncestor(scarletCanvas).TransformBounds(new Rect(scarletName.RenderSize));
+        Program.Assert(((CardViewModel)scarletFace.Content).HasDynamicWeaponName &&
+            scarletName.Text == CardCatalog.Get(CardKind.ScarletBloodSword).DisplayName &&
+            scarletName.Visibility == Visibility.Visible && scarletName.ActualWidth > 0 && scarletName.ActualHeight > 0 &&
+            scarletNameBounds.Top >= 223 && scarletNameBounds.Bottom <= 260,
+            "The official ScarletBloodSword illustration must retain its visible runtime card name.");
+        var xingtianName = Program.Find<TextBlock>(faces[CardKind.XingtianAxe]).Single(text => text.Name == "RuntimeCardName");
+        Program.Assert(!((CardViewModel)faces[CardKind.XingtianAxe].Content).HasDynamicWeaponName &&
+            xingtianName.Visibility == Visibility.Collapsed,
+            "The official Xingtian complete face must not receive a duplicate runtime name.");
         preview.Content = null;
         preview.Close();
 

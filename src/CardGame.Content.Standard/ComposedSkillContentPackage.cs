@@ -10,10 +10,9 @@ namespace CardGame.Content.Standard;
 /// </summary>
 public sealed class ComposedSkillContentPackage : IGameContentPackage
 {
-    private const string RulesResource = "CardGame.Content.Standard.SkillPrograms.composed-skills.rules.json";
-    private const string PresentationResource = "CardGame.Content.Standard.SkillPrograms.composed-skills.presentation.json";
     private const string GeneralsResource = "CardGame.Content.Standard.SkillPrograms.composed-generals.json";
-    private static readonly Lazy<SkillProgramCatalog> Catalog = new(LoadCatalog);
+    private static SkillProgramCatalog Catalog =>
+        EmbeddedSkillProgramCatalog.Catalog("composed-skills");
     private static readonly Lazy<IReadOnlyList<ComposedGeneralDefinition>> Generals = new(LoadGenerals);
 
     public PackageManifest Manifest { get; } = new(
@@ -24,9 +23,9 @@ public sealed class ComposedSkillContentPackage : IGameContentPackage
     public void Register(IContentRegistryBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
-        foreach (var (id, program) in Catalog.Value.Programs.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        foreach (var (id, program) in Catalog.Programs.OrderBy(entry => entry.Key, StringComparer.Ordinal))
         {
-            var presentation = Catalog.Value.Presentations[id];
+            var presentation = Catalog.Presentations[id];
             builder.AddSkill(new ContentSkillDefinition(
                 id,
                 presentation.Name,
@@ -63,10 +62,6 @@ public sealed class ComposedSkillContentPackage : IGameContentPackage
             GeneralCandidateCount: 3,
             GeneralPoolIds: generalIds));
     }
-
-    private static SkillProgramCatalog LoadCatalog() => SkillProgramCatalog.Load(
-        ReadEmbeddedText(RulesResource),
-        ReadEmbeddedText(PresentationResource));
 
     private static IReadOnlyList<ComposedGeneralDefinition> LoadGenerals()
     {

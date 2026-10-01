@@ -118,7 +118,7 @@ public sealed partial class GameEngine
         player.EquipmentSlotCapacities[slot] = capacity;
         foreach (var card in GetEquipment(player).Where(card => EquipmentCatalog.Get(card.Kind).Slot == slot).Skip(capacity).ToArray())
             MoveCard(card, CardLocation.Equipment(player.Seat), CardLocation.DiscardPile, new("equipment.slot-abolished"));
-        QueueGameEvent(new EquipmentSlotCapacityChangedEvent(player.Seat, slot, capacity));
+        AdvanceEventRulesAndQueueFact(new EquipmentSlotCapacityChangedEvent(player.Seat, slot, capacity));
     }
     private bool IsFarthestInRange(CharacterState owner, CharacterState target)
     {
@@ -130,12 +130,12 @@ public sealed partial class GameEngine
     {
         if (cards.Count == 0) return;
         MoveCards(cards, CardLocation.DrawPile, CardLocation.Hand(frame.OwnerSeat), new("skill.deck-search.obtain"));
-        QueueGameEvent(new DeckRankCardsObtainedEvent(frame.OwnerSeat, frame.SkillId, cards.Select(card => card.Id).ToArray()));
+        AdvanceEventRulesAndQueueFact(new DeckRankCardsObtainedEvent(frame.OwnerSeat, frame.SkillId, cards.Select(card => card.Id).ToArray()));
     }
     private SkillProgramStepOutcome BeginAdvancedSelection(ProgramSkillFrame frame, SkillProgramEffect effect, IReadOnlyList<string> candidates, int rankSum = 0)
     {
         if (candidates.Count == 0) return SkillProgramStepOutcome.Continue;
-        _resolutionStack[^1] = frame with { AdvancedSelection = new(effect.Op, candidates, [], rankSum) };
+        ReplaceRuntimeTop(frame with { AdvancedSelection = new(effect.Op, candidates, [], rankSum) });
         PromptAdvancedSelection(frame.Id);
         return SkillProgramStepOutcome.AwaitChoice;
     }

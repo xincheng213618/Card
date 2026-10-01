@@ -54,12 +54,12 @@ public sealed partial class GameEngine
     }
 
     private void BeginProgramJudgmentReplacementChoice(
-        JudgmentResolution pending,
+        JudgmentFrame pending,
         JudgmentTriggerCandidate candidate)
     {
-        if (!ReferenceEquals(_pendingJudgment, pending) ||
-            !ReferenceEquals(pending.CurrentCandidate, candidate) ||
-            pending.CurrentCard is not { } judgmentCard)
+        if (ActiveJudgment?.Id != pending.Id ||
+            !ReferenceEquals(CurrentJudgmentCandidate(pending), candidate) ||
+            GetJudgmentCard(pending) is not { } judgmentCard)
             throw new InvalidOperationException("The configured judgment replacement is not current.");
         var (program, trigger) = GetProgramJudgmentReplacement(candidate);
         var owner = _players[candidate.OwnerSeat];
@@ -76,10 +76,10 @@ public sealed partial class GameEngine
             return;
         }
 
-        SetJudgmentFrameState(pending, ResolutionFrameStep.AwaitingResponse);
-        QueueGameEvent(new JudgmentReplacementRequestedEvent(
-            pending.FrameId,
-            pending.FrameId,
+        SetJudgmentFrameStep(pending.Id, ResolutionFrameStep.AwaitingResponse);
+        AdvanceEventRulesAndQueueFact(new JudgmentReplacementRequestedEvent(
+            pending.Id,
+            pending.Id,
             pending.TargetSeat,
             owner.Seat,
             pending.Reason,
@@ -138,20 +138,20 @@ public sealed partial class GameEngine
         return Accept(() =>
         {
             ResolveProgramJudgmentReplacementChoice(selected);
-            PublishState();
+            AdvanceRulesAndPublishState();
             return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
         });
     }
 
     private void ResolveProgramJudgmentReplacementChoice(PromptChoice selected)
     {
-        var pending = _pendingJudgment ??
+        var pending = ActiveJudgment ??
             throw new InvalidOperationException("The configured judgment replacement continuation is missing.");
-        var candidate = pending.CurrentCandidate ??
+        var candidate = CurrentJudgmentCandidate(pending) ??
             throw new InvalidOperationException("The configured judgment replacement candidate is missing.");
         var (program, trigger) = GetProgramJudgmentReplacement(candidate);
         var owner = _players[candidate.OwnerSeat];
-        var oldJudgmentCard = pending.CurrentCard ??
+        var oldJudgmentCard = GetJudgmentCard(pending) ??
             throw new InvalidOperationException("The configured judgment replacement lost its current card.");
         int? selectedCardId = selected.Parameters.GetValueOrDefault("action") switch
         {
@@ -163,11 +163,11 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         if (selectedCardId is not { } cardId)
         {
-            QueueGameEvent(new JudgmentReplacementResolvedEvent(
-                pending.FrameId, pending.FrameId, pending.TargetSeat, owner.Seat, pending.Reason,
+            AdvanceEventRulesAndQueueFact(new JudgmentReplacementResolvedEvent(
+                pending.Id, pending.Id, pending.TargetSeat, owner.Seat, pending.Reason,
                 Used: false, oldJudgmentCard.Id, null, null, null, null));
-            QueueGameEvent(new ProgramJudgmentReplacementResolvedEvent(
-                pending.FrameId, program.Id, trigger.Id, owner.Seat, pending.TargetSeat,
+            AdvanceEventRulesAndQueueFact(new ProgramJudgmentReplacementResolvedEvent(
+                pending.Id, program.Id, trigger.Id, owner.Seat, pending.TargetSeat,
                 Activated: false, oldJudgmentCard.Id, null,
                 trigger.Effects[0].OldCardDestination!.Value, 0, 0));
             AddLog("JudgmentReplacementSkipped",
@@ -186,11 +186,11 @@ public sealed partial class GameEngine
         var shared = new ProgramTriggerCandidate(owner.Seat, program.Id, trigger.Id,
             binding.SkillInstanceId, program.GameplayHash, trigger.Priority);
         var context = new ProgramSkillWindowContext(
-            SkillProgramTriggerWindow.JudgmentReplacing, pending.FrameId, owner.Seat,
+            SkillProgramTriggerWindow.JudgmentReplacing, pending.Id, owner.Seat,
             SourceSeat: pending.SourceSeat, TargetSeat: pending.TargetSeat,
             Facts: CaptureProgramTriggerFacts(owner),
             JudgmentReplacement: new ProgramJudgmentReplacementContext(
-                pending.FrameId, pending.TargetSeat, pending.Reason,
+                pending.Id, pending.TargetSeat, pending.Reason,
                 oldJudgmentCard.Id, replacement.Id));
         BeginProgramBinding(shared, context);
     }
@@ -199,10 +199,10 @@ public sealed partial class GameEngine
     {
         var context = frame.WindowContext?.JudgmentReplacement ??
             throw new InvalidOperationException("Replacement primitive requires its frozen judgment choice.");
-        var pending = _pendingJudgment ??
+        var pending = ActiveJudgment ??
             throw new InvalidOperationException("Replacement primitive lost its judgment continuation.");
-        if (pending.FrameId != context.JudgmentFrameId ||
-            pending.CurrentCard?.Id != context.OldCardId ||
+        if (pending.Id != context.JudgmentFrameId ||
+            GetJudgmentCard(pending)?.Id != context.OldCardId ||
             pending.TargetSeat != context.SubjectSeat ||
             !_players[frame.OwnerSeat].IsAlive)
             throw new InvalidOperationException("Replacement primitive no longer matches its judgment.");
@@ -212,22 +212,23 @@ public sealed partial class GameEngine
             owner, trigger, pending.TargetSeat, pending.Reason)
             .SingleOrDefault(card => card.Id == context.ReplacementCardId) ??
             throw new InvalidOperationException("The selected replacement card is no longer legal.");
-        var old = pending.CurrentCard;
+        var old = GetJudgmentCard(pending) ??
+            throw new InvalidOperationException("The replacement primitive lost its judgment card.");
         var committedSuit = EffectiveSuit(_players[pending.TargetSeat], replacement);
         var destination = effect.OldCardDestination ??
             throw new InvalidOperationException("Replacement has no old-card destination.");
         CommitProgramJudgmentReplacement(pending, owner, old, replacement, committedSuit, destination);
         var active = GetActiveProgramFrame(frame.Id);
-        _resolutionStack[^1] = active with { WindowContext = active.WindowContext! with
+        ReplaceRuntimeTop(active with { WindowContext = active.WindowContext! with
         {
             JudgmentReplacement = context with
             {
                 ReplacementSuit = committedSuit,
                 ReplacementRank = replacement.Rank
             }
-        } };
-        QueueGameEvent(new JudgmentReplacementResolvedEvent(
-            pending.FrameId, pending.FrameId, pending.TargetSeat, owner.Seat, pending.Reason,
+        } });
+        AdvanceEventRulesAndQueueFact(new JudgmentReplacementResolvedEvent(
+            pending.Id, pending.Id, pending.TargetSeat, owner.Seat, pending.Reason,
             Used: true, old.Id, replacement.Id, replacement.Kind, committedSuit, replacement.Rank));
         AddLog("JudgmentReplaced",
             $"{owner.Name} 发动【{_contentRegistry!.Skills[frame.SkillId].Name}】替换了判定牌。",
@@ -238,13 +239,13 @@ public sealed partial class GameEngine
     {
         var context = frame.WindowContext?.JudgmentReplacement ??
             throw new InvalidOperationException("Replacement program lost its frozen judgment context.");
-        var pending = _pendingJudgment ??
+        var pending = ActiveJudgment ??
             throw new InvalidOperationException("Replacement program lost its judgment continuation.");
         if (_resolutionStack.LastOrDefault() is not JudgmentFrame parent ||
-            parent.Id != context.JudgmentFrameId || pending.FrameId != parent.Id)
+            parent.Id != context.JudgmentFrameId || pending.Id != parent.Id)
             throw new InvalidOperationException("Replacement program did not return to its judgment frame.");
         var effect = GetProgramTrigger(frame).Effects[0];
-        QueueGameEvent(new ProgramJudgmentReplacementResolvedEvent(
+        AdvanceEventRulesAndQueueFact(new ProgramJudgmentReplacementResolvedEvent(
             parent.Id, frame.SkillId, frame.TriggerId!, frame.OwnerSeat, context.SubjectSeat,
             Activated: context.ReplacementSuit is not null, context.OldCardId,
             context.ReplacementSuit is not null ? context.ReplacementCardId : null,
@@ -252,7 +253,7 @@ public sealed partial class GameEngine
         AdvanceJudgmentCandidate(pending);
     }
     private void CommitProgramJudgmentReplacement(
-        JudgmentResolution pending,
+        JudgmentFrame pending,
         CharacterState owner,
         Card oldJudgmentCard,
         Card replacement,
@@ -278,9 +279,7 @@ public sealed partial class GameEngine
                 new CardTransfer(replacement.Id, replacementFrom, CardLocation.Processing)
             ]);
             _cardZones.Move(replacement.Id, CardLocation.Processing, oldFrom);
-            pending.CurrentCard = replacement;
-            pending.WasReplaced = true;
-            ReplaceJudgmentFrame(GetJudgmentFrame(pending.FrameId) with
+            ReplaceJudgmentFrame(GetJudgmentFrame(pending.Id) with
             {
                 CardId = replacement.Id,
                 CardKind = replacement.Kind,
@@ -314,15 +313,15 @@ public sealed partial class GameEngine
 
     private void ResolvePendingAiProgramJudgmentReplacement()
     {
-        var pending = _pendingJudgment ??
+        var pending = ActiveJudgment ??
             throw new InvalidOperationException("AI configured judgment replacement is missing.");
         var decision = _pendingDecision ??
             throw new InvalidOperationException("AI configured judgment replacement prompt is missing.");
-        var candidate = pending.CurrentCandidate ??
+        var candidate = CurrentJudgmentCandidate(pending) ??
             throw new InvalidOperationException("AI configured judgment candidate is missing.");
         var (_, trigger) = GetProgramJudgmentReplacement(candidate);
         var owner = _players[candidate.OwnerSeat];
-        var judgmentCard = pending.CurrentCard ??
+        var judgmentCard = GetJudgmentCard(pending) ??
             throw new InvalidOperationException("AI configured judgment replacement lost its current card.");
         var parent = _resolutionStack.OfType<ProgramSkillFrame>()
             .LastOrDefault(frame => frame.Id == pending.ParentFrameId);
@@ -343,6 +342,6 @@ public sealed partial class GameEngine
                 ? decision.Choices.Single(choice => choice.Cards.Count == 0)
                 : decision.Choices.First(choice => choice.Cards.Count == 1);
         ResolveProgramJudgmentReplacementChoice(selected);
-        PublishState();
+        AdvanceRulesAndPublishState();
     }
 }

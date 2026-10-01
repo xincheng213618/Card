@@ -37,7 +37,7 @@ public sealed partial class GameEngine
             frame.Id, effectIndex, source, actorSeat, targetSeat,
             Array.AsReadOnly(normalizedKinds), effects);
         _directedTurnCardPolicies.Add(policy);
-        QueueGameEvent(new DirectedTurnCardPolicyGrantedEvent(policy));
+        AdvanceEventRulesAndQueueFact(new DirectedTurnCardPolicyGrantedEvent(policy));
     }
 
     private bool HasDirectedTurnCardPolicy(int actorSeat, int targetSeat, CardKind cardKind,
@@ -49,6 +49,7 @@ public sealed partial class GameEngine
             HasRuntimeSkillInstance(_players[item.Source.OwnerSeat], item.Source.SkillId, item.Source.SkillInstanceId));
 
     private bool IsDirectedCardTargetProhibited(int actorSeat, int targetSeat, CardKind cardKind) =>
+        actorSeat == targetSeat && HasSelfCardTargetProhibition(actorSeat) ||
         HasDirectedTurnCardPolicy(actorSeat, targetSeat, cardKind, DirectedTurnCardPolicyEffect.ForbidTarget);
 
     private void ExpireDirectedTurnCardPolicies(int turnNumber, int turnSeat) =>

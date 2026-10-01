@@ -30,7 +30,8 @@ internal sealed record ProgramAiPublicContext(
     Func<string, int>? PhaseUsageCount = null,
     int AttackRange = 0,
     int? LivingPlayersMinHp = null,
-    int? TurnOwnerDiscardPhaseHandDiscardCount = null);
+    int? TurnOwnerDiscardPhaseHandDiscardCount = null,
+    IReadOnlyDictionary<PlayerMarkerKind,int>? AttributedMarkerPaymentCounts = null);
 
 /// <summary>
 /// Pure, public-state estimate for schema-23 program compositions. Unknown cards use a
@@ -150,6 +151,26 @@ internal sealed class ProgramAiEstimateContext
             _ownerDraw = -Math.Max(0, _publicContext.NormalDrawCount);
     }
 
+    internal void RelativeZoneDemand(SkillProgramEffect effect)
+    {
+        // One unknown card or equipment loss has public expected value; input cost is priced separately.
+        _otherAdjustment += 12d;
+    }
+
+    internal void DeckPrograms(SkillProgramEffect effect)
+    {
+        // Price only public opportunity; deck order and other hands remain unknown.
+        _otherAdjustment += effect.Op == SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd ? 4d : 6d;
+    }
+
+    internal void PublicPersistentPile(SkillProgramEffect effect)
+    {
+        // Storage improves the public reserve/hand limit; optional exchange can finish
+        // at zero cost. This prior reads no unknown deck or other player's private hand.
+        _otherAdjustment += effect.Op == SkillProgramEffectOp.StoreTopCardInPublicPile ? 3d :
+            effect.Op == SkillProgramEffectOp.ExchangePublicPile ? 1d : 0d;
+    }
+
     internal void Draw(SkillProgramEffect effect)
     {
         var amount = effect.NumberExpression switch
@@ -179,6 +200,17 @@ internal sealed class ProgramAiEstimateContext
             _bindings[bind] = UnknownCards(amount, ownerHeld: true);
     }
 
+    internal void DeferredHandAlignment()
+    {
+        // The immediate delta uses public hand counts. Future hand changes are
+        // unknown; keep only a small opportunity prior for the second actual end.
+        if (_publicContext.SelectedTarget is { } target)
+            _targetDraw += target.HandCount < _estimatedHandCount
+                ? Math.Max(0, Math.Min(5, _estimatedHandCount) - target.HandCount)
+                : -Math.Max(0, target.HandCount - _estimatedHandCount);
+        _otherAdjustment += 1d;
+    }
+
     internal void Recover(SkillProgramEffect effect)
     {
         var amount = effect.NumberExpression == SkillProgramNumberExpression.BoundCardCount
@@ -194,6 +226,20 @@ internal sealed class ProgramAiEstimateContext
             ? _estimatedSelectedTargetCount ?? 2 : 1));
     }
 
+    internal void PriceParticipantMarker(SkillProgramEffect effect)
+    {
+        // Public future protection/draw value, not imaginary physical card acquisition.
+        _otherAdjustment+=effect.Amount*8d;
+        if(effect.Target==SkillProgramEffectTarget.SelectedTarget)_targetAdjustment+=effect.Amount*14d;
+    }
+    internal void PriceAttributedMarkerOrHpPayment(SkillProgramEffect effect)
+    {
+        // New attributed gift programs opt into exact public affordability; old Rage estimates stay unchanged.
+        if(_publicContext.AttributedMarkerPaymentCounts is not { } counts)return;
+        if(counts.GetValueOrDefault(effect.Marker!.Value)<effect.Amount)
+            LoseHp(new SkillProgramEffect(SkillProgramEffectOp.LoseHp,SkillProgramEffectTarget.Owner,effect.Amount,effect.Condition));
+        else _otherAdjustment-=effect.Amount*6d;
+    }
     internal void LoseHp(SkillProgramEffect effect)
     {
         if (TargetsOwner(effect))

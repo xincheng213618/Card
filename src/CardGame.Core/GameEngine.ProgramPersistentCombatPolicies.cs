@@ -24,7 +24,7 @@ public sealed partial class GameEngine
         var state = new ProgramPlayDamageHandLimit(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId,
             _turnNumber, _cardUseDebitPhaseInstanceId, _playPhaseDamageDealtByCurrentPlayer);
         _programPlayDamageHandLimits[frame.OwnerSeat] = state;
-        QueueGameEvent(new ProgramDamageHandLimitChangedEvent(state.OwnerSeat, state.SkillId, state.TurnNumber, state.PhaseInstanceId, state.DamageCount));
+        AdvanceEventRulesAndQueueFact(new ProgramDamageHandLimitChangedEvent(state.OwnerSeat, state.SkillId, state.TurnNumber, state.PhaseInstanceId, state.DamageCount));
     }
 
     // Called only after a real damage event has committed. A later inserted play
@@ -36,7 +36,7 @@ public sealed partial class GameEngine
             state.TurnNumber != _turnNumber || state.PhaseInstanceId != _cardUseDebitPhaseInstanceId) return;
         state = state with { DamageCount = checked(state.DamageCount + amount) };
         _programPlayDamageHandLimits[sourceSeat] = state;
-        QueueGameEvent(new ProgramDamageHandLimitChangedEvent(state.OwnerSeat, state.SkillId, state.TurnNumber, state.PhaseInstanceId, state.DamageCount));
+        AdvanceEventRulesAndQueueFact(new ProgramDamageHandLimitChangedEvent(state.OwnerSeat, state.SkillId, state.TurnNumber, state.PhaseInstanceId, state.DamageCount));
     }
 
     private IEnumerable<RuleQueryContribution> ProgramDamageHandLimitContributions(CharacterState owner)
@@ -54,7 +54,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A game-long faction range grant requires a lord and one or two distinct living targets.");
         var state = new ProgramGameFactionRangeTargets(frame.OwnerSeat, frame.SkillId, factionId, frame.SelectedTargetSeats.ToArray());
         _programGameFactionRangeTargets.Add(state);
-        QueueGameEvent(new ProgramGameFactionAttackRangeTargetsGrantedEvent(state.OwnerSeat, state.SkillId, state.FactionId, state.TargetSeats));
+        AdvanceEventRulesAndQueueFact(new ProgramGameFactionAttackRangeTargetsGrantedEvent(state.OwnerSeat, state.SkillId, state.FactionId, state.TargetSeats));
     }
 
     private bool IsGameFactionAttackRangeTarget(int actorSeat, int targetSeat) => actorSeat != targetSeat &&

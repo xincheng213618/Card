@@ -269,10 +269,10 @@ public sealed class ContentRegistry
                     activation.MinTargets == 1 && activation.MaxTargets == 1, activation.MaxCards,
                     initialTargetSetCount: activation.MaxTargets > 1 ? activation.MinTargets : 0,
                     initialTargetSetMaximum: activation.MaxTargets > 1 ? activation.MaxTargets : 0,
-                    expandedCardDomain: true);
+                    expandedCardDomain: true, activationTargetKind: activation.TargetKind, activationSourceZones: activation.SourceZones, activationMinimumCards: activation.MinCards);
             foreach (var trigger in program.Triggers)
                 ProgramCompositionValidator.Validate($"registry.skills[{program.Id}].triggers[{trigger.Id}]", trigger.Effects,
-                    window: trigger.Window, drawPhaseMode: trigger.DrawPhaseMode, expandedCardDomain: true);
+                    initialSelectedTarget: trigger.DeferredTurnEndOnly, window: trigger.Window, drawPhaseMode: trigger.DrawPhaseMode, expandedCardDomain: true, cardActionRelation: trigger.OwnerRelation, cardKinds: trigger.CardKinds, turnOwnerScope: trigger.TurnOwnerScope);
         }
     }
 
@@ -492,9 +492,28 @@ public sealed class ContentRegistry
         {
             foreach (var skill in _skills.Values.Where(item => item.Program is not null))
             {
+                foreach (var trigger in skill.Program!.Triggers.Where(trigger => trigger.DeferredTurnEndOnly ||
+                             trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.ScheduleDeferredHandAlignment)))
+                {
+                    if (trigger.Window != SkillProgramTriggerWindow.TurnEnding ||
+                        trigger.Subject != SkillProgramTriggerSubject.Owner ||
+                        trigger.TurnOwnerScope != SkillProgramTurnOwnerScope.Own)
+                        throw new InvalidOperationException("Deferred alignment requires its source owner's own ending boundary.");
+                    foreach (var schedule in trigger.Effects.Where(effect => effect.Op == SkillProgramEffectOp.ScheduleDeferredHandAlignment))
+                        if (skill.Program.Triggers.SingleOrDefault(item => item.Id == schedule.StateId)?.DeferredTurnEndOnly != true)
+                            throw new InvalidOperationException("Deferred alignment must name its own exact opt-in continuation.");
+                }
+                foreach (var effect in skill.Program!.Triggers.SelectMany(trigger => trigger.Effects)
+                             .Where(effect => effect.Op == SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard))
+                {
+                    if (!_skills.TryGetValue(effect.SkillIds.Single(), out var upgraded) ||
+                        upgraded.Program?.Triggers.SelectMany(trigger => trigger.Effects).Any(target =>
+                            target.Op == SkillProgramEffectOp.ExchangeRespondedCardEntities && target.StateId == effect.StateId) != true)
+                        throw new InvalidOperationException($"Skill '{skill.Id}' requires the upgraded skill's matching response-exchange state.");
+                }
                 foreach (var grantedSkillId in skill.Program!.Triggers
                              .SelectMany(trigger => trigger.Effects)
-                             .Where(effect => effect.Op == SkillProgramEffectOp.GrantSkills)
+                             .Where(effect => effect.Op is SkillProgramEffectOp.GrantSkills or SkillProgramEffectOp.GrantRandomSkillAndSuitShield or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard)
                              .SelectMany(effect => effect.SkillIds))
                 {
                     if (!_skills.ContainsKey(grantedSkillId))

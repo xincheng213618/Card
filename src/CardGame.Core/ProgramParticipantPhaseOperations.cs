@@ -64,7 +64,7 @@ public sealed partial class GameEngine
             !CanActivateTargetPhaseLedger(active.OwnerSeat,active.SkillId,usage,target)) throw new InvalidOperationException("Participant phase usage is unavailable.");
         var key=$"{usage}:target:{target}";
         if(!_skillRuntimeState.TryConsumeUsage(active.OwnerSeat,active.SkillId,key,SkillUsageScope.Phase,1)) throw new InvalidOperationException("Participant phase usage could not advance.");
-        QueueGameEvent(new SkillUsageConsumedEvent(active.OwnerSeat,active.SkillId,key,SkillUsageScope.Phase,1));
+        AdvanceEventRulesAndQueueFact(new SkillUsageConsumedEvent(active.OwnerSeat,active.SkillId,key,SkillUsageScope.Phase,1));
     }
     private bool IsTurnPhysicalUseForbidden(int seat, IReadOnlyList<int> ids) => ids.Count > 0 && CaptureUsedCardSuit(seat, ids, _cardZones.CardsAt(_cardZones.GetLocation(ids[0])).Single(c => c.Id == ids[0])) is { } suit && IsTurnSuitUseForbidden(seat,suit);
     private bool IsTurnSuitUseForbidden(int seat,Suit suit) => _turnCardUseEffects.ActionProhibitions.Any(p=>p.TurnNumber==_turnNumber && p.TurnSeat==_currentSeat && p.Source.OwnerSeat==seat && p.Suits?.Contains(suit)==true && p.ActionTypes.Contains(CardActionType.Use));
@@ -78,8 +78,8 @@ public sealed partial class GameEngine
         var card=_cardZones.CardsAt(location).Single(c=>c.Id==id);
         var suit=set.FrozenRevealedSuit ?? card.Suit;
         var granted=_turnCardUseEffects.GrantActionProhibition(_turnNumber,_currentSeat,frame.Id,frame.InstructionIndex-1,CreateProgramTurnEffectSource(frame),[],[CardActionType.Use],[suit]);
-        QueueGameEvent(new CardActionProhibitionGrantedEvent(granted));
-        _resolutionStack[^1]=active with { CardSetBindings=Array.AsReadOnly(active.CardSetBindings.Select(b=>b.Name==bind ? b with { Visibility=SkillProgramCardSetVisibility.Public,FrozenRevealedSuit=suit }:b).ToArray()) };
+        AdvanceEventRulesAndQueueFact(new CardActionProhibitionGrantedEvent(granted));
+        ReplaceRuntimeTop(active with { CardSetBindings=Array.AsReadOnly(active.CardSetBindings.Select(b=>b.Name==bind ? b with { Visibility=SkillProgramCardSetVisibility.Public,FrozenRevealedSuit=suit }:b).ToArray()) });
     }
     private void CollectFullDiscardPhaseSuit(Card card,CardMovementRecord move)
     {

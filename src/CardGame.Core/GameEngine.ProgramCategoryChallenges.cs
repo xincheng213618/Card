@@ -109,14 +109,14 @@ public sealed partial class GameEngine
             var location = _cardZones.GetLocation(cardId);
             return _cardZones.CardsAt(location).Single(card => card.Id == cardId);
         }).ToArray();
-        _resolutionStack[^1] = active with
+        ReplaceRuntimeTop(active with
         {
             CardSetBindings = Array.AsReadOnly(active.CardSetBindings.Select(item =>
                 item.Name == sourceBind
                     ? item with { Visibility = SkillProgramCardSetVisibility.Public }
                     : item).ToArray())
-        };
-        QueueGameEvent(new ProgramCardsRevealedEvent(
+        });
+        AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(
             active.Id, active.SkillId, GetProgramBindingId(active), active.OwnerSeat, sourceBind,
             Array.AsReadOnly(cards.Select(ToSnapshot).ToArray())));
     }
@@ -278,7 +278,7 @@ public sealed partial class GameEngine
 
         ClearPendingDecision();
         CommitProgramCategoryDiscard(frame, chooserSeat, effect.SourceBind!, effect.ResultBind!, discardedCardId);
-        ContinueProgramSkill(frame.Id);
+        AdvanceRuntimeProgram(frame.Id);
     }
 
     private void CommitProgramCategoryDiscard(
@@ -292,12 +292,12 @@ public sealed partial class GameEngine
             ? ChooseDifferentCategoryDiscardProgramOperationDescriptor.DeclinedOption
             : ChooseDifferentCategoryDiscardProgramOperationDescriptor.DiscardedOption;
         var active = GetActiveProgramFrame(frame.Id);
-        _resolutionStack[^1] = active with
+        ReplaceRuntimeTop(active with
         {
             ChoiceBindings = Array.AsReadOnly(active.ChoiceBindings.Append(
                 new ProgramChoiceResultBinding(resultBind, option, chooserSeat)).ToArray())
-        };
-        QueueGameEvent(new ProgramCategoryDiscardResolvedEvent(
+        });
+        AdvanceEventRulesAndQueueFact(new ProgramCategoryDiscardResolvedEvent(
             active.Id, active.SkillId, GetProgramBindingId(active), active.OwnerSeat,
             chooserSeat, sourceBind, resultBind, discardedCardId));
     }

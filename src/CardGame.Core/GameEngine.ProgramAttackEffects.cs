@@ -2,14 +2,14 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private bool IsProgramSlashRedirectTarget(AttackResolution attack, int redirectorSeat, int targetSeat)
+    private bool IsProgramSlashRedirectTarget(CardAttackHandle attack, int redirectorSeat, int targetSeat)
     {
         if (attack.TargetSeat != redirectorSeat ||
             !_players[redirectorSeat].IsAlive || !_players[targetSeat].IsAlive ||
             targetSeat == redirectorSeat || targetSeat == attack.SourceSeat)
             return false;
         var kind = attack.EffectiveCardKind ?? CardKind.Slash;
-        return (_pendingFangtianHalberd is null ||
+        return (ActiveFangtianHalberd is null ||
                 !_resolutionStack.OfType<CardUseFrame>()
                     .Single(frame => frame.Id == attack.ResolutionId).TargetSeats.Contains(targetSeat)) &&
                (HasCardDistanceExemption(_players[attack.SourceSeat], _players[targetSeat], kind) ||
@@ -20,10 +20,10 @@ public sealed partial class GameEngine
 
     private void ProhibitCurrentProgramResponse(ProgramSkillFrame frame)
     {
-        var attack = _programCardAttack ?? throw new InvalidOperationException(
+        var attack = ProgramCardAttack ?? throw new InvalidOperationException(
             "A response prohibition requires the active Slash.");
         if (frame.WindowContext?.Window != SkillProgramTriggerWindow.SlashBeforeResponse ||
-            !ReferenceEquals(_pendingAttack, attack) || frame.OwnerSeat != attack.SourceSeat ||
+            !SameAttackOwner(ActiveCardAttack, attack) || frame.OwnerSeat != attack.SourceSeat ||
             frame.WindowContext.TargetSeat != attack.TargetSeat)
             throw new InvalidOperationException("Response prohibition lost its frozen attack boundary.");
         attack.ProhibitDodgeBy(_contentRegistry.GetSkill(frame.SkillId).Name);
@@ -31,10 +31,10 @@ public sealed partial class GameEngine
 
     private void RedirectCurrentProgramAttack(ProgramSkillFrame frame, int targetSeat)
     {
-        var attack = _programCardAttack ?? throw new InvalidOperationException(
+        var attack = ProgramCardAttack ?? throw new InvalidOperationException(
             "Attack redirection requires the active Slash.");
         if (frame.WindowContext?.Window != SkillProgramTriggerWindow.SlashTargetRedirecting ||
-            !ReferenceEquals(_pendingAttack, attack) || frame.OwnerSeat != attack.TargetSeat ||
+            !SameAttackOwner(ActiveCardAttack, attack) || frame.OwnerSeat != attack.TargetSeat ||
             !IsProgramSlashRedirectTarget(attack, frame.OwnerSeat, targetSeat))
             throw new InvalidOperationException("Attack redirection lost its frozen legal target.");
         var previousSeat = attack.TargetSeat;

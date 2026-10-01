@@ -121,7 +121,8 @@ public enum PlayerMarkerKind
     Mist,
     Junlue = 450,
     Camp = 451,
-    Huang = 500
+    Huang = 500,
+    Orange = 1280
 }
 
 public static class PlayerMarkerCatalog
@@ -130,6 +131,7 @@ public static class PlayerMarkerCatalog
     {
         PlayerMarkerKind.Nightmare => "梦魇",
         PlayerMarkerKind.Huang => "黄",
+        PlayerMarkerKind.Orange => "橘",
         PlayerMarkerKind.Ren => "忍",
         PlayerMarkerKind.Rage => "暴怒",
         PlayerMarkerKind.Gale => "狂风",
@@ -232,7 +234,8 @@ public enum EngineStatus
     AwaitingHumanCardSelection,
     Completed,
     AwaitingHumanDiscard,
-    AwaitingHumanFactionSelection
+    AwaitingHumanFactionSelection,
+    Faulted
 }
 
 public enum Winner
@@ -421,7 +424,16 @@ public sealed record SkillRuntimeStateSnapshot(
     SkillPolarity? Polarity = null,
     IReadOnlyList<ProgramBooleanStateSnapshot>? BooleanStates = null,
     IReadOnlyList<DirectedTurnCardPolicy>? DirectedPolicies = null,
-    IReadOnlyList<TurnCardActionProhibition>? ActionProhibitions = null);
+    IReadOnlyList<TurnCardActionProhibition>? ActionProhibitions = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ProgramPublicRuleStateSnapshot>? PublicRuleStates { get; init; }
+}
+public enum ProgramPublicRuleStateKind { ActivationLimit = 1160, PersistentHandLimit = 1161, SelfTargetProhibition = 1162 }
+public sealed record ProgramPublicRuleStateSnapshot(string SkillInstanceId,string StateId,ProgramPublicRuleStateKind Kind,int Value,int? Used = null,SkillUsageScope? Scope = null);
+
+public sealed record ProgramAlternatingChoiceStateSnapshot(string SkillId, string StateId, string SkillInstanceId,
+    string? PendingOptionId, int NextDrawBonus, int NextTargetBonus);
 
 public sealed record ProgramBooleanStateSnapshot(
     string SkillInstanceId, string StateId, bool Value, string Text);
@@ -502,6 +514,12 @@ public sealed partial record PlayerSnapshot
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyDictionary<string, int>? ConfiguredConversionTiers { get; init; }
 
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ProgramAlternatingChoiceStateSnapshot>? AlternatingChoiceStates { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<BeneficiarySuitShield>? BeneficiarySuitShields { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public IReadOnlyList<DeferredHandAlignment>? DeferredHandAlignments { get; init; }
+
     /// <summary>
     /// Ordered skills visible with the primary general. Null means this viewer
     /// cannot see the general; an empty collection means no visible skills.
@@ -574,6 +592,15 @@ public sealed partial record PlayerSnapshot
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int PublicDeferredPileCount { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<CardSnapshot>? PublicPersistentPileCards { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? PublicPersistentPileName { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? PublicPersistentPileSkillId { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int PublicPersistentPileCount { get; init; }
 
     /// <summary>
     /// Cards held face-down on this character's general card by Xu Sheng's Pojun.
@@ -809,6 +836,10 @@ public sealed record GameSnapshot(
     /// <summary>Cards privately viewed by this snapshot's viewer; absent for every other viewer.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<CardSnapshot>? PrivateRevealedCards { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ProgramResponseExchangeStateSnapshot>? ProgramResponseExchangeStates { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<TurnProhibitedPhysicalCardsSnapshot>? TurnProhibitedPhysicalCards { get; init; }
 
     /// <summary>Mode metadata used by view-scoped AI and presentation adapters.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]

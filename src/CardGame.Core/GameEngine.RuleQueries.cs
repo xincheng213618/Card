@@ -129,6 +129,7 @@ public sealed partial class GameEngine
         };
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.HandLimit).ToList();
         contributions.AddRange(ProgramDamageHandLimitContributions(player));
+        contributions.AddRange(PersistentHandLimitContributions(player));
         AddFiniteContribution(contributions, $"turn:{player.Seat}:hand-limit",
             GetAdditiveTurnRuleModifier(player.Seat, SkillRuleQuery.HandLimit));
         foreach (var (source, policy) in CardPolicies(player,
@@ -210,6 +211,7 @@ public sealed partial class GameEngine
     private bool CanSpendSlashUse(CharacterState player, CharacterState target, bool ignoresCount,
         CardKind effectiveKind = CardKind.Slash, Card? physicalCard = null) =>
         !IsCardUseForbidden(player.Seat, effectiveKind, CardActionType.Use) &&
+        (physicalCard is null || !HasBeneficiarySuitShield(player.Seat, target.Seat, EffectiveSuit(player, physicalCard))) &&
         !IsDirectedCardTargetProhibited(player.Seat, target.Seat, effectiveKind) &&
         (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount ||
          _slashCountThisTurn < GetSlashUseLimit(player) ||

@@ -32,6 +32,15 @@ internal static class CardMovementProgramChecks
 
         var prompt = RequireSkillPrompt(game, ScenarioPackage.SkillId);
         var frame = game.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single();
+        var parent = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(item => item.TriggerId is null);
+        var payment = parent.SelectedCardPayment ??
+            throw new InvalidOperationException("The selected-card parent lost its payment receipt.");
+        Require(payment is { Operation: SkillProgramEffectOp.DiscardSelected, MovementCommitted: true } &&
+                payment.InstructionIndex == parent.InstructionIndex &&
+                payment.CardIds.SequenceEqual(hand.Select(card => card.Id).Order()) &&
+                payment.ActiveChildFrameId == frame.Id &&
+                parent.SelectedCardPaymentResult is null && parent.PendingMovementContinuation is null,
+            "The selected cards must have one parent-owned paid receipt while movement triggers run.");
         var handCount = frame.Batch.SourceCounts.Single(item => item.Location == CardLocation.Hand(HumanSeat));
         Require(frame.Batch.Movements.Count == 2 &&
                 frame.Batch.Movements.All(item => item.From == CardLocation.Hand(HumanSeat)) &&
@@ -48,6 +57,17 @@ internal static class CardMovementProgramChecks
         var roundTrip = JsonSerializer.Deserialize<ResolutionFrame[]>(serialized) ?? [];
         var restoredFrame = roundTrip.OfType<CardsMovedTriggerWindowFrame>().SingleOrDefault() ??
             throw new InvalidOperationException("The cards-moved frame lost its concrete type after serialization.");
+        var restoredParent = roundTrip.OfType<ProgramSkillFrame>().Single(item => item.TriggerId is null);
+        Require(restoredParent.SelectedCardPayment is { } restoredPayment &&
+                restoredPayment.InstructionIndex == payment.InstructionIndex &&
+                restoredPayment.Operation == payment.Operation &&
+                restoredPayment.CardIds.SequenceEqual(payment.CardIds) &&
+                restoredPayment.RecipientSeat == payment.RecipientSeat &&
+                restoredPayment.MovementCommitted &&
+                restoredPayment.ActiveChildFrameId == frame.Id &&
+                restoredParent.SelectedCardPaymentResult is null &&
+                restoredParent.PendingMovementContinuation is null,
+            "A paused parent must round-trip its paid instruction and active child identity.");
         Require(restoredFrame.Id == frame.Id && restoredFrame.CandidateIndex == frame.CandidateIndex &&
                 restoredFrame.Step == frame.Step && restoredFrame.Batch.Id == frame.Batch.Id &&
                 restoredFrame.Batch.ParentFrameId == frame.Batch.ParentFrameId &&
@@ -113,6 +133,169 @@ internal static class CardMovementProgramChecks
                 invalidated.ResolutionStack.Count == 0 &&
                 invalidated.PendingDecision is { Kind: DecisionKind.PlayCard, PlayerSeat: HumanSeat },
             "A skill instance lost while prompted must skip every frozen remaining occurrence without drawing.");
+
+        VerifyArmorPaymentReturnsAfterRecoveryAndMovementWindows();
+    }
+
+    public static void SelectedGiftContinuesAfterRecipientDeathAndReplays()
+    {
+        var rules = $$$$"""
+            {"schemaVersion":{{{{SkillProgramCatalog.RulesSchemaVersion}}}},"skills":[
+             {"id":"fixture:gift-survives-recipient","revision":1,"activations":[
+              {"id":"gift","minCards":2,"maxCards":2,"minTargets":1,"maxTargets":1,
+               "targetKind":"otherLiving","usesPerTurn":1,"effects":[
+                {"op":"giveSelected","target":"selectedTarget","amount":2},
+                {"op":"draw","target":"owner","amount":1}]}]},
+             {"id":"fixture:gift-recipient-loss","revision":1,"triggers":[
+              {"id":"loss","window":"cardsGained","subject":"owner","destinationZones":["hand"],
+               "movementOccurrence":"perSourceOwner","optional":false,
+               "condition":{"kind":"compare","left":{"kind":"movedCardCount"},
+                "operator":"greaterThanOrEqual","right":{"kind":"integerConstant","value":2}},
+               "effects":[{"op":"loseHp","target":"owner","amount":1}]}]}]}
+            """;
+        var presentation = $$$$"""
+            {"schemaVersion":{{{{SkillProgramCatalog.PresentationSchemaVersion}}}},"skills":{
+             "fixture:gift-survives-recipient":{"name":"Gift","description":"Fixture"},
+             "fixture:gift-recipient-loss":{"name":"Loss","description":"Fixture"}}}
+            """;
+        var programs = SkillProgramCatalog.Load(rules, presentation).Programs;
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new RecipientDeathPackage(programs));
+        var game = CreateAndSelect(registry, RecipientDeathPackage.ModeId, RecipientDeathPackage.OwnerGeneralId);
+        ReachHumanPlay(game);
+        var target = game.CreateSnapshot(HumanSeat, revealAll: true).Players
+            .Single(player => player.Seat != HumanSeat && player.Role == Role.Loyalist).Seat;
+        var cards = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hand.Select(card => card.Id).Order().ToArray();
+        Require(cards.Length == 2 && Players(game)[target].Hp == 1, $"The gift fixture must have two costs and a one-HP nonterminal recipient: cards={cards.Length}, target={target}, hp={Players(game)[target].Hp}, general={Players(game)[target].General.Id}, role={Players(game)[target].Role}.");
+        var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+        Finish(game);
+        Finish(replay);
+        Require(State(game) == State(replay) && Events(game).SequenceEqual(Events(replay)),
+            "Recipient death during a paid gift must checkpoint-replay identical state and events.");
+
+        void Finish(GameEngine engine)
+        {
+            var play = RequirePrompt(engine, DecisionKind.PlayCard);
+            var result = engine.Submit(new UseProgramSkillCommand(HumanSeat, RecipientDeathPackage.GiftSkill,
+                "gift", cards, [target], engine.Revision, play.PromptId));
+            Require(result.Accepted, result.Error?.Message ?? "The gift was rejected.");
+            for (var step = 0; step < 64 && engine.ResolutionStack.Count > 0; step++)
+            {
+                if (engine.PendingDecision is { } prompt)
+                {
+                    Require(prompt.Kind == DecisionKind.RescueDying, "The mandatory recipient loss must only pause for rescue.");
+                    var none = prompt.Choices.Single(choice => choice.Parameters.GetValueOrDefault("response") == "let-die");
+                    Require(engine.Submit(new AnswerPromptCommand(prompt.PlayerSeat, prompt.PromptId, none.Id, engine.Revision)).Accepted,
+                        "The no-rescue answer was rejected.");
+                }
+                else AdvanceOne(engine);
+            }
+            var snapshot = engine.CreateSnapshot(HumanSeat, revealAll: true);
+            Require(!snapshot.Players[target].IsAlive && snapshot.Winner == Winner.None &&
+                    snapshot.Players[HumanSeat].HandCount == 1 && engine.ResolutionStack.Count == 0,
+                "A dead gift recipient must not cancel the living owner's one subsequent draw.");
+            Require(cards.All(id => engine.CardMovements.Count(move => move.CardId == id &&
+                        move.From == CardLocation.Hand(HumanSeat) && move.To == CardLocation.Hand(target)) == 1) &&
+                    engine.CardMovements.Count(move => move.To == CardLocation.Hand(HumanSeat) &&
+                        move.Reason.Value == $"skill-program.{RecipientDeathPackage.GiftSkill}.Draw") == 1,
+                "The selected gift must pay once and execute its following draw exactly once.");
+        }
+    }
+
+    private sealed class RecipientDeathPackage(IReadOnlyDictionary<string, SkillProgram> programs) : IGameContentPackage
+    {
+        public const string GiftSkill = "fixture:gift-survives-recipient";
+        public const string OwnerGeneralId = "fixture:gift-survives-recipient-owner";
+        public const string ModeId = "identity:classic-gift-recipient-death-5";
+        public PackageManifest Manifest { get; } = new("gift-recipient-death", new Version(1, 0, 0));
+        public void Register(IContentRegistryBuilder builder)
+        {
+            foreach (var (id, program) in programs)
+                builder.AddSkill(new ContentSkillDefinition(id, id, "Fixture")
+                { Program = program, ExecutionForms = SkillExecutionForm.Trigger, ActionForms = SkillActionForm.Active });
+            builder.AddGeneral(new ContentGeneralDefinition(OwnerGeneralId, "Giver", "supporter", GiftSkill, "wei", BaseHp: 4));
+            var others = Enumerable.Range(1, 4).Select(index => $"fixture:gift-recipient-{index}").ToArray();
+            foreach (var id in others)
+                builder.AddGeneral(new ContentGeneralDefinition(id, "Recipient", "supporter", "fixture:gift-recipient-loss", "wei", BaseHp: 1));
+            builder.AddDeck(new ContentDeckRecipe("fixture:gift-recipient-deck", "No rescue", 2, 0,
+                [new ContentDeckCardCount("standard:crossbow", 64)]));
+            builder.AddMode(new ContentModeDefinition(ModeId, "Gift recipient death", 5, 5,
+                new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1,
+                    [nameof(Role.Rebel)] = 2, [nameof(Role.Renegade)] = 1 }, "fixture:gift-recipient-deck",
+                GeneralCandidateCount: 5, GeneralPoolIds: [OwnerGeneralId, .. others]));
+        }
+    }
+    private static void VerifyArmorPaymentReturnsAfterRecoveryAndMovementWindows()
+    {
+        var rules = $$$$"""
+            {"schemaVersion":{{{{SkillProgramCatalog.RulesSchemaVersion}}}},"skills":[{
+              "id":"fixture:armor-payment","revision":1,
+              "minimumRulesVersion":{{{{GameCheckpoint.CurrentRulesVersion}}}},
+              "activations":[{"id":"discard-armor","minCards":1,"maxCards":1,
+                "sourceZones":["equipment"],"minTargets":0,"maxTargets":0,
+                "targetKind":"anyLiving","usesPerTurn":1,
+                "effects":[{"op":"discardSelected","target":"owner","amount":1},
+                           {"op":"draw","target":"owner","amount":1}]}],
+              "triggers":[{"id":"recover","window":"afterHpRecovered","subject":"owner",
+                "optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]},
+                {"id":"armor-moved","window":"cardsMoved","subject":"owner",
+                "sourceZones":["equipment"],"movementOccurrence":"perCard",
+                "optional":true,"effects":[{"op":"draw","target":"owner","amount":1}]}]
+            }]}
+            """;
+        var presentation = $$$$"""
+            {"schemaVersion":{{{{SkillProgramCatalog.PresentationSchemaVersion}}}},
+             "skills":{"fixture:armor-payment":{"name":"Armor payment","description":"Fixture"}}}
+            """;
+        var program = SkillProgramCatalog.Load(rules, presentation).Programs[ArmorPaymentPackage.SkillId];
+        var registry = ContentRegistry.Build(new StandardContentPackage(),
+            new StandardActiveSkillExpansionPackage(includeJijiu: true),
+            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(),
+            new ArmorPaymentPackage(program));
+        var game = CreateAndSelect(registry, ArmorPaymentPackage.ModeId, ArmorPaymentPackage.OwnerGeneralId);
+        ReachHumanPlay(game);
+
+        var store = (CardZoneStore)(typeof(GameEngine)
+            .GetField("_cardZones", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .GetValue(game) ?? throw new InvalidOperationException("The armor payment card store is unavailable."));
+        var armor = game.CreateCardZoneDiagnostics().Single(card => card.CardKind == CardKind.SilverLion);
+        _ = store.Move(armor.CardId, armor.Location, CardLocation.Equipment(HumanSeat));
+        var owner = Players(game)[HumanSeat];
+        owner.Hp = owner.MaxHp - 1;
+        var handBefore = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].HandCount;
+        var play = RequirePrompt(game, DecisionKind.PlayCard);
+        var action = game.GetHumanLegalActions().Single(item =>
+            item.Kind == LegalActionKind.UseProgramSkill && item.ProgramSkillId == ArmorPaymentPackage.SkillId &&
+            item.ProgramActivationId == "discard-armor");
+        var result = game.Submit(new UseProgramSkillCommand(HumanSeat, ArmorPaymentPackage.SkillId,
+            "discard-armor", [armor.CardId], [], game.Revision, play.PromptId));
+        Require(result.Accepted, result.Error?.Message ?? "The armor payment was rejected.");
+
+        var hpWindow = game.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Single();
+        var parent = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(item => item.TriggerId is null);
+        Require(hpWindow.Continuation == PostEventContinuation.AwaitedProgramMovement &&
+                parent.SelectedCardPayment is
+                { Operation: SkillProgramEffectOp.DiscardSelected, MovementCommitted: true } payment &&
+                payment.ActiveChildFrameId == hpWindow.Id && parent.PendingMovementContinuation is null,
+            "Silver Lion recovery must pause the paid parent before the movement trigger window.");
+        var hpFrames = JsonSerializer.Deserialize<ResolutionFrame[]>(JsonSerializer.Serialize(game.ResolutionStack)) ?? [];
+        var restoredParent = hpFrames.OfType<ProgramSkillFrame>().Single(item => item.TriggerId is null);
+        Require(restoredParent.SelectedCardPayment?.ActiveChildFrameId == hpWindow.Id &&
+                restoredParent.SelectedCardPaymentResult is null,
+            "The HP child and parent's paid receipt must round-trip together.");
+        AnswerProgram(game, "activate");
+        var movementWindow = game.ResolutionStack.OfType<CardsMovedTriggerWindowFrame>().Single();
+        parent = game.ResolutionStack.OfType<ProgramSkillFrame>().Single(item => item.TriggerId is null);
+        Require(parent.SelectedCardPayment?.ActiveChildFrameId == movementWindow.Id &&
+                parent.SelectedCardPaymentResult is null,
+            "The movement window must become the paid parent's current child after recovery.");
+        AnswerProgram(game, "activate");
+        var after = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat];
+        Require(after.Hp == after.MaxHp && after.Equipment.All(card => card.Id != armor.CardId) &&
+                game.CreateCardZoneDiagnostics().Single(card => card.CardId == armor.CardId).Location ==
+                    CardLocation.DiscardPile &&
+                after.HandCount == handBefore + 3 && game.ResolutionStack.Count == 0 &&
+                game.PendingDecision is null,
+            "Recovery, movement trigger, and the parent's next effect must each finish once after armor payment.");
     }
 
     public static void NestedBatchesRetainImmediateParentIdentity()
@@ -339,6 +522,44 @@ internal static class CardMovementProgramChecks
                 DeckId,
                 GeneralCandidateCount: 5,
                 GeneralPoolIds: [OwnerGeneralId, .. targets]));
+        }
+    }
+
+    private sealed class ArmorPaymentPackage(SkillProgram program) : IGameContentPackage
+    {
+        public const string SkillId = "fixture:armor-payment";
+        public const string OwnerGeneralId = "fixture:armor-payment-owner";
+        public const string ModeId = "identity:classic-armor-payment-test-5";
+        private const string DeckId = "fixture:armor-payment-deck";
+
+        public PackageManifest Manifest { get; } = new("armor-payment-scenario", new Version(1, 0, 0));
+
+        public void Register(IContentRegistryBuilder builder)
+        {
+            builder.AddSkill(new ContentSkillDefinition(SkillId, "Armor payment", "Fixture")
+            {
+                Program = program,
+                ExecutionForms = SkillExecutionForm.Trigger,
+                ActionForms = SkillActionForm.Active
+            });
+            var targets = Enumerable.Range(1, 4)
+                .Select(index => $"fixture:armor-payment-target-{index}").ToArray();
+            builder.AddGeneral(new ContentGeneralDefinition(OwnerGeneralId, "Armor Owner", "supporter",
+                SkillId, "wei", BaseHp: 4));
+            foreach (var target in targets)
+                builder.AddGeneral(new ContentGeneralDefinition(target, "Armor Target", "supporter",
+                    "standard:none", "wei", BaseHp: 4));
+            builder.AddDeck(new ContentDeckRecipe(DeckId, "Armor Deck", 2, 0,
+                [new ContentDeckCardCount("classic:silver-lion", 1),
+                 new ContentDeckCardCount("standard:crossbow", 63)]));
+            builder.AddMode(new ContentModeDefinition(ModeId, "Armor Payment", 5, 5,
+                new Dictionary<string, int>
+                {
+                    [nameof(Role.Lord)] = 1,
+                    [nameof(Role.Loyalist)] = 1,
+                    [nameof(Role.Rebel)] = 2,
+                    [nameof(Role.Renegade)] = 1
+                }, DeckId, GeneralCandidateCount: 5, GeneralPoolIds: [OwnerGeneralId, .. targets]));
         }
     }
 

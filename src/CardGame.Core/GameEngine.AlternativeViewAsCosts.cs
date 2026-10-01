@@ -26,8 +26,8 @@ public sealed partial class GameEngine
         action.ConversionChain.Any(source => ViewAsRule(source)?.CostDestination == SkillProgramCardDestination.DrawPileTop);
 
     private bool IsProgramResponseCardUse(CharacterState responder, CardKind effectiveKind) =>
-        effectiveKind == CardKind.Dodge && _pendingFactionDefense is null &&
-        _pendingAttack is { EffectiveCardKind: { } incomingKind } attack &&
+        effectiveKind == CardKind.Dodge && ActiveFactionDefense is null &&
+        ActiveCardAttack is { EffectiveCardKind: { } incomingKind } attack &&
         attack.TargetSeat == responder.Seat && IsSlashCard(incomingKind);
 
     private bool IsProgramTopDeckDodgeSource(CardConversionSource? source) =>
@@ -37,7 +37,8 @@ public sealed partial class GameEngine
     private void PaySingleCardResponse(Card card, CharacterState provider, CardKind effectiveKind,
         CardConversionSource? source)
     {
-        if (source is not null && ViewAsRule(source) is { ConversionStateId: not null, UsesPerPhase: not null }) ConsumeProgramViewAsUsage([source]);
+        if (source is not null && ViewAsRule(source) is { } usageRule &&
+            (usageRule.UnusedOutputNameThisGame || usageRule.ConversionStateId is not null && usageRule.UsesPerPhase is not null)) ConsumeProgramViewAsUsage([source]);
         var alternative = IsProgramTopDeckDodgeSource(source);
         if (alternative && (source!.OwnerSeat != provider.Seat || !IsProgramResponseCardUse(provider, effectiveKind)))
             throw new InvalidOperationException("A top-deck response cost requires its own enabled Slash-defense Dodge use.");
@@ -75,7 +76,7 @@ public sealed partial class GameEngine
             ? CardLocation.DrawPile : to;
     }
 
-    private bool TryValidateProgramAlternativeCostAttack(AttackResolution attack, IReadOnlyList<Card> processing, out bool valid)
+    private bool TryValidateProgramAlternativeCostAttack(CardAttackHandle attack, IReadOnlyList<Card> processing, out bool valid)
     {
         valid = false;
         var use = _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(frame => frame.Id == attack.ResolutionId);

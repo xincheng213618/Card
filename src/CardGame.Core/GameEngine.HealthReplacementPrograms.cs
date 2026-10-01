@@ -20,25 +20,24 @@ public sealed partial class GameEngine
             changed.Item2, changed.Item3, payload is DamageAppliedEvent ? owner.Hp + changed.Item3 : owner.Hp, owner.Hp));
     }
 
-    private bool ApplyAttackAsHpLoss(AttackResolution attack)
+    private bool ApplyAttackAsHpLoss(IDamageAttempt attack)
     {
         var target = _players[attack.TargetSeat];
         var amount = attack.DamageAmount;
         var before = target.Hp;
         target.Hp -= amount;
         RecordHpChange(attack.ResolutionId, null, target.Seat, before, target.Hp, HpChangeKind.Loss);
-        QueueGameEvent(new DamageReplacedWithHpLossEvent(attack.ResolutionId, attack.SourceSeat, target.Seat, amount, target.Hp));
+        AdvanceEventRulesAndQueueFact(new DamageReplacedWithHpLossEvent(attack.ResolutionId, attack.SourceSeat, target.Seat, amount, target.Hp));
         AddLog("HpLost", $"{target.Name} 失去 {amount} 点体力，剩余 {target.Hp} 点体力。", target.Seat);
         if (target.Hp > 0) return false;
-        if (_pendingDying is not null) throw new InvalidOperationException("An HP-loss attack cannot nest another dying victim.");
+        if (ActiveDying is not null) throw new InvalidOperationException("An HP-loss attack cannot nest another dying victim.");
         var responders = Array.AsReadOnly(BuildDyingResponderSeats(target.Seat).ToArray());
         var id = ++_resolutionSequence;
-        _resolutionStack.Add(new DyingFrame(id, attack.ResolutionId, target.Seat, null, responders, 0));
-        _pendingDying = new DyingResolution(id, null, attack, target.Seat, null, responders,
-            attack.ResolutionId, DyingContinuation.AttackHpLoss);
-        QueueGameEvent(new PlayerDyingEvent(id, target.Seat, null));
+        PushRuntimeFrame(new DyingFrame(id, attack.ResolutionId, target.Seat, null, responders, 0,
+            DyingContinuationKind.AttackHpLoss));
+        AdvanceEventRulesAndQueueFact(new PlayerDyingEvent(id, target.Seat, null));
         _status = EngineStatus.Running;
-        if (!TryBeginMandatorySelfDyingProgram(_pendingDying) && !TryBeginDyingEntryProgramWindow(_pendingDying)) ExposeHumanDyingPrompt();
+        if (!TryBeginMandatorySelfDyingProgram(ActiveDying!) && !TryBeginDyingEntryProgramWindow(ActiveDying!)) ExposeHumanDyingPrompt();
         return true;
     }
 }

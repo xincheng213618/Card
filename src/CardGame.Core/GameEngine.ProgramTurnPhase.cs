@@ -41,7 +41,7 @@ public sealed partial class GameEngine
         var active = GetActiveProgramFrame(frame.Id);
         if (active.TriggerId is null || active.SelectedTargetSeats.Count != 1 ||
             active.SelectedTargetSeats[0] != targetSeat || cardKind != CardKind.Slash ||
-            !ignoreDistance || _pendingAttack is not null || _pendingDuel is not null ||
+            !ignoreDistance || ActiveCardAttack is not null || ActiveDuel is not null ||
             !IsValidPlayerSeat(targetSeat))
             throw new InvalidOperationException("Virtual card use requires one current selected Slash target.");
         var source = _players[active.OwnerSeat];
@@ -58,22 +58,22 @@ public sealed partial class GameEngine
             ? new CardActionContext(++_cardActionSequence, _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
                 CardActionType.Use, source.Seat, source.Seat, null, null, null, cardKind, [targetSeat], [], [],
                 effectiveSuit: Suit.None, effectiveRank: 0) : null;
-        _resolutionStack.Add(new CardUseFrame(resolutionId, source.Seat, 0, cardKind,
+        PushRuntimeFrame(new CardUseFrame(resolutionId, source.Seat, 0, cardKind,
             Array.AsReadOnly(new[] { targetSeat }),
             PhysicalCardIds: Array.AsReadOnly(Array.Empty<int>())) { Action = action });
-        if (action is not null && TracksPlayCardHistory) QueueGameEvent(new CardUseAppearanceCapturedEvent(action));
-        QueueGameEvent(new CardUseDeclaredEvent(resolutionId, 0, cardKind, source.Seat));
-        QueueGameEvent(new TargetsConfirmedEvent(resolutionId, Array.AsReadOnly(new[] { targetSeat })));
-        var attack = new AttackResolution(resolutionId, source.Seat, targetSeat, card: null,
+        if (action is not null && TracksPlayCardHistory) AdvanceEventRulesAndQueueFact(new CardUseAppearanceCapturedEvent(action));
+        AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(resolutionId, 0, cardKind, source.Seat));
+        AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(resolutionId, Array.AsReadOnly(new[] { targetSeat })));
+        var attack = new CardAttackHandle(this, resolutionId, source.Seat, targetSeat, card: null,
             damageAmount: action is not null && source.HasAlcoholEffect ? 2 : 1,
             playedCardKind: cardKind, ignoresArmor: action is not null && HasCardArmorBypass(source, target, cardKind),
             programSkillCardUseFrameId: frame.Id);
         if (action is not null) source.HasAlcoholEffect = false;
-        _pendingAttack = attack;
-        QueueGameEvent(new CardUsedEvent(0, cardKind, source.Seat, targetSeat));
+        ActiveCardAttack = attack;
+        AdvanceEventRulesAndQueueFact(new CardUsedEvent(0, cardKind, source.Seat, targetSeat));
         if (action is not null)
         {
-            _committedProgramUses.Add(resolutionId);
+            TryMarkProgramUseCommitted(resolutionId);
             if (!TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardUseCommitted,
                 action.TargetSeats, ProgramCardContinuation.CommittedSlash)) BeginSlashTargetResolution(attack);
         }

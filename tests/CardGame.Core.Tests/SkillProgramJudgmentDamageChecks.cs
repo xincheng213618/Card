@@ -55,7 +55,7 @@ internal static class SkillProgramJudgmentDamageChecks
             "A paused selected-target judgment effect must restore its exact private prompt.");
 
         var invalidParent = GameReplay.Restore(paused, registry);
-        var stack = (List<ResolutionFrame>)typeof(GameEngine)
+        var stack = (FrameStore)typeof(GameEngine)
             .GetField("_resolutionStack", BindingFlags.Instance | BindingFlags.NonPublic)!
             .GetValue(invalidParent)!;
         var parentIndex = stack.FindIndex(item => item is ProgramSkillFrame
@@ -64,7 +64,7 @@ internal static class SkillProgramJudgmentDamageChecks
             { InstructionIndex: >= 2 },
             "The opening judgment must retain its committed parent instruction.");
         var parent = (ProgramSkillFrame)stack[parentIndex];
-        stack[parentIndex] = parent with { InstructionIndex = 1 };
+        stack.Replace(parent with { InstructionIndex = 1 });
         var rejectedParent = false;
         try
         {

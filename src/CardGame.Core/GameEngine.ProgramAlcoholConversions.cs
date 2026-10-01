@@ -7,7 +7,7 @@ public sealed partial class GameEngine
     {
         if (source is null ? card.Kind != CardKind.Alcohol :
             !GetProgramViewAsConversions(owner, card, CardKind.Alcohol, forResponse,
-                dyingUse: forResponse && _pendingDying?.VictimSeat == owner.Seat).Contains(source))
+                dyingUse: forResponse && ActiveDying?.VictimSeat == owner.Seat).Contains(source))
             throw new InvalidOperationException("The Alcohol conversion has no matching enabled program source.");
     }
 }

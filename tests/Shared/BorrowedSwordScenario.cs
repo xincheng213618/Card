@@ -1,12 +1,199 @@
-using CardGame.Content.Standard;
+﻿using CardGame.Content.Standard;
 using CardGame.Core;
 
 internal static class BorrowedSwordScenario
 {
+    public static ContentRegistry CreateFixtureRegistry() => ContentRegistry.Build(
+        new StandardContentPackage(), new StandardActiveSkillExpansionPackage(includeJijiu: true),
+        new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new BorrowedFixtureMode());
+
+    private sealed class BorrowedFixtureMode : IGameContentPackage
+    {
+        public PackageManifest Manifest { get; } = new("fixture-borrowed-sword", new Version(1, 0, 0), []);
+        public void Register(IContentRegistryBuilder builder) => builder.AddMode(new(
+            "identity:classic-borrowed-check5", "Borrowed Sword real classic fixture", 5, 5,
+            new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1,
+                [nameof(Role.Rebel)] = 2, [nameof(Role.Renegade)] = 1 }, "classic:standard-deck",
+            GeneralCandidateCount: 3, GeneralPoolIds:
+            [
+                "classic:liu-bei",
+                "classic:sun-quan",
+                "classic:sima-yi",
+                "classic:xiahou-dun",
+                "classic:hua-tuo",
+                "classic:cao-cao",
+                "classic:zhang-liao",
+                "classic:xu-chu",
+                "classic:dian-wei",
+                "classic:xu-huang",
+                "classic:zhen-ji",
+                "classic:huang-yueying",
+                "classic:ma-chao",
+                "classic:huang-zhong",
+                "classic:wei-yan",
+                "classic:lu-bu",
+                "classic:huang-gai",
+                "classic:gan-ning",
+                "classic:lu-meng",
+                "classic:zhang-fei",
+                "classic:zhou-yu",
+                "classic:zhuge-liang",
+                "classic:guan-yu",
+                "classic:zhao-yun",
+                "classic:guo-jia",
+                "classic:da-qiao",
+                "classic:diao-chan",
+                "classic:sun-shangxiang",
+                "classic:lu-xun",
+                "classic:pang-de",
+                "classic:xun-yu",
+                "classic:yan-liang-wen-chou",
+                "classic:wolong-zhuge-liang",
+                "classic:pang-tong",
+                "classic:taishi-ci",
+                "classic:cao-ren",
+                "classic:xiao-qiao",
+                "classic:zhou-tai",
+                "classic:yuan-shao",
+                "classic:xiahou-yuan",
+                "classic:hua-xiong",
+                "classic:gongsun-zan",
+                "classic:zhang-jiao",
+                "classic:sun-jian",
+                "classic:meng-huo",
+                "classic:zhu-rong",
+                "classic:yu-jin",
+                "classic:xu-shu",
+                "sp:zhao-yun",
+                "classic:shen-guan-yu",
+                "sp:guan-yu",
+                "classic:yan-yan",
+                "mou:lu-meng",
+                "classic:cao-zhang",
+                "classic:ma-dai",
+                "classic:gao-shun",
+                "classic:liu-biao",
+                "classic:wang-yi",
+                "classic:zhong-hui",
+                "classic:xun-you",
+                "classic:liao-hua",
+                "classic:guan-xing-zhang-bao",
+                "classic:bu-lian-shi",
+                "classic:cheng-pu",
+                "classic:han-dang",
+                "classic:cao-chong",
+                "classic:guo-huai",
+                "classic:man-chong",
+                "classic:guan-ping",
+                "classic:zhu-huan",
+                "classic:gu-yong",
+                "classic:li-dian",
+                "boundary:sima-yi",
+                "boundary:guo-jia",
+                "boundary:cao-cao",
+                "boundary:diao-chan",
+                "boundary:zhang-liao",
+                "classic:zhu-zhi",
+                "boundary:xu-chu",
+                "boundary:gan-ning",
+                "boundary:zhou-yu",
+                "classic:pan-zhang-ma-zhong",
+                "sp:le-jin",
+                "classic:xu-sheng",
+                "boundary:xu-sheng",
+                "classic:zhang-song",
+                "boundary:zhang-song",
+                "classic:ju-shou",
+                "boundary:ju-shou",
+                "classic:cao-ang",
+                "classic:qu-yi",
+                "classic:zhang-xiu",
+                "ol:shen-guan-yu",
+                "classic:shen-sima-yi",
+                "classic:shen-zhao-yun",
+                "classic:cao-pi",
+                "classic:sun-ce",
+                "classic:cai-wen-ji",
+                "classic:deng-ai",
+                "classic:sha-mo-ke",
+                "classic:lu-su",
+                "classic:jiang-wei",
+                "classic:dong-zhuo",
+                "classic:liu-shan",
+                "classic:zhang-zhao-zhang-hong",
+                "boundary:zhao-yun",
+                "classic:zhang-he",
+                "classic:shen-lu-meng",
+                "classic:shen-cao-cao",
+                "classic:cao-zhi",
+                "classic:jia-xu",
+                "classic:shen-zhou-yu",
+                "classic:shen-lu-bu",
+                "classic:fu-huanghou",
+                "ol:shen-sima-yi",
+                "ol:shen-liu-bei",
+                "ol:shen-lu-xun",
+                "ol:shen-gan-ning",
+                "ol:shen-zhang-liao",
+                "ol:shen-zhou-yu",
+                "ol:shen-zhuge-liang",
+                "ol:shen-lu-bu",
+                "ol:shen-zhao-yun",
+                "ol:shen-sun-quan",
+                "ol:shen-zhang-jiao",
+                "ol:shen-dian-wei",
+                "ol:shen-huang-zhong",
+                "classic:zhang-chun-hua",
+                "classic:ling-tong",
+                "classic:chen-gong",
+                "classic:wu-guo-tai",
+                "classic:fa-zheng",
+                "classic:ma-su",
+                "classic:li-ru",
+                "classic:liu-feng",
+                "classic:jian-yong",
+                "classic:yu-fan",
+                "classic:zhu-ran",
+                "classic:cao-zhen",
+                "classic:han-hao-shi-huan",
+                "classic:chen-qun",
+                "classic:wu-yi",
+                "classic:zhou-cang",
+                "classic:sun-lu-ban",
+                "classic:li-yan",
+                "classic:sun-deng",
+                "classic:guo-huanghou",
+                "classic:liu-yu",
+                "classic:cen-hun",
+                "classic:sun-zi-liu-fang",
+                "classic:huang-hao",
+                "classic:xin-xianying",
+                "classic:zhang-rang",
+                "classic:cao-jie",
+                "classic:wu-xian",
+                "classic:cai-yong",
+                "classic:qin-mi",
+                "classic:xue-zong",
+                "classic:xu-shi",
+                "classic:ji-kang",
+                "classic:cao-rui",
+                "classic:cao-xiu",
+                "classic:zhong-yao",
+                "classic:liu-chen",
+                "classic:xiahou-shi",
+                "classic:zhang-ni",
+                "classic:sun-xiu",
+                "classic:quan-cong",
+                "classic:gongsun-yuan",
+                "classic:guo-tu-feng-ji",
+            ]));
+    }
+
     public static GameEngine FindHumanSourcePlay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        for (var seed = 1; seed <= 4_096; seed++)
+        var registry = CreateFixtureRegistry();
+        // Verified classic fixture: real source keeps Borrowed Sword until an AI equips.
+        foreach (var seed in new[] { 52 })
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {
@@ -14,7 +201,7 @@ internal static class BorrowedSwordScenario
                 HumanSeat = 0,
                 HumanRole = Role.Lord,
                 PlayerCount = 5,
-                ModeId = "identity:classic-5",
+                ModeId = "identity:classic-borrowed-check5",
                 UseInteractiveSetup = true,
                 UseInteractiveDiscard = false,
                 AdvanceAfterHumanCommands = false,
@@ -70,11 +257,12 @@ internal static class BorrowedSwordScenario
     public static GameEngine FindHumanOwnerResponse(bool requireFactionSlash = false,
         string ownerGeneralId = "classic:liu-bei", int maxSeeds = 65_536)
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        // Pool dilution: every classic general that enters the identity pool lowers
-        // the per-seed hit rate of the (owner offered, weapon in hand, faction
-        // provider alive) conjunction, so the faction-slash variant scans deeper.
-        for (var seed = 1; seed <= maxSeeds; seed++)
+        var registry = CreateFixtureRegistry();
+        // The retained ordinary check uses the verified real owner/Slash/Dodge seed.
+        // Optional faction/general callers retain their bounded discovery contract.
+        var seeds = !requireFactionSlash && ownerGeneralId == "classic:liu-bei" && maxSeeds >= 14956
+            ? new[] { 14956 } : Enumerable.Range(1, maxSeeds);
+        foreach (var seed in seeds)
         {
             var game = GameEngine.CreateStandard(new GameOptions
             {
@@ -82,7 +270,7 @@ internal static class BorrowedSwordScenario
                 HumanSeat = 0,
                 HumanRole = Role.Lord,
                 PlayerCount = 5,
-                ModeId = "identity:classic-5",
+                ModeId = "identity:classic-borrowed-check5",
                 UseInteractiveSetup = true,
                 UseInteractiveDiscard = false,
                 AdvanceAfterHumanCommands = false,

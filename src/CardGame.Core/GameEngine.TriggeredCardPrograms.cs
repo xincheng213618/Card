@@ -25,7 +25,7 @@ public sealed partial class GameEngine
             targetSeat == active.OwnerSeat || IsCardUseForbidden(active.OwnerSeat, CardKind.Slash, CardActionType.Use) ||
             IsDirectedCardTargetProhibited(active.OwnerSeat, targetSeat, CardKind.Slash) || IsSlashProhibited(_players[targetSeat]))
             return SkillProgramStepOutcome.Continue;
-        if (_pendingAttack is not null || _pendingDuel is not null)
+        if (ActiveCardAttack is not null || ActiveDuel is not null)
             throw new InvalidOperationException("A triggered virtual Slash cannot replace a pending attack.");
         var source = _players[active.OwnerSeat];
         var target = _players[targetSeat];
@@ -33,17 +33,17 @@ public sealed partial class GameEngine
         var provenance = new CardConversionSource(active.SkillId, GetProgramBindingId(active), active.OwnerSeat, active.SkillInstanceId);
         var action = new CardActionContext(++_cardActionSequence, _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
             CardActionType.Use, source.Seat, source.Seat, null, null, null, CardKind.Slash, [targetSeat], [], [provenance], effectiveSuit: Suit.None, effectiveRank: 0);
-        _resolutionStack.Add(new CardUseFrame(resolutionId, source.Seat, 0, CardKind.Slash, [targetSeat], PhysicalCardIds: []) { Action = action });
-        if (TracksPlayCardHistory) QueueGameEvent(new CardUseAppearanceCapturedEvent(action));
-        QueueGameEvent(new CardUseDeclaredEvent(resolutionId, 0, CardKind.Slash, source.Seat));
-        QueueGameEvent(new TargetsConfirmedEvent(resolutionId, [targetSeat]));
-        var attack = new AttackResolution(resolutionId, source.Seat, targetSeat, card: null,
+        PushRuntimeFrame(new CardUseFrame(resolutionId, source.Seat, 0, CardKind.Slash, [targetSeat], PhysicalCardIds: []) { Action = action });
+        if (TracksPlayCardHistory) AdvanceEventRulesAndQueueFact(new CardUseAppearanceCapturedEvent(action));
+        AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(resolutionId, 0, CardKind.Slash, source.Seat));
+        AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(resolutionId, [targetSeat]));
+        var attack = new CardAttackHandle(this, resolutionId, source.Seat, targetSeat, card: null,
             damageAmount: source.HasAlcoholEffect ? 2 : 1, playedCardKind: CardKind.Slash,
             ignoresArmor: HasCardArmorBypass(source, target, CardKind.Slash), programSkillCardUseFrameId: active.Id);
         source.HasAlcoholEffect = false;
-        _pendingAttack = attack;
-        QueueGameEvent(new CardUsedEvent(0, CardKind.Slash, source.Seat, targetSeat));
-        _committedProgramUses.Add(resolutionId);
+        ActiveCardAttack = attack;
+        AdvanceEventRulesAndQueueFact(new CardUsedEvent(0, CardKind.Slash, source.Seat, targetSeat));
+        TryMarkProgramUseCommitted(resolutionId);
         if (!TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardUseCommitted, action.TargetSeats, ProgramCardContinuation.CommittedSlash))
             BeginSlashTargetResolution(attack);
         return SkillProgramStepOutcome.AwaitChild;
@@ -131,7 +131,7 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         SetProgramCardSet(frame.Id, effect.ResultBind!, [card.Id], SkillProgramCardSetVisibility.Public, [location], EffectiveSuit(_players[frame.OwnerSeat], card));
         MoveCard(card, location, CardLocation.DiscardPile, new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
-        if (!TryBeginCardsMovedProgramWindow()) ContinueProgramSkill(frame.Id);
+        if (!TryBeginCardsMovedProgramWindow()) AdvanceRuntimeProgram(frame.Id);
     }
 
     private sealed partial class ProgramSkillHost : ITriggeredCardProgramHost

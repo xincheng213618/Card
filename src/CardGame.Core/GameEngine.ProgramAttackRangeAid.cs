@@ -20,7 +20,7 @@ public sealed partial class GameEngine
             .Select(player => player.Seat)
             .ToArray();
 
-        QueueGameEvent(new ProgramAttackRangeAidStartedEvent(
+        AdvanceEventRulesAndQueueFact(new ProgramAttackRangeAidStartedEvent(
             active.Id,
             active.SkillId,
             GetProgramBindingId(active),
@@ -44,7 +44,7 @@ public sealed partial class GameEngine
                 Array.AsReadOnly(responders),
                 ResponderIndex: 0)
         };
-        _resolutionStack[^1] = active;
+        ReplaceRuntimeTop(active);
         PublishProgramAttackRangeAid(active, reason);
         return SkillProgramStepOutcome.AwaitChoice;
     }
@@ -63,8 +63,8 @@ public sealed partial class GameEngine
         if (responderIndex >= aid.ResponderSeats.Count)
         {
             ClearPendingDecision();
-            _resolutionStack[^1] = frame with { AttackRangeAid = null };
-            ContinueProgramSkill(frame.Id);
+            ReplaceRuntimeTop(frame with { AttackRangeAid = null });
+            AdvanceRuntimeProgram(frame.Id);
             return;
         }
 
@@ -72,7 +72,7 @@ public sealed partial class GameEngine
         {
             aid = aid with { ResponderIndex = responderIndex };
             frame = frame with { AttackRangeAid = aid };
-            _resolutionStack[^1] = frame;
+            ReplaceRuntimeTop(frame);
         }
 
         var responder = _players[aid.ResponderSeats[aid.ResponderIndex]];
@@ -191,7 +191,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("The attack-range aid choice is malformed.");
         }
 
-        QueueGameEvent(new ProgramAttackRangeAidChoiceResolvedEvent(
+        AdvanceEventRulesAndQueueFact(new ProgramAttackRangeAidChoiceResolvedEvent(
             frame.Id,
             frame.SkillId,
             GetProgramBindingId(frame),
@@ -205,7 +205,7 @@ public sealed partial class GameEngine
         {
             AttackRangeAid = aid with { ResponderIndex = aid.ResponderIndex + 1 }
         };
-        _resolutionStack[^1] = frame;
+        ReplaceRuntimeTop(frame);
         PublishProgramAttackRangeAid(frame, expectedReason);
     }
 

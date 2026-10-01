@@ -9,6 +9,7 @@ internal static class SkillProgramStartedJudgmentChecks
         var registry = ContentRegistry.Build(new StandardContentPackage(), new FixturePackage());
         VerifyDodgeResponse(registry);
         VerifyLightningUse(registry);
+        VerifyEmptyDeck(registry);
     }
 
     private static void VerifyDodgeResponse(ContentRegistry registry)
@@ -103,6 +104,34 @@ internal static class SkillProgramStartedJudgmentChecks
                 restored.ResolutionStack.All(item => item is not
                     (ProgramCardTriggerWindowFrame or JudgmentFrame or ProgramJudgmentTriggerWindowFrame)),
             "The self judgment must return to the original Lightning placement without losing its physical card.");
+        AssertCompletedReplay(restored, registry, LightningTriggerId);
+    }
+
+    private static void VerifyEmptyDeck(ContentRegistry registry)
+    {
+        var game = StartOwner(registry, FixturePackage.EmptyLightningModeId, seed: 1);
+        var action = game.GetHumanLegalActions().Single(item => item.Kind == LegalActionKind.Lightning);
+        var played = game.Submit(new PlayCardCommand(
+            0, action.CardId!.Value, action.TargetSeats, game.Revision,
+            game.PendingDecision!.PromptId, action.PlayedCardKind));
+        Require(played.Accepted && game.PendingDecision is { Kind: DecisionKind.ProgramTrigger },
+            played.Error?.Message ?? "The empty-deck fixture did not reach the Lightning trigger.");
+        Require(game.CreateCardZoneDiagnostics().All(card =>
+                card.Location != CardLocation.DrawPile && card.Location != CardLocation.DiscardPile),
+            "Every fixture card must be in a player's hand or Processing before judgment starts.");
+
+        var restored = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+        Activate(restored);
+        FinishConfiguredJudgment(restored);
+        var requested = restored.Events.Select(item => item.Payload).OfType<JudgmentRequestedEvent>()
+            .Single(item => item.Reason == JudgmentReason);
+        var resolved = restored.Events.Select(item => item.Payload).OfType<JudgmentResolvedEvent>()
+            .Single(item => item.ResolutionId == requested.ResolutionId);
+        Require(resolved is { CardId: null, Succeeded: false } &&
+                restored.Events.Select(item => item.Payload).OfType<DelayedCardPlacedEvent>()
+                    .Any(item => item.CardId == action.CardId.Value && item.TargetSeat == 0) &&
+                restored.ResolutionStack.All(item => item is not JudgmentFrame),
+            "An empty pile must complete the public failed judgment and return to Lightning placement.");
         AssertCompletedReplay(restored, registry, LightningTriggerId);
     }
 
@@ -219,6 +248,7 @@ internal static class SkillProgramStartedJudgmentChecks
     {
         internal const string ResponseModeId = "identity:started-judgment-response-5";
         internal const string LightningModeId = "identity:started-judgment-lightning-5";
+        internal const string EmptyLightningModeId = "identity:started-judgment-empty-lightning-5";
         internal const string OwnerGeneralId = "started-judgment-test:owner";
         private static readonly string[] OtherGeneralIds =
             Enumerable.Range(1, 4).Select(index => $"started-judgment-test:other-{index}").ToArray();
@@ -246,6 +276,9 @@ internal static class SkillProgramStartedJudgmentChecks
             builder.AddDeck(new ContentDeckRecipe(
                 "started-judgment-test:lightning-deck", "闪电判定夹具", 4, 2,
                 [new ContentDeckCardCount("standard:lightning", 80)]));
+            builder.AddDeck(new ContentDeckRecipe(
+                "started-judgment-test:empty-lightning-deck", "空牌堆判定夹具", 1, 0,
+                [new ContentDeckCardCount("standard:lightning", 5)]));
             var roles = new Dictionary<string, int>
             {
                 [nameof(Role.Lord)] = 1,
@@ -261,6 +294,11 @@ internal static class SkillProgramStartedJudgmentChecks
             builder.AddMode(new ContentModeDefinition(
                 LightningModeId, "使用闪电后判定", 5, 5, roles,
                 DeckId: "started-judgment-test:lightning-deck",
+                GeneralCandidateCount: 5,
+                GeneralPoolIds: [OwnerGeneralId, .. OtherGeneralIds]));
+            builder.AddMode(new ContentModeDefinition(
+                EmptyLightningModeId, "空牌堆使用闪电后判定", 5, 5, roles,
+                DeckId: "started-judgment-test:empty-lightning-deck",
                 GeneralCandidateCount: 5,
                 GeneralPoolIds: [OwnerGeneralId, .. OtherGeneralIds]));
         }

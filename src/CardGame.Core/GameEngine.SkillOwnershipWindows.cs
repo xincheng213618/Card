@@ -12,10 +12,10 @@ public sealed partial class GameEngine
             var facts = CaptureProgramTriggerFacts(owner);
             var candidates = CollectEligibleProgramTriggerCandidates(owner, SkillProgramTriggerWindow.SkillsChanged, facts);
             if (candidates.Count == 0) continue;
-            _resolutionStack.Add(new ProgramLifecycleTriggerWindowFrame(++_resolutionSequence, owner.Seat,
+            PushRuntimeFrame(new ProgramLifecycleTriggerWindowFrame(++_resolutionSequence, owner.Seat,
                 SkillProgramTriggerWindow.SkillsChanged, candidates, ProgramLifecycleContinuation.ResumeParentProgram, facts)
                 { ResumeProgramFrameId = parentFrameId });
-            ContinueProgramLifecycleWindow();
+            AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
             return true;
         }
         return false;

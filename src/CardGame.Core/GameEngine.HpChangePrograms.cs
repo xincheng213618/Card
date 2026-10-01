@@ -45,29 +45,55 @@ public sealed partial class GameEngine
             var contexts = candidates.Select(candidate => new ProgramSkillWindowContext(GetProgramTrigger(candidate).Window, change.Id,
                 owner.Seat, SourceSeat: change.SourceSeat, TargetSeat: owner.Seat, Amount: change.Amount,
                 OccurrenceIndex: candidate.OccurrenceIndex, Facts: facts, HpChange: change)).ToArray();
-            _resolutionStack.Add(new HpChangedTriggerWindowFrame(change.Id, change, candidates, contexts,
+            if (continuation == PostEventContinuation.AwaitedProgramMovement &&
+                _resolutionStack.LastOrDefault() is ProgramSkillFrame
+                    { SelectedCardPayment: { } payment, SelectedCardPaymentResult: null } parent)
+            {
+                if (payment.ActiveChildFrameId is not null)
+                    throw new InvalidOperationException("A selected-card payment already has an active child frame.");
+                ReplaceRuntimeTop(parent with
+                {
+                    SelectedCardPayment = payment with { ActiveChildFrameId = change.Id }
+                });
+            }
+            PushRuntimeFrame(new HpChangedTriggerWindowFrame(change.Id, change, candidates, contexts,
                 continuation, resumeFrameId, cardId, cardKind));
-            ContinueHpChangedProgramWindow();
+            AdvanceRuntimeTop<HpChangedTriggerWindowFrame>();
             return true;
         }
         return false;
     }
 
-    private void ContinueHpChangedProgramWindow()
+    private void ContinueHpChangedProgramWindowCore()
     {
         while (_resolutionStack.LastOrDefault() is HpChangedTriggerWindowFrame frame)
         {
             if (frame.CandidateIndex >= frame.Candidates.Count)
             {
                 PopResolutionFrame(frame.Id, ResolutionFrameKind.HpChangedTriggerWindow);
+                if (frame.Continuation == PostEventContinuation.AwaitedProgramMovement &&
+                    _resolutionStack.LastOrDefault() is ProgramSkillFrame
+                        { SelectedCardPayment: { } payment, SelectedCardPaymentResult: null } parent)
+                {
+                    if (payment.ActiveChildFrameId != frame.Id)
+                        throw new InvalidOperationException("A selected-card payment lost its HP-change child frame.");
+                    ReplaceRuntimeTop(parent with
+                    {
+                        SelectedCardPayment = payment with
+                        {
+                            ActiveChildFrameId = null,
+                            LastCompletedChildFrameId = frame.Id
+                        }
+                    });
+                }
                 if (TryBeginHpChangedProgramWindow(frame.ResumeFrameId, frame.Continuation, frame.CardId, frame.CardKind)) return;
                 switch (frame.Continuation)
                 {
                     case PostEventContinuation.Program:
-                        ContinueProgramSkill(frame.ResumeFrameId!.Value);
+                        AdvanceRuntimeProgram(frame.ResumeFrameId!.Value);
                         break;
                     case PostEventContinuation.AwaitedProgramMovement:
-                        if (!TryBeginCardsMovedProgramWindow()) CompleteAwaitedProgramMovement(frame.ResumeFrameId!.Value);
+                        if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.ResumeFrameId!.Value);
                         break;
                     case PostEventContinuation.CardUse:
                         var card = _cardZones.CardsAt(_cardZones.GetLocation(frame.CardId!.Value))
@@ -93,7 +119,7 @@ public sealed partial class GameEngine
             var trigger = _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers.Single(item => item.Id == candidate.BindingId);
             if (trigger.Optional)
             {
-                _resolutionStack[^1] = frame with { Step = ResolutionFrameStep.AwaitingResponse };
+                ReplaceRuntimeTop(frame with { Step = ResolutionFrameStep.AwaitingResponse });
                 ExposeProgramTriggerDecision(candidate, context);
                 return;
             }
@@ -118,8 +144,8 @@ public sealed partial class GameEngine
             }
             if (_resolutionStack[index] is ProgramLifecycleTriggerWindowFrame { ResumeDyingFrameId: { } dyingId } entry &&
                 (entry.Window != SkillProgramTriggerWindow.DyingEntering || entry.Continuation != ProgramLifecycleContinuation.ResumeDyingEntry ||
-                 parent is not DyingFrame || parent.Id != dyingId || _pendingDying?.FrameId != dyingId ||
-                 entry.OwnerSeat != _pendingDying.VictimSeat || entry.CandidateIndex < 0 || entry.CandidateIndex >= entry.Candidates.Count))
+                 parent is not DyingFrame || parent.Id != dyingId || ActiveDying?.FrameId != dyingId ||
+                 entry.OwnerSeat != ActiveDying.VictimSeat || entry.CandidateIndex < 0 || entry.CandidateIndex >= entry.Candidates.Count))
                 throw new InvalidOperationException("Dying entry lost its frozen parent or cursor.");
             if (_resolutionStack[index] is not HpChangedTriggerWindowFrame hp) continue;
             var window = hp.Change.Kind == HpChangeKind.Loss
@@ -135,10 +161,12 @@ public sealed partial class GameEngine
                 PostEventContinuation.Boundary => parent is null,
                 PostEventContinuation.Program => parent is ProgramSkillFrame program && program.Id == hp.ResumeFrameId,
                 PostEventContinuation.AwaitedProgramMovement => parent is ProgramSkillFrame awaited &&
-                    awaited.Id == hp.ResumeFrameId && awaited.PendingMovementContinuation is not null,
+                    awaited.Id == hp.ResumeFrameId && IsAwaitingProgramMovement(awaited) &&
+                    (awaited.SelectedCardPaymentResult is not null ||
+                     awaited.SelectedCardPayment is not { } payment || payment.ActiveChildFrameId == hp.Id),
                 PostEventContinuation.CardUse => parent is CardUseFrame use && use.Id == hp.ResumeFrameId && hp.CardId is not null,
                 PostEventContinuation.GroupRecovery => parent is CardUseFrame group && group.Id == hp.ResumeFrameId &&
-                    _pendingGroupCard is { Effect: GroupCardEffect.Recovery } pending && pending.ResolutionId == group.Id,
+                    ActiveGroupCard is { Effect: GroupCardEffect.Recovery } pending && pending.ResolutionId == group.Id,
                 _ => false
             };
             if (!parentMatches) throw new InvalidOperationException("An HP-change window lost its parent continuation.");
@@ -148,7 +176,7 @@ public sealed partial class GameEngine
     private void AdvanceHpChangedProgramCandidate(HpChangedTriggerWindowFrame frame, bool activated, bool completed)
     {
         var candidate = frame.Candidates[frame.CandidateIndex];
-        QueueGameEvent(new ProgramBindingResolvedEvent(frame.Id, candidate.SkillId, candidate.BindingId,
+        AdvanceEventRulesAndQueueFact(new ProgramBindingResolvedEvent(frame.Id, candidate.SkillId, candidate.BindingId,
             candidate.SkillInstanceId, candidate.OwnerSeat, frame.Contexts[frame.CandidateIndex].Window, activated, completed));
         AdvanceHpChangedProgramCursor(frame);
     }
@@ -157,6 +185,6 @@ public sealed partial class GameEngine
     {
         if (_resolutionStack.LastOrDefault() != frame)
             throw new InvalidOperationException("The HP-change trigger cursor is no longer current.");
-        _resolutionStack[^1] = frame with { CandidateIndex = frame.CandidateIndex + 1, Step = ResolutionFrameStep.ResolvingEffect };
+        ReplaceRuntimeTop(frame with { CandidateIndex = frame.CandidateIndex + 1, Step = ResolutionFrameStep.ResolvingEffect });
     }
 }

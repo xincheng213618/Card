@@ -2,7 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private bool TryBeginDyingEntryProgramWindow(DyingResolution dying)
+    private bool TryBeginDyingEntryProgramWindow(DyingFrame dying)
     {
         const string once = "window:dying-entering";
         if (dying.AttemptedSelfDyingBindings.Contains(once) || _players[dying.VictimSeat].Hp > 0) return false;
@@ -17,17 +17,20 @@ public sealed partial class GameEngine
             (candidate.OwnerSeat - _currentSeat + _players.Count) % _players.Count).ThenByDescending(candidate => candidate.Priority)
             .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal).ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray();
         if (candidates.Length == 0) return false;
-        dying.AttemptedSelfDyingBindings.Add(once);
-        _resolutionStack.Add(new ProgramLifecycleTriggerWindowFrame(++_resolutionSequence, dying.VictimSeat,
+        UpdateDyingFrame(dying.Id, current => current with
+        {
+            AttemptedSelfDyingBindings = [.. current.AttemptedSelfDyingBindings, once]
+        });
+        PushRuntimeFrame(new ProgramLifecycleTriggerWindowFrame(++_resolutionSequence, dying.VictimSeat,
             SkillProgramTriggerWindow.DyingEntering, candidates, ProgramLifecycleContinuation.ResumeDyingEntry,
             facts[dying.VictimSeat]) { ParticipantFacts = facts, ResumeDyingFrameId = dying.FrameId });
-        ContinueProgramLifecycleWindow();
+        AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
         return true;
     }
 
     private void CompleteDyingEntryProgramWindow(ProgramLifecycleTriggerWindowFrame frame)
     {
-        var dying = _pendingDying ?? throw new InvalidOperationException("Dying entry lost its resolution.");
+        var dying = ActiveDying ?? throw new InvalidOperationException("Dying entry lost its resolution.");
         if (dying.FrameId != frame.ResumeDyingFrameId || _resolutionStack.LastOrDefault()?.Id != dying.FrameId)
             throw new InvalidOperationException("Dying entry lost its parent continuation.");
         if (_players[dying.VictimSeat].Hp > 0) CompleteDying(dying, survived: true);

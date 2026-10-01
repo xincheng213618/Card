@@ -14,40 +14,40 @@ public sealed partial class GameEngine
             RepeatedJudgment = new ProgramRepeatedJudgment(reason, resultBind,
                 Array.AsReadOnly(successSuits.ToArray()), 0)
         };
-        _resolutionStack[^1] = active;
+        ReplaceRuntimeTop(active);
         return StartProgramJudgment(active, frame.OwnerSeat, reason, resultBind,
             SkillProgramCardSetVisibility.Public, frame.OwnerSeat);
     }
 
-    private void ResumeProgramRepeatedJudgment(JudgmentResolution pending)
+    private void ResumeProgramRepeatedJudgment(JudgmentFrame pending)
     {
         var frame = GetActiveProgramFrame(pending.ParentFrameId);
         var state = frame.RepeatedJudgment ??
             throw new InvalidOperationException("Repeated judgment lost its program state.");
-        var card = pending.CurrentCard;
+        var card = GetJudgmentCard(pending);
         if (card is null || !_players[frame.OwnerSeat].IsAlive)
         {
-            _resolutionStack[^1] = frame with { RepeatedJudgment = null };
-            ContinueProgramSkill(frame.Id);
+            ReplaceRuntimeTop(frame with { RepeatedJudgment = null });
+            AdvanceRuntimeProgram(frame.Id);
             return;
         }
         var matched = state.SuccessSuits.Contains(EffectiveSuit(_players[pending.TargetSeat], card));
         var location = _cardZones.GetLocation(card.Id);
         if (location != CardLocation.Judgment(pending.TargetSeat))
             throw new InvalidOperationException("Repeated judgment card left its resolution zone.");
-        _resolutionStack[^1] = frame with
+        ReplaceRuntimeTop(frame with
         {
             RepeatedJudgment = state with { CompletedCount = checked(state.CompletedCount + 1),
                 LastMatched = matched },
             PendingMovementContinuation = new ProgramMovementContinuation(frame.OwnerSeat, 0, null)
-        };
+        });
         MoveCard(card, location, matched ? CardLocation.Hand(frame.OwnerSeat) : CardLocation.DiscardPile,
             new CardMoveReason($"skill-program.{frame.SkillId}.repeatJudgment"));
         if (matched)
-            QueueGameEvent(new ProgramJudgmentCardClaimedEvent(
-                pending.FrameId, frame.SkillId, frame.OwnerSeat, card.Id, card.Kind));
+            AdvanceEventRulesAndQueueFact(new ProgramJudgmentCardClaimedEvent(
+                pending.Id, frame.SkillId, frame.OwnerSeat, card.Id, card.Kind));
         if (!TryBeginCardsMovedProgramWindow())
-            CompleteAwaitedProgramMovement(frame.Id);
+            ReturnRuntimeProgramMovement(frame.Id);
     }
 
     private void ContinueProgramRepeatedJudgmentAfterMovement(long frameId)
@@ -57,8 +57,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Repeated judgment lost its movement result.");
         if (state.LastMatched != true)
         {
-            _resolutionStack[^1] = frame with { RepeatedJudgment = null };
-            ContinueProgramSkill(frameId);
+            ReplaceRuntimeTop(frame with { RepeatedJudgment = null });
+            AdvanceRuntimeProgram(frameId);
             return;
         }
         _pendingDecision = new PendingDecision(DecisionKind.ProgramRepeatJudgment, frame.OwnerSeat,
@@ -79,7 +79,7 @@ public sealed partial class GameEngine
     private CommandResult SubmitProgramRepeatJudgmentAnswer(PromptChoice choice) => Accept(() =>
     {
         ResolveProgramRepeatJudgmentChoice(choice);
-        PublishState();
+        AdvanceRulesAndPublishState();
         return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
     });
 
@@ -96,14 +96,14 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         if (action == "stop")
         {
-            _resolutionStack[^1] = frame with { RepeatedJudgment = null };
-            ContinueProgramSkill(frame.Id);
+            ReplaceRuntimeTop(frame with { RepeatedJudgment = null });
+            AdvanceRuntimeProgram(frame.Id);
             return;
         }
         if (action != "continue")
             throw new InvalidOperationException("Repeated judgment choice is unsupported.");
         frame = frame with { RepeatedJudgment = state with { LastMatched = null } };
-        _resolutionStack[^1] = frame;
+        ReplaceRuntimeTop(frame);
         _ = StartProgramJudgment(frame, frame.OwnerSeat, state.Reason, state.ResultBind,
             SkillProgramCardSetVisibility.Public, frame.OwnerSeat);
     }
@@ -115,6 +115,6 @@ public sealed partial class GameEngine
     {
         var decision = _pendingDecision ?? throw new InvalidOperationException("AI repeated judgment has no prompt.");
         ResolveProgramRepeatJudgmentChoice(decision.Choices[0]);
-        PublishState();
+        AdvanceRulesAndPublishState();
     }
 }

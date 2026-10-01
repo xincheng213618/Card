@@ -1,6 +1,12 @@
 # 原始牌面接入
 
-46 种官方卡牌使用 `Assets/Cards/<CardKind>.png`。来源是已观察到的官方 CDN `cards.webp` 与配套 `cards.atlas`；具体网址、输入 SHA256、原始精灵名称、裁切矩形及输出 SHA256 记录在 `card-art-catalog.json`。鬼龙斩月刀使用同一固定哈希图集中的 `GuiLongZhanYueDao_png.png` 原牌面及 `Equip_GuiLongZhanYueDao_S.png` 装备条，不借用青龙偃月刀图像。
+50 个已实现牌种使用 `Assets/Cards/<CardKind>.png`，清单区分 46 张固定官方图集牌面、2 张适配后的真实官方公告素材和 2 张项目既有生成素材。固定图集来源是已观察到的官方 CDN `cards.webp` 与配套 `cards.atlas`；具体网址、输入 SHA256、原始精灵名称、裁切矩形及输出 SHA256 记录在 `card-art-catalog.json`。鬼龙斩月刀使用同一固定哈希图集中的 `GuiLongZhanYueDao_png.png` 原牌面及 `Equip_GuiLongZhanYueDao_S.png` 装备条，不借用青龙偃月刀图像。
+
+另有两种神武专属武器使用已核实身份的官方公告素材，清单按 `sourceKind` 单独记录出处，不宣称来自上述固定图集。`ScarletBloodSword` 使用[官方规则页](https://www.sanguosha.com/news/20170814_6789_3217)关联的 500×500 赤血青锋原插画（`officialIllustration`）：以 Lanczos 等比例缩至 186×186，居中放入 186×260 透明画布，上下各补 37 像素。完整保留剑尖和插画，未合成边框、标题或规则；透明区域显示现有卡牌底色，牌名、点数和花色仍使用运行时界面。该素材是原插画，外观与原生完整牌面不同。
+
+`XingtianAxe` 使用[官方活动页](https://www.sanguosha.com/news/20221206_3507_5113)的完整刑天破军斧界面牌图（`officialCardFace`），原尺寸只有 93×130；以 nearest-neighbor 整比例放大两倍至 186×260，保留原有印刷内容，细节受原图分辨率限制。两种输入均没有烘焙花色或点数；原网址、输入 SHA256、尺寸、缩放和补边参数以及输出 SHA256 均记录在清单的新增条目中。现有 46 张图及 57 个组件字节保持不变。
+
+`GeneralWeapon`、`RedBloodBlade` 及其装备条是主库既有 `tools/Build-GeneratedWeaponArtwork.ps1` 生成的项目素材（`projectGenerated`），本次只补登记已有 PNG 的尺寸和 SHA256，不重画、不替换，也不称为官方图集牌面。导入器验证它们的现有文件后保持字节；若缺图，会明确提示检查既有生成脚本，不借用其他卡面。
 
 牌面按 `CardKind` 绑定并缓存为冻结图片，不按中文牌名推断。花色、点数、技能转化和当前规则仍由游戏状态提供，图片不写入存档或 Core 内容注册表。手牌、开局发牌及公开亮牌共用 `CardFaceTemplate`，指南按当前选中牌种显示同一图片。未指定牌种或文件缺失时显示文字卡牌，不能推断其他玩家的暗牌。
 
@@ -12,7 +18,15 @@
 & tools/Import-CardArtwork.ps1
 ```
 
-脚本下载清单指定的两个输入，校验固定 SHA256，解码 WebP 后按 atlas 坐标导出 46 张 186×260 牌面及 57 个组件。组件包括 26 个红黑点数、4 个花色和 27 条 284×50 装备条。也可以用 `-SourceDirectory` 指定已有 `cards.webp`、`cards.atlas` 的目录，或用 `-Ffmpeg` 指定可执行文件。输入版本、尺寸、裁切方式不匹配时停止，避免静默导入错牌。
+脚本校验清单的固定输入 SHA256，解码 WebP 后按 atlas 坐标导出 46 张 186×260 牌面及 57 个组件，再按各自来源适配两张公告素材，并验证保留两张项目既有牌面和两条装备条，合计覆盖 50 个已实现牌种。组件包括 26 个红黑点数、4 个花色、27 条图集装备条和 2 条项目装备条。也可以用 `-SourceDirectory` 指定已有输入的目录，或用 `-Ffmpeg` 指定可执行文件。输入版本、尺寸、裁切方式或宽高比不匹配时停止，避免静默导入错牌。所有选中条目先通过来源和尺寸验证，再写交付图片；`-ValidateOnly` 只验证输入和适配结果，不写交付图片或清单。
+
+只重建指定牌种时使用通用 `-Kinds` 参数；此时不改其他图或组件：
+
+```powershell
+& tools/Import-CardArtwork.ps1 -Kinds ScarletBloodSword,XingtianAxe
+```
+
+两张公告图片由 ffmpeg 执行清单记载的缩放和补边；没有 AI 重画、借用其他牌种或把普通素材伪装成图集精灵。首次导入使用 ffmpeg `N-104863-g6cf55b9da2-20211213`：刑天输入的索引颜色先转为 RGBA，放大后的每个 2×2 像素块 RGB 与原像素一致，半透明边缘的 Alpha 转换舍入最多相差 1/255。重建后的输出 SHA256 由脚本回写清单。
 
 ## 牌桌、装备与技能
 

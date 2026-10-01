@@ -18,7 +18,7 @@ public sealed partial class GameEngine
         var restriction = new ProgramPhaseColorRestriction(active.SkillId, active.SkillInstanceId,
             active.OwnerSeat, targetSeat, _turnNumber, IsRedSuit(suit));
         _programPhaseColorRestrictions.Add(restriction);
-        QueueGameEvent(new ProgramPhaseColorRestrictionGrantedEvent(restriction));
+        AdvanceEventRulesAndQueueFact(new ProgramPhaseColorRestrictionGrantedEvent(restriction));
     }
 
     private bool IsPlayPhasePhysicalCardRestricted(CharacterState player, Card card) =>

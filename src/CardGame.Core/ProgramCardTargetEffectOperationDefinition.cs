@@ -22,7 +22,7 @@ internal sealed class NullifyCurrentCardEffectProgramOperationDescriptor : Progr
         // A nullification may sit behind a named choice (the attacker either
         // pays the skill's price or the effect is nullified); unconditional
         // programs keep the historic always-only shape.
-        if (effect.Condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.ChoiceIs))
+        if (effect.Condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.ChoiceIs or SkillProgramConditionKind.PindianWon))
             RequireAlways(effect, r.Path);
         return effect;
     }

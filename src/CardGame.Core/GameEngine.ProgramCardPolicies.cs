@@ -44,7 +44,7 @@ public sealed partial class GameEngine
             .Any(item => distance <= item.Policy.Value);
     }
 
-    private bool IsSuitSlashResponseProhibited(AttackResolution attack)
+    private bool IsSuitSlashResponseProhibited(CardAttackHandle attack)
     {
         if (attack.EffectiveCardKind is not { } kind || !IsSlashCard(kind) ||
             attack.CardUserSeat == attack.TargetSeat || attack.PhysicalCards.Count == 0)

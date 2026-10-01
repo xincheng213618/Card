@@ -1,0 +1,495 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:taoluan",
+      "revision": 1,
+      "minimumRulesVersion": 191,
+      "states": [
+        {
+          "id": "taoluan-disabled",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "turn",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "viewAs": [
+        {
+          "id": "use-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "noDying": true,
+          "unusedOutputNameThisGame": true,
+          "nameLedgerId": "card-names",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "taoluan-disabled",
+            "expectedValue": false
+          }
+        },
+        {
+          "id": "use-fireSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "noDying": true,
+          "unusedOutputNameThisGame": true,
+          "nameLedgerId": "card-names",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "taoluan-disabled",
+            "expectedValue": false
+          }
+        },
+        {
+          "id": "use-thunderSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "thunderSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "noDying": true,
+          "unusedOutputNameThisGame": true,
+          "nameLedgerId": "card-names",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "taoluan-disabled",
+            "expectedValue": false
+          }
+        },
+        {
+          "id": "use-dodge",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "useOnly": true,
+          "allowSameKind": true,
+          "noDying": true,
+          "unusedOutputNameThisGame": true,
+          "nameLedgerId": "card-names",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "taoluan-disabled",
+            "expectedValue": false
+          }
+        },
+        {
+          "id": "use-peach",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "noDying": true,
+          "unusedOutputNameThisGame": true,
+          "nameLedgerId": "card-names",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "taoluan-disabled",
+            "expectedValue": false
+          }
+        },
+        {
+          "id": "use-alcohol",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "noDying": true,
+          "unusedOutputNameThisGame": true,
+          "nameLedgerId": "card-names",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "taoluan-disabled",
+            "expectedValue": false
+          }
+        },
+        {
+          "id": "use-drawTwo",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "drawTwo",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "noDying": true,
+          "unusedOutputNameThisGame": true,
+          "nameLedgerId": "card-names",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "taoluan-disabled",
+            "expectedValue": false
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "use-duel",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "duel",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "noDying": true,
+          "unusedOutputNameThisGame": true,
+          "nameLedgerId": "card-names",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "taoluan-disabled",
+            "expectedValue": false
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "use-barbarianAssault",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "barbarianAssault",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "noDying": true,
+          "unusedOutputNameThisGame": true,
+          "nameLedgerId": "card-names",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "taoluan-disabled",
+            "expectedValue": false
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "use-arrowBarrage",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "arrowBarrage",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "noDying": true,
+          "unusedOutputNameThisGame": true,
+          "nameLedgerId": "card-names",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "taoluan-disabled",
+            "expectedValue": false
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "use-peachGarden",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "peachGarden",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "noDying": true,
+          "unusedOutputNameThisGame": true,
+          "nameLedgerId": "card-names",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "taoluan-disabled",
+            "expectedValue": false
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "use-fiveGrains",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "fiveGrains",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "noDying": true,
+          "unusedOutputNameThisGame": true,
+          "nameLedgerId": "card-names",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "taoluan-disabled",
+            "expectedValue": false
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "use-dismantlement",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "dismantlement",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "noDying": true,
+          "unusedOutputNameThisGame": true,
+          "nameLedgerId": "card-names",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "taoluan-disabled",
+            "expectedValue": false
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "use-snatch",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "snatch",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "noDying": true,
+          "unusedOutputNameThisGame": true,
+          "nameLedgerId": "card-names",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "taoluan-disabled",
+            "expectedValue": false
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "use-fireAttack",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "fireAttack",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "noDying": true,
+          "unusedOutputNameThisGame": true,
+          "nameLedgerId": "card-names",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "taoluan-disabled",
+            "expectedValue": false
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "use-ironChain",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "ironChain",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "noDying": true,
+          "unusedOutputNameThisGame": true,
+          "nameLedgerId": "card-names",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "taoluan-disabled",
+            "expectedValue": false
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "use-borrowedSword",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "borrowedSword",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "noDying": true,
+          "unusedOutputNameThisGame": true,
+          "nameLedgerId": "card-names",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "taoluan-disabled",
+            "expectedValue": false
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "use-nullification",
+          "inputKinds": [],
+          "inputSuits": [],
+          "sourceZones": [
+            "hand",
+            "equipment",
+            "woodenOxGrain"
+          ],
+          "outputKind": "nullification",
+          "forPlay": false,
+          "forResponse": true,
+          "useOnly": true,
+          "allowSameKind": true,
+          "noDying": true,
+          "unusedOutputNameThisGame": true,
+          "nameLedgerId": "card-names",
+          "condition": {
+            "kind": "runtimeBooleanState",
+            "stateId": "taoluan-disabled",
+            "expectedValue": false
+          }
+        }
+      ],
+      "triggers": [
+        {
+          "id": "after-use",
+          "window": "cardUseCompleted",
+          "ownerRelation": "conversionSource",
+          "singleActionInstance": true,
+          "sourceSkillId": "classic:taoluan",
+          "includeResponseUses": true,
+          "allowNoEventTarget": true,
+          "optional": false,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "chooseDifferentActionCategoryGift",
+              "target": "selectedTarget",
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "resultBind": "gift-result"
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "taoluan-disabled",
+              "value": true,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "gift-result",
+                "optionId": "declined"
+              }
+            },
+            {
+              "op": "loseHp",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "gift-result",
+                "optionId": "declined"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

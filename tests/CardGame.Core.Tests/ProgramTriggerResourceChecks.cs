@@ -52,8 +52,8 @@ internal static class ProgramTriggerResourceChecks
         var facts = (SkillProgramTriggerFacts)capture.Invoke(game, [players[0], action])!;
         AssertOmitted(facts, "CardActionCardIsBlack");
         players[0].SkillGrants.Grant(new SkillGrant("fixture:facts", id, "fixture:facts-instance", "fixture:facts"));
-        var stack = (List<ResolutionFrame>)typeof(GameEngine).GetField("_resolutionStack", flags)!.GetValue(game)!;
-        stack.Add(new DamageFrame(1000, 999, 1, 0, 1));
+        var stack = (FrameStore)typeof(GameEngine).GetField("_resolutionStack", flags)!.GetValue(game)!;
+        stack.Push(new DamageFrame(1000, 999, 1, 0, 1));
         var before = typeof(GameEngine).GetMethod("TryBeginBeforeDamageProgramWindow", flags)!;
         if (!(bool)before.Invoke(game, [1, 0, 1, DamageNature.Normal, BeforeDamageProgramContinuation.Attack])!)
             throw new InvalidOperationException("Legacy before-damage fixture failed to pause.");

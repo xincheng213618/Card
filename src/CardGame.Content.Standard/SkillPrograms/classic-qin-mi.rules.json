@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:jianzheng",
+      "revision": 1,
+      "minimumRulesVersion": 191,
+      "triggers": [
+        {
+          "id": "replace-targets",
+          "window": "cardUseCommitted",
+          "ownerRelation": "observer",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": true,
+          "priority": 10,
+          "effects": [
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "owner"
+              },
+              "zones": [
+                "hand"
+              ],
+              "count": 1,
+              "destination": "drawPileTop",
+              "resultBind": "payment",
+              "awaitMovementTriggers": true
+            },
+            {
+              "op": "replaceAllSlashTargets",
+              "target": "owner",
+              "sourceBind": "payment"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:zhuandui",
+      "revision": 1,
+      "minimumRulesVersion": 191,
+      "triggers": [
+        {
+          "id": "attack-contest",
+          "window": "slashBeforeResponse",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": true,
+          "effects": [
+            {
+              "op": "startCardActionPindian",
+              "target": "owner",
+              "opponentRef": {
+                "kind": "eventTarget"
+              },
+              "resultBind": "contest",
+              "visibility": "public"
+            },
+            {
+              "op": "prohibitCurrentResponse",
+              "target": "owner",
+              "condition": {
+                "kind": "pindianWon",
+                "sourceBind": "contest"
+              }
+            }
+          ]
+        },
+        {
+          "id": "defense-contest",
+          "window": "cardUseBeforeTargetEffects",
+          "ownerRelation": "target",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": true,
+          "effects": [
+            {
+              "op": "startCardActionPindian",
+              "target": "owner",
+              "opponentRef": {
+                "kind": "actor"
+              },
+              "resultBind": "contest",
+              "visibility": "public"
+            },
+            {
+              "op": "nullifyCurrentCardEffect",
+              "target": "owner",
+              "condition": {
+                "kind": "pindianWon",
+                "sourceBind": "contest"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:tianbian",
+      "revision": 1,
+      "minimumRulesVersion": 191,
+      "cardPolicies": [
+        {
+          "id": "top-choice",
+          "kind": "pindianTopCardChoice"
+        },
+        {
+          "id": "heart-rank",
+          "kind": "pindianRankBySuit",
+          "inputSuit": "heart",
+          "value": 13
+        }
+      ]
+    }
+  ]
+}

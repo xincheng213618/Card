@@ -10,6 +10,9 @@ public static class CardArt
 {
     private static readonly Dictionary<string, ImageSource?> Cache = [];
 
+    public static bool NeedsRuntimeNameOverlay(CardKind? kind) =>
+        kind is CardKind.GeneralWeapon or CardKind.ScarletBloodSword;
+
     public static ImageSource? Get(CardKind? kind)
     {
         if (kind is not { } key || !Enum.IsDefined(key)) return null;

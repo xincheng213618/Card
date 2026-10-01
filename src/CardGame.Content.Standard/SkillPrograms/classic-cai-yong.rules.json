@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:bizhuan",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "book-hand-limit",
+          "query": "handLimit",
+          "operation": "add",
+          "valueExpression": "ownedZoneCount",
+          "valueZone": "publicPersistentPile",
+          "priority": 0,
+          "condition": {
+            "kind": "always"
+          }
+        }
+      ],
+      "triggers": [
+        {
+          "id": "used-spade",
+          "window": "cardUseCompleted",
+          "optional": true,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "cardActionSuitIs",
+                "suits": [
+                  "spade"
+                ]
+              },
+              {
+                "kind": "cardActionActorIsOwner"
+              },
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "currentOwnedZoneCount",
+                  "zone": "publicPersistentPile"
+                },
+                "operator": "lessThan",
+                "right": {
+                  "kind": "integerConstant",
+                  "value": 4
+                }
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "storeTopCardInPublicPile",
+              "target": "owner",
+              "amount": 4
+            }
+          ],
+          "includeResponseUses": true,
+          "singleActionInstance": true,
+          "ownerRelation": "actor"
+        },
+        {
+          "id": "targeted-spade",
+          "window": "cardUseTargetsFinalized",
+          "optional": true,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "cardActionSuitIs",
+                "suits": [
+                  "spade"
+                ]
+              },
+              {
+                "kind": "not",
+                "children": [
+                  {
+                    "kind": "cardActionActorIsOwner"
+                  }
+                ]
+              },
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "currentOwnedZoneCount",
+                  "zone": "publicPersistentPile"
+                },
+                "operator": "lessThan",
+                "right": {
+                  "kind": "integerConstant",
+                  "value": 4
+                }
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "storeTopCardInPublicPile",
+              "target": "owner",
+              "amount": 4
+            }
+          ],
+          "ownerRelation": "target",
+          "onlyDesignatedCardTargets": true
+        }
+      ]
+    },
+    {
+      "id": "classic:tongbo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "exchange-books-after-draw",
+          "window": "drawPhaseEnded",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "exchangePublicPile",
+              "target": "owner",
+              "amount": 4,
+              "skillIds": [
+                "classic:bizhuan"
+              ]
+            },
+            {
+              "op": "distributePublicPileIfAllSuits",
+              "target": "owner",
+              "amount": 4,
+              "skillIds": [
+                "classic:bizhuan"
+              ]
+            }
+          ],
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "currentOwnedZoneCount",
+              "zone": "publicPersistentPile"
+            },
+            "operator": "greaterThan",
+            "right": {
+              "kind": "integerConstant",
+              "value": 0
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

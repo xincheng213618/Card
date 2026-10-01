@@ -5,7 +5,7 @@ public sealed partial class GameEngine
     private void RevealProgramUniqueRankForDying(ProgramSkillFrame frame, CardZoneKind zone, int rescueHp)
     {
         var active = GetActiveProgramFrame(frame.Id);
-        var dying = _pendingDying ??
+        var dying = ActiveDying ??
             throw new InvalidOperationException("The unique-rank rescue has no dying occurrence.");
         if (active.WindowContext is not
             { Window: SkillProgramTriggerWindow.SelfDyingResponse } context ||
@@ -22,7 +22,7 @@ public sealed partial class GameEngine
         MoveCard(card, CardLocation.DrawPile, unique ? location : CardLocation.DiscardPile,
             new CardMoveReason(unique ? "skill-program.dying-rank.retain" : "skill-program.dying-rank.duplicate"));
         if (unique) owner.Hp = Math.Min(owner.MaxHp, rescueHp);
-        QueueGameEvent(new ProgramUniqueRankDyingResolvedEvent(
+        AdvanceEventRulesAndQueueFact(new ProgramUniqueRankDyingResolvedEvent(
             dying.FrameId, active.SkillId, owner.Seat, zone, card.Id, card.Rank, unique,
             Array.AsReadOnly(_cardZones.CardsAt(location).Select(item => item.Id).ToArray())));
         AddLog("SkillTriggered", unique
@@ -35,7 +35,7 @@ public sealed partial class GameEngine
         ProgramSkillFrame frame, string sourceBind, CardMoveReason reason)
     {
         var active = GetActiveProgramFrame(frame.Id);
-        var dying = _pendingDying ??
+        var dying = ActiveDying ??
             throw new InvalidOperationException("The configured rescue has no dying occurrence.");
         if (active.WindowContext is not
             { Window: SkillProgramTriggerWindow.DyingResponse } context ||
@@ -68,7 +68,7 @@ public sealed partial class GameEngine
         try
         {
             victim.Hp = Math.Min(victim.MaxHp, victim.Hp + 1);
-            QueueGameEvent(new RecoveryAppliedEvent(victim.Seat, victim.Seat, 1, victim.Hp));
+            AdvanceEventRulesAndQueueFact(new RecoveryAppliedEvent(victim.Seat, victim.Seat, 1, victim.Hp));
         }
         finally
         {
@@ -76,7 +76,7 @@ public sealed partial class GameEngine
         }
         MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, reason);
         FinishCardUse(resolutionId, card, CardKind.Alcohol);
-        QueueGameEvent(new ProgramDyingRescueEvent(
+        AdvanceEventRulesAndQueueFact(new ProgramDyingRescueEvent(
             dying.FrameId, active.SkillId, active.OwnerSeat, victim.Seat,
             card.Id, 1, victim.Hp));
         var skill = _contentRegistry!.GetSkill(active.SkillId);
@@ -88,7 +88,7 @@ public sealed partial class GameEngine
     private void UseProgramVirtualDyingAlcohol(ProgramSkillFrame frame)
     {
         var active = GetActiveProgramFrame(frame.Id);
-        var dying = _pendingDying ??
+        var dying = ActiveDying ??
             throw new InvalidOperationException("The configured rescue has no dying occurrence.");
         if (active.WindowContext is not
             { Window: SkillProgramTriggerWindow.SelfDyingResponse } context ||
@@ -100,23 +100,23 @@ public sealed partial class GameEngine
 
         var victim = _players[dying.VictimSeat];
         var resolutionId = ++_resolutionSequence;
-        _resolutionStack.Add(new CardUseFrame(resolutionId, victim.Seat, 0, CardKind.Alcohol,
+        PushRuntimeFrame(new CardUseFrame(resolutionId, victim.Seat, 0, CardKind.Alcohol,
             Array.AsReadOnly(new[] { victim.Seat }),
             PhysicalCardIds: Array.AsReadOnly(Array.Empty<int>())));
-        QueueGameEvent(new CardUseDeclaredEvent(resolutionId, 0, CardKind.Alcohol, victim.Seat));
-        QueueGameEvent(new TargetsConfirmedEvent(resolutionId, Array.AsReadOnly(new[] { victim.Seat })));
+        AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(resolutionId, 0, CardKind.Alcohol, victim.Seat));
+        AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(resolutionId, Array.AsReadOnly(new[] { victim.Seat })));
         SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
         var recoveryFrameId = BeginRecovery(resolutionId, victim.Seat, victim.Seat, 1);
         try
         {
             victim.Hp = Math.Min(victim.MaxHp, victim.Hp + 1);
-            QueueGameEvent(new RecoveryAppliedEvent(victim.Seat, victim.Seat, 1, victim.Hp));
+            AdvanceEventRulesAndQueueFact(new RecoveryAppliedEvent(victim.Seat, victim.Seat, 1, victim.Hp));
         }
         finally
         {
             PopResolutionFrame(recoveryFrameId, ResolutionFrameKind.Recovery);
         }
-        QueueGameEvent(new ProgramDyingRescueEvent(
+        AdvanceEventRulesAndQueueFact(new ProgramDyingRescueEvent(
             dying.FrameId, active.SkillId, active.OwnerSeat, victim.Seat,
             0, 1, victim.Hp));
         var skill = _contentRegistry!.GetSkill(active.SkillId);

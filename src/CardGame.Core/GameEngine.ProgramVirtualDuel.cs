@@ -16,14 +16,14 @@ public sealed partial class GameEngine
         // Paying a preceding cost can trigger other effects; a deceased participant cannot enter a new duel.
         if (active.SelectedTargetSeats.Any(seat => !_players[seat].IsAlive))
             return SkillProgramStepOutcome.Continue;
-        if (_pendingAttack is not null || _pendingDuel is not null)
+        if (ActiveCardAttack is not null || ActiveDuel is not null)
             throw new InvalidOperationException("A virtual duel cannot overwrite a pending card resolution.");
 
-        var attack = new AttackResolution(active.Id, sourceSeat, targetSeat,
+        var attack = new CardAttackHandle(this, active.Id, sourceSeat, targetSeat,
             card: null, playedCardKind: CardKind.Duel, programSkillFrameId: active.Id);
-        _pendingAttack = attack;
-        _pendingDuel = new DuelResolution(attack);
-        BeginDuelResponse(_pendingDuel);
+        ActiveCardAttack = attack;
+        ActiveDuel = new DuelHandle(this, attack);
+        BeginDuelResponse(ActiveDuel);
         return SkillProgramStepOutcome.AwaitChild;
     }
 }

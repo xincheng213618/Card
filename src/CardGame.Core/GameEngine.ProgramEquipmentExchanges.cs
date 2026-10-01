@@ -45,10 +45,10 @@ public sealed partial class GameEngine
                     To: move.To.Zone == CardZoneKind.Equipment
                         ? CardLocation.WoodenOxGrain(move.To.OwnerSeat!.Value) : CardLocation.DiscardPile)))).ToArray();
         var reason = new CardMoveReason($"skill-program.{frame.SkillId}.equipment-exchange");
-        _resolutionStack[^1] = active with
+        ReplaceRuntimeTop(active with
         {
             PendingMovementContinuation = new ProgramMovementContinuation(frame.OwnerSeat, 0, null)
-        };
+        });
         var batch = BeginCardMovementBatch(moves.Select(move => move.From), moves.Select(move => move.To));
         var records = new List<CardMovementRecord>(moves.Length);
         var committed = false;
@@ -70,7 +70,7 @@ public sealed partial class GameEngine
         {
             CompleteCardMovementBatch(batch, records, committed);
         }
-        if (!TryBeginCardsMovedProgramWindow()) CompleteAwaitedProgramMovement(frame.Id);
+        if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
         return SkillProgramStepOutcome.AwaitChild;
     }
 }

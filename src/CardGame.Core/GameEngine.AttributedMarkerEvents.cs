@@ -1,0 +1,41 @@
+namespace CardGame.Core;
+public sealed partial class GameEngine
+{
+ private ProgramAiPublicContext CreateAttributedPaymentAiContext(CharacterState owner,SkillProgramTrigger trigger)=>CreateProgramAiPublicContext(owner) with {AttributedMarkerPaymentCounts=trigger.Effects.Any(e=>e.Op==SkillProgramEffectOp.ChangeParticipantMarker) && trigger.Effects.Any(e=>e.Op==SkillProgramEffectOp.SpendMarkerOrLoseHp) ? new Dictionary<PlayerMarkerKind,int>(owner.Markers) : null};
+ private bool HasAttributedEventOperations()=>_contentRegistry.Skills.Values.Any(s=>s.Program?.Triggers.Any(t=>t.Effects.Any(e=>e.Op is SkillProgramEffectOp.ConsumeMarkerPreventDamage or SkillProgramEffectOp.AddMarkerSubjectNormalDraw))==true);
+ private bool IsMarkerSourceEnabled(int source,PlayerMarkerKind marker)=>_players[source].IsAlive && GetSkillBindingShard(_players[source]).GetInstanceTriggers(SkillProgramTriggerWindow.BeforeDamageApplied).Any(b=>b.Trigger.Effects.Any(e=>e.Op==SkillProgramEffectOp.ConsumeMarkerPreventDamage&&e.Marker==marker));
+ private int ActiveSubjectMarkerCount(int subject,PlayerMarkerKind marker)=>!_players[subject].IsAlive ? 0 : _players[subject].MarkerSourceCounts.Where(p=>p.Key.Marker==marker&&IsMarkerSourceEnabled(p.Key.SkillOwnerSeat,marker)).Sum(p=>p.Value);
+ private bool MarkerEventApplied(long parent,int subject,PlayerMarkerKind marker,SkillProgramEffectOp op)=>_events.Select(e=>e.Payload).Concat(_pendingEvents).OfType<ProgramMarkerEventAppliedEvent>().Any(e=>e.ParentFrameId==parent&&e.SubjectSeat==subject&&e.Marker==marker&&e.Operation==op);
+ private bool CanOfferAttributedEvent(SkillProgramTrigger trigger,ProgramSkillWindowContext context)
+ {
+  foreach(var e in trigger.Effects.Where(e=>e.Op is SkillProgramEffectOp.ConsumeMarkerPreventDamage or SkillProgramEffectOp.AddMarkerSubjectNormalDraw))
+   if(context.TargetSeat is not {} subject || ActiveSubjectMarkerCount(subject,e.Marker!.Value)<1 || MarkerEventApplied(context.ParentFrameId,subject,e.Marker.Value,e.Op))return false;
+  return true;
+ }
+ private IReadOnlyList<ProgramTriggerCandidate> IncludeAttributedDrawObservers(CharacterState subject,IReadOnlyList<ProgramTriggerCandidate> existing)
+ {
+  var extra=_players.Where(p=>p.IsAlive&&p.Seat!=subject.Seat).SelectMany(p=>CollectProgramTriggerCandidates(p,SkillProgramTriggerWindow.DrawPhaseStarting)).Where(c=>GetProgramTrigger(c).Effects.Any(e=>e.Op==SkillProgramEffectOp.AddMarkerSubjectNormalDraw));
+  var observers=extra.ToArray();if(observers.Length==0)return existing;
+  return existing.Concat(observers).Select((candidate,index)=>(candidate,index)).OrderByDescending(x=>x.candidate.Priority).ThenBy(x=>(x.candidate.OwnerSeat-subject.Seat+_playerCount)%_playerCount).ThenBy(x=>x.index).Select(x=>x.candidate).ToArray();
+ }
+ private void MutateParticipantMarker(ProgramSkillFrame frame,int seat,PlayerMarkerKind marker,int delta,bool activeOnly=false)
+ {
+  var target=_players[seat];if(!target.IsAlive)return;
+  var attributed=target.MarkerSourceCounts.Where(p=>p.Key.Marker==marker).ToArray();if(attributed.Any(p=>p.Value<=0)||attributed.Sum(p=>p.Value)!=target.Markers.GetValueOrDefault(marker))throw new InvalidOperationException("Participant marker source totals are inconsistent.");
+  if(delta>0){var key=(marker,frame.OwnerSeat);target.MarkerSourceCounts[key]=target.MarkerSourceCounts.GetValueOrDefault(key)+delta;target.Markers[marker]=target.Markers.GetValueOrDefault(marker)+delta;AdvanceEventRulesAndQueueFact(new PlayerMarkerChangedEvent(frame.Id,seat,marker,delta,target.Markers[marker],frame.OwnerSeat,"program.participant-marker"));return;}
+  var sources=target.MarkerSourceCounts.Where(p=>p.Key.Marker==marker&&(!activeOnly||IsMarkerSourceEnabled(p.Key.SkillOwnerSeat,marker))).OrderBy(p=>p.Key.SkillOwnerSeat).ToArray();
+  if(sources.Sum(p=>p.Value)<-delta)throw new InvalidOperationException("The actual marker payment is no longer affordable.");
+  var left=-delta;foreach(var source in sources){var paid=Math.Min(left,source.Value);if(paid==0)continue;if(paid==source.Value)target.MarkerSourceCounts.Remove(source.Key);else target.MarkerSourceCounts[source.Key]=source.Value-paid;var count=target.Markers[marker]-paid;if(count==0)target.Markers.Remove(marker);else target.Markers[marker]=count;AdvanceEventRulesAndQueueFact(new PlayerMarkerChangedEvent(frame.Id,seat,marker,-paid,count,source.Key.SkillOwnerSeat,"program.participant-marker"));left-=paid;if(left==0)break;}
+ }
+ private void ApplyAttributedEvent(ProgramSkillFrame frame,SkillProgramEffect effect,int targetSeat)
+ {
+  var active=GetActiveProgramFrame(frame.Id);if(active.SkillId!=frame.SkillId||active.SkillInstanceId!=frame.SkillInstanceId||!HasRuntimeSkillInstance(_players[frame.OwnerSeat],frame.SkillId,frame.SkillInstanceId))throw new InvalidOperationException("Attributed event lost its exact source.");
+  var context=active.WindowContext??throw new InvalidOperationException("Attributed marker operation lost its lifecycle.");var marker=effect.Marker!.Value;
+  if(effect.Op==SkillProgramEffectOp.ChangeParticipantMarker){if(context.Window is not (SkillProgramTriggerWindow.GameStarting or SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.DrawPhaseStarting)||effect.Target==SkillProgramEffectTarget.SelectedTarget&&(context.Window!=SkillProgramTriggerWindow.PlayPhaseStarting||active.SelectedTargetSeats is not [var selected]||selected!=targetSeat||selected==active.OwnerSeat))throw new InvalidOperationException("Illegal marker participant.");if(_resolutionStack.Count<2 || (context.Window==SkillProgramTriggerWindow.PlayPhaseStarting ? _resolutionStack[^2] is not PlayPhaseStartingBoundaryFrame playing || playing.Id!=context.ParentFrameId || playing.OwnerSeat!=active.OwnerSeat : _resolutionStack[^2] is not ProgramLifecycleTriggerWindowFrame lifecycle || lifecycle.Id!=context.ParentFrameId || lifecycle.Window!=context.Window || context.Window==SkillProgramTriggerWindow.DrawPhaseStarting&&lifecycle.OwnerSeat!=active.OwnerSeat))throw new InvalidOperationException("Marker mutation lost its exact lifecycle parent.");MutateParticipantMarker(active,targetSeat,marker,effect.Amount);return;}
+  var subject=context.TargetSeat??throw new InvalidOperationException("Marker event lost its actual subject.");if(ActiveSubjectMarkerCount(subject,marker)<1||MarkerEventApplied(context.ParentFrameId,subject,marker,effect.Op))return;
+  if(effect.Op==SkillProgramEffectOp.ConsumeMarkerPreventDamage){if(_resolutionStack.Count<2||_resolutionStack[^2] is not BeforeDamageProgramWindowFrame parent||parent.Id!=context.ParentFrameId||parent.TargetSeat!=subject||parent.Prevented)throw new InvalidOperationException("Marker prevention lost its actual damage parent.");MutateParticipantMarker(active,subject,marker,-1,true);PreventProgramCurrentDamage(active);}
+  else {if(_resolutionStack.Count<2||_resolutionStack[^2] is not ProgramLifecycleTriggerWindowFrame parent||parent.Id!=context.ParentFrameId||parent.Window!=SkillProgramTriggerWindow.DrawPhaseStarting||parent.OwnerSeat!=subject||parent.NormalDrawReplaced)throw new InvalidOperationException("Marker draw lost its actual normal draw parent.");AdjustProgramNormalDraw(active,1);}
+  AdvanceEventRulesAndQueueFact(new ProgramMarkerEventAppliedEvent(context.ParentFrameId,subject,marker,effect.Op,active.OwnerSeat,active.SkillId,active.SkillInstanceId));
+ }
+ private sealed partial class ProgramSkillHost:IAttributedEventProgramHost { public void ApplyAttributedEvent(ProgramSkillFrame f,SkillProgramEffect e,int target)=>engine.ApplyAttributedEvent(f,e,target); }
+}

@@ -25,13 +25,14 @@ internal static class ProgramEntryCapabilities
     internal const ProgramContextCapability Common = ProgramContextCapability.TurnEffects;
 
     internal static bool SupportsWindow(SkillProgramTriggerWindow window) => window is
+        SkillProgramTriggerWindow.ProgramTargetCommitted or
         SkillProgramTriggerWindow.SkillsChanged or
         SkillProgramTriggerWindow.GameStarting or
         SkillProgramTriggerWindow.DyingEntering or SkillProgramTriggerWindow.DyingEntered or
         SkillProgramTriggerWindow.DyingExited or
         SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
         SkillProgramTriggerWindow.DrawPhaseStarting or
-        SkillProgramTriggerWindow.AfterNormalDraw or
+        SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or
         SkillProgramTriggerWindow.SelfDyingResponse or
         SkillProgramTriggerWindow.DyingResponse or
         SkillProgramTriggerWindow.BeforeDamageApplied or
@@ -69,6 +70,7 @@ internal static class ProgramEntryCapabilities
         null => Common | ProgramContextCapability.Judgment | ProgramContextCapability.Pindian,
         SkillProgramTriggerWindow.TurnStartBeforeNormalFlow => Common | ProgramContextCapability.PhaseInsertion | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.DrawPhaseStarting => Common | ProgramContextCapability.DrawPlan | ProgramContextCapability.Judgment,
+        SkillProgramTriggerWindow.DrawPhaseEnded => Common | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.AfterNormalDraw => Common | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.DiscardPhaseStarting => Common | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.DiscardPhaseEnded => Common | ProgramContextCapability.Judgment,

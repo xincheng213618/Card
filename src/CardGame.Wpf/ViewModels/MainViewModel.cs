@@ -573,7 +573,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 Rank = card.RankText,
                 Description = GetCardDescription(card.Kind),
                 IsPlayable = false,
-                IsPublicChoice = _snapshot.PendingDecision?.Kind == DecisionKind.SelectHarvestCard,
+                IsPublicChoice = RevealedCardChoice(card.Id) is not null,
                 IsSelected = false
             });
         }
@@ -777,11 +777,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 PojunHoldTooltip = player.PojunHoldCount > 0
                     ? $"被【破军】扣置的牌 {player.PojunHoldCount} 张（回合结束后回到其手牌）"
                     : string.Empty,
-                DeferredPileText = player.PublicDeferredPileCount > 0
-                    ? $"{player.PublicDeferredPileName ?? "牌堆"} ×{player.PublicDeferredPileCount}" : string.Empty,
-                DeferredPileTooltip = player.PublicDeferredPileCards is { Count: > 0 } pile
-                    ? $"{player.GeneralName}的公开“{player.PublicDeferredPileName ?? "牌堆"}”：{string.Join("、", pile.Select(card => $"{card.DisplayName} {card.Suit}{card.RankText}"))}"
-                    : string.Empty,
+                DeferredPileText = PublicStateBadge(player),
+                DeferredPileTooltip = PublicStateTooltip(player),
                 HasAlcoholEffect = player.HasAlcoholEffect,
                 SkillName = IsNationalSnapshot
                     ? $"{VisibleSkillNames(player.Skills)} / {VisibleSkillNames(player.SecondarySkills)}"
@@ -847,6 +844,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     : TutorialHandAvailability(card, normallyPlayable, IsHandResponsePending
                         ? responseChoice is not null ? $"{responseChoice.Description}；选中后按 Enter 确认。" : HandResponseUnavailableHint(card.Id)
                         : handGuidance.GetValueOrDefault(card.Id)?.Message ?? string.Empty);
+                if (IsPhysicalCardRestricted(human.Seat, card.Id))
+                    availability = string.IsNullOrEmpty(availability) ? "本回合不能使用或打出"
+                        : availability + "；本回合不能使用或打出";
                 var selectable = IsActiveSkillSelectionPending ? activeSkillSelectable : normallySelectable;
                 if (existing.TryGetValue(card.Id, out var displayed))
                 {
@@ -888,6 +888,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 (human.PojunHoldCount > 0 ? $" · 破 {human.PojunHoldCount}" : string.Empty) +
                 (human.PrivateReserveCount > 0 ? $" · 星 {human.PrivateReserveCount}" : string.Empty) +
                 (human.PublicDeferredPileCount > 0 ? $" · {human.PublicDeferredPileName ?? "牌堆"} {human.PublicDeferredPileCount}" : string.Empty) +
+                (human.PublicPersistentPileCount > 0 ? $" · {human.PublicPersistentPileName ?? "牌堆"} {human.PublicPersistentPileCount}" : string.Empty) +
+                (human.Markers is { Count: > 0 } ? " · " + PublicMarkerBadge(human) : string.Empty) +
+                (human.DeferredHandAlignments is { Count: > 0 } ? " · " + DeferredHandAlignmentBadge(human) : string.Empty) +
+                (human.BeneficiarySuitShields is { Count: > 0 } ? " · " + SuitShieldBadge(human) : string.Empty) +
                 (human.HasAlcoholEffect ? " · 酒效待下一张杀" : string.Empty);
         }
         else

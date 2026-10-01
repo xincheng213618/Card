@@ -27,7 +27,7 @@ public sealed partial class GameEngine
             var count = owner.Markers[cost.Marker] - paid;
             if (count == 0) owner.Markers.Remove(cost.Marker);
             else owner.Markers[cost.Marker] = count;
-            QueueGameEvent(new PlayerMarkerChangedEvent(
+            AdvanceEventRulesAndQueueFact(new PlayerMarkerChangedEvent(
                 ++_resolutionSequence, owner.Seat, cost.Marker, -paid, count,
                 source.Key.SkillOwnerSeat, $"skill-program.{skillId}.{bindingId}.cost"));
             remaining -= paid;

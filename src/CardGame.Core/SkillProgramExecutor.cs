@@ -364,23 +364,33 @@ public sealed class DrawSkillProgramEffectHandler : ISkillProgramEffectHandler
         int targetSeat,
         ISkillProgramEffectHost host)
     {
-        if (effect.Target == SkillProgramEffectTarget.SelectedTargets)
+        if (effect.CompiledInstruction is not DrawProgramInstruction instruction)
+            throw new InvalidOperationException("Draw has no compiled operation instruction.");
+        if (instruction.Target == SkillProgramEffectTarget.SelectedTargets)
         {
-            host.DrawSelectedTargets(frame.Id, effect.Amount, Reason(frame, effect));
+            if (instruction.Amount is not FixedProgramAmount selectedAmount)
+                throw new InvalidOperationException("Selected-target draw requires a fixed amount.");
+            host.DrawSelectedTargets(frame.Id, selectedAmount.Value, Reason(frame, effect));
             return SkillProgramStepOutcome.Continue;
         }
-        if (effect.TargetReference is { } targetReference)
+        if (instruction.TargetReference is { } targetReference)
             targetSeat = host.ResolveParticipant(frame, targetReference);
-        if (effect.NumberExpression == SkillProgramNumberExpression.BoundCardCount)
+        switch (instruction.Amount)
         {
-            host.DrawBoundCardCount(frame.Id, frame.OwnerSeat, targetSeat,
-                effect.SourceBind ?? throw new InvalidOperationException("boundCardCount draw has no source binding."),
-                effect.ResultBind, effect.Visibility, Reason(frame, effect));
-        }
-        else
-        {
-            host.Draw(frame.Id, frame.OwnerSeat, targetSeat, effect.Amount,
-                effect.NumberExpression, effect.ResultBind, effect.Visibility, Reason(frame, effect));
+            case BoundCardCountProgramAmount bound:
+                host.DrawBoundCardCount(frame.Id, frame.OwnerSeat, targetSeat,
+                    bound.SourceBind, instruction.ResultBind, instruction.Visibility, Reason(frame, effect));
+                break;
+            case FixedProgramAmount fixedAmount:
+                host.Draw(frame.Id, frame.OwnerSeat, targetSeat, fixedAmount.Value,
+                    null, instruction.ResultBind, instruction.Visibility, Reason(frame, effect));
+                break;
+            case ExpressionProgramAmount expression:
+                host.Draw(frame.Id, frame.OwnerSeat, targetSeat, 0,
+                    expression.Expression, instruction.ResultBind, instruction.Visibility, Reason(frame, effect));
+                break;
+            default:
+                throw new InvalidOperationException("Draw has an unsupported amount instruction.");
         }
         return SkillProgramStepOutcome.Continue;
     }
@@ -528,14 +538,30 @@ public sealed class RecoverSkillProgramEffectHandler : ISkillProgramEffectHandle
         int targetSeat,
         ISkillProgramEffectHost host)
     {
-        if (effect.Target == SkillProgramEffectTarget.SelectedTargets)
-            host.RecoverSelectedTargets(frame.Id, frame.OwnerSeat, effect.Amount);
+        if (effect.CompiledInstruction is not RecoverProgramInstruction instruction)
+            throw new InvalidOperationException("Recover has no compiled operation instruction.");
+        if (instruction.Target == SkillProgramEffectTarget.SelectedTargets)
+        {
+            if (instruction.Amount is not FixedProgramAmount selectedAmount)
+                throw new InvalidOperationException("Selected-target recovery requires a fixed amount.");
+            host.RecoverSelectedTargets(frame.Id, frame.OwnerSeat, selectedAmount.Value);
+        }
         else
         {
-            if (effect.TargetReference is { } targetReference)
+            if (instruction.TargetReference is { } targetReference)
                 targetSeat = host.ResolveParticipant(frame, targetReference);
-            host.Recover(frame.Id, frame.OwnerSeat, targetSeat, effect.Amount,
-                effect.NumberExpression, effect.SourceBind);
+            switch (instruction.Amount)
+            {
+                case FixedProgramAmount fixedAmount:
+                    host.Recover(frame.Id, frame.OwnerSeat, targetSeat, fixedAmount.Value, null, null);
+                    break;
+                case BoundCardCountProgramAmount bound:
+                    host.Recover(frame.Id, frame.OwnerSeat, targetSeat, 0,
+                        SkillProgramNumberExpression.BoundCardCount, bound.SourceBind);
+                    break;
+                default:
+                    throw new InvalidOperationException("Recover has an unsupported amount instruction.");
+            }
         }
         return SkillProgramStepOutcome.Continue;
     }
@@ -619,7 +645,9 @@ public sealed class ChangeMaximumHpSkillProgramEffectHandler : ISkillProgramEffe
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host)
     {
-        host.ChangeMaximumHp(frame, effect.Amount);
+        if (effect.CompiledInstruction is not ChangeMaximumHpProgramInstruction instruction)
+            throw new InvalidOperationException("Maximum-HP change has no compiled operation instruction.");
+        host.ChangeMaximumHp(frame, instruction.Delta);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -1345,6 +1373,10 @@ public sealed class SkillProgramExecutor
                 return;
             }
             var plan = ProgramInstructionResolver.Default.Resolve(frame, program);
+            // The parent may advance only after the selected-card movement chain
+            // has returned its typed result. Its cursor already records payment.
+            if (frame.SelectedCardPayment is not null && frame.SelectedCardPaymentResult is null)
+                return;
             if (frame.ReexecuteParticipantInstruction)
             {
                 frame = frame with { InstructionIndex = frame.InstructionIndex - 1, ReexecuteParticipantInstruction = false };

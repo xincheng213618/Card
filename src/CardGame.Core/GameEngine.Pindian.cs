@@ -19,7 +19,7 @@ public sealed partial class GameEngine
             ProgramResultVisibility: programResultVisibility,
             ParentProcessingCardIds: Array.AsReadOnly(_cardZones.CardsAt(CardLocation.Processing)
                 .Select(card => card.Id).Order().ToArray()));
-        _resolutionStack.Add(frame);
+        PushRuntimeFrame(frame);
         PublishPindianSelection(frame);
     }
 
@@ -32,7 +32,7 @@ public sealed partial class GameEngine
             player.Seat != chooser.Seat && GetHand(player).Count > 0).Select(player => player.Seat).ToArray() : [];
         if (!chooser.IsAlive || hand.Count == 0 || frame.PindianStep == PindianStep.ChooseParticipants && targets.Length == 0 ||
             !selectingSource && (chooser.Seat == frame.SourceSeat ||
-                !GetHand(_players[frame.SourceSeat]).Any(card => card.Id == frame.SourceCardId)))
+                !HasCurrentPindianSourceCard(frame)))
             throw new InvalidOperationException("Pindian participants no longer have legal hand cards.");
         var choices = new List<PromptChoice>();
         foreach (var card in hand)
@@ -50,6 +50,11 @@ public sealed partial class GameEngine
                 choices.Add(new(new ChoiceId($"pindian.{frame.Id}.card-{card.Id}"),
                     $"以【{card.DisplayName}】（{card.Rank}）参与拼点", [card.Id], [],
                     new Dictionary<string, string> { ["action"] = "pindian-card" }));
+        }
+        if(CanOfferPindianTopChoice(chooser))
+        {
+            var topTargets=frame.PindianStep==PindianStep.ChooseParticipants?targets.Select(t=>(int?)t):new int?[]{null};
+            foreach(var target in topTargets) choices.Add(new(new ChoiceId($"pindian.{frame.Id}.top.target-{target}"),"使用牌堆顶的牌拼点",[],target is { } seat?[seat]:[],new Dictionary<string,string>{["action"]="pindian-top"}));
         }
         var prompt = frame.PindianStep == PindianStep.ChooseParticipants
             ? $"【{frame.Presentation.Name}】：选择自己的拼点牌及一名其他角色。"
@@ -85,40 +90,44 @@ public sealed partial class GameEngine
             return;
         }
         ClearPendingDecision();
+        var top=selected.Parameters.GetValueOrDefault("action")=="pindian-top";
+        var selectingSource=frame.PindianStep is PindianStep.ChooseParticipants or PindianStep.ChooseSourceCard;
+        var chooser=_players[selectingSource?frame.SourceSeat:frame.OpponentSeat!.Value];
+        var selectedId=top?ReserveOrReadPindianTop(chooser,selectingSource):selected.Cards.Single();
         switch (frame.PindianStep)
         {
             case PindianStep.ChooseParticipants:
-                frame = frame with { OpponentSeat = selected.Targets.Single(), SourceCardId = selected.Cards.Single(),
+                frame = frame with { OpponentSeat = selected.Targets.Single(), SourceCardId = selectedId, SourceUsesDrawPileTop = top,
                     PindianStep = PindianStep.ChooseOpponentCard };
-                _resolutionStack[^1] = frame;
+                ReplaceRuntimeTop(frame);
                 PublishPindianSelection(frame);
                 return;
             case PindianStep.ChooseSourceCard:
-                frame = frame with { SourceCardId = selected.Cards.Single(), PindianStep = PindianStep.ChooseOpponentCard };
-                _resolutionStack[^1] = frame;
+                frame = frame with { SourceCardId = selectedId, SourceUsesDrawPileTop = top, PindianStep = PindianStep.ChooseOpponentCard };
+                ReplaceRuntimeTop(frame);
                 PublishPindianSelection(frame);
                 return;
             case PindianStep.ChooseOpponentCard:
-                RevealPindian(frame, selected.Cards.Single());
+                RevealPindian(frame, selectedId, top);
                 return;
             default: throw new InvalidOperationException("Unknown Pindian step.");
         }
     }
 
-    private void RevealPindian(PindianFrame frame, int opponentCardId)
+    private void RevealPindian(PindianFrame frame, int opponentCardId, bool opponentTop = false)
     {
         var source = _players[frame.SourceSeat];
         var opponent = _players[frame.OpponentSeat!.Value];
-        var sourceCard = GetHand(source).Single(card => card.Id == frame.SourceCardId);
-        var opponentCard = GetHand(opponent).Single(card => card.Id == opponentCardId);
-        MoveCard(sourceCard, CardLocation.Hand(source.Seat), CardLocation.Processing, CardMoveReasons.PindianReveal);
-        MoveCard(opponentCard, CardLocation.Hand(opponent.Seat), CardLocation.Processing, CardMoveReasons.PindianReveal);
-        var result = new PindianResult(source.Seat, opponent.Seat, sourceCard.Id, opponentCard.Id, sourceCard.Rank, opponentCard.Rank);
-        QueueGameEvent(new PindianResultDeterminedEvent(frame.Id, frame.SkillId, result));
-        AddLog("Pindian", $"{source.Name} 以 {sourceCard.Rank} 点与 {opponent.Name} 的 {opponentCard.Rank} 点拼点，" +
+        var sourceCard = _cardZones.CardsAt(frame.SourceUsesDrawPileTop?CardLocation.Processing:CardLocation.Hand(source.Seat)).Single(card => card.Id == frame.SourceCardId);
+        var opponentCard = _cardZones.CardsAt(opponentTop?CardLocation.DrawPile:CardLocation.Hand(opponent.Seat)).Single(card => card.Id == opponentCardId);
+        if(!frame.SourceUsesDrawPileTop) MoveCard(sourceCard, CardLocation.Hand(source.Seat), CardLocation.Processing, CardMoveReasons.PindianReveal);
+        MoveCard(opponentCard, opponentTop?CardLocation.DrawPile:CardLocation.Hand(opponent.Seat), CardLocation.Processing, CardMoveReasons.PindianReveal);
+        var result = new PindianResult(source.Seat, opponent.Seat, sourceCard.Id, opponentCard.Id, EffectivePindianRank(source,sourceCard), EffectivePindianRank(opponent,opponentCard));
+        AdvanceEventRulesAndQueueFact(new PindianResultDeterminedEvent(frame.Id, frame.SkillId, result));
+        AddLog("Pindian", $"{source.Name} 以 {result.SourceRank} 点与 {opponent.Name} 的 {result.OpponentRank} 点拼点，" +
             (result.SourceWon ? "发起者获胜。" : "发起者未赢。"), source.Seat, opponent.Seat);
         frame = frame with { Result = result };
-        _resolutionStack[^1] = frame;
+        ReplaceRuntimeTop(frame);
         if (!BeginPindianClaims(frame)) CompletePindian((PindianFrame)_resolutionStack[^1]);
     }
 
@@ -139,15 +148,15 @@ public sealed partial class GameEngine
                 program.PindianResultBindings.Any(item => item.Name == bind))
                 throw new InvalidOperationException("Program Pindian lost its unique result binding.");
             var result = frame.Result!;
-            _resolutionStack[^1] = program with
+            ReplaceRuntimeTop(program with
             {
                 PindianResultBindings = Array.AsReadOnly(program.PindianResultBindings.Append(
                     new ProgramPindianResultBinding(
                         bind, result.SourceSeat, result.OpponentSeat,
                         result.SourceRank, result.OpponentRank, result.SourceWon,
                         frame.ProgramResultVisibility)).ToArray())
-            };
-            ContinueProgramSkill(program.Id);
+            });
+            AdvanceRuntimeProgram(program.Id);
         }
         else throw new InvalidOperationException("Pindian lost its parent continuation.");
     }
@@ -159,14 +168,14 @@ public sealed partial class GameEngine
         if (frame.PindianStep == PindianStep.ClaimResult)
         {
             ResolvePindianChoice(decision.Choices.First(choice => choice.Parameters.GetValueOrDefault("take") == "true"));
-            PublishState();
+            AdvanceRulesAndPublishState();
             return;
         }
-        var selected = decision.Choices.OrderByDescending(choice => GetHand(_players[decision.PlayerSeat])
-                    .Single(card => card.Id == choice.Cards.Single()).Rank)
-                .ThenBy(choice => choice.Cards.Single()).ThenBy(choice => choice.Targets.FirstOrDefault()).First();
+        var selected = decision.Choices.OrderByDescending(choice => choice.Parameters.GetValueOrDefault("action")=="pindian-top"?9:
+                EffectivePindianRank(_players[decision.PlayerSeat],GetHand(_players[decision.PlayerSeat]).Single(card => card.Id == choice.Cards.Single())))
+                .ThenBy(choice => choice.Cards.FirstOrDefault()).ThenBy(choice => choice.Targets.FirstOrDefault()).First();
         ResolvePindianChoice(selected);
-        PublishState();
+        AdvanceRulesAndPublishState();
     }
 
     private bool HasPindianChild(long parentId) => _resolutionStack.LastOrDefault() is PindianFrame frame &&
@@ -183,8 +192,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Pindian must retain one parent and one private prompt.");
         var frame = frames[0];
         var parentCards = frame.ParentProcessingCardIds ?? [];
-        var contestCards = frame.Result is { } resolved
-            ? AvailablePindianCards(resolved) : [];
+        var contestCards = CurrentPindianProcessingIds(frame);
         if (_cardZones.CardsAt(CardLocation.Processing).Select(card => card.Id).Order()
                 .SequenceEqual(parentCards.Concat(contestCards).Order()) == false ||
             parentCards.Any(id => _cardZones.GetLocation(id) != CardLocation.Processing))
@@ -206,10 +214,11 @@ public sealed partial class GameEngine
                 ? frame.SourceSeat : frame.OpponentSeat!.Value;
             if (decision.PlayerSeat != owner ||
                 decision.SkillPrompt.SkillId != frame.SkillId ||
-                decision.Choices.Any(choice => choice.Cards.Count != 1 ||
-                    !GetHand(_players[owner]).Any(card => card.Id == choice.Cards[0])) ||
+                decision.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action")=="pindian-top"
+                    ? choice.Cards.Count!=0 || !CanOfferPindianTopChoice(_players[owner])
+                    : choice.Cards.Count != 1 || !GetHand(_players[owner]).Any(card => card.Id == choice.Cards[0])) ||
                 frame.PindianStep == PindianStep.ChooseOpponentCard &&
-                !GetHand(_players[frame.SourceSeat]).Any(card => card.Id == frame.SourceCardId))
+                !HasCurrentPindianSourceCard(frame))
                 throw new InvalidOperationException("Pindian selection leaked or lost a private hand card.");
     }
 

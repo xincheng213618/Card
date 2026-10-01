@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:zhongjian",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "compare",
+          "minCards": 1,
+          "maxCards": 1,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "sourceZones": [
+            "hand"
+          ],
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "compareSelectedHandWithHpHand",
+              "target": "owner",
+              "stateId": "comparison"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:caishi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "draw-choice",
+          "window": "drawPhaseStarting",
+          "drawPhaseMode": "additive",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "benefit",
+              "options": [
+                {
+                  "id": "limit"
+                },
+                {
+                  "id": "recover",
+                  "condition": {
+                    "kind": "wounded"
+                  }
+                }
+              ]
+            },
+            {
+              "op": "adjustPersistentHandLimit",
+              "target": "owner",
+              "amount": 1,
+              "stateId": "hand-limit",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "benefit",
+                "optionId": "limit"
+              }
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "benefit",
+                "optionId": "recover"
+              }
+            },
+            {
+              "op": "prohibitSelfCardTargetsForTurn",
+              "target": "owner",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "benefit",
+                "optionId": "recover"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -16,7 +16,7 @@ public sealed partial class GameEngine
         var change = new CharacterStateChangeContext(++_resolutionSequence,
             parentFrameId ?? _resolutionStack.LastOrDefault()?.Id, targetSeat, window);
         _pendingCharacterStateChanges.Add(change);
-        QueueGameEvent(new CharacterStateChangedEvent(change));
+        AdvanceEventRulesAndQueueFact(new CharacterStateChangedEvent(change));
     }
 
     private bool TryBeginCharacterStateProgramWindow(long? resumeFrameId = null,
@@ -37,13 +37,13 @@ public sealed partial class GameEngine
                 .ThenByDescending(candidate => candidate.Priority).ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
                 .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray();
             if (candidates.Length == 0) continue;
-            _resolutionStack.Add(new ProgramLifecycleTriggerWindowFrame(change.Id, change.TargetSeat, change.Window,
+            PushRuntimeFrame(new ProgramLifecycleTriggerWindowFrame(change.Id, change.TargetSeat, change.Window,
                 candidates, ProgramLifecycleContinuation.ResumeCharacterStateChange, facts[change.TargetSeat])
             {
                 ParticipantFacts = facts, ResumeProgramFrameId = resumeFrameId,
                 CharacterStateContinuation = continuation, ResumeCardId = cardId, ResumeCardKind = cardKind
             });
-            ContinueProgramLifecycleWindow();
+            AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
             return true;
         }
         return false;
@@ -55,12 +55,12 @@ public sealed partial class GameEngine
         if (TryBeginCharacterStateProgramWindow(frame.ResumeProgramFrameId, continuation, frame.ResumeCardId, frame.ResumeCardKind)) return;
         switch (continuation)
         {
-            case CharacterStateContinuation.Program: ContinueProgramSkill(frame.ResumeProgramFrameId!.Value); break;
+            case CharacterStateContinuation.Program: AdvanceRuntimeProgram(frame.ResumeProgramFrameId!.Value); break;
             case CharacterStateContinuation.CardUse:
                 var card = _cardZones.CardsAt(_cardZones.GetLocation(frame.ResumeCardId!.Value)).Single(item => item.Id == frame.ResumeCardId);
                 FinishCardUse(frame.ResumeProgramFrameId!.Value, card, frame.ResumeCardKind); break;
             case CharacterStateContinuation.SkippedTurn: CompleteFaceUpSkippedTurn(_players[frame.OwnerSeat]); break;
-            case CharacterStateContinuation.Boundary: PublishState(); break;
+            case CharacterStateContinuation.Boundary: AdvanceRulesAndPublishState(); break;
         }
     }
 
@@ -76,10 +76,10 @@ public sealed partial class GameEngine
             .ThenByDescending(candidate => candidate.Priority).ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
             .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray();
         if (candidates.Length == 0) return false;
-        _resolutionStack.Add(new ProgramLifecycleTriggerWindowFrame(++_resolutionSequence, turnOwner.Seat,
+        PushRuntimeFrame(new ProgramLifecycleTriggerWindowFrame(++_resolutionSequence, turnOwner.Seat,
             SkillProgramTriggerWindow.JudgmentPhaseStarting, candidates, ProgramLifecycleContinuation.CompleteJudgmentPhaseStarting,
             facts[turnOwner.Seat]) { ParticipantFacts = facts });
-        ContinueProgramLifecycleWindow();
+        AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
         return true;
     }
 
@@ -87,9 +87,8 @@ public sealed partial class GameEngine
     {
         _phase = TurnPhase.Finished;
         AddLog("TurnEnded", $"{current.Name} 的翻面回合结束。", current.Seat);
-        QueueGameEvent(new TurnEndedEvent(_turnNumber, current.Seat));
-        _currentSeat = FindNextAliveSeat(_currentSeat);
-        _phase = TurnPhase.NotStarted;
-        PublishState();
+        AdvanceEventRulesAndQueueFact(new TurnEndedEvent(_turnNumber, current.Seat));
+        if (TryBeginDeferredTurnEnd(current, skipped: true)) return;
+        AdvanceAfterDeferredTurnEnd(current, skipped: true);
     }
 }

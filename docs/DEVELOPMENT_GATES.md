@@ -11,12 +11,17 @@
 测试统一使用名称过滤，零匹配会失败：
 
 ```powershell
+.\tools\Test-Changed.ps1
 .\tools\Test-Changed.ps1 -CoreFilter 'Jiangchi'
 .\tools\Test-Changed.ps1 -WpfFilter 'selection, target toggle'
 .\tools\Test-Changed.ps1 -Full
 ```
 
 [Test-Changed.ps1](../tools/Test-Changed.ps1) 在一次调用内构建一次并复用产物。开发中运行相关现有检查；一批共享机制完成后做一次适当的完整验证。内容 JSON 可先用 [Inspect-SkillProgram.ps1](../tools/Inspect-SkillProgram.ps1) 加载检查，但加载成功不能代替真实行为检查。提交前运行 `git diff --check`，仅修复本次引入的问题。
+
+无参调用运行 [VerificationScopes.psd1](../tools/VerificationScopes.psd1) 定义的常规范围：命令与故障边界、快照隐私和冻结、内容指纹、牌区移动与守恒、技能执行与生命周期，以及代表性的用牌、响应和 UI 保存恢复。它不是全部武将场景、完整 AI 对局或发布验收；受影响的机制仍需名称过滤检查，批次结束运行 `-Full`。直接无参运行 Core/WPF 程序集仍执行该程序全部登记。
+
+每组名称过滤在一个测试进程中取并集，同一检查只执行一次；单个空过滤器或零匹配仍失败。脚本只有真正未提供过滤器时才进入常规范围，显式提供的过滤器若全部为空则拒绝。所有检查的失败计数、进程退出码和构建结果保留在 `summary.json` 与日志中；WPF 单项失败会被记录并继续其余检查，最终仍返回失败。
 
 合并旧分支或工作树时保留主线已完成的测试裁剪，只带入未覆盖行为或缺陷回归所需的新检查。不能为了恢复历史测试数量或沿用旧分支约定而整套回取已删除测试。测试冲突按当前保留的覆盖范围逐项处理；删除过时用例时同步删除注册、方法和无人使用的辅助代码，不改动历史兼容实现或存储数据来凑数量。
 

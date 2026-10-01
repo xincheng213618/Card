@@ -64,12 +64,12 @@ public sealed partial class GameEngine
             var cursor = draft.Cursor;
             while (cursor < _playerCount - 1 && !_players[(frame.OwnerSeat + cursor + 1) % _playerCount].IsAlive) cursor++;
             if (cursor >= _playerCount - 1)
-            { _resolutionStack[^1] = frame with { DiscardChallenge = null }; return SkillProgramStepOutcome.Continue; }
+            { ReplaceRuntimeTop(frame with { DiscardChallenge = null }); return SkillProgramStepOutcome.Continue; }
             draft = draft with { Cursor = cursor, ChooserSeat = (frame.OwnerSeat + cursor + 1) % _playerCount };
         }
         else if (draft.Remaining == 0 || !_players[draft.ChooserSeat].IsAlive)
-        { _resolutionStack[^1] = frame with { DiscardChallenge = null }; return SkillProgramStepOutcome.Continue; }
-        _resolutionStack[^1] = frame with { DiscardChallenge = draft };
+        { ReplaceRuntimeTop(frame with { DiscardChallenge = null }); return SkillProgramStepOutcome.Continue; }
+        ReplaceRuntimeTop(frame with { DiscardChallenge = draft });
         PublishDiscardChallenge(GetActiveProgramFrame(frame.Id), effect);
         return SkillProgramStepOutcome.AwaitChoice;
     }
@@ -96,8 +96,8 @@ public sealed partial class GameEngine
         }
         else if (choices.Count == 0)
         {
-            _resolutionStack[^1] = frame with { DiscardChallenge = null };
-            ContinueProgramSkill(frame.Id);
+            ReplaceRuntimeTop(frame with { DiscardChallenge = null });
+            AdvanceRuntimeProgram(frame.Id);
             return;
         }
         var skill = _contentRegistry.GetSkill(frame.SkillId);
@@ -132,12 +132,12 @@ public sealed partial class GameEngine
             if (draft.Mode == "category" && draft.ComplementOnly && primary) throw new InvalidOperationException("Wrong discard category.");
             ClearPendingDecision();
             if (draft.Mode == "escalating")
-            { _resolutionStack[^1] = frame with { DiscardChallenge = draft with { SelectedIds = draft.SelectedIds.Append(card.Id).ToArray() } }; PublishDiscardChallenge(GetActiveProgramFrame(frame.Id), effect); return; }
+            { ReplaceRuntimeTop(frame with { DiscardChallenge = draft with { SelectedIds = draft.SelectedIds.Append(card.Id).ToArray() } }); PublishDiscardChallenge(GetActiveProgramFrame(frame.Id), effect); return; }
             var remaining = draft.Remaining < 0 ? (primary ? 0 : effect.MinimumValue - 1) : draft.Remaining - 1;
-            _resolutionStack[^1] = frame with { DiscardChallenge = draft with { Remaining = remaining, ComplementOnly = !primary },
-                ReexecuteParticipantInstruction = true, PendingMovementContinuation = new(draft.ChooserSeat, 0, null) };
+            ReplaceRuntimeTop(frame with { DiscardChallenge = draft with { Remaining = remaining, ComplementOnly = !primary },
+                ReexecuteParticipantInstruction = true, PendingMovementContinuation = new(draft.ChooserSeat, 0, null) });
             MoveCard(card, location, CardLocation.DiscardPile, new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
-            if (!TryBeginCardsMovedProgramWindow()) CompleteAwaitedProgramMovement(frame.Id);
+            if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
             return;
         }
         if (draft.Mode != "escalating" || choice.Cards.Count != 0 || choice.Targets.Count != 0 ||
@@ -147,17 +147,17 @@ public sealed partial class GameEngine
         if (branch == "finish" && physical.Any(c => c.Location.OwnerSeat != draft.ChooserSeat || !effect.Zones.Contains(c.Location.Zone)))
             throw new InvalidOperationException("Staged discard card moved.");
         ClearPendingDecision();
-        _resolutionStack[^1] = frame with { DiscardChallenge = draft with { Cursor = draft.Cursor + 1,
+        ReplaceRuntimeTop(frame with { DiscardChallenge = draft with { Cursor = draft.Cursor + 1,
             PreviousCount = branch == "finish" ? draft.SelectedIds.Count : 0, SelectedIds = [] }, ReexecuteParticipantInstruction = true,
-            PendingMovementContinuation = branch == "finish" ? new(draft.ChooserSeat, 0, null) : null };
+            PendingMovementContinuation = branch == "finish" ? new(draft.ChooserSeat, 0, null) : null });
         if (branch == "damage")
         {
             if (BeginProgramSkillDamage(GetActiveProgramFrame(frame.Id), draft.ChooserSeat, effect.Amount, nature: effect.DamageNature) == SkillProgramStepOutcome.Continue)
-                ContinueProgramSkill(frame.Id);
+                AdvanceRuntimeProgram(frame.Id);
             return;
         }
         MoveProgramCardsFromMultipleSources(physical.Select(item => item.Id).ToArray(), CardLocation.DiscardPile,
             new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
-        if (!TryBeginCardsMovedProgramWindow()) CompleteAwaitedProgramMovement(frame.Id);
+        if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
     }
 }

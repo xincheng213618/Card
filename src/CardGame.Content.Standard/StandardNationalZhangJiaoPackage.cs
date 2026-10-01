@@ -9,14 +9,8 @@ namespace CardGame.Content.Standard;
 /// </summary>
 public sealed class StandardNationalZhangJiaoPackage : IGameContentPackage
 {
-    private const string RulesResource =
-        "CardGame.Content.Standard.SkillPrograms.national-zhang-jiao.rules.json";
-    private const string PresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.national-zhang-jiao.presentation.json";
-    private static readonly Lazy<SkillProgramCatalog> Catalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(RulesResource),
-            ReadEmbeddedText(PresentationResource)));
+    private static SkillProgramCatalog Catalog =>
+        EmbeddedSkillProgramCatalog.Catalog("national-zhang-jiao");
 
     public PackageManifest Manifest { get; } = new(
         "standard-national-zhang-jiao",
@@ -31,9 +25,9 @@ public sealed class StandardNationalZhangJiaoPackage : IGameContentPackage
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        foreach (var (id, program) in Catalog.Value.Programs.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        foreach (var (id, program) in Catalog.Programs.OrderBy(entry => entry.Key, StringComparer.Ordinal))
         {
-            var presentation = Catalog.Value.Presentations[id];
+            var presentation = Catalog.Presentations[id];
             builder.AddSkill(new ContentSkillDefinition(
                 id,
                 presentation.Name,
@@ -88,13 +82,4 @@ public sealed class StandardNationalZhangJiaoPackage : IGameContentPackage
             }));
     }
 
-    private static string ReadEmbeddedText(string resourceName)
-    {
-        using var stream = typeof(StandardNationalZhangJiaoPackage).Assembly
-            .GetManifestResourceStream(resourceName)
-            ?? throw new InvalidOperationException(
-                $"Missing embedded skill-program resource '{resourceName}'.");
-        using var reader = new StreamReader(stream);
-        return reader.ReadToEnd();
-    }
 }

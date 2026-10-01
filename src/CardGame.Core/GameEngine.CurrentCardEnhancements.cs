@@ -1,37 +1,37 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private readonly Dictionary<long, int> _programAdjustedSlashBaseDamage = [];
 
     // Capture before any per-target damage modifiers, reductions or armor apply.
-    private void CaptureProgramAdjustedSlashBaseDamage(AttackResolution attack)
+    private void CaptureProgramAdjustedSlashBaseDamage(CardAttackHandle attack)
     {
         if (IsSlashCard(attack.EffectiveCardKind ?? CardKind.Slash))
-            _programAdjustedSlashBaseDamage.TryAdd(attack.ResolutionId, attack.DamageAmount);
+            UpdateLifecycleCardUse(attack.ResolutionId, frame => frame with
+            { ProgramAdjustedSlashBaseDamage = frame.ProgramAdjustedSlashBaseDamage ?? attack.DamageAmount });
     }
 
-    private bool TryContinueEnhancedSlashTargets(AttackResolution attack)
+    private bool TryContinueEnhancedSlashTargets(CardAttackHandle attack)
     {
         if (!HasRemainingEnhancedSlashTargets(attack.ResolutionId) || IsForeignPublicPileSlashUse(attack.ResolutionId) ||
-            _pendingFangtianHalberd?.ResolutionId == attack.ResolutionId) return false;
+            ActiveFangtianHalberd?.ResolutionId == attack.ResolutionId) return false;
         var use = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == attack.ResolutionId);
         if (!ReferenceEquals(use, _resolutionStack.LastOrDefault()))
             throw new InvalidOperationException("An adjusted Slash must finish its child before advancing its target cursor.");
-        if (!_programAdjustedSlashBaseDamage.TryGetValue(use.Id, out var baseDamage))
+        if (use.ProgramAdjustedSlashBaseDamage is not { } baseDamage)
             throw new InvalidOperationException("An adjusted Slash lost its initial damage amount.");
         var next = use.TargetIndex + 1;
         while (next < use.TargetSeats.Count && !_players[use.TargetSeats[next]].IsAlive) next++;
         var targetSeat = use.TargetSeats[next];
         SetCardUseTargetIndex(use.Id, next); SetCardUseStep(use.Id, ResolutionFrameStep.ResolvingEffect);
-        var continued = new AttackResolution(use.Id, use.SourceSeat, targetSeat, attack.Card, baseDamage, use.CardKind,
+        var continued = new CardAttackHandle(this, use.Id, use.SourceSeat, targetSeat, attack.Card, baseDamage, use.CardKind,
             ignoresArmor: use.IgnoresArmor || HasCardArmorBypass(_players[use.SourceSeat], _players[targetSeat], use.CardKind),
             physicalCards: attack.PhysicalCards, conversionSource: attack.ConversionSource,
             programSkillCardUseFrameId: attack.ProgramSkillCardUseFrameId);
         continued.SetCardUseCausedDamage(attack.CardUseCausedDamage);
-        _pendingAttack = continued; _pendingDuel = null; ClearPendingDecision();
-        if (_pendingFactionCardRequest is { ActiveAttack: { } factionAttack } faction && ReferenceEquals(factionAttack, attack)) faction.ActiveAttack = continued;
-        if (_pendingBorrowedSword is { ActiveAttack: { } borrowedAttack } borrowed && ReferenceEquals(borrowedAttack, attack)) borrowed.ActiveAttack = continued;
+        ActiveCardAttack = continued; ActiveDuel = null; ClearPendingDecision();
+        if (ActiveFactionCardRequest is { ActiveAttack: { } factionAttack } faction && SameAttackOwner(factionAttack, attack)) faction.ActiveAttack = continued;
+        if (ActiveBorrowedSword is { ActiveAttack: { } borrowedAttack } borrowed && SameAttackOwner(borrowedAttack, attack)) borrowed.ActiveAttack = continued;
         BeginSlashTargetResolution(continued);
         return true;
     }
@@ -54,14 +54,14 @@ public sealed partial class GameEngine
             use = use with { TargetSeats = targets, Action = new CardActionContext(action.ActionId, action.ParentActionId, action.Type,
                 action.ActorSeat, action.ProviderSeat, action.RequesterSeat, action.ResponderSeat, action.OpponentSeat, action.EffectiveKind,
                 targets, action.PhysicalCards, action.ConversionChain, targets, action.EffectiveSuit, action.EffectiveRank) };
-            _resolutionStack[_resolutionStack.FindIndex(item => item.Id == use.Id)] = use;
+            ReplaceRuntimeFrame(_resolutionStack[_resolutionStack.FindIndex(item => item.Id == use.Id)].Id, use);
         }
         if (_currentSeat != frame.OwnerSeat || use.Action!.EffectiveDesignatedTargetSeats.Count != 1 ||
             !IsSlashCard(use.CardKind) && CardUseCategoryCatalog.Get(use.CardKind) != CardUseCategories.InstantTrick ||
             _players.Any(other => other.IsAlive && other.Seat != frame.OwnerSeat && GetCombatDistance(frame.OwnerSeat, other.Seat) != 1))
             return SkillProgramStepOutcome.Continue;
         if (frame.CardEnhancementDraft is not null) throw new InvalidOperationException("A current-card enhancement was offered twice.");
-        _resolutionStack[^1] = frame = frame with { CardEnhancementDraft = new(use.Id, []) };
+        ReplaceRuntimeTop(frame = frame with { CardEnhancementDraft = new(use.Id, []) });
         PublishCardEnhancementPrompt(frame);
         return SkillProgramStepOutcome.AwaitChoice;
     }
@@ -129,24 +129,24 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         if (option == "finish") { FinishProgramCardEnhancements(frame); return; }
         if (option == nameof(CurrentCardEnhancement.ExtraTarget))
-        { _resolutionStack[^1] = frame = frame with { CardEnhancementDraft = draft with { ChoosingExtraTarget = true } }; PublishCardEnhancementPrompt(frame); return; }
+        { ReplaceRuntimeTop(frame = frame with { CardEnhancementDraft = draft with { ChoosingExtraTarget = true } }); PublishCardEnhancementPrompt(frame); return; }
         var enhancement = option == "target" ? CurrentCardEnhancement.ExtraTarget : Enum.Parse<CurrentCardEnhancement>(option);
         var use = EnhancementCardUse(frame); var targets = option == "target" ? use.TargetSeats.Concat(selected.Targets).ToArray() : use.TargetSeats;
         var action = use.Action!;
         var updatedAction = CloneRoleAction(action, action.ActorSeat, targets);
-        if (option == "target" && use.CardKind == CardKind.BorrowedSword) _adjustedTargetCardUses.Add(use.Id);
         var index = _resolutionStack.FindIndex(item => item.Id == use.Id);
-        _resolutionStack[index] = use with { TargetSeats = targets, Action = updatedAction, Enhancements = use.Enhancements | enhancement,
+        ReplaceRuntimeFrame(_resolutionStack[index].Id, use with { TargetSeats = targets, Action = updatedAction, Enhancements = use.Enhancements | enhancement,
+            TargetsAdjusted = use.TargetsAdjusted || option == "target" && use.CardKind == CardKind.BorrowedSword,
             EnhancementOwnerSeat = frame.OwnerSeat,
-            IgnoresArmor = use.IgnoresArmor || enhancement == CurrentCardEnhancement.IgnoreArmor };
-        QueueGameEvent(new CurrentCardEnhancedEvent(use.Id, action.ActionId, frame.OwnerSeat, enhancement, option == "target" ? selected.Targets[0] : null));
-        _resolutionStack[^1] = frame = frame with { CardEnhancementDraft = draft with { Selected = draft.Selected.Append(enhancement).ToArray(), ChoosingExtraTarget = false } };
+            IgnoresArmor = use.IgnoresArmor || enhancement == CurrentCardEnhancement.IgnoreArmor });
+        AdvanceEventRulesAndQueueFact(new CurrentCardEnhancedEvent(use.Id, action.ActionId, frame.OwnerSeat, enhancement, option == "target" ? selected.Targets[0] : null));
+        ReplaceRuntimeTop(frame = frame with { CardEnhancementDraft = draft with { Selected = draft.Selected.Append(enhancement).ToArray(), ChoosingExtraTarget = false } });
         if (frame.CardEnhancementDraft.Selected.Count >= effect.Amount) { FinishProgramCardEnhancements(frame); return; }
         PublishCardEnhancementPrompt(frame);
     }
 
     private void FinishProgramCardEnhancements(ProgramSkillFrame frame)
-    { _resolutionStack[^1] = frame with { CardEnhancementDraft = null }; ContinueProgramSkill(frame.Id); }
+    { ReplaceRuntimeTop(frame with { CardEnhancementDraft = null }); AdvanceRuntimeProgram(frame.Id); }
 
     private bool HasCurrentCardEnhancement(long frameId, CurrentCardEnhancement flag) =>
         _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(frame => frame.Id == frameId) is { } use && (use.Enhancements & flag) != 0;

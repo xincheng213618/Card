@@ -80,13 +80,13 @@ public sealed partial class GameEngine
         var gained = cards.Where(card => MatchesProgramCardCategory(card.Kind, effect.CardCategories)).ToArray();
         var remaining = cards.Except(gained).ToArray();
         ClearPendingDecision(); _participantTopViews.Remove(frame.Id);
-        _resolutionStack[^1] = frame with { PendingMovementContinuation = new(frame.OwnerSeat, 0, null) };
+        ReplaceRuntimeTop(frame with { PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
         // Return non-matching cards first, in their original top-first order. Gain
         // observers therefore cannot draw the unreconciled processing remainder.
         MoveCards(remaining, CardLocation.Processing, CardLocation.DrawPile, new("skill-program.private-top.return"));
         _cardZones.PlaceDrawPileCardsAtTop(remaining.Select(card => card.Id).ToArray());
         MoveCards(gained, CardLocation.Processing, CardLocation.Hand(view.Seat), new("skill-program.private-top.obtain"));
-        if (!TryBeginCardsMovedProgramWindow()) CompleteAwaitedProgramMovement(frame.Id);
+        if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
     }
 
     private SkillProgramStepOutcome DepositDeferredPile(ProgramSkillFrame frame, string bind)
@@ -98,15 +98,15 @@ public sealed partial class GameEngine
                 _cardZones.GetLocation(id) != set.SourceLocations[index]).Any())
             throw new InvalidOperationException("Deferred pile deposit must use the provider's actual selected hand/equipment cards.");
         if (set.CardIds.Count == 0) return SkillProgramStepOutcome.Continue;
-        _resolutionStack[^1] = frame with { PendingMovementContinuation = new(frame.OwnerSeat, 0, null) };
+        ReplaceRuntimeTop(frame with { PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
         MoveProgramCardsFromMultipleSources(set.CardIds, new(CardZoneKind.PublicDeferredPile, frame.OwnerSeat), new("skill-program.deferred-pile.deposit"));
         var realIds = set.CardIds.Where(id => _cardZones.GetLocation(id) == new CardLocation(CardZoneKind.PublicDeferredPile, frame.OwnerSeat)).ToArray();
         if (realIds.Length > 0)
         {
             var deposit = new DeferredPublicPileDeposit(frame.Id, frame.OwnerSeat, provider, frame.SkillId, frame.SkillInstanceId, realIds, _turnNumber);
-            _deferredPublicPileDeposits.Add(deposit); QueueGameEvent(new DeferredPublicPileDepositedEvent(deposit));
+            _deferredPublicPileDeposits.Add(deposit); AdvanceEventRulesAndQueueFact(new DeferredPublicPileDepositedEvent(deposit));
         }
-        if (!TryBeginCardsMovedProgramWindow()) CompleteAwaitedProgramMovement(frame.Id);
+        if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
         return SkillProgramStepOutcome.AwaitChild;
     }
 
@@ -121,14 +121,14 @@ public sealed partial class GameEngine
             _deferredPublicPileDeposits.Remove(deposit);
             var ids = deposit.CardIds.Where(id => _cardZones.GetLocation(id) == pile).ToArray();
             rewards.Add((deposit.ProviderSeat, ids.Length));
-            QueueGameEvent(new DeferredPublicPileObtainedEvent(frame.OwnerSeat, deposit.ProviderSeat, ids));
+            AdvanceEventRulesAndQueueFact(new DeferredPublicPileObtainedEvent(frame.OwnerSeat, deposit.ProviderSeat, ids));
         }
         var actual = deposits.SelectMany(item => item.CardIds).Distinct().Where(id => _cardZones.GetLocation(id) == pile).ToArray();
         _deferredProviderRewards[frame.Id] = rewards;
         if (actual.Length == 0) return SkillProgramStepOutcome.Continue;
-        _resolutionStack[^1] = frame with { PendingMovementContinuation = new(frame.OwnerSeat, 0, null) };
+        ReplaceRuntimeTop(frame with { PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
         MoveCards(actual.Select(id => _cardZones.CardsAt(pile).Single(card => card.Id == id)).ToArray(), pile, CardLocation.Hand(frame.OwnerSeat), new("skill-program.deferred-pile.obtain"));
-        if (!TryBeginCardsMovedProgramWindow()) CompleteAwaitedProgramMovement(frame.Id);
+        if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
         return SkillProgramStepOutcome.AwaitChild;
     }
 

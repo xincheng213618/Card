@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:wengua",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "deck-end-exchange",
+          "minCards": 1,
+          "maxCards": 1,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "effects": [
+            {
+              "op": "exchangeOwnedCardThroughDeckEnd",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:fuzhu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "deck-slashes-at-male-ending",
+          "window": "turnEnding",
+          "turnOwnerScope": "otherLiving",
+          "optional": true,
+          "effects": [
+            {
+              "op": "useDeckSlashesThenShuffle",
+              "target": "owner",
+              "ignoreDistance": true
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    }
+  ]
+}

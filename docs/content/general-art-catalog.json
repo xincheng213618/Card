@@ -886,6 +886,23 @@
       ]
     },
     {
+      "key": "cai-yong",
+      "characterName": "蔡邕",
+      "defaultSkinId": "39500",
+      "skins": [
+        {
+          "id": "39500",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/395",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/39500.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-cai-yong.png",
+          "sha256": "cddd9c3c9277eb4069387a8e7594e8daf398ffb05b4586e2c88ca5eaa69c83cb",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
       "key": "cao-ang",
       "characterName": "曹昂",
       "defaultSkinId": "140401",
@@ -1273,6 +1290,23 @@
           "sha256": "c89652fd9058465ed8e55516b1b28c8cbcedb1b9c7264d53e11764e8bd4900f2",
           "pixelWidth": 574,
           "pixelHeight": 761
+        }
+      ]
+    },
+    {
+      "key": "cao-jie",
+      "characterName": "曹节",
+      "defaultSkinId": "39100",
+      "skins": [
+        {
+          "id": "39100",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/391",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/39100.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-cao-jie.png",
+          "sha256": "6102014a2e5bdd222f30b9c949472729ac613ee34834dcc5eeb3948eb12b9c60",
+          "pixelWidth": 750,
+          "pixelHeight": 950
         }
       ]
     },
@@ -3477,6 +3511,23 @@
       ]
     },
     {
+      "key": "hao-zhao",
+      "characterName": "郝昭",
+      "defaultSkinId": "40800",
+      "skins": [
+        {
+          "id": "40800",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/408",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40800.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-hao-zhao.png",
+          "sha256": "c79df498d802a31a548e332762c6fa59547c684641427977fbec6bf993cb8102",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
       "key": "hua-tuo",
       "characterName": "华佗",
       "defaultSkinId": "102301",
@@ -4085,6 +4136,23 @@
           "sha256": "fa1c25d7a6e976a70453f1f38f9a68c45f6e8d1a7d187cceeaf0780ba6b75054",
           "pixelWidth": 574,
           "pixelHeight": 761
+        }
+      ]
+    },
+    {
+      "key": "ji-kang",
+      "characterName": "嵇康",
+      "defaultSkinId": "39200",
+      "skins": [
+        {
+          "id": "39200",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/392",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/39200.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ji-kang.png",
+          "sha256": "c9e0cb0aab6a7b159b44480a0c480d4cca7f9beb73f9658861bcf8f8ebcf3afb",
+          "pixelWidth": 750,
+          "pixelHeight": 950
         }
       ]
     },
@@ -4833,6 +4901,23 @@
           "sha256": "d72b48a648e3533b25003d6c106141ca3020ae6f5fa03ac30c9f0fb592abec3e",
           "pixelWidth": 574,
           "pixelHeight": 761
+        }
+      ]
+    },
+    {
+      "key": "lu-ji",
+      "characterName": "陆绩",
+      "defaultSkinId": "40200",
+      "skins": [
+        {
+          "id": "40200",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/402",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40200.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-lu-ji.png",
+          "sha256": "f2cd9bc12d94542dc2b8928704afbe8bf232389e5b5472aad79a11dbe1b739ef",
+          "pixelWidth": 750,
+          "pixelHeight": 950
         }
       ]
     },
@@ -5690,6 +5775,23 @@
           "sha256": "19f5061aab37d3fbc605c58b4d8bf51a2d0ae727740c0f826baf8a4e0739a925",
           "pixelWidth": 574,
           "pixelHeight": 761
+        }
+      ]
+    },
+    {
+      "key": "qin-mi",
+      "characterName": "秦宓",
+      "defaultSkinId": "39300",
+      "skins": [
+        {
+          "id": "39300",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/393",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/39300.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-qin-mi.png",
+          "sha256": "79f2b5760acfd59a5d2204f27dd6aa32169b6379b8706991c27741ff999d1385",
+          "pixelWidth": 750,
+          "pixelHeight": 950
         }
       ]
     },
@@ -6931,6 +7033,23 @@
       ]
     },
     {
+      "key": "wang-ping",
+      "characterName": "王平",
+      "defaultSkinId": "40100",
+      "skins": [
+        {
+          "id": "40100",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/401",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40100.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-wang-ping.png",
+          "sha256": "ebdbccf81c07ed8325221898a3f19176a62a2ab20d84b6f603762c3683559198",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
       "key": "wang-yi",
       "characterName": "王异",
       "defaultSkinId": "130601",
@@ -7278,6 +7397,23 @@
           "sha256": "48724c1ad492ec768be2b85397ef0a23b601c2235a99775b3c3733d0878d3d16",
           "pixelWidth": 574,
           "pixelHeight": 761
+        }
+      ]
+    },
+    {
+      "key": "wu-xian",
+      "characterName": "吴苋",
+      "defaultSkinId": "38900",
+      "skins": [
+        {
+          "id": "38900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/389",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/38900.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-wu-xian.png",
+          "sha256": "c07ab8e177123b420ea41c0f8fcc66e07c94e31b2cff4feef4b60d4f6068e124",
+          "pixelWidth": 750,
+          "pixelHeight": 950
         }
       ]
     },
@@ -7697,6 +7833,23 @@
       ]
     },
     {
+      "key": "xin-xianying",
+      "characterName": "辛宪英",
+      "defaultSkinId": "38800",
+      "skins": [
+        {
+          "id": "38800",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/388",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/38800.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-xin-xianying.png",
+          "sha256": "54e0efe31de95f07a5f0e1e10bd114d914f3e9bd20ef345582b27e9dcfdc06dd",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
       "key": "xu-chu",
       "characterName": "许褚",
       "defaultSkinId": "102001",
@@ -7881,6 +8034,23 @@
       ]
     },
     {
+      "key": "xu-shi",
+      "characterName": "徐氏",
+      "defaultSkinId": "39000",
+      "skins": [
+        {
+          "id": "39000",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/390",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/39000.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-xu-shi.png",
+          "sha256": "9cfda28df95ed9df946f3cf60a402bc653d489c5237ff62c0e539f86149ee150",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
       "key": "xu-shu",
       "characterName": "徐庶",
       "defaultSkinId": "129001",
@@ -7964,6 +8134,23 @@
           "sha256": "15262eb3bf5ce9f531a25faff22e360dacf19df34fb07a21c8e5d49a77d2af2c",
           "pixelWidth": 574,
           "pixelHeight": 761
+        }
+      ]
+    },
+    {
+      "key": "xue-zong",
+      "characterName": "薛综",
+      "defaultSkinId": "39400",
+      "skins": [
+        {
+          "id": "39400",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/394",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/39400.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-xue-zong.png",
+          "sha256": "014665ae873d3e1c131e402da772582d3547337b3babcacc7d98955cdec59f1d",
+          "pixelWidth": 750,
+          "pixelHeight": 950
         }
       ]
     },

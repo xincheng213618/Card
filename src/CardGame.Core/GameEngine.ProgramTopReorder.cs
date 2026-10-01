@@ -19,7 +19,7 @@ public sealed partial class GameEngine
         var viewed = _cardZones.CardsAt(CardLocation.DrawPile).TakeLast(count).Reverse()
             .Select(card => card.Id).ToArray();
         active = active with { TopReorder = new ProgramTopReorder(viewed, [], [], false) };
-        _resolutionStack[^1] = active;
+        ReplaceRuntimeTop(active);
         PublishProgramTopReorderPrompt(active);
         return SkillProgramStepOutcome.AwaitChoice;
     }
@@ -49,7 +49,7 @@ public sealed partial class GameEngine
     private CommandResult SubmitProgramTopReorderAnswer(PromptChoice choice) => Accept(() =>
     {
         ResolveProgramTopReorderChoice(choice);
-        PublishState();
+        AdvanceRulesAndPublishState();
         return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
     });
 
@@ -77,12 +77,12 @@ public sealed partial class GameEngine
         else throw new InvalidOperationException("Top ordering choice has no current card.");
         ClearPendingDecision();
         frame = frame with { TopReorder = state };
-        _resolutionStack[^1] = frame;
+        ReplaceRuntimeTop(frame);
         if (state.TopCardIds.Count + state.BottomCardIds.Count == state.ViewedCardIds.Count)
         {
             _cardZones.ReorderDrawPileTop(state.ViewedCardIds, state.TopCardIds, state.BottomCardIds);
-            _resolutionStack[^1] = frame with { TopReorder = null };
-            ContinueProgramSkill(frame.Id);
+            ReplaceRuntimeTop(frame with { TopReorder = null });
+            AdvanceRuntimeProgram(frame.Id);
         }
         else PublishProgramTopReorderPrompt(frame);
     }
@@ -103,6 +103,6 @@ public sealed partial class GameEngine
             ? decision.Choices.Single(choice => choice.Parameters.GetValueOrDefault("action") == "finish-top")
             : decision.Choices.First(choice => choice.Cards.Count == 1);
         ResolveProgramTopReorderChoice(selected);
-        PublishState();
+        AdvanceRulesAndPublishState();
     }
 }

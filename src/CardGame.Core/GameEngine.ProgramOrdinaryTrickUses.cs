@@ -87,7 +87,7 @@ public sealed partial class GameEngine
             physicalCardIds: physicalCardIds,
             conversionSource: source);
         MoveCards(hand, CardLocation.Hand(owner.Seat), CardLocation.Processing, CardMoveReasons.Use);
-        QueueGameEvent(new ProgramViewAsConvertedEvent(
+        AdvanceEventRulesAndQueueFact(new ProgramViewAsConvertedEvent(
             resolutionId,
             frame.SkillId,
             effect.SourceBind!,
@@ -112,13 +112,15 @@ public sealed partial class GameEngine
             option.EffectiveCardKind);
     }
 
-    private IReadOnlyList<ProgramOrdinaryTrickUseOption> BuildProgramOrdinaryTrickUseOptions(CharacterState source, CardKind? outputKind = null, Suit? physicalSuit = null, bool excludeOwner = false, bool enforceUsePermission = false)
+    private IReadOnlyList<ProgramOrdinaryTrickUseOption> BuildProgramOrdinaryTrickUseOptions(CharacterState source, CardKind? outputKind = null, Suit? physicalSuit = null, bool excludeOwner = false, bool enforceUsePermission = false, Suit? beneficiaryShieldSuit = null)
     {
         var options = new List<ProgramOrdinaryTrickUseOption>();
         // A multi-card virtual card only carries a suit while every physical card
         // shares it; mixed-suit combinations are colorless and pass suit shields.
         var handSuits = GetHand(source).Select(card => card.Suit).Distinct().ToArray();
         var virtualSuit = physicalSuit ?? (handSuits.Length == 1 ? handSuits[0] : (Suit?)null);
+        var effectiveHandSuits = GetHand(source).Select(c => EffectiveSuit(source, c)).Distinct().ToArray();
+        var shieldSuit = beneficiaryShieldSuit ?? physicalSuit ?? (effectiveHandSuits.Length == 1 ? effectiveHandSuits[0] : (Suit?)null);
         void Add(
             CardKind cardKind,
             LegalActionKind actionKind,
@@ -128,6 +130,11 @@ public sealed partial class GameEngine
             CardKind? requiredCardKind = null)
         {
             var targets = targetSeats?.ToArray() ?? [];
+            var declared = cardKind == CardKind.BorrowedSword ? targets.Take(1) : targets.AsEnumerable();
+            if (cardKind is CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.PeachGarden or CardKind.FiveGrains)
+                targets = targets.Where(t => !HasBeneficiarySuitShield(source.Seat, t, shieldSuit)).ToArray();
+            else if (declared.Any(t => HasBeneficiarySuitShield(source.Seat, t, shieldSuit))) return;
+            if (_beneficiarySuitShields.Count > 0 && targets.Length == 0 && cardKind is CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.PeachGarden or CardKind.FiveGrains) return;
             var targetPart = targets.Length == 0 ? "none" : string.Join('-', targets);
             var cardPart = targetCardId?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "none";
             options.Add(new ProgramOrdinaryTrickUseOption(
@@ -142,8 +149,8 @@ public sealed partial class GameEngine
 
         if (!excludeOwner) Add(CardKind.DrawTwo, LegalActionKind.DrawTwo, "当【无中生有】使用：摸两张牌");
 
-        if (CanUseGlobalCard(source, CardKind.BarbarianAssault) ||
-            CanUseGlobalCard(source, CardKind.ArrowBarrage))
+        if (CanUseGlobalCard(source, CardKind.BarbarianAssault, excludeOwner) ||
+            CanUseGlobalCard(source, CardKind.ArrowBarrage, excludeOwner))
         {
             var otherSeats = Enumerable.Range(1, _playerCount - 1)
                 .Select(offset => _players[(source.Seat + offset) % _playerCount])
@@ -158,11 +165,11 @@ public sealed partial class GameEngine
             var arrowTargets = otherSeats.Where(seat =>
                     !IsCardTargetProhibited(_players[seat], CardKind.ArrowBarrage, virtualSuit))
                 .ToArray();
-            if (CanUseGlobalCard(source, CardKind.BarbarianAssault) && barbarianTargets.Length > 0)
+            if (CanUseGlobalCard(source, CardKind.BarbarianAssault, excludeOwner) && barbarianTargets.Length > 0)
                 Add(CardKind.BarbarianAssault, LegalActionKind.BarbarianAssault,
                     "当【南蛮入侵】使用：其他角色依次响应【杀】", barbarianTargets,
                     requiredCardKind: CardKind.Slash);
-            if (CanUseGlobalCard(source, CardKind.ArrowBarrage) && arrowTargets.Length > 0)
+            if (CanUseGlobalCard(source, CardKind.ArrowBarrage, excludeOwner) && arrowTargets.Length > 0)
                 Add(CardKind.ArrowBarrage, LegalActionKind.ArrowBarrage,
                     "当【万箭齐发】使用：其他角色依次响应【闪】", arrowTargets,
                     requiredCardKind: CardKind.Dodge);
@@ -173,7 +180,7 @@ public sealed partial class GameEngine
             .Where(player => player.IsAlive && (!excludeOwner || player.Seat != source.Seat))
             .Select(player => player.Seat)
             .ToArray();
-        if (CanUseGlobalCard(source, CardKind.PeachGarden))
+        if (CanUseGlobalCard(source, CardKind.PeachGarden, excludeOwner))
         {
             var peachTargets = allAliveSeats.Where(seat =>
                     !IsCardTargetProhibited(_players[seat], CardKind.PeachGarden, virtualSuit))
@@ -183,7 +190,7 @@ public sealed partial class GameEngine
                     "当【桃园结义】使用：所有存活角色依次回复体力", peachTargets);
         }
         var availableCards = _cardZones.Count(CardLocation.DrawPile) + _cardZones.Count(CardLocation.DiscardPile);
-        if (CanUseGlobalCard(source, CardKind.FiveGrains))
+        if (CanUseGlobalCard(source, CardKind.FiveGrains, excludeOwner))
         {
             var grainTargets = allAliveSeats.Where(seat =>
                     !IsCardTargetProhibited(_players[seat], CardKind.FiveGrains, virtualSuit))
@@ -246,6 +253,9 @@ public sealed partial class GameEngine
 
         return Array.AsReadOnly(options.Where(option => (outputKind is null || option.EffectiveCardKind == outputKind) &&
             (!excludeOwner || !option.TargetSeats.Contains(source.Seat)) &&
+            !IsSelfTargetForbiddenAction(source, option.EffectiveCardKind, option.TargetSeats) &&
+            (option.EffectiveCardKind is CardKind.BarbarianAssault or CardKind.ArrowBarrage or CardKind.PeachGarden or CardKind.FiveGrains ||
+             (option.EffectiveCardKind == CardKind.BorrowedSword ? option.TargetSeats.Where((_, index) => index % 2 == 0) : option.TargetSeats).All(t => !HasBeneficiarySuitShield(source.Seat, t, shieldSuit))) &&
             (!enforceUsePermission || !IsCardUseForbidden(source.Seat, option.EffectiveCardKind, CardActionType.Use))).ToArray());
     }
 

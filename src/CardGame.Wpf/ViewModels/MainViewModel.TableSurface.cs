@@ -58,7 +58,7 @@ public sealed record EquipmentSlotViewModel(EquipmentSlot Slot, CardSnapshot? Ca
 {
     public string SlotName => EquipmentCatalog.GetSlotName(Slot);
     public bool IsOccupied => Card is not null;
-    public bool HasDynamicWeaponName => Card?.Kind == CardKind.GeneralWeapon;
+    public bool HasDynamicWeaponName => CardArt.NeedsRuntimeNameOverlay(Card?.Kind);
     public string Name => Card?.DisplayName ?? string.Empty;
     public ImageSource? Artwork => Card is { } card ? CardArt.GetEquipment(card.Kind) : null;
     private string Suit => Card?.Suit switch

@@ -4,8 +4,8 @@
   "retrievedAt": "2026-10-01",
   "retrievedAtTimestamp": "2026-10-01T01:52:03+08:00",
   "batch": "一将成名2016/原创设计2016缺口",
-  "snapshotStatus": "frozenSourcesImplementationInProgress",
-  "implementationStatus": "partiallyIntegrated",
+  "snapshotStatus": "frozenSourcesImplemented",
+  "implementationStatus": "implementedCoreVerifiedWithExistingWpfArtGate",
   "roster": [
     {
       "contentId": "classic:guo-huanghou",
@@ -40,7 +40,7 @@
         "Official 2016 guide explicitly defines final Jiaozhao as direct single-hand-card use, once per play phase: omit the reveal and other-character declaration steps.",
         "Official 2016 guide confirms no owner effect for Peach Garden and Amazing Grace and no owner Peach, Alcohol or Ex Nihilo benefit. Counterspell use affecting another character remains eligible."
       ],
-      "implementationStatus": "integratedFocusedVerified",
+      "implementationStatus": "integratedCoreVerified",
       "publicMechanisms": {
         "assessment": "Full general cannot currently be configured using only existing primitives.",
         "reusable": [
@@ -76,13 +76,29 @@
         "decision": "At upgrade 2 use the direct conversion form; preserve owner target/effect exclusion in all levels."
       },
       "verification": {
-        "core": "19 Fame 2016 checks, 3 response completion checks, 2 owned-card checks and 4 composition checks passed in current workspace",
-        "wpf": "3 shared checks passed for private top/deferred piles, actual conversion tiers and private damage offers",
-        "artifactDirectories": [
-          "%TEMP%/Card-Fame2016-Merged-20261001",
-          "%TEMP%/Card-Fame2016-MergedUI-20261001"
-        ],
-        "boundary": "Seven generals integrated. Zhang Rang and full batch verification remain in progress."
+        "coreFull": {
+          "passed": 208,
+          "failed": 0,
+          "skipped": 0,
+          "scope": "Current retained Core suite; includes all 27 Fame 2016 checks and 5 response completion checks"
+        },
+        "wpfSharedChecks": {
+          "passed": 3,
+          "scope": "Actual checkpoint-restored shared private views, public piles, conversion tiers and private damage offers"
+        },
+        "wpfAfterArtGate": {
+          "passed": 30,
+          "failed": 0,
+          "scope": "All remaining default WPF checks run using the existing start-after option"
+        },
+        "wpfFull": {
+          "status": "failedAtExistingOriginalCardFaceGate",
+          "blockingCard": "ScarletBloodSword / 赤血青锋",
+          "scope": "The full WPF run is not green; the original face gate was preserved"
+        },
+        "artifactDirectory": "%TEMP%/Card-Fame2016-Full-20261001",
+        "sourceDriftDuringVerification": [],
+        "boundary": "Shared behavior/render validation; no claim of manual real-match acceptance, publication, or restoration of previously pruned tests."
       }
     },
     {
@@ -117,7 +133,7 @@
         "Option 1 privately shows the top two cards to the target and obtains basics. Historical FAQ returns non-basics to the top in original order.",
         "Fulin needs actual obtained-this-turn card identities still in hand at discard time; a scalar count cannot determine legal discard choices."
       ],
-      "implementationStatus": "integratedFocusedVerified",
+      "implementationStatus": "integratedCoreVerified",
       "publicMechanisms": {
         "assessment": "Full general cannot currently be configured using only existing primitives.",
         "reusable": [
@@ -147,13 +163,29 @@
         "responseSha256": "ea496360208c09f55453edb3119815536f2047a0b08bbefeac9a1191645e5278"
       },
       "verification": {
-        "core": "19 Fame 2016 checks, 3 response completion checks, 2 owned-card checks and 4 composition checks passed in current workspace",
-        "wpf": "3 shared checks passed for private top/deferred piles, actual conversion tiers and private damage offers",
-        "artifactDirectories": [
-          "%TEMP%/Card-Fame2016-Merged-20261001",
-          "%TEMP%/Card-Fame2016-MergedUI-20261001"
-        ],
-        "boundary": "Seven generals integrated. Zhang Rang and full batch verification remain in progress."
+        "coreFull": {
+          "passed": 208,
+          "failed": 0,
+          "skipped": 0,
+          "scope": "Current retained Core suite; includes all 27 Fame 2016 checks and 5 response completion checks"
+        },
+        "wpfSharedChecks": {
+          "passed": 3,
+          "scope": "Actual checkpoint-restored shared private views, public piles, conversion tiers and private damage offers"
+        },
+        "wpfAfterArtGate": {
+          "passed": 30,
+          "failed": 0,
+          "scope": "All remaining default WPF checks run using the existing start-after option"
+        },
+        "wpfFull": {
+          "status": "failedAtExistingOriginalCardFaceGate",
+          "blockingCard": "ScarletBloodSword / 赤血青锋",
+          "scope": "The full WPF run is not green; the original face gate was preserved"
+        },
+        "artifactDirectory": "%TEMP%/Card-Fame2016-Full-20261001",
+        "sourceDriftDuringVerification": [],
+        "boundary": "Shared behavior/render validation; no claim of manual real-match acceptance, publication, or restoration of previously pruned tests."
       }
     },
     {
@@ -188,7 +220,7 @@
         "Historical strategy says hand/equipment and at least one card. Current text omits a lower bound; zero-card confirmation must not create a false deferred reward.",
         "Provider/owner death, skill loss, inserted turns and movement interruptions need explicit public-mechanism handling."
       ],
-      "implementationStatus": "integratedFocusedVerified",
+      "implementationStatus": "integratedCoreVerified",
       "publicMechanisms": {
         "assessment": "Full general cannot currently be configured using only existing primitives.",
         "reusable": [
@@ -218,13 +250,29 @@
         "responseSha256": "ae6ce0378ec2ac96375e7620c133c48138bb70ee7811fa82ec9b43761e029522"
       },
       "verification": {
-        "core": "19 Fame 2016 checks, 3 response completion checks, 2 owned-card checks and 4 composition checks passed in current workspace",
-        "wpf": "3 shared checks passed for private top/deferred piles, actual conversion tiers and private damage offers",
-        "artifactDirectories": [
-          "%TEMP%/Card-Fame2016-Merged-20261001",
-          "%TEMP%/Card-Fame2016-MergedUI-20261001"
-        ],
-        "boundary": "Seven generals integrated. Zhang Rang and full batch verification remain in progress."
+        "coreFull": {
+          "passed": 208,
+          "failed": 0,
+          "skipped": 0,
+          "scope": "Current retained Core suite; includes all 27 Fame 2016 checks and 5 response completion checks"
+        },
+        "wpfSharedChecks": {
+          "passed": 3,
+          "scope": "Actual checkpoint-restored shared private views, public piles, conversion tiers and private damage offers"
+        },
+        "wpfAfterArtGate": {
+          "passed": 30,
+          "failed": 0,
+          "scope": "All remaining default WPF checks run using the existing start-after option"
+        },
+        "wpfFull": {
+          "status": "failedAtExistingOriginalCardFaceGate",
+          "blockingCard": "ScarletBloodSword / 赤血青锋",
+          "scope": "The full WPF run is not green; the original face gate was preserved"
+        },
+        "artifactDirectory": "%TEMP%/Card-Fame2016-Full-20261001",
+        "sourceDriftDuringVerification": [],
+        "boundary": "Shared behavior/render validation; no claim of manual real-match acceptance, publication, or restoration of previously pruned tests."
       }
     },
     {
@@ -258,7 +306,7 @@
         "Current Zongzuo adds faction-count maximum HP and HP at game start, and faction extinction only reduces maximum HP; no draw-two bonus.",
         "Current body says a character whereas historical versions say another character; self-eligibility needs an explicit rules-boundary decision."
       ],
-      "implementationStatus": "integratedFocusedVerified",
+      "implementationStatus": "integratedCoreVerified",
       "publicMechanisms": {
         "assessment": "Full general cannot currently be configured using only existing primitives.",
         "reusable": [
@@ -289,13 +337,29 @@
         "responseSha256": "2b00b3c4880eb491462cef9734572ea1e3a2e0bc00ca29d6124f14c3ca9bb783"
       },
       "verification": {
-        "core": "19 Fame 2016 checks, 3 response completion checks, 2 owned-card checks and 4 composition checks passed in current workspace",
-        "wpf": "3 shared checks passed for private top/deferred piles, actual conversion tiers and private damage offers",
-        "artifactDirectories": [
-          "%TEMP%/Card-Fame2016-Merged-20261001",
-          "%TEMP%/Card-Fame2016-MergedUI-20261001"
-        ],
-        "boundary": "Seven generals integrated. Zhang Rang and full batch verification remain in progress."
+        "coreFull": {
+          "passed": 208,
+          "failed": 0,
+          "skipped": 0,
+          "scope": "Current retained Core suite; includes all 27 Fame 2016 checks and 5 response completion checks"
+        },
+        "wpfSharedChecks": {
+          "passed": 3,
+          "scope": "Actual checkpoint-restored shared private views, public piles, conversion tiers and private damage offers"
+        },
+        "wpfAfterArtGate": {
+          "passed": 30,
+          "failed": 0,
+          "scope": "All remaining default WPF checks run using the existing start-after option"
+        },
+        "wpfFull": {
+          "status": "failedAtExistingOriginalCardFaceGate",
+          "blockingCard": "ScarletBloodSword / 赤血青锋",
+          "scope": "The full WPF run is not green; the original face gate was preserved"
+        },
+        "artifactDirectory": "%TEMP%/Card-Fame2016-Full-20261001",
+        "sourceDriftDuringVerification": [],
+        "boundary": "Shared behavior/render validation; no claim of manual real-match acceptance, publication, or restoration of previously pruned tests."
       }
     },
     {
@@ -331,7 +395,7 @@
         "Empty-hand ending-phase Jishe sets up to current HP characters to chained rather than toggling them.",
         "Lianhuo increases fire damage only while chained at chain propagation origin, excluding propagated damage."
       ],
-      "implementationStatus": "integratedFocusedVerified",
+      "implementationStatus": "integratedCoreVerified",
       "publicMechanisms": {
         "assessment": "Full general cannot currently be configured using only existing primitives.",
         "reusable": [
@@ -362,13 +426,29 @@
         "responseSha256": "e6b6d58b86e64b327477241a497e5daec9e4328849626d172fe7c8e9a77ae44d"
       },
       "verification": {
-        "core": "19 Fame 2016 checks, 3 response completion checks, 2 owned-card checks and 4 composition checks passed in current workspace",
-        "wpf": "3 shared checks passed for private top/deferred piles, actual conversion tiers and private damage offers",
-        "artifactDirectories": [
-          "%TEMP%/Card-Fame2016-Merged-20261001",
-          "%TEMP%/Card-Fame2016-MergedUI-20261001"
-        ],
-        "boundary": "Seven generals integrated. Zhang Rang and full batch verification remain in progress."
+        "coreFull": {
+          "passed": 208,
+          "failed": 0,
+          "skipped": 0,
+          "scope": "Current retained Core suite; includes all 27 Fame 2016 checks and 5 response completion checks"
+        },
+        "wpfSharedChecks": {
+          "passed": 3,
+          "scope": "Actual checkpoint-restored shared private views, public piles, conversion tiers and private damage offers"
+        },
+        "wpfAfterArtGate": {
+          "passed": 30,
+          "failed": 0,
+          "scope": "All remaining default WPF checks run using the existing start-after option"
+        },
+        "wpfFull": {
+          "status": "failedAtExistingOriginalCardFaceGate",
+          "blockingCard": "ScarletBloodSword / 赤血青锋",
+          "scope": "The full WPF run is not green; the original face gate was preserved"
+        },
+        "artifactDirectory": "%TEMP%/Card-Fame2016-Full-20261001",
+        "sourceDriftDuringVerification": [],
+        "boundary": "Shared behavior/render validation; no claim of manual real-match acceptance, publication, or restoration of previously pruned tests."
       }
     },
     {
@@ -404,7 +484,7 @@
         "The discarded suit forbids use for this turn, not response/discard. Current spade text orders target HP loss before owner turnover.",
         "Historical official strategy demonstrates self-targeting; preserve fresh legality after accumulated suit prohibitions."
       ],
-      "implementationStatus": "integratedFocusedVerified",
+      "implementationStatus": "integratedCoreVerified",
       "publicMechanisms": {
         "assessment": "Full general cannot currently be configured using only existing primitives.",
         "reusable": [
@@ -434,13 +514,29 @@
         "responseSha256": "4ba1b1d7f596e85eed6f721592a0332374b514e4cedaa43ef68358b92c4d1cd4"
       },
       "verification": {
-        "core": "19 Fame 2016 checks, 3 response completion checks, 2 owned-card checks and 4 composition checks passed in current workspace",
-        "wpf": "3 shared checks passed for private top/deferred piles, actual conversion tiers and private damage offers",
-        "artifactDirectories": [
-          "%TEMP%/Card-Fame2016-Merged-20261001",
-          "%TEMP%/Card-Fame2016-MergedUI-20261001"
-        ],
-        "boundary": "Seven generals integrated. Zhang Rang and full batch verification remain in progress."
+        "coreFull": {
+          "passed": 208,
+          "failed": 0,
+          "skipped": 0,
+          "scope": "Current retained Core suite; includes all 27 Fame 2016 checks and 5 response completion checks"
+        },
+        "wpfSharedChecks": {
+          "passed": 3,
+          "scope": "Actual checkpoint-restored shared private views, public piles, conversion tiers and private damage offers"
+        },
+        "wpfAfterArtGate": {
+          "passed": 30,
+          "failed": 0,
+          "scope": "All remaining default WPF checks run using the existing start-after option"
+        },
+        "wpfFull": {
+          "status": "failedAtExistingOriginalCardFaceGate",
+          "blockingCard": "ScarletBloodSword / 赤血青锋",
+          "scope": "The full WPF run is not green; the original face gate was preserved"
+        },
+        "artifactDirectory": "%TEMP%/Card-Fame2016-Full-20261001",
+        "sourceDriftDuringVerification": [],
+        "boundary": "Shared behavior/render validation; no claim of manual real-match acceptance, publication, or restoration of previously pruned tests."
       }
     },
     {
@@ -476,7 +572,7 @@
         "Huisheng permanently forbids reuse against a source only after it takes a shown card and damage is prevented; equal-card discard does not consume future eligibility.",
         "Selected owner cards are privately shown only to the actual other damage source; preserve ownership and real movement boundaries."
       ],
-      "implementationStatus": "integratedFocusedVerified",
+      "implementationStatus": "integratedCoreVerified",
       "publicMechanisms": {
         "assessment": "Full general cannot currently be configured using only existing primitives.",
         "reusable": [
@@ -507,13 +603,29 @@
         "responseSha256": "8f23db75dad4f93a9f51c9e40b5486b864fbf8e0f81504d631c6d48e4066e7d7"
       },
       "verification": {
-        "core": "19 Fame 2016 checks, 3 response completion checks, 2 owned-card checks and 4 composition checks passed in current workspace",
-        "wpf": "3 shared checks passed for private top/deferred piles, actual conversion tiers and private damage offers",
-        "artifactDirectories": [
-          "%TEMP%/Card-Fame2016-Merged-20261001",
-          "%TEMP%/Card-Fame2016-MergedUI-20261001"
-        ],
-        "boundary": "Seven generals integrated. Zhang Rang and full batch verification remain in progress."
+        "coreFull": {
+          "passed": 208,
+          "failed": 0,
+          "skipped": 0,
+          "scope": "Current retained Core suite; includes all 27 Fame 2016 checks and 5 response completion checks"
+        },
+        "wpfSharedChecks": {
+          "passed": 3,
+          "scope": "Actual checkpoint-restored shared private views, public piles, conversion tiers and private damage offers"
+        },
+        "wpfAfterArtGate": {
+          "passed": 30,
+          "failed": 0,
+          "scope": "All remaining default WPF checks run using the existing start-after option"
+        },
+        "wpfFull": {
+          "status": "failedAtExistingOriginalCardFaceGate",
+          "blockingCard": "ScarletBloodSword / 赤血青锋",
+          "scope": "The full WPF run is not green; the original face gate was preserved"
+        },
+        "artifactDirectory": "%TEMP%/Card-Fame2016-Full-20261001",
+        "sourceDriftDuringVerification": [],
+        "boundary": "Shared behavior/render validation; no claim of manual real-match acceptance, publication, or restoration of previously pruned tests."
       }
     },
     {
@@ -550,7 +662,7 @@
         "Historical official strategy mentions Wooden Ox pile input. Current wording and shared source-zone policies need explicit review; no production support is claimed.",
         "Official 2016 guide groups normal/fire/thunder Slash among four basic card names; use the shared Slash-name family for the game-scoped name ledger."
       ],
-      "implementationStatus": "notImplemented",
+      "implementationStatus": "integratedCoreVerified",
       "publicMechanisms": {
         "assessment": "Full general cannot currently be configured using only existing primitives.",
         "reusable": [
@@ -567,7 +679,8 @@
           "Post-conversion different-category gift-or-loss continuation",
           "Current-turn conversion disable policy",
           "Use-only response boundary"
-        ]
+        ],
+        "assessmentBasis": "Frozen assessment before this batch extended shared capabilities."
       },
       "currentCapture": {
         "skillSelector": ".character-tabs .character-tab paired with .skill-text > span",
@@ -585,6 +698,31 @@
         "sourcePage": "https://www.sanguosha.com/news/20161215_6101_0117",
         "verifiedAt": "2026-10-01",
         "decision": "Game-wide name ledger uses four basic-name families and twelve ordinary tricks; different costs do not reset a used output name."
+      },
+      "verification": {
+        "coreFull": {
+          "passed": 208,
+          "failed": 0,
+          "skipped": 0,
+          "scope": "Current retained Core suite; includes all 27 Fame 2016 checks and 5 response completion checks"
+        },
+        "wpfSharedChecks": {
+          "passed": 3,
+          "scope": "Actual checkpoint-restored shared private views, public piles, conversion tiers and private damage offers"
+        },
+        "wpfAfterArtGate": {
+          "passed": 30,
+          "failed": 0,
+          "scope": "All remaining default WPF checks run using the existing start-after option"
+        },
+        "wpfFull": {
+          "status": "failedAtExistingOriginalCardFaceGate",
+          "blockingCard": "ScarletBloodSword / 赤血青锋",
+          "scope": "The full WPF run is not green; the original face gate was preserved"
+        },
+        "artifactDirectory": "%TEMP%/Card-Fame2016-Full-20261001",
+        "sourceDriftDuringVerification": [],
+        "boundary": "Shared behavior/render validation; no claim of manual real-match acceptance, publication, or restoration of previously pruned tests."
       }
     }
   ],
@@ -801,5 +939,30 @@
     "verifiedPngs": 8,
     "parserCases": 5,
     "productionSkillsVerified": false
+  },
+  "verification": {
+    "coreFull": {
+      "passed": 208,
+      "failed": 0,
+      "skipped": 0,
+      "scope": "Current retained Core suite; includes all 27 Fame 2016 checks and 5 response completion checks"
+    },
+    "wpfSharedChecks": {
+      "passed": 3,
+      "scope": "Actual checkpoint-restored shared private views, public piles, conversion tiers and private damage offers"
+    },
+    "wpfAfterArtGate": {
+      "passed": 30,
+      "failed": 0,
+      "scope": "All remaining default WPF checks run using the existing start-after option"
+    },
+    "wpfFull": {
+      "status": "failedAtExistingOriginalCardFaceGate",
+      "blockingCard": "ScarletBloodSword / 赤血青锋",
+      "scope": "The full WPF run is not green; the original face gate was preserved"
+    },
+    "artifactDirectory": "%TEMP%/Card-Fame2016-Full-20261001",
+    "sourceDriftDuringVerification": [],
+    "boundary": "Shared behavior/render validation; no claim of manual real-match acceptance, publication, or restoration of previously pruned tests."
   }
 }

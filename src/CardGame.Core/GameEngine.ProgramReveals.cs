@@ -54,7 +54,7 @@ public sealed partial class GameEngine
             RevealCardSelection = new(holderSeat, chooserSeat, resultBind,
                 Array.AsReadOnly(candidates), Array.AsReadOnly(eligible), allowDecline)
         };
-        _resolutionStack[^1] = active;
+        ReplaceRuntimeTop(active);
         PublishProgramRevealCardSelection(active);
         return SkillProgramStepOutcome.AwaitChoice;
     }
@@ -128,10 +128,10 @@ public sealed partial class GameEngine
             return;
         }
         ClearPendingDecision();
-        _resolutionStack[^1] = frame with { RevealCardSelection = null };
+        ReplaceRuntimeTop(frame with { RevealCardSelection = null });
         CommitProgramHandReveal(frame.Id, draft.HolderSeat, draft.ResultBind,
             decline ? [] : [selected.Cards[0]]);
-        ContinueProgramSkill(frame.Id);
+        AdvanceRuntimeProgram(frame.Id);
     }
 
     private void CommitProgramHandReveal(long frameId, int holderSeat, string resultBind,

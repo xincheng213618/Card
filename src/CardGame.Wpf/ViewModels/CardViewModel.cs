@@ -13,7 +13,7 @@ public sealed class CardViewModel : ObservableObject
     public CardKind? Kind { get; init; }
     public ImageSource? Artwork => CardArt.Get(Kind);
     public bool HasArtwork => Artwork is not null;
-    public bool HasDynamicWeaponName => Kind == CardKind.GeneralWeapon;
+    public bool HasDynamicWeaponName => CardArt.NeedsRuntimeNameOverlay(Kind);
     public required string Name { get; init; }
     public required string KindLabel { get; init; }
     public bool IsStoredGrain => KindLabel.StartsWith("粮 ·", StringComparison.Ordinal);

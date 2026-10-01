@@ -80,7 +80,7 @@ public sealed partial class GameEngine
             return (Card: card, From: from, To: card.IsGeneralWeapon && zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : destination);
         }).ToArray();
         ClearPendingDecision();
-        _resolutionStack[^1] = frame with { PendingMovementContinuation = new(frame.OwnerSeat, 0, null) };
+        ReplaceRuntimeTop(frame with { PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
         var batch = BeginCardMovementBatch(moves.Select(move => move.From), moves.Select(move => move.To));
         var records = new List<CardMovementRecord>();
         var committed = false;
@@ -99,6 +99,6 @@ public sealed partial class GameEngine
             committed = true;
         }
         finally { CompleteCardMovementBatch(batch, records, committed); }
-        if (!TryBeginCardsMovedProgramWindow()) CompleteAwaitedProgramMovement(frame.Id);
+        if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
     }
 }

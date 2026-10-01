@@ -58,9 +58,11 @@ internal sealed record RetainOwnedCardSet(string Name) : ProgramResourceOperatio
 internal sealed record MoveCardSet(string Source, string? Except, SkillProgramCardDestination Destination) : ProgramResourceOperation;
 internal sealed record GiftCardSet(string Source) : ProgramResourceOperation;
 internal sealed record ReadSelectedTarget : ProgramResourceOperation;
+internal sealed record RequireSelectedTargetKind(SkillProgramTargetKind Kind) : ProgramResourceOperation;
 internal sealed record ReadTargetSet(int Minimum, int? Maximum = null) : ProgramResourceOperation;
 internal sealed record RequireContext(ProgramContextCapability Capability) : ProgramResourceOperation;
 internal sealed record RequireTriggerWindow(SkillProgramTriggerWindow Window) : ProgramResourceOperation;
+internal sealed record RequireCardActionRelation(SkillProgramCardActionOwnerRelation Relation, IReadOnlyList<CardKind> Kinds) : ProgramResourceOperation;
 internal sealed record RequireAnyContext(ProgramContextCapability Capabilities) : ProgramResourceOperation;
 internal sealed record SelectSingleTarget : ProgramResourceOperation;
 internal sealed record ReplaceSingleTarget : ProgramResourceOperation;
@@ -78,6 +80,7 @@ internal interface IProgramOperationDescriptor
     ProgramContextCapability RequiredCapabilities { get; }
     ProgramOperationAiPolicy AiPolicy { get; }
     SkillProgramEffect Parse(ProgramOperationNodeReader reader);
+    ProgramSkillInstruction? Compile(SkillProgramEffect effect) => null;
     IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect);
 }
 
@@ -121,6 +124,7 @@ internal sealed class ProgramOperationCatalog
         var effect = descriptor.Parse(reader);
         if (effect.Op != descriptor.Op)
             throw new InvalidOperationException($"Program descriptor '{descriptor.Op}' parsed '{effect.Op}'.");
+        effect.CompiledInstruction = descriptor.Compile(effect);
         return effect;
     }
 
@@ -315,6 +319,7 @@ internal abstract class ProgramOperationDescriptorBase : IProgramOperationDescri
     public virtual ProgramContextCapability RequiredCapabilities => ProgramContextCapability.None;
     public abstract ProgramOperationAiPolicy AiPolicy { get; }
     public abstract SkillProgramEffect Parse(ProgramOperationNodeReader reader);
+    public virtual ProgramSkillInstruction? Compile(SkillProgramEffect effect) => null;
     public abstract IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect);
     protected static void RequireAlways(SkillProgramEffect effect, string path)
     {
@@ -366,6 +371,14 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
     public override ISkillProgramEffectHandler Handler { get; } = new DrawSkillProgramEffectHandler();
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.GainCards,
         static (effect, context) => context.Draw(effect));
+    public override ProgramSkillInstruction Compile(SkillProgramEffect effect) =>
+        new DrawProgramInstruction(effect.Target, effect.NumberExpression switch
+        {
+            SkillProgramNumberExpression.BoundCardCount =>
+                new BoundCardCountProgramAmount(effect.SourceBind!),
+            { } expression => new ExpressionProgramAmount(expression),
+            null => new FixedProgramAmount(effect.Amount)
+        }, effect.ResultBind, effect.Visibility, effect.TargetReference);
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
         r.AllowOnly("op", "target", "amount", "numberExpression", "sourceBind", "resultBind", "targetRef", "condition",
@@ -434,6 +447,15 @@ internal sealed class RecoverProgramOperationDescriptor : ProgramOperationDescri
     public override ISkillProgramEffectHandler Handler { get; } = new RecoverSkillProgramEffectHandler();
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.Recover,
         static (effect, context) => context.Recover(effect));
+    public override ProgramSkillInstruction Compile(SkillProgramEffect effect) =>
+        new RecoverProgramInstruction(effect.Target, effect.NumberExpression switch
+        {
+            SkillProgramNumberExpression.BoundCardCount =>
+                new BoundCardCountProgramAmount(effect.SourceBind!),
+            null => new FixedProgramAmount(effect.Amount),
+            { } expression => throw new InvalidOperationException(
+                $"Recovery cannot execute unsupported amount expression '{expression}'.")
+        }, effect.TargetReference);
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
         r.AllowOnly("op", "target", "amount", "numberExpression", "sourceBind", "targetRef", "condition",
@@ -620,8 +642,8 @@ internal sealed class MoveBoundCardsProgramOperationDescriptor : ProgramOperatio
                 (CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.Chunlao))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.destinationZone: must be a persistent owner zone.");
         var awaitMovementTriggers = r.Has("awaitMovementTriggers") && r.RequiredBool("awaitMovementTriggers");
-        if (awaitMovementTriggers && destination is not (SkillProgramCardDestination.DiscardPile or SkillProgramCardDestination.DrawPileTop))
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}: awaited bound movement supports discardPile or drawPileTop.");
+        if (awaitMovementTriggers && destination is not (SkillProgramCardDestination.DiscardPile or SkillProgramCardDestination.DrawPileTop or SkillProgramCardDestination.OwnerHand))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: awaited bound movement supports discardPile, drawPileTop or ownerHand.");
         var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), sourceBind: source,
             exceptBind: except, destination: destination, destinationZone: destinationZone, awaitMovementTriggers: awaitMovementTriggers);
         // A named-choice branch may gate a discard, a gain into the owner's own

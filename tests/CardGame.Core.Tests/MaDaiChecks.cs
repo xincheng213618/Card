@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Reflection;
 using CardGame.Content.Standard;
 using CardGame.Core;
@@ -290,8 +290,8 @@ internal static class MaDaiChecks
     private static void ResolveSyntheticDuelSlash(GameEngine game, int responderSeat, PromptChoice choice)
     {
         var slashCardId = choice.Cards.Single();
-        var duelField = typeof(GameEngine).GetField(
-            "_pendingDuel",
+        var duelField = typeof(GameEngine).GetProperty(
+            "ActiveDuel",
             BindingFlags.NonPublic | BindingFlags.Instance) ??
             throw new InvalidOperationException("The engine Duel continuation was not found.");
         var duel = duelField.GetValue(game) ??

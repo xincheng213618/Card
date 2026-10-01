@@ -3,7 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool TryBeginProgramJudgmentWindow(
-        JudgmentResolution pending,
+        JudgmentFrame pending,
         Card judgmentCard,
         Suit effectiveSuit,
         bool succeeded)
@@ -21,9 +21,8 @@ public sealed partial class GameEngine
             .ToArray();
         if (candidates.Length == 0) return false;
 
-        _pendingJudgment = pending;
         var context = new JudgmentFinalizedContext(
-            pending.FrameId,
+            pending.Id,
             pending.TargetSeat,
             pending.Reason,
             judgmentCard.Id,
@@ -32,9 +31,9 @@ public sealed partial class GameEngine
             judgmentCard.Rank,
             succeeded,
             pending.SourceSeat);
-        _resolutionStack.Add(new ProgramJudgmentTriggerWindowFrame(
+        PushRuntimeFrame(new ProgramJudgmentTriggerWindowFrame(
             ++_resolutionSequence,
-            pending.FrameId,
+            pending.Id,
             context,
             Array.AsReadOnly(candidates)));
         return true;
@@ -43,7 +42,7 @@ public sealed partial class GameEngine
     private bool MatchesFinalJudgment(
         SkillProgramTrigger trigger,
         CharacterState owner,
-        JudgmentResolution pending,
+        JudgmentFrame pending,
         Card judgmentCard,
         Suit effectiveSuit) =>
         trigger.Window == SkillProgramTriggerWindow.JudgmentFinalized &&
@@ -90,11 +89,11 @@ public sealed partial class GameEngine
                first.TargetKind is { } kind && GetProgramTargetSeats(owner.Seat, kind).Count > 0;
     }
 
-    private void ContinueProgramJudgmentWindow()
+    private void ContinueProgramJudgmentWindowCore()
     {
         while (_resolutionStack.LastOrDefault() is ProgramJudgmentTriggerWindowFrame frame)
         {
-            var pending = _pendingJudgment ??
+            var pending = ActiveJudgment ??
                 throw new InvalidOperationException("Missing judgment trigger continuation.");
             if (_winner != Winner.None)
             {
@@ -103,13 +102,14 @@ public sealed partial class GameEngine
             }
             if (frame.CandidateIndex == frame.Candidates.Count)
             {
-                var succeeded = pending.ResultSucceeded ??
+                var succeeded = pending.Succeeded ??
                     throw new InvalidOperationException("A final judgment trigger lost its result.");
-                var judgmentCard = pending.CurrentCard ??
+                var judgmentCard = GetJudgmentCard(pending) ??
                     throw new InvalidOperationException("A final judgment trigger lost its card.");
                 PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramJudgmentTriggerWindow);
                 var completed = CompleteFinalizedJudgment(pending, judgmentCard, succeeded);
-                if (completed is { } result) ResumeCompletedJudgment(pending, result);
+                if (completed is { } result)
+                    ResumeCompletedJudgment(new JudgmentCompletionReceipt(pending, result));
                 return;
             }
 
@@ -136,7 +136,7 @@ public sealed partial class GameEngine
                     ExposeProgramJudgmentPrompt(frame, candidate);
                     return;
                 }
-                _resolutionStack[^1] = frame with { Activated = true };
+                ReplaceRuntimeTop(frame with { Activated = true });
                 continue;
             }
 
@@ -155,12 +155,12 @@ public sealed partial class GameEngine
 
     private void ShortCircuitProgramJudgmentWindow(
         ProgramJudgmentTriggerWindowFrame frame,
-        JudgmentResolution pending)
+        JudgmentFrame pending)
     {
         if (frame.CandidateIndex < frame.Candidates.Count && frame.Activated)
         {
             var candidate = frame.Candidates[frame.CandidateIndex];
-            QueueGameEvent(new ProgramJudgmentTriggerResolvedEvent(
+            AdvanceEventRulesAndQueueFact(new ProgramJudgmentTriggerResolvedEvent(
                 frame.Id,
                 frame.Judgment.JudgmentFrameId,
                 candidate.SkillId,
@@ -169,33 +169,33 @@ public sealed partial class GameEngine
                 Activated: true));
         }
 
-        var succeeded = pending.ResultSucceeded ??
+        var succeeded = pending.Succeeded ??
             throw new InvalidOperationException("A terminal judgment trigger lost its result.");
-        var judgmentCard = pending.CurrentCard ??
+        var judgmentCard = GetJudgmentCard(pending) ??
             throw new InvalidOperationException("A terminal judgment trigger lost its card.");
         PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramJudgmentTriggerWindow);
         var completed = CompleteFinalizedJudgment(pending, judgmentCard, succeeded);
         if (completed is { } result)
         {
-            ResumeCompletedJudgment(pending, result);
+            ResumeCompletedJudgment(new JudgmentCompletionReceipt(pending, result));
         }
     }
 
     private void AdvanceProgramJudgmentCandidate(ProgramJudgmentTriggerWindowFrame frame)
     {
         var candidate = frame.Candidates[frame.CandidateIndex];
-        QueueGameEvent(new ProgramJudgmentTriggerResolvedEvent(
+        AdvanceEventRulesAndQueueFact(new ProgramJudgmentTriggerResolvedEvent(
             frame.Id,
             frame.Judgment.JudgmentFrameId,
             candidate.SkillId,
             candidate.TriggerId,
             candidate.OwnerSeat,
             frame.Activated));
-        _resolutionStack[^1] = frame with
+        ReplaceRuntimeTop(frame with
         {
             CandidateIndex = frame.CandidateIndex + 1,
             Activated = false
-        };
+        });
     }
 
     private void ExposeProgramJudgmentPrompt(
@@ -247,7 +247,7 @@ public sealed partial class GameEngine
         return Accept(() =>
         {
             ResolveProgramJudgmentChoice(selected);
-            PublishState();
+            AdvanceRulesAndPublishState();
             return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
         });
     }
@@ -263,12 +263,12 @@ public sealed partial class GameEngine
                 AdvanceProgramJudgmentCandidate(frame);
                 break;
             case "program-judgment-trigger-activate":
-                _resolutionStack[^1] = frame with { Activated = true };
+                ReplaceRuntimeTop(frame with { Activated = true });
                 break;
             default:
                 throw new InvalidOperationException("Unsupported judgment trigger choice.");
         }
-        ContinueProgramJudgmentWindow();
+        AdvanceRuntimeTop<ProgramJudgmentTriggerWindowFrame>();
     }
 
     private bool IsAiProgramJudgmentPending() =>
@@ -311,11 +311,11 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("A judgment trigger prompt lost its frame.");
             return;
         }
-        var pending = _pendingJudgment;
+        var pending = ActiveJudgment;
         var frame = pending is null
             ? null
             : frames.LastOrDefault(candidate =>
-                candidate.Judgment.JudgmentFrameId == pending.FrameId);
+                candidate.Judgment.JudgmentFrameId == pending.Id);
         var suspendedFrames = frames.Where(candidate => !ReferenceEquals(candidate, frame)).ToArray();
         if (suspendedFrames.Any(suspended =>
                 !_resolutionStack.OfType<ProgramSkillFrame>().Any(child =>
@@ -333,21 +333,18 @@ public sealed partial class GameEngine
         var frameIndex = _resolutionStack.FindLastIndex(item => ReferenceEquals(item, frame));
         var judgmentFrame = frameIndex > 0 ? _resolutionStack[frameIndex - 1] as JudgmentFrame : null;
         var prompt = _pendingDecision;
-        var resolvingDamage = _pendingAttack is
-        {
-            IsProgramJudgmentDamage: true,
-            ProgramJudgmentFrameId: var programFrameId
-        } && programFrameId == frame.Id;
+        var resolvingDamage = _resolutionStack.OfType<ProgramSkillFrame>().Any(child =>
+            child.AttackAttempt?.ProgramJudgmentWindowId == frame.Id);
         var resolvingProgram = _resolutionStack.LastOrDefault() is ProgramSkillFrame skillFrame &&
             skillFrame.WindowContext is
             { Window: SkillProgramTriggerWindow.JudgmentFinalized, ParentFrameId: var parentId } &&
             parentId == frame.Id;
-        if (pending is null || pending.ResultSucceeded is null ||
+        if (pending is null || pending.Succeeded is null ||
             (!ReferenceEquals(_resolutionStack.Last(), frame) && !resolvingDamage && !resolvingProgram) ||
             judgmentFrame is null || judgmentFrame.Id != frame.ParentFrameId ||
-            pending.FrameId != frame.Judgment.JudgmentFrameId ||
+            pending.Id != frame.Judgment.JudgmentFrameId ||
             pending.TargetSeat != frame.Judgment.SubjectSeat ||
-            pending.CurrentCard?.Id != frame.Judgment.CardId ||
+            GetJudgmentCard(pending)?.Id != frame.Judgment.CardId ||
             frame.CandidateIndex < 0 || frame.CandidateIndex >= frame.Candidates.Count ||
             (!resolvingDamage && !resolvingProgram && prompt is not null &&
              !IsProgramJudgmentPromptValid(frame)))

@@ -111,7 +111,7 @@ public sealed partial class GameEngine
             if (selected.Cards.Count != 0 || selected.Targets.Count != 0)
                 throw new InvalidOperationException("The decline branch must not name a card or target.");
             ClearPendingDecision();
-            ContinueProgramSkill(frame.Id);
+            AdvanceRuntimeProgram(frame.Id);
             return;
         }
         if (action != "restore-phase-hand-discard" ||
@@ -142,7 +142,7 @@ public sealed partial class GameEngine
             $"{_players[chooserSeat].Name} 发动【{_contentRegistry!.GetSkill(frame.SkillId).Name}】，" +
             $"将一张牌交还给 {_players[phaseOwnerSeat].Name}，然后获得其余该角色于此阶段内弃置的牌。",
             chooserSeat, phaseOwnerSeat);
-        ContinueProgramSkill(frame.Id);
+        AdvanceRuntimeProgram(frame.Id);
     }
 
     private PromptChoice SelectAiProgramPhaseHandDiscardRestore(PendingDecision decision, ProgramSkillFrame frame)

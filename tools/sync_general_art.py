@@ -107,6 +107,12 @@ CURRENT_HEROES = {
     "sun-deng": (382, "孙登"), "liu-yu": (383, "刘虞"),
     "cen-hun": (384, "岑昏"), "sun-zi-liu-fang": (385, "孙资刘放"),
     "huang-hao": (386, "黄皓"), "zhang-rang": (387, "张让"),
+    "xin-xianying": (388, "辛宪英"), "wu-xian": (389, "吴苋"),
+    "xu-shi": (390, "徐氏"), "cao-jie": (391, "曹节"),
+    "ji-kang": (392, "嵇康"), "qin-mi": (393, "秦宓"),
+    "xue-zong": (394, "薛综"), "cai-yong": (395, "蔡邕"),
+    "wang-ping": (401, "王平"), "lu-ji": (402, "陆绩"),
+    "hao-zhao": (408, "郝昭"),
 }
 
 NEW_OFFICIAL_DEFAULTS = {"boundary-gan-ning", "boundary-xu-chu", "qu-yi", "shen-zhou-yu", "shen-lu-bu", "fu-huanghou"}

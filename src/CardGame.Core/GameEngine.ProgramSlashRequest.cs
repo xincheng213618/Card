@@ -102,7 +102,7 @@ public sealed partial class GameEngine
             CommitProgramChoiceResult(frame.Id, resultBind,
                 RequestSlashByTargetProgramOperationDescriptor.DeclinedOption,
                 userSeat, "不使用【杀】。");
-            ContinueProgramSkill(frame.Id);
+            AdvanceRuntimeProgram(frame.Id);
             return;
         }
         if (action != "request-slash" ||
@@ -247,7 +247,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("The decline branch must not name a card or target.");
             if (new ProgramSkillHost(this).LoseHp(frame.Id, frame.SkillId, participantSeat, effect.Amount) ==
                 SkillProgramStepOutcome.Continue)
-                ContinueProgramSkill(frame.Id);
+                AdvanceRuntimeProgram(frame.Id);
             return;
         }
         if (action != "request-slash-nearest" ||
@@ -284,12 +284,12 @@ public sealed partial class GameEngine
         int chooserSeat, string label)
     {
         var frame = GetActiveProgramFrame(frameId);
-        _resolutionStack[^1] = frame with
+        ReplaceRuntimeTop(frame with
         {
             ChoiceBindings = Array.AsReadOnly(frame.ChoiceBindings.Append(
                 new ProgramChoiceResultBinding(bind, optionId, chooserSeat)).ToArray())
-        };
-        QueueGameEvent(new ProgramOptionChosenEvent(frameId, frame.SkillId, GetProgramBindingId(frame),
+        });
+        AdvanceEventRulesAndQueueFact(new ProgramOptionChosenEvent(frameId, frame.SkillId, GetProgramBindingId(frame),
             frame.OwnerSeat, bind, optionId, chooserSeat, label));
     }
 }

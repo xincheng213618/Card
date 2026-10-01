@@ -51,7 +51,7 @@ public sealed partial class GameEngine
         var actor = _players[action.ActorSeat];
         var kind = action.EffectiveKind;
         if (!target.IsAlive || target.Seat == actor.Seat || IsDirectedCardTargetProhibited(actor.Seat, target.Seat, kind) ||
-            IsCardTargetProhibited(target, kind, action.EffectiveSuit ?? Suit.None)) return false;
+            IsCardTargetProhibited(target, kind, action.EffectiveSuit ?? Suit.None) || HasBeneficiarySuitShield(actor.Seat, target.Seat, action.EffectiveSuit)) return false;
         var physical = action.PhysicalCards.Count > 0
             ? _cardZones.CardsAt(_cardZones.GetLocation(action.PhysicalCards[0].CardId)).Single(card => card.Id == action.PhysicalCards[0].CardId)
             : new Card(-1, kind, action.EffectiveSuit ?? Suit.None, action.EffectiveRank ?? 0);
@@ -82,7 +82,7 @@ public sealed partial class GameEngine
         var previous = use.SourceSeat;
         var action = CloneRoleAction(use.Action!, actorSeat, use.TargetSeats);
         UpdateProgramRoleCardUse(use with { SourceSeat = actorSeat, Action = action }, action);
-        QueueGameEvent(new ProgramCardUseActorReplacedEvent(frame.Id, frame.SkillId, frame.OwnerSeat,
+        AdvanceEventRulesAndQueueFact(new ProgramCardUseActorReplacedEvent(frame.Id, frame.SkillId, frame.OwnerSeat,
             use.Id, previous, actorSeat, action.ProviderSeat));
     }
 
@@ -101,7 +101,7 @@ public sealed partial class GameEngine
     {
         var action = CloneRoleAction(use.Action!, use.SourceSeat, targets);
         UpdateProgramRoleCardUse(use with { TargetSeats = targets, Action = action }, action);
-        QueueGameEvent(new ProgramCardUseTargetAddedEvent(frame.Id, frame.SkillId, frame.OwnerSeat, use.Id, targetSeat));
+        AdvanceEventRulesAndQueueFact(new ProgramCardUseTargetAddedEvent(frame.Id, frame.SkillId, frame.OwnerSeat, use.Id, targetSeat));
     }
 
     private static CardActionContext CloneRoleAction(CardActionContext action, int actorSeat, IReadOnlyList<int> targets) =>
@@ -115,9 +115,9 @@ public sealed partial class GameEngine
     {
         var index = _resolutionStack.FindIndex(frame => frame.Id == use.Id);
         if (index < 0) throw new InvalidOperationException("A card-use role change lost its parent.");
-        _resolutionStack[index] = use;
+        ReplaceRuntimeFrame(_resolutionStack[index].Id, use);
         for (var cursor = index + 1; cursor < _resolutionStack.Count; cursor++)
             if (_resolutionStack[cursor] is ProgramCardTriggerWindowFrame window && window.ParentFrameId == use.Id)
-                _resolutionStack[cursor] = window with { Action = action };
+                ReplaceRuntimeFrame(_resolutionStack[cursor].Id, window with { Action = action });
     }
 }

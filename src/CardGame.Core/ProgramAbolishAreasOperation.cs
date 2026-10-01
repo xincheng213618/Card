@@ -45,7 +45,7 @@ public sealed partial class GameEngine
         var owner = _players[frame.OwnerSeat];
         if (zones.Contains(CardZoneKind.Equipment)) owner.EquipmentAreaAbolished = true;
         if (zones.Contains(CardZoneKind.Judgment)) owner.JudgmentAreaAbolished = true;
-        QueueGameEvent(new PlayerAreasAbolishedEvent(owner.Seat,
+        AdvanceEventRulesAndQueueFact(new PlayerAreasAbolishedEvent(owner.Seat,
             owner.EquipmentAreaAbolished, owner.JudgmentAreaAbolished));
     }
 }

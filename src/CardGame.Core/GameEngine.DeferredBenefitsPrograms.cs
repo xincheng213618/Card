@@ -4,12 +4,7 @@ public sealed partial class GameEngine
 {
     private readonly List<ProgramNextTurnRuleModifier> _programNextTurnRuleModifiers = [];
     private readonly List<ProgramFactionRecoveryDebt> _programFactionRecoveryDebts = [];
-    private sealed record FactionRecoveryDebtContinuation(long FrameId, DyingResolution Dying,
-        bool Survived, AttackResolution? OuterAttack, DamageTriggerResolution? OuterDamageTrigger,
-        FactionRecoveryDebtContinuation? Parent);
-    private FactionRecoveryDebtContinuation? _factionRecoveryDebtContinuation;
-
-    private bool TryBeginFactionRecoveryDebts(DyingResolution dying, bool survived)
+    private bool TryBeginFactionRecoveryDebts(DyingCompletionReceipt dying, bool survived)
     {
         var debts = _programFactionRecoveryDebts.Where(item => item.DyingFrameId == dying.FrameId).ToArray();
         if (debts.Length == 0) return false;
@@ -18,14 +13,14 @@ public sealed partial class GameEngine
         var program = _contentRegistry.GetSkill(first.SkillId).Program!;
         var trigger = program.Triggers.Single(item => item.Id == first.BindingId);
         var id = ++_resolutionSequence;
-        _factionRecoveryDebtContinuation = new(id, dying, survived, _pendingAttack, _pendingDamageTrigger,
-            _factionRecoveryDebtContinuation);
-        _pendingAttack = null;
-        _pendingDamageTrigger = null;
-        _resolutionStack.Add(new ProgramSkillFrame(id, first.OwnerSeat, first.SkillId, first.BindingId,
+        var debtReturn = new FactionRecoveryDebtReturn(dying.FrameId, dying.ParentFrameId,
+            dying.VictimSeat, dying.Continuation, survived, CurrentDamageAttempt?.ResolutionId,
+            ActiveDamageTrigger?.Id);
+        PushRuntimeFrame(new ProgramSkillFrame(id, first.OwnerSeat, first.SkillId, first.BindingId,
             program.GameplayHash, trigger.Effects.Count, [], [])
         {
             TriggerId = first.BindingId, SkillInstanceId = first.SkillInstanceId,
+            FactionRecoveryDebtReturn = debtReturn,
             WindowContext = new(trigger.Window, dying.FrameId, first.OwnerSeat),
             FactionRecoveryDraft = new(dying.FrameId, debts.Select(item => item.ResponderSeat).ToArray(), 0,
                 debts.Select(item => item.ResponderSeat).ToArray(), SettlingDebts: true)
@@ -38,28 +33,30 @@ public sealed partial class GameEngine
     {
         if (_resolutionStack.LastOrDefault() is not ProgramSkillFrame { FactionRecoveryDraft.SettlingDebts: true } frame ||
             frame.Id != frameId) return false;
-        var continuation = _factionRecoveryDebtContinuation;
-        if (continuation?.FrameId != frameId) throw new InvalidOperationException("Faction damage debts lost their original dying continuation.");
+        var continuation = frame.FactionRecoveryDebtReturn ??
+            throw new InvalidOperationException("Faction damage debts lost their original dying continuation.");
         var draft = frame.FactionRecoveryDraft!;
         var cursor = draft.ResponderIndex;
         while (cursor < draft.ResponderSeats.Count && !_players[draft.ResponderSeats[cursor]].IsAlive) cursor++;
         if (cursor >= draft.ResponderSeats.Count)
         {
             PopResolutionFrame(frameId, ResolutionFrameKind.ProgramSkill);
-            _factionRecoveryDebtContinuation = continuation.Parent;
-            if (_pendingAttack is not null || _pendingDamageTrigger is not null || _pendingDying is not null)
+            if (frame.AttackAttempt is not null || ActiveDying is not null)
                 throw new InvalidOperationException("Settled faction damage retained an unfinished child resolution.");
-            _pendingAttack = continuation.OuterAttack;
-            _pendingDamageTrigger = continuation.OuterDamageTrigger;
-            ContinueDyingAfterFactionRecoveryDebts(continuation.Dying, continuation.Survived);
+            if (CurrentDamageAttempt?.ResolutionId != continuation.ParentAttackOwnerFrameId ||
+                ActiveDamageTrigger?.Id != continuation.ParentDamageWindowFrameId)
+                throw new InvalidOperationException("Settled faction damage lost its outer damage frame.");
+            ContinueDyingAfterFactionRecoveryDebts(new DyingCompletionReceipt(continuation.DyingFrameId,
+                continuation.DyingParentFrameId, continuation.DyingVictimSeat, continuation.DyingContinuation),
+                continuation.Survived);
             return true;
         }
         var seat = draft.ResponderSeats[cursor];
-        _resolutionStack[^1] = frame with
+        ReplaceRuntimeTop(frame with
         {
             FactionRecoveryDraft = draft with { ResponderIndex = cursor + 1 },
             WindowContext = frame.WindowContext! with { TargetSeat = seat }
-        };
+        });
         // The internal seat anchors resolution; attribution is explicitly absent.
         BeginProgramSkillDamage(GetActiveProgramFrame(frame.Id), seat, 1,
             new ProgramParticipantReference(ProgramParticipantRef.EventTarget), sourceLess: true);
@@ -92,7 +89,7 @@ public sealed partial class GameEngine
         if (_programNextTurnRuleModifiers.Any(item => item.ParentFrameId == grant.ParentFrameId && item.EffectIndex == grant.EffectIndex))
             throw new InvalidOperationException("A next-turn grant cannot be scheduled twice.");
         _programNextTurnRuleModifiers.Add(grant);
-        QueueGameEvent(new ProgramNextTurnRuleModifierQueuedEvent(grant));
+        AdvanceEventRulesAndQueueFact(new ProgramNextTurnRuleModifierQueuedEvent(grant));
     }
 
     private void ApplyQueuedNextTurnRuleModifiers(int targetSeat)
@@ -104,7 +101,7 @@ public sealed partial class GameEngine
             var granted = _turnCardUseEffects.GrantRuleModifier(_turnNumber, _currentSeat,
                 scheduled.ParentFrameId, scheduled.EffectIndex, scheduled.Source, scheduled.Query,
                 SkillRuleOperation.Add, scheduled.Amount, affectedSeat: targetSeat);
-            QueueGameEvent(new TurnRuleModifierGrantedEvent(granted));
+            AdvanceEventRulesAndQueueFact(new TurnRuleModifierGrantedEvent(granted));
         }
     }
 
@@ -121,14 +118,14 @@ public sealed partial class GameEngine
 
     private SkillProgramStepOutcome RequestProgramFactionRecovery(ProgramSkillFrame frame, string factionId)
     {
-        var dying = _pendingDying ?? throw new InvalidOperationException("Faction recovery has no dying occurrence.");
+        var dying = ActiveDying ?? throw new InvalidOperationException("Faction recovery has no dying occurrence.");
         if (frame.WindowContext is not { Window: SkillProgramTriggerWindow.DyingEntering } context ||
             context.ParentFrameId != _resolutionStack[^2].Id || dying.VictimSeat != frame.OwnerSeat)
             throw new InvalidOperationException("Faction recovery lost its entering dying owner.");
         var responders = Enumerable.Range(1, _playerCount - 1).Select(offset => (frame.OwnerSeat + offset) % _playerCount)
             .Where(seat => _players[seat].IsAlive && GetEffectiveFactionId(_players[seat]) == factionId).ToArray();
         if (responders.Length == 0) return SkillProgramStepOutcome.Continue;
-        _resolutionStack[^1] = frame with { FactionRecoveryDraft = new(dying.FrameId, responders, 0, []) };
+        ReplaceRuntimeTop(frame with { FactionRecoveryDraft = new(dying.FrameId, responders, 0, []) });
         PublishFactionRecoveryPrompt(GetActiveProgramFrame(frame.Id));
         return SkillProgramStepOutcome.AwaitChoice;
     }
@@ -168,14 +165,14 @@ public sealed partial class GameEngine
             _programFactionRecoveryDebts.Add(new(draft.DyingFrameId, frame.OwnerSeat, chooser,
                 frame.SkillId, GetProgramBindingId(frame), frame.SkillInstanceId));
         }
-        QueueGameEvent(new ProgramFactionRecoveryChoiceEvent(frame.Id, frame.SkillId, frame.OwnerSeat, chooser, accepted, draft.DyingFrameId));
+        AdvanceEventRulesAndQueueFact(new ProgramFactionRecoveryChoiceEvent(frame.Id, frame.SkillId, frame.OwnerSeat, chooser, accepted, draft.DyingFrameId));
         var next = draft.ResponderIndex + 1;
         while (next < draft.ResponderSeats.Count && !_players[draft.ResponderSeats[next]].IsAlive) next++;
         var updated = draft with { ResponderIndex = next,
             AcceptedSeats = accepted ? draft.AcceptedSeats.Append(chooser).ToArray() : draft.AcceptedSeats };
-        _resolutionStack[^1] = GetActiveProgramFrame(frame.Id) with { FactionRecoveryDraft = next < draft.ResponderSeats.Count ? updated : null };
+        ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with { FactionRecoveryDraft = next < draft.ResponderSeats.Count ? updated : null });
         if (next < draft.ResponderSeats.Count) PublishFactionRecoveryPrompt(GetActiveProgramFrame(frame.Id));
-        else ContinueProgramSkill(frame.Id);
+        else AdvanceRuntimeProgram(frame.Id);
     }
 
     private PromptChoice SelectAiFactionRecovery(PendingDecision decision, ProgramSkillFrame frame)
@@ -194,8 +191,8 @@ public sealed partial class GameEngine
             .GetPausedInstruction(frame.InstructionIndex).Effect;
         if (draft.SettlingDebts)
         {
-            if (_factionRecoveryDebtContinuation is not { } continuation || continuation.FrameId != frame.Id ||
-                continuation.Dying.FrameId != draft.DyingFrameId || effect.Op != SkillProgramEffectOp.RequestFactionRecovery ||
+            if (frame.FactionRecoveryDebtReturn is not { } continuation ||
+                continuation.DyingFrameId != draft.DyingFrameId || effect.Op != SkillProgramEffectOp.RequestFactionRecovery ||
                 draft.ResponderSeats.Count == 0 || draft.ResponderSeats.Distinct().Count() != draft.ResponderSeats.Count ||
                 draft.ResponderSeats.Any(seat => !IsValidPlayerSeat(seat) || seat == frame.OwnerSeat) ||
                 draft.ResponderIndex < 0 || draft.ResponderIndex > draft.ResponderSeats.Count ||
@@ -203,8 +200,8 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Invalid faction damage debt continuation.");
             return;
         }
-        if (effect.Op != SkillProgramEffectOp.RequestFactionRecovery || draft.DyingFrameId != _pendingDying?.FrameId ||
-            _pendingDying?.VictimSeat != frame.OwnerSeat || draft.ResponderSeats.Count == 0 ||
+        if (effect.Op != SkillProgramEffectOp.RequestFactionRecovery || draft.DyingFrameId != ActiveDying?.FrameId ||
+            ActiveDying?.VictimSeat != frame.OwnerSeat || draft.ResponderSeats.Count == 0 ||
             draft.ResponderSeats.Distinct().Count() != draft.ResponderSeats.Count ||
             draft.ResponderSeats.Any(seat => !IsValidPlayerSeat(seat) || seat == frame.OwnerSeat || GetEffectiveFactionId(_players[seat]) != effect.ProviderFactionId) ||
             draft.ResponderIndex < 0 || draft.ResponderIndex >= draft.ResponderSeats.Count ||
@@ -222,13 +219,13 @@ public sealed partial class GameEngine
     {
         var context = frame.WindowContext ?? throw new InvalidOperationException("Weapon damage choice has no damage context.");
         if (context.Window != SkillProgramTriggerWindow.BeforeDamageApplied || context.SourceSeat != frame.OwnerSeat ||
-            context.TargetSeat is not { } target || _pendingAttack is not { IsChainPropagation: false } attack ||
+            context.TargetSeat is not { } target || ActiveCardAttack is not { IsChainPropagation: false } attack ||
             attack.EffectiveCardKind is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash))
             throw new InvalidOperationException("Weapon damage choice requires the owner's direct Slash damage.");
         var weapon = GetEquipment(_players[frame.OwnerSeat]).Where(card => EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon)
             .OrderByDescending(card => GetWeaponAttackRange(_players[frame.OwnerSeat], card)).ThenBy(card => card.Id).FirstOrDefault();
         if (weapon is null) return SkillProgramStepOutcome.Continue;
-        _resolutionStack[^1] = frame with { WeaponDamageDraft = new(target, weapon.Id, Math.Max(0, GetWeaponAttackRange(_players[frame.OwnerSeat], weapon)), []) };
+        ReplaceRuntimeTop(frame with { WeaponDamageDraft = new(target, weapon.Id, Math.Max(0, GetWeaponAttackRange(_players[frame.OwnerSeat], weapon)), []) });
         PublishWeaponDamagePrompt(GetActiveProgramFrame(frame.Id), amount);
         return SkillProgramStepOutcome.AwaitChoice;
     }
@@ -271,7 +268,7 @@ public sealed partial class GameEngine
                 _cardZones.GetLocation(choice.Cards[0]) != CardLocation.Hand(draft.TargetSeat))
                 throw new InvalidOperationException("Illegal staged weapon discard.");
             ClearPendingDecision();
-            _resolutionStack[^1] = frame with { WeaponDamageDraft = draft with { SelectedIds = draft.SelectedIds.Append(choice.Cards[0]).ToArray() } };
+            ReplaceRuntimeTop(frame with { WeaponDamageDraft = draft with { SelectedIds = draft.SelectedIds.Append(choice.Cards[0]).ToArray() } });
             PublishWeaponDamagePrompt(GetActiveProgramFrame(frame.Id), effect.Amount);
             return;
         }
@@ -281,22 +278,22 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Weapon discard costs changed before commitment.");
         var context = frame.WindowContext!;
         if (_resolutionStack[^2] is not BeforeDamageProgramWindowFrame window || window.Id != context.ParentFrameId ||
-            _pendingAttack is not { } attack || attack.SourceSeat != frame.OwnerSeat || attack.TargetSeat != draft.TargetSeat)
+            ActiveCardAttack is not { } attack || attack.SourceSeat != frame.OwnerSeat || attack.TargetSeat != draft.TargetSeat)
             throw new InvalidOperationException("Weapon choice lost its active damage.");
         ClearPendingDecision();
-        _resolutionStack[^1] = frame with { WeaponDamageDraft = null };
+        ReplaceRuntimeTop(frame with { WeaponDamageDraft = null });
         var after = window.Amount;
         if (branch == "bonus")
         {
             attack.IncreaseFinalizedDamageAmount(effect.Amount);
             after = checked(window.Amount + effect.Amount);
-            _resolutionStack[^2] = window with { Amount = after };
+            ReplaceRuntimeFrame(_resolutionStack[^2].Id, window with { Amount = after });
         }
         else MoveProgramCardsFromMultipleSources(draft.SelectedIds.Append(draft.WeaponCardId).ToArray(), CardLocation.DiscardPile,
             new CardMoveReason("skill-program.weapon-discard-cost"));
-        QueueGameEvent(new ProgramWeaponDamageChoiceEvent(frame.Id, frame.SkillId, frame.OwnerSeat, draft.TargetSeat,
+        AdvanceEventRulesAndQueueFact(new ProgramWeaponDamageChoiceEvent(frame.Id, frame.SkillId, frame.OwnerSeat, draft.TargetSeat,
             draft.WeaponCardId, branch == "finish", branch == "finish" ? draft.SelectedIds : [], window.Amount, after));
-        if (!TryBeginCardsMovedProgramWindow(frame.Id)) ContinueProgramSkill(frame.Id);
+        if (!TryBeginCardsMovedProgramWindow(frame.Id)) AdvanceRuntimeProgram(frame.Id);
     }
 
     private PromptChoice SelectAiWeaponDamage(PendingDecision decision, ProgramSkillFrame frame) =>

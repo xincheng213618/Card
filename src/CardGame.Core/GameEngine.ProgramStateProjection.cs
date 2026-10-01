@@ -38,6 +38,7 @@ public sealed partial class GameEngine
             HasRuntimeSkillInstance(owner, skillId, source.SkillInstanceId);
         return snapshot with
         {
+            PublicRuleStates = GetHandComparisonPublicRuleStates(owner, skillId),
             BooleanStates = Array.AsReadOnly(states.ToArray()),
             DirectedPolicies = Array.AsReadOnly(_directedTurnCardPolicies.Where(item =>
                 item.TurnNumber == _turnNumber && item.TurnSeat == _currentSeat &&

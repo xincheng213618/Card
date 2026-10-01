@@ -17,9 +17,9 @@ public sealed partial class GameEngine
     {
         var decision = _pendingDecision is { Kind: DecisionKind.RespondDodge } pending ? pending :
             throw new InvalidOperationException("A configured Dodge requires its current response prompt.");
-        var attack = _pendingAttack ?? throw new InvalidOperationException("Configured Dodge lost its attack.");
+        var attack = ActiveCardAttack ?? throw new InvalidOperationException("Configured Dodge lost its attack.");
         var owner = _players[decision.PlayerSeat];
-        if ((owner.Seat != attack.TargetSeat && _pendingFactionDefense?.CurrentCandidateSeat != owner.Seat) || !owner.IsAlive ||
+        if ((owner.Seat != attack.TargetSeat && ActiveFactionDefense?.CurrentCandidateSeat != owner.Seat) || !owner.IsAlive ||
             !ProgramDodgeResponseChoices(owner).Any(item => item.Id == choice.Id && AssistedChoicesEqual([item], [choice])))
             throw new InvalidOperationException("Configured Dodge changed its living responder or published activation.");
         var program = GetEnabledSkillProgram(owner, choice.Parameters["skill"]);
@@ -28,28 +28,28 @@ public sealed partial class GameEngine
         var frame = new ProgramSkillFrame(++_resolutionSequence, owner.Seat, program.Id, activation.Id,
             program.GameplayHash, 0, [], [])
         { SkillInstanceId = GetRuntimeSkillInstanceId(owner, program.Id), ResponseDecision = decision };
-        _resolutionStack.Add(frame);
-        QueueGameEvent(new ProgramSkillStartedEvent(frame.Id, owner.Seat, program.Id, activation.Id));
-        ContinueProgramSkill(frame.Id);
-        PublishState();
+        PushRuntimeFrame(frame);
+        AdvanceEventRulesAndQueueFact(new ProgramSkillStartedEvent(frame.Id, owner.Seat, program.Id, activation.Id));
+        AdvanceRuntimeProgram(frame.Id);
+        AdvanceRulesAndPublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
 
     private void CompleteProgramMaximumHandDodge(ProgramSkillFrame frame, bool succeeded)
     {
         var decision = frame.ResponseDecision ?? throw new InvalidOperationException("Configured Dodge lost its saved response.");
-        var attack = _pendingAttack ?? throw new InvalidOperationException("Configured Dodge lost its parent attack.");
+        var attack = ActiveCardAttack ?? throw new InvalidOperationException("Configured Dodge lost its parent attack.");
         if (frame != GetActiveProgramFrame(frame.Id) || decision.PlayerSeat != frame.OwnerSeat ||
-            (attack.TargetSeat != frame.OwnerSeat && _pendingFactionDefense?.CurrentCandidateSeat != frame.OwnerSeat) || frame.HandControlDraft is not null)
+            (attack.TargetSeat != frame.OwnerSeat && ActiveFactionDefense?.CurrentCandidateSeat != frame.OwnerSeat) || frame.HandControlDraft is not null)
             throw new InvalidOperationException("Configured Dodge changed its parent or uncommitted physical cost.");
         ClearPendingDecision();
-        QueueGameEvent(new ProgramSkillResolvedEvent(frame.Id, frame.OwnerSeat, frame.SkillId, frame.ActivationId, true));
+        AdvanceEventRulesAndQueueFact(new ProgramSkillResolvedEvent(frame.Id, frame.OwnerSeat, frame.SkillId, frame.ActivationId, true));
         PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramSkill);
         var owner = _players[frame.OwnerSeat];
         if (!succeeded)
         {
             var cards = GetResponseCards(owner, CardKind.Dodge);
-            var freshChoices = _pendingFactionDefense is { } defense
+            var freshChoices = ActiveFactionDefense is { } defense
                 ? CreateFactionDefenseResponseChoices(owner, defense, cards, HasBagua(owner))
                 : CreateResponseChoices(cards, CardKind.Dodge, decision.IncomingCard,
                     card => GetEffectiveResponseKind(owner, card, CardKind.Dodge),
@@ -63,28 +63,28 @@ public sealed partial class GameEngine
             return;
         }
         var source = new CardConversionSource(frame.SkillId, frame.ActivationId, frame.OwnerSeat, frame.SkillInstanceId);
-        if (_pendingFactionDefense is { } factionDefense)
+        if (ActiveFactionDefense is { } factionDefense)
         {
             CompleteFactionDefenseResponse(factionDefense, owner, null, false, source);
             return;
         }
         PopResponseWindow(attack.ResolutionId);
         SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
-        QueueGameEvent(new CardRespondedEvent(-1, owner.Seat, attack.SourceSeat, CardKind.Dodge));
-        var continuation = _pendingGroupCard is null ? ProgramCardContinuation.Dodge : ProgramCardContinuation.GroupResponse;
+        AdvanceEventRulesAndQueueFact(new CardRespondedEvent(-1, owner.Seat, attack.SourceSeat, CardKind.Dodge));
+        var continuation = ActiveGroupCard is null ? ProgramCardContinuation.Dodge : ProgramCardContinuation.GroupResponse;
         if (!TryBeginCardResponsePrograms(attack, owner, owner, null, attack.SourceSeat, CardKind.Dodge, [], continuation, source))
         {
-            if (_pendingGroupCard is null) CompleteSuccessfulDodgeResponse(attack);
+            if (ActiveGroupCard is null) CompleteSuccessfulDodgeResponse(attack);
             else CompleteAttack(attack);
         }
     }
 
-    private bool HasProgramDodgeResponseContinuation(AttackResolution attack)
+    private bool HasProgramDodgeResponseContinuation(CardAttackHandle attack)
     {
         if (DamageCursorEffectiveTop(includeNestedObservers: true) is not ProgramSkillFrame
             { ResponseDecision: { Kind: DecisionKind.RespondDodge } decision } frame ||
             frame.OwnerSeat != decision.PlayerSeat || !IsValidPlayerSeat(frame.OwnerSeat) ||
-            (frame.OwnerSeat != attack.TargetSeat && _pendingFactionDefense?.CurrentCandidateSeat != frame.OwnerSeat))
+            (frame.OwnerSeat != attack.TargetSeat && ActiveFactionDefense?.CurrentCandidateSeat != frame.OwnerSeat))
             return false;
         var index = _resolutionStack.IndexOf(frame);
         return index > 0 && _resolutionStack[index - 1] is ResponseWindowFrame response &&

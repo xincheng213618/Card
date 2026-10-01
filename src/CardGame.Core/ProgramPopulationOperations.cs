@@ -7,6 +7,9 @@ internal sealed class GrowMaximumHpAndHpProgramOperationDescriptor : ProgramOper
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.GrowMaximumHpAndHp;
     public override ISkillProgramEffectHandler Handler { get; } = new GrowMaximumHpAndHpSkillProgramEffectHandler();
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.ChangeMaximumHp, static (_, _) => { });
+    public override ProgramSkillInstruction Compile(SkillProgramEffect effect) =>
+        new GrowMaximumHpAndHpProgramInstruction(effect.NumberExpression ??
+            throw new InvalidOperationException("Maximum-HP population growth has no numeric expression."));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
         r.AllowOnly("op", "target", "numberExpression", "condition");
@@ -22,7 +25,9 @@ public sealed class GrowMaximumHpAndHpSkillProgramEffectHandler : ISkillProgramE
     public SkillProgramEffectOp Op => SkillProgramEffectOp.GrowMaximumHpAndHp;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat, ISkillProgramEffectHost host)
     {
-        host.GrowMaximumHpAndHp(frame, effect.NumberExpression!.Value);
+        if (effect.CompiledInstruction is not GrowMaximumHpAndHpProgramInstruction instruction)
+            throw new InvalidOperationException("Maximum-HP population growth has no compiled operation instruction.");
+        host.GrowMaximumHpAndHp(frame, instruction.PopulationExpression);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -37,6 +42,6 @@ public sealed partial class GameEngine
         if (amount == 0) return;
         var target = _players[frame.OwnerSeat];
         target.Hp += amount;
-        QueueGameEvent(new PopulationHpIncreasedEvent(frame.OwnerSeat, amount, target.Hp));
+        AdvanceEventRulesAndQueueFact(new PopulationHpIncreasedEvent(frame.OwnerSeat, amount, target.Hp));
     }
 }

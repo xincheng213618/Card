@@ -61,10 +61,10 @@ public sealed partial class GameEngine
         if(cursor>=active.SelectedTargetSeats.Count) return SkillProgramStepOutcome.Continue;
         var seat=active.SelectedTargetSeats[cursor];
         active=active with { NumberBindings=active.NumberBindings.Where(b=>b.Name!=key).Append(new ProgramSkillNumberBinding(key,cursor+1)).ToArray(),ReexecuteParticipantInstruction=true };
-        _resolutionStack[^1]=active;
+        ReplaceRuntimeTop(active);
         if(!_players[seat].IsAlive || GetHand(_players[seat]).Count+GetEquipment(_players[seat]).Count+GetJudgment(_players[seat]).Count==0) return SkillProgramStepOutcome.Continue;
         active=active with { SelectedParticipantDiscard=new(seat,cursor),ReexecuteParticipantInstruction=false };
-        _resolutionStack[^1]=active;PublishSelectedParticipantDiscard(active);return SkillProgramStepOutcome.AwaitChoice;
+        ReplaceRuntimeTop(active);PublishSelectedParticipantDiscard(active);return SkillProgramStepOutcome.AwaitChoice;
     }
     private IReadOnlyList<PromptChoice> SelectedParticipantDiscardChoices(ProgramSkillFrame frame)
     {
@@ -94,9 +94,9 @@ public sealed partial class GameEngine
         var paused=ProgramInstructionResolver.Default.Resolve(frame,_contentRegistry.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect;
         if(paused.Op!=SkillProgramEffectOp.DiscardSelectedParticipantCards || _pendingDecision?.PlayerSeat!=frame.OwnerSeat || !AssistedChoicesEqual([choice],[SelectedParticipantDiscardChoices(frame).Single(c=>c.Id==choice.Id)])) throw new InvalidOperationException("Participant discard choice changed.");
         var zone=Enum.Parse<CardZoneKind>(choice.Parameters["zone"]);var slot=int.Parse(choice.Parameters["slot"]);var from=new CardLocation(zone,draft.TargetSeat);var card=_cardZones.CardsAt(from)[slot];
-        ClearPendingDecision();_resolutionStack[^1]=frame with {SelectedParticipantDiscard=null,ReexecuteParticipantInstruction=true};
+        ClearPendingDecision();ReplaceRuntimeTop(frame with {SelectedParticipantDiscard=null,ReexecuteParticipantInstruction=true});
         MoveCard(card,from,CardLocation.DiscardPile,new CardMoveReason($"skill-program.{frame.SkillId}.ChooseOtherOwnedCardDiscard"));
-        if(AwaitProgramBoundCardMovements(frame.Id,frame.OwnerSeat)==SkillProgramStepOutcome.Continue) ContinueProgramSkill(frame.Id);
+        if(AwaitProgramBoundCardMovements(frame.Id,frame.OwnerSeat)==SkillProgramStepOutcome.Continue) AdvanceRuntimeProgram(frame.Id);
     }
     private static string DamageOfferPairKey(int source)=>"successful-damage-offer:source:"+source;
     private bool IsDamageOfferPairBlocked(int owner,string skill,int source)=>_skillRuntimeState.GetUsage(owner,skill,DamageOfferPairKey(source),SkillUsageScope.Game)>0;
@@ -106,7 +106,7 @@ public sealed partial class GameEngine
         if(active.WindowContext is not {Window:SkillProgramTriggerWindow.BeforeDamageApplied,SourceSeat:{ } source,TargetSeat:{ } target} || target!=active.OwnerSeat || source==target || !_players[source].IsAlive || IsDamageOfferPairBlocked(target,active.SkillId,source)) throw new InvalidOperationException("A private damage offer requires an unused other source pair.");
         var set=GetProgramCardSet(active,bind);
         if(set.CardIds.Select((id,i)=>(id,i)).Any(c=>set.SourceLocations[c.i].OwnerSeat!=target || set.SourceLocations[c.i].Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment) || _cardZones.GetLocation(c.id)!=set.SourceLocations[c.i])) throw new InvalidOperationException("Private offered cards must remain in the actual owner zones.");
-        active=active with {DamageCardOffer=new(source,bind)};_resolutionStack[^1]=active;PublishDamageCardOffer(active);return SkillProgramStepOutcome.AwaitChoice;
+        active=active with {DamageCardOffer=new(source,bind)};ReplaceRuntimeTop(active);PublishDamageCardOffer(active);return SkillProgramStepOutcome.AwaitChoice;
     }
     private IReadOnlyList<PromptChoice> DamageCardOfferChoices(ProgramSkillFrame frame)
     {
@@ -142,31 +142,31 @@ public sealed partial class GameEngine
         {
             if(frame.WindowContext?.ParentFrameId is not { } parent || _resolutionStack.Count<2 || _resolutionStack[^2] is not BeforeDamageProgramWindowFrame before || before.Id!=parent || before.Prevented) throw new InvalidOperationException("Private offer no longer has preventable damage.");
             var id=choice.Cards.Single();var index=set.CardIds.ToList().IndexOf(id);var from=set.SourceLocations[index];var card=_cardZones.CardsAt(from).Single(c=>c.Id==id);
-            ClearPendingDecision();_resolutionStack[^1]=frame with {DamageCardOffer=null};
+            ClearPendingDecision();ReplaceRuntimeTop(frame with {DamageCardOffer=null});
             MoveCard(card,from,CardLocation.Hand(draft.SourceSeat),new CardMoveReason($"skill-program.{frame.SkillId}.GiveSelected"));
             if(_cardZones.GetLocation(id)!=CardLocation.Hand(draft.SourceSeat)) throw new InvalidOperationException("Private offer gain was not committed.");
             PreventProgramCurrentDamage(GetActiveProgramFrame(frame.Id));
             if(!_skillRuntimeState.TryConsumeUsage(frame.OwnerSeat,frame.SkillId,DamageOfferPairKey(draft.SourceSeat),SkillUsageScope.Game,1)) throw new InvalidOperationException("Successful damage source pair was already consumed.");
-            QueueGameEvent(new SkillUsageConsumedEvent(frame.OwnerSeat,frame.SkillId,DamageOfferPairKey(draft.SourceSeat),SkillUsageScope.Game,1));
-            QueueGameEvent(new ProgramPrivateCardOfferResolvedEvent(frame.OwnerSeat,draft.SourceSeat,set.CardIds.Count,true,true));
-            if(AwaitProgramBoundCardMovements(frame.Id,frame.OwnerSeat)==SkillProgramStepOutcome.Continue) ContinueProgramSkill(frame.Id);
+            AdvanceEventRulesAndQueueFact(new SkillUsageConsumedEvent(frame.OwnerSeat,frame.SkillId,DamageOfferPairKey(draft.SourceSeat),SkillUsageScope.Game,1));
+            AdvanceEventRulesAndQueueFact(new ProgramPrivateCardOfferResolvedEvent(frame.OwnerSeat,draft.SourceSeat,set.CardIds.Count,true,true));
+            if(AwaitProgramBoundCardMovements(frame.Id,frame.OwnerSeat)==SkillProgramStepOutcome.Continue) AdvanceRuntimeProgram(frame.Id);
             return;
         }
         if(option=="refuse")
         {
             var count=Math.Min(set.CardIds.Count,GetHand(_players[draft.SourceSeat]).Count+GetEquipment(_players[draft.SourceSeat]).Count);
             ClearPendingDecision();
-            if(count==0){_resolutionStack[^1]=frame with {DamageCardOffer=null};QueueGameEvent(new ProgramPrivateCardOfferResolvedEvent(frame.OwnerSeat,draft.SourceSeat,set.CardIds.Count,false,false));ContinueProgramSkill(frame.Id);return;}
-            frame=frame with {DamageCardOffer=draft with {Refusing=true,RequiredDiscardCount=count,SelectedDiscardIds=[]}};_resolutionStack[^1]=frame;PublishDamageCardOffer(frame);return;
+            if(count==0){ReplaceRuntimeTop(frame with {DamageCardOffer=null});AdvanceEventRulesAndQueueFact(new ProgramPrivateCardOfferResolvedEvent(frame.OwnerSeat,draft.SourceSeat,set.CardIds.Count,false,false));AdvanceRuntimeProgram(frame.Id);return;}
+            frame=frame with {DamageCardOffer=draft with {Refusing=true,RequiredDiscardCount=count,SelectedDiscardIds=[]}};ReplaceRuntimeTop(frame);PublishDamageCardOffer(frame);return;
         }
         if(option!="discard" || !draft.Refusing) throw new InvalidOperationException("Invalid private offer branch.");
         var ids=(draft.SelectedDiscardIds??[]).Append(choice.Cards.Single()).ToArray();
-        if(ids.Length<draft.RequiredDiscardCount){frame=frame with {DamageCardOffer=draft with {SelectedDiscardIds=ids}};_resolutionStack[^1]=frame;ClearPendingDecision();PublishDamageCardOffer(frame);return;}
+        if(ids.Length<draft.RequiredDiscardCount){frame=frame with {DamageCardOffer=draft with {SelectedDiscardIds=ids}};ReplaceRuntimeTop(frame);ClearPendingDecision();PublishDamageCardOffer(frame);return;}
         if(ids.Length!=draft.RequiredDiscardCount || ids.Distinct().Count()!=ids.Length || ids.Any(id=>_cardZones.GetLocation(id) is not {OwnerSeat:{ } seat,Zone:CardZoneKind.Hand or CardZoneKind.Equipment} || seat!=draft.SourceSeat)) throw new InvalidOperationException("Private refusal cost changed.");
-        ClearPendingDecision();_resolutionStack[^1]=frame with {DamageCardOffer=null};
+        ClearPendingDecision();ReplaceRuntimeTop(frame with {DamageCardOffer=null});
         MoveProgramCardsFromMultipleSources(ids,CardLocation.DiscardPile,new CardMoveReason($"skill-program.{frame.SkillId}.DiscardSelected"));
-        QueueGameEvent(new ProgramPrivateCardOfferResolvedEvent(frame.OwnerSeat,draft.SourceSeat,set.CardIds.Count,false,false));
-        if(AwaitProgramBoundCardMovements(frame.Id,frame.OwnerSeat)==SkillProgramStepOutcome.Continue) ContinueProgramSkill(frame.Id);
+        AdvanceEventRulesAndQueueFact(new ProgramPrivateCardOfferResolvedEvent(frame.OwnerSeat,draft.SourceSeat,set.CardIds.Count,false,false));
+        if(AwaitProgramBoundCardMovements(frame.Id,frame.OwnerSeat)==SkillProgramStepOutcome.Continue) AdvanceRuntimeProgram(frame.Id);
     }
     private CardSnapshot[] GetOfferedPrivatelyViewedCards(int viewerSeat)
     {

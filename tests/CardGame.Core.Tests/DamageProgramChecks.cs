@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using CardGame.Content.Standard;
 using CardGame.Core;
 
@@ -14,6 +14,183 @@ internal static class DamageProgramChecks
         VerifyClassicSourceCardSelection();
         VerifyYijiGift();
         VerifyJiemingDraw();
+        VerifyNestedDamageCursorReplay();
+    }
+
+    private static void VerifyNestedDamageCursorReplay()
+    {
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new NestedDamagePackage());
+        var game = GameEngine.CreateStandard(new GameOptions
+        {
+            Seed = 1,
+            PlayerCount = 4,
+            ModeId = NestedDamagePackage.ModeId,
+            HumanSeat = HumanSeat,
+            HumanRole = Role.Lord,
+            UseInteractiveSetup = true,
+            UseInteractiveDiscard = false,
+            AdvanceAfterHumanCommands = false,
+            MaxTurns = 8
+        }, registry);
+        SubmitAccepted(game, new StartGameCommand());
+        var setup = game.PendingDecision is { Kind: DecisionKind.SelectGeneral } selectedSetup &&
+                    selectedSetup.ValidContentIds.Contains(NestedDamagePackage.SourceGeneralId)
+            ? selectedSetup
+            : throw new InvalidOperationException(
+                "The nested-damage setup did not offer the source general.");
+        SubmitAccepted(game, new SelectGeneralCommand(HumanSeat,
+            NestedDamagePackage.SourceGeneralId, game.Revision, setup.PromptId));
+        for (var step = 0; step < 100 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
+        {
+            Require(game.PendingDecision is null,
+                "The nested-damage fixture reached an unexpected setup prompt.");
+            SubmitAccepted(game, new AdvanceOneStepCommand(game.Revision));
+        }
+        var play = game.PendingDecision is { Kind: DecisionKind.PlayCard } playPrompt
+            ? playPrompt
+            : throw new InvalidOperationException(
+                "The nested-damage fixture did not reach the human play phase.");
+        var slash = game.GetHumanLegalActions().FirstOrDefault(action =>
+            action.Kind == LegalActionKind.Slash && action.CardId is not null &&
+            action.TargetSeats.SequenceEqual([1])) ??
+            throw new InvalidOperationException(
+                "The nested-damage fixture has no Slash against seat 1.");
+        SubmitAccepted(game, new PlayCardCommand(HumanSeat, slash.CardId!.Value,
+            slash.TargetSeats, game.Revision, play.PromptId));
+        for (var step = 0; step < 100 &&
+             !game.ResolutionStack.OfType<DamageTriggerWindowFrame>()
+                 .Any(frame => frame.TargetSeat == 1); step++)
+        {
+            Require(game.PendingDecision is null,
+                "The nested-damage fixture reached an unexpected response prompt.");
+            SubmitAccepted(game, new AdvanceOneStepCommand(game.Revision));
+        }
+        var outer = game.ResolutionStack.OfType<DamageTriggerWindowFrame>()
+            .Single(frame => frame.TargetSeat == 1);
+        Require(outer.CandidateIndex == 0 && outer.Candidates.Count == 2,
+            "The outer damage window did not freeze both ordered candidates.");
+
+        var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+        Require(State(replay) == State(game) && Events(replay).SequenceEqual(Events(game)),
+            "The nested-damage checkpoint did not restore its initial frame.");
+        DriveNestedDamage(game, outer.Id, registry);
+        DriveNestedDamage(replay, outer.Id, registry);
+        Require(State(replay) == State(game) && Events(replay).SequenceEqual(Events(game)),
+            "Nested after-damage candidates did not replay exactly.");
+        var applied = game.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>()
+            .ToArray();
+        Require(applied.Count(item => item.TargetSeat == 1) == 1 &&
+                applied.Count(item => item.TargetSeat == 0) == 1,
+            "The nested damage did not apply exactly once in each direction.");
+        Require(game.CardMovements.Count(move =>
+                    move.From == CardLocation.DrawPile &&
+                    move.To == CardLocation.Hand(1) &&
+                    move.Reason.Value == "skill-program.damage-cursor-test:skill.Draw") == 1,
+            "The resumed second candidate did not draw exactly one physical card.");
+        var advances = game.Events.Select(item => item.Payload)
+            .OfType<DamageTriggerWindowAdvancedEvent>()
+            .Where(item => item.ResolutionId == outer.Id)
+            .Select(item => item.CandidateIndex).ToArray();
+        Require(advances.SequenceEqual([1, 2]),
+            "The outer damage cursor did not resume at its second candidate.");
+        foreach (var binding in new[] { "nested", "follow" })
+            Require(game.Events.Select(item => item.Payload)
+                    .OfType<ProgramBindingResolvedEvent>()
+                    .Count(item => item.BindingId == binding && item.Completed) == 1,
+                $"The {binding} after-damage binding did not complete exactly once.");
+    }
+
+    private static void DriveNestedDamage(GameEngine game, long outerFrameId, ContentRegistry registry)
+    {
+        var checkedChildCheckpoint = false;
+        for (var step = 0; step < 100; step++)
+        {
+            if (!game.ResolutionStack.Any(frame => frame.Id == outerFrameId) &&
+                !game.ResolutionStack.OfType<DamageFrame>().Any())
+            {
+                Require(checkedChildCheckpoint, "The nested damage fixture never checkpointed its paused child.");
+                return;
+            }
+            if (!checkedChildCheckpoint && game.ResolutionStack.OfType<ProgramSkillFrame>()
+                    .Any(frame => frame.AttackAttempt is not null))
+            {
+                var childReplay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+                Require(State(childReplay) == State(game) && Events(childReplay).SequenceEqual(Events(game)),
+                    "A paused nested program damage attempt did not checkpoint and replay exactly.");
+                checkedChildCheckpoint = true;
+            }
+            Require(game.PendingDecision is null,
+                "Nested after-damage resolution unexpectedly required a human response.");
+            SubmitAccepted(game, new AdvanceOneStepCommand(game.Revision));
+        }
+        throw new InvalidOperationException("Nested after-damage resolution exceeded 100 steps.");
+    }
+
+    private sealed class NestedDamagePackage : IGameContentPackage
+    {
+        internal const string ModeId = "damage-cursor-test:mode";
+        internal const string SourceGeneralId = "damage-cursor-test:source";
+        private static readonly string[] TargetGeneralIds =
+            Enumerable.Range(1, 3).Select(index => $"damage-cursor-test:target-{index}").ToArray();
+        private const string SkillId = "damage-cursor-test:skill";
+        private const string DeckId = "damage-cursor-test:deck";
+
+        public PackageManifest Manifest { get; } = new(
+            "damage-cursor-test", new Version(1, 0, 0),
+            [new PackageDependency("standard", new Version(1, 11, 0))]);
+
+        public void Register(IContentRegistryBuilder builder)
+        {
+            var rules = $$"""
+                {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
+                {"id":"damage-cursor-test:skill","revision":1,
+                 "minimumRulesVersion":{{GameCheckpoint.CurrentRulesVersion}},"triggers":[
+                 {"id":"nested","window":"afterDamageApplied","subject":"owner",
+                  "damageOccurrence":"perDamage","optional":false,"priority":0,
+                  "effects":[{"op":"damage","target":"owner",
+                    "targetRef":{"kind":"eventSource"},"sourceRef":{"kind":"owner"},"amount":1}]},
+                 {"id":"follow","window":"afterDamageApplied","subject":"owner",
+                  "damageOccurrence":"perDamage","optional":false,"priority":1,
+                  "effects":[{"op":"draw","target":"owner","amount":1}]}]},
+                {"id":"damage-cursor-test:child","revision":1,
+                 "minimumRulesVersion":{{GameCheckpoint.CurrentRulesVersion}},"triggers":[
+                 {"id":"child-follow","window":"afterDamageApplied","subject":"owner",
+                  "damageOccurrence":"perDamage","optional":false,
+                  "effects":[{"op":"draw","target":"owner","amount":1}]}]}]}
+                """;
+            const string presentation = """
+                {"schemaVersion":3,"skills":{"damage-cursor-test:skill":
+                {"name":"Damage cursor","description":"Nested damage fixture"},
+                "damage-cursor-test:child":{"name":"Child cursor","description":"Paused child fixture"}}}
+                """;
+            var catalog = SkillProgramCatalog.Load(rules, presentation);
+            var text = catalog.Presentations[SkillId];
+            builder.AddSkill(new ContentSkillDefinition(SkillId, text.Name, text.Description)
+            { Program = catalog.Programs[SkillId] });
+            var childText = catalog.Presentations["damage-cursor-test:child"];
+            builder.AddSkill(new ContentSkillDefinition("damage-cursor-test:child", childText.Name, childText.Description)
+            { Program = catalog.Programs["damage-cursor-test:child"] });
+            builder.AddGeneral(new ContentGeneralDefinition(
+                SourceGeneralId, "Source", "cao_cao", "damage-cursor-test:child", "wei", BaseHp: 4));
+            foreach (var targetGeneralId in TargetGeneralIds)
+                builder.AddGeneral(new ContentGeneralDefinition(
+                    targetGeneralId, "Target", "cao_cao", SkillId, "wei", BaseHp: 4));
+            builder.AddDeck(new ContentDeckRecipe(DeckId, "Slash deck", 4, 2, [])
+            {
+                PhysicalCards = Enumerable.Range(0, 40)
+                    .Select(_ => new ContentDeckPhysicalCard("standard:slash", Suit.Club, 5))
+                    .ToArray()
+            });
+            builder.AddMode(new ContentModeDefinition(ModeId, "Damage cursor", 4, 4,
+                new Dictionary<string, int>
+                {
+                    [nameof(Role.Lord)] = 1,
+                    [nameof(Role.Loyalist)] = 1,
+                    [nameof(Role.Rebel)] = 1,
+                    [nameof(Role.Renegade)] = 1
+                }, DeckId: DeckId, GeneralCandidateCount: 4,
+                GeneralPoolIds: [SourceGeneralId, .. TargetGeneralIds]));
+        }
     }
 
     private static void VerifyDamageCardClaim()

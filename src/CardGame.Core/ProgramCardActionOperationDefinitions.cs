@@ -21,7 +21,7 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
         if (zones.Count == 0 || zones.Any(zone => zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment)))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.zones: must contain hand, equipment, or judgment.");
         var destination = r.RequiredEnum<SkillProgramCardDestination>("destination");
-        if (destination is not (SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.DiscardPile or
+        if (destination is not (SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.DiscardPile or SkillProgramCardDestination.DrawPileTop or
                 SkillProgramCardDestination.SelectedTargetHand or SkillProgramCardDestination.SelectedTargetEquipment or
                 SkillProgramCardDestination.SelectedTargetCorrespondingZone))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.destination: unsupported destination.");
@@ -54,6 +54,11 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
                 $"Invalid skill program at {r.Path}: hand-source corresponding-zone moves must set prohibitReplacingEquipment.");
         var chooserRef = r.RequiredParticipantReference("chooserRef");
         var cardOwnerRef = r.RequiredParticipantReference("cardOwnerRef");
+        if(destination == SkillProgramCardDestination.DrawPileTop &&
+            (chooserRef.Kind != ProgramParticipantRef.Owner || cardOwnerRef.Kind != ProgramParticipantRef.Owner ||
+             zones is not [CardZoneKind.Hand] || !r.Has("resultBind") ||
+             !r.Has("awaitMovementTriggers") || !r.RequiredBool("awaitMovementTriggers")))
+            throw new InvalidOperationException("A top-deck payment requires one owner hand card, resultBind and awaited movement.");
         var cardCategories = r.OptionalEnumArray<SkillProgramCardCategory>("cardCategories");
         if (cardCategories is { Count: 0 })
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.cardCategories: must not be empty when specified.");
@@ -89,9 +94,13 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
             revealBeforeMove: revealBeforeMove, cardKinds: cardKinds,
             prohibitReplacingEquipment: prohibitReplacingEquipment,
             freezeMovedCardSuit: r.Has("freezeMovedCardSuit") && r.RequiredBool("freezeMovedCardSuit"));
-        if (effect.FreezeMovedCardSuit && (effect.ResultBind is null || effect.SkipIfNoCards))
+        var optionalEquipmentDiscard = effect.FreezeMovedCardSuit && effect.AwaitMovementTriggers &&
+            effect.Destination == SkillProgramCardDestination.DiscardPile && effect.CardCategories is [SkillProgramCardCategory.Equipment] &&
+            effect.ChooserRef?.Kind == ProgramParticipantRef.SelectedTarget && effect.CardOwnerRef?.Kind == ProgramParticipantRef.SelectedTarget;
+        if (effect.FreezeMovedCardSuit && (effect.ResultBind is null || effect.SkipIfNoCards && !optionalEquipmentDiscard))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: freezing a moved suit requires a nonempty resultBind selection.");
-        if (effect.Condition.Kind != SkillProgramConditionKind.Always && effect.ResultBind is not null)
+        if (effect.Condition.Kind != SkillProgramConditionKind.Always && effect.ResultBind is not null &&
+            !(optionalEquipmentDiscard && effect.Condition.Kind == SkillProgramConditionKind.ChoiceIs))
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}.condition: conditional card movement cannot produce a result binding.");
         if (effect.CoverageResultBind is not null &&

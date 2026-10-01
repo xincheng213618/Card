@@ -89,14 +89,14 @@ public sealed partial class GameEngine
             CancelProgramBindingAndCleanup(frame, "效果选项或技能实例已失效，技能剩余步骤取消。");
             return;
         }
-        _resolutionStack[^1] = frame with
+        ReplaceRuntimeTop(frame with
         {
             ChoiceBindings = Array.AsReadOnly(frame.ChoiceBindings.Append(
                 new ProgramChoiceResultBinding(effect.ResultBind!, option.Id, chooserSeat)).ToArray())
-        };
-        QueueGameEvent(new ProgramOptionChosenEvent(frame.Id, frame.SkillId, GetProgramBindingId(frame),
+        });
+        AdvanceEventRulesAndQueueFact(new ProgramOptionChosenEvent(frame.Id, frame.SkillId, GetProgramBindingId(frame),
             frame.OwnerSeat, effect.ResultBind!, option.Id, chooserSeat, option.Label));
-        ContinueProgramSkill(frame.Id);
+        AdvanceRuntimeProgram(frame.Id);
     }
 
     private bool IsClaimableProgramOptionStillAvailable(PromptChoice selected)
@@ -153,6 +153,13 @@ public sealed partial class GameEngine
         var program = _contentRegistry!.GetSkill(frame.SkillId).Program!;
         var plan = ProgramInstructionResolver.Default.Resolve(frame, program);
         var effect = plan.GetPausedInstruction(frame.InstructionIndex).Effect;
+        var alternating = plan.Instructions.Skip(frame.InstructionIndex).FirstOrDefault(e=>e.Op==SkillProgramEffectOp.ApplyAlternatingChoiceBenefit && e.SourceBind==effect.ResultBind);
+        if(alternating is not null)
+        {
+            var last=CompleteProgramEventHistory().OfType<AlternatingChoiceBenefitResolvedEvent>().LastOrDefault(e=>e.OwnerSeat==frame.OwnerSeat && e.SkillId==frame.SkillId && e.SkillInstanceId==frame.SkillInstanceId && e.StateId==alternating.StateId);
+            var preferred=last?.PendingOptionId=="draw"?"targets":"draw";
+            return decision.Choices.First(c=>c.Parameters.GetValueOrDefault("option-id")==preferred);
+        }
         var owner = CreateSkillContext(_players[frame.OwnerSeat]);
         var chooser = CreateSkillContext(_players[decision.PlayerSeat]);
         var context = CreateProgramAiPublicContext(_players[frame.OwnerSeat]) with

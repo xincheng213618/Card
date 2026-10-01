@@ -29,7 +29,7 @@ public sealed partial class GameEngine
         if (acquired.Count == 0) return [];
         foreach (var skillId in acquired)
             RegisterTaggedConversionSkill(player, skillId);
-        QueueGameEvent(new SkillsAcquiredEvent(
+        AdvanceEventRulesAndQueueFact(new SkillsAcquiredEvent(
             player.Seat,
             sourceSkillId,
             Array.AsReadOnly(acquired.ToArray())));

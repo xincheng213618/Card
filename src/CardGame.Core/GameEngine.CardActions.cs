@@ -2,15 +2,14 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private readonly HashSet<long> _finalizedTrickProgramUses = [];
 
     private bool TryBeginFinalizedTrickPrograms(JizhiResolution pending)
     {
         if (!HasFinalizedTargetProgram(pending.EffectiveCardKind) ||
-            !_finalizedTrickProgramUses.Add(pending.ResolutionId)) return false;
+            !TryMarkFinalizedTrickProgramsStarted(pending.ResolutionId)) return false;
         var use = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == pending.ResolutionId);
         var action = use.Action!;
-        QueueGameEvent(new CardActionAcceptedEvent(action));
+        AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(action));
         return TryBeginProgramCardWindow(null, action, SkillProgramTriggerWindow.CardUseTargetsFinalized,
             use.TargetSeats, ProgramCardContinuation.FinalizedTrick,
             trickContinuation: new(pending.Card.Id, pending.ActionKind, pending.TargetCardId, pending.RequiredCardKind));
@@ -31,7 +30,7 @@ public sealed partial class GameEngine
         {
             ClearPendingDecision();
             ExecuteAction(actor, action);
-            PublishState();
+            AdvanceRulesAndPublishState();
             return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
         });
     }
@@ -46,21 +45,18 @@ public sealed partial class GameEngine
         MoveCards([card], CardLocation.Hand(actor.Seat), CardLocation.DiscardPile, CardMoveReasons.RecastDiscard);
         var drawn = DrawCards(actor, 1, log: false, reason: CardMoveReasons.RecastDraw);
         if (_aiBrains.TryGetValue(actor.Seat, out var brain)) brain.ObserveRecast(_turnNumber, card.Id);
-        QueueGameEvent(new CardRecastEvent(actor.Seat, card.Id, playedCardKind ?? card.Kind, drawn.Count));
+        AdvanceEventRulesAndQueueFact(new CardRecastEvent(actor.Seat, card.Id, playedCardKind ?? card.Kind, drawn.Count));
         AddLog("Recast", $"{actor.Name} 重铸【铁索连环】，摸 {drawn.Count} 张牌。", actor.Seat);
     }
 
     private long _cardActionSequence;
-    private readonly Dictionary<long, AttackResolution?> _programCardAttacks = [];
-    private AttackResolution? _programCardAttack => _resolutionStack.OfType<ProgramCardTriggerWindowFrame>()
-        .Select(frame => _programCardAttacks.GetValueOrDefault(frame.Id)).LastOrDefault(attack => attack is not null);
-    private readonly HashSet<long> _acceptedProgramUses = [];
-    private readonly HashSet<long> _committedProgramUses = [];
-    private readonly Dictionary<long, List<AttackResolution>> _preparedProgramTargets = [];
-
-    private int GetFangtianEffectiveTarget(FangtianHalberdResolution pending, int index) =>
-        _acceptedProgramUses.Contains(pending.ResolutionId) &&
-        _preparedProgramTargets.TryGetValue(pending.ResolutionId, out var prepared)
+    private CardAttackHandle? ProgramCardAttack => _resolutionStack.OfType<ProgramCardTriggerWindowFrame>()
+        .LastOrDefault(frame => frame.AttackOwnerFrameId is not null)?.AttackOwnerFrameId is { } id
+            ? new CardAttackHandle(this, id) : null;
+    private IReadOnlyList<CardAttackState>? PreparedTargetAttacks(long id) =>
+        _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == id).PreparedTargetAttacks;
+    private int GetFangtianEffectiveTarget(FangtianHalberdHandle pending, int index) =>
+        (LifecycleCardUse(pending.ResolutionId)?.ProgramUseAccepted == true) && PreparedTargetAttacks(pending.ResolutionId) is { } prepared
             ? prepared[index].TargetSeat : pending.TargetSeats[index];
 
     private CardActionContext? CaptureCardUseAction(Card card, int actorSeat,
@@ -116,18 +112,18 @@ public sealed partial class GameEngine
             effectiveRank: trackAppearance && physicalIds.Count == 1 && card.Rank > 0 ? card.Rank : null);
     }
 
-    private bool TryBeginCardResponsePrograms(AttackResolution attack, CharacterState actor,
+    private bool TryBeginCardResponsePrograms(CardAttackHandle attack, CharacterState actor,
         CharacterState provider, int? requesterSeat, int opponentSeat, CardKind effectiveKind,
         IReadOnlyList<CardActionCost> costs, ProgramCardContinuation continuation,
-        CardConversionSource? conversionSource = null)
+        CardConversionSource? conversionSource = null, Suit? completedResponseUseSuit = null)
     {
         var parent = _resolutionStack.OfType<CardUseFrame>().LastOrDefault(frame => frame.Id == attack.ResolutionId);
         var action = new CardActionContext(++_cardActionSequence, parent?.Action?.ActionId,
             CardActionType.Response, actor.Seat, provider.Seat, requesterSeat, actor.Seat,
-            opponentSeat, effectiveKind, [], costs, conversionSource is null ? [] : [conversionSource]);
+            opponentSeat, effectiveKind, [], costs, conversionSource is null ? [] : [conversionSource], effectiveSuit: completedResponseUseSuit);
         if (actor.Seat == provider.Seat && requesterSeat is null && IsProgramResponseCardUse(actor, effectiveKind))
             RecordProgramUsedBasicCard(actor.Seat, effectiveKind);
-        QueueGameEvent(new CardActionAcceptedEvent(action));
+        AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(action));
         if (TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardResponseAccepted,
                 [opponentSeat], continuation)) return true;
         if (!HasResponseUseCompletionObserver(action, continuation)) return false;
@@ -137,41 +133,40 @@ public sealed partial class GameEngine
 
     // Target redirection is completed for every target before any use trigger or
     // response starts. Keep the prepared attack objects so Liuli cannot run twice.
-    private bool PrepareProgramSlashTargets(AttackResolution attack)
+    private bool PrepareProgramSlashTargets(CardAttackHandle attack)
     {
-        if (_acceptedProgramUses.Contains(attack.ResolutionId)) return false;
+        if ((LifecycleCardUse(attack.ResolutionId)?.ProgramUseAccepted == true)) return false;
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == attack.ResolutionId);
         if (frame.Action is not { } captured) return false;
-        if (_pendingFangtianHalberd is { } multi && multi.ResolutionId == attack.ResolutionId)
+        if (ActiveFangtianHalberd is { } multi && multi.ResolutionId == attack.ResolutionId)
         {
-            if (!_preparedProgramTargets.TryGetValue(attack.ResolutionId, out var prepared))
-                _preparedProgramTargets[attack.ResolutionId] = prepared = [];
-            prepared.Add(attack);
-            if (prepared.Count < multi.TargetSeats.Count)
+            var prepared = (frame.PreparedTargetAttacks ?? []).Append(GetCardAttackState(attack.ResolutionId)).ToArray();
+            var ownerIndex = _resolutionStack.FindIndex(item => item.Id == frame.Id);
+            ReplaceRuntimeFrame(_resolutionStack[ownerIndex].Id, frame with { PreparedTargetAttacks = Array.AsReadOnly(prepared) });
+            if (prepared.Length < multi.TargetSeats.Count)
             {
                 multi.TargetIndex++;
                 BeginNextFangtianHalberdTarget(multi);
                 return true;
             }
             multi.TargetIndex = 0;
-            attack = prepared[0];
+            UpdateCardAttackState(attack.ResolutionId, _ => prepared[0]);
             multi.CurrentAttack = attack;
-            _pendingAttack = attack;
+            ActiveCardAttack = attack;
             SetCardUseTargetIndex(multi.ResolutionId, 0);
             frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == attack.ResolutionId);
         }
-        _acceptedProgramUses.Add(attack.ResolutionId);
         var finalized = new CardActionContext(captured.ActionId, captured.ParentActionId, captured.Type,
             captured.ActorSeat, captured.ProviderSeat, captured.RequesterSeat, captured.ResponderSeat,
             captured.OpponentSeat, captured.EffectiveKind, frame.TargetSeats, captured.PhysicalCards, captured.ConversionChain,
             (frame.TargetSeats.Where(seat => _players[seat].IsAlive).Distinct().ToArray() ),
             captured.EffectiveSuit, captured.EffectiveRank);
         var index = _resolutionStack.FindLastIndex(item => item.Id == frame.Id);
-        _resolutionStack[index] = frame with { Action = finalized };
-        QueueGameEvent(new CardActionAcceptedEvent(finalized));
+        ReplaceRuntimeFrame(_resolutionStack[index].Id, frame with { Action = finalized, ProgramUseAccepted = true });
+        AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(finalized));
         if (TryBeginProgramCardWindow(attack, finalized, SkillProgramTriggerWindow.CardUseTargetsFinalized,
                 finalized.TargetSeats, ProgramCardContinuation.Slash)) return true;
-        if (_preparedProgramTargets.ContainsKey(attack.ResolutionId))
+        if (PreparedTargetAttacks(attack.ResolutionId) is not null)
         {
             ContinueSlashAfterFinalizedTargets(attack);
             return true;
@@ -179,12 +174,14 @@ public sealed partial class GameEngine
         return false;
     }
 
-    private bool TryBeginProgramCardWindow(AttackResolution? attack, CardActionContext action,
-        SkillProgramTriggerWindow window, IReadOnlyList<int> opponents, ProgramCardContinuation continuation,
+    private bool TryBeginProgramCardWindow(CardAttackHandle? attack, CardActionContext action,
+        SkillProgramTriggerWindow window, IReadOnlyList<int> opponents, ProgramCardContinuation? continuation,
         bool? cardUseCausedDamage = null, ProgramTrickContinuation? trickContinuation = null,
         ProgramSimpleCardContinuation? simpleContinuation = null,
-        ProgramCardContinuation? completedResponseContinuation = null)
+        ProgramCompletedResponseReturn? completedResponseReturn = null)
     {
+        if ((continuation is null) != (completedResponseReturn is not null))
+            throw new InvalidOperationException("A card trigger window needs exactly one return continuation.");
         var candidates = CollectSharedCardActionCandidates(action, window, opponents,
             cardUseCausedDamage).ToList();
         candidates = candidates
@@ -196,7 +193,6 @@ public sealed partial class GameEngine
             .ToList();
         if (candidates.Count == 0) return false;
         var frameId = ++_resolutionSequence;
-        _programCardAttacks.Add(frameId, attack);
         candidates = candidates.Select(candidate => candidate.FrozenContext is { } frozen
                 ? candidate with
                 {
@@ -211,14 +207,14 @@ public sealed partial class GameEngine
         var frame = new ProgramCardTriggerWindowFrame(frameId,
             _resolutionStack[^1].Id, action, continuation, Array.AsReadOnly(candidates.ToArray()),
             TrickContinuation: trickContinuation, SimpleContinuation: simpleContinuation,
-            CompletedResponseContinuation: completedResponseContinuation);
-        _resolutionStack.Add(frame);
-        ContinueProgramCardWindow();
+            CompletedResponseReturn: completedResponseReturn, AttackOwnerFrameId: attack?.ResolutionId);
+        PushRuntimeFrame(frame);
+        AdvanceRuntimeTop<ProgramCardTriggerWindowFrame>();
         return true;
     }
 
     /// <summary>Called after target redirection and before the first Slash target effect.</summary>
-    private bool TryBeginProgramCardUseBeforeTargetEffects(AttackResolution attack)
+    private bool TryBeginProgramCardUseBeforeTargetEffects(CardAttackHandle attack)
     {
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == attack.ResolutionId);
         var action = frame.Action ?? throw new InvalidOperationException(
@@ -228,10 +224,10 @@ public sealed partial class GameEngine
             ProgramCardContinuation.BeforeTargetEffects);
     }
 
-    private bool TryBeginProgramSlashStage(AttackResolution attack,
+    private bool TryBeginProgramSlashStage(CardAttackHandle attack,
         SkillProgramTriggerWindow window, ProgramCardContinuation continuation)
     {
-        if (!ReferenceEquals(_pendingAttack, attack))
+        if (!SameAttackOwner(ActiveCardAttack, attack))
             throw new InvalidOperationException("The Slash program stage lost its active attack.");
         // Legacy and virtual Slash flows can reach the Dodge boundary without a
         // frozen card action. They have no card-action facts for program triggers.
@@ -276,6 +272,10 @@ public sealed partial class GameEngine
                 trigger.CardKinds.Count > 0 && !trigger.CardKinds.Contains(action.EffectiveKind) ||
                 trigger.CardCategories.Count > 0 && (action.Type != CardActionType.Use && !trigger.IncludeResponseUses ||
                     !MatchesProgramCardCategory(action.EffectiveKind, trigger.CardCategories))) continue;
+            var bindingTargets = trigger.OnlyDesignatedCardTargets
+                ? targets.Intersect(action.EffectiveKind == CardKind.BorrowedSword
+                    ? action.TargetSeats.Where((seat, index) => index % 2 == 0)
+                    : action.EffectiveDesignatedTargetSeats).ToHashSet() : targets;
             var matchingSources = action.ConversionChain.Where(source =>
                 source.OwnerSeat == owner.Seat &&
                 source.SkillId == trigger.SourceSkillId &&
@@ -284,14 +284,14 @@ public sealed partial class GameEngine
             var matches = relation switch
             {
                 SkillProgramCardActionOwnerRelation.Actor => owner.Seat == action.ActorSeat,
-                SkillProgramCardActionOwnerRelation.Target => targets.Contains(owner.Seat),
+                SkillProgramCardActionOwnerRelation.Target => bindingTargets.Contains(owner.Seat),
                 SkillProgramCardActionOwnerRelation.Observer => true,
                 SkillProgramCardActionOwnerRelation.ConversionSource => matchingSources.Length > 0,
                 _ => false
             };
             if (!matches) continue;
             if (relation == SkillProgramCardActionOwnerRelation.ConversionSource && targets.Count == 0 && !trigger.AllowNoEventTarget) continue;
-            var eventTargetsForBinding = relation == SkillProgramCardActionOwnerRelation.ConversionSource && targets.Count > 0
+            var eventTargetsForBinding = relation == SkillProgramCardActionOwnerRelation.ConversionSource && targets.Count > 0 && !trigger.SingleActionInstance
                 ? targets.Where(seat => _players[seat].IsAlive).Order().ToArray()
                 : [relation == SkillProgramCardActionOwnerRelation.Target
                     ? owner.Seat : targets.Count == 1 ? targets.Single() : -1];
@@ -300,15 +300,22 @@ public sealed partial class GameEngine
                 eventTargetsForBinding = [-1];
             foreach (var eventTarget in eventTargetsForBinding)
             {
-                var facts = CaptureProgramTriggerFacts(owner, action) with
+                var capturedFacts = CaptureProgramTriggerFacts(owner, action);
+                var facts = capturedFacts with
                 {
+                    // Explicit completion conditions read the response appearance frozen before
+                    // payment. Other candidates retain their existing captured facts.
+                    CardActionSuit = window == SkillProgramTriggerWindow.CardUseCompleted &&
+                        action.Type == CardActionType.Response && trigger.IncludeResponseUses &&
+                        HasTriggerCondition(trigger.Condition, SkillProgramTriggerConditionKind.CardActionSuitIs)
+                        ? action.EffectiveSuit : capturedFacts.CardActionSuit,
                     CardUseCausedDamage = cardUseCausedDamage,
                     EventTargetHandCount = eventTarget >= 0 ? GetHand(_players[eventTarget]).Count : 0,
                     CurrentAttackRange = GetAttackRange(owner.Seat),
                     OwnerEventTargetDistance = eventTarget >= 0
                         ? GetCombatDistance(owner.Seat, eventTarget)
                         : int.MaxValue,
-                    CardActionTargetIsOwner = targets.Contains(owner.Seat)
+                    CardActionTargetIsOwner = bindingTargets.Contains(owner.Seat)
                 };
                 var context = CreateCardActionProgramContext(action, window, parentFrameId: 0,
                     owner.Seat, eventTarget, facts);
@@ -351,7 +358,8 @@ public sealed partial class GameEngine
     }
 
     private static SkillProgramTriggerWindow GetCardActionWindow(ProgramCardTriggerWindowFrame frame) =>
-        frame.Continuation is ProgramCardContinuation.CompletedSlash or ProgramCardContinuation.CompletedCard or ProgramCardContinuation.CompletedResponse
+        frame.CompletedResponseReturn is not null ||
+        frame.Continuation is ProgramCardContinuation.CompletedSlash or ProgramCardContinuation.CompletedCard
             ? SkillProgramTriggerWindow.CardUseCompleted
             : frame.Continuation == ProgramCardContinuation.SlashTargetRedirecting
             ? SkillProgramTriggerWindow.SlashTargetRedirecting
@@ -369,13 +377,13 @@ public sealed partial class GameEngine
                     ? SkillProgramTriggerWindow.CardUseTargetsFinalized
                     : SkillProgramTriggerWindow.CardResponseAccepted;
 
-    private void ContinueProgramCardWindow()
+    private void ContinueProgramCardWindowCore()
     {
         while (_resolutionStack.LastOrDefault() is ProgramCardTriggerWindowFrame frame)
         {
             if (frame.CandidateIndex == frame.Candidates.Count)
             {
-                _programCardAttacks.Remove(frame.Id, out var attack);
+                var attack = frame.AttackOwnerFrameId is { } attackId ? new CardAttackHandle(this, attackId) : null;
                 PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramCardTriggerWindow);
                 if (frame.Continuation is ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.FinalizedSimpleCard)
                     ContinueSimpleCardUse(frame.ParentFrameId, frame.SimpleContinuation ??
@@ -384,7 +392,7 @@ public sealed partial class GameEngine
                     ContinueCommittedTrickUse(frame);
                 else if (frame.Continuation == ProgramCardContinuation.CompletedCard)
                     PopFinishedCardUse(frame.ParentFrameId);
-                else if (frame.Continuation == ProgramCardContinuation.CompletedResponse)
+                else if (frame.CompletedResponseReturn is not null)
                     ContinueCompletedResponseUse(attack, frame);
                 else if (frame.Continuation == ProgramCardContinuation.CommittedSlash)
                     ContinueCommittedSlashAfterPrograms(attack ??
@@ -415,7 +423,8 @@ public sealed partial class GameEngine
                     ContinueNullificationAfterResponseUse(frame.Action);
                 else ContinueAcceptedCardResponse(attack ??
                     throw new InvalidOperationException("A response card trigger lost its attack continuation."),
-                    frame.Action, frame.Continuation);
+                    frame.Action, frame.Continuation ??
+                    throw new InvalidOperationException("A response card trigger lost its return continuation."));
                 return;
             }
             var candidate = frame.Candidates[frame.CandidateIndex];
@@ -440,21 +449,22 @@ public sealed partial class GameEngine
         }
     }
 
-    private void ContinueCompletedSlashAfterPrograms(AttackResolution attack)
+    private void ContinueCompletedSlashAfterPrograms(CardAttackHandle attack)
     {
+        var completion = CaptureAttackCompletion(attack);
         PopFinishedCardUse(attack.ResolutionId);
         CompleteFinishedAttackCardUse(attack);
-        CompleteAttackAfterCardResolution(attack);
+        CompleteAttackAfterCardResolution(completion);
     }
 
     private bool TryBeginDelayedCardUsePrograms(long resolutionId)
     {
-        if (!_acceptedProgramUses.Add(resolutionId)) return false;
-        _finalizedTrickProgramUses.Add(resolutionId);
+        if (!TryMarkProgramUseAccepted(resolutionId)) return false;
+        TryMarkFinalizedTrickProgramsStarted(resolutionId);
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == resolutionId);
         var action = frame.Action ??
             throw new InvalidOperationException("A direct delayed-card trigger requires a captured card action.");
-        QueueGameEvent(new CardActionAcceptedEvent(action));
+        AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(action));
         return TryBeginProgramCardWindow(
             attack: null,
             action,
@@ -509,21 +519,27 @@ public sealed partial class GameEngine
         ContinueJizhiOrNullificationAfterTargetTriggers(pending);
     }
 
-    private void ContinueCommittedSlashAfterPrograms(AttackResolution attack)
+    private void ContinueCommittedSlashAfterPrograms(CardAttackHandle attack)
     {
+        if (LifecycleCardUse(attack.ResolutionId)?.SlashTargetsCancelled == true)
+        {
+            UpdateLifecycleCardUse(attack.ResolutionId, use => use with { SlashTargetsCancelled = false });
+            CompleteAttack(attack);
+            return;
+        }
         BeginSlashTargetResolution(attack);
     }
 
     private void AdvanceProgramCardCandidate(ProgramCardTriggerWindowFrame frame)
     {
         var candidate = frame.Candidates[frame.CandidateIndex];
-        QueueGameEvent(new ProgramCardTriggerResolvedEvent(frame.Id, candidate.SkillId, candidate.TriggerId,
+        AdvanceEventRulesAndQueueFact(new ProgramCardTriggerResolvedEvent(frame.Id, candidate.SkillId, candidate.TriggerId,
             candidate.OwnerSeat, candidate.OpponentSeat, frame.Activated));
-        _resolutionStack[^1] = frame with
+        ReplaceRuntimeTop(frame with
         {
             CandidateIndex = frame.CandidateIndex + 1,
             Activated = false
-        };
+        });
     }
 
     private void AssertProgramCardWindowState()
@@ -531,26 +547,22 @@ public sealed partial class GameEngine
         var frames = _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().ToArray();
         if (frames.Length == 0)
         {
-            if (_programCardAttacks.Count != 0)
-                throw new InvalidOperationException("A card trigger continuation lost its frame.");
             return;
         }
-        if (frames.Length != _programCardAttacks.Count)
-            throw new InvalidOperationException("A card trigger continuation lost its frame.");
         foreach (var frame in frames)
         {
             var frameIndex = _resolutionStack.FindLastIndex(item => ReferenceEquals(item, frame));
             var resolvingProgramJudgmentDamage =
-                _pendingAttack is { IsProgramJudgmentDamage: true } &&
-                _pendingJudgment?.Continuation == JudgmentContinuationKind.ProgramSkill;
+                ActiveCardAttack is { IsProgramJudgmentDamage: true } &&
+                ActiveJudgment?.Continuation == JudgmentContinuationKind.ProgramSkill;
             var attackMatches = frame != frames[^1] || resolvingProgramJudgmentDamage ||
                 (frame.Continuation is ProgramCardContinuation.DelayedCard or
                         ProgramCardContinuation.BeforeTrickTargetEffects or ProgramCardContinuation.FinalizedTrick or
                         ProgramCardContinuation.NullificationResponse or ProgramCardContinuation.CommittedTrick or
                         ProgramCardContinuation.CommittedSimpleCard or ProgramCardContinuation.FinalizedSimpleCard or ProgramCardContinuation.CompletedCard ||
-                        frame.Continuation == ProgramCardContinuation.CompletedResponse && frame.CompletedResponseContinuation == ProgramCardContinuation.NullificationResponse
-                    ? _programCardAttacks[frame.Id] is null
-                    : _programCardAttack is not null && ReferenceEquals(_programCardAttack, _pendingAttack));
+                        frame.CompletedResponseReturn?.Kind == ProgramCompletedResponseKind.Nullification
+                    ? frame.AttackOwnerFrameId is null
+                    : ProgramCardAttack is not null && SameAttackOwner(ProgramCardAttack, ActiveCardAttack));
             var candidateCursorValid = frame.CandidateIndex >= 0 &&
                                        frame.CandidateIndex < frame.Candidates.Count;
             var candidate = candidateCursorValid ? frame.Candidates[frame.CandidateIndex] : null;
@@ -572,17 +584,18 @@ public sealed partial class GameEngine
                   frame.Action.Type == CardActionType.Use &&
                   frame.Action.PhysicalCards.Any(cost => cost.CardId == trick.EffectCardId)
                 : frame.TrickContinuation is null;
-            var completedResponseMatches = frame.Continuation == ProgramCardContinuation.CompletedResponse
-                ? frame.CompletedResponseContinuation is ProgramCardContinuation.Dodge or ProgramCardContinuation.NullificationResponse &&
-                  IsCompletedResponseUse(frame.Action, frame.CompletedResponseContinuation.Value)
-                : frame.CompletedResponseContinuation is null;
+            var completedResponseMatches = frame.CompletedResponseReturn is { } completedResponse
+                ? frame.Continuation is null && IsCompletedResponseUse(frame.Action, completedResponse.Kind) &&
+                  IsCompletedResponseParentConsistent(frame)
+                : frame.Continuation is not null;
             if (!attackMatches ||
                 frameIndex < 1 || _resolutionStack[frameIndex - 1].Id != frame.ParentFrameId ||
                 !trickContinuationMatches || !completedResponseMatches ||
                 !candidateCursorValid ||
                 !sharedPromptMatches && !sharedChildMatches ||
-                 frame.Action.PhysicalCards.Any(cost =>
-                     frame.Continuation is ProgramCardContinuation.CompletedSlash or ProgramCardContinuation.CompletedCard or ProgramCardContinuation.CompletedResponse
+                 frame.Action.PhysicalCards.Where(cost => !IsExchangedCardClaim(frame.Action.ActionId,cost.CardId)).Any(cost =>
+                     frame.CompletedResponseReturn is not null ||
+                     frame.Continuation is ProgramCardContinuation.CompletedSlash or ProgramCardContinuation.CompletedCard
                          ? _cardZones.GetLocation(cost.CardId).Zone is not
                              (CardZoneKind.DiscardPile or CardZoneKind.Hand or CardZoneKind.DrawPile or CardZoneKind.Equipment or CardZoneKind.Judgment)
                          : frame.Continuation == ProgramCardContinuation.NullificationResponse

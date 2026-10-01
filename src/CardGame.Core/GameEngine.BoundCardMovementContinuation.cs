@@ -17,9 +17,9 @@ public sealed partial class GameEngine
     {
         var frame = GetActiveProgramFrame(frameId);
         if (frame.OwnerSeat != ownerSeat) throw new InvalidOperationException("The bound movement lost its program owner.");
-        _resolutionStack[^1] = frame with { PendingMovementContinuation = new(ownerSeat, 0, null) };
+        ReplaceRuntimeTop(frame with { PendingMovementContinuation = new(ownerSeat, 0, null) });
         if (TryBeginCardsMovedProgramWindow()) return SkillProgramStepOutcome.AwaitChild;
-        _resolutionStack[^1] = frame with { PendingMovementContinuation = null };
+        ReplaceRuntimeTop(frame with { PendingMovementContinuation = null });
         return SkillProgramStepOutcome.Continue;
     }
 }

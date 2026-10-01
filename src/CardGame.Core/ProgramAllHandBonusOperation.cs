@@ -33,9 +33,10 @@ public sealed partial class GameEngine
         CardPolicies(owner, SkillProgramCardPolicyKind.BypassSlashLimitBySuit, effectiveKind)
             .Any(item => item.Policy.InputSuit == EffectiveSuit(owner, card));
     private bool CanUsePeachToRescue(int responderSeat, int victimSeat) =>
-        responderSeat == _currentSeat || responderSeat == victimSeat ||
+        !(responderSeat == victimSeat && HasSelfCardTargetProhibition(responderSeat)) &&
+        (responderSeat == _currentSeat || responderSeat == victimSeat ||
         !_players[_currentSeat].IsAlive ||
-        !HasCardPolicy(_players[_currentSeat], SkillProgramCardPolicyKind.ExclusiveDyingPeachRescue, CardKind.Peach);
+        !HasCardPolicy(_players[_currentSeat], SkillProgramCardPolicyKind.ExclusiveDyingPeachRescue, CardKind.Peach));
 
     private sealed partial class ProgramSkillHost
     {

@@ -4,7 +4,6 @@ public sealed partial class GameEngine
 {
     // Optional target windows are enabled by the loaded catalog, retaining old
     // card actions and event shapes for historical content fingerprints.
-    private readonly HashSet<long> _finalizedSimpleProgramUses = [];
 
     private bool HasFinalizedTargetProgram(CardKind kind)
     {
@@ -39,9 +38,9 @@ public sealed partial class GameEngine
     {
         var use = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == frameId);
         if (continuation.Effect == SimpleCardUseEffect.Equipment || !HasFinalizedTargetProgram(use.CardKind) ||
-            !_finalizedSimpleProgramUses.Add(frameId)) return false;
+            !TryMarkFinalizedSimpleProgramsStarted(frameId)) return false;
         var action = use.Action ?? throw new InvalidOperationException("A finalized card use lost its action.");
-        QueueGameEvent(new CardActionAcceptedEvent(action));
+        AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(action));
         return TryBeginProgramCardWindow(null, action, SkillProgramTriggerWindow.CardUseTargetsFinalized,
             action.TargetSeats, ProgramCardContinuation.FinalizedSimpleCard, simpleContinuation: continuation);
     }

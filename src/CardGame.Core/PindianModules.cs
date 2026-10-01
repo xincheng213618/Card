@@ -26,7 +26,11 @@ public sealed record PindianFrame(
     ResolutionFrameStep Step = ResolutionFrameStep.AwaitingResponse,
     IReadOnlyList<int>? ClaimSeats = null,
     int ClaimIndex = 0)
-    : ResolutionFrame(Id, ResolutionFrameKind.Pindian, Step);
+    : ResolutionFrame(Id, ResolutionFrameKind.Pindian, Step)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool SourceUsesDrawPileTop { get; init; }
+}
 
 public sealed record PindianResultDeterminedEvent(
     long FrameId, string SkillId, PindianResult Result) : IGameEvent;

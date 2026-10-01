@@ -3,7 +3,9 @@ namespace CardGame.Core;
 /// <summary>Card and turn rules supplied by an enabled program instance.</summary>
 public enum SkillProgramCardPolicyKind
 {
-    ProhibitTarget,
+    PindianTopCardChoice = 1180,
+    PindianRankBySuit = 1181,
+    ProhibitTarget = 0,
     IgnoreUseDistance,
     MinimumResponseCount,
     OfferSkipDiscard,

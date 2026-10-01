@@ -17,7 +17,11 @@ public sealed record ProgramSkillWindowContext(
     ProgramCardUseContext? CardUse = null,
     JudgmentFinalizedContext? Judgment = null,
     ProgramJudgmentReplacementContext? JudgmentReplacement = null,
-    HpChangeContext? HpChange = null);
+    HpChangeContext? HpChange = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramTargetCommitContext? ProgramTarget { get; init; }
+}
 
 public sealed record ProgramSkillNumberBinding(string Name, int Value);
 public sealed record ProgramTopReorder(
@@ -269,7 +273,7 @@ public enum ProgramLifecycleContinuation
     NormalTurnStart, CompleteDrawPhase, CompletePlayPhase, CompleteAfterNormalDraw,
     CompleteDiscardPhase, EndTurnAfterDiscardPhase, CompleteGameStarting,
     ResumeParentProgram = 500, ResumeDyingEntry = 660,
-    CompleteJudgmentPhaseStarting = 800, ResumeCharacterStateChange = 820
+    CompleteJudgmentPhaseStarting = 800, ResumeCharacterStateChange = 820, CompleteDrawPhaseEnded = 1140
 }
 
 public enum TurnEndingBoundaryItemKind { Program }
@@ -326,7 +330,11 @@ public sealed record ProgramLifecycleTriggerWindowFrame(
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? FrozenBaseDrawCount { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? DrawPhaseEndedDelayedEffects { get; init; }
     public long? ResumeProgramFrameId { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramTargetCommitContext? ProgramTarget { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public long? ResumeDyingFrameId { get; init; }
 

@@ -4,7 +4,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool TryBeginBeforeDamageProgramWindowForAttack(
-        AttackResolution attack,
+        IDamageAttempt attack,
         int amount,
         DamageNature nature)
     {
@@ -37,11 +37,12 @@ public sealed partial class GameEngine
                 var facts = CaptureProgramTriggerFacts(owner) with
                 {
                     EventTargetHp = target.Hp,
-                    OtherDamageSourceAlive = sourceSeat != owner.Seat && _pendingAttack?.IsSourceLess != true && _players[sourceSeat].IsAlive,
+                    EventTargetMarkerCounts = HasAttributedEventOperations() ? new Dictionary<PlayerMarkerKind,int>(target.Markers) : null,
+                    OtherDamageSourceAlive = sourceSeat != owner.Seat && CurrentDamageAttempt?.IsSourceLess != true && _players[sourceSeat].IsAlive,
                     BlockedDamageSourceSkills = GetSkillBindingShard(owner).ProgramInstances.Where(instance => IsDamageOfferPairBlocked(owner.Seat, instance.SkillId, sourceSeat)).Select(instance => instance.SkillId).Distinct().ToArray(),
-                    DamageCardIsSlash = _pendingAttack is { EffectiveCardKind: { } beforeDamageKind, IsChainPropagation: false, IsSourceLess: false } && IsSlashCard(beforeDamageKind),
-                    DirectCardUseDamage = _pendingAttack is { Card: not null, IsChainPropagation: false, IsSourceLess: false },
-                    DamageSourceGender = _pendingAttack?.IsDelayedJudgmentDamage != true && _pendingAttack?.IsSourceLess != true &&
+                    DamageCardIsSlash = CurrentDamageAttempt is { EffectiveCardKind: { } beforeDamageKind, IsChainPropagation: false, IsSourceLess: false } && IsSlashCard(beforeDamageKind),
+                    DirectCardUseDamage = CurrentDamageAttempt is { Card: not null, IsChainPropagation: false, IsSourceLess: false },
+                    DamageSourceGender = CurrentDamageAttempt?.IsDelayedJudgmentDamage != true && CurrentDamageAttempt?.IsSourceLess != true &&
                         _contentRegistry.Skills.Values.Any(skill => skill.Program?.Triggers.Any(trigger =>
                             HasTriggerCondition(trigger.Condition, SkillProgramTriggerConditionKind.DamageSourceGenderIs)) == true)
                         ? _players[sourceSeat].Gender : null
@@ -50,10 +51,10 @@ public sealed partial class GameEngine
                     .Where(candidate => GetProgramTrigger(candidate).Subject switch
                     {
                         SkillProgramTriggerSubject.DamageTarget => owner.Seat == targetSeat &&
-                            (_pendingAttack?.DamageRedirected != true ||
+                            (CurrentDamageAttempt?.DamageRedirected != true ||
                              !GetProgramTrigger(candidate).Effects.Any(effect =>
                                  effect.Op == SkillProgramEffectOp.RedirectCurrentDamage)),
-                        SkillProgramTriggerSubject.DamageSource => _pendingAttack?.IsSourceLess != true && owner.Seat == sourceSeat && owner.Seat != targetSeat,
+                        SkillProgramTriggerSubject.DamageSource => CurrentDamageAttempt?.IsSourceLess != true && owner.Seat == sourceSeat && owner.Seat != targetSeat,
                         SkillProgramTriggerSubject.Owner => owner.Seat != targetSeat,
                         _ => false
                     })
@@ -71,7 +72,7 @@ public sealed partial class GameEngine
 
         var parentFrameId = _resolutionStack.LastOrDefault()?.Id ??
             (continuation == BeforeDamageProgramContinuation.Attack
-                ? _pendingAttack?.ResolutionId : null) ??
+                ? CurrentDamageAttempt?.ResolutionId : null) ??
             throw new InvalidOperationException("Before-damage programs require an attack continuation.");
         var frame = new BeforeDamageProgramWindowFrame(
             ++_resolutionSequence,
@@ -82,8 +83,8 @@ public sealed partial class GameEngine
             nature,
             continuation,
             Array.AsReadOnly(candidates));
-        _resolutionStack.Add(frame);
-        ContinueBeforeDamageProgramWindow();
+        PushRuntimeFrame(frame);
+        AdvanceRuntimeTop<BeforeDamageProgramWindowFrame>();
         return true;
     }
 
@@ -101,9 +102,9 @@ public sealed partial class GameEngine
             Facts: item.Facts);
 
     private bool BeforeDamageHasNoSource(BeforeDamageProgramWindowFrame frame) =>
-        frame.Continuation == BeforeDamageProgramContinuation.Attack && _pendingAttack?.IsSourceLess == true;
+        frame.Continuation == BeforeDamageProgramContinuation.Attack && CurrentDamageAttempt?.IsSourceLess == true;
 
-    private void ContinueBeforeDamageProgramWindow()
+    private void ContinueBeforeDamageProgramWindowCore()
     {
         while (_resolutionStack.LastOrDefault() is BeforeDamageProgramWindowFrame frame)
         {
@@ -126,7 +127,7 @@ public sealed partial class GameEngine
             var trigger = GetProgramTrigger(item.Candidate);
             if (trigger.Optional)
             {
-                _resolutionStack[^1] = frame with { Step = ResolutionFrameStep.AwaitingResponse };
+                ReplaceRuntimeTop(frame with { Step = ResolutionFrameStep.AwaitingResponse });
                 ExposeProgramTriggerDecision(item.Candidate, context);
                 return;
             }
@@ -144,7 +145,7 @@ public sealed partial class GameEngine
             current.Id != frame.Id || current.CandidateIndex != frame.CandidateIndex)
             throw new InvalidOperationException("The before-damage program cursor is no longer current.");
         var candidate = current.Candidates[current.CandidateIndex].Candidate;
-        QueueGameEvent(new ProgramBindingResolvedEvent(
+        AdvanceEventRulesAndQueueFact(new ProgramBindingResolvedEvent(
             current.Id,
             candidate.SkillId,
             candidate.BindingId,
@@ -153,11 +154,11 @@ public sealed partial class GameEngine
             SkillProgramTriggerWindow.BeforeDamageApplied,
             activated,
             completed));
-        _resolutionStack[^1] = current with
+        ReplaceRuntimeTop(current with
         {
             CandidateIndex = current.CandidateIndex + 1,
             Step = ResolutionFrameStep.ResolvingEffect
-        };
+        });
     }
 
     private void PreventProgramCurrentDamage(ProgramSkillFrame program)
@@ -171,8 +172,8 @@ public sealed partial class GameEngine
             frame.Id != parentFrameId || frame.Prevented)
             throw new InvalidOperationException("Damage prevention lost its before-damage parent window.");
 
-        _resolutionStack[^2] = frame with { Prevented = true };
-        QueueGameEvent(new ProgramDamagePreventedEvent(
+        ReplaceRuntimeFrame(_resolutionStack[^2].Id, frame with { Prevented = true });
+        AdvanceEventRulesAndQueueFact(new ProgramDamagePreventedEvent(
             frame.Id,
             program.SkillId,
             program.TriggerId!,
@@ -193,7 +194,7 @@ public sealed partial class GameEngine
         {
             case BeforeDamageProgramContinuation.Attack:
             {
-                var attack = _pendingAttack ??
+                var attack = CurrentDamageAttempt ??
                     throw new InvalidOperationException("The before-damage attack continuation is unavailable.");
                 if (attack.SourceSeat != frame.SourceSeat || attack.TargetSeat !=
                     (frame.RedirectedTargetSeat ?? frame.TargetSeat))
@@ -201,10 +202,10 @@ public sealed partial class GameEngine
                 if (frame.RedirectedTargetSeat is null) attack.MarkBeforeDamageProgramsResolved();
                 if (frame.Prevented)
                 {
-                    CompleteAttack(attack);
+                    CompleteDamageAttack(attack);
                     return;
                 }
-                if (!ApplyAttackDamage(attack)) CompleteAttack(attack);
+                if (!ApplyAttackDamage(attack)) CompleteDamageAttack(attack);
                 return;
             }
             default:

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
@@ -94,7 +95,8 @@ public enum SkillProgramTriggerValueKind
     MarkerParity = 450,
     LivingWoundedCount = 451,
     GlobalMarkerCount = 452,
-    OwnerLostHp = 600, CardActionHandCardCount = 601, PlayPhaseDamageTakenByAny = 900
+    OwnerLostHp = 600, CardActionHandCardCount = 601, PlayPhaseDamageTakenByAny = 900,
+    EventTargetMarkerCount = 1280
 }
 public enum SkillProgramComparisonOperator
 {
@@ -168,8 +170,22 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    ChangeParticipantMarker = 1280, ConsumeMarkerPreventDamage = 1281, AddMarkerSubjectNormalDraw = 1282,
+    ScheduleDeferredHandAlignment = 1300,
+    ResolveDeferredHandAlignment = 1301,
+    ExchangeRespondedCardEntities = 1200, DrawPublicSuitThenEscalatingDiscard = 1201,
+    UseRandomDeckEquipment = 1240, GrantRandomSkillAndSuitShield = 1241,
+    DeclareNameForTargetDefense = 1120, DrawAndDraftLowHandPopulation = 1121,
+    ApplyAlternatingChoiceBenefit = 1100,
+    ObtainDeckCardWithConsecutiveTarget = 1101,
+    CompareSelectedHandWithHpHand = 1160,
+    AdjustPersistentHandLimit = 1161,
+    ProhibitSelfCardTargetsForTurn = 1162,
+    ChooseDifferentActionCategoryGift = 1080,
     DeclareBoundCardNameUntilTurnEnd = 1040,
     UpgradeConversionTier = 1041,
+    ReplaceAllSlashTargets = 1180,
+    StartCardActionPindian = 1181,
     Draw = 0,
     Recover,
     LoseHp,
@@ -322,7 +338,10 @@ public enum SkillProgramEffectOp
     ViewTopCardsAndObtainMatchingCards = 1000, DepositBoundCardsUntilNextTurn = 1001, ObtainDeferredPile = 1002, RewardDeferredProviders = 1003,
     GrowMaximumHpAndHp = 1020, ConsumeTargetPhaseLedger = 1021, GrantTurnBoundSuitUseProhibition = 1022, DiscardSelectedParticipantCards = 1023, OfferBoundCardsForDamagePrevention = 1024,
     SetTurnHandLimitFromPlayDamage = 944, GrantGameFactionAttackRangeTargets = 945,
-    DrawTurnOwnerThenDiscardMaximumHandForDodge = 946
+    DrawTurnOwnerThenDiscardMaximumHandForDodge = 946,
+    StoreTopCardInPublicPile = 1140, ExchangePublicPile = 1141, DistributePublicPileIfAllSuits = 1142,
+    ExchangeOwnedCardThroughDeckEnd = 1220, UseDeckSlashesThenShuffle = 1221,
+    SelectRelativeZoneDemandTarget = 1260, DrawOnFirstProgramTargetEncounter = 1261
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -365,7 +384,7 @@ public enum SkillProgramTriggerWindow
     AfterHealthChanged = 600, DyingEntering = 660,
     JudgmentPhaseStarting = 800,
     CharacterTurnedFaceUp = 820,
-    CharacterEnteredChain = 821
+    CharacterEnteredChain = 821, DrawPhaseEnded = 1140, ProgramTargetCommitted = 1260
 }
 public enum SkillProgramTriggerSubject { Owner, Any, Source, DamageSource, DamageTarget }
 public enum SkillProgramMovementOccurrence { PerBatch, PerCard, PerSourceOwner = 700, PerOwnerBatch = 761 }
@@ -410,7 +429,7 @@ public enum SkillProgramPhaseContinuation { BeforeNormalPreparation }
 public enum SkillProgramCardTargetRestriction { SelfOnly, DistanceUnlimitedAgainstTarget, SlashCountUnlimitedAgainstTarget, IgnoreArmorAgainstTarget, ArmorIneffectiveForTurn = 400 }
 public enum SkillProgramCardColorRelation { OppositeBoundCard }
 public enum SkillProgramStateVisibility { Public, Private }
-public enum SkillProgramStateResetScope { Game, PlayPhase = 450 }
+public enum SkillProgramStateResetScope { Game, PlayPhase = 450, Turn = 1081 }
 public enum SkillProgramStateReacquirePolicy { PreserveUntilGameEnd }
 [Flags]
 public enum DirectedTurnCardPolicyEffect
@@ -702,7 +721,9 @@ public sealed record SkillProgramTriggerFacts(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] bool? DeathExtinguishedFaction = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] bool? DiscardPhaseSuitsAllDistinct = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] bool? OtherDamageSourceAlive = null,
-    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? BlockedDamageSourceSkills = null)
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? BlockedDamageSourceSkills = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<int>? LowHandPopulationSeats = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<PlayerMarkerKind,int>? EventTargetMarkerCounts = null)
 {
     public bool GetBooleanState(string skillId, string skillInstanceId, string stateId) =>
         BooleanStates?.GetValueOrDefault(BooleanStateKey(skillId, skillInstanceId, stateId)) ??
@@ -713,7 +734,8 @@ public sealed record SkillProgramTriggerFacts(
 }
 
 public readonly record struct SkillProgramOwnedZoneCounts(
-    int WoodenOxGrain, int BuquWound, int Authority, int Chunlao)
+    int WoodenOxGrain, int BuquWound, int Authority, int Chunlao,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)] int PublicPersistentPile = 0)
 {
     public int Get(CardZoneKind zone) => zone switch
     {
@@ -721,6 +743,7 @@ public readonly record struct SkillProgramOwnedZoneCounts(
         CardZoneKind.BuquWound => BuquWound,
         CardZoneKind.Authority => Authority,
         CardZoneKind.Chunlao => Chunlao,
+        CardZoneKind.PublicPersistentPile => PublicPersistentPile,
         _ => 0
     };
 }
@@ -766,6 +789,7 @@ public sealed record SkillProgramTriggerValue(SkillProgramTriggerValueKind Kind,
         SkillProgramTriggerValueKind.PlayPhaseDamageDealtByTurnOwner => facts.PlayPhaseDamageDealtByTurnOwner,
         SkillProgramTriggerValueKind.PlayPhaseDamageTakenByAny => facts.PlayPhaseDamageTakenByAny,
         SkillProgramTriggerValueKind.OwnerEventTargetDistance => facts.OwnerEventTargetDistance,
+        SkillProgramTriggerValueKind.EventTargetMarkerCount => facts.EventTargetMarkerCounts?.GetValueOrDefault(Marker!.Value) ?? 0,
         SkillProgramTriggerValueKind.OwnerAttributedMarkerCount => Marker is { } marker &&
             facts.MarkerCounts is { } counts && counts.TryGetValue(marker, out var markerCount) ? markerCount : 0,
         _ => throw new InvalidOperationException($"Unsupported trigger value kind '{Kind}'.")
@@ -976,6 +1000,10 @@ public sealed class SkillProgramViewAs
     public SkillProgramCardDestination? CostDestination { get; internal init; }
     public bool UnusedOutputThisTurn { get; internal init; }
     public bool UseOnly { get; internal init; }
+    public bool AllowSameKind { get; internal init; }
+    public bool NoDying { get; internal init; }
+    public bool UnusedOutputNameThisGame { get; internal init; }
+    public string? NameLedgerId { get; internal init; }
     public bool SingleCardTrickUse { get; internal init; }
     public bool ExcludeOwnerEffects { get; internal init; }
     public string? ConversionStateId { get; internal init; }
@@ -1093,6 +1121,10 @@ public sealed class SkillProgramEffect
             skippedPhases ?? Array.Empty<SkillProgramTurnPhase>(), revealMode, sourceRef,
             prohibitReplacingEquipment, onePerSuit, allowDecline, useCardActionWindows, freezeMovedCardSuit, useFrozenSuit);
     public SkillProgramEffectOp Op { get; }
+    // An internal execution view compiled by the operation descriptor after JSON validation.
+    // The public definition and its serialized content fingerprint stay unchanged.
+    [System.Text.Json.Serialization.JsonIgnore]
+    internal ProgramSkillInstruction? CompiledInstruction { get; set; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public bool UseCardActionWindows { get; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
@@ -1312,6 +1344,13 @@ public sealed class SkillProgramTrigger
     public bool AllowNoEventTarget { get; internal init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public bool IncludeResponseUses { get; internal init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool SingleActionInstance { get; internal init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool NoDyingAtActivation { get; internal init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public bool DeferredTurnEndOnly { get; internal init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool OnlyDesignatedCardTargets { get; internal init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public bool AllowOwnDiscardPhaseEnded { get; internal init; }
     public SkillProgramTurnOwnerScope TurnOwnerScope { get; }
@@ -1716,7 +1755,12 @@ public sealed class SkillProgramCatalog
             ? EnumValue<Suit>(node, "inputSuit", path) : null;
         Suit? outputSuit = node.TryGetProperty("outputSuit", out _)
             ? EnumValue<Suit>(node, "outputSuit", path) : null;
-        if (kind == SkillProgramCardPolicyKind.RewriteSuit)
+        if (kind == SkillProgramCardPolicyKind.PindianRankBySuit)
+        {
+            if(inputSuit is null || outputSuit is not null || value is < 1 or > 13 || cardKinds.Count != 0 || requiredKinds.Count != 0)
+                Fail(path,"Pindian suit rank requires one input suit, rank 1..13 and no card filters.");
+        }
+        else if (kind == SkillProgramCardPolicyKind.RewriteSuit)
         {
             if (inputSuit is null || outputSuit is null || inputSuit == outputSuit ||
                 cardKinds.Count != 0 || requiredKinds.Count != 0 || value != 0)
@@ -1774,9 +1818,10 @@ public sealed class SkillProgramCatalog
                     CardKind.IronChain or CardKind.BorrowedSword)))
                 Fail(path, "nearby response prohibition requires Slash or ordinary trick kinds and distance 1..20");
         }
-        else if (requiredKinds.Count != 0 || value != 0)
+        else if (kind != SkillProgramCardPolicyKind.PindianRankBySuit && (requiredKinds.Count != 0 || value != 0))
             Fail(path, "requiredCardKinds and value require a minimum response count policy");
         if (kind is SkillProgramCardPolicyKind.OfferSkipDiscard or
+            SkillProgramCardPolicyKind.PindianTopCardChoice or SkillProgramCardPolicyKind.PindianRankBySuit or
             SkillProgramCardPolicyKind.RewriteSuit or
             SkillProgramCardPolicyKind.FactionHandLimitBonus or
             SkillProgramCardPolicyKind.ForeignPublicPileSlash or SkillProgramCardPolicyKind.PindianClaim or SkillProgramCardPolicyKind.IgnoreTurnObtainedHandCardsForDiscard)
@@ -1852,7 +1897,7 @@ public sealed class SkillProgramCatalog
         if (valueExpression is SkillRuleValueExpression.OwnedZoneCount or SkillRuleValueExpression.NegatedOwnedZoneCount)
         {
             if (valueZone is not (CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or
-                    CardZoneKind.Authority or CardZoneKind.Chunlao))
+                    CardZoneKind.Authority or CardZoneKind.Chunlao or CardZoneKind.PublicPersistentPile))
                 Fail(path + ".valueZone", "ownedZoneCount requires a persistent owner zone");
         }
         else if (valueZone is not null)
@@ -1956,7 +2001,12 @@ public sealed class SkillProgramCatalog
         CheckProperties(node, path, "id", "inputKinds", "inputSuits", "inputCategories", "inputCount", "sourceZones",
             "outputKind", "forPlay", "forResponse", "allowChainedInput", "sameSuit", "condition",
             "usesPerPhase", "usageGroup", "inheritPreviousPlaySuit", "extendedUse", "damageBonus", "recoveryBonus",
-            "costDestination", "unusedOutputThisTurn", "useOnly", "singleCardTrickUse", "excludeOwnerEffects", "conversionStateId", "minimumTier", "maximumTier", "declaredEntity", "activationUsageGroup");
+            "costDestination", "unusedOutputThisTurn", "useOnly", "singleCardTrickUse", "excludeOwnerEffects", "conversionStateId", "minimumTier", "maximumTier", "declaredEntity", "activationUsageGroup", "allowSameKind", "noDying", "unusedOutputNameThisGame", "nameLedgerId");
+        var allowSameKind = node.TryGetProperty("allowSameKind", out _) && RequiredBool(node, "allowSameKind", path);
+        var noDying = node.TryGetProperty("noDying", out _) && RequiredBool(node, "noDying", path);
+        var unusedName = node.TryGetProperty("unusedOutputNameThisGame", out _) && RequiredBool(node, "unusedOutputNameThisGame", path);
+        var nameLedger = node.TryGetProperty("nameLedgerId", out _) ? Identifier(node, "nameLedgerId", path) : null;
+        if (unusedName != (nameLedger is not null)) Fail(path, "unusedOutputNameThisGame requires exactly one nameLedgerId");
         var conversionState = node.TryGetProperty("conversionStateId", out _) ? Identifier(node, "conversionStateId", path) : null;
         var minimumTier = node.TryGetProperty("minimumTier", out _) ? NonNegativeInt(node, "minimumTier", path) : 0;
         var maximumTier = node.TryGetProperty("maximumTier", out _) ? NonNegativeInt(node, "maximumTier", path) : 2;
@@ -2003,11 +2053,14 @@ public sealed class SkillProgramCatalog
              CardKind.PeachGarden or CardKind.FiveGrains or CardKind.Dismantlement or CardKind.Snatch or
              CardKind.FireAttack or CardKind.IronChain or CardKind.BorrowedSword)))
             Fail(path + ".singleCardTrickUse", "requires one physical source and an ordinary trick for play");
-        if (useOnly && !singleTrick && !(conversionState is not null && output == CardKind.Nullification && !forPlay && forResponse && inputCount == 1) && (inputCount != 1 ||
+        if (useOnly && !singleTrick && !((conversionState is not null || unusedName) && output == CardKind.Nullification && !forPlay && forResponse && inputCount == 1) && (inputCount != 1 ||
             (output == CardKind.Dodge ? forPlay || !forResponse :
              !forPlay || forResponse || output is not
                 (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Peach or CardKind.Alcohol))))
             Fail(path + ".useOnly", "requires one physical cost and a legal basic-card use direction");
+        if (unusedName && (!useOnly || inputCount != 1 ||
+            CardUseCategoryCatalog.Get(output) is not (CardUseCategories.Basic or CardUseCategories.InstantTrick)))
+            Fail(path, "game name ledgers require one physical use-only basic or ordinary trick output");
         if (costDestination is not null && (costDestination != SkillProgramCardDestination.DrawPileTop || !useOnly))
             Fail(path + ".costDestination", "requires drawPileTop and a useOnly basic-card conversion");
         if (costDestination is not null && sourceZones.Any(zone => zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)))
@@ -2079,12 +2132,12 @@ public sealed class SkillProgramCatalog
         if (allowChainedInput &&
             (!forPlay || forResponse || inputCount != 1 || output != CardKind.FireSlash))
             Fail(path + ".allowChainedInput", "chained viewAs currently supports one input for fireSlash play only");
-        if (inputs.Count > 0 && inputs.All(kind => kind == output))
+        if (!allowSameKind && inputs.Count > 0 && inputs.All(kind => kind == output))
             Fail(path + ".inputKinds", "viewAs must change at least one accepted input kind");
         return new SkillProgramViewAs(id, inputs, suits, output, forPlay, forResponse,
             OptionalCondition(node, path), inputCount, sourceZones, allowChainedInput, inputCategories, sameSuit,
             usesPerPhase, usageGroup, inheritPreviousPlaySuit)
-        { ConversionStateId = conversionState, MinimumTier = minimumTier, MaximumTier = maximumTier, DeclaredEntity = declaredEntity, ActivationUsageGroup = activationGroup, SingleCardTrickUse = singleTrick, ExcludeOwnerEffects = excludeOwner, ExtendedUse = extended, UseOnly = useOnly, UnusedOutputThisTurn = unusedOutputThisTurn, CostDestination = costDestination,
+        { AllowSameKind = allowSameKind, NoDying = noDying, UnusedOutputNameThisGame = unusedName, NameLedgerId = nameLedger, ConversionStateId = conversionState, MinimumTier = minimumTier, MaximumTier = maximumTier, DeclaredEntity = declaredEntity, ActivationUsageGroup = activationGroup, SingleCardTrickUse = singleTrick, ExcludeOwnerEffects = excludeOwner, ExtendedUse = extended, UseOnly = useOnly, UnusedOutputThisTurn = unusedOutputThisTurn, CostDestination = costDestination,
           DamageBonus = node.TryGetProperty("damageBonus", out _) ? NonNegativeInt(node, "damageBonus", path) : 0,
           RecoveryBonus = node.TryGetProperty("recoveryBonus", out _) ? NonNegativeInt(node, "recoveryBonus", path) : 0 };
     }
@@ -2218,7 +2271,7 @@ public sealed class SkillProgramCatalog
         {
             ProgramCompositionValidator.Validate(path, effects, minTargets == 1 && maxTargets == 1,
                 maxCards, initialTargetSetCount: maxTargets > 1 ? minTargets : 0,
-                initialTargetSetMaximum: maxTargets > 1 ? maxTargets : 0);
+                initialTargetSetMaximum: maxTargets > 1 ? maxTargets : 0, activationTargetKind: targetKind, activationSourceZones: sourceZones, activationMinimumCards: minCards);
             if (effects.Any(effect => effect.Op == SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick) &&
                 (minCards != 1 || maxCards != 64 || minTargets != 0 || maxTargets != 0 ||
                  sourceZones.Count != 1 || sourceZones[0] != CardZoneKind.Hand))
@@ -2231,6 +2284,19 @@ public sealed class SkillProgramCatalog
                     minTargets != 1 || maxTargets != 1 || sourceZones.Count != 1 ||
                     sourceZones[0] != CardZoneKind.Hand))
                 Fail(path, "Pindian requires one owner hand card and one required target");
+        }
+        ValidateRelativeZoneDemandActivation(path, effects, minCards, maxCards, minTargets, maxTargets, sourceZones, usesPerPhase);
+        if (effects.Any(effect => effect.Op == SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd))
+        {
+            // The other-player entry shares only its provider phase counter. Reject
+            // owner-only gates or costs rather than silently bypassing them there.
+            if (effects.Count != 1 || minCards != 1 || maxCards != 1 || minTargets != 0 || maxTargets != 0 ||
+                !sourceZones.Order().SequenceEqual(new[] { CardZoneKind.Hand, CardZoneKind.Equipment }.Order()) ||
+                usesPerPhase != 1 || uses is not null || OptionalCondition(node, path).Kind != SkillProgramConditionKind.Always ||
+                node.EnumerateObject().Any(property => property.Name is not
+                    ("id" or "minCards" or "maxCards" or "minTargets" or "maxTargets" or "targetKind" or
+                     "usesPerTurn" or "usesPerPhase" or "sourceZones" or "effects" or "condition")))
+                Fail(path, "deck-end exchange requires one standalone unconditional effect, one HE card, no target/filter or owner-only gate/cost, and one use per provider play phase");
         }
         return new SkillProgramActivation(id, minCards, maxCards, minTargets, maxTargets, targetKind, uses,
             OptionalCondition(node, path), effects, sourceZones, usesPerPhase, usesPerGame,
@@ -2308,9 +2374,12 @@ public sealed class SkillProgramCatalog
             "judgmentSource", "optional", "condition", "priority", "usageScope", "usageLimit",
             "drawPhaseMode", "choiceGroup", "ownerRelation", "turnOwnerScope", "effects",
             "destinationZones", "movementReasons", "excludedMovementReasons", "ignoreOwnSkillMovements",
-            "hpChangeOccurrence", "markerCost", "evaluateConditionAtResolution", "allowNoEventTarget", "allowOwnDiscardPhaseEnded", "movementDiscardOnly", "discardOwnerScope", "includeResponseUses");
+            "hpChangeOccurrence", "markerCost", "evaluateConditionAtResolution", "allowNoEventTarget", "allowOwnDiscardPhaseEnded", "movementDiscardOnly", "discardOwnerScope", "includeResponseUses", "singleActionInstance", "onlyDesignatedCardTargets", "noDyingAtActivation", "deferredTurnEndOnly");
         var id = Identifier(node, "id", path);
         var window = EnumValue<SkillProgramTriggerWindow>(node, "window", path);
+        var singleActionInstance = node.TryGetProperty("singleActionInstance", out _) && RequiredBool(node, "singleActionInstance", path);
+        if (node.TryGetProperty("singleActionInstance", out _) && window != SkillProgramTriggerWindow.CardUseCompleted) Fail(path, "singleActionInstance requires cardUseCompleted");
+        var onlyDesignatedCardTargets = node.TryGetProperty("onlyDesignatedCardTargets", out _) && RequiredBool(node, "onlyDesignatedCardTargets", path);
         var includeResponseUses = node.TryGetProperty("includeResponseUses", out _) && RequiredBool(node, "includeResponseUses", path);
         if (node.TryGetProperty("includeResponseUses", out _) && window != SkillProgramTriggerWindow.CardUseCompleted)
             Fail(path + ".includeResponseUses", "requires a cardUseCompleted trigger");
@@ -2387,10 +2456,10 @@ public sealed class SkillProgramCatalog
             if (cardCategories.Count == 0 || cardCategories.Distinct().Count() != cardCategories.Count)
                 Fail(path + ".cardCategories", "must contain distinct card categories");
         }
-        var isLifecycleWindow = isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
+        var isLifecycleWindow = window == SkillProgramTriggerWindow.ProgramTargetCommitted || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
             SkillProgramTriggerWindow.DyingEntering or SkillProgramTriggerWindow.DyingEntered or SkillProgramTriggerWindow.DyingExited or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
-            SkillProgramTriggerWindow.AfterNormalDraw or
+            SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or
             SkillProgramTriggerWindow.SelfDyingResponse or
             SkillProgramTriggerWindow.DyingResponse or SkillProgramTriggerWindow.DyingEntering or
             SkillProgramTriggerWindow.BeforeDamageApplied or
@@ -2405,10 +2474,10 @@ public sealed class SkillProgramCatalog
             SkillProgramTriggerWindow.CharacterDied or
             SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.JudgmentPhaseStarting or
             SkillProgramTriggerWindow.CharacterTurnedFaceUp or SkillProgramTriggerWindow.CharacterEnteredChain;
-        var supportsTriggerCondition = isCardActionWindow || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
+        var supportsTriggerCondition = window == SkillProgramTriggerWindow.ProgramTargetCommitted || isCardActionWindow || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
             SkillProgramTriggerWindow.DyingEntering or SkillProgramTriggerWindow.DyingEntered or SkillProgramTriggerWindow.DyingExited or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
-            SkillProgramTriggerWindow.AfterNormalDraw or
+            SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or
             SkillProgramTriggerWindow.DyingResponse or SkillProgramTriggerWindow.DyingEntering or
             SkillProgramTriggerWindow.BeforeDamageApplied or
             SkillProgramTriggerWindow.PlayEnding or
@@ -2648,6 +2717,7 @@ public sealed class SkillProgramCatalog
         if (window == SkillProgramTriggerWindow.DamageAppliedBeforeDying && optional)
             Fail(path + ".optional", "damageAppliedBeforeDying cannot request a choice");
         var condition = OptionalTriggerCondition(node, path);
+        if (EnumerateTriggerValues(condition).Any(v=>v.Kind==SkillProgramTriggerValueKind.EventTargetMarkerCount) && window is not (SkillProgramTriggerWindow.BeforeDamageApplied or SkillProgramTriggerWindow.DrawPhaseStarting)) Fail(path + ".condition", "eventTargetMarkerCount requires an actual damage or draw subject");
         if (EnumerateTriggerConditions(condition).Any(item => item.Kind == SkillProgramTriggerConditionKind.OwnerKilledThisTurn) &&
             window != SkillProgramTriggerWindow.TurnEnding)
             Fail(path + ".condition", "turn kill history requires turnEnding");
@@ -2887,7 +2957,18 @@ public sealed class SkillProgramCatalog
             Fail(path + ".discardOwnerScope", "requires discardPileReceived");
         if (node.TryGetProperty("movementDiscardOnly", out _) && window is not (SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.DiscardPileReceived))
             Fail(path + ".movementDiscardOnly", "requires a cardsMoved boundary");
-        ProgramCompositionValidator.Validate(path, effects, window: window, drawPhaseMode: drawPhaseMode);
+        var deferredOnly = node.TryGetProperty("deferredTurnEndOnly", out _) && RequiredBool(node, "deferredTurnEndOnly", path);
+        if (effects.Any(effect => effect.Op == SkillProgramEffectOp.ScheduleDeferredHandAlignment) &&
+            (window != SkillProgramTriggerWindow.TurnEnding || subject != SkillProgramTriggerSubject.Owner ||
+                turnOwnerScope != SkillProgramTurnOwnerScope.Own))
+            Fail(path, "deferred alignment scheduling requires the source owner's own ending boundary");
+        if (deferredOnly && (window != SkillProgramTriggerWindow.TurnEnding || subject != SkillProgramTriggerSubject.Owner ||
+                turnOwnerScope != SkillProgramTurnOwnerScope.Own || optional || effects.Count != 1 ||
+                effects[0].Op != SkillProgramEffectOp.ResolveDeferredHandAlignment) ||
+            !deferredOnly && effects.Any(e => e.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment))
+            Fail(path, "a deferred end continuation requires one resolver, mandatory own TurnEnding and deferredTurnEndOnly");
+        ProgramCompositionValidator.Validate(path, effects, initialSelectedTarget: deferredOnly, window: window, drawPhaseMode: drawPhaseMode, cardActionRelation: ownerRelation, cardKinds: cardKinds, turnOwnerScope: turnOwnerScope);
+        if (node.TryGetProperty("onlyDesignatedCardTargets", out _) && ownerRelation != SkillProgramCardActionOwnerRelation.Target) Fail(path + ".onlyDesignatedCardTargets", "requires a target-owner card trigger");
         return new SkillProgramTrigger(id, window, sourceSkillId, sourceViewAsId, subject, suits,
             minimumRank, maximumRank, excludedReasons, judgmentReasons, judgmentSource,
             cardKinds, sourceZones, movementOccurrence, damageOccurrence, drawPhaseMode, optional,
@@ -2897,6 +2978,10 @@ public sealed class SkillProgramCatalog
             DestinationZones = destinationZones,
             AllowNoEventTarget = allowNoEventTarget,
             IncludeResponseUses = includeResponseUses,
+            SingleActionInstance = singleActionInstance,
+            DeferredTurnEndOnly = deferredOnly,
+            NoDyingAtActivation = node.TryGetProperty("noDyingAtActivation", out _) && RequiredBool(node, "noDyingAtActivation", path),
+            OnlyDesignatedCardTargets = onlyDesignatedCardTargets,
             AllowOwnDiscardPhaseEnded = allowOwnDiscardPhaseEnded,
             MovementReasons = movementReasons,
             ExcludedMovementReasons = excludedMovementReasons,
@@ -2958,17 +3043,35 @@ public sealed class SkillProgramCatalog
         }
     }
 
+    private static void ValidateRelativeZoneDemandActivation(string path, IReadOnlyList<SkillProgramEffect> effects,
+        int minCards, int maxCards, int minTargets, int maxTargets, IReadOnlyList<CardZoneKind> zones, int? usesPerPhase)
+    {
+        if (!effects.Any(effect => effect.Op == SkillProgramEffectOp.SelectRelativeZoneDemandTarget)) return;
+        if (minCards != 1 || maxCards != 1 || minTargets != 0 || maxTargets != 0 || usesPerPhase != 1 ||
+            !zones.Order().SequenceEqual(new[] { CardZoneKind.Hand, CardZoneKind.Equipment }.Order()) || effects.Count < 3 ||
+            effects[0] is not { Op: SkillProgramEffectOp.CaptureSelectedCards, Condition.Kind: SkillProgramConditionKind.Always } ||
+            effects[1] is not { Op: SkillProgramEffectOp.MoveBoundCards, Destination: SkillProgramCardDestination.DiscardPile, AwaitMovementTriggers: true, Condition.Kind: SkillProgramConditionKind.Always } ||
+            effects[2] is not { Op: SkillProgramEffectOp.SelectRelativeZoneDemandTarget } ||
+            effects[0].ResultBind != effects[1].SourceBind || effects[0].ResultBind != effects[2].SourceBind ||
+            effects.Count(effect => effect.Op == SkillProgramEffectOp.SelectRelativeZoneDemandTarget) != 1)
+            Fail(path, "relative-zone demand requires one HE cost captured, discarded and awaited before its sole declaration, no initial target, and one use per play phase");
+    }
+
     private static void ValidateTriggerSources(IReadOnlyDictionary<string, SkillProgram> programs)
     {
         foreach (var owner in programs.Values)
             foreach (var trigger in owner.Triggers)
             {
                 var path = $"skill '{owner.Id}'.triggers.{trigger.Id}";
+                foreach (var reward in trigger.Effects.Where(effect => effect.Op == SkillProgramEffectOp.DrawOnFirstProgramTargetEncounter))
+                    if (!programs.TryGetValue(reward.SkillIds.Single(), out var declarationProgram) ||
+                        declarationProgram.Activations.SingleOrDefault(item => item.Id == reward.StateId)?.Effects.Any(effect => effect.Op == SkillProgramEffectOp.SelectRelativeZoneDemandTarget) != true)
+                        Fail(path, "first-target reward requires a real configured relative-zone declaration activation");
                 if (trigger.Window is SkillProgramTriggerWindow.JudgmentFinalized or
                     SkillProgramTriggerWindow.JudgmentReplacing or
                     SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
                     SkillProgramTriggerWindow.DrawPhaseStarting or
-                    SkillProgramTriggerWindow.AfterNormalDraw or
+                    SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or
                     SkillProgramTriggerWindow.SelfDyingResponse or
                     SkillProgramTriggerWindow.DyingResponse or SkillProgramTriggerWindow.DyingEntering or
                     SkillProgramTriggerWindow.BeforeDamageApplied or
@@ -3171,7 +3274,7 @@ public sealed class SkillProgramCatalog
         var hasValue = node.TryGetProperty("value", out _);
         var hasZone = node.TryGetProperty("zone", out _);
         var hasMarker = node.TryGetProperty("marker", out _);
-        var usesMarker = kind is SkillProgramTriggerValueKind.OwnerAttributedMarkerCount or SkillProgramTriggerValueKind.MarkerParity or SkillProgramTriggerValueKind.GlobalMarkerCount;
+        var usesMarker = kind is SkillProgramTriggerValueKind.EventTargetMarkerCount or SkillProgramTriggerValueKind.OwnerAttributedMarkerCount or SkillProgramTriggerValueKind.MarkerParity or SkillProgramTriggerValueKind.GlobalMarkerCount;
         if (usesMarker != hasMarker)
             Fail(path, usesMarker ? "ownerAttributedMarkerCount requires marker" :
                 "this trigger value does not accept marker");
@@ -3185,7 +3288,7 @@ public sealed class SkillProgramCatalog
                 "this trigger value does not accept zone");
         var zone = hasZone ? EnumValue<CardZoneKind>(node, "zone", path) : (CardZoneKind?)null;
         if (zone is not null && zone is not (CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or
-                CardZoneKind.Authority or CardZoneKind.Chunlao))
+                CardZoneKind.Authority or CardZoneKind.Chunlao or CardZoneKind.PublicPersistentPile))
             Fail(path + ".zone", "must be an owner-scoped persistent named zone");
         return new SkillProgramTriggerValue(
             kind,

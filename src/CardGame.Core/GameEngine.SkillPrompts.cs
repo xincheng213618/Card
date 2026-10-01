@@ -11,7 +11,7 @@ public sealed partial class GameEngine
         return Accept(() =>
         {
             ResolvePindianChoice(selected);
-            PublishState();
+            AdvanceRulesAndPublishState();
             return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
         });
     }

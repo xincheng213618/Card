@@ -50,7 +50,7 @@ public sealed partial class GameEngine
                 grant.IsEnabled && !grant.SourceId.StartsWith("equipment:", StringComparison.Ordinal))
             .ToArray();
         foreach (var grant in lost) source.SkillGrants.SetEnabled(grant.GrantId, false);
-        QueueGameEvent(new CharacterSkillsLostEvent(sourceSeat, frame.OwnerSeat,
+        AdvanceEventRulesAndQueueFact(new CharacterSkillsLostEvent(sourceSeat, frame.OwnerSeat,
             Array.AsReadOnly(lost.Select(grant => grant.SkillId).Distinct(StringComparer.Ordinal).ToArray())));
         AddLog("SkillTriggered", $"{source.Name} 受到【断肠】影响，失去所有武将技能。",
             frame.OwnerSeat, sourceSeat);

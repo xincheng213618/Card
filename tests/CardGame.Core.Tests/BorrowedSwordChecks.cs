@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using CardGame.Content.Standard;
 using CardGame.Core;
 
@@ -11,7 +11,7 @@ internal static class BorrowedSwordChecks
                 action.Kind == LegalActionKind.BorrowedSword),
             "Current rules must expose Borrowed Sword from the prepared source boundary.");
 
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = BorrowedSwordScenario.CreateFixtureRegistry();
         var boundary = BorrowedSwordScenario.FindHumanOwnerResponse();
         var prompt = boundary.PendingDecision ??
             throw new InvalidOperationException("Borrowed Sword fixture lost its private response prompt.");

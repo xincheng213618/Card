@@ -56,7 +56,8 @@ internal static class PublicMarkerChecks
             "An ordinary observer did not receive the exact public Nightmare counter.");
         AssertReplay(current, registry, expectedCount: 2);
 
-        var lethalRegistry = CreateRegistry(ownerHp: 1, packageId: "wuhun-marker-lethal");
+        var lethalRegistry = CreateRegistry(ownerHp: 1, packageId: "wuhun-marker-lethal",
+            deckCards: [new ContentDeckCardCount("standard:slash", 60)]);
         var lethal = FindFixture(lethalRegistry, requireAlcohol: false);
         PlayAlcoholAndSlash(lethal, useAlcohol: false);
         var events = lethal.Events.Select(item => item.Payload).ToArray();
@@ -65,10 +66,112 @@ internal static class PublicMarkerChecks
         var markerIndex = Array.FindIndex(events, item => item is PlayerMarkerChangedEvent marker &&
             marker.PlayerSeat == 0 && marker.SkillOwnerSeat == 1);
         var dyingIndex = Array.FindIndex(events, item => item is PlayerDyingEvent dying && dying.VictimSeat == 1);
-        Require(appliedIndex >= 0 && markerIndex > appliedIndex && dyingIndex > markerIndex &&
-                lethal.CreateSnapshot(0, revealAll: true).Players[0].Markers?.Single().Count == 1,
+        Require(appliedIndex >= 0 && markerIndex > appliedIndex && dyingIndex > markerIndex,
             "Lethal damage must add Nightmare after damage is applied and before dying begins.");
-        AssertReplay(lethal, lethalRegistry, expectedCount: 1);
+
+        ResolveLethalWuhun(lethal);
+        var settled = lethal.Events.Select(item => item.Payload).ToArray();
+        var ownerDeathIndex = Array.FindIndex(settled, item =>
+            item is PlayerDiedEvent died && died.VictimSeat == 1);
+        var directIndex = Array.FindIndex(settled, item =>
+            item is ProgramSkillCauseDeathDeclaredEvent direct && direct.TargetSeat == 0);
+        var attackerDeathIndex = Array.FindIndex(settled, item =>
+            item is PlayerDiedEvent died && died.VictimSeat == 0);
+        var cleanupIndex = Array.FindIndex(settled, item =>
+            item is PlayerMarkerChangedEvent marker && marker.PlayerSeat == 0 && marker.Delta == -1);
+        Require(ownerDeathIndex >= 0 && directIndex > ownerDeathIndex &&
+                attackerDeathIndex > directIndex && cleanupIndex > attackerDeathIndex &&
+                lethal.ResolutionStack.All(frame => frame is not DeathFrame),
+            "Nested Wuhun direct death must return to the outer owner-death frame before marker cleanup.");
+        var settledReplay = GameReplay.Restore(RoundTrip(lethal.CreateCheckpoint()), lethalRegistry);
+        Require(SnapshotJson.Serialize(settledReplay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(lethal.CreateSnapshot(0, revealAll: true)) &&
+                settledReplay.Events.Select(item => item.Payload.GetType()).SequenceEqual(
+                    lethal.Events.Select(item => item.Payload.GetType())),
+            "Nested direct death and outer marker cleanup did not replay in the same order.");
+    }
+
+    public static void XingshangClaimsNestedDeathCleanupAndReplay()
+    {
+        var registry = CreateRegistry(ownerHp: 1, packageId: "wuhun-xingshang-nested-deaths",
+            deckCards: [new ContentDeckCardCount("standard:slash", 60)], withXingshang: true);
+        var game = FindFixture(registry, requireAlcohol: false,
+            requiredOwnerRole: Role.Loyalist, humanRole: Role.Rebel, fixedSeed: 512);
+        var xingshangSeat = game.CreateSnapshot(0, revealAll: true).Players
+            .Single(player => player.GeneralId == BystanderOneId).Seat;
+        var slash = game.GetHumanLegalActions().First(action =>
+            action.Kind == LegalActionKind.Slash && action.TargetSeat == 1);
+        Require(Play(game, slash).Accepted, "The nested Xingshang fixture Slash was rejected.");
+        for (var step = 0; step < 128; step++)
+        {
+            var deaths = game.Events.Select(item => item.Payload).OfType<PlayerDiedEvent>().ToArray();
+            if (deaths.Any(item => item.VictimSeat == 1) &&
+                deaths.Any(item => item.VictimSeat == 0) &&
+                game.ResolutionStack.All(frame => frame is not DeathFrame))
+                break;
+            var result = game.PendingDecision is { PlayerSeat: 0, Kind: not DecisionKind.PlayCard } prompt
+                ? game.Submit(new AnswerPromptCommand(0, prompt.PromptId,
+                    (prompt.Choices.FirstOrDefault(choice =>
+                        choice.Parameters.GetValueOrDefault("response") == "let-die") ??
+                     prompt.Choices.First()).Id, game.Revision))
+                : game.Submit(new AdvanceOneStepCommand(game.Revision));
+            Require(result.Accepted, result.Error?.Message ?? "Nested Xingshang death did not advance.");
+        }
+
+        var events = game.Events.Select(item => item.Payload).ToArray();
+        var outerDeath = Array.FindIndex(events, item => item is PlayerDiedEvent { VictimSeat: 1 });
+        var innerDeath = Array.FindIndex(events, item => item is PlayerDiedEvent { VictimSeat: 0 });
+        var outerCleanupIds = events.Take(outerDeath).OfType<CardMovedEvent>()
+            .Where(item => item.From == CardLocation.Hand(1) && item.To == CardLocation.DiscardPile)
+            .Select(item => item.CardId).ToHashSet();
+        var innerCleanupIds = events.Skip(outerDeath + 1).Take(innerDeath - outerDeath - 1)
+            .OfType<CardMovedEvent>()
+            .Where(item => item.From == CardLocation.Hand(0) && item.To == CardLocation.DiscardPile)
+            .Select(item => item.CardId).ToHashSet();
+        var innerClaim = Array.FindIndex(events, innerDeath + 1, item => item is CardMovedEvent move &&
+            move.From == CardLocation.DiscardPile && move.To == CardLocation.Hand(xingshangSeat) &&
+            move.Reason.Value.Contains("claim-death-cleanup", StringComparison.Ordinal) &&
+            innerCleanupIds.Contains(move.CardId));
+        var outerClaim = Array.FindIndex(events, innerClaim + 1, item => item is CardMovedEvent move &&
+            move.From == CardLocation.DiscardPile && move.To == CardLocation.Hand(xingshangSeat) &&
+            move.Reason.Value.Contains("claim-death-cleanup", StringComparison.Ordinal) &&
+            outerCleanupIds.Contains(move.CardId));
+        Require(outerDeath >= 0 && innerDeath > outerDeath && outerCleanupIds.Count > 0 &&
+                innerCleanupIds.Count > 0 && innerClaim > innerDeath && outerClaim > innerClaim &&
+                game.ResolutionStack.All(frame => frame is not DeathFrame),
+            "Xingshang must claim inner cleanup before returning to claim the outer death's cleanup cards.");
+        var replay = GameReplay.Restore(RoundTrip(game.CreateCheckpoint()), registry);
+        Require(SnapshotJson.Serialize(replay.CreateSnapshot(0, revealAll: true)) ==
+                SnapshotJson.Serialize(game.CreateSnapshot(0, revealAll: true)) &&
+                replay.Events.Select(item => item.Payload.GetType()).SequenceEqual(
+                    game.Events.Select(item => item.Payload.GetType())),
+            "Nested Xingshang cleanup claims did not replay in order.");
+    }
+
+    private static void ResolveLethalWuhun(GameEngine game)
+    {
+        for (var step = 0; step < 128; step++)
+        {
+            if (game.Events.Any(item => item.Payload is PlayerDiedEvent { VictimSeat: 0 }) &&
+                game.ResolutionStack.All(frame => frame is not DeathFrame))
+                return;
+            var result = game.PendingDecision is { PlayerSeat: 0, Kind: not DecisionKind.PlayCard } prompt
+                ? game.Submit(new AnswerPromptCommand(0, prompt.PromptId,
+                    (prompt.Choices.FirstOrDefault(choice =>
+                        choice.Parameters.GetValueOrDefault("response") == "let-die") ??
+                     prompt.Choices.FirstOrDefault(choice =>
+                        choice.Parameters.GetValueOrDefault("program-action") == "skip") ??
+                     prompt.Choices.First()).Id, game.Revision))
+                : game.Submit(new AdvanceOneStepCommand(game.Revision));
+            Require(result.Accepted,
+                $"{result.Error?.Message ?? "The nested Wuhun death continuation was rejected."} " +
+                $"Prompt={game.PendingDecision?.Kind}; Deaths={string.Join(',', game.Events.Select(item => item.Payload).OfType<PlayerDiedEvent>().Select(item => item.VictimSeat))}");
+        }
+        throw new InvalidOperationException(
+            $"Nested Wuhun direct death did not settle within 128 steps. " +
+            $"Prompt={game.PendingDecision?.Kind}; Stack={string.Join(',', game.ResolutionStack.Select(frame => frame.Kind))}; " +
+            $"Deaths={string.Join(',', game.Events.Select(item => item.Payload).OfType<PlayerDiedEvent>().Select(item => item.VictimSeat))}; " +
+            $"Direct={game.Events.Count(item => item.Payload is ProgramSkillCauseDeathDeclaredEvent)}");
     }
 
 
@@ -80,11 +183,13 @@ internal static class PublicMarkerChecks
     private static GameEngine FindFixture(
         ContentRegistry registry,
         bool requireAlcohol,
-        Role? requiredOwnerRole = null)
+        Role? requiredOwnerRole = null,
+        Role humanRole = Role.Lord,
+        int? fixedSeed = null)
     {
-        for (var seed = 1; seed <= 4_096; seed++)
+        for (var seed = fixedSeed ?? 1; seed <= (fixedSeed ?? 4_096); seed++)
         {
-            var game = CreateGame(registry, seed, humanSeat: 0, humanRole: Role.Lord);
+            var game = CreateGame(registry, seed, humanSeat: 0, humanRole);
             if (!game.Submit(new StartGameCommand()).Accepted || !AdvanceToHumanPlay(game))
                 continue;
             var full = game.CreateSnapshot(0, revealAll: true);
@@ -184,7 +289,8 @@ internal static class PublicMarkerChecks
         string packageId,
         IReadOnlyList<ContentDeckCardCount>? deckCards = null,
         string? attackerSkill = null,
-        IReadOnlyDictionary<string, int>? roleCounts = null) =>
+        IReadOnlyDictionary<string, int>? roleCounts = null,
+        bool withXingshang = false) =>
         ContentRegistry.Build(
             new StandardContentPackage(),
             new SyntheticPackage(
@@ -215,6 +321,11 @@ internal static class PublicMarkerChecks
                         builder.AddSkill(StandardContentRegistry.CreateWithClassicGenerals()
                             .Skills["classic:quhu"]);
                     }
+                    if (withXingshang)
+                    {
+                        builder.AddSkill(StandardContentRegistry.CreateWithClassicGenerals()
+                            .Skills["classic:xingshang"]);
+                    }
                     builder.AddGeneral(new ContentGeneralDefinition(
                         AttackerId,
                         "攻击者",
@@ -234,7 +345,8 @@ internal static class PublicMarkerChecks
                     builder.AddGeneral(new ContentGeneralDefinition(
                         OwnerId, "武魂测试者", "shen-guan-yu", WuhunSkillId, "god", BaseHp: ownerHp));
                     builder.AddGeneral(new ContentGeneralDefinition(
-                        BystanderOneId, "旁观者一", "liu_bei", "standard:none", "shu", BaseHp: 4));
+                        BystanderOneId, "旁观者一", "liu_bei",
+                        withXingshang ? "classic:xingshang" : "standard:none", "shu", BaseHp: 4));
                     builder.AddGeneral(new ContentGeneralDefinition(
                         BystanderTwoId, "旁观者二", "sun_quan", "standard:none", "wu", BaseHp: 4));
                     builder.AddDeck(new ContentDeckRecipe(

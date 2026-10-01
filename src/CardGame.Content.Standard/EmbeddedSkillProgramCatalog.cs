@@ -20,8 +20,7 @@ internal static class EmbeddedSkillProgramCatalog
         if (string.IsNullOrWhiteSpace(skillId))
             throw new ArgumentException("A skill id is required.", nameof(skillId));
 
-        var catalog = Catalogs.GetOrAdd(bundleResourceName, static name =>
-            new Lazy<SkillProgramCatalog>(() => Load(name), LazyThreadSafetyMode.ExecutionAndPublication)).Value;
+        var catalog = Catalog(bundleResourceName);
         if (!catalog.Programs.TryGetValue(skillId, out var program) ||
             !catalog.Presentations.TryGetValue(skillId, out var presentation))
             throw new InvalidOperationException(
@@ -33,6 +32,15 @@ internal static class EmbeddedSkillProgramCatalog
             SelectionWeights = SkillSelectionPreferences.For(skillId),
             RevealWeights = SkillSelectionPreferences.RevealFor(skillId)
         };
+    }
+
+    internal static SkillProgramCatalog Catalog(string bundleResourceName)
+    {
+        if (string.IsNullOrWhiteSpace(bundleResourceName))
+            throw new ArgumentException("A skill-program bundle resource name is required.", nameof(bundleResourceName));
+
+        return Catalogs.GetOrAdd(bundleResourceName, static name =>
+            new Lazy<SkillProgramCatalog>(() => Load(name), LazyThreadSafetyMode.ExecutionAndPublication)).Value;
     }
 
     private static SkillProgramCatalog Load(string bundleResourceName)

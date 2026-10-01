@@ -7,8 +7,9 @@ public sealed partial class GameEngine
     /// No skill identities, trigger rules or instruction dispatch belong here.
     /// </summary>
     private sealed partial class ProgramSkillHost(GameEngine engine) :
-        ISkillProgramExecutionHost, ISkillProgramEffectHost, IConfiguredConversionProgramHost
+        ISkillProgramExecutionHost, ISkillProgramEffectHost, IConfiguredConversionProgramHost, IActionCategoryGiftProgramHost
     {
+        public SkillProgramStepOutcome ChooseDifferentActionCategoryGift(ProgramSkillFrame frame, int targetSeat, string resultBind, IReadOnlyList<CardZoneKind> zones) => engine.BeginDifferentActionCategoryGift(frame, targetSeat, resultBind, zones);
         public SkillProgramStepOutcome DeclareBoundCardName(ProgramSkillFrame frame, string sourceBind, string stateId) => engine.BeginConfiguredCardDeclaration(frame, sourceBind, stateId);
         public void UpgradeConversionTier(ProgramSkillFrame frame, string stateId) => engine.UpgradeConfiguredConversionTier(frame, stateId);
         public SkillProgramStepOutcome ExchangeSelectedTargetEquipment(ProgramSkillFrame frame) =>
@@ -77,7 +78,7 @@ public sealed partial class GameEngine
         {
             if (GetActiveFrame(frame.Id) is null)
                 throw new InvalidOperationException("A program can only advance its active frame.");
-            engine._resolutionStack[^1] = frame;
+            engine.ReplaceRuntimeTop(frame);
         }
 
         public void Complete(ProgramSkillFrame frame, bool completed, string? reason = null)
@@ -118,18 +119,18 @@ public sealed partial class GameEngine
             if (recovered <= 0) return;
             var recovery = engine.BeginRecovery(frameId, ownerSeat, targetSeat, recovered);
             target.Hp += recovered;
-            engine.QueueGameEvent(new RecoveryAppliedEvent(ownerSeat, targetSeat, recovered, target.Hp));
+            engine.AdvanceEventRulesAndQueueFact(new RecoveryAppliedEvent(ownerSeat, targetSeat, recovered, target.Hp));
             engine.PopResolutionFrame(recovery, ResolutionFrameKind.Recovery);
             if (engine.GetActiveProgramFrame(frameId).WindowContext?.JudgmentReplacement is { } replacement)
             {
                 var active = engine.GetActiveProgramFrame(frameId);
-                engine._resolutionStack[^1] = active with
+                engine.ReplaceRuntimeTop(active with
                 {
                     WindowContext = active.WindowContext! with
                     {
                         JudgmentReplacement = replacement with { RecoveredHp = replacement.RecoveredHp + recovered }
                     }
-                };
+                });
             }
         }
 
@@ -148,7 +149,7 @@ public sealed partial class GameEngine
             var lost = Math.Min(target.Hp, amount);
             target.Hp = Math.Max(0, target.Hp - amount);
             engine.RecordHpChange(frameId, null, targetSeat, before, target.Hp, HpChangeKind.Loss);
-            engine.QueueGameEvent(new ProgramSkillHpLostEvent(frameId, skillId, targetSeat, lost, target.Hp));
+            engine.AdvanceEventRulesAndQueueFact(new ProgramSkillHpLostEvent(frameId, skillId, targetSeat, lost, target.Hp));
             if (target.Hp != 0) return SkillProgramStepOutcome.Continue;
             engine.BeginProgramSkillDying(frameId, target);
             return SkillProgramStepOutcome.AwaitChild;
@@ -217,17 +218,30 @@ public sealed partial class GameEngine
                     Location: locations[0]);
             }).ToArray();
             var active = engine.GetActiveProgramFrame(frame.Id);
-            if (active.PendingMovementContinuation is not null)
-                throw new InvalidOperationException("A selected-card movement is already awaiting its trigger window.");
-            engine._resolutionStack[^1] = active with
+            var operation = toDiscard ? SkillProgramEffectOp.DiscardSelected : SkillProgramEffectOp.GiveSelected;
+            if (active.PendingMovementContinuation is not null ||
+                active.SelectedCardPayment is not null &&
+                (active.SelectedCardPaymentResult is null ||
+                 active.SelectedCardPayment.InstructionIndex >= active.InstructionIndex) ||
+                active.InstructionIndex < 1 ||
+                activation.Effects[active.InstructionIndex - 1].Op != operation)
+                throw new InvalidOperationException("A selected-card payment has no current unpaid instruction.");
+            engine.ReplaceRuntimeTop(active with
             {
-                PendingMovementContinuation = new ProgramMovementContinuation(frame.OwnerSeat, 0, null)
-            };
+                SelectedCardPayment = new ProgramSelectedCardPayment(active.InstructionIndex, operation,
+                    Array.AsReadOnly(cardIds.ToArray()), targetSeat),
+                SelectedCardPaymentResult = null
+            });
             var destination = toDiscard ? CardLocation.DiscardPile : CardLocation.Hand(targetSeat);
             foreach (var group in selected.GroupBy(item => item.Location))
                 engine.MoveCards(group.Select(item => item.Card).ToArray(), group.Key, destination, reason);
+            active = engine.GetActiveProgramFrame(frame.Id);
+            engine.ReplaceRuntimeTop(active with
+            {
+                SelectedCardPayment = active.SelectedCardPayment! with { MovementCommitted = true }
+            });
             if (!engine.TryBeginCardsMovedProgramWindow())
-                engine.CompleteAwaitedProgramMovement(frame.Id);
+                engine.ReturnRuntimeProgramMovement(frame.Id);
             return SkillProgramStepOutcome.AwaitChild;
         }
 

@@ -38,7 +38,7 @@ public sealed partial class GameEngine
         _programBooleanStates[key] = value;
         // Private state remains engine-only; public event/snapshot projections must not disclose its value.
         if (definition.Visibility == SkillProgramStateVisibility.Public)
-            QueueGameEvent(new ProgramBooleanStateChangedEvent(
+            AdvanceEventRulesAndQueueFact(new ProgramBooleanStateChangedEvent(
                 frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId, stateId, value, definition.Visibility));
     }
 

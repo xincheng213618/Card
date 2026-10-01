@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "classic:taoluan": {
+      "name": "滔乱",
+      "description": "你可以将一张牌当任意基本牌或普通锦囊牌使用（每种牌名限一次，且场上无人处于濒死状态），然后令一名其他角色选择一项：交给你一张与滔乱牌类型不同的牌；你失去1点体力，本回合本技能失效。",
+      "booleanStates": {
+        "taoluan-disabled": {
+          "trueText": "本回合失效",
+          "falseText": "可用"
+        }
+      }
+    }
+  }
+}

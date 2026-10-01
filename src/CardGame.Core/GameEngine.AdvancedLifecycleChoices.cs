@@ -59,28 +59,28 @@ public sealed partial class GameEngine
         {
             if (!draft.Candidates.Contains(value) || draft.Selected.Contains(value)) throw new InvalidOperationException("Advanced selection is unavailable.");
             draft = draft with { Selected = draft.Selected.Append(value).ToArray() };
-            _resolutionStack[^1] = frame = frame with { AdvancedSelection = draft };
+            ReplaceRuntimeTop(frame = frame with { AdvancedSelection = draft });
             if (draft.Operation == SkillProgramEffectOp.DamageFarthestCharacter)
             {
                 var target = int.Parse(value);
                 if (!IsFarthestInRange(_players[frame.OwnerSeat], _players[target]) ||
                     !_skillRuntimeState.TryConsumeUsage(frame.OwnerSeat, frame.SkillId, $"target:{target}", SkillUsageScope.Turn, 1))
                     throw new InvalidOperationException("The chosen farthest target is no longer available.");
-                _resolutionStack[^1] = frame = frame with { AdvancedSelection = null, SelectedTargetSeats = [target] };
+                ReplaceRuntimeTop(frame = frame with { AdvancedSelection = null, SelectedTargetSeats = [target] });
                 BeginProgramSkillDamage(frame, target, 1);
                 return;
             }
             if (draft.Operation == SkillProgramEffectOp.InheritWeapon)
             {
                 CommitWeaponInheritance(frame, int.Parse(value));
-                _resolutionStack[^1] = frame with { AdvancedSelection = null };
-                ContinueProgramSkill(frame.Id);
+                ReplaceRuntimeTop(frame with { AdvancedSelection = null });
+                AdvanceRuntimeProgram(frame.Id);
                 return;
             }
             PromptAdvancedSelection(frame.Id);
             return;
         }
-        _resolutionStack[^1] = frame with { AdvancedSelection = null };
+        ReplaceRuntimeTop(frame with { AdvancedSelection = null });
         switch (draft.Operation)
         {
             case SkillProgramEffectOp.BalanceHandAttackTricks:
@@ -122,14 +122,14 @@ public sealed partial class GameEngine
                 ObtainAdvancedCards(frame, cards);
                 break;
             case SkillProgramEffectOp.DamageAfterDeckShuffle:
-                _resolutionStack[^1] = frame with { AdvancedSelection = draft with { RequiredRankSum = -1 } };
+                ReplaceRuntimeTop(frame with { AdvancedSelection = draft with { RequiredRankSum = -1 } });
                 break;
             case SkillProgramEffectOp.EquipSampledGenerals:
                 foreach (var id in draft.Selected) EquipGeneralWeapon(frame, _contentRegistry.Generals[id]);
                 break;
             case SkillProgramEffectOp.InheritWeapon: break;
         }
-        ContinueProgramSkill(frame.Id);
+        AdvanceRuntimeProgram(frame.Id);
     }
 
     private bool TryContinueAdvancedDamage(long frameId)
@@ -138,9 +138,9 @@ public sealed partial class GameEngine
         if (frame.AdvancedSelection is not { Operation: SkillProgramEffectOp.DamageAfterDeckShuffle, RequiredRankSum: -1 } draft)
             return false;
         var selected = draft.Selected.Select(int.Parse).Where(seat => _players[seat].IsAlive).ToArray();
-        if (selected.Length == 0) { _resolutionStack[^1] = frame with { AdvancedSelection = null }; return false; }
+        if (selected.Length == 0) { ReplaceRuntimeTop(frame with { AdvancedSelection = null }); return false; }
         var seat = selected[0];
-        _resolutionStack[^1] = frame = frame with { AdvancedSelection = draft with { Selected = selected.Skip(1).Select(value => value.ToString()).ToArray() } };
+        ReplaceRuntimeTop(frame = frame with { AdvancedSelection = draft with { Selected = selected.Skip(1).Select(value => value.ToString()).ToArray() } });
         var amount = Math.Max(1, GetHand(_players[seat]).Count(card => AdvancedEffectiveHandKind(_players[seat], card) == CardKind.Dodge));
         BeginProgramSkillDamage(frame, seat, amount, nature: DamageNature.Thunder);
         return true;

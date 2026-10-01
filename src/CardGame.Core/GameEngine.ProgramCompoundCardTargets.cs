@@ -42,8 +42,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The compound target answer lost its frozen instruction or legal participants.");
         ClearPendingDecision();
         CompleteProgramCardUseTargetAddition(frame, use, [.. use.TargetSeats, owner, selected.Targets[0]], owner);
-        _adjustedTargetCardUses.Add(use.Id);
-        ContinueProgramSkill(frame.Id);
+        TryMarkTargetsAdjusted(use.Id);
+        AdvanceRuntimeProgram(frame.Id);
     }
 
     private void AssertProgramCompoundCardTarget(ProgramSkillFrame frame, SkillProgramEffect paused)

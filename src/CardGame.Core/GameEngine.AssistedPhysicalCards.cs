@@ -5,7 +5,7 @@ public sealed partial class GameEngine
     private void AssertAssistedPhysicalCardDrafts(ProgramSkillFrame frame, SkillProgramEffect paused)
     {
         if (ReferenceEquals(frame, _resolutionStack.LastOrDefault()) &&
-            ((paused.Op == SkillProgramEffectOp.RequestSlashAgainstChosenTarget && frame.AssistedSlashRequest is null && !frame.ChoiceBindings.Any(binding => binding.Name == paused.ResultBind) && !(_pendingFactionCardRequest is { IsAssistedProgramUse: true } faction && faction.ProgramSkillFrameId == frame.Id)) ||
+            ((paused.Op == SkillProgramEffectOp.RequestSlashAgainstChosenTarget && frame.AssistedSlashRequest is null && !frame.ChoiceBindings.Any(binding => binding.Name == paused.ResultBind) && !(ActiveFactionCardRequest is { IsAssistedProgramUse: true } faction && faction.ProgramSkillFrameId == frame.Id)) ||
              (paused.Op == SkillProgramEffectOp.TakeSelectedTargetCards && frame.OtherCardSelection is null && frame.PendingMovementContinuation is null)))
             throw new InvalidOperationException("A suspended assisted-card operation lost its draft.");
         if (frame.AssistedSlashRequest is { } request)
@@ -50,7 +50,7 @@ public sealed partial class GameEngine
             return SkillProgramStepOutcome.Continue;
         }
         active = active with { AssistedSlashRequest = new(actorSeat, ActorChoosesTarget: actorChoosesTarget) };
-        _resolutionStack[^1] = active;
+        ReplaceRuntimeTop(active);
         PublishAssistedPhysicalSlashPrompt(active);
         return SkillProgramStepOutcome.AwaitChoice;
     }
@@ -148,15 +148,15 @@ public sealed partial class GameEngine
         { CancelProgramBindingAndCleanup(frame, "受令角色或技能实例已失效。"); return; }
         if (draft.TargetSeat is null)
         {
-            _resolutionStack[^1] = frame with { AssistedSlashRequest = draft with { TargetSeat = selected.Targets.Single() } };
+            ReplaceRuntimeTop(frame with { AssistedSlashRequest = draft with { TargetSeat = selected.Targets.Single() } });
             PublishAssistedPhysicalSlashPrompt((ProgramSkillFrame)_resolutionStack[^1]);
             return;
         }
-        _resolutionStack[^1] = frame with { AssistedSlashRequest = null };
+        ReplaceRuntimeTop(frame with { AssistedSlashRequest = null });
         if (selected.Parameters.GetValueOrDefault("request-option") == "decline")
         {
             CommitProgramChoiceResult(frame.Id, effect.ResultBind!, "declined", draft.ActorSeat, "不使用【杀】。");
-            ContinueProgramSkill(frame.Id);
+            AdvanceRuntimeProgram(frame.Id);
             return;
         }
         if (selected.Parameters.GetValueOrDefault("request-option") == "faction")
@@ -209,7 +209,7 @@ public sealed partial class GameEngine
         var available = GetHand(_players[sourceSeat]).Count + GetEquipment(_players[sourceSeat]).Count;
         if (!_players[sourceSeat].IsAlive || available == 0) return SkillProgramStepOutcome.Continue;
         active = active with { OtherCardSelection = new(sourceSeat, Math.Min(count, available), []) };
-        _resolutionStack[^1] = active;
+        ReplaceRuntimeTop(active);
         PublishOtherCardSelection(active);
         return SkillProgramStepOutcome.AwaitChoice;
     }
@@ -244,7 +244,7 @@ public sealed partial class GameEngine
         var slots = draft.SelectedSlots.Append(new ProgramOtherCardSlot(Enum.Parse<CardZoneKind>(selected.Parameters["source-zone"]), int.Parse(selected.Parameters["slot-index"]))).ToArray();
         if (slots.Length < draft.RequiredCount)
         {
-            _resolutionStack[^1] = frame with { OtherCardSelection = draft with { SelectedSlots = slots } };
+            ReplaceRuntimeTop(frame with { OtherCardSelection = draft with { SelectedSlots = slots } });
             PublishOtherCardSelection((ProgramSkillFrame)_resolutionStack[^1]);
             return;
         }
@@ -254,7 +254,7 @@ public sealed partial class GameEngine
             var card = _cardZones.CardsAt(from)[slot.SlotIndex];
             return (Card: card, From: from, To: card.IsGeneralWeapon && slot.Zone == CardZoneKind.Equipment ? CardLocation.OutsideGame : CardLocation.Hand(frame.OwnerSeat));
         }).ToArray();
-        _resolutionStack[^1] = frame with { OtherCardSelection = null, PendingMovementContinuation = new(frame.OwnerSeat, 0, null) };
+        ReplaceRuntimeTop(frame with { OtherCardSelection = null, PendingMovementContinuation = new(frame.OwnerSeat, 0, null) });
         var batch = BeginCardMovementBatch(moves.Select(move => move.From), moves.Select(move => move.To));
         var records = new List<CardMovementRecord>();
         var committed = false;
@@ -273,7 +273,7 @@ public sealed partial class GameEngine
             committed = true;
         }
         finally { CompleteCardMovementBatch(batch, records, committed); }
-        if (!TryBeginCardsMovedProgramWindow()) CompleteAwaitedProgramMovement(frame.Id);
+        if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
     }
 
     private sealed partial class ProgramSkillHost

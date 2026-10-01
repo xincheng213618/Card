@@ -40,7 +40,7 @@ public sealed partial class GameEngine
         {
             if (!_skillRuntimeState.TryConsumeUsage(active.OwnerSeat, active.SkillId, key, scope, limit))
                 throw new InvalidOperationException("A validated category/target ledger could not advance.");
-            QueueGameEvent(new SkillUsageConsumedEvent(active.OwnerSeat, active.SkillId, key, scope,
+            AdvanceEventRulesAndQueueFact(new SkillUsageConsumedEvent(active.OwnerSeat, active.SkillId, key, scope,
                 _skillRuntimeState.GetUsage(active.OwnerSeat, active.SkillId, key, scope)));
         }
     }

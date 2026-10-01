@@ -1,0 +1,414 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀OL",
+  "retrievedAt": "2026-10-01",
+  "batch": "风林火山普通版王平陆绩郝昭",
+  "snapshotStatus": "frozenSources",
+  "implementationStatus": "integratedCoreFullVerifiedWpfBlockedByExistingArtwork",
+  "rosterIndex": {
+    "sourcePage": "https://www.sanguosha.com/hero",
+    "responseSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+    "boundary": "Use the unique Listdata gid/name group record for HP/faction; detail meta HP0 is not authoritative. Current group is 风林火山, not an independent original-design 2018 group."
+  },
+  "roster": [
+    {
+      "contentId": "classic:wang-ping",
+      "officialId": 401,
+      "name": "王平",
+      "maxHp": 4,
+      "faction": "shu",
+      "gender": "male",
+      "genderEvidence": "Historical person identification from captured official biography; no machine gender field or live-client inspection claimed.",
+      "sourcePage": "https://www.sanguosha.com/hero/401",
+      "responseSha256": "be2e0cd3fa5c5bc04260a17b7a0f8d44cee2dea6042d24b528ac8134a0b21712",
+      "rawArtifactDirectory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-WangPing-sources-20261001-195901",
+      "officialSkills": [
+        {
+          "name": "飞军",
+          "body": "出牌阶段限一次，你可以弃置一张牌，然后选择一项：1.令一名手牌数大于你的角色交给你一张牌；2.令一名装备区里牌数大于你的角色弃置一张装备区里的牌。"
+        },
+        {
+          "name": "兵略",
+          "body": "锁定技，当你首次对一名角色发动“飞军”时，你摸两张牌。"
+        }
+      ],
+      "indexFields": {
+        "gid": 401,
+        "hp": 4,
+        "initial_hp": 0,
+        "figure_py": "shu",
+        "extend": "风林火山"
+      },
+      "implementationStatus": "integratedCoreFullVerifiedWpfBlockedByExistingArtwork",
+      "artwork": {
+        "id": "40100",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/401",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40100.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-wang-ping.png",
+        "sha256": "ebdbccf81c07ed8325221898a3f19176a62a2ab20d84b6f603762c3683559198",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "verifiedAndMappedToImplementedGeneral"
+      },
+      "galleryGroup": "myth-yin",
+      "versionBoundary": "Use captured www.sanguosha.com/hero/401 strict greater-than and whole-game first-target text. The x.sanguosha.com product update dated 2026-02-27 uses greater-or-equal and different-last-target text and is excluded from this batch."
+    },
+    {
+      "contentId": "classic:lu-ji",
+      "officialId": 402,
+      "name": "陆绩",
+      "maxHp": 3,
+      "faction": "wu",
+      "gender": "male",
+      "genderEvidence": "Historical person identification from captured official biography; no machine gender field or live-client inspection claimed.",
+      "sourcePage": "https://www.sanguosha.com/hero/402",
+      "responseSha256": "b5b6c369c7b0b559556926fa1943e2ce9b7ce6359e1bbda3d56b9f693531f5ff",
+      "rawArtifactDirectory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-LuJi-sources-20261001",
+      "officialSkills": [
+        {
+          "name": "怀橘",
+          "body": "锁定技，游戏开始时，你获得3枚“橘”标记。当有“橘”的角色受到伤害时，防止此伤害并移除1枚“橘”。有“橘”的角色摸牌阶段多摸一张牌。"
+        },
+        {
+          "name": "遗礼",
+          "body": "出牌阶段开始时，你可以失去1点体力或移除1枚“橘”，然后令一名其他角色获得1枚“橘”。"
+        },
+        {
+          "name": "整论",
+          "body": "若你没有“橘”，你可以跳过摸牌阶段并获得1枚“橘”。"
+        }
+      ],
+      "indexFields": {
+        "gid": 402,
+        "hp": 3,
+        "initial_hp": 0,
+        "figure_py": "wu",
+        "extend": "风林火山"
+      },
+      "implementationStatus": "integratedCoreFullVerifiedWpfBlockedByExistingArtwork",
+      "artwork": {
+        "id": "40200",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/402",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40200.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-lu-ji.png",
+        "sha256": "f2cd9bc12d94542dc2b8928704afbe8bf232389e5b5472aad79a11dbe1b739ef",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "verifiedAndMappedToImplementedGeneral"
+      },
+      "galleryGroup": "myth-yin"
+    },
+    {
+      "contentId": "classic:hao-zhao",
+      "officialId": 408,
+      "name": "郝昭",
+      "maxHp": 4,
+      "faction": "wei",
+      "gender": "male",
+      "genderEvidence": "Historical person identification from captured official biography; no machine gender field or live-client inspection claimed.",
+      "sourcePage": "https://www.sanguosha.com/hero/408",
+      "responseSha256": "96a58c5aa11568931878af7c238e6029b2896c19fdf2b99292a6970a283beb60",
+      "rawArtifactDirectory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-HaoZhao-prep-20261001",
+      "officialSkills": [
+        {
+          "name": "镇骨",
+          "body": "结束阶段，你可以选择一名其他角色，本回合结束时和其下回合结束时，其将手牌调整至与你手牌数相同（至多摸至五张）。"
+        }
+      ],
+      "indexFields": {
+        "gid": 408,
+        "hp": 4,
+        "initial_hp": 0,
+        "figure_py": "wei",
+        "extend": "风林火山"
+      },
+      "implementationStatus": "integratedCoreFullVerifiedWpfBlockedByExistingArtwork",
+      "artwork": {
+        "id": "40800",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/408",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/40800.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-hao-zhao.png",
+        "sha256": "c79df498d802a31a548e332762c6fa59547c684641427977fbec6bf993cb8102",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "status": "verifiedAndMappedToImplementedGeneral"
+      },
+      "galleryGroup": "myth-thunder"
+    }
+  ],
+  "implementationChoices": {
+    "wang-ping": [
+      "Pay one physical HE card and finish its movement observers before comparing relative Hand/Equipment counts. No eligible post-payment target consumes the cost and phase use.",
+      "Commit target and whole-game owner/sourceProgram/activation/target encounter before independent Binglue reward; freeze eligibility before the reward changes owner hand count. History survives temporary loss/regain."
+    ],
+    "lu-ji": [
+      "Use attributed Orange markers with deterministic source consumption. Source death clears its attributed contributions through existing marker lifetime rules; suppression/skill loss disables that source effect, not arbitrary existing markers.",
+      "Multiple enabled holders of the protection rule must prevent each damage and add one normal draw only once per actual subject/event. These lifetimes/multi-owner details are engineering choices, not a captured official FAQ."
+    ],
+    "hao-zhao": [
+      "Resolve both dues after actual TurnEnded cleanup and before advancing the seat; include face-up skipped turns and actual extra turns. Sample source hand count independently at each due; freeze that due delta while its child movements run.",
+      "Target death, game completion, source death or invalid exact grant cancel an outstanding due. A suppressed source at its due consumes the due without effect. Overlapping dues use creation order. These are explicit choices without a captured current official FAQ."
+    ]
+  },
+  "verification": {
+    "status": "integratedCoreFullVerifiedWpfBlockedByExistingArtwork",
+    "deliveries": [
+      {
+        "group": "wangping",
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-WangPing-delivery-20261001",
+        "manifestSha256": "2cbcffcb4472608da15f904cd94666b9301b22b691fa0b40d459b4128e3ca43f",
+        "changedFiles": 17
+      },
+      {
+        "group": "luji",
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-LuJi-delivery",
+        "manifestSha256": "a85595c79bd096a30daedbae39340bebf368ec79ab5fd9d45c13bd7b836ca369",
+        "changedFiles": 16
+      },
+      {
+        "group": "haozhao",
+        "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-haozhao-delivery",
+        "manifestSha256": "9fade0fc15b5122e4014bf23cf0a43a0f1b712318dde71490b87f5a1b4026cdf",
+        "changedFiles": 18
+      }
+    ],
+    "parentTargeted": {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-AllUi-20261001-1",
+      "coreChecks": 33,
+      "wpfChecks": 2,
+      "summary": {
+        "status": "passed",
+        "mode": "targeted",
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-AllUi-20261001-1",
+        "coreFilters": [
+          "Feng Lin",
+          "FengLin",
+          "composition",
+          "lifecycle programs",
+          "card movement",
+          "turn-ending"
+        ],
+        "wpfFilters": [
+          "Program public markers",
+          "Program deferred hand alignment"
+        ],
+        "startedAt": "2026-10-01T21:29:49.3009847+08:00",
+        "durationMs": 26232,
+        "message": null,
+        "results": [
+          {
+            "name": "Build selected scope",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 6917,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-AllUi-20261001-1\\logs\\build.log"
+          },
+          {
+            "name": "Core filter: Feng Lin",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 8837,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-AllUi-20261001-1\\logs\\core-filter-1.log"
+          },
+          {
+            "name": "Core filter: FengLin",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 4009,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-AllUi-20261001-1\\logs\\core-filter-2.log"
+          },
+          {
+            "name": "Core filter: composition",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 213,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-AllUi-20261001-1\\logs\\core-filter-3.log"
+          },
+          {
+            "name": "Core filter: lifecycle programs",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 403,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-AllUi-20261001-1\\logs\\core-filter-4.log"
+          },
+          {
+            "name": "Core filter: card movement",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 866,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-AllUi-20261001-1\\logs\\core-filter-5.log"
+          },
+          {
+            "name": "Core filter: turn-ending",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 797,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-AllUi-20261001-1\\logs\\core-filter-6.log"
+          },
+          {
+            "name": "WPF filter: Program public markers",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 2388,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-AllUi-20261001-1\\logs\\wpf-filter-1.log"
+          },
+          {
+            "name": "WPF filter: Program deferred hand alignment",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 1760,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-AllUi-20261001-1\\logs\\wpf-filter-2.log"
+          }
+        ]
+      }
+    },
+    "parentCorrections": [
+      "HuaiJu structured Locked metadata and readable content registration.",
+      "Shared SpendMarkerOrLoseHp prompt now includes generic SkillPrompt metadata so the existing WPF choice surface displays the real payment options; choices, IDs and payment semantics are unchanged.",
+      "Deferred scheduling proves OtherLiving selection and own/owner Ending in the descriptor, loader and registry; malformed self/other-turn configurations reject before runtime.",
+      "Actual marker names/counts and remaining deferred alignment sources/timing use the shared public status surfaces, with native checkpoint/private draft/entity movement UI checks."
+    ],
+    "preservedParentFailures": [
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-LuUi-20261001-1",
+      "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-LuUi-20261001-2"
+    ],
+    "versionSourcesUnchanged": [
+      "src/CardGame.Core/Replay.cs",
+      "src/CardGame.Core/SkillPrograms.cs",
+      "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs"
+    ],
+    "boundary": "Integrated behavior, roster, public state UI and offline renders verified within the recorded scope; original-artwork gate and physical desktop-match acceptance remain open.",
+    "wholeBatch": {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-Full-20261001",
+      "corePassed": 283,
+      "coreFailed": 0,
+      "wpfArtworkFailure": "Missing or invalid original face for 赤血青锋.",
+      "wpfAfterArtworkPassed": 37,
+      "sourceDrift": [],
+      "summary": {
+        "status": "test-failed",
+        "mode": "full",
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-Full-20261001",
+        "coreFilters": [],
+        "wpfFilters": [],
+        "startedAt": "2026-10-01T21:33:50.9565549+08:00",
+        "durationMs": 158530,
+        "message": "One or more selected checks failed.",
+        "results": [
+          {
+            "name": "Build selected scope",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 6756,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-Full-20261001\\logs\\build.log"
+          },
+          {
+            "name": "Core full checks",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 151517,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-Full-20261001\\logs\\core-full.log"
+          },
+          {
+            "name": "WPF full checks",
+            "status": "failed",
+            "exitCode": 1,
+            "durationMs": 221,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-Full-20261001\\logs\\wpf-full.log"
+          }
+        ]
+      },
+      "driverSummary": {
+        "durationSeconds": 215.317,
+        "results": [
+          {
+            "name": "test-changed-full-child",
+            "exitCode": 1,
+            "durationSeconds": 159.048,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-Full-20261001\\test-changed-full-child.log"
+          },
+          {
+            "name": "wpf-after-art-gate",
+            "exitCode": 0,
+            "durationSeconds": 47.909,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-Full-20261001\\wpf-after-art-gate.log"
+          }
+        ]
+      },
+      "boundary": "One fresh Full was run against frozen integrated production sources. Full overall exit1 preserves the existing artwork failure; 37 subsequent checks used the same DLL. No physical desktop-match or release acceptance claimed."
+    },
+    "postFullTestContractRepair": {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-HaoContracts-20261001-1",
+      "corePassed": 11,
+      "summary": {
+        "status": "passed",
+        "mode": "targeted",
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-HaoContracts-20261001-1",
+        "coreFilters": [
+          "FengLin Hao Zhao",
+          "composition"
+        ],
+        "wpfFilters": [],
+        "startedAt": "2026-10-01T21:38:32.5085893+08:00",
+        "durationMs": 7233,
+        "message": null,
+        "results": [
+          {
+            "name": "Build selected scope",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 3969,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-HaoContracts-20261001-1\\logs\\build.log"
+          },
+          {
+            "name": "Core filter: FengLin Hao Zhao",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 3001,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-HaoContracts-20261001-1\\logs\\core-filter-1.log"
+          },
+          {
+            "name": "Core filter: composition",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 219,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-HaoContracts-20261001-1\\logs\\core-filter-2.log"
+          }
+        ]
+      },
+      "boundary": "Only the new negative-test template was corrected after Full: required optional fields and a successful valid-template control prevent false positives. Production sources remained unchanged; 7 Hao Zhao plus 4 composition checks were rebuilt and rerun successfully, without another Full."
+    }
+  },
+  "supplementaryClassificationSources": [
+    {
+      "sourcePage": "https://www.sanguosha.com/news/20210120_8136_5413",
+      "responseSha256": "14975cb62675d5afe37a17efa7286e13465987b72de1fde1421740527a2e04a3",
+      "rawArtifactDirectory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-parent-sources-20261001",
+      "boundary": "Official historical pack classification only; current hero text remains the rule source."
+    },
+    {
+      "sourcePage": "https://www.sanguosha.com/news/20210318_2727_2910",
+      "responseSha256": "0825600f760839e46fe011c46b5dd819d06d1539ea847dfa0d1f1cae042da75e",
+      "rawArtifactDirectory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLin-parent-sources-20261001",
+      "boundary": "Official historical pack classification only; current hero text remains the rule source."
+    }
+  ],
+  "dispatch": {
+    "baseline": "%TEMP%/Card-FengLin-20261001-baseline",
+    "workers": [
+      "%TEMP%/Card-FengLin-20261001-wangping",
+      "%TEMP%/Card-FengLin-20261001-luji",
+      "%TEMP%/Card-FengLin-20261001-haozhao"
+    ],
+    "files": 895,
+    "sourceDrift": [],
+    "workerCopyDrift": [],
+    "boundary": "Dirty post-2017 integrated sources and currently retained tests; isolated compile/focused results are not parent acceptance."
+  }
+}

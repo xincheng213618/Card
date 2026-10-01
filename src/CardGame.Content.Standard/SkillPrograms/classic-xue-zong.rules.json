@@ -1,0 +1,4 @@
+{"schemaVersion":62,"skills":[
+ {"id":"classic:funan","revision":1,"triggers":[{"id":"exchange","window":"cardResponseAccepted","ownerRelation":"observer","optional":true,"effects":[{"op":"exchangeRespondedCardEntities","target":"owner","stateId":"response-exchange"}]}]},
+ {"id":"classic:jiexun","revision":1,"triggers":[{"id":"escalating-discard","window":"turnEnding","subject":"owner","optional":true,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLiving"},{"op":"drawPublicSuitThenEscalatingDiscard","target":"selectedTarget","stateId":"response-exchange","skillIds":["classic:funan"],"suits":["diamond"]}]}]}
+]}

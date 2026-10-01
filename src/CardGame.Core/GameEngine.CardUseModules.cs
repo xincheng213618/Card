@@ -4,9 +4,10 @@ public sealed partial class GameEngine
 {
     private bool IsTurnHandCardRestricted(CharacterState player, Card card)
     {
+        if (IsResponseEntityRestricted(player.Seat, card.Id)) return true;
         if (IsPlayPhasePhysicalCardRestricted(player, card)) return true;
         if (_cardZones.GetLocation(card.Id) != CardLocation.Hand(player.Seat)) return false;
-        if (_pendingAttack is { ProhibitsTargetHandResponses: true } attack &&
+        if (ActiveCardAttack is { ProhibitsTargetHandResponses: true } attack &&
             attack.TargetSeat == player.Seat && attack.CardUserSeat != player.Seat)
             return true;
         return _turnCardUseEffects.IsHandColorRestricted(
@@ -39,10 +40,12 @@ public sealed partial class GameEngine
                     return false;
             }
             if (!TryGetLegalActionEffectiveCardKind(actor, action, out var effectiveKind)) return true;
+            if (IsSelfTargetForbiddenAction(actor, effectiveKind, action.Kind == LegalActionKind.BorrowedSword
+                    ? action.TargetSeats : GetSelfProhibitionPolicyTargets(actor, action))) return false;
             return !(action.CardId is { } id && IsPlayPhasePhysicalCardRestricted(actor,
                 _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(card => card.Id == id))) &&
                 !IsCardUseForbidden(actor.Seat, effectiveKind, CardActionType.Use) &&
-                GetDeclaredCardTargets(actor, action.Kind, action.TargetSeats).All(targetSeat =>
+                GetSelfProhibitionPolicyTargets(actor, action).All(targetSeat =>
                     !IsDirectedCardTargetProhibited(actor.Seat, targetSeat, effectiveKind));
         }).ToArray();
 
@@ -98,7 +101,7 @@ public sealed partial class GameEngine
         ExpireDirectedTurnCardPolicies(turnNumber, turnSeat);
         var expired = _turnCardUseEffects.ExpireTurn(turnNumber, turnSeat);
         if (expired.Count == 0) return;
-        QueueGameEvent(new TurnCardUseEffectsExpiredEvent(turnNumber, turnSeat, expired));
+        AdvanceEventRulesAndQueueFact(new TurnCardUseEffectsExpiredEvent(turnNumber, turnSeat, expired));
     }
 
     private void ExpireOwnerTurnStartDamageModifiers(int ownerSeat)
@@ -106,14 +109,14 @@ public sealed partial class GameEngine
         ExpireAttributedNatureMarkers(ownerSeat);
         var expired = _turnCardUseEffects.ExpireDamageModifiersAtOwnerTurnStart(ownerSeat, _turnNumber);
         if (expired.Count > 0)
-            QueueGameEvent(new TurnCardUseEffectsExpiredEvent(_turnNumber, ownerSeat, expired));
+            AdvanceEventRulesAndQueueFact(new TurnCardUseEffectsExpiredEvent(_turnNumber, ownerSeat, expired));
     }
 
     private void ExpireDeadOwnerDamageModifiers(int ownerSeat)
     {
         var expired = _turnCardUseEffects.ExpireDamageModifiersOnDeath(ownerSeat);
         if (expired.Count > 0)
-            QueueGameEvent(new TurnCardUseEffectsExpiredEvent(_turnNumber, _currentSeat, expired));
+            AdvanceEventRulesAndQueueFact(new TurnCardUseEffectsExpiredEvent(_turnNumber, _currentSeat, expired));
     }
 
     private void GrantProgramTurnCardDamageModifier(
@@ -142,7 +145,7 @@ public sealed partial class GameEngine
             amount,
             expiration,
             sourceScope);
-        QueueGameEvent(new CardDamageModifierGrantedEvent(granted));
+        AdvanceEventRulesAndQueueFact(new CardDamageModifierGrantedEvent(granted));
     }
 
     private void GrantProgramTurnCardActionProhibition(
@@ -156,7 +159,7 @@ public sealed partial class GameEngine
         var granted = _turnCardUseEffects.GrantActionProhibition(
             _turnNumber, _currentSeat, frame.Id, frame.InstructionIndex - 1,
             CreateProgramTurnEffectSource(frame), cardKinds, actionTypes);
-        QueueGameEvent(new CardActionProhibitionGrantedEvent(granted));
+        AdvanceEventRulesAndQueueFact(new CardActionProhibitionGrantedEvent(granted));
     }
 
     private void GrantProgramTurnHandColorRestriction(
@@ -183,7 +186,7 @@ public sealed partial class GameEngine
             CreateProgramTurnEffectSource(frame),
             targetSeat,
             IsRedSuit(effectiveSuit));
-        QueueGameEvent(new HandCardColorRestrictionGrantedEvent(granted));
+        AdvanceEventRulesAndQueueFact(new HandCardColorRestrictionGrantedEvent(granted));
     }
 
     private void GrantProgramTurnHandCardProhibition(ProgramSkillFrame frame, int targetSeat)
@@ -197,7 +200,7 @@ public sealed partial class GameEngine
             var granted = _turnCardUseEffects.GrantHandColorRestriction(
                 _turnNumber, _currentSeat, frame.Id, -2 * effectIndex - (isRed ? 2 : 1),
                 CreateProgramTurnEffectSource(frame), targetSeat, isRed);
-            QueueGameEvent(new HandCardColorRestrictionGrantedEvent(granted));
+            AdvanceEventRulesAndQueueFact(new HandCardColorRestrictionGrantedEvent(granted));
         }
     }
 
@@ -222,7 +225,7 @@ public sealed partial class GameEngine
         var granted = _turnCardUseEffects.GrantRuleModifier(
             _turnNumber, _currentSeat, frame.Id, frame.InstructionIndex - 1,
             CreateProgramTurnEffectSource(frame), query, operation, amount, cardKinds);
-        QueueGameEvent(new TurnRuleModifierGrantedEvent(granted));
+        AdvanceEventRulesAndQueueFact(new TurnRuleModifierGrantedEvent(granted));
     }
 
     private void GrantProgramTurnCardTargetRestriction(
@@ -240,7 +243,7 @@ public sealed partial class GameEngine
             _turnNumber, _currentSeat, frame.Id, frame.InstructionIndex - 1,
             CreateProgramTurnEffectSource(frame), restriction, targetScoped ? targetSeat : null,
             targetScoped || targetSeat == frame.OwnerSeat ? null : targetSeat);
-        QueueGameEvent(new CardTargetRestrictionGrantedEvent(granted));
+        AdvanceEventRulesAndQueueFact(new CardTargetRestrictionGrantedEvent(granted));
     }
 
     private void GrantProgramTurnCardConversion(
@@ -270,7 +273,7 @@ public sealed partial class GameEngine
             colorRelation,
             IsRedSuit(EffectiveSuit(_players[frame.OwnerSeat], card)),
             outputKind);
-        QueueGameEvent(new CardConversionGrantedEvent(granted));
+        AdvanceEventRulesAndQueueFact(new CardConversionGrantedEvent(granted));
     }
 
     private void ValidateProgramTurnEffectGrant(ProgramSkillFrame frame)

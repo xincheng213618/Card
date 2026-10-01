@@ -2,9 +2,7 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    // This ledger is rebuilt by the command journal. It records actual damage,
-    // including redirected damage, rather than requested damage or lost HP.
-    private readonly Dictionary<long, HashSet<int>> _completedCardDamageParticipants = [];
+    // The owning use records actual damage participants, including redirected damage.
 
     private void RecordCompletedCardDamageParticipant(long cardUseFrameId, int targetSeat)
     {
@@ -12,16 +10,16 @@ public sealed partial class GameEngine
         if (use?.Action?.ConversionChain.FirstOrDefault() is not { } conversion ||
             _contentRegistry.GetSkill(conversion.SkillId).Program?.Triggers.Any(trigger =>
                 trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.DrawCompletedCardParticipants)) != true) return;
-        if (!_completedCardDamageParticipants.TryGetValue(cardUseFrameId, out var participants))
-            _completedCardDamageParticipants[cardUseFrameId] = participants = [];
-        participants.Add(targetSeat);
+        if (!use.CompletedDamageParticipants.Contains(targetSeat))
+            ReplaceRuntimeFrame(use.Id, use with
+            { CompletedDamageParticipants = Array.AsReadOnly(use.CompletedDamageParticipants.Append(targetSeat).ToArray()) });
     }
 
     private void DrawProgramCompletedCardParticipants(ProgramSkillFrame frame, string stateId, int threshold)
     {
         var use = frame.WindowContext?.CardUse ?? throw new InvalidOperationException("Completed-card participant draws require a card-use context.");
         var owner = _players[frame.OwnerSeat];
-        var participants = _completedCardDamageParticipants.GetValueOrDefault(use.ParentCardUseFrameId)?.Order().ToArray() ?? [];
+        var participants = (LifecycleCardUse(use.ParentCardUseFrameId) ?? throw new InvalidOperationException("The participant draw lost its card-use owner.")).CompletedDamageParticipants.Order().ToArray();
         var ownerDrawn = 0;
         var reason = new CardMoveReason($"skill-program.{frame.SkillId}.completed-participant-draw");
         if (owner.IsAlive) ownerDrawn += DrawCards(owner, 1, true, reason).Count;
@@ -35,7 +33,7 @@ public sealed partial class GameEngine
         var count = checked(_programPhaseUses.GetValueOrDefault(key) + ownerDrawn);
         _programPhaseUses[key] = count;
         if (count >= threshold) SetProgramBooleanState(frame, stateId, true);
-        _completedCardDamageParticipants.Remove(use.ParentCardUseFrameId);
+        UpdateLifecycleCardUse(use.ParentCardUseFrameId, parent => parent with { CompletedDamageParticipants = [] });
     }
 
     private SkillProgramStepOutcome RecastProgramSelectedCards(ProgramSkillFrame frame, string stateId, int threshold)
@@ -47,7 +45,7 @@ public sealed partial class GameEngine
         var card = GetHand(owner).Single(item => item.Id == id);
         MoveCard(card, CardLocation.Hand(owner.Seat), CardLocation.DiscardPile, CardMoveReasons.RecastDiscard);
         var drawn = DrawCards(owner, 1, true, CardMoveReasons.RecastDraw);
-        QueueGameEvent(new CardRecastEvent(owner.Seat, card.Id, card.Kind, drawn.Count));
+        AdvanceEventRulesAndQueueFact(new CardRecastEvent(owner.Seat, card.Id, card.Kind, drawn.Count));
         var key = (frame.OwnerSeat, frame.SkillId, "recast-card-count:" + stateId);
         var count = checked(_programPhaseUses.GetValueOrDefault(key) + 1);
         _programPhaseUses[key] = count;
@@ -103,10 +101,10 @@ public sealed partial class GameEngine
         var outcome = IsSlashCard(ownerKind) && targetKind != CardKind.Dodge ? "damage" :
             !IsSlashCard(ownerKind) && targetKind == CardKind.Dodge ? "obtain" : "none";
         ClearPendingDecision();
-        QueueGameEvent(new ProgramCardsRevealedEvent(frame.Id, frame.SkillId, GetProgramBindingId(frame), owner.Seat,
+        AdvanceEventRulesAndQueueFact(new ProgramCardsRevealedEvent(frame.Id, frame.SkillId, GetProgramBindingId(frame), owner.Seat,
             effect.ResultBind!, [ToSnapshot(ownerCard), ToSnapshot(targetCard)]));
         CommitProgramChoiceResult(frame.Id, effect.ResultBind!, outcome, target.Seat, "双方同时公开实体手牌。");
-        ContinueProgramSkill(frame.Id);
+        AdvanceRuntimeProgram(frame.Id);
     }
 
     private void AssertPairedHandRevealChoice(ProgramSkillFrame frame, SkillProgramEffect paused)

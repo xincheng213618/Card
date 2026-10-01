@@ -13,11 +13,15 @@ internal static class ProgramCompositionValidator
         SkillProgramDrawPhaseMode drawPhaseMode = SkillProgramDrawPhaseMode.Additive,
         int initialTargetSetCount = 0,
         int initialTargetSetMaximum = 0,
-        bool expandedCardDomain = false)
+        bool expandedCardDomain = false, SkillProgramCardActionOwnerRelation? cardActionRelation = null, IReadOnlyList<CardKind>? cardKinds = null,
+        SkillProgramTurnOwnerScope? turnOwnerScope = null,
+        SkillProgramTargetKind? activationTargetKind = null, IReadOnlyList<CardZoneKind>? activationSourceZones = null, int? activationMinimumCards = null)
     {
         expandedCardDomain |= RequiresExpandedCardDomain(effects);
         var bindings = new Dictionary<string, Binding>(StringComparer.Ordinal);
+        var choiceGuardedBindings = new Dictionary<string, SkillProgramCondition>(StringComparer.Ordinal);
         var roots = new List<Root>();
+        var topPayments = new HashSet<string>(StringComparer.Ordinal);
         var selectedTarget = initialSelectedTarget;
         var cardsConsumed = false;
         var targetSetAvailable = initialTargetSetCount > 0;
@@ -32,6 +36,7 @@ internal static class ProgramCompositionValidator
         for (var index = 0; index < effects.Count; index++)
         {
             var effect = effects[index];
+            if(effect is {Op:SkillProgramEffectOp.SelectAndMoveOwnedCard,Destination:SkillProgramCardDestination.DrawPileTop,ResultBind:{ } payment,Condition.Kind:SkillProgramConditionKind.Always,AwaitMovementTriggers:true,Zones:[CardZoneKind.Hand],ChooserRef.Kind:ProgramParticipantRef.Owner,CardOwnerRef.Kind:ProgramParticipantRef.Owner}) topPayments.Add(payment);
             var nodePath = $"{path}.effects[{index}]";
             var descriptor = ProgramOperationCatalog.Default.Resolve(effect.Op);
             if (effect.Op == SkillProgramEffectOp.LoseOwnerSkillsAndGrant &&
@@ -112,6 +117,9 @@ internal static class ProgramCompositionValidator
                         var root = new Root(create.Name, create.NeedsCleanup, !create.NeedsCleanup,
                             typedCardAtoms, expandedCardDomain, create.AlreadyMoved);
                         roots.Add(root);
+                        if (effect.Condition.Kind == SkillProgramConditionKind.ChoiceIs &&
+                            (effect.Op == SkillProgramEffectOp.UseRandomDeckEquipment || effect.Op == SkillProgramEffectOp.SelectAndMoveOwnedCard && effect.FreezeMovedCardSuit && effect.CardCategories is [SkillProgramCardCategory.Equipment]))
+                            choiceGuardedBindings.Add(create.Name, effect.Condition);
                         Add(create.Name, new(root, root.Atoms.Keys.ToHashSet(), create.MaxCount, create.CardOwner));
                         if (create.AlreadyMoved)
                         {
@@ -137,6 +145,19 @@ internal static class ProgramCompositionValidator
                         roots.Add(root);
                         Add(activationCards.Name, new(root, root.Atoms.Keys.ToHashSet(), selectedCardCount));
                         cardsConsumed = true;
+                        break;
+                    }
+                    case ReadCompletedActivationDiscard paid:
+                    {
+                        var source = Get(paid.Name);
+                        if (window is not null || selectedCardCount != 1 || activationMinimumCards != 1 || initialSelectedTarget ||
+                            activationSourceZones is null || !activationSourceZones.Order().SequenceEqual(new[] { CardZoneKind.Hand, CardZoneKind.Equipment }.Order()) ||
+                            index != 2 || source.MaximumCount != 1 || !source.Root.NeedsCleanup || !source.Root.OwnerHeld ||
+                            !source.Root.Consumed.SetEquals(source.Atoms) || effects[0].Op != SkillProgramEffectOp.CaptureSelectedCards ||
+                            effects[0].ResultBind != paid.Name || effects[1] is not
+                            { Op: SkillProgramEffectOp.MoveBoundCards, Destination: SkillProgramCardDestination.DiscardPile, AwaitMovementTriggers: true, Condition.Kind: SkillProgramConditionKind.Always } ||
+                            effects[1].SourceBind != paid.Name)
+                            Fail("declaration requires its captured single own HE activation cost, fully discarded and awaited before target selection");
                         break;
                     }
                     case ReadSingleCardSet single:
@@ -227,6 +248,9 @@ internal static class ProgramCompositionValidator
                         source.Root.Consumed.UnionWith(source.Atoms);
                         break;
                     }
+                    case RequireTopHandPayment requiredPayment:
+                        if(!topPayments.Contains(requiredPayment.Name)) Fail("replacement requires an unconditional awaited owner-hand top-deck payment");
+                        break;
                     case ReadCardSet read:
                         _ = Get(read.Name);
                         break;
@@ -288,6 +312,10 @@ internal static class ProgramCompositionValidator
                         source.Root.PossiblyGifted.UnionWith(source.Atoms);
                         break;
                     }
+                    case RequireActivationHandComparison:
+                        if (window is not null || selectedCardCount != 1 || activationMinimumCards != 1 || cardsConsumed || !initialSelectedTarget || activationTargetKind != SkillProgramTargetKind.OtherLiving || activationSourceZones is null || !activationSourceZones.SequenceEqual([CardZoneKind.Hand])) Fail("hand comparison needs exactly one unconsumed activation input");
+                        cardsConsumed = true; // The instruction claims its selected input for reveal, without moving it.
+                        break;
                     case ConsumeSelectedCards consume:
                         if (cardsConsumed || selectedCardCount <= 0 ||
                             consume.Count != 0 && consume.Count != selectedCardCount)
@@ -305,6 +333,14 @@ internal static class ProgramCompositionValidator
                         if (!pindianResults.Contains(result.Name))
                             Fail($"unknown Pindian result binding '{result.Name}'");
                         break;
+                    case RequireOwnTurnBoundary:
+                        if((turnOwnerScope ?? SkillProgramTurnOwnerScope.Own)!=SkillProgramTurnOwnerScope.Own) Fail("this instruction requires the skill owner's turn boundary");
+                        break;
+                    case RequireChoiceOptions requiredChoice:
+                        if(!choiceResults.TryGetValue(requiredChoice.Name,out var declaredOptions) ||
+                            !declaredOptions.Order().SequenceEqual(requiredChoice.Options.Order()))
+                            Fail("alternating choice requires exactly its declared two benefit options");
+                        break;
                     case CreateChoiceResult choice:
                         if (!choiceResults.TryAdd(choice.Name, choice.Options) ||
                             bindings.ContainsKey(choice.Name) || pindianResults.Contains(choice.Name) ||
@@ -316,6 +352,13 @@ internal static class ProgramCompositionValidator
                             choiceResults.ContainsKey(coverage.Name) || pindianResults.Contains(coverage.Name))
                             Fail($"duplicate result binding '{coverage.Name}'");
                         break;
+                    case RequireSelectedTargetKind requiredTarget:
+                    {
+                        var producer = effects.Take(index).LastOrDefault(item => item.Op == SkillProgramEffectOp.SelectTarget);
+                        if (producer is null || producer.TargetKind != requiredTarget.Kind || producer.Condition.Kind != SkillProgramConditionKind.Always)
+                            Fail("selectedTarget requires an unconditional selection of the declared participant kind");
+                        break;
+                    }
                     case ReadSelectedTarget:
                         if (!selectedTarget) Fail("selectedTarget must be produced before it is read");
                         break;
@@ -330,9 +373,20 @@ internal static class ProgramCompositionValidator
                             Fail("the required selected target set must be produced before it is read");
                         break;
                     }
+                    case RequireMarkerLifecycle markerLifecycle:
+                        if (markerLifecycle.Selected ? window != SkillProgramTriggerWindow.PlayPhaseStarting : window is not (SkillProgramTriggerWindow.GameStarting or SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.DrawPhaseStarting)) Fail("marker mutation requires an explicit supported lifecycle window");
+                        break;
                     case RequireTriggerWindow required:
                         if (window != required.Window)
                             Fail($"operation requires trigger window {required.Window}, supplied {window}");
+                        break;
+                    case RequireResponseActionObserver:
+                        if (window != SkillProgramTriggerWindow.CardResponseAccepted || cardActionRelation != SkillProgramCardActionOwnerRelation.Observer)
+                            Fail("response entity exchange requires a response-action observer");
+                        break;
+                    case RequireCardActionRelation requiredRelation:
+                        if (cardActionRelation != requiredRelation.Relation || cardKinds is not { Count: > 0 } || cardKinds.Any(kind => !requiredRelation.Kinds.Contains(kind)))
+                            Fail("operation requires its declared card-action participant relation and supported card kinds");
                         break;
                     case RequireContext required:
                         if ((capabilities & required.Capability) != required.Capability)
@@ -370,8 +424,16 @@ internal static class ProgramCompositionValidator
                 }
             }
 
-            Binding Get(string name) => bindings.TryGetValue(name, out var value)
-                ? value : throw Error(nodePath, $"unknown card binding '{name}'");
+            static bool ImpliesChoiceBranch(SkillProgramCondition condition, SkillProgramCondition guard) =>
+                condition.Kind == SkillProgramConditionKind.ChoiceIs && condition.SourceBind == guard.SourceBind && condition.OptionId == guard.OptionId ||
+                condition.Kind == SkillProgramConditionKind.All && condition.Children.FirstOrDefault() is { } first && ImpliesChoiceBranch(first, guard);
+
+            Binding Get(string name)
+            {
+                if (choiceGuardedBindings.TryGetValue(name, out var guard) && !ImpliesChoiceBranch(effect.Condition, guard))
+                    throw Error(nodePath, $"conditional card binding '{name}' requires its matching choice branch");
+                return bindings.TryGetValue(name, out var value) ? value : throw Error(nodePath, $"unknown card binding '{name}'");
+            }
             void Add(string name, Binding value)
             {
                 if (!bindings.TryAdd(name, value) || choiceResults.ContainsKey(name) ||

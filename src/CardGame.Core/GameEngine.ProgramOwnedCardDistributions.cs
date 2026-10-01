@@ -34,7 +34,7 @@ public sealed partial class GameEngine
                 [],
                 [])
         };
-        _resolutionStack[^1] = active;
+        ReplaceRuntimeTop(active);
         PublishProgramOwnedCardDistribution(active, reason);
         return SkillProgramStepOutcome.AwaitChoice;
     }
@@ -56,8 +56,8 @@ public sealed partial class GameEngine
         var remaining = distribution.RequiredCount - distribution.GivenCardIds.Count;
         if (cards.Length < remaining || targets.Length == 0)
         {
-            _resolutionStack[^1] = frame with { OwnedCardDistribution = null };
-            ContinueProgramSkill(frame.Id);
+            ReplaceRuntimeTop(frame with { OwnedCardDistribution = null });
+            AdvanceRuntimeProgram(frame.Id);
             return;
         }
 
@@ -144,8 +144,8 @@ public sealed partial class GameEngine
                 selected.Cards.Count != 0 || selected.Targets.Count != 0)
                 throw new InvalidOperationException("The owned-card distribution can no longer be declined.");
             ClearPendingDecision();
-            _resolutionStack[^1] = frame with { OwnedCardDistribution = null };
-            ContinueProgramSkill(frame.Id);
+            ReplaceRuntimeTop(frame with { OwnedCardDistribution = null });
+            AdvanceRuntimeProgram(frame.Id);
             return;
         }
 
@@ -167,7 +167,7 @@ public sealed partial class GameEngine
         MoveProcessingCardUnlessDestroyed(card, CardLocation.Hand(targetSeat), expectedReason);
         var givenIds = distribution.GivenCardIds.Append(cardId).ToArray();
         var targetSeats = distribution.TargetSeats.Append(targetSeat).ToArray();
-        QueueGameEvent(new ProgramOwnedCardDistributedEvent(
+        AdvanceEventRulesAndQueueFact(new ProgramOwnedCardDistributedEvent(
             frame.Id,
             frame.SkillId,
             GetProgramBindingId(frame),
@@ -183,8 +183,8 @@ public sealed partial class GameEngine
 
         if (givenIds.Length >= distribution.RequiredCount)
         {
-            _resolutionStack[^1] = frame with { OwnedCardDistribution = null };
-            ContinueProgramSkill(frame.Id);
+            ReplaceRuntimeTop(frame with { OwnedCardDistribution = null });
+            AdvanceRuntimeProgram(frame.Id);
             return;
         }
 
@@ -196,7 +196,7 @@ public sealed partial class GameEngine
                 TargetSeats = Array.AsReadOnly(targetSeats)
             }
         };
-        _resolutionStack[^1] = frame;
+        ReplaceRuntimeTop(frame);
         PublishProgramOwnedCardDistribution(frame, expectedReason);
     }
 

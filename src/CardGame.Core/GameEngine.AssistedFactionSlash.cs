@@ -4,7 +4,7 @@ public sealed partial class GameEngine
 {
     private sealed record AssistedFactionSlashCard(Card Card, CardKind Kind, CardConversionSource? Source);
 
-    private IReadOnlyList<AssistedFactionSlashCard> GetAssistedFactionSlashCards(FactionCardRequestResolution pending, CharacterState provider)
+    private IReadOnlyList<AssistedFactionSlashCard> GetAssistedFactionSlashCards(FactionCardRequestHandle pending, CharacterState provider)
     {
         var variants = new List<AssistedFactionSlashCard>();
         foreach (var card in GetPlayableCards(provider).Concat(GetEquipment(provider)).DistinctBy(card => card.Id))
@@ -24,7 +24,7 @@ public sealed partial class GameEngine
         return variants;
     }
 
-    private IReadOnlyList<PromptChoice> CreateAssistedFactionSlashChoices(CharacterState provider, FactionCardRequestResolution pending)
+    private IReadOnlyList<PromptChoice> CreateAssistedFactionSlashChoices(CharacterState provider, FactionCardRequestHandle pending)
     {
         var targets = new[] { pending.TargetSeat!.Value };
         Dictionary<string, string> Parameters(string response, CardKind kind) => new()
@@ -62,7 +62,7 @@ public sealed partial class GameEngine
 
     private EngineRunResult ResolveAssistedFactionSlashChoice(PromptChoice selected, bool advanceToHumanBoundary)
     {
-        var pending = _pendingFactionCardRequest;
+        var pending = ActiveFactionCardRequest;
         if (pending is not { IsAssistedProgramUse: true, AwaitingProviders: true } ||
             _pendingDecision is not { Kind: DecisionKind.RespondSlash } prompt || prompt.PlayerSeat != pending.CurrentCandidateSeat)
             throw new InvalidOperationException("The assisted faction response lost its provider continuation.");
@@ -94,7 +94,7 @@ public sealed partial class GameEngine
                 cards = [variant.Card];
                 if (TryBeginFactionSlashZhuqueFanChoice(pending, provider, cards, kind))
                 {
-                    PublishState();
+                    AdvanceRulesAndPublishState();
                     return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
                 }
                 conversion = variant.Source;
@@ -102,11 +102,11 @@ public sealed partial class GameEngine
             ClearPendingDecision();
             BeginProvidedFactionSlashSlash(pending, provider, cards, kind, usesZhuqueFan: false, conversionSource: conversion);
         }
-        PublishState();
+        AdvanceRulesAndPublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
 
-    private bool CanSupplyAssistedFactionSlash(FactionCardRequestResolution pending, CardKind kind, IReadOnlyList<Card> cards) =>
+    private bool CanSupplyAssistedFactionSlash(FactionCardRequestHandle pending, CardKind kind, IReadOnlyList<Card> cards) =>
         (!IsFactionSlashUse(pending) || !IsTurnPhysicalUseForbidden(pending.OwnerSeat,cards.Select(c=>c.Id).ToArray())) &&
         (!pending.IsAssistedProgramUse || pending.TargetSeat is { } target &&
         (IsAssistedProvidedSlashTarget(pending.OwnerSeat, target, kind) ||
@@ -114,10 +114,10 @@ public sealed partial class GameEngine
          (cards.Count > 1 || cards is [var primary] && primary.Kind == CardKind.Slash) &&
          IsAssistedProvidedSlashTarget(pending.OwnerSeat, target, CardKind.FireSlash)));
 
-    private IReadOnlyList<IReadOnlyList<Card>> GetFactionRequestZhangbaPairs(FactionCardRequestResolution pending, CharacterState provider) =>
+    private IReadOnlyList<IReadOnlyList<Card>> GetFactionRequestZhangbaPairs(FactionCardRequestHandle pending, CharacterState provider) =>
         GetZhangbaSlashPairs(provider).Where(pair => CanSupplyAssistedFactionSlash(pending, CardKind.Slash, pair)).ToArray();
 
-    private IReadOnlyList<ProgramMultiCardViewAsSelection> GetFactionRequestMultiCardSelections(FactionCardRequestResolution pending, CharacterState provider) =>
+    private IReadOnlyList<ProgramMultiCardViewAsSelection> GetFactionRequestMultiCardSelections(FactionCardRequestHandle pending, CharacterState provider) =>
         (pending.IsAssistedProgramUse
             ? SlashKinds.SelectMany(kind => GetProgramMultiCardViewAsSelections(provider, kind, false,ignoreSuitUseProhibition:true))
             : GetProgramMultiCardViewAsSelections(provider, pending.RequiredKind, !IsFactionSlashUse(pending),ignoreSuitUseProhibition:true))
@@ -130,7 +130,7 @@ public sealed partial class GameEngine
 
     private bool IsAssistedProvidedSlashTarget(int actorSeat, int targetSeat, CardKind kind) =>
         _players[actorSeat].IsAlive && _players[targetSeat].IsAlive && actorSeat != targetSeat &&
-        (_pendingFactionCardRequest is { IsAssistedProgramUse: true, ProgramSkillFrameId: { } giftFrameId } &&
+        (ActiveFactionCardRequest is { IsAssistedProgramUse: true, ProgramSkillFrameId: { } giftFrameId } &&
          _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(frame => frame.Id == giftFrameId) is { CompletedCardGiftDraft.RecipientSeat: { } recipient } giftFrame && recipient == actorSeat
             ? CompletedGiftSlashTargets(giftFrame, actorSeat).Contains(targetSeat)
             : IsWithinAttackRange(actorSeat, targetSeat)) &&
@@ -139,7 +139,7 @@ public sealed partial class GameEngine
 
     private void BeginAssistedProgramFactionSlashRequest(ProgramSkillFrame frame, int actorSeat, int targetSeat, string resultBind)
     {
-        if (_pendingFactionCardRequest is not null || _resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
+        if (ActiveFactionCardRequest is not null || _resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
             current.SelectedTargetSeats is not [var selected] || selected != actorSeat || current.OwnerSeat == actorSeat ||
             !(current.CompletedCardGiftDraft is { RecipientSeat: { } recipient, RequestTargetSeat: { } giftTarget } && recipient == actorSeat && giftTarget == targetSeat
                 ? CompletedGiftSlashTargets(current, actorSeat).Contains(targetSeat) && GetFactionResponsePolicy(_players[actorSeat], CardKind.Slash) is not null
@@ -152,16 +152,16 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("An assisted faction Slash must answer its paused card request exactly once.");
         var policy = GetFactionResponsePolicy(_players[actorSeat], CardKind.Slash)!;
         var candidates = GetFactionProviderSeats(actorSeat, policy.FactionId);
-        _pendingFactionCardRequest = new FactionCardRequestResolution(frame.Id, FactionCardRequestPurpose.AssistedProgramUse,
+        ActiveFactionCardRequest = new FactionCardRequestHandle(this, frame.Id, FactionCardRequestPurpose.AssistedProgramUse,
             actorSeat, candidates, policy.FactionId, targetSeat: targetSeat, programSkillFrameId: frame.Id,
             policySource: policy, assistedResultBind: resultBind);
         ClearPendingDecision();
         _status = EngineStatus.Running;
-        QueueGameEvent(new FactionSlashRequestedEvent(frame.Id, actorSeat, candidates, policy.SkillId, IsActiveUse: true, targetSeat));
+        AdvanceEventRulesAndQueueFact(new FactionSlashRequestedEvent(frame.Id, actorSeat, candidates, policy.SkillId, IsActiveUse: true, targetSeat));
         AdvanceFactionSlashCandidate();
     }
 
-    private void ValidateAssistedFactionSlashParent(FactionCardRequestResolution pending, ProgramSkillFrame frame)
+    private void ValidateAssistedFactionSlashParent(FactionCardRequestHandle pending, ProgramSkillFrame frame)
     {
         var effect = ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect;
         var answered = frame.ChoiceBindings.SingleOrDefault(binding => binding.Name == pending.AssistedResultBind);

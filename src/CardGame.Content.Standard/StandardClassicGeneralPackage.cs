@@ -7,198 +7,54 @@ namespace CardGame.Content.Standard;
 /// </summary>
 public sealed class StandardClassicGeneralPackage : IGameContentPackage
 {
-    private const string SpZhaoYunRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.sp-zhao-yun.rules.json";
-    private const string SpZhaoYunPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.sp-zhao-yun.presentation.json";
-    private const string ClassicZhangJiaoRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-zhang-jiao.rules.json";
-    private const string ClassicZhangJiaoPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-zhang-jiao.presentation.json";
-    private const string BoundaryZhangJiaoRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.boundary-zhang-jiao.rules.json";
-    private const string BoundaryZhangJiaoPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.boundary-zhang-jiao.presentation.json";
-    private const string ClassicShenSimaYiRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-shen-sima-yi.rules.json";
-    private const string ClassicShenSimaYiPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-shen-sima-yi.presentation.json";
-    private const string ClassicCaoPiRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-cao-pi.rules.json";
-    private const string ClassicCaoPiPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-cao-pi.presentation.json";
-    private const string ClassicSunCeRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-sun-ce.rules.json";
-    private const string ClassicSunCePresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-sun-ce.presentation.json";
-    private const string ClassicDengAiRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-deng-ai.rules.json";
-    private const string ClassicDengAiPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-deng-ai.presentation.json";
-    private const string ClassicShaMoKeRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-sha-mo-ke.rules.json";
-    private const string ClassicShaMoKePresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-sha-mo-ke.presentation.json";
-    private const string ClassicLuSuRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-lu-su.rules.json";
-    private const string ClassicLuSuPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-lu-su.presentation.json";
-    private const string ClassicJiangWeiRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-jiang-wei.rules.json";
-    private const string ClassicJiangWeiPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-jiang-wei.presentation.json";
-    private const string ClassicDongZhuoRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-dong-zhuo.rules.json";
-    private const string ClassicDongZhuoPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-dong-zhuo.presentation.json";
-    private const string ClassicLiuShanRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-liu-shan.rules.json";
-    private const string ClassicLiuShanPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-liu-shan.presentation.json";
-    private const string ClassicFuHuanghouRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-fu-huanghou.rules.json";
-    private const string ClassicFuHuanghouPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-fu-huanghou.presentation.json";
-    private const string ClassicCaoZhiRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-cao-zhi.rules.json";
-    private const string ClassicCaoZhiPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-cao-zhi.presentation.json";
-    private const string ClassicZhangZhaoZhangHongRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-zhang-zhao-zhang-hong.rules.json";
-    private const string ClassicZhangZhaoZhangHongPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-zhang-zhao-zhang-hong.presentation.json";
-    private const string ClassicZhangHeRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-zhang-he.rules.json";
-    private const string ClassicZhangHePresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-zhang-he.presentation.json";
-    private const string ClassicShenGuanYuRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-shen-guan-yu.rules.json";
-    private const string ClassicShenGuanYuPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-shen-guan-yu.presentation.json";
-    private const string BoundaryZhaoYunRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.boundary-zhao-yun.rules.json";
-    private const string BoundaryZhaoYunPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.boundary-zhao-yun.presentation.json";
-    private const string ClassicShenZhaoYunRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-shen-zhao-yun.rules.json";
-    private const string ClassicShenZhaoYunPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-shen-zhao-yun.presentation.json";
-    private const string ClassicGaoDaYiHaoRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-gao-da-yi-hao.rules.json";
-    private const string ClassicGaoDaYiHaoPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-gao-da-yi-hao.presentation.json";
-    private const string ClassicGaoShunRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-gao-shun.rules.json";
-    private const string ClassicGaoShunPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-gao-shun.presentation.json";
-    private const string ClassicShenLuMengRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-shen-lu-meng.rules.json";
-    private const string ClassicShenLuMengPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-shen-lu-meng.presentation.json";
-    private const string ClassicShenCaoCaoRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-shen-cao-cao.rules.json";
-    private const string ClassicShenCaoCaoPresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-shen-cao-cao.presentation.json";
-    private const string ClassicLifecycleRulesResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-lifecycle-skills.rules.json";
-    private const string ClassicLifecyclePresentationResource =
-        "CardGame.Content.Standard.SkillPrograms.classic-lifecycle-skills.presentation.json";
-    private static readonly Lazy<SkillProgramCatalog> ClassicShenLuMengCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicShenLuMengRulesResource),
-            ReadEmbeddedText(ClassicShenLuMengPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicShenCaoCaoCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicShenCaoCaoRulesResource),
-            ReadEmbeddedText(ClassicShenCaoCaoPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> SpZhaoYunCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(SpZhaoYunRulesResource),
-            ReadEmbeddedText(SpZhaoYunPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicZhangJiaoCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicZhangJiaoRulesResource),
-            ReadEmbeddedText(ClassicZhangJiaoPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> BoundaryZhangJiaoCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(BoundaryZhangJiaoRulesResource),
-            ReadEmbeddedText(BoundaryZhangJiaoPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicShenGuanYuCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicShenGuanYuRulesResource),
-            ReadEmbeddedText(ClassicShenGuanYuPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicShenZhaoYunCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicShenZhaoYunRulesResource),
-            ReadEmbeddedText(ClassicShenZhaoYunPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicGaoDaYiHaoCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicGaoDaYiHaoRulesResource),
-            ReadEmbeddedText(ClassicGaoDaYiHaoPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicShenSimaYiCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicShenSimaYiRulesResource),
-            ReadEmbeddedText(ClassicShenSimaYiPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicCaoPiCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicCaoPiRulesResource),
-            ReadEmbeddedText(ClassicCaoPiPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicSunCeCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicSunCeRulesResource),
-            ReadEmbeddedText(ClassicSunCePresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> BoundaryZhaoYunCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(BoundaryZhaoYunRulesResource),
-            ReadEmbeddedText(BoundaryZhaoYunPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicDengAiCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicDengAiRulesResource),
-            ReadEmbeddedText(ClassicDengAiPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicShaMoKeCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicShaMoKeRulesResource),
-            ReadEmbeddedText(ClassicShaMoKePresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicLuSuCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicLuSuRulesResource),
-            ReadEmbeddedText(ClassicLuSuPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicJiangWeiCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicJiangWeiRulesResource),
-            ReadEmbeddedText(ClassicJiangWeiPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicDongZhuoCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicDongZhuoRulesResource),
-            ReadEmbeddedText(ClassicDongZhuoPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicLiuShanCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicLiuShanRulesResource),
-            ReadEmbeddedText(ClassicLiuShanPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicFuHuanghouCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicFuHuanghouRulesResource),
-            ReadEmbeddedText(ClassicFuHuanghouPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicCaoZhiCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicCaoZhiRulesResource),
-            ReadEmbeddedText(ClassicCaoZhiPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicZhangZhaoZhangHongCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicZhangZhaoZhangHongRulesResource),
-            ReadEmbeddedText(ClassicZhangZhaoZhangHongPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicZhangHeCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicZhangHeRulesResource),
-            ReadEmbeddedText(ClassicZhangHePresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicGaoShunCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicGaoShunRulesResource),
-            ReadEmbeddedText(ClassicGaoShunPresentationResource)));
-    private static readonly Lazy<SkillProgramCatalog> ClassicLifecycleCatalog = new(() =>
-        SkillProgramCatalog.Load(
-            ReadEmbeddedText(ClassicLifecycleRulesResource),
-            ReadEmbeddedText(ClassicLifecyclePresentationResource)));
+    private static SkillProgramCatalog ClassicShenLuMengCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-shen-lu-meng");
+    private static SkillProgramCatalog ClassicShenCaoCaoCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-shen-cao-cao");
+    private static SkillProgramCatalog SpZhaoYunCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("sp-zhao-yun");
+    private static SkillProgramCatalog ClassicZhangJiaoCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-zhang-jiao");
+    private static SkillProgramCatalog BoundaryZhangJiaoCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("boundary-zhang-jiao");
+    private static SkillProgramCatalog ClassicShenGuanYuCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-shen-guan-yu");
+    private static SkillProgramCatalog ClassicShenZhaoYunCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-shen-zhao-yun");
+    private static SkillProgramCatalog ClassicGaoDaYiHaoCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-gao-da-yi-hao");
+    private static SkillProgramCatalog ClassicShenSimaYiCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-shen-sima-yi");
+    private static SkillProgramCatalog ClassicCaoPiCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-cao-pi");
+    private static SkillProgramCatalog ClassicSunCeCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-sun-ce");
+    private static SkillProgramCatalog BoundaryZhaoYunCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("boundary-zhao-yun");
+    private static SkillProgramCatalog ClassicDengAiCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-deng-ai");
+    private static SkillProgramCatalog ClassicShaMoKeCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-sha-mo-ke");
+    private static SkillProgramCatalog ClassicLuSuCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-lu-su");
+    private static SkillProgramCatalog ClassicJiangWeiCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-jiang-wei");
+    private static SkillProgramCatalog ClassicDongZhuoCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-dong-zhuo");
+    private static SkillProgramCatalog ClassicLiuShanCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-liu-shan");
+    private static SkillProgramCatalog ClassicFuHuanghouCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-fu-huanghou");
+    private static SkillProgramCatalog ClassicCaoZhiCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-cao-zhi");
+    private static SkillProgramCatalog ClassicZhangZhaoZhangHongCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-zhang-zhao-zhang-hong");
+    private static SkillProgramCatalog ClassicZhangHeCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-zhang-he");
+    private static SkillProgramCatalog ClassicGaoShunCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-gao-shun");
+    private static SkillProgramCatalog ClassicLifecycleCatalog =>
+        EmbeddedSkillProgramCatalog.Catalog("classic-lifecycle-skills");
     public static Version CurrentVersion { get; } = new(1, 164, 0);
 
     public StandardClassicGeneralPackage()
@@ -567,8 +423,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         {
             builder.AddSkill(ClassicCardActionSkillPrograms.Definition("classic:xianzhen"));
 
-            var jinjiuProgram = ClassicGaoShunCatalog.Value.Programs["classic:jinjiu"];
-            var jinjiuPresentation = ClassicGaoShunCatalog.Value.Presentations["classic:jinjiu"];
+            var jinjiuProgram = ClassicGaoShunCatalog.Programs["classic:jinjiu"];
+            var jinjiuPresentation = ClassicGaoShunCatalog.Presentations["classic:jinjiu"];
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "classic:jinjiu",
                 jinjiuPresentation.Name,
@@ -617,8 +473,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
 
         {
-            var dangxian = ClassicLifecycleCatalog.Value.Programs["classic:dangxian"];
-            var dangxianPresentation = ClassicLifecycleCatalog.Value.Presentations["classic:dangxian"];
+            var dangxian = ClassicLifecycleCatalog.Programs["classic:dangxian"];
+            var dangxianPresentation = ClassicLifecycleCatalog.Presentations["classic:dangxian"];
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                     dangxian.Id,
                     dangxianPresentation.Name,
@@ -628,8 +484,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             },
                 SkillTag.Locked,
                 SkillExecutionForm.State));
-            var fuli = ClassicLifecycleCatalog.Value.Programs["classic:fuli"];
-            var fuliPresentation = ClassicLifecycleCatalog.Value.Presentations["classic:fuli"];
+            var fuli = ClassicLifecycleCatalog.Programs["classic:fuli"];
+            var fuliPresentation = ClassicLifecycleCatalog.Presentations["classic:fuli"];
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                     fuli.Id,
                     fuliPresentation.Name,
@@ -687,8 +543,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             });
         }
         {
-            var chengxiang = ClassicLifecycleCatalog.Value.Programs["classic:chengxiang"];
-            var chengxiangPresentation = ClassicLifecycleCatalog.Value.Presentations["classic:chengxiang"];
+            var chengxiang = ClassicLifecycleCatalog.Programs["classic:chengxiang"];
+            var chengxiangPresentation = ClassicLifecycleCatalog.Presentations["classic:chengxiang"];
             builder.AddSkill(WithOptionalTriggerMetadata(new ContentSkillDefinition(
                 chengxiang.Id,
                 chengxiangPresentation.Name,
@@ -874,10 +730,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         }
         {
             {
-                foreach (var (id, program) in ClassicZhangJiaoCatalog.Value.Programs
+                foreach (var (id, program) in ClassicZhangJiaoCatalog.Programs
                              .OrderBy(entry => entry.Key, StringComparer.Ordinal))
                 {
-                    var presentation = ClassicZhangJiaoCatalog.Value.Presentations[id];
+                    var presentation = ClassicZhangJiaoCatalog.Presentations[id];
                     var definition = new ContentSkillDefinition(
                         id,
                         presentation.Name,
@@ -896,10 +752,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             }
         }
         {
-            foreach (var (id, program) in BoundaryZhangJiaoCatalog.Value.Programs
+            foreach (var (id, program) in BoundaryZhangJiaoCatalog.Programs
                          .OrderBy(entry => entry.Key, StringComparer.Ordinal))
             {
-                var presentation = BoundaryZhangJiaoCatalog.Value.Presentations[id];
+                var presentation = BoundaryZhangJiaoCatalog.Presentations[id];
                 var definition = new ContentSkillDefinition(
                     id,
                     presentation.Name,
@@ -917,8 +773,8 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             }
         }
         {
-            var wushenProgram = ClassicShenGuanYuCatalog.Value.Programs["classic:wushen"];
-            var wushenPresentation = ClassicShenGuanYuCatalog.Value.Presentations["classic:wushen"];
+            var wushenProgram = ClassicShenGuanYuCatalog.Programs["classic:wushen"];
+            var wushenPresentation = ClassicShenGuanYuCatalog.Presentations["classic:wushen"];
             builder.AddSkill(WithStructuredSkillMetadata(new ContentSkillDefinition(
                 "classic:wushen",
                 wushenPresentation.Name,
@@ -983,10 +839,10 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
             builder.AddSkill(EmbeddedSkillProgramCatalog.Definition("support-choice-skills", "classic:jujian"));
         }
         {
-            foreach (var (id, program) in SpZhaoYunCatalog.Value.Programs
+            foreach (var (id, program) in SpZhaoYunCatalog.Programs
                          .OrderBy(entry => entry.Key, StringComparer.Ordinal))
             {
-                var presentation = SpZhaoYunCatalog.Value.Presentations[id];
+                var presentation = SpZhaoYunCatalog.Presentations[id];
                 var definition = new ContentSkillDefinition(
                     id,
                     presentation.Name,
@@ -2014,6 +1870,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         Fame2016DeferredContent.Register(builder);
         Fame2016ConversionContent.Register(builder);
         Fame2016StateContent.Register(builder);
+        Fame2017XinXianyingContent.Register(builder);
+        Fame2016TaoluanContent.Register(builder);
+        Fame2017CaoJieContent.Register(builder);
+        Fame2017WuXianContent.Register(builder);
+        Fame2017CaiYongContent.Register(builder);
+        Fame2017QinMiContent.Register(builder);
+        Fame2017XueZongContent.Register(builder);
+        FengLinLuJiContent.Register(builder);
+        Fame2017XuShiContent.Register(builder);
+        FengLinWangPingContent.Register(builder);
+        Fame2017JiKangContent.Register(builder);
+        FengLinHaoZhaoContent.Register(builder);
         var generalPoolIds = CurrentGeneralIds;
 
         builder.AddMode(new ContentModeDefinition(
@@ -2208,163 +2076,163 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
 
     private static ContentSkillDefinition ShenSimaYiProgram(string skillId)
     {
-        var presentation = ClassicShenSimaYiCatalog.Value.Presentations[skillId];
+        var presentation = ClassicShenSimaYiCatalog.Presentations[skillId];
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
-            Program = ClassicShenSimaYiCatalog.Value.Programs[skillId]
+            Program = ClassicShenSimaYiCatalog.Programs[skillId]
         };
     }
 
     private static ContentSkillDefinition CaoPiProgram(string skillId)
     {
-        var presentation = ClassicCaoPiCatalog.Value.Presentations[skillId];
+        var presentation = ClassicCaoPiCatalog.Presentations[skillId];
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
-            Program = ClassicCaoPiCatalog.Value.Programs[skillId]
+            Program = ClassicCaoPiCatalog.Programs[skillId]
         };
     }
 
     private static ContentSkillDefinition SunCeProgram(string skillId)
     {
-        var presentation = ClassicSunCeCatalog.Value.Presentations[skillId];
+        var presentation = ClassicSunCeCatalog.Presentations[skillId];
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
-            Program = ClassicSunCeCatalog.Value.Programs[skillId]
+            Program = ClassicSunCeCatalog.Programs[skillId]
         };
     }
 
     private static ContentSkillDefinition BoundaryZhaoYunProgram(string skillId)
     {
-        var presentation = BoundaryZhaoYunCatalog.Value.Presentations[skillId];
+        var presentation = BoundaryZhaoYunCatalog.Presentations[skillId];
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
-            Program = BoundaryZhaoYunCatalog.Value.Programs[skillId]
+            Program = BoundaryZhaoYunCatalog.Programs[skillId]
         };
     }
 
     private static ContentSkillDefinition ShenZhaoYunProgram(string skillId)
     {
-        var presentation = ClassicShenZhaoYunCatalog.Value.Presentations[skillId];
+        var presentation = ClassicShenZhaoYunCatalog.Presentations[skillId];
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
-            Program = ClassicShenZhaoYunCatalog.Value.Programs[skillId]
+            Program = ClassicShenZhaoYunCatalog.Programs[skillId]
         };
     }
 
     private static ContentSkillDefinition GaoDaYiHaoProgram(string skillId)
     {
-        var presentation = ClassicGaoDaYiHaoCatalog.Value.Presentations[skillId];
+        var presentation = ClassicGaoDaYiHaoCatalog.Presentations[skillId];
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
-            Program = ClassicGaoDaYiHaoCatalog.Value.Programs[skillId]
+            Program = ClassicGaoDaYiHaoCatalog.Programs[skillId]
         };
     }
 
     private static ContentSkillDefinition DengAiProgram(string skillId)
     {
-        var presentation = ClassicDengAiCatalog.Value.Presentations[skillId];
+        var presentation = ClassicDengAiCatalog.Presentations[skillId];
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
-            Program = ClassicDengAiCatalog.Value.Programs[skillId]
+            Program = ClassicDengAiCatalog.Programs[skillId]
         };
     }
 
     private static ContentSkillDefinition ShaMoKeProgram(string skillId)
     {
-        var presentation = ClassicShaMoKeCatalog.Value.Presentations[skillId];
+        var presentation = ClassicShaMoKeCatalog.Presentations[skillId];
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
-            Program = ClassicShaMoKeCatalog.Value.Programs[skillId]
+            Program = ClassicShaMoKeCatalog.Programs[skillId]
         };
     }
 
     private static ContentSkillDefinition LuSuProgram(string skillId)
     {
-        var presentation = ClassicLuSuCatalog.Value.Presentations[skillId];
+        var presentation = ClassicLuSuCatalog.Presentations[skillId];
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
-            Program = ClassicLuSuCatalog.Value.Programs[skillId]
+            Program = ClassicLuSuCatalog.Programs[skillId]
         };
     }
 
     private static ContentSkillDefinition JiangWeiProgram(string skillId)
     {
-        var presentation = ClassicJiangWeiCatalog.Value.Presentations[skillId];
+        var presentation = ClassicJiangWeiCatalog.Presentations[skillId];
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
-            Program = ClassicJiangWeiCatalog.Value.Programs[skillId]
+            Program = ClassicJiangWeiCatalog.Programs[skillId]
         };
     }
 
     private static ContentSkillDefinition DongZhuoProgram(string skillId)
     {
-        var presentation = ClassicDongZhuoCatalog.Value.Presentations[skillId];
+        var presentation = ClassicDongZhuoCatalog.Presentations[skillId];
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
-            Program = ClassicDongZhuoCatalog.Value.Programs[skillId]
+            Program = ClassicDongZhuoCatalog.Programs[skillId]
         };
     }
 
     private static ContentSkillDefinition LiuShanProgram(string skillId)
     {
-        var presentation = ClassicLiuShanCatalog.Value.Presentations[skillId];
+        var presentation = ClassicLiuShanCatalog.Presentations[skillId];
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
-            Program = ClassicLiuShanCatalog.Value.Programs[skillId]
+            Program = ClassicLiuShanCatalog.Programs[skillId]
         };
     }
 
     private static ContentSkillDefinition FuHuanghouProgram(string skillId)
     {
-        var presentation = ClassicFuHuanghouCatalog.Value.Presentations[skillId];
+        var presentation = ClassicFuHuanghouCatalog.Presentations[skillId];
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
-            Program = ClassicFuHuanghouCatalog.Value.Programs[skillId]
+            Program = ClassicFuHuanghouCatalog.Programs[skillId]
         };
     }
 
     private static ContentSkillDefinition CaoZhiProgram(string skillId)
     {
-        var presentation = ClassicCaoZhiCatalog.Value.Presentations[skillId];
+        var presentation = ClassicCaoZhiCatalog.Presentations[skillId];
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
-            Program = ClassicCaoZhiCatalog.Value.Programs[skillId]
+            Program = ClassicCaoZhiCatalog.Programs[skillId]
         };
     }
 
     private static ContentSkillDefinition ZhangHeProgram(string skillId)
     {
-        var presentation = ClassicZhangHeCatalog.Value.Presentations[skillId];
+        var presentation = ClassicZhangHeCatalog.Presentations[skillId];
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
-            Program = ClassicZhangHeCatalog.Value.Programs[skillId]
+            Program = ClassicZhangHeCatalog.Programs[skillId]
         };
     }
 
     private static ContentSkillDefinition ZhangZhaoZhangHongProgram(string skillId)
     {
-        var presentation = ClassicZhangZhaoZhangHongCatalog.Value.Presentations[skillId];
+        var presentation = ClassicZhangZhaoZhangHongCatalog.Presentations[skillId];
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
-            Program = ClassicZhangZhaoZhangHongCatalog.Value.Programs[skillId]
+            Program = ClassicZhangZhaoZhangHongCatalog.Programs[skillId]
         };
     }
 
     private static ContentSkillDefinition ShenLuMengProgram(string skillId)
     {
-        var presentation = ClassicShenLuMengCatalog.Value.Presentations[skillId];
+        var presentation = ClassicShenLuMengCatalog.Presentations[skillId];
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
-            Program = ClassicShenLuMengCatalog.Value.Programs[skillId]
+            Program = ClassicShenLuMengCatalog.Programs[skillId]
         };
     }
 
     private static ContentSkillDefinition ShenCaoCaoProgram(string skillId)
     {
-        var presentation = ClassicShenCaoCaoCatalog.Value.Presentations[skillId];
+        var presentation = ClassicShenCaoCaoCatalog.Presentations[skillId];
         return new ContentSkillDefinition(skillId, presentation.Name, presentation.Description)
         {
-            Program = ClassicShenCaoCaoCatalog.Value.Programs[skillId]
+            Program = ClassicShenCaoCaoCatalog.Programs[skillId]
         };
     }
 
@@ -2382,14 +2250,6 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
 
     private ContentSkillDefinition WithActiveActionMetadata(ContentSkillDefinition definition) =>
         definition with { ActionForms = SkillActionForm.Active };
-
-    private static string ReadEmbeddedText(string resourceName)
-    {
-        using var stream = typeof(StandardClassicGeneralPackage).Assembly.GetManifestResourceStream(resourceName)
-            ?? throw new InvalidOperationException($"Missing embedded skill-program resource '{resourceName}'.");
-        using var reader = new StreamReader(stream);
-        return reader.ReadToEnd();
-    }
 
     internal static IReadOnlyList<string> CurrentGeneralIds { get; } =
     [
@@ -2514,6 +2374,18 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         .. Fame2016DeferredContent.AddedGeneralIds,
         .. Fame2016ConversionContent.AddedGeneralIds,
         .. Fame2016StateContent.AddedGeneralIds,
+        .. Fame2017XinXianyingContent.AddedGeneralIds,
+        .. Fame2016TaoluanContent.AddedGeneralIds,
+        .. Fame2017CaoJieContent.AddedGeneralIds,
+        .. Fame2017WuXianContent.AddedGeneralIds,
+        .. Fame2017CaiYongContent.AddedGeneralIds,
+        .. Fame2017QinMiContent.AddedGeneralIds,
+        .. Fame2017XueZongContent.AddedGeneralIds,
+        .. FengLinLuJiContent.AddedGeneralIds,
+        .. Fame2017XuShiContent.AddedGeneralIds,
+        .. FengLinWangPingContent.AddedGeneralIds,
+        .. Fame2017JiKangContent.AddedGeneralIds,
+        .. FengLinHaoZhaoContent.AddedGeneralIds,
         .. Fame2015Content.AddedGeneralIds
     ];
 

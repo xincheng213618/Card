@@ -52,7 +52,7 @@ internal sealed class InitializePrivatePileDescriptor : ParticipantReserveDescri
 internal sealed class ExchangePrivatePileDescriptor : ParticipantReserveDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.ExchangePrivatePile; public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice; }
 internal sealed class GrantAttributedNatureEffectDescriptor : ParticipantReserveDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.GrantAttributedNatureEffect; }
 internal sealed class RecoverAllLivingDescriptor : ParticipantReserveDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.RecoverAllLiving; }
-internal sealed class SpendMarkerOrLoseHpDescriptor : ParticipantReserveDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.SpendMarkerOrLoseHp; public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice; }
+internal sealed class SpendMarkerOrLoseHpDescriptor : ParticipantReserveDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.SpendMarkerOrLoseHp; public override ProgramOperationInteraction Interaction => ProgramOperationInteraction.Choice; public override ProgramOperationAiPolicy AiPolicy {get;} = new(ProgramOperationAiSemantic.Damage,static(e,c)=>c.PriceAttributedMarkerOrHpPayment(e)); }
 internal sealed class LoseHpUnclampedDescriptor : ParticipantReserveDescriptor { public override SkillProgramEffectOp Op => SkillProgramEffectOp.LoseHpUnclamped; }
 internal sealed class RequestSlashByNearestDescriptor : ParticipantReserveDescriptor
 {

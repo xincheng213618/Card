@@ -80,7 +80,7 @@ public sealed partial class GameEngine
         foreach (var key in player.MarkerSourceCounts.Keys.Where(key => key.Marker == marker).ToArray()) player.MarkerSourceCounts.Remove(key);
         if (count == 0) player.Markers.Remove(marker);
         else { player.Markers[marker] = count; player.MarkerSourceCounts[(marker, sourceSeat)] = count; }
-        QueueGameEvent(new PlayerMarkerChangedEvent(frame.Id, seat, marker, count - old, count, sourceSeat, $"skill-program.{frame.SkillId}.marker"));
+        AdvanceEventRulesAndQueueFact(new PlayerMarkerChangedEvent(frame.Id, seat, marker, count - old, count, sourceSeat, $"skill-program.{frame.SkillId}.marker"));
     }
     private SkillProgramStepOutcome ExecuteStrategicProgramEffect(SkillProgramEffect effect, ProgramSkillFrame frame, int targetSeat)
     {
@@ -99,7 +99,7 @@ public sealed partial class GameEngine
                     var aggregate = checked(holder.Markers.GetValueOrDefault(marker) + effect.Amount);
                     holder.MarkerSourceCounts[source] = checked(holder.MarkerSourceCounts.GetValueOrDefault(source) + effect.Amount);
                     holder.Markers[marker] = aggregate;
-                    QueueGameEvent(new PlayerMarkerChangedEvent(frame.Id, targetSeat, marker, effect.Amount, aggregate, frame.OwnerSeat, $"skill-program.{frame.SkillId}.marker"));
+                    AdvanceEventRulesAndQueueFact(new PlayerMarkerChangedEvent(frame.Id, targetSeat, marker, effect.Amount, aggregate, frame.OwnerSeat, $"skill-program.{frame.SkillId}.marker"));
                 }
                 return SkillProgramStepOutcome.Continue;
             case SkillProgramEffectOp.MoveUniqueMarker:
@@ -132,7 +132,7 @@ public sealed partial class GameEngine
                 if (queue.Count == 0) { _strategicDamageQueues.Remove(key); return SkillProgramStepOutcome.Continue; }
                 var damageSeat = queue.Dequeue();
                 // The automatic instruction repeats until all frozen seats have resolved their complete damage windows.
-                _resolutionStack[^1] = frame with { InstructionIndex = frame.InstructionIndex - 1 };
+                ReplaceRuntimeTop(frame with { InstructionIndex = frame.InstructionIndex - 1 });
                 return BeginProgramSkillDamage(frame, damageSeat, effect.Amount == 0 ? 1 : effect.Amount);
             case SkillProgramEffectOp.SelectDistinctSuitHandDiscards:
                 var candidates = GetHand(owner).Concat(GetHand(_players[targetSeat])).Select(card => card.Id).ToArray();
@@ -236,7 +236,7 @@ public sealed partial class GameEngine
             if (grants.Length == 0) throw new InvalidOperationException("Suppressed skill is no longer owned.");
             foreach (var grant in grants) target.SkillGrants.SetEnabled(grant, false);
             _programSuppressions.Add(new(frame.OwnerSeat, target.Seat, id, _turnNumber, grants));
-            QueueGameEvent(new ProgramSkillSuppressedEvent(frame.OwnerSeat, target.Seat, id, true));
+            AdvanceEventRulesAndQueueFact(new ProgramSkillSuppressedEvent(frame.OwnerSeat, target.Seat, id, true));
             _strategicEndPlayTurn = _turnNumber;
         }
         else
@@ -247,18 +247,18 @@ public sealed partial class GameEngine
                 if (!draft.Candidates.Contains(seat) || !_players[seat].IsAlive || draft.Op == SkillProgramEffectOp.SelectChainedByMarker && !_players[seat].IsChained || draft.Selected.Contains(seat) || draft.Selected.Count >= draft.Maximum) throw new InvalidOperationException("Bound target selection is unavailable.");
                 if (draft.Op == SkillProgramEffectOp.SelectOneSelectedTarget)
                 {
-                    _resolutionStack[^1] = frame with { SelectedTargetSeats = [seat] };
+                    ReplaceRuntimeTop(frame with { SelectedTargetSeats = [seat] });
                     _strategicDrafts.Remove(frame.Id);
-                    ContinueProgramSkill(frame.Id);
+                    AdvanceRuntimeProgram(frame.Id);
                     return;
                 }
                 _strategicDrafts[frame.Id] = draft with { Selected = draft.Selected.Append(seat).ToArray() };
                 PublishStrategicPrompt(frame); return;
             }
-            _resolutionStack[^1] = frame with { SelectedTargetSeats = draft.Selected };
+            ReplaceRuntimeTop(frame with { SelectedTargetSeats = draft.Selected });
         }
         _strategicDrafts.Remove(frame.Id);
-        ContinueProgramSkill(frame.Id);
+        AdvanceRuntimeProgram(frame.Id);
     }
     private void ExpireProgramSuppressions(int turnOwnerSeat)
     {
@@ -267,7 +267,7 @@ public sealed partial class GameEngine
             foreach (var id in suppression.GrantIds)
                 if (_players[turnOwnerSeat].SkillGrants.Grants.Any(grant => grant.GrantId == id)) _players[turnOwnerSeat].SkillGrants.SetEnabled(id, true);
             _programSuppressions.Remove(suppression);
-            QueueGameEvent(new ProgramSkillSuppressedEvent(suppression.SourceSeat, turnOwnerSeat, suppression.SkillId, false));
+            AdvanceEventRulesAndQueueFact(new ProgramSkillSuppressedEvent(suppression.SourceSeat, turnOwnerSeat, suppression.SkillId, false));
         }
     }
     private void AssertStrategicProgramSelection(ProgramSkillFrame frame, SkillProgramEffect paused)

@@ -70,7 +70,7 @@ public sealed partial class GameEngine
                 Array.AsReadOnly(candidates.Select(item => item.Id).ToArray()),
                 Array.AsReadOnly(candidates.Select(item => item.Location).ToArray()), [], minimumCards, maximumCards > 0)
         };
-        _resolutionStack[^1] = active;
+        ReplaceRuntimeTop(active);
         PublishProgramOwnedCardSelection(active);
         return SkillProgramStepOutcome.AwaitChoice;
     }
@@ -132,6 +132,8 @@ public sealed partial class GameEngine
 
     private void ResolveProgramOwnedCardSelection(ProgramSkillFrame frame, SkillProgramEffect effect, PromptChoice selected)
     {
+        var deferred = effect.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment;
+        if (deferred) effect = DeferredOwnedSelectionEffect(frame, effect);
         var draft = frame.OwnedCardSelection ?? throw new InvalidOperationException("Missing owned-card draft.");
         var finish = selected.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards";
         if (effect.Op != SkillProgramEffectOp.SelectOwnedCards || draft.ResultBind != effect.ResultBind ||
@@ -159,19 +161,21 @@ public sealed partial class GameEngine
         if (!finish && ids.Length < draft.RequiredCount)
         {
             frame = frame with { OwnedCardSelection = draft with { SelectedCardIds = Array.AsReadOnly(ids) } };
-            _resolutionStack[^1] = frame;
+            ReplaceRuntimeTop(frame);
             PublishProgramOwnedCardSelection(frame);
             return;
         }
-        _resolutionStack[^1] = frame with { OwnedCardSelection = null };
+        ReplaceRuntimeTop(frame with { OwnedCardSelection = null });
         var locations = ids.Select(id => draft.CandidateLocations[draft.CandidateCardIds.ToList().IndexOf(id)]).ToArray();
+        if (deferred) { CompleteDeferredAlignmentDiscard(frame.Id, ids, locations); return; }
         SetProgramCardSet(frame.Id, draft.ResultBind, ids, SkillProgramCardSetVisibility.Private, locations,
             ids.Length == 1 ? EffectiveSuit(_players[draft.CardOwnerSeat], _cardZones.CardsAt(locations[0]).Single(c => c.Id == ids[0])) : null);
-        ContinueProgramSkill(frame.Id);
+        AdvanceRuntimeProgram(frame.Id);
     }
 
     private void AssertProgramOwnedCardSelection(ProgramSkillFrame frame, SkillProgramEffect paused)
     {
+        if (paused.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.OwnedCardSelection is not null) paused = DeferredOwnedSelectionEffect(frame, paused);
         if (paused.Op != SkillProgramEffectOp.SelectOwnedCards)
         {
             if (frame.OwnedCardSelection is not null)

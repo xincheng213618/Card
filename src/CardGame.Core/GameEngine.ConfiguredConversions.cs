@@ -22,7 +22,7 @@ public sealed partial class GameEngine
         IndexedSkillProgramInstance instance, SkillProgramViewAs rule, bool dyingUse)
     {
         if (rule.ExcludeOwnerEffects &&
-            (dyingUse ? _pendingDying?.VictimSeat == owner.Seat :
+            (dyingUse ? ActiveDying?.VictimSeat == owner.Seat :
              rule.OutputKind is CardKind.Peach or CardKind.Alcohol)) return false;
         if (rule.ActivationUsageGroup is { } group && rule.UsesPerPhase is { } limit &&
             _programPhaseUses.GetValueOrDefault((owner.Seat, instance.SkillId, group)) >= limit) return false;
@@ -40,7 +40,7 @@ public sealed partial class GameEngine
         var tier = _configuredConversionTiers.GetValueOrDefault(key);
         if (tier >= 2) throw new InvalidOperationException("The conversion tier is already maximal.");
         _configuredConversionTiers[key] = tier + 1;
-        QueueGameEvent(new ConfiguredConversionTierChangedEvent(frame.OwnerSeat, state, tier + 1));
+        AdvanceEventRulesAndQueueFact(new ConfiguredConversionTierChangedEvent(frame.OwnerSeat, state, tier + 1));
         AddLog("SkillTriggered", $"{_players[frame.OwnerSeat].Name} 的转换能力修改至第 {tier + 1} 层。", frame.OwnerSeat);
     }
 
@@ -114,11 +114,11 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The declared name is not available at the frozen tier.");
         ClearPendingDecision();
         _declaredConversionCards[(frame.OwnerSeat, draft.StateId)] = (_turnNumber, draft.CardId, kind);
-        QueueGameEvent(new PhysicalCardNameDeclaredEvent(frame.OwnerSeat, draft.DeclarerSeat.Value,
+        AdvanceEventRulesAndQueueFact(new PhysicalCardNameDeclaredEvent(frame.OwnerSeat, draft.DeclarerSeat.Value,
             draft.StateId, draft.CardId, kind, _turnNumber));
         AddLog("SkillTriggered", $"{_players[draft.DeclarerSeat.Value].Name} 为 {_players[frame.OwnerSeat].Name} 展示的牌声明【{CardCatalog.Get(kind).DisplayName}】。", draft.DeclarerSeat.Value, frame.OwnerSeat);
         _cardDeclarationDrafts.Remove(frame.Id);
-        ContinueProgramSkill(frame.Id);
+        AdvanceRuntimeProgram(frame.Id);
     }
 
     private void AssertConfiguredCardDeclaration(ProgramSkillFrame frame, SkillProgramEffect paused)

@@ -35,7 +35,7 @@ public sealed partial class GameEngine
             PhysicalCardId: physical.CardId);
         if (!modifiers.IgnoresSlashLimit && modifiers.DamageBonus == 0) return default;
 
-        QueueGameEvent(new NuzhanAppliedEvent(
+        AdvanceEventRulesAndQueueFact(new NuzhanAppliedEvent(
             frameId,
             source.Seat,
             modifiers.PhysicalCardId,
@@ -208,6 +208,7 @@ public sealed partial class GameEngine
         CardKind outputKind,
         bool forResponse, bool dyingUse = false)
     {
+        if (IsResponseEntityRestricted(owner.Seat,card.Id)) return [];
         if (HasProgramCardIdentity(owner, card))
         {
             return [];
@@ -228,10 +229,11 @@ public sealed partial class GameEngine
                 .Where(rule => rule.InputCount == 1 &&
                                (rule.OutputKind == outputKind || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash) &&
                                rule.SourceZones.Contains(zone.Value) &&
-                               (dyingUse ? rule.ForResponse || rule.UseOnly && rule.ForPlay : forResponse ? rule.ForResponse && (!rule.UseOnly || IsProgramResponseCardUse(owner, outputKind) || rule.ConversionStateId is not null && outputKind == CardKind.Nullification) : rule.ForPlay) &&
+                               (dyingUse ? rule.ForResponse || rule.UseOnly && rule.ForPlay : forResponse ? rule.ForResponse && (!rule.UseOnly || IsProgramResponseCardUse(owner, outputKind) || (rule.ConversionStateId is not null || rule.UnusedOutputNameThisGame) && outputKind == CardKind.Nullification) : rule.ForPlay) &&
+                               IsNamedUseConversionAvailable(owner, instance, rule) &&
                                IsConfiguredConversionAvailable(owner, card, instance, rule, dyingUse) &&
                                (!rule.UnusedOutputThisTurn || !HasProgramUsedBasicCardThisTurn(owner.Seat, outputKind)) &&
-                               (card.Kind != outputKind || rule.InheritPreviousPlaySuit || rule.ConversionStateId is not null) &&
+                               (card.Kind != outputKind || rule.InheritPreviousPlaySuit || rule.ConversionStateId is not null || rule.AllowSameKind) &&
                                CanUsePhaseLimitedViewAs(instance, rule, owner) &&
                                rule.Condition.Evaluate(context) &&
                                (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&
@@ -363,7 +365,7 @@ public sealed partial class GameEngine
         CharacterState source,
         CharacterState target,
         ProgramMultiCardViewAsSelection selection,
-        BorrowedSwordResolution? borrowedSword = null,
+        BorrowedSwordHandle? borrowedSword = null,
         bool enforceOwnTurnSlashLimit = true)
     {
         var current = FindProgramMultiCardViewAsSelection(
@@ -407,10 +409,12 @@ public sealed partial class GameEngine
             card.Id,
             card.Kind,
             FindOwnedCardLocation(responder, card))).ToArray();
+        var completedResponseUseSuit = actorSeat is null || actorSeat == responder.Seat
+            ? FreezeCompletedResponseUseSuit(responder, current.Cards, selection.OutputKind) : null;
         foreach (var card in current.Cards)
         {
             MoveCard(card, FindOwnedCardLocation(responder, card), CardLocation.Processing, CardMoveReasons.Respond);
-            QueueGameEvent(new CardRespondedEvent(
+            AdvanceEventRulesAndQueueFact(new CardRespondedEvent(
                 card.Id,
                 responder.Seat,
                 responseTargetSeat,
@@ -431,9 +435,9 @@ public sealed partial class GameEngine
             selection.OutputKind,
             [],
             costs,
-            [selection.Source]);
-        QueueGameEvent(new CardActionAcceptedEvent(action));
-        QueueGameEvent(new ProgramViewAsConvertedEvent(
+            [selection.Source], effectiveSuit: completedResponseUseSuit);
+        AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(action));
+        AdvanceEventRulesAndQueueFact(new ProgramViewAsConvertedEvent(
             resolutionId,
             selection.Source.SkillId,
             selection.Source.BindingId,
@@ -452,44 +456,46 @@ public sealed partial class GameEngine
     }
 
     private void ResolveDuelProgramMultiCardResponse(
-        DuelResolution duel,
+        DuelHandle duel,
         CharacterState responder,
         ProgramMultiCardViewAsSelection selection)
     {
-        if (!ReferenceEquals(_pendingDuel, duel) || responder.Seat != duel.ResponderSeat)
+        if (!SameContinuationOwner(ActiveDuel, duel) || responder.Seat != duel.ResponderSeat)
             throw new InvalidOperationException("The configured Duel response is not current.");
-        MoveProgramMultiCardResponse(responder, selection, duel.ResolutionId, duel.OpponentSeat);
+        var responseAction = MoveProgramMultiCardResponse(responder, selection, duel.ResolutionId, duel.OpponentSeat);
         AddLog("CardResponded",
             $"{responder.Name} 发动【{ProgramConversionName(selection.Source)}】，将 {selection.Cards.Count} 张手牌当【杀】应战【决斗】。",
             responder.Seat, duel.OpponentSeat);
         MarkSlashUsedOrPlayedDuringCurrentPlayPhase(responder.Seat, CardKind.Slash);
-        QueueGameEvent(new DuelResponseEvent(
+        AdvanceEventRulesAndQueueFact(new DuelResponseEvent(
             duel.ResolutionId, responder.Seat, UsedSlash: true,
             SlashCardId: selection.Cards[0].Id, ResponseCardKind: CardKind.Slash));
+        if (HasResponseEntityExchangeObservers() && TryBeginProgramCardWindow(duel.Attack,responseAction,SkillProgramTriggerWindow.CardResponseAccepted,[duel.OpponentSeat],ProgramCardContinuation.DuelSlash)) return;
         FinishProgramMultiCardResponse(selection);
         ContinueDuelAfterSuccessfulSlash(duel, responder.Seat);
     }
 
     private void ResolveGroupProgramMultiCardResponse(
-        GroupCardResolution group,
+        GroupCardHandle group,
         CharacterState responder,
         ProgramMultiCardViewAsSelection selection)
     {
-        if (!ReferenceEquals(_pendingGroupCard, group) ||
+        if (!SameContinuationOwner(ActiveGroupCard, group) ||
             group.Effect != GroupCardEffect.ResponseAttack ||
             group.RequiredCardKind != selection.OutputKind ||
             group.CurrentAttack is not { } attack ||
             responder.Seat != attack.TargetSeat)
             throw new InvalidOperationException("The configured group response is not current.");
-        MoveProgramMultiCardResponse(responder, selection, group.ResolutionId, group.SourceSeat);
+        var responseAction = MoveProgramMultiCardResponse(responder, selection, group.ResolutionId, group.SourceSeat);
         AddLog("CardResponded",
             $"{responder.Name} 发动【{ProgramConversionName(selection.Source)}】，将 {selection.Cards.Count} 张手牌当【杀】响应【{group.Card.DisplayName}】。",
             responder.Seat, group.SourceSeat);
         MarkSlashUsedOrPlayedDuringCurrentPlayPhase(responder.Seat, CardKind.Slash);
-        QueueGameEvent(new GroupResponseEvent(
+        AdvanceEventRulesAndQueueFact(new GroupResponseEvent(
             group.ResolutionId, group.Card.Kind, CardKind.Slash, responder.Seat,
             UsedResponse: true, ResponseCardId: selection.Cards[0].Id,
             ResponseCardKind: CardKind.Slash));
+        if (HasResponseEntityExchangeObservers() && TryBeginProgramCardWindow(attack,responseAction,SkillProgramTriggerWindow.CardResponseAccepted,[group.SourceSeat],ProgramCardContinuation.GroupResponse)) return;
         FinishProgramMultiCardResponse(selection);
         CompleteAttack(attack);
     }
@@ -511,17 +517,17 @@ public sealed partial class GameEngine
         return cards.Where(card => ignoreSuitUseProhibition || !IsTurnSuitUseForbidden(owner.Seat,EffectiveSuit(owner,card))).DistinctBy(card => card.Id).ToArray();
     }
 
-    private static bool IsFactionSlashUse(FactionCardRequestResolution pending) =>
+    private static bool IsFactionSlashUse(FactionCardRequestHandle pending) =>
         pending.IsProgramSkillUse || pending.IsBorrowedSwordUse || pending.IsQinglongCrescentBladeUse;
 
-    private IReadOnlyList<Card> GetFactionSlashSlashCards(FactionCardRequestResolution pending, CharacterState provider) =>
+    private IReadOnlyList<Card> GetFactionSlashSlashCards(FactionCardRequestHandle pending, CharacterState provider) =>
         (pending.IsAssistedProgramUse
             ? GetAssistedFactionSlashCards(pending, provider).Select(variant => variant.Card).DistinctBy(card => card.Id).ToArray()
             : IsFactionSlashUse(pending) ? GetSlashUseCards(provider,ignoreSuitUseProhibition:true) : GetResponseCards(provider, CardKind.Slash))
         .Where(card => !IsFactionSlashUse(pending) || !IsTurnPhysicalUseForbidden(pending.OwnerSeat,[card.Id])).ToArray();
 
     private CardKind GetFactionSlashEffectiveSlashKind(
-        FactionCardRequestResolution pending,
+        FactionCardRequestHandle pending,
         CharacterState provider,
         Card card)
     {
@@ -644,7 +650,7 @@ public sealed partial class GameEngine
         var candidates = hasIdentity
             ? identitySources.ToArray()
             : GetProgramViewAsConversions(provider, responseCard, effectiveKind, forResponse: true,
-                dyingUse: _pendingDying is not null && effectiveKind is CardKind.Peach or CardKind.Alcohol).ToArray();
+                dyingUse: ActiveDying is not null && effectiveKind is CardKind.Peach or CardKind.Alcohol).ToArray();
         var selected = _selectedResponseConversion;
         var selectedChoice = _hasSelectedResponseConversionChoice;
         _selectedResponseConversion = null;

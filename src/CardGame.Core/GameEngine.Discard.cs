@@ -18,7 +18,7 @@ public sealed partial class GameEngine
             RequiredCardCount = count
         };
         _status = EngineStatus.AwaitingHumanDiscard;
-        PublishState();
+        AdvanceRulesAndPublishState();
     }
 
     private CommandResult SubmitDiscardCards(DiscardCardsCommand command)
@@ -52,7 +52,7 @@ public sealed partial class GameEngine
                 CardMoveReasons.HandLimitDiscard);
             ClearPendingDecision();
             AddLog("CardsDiscarded", $"{actor.Name} 弃置 {cards.Length} 张手牌。", actor.Seat);
-            QueueGameEvent(new HandLimitDiscardedEvent(actor.Seat,
+            AdvanceEventRulesAndQueueFact(new HandLimitDiscardedEvent(actor.Seat,
                 Array.AsReadOnly(cards.Select(card => card.Id).ToArray())));
             if (TryBeginDiscardPhaseEndedProgramWindow(actor)) return BuildResult();
             EndTurn();

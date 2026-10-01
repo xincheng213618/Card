@@ -31,7 +31,7 @@ public sealed partial class GameEngine
                 Array.AsReadOnly(candidates.Select(item => item.Location).ToArray()),
                 Array.Empty<int>(), minimumCards)
         };
-        _resolutionStack[^1] = active;
+        ReplaceRuntimeTop(active);
         PublishProgramHoldCardSelection(active);
         return SkillProgramStepOutcome.AwaitChoice;
     }
@@ -134,11 +134,11 @@ public sealed partial class GameEngine
         if (!finish && ids.Length < draft.RequiredCount)
         {
             frame = frame with { HoldCardSelection = draft with { SelectedCardIds = Array.AsReadOnly(ids) } };
-            _resolutionStack[^1] = frame;
+            ReplaceRuntimeTop(frame);
             PublishProgramHoldCardSelection(frame);
             return;
         }
-        _resolutionStack[^1] = frame with { HoldCardSelection = null };
+        ReplaceRuntimeTop(frame with { HoldCardSelection = null });
         if (ids.Length > 0)
         {
             var moves = ids.Select(id =>
@@ -151,11 +151,11 @@ public sealed partial class GameEngine
             AddLog("SkillTriggered",
                 $"{_players[frame.OwnerSeat].Name} 将 {ids.Length} 张牌扣置于 {_players[draft.HolderSeat].Name} 的武将牌旁。",
                 frame.OwnerSeat, draft.HolderSeat);
-            QueueGameEvent(new ProgramHoldCardsPlacedEvent(frame.Id, frame.SkillId,
+            AdvanceEventRulesAndQueueFact(new ProgramHoldCardsPlacedEvent(frame.Id, frame.SkillId,
                 GetProgramBindingId(frame), frame.OwnerSeat, draft.HolderSeat, draft.ResultBind,
                 Array.AsReadOnly(ids)));
         }
-        ContinueProgramSkill(frame.Id);
+        AdvanceRuntimeProgram(frame.Id);
     }
 
     private void AssertProgramHoldCardSelection(ProgramSkillFrame frame, SkillProgramEffect paused)
@@ -216,7 +216,7 @@ public sealed partial class GameEngine
             AddLog("SkillResolved",
                 $"{_players[seat].Name} 获得武将牌旁的 {held.Length} 张破军扣置牌。",
                 seat);
-            QueueGameEvent(new PojunHoldReturnedEvent(seat, Array.AsReadOnly(held.Select(card => card.Id).ToArray())));
+            AdvanceEventRulesAndQueueFact(new PojunHoldReturnedEvent(seat, Array.AsReadOnly(held.Select(card => card.Id).ToArray())));
         }
     }
 }

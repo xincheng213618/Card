@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace CardGame.Core;
 
@@ -14,9 +14,13 @@ public enum CardActionType { Use, Response }
 public enum ProgramCardContinuation
 {
     Slash, BeforeTargetEffects, BeforeTrickTargetEffects, CommittedSlash, Dodge, DuelSlash, GroupResponse, FactionDefenseDodge, FactionSlashDuelSlash, FactionSlashGroupResponse, DelayedCard, CompletedSlash, NullificationResponse, SlashTargetRedirecting, SlashBeforeResponse, SlashFullyDodged,
-    CommittedTrick, CommittedSimpleCard, CompletedCard, FinalizedTrick = 824, FinalizedSimpleCard = 900,
-    CompletedResponse = 1060
+    CommittedTrick, CommittedSimpleCard, CompletedCard, FinalizedTrick = 824, FinalizedSimpleCard = 900
 }
+
+public enum ProgramCompletedResponseKind { Dodge, Nullification }
+
+/// <summary>The completed use of an accepted response returns to its original parent.</summary>
+public sealed record ProgramCompletedResponseReturn(ProgramCompletedResponseKind Kind);
 
 public enum SimpleCardUseEffect { Equipment, Alcohol, Recovery, EquipmentPlacement = 900 }
 
@@ -115,11 +119,12 @@ public sealed record ProgramCardTriggerCandidate(
 
 public sealed record ProgramCardTriggerWindowFrame(
     long Id, long ParentFrameId, CardActionContext Action,
-    ProgramCardContinuation Continuation, IReadOnlyList<ProgramCardTriggerCandidate> Candidates,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ProgramCardContinuation? Continuation,
+    IReadOnlyList<ProgramCardTriggerCandidate> Candidates,
     int CandidateIndex = 0, bool Activated = false,
     ProgramTrickContinuation? TrickContinuation = null,
     ProgramSimpleCardContinuation? SimpleContinuation = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ProgramCardContinuation? CompletedResponseContinuation = null)
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ProgramCompletedResponseReturn? CompletedResponseReturn = null, long? AttackOwnerFrameId = null)
     : ResolutionFrame(Id, ResolutionFrameKind.ProgramCardTriggerWindow, ResolutionFrameStep.ResolvingEffect);
 
 public sealed record ProgramCardTriggerResolvedEvent(

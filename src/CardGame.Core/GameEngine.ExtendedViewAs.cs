@@ -14,8 +14,8 @@ public sealed partial class GameEngine
     }
     private IReadOnlyList<PromptChoice> ExtendedViewAsResponseChoices(CharacterState owner, CardKind kind)
     {
-        if (kind == CardKind.Peach && _pendingDying is { } dying && !CanUsePeachToRescue(owner.Seat, dying.VictimSeat)) return [];
-        return GetProgramMultiCardViewAsSelections(owner, kind, true).Select(selection =>
+        if (kind == CardKind.Peach && ActiveDying is { } dying && !CanUsePeachToRescue(owner.Seat, dying.VictimSeat)) return [];
+        return GetProgramMultiCardViewAsSelections(owner, kind, true).Where(selection => kind != CardKind.Peach || !IsShieldedRescueSelection(owner, selection)).Select(selection =>
         {
             var parameters = new Dictionary<string, string> { ["response"] = "extended-view-as", ["output-kind"] = kind.ToString() };
             AddConversionParameters(parameters, selection.Source);
@@ -34,7 +34,7 @@ public sealed partial class GameEngine
         var selection = FindProgramMultiCardViewAsSelection(owner, choice.Cards, kind, true, source)
             ?? throw new InvalidOperationException("The extended conversion lost its physical costs.");
         ResolveExtendedViewAsResponse(owner, selection);
-        PublishState();
+        AdvanceRulesAndPublishState();
         return _options.AdvanceAfterHumanCommands ? AdvanceToHumanBoundary() : BuildResult();
     }
 
@@ -43,8 +43,8 @@ public sealed partial class GameEngine
         var kind = selection.OutputKind;
         if (kind == CardKind.Peach)
         {
-            var dying = _pendingDying ?? throw new InvalidOperationException("Missing dying response.");
-            if (dying.ResponderSeat != owner.Seat || !CanUsePeachToRescue(owner.Seat, dying.VictimSeat))
+            var dying = ActiveDying ?? throw new InvalidOperationException("Missing dying response.");
+            if (dying.ResponderSeat != owner.Seat || !CanUsePeachToRescue(owner.Seat, dying.VictimSeat) || IsShieldedRescueSelection(owner, selection))
                 throw new InvalidOperationException("The rescue responder is no longer legal.");
             ClearPendingDecision();
             var rule = GetEnabledSkillProgram(owner, selection.Source.SkillId).ViewAs.Single(item => item.Id == selection.Source.BindingId);
@@ -62,32 +62,35 @@ public sealed partial class GameEngine
         }
         if (kind == CardKind.Nullification)
         {
-            var pending = _pendingNullification ?? throw new InvalidOperationException("Missing counterspell window.");
+            var pending = ActiveNullificationWindow ?? throw new InvalidOperationException("Missing counterspell window.");
             ClearPendingDecision();
-            var action = MoveProgramMultiCardResponse(owner, selection, pending.ResolutionId, pending.SourceSeat);
+            var action = MoveProgramMultiCardResponse(owner, selection, pending.ParentFrameId, pending.SourceSeat);
             FinishProgramMultiCardResponse(selection);
-            pending.EffectNullified = !pending.EffectNullified;
-            pending.ChainDepth++;
-            pending.CandidateSeats = BuildNullificationCandidateSeats(owner.Seat);
-            pending.CandidateIndex = 0;
-            UpdateNullificationWindowFrame(pending, ResolutionFrameStep.AwaitingResponse);
-            QueueGameEvent(new NullificationRespondedEvent(pending.ResolutionId, pending.EffectCard.Id,
-                pending.EffectiveCardKind, owner.Seat, selection.Cards[0].Id, pending.EffectNullified, pending.ChainDepth));
+            pending = ReplaceNullificationWindowFrame(pending with
+            {
+                EffectNullified = !pending.EffectNullified,
+                ChainDepth = pending.ChainDepth + 1,
+                CandidateSeats = BuildNullificationCandidateSeats(owner.Seat),
+                CandidateIndex = 0,
+                Step = ResolutionFrameStep.AwaitingResponse
+            });
+            AdvanceEventRulesAndQueueFact(new NullificationRespondedEvent(pending.ParentFrameId, pending.EffectCardId,
+                pending.EffectCardKind, owner.Seat, selection.Cards[0].Id, pending.EffectNullified, pending.ChainDepth));
             if (!TryBeginProgramCardWindow(null, action, SkillProgramTriggerWindow.CardResponseAccepted, [],
                 ProgramCardContinuation.NullificationResponse)) ContinueNullificationAfterResponseUse(action);
             return;
         }
-        var attack = _pendingAttack ?? throw new InvalidOperationException("Missing attack response.");
+        var attack = ActiveCardAttack ?? throw new InvalidOperationException("Missing attack response.");
         if (_resolutionStack.LastOrDefault() is ResponseWindowFrame) PopResponseWindow(attack.ResolutionId);
         ClearPendingDecision();
         SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
         var responseAction = MoveProgramMultiCardResponse(owner, selection, attack.ResolutionId, attack.SourceSeat);
-        var continuation = _pendingGroupCard is { } ? ProgramCardContinuation.GroupResponse : ProgramCardContinuation.Dodge;
+        var continuation = ActiveGroupCard is { } ? ProgramCardContinuation.GroupResponse : ProgramCardContinuation.Dodge;
         if (!TryBeginProgramCardWindow(attack, responseAction, SkillProgramTriggerWindow.CardResponseAccepted, [], continuation))
             ContinueAcceptedCardResponse(attack, responseAction, continuation);
     }
 
-    private int ProgramConversionDamageBonus(AttackResolution attack)
+    private int ProgramConversionDamageBonus(CardAttackHandle attack)
     {
         var action = _resolutionStack.OfType<CardUseFrame>().LastOrDefault(frame => frame.Id == attack.ResolutionId)?.Action;
         if (action is null || attack.IsChainPropagation) return 0;

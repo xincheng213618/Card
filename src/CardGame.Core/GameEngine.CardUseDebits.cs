@@ -36,7 +36,7 @@ public sealed partial class GameEngine
         if (!_cardUseDebits.TryAdd(action.ActionId, identity))
             throw new InvalidOperationException("A card action cannot debit its Slash quota twice.");
         _slashCountThisTurn++;
-        QueueGameEvent(new CardUseDebitRecordedEvent(identity));
+        AdvanceEventRulesAndQueueFact(new CardUseDebitRecordedEvent(identity));
     }
 
     private bool TryRefundCardUseDebit(CardUseDebitIdentity identity)
@@ -47,7 +47,7 @@ public sealed partial class GameEngine
         if (_slashCountThisTurn <= 0)
             throw new InvalidOperationException("A recorded Slash debit cannot be refunded from an empty quota.");
         _slashCountThisTurn--;
-        QueueGameEvent(new CardUseDebitRefundedEvent(identity));
+        AdvanceEventRulesAndQueueFact(new CardUseDebitRefundedEvent(identity));
         return true;
     }
 

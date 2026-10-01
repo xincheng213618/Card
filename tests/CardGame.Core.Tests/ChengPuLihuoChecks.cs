@@ -12,6 +12,52 @@ internal static class ChengPuLihuoChecks
     private const string LihuoSkillId = "classic:lihuo";
     private const string ChunlaoSkillId = "classic:chunlao";
 
+    public static void AcceptedConversionSourcesStayFrozenForReplay()
+    {
+        var registry = Registry();
+        var game = CreateGame(ScenarioPackage.ChainedConversionModeId, seed: 2,
+            ownerGeneralId: ChainedOwnerGeneralId);
+        ReachHumanPlay(game);
+        var actions = game.GetHumanLegalActions();
+        var action = actions.FirstOrDefault(candidate =>
+            candidate.Kind == LegalActionKind.Slash &&
+            candidate.AdditionalConversionSources is { Count: > 0 }) ??
+            throw new InvalidOperationException("No chained conversion action: " +
+                string.Join("; ", actions.Select(candidate =>
+                    $"{candidate.Kind}/{candidate.PlayedCardKind}/{candidate.ConversionSource?.SkillId}/" +
+                    $"{candidate.AdditionalConversionSources?.Count ?? 0}")) +
+                "; hand=" + string.Join(",", Player(game, HumanSeat).Hand.Select(card =>
+                    $"{card.Kind}:{card.Suit}")));
+        var expectedSources = action.AdditionalConversionSources!.ToArray();
+        var callerSources = new List<CardConversionSource>(expectedSources);
+        var accepted = game.Submit(new PlayCardCommand(
+            HumanSeat,
+            action.CardId ?? throw new InvalidOperationException("The converted Slash has no physical card."),
+            action.TargetSeats,
+            game.Revision,
+            game.PendingDecision?.PromptId,
+            action.PlayedCardKind,
+            action.TargetCardId)
+        {
+            ConversionSource = action.ConversionSource,
+            AdditionalConversionSources = callerSources
+        });
+        Require(accepted.Accepted, accepted.Error?.Message ?? "The chained conversion was rejected.");
+
+        var checkpointJson = GameCheckpointJson.Serialize(game.CreateCheckpoint());
+        var expectedState = State(game);
+        var expectedEvents = Events(game).ToArray();
+        callerSources.Clear();
+
+        Require(game.AcceptedCommands.Last() is PlayCardCommand recorded &&
+                recorded.AdditionalConversionSources?.SequenceEqual(expectedSources) == true &&
+                GameCheckpointJson.Serialize(game.CreateCheckpoint()) == checkpointJson,
+            "Changing the caller's conversion list must not alter the accepted command prefix.");
+        var restored = GameReplay.Restore(GameCheckpointJson.Deserialize(checkpointJson), registry);
+        Require(State(restored) == expectedState && Events(restored).SequenceEqual(expectedEvents),
+            "The frozen conversion command must replay to the same state and ordered events.");
+    }
+
 
 
 

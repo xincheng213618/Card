@@ -32,8 +32,8 @@ public sealed partial class GameEngine
                 (CanSpendSlashUse(actor, target, ignoresCount: false, kind) ||
                  GetHand(actor).Any(card => BypassesSlashLimitBySuit(actor, card, kind)))));
 
-    private bool CanUseGlobalCard(CharacterState actor, CardKind kind) =>
-        GetDeclaredGlobalCardTargets(actor, kind).All(target =>
+    private bool CanUseGlobalCard(CharacterState actor, CardKind kind, bool excludeOwner = false) =>
+        GetDeclaredGlobalCardTargets(actor, kind).Where(target => !excludeOwner || target != actor.Seat).All(target =>
             !IsDirectedCardTargetProhibited(actor.Seat, target, kind));
 
     // These are declared targets, before immunity and replacement remove effects.

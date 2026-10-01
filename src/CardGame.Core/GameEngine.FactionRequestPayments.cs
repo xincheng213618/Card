@@ -2,13 +2,13 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private bool IsFactionRequestCostPrompt(FactionCardRequestResolution pending) =>
+    private bool IsFactionRequestCostPrompt(FactionCardRequestHandle pending) =>
         pending.PolicySource?.DiscardCost == 1 && !pending.CostPaid && !pending.ProviderRewarded &&
         pending.AwaitingProviders && pending.CandidateIndex == 0 &&
         _pendingDecision is { Kind: DecisionKind.RespondSlash, IsPrivate: true } prompt &&
         prompt.PlayerSeat == pending.OwnerSeat && AssistedChoicesEqual(prompt.Choices, FactionRequestCostChoices(pending));
 
-    private IReadOnlyList<PromptChoice> FactionRequestCostChoices(FactionCardRequestResolution pending)
+    private IReadOnlyList<PromptChoice> FactionRequestCostChoices(FactionCardRequestHandle pending)
     {
         var owner = _players[pending.OwnerSeat];
         return GetHand(owner).Concat(GetEquipment(owner)).Select(card => new PromptChoice(
@@ -16,7 +16,7 @@ public sealed partial class GameEngine
             [card.Id], [], new Dictionary<string, string> { ["response"] = "faction-request-cost", ["skill"] = GetFactionRequestSkillId(pending) })).ToArray();
     }
 
-    private bool TryPublishFactionRequestCost(FactionCardRequestResolution pending)
+    private bool TryPublishFactionRequestCost(FactionCardRequestHandle pending)
     {
         if (pending.PolicySource?.DiscardCost is not > 0 || pending.CostPaid) return false;
         if (pending.PolicySource.DiscardCost != 1 || pending.CandidateSeats.Count == 0)
@@ -31,7 +31,7 @@ public sealed partial class GameEngine
 
     private EngineRunResult ResolveFactionRequestCostChoice(PromptChoice selected, bool advanceToHumanBoundary)
     {
-        var pending = _pendingFactionCardRequest ?? throw new InvalidOperationException("Faction request payment lost its pending request.");
+        var pending = ActiveFactionCardRequest ?? throw new InvalidOperationException("Faction request payment lost its pending request.");
         var canonical = FactionRequestCostChoices(pending).SingleOrDefault(choice => choice.Id == selected.Id);
         if (pending.CostPaid || pending.PolicySource?.DiscardCost != 1 ||
             _pendingDecision is not { Kind: DecisionKind.RespondSlash } prompt || prompt.PlayerSeat != pending.OwnerSeat ||
@@ -43,16 +43,22 @@ public sealed partial class GameEngine
         pending.CostPaid = true;
         MoveCard(card, from, CardLocation.DiscardPile, new CardMoveReason("program.faction-request.cost"));
         AdvanceFactionSlashCandidate();
-        PublishState();
+        AdvanceRulesAndPublishState();
         return advanceToHumanBoundary ? AdvanceToHumanBoundary() : BuildResult();
     }
 
-    private void RewardFactionRequestProvider(FactionCardRequestResolution pending, int providerSeat)
+    private sealed record FactionProviderRewardReceipt(long OwnerFrameId, int DrawCount);
+    private FactionProviderRewardReceipt CaptureFactionProviderReward(FactionCardRequestHandle pending) =>
+        new(pending.OwnerFrameId, pending.ProviderRewarded ? 0 : pending.PolicySource?.ProviderDrawCount ?? 0);
+
+    private void RewardFactionRequestProvider(FactionProviderRewardReceipt receipt, int providerSeat)
     {
-        if (pending.ProviderRewarded || pending.PolicySource?.ProviderDrawCount is not > 0) return;
-        pending.ProviderRewarded = true;
+        if (receipt.DrawCount <= 0) return;
+        if (_resolutionStack.Any(frame => frame.Id == receipt.OwnerFrameId))
+            UpdateCardContinuations(receipt.OwnerFrameId, state => state with
+                { FactionCardRequest = state.FactionCardRequest is { } request ? request with { ProviderRewarded = true } : null });
         if (_players[providerSeat].IsAlive)
-            DrawCards(_players[providerSeat], pending.PolicySource.ProviderDrawCount, true,
+            DrawCards(_players[providerSeat], receipt.DrawCount, true,
                 new CardMoveReason("program.faction-request.provider-reward"));
     }
 }

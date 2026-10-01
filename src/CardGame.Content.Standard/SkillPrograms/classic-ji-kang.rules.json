@@ -1,0 +1,466 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:qingxian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "afterDamageApplied",
+          "window": "afterDamageApplied",
+          "optional": true,
+          "noDyingAtActivation": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "eventSource"
+            },
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "selectedTarget"
+              },
+              "resultBind": "choice",
+              "options": [
+                {
+                  "id": "lose"
+                },
+                {
+                  "id": "recover"
+                }
+              ]
+            },
+            {
+              "op": "loseHp",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "choice",
+                "optionId": "lose"
+              }
+            },
+            {
+              "op": "useRandomDeckEquipment",
+              "target": "owner",
+              "resultBind": "used",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "choice",
+                "optionId": "lose"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "all",
+                "children": [
+                  {
+                    "kind": "choiceIs",
+                    "sourceBind": "choice",
+                    "optionId": "lose"
+                  },
+                  {
+                    "kind": "boundCardsMatchSuits",
+                    "sourceBind": "used",
+                    "suits": [
+                      "club"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "op": "recover",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "choice",
+                "optionId": "recover"
+              }
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "selectedTarget"
+              },
+              "cardOwnerRef": {
+                "kind": "selectedTarget"
+              },
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "count": 1,
+              "destination": "discardPile",
+              "resultBind": "discarded",
+              "cardCategories": [
+                "equipment"
+              ],
+              "skipIfNoCards": true,
+              "awaitMovementTriggers": true,
+              "freezeMovedCardSuit": true,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "choice",
+                "optionId": "recover"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "all",
+                "children": [
+                  {
+                    "kind": "choiceIs",
+                    "sourceBind": "choice",
+                    "optionId": "recover"
+                  },
+                  {
+                    "kind": "boundCardsMatchSuits",
+                    "sourceBind": "discarded",
+                    "suits": [
+                      "club"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "subject": "owner",
+          "damageOccurrence": "perDamage"
+        },
+        {
+          "id": "afterHpRecovered",
+          "window": "afterHpRecovered",
+          "optional": true,
+          "noDyingAtActivation": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "selectedTarget"
+              },
+              "resultBind": "choice",
+              "options": [
+                {
+                  "id": "lose"
+                },
+                {
+                  "id": "recover"
+                }
+              ]
+            },
+            {
+              "op": "loseHp",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "choice",
+                "optionId": "lose"
+              }
+            },
+            {
+              "op": "useRandomDeckEquipment",
+              "target": "owner",
+              "resultBind": "used",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "choice",
+                "optionId": "lose"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "all",
+                "children": [
+                  {
+                    "kind": "choiceIs",
+                    "sourceBind": "choice",
+                    "optionId": "lose"
+                  },
+                  {
+                    "kind": "boundCardsMatchSuits",
+                    "sourceBind": "used",
+                    "suits": [
+                      "club"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "op": "recover",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "choice",
+                "optionId": "recover"
+              }
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "selectedTarget"
+              },
+              "cardOwnerRef": {
+                "kind": "selectedTarget"
+              },
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "count": 1,
+              "destination": "discardPile",
+              "resultBind": "discarded",
+              "cardCategories": [
+                "equipment"
+              ],
+              "skipIfNoCards": true,
+              "awaitMovementTriggers": true,
+              "freezeMovedCardSuit": true,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "choice",
+                "optionId": "recover"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "all",
+                "children": [
+                  {
+                    "kind": "choiceIs",
+                    "sourceBind": "choice",
+                    "optionId": "recover"
+                  },
+                  {
+                    "kind": "boundCardsMatchSuits",
+                    "sourceBind": "discarded",
+                    "suits": [
+                      "club"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "classic:jixian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "afterDamageApplied",
+          "window": "afterDamageApplied",
+          "optional": true,
+          "noDyingAtActivation": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "eventSource"
+            },
+            {
+              "op": "loseHp",
+              "target": "selectedTarget",
+              "amount": 1
+            },
+            {
+              "op": "useRandomDeckEquipment",
+              "target": "owner",
+              "resultBind": "used"
+            }
+          ],
+          "subject": "owner",
+          "damageOccurrence": "perDamage"
+        }
+      ]
+    },
+    {
+      "id": "classic:liexian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "afterHpRecovered",
+          "window": "afterHpRecovered",
+          "optional": true,
+          "noDyingAtActivation": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "loseHp",
+              "target": "selectedTarget",
+              "amount": 1
+            },
+            {
+              "op": "useRandomDeckEquipment",
+              "target": "owner",
+              "resultBind": "used"
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "classic:rouxian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "afterDamageApplied",
+          "window": "afterDamageApplied",
+          "optional": true,
+          "noDyingAtActivation": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "eventSource"
+            },
+            {
+              "op": "recover",
+              "target": "selectedTarget",
+              "amount": 1
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "selectedTarget"
+              },
+              "cardOwnerRef": {
+                "kind": "selectedTarget"
+              },
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "count": 1,
+              "destination": "discardPile",
+              "resultBind": "discarded",
+              "cardCategories": [
+                "equipment"
+              ],
+              "skipIfNoCards": true,
+              "awaitMovementTriggers": true,
+              "freezeMovedCardSuit": true
+            }
+          ],
+          "subject": "owner",
+          "damageOccurrence": "perDamage"
+        }
+      ]
+    },
+    {
+      "id": "classic:hexian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "afterHpRecovered",
+          "window": "afterHpRecovered",
+          "optional": true,
+          "noDyingAtActivation": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "recover",
+              "target": "selectedTarget",
+              "amount": 1
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "selectedTarget"
+              },
+              "cardOwnerRef": {
+                "kind": "selectedTarget"
+              },
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "count": 1,
+              "destination": "discardPile",
+              "resultBind": "discarded",
+              "cardCategories": [
+                "equipment"
+              ],
+              "skipIfNoCards": true,
+              "awaitMovementTriggers": true,
+              "freezeMovedCardSuit": true
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    },
+    {
+      "id": "classic:juexiang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "bequest",
+          "window": "ownerDied",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "anyLiving"
+            },
+            {
+              "op": "grantRandomSkillAndSuitShield",
+              "target": "selectedTarget",
+              "skillIds": [
+                "classic:hexian",
+                "classic:rouxian",
+                "classic:liexian",
+                "classic:jixian"
+              ],
+              "suits": [
+                "club"
+              ]
+            }
+          ],
+          "subject": "owner"
+        }
+      ]
+    }
+  ]
+}

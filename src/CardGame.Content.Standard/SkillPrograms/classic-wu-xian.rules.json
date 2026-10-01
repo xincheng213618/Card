@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "classic:fumian",
+      "revision": 1,
+      "minimumRulesVersion": 191,
+      "triggers": [
+        {
+          "id": "choose-benefit",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "benefit",
+              "options": [
+                {
+                  "id": "draw"
+                },
+                {
+                  "id": "targets"
+                }
+              ]
+            },
+            {
+              "op": "applyAlternatingChoiceBenefit",
+              "target": "owner",
+              "sourceBind": "benefit",
+              "stateId": "benefit-cycle"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classic:daiyan",
+      "revision": 1,
+      "minimumRulesVersion": 191,
+      "triggers": [
+        {
+          "id": "ending-gift",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "obtainDeckCardWithConsecutiveTarget",
+              "target": "selectedTarget",
+              "cardSuits": [
+                "heart"
+              ],
+              "cardCategories": [
+                "basic"
+              ],
+              "stateId": "previous-recipient",
+              "resultBind": "repeat-recipient"
+            },
+            {
+              "op": "loseHp",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "repeat-recipient",
+                "optionId": "repeat"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

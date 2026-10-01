@@ -17,7 +17,7 @@ public sealed partial class GameEngine
             if (!_players[seat].IsAlive || binding.Source is null || _cardZones.GetLocation(id) != CardLocation.Processing)
             { frame = frame with { ClaimSeats = seats, ClaimIndex = frame.ClaimIndex + 1 }; continue; }
             frame = frame with { ClaimSeats = seats, PindianStep = PindianStep.ClaimResult };
-            _resolutionStack[^1] = frame;
+            ReplaceRuntimeTop(frame);
             var skill = _contentRegistry.GetSkill(binding.Source.SkillId);
             var card = _cardZones.CardsAt(CardLocation.Processing).Single(item => item.Id == id);
             var choices = new[]
@@ -31,7 +31,7 @@ public sealed partial class GameEngine
                 new(binding.Source.SkillId, skill.Name, skill.Name + " · 获得拼点牌", skill.Description));
             return true;
         }
-        _resolutionStack[^1] = frame with { ClaimSeats = seats };
+        ReplaceRuntimeTop(frame with { ClaimSeats = seats });
         return false;
     }
 
@@ -48,7 +48,7 @@ public sealed partial class GameEngine
             MoveCard(card, CardLocation.Processing, CardLocation.Hand(seat), new CardMoveReason("program.pindian.claim"));
         }
         frame = frame with { ClaimIndex = frame.ClaimIndex + 1 };
-        _resolutionStack[^1] = frame;
+        ReplaceRuntimeTop(frame);
         if (!BeginPindianClaims(frame)) CompletePindian((PindianFrame)_resolutionStack[^1]);
     }
 }

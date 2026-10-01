@@ -73,6 +73,7 @@ internal static class CardUseLifecycleChecks
             }
             Require(verified, $"No bounded {kind} rescue fixture was found.");
         }
+        DyingFrameChecks.ThirdPartyPeachResumesOrderedFrameAndReplay();
     }
 
     public static void NestedRescueRetainsTheOuterUseWindow()

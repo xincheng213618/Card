@@ -28,11 +28,11 @@ public sealed partial class GameEngine
         foreach (var seat in newlyNullified)
             MarkCardEffectIneffective(parent.Id, seat);
         if (newlyNullified.Length == 0) return;
-        QueueGameEvent(new ProgramSelectedCardEffectsNullifiedEvent(active.Id, active.SkillId,
+        AdvanceEventRulesAndQueueFact(new ProgramSelectedCardEffectsNullifiedEvent(active.Id, active.SkillId,
             GetProgramBindingId(active), active.OwnerSeat, cardUse.ActorSeat,
             parent.Id, cardUse.EffectiveKind, newlyNullified));
         foreach (var seat in newlyNullified)
-            QueueGameEvent(new CardEffectSkippedEvent(parent.Id, cardUse.ActorSeat, seat,
+            AdvanceEventRulesAndQueueFact(new CardEffectSkippedEvent(parent.Id, cardUse.ActorSeat, seat,
                 cardUse.EffectiveKind, CardEffectSkipReason.SkillNullified));
         AddLog("SkillTriggered",
             $"{_players[active.OwnerSeat].Name} 发动【{_contentRegistry!.GetSkill(active.SkillId).Name}】，" +
@@ -65,7 +65,7 @@ public sealed partial class GameEngine
                 "Current card-effect nullification lost its frozen parent card action.");
 
         MarkCardEffectIneffective(parent.Id, active.OwnerSeat);
-        QueueGameEvent(new ProgramCardEffectNullifiedEvent(
+        AdvanceEventRulesAndQueueFact(new ProgramCardEffectNullifiedEvent(
             active.Id,
             active.SkillId,
             GetProgramBindingId(active),
@@ -73,7 +73,7 @@ public sealed partial class GameEngine
             cardUse.ActorSeat,
             parent.Id,
             cardUse.EffectiveKind));
-        QueueGameEvent(new CardEffectSkippedEvent(
+        AdvanceEventRulesAndQueueFact(new CardEffectSkippedEvent(
             parent.Id,
             cardUse.ActorSeat,
             active.OwnerSeat,
@@ -98,7 +98,7 @@ public sealed partial class GameEngine
             .Distinct()
             .Order()
             .ToArray();
-        _resolutionStack[index] = cardUse with { IneffectiveTargetSeats = seats };
+        ReplaceRuntimeFrame(_resolutionStack[index].Id, cardUse with { IneffectiveTargetSeats = seats });
     }
 
     private bool IsCardEffectIneffective(long resolutionId, int targetSeat)
@@ -108,24 +108,24 @@ public sealed partial class GameEngine
         if (frame.Action is not { } action || !GrantTurnCardEffectImmunityProgramOperationDescriptor.CardEffectImmunityKinds.Contains(action.EffectiveKind) ||
             _turnCardUseEffects.GetRuleModifiers(_turnNumber, _currentSeat, targetSeat, SkillRuleQuery.CardEffectImmunity, action.EffectiveKind).Count == 0) return false;
         MarkCardEffectIneffective(resolutionId, targetSeat);
-        QueueGameEvent(new CardEffectSkippedEvent(resolutionId, action.ActorSeat, targetSeat, action.EffectiveKind, CardEffectSkipReason.SkillNullified));
+        AdvanceEventRulesAndQueueFact(new CardEffectSkippedEvent(resolutionId, action.ActorSeat, targetSeat, action.EffectiveKind, CardEffectSkipReason.SkillNullified));
         return true;
     }
 
     private void CompleteIneffectiveTrickTarget(
-        NullificationResolution pending,
+        NullificationWindowFrame pending,
         int targetSeat)
     {
-        SetCardUseStep(pending.ResolutionId, ResolutionFrameStep.ResolvingEffect);
-        foreach (var physicalCard in GetCardUsePhysicalCards(pending.ResolutionId))
+        SetCardUseStep(pending.ParentFrameId, ResolutionFrameStep.ResolvingEffect);
+        foreach (var physicalCard in GetCardUsePhysicalCards(pending.ParentFrameId))
         {
-            MoveFinishedTrickCard(pending.ResolutionId, physicalCard);
+            MoveFinishedTrickCard(pending.ParentFrameId, physicalCard);
         }
         AddLog(
             "CardEffect",
-            $"【{CardCatalog.Get(pending.EffectiveCardKind).DisplayName}】对 {_players[targetSeat].Name} 无效。",
+            $"【{CardCatalog.Get(pending.EffectCardKind).DisplayName}】对 {_players[targetSeat].Name} 无效。",
             targetSeat,
             pending.SourceSeat);
-        FinishCardUse(pending.ResolutionId, pending.EffectCard, pending.EffectiveCardKind);
+        FinishCardUse(pending.ParentFrameId, GetNullificationEffectCard(pending), pending.EffectCardKind);
     }
 }

@@ -67,6 +67,8 @@ internal sealed class ChangeMaximumHpProgramOperationDescriptor : ProgramOperati
     public override ISkillProgramEffectHandler Handler { get; } = new ChangeMaximumHpSkillProgramEffectHandler();
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.ChangeMaximumHp,
         static (effect, context) => context.ChangeMaximumHp(effect));
+    public override ProgramSkillInstruction Compile(SkillProgramEffect effect) =>
+        new ChangeMaximumHpProgramInstruction(effect.Amount);
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
         r.AllowOnly("op", "target", "amount", "condition");
