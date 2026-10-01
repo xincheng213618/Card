@@ -1396,6 +1396,14 @@ public sealed class SkillProgramExecutor
                 throw new InvalidOperationException(
                     $"Running skill program '{frame.SkillId}' has an invalid instruction cursor.");
 
+            // A repeat batch belongs to the next instruction, not to later nodes.
+            // The host exposes this parent only after its active child returns.
+            if (frame.StrategicDamageBatch is { } batch && batch.InstructionIndex <= frame.InstructionIndex)
+            {
+                frame = frame with { StrategicDamageBatch = null };
+                state.UpdateFrame(frame);
+            }
+
             if ((!actor.IsAlive && !allowsDeadOwner) || state.IsGameOver ||
                 frame.InstructionIndex >= instructions.Count)
             {
@@ -1411,7 +1419,12 @@ public sealed class SkillProgramExecutor
             // Commit the cursor before any primitive can suspend into a child.
             frame = frame with { InstructionIndex = frame.InstructionIndex + 1 };
             state.UpdateFrame(frame);
-            if (!state.EvaluateCondition(frame, effect.Condition, actor.Context)) continue;
+            if (!state.EvaluateCondition(frame, effect.Condition, actor.Context))
+            {
+                if (frame.StrategicDamageBatch?.InstructionIndex == frame.InstructionIndex)
+                    state.UpdateFrame(frame with { StrategicDamageBatch = null });
+                continue;
+            }
             if (frame.WindowContext?.JudgmentReplacement is { } replacement &&
                 effect.Op != SkillProgramEffectOp.ReplaceJudgment &&
                 (replacement.ReplacementSuit is not { } replacementSuit ||
