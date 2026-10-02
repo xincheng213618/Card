@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
@@ -661,6 +661,7 @@ internal sealed class MoveBoundCardsProgramOperationDescriptor : ProgramOperatio
         // hand (Pindian winnings, or Guzheng's optional claim of the remaining
         // cards), or a placement onto the draw pile top (Gongxin).
         if (effect.Condition.Kind != SkillProgramConditionKind.Always &&
+            !(effect.Condition.Kind == SkillProgramConditionKind.BoundCardsMatchSuits && destination == SkillProgramCardDestination.OwnerHand) &&
             !(effect.Condition.Kind == SkillProgramConditionKind.ChoiceIs &&
               destination is SkillProgramCardDestination.DiscardPile or SkillProgramCardDestination.OwnerHand or
                 SkillProgramCardDestination.DrawPileTop) &&

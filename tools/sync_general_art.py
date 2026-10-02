@@ -128,6 +128,9 @@ CURRENT_HEROES = {
     "boundary-liu-bei": (299, "界刘备"),
     "boundary-da-qiao": (309, "界大乔"),
     "boundary-hua-tuo": (318, "界华佗"),
+    "boundary-guan-yu": (300, "界关羽"),
+    "boundary-zhang-fei": (301, "界张飞"),
+    "boundary-ma-chao": (303, "界马超"),
 }
 
 NEW_OFFICIAL_DEFAULTS = {"boundary-gan-ning", "boundary-xu-chu", "qu-yi", "shen-zhou-yu", "shen-lu-bu", "fu-huanghou"}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "boundary:tishen", "revision": 1,
+    "triggers": [{
+      "id": "recover-maximum-and-draw", "window": "turnStartBeforeNormalFlow",
+      "subject": "owner", "optional": true,
+      "usageScope": "game", "usageLimit": 1, "namedUsageGroup": "limited-recovery",
+      "effects": [{ "op": "recoverToMaximum", "target": "owner" },
+        { "op": "drawRecoveryReceipt", "target": "owner" }]
+    }]
+  }]
+}

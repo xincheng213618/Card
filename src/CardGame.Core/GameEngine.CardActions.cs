@@ -102,7 +102,7 @@ public sealed partial class GameEngine
             conversionChain.AddRange(additionalConversions);
         }
         ConsumeProgramViewAsUsage(conversionChain);
-        var trackAppearance = HasTurnRedSlashCapability || TracksPlayCardHistory || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard);
+        var trackAppearance = HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard);
         return CaptureFactionAction(new CardActionContext(++_cardActionSequence,
             _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
             CardActionType.Use, actorSeat, provider, provider == actorSeat ? null : actorSeat,

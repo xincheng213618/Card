@@ -51,13 +51,13 @@ public sealed partial class GameEngine
         general.Skills.Where(skill => CanOwnPrintedSkill(player, skill.Tags) &&
             IsEnabledTemplateSkill(player, general, skill.ContentId));
 
-    private static bool IsEnabledTemplateSkill(CharacterState player, GeneralDefinition general, string? skillId)
+    private bool IsEnabledTemplateSkill(CharacterState player, GeneralDefinition general, string? skillId)
     {
         if (skillId is null) return false;
         var source = general.Id == player.General.Id
             ? CharacterState.PrimarySkillSource : CharacterState.SecondarySkillSource;
         return player.SkillGrants.Grants.Any(grant =>
-            grant.SourceId == source && grant.SkillId == skillId && grant.IsEnabled);
+            grant.SourceId == source && grant.SkillId == skillId && grant.IsEnabled && IsCurrentTurnSkillGrantQualified(player, grant));
     }
 
     private GeneralSkillDefinition ToRuntimeSkillDefinition(string skillId)

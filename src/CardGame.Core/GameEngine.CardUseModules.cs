@@ -99,6 +99,9 @@ public sealed partial class GameEngine
 
     private void ExpireTurnCardUseEffects(int turnNumber, int turnSeat)
     {
+        _currentTurnHeartSlashBonuses.RemoveAll(b => b.TurnNumber == turnNumber && b.TurnOwnerSeat == turnSeat);
+        ExpireCurrentTurnNonLockedSkillSuppressions(turnNumber, turnSeat);
+        ExpireNextSlashDamage(turnNumber, turnSeat);
         ExpireDirectedTurnCardPolicies(turnNumber, turnSeat);
         var expired = _turnCardUseEffects.ExpireTurn(turnNumber, turnSeat);
         if (expired.Count == 0) return;

@@ -55,6 +55,30 @@ internal static class FengLinZuoCiChecks
     {
         var(_,r)=Start();var old=ContentRegistry.Build(new WithoutLibrary(r));var g=GameEngine.CreateStandard(new GameOptions{Seed=17,PlayerCount=4,HumanSeat=0,HumanRole=Role.Lord,ModeId="identity:zc-fixture",UseInteractiveSetup=true,AdvanceAfterHumanCommands=false,UseInteractiveDiscard=false},old);Accept(g,new StartGameCommand());Accept(g,new SelectGeneralCommand(0,"fixture:zc-owner",g.Revision,P(g).PromptId));Reach(g,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.PlayCard);Require(!g.Events.Any(e=>e.Payload is PrivateGeneralLibraryCountChangedEvent or PrivateGeneralLibraryDeclaredEvent),"No 1640 registry never captures new facts.");Require(!JsonSerializer.Serialize(g.CreateSnapshot(0)).Contains("PrivateGeneralLibraries"),"Null additive DTO omitted in old snapshot.");Replay(g,old);
     }
+    public static void CurrentTurnSuppressionPreservesBorrowedLockedAudit()
+    {
+        // The library/declaration comes from real commands; suppression and exact
+        // grant lifecycle mutations below are host audit, not replay evidence.
+        var(g,r)=Start();Reach(g,p=>p.PlayerSeat==0&&p.Choices.Any(c=>c.Parameters.GetValueOrDefault("program-action")=="private-general-library"));Declare(g,"fixture:zc-suppression");
+        Reach(g,p=>p.PlayerSeat==0&&p.Kind==DecisionKind.PlayCard);
+        var owner=Owner(g);var cap=owner.SkillGrants.Grants.Single(x=>x.SkillId=="classic:huashen");
+        var borrowed=owner.SkillGrants.Grants.Single(x=>x.GeneralLibraryProjection is not null);
+        var players=((IEnumerable<CharacterState>)typeof(GameEngine).GetField("_players",Flags)!.GetValue(g)!).ToArray();
+        players[1].SkillGrants.Grant(new("audit-source","fixture:zc-damage","audit-source","acquired:audit"));
+        var f=new ProgramSkillFrame(90002,1,"fixture:zc-damage","hit",r.GetSkill("fixture:zc-damage").Program!.GameplayHash,1,[],[0]){SkillInstanceId="audit-source"};
+        typeof(GameEngine).GetMethod("PushRuntimeFrame",Flags)!.Invoke(g,[f]);
+        typeof(GameEngine).GetMethod("IssueCurrentTurnNonLockedSkillSuppression",Flags)!.Invoke(g,[f,0]);
+        Require(!Enabled(g).Contains("classic:huashen")&&Enabled(g).Contains("fixture:zc-suppression"),"Current-turn suppression disables Huashen activation while preserving its already acquired Locked skill.");
+        Require(owner.Gender==GeneralGender.Female&&g.CreateSnapshot(0).Players[0].FactionId=="wu","Already declared avatar identity survives temporary nonlocked suppression.");
+        owner.SkillGrants.SetEnabled(cap.GrantId,false);Require(!Enabled(g).Contains("fixture:zc-suppression")&&owner.Gender==GeneralGender.Male,"True local source disable still suspends derived Locked skill and attributes.");
+        owner.SkillGrants.SetEnabled(cap.GrantId,true);Require(Enabled(g).Contains("fixture:zc-suppression"),"Source local recovery restores acquired locked grant while turn fact remains.");
+        owner.SkillGrants.SetEnabled(borrowed.GrantId,false);
+        typeof(GameEngine).GetMethod("ExpireCurrentTurnNonLockedSkillSuppressions",Flags)!.Invoke(g,[g.CreateSnapshot(0).TurnNumber,0]);
+        Require(Enabled(g).Contains("classic:huashen")&&!Enabled(g).Contains("fixture:zc-suppression"),"Actual expiry cannot unlock a locally disabled derived skill.");
+        owner.SkillGrants.SetEnabled(borrowed.GrantId,true);owner.SkillGrants.RemoveGrant(cap.GrantId);
+        typeof(GameEngine).GetMethod("SynchronizePrivateGeneralLibraries",Flags)!.Invoke(g,[]);
+        Require(!Enabled(g).Contains("fixture:zc-suppression")&&owner.Gender==GeneralGender.Male,"True source loss still removes the acquired relation.");
+    }
     private sealed class WithoutLibrary(ContentRegistry source):IGameContentPackage
     {
         public PackageManifest Manifest{get;}=new("fixture:zc-old",new Version(1,0,0),[]);

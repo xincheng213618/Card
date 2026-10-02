@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -55,8 +55,8 @@ public sealed partial class GameEngine
     private bool LibraryProjectionRelationLive(SkillGrant grant,GeneralLibraryProjectionSource relation)=>
         _privateGeneralLibraries.GetValueOrDefault(relation.LibrarySource) is {} library&&library.Initialized&&
         library.RevealedGeneralId==relation.GeneralId&&library.DeclaredSkillId==relation.SkillId&&grant.SkillId==relation.SkillId;
-    private bool IsGeneralLibraryGrantQualified(CharacterState owner,SkillGrant grant)=>grant.GeneralLibraryProjection is not {} source||
-        source.LibrarySource.OwnerSeat==owner.Seat&&LibraryProjectionRelationLive(grant,source)&&LibrarySourceQualified(source.LibrarySource);
+    private bool IsGeneralLibraryGrantQualified(CharacterState owner,SkillGrant grant)=>IsCurrentTurnSkillGrantQualified(owner,grant)&&(grant.GeneralLibraryProjection is not {} source||
+        source.LibrarySource.OwnerSeat==owner.Seat&&LibraryProjectionRelationLive(grant,source)&&LibrarySourceQualified(source.LibrarySource));
     private PrivateGeneralLibrary? EffectiveGeneralLibrary(CharacterState owner)=>_privateGeneralLibraries.Values
         .Where(l=>l.Source.OwnerSeat==owner.Seat&&l.RevealedGeneralId is not null&&LibrarySourceQualified(l.Source))
         .OrderBy(l=>l.Source.CapabilitySkillInstanceId,StringComparer.Ordinal).ThenBy(l=>l.Source.CapabilityGrantId,StringComparer.Ordinal).FirstOrDefault();

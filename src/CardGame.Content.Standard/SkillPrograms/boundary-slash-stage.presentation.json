@@ -1,7 +1,7 @@
 {
   "schemaVersion": 3,
   "skills": {
-    "boundary:paoxiao": { "name": "咆哮", "description": "锁定技，你使用【杀】无次数限制。" },
+    "boundary:paoxiao": { "name": "咆哮", "description": "锁定技，你使用【杀】无次数限制；当你使用的【杀】被抵消后，你于此回合内下一次使用【杀】的伤害+1。" },
     "boundary:shensu": { "name": "神速", "description": "你可以选择至多三项：跳过判定阶段和摸牌阶段；跳过出牌阶段并弃置一张装备牌；跳过弃牌阶段并翻面。每选择一项，视为使用一张无距离限制的【杀】。" }
   }
 }

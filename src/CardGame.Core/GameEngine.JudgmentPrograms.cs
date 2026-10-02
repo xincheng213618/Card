@@ -340,6 +340,16 @@ public sealed partial class GameEngine
             skillFrame.WindowContext is
             { Window: SkillProgramTriggerWindow.JudgmentFinalized, ParentFrameId: var parentId } &&
             parentId == frame.Id;
+        // The new suit-cost instruction owns its judgment and may wait on a finalized-program child subtree.
+        resolvingProgram |= judgmentFrame is not null &&
+            _resolutionStack.OfType<ProgramSkillFrame>().Any(owner => owner.Id == judgmentFrame.ParentFrameId &&
+                owner.SlashSuitDiscard is { Stage: ProgramSlashSuitDiscardStage.Judging } draft &&
+                draft.JudgmentFrameId == judgmentFrame.Id && draft.CardUseFrameId == judgmentFrame.ParentAttackId) &&
+            frameIndex + 1 < _resolutionStack.Count &&
+            _resolutionStack[frameIndex + 1] is ProgramSkillFrame ownedChild &&
+            ownedChild.WindowContext is
+                { Window: SkillProgramTriggerWindow.JudgmentFinalized, ParentFrameId: var ownedParentId } &&
+            ownedParentId == frame.Id;
         if (pending is null || pending.Succeeded is null ||
             (!ReferenceEquals(_resolutionStack.Last(), frame) && !resolvingDamage && !resolvingProgram) ||
             judgmentFrame is null || judgmentFrame.Id != frame.ParentFrameId ||

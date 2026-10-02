@@ -6,7 +6,7 @@ internal static class StoneAxeChecks
 {
     public static void ExactCostDamageAndReplay()
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
+        var registry = StoneAxeScenario.CreateRegistry();
         var boundary = StoneAxeScenario.FindHumanTrigger(seed: 1);
         var game = boundary.Game;
         var prompt = game.PendingDecision ??

@@ -120,6 +120,8 @@ public sealed record ProgramSkillFrame(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramConvertingGiftDraft? ConvertingGift { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramSlashSuitDiscardDraft? SlashSuitDiscard { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramFinalTargetGiftDraft? FinalTargetGift { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramDomainCrossingDraft? DomainCrossing { get; init; }
@@ -149,6 +151,8 @@ public sealed record ProgramSkillFrame(
     public ProgramMovementContinuation? PendingMovementContinuation { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramSelectedCardPayment? SelectedCardPayment { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramRecoveryReceipt? RecoveryReceipt { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramSelectedCardPaymentResult? SelectedCardPaymentResult { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
@@ -299,6 +303,8 @@ public sealed record CardAttackState
     public bool PendingRedBladeDamageBonus { get; init; }
     public bool DamageRedirected { get; init; }
     public bool BeforeDamageProgramsResolved { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramSlashSuitCancellationRestriction? JudgmentSuitDodgeRestriction { get; init; }
     public bool ProhibitsDodge { get; init; }
     public bool ProhibitsTargetHandResponses { get; init; }
     public IReadOnlyList<string> ResponseProhibitingSkillNames { get; init; } = [];
@@ -340,6 +346,10 @@ public sealed record CardUseFrame(
     public bool FirstOwnPlayUseDistanceUnlimited { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IssuedCardNoResponse? IssuedNoResponse { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? NextSlashDamage { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<NamedSlashCancellation>? NamedSlashCancellations { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public DyingResponseEvent? DyingResponse { get; init; }

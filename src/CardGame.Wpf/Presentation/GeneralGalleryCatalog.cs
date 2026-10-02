@@ -105,6 +105,9 @@ public static class GeneralGalleryCatalog
         groups.Add("boundary:liu-bei", "boundary");
         groups.Add("boundary:da-qiao", "boundary");
         groups.Add("boundary:hua-tuo", "boundary");
+        groups.Add("boundary:guan-yu", "boundary");
+        groups.Add("boundary:zhang-fei", "boundary");
+        groups.Add("boundary:ma-chao", "boundary");
         groups.Add("boundary:xu-sheng", "boundary-fame");
         groups.Add("boundary:zhang-song", "boundary-fame");
         groups.Add("boundary:ju-shou", "boundary-fame");

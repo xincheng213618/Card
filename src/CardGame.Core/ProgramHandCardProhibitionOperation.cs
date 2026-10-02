@@ -15,7 +15,7 @@ internal sealed class GrantTurnHandCardProhibitionProgramOperationDescriptor : T
         if (target != SkillProgramEffectTarget.SelectedTarget)
             throw new InvalidOperationException($"Invalid skill program at {reader.Path}.target: hand-card prohibition requires selectedTarget.");
         var effect = new SkillProgramEffect(Op, target, 0, reader.Condition());
-        RequireAlways(effect, reader.Path);
+        if (effect.Condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.BoundCardsMatchSuits)) throw new InvalidOperationException("Hand prohibition requires an unconditional or revealed-suit branch.");
         return effect;
     }
 

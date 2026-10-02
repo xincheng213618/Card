@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:wusheng", "revision": 1,
+      "viewAs": [{ "id": "red-as-slash", "inputKinds": [], "inputSuits": ["heart", "diamond"],
+        "sourceZones": ["hand", "equipment"], "outputKind": "slash", "forPlay": true,
+        "forResponse": true, "useEffectiveInputSuit": true }],
+      "cardPolicies": [{ "id": "diamond-slash-distance", "kind": "ignoreSlashUseDistanceBySuit",
+        "cardKinds": ["slash", "fireSlash", "thunderSlash"], "inputSuit": "diamond" }]
+    },
+    {
+      "id": "boundary:yijue", "revision": 1,
+      "activations": [{
+        "id": "discard-and-show", "minCards": 1, "maxCards": 1,
+        "sourceZones": ["hand", "equipment"], "minTargets": 1, "maxTargets": 1,
+        "targetKind": "otherLivingWithHand", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [
+          { "op": "captureSelectedCards", "target": "owner", "resultBind": "payment" },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "payment",
+            "destination": "discardPile", "awaitMovementTriggers": true },
+          { "op": "selectOwnedCards", "target": "selectedTarget", "zones": ["hand"],
+            "amount": 1, "resultBind": "shown" },
+          { "op": "revealOwnedBoundCardAppearance", "target": "owner", "sourceBind": "shown" },
+          { "op": "issueCurrentTurnNonLockedSkillSuppression", "target": "selectedTarget",
+            "condition": { "kind": "boundCardsMatchSuits", "sourceBind": "shown", "suits": ["spade", "club"] } },
+          { "op": "grantTurnHandCardProhibition", "target": "selectedTarget",
+            "condition": { "kind": "boundCardsMatchSuits", "sourceBind": "shown", "suits": ["spade", "club"] } },
+          { "op": "grantCurrentTurnDirectedHeartSlashBonus", "target": "selectedTarget",
+            "condition": { "kind": "boundCardsMatchSuits", "sourceBind": "shown", "suits": ["spade", "club"] } },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "shown", "destination": "ownerHand",
+            "awaitMovementTriggers": true,
+            "condition": { "kind": "boundCardsMatchSuits", "sourceBind": "shown", "suits": ["heart", "diamond"] } },
+          { "op": "chooseOption", "target": "owner", "resultBind": "heal",
+            "options": [{ "id": "recover" }, { "id": "decline" }],
+            "condition": { "kind": "all", "children": [
+              { "kind": "boundCardsMatchSuits", "sourceBind": "shown", "suits": ["heart", "diamond"] },
+              { "kind": "selectedTargetWounded" }] } },
+          { "op": "recover", "target": "selectedTarget", "amount": 1,
+            "condition": { "kind": "choiceIs", "sourceBind": "heal", "optionId": "recover" } }
+        ]
+      }]
+    }
+  ]
+}

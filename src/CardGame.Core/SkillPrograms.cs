@@ -174,6 +174,8 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    RecoverToMaximum = 1900, DrawRecoveryReceipt = 1901, ReserveNextSlashDamage = 1902,
+    SuppressCurrentSlashTargetAndJudgeSuitDiscard = 1940,
     AccumulatePaidPhaseGift = 1740, OfferVirtualBasicCard = 1741, RewardOutOfTurnFactionSlash = 1742,
     GiveOwnedCardToOtherFinalTargetAndDraw = 1580,
     DiscardNonFinalTargetCardThenDraw = 1440, DiscardHandToNamedTurnCount = 1441,
@@ -362,7 +364,7 @@ public enum SkillProgramEffectOp
     StoreTopCardInPublicPile = 1140, ExchangePublicPile = 1141, DistributePublicPileIfAllSuits = 1142,
     ExchangeOwnedCardThroughDeckEnd = 1220, UseDeckSlashesThenShuffle = 1221,
     SelectRelativeZoneDemandTarget = 1260, DrawOnFirstProgramTargetEncounter = 1261,
-    GrantTurnRedSlashBenefits = 1680, UseDiamondDelayedOrDiscard = 1780
+    GrantTurnRedSlashBenefits = 1680, UseDiamondDelayedOrDiscard = 1780, RevealOwnedBoundCardAppearance = 1860, IssueCurrentTurnNonLockedSkillSuppression = 1861, GrantCurrentTurnDirectedHeartSlashBonus = 1862
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -1035,6 +1037,8 @@ public sealed class SkillProgramViewAs
     public int? UsesPerPhase { get; }
     public string? UsageGroup { get; }
     public bool InheritPreviousPlaySuit { get; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public bool? UseEffectiveInputSuit { get; internal init; }
     public bool ExtendedUse { get; internal init; }
     public int DamageBonus { get; internal init; }
     public int RecoveryBonus { get; internal init; }
@@ -1833,7 +1837,7 @@ public sealed class SkillProgramCatalog
                 cardKinds.Count != 0 || requiredKinds.Count != 0 || value != 0)
                 Fail(path, "rewriteSuit requires two distinct suits and no card or value filters");
         }
-        else if (kind is SkillProgramCardPolicyKind.ProhibitTargetSlashResponseBySuit or
+        else if (kind is SkillProgramCardPolicyKind.IgnoreSlashUseDistanceBySuit or SkillProgramCardPolicyKind.ProhibitTargetSlashResponseBySuit or
                  SkillProgramCardPolicyKind.BypassSlashLimitBySuit)
         {
             if (inputSuit is null || outputSuit is not null || value != 0 || requiredKinds.Count != 0 ||
@@ -2069,7 +2073,7 @@ public sealed class SkillProgramCatalog
         CheckProperties(node, path, "id", "inputKinds", "inputSuits", "inputCategories", "inputCount", "sourceZones",
             "outputKind", "forPlay", "forResponse", "allowChainedInput", "sameSuit", "condition",
             "usesPerPhase", "usageGroup", "inheritPreviousPlaySuit", "extendedUse", "damageBonus", "recoveryBonus",
-            "costDestination", "unusedOutputThisTurn", "useOnly", "singleCardTrickUse", "excludeOwnerEffects", "conversionStateId", "minimumTier", "maximumTier", "declaredEntity", "activationUsageGroup", "allowSameKind", "noDying", "unusedOutputNameThisGame", "nameLedgerId", "declarationValidation");
+            "costDestination", "unusedOutputThisTurn", "useOnly", "singleCardTrickUse", "excludeOwnerEffects", "conversionStateId", "minimumTier", "maximumTier", "declaredEntity", "activationUsageGroup", "allowSameKind", "noDying", "unusedOutputNameThisGame", "nameLedgerId", "declarationValidation", "useEffectiveInputSuit");
         SkillProgramDeclarationValidation? declaration = null;
         if (node.TryGetProperty("declarationValidation", out var declarationNode))
         {
@@ -2217,7 +2221,7 @@ public sealed class SkillProgramCatalog
         return new SkillProgramViewAs(id, inputs, suits, output, forPlay, forResponse,
             OptionalCondition(node, path), inputCount, sourceZones, allowChainedInput, inputCategories, sameSuit,
             usesPerPhase, usageGroup, inheritPreviousPlaySuit)
-        { DeclarationValidation = declaration, AllowSameKind = allowSameKind, NoDying = noDying, UnusedOutputNameThisGame = unusedName, NameLedgerId = nameLedger, ConversionStateId = conversionState, MinimumTier = minimumTier, MaximumTier = maximumTier, DeclaredEntity = declaredEntity, ActivationUsageGroup = activationGroup, SingleCardTrickUse = singleTrick, ExcludeOwnerEffects = excludeOwner, ExtendedUse = extended, UseOnly = useOnly, UnusedOutputThisTurn = unusedOutputThisTurn, CostDestination = costDestination,
+        { UseEffectiveInputSuit = node.TryGetProperty("useEffectiveInputSuit", out _) ? RequiredBool(node, "useEffectiveInputSuit", path) : null, DeclarationValidation = declaration, AllowSameKind = allowSameKind, NoDying = noDying, UnusedOutputNameThisGame = unusedName, NameLedgerId = nameLedger, ConversionStateId = conversionState, MinimumTier = minimumTier, MaximumTier = maximumTier, DeclaredEntity = declaredEntity, ActivationUsageGroup = activationGroup, SingleCardTrickUse = singleTrick, ExcludeOwnerEffects = excludeOwner, ExtendedUse = extended, UseOnly = useOnly, UnusedOutputThisTurn = unusedOutputThisTurn, CostDestination = costDestination,
           DamageBonus = node.TryGetProperty("damageBonus", out _) ? NonNegativeInt(node, "damageBonus", path) : 0,
           RecoveryBonus = node.TryGetProperty("recoveryBonus", out _) ? NonNegativeInt(node, "recoveryBonus", path) : 0 };
     }
@@ -2372,6 +2376,8 @@ public sealed class SkillProgramCatalog
                     sourceZones[0] != CardZoneKind.Hand))
                 Fail(path, "Pindian requires one owner hand card and one required target");
         }
+        if (effects.Any(effect => effect.Op is SkillProgramEffectOp.RecoverToMaximum or SkillProgramEffectOp.DrawRecoveryReceipt or SkillProgramEffectOp.ReserveNextSlashDamage))
+            Fail(path, "recovery receipt and cancellation reserve require their lifecycle trigger boundaries");
         ValidateRelativeZoneDemandActivation(path, effects, minCards, maxCards, minTargets, maxTargets, sourceZones, usesPerPhase);
         if (effects.Any(effect => effect.Op == SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd))
         {
@@ -3000,6 +3006,13 @@ public sealed class SkillProgramCatalog
             if (!valid) Fail(path + ".effects", "phase substitution does not match its lifecycle boundary");
         }
         if (effects.Count == 0) Fail(path + ".effects", "must contain at least one effect");
+        if (effects.Any(effect => effect.Op is SkillProgramEffectOp.RecoverToMaximum or SkillProgramEffectOp.DrawRecoveryReceipt) &&
+            (window != SkillProgramTriggerWindow.TurnStartBeforeNormalFlow || subject != SkillProgramTriggerSubject.Owner ||
+             effects.Count != 2 || effects[0].Op != SkillProgramEffectOp.RecoverToMaximum || effects[1].Op != SkillProgramEffectOp.DrawRecoveryReceipt))
+            Fail(path + ".effects", "maximum recovery requires the preparation owner recovery then receipt draw pair");
+        if (effects.Any(effect => effect.Op == SkillProgramEffectOp.ReserveNextSlashDamage) &&
+            (window != SkillProgramTriggerWindow.SlashFullyDodged || ownerRelation != SkillProgramCardActionOwnerRelation.Actor || effects.Count != 1 || optional))
+            Fail(path + ".effects", "cancellation reserve requires the actual actor's mandatory fully-dodged Slash boundary");
         if (effects.Any(effect => effect.TargetKind == SkillProgramTargetKind.CurrentCardUseTargets) &&
             window is not (SkillProgramTriggerWindow.CardEffectBeforeApply or SkillProgramTriggerWindow.CardUseBeforeTargetEffects or SkillProgramTriggerWindow.CardUseTargetsFinalized) ||
             effects.Any(effect => effect.Op == SkillProgramEffectOp.NullifySelectedCardEffects) &&

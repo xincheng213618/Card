@@ -10792,6 +10792,57 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-guan-yu",
+      "characterName": "界关羽",
+      "defaultSkinId": "30000",
+      "skins": [
+        {
+          "id": "30000",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/300",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30000.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-guan-yu.png",
+          "sha256": "67af25a02cd86907a915c59159af4c48477ca224e465185908614954a62950a8",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "boundary-zhang-fei",
+      "characterName": "界张飞",
+      "defaultSkinId": "30100",
+      "skins": [
+        {
+          "id": "30100",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/301",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30100.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-zhang-fei.png",
+          "sha256": "ba0f48eb0ddaa4d2ad53e8f5163e0307655d6726b6d42aafe40e949d53117ce9",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "boundary-ma-chao",
+      "characterName": "界马超",
+      "defaultSkinId": "30300",
+      "skins": [
+        {
+          "id": "30300",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/303",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30300.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-ma-chao.png",
+          "sha256": "c3e6f733da1204a6ff968b6d9f375ea6f7e49b86c6eaddc25d3d33fa6f010611",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

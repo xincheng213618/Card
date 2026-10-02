@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasTurnRedSlashCapability=>_contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GrantTurnRedSlashBenefits)==true;
@@ -22,11 +22,11 @@ public sealed partial class GameEngine
     { var colors=cards.Select(c=>SuitColor(EffectiveSuit(owner,c))).Distinct().ToArray();return colors.Length==1?colors[0]:null; }
     private bool IsRedSlashProviderPaymentLegal(FactionCardRequestHandle pending,CardKind kind,IReadOnlyList<Card> cards)
     {
-        if(!IsFactionSlashUse(pending) || pending.IsAssistedProgramUse || pending.TargetSeat is not {} target || !_turnCardUseEffects.HasRedSlashPolicy(_turnNumber,_currentSeat,pending.OwnerSeat))return true;
-        var actor=_players[pending.OwnerSeat];var color=PhysicalGroupColor(actor,cards);
-        if(pending.IsBorrowedSwordUse)return IsLegalBorrowedSwordSlashTarget(actor,_players[target],kind,allowAnyPhysicalSuit:false,effectiveColor:color);
-        if(pending.IsQinglongCrescentBladeUse)return CanUseQinglongCrescentBladeTarget(actor,_players[target],kind,color,allowAnyColor:false);
-        return CanUseProvidedSlashTarget(actor,_players[target],kind,allowAnyPhysicalSuit:false,effectiveColor:color);
+        if(!IsFactionSlashUse(pending) || pending.IsAssistedProgramUse || pending.TargetSeat is not {} target || (!_turnCardUseEffects.HasRedSlashPolicy(_turnNumber,_currentSeat,pending.OwnerSeat) && !HasSlashUseDistanceBySuit(_players[pending.OwnerSeat],kind,Suit.Diamond)))return true;
+        var actor=_players[pending.OwnerSeat];var color=PhysicalGroupColor(actor,cards);var suit=HasSlashUseDistanceBySuit(actor,kind,Suit.Diamond) ? PhysicalGroupSuit(actor,cards) : null;
+        if(pending.IsBorrowedSwordUse)return IsLegalBorrowedSwordSlashTarget(actor,_players[target],kind,physicalSuit:suit,allowAnyPhysicalSuit:false,effectiveColor:color);
+        if(pending.IsQinglongCrescentBladeUse)return CanUseQinglongCrescentBladeTarget(actor,_players[target],kind,color,allowAnyColor:false,physicalSuit:suit);
+        return CanUseProvidedSlashTarget(actor,_players[target],kind,physicalSuit:suit,allowAnyPhysicalSuit:false,effectiveColor:color);
     }
     private sealed partial class ProgramSkillHost : ITurnRedSlashProgramHost
     { public void GrantTurnRedSlashBenefits(ProgramSkillFrame frame)=>engine.GrantTurnRedSlashBenefits(frame); }

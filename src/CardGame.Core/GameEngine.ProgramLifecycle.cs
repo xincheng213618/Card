@@ -473,7 +473,7 @@ public sealed partial class GameEngine
         var instructions = ProgramInstructionResolver.Default.Resolve(frame, program).Instructions;
         if (frame.InstructionIndex < 1 || frame.InstructionIndex > instructions.Count ||
             instructions[frame.InstructionIndex - 1] is not
-            { Op: SkillProgramEffectOp.StartJudgment or SkillProgramEffectOp.RepeatJudgment } effect ||
+            { Op: SkillProgramEffectOp.StartJudgment or SkillProgramEffectOp.RepeatJudgment or SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeSuitDiscard } effect ||
             reason != effect.JudgmentReason || resultBind != effect.ResultBind)
             return false;
         if (effect.Op == SkillProgramEffectOp.RepeatJudgment &&
@@ -2991,6 +2991,8 @@ public sealed partial class GameEngine
         if (selected?.Parameters.GetValueOrDefault("program-action") == "diamond-delayed" && !IsDiamondDelayedChoiceLegal(selected))
             return Reject(CommandErrorCode.InvalidChoice, "The diamond delayed payment or target is no longer legal.");
         if (selected is null) return Reject(CommandErrorCode.InvalidChoice, "The program choice is unavailable.");
+        if (selected.Parameters.GetValueOrDefault("program-action") == "slash-suit-discard" && !IsProgramSlashSuitDiscardChoiceLegal(selected))
+            return Reject(CommandErrorCode.InvalidChoice, "The actual HE suit discard is no longer legal.");
         if (selected.Parameters.GetValueOrDefault("program-action") == "choose-option" &&
             !IsClaimableProgramOptionStillAvailable(selected))
             return Reject(CommandErrorCode.InvalidChoice, "The damage cards are no longer available for this choice.");
@@ -3004,6 +3006,7 @@ public sealed partial class GameEngine
 
     private void ResolveProgramTriggerChoice(PromptChoice selected)
     {
+        if (selected.Parameters.GetValueOrDefault("program-action") == "slash-suit-discard") { ResolveProgramSlashSuitDiscardChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "diamond-delayed") { ResolveDiamondDelayedChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "public-suit-discard") { ResolvePublicSuitDiscard(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") is { } namedAction && (namedAction.StartsWith("named-defense-", StringComparison.Ordinal) || namedAction.StartsWith("public-draft-", StringComparison.Ordinal)))
@@ -3816,6 +3819,7 @@ public sealed partial class GameEngine
                 .GetPausedInstruction(frame.InstructionIndex).Effect;
             selected = paused.Op switch
             {
+                SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeSuitDiscard => SelectAiSlashSuitDiscard(decision, frame),
                 SkillProgramEffectOp.DiscardDistinctFactionParticipants => SelectAiDistinctFactionDiscard(decision,frame),
                 SkillProgramEffectOp.ResolveDiscardBudgetParticipants or SkillProgramEffectOp.DiscardOutsideRangeAfterInsufficientUses or SkillProgramEffectOp.OfferCompletedFactionCostGift => decision.Choices[0],
                 SkillProgramEffectOp.SelectRelativeZoneDemandTarget => decision.Choices[0],

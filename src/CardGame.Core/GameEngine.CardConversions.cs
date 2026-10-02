@@ -248,7 +248,7 @@ public sealed partial class GameEngine
                                (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&
                                (rule.InputCategories.Count == 0 ||
                                 rule.InputCategories.Contains(GetProgramCardCategory(card.Kind))) &&
-                               (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(card.Suit)))
+                               (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(rule.UseEffectiveInputSuit == true ? EffectiveSuit(owner,card) : card.Suit)))
                 .Select(rule => new CardConversionSource(
                     instance.SkillId,
                     rule.Id,
@@ -310,7 +310,7 @@ public sealed partial class GameEngine
             var candidates = eligibleHand.Where(card =>
                 rule.SourceZones.Contains(_cardZones.GetLocation(card.Id).Zone) &&
                 (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind)) &&
-                (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(card.Suit))).ToArray();
+                (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(rule.UseEffectiveInputSuit == true ? EffectiveSuit(owner,card) : card.Suit))).ToArray();
             if (candidates.Length < rule.InputCount) continue;
             var source = new CardConversionSource(
                 instance.SkillId,

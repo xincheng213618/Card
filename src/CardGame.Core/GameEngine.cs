@@ -312,7 +312,7 @@ public sealed partial class GameEngine
             contentRegistry.GetSkill,
             IsNationalWarMode,
             player => player.SkillGrants.HasEnabledSkill(hpSensitiveSkillIds),
-            (owner,grant)=>IsProjectedGrantQualified(owner,grant)&&IsGeneralLibraryGrantQualified(owner,grant), CaptureCombinedProjectionDependencyStamp, HasPrivateGeneralLibraryCapability ? PrivateGeneralLibrarySuppressionInputs : null);
+            (owner,grant)=>IsCurrentTurnSkillGrantQualified(owner,grant)&&IsProjectedGrantQualified(owner,grant)&&IsGeneralLibraryGrantQualified(owner,grant), CaptureCurrentTurnQualificationStamp, HasPrivateGeneralLibraryCapability ? PrivateGeneralLibrarySuppressionInputs : null);
         var deckDefinition = ResolveDeckDefinition(
             contentRegistry,
             options.DeckId ?? _modeDefinition.DeckId);
@@ -6154,7 +6154,7 @@ public sealed partial class GameEngine
         effectiveKind is { } kind
             ? target.IsAlive && target.Seat != weaponOwner.Seat &&
               !IsCardUseForbidden(weaponOwner.Seat, kind, CardActionType.Use) &&
-              (HasTurnRedSlashPolicyForColor(weaponOwner.Seat,kind,effectiveColor ?? SuitColor(physicalSuit)) || (allowAnyPhysicalSuit && GetSlashUseCards(weaponOwner).Any(c=>HasTurnRedSlashPolicy(weaponOwner.Seat,kind,EffectiveSuit(weaponOwner,c)))) || HasPhaseSuitAllowance(weaponOwner.Seat,physicalSuit) || (allowAnyPhysicalSuit && GetSlashUseCards(weaponOwner).Any(c=>HasPhaseSuitAllowance(weaponOwner,c))) || HasCardDistanceExemption(weaponOwner, target, kind) ||
+              (HasSlashUseDistanceBySuit(weaponOwner,kind,physicalSuit) || allowAnyPhysicalSuit && GetSlashUseCards(weaponOwner).Any(c=>HasSlashUseDistanceBySuit(weaponOwner,kind,EffectiveSuit(weaponOwner,c))) || HasTurnRedSlashPolicyForColor(weaponOwner.Seat,kind,effectiveColor ?? SuitColor(physicalSuit)) || (allowAnyPhysicalSuit && GetSlashUseCards(weaponOwner).Any(c=>HasTurnRedSlashPolicy(weaponOwner.Seat,kind,EffectiveSuit(weaponOwner,c)))) || HasPhaseSuitAllowance(weaponOwner.Seat,physicalSuit) || (allowAnyPhysicalSuit && GetSlashUseCards(weaponOwner).Any(c=>HasPhaseSuitAllowance(weaponOwner,c))) || HasCardDistanceExemption(weaponOwner, target, kind) ||
                IsWithinAttackRange(weaponOwner.Seat, target.Seat)) &&
               !IsDirectedCardTargetProhibited(weaponOwner.Seat, target.Seat, kind) &&
               !IsSlashProhibited(target)
@@ -6175,7 +6175,7 @@ public sealed partial class GameEngine
             {
                 var baseKind = IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash;
                 if (!GetSlashUseVariants(weaponOwner, baseKind).Any(variant =>
-                        (HasTurnRedSlashPolicy(weaponOwner.Seat,variant.EffectiveKind,EffectiveSuit(weaponOwner,card)) || HasPhaseSuitAllowance(weaponOwner,card) || IsWithinAttackRange(weaponOwner.Seat,slashTarget.Seat) || HasCardDistanceExemption(weaponOwner,slashTarget,variant.EffectiveKind)) && IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, variant.EffectiveKind)))
+                        (HasSlashUseDistanceBySuit(weaponOwner,variant.EffectiveKind,EffectiveSuit(weaponOwner,card)) || HasTurnRedSlashPolicy(weaponOwner.Seat,variant.EffectiveKind,EffectiveSuit(weaponOwner,card)) || HasPhaseSuitAllowance(weaponOwner,card) || IsWithinAttackRange(weaponOwner.Seat,slashTarget.Seat) || HasCardDistanceExemption(weaponOwner,slashTarget,variant.EffectiveKind)) && IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, variant.EffectiveKind)))
                     return false;
                 var location = _cardZones.GetLocation(card.Id);
                 if (location != CardLocation.Equipment(weaponOwner.Seat) ||
@@ -6387,7 +6387,7 @@ public sealed partial class GameEngine
         {
             throw new InvalidOperationException("The selected Borrowed Sword Slash conversion is no longer legal.");
         }
-        if (!IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, effectiveKind) || !(HasTurnRedSlashPolicy(weaponOwner.Seat,effectiveKind,EffectiveSuit(weaponOwner,selected)) || HasPhaseSuitAllowance(weaponOwner,selected) || HasCardDistanceExemption(weaponOwner,slashTarget,effectiveKind) || IsWithinAttackRange(weaponOwner.Seat,slashTarget.Seat)))
+        if (!IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, effectiveKind) || !(HasSlashUseDistanceBySuit(weaponOwner,effectiveKind,EffectiveSuit(weaponOwner,selected)) || HasTurnRedSlashPolicy(weaponOwner.Seat,effectiveKind,EffectiveSuit(weaponOwner,selected)) || HasPhaseSuitAllowance(weaponOwner,selected) || HasCardDistanceExemption(weaponOwner,slashTarget,effectiveKind) || IsWithinAttackRange(weaponOwner.Seat,slashTarget.Seat)))
         {
             throw new InvalidOperationException("The selected Borrowed Sword Slash target is no longer legal.");
         }
@@ -6976,6 +6976,7 @@ public sealed partial class GameEngine
 
     private void ContinueSlashAfterFinalizedTargets(CardAttackHandle attack)
     {
+        FreezeNextSlashDamage(attack.ResolutionId);
         var currentUse = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == attack.ResolutionId);
         if (currentUse.SourceSeat != attack.CardUserSeat) attack.ReplaceCardUser(currentUse.SourceSeat);
         if (HasCurrentCardEnhancement(attack.ResolutionId, CurrentCardEnhancement.IgnoreArmor)) attack.SetIgnoresArmor(true);
@@ -8190,7 +8191,7 @@ public sealed partial class GameEngine
 
     private void ContinueSlashAfterDodgePrograms(CardAttackHandle attack)
     {
-        if (HasCurrentCardEnhancement(attack.ResolutionId, CurrentCardEnhancement.Uncancelable))
+        if (IsSlashDodgeCancellationPrevented(attack))
         {
             SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
             if (!ApplyAttackDamage(attack)) CompleteAttack(attack);
@@ -8217,18 +8218,18 @@ public sealed partial class GameEngine
     private bool CanUseQinglongCrescentBladeTarget(
         CharacterState source,
         CharacterState target,
-        CardKind? effectiveKind = null, bool? effectiveColor = null, bool allowAnyColor = true) =>
+        CardKind? effectiveKind = null, bool? effectiveColor = null, bool allowAnyColor = true, Suit? physicalSuit = null) =>
         source.IsAlive &&
         target.IsAlive &&
         source.Seat != target.Seat &&
         HasWeaponAbility(source, CardKind.QinglongCrescentBlade) &&
         (effectiveKind is { } kind
             ? !IsCardUseForbidden(source.Seat, kind, CardActionType.Use) &&
-              (HasTurnRedSlashPolicyForColor(source.Seat,kind,effectiveColor) || allowAnyColor && _turnCardUseEffects.HasRedSlashPolicy(_turnNumber,_currentSeat,source.Seat) || HasCardDistanceExemption(source, target, kind) ||
+              (HasSlashUseDistanceBySuit(source,kind,physicalSuit) || allowAnyColor && HasSlashUseDistanceBySuit(source,kind,Suit.Diamond) || HasTurnRedSlashPolicyForColor(source.Seat,kind,effectiveColor) || allowAnyColor && _turnCardUseEffects.HasRedSlashPolicy(_turnNumber,_currentSeat,source.Seat) || HasCardDistanceExemption(source, target, kind) ||
                IsWithinAttackRange(source.Seat, target.Seat)) &&
               !IsDirectedCardTargetProhibited(source.Seat, target.Seat, kind) &&
               !IsSlashProhibited(target)
-            : SlashKinds.Any(candidate => CanUseQinglongCrescentBladeTarget(source, target, candidate,effectiveColor,allowAnyColor)));
+            : SlashKinds.Any(candidate => CanUseQinglongCrescentBladeTarget(source, target, candidate,effectiveColor,allowAnyColor,physicalSuit)));
 
     private IReadOnlyList<Card> GetQinglongCrescentBladeSlashCards(
         CharacterState source,
@@ -8237,7 +8238,7 @@ public sealed partial class GameEngine
             ? GetSlashUseCards(source).Where(card =>
                 GetSlashUseVariants(source, IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash)
                     .Any(variant => CanUseQinglongCrescentBladeTarget(
-                        source, target, variant.EffectiveKind,SuitColor(EffectiveSuit(source,card)),allowAnyColor:false))).ToArray()
+                        source, target, variant.EffectiveKind,SuitColor(EffectiveSuit(source,card)),allowAnyColor:false,physicalSuit:EffectiveSuit(source,card)))).ToArray()
             : [];
 
     private bool CanRequestQinglongCrescentBladeFactionSlash(
@@ -9613,7 +9614,7 @@ public sealed partial class GameEngine
             !pending.IsProgramSkillUse ||
             (pending.IsAssistedProgramUse
                 ? !IsAssistedProvidedSlashTarget(owner.Seat, target.Seat, effectiveKind)
-                : !CanUseProvidedSlashTarget(owner, target, effectiveKind, allowAnyPhysicalSuit:false, effectiveColor:PhysicalGroupColor(owner,physicalCards))))
+                : !CanUseProvidedSlashTarget(owner, target, effectiveKind, physicalSuit:PhysicalGroupSuit(owner,physicalCards),allowAnyPhysicalSuit:false, effectiveColor:PhysicalGroupColor(owner,physicalCards))))
         {
             throw new InvalidOperationException("The active FactionSlash target is no longer legal.");
         }
@@ -9673,7 +9674,7 @@ public sealed partial class GameEngine
         if (!SameContinuationOwner(ActiveFactionCardRequest, pending) ||
             !SameContinuationOwner(ActiveBorrowedSword, borrowedSword) ||
             !pending.IsBorrowedSwordUse ||
-            !IsLegalBorrowedSwordSlashTarget(owner, target, effectiveKind,allowAnyPhysicalSuit:false,effectiveColor:PhysicalGroupColor(owner,physicalCards)))
+            !IsLegalBorrowedSwordSlashTarget(owner, target, effectiveKind,physicalSuit:HasSlashUseDistanceBySuit(owner,effectiveKind,Suit.Diamond) ? PhysicalGroupSuit(owner,physicalCards) : null,allowAnyPhysicalSuit:false,effectiveColor:PhysicalGroupColor(owner,physicalCards)))
         {
             throw new InvalidOperationException("The Borrowed Sword FactionSlash target is no longer legal.");
         }
@@ -9735,7 +9736,7 @@ public sealed partial class GameEngine
         if (!SameContinuationOwner(ActiveFactionCardRequest, pending) ||
             !SameContinuationOwner(ActiveQinglongCrescentBlade, qinglong) ||
             !pending.IsQinglongCrescentBladeUse ||
-            !CanUseQinglongCrescentBladeTarget(owner, target, effectiveKind,PhysicalGroupColor(owner,physicalCards),allowAnyColor:false))
+            !CanUseQinglongCrescentBladeTarget(owner, target, effectiveKind,PhysicalGroupColor(owner,physicalCards),allowAnyColor:false,physicalSuit:PhysicalGroupSuit(owner,physicalCards)))
         {
             throw new InvalidOperationException("The Qinglong Crescent Blade FactionSlash target is no longer legal.");
         }
@@ -10984,6 +10985,7 @@ public sealed partial class GameEngine
 
         var frame = GetJudgmentFrame(pending.Id);
         var judgmentSuit = EffectiveSuit(_players[pending.TargetSeat], judgmentCard);
+        CaptureProgramSlashSuitJudgment(pending, judgmentSuit);
         var succeeded = pending.Continuation switch
         {
             JudgmentContinuationKind.Lightning =>
@@ -11016,6 +11018,11 @@ public sealed partial class GameEngine
             JudgmentContinuationKind.Indulgence => "乐不思蜀",
             JudgmentContinuationKind.SupplyShortage => "兵粮寸断",
             JudgmentContinuationKind.Lightning => "闪电",
+            JudgmentContinuationKind.ProgramSkill when
+                _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(owner => owner.Id == pending.ParentFrameId) is
+                    { SlashSuitDiscard: { Stage: ProgramSlashSuitDiscardStage.Judging } draft } namedOwner &&
+                draft.JudgmentFrameId == pending.Id && draft.CardUseFrameId == pending.ParentAttackId &&
+                _contentRegistry.Skills.TryGetValue(namedOwner.SkillId, out var definition) => definition.Name,
             _ => pending.Reason
         };
         var judgmentResult = pending.Continuation == JudgmentContinuationKind.Lightning
@@ -11243,6 +11250,7 @@ public sealed partial class GameEngine
         var succeeded = receipt.Succeeded;
         if (pending.Continuation == JudgmentContinuationKind.ProgramSkill)
         {
+            if (TryReturnProgramSlashSuitJudgment(pending)) return;
             if (GetActiveProgramFrame(pending.ParentFrameId).RepeatedJudgment is not null)
             {
                 ResumeProgramRepeatedJudgment(pending);
@@ -11367,7 +11375,7 @@ public sealed partial class GameEngine
         AddLog(
             "CardResponded",
             completesResponse
-                ? HasCurrentCardEnhancement(attack.ResolutionId, CurrentCardEnhancement.Uncancelable)
+                ? IsSlashDodgeCancellationPrevented(attack)
                     ? $"{defender.Name} {responseDescription}，响应了【{incomingName}】，但此杀不能被抵消。"
                     : $"{defender.Name} {responseDescription}，抵消了【{incomingName}】。"
                 : $"{defender.Name} {responseDescription}响应【{incomingName}】；【无双】仍要求下一张【闪】。",
@@ -13598,7 +13606,7 @@ public sealed partial class GameEngine
         !IsCardUseForbidden(source.Seat, effectiveKind, CardActionType.Use, ignoreIssuedPlayBan: existingUseFrameId is {} id && _resolutionStack.OfType<CardUseFrame>().Any(f=>f.Id==id&&f.Action?.ActorSeat==source.Seat)) &&
         target.IsAlive &&
         target.Seat != source.Seat &&
-        (ignoreDistance || HasTurnRedSlashPolicy(source.Seat, effectiveKind, EffectiveSuit(source,slashCard)) || HasPhaseSuitAllowance(source,slashCard) || HasCardDistanceExemption(source, target, effectiveKind) ||
+        (ignoreDistance || HasSlashUseDistanceBySuit(source,effectiveKind,EffectiveSuit(source,slashCard)) || HasTurnRedSlashPolicy(source.Seat, effectiveKind, EffectiveSuit(source,slashCard)) || HasPhaseSuitAllowance(source,slashCard) || HasCardDistanceExemption(source, target, effectiveKind) ||
          IgnoresProgramSlashDistance(source, conversionSource) ||
          IgnoresSpGuanYuWushengDistance(source, slashCard) ||
          HasUnlimitedTurnRuleModifier(source.Seat, SkillRuleQuery.SlashDistanceLimit) ||
@@ -13614,7 +13622,7 @@ public sealed partial class GameEngine
         target.IsAlive &&
         target.Seat != source.Seat &&
         CanSpendSlashUse(source, target, ignoresCount: HasPhaseSuitAllowance(source.Seat,physicalSuit), effectiveKind) &&
-        (HasTurnRedSlashPolicyForColor(source.Seat, effectiveKind, effectiveColor ?? SuitColor(physicalSuit)) || HasPhaseSuitAllowance(source.Seat,physicalSuit) || HasCardDistanceExemption(source, target, effectiveKind) ||
+        (HasSlashUseDistanceBySuit(source,effectiveKind,physicalSuit) || HasTurnRedSlashPolicyForColor(source.Seat, effectiveKind, effectiveColor ?? SuitColor(physicalSuit)) || HasPhaseSuitAllowance(source.Seat,physicalSuit) || HasCardDistanceExemption(source, target, effectiveKind) ||
          HasUnlimitedTurnRuleModifier(source.Seat, SkillRuleQuery.SlashDistanceLimit) ||
          IsWithinAttackRange(source.Seat, target.Seat)) &&
         !IsSlashProhibited(target);
@@ -14920,8 +14928,9 @@ public sealed partial class GameEngine
         var programDamageModifiers = turnDamageModifiers
             .Select(modifier => (modifier.Source, modifier.Amount))
             .Concat(GetPassiveProgramDamageModifiers(attack))
+            .Concat(GetCurrentTurnHeartSlashBonuses(attack))
             .ToArray();
-        var programDamageBonus = programDamageModifiers.Sum(modifier => modifier.Amount) +
+        var programDamageBonus = programDamageModifiers.Sum(modifier => modifier.Amount) + FrozenNextSlashDamage(attack) +
             (attack is CardAttackHandle bladed ? RedBladeDamageBonus(bladed) : 0);
         var receivesGudingBladeBonus = UsesFormalGudingBlade &&
             !attack.IsChainPropagation &&
@@ -15313,7 +15322,7 @@ public sealed partial class GameEngine
                 var description = isDodge
                     ? isGroupAttack
                         ? $"{cardDescription}，响应【{incomingName}】。"
-                        : ActiveCardAttack is {} uncancelable && HasCurrentCardEnhancement(uncancelable.ResolutionId,CurrentCardEnhancement.Uncancelable)
+                        : ActiveCardAttack is {} uncancelable && IsSlashDodgeCancellationPrevented(uncancelable)
                             ? $"{cardDescription}，响应这次{incomingAttackName}；此杀不能被抵消。"
                             : $"{cardDescription}，抵消这次{incomingAttackName}。"
                     : isGroupAttack
@@ -15404,7 +15413,7 @@ public sealed partial class GameEngine
             choices.Add(new PromptChoice(
                 new ChoiceId("respond.bagua"),
                 isSlashAttack
-                    ? ActiveCardAttack is {} uncancelableBagua && HasCurrentCardEnhancement(uncancelableBagua.ResolutionId,CurrentCardEnhancement.Uncancelable)
+                    ? ActiveCardAttack is {} uncancelableBagua && IsSlashDodgeCancellationPrevented(uncancelableBagua)
                         ? $"发动【八卦阵】判定，红色牌视为打出【闪】响应{incomingAttackName}；此杀不能被抵消。"
                         : $"发动【八卦阵】判定，红色牌视为打出【闪】抵消{incomingAttackName}。"
                     : "发动【八卦阵】判定，红色牌视为打出【闪】。",
@@ -16227,7 +16236,7 @@ public sealed partial class GameEngine
         effectiveKind is { } kind
             ? target.IsAlive && target.Seat != owner.Seat &&
               CanSpendSlashUse(owner, target, ignoresCount: false, kind) &&
-              (HasTurnRedSlashPolicyForColor(owner.Seat,kind,effectiveColor ?? SuitColor(physicalSuit)) || allowAnyPhysicalSuit && _turnCardUseEffects.HasRedSlashPolicy(_turnNumber,_currentSeat,owner.Seat) || HasCardDistanceExemption(owner, target, kind) ||
+              (HasSlashUseDistanceBySuit(owner,kind,physicalSuit) || allowAnyPhysicalSuit && HasSlashUseDistanceBySuit(owner,kind,Suit.Diamond) || HasTurnRedSlashPolicyForColor(owner.Seat,kind,effectiveColor ?? SuitColor(physicalSuit)) || allowAnyPhysicalSuit && _turnCardUseEffects.HasRedSlashPolicy(_turnNumber,_currentSeat,owner.Seat) || HasCardDistanceExemption(owner, target, kind) ||
                HasUnlimitedTurnRuleModifier(owner.Seat, SkillRuleQuery.SlashDistanceLimit) ||
                IsWithinAttackRange(owner.Seat, target.Seat)) &&
               !IsSlashProhibited(target)

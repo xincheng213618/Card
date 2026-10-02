@@ -32,6 +32,7 @@ public sealed partial class GameEngine
             case CardDeclarationFrame: ContinueCardDeclaration(frameId); break;
             case CardDeclarationChallengeFrame: ContinueCardDeclarationChallenge(frameId); break;
             case ProgramSkillFrame:
+                if (ResumeProgramSlashSuitDiscard(frameId)) return;
                 if (ResumeDiamondDelayed(frameId)) return;
                 if (ResumeDistinctFactionDiscards(frameId)) return;
                 if (ResumePrivateTurnHold(frameId)) return;

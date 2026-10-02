@@ -6,7 +6,10 @@
       "modifiers": [
         { "id": "unlimited-slash-uses", "query": "slashLimit",
           "operation": "unlimited", "value": 0, "priority": 0 }
-      ]
+      ],
+      "triggers": [{ "id": "reserve-after-cancellation", "window": "slashFullyDodged",
+        "ownerRelation": "actor", "cardKinds": ["slash", "fireSlash", "thunderSlash"], "optional": false,
+        "effects": [{ "op": "reserveNextSlashDamage", "target": "owner" }] }]
     },
     {
       "id": "boundary:shensu", "revision": 1, "minimumRulesVersion": 172,

@@ -1,0 +1,409 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀OL",
+  "batch": "界关羽界张飞界马超与实际回合失效及杀抵消续接",
+  "roster": [
+    {
+      "key": "300",
+      "url": "https://www.sanguosha.com/hero/300",
+      "finalUrl": "https://www.sanguosha.com/hero/300",
+      "status": 200,
+      "retrievedAt": "2026-10-02T05:56:14.772986+00:00",
+      "responseSha256": "0e63a5afb715a5256353c0258844135bd93f9351174a5b541eda32bac31f215b",
+      "bytes": 27469,
+      "officialId": 300,
+      "name": "界关羽",
+      "skills": [
+        {
+          "name": "义绝",
+          "text": "出牌阶段限一次，你可以弃置一张牌，然后令一名其他角色展示一张手牌。若此牌为：黑色，其本回合非锁定技失效且不能使用或打出手牌，你本回合对其使用的红桃【杀】伤害+1；红色，你获得之，然后你可以令其回复1点体力。"
+        },
+        {
+          "name": "武圣",
+          "text": "你可以将一张红色牌当【杀】使用或打出。你使用的方片【杀】无距离限制。"
+        }
+      ],
+      "sameHtmlAsEarlierPreflight": true,
+      "sameSkillsAsEarlierPreflight": true,
+      "indexFields": {
+        "gid": 300,
+        "name": "界关羽",
+        "resource": "30000",
+        "extend": "界限突破",
+        "hp": 4,
+        "initial_hp": 0,
+        "quality": "史诗",
+        "figure": "蜀",
+        "figure_py": "shu",
+        "biography": "字云长，本字长生，并州河东解州人。五虎上将之首，爵至汉寿亭侯，谥曰“壮缪侯”。被奉为“关圣帝君”，崇为“武圣”。",
+        "characteristic": "拥有大量的【杀】，能够封印敌人的技能。用方块牌当杀可以无视距离。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/300.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/30000.png",
+        "realname": "界关羽 (界限突破)"
+      }
+    },
+    {
+      "key": "301",
+      "url": "https://www.sanguosha.com/hero/301",
+      "finalUrl": "https://www.sanguosha.com/hero/301",
+      "status": 200,
+      "retrievedAt": "2026-10-02T05:56:14.783715+00:00",
+      "responseSha256": "ac86213821282a7f4162488067164126dface288ba6a88fa0675fcb4c59c6abf",
+      "bytes": 26273,
+      "officialId": 301,
+      "name": "界张飞",
+      "skills": [
+        {
+          "name": "替身",
+          "text": "限定技，准备阶段，你可以回复所有体力，然后摸X张牌（X为你回复的体力值）。"
+        },
+        {
+          "name": "咆哮",
+          "text": "锁定技，你使用【杀】无次数限制。当你使用的【杀】被抵消后，你本回合下一次【杀】造成的伤害+1。"
+        }
+      ],
+      "sameHtmlAsEarlierPreflight": true,
+      "sameSkillsAsEarlierPreflight": true,
+      "indexFields": {
+        "gid": 301,
+        "name": "界张飞",
+        "resource": "30100",
+        "extend": "界限突破",
+        "hp": 4,
+        "initial_hp": 0,
+        "quality": "稀有",
+        "figure": "蜀",
+        "figure_py": "shu",
+        "biography": "字翼德，涿[zhuō]郡人，燕颔虎须，豹头环眼。有诗云：“长坂坡头杀气生，横枪立马眼圆睁。一声好似轰雷震，独退曹家百万兵”。",
+        "characteristic": "能够迅速杀死脆弱的武将，能够让自己脱离困境。需要武器牌提供攻击范围，且【杀】越多越好。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/301.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/30100.png",
+        "realname": "界张飞 (界限突破)"
+      }
+    },
+    {
+      "key": "303",
+      "url": "https://www.sanguosha.com/hero/303",
+      "finalUrl": "https://www.sanguosha.com/hero/303",
+      "status": 200,
+      "retrievedAt": "2026-10-02T05:56:14.752795+00:00",
+      "responseSha256": "0a8db6e1aa03f129cdda1efbf7999f52e2e6eeea8e7f1f526d85a34236631cd7",
+      "bytes": 26767,
+      "officialId": 303,
+      "name": "界马超",
+      "skills": [
+        {
+          "name": "马术",
+          "text": "锁定技，你计算与其他角色的距离-1。"
+        },
+        {
+          "name": "铁骑",
+          "text": "当你使用【杀】指定目标后，你可以令其本回合非锁定技失效，然后你判定，除非其弃置一张与判定结果花色相同的牌，否则其不能抵消此【杀】。"
+        }
+      ],
+      "sameHtmlAsEarlierPreflight": true,
+      "sameSkillsAsEarlierPreflight": true,
+      "indexFields": {
+        "gid": 303,
+        "name": "界马超",
+        "resource": "30300",
+        "extend": "界限突破",
+        "hp": 4,
+        "initial_hp": 0,
+        "quality": "稀有",
+        "figure": "蜀",
+        "figure_py": "shu",
+        "biography": "字孟起，扶风茂陵（今陕西兴平）人，汉末凉州（今甘肃武威]军阀、蜀五虎上将之一。马超是伏波将军马援的后人，汉末诸侯马腾之子。",
+        "characteristic": "能够让【杀】强制造成伤害，封印敌人的技能，拥有更大的攻击范围。需要有较多的【杀】，受到【乐不思蜀】的限制。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/303.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/30300.png",
+        "realname": "界马超 (界限突破)"
+      }
+    }
+  ],
+  "baselineHead": "72bb2062ebb77a5cf4b58c26842c8419d4325e5a",
+  "baselineManifestSha256": "4394e43e51c0251f2df621341edc0ecf7e717fc8188fb3cc1160b85200b05ce7",
+  "index": {
+    "key": "index",
+    "url": "https://www.sanguosha.com/hero",
+    "finalUrl": "https://www.sanguosha.com/hero",
+    "status": 200,
+    "retrievedAt": "2026-10-02T05:56:14.920309+00:00",
+    "responseSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+    "bytes": 1319990,
+    "sameHtmlAsAcceptedEighthIndex": true
+  },
+  "engineeringContract": "docs/content/skill-composition/FENG_LIN_NINTH_CAPABILITIES.md",
+  "implementationStatus": "mainAcceptedFullAndMeasuredRoutine",
+  "explicitEngineeringChoices": {
+    "multiTargetPaoxiao": "Default engineering interpretation: every actual cancellation contributes one to next actual Use; optional user clarification remains unanswered.",
+    "ruleAuthority": "Current ordinary OL hero text wins over older ordinary OL guides and other product lines.",
+    "fullDodgeAxeContinuation": "Actual cancellation reserves next-Use bonus before axe continuation; paid current Slash cannot consume it.",
+    "borrowedLockedLibrary": "Temporary nonlocked suppression preserves already acquired Locked grant and declared attributes; actual local disable and loss retain old behavior.",
+    "repeatedYijueSameActualTurn": "Same owner/named skill/target receives +1 qualification once; additional play stages do not stack it."
+  },
+  "artwork": [
+    {
+      "officialId": 300,
+      "key": "boundary-guan-yu",
+      "name": "界关羽",
+      "resource": "30000",
+      "sourcePage": "https://www.sanguosha.com/hero/300",
+      "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30000.png",
+      "finalUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30000.png",
+      "status": 200,
+      "retrievedAt": "2026-10-02T06:08:00.966191+00:00",
+      "filename": "official-boundary-guan-yu.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-guan-yu.png",
+      "sha256": "67af25a02cd86907a915c59159af4c48477ca224e465185908614954a62950a8",
+      "bytes": 993917,
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "originalBytesUnmodified": true
+    },
+    {
+      "officialId": 301,
+      "key": "boundary-zhang-fei",
+      "name": "界张飞",
+      "resource": "30100",
+      "sourcePage": "https://www.sanguosha.com/hero/301",
+      "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30100.png",
+      "finalUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30100.png",
+      "status": 200,
+      "retrievedAt": "2026-10-02T06:08:00.967704+00:00",
+      "filename": "official-boundary-zhang-fei.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-zhang-fei.png",
+      "sha256": "ba0f48eb0ddaa4d2ad53e8f5163e0307655d6726b6d42aafe40e949d53117ce9",
+      "bytes": 1266231,
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "originalBytesUnmodified": true
+    },
+    {
+      "officialId": 303,
+      "key": "boundary-ma-chao",
+      "name": "界马超",
+      "resource": "30300",
+      "sourcePage": "https://www.sanguosha.com/hero/303",
+      "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30300.png",
+      "finalUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30300.png",
+      "status": 200,
+      "retrievedAt": "2026-10-02T06:08:00.966251+00:00",
+      "filename": "official-boundary-ma-chao.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-ma-chao.png",
+      "sha256": "c3e6f733da1204a6ff968b6d9f375ea6f7e49b86c6eaddc25d3d33fa6f010611",
+      "bytes": 1207495,
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "originalBytesUnmodified": true
+    }
+  ],
+  "engineeringRulings": "docs/content/skill-composition/FENG_LIN_NINTH_RULINGS.md",
+  "existingPortraitRepair": {
+    "assetPath": "src/CardGame.Wpf/Assets/Skins/zhou-yu/201203.png",
+    "sourcePage": "https://x.sanguosha.com/hero/12.html",
+    "requestUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/201203.png",
+    "finalUrl": "https://web.sanguosha.com/10/pc/res/assets/runtime/general/big/static/201203.png",
+    "retrievedAtUtc": "2026-10-02T06:57:44.103579+00:00",
+    "httpStatus": 200,
+    "baselineBadSha256": "d3bd4a1acc28205b63153a4156585af5b30b7224fb12a52464db9c1fa2a95458",
+    "baselineExpectedSha256": "3741dad2c5fb8a7d046e18c9e69a4bcab0a503561a9130baf64a6e250a80c94f",
+    "finalSha256": "3741dad2c5fb8a7d046e18c9e69a4bcab0a503561a9130baf64a6e250a80c94f",
+    "dimensions": [
+      574,
+      761
+    ],
+    "byteLength": 778004,
+    "pillowVerify": "passed",
+    "pillowFullLoad": "passed",
+    "manifestSha256": "b7179248b9c352998f8359da3e953e52ef095d6b36d052a674a1b5d874c9e177"
+  },
+  "integrationEvidence": {
+    "root": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinNinth-20261002",
+    "guanYuFinal01": "66f09dbb2b867fc3606683f0e636865542a206a50438f85ea8bf30e9136bee8d",
+    "guanYuFinal02": "48abd84da6d9990383a42c8c3ba1f7ca8151d4731f045e363eb4a091bb342c28",
+    "zhangFeiFinal": "08d831aede4d10db821352ca653721f7a2264ba6279c574c288a9f105388576d",
+    "maChaoFinal": "076361c755080be56777888731a0a9bbd6eed49c2d92ed768d052e4e1c803d20",
+    "maChaoPaoxiaoTestDelta": "8bb6879e58eefae296a5d9affc543f077b5cbc157d3d90af0aeeb81f6af5403f",
+    "parentFocused": {
+      "core": "35/35",
+      "wpf": "5/5",
+      "durationMs": 55980,
+      "summary": "validation-parent-focused-01/summary.json"
+    },
+    "isolatedTrueCombinedCheck": {
+      "core": "1/1",
+      "durationMs": 6694,
+      "summary": "ma-chao/combo-delivery-01/evidence/verification/combo-02/summary.json"
+    },
+    "catalogAfterOriginalByteRepair": {
+      "generals": 169,
+      "pngRecords": 966,
+      "status": "passed"
+    },
+    "sharedMerge": "Each incoming source and ancestor SHA guarded; only actual-turn expiry and disjoint operation enum conflicts combined. Shared dependency files were not replaced wholesale.",
+    "compatibility": "Judgment nested-child allowance gated by new typed SlashSuitDiscard ownership; physical borrowed-provider Suit supplied only with new Diamond distance policy. Unique rules/schema/package version sources unchanged.",
+    "boundary": "Main fresh Full2 and measured routine passed after two bounded repairs. Original Full1 failure retained. Accepted-command viewer/cold replay, direct host lifecycle audit, offscreen WPF commands/render and exact compiled resources are distinct; no live OL client/manual desktop acceptance.",
+    "mainFullInitial": {
+      "status": "test-failed",
+      "durationMs": 218215,
+      "counts": {
+        "core": {
+          "passed": 486,
+          "failed": 1,
+          "skipped": 0,
+          "total": 487
+        },
+        "wpf": {
+          "passed": 48,
+          "failed": 0,
+          "total": 48
+        }
+      },
+      "summary": "validation-main-full-01/summary.json",
+      "summarySha256": "cbeff7a994af04841593f61fb4cfe3f65d3d25b169bf24f5d95a666879ee8546",
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 9242,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinNinth-20261002\\validation-main-full-01\\logs\\build.log"
+        },
+        {
+          "name": "Core full checks",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 150079,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinNinth-20261002\\validation-main-full-01\\logs\\core-full.log"
+        },
+        {
+          "name": "WPF full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 58840,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinNinth-20261002\\validation-main-full-01\\logs\\wpf-full.log"
+        }
+      ],
+      "failure": "Fixed standard roster seed lost Stone Axe before attacking; exact-cost/damage assertions had not executed."
+    },
+    "mainFullFinal": {
+      "status": "passed",
+      "durationMs": 226439,
+      "counts": {
+        "core": {
+          "passed": 487,
+          "failed": 0,
+          "skipped": 0,
+          "total": 487
+        },
+        "wpf": {
+          "passed": 48,
+          "failed": 0,
+          "total": 48
+        }
+      },
+      "summary": "validation-main-full-02/summary.json",
+      "summarySha256": "a65c917a9fbe471911aa27e68ae4118e6f3f7e45db70b0bd44575685cfe4dd60",
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 9074,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinNinth-20261002\\validation-main-full-02\\logs\\build.log"
+        },
+        {
+          "name": "Core full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 155588,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinNinth-20261002\\validation-main-full-02\\logs\\core-full.log"
+        },
+        {
+          "name": "WPF full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 61725,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinNinth-20261002\\validation-main-full-02\\logs\\wpf-full.log"
+        }
+      ]
+    },
+    "measuredRoutine": {
+      "status": "passed",
+      "durationMs": 90830,
+      "counts": {
+        "core": {
+          "passed": 136,
+          "failed": 0,
+          "skipped": 0,
+          "total": 136
+        },
+        "wpf": {
+          "passed": 14,
+          "failed": 0,
+          "total": 14
+        }
+      },
+      "summary": "validation-main-routine-01/summary.json",
+      "summarySha256": "bf3d206069bf02a0553d4c64820b17e3013eb849ea2ab0ea7fa719addf6bd37a",
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 11605,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinNinth-20261002\\validation-main-routine-01\\logs\\build.log"
+        },
+        {
+          "name": "Core selected checks (73 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 34004,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinNinth-20261002\\validation-main-routine-01\\logs\\core-selected.log"
+        },
+        {
+          "name": "WPF selected checks (14 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 45130,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinNinth-20261002\\validation-main-routine-01\\logs\\wpf-selected.log"
+        }
+      ]
+    },
+    "stoneAxeTestRepair": {
+      "manifest": "guan-yu/stone-axe-repair-01/delivery/source-manifest.json",
+      "sha256": "ed0b23afc915a54a7903687b3645fe6c0fa24028bdaca08dc6cf520eac63d377",
+      "scope": "Two tests only; fixed small pool/deck/seed, actual Ma Su Zhiman child and original cost/privacy/replay assertions preserved",
+      "focused": "2/2"
+    },
+    "judgmentDisplayRepair": {
+      "manifest": "ma-chao/judgment-label-delivery-01/source-manifest.json",
+      "sha256": "5297dd26490d7f4103e5c663d8c653eb63f1bd1e3114b60b11625e05e7874005",
+      "scope": "Exact new typed judgment parent uses actual content Name; reason/events/state/legacy paths unchanged",
+      "focused": "4/4"
+    },
+    "actualOffscreenWpf": {
+      "manifest": "zhang-fei\\review-wpf01\\evidence-manifest.json",
+      "sha256": "59ac0ceccbb6e3f0b875cf8d2fe9474fc9fbdeecee4374d276d860f6f71a78cb",
+      "cases": "5/5",
+      "bindingMessages": 0,
+      "scope": "Real Memory save store, mature manual load command, four real selections each one command, save/reload and four viewer privacy, 1120x740 offscreen MainWindow; formal compiled portraits separately decoded"
+    },
+    "finalMainCompiledResources": {
+      "manifest": "guan-yu\\main-resource-review-02\\evidence-manifest.json",
+      "sha256": "f5796fbd38db715caa469b0d7228689bed97e3bcb9f7b9b21133f2173da79d61",
+      "scope": "Full2 built WPF DLL; three official embedded streams exact SHA and GeneralArt decode; original Zhou Yu PNG source and build copies verify/full decode"
+    },
+    "nextSourcePreflight": {
+      "manifest": "next-boundary-preflight/manifest.json",
+      "sha256": "be092f9a9c3173bf5515fc05a445c5e1dac782d95fcfc0777227d979a027ca05",
+      "roster": [
+        "boundary:xu-shu",
+        "boundary:xiahou-dun",
+        "boundary:li-dian"
+      ],
+      "scope": "Source preflight only, next implementation not accepted"
+    }
+  }
+}

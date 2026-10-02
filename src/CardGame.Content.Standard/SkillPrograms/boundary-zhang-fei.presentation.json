@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:tishen": { "name": "替身", "description": "限定技，准备阶段，你可以将体力回复至体力上限，然后摸X张牌（X为你以此法回复的体力值）。" }
+  }
+}

@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed record LordSkillProjectionChangedEvent(int OwnerSeat, string GrantId, string SkillId,
     LordSkillProjectionSource Source, bool Added) : IGameEvent;
@@ -24,6 +24,7 @@ public sealed partial class GameEngine
 
     private bool IsProjectedGrantQualified(CharacterState owner, SkillGrant grant)
     {
+        if (!IsCurrentTurnSkillGrantQualified(owner,grant)) return false;
         if (grant.LordProjection is not {} source) return true;
         if (!owner.IsAlive || IsTeamMode || IsNationalWarMode || !IsValidPlayerSeat(source.LordSeat) || source.LordSeat == owner.Seat) return false;
         var lord = _players[source.LordSeat];

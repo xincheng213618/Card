@@ -41,7 +41,11 @@
         'boundary Liu Bei gift threshold recipient',
         'boundary Da Qiao atomic mixed discard replay',
         'boundary Hua Tuo ordered actual discard effective suit receipts',
-        'participant discard mandatory cost cancellation preserves legal composition'
+        'participant discard mandatory cost cancellation preserves legal composition',
+        'current turn nonlocked suppression host lifecycle audit',
+        'boundary Guan Yu actual Played and black Hand rejection',
+        'Boundary Zhang Fei actual recovery receipt limited child',
+        'boundary Ma Chao Tieqi Paoxiao exact cancellation integration'
     )
     Wpf = @(
         'original card artwork', 'composed skills', 'conversion choices',

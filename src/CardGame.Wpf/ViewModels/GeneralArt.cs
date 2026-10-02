@@ -85,6 +85,10 @@ public static class GeneralArt
             ["boundary-liu-bei"] = "official-boundary-liu-bei.png",
             ["boundary-da-qiao"] = "official-boundary-da-qiao.png",
             ["boundary-hua-tuo"] = "official-boundary-hua-tuo.png",
+            // Current OL editions: docs/content/sources/fenglin-ninth-2026-10-02.json.
+            ["boundary-guan-yu"] = "official-boundary-guan-yu.png",
+            ["boundary-zhang-fei"] = "official-boundary-zhang-fei.png",
+            ["boundary-ma-chao"] = "official-boundary-ma-chao.png",
             ["zhang-chun-hua"] = "official-zhang-chun-hua.png",
             ["ling-tong"] = "official-ling-tong.png",
             ["chen-gong"] = "official-chen-gong.png",

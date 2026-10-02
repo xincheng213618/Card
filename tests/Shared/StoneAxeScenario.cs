@@ -10,17 +10,27 @@ internal sealed record StoneAxeBoundary(
 
 internal static class StoneAxeScenario
 {
+    private const string Mode = "identity:classic-stone-axe-fixture-5";
+
+    public static ContentRegistry CreateRegistry() => ContentRegistry.Build(
+        new StandardContentPackage(),
+        new StandardActiveSkillExpansionPackage(includeJijiu: true),
+        new StandardRescueSkillExpansionPackage(),
+        new StandardClassicGeneralPackage(),
+        new StoneAxeFixturePackage());
+
     public static StoneAxeBoundary FindHumanTrigger(int seed = 1)
     {
-        var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        // Verified seed 1 retains Ma Su's real optional pre-damage child.
+        var registry = CreateRegistry();
+        // The small pool/deck keeps seed 1 independent of ordinary roster growth.
+        // Real Ma Su retains Zhiman's existing optional pre-damage child.
         var game = GameEngine.CreateStandard(new GameOptions
         {
             Seed = seed,
             HumanSeat = 0,
             HumanRole = Role.Lord,
             PlayerCount = 5,
-            ModeId = "identity:classic-5",
+            ModeId = Mode,
             UseInteractiveSetup = true,
             UseInteractiveDiscard = false,
             AdvanceAfterHumanCommands = false,
@@ -32,10 +42,7 @@ internal static class StoneAxeScenario
         var generalChoice = game.PendingDecision?.Choices
             .FirstOrDefault(choice =>
                 choice.ContentIds.Count == 1 &&
-                registry.Generals[choice.ContentIds[0]].SkillIds
-                    .Select(registry.GetSkill)
-                    .All(skill =>
-                        skill.Id is not ("classic:tieqi" or "classic:liegong")));
+                choice.ContentIds[0] == "classic:ma-su");
         if (generalChoice is null)
         {
             throw new InvalidOperationException("The fixed Stone Axe witness no longer satisfies its setup boundary.");
@@ -157,6 +164,31 @@ internal static class StoneAxeScenario
         if (!value)
         {
             throw new InvalidOperationException(message);
+        }
+    }
+
+    private sealed class StoneAxeFixturePackage : IGameContentPackage
+    {
+        public PackageManifest Manifest { get; } = new("fixture-stone-axe", new Version(1, 0, 0), []);
+
+        public void Register(IContentRegistryBuilder builder)
+        {
+            var targets = Enumerable.Range(1, 4).Select(index => $"fixture:stone-axe-target-{index}").ToArray();
+            foreach (var target in targets)
+                builder.AddGeneral(new(target, "贯石斧对手", "supporter", "standard:none", "qun", BaseHp: 4));
+            builder.AddDeck(new("fixture:stone-axe-deck", "贯石斧支付与伤害", 4, 2, [])
+            {
+                PhysicalCards = Enumerable.Range(0, 60).Select(index => new ContentDeckPhysicalCard(
+                    (index % 3) switch { 0 => "classic:stone-axe", 1 => "standard:slash", _ => "standard:dodge" },
+                    Suit.Heart, index % 13 + 1)).ToArray()
+            });
+            builder.AddMode(new(Mode, "贯石斧支付与伤害", 5, 5,
+                new Dictionary<string, int>
+                {
+                    [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1,
+                    [nameof(Role.Rebel)] = 2, [nameof(Role.Renegade)] = 1
+                }, "fixture:stone-axe-deck", GeneralCandidateCount: 5,
+                GeneralPoolIds: ["classic:ma-su", .. targets]));
         }
     }
 }
