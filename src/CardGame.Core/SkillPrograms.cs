@@ -368,7 +368,9 @@ public enum SkillProgramEffectOp
     SelectRelativeZoneDemandTarget = 1260, DrawOnFirstProgramTargetEncounter = 1261,
     GrantTurnRedSlashBenefits = 1680, UseDiamondDelayedOrDiscard = 1780, RevealOwnedBoundCardAppearance = 1860, IssueCurrentTurnNonLockedSkillSuppression = 1861, GrantCurrentTurnDirectedHeartSlashBonus = 1862,
     GiveShownBoundCardsAndGrantTurnHandLimit = 1960,
-    PlaceSelectedEquipment = 2000, FreezeSelectedHpPair = 2001
+    PlaceSelectedEquipment = 2000, FreezeSelectedHpPair = 2001,
+    PreventCurrentTargetSlashCancellation = 2100, AddCurrentTargetSlashDamage = 2101,
+    ChooseOwnerHpLoss = 2200, DrawPaidHpLoss = 2201, GrantPaidHpLossDistance = 2202, GrantPaidHpLossSlashLimit = 2203
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets, HpPairHigher = 2000, HpPairLower = 2001 }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -1179,6 +1181,8 @@ public sealed class SkillProgramEffect
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? ExactTopCount { get; internal init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramFinalTargetComparison? FinalTargetComparison { get; internal init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramPopulationThresholdCount? PopulationThresholdCount { get; internal init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? AllBottomStateId { get; internal init; }
@@ -1938,6 +1942,10 @@ public sealed class SkillProgramCatalog
                      SkillProgramCardPolicyKind.NextCardUnlimitedAfterNonLockedSkill or SkillProgramCardPolicyKind.DamageBecomesHpLoss or
                      SkillProgramCardPolicyKind.ForeignPublicPileSlash or SkillProgramCardPolicyKind.PindianClaim or SkillProgramCardPolicyKind.IgnoreTurnObtainedHandCardsForDiscard or SkillProgramCardPolicyKind.PreventForeignEquipmentDiscard))
             Fail(path + ".cardKinds", "this policy requires effective card kinds");
+        if (kind == SkillProgramCardPolicyKind.SlashRangeFromEffectiveRank &&
+            (cardKinds.Count == 0 || cardKinds.Any(card => card is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)) ||
+             requiredKinds.Count != 0 || value != 0 || inputSuit is not null || outputSuit is not null))
+            Fail(path, "rank Slash range requires only Slash effective kinds and no response, suit or numeric value");
         if (kind == SkillProgramCardPolicyKind.VirtualEquipment &&
             cardKinds.Any(card => !EquipmentCatalog.IsEquipment(card)))
             Fail(path, "virtualEquipment requires equipment card kinds");
@@ -2330,6 +2338,8 @@ public sealed class SkillProgramCatalog
         if (effects.Any(effect => effect.Op == SkillProgramEffectOp.SkipTurnPhases))
             Fail(path + ".effects", "phase substitution requires a lifecycle trigger");
         if (effects.Count == 0) Fail(path + ".effects", "must contain at least one effect");
+        if (effects.Any(PaidHpLossProgram.IsOperation) && (usesPerGame != 1 || minCards != 0 || maxCards != 0 || minTargets != 0 || maxTargets != 0))
+            Fail(path, "Paid HP loss requires a limited one-use zero-card zero-target activation.");
         SkillProgramCardCountExpression? cardCountExpression = node.TryGetProperty("cardCountExpression", out _)
             ? EnumValue<SkillProgramCardCountExpression>(node, "cardCountExpression", path) : null;
         if (cardCountExpression is not null && (minCards != 1 || maxCards != int.MaxValue ||
@@ -2992,7 +3002,12 @@ public sealed class SkillProgramCatalog
                 SkillProgramTriggerValueKind.SourceZoneCountBefore or
                 SkillProgramTriggerValueKind.SourceZoneCountAfter))
             Fail(path + ".condition", "card-movement values are supported only by cardsMoved");
-        if (EnumerateTriggerValues(condition).Any(value => value.Kind == SkillProgramTriggerValueKind.EventTargetHp) &&
+        var finalTargetSlash = node.TryGetProperty("effects", out var finalEffects) && finalEffects.ValueKind == JsonValueKind.Array && finalEffects.EnumerateArray().Any(effect => effect.ValueKind == JsonValueKind.Object && effect.TryGetProperty("op", out var op) && op.ValueKind == JsonValueKind.String && (string.Equals(op.GetString(), "preventCurrentTargetSlashCancellation", StringComparison.OrdinalIgnoreCase) || string.Equals(op.GetString(), "addCurrentTargetSlashDamage", StringComparison.OrdinalIgnoreCase)));
+        if (finalTargetSlash && (window != SkillProgramTriggerWindow.CardUseTargetsFinalized ||
+            ownerRelation != SkillProgramCardActionOwnerRelation.Actor || cardKinds.Count == 0 ||
+            cardKinds.Any(card => card is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash))))
+            Fail(path, "final target Slash facts require actual finalized actor Use and explicit Slash family kinds");
+        if (EnumerateTriggerValues(condition).Any(value => value.Kind == SkillProgramTriggerValueKind.EventTargetHp) && !finalTargetSlash &&
             window is not (SkillProgramTriggerWindow.BeforeDamageApplied or
                 SkillProgramTriggerWindow.AfterDamageApplied))
             Fail(path + ".condition", "eventTargetHp requires a damage trigger");
@@ -3005,7 +3020,7 @@ public sealed class SkillProgramCatalog
             (!isCardActionWindow || window == SkillProgramTriggerWindow.CardResponseAccepted))
             Fail(path + ".condition", "cardUseDesignatedTargetCount requires a card-use trigger");
         if (EnumerateTriggerValues(condition).Any(value => value.Kind == SkillProgramTriggerValueKind.EventTargetHandCount) &&
-            window is not (SkillProgramTriggerWindow.SlashBeforeResponse or SkillProgramTriggerWindow.TurnEnding))
+            window is not (SkillProgramTriggerWindow.SlashBeforeResponse or SkillProgramTriggerWindow.TurnEnding) && !finalTargetSlash)
             Fail(path + ".condition", "target-hand comparison requires a Slash response or turn-ending boundary");
         if (EnumerateTriggerValues(condition).Any(value => value.Kind == SkillProgramTriggerValueKind.CurrentAttackRange) &&
             window is not (SkillProgramTriggerWindow.SlashBeforeResponse or

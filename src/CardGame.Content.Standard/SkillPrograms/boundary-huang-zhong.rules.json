@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:liegong-current",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "rank-range",
+          "kind": "slashRangeFromEffectiveRank",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "final-target-benefits",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": true,
+          "condition": {
+            "kind": "any",
+            "children": [
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "eventTargetHandCount"
+                },
+                "operator": "lessThanOrEqual",
+                "right": {
+                  "kind": "currentHandCount"
+                }
+              },
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "eventTargetHp"
+                },
+                "operator": "greaterThanOrEqual",
+                "right": {
+                  "kind": "currentHp"
+                }
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "preventCurrentTargetSlashCancellation",
+              "target": "owner",
+              "comparison": "targetHandAtMostActor"
+            },
+            {
+              "op": "addCurrentTargetSlashDamage",
+              "target": "owner",
+              "comparison": "targetHpAtLeastActor",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

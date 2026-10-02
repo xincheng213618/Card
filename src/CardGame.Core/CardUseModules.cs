@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 [Flags]
 public enum CardUseCategories
@@ -101,7 +101,9 @@ public sealed record TurnRuleModifier(
     int Amount,
     IReadOnlyList<CardKind>? CardKinds = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    int? AffectedSeat = null);
+    int? AffectedSeat = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    ProgramHpLossModifierOrigin? PaidHpLossOrigin = null);
 
 public sealed record TurnCardTargetRestriction(
     long GrantSequence,
@@ -356,7 +358,7 @@ internal sealed partial class TurnCardUseEffectStore
         SkillRuleOperation operation,
         int amount,
         IReadOnlyList<CardKind>? cardKinds = null,
-        int? affectedSeat = null)
+        int? affectedSeat = null, ProgramHpLossModifierOrigin? hpLossOrigin = null)
     {
         IReadOnlyList<CardKind> frozenKinds = cardKinds is null ? [] : Array.AsReadOnly(cardKinds.ToArray());
         var existing = _ruleModifiers.SingleOrDefault(item =>
@@ -365,7 +367,7 @@ internal sealed partial class TurnCardUseEffectStore
         {
             if (existing.TurnNumber != turnNumber || existing.TurnSeat != turnSeat ||
                 existing.Source != source || existing.Query != query ||
-                existing.Operation != operation || existing.Amount != amount || existing.AffectedSeat != affectedSeat ||
+                existing.Operation != operation || existing.Amount != amount || existing.AffectedSeat != affectedSeat || existing.PaidHpLossOrigin != hpLossOrigin ||
                 !(existing.CardKinds ?? []).SequenceEqual(frozenKinds))
                 throw new InvalidOperationException("A turn rule-modifier grant key changed its meaning.");
             return existing;
@@ -373,7 +375,7 @@ internal sealed partial class TurnCardUseEffectStore
 
         var granted = new TurnRuleModifier(
             ++_grantSequence, turnNumber, turnSeat, parentFrameId, effectIndex, source,
-            query, operation, amount, frozenKinds, affectedSeat);
+            query, operation, amount, frozenKinds, affectedSeat, hpLossOrigin);
         _ruleModifiers.Add(granted);
         return granted;
     }
@@ -663,11 +665,11 @@ internal sealed partial class TurnCardUseEffectStore
                 item.ActionTypes.Distinct().Count() != item.ActionTypes.Count) ||
             _handColorRestrictions.Any(item => item.AffectedSeat < 0) ||
             _ruleModifiers.Any(item =>
-                item.AffectedSeat is < 0 ||
+                item.AffectedSeat is < 0 || item.PaidHpLossOrigin is not null && !PaidHpLossProgram.IsValidModifierOrigin(item) ||
                 item.Query == SkillRuleQuery.HandLimit &&
                     (item.Operation != SkillRuleOperation.Add || item.Amount is < -20 or > 20 || item.Amount == 0 || item.CardKinds is { Count: > 0 }) ||
                 item.Query == SkillRuleQuery.OutgoingDistance &&
-                    (item.Operation != SkillRuleOperation.Add || item.Amount is < -20 or > 20 || item.Amount == 0 || item.CardKinds is { Count: > 0 }) ||
+                    (item.Operation != SkillRuleOperation.Add || item.PaidHpLossOrigin is null && item.Amount is < -20 or > 20 || item.Amount == 0 || item.CardKinds is { Count: > 0 }) ||
                 item.Query == SkillRuleQuery.SlashLimit &&
                     (item.Operation != SkillRuleOperation.Add || item.Amount <= 0) ||
                 item.Query == SkillRuleQuery.CardUseDistanceLimit &&

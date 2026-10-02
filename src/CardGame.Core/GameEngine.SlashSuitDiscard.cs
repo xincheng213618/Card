@@ -171,6 +171,7 @@ public sealed partial class GameEngine
     }
 
     private bool IsSlashDodgeCancellationPrevented(CardAttackHandle attack) =>
+        FinalTargetSlashReceipts(attack.ResolutionId, attack.TargetSeat).Any(item => item.PreventCancellation) ||
         HasCurrentCardEnhancement(attack.ResolutionId, CurrentCardEnhancement.Uncancelable) ||
         GetCardAttackState(attack.ResolutionId).JudgmentSuitDodgeRestriction?.TargetSeat == attack.TargetSeat;
 

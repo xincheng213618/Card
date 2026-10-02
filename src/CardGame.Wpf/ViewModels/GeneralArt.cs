@@ -98,6 +98,9 @@ public static class GeneralArt
             // Current ordinary OL editions: docs/content/sources/fenglin-twelfth-2026-10-02.json.
             ["boundary-zhuge-liang"] = "official-boundary-zhuge-liang.png",
             ["boundary-sun-shangxiang"] = "official-boundary-sun-shangxiang.png",
+            // Current ordinary OL editions: docs/content/sources/fenglin-thirteenth-2026-10-02.json.
+            ["boundary-huang-zhong"] = "official-boundary-huang-zhong.png",
+            ["boundary-wei-yan"] = "official-boundary-wei-yan.png",
             ["zhang-chun-hua"] = "official-zhang-chun-hua.png",
             ["ling-tong"] = "official-ling-tong.png",
             ["chen-gong"] = "official-chen-gong.png",

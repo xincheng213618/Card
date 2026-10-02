@@ -1802,6 +1802,7 @@ public sealed partial class GameEngine
         var trigger = ProgramInstructionResolver.Default.FindTrigger(program, candidate.BindingId);
         if (trigger is null || trigger.Window != context.Window || !CanPayProgramMarkerCost(owner, trigger.MarkerCost))
             return false;
+        if (!CanOfferFinalTargetSlash(candidate, trigger, context)) return false;
         if (!IsGainPhaseQualified(trigger, candidate.OwnerSeat, context.MovementBatch?.MovementTiming)) return false;
         var features = ProgramInstructionResolver.Default.Features(trigger);
         if (!CanOfferFinalTargetGift(candidate, context, features)) return false;
@@ -3026,6 +3027,7 @@ public sealed partial class GameEngine
 
     private void ResolveProgramTriggerChoice(PromptChoice selected)
     {
+        if (selected.Parameters.GetValueOrDefault("program-action") == "hp-loss-quantity") { ResolveHpLossQuantity(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "slash-suit-discard") { ResolveProgramSlashSuitDiscardChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "diamond-delayed") { ResolveDiamondDelayedChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "public-suit-discard") { ResolvePublicSuitDiscard(selected); return; }
@@ -3842,6 +3844,7 @@ public sealed partial class GameEngine
                 .GetPausedInstruction(frame.InstructionIndex).Effect;
             selected = paused.Op switch
             {
+                SkillProgramEffectOp.ChooseOwnerHpLoss => SelectAiHpLossQuantity(decision),
                 SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeSuitDiscard => SelectAiSlashSuitDiscard(decision, frame),
                 SkillProgramEffectOp.DiscardDistinctFactionParticipants => SelectAiDistinctFactionDiscard(decision,frame),
                 SkillProgramEffectOp.ResolveDiscardBudgetParticipants or SkillProgramEffectOp.DiscardOutsideRangeAfterInsufficientUses or SkillProgramEffectOp.OfferCompletedFactionCostGift => decision.Choices[0],
@@ -4141,6 +4144,11 @@ public sealed partial class GameEngine
         ProgramSkillWindowContext? windowContext = null)
     {
         var effects = sourceEffects.ToArray();
+        if (HasFinalTargetSlashEffects(effects) && windowContext is { Window: SkillProgramTriggerWindow.CardUseTargetsFinalized, Facts: { } finalFacts, TargetSeat: { } finalSeat })
+            {
+                publicContext = publicContext with { FinalTargetFacts = finalFacts, SelectedTarget = CreateSkillContext(_players[finalSeat]) };
+                publishedTargets = [finalSeat];
+            }
         var selection = effects.FirstOrDefault(effect => effect.Op == SkillProgramEffectOp.SelectTarget);
         var targets = publishedTargets ?? (selection?.TargetKind is { } kind
             ? GetProgramTargetSeats(owner.Seat, kind, windowContext, selection.Marker) : Array.Empty<int>());

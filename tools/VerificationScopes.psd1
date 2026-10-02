@@ -57,7 +57,10 @@
         'Population reorder actual partition and short pile',
         'Population reorder real Ending Extra Scheduled',
         'HP pair freezes after payment children before draw children',
-        'Equipment placement slot self equal boundaries'
+        'Equipment placement slot self equal boundaries',
+        'Final target Slash frozen comparisons actual paid Dodge',
+        'Paid HP loss rescue and gain children',
+        'Paid HP loss source and legacy'
     )
     Wpf = @(
         'original card artwork', 'composed skills', 'conversion choices',

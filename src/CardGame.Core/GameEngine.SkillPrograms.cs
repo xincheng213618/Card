@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -173,6 +173,7 @@ public sealed partial class GameEngine
                         (!features.ProhibitsEquipmentReplacement ||
                          HasFreeEquipmentSlotForOwnedHandEquipment(owner, target)))
                     .Select(target => target.Seat).Order().ToArray();
+                if (features.HasOperation(SkillProgramEffectOp.ChooseOwnerHpLoss) && owner.Hp <= 0) continue;
                 if (features.HasOperation(SkillProgramEffectOp.PlaceSelectedEquipment))
                 {
                     targets = targets.Where(seat => cards.Any(id => CanPlaceActivationEquipment(owner.Seat, seat, id))).ToArray();
@@ -840,6 +841,7 @@ public sealed partial class GameEngine
             else if (frame.SelectedCardPaymentResult is not null)
                 throw new InvalidOperationException("A selected-card movement result has no paid instruction.");
             AssertEquipmentPlacementAndHpPair(frame, plan);
+            AssertPaidHpLossState(frame, plan);
             if (frame.PendingMovementContinuation is { } pendingMovement)
             {
                 var paidEffect = frame.InstructionIndex > 0

@@ -19,6 +19,7 @@ internal static class ProgramCompositionValidator
         IReadOnlyList<CardZoneKind>? activationSourceZones = null, int? activationMinimumCards = null,
         IReadOnlyList<SkillProgramCardCategory>? activationCardCategories = null)
     {
+        PaidHpLossProgram.ValidateComposition(path, effects, window, selectedCardCount, initialSelectedTarget, initialTargetSetMaximum);
         expandedCardDomain |= RequiresExpandedCardDomain(effects);
         var bindings = new Dictionary<string, Binding>(StringComparer.Ordinal);
         var choiceGuardedBindings = new Dictionary<string, SkillProgramCondition>(StringComparer.Ordinal);

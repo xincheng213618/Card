@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Reflection;
 
@@ -24,6 +24,7 @@ public interface ISkillProgramExecutionHost
     SkillProgram GetProgram(string skillId);
     SkillProgramActorState GetActor(int seat);
     bool IsGameOver { get; }
+    bool CanContinuePaidHpLoss(ProgramSkillFrame frame) => false;
     bool OwnsSkillInstance(int ownerSeat, string skillId, string skillInstanceId);
     bool OwnsCards(int ownerSeat, IReadOnlyList<int> cardIds, IReadOnlyList<CardZoneKind> sourceZones);
     bool EvaluateCondition(ProgramSkillFrame frame, SkillProgramCondition condition, PlayerSkillContext context);
@@ -34,6 +35,9 @@ public interface ISkillProgramExecutionHost
 /// <summary>Primitive rules operations exposed to reusable effect handlers.</summary>
 public interface ISkillProgramEffectHost
 {
+    SkillProgramStepOutcome ChooseOwnerHpLoss(ProgramSkillFrame frame, string resultBind) => throw new NotSupportedException();
+    SkillProgramStepOutcome DrawPaidHpLoss(ProgramSkillFrame frame, string sourceBind) => throw new NotSupportedException();
+    void GrantPaidHpLoss(ProgramSkillFrame frame, string sourceBind, bool distance) => throw new NotSupportedException();
     SkillProgramStepOutcome PlaceSelectedEquipment(ProgramSkillFrame frame, int targetSeat, string sourceBind) =>
         throw new NotSupportedException("Equipment placement is not supported by this host.");
     void FreezeSelectedHpPair(ProgramSkillFrame frame) =>
@@ -1391,7 +1395,8 @@ public sealed class SkillProgramExecutor
                 ProgramInstructionResolver.Default.FindActivation(program, frame.ActivationId)?.ContinueAfterOwnerDeath == true ||
                 ProgramInstructionResolver.Default.Find(program, ProgramInstructionSourceKind.Trigger, frame.ActivationId)
                     ?.Features.HasOperation(SkillProgramEffectOp.LoseHpParticipants) == true;
-            if (!state.OwnsSkillInstance(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId) && (actor.IsAlive || !allowsDeadOwner))
+            if (!state.OwnsSkillInstance(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId) && (actor.IsAlive || !allowsDeadOwner) &&
+                !state.CanContinuePaidHpLoss(frame))
             {
                 state.Complete(frame, completed: false, "技能实例在结算前已失效，剩余步骤取消。");
                 return;

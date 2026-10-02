@@ -63,7 +63,7 @@ public sealed partial class GameEngine
         IReadOnlyList<int> targets, CardKind effectiveKind, IReadOnlyList<int> physicalIds,
         CardConversionSource? explicitConversion = null,
         IReadOnlyList<CardConversionSource>? additionalConversions = null,
-        IReadOnlyList<int>? designatedTargetSeats = null)
+        IReadOnlyList<int>? designatedTargetSeats = null, bool isTrueZhangbaSlash = false)
     {
         var costs = physicalIds.Select(id => new CardActionCost(id,
             _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(item => item.Id == id).Kind,
@@ -109,7 +109,11 @@ public sealed partial class GameEngine
             null, null, effectiveKind, targets, costs, conversionChain,
             (designatedTargetSeats ?? targets ),
             effectiveSuit: trackAppearance ? CaptureUsedCardSuit(actorSeat, physicalIds, card) : null,
-            effectiveRank: trackAppearance && physicalIds.Count == 1 && card.Rank > 0 ? card.Rank : null, effectiveIsRed: CaptureActionColor(costs,trackAppearance ? CaptureUsedCardSuit(actorSeat,physicalIds,card) : null)));
+            effectiveRank: HasRankSlashRange(_players[actorSeat], effectiveKind)
+                ? physicalIds.Count == 1 && card.Rank > 0 ? card.Rank
+                    : isTrueZhangbaSlash && physicalIds.Count == 2 && conversionChain.Count == 0
+                        ? ZhangbaSpecificSlashRank(_players[actorSeat], physicalIds.Select(id => GetAttackCard(id)).ToArray(), _players[provider]) : null
+                : trackAppearance && physicalIds.Count == 1 && card.Rank > 0 ? card.Rank : null, effectiveIsRed: CaptureActionColor(costs,trackAppearance ? CaptureUsedCardSuit(actorSeat,physicalIds,card) : null)));
     }
 
     private bool TryBeginCardResponsePrograms(CardAttackHandle attack, CharacterState actor,
@@ -307,7 +311,9 @@ public sealed partial class GameEngine
             };
             if (!matches) continue;
             if (relation == SkillProgramCardActionOwnerRelation.ConversionSource && targets.Count == 0 && !trigger.AllowNoEventTarget) continue;
-            var eventTargetsForBinding = relation == SkillProgramCardActionOwnerRelation.ConversionSource && targets.Count > 0 && !trigger.SingleActionInstance
+            var eventTargetsForBinding = window == SkillProgramTriggerWindow.CardUseTargetsFinalized && HasFinalTargetSlashEffects(trigger.Effects)
+                ? targets.Where(seat => _players[seat].IsAlive).Order().ToArray()
+                : relation == SkillProgramCardActionOwnerRelation.ConversionSource && targets.Count > 0 && !trigger.SingleActionInstance
                 ? targets.Where(seat => _players[seat].IsAlive).Order().ToArray()
                 : [relation == SkillProgramCardActionOwnerRelation.Target
                     ? owner.Seat : targets.Count == 1 ? targets.Single() : -1];
@@ -327,6 +333,8 @@ public sealed partial class GameEngine
                         ? action.EffectiveSuit : capturedFacts.CardActionSuit,
                     CardUseCausedDamage = cardUseCausedDamage,
                     EventTargetHandCount = eventTarget >= 0 ? GetHand(_players[eventTarget]).Count : 0,
+                    EventTargetHp = window == SkillProgramTriggerWindow.CardUseTargetsFinalized && HasFinalTargetSlashEffects(trigger.Effects) && eventTarget >= 0
+                        ? _players[eventTarget].Hp : capturedFacts.EventTargetHp,
                     CurrentAttackRange = GetAttackRange(owner.Seat),
                     OwnerEventTargetDistance = eventTarget >= 0
                         ? GetCombatDistance(owner.Seat, eventTarget)

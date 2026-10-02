@@ -158,6 +158,10 @@ public sealed record ProgramSkillFrame(
     public ProgramSelectedCardPaymentResult? SelectedCardPaymentResult { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramHpPairSnapshot? HpPairSnapshot { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramHpLossQuantity? HpLossQuantity { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramPaidHpLossReceipt? PaidHpLossReceipt { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ProgramPhaseGiftReceipt? PhaseGiftReceipt { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -370,6 +374,8 @@ public sealed record CardUseFrame(
     public bool UnlimitedUse { get; init; }
     public bool YingboUnrespondable { get; init; }
     public bool YingboRepeated { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ProgramTargetSlashReceipt>? FinalTargetSlashReceipts { get; init; }
     public int? ProgramAdjustedSlashBaseDamage { get; init; }
     public int? ForeignPublicPileSlashBaseDamage { get; init; }
     public ProgramSimpleCardContinuation? AdjustedSimpleContinuation { get; init; }

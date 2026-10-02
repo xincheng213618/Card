@@ -33,7 +33,7 @@ internal sealed record ProgramAiPublicContext(
     int? LivingPlayersMinHp = null,
     int? TurnOwnerDiscardPhaseHandDiscardCount = null,
     IReadOnlyDictionary<PlayerMarkerKind,int>? AttributedMarkerPaymentCounts = null,
-    int? TurnCriterionQuota = null);
+    int? TurnCriterionQuota = null, SkillProgramTriggerFacts? FinalTargetFacts = null);
 
 /// <summary>
 /// Pure, public-state estimate for schema-23 program compositions. Unknown cards use a
@@ -590,7 +590,21 @@ internal sealed class ProgramAiEstimateContext
     internal void StartPindian(SkillProgramEffect effect) =>
         _otherAdjustment += 2d; // Public-only neutral contest prior; no hand cards are inspected.
 
+    internal void PaidHpLossEstimate(int stage)
+    {
+        var n = Math.Min(2, Math.Max(1, _player.Hp - 1));
+        if (stage == 0) { _ownerHpLoss += n; _estimatedHp -= n; }
+        else if (stage == 1) _ownerDraw += n;
+        else _otherAdjustment += n * (stage == 2 ? 6d : 12d);
+    }
     internal void PublicControlValue(double value) => _otherAdjustment += value;
+    internal void FinalTargetSlashValue(SkillProgramEffect effect)
+    {
+        if (_publicContext.FinalTargetFacts is not { } facts || effect.FinalTargetComparison is not { } comparison) return;
+        var matches = comparison == ProgramFinalTargetComparison.TargetHandAtMostActor
+            ? facts.EventTargetHandCount <= facts.CurrentHandCount : facts.EventTargetHp >= facts.CurrentHp;
+        if (matches) _targetAdjustment -= effect.Op == SkillProgramEffectOp.PreventCurrentTargetSlashCancellation ? 20d : effect.Amount * 20d;
+    }
     internal void SetBooleanState(SkillProgramEffect effect) { }
     internal void ToggleBooleanState(SkillProgramEffect effect) { }
     internal void GrantDirectedTurnCardPolicy(SkillProgramEffect effect) => _otherAdjustment += 8d;

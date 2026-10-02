@@ -20,8 +20,9 @@ public sealed partial class GameEngine
     private bool HasTurnRedSlashPolicyForColor(int actor,CardKind kind,bool? color)=>IsSlashCard(kind)&&color==true&&_turnCardUseEffects.HasRedSlashPolicy(_turnNumber,_currentSeat,actor);
     private bool? PhysicalGroupColor(CharacterState owner,IReadOnlyList<Card> cards)
     { var colors=cards.Select(c=>SuitColor(EffectiveSuit(owner,c))).Distinct().ToArray();return colors.Length==1?colors[0]:null; }
-    private bool IsRedSlashProviderPaymentLegal(FactionCardRequestHandle pending,CardKind kind,IReadOnlyList<Card> cards)
+    private bool IsRedSlashProviderPaymentLegal(FactionCardRequestHandle pending,CardKind kind,IReadOnlyList<Card> cards,bool isTrueZhangba = false)
     {
+        if (IsFactionSlashUse(pending) && HasRankSlashRange(_players[pending.OwnerSeat],kind)) return IsSpecificRankProviderPaymentLegal(pending,kind,cards,isTrueZhangba);
         if(!IsFactionSlashUse(pending) || pending.IsAssistedProgramUse || pending.TargetSeat is not {} target || (!_turnCardUseEffects.HasRedSlashPolicy(_turnNumber,_currentSeat,pending.OwnerSeat) && !HasSlashUseDistanceBySuit(_players[pending.OwnerSeat],kind,Suit.Diamond)))return true;
         var actor=_players[pending.OwnerSeat];var color=PhysicalGroupColor(actor,cards);var suit=HasSlashUseDistanceBySuit(actor,kind,Suit.Diamond) ? PhysicalGroupSuit(actor,cards) : null;
         if(pending.IsBorrowedSwordUse)return IsLegalBorrowedSwordSlashTarget(actor,_players[target],kind,physicalSuit:suit,allowAnyPhysicalSuit:false,effectiveColor:color);

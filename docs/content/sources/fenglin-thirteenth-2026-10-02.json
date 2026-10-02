@@ -1,0 +1,893 @@
+{
+  "status": "Accepted Core Full and verified frozen current WPF Full; scoped main content unchanged; measured routine under ongoing unowned UI edits",
+  "officialEdition": "current ordinary Sanguosha OL",
+  "baselineHead": "a0f0003ffbbdff2e1e2ef943723e816bc5a408b6",
+  "baselineManifestSha256": "b3f3f365194168d6ddb3f2f8fabebbf54fd8c173753e0532474a53f07cdcbe8c",
+  "contractSha256": "aba7606e908d43e2c4571e3098b688489c902b3a5a671e4d4fe57adc2aaf3522",
+  "sourcePreflightManifestSha256": "63858a1298bec2a25c7988b498b75153000f433515929b412b3005518852c404",
+  "artManifestSha256": "809454a492f520e554135867f6e1ea8089453350245544508cba56d85d1a57ce",
+  "httpResponses": [
+    {
+      "key": "index",
+      "url": "https://www.sanguosha.com/hero",
+      "startedUtc": "2026-10-02T12:42:19.873450+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/hero",
+      "retrievedUtc": "2026-10-02T12:42:20.070693+00:00",
+      "path": "raw/index.html",
+      "sha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "bytes": 1319990
+    },
+    {
+      "key": "302",
+      "url": "https://www.sanguosha.com/hero/302",
+      "startedUtc": "2026-10-02T12:42:20.074435+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/hero/302",
+      "retrievedUtc": "2026-10-02T12:42:20.203919+00:00",
+      "path": "raw/302.html",
+      "sha256": "2a4482820ad39eff98e83f709a5b7455c0133ff6913534b244a5728c1db48d85",
+      "bytes": 27334
+    },
+    {
+      "key": "302-api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=302",
+      "startedUtc": "2026-10-02T12:42:20.217514+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=302",
+      "retrievedUtc": "2026-10-02T12:42:20.339418+00:00",
+      "path": "raw/302-api.json",
+      "sha256": "11ae290588fd3bafcd8ed77a0bc6efffa64b1ef6d6546e6dd0b4af6bfbdf4484",
+      "bytes": 834
+    },
+    {
+      "key": "26",
+      "url": "https://www.sanguosha.com/hero/26",
+      "startedUtc": "2026-10-02T12:42:20.341168+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/hero/26",
+      "retrievedUtc": "2026-10-02T12:42:20.494295+00:00",
+      "path": "raw/26.html",
+      "sha256": "bd42c15ad7fc130933d1981f8e3df0d4fc19db2bf72428e94129ee06754d9044",
+      "bytes": 27300
+    },
+    {
+      "key": "26-api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=26",
+      "startedUtc": "2026-10-02T12:42:20.499153+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=26",
+      "retrievedUtc": "2026-10-02T12:42:20.635177+00:00",
+      "path": "raw/26-api.json",
+      "sha256": "e1c0277a53baa591eb5306fabb45c442b7832c5292a5e27386ae32a8587350a7",
+      "bytes": 944
+    },
+    {
+      "key": "456",
+      "url": "https://www.sanguosha.com/hero/456",
+      "startedUtc": "2026-10-02T12:42:20.636732+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/hero/456",
+      "retrievedUtc": "2026-10-02T12:42:20.750312+00:00",
+      "path": "raw/456.html",
+      "sha256": "e116cb95ad6e2585636d958908355a8643baef0370706303853f1b1a87479780",
+      "bytes": 25021
+    },
+    {
+      "key": "456-api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=456",
+      "startedUtc": "2026-10-02T12:42:20.755226+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=456",
+      "retrievedUtc": "2026-10-02T12:42:20.898297+00:00",
+      "path": "raw/456-api.json",
+      "sha256": "63f7eace0cb50a93df2834cda61fc6167c4d5ae610659e7abd0198e782af4662",
+      "bytes": 854
+    }
+  ],
+  "roster": [
+    {
+      "officialId": 26,
+      "name": "界黄忠",
+      "indexGroup": "界限突破",
+      "indexFields": {
+        "gid": 26,
+        "name": "界黄忠",
+        "resource": "2600",
+        "extend": "界限突破",
+        "hp": 4,
+        "initial_hp": 0,
+        "quality": "史诗",
+        "figure": "蜀",
+        "figure_py": "shu",
+        "biography": "字汉升，今河南南阳人。汉末三国时期蜀汉名将。本为刘表部下中郎将，后归刘备，并助刘备攻益州刘璋，在定军山一战中阵斩曹操部下名将夏侯渊。备称汉中王后改封后将军，赐关内侯。",
+        "characteristic": "能够让【杀】变得更强大。攻击范围很广，需要较多的【杀】。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/26.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/2600.png",
+        "realname": "界黄忠 (界限突破)"
+      },
+      "indexSourceSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "htmlSourceSha256": "bd42c15ad7fc130933d1981f8e3df0d4fc19db2bf72428e94129ee06754d9044",
+      "skills": [
+        {
+          "name": "烈弓",
+          "text": "你【杀】的攻击范围为此【杀】点数。当你使用【杀】指定目标后，你可以执行以下效果：1.若其手牌数不大于你，其不能抵消此【杀】；2.若其体力值不小于你，此【杀】伤害值+1。",
+          "html": "<span class=\"on\">你【杀】的攻击范围为此【杀】点数。当你使用【杀】指定目标后，你可以执行以下效果：1.若其手牌数不大于你，其不能抵消此【杀】；2.若其体力值不小于你，此【杀】伤害值+1。</span>",
+          "htmlSourceLine": 276,
+          "references": []
+        }
+      ],
+      "apiRouteProof": {
+        "literal": "/api/v1/hero/info?gid=",
+        "htmlLine": 496,
+        "sourceExcerpt": "&& match[1]) {\n            gid = match[1];\n        }\n    }\n\n    if (gid) {\n        fetch('/api/v1/hero/info?gid=' + gid)\n            .then(function(response) {\n                retu"
+      },
+      "apiResponse": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 26,
+              "name": "界黄忠",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/26.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/2600.png",
+              "label": [
+                "进攻",
+                "简单",
+                "强命"
+              ],
+              "figure": "蜀",
+              "figure_py": "shu",
+              "quality": "史诗",
+              "biography": "字汉升，今河南南阳人。汉末三国时期蜀汉名将。本为刘表部下中郎将，后归刘备，并助刘备攻益州刘璋，在定军山一战中阵斩曹操部下名将夏侯渊。备称汉中王后改封后将军，赐关内侯。",
+              "characteristic": "能够让【杀】变得更强大。攻击范围很广，需要较多的【杀】。",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "排位先手",
+              "value": 5
+            },
+            {
+              "name": "排位后手",
+              "value": 5
+            },
+            {
+              "name": "地主",
+              "value": 5
+            },
+            {
+              "name": "农民",
+              "value": 6
+            },
+            {
+              "name": "反贼",
+              "value": 6
+            }
+          ],
+          "deeds": []
+        }
+      },
+      "apiSourceSha256": "e1c0277a53baa591eb5306fabb45c442b7832c5292a5e27386ae32a8587350a7",
+      "structuredOfficialGender": null,
+      "apiInfo": {
+        "gid": 26,
+        "name": "界黄忠",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/26.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/2600.png",
+        "label": [
+          "进攻",
+          "简单",
+          "强命"
+        ],
+        "figure": "蜀",
+        "figure_py": "shu",
+        "quality": "史诗",
+        "biography": "字汉升，今河南南阳人。汉末三国时期蜀汉名将。本为刘表部下中郎将，后归刘备，并助刘备攻益州刘璋，在定军山一战中阵斩曹操部下名将夏侯渊。备称汉中王后改封后将军，赐关内侯。",
+        "characteristic": "能够让【杀】变得更强大。攻击范围很广，需要较多的【杀】。",
+        "hp": 4,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "structuredComparison": {
+        "indexApiIdNameHpFactionAgree": true,
+        "indexResource": "2600",
+        "apiCoverResourceKey": "2600",
+        "officialGenderFieldsAbsent": [
+          "gender",
+          "sex"
+        ],
+        "initialHpRaw": 0,
+        "note": "initial_hp=0 preserved literally; not converted to gameplay initial HP."
+      },
+      "currentBodySourceComplete": true,
+      "referencedFullTextMissing": []
+    },
+    {
+      "officialId": 456,
+      "name": "界魏延",
+      "indexGroup": "界限突破",
+      "indexFields": {
+        "gid": 456,
+        "name": "界魏延",
+        "resource": "45600",
+        "extend": "界限突破",
+        "hp": 4,
+        "initial_hp": 0,
+        "quality": "史诗",
+        "figure": "蜀",
+        "figure_py": "shu",
+        "biography": "字文长，义阳人。三国时期蜀汉名将，诸葛亮死后，魏延因被陷害谋反而遭杨仪一党所杀。",
+        "characteristic": "造成伤害可以吸血，擅长与近距离敌人战斗。需要坐骑牌提供距离，个人能力强，爆发力尤其出众。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/456.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45600.png",
+        "realname": "界魏延 (界限突破)"
+      },
+      "indexSourceSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "htmlSourceSha256": "e116cb95ad6e2585636d958908355a8643baef0370706303853f1b1a87479780",
+      "skills": [
+        {
+          "name": "狂骨",
+          "text": "当你对距离1以内的一名角色造成1点伤害后，你可以回复1点体力或摸一张牌。",
+          "html": "<span class=\"on\">当你对距离1以内的一名角色造成1点伤害后，你可以回复1点体力或摸一张牌。</span>",
+          "htmlSourceLine": 278,
+          "references": []
+        },
+        {
+          "name": "奇谋",
+          "text": "限定技，出牌阶段，你可以失去任意点体力并摸X张牌（X为你以此法失去的体力值），然后你本回合计算与其他角色的距离-X且使用【杀】的限制次数+X。",
+          "html": "<span>限定技，出牌阶段，你可以失去任意点体力并摸X张牌（X为你以此法失去的体力值），然后你本回合计算与其他角色的距离-X且使用【杀】的限制次数+X。</span>",
+          "htmlSourceLine": 280,
+          "references": []
+        }
+      ],
+      "apiRouteProof": {
+        "literal": "/api/v1/hero/info?gid=",
+        "htmlLine": 476,
+        "sourceExcerpt": "&& match[1]) {\n            gid = match[1];\n        }\n    }\n\n    if (gid) {\n        fetch('/api/v1/hero/info?gid=' + gid)\n            .then(function(response) {\n                retu"
+      },
+      "apiResponse": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 456,
+              "name": "界魏延",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/456.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45600.png",
+              "label": [
+                "进攻",
+                "控制",
+                "回复"
+              ],
+              "figure": "蜀",
+              "figure_py": "shu",
+              "quality": "史诗",
+              "biography": "字文长，义阳人。三国时期蜀汉名将，诸葛亮死后，魏延因被陷害谋反而遭杨仪一党所杀。",
+              "characteristic": "造成伤害可以吸血，擅长与近距离敌人战斗。需要坐骑牌提供距离，个人能力强，爆发力尤其出众。",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "地主",
+              "value": 8
+            },
+            {
+              "name": "农民",
+              "value": 6
+            },
+            {
+              "name": "主公",
+              "value": 6
+            },
+            {
+              "name": "忠臣",
+              "value": 6
+            },
+            {
+              "name": "反贼",
+              "value": 7
+            }
+          ],
+          "deeds": []
+        }
+      },
+      "apiSourceSha256": "63f7eace0cb50a93df2834cda61fc6167c4d5ae610659e7abd0198e782af4662",
+      "structuredOfficialGender": null,
+      "apiInfo": {
+        "gid": 456,
+        "name": "界魏延",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/456.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45600.png",
+        "label": [
+          "进攻",
+          "控制",
+          "回复"
+        ],
+        "figure": "蜀",
+        "figure_py": "shu",
+        "quality": "史诗",
+        "biography": "字文长，义阳人。三国时期蜀汉名将，诸葛亮死后，魏延因被陷害谋反而遭杨仪一党所杀。",
+        "characteristic": "造成伤害可以吸血，擅长与近距离敌人战斗。需要坐骑牌提供距离，个人能力强，爆发力尤其出众。",
+        "hp": 4,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "structuredComparison": {
+        "indexApiIdNameHpFactionAgree": true,
+        "indexResource": "45600",
+        "apiCoverResourceKey": "45600",
+        "officialGenderFieldsAbsent": [
+          "gender",
+          "sex"
+        ],
+        "initialHpRaw": 0,
+        "note": "initial_hp=0 preserved literally; not converted to gameplay initial HP."
+      },
+      "currentBodySourceComplete": true,
+      "referencedFullTextMissing": []
+    }
+  ],
+  "artwork": [
+    {
+      "gid": 26,
+      "resourceKey": "2600",
+      "path": "raw/26-original.png",
+      "sha256": "991f90ef0f1623f4a8aad7b3ce9ca7f7d7ccdbc5f8893155a3e57d70c3edce51",
+      "dimensions": [
+        750,
+        950
+      ],
+      "sourcePageSha256": "bd42c15ad7fc130933d1981f8e3df0d4fc19db2bf72428e94129ee06754d9044",
+      "sourceApiSha256": "e1c0277a53baa591eb5306fabb45c442b7832c5292a5e27386ae32a8587350a7",
+      "requestUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/2600.png",
+      "startedUtc": "2026-10-02T13:25:05.036468+00:00",
+      "status": 200,
+      "rawPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThirteenth-20261002\\art-source-01\\raw\\26-original.png"
+    },
+    {
+      "gid": 456,
+      "resourceKey": "45600",
+      "path": "raw/456-original.png",
+      "sha256": "de492bde9d09fdbd8642eb780914522ad1b1327426061bbba36abbd4e31264f3",
+      "dimensions": [
+        750,
+        950
+      ],
+      "sourcePageSha256": "e116cb95ad6e2585636d958908355a8643baef0370706303853f1b1a87479780",
+      "sourceApiSha256": "63f7eace0cb50a93df2834cda61fc6167c4d5ae610659e7abd0198e782af4662",
+      "requestUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45600.png",
+      "startedUtc": "2026-10-02T13:25:05.201604+00:00",
+      "status": 200,
+      "rawPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThirteenth-20261002\\art-source-01\\raw\\456-original.png"
+    }
+  ],
+  "designEvidence": [
+    {
+      "directory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinTwelfth-20261002\\next-huang-zhong-design-01",
+      "manifestSha256": "48102fada4b1266eb523573643b0556d889f4574089cd1a23f6897279d84f252",
+      "reportSha256": "e0aabcb23db4f0a16011c0674306f4c8604a430efab9f8a722b03957f8fab8db",
+      "designOnly": true,
+      "codeInputs": [
+        {
+          "path": "src/CardGame.Core/GameEngine.cs",
+          "oldDesignSha256": "9fec503041d12c0ae653c74d8c316d6531c23f679f5af5e46a2352bea1fc85a1",
+          "acceptedMainSha256": "746eeae5efa2450112a65864211e3aa7f6a5b59a100cc724cf72eed2d4d8e50e",
+          "changedSinceDesign": true,
+          "diffEvidencePath": "design-rebase-01\\next-huang-zhong-design-01\\src\\CardGame.Core\\GameEngine.cs.diff",
+          "diffSha256": "966920d4fe8d86f2a06001f656746c89fa6da533f3b94159a036b2e374d4a966"
+        },
+        {
+          "path": "src/CardGame.Core/Resolution.cs",
+          "oldDesignSha256": "35d2eeaba9a19345b3dc0e9aeb878d1b689b1ecac6b028cd8b803027379fe479",
+          "acceptedMainSha256": "3cf1084663dfda618454e3c0da02a1b463656af6cc7895fe0804ab67bb947a4e",
+          "changedSinceDesign": true,
+          "diffEvidencePath": "design-rebase-01\\next-huang-zhong-design-01\\src\\CardGame.Core\\Resolution.cs.diff",
+          "diffSha256": "18e5f387ab7f80d8bfd679b5481f5afa84fdc9694c95c41cec35404448440af1"
+        },
+        {
+          "path": "src/CardGame.Core/CardActions.cs",
+          "oldDesignSha256": "c2306c7e65233e51a93706019b20f035f361b75e783eeec63203f4ed27b886cb",
+          "acceptedMainSha256": "c2306c7e65233e51a93706019b20f035f361b75e783eeec63203f4ed27b886cb",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/SkillPrograms.cs",
+          "oldDesignSha256": "7a578c5f8f18118a47a094d9724ed23ffb48b8f8d2547d2dffabef2aabaf7af0",
+          "acceptedMainSha256": "fbad1336b6906c5ab81b0f2132625997e04f1aba2b99165125c918b4912624be",
+          "changedSinceDesign": true,
+          "diffEvidencePath": "design-rebase-01\\next-huang-zhong-design-01\\src\\CardGame.Core\\SkillPrograms.cs.diff",
+          "diffSha256": "42550739a6ea74ad4bea29be02b4267ca84c6d9a91d5e1ca60b78f3c5a3d223a"
+        },
+        {
+          "path": "src/CardGame.Core/ProgramCompositionAi.cs",
+          "oldDesignSha256": "f820d70d242e25328d28501b069df25cbbffd8a2c1e0c44f07572d340cae9339",
+          "acceptedMainSha256": "b458c5d5d02ea194922cb7dee5ed034c1e572c52035e44cab430a831391bea71",
+          "changedSinceDesign": true,
+          "diffEvidencePath": "design-rebase-01\\next-huang-zhong-design-01\\src\\CardGame.Core\\ProgramCompositionAi.cs.diff",
+          "diffSha256": "4ac5425f1fa3f2b66b651c213985d48434056e8c514394a0320fa92f4dbc79fd"
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.CardActions.cs",
+          "oldDesignSha256": "33592751021b274ef9a4a032c9a92d0cdb71d11518dcd76ca559ca1ed3f33ceb",
+          "acceptedMainSha256": "33592751021b274ef9a4a032c9a92d0cdb71d11518dcd76ca559ca1ed3f33ceb",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.ProgramAttackEffects.cs",
+          "oldDesignSha256": "391677300fccaf933179e4bee8382d3c9af7f2bab3693ec0ec2fd07cd79cc763",
+          "acceptedMainSha256": "391677300fccaf933179e4bee8382d3c9af7f2bab3693ec0ec2fd07cd79cc763",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.CardAttackState.cs",
+          "oldDesignSha256": "a307882068b12901988027c0722346123ea2fd77228f8a050341570b369de2eb",
+          "acceptedMainSha256": "a307882068b12901988027c0722346123ea2fd77228f8a050341570b369de2eb",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.CurrentCardEnhancements.cs",
+          "oldDesignSha256": "c9dd28442714725d2575b32f67683f73ec2fc70d5f3512380e1aa54497edddf5",
+          "acceptedMainSha256": "c9dd28442714725d2575b32f67683f73ec2fc70d5f3512380e1aa54497edddf5",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.SlashSuitDiscard.cs",
+          "oldDesignSha256": "99845044c1389f326f3df8059add998920ae9c53b9c9e6410961fd764f8d93df",
+          "acceptedMainSha256": "99845044c1389f326f3df8059add998920ae9c53b9c9e6410961fd764f8d93df",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/ProgramSlashSuitDiscard.cs",
+          "oldDesignSha256": "ec8454782be8fcf5ad541076548cfdef50607763432b96d6dafd15a9f5559639",
+          "acceptedMainSha256": "ec8454782be8fcf5ad541076548cfdef50607763432b96d6dafd15a9f5559639",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.ProgramCardUseRoles.cs",
+          "oldDesignSha256": "c78255a4a3827ff545f3d137e0e7ea52574da1aa5ab91bbc63a40a4b3247e8c0",
+          "acceptedMainSha256": "c78255a4a3827ff545f3d137e0e7ea52574da1aa5ab91bbc63a40a4b3247e8c0",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.ProgramVirtualSlashOffers.cs",
+          "oldDesignSha256": "cec21c9e66033618420f101c6e80fc8826e0f54bca2a8e27b15642819e229f23",
+          "acceptedMainSha256": "cec21c9e66033618420f101c6e80fc8826e0f54bca2a8e27b15642819e229f23",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.ForeignPublicPileSlashes.cs",
+          "oldDesignSha256": "58ead2db7975d964f0bd7e065facf118b718f573302426e190477fed2eea0555",
+          "acceptedMainSha256": "58ead2db7975d964f0bd7e065facf118b718f573302426e190477fed2eea0555",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.AdvancedLifecycle.cs",
+          "oldDesignSha256": "b99c7d7538ba6da18092a8cf1f9f79da8bd35cf2765ac815a494ffecec956bda",
+          "acceptedMainSha256": "b99c7d7538ba6da18092a8cf1f9f79da8bd35cf2765ac815a494ffecec956bda",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.RuleQueries.cs",
+          "oldDesignSha256": "552dfbd0a53990f1f1ec96a1d66b731fc1779eacc138ff0dc5a89c8e661bd180",
+          "acceptedMainSha256": "552dfbd0a53990f1f1ec96a1d66b731fc1779eacc138ff0dc5a89c8e661bd180",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.ProgramDodgeResponses.cs",
+          "oldDesignSha256": "9e18af79ff8b7f8cfce93d5617b7554ff494c10cdbc3741439ac3adf4f1f0bf3",
+          "acceptedMainSha256": "9e18af79ff8b7f8cfce93d5617b7554ff494c10cdbc3741439ac3adf4f1f0bf3",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.DirectedCardPolicyQueries.cs",
+          "oldDesignSha256": "5ee4e9927415a28a6adfc79957cfa2705ea6df31de7109d39bb9612866c11522",
+          "acceptedMainSha256": "5ee4e9927415a28a6adfc79957cfa2705ea6df31de7109d39bb9612866c11522",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/ProgramAttackOperationDefinitions.cs",
+          "oldDesignSha256": "2e9e9297115fd9421c9fee0e46cf6ad0d26ba7127515c73827d0f7e1f7668304",
+          "acceptedMainSha256": "2e9e9297115fd9421c9fee0e46cf6ad0d26ba7127515c73827d0f7e1f7668304",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+          "oldDesignSha256": "fcbe416856da768e05e3a0df0830db14398ec4c58e86c69a5e31f2c0de5f6cd0",
+          "acceptedMainSha256": "2518f16406b53082d5f88c048dacd641956629ab41071386d700a0e1aab7116b",
+          "changedSinceDesign": true,
+          "diffEvidencePath": "design-rebase-01\\next-huang-zhong-design-01\\src\\CardGame.Core\\GameEngine.ProgramLifecycle.cs.diff",
+          "diffSha256": "9e6568f6d84bb8d4b074c6418adc938920abf7555720d8a62ec95706a2c02758"
+        },
+        {
+          "path": "src/CardGame.Content.Standard/SkillPrograms/passive-response-rules.rules.json",
+          "oldDesignSha256": "763fcd5f78e92411a8ca8c71d53838cbbd77090728bff86aea3b5957d421ae2f",
+          "acceptedMainSha256": "763fcd5f78e92411a8ca8c71d53838cbbd77090728bff86aea3b5957d421ae2f",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Content.Standard/SkillPrograms/passive-response-rules.presentation.json",
+          "oldDesignSha256": "1f11b6ea7b4c0776156d8a40fc407c637d7f202b7c3af3a722f88081250a4509",
+          "acceptedMainSha256": "1f11b6ea7b4c0776156d8a40fc407c637d7f202b7c3af3a722f88081250a4509",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "oldDesignSha256": "b29594b0404c1e4a96b2929a28f11cb285f8175f00e4142c8d65750349a9e324",
+          "acceptedMainSha256": "480feb0dea08fde34a9ca3cefb0591489d18f9ce14ee12cd3c512e3ce462f339",
+          "changedSinceDesign": true,
+          "diffEvidencePath": "design-rebase-01\\next-huang-zhong-design-01\\src\\CardGame.Content.Standard\\StandardClassicGeneralPackage.cs.diff",
+          "diffSha256": "9b789925f9bcae230df1644404764fd5882e4358956cc25a378a1511752b0ce7"
+        }
+      ],
+      "requiresWorkerRebaseReview": true
+    },
+    {
+      "directory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinTwelfth-20261002\\next-wei-yan-design-01",
+      "manifestSha256": "7c068255f262981bb21fa3f5ce0fbbfd9cda2882148e1237e20291810af7a30f",
+      "reportSha256": "85bf8d71f30954ac48a3d60fab605c4eedf6d9edf6f885b4510b86ccbd3de6d9",
+      "designOnly": true,
+      "codeInputs": [
+        {
+          "path": "src/CardGame.Core/GameEngine.cs",
+          "oldDesignSha256": "9fec503041d12c0ae653c74d8c316d6531c23f679f5af5e46a2352bea1fc85a1",
+          "acceptedMainSha256": "746eeae5efa2450112a65864211e3aa7f6a5b59a100cc724cf72eed2d4d8e50e",
+          "changedSinceDesign": true,
+          "diffEvidencePath": "design-rebase-01\\next-wei-yan-design-01\\src\\CardGame.Core\\GameEngine.cs.diff",
+          "diffSha256": "966920d4fe8d86f2a06001f656746c89fa6da533f3b94159a036b2e374d4a966"
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.SkillPrograms.cs",
+          "oldDesignSha256": "fd6bdc71af53bc5ce14e383373538c31ab208df4d92388afca3441b60f819d54",
+          "acceptedMainSha256": "681b422bf2cfb286b74be4f31c0ada153474dd945b321f8ed4bbbf948771f1a5",
+          "changedSinceDesign": true,
+          "diffEvidencePath": "design-rebase-01\\next-wei-yan-design-01\\src\\CardGame.Core\\GameEngine.SkillPrograms.cs.diff",
+          "diffSha256": "d102da1da1f3f3e0304bb9383f9d988a33ee63a5713b1056b38511c6747e8c1b"
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.SkillProgramHost.cs",
+          "oldDesignSha256": "37bd229a1864c6abebd9f2a28549e36ddc3bb9646340e015e8c96548e9d4e361",
+          "acceptedMainSha256": "37bd229a1864c6abebd9f2a28549e36ddc3bb9646340e015e8c96548e9d4e361",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/SkillProgramExecutor.cs",
+          "oldDesignSha256": "3fb40c46282489150559b9a0629fd48891d963a53426a72af6d579882bccd77a",
+          "acceptedMainSha256": "21a101420d6e8e99d3b345145db76db4200c8765325959596a8a84fd86bc6854",
+          "changedSinceDesign": true,
+          "diffEvidencePath": "design-rebase-01\\next-wei-yan-design-01\\src\\CardGame.Core\\SkillProgramExecutor.cs.diff",
+          "diffSha256": "46ac7e5f67609504da38edc971fce9d910cbe9ec39c15187f5e5ee691dbe8b46"
+        },
+        {
+          "path": "src/CardGame.Core/Resolution.cs",
+          "oldDesignSha256": "35d2eeaba9a19345b3dc0e9aeb878d1b689b1ecac6b028cd8b803027379fe479",
+          "acceptedMainSha256": "3cf1084663dfda618454e3c0da02a1b463656af6cc7895fe0804ab67bb947a4e",
+          "changedSinceDesign": true,
+          "diffEvidencePath": "design-rebase-01\\next-wei-yan-design-01\\src\\CardGame.Core\\Resolution.cs.diff",
+          "diffSha256": "18e5f387ab7f80d8bfd679b5481f5afa84fdc9694c95c41cec35404448440af1"
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.HpChangePrograms.cs",
+          "oldDesignSha256": "f51910b6a9fc9f75acfe04bf5bc080ffbe891cbb5ef76d3a556c6637cbb0a008",
+          "acceptedMainSha256": "f51910b6a9fc9f75acfe04bf5bc080ffbe891cbb5ef76d3a556c6637cbb0a008",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/HpChangePrograms.cs",
+          "oldDesignSha256": "48566c0c48d05fd2e5c68bc6e433e2f7e93e10c8a63c9aa96d40ff2fcaad7375",
+          "acceptedMainSha256": "48566c0c48d05fd2e5c68bc6e433e2f7e93e10c8a63c9aa96d40ff2fcaad7375",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/SkillPrograms.cs",
+          "oldDesignSha256": "7a578c5f8f18118a47a094d9724ed23ffb48b8f8d2547d2dffabef2aabaf7af0",
+          "acceptedMainSha256": "fbad1336b6906c5ab81b0f2132625997e04f1aba2b99165125c918b4912624be",
+          "changedSinceDesign": true,
+          "diffEvidencePath": "design-rebase-01\\next-wei-yan-design-01\\src\\CardGame.Core\\SkillPrograms.cs.diff",
+          "diffSha256": "42550739a6ea74ad4bea29be02b4267ca84c6d9a91d5e1ca60b78f3c5a3d223a"
+        },
+        {
+          "path": "src/CardGame.Core/ProgramOperationDefinitions.cs",
+          "oldDesignSha256": "aa6f069c8e1cbd71a21797123495f40091e2bee4846085f552461ed13f5347be",
+          "acceptedMainSha256": "e2b0fc73b642fe2bb414515620d4f89894fbbc28ab4eb1f8df6814c19860e898",
+          "changedSinceDesign": true,
+          "diffEvidencePath": "design-rebase-01\\next-wei-yan-design-01\\src\\CardGame.Core\\ProgramOperationDefinitions.cs.diff",
+          "diffSha256": "d0097e3a0ff71de39d23c2e9da9a94382677547b083165d1d38f023ec35ab474"
+        },
+        {
+          "path": "src/CardGame.Core/ProgramTypedInstructions.cs",
+          "oldDesignSha256": "a3de9991c3c7d72401b66c99561d216d38ea56d0ac82a6b4e0427f5286b30e28",
+          "acceptedMainSha256": "a3de9991c3c7d72401b66c99561d216d38ea56d0ac82a6b4e0427f5286b30e28",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.ParticipantAndReservePrograms.cs",
+          "oldDesignSha256": "115bb0e2d5a711d6b514151964843cc91dc166d2214a7ab0d981325928d089e0",
+          "acceptedMainSha256": "115bb0e2d5a711d6b514151964843cc91dc166d2214a7ab0d981325928d089e0",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+          "oldDesignSha256": "fcbe416856da768e05e3a0df0830db14398ec4c58e86c69a5e31f2c0de5f6cd0",
+          "acceptedMainSha256": "2518f16406b53082d5f88c048dacd641956629ab41071386d700a0e1aab7116b",
+          "changedSinceDesign": true,
+          "diffEvidencePath": "design-rebase-01\\next-wei-yan-design-01\\src\\CardGame.Core\\GameEngine.ProgramLifecycle.cs.diff",
+          "diffSha256": "9e6568f6d84bb8d4b074c6418adc938920abf7555720d8a62ec95706a2c02758"
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.CardUseModules.cs",
+          "oldDesignSha256": "9ad8f8ad8c04508738a11d0335acc54ad40326710d8f5ef53632d31fb3219dad",
+          "acceptedMainSha256": "9ad8f8ad8c04508738a11d0335acc54ad40326710d8f5ef53632d31fb3219dad",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/CardUseModules.cs",
+          "oldDesignSha256": "b311a98cc3362e90f247ac341e106366dc35f6528ca22626b1e365f88da74113",
+          "acceptedMainSha256": "b311a98cc3362e90f247ac341e106366dc35f6528ca22626b1e365f88da74113",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.RuleQueries.cs",
+          "oldDesignSha256": "552dfbd0a53990f1f1ec96a1d66b731fc1779eacc138ff0dc5a89c8e661bd180",
+          "acceptedMainSha256": "552dfbd0a53990f1f1ec96a1d66b731fc1779eacc138ff0dc5a89c8e661bd180",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.ActualTurnProgression.cs",
+          "oldDesignSha256": "b12f18096c7f051f79fafd842dc703e2b61105ea8f48ed8b8740ad639c57671c",
+          "acceptedMainSha256": "b12f18096c7f051f79fafd842dc703e2b61105ea8f48ed8b8740ad639c57671c",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.NextSlashPrograms.cs",
+          "oldDesignSha256": "f00c2015a2731ebf3430e8fc87b899b443de071ab0b93b5a77143185e6cfecbc",
+          "acceptedMainSha256": "f00c2015a2731ebf3430e8fc87b899b443de071ab0b93b5a77143185e6cfecbc",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.TurnRedSlashBenefits.cs",
+          "oldDesignSha256": "5b0160d685ca81114b509cccbcb6ce535d0606f32b7017a647dbfa95ebc57caa",
+          "acceptedMainSha256": "5b0160d685ca81114b509cccbcb6ce535d0606f32b7017a647dbfa95ebc57caa",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/ProgramCompositionAi.cs",
+          "oldDesignSha256": "f820d70d242e25328d28501b069df25cbbffd8a2c1e0c44f07572d340cae9339",
+          "acceptedMainSha256": "b458c5d5d02ea194922cb7dee5ed034c1e572c52035e44cab430a831391bea71",
+          "changedSinceDesign": true,
+          "diffEvidencePath": "design-rebase-01\\next-wei-yan-design-01\\src\\CardGame.Core\\ProgramCompositionAi.cs.diff",
+          "diffSha256": "4ac5425f1fa3f2b66b651c213985d48434056e8c514394a0320fa92f4dbc79fd"
+        },
+        {
+          "path": "src/CardGame.Content.Standard/SkillPrograms/batch9-damage-skills.rules.json",
+          "oldDesignSha256": "088d499d7f024cf4e093e306b5c73798296b672fc3f097d019e2725573eae6e5",
+          "acceptedMainSha256": "088d499d7f024cf4e093e306b5c73798296b672fc3f097d019e2725573eae6e5",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Content.Standard/SkillPrograms/batch9-damage-skills.presentation.json",
+          "oldDesignSha256": "ae114fc0e9ed9effbf34f86eab93c58b9120394b0687badb08ba424098abadc1",
+          "acceptedMainSha256": "ae114fc0e9ed9effbf34f86eab93c58b9120394b0687badb08ba424098abadc1",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "oldDesignSha256": "b29594b0404c1e4a96b2929a28f11cb285f8175f00e4142c8d65750349a9e324",
+          "acceptedMainSha256": "480feb0dea08fde34a9ca3cefb0591489d18f9ce14ee12cd3c512e3ce462f339",
+          "changedSinceDesign": true,
+          "diffEvidencePath": "design-rebase-01\\next-wei-yan-design-01\\src\\CardGame.Content.Standard\\StandardClassicGeneralPackage.cs.diff",
+          "diffSha256": "9b789925f9bcae230df1644404764fd5882e4358956cc25a378a1511752b0ce7"
+        },
+        {
+          "path": "src/CardGame.Content.Standard/FengLinBoundaryHuangGaiContent.cs",
+          "oldDesignSha256": "90e08f1edc6417eda0a5a7301e2c712cb69fcfdfdea1cbdf8f302e1ccd773164",
+          "acceptedMainSha256": "90e08f1edc6417eda0a5a7301e2c712cb69fcfdfdea1cbdf8f302e1ccd773164",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Content.Standard/SkillPrograms/classic-shen-zhou-yu.rules.json",
+          "oldDesignSha256": "3c9f9519c79c9874515fd86e3a3eba2f0bd8a0ee03e3b418d504359b56504860",
+          "acceptedMainSha256": "3c9f9519c79c9874515fd86e3a3eba2f0bd8a0ee03e3b418d504359b56504860",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.ProgramChoices.cs",
+          "oldDesignSha256": "18a5ecaaead1d8d3d9dc630fda916c8d6af8e3993dbd0680504cb3d910f0fd82",
+          "acceptedMainSha256": "18a5ecaaead1d8d3d9dc630fda916c8d6af8e3993dbd0680504cb3d910f0fd82",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/ProgramChoiceOperationDefinition.cs",
+          "oldDesignSha256": "c68136ef786226d8a43f750d2522d63135d3e5e04c27d4ef8bb81fe3cda5d09d",
+          "acceptedMainSha256": "c68136ef786226d8a43f750d2522d63135d3e5e04c27d4ef8bb81fe3cda5d09d",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/SkillRuntimeState.cs",
+          "oldDesignSha256": "3d0a7edde51987bcfb901ef10a24e47abda66eb16ae7b61d4ebf5eddaee9dc33",
+          "acceptedMainSha256": "3d0a7edde51987bcfb901ef10a24e47abda66eb16ae7b61d4ebf5eddaee9dc33",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.ProgramTurnPhase.cs",
+          "oldDesignSha256": "80afb9a3144e7a0761499dc9d9b8fc6843334fe26f19ca07cf71c216bf21f5f8",
+          "acceptedMainSha256": "80afb9a3144e7a0761499dc9d9b8fc6843334fe26f19ca07cf71c216bf21f5f8",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/Projection/CommittedEventProjection.cs",
+          "oldDesignSha256": "5e06681843a73b505c5b2200abee1c19f7871367ba1813a1695a2bcab1b5ebec",
+          "acceptedMainSha256": "5e06681843a73b505c5b2200abee1c19f7871367ba1813a1695a2bcab1b5ebec",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/GameEngine.Runtime.cs",
+          "oldDesignSha256": "c7ba76e74764ed1d38fee7f1a845b3f40823a0b8baabdb0cae61fb59edeb14a7",
+          "acceptedMainSha256": "e536ba901b680ff8547448425121ff3efffae022458fb15db6c962c6f0612370",
+          "changedSinceDesign": true,
+          "diffEvidencePath": "design-rebase-01\\next-wei-yan-design-01\\src\\CardGame.Core\\GameEngine.Runtime.cs.diff",
+          "diffSha256": "381d6f3bf76d46ccef1cd70b5ee362d7d1da158a4aee674569af210a8eb0918e"
+        },
+        {
+          "path": "src/CardGame.Core/ProgramLifecycleOperationDefinitions.cs",
+          "oldDesignSha256": "de08ac469736a31195a7e19922af3ac3424417b2fce26d610fcef2a1ef63b4e0",
+          "acceptedMainSha256": "de08ac469736a31195a7e19922af3ac3424417b2fce26d610fcef2a1ef63b4e0",
+          "changedSinceDesign": false
+        },
+        {
+          "path": "src/CardGame.Core/ProgramNextSlashOperations.cs",
+          "oldDesignSha256": "4576a5fb8490a338ad0756fd0b61275143f08c092c9e25d8c3c1c03f0f779bbd",
+          "acceptedMainSha256": "4576a5fb8490a338ad0756fd0b61275143f08c092c9e25d8c3c1c03f0f779bbd",
+          "changedSinceDesign": false
+        }
+      ],
+      "requiresWorkerRebaseReview": true
+    }
+  ],
+  "historicalRuleSupplement": {
+    "manifestSha256": "ac44dcf2d8ba193977e61286a273508698c96c927b7f60aa63ab5d7396a840fd",
+    "classification": "2016 official-hosted community strategy with self-authored FAQ; historical reference, not current 2026 formal FAQ",
+    "urls": [
+      "https://sanguosha.com/news/20161026_7095_5710",
+      "https://www.sanguosha.com/news/20161026_9772_0011"
+    ],
+    "currentTextTakesPrecedence": true,
+    "oldQimouDoesNotContainCurrentDraw": true
+  },
+  "engineeringDefaults": [
+    "Positive effective Slash rank replaces ordinary specific-Slash range; existing explicit ignore-distance remains",
+    "Only genuine Zhangba conversion uses two-cost rank sum capped at 13 under the new policy; other absent/zero effective rank falls back to ordinary range",
+    "One optional finalized-target offer applies independently matching Hand and HP effects; target receipts remain independent for multiple targets",
+    "Cannot cancel permits actual Dodge/armor/provider responses and payment; it does not bypass existing immunity",
+    "Qimou quantity is 1 through current HP; X is actual loss frozen before HP facts/children, unaffected by later rescue or gains",
+    "Paid alive owner continues exactly three earned tail instructions after source loss; death terminates unpaid remaining benefits",
+    "Current ordinary actual-turn modifier lifetime and per-game usage persist through scheduled extra Play and expire at actual End"
+  ],
+  "acceptance": {
+    "status": "passed-with-explicit-ui-snapshot-scope",
+    "rootFocused": {
+      "corePassed": 27,
+      "wpfPassed": 2,
+      "durationMs": 29826
+    },
+    "mainCoreFull": {
+      "corePassed": 527,
+      "durationMs": 208807,
+      "coreStepMs": 165394,
+      "summarySha256": "1038abbf517d37c1dd17410867730aa695e5b2c4e6f2badbb50ddaec00b134af",
+      "coreContentInputsVerifiedUnchanged": 952,
+      "originalWpfPassed": 52,
+      "originalWpfInputsChangedDuringRun": [
+        "src/CardGame.Wpf/ViewModels/MainViewModel.PlayerGuide.cs",
+        "tests/CardGame.Wpf.Tests/MotionRenderingChecks.cs",
+        "tests/CardGame.Wpf.Tests/Program.cs",
+        "tests/CardGame.Wpf.Tests/TableInteractionChecks.cs"
+      ]
+    },
+    "currentWorkingSnapshotWpfFull": {
+      "utc": "2026-10-02T14:52:06.283678+00:00",
+      "status": "passed",
+      "mode": "wpf-full-frozen-current-working-snapshot",
+      "durationMs": 42951,
+      "wpfPassed": 51,
+      "wpfFailed": 0,
+      "sourceSnapshotManifestSha256": "d81b2726ac3e74ddeef154c3659a3c557017b8d3f1d687f53ccf3de0ac71820d",
+      "sourceInputsUnchanged": true,
+      "changedPaths": [],
+      "dllSha256": "92d6db3bad64078e23c9e7ec84a36a10656e99d8119a638d3d6615d6136b30ee",
+      "dllBytesUnchanged": true,
+      "scope": "Every WPF check from a verified snapshot of current main inputs, not a claim about later unrelated main UI edits; original Core Full527 remains authoritative for unchanged Core/Content"
+    },
+    "mainRoutine": {
+      "corePassed": 151,
+      "wpfPassed": 16,
+      "durationMs": 59923,
+      "coreFilters": 88,
+      "wpfFilters": 16,
+      "retainedOldCoreFilters": 85,
+      "retainedOldWpfFilters": 16,
+      "newCoreRepresentatives": 3,
+      "summarySha256": "1b71cb47a1e4a685fd1685e6045ad8411a0df21fa78599619b923e5e3e463180",
+      "unownedWpfInputDriftRecorded": [
+        "src/CardGame.Wpf/ViewModels/MainViewModel.Presentation.cs",
+        "tests/CardGame.Wpf.Tests/TableInteractionChecks.cs"
+      ],
+      "performanceIsOneMeasurement": true
+    },
+    "compiledPortraits": {
+      "count": 2,
+      "manifestSha256": "adc202908a8cfe3aabaeb9f64e36f335f6c5ac1553b2e128b5be77214d524742",
+      "rawOfficialHashesMatch": true,
+      "decodedDimensions": [
+        750,
+        950
+      ],
+      "primaryTestHarnessDllCopiesEqual": true,
+      "actualInputsUnchanged": true
+    },
+    "offlineArtCatalog": {
+      "generals": 177,
+      "pngRecords": 974
+    },
+    "independentDeliveryAudits": [
+      {
+        "artifact": "huang-final-audit-01",
+        "manifestSha256": "5609ea12cf0b3268c46562677ec74ffbb9d4cee454ff6c0f049938a282240a55",
+        "verifiedEntries": 108
+      },
+      {
+        "artifact": "final-wei-audit-01",
+        "manifestSha256": "bf853b33e8efbecbfd7c76c834d66a67e62f22915ba6e3ea7a54b19fb969029a",
+        "verifiedEntries": 140
+      }
+    ],
+    "globalVersionDeclarationsUnchanged": true,
+    "limits": [
+      "Ongoing unrelated live WPF edits are preserved; the WPF51 result applies to the immutable captured working snapshot, not later live edits",
+      "Offscreen WPF and automated Core do not prove official client or manual desktop acceptance",
+      "Huang source removal is an explicit host audit; actor rewrite, multi-target and real borrowed/assisted Zhangba use have command cold replay; target removal/provider combinations also include static review",
+      "Wei unpaid source removal and corrupted ledger predicates are host/validation audits; largeX21, paid source loss, rescue, actual ExtraPlay/ExtraTurn have accepted commands and four viewer replay",
+      "Native AI proves optional activation and finite completion, not optimal strategy"
+    ]
+  },
+  "implementationDeliveries": [
+    {
+      "name": "huang-zhong",
+      "manifest": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThirteenth-20261002\\huang-zhong\\worker\\delivery-01\\source-manifest.json",
+      "sha256": "7fae4e8accea4f1ad6d8f06ab13923ea9849117c6aba010e7333e6f1075c74dd",
+      "sourceCount": 18,
+      "evidenceCount": 409
+    },
+    {
+      "name": "wei-yan",
+      "manifest": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThirteenth-20261002\\wei-yan\\worker\\delivery-01\\source-manifest.json",
+      "sha256": "0c4202fa287855fe66c807c9cfc7f05aeef040029d93afa321939a5891010391",
+      "sourceCount": 16,
+      "evidenceCount": 607
+    }
+  ],
+  "integrationParentHead": "2b13c5433c636d42e5d439d16120e5c7b098b6e0",
+  "integrationRefreshManifestSha256": "b7fc1d90e72d1c8d434e7af90e565e98561710445193f3366fa2ca34f8b3ca15",
+  "nextSources": {
+    "pair": [
+      "boundary:gongsun-zan",
+      "boundary:hua-xiong"
+    ],
+    "officialIds": [
+      320,
+      446
+    ],
+    "referenceManifestSha256": "587cbe41c9caa81c12289913a35abfacd2d17904642d2746ff715d60a87b1f6c",
+    "designManifestSha256": "46f960854d007752b9def12a7c6652d7f5acd2dc3466cafdbf1a27be3c6edeb0",
+    "artManifestSha256": "b30853c2e3a80949b23dc5ecc2df205d018001216077f60d46080c1182190fed",
+    "status": "Source, minimal ability design and two original PNGs verified; implementation not yet started"
+  }
+}

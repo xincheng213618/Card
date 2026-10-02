@@ -107,17 +107,17 @@ public sealed partial class GameEngine
         if (advanceToHumanBoundary) AdvanceToHumanBoundary();
     }
 
-    private bool CanSupplyAssistedFactionSlash(FactionCardRequestHandle pending, CardKind kind, IReadOnlyList<Card> cards) =>
-        IsRedSlashProviderPaymentLegal(pending,kind,cards) &&
+    private bool CanSupplyAssistedFactionSlash(FactionCardRequestHandle pending, CardKind kind, IReadOnlyList<Card> cards, bool isTrueZhangba = false) =>
+        IsRedSlashProviderPaymentLegal(pending,kind,cards,isTrueZhangba) &&
         (!IsFactionSlashUse(pending) || !IsTurnPhysicalUseForbidden(pending.OwnerSeat,cards.Select(c=>c.Id).ToArray())) &&
-        (!pending.IsAssistedProgramUse || pending.TargetSeat is { } target &&
+        (!pending.IsAssistedProgramUse || HasRankSlashRange(_players[pending.OwnerSeat],kind) || pending.TargetSeat is { } target &&
         (IsAssistedProvidedSlashTarget(pending.OwnerSeat, target, kind) ||
          kind == CardKind.Slash && HasZhuqueFan(_players[pending.OwnerSeat]) &&
          (cards.Count > 1 || cards is [var primary] && primary.Kind == CardKind.Slash) &&
          IsAssistedProvidedSlashTarget(pending.OwnerSeat, target, CardKind.FireSlash)));
 
     private IReadOnlyList<IReadOnlyList<Card>> GetFactionRequestZhangbaPairs(FactionCardRequestHandle pending, CharacterState provider) =>
-        GetZhangbaSlashPairs(provider).Where(pair => CanSupplyAssistedFactionSlash(pending, CardKind.Slash, pair)).ToArray();
+        GetZhangbaSlashPairs(provider).Where(pair => CanSupplyAssistedFactionSlash(pending, CardKind.Slash, pair, isTrueZhangba:true)).ToArray();
 
     private IReadOnlyList<ProgramMultiCardViewAsSelection> GetFactionRequestMultiCardSelections(FactionCardRequestHandle pending, CharacterState provider) =>
         (pending.IsAssistedProgramUse
@@ -130,12 +130,12 @@ public sealed partial class GameEngine
         GetFactionResponsePolicy(_players[actorSeat], CardKind.Slash) is not null &&
         SlashKinds.Any(kind => IsAssistedProvidedSlashTarget(actorSeat, targetSeat, kind));
 
-    private bool IsAssistedProvidedSlashTarget(int actorSeat, int targetSeat, CardKind kind) =>
+    private bool IsAssistedProvidedSlashTarget(int actorSeat, int targetSeat, CardKind kind, int? effectiveRank = null, bool allowPotentialRank = true) =>
         _players[actorSeat].IsAlive && _players[targetSeat].IsAlive && actorSeat != targetSeat &&
         (ActiveFactionCardRequest is { IsAssistedProgramUse: true, ProgramSkillFrameId: { } giftFrameId } &&
          _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(frame => frame.Id == giftFrameId) is { CompletedCardGiftDraft.RecipientSeat: { } recipient } giftFrame && recipient == actorSeat
             ? CompletedGiftSlashTargets(giftFrame, actorSeat).Contains(targetSeat)
-            : IsWithinAttackRange(actorSeat, targetSeat)) &&
+            : IsWithinSpecificSlashRange(_players[actorSeat],_players[targetSeat],kind,effectiveRank) || allowPotentialRank && effectiveRank is null && HasPotentialRankSlashRange(_players[actorSeat],_players[targetSeat],kind)) &&
         CanSpendSlashUse(_players[actorSeat], _players[targetSeat], ignoresCount: true, kind) &&
         !IsSlashProhibited(_players[targetSeat]);
 
