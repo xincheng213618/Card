@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:guanxing-current",
+      "revision": 1,
+      "states": [
+        {
+          "id": "eligible-end-reorder",
+          "initialValue": false,
+          "visibility": "private",
+          "resetScope": "turn",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "triggers": [
+        {
+          "id": "prepare-order",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "priority": 20,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "namedUsageGroup": "prepare-order",
+          "effects": [
+            {
+              "op": "reorderTopCards",
+              "target": "owner",
+              "amount": 5,
+              "populationThreshold": 4,
+              "belowPopulationAmount": 3,
+              "allBottomStateId": "eligible-end-reorder"
+            }
+          ]
+        },
+        {
+          "id": "ending-order",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "priority": 20,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "namedUsageGroup": "ending-order",
+          "effects": [
+            {
+              "op": "reorderTopCards",
+              "target": "owner",
+              "amount": 5,
+              "populationThreshold": 4,
+              "belowPopulationAmount": 3
+            }
+          ],
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "eligible-end-reorder",
+            "expectedValue": true
+          }
+        }
+      ]
+    }
+  ]
+}

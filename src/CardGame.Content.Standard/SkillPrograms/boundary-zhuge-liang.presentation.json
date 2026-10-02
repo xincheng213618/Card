@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:guanxing-current": {
+      "name": "观星",
+      "description": "准备阶段，你可以观看牌堆顶的五张牌（存活角色数小于4时改为三张），然后将之以任意顺序置于牌堆顶或牌堆底。若皆置于牌堆底，结束阶段你可以再次发动本技能。"
+    }
+  }
+}

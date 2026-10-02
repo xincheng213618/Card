@@ -198,6 +198,9 @@ internal sealed class ProgramAiEstimateContext
 
     internal void Draw(SkillProgramEffect effect)
     {
+        if (effect.Target is SkillProgramEffectTarget.HpPairHigher or SkillProgramEffectTarget.HpPairLower &&
+            (_publicContext.SelectedTarget is null || _publicContext.SelectedTarget.Hp == _player.Hp ||
+             _publicContext.SelectedTarget.Seat == _player.Seat)) return;
         var amount = effect.NumberExpression switch
         {
             SkillProgramNumberExpression.OwnerLostHp => Math.Max(0, _player.MaxHp - _player.Hp),
@@ -233,6 +236,21 @@ internal sealed class ProgramAiEstimateContext
         _ownerDraw += 0.5d;
     }
 
+    internal void PlaceSelectedEquipment()
+    {
+        _givesSelected = true;
+        // Public placement value; no fictitious Draw or hidden target hand inspection.
+        _targetAdjustment += 5d;
+        _otherAdjustment += 2d;
+    }
+
+    internal void FrozenHpPairBenefits()
+    {
+        // Before a recipient is selected, price the public draw/recovery opportunity
+        // without inventing a Draw receipt or inspecting a target's hidden hand.
+        if (_publicContext.SelectedTarget is null) _otherAdjustment += 14d;
+    }
+
     internal void ConvertingGiftDamage(int handLimit)
     {
         _givesSelected = true;
@@ -266,6 +284,9 @@ internal sealed class ProgramAiEstimateContext
 
     internal void Recover(SkillProgramEffect effect)
     {
+        if (effect.Target is SkillProgramEffectTarget.HpPairHigher or SkillProgramEffectTarget.HpPairLower &&
+            (_publicContext.SelectedTarget is null || _publicContext.SelectedTarget.Hp == _player.Hp ||
+             _publicContext.SelectedTarget.Seat == _player.Seat)) return;
         var amount = effect.NumberExpression == SkillProgramNumberExpression.BoundCardCount
             ? Binding(effect.SourceBind).Count
             : effect.Amount;
@@ -569,6 +590,7 @@ internal sealed class ProgramAiEstimateContext
     internal void StartPindian(SkillProgramEffect effect) =>
         _otherAdjustment += 2d; // Public-only neutral contest prior; no hand cards are inspected.
 
+    internal void PublicControlValue(double value) => _otherAdjustment += value;
     internal void SetBooleanState(SkillProgramEffect effect) { }
     internal void ToggleBooleanState(SkillProgramEffect effect) { }
     internal void GrantDirectedTurnCardPolicy(SkillProgramEffect effect) => _otherAdjustment += 8d;
@@ -785,6 +807,8 @@ internal sealed class ProgramAiEstimateContext
 
     private bool TargetsOwner(SkillProgramEffect effect) =>
         effect.TargetReference is not null ? effect.TargetReference.Kind == ProgramParticipantRef.Owner :
+        effect.Target == SkillProgramEffectTarget.HpPairHigher ? _publicContext.SelectedTarget is { } high && _player.Hp > high.Hp :
+        effect.Target == SkillProgramEffectTarget.HpPairLower ? _publicContext.SelectedTarget is { } low && _player.Hp < low.Hp :
         effect.Target == SkillProgramEffectTarget.Owner ||
         effect.Target == SkillProgramEffectTarget.Actor && _publicContext.CardActionActorIsOwner;
 

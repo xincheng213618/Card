@@ -1,0 +1,10 @@
+{
+  "schemaVersion":3,
+  "skills":{
+    "boundary:jieyin-current":{
+      "name":"结姻",
+      "description":"出牌阶段限一次，你可以选择一名男性角色，弃置一张手牌或将一张装备牌置入其装备区，然后你与其中体力值较大的角色摸一张牌，体力值较小的角色回复1点体力。",
+      "activationLabels":{"discard-hand":"弃置一张手牌","place-equipment":"置入一张装备牌"}
+    }
+  }
+}

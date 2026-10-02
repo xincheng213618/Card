@@ -1,0 +1,435 @@
+{
+  "baselineHead": "d8acdc5c4321042cd2721ddcf4d6b8443ec4d472",
+  "baselineManifestSha256": "5db45324afc32c55c1875ee3b2e19eab2c9f54ba96d6b5afb487af02fcbcf645",
+  "contractSha256": "b7fed17a44cf1fb18c7fe54f760c03c502ba4b88303733b683af50501f0c4029",
+  "sourcePreflightManifestSha256": "371ee3a8bd472779f8f40f4a30b207a3da2d4ca35e90beb9bea72d53396c0a18",
+  "artManifestSha256": "4592035ab07c3a3d534b0f9f5c0beaae6080b751e3f920969df99b717d3afc0c",
+  "status": "Accepted in authoritative main by one Full and measured unfiltered routine; compiled original portraits verified",
+  "officialEdition": "current ordinary Sanguosha OL",
+  "httpResponses": [
+    {
+      "key": "440-api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=440",
+      "routeProvenance": "raw/440.html:484",
+      "startedUtc": "2026-10-02T11:23:09.404704+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=440",
+      "retrievedUtc": "2026-10-02T11:23:09.855883+00:00",
+      "sha256": "8b86ce107d7087a02aa5a66e068889d3b6d8554a7a403a24d2537a6f630cbed0",
+      "bytes": 926
+    },
+    {
+      "key": "440",
+      "url": "https://www.sanguosha.com/hero/440",
+      "startedUtc": "2026-10-02T11:22:23.373833+00:00",
+      "finalUrl": "https://www.sanguosha.com/hero/440",
+      "status": 200,
+      "retrievedUtc": "2026-10-02T11:22:23.879186+00:00",
+      "sha256": "4a9750410dcd9ab1ebc6d751837c76d4ea14e6093b65132007686cdcfe75e47f",
+      "bytes": 26020
+    },
+    {
+      "key": "442-api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=442",
+      "routeProvenance": "raw/442.html:496",
+      "startedUtc": "2026-10-02T11:23:09.405135+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=442",
+      "retrievedUtc": "2026-10-02T11:23:09.905994+00:00",
+      "sha256": "d34390014c84ca82064f7cc4b140f1d7dd65546a2130c1aedda01801a116b380",
+      "bytes": 787
+    },
+    {
+      "key": "442",
+      "url": "https://www.sanguosha.com/hero/442",
+      "startedUtc": "2026-10-02T11:22:23.374100+00:00",
+      "finalUrl": "https://www.sanguosha.com/hero/442",
+      "status": 200,
+      "retrievedUtc": "2026-10-02T11:22:23.869675+00:00",
+      "sha256": "b8346af2f575ec33f5b0f866d01468a3102948306ad40de10f82c9ec4ae25cc2",
+      "bytes": 26709
+    },
+    {
+      "key": "443-api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=443",
+      "routeProvenance": "raw/443.html:492",
+      "startedUtc": "2026-10-02T11:23:09.405377+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=443",
+      "retrievedUtc": "2026-10-02T11:23:09.940852+00:00",
+      "sha256": "71343075487e209b37eaa1eddba222f2760a3855d79a83e0d295fe0cb831e453",
+      "bytes": 929
+    },
+    {
+      "key": "443",
+      "url": "https://www.sanguosha.com/hero/443",
+      "startedUtc": "2026-10-02T11:22:23.374431+00:00",
+      "finalUrl": "https://www.sanguosha.com/hero/443",
+      "status": 200,
+      "retrievedUtc": "2026-10-02T11:22:23.883355+00:00",
+      "sha256": "a9b79e2f65c3b7de8a3ca71bf82e994bc758e2891122bf932e2af365ff4eeb4f",
+      "bytes": 26762
+    },
+    {
+      "key": "index",
+      "url": "https://www.sanguosha.com/hero",
+      "startedUtc": "2026-10-02T11:22:23.373187+00:00",
+      "finalUrl": "https://www.sanguosha.com/hero",
+      "status": 200,
+      "retrievedUtc": "2026-10-02T11:22:23.948581+00:00",
+      "sha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "bytes": 1319990
+    }
+  ],
+  "roster": [
+    {
+      "officialId": 440,
+      "indexGroup": "界限突破",
+      "indexFields": {
+        "gid": 440,
+        "name": "界诸葛亮",
+        "resource": "44000",
+        "extend": "界限突破",
+        "hp": 3,
+        "initial_hp": 0,
+        "quality": "稀有",
+        "figure": "蜀",
+        "figure_py": "shu",
+        "biography": "字孔明，号卧龙，琅琊阳都人，蜀汉丞相。在世时被封为武乡侯，谥曰忠武侯。著有《出师表》、《诫子书》等。怀不世之才，以空城戏司马，能观星象而通鬼神。",
+        "characteristic": "能够控制牌堆顶的牌序，决定自己和下家的判定牌和摸牌。尽量把牌用光。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/440.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44000.png",
+        "realname": "界诸葛亮 (界限突破)"
+      },
+      "htmlSourceSha256": "4a9750410dcd9ab1ebc6d751837c76d4ea14e6093b65132007686cdcfe75e47f",
+      "indexSourceSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "skills": [
+        {
+          "name": "空城",
+          "text": "锁定技，若你没有手牌，你不能成为【杀】或【决斗】的目标。",
+          "html": "<span class=\"on\">锁定技，若你没有手牌，你不能成为【杀】或【决斗】的目标。</span>",
+          "htmlSourceLine": 278,
+          "references": []
+        },
+        {
+          "name": "观星",
+          "text": "准备阶段，你可以观看牌堆顶的五张牌（存活角色数小于4时改为三张），然后将之以任意顺序置于牌堆顶或牌堆底。若皆置于牌堆底，结束阶段你可以再次发动本技能。",
+          "html": "<span>准备阶段，你可以观看牌堆顶的五张牌（存活角色数小于4时改为三张），然后将之以任意顺序置于牌堆顶或牌堆底。若皆置于牌堆底，结束阶段你可以再次发动本技能。</span>",
+          "htmlSourceLine": 280,
+          "references": []
+        }
+      ],
+      "apiRouteProof": {
+        "literal": "/api/v1/hero/info?gid=",
+        "htmlLine": 484,
+        "sourceExcerpt": "&& match[1]) {\n            gid = match[1];\n        }\n    }\n\n    if (gid) {\n        fetch('/api/v1/hero/info?gid=' + gid)\n            .then(function(response) {\n                retu"
+      },
+      "structuredOfficialGender": null,
+      "apiInfo": {
+        "gid": 440,
+        "name": "界诸葛亮",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/440.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44000.png",
+        "label": [
+          "防御",
+          "控制",
+          "困难"
+        ],
+        "figure": "蜀",
+        "figure_py": "shu",
+        "quality": "稀有",
+        "biography": "字孔明，号卧龙，琅琊阳都人，蜀汉丞相。在世时被封为武乡侯，谥曰忠武侯。著有《出师表》、《诫子书》等。怀不世之才，以空城戏司马，能观星象而通鬼神。",
+        "characteristic": "能够控制牌堆顶的牌序，决定自己和下家的判定牌和摸牌。尽量把牌用光。",
+        "hp": 3,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "apiSourceSha256": "8b86ce107d7087a02aa5a66e068889d3b6d8554a7a403a24d2537a6f630cbed0",
+      "apiOfficialResourceKey": "44000",
+      "genderSourceExplanation": "Current index and info API have no structured sex/gender field. The repository same-character definition is a separate design basis, not an API claim.",
+      "repositoryGender": {
+        "suggested": "Male",
+        "generalId": "classic:zhuge-liang",
+        "basis": "same-character definition omits Gender; ContentGeneralDefinition defaults Male at ContentRegistry.cs97",
+        "officialStructuredGenderConfirmed": false
+      },
+      "missingReferencedSkillFulltexts": [],
+      "detailMetaHpNote": "Detail page template meta0/empty hero-life is not used; matching current index and actual info API establish HP."
+    },
+    {
+      "officialId": 443,
+      "indexGroup": "界限突破",
+      "indexFields": {
+        "gid": 443,
+        "name": "界孙尚香",
+        "resource": "44300",
+        "extend": "界限突破",
+        "hp": 3,
+        "initial_hp": 0,
+        "quality": "传说",
+        "figure": "吴",
+        "figure_py": "wu",
+        "biography": "孙夫人，乃孙权之妹。刘备定荆州，孙权进妹与其结姻，重固盟好。孙夫人才捷刚猛，有诸兄之风。后人为其立庙，号曰“枭姬庙”。",
+        "characteristic": "能够为队友/自己回复体力值，通过装备牌获得大量手牌。依赖男性角色，会成为敌人优先攻击的目标。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/443.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44300.png",
+        "realname": "界孙尚香 (界限突破)"
+      },
+      "htmlSourceSha256": "a9b79e2f65c3b7de8a3ca71bf82e994bc758e2891122bf932e2af365ff4eeb4f",
+      "indexSourceSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "skills": [
+        {
+          "name": "枭姬",
+          "text": "当你失去装备区里的一张牌后，你可以摸两张牌。",
+          "html": "<span class=\"on\">当你失去装备区里的一张牌后，你可以摸两张牌。</span>",
+          "htmlSourceLine": 278,
+          "references": []
+        },
+        {
+          "name": "结姻",
+          "text": "出牌阶段限一次，你可以选择一名男性角色，弃置一张手牌或将一张装备牌置入其装备区，然后你与其中体力值较大的角色摸一张牌，体力值较小的角色回复1点体力。",
+          "html": "<span>出牌阶段限一次，你可以选择一名男性角色，弃置一张手牌或将一张装备牌置入其装备区，然后你与其中体力值较大的角色摸一张牌，体力值较小的角色回复1点体力。</span>",
+          "htmlSourceLine": 280,
+          "references": []
+        }
+      ],
+      "apiRouteProof": {
+        "literal": "/api/v1/hero/info?gid=",
+        "htmlLine": 492,
+        "sourceExcerpt": "&& match[1]) {\n            gid = match[1];\n        }\n    }\n\n    if (gid) {\n        fetch('/api/v1/hero/info?gid=' + gid)\n            .then(function(response) {\n                retu"
+      },
+      "structuredOfficialGender": null,
+      "apiInfo": {
+        "gid": 443,
+        "name": "界孙尚香",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/443.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44300.png",
+        "label": [
+          "防御",
+          "辅助",
+          "发育"
+        ],
+        "figure": "吴",
+        "figure_py": "wu",
+        "quality": "传说",
+        "biography": "孙夫人，乃孙权之妹。刘备定荆州，孙权进妹与其结姻，重固盟好。孙夫人才捷刚猛，有诸兄之风。后人为其立庙，号曰“枭姬庙”。",
+        "characteristic": "能够为队友/自己回复体力值，通过装备牌获得大量手牌。依赖男性角色，会成为敌人优先攻击的目标。",
+        "hp": 3,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "apiSourceSha256": "71343075487e209b37eaa1eddba222f2760a3855d79a83e0d295fe0cb831e453",
+      "apiOfficialResourceKey": "44300",
+      "genderSourceExplanation": "Current index and info API have no structured sex/gender field. The repository same-character definition is a separate design basis, not an API claim.",
+      "repositoryGender": {
+        "suggested": "Female",
+        "generalId": "classic:sun-shangxiang",
+        "basis": "explicit GeneralGender.Female at StandardClassicGeneralPackage.cs1432",
+        "officialStructuredGenderConfirmed": false
+      },
+      "missingReferencedSkillFulltexts": [],
+      "detailMetaHpNote": "Detail page template meta0/empty hero-life is not used; matching current index and actual info API establish HP."
+    }
+  ],
+  "artwork": [
+    {
+      "gid": 440,
+      "resourceKey": "44000",
+      "sourcePageSha256": "4a9750410dcd9ab1ebc6d751837c76d4ea14e6093b65132007686cdcfe75e47f",
+      "sourceStructuredSha256": "8b86ce107d7087a02aa5a66e068889d3b6d8554a7a403a24d2537a6f630cbed0",
+      "requestUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44000.png",
+      "status": 200,
+      "rawPngPath": "raw/44000.png",
+      "rawPngSha256": "0f01d10e64e97bf082014118eb615c11107feca61ecbab5aea76853f20c22364",
+      "bytes": 942428,
+      "dimensions": [
+        750,
+        950
+      ],
+      "allChunksCrcValid": true,
+      "iendPresentAndNoTrailingBytes": true,
+      "pillowFullDecode": true
+    },
+    {
+      "gid": 443,
+      "resourceKey": "44300",
+      "sourcePageSha256": "a9b79e2f65c3b7de8a3ca71bf82e994bc758e2891122bf932e2af365ff4eeb4f",
+      "sourceStructuredSha256": "71343075487e209b37eaa1eddba222f2760a3855d79a83e0d295fe0cb831e453",
+      "requestUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44300.png",
+      "status": 200,
+      "rawPngPath": "raw/44300.png",
+      "rawPngSha256": "39ccb7e0ac426b981c9b68e2794de2426b147e33dacd0644058fd9b1e698ea02",
+      "bytes": 1225257,
+      "dimensions": [
+        750,
+        950
+      ],
+      "allChunksCrcValid": true,
+      "iendPresentAndNoTrailingBytes": true,
+      "pillowFullDecode": true
+    }
+  ],
+  "designEvidence": [
+    {
+      "directory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinEleventh-20261002\\next-zhuge-liang-design-01",
+      "manifestSha256": "9c3fac2aeafb649057099972c38e24308dd4917ea7428e48119b3f8d83187998",
+      "designOnly": true,
+      "necessaryCodeInputsMatchAcceptedMain": true
+    },
+    {
+      "directory": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinEleventh-20261002\\next-sun-design-01",
+      "manifestSha256": "8fc055f61ef78462d0437707ef2ed0e881f1cb9ef038c54265efe447fa913823",
+      "designOnly": true,
+      "necessaryCodeInputsMatchAcceptedMain": true
+    }
+  ],
+  "engineeringDefaults": [
+    "Population count is frozen independently for each actual viewing; only available short-pile cards are watched; zero watch does not grant all-bottom",
+    "Turn BooleanState raw reset stays at next actual BeginTurn; actual end action availability and raw store are separate",
+    "The same skill instance may retain a submitted all-bottom fact during suppression; a new instance does not inherit",
+    "Jieyin compares the two participants after actual cost and children; higher draws one then lower recovers one; equal or self pair receives no benefit",
+    "Effective male owner may self-select; same Equipment entity returned to same Equipment location is not payment",
+    "Native opt-in control prior is public and approximate, not optimal Guanxing strategy"
+  ],
+  "sourceGaps": {
+    "boundary:sun-quan": "Current Jiuyuan requires before-apply recovery replacement and exact producer continuations; read-only architecture preflight, not implemented",
+    "boundary:pang-tong": "Current full borrowed Bazhen/Huoji/Kanpo texts still missing in earlier bounded source preflight",
+    "boundary:xu-shu": "Current full borrowed Jianyan text still missing in earlier bounded source preflight"
+  },
+  "acceptance": {
+    "status": "passed",
+    "rootFocused": {
+      "corePassed": 23,
+      "wpfPassed": 2,
+      "durationMs": 24216,
+      "summarySha256": "034baffa3c62b1ce7fa6cdc1bbbfb7464137e1537d8845da864c6afb074b1c57",
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "durationMs": 8493
+        },
+        {
+          "name": "Core selected checks (14 filters, union)",
+          "status": "passed",
+          "durationMs": 10283
+        },
+        {
+          "name": "WPF selected checks (2 filters, union)",
+          "status": "passed",
+          "durationMs": 5399
+        }
+      ]
+    },
+    "mainFull": {
+      "corePassed": 517,
+      "wpfPassed": 50,
+      "durationMs": 192765,
+      "summarySha256": "04af6fc8203450fa60b87aececae9a13950cb64471aa735dffbdc3612fb77354",
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "durationMs": 7947
+        },
+        {
+          "name": "Core full checks",
+          "status": "passed",
+          "durationMs": 145201
+        },
+        {
+          "name": "WPF full checks",
+          "status": "passed",
+          "durationMs": 39580
+        }
+      ]
+    },
+    "mainRoutine": {
+      "corePassed": 148,
+      "wpfPassed": 16,
+      "durationMs": 58989,
+      "summarySha256": "eb88a3824bf6ed6bb43f4faa94f1be4ce5688f2c9a149d974cf99dbf6074d369",
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "durationMs": 8150
+        },
+        {
+          "name": "Core selected checks (85 filters, union)",
+          "status": "passed",
+          "durationMs": 31968
+        },
+        {
+          "name": "WPF selected checks (16 filters, union)",
+          "status": "passed",
+          "durationMs": 18806
+        }
+      ]
+    },
+    "routineScope": {
+      "coreFilters": 85,
+      "wpfFilters": 16,
+      "previousCoreFiltersRetained": 81,
+      "previousWpfFiltersRetained": 15,
+      "newRepresentativeCoreFilters": 4,
+      "newPrivateViewWpfFilter": 1
+    },
+    "compiledPortraits": {
+      "count": 2,
+      "manifestSha256": "5f4cfd8b251dca06784db7a9834c1be8b56ba7700fb25a8819f3a75d84906f02",
+      "rawOfficialHashesMatch": true,
+      "decodedDimensions": [
+        750,
+        950
+      ],
+      "primaryTestHarnessDllCopiesEqual": true,
+      "actualInputsUnchanged": true
+    },
+    "offlineArtCatalog": {
+      "generals": 175,
+      "pngRecords": 972
+    },
+    "independentDeliveryAudits": [
+      {
+        "artifact": "final-zhuge-audit-01",
+        "manifestSha256": "ac6a072f1a354565146b9dcf39195f0faf5b50fec2bd3ce84774bc1b7e5c37f7",
+        "scope": "Independent frozen delivery source audit and original runtime evidence; no rerun and no independent root merge review"
+      },
+      {
+        "artifact": "final-sun-audit-01",
+        "manifestSha256": "d950208a0d1528839c3b56cab5fcd581e27530374d05b6fa785231be51f886e7",
+        "scope": "Independent frozen delivery source audit and original runtime evidence; no rerun and no independent root merge review"
+      }
+    ],
+    "globalVersionDeclarationsUnchanged": true,
+    "evidenceRoot": "%TEMP%\\Card-FengLinTwelfth-20261002",
+    "limits": [
+      "Automated Core/offscreen WPF is not official client or manual desktop acceptance",
+      "Zhuge Liang source loss/regrant uses explicit host audit; real low-population, Normal/Extra/Scheduled and paid death use accepted commands",
+      "Sun Shangxiang non-death source loss follows retained source-valid path and static review, without a new command fixture",
+      "Native AI proves ordinary optional activation and finite completion, not optimal strategy"
+    ]
+  },
+  "implementationDeliveries": [
+    {
+      "name": "zhuge-liang",
+      "manifest": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinTwelfth-20261002\\zhuge-liang\\delivery-01\\source-manifest.json",
+      "sha256": "9ec46022988ff682d7b343dad686c200ee61305d3443cee2cab1ea1c03a9d367",
+      "sourceCount": 21,
+      "evidenceCount": 108
+    },
+    {
+      "name": "sun-shangxiang",
+      "manifest": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinTwelfth-20261002\\sun-shangxiang\\worker\\delivery-01\\source-manifest.json",
+      "sha256": "3bcef470cbc00055d983ea87011cc4e075f95262d95b9bd6418e67b55e13f43e",
+      "sourceCount": 16,
+      "evidenceCount": 193
+    }
+  ],
+  "nextSources": {
+    "manifestSha256": "63858a1298bec2a25c7988b498b75153000f433515929b412b3005518852c404",
+    "status": "Current printed skills complete; Zhao Yun already registered, Huang Zhong and Wei Yan design only",
+    "sunQuanRecoveryArchitectureManifestSha256": "6573ee2332c3c4c3fea36f468b8598c78ddbf4a7b0446d681399d048185bde2c"
+  }
+}

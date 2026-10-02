@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private SkillProgramStepOutcome BeginProgramTopReorder(ProgramSkillFrame frame, int maximumCards,
-        SkillProgramNumberExpression? numberExpression, int? exactTopCount = null)
+        SkillProgramNumberExpression? numberExpression, int? exactTopCount = null,
+        ProgramPopulationThresholdCount? population = null, string? allBottomStateId = null)
     {
         var active = GetActiveProgramFrame(frame.Id);
         if (active.TopReorder is not null || _pendingDecision is not null ||
@@ -15,11 +16,16 @@ public sealed partial class GameEngine
         var count = Math.Min(maximumCards, _cardZones.Count(CardLocation.DrawPile));
         if (numberExpression == SkillProgramNumberExpression.LivingPlayerCount)
             count = Math.Min(count, _players.Count(player => player.IsAlive));
+        var populationCount = population is { } policy
+            ? (_players.Count(player => player.IsAlive) < policy.Threshold ? policy.BelowAmount : maximumCards)
+            : (int?)null;
+        if (populationCount is { } requested) count = Math.Min(count, requested);
         if (count == 0) return SkillProgramStepOutcome.Continue;
         var viewed = _cardZones.CardsAt(CardLocation.DrawPile).TakeLast(count).Reverse()
             .Select(card => card.Id).ToArray();
-        active = active with { TopReorder = new ProgramTopReorder(viewed, [], [], false)
-        { RequiredTopCount = exactTopCount is { } exact ? Math.Min(exact, count) : null } };
+        active = active with { TopReorder = new ProgramTopReorder(population is null ? viewed : Array.AsReadOnly(viewed), [], [], false)
+        { RequiredTopCount = exactTopCount is { } exact ? Math.Min(exact, count) : null,
+            Population = populationCount is { } frozenCount ? new(frame.InstructionIndex, _turnNumber, _currentSeat, frozenCount, allBottomStateId) : null } };
         ReplaceRuntimeTop(active);
         PublishProgramTopReorderPrompt(active);
         return SkillProgramStepOutcome.AwaitChoice;
@@ -29,12 +35,13 @@ public sealed partial class GameEngine
     {
         var order = frame.TopReorder ?? throw new InvalidOperationException("Top ordering lost its state.");
         if (order.RequiredTopCount is not null) ValidateExactTopReorder(frame);
+        if (order.Population is not null) ValidatePopulationTopReorder(frame);
         var used = order.TopCardIds.Concat(order.BottomCardIds).ToHashSet();
         var choices = order.ViewedCardIds.Where(id => !used.Contains(id)).Select(id =>
         {
             var card = _cardZones.CardsAt(CardLocation.DrawPile).Single(item => item.Id == id);
             var action = order.ChoosingBottom ? "bottom" : "top";
-            var label = order.RequiredTopCount is null
+            var label = order.RequiredTopCount is null && order.Population is null
                 ? $"将【{card.DisplayName}】置于牌堆{(order.ChoosingBottom ? "底" : "顶")}。"
                 : $"将观看牌 {Array.IndexOf(order.ViewedCardIds.ToArray(), id) + 1}【{card.DisplayName}】{GetSuitDisplayName(card.Suit)}{card.RankText}置于牌堆{(order.ChoosingBottom ? "底" : "顶")}。";
             return new PromptChoice(new ChoiceId($"program-top-order.{frame.Id}.{action}.{id}"),
@@ -59,6 +66,16 @@ public sealed partial class GameEngine
                     order.ChoosingBottom ? "首先选择的牌最靠牌堆底。" : "首先选择的牌下次先摸。")
             };
         }
+        if (order.Population is not null)
+        {
+            var skill = _contentRegistry.GetSkill(frame.SkillId);
+            _pendingDecision = _pendingDecision with
+            {
+                Prompt = order.ChoosingBottom ? "依次选择最靠牌堆底的牌。" : "依次选择牌堆顶的牌；也可以将全部牌置于牌堆底。",
+                SkillPrompt = new(frame.SkillId, skill.Name, skill.Name + " · " + (order.ChoosingBottom ? "牌堆底排序" : "牌堆顶排序"),
+                    order.ChoosingBottom ? "首先选择的牌最靠牌堆底。" : "首先选择的牌下次先摸；结束顶排序后，其余牌依次置底。")
+            };
+        }
         _status = _players[frame.OwnerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running;
     }
 
@@ -78,6 +95,16 @@ public sealed partial class GameEngine
             seat != frame.OwnerSeat || !decision.Choices.Any(item => item.Id == choice.Id))
             throw new InvalidOperationException("Top ordering choice is not current.");
         if (state.RequiredTopCount is not null) ValidateExactTopReorder(frame);
+        if (state.Population is not null)
+        {
+            ValidatePopulationTopReorder(frame);
+            if (!_players[frame.OwnerSeat].IsAlive || !HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId))
+            {
+                ClearPendingDecision();
+                CancelProgramBindingAndCleanup(frame, "观看技能的来源已失效，未提交的排序结束。");
+                return;
+            }
+        }
         var used = state.TopCardIds.Concat(state.BottomCardIds).ToHashSet();
         if (state.ViewedCardIds.Any(id => !_cardZones.CardsAt(CardLocation.DrawPile).Any(card => card.Id == id)))
             throw new InvalidOperationException("Top ordering cards changed before commitment.");
@@ -94,12 +121,17 @@ public sealed partial class GameEngine
         else throw new InvalidOperationException("Top ordering choice has no current card.");
         if (state.RequiredTopCount is { } required && state.TopCardIds.Count == required)
             state = state with { ChoosingBottom = true };
+        if (state.Population is not null)
+            state = state with { TopCardIds = Array.AsReadOnly(state.TopCardIds.ToArray()), BottomCardIds = Array.AsReadOnly(state.BottomCardIds.ToArray()) };
         ClearPendingDecision();
         frame = frame with { TopReorder = state };
         ReplaceRuntimeTop(frame);
         if (state.TopCardIds.Count + state.BottomCardIds.Count == state.ViewedCardIds.Count)
         {
             _cardZones.ReorderDrawPileTop(state.ViewedCardIds, state.TopCardIds, state.BottomCardIds);
+            if (state.Population?.AllBottomStateId is { } completionState)
+                SetProgramBooleanState(frame, completionState, state.ViewedCardIds.Count > 0 &&
+                    state.TopCardIds.Count == 0 && state.BottomCardIds.Count == state.ViewedCardIds.Count);
             ReplaceRuntimeTop(frame with { TopReorder = null });
             AdvanceRuntimeProgram(frame.Id);
         }

@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\Shared\PopulationTopReorderScenario.cs" Link="PopulationTopReorderScenario.cs" />
     <Compile Include="..\Shared\WushengResponseScenario.cs" Link="WushengResponseScenario.cs" />
     <Compile Include="..\Shared\JijiuEquipmentScenario.cs" Link="JijiuEquipmentScenario.cs" />
     <Compile Include="..\Shared\BorrowedSwordScenario.cs" Link="BorrowedSwordScenario.cs" />

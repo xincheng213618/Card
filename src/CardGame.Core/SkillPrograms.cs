@@ -149,7 +149,8 @@ public enum SkillProgramTargetKind
     OtherLivingEmptyHand = 742,
     OtherLivingDelayedTrickTarget = 800,
     OtherLegalCurrentCardTarget = 820,
-    OtherLivingWithHandOrEquipment = 940
+    OtherLivingWithHandOrEquipment = 940,
+    AnyLivingMale = 2000
 }
 public enum SkillProgramCardCategory { Basic, Trick, Equipment }
 public enum SkillProgramGainPhaseQualification { OutsideOwnerDraw }
@@ -366,9 +367,10 @@ public enum SkillProgramEffectOp
     ExchangeOwnedCardThroughDeckEnd = 1220, UseDeckSlashesThenShuffle = 1221,
     SelectRelativeZoneDemandTarget = 1260, DrawOnFirstProgramTargetEncounter = 1261,
     GrantTurnRedSlashBenefits = 1680, UseDiamondDelayedOrDiscard = 1780, RevealOwnedBoundCardAppearance = 1860, IssueCurrentTurnNonLockedSkillSuppression = 1861, GrantCurrentTurnDirectedHeartSlashBonus = 1862,
-    GiveShownBoundCardsAndGrantTurnHandLimit = 1960
+    GiveShownBoundCardsAndGrantTurnHandLimit = 1960,
+    PlaceSelectedEquipment = 2000, FreezeSelectedHpPair = 2001
 }
-public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets }
+public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets, HpPairHigher = 2000, HpPairLower = 2001 }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
 public enum SkillProgramTriggerWindow
 {
@@ -1177,6 +1179,10 @@ public sealed class SkillProgramEffect
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? ExactTopCount { get; internal init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramPopulationThresholdCount? PopulationThresholdCount { get; internal init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? AllBottomStateId { get; internal init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public SkillProgramClaimHandLimitExemption? ClaimHandLimitExemption { get; internal init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? AvailableAtSourceOnly { get; internal init; }
@@ -1670,6 +1676,13 @@ public sealed class SkillProgramCatalog
                 if (effect.Op is SkillProgramEffectOp.SetBooleanState or SkillProgramEffectOp.ToggleBooleanState or SkillProgramEffectOp.RecastSelectedCards or SkillProgramEffectOp.DrawCompletedCardParticipants &&
                     !declaredStateIds.Contains(effect.StateId!))
                     Fail(skillPath, $"trigger effect references undeclared state '{effect.StateId}'");
+            foreach (var effect in activations.SelectMany(item => item.Effects).Concat(triggers.SelectMany(item => item.Effects)))
+                if (effect.AllBottomStateId is { } completionState &&
+                    !booleanStates.Any(state => state.Id == completionState && !state.InitialValue &&
+                        state.Visibility == SkillProgramStateVisibility.Private && state.ResetScope == SkillProgramStateResetScope.Turn))
+                    Fail(skillPath, "all-bottom completion requires a declared initially-false private Turn state");
+            if (activations.Any(item => item.Effects.Any(effect => effect.AllBottomStateId is not null)))
+                Fail(skillPath + ".activations", "all-bottom completion state requires an owner preparation trigger");
             EnsureUniqueIds(activations.Select(item => item.Id).Concat(contributions.Select(item => item.Id)),
                 skillPath + ".playBindings");
             ValidateCardIdentityModifiers(skillPath, modifiers, cardIdentities);
@@ -3154,6 +3167,9 @@ public sealed class SkillProgramCatalog
         if (effects.Any(effect => effect.ClaimHandLimitExemption is not null) &&
             (window != SkillProgramTriggerWindow.TurnStartBeforeNormalFlow || subject != SkillProgramTriggerSubject.Owner))
             Fail(path, "exact judgment claim exemption requires an owner preparation trigger");
+        if (effects.Any(effect => effect.AllBottomStateId is not null) &&
+            (window != SkillProgramTriggerWindow.TurnStartBeforeNormalFlow || subject != SkillProgramTriggerSubject.Owner))
+            Fail(path, "all-bottom completion state requires an owner preparation trigger");
         if (requireDamageSource is not null &&
             (window != SkillProgramTriggerWindow.AfterDamageApplied || subject != SkillProgramTriggerSubject.Owner))
             Fail(path + ".requireDamageSource", "requires an afterDamageApplied owner trigger");

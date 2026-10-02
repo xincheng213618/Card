@@ -34,6 +34,10 @@ public interface ISkillProgramExecutionHost
 /// <summary>Primitive rules operations exposed to reusable effect handlers.</summary>
 public interface ISkillProgramEffectHost
 {
+    SkillProgramStepOutcome PlaceSelectedEquipment(ProgramSkillFrame frame, int targetSeat, string sourceBind) =>
+        throw new NotSupportedException("Equipment placement is not supported by this host.");
+    void FreezeSelectedHpPair(ProgramSkillFrame frame) =>
+        throw new NotSupportedException("Frozen HP pairs are not supported by this host.");
     SkillProgramStepOutcome RequestSlashAgainstChosenTarget(ProgramSkillFrame frame, int actorSeat, string resultBind, bool actorChoosesTarget = false) => throw new NotSupportedException();
     SkillProgramStepOutcome TakeSelectedTargetCards(ProgramSkillFrame frame, int sourceSeat, int count) => throw new NotSupportedException();
     SkillProgramStepOutcome ExchangeSelectedTargetEquipment(ProgramSkillFrame frame) =>
@@ -1282,7 +1286,9 @@ public sealed class ReorderTopCardsSkillProgramEffectHandler : ISkillProgramEffe
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ReorderTopCards;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host) =>
-        effect.ExactTopCount is { } exact
+        effect.PopulationThresholdCount is { } population
+            ? ((IPopulationTopReorderProgramEffectHost)host).ReorderTopCardsByPopulation(frame, effect.Amount, population, effect.AllBottomStateId)
+            : effect.ExactTopCount is { } exact
             ? ((IExactTopReorderProgramEffectHost)host).ReorderTopCardsExactly(frame, effect.Amount, effect.NumberExpression, exact)
             : host.ReorderTopCards(frame, effect.Amount, effect.NumberExpression);
 }
@@ -1445,6 +1451,11 @@ public sealed class SkillProgramExecutor
                 effect.Target == SkillProgramEffectTarget.SelectedTarget && frame.SelectedTargetSeats.Count == 0)
                 continue;
 
+            if (effect.Target is SkillProgramEffectTarget.HpPairHigher or SkillProgramEffectTarget.HpPairLower)
+            {
+                var pair = frame.HpPairSnapshot ?? throw new InvalidOperationException("A frozen HP target has no owning pair.");
+                if ((effect.Target == SkillProgramEffectTarget.HpPairHigher ? pair.HigherSeat : pair.LowerSeat) is null) continue;
+            }
             var targetSeat = effect.Op is SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets
                 ? frame.OwnerSeat
                 : effect.Op == SkillProgramEffectOp.Damage &&
@@ -1458,6 +1469,8 @@ public sealed class SkillProgramExecutor
                             $"Skill program '{frame.SkillId}' requires a frozen card-action actor."),
                     SkillProgramEffectTarget.SelectedTarget => frame.SelectedTargetSeats.Single(),
                     SkillProgramEffectTarget.SelectedTargets => frame.OwnerSeat,
+                    SkillProgramEffectTarget.HpPairHigher => frame.HpPairSnapshot!.HigherSeat!.Value,
+                    SkillProgramEffectTarget.HpPairLower => frame.HpPairSnapshot!.LowerSeat!.Value,
                     _ => throw new InvalidOperationException(
                         $"Skill program '{frame.SkillId}' uses unsupported target '{effect.Target}'.")
                 };

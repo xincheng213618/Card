@@ -34,6 +34,8 @@ public sealed record ProgramTopReorder(
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? RequiredTopCount { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramPopulationTopReorder? Population { get; init; }
 }
 public sealed record ProgramRepeatedJudgment(
     string Reason, string ResultBind, IReadOnlyList<Suit> SuccessSuits, int CompletedCount,

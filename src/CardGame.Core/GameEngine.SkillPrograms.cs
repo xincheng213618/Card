@@ -125,7 +125,7 @@ public sealed partial class GameEngine
                         features.Legality.CanSelectTarget(ownerLegality,
                             CreateProgramLegalityParticipant(target.Seat)) &&
                         (activation.TargetKind is SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.AnyWounded or
-                         SkillProgramTargetKind.AnyLivingHighestHp or SkillProgramTargetKind.AnyLivingHighestHand or SkillProgramTargetKind.AnyLivingLeastHandCount ||
+                         SkillProgramTargetKind.AnyLivingHighestHp or SkillProgramTargetKind.AnyLivingHighestHand or SkillProgramTargetKind.AnyLivingLeastHandCount or SkillProgramTargetKind.AnyLivingMale ||
                          target.Seat != owner.Seat) &&
                         (activation.TargetKind switch
                         {
@@ -158,6 +158,7 @@ public sealed partial class GameEngine
                             SkillProgramTargetKind.OtherLivingAtDistanceOne =>
                                                     target.Seat != owner.Seat && GetCombatDistance(owner.Seat, target.Seat) == 1,
                             SkillProgramTargetKind.AnyLiving => true,
+                            SkillProgramTargetKind.AnyLivingMale => target.Gender == GeneralGender.Male,
                             SkillProgramTargetKind.AnyLivingHighestHp or SkillProgramTargetKind.AnyLivingHighestHand or SkillProgramTargetKind.AnyLivingLeastHandCount or SkillProgramTargetKind.OtherLivingHighestHand =>
                                 GetProgramTargetSeats(owner.Seat, activation.TargetKind).Contains(target.Seat),
                             SkillProgramTargetKind.OtherWounded =>
@@ -172,6 +173,11 @@ public sealed partial class GameEngine
                         (!features.ProhibitsEquipmentReplacement ||
                          HasFreeEquipmentSlotForOwnedHandEquipment(owner, target)))
                     .Select(target => target.Seat).Order().ToArray();
+                if (features.HasOperation(SkillProgramEffectOp.PlaceSelectedEquipment))
+                {
+                    targets = targets.Where(seat => cards.Any(id => CanPlaceActivationEquipment(owner.Seat, seat, id))).ToArray();
+                    cards = cards.Where(id => targets.Any(seat => CanPlaceActivationEquipment(owner.Seat, seat, id))).ToArray();
+                }
                 if (activation.TargetPhaseLedgerId is { } targetLedger)
                     targets = targets.Where(seat => CanActivateTargetPhaseLedger(owner.Seat, program.Id, targetLedger, seat)).ToArray();
                 if (activation.CategoryTargetLedgerId is { } ledgerId)
@@ -316,6 +322,9 @@ public sealed partial class GameEngine
         var plan = program is null ? null : ProgramInstructionResolver.Default.Find(program,
             ProgramInstructionSourceKind.Activation, action.ProgramActivationId);
         var activation = plan?.Activation;
+        if (plan?.Features.HasOperation(SkillProgramEffectOp.PlaceSelectedEquipment) == true &&
+            (cards.Count != 1 || targets.Count != 1 || !CanPlaceActivationEquipment(_currentSeat, targets[0], cards[0])))
+            return new CommandError(CommandErrorCode.InvalidCard, "The selected equipment cannot be placed on this target.");
         if (activation is { SelectedCardsDistinctSuits: true } && cards.Select(id => _cardZones.CardsAt(_cardZones.GetLocation(id))
                 .Single(card => card.Id == id).Suit).Distinct().Count() != cards.Count)
             return new CommandError(CommandErrorCode.InvalidCard, "The selected cards must have distinct printed suits.");
@@ -780,6 +789,7 @@ public sealed partial class GameEngine
                      movement.BeforeCount >= _players.Count))
                 throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
             if (frame.TopReorder?.RequiredTopCount is not null) ValidateExactTopReorder(frame);
+            if (frame.TopReorder?.Population is not null) ValidatePopulationTopReorder(frame);
             if(frame.DomainCrossing is {} domain &&
                 (plan.Instructions[frame.InstructionIndex-1].Op!=SkillProgramEffectOp.ResolveFirstGameDomainCrossing ||
                  frame.WindowContext?.Window!=SkillProgramTriggerWindow.FirstGameDomainCrossing ||
@@ -812,7 +822,7 @@ public sealed partial class GameEngine
             {
                 if (selectedPayment.InstructionIndex < 1 || selectedPayment.InstructionIndex > frame.InstructionIndex ||
                     plan.Instructions[selectedPayment.InstructionIndex - 1].Op != selectedPayment.Operation ||
-                    selectedPayment.Operation is not (SkillProgramEffectOp.GiveSelected or SkillProgramEffectOp.DiscardSelected) ||
+                    selectedPayment.Operation is not (SkillProgramEffectOp.GiveSelected or SkillProgramEffectOp.DiscardSelected or SkillProgramEffectOp.PlaceSelectedEquipment) ||
                     !selectedPayment.CardIds.SequenceEqual(frame.SelectedCardIds) ||
                     !IsValidPlayerSeat(selectedPayment.RecipientSeat) ||
                     selectedPayment.Operation == SkillProgramEffectOp.DiscardSelected &&
@@ -829,6 +839,7 @@ public sealed partial class GameEngine
             }
             else if (frame.SelectedCardPaymentResult is not null)
                 throw new InvalidOperationException("A selected-card movement result has no paid instruction.");
+            AssertEquipmentPlacementAndHpPair(frame, plan);
             if (frame.PendingMovementContinuation is { } pendingMovement)
             {
                 var paidEffect = frame.InstructionIndex > 0

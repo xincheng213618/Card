@@ -991,6 +991,10 @@ public sealed partial class GameEngine
             _resolutionStack.LastOrDefault() is ProgramSkillFrame { TopReorder.RequiredTopCount: not null })
             return SubmitProgramTopReorderAnswer(selected);
 
+        if (pending.Kind == DecisionKind.ProgramTopReorder &&
+            _resolutionStack.LastOrDefault() is ProgramSkillFrame { TopReorder.Population: not null })
+            return SubmitProgramTopReorderAnswer(selected);
+
         if (pending.SkillPrompt is not null)
             return SubmitPindianPromptAnswer(selected);
 

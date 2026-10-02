@@ -10911,6 +10911,40 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-zhuge-liang",
+      "characterName": "界诸葛亮",
+      "defaultSkinId": "44000",
+      "skins": [
+        {
+          "id": "44000",
+          "name": "默认皮肤",
+          "sourcePage": "https://www.sanguosha.com/hero/440",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44000.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-zhuge-liang.png",
+          "sha256": "0f01d10e64e97bf082014118eb615c11107feca61ecbab5aea76853f20c22364",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "boundary-sun-shangxiang",
+      "characterName": "界孙尚香",
+      "defaultSkinId": "44300",
+      "skins": [
+        {
+          "id": "44300",
+          "name": "默认皮肤",
+          "sourcePage": "https://www.sanguosha.com/hero/443",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44300.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-sun-shangxiang.png",
+          "sha256": "39ccb7e0ac426b981c9b68e2794de2426b147e33dacd0644058fd9b1e698ea02",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

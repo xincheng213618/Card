@@ -734,6 +734,7 @@ public sealed partial class GameEngine
                 SkillProgramTargetKind.OtherLiving => target.Seat != ownerSeat,
                 SkillProgramTargetKind.OtherLivingMale =>
                     target.Seat != ownerSeat && target.Gender == GeneralGender.Male,
+                SkillProgramTargetKind.AnyLivingMale => target.Gender == GeneralGender.Male,
                 SkillProgramTargetKind.OtherWoundedMale =>
                     target.Seat != ownerSeat && target.Gender == GeneralGender.Male &&
                     target.Hp < target.MaxHp,

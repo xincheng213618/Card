@@ -156,6 +156,8 @@ public sealed record ProgramSkillFrame(
     public ProgramRecoveryReceipt? RecoveryReceipt { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramSelectedCardPaymentResult? SelectedCardPaymentResult { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramHpPairSnapshot? HpPairSnapshot { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ProgramPhaseGiftReceipt? PhaseGiftReceipt { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

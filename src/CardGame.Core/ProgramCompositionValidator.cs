@@ -25,6 +25,9 @@ internal static class ProgramCompositionValidator
         var roots = new List<Root>();
         var topPayments = new HashSet<string>(StringComparer.Ordinal);
         var selectedTarget = initialSelectedTarget;
+        var hpPairProduced = false;
+        var capturedPlacementBindings = new HashSet<string>(StringComparer.Ordinal);
+        var derivedPlacementRoots = new HashSet<Root>();
         var cardsConsumed = false;
         var targetSetAvailable = initialTargetSetCount > 0;
         var targetSetConsumed = false;
@@ -41,6 +44,17 @@ internal static class ProgramCompositionValidator
             if(effect is {Op:SkillProgramEffectOp.SelectAndMoveOwnedCard,Destination:SkillProgramCardDestination.DrawPileTop,ResultBind:{ } payment,Condition.Kind:SkillProgramConditionKind.Always,AwaitMovementTriggers:true,Zones:[CardZoneKind.Hand],ChooserRef.Kind:ProgramParticipantRef.Owner,CardOwnerRef.Kind:ProgramParticipantRef.Owner}) topPayments.Add(payment);
             var nodePath = $"{path}.effects[{index}]";
             var descriptor = ProgramOperationCatalog.Default.Resolve(effect.Op);
+            if (hpPairProduced && effect.Op is not (SkillProgramEffectOp.Draw or SkillProgramEffectOp.Recover))
+                throw Error(nodePath, "A frozen HP pair permits only a Draw/Recover tail after its producer.");
+            if (effect.Target is SkillProgramEffectTarget.HpPairHigher or SkillProgramEffectTarget.HpPairLower &&
+                effect.Op is not (SkillProgramEffectOp.Draw or SkillProgramEffectOp.Recover))
+                throw Error(nodePath, "Frozen HP pair targets are limited to Draw and Recover.");
+            if (effect.Op == SkillProgramEffectOp.PlaceSelectedEquipment &&
+                (window is not null || selectedCardCount != 1 || !initialSelectedTarget ||
+                 activationMinimumCards != 1 || activationSourceZones is null ||
+                 activationSourceZones.Any(zone => zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)) ||
+                 activationCardCategories is null || !activationCardCategories.SequenceEqual([SkillProgramCardCategory.Equipment])))
+                throw Error(nodePath, "Equipment placement requires one captured owner HE equipment and one initial target.");
             if (effect.Op == SkillProgramEffectOp.LoseOwnerSkillsAndGrant &&
                 (window is not null || index != effects.Count - 1))
                 throw Error(nodePath, "Owner skill replacement must terminate an activation.");
@@ -112,6 +126,11 @@ internal static class ProgramCompositionValidator
                 throw Error(nodePath, "card bindings cannot cross an independently interactive inserted phase");
             foreach (var resource in descriptor.Resources(effect))
             {
+                if (hpPairProduced && resource is SelectSingleTarget or ReplaceSingleTarget or SelectTargetSet or
+                    NarrowTargetSetToSingle or ConsumeTargetSet)
+                    Fail("A frozen HP pair cannot rebuild its selected participants.");
+                if (hpPairProduced && effect.Op == SkillProgramEffectOp.InsertPhase)
+                    Fail("A frozen HP pair cannot cross an independent inserted phase.");
                 switch (resource)
                 {
                     case CreateCardSet create:
@@ -147,6 +166,8 @@ internal static class ProgramCompositionValidator
                         roots.Add(root);
                         Add(activationCards.Name, new(root, root.Atoms.Keys.ToHashSet(), selectedCardCount));
                         cardsConsumed = true;
+                        if (effect.Condition.Kind == SkillProgramConditionKind.Always)
+                            capturedPlacementBindings.Add(activationCards.Name);
                         break;
                     }
                     case ReadCompletedActivationDiscard paid:
@@ -160,6 +181,14 @@ internal static class ProgramCompositionValidator
                             { Op: SkillProgramEffectOp.MoveBoundCards, Destination: SkillProgramCardDestination.DiscardPile, AwaitMovementTriggers: true, Condition.Kind: SkillProgramConditionKind.Always } ||
                             effects[1].SourceBind != paid.Name)
                             Fail("declaration requires its captured single own HE activation cost, fully discarded and awaited before target selection");
+                        break;
+                    }
+                    case ReadCapturedPlacementCard captured:
+                    {
+                        var source = Get(captured.Name);
+                        if (!capturedPlacementBindings.Contains(captured.Name) || source.Root.Name != captured.Name ||
+                            source.MaximumCount != 1 || derivedPlacementRoots.Contains(source.Root))
+                            Fail("Placement requires the original unconditional single captured activation binding without derivation.");
                         break;
                     }
                     case ReadSingleCardSet single:
@@ -182,6 +211,7 @@ internal static class ProgramCompositionValidator
                         if (derive.MatchSuitOfBind is { } frozen && !frozenSuitBindings.Contains(frozen))
                             Fail($"unknown public frozen suit binding '{frozen}'");
                         var source = Get(derive.Source);
+                        derivedPlacementRoots.Add(source.Root);
                         if (source.Atoms.Overlaps(source.Root.Consumed) || source.Atoms.Overlaps(source.Root.PossiblyGifted))
                             Fail("a derived set reads cards that may already have moved");
                         HashSet<int> atoms;
@@ -393,6 +423,13 @@ internal static class ProgramCompositionValidator
                     }
                     case ReadSelectedTarget:
                         if (!selectedTarget) Fail("selectedTarget must be produced before it is read");
+                        break;
+                    case CreateHpPairSnapshot:
+                        if (hpPairProduced) Fail("An HP pair may have only one unconditional producer.");
+                        hpPairProduced = true;
+                        break;
+                    case ReadHpPairSnapshot:
+                        if (!hpPairProduced) Fail("Frozen HP pair target requires its earlier unconditional producer.");
                         break;
                     case ReadTargetSet read:
                     {

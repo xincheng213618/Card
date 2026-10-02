@@ -1,0 +1,24 @@
+{
+  "schemaVersion":62,
+  "skills":[{
+    "id":"boundary:jieyin-current","revision":1,"minimumRulesVersion":193,
+    "activations":[
+      {"id":"discard-hand","minCards":1,"maxCards":1,"sourceZones":["hand"],"minTargets":1,"maxTargets":1,"targetKind":"anyLivingMale","usesPerTurn":null,"usesPerPhase":1,"usageGroup":"pair-payment",
+       "effects":[
+         {"op":"captureSelectedCards","target":"owner","resultBind":"cost"},
+         {"op":"moveBoundCards","target":"owner","sourceBind":"cost","destination":"discardPile","awaitMovementTriggers":true},
+         {"op":"freezeSelectedHpPair","target":"owner"},
+         {"op":"draw","target":"hpPairHigher","amount":1},
+         {"op":"recover","target":"hpPairLower","amount":1}
+       ]},
+      {"id":"place-equipment","minCards":1,"maxCards":1,"sourceZones":["hand","equipment"],"cardCategories":["equipment"],"minTargets":1,"maxTargets":1,"targetKind":"anyLivingMale","usesPerTurn":null,"usesPerPhase":1,"usageGroup":"pair-payment",
+       "effects":[
+         {"op":"captureSelectedCards","target":"owner","resultBind":"cost"},
+         {"op":"placeSelectedEquipment","target":"selectedTarget","sourceBind":"cost"},
+         {"op":"freezeSelectedHpPair","target":"owner"},
+         {"op":"draw","target":"hpPairHigher","amount":1},
+         {"op":"recover","target":"hpPairLower","amount":1}
+       ]}
+    ]
+  }]
+}

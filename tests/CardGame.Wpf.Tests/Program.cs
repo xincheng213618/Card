@@ -97,6 +97,7 @@ internal static class Program
             Check("Program deferred hand alignment restores native private recipient and exact payment", () => DeferredHandAlignmentUiChecks.NativeRecipientDraftRestores(output));
             Check("Program private top quota restores exact faces and top order", () => QuotaTopUiChecks.NativePrivateViewAndOrder(output));
             Check("Program exact top count restores private shared order", () => ExactTopReorderUiChecks.ManualLoadAndPartition(output));
+            Check("Program population count private faces restore shared free order", () => PopulationTopReorderUiChecks.PrivateFacesRestoreAndNativeOrder(output));
             Check("Program issued phase use ban restores native restrictions and controls", () => PhaseGiftUiChecks.IssuedPhaseBanRestores(output));
             Check("Program completed faction gift restores provider and Lord choices", () => PhaseGiftUiChecks.ProviderAndLordChoicesRestore(output));
             Check("Program public pile exchange restores optional count and public faces", () => PublicPileExchangeUiChecks.OptionalHandCountAndPublicFacesRestore(output));

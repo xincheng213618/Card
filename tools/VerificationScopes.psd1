@@ -53,7 +53,11 @@
         'boundary Zhen Ji exact receipt stop red discard',
         'boundary Zhen Ji receipt before child source loss',
         'Unconverted Trick draw receipt disposition',
-        'Foreign equipment discard program selections'
+        'Foreign equipment discard program selections',
+        'Population reorder actual partition and short pile',
+        'Population reorder real Ending Extra Scheduled',
+        'HP pair freezes after payment children before draw children',
+        'Equipment placement slot self equal boundaries'
     )
     Wpf = @(
         'original card artwork', 'composed skills', 'conversion choices',
@@ -62,6 +66,7 @@
         'deferred hand alignment', 'Program conversion polarity stays visible',
         'declaration and general library views protect private faces',
         'Program paid choices',
-        'Program exact top count restores private shared order'
+        'Program exact top count restores private shared order',
+        'Program population count private faces restore shared free order'
     )
 }

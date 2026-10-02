@@ -215,6 +215,13 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (_resolutionStack.LastOrDefault() is ProgramSkillFrame { TopReorder.Population: not null } &&
+            IsAiProgramTopReorderPending())
+        {
+            ResolvePendingAiProgramTopReorder();
+            return;
+        }
+
         if (_pendingDecision?.SkillPrompt is not null)
         {
             if (IsAiPindianPending()) ResolvePendingAiPindian();

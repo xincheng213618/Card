@@ -346,6 +346,7 @@ internal abstract class ProgramOperationDescriptorBase : IProgramOperationDescri
         {
             SkillProgramEffectTarget.SelectedTarget => [new ReadSelectedTarget()],
             SkillProgramEffectTarget.SelectedTargets => [new ReadTargetSet(1)],
+            SkillProgramEffectTarget.HpPairHigher or SkillProgramEffectTarget.HpPairLower => [new ReadHpPairSnapshot()],
             SkillProgramEffectTarget.Actor =>
                 [new RequireContext(ProgramContextCapability.CardAction)],
             _ => []
