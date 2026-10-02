@@ -12,7 +12,7 @@ public sealed partial class MainViewModel
         !IsTutorialActive && SelectedRecastAction() is not null;
 
     private LegalAction? SelectedRecastAction() => _selectedCardId is { } cardId
-        ? _game.GetHumanLegalActions().SingleOrDefault(action =>
+        ? GetViewLegalActions().SingleOrDefault(action =>
             action.Kind == LegalActionKind.Recast && action.CardId == cardId &&
             action.ConversionSource == _selectedConversionSource)
         : null;
@@ -28,17 +28,17 @@ public sealed partial class MainViewModel
             { ConversionSource = action.ConversionSource });
             if (!result.Accepted) return;
             ClearSelection();
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 
     public bool IsMultiTargetCardSelected => !IsActiveSkillSelectionPending &&
         _snapshot?.PendingDecision?.Kind == DecisionKind.PlayCard &&
-        _game.GetHumanLegalActions().Any(action => action.CardId == _selectedCardId &&
+        GetViewLegalActions().Any(action => action.CardId == _selectedCardId &&
             action.Kind is LegalActionKind.IronChain or LegalActionKind.Recast);
 
     private LegalAction[] MultiTargetCardActions => IsMultiTargetCardSelected
-        ? _game.GetHumanLegalActions().Where(action => action.CardId == _selectedCardId && action.Kind == LegalActionKind.IronChain).ToArray()
+        ? GetViewLegalActions().Where(action => action.CardId == _selectedCardId && action.Kind == LegalActionKind.IronChain).ToArray()
         : [];
 
     private int[] SelectedPlayTargets()

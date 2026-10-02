@@ -24,7 +24,7 @@ public sealed partial class MainViewModel
             .Where(item => item.ActorSeat == view.HumanSeat).Select(item => item.CardId);
         CurrentPlayAdvice = PlayAdvisor.Recommend(
             view,
-            _game.GetHumanLegalActions(),
+            GetViewLegalActions(),
             recastIds);
         _adviceGame = _game;
         SelectedGuideSection = GuideSections[0];

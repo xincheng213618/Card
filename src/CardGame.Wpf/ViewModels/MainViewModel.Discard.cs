@@ -59,7 +59,7 @@ public sealed partial class MainViewModel
                 return;
             }
             _discardCardIds.Clear();
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 

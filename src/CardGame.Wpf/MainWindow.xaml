@@ -1,5 +1,13 @@
 <Window x:Class="CardGame.Wpf.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:CardGame.Wpf.Controls" Title="{Binding WindowTitle}" Width="1440" Height="920" MinWidth="1120" MinHeight="780" WindowStartupLocation="CenterScreen" Background="{StaticResource TableDeepBrush}" PreviewKeyDown="Window_PreviewKeyDown" Closed="Window_Closed" Loaded="Window_Loaded" Closing="Window_Closing">
     <Window.Resources>
+        <DataTemplate x:Key="RingSeatTemplate">
+            <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="5,3">
+                <StackPanel>
+                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource SeatTemplate}" />
+                    <TextBlock Text="{Binding SeatLabel}" Foreground="#F0DEC0" FontFamily="KaiTi" FontSize="12" HorizontalAlignment="Center" Margin="0,3,0,0" />
+                </StackPanel>
+            </Viewbox>
+        </DataTemplate>
         <DataTemplate x:Key="DyingChoiceTemplate">
             <Button Command="{Binding DataContext.SelectDyingChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource ToolbarButton}" Margin="4" MaxWidth="380" Padding="14,9">
                 <TextBlock Text="{Binding Description}" TextWrapping="Wrap" TextAlignment="Center" />
@@ -197,16 +205,16 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="214" />
+                    <RowDefinition Height="192" />
                     <RowDefinition Height="24" />
                 </Grid.RowDefinitions>
-                <Grid x:Name="Battlefield">
+                <Grid x:Name="Battlefield" SizeChanged="Battlefield_SizeChanged">
                     <Grid Margin="12,12,12,6">
                         <Grid.RowDefinitions>
-                            <RowDefinition MaxHeight="190">
+                            <RowDefinition x:Name="TopSeatRow" MaxHeight="210">
                                 <RowDefinition.Style>
                                     <Style TargetType="RowDefinition">
-                                        <Setter Property="Height" Value="190" />
+                                        <Setter Property="Height" Value="210" />
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding HasCenterChoices}" Value="True">
                                                 <Setter Property="Height" Value="*" />
@@ -228,47 +236,27 @@
                             </RowDefinition>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="132" />
+                            <ColumnDefinition Width="164" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="132" />
+                            <ColumnDefinition Width="164" />
                         </Grid.ColumnDefinitions>
                         <StackPanel VerticalAlignment="Top" Margin="2,14,0,0">
                             <TextBlock Text="{Binding TableArenaTitle}" Foreground="#F0D59F" FontSize="12" />
                             <TextBlock Text="{Binding AliveText}" Foreground="#E5D4B5" FontSize="11" Margin="0,7,0,0" />
                         </StackPanel>
-                        <ItemsControl Grid.Column="1" ItemsSource="{Binding TopSeats}" Margin="0,0,0,6">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <UniformGrid Columns="{Binding TopSeats.Count}" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="5,0">
-                                        <StackPanel>
-                                            <ContentControl Content="{Binding}" ContentTemplate="{StaticResource SeatTemplate}" />
-                                            <TextBlock Text="{Binding SeatLabel}" Foreground="#F0DEC0" FontSize="10" HorizontalAlignment="Center" Margin="0,4,0,0" />
-                                        </StackPanel>
-                                    </Viewbox>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
+                        <ItemsControl x:Name="TopSeatRing" Grid.Column="1" ItemsSource="{Binding TopSeats}" ItemTemplate="{StaticResource RingSeatTemplate}" Margin="12,0,12,5">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Rows="1" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                         </ItemsControl>
                         <StackPanel Grid.Column="2" HorizontalAlignment="Right" Margin="0,14,2,0">
                             <TextBlock Text="{Binding DeckText}" Foreground="#F0D59F" FontSize="11" />
                             <TextBlock Text="{Binding DiscardText}" Foreground="#E5D4B5" FontSize="11" Margin="0,7,0,0" />
                         </StackPanel>
-                        <Viewbox Grid.RowSpan="2" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,80,0,0">
-                            <StackPanel>
-                                <ContentControl Content="{Binding LeftPlayer}" ContentTemplate="{StaticResource SeatTemplate}" />
-                                <TextBlock Text="{Binding LeftPlayer.SeatLabel}" Foreground="#F0DEC0" FontSize="10" HorizontalAlignment="Center" Margin="0,4,0,0" />
-                            </StackPanel>
-                        </Viewbox>
-                        <Viewbox Grid.RowSpan="2" Grid.Column="2" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,80,0,0">
-                            <StackPanel>
-                                <ContentControl Content="{Binding RightPlayer}" ContentTemplate="{StaticResource SeatTemplate}" />
-                                <TextBlock Text="{Binding RightPlayer.SeatLabel}" Foreground="#F0DEC0" FontSize="10" HorizontalAlignment="Center" Margin="0,4,0,0" />
-                            </StackPanel>
-                        </Viewbox>
+                        <ItemsControl x:Name="LeftSeatRing" Grid.RowSpan="2" ItemsSource="{Binding LeftSeats}" ItemTemplate="{StaticResource RingSeatTemplate}" Margin="0,62,0,0">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="1" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <ItemsControl x:Name="RightSeatRing" Grid.RowSpan="2" Grid.Column="2" ItemsSource="{Binding RightSeats}" ItemTemplate="{StaticResource RingSeatTemplate}" Margin="0,62,0,0">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="1" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        </ItemsControl>
                         <Grid Grid.Row="1" Grid.Column="1" Margin="16,4" x:Name="FeedbackCenter">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -402,7 +390,7 @@
                             <Button Content="提示" DockPanel.Dock="Right" Command="{Binding OpenContextGuideCommand}" Style="{StaticResource QuietButton}" Padding="6,3" ToolTip="查看操作说明 · F1" />
                             <TextBlock Text="牌局记录" FontFamily="KaiTi" FontSize="17" Foreground="#E7D1A1" VerticalAlignment="Center" />
                         </DockPanel>
-                        <ListBox x:Name="TableBattleLog" Grid.Row="1" ItemsSource="{Binding FilteredBattleLog}" Background="#44171310" BorderThickness="0" Padding="5" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox x:Name="TableBattleLog" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True" Grid.Row="1" ItemsSource="{Binding FilteredBattleLog}" Background="#44171310" BorderThickness="0" Padding="5" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                             <ListBox.ItemContainerStyle><Style TargetType="ListBoxItem"><Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="Focusable" Value="False" /><Setter Property="Padding" Value="2,4" /></Style></ListBox.ItemContainerStyle>
                             <ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Message}" Foreground="#DDC188" FontSize="11" TextWrapping="Wrap" /></DataTemplate></ListBox.ItemTemplate>
                         </ListBox>
@@ -573,14 +561,14 @@
                             <ColumnDefinition Width="154" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="228" />
-                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="142" />
                         </Grid.ColumnDefinitions>
 
                         <StackPanel x:Name="EquipmentRail" Margin="0,0,8,0">
                             <ItemsControl x:Name="HumanEquipmentSlots" ItemsSource="{Binding HumanEquipmentSlots}" ItemTemplate="{StaticResource EquipmentSlotTemplate}" />
                         </StackPanel>
                         <Grid Grid.Column="1" Margin="8,0">
-                            <controls:HandScrollViewer x:Name="HandViewport" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Focusable="False" ToolTip="手牌较多时，在此处滚动鼠标滚轮可左右浏览。" AutomationProperties.Name="手牌浏览区">
+                            <controls:HandScrollViewer x:Name="HandViewport" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Focusable="False" ToolTip="滚轮左右浏览手牌；双击已选牌或目标确认，右键取消选择。" AutomationProperties.Name="手牌浏览区">
                                 <ItemsControl x:Name="HandCards" ItemsSource="{Binding Hand}" ItemTemplate="{StaticResource CardTemplate}" VerticalAlignment="Top">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
@@ -620,7 +608,7 @@
                                 </StackPanel>
                             </Grid>
                         </Border>
-                        <ContentControl x:Name="HumanPortrait" Grid.Column="3" Content="{Binding HumanPlayer}" ContentTemplate="{StaticResource SeatTemplate}" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+                        <Viewbox Grid.Column="3" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Right"><ContentControl x:Name="HumanPortrait" Content="{Binding HumanPlayer}" ContentTemplate="{StaticResource SeatTemplate}" /></Viewbox>
                     </Grid>
                 </Border>
                 <Border Grid.Row="3" Grid.ColumnSpan="2" Background="#1B1814" BorderBrush="#34423F" BorderThickness="0,1,0,0" Padding="25,0">
@@ -650,27 +638,41 @@
                         </StackPanel>
                     </Border>
                 </Border>
-                <Border Grid.RowSpan="4" Grid.ColumnSpan="2" Background="#E80C151A" Visibility="{Binding IsGeneralSelectionPending, Converter={StaticResource BoolToVisibility}}">
-                    <Border Width="762" Background="#18252B" BorderBrush="#86734D" BorderThickness="1" Padding="30,22" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <StackPanel>
-                            <TextBlock Text="点 将 出 征" FontFamily="KaiTi" FontSize="34" Foreground="#F1D298" HorizontalAlignment="Center" />
-                            <TextBlock Text="{Binding GeneralSelectionSubtitle}" Foreground="#9BAC9F" FontSize="12" HorizontalAlignment="Center" Margin="0,9,0,22" />
-                            <ItemsControl ItemsSource="{Binding GeneralChoices}" ItemTemplate="{StaticResource GeneralChoiceTemplate}" HorizontalAlignment="Center">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Horizontal" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
-                            <Grid Margin="10,18,10,0">
+                <Border x:Name="GeneralSelectionOverlay" Grid.RowSpan="2" Background="#46110E0B" Visibility="{Binding IsGeneralSelectionPending, Converter={StaticResource BoolToVisibility}}">
+                    <Border x:Name="GeneralSelectionPanel" MaxWidth="900" MaxHeight="490" Margin="24,12" Background="#F51C1916" BorderBrush="#9B8761" BorderThickness="2" Padding="22,15" HorizontalAlignment="Stretch" VerticalAlignment="Center" KeyboardNavigation.TabNavigation="Cycle">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                            <StackPanel Margin="0,0,0,14">
+                                <TextBlock Text="点 将 出 征" FontFamily="KaiTi" FontSize="27" Foreground="#F1D298" HorizontalAlignment="Center" />
+                                <TextBlock Text="{Binding GeneralSelectionSubtitle}" Foreground="#C6B895" FontSize="12" HorizontalAlignment="Center" Margin="0,5,0,0" />
+                            </StackPanel>
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="220" /></Grid.ColumnDefinitions>
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="315">
+                                    <ItemsControl x:Name="GeneralCandidateCards" ItemsSource="{Binding GeneralChoices}" ItemTemplate="{StaticResource GeneralChoiceTemplate}">
+                                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel HorizontalAlignment="Center" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                                <Border Grid.Column="1" BorderBrush="#67573E" BorderThickness="1,0,0,0" Margin="14,0,0,0" Padding="16,4,0,0">
+                                    <Grid>
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                                        <TextBlock Text="{Binding SelectedGeneralChoice.Name}" FontFamily="KaiTi" FontSize="26" Foreground="#F7D898" />
+                                        <TextBlock Grid.Row="1" Text="{Binding SelectedGeneralChoice.HealthText}" Foreground="#A8BD86" FontSize="12" Margin="0,5,0,12" />
+                                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="235">
+                                            <TextBlock Text="{Binding SelectedGeneralChoice.SkillDescription}" Foreground="#DFD1B5" FontSize="12" LineHeight="21" TextWrapping="Wrap" Margin="0,0,8,0" />
+                                        </ScrollViewer>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                            <Grid Grid.Row="2" Margin="0,15,0,0">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                 <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding SelectedGeneralChoiceText}" Foreground="#D3BE8A" FontSize="12" TextWrapping="Wrap" />
-                                    <TextBlock Text="{Binding GeneralSelectionFooter}" Foreground="#718B80" FontSize="10" Margin="0,5,0,0" />
+                                    <TextBlock Text="数字键选将 · Enter 确认" Foreground="#D3BE8A" FontSize="12" />
+                                    <TextBlock Text="{Binding GeneralSelectionFooter}" Foreground="#94866F" FontSize="10" Margin="0,5,12,0" TextWrapping="Wrap" />
                                 </StackPanel>
-                                <Button x:Name="ConfirmGeneralChoiceButton" Grid.Column="1" Content="确 认 出 征" Command="{Binding ConfirmGeneralChoiceCommand}" Style="{StaticResource PrimaryButton}" MinWidth="130" Padding="17,9" Margin="18,0,0,0" />
+                                <Button x:Name="ConfirmGeneralChoiceButton" Grid.Column="1" Content="确 认 出 征" Command="{Binding ConfirmGeneralChoiceCommand}" Style="{StaticResource TablePrimaryButton}" MinWidth="132" Padding="17,9" />
                             </Grid>
-                        </StackPanel>
+                        </Grid>
                     </Border>
                 </Border>
                 <Border Grid.RowSpan="4" Grid.ColumnSpan="2" Background="#D70C151A" Visibility="{Binding HasGameOver, Converter={StaticResource BoolToVisibility}}">

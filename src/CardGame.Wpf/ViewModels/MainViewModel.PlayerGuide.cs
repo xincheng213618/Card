@@ -116,7 +116,7 @@ public sealed partial class MainViewModel
         var prompt = _snapshot.PendingDecision;
         var isFangtianTargetSelection = HasTargetCombinationChoices &&
             _selectedCardId is { } fangtianSlashId &&
-            _game.GetHumanLegalActions().Any(action =>
+            GetViewLegalActions().Any(action =>
                 action.CardId == fangtianSlashId &&
                 action.Kind == LegalActionKind.Slash &&
                 action.TargetSeats.Count > 1);

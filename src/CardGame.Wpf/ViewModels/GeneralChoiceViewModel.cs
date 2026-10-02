@@ -12,6 +12,7 @@ public sealed class GeneralChoiceViewModel : ObservableObject
 
     public required string Text { get; init; }
     public string Name { get; init; } = string.Empty;
+    public string VerticalName => string.Join("\n", Name.ToCharArray());
     public string Kingdom { get; init; } = string.Empty;
     public string SkillName { get; init; } = string.Empty;
     public string SkillDescription { get; init; } = string.Empty;

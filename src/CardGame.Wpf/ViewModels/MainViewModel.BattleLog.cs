@@ -78,11 +78,16 @@ public sealed partial class MainViewModel
 
     private void AddBattleLogEntry(GameLogEntry entry)
     {
-        _allBattleLogEntries.Insert(0, new BattleLogEntryViewModel(
+        var displayed = new BattleLogEntryViewModel(
             entry.Sequence, entry.TurnNumber, entry.Type, BattleLogCategory(entry.Type),
-            BattleLogCategoryName(BattleLogCategory(entry.Type)), entry.Message, entry.ActorSeat, entry.TargetSeat));
+            BattleLogCategoryName(BattleLogCategory(entry.Type)), entry.Message, entry.ActorSeat, entry.TargetSeat);
+        _allBattleLogEntries.Insert(0, displayed);
+        if (MatchesBattleLogFilter(displayed)) FilteredBattleLog.Insert(0, displayed);
+        while (FilteredBattleLog.Count > 0 && _allBattleLogEntries.Count > 400 &&
+               FilteredBattleLog[^1].Sequence <= _allBattleLogEntries[^1].Sequence)
+            FilteredBattleLog.RemoveAt(FilteredBattleLog.Count - 1);
         while (_allBattleLogEntries.Count > 400) _allBattleLogEntries.RemoveAt(_allBattleLogEntries.Count - 1);
-        RefreshBattleLog();
+        RaisePropertyChanged(nameof(BattleLogFilterSummary));
     }
 
     private void RefreshBattleLogSeatOptions()
@@ -100,16 +105,17 @@ public sealed partial class MainViewModel
 
     private void RefreshBattleLog()
     {
-        IEnumerable<BattleLogEntryViewModel> entries = _allBattleLogEntries;
-        if (SelectedBattleLogCategory != "all") entries = entries.Where(entry => entry.CategoryId == SelectedBattleLogCategory);
-        if (SelectedBattleLogSeat == "system") entries = entries.Where(entry => entry.ActorSeat is null && entry.TargetSeat is null);
-        else if (SelectedBattleLogSeat.StartsWith("seat:", StringComparison.Ordinal) &&
-                 int.TryParse(SelectedBattleLogSeat.AsSpan(5), out var seat))
-            entries = entries.Where(entry => entry.ActorSeat == seat || entry.TargetSeat == seat);
         FilteredBattleLog.Clear();
-        foreach (var entry in entries) FilteredBattleLog.Add(entry);
+        foreach (var entry in _allBattleLogEntries.Where(MatchesBattleLogFilter)) FilteredBattleLog.Add(entry);
         RaisePropertyChanged(nameof(BattleLogFilterSummary));
     }
+
+    private bool MatchesBattleLogFilter(BattleLogEntryViewModel entry) =>
+        (SelectedBattleLogCategory == "all" || entry.CategoryId == SelectedBattleLogCategory) &&
+        (SelectedBattleLogSeat == "all" ||
+         SelectedBattleLogSeat == "system" && entry.ActorSeat is null && entry.TargetSeat is null ||
+         SelectedBattleLogSeat.StartsWith("seat:", StringComparison.Ordinal) &&
+         int.TryParse(SelectedBattleLogSeat.AsSpan(5), out var seat) && (entry.ActorSeat == seat || entry.TargetSeat == seat));
 
     private static string BattleLogCategory(string type) => type switch
     {

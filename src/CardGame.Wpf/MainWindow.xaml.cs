@@ -1,6 +1,8 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Threading;
 using CardGame.Wpf.ViewModels;
 using CardGame.Wpf.Audio;
@@ -27,6 +29,56 @@ public partial class MainWindow : Window
         _audio = new GameAudioController(viewModel, () => new MediaPlayerAudioOutput());
         Activated += (_, _) => _audio.SetActive(true);
         Deactivated += (_, _) => _audio.SetActive(false);
+        PreviewMouseDown += TableMouseDown;
+    }
+
+    private void Battlefield_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+        // Match all three sides to the space available for the side portraits.
+        var rows = Math.Max(1, Math.Max(vm.LeftSeats.Count, vm.RightSeats.Count));
+        TopSeatRow.MaxHeight = Math.Clamp((e.NewSize.Height - 68) / rows, 90, 210);
+    }
+
+    private void TableMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm || IsTableModalOpen(vm)) return;
+        var source = e.OriginalSource as DependencyObject;
+        Button? button = null;
+        var onPlaySurface = false;
+        while (source is not null)
+        {
+            button ??= source as Button;
+            onPlaySurface |= ReferenceEquals(source, Battlefield) || ReferenceEquals(source, HandDock);
+            source = source is Visual ? VisualTreeHelper.GetParent(source) : LogicalTreeHelper.GetParent(source);
+        }
+        if (e.ChangedButton == MouseButton.Right && vm.HasSelection && onPlaySurface)
+        {
+            vm.ClearSelectionCommand.Execute(null);
+            e.Handled = true;
+        }
+        else if (e.ChangedButton == MouseButton.Left && e.ClickCount == 2 &&
+                 button?.DataContext is { } item)
+            e.Handled = TryQuickConfirm(item);
+    }
+
+    private static bool IsTableModalOpen(MainViewModel vm) => vm.IsNewGameSetupOpen || vm.IsHelpOpen ||
+        vm.IsHistoryOpen || vm.IsGeneralGalleryOpen || vm.IsSettingsOpen || vm.IsIdentityRevealOpen ||
+        vm.IsOpeningDealVisible || vm.IsGeneralSelectionPending || vm.HasGameOver || vm.IsLogOpen;
+
+    private bool TryQuickConfirm(object item)
+    {
+        if (DataContext is not MainViewModel vm || IsTableModalOpen(vm)) return false;
+        // The first click selects; the second confirms only an already complete
+        // legal action. Incomplete or multi-selection decisions remain explicit.
+        if (vm.IsDiscardSelectionPending || vm.IsActiveSkillSelectionPending || vm.IsMultiTargetCardSelected) return false;
+        if (item is CardViewModel { IsSelected: true, IsPlayable: true } card && vm.Hand.Contains(card) ||
+            item is SeatViewModel { IsSelectedTarget: true, IsLegalTarget: true } seat && vm.Seats.Contains(seat))
+        {
+            if (vm.CanConfirmSelected) vm.ConfirmSelectedCommand.Execute(null);
+            return true;
+        }
+        return false;
     }
 
     private void Window_Closed(object? sender, EventArgs e)

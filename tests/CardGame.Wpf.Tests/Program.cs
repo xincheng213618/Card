@@ -70,6 +70,7 @@ internal static class Program
                 Path.Combine(Path.GetTempPath(), "card-ui-check");
             Directory.CreateDirectory(output);
 
+            Check("table interaction refresh cost and stable presentation", () => TableInteractionChecks.SelectionCost(output));
             Check("original card artwork preserves physical card identity and interaction", () => CardArtworkChecks.FacesAndInteractions(output));
             Check("reference table layout preserves equipment and skill controls", () => TableSurfaceChecks.EquipmentAndSkillControls(output));
             Check("action dock keeps confirm cancel and end stable through real selection", () => TableSurfaceChecks.ActionDockSelection(output));

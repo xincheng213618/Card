@@ -276,8 +276,8 @@
 
 
     <DataTemplate x:Key="SeatTemplate">
-        <Button Style="{StaticResource BareButton}" Width="146" Height="194" Command="{Binding DataContext.SelectTargetCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding Name}" ToolTip="{Binding SkillText}" ToolTipService.InitialShowDelay="450" controls:BattleFeedbackLayer.SeatAnchor="{Binding Seat}">
-            <Border x:Name="SeatFrame" Background="#152125" BorderBrush="#7C7056" BorderThickness="1" CornerRadius="4" Padding="3">
+        <Button Style="{StaticResource BareButton}" Width="154" Height="204" Command="{Binding DataContext.SelectTargetCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding Name}" ToolTip="{Binding SkillText}" ToolTipService.InitialShowDelay="450" controls:BattleFeedbackLayer.SeatAnchor="{Binding Seat}">
+            <Border x:Name="SeatFrame" Background="#211D18" BorderBrush="#7C7056" BorderThickness="2" CornerRadius="2" Padding="2">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
@@ -299,26 +299,23 @@
                         <Border Background="{Binding RoleBrush}" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="6,3">
                             <TextBlock Text="{Binding RoleBadgeText}" Foreground="#FFF4E0" FontSize="10" />
                         </Border>
-                        <StackPanel VerticalAlignment="Bottom" Margin="7,0,7,5">
+                        <StackPanel VerticalAlignment="Bottom" Margin="7,0,20,5">
                             <Grid x:Name="SingleGeneralTitle">
-                                <TextBlock Text="{Binding GeneralName}" Foreground="#FFEDD0" FontFamily="KaiTi" FontSize="23" FontWeight="Bold" />
+                                <TextBlock Text="{Binding HealthValue}" Foreground="#DFE2C6" FontSize="11" />
                                 <Border Background="#AC0E171B" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="4,2">
                                     <TextBlock Text="{Binding HandCount, StringFormat=牌 {0}}" Foreground="#EBDCC2" FontSize="10" />
                                 </Border>
                             </Grid>
                             <TextBlock x:Name="NationalHandCount" Text="{Binding HandCount, StringFormat=手牌 {0}}" Visibility="Collapsed" HorizontalAlignment="Right" Foreground="#EBDCC2" FontSize="9" />
-                            <Grid Margin="0,2,0,3">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding HealthPips}" Foreground="#9BBB84" FontSize="13" />
-                                    <TextBlock Text="{Binding EmptyHealthPips}" Foreground="#58635B" FontSize="13" />
-                                </StackPanel>
-                                <TextBlock Text="{Binding HealthValue}" Foreground="#A6B89D" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                            </Grid>
                             <Grid>
                                 <TextBlock Text="{Binding SkillName}" Foreground="#D4B979" FontSize="10" MaxWidth="78" HorizontalAlignment="Left" TextTrimming="CharacterEllipsis" />
                                 <TextBlock Text="{Binding DistanceText}" Foreground="#B4B6A9" FontSize="9" HorizontalAlignment="Right" />
                             </Grid>
                         </StackPanel>
+                        <TextBlock x:Name="SeatVerticalName" Text="{Binding VerticalName}" FontFamily="KaiTi" FontSize="19" FontWeight="Bold" LineHeight="21" Foreground="#FFF1CE" Background="#7217110B" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,30,0,0" Padding="3,4" IsHitTestVisible="False" />
+                        <ItemsControl ItemsSource="{Binding HealthImages}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,2,5" IsHitTestVisible="False">
+                            <ItemsControl.ItemTemplate><DataTemplate><Image Source="{Binding}" Width="13" Height="16" Stretch="Uniform" /></DataTemplate></ItemsControl.ItemTemplate>
+                        </ItemsControl>
                         <Border x:Name="TargetBadge" Visibility="Collapsed" Background="#DD315E4D" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,31,0,0" Padding="7,3">
                             <TextBlock x:Name="TargetBadgeText" Text="可选目标" Foreground="#E5F2CE" FontSize="10" />
                         </Border>
@@ -353,7 +350,7 @@
                             <TextBlock Text="阵 亡" FontSize="26" FontFamily="KaiTi" Foreground="#D5C4A1" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                     </Grid>
-                    <Border Grid.Row="1" Background="#182327" Padding="4,0" ToolTip="{Binding EquipmentText}">
+                    <Border Grid.Row="1" Background="#26211B" Padding="4,0" ToolTip="{Binding EquipmentText}">
                         <TextBlock Text="{Binding ShortEquipment}" VerticalAlignment="Center" Foreground="#A4A897" FontSize="9" TextTrimming="CharacterEllipsis" />
                     </Border>
                     <Border x:Name="TurnLine" Visibility="Collapsed" Grid.RowSpan="2" BorderBrush="#E6C386" BorderThickness="0,0,0,3" IsHitTestVisible="False" />
@@ -365,11 +362,15 @@
                 <Setter TargetName="SinglePortrait" Property="Visibility" Value="Collapsed" />
                 <Setter TargetName="UnknownGeneral" Property="Visibility" Value="Collapsed" />
                 <Setter TargetName="SingleGeneralTitle" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="SeatVerticalName" Property="Visibility" Value="Collapsed" />
                 <Setter TargetName="DualPortraits" Property="Visibility" Value="Visible" />
                 <Setter TargetName="NationalHandCount" Property="Visibility" Value="Visible" />
             </DataTrigger>
             <DataTrigger Binding="{Binding HasPortrait}" Value="True">
                 <Setter TargetName="UnknownGeneral" Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding HasPortrait}" Value="False">
+                <Setter TargetName="SeatVerticalName" Property="Visibility" Value="Collapsed" />
             </DataTrigger>
             <DataTrigger Binding="{Binding IsCurrent}" Value="True">
                 <Setter TargetName="SeatFrame" Property="BorderBrush" Value="#F2D297" />
@@ -431,7 +432,7 @@
     </DataTemplate>
     <DataTemplate x:Key="CardTemplate">
         <Button x:Name="CardButton" Style="{StaticResource BareButton}" Command="{Binding DataContext.SelectCardCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" IsEnabled="{Binding IsPlayable}" VerticalAlignment="Bottom" Margin="0,18,0,0" ToolTip="{Binding CardHint}" ToolTipService.ShowOnDisabled="True" ToolTipService.InitialShowDelay="250" AutomationProperties.Name="{Binding CardHint}">
-            <Border x:Name="CardBorder" Width="128" Height="180" Background="{StaticResource CardPaper}" CornerRadius="3" BorderBrush="#7C7364" BorderThickness="1">
+            <Border x:Name="CardBorder" Width="110" Height="156" Background="{StaticResource CardPaper}" CornerRadius="3" BorderBrush="#7C7364" BorderThickness="1">
                     <Grid>
                         <ContentControl Content="{Binding}" ContentTemplate="{StaticResource CardFaceTemplate}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
                         <TextBlock Text="粮" Foreground="#F9EAC5" Background="#A074562A" FontSize="10" Padding="4,1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5" Visibility="{Binding IsStoredGrain, Converter={StaticResource BoolToVisibility}}" />
@@ -459,7 +460,7 @@
                 <Setter TargetName="SelectedCheck" Property="Visibility" Value="Visible" />
                 <Setter TargetName="CardBorder" Property="RenderTransform">
                     <Setter.Value>
-                        <TranslateTransform Y="-17" />
+                        <TranslateTransform Y="-18" />
                     </Setter.Value>
                 </Setter>
             </DataTrigger>
@@ -493,51 +494,31 @@
         </DataTemplate.Triggers>
     </DataTemplate>
     <DataTemplate x:Key="GeneralChoiceTemplate">
-        <Button Style="{StaticResource BareButton}" Width="206" Margin="10,0" Command="{Binding DataContext.PreviewGeneralChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding Text}">
-            <Border x:Name="GeneralFrame" BorderBrush="#89734F" BorderThickness="1" Padding="4" Background="#182328">
+        <Button Style="{StaticResource BareButton}" Width="142" Height="211" Margin="5,4" Command="{Binding DataContext.PreviewGeneralChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding Text}" ToolTip="{Binding SkillDescription}" ToolTipService.InitialShowDelay="650">
+            <Border x:Name="GeneralFrame" BorderBrush="#6E6046" BorderThickness="2" Padding="2" Background="#211B16">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="222" />
-                        <RowDefinition Height="226" />
-                    </Grid.RowDefinitions>
-                    <Grid>
-                        <Rectangle Fill="{Binding Portrait.Brush}" />
-                        <Rectangle Fill="{StaticResource PortraitShade}" />
-                        <Border HorizontalAlignment="Left" VerticalAlignment="Top" Background="#C43C4541" Padding="9,5">
-                            <TextBlock Text="{Binding Kingdom}" FontSize="13" Foreground="#F2E4C3" />
+                    <Rectangle Fill="{Binding Portrait.Brush}" />
+                    <Rectangle Fill="{StaticResource PortraitShade}" />
+                    <Image Source="/CardGame.Wpf;component/Assets/gallery-portrait-frame.png" Stretch="Fill" IsHitTestVisible="False" />
+                    <Border HorizontalAlignment="Left" VerticalAlignment="Top" Background="#D13C3528" Padding="6,2" Margin="7,7,0,0">
+                        <TextBlock Text="{Binding Kingdom}" FontFamily="KaiTi" FontSize="18" Foreground="#F2E4C3" />
+                    </Border>
+                    <TextBlock Text="{Binding VerticalName}" FontFamily="KaiTi" FontWeight="Bold" Foreground="#FFE8BC" FontSize="21" LineHeight="23" Background="#8018130D" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,40,0,0" Padding="2" />
+                    <StackPanel VerticalAlignment="Bottom" Margin="10,0,10,10">
+                        <TextBlock x:Name="GeneralHealthPreview" Text="{Binding HealthText}" Foreground="#DCE8C3" FontSize="10" TextAlignment="Right" Margin="0,0,0,5" />
+                        <Border x:Name="ChoiceStatus" Background="#D2312920" BorderBrush="#847354" BorderThickness="1" Padding="3,4">
+                            <TextBlock x:Name="ChoiceStatusText" Text="{Binding SkillName}" Foreground="#D8C9AB" FontSize="10" TextAlignment="Center" TextTrimming="CharacterEllipsis" />
                         </Border>
-                        <Border HorizontalAlignment="Right" VerticalAlignment="Top" Background="#D0223734" Padding="7,6"
-                                Visibility="{Binding HasHealthPreview, Converter={StaticResource BoolToVisibility}}" ToolTip="{Binding HealthDescription}">
-                            <TextBlock x:Name="GeneralHealthPreview" Text="{Binding HealthText}" FontSize="12" Foreground="#DCE8C3" />
-                        </Border>
-                        <StackPanel VerticalAlignment="Bottom" Margin="13">
-                            <TextBlock Text="{Binding Name}" FontFamily="KaiTi" FontWeight="Bold" Foreground="#FFE8BC" FontSize="32" />
-                            <TextBlock Text="{Binding SkillName}" Foreground="#D6B77B" FontSize="12" Margin="0,4,0,0" />
-                        </StackPanel>
-                    </Grid>
-                    <Grid Grid.Row="1" Margin="10,8">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="27" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="{Binding SkillDescription}" Foreground="#B8BBAE" FontSize="11" LineHeight="18" TextWrapping="Wrap" />
-                        <Border x:Name="ChoiceStatus" Grid.Row="1" Background="#4B5E4F" BorderBrush="#73806B" BorderThickness="1">
-                            <TextBlock x:Name="ChoiceStatusText" Text="查 看 此 将" Foreground="#D8DDCB" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                    </Grid>
+                    </StackPanel>
                 </Grid>
             </Border>
         </Button>
         <DataTemplate.Triggers>
-            <Trigger SourceName="GeneralFrame" Property="IsMouseOver" Value="True">
-                <Setter TargetName="GeneralFrame" Property="BorderBrush" Value="#FFE0A2" />
-                <Setter TargetName="GeneralFrame" Property="Background" Value="#283738" />
-            </Trigger>
+            <Trigger SourceName="GeneralFrame" Property="IsMouseOver" Value="True"><Setter TargetName="GeneralFrame" Property="BorderBrush" Value="#FFE0A2" /></Trigger>
             <DataTrigger Binding="{Binding IsPreviewSelected}" Value="True">
                 <Setter TargetName="GeneralFrame" Property="BorderBrush" Value="#FFD28A" />
-                <Setter TargetName="GeneralFrame" Property="BorderThickness" Value="3" />
-                <Setter TargetName="ChoiceStatus" Property="Background" Value="#967343" />
-                <Setter TargetName="ChoiceStatus" Property="BorderBrush" Value="#D9B76F" />
+                <Setter TargetName="ChoiceStatus" Property="Background" Value="#AA78572B" />
+                <Setter TargetName="ChoiceStatus" Property="BorderBrush" Value="#F5D591" />
                 <Setter TargetName="ChoiceStatusText" Property="Text" Value="已 选 中" />
                 <Setter TargetName="ChoiceStatusText" Property="Foreground" Value="#FFF0CA" />
             </DataTrigger>

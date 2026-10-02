@@ -64,7 +64,7 @@ public sealed partial class MainViewModel
         {
             var result = SubmitCommand(new AnswerPromptCommand(_snapshot.HumanSeat, prompt.PromptId, choice.Id, _snapshot.Revision));
             if (!result.Accepted) { PromptText = $"响应未执行：{result.Error?.Message}"; return; }
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 }

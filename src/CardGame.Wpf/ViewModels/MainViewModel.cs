@@ -398,7 +398,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         ExecuteSafely(() =>
         {
             var result = SubmitCommand(new StartGameCommand());
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 
@@ -717,7 +717,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             DecisionKind.ZhuqueFan;
         RaisePropertyChanged(nameof(HasPinnedPublicModuleChoices));
 
-        var legalActions = _game.GetHumanLegalActions();
+        var legalActions = GetViewLegalActions();
         var playableCardIds = legalActions
             .Where(action => action.CardId.HasValue)
             .Select(action => action.CardId!.Value)
@@ -742,10 +742,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         var humanSeat = _snapshot.HumanSeat;
         var humanAttackRange = humanSeat >= 0 ? _game.GetAttackRange(humanSeat) : 0;
         var seatPlayers = IsNationalSnapshot && IsDeveloperView ? _game.CreateSnapshot(humanSeat, revealAll: false).Players : _snapshot.Players;
-        Seats.Clear();
+        var currentSeats = Seats.ToDictionary(seat => seat.Seat);
+        var updatedSeats = new List<SeatViewModel>();
         foreach (var player in seatPlayers.OrderBy(player => player.Seat))
         {
-            Seats.Add(new SeatViewModel
+            var updatedSeat = new SeatViewModel
             {
                 Seat = player.Seat,
                 GeneralId = player.GeneralId,
@@ -821,8 +822,15 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 IsLegalTarget = false,
                 IsSelectedTarget = player.Seat == _selectedTargetSeat ||
                                    _selectedActiveSkillTargetSeats.Contains(player.Seat)
-            });
+            };
+            if (currentSeats.TryGetValue(player.Seat, out var existingSeat))
+            {
+                existingSeat.UpdateFrom(updatedSeat);
+                updatedSeats.Add(existingSeat);
+            }
+            else updatedSeats.Add(updatedSeat);
         }
+        SyncSeats(Seats, updatedSeats);
 
         var human = _snapshot.Players.SingleOrDefault(player => player.IsHuman);
         var handGuidance = _game.GetHumanHandGuidance().ToDictionary(item => item.CardId);
@@ -978,7 +986,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _selectedTargetSeat = null;
         _selectedCardTargetSeats.Clear();
 
-        var matching = _game.GetHumanLegalActions()
+        var matching = GetViewLegalActions()
             .Where(action => action.CardId == _selectedCardId)
             .ToArray();
         if (matching.Length == 1 &&
@@ -998,7 +1006,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             : $"已选择：{card.Name}";
         RebuildEquipmentPlayChoices(
             _snapshot.Players.Single(player => player.IsHuman),
-            _game.GetHumanLegalActions());
+            GetViewLegalActions());
         RebuildPublicTargetChoices();
         RebuildTargetCombinationChoices();
         RefreshTargetHighlights();
@@ -1079,7 +1087,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 : choice.Description;
             RebuildEquipmentPlayChoices(
                 _snapshot.Players.Single(player => player.IsHuman),
-                _game.GetHumanLegalActions());
+                GetViewLegalActions());
             RebuildPublicTargetChoices();
             RebuildTargetCombinationChoices();
             RefreshTargetHighlights();
@@ -1102,7 +1110,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             : $"已选择装备：{equipment.DisplayName}";
         RebuildEquipmentPlayChoices(
             _snapshot.Players.Single(player => player.IsHuman),
-            _game.GetHumanLegalActions());
+            GetViewLegalActions());
         RebuildPublicTargetChoices();
         RefreshTargetHighlights();
     }
@@ -1304,7 +1312,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 return;
             }
 
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 
@@ -1328,7 +1336,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 return;
             }
 
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 
@@ -1352,7 +1360,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 return;
             }
 
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 
@@ -1376,7 +1384,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 return;
             }
 
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 
@@ -1400,7 +1408,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 return;
             }
 
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 
@@ -1424,7 +1432,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 return;
             }
 
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 
@@ -1448,7 +1456,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 return;
             }
 
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 
@@ -1472,7 +1480,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 return;
             }
 
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 
@@ -1489,7 +1497,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
-        var action = _game.GetHumanLegalActions().SingleOrDefault(candidate =>
+        var action = GetViewLegalActions().SingleOrDefault(candidate =>
             candidate.CardId == selectedCardId &&
             candidate.TargetSeat == choice.Targets[0] &&
             candidate.TargetCardId == targetCardId &&
@@ -1528,7 +1536,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedTargetSeat = null;
             _selectedCardTargetSeats.Clear();
             SelectedCardText = "未选择手牌";
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 
@@ -1543,7 +1551,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
-        var action = _game.GetHumanLegalActions().SingleOrDefault(candidate =>
+        var action = GetViewLegalActions().SingleOrDefault(candidate =>
             candidate.CardId == selectedCardId &&
             candidate.TargetSeats.SequenceEqual(choice.Targets) &&
             ConversionSourceMatchesChoice(candidate.ConversionSource, choice.Parameters) &&
@@ -1581,7 +1589,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedTargetSeat = null;
             _selectedCardTargetSeats.Clear();
             SelectedCardText = "未选择手牌";
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 
@@ -1647,7 +1655,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
 
         var legalActions = _snapshot.PendingDecision?.Kind == DecisionKind.PlayCard
-            ? _game.GetHumanLegalActions()
+            ? GetViewLegalActions()
             : [];
         var selectedActions = _selectedCardId is { } cardId
             ? legalActions.Where(action => action.CardId == cardId && action.Kind != LegalActionKind.Recast &&
@@ -1690,7 +1698,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         var human = _snapshot.Players.Single(player => player.IsHuman);
         var physicalKind = human.Hand.Concat(human.WoodenOxGrain ?? []).Concat(human.Equipment).Single(card => card.Id == cardId).Kind;
         var targets = SelectedPlayTargets();
-        var action = SelectPlayAction(_game.GetHumanLegalActions(), cardId, targets, physicalKind,
+        var action = SelectPlayAction(GetViewLegalActions(), cardId, targets, physicalKind,
             asSlash, _selectedConversionSource);
         if (action is null) return;
 
@@ -1704,7 +1712,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedTargetSeat = null;
             _selectedCardTargetSeats.Clear();
             SelectedCardText = "未选择手牌";
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 
@@ -1871,7 +1879,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             if (!result.Accepted)
             {
                 PromptText = $"主动技能未执行：{result.Error?.Message}";
-                Refresh(result.State);
+                RefreshCommandResult(result.State);
                 return;
             }
 
@@ -1887,7 +1895,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _selectedTargetSeat = null;
             _selectedCardTargetSeats.Clear();
             SelectedCardText = "未选择手牌";
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 
@@ -1924,7 +1932,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             _isSelectingActiveSkillCards = false;
             SelectedCardText = "未选择手牌";
             var result = SubmitCommand(new EndPlayPhaseCommand(_snapshot.HumanSeat, _snapshot.Revision, _snapshot.PendingDecision?.PromptId));
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 
@@ -1945,7 +1953,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         ExecuteSafely(() =>
         {
             var result = SubmitCommand(new AnswerPromptCommand(_snapshot.HumanSeat, prompt.PromptId, choice.Id, _snapshot.Revision));
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 
@@ -1954,7 +1962,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         ExecuteSafely(() =>
         {
             var result = SubmitCommand(new AdvanceOneStepCommand(_snapshot.Revision));
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 
@@ -1963,7 +1971,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         ExecuteSafely(() =>
         {
             var result = SubmitCommand(new AdvanceCommand(_snapshot.Revision));
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 

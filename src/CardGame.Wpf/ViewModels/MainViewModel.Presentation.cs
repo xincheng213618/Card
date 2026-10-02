@@ -17,6 +17,8 @@ public sealed partial class MainViewModel
     private string _recentEventText = "八人入席，静候开局";
 
     public ObservableCollection<SeatViewModel> TopSeats { get; } = [];
+    public ObservableCollection<SeatViewModel> LeftSeats { get; } = [];
+    public ObservableCollection<SeatViewModel> RightSeats { get; } = [];
     public ObservableCollection<TablePlayViewModel> RecentPlays { get; } = [];
     public SeatViewModel? HumanPlayer => Seats.FirstOrDefault(seat => seat.IsHuman);
     public SeatViewModel? LeftPlayer => Seats.FirstOrDefault(seat => seat.Seat == 1);
@@ -334,7 +336,7 @@ public sealed partial class MainViewModel
             if (_snapshot?.PendingDecision?.Kind != DecisionKind.PlayCard) return [];
             var skillIds = _snapshot.Players.Single(player => player.IsHuman).Skills?
                 .Select(skill => skill.ContentId).ToArray() ?? [];
-            return _game.GetHumanLegalActions().Where(action =>
+            return GetViewLegalActions().Where(action =>
                     action.Kind is LegalActionKind.UseEquipmentEffect or LegalActionKind.UseProgramSkill)
                 .OrderBy(action =>
                 {
@@ -550,8 +552,14 @@ public sealed partial class MainViewModel
     private void RefreshPresentation()
     {
         RefreshPlaybackPresentation();
-        TopSeats.Clear();
-        foreach (var seat in Seats.Where(seat => seat.Seat >= 2 && seat.Seat < Seats.Count - 1)) TopSeats.Add(seat);
+        // The next seat is at the lower right; play proceeds around the table.
+        var origin = HumanPlayer?.Seat ?? 0;
+        var opponents = Seats.Where(seat => seat.Seat != origin)
+            .OrderBy(seat => (seat.Seat - origin + Seats.Count) % Seats.Count).ToArray();
+        var sideCount = Seats.Count >= 7 ? 2 : 1;
+        SyncSeats(RightSeats, opponents.Take(sideCount).Reverse());
+        SyncSeats(TopSeats, opponents.Skip(sideCount).Take(Math.Max(0, opponents.Length - sideCount * 2)).Reverse());
+        SyncSeats(LeftSeats, opponents.TakeLast(sideCount));
         RefreshBattleLogSeatOptions();
         RaisePropertyChanged(nameof(HumanEquipmentSlots));
         foreach (var name in new[] { nameof(HumanPlayer), nameof(HumanSkillCards), nameof(LeftPlayer), nameof(RightPlayer), nameof(HandCountText), nameof(AliveText), nameof(TurnHeadline), nameof(HasChoicePrompt), nameof(HasCenterChoices), nameof(IsTableIdle), nameof(IsDrawPhase), nameof(IsPlayPhase), nameof(IsDiscardPhase), nameof(IsFinishedPhase), nameof(CanUseActiveSkill), nameof(HumanActiveSkillActions), nameof(AdditionalActiveSkillActions), nameof(ActiveSkillButtonText) })
@@ -560,6 +568,17 @@ public sealed partial class MainViewModel
         RefreshGameSetupPresentation();
         RefreshDiscardPresentation();
         ((RelayCommand<CardViewModel>)SelectRevealedCardCommand).NotifyCanExecuteChanged();
+    }
+
+    private static void SyncSeats(ObservableCollection<SeatViewModel> destination, IEnumerable<SeatViewModel> seats)
+    {
+        var desired = seats.ToArray();
+        for (var i = 0; i < desired.Length; i++)
+        {
+            if (i >= destination.Count) destination.Add(desired[i]);
+            else if (!ReferenceEquals(destination[i], desired[i])) destination[i] = desired[i];
+        }
+        while (destination.Count > desired.Length) destination.RemoveAt(destination.Count - 1);
     }
 
     private void RefreshSelectionHint()
@@ -637,7 +656,7 @@ public sealed partial class MainViewModel
         }
 
         var selectedTargets = SelectedPlayTargets();
-        return _game.GetHumanLegalActions().FirstOrDefault(action =>
+        return GetViewLegalActions().FirstOrDefault(action =>
             action.CardId == cardId &&
             action.TargetSeats.SequenceEqual(selectedTargets) &&
             action.PlayedCardKind is { } effectiveKind &&

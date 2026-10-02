@@ -61,7 +61,7 @@ public sealed partial class MainViewModel
     {
         NationalRevealChoices.Clear();
         if (IsNationalSnapshot && !IsTutorialActive)
-            foreach (var action in _game.GetHumanLegalActions().Where(action => action.Kind == LegalActionKind.RevealGeneral))
+            foreach (var action in GetViewLegalActions().Where(action => action.Kind == LegalActionKind.RevealGeneral))
                 if (action.GeneralSlot is { } slot) NationalRevealChoices.Add(new(slot, action.Description));
         RaisePropertyChanged(nameof(IsNationalSnapshot));
         RaisePropertyChanged(nameof(NationalHealthRuleText));
@@ -76,12 +76,12 @@ public sealed partial class MainViewModel
             {
                 Kind: DecisionKind.PlayCard or DecisionKind.RespondDodge or DecisionKind.RespondSlash
             } prompt ||
-            !_game.GetHumanLegalActions().Any(action => action.Kind == LegalActionKind.RevealGeneral && action.GeneralSlot == choice.Slot)) return;
+            !GetViewLegalActions().Any(action => action.Kind == LegalActionKind.RevealGeneral && action.GeneralSlot == choice.Slot)) return;
         ExecuteSafely(() =>
         {
             var result = SubmitCommand(new RevealGeneralCommand(_snapshot.HumanSeat, choice.Slot, _snapshot.Revision, prompt.PromptId));
             if (result.Accepted) ClearSelection();
-            Refresh(result.State);
+            RefreshCommandResult(result.State);
         });
     }
 
