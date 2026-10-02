@@ -50,16 +50,16 @@ public sealed partial class MainViewModel
         SoundsReset?.Invoke(this, EventArgs.Empty);
     }
 
-    private void PublishGameSounds(IReadOnlyList<BattleCue> cues)
+    private void PublishGameSounds(IReadOnlyList<BattleCue> cues, GameSnapshot snapshot)
     {
         var sounds = GameSoundRules.FromPublicCues(cues).ToList();
-        var prompt = _snapshot.PendingDecision;
-        if (prompt is not null && prompt.PlayerSeat == _snapshot.HumanSeat && prompt.PromptId != _audioPromptId)
+        var prompt = snapshot.PendingDecision;
+        if (prompt is not null && prompt.PlayerSeat == snapshot.HumanSeat && prompt.PromptId != _audioPromptId)
             sounds.Add(prompt.Kind == DecisionKind.PlayCard ? GameSound.YourTurn : GameSound.Prompt);
         _audioPromptId = prompt?.PromptId;
-        if (_snapshot.Status == EngineStatus.Completed && !_audioCompleted)
-            sounds.Add(GameSoundRules.Outcome(_snapshot));
-        _audioCompleted = _snapshot.Status == EngineStatus.Completed;
+        if (snapshot.Status == EngineStatus.Completed && !_audioCompleted)
+            sounds.Add(GameSoundRules.Outcome(snapshot));
+        _audioCompleted = snapshot.Status == EngineStatus.Completed;
         if (sounds.Count > 0) SoundsRequested?.Invoke(this, new GameSoundsEventArgs(GameSoundRules.SelectBatch(sounds)));
     }
 }

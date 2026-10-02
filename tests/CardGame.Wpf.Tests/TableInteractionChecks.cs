@@ -5,6 +5,8 @@ using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Data;
+using Rectangle = System.Windows.Shapes.Rectangle;
 using CardGame.Core;
 using CardGame.Wpf;
 using CardGame.Wpf.Persistence;
@@ -26,6 +28,18 @@ internal static class TableInteractionChecks
         var card = vm.Hand.First(card => card.IsPlayable);
         var engine = Program.Engine(vm);
         var beforeRevision = engine.Revision;
+        var refresh = typeof(MainViewModel).GetMethod("RefreshCurrentView", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        refresh.Invoke(vm, null);
+        var refreshBytes = GC.GetAllocatedBytesForCurrentThread();
+        var refreshTimer = Stopwatch.StartNew();
+        for (var index = 0; index < 10; index++) refresh.Invoke(vm, null);
+        refreshTimer.Stop();
+        refreshBytes = GC.GetAllocatedBytesForCurrentThread() - refreshBytes;
+        var refreshCost = $"10 same-revision table refreshes: {refreshTimer.Elapsed.TotalMilliseconds:F1} ms; {refreshBytes:N0} bytes";
+        Console.WriteLine(refreshCost);
+        File.WriteAllText(Path.Combine(output, "table-refresh-cost.txt"), refreshCost);
+        Program.Assert(refreshBytes < 15_000_000 && engine.Revision == beforeRevision,
+            "A local presentation refresh recomputed hand rules or submitted a command.");
         for (var i = 0; i < 3; i++) { vm.SelectCardCommand.Execute(card); vm.ClearSelectionCommand.Execute(null); }
         var allocated = GC.GetAllocatedBytesForCurrentThread();
         var timer = Stopwatch.StartNew();
@@ -57,7 +71,81 @@ internal static class TableInteractionChecks
         }
 
         var query = typeof(MainViewModel).GetMethod("GetViewLegalActions", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        void UpdateView()
+        {
+            root.UpdateLayout();
+            root.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.Render);
+        }
+        refresh.Invoke(vm, null);
+        UpdateView();
+        allocated = GC.GetAllocatedBytesForCurrentThread();
+        timer.Restart();
+        for (var index = 0; index < 10; index++) { refresh.Invoke(vm, null); UpdateView(); }
+        timer.Stop();
+        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
+        result = $"10 same-revision refreshes with layout: {timer.Elapsed.TotalMilliseconds:F1} ms; {allocated:N0} bytes";
+        Console.WriteLine(result);
+        File.AppendAllText(Path.Combine(output, "table-refresh-cost.txt"), Environment.NewLine + result);
+        var equipmentRows = vm.HumanEquipmentSlots;
+        Program.Assert(ReferenceEquals(equipmentRows, vm.HumanEquipmentSlots),
+            "Reading the unchanged equipment rail replaced its rows.");
+        var equipmentRail = (ItemsControl)window.FindName("HumanEquipmentSlots");
+        var equipmentContainer = equipmentRail.ItemContainerGenerator.ContainerFromIndex(0);
+        refresh.Invoke(vm, null);
+        UpdateView();
+        Program.Assert(ReferenceEquals(equipmentRows, vm.HumanEquipmentSlots) &&
+                       ReferenceEquals(equipmentContainer, equipmentRail.ItemContainerGenerator.ContainerFromIndex(0)),
+            "An unchanged table refresh recreated the equipment controls.");
+        var healthRail = Program.Find<ItemsControl>(root).Single(items =>
+            items.DataContext is SeatViewModel { IsHuman: true } &&
+            BindingOperations.GetBinding(items, ItemsControl.ItemsSourceProperty)?.Path?.Path == nameof(SeatViewModel.HealthImages));
+        var healthImages = healthRail.ItemsSource;
+        var healthContainer = healthRail.ItemContainerGenerator.ContainerFromIndex(0);
+        var guideRows = vm.GuideHand.ToArray();
+        var guideChanges = 0;
+        var guideReset = false;
+        vm.GuideHand.CollectionChanged += (_, _) => guideChanges++;
+        vm.CurrentGuideSteps.CollectionChanged += (_, e) => guideReset |= e.Action == NotifyCollectionChangedAction.Reset;
+        var skills = vm.HumanSkillCards;
+        var handViewport = (FrameworkElement)window.FindName("HandViewport");
+        var cardArtwork = Program.Find<Image>(handViewport).Single(image => image.Name == "CardArtwork" &&
+            image.DataContext is CardViewModel displayed && displayed.Id == card.Id);
+        var portrait = Program.Find<Rectangle>(root).Single(image => image.Name == "SinglePortrait" &&
+            image.DataContext is SeatViewModel { IsHuman: true });
+        var cardSize = cardArtwork.RenderSize;
+        var portraitSize = portrait.RenderSize;
+        vm.SelectCardCommand.Execute(card);
+        UpdateView();
+        Program.Assert(cardArtwork.RenderSize == cardSize && portrait.RenderSize == portraitSize,
+            "Selecting a card or target resized its artwork instead of overlaying a highlight.");
+        vm.ClearSelectionCommand.Execute(null);
+        UpdateView();
+        for (var i = 0; i < 3; i++)
+        {
+            vm.SelectCardCommand.Execute(card); UpdateView();
+            vm.ClearSelectionCommand.Execute(null); UpdateView();
+        }
+        allocated = GC.GetAllocatedBytesForCurrentThread();
+        timer.Restart();
+        for (var i = 0; i < 30; i++)
+        {
+            vm.SelectCardCommand.Execute(card); UpdateView();
+            vm.ClearSelectionCommand.Execute(null); UpdateView();
+        }
+        timer.Stop();
+        allocated = GC.GetAllocatedBytesForCurrentThread() - allocated;
+        result = $"30 select/cancel pairs with layout: {timer.Elapsed.TotalMilliseconds:F1} ms; {allocated:N0} bytes";
+        Console.WriteLine(result);
+        File.AppendAllText(Path.Combine(output, "table-interaction-cost.txt"), Environment.NewLine + result);
+        Program.Assert(allocated < 25_000_000 && engine.Revision == beforeRevision,
+            "Selection recreated unchanged controls or submitted a command during layout.");
+        Program.Assert(guideChanges == 0 && !guideReset &&
+                       vm.GuideHand.Zip(guideRows).All(pair => ReferenceEquals(pair.First, pair.Second)) &&
+                       ReferenceEquals(skills, vm.HumanSkillCards),
+            "Selection recreated unchanged guide rows or skill controls.");
         var cached = query.Invoke(vm, null);
+        var guidanceQuery = typeof(MainViewModel).GetMethod("GetViewHandGuidance", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var cachedGuidance = guidanceQuery.Invoke(vm, null);
         vm.SelectCardCommand.Execute(card);
         var cancel = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Right)
         {
@@ -77,13 +165,46 @@ internal static class TableInteractionChecks
         Program.Assert(quickConfirm.Invoke(window, [equipment]) is false && engine.Revision == beforeRevision,
             "Quick confirmation bypassed an open modal.");
         vm.IsHelpOpen = false;
+        GameSnapshot? published = null;
+        engine.StateChanged += snapshot => published = snapshot;
         Program.Assert(quickConfirm.Invoke(window, [equipment]) is true && engine.Revision == beforeRevision + 1 &&
                        engine.CreateSnapshot(0).Players[0].Equipment.Any(item => item.Id == equipment.Id),
             "Quick confirmation must use the selected legal equipment exactly once.");
+        Program.Assert(published is not null && ReferenceEquals(published,
+                typeof(MainViewModel).GetField("_snapshot", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(vm)),
+            "The ordinary view must reuse the committed player snapshot without rebuilding it.");
         Program.Assert(quickConfirm.Invoke(window, [equipment]) is false && !logReset &&
                        vm.Seats.Zip(seats).All(pair => ReferenceEquals(pair.First, pair.Second)) &&
-                       !ReferenceEquals(cached, query.Invoke(vm, null)),
+                       !ReferenceEquals(cached, query.Invoke(vm, null)) &&
+                       !ReferenceEquals(cachedGuidance, guidanceQuery.Invoke(vm, null)) &&
+                       ((IReadOnlyList<HandCardGuidance>)guidanceQuery.Invoke(vm, null)!).SequenceEqual(engine.GetHumanHandGuidance()),
             "A command reused stale actions, rebuilt the public log or replaced the seat containers.");
+        UpdateView();
+        Program.Assert(vm.HumanEquipmentSlots.Any(slot => slot.Card?.Id == equipment.Id) &&
+                       !ReferenceEquals(equipmentRows, vm.HumanEquipmentSlots),
+            "Equipping a physical card left the old equipment rail visible.");
+        Program.Assert(ReferenceEquals(healthImages, healthRail.ItemsSource) &&
+                       ReferenceEquals(healthContainer, healthRail.ItemContainerGenerator.ContainerFromIndex(0)),
+            "A hand-count or equipment change recreated unchanged health icons.");
+        // Presentation-only snapshots exercise health changes without changing game rules.
+        var committedView = engine.CreateSnapshot(0);
+        var applyView = typeof(MainViewModel).GetMethod("Refresh", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        foreach (var (hp, maxHp, icons, filled) in new[] { (3, 4, 4, 3), (0, 4, 4, 0), (5, 5, 5, 5), (9, 10, 8, 8) })
+        {
+            applyView.Invoke(vm, [committedView with
+            {
+                Players = committedView.Players.Select(player => player.IsHuman
+                    ? player with { Hp = hp, MaxHp = maxHp } : player).ToArray()
+            }]);
+            UpdateView();
+            Program.Assert(healthRail.Items.Count == icons &&
+                           healthRail.Items.Cast<string>().Count(source => source.EndsWith("hp-wu.png")) == filled,
+                "A health or maximum-health change left stale icons in the bound seat template.");
+        }
+        applyView.Invoke(vm, [committedView]);
+        UpdateView();
+        Program.Assert(engine.Revision == committedView.Revision,
+            "Inspecting health presentation changed the match.");
         vm.IsDeveloperView = true;
         vm.IsDeveloperView = false;
         var permitted = engine.CreateSnapshot(0);
@@ -92,7 +213,8 @@ internal static class TableInteractionChecks
         vm.NewGameCommand.Execute(null);
         vm.StartNewGameCommand.Execute(null);
         Program.Assert(!ReferenceEquals(engine, Program.Engine(vm)) &&
-                       ((IReadOnlyList<LegalAction>)query.Invoke(vm, null)!).Count == 0,
+                       ((IReadOnlyList<LegalAction>)query.Invoke(vm, null)!).Count == 0 &&
+                       ((IReadOnlyList<HandCardGuidance>)guidanceQuery.Invoke(vm, null)!).Count == 0,
             "A new match reused the previous engine's cached actions.");
         window.Content = null;
         window.Close();

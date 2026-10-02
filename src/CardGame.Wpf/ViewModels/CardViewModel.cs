@@ -8,6 +8,7 @@ public sealed class CardViewModel : ObservableObject
     private bool _isSelected;
     private bool _isPlayable;
     private string _availabilityText = string.Empty;
+    private string _kindLabel = string.Empty;
 
     public required int Id { get; init; }
     public CardKind? Kind { get; init; }
@@ -15,7 +16,16 @@ public sealed class CardViewModel : ObservableObject
     public bool HasArtwork => Artwork is not null;
     public bool HasDynamicWeaponName => CardArt.NeedsRuntimeNameOverlay(Kind);
     public required string Name { get; init; }
-    public required string KindLabel { get; init; }
+    public required string KindLabel
+    {
+        get => _kindLabel;
+        set
+        {
+            if (!SetProperty(ref _kindLabel, value)) return;
+            RaisePropertyChanged(nameof(IsStoredGrain));
+            RaisePropertyChanged(nameof(CardHint));
+        }
+    }
     public bool IsStoredGrain => KindLabel.StartsWith("粮 ·", StringComparison.Ordinal);
     public required string SuitGlyph { get; init; }
     public required string Rank { get; init; }

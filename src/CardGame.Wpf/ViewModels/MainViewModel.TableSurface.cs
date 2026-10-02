@@ -6,6 +6,7 @@ namespace CardGame.Wpf.ViewModels;
 
 public sealed partial class MainViewModel
 {
+    private IReadOnlyList<LegalAction> _supplementalActiveSkillActions = [];
     public string ActionDockConfirmText => CanEndTurn ? "确 定" : PlayButtonText;
     public int HumanSkillColumns => HumanSkillCards.Count > 2 ? 2 : 1;
     public double HumanSkillRailWidth => HumanSkillColumns == 2 ? 216 : 108;
@@ -16,30 +17,40 @@ public sealed partial class MainViewModel
     {
         get
         {
-            if (!ShowActiveSkillEntry) return [];
+            if (!ShowActiveSkillEntry) return _supplementalActiveSkillActions = [];
             var skills = HumanSkillCards;
             var actions = HumanActiveSkillActions;
-            return actions.Where(action => !skills.Any(skill => MatchesSkill(action, skill)) ||
+            var supplemental = actions.Where(action => !skills.Any(skill => MatchesSkill(action, skill)) ||
                 actions.Count(other => other.ProgramSkillId == action.ProgramSkillId &&
                     other.EquipmentKind == action.EquipmentKind) > 1).ToArray();
+            if (!_supplementalActiveSkillActions.SequenceEqual(supplemental)) _supplementalActiveSkillActions = supplemental;
+            return _supplementalActiveSkillActions;
         }
     }
 
     private static bool MatchesSkill(LegalAction action, HumanSkillViewModel skill) =>
         skill.ContentId is not null && action.ProgramSkillId == skill.ContentId;
 
+    private PlayerSnapshot? _equipmentPlayer;
+    private IReadOnlyList<EquipmentSlotViewModel>? _humanEquipmentSlots;
     public IReadOnlyList<EquipmentSlotViewModel> HumanEquipmentSlots
     {
         get
         {
             var human = _snapshot?.Players.SingleOrDefault(player => player.IsHuman);
-            return Enum.GetValues<EquipmentSlot>().SelectMany(slot =>
+            if (_humanEquipmentSlots is not null && ReferenceEquals(human, _equipmentPlayer)) return _humanEquipmentSlots;
+            var slots = Enum.GetValues<EquipmentSlot>().SelectMany(slot =>
             {
                 var cards = human?.Equipment.Where(card => EquipmentCatalog.Get(card.Kind).Slot == slot).ToArray() ?? [];
                 var count = Math.Max(human?.EquipmentSlotCapacities?.GetValueOrDefault(slot, 1) ?? 1, cards.Length);
                 return Enumerable.Range(0, count).Select(index => new EquipmentSlotViewModel(slot,
                     index < cards.Length ? cards[index] : null));
             }).ToArray();
+            _equipmentPlayer = human;
+            // A new committed snapshot need not replace unchanged equipment controls.
+            if (_humanEquipmentSlots is null || !_humanEquipmentSlots.SequenceEqual(slots))
+                _humanEquipmentSlots = Array.AsReadOnly(slots);
+            return _humanEquipmentSlots;
         }
     }
 

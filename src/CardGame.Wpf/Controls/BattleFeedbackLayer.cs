@@ -6,6 +6,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using CardGame.Core;
 using CardGame.Wpf.Presentation;
+using CardGame.Wpf.ViewModels;
 
 namespace CardGame.Wpf.Controls;
 
@@ -17,6 +18,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
     public static readonly DependencyProperty CenterAnchorProperty = DependencyProperty.Register(nameof(CenterAnchor), typeof(FrameworkElement), typeof(BattleFeedbackLayer), new PropertyMetadata(null));
     public static readonly DependencyProperty ActionBarProperty = DependencyProperty.Register(nameof(ActionBar), typeof(FrameworkElement), typeof(BattleFeedbackLayer), new PropertyMetadata(null));
     public static readonly DependencyProperty MotionEnabledProperty = DependencyProperty.Register(nameof(MotionEnabled), typeof(bool), typeof(BattleFeedbackLayer), new PropertyMetadata(true, OnMotionChanged));
+    public static readonly DependencyProperty CommittedRevisionProperty = DependencyProperty.Register(nameof(CommittedRevision), typeof(long), typeof(BattleFeedbackLayer), new PropertyMetadata(0L, OnCommittedRevisionChanged));
     public static readonly DependencyProperty IsPromptVisibleProperty = DependencyProperty.Register(nameof(IsPromptVisible), typeof(bool), typeof(BattleFeedbackLayer), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
     public static readonly DependencyProperty SeatAnchorProperty = DependencyProperty.RegisterAttached("SeatAnchor", typeof(int), typeof(BattleFeedbackLayer), new PropertyMetadata(-1));
     public static readonly DependencyProperty PlayAnchorProperty = DependencyProperty.RegisterAttached("PlayAnchor", typeof(long), typeof(BattleFeedbackLayer), new PropertyMetadata(-1L));
@@ -31,6 +33,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
     private static readonly Brush Paper = Frozen(Colors.Wheat);
     private static readonly Brush Dark = Frozen(Color.FromRgb(19, 31, 34));
     private static readonly Brush Shadow = Frozen(Color.FromArgb(150, 0, 0, 0));
+    private static readonly Brush CardNameInk = Frozen(Color.FromRgb(77, 57, 35));
 
     public BattleFeedbackLayer()
     {
@@ -48,6 +51,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
     public FrameworkElement? CenterAnchor { get => (FrameworkElement?)GetValue(CenterAnchorProperty); set => SetValue(CenterAnchorProperty, value); }
     public FrameworkElement? ActionBar { get => (FrameworkElement?)GetValue(ActionBarProperty); set => SetValue(ActionBarProperty, value); }
     public bool MotionEnabled { get => (bool)GetValue(MotionEnabledProperty); set => SetValue(MotionEnabledProperty, value); }
+    public long CommittedRevision { get => (long)GetValue(CommittedRevisionProperty); set => SetValue(CommittedRevisionProperty, value); }
     public bool IsPromptVisible { get => (bool)GetValue(IsPromptVisibleProperty); set => SetValue(IsPromptVisibleProperty, value); }
     public TimeProvider Clock { get; set; } = TimeProvider.System;
     public int ActiveEffectCount => _active.Count;
@@ -83,12 +87,24 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         if (!(bool)args.NewValue) ((BattleFeedbackLayer)sender).StopAndClear();
     }
 
+    private static void OnCommittedRevisionChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
+    {
+        var layer = (BattleFeedbackLayer)sender;
+        // An accepted continuation ends the previous transient inquiry, including
+        // a pass with no new animation. Keep actual played cards and results.
+        layer._active.RemoveAll(item => item.Cue.IsInquiry && item.Cue.Revision < (long)args.NewValue);
+        if (layer._active.Count == 0) layer._timer.Stop();
+        layer.InvalidateVisual();
+    }
+
     private void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs args)
     {
         if (args.Action == NotifyCollectionChangedAction.Reset) { StopAndClear(); return; }
         if (args.Action != NotifyCollectionChangedAction.Add || !MotionEnabled || args.NewItems is null) return;
         var now = Clock.GetTimestamp();
-        foreach (var cue in args.NewItems.OfType<BattleCue>()) _active.Add(new(cue, now));
+        foreach (var cue in args.NewItems.OfType<BattleCue>())
+            if (!cue.IsInquiry || cue.Revision >= CommittedRevision)
+                _active.Add(new(cue, now, cue.Kind == BattleCueKind.Card ? CardArt.Get(cue.CardKind) : null));
         if (_active.Count > 24) _active.RemoveRange(0, _active.Count - 24);
         InvalidateVisual();
         StartIfNeeded();
@@ -145,7 +161,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         {
             var item = _active[i];
             var progress = Math.Clamp(Clock.GetElapsedTime(item.Start, now).TotalSeconds / Duration(item.Cue.Kind), 0, 1);
-            DrawCue(dc, item.Cue, progress, seats, plays, center, i);
+            DrawCue(dc, item.Cue, item.Artwork, progress, seats, plays, center, i);
         }
     }
 
@@ -175,7 +191,7 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         catch (InvalidOperationException) { return Rect.Empty; }
     }
 
-    private void DrawCue(DrawingContext dc, BattleCue cue, double progress, IReadOnlyDictionary<int, Rect> seats, IReadOnlyDictionary<long, Rect> plays, Point center, int lane)
+    private void DrawCue(DrawingContext dc, BattleCue cue, ImageSource? artwork, double progress, IReadOnlyDictionary<int, Rect> seats, IReadOnlyDictionary<long, Rect> plays, Point center, int lane)
     {
         var color = cue.Kind switch
         {
@@ -203,12 +219,13 @@ public sealed class BattleFeedbackLayer : FrameworkElement
             if (IsPromptVisible) Badge(dc, from + new Vector(0, -25), cue.Label, ink, 20);
             else
             {
-                var destination = plays.TryGetValue(cue.Sequence, out var landing) ? Center(landing) : center + new Vector(lane % 3 * 8, 0);
+                var hasLanding = plays.TryGetValue(cue.Sequence, out var landing);
+                var destination = hasLanding ? Center(landing) : center + new Vector(lane % 3 * 8, 0);
                 var move = 1 - Math.Pow(1 - Math.Min(1, progress / .4), 3);
                 var point = from + (destination - from) * move;
                 var scale = .58 + .42 * move;
                 dc.PushTransform(new ScaleTransform(scale, scale, point.X, point.Y));
-                DrawCard(dc, point, cue.Label, cue.ActorName, ink);
+                DrawCard(dc, point, hasLanding ? landing.Size : new Size(86, 120), cue, artwork, ink);
                 dc.Pop();
             }
         }
@@ -295,18 +312,38 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         if (!actionBar.IsEmpty) dc.Pop();
     }
 
-    private void DrawCard(DrawingContext dc, Point point, string label, string actor, Brush accent)
+    private void DrawCard(DrawingContext dc, Point point, Size size, BattleCue cue, ImageSource? artwork, Brush accent)
     {
-        var bounds = new Rect(point.X - 37, point.Y - 51, 74, 102);
+        var bounds = new Rect(point.X - size.Width / 2, point.Y - size.Height / 2, size.Width, size.Height);
         dc.DrawRoundedRectangle(Shadow, null, new Rect(bounds.X + 4, bounds.Y + 5, bounds.Width, bounds.Height), 5, 5);
         dc.DrawRoundedRectangle(Paper, new Pen(accent, 2), bounds, 5, 5);
-        var inset = bounds;
-        inset.Inflate(-5, -5);
-        dc.DrawRoundedRectangle(null, new Pen(Frozen(Color.FromRgb(174, 144, 91)), 1), inset, 3, 3);
-        var text = Text(string.Join("\n", label.ToCharArray()), label.Length > 3 ? 18 : label.Length == 1 ? 33 : 23, Dark, Calligraphy);
-        text.TextAlignment = TextAlignment.Center;
-        dc.DrawText(text, new Point(point.X, point.Y - text.Height / 2));
-        var name = Text(actor, 10, accent, TextTypeface);
+        if (artwork is not null)
+        {
+            // Match the settled face's canvas and runtime names. The frozen image
+            // is resolved when the cue arrives, never decoded during a frame.
+            dc.PushTransform(new TranslateTransform(bounds.X + 1, bounds.Y + 1));
+            dc.PushTransform(new ScaleTransform((bounds.Width - 2) / 186, (bounds.Height - 2) / 260));
+            dc.DrawImage(artwork, new Rect(0, 0, 186, 260));
+            if (CardArt.NeedsRuntimeNameOverlay(cue.CardKind))
+            {
+                var title = Text(CardCatalog.Get(cue.CardKind!.Value).DisplayName, 20, CardNameInk, Calligraphy);
+                var bottom = cue.CardKind == CardKind.ScarletBloodSword ? 8 : 25;
+                dc.DrawText(title, new Point(105 - title.Width / 2, 260 - bottom - title.Height));
+            }
+            dc.Pop();
+            dc.Pop();
+        }
+        else
+        {
+            var inset = bounds;
+            inset.Inflate(-5, -5);
+            dc.DrawRoundedRectangle(null, new Pen(Frozen(Color.FromRgb(174, 144, 91)), 1), inset, 3, 3);
+            var text = Text(string.Join("\n", cue.Label.ToCharArray()), cue.Label.Length > 3 ? 18 : cue.Label.Length == 1 ? 33 : 23, Dark, Calligraphy);
+            text.TextAlignment = TextAlignment.Center;
+            dc.DrawText(text, new Point(point.X, point.Y - text.Height / 2));
+        }
+        var name = Text(cue.Detail is { } action ? $"{cue.ActorName} · {action}" : cue.ActorName,
+            10 * size.Width / 86, accent, TextTypeface);
         name.TextAlignment = TextAlignment.Center;
         dc.DrawText(name, new Point(point.X, bounds.Bottom + 4));
     }
@@ -335,5 +372,5 @@ public sealed class BattleFeedbackLayer : FrameworkElement
         return brush;
     }
 
-    private sealed record TimedCue(BattleCue Cue, long Start);
+    private sealed record TimedCue(BattleCue Cue, long Start, ImageSource? Artwork);
 }

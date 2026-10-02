@@ -71,12 +71,15 @@ internal static class Program
             Directory.CreateDirectory(output);
 
             Check("table interaction refresh cost and stable presentation", () => TableInteractionChecks.SelectionCost(output));
+            Check("overlapping hand cards keep stable pointer targets", () => HandPointerChecks.OverlapAndPointer(output));
+            Check("stored grain updates its badge without replacing hand controls", () => HandGrainChecks.StoredCardKeepsItsControlAndUpdatesItsZone(output));
             Check("original card artwork preserves physical card identity and interaction", () => CardArtworkChecks.FacesAndInteractions(output));
             Check("reference table layout preserves equipment and skill controls", () => TableSurfaceChecks.EquipmentAndSkillControls(output));
             Check("action dock keeps confirm cancel and end stable through real selection", () => TableSurfaceChecks.ActionDockSelection(output));
             Check("player guide renders current actions, private hand hints and searchable card rules", () => PlayerGuideChecks.ControlsAndSearch(output));
             Check("guide modal preserves selection and pauses then resumes the original timer policy", PlayerGuideChecks.ModalLifecycle);
             Check("general selection previews candidates before one explicit confirmation", () => CheckGeneralSelectionPreview(output));
+            Check("general selection input respects overlays and consecutive national prompts", () => GeneralSelectionChecks.InputBoundaries(output));
             Check("mode lobby filters real identity, team and national entries without changing the match", () => CheckModeLobby(output));
             Check("selection, target toggle, cancel and play use legal actions", CheckSelections);
             Check("skill conversion is explicit and shares the confirmation flow", CheckConversions);
@@ -119,6 +122,8 @@ internal static class Program
             Check("autosave coalesces commands and resumes after closing", PersistenceChecks.AutomaticAndExit);
             Check("continue and save controls render in the small window", () => CheckSaveViews(output));
             Check("battle feedback exposes only committed public actions", FeedbackChecks.PublicProjection);
+            Check("battle feedback retires answered inquiries without dropping results", () => FeedbackChecks.InquiryLifetime(output));
+            Check("card flights use public faces and preserve prompts", () => FeedbackChecks.CardFlights(output));
             Check("audio follows committed actions and survives mute, background and device failure", AudioChecks.CommandRouting);
             if (args.Contains("--verify-native-audio")) Check("official native audio plays MP3 and converted WAV at zero volume", OfficialAudioChecks.NativeSilentPlayback);
             Check("sound controls, shipped assets and compatible JSON preferences are valid", () => AudioChecks.SettingsAndAssets(output));
@@ -374,7 +379,7 @@ internal static class Program
         vm.PlaySelectedAsSlashCommand.Execute(null);
         Assert(engine.Revision > revision && !vm.HasSelection, "Wusheng did not commit and clear the selected card.");
         Assert(vm.RecentPlays.Any(play => play.Name == "杀"), "Table should show the effective public card name.");
-        Assert(vm.BattleCues.Any(cue => cue.Kind == CardGame.Wpf.Presentation.BattleCueKind.Card && cue.Label == "杀"), "Converted Slash feedback exposed the physical card name.");
+        Assert(vm.BattleCues.Any(cue => cue.Kind == CardGame.Wpf.Presentation.BattleCueKind.Card && cue.Label == "杀" && cue.CardKind == CardKind.Slash), "Converted Slash feedback exposed the physical card name or artwork.");
     }
 
 

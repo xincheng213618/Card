@@ -26,6 +26,21 @@ public sealed class HandScrollViewer : ScrollViewer
         base.OnPreviewMouseWheel(e);
     }
 
+    protected override void OnScrollChanged(ScrollChangedEventArgs e)
+    {
+        base.OnScrollChanged(e);
+        if (IsMouseOver && (e.HorizontalChange != 0 || e.ViewportWidthChange != 0) && FindHand(this) is { } hand)
+            hand.UpdatePointer(Mouse.GetPosition(hand));
+    }
+
+    private static HandPanel? FindHand(DependencyObject element)
+    {
+        if (element is HandPanel hand) return hand;
+        for (var index = 0; index < VisualTreeHelper.GetChildrenCount(element); index++)
+            if (FindHand(VisualTreeHelper.GetChild(element, index)) is { } found) return found;
+        return null;
+    }
+
     private static void SelectionChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
     {
         if (sender is not FrameworkElement card || e.NewValue is not true) return;

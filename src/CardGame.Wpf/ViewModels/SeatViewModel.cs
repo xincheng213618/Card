@@ -6,6 +6,9 @@ public sealed class SeatViewModel : ObservableObject
 {
     private bool _isLegalTarget;
     private bool _isSelectedTarget;
+    private IReadOnlyList<string>? _healthImages;
+    private int _healthIconCount;
+    private int _filledHealthIcons;
 
     public required int Seat { get; init; }
     public string GeneralId { get; set; } = string.Empty;
@@ -53,8 +56,23 @@ public sealed class SeatViewModel : ObservableObject
     public string HealthPips => new('●', Math.Max(0, Hp));
     public string EmptyHealthPips => new('○', Math.Max(0, MaxHp - Math.Max(0, Hp)));
     public string HealthValue => $"{Math.Max(0, Hp)}/{MaxHp}";
-    public IEnumerable<string> HealthImages => Enumerable.Range(0, Math.Clamp(MaxHp, 0, 8))
-        .Select(index => $"pack://application:,,,/CardGame.Wpf;component/Assets/gallery-hp-{(index < Hp ? "wu" : "empty")}.png");
+    public IEnumerable<string> HealthImages
+    {
+        get
+        {
+            var count = Math.Clamp(MaxHp, 0, 8);
+            var filled = Math.Clamp(Hp, 0, count);
+            if (_healthImages is null || count != _healthIconCount || filled != _filledHealthIcons)
+            {
+                _healthIconCount = count;
+                _filledHealthIcons = filled;
+                _healthImages = Array.AsReadOnly(Enumerable.Range(0, count).Select(index => index < filled
+                    ? "pack://application:,,,/CardGame.Wpf;component/Assets/gallery-hp-wu.png"
+                    : "pack://application:,,,/CardGame.Wpf;component/Assets/gallery-hp-empty.png").ToArray());
+            }
+            return _healthImages;
+        }
+    }
     public string ShortEquipment => EquipmentText == "装备 —" ? "装备栏空闲" : EquipmentText.Replace("装备 ", string.Empty);
     public bool HasJudgment => JudgmentText != "判定区 —";
     public string ShortJudgment => JudgmentText.Replace("判定区 ", string.Empty);

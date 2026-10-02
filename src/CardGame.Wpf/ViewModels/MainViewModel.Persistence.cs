@@ -63,14 +63,24 @@ public sealed partial class MainViewModel
         }
         var firstEvent = _game.Events.Count;
         var result = _game.Submit(command);
-        if (result.Accepted) CaptureBattleFeedback();
-        if (result.Accepted) ObserveTutorialCommand(command, firstEvent);
-        // Submit appends the journal after dispatching state notifications. Save only after it returns.
-        if (result.Accepted && !_initializing && !IsTutorialActive)
+        if (result.Accepted)
         {
-            _sessionActivated = true;
-            QueueAutoSave();
-            CaptureCompletedHistory();
+            try
+            {
+                CaptureBattleFeedback(result.State);
+                ObserveTutorialCommand(command, firstEvent);
+            }
+            finally
+            {
+                // The journal is committed once Submit returns. A presentation
+                // observer failure must not prevent saving that accepted action.
+                if (!_initializing && !IsTutorialActive)
+                {
+                    _sessionActivated = true;
+                    QueueAutoSave();
+                    CaptureCompletedHistory();
+                }
+            }
         }
         if (!result.Accepted)
         {

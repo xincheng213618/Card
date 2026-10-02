@@ -15,6 +15,8 @@ public sealed partial class MainViewModel
     private bool _isHelpOpen;
     private string _actionHint = "选择一位武将，加入对局";
     private string _recentEventText = "八人入席，静候开局";
+    private GameSnapshot? _humanSkillSnapshot;
+    private IReadOnlyList<HumanSkillViewModel> _humanSkillCards = [];
 
     public ObservableCollection<SeatViewModel> TopSeats { get; } = [];
     public ObservableCollection<SeatViewModel> LeftSeats { get; } = [];
@@ -23,124 +25,144 @@ public sealed partial class MainViewModel
     public SeatViewModel? HumanPlayer => Seats.FirstOrDefault(seat => seat.IsHuman);
     public SeatViewModel? LeftPlayer => Seats.FirstOrDefault(seat => seat.Seat == 1);
     public SeatViewModel? RightPlayer => Seats.LastOrDefault(seat => !seat.IsHuman);
-    public string HandCountText => $"手牌  {Hand.Count:00}";
+    public string HandCountText
+    {
+        get
+        {
+            var grain = Hand.Count(card => card.IsStoredGrain);
+            return $"手牌  {Hand.Count - grain:00}" + (grain > 0 ? $" · 粮 {grain:00}" : string.Empty);
+        }
+    }
     public IReadOnlyList<HumanSkillViewModel> HumanSkillCards
     {
         get
         {
-            if (_snapshot is null || _snapshot.Players.SingleOrDefault(player => player.IsHuman) is not { } human)
-                return [];
-
-            var availablePrograms = HumanActiveSkillActions
-                .Where(action => action.ProgramSkillId is not null)
-                .Select(action => action.ProgramSkillId!)
-                .ToHashSet(StringComparer.Ordinal);
-            if (IsNationalSnapshot)
+            if (!ReferenceEquals(_humanSkillSnapshot, _snapshot))
             {
-                var slots = new[]
+                var skills = BuildHumanSkillCards();
+                // Keep skill controls and their tooltips alive across unrelated
+                // table updates, while still refreshing every changed skill state.
+                if (!_humanSkillCards.SequenceEqual(skills)) _humanSkillCards = skills;
+                _humanSkillSnapshot = _snapshot;
+            }
+            return _humanSkillCards;
+        }
+    }
+
+    private IReadOnlyList<HumanSkillViewModel> BuildHumanSkillCards()
+    {
+        if (_snapshot is null || _snapshot.Players.SingleOrDefault(player => player.IsHuman) is not { } human)
+            return [];
+
+        var availablePrograms = HumanActiveSkillActions
+            .Where(action => action.ProgramSkillId is not null)
+            .Select(action => action.ProgramSkillId!)
+            .ToHashSet(StringComparer.Ordinal);
+        if (IsNationalSnapshot)
+        {
+            var slots = new[]
+            {
+                (Label: "主", Id: human.GeneralId, Revealed: human.IsGeneralPublic, Skills: human.Skills),
+                (Label: "副", Id: human.SecondaryGeneralId ?? string.Empty, Revealed: human.IsSecondaryGeneralPublic, Skills: human.SecondarySkills)
+            };
+            return slots
+                .Where(slot => slot.Id.Length > 0 && _contentRegistry.Generals.ContainsKey(slot.Id))
+                .SelectMany(slot =>
                 {
-                    (Label: "主", Id: human.GeneralId, Revealed: human.IsGeneralPublic, Skills: human.Skills),
-                    (Label: "副", Id: human.SecondaryGeneralId ?? string.Empty, Revealed: human.IsSecondaryGeneralPublic, Skills: human.SecondarySkills)
-                };
-                return slots
-                    .Where(slot => slot.Id.Length > 0 && _contentRegistry.Generals.ContainsKey(slot.Id))
-                    .SelectMany(slot =>
-                    {
-                        var definition = _contentRegistry.Generals[slot.Id];
-                        var printedSkillIds = (definition.SkillIds
+                    var definition = _contentRegistry.Generals[slot.Id];
+                    var printedSkillIds = (definition.SkillIds
 );
-                        return FilterOwnedSkillIds(printedSkillIds, slot.Skills)
-                            .Select(_contentRegistry.GetSkill)
-                            .Where(skill => skill.Name != "无")
-                            .Select(skill =>
-                            {
-                                var enabled = (slot.Revealed );
-                                var active = skill.ActionForms.HasFlag(SkillActionForm.Active) ||
-                                             skill.Program?.Activations.Count > 0;
-                                var isAvailable = availablePrograms.Contains(skill.Id);
-                                return new HumanSkillViewModel(
-                                    skill.Name,
-                                    GetVisibleSkillDescription(skill),
-                                    GetSkillTypeText(active, skill.Tags, skill.ExecutionForms, skill.ActionForms),
-                                    !enabled
-                                        ? "暗置中 · 尚未启用"
-                                        : GetSkillStateText(active, isAvailable, skill.ExecutionForms, "已启用"),
-                                    $"{slot.Label}将 · {(slot.Revealed ? "明置" : "暗置")}",
-                                    enabled && isAvailable,
-                                    !enabled) { ContentId = skill.Id };
-                            });
-                    })
-                    .ToArray();
-            }
+                    return FilterOwnedSkillIds(printedSkillIds, slot.Skills)
+                        .Select(_contentRegistry.GetSkill)
+                        .Where(skill => skill.Name != "无")
+                        .Select(skill =>
+                        {
+                            var enabled = (slot.Revealed );
+                            var active = skill.ActionForms.HasFlag(SkillActionForm.Active) ||
+                                         skill.Program?.Activations.Count > 0;
+                            var isAvailable = availablePrograms.Contains(skill.Id);
+                            return new HumanSkillViewModel(
+                                skill.Name,
+                                GetVisibleSkillDescription(skill),
+                                GetSkillTypeText(active, skill.Tags, skill.ExecutionForms, skill.ActionForms),
+                                !enabled
+                                    ? "暗置中 · 尚未启用"
+                                    : GetSkillStateText(active, isAvailable, skill.ExecutionForms, "已启用"),
+                                $"{slot.Label}将 · {(slot.Revealed ? "明置" : "暗置")}",
+                                enabled && isAvailable,
+                                !enabled) { ContentId = skill.Id };
+                        });
+                })
+                .ToArray();
+        }
 
-            if (_contentRegistry.Generals.TryGetValue(human.GeneralId, out var general))
-            {
-                var ownedSkillIds = human.Skills is null
-                    ? general.SkillIds
-                    : human.Skills
-                        .Select(skill => skill.ContentId)
-                        .OfType<string>()
-                        .Distinct(StringComparer.Ordinal)
-                        .ToArray();
-                return ownedSkillIds
-                    .Select(_contentRegistry.GetSkill)
-                    .Select(skill =>
-                    {
-                        var runtimeState = human.SkillRuntimeStates?
-                            .SingleOrDefault(state => state.SkillId == skill.Id);
-                        var active = skill.ActionForms.HasFlag(SkillActionForm.Active) ||
-                                     skill.Program?.Activations.Count > 0;
-                        var isAvailable = availablePrograms.Contains(skill.Id);
-                        var isFuhunGranted = runtimeState?.IsAcquired == true &&
-                            human.SkillRuntimeStates?.Any(state =>
-                                state.SkillId == "classic:fuhun" &&
-                                state.Usages.Any(usage =>
-                                    usage.UsageId.StartsWith("grant-parent-skills@", StringComparison.Ordinal) &&
-                                    usage.Scope == SkillUsageScope.Turn &&
-                                    usage.Count > 0)) == true;
-                        return new HumanSkillViewModel(
-                            skill.Name,
-                            GetVisibleSkillDescription(skill),
-                            GetSkillTypeText(active, skill.Tags, skill.ExecutionForms, skill.ActionForms),
-                            GetSkillStateText(
-                                active,
-                                isAvailable,
-                                skill.ExecutionForms,
-                                "规则自动生效",
-                                skill.Tags,
-                                runtimeState),
-                            runtimeState?.IsAcquired == true
-                                ? isFuhunGranted
-                                    ? $"{human.GeneralName} · 父魂获得"
-                                    : $"{human.GeneralName} · 觉醒获得"
-                                : human.GeneralName,
-                            isAvailable,
-                            false) { ContentId = skill.Id };
-                    })
+        if (_contentRegistry.Generals.TryGetValue(human.GeneralId, out var general))
+        {
+            var ownedSkillIds = human.Skills is null
+                ? general.SkillIds
+                : human.Skills
+                    .Select(skill => skill.ContentId)
+                    .OfType<string>()
+                    .Distinct(StringComparer.Ordinal)
                     .ToArray();
-            }
-
-            return (human.Skills ?? [])
-                .Where(skill => skill.Name != "无")
+            return ownedSkillIds
+                .Select(_contentRegistry.GetSkill)
                 .Select(skill =>
                 {
-                    var active = skill.ActionForms.HasFlag(SkillActionForm.Active);
-                    var available = skill.ContentId is { } id && availablePrograms.Contains(id);
+                    var runtimeState = human.SkillRuntimeStates?
+                        .SingleOrDefault(state => state.SkillId == skill.Id);
+                    var active = skill.ActionForms.HasFlag(SkillActionForm.Active) ||
+                                 skill.Program?.Activations.Count > 0;
+                    var isAvailable = availablePrograms.Contains(skill.Id);
+                    var isFuhunGranted = runtimeState?.IsAcquired == true &&
+                        human.SkillRuntimeStates?.Any(state =>
+                            state.SkillId == "classic:fuhun" &&
+                            state.Usages.Any(usage =>
+                                usage.UsageId.StartsWith("grant-parent-skills@", StringComparison.Ordinal) &&
+                                usage.Scope == SkillUsageScope.Turn &&
+                                usage.Count > 0)) == true;
                     return new HumanSkillViewModel(
                         skill.Name,
-                        skill.Description,
+                        GetVisibleSkillDescription(skill),
                         GetSkillTypeText(active, skill.Tags, skill.ExecutionForms, skill.ActionForms),
                         GetSkillStateText(
                             active,
-                            available,
+                            isAvailable,
                             skill.ExecutionForms,
-                            "规则自动生效"),
-                        human.GeneralName,
-                        available,
-                        false) { ContentId = skill.ContentId };
+                            "规则自动生效",
+                            skill.Tags,
+                            runtimeState),
+                        runtimeState?.IsAcquired == true
+                            ? isFuhunGranted
+                                ? $"{human.GeneralName} · 父魂获得"
+                                : $"{human.GeneralName} · 觉醒获得"
+                            : human.GeneralName,
+                        isAvailable,
+                        false) { ContentId = skill.Id };
                 })
-                 .ToArray();
+                .ToArray();
         }
+
+        return (human.Skills ?? [])
+            .Where(skill => skill.Name != "无")
+            .Select(skill =>
+            {
+                var active = skill.ActionForms.HasFlag(SkillActionForm.Active);
+                var available = skill.ContentId is { } id && availablePrograms.Contains(id);
+                return new HumanSkillViewModel(
+                    skill.Name,
+                    skill.Description,
+                    GetSkillTypeText(active, skill.Tags, skill.ExecutionForms, skill.ActionForms),
+                    GetSkillStateText(
+                        active,
+                        available,
+                        skill.ExecutionForms,
+                        "规则自动生效"),
+                    human.GeneralName,
+                    available,
+                    false) { ContentId = skill.ContentId };
+            })
+            .ToArray();
     }
 
     private static IReadOnlyList<string> FilterOwnedSkillIds(
@@ -508,8 +530,10 @@ public sealed partial class MainViewModel
             return;
         }
         _isAutomaticAdvanceRunning = true;
+        _deferAutomaticTableRefresh = !IsTutorialActive && !IsDeveloperView && !_openingDealArmed;
         var started = Stopwatch.GetTimestamp();
         var visibleAction = false;
+        var readingDelay = SelectedPlaybackSpeed.IntervalMilliseconds;
         var progressed = false;
         try
         {
@@ -517,24 +541,32 @@ public sealed partial class MainViewModel
             // Drain a bounded amount, stopping at public feedback or human input.
             for (var step = 0; step < 32 && CanAutomaticallyAdvance; step++)
             {
-                var revision = _snapshot.Revision;
+                var revision = (_automaticTableSnapshot ?? _snapshot).Revision;
                 var lastCue = BattleCues.LastOrDefault()?.Sequence;
                 StepAi();
-                progressed = _snapshot.Revision != revision;
+                progressed = (_automaticTableSnapshot ?? _snapshot).Revision != revision;
                 visibleAction = BattleCues.LastOrDefault()?.Sequence != lastCue;
+                // Keep the selected reading pace if this step also played a card or
+                // produced a result. A bare AI inquiry only needs a brief handoff.
+                if (visibleAction && BattleCues.Where(cue => cue.Sequence > (lastCue ?? 0)).All(cue => cue.IsInquiry))
+                    readingDelay = Math.Min(readingDelay, 80);
                 if (!progressed || visibleAction || Stopwatch.GetElapsedTime(started).TotalMilliseconds >= 8)
                     break;
             }
         }
         finally
         {
+            _deferAutomaticTableRefresh = false;
+            ExecuteSafely(FlushAutomaticTableRefresh);
             _isAutomaticAdvanceRunning = false;
             // Yield to WPF when the work budget expires, without another full
             // reading delay for an invisible continuation.
             if (_advanceTimer is not null)
-                _advanceTimer.Interval = TimeSpan.FromMilliseconds(
-                    progressed && !visibleAction && CanAutomaticallyAdvance
-                        ? 1 : SelectedPlaybackSpeed.IntervalMilliseconds);
+            {
+                var delay = SelectedPlaybackSpeed.IntervalMilliseconds;
+                if (progressed && CanAutomaticallyAdvance) delay = visibleAction ? readingDelay : 1;
+                _advanceTimer.Interval = TimeSpan.FromMilliseconds(delay);
+            }
         }
     }
 
@@ -803,6 +835,7 @@ public sealed record TablePlayViewModel(long Sequence, string Name, string Actor
     public CardKind? Kind { get; init; }
     public System.Windows.Media.ImageSource? Artwork => CardArt.Get(Kind);
     public bool HasArtwork => Artwork is not null;
+    public bool HasDynamicWeaponName => HasArtwork && CardArt.NeedsRuntimeNameOverlay(Kind);
     public string VerticalName => string.Join("\n", Name.ToCharArray());
     public double NameSize => Name.Length > 3 ? 18 : Name.Length == 1 ? 33 : 23;
 }

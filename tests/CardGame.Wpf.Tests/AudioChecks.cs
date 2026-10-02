@@ -170,7 +170,13 @@ internal static class AudioChecks
             if (draw.IsGeneralSelectionPending) draw.SelectGeneralChoiceCommand.Execute(draw.GeneralChoices[0]);
             else if (draw.IsDiscardSelectionPending) ResolveDiscard(draw);
             else if (draw.CanEndTurn) draw.EndTurnCommand.Execute(null);
-            else if (draw.CanStepAi) draw.StepAiCommand.Execute(null);
+            else if (draw.CanStepAi)
+            {
+                draw.IsAutoAdvance = true;
+                typeof(MainViewModel).GetMethod("OnAdvanceTick", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+                    .Invoke(draw, [null, EventArgs.Empty]);
+                draw.IsAutoAdvance = false;
+            }
             else throw new InvalidOperationException("Draw fixture stopped at an unexpected prompt.");
         }
         Assert(draw.HasGameOver && Engine(draw).State.Winner == Winner.Draw && draw.GameOutcomeTitle == "平 局" &&

@@ -12,18 +12,26 @@ public sealed record HandCardGuidance(int CardId, bool CanPlay, HandGuidanceReas
 
 public sealed partial class GameEngine
 {
+    /// <summary>Builds both UI queries together without enumerating legal actions twice.</summary>
+    public HumanActionView GetHumanActionView()
+    {
+        var actions = GetHumanLegalActions();
+        return new HumanActionView(Revision, actions, BuildHumanHandGuidance(actions));
+    }
+
     /// <summary>
     /// Explains the current human hand. Legal actions remain authoritative;
     /// this query does not advance a frame, consume randomness or publish events.
     /// </summary>
-    public IReadOnlyList<HandCardGuidance> GetHumanHandGuidance()
+    public IReadOnlyList<HandCardGuidance> GetHumanHandGuidance() => BuildHumanHandGuidance(GetHumanLegalActions());
+
+    private IReadOnlyList<HandCardGuidance> BuildHumanHandGuidance(IReadOnlyList<LegalAction> legalActions)
     {
         if (_options.HumanSeat < 0) return [];
         var actor = _players[_options.HumanSeat];
-        var actions = GetHumanLegalActions().Where(action => action.CardId is not null).ToLookup(action => action.CardId!.Value);
+        var actions = legalActions.Where(action => action.CardId is not null).ToLookup(action => action.CardId!.Value);
         var ownPrompt = _pendingDecision?.PlayerSeat == actor.Seat ? _pendingDecision : null;
         var skillNames = EnabledSkillNames(actor);
-        var context = CreateSkillContext(actor);
         return GetHand(actor).Select(card =>
         {
             HandCardGuidance Hint(HandGuidanceReason reason, string message, bool playable = false) => new(card.Id, playable, reason, message);

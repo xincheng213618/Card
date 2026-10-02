@@ -205,7 +205,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="192" />
+                    <RowDefinition Height="210" />
                     <RowDefinition Height="24" />
                 </Grid.RowDefinitions>
                 <Grid x:Name="Battlefield" SizeChanged="Battlefield_SizeChanged">
@@ -582,11 +582,11 @@
                                                 <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                                     <Setter Property="Panel.ZIndex" Value="50" />
                                                 </DataTrigger>
-                                                <Trigger Property="IsMouseOver" Value="True">
+                                                <Trigger Property="controls:HandPanel.IsPointerCard" Value="True">
                                                     <Setter Property="Panel.ZIndex" Value="100" />
                                                 </Trigger>
                                                 <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                                                    <Setter Property="Panel.ZIndex" Value="100" />
+                                                    <Setter Property="Panel.ZIndex" Value="75" />
                                                 </Trigger>
                                             </Style.Triggers>
                                         </Style>
@@ -617,7 +617,7 @@
                         <TextBlock Text="{Binding RecentEventText}" Foreground="#92A396" FontSize="10" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
                     </DockPanel>
                 </Border>
-                <controls:BattleFeedbackLayer x:Name="BattleFeedback" Grid.RowSpan="3" Grid.ColumnSpan="2" Cues="{Binding BattleCues}" AnchorRoot="{Binding ElementName=GameArea}" CenterAnchor="{Binding ElementName=FeedbackCenter}" ActionBar="{Binding ElementName=ActionBar}" MotionEnabled="{Binding IsMotionEnabled}" IsPromptVisible="{Binding HasCenterChoices}" />
+                <controls:BattleFeedbackLayer x:Name="BattleFeedback" Grid.RowSpan="3" Grid.ColumnSpan="2" Cues="{Binding BattleCues}" CommittedRevision="{Binding FeedbackRevision}" AnchorRoot="{Binding ElementName=GameArea}" CenterAnchor="{Binding ElementName=FeedbackCenter}" ActionBar="{Binding ElementName=ActionBar}" MotionEnabled="{Binding IsMotionEnabled}" IsPromptVisible="{Binding HasCenterChoices}" />
                 <Border x:Name="OpeningDealOverlay" Grid.RowSpan="4" Grid.ColumnSpan="2" Background="#EE091318" Visibility="{Binding IsOpeningDealVisible, Converter={StaticResource BoolToVisibility}}">
                     <Border Width="720" Padding="34,28" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#19282D" BorderBrush="#A98A50" BorderThickness="1" CornerRadius="5">
                         <StackPanel>
@@ -649,7 +649,7 @@
                             <Grid Grid.Row="1">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="220" /></Grid.ColumnDefinitions>
                                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="315">
-                                    <ItemsControl x:Name="GeneralCandidateCards" ItemsSource="{Binding GeneralChoices}" ItemTemplate="{StaticResource GeneralChoiceTemplate}">
+                                    <ItemsControl x:Name="GeneralCandidateCards" ItemsSource="{Binding GeneralChoices}" ItemTemplate="{StaticResource GeneralChoiceTemplate}" PreviewMouseDoubleClick="GeneralCandidateCards_PreviewMouseDoubleClick">
                                         <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel HorizontalAlignment="Center" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                                     </ItemsControl>
                                 </ScrollViewer>
@@ -667,7 +667,7 @@
                             <Grid Grid.Row="2" Margin="0,15,0,0">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                 <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="数字键选将 · Enter 确认" Foreground="#D3BE8A" FontSize="12" />
+                                    <TextBlock Text="单击预选 · 双击确认 · 数字键 / Enter" Foreground="#D3BE8A" FontSize="12" />
                                     <TextBlock Text="{Binding GeneralSelectionFooter}" Foreground="#94866F" FontSize="10" Margin="0,5,12,0" TextWrapping="Wrap" />
                                 </StackPanel>
                                 <Button x:Name="ConfirmGeneralChoiceButton" Grid.Column="1" Content="确 认 出 征" Command="{Binding ConfirmGeneralChoiceCommand}" Style="{StaticResource TablePrimaryButton}" MinWidth="132" Padding="17,9" />

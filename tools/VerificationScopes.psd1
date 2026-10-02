@@ -68,7 +68,7 @@
         'Selected actor Duel actual Use and Nullification'
     )
     Wpf = @(
-        'original card artwork', 'composed skills', 'conversion choices',
+        'original card artwork', 'overlapping hand', 'composed skills', 'conversion choices',
         'response context', 'hand responses', 'opaque target-card',
         'playback batches', 'saved UI boundaries', 'failed writes', 'public markers',
         'deferred hand alignment', 'Program conversion polarity stays visible',

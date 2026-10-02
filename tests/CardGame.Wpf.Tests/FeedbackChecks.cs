@@ -1,4 +1,5 @@
 using System.IO;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -17,6 +18,187 @@ using static Program;
 
 internal static class FeedbackChecks
 {
+    public static void CardFlights(string output)
+    {
+        var root = new Canvas { Background = Brushes.DarkSlateGray, Width = 900, Height = 300 };
+        var cues = new ObservableCollection<BattleCue>();
+        var clock = new FrameClock();
+        var layer = new BattleFeedbackLayer { Width = 900, Height = 300, Cues = cues, AnchorRoot = root, Clock = clock };
+        var kinds = new CardKind?[] { CardKind.Slash, CardKind.ThunderSlash, CardKind.IronChain,
+            CardKind.GeneralWeapon, CardKind.ScarletBloodSword, null };
+        for (var index = 0; index < kinds.Length; index++)
+        {
+            var seat = new Border { Width = 54, Height = 35, Background = Brushes.Black,
+                Child = new TextBlock { Text = $"座位 {index + 1}", Foreground = Brushes.Wheat } };
+            Canvas.SetLeft(seat, 50 + 140 * index); Canvas.SetTop(seat, 15);
+            BattleFeedbackLayer.SetSeatAnchor(seat, index); root.Children.Add(seat);
+            var name = kinds[index] is { } kind ? CardCatalog.Get(kind).DisplayName : "未知牌";
+            var settled = new ContentControl
+            {
+                Content = new TablePlayViewModel(index + 1, name, kinds[index] == CardKind.IronChain ? "公开动作 · 重铸" : "公开动作") { Kind = kinds[index] },
+                ContentTemplate = (DataTemplate)Application.Current.FindResource("TablePlayTemplate")
+            };
+            Canvas.SetLeft(settled, 35 + 140 * index); Canvas.SetTop(settled, 150);
+            root.Children.Add(settled);
+            cues.Add(new BattleCue(index + 1, BattleCueKind.Card, index, [], name, "公开动作")
+                { CardKind = kinds[index], Detail = kinds[index] == CardKind.IronChain ? "重铸" : null });
+        }
+        root.Children.Add(layer);
+        clock.Advance(.12);
+        Render(root, 900, 300, Path.Combine(output, "card-flight-moving.png"));
+        clock.Advance(.33);
+        layer.InvalidateVisual();
+        Render(root, 900, 300, Path.Combine(output, "card-flight-landed.png"));
+        var images = Images(VisualTreeHelper.GetDrawing(layer)).ToArray();
+        Assert(images.Length == kinds.Count(kind => kind is not null) &&
+               kinds.Where(kind => kind is not null).All(kind => images.Any(image => ReferenceEquals(image.ImageSource, CardArt.Get(kind)))),
+            "Flying cards did not draw the cached declared faces or an unknown face exposed unrelated artwork.");
+        var names = Find<TextBlock>(root).Where(text => text.Name == "PlayRuntimeCardName" && text.Visibility == Visibility.Visible).ToArray();
+        Assert(names.Select(text => text.Text).ToHashSet().SetEquals(new[]
+                { CardCatalog.Get(CardKind.GeneralWeapon).DisplayName, CardCatalog.Get(CardKind.ScarletBloodSword).DisplayName }),
+            "The settled dynamic weapon illustrations lost their names or other faces gained duplicate labels.");
+        var anchors = Find<Border>(root).Where(border => BattleFeedbackLayer.GetPlayAnchor(border) >= 0).ToArray();
+        Assert(anchors.All(anchor => anchor.ActualWidth == 86 && anchor.ActualHeight == 120) && !layer.IsHitTestVisible,
+            "The flight changed the settled card size or blocked table input.");
+        var imageBounds = ImageBounds(VisualTreeHelper.GetDrawing(layer), Matrix.Identity).ToArray();
+        foreach (var anchor in anchors)
+        {
+            var play = (TablePlayViewModel)anchor.DataContext;
+            if (play.Artwork is null) continue;
+            var expected = anchor.TransformToVisual(layer).TransformBounds(new Rect(1, 1, anchor.ActualWidth - 2, anchor.ActualHeight - 2));
+            var actual = imageBounds.Single(image => ReferenceEquals(image.Image.ImageSource, play.Artwork)).Bounds;
+            Assert(Math.Abs(actual.X - expected.X) < .1 && Math.Abs(actual.Y - expected.Y) < .1 &&
+                   Math.Abs(actual.Width - expected.Width) < .1 && Math.Abs(actual.Height - expected.Height) < .1,
+                "A flying face landed at a different position or size than its settled public card.");
+        }
+        layer.IsPromptVisible = true;
+        Render(root, 900, 300, Path.Combine(output, "card-flight-prompt-safe.png"));
+        Assert(!Images(VisualTreeHelper.GetDrawing(layer)).Any(), "A flying face covered the current human decision.");
+        layer.IsPromptVisible = false;
+        var onRender = typeof(BattleFeedbackLayer).GetMethod("OnRender", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+        var visual = new DrawingVisual();
+        var started = System.Diagnostics.Stopwatch.GetTimestamp();
+        var allocated = GC.GetAllocatedBytesForCurrentThread();
+        for (var frame = 0; frame < 120; frame++)
+        {
+            using var drawing = visual.RenderOpen();
+            onRender.Invoke(layer, [drawing]);
+        }
+        Console.WriteLine($"120 six-card drawing preparations: {System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds:F1} ms; {GC.GetAllocatedBytesForCurrentThread() - allocated:N0} bytes (not screen FPS).");
+        cues.Clear();
+    }
+
+    private static IEnumerable<ImageDrawing> Images(Drawing? drawing)
+    {
+        if (drawing is ImageDrawing image) yield return image;
+        if (drawing is DrawingGroup group)
+            foreach (var child in group.Children)
+                foreach (var nested in Images(child)) yield return nested;
+    }
+
+    private static IEnumerable<(ImageDrawing Image, Rect Bounds)> ImageBounds(Drawing? drawing, Matrix transform)
+    {
+        if (drawing is ImageDrawing image) yield return (image, new MatrixTransform(transform).TransformBounds(image.Rect));
+        if (drawing is DrawingGroup group)
+        {
+            var nestedTransform = group.Transform?.Value ?? Matrix.Identity;
+            nestedTransform.Append(transform);
+            foreach (var child in group.Children)
+                foreach (var nested in ImageBounds(child, nestedTransform)) yield return nested;
+        }
+    }
+
+    public static void InquiryLifetime(string output)
+    {
+        CheckAnimationBoundary();
+        using var vm = new MainViewModel(false, 17, false, new MemorySaveStore(),
+            historyStore: new MemoryMatchHistoryStore(), preferencesStore: new MemoryPlayerPreferencesStore())
+            { IsMotionEnabled = true, IsSoundEnabled = false };
+        var window = new MainWindow(vm);
+        var root = (FrameworkElement)window.Content;
+        var layer = (BattleFeedbackLayer)window.FindName("BattleFeedback");
+        var clock = new FrameClock();
+        layer.Clock = clock;
+        var delivered = new List<BattleCue>();
+        vm.BattleCues.CollectionChanged += (_, args) =>
+        {
+            if (args.NewItems is not null) delivered.AddRange(args.NewItems.OfType<BattleCue>());
+        };
+        try
+        {
+            for (var step = 0; step < 120 && !vm.HasGameOver; step++)
+            {
+                clock.Advance(2);
+                layer.InvalidateVisual();
+                root.Measure(new Size(1120, 740));
+                root.Arrange(new Rect(0, 0, 1120, 740));
+                root.UpdateLayout();
+                new RenderTargetBitmap(1120, 740, 96, 96, PixelFormats.Pbgra32).Render(root);
+                delivered.Clear();
+                Step(vm);
+                if (!vm.CanStepAi || !delivered.Any(cue => cue.IsInquiry)) continue;
+
+                clock.Advance(.15);
+                Render(root, 1120, 740, Path.Combine(output, "feedback-inquiry-before-answer.png"));
+                foreach (var card in delivered.Where(cue => cue.Kind == BattleCueKind.Card))
+                    Assert(Images(VisualTreeHelper.GetDrawing(layer)).Any(image => ReferenceEquals(image.ImageSource, CardArt.Get(card.CardKind))),
+                        "A real committed card use flew as a placeholder instead of its declared face.");
+                var retained = delivered.Count(cue => !cue.IsInquiry);
+                var inquiries = delivered.Count(cue => cue.IsInquiry);
+                Assert(layer.ActiveEffectCount == delivered.Count, "The current public inquiry did not reach the bound animation layer.");
+                var before = Engine(vm).Revision;
+                delivered.Clear();
+                Step(vm);
+                clock.Advance(.15);
+                Render(root, 1120, 740, Path.Combine(output, "feedback-inquiry-after-answer.png"));
+                Console.WriteLine($"Inquiry lifetime: revision {before} -> {Engine(vm).Revision}, expired inquiries={inquiries}, expected active={retained + delivered.Count}, actual active={layer.ActiveEffectCount}.");
+                Assert(Engine(vm).Revision > before && layer.ActiveEffectCount == retained + delivered.Count,
+                    "An accepted continuation kept the previous waiting-for-response animation over the new feedback.");
+                return;
+            }
+            Assert(false, "The fixed match did not reach an automatic response inquiry.");
+        }
+        finally
+        {
+            window.Content = null;
+            window.Close();
+        }
+    }
+
+    private static void CheckAnimationBoundary()
+    {
+        var cues = new ObservableCollection<BattleCue>();
+        var layer = new BattleFeedbackLayer { Cues = cues, CommittedRevision = 10, Clock = new FrameClock() };
+        layer.RaiseEvent(new RoutedEventArgs(FrameworkElement.LoadedEvent));
+        var inquiry = new BattleCue(1, BattleCueKind.ResponseWindow, 1, [0], "等待闪响应", "响应者")
+            { IsInquiry = true, Revision = 10 };
+        try
+        {
+            cues.Add(inquiry);
+            layer.CommittedRevision = 10;
+            Assert(layer.ActiveEffectCount == 1 && layer.IsFrameTimerRunning,
+                "An unchanged command boundary hid the current inquiry.");
+            layer.CommittedRevision = 11;
+            Assert(layer.ActiveEffectCount == 0 && !layer.IsFrameTimerRunning && cues.Count == 1,
+                "A continuation without a new cue kept drawing an expired inquiry or deleted public history.");
+            cues.Add(inquiry with { Sequence = 2 });
+            Assert(layer.ActiveEffectCount == 0 && !layer.IsFrameTimerRunning,
+                "Late delivery restarted an inquiry from an earlier command.");
+            cues.Add(inquiry with { Sequence = 3, Revision = 12 });
+            layer.CommittedRevision = 12;
+            Assert(layer.ActiveEffectCount == 1,
+                "A delayed revision binding removed the new command's inquiry.");
+            cues.Add(new BattleCue(4, BattleCueKind.Response, 1, [], "打出闪", "响应者") { Revision = 12 });
+            layer.CommittedRevision = 13;
+            Assert(layer.ActiveEffectCount == 1, "Retiring an inquiry removed its actual response feedback.");
+            layer.MotionEnabled = false;
+            layer.MotionEnabled = true;
+            Assert(layer.ActiveEffectCount == 0 && !layer.IsFrameTimerRunning,
+                "Re-enabling animations replayed old inquiry history.");
+        }
+        finally { layer.RaiseEvent(new RoutedEventArgs(FrameworkElement.UnloadedEvent)); }
+    }
+
     public static void PublicProjection()
     {
         using var vm = new MainViewModel(false, 721019, false, new MemorySaveStore());
@@ -45,7 +227,12 @@ internal static class FeedbackChecks
         var cues = BattleCueProjector.Project(publicEvents, view);
         targets[0] = 4;
         Assert(cues.Count == 4 && cues.Select(cue => cue.Sequence).Distinct().Count() == 4, "Public response duplicated or zero damage rendered.");
+        Assert(cues.All(cue => cue.Revision == 1), "Public feedback lost its committed command revision.");
         Assert(cues[0].Label == "杀" && cues[0].TargetSeats.SequenceEqual([1]), "Declared card or detached public targets differ.");
+        Assert(cues[0].CardKind == CardKind.Slash && cues.Skip(1).All(cue => cue.CardKind is null),
+            "Flight artwork must come from the public declaration, never inferred from another response or private card ID.");
+        var recastCue = BattleCueProjector.Project([Envelope(new CardRecastEvent(0, 300, CardKind.IronChain, 1))], view).Single();
+        Assert(recastCue is { CardKind: CardKind.IronChain, Detail: "重铸" }, "Recast lost its public card kind or action label.");
         Assert(cues[1].Label == "打出杀" && cues[2].Label == "−2" && cues[2].Nature == DamageNature.Fire && cues[3].Label == "+1", "Response, damage, or recovery feedback differs from committed events.");
         var sourceFreeEvents = new[] { Envelope(new DamageAppliedEvent(1, 1, 1, 0) { SourceLess = true }) };
         Assert(BattleCueProjector.Project(sourceFreeEvents, view).Single() is
@@ -114,6 +301,8 @@ internal static class FeedbackChecks
                responseCues[4] is { Label: "无懈可击询问中 · 第 2 层", Detail: "当前锦囊已失效 · 可反制恢复" } &&
                responseCues[5] is { SourceSeat: -1, Label: "决斗 · 已失效", Detail: "无懈链共 1 次响应" },
             "Response request, locked progress, or layered Nullification state was not projected exactly.");
+        Assert(responseCues.Select(cue => cue.IsInquiry).SequenceEqual(new[] { true, false, true, false, true, false }),
+            "Response progress, a played response or the final outcome was treated as an unanswered inquiry.");
         var iFieldView = view with
         {
             Players = view.Players.Select(player => player.Seat == 0

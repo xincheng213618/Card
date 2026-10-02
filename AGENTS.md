@@ -9,6 +9,15 @@
 - Keep the default verification small enough to target about one minute including an incremental build. Prefer a small existing fixture or a verified seed over repeated seed searches and complete-match simulations. Retain representative integration coverage and all assertions for the behavior under test; measure the default run after a batch instead of assuming fewer checks means less time.
 - Preserve checkpoint, replay, content fingerprint, input validation, privacy, and card movement boundaries. Do not delete historical compatibility code or change stored data solely to reduce test count.
 
+## Temporary files and build artifacts
+
+- Generate release/publish outputs, installers, and distribution packages only when the user explicitly requests publishing or packaging. Ordinary development and verification must not run release/publish workflows. This restriction does not prohibit temporary archives used to complete the task.
+- Temporary archives such as `source.zip` and `integration-base.zip`, repository/asset copies, worktrees, and isolated build/test outputs are allowed when useful for the task; no separate permission is needed just to use them. Track their exact paths and ownership, and clean them up after use. This also covers diagnostic scripts, logs, and screenshots.
+- Reuse compatible checkouts and build outputs where practical, respecting locks and concurrent work. Separate snapshots or output directories are allowed when needed, but remove each once its purpose is complete. Do not accumulate disposable files under `%TEMP%` or merely relocate them into the repository. Do not treat shared caches or another task's output as task-owned.
+- Put temporary-output cleanup in `try/finally` where practical, covering both successful and failed runs. Before the final response, stop or wait for this task's own consumers, remove disposable outputs, and verify that cleanup succeeded. The task remains responsible for this cleanup even when the invoked build/test script leaves its outputs behind. When resuming an interrupted task, check its known temporary paths for leftovers.
+- Preserve only deliverables or the minimal evidence still needed for diagnosis in an appropriate project output location. If cleanup is blocked or a temporary file must remain, report its exact path and reason in the final response; do not silently leave large build trees behind.
+- Delete only files and directories whose ownership by this task is established. Before recursive deletion or moving, resolve the absolute target and verify it is strictly inside the intended temporary/output root; use PowerShell cmdlets with `-LiteralPath`. Never clear all of `%TEMP%`, delete by a broad `Card-*` wildcard, or remove files still used by another process or task.
+
 ## Runtime boundaries
 
 - Keep command commit and recovery in the command session. Prepare player views before commit; freeze all exposed nested collections so observers cannot change the prepared result. Player views must use `CreateSnapshot(viewerSeat)`; `ResolutionStack` is trusted diagnostics and may contain private state.

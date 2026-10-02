@@ -277,6 +277,7 @@
 
     <DataTemplate x:Key="SeatTemplate">
         <Button Style="{StaticResource BareButton}" Width="154" Height="204" Command="{Binding DataContext.SelectTargetCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" AutomationProperties.Name="{Binding Name}" ToolTip="{Binding SkillText}" ToolTipService.InitialShowDelay="450" controls:BattleFeedbackLayer.SeatAnchor="{Binding Seat}">
+            <Grid>
             <Border x:Name="SeatFrame" Background="#211D18" BorderBrush="#7C7056" BorderThickness="2" CornerRadius="2" Padding="2">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -356,6 +357,8 @@
                     <Border x:Name="TurnLine" Visibility="Collapsed" Grid.RowSpan="2" BorderBrush="#E6C386" BorderThickness="0,0,0,3" IsHitTestVisible="False" />
                 </Grid>
             </Border>
+            <Border x:Name="SeatSelectedOutline" BorderBrush="#FFE19C" BorderThickness="3" CornerRadius="2" Opacity="0" IsHitTestVisible="False" />
+            </Grid>
         </Button>
         <DataTemplate.Triggers>
             <DataTrigger Binding="{Binding IsNationalSeat}" Value="True">
@@ -383,7 +386,7 @@
             </DataTrigger>
             <DataTrigger Binding="{Binding IsSelectedTarget}" Value="True">
                 <Setter TargetName="SeatFrame" Property="BorderBrush" Value="#FFE19C" />
-                <Setter TargetName="SeatFrame" Property="BorderThickness" Value="3" />
+                <Setter TargetName="SeatSelectedOutline" Property="Opacity" Value="1" />
                 <Setter TargetName="TargetBadge" Property="Visibility" Value="Visible" />
                 <Setter TargetName="TargetBadge" Property="Background" Value="#E8BC8950" />
                 <Setter TargetName="TargetBadgeText" Property="Text" Value="✓ 已选定" />
@@ -432,7 +435,8 @@
     </DataTemplate>
     <DataTemplate x:Key="CardTemplate">
         <Button x:Name="CardButton" Style="{StaticResource BareButton}" Command="{Binding DataContext.SelectCardCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" IsEnabled="{Binding IsPlayable}" VerticalAlignment="Bottom" Margin="0,18,0,0" ToolTip="{Binding CardHint}" ToolTipService.ShowOnDisabled="True" ToolTipService.InitialShowDelay="250" AutomationProperties.Name="{Binding CardHint}">
-            <Border x:Name="CardBorder" Width="110" Height="156" Background="{StaticResource CardPaper}" CornerRadius="3" BorderBrush="#7C7364" BorderThickness="1">
+            <Grid x:Name="CardSurface" Width="110" Height="156">
+            <Border x:Name="CardBorder" Background="{StaticResource CardPaper}" CornerRadius="3" BorderBrush="#7C7364" BorderThickness="1">
                     <Grid>
                         <ContentControl Content="{Binding}" ContentTemplate="{StaticResource CardFaceTemplate}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
                         <TextBlock Text="粮" Foreground="#F9EAC5" Background="#A074562A" FontSize="10" Padding="4,1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5" Visibility="{Binding IsStoredGrain, Converter={StaticResource BoolToVisibility}}" />
@@ -441,11 +445,13 @@
                         </Border>
                     </Grid>
             </Border>
+            <Border x:Name="CardSelectedOutline" BorderBrush="#FFE0A0" BorderThickness="3" CornerRadius="3" Opacity="0" IsHitTestVisible="False" />
+            </Grid>
         </Button>
         <DataTemplate.Triggers>
-            <Trigger SourceName="CardButton" Property="IsMouseOver" Value="True">
+            <Trigger SourceName="CardButton" Property="controls:HandPanel.IsPointerCard" Value="True">
                 <Setter TargetName="CardBorder" Property="BorderBrush" Value="#F4D390" />
-                <Setter TargetName="CardBorder" Property="RenderTransform">
+                <Setter TargetName="CardSurface" Property="RenderTransform">
                     <Setter.Value>
                         <TranslateTransform Y="-7" />
                     </Setter.Value>
@@ -456,16 +462,16 @@
             </Trigger>
             <DataTrigger Binding="{Binding IsSelected}" Value="True">
                 <Setter TargetName="CardBorder" Property="BorderBrush" Value="#FFE0A0" />
-                <Setter TargetName="CardBorder" Property="BorderThickness" Value="3" />
+                <Setter TargetName="CardSelectedOutline" Property="Opacity" Value="1" />
                 <Setter TargetName="SelectedCheck" Property="Visibility" Value="Visible" />
-                <Setter TargetName="CardBorder" Property="RenderTransform">
+                <Setter TargetName="CardSurface" Property="RenderTransform">
                     <Setter.Value>
                         <TranslateTransform Y="-18" />
                     </Setter.Value>
                 </Setter>
             </DataTrigger>
             <DataTrigger Binding="{Binding IsPlayable}" Value="False">
-                <Setter TargetName="CardBorder" Property="Opacity" Value="0.55" />
+                <Setter TargetName="CardSurface" Property="Opacity" Value="0.55" />
             </DataTrigger>
         </DataTemplate.Triggers>
     </DataTemplate>
@@ -484,13 +490,23 @@
             <Border controls:BattleFeedbackLayer.PlayAnchor="{Binding Sequence}" Width="86" Height="120" CornerRadius="2" Background="{StaticResource CardPaper}" BorderBrush="#74634B" BorderThickness="1" ToolTip="{Binding Name}">
                 <Grid>
                     <TextBlock x:Name="PlayTextFallback" Text="{Binding Name}" FontFamily="KaiTi" Foreground="#3F3830" FontSize="20" TextAlignment="Center" VerticalAlignment="Center" Margin="4,0" TextWrapping="Wrap" />
-                    <Image Source="{Binding Artwork}" Stretch="Fill" />
+                    <Viewbox Stretch="Fill">
+                        <Grid Width="186" Height="260">
+                            <Image Source="{Binding Artwork}" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality" />
+                            <TextBlock x:Name="PlayRuntimeCardName" Text="{Binding Name}" Foreground="#4D3923" FontFamily="KaiTi" FontSize="20"
+                                HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="28,0,4,25"
+                                Visibility="{Binding HasDynamicWeaponName, Converter={StaticResource BoolToVisibility}}" />
+                        </Grid>
+                    </Viewbox>
                 </Grid>
             </Border>
             <TextBlock Text="{Binding ActorName}" Foreground="#302519" FontSize="10" TextAlignment="Center" Margin="0,3,0,0" />
         </StackPanel>
         <DataTemplate.Triggers>
             <DataTrigger Binding="{Binding HasArtwork}" Value="True"><Setter TargetName="PlayTextFallback" Property="Visibility" Value="Collapsed" /></DataTrigger>
+            <DataTrigger Binding="{Binding Kind}" Value="{x:Static core:CardKind.ScarletBloodSword}">
+                <Setter TargetName="PlayRuntimeCardName" Property="Margin" Value="28,0,4,8" />
+            </DataTrigger>
         </DataTemplate.Triggers>
     </DataTemplate>
     <DataTemplate x:Key="GeneralChoiceTemplate">

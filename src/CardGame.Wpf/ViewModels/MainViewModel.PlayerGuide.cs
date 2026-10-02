@@ -287,12 +287,24 @@ DecisionKind.RescueDying => ("决定是否救援濒死角色", (new[] { "桃可�
             CurrentGuideBody = "游戏会在需要你出牌、响应或弃牌时停下来。打开指南期间不会自动推进。";
             steps = [IsAutoAdvance ? "关闭指南后，其他角色会继续行动。" : "关闭指南后，可开启右下角「自动推进」继续牌局。", "可随时在右下角调整声音与动画，或通过战报查看刚才发生的事。"];
         }
-        CurrentGuideSteps.Clear();
-        for (var index = 0; index < steps.Length; index++) CurrentGuideSteps.Add(new GuideStep((index + 1).ToString("00"), steps[index]));
-        GuideHand.Clear();
-        if (!IsNewGameSetupOpen && !IsGeneralSelectionPending)
-            foreach (var card in Hand) GuideHand.Add(new GuideHandEntry(card.Name, card.AvailabilityText));
+        SyncGuideItems(CurrentGuideSteps, steps.Select((text, index) => new GuideStep((index + 1).ToString("00"), text)));
+        SyncGuideItems(GuideHand, IsNewGameSetupOpen || IsGeneralSelectionPending
+            ? [] : Hand.Select(card => new GuideHandEntry(card.Name, card.AvailabilityText)));
         RaisePropertyChanged(nameof(HasGuideHand));
+    }
+
+    private static void SyncGuideItems<T>(ObservableCollection<T> items, IEnumerable<T> desired)
+    {
+        // The guide is bound even while closed. Retain unchanged rows so a hand
+        // selection does not recreate its hidden controls or reset its scroll.
+        var index = 0;
+        foreach (var item in desired)
+        {
+            if (index >= items.Count) items.Add(item);
+            else if (!EqualityComparer<T>.Default.Equals(items[index], item)) items[index] = item;
+            index++;
+        }
+        while (items.Count > index) items.RemoveAt(items.Count - 1);
     }
 
     private string GetCardDescription(CardKind kind) => kind switch

@@ -6,6 +6,26 @@ namespace CardGame.Wpf.ViewModels;
 
 public sealed partial class MainViewModel
 {
+    private bool _deferAutomaticTableRefresh;
+    private GameSnapshot? _automaticTableSnapshot;
+
+    private void PresentCommittedState(GameSnapshot snapshot)
+    {
+        // Only coalesce invisible automatic continuations within this dispatcher
+        // slice. Human prompts, completion and opening hands must be presented now.
+        if (_deferAutomaticTableRefresh && snapshot.Status == EngineStatus.Running && snapshot.PendingDecision is null)
+        {
+            _automaticTableSnapshot = snapshot;
+            return;
+        }
+        Refresh(snapshot);
+    }
+
+    private void FlushAutomaticTableRefresh()
+    {
+        if (_automaticTableSnapshot is { } snapshot) Refresh(snapshot);
+    }
+
     private PlaybackSpeed _selectedPlaybackSpeed = PlaybackSpeed.Normal;
     public IReadOnlyList<PlaybackSpeed> PlaybackSpeeds => PlaybackSpeed.All;
     public PlaybackSpeed SelectedPlaybackSpeed

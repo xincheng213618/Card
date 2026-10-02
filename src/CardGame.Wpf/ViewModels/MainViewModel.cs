@@ -203,7 +203,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             if (SetProperty(ref _isDeveloperView, value) && _game is not null)
             {
-                Refresh(_game.CreateSnapshot(_game.State.HumanSeat, value));
+                RefreshCurrentView();
             }
         }
     }
@@ -452,7 +452,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _game.StateChanged -= OnStateChanged;
     }
 
-    private void OnStateChanged(GameSnapshot _) => RefreshCurrentView();
+    private void OnStateChanged(GameSnapshot snapshot) => PresentCommittedState(snapshot);
 
     private void OnLogAdded(GameLogEntry entry)
     {
@@ -483,8 +483,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void RefreshCurrentView()
     {
-        var snapshot = _game.CreateSnapshot(_game.State.HumanSeat, IsDeveloperView);
-        Refresh(snapshot);
+        Refresh(_game.State);
     }
 
     private void SyncActiveSkillSelection()
@@ -527,6 +526,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void Refresh(GameSnapshot snapshot)
     {
+        _automaticTableSnapshot = null;
         if (_snapshot?.PendingDecision?.PromptId != snapshot.PendingDecision?.PromptId)
         {
             _selectedCardTargetSeats.Clear();
@@ -833,7 +833,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         SyncSeats(Seats, updatedSeats);
 
         var human = _snapshot.Players.SingleOrDefault(player => player.IsHuman);
-        var handGuidance = _game.GetHumanHandGuidance().ToDictionary(item => item.CardId);
+        var handGuidance = GetViewHandGuidance().ToDictionary(item => item.CardId);
         if (human is not null)
         {
             RebuildActiveSkillEquipmentChoices(human, activeSkillCardIds);
@@ -859,8 +859,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     availability = string.IsNullOrEmpty(availability) ? "本回合不能使用或打出"
                         : availability + "；本回合不能使用或打出";
                 var selectable = IsActiveSkillSelectionPending ? activeSkillSelectable : normallySelectable;
+                var kindLabel = grainIds.Contains(card.Id)
+                    ? $"粮 · {CardCatalog.Get(card.Kind).CategoryName}"
+                    : CardCatalog.Get(card.Kind).CategoryName;
                 if (existing.TryGetValue(card.Id, out var displayed))
                 {
+                    displayed.KindLabel = kindLabel;
                     displayed.IsPlayable = selectable;
                     displayed.AvailabilityText = availability;
                     displayed.IsSelected = IsDiscardSelectionPending
@@ -875,9 +879,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     Id = card.Id,
                     Kind = card.Kind,
                     Name = card.DisplayName,
-                    KindLabel = grainIds.Contains(card.Id)
-                        ? $"粮 · {CardCatalog.Get(card.Kind).CategoryName}"
-                        : CardCatalog.Get(card.Kind).CategoryName,
+                    KindLabel = kindLabel,
                     SuitGlyph = GetSuitGlyph(card.Suit),
                     Rank = card.RankText,
                     Description = GetCardDescription(card.Kind),
@@ -1961,7 +1963,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         ExecuteSafely(() =>
         {
-            var result = SubmitCommand(new AdvanceOneStepCommand(_snapshot.Revision));
+            var result = SubmitCommand(new AdvanceOneStepCommand((_automaticTableSnapshot ?? _snapshot).Revision));
             RefreshCommandResult(result.State);
         });
     }
@@ -2181,6 +2183,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
         catch (Exception exception)
         {
+            FlushAutomaticTableRefresh();
             IsAutoAdvance = false;
             PromptText = $"操作未执行：{exception.Message}";
             ActionHint = PromptText;

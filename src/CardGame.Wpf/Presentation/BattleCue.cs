@@ -7,7 +7,13 @@ public enum BattleCueKind { Card, ResponseWindow, Response, Judgment, Damage, Re
 /// <summary>Presentation data containing only actions and values that are already public.</summary>
 public sealed record BattleCue(long Sequence, BattleCueKind Kind, int SourceSeat,
     IReadOnlyList<int> TargetSeats, string Label, string ActorName, DamageNature Nature = DamageNature.Normal,
-    string? Detail = null);
+    string? Detail = null)
+{
+    // An inquiry announces a pending response; it is not itself a played card or result.
+    public bool IsInquiry { get; init; }
+    public long Revision { get; init; }
+    public CardKind? CardKind { get; init; }
+}
 
 public static class BattleCueProjector
 {
@@ -32,12 +38,12 @@ public static class BattleCueProjector
             BattleCue? cue = envelope.Payload switch
             {
                 CardRecastEvent recast => new(envelope.Sequence, BattleCueKind.Card, recast.ActorSeat, [],
-                    $"重铸{CardCatalog.Get(recast.CardKind).DisplayName}", Name(recast.ActorSeat)),
+                    $"重铸{CardCatalog.Get(recast.CardKind).DisplayName}", Name(recast.ActorSeat), Detail: "重铸") { CardKind = recast.CardKind },
                 CardUseDeclaredEvent card => new(envelope.Sequence, BattleCueKind.Card, card.SourceSeat,
-                    Seats(targets.GetValueOrDefault(card.ResolutionId) ?? []), CardCatalog.Get(card.CardKind).DisplayName, Name(card.SourceSeat)),
+                    Seats(targets.GetValueOrDefault(card.ResolutionId) ?? []), CardCatalog.Get(card.CardKind).DisplayName, Name(card.SourceSeat)) { CardKind = card.CardKind },
                 ResponseRequestedEvent request => new(envelope.Sequence, BattleCueKind.ResponseWindow, request.TargetSeat,
                     Seats([request.SourceSeat]), $"等待{CardCatalog.Get(request.RequiredCardKind ?? CardKind.Dodge).DisplayName}响应",
-                    Name(request.TargetSeat), Detail: $"响应【{CardCatalog.Get(request.IncomingCard).DisplayName}】"),
+                    Name(request.TargetSeat), Detail: $"响应【{CardCatalog.Get(request.IncomingCard).DisplayName}】") { IsInquiry = true },
                 RequiredResponseProgressEvent progress => new(envelope.Sequence, BattleCueKind.ResponseWindow, progress.ResponderSeat,
                     Seats([progress.SkillOwnerSeat]),
                     $"连续响应 {progress.ResponseCount} / {progress.RequiredResponseCount}", Name(progress.ResponderSeat),
@@ -45,7 +51,7 @@ public static class BattleCueProjector
                 NullificationRequestedEvent nullification => new(envelope.Sequence, BattleCueKind.ResponseWindow,
                     nullification.ResponderSeat, Seats([nullification.SourceSeat]),
                     $"无懈可击询问中 · 第 {nullification.ChainDepth + 1} 层", Name(nullification.ResponderSeat),
-                    Detail: nullification.EffectCurrentlyNullified ? "当前锦囊已失效 · 可反制恢复" : "当前锦囊生效中 · 可令其失效"),
+                    Detail: nullification.EffectCurrentlyNullified ? "当前锦囊已失效 · 可反制恢复" : "当前锦囊生效中 · 可令其失效") { IsInquiry = true },
                 NullificationRespondedEvent nullification => new(envelope.Sequence, BattleCueKind.Response,
                     nullification.ResponderSeat, [], $"打出无懈可击 · 第 {nullification.ChainDepth} 层",
                     Name(nullification.ResponderSeat), Detail: nullification.EffectNullified ? "锦囊暂时失效" : "锦囊恢复生效"),
@@ -159,7 +165,7 @@ public static class BattleCueProjector
             if (response.Card is { } cardId && (cardId < 0 || responseCards.Add(cardId)))
                 cue = new(envelope.Sequence, BattleCueKind.Response, response.Seat, [],
                     response.Kind is { } kind ? $"打出{CardCatalog.Get(kind).DisplayName}" : "打出响应牌", Name(response.Seat));
-            if (cue is not null) cues.Add(cue);
+            if (cue is not null) cues.Add(cue with { Revision = envelope.Revision });
         }
 
         // A bulk run can commit many turns. Show the latest useful actions, keeping playback bounded.

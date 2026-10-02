@@ -7,6 +7,7 @@ using System.Windows.Threading;
 using CardGame.Wpf.ViewModels;
 using CardGame.Wpf.Audio;
 using CardGame.Wpf.Persistence;
+using CardGame.Wpf.Controls;
 
 namespace CardGame.Wpf;
 
@@ -45,13 +46,16 @@ public partial class MainWindow : Window
         if (DataContext is not MainViewModel vm || IsTableModalOpen(vm)) return;
         var source = e.OriginalSource as DependencyObject;
         Button? button = null;
+        HandPanel? hand = null;
         var onPlaySurface = false;
         while (source is not null)
         {
             button ??= source as Button;
+            hand ??= source as HandPanel;
             onPlaySurface |= ReferenceEquals(source, Battlefield) || ReferenceEquals(source, HandDock);
             source = source is Visual ? VisualTreeHelper.GetParent(source) : LogicalTreeHelper.GetParent(source);
         }
+        if (hand is not null) button = hand.CardButtonAt(e.GetPosition(hand));
         if (e.ChangedButton == MouseButton.Right && vm.HasSelection && onPlaySurface)
         {
             vm.ClearSelectionCommand.Execute(null);
@@ -62,9 +66,37 @@ public partial class MainWindow : Window
             e.Handled = TryQuickConfirm(item);
     }
 
-    private static bool IsTableModalOpen(MainViewModel vm) => vm.IsNewGameSetupOpen || vm.IsHelpOpen ||
+    private static bool IsBlockingTableOverlayOpen(MainViewModel vm) => vm.IsNewGameSetupOpen || vm.IsHelpOpen ||
         vm.IsHistoryOpen || vm.IsGeneralGalleryOpen || vm.IsSettingsOpen || vm.IsIdentityRevealOpen ||
-        vm.IsOpeningDealVisible || vm.IsGeneralSelectionPending || vm.HasGameOver || vm.IsLogOpen;
+        vm.IsOpeningDealVisible || vm.HasGameOver || vm.IsLogOpen;
+
+    private static bool IsTableModalOpen(MainViewModel vm) =>
+        IsBlockingTableOverlayOpen(vm) || vm.IsGeneralSelectionPending;
+
+    private void GeneralCandidateCards_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton != MouseButton.Left || DataContext is not MainViewModel vm ||
+            !vm.IsGeneralSelectionPending || IsBlockingTableOverlayOpen(vm)) return;
+        var source = e.OriginalSource as DependencyObject;
+        while (source is not null && !ReferenceEquals(source, GeneralCandidateCards))
+        {
+            if (source is Button button)
+            {
+                // Confirm only the current prompt's preview. The first click stays reversible;
+                // a stale event from a primary general cannot select the secondary slot.
+                if (button.IsEnabled && button.Command == vm.PreviewGeneralChoiceCommand &&
+                    button.DataContext is GeneralChoiceViewModel choice &&
+                    ReferenceEquals(choice, vm.SelectedGeneralChoice) && vm.GeneralChoices.Contains(choice) &&
+                    vm.ConfirmGeneralChoiceCommand.CanExecute(null))
+                {
+                    e.Handled = true;
+                    vm.ConfirmGeneralChoiceCommand.Execute(null);
+                }
+                return;
+            }
+            source = source is Visual ? VisualTreeHelper.GetParent(source) : LogicalTreeHelper.GetParent(source);
+        }
+    }
 
     private bool TryQuickConfirm(object item)
     {
@@ -205,12 +237,14 @@ public partial class MainWindow : Window
             else viewModel.ClearSelectionCommand.Execute(null);
             return true;
         }
-        if (viewModel.IsGeneralSelectionPending && key == Key.Enter && modifiers == ModifierKeys.None && viewModel.CanConfirmGeneralChoice)
+        if (viewModel.IsGeneralSelectionPending && !IsBlockingTableOverlayOpen(viewModel) &&
+            key == Key.Enter && modifiers == ModifierKeys.None && viewModel.CanConfirmGeneralChoice)
         {
             viewModel.ConfirmGeneralChoiceCommand.Execute(null);
             return true;
         }
-        if (viewModel.IsGeneralSelectionPending && key is >= Key.D1 and <= Key.D9 && modifiers == ModifierKeys.None)
+        if (viewModel.IsGeneralSelectionPending && !IsBlockingTableOverlayOpen(viewModel) &&
+            key is >= Key.D1 and <= Key.D9 && modifiers == ModifierKeys.None)
         {
             var generalIndex = key - Key.D1;
             if (generalIndex < viewModel.GeneralChoices.Count)
