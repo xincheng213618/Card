@@ -1,5 +1,7 @@
 namespace CardGame.Core;
 
+public sealed record CardMovementTiming(int ActualTurnOwnerSeat, TurnPhase Phase, int PhaseActorSeat);
+
 /// <summary>
 /// Frozen facts for one atomic card-zone operation. Nested operations retain
 /// both their rules-frame parent and their immediate movement-batch parent.
@@ -15,7 +17,11 @@ public sealed record CardMovementBatchContext(
     IReadOnlyList<CardMovementSourceCount>? DestinationCounts = null,
     string? OriginSkillId = null,
     string? OriginSkillInstanceId = null,
-    int? OriginOwnerSeat = null);
+    int? OriginOwnerSeat = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public CardMovementTiming? MovementTiming { get; init; }
+}
 
 public sealed record CardMovementSourceCount(
     CardLocation Location,

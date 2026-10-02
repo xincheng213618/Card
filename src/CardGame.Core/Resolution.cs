@@ -107,6 +107,7 @@ public sealed record ProgramSkillFrame(
     : ResolutionFrame(Id, ResolutionFrameKind.ProgramSkill, Step)
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramDiamondDelayedDraft? DiamondDelayed { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramShownGiftReceipt? ShownGiftReceipt { get; init; }
 
     /// <summary>The exact current grant selected when this execution was frozen.</summary>
     public string SkillInstanceId { get; init; } = "";

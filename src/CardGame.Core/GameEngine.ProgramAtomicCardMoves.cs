@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     /// <summary>One configured discard cost may include several owner zones, but it is one rules batch.</summary>
-    private void MoveProgramCardsFromMultipleSources(IReadOnlyList<int> ids, CardLocation destination, CardMoveReason reason)
+    private void MoveProgramCardsFromMultipleSources(IReadOnlyList<int> ids, CardLocation destination, CardMoveReason reason,
+        Action<long, IReadOnlyList<CardMovementRecord>>? afterPhysicalRecords = null)
     {
         var entries = ids.Select(id =>
         {
@@ -23,6 +24,21 @@ public sealed partial class GameEngine
             // Commit all physical cards before removal hooks observe the discard cost.
             foreach (var group in entries.GroupBy(item => (item.Source, item.Target)))
                 _cardZones.MoveMany(group.Select(item => item.Card.Id), group.Key.Source, group.Key.Target);
+            if (afterPhysicalRecords is not null)
+            {
+                foreach (var item in entries)
+                    movements.Add(RecordMovement(item.Card, item.Source, item.Target, reason));
+                afterPhysicalRecords(batch.Id, Array.AsReadOnly(movements.ToArray()));
+                foreach (var item in entries)
+                {
+                    ResolveEquipmentSkillGrant(item.Card, item.Source, item.Target);
+                    ClearJudgmentEffectiveKindAfterMove(item.Card, item.Source, item.Target);
+                    ResolveSilverLionRemoval(item.Card, item.Source, reason);
+                    ResolveWoodenOxMove(item.Card, item.Source, item.Target);
+                    CollectDiscardPhaseHandDiscard(item.Card, item.Source, item.Target);
+                }
+            }
+            else
             foreach (var item in entries)
             {
                 movements.Add(RecordMovement(item.Card, item.Source, item.Target, reason));

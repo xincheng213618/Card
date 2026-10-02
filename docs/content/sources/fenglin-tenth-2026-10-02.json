@@ -1,0 +1,290 @@
+{
+  "status": "Accepted in main with fresh Full Core497/497 WPF49/49 and measured unfiltered routine Core140/140 WPF15/15",
+  "index": {
+    "key": "index",
+    "url": "https://www.sanguosha.com/hero",
+    "finalUrl": "https://www.sanguosha.com/hero",
+    "status": 200,
+    "retrievedAt": "2026-10-02T08:28:03.611257+00:00",
+    "responseSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+    "bytes": 1319990
+  },
+  "roster": [
+    {
+      "key": "313",
+      "url": "https://www.sanguosha.com/hero/313",
+      "finalUrl": "https://www.sanguosha.com/hero/313",
+      "status": 200,
+      "retrievedAt": "2026-10-02T08:28:03.683841+00:00",
+      "responseSha256": "490b76bfac8ba1b606b76bfed73a6ebd01139eb93cc71b088ef7ab871620e73e",
+      "bytes": 26524,
+      "skills": [
+        {
+          "name": "刚烈",
+          "text": "当一名角色对你造成1点伤害后，你可以判定，若结果为：红色，你对其造成1点伤害；黑色，你弃置其一张牌。"
+        },
+        {
+          "name": "清俭",
+          "text": "每回合限一次，当你在摸牌阶段外获得牌后，你可以展示并交给一名其他角色任意张牌，令当前回合角色本回合手牌上限+X（X为你给出牌的类型数）。"
+        }
+      ],
+      "officialId": 313,
+      "name": "界夏侯惇",
+      "indexFields": {
+        "gid": 313,
+        "name": "界夏侯惇",
+        "resource": "31300",
+        "extend": "界限突破",
+        "hp": 4,
+        "initial_hp": 0,
+        "quality": "稀有",
+        "figure": "魏",
+        "figure_py": "wei",
+        "biography": "夏侯惇[dūn]，字元让，沛国谯（今安徽亳州）人，曹魏开国元勋，汉朝开国功臣之一夏侯婴的后代。少年时以勇气闻名于乡里。曹操起兵，夏侯惇是其最早的将领之一。多次为曹操镇守后方，曾率军民阻断太寿河水，筑陂塘灌溉农田，使百姓受益，功勋卓著。历任折冲校尉、济阴太守、建武将军，官至大将军，封高安乡侯，死后谥为忠侯。",
+        "characteristic": "受到敌人的伤害时报复敌人，获得牌可以分配给队友。受到【寒冰剑】和【闪电】的针对，技能依赖判定结果。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/313.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/31300.png",
+        "realname": "界夏侯惇 (界限突破)"
+      },
+      "sameHtmlAsNinthPreflight": true
+    },
+    {
+      "key": "317",
+      "url": "https://www.sanguosha.com/hero/317",
+      "finalUrl": "https://www.sanguosha.com/hero/317",
+      "status": 200,
+      "retrievedAt": "2026-10-02T08:28:03.719514+00:00",
+      "responseSha256": "adbbdb9df76c061e251ada8c649326c8a389621e2382442dbcb7792fad98b277",
+      "bytes": 26195,
+      "skills": [
+        {
+          "name": "恂恂",
+          "text": "摸牌阶段开始时，你可以观看牌堆顶的四张牌，然后将其中两张牌置于牌堆顶，将剩余牌置于牌堆底。"
+        },
+        {
+          "name": "忘隙",
+          "text": "当你对其他角色造成1点伤害后，或受到其他角色的1点伤害后，你可以摸两张牌并交给该角色其中一张牌。"
+        }
+      ],
+      "officialId": 317,
+      "name": "界李典",
+      "indexFields": {
+        "gid": 317,
+        "name": "界李典",
+        "resource": "31700",
+        "extend": "界限突破",
+        "hp": 3,
+        "initial_hp": 0,
+        "quality": "普通",
+        "figure": "魏",
+        "figure_py": "wei",
+        "biography": "字曼成，曹操麾下将领。李典深明大义，不与人争功，崇尚学习与高贵儒雅，尊重博学之士，在军中被称为长者。李典有长者之风，官至破虏将军，三十六岁去世。魏文帝曹丕继位后追谥号为愍[mǐn]侯。",
+        "characteristic": "观看牌堆顶的牌选择自己要摸的牌，通过受伤或造成伤害来摸大量的牌。受到【寒冰剑】的针对。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/317.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/31700.png",
+        "realname": "界李典 (界限突破)"
+      },
+      "sameHtmlAsNinthPreflight": true
+    }
+  ],
+  "parser": "Listdata object flattened; character-tabs + p.skill-text span",
+  "baselineHead": "b58c7cb5a820a2d7a8c92f834ee4c27b21a8aaeb",
+  "userConfirmedRuling": "Qingjian excludes only its owner actual Draw phase; other players Draw does not exclude it",
+  "engineeringDefaults": {
+    "qingjianOwnedZones": [
+      "Hand",
+      "Equipment"
+    ],
+    "qingjianMinimumGiftCards": 1,
+    "exactTopShortPile": "min(exactTopCount, actualViewedCount); preserve existing reshuffle behavior"
+  },
+  "schemaVersion": 1,
+  "productLine": "三国杀OL",
+  "batch": "界夏侯惇与界李典",
+  "artwork": [
+    {
+      "officialId": 313,
+      "key": "boundary-xiahou-dun",
+      "name": "界夏侯惇",
+      "resource": "31300",
+      "sourcePage": "https://www.sanguosha.com/hero/313",
+      "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31300.png",
+      "finalUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31300.png",
+      "status": 200,
+      "retrievedAt": "2026-10-02T08:43:53.650524+00:00",
+      "filename": "official-boundary-xiahou-dun.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-xiahou-dun.png",
+      "sha256": "c2585662c9fd75648a8266bcdf23ba68a2807bb94b3cdbb563dc0da5cf18ee5e",
+      "bytes": 1074340,
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "originalBytesUnmodified": true
+    },
+    {
+      "officialId": 317,
+      "key": "boundary-li-dian",
+      "name": "界李典",
+      "resource": "31700",
+      "sourcePage": "https://www.sanguosha.com/hero/317",
+      "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31700.png",
+      "finalUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31700.png",
+      "status": 200,
+      "retrievedAt": "2026-10-02T08:43:53.652483+00:00",
+      "filename": "official-boundary-li-dian.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-li-dian.png",
+      "sha256": "e347388774ecfc95e762f4bb2146266a6831e1eee4e8d1c03478f4f4fcc8d2d0",
+      "bytes": 1381997,
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "originalBytesUnmodified": true
+    }
+  ],
+  "engineeringRulings": "docs/content/skill-composition/FENG_LIN_TENTH_RULINGS.md",
+  "capabilityContract": "docs/content/skill-composition/FENG_LIN_TENTH_CAPABILITIES.md",
+  "implementationStatus": "frozenPlansPendingImplementationAndMainAcceptance",
+  "sourceFreezeSha256": "729331e063787847aad499a5838a8ce9bd3cc03c4497c8b3abb27e4d2eeb540e",
+  "implementedGeneralIds": [
+    "boundary:xiahou-dun",
+    "boundary:li-dian"
+  ],
+  "acceptedInMain": true,
+  "implementationEvidence": {
+    "commonWorkerBaseline": "b58c7cb5a820a2d7a8c92f834ee4c27b21a8aaeb",
+    "mainImportBaseline": "0f5c33d31d7920c3f83c4069a7a8c50cfe026227",
+    "artifactRoot": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinTenth-20261002",
+    "xiahouDeliveryManifestSha256": "750307cf777e15a3308beaa952e1a54eafaf752f4b5ccce8f0c4d800750762eb",
+    "liDeliveryManifestSha256": "610231b7ac9ec42a0b0e5766b02f0e1d5991411005433e3be36d4445efd2598e",
+    "liNativeRescueManifestSha256": "647ea5e1cf91f80cfd2448efe0d986969fe4f0785ae33ac7ec3d0b74b64feb74",
+    "liConvertedRescueManifestSha256": "9f053f10a5d855eecbde1b4c8393bdd6f8add55097a6ac28512ff3d888d842fb",
+    "threeWayMergeProofSha256": "5dea250334622feb76fca89d94d0410e89ffaeabb5c75680ab4cf400b6476973",
+    "independentEdgeReviewManifestSha256": "042c0a9fb106563c2c7b54561d4894648fc641ffe8699cc14355a47cb0a1c684",
+    "independentReviewBoundary": "Captured source presence and native Peach bridge; later converted bridge reviewed by parent and real focused commands",
+    "parentFocused": {
+      "corePassed": 29,
+      "wpfPassed": 2,
+      "durationMs": 22656,
+      "summarySha256": "5680372fade7f0112ae23392665557693052e540f6b004e1b3c68ce62fd1a3e9"
+    },
+    "offlineArtCatalog": {
+      "generals": 171,
+      "pngRecords": 968,
+      "passed": true,
+      "logSha256": "61b5e7fdb69a04aa7a396b8ce629173a1d30d1afce899c6ce99a8ababe8145b4"
+    },
+    "previousFailuresPreserved": true,
+    "validationBoundary": "Focused accepted commands, four player projections/cold replay, separately labeled host audits and offscreen WPF; not full game or live OL client/manual desktop acceptance"
+  },
+  "mainAcceptance": {
+    "validatedImportHead": "0f5c33d31d7920c3f83c4069a7a8c50cfe026227",
+    "full": {
+      "corePassed": 497,
+      "wpfPassed": 49,
+      "durationMs": 197548,
+      "summarySha256": "6462cbe52a2f0ea59fec41f2286b3cb31c9a348bd44eefcd841b1330ae62b8cf",
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 7932,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinTenth-20261002\\validation-main-full-01\\logs\\build.log"
+        },
+        {
+          "name": "Core full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 150179,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinTenth-20261002\\validation-main-full-01\\logs\\core-full.log"
+        },
+        {
+          "name": "WPF full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 39396,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinTenth-20261002\\validation-main-full-01\\logs\\wpf-full.log"
+        }
+      ]
+    },
+    "routine": {
+      "corePassed": 140,
+      "wpfPassed": 15,
+      "durationMs": 55906,
+      "summarySha256": "91902addb71a33c11516c56d151ea7ea8950d706ba3cb4e168e7e5cd945a962a",
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 8273,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinTenth-20261002\\validation-main-routine-01\\logs\\build.log"
+        },
+        {
+          "name": "Core selected checks (77 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 29298,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinTenth-20261002\\validation-main-routine-01\\logs\\core-selected.log"
+        },
+        {
+          "name": "WPF selected checks (15 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 18272,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinTenth-20261002\\validation-main-routine-01\\logs\\wpf-selected.log"
+        }
+      ],
+      "previousFiltersRetained": true,
+      "addedCoreFilters": [
+        "boundary Xiahou Dun real phases skip quota expiry",
+        "boundary Xiahou Dun receipt before gain child source audit",
+        "Exact top count partition normal draw",
+        "Bound draw receipt per point nested gain"
+      ],
+      "addedWpfFilters": [
+        "Program exact top count restores private shared order"
+      ],
+      "singleMeasuredRun": true
+    },
+    "compiledResources": {
+      "manifestSha256": "f7660af0eabfde3acd9af76d02da31ac7d47de5f4e338783f608c6b9a432ed9e",
+      "allInputsUnchanged": true,
+      "portraitResults": [
+        {
+          "Key": "boundary-xiahou-dun",
+          "ResourceKey": "assets/official-boundary-xiahou-dun.png",
+          "Sha256": "c2585662c9fd75648a8266bcdf23ba68a2807bb94b3cdbb563dc0da5cf18ee5e",
+          "ExpectedSha256": "c2585662c9fd75648a8266bcdf23ba68a2807bb94b3cdbb563dc0da5cf18ee5e",
+          "Bytes": 1074340,
+          "PixelWidth": 750,
+          "PixelHeight": 950,
+          "GeneralArtDecoded": true
+        },
+        {
+          "Key": "boundary-li-dian",
+          "ResourceKey": "assets/official-boundary-li-dian.png",
+          "Sha256": "e347388774ecfc95e762f4bb2146266a6831e1eee4e8d1c03478f4f4fcc8d2d0",
+          "ExpectedSha256": "e347388774ecfc95e762f4bb2146266a6831e1eee4e8d1c03478f4f4fcc8d2d0",
+          "Bytes": 1381997,
+          "PixelWidth": 750,
+          "PixelHeight": 950,
+          "GeneralArtDecoded": true
+        }
+      ],
+      "wpfAssemblySha256": "7f150274bd8b04a56cb5f755d924ffadd264afdf47aeb59d2f786625f424f6f5",
+      "boundary": "Resource report froze pending Full; parent independently confirms actual Full summary passed"
+    },
+    "runtimeSourcesUnchangedAfterValidation": true,
+    "versionDeclarationsUnchanged": true,
+    "boundary": "Accepted-command focused and full regression, cold replay/four player views, separate host audits, offscreen WPF and compiled resources; no live OL client or manual desktop match acceptance",
+    "postValidationFormatOnly": {
+      "paths": [
+        "tests/CardGame.Core.Tests/BoundaryLiDianChecks.cs",
+        "tests/CardGame.Wpf.Tests/ExactTopReorderUiChecks.cs"
+      ],
+      "onlyExtraEofBlankLinesRemoved": true,
+      "productionBytesUnchanged": true,
+      "behaviorAssertionsUnchanged": true,
+      "validationRepeated": false
+    }
+  }
+}

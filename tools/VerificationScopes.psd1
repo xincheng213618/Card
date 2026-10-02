@@ -45,7 +45,11 @@
         'current turn nonlocked suppression host lifecycle audit',
         'boundary Guan Yu actual Played and black Hand rejection',
         'Boundary Zhang Fei actual recovery receipt limited child',
-        'boundary Ma Chao Tieqi Paoxiao exact cancellation integration'
+        'boundary Ma Chao Tieqi Paoxiao exact cancellation integration',
+        'boundary Xiahou Dun real phases skip quota expiry',
+        'boundary Xiahou Dun receipt before gain child source audit',
+        'Exact top count partition normal draw',
+        'Bound draw receipt per point nested gain'
     )
     Wpf = @(
         'original card artwork', 'composed skills', 'conversion choices',
@@ -53,6 +57,7 @@
         'playback batches', 'saved UI boundaries', 'failed writes', 'public markers',
         'deferred hand alignment', 'Program conversion polarity stays visible',
         'declaration and general library views protect private faces',
-        'Program paid choices'
+        'Program paid choices',
+        'Program exact top count restores private shared order'
     )
 }

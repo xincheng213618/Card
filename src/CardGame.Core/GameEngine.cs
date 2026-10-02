@@ -308,6 +308,7 @@ public sealed partial class GameEngine
             .Select(skill => skill.Id)
             .ToHashSet(StringComparer.Ordinal);
         _hasLordProjectionCapability = contentRegistry.Skills.Values.Any(s => s.Program?.LordSkillProjection == true);
+        _hasGainPhaseQualificationCapability = contentRegistry.Skills.Values.Any(s => s.Program?.Triggers.Any(t => t.GainPhaseQualification is not null) == true);
         _skillBindingIndex = new MatchSkillBindingIndex(
             contentRegistry.GetSkill,
             IsNationalWarMode,
@@ -983,6 +984,10 @@ public sealed partial class GameEngine
                 factionId,
                 advanceToHumanBoundary: _options.AdvanceAfterHumanCommands));
         }
+
+        if (pending.Kind == DecisionKind.ProgramTopReorder &&
+            _resolutionStack.LastOrDefault() is ProgramSkillFrame { TopReorder.RequiredTopCount: not null })
+            return SubmitProgramTopReorderAnswer(selected);
 
         if (pending.SkillPrompt is not null)
             return SubmitPindianPromptAnswer(selected);
@@ -16661,7 +16666,7 @@ public sealed partial class GameEngine
 
     private void AssertCoreInvariants()
     {
-        var damageProgramDying = IsPendingDamageProgramDying();
+        var damageProgramDying = IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying();
         _turnCardUseEffects.AssertInvariants();
         AssertPostEventProgramInvariants();
         AssertPindianInvariant();
@@ -17745,7 +17750,7 @@ public sealed partial class GameEngine
                     "A damage trigger continuation must retain a valid trigger window frame.");
             }
 
-            var damageCursorTop = DamageCursorEffectiveTop(includeNestedObservers: _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.ConvertingGift is { Observe: true } && f.WindowContext?.ParentFrameId == pendingDamageTrigger.Id));
+            var damageCursorTop = DamageCursorEffectiveTop(includeNestedObservers: _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.ConvertingGift is { Observe: true } && f.WindowContext?.ParentFrameId == pendingDamageTrigger.Id) || HasAvailableBoundDamageObserver(pendingDamageTrigger.Id));
             var activeDamageProgram = damageCursorTop is ProgramSkillFrame programFrame &&
                 programFrame.WindowContext is
                 {

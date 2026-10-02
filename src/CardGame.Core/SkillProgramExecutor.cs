@@ -905,7 +905,9 @@ public sealed class SelectCardSubsetSkillProgramEffectHandler : ISkillProgramEff
     public SkillProgramEffectOp Op => SkillProgramEffectOp.SelectCardSubset;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host) =>
-        host.SelectCardSubset(frame.Id, frame.OwnerSeat,
+        effect.AvailableAtSourceOnly == true
+            ? ((IAvailableBoundSubsetProgramEffectHost)host).SelectAvailableBoundSubset(frame, effect)
+            : host.SelectCardSubset(frame.Id, frame.OwnerSeat,
             effect.SourceBind ?? throw new InvalidOperationException("selectCardSubset has no source bind."),
             effect.ResultBind ?? throw new InvalidOperationException("selectCardSubset has no result bind."),
             effect.MinimumCards, effect.MaximumCards, effect.MaximumRankSum,
@@ -1280,7 +1282,9 @@ public sealed class ReorderTopCardsSkillProgramEffectHandler : ISkillProgramEffe
     public SkillProgramEffectOp Op => SkillProgramEffectOp.ReorderTopCards;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host) =>
-        host.ReorderTopCards(frame, effect.Amount, effect.NumberExpression);
+        effect.ExactTopCount is { } exact
+            ? ((IExactTopReorderProgramEffectHost)host).ReorderTopCardsExactly(frame, effect.Amount, effect.NumberExpression, exact)
+            : host.ReorderTopCards(frame, effect.Amount, effect.NumberExpression);
 }
 
 public sealed class RepeatJudgmentSkillProgramEffectHandler : ISkillProgramEffectHandler

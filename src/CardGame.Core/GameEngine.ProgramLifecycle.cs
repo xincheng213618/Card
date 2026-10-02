@@ -1386,7 +1386,7 @@ public sealed partial class GameEngine
         int maximumRankSum,
         SkillProgramSubsetAiOrder aiOrder,
         bool allowFewerWhenInsufficient,
-        bool onePerSuit)
+        bool onePerSuit, bool availableAtSourceOnly = false)
     {
         var frame = GetActiveProgramFrame(frameId);
         var source = frame.CardSetBindings.SingleOrDefault(binding => binding.Name == sourceBind);
@@ -1399,10 +1399,17 @@ public sealed partial class GameEngine
         }
         if (source.CardIds.Count != source.SourceLocations.Count)
             throw new InvalidOperationException("A program card-set binding lost its source locations.");
-        var cards = source.CardIds.Select((cardId, index) =>
-            _cardZones.CardsAt(source.SourceLocations[index]).SingleOrDefault(card => card.Id == cardId) ??
+        var candidates = source.CardIds.Select((id, index) => (Id: id, Index: index));
+        if (availableAtSourceOnly) candidates = candidates.Where(item => _cardZones.GetLocation(item.Id) == source.SourceLocations[item.Index]);
+        var cards = candidates.Select(item =>
+            _cardZones.CardsAt(source.SourceLocations[item.Index]).SingleOrDefault(card => card.Id == item.Id) ??
             throw new InvalidOperationException("A bound card left its frozen source before selection."))
             .ToArray();
+        if (availableAtSourceOnly && cards.Length == 0)
+        {
+            CancelProgramBindingAndCleanup(frame, "此次获得的牌已全部离开原区域，剩余交牌结束。");
+            return SkillProgramStepOutcome.AwaitChild;
+        }
         // 涉猎-style one-per-suit subsets must take exactly one card of every
         // distinct suit; the constraint leaves no room for partial takes.
         var constraintMinimum = minimumCards;
@@ -1457,7 +1464,7 @@ public sealed partial class GameEngine
             DecisionKind.ProgramTrigger,
             ownerSeat,
             $"【{presentation.Name}】请选择符合约束的牌。",
-            source.CardIds,
+            availableAtSourceOnly ? cards.Select(card => card.Id).ToArray() : source.CardIds,
             [],
             frame.WindowContext?.SourceSeat)
         {
@@ -1787,6 +1794,7 @@ public sealed partial class GameEngine
         var trigger = ProgramInstructionResolver.Default.FindTrigger(program, candidate.BindingId);
         if (trigger is null || trigger.Window != context.Window || !CanPayProgramMarkerCost(owner, trigger.MarkerCost))
             return false;
+        if (!IsGainPhaseQualified(trigger, candidate.OwnerSeat, context.MovementBatch?.MovementTiming)) return false;
         var features = ProgramInstructionResolver.Default.Features(trigger);
         if (!CanOfferFinalTargetGift(candidate, context, features)) return false;
         if (!CanOfferConvertingGift(candidate, context, features)) return false;
@@ -2090,6 +2098,10 @@ public sealed partial class GameEngine
             damage.Id != context.ParentFrameId ||
             damage.ParentFrameId != context.DamageFrameId ||
             damage.TriggerWindow != context.Window)
+            return false;
+        if (trigger.RequireDamageSource == true &&
+            (context.SourceSeat is not { } presentSourceSeat || !IsValidPlayerSeat(presentSourceSeat) ||
+             GetDamageTriggerAttack(damage).IsSourceLess || GetDamageTriggerAttack(damage).IsDelayedJudgmentDamage))
             return false;
         if (trigger.DamageCardKinds.Count > 0 &&
             (GetDamageTriggerAttack(damage).EffectiveCardKind is not { } kind || !trigger.DamageCardKinds.Contains(kind)))
@@ -3208,18 +3220,19 @@ public sealed partial class GameEngine
             if (rankSum > effect.MaximumRankSum)
                 throw new InvalidOperationException("The selected subset exceeds its rank-sum limit.");
             if (effect.OnePerSuit
-                    ? cards.Length !=
-                      source.CardIds.Select((cardId, index) =>
+                    ? cards.Length != (effect.AvailableAtSourceOnly == true
+                        ? CountAvailableBoundSuits(source)
+                        : source.CardIds.Select((cardId, index) =>
                               _cardZones.CardsAt(source.SourceLocations[index])
                                   .Single(card => card.Id == cardId).Suit)
-                          .Distinct().Count() ||
+                          .Distinct().Count()) ||
                       cards.Select(card => card.Suit).Distinct().Count() != cards.Length
                     : selected.Cards.Distinct().Count() != selected.Cards.Count ||
                     selected.Cards.Any(cardId => !source.CardIds.Contains(cardId)) ||
                     selected.Cards.Count < (effect.AllowFewerWhenInsufficient
-                        ? Math.Min(effect.MinimumCards, source.CardIds.Count) : effect.MinimumCards) ||
+                        ? Math.Min(effect.MinimumCards, effect.AvailableAtSourceOnly == true ? CountAvailableBoundCards(source) : source.CardIds.Count) : effect.MinimumCards) ||
                     selected.Cards.Count > (effect.AllowFewerWhenInsufficient
-                        ? Math.Min(effect.MaximumCards, source.CardIds.Count) : effect.MaximumCards))
+                        ? Math.Min(effect.MaximumCards, effect.AvailableAtSourceOnly == true ? CountAvailableBoundCards(source) : source.CardIds.Count) : effect.MaximumCards))
                 throw new InvalidOperationException("The selected subset is no longer legal.");
             ClearPendingDecision();
             SetProgramCardSet(frame.Id, effect.ResultBind!, selected.Cards,

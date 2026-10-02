@@ -368,6 +368,15 @@ internal sealed class ProgramAiEstimateContext
         // part of a source through exceptBind; its remaining cards did not move.
     }
 
+    internal void ShownBoundGift(SkillProgramEffect effect)
+    {
+        var count = Binding(effect.SourceBind).Count;
+        _ownerDraw -= count;
+        _estimatedHandCount = Math.Max(0, _estimatedHandCount - count);
+        _targetDraw += count;
+        _otherAdjustment += Math.Min(3, count);
+    }
+
     internal void Gift(SkillProgramEffect effect)
     {
         _ = Binding(effect.SourceBind); // The owner may keep the card, so the choice has no forced cost.

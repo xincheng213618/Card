@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:xunxun": {
+      "name": "恂恂",
+      "description": "摸牌阶段开始时，你可以观看牌堆顶的四张牌，然后将其中两张牌置于牌堆顶，将剩余牌置于牌堆底。"
+    },
+    "boundary:wangxi": {
+      "name": "忘隙",
+      "description": "当你对其他角色造成1点伤害后，或受到其他角色的1点伤害后，你可以摸两张牌并交给该角色其中一张牌。"
+    }
+  }
+}

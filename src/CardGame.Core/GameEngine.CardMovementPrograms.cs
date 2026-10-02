@@ -3,6 +3,17 @@ namespace CardGame.Core;
 /// <summary>Generic post-movement program host. It contains no skill ids.</summary>
 public sealed partial class GameEngine
 {
+    private readonly bool _hasGainPhaseQualificationCapability;
+
+    private CardMovementTiming? CaptureMovementTiming() => !_hasGainPhaseQualificationCapability ? null :
+        _programPhaseSchedule is { Phase: TurnPhase.Draw } scheduled
+            ? new(_turnProgression.OwnerSeat, TurnPhase.Draw, scheduled.Frame.OwnerSeat)
+            : new(_turnProgression.OwnerSeat, _phase, _currentSeat);
+
+    private static bool IsGainPhaseQualified(SkillProgramTrigger trigger, int ownerSeat, CardMovementTiming? timing) =>
+        trigger.GainPhaseQualification is null || timing is not null &&
+        (timing.Phase != TurnPhase.Draw || timing.PhaseActorSeat != ownerSeat);
+
     private sealed class CardMovementBatchBuilder(
         long id,
         long? parentFrameId,
@@ -21,6 +32,7 @@ public sealed partial class GameEngine
         public IReadOnlyDictionary<CardLocation, int> SourceCountsBefore { get; } = sourceCountsBefore;
         public IReadOnlyDictionary<CardLocation, int> DestinationCountsBefore { get; } = destinationCountsBefore;
         public ProgramSkillFrame? OriginProgram { get; } = originProgram;
+        public CardMovementTiming? MovementTiming { get; init; }
     }
 
     private CardMovementBatchBuilder BeginCardMovementBatch(IEnumerable<CardLocation> sourceLocations, IEnumerable<CardLocation> destinationLocations)
@@ -38,7 +50,7 @@ public sealed partial class GameEngine
             _turnNumber,
             sources,
             destinationLocations.Distinct().ToDictionary(location => location, location => _cardZones.Count(location)),
-            _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault());
+            _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault()) { MovementTiming = CaptureMovementTiming() };
         _activeCardMovementBatchIds.Push(batch.Id);
         return batch;
     }
@@ -74,7 +86,8 @@ public sealed partial class GameEngine
             batch.AwaitingProgramFrameId,
             batch.DestinationCountsBefore.OrderBy(item => item.Key.Zone).ThenBy(item => item.Key.OwnerSeat)
                 .Select(item => new CardMovementSourceCount(item.Key, item.Value, _cardZones.Count(item.Key))).ToArray(),
-            batch.OriginProgram?.SkillId, batch.OriginProgram?.SkillInstanceId, batch.OriginProgram?.OwnerSeat));
+            batch.OriginProgram?.SkillId, batch.OriginProgram?.SkillInstanceId, batch.OriginProgram?.OwnerSeat)
+            { MovementTiming = batch.MovementTiming });
     }
 
     private bool HasCardsMovedProgramBoundaryFrame()
@@ -151,6 +164,7 @@ public sealed partial class GameEngine
             foreach (var candidate in CollectProgramTriggerCandidates(_players[ownerSeat], window))
             {
                 var trigger = GetProgramTrigger(candidate);
+                if (!IsGainPhaseQualified(trigger, ownerSeat, batch.MovementTiming)) continue;
                 if (discardOriginOnly && !trigger.MovementDiscardOnly) continue;
                 if (!(window == SkillProgramTriggerWindow.CardsMoved ? trigger.SourceZones : trigger.DestinationZones).Contains(count.Location.Zone)) continue;
                 if (trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerOwnerBatch)
@@ -174,7 +188,7 @@ public sealed partial class GameEngine
                 }
                 var indexes = MatchingMovementIndexes(batch, candidate, trigger, count.Location);
                 if (indexes.Length == 0) continue;
-                var facts = CaptureCardsMovedTriggerFacts(_players[ownerSeat], indexes.Length, count, window);
+                var facts = CaptureCardsMovedTriggerFacts(_players[ownerSeat], indexes.Length, count, window, batch.MovementTiming);
                 if (!trigger.Condition.Evaluate(facts, candidate.SkillId, candidate.SkillInstanceId)) continue;
                 // A judgment still in flight (for example while another skill replaces its
                 // card) owns its judgment zone churn; starting a second judgment from that
@@ -307,11 +321,12 @@ public sealed partial class GameEngine
         CharacterState owner,
         int movedCardCount,
         CardMovementSourceCount sourceCount,
-        SkillProgramTriggerWindow window)
+        SkillProgramTriggerWindow window, CardMovementTiming? timing = null)
     {
         var facts = CaptureProgramTriggerFacts(owner);
         return facts with
         {
+            MovementTiming = timing,
             MovedCardCount = movedCardCount,
             SourceZoneCountBefore = window == SkillProgramTriggerWindow.CardsMoved ? sourceCount.CountBefore : 0,
             SourceZoneCountAfter = window == SkillProgramTriggerWindow.CardsMoved ? sourceCount.CountAfter : 0,
@@ -368,7 +383,7 @@ public sealed partial class GameEngine
             TargetSeat: candidate.OwnerSeat,
             OccurrenceIndex: candidate.OccurrenceIndex,
             Facts: CaptureCardsMovedTriggerFacts(
-                _players[candidate.OwnerSeat], matchingIndexes.Length, count, trigger.Window),
+                _players[candidate.OwnerSeat], matchingIndexes.Length, count, trigger.Window, frame.Batch.MovementTiming),
             MovementBatch: frame.Batch,
             MovementIndex: trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerCard
                 ? candidate.OccurrenceIndex

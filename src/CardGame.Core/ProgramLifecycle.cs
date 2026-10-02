@@ -30,7 +30,11 @@ public sealed record ProgramTopReorder(
     IReadOnlyList<int> ViewedCardIds,
     IReadOnlyList<int> TopCardIds,
     IReadOnlyList<int> BottomCardIds,
-    bool ChoosingBottom);
+    bool ChoosingBottom)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? RequiredTopCount { get; init; }
+}
 public sealed record ProgramRepeatedJudgment(
     string Reason, string ResultBind, IReadOnlyList<Suit> SuccessSuits, int CompletedCount,
     bool? LastMatched = null);

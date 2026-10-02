@@ -14,7 +14,7 @@ public sealed partial class GameEngine
             .GroupBy(item => item.movement.From.OwnerSeat);
         foreach (var group in groups)
         {
-            var facts = CaptureCardsMovedTriggerFacts(_players[candidate.OwnerSeat], group.Count(), count, trigger.Window);
+            var facts = CaptureCardsMovedTriggerFacts(_players[candidate.OwnerSeat], group.Count(), count, trigger.Window, batch.MovementTiming);
             if (trigger.Condition.Evaluate(facts, candidate.SkillId, candidate.SkillInstanceId))
                 yield return candidate with { OccurrenceIndex = group.First().index };
         }

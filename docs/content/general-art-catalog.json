@@ -10843,6 +10843,40 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-xiahou-dun",
+      "characterName": "界夏侯惇",
+      "defaultSkinId": "31300",
+      "skins": [
+        {
+          "id": "31300",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/313",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31300.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-xiahou-dun.png",
+          "sha256": "c2585662c9fd75648a8266bcdf23ba68a2807bb94b3cdbb563dc0da5cf18ee5e",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "boundary-li-dian",
+      "characterName": "界李典",
+      "defaultSkinId": "31700",
+      "skins": [
+        {
+          "id": "31700",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/317",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31700.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-li-dian.png",
+          "sha256": "e347388774ecfc95e762f4bb2146266a6831e1eee4e8d1c03478f4f4fcc8d2d0",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

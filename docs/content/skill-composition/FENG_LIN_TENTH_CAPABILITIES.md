@@ -1,0 +1,39 @@
+# 界夏侯惇、界李典第十批能力契约
+
+本契约以本地已验收 b58c7cb5a820a2d7a8c92f834ee4c27b21a8aaeb 为共同源码基线。根负责共享审核、登记、立绘、合并、主区验证与本地提交。工作进程只在给定副本实现，交付冻结后不得改写；原始失败及修复验证分目录保留。主区另有独立手牌响应测试性能修复，不能回滚它或恢复旧测试裁剪。
+
+权威来源为 source-preflight 当前普通 OL 的313和317正文。最新抓取与前一来源预检内容一致。正式 general IDs 为 boundary:xiahou-dun、boundary:li-dian，portrait underscore keys 为 boundary_xiahou_dun、boundary_li_dian，resource31300/31700，魏、男性、4/3体力。技能新ID boundary:ganglie、boundary:qingjian、boundary:xunxun、boundary:wangxi。独立内容module、rules/presentation bundles交付；最终统一注册由根执行，不并行改GeneralGallery/GeneralArt/catalog/sync工具。
+
+## 界夏侯惇
+
+刚烈依当前正文：每一真实伤害点后可分别发动，真实判定最终红色对实际来源造成1点伤害；黑色由owner弃来源一张牌。优先复用成熟判定/最终花色绑定/固定eventSource/隐藏牌选择/真实弃置。无来源、来源无牌/死亡、自身来源等沿真实有效目标机制，不能给不存在来源造伤害或借旧非红桃规则。改判、判定牌被其他技能获得和判断后死亡子窗必须是实际事件和实体路径。
+
+清俭：用户已明确确认只排除技能owner自己的真实Draw阶段；他人Draw期间owner得牌仍符合，真实额外/Scheduled Draw亦按阶段actor归属判断。父工程默认可给HE中的至少一张牌，可选此前已有的牌，恰一名其他角色，X为真实给出的物理Basic/Trick/Equipment类别数（延时锦囊属于Trick）。这两个HE/min1默认不是用户明确裁决，不宣称官网写明；Judgment/私有保留堆/武将牌不开放。
+
+新增窄扩展A：cardsGained触发可选 gainPhaseQualification: outsideOwnerDraw。仅此新资格采集实际发生阶段/phase actor的nullable MovementTiming并持于atomic batch/context/facts；在物理移动起点冻结，当window延后处理仍用发生事实。真实ScheduledDraw须consult其拥有者状态，不能仅用_phase或normal draw reason。普通/技能draw在ownDraw皆排除；own extraPlay、他人Draw/正常gain皆按确认口径。无该能力的旧内容不填新字段、旧条件/prompt/RNG/序列化保持。parser严格拒未知/null/不适用window；新增字段不要求不兼容schema变更。
+
+新增窄扩展B：SkillProgramEffectOp.GiveShownBoundCardsAndGrantTurnHandLimit=1960，对应giveShownBoundCardsAndGrantTurnHandLimit，generic companion host与descriptor/handler，参数只接受target:owner、sourceBind、Always condition，完整resource/AI/validation三方登记。要求前置同bind的真实selectOwnedCards+公开revealBoundCards、恰一合法recipient。用既有跨来源atomic机制提交实体；新opt-in callback或独立新能力helper必须在全部physical Move以及实际RecordMovement完成、任何装备removal hook/HP/得牌child dispatch之前，冻结实际进入指定recipient Hand的receipt，绑定真实actual-turn-owner，并一次发HandLimit/Add/X。general weapon重定向OutsideGame、不转移或无效recipient不计入X；真实空receipt不发bonus。不得直接重数intent IDs、移动后的持牌数或虚拟花色。
+
+receipt留在owning ProgramSkillFrame，用typed continuation/parent returns。完成receipt后source loss/local disable/owner death/recipient收牌后牌被移动不撤销已发实际turn事实；重入不得重展示、重移牌、重加X。receipt前失效沿旧executor取消，不全局放宽OwnsSkillInstance检查。若改旧atomic helper，新回调缺省null的原Record→hook顺序必须逐字保留；不将新compound顺序施加给旧节点。奖励store复用已有AffectedSeat/ActualTurn/ParentFrame+EffectIndex幂等及expiry，不能改MaxHp/permanent HandLimit。真正actual turn结束到期，extraPlay不刷新或迁移奖励。
+
+清俭once quota用owner+named skill+stable namedUsageGroup+actual turn，不随skill instance重授刷新；optional skip不消耗，accepted activation沿成熟quota点消费，使嵌套得牌有界。其他owner独立技能仍可发动，不能用全局关闭movement或同skill来源过滤冒充限次。新事件首选已有已覆盖TurnRuleModifierGrantedEvent加必要标量receipt事件；若新增含集合payload必须加入CommittedEventProjection。所有嵌套receipt/帧/视图集合冻结，玩家视图只从CreateSnapshot。
+
+## 界李典
+
+恂恂采用Additive drawPhaseStarting，private观看最多实际四张、精确两张置顶、其余置底，两组均可逐张排序，完成后接原父正常Draw修正，不Replacement或直接得2。
+
+ReorderTopCards仅增可选exactTopCount正整数<=amount（amount保持既有1..16）。SkillProgramEffect可用nullable init字段，旧host入口保持签名；新字段通过窄companion host。ProgramSkillFrame.TopReorder内nullable RequiredTopCount冻结有效数，旧null序列化省略。新分支只提供top，选够后自动进入bottom，剩余0则一次commit；旧null的finish-top、AI数量/序列、prompt IDs和条件保持。新AI按required硬约束；旧AI不改。
+
+父工程短堆默认 effectiveRequired=min(exactTopCount,actualViewedCount)，沿已有仅空堆EnsureDrawPile行为，不修改旧nonempty短堆洗牌。这是明确工程默认，尚非当前官网FAQ证明；不得把它写为官方裁决。n=0..3、有/无弃牌池要实测、记录RNG和原行为，若发现同版本确切官方不足牌规则或真实机制要求不同，先提交证据与新opt-in提案，不能悄悄施加给旧Guanxing/null路径。
+
+新non-null draft严格验证paused instruction、owner、required、唯一Viewed、top/bottom合法互斥prefix、阶段与计数，最终仍用既有ReorderDrawPileTop对真实顶片段与完整partition验证。一张顶选择不移牌或公开；commit一次才重排，恢复不重shuffle/付款。top首项下次先摸，bottom首项最靠底；提示准确说明。新private计数/阶段选择复用现有ProgramTopReorder +真实AnswerPrompt/UI，不读ResolutionStack显示私牌。若新增metadata/UI行为，最多一个共享WPF机制检查，成熟manual save/load、真实两top后bottom点击、每次一个accepted command、选择退场及四viewer隐私。
+
+忘隙按每真实伤害点双向可选：owner真实draw2 resultBind receipt，交其中仍可合法移出的1张给该点伤害的另一存活角色。不是任意旧Hand，不能改成对方draw1。先纯内容组合，真实draw/gain子窗后继续；对方死亡后保留既成draw、有限结束。receipt牌被子窗移走是必须小fixture确认的具体机制风险，不能先假定不存在：若真实可达且现strict source验证throw，报告并用仅新内容opt-in的“选择仍处冻结source的bound子集”窄扩展，不全局放宽旧绑定或偷换旧手牌。0可给则有限结束，1可给则给该张。
+
+## 验证、范围与交付
+
+各将按设计中五组代表性Core检查合并相近情形，用固定小pool/显式deck/verified seed/真实commands，保留cost/card conservation/private/viewer/cold replay/parent continuation/Input reject/RNG/legacy-null边界。只覆盖新能力/未覆盖bug，不加重复人物definition快照、新框架、char专用runner或整局seed搜索。直接host审计与accepted-command replay标签区分；真实不可达中途死亡不靠反射造pending后宣称集成覆盖。
+
+普通内容和新opt-in能力不升全局rules/schema/package。版本唯一源码保持，发现相同fingerprint旧命令结果变化先报真实证据给根。默认不扩张旧JSON节点/旧executor/旧AI行为。使用AdvanceEventRulesAndQueueFact及AdvanceRulesAndPublishState，QueueGameEvent/PublishState不能成为规则入口。
+
+开发仅existing filters与tools/Test-Changed.ps1，小范围Core/WPF；Full仅根整批一次及必要修复后重验。实际耗时和全部原始失败保留，不能把定向通过报告为Full。主区、其他worker、冻结source/preflight/contract/delivery只读。delivery/source/<path>保存源，source-manifest files:[{path,baselineSha256,finalSha256}]及baselineHead/baselineManifestSha256/contractSha256、validation/evidence[{path,sha256}]；新增文件baselineSha256=null。文本正常化仅allowlist，PNG原始字节。无需workerGit commit/push/cleanup/另开用户thread。

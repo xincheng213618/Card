@@ -10,7 +10,7 @@ internal sealed class ReorderTopCardsProgramOperationDescriptor : ProgramOperati
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader reader)
     {
-        reader.AllowOnly("op", "target", "amount", "numberExpression", "condition");
+        reader.AllowOnly("op", "target", "amount", "numberExpression", "exactTopCount", "condition");
         var target = reader.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException($"Invalid skill program at {reader.Path}.target: top ordering requires owner.");
@@ -22,7 +22,11 @@ internal sealed class ReorderTopCardsProgramOperationDescriptor : ProgramOperati
             : (SkillProgramNumberExpression?)null;
         if (expression is not null and not SkillProgramNumberExpression.LivingPlayerCount)
             throw new InvalidOperationException($"Invalid skill program at {reader.Path}.numberExpression: only livingPlayerCount is supported.");
-        var effect = new SkillProgramEffect(Op, target, maximum, reader.Condition(), numberExpression: expression);
+        var exact = reader.Has("exactTopCount") ? reader.RequiredInt("exactTopCount") : (int?)null;
+        if (exact is { } required && (required < 1 || required > maximum))
+            throw new InvalidOperationException($"Invalid skill program at {reader.Path}.exactTopCount: requires 1..amount.");
+        var effect = new SkillProgramEffect(Op, target, maximum, reader.Condition(), numberExpression: expression)
+        { ExactTopCount = exact };
         RequireAlways(effect, reader.Path);
         return effect;
     }

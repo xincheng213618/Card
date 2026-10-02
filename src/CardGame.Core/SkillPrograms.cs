@@ -152,6 +152,7 @@ public enum SkillProgramTargetKind
     OtherLivingWithHandOrEquipment = 940
 }
 public enum SkillProgramCardCategory { Basic, Trick, Equipment }
+public enum SkillProgramGainPhaseQualification { OutsideOwnerDraw }
 public enum SkillProgramTurnOwnerScope { Own = 0, OtherLiving = 1 }
 public enum SkillProgramDiscardOwnerScope { Other = 0, Own = 1 }
 public enum SkillProgramDamageModifierExpiration { CurrentTurnEnd = 0, NextOwnerTurnStart = 1 }
@@ -364,7 +365,8 @@ public enum SkillProgramEffectOp
     StoreTopCardInPublicPile = 1140, ExchangePublicPile = 1141, DistributePublicPileIfAllSuits = 1142,
     ExchangeOwnedCardThroughDeckEnd = 1220, UseDeckSlashesThenShuffle = 1221,
     SelectRelativeZoneDemandTarget = 1260, DrawOnFirstProgramTargetEncounter = 1261,
-    GrantTurnRedSlashBenefits = 1680, UseDiamondDelayedOrDiscard = 1780, RevealOwnedBoundCardAppearance = 1860, IssueCurrentTurnNonLockedSkillSuppression = 1861, GrantCurrentTurnDirectedHeartSlashBonus = 1862
+    GrantTurnRedSlashBenefits = 1680, UseDiamondDelayedOrDiscard = 1780, RevealOwnedBoundCardAppearance = 1860, IssueCurrentTurnNonLockedSkillSuppression = 1861, GrantCurrentTurnDirectedHeartSlashBonus = 1862,
+    GiveShownBoundCardsAndGrantTurnHandLimit = 1960
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -754,6 +756,9 @@ public sealed record SkillProgramTriggerFacts(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, int>? PublicPersistentPileCounts = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? TurnDiscardSuitMask = null)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public CardMovementTiming? MovementTiming { get; init; }
+
     public bool GetBooleanState(string skillId, string skillInstanceId, string stateId) =>
         BooleanStates?.GetValueOrDefault(BooleanStateKey(skillId, skillInstanceId, stateId)) ??
         throw new InvalidOperationException("The frozen trigger facts do not contain the requested boolean state.");
@@ -1169,6 +1174,10 @@ public sealed class SkillProgramEffect
             prohibitReplacingEquipment, onePerSuit, allowDecline, useCardActionWindows, freezeMovedCardSuit, useFrozenSuit);
     [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public PrivateGeneralLibraryPolicy? GeneralLibraryPolicy {get;internal init;}
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? ExactTopCount { get; internal init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? AvailableAtSourceOnly { get; internal init; }
     public SkillProgramEffectOp Op { get; }
     // An internal execution view compiled by the operation descriptor after JSON validation.
     // The public definition and its serialized content fingerprint stay unchanged.
@@ -1395,6 +1404,10 @@ public sealed class SkillProgramTrigger
     public SkillProgramDynamicUsageLimit? DynamicUsageLimit { get; internal init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? NamedUsageGroup { get; internal init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SkillProgramGainPhaseQualification? GainPhaseQualification { get; internal init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? RequireDamageSource { get; internal init; }
     public string? ChoiceGroup { get; }
     public SkillProgramCardActionOwnerRelation? OwnerRelation { get; }
     public bool AllowNoEventTarget { get; internal init; }
@@ -2467,9 +2480,21 @@ public sealed class SkillProgramCatalog
             "judgmentSource", "optional", "condition", "priority", "usageScope", "usageLimit",
             "drawPhaseMode", "choiceGroup", "ownerRelation", "turnOwnerScope", "effects",
             "destinationZones", "movementReasons", "excludedMovementReasons", "ignoreOwnSkillMovements",
-            "hpChangeOccurrence", "markerCost", "evaluateConditionAtResolution", "allowNoEventTarget", "allowOwnDiscardPhaseEnded", "movementDiscardOnly", "discardOwnerScope", "includeResponseUses", "singleActionInstance", "onlyDesignatedCardTargets", "noDyingAtActivation", "deferredTurnEndOnly", "dynamicUsageLimit", "namedUsageGroup");
+            "hpChangeOccurrence", "markerCost", "evaluateConditionAtResolution", "allowNoEventTarget", "allowOwnDiscardPhaseEnded", "movementDiscardOnly", "discardOwnerScope", "includeResponseUses", "singleActionInstance", "onlyDesignatedCardTargets", "noDyingAtActivation", "deferredTurnEndOnly", "dynamicUsageLimit", "namedUsageGroup", "gainPhaseQualification", "requireDamageSource");
         var id = Identifier(node, "id", path);
         var window = EnumValue<SkillProgramTriggerWindow>(node, "window", path);
+        var gainPhase = node.TryGetProperty("gainPhaseQualification", out _)
+            ? EnumValue<SkillProgramGainPhaseQualification>(node, "gainPhaseQualification", path)
+            : (SkillProgramGainPhaseQualification?)null;
+        if (gainPhase is not null && window != SkillProgramTriggerWindow.CardsGained)
+            Fail(path + ".gainPhaseQualification", "requires a cardsGained trigger");
+        bool? requireDamageSource = null;
+        if (node.TryGetProperty("requireDamageSource", out _))
+        {
+            if (!RequiredBool(node, "requireDamageSource", path))
+                Fail(path + ".requireDamageSource", "only true is supported");
+            requireDamageSource = true;
+        }
         var singleActionInstance = node.TryGetProperty("singleActionInstance", out _) && RequiredBool(node, "singleActionInstance", path);
         if (node.TryGetProperty("singleActionInstance", out _) && window != SkillProgramTriggerWindow.CardUseCompleted) Fail(path, "singleActionInstance requires cardUseCompleted");
         var onlyDesignatedCardTargets = node.TryGetProperty("onlyDesignatedCardTargets", out _) && RequiredBool(node, "onlyDesignatedCardTargets", path);
@@ -3114,13 +3139,16 @@ public sealed class SkillProgramCatalog
         if (effects.Any(e => e.Op == SkillProgramEffectOp.OfferCompletedFactionCostGift) &&
             (window != SkillProgramTriggerWindow.CardUseCompleted || ownerRelation != SkillProgramCardActionOwnerRelation.Observer || includeResponseUses || optional || cardKinds.Count == 0 || cardKinds.Any(k => k is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash))))
             Fail(path, "faction completed cost gift requires a mandatory observer of true completed Slash-family use");
+        if (requireDamageSource is not null &&
+            (window != SkillProgramTriggerWindow.AfterDamageApplied || subject != SkillProgramTriggerSubject.Owner))
+            Fail(path + ".requireDamageSource", "requires an afterDamageApplied owner trigger");
         return new SkillProgramTrigger(id, window, sourceSkillId, sourceViewAsId, subject, suits,
             minimumRank, maximumRank, excludedReasons, judgmentReasons, judgmentSource,
             cardKinds, sourceZones, movementOccurrence, damageOccurrence, drawPhaseMode, optional,
             condition, effects, priority, usageScope, usageLimit, choiceGroup, ownerRelation,
             cardCategories: cardCategories, damageCardKinds: damageCardKinds, turnOwnerScope: turnOwnerScope)
         {
-            DynamicUsageLimit = dynamicLimit, NamedUsageGroup = namedUsage,
+            DynamicUsageLimit = dynamicLimit, NamedUsageGroup = namedUsage, GainPhaseQualification = gainPhase, RequireDamageSource = requireDamageSource,
             DestinationZones = destinationZones,
             AllowNoEventTarget = allowNoEventTarget,
             IncludeResponseUses = includeResponseUses,

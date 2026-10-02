@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:ganglie", "revision": 1,
+      "triggers": [{
+        "id": "each-point-judgment", "window": "afterDamageApplied", "subject": "owner",
+        "damageOccurrence": "perDamagePoint", "requireDamageSource": true, "optional": true,
+        "effects": [
+          { "op": "startJudgment", "target": "owner", "judgmentReason": "skill.boundary-ganglie", "resultBind": "judgment", "visibility": "public" },
+          { "op": "damage", "target": "owner", "targetRef": { "kind": "eventSource" }, "sourceRef": { "kind": "owner" }, "amount": 1, "nature": "normal",
+            "condition": { "kind": "boundCardsMatchSuits", "sourceBind": "judgment", "suits": ["heart", "diamond"] } },
+          { "op": "selectSourceCard", "target": "owner", "cardSource": "damageSource", "zones": ["hand", "equipment"], "resultBind": "discarded", "allowSameSource": true,
+            "condition": { "kind": "boundCardsMatchSuits", "sourceBind": "judgment", "suits": ["spade", "club"] } },
+          { "op": "chooseOption", "target": "owner", "resultBind": "black-discard",
+            "condition": { "kind": "boundCardsMatchSuits", "sourceBind": "judgment", "suits": ["spade", "club"] }, "options": [{ "id": "discard", "condition": { "kind": "always" } }] },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "judgment", "destination": "discardPile" },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "discarded", "destination": "discardPile",
+            "condition": { "kind": "choiceIs", "sourceBind": "black-discard", "optionId": "discard" } }
+        ]
+      }]
+    },
+    {
+      "id": "boundary:qingjian", "revision": 1,
+      "triggers": [{
+        "id": "shown-gift", "window": "cardsGained", "subject": "owner", "destinationZones": ["hand"],
+        "movementOccurrence": "perBatch", "gainPhaseQualification": "outsideOwnerDraw", "optional": true,
+        "usageScope": "turn", "usageLimit": 1, "namedUsageGroup": "shown-gift",
+        "effects": [
+          { "op": "selectOwnedCards", "target": "owner", "zones": ["hand", "equipment"], "minimumCards": 1, "maximumCards": null, "resultBind": "gift" },
+          { "op": "revealBoundCards", "target": "owner", "sourceBind": "gift" },
+          { "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" },
+          { "op": "giveShownBoundCardsAndGrantTurnHandLimit", "target": "owner", "sourceBind": "gift" }
+        ]
+      }]
+    }
+  ]
+}

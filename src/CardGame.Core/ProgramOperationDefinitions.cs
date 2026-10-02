@@ -54,6 +54,7 @@ internal sealed record DeriveCardSet(
     IReadOnlyList<EquipmentSlot>? EquipmentSlots = null,
     IReadOnlyList<CardKind>? CardKinds = null, string? MatchSuitOfBind = null) : ProgramResourceOperation;
 internal sealed record RequireOwnedCardSet(string Name, SkillProgramEffectTarget Owner, int? MaximumCount, IReadOnlyList<CardZoneKind> Zones) : ProgramResourceOperation;
+internal sealed record RequirePublicOwnedGiftSet(string Name) : ProgramResourceOperation;
 internal sealed record ReadCardSet(string Name) : ProgramResourceOperation;
 internal sealed record RetainOwnedCardSet(string Name) : ProgramResourceOperation;
 internal sealed record MoveCardSet(string Source, string? Except, SkillProgramCardDestination Destination) : ProgramResourceOperation;
@@ -608,7 +609,7 @@ internal sealed class SelectCardSubsetProgramOperationDescriptor : ProgramOperat
         static (effect, context) => context.Subset(effect));
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "sourceBind", "resultBind", "minimumCards", "maximumCards", "maximumRankSum", "aiOrder", "allowFewerWhenInsufficient", "onePerSuit", "condition");
+        r.AllowOnly("op", "target", "sourceBind", "resultBind", "minimumCards", "maximumCards", "maximumRankSum", "aiOrder", "allowFewerWhenInsufficient", "onePerSuit", "availableAtSourceOnly", "condition");
         var target = FilterBoundCardsProgramOperationDescriptor.Owner(r);
         var source = r.RequiredIdentifier("sourceBind"); var result = r.RequiredIdentifier("resultBind");
         if (source == result) throw new InvalidOperationException($"Invalid skill program at {r.Path}: sourceBind and resultBind must differ.");
@@ -622,6 +623,15 @@ internal sealed class SelectCardSubsetProgramOperationDescriptor : ProgramOperat
             aiOrder: r.RequiredEnum<SkillProgramSubsetAiOrder>("aiOrder"),
             allowFewerWhenInsufficient: r.Has("allowFewerWhenInsufficient") && r.RequiredBool("allowFewerWhenInsufficient"),
             onePerSuit: r.Has("onePerSuit") && r.RequiredBool("onePerSuit"));
+        if (r.Has("availableAtSourceOnly"))
+        {
+            if (!r.RequiredBool("availableAtSourceOnly"))
+                throw new InvalidOperationException($"Invalid skill program at {r.Path}.availableAtSourceOnly: opt-in requires true.");
+            effect = new SkillProgramEffect(Op, target, 0, r.Condition(), sourceBind: source, resultBind: result,
+                minimumCards: min, maximumCards: max, maximumRankSum: rank, aiOrder: effect.AiOrder,
+                allowFewerWhenInsufficient: effect.AllowFewerWhenInsufficient, onePerSuit: effect.OnePerSuit)
+            { AvailableAtSourceOnly = true };
+        }
         RequireAlways(effect, r.Path); return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>

@@ -242,6 +242,15 @@ internal static class ProgramCompositionValidator
                             Fail("an owned card set must be a prior unconditional provider-owned zone selection before movement");
                         break;
                     }
+                    case RequirePublicOwnedGiftSet shown:
+                    {
+                        var producer = effects.Take(index).SingleOrDefault(prior => prior.ResultBind == shown.Name && prior.Op == SkillProgramEffectOp.SelectOwnedCards);
+                        if (producer is null || producer.MaximumCards > 0 && producer.MinimumCards < 1 ||
+                            !effects.Take(index).Any(prior => prior.Op == SkillProgramEffectOp.RevealBoundCards && prior.SourceBind == shown.Name && prior.Condition.Kind == SkillProgramConditionKind.Always) ||
+                            effects.Take(index).Any(prior => prior.Op == SkillProgramEffectOp.GiveShownBoundCardsAndGrantTurnHandLimit))
+                            Fail("a shown gift requires a nonempty owned selection, its unconditional reveal and one receipt per program frame");
+                        break;
+                    }
                     case RetainOwnedCardSet retained:
                     {
                         var source = Get(retained.Name);

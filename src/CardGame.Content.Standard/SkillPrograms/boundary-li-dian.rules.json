@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:xunxun",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "exact-top-four",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "drawPhaseMode": "additive",
+          "effects": [
+            {
+              "op": "reorderTopCards",
+              "target": "owner",
+              "amount": 4,
+              "exactTopCount": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:wangxi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "after-taking-each-point",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamagePoint",
+          "condition": {
+            "kind": "otherDamageParticipantAlive"
+          },
+          "optional": true,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2,
+              "resultBind": "drawn"
+            },
+            {
+              "op": "selectCardSubset",
+              "target": "owner",
+              "sourceBind": "drawn",
+              "resultBind": "gift",
+              "minimumCards": 1,
+              "maximumCards": 1,
+              "allowFewerWhenInsufficient": true,
+              "maximumRankSum": 13,
+              "aiOrder": "mostCardsThenRankSum",
+              "availableAtSourceOnly": true
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "eventSource"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "gift",
+              "destination": "selectedTargetHand"
+            }
+          ]
+        },
+        {
+          "id": "after-dealing-each-point",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "damageOccurrence": "perDamagePoint",
+          "condition": {
+            "kind": "otherDamageParticipantAlive"
+          },
+          "optional": true,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2,
+              "resultBind": "drawn"
+            },
+            {
+              "op": "selectCardSubset",
+              "target": "owner",
+              "sourceBind": "drawn",
+              "resultBind": "gift",
+              "minimumCards": 1,
+              "maximumCards": 1,
+              "allowFewerWhenInsufficient": true,
+              "maximumRankSum": 13,
+              "aiOrder": "mostCardsThenRankSum",
+              "availableAtSourceOnly": true
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "eventTarget"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "gift",
+              "destination": "selectedTargetHand"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
