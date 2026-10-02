@@ -241,6 +241,7 @@ public sealed partial class GameEngine
             {
                 SelectedCardPayment = active.SelectedCardPayment! with { MovementCommitted = true }
             });
+            engine.CapturePaidPhaseGift(frame.Id, activation, toDiscard);
             if (!engine.TryBeginCardsMovedProgramWindow())
                 engine.ReturnRuntimeProgramMovement(frame.Id);
             return SkillProgramStepOutcome.AwaitChild;

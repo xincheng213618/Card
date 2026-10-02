@@ -6,18 +6,85 @@
       "revision": 1,
       "minimumRulesVersion": 172,
       "cardPolicies": [
-        {"id":"allied-slash","kind":"factionResponseRequest","requiredCardKinds":["slash"],"factionId":"shu","ownerRole":"lord"}
+        {
+          "id": "allied-slash",
+          "kind": "factionResponseRequest",
+          "requiredCardKinds": [
+            "slash"
+          ],
+          "factionId": "shu",
+          "ownerRole": "lord"
+        }
       ],
       "activations": [
         {
           "id": "request-shu-slash",
-          "usesPerTurn": 1,
-          "minCards": 0, "maxCards": 0,
-          "minTargets": 1, "maxTargets": 1,
+          "usesPerTurn": null,
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
           "targetKind": "otherLivingSlashable",
-          "condition": {"kind":"classicIdentityMode"},
+          "condition": {
+            "kind": "classicIdentityMode"
+          },
           "effects": [
-            {"op":"requestFactionCard","target":"selectedTarget","providerFactionId":"shu","requiredKind":"slash"}
+            {
+              "op": "requestFactionCard",
+              "target": "selectedTarget",
+              "providerFactionId": "shu",
+              "requiredKind": "slash"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "outside-use",
+          "window": "cardUseBeforeTargetEffects",
+          "ownerRelation": "observer",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "namedUsageGroup": "faction-reward",
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "rewardOutOfTurnFactionSlash",
+              "target": "owner",
+              "providerFactionId": "shu"
+            }
+          ]
+        },
+        {
+          "id": "outside-played",
+          "window": "cardResponseAccepted",
+          "ownerRelation": "observer",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "namedUsageGroup": "faction-reward",
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "rewardOutOfTurnFactionSlash",
+              "target": "owner",
+              "providerFactionId": "shu"
+            }
           ]
         }
       ]

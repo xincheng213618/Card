@@ -21,6 +21,8 @@ public sealed record ProgramSkillWindowContext(
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ProgramTargetCommitContext? ProgramTarget { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? OptionalChooserSeat { get; init; }
 }
 
 public sealed record ProgramSkillNumberBinding(string Name, int Value);

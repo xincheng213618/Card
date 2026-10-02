@@ -174,11 +174,13 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    AccumulatePaidPhaseGift = 1740, OfferVirtualBasicCard = 1741, RewardOutOfTurnFactionSlash = 1742,
     GiveOwnedCardToOtherFinalTargetAndDraw = 1580,
     DiscardNonFinalTargetCardThenDraw = 1440, DiscardHandToNamedTurnCount = 1441,
     CollectFinalTargetCardInPublicPile = 1380, ExchangePublicPileHand = 1381, ObtainPublicPileCard = 1382, DiscardPublicZoneAfterHandPayment = 1383,
     CommitConversionPolarity = 1460, GiveSelectedOwnedCardAndDamage = 1461, ObserveDamageSourceHandAndGive = 1462, DrawToHandCount = 1463,
     AlternatingSuitDrawDiscard = 1420, FirstCategoryCompletedTop = 1421,
+    DiscardDistinctFactionParticipants = 1820,
     HoldOwnerHandUntilTurnEnd = 1700,
     InitializePrivateGeneralLibrary = 1640, AcquirePrivateGeneralAvatar = 1641, ChoosePrivateGeneralAvatar = 1642,
     StoreArbitraryOwnedPublicPile = 1541, ResolveFirstGameDomainCrossing = 1540, UsePublicPileEquipmentSequence = 1542,
@@ -360,7 +362,7 @@ public enum SkillProgramEffectOp
     StoreTopCardInPublicPile = 1140, ExchangePublicPile = 1141, DistributePublicPileIfAllSuits = 1142,
     ExchangeOwnedCardThroughDeckEnd = 1220, UseDeckSlashesThenShuffle = 1221,
     SelectRelativeZoneDemandTarget = 1260, DrawOnFirstProgramTargetEncounter = 1261,
-    GrantTurnRedSlashBenefits = 1680
+    GrantTurnRedSlashBenefits = 1680, UseDiamondDelayedOrDiscard = 1780
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -1619,6 +1621,13 @@ public sealed class SkillProgramCatalog
                         Fail(skillPath + ".activations",
                             "global same-suit card use requires two hand cards and no initial target");
                 }
+            foreach (var activation in activations.Where(a => a.Effects.Any(e => e.Op == SkillProgramEffectOp.UseDiamondDelayedOrDiscard)))
+                if (activation.MinCards != 1 || activation.MaxCards != 1 || activation.MinTargets != 0 || activation.MaxTargets != 0 ||
+                    activation.SourceZones.Any(z => z is not (CardZoneKind.Hand or CardZoneKind.Equipment)) ||
+                    !activation.CardSuits.SequenceEqual([Suit.Diamond]) || activation.UsesPerPhase != 1 || activation.Effects.Count != 1)
+                    Fail(skillPath + ".activations", "diamond delayed use requires one Diamond HE card, no initial targets, one operation and one use per Play phase");
+            if (triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.UseDiamondDelayedOrDiscard)))
+                Fail(skillPath + ".triggers", "diamond delayed use is an activation operation");
             var declaredStateIds = booleanStates.Select(item => item.Id).ToHashSet(StringComparer.Ordinal);
             foreach (var trigger in triggers)
                 foreach (var condition in EnumerateTriggerConditions(trigger.Condition))
@@ -2302,10 +2311,17 @@ public sealed class SkillProgramCatalog
              Identifier(node, "categoryTargetLedgerId", path) != id))
             Fail(path + ".categoryTargetLedgerId", "requires one owned card, one other target and a matching first ledger instruction");
         if (node.TryGetProperty("targetPhaseLedgerId", out _) &&
-            (minCards != 0 || maxCards != 0 || minTargets != 1 || maxTargets != 1 ||
+            ((minCards != 0 || maxCards != 0) && !effects.Any(e => e.Op == SkillProgramEffectOp.AccumulatePaidPhaseGift) || minTargets != 1 || maxTargets != 1 ||
              effects.FirstOrDefault() is not { Op: SkillProgramEffectOp.ConsumeTargetPhaseLedger } targetLedgerEffect ||
              targetLedgerEffect.StateId != Identifier(node,"targetPhaseLedgerId",path) || Identifier(node,"targetPhaseLedgerId",path) != id))
             Fail(path + ".targetPhaseLedgerId", "requires one target and a matching first ledger instruction");
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.AccumulatePaidPhaseGift))
+        {
+            var gifts = effects.Select((e,i) => (e,i)).Where(x => x.e.Op == SkillProgramEffectOp.GiveSelected).ToArray();
+            var counts = effects.Select((e,i) => (e,i)).Where(x => x.e.Op == SkillProgramEffectOp.AccumulatePaidPhaseGift).ToArray();
+            if (gifts.Length != 1 || counts.Length != 1 || gifts[0].i >= counts[0].i || gifts[0].e.Condition.Kind != SkillProgramConditionKind.Always || minCards < 1 || sourceZones.Count != 1 || sourceZones[0] != CardZoneKind.Hand || !node.TryGetProperty("targetPhaseLedgerId", out _))
+                Fail(path, "paid phase gift counting requires one unconditional earlier Hand gift and a target phase ledger");
+        }
         var cardKinds = node.TryGetProperty("cardKinds", out _) ? EnumArray<CardKind>(node, "cardKinds", path) : [];
         var cardSuits = node.TryGetProperty("cardSuits", out _) ? EnumArray<Suit>(node, "cardSuits", path) : [];
         var cardCategories = node.TryGetProperty("cardCategories", out _) ? EnumArray<SkillProgramCardCategory>(node, "cardCategories", path) : [];

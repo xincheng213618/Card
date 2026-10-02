@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:rende",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "give",
+          "usesPerTurn": null,
+          "minCards": 1,
+          "maxCards": null,
+          "sourceZones": [
+            "hand"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "targetPhaseLedgerId": "give",
+          "effects": [
+            {
+              "op": "consumeTargetPhaseLedger",
+              "target": "owner",
+              "usageId": "give"
+            },
+            {
+              "op": "giveSelected",
+              "target": "selectedTarget"
+            },
+            {
+              "op": "accumulatePaidPhaseGift",
+              "target": "owner",
+              "resultBind": "gift-threshold",
+              "threshold": 2
+            },
+            {
+              "op": "offerVirtualBasicCard",
+              "target": "owner",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "gift-threshold",
+                "optionId": "crossed"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

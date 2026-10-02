@@ -112,6 +112,7 @@ public sealed partial class GameEngine
     {
         if (TryBeginFinalizedSimpleCardPrograms(frameId, continuation)) return;
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == frameId);
+        if (ContinueVirtualBasicEffect(frameId, continuation)) return;
         var card = _cardZones.CardsAt(_cardZones.GetLocation(continuation.CardId)).Single(item => item.Id == continuation.CardId);
         var source = _players[frame.SourceSeat];
         SetCardUseStep(frameId, ResolutionFrameStep.ResolvingEffect);

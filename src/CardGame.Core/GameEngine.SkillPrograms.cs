@@ -54,8 +54,9 @@ public sealed partial class GameEngine
                 if (features.HasOperation(SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge) ||
                     !HasSkillRoleQualification(owner, program.Id, null, Role.Lord) && features.HasOperation(SkillProgramEffectOp.GrantGameFactionAttackRangeTargets))
                     continue;
+                if(features.HasOperation(SkillProgramEffectOp.DiscardDistinctFactionParticipants) && !HasPayableDistinctFactionOwnerHe(owner.Seat,program.Id,GetRuntimeSkillInstanceId(owner,program.Id)))continue;
                 var requiredCards = GetProgramActivationMinimumCards(owner.Seat, program.Id, activation);
-                if (!CanActivateConvertingGift(owner, program.Id, features) || !CanActivatePublicPileColor(owner,program.Id,features) || !CanActivatePublicPileFlow(owner, features) || !CanPayEquipmentSlotGroup(owner, activation) || !CanActivateHandComparison(owner, activation) || !activation.Condition.Evaluate(context) || !CanPayProgramMarkerCost(owner, activation.MarkerCost) ||
+                if (!CanActivateDiamondDelayed(owner, activation, program.Id) || !CanActivateConvertingGift(owner, program.Id, features) || !CanActivatePublicPileColor(owner,program.Id,features) || !CanActivatePublicPileFlow(owner, features) || !CanPayEquipmentSlotGroup(owner, activation) || !CanActivateHandComparison(owner, activation) || !activation.Condition.Evaluate(context) || !CanPayProgramMarkerCost(owner, activation.MarkerCost) ||
                     activation.UsesPerTurn is { } limit &&
                     _programUses.GetValueOrDefault((owner.Seat, program.Id, activation.UsageGroup)) >= limit ||
                     HandComparisonPhaseLimit(owner, program, activation) is { } phaseLimit &&
@@ -103,7 +104,7 @@ public sealed partial class GameEngine
                             : GetHand(owner).Select(card => card.Id).Order().ToArray()
                     : activation.MaxCards == 0 ? [] : activation.SourceZones
                         .SelectMany(zone => _cardZones.CardsAt(new CardLocation(zone, owner.Seat)))
-                        .Where(card => CanSelectProgramActivationCard(activation, card))
+                        .Where(card => CanSelectProgramActivationCard(activation, card, owner.Seat, program.Id))
                         .Where(card => activation.EquipmentSlots.Count == 0 ||
                             EquipmentCatalog.IsEquipment(card.Kind) &&
                             activation.EquipmentSlots.Contains(EquipmentCatalog.Get(card.Kind).Slot))
@@ -265,9 +266,10 @@ public sealed partial class GameEngine
             _ => throw new InvalidOperationException("Unsupported activation card-count expression.")
         };
 
-    private static bool CanSelectProgramActivationCard(SkillProgramActivation activation, Card card) =>
+    private bool CanSelectProgramActivationCard(SkillProgramActivation activation, Card card, int ownerSeat, string skillId) =>
+        (!activation.Effects.Any(e => e.Op == SkillProgramEffectOp.UseDiamondDelayedOrDiscard) || DiamondPaymentLegal(ownerSeat, card, skillId) && (DiamondJudgments().Any() || _players.Any(p => DiamondUseTargetLegal(ownerSeat, card, p.Seat, skillId)))) &&
         (activation.CardKinds.Count == 0 || activation.CardKinds.Contains(card.Kind)) &&
-        (activation.CardSuits.Count == 0 || activation.CardSuits.Contains(card.Suit)) &&
+        (activation.CardSuits.Count == 0 || activation.CardSuits.Contains(activation.Effects.Any(e => e.Op == SkillProgramEffectOp.UseDiamondDelayedOrDiscard) ? EffectiveSuit(_players[ownerSeat], card) : card.Suit)) &&
         (activation.CardCategories.Count == 0 || activation.CardCategories.Contains(GetProgramCardCategory(card.Kind)));
 
     private SkillProgramAiHint CreateProgramAiHint(
@@ -318,7 +320,7 @@ public sealed partial class GameEngine
                 .Single(card => card.Id == id).Suit).Distinct().Count() != cards.Count)
             return new CommandError(CommandErrorCode.InvalidCard, "The selected cards must have distinct printed suits.");
         if (activation is { } filtered && cards.Any(id => !CanSelectProgramActivationCard(filtered,
-                    _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(card => card.Id == id))))
+                    _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(card => card.Id == id), _currentSeat, program!.Id)))
             return new CommandError(CommandErrorCode.InvalidCard, "The selected cards do not satisfy the activation filters.");
         if (activation is { CategoryTargetLedgerId: { } ledgerId } &&
             !CanActivateCategoryTargetLedger(_currentSeat, program!.Id, ledgerId, cards, targets))
@@ -328,6 +330,8 @@ public sealed partial class GameEngine
             return new CommandError(CommandErrorCode.IllegalAction, "This target was already used in this play phase.");
         if (plan is not null)
         {
+            if(plan.Features.HasOperation(SkillProgramEffectOp.DiscardDistinctFactionParticipants)&&!HasPayableDistinctFactionOwnerHe(_currentSeat,program!.Id,GetRuntimeSkillInstanceId(_players[_currentSeat],program.Id)))
+                return new CommandError(CommandErrorCode.IllegalAction,"The exact skill instance has no payable owner HE cost.");
             var owner = new ProgramLegalityParticipant(_currentSeat, GetHand(_players[_currentSeat]).Count);
             if (!plan.Features.Legality.CanStart(owner))
                 return new CommandError(CommandErrorCode.IllegalAction, "The program's public prerequisites are no longer satisfied.");
@@ -724,6 +728,7 @@ public sealed partial class GameEngine
 
     private static bool IsAwaitingProgramMovement(ProgramSkillFrame frame) =>
         frame.PendingMovementContinuation is not null ||
+        frame.DiamondDelayed is { Stage: ProgramDiamondDelayedStage.Using } ||
         frame.SelectedCardPayment is not null && frame.SelectedCardPaymentResult is null;
 
     private void AssertProgramSkillState()
@@ -860,7 +865,8 @@ public sealed partial class GameEngine
                     hold.Location.PrivateTurnHold?.HoldId == frame.Id && hold.Location.OwnerSeat == frame.OwnerSeat &&
                     hold.Location.PrivateTurnHold.SkillId == frame.SkillId && hold.Location.PrivateTurnHold.SkillInstanceId == frame.SkillInstanceId &&
                     pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null;
-                if (!(awaitsPrivateHold || paidEffect?.Op is SkillProgramEffectOp.ResolveFirstGameDomainCrossing or SkillProgramEffectOp.StoreArbitraryOwnedPublicPile or SkillProgramEffectOp.UsePublicPileEquipmentSequence && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsNamedTurnFlow && !awaitsConvertingGift && !(paidEffect?.Op is SkillProgramEffectOp.AwaitOwnedCardMovement or SkillProgramEffectOp.StoreBoundHandInPublicPile or SkillProgramEffectOp.PublicPileColorDamage or SkillProgramEffectOp.RewardDiscardedActionColor && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsAlternatingSuitTop && !awaitsFinalTargetPublicPile && !awaitsQuotaTop && !awaitsBudgetOrGift && !(paidEffect?.Op == SkillProgramEffectOp.DrawOnFirstProgramTargetEncounter && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd or SkillProgramEffectOp.UseDeckSlashesThenShuffle && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.ExchangeRespondedCardEntities or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.CompareSelectedHandWithHpHand && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DeclareNameForTargetDefense or SkillProgramEffectOp.DrawAndDraftLowHandPopulation or SkillProgramEffectOp.ObtainDeckCardWithConsecutiveTarget && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.ChooseDifferentActionCategoryGift && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DepositBoundCardsUntilNextTurn or SkillProgramEffectOp.ObtainDeferredPile or SkillProgramEffectOp.ViewTopCardsAndObtainMatchingCards or SkillProgramEffectOp.StoreTopCardInPublicPile or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsRandomTransfer &&
+                var awaitsParticipantDiscard = paidEffect?.Op==SkillProgramEffectOp.DiscardDistinctFactionParticipants && frame.DistinctFactionDiscards is {Stage:"discard-children" or "reward-children"} && pendingMovement.SubjectSeat==frame.OwnerSeat && pendingMovement.CoverageResultBind is null;
+                if (!(paidEffect?.Op == SkillProgramEffectOp.UseDiamondDelayedOrDiscard && frame.DiamondDelayed is { Stage: ProgramDiamondDelayedStage.Moving or ProgramDiamondDelayedStage.Drawing } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(awaitsParticipantDiscard || awaitsPrivateHold || paidEffect?.Op is SkillProgramEffectOp.ResolveFirstGameDomainCrossing or SkillProgramEffectOp.StoreArbitraryOwnedPublicPile or SkillProgramEffectOp.UsePublicPileEquipmentSequence && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsNamedTurnFlow && !awaitsConvertingGift && !(paidEffect?.Op is SkillProgramEffectOp.AwaitOwnedCardMovement or SkillProgramEffectOp.StoreBoundHandInPublicPile or SkillProgramEffectOp.PublicPileColorDamage or SkillProgramEffectOp.RewardDiscardedActionColor && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsAlternatingSuitTop && !awaitsFinalTargetPublicPile && !awaitsQuotaTop && !awaitsBudgetOrGift && !(paidEffect?.Op == SkillProgramEffectOp.DrawOnFirstProgramTargetEncounter && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd or SkillProgramEffectOp.UseDeckSlashesThenShuffle && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.ExchangeRespondedCardEntities or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.CompareSelectedHandWithHpHand && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DeclareNameForTargetDefense or SkillProgramEffectOp.DrawAndDraftLowHandPopulation or SkillProgramEffectOp.ObtainDeckCardWithConsecutiveTarget && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.ChooseDifferentActionCategoryGift && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DepositBoundCardsUntilNextTurn or SkillProgramEffectOp.ObtainDeferredPile or SkillProgramEffectOp.ViewTopCardsAndObtainMatchingCards or SkillProgramEffectOp.StoreTopCardInPublicPile or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsRandomTransfer &&
                     !awaitsJudgmentClaim && !awaitsRepeatedJudgment && !awaitsOwnedMovement &&
                     !awaitsExchangedMovement && !(paidEffect?.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.DeferredHandAlignmentResolution is { } deferredAlignment && pendingMovement.SubjectSeat == deferredAlignment.TargetSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseRandomDeckEquipment && frame.SelectedTargetSeats is [var equipmentUser] && pendingMovement.SubjectSeat == equipmentUser && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(paidEffect is { Op: SkillProgramEffectOp.MoveBoundCards, AwaitMovementTriggers: true } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
@@ -920,12 +926,13 @@ public sealed partial class GameEngine
             foreach (var binding in frame.ChoiceBindings)
             {
                 var producer = plan.Instructions.Take(frame.InstructionIndex).SingleOrDefault(effect =>
-                    (effect.Op is SkillProgramEffectOp.SelectRelativeZoneDemandTarget or SkillProgramEffectOp.ObtainDeckCardWithConsecutiveTarget or SkillProgramEffectOp.ChooseDifferentActionCategoryGift or SkillProgramEffectOp.ChooseOption or SkillProgramEffectOp.ChooseDifferentCategoryDiscard or
+                    (effect.Op is SkillProgramEffectOp.AccumulatePaidPhaseGift or SkillProgramEffectOp.SelectRelativeZoneDemandTarget or SkillProgramEffectOp.ObtainDeckCardWithConsecutiveTarget or SkillProgramEffectOp.ChooseDifferentActionCategoryGift or SkillProgramEffectOp.ChooseOption or SkillProgramEffectOp.ChooseDifferentCategoryDiscard or
                         SkillProgramEffectOp.RequestSlashByTarget or SkillProgramEffectOp.RequestSlashAgainstChosenTarget or
                         SkillProgramEffectOp.RevealSelectedHandAgainstTarget) &&
                     effect.ResultBind == binding.Name || effect.Op == SkillProgramEffectOp.OfferCompletedCardGift && binding.Name == CompletedGiftFactionResultBind && IsValidCompletedGiftTargetSelection(frame));
                 var validOption = producer?.Op switch
                 {
+                    SkillProgramEffectOp.AccumulatePaidPhaseGift => binding.OptionId is "crossed" or "not-crossed",
                     SkillProgramEffectOp.SelectRelativeZoneDemandTarget => binding.OptionId is "hand" or "equipment",
                     SkillProgramEffectOp.ObtainDeckCardWithConsecutiveTarget => binding.OptionId is "repeat" or "new",
                     SkillProgramEffectOp.ChooseDifferentActionCategoryGift => binding.OptionId is "gifted" or "declined",
@@ -950,6 +957,7 @@ public sealed partial class GameEngine
             }
             var paused = plan.Instructions[frame.InstructionIndex - 1];
             if (ReferenceEquals(frame, _resolutionStack.LastOrDefault())) AssertProgramCompoundCardTarget(frame, paused);
+            AssertDistinctFactionDiscardDraft(frame,paused);
             AssertParticipantReserveDraft(frame, paused);
             AssertPublicPileDraft(frame, paused);
             AssertHandComparison(frame, paused);
@@ -963,6 +971,7 @@ public sealed partial class GameEngine
             AssertAlternatingSuitTop(frame, paused);
             AssertNamedTurnFlow(frame, paused);
         AssertQuotaTop(frame, paused);
+            AssertDiamondDelayed(frame, paused);
             AssertConvertingGift(frame, paused);
             AssertFinalTargetGift(frame, paused);
             AssertNamedDefenseAndPublicDraft(frame, paused);
@@ -972,6 +981,7 @@ public sealed partial class GameEngine
             AssertProgramRevealCardSelection(frame, paused);
             AssertProgramOwnedCardDistribution(frame, paused);
             AssertProgramAttackRangeAid(frame, paused);
+            AssertVirtualBasicDraft(frame, paused);
             AssertProgramVirtualSlashOffer(frame, paused);
             if (!frame.CardSetBindings.Any(binding => binding.Name == paused.ResultBind))
                 AssertProgramEquipmentColorDiscardChoice(frame, paused);
@@ -1033,8 +1043,8 @@ public sealed partial class GameEngine
             if (activation is null ||
                 frame.SelectedCardIds.Count < activation.MinCards ||
                 frame.SelectedCardIds.Count > activation.MaxCards ||
-                frame.SelectedCardIds.Any(id => !CanSelectProgramActivationCard(activation,
-                    _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(card => card.Id == id))) ||
+                frame.DiamondDelayed is null && frame.SelectedCardIds.Any(id => !CanSelectProgramActivationCard(activation,
+                    _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(card => card.Id == id), frame.OwnerSeat, frame.SkillId)) ||
                 activation.CardCountExpression is not null && frame.SelectedCardIds.Count !=
                     _programPhaseUses.GetValueOrDefault((frame.OwnerSeat, frame.SkillId, activation.UsageGroup)) ||
                 executedSelection is null &&

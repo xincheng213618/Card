@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:guose",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "diamond-delayed",
+          "minCards": 1,
+          "maxCards": 1,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "otherLiving",
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "cardSuits": [
+            "diamond"
+          ],
+          "usesPerPhase": 1,
+          "usageGroup": "diamond-delayed",
+          "effects": [
+            {
+              "op": "useDiamondDelayedOrDiscard",
+              "target": "owner"
+            }
+          ],
+          "usesPerTurn": null
+        }
+      ]
+    },
+    {
+      "id": "boundary:liuli",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "redirect-slash",
+          "window": "slashTargetRedirecting",
+          "ownerRelation": "target",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "slashRedirectable"
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "owner"
+              },
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "count": 1,
+              "destination": "discardPile",
+              "awaitMovementTriggers": true
+            },
+            {
+              "op": "redirectCurrentAttack",
+              "target": "selectedTarget"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

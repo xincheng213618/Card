@@ -4493,11 +4493,11 @@ public sealed partial class GameEngine
             pending.SourceSeat);
         var parentActionId = _resolutionStack.OfType<CardUseFrame>()
             .LastOrDefault(frame => frame.Id == pending.ParentFrameId)?.Action?.ActionId;
-        var responseAction = new CardActionContext(++_cardActionSequence, parentActionId,
+        var responseAction = CaptureFactionAction(new CardActionContext(++_cardActionSequence, parentActionId,
             CardActionType.Response, responder.Seat, responder.Seat, null, responder.Seat,
             pending.SourceSeat, CardKind.Nullification, [],
             [new CardActionCost(card.Id, card.Kind, responseFrom,responseCostIsRed)],
-            selectedConversionSource is null ? [] : [selectedConversionSource], effectiveSuit: completedResponseUseSuit,effectiveIsRed:TracksActionDiscardColor?SuitColor(completedResponseUseSuit) ?? responseCostIsRed:null);
+            selectedConversionSource is null ? [] : [selectedConversionSource], effectiveSuit: completedResponseUseSuit,effectiveIsRed:TracksActionDiscardColor?SuitColor(completedResponseUseSuit) ?? responseCostIsRed:null));
         RecordActualPlayPhaseUse(responseAction);
         AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(responseAction));
         if (TryBeginCommittedResponseUsePrograms(null, responseAction, ProgramCardContinuation.NullificationResponse)) return;
@@ -12721,8 +12721,9 @@ public sealed partial class GameEngine
             return false;
         }
 
-        if (attack.Card is null && attack.EffectiveCardKind == CardKind.Slash &&
-            (attack.ProgramSkillCardUseFrameId is not null || IsForeignPublicPileSlashUse(attack.ResolutionId)))
+        if (attack.Card is null && (attack.EffectiveCardKind == CardKind.Slash ||
+            IsSlashCard(attack.EffectiveCardKind ?? CardKind.Slash) && LifecycleCardUse(attack.ResolutionId)?.VirtualBasicReturn is not null) &&
+            (attack.ProgramSkillCardUseFrameId is not null || LifecycleCardUse(attack.ResolutionId)?.VirtualBasicReturn is not null || IsForeignPublicPileSlashUse(attack.ResolutionId)))
         {
             var virtualUse = _resolutionStack.OfType<CardUseFrame>()
                 .Single(frame => frame.Id == attack.ResolutionId);
@@ -12737,7 +12738,7 @@ public sealed partial class GameEngine
                     ReplaceRuntimeFrame(_resolutionStack[parentIndex].Id, parent with { SelectedTargetSeats = virtualUse.TargetSeats });
                 }
                 SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.Completed);
-                AdvanceEventRulesAndQueueFact(new CardUseFinishedEvent(attack.ResolutionId, 0, CardKind.Slash));
+                AdvanceEventRulesAndQueueFact(new CardUseFinishedEvent(attack.ResolutionId, 0, virtualUse.CardKind));
                 if (_winner == Winner.None && TryBeginProgramCardWindow(attack, virtualAction,
                         SkillProgramTriggerWindow.CardUseCompleted, virtualUse.TargetSeats,
                         ProgramCardContinuation.CompletedSlash, cardUseCausedDamage: attack.CardUseCausedDamage))
@@ -13575,12 +13576,16 @@ public sealed partial class GameEngine
 
     private void PopFinishedCardUse(long frameId)
     {
-        var dyingResponse = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == frameId).DyingResponse;
+        var completedUse = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == frameId);
+        var basicReturn = completedUse.VirtualBasicReturn;
+        var dyingResponse = completedUse.DyingResponse;
         PopResolutionFrame(frameId, ResolutionFrameKind.CardUse);
+        ContinueProgramAfterDiamondDelayedUse(frameId);
         ContinueProgramAfterPileEquipmentUse(frameId);
         ContinueProgramAfterRandomEquipmentUse();
         ContinueProgramAfterSelectedCardUse();
         if (dyingResponse is not null) CompleteDyingCardResponse(dyingResponse);
+        ReturnVirtualBasicUse(basicReturn, frameId);
     }
 
     private bool CanUseSlashTarget(
@@ -18223,8 +18228,9 @@ public sealed partial class GameEngine
                        .Any(frame => frame.Id == frameId);
         }
 
-        if (attack.Card is null && attack.EffectiveCardKind == CardKind.Slash &&
-            (attack.ProgramSkillCardUseFrameId is not null || IsForeignPublicPileSlashUse(attack.ResolutionId)))
+        if (attack.Card is null && (attack.EffectiveCardKind == CardKind.Slash ||
+            IsSlashCard(attack.EffectiveCardKind ?? CardKind.Slash) && LifecycleCardUse(attack.ResolutionId)?.VirtualBasicReturn is not null) &&
+            (attack.ProgramSkillCardUseFrameId is not null || LifecycleCardUse(attack.ResolutionId)?.VirtualBasicReturn is not null || IsForeignPublicPileSlashUse(attack.ResolutionId)))
         {
             return processing.Count == 0 && _resolutionStack.OfType<CardUseFrame>().Any(frame =>
                 frame.Id == attack.ResolutionId && frame.CardId == 0 && frame.PhysicalCardIds?.Count is 0);

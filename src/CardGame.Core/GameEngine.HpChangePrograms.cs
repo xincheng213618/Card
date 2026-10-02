@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -101,6 +101,9 @@ public sealed partial class GameEngine
                             .Single(item => item.Id == frame.CardId);
                         FinishCardUse(frame.ResumeFrameId!.Value, card, frame.CardKind);
                         break;
+                    case PostEventContinuation.VirtualBasicCardUse:
+                        FinishVirtualBasicUse(frame.ResumeFrameId!.Value);
+                        break;
                     case PostEventContinuation.GroupRecovery:
                         CompleteGroupRecoveryTarget();
                         break;
@@ -166,6 +169,7 @@ public sealed partial class GameEngine
                     (awaited.SelectedCardPaymentResult is not null ||
                      awaited.SelectedCardPayment is not { } payment || payment.ActiveChildFrameId == hp.Id),
                 PostEventContinuation.CardUse => parent is CardUseFrame use && use.Id == hp.ResumeFrameId && hp.CardId is not null,
+                PostEventContinuation.VirtualBasicCardUse => parent is CardUseFrame basic && basic.Id == hp.ResumeFrameId && basic.CardId == 0 && basic.VirtualBasicReturn is not null && basic.VirtualBasicEffectApplied == true && hp.CardId is null && hp.CardKind == basic.CardKind,
                 PostEventContinuation.GroupRecovery => parent is CardUseFrame group && group.Id == hp.ResumeFrameId &&
                     ActiveGroupCard is { Effect: GroupCardEffect.Recovery } pending && pending.ResolutionId == group.Id,
                 _ => false

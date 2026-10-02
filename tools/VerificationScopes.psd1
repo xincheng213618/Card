@@ -35,13 +35,20 @@
         'Boundary Huang Gai actual provider color',
         'Boundary Huang Gai multi card color source lifecycle',
         'boundary Lu Xun actual trick hold lianying and return',
-        'boundary Lu Xun HE payment exact Hand batch count'
+        'boundary Lu Xun HE payment exact Hand batch count',
+        'boundary Liu Bei virtual Peach HP child',
+        'boundary Liu Bei native provided use decline once',
+        'boundary Liu Bei gift threshold recipient',
+        'boundary Da Qiao atomic mixed discard replay',
+        'boundary Hua Tuo ordered actual discard effective suit receipts',
+        'participant discard mandatory cost cancellation preserves legal composition'
     )
     Wpf = @(
         'original card artwork', 'composed skills', 'conversion choices',
         'response context', 'hand responses', 'opaque target-card',
         'playback batches', 'saved UI boundaries', 'failed writes', 'public markers',
         'deferred hand alignment', 'Program conversion polarity stays visible',
-        'declaration and general library views protect private faces'
+        'declaration and general library views protect private faces',
+        'Program paid choices'
     )
 }

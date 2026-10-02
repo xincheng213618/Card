@@ -80,7 +80,7 @@ public sealed partial class GameEngine
             !frame.SelectedTargetSeats.SequenceEqual([actorSeat]))
             throw new InvalidOperationException("The replacement actor lost its selected role-change participant.");
         var previous = use.SourceSeat;
-        var action = CloneRoleAction(use.Action!, actorSeat, use.TargetSeats);
+        var action = CaptureReplacedFactionActor(CloneRoleAction(use.Action!, actorSeat, use.TargetSeats), actorSeat);
         UpdateProgramRoleCardUse(use with { SourceSeat = actorSeat, Action = action }, action);
         AdvanceEventRulesAndQueueFact(new ProgramCardUseActorReplacedEvent(frame.Id, frame.SkillId, frame.OwnerSeat,
             use.Id, previous, actorSeat, action.ProviderSeat));
@@ -109,7 +109,7 @@ public sealed partial class GameEngine
             action.RequesterSeat, action.ResponderSeat, action.OpponentSeat, action.EffectiveKind, targets,
             action.PhysicalCards, action.ConversionChain,
             action.EffectiveKind == CardKind.BorrowedSword ? targets.Where((_, index) => index % 2 == 0).ToArray() : targets,
-            action.EffectiveSuit, action.EffectiveRank);
+            action.EffectiveSuit, action.EffectiveRank, action.FactionOrigin is null ? null : action.EffectiveIsRed, action.FactionOrigin);
 
     private void UpdateProgramRoleCardUse(CardUseFrame use, CardActionContext action)
     {

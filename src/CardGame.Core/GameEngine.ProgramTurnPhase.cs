@@ -55,9 +55,9 @@ public sealed partial class GameEngine
         var instruction = ProgramInstructionResolver.Default.Resolve(active, _contentRegistry.GetSkill(active.SkillId).Program!)
             .GetPausedInstruction(active.InstructionIndex).Effect;
         var action = instruction.UseCardActionWindows
-            ? new CardActionContext(++_cardActionSequence, _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
+            ? CaptureFactionAction(new CardActionContext(++_cardActionSequence, _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
                 CardActionType.Use, source.Seat, source.Seat, null, null, null, cardKind, [targetSeat], [], [],
-                effectiveSuit: Suit.None, effectiveRank: 0) : null;
+                effectiveSuit: Suit.None, effectiveRank: 0)) : null;
         PushRuntimeFrame(new CardUseFrame(resolutionId, source.Seat, 0, cardKind,
             Array.AsReadOnly(new[] { targetSeat }),
             PhysicalCardIds: Array.AsReadOnly(Array.Empty<int>())) { Action = action });

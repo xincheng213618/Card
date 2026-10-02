@@ -1792,6 +1792,7 @@ public sealed partial class GameEngine
         if (!CanOfferConvertingGift(candidate, context, features)) return false;
         if (!CanOfferPublicPileColor(owner,candidate,trigger,context)) return false;
         if (!AdvancedTriggerPrerequisites(owner, candidate.SkillId, trigger)) return false;
+        if (!CanRunFactionActionReward(candidate, trigger, context)) return false;
         if (!CanOfferCardActionContest(owner,trigger,context)) return false;
         if (features.HasOperation(SkillProgramEffectOp.UseDeckSlashesThenShuffle) &&
             (context.TargetSeat is not { } deckTarget || _players[deckTarget].Gender != GeneralGender.Male ||
@@ -2306,7 +2307,7 @@ public sealed partial class GameEngine
         var prompt = context.Window == SkillProgramTriggerWindow.PlayEnding &&
             context.SourceSeat == candidate.OwnerSeat && facts is not null
             ? $"出牌阶段结束：本回合已使用 {facts.CardsUsedThisTurn} 张牌，当前体力为 {facts.CurrentHp}。是否发动【{skill.Name}】？"
-            : $"是否发动【{skill.Name}】？";
+            : context.OptionalChooserSeat is not null ? $"是否令 {_players[candidate.OwnerSeat].Name} 发动【{skill.Name}】摸一张牌？" : $"是否发动【{skill.Name}】？";
         Dictionary<string, string> Parameters(string action)
         {
             var parameters = new Dictionary<string, string>
@@ -2328,15 +2329,15 @@ public sealed partial class GameEngine
         }
         _pendingDecision = new PendingDecision(
             DecisionKind.ProgramTrigger,
-            candidate.OwnerSeat,
+            context.OptionalChooserSeat ?? candidate.OwnerSeat,
             prompt,
             [],
             [],
-            context.SourceSeat)
+            context.OptionalChooserSeat is not null ? candidate.OwnerSeat : context.SourceSeat)
         {
             PromptId = CreatePromptId(),
             IsPrivate = true,
-            TargetSeat = context.TargetSeat ?? candidate.OwnerSeat,
+            TargetSeat = context.OptionalChooserSeat ?? context.TargetSeat ?? candidate.OwnerSeat,
             SkillPrompt = new SkillPromptPresentation(
                 candidate.SkillId,
                 skill.Name,
@@ -2356,7 +2357,7 @@ public sealed partial class GameEngine
                     Parameters("skip"))
             ]
         };
-        _status = _players[candidate.OwnerSeat].IsHuman
+        _status = _players[context.OptionalChooserSeat ?? candidate.OwnerSeat].IsHuman
             ? EngineStatus.AwaitingHumanResponse
             : EngineStatus.Running;
     }
@@ -2987,6 +2988,8 @@ public sealed partial class GameEngine
             CommandErrorCode.IllegalAction);
         if (error is not null) return Reject(error.Code, error.Message);
         var selected = _pendingDecision!.Choices.SingleOrDefault(choice => choice.Id == choiceId);
+        if (selected?.Parameters.GetValueOrDefault("program-action") == "diamond-delayed" && !IsDiamondDelayedChoiceLegal(selected))
+            return Reject(CommandErrorCode.InvalidChoice, "The diamond delayed payment or target is no longer legal.");
         if (selected is null) return Reject(CommandErrorCode.InvalidChoice, "The program choice is unavailable.");
         if (selected.Parameters.GetValueOrDefault("program-action") == "choose-option" &&
             !IsClaimableProgramOptionStillAvailable(selected))
@@ -3001,6 +3004,7 @@ public sealed partial class GameEngine
 
     private void ResolveProgramTriggerChoice(PromptChoice selected)
     {
+        if (selected.Parameters.GetValueOrDefault("program-action") == "diamond-delayed") { ResolveDiamondDelayedChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "public-suit-discard") { ResolvePublicSuitDiscard(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") is { } namedAction && (namedAction.StartsWith("named-defense-", StringComparison.Ordinal) || namedAction.StartsWith("public-draft-", StringComparison.Ordinal)))
         { ResolveNamedDefenseAndDraftChoice(selected); return; }
@@ -3102,6 +3106,8 @@ public sealed partial class GameEngine
             ResolveProgramOptionChoice(selected);
             return;
         }
+        if (action is "distinct-faction-select" or "distinct-faction-finish" or "distinct-faction-discard")
+        { ResolveDistinctFactionDiscardChoice(selected); return; }
         if (action is "select-target" or "select-targets" or "select-source-card" or "select-and-move-owned-card" or
             "choose-other-owned-card-discard" or "choose-other-owned-card-decline" or
             "restore-phase-hand-discard" or "restore-phase-hand-decline" or
@@ -3120,6 +3126,11 @@ public sealed partial class GameEngine
         if (action is "different-category-discard" or "different-category-decline")
         {
             ResolveProgramDifferentCategoryDiscardChoice(selected);
+            return;
+        }
+        if (action == "virtual-basic")
+        {
+            ResolveVirtualBasicChoice(selected);
             return;
         }
         if (action == "virtual-slash-offer")
@@ -3805,6 +3816,7 @@ public sealed partial class GameEngine
                 .GetPausedInstruction(frame.InstructionIndex).Effect;
             selected = paused.Op switch
             {
+                SkillProgramEffectOp.DiscardDistinctFactionParticipants => SelectAiDistinctFactionDiscard(decision,frame),
                 SkillProgramEffectOp.ResolveDiscardBudgetParticipants or SkillProgramEffectOp.DiscardOutsideRangeAfterInsufficientUses or SkillProgramEffectOp.OfferCompletedFactionCostGift => decision.Choices[0],
                 SkillProgramEffectOp.SelectRelativeZoneDemandTarget => decision.Choices[0],
                 SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd => decision.Choices[0],
@@ -3832,7 +3844,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.InitializePrivateGeneralLibrary or SkillProgramEffectOp.AcquirePrivateGeneralAvatar or SkillProgramEffectOp.ChoosePrivateGeneralAvatar => decision.Choices[0],
                 SkillProgramEffectOp.ResolveFirstGameDomainCrossing or SkillProgramEffectOp.StoreArbitraryOwnedPublicPile or SkillProgramEffectOp.UsePublicPileEquipmentSequence => SelectAiDomainChoice(decision,frame),
                 SkillProgramEffectOp.PublicPileColorDamage or SkillProgramEffectOp.RewardDiscardedActionColor => SelectAiPublicPileColorChoice(decision,frame),
-                SkillProgramEffectOp.PeekTurnQuotaTop => decision.Choices[0],
+                SkillProgramEffectOp.PeekTurnQuotaTop or SkillProgramEffectOp.UseDiamondDelayedOrDiscard => decision.Choices[0],
                 SkillProgramEffectOp.CompareSelectedHandWithHpHand => decision.Choices[0],
                 SkillProgramEffectOp.ChooseOption => SelectAiProgramOption(decision, frame),
                 SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamage =>
@@ -3852,7 +3864,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.RequestSlashByTarget => SelectAiProgramRequestSlash(decision, frame),
                 SkillProgramEffectOp.RequestSlashByNearest => SelectAiProgramRequestSlashByNearest(decision),
                 SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention => decision.Choices[0],
-                SkillProgramEffectOp.OfferVirtualSlashOrDraw => decision.Choices[0],
+                SkillProgramEffectOp.OfferVirtualSlashOrDraw or SkillProgramEffectOp.OfferVirtualBasicCard => decision.Choices[0],
                 SkillProgramEffectOp.RequestSlashAgainstChosenTarget or SkillProgramEffectOp.TakeSelectedTargetCards => decision.Choices[0],
                 SkillProgramEffectOp.RevealTargetHandCard => decision.Choices
                     .OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First(),
@@ -3910,6 +3922,13 @@ public sealed partial class GameEngine
             choice.Parameters.GetValueOrDefault("program-action") == "skip");
         if (activateChoices.Length > 1)
             return SelectAiProgramChoiceGroup(decision, activateChoices, skip);
+        var pendingContext = GetPendingProgramTriggerCandidate().Context;
+        if (pendingContext.OptionalChooserSeat is not null)
+        {
+            var (choice, thought) = _aiBrains[decision.PlayerSeat].ChooseOptionalBeneficiaryDraw(CreateSnapshot(decision.PlayerSeat), decision.Choices, pendingContext.OwnerSeat, _thoughtSequence++);
+            AddThought(thought);
+            return decision.Choices.Single(c => c.Id == choice);
+        }
         var activate = activateChoices.Single();
         if (skip is null) return activate;
 

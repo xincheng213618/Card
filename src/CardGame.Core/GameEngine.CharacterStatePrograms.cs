@@ -1,6 +1,6 @@
 namespace CardGame.Core;
 
-public enum CharacterStateContinuation { Boundary, Program, CardUse, SkippedTurn }
+public enum CharacterStateContinuation { Boundary, Program, CardUse, SkippedTurn, VirtualBasicCardUse }
 public sealed record CharacterStateChangeContext(long Id, long? ParentFrameId, int TargetSeat, SkillProgramTriggerWindow Window);
 public sealed record CharacterStateChangedEvent(CharacterStateChangeContext Change) : IGameEvent;
 
@@ -58,6 +58,7 @@ public sealed partial class GameEngine
             case CharacterStateContinuation.CardUse:
                 var card = _cardZones.CardsAt(_cardZones.GetLocation(frame.ResumeCardId!.Value)).Single(item => item.Id == frame.ResumeCardId);
                 FinishCardUse(frame.ResumeProgramFrameId!.Value, card, frame.ResumeCardKind); break;
+            case CharacterStateContinuation.VirtualBasicCardUse: FinishVirtualBasicUse(frame.ResumeProgramFrameId!.Value); break;
             case CharacterStateContinuation.SkippedTurn: CompleteFaceUpSkippedTurn(_players[frame.OwnerSeat]); break;
             case CharacterStateContinuation.Boundary: AdvanceRulesAndPublishState(); break;
         }

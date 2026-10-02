@@ -1397,6 +1397,19 @@ public sealed partial class SimpleAiBrain
     }
 
     /// <summary>Ranks a benefit target set using only public faction evidence and hand counts.</summary>
+    public (ChoiceId Choice, AiThoughtRecord Thought) ChooseOptionalBeneficiaryDraw(
+        GameSnapshot view, IReadOnlyList<PromptChoice> choices, int beneficiarySeat, int thoughtSequence)
+    {
+        var selfRole = view.Players.Single(player => player.Seat == Seat).Role ?? Role.Renegade;
+        var beneficiary = view.Players.Single(player => player.Seat == beneficiarySeat);
+        var benefit = GetTacticalSupport(view, selfRole, beneficiary) * 24d - Math.Min(beneficiary.HandCount, 6) * 0.2d;
+        var scored = choices.Select(choice => new AiCandidateScore(new LegalAction(LegalActionKind.UseProgramSkill, null, beneficiarySeat, choice.Description),
+            choice.Parameters.GetValueOrDefault("program-action") == "activate" ? benefit : 0d,
+            "按公开受益者和关系选择是否补牌，不读取手牌牌面。")).ToArray();
+        var chosen = choices.Select((choice, index) => (choice, score: scored[index].Score)).OrderByDescending(x => x.score).ThenBy(x => x.choice.Id.Value, StringComparer.Ordinal).First().choice;
+        return (chosen.Id, new AiThoughtRecord(thoughtSequence, view.TurnNumber, Seat, chosen.Description, scored.OrderByDescending(x => x.Score).ToArray(), "实际行动者决定公开补牌奖励。"));
+    }
+
     public (ChoiceId Choice, AiThoughtRecord Thought) ChooseSupportDrawTargets(
         GameSnapshot view, IReadOnlyList<PromptChoice> choices, int thoughtSequence)
     {

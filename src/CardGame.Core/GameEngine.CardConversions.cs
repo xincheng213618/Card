@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -432,7 +432,7 @@ public sealed partial class GameEngine
         var actionActorSeat = actorSeat ?? responder.Seat;
         var parent = _resolutionStack.OfType<CardUseFrame>()
             .LastOrDefault(frame => frame.Id == resolutionId);
-        var action = new CardActionContext(
+        var action = CaptureFactionAction(new CardActionContext(
             ++_cardActionSequence,
             parent?.Action?.ActionId,
             CardActionType.Response,
@@ -444,7 +444,7 @@ public sealed partial class GameEngine
             selection.OutputKind,
             [],
             costs,
-            [selection.Source], effectiveSuit: completedResponseUseSuit,effectiveIsRed:CaptureActionColor(costs,completedResponseUseSuit));
+            [selection.Source], effectiveSuit: completedResponseUseSuit,effectiveIsRed:CaptureActionColor(costs,completedResponseUseSuit)));
         if (action.ActorSeat == action.ProviderSeat && action.RequesterSeat is null &&
             (selection.OutputKind == CardKind.Nullification || IsProgramResponseCardUse(responder, selection.OutputKind)))
             RecordActualPlayPhaseUse(action);

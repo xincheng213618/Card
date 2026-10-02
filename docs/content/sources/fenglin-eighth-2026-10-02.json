@@ -1,0 +1,538 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀OL",
+  "batch": "界刘备界大乔界华佗及阶段赠牌真实用途和参与者支付",
+  "roster": [
+    {
+      "contentId": "boundary:liu-bei",
+      "portraitKey": "boundary_liu_bei",
+      "officialId": 299,
+      "name": "界刘备",
+      "maxHp": 4,
+      "initialHp": 0,
+      "faction": "shu",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/299",
+      "retrievedAt": "2026-10-01T23:44:50.383467+00:00",
+      "responseSha256": "6dcb5870547c7f38141b1a07fc06f2106c152fd20c6cad6bb303f89d2b38eccf",
+      "officialSkills": [
+        {
+          "name": "仁德",
+          "text": "出牌阶段，每名角色限一次，你可以交给一名其他角色任意张手牌。当你本阶段以此法给出第二张牌时，你可以视为使用一张基本牌（使用【杀】有次数限制）。"
+        },
+        {
+          "name": "激将",
+          "text": "主公技，其他蜀势力角色可以在你需要时代替你使用或打出【杀】（视为由你使用或打出）；每回合限一次，其他蜀势力角色于其回合外使用、打出或替你使用或打出【杀】时，其可以令你摸一张牌。"
+        }
+      ],
+      "officialSkillText": "仁德：出牌阶段，每名角色限一次，你可以交给一名其他角色任意张手牌。当你本阶段以此法给出第二张牌时，你可以视为使用一张基本牌（使用【杀】有次数限制）。\n激将：主公技，其他蜀势力角色可以在你需要时代替你使用或打出【杀】（视为由你使用或打出）；每回合限一次，其他蜀势力角色于其回合外使用、打出或替你使用或打出【杀】时，其可以令你摸一张牌。",
+      "artworkResource": "29900",
+      "indexFields": {
+        "gid": 299,
+        "name": "界刘备",
+        "resource": "29900",
+        "extend": "界限突破",
+        "hp": 4,
+        "initial_hp": 0,
+        "quality": "稀有",
+        "figure": "蜀",
+        "figure_py": "shu",
+        "biography": "先主姓刘，讳备，字玄德，涿[zhuō]郡涿县人，汉景帝子中山靖王胜之后也。以仁德治天下。",
+        "characteristic": "能够将手牌分配给队友。没有手牌时很脆弱。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/299.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/29900.png",
+        "realname": "界刘备 (界限突破)"
+      },
+      "operationRange": [
+        1740,
+        1779
+      ],
+      "implementationStatus": "verified",
+      "artworkKey": "boundary-liu-bei",
+      "artwork": {
+        "id": "29900",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/299",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/29900.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-liu-bei.png",
+        "sha256": "474e64e9f93125ce031af6dd290bd0ce55955872f5522ea6ce40fcc4da413412",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "http": {
+          "status": 200,
+          "retrievedAt": "2026-10-02T00:37:09.488687+00:00",
+          "bytes": 984033,
+          "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/29900.png"
+        },
+        "status": "officialBytesAndPixelsAndCompiledResourcesVerified"
+      }
+    },
+    {
+      "contentId": "boundary:da-qiao",
+      "portraitKey": "boundary_da_qiao",
+      "officialId": 309,
+      "name": "界大乔",
+      "maxHp": 3,
+      "initialHp": 0,
+      "faction": "wu",
+      "gender": "female",
+      "sourcePage": "https://www.sanguosha.com/hero/309",
+      "retrievedAt": "2026-10-01T23:44:50.443459+00:00",
+      "responseSha256": "7de515168f56e819d1cb0ff7de140459ab41a2cb473fb81b63d0a90a985018c0",
+      "officialSkills": [
+        {
+          "name": "流离",
+          "text": "当你成为【杀】的目标时，你可以弃置一张牌并将此【杀】转移给你攻击范围内的一名其他角色。"
+        },
+        {
+          "name": "国色",
+          "text": "出牌阶段限一次，你可以选择一项，然后摸一张牌：1.将一张方片牌当【乐不思蜀】使用；2.弃置一张方片牌和场上一张【乐不思蜀】。"
+        }
+      ],
+      "officialSkillText": "流离：当你成为【杀】的目标时，你可以弃置一张牌并将此【杀】转移给你攻击范围内的一名其他角色。\n国色：出牌阶段限一次，你可以选择一项，然后摸一张牌：1.将一张方片牌当【乐不思蜀】使用；2.弃置一张方片牌和场上一张【乐不思蜀】。",
+      "artworkResource": "30900",
+      "indexFields": {
+        "gid": 309,
+        "name": "界大乔",
+        "resource": "30900",
+        "extend": "界限突破",
+        "hp": 3,
+        "initial_hp": 0,
+        "quality": "稀有",
+        "figure": "吴",
+        "figure_py": "wu",
+        "biography": "庐江皖县人，为乔公长女，孙策之妻，小乔之姊。与小乔并称为“江东二乔”，容貌国色流离。",
+        "characteristic": "能够转化【乐不思蜀】对敌人进行限制，或解除队友的【乐不思蜀】。没有手牌时很脆弱。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/309.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/30900.png",
+        "realname": "界大乔 (界限突破)"
+      },
+      "operationRange": [
+        1780,
+        1819
+      ],
+      "implementationStatus": "verified",
+      "artworkKey": "boundary-da-qiao",
+      "artwork": {
+        "id": "30900",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/309",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30900.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-da-qiao.png",
+        "sha256": "0df26b323b1e004c5ac5d188c37f86a050f37be951ef74b74a465b1d5985b198",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "http": {
+          "status": 200,
+          "retrievedAt": "2026-10-02T00:37:09.514734+00:00",
+          "bytes": 1260235,
+          "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30900.png"
+        },
+        "status": "officialBytesAndPixelsAndCompiledResourcesVerified"
+      }
+    },
+    {
+      "contentId": "boundary:hua-tuo",
+      "portraitKey": "boundary_hua_tuo",
+      "officialId": 318,
+      "name": "界华佗",
+      "maxHp": 3,
+      "initialHp": 0,
+      "faction": "qun",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/318",
+      "retrievedAt": "2026-10-01T23:44:50.377812+00:00",
+      "responseSha256": "83a7ab535c1f696e80c7c5bc298a063a1e0ffcf54cfc617a4dd2c0f4d6dfd359",
+      "officialSkills": [
+        {
+          "name": "急救",
+          "text": "在你的回合外，你可以将一张红色牌当【桃】使用。"
+        },
+        {
+          "name": "除疠",
+          "text": "出牌阶段限一次，你可以选择任意名势力各不相同的其他角色，弃置你和这些角色的各一张牌，然后被弃置黑桃牌的角色各摸一张牌。"
+        }
+      ],
+      "officialSkillText": "急救：在你的回合外，你可以将一张红色牌当【桃】使用。\n除疠：出牌阶段限一次，你可以选择任意名势力各不相同的其他角色，弃置你和这些角色的各一张牌，然后被弃置黑桃牌的角色各摸一张牌。",
+      "artworkResource": "31800",
+      "indexFields": {
+        "gid": 318,
+        "name": "界华佗",
+        "resource": "31800",
+        "extend": "界限突破",
+        "hp": 3,
+        "initial_hp": 0,
+        "quality": "稀有",
+        "figure": "群",
+        "figure_py": "qun",
+        "biography": "字元化，一名旉[fū]，沛国谯人，“建安三神医”之一。集平生之所得著《青囊经》，现已失传。",
+        "characteristic": "能够转化大量的【桃】，弃置敌人的牌使敌人变得脆弱。会成为敌人优先攻击的目标，没有牌时很脆弱。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/318.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/31800.png",
+        "realname": "界华佗 (界限突破)"
+      },
+      "operationRange": [
+        1820,
+        1859
+      ],
+      "implementationStatus": "verified",
+      "artworkKey": "boundary-hua-tuo",
+      "artwork": {
+        "id": "31800",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/318",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31800.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-hua-tuo.png",
+        "sha256": "e0e411c6a63d1b2c6a3787969e6d45d04df31539a11bb30dfcc9b0b165cadc1e",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "http": {
+          "status": 200,
+          "retrievedAt": "2026-10-02T00:37:09.527746+00:00",
+          "bytes": 1297326,
+          "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31800.png"
+        },
+        "status": "officialBytesAndPixelsAndCompiledResourcesVerified"
+      }
+    }
+  ],
+  "baselineHead": "94d61f80de6615c58e9d8ba91c6c0412adc5df48",
+  "baselineManifestSha256": "9f1121b5409592e22e38f7b1d875a0c77e6ca47784b75dee50b9222849a180b0",
+  "index": {
+    "url": "https://www.sanguosha.com/hero",
+    "status": 200,
+    "retrievedAt": "2026-10-02T00:11:46.749839+00:00",
+    "sha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+    "bytes": 1319990
+  },
+  "engineeringContract": "docs/content/skill-composition/FENG_LIN_EIGHTH_CAPABILITIES.md",
+  "userJijiangDecision": "One reward per lord per actual turn, chosen by the actual Shu user/provider.",
+  "explicitEngineeringChoices": {
+    "zeroOtherChuliParticipants": true,
+    "chuliRewardSuit": "Frozen original-owner effective suit at actual discard, per dated official XiaoQiao FAQ; different from printed-discard-suit Botu.",
+    "replacedActionActorFaction": "At actual accepted actor replacement, update the opted-in action actor faction only; retain original actual turn and provider faction. Final actor chooses ordinary external-use reward."
+  },
+  "implementationStatus": "verified",
+  "supplementarySources": [
+    {
+      "key": "hua-tuo-2016",
+      "url": "https://www.sanguosha.com/news/20161101_7414_5418",
+      "finalUrl": "https://www.sanguosha.com/news/20161101_7414_5418",
+      "status": 200,
+      "retrievedAt": "2026-10-02T00:05:43.782803+00:00",
+      "responseSha256": "a67c7afe30eeb37c88a638339c58844ae93ca9dbd7d0d7fb7b3cb01435d779e6",
+      "bytes": 49417,
+      "boundary": "Dated ordinary OL supplementary source. Current hero page takes precedence; no automatic migration of old rules or other product lines."
+    },
+    {
+      "key": "liu-bei-2022",
+      "url": "https://www.sanguosha.com/news/20220111_9614_5113",
+      "finalUrl": "https://www.sanguosha.com/news/20220111_9614_5113",
+      "status": 200,
+      "retrievedAt": "2026-10-02T00:05:43.780672+00:00",
+      "responseSha256": "8e8119c6854cd879bceff3bc5c812f5f0be64e3c09af3c71c61b15c8ff762edc",
+      "bytes": 39739,
+      "boundary": "Dated ordinary OL supplementary source. Current hero page takes precedence; no automatic migration of old rules or other product lines."
+    },
+    {
+      "key": "da-qiao-2016",
+      "url": "https://www.sanguosha.com/news/20161110_1665_3218",
+      "finalUrl": "https://www.sanguosha.com/news/20161110_1665_3218",
+      "status": 200,
+      "retrievedAt": "2026-10-02T00:05:43.834917+00:00",
+      "responseSha256": "e935fb21ef423cd81b2cacc938f8456c3514804399215192828bb4fceaaf5e12",
+      "bytes": 62965,
+      "boundary": "Dated ordinary OL supplementary source. Current hero page takes precedence; no automatic migration of old rules or other product lines."
+    }
+  ],
+  "sourceArchiveSha256": "fd3fcd690a8f478ee026227697937c93518dceebac261201da4d4df594b60f65",
+  "contractSha256": "30b771fe0f4d8bc65eca2bcf580078db4f96e99528b254d1e37cb7a09362d948",
+  "informationUiStatus": "verifiedByFullWpfAndActualOfflineRenders",
+  "verification": {
+    "parentFocusedSummary": {
+      "status": "passed",
+      "mode": "targeted",
+      "repository": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinEighth-20261002\\parent-integration",
+      "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinEighth-20261002\\parent-focused-final-01",
+      "coreFilters": [
+        "boundary Liu Bei",
+        "boundary Da Qiao",
+        "boundary Hua Tuo",
+        "participant discard mandatory cost",
+        "skill program loader",
+        "program gameplay hashes",
+        "shared use lifecycle",
+        "shared card-use",
+        "owned-card set",
+        "response use completion"
+      ],
+      "wpfFilters": [
+        "Program paid choices",
+        "composed skills",
+        "opaque target-card",
+        "saved UI boundaries",
+        "original card artwork"
+      ],
+      "startedAt": "2026-10-02T13:17:54.0701405+08:00",
+      "durationMs": 26123,
+      "message": null,
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 8213,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinEighth-20261002\\parent-focused-final-01\\logs\\build.log"
+        },
+        {
+          "name": "Core selected checks (10 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 10338,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinEighth-20261002\\parent-focused-final-01\\logs\\core-selected.log"
+        },
+        {
+          "name": "WPF selected checks (5 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 7532,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinEighth-20261002\\parent-focused-final-01\\logs\\wpf-selected.log"
+        }
+      ]
+    },
+    "focusedCorePassed": 46,
+    "focusedWpfPassed": 5,
+    "mainFullStatus": "passed",
+    "routineStatus": "passed",
+    "routineAddedCoreFilters": [
+      "boundary Liu Bei virtual Peach HP child",
+      "boundary Liu Bei native provided use decline once",
+      "boundary Liu Bei gift threshold recipient",
+      "boundary Da Qiao atomic mixed discard replay",
+      "boundary Hua Tuo ordered actual discard effective suit receipts",
+      "participant discard mandatory cost cancellation preserves legal composition"
+    ],
+    "routineAddedWpfFilter": "Program paid choices",
+    "independentReviews": "Frozen final SHA reviews; new shared participant-payment cancellation repaired with a failing-before/passing-after real-command regression. Liu and Da final reviews are separately archived.",
+    "versionGate": "Replay.cs unchanged; only newly compiled capabilities change behavior. No character-specific rules/schema/package bump.",
+    "firstMainFull": {
+      "corePassed": 462,
+      "coreFailed": 1,
+      "wpfPassed": 48,
+      "wpfFailed": 0,
+      "durationMs": 191711,
+      "summary": {
+        "status": "test-failed",
+        "mode": "full",
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinEighth-20261002\\validation-main-full-01",
+        "coreFilters": [],
+        "wpfFilters": [],
+        "startedAt": "2026-10-02T13:23:04.6179318+08:00",
+        "durationMs": 191711,
+        "message": "One or more selected checks failed.",
+        "results": [
+          {
+            "name": "Build selected scope",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 8135,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinEighth-20261002\\validation-main-full-01\\logs\\build.log"
+          },
+          {
+            "name": "Core full checks",
+            "status": "failed",
+            "exitCode": 1,
+            "durationMs": 129391,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinEighth-20261002\\validation-main-full-01\\logs\\core-full.log"
+          },
+          {
+            "name": "WPF full checks",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 54138,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinEighth-20261002\\validation-main-full-01\\logs\\wpf-full.log"
+          }
+        ]
+      }
+    },
+    "stoneAxeFixtureRepair": {
+      "testOnly": true,
+      "focusedCorePassed": 13,
+      "durationMs": 9421,
+      "fixedSeed": 1,
+      "cause": "The paid Slash is correctly paused at Ma Su optional Zhiman before-damage child; old fixture asserted damage before declining that real child.",
+      "coverage": "Exact two-card payment once, all five private views, checkpoint replay at the paid pre-damage child, legal decline and exact one damage. No production rule or version change."
+    },
+    "mainFull": {
+      "corePassed": 463,
+      "wpfPassed": 48,
+      "durationMs": 201178,
+      "summary": {
+        "status": "passed",
+        "mode": "full",
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinEighth-20261002\\validation-main-full-02",
+        "coreFilters": [],
+        "wpfFilters": [],
+        "startedAt": "2026-10-02T13:43:45.9274576+08:00",
+        "durationMs": 201178,
+        "message": null,
+        "results": [
+          {
+            "name": "Build selected scope",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 15080,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinEighth-20261002\\validation-main-full-02\\logs\\build.log"
+          },
+          {
+            "name": "Core full checks",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 129606,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinEighth-20261002\\validation-main-full-02\\logs\\core-full.log"
+          },
+          {
+            "name": "WPF full checks",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 56445,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinEighth-20261002\\validation-main-full-02\\logs\\wpf-full.log"
+          }
+        ]
+      }
+    },
+    "routine": {
+      "corePassed": 132,
+      "wpfPassed": 14,
+      "durationMs": 61162,
+      "summary": {
+        "status": "passed",
+        "mode": "routine",
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinEighth-20261002\\validation-main-full-02",
+        "coreFilters": [
+          "command",
+          "observer",
+          "viewer",
+          "prepared snapshot",
+          "internal failure",
+          "skill program",
+          "lifecycle programs",
+          "shared post-event",
+          "shared use lifecycle",
+          "shared card-use",
+          "card movement",
+          "card inventory",
+          "initial deal",
+          "invalid single and batch",
+          "draw and recover",
+          "execution plans",
+          "skill executor",
+          "program gameplay hashes",
+          "physical deck recipes",
+          "structured skill metadata",
+          "content registry",
+          "standard package",
+          "composition kernel",
+          "rule query",
+          "slash resolution",
+          "dying response",
+          "Xingshang",
+          "response use completion",
+          "selected gift",
+          "configured active sequences",
+          "standard active programs",
+          "owned-card set",
+          "turn card-use effects",
+          "active Program contracts",
+          "hand guidance",
+          "actual marker payment",
+          "replacement draw and dying payment",
+          "two dynamic actual ends",
+          "ordered nested native owner",
+          "payment nested comparison",
+          "first target history",
+          "program conversion polarity shared state and replay",
+          "Feng Lin Lu Zhi actual discard entry boundaries",
+          "Ending child gift joins current boundary",
+          "Feng Lin Yuan Shu command loss regrant source suppression",
+          "Feng Lin Yuan Shu qualified awakening persistent local loss",
+          "Feng Lin Zhou Fei first domains and true equipment sequence",
+          "Feng Lin Zhou Fei same-source association freeze",
+          "Feng Lin Congjian Equipment gift nested replay",
+          "after turn ended return movement prelude ordering",
+          "after turn ended due before window nested replay",
+          "Feng Lin Zuo Ci initial privacy and replay",
+          "Feng Lin Zuo Ci layered suppression and local disable",
+          "Feng Lin Zuo Ci same avatar program and actual end",
+          "Feng Lin Yu Ji",
+          "boundary Lu Meng all table printed suits replay",
+          "boundary Lu Meng cross owner skip chain resume death",
+          "boundary Lu Meng Qinxue windows shared usage",
+          "boundary Lu Meng opt in usage legacy shape",
+          "Boundary Huang Gai actual provider color",
+          "Boundary Huang Gai multi card color source lifecycle",
+          "boundary Lu Xun actual trick hold lianying and return",
+          "boundary Lu Xun HE payment exact Hand batch count",
+          "boundary Liu Bei virtual Peach HP child",
+          "boundary Liu Bei native provided use decline once",
+          "boundary Liu Bei gift threshold recipient",
+          "boundary Da Qiao atomic mixed discard replay",
+          "boundary Hua Tuo ordered actual discard effective suit receipts",
+          "participant discard mandatory cost cancellation preserves legal composition"
+        ],
+        "wpfFilters": [
+          "original card artwork",
+          "composed skills",
+          "conversion choices",
+          "response context",
+          "hand responses",
+          "opaque target-card",
+          "playback batches",
+          "saved UI boundaries",
+          "failed writes",
+          "public markers",
+          "deferred hand alignment",
+          "Program conversion polarity stays visible",
+          "declaration and general library views protect private faces",
+          "Program paid choices"
+        ],
+        "startedAt": "2026-10-02T13:47:44.5471737+08:00",
+        "durationMs": 61162,
+        "message": null,
+        "results": [
+          {
+            "name": "Build selected scope",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 1262,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinEighth-20261002\\validation-main-full-02\\logs\\build.log"
+          },
+          {
+            "name": "Core selected checks (69 filters, union)",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 25286,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinEighth-20261002\\validation-main-full-02\\logs\\core-selected.log"
+          },
+          {
+            "name": "WPF selected checks (14 filters, union)",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 34553,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinEighth-20261002\\validation-main-full-02\\logs\\wpf-selected.log"
+          }
+        ]
+      }
+    },
+    "compiledPortraitBytesMatchOfficialFrozen": true,
+    "actualOfflineRendersViewed": [
+      "265-program-participant-private-cost.png",
+      "266-program-participant-paid.png",
+      "267-program-donor-lord-reward.png"
+    ],
+    "boundary": "Actual accepted-command fixtures and checkpoint replay, separate host lifecycle audits, and real off-screen WPF controls. No live OL client manual-play acceptance."
+  }
+}

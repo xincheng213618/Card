@@ -10741,6 +10741,57 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-liu-bei",
+      "characterName": "界刘备",
+      "defaultSkinId": "29900",
+      "skins": [
+        {
+          "id": "29900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/299",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/29900.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-liu-bei.png",
+          "sha256": "474e64e9f93125ce031af6dd290bd0ce55955872f5522ea6ce40fcc4da413412",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "boundary-da-qiao",
+      "characterName": "界大乔",
+      "defaultSkinId": "30900",
+      "skins": [
+        {
+          "id": "30900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/309",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30900.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-da-qiao.png",
+          "sha256": "0df26b323b1e004c5ac5d188c37f86a050f37be951ef74b74a465b1d5985b198",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "boundary-hua-tuo",
+      "characterName": "界华佗",
+      "defaultSkinId": "31800",
+      "skins": [
+        {
+          "id": "31800",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/318",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31800.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-hua-tuo.png",
+          "sha256": "e0e411c6a63d1b2c6a3787969e6d45d04df31539a11bb30dfcc9b0b165cadc1e",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

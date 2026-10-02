@@ -53,7 +53,7 @@ public sealed class CardActionContext
         int? opponentSeat, CardKind effectiveKind, IReadOnlyList<int> targetSeats,
         IReadOnlyList<CardActionCost> physicalCards, IReadOnlyList<CardConversionSource> conversionChain,
         IReadOnlyList<int>? designatedTargetSeats = null,
-        Suit? effectiveSuit = null, int? effectiveRank = null, bool? effectiveIsRed = null)
+        Suit? effectiveSuit = null, int? effectiveRank = null, bool? effectiveIsRed = null, CardActionFactionOrigin? factionOrigin = null)
     {
         ActionId = actionId;
         ParentActionId = parentActionId;
@@ -71,6 +71,7 @@ public sealed class CardActionContext
         EffectiveSuit = effectiveSuit;
         EffectiveRank = effectiveRank;
         EffectiveIsRed = effectiveIsRed;
+        FactionOrigin = factionOrigin;
     }
 
     public long ActionId { get; }
@@ -87,6 +88,8 @@ public sealed class CardActionContext
     public IReadOnlyList<int>? DesignatedTargetSeats { get; }
     [JsonIgnore]
     public IReadOnlyList<int> EffectiveDesignatedTargetSeats => DesignatedTargetSeats ?? TargetSeats;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CardActionFactionOrigin? FactionOrigin { get; }
     public IReadOnlyList<CardActionCost> PhysicalCards { get; }
     public IReadOnlyList<CardConversionSource> ConversionChain { get; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

@@ -82,9 +82,9 @@ public sealed partial class GameEngine
             item.Source.SkillId == selected.ProgramSkillId && item.Policy.Id == selected.ProgramActivationId);
         var conversion = new CardConversionSource(binding.Source.SkillId, binding.Policy.Id, ownerSeat, binding.Source.SkillInstanceId);
         var resolutionId = ++_resolutionSequence;
-        var context = new CardActionContext(++_cardActionSequence, null, CardActionType.Use, actor.Seat, actor.Seat,
+        var context = CaptureFactionAction(new CardActionContext(++_cardActionSequence, null, CardActionType.Use, actor.Seat, actor.Seat,
             null, null, null, CardKind.Slash, targets, payments.Select(card => new CardActionCost(card.Id, card.Kind, from,CapturePhysicalCardColor(actor.Seat,card))).ToArray(),
-            [conversion], effectiveSuit: Suit.None, effectiveRank: 0);
+            [conversion], effectiveSuit: Suit.None, effectiveRank: 0));
         MoveCards(payments, from, CardLocation.DiscardPile, new CardMoveReason("program.public-pile.slash-payment"));
         PushRuntimeFrame(new CardUseFrame(resolutionId, actor.Seat, 0, CardKind.Slash, targets, PhysicalCardIds: []) { Action = context });
         if (TracksPlayCardHistory) AdvanceEventRulesAndQueueFact(new CardUseAppearanceCapturedEvent(context));

@@ -106,10 +106,14 @@ public sealed record ProgramSkillFrame(
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
     : ResolutionFrame(Id, ResolutionFrameKind.ProgramSkill, Step)
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramDiamondDelayedDraft? DiamondDelayed { get; init; }
+
     /// <summary>The exact current grant selected when this execution was frozen.</summary>
     public string SkillInstanceId { get; init; } = "";
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramPrivateTurnHoldDraft? PrivateTurnHoldDraft { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramDistinctFactionDiscardDraft? DistinctFactionDiscards { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public SkillPolarity? ConversionPreviousPolarity { get; init; }
@@ -147,6 +151,10 @@ public sealed record ProgramSkillFrame(
     public ProgramSelectedCardPayment? SelectedCardPayment { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramSelectedCardPaymentResult? SelectedCardPaymentResult { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramPhaseGiftReceipt? PhaseGiftReceipt { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramVirtualBasicDraft? VirtualBasicDraft { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramStrategicDamageBatch? StrategicDamageBatch { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -352,6 +360,12 @@ public sealed record CardUseFrame(
     public int? ProgramAdjustedSlashBaseDamage { get; init; }
     public int? ForeignPublicPileSlashBaseDamage { get; init; }
     public ProgramSimpleCardContinuation? AdjustedSimpleContinuation { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramVirtualBasicReturn? VirtualBasicReturn { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public bool? VirtualBasicEffectApplied { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ProgramFactionRewardOffer>? FactionRewardOffers { get; init; }
     public IReadOnlyList<int> CompletedDamageParticipants { get; init; } = [];
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

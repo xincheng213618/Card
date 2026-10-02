@@ -7,7 +7,7 @@ internal static class StoneAxeChecks
     public static void ExactCostDamageAndReplay()
     {
         var registry = StandardContentRegistry.CreateWithClassicGenerals();
-        var boundary = StoneAxeScenario.FindHumanTrigger();
+        var boundary = StoneAxeScenario.FindHumanTrigger(seed: 1);
         var game = boundary.Game;
         var prompt = game.PendingDecision ??
             throw new InvalidOperationException("Stone Axe fixture lost its private trigger prompt.");
@@ -68,26 +68,66 @@ internal static class StoneAxeChecks
             used.Revision));
         Require(usedResult.Accepted, usedResult.Error?.Message ??
             "The exact Stone Axe two-card cost was rejected.");
+        var paidSlash = used.ResolutionStack.OfType<CardUseFrame>().Single(frame => frame.CardId == boundary.SlashAction.CardId);
+        Require(used.ResolutionStack.OfType<BeforeDamageProgramWindowFrame>().Single().ParentFrameId == paidSlash.Id &&
+                used.PendingDecision is { IsPrivate: true, PlayerSeat: 0, SkillPrompt.SkillId: "classic:zhiman" } &&
+                Enumerable.Range(1, 4).All(seat => used.CreateSnapshot(seat).PendingDecision is null),
+            "The verified witness must retain the paid Slash's exact private pre-damage child.");
+        var paidCheckpoint = RoundTrip(used.CreateCheckpoint());
+        var paid = GameReplay.Restore(paidCheckpoint, registry);
+        Require(AllViews(paid) == AllViews(used) &&
+                JsonSerializer.Serialize(paid.ResolutionStack) == JsonSerializer.Serialize(used.ResolutionStack) &&
+                Events(paid).SequenceEqual(Events(used)) && paid.CardMovements.SequenceEqual(used.CardMovements),
+            "The paid Stone Axe must replay all five private views and the exact pending damage child without paying twice.");
+        ContinueBeforeDamageWithoutPrevention(used, paidSlash.Id);
+        ContinueBeforeDamageWithoutPrevention(paid, paidSlash.Id);
+        Require(AllViews(paid) == AllViews(used) && Events(paid).SequenceEqual(Events(used)) &&
+                paid.CardMovements.SequenceEqual(used.CardMovements),
+            "Both copies must decline the real optional pre-damage child and resume the same paid Slash.");
         var after = used.CreateSnapshot(0, revealAll: true);
         var resolved = used.Events.Select(item => item.Payload)
             .OfType<StoneAxeResolvedEvent>()
             .LastOrDefault();
         Require(after.Players.Single(player => player.Seat == boundary.TargetSeat).Hp == targetHpBefore - 1 &&
+                used.Events.Select(item => item.Payload).OfType<DamageAppliedEvent>().Count(damage =>
+                    damage.SourceSeat == 0 && damage.TargetSeat == boundary.TargetSeat && damage.Amount == 1) == 1 &&
                 after.Players[0].Equipment.All(card => card.Id != boundary.StoneAxeCardId) &&
-                costChoice.Cards.All(cardId => used.CardMovements.Any(movement =>
+                costChoice.Cards.All(cardId => used.CardMovements.Count(movement =>
                     movement.CardId == cardId &&
                     movement.To == CardLocation.DiscardPile &&
-                    movement.Reason == CardMoveReasons.StoneAxeDiscard)) &&
+                    movement.Reason == CardMoveReasons.StoneAxeDiscard) == 1) &&
                 resolved is { Used: true } &&
                 resolved.DiscardedCardIds.SequenceEqual(costChoice.Cards),
             "Stone Axe must discard the exact published pair and resume the same Slash as damage.");
 
-        var completed = GameReplay.Restore(RoundTrip(used.CreateCheckpoint()), registry);
-        Require(State(completed) == State(used) && Events(completed).SequenceEqual(Events(used)),
-            "A completed Stone Axe damage branch must replay exactly.");
+        var damageApplied = GameReplay.Restore(RoundTrip(used.CreateCheckpoint()), registry);
+        Require(State(damageApplied) == State(used) && Events(damageApplied).SequenceEqual(Events(used)),
+            "The applied Stone Axe damage and any subsequent damage-trigger child must replay exactly.");
 
     }
 
+    private static void ContinueBeforeDamageWithoutPrevention(GameEngine game, long slashFrameId)
+    {
+        for (var step = 0; step < 16 && game.ResolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any(frame => frame.ParentFrameId == slashFrameId); step++)
+        {
+            var prompt = Enumerable.Range(0, 5).Select(seat => game.CreateSnapshot(seat).PendingDecision)
+                .FirstOrDefault(decision => decision is not null);
+            if (prompt is { PlayerSeat: 0, Kind: DecisionKind.ProgramTrigger })
+            {
+                var skip = prompt.Choices.Single(choice => choice.Parameters.GetValueOrDefault("program-action") == "skip");
+                Require(game.Submit(new AnswerPromptCommand(prompt.PlayerSeat, prompt.PromptId, skip.Id, game.Revision)).Accepted,
+                    "A published optional damage prevention child must allow preserving the Stone Axe damage.");
+            }
+            else
+                Require(game.Submit(new AdvanceOneStepCommand(game.Revision)).Accepted,
+                    "The paid Stone Axe pre-damage child must advance legally.");
+        }
+        Require(!game.ResolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any(frame => frame.ParentFrameId == slashFrameId),
+            "The bounded Stone Axe continuation must finish its pre-damage child before asserting damage.");
+    }
+
+    private static string AllViews(GameEngine game) => JsonSerializer.Serialize(
+        Enumerable.Range(0, 5).Select(seat => SnapshotJson.Serialize(game.CreateSnapshot(seat))).ToArray());
 
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
         GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint));

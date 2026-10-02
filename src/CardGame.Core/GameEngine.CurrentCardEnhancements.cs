@@ -51,9 +51,9 @@ public sealed partial class GameEngine
         if (use.CardKind == CardKind.DrawTwo && use.Action!.EffectiveDesignatedTargetSeats.Count == 0)
         {
             var action = use.Action; var targets = new[] { use.SourceSeat };
-            use = use with { TargetSeats = targets, Action = new CardActionContext(action.ActionId, action.ParentActionId, action.Type,
+            use = use with { TargetSeats = targets, Action = CaptureFactionAction(new CardActionContext(action.ActionId, action.ParentActionId, action.Type,
                 action.ActorSeat, action.ProviderSeat, action.RequesterSeat, action.ResponderSeat, action.OpponentSeat, action.EffectiveKind,
-                targets, action.PhysicalCards, action.ConversionChain, targets, action.EffectiveSuit, action.EffectiveRank, action.EffectiveIsRed) };
+                targets, action.PhysicalCards, action.ConversionChain, targets, action.EffectiveSuit, action.EffectiveRank, action.EffectiveIsRed, action.FactionOrigin)) };
             ReplaceRuntimeFrame(_resolutionStack[_resolutionStack.FindIndex(item => item.Id == use.Id)].Id, use);
         }
         if (_currentSeat != frame.OwnerSeat || use.Action!.EffectiveDesignatedTargetSeats.Count != 1 ||

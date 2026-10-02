@@ -1,0 +1,1 @@
+{"schemaVersion":62,"skills":[{"id":"boundary:chuli","revision":1,"activations":[{"id":"discard-participants","usesPerTurn":null,"usesPerPhase":1,"minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"otherLiving","condition":{"kind":"always"},"effects":[{"op":"discardDistinctFactionParticipants","target":"owner"}]}]}]}
