@@ -1,0 +1,330 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:tuntian-current",
+      "revision": 1,
+      "minimumRulesVersion": 193,
+      "modifiers": [
+        {
+          "id": "authority-outgoing-distance-minus",
+          "query": "outgoingDistance",
+          "operation": "add",
+          "valueExpression": "negatedOwnedZoneCount",
+          "valueZone": "authority",
+          "priority": 0,
+          "condition": {
+            "kind": "always"
+          }
+        }
+      ],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "judge-on-hand-loss-outside-turn",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perBatch",
+          "excludedMovementReasons": [
+            "card.use",
+            "card.respond",
+            "card.respond.nullification"
+          ],
+          "ignoreOwnSkillMovements": true,
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "not",
+            "children": [
+              {
+                "kind": "ownerIsTurnPlayer"
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "startJudgment",
+              "target": "owner",
+              "judgmentReason": "skill.tuntian",
+              "resultBind": "tuntian-judgment",
+              "visibility": "public"
+            },
+            {
+              "op": "filterBoundCards",
+              "target": "owner",
+              "sourceBind": "tuntian-judgment",
+              "resultBind": "tian-cards",
+              "suits": [
+                "spade",
+                "club",
+                "diamond"
+              ]
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "tian-cards",
+              "destination": "ownerPersistentZone",
+              "destinationZone": "authority"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "tuntian-judgment",
+              "exceptBind": "tian-cards",
+              "destination": "discardPile"
+            }
+          ]
+        },
+        {
+          "id": "judge-on-equipment-loss-outside-turn",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": [
+            "equipment"
+          ],
+          "movementOccurrence": "perBatch",
+          "ignoreOwnSkillMovements": true,
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "not",
+            "children": [
+              {
+                "kind": "ownerIsTurnPlayer"
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "startJudgment",
+              "target": "owner",
+              "judgmentReason": "skill.tuntian",
+              "resultBind": "tuntian-judgment",
+              "visibility": "public"
+            },
+            {
+              "op": "filterBoundCards",
+              "target": "owner",
+              "sourceBind": "tuntian-judgment",
+              "resultBind": "tian-cards",
+              "suits": [
+                "spade",
+                "club",
+                "diamond"
+              ]
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "tian-cards",
+              "destination": "ownerPersistentZone",
+              "destinationZone": "authority"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "tuntian-judgment",
+              "exceptBind": "tian-cards",
+              "destination": "discardPile"
+            }
+          ]
+        },
+        {
+          "id": "judge-on-judgment-card-loss-outside-turn",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": [
+            "judgment"
+          ],
+          "movementOccurrence": "perBatch",
+          "ignoreOwnSkillMovements": true,
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "not",
+            "children": [
+              {
+                "kind": "ownerIsTurnPlayer"
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "startJudgment",
+              "target": "owner",
+              "judgmentReason": "skill.tuntian",
+              "resultBind": "tuntian-judgment",
+              "visibility": "public"
+            },
+            {
+              "op": "filterBoundCards",
+              "target": "owner",
+              "sourceBind": "tuntian-judgment",
+              "resultBind": "tian-cards",
+              "suits": [
+                "spade",
+                "club",
+                "diamond"
+              ]
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "tian-cards",
+              "destination": "ownerPersistentZone",
+              "destinationZone": "authority"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "tuntian-judgment",
+              "exceptBind": "tian-cards",
+              "destination": "discardPile"
+            }
+          ]
+        },
+        {
+          "id": "judge-on-own-turn-slash-discard",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "movementOccurrence": "perCard",
+          "discardOwnerScope": "own",
+          "movementDiscardOnly": true,
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "ignoreOwnSkillMovements": true,
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "ownerIsTurnPlayer"
+          },
+          "effects": [
+            {
+              "op": "startJudgment",
+              "target": "owner",
+              "judgmentReason": "skill.tuntian",
+              "resultBind": "tuntian-judgment",
+              "visibility": "public"
+            },
+            {
+              "op": "filterBoundCards",
+              "target": "owner",
+              "sourceBind": "tuntian-judgment",
+              "resultBind": "tian-cards",
+              "suits": [
+                "spade",
+                "club",
+                "diamond"
+              ]
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "tian-cards",
+              "destination": "ownerPersistentZone",
+              "destinationZone": "authority"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "tuntian-judgment",
+              "exceptBind": "tian-cards",
+              "destination": "discardPile"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "boundary:zaoxian-current",
+      "revision": 1,
+      "minimumRulesVersion": 193,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "awakening",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "currentOwnedZoneCount",
+              "zone": "authority"
+            },
+            "operator": "greaterThanOrEqual",
+            "right": {
+              "kind": "integerConstant",
+              "value": 3
+            }
+          },
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": -1
+            },
+            {
+              "op": "grantSkills",
+              "target": "owner",
+              "skillIds": [
+                "boundary:jixi-current"
+              ]
+            },
+            {
+              "op": "pendExtraTurn",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "boundary:jixi-current",
+      "revision": 1,
+      "minimumRulesVersion": 193,
+      "modifiers": [],
+      "viewAs": [
+        {
+          "id": "authority-card-as-snatch",
+          "sourceZones": [
+            "authority"
+          ],
+          "inputKinds": [],
+          "inputSuits": [
+            "spade",
+            "club",
+            "diamond"
+          ],
+          "outputKind": "snatch",
+          "forPlay": true,
+          "forResponse": false
+        }
+      ],
+      "activations": [],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    }
+  ]
+}

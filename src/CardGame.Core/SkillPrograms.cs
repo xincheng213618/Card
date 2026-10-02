@@ -2673,11 +2673,12 @@ public sealed class SkillProgramCatalog
         if (isLifecycleWindow)
         {
             var supportsDamageSourceConversion = window == SkillProgramTriggerWindow.AfterDamageApplied;
-            var supportsDiscardSuitFilter = window == SkillProgramTriggerWindow.DiscardPileReceived;
+            var supportsDiscardCardFilter = window == SkillProgramTriggerWindow.DiscardPileReceived;
             if ((!supportsDamageSourceConversion &&
                  (node.TryGetProperty("sourceSkillId", out _) || node.TryGetProperty("sourceViewAsId", out _))) ||
-                node.TryGetProperty("cardKinds", out _) || (!supportsDiscardSuitFilter && node.TryGetProperty("cardCategories", out _)) ||
-                (!supportsDiscardSuitFilter && node.TryGetProperty("suits", out _)) ||
+                (!supportsDiscardCardFilter && node.TryGetProperty("cardKinds", out _)) ||
+                (!supportsDiscardCardFilter && node.TryGetProperty("cardCategories", out _)) ||
+                (!supportsDiscardCardFilter && node.TryGetProperty("suits", out _)) ||
                 node.TryGetProperty("minimumRank", out _) || node.TryGetProperty("maximumRank", out _) ||
                 node.TryGetProperty("excludedReasons", out _) || node.TryGetProperty("judgmentReasons", out _) ||
                 node.TryGetProperty("judgmentSource", out _))
@@ -2712,11 +2713,17 @@ public sealed class SkillProgramCatalog
                     (node.TryGetProperty("sourceSkillId", out _) || node.TryGetProperty("sourceViewAsId", out _)))
                     Fail(path, "owner after-damage triggers do not accept card-conversion source fields");
             }
-            if (supportsDiscardSuitFilter && node.TryGetProperty("suits", out _))
+            if (supportsDiscardCardFilter && node.TryGetProperty("suits", out _))
             {
                 suits = EnumArray<Suit>(node, "suits", path);
                 if (suits.Distinct().Count() != suits.Count)
                     Fail(path + ".suits", "must contain distinct suits");
+            }
+            if (supportsDiscardCardFilter && node.TryGetProperty("cardKinds", out _))
+            {
+                cardKinds = EnumArray<CardKind>(node, "cardKinds", path);
+                if (cardKinds.Distinct().Count() != cardKinds.Count)
+                    Fail(path + ".cardKinds", "must contain distinct card kinds");
             }
             if (window == SkillProgramTriggerWindow.CardsGained)
             {

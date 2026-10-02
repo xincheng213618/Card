@@ -10979,6 +10979,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-deng-ai",
+      "characterName": "界邓艾",
+      "defaultSkinId": "47100",
+      "skins": [
+        {
+          "id": "47100",
+          "name": "默认皮肤",
+          "sourcePage": "https://www.sanguosha.com/hero/471",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/47100.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-deng-ai.png",
+          "sha256": "7571f8b643c348ab0505c649ad20d69464534dd253d9abbc4454472dfcfa862c",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

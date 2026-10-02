@@ -1,0 +1,52 @@
+{
+  "generalId": "boundary:deng-ai",
+  "characterName": "界邓艾",
+  "officialId": 471,
+  "sourcePage": "https://www.sanguosha.com/hero/471",
+  "capturedAt": "2026-10-03",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": { "gid": 471, "name": "界邓艾", "extend": "界限突破", "hp": 4, "figure": "魏", "quality": "普通" },
+  "artwork": {
+    "skinId": "47100",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/47100.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-boundary-deng-ai.png",
+    "sha256": "7571f8b643c348ab0505c649ad20d69464534dd253d9abbc4454472dfcfa862c",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "屯田",
+      "text": "当你于回合外失去牌后，或你于回合内弃置【杀】后，你可以判定，若结果不为红桃，将判定牌置于你的武将牌上，称为“田”。你计算与其他角色的距离-X（X为“田”的数量）。",
+      "programId": "boundary:tuntian-current",
+      "notes": [
+        "三个回合外失去牌触发（手牌/装备区/判定区，perBatch，排除用牌与响应清理）与距离修正逐字复用已验收的 classic:tuntian 程序形状，仅换用 boundary id，不修改旧 classic 定义。",
+        "新增“回合内弃置【杀】”分支：discardPileReceived、movementDiscardOnly、discardOwnerScope=own、perCard、cardKinds=[slash,fireSlash,thunderSlash]、ignoreOwnSkillMovements，条件 ownerIsTurnPlayer；判定链与回合外分支完全一致。",
+        "共享匹配器 MatchingDiscardPileIndexes 原先只支持花色与类别过滤，本次补充 CardKinds 过滤（镜像 CardCategories 写法）；现有内容没有在移动触发上使用 cardKinds，旧行为零变化。"
+      ]
+    },
+    {
+      "name": "凿险",
+      "text": "觉醒技，准备阶段，若“田”的数量不小于3，你减少1点体力上限，然后获得“急袭”，你于本回合结束后执行一个额外回合。",
+      "programId": "boundary:zaoxian-current",
+      "notes": [
+        "觉醒体（turnStartBeforeNormalFlow、usageLimit=1、authority≥3、changeMaximumHp -1、grantSkills）与 classic:zaoxian 一致，尾部新增 pendExtraTurn（既有成熟节点，语义为“将在当前回合结束后获得一个额外回合”）。"
+      ]
+    },
+    {
+      "name": "急袭",
+      "text": "你可以将一张“田”当【顺手牵羊】使用。",
+      "programId": "boundary:jixi-current",
+      "notes": [
+        "官方页仅列出屯田/凿险两个页签，急袭为觉醒获得技；viewAs 与 classic:jixi 完全一致（authority 区非红桃牌视为【顺手牵羊】），按界系列惯例以 boundary id 自持定义。"
+      ]
+    }
+  ],
+  "apiInfo": { "hp": 4, "figure": "wei", "initial_hp": 0 },
+  "genderBasis": "官方无结构化性别字段；沿仓库同角色男性惯例。",
+  "observations": [
+    "官方页 fetch 时间 2026-10-03，两次 HTTP 200（页面 + /api/v1/hero/info?gid=471）。",
+    "本批为单武将批次：界公孙瓒/界华雄由 FengLinFourteenth 批次并行实施，界吕布/界袁绍已有该线设计预研，均不在本批范围。"
+  ]
+}

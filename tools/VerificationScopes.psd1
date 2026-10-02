@@ -60,7 +60,9 @@
         'Equipment placement slot self equal boundaries',
         'Final target Slash frozen comparisons actual paid Dodge',
         'Paid HP loss rescue and gain children',
-        'Paid HP loss source and legacy'
+        'Paid HP loss source and legacy',
+        'Boundary Deng Ai own turn slash discard judges authority',
+        'Boundary Deng Ai awakening grants snatch and extra turn'
     )
     Wpf = @(
         'original card artwork', 'composed skills', 'conversion choices',

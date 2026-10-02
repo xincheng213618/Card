@@ -256,7 +256,9 @@ public sealed partial class GameEngine
                 (trigger.Suits.Count == 0 ||
                     discardPile.TryGetValue(item.movement.CardId, out var card) && trigger.Suits.Contains(card.Suit)) &&
                 (trigger.CardCategories.Count == 0 || discardPile.TryGetValue(item.movement.CardId, out var filteredCard) &&
-                    trigger.CardCategories.Contains(GetProgramCardCategory(filteredCard.Kind))))
+                    trigger.CardCategories.Contains(GetProgramCardCategory(filteredCard.Kind))) &&
+                (trigger.CardKinds.Count == 0 || discardPile.TryGetValue(item.movement.CardId, out var kindCard) &&
+                    trigger.CardKinds.Contains(kindCard.Kind)))
             .Select(item => item.index).ToArray();
     }
 
