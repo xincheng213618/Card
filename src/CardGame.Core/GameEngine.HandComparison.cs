@@ -69,13 +69,13 @@ public sealed partial class GameEngine
   else if(d.Stage=="benefit")
   {
    Add("draw","draw","摸一张牌",[],[]);
-   foreach(var p in _players.Where(p=>p.IsAlive&&p.Seat!=f.OwnerSeat&&GetHand(p).Count+GetEquipment(p).Count>0))Add("target",p.Seat.ToString(),"弃置"+p.Name+"的一张牌",[],[p.Seat]);
+   foreach(var p in _players.Where(p=>p.IsAlive&&p.Seat!=f.OwnerSeat&&HasDiscardableHeBy(f.OwnerSeat,p.Seat)))Add("target",p.Seat.ToString(),"弃置"+p.Name+"的一张牌",[],[p.Seat]);
   }
   else
   {
    var target=_players[int.Parse(d.Stage.Split(':')[1],System.Globalization.CultureInfo.InvariantCulture)];
    foreach(var card in GetHand(target))Add("discard",("hand-"+GetHand(target).ToList().IndexOf(card)),"弃置第"+(GetHand(target).ToList().IndexOf(card)+1)+"张手牌",[],[target.Seat]);
-   foreach(var card in GetEquipment(target))Add("discard",("equipment-"+card.Id),"弃置【"+card.DisplayName+" "+GetSuitDisplayName(card.Suit)+card.RankText+"】",[card.Id],[target.Seat]);
+   foreach(var card in GetEquipment(target).Where(card=>!IsForeignEquipmentDiscardPrevented(f.OwnerSeat,card,CardLocation.Equipment(target.Seat),OwnedCardMoveIntent.Discard)))Add("discard",("equipment-"+card.Id),"弃置【"+card.DisplayName+" "+GetSuitDisplayName(card.Suit)+card.RankText+"】",[card.Id],[target.Seat]);
   }
   var skill=_contentRegistry.GetSkill(f.SkillId);
   _pendingDecision=new(DecisionKind.ProgramTrigger,f.OwnerSeat,d.Stage=="reveal"?"选择展示与其体力值等量的手牌。":"选择同色奖励。",choices.SelectMany(c=>c.Cards).Distinct().ToArray(),choices.SelectMany(c=>c.Targets).Distinct().ToArray(),f.OwnerSeat){PromptId=CreatePromptId(),IsPrivate=false,TargetSeat=d.TargetSeat,Choices=choices.ToArray(),SkillPrompt=new(f.SkillId,skill.Name,skill.Name,skill.Description)};
@@ -102,7 +102,7 @@ public sealed partial class GameEngine
   if(branch=="complete"){if(d.Stage!="complete")throw new InvalidOperationException("Invalid completion choice.");FinishHandComparison(f);return;}
   if(branch=="target")
   {
-   var target=int.Parse(token,System.Globalization.CultureInfo.InvariantCulture);if(d.Stage!="benefit"||target==f.OwnerSeat||!_players[target].IsAlive||GetHand(_players[target]).Count+GetEquipment(_players[target]).Count==0)throw new InvalidOperationException("Invalid reward discard target.");ClearPendingDecision();ReplaceRuntimeTop(f=f with{HandComparisonDraft=d with{Stage="discard:"+target}});PublishHandComparison(f);return;
+   var target=int.Parse(token,System.Globalization.CultureInfo.InvariantCulture);if(d.Stage!="benefit"||target==f.OwnerSeat||!_players[target].IsAlive||!HasDiscardableHeBy(f.OwnerSeat,target))throw new InvalidOperationException("Invalid reward discard target.");ClearPendingDecision();ReplaceRuntimeTop(f=f with{HandComparisonDraft=d with{Stage="discard:"+target}});PublishHandComparison(f);return;
   }
   if(branch=="draw")
   {
@@ -111,7 +111,7 @@ public sealed partial class GameEngine
   if(branch=="discard")
   {
    if(!d.Stage.StartsWith("discard:",StringComparison.Ordinal))throw new InvalidOperationException("Invalid reward discard stage.");var target=int.Parse(d.Stage.Split(':')[1],System.Globalization.CultureInfo.InvariantCulture);var id=token.StartsWith("hand-",StringComparison.Ordinal)?GetHand(_players[target])[int.Parse(token[5..],System.Globalization.CultureInfo.InvariantCulture)].Id:int.Parse(token[10..],System.Globalization.CultureInfo.InvariantCulture);var location=_cardZones.GetLocation(id);if(!_players[target].IsAlive||location.OwnerSeat!=target||location.Zone is not(CardZoneKind.Hand or CardZoneKind.Equipment))throw new InvalidOperationException("Discard reward lost its real cost.");
-   var card=_cardZones.CardsAt(location).Single(c=>c.Id==id);ClearPendingDecision();ReplaceRuntimeTop(f with{HandComparisonDraft=null});MoveCard(card,location,CardLocation.DiscardPile,new("skill-program.hand-comparison.reward-discard"));AwaitProgramBoundCardMovements(f.Id,f.OwnerSeat);return;
+   var card=_cardZones.CardsAt(location).Single(c=>c.Id==id);if(IsForeignEquipmentDiscardPrevented(f.OwnerSeat,card,location,OwnedCardMoveIntent.Discard)){FinishHandComparison(f);return;}ClearPendingDecision();ReplaceRuntimeTop(f with{HandComparisonDraft=null});MoveCard(card,location,CardLocation.DiscardPile,new("skill-program.hand-comparison.reward-discard"));AwaitProgramBoundCardMovements(f.Id,f.OwnerSeat);return;
   }
   throw new InvalidOperationException("Unknown comparison branch.");
  }

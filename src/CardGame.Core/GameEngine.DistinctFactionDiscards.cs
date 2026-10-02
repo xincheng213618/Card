@@ -4,11 +4,10 @@ public sealed partial class GameEngine
 {
     private sealed partial class ProgramSkillHost : IDistinctFactionDiscardHost
     { public SkillProgramStepOutcome BeginDistinctFactionDiscards(ProgramSkillFrame f) => engine.BeginDistinctFactionDiscards(f); }
-    private bool HasDiscardableHe(int seat) => GetHand(_players[seat]).Count + GetEquipment(_players[seat]).Count > 0;
     private bool HasPayableDistinctFactionOwnerHe(int seat,string skillId,string instanceId) =>
         GetHand(_players[seat]).Count>0 || GetEquipment(_players[seat]).Any(c=>!IsActiveProgramSourceEquipmentCard(seat,skillId,instanceId,c));
     private bool DistinctFactionPlanValid(int owner,IReadOnlyList<int> seats) => seats.Distinct().Count()==seats.Count &&
-        seats.All(s=>IsValidPlayerSeat(s)&&s!=owner&&_players[s].IsAlive&&HasDiscardableHe(s)) &&
+        seats.All(s=>IsValidPlayerSeat(s)&&s!=owner&&_players[s].IsAlive&&HasDiscardableHeBy(owner,s)) &&
         seats.Select(s=>GetEffectiveFactionId(_players[s])).Distinct(StringComparer.Ordinal).Count()==seats.Count;
     private bool DistinctFactionOwnerValid(ProgramSkillFrame f) =>
         _players[f.OwnerSeat].IsAlive && _winner==Winner.None && HasRuntimeSkillInstance(_players[f.OwnerSeat],f.SkillId,f.SkillInstanceId);
@@ -28,7 +27,7 @@ public sealed partial class GameEngine
     private void PublishDistinctFactionSelection(ProgramSkillFrame f)
     {
         var d=f.DistinctFactionDiscards!;var choices=new List<PromptChoice>();
-        foreach(var p in _players.Where(p=>p.IsAlive&&p.Seat!=f.OwnerSeat&&HasDiscardableHe(p.Seat)))
+        foreach(var p in _players.Where(p=>p.IsAlive&&p.Seat!=f.OwnerSeat&&HasDiscardableHeBy(f.OwnerSeat,p.Seat)))
             if(DistinctFactionPlanValid(f.OwnerSeat,d.SelectedSeats.Append(p.Seat).ToArray()))
                 choices.Add(new(new("participant-discard.select."+p.Seat),"选择 "+p.Name,[],[p.Seat],new Dictionary<string,string>{{"program-action","distinct-faction-select"}}));
         choices.Add(new(new("participant-discard.finish"),"完成选择（可不选择其他角色）",[],[],new Dictionary<string,string>{{"program-action","distinct-faction-finish"}}));
@@ -69,7 +68,7 @@ public sealed partial class GameEngine
         }
         if(d.Stage!="discard"||d.ParticipantIndex>=d.ParticipantSeats.Count)throw new InvalidOperationException("Participant cost cursor is unavailable.");
         var owner=d.ParticipantSeats[d.ParticipantIndex];
-        if(!_players[owner].IsAlive||!HasDiscardableHe(owner)){CancelOrSkipDistinctFactionPayment(f,d);return;}
+        if(!_players[owner].IsAlive||!HasDiscardableHeBy(f.OwnerSeat,owner)){CancelOrSkipDistinctFactionPayment(f,d);return;}
         if(choice.Parameters.GetValueOrDefault("frame-id")!=f.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)||choice.Parameters.GetValueOrDefault("card-owner-seat")!=owner.ToString(System.Globalization.CultureInfo.InvariantCulture)||
            !Enum.TryParse<CardZoneKind>(choice.Parameters.GetValueOrDefault("source-zone"),out var zone)||zone is not(CardZoneKind.Hand or CardZoneKind.Equipment)||!int.TryParse(choice.Parameters.GetValueOrDefault("slot-index"),out var slot))throw new InvalidOperationException("Participant discard does not match its published opaque source slot.");
         var source=new CardLocation(zone,owner);var cards=_cardZones.CardsAt(source);
@@ -78,6 +77,7 @@ public sealed partial class GameEngine
         if(!hidden&&(choice.Cards.Count!=1||choice.Cards[0]!=card.Id))throw new InvalidOperationException("Public participant cost identity changed.");
         if(zone==CardZoneKind.Equipment&&owner==f.OwnerSeat&&IsActiveProgramSourceEquipmentCard(owner,f.SkillId,f.SkillInstanceId,card)){CancelOrSkipDistinctFactionPayment(f,d);return;}
         // Capture the source owner's effective suit before the entity leaves its original HE zone.
+        if(IsForeignEquipmentDiscardPrevented(f.OwnerSeat,card,source,OwnedCardMoveIntent.Discard)){CancelOrSkipDistinctFactionPayment(f,d);return;}
         var suit=EffectiveSuit(_players[owner],card);
         var paidDestination=card.IsGeneralWeapon&&source.Zone==CardZoneKind.Equipment?CardLocation.OutsideGame:CardLocation.DiscardPile;
         var paidReason=new CardMoveReason("skill-program."+f.SkillId+".participant-discard");ClearPendingDecision();
@@ -132,7 +132,7 @@ public sealed partial class GameEngine
         while(d.Stage=="discard"&&d.ParticipantIndex<d.ParticipantSeats.Count)
         {
             var seat=d.ParticipantSeats[d.ParticipantIndex];
-            var costs=_players[seat].IsAlive?BuildOwnedCardPaymentChoices(id,f.OwnerSeat,seat,[CardZoneKind.Hand,CardZoneKind.Equipment]):[];
+            var costs=_players[seat].IsAlive?BuildOwnedCardPaymentChoices(id,f.OwnerSeat,seat,[CardZoneKind.Hand,CardZoneKind.Equipment],OwnedCardMoveIntent.Discard):[];
             if(costs.Count==0 && d.ParticipantIndex==0)
             {CancelDistinctFactionDiscards(f,"本人必付牌已失效，技能剩余步骤取消。");return true;}
             if(costs.Count==0){d=d with{ParticipantIndex=d.ParticipantIndex+1};ReplaceRuntimeTop(f with{DistinctFactionDiscards=d});continue;}

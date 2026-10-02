@@ -119,7 +119,10 @@ public sealed partial class GameEngine
                 _strategicEndPlayTurn = _turnNumber;
                 return SkillProgramStepOutcome.Continue;
             case SkillProgramEffectOp.DiscardTargetEquipment:
-                foreach (var seat in frame.SelectedTargetSeats) MoveCards(GetEquipment(seat).ToArray(), CardLocation.Equipment(seat), CardLocation.DiscardPile, reason);
+                foreach (var seat in frame.SelectedTargetSeats) MoveCards(GetEquipment(seat)
+                    .Where(card => !IsForeignEquipmentDiscardPrevented(frame.OwnerSeat, card,
+                        CardLocation.Equipment(seat), OwnedCardMoveIntent.Discard)).ToArray(),
+                    CardLocation.Equipment(seat), CardLocation.DiscardPile, reason);
                 return SkillProgramStepOutcome.Continue;
             case SkillProgramEffectOp.DamageOtherLiving:
                 var batch = frame.StrategicDamageBatch;

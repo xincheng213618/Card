@@ -37,7 +37,17 @@ public sealed record ProgramTopReorder(
 }
 public sealed record ProgramRepeatedJudgment(
     string Reason, string ResultBind, IReadOnlyList<Suit> SuccessSuits, int CompletedCount,
-    bool? LastMatched = null);
+    bool? LastMatched = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public SkillProgramClaimHandLimitExemption? ClaimHandLimitExemption { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramRepeatedJudgmentClaimTurn? ClaimTurn { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramRepeatedJudgmentFinalOutcome? FinalOutcome { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramRepeatedJudgmentClaimReceipt? LastClaimReceipt { get; init; }
+}
 public sealed record ProgramAttackRangeCoverageBinding(string Name, int SubjectSeat, int BeforeCount, int AfterCount);
 public sealed record ProgramMovementContinuation(int SubjectSeat, int BeforeCount, string? CoverageResultBind);
 
@@ -126,6 +136,8 @@ public sealed record ProgramSkillCardSetBinding(
 {
     /// <summary>Public suit frozen before a single-card transfer; remains readable if the card moves again.</summary>
     public Suit? FrozenRevealedSuit { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? SelectionActorSeat { get; init; }
 }
 
 public sealed record ProgramBoundCardGivenEvent(

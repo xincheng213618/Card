@@ -25,11 +25,13 @@ public sealed partial class GameEngine
     private IReadOnlyList<Card> GetDiscardEligibleHand(CharacterState owner)
     {
         var hand = GetHand(owner);
-        if (!HasCardPolicy(owner, SkillProgramCardPolicyKind.IgnoreTurnObtainedHandCardsForDiscard)) return hand;
+        var exactIds = _turnCardUseEffects.GetHandLimitExemptCardIds(_turnNumber, _turnProgression.OwnerSeat, owner.Seat);
+        if (!HasCardPolicy(owner, SkillProgramCardPolicyKind.IgnoreTurnObtainedHandCardsForDiscard))
+            return exactIds.Count == 0 ? hand : hand.Where(card => !exactIds.Contains(card.Id)).ToArray();
         var obtained = EventsSinceLastBoundary(item => item is TurnStartedEvent)
             .OfType<CardMovedEvent>().Where(item => item.To == CardLocation.Hand(owner.Seat) && item.From != item.To)
             .Select(item => item.CardId).ToHashSet();
-        return hand.Where(card => !obtained.Contains(card.Id)).ToArray();
+        return hand.Where(card => !obtained.Contains(card.Id) && !exactIds.Contains(card.Id)).ToArray();
     }
 
     private void ConsumeSkippedNextTurnDrawBenefits(CharacterState current)

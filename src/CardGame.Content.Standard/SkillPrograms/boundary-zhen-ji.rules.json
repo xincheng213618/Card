@@ -1,0 +1,1 @@
+{"schemaVersion":62,"skills":[{"id":"boundary:luoshen","revision":1,"triggers":[{"id":"repeat-black-judgment","window":"turnStartBeforeNormalFlow","subject":"owner","optional":true,"priority":30,"effects":[{"op":"repeatJudgment","target":"owner","judgmentReason":"skill.luoshen","resultBind":"repeated-judgment","suits":["spade","club"],"claimHandLimitExemption":"actualTurn"}]}]}]}

@@ -49,7 +49,11 @@
         'boundary Xiahou Dun real phases skip quota expiry',
         'boundary Xiahou Dun receipt before gain child source audit',
         'Exact top count partition normal draw',
-        'Bound draw receipt per point nested gain'
+        'Bound draw receipt per point nested gain',
+        'boundary Zhen Ji exact receipt stop red discard',
+        'boundary Zhen Ji receipt before child source loss',
+        'Unconverted Trick draw receipt disposition',
+        'Foreign equipment discard program selections'
     )
     Wpf = @(
         'original card artwork', 'composed skills', 'conversion choices',

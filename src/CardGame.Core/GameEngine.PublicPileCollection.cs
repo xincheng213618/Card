@@ -11,7 +11,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<PromptChoice> PublicPileCollectionChoices(ProgramSkillFrame frame, SkillProgramEffect effect)
     {
         var slots = _players.Where(player => player.IsAlive)
-            .SelectMany(player => BuildOwnedCardPaymentChoices(frame.Id, frame.OwnerSeat, player.Seat, effect.Zones))
+            .SelectMany(player => BuildOwnedCardPaymentChoices(frame.Id, frame.OwnerSeat, player.Seat, effect.Zones, OwnedCardMoveIntent.Transfer))
             .ToArray();
         var choices = new List<PromptChoice>();
         void Add(IReadOnlyList<PromptChoice> selection)

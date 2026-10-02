@@ -133,6 +133,8 @@ CURRENT_HEROES = {
     "boundary-ma-chao": (303, "界马超"),
     "boundary-xiahou-dun": (313, "界夏侯惇"),
     "boundary-li-dian": (317, "界李典"),
+    "boundary-zhen-ji": (444, "界甄姬"),
+    "boundary-huang-yueying": (441, "界黄月英"),
 }
 
 NEW_OFFICIAL_DEFAULTS = {"boundary-gan-ning", "boundary-xu-chu", "qu-yi", "shen-zhou-yu", "shen-lu-bu", "fu-huanghou"}

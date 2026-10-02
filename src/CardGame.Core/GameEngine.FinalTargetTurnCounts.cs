@@ -24,12 +24,12 @@ public sealed partial class GameEngine
         context.CardUse is { ActorSeat: var actor, EffectiveKind: var kind } use && actor == candidate.OwnerSeat && actor == _currentSeat &&
         !EquipmentCatalog.IsEquipment(kind) && !NamedTurnActionAlreadyCommitted(actor, candidate.SkillId, use.CardActionId) &&
         GetProgramTargetSeats(actor, SkillProgramTargetKind.CurrentCardUseTargets, context) is { } targets &&
-        _players.Any(p => p.IsAlive && !targets.Contains(p.Seat) && GetHand(p).Count + GetEquipment(p).Count > 0);
+        _players.Any(p => p.IsAlive && !targets.Contains(p.Seat) && HasDiscardableHeBy(actor, p.Seat));
     private IReadOnlyList<PromptChoice> NonFinalTargetChoices(ProgramSkillFrame frame)
     {
         var targets = NonFinalTargetUse(frame).TargetSeats;
         return _players.Where(p => p.IsAlive && !targets.Contains(p.Seat)).SelectMany(p =>
-            BuildOwnedCardPaymentChoices(frame.Id, frame.OwnerSeat, p.Seat, [CardZoneKind.Hand, CardZoneKind.Equipment])
+            BuildOwnedCardPaymentChoices(frame.Id, frame.OwnerSeat, p.Seat, [CardZoneKind.Hand, CardZoneKind.Equipment], OwnedCardMoveIntent.Discard)
             .Select(choice => choice with
             {
                 Id = new($"outside-target.frame-{frame.Id}.owner-{p.Seat}.{choice.Id.Value}"),
@@ -88,6 +88,8 @@ public sealed partial class GameEngine
             var valid = NonFinalTargetChoices(frame).SingleOrDefault(c => c.Id == selected.Id) ?? throw new InvalidOperationException("Non-target payment is no longer valid.");
             var seat = valid.Targets.Single(); var from = new CardLocation(Enum.Parse<CardZoneKind>(valid.Parameters["source-zone"]), seat);
             var card = _cardZones.CardsAt(from)[int.Parse(valid.Parameters["slot-index"], System.Globalization.CultureInfo.InvariantCulture)];
+            if (IsForeignEquipmentDiscardPrevented(frame.OwnerSeat, card, from, OwnedCardMoveIntent.Discard))
+                throw new InvalidOperationException("Non-target payment is no longer discardable.");
             ClearPendingDecision();
             frame = frame with { NamedTurnCountFlow = new("target-movement", seat, 1, [], [], use.Action.ActionId), PendingMovementContinuation = new(frame.OwnerSeat, 0, null) };
             ReplaceRuntimeTop(frame);

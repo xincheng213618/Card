@@ -171,7 +171,7 @@ public sealed partial class GameEngine
         {
             var maximum = _players.Where(player => player.IsAlive).Max(player => GetHand(player).Count);
             foreach (var player in _players.Where(player => player.IsAlive && GetHand(player).Count == maximum &&
-                GetHand(player).Count + GetEquipment(player).Count + GetJudgment(player).Count > 0))
+                (HasDiscardableHeBy(frame.OwnerSeat, player.Seat) || GetJudgment(player).Count > 0)))
                 Add("response-target", $"弃置 {player.Name} 一张牌", seats: [player.Seat]);
         }
         else if (draft.Stage is "take-card" or "intervention-card" or "participant-top" or "response-card")
@@ -185,6 +185,8 @@ public sealed partial class GameEngine
                 for (var slot = 0; slot < cards.Count; slot++)
                 {
                     var card = cards[slot];
+                    if (draft.Stage == "response-card" && IsForeignEquipmentDiscardPrevented(
+                        frame.OwnerSeat, card, new(zone, seat), OwnedCardMoveIntent.Discard)) continue;
                     var opaque = zone == CardZoneKind.Hand && seat != frame.OwnerSeat && draft.Stage != "participant-top";
                     Add("card", opaque ? $"选择 { _players[seat].Name } 的第{slot + 1}个暗置手牌牌位" : $"选择【{card.DisplayName}】",
                         opaque ? [] : [card.Id], [seat], zone.ToString(), slot.ToString(System.Globalization.CultureInfo.InvariantCulture));
@@ -300,6 +302,8 @@ public sealed partial class GameEngine
         }
         else if (draft.Stage == "response-card")
         {
+            if (IsForeignEquipmentDiscardPrevented(frame.OwnerSeat, card, source, OwnedCardMoveIntent.Discard))
+                throw new InvalidOperationException("Response discard is no longer available.");
             ReplaceRuntimeTop(frame with { HandControlDraft = draft with { Stage = "response-complete", CardOwnerSeat = null }, ReexecuteParticipantInstruction = true });
             MoveCard(card, source, CardLocation.DiscardPile, new CardMoveReason("program.maximum-hand-dodge.discard"));
             AdvanceEventRulesAndQueueFact(new ProgramHandCountInterventionEvent(frame.Id, frame.SkillId, frame.OwnerSeat, cardOwner, "response-discard"));

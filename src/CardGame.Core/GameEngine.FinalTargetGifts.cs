@@ -30,7 +30,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<PromptChoice> FinalTargetGiftChoices(ProgramSkillFrame frame)
     {
         var seats=FinalTargetGiftSeats(FinalTargetGiftUse(frame)).Where(s=>s!=frame.OwnerSeat);
-        return seats.SelectMany(seat=>BuildOwnedCardPaymentChoices(frame.Id,frame.OwnerSeat,frame.OwnerSeat,[CardZoneKind.Hand,CardZoneKind.Equipment])
+        return seats.SelectMany(seat=>BuildOwnedCardPaymentChoices(frame.Id,frame.OwnerSeat,frame.OwnerSeat,[CardZoneKind.Hand,CardZoneKind.Equipment],OwnedCardMoveIntent.Transfer)
             .Select(c=>c with{Id=new($"final-gift.frame-{frame.Id}.target-{seat}.{c.Id.Value}"),Targets=[seat],Description=_players[seat].Name+"："+c.Description,
                 Parameters=new Dictionary<string,string>(c.Parameters){["program-action"]="final-target-gift"}})).ToArray();
     }

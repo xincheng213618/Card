@@ -62,7 +62,7 @@ public sealed partial class GameEngine
         var seat=active.SelectedTargetSeats[cursor];
         active=active with { NumberBindings=active.NumberBindings.Where(b=>b.Name!=key).Append(new ProgramSkillNumberBinding(key,cursor+1)).ToArray(),ReexecuteParticipantInstruction=true };
         ReplaceRuntimeTop(active);
-        if(!_players[seat].IsAlive || GetHand(_players[seat]).Count+GetEquipment(_players[seat]).Count+GetJudgment(_players[seat]).Count==0) return SkillProgramStepOutcome.Continue;
+        if(!_players[seat].IsAlive || !HasDiscardableHeBy(frame.OwnerSeat,seat)&&GetJudgment(_players[seat]).Count==0) return SkillProgramStepOutcome.Continue;
         active=active with { SelectedParticipantDiscard=new(seat,cursor),ReexecuteParticipantInstruction=false };
         ReplaceRuntimeTop(active);PublishSelectedParticipantDiscard(active);return SkillProgramStepOutcome.AwaitChoice;
     }
@@ -75,6 +75,7 @@ public sealed partial class GameEngine
             for(var index=0;index<cards.Count;index++)
             {
                 var card=cards[index];var opaque=zone==CardZoneKind.Hand && draft.TargetSeat!=frame.OwnerSeat;
+                if(IsForeignEquipmentDiscardPrevented(frame.OwnerSeat,card,new CardLocation(zone,draft.TargetSeat),OwnedCardMoveIntent.Discard))continue;
                 choices.Add(new(new ChoiceId($"participant-discard.{frame.Id}.{draft.Cursor}.{zone}.{index}"),opaque ? $"弃置 {_players[draft.TargetSeat].Name} 的第{index+1}张手牌" : $"弃置【{card.DisplayName}】",opaque ? []:[card.Id],[draft.TargetSeat],new Dictionary<string,string>{["program-action"]="participant-discard",["zone"]=zone.ToString(),["slot"]=index.ToString()}));
             }
         }
@@ -94,6 +95,7 @@ public sealed partial class GameEngine
         var paused=ProgramInstructionResolver.Default.Resolve(frame,_contentRegistry.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect;
         if(paused.Op!=SkillProgramEffectOp.DiscardSelectedParticipantCards || _pendingDecision?.PlayerSeat!=frame.OwnerSeat || !AssistedChoicesEqual([choice],[SelectedParticipantDiscardChoices(frame).Single(c=>c.Id==choice.Id)])) throw new InvalidOperationException("Participant discard choice changed.");
         var zone=Enum.Parse<CardZoneKind>(choice.Parameters["zone"]);var slot=int.Parse(choice.Parameters["slot"]);var from=new CardLocation(zone,draft.TargetSeat);var card=_cardZones.CardsAt(from)[slot];
+        if(IsForeignEquipmentDiscardPrevented(frame.OwnerSeat,card,from,OwnedCardMoveIntent.Discard))throw new InvalidOperationException("Participant discard is no longer available.");
         ClearPendingDecision();ReplaceRuntimeTop(frame with {SelectedParticipantDiscard=null,ReexecuteParticipantInstruction=true});
         MoveCard(card,from,CardLocation.DiscardPile,new CardMoveReason($"skill-program.{frame.SkillId}.ChooseOtherOwnedCardDiscard"));
         if(AwaitProgramBoundCardMovements(frame.Id,frame.OwnerSeat)==SkillProgramStepOutcome.Continue) AdvanceRuntimeProgram(frame.Id);

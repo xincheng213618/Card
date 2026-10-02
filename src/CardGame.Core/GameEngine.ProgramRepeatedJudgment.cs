@@ -24,6 +24,8 @@ public sealed partial class GameEngine
         var frame = GetActiveProgramFrame(pending.ParentFrameId);
         var state = frame.RepeatedJudgment ??
             throw new InvalidOperationException("Repeated judgment lost its program state.");
+        if (state.ClaimHandLimitExemption is not null)
+        { ResumeProgramExactRepeatedJudgment(pending, frame, state); return; }
         var card = GetJudgmentCard(pending);
         if (card is null || !_players[frame.OwnerSeat].IsAlive)
         {
@@ -102,7 +104,9 @@ public sealed partial class GameEngine
         }
         if (action != "continue")
             throw new InvalidOperationException("Repeated judgment choice is unsupported.");
-        frame = frame with { RepeatedJudgment = state with { LastMatched = null } };
+        frame = frame with { RepeatedJudgment = state.ClaimHandLimitExemption is null
+            ? state with { LastMatched = null }
+            : state with { LastMatched = null, FinalOutcome = null, LastClaimReceipt = null } };
         ReplaceRuntimeTop(frame);
         _ = StartProgramJudgment(frame, frame.OwnerSeat, state.Reason, state.ResultBind,
             SkillProgramCardSetVisibility.Public, frame.OwnerSeat);

@@ -188,7 +188,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A card trigger window needs exactly one return continuation.");
         RegisterFirstTurnTargetActions(action, window);
         var candidates = CollectSharedCardActionCandidates(action, window, opponents,
-            cardUseCausedDamage).ToList();
+            cardUseCausedDamage, continuation).ToList();
         candidates = candidates
             .OrderByDescending(candidate => candidate.Priority)
             .ThenBy(candidate => candidate.OwnerSeat)
@@ -264,7 +264,7 @@ public sealed partial class GameEngine
 
     private IReadOnlyList<ProgramCardTriggerCandidate> CollectSharedCardActionCandidates(
         CardActionContext action, SkillProgramTriggerWindow window, IReadOnlyList<int> eventTargets,
-        bool? cardUseCausedDamage)
+        bool? cardUseCausedDamage, ProgramCardContinuation? continuation = null)
     {
         var targets = eventTargets.Distinct().ToHashSet();
         var result = new List<ProgramCardTriggerCandidate>();
@@ -272,6 +272,7 @@ public sealed partial class GameEngine
         foreach (var binding in GetSkillBindingShard(owner)?.GetInstanceTriggers(window) ?? [])
         {
             var trigger = binding.Trigger;
+            if (trigger.RequireNoCardConversion == true && !IsUnconvertedActualCardUse(action, window, continuation)) continue;
             var reward = trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RewardOutOfTurnFactionSlash);
             var rewardChooser = reward ? FactionActionRewardChooser(owner.Seat, trigger, action) : null;
             if (reward && (rewardChooser is null || WasFactionRewardOffered(owner.Seat, binding.SkillId, action) || !HasSkillRoleQualification(owner, binding.SkillId, binding.SkillInstanceId, Role.Lord))) continue;

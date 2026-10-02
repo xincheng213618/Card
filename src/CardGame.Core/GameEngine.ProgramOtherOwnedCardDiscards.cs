@@ -74,6 +74,8 @@ public sealed partial class GameEngine
                 };
                 for (var slot = 0; slot < cards.Count; slot++)
                 {
+                    if (IsForeignEquipmentDiscardPrevented(chooserSeat, cards[slot],
+                            new CardLocation(zone, cardOwner.Seat), OwnedCardMoveIntent.Discard)) continue;
                     var hidden = zone == CardZoneKind.Hand;
                     result.Add(new PromptChoice(
                         new ChoiceId($"program-other-owned-card.frame-{frameId}.owner-{cardOwner.Seat}.zone-{zone}.slot-{slot}"),
@@ -159,6 +161,11 @@ public sealed partial class GameEngine
         }
 
         ClearPendingDecision();
+        if (IsForeignEquipmentDiscardPrevented(chooserSeat, card, source, OwnedCardMoveIntent.Discard))
+        {
+            CancelProgramBindingAndCleanup(frame, "目标装备已不能被他人弃置，技能结算已取消。");
+            return;
+        }
         MoveCard(card, source, CardLocation.DiscardPile,
             new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
         AdvanceRuntimeProgram(frame.Id);

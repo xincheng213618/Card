@@ -752,12 +752,17 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
             }
             AssertShownGiftReceipt(frame, plan.Instructions);
+            AssertExactRepeatedJudgmentReceipt(frame, plan.Instructions);
             if (frame.InstructionIndex < 1 || frame.InstructionIndex > plan.Instructions.Count ||
                 frame.SelectedCardIds.Distinct().Count() != frame.SelectedCardIds.Count ||
                 frame.SelectedTargetSeats.Any(seat => !IsValidPlayerSeat(seat)) ||
                 frame.CardSetBindings.Select(binding => binding.Name).Distinct(StringComparer.Ordinal).Count() !=
                     frame.CardSetBindings.Count ||
                 frame.CardSetBindings.Any(binding =>
+                    binding.SelectionActorSeat is { } selectionActor &&
+                    (!HasForeignDiscardCapability || !IsValidPlayerSeat(selectionActor) ||
+                     !plan.Instructions.Take(frame.InstructionIndex).Any(e => e.ResultBind == binding.Name &&
+                        e.Op is SkillProgramEffectOp.SelectOwnedCards or SkillProgramEffectOp.SelectSourceCard or SkillProgramEffectOp.SelectCardSubset or SkillProgramEffectOp.FilterBoundCards)) ||
                     binding.CardIds.Count != binding.SourceLocations.Count ||
                     binding.CardIds.Distinct().Count() != binding.CardIds.Count ||
                     plan.Instructions.Any(instruction => instruction is { FreezeMovedCardSuit: true } frozen && frozen.ResultBind == binding.Name) &&

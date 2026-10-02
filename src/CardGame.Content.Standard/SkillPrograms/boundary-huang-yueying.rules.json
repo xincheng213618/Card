@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "triggers": [
+        {
+          "ownerRelation": "actor",
+          "optional": true,
+          "window": "cardUseTargetsFinalized",
+          "cardCategories": [
+            "trick"
+          ],
+          "effects": [
+            {
+              "resultBind": "drawn",
+              "op": "draw",
+              "amount": 1,
+              "target": "owner"
+            },
+            {
+              "resultBind": "draw-disposition",
+              "op": "chooseOption",
+              "options": [
+                {
+                  "id": "keep",
+                  "condition": {
+                    "kind": "always"
+                  }
+                },
+                {
+                  "id": "discard",
+                  "condition": {
+                    "kind": "all",
+                    "children": [
+                      {
+                        "kind": "boundCardsMatchCategories",
+                        "cardCategories": [
+                          "basic"
+                        ],
+                        "sourceBind": "drawn"
+                      },
+                      {
+                        "kind": "boundCardCountAtLeast",
+                        "sourceBind": "drawn",
+                        "value": 1
+                      }
+                    ]
+                  }
+                }
+              ],
+              "target": "owner"
+            },
+            {
+              "sourceBind": "drawn",
+              "op": "moveBoundCards",
+              "destination": "discardPile",
+              "target": "owner",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "draw-disposition",
+                "optionId": "discard"
+              }
+            },
+            {
+              "ruleOperation": "add",
+              "target": "owner",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "draw-disposition",
+                "optionId": "discard"
+              },
+              "ruleQuery": "handLimit",
+              "amount": 1,
+              "op": "grantTurnRuleModifier"
+            }
+          ],
+          "requireNoCardConversion": true,
+          "id": "unconverted-trick-used"
+        },
+        {
+          "ownerRelation": "actor",
+          "optional": true,
+          "window": "cardResponseAccepted",
+          "cardKinds": [
+            "nullification"
+          ],
+          "effects": [
+            {
+              "resultBind": "drawn",
+              "op": "draw",
+              "amount": 1,
+              "target": "owner"
+            },
+            {
+              "resultBind": "draw-disposition",
+              "op": "chooseOption",
+              "options": [
+                {
+                  "id": "keep",
+                  "condition": {
+                    "kind": "always"
+                  }
+                },
+                {
+                  "id": "discard",
+                  "condition": {
+                    "kind": "all",
+                    "children": [
+                      {
+                        "kind": "boundCardsMatchCategories",
+                        "cardCategories": [
+                          "basic"
+                        ],
+                        "sourceBind": "drawn"
+                      },
+                      {
+                        "kind": "boundCardCountAtLeast",
+                        "sourceBind": "drawn",
+                        "value": 1
+                      }
+                    ]
+                  }
+                }
+              ],
+              "target": "owner"
+            },
+            {
+              "sourceBind": "drawn",
+              "op": "moveBoundCards",
+              "destination": "discardPile",
+              "target": "owner",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "draw-disposition",
+                "optionId": "discard"
+              }
+            },
+            {
+              "ruleOperation": "add",
+              "target": "owner",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "draw-disposition",
+                "optionId": "discard"
+              },
+              "ruleQuery": "handLimit",
+              "amount": 1,
+              "op": "grantTurnRuleModifier"
+            }
+          ],
+          "requireNoCardConversion": true,
+          "id": "unconverted-nullification-used"
+        }
+      ],
+      "minimumRulesVersion": 193,
+      "revision": 1,
+      "id": "boundary:jizhi-current"
+    },
+    {
+      "minimumRulesVersion": 193,
+      "cardPolicies": [
+        {
+          "kind": "ignoreUseDistance",
+          "cardKinds": [
+            "duel",
+            "drawTwo",
+            "barbarianAssault",
+            "arrowBarrage",
+            "peachGarden",
+            "fiveGrains",
+            "dismantlement",
+            "snatch",
+            "fireAttack",
+            "nullification",
+            "ironChain",
+            "borrowedSword",
+            "indulgence",
+            "supplyShortage",
+            "lightning"
+          ],
+          "id": "tricks-ignore-distance"
+        },
+        {
+          "kind": "preventForeignEquipmentDiscard",
+          "cardKinds": [],
+          "id": "foreign-armor-treasure-discard-protection"
+        }
+      ],
+      "revision": 1,
+      "id": "boundary:qicai-current"
+    }
+  ]
+}

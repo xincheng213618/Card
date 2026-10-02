@@ -3,6 +3,7 @@ namespace CardGame.Core;
 /// <summary>Card and turn rules supplied by an enabled program instance.</summary>
 public enum SkillProgramCardPolicyKind
 {
+    PreventForeignEquipmentDiscard = 1980,
     IgnoreSlashUseDistanceBySuit = 1860,
     PreventEnteringChain = 1400,
     ProhibitPindianTarget = 1401,

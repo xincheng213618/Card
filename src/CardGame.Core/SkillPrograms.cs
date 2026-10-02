@@ -1177,6 +1177,8 @@ public sealed class SkillProgramEffect
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? ExactTopCount { get; internal init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SkillProgramClaimHandLimitExemption? ClaimHandLimitExemption { get; internal init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? AvailableAtSourceOnly { get; internal init; }
     public SkillProgramEffectOp Op { get; }
     // An internal execution view compiled by the operation descriptor after JSON validation.
@@ -1408,6 +1410,8 @@ public sealed class SkillProgramTrigger
     public SkillProgramGainPhaseQualification? GainPhaseQualification { get; internal init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? RequireDamageSource { get; internal init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? RequireNoCardConversion { get; internal init; }
     public string? ChoiceGroup { get; }
     public SkillProgramCardActionOwnerRelation? OwnerRelation { get; }
     public bool AllowNoEventTarget { get; internal init; }
@@ -1904,7 +1908,7 @@ public sealed class SkillProgramCatalog
         }
         else if (kind != SkillProgramCardPolicyKind.PindianRankBySuit && (requiredKinds.Count != 0 || value != 0))
             Fail(path, "requiredCardKinds and value require a minimum response count policy");
-        if (kind is SkillProgramCardPolicyKind.OfferSkipDiscard or SkillProgramCardPolicyKind.DrawFromBottom or
+        if (kind is SkillProgramCardPolicyKind.PreventForeignEquipmentDiscard or SkillProgramCardPolicyKind.OfferSkipDiscard or SkillProgramCardPolicyKind.DrawFromBottom or
             SkillProgramCardPolicyKind.PreventEnteringChain or SkillProgramCardPolicyKind.ProhibitDelayedTrickTarget or SkillProgramCardPolicyKind.ProhibitPindianTarget or
             SkillProgramCardPolicyKind.FirstActualPlayUseDistanceUnlimited or SkillProgramCardPolicyKind.PindianTopCardChoice or SkillProgramCardPolicyKind.PindianRankBySuit or
             SkillProgramCardPolicyKind.RewriteSuit or
@@ -1919,7 +1923,7 @@ public sealed class SkillProgramCatalog
                      SkillProgramCardPolicyKind.ChainedHandLimitAura or SkillProgramCardPolicyKind.MarkerTurnBonuses or
                      SkillProgramCardPolicyKind.WoundedPopulationBonuses or SkillProgramCardPolicyKind.WoundedInRangeHandLimitPenalty or
                      SkillProgramCardPolicyKind.NextCardUnlimitedAfterNonLockedSkill or SkillProgramCardPolicyKind.DamageBecomesHpLoss or
-                     SkillProgramCardPolicyKind.ForeignPublicPileSlash or SkillProgramCardPolicyKind.PindianClaim or SkillProgramCardPolicyKind.IgnoreTurnObtainedHandCardsForDiscard))
+                     SkillProgramCardPolicyKind.ForeignPublicPileSlash or SkillProgramCardPolicyKind.PindianClaim or SkillProgramCardPolicyKind.IgnoreTurnObtainedHandCardsForDiscard or SkillProgramCardPolicyKind.PreventForeignEquipmentDiscard))
             Fail(path + ".cardKinds", "this policy requires effective card kinds");
         if (kind == SkillProgramCardPolicyKind.VirtualEquipment &&
             cardKinds.Any(card => !EquipmentCatalog.IsEquipment(card)))
@@ -2480,9 +2484,17 @@ public sealed class SkillProgramCatalog
             "judgmentSource", "optional", "condition", "priority", "usageScope", "usageLimit",
             "drawPhaseMode", "choiceGroup", "ownerRelation", "turnOwnerScope", "effects",
             "destinationZones", "movementReasons", "excludedMovementReasons", "ignoreOwnSkillMovements",
-            "hpChangeOccurrence", "markerCost", "evaluateConditionAtResolution", "allowNoEventTarget", "allowOwnDiscardPhaseEnded", "movementDiscardOnly", "discardOwnerScope", "includeResponseUses", "singleActionInstance", "onlyDesignatedCardTargets", "noDyingAtActivation", "deferredTurnEndOnly", "dynamicUsageLimit", "namedUsageGroup", "gainPhaseQualification", "requireDamageSource");
+            "hpChangeOccurrence", "markerCost", "evaluateConditionAtResolution", "allowNoEventTarget", "allowOwnDiscardPhaseEnded", "movementDiscardOnly", "discardOwnerScope", "includeResponseUses", "singleActionInstance", "onlyDesignatedCardTargets", "noDyingAtActivation", "deferredTurnEndOnly", "dynamicUsageLimit", "namedUsageGroup", "gainPhaseQualification", "requireDamageSource", "requireNoCardConversion");
         var id = Identifier(node, "id", path);
         var window = EnumValue<SkillProgramTriggerWindow>(node, "window", path);
+        bool? requireNoCardConversion = null;
+        if (node.TryGetProperty("requireNoCardConversion", out _))
+        {
+            if (!RequiredBool(node, "requireNoCardConversion", path) ||
+                window is not (SkillProgramTriggerWindow.CardUseTargetsFinalized or SkillProgramTriggerWindow.CardResponseAccepted))
+                Fail(path + ".requireNoCardConversion", "requires true on an accepted use or response boundary");
+            requireNoCardConversion = true;
+        }
         var gainPhase = node.TryGetProperty("gainPhaseQualification", out _)
             ? EnumValue<SkillProgramGainPhaseQualification>(node, "gainPhaseQualification", path)
             : (SkillProgramGainPhaseQualification?)null;
@@ -3139,6 +3151,9 @@ public sealed class SkillProgramCatalog
         if (effects.Any(e => e.Op == SkillProgramEffectOp.OfferCompletedFactionCostGift) &&
             (window != SkillProgramTriggerWindow.CardUseCompleted || ownerRelation != SkillProgramCardActionOwnerRelation.Observer || includeResponseUses || optional || cardKinds.Count == 0 || cardKinds.Any(k => k is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash))))
             Fail(path, "faction completed cost gift requires a mandatory observer of true completed Slash-family use");
+        if (effects.Any(effect => effect.ClaimHandLimitExemption is not null) &&
+            (window != SkillProgramTriggerWindow.TurnStartBeforeNormalFlow || subject != SkillProgramTriggerSubject.Owner))
+            Fail(path, "exact judgment claim exemption requires an owner preparation trigger");
         if (requireDamageSource is not null &&
             (window != SkillProgramTriggerWindow.AfterDamageApplied || subject != SkillProgramTriggerSubject.Owner))
             Fail(path + ".requireDamageSource", "requires an afterDamageApplied owner trigger");
@@ -3149,6 +3164,7 @@ public sealed class SkillProgramCatalog
             cardCategories: cardCategories, damageCardKinds: damageCardKinds, turnOwnerScope: turnOwnerScope)
         {
             DynamicUsageLimit = dynamicLimit, NamedUsageGroup = namedUsage, GainPhaseQualification = gainPhase, RequireDamageSource = requireDamageSource,
+            RequireNoCardConversion = requireNoCardConversion,
             DestinationZones = destinationZones,
             AllowNoEventTarget = allowNoEventTarget,
             IncludeResponseUses = includeResponseUses,

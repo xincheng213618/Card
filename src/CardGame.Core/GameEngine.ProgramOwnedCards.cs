@@ -62,7 +62,7 @@ public sealed partial class GameEngine
             SetProgramCardSet(frame.Id, resultBind,
                 candidates.Select(item => item.Id).ToArray(),
                 SkillProgramCardSetVisibility.Private,
-                candidates.Select(item => item.Location).ToArray());
+                candidates.Select(item => item.Location).ToArray(), selectionActorSeat: cardOwnerSeat);
             return SkillProgramStepOutcome.Continue;
         }
         active = active with
@@ -133,6 +133,9 @@ public sealed partial class GameEngine
 
     private void ResolveProgramOwnedCardSelection(ProgramSkillFrame frame, SkillProgramEffect effect, PromptChoice selected)
     {
+        if (HasForeignDiscardCapability && frame.OwnedCardSelection is { } owned &&
+            _pendingDecision?.PlayerSeat != owned.CardOwnerSeat)
+            throw new InvalidOperationException("Owned selection lost its actual choosing participant.");
         var deferred = effect.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment;
         if (deferred) effect = DeferredOwnedSelectionEffect(frame, effect);
         var draft = frame.OwnedCardSelection ?? throw new InvalidOperationException("Missing owned-card draft.");
@@ -170,7 +173,8 @@ public sealed partial class GameEngine
         var locations = ids.Select(id => draft.CandidateLocations[draft.CandidateCardIds.ToList().IndexOf(id)]).ToArray();
         if (deferred) { CompleteDeferredAlignmentDiscard(frame.Id, ids, locations); return; }
         SetProgramCardSet(frame.Id, draft.ResultBind, ids, SkillProgramCardSetVisibility.Private, locations,
-            ids.Length == 1 ? EffectiveSuit(_players[draft.CardOwnerSeat], _cardZones.CardsAt(locations[0]).Single(c => c.Id == ids[0])) : null);
+            ids.Length == 1 ? EffectiveSuit(_players[draft.CardOwnerSeat], _cardZones.CardsAt(locations[0]).Single(c => c.Id == ids[0])) : null,
+            selectionActorSeat: draft.CardOwnerSeat);
         AdvanceRuntimeProgram(frame.Id);
     }
 

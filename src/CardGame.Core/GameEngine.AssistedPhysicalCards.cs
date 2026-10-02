@@ -217,7 +217,7 @@ public sealed partial class GameEngine
     private IReadOnlyList<PromptChoice> OtherCardSelectionChoices(ProgramSkillFrame frame)
     {
         var draft = frame.OtherCardSelection!;
-        return BuildOwnedCardPaymentChoices(frame.Id, frame.OwnerSeat, draft.SourceSeat, [CardZoneKind.Hand, CardZoneKind.Equipment])
+        return BuildOwnedCardPaymentChoices(frame.Id, frame.OwnerSeat, draft.SourceSeat, [CardZoneKind.Hand, CardZoneKind.Equipment], OwnedCardMoveIntent.Obtain)
             .Where(choice => !draft.SelectedSlots.Contains(new(Enum.Parse<CardZoneKind>(choice.Parameters["source-zone"]), int.Parse(choice.Parameters["slot-index"]))))
             .Select(choice => choice with { Id = new ChoiceId($"take-other.{frame.Id}.{draft.SelectedSlots.Count}.{choice.Id.Value}"), Parameters = new Dictionary<string, string>(choice.Parameters) { ["program-action"] = "take-other-card", ["selection-index"] = draft.SelectedSlots.Count.ToString(System.Globalization.CultureInfo.InvariantCulture) } }).ToArray();
     }

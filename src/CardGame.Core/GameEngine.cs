@@ -289,6 +289,8 @@ public sealed partial class GameEngine
         ArgumentNullException.ThrowIfNull(contentRegistry);
         _options = options;
         _contentRegistry = contentRegistry;
+        _hasForeignDiscardCapability = contentRegistry.Skills.Values.Any(skill =>
+            skill.Program?.CardPolicies.Any(policy => policy.Kind == SkillProgramCardPolicyKind.PreventForeignEquipmentDiscard) == true);
         var requiredProgramRulesVersion = contentRegistry.Skills.Values
             .Where(skill => skill.Program is not null)
             .Select(skill => skill.Program!.MinimumRulesVersion)
@@ -4887,6 +4889,13 @@ public sealed partial class GameEngine
         var source = _players[sourceSeat];
         var target = _players[targetSeat];
         var targetMoveReason = GetTargetCardMoveReason(actionKind, targetCardFromZone.Zone);
+        if (actionKind == LegalActionKind.Dismantlement && IsForeignEquipmentDiscardPrevented(sourceSeat, targetCard,
+                targetCardFromZone, OwnedCardMoveIntent.Discard))
+        {
+            MoveFinishedTrickCard(resolutionId, effectCard);
+            FinishCardUse(resolutionId, effectCard, effectiveCardKind);
+            return;
+        }
         var publicTargetKind = targetCardFromZone.Zone == CardZoneKind.Judgment
             ? GetJudgmentEffectiveCardKind(targetCard)
             : targetCard.Kind;
@@ -10991,6 +11000,7 @@ public sealed partial class GameEngine
         var frame = GetJudgmentFrame(pending.Id);
         var judgmentSuit = EffectiveSuit(_players[pending.TargetSeat], judgmentCard);
         CaptureProgramSlashSuitJudgment(pending, judgmentSuit);
+        CaptureProgramRepeatedJudgmentClaimOutcome(pending, judgmentCard, judgmentSuit);
         var succeeded = pending.Continuation switch
         {
             JudgmentContinuationKind.Lightning =>
@@ -11463,8 +11473,9 @@ public sealed partial class GameEngine
         }
     }
 
-    private int GetIceSwordTargetCardCount(CharacterState target) =>
-        GetHand(target).Count + GetEquipment(target).Count;
+    private int GetIceSwordTargetCardCount(CharacterState target, int actorSeat) =>
+        GetHand(target).Count + GetEquipment(target).Count(card =>
+            !IsForeignEquipmentDiscardPrevented(actorSeat, card, CardLocation.Equipment(target.Seat), OwnedCardMoveIntent.Discard));
 
     private bool TryBeginIceSwordChoice(CardAttackHandle attack, int preventedDamageAmount)
     {
@@ -11477,7 +11488,7 @@ public sealed partial class GameEngine
             !source.IsAlive ||
             !target.IsAlive ||
             !HasWeaponAbility(source, CardKind.IceSword) ||
-            GetIceSwordTargetCardCount(target) == 0)
+            GetIceSwordTargetCardCount(target, source.Seat) == 0)
         {
             return false;
         }
@@ -11506,8 +11517,9 @@ public sealed partial class GameEngine
         var source = _players[attack.SourceSeat];
         var target = _players[attack.TargetSeat];
         var hand = GetHand(target);
-        var equipment = GetEquipment(target);
-        if (hand.Count + equipment.Count == 0)
+        var equipment = GetEquipment(target).Where(card => !IsForeignEquipmentDiscardPrevented(
+            source.Seat, card, CardLocation.Equipment(target.Seat), OwnedCardMoveIntent.Discard)).ToArray();
+        if (hand.Count + equipment.Length == 0)
         {
             FinishIceSwordPrevention(pending);
             return;
@@ -11647,6 +11659,23 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The selected Ice Sword target card is no longer available.");
         }
 
+        if (IsForeignEquipmentDiscardPrevented(source.Seat, discarded,
+                FindOwnedCardLocation(target, discarded), OwnedCardMoveIntent.Discard))
+        {
+            if (GetIceSwordTargetCardCount(target, source.Seat) == 0)
+            {
+                if (pending.Activated) { ClearPendingDecision(); FinishIceSwordPrevention(pending); }
+                else ResolveIceSwordChoice(decision.Choices.Single(choice =>
+                    choice.Parameters.GetValueOrDefault("action") == "ice-sword-damage"));
+            }
+            else
+            {
+                ClearPendingDecision();
+                PublishIceSwordChoice(pending);
+            }
+            return;
+        }
+
         pending.Activated = true;
         ClearPendingDecision();
         MoveCard(
@@ -11661,7 +11690,7 @@ public sealed partial class GameEngine
             source.Seat,
             target.Seat);
 
-        if (pending.DiscardedCardIds.Count < 2 && GetIceSwordTargetCardCount(target) > 0)
+        if (pending.DiscardedCardIds.Count < 2 && GetIceSwordTargetCardCount(target, source.Seat) > 0)
         {
             PublishIceSwordChoice(pending);
             return;
@@ -14293,6 +14322,7 @@ public sealed partial class GameEngine
             {
                 AddTargetCardActions(
                     actions,
+                    actor.Seat,
                     LegalActionKind.Dismantlement,
                     dismantlement,
                     target,
@@ -14318,6 +14348,7 @@ public sealed partial class GameEngine
                     {
                         AddTargetCardActions(
                             actions,
+                            actor.Seat,
                             LegalActionKind.Dismantlement,
                             converted,
                             target,
@@ -14343,6 +14374,7 @@ public sealed partial class GameEngine
             {
                 AddTargetCardActions(
                     actions,
+                    actor.Seat,
                     LegalActionKind.Snatch,
                     snatch,
                     target,
@@ -14374,6 +14406,7 @@ public sealed partial class GameEngine
                     {
                         AddTargetCardActions(
                             actions,
+                            actor.Seat,
                             LegalActionKind.Snatch,
                             converted,
                             target,
@@ -14606,6 +14639,7 @@ public sealed partial class GameEngine
 
     private void AddTargetCardActions(
         ICollection<LegalAction> actions,
+        int actorSeat,
         LegalActionKind actionKind,
         Card effectCard,
         CharacterState target,
@@ -14629,6 +14663,9 @@ public sealed partial class GameEngine
 
         foreach (var equipment in GetEquipment(target))
         {
+            if (actionKind == LegalActionKind.Dismantlement && IsForeignEquipmentDiscardPrevented(
+                    actorSeat, equipment, CardLocation.Equipment(target.Seat), OwnedCardMoveIntent.Discard))
+                continue;
             actions.Add(new LegalAction(
                 actionKind,
                 effectCard.Id,
@@ -17106,7 +17143,9 @@ public sealed partial class GameEngine
             var source = _players[iceSwordAttack.SourceSeat];
             var target = _players[iceSwordAttack.TargetSeat];
             var handCount = GetHand(target).Count;
-            var equipmentIds = GetEquipment(target).Select(card => card.Id).ToArray();
+            var equipmentIds = GetEquipment(target).Where(card => !IsForeignEquipmentDiscardPrevented(
+                iceSwordAttack.SourceSeat, card, CardLocation.Equipment(target.Seat), OwnedCardMoveIntent.Discard))
+                .Select(card => card.Id).ToArray();
             var decision = _pendingDecision;
             var discardChoices = decision?.Choices.Where(choice =>
                 choice.Parameters.GetValueOrDefault("action") == "ice-sword-discard").ToArray() ?? [];

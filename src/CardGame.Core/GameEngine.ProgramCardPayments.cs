@@ -55,7 +55,7 @@ public sealed partial class GameEngine
             (destination != SkillProgramCardDestination.SelectedTargetCorrespondingZone ||
              destinationSeat is not { } recipient || !_players[recipient].IsAlive))
             throw new InvalidOperationException("A no-replace corresponding-zone transfer requires a living selected target.");
-        var choices = BuildOwnedCardPaymentChoices(active.Id, chooserSeat, cardOwnerSeat, zones,
+        var choices = BuildOwnedCardPaymentChoices(active.Id, chooserSeat, cardOwnerSeat, zones, destination == SkillProgramCardDestination.DiscardPile ? OwnedCardMoveIntent.Discard : OwnedCardMoveIntent.Transfer,
             cardCategories, cardKinds,
             destination == SkillProgramCardDestination.SelectedTargetCorrespondingZone
                 ? (zone, card) => destinationSeat is { } seat &&
@@ -100,7 +100,7 @@ public sealed partial class GameEngine
             .Any(card => MatchesProgramCardFilter(card.Kind, categories, kinds)));
 
     private IReadOnlyList<PromptChoice> BuildOwnedCardPaymentChoices(
-        long frameId, int chooserSeat, int cardOwnerSeat, IReadOnlyList<CardZoneKind> zones,
+        long frameId, int chooserSeat, int cardOwnerSeat, IReadOnlyList<CardZoneKind> zones, OwnedCardMoveIntent intent,
         IReadOnlyList<SkillProgramCardCategory>? cardCategories = null,
         IReadOnlyList<CardKind>? cardKinds = null,
         Func<CardZoneKind, Card, bool>? canSelect = null,
@@ -121,6 +121,8 @@ public sealed partial class GameEngine
             };
             for (var slot = 0; slot < cards.Count; slot++)
             {
+                if (IsForeignEquipmentDiscardPrevented(chooserSeat, cards[slot],
+                        new CardLocation(zone, cardOwnerSeat), intent)) continue;
                 if (cardCategories is { Count: > 0 } && !MatchesProgramCardCategory(cards[slot].Kind, cardCategories))
                     continue;
                 if (cardKinds is { Count: > 0 } && !cardKinds.Contains(cards[slot].Kind))
@@ -190,6 +192,13 @@ public sealed partial class GameEngine
             return;
         }
         var card = cards[slot];
+        if (effect.Destination == SkillProgramCardDestination.DiscardPile &&
+            IsForeignEquipmentDiscardPrevented(chooserSeat, card, new CardLocation(zone, ownerSeat), OwnedCardMoveIntent.Discard))
+        {
+            ClearPendingDecision();
+            CancelProgramBindingAndCleanup(frame, "目标装备已不能被他人弃置，支付结算已取消。");
+            return;
+        }
         if (zone == CardZoneKind.Equipment && ownerSeat == frame.OwnerSeat &&
             IsActiveProgramSourceEquipmentCard(ownerSeat, frame.SkillId, frame.SkillInstanceId, card))
         {

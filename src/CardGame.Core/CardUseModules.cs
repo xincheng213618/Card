@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 [Flags]
 public enum CardUseCategories
@@ -578,7 +578,7 @@ internal sealed partial class TurnCardUseEffectStore
 
     internal IReadOnlyList<long> ExpireTurn(int turnNumber, int turnSeat)
     {
-        var expired = ExpiringRedSlashPolicies(turnNumber, turnSeat).Concat(_targetAdjustments
+        var expired = ExpiringHandLimitExemptCards(turnNumber, turnSeat).Concat(ExpiringRedSlashPolicies(turnNumber, turnSeat)).Concat(_targetAdjustments
             .Where(item => item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
             .Select(item => item.GrantSequence))
             .Concat(_prohibitions
@@ -616,6 +616,7 @@ internal sealed partial class TurnCardUseEffectStore
         _targetRestrictions.RemoveAll(item => expiredSet.Contains(item.GrantSequence));
         _conversions.RemoveAll(item => expiredSet.Contains(item.GrantSequence));
         ExpireRedSlashPolicies(expiredSet);
+        ExpireHandLimitExemptCards(expiredSet);
         return expired;
     }
 

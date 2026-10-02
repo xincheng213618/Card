@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:qicai-current": {
+      "description": "锁定技，你使用锦囊牌无距离限制。当其他角色弃置你装备区里的防具或宝物牌时，你防止之。",
+      "name": "奇才"
+    },
+    "boundary:jizhi-current": {
+      "description": "当你使用非转化锦囊牌时，你可以摸一张牌，若此牌是基本牌，你可以弃置此牌令你本回合手牌上限+1。",
+      "name": "集智",
+      "optionLabels": {
+        "discard": "弃置本次摸得的基本牌，本回合手牌上限+1。",
+        "keep": "保留所摸的牌。"
+      }
+    }
+  }
+}

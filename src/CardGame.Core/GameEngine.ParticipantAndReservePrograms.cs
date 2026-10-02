@@ -125,7 +125,8 @@ public sealed partial class GameEngine
             return RequestProgramSlashByNearest(frame, seatNow, amount);
         if (effect.Zones.SequenceEqual([CardZoneKind.Equipment]))
         {
-            MoveCards(GetEquipment(_players[seatNow]).ToArray(), CardLocation.Equipment(seatNow), CardLocation.DiscardPile,
+            MoveCards(GetEquipment(_players[seatNow]).Where(card => !IsForeignEquipmentDiscardPrevented(
+                frame.OwnerSeat, card, CardLocation.Equipment(seatNow), OwnedCardMoveIntent.Discard)).ToArray(), CardLocation.Equipment(seatNow), CardLocation.DiscardPile,
                 new CardMoveReason("program.participants.discard-equipment"));
             return SkillProgramStepOutcome.Continue;
         }

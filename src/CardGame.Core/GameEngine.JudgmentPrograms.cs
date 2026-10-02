@@ -350,6 +350,7 @@ public sealed partial class GameEngine
             ownedChild.WindowContext is
                 { Window: SkillProgramTriggerWindow.JudgmentFinalized, ParentFrameId: var ownedParentId } &&
             ownedParentId == frame.Id;
+        resolvingProgram |= IsExactRepeatedJudgmentFinalizedChildSubtree(frame, judgmentFrame, frameIndex);
         if (pending is null || pending.Succeeded is null ||
             (!ReferenceEquals(_resolutionStack.Last(), frame) && !resolvingDamage && !resolvingProgram) ||
             judgmentFrame is null || judgmentFrame.Id != frame.ParentFrameId ||

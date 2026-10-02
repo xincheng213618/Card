@@ -103,10 +103,17 @@ public sealed partial class GameEngine
     }
     private void ResolveOutsideRangeDiscard(PromptChoice c)
     {
-        var f=GetActiveProgramFrame(long.Parse(c.Parameters["frame-id"]));c=OutsideRangeDiscardChoices(f).Single(x=>x.Id==c.Id);ClearPendingDecision();
+        var f=GetActiveProgramFrame(long.Parse(c.Parameters["frame-id"]));
+        if(HasForeignDiscardCapability && c.Targets is [var publishedOwner] &&
+            Enum.TryParse<CardZoneKind>(c.Parameters.GetValueOrDefault("source-zone"),out var publishedZone) &&
+            int.TryParse(c.Parameters.GetValueOrDefault("slot-index"),out var publishedSlot) &&
+            publishedSlot>=0 && publishedSlot<_cardZones.CardsAt(new(publishedZone,publishedOwner)).Count &&
+            IsForeignEquipmentDiscardPrevented(f.OwnerSeat,_cardZones.CardsAt(new(publishedZone,publishedOwner))[publishedSlot],new(publishedZone,publishedOwner),OwnedCardMoveIntent.Discard))
+        {ClearPendingDecision();CancelProgramBindingAndCleanup(f,"公布的弃牌选择已失效。");return;}
+        c=OutsideRangeDiscardChoices(f).Single(x=>x.Id==c.Id);ClearPendingDecision();
         if(!BudgetGiftSourceValid(f)){FinishProgramSkill(f,false);return;}
         var owner=c.Targets.Single();var zone=Enum.Parse<CardZoneKind>(c.Parameters["source-zone"]);var slot=int.Parse(c.Parameters["slot-index"]);var from=new CardLocation(zone,owner);var card=_cardZones.CardsAt(from)[slot];
-        MoveCard(card,from,CardLocation.DiscardPile,new($"skill-program.{f.SkillId}.ChooseOtherOwnedCardDiscard"));if(AwaitProgramBoundCardMovements(f.Id,f.OwnerSeat)==SkillProgramStepOutcome.Continue)AdvanceRuntimeProgram(f.Id);
+        if(IsForeignEquipmentDiscardPrevented(f.OwnerSeat,card,from,OwnedCardMoveIntent.Discard)){CancelProgramBindingAndCleanup(f,"公布的弃牌选择已失效。");return;}MoveCard(card,from,CardLocation.DiscardPile,new($"skill-program.{f.SkillId}.ChooseOtherOwnedCardDiscard"));if(AwaitProgramBoundCardMovements(f.Id,f.OwnerSeat)==SkillProgramStepOutcome.Continue)AdvanceRuntimeProgram(f.Id);
     }
     private CardActionContext FactionGiftAction(ProgramSkillFrame f)=>f.WindowContext is { Window:SkillProgramTriggerWindow.CardUseCompleted,CardUse:{ } use }?
         _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().Single(w=>w.Id==f.WindowContext.ParentFrameId&&w.Action.ActionId==use.CardActionId).Action:throw new InvalidOperationException("Faction gift lost its actual completed action.");

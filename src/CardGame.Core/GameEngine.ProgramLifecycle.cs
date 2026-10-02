@@ -162,7 +162,7 @@ public sealed partial class GameEngine
         IReadOnlyList<int> cardIds,
         SkillProgramCardSetVisibility visibility,
         IReadOnlyList<CardLocation>? sourceLocations = null,
-        Suit? frozenRevealedSuit = null)
+        Suit? frozenRevealedSuit = null, int? selectionActorSeat = null)
     {
         var frame = GetActiveProgramFrame(frameId);
         if (frame.CardSetBindings.Any(binding => binding.Name == bind))
@@ -170,6 +170,8 @@ public sealed partial class GameEngine
         var ids = cardIds.ToArray();
         var locations = (sourceLocations ?? ids
             .Select(cardId => _cardZones.GetLocation(cardId)).ToArray()).ToArray();
+        if (selectionActorSeat is { } actor && !IsValidPlayerSeat(actor))
+            throw new InvalidOperationException("The selection producer has an invalid actual actor.");
         if (ids.Distinct().Count() != ids.Length || ids.Length != locations.Length)
             throw new InvalidOperationException("A program card-set binding requires unique cards and aligned source locations.");
         ReplaceRuntimeTop(frame with
@@ -180,7 +182,7 @@ public sealed partial class GameEngine
                     Array.AsReadOnly(ids),
                     visibility,
                     Array.AsReadOnly(locations))
-                { FrozenRevealedSuit = frozenRevealedSuit })
+                { FrozenRevealedSuit = frozenRevealedSuit, SelectionActorSeat = HasForeignDiscardCapability ? selectionActorSeat : null })
                 .ToArray())
         });
     }
@@ -559,7 +561,7 @@ public sealed partial class GameEngine
             resultBind,
             selected.Select(item => item.Card.Id).ToArray(),
             source.Visibility,
-            selected.Select(item => item.Location).ToArray());
+            selected.Select(item => item.Location).ToArray(), selectionActorSeat: source.SelectionActorSeat);
     }
 
     private void DrawProgramCards(
@@ -1492,6 +1494,7 @@ public sealed partial class GameEngine
 
     private void CleanupProgramBoundCards(ProgramSkillFrame frame, bool completed)
     {
+        CleanupExactRepeatedJudgment(frame);
         CleanupDeckSlashSequence(frame);
         var boundIds = frame.CardSetBindings.SelectMany(binding => binding.CardIds)
             .Distinct().ToHashSet();
@@ -1544,6 +1547,10 @@ public sealed partial class GameEngine
             .ToArray();
         if (selected.Any(item => _cardZones.GetLocation(item.CardId) != item.Location))
             throw new InvalidOperationException("A bound card left its frozen source before its configured move.");
+        if (destination == SkillProgramCardDestination.DiscardPile)
+            selected = selected.Where(item => !IsForeignEquipmentDiscardPrevented(source.SelectionActorSeat ?? ownerSeat,
+                _cardZones.CardsAt(item.Location).Single(card => card.Id == item.CardId),
+                item.Location, OwnedCardMoveIntent.Discard)).ToArray();
         if (selected.Length == 0) return SkillProgramStepOutcome.Continue;
         if (destination == SkillProgramCardDestination.DrawPileBottom && selected.Length > 1 && bottomOrder is null)
         {
@@ -3236,7 +3243,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("The selected subset is no longer legal.");
             ClearPendingDecision();
             SetProgramCardSet(frame.Id, effect.ResultBind!, selected.Cards,
-                SkillProgramCardSetVisibility.Private);
+                SkillProgramCardSetVisibility.Private, selectionActorSeat: source.SelectionActorSeat);
             AdvanceEventRulesAndQueueFact(new ProgramCardSubsetSelectedEvent(
                 frame.Id, frame.SkillId, GetProgramBindingId(frame), effect.SourceBind!, effect.ResultBind!,
                 Array.AsReadOnly(selected.Cards.ToArray()), rankSum));
@@ -3480,6 +3487,8 @@ public sealed partial class GameEngine
                 }
             case "select-source-card":
                 {
+                    if (HasForeignDiscardCapability && _pendingDecision?.PlayerSeat != frame.OwnerSeat)
+                        throw new InvalidOperationException("Source selection lost its actual choosing actor.");
                     if (effect.Op != SkillProgramEffectOp.SelectSourceCard ||
                         selected.Parameters.GetValueOrDefault("result-bind") != effect.ResultBind ||
                         !Enum.TryParse<CardZoneKind>(
@@ -3545,7 +3554,7 @@ public sealed partial class GameEngine
                         effect.ResultBind!,
                         [card.Id],
                         SkillProgramCardSetVisibility.Private,
-                        [location]);
+                        [location], selectionActorSeat: frame.OwnerSeat);
                     AdvanceRuntimeProgram(frame.Id);
                     return;
                 }

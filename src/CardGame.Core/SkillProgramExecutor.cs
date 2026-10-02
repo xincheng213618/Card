@@ -1292,7 +1292,9 @@ public sealed class RepeatJudgmentSkillProgramEffectHandler : ISkillProgramEffec
     public SkillProgramEffectOp Op => SkillProgramEffectOp.RepeatJudgment;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
         int targetSeat, ISkillProgramEffectHost host) =>
-        host.RepeatJudgment(frame, effect.JudgmentReason!, effect.ResultBind!, effect.Suits);
+        effect.ClaimHandLimitExemption is { } policy
+            ? ((IRepeatedJudgmentClaimPolicyProgramHost)host).RepeatJudgmentWithClaimPolicy(frame, effect.JudgmentReason!, effect.ResultBind!, effect.Suits, policy)
+            : host.RepeatJudgment(frame, effect.JudgmentReason!, effect.ResultBind!, effect.Suits);
 }
 
 public sealed class SkipTurnPhasesSkillProgramEffectHandler : ISkillProgramEffectHandler

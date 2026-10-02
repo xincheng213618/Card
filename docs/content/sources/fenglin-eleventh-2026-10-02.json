@@ -1,0 +1,393 @@
+{
+  "status": "Accepted in authoritative main by one Full and measured unfiltered routine; compiled original portraits verified",
+  "baselineHead": "a1763931fcf2b385cce9f2cd57cef3b5bddb6992",
+  "officialEdition": "current ordinary Sanguosha OL",
+  "sourcePreflightManifestSha256": "f59d7a8b13066295af4c5dcc7a131ae3b2644547f571dd245cbeda48b366a698",
+  "contractSha256": "4325f7b4b3cf9c3874e39e06f69a8b23ef05fe59dc50291265e27eff0dc204b8",
+  "httpResponses": [
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=441",
+      "routeProvenance": "raw/441.html fetch literal /api/v1/hero/info?gid=",
+      "startedUtc": "2026-10-02T10:41:06.043657+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=441",
+      "retrievedUtc": "2026-10-02T10:41:06.442210+00:00",
+      "sha256": "4aa426b34dbee69303935d1c5c7b3b37d8f581626aed606fce69a53d04d4b314",
+      "bytes": 951
+    },
+    {
+      "key": "441",
+      "url": "https://www.sanguosha.com/hero/441",
+      "startedUtc": "2026-10-02T10:39:29.311085+00:00",
+      "finalUrl": "https://www.sanguosha.com/hero/441",
+      "status": 200,
+      "retrievedUtc": "2026-10-02T10:39:29.811605+00:00",
+      "sha256": "21b3e009228bf606b7dc1790accbf1354e7c0ec2c1aa0c8097d21d454e374d19",
+      "bytes": 26045
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=444",
+      "routeProvenance": "raw/444.html fetch literal /api/v1/hero/info?gid=",
+      "startedUtc": "2026-10-02T10:41:06.043307+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=444",
+      "retrievedUtc": "2026-10-02T10:41:06.519376+00:00",
+      "sha256": "7c5feb09d672e0e5b600284af8c35c491812db26c2fd4b1d0cadb263a1eab619",
+      "bytes": 938
+    },
+    {
+      "key": "444",
+      "url": "https://www.sanguosha.com/hero/444",
+      "startedUtc": "2026-10-02T10:39:29.310630+00:00",
+      "finalUrl": "https://www.sanguosha.com/hero/444",
+      "status": 200,
+      "retrievedUtc": "2026-10-02T10:39:30.038199+00:00",
+      "sha256": "74c01f2157d98be09ea9a13eb52c2937f888ced430cfa98dfcaa1ce106e099e0",
+      "bytes": 27884
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=455",
+      "routeProvenance": "raw/455.html fetch literal /api/v1/hero/info?gid=",
+      "startedUtc": "2026-10-02T10:41:06.043862+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=455",
+      "retrievedUtc": "2026-10-02T10:41:06.587927+00:00",
+      "sha256": "de334cf45c615bc9f2aee0890b3e4026dc1943b368452d0f293f4eea32769fff",
+      "bytes": 1011
+    },
+    {
+      "key": "455",
+      "url": "https://www.sanguosha.com/hero/455",
+      "startedUtc": "2026-10-02T10:39:29.311322+00:00",
+      "finalUrl": "https://www.sanguosha.com/hero/455",
+      "status": 200,
+      "retrievedUtc": "2026-10-02T10:39:29.893197+00:00",
+      "sha256": "a12f5e5118be647bbfcf7e289360033b609861415f87567c80581efb575562fc",
+      "bytes": 24895
+    },
+    {
+      "key": "index",
+      "url": "https://www.sanguosha.com/hero",
+      "startedUtc": "2026-10-02T10:39:29.309668+00:00",
+      "finalUrl": "https://www.sanguosha.com/hero",
+      "status": 200,
+      "retrievedUtc": "2026-10-02T10:39:29.831666+00:00",
+      "sha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "bytes": 1319990
+    }
+  ],
+  "roster": [
+    {
+      "officialId": 444,
+      "indexGroup": "界限突破",
+      "indexFields": {
+        "gid": 444,
+        "name": "界甄姬",
+        "resource": "44400",
+        "extend": "界限突破",
+        "hp": 3,
+        "initial_hp": 0,
+        "quality": "稀有",
+        "figure": "魏",
+        "figure_py": "wei",
+        "biography": "中山无极人，别称甄洛或甄宓，庙号文昭甄皇后。魏文帝曹丕的正室。懂诗文，有倾国倾城之貌，《洛神赋》即是曹植为她所作。",
+        "characteristic": "能够转化大量的【闪】，连续判定在回合内获得大量手牌。技能依赖判定结果，受到【贯石斧】等强制造成伤害的牌的针对。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/444.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44400.png",
+        "realname": "界甄姬 (界限突破)"
+      },
+      "skills": [
+        {
+          "name": "倾国",
+          "text": "你可以将一张黑色手牌当【闪】使用或打出。",
+          "html": "<span class=\"on\">你可以将一张黑色手牌当【闪】使用或打出。</span>",
+          "references": []
+        },
+        {
+          "name": "洛神",
+          "text": "准备阶段，你可以判定，若结果为黑色，你获得此牌，然后你可以重复此流程。以此法获得的牌本回合不计入手牌上限。",
+          "html": "<span>准备阶段，你可以判定，若结果为黑色，你获得此牌，然后你可以重复此流程。以此法获得的牌本回合不计入手牌上限。</span>",
+          "references": []
+        }
+      ],
+      "gender": null,
+      "genderNote": "Current index/API/HTML expose no structured game sex/gender field; repository same-character definition is a separate source",
+      "detailMetaHp": 0,
+      "apiInfo": {
+        "gid": 444,
+        "name": "界甄姬",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/444.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44400.png",
+        "label": [
+          "防御",
+          "过牌",
+          "简单"
+        ],
+        "figure": "魏",
+        "figure_py": "wei",
+        "quality": "稀有",
+        "biography": "中山无极人，别称甄洛或甄宓，庙号文昭甄皇后。魏文帝曹丕的正室。懂诗文，有倾国倾城之貌，《洛神赋》即是曹植为她所作。",
+        "characteristic": "能够转化大量的【闪】，连续判定在回合内获得大量手牌。技能依赖判定结果，受到【贯石斧】等强制造成伤害的牌的针对。",
+        "hp": 3,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "repositoryGender": {
+        "suggested": "Female",
+        "generalId": "classic:zhen-ji",
+        "basis": "Explicit Female on existing same-character ContentGeneralDefinition",
+        "officialStructuredGenderConfirmed": false
+      },
+      "referencesMissingCurrentFullText": [],
+      "detailMetaHpNote": "Detail meta says0 and hero-life is empty; current index and actual info API consistently supply3; use3 from structured sources"
+    },
+    {
+      "officialId": 441,
+      "indexGroup": "界限突破",
+      "indexFields": {
+        "gid": 441,
+        "name": "界黄月英",
+        "resource": "44100",
+        "extend": "界限突破",
+        "hp": 3,
+        "initial_hp": 0,
+        "quality": "稀有",
+        "figure": "蜀",
+        "figure_py": "shu",
+        "biography": "荆州沔[miǎn]南白水人，沔阳名士黄承彦之女，诸葛亮之妻，诸葛瞻之母。容貌甚丑，而有奇才：上通天文，下察地理，韬略近于诸书无所不晓，诸葛亮在南阳闻其贤而迎娶。",
+        "characteristic": "通过锦囊牌在回合内获得大量手牌。自身很脆弱，会成为敌人优先攻击的目标。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/441.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44100.png",
+        "realname": "界黄月英 (界限突破)"
+      },
+      "skills": [
+        {
+          "name": "集智",
+          "text": "当你使用非转化锦囊牌时，你可以摸一张牌，若此牌是基本牌，你可以弃置此牌令你本回合手牌上限+1。",
+          "html": "<span class=\"on\">当你使用非转化锦囊牌时，你可以摸一张牌，若此牌是基本牌，你可以弃置此牌令你本回合手牌上限+1。</span>",
+          "references": []
+        },
+        {
+          "name": "奇才",
+          "text": "锁定技，你使用锦囊牌无距离限制。当其他角色弃置你装备区里的防具或宝物牌时，你防止之。",
+          "html": "<span>锁定技，你使用锦囊牌无距离限制。当其他角色弃置你装备区里的防具或宝物牌时，你防止之。</span>",
+          "references": []
+        }
+      ],
+      "gender": null,
+      "genderNote": "Current index/API/HTML expose no structured game sex/gender field; repository same-character definition is a separate source",
+      "detailMetaHp": 0,
+      "apiInfo": {
+        "gid": 441,
+        "name": "界黄月英",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/441.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44100.png",
+        "label": [
+          "过牌",
+          "锦囊大师",
+          "定点输出"
+        ],
+        "figure": "蜀",
+        "figure_py": "shu",
+        "quality": "稀有",
+        "biography": "荆州沔[miǎn]南白水人，沔阳名士黄承彦之女，诸葛亮之妻，诸葛瞻之母。容貌甚丑，而有奇才：上通天文，下察地理，韬略近于诸书无所不晓，诸葛亮在南阳闻其贤而迎娶。",
+        "characteristic": "通过锦囊牌在回合内获得大量手牌。自身很脆弱，会成为敌人优先攻击的目标。",
+        "hp": 3,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "repositoryGender": {
+        "suggested": "Female",
+        "generalId": "classic:huang-yueying",
+        "basis": "Explicit Female on existing same-character ContentGeneralDefinition",
+        "officialStructuredGenderConfirmed": false
+      },
+      "referencesMissingCurrentFullText": [],
+      "detailMetaHpNote": "Detail meta says0 and hero-life is empty; current index and actual info API consistently supply3; use3 from structured sources"
+    }
+  ],
+  "artwork": [
+    {
+      "gid": 444,
+      "name": "界甄姬",
+      "resourceKey": "44400",
+      "pageUrl": "https://www.sanguosha.com/hero/444",
+      "sourcePageSha256": "74c01f2157d98be09ea9a13eb52c2937f888ced430cfa98dfcaa1ce106e099e0",
+      "sourcePageEvidence": "inputs/444.html",
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44400.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44400.png",
+      "status": 200,
+      "startedUtc": "2026-10-02T11:02:54.654164+00:00",
+      "retrievedUtc": "2026-10-02T11:02:55.157689+00:00",
+      "sha256": "569fc8c3ec7b9b76576c41a5313cb437af32f8d8d517848215d81a304b54f5b6",
+      "length": 1192725,
+      "file": "raw/44400.png",
+      "validationFile": "raw/44400.validation.json",
+      "dimensions": [
+        750,
+        950
+      ]
+    },
+    {
+      "gid": 441,
+      "name": "界黄月英",
+      "resourceKey": "44100",
+      "pageUrl": "https://www.sanguosha.com/hero/441",
+      "sourcePageSha256": "21b3e009228bf606b7dc1790accbf1354e7c0ec2c1aa0c8097d21d454e374d19",
+      "sourcePageEvidence": "inputs/441.html",
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44100.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44100.png",
+      "status": 200,
+      "startedUtc": "2026-10-02T11:02:54.654511+00:00",
+      "retrievedUtc": "2026-10-02T11:02:55.151962+00:00",
+      "sha256": "b9ea97b901e260a003b4237ccccdc051e4ad282611368896a6cf7c3f02d0f3b4",
+      "length": 1099234,
+      "file": "raw/44100.png",
+      "validationFile": "raw/44100.validation.json",
+      "dimensions": [
+        750,
+        950
+      ]
+    }
+  ],
+  "designEvidence": [
+    {
+      "manifest": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinTenth-20261002\\next-huang-yueying-design-01\\source-manifest.json",
+      "sha256": "819fd470e3a4e7766d2bc872232f6617941539feecce277f9c0ca6c3c5b8d3af",
+      "files": 33
+    },
+    {
+      "manifest": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinTenth-20261002\\next-zhen-ji-design-01\\design-manifest.json",
+      "sha256": "68ddaf643e6f77149f4a27b1f1a03ba3dfd64aeafea7f2ac33068a79da9e326f",
+      "files": 3
+    },
+    {
+      "manifest": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinTenth-20261002\\next-zhen-ji-design-01\\source-manifest.json",
+      "sha256": "871c8f8cc20f1bbfdd848a5f77bc9e9a7dcc3ffd66e8856549a2dd030b48f198",
+      "files": 28
+    }
+  ],
+  "engineeringDefaults": [
+    "exact obtained entity returning to same owner is exempt within actual turn",
+    "frozen final black judgment permits repeat even when another process obtains card; no owner claim no grant",
+    "foreign discard candidates exclude protected Armor/Treasure; insufficient costs use actual legal subset"
+  ],
+  "sourceGaps": {
+    "boundary:pang-tong": {
+      "skillReferences": [
+        96,
+        3260,
+        3261
+      ],
+      "currentFullTextMissing": true
+    },
+    "boundary:xu-shu": {
+      "skillReferences": [
+        707
+      ],
+      "currentFullTextMissing": true
+    },
+    "resolverManifestSha256": "a1425b4444166550a2bf8f57d55c7905cc2da94ca595c2a23f92453f7f591888",
+    "scope": "No explicit resolver observed in actually referenced scripts/pages read; no guessed request"
+  },
+  "contractAddenda": [
+    {
+      "path": "CONTRACT-ADDENDUM-01.md",
+      "sha256": "7fd9577845bb3e0a8e3a74679e18bc5469ed3b630e826990e88dee1c4edd336c"
+    },
+    {
+      "path": "CONTRACT-ADDENDUM-02.md",
+      "sha256": "cf02da750aaada37915c954aa68e795224884132c3d242cb96ad15f7a29e19ec"
+    },
+    {
+      "path": "CONTRACT-ADDENDUM-03.md",
+      "sha256": "8f6660a3eac02f5f856281d95183ff520d674f40109363010c89de16217d5c8d"
+    }
+  ],
+  "implementationDeliveries": [
+    {
+      "general": "boundary:zhen-ji",
+      "manifestSha256": "dbf5da37cfd5ec0ffdc9e7b4a74fc34952817271372debaa812813469a8b0b39",
+      "sourcePaths": 18,
+      "finalFocused": {
+        "corePassed": 12,
+        "durationMs": 7007,
+        "isFull": false
+      }
+    },
+    {
+      "general": "boundary:huang-yueying",
+      "manifestSha256": "bc3cd7b9847b77cf03d877428df71234ccfad26083fb24baffe830c6f3b33c5c",
+      "sourcePaths": 29,
+      "finalFocused": {
+        "corePassed": 15,
+        "durationMs": 24936,
+        "isFull": false
+      }
+    }
+  ],
+  "acceptance": {
+    "status": "passed",
+    "rootFocused": {
+      "corePassed": 27,
+      "durationMs": 29748,
+      "summarySha256": "2dca8866851b582bc29a6cbe81392667f7aad16ac573e34f9d3726f42264c414"
+    },
+    "mainFull": {
+      "corePassed": 507,
+      "wpfPassed": 49,
+      "durationMs": 207847,
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "durationMs": 10652
+        },
+        {
+          "name": "Core full checks",
+          "status": "passed",
+          "durationMs": 147723
+        },
+        {
+          "name": "WPF full checks",
+          "status": "passed",
+          "durationMs": 49432
+        }
+      ],
+      "summarySha256": "e409796b3de0165bb8596dd1f95918900d4f98e53baaa6a2849f3cf93b81d0d9"
+    },
+    "mainRoutine": {
+      "corePassed": 144,
+      "wpfPassed": 15,
+      "durationMs": 60185,
+      "coreFilters": 81,
+      "wpfFilters": 15,
+      "retainedPreviousFilters": true,
+      "summarySha256": "1ca9ec9448fe0e686e0d65a6e8eaabf17c388e5d4be8dfe28e8ac9ccfe72e5f3"
+    },
+    "compiledPortraits": {
+      "count": 2,
+      "rawOfficialHashesMatch": true,
+      "generalArtDecodedDimensions": [
+        750,
+        950
+      ],
+      "primaryTestHarnessCopiesEqual": true,
+      "actualInputsUnchanged": true,
+      "manifestSha256": "19f5e79fd1dff44923cd9f02fdc6576cda0179bafa5a8f804409ca8408a3e652"
+    },
+    "readOnlyFinalHuangAuditManifestSha256": "57e854fca750ac6e0c11c74a646de259838117659c53a5192d06efd28e8fb141",
+    "offlineArtCatalog": {
+      "generals": 173,
+      "pngRecords": 970
+    },
+    "limits": [
+      "Automated Core and offline WPF checks are not official client or manual desktop acceptance",
+      "New physical Nullification fixture is on owner actual turn; old turn-effect checks cover expiry",
+      "Several foreign-discard paths have static review plus retained shared checks rather than a new command fixture for every opcode",
+      "Entity leave-return and frozen Hongyan mutation are explicit host audits, separate from accepted command cold replay"
+    ],
+    "globalVersionSourcesUnchanged": true,
+    "evidenceRoot": "%TEMP%\\Card-FengLinEleventh-20261002"
+  }
+}

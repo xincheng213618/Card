@@ -10877,6 +10877,40 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-zhen-ji",
+      "characterName": "界甄姬",
+      "defaultSkinId": "44400",
+      "skins": [
+        {
+          "id": "44400",
+          "name": "默认皮肤",
+          "sourcePage": "https://www.sanguosha.com/hero/444",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44400.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-zhen-ji.png",
+          "sha256": "569fc8c3ec7b9b76576c41a5313cb437af32f8d8d517848215d81a304b54f5b6",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "boundary-huang-yueying",
+      "characterName": "界黄月英",
+      "defaultSkinId": "44100",
+      "skins": [
+        {
+          "id": "44100",
+          "name": "默认皮肤",
+          "sourcePage": "https://www.sanguosha.com/hero/441",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44100.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-huang-yueying.png",
+          "sha256": "b9ea97b901e260a003b4237ccccdc051e4ad282611368896a6cf7c3f02d0f3b4",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

@@ -23,7 +23,8 @@ public sealed partial class GameEngine
         features.ForOperation(SkillProgramEffectOp.ObtainPublicPileCard).All(e =>
             ReferencedPublicPileSources(owner.Seat, e.SkillIds.Single()).Any(source => PublicPileCards(source).Count > 0)) &&
         (!features.HasOperation(SkillProgramEffectOp.DiscardPublicZoneAfterHandPayment) ||
-         _players.Where(p => p.IsAlive).Any(p => GetEquipment(p).Count + GetJudgment(p).Count > 0));
+         _players.Where(p => p.IsAlive).Any(p => GetEquipment(p).Any(card => !IsForeignEquipmentDiscardPrevented(
+             owner.Seat, card, CardLocation.Equipment(p.Seat), OwnedCardMoveIntent.Discard)) || GetJudgment(p).Count > 0));
     private IReadOnlyList<PromptChoice> FinalTargetPileChoices(ProgramSkillFrame frame, SkillProgramEffect e)
     {
         if (e.Op == SkillProgramEffectOp.ObtainPublicPileCard)
@@ -33,7 +34,8 @@ public sealed partial class GameEngine
             ? FinalTargetPileUse(frame).TargetSeats.Distinct().Where(seat => _players[seat].IsAlive && GetHand(_players[seat]).Count >= GetHand(_players[frame.OwnerSeat]).Count)
             : _players.Where(p => p.IsAlive).Select(p => p.Seat);
         var zones = e.Op == SkillProgramEffectOp.CollectFinalTargetCardInPublicPile ? new[]{CardZoneKind.Hand, CardZoneKind.Equipment} : new[]{CardZoneKind.Equipment, CardZoneKind.Judgment};
-        return seats.SelectMany(seat => BuildOwnedCardPaymentChoices(frame.Id,frame.OwnerSeat,seat,zones).Select(choice =>
+        return seats.SelectMany(seat => BuildOwnedCardPaymentChoices(frame.Id,frame.OwnerSeat,seat,zones,
+            e.Op == SkillProgramEffectOp.CollectFinalTargetCardInPublicPile ? OwnedCardMoveIntent.Transfer : OwnedCardMoveIntent.Discard).Select(choice =>
             choice with { Id = new($"pile-flow.frame-{frame.Id}.owner-{seat}."+choice.Id.Value), Description = _players[seat].Name+"："+choice.Description,
                 Targets = [seat], Parameters = new Dictionary<string,string>(choice.Parameters){["program-action"]="public-pile-flow"} })).ToArray();
     }
@@ -79,6 +81,9 @@ public sealed partial class GameEngine
                 to=EnsurePublicPileSource(frame, 0).Location;
             }
         }
+        if (e.Op == SkillProgramEffectOp.DiscardPublicZoneAfterHandPayment &&
+            IsForeignEquipmentDiscardPrevented(frame.OwnerSeat, card, from, OwnedCardMoveIntent.Discard))
+            throw new InvalidOperationException("Public-zone discard is no longer available.");
         ClearPendingDecision();
         ReplaceRuntimeTop(frame with {PendingMovementContinuation=new(frame.OwnerSeat,0,null)});
         var reason=new CardMoveReason(e.Op==SkillProgramEffectOp.CollectFinalTargetCardInPublicPile?"skill-program.public-pile.collect-final-target":e.Op==SkillProgramEffectOp.ObtainPublicPileCard?"skill-program.public-pile.obtain":"skill-program.public-pile.field-discard");
