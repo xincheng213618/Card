@@ -12,48 +12,22 @@ internal static class HandResponseChecks
 {
     public static void Controls(string output)
     {
-        var wanted = new HashSet<DecisionKind> { DecisionKind.RespondDodge, DecisionKind.RespondSlash,
-            DecisionKind.RescueDying, DecisionKind.Nullification, DecisionKind.FireAttackReveal, DecisionKind.FireAttackDiscard };
-        for (var seed = 1; seed <= 100 && wanted.Count > 0; seed++)
+        foreach (var kind in new[] { DecisionKind.RespondDodge, DecisionKind.RespondSlash,
+                     DecisionKind.RescueDying, DecisionKind.Nullification, DecisionKind.FireAttackReveal, DecisionKind.FireAttackDiscard })
         {
-            using var vm = new MainViewModel(false, seed, showSetup: false, saveStore: new MemorySaveStore()) { IsMotionEnabled = false };
-            for (var step = 0; step < 2000 && !vm.HasGameOver && wanted.Count > 0; step++)
+            var (model, registry) = StableHandResponseFixture.Create(kind, output);
+            using (model)
             {
-                var prompt = Program.Engine(vm).PendingDecision;
-                if (prompt is not null && wanted.Contains(prompt.Kind) && vm.Hand.Any(card => card.IsPlayable))
-                {
-                    VerifyBoundary(vm, output, prompt.Kind.ToString());
-                    wanted.Remove(prompt.Kind);
-                    continue;
-                }
-                // Play actual available cards to reach both halves of Fire Attack, not only passive responses.
-                var action = vm.CanEndTurn ? Program.Engine(vm).GetHumanLegalActions()
-                    .FirstOrDefault(action => action.CardId.HasValue && action.TargetSeats.Count <= 1 && action.TargetCardId is null) : null;
-                if (action is not null)
-                {
-                    vm.SelectCardCommand.Execute(vm.Hand.Single(card => card.Id == action.CardId));
-                    if (action.TargetSeat is { } target && !vm.Seats.Single(seat => seat.Seat == target).IsSelectedTarget)
-                        vm.SelectTargetCommand.Execute(vm.Seats.Single(seat => seat.Seat == target));
-                    if (action.Kind == LegalActionKind.Recast && vm.CanRecastSelected) vm.RecastSelectedCommand.Execute(null);
-                    else if (vm.CanConfirmSelected) vm.ConfirmSelectedCommand.Execute(null);
-                    else vm.EndTurnCommand.Execute(null);
-                }
-                else
-                {
-                    try { PersistenceChecks.Step(vm); }
-                    catch (InvalidOperationException error)
-                    {
-                        File.WriteAllText(Path.Combine(output, "response-failure.json"), GameCheckpointJson.Serialize(Program.Engine(vm).CreateCheckpoint()));
-                        File.WriteAllText(Path.Combine(output, "response-failure-state.json"), SnapshotJson.Serialize(Program.Engine(vm).CreateSnapshot(0, true)));
-                        File.WriteAllLines(Path.Combine(output, "response-failure-events.txt"), Program.Engine(vm).Events.TakeLast(65).Select(e => e.Payload.ToString()!));
-                        throw new InvalidOperationException($"Response scan seed {seed}, step {step}, prompt {prompt?.Kind}, revision {Program.Engine(vm).Revision}: {error.Message}", error);
-                    }
-                }
+                VerifyBoundary(model, output, kind.ToString());
+                StableHandResponseFixture.RecordAndReplay(Program.Engine(model), registry, output, kind + ".after");
             }
         }
-        Program.Assert(wanted.Count == 0, $"Unreached response boundaries: {string.Join(", ", wanted)}");
-        var (rescue, _) = JijiuChecks.FindFixture();
-        using (rescue) VerifyBoundary(rescue, output, "Jijiu", rescue.DyingChoices.First(choice => choice.Description.Contains("当作【桃】")).Cards[0]);
+        var (rescue, rescueRegistry) = StableHandResponseFixture.Create(DecisionKind.RescueDying, output, jijiu: true);
+        using (rescue)
+        {
+            VerifyBoundary(rescue, output, "Jijiu", rescue.DyingChoices.First(choice => choice.Description.Contains("当作【桃】") && choice.Parameters.GetValueOrDefault("physical-card-kind") == nameof(CardKind.Dodge)).Cards[0]);
+            StableHandResponseFixture.RecordAndReplay(Program.Engine(rescue), rescueRegistry, output, "Jijiu.after");
+        }
     }
 
     internal static void VerifyBoundary(MainViewModel vm, string output, string label, int? chosenId = null, string? expectedButtonText = null)
