@@ -107,8 +107,63 @@ internal static class RuleInformationUiChecks
         Program.Assert(!model.HasDeclaredCards && !model.HasGeneralLibraries && model.DeclaredCards.Count == 0 &&
                        model.GeneralLibraries.Count == 0 && JsonSerializer.Serialize(game.CreateCheckpoint()) == before,
             "Retiring the snapshot information must clear every source and face without advancing or modifying the match.");
+        VerifyTurnHandHoldViews(model, root, original, output);
+        Program.Assert(JsonSerializer.Serialize(game.CreateCheckpoint()) == before,
+            "Reading private turn holds must leave the command checkpoint unchanged.");
         window.Content = null;
         window.Close();
+    }
+
+    private static void VerifyTurnHandHoldViews(MainViewModel model, FrameworkElement root,
+        GameSnapshot original, string output)
+    {
+        var first = new CardSnapshot(765434, CardKind.Slash, Suit.Heart, 5, "杀", "5");
+        var second = new CardSnapshot(765435, CardKind.Peach, Suit.Diamond, 9, "桃", "9");
+        var foreign = new CardSnapshot(765436, CardKind.Dodge, Suit.Spade, 11, "闪", "J");
+        PrivateTurnHoldSnapshot Hold(long id, int ownerSeat, IReadOnlyList<CardSnapshot> cards) =>
+            new(HoldId: id, OwnerSeat: ownerSeat, SkillId: "boundary:qianxun",
+                SkillInstanceId: $"fixture:hold-{id}", SourceId: $"fixture:source-{id}",
+                ExpiresTurnNumber: original.TurnNumber, Count: cards.Count, Cards: cards);
+        var own = new[] { Hold(81, 0, Array.AsReadOnly(new[] { first, second })), Hold(82, 0, Array.AsReadOnly(new[] { first })) };
+        var malformed = Hold(83, 1, Array.AsReadOnly(new[] { foreign }));
+        var projected = original with
+        {
+            PendingDecision = null,
+            Players = original.Players.Select(player => player.Seat switch
+            {
+                0 => player with { GeneralId = "boundary:lu-xun", GeneralName = "界陆逊",
+                    PrivateTurnHolds = Array.AsReadOnly(new[] { own[0], own[1], malformed }) },
+                // Foreign and misattributed DTOs deliberately contain faces; WPF still must not display them.
+                1 => player with { PrivateTurnHolds = Array.AsReadOnly(new[] { Hold(84, 1, Array.AsReadOnly(new[] { foreign })) }) },
+                _ => player
+            }).ToArray()
+        };
+        Refresh(model, projected);
+        Program.Assert(model.HasTurnHandHolds && model.TurnHandHolds.Count == 4 &&
+                       model.TurnHandHolds.Take(2).SelectMany(item => item.PrivateCards).Select(card => card.Id)
+                           .SequenceEqual([765434, 765435, 765434]) &&
+                       model.TurnHandHolds.Skip(2).All(item => item.PrivateCards.Count == 0) &&
+                       model.TurnHandHolds[0].Title.Contains("2张") &&
+                       model.TurnHandHolds.All(item => item.ReturnHint == "回合结束时返还") &&
+                       !model.HasCenterChoices && model.IsTableIdle,
+            "Each source hold must preserve public counts and the idle table while double-gating all private faces by viewer and hold owner.");
+        Program.Find<Expander>(root).Single(item => item.Name == "TurnHandHoldOverview").IsExpanded = true;
+        Program.Render(root, 1120, 740, Path.Combine(output, "263-turn-hand-hold-overview.png"));
+        foreach (var expander in Program.Find<Expander>(root).Where(item => item.Name == "PrivateTurnHandHoldDetails" && item.Visibility == Visibility.Visible))
+            expander.IsExpanded = true;
+        Program.Render(root, 1120, 740, Path.Combine(output, "264-private-turn-hand-holds.png"));
+        var holds = Program.Find<ItemsControl>(root).Single(item => item.Name == "TurnHandHolds");
+        var buttons = Program.Find<Button>(holds).Where(button => button.Command == model.SelectRevealedCardCommand).ToArray();
+        Program.Assert(holds.ActualHeight > 0 && buttons.Length == 3 && buttons.All(button => !button.IsEnabled) &&
+                       Program.Find<ItemsControl>(holds).Where(item => item.Name == "PrivateTurnHandHoldCards").Sum(item => item.Items.Count) == 3,
+            "The actual hold XAML must contain exactly the authorized read-only faces without exposing foreign or misattributed cards.");
+        Refresh(model, projected with
+        {
+            Players = projected.Players.Select(player => player with { PrivateTurnHolds = null }).ToArray()
+        });
+        Program.Assert(!model.HasTurnHandHolds && model.TurnHandHolds.Count == 0 && !model.HasCenterChoices && model.IsTableIdle,
+            "Returning or clearing the held cards must clear every stale private face without turning the information panel into a prompt.");
+        Refresh(model, original);
     }
 
     private static void Refresh(MainViewModel model, GameSnapshot snapshot) =>

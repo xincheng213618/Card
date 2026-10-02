@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:qianxun": {
+      "name": "谦逊",
+      "description": "当一张延时锦囊牌或其他角色使用的普通锦囊牌对你生效时，若你为唯一目标，你可以将所有手牌移出游戏直到回合结束。"
+    },
+    "boundary:lianying": {
+      "name": "连营",
+      "description": "当你失去所有手牌后，你可以令至多X名角色各摸一张牌（X为你失去的手牌数）。"
+    }
+  }
+}

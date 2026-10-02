@@ -27,7 +27,15 @@
         'Feng Lin Zuo Ci initial privacy and replay',
         'Feng Lin Zuo Ci layered suppression and local disable',
         'Feng Lin Zuo Ci same avatar program and actual end',
-        'Feng Lin Yu Ji'
+        'Feng Lin Yu Ji',
+        'boundary Lu Meng all table printed suits replay',
+        'boundary Lu Meng cross owner skip chain resume death',
+        'boundary Lu Meng Qinxue windows shared usage',
+        'boundary Lu Meng opt in usage legacy shape',
+        'Boundary Huang Gai actual provider color',
+        'Boundary Huang Gai multi card color source lifecycle',
+        'boundary Lu Xun actual trick hold lianying and return',
+        'boundary Lu Xun HE payment exact Hand batch count'
     )
     Wpf = @(
         'original card artwork', 'composed skills', 'conversion choices',

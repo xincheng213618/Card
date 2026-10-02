@@ -1,0 +1,53 @@
+# 界吕蒙、界黄盖、界陆逊工程契约
+
+2026-10-02实施前冻结。生产基线为第六批已验收本地提交0b1294468ef13e7d42c0520c15af27830ba6e5c3；最终Full Core408/408、WPF47/47，含fresh构建188.354秒；无过滤routine Core118/118、WPF13/13，含增量构建57.432秒。本合同尚不是第七批实现或验收；不推送、发布、清理。
+
+## 官网与库存
+
+采用普通www.sanguosha.com当前OL正文，界吕蒙306/4HP吴男/resource30600、界黄盖307/4HP吴男/resource30700、界陆逊310/3HP吴男/resource31000。来源原HTML/JSON/URL/UTC/SHA来自第六批next-boundary-preflight，冻结复制到本批source-preflight；当前正文优先于老攻略和其他产品线。三页SHA分别632370a80bad598d8be0fc65bf172ea241bda1589f5cd2e500b098aeae24ac54、68d6e3e6ca6537ed5d231c3d2560660e02b2c3d0669ea04f60b382725aef332d、9e313bf1365fd8df0255e355e6eb64146f9a43fac4f6ed1f0c9149a98764d4d4。正式compiled showcase registry已逐ID核对boundary:lu-meng、boundary:huang-gai、boundary:lu-xun都不存在，不以名字差异冒称缺口。
+
+正式ID沿现有boundary前缀；PortraitKey用boundary_lu_meng、boundary_huang_gai、boundary_lu_xun，与既有命名一致。新增定义模块各自独立文件，父合并StandardClassicGeneralPackage registration/test Program。不逐人物更改schema、package CurrentVersion或minimumRulesVersion。新可选节点default null，旧canonical/fingerprint和JSON省略保持。确需新op才登记真实descriptor/handler/resources/AI：吕蒙1660–1679、黄盖1680–1699、陆逊1700–1739；CardEffectBeforeApply窗口/typed frame可用1700，额外回合新typed frame如需用1660。同一enum内不得碰撞，不能创建空占位操作。
+
+## 界吕蒙：实际回合花色、动态轮次数、额外回合
+
+克己复用已有通用skipDiscard政策，但以本actual turn本人Play历史是否实际Use或Played杀为准，额外Play不清此历史，额外actual turn重新开始；其他玩家Play期间本人响应不算“本回合出牌阶段”。勤学准备/结束阶段，HandCount-Hp>=2觉醒一次：减上限1，回复1或真摸2，再获得现有攻心；严格复用觉醒一次与真实health/draw children，不伪造回复或手牌。觉醒/获得完整来源、named状态失去重授不重置。
+
+博图配置AfterTurnEnded，subject Owner，仅本人实际回合结束后。收集本actual turn全桌真实进入Discard的四花色，不限定本人、弃牌阶段、processing、理由；重复花色允许，Suit.None不算，重铸/判定/死亡等真实入弃均适用。在committed movement批次捕获来源实体离开后进入Discard区域的物理印刷Suit（弃牌区域不套来源手牌红颜之类转换）；这是显式工程花色裁决，不能冒称已找到新版FAQ。只启用目录要求的能力；以真实movement facts/event的scalar mask聚合，无card/use ID side账本，无query产rule事件。当前Finished收尾/返牌产生的真实discard在窗口冻结前计入；After窗口冻结后children不回写已经冻结条件，不重收集候选。
+
+新增可选动态Round quota AlivePlayersCapped(3)，仅Round scope；candidate资格和实际activation提交都用min(当前alive,3)及同owner+named skill+binding的既有Round usage。限次在接受激活时消耗一次；跳过/资格失效不消费，失去/重授/多source不重开。不因额外回合开始ResetRound。
+
+确认现有共享PendExtraTurn bug必须修复：跨owner额外回合结束丢失被插入的正常nextseat，extrasameSeat会刷新Round。替换现有_pendingExtraTurnSeat为单一typed turn progression，不与旧scalar并存：实际Normal/Extra种类、pending beneficiary、首次插入冻结的normal resume anchor/seat。链式extra保留同一normal resume；额外turn完毕无新extra时按该原正常位置跳死亡者继续，不能从extraowner下家误进。翻面跳过extra同样保留原resume并走同typed推进；每actual turn仍产生TurnNumber/TurnEnded，Round只Normal实际turn推进/标记seat。现有normal重复首seat的开轮定义保留；无人extra的旧事件顺序不变，明确旧PendExtraTurn行为修复由父在Replay.cs唯一epoch源统一更新，worker不改版本。避免invariant放宽到任意parent或其它turn。
+
+小固定实际命令fixture：四花色真实各种区域入弃+重复花色+非本人入弃，差一色阴性，多actual Play历史/Played杀，轮额度/extra链/跨owner+翻面skip+死亡resume，动态alive cap，source loss/regrant，勤学两阶段/回复摸牌分支。每必要暂停点checkpoint/4viewer/events/typedstack和非法输入原子边界，保留代表机制覆盖，不能扫seed/完整对局找样本。
+
+## 界黄盖：真实Loss瞬间事实与当回合战斗增益
+
+苦肉每实际Play phase一次，合法本人HE单实体Discard支付，完整movement children后LoseHp1；取消/实体丢失保持既有精确paid cost边界，不让付款或quota重复。诈降AfterHpLost PerPoint每Loss点Draw3；Damage不触发，不因延后current phase误认你的Play。RecordHpChange真实Loss提交点按编译能力捕获nullable LossOccurrence(actualTurnNumber,TurnOwnerSeat,Phase)；旧无cap字段null省略。读冻结事实判本人actual turn/Play，再授现有source-aware本turn SlashLimit Add1，每真实点累加，额外Play不重置，actual turn到期清除。保持既有Loss先dying、获救后精确parent回到Loss窗口；死亡owner不启动，source候选执行时仍需有效。
+
+符合冻结本人Play事实时授本actual turn“红色杀忽略距离且不能被抵消”的通用source-aware policy。实际Use actor的Slash/FireSlash/ThunderSlash、合法菜单/AI/提交同能力；按接受点实际有效Suit/Color冻结，含武圣、羽扇最终kind、声明/多人provider等已支持路径，不按印刷牌或技能名判红。新能力应让无既有颜色cap的目录也捕获必要颜色。不能抵消复用CurrentCardEnhancement.Uncancelable效果边界：保留闪提示、真实支付和response children，完成闪仍造成伤害；不映射为禁止响应。接受后source失效不撤销该已冻结card效果。本turn已授收益按既有grant持续到actual turn结束，source loss/regrant不重复授；这属于显式工程合同，不冒官方FAQ。精确修正相关Dodge抵消成功日志，勿全局string替换。
+
+新effect/policy若需typed draft属于ProgramSkillFrame或既有CardUseEffects store，不能另设人物pending/永久角色字段。Loss2点分别Draw3/+1两次，不因nested resume再授。新事件集合深freeze与nullable projection；公用source资格、规则查询cache边界保持。
+
+必要小固定实际命令fixture：HE支付→movement child→Loss；Loss2点+6/+2，outsidePlay仅摸牌，Damage阴性，dying获救/死亡，远距离红杀/黑杀阴性，武圣/羽扇，真实闪支付后仍伤害和日志，extraPlay/turn expiry，source loss/regrant。无cap旧payload/canonical阴性；全部回放/4viewer/非法选择原子检查用现有runner。
+
+## 界陆逊：真实锦囊生效、本人全手牌暂存、冻结batch X
+
+官网正文同时对延时与他人普通锦囊要求唯一目标。新增opt-in CardEffectBeforeApply，仅普通锦囊在真实无懈最终结果及target ineffective检查之后、效果switch之前；被无懈、无效或多目标均不触发。唯一目标使用所属CardUse的完整最终有效指定角色集合，不能用当前子目标或过滤死亡后的remaining集合；借刀的辅助杀目标不是该锦囊指定目标，应复用EffectiveDesignatedTargetSeats/现有paired target约定核对，避免简单Action.TargetSeats.Count排掉合法单一借刀。普通实际actor!=owner，provider/requester归因遵循实际action；不只认印刷来源。延时在Judgment位置真正发动且判定前触发，冻结实体、effective kind、当前owner和唯一目标[owner]，不是放置时。
+
+该窗口所属typed frame保存精确父CardUse ID/Nullification continuation或新的DelayedEffectFrame及judgment continuation、实际turn/phase、readonly final designatedtargets和candidate游标。nullification已完成不重开；延时当前引擎没有判定前无懈窗口，本批不顺带伪造/新增此历史机制，保留现有延时judgment flow而精确插入谦逊。无cap旧帧JSON/事件顺序原路径保留，strict invariants只允许自己的typed parent return。
+
+新增通用HoldOwnerHandUntilTurnEnd，不冒用禁止self且按HP限量的HoldTargetCards/Pojun。已接受时冻结当前全Hand实体一次真实原子移动至source-local typed private outside location；draft在ProgramSkillFrame含paid/cursor/child，CardZoneStore唯一实体账本。建议PrivateTurnHold位置含owner和独立hold identity，兼容新增nullable位置identity不改旧PublicPile语义；持久到期义务只保存该location/source/actualturn metadata，不复制实体账本。完整loss movement/连营/dying children后恢复原effect；新摸Hand不进入原hold。当前actual turn结束既有收尾期间返还该location剩余实体→Hand并完成gain children，之后due、AfterTurnEnded；失去/禁用来源不删除已付返还义务，死亡真实清理剩余→Discard终结义务，游戏结束不打开下一回合。
+
+玩家projection新增nullable private hold来源/count/期限DTO；仅owner faces，其他viewer count，nested deep freeze，不接trusted stack/event泄私。与普通Pojun、WoodenOx、PublicPersistentPile不混槽、不跨source误取。父在明确DTO ABI后补generic WPF信息surface，worker不改WPF。
+
+连营CardsMoved PerBatch source Hand countBefore>0/after==0；X读取该owning冻结batch实际失去Hand数，不混HE装备数，不读取连营新摸手牌。新增EventMovedCardCount数值表达式使SelectTargets(AnyLiving)上限为X，接受后最多X名不同合法存活目标各Draw1；optional decline代表零目标。严格窗口/resources限制，generic AI合法私密输入。嵌套谦逊全Hand移出→连营多目标摸→恢复锦囊→turnend返牌→gainchildren是真chain，各成本/choice只执行一次。
+
+必要固定命令fixture：唯一ordinary真正生效/被无懈/原多目标剩1阴性，借刀辅助target，延时生效vsplacement、全Hand hold触发连营→新增Hand不混入→完整返还，混HE失牌batch Hand-onlyX，target去重/零decline/死亡，source loss/多hold来源/owner死亡，四viewer/privateDTO/checkpoint/实际parent续接。机制fixture与真实command覆盖分开标明；不得fake空实现或直接写pending当正式验证。
+
+## 分工、共享接口和验证
+
+三个已授权GPT6.1 Sol各隔离匹配本基线副本：lu-meng、huang-gai、lu-xun。各自可编辑自己的Core+content+focused checks并运行相关name filter，不能写main/parent/别的worker/已冻结delivery；不Full、不WPF、不Git、不联网，父负责官方源/立绘、WPF、最终版本、共享增量三方合并、一次最终fresh Full及实测routine、本地提交。共享文件的各自添加块在独立manifest交付，由父SHA guarded收敛，不把他人整份文件覆盖。
+
+吕蒙拥有独立discard mask/dynamicRound/typed nextturn progression；黄盖拥有Loss occurrence/本turn color combat；陆逊拥有真实生效/handhold/数值expression。GameEngine.cs各自仅修改自己入口/方法；共同end次序由陆逊只添加返还入口，吕蒙只修改nextseat推进，不能重写整个尾部。SkillPrograms.cs、ProgramLifecycle/Resolution/Domain、ProgramEntryCapabilities、Runtime、CommittedEventProjection、registration/Program等可能冲突，提前发字段/op/DTO ABI变更给父和其他作者；不能用临时不可编译占位遮盖依赖。尽量先完成独立可测来源/能力，再冻结overlay给需要者导入。
+
+适用AGENTS：PowerShell、recursive路径检查LiteralPath；新规则AdvanceEventRulesAndQueueFact/newstate AdvanceRulesAndPublishState；command commit/recovery、CreateSnapshot(viewerSeat)、prepared深freeze、exact owningframes/typed returns、paid costs一次、input validation/privacy/cardmovement边界不改。保持现有裁剪coverage，无重复人物definition快照/新runner开关/框架。少量小fixture开发过滤，整批之后一次Full、无过滤routine计时，~一分钟目标按实测报告。原冻结交付/失败成功raw logs皆保留；manifest baseline/finalSHA、完整source及范围/未测边界，不提前称完成。

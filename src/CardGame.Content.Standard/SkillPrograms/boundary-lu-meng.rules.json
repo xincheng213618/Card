@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:keji",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "skip-discard",
+          "kind": "offerSkipDiscard"
+        }
+      ]
+    },
+    {
+      "id": "boundary:qinxue",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "preparation",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "namedUsageGroup": "awakening",
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "currentHandCountMinusHp"
+            },
+            "operator": "greaterThanOrEqual",
+            "right": {
+              "kind": "integerConstant",
+              "value": 2
+            }
+          },
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": -1
+            },
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "benefit",
+              "options": [
+                {
+                  "id": "recover",
+                  "condition": {
+                    "kind": "wounded"
+                  }
+                },
+                {
+                  "id": "draw",
+                  "condition": {
+                    "kind": "always"
+                  }
+                }
+              ]
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "benefit",
+                "optionId": "recover"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "benefit",
+                "optionId": "draw"
+              }
+            },
+            {
+              "op": "grantSkills",
+              "target": "owner",
+              "skillIds": [
+                "classic:gongxin"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "ending",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "namedUsageGroup": "awakening",
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "currentHandCountMinusHp"
+            },
+            "operator": "greaterThanOrEqual",
+            "right": {
+              "kind": "integerConstant",
+              "value": 2
+            }
+          },
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": -1
+            },
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "benefit",
+              "options": [
+                {
+                  "id": "recover",
+                  "condition": {
+                    "kind": "wounded"
+                  }
+                },
+                {
+                  "id": "draw",
+                  "condition": {
+                    "kind": "always"
+                  }
+                }
+              ]
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "benefit",
+                "optionId": "recover"
+              }
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "benefit",
+                "optionId": "draw"
+              }
+            },
+            {
+              "op": "grantSkills",
+              "target": "owner",
+              "skillIds": [
+                "classic:gongxin"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:botu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "extra",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "optional": true,
+          "usageScope": "round",
+          "dynamicUsageLimit": {
+            "kind": "alivePlayersCapped",
+            "cap": 3
+          },
+          "condition": {
+            "kind": "turnDiscardIncludesAllSuits"
+          },
+          "effects": [
+            {
+              "op": "pendExtraTurn",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

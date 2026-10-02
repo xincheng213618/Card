@@ -28,9 +28,11 @@ public sealed partial class GameEngine
         if (index != _resolutionStack.Count - 1) return;
         switch (_resolutionStack[index])
         {
+            case CardEffectBeforeApplyFrame: ContinueCardEffectBeforeApply(); break;
             case CardDeclarationFrame: ContinueCardDeclaration(frameId); break;
             case CardDeclarationChallengeFrame: ContinueCardDeclarationChallenge(frameId); break;
             case ProgramSkillFrame:
+                if (ResumePrivateTurnHold(frameId)) return;
                 if(ResumePrivateGeneralLibrarySelection(frameId))return;
                 if (ResumeNamedTurnFlow(frameId)) return;
                 if (ResumeFinalTargetGift(frameId)) return;
@@ -600,6 +602,9 @@ public sealed partial class GameEngine
                     throw new InvalidOperationException("The killer-death program lost its parent cursor.");
                 ReplaceRuntimeTop(killWindow with { CandidateIndex = killWindow.CandidateIndex + 1 });
                 AdvanceRuntimeTop<ProgramKillTriggerWindowFrame>();
+                break;
+            case SkillProgramTriggerWindow.CardEffectBeforeApply:
+                CompleteCardEffectCandidate(context);
                 break;
             case SkillProgramTriggerWindow.CardUseCommitted:
             case SkillProgramTriggerWindow.CardUseBeforeTargetEffects:

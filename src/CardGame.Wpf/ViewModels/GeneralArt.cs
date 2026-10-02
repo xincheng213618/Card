@@ -77,6 +77,10 @@ public static class GeneralArt
             // Current OL portraits: docs/content/sources/fenglin-sixth-2026-10-02.json.
             ["yu-ji"] = "official-yu-ji.png",
             ["zuo-ci"] = "official-zuo-ci.png",
+            // Current OL editions: docs/content/sources/fenglin-seventh-2026-10-02.json.
+            ["boundary-lu-meng"] = "official-boundary-lu-meng.png",
+            ["boundary-huang-gai"] = "official-boundary-huang-gai.png",
+            ["boundary-lu-xun"] = "official-boundary-lu-xun.png",
             ["zhang-chun-hua"] = "official-zhang-chun-hua.png",
             ["ling-tong"] = "official-ling-tong.png",
             ["chen-gong"] = "official-chen-gong.png",

@@ -10690,6 +10690,57 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-lu-meng",
+      "characterName": "界吕蒙",
+      "defaultSkinId": "30600",
+      "skins": [
+        {
+          "id": "30600",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/306",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30600.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-lu-meng.png",
+          "sha256": "231e4ff5af9ae6e6f2c1ff830823dbb356e87682daa45505dbe3be31192e9bd6",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "boundary-huang-gai",
+      "characterName": "界黄盖",
+      "defaultSkinId": "30700",
+      "skins": [
+        {
+          "id": "30700",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/307",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30700.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-huang-gai.png",
+          "sha256": "1fc3d21a0b691287aba1592ea1a63c8b9ff3e894c551182486e0edb8665989b7",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "boundary-lu-xun",
+      "characterName": "界陆逊",
+      "defaultSkinId": "31000",
+      "skins": [
+        {
+          "id": "31000",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/310",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31000.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-lu-xun.png",
+          "sha256": "3ef58b09ef54299c21ddf4721cfbb72a1b9b9087afab1ee8c0d53e3e6364fca7",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

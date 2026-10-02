@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -9,7 +9,8 @@ public sealed partial class GameEngine
     {
         var amount = kind == HpChangeKind.Loss ? before - after : after - before;
         if (!_setupComplete || amount <= 0 || _winner != Winner.None || _status == EngineStatus.Completed) return;
-        _pendingHpChanges.Add(new(++_resolutionSequence, parentFrameId, sourceSeat, targetSeat, kind, amount, before, after));
+        _pendingHpChanges.Add(new(++_resolutionSequence, parentFrameId, sourceSeat, targetSeat, kind, amount, before, after, kind == HpChangeKind.Loss && HasTurnRedSlashCapability ? new LossOccurrence(_turnNumber, _currentSeat, _phase) : null,
+            kind == HpChangeKind.Loss && HasTurnRedSlashCapability ? Array.AsReadOnly(new[] { SkillProgramTriggerWindow.AfterHpLost, SkillProgramTriggerWindow.AfterHealthChanged }.SelectMany(window=>CollectProgramTriggerCandidates(_players[targetSeat],window)).ToArray()) : null));
     }
 
     private bool TryBeginHpChangedProgramWindow(long? resumeFrameId = null,
@@ -34,7 +35,7 @@ public sealed partial class GameEngine
             {
                 HpChangeAmount = change.Amount, HpBeforeChange = change.HpBefore, HpAfterChange = change.HpAfter
             };
-            var candidates = windows.SelectMany(window => CollectProgramTriggerCandidates(owner, window)).Where(candidate =>
+            var candidates = (change.FrozenLossCandidates ?? windows.SelectMany(window => CollectProgramTriggerCandidates(owner, window)).ToArray()).Where(candidate =>
                 GetProgramTrigger(candidate)
                     .Condition.Evaluate(facts, candidate.SkillId, candidate.SkillInstanceId))
                 .SelectMany(candidate => Enumerable.Range(0,

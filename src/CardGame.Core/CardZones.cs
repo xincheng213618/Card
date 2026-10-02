@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 /// <summary>
 /// A physical card is always in exactly one zone. Owned zones require a seat;
@@ -20,15 +20,16 @@ public enum CardZoneKind
     PojunHold,
     PrivateReserve = 400,
     PublicDeferredPile = 1000,
-    PublicPersistentPile = 1140
+    PublicPersistentPile = 1140,
+    PrivateTurnHold = 1700
 }
 
 public readonly record struct CardLocation
 {
     [System.Text.Json.Serialization.JsonConstructor]
-    public CardLocation(CardZoneKind zone, int? ownerSeat = null, string? publicPileId = null)
+    public CardLocation(CardZoneKind zone, int? ownerSeat = null, string? publicPileId = null, PrivateTurnHoldIdentity? privateTurnHold = null)
     {
-        var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.Chunlao or CardZoneKind.PojunHold or CardZoneKind.PrivateReserve or CardZoneKind.PublicDeferredPile or CardZoneKind.PublicPersistentPile;
+        var owned = zone is CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.Chunlao or CardZoneKind.PojunHold or CardZoneKind.PrivateReserve or CardZoneKind.PublicDeferredPile or CardZoneKind.PublicPersistentPile or CardZoneKind.PrivateTurnHold;
         if (owned && ownerSeat is null or < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(ownerSeat), $"Zone {zone} requires a non-negative owner seat.");
@@ -41,6 +42,11 @@ public readonly record struct CardLocation
 
         if (publicPileId is not null && (zone != CardZoneKind.PublicPersistentPile || string.IsNullOrWhiteSpace(publicPileId)))
             throw new ArgumentException("A named pile identity is valid only for a public persistent pile.", nameof(publicPileId));
+        if ((zone == CardZoneKind.PrivateTurnHold) != (privateTurnHold is not null))
+            throw new ArgumentException("A private turn hold needs its exact typed identity.");
+        if (privateTurnHold is { } hold && (hold.HoldId <= 0 || hold.ExpiresTurnNumber <= 0 || string.IsNullOrWhiteSpace(hold.SkillId) || string.IsNullOrWhiteSpace(hold.SkillInstanceId) || string.IsNullOrWhiteSpace(hold.SourceId)))
+            throw new ArgumentException("Invalid private turn hold identity.");
+        PrivateTurnHold = privateTurnHold;
         PublicPileId = publicPileId;
         Zone = zone;
         OwnerSeat = ownerSeat;
@@ -52,6 +58,8 @@ public readonly record struct CardLocation
 
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public string? PublicPileId { get; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PrivateTurnHoldIdentity? PrivateTurnHold { get; }
 
     public static CardLocation DrawPile => new(CardZoneKind.DrawPile);
 
@@ -270,6 +278,12 @@ internal sealed class CardZoneStore
     }
 
     public int TotalCards => _locations.Count;
+    internal IReadOnlyList<CardLocation> PrivateTurnHoldLocations => Array.AsReadOnly(_zones.Keys.Where(l => l.Zone == CardZoneKind.PrivateTurnHold && _zones[l].Count > 0).OrderBy(l => l.PrivateTurnHold!.HoldId).ToArray());
+    internal void EnsurePrivateTurnHold(CardLocation location)
+    {
+        if (location.Zone != CardZoneKind.PrivateTurnHold || location.OwnerSeat is not { } seat || !_zones.ContainsKey(CardLocation.Hand(seat))) throw new ArgumentException("Invalid private hold owner.");
+        if (!_zones.ContainsKey(location)) AddZone(location);
+    }
     internal void EnsurePublicPersistentPile(CardLocation location)
     {
         if (location.Zone != CardZoneKind.PublicPersistentPile || location.OwnerSeat is not { } seat ||

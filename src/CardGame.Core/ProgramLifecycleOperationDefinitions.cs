@@ -175,7 +175,7 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
         var maximum = r.RequiredInt("maximumTargets");
         var numberExpression = r.Has("numberExpression")
             ? r.RequiredEnum<SkillProgramNumberExpression>("numberExpression") : (SkillProgramNumberExpression?)null;
-        if (numberExpression is not null and not (SkillProgramNumberExpression.CurrentHandCount or
+        if (numberExpression is not null and not (SkillProgramNumberExpression.EventMovedCardCount or SkillProgramNumberExpression.CurrentHandCount or
             SkillProgramNumberExpression.PlannedNormalDrawCount or SkillProgramNumberExpression.BoundCardCount or SkillProgramNumberExpression.CurrentHp))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: unsupported target maximum expression.");
         if (minimum < 1 || maximum < minimum || maximum > (kind == SkillProgramTargetKind.CurrentCardUseTargets
@@ -207,7 +207,9 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
         return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        effect.TargetKind == SkillProgramTargetKind.CurrentCardUseTargets
+        effect.NumberExpression == SkillProgramNumberExpression.EventMovedCardCount
+            ? [new RequireTriggerWindow(SkillProgramTriggerWindow.CardsMoved), new SelectTargetSet(effect.MinimumTargets,effect.MaximumTargets)]
+            : effect.TargetKind == SkillProgramTargetKind.CurrentCardUseTargets
             ? [new RequireContext(ProgramContextCapability.CardAction),
                 new SelectTargetSet(effect.MinimumTargets, effect.MaximumTargets)]
             : effect.NumberExpression == SkillProgramNumberExpression.PlannedNormalDrawCount

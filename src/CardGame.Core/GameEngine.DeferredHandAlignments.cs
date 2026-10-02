@@ -49,9 +49,9 @@ public sealed partial class GameEngine
     {
         CleanupDeferredHandAlignments();
         var dueIds=_deferredHandAlignments.Where(d=>d.DueKind==DeferredHandAlignmentDueKind.SourceCurrentTurnEnd?d.Source.OwnerSeat==previous.Seat&&d.CreatedTurn==_turnNumber:d.TargetSeat==previous.Seat&&d.CreatedTurn<_turnNumber).OrderBy(d=>d.Id).Select(d=>d.Id).ToArray();
-        if(dueIds.Length==0&&!HasAfterTurnEndedPrograms)return false;
+        if(dueIds.Length==0&&!HasActualTurnEndMovementPrelude)return false;
         if(_resolutionStack.Count!=0||_pendingDecision is not null||_phase!=TurnPhase.Finished)throw new InvalidOperationException("Actual end alignment requires a clean finalized turn boundary.");
-        PushRuntimeFrame(new DeferredTurnEndFrame(++_resolutionSequence,previous.Seat,_turnNumber,skipped,Array.AsReadOnly(dueIds)){Prelude=HasAfterTurnEndedPrograms?new():null});ContinueDeferredTurnEnd();return true;
+        PushRuntimeFrame(new DeferredTurnEndFrame(++_resolutionSequence,previous.Seat,_turnNumber,skipped,Array.AsReadOnly(dueIds)){Prelude=HasActualTurnEndMovementPrelude?new():null});ContinueDeferredTurnEnd();return true;
     }
     private void ContinueDeferredTurnEnd() => AdvanceRuntimeTop<DeferredTurnEndFrame>();
 

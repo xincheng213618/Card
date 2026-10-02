@@ -16,7 +16,7 @@ public sealed partial class GameEngine
     }
 
     private bool IsActualDeferredTurnEndPrelude(DeferredTurnEndFrame parent) =>
-        HasAfterTurnEndedPrograms && parent.OwnerSeat == _currentSeat && parent.TurnNumber == _turnNumber &&
+        HasActualTurnEndMovementPrelude && parent.OwnerSeat == _currentSeat && parent.TurnNumber == _turnNumber &&
         _phase == TurnPhase.Finished && parent.Current is null && parent.ItemIndex == 0 && parent.AfterTurnEnded is null &&
         parent.Prelude is { Completed: false } && CompleteProgramEventHistory().OfType<TurnEndedEvent>()
             .Any(e => e.TurnNumber == parent.TurnNumber && e.ActorSeat == parent.OwnerSeat);

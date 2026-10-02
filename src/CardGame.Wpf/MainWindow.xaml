@@ -407,6 +407,25 @@
                             <ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Message}" Foreground="#DDC188" FontSize="11" TextWrapping="Wrap" /></DataTemplate></ListBox.ItemTemplate>
                         </ListBox>
                         <StackPanel Grid.Row="2" VerticalAlignment="Center" Margin="8,10,8,8">
+                            <Expander x:Name="TurnHandHoldOverview" Header="暂存手牌" Foreground="{StaticResource GoldBrush}" Margin="0,0,0,8" Visibility="{Binding HasTurnHandHolds, Converter={StaticResource BoolToVisibility}}">
+                                <ScrollViewer MaxHeight="180" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                    <ItemsControl x:Name="TurnHandHolds" ItemsSource="{Binding TurnHandHolds}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border BorderBrush="#81735E" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,5,0,0">
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Title}" Foreground="{StaticResource GoldBrush}" FontSize="12" TextWrapping="Wrap" />
+                                                        <TextBlock Text="{Binding ReturnHint}" Foreground="#D1DCCB" FontSize="11" Margin="0,4,0,0" />
+                                                        <Expander x:Name="PrivateTurnHandHoldDetails" Header="{Binding PrivateTitle}" Foreground="{StaticResource GoldBrush}" Margin="0,6,0,0" Visibility="{Binding HasPrivateCards, Converter={StaticResource BoolToVisibility}}">
+                                                            <ItemsControl x:Name="PrivateTurnHandHoldCards" ItemsSource="{Binding PrivateCards}" ItemTemplate="{StaticResource RevealedCardTemplate}" ItemsPanel="{StaticResource ChoicePanel}" />
+                                                        </Expander>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Expander>
                             <Expander x:Name="GeneralLibraryOverview" Header="武将库" Foreground="{StaticResource GoldBrush}" Margin="0,0,0,8" Visibility="{Binding HasGeneralLibraries, Converter={StaticResource BoolToVisibility}}">
                                 <ScrollViewer MaxHeight="180" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                                 <ItemsControl x:Name="GeneralLibraries" ItemsSource="{Binding GeneralLibraries}">

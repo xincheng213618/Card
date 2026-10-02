@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -108,6 +108,7 @@ public sealed partial class GameEngine
     }
 
     private bool CanSupplyAssistedFactionSlash(FactionCardRequestHandle pending, CardKind kind, IReadOnlyList<Card> cards) =>
+        IsRedSlashProviderPaymentLegal(pending,kind,cards) &&
         (!IsFactionSlashUse(pending) || !IsTurnPhysicalUseForbidden(pending.OwnerSeat,cards.Select(c=>c.Id).ToArray())) &&
         (!pending.IsAssistedProgramUse || pending.TargetSeat is { } target &&
         (IsAssistedProvidedSlashTarget(pending.OwnerSeat, target, kind) ||

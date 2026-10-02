@@ -61,6 +61,7 @@ public sealed partial class GameEngine
                 item.Value,
                 _cardZones.Count(item.Key)))
             .ToArray();
+        CaptureTurnDiscardSuitFact(batch.TurnNumber,movements);
         CaptureActionDiscardFact(batch.Id,batch.TurnNumber,movements);
         CaptureFirstGameDomainCrossings(batch.Id,batch.TurnNumber,movements);
         _pendingCardsMovedBatches.Add(new CardMovementBatchContext(

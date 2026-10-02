@@ -39,7 +39,7 @@ public sealed record GameCheckpoint(
     // the responder and opponent swap after a successful Slash response.
     // Borrowed Sword faction supply validates reconstructed continuation
     // handles by exact resolution identity instead of reference equality.
-    public const int CurrentRulesVersion = 192;
+    public const int CurrentRulesVersion = 193;
     // 187 was consumed by main-side Zhang He / Shen Zhao Yun work.
 
     public int RulesVersion { get; init; }

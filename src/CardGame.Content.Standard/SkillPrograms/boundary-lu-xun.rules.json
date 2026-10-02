@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:qianxun",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "hold-at-effect",
+          "window": "cardEffectBeforeApply",
+          "ownerRelation": "target",
+          "optional": true,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "currentHandCount"
+            },
+            "operator": "greaterThan",
+            "right": {
+              "kind": "integerConstant",
+              "value": 0
+            }
+          },
+          "effects": [
+            {
+              "op": "holdOwnerHandUntilTurnEnd",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:lianying",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "last-hand-target-draw",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": [
+            "hand"
+          ],
+          "movementOccurrence": "perBatch",
+          "optional": true,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "sourceZoneCountBefore"
+                },
+                "operator": "greaterThan",
+                "right": {
+                  "kind": "integerConstant",
+                  "value": 0
+                }
+              },
+              {
+                "kind": "compare",
+                "left": {
+                  "kind": "sourceZoneCountAfter"
+                },
+                "operator": "equal",
+                "right": {
+                  "kind": "integerConstant",
+                  "value": 0
+                }
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "selectTargets",
+              "target": "owner",
+              "targetKind": "anyLiving",
+              "minimumTargets": 1,
+              "maximumTargets": 8,
+              "numberExpression": "eventMovedCardCount",
+              "targetAiOrder": "supportDraw"
+            },
+            {
+              "op": "draw",
+              "target": "selectedTargets",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

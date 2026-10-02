@@ -609,6 +609,8 @@ public sealed partial record PlayerSnapshot
     public IReadOnlyList<PublicPersistentPileSnapshot>? PublicPersistentPiles { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<PrivateGeneralLibrarySnapshot>? PrivateGeneralLibraries {get;init;}
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<PrivateTurnHoldSnapshot>? PrivateTurnHolds { get; init; }
 
     /// <summary>
     /// Cards held face-down on this character's general card by Xu Sheng's Pojun.

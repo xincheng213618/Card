@@ -24,6 +24,7 @@ internal sealed record ProgramAiPublicContext(
     int? ActivationCardCount = null,
     bool HasClaimableDamageCards = false,
     int? EligibleTargetCount = null,
+    int? EventMovedCardCount = null,
     Func<string, bool>? AttackRangeCoverageDecreased = null,
     Func<IReadOnlyList<CardZoneKind>, IReadOnlyList<SkillProgramCardCategory>, IReadOnlyList<CardKind>, bool>? HasOwnedCardCategory = null,
     double CardEffectInterventionScore = 0d,
@@ -388,6 +389,7 @@ internal sealed class ProgramAiEstimateContext
     {
         var expressionLimit = effect.NumberExpression switch
         {
+            SkillProgramNumberExpression.EventMovedCardCount => Math.Max(0, _publicContext.EventMovedCardCount ?? 0),
             SkillProgramNumberExpression.PlannedNormalDrawCount => Math.Max(0, _publicContext.NormalDrawCount),
             SkillProgramNumberExpression.CurrentHandCount => Math.Max(0, (int)Math.Floor(_estimatedHandCount)),
             _ => effect.MaximumTargets

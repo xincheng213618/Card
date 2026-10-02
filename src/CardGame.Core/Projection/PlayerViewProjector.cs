@@ -100,6 +100,7 @@ public sealed partial class GameEngine
                 PublicPersistentPileSkillId = SinglePublicPileSource(player.Seat)?.SkillId,
                 PublicPersistentPiles = CreatePublicPersistentPileSnapshots(player.Seat),
                 PrivateGeneralLibraries = ProjectPrivateGeneralLibraries(player,viewerSeat,revealAll),
+                PrivateTurnHolds = ProjectPrivateTurnHolds(player.Seat, viewerSeat, revealAll),
                 PublicDeferredPileName = _deferredPublicPileDeposits.FirstOrDefault(item => item.OwnerSeat == player.Seat) is { } deposit ? _contentRegistry.GetSkill(deposit.SkillId).ProgramPresentation?.AuthorityName : null,
                 PublicDeferredPileCount = _cardZones.CardsAt(new CardLocation(CardZoneKind.PublicDeferredPile, player.Seat)).Count,
                 PublicDeferredPileCards = _cardZones.CardsAt(new CardLocation(CardZoneKind.PublicDeferredPile, player.Seat)).Count > 0 ? Array.AsReadOnly(_cardZones.CardsAt(new CardLocation(CardZoneKind.PublicDeferredPile, player.Seat)).Select(ToSnapshot).ToArray()) : null,
@@ -259,6 +260,7 @@ public sealed partial class GameEngine
         PublicPersistentPiles = player.PublicPersistentPiles is { } piles
             ? Array.AsReadOnly(piles.Select(pile => pile with { Cards = FreezeViewList(pile.Cards)! }).ToArray()) : null,
         PrivateGeneralLibraries = player.PrivateGeneralLibraries is {} libraries ? Array.AsReadOnly(libraries.Select(l => l with { GeneralIds = FreezeViewList(l.GeneralIds) }).ToArray()) : null,
+        PrivateTurnHolds = player.PrivateTurnHolds is { } holds ? Array.AsReadOnly(holds.Select(h => h with { Cards = FreezeViewList(h.Cards) }).ToArray()) : null,
         PojunHoldCards = FreezeViewList(player.PojunHoldCards),
         EquipmentSlotCapacities = FreezeViewDictionary(player.EquipmentSlotCapacities),
         ConfiguredConversionTiers = FreezeViewDictionary(player.ConfiguredConversionTiers),

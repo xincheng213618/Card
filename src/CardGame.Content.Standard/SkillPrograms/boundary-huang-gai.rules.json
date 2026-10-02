@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:zhaxiang",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "loss",
+          "window": "afterHpLost",
+          "subject": "owner",
+          "hpChangeOccurrence": "perPoint",
+          "optional": false,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 3
+            },
+            {
+              "op": "grantTurnRedSlashBenefits",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

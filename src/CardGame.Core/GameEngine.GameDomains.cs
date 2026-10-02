@@ -1,9 +1,9 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
     private bool TracksFirstGameDomainCrossings=>_contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ResolveFirstGameDomainCrossing);
-    private static bool IsRuleOutsideGame(CardLocation at)=>at.Zone is CardZoneKind.PublicPersistentPile or CardZoneKind.Authority or CardZoneKind.BuquWound or CardZoneKind.Chunlao or CardZoneKind.PrivateReserve or CardZoneKind.PojunHold or CardZoneKind.PublicDeferredPile or CardZoneKind.WoodenOxGrain or CardZoneKind.OutsideGame;
+    private static bool IsRuleOutsideGame(CardLocation at)=>at.Zone is CardZoneKind.PrivateTurnHold or CardZoneKind.PublicPersistentPile or CardZoneKind.Authority or CardZoneKind.BuquWound or CardZoneKind.Chunlao or CardZoneKind.PrivateReserve or CardZoneKind.PojunHold or CardZoneKind.PublicDeferredPile or CardZoneKind.WoodenOxGrain or CardZoneKind.OutsideGame;
     private void CaptureFirstGameDomainCrossings(long batchId,int turn,IReadOnlyList<CardMovementRecord> movements)
     {
         if(!TracksFirstGameDomainCrossings||turn<1||!CompleteProgramEventHistory().OfType<TurnStartedEvent>().Any(e=>e.TurnNumber==turn))return;

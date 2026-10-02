@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 62,
   "skills": [
     {
@@ -7,7 +7,7 @@
         "id": "discard-one-and-lose-hp", "minCards": 1, "maxCards": 1,
         "sourceZones": ["hand", "equipment"],
         "minTargets": 0, "maxTargets": 0, "targetKind": "anyLiving",
-        "usesPerTurn": 1,
+        "usesPerTurn": null, "usesPerPhase": 1,
         "effects": [
           { "op": "discardSelected", "target": "owner", "amount": 1 },
           { "op": "loseHp", "target": "owner", "amount": 1 }

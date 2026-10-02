@@ -1,0 +1,388 @@
+{
+  "schemaVersion": 1,
+  "productLine": "三国杀OL",
+  "batch": "界吕蒙界黄盖界陆逊及回合锦囊共用能力",
+  "roster": [
+    {
+      "contentId": "boundary:lu-meng",
+      "portraitKey": "boundary_lu_meng",
+      "officialId": 306,
+      "name": "界吕蒙",
+      "maxHp": 4,
+      "faction": "wu",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/306",
+      "retrievedAt": "2026-10-01T21:42:22.825592+00:00",
+      "responseSha256": "632370a80bad598d8be0fc65bf172ea241bda1589f5cd2e500b098aeae24ac54",
+      "officialSkillText": "武将技能：\n克己\n勤学\n博图\n若你未于本回合出牌阶段使用或打出过【杀】，你可以跳过弃牌阶段。\n觉醒技，准备阶段或结束阶段，若你的手牌数比体力值多2或更多，你减少1点体力上限，回复1点体力或摸两张牌，然后获得“\n攻心\n”。\n每轮限X次（X为存活角色数且至多为3），回合结束后，若本回合置入弃牌堆的牌包含四种花色，你可以执行一个额外回合。",
+      "artworkResource": "30600",
+      "indexFields": {
+        "gid": 306,
+        "name": "界吕蒙",
+        "resource": "30600",
+        "extend": "界限突破",
+        "hp": 4,
+        "initial_hp": 0,
+        "quality": "普通",
+        "figure": "吴",
+        "figure_py": "wu",
+        "biography": "字子明，汝南富陂[bēi]人。陈寿评曰：“吕蒙勇而有谋断，识军计，谲郝普，擒关羽，最其妙者。初虽轻果妄杀，终于克己，有国士之量，岂徒武将而已乎！”",
+        "characteristic": "能够积累大量的手牌，觉醒后能够观看并破坏敌人的手牌。囤积大量手牌后可以达成可怕的连续行动",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/306.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/30600.png",
+        "realname": "界吕蒙 (界限突破)"
+      },
+      "operationRange": [
+        1660,
+        1679
+      ],
+      "implementationStatus": "verified",
+      "artworkKey": "boundary-lu-meng",
+      "artwork": {
+        "id": "30600",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/306",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30600.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-lu-meng.png",
+        "sha256": "231e4ff5af9ae6e6f2c1ff830823dbb356e87682daa45505dbe3be31192e9bd6",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "http": {
+          "status": 200,
+          "retrievedAt": "2026-10-01T23:09:25.807984+00:00",
+          "bytes": 1049562,
+          "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30600.png"
+        },
+        "status": "officialBytesAndPixelsAndCompiledResourcesVerified",
+        "actualPixelsViewed": true
+      }
+    },
+    {
+      "contentId": "boundary:huang-gai",
+      "portraitKey": "boundary_huang_gai",
+      "officialId": 307,
+      "name": "界黄盖",
+      "maxHp": 4,
+      "faction": "wu",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/307",
+      "retrievedAt": "2026-10-01T21:42:22.770804+00:00",
+      "responseSha256": "68d6e3e6ca6537ed5d231c3d2560660e02b2c3d0669ea04f60b382725aef332d",
+      "officialSkillText": "武将技能：\n苦肉\n诈降\n出牌阶段限一次，你可以弃置一张牌，然后失去1点体力。\n锁定技，当你失去1点体力后，你摸三张牌，若在你的出牌阶段，你本回合使用【杀】的限制次数+1、使用红色【杀】无距离限制且不能被抵消。",
+      "artworkResource": "30700",
+      "indexFields": {
+        "gid": 307,
+        "name": "界黄盖",
+        "resource": "30700",
+        "extend": "界限突破",
+        "hp": 4,
+        "initial_hp": 0,
+        "quality": "史诗",
+        "figure": "吴",
+        "figure_py": "wu",
+        "biography": "字公覆，零陵郡泉陵县人。官至偏将军、武陵太守。以苦肉计骗曹孟德，亲往诈降，火烧战船，重创敌军。",
+        "characteristic": "通过主动扣减体力获得较多手牌，红色【杀】越多越好，可以快速杀死体力较少的武将。体力被压制后难以发动技能。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/307.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/30700.png",
+        "realname": "界黄盖 (界限突破)"
+      },
+      "operationRange": [
+        1680,
+        1699
+      ],
+      "implementationStatus": "verified",
+      "artworkKey": "boundary-huang-gai",
+      "artwork": {
+        "id": "30700",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/307",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30700.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-huang-gai.png",
+        "sha256": "1fc3d21a0b691287aba1592ea1a63c8b9ff3e894c551182486e0edb8665989b7",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "http": {
+          "status": 200,
+          "retrievedAt": "2026-10-01T23:09:25.808238+00:00",
+          "bytes": 1257754,
+          "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/30700.png"
+        },
+        "status": "officialBytesAndPixelsAndCompiledResourcesVerified",
+        "actualPixelsViewed": true
+      }
+    },
+    {
+      "contentId": "boundary:lu-xun",
+      "portraitKey": "boundary_lu_xun",
+      "officialId": 310,
+      "name": "界陆逊",
+      "maxHp": 3,
+      "faction": "wu",
+      "gender": "male",
+      "sourcePage": "https://www.sanguosha.com/hero/310",
+      "retrievedAt": "2026-10-01T21:42:22.755767+00:00",
+      "responseSha256": "9e313bf1365fd8df0255e355e6eb64146f9a43fac4f6ed1f0c9149a98764d4d4",
+      "officialSkillText": "武将技能：\n谦逊\n连营\n当一张延时锦囊牌或其他角色使用的普通锦囊牌对你生效时，若你为唯一目标，你可以将所有手牌移出游戏直到回合结束。\n当你失去所有手牌后，你可以令至多X名角色各摸一张牌（X为你失去的手牌数）。",
+      "artworkResource": "31000",
+      "indexFields": {
+        "gid": 310,
+        "name": "界陆逊",
+        "resource": "31000",
+        "extend": "界限突破",
+        "hp": 3,
+        "initial_hp": 0,
+        "quality": "稀有",
+        "figure": "吴",
+        "figure_py": "wu",
+        "biography": "本名陆议，字伯言，吴郡吴县人。历任东吴大都督、丞相。吴大帝孙权兄孙策之婿，世代为江东大族。以谦逊之书麻痹关羽，夺取荆州，又有火烧连营大破蜀军，大伤蜀之元气。",
+        "characteristic": "能够源源不断的使用手牌，回合内拥有高爆发，回合外让队友摸牌。受到【贯石斧】等强制造成伤害的牌的针对。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/310.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/31000.png",
+        "realname": "界陆逊 (界限突破)"
+      },
+      "operationRange": [
+        1700,
+        1739
+      ],
+      "implementationStatus": "verified",
+      "artworkKey": "boundary-lu-xun",
+      "artwork": {
+        "id": "31000",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/310",
+        "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31000.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-lu-xun.png",
+        "sha256": "3ef58b09ef54299c21ddf4721cfbb72a1b9b9087afab1ee8c0d53e3e6364fca7",
+        "pixelWidth": 750,
+        "pixelHeight": 950,
+        "http": {
+          "status": 200,
+          "retrievedAt": "2026-10-01T23:09:25.811342+00:00",
+          "bytes": 1368153,
+          "url": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/31000.png"
+        },
+        "status": "officialBytesAndPixelsAndCompiledResourcesVerified",
+        "actualPixelsViewed": true
+      }
+    }
+  ],
+  "baselineHead": "0b1294468ef13e7d42c0520c15af27830ba6e5c3",
+  "baselineManifestSha256": "4bc703067e77142b102ffc9379599d52abd0adc00d53da0909ece1b42c2a35c6",
+  "indexSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+  "engineeringContract": "docs/content/skill-composition/FENG_LIN_SEVENTH_CAPABILITIES.md",
+  "rulesInterpretationsAreExplicitEngineeringContract": true,
+  "implementationStatus": "verified",
+  "informationUiStatus": "verifiedByFullWpfAndActualOfflineRenders",
+  "verification": {
+    "parentFocusedSummary": {
+      "status": "passed",
+      "mode": "targeted",
+      "repository": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSeventh-20261002\\parent-integration",
+      "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSeventh-20261002\\parent-focused-final-artifacts",
+      "coreFilters": [
+        "boundary Lu Meng",
+        "Boundary Huang Gai",
+        "boundary Lu Xun",
+        "after turn ended",
+        "shared post-event",
+        "Feng Lin Zhou Fei"
+      ],
+      "wpfFilters": [
+        "declaration and general library views protect private faces"
+      ],
+      "startedAt": "2026-10-02T07:55:14.1031787+08:00",
+      "durationMs": 27414,
+      "message": null,
+      "results": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 8988,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSeventh-20261002\\parent-focused-final-artifacts\\logs\\build.log"
+        },
+        {
+          "name": "Core selected checks (6 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 16162,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSeventh-20261002\\parent-focused-final-artifacts\\logs\\core-selected.log"
+        },
+        {
+          "name": "WPF selected checks (1 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2218,
+          "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSeventh-20261002\\parent-focused-final-artifacts\\logs\\wpf-selected.log"
+        }
+      ]
+    },
+    "focusedCorePassed": 39,
+    "focusedWpfPassed": 1,
+    "mainFullStatus": "passed",
+    "routineStatus": "passed",
+    "independentReviews": "Frozen SHA verified; LuMeng and HuangGai static review passed. LuXun identified ordinary child-death return and final guard reviewed after repair.",
+    "mainFull": {
+      "corePassed": 431,
+      "wpfPassed": 47,
+      "durationMs": 198975,
+      "summary": {
+        "status": "passed",
+        "mode": "full",
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSeventh-20261002\\validation-main-full-01",
+        "coreFilters": [],
+        "wpfFilters": [],
+        "startedAt": "2026-10-02T08:00:13.2618264+08:00",
+        "durationMs": 198975,
+        "message": null,
+        "results": [
+          {
+            "name": "Build selected scope",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 8188,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSeventh-20261002\\validation-main-full-01\\logs\\build.log"
+          },
+          {
+            "name": "Core full checks",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 131096,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSeventh-20261002\\validation-main-full-01\\logs\\core-full.log"
+          },
+          {
+            "name": "WPF full checks",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 59641,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSeventh-20261002\\validation-main-full-01\\logs\\wpf-full.log"
+          }
+        ]
+      }
+    },
+    "routine": {
+      "corePassed": 126,
+      "wpfPassed": 13,
+      "durationMs": 63176,
+      "summary": {
+        "status": "passed",
+        "mode": "routine",
+        "repository": "C:\\Users\\17917\\Desktop\\Card",
+        "artifactsPath": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSeventh-20261002\\validation-main-full-01",
+        "coreFilters": [
+          "command",
+          "observer",
+          "viewer",
+          "prepared snapshot",
+          "internal failure",
+          "skill program",
+          "lifecycle programs",
+          "shared post-event",
+          "shared use lifecycle",
+          "shared card-use",
+          "card movement",
+          "card inventory",
+          "initial deal",
+          "invalid single and batch",
+          "draw and recover",
+          "execution plans",
+          "skill executor",
+          "program gameplay hashes",
+          "physical deck recipes",
+          "structured skill metadata",
+          "content registry",
+          "standard package",
+          "composition kernel",
+          "rule query",
+          "slash resolution",
+          "dying response",
+          "Xingshang",
+          "response use completion",
+          "selected gift",
+          "configured active sequences",
+          "standard active programs",
+          "owned-card set",
+          "turn card-use effects",
+          "active Program contracts",
+          "hand guidance",
+          "actual marker payment",
+          "replacement draw and dying payment",
+          "two dynamic actual ends",
+          "ordered nested native owner",
+          "payment nested comparison",
+          "first target history",
+          "program conversion polarity shared state and replay",
+          "Feng Lin Lu Zhi actual discard entry boundaries",
+          "Ending child gift joins current boundary",
+          "Feng Lin Yuan Shu command loss regrant source suppression",
+          "Feng Lin Yuan Shu qualified awakening persistent local loss",
+          "Feng Lin Zhou Fei first domains and true equipment sequence",
+          "Feng Lin Zhou Fei same-source association freeze",
+          "Feng Lin Congjian Equipment gift nested replay",
+          "after turn ended return movement prelude ordering",
+          "after turn ended due before window nested replay",
+          "Feng Lin Zuo Ci initial privacy and replay",
+          "Feng Lin Zuo Ci layered suppression and local disable",
+          "Feng Lin Zuo Ci same avatar program and actual end",
+          "Feng Lin Yu Ji",
+          "boundary Lu Meng all table printed suits replay",
+          "boundary Lu Meng cross owner skip chain resume death",
+          "boundary Lu Meng Qinxue windows shared usage",
+          "boundary Lu Meng opt in usage legacy shape",
+          "Boundary Huang Gai actual provider color",
+          "Boundary Huang Gai multi card color source lifecycle",
+          "boundary Lu Xun actual trick hold lianying and return",
+          "boundary Lu Xun HE payment exact Hand batch count"
+        ],
+        "wpfFilters": [
+          "original card artwork",
+          "composed skills",
+          "conversion choices",
+          "response context",
+          "hand responses",
+          "opaque target-card",
+          "playback batches",
+          "saved UI boundaries",
+          "failed writes",
+          "public markers",
+          "deferred hand alignment",
+          "Program conversion polarity stays visible",
+          "declaration and general library views protect private faces"
+        ],
+        "startedAt": "2026-10-02T08:04:34.6320703+08:00",
+        "durationMs": 63176,
+        "message": null,
+        "results": [
+          {
+            "name": "Build selected scope",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 1327,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSeventh-20261002\\validation-main-full-01\\logs\\build.log"
+          },
+          {
+            "name": "Core selected checks (63 filters, union)",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 24921,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSeventh-20261002\\validation-main-full-01\\logs\\core-selected.log"
+          },
+          {
+            "name": "WPF selected checks (13 filters, union)",
+            "status": "passed",
+            "exitCode": 0,
+            "durationMs": 36864,
+            "log": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinSeventh-20261002\\validation-main-full-01\\logs\\wpf-selected.log"
+          }
+        ]
+      }
+    },
+    "compiledPortraitBytesMatchOfficialFrozen": true,
+    "actualOfflineRendersViewed": [
+      "263-turn-hand-hold-overview.png",
+      "264-private-turn-hand-holds.png"
+    ],
+    "boundary": "Focused accepted-command replay, separate host lifecycle audits and real offline WPF controls; no live OL client match or physical desktop manual-play acceptance."
+  }
+}

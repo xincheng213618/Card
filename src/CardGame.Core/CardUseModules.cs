@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 [Flags]
 public enum CardUseCategories
@@ -183,7 +183,7 @@ public static class CardUseCategoryCatalog
 /// Deterministic turn-scoped state. Checkpoints rebuild it from the accepted
 /// command prefix; stable frame/effect keys make a resumed instruction idempotent.
 /// </summary>
-internal sealed class TurnCardUseEffectStore
+internal sealed partial class TurnCardUseEffectStore
 {
     private readonly List<TurnCardTargetAdjustment> _targetAdjustments = [];
     private readonly List<TurnCardUseProhibition> _prohibitions = [];
@@ -578,9 +578,9 @@ internal sealed class TurnCardUseEffectStore
 
     internal IReadOnlyList<long> ExpireTurn(int turnNumber, int turnSeat)
     {
-        var expired = _targetAdjustments
+        var expired = ExpiringRedSlashPolicies(turnNumber, turnSeat).Concat(_targetAdjustments
             .Where(item => item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
-            .Select(item => item.GrantSequence)
+            .Select(item => item.GrantSequence))
             .Concat(_prohibitions
                 .Where(item => item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
                 .Select(item => item.GrantSequence))
@@ -615,6 +615,7 @@ internal sealed class TurnCardUseEffectStore
         _ruleModifiers.RemoveAll(item => expiredSet.Contains(item.GrantSequence));
         _targetRestrictions.RemoveAll(item => expiredSet.Contains(item.GrantSequence));
         _conversions.RemoveAll(item => expiredSet.Contains(item.GrantSequence));
+        ExpireRedSlashPolicies(expiredSet);
         return expired;
     }
 

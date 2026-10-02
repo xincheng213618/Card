@@ -18,6 +18,7 @@ public static class JudgmentReasons
 
 public enum ResolutionFrameKind
 {
+    CardEffectBeforeApply = 1700,
     CardDeclaration = 1600,
     CardDeclarationChallenge = 1601,
     DeferredTurnEnd = 1300,
@@ -59,6 +60,7 @@ public enum ResolutionFrameStep
 /// </summary>
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
 [JsonDerivedType(typeof(DeferredTurnEndFrame), "deferred-turn-end")]
+[JsonDerivedType(typeof(CardEffectBeforeApplyFrame), "card-effect-before-apply")]
 [JsonDerivedType(typeof(CardDeclarationFrame), "card-declaration")]
 [JsonDerivedType(typeof(CardDeclarationChallengeFrame), "card-declaration-challenge")]
 [JsonDerivedType(typeof(CardUseFrame), "card-use")]
@@ -106,6 +108,8 @@ public sealed record ProgramSkillFrame(
 {
     /// <summary>The exact current grant selected when this execution was frozen.</summary>
     public string SkillInstanceId { get; init; } = "";
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramPrivateTurnHoldDraft? PrivateTurnHoldDraft { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public SkillPolarity? ConversionPreviousPolarity { get; init; }

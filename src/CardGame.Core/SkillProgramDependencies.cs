@@ -36,6 +36,7 @@ internal sealed class SkillProgramDependencies
                 group => (IReadOnlyList<string>)Array.AsReadOnly(group.Select(entry => entry.SkillId)
                     .Distinct(StringComparer.Ordinal).ToArray()));
         _windows = triggers.Select(trigger => trigger.Window).ToFrozenSet();
+        UsesDynamicRoundUsage = triggers.Any(trigger => trigger.DynamicUsageLimit is not null);
         _maximumCardPolicyKind = programs.SelectMany(program => program.CardPolicies)
             .Select(policy => (int?)policy.Kind).Max();
         var finalized = triggers.Where(trigger => trigger.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized).ToArray();
@@ -55,6 +56,7 @@ internal sealed class SkillProgramDependencies
             UsesTriggerCondition(SkillProgramTriggerConditionKind.CardActionSuitIs);
     }
 
+    internal bool UsesDynamicRoundUsage { get; }
     internal bool CapturesCompletedResponseSuit { get; }
     internal bool TracksPlayCardHistory { get; }
     internal bool UsesTriggerCondition(SkillProgramTriggerConditionKind kind) => _conditions.Contains(kind);

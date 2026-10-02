@@ -835,6 +835,7 @@ public sealed partial class GameEngine
         var targetSeats = GetProgramTargetSeats(ownerSeat, targetKind, frame.WindowContext);
         var expressionMaximum = numberExpression switch
         {
+            SkillProgramNumberExpression.EventMovedCardCount => frame.WindowContext?.Window == SkillProgramTriggerWindow.CardsMoved ? frame.WindowContext.Facts?.MovedCardCount ?? 0 : throw new InvalidOperationException("Moved-card target count requires its owning movement window."),
             SkillProgramNumberExpression.BoundCardCount => frame.CardSetBindings.Last().CardIds.Count,
             SkillProgramNumberExpression.CurrentHandCount => GetHand(_players[ownerSeat]).Count,
             SkillProgramNumberExpression.CurrentHp => Math.Max(0, _players[ownerSeat].Hp),
@@ -1732,7 +1733,7 @@ public sealed partial class GameEngine
                 binding.Trigger.Priority,
                 occurrenceIndex))
             .DistinctBy(candidate => (candidate.SkillId, candidate.BindingId,
-                GetProgramTrigger(candidate).Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardHandToNamedTurnCount) ? "" : candidate.SkillInstanceId))
+                GetProgramTrigger(candidate).NamedUsageGroup is not null || GetProgramTrigger(candidate).DynamicUsageLimit is not null || GetProgramTrigger(candidate).Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardHandToNamedTurnCount) ? "" : candidate.SkillInstanceId))
             .ToArray();
 
     private SkillProgramTrigger GetProgramTrigger(ProgramTriggerCandidate candidate) =>
@@ -1807,7 +1808,7 @@ public sealed partial class GameEngine
                 candidate.SkillId, candidate.SkillInstanceId))
             return false;
         if (!HasInitialOwnedCardSelectionCandidates(owner, trigger)) return false;
-        if (trigger.UsageScope is { } scope && trigger.UsageLimit is { } limit &&
+        if (trigger.UsageScope is { } scope && ProgramTriggerUsageLimit(trigger) is { } limit &&
             _skillRuntimeState.GetUsage(
                 owner.Seat, candidate.SkillId, ProgramTriggerUsageId(candidate), scope) >= limit)
             return false;
@@ -1883,6 +1884,7 @@ public sealed partial class GameEngine
             SkillProgramTriggerWindow.DrawPhaseStarting =>
                 (owner.Seat == _currentSeat && context.SourceSeat == owner.Seat && CanRunDrawPhaseProgramTrigger(owner, trigger) ||
                  features.HasOperation(SkillProgramEffectOp.AddMarkerSubjectNormalDraw) && context.SourceSeat==_currentSeat && context.TargetSeat==_currentSeat) && _phase == TurnPhase.Draw,
+            SkillProgramTriggerWindow.CardEffectBeforeApply => CanRunCardEffectCandidate(candidate, context),
             SkillProgramTriggerWindow.AfterTurnEnded =>
                 CanRunAfterTurnEndedCandidate(candidate, context, trigger),
             SkillProgramTriggerWindow.GameStarting =>
@@ -2146,7 +2148,7 @@ public sealed partial class GameEngine
     {
         var trigger = _contentRegistry!.GetSkill(candidate.SkillId).Program!.Triggers
             .Single(item => item.Id == candidate.BindingId);
-        if (trigger.UsageScope is not { } scope || trigger.UsageLimit is not { } limit) return;
+        if (trigger.UsageScope is not { } scope || ProgramTriggerUsageLimit(trigger) is not { } limit) return;
         if (!_skillRuntimeState.TryConsumeUsage(
                 candidate.OwnerSeat, candidate.SkillId, ProgramTriggerUsageId(candidate), scope, limit))
             throw new InvalidOperationException("The configured trigger usage was already consumed.");
@@ -2157,6 +2159,8 @@ public sealed partial class GameEngine
     private string ProgramTriggerUsageId(ProgramTriggerCandidate candidate)
     {
         var trigger = GetProgramTrigger(candidate);
+        if (trigger.NamedUsageGroup is { } named) return $"named-group:{named}";
+        if (trigger.DynamicUsageLimit is not null) return $"named-binding:{candidate.BindingId}";
         var usageBinding = trigger.ChoiceGroup is { } choiceGroup
             ? $"choice-group:{choiceGroup}"
             : candidate.BindingId;
@@ -2183,6 +2187,7 @@ public sealed partial class GameEngine
             CurrentMaxHp: owner.MaxHp,
             CurrentAvailableEquipmentSlotCount: UsesStrategicTriggerValue(SkillProgramTriggerValueKind.CurrentAvailableEquipmentSlotCount) ? Enum.GetValues<EquipmentSlot>().Count(slot => owner.EquipmentSlotCapacity(slot) > 0) : null,
             CurrentHandCount: GetHand(owner).Count,
+            TurnDiscardSuitMask: TracksTurnDiscardSuits ? CurrentTurnDiscardSuitMask : null,
             LivingPlayersMinHp: GetLivingPlayersMinHp(),
             TurnOwnerDiscardPhaseHandDiscardCount: TurnOwnerDiscardPhaseHandDiscardCount,
             DiscardPhaseSuitsAllDistinct: owner.Seat == _currentSeat && FullDiscardPhaseSuitsAllDistinct,
@@ -3624,6 +3629,11 @@ public sealed partial class GameEngine
     private (ProgramTriggerCandidate Candidate, ProgramSkillWindowContext Context)
         GetPendingProgramTriggerCandidate()
     {
+        if (_resolutionStack.LastOrDefault() is CardEffectBeforeApplyFrame effect)
+        {
+            var candidate = effect.Candidates[effect.CandidateIndex];
+            return (ToSharedCandidate(candidate),candidate.FrozenContext!);
+        }
         if (_resolutionStack.LastOrDefault() is DeferredTurnEndFrame { AfterTurnEnded: not null } afterTurnEnded)
         {
             var candidate = AfterTurnEndedCandidate(afterTurnEnded);
@@ -3688,6 +3698,11 @@ public sealed partial class GameEngine
 
     private void CompleteSkippedProgramCandidate(ProgramTriggerCandidate candidate)
     {
+        if (_resolutionStack.LastOrDefault() is CardEffectBeforeApplyFrame effect)
+        {
+            if (ToSharedCandidate(effect.Candidates[effect.CandidateIndex]) != candidate) throw new InvalidOperationException("Skipped effect candidate changed.");
+            CompleteCardEffectCandidate(effect.Candidates[effect.CandidateIndex].FrozenContext!); return;
+        }
         if (_resolutionStack.LastOrDefault() is DeferredTurnEndFrame { AfterTurnEnded: not null } afterTurnEnded)
         {
             AdvanceAfterTurnEndedCandidate(afterTurnEnded, candidate, activated: false, completed: false);
@@ -4055,10 +4070,19 @@ public sealed partial class GameEngine
         var ending = _resolutionStack.OfType<TurnEndingBoundaryFrame>().LastOrDefault();
         var endingFacts = ending is not null && ending.ItemIndex < ending.Items.Count
             ? ending.Items[ending.ItemIndex].Facts ?? ending.Facts : null;
+        var movementFrame = _resolutionStack.OfType<CardsMovedTriggerWindowFrame>().LastOrDefault();
+        var movementContext = movementFrame is not null && movementFrame.Contexts is {} contexts && movementFrame.CandidateIndex < contexts.Count
+            ? contexts[movementFrame.CandidateIndex] : null;
+        var movementFacts = movementContext?.OwnerSeat == owner.Seat && movementContext.Window == SkillProgramTriggerWindow.CardsMoved
+            ? movementContext.Facts : null;
+        var effectFrame = _resolutionStack.OfType<CardEffectBeforeApplyFrame>().LastOrDefault();
+        var effectFacts = effectFrame is not null && effectFrame.CandidateIndex < effectFrame.Candidates.Count
+            ? effectFrame.Candidates[effectFrame.CandidateIndex].FrozenContext?.Facts : null;
         var facts = _resolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().LastOrDefault()?.Facts ??
-            endingFacts ?? cardFacts;
+            endingFacts ?? movementFacts ?? effectFacts ?? cardFacts;
         return context with
         {
+            EventMovedCardCount = movementFacts?.MovedCardCount,
             BooleanState = stateId => facts is null
                 ? GetProgramBooleanState(owner.Seat, skillId, skillInstanceId, stateId)
                 : facts.GetBooleanState(skillId, skillInstanceId, stateId)

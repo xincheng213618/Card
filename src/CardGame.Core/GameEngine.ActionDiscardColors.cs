@@ -1,11 +1,11 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool TracksActionDiscardColor=>_contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RewardDiscardedActionColor)==true;
-    private bool? CapturePhysicalCardColor(int seat,Card card)=>LiveDeclarationPayment(card.Id) is {} declared ? declared.Cost.EffectiveIsRed : TracksActionDiscardColor?SuitColor(EffectiveSuit(_players[seat],card)):null;
+    private bool? CapturePhysicalCardColor(int seat,Card card)=>LiveDeclarationPayment(card.Id) is {} declared ? declared.Cost.EffectiveIsRed : CapturesActionColor?SuitColor(EffectiveSuit(_players[seat],card)):null;
     private bool? CaptureActionColor(IReadOnlyList<CardActionCost> costs,Suit? effectiveSuit=null)
     {
-        if(!TracksActionDiscardColor||costs.Count==0)return null;
+        if(!CapturesActionColor||costs.Count==0)return null;
         if(SuitColor(effectiveSuit) is {} declared)return declared;
         var colors=costs.Select(c=>c.EffectiveIsRed).Distinct().ToArray();return colors.Length==1?colors[0]:null;
     }

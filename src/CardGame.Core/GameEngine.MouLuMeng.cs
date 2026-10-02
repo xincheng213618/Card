@@ -26,7 +26,8 @@ public sealed partial class GameEngine
 
     private void BeginRoundForTurn(CharacterState current)
     {
-        if (!UsesFormalMouLuMeng) return;
+        if ((!UsesFormalMouLuMeng && !_contentRegistry.ProgramDependencies.UsesDynamicRoundUsage) ||
+            _turnProgression.Kind == ActualTurnKind.Extra) return;
 
         if (_roundNumber == 0 || _roundTurnSeats.Contains(current.Seat))
         {

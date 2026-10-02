@@ -45,7 +45,7 @@ public sealed partial class GameEngine
     private int _currentSeat;
     private int _slashCountThisTurn;
     private int _playPhaseKillCountByCurrentPlayer;
-    private int? _pendingExtraTurnSeat;
+    private ActualTurnProgression _turnProgression = new(ActualTurnKind.Normal, 0, 0);
     private int _playPhaseDamageDealtByCurrentPlayer;
     // Guzheng ledger: hand cards the current turn owner moved into the discard
     // pile during this turn's discard phase. Scoped to its owning turn number so
@@ -3325,6 +3325,7 @@ public sealed partial class GameEngine
 
         BeginRoundForTurn(current);
         _turnNumber++;
+        _turnProgression = _turnProgression with { OwnerSeat = _currentSeat, TurnNumber = _turnNumber };
         ExpireOwnerTurnStartDamageModifiers(current.Seat);
         _slashCountThisTurn = 0;
         ResetCardUseDebitPhase();
@@ -3390,20 +3391,8 @@ public sealed partial class GameEngine
         if (delayedCard is not null)
         {
             var effectiveKind = GetJudgmentEffectiveCardKind(delayedCard);
-            var delayedJudgment = GetDelayedJudgmentInfo(effectiveKind);
-            var judgment = BeginJudgment(
-                attack: null,
-                targetSeat: current.Seat,
-                reason: delayedJudgment.Reason,
-                parentFrameId: 0,
-                sourceCard: effectiveKind,
-                continuation: delayedJudgment.Continuation,
-                delayedCard: delayedCard,
-                sourceSeat: current.Seat);
-            if (judgment is null)
-            {
-                AdvanceRulesAndPublishState();
-            }
+            if (TryBeginDelayedCardEffectPrograms(current,delayedCard,effectiveKind)) return;
+            BeginActualDelayedJudgment(current,delayedCard,effectiveKind);
 
             return;
         }
@@ -4562,6 +4551,12 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (TryBeginOrdinaryCardEffectPrograms(pending)) return;
+        ResolveNullifiableEffectCore(pending);
+    }
+
+    private void ResolveNullifiableEffectCore(NullificationWindowFrame pending)
+    {
         switch (pending.ActionKind)
         {
             case LegalActionKind.DrawTwo:
@@ -6155,15 +6150,15 @@ public sealed partial class GameEngine
     private bool IsLegalBorrowedSwordSlashTarget(
         CharacterState weaponOwner,
         CharacterState target,
-        CardKind? effectiveKind = null, Suit? physicalSuit = null, bool allowAnyPhysicalSuit = true) =>
+        CardKind? effectiveKind = null, Suit? physicalSuit = null, bool allowAnyPhysicalSuit = true, bool? effectiveColor = null) =>
         effectiveKind is { } kind
             ? target.IsAlive && target.Seat != weaponOwner.Seat &&
               !IsCardUseForbidden(weaponOwner.Seat, kind, CardActionType.Use) &&
-              (HasPhaseSuitAllowance(weaponOwner.Seat,physicalSuit) || (allowAnyPhysicalSuit && GetSlashUseCards(weaponOwner).Any(c=>HasPhaseSuitAllowance(weaponOwner,c))) || HasCardDistanceExemption(weaponOwner, target, kind) ||
+              (HasTurnRedSlashPolicyForColor(weaponOwner.Seat,kind,effectiveColor ?? SuitColor(physicalSuit)) || (allowAnyPhysicalSuit && GetSlashUseCards(weaponOwner).Any(c=>HasTurnRedSlashPolicy(weaponOwner.Seat,kind,EffectiveSuit(weaponOwner,c)))) || HasPhaseSuitAllowance(weaponOwner.Seat,physicalSuit) || (allowAnyPhysicalSuit && GetSlashUseCards(weaponOwner).Any(c=>HasPhaseSuitAllowance(weaponOwner,c))) || HasCardDistanceExemption(weaponOwner, target, kind) ||
                IsWithinAttackRange(weaponOwner.Seat, target.Seat)) &&
               !IsDirectedCardTargetProhibited(weaponOwner.Seat, target.Seat, kind) &&
               !IsSlashProhibited(target)
-            : SlashKinds.Any(candidate => IsLegalBorrowedSwordSlashTarget(weaponOwner, target, candidate, physicalSuit, allowAnyPhysicalSuit));
+            : SlashKinds.Any(candidate => IsLegalBorrowedSwordSlashTarget(weaponOwner, target, candidate, physicalSuit, allowAnyPhysicalSuit, effectiveColor));
 
     private IReadOnlyList<Card> GetBorrowedSwordSlashCards(
         CharacterState weaponOwner,
@@ -6180,7 +6175,7 @@ public sealed partial class GameEngine
             {
                 var baseKind = IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash;
                 if (!GetSlashUseVariants(weaponOwner, baseKind).Any(variant =>
-                        (HasPhaseSuitAllowance(weaponOwner,card) || IsWithinAttackRange(weaponOwner.Seat,slashTarget.Seat) || HasCardDistanceExemption(weaponOwner,slashTarget,variant.EffectiveKind)) && IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, variant.EffectiveKind)))
+                        (HasTurnRedSlashPolicy(weaponOwner.Seat,variant.EffectiveKind,EffectiveSuit(weaponOwner,card)) || HasPhaseSuitAllowance(weaponOwner,card) || IsWithinAttackRange(weaponOwner.Seat,slashTarget.Seat) || HasCardDistanceExemption(weaponOwner,slashTarget,variant.EffectiveKind)) && IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, variant.EffectiveKind)))
                     return false;
                 var location = _cardZones.GetLocation(card.Id);
                 if (location != CardLocation.Equipment(weaponOwner.Seat) ||
@@ -6392,7 +6387,7 @@ public sealed partial class GameEngine
         {
             throw new InvalidOperationException("The selected Borrowed Sword Slash conversion is no longer legal.");
         }
-        if (!IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, effectiveKind) || !(HasPhaseSuitAllowance(weaponOwner,selected) || HasCardDistanceExemption(weaponOwner,slashTarget,effectiveKind) || IsWithinAttackRange(weaponOwner.Seat,slashTarget.Seat)))
+        if (!IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, effectiveKind) || !(HasTurnRedSlashPolicy(weaponOwner.Seat,effectiveKind,EffectiveSuit(weaponOwner,selected)) || HasPhaseSuitAllowance(weaponOwner,selected) || HasCardDistanceExemption(weaponOwner,slashTarget,effectiveKind) || IsWithinAttackRange(weaponOwner.Seat,slashTarget.Seat)))
         {
             throw new InvalidOperationException("The selected Borrowed Sword Slash target is no longer legal.");
         }
@@ -6421,7 +6416,7 @@ public sealed partial class GameEngine
         var slashTarget = _players[pending.SlashTargetSeat];
         if (!SameContinuationOwner(ActiveBorrowedSword, pending) ||
             !pending.AwaitingSlashChoice ||
-            !IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, physicalSuit:PhysicalGroupSuit(weaponOwner,pair), allowAnyPhysicalSuit:false) ||
+            !IsLegalBorrowedSwordSlashTarget(weaponOwner, slashTarget, physicalSuit:PhysicalGroupSuit(weaponOwner,pair), allowAnyPhysicalSuit:false, effectiveColor:PhysicalGroupColor(weaponOwner,pair)) ||
             FindZhangbaSlashPair(weaponOwner, pair.Select(card => card.Id).ToArray()) is null)
         {
             throw new InvalidOperationException("The selected Borrowed Sword Zhangba Slash is no longer legal.");
@@ -6795,7 +6790,7 @@ public sealed partial class GameEngine
             physicalCards.Count != 2 ||
             physicalCards.Select(card => card.Id).Distinct().Count() != 2 ||
             physicalCards.Any(card => !IsOwnedPlayableLocation(source, _cardZones.GetLocation(card.Id))) ||
-            !CanUseVirtualSlashTarget(source, target, physicalSuit:PhysicalGroupSuit(source,physicalCards)))
+            !CanUseVirtualSlashTarget(source, target, physicalSuit:PhysicalGroupSuit(source,physicalCards), effectiveColor:PhysicalGroupColor(source,physicalCards)))
         {
             throw new InvalidOperationException("Zhangba Serpent Spear became illegal before resolution.");
         }
@@ -8222,18 +8217,18 @@ public sealed partial class GameEngine
     private bool CanUseQinglongCrescentBladeTarget(
         CharacterState source,
         CharacterState target,
-        CardKind? effectiveKind = null) =>
+        CardKind? effectiveKind = null, bool? effectiveColor = null, bool allowAnyColor = true) =>
         source.IsAlive &&
         target.IsAlive &&
         source.Seat != target.Seat &&
         HasWeaponAbility(source, CardKind.QinglongCrescentBlade) &&
         (effectiveKind is { } kind
             ? !IsCardUseForbidden(source.Seat, kind, CardActionType.Use) &&
-              (HasCardDistanceExemption(source, target, kind) ||
+              (HasTurnRedSlashPolicyForColor(source.Seat,kind,effectiveColor) || allowAnyColor && _turnCardUseEffects.HasRedSlashPolicy(_turnNumber,_currentSeat,source.Seat) || HasCardDistanceExemption(source, target, kind) ||
                IsWithinAttackRange(source.Seat, target.Seat)) &&
               !IsDirectedCardTargetProhibited(source.Seat, target.Seat, kind) &&
               !IsSlashProhibited(target)
-            : SlashKinds.Any(candidate => CanUseQinglongCrescentBladeTarget(source, target, candidate)));
+            : SlashKinds.Any(candidate => CanUseQinglongCrescentBladeTarget(source, target, candidate,effectiveColor,allowAnyColor)));
 
     private IReadOnlyList<Card> GetQinglongCrescentBladeSlashCards(
         CharacterState source,
@@ -8242,7 +8237,7 @@ public sealed partial class GameEngine
             ? GetSlashUseCards(source).Where(card =>
                 GetSlashUseVariants(source, IsSlashCard(card.Kind) ? card.Kind : CardKind.Slash)
                     .Any(variant => CanUseQinglongCrescentBladeTarget(
-                        source, target, variant.EffectiveKind))).ToArray()
+                        source, target, variant.EffectiveKind,SuitColor(EffectiveSuit(source,card)),allowAnyColor:false))).ToArray()
             : [];
 
     private bool CanRequestQinglongCrescentBladeFactionSlash(
@@ -9618,7 +9613,7 @@ public sealed partial class GameEngine
             !pending.IsProgramSkillUse ||
             (pending.IsAssistedProgramUse
                 ? !IsAssistedProvidedSlashTarget(owner.Seat, target.Seat, effectiveKind)
-                : !CanUseProvidedSlashTarget(owner, target, effectiveKind)))
+                : !CanUseProvidedSlashTarget(owner, target, effectiveKind, allowAnyPhysicalSuit:false, effectiveColor:PhysicalGroupColor(owner,physicalCards))))
         {
             throw new InvalidOperationException("The active FactionSlash target is no longer legal.");
         }
@@ -9678,7 +9673,7 @@ public sealed partial class GameEngine
         if (!SameContinuationOwner(ActiveFactionCardRequest, pending) ||
             !SameContinuationOwner(ActiveBorrowedSword, borrowedSword) ||
             !pending.IsBorrowedSwordUse ||
-            !IsLegalBorrowedSwordSlashTarget(owner, target, effectiveKind))
+            !IsLegalBorrowedSwordSlashTarget(owner, target, effectiveKind,allowAnyPhysicalSuit:false,effectiveColor:PhysicalGroupColor(owner,physicalCards)))
         {
             throw new InvalidOperationException("The Borrowed Sword FactionSlash target is no longer legal.");
         }
@@ -9740,7 +9735,7 @@ public sealed partial class GameEngine
         if (!SameContinuationOwner(ActiveFactionCardRequest, pending) ||
             !SameContinuationOwner(ActiveQinglongCrescentBlade, qinglong) ||
             !pending.IsQinglongCrescentBladeUse ||
-            !CanUseQinglongCrescentBladeTarget(owner, target, effectiveKind))
+            !CanUseQinglongCrescentBladeTarget(owner, target, effectiveKind,PhysicalGroupColor(owner,physicalCards),allowAnyColor:false))
         {
             throw new InvalidOperationException("The Qinglong Crescent Blade FactionSlash target is no longer legal.");
         }
@@ -11372,7 +11367,9 @@ public sealed partial class GameEngine
         AddLog(
             "CardResponded",
             completesResponse
-                ? $"{defender.Name} {responseDescription}，抵消了【{incomingName}】。"
+                ? HasCurrentCardEnhancement(attack.ResolutionId, CurrentCardEnhancement.Uncancelable)
+                    ? $"{defender.Name} {responseDescription}，响应了【{incomingName}】，但此杀不能被抵消。"
+                    : $"{defender.Name} {responseDescription}，抵消了【{incomingName}】。"
                 : $"{defender.Name} {responseDescription}响应【{incomingName}】；【无双】仍要求下一张【闪】。",
             defender.Seat,
             attack.SourceSeat);
@@ -13304,7 +13301,7 @@ public sealed partial class GameEngine
             targets,
             IgnoresArmor: ignoresArmor,
             PhysicalCardIds: physicalIds)
-        { AcceptedDeclarationPayment = declarationPayment, Action = actionContext, TargetsAdjusted = adjustedTargets is not null, FirstOwnPlayUseDistanceUnlimited = firstUseDistance });
+        { Enhancements = actionContext is { Type: CardActionType.Use, EffectiveIsRed: true } && HasTurnRedSlashPolicyForColor(sourceSeat, effectiveCardKind, actionContext.EffectiveIsRed) ? CurrentCardEnhancement.Uncancelable : CurrentCardEnhancement.None, AcceptedDeclarationPayment = declarationPayment, Action = actionContext, TargetsAdjusted = adjustedTargets is not null, FirstOwnPlayUseDistanceUnlimited = firstUseDistance });
         AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(
             resolutionId,
             card.Id,
@@ -13596,7 +13593,7 @@ public sealed partial class GameEngine
         !IsCardUseForbidden(source.Seat, effectiveKind, CardActionType.Use, ignoreIssuedPlayBan: existingUseFrameId is {} id && _resolutionStack.OfType<CardUseFrame>().Any(f=>f.Id==id&&f.Action?.ActorSeat==source.Seat)) &&
         target.IsAlive &&
         target.Seat != source.Seat &&
-        (ignoreDistance || HasPhaseSuitAllowance(source,slashCard) || HasCardDistanceExemption(source, target, effectiveKind) ||
+        (ignoreDistance || HasTurnRedSlashPolicy(source.Seat, effectiveKind, EffectiveSuit(source,slashCard)) || HasPhaseSuitAllowance(source,slashCard) || HasCardDistanceExemption(source, target, effectiveKind) ||
          IgnoresProgramSlashDistance(source, conversionSource) ||
          IgnoresSpGuanYuWushengDistance(source, slashCard) ||
          HasUnlimitedTurnRuleModifier(source.Seat, SkillRuleQuery.SlashDistanceLimit) ||
@@ -13607,12 +13604,12 @@ public sealed partial class GameEngine
     private bool CanUseVirtualSlashTarget(
         CharacterState source,
         CharacterState target,
-        CardKind effectiveKind = CardKind.Slash, Suit? physicalSuit = null) =>
+        CardKind effectiveKind = CardKind.Slash, Suit? physicalSuit = null, bool? effectiveColor = null) =>
         !IsCardUseForbidden(source.Seat, effectiveKind, CardActionType.Use) &&
         target.IsAlive &&
         target.Seat != source.Seat &&
         CanSpendSlashUse(source, target, ignoresCount: HasPhaseSuitAllowance(source.Seat,physicalSuit), effectiveKind) &&
-        (HasPhaseSuitAllowance(source.Seat,physicalSuit) || HasCardDistanceExemption(source, target, effectiveKind) ||
+        (HasTurnRedSlashPolicyForColor(source.Seat, effectiveKind, effectiveColor ?? SuitColor(physicalSuit)) || HasPhaseSuitAllowance(source.Seat,physicalSuit) || HasCardDistanceExemption(source, target, effectiveKind) ||
          HasUnlimitedTurnRuleModifier(source.Seat, SkillRuleQuery.SlashDistanceLimit) ||
          IsWithinAttackRange(source.Seat, target.Seat)) &&
         !IsSlashProhibited(target);
@@ -13908,7 +13905,7 @@ public sealed partial class GameEngine
             if (CanUseZhangbaSerpentSpear(actor))
             {
                 var targets = SlashKinds
-                    .SelectMany(kind => _players.Where(target => GetZhangbaSlashPairs(actor).Any(pair => CanUseVirtualSlashTarget(actor, target, kind, PhysicalGroupSuit(actor,pair)))))
+                    .SelectMany(kind => _players.Where(target => GetZhangbaSlashPairs(actor).Any(pair => CanUseVirtualSlashTarget(actor, target, kind, PhysicalGroupSuit(actor,pair), PhysicalGroupColor(actor,pair)))))
                     .Select(target => target.Seat)
                     .Distinct()
                     .Order()
@@ -15311,7 +15308,9 @@ public sealed partial class GameEngine
                 var description = isDodge
                     ? isGroupAttack
                         ? $"{cardDescription}，响应【{incomingName}】。"
-                        : $"{cardDescription}，抵消这次{incomingAttackName}。"
+                        : ActiveCardAttack is {} uncancelable && HasCurrentCardEnhancement(uncancelable.ResolutionId,CurrentCardEnhancement.Uncancelable)
+                            ? $"{cardDescription}，响应这次{incomingAttackName}；此杀不能被抵消。"
+                            : $"{cardDescription}，抵消这次{incomingAttackName}。"
                     : isGroupAttack
                         ? $"{cardDescription}，响应【{incomingName}】。"
                         : $"{cardDescription}，继续应战【决斗】。";
@@ -15400,7 +15399,9 @@ public sealed partial class GameEngine
             choices.Add(new PromptChoice(
                 new ChoiceId("respond.bagua"),
                 isSlashAttack
-                    ? $"发动【八卦阵】判定，红色牌视为打出【闪】抵消{incomingAttackName}。"
+                    ? ActiveCardAttack is {} uncancelableBagua && HasCurrentCardEnhancement(uncancelableBagua.ResolutionId,CurrentCardEnhancement.Uncancelable)
+                        ? $"发动【八卦阵】判定，红色牌视为打出【闪】响应{incomingAttackName}；此杀不能被抵消。"
+                        : $"发动【八卦阵】判定，红色牌视为打出【闪】抵消{incomingAttackName}。"
                     : "发动【八卦阵】判定，红色牌视为打出【闪】。",
                 [],
                 [],
@@ -15644,6 +15645,7 @@ public sealed partial class GameEngine
         ExpireTurnCardUseEffects(_turnNumber, previous.Seat);
         ExpireProgramSuppressions(previous.Seat);
         ReturnProgramPojunHoldsAtTurnEnd();
+        ReturnPrivateTurnHoldsAtTurnEnd();
 
         ExpireGiftRetentionObligations();
         _phase = TurnPhase.Finished;
@@ -15655,18 +15657,7 @@ public sealed partial class GameEngine
 
     private void AdvanceAfterDeferredTurnEnd(CharacterState previous, bool skipped)
     {
-        if (skipped) { _currentSeat = FindNextAliveSeat(_currentSeat); _phase = TurnPhase.NotStarted; AdvanceRulesAndPublishState(); return; }
-        var extraSeat = _pendingExtraTurnSeat;
-        _pendingExtraTurnSeat = null;
-        if (_winner == Winner.None && extraSeat is { } seat && _players[seat].IsAlive)
-        {
-            _currentSeat = seat;
-            AddLog("ExtraTurnStarted", $"{_players[seat].Name} 的额外回合开始。", seat);
-        }
-        else
-        {
-            _currentSeat = FindNextAliveSeat(_currentSeat);
-        }
+        AdvanceActualTurnProgression(previous);
         _phase = TurnPhase.NotStarted;
         AdvanceRulesAndPublishState();
     }
@@ -15791,6 +15782,8 @@ public sealed partial class GameEngine
             MoveDiedCards(_cardZones.CardsAt(new CardLocation(CardZoneKind.PublicDeferredPile, victim.Seat)),
                 new CardLocation(CardZoneKind.PublicDeferredPile, victim.Seat), new CardMoveReason("skill-program.deferred-pile.owner-death"));
             _deferredPublicPileDeposits.RemoveAll(item => item.OwnerSeat == victim.Seat);
+            foreach (var location in _cardZones.PrivateTurnHoldLocations.Where(l => l.OwnerSeat == victim.Seat))
+                MoveDiedCards(_cardZones.CardsAt(location),location,new("skill.private-turn-hold.death"));
             MoveDiedCards(
                 _cardZones.CardsAt(CardLocation.PojunHold(victim.Seat)),
                 CardLocation.PojunHold(victim.Seat),
@@ -16225,15 +16218,15 @@ public sealed partial class GameEngine
     private bool CanUseProvidedSlashTarget(
         CharacterState owner,
         CharacterState target,
-        CardKind? effectiveKind = null, Suit? physicalSuit = null, bool allowAnyPhysicalSuit = true) =>
+        CardKind? effectiveKind = null, Suit? physicalSuit = null, bool allowAnyPhysicalSuit = true, bool? effectiveColor = null) =>
         effectiveKind is { } kind
             ? target.IsAlive && target.Seat != owner.Seat &&
               CanSpendSlashUse(owner, target, ignoresCount: false, kind) &&
-              (HasCardDistanceExemption(owner, target, kind) ||
+              (HasTurnRedSlashPolicyForColor(owner.Seat,kind,effectiveColor ?? SuitColor(physicalSuit)) || allowAnyPhysicalSuit && _turnCardUseEffects.HasRedSlashPolicy(_turnNumber,_currentSeat,owner.Seat) || HasCardDistanceExemption(owner, target, kind) ||
                HasUnlimitedTurnRuleModifier(owner.Seat, SkillRuleQuery.SlashDistanceLimit) ||
                IsWithinAttackRange(owner.Seat, target.Seat)) &&
               !IsSlashProhibited(target)
-            : SlashKinds.Any(candidate => CanUseProvidedSlashTarget(owner, target, candidate));
+            : SlashKinds.Any(candidate => CanUseProvidedSlashTarget(owner, target, candidate,physicalSuit,allowAnyPhysicalSuit,effectiveColor));
 
     /// <summary>
     /// Zhijian activation filter: the target keeps at least one free equipment slot
@@ -16659,6 +16652,7 @@ public sealed partial class GameEngine
         AssertPostEventProgramInvariants();
         AssertPindianInvariant();
         AssertProgramCardWindowState();
+        AssertCardEffectProgramState();
         AssertProgramJudgmentWindowState();
         AssertDiscardPromptInvariant();
         AssertYingboInvariant();
@@ -16715,7 +16709,7 @@ public sealed partial class GameEngine
             ActiveTargetCardSelection is not null ||
             ActiveJudgment is not null ||
             HasCharacterStateCardUseContinuation() ||
-            _resolutionStack.Any(frame => frame is ProgramSkillFrame or ProgramCardTriggerWindowFrame or PindianFrame or HpChangedTriggerWindowFrame or CardDeclarationFrame);
+            _resolutionStack.Any(frame => frame is CardEffectBeforeApplyFrame or ProgramSkillFrame or ProgramCardTriggerWindowFrame or PindianFrame or HpChangedTriggerWindowFrame or CardDeclarationFrame);
         if (!hasActiveCardResolution && processing.Count != 0)
         {
             throw new InvalidOperationException("Processing contains cards without an active resolution.");
@@ -17346,6 +17340,7 @@ public sealed partial class GameEngine
             {
                 // The generic window owns the pending attack until all effects finish.
                 AssertProgramCardWindowState();
+        AssertCardEffectProgramState();
             }
             else if (ActiveStoneAxe is { } stoneAxeContinuation)
             {
@@ -18065,7 +18060,7 @@ public sealed partial class GameEngine
         }
 
         var hasCardProgramPrompt = _pendingDecision is { Kind: DecisionKind.ProgramTrigger } &&
-            _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().Any() || HasCardActionPindianContinuation();
+            (_resolutionStack.OfType<ProgramCardTriggerWindowFrame>().Any() || _resolutionStack.OfType<CardEffectBeforeApplyFrame>().Any()) || HasCardActionPindianContinuation();
         var hasBeforeDamageProgramPrompt = _pendingDecision is { Kind: DecisionKind.ProgramTrigger } &&
             _resolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any();
         var awaitingHumanResponse =
@@ -18097,7 +18092,7 @@ public sealed partial class GameEngine
             .OfType<ProgramCardTriggerWindowFrame>()
             .Any(frame => IsNullificationResponseProgramWindow(frame) &&
                 ActiveNullificationWindow?.Id == frame.ParentFrameId);
-        if (CurrentDamageAttempt is null &&
+        if (!_resolutionStack.OfType<CardEffectBeforeApplyFrame>().Any() && CurrentDamageAttempt is null &&
             ActiveNullificationWindow is null &&
             ActiveJudgment is null &&
             _resolutionStack.OfType<ProgramCardTriggerWindowFrame>()

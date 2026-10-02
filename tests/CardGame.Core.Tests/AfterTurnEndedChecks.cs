@@ -247,7 +247,7 @@ internal static class AfterTurnEndedChecks
         Accept(g, new StartGameCommand()); Accept(g, new SelectGeneralCommand(0, "fixture:owner", g.Revision, Prompt(g)!.PromptId));
         Reach(g, p => p.Kind == DecisionKind.PlayCard); return (g, r);
     }
-    // A negative catalog must stay negative as production adds real AfterTurnEnded skills.
+    // A negative catalog excludes both capabilities that opt into the actual-end movement prelude.
     // These discarded programs are never in the fixed fixture roster; retain their IDs.
     private sealed class WithoutAfterWindow(ContentRegistry source):IGameContentPackage
     {
@@ -255,7 +255,7 @@ internal static class AfterTurnEndedChecks
         public void Register(IContentRegistryBuilder b)
         {
             foreach(var c in source.Cards.Values)b.AddCard(c);
-            foreach(var s in source.Skills.Values)b.AddSkill(s.Program?.Triggers.Any(t=>t.Window==SkillProgramTriggerWindow.AfterTurnEnded)==true?s with{Program=null}:s);
+            foreach(var s in source.Skills.Values)b.AddSkill(s.Program is {} p && (p.Triggers.Any(t=>t.Window==SkillProgramTriggerWindow.AfterTurnEnded || t.Effects.Any(e=>e.Op==SkillProgramEffectOp.HoldOwnerHandUntilTurnEnd)) || p.Activations.Any(a=>a.Effects.Any(e=>e.Op==SkillProgramEffectOp.HoldOwnerHandUntilTurnEnd)))?s with{Program=null}:s);
             foreach(var g in source.Generals.Values)b.AddGeneral(g);foreach(var d in source.Decks.Values)b.AddDeck(d);foreach(var m in source.Modes.Values)b.AddMode(m);
         }
     }

@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 public enum HpChangeKind { Loss, Recovery, Damage = 600, MaximumHp = 601 }
 public enum PostEventContinuation { Boundary, Program, CardUse, GroupRecovery, AwaitedProgramMovement }
@@ -6,7 +6,11 @@ public enum PostEventContinuation { Boundary, Program, CardUse, GroupRecovery, A
 /// <summary>Actual committed HP delta. Damage and setting HP are separate rules operations.</summary>
 public sealed record HpChangeContext(
     long Id, long? ParentFrameId, int? SourceSeat, int TargetSeat,
-    HpChangeKind Kind, int Amount, int HpBefore, int HpAfter);
+    HpChangeKind Kind, int Amount, int HpBefore, int HpAfter,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] LossOccurrence? LossOccurrence = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<ProgramTriggerCandidate>? FrozenLossCandidates = null);
+
+public sealed record LossOccurrence(int ActualTurnNumber, int TurnOwnerSeat, TurnPhase Phase);
 
 public sealed record HpChangedTriggerWindowFrame(
     long Id,

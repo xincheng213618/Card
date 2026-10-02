@@ -1,4 +1,4 @@
-namespace CardGame.Core;
+﻿namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
@@ -384,8 +384,8 @@ public sealed partial class GameEngine
             forResponse: false,
             selection.Source);
         if (current is null || !(borrowedSword is null
-                ? CanUseVirtualSlashTarget(source, target, physicalSuit: PhysicalGroupSuit(source,current.Cards))
-                : IsLegalBorrowedSwordSlashTarget(source, target, physicalSuit:PhysicalGroupSuit(source,current.Cards), allowAnyPhysicalSuit:false)))
+                ? CanUseVirtualSlashTarget(source, target, physicalSuit: PhysicalGroupSuit(source,current.Cards), effectiveColor:PhysicalGroupColor(source,current.Cards))
+                : IsLegalBorrowedSwordSlashTarget(source, target, physicalSuit:PhysicalGroupSuit(source,current.Cards), allowAnyPhysicalSuit:false, effectiveColor:PhysicalGroupColor(source,current.Cards))))
             throw new InvalidOperationException("The configured multi-card Slash is no longer legal.");
 
         ResolveSlashCore(
@@ -536,7 +536,7 @@ public sealed partial class GameEngine
         (pending.IsAssistedProgramUse
             ? GetAssistedFactionSlashCards(pending, provider).Select(variant => variant.Card).DistinctBy(card => card.Id).ToArray()
             : IsFactionSlashUse(pending) ? GetSlashUseCards(provider,ignoreSuitUseProhibition:true) : GetResponseCards(provider, CardKind.Slash))
-        .Where(card => !IsFactionSlashUse(pending) || !IsTurnPhysicalUseForbidden(pending.OwnerSeat,[card.Id])).ToArray();
+        .Where(card => (!IsFactionSlashUse(pending) || !IsTurnPhysicalUseForbidden(pending.OwnerSeat,[card.Id])) && IsRedSlashProviderPaymentLegal(pending,GetFactionSlashEffectiveSlashKind(pending,provider,card),[card])).ToArray();
 
     private CardKind GetFactionSlashEffectiveSlashKind(
         FactionCardRequestHandle pending,

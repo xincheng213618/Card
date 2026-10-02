@@ -581,6 +581,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         RebuildDeferredCardViews();
         RebuildDeclaredCardViews();
         RebuildGeneralLibraryViews();
+        RebuildTurnHandHoldViews();
         if (_snapshot.PendingDecision is { Kind: DecisionKind.SelectGeneral } pending)
         {
             foreach (var choice in pending.Choices.Where(choice => choice.ContentIds.Count == 1))
