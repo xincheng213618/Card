@@ -25,6 +25,7 @@ public interface ISkillProgramExecutionHost
     SkillProgramActorState GetActor(int seat);
     bool IsGameOver { get; }
     bool CanContinuePaidHpLoss(ProgramSkillFrame frame) => false;
+    bool CanContinuePaidDamageTargetMount(ProgramSkillFrame frame) => false;
     bool OwnsSkillInstance(int ownerSeat, string skillId, string skillInstanceId);
     bool OwnsCards(int ownerSeat, IReadOnlyList<int> cardIds, IReadOnlyList<CardZoneKind> sourceZones);
     bool EvaluateCondition(ProgramSkillFrame frame, SkillProgramCondition condition, PlayerSkillContext context);
@@ -1396,7 +1397,7 @@ public sealed class SkillProgramExecutor
                 ProgramInstructionResolver.Default.Find(program, ProgramInstructionSourceKind.Trigger, frame.ActivationId)
                     ?.Features.HasOperation(SkillProgramEffectOp.LoseHpParticipants) == true;
             if (!state.OwnsSkillInstance(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId) && (actor.IsAlive || !allowsDeadOwner) &&
-                !state.CanContinuePaidHpLoss(frame))
+                !state.CanContinuePaidHpLoss(frame) && !state.CanContinuePaidDamageTargetMount(frame))
             {
                 state.Complete(frame, completed: false, "技能实例在结算前已失效，剩余步骤取消。");
                 return;

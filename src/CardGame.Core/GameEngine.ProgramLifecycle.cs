@@ -1803,6 +1803,8 @@ public sealed partial class GameEngine
         if (trigger is null || trigger.Window != context.Window || !CanPayProgramMarkerCost(owner, trigger.MarkerCost))
             return false;
         if (!CanOfferFinalTargetSlash(candidate, trigger, context)) return false;
+        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardDamageTargetAndClaimMount) &&
+            !CanOfferDamageTargetMount(candidate.OwnerSeat, context)) return false;
         if (!IsGainPhaseQualified(trigger, candidate.OwnerSeat, context.MovementBatch?.MovementTiming)) return false;
         var features = ProgramInstructionResolver.Default.Features(trigger);
         if (!CanOfferFinalTargetGift(candidate, context, features)) return false;
@@ -1961,6 +1963,8 @@ public sealed partial class GameEngine
                 context.Amount > 0 && trigger.Subject switch
                 {
                     SkillProgramTriggerSubject.Owner => context.TargetSeat == owner.Seat,
+                    SkillProgramTriggerSubject.DamageTarget => context.Window == SkillProgramTriggerWindow.DamageAppliedBeforeDying &&
+                        features.HasOperation(SkillProgramEffectOp.DrawByDamageCardColor) && context.TargetSeat == owner.Seat,
                     SkillProgramTriggerSubject.Source =>
                         context.SourceSeat == owner.Seat &&
                         ActiveDamageTrigger is { } sourceDamage &&
@@ -3027,6 +3031,7 @@ public sealed partial class GameEngine
 
     private void ResolveProgramTriggerChoice(PromptChoice selected)
     {
+        if (selected.Parameters.GetValueOrDefault("program-action") == "damage-target-mount") { ResolveDamageTargetMount(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "hp-loss-quantity") { ResolveHpLossQuantity(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "slash-suit-discard") { ResolveProgramSlashSuitDiscardChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "diamond-delayed") { ResolveDiamondDelayedChoice(selected); return; }
@@ -3844,6 +3849,7 @@ public sealed partial class GameEngine
                 .GetPausedInstruction(frame.InstructionIndex).Effect;
             selected = paused.Op switch
             {
+                SkillProgramEffectOp.DiscardDamageTargetAndClaimMount => SelectAiProgramOtherOwnedCardDiscard(decision, frame),
                 SkillProgramEffectOp.ChooseOwnerHpLoss => SelectAiHpLossQuantity(decision),
                 SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeSuitDiscard => SelectAiSlashSuitDiscard(decision, frame),
                 SkillProgramEffectOp.DiscardDistinctFactionParticipants => SelectAiDistinctFactionDiscard(decision,frame),
@@ -4144,6 +4150,8 @@ public sealed partial class GameEngine
         ProgramSkillWindowContext? windowContext = null)
     {
         var effects = sourceEffects.ToArray();
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.DiscardDamageTargetAndClaimMount) && windowContext?.TargetSeat is { } mountTarget)
+            publishedTargets = [mountTarget];
         if (HasFinalTargetSlashEffects(effects) && windowContext is { Window: SkillProgramTriggerWindow.CardUseTargetsFinalized, Facts: { } finalFacts, TargetSeat: { } finalSeat })
             {
                 publicContext = publicContext with { FinalTargetFacts = finalFacts, SelectedTarget = CreateSkillContext(_players[finalSeat]) };
@@ -4369,6 +4377,8 @@ public sealed partial class GameEngine
     {
         var attack = GetDamageTriggerAttack(damage);
         var owner = _players[candidate.OwnerSeat];
+        var appearanceSourceLess = attack.IsDelayedJudgmentDamage &&
+            ProgramInstructionResolver.Default.Features(GetProgramTrigger(candidate)).HasOperation(SkillProgramEffectOp.DrawByDamageCardColor);
         var facts = CaptureProgramTriggerFacts(owner) with
         {
             CardActionActorIsCurrentTurn = !attack.IsSourceLess && attack.SourceSeat == _currentSeat,
@@ -4399,7 +4409,7 @@ public sealed partial class GameEngine
             damage.TriggerWindow,
             damage.Id,
             candidate.OwnerSeat,
-            SourceSeat: attack.IsSourceLess ? null : attack.SourceSeat,
+            SourceSeat: attack.IsSourceLess || appearanceSourceLess ? null : attack.SourceSeat,
             TargetSeat: attack.TargetSeat,
             DamageFrameId: damage.ParentFrameId,
             Amount: attack.DamageAmount,

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:yaowu-current",
+      "revision": 1,
+      "minimumRulesVersion": 193,
+      "triggers": [
+        {
+          "id": "damage-card-color",
+          "window": "damageAppliedBeforeDying",
+          "subject": "damageTarget",
+          "optional": false,
+          "effects": [
+            {
+              "op": "drawByDamageCardColor",
+              "target": "owner"
+            }
+          ],
+          "damageOccurrence": "perDamage"
+        }
+      ]
+    },
+    {
+      "id": "boundary:shizhan-current",
+      "revision": 1,
+      "minimumRulesVersion": 193,
+      "activations": [
+        {
+          "id": "selected-actor-duel",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 2,
+          "effects": [
+            {
+              "op": "useSelectedActorDuel",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

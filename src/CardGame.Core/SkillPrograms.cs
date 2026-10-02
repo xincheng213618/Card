@@ -370,7 +370,9 @@ public enum SkillProgramEffectOp
     GiveShownBoundCardsAndGrantTurnHandLimit = 1960,
     PlaceSelectedEquipment = 2000, FreezeSelectedHpPair = 2001,
     PreventCurrentTargetSlashCancellation = 2100, AddCurrentTargetSlashDamage = 2101,
-    ChooseOwnerHpLoss = 2200, DrawPaidHpLoss = 2201, GrantPaidHpLossDistance = 2202, GrantPaidHpLossSlashLimit = 2203
+    ChooseOwnerHpLoss = 2200, DrawPaidHpLoss = 2201, GrantPaidHpLossDistance = 2202, GrantPaidHpLossSlashLimit = 2203,
+    DiscardDamageTargetAndClaimMount = 2300,
+    DrawByDamageCardColor = 2400, UseSelectedActorDuel = 2401
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets, HpPairHigher = 2000, HpPairLower = 2001 }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -1652,6 +1654,11 @@ public sealed class SkillProgramCatalog
                         Fail(skillPath + ".activations",
                             "global same-suit card use requires two hand cards and no initial target");
                 }
+            foreach (var activation in activations.Where(a => a.Effects.Any(e => e.Op == SkillProgramEffectOp.UseSelectedActorDuel)))
+                if (activation.MinCards != 0 || activation.MaxCards != 0 || activation.MinTargets != 1 || activation.MaxTargets != 1 ||
+                    activation.TargetKind != SkillProgramTargetKind.OtherLiving || activation.Effects.Count != 1 ||
+                    activation.UsesPerPhase != 2 || activation.UsesPerTurn is not null)
+                    Fail(skillPath + ".activations", "Selected actor Duel requires one other target, zero cards and exactly two uses per actual Play phase.");
             foreach (var activation in activations.Where(a => a.Effects.Any(e => e.Op == SkillProgramEffectOp.UseDiamondDelayedOrDiscard)))
                 if (activation.MinCards != 1 || activation.MaxCards != 1 || activation.MinTargets != 0 || activation.MaxTargets != 0 ||
                     activation.SourceZones.Any(z => z is not (CardZoneKind.Hand or CardZoneKind.Equipment)) ||
@@ -2706,7 +2713,11 @@ public sealed class SkillProgramCatalog
                     !(window == SkillProgramTriggerWindow.AfterDamageApplied &&
                       subject is SkillProgramTriggerSubject.DamageSource or SkillProgramTriggerSubject.Any) &&
                     !(window == SkillProgramTriggerWindow.BeforeDamageApplied &&
-                      subject is SkillProgramTriggerSubject.DamageTarget or SkillProgramTriggerSubject.DamageSource))
+                      subject is SkillProgramTriggerSubject.DamageTarget or SkillProgramTriggerSubject.DamageSource) &&
+                    !(window == SkillProgramTriggerWindow.DamageAppliedBeforeDying && subject == SkillProgramTriggerSubject.DamageTarget &&
+                      node.TryGetProperty("effects", out var appearanceEffects) && appearanceEffects.ValueKind == JsonValueKind.Array &&
+                      appearanceEffects.EnumerateArray().Any(e => e.TryGetProperty("op", out var op) && op.ValueKind == JsonValueKind.String &&
+                          string.Equals(op.GetString(), "drawByDamageCardColor", StringComparison.OrdinalIgnoreCase))))
                     Fail(path + ".subject", "this lifecycle window supports only owner subjects");
                 if (supportsDamageSourceConversion &&
                     (node.TryGetProperty("sourceSkillId", out _) || node.TryGetProperty("sourceViewAsId", out _)))
@@ -3090,8 +3101,12 @@ public sealed class SkillProgramCatalog
                 effect.TargetKind == SkillProgramTargetKind.SlashRedirectable) &&
             window != SkillProgramTriggerWindow.SlashTargetRedirecting)
             Fail(path + ".effects", "Slash redirection requires the target-redirection boundary");
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.DrawByDamageCardColor) &&
+            (window != SkillProgramTriggerWindow.DamageAppliedBeforeDying || subject != SkillProgramTriggerSubject.DamageTarget ||
+             optional || effects.Count != 1 || damageOccurrence != SkillProgramDamageOccurrence.PerDamage))
+            Fail(path + ".effects", "Damage appearance Draw requires its single mandatory damage-target before-dying trigger.");
         if (window == SkillProgramTriggerWindow.DamageAppliedBeforeDying &&
-            effects.Any(effect => effect.Op != SkillProgramEffectOp.ChangeAttributedMarker ||
+            effects.Any(effect => effect.Op is not (SkillProgramEffectOp.ChangeAttributedMarker or SkillProgramEffectOp.DrawByDamageCardColor) ||
                                   effect.Target != SkillProgramEffectTarget.Owner))
             Fail(path + ".effects", "damageAppliedBeforeDying supports only owner attributed-marker records");
         if (effects.Any(effect => ContainsCardUseColorCondition(effect.Condition)) && !isCardActionWindow)
@@ -3165,6 +3180,10 @@ public sealed class SkillProgramCatalog
                 effects[0].Op != SkillProgramEffectOp.ResolveDeferredHandAlignment) ||
             !deferredOnly && effects.Any(e => e.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment))
             Fail(path, "a deferred end continuation requires one resolver, mandatory own TurnEnding and deferredTurnEndOnly");
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.DiscardDamageTargetAndClaimMount) &&
+            (window != SkillProgramTriggerWindow.AfterDamageApplied || subject != SkillProgramTriggerSubject.DamageSource ||
+             effects.Count != 1 || !optional))
+            Fail(path, "damage-target mount claim requires one optional actual after-damage source operation");
         ProgramCompositionValidator.Validate(path, effects, initialSelectedTarget: deferredOnly, window: window, drawPhaseMode: drawPhaseMode, cardActionRelation: ownerRelation, cardKinds: cardKinds, turnOwnerScope: turnOwnerScope);
         if (node.TryGetProperty("onlyDesignatedCardTargets", out _) && ownerRelation != SkillProgramCardActionOwnerRelation.Target) Fail(path + ".onlyDesignatedCardTargets", "requires a target-owner card trigger");
         if (effects.Any(e => e.Op == SkillProgramEffectOp.ResolveDiscardBudgetParticipants) &&

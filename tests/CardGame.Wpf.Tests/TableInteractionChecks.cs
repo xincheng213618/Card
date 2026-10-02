@@ -14,10 +14,10 @@ internal static class TableInteractionChecks
 {
     public static void SelectionCost(string output)
     {
-        using var vm = new MainViewModel(false, 1, false, new MemorySaveStore(), useExpandedContent: true);
+        using var vm = new MainViewModel(false, 1, false, new MemorySaveStore());
         vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
         Program.AdvanceToDecision(vm);
-        // Seed 1 selects Boundary Zhang Fei. Decline his optional preparation prompt.
+        // Use the stable base catalogue for presentation costs; expanded-pool behavior has separate coverage.
         for (var step = 0; step < 8 && vm.SkillChoices.Count > 0; step++)
         {
             vm.SelectSkillChoiceCommand.Execute(vm.SkillChoices.Last());

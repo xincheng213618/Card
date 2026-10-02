@@ -1,0 +1,1 @@
+{"schemaVersion":3,"skills":{"boundary:yicong-current":{"name":"义从","description":"锁定技，你计算与其他角色的距离-1；若你的体力值不大于2，其他角色计算与你的距离+1。"},"boundary:qiaomeng-current":{"name":"趫猛","description":"当你使用【杀】对一名角色造成伤害后，你可以弃置其区域里的一张牌。若此牌为坐骑牌，你获得之。"}}}

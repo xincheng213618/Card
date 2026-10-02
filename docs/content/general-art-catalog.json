@@ -10979,6 +10979,40 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-gongsun-zan",
+      "characterName": "界公孙瓒",
+      "defaultSkinId": "32000",
+      "skins": [
+        {
+          "id": "32000",
+          "name": "默认皮肤",
+          "sourcePage": "https://www.sanguosha.com/hero/320",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/32000.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-gongsun-zan.png",
+          "sha256": "ee2b3d9c76bc04ce8b2d7a57f7df694a97ec4a682ae370ef752b490abfb5bfd6",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "boundary-hua-xiong",
+      "characterName": "界华雄",
+      "defaultSkinId": "44600",
+      "skins": [
+        {
+          "id": "44600",
+          "name": "默认皮肤",
+          "sourcePage": "https://www.sanguosha.com/hero/446",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44600.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-hua-xiong.png",
+          "sha256": "ee70bdc32b0c3c36e96225ee86c1ecb4aa399c09a30518fcbe08483205665835",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

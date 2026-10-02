@@ -60,7 +60,10 @@
         'Equipment placement slot self equal boundaries',
         'Final target Slash frozen comparisons actual paid Dodge',
         'Paid HP loss rescue and gain children',
-        'Paid HP loss source and legacy'
+        'Paid HP loss source and legacy',
+        'Damage target mount paid children source lifetime',
+        'Damage appearance Draw definitions physical colors cardless legacy',
+        'Selected actor Duel actual Use and Nullification'
     )
     Wpf = @(
         'original card artwork', 'composed skills', 'conversion choices',
