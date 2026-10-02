@@ -5042,13 +5042,17 @@ public sealed partial class GameEngine
         var targetSeat = GetNullificationTargetSeat(pending) ??
             throw new InvalidOperationException("Duel must retain one target.");
         var target = _players[targetSeat];
+        var virtualOrigin = LifecycleCardUse(pending.ParentFrameId)?.SelectedActorDuelOrigin;
+        if (virtualOrigin is not null)
+            UpdateLifecycleCardUse(pending.ParentFrameId, use => use with { SelectedActorDuelOrigin = virtualOrigin with { AttackStarted = true } });
         var attack = new CardAttackHandle(this,
             pending.ParentFrameId,
             source.Seat,
             target.Seat,
-            GetNullificationEffectCard(pending),
+            virtualOrigin is not null ? null : GetNullificationEffectCard(pending),
             playedCardKind: pending.EffectCardKind,
-            physicalCards: GetCardUsePhysicalCards(pending.ParentFrameId));
+            physicalCards: GetCardUsePhysicalCards(pending.ParentFrameId),
+            programSkillCardUseFrameId: virtualOrigin?.ParentProgramFrameId);
         ActiveCardAttack = attack;
         var duel = new DuelHandle(this, attack);
         ActiveDuel = duel;
@@ -12224,6 +12228,8 @@ public sealed partial class GameEngine
                 var ownsTiming = trigger.Subject switch
                 {
                     SkillProgramTriggerSubject.Owner => programOwnerSeat == attack.TargetSeat,
+                    SkillProgramTriggerSubject.DamageTarget => window == SkillProgramTriggerWindow.DamageAppliedBeforeDying &&
+                        trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DrawByDamageCardColor) && programOwnerSeat == attack.TargetSeat,
                     SkillProgramTriggerSubject.Source => !attack.IsSourceLess && programOwnerSeat == attack.SourceSeat &&
                         MatchesAfterDamageProgramSource(attack, trigger),
                     SkillProgramTriggerSubject.DamageSource => !attack.IsSourceLess && programOwnerSeat == attack.SourceSeat,
@@ -12768,6 +12774,19 @@ public sealed partial class GameEngine
             return false;
         }
 
+        if (attack.Card is null && attack.EffectiveCardKind == CardKind.Duel && IsSelectedActorDuelUse(attack.ResolutionId))
+        {
+            var use = LifecycleCardUse(attack.ResolutionId)!;
+            SetCardUseStep(use.Id, ResolutionFrameStep.Completed);
+            AdvanceEventRulesAndQueueFact(new CardUseFinishedEvent(use.Id, 0, CardKind.Duel));
+            if (_winner == Winner.None && TryBeginProgramCardWindow(attack, use.Action!,
+                    SkillProgramTriggerWindow.CardUseCompleted, use.TargetSeats, ProgramCardContinuation.CompletedSlash,
+                    cardUseCausedDamage: attack.CardUseCausedDamage)) return true;
+            PopFinishedCardUse(use.Id);
+            CompleteFinishedAttackCardUse(attack);
+            return false;
+        }
+
         if (attack.Card is null && (attack.EffectiveCardKind == CardKind.Slash ||
             IsSlashCard(attack.EffectiveCardKind ?? CardKind.Slash) && LifecycleCardUse(attack.ResolutionId)?.VirtualBasicReturn is not null) &&
             (attack.ProgramSkillCardUseFrameId is not null || LifecycleCardUse(attack.ResolutionId)?.VirtualBasicReturn is not null || IsForeignPublicPileSlashUse(attack.ResolutionId)))
@@ -13306,7 +13325,7 @@ public sealed partial class GameEngine
         IReadOnlyList<int>? physicalCardIds = null,
         CardConversionSource? conversionSource = null,
         IReadOnlyList<CardConversionSource>? additionalConversionSources = null,
-        IReadOnlyList<int>? designatedTargetSeats = null, bool isTrueZhangbaSlash = false)
+        IReadOnlyList<int>? designatedTargetSeats = null, bool isTrueZhangbaSlash = false, ProgramSelectedActorDuelOrigin? selectedActorDuelOrigin = null)
     {
         var resolutionId = ++_resolutionSequence;
         var adjustedTargets = _selectedNextCardTargetSeats;
@@ -13337,6 +13356,10 @@ public sealed partial class GameEngine
             conversionSource,
             additionalConversionSources,
             designated, isTrueZhangbaSlash);
+        if (selectedActorDuelOrigin is not null)
+            actionContext = CaptureFactionAction(new CardActionContext(actionContext!.ActionId, actionContext.ParentActionId,
+                CardActionType.Use, sourceSeat, sourceSeat, null, null, null, CardKind.Duel, targets, [], [], designated,
+                effectiveSuit: Suit.None, effectiveRank: 0, effectiveIsRed: false));
         var firstUseDistance = actionContext is not null && HasFirstActualPlayUseDistance(_players[sourceSeat]);
         if (actionContext is not null) RecordActualPlayPhaseUse(actionContext);
         RecordProgramUsedBasicCard(sourceSeat, effectiveCardKind);
@@ -13349,7 +13372,7 @@ public sealed partial class GameEngine
             targets,
             IgnoresArmor: ignoresArmor,
             PhysicalCardIds: physicalIds)
-        { Enhancements = actionContext is { Type: CardActionType.Use, EffectiveIsRed: true } && HasTurnRedSlashPolicyForColor(sourceSeat, effectiveCardKind, actionContext.EffectiveIsRed) ? CurrentCardEnhancement.Uncancelable : CurrentCardEnhancement.None, AcceptedDeclarationPayment = declarationPayment, Action = actionContext, TargetsAdjusted = adjustedTargets is not null, FirstOwnPlayUseDistanceUnlimited = firstUseDistance });
+        { SelectedActorDuelOrigin = selectedActorDuelOrigin, Enhancements = actionContext is { Type: CardActionType.Use, EffectiveIsRed: true } && HasTurnRedSlashPolicyForColor(sourceSeat, effectiveCardKind, actionContext.EffectiveIsRed) ? CurrentCardEnhancement.Uncancelable : CurrentCardEnhancement.None, AcceptedDeclarationPayment = declarationPayment, Action = actionContext, TargetsAdjusted = adjustedTargets is not null, FirstOwnPlayUseDistanceUnlimited = firstUseDistance });
         AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(
             resolutionId,
             card.Id,
@@ -13550,8 +13573,7 @@ public sealed partial class GameEngine
         frame.TargetSeats.Count == 1 ? frame.TargetSeats[0] : null;
 
     private Card GetNullificationEffectCard(NullificationWindowFrame frame) =>
-        _cardZones.CardsAt(_cardZones.GetLocation(frame.EffectCardId))
-            .Single(card => card.Id == frame.EffectCardId);
+        GetTrickRepresentation(frame.ParentFrameId, frame.EffectCardId);
 
     private void SetCardUseTargetIndex(long frameId, int targetIndex)
     {
@@ -13633,6 +13655,7 @@ public sealed partial class GameEngine
         ContinueProgramAfterSelectedCardUse();
         if (dyingResponse is not null) CompleteDyingCardResponse(dyingResponse);
         ReturnVirtualBasicUse(basicReturn, frameId);
+        ReturnSelectedActorDuel(completedUse);
     }
 
     private bool CanUseSlashTarget(
@@ -16443,7 +16466,7 @@ public sealed partial class GameEngine
         Card card,
         CardLocation from,
         CardLocation to,
-        CardMoveReason reason)
+        CardMoveReason reason, Action<CardMovementRecord>? beforeFact = null)
     {
         if (ClaimDeclarationPayment(card, from, to)) return;
         to = NormalizeProgramViewAsCostDestination(card, from, to, reason);
@@ -16455,7 +16478,7 @@ public sealed partial class GameEngine
         try
         {
             _cardZones.Move(card.Id, from, to);
-            movements.Add(RecordMovement(card, from, to, reason));
+            movements.Add(RecordMovement(card, from, to, reason, beforeFact));
             ResolveEquipmentSkillGrant(card, from, to);
             ClearJudgmentEffectiveKindAfterMove(card, from, to);
             ResolveSilverLionRemoval(card, from, reason);
@@ -16626,7 +16649,7 @@ public sealed partial class GameEngine
         Card card,
         CardLocation from,
         CardLocation to,
-        CardMoveReason reason)
+        CardMoveReason reason, Action<CardMovementRecord>? beforeFact = null)
     {
         var movement = new CardMovementRecord(
             ++_movementSequence,
@@ -16637,6 +16660,7 @@ public sealed partial class GameEngine
             to,
             reason);
         _cardMovements.Add(movement);
+        beforeFact?.Invoke(movement);
         CollectFullDiscardPhaseSuit(card, movement);
         if (_started)
         {
@@ -16708,7 +16732,7 @@ public sealed partial class GameEngine
 
     private void AssertCoreInvariants()
     {
-        var damageProgramDying = IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying();
+        var damageProgramDying = IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying() || IsPaidDamageTargetMountDying() || IsDamageAppearanceDrawProgramDying();
         _turnCardUseEffects.AssertInvariants();
         AssertPaidHpLossModifiers();
         AssertPostEventProgramInvariants();
@@ -16761,6 +16785,7 @@ public sealed partial class GameEngine
             return;
         }
 
+        AssertSelectedActorDuels();
         var processing = _cardZones.CardsAt(CardLocation.Processing);
         var hasActiveCardResolution = ActiveCardAttack is not null ||
             ActiveBorrowedSword is not null ||
@@ -16894,7 +16919,7 @@ public sealed partial class GameEngine
                 .SingleOrDefault(frame => frame.Id == nullification.ParentFrameId);
             var completedResponseDying = TryGetCompletedNullificationDyingCosts(responseWindow, out var rescueCosts) ||
                 TryGetResponseExchangeMovementDyingCosts(responseWindow, out rescueCosts);
-            var expectedPhysicalCardIds = nullificationCardUse?.PhysicalCardIds is { Count: > 0 } physicalCardIds
+            var expectedPhysicalCardIds = IsSelectedActorDuelUse(nullification.ParentFrameId) ? Array.Empty<int>() : nullificationCardUse?.PhysicalCardIds is { Count: > 0 } physicalCardIds
                 ? physicalCardIds
                 : [nullification.EffectCardId];
             expectedPhysicalCardIds = expectedPhysicalCardIds.Where(id => !IsExchangedUseCardClaim(nullification.ParentFrameId,id)).ToArray();
@@ -17547,7 +17572,7 @@ public sealed partial class GameEngine
             }
             else if (ActiveDamageTrigger is { } triggerContinuation)
             {
-                var effectiveTop = DamageCursorEffectiveTop();
+                var effectiveTop = DamageCursorEffectiveTop(includeNestedObservers: HasPaidDamageTargetMountObserver(triggerContinuation.Id) || HasDamageAppearanceDrawObserver(triggerContinuation.Id));
                 var topMatchesWindow = effectiveTop is DamageTriggerWindowFrame frame &&
                     frame.Id == triggerContinuation.Id &&
                     frame.ParentFrameId == triggerContinuation.ParentFrameId &&
@@ -17796,7 +17821,7 @@ public sealed partial class GameEngine
                     "A damage trigger continuation must retain a valid trigger window frame.");
             }
 
-            var damageCursorTop = DamageCursorEffectiveTop(includeNestedObservers: _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.ConvertingGift is { Observe: true } && f.WindowContext?.ParentFrameId == pendingDamageTrigger.Id) || HasAvailableBoundDamageObserver(pendingDamageTrigger.Id));
+            var damageCursorTop = DamageCursorEffectiveTop(includeNestedObservers: _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.ConvertingGift is { Observe: true } && f.WindowContext?.ParentFrameId == pendingDamageTrigger.Id) || HasAvailableBoundDamageObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetMountObserver(pendingDamageTrigger.Id) || HasDamageAppearanceDrawObserver(pendingDamageTrigger.Id));
             var activeDamageProgram = damageCursorTop is ProgramSkillFrame programFrame &&
                 programFrame.WindowContext is
                 {
@@ -18295,6 +18320,10 @@ public sealed partial class GameEngine
             return processing.Count == 0 && _resolutionStack.OfType<CardUseFrame>().Any(frame =>
                 frame.Id == attack.ResolutionId && frame.CardId == 0 && frame.PhysicalCardIds?.Count is 0);
         }
+
+        if (attack.Card is null && attack.EffectiveCardKind == CardKind.Duel && IsSelectedActorDuelUse(attack.ResolutionId))
+            return processing.Count == 0 && LifecycleCardUse(attack.ResolutionId)?.SelectedActorDuelOrigin is { AttackStarted: true } origin &&
+                attack.ProgramSkillCardUseFrameId == origin.ParentProgramFrameId;
 
         if (attack.Card is null && attack.EffectiveCardKind == CardKind.Duel &&
             attack.ProgramSkillFrameId == attack.ResolutionId && ActiveDuel is { } virtualDuel &&

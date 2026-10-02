@@ -1,0 +1,484 @@
+{
+  "status": "Accepted implementation in a frozen integration snapshot; original combined Full failures repaired by focused checks; no repeated Core Full or desktop acceptance claim",
+  "officialEdition": "current ordinary Sanguosha OL",
+  "baselineHead": "0061571cf82ddce45eadee49aa0f6a948da5ffbe",
+  "baselineManifestSha256": "4280b1d3fc9a4b27d3bfc441dd57f8bc207e93b3546d88c228216b44b0d8f9de",
+  "baselineScope": "Actual captured working bytes include unowned Core hand guidance and WPF changes; not a claim those concurrent changes are accepted",
+  "mainStatusAtBaselineCapture": " M design-qa.md\n M src/CardGame.Core/GameEngine.HandGuidance.cs\n M src/CardGame.Wpf/Themes/TableTheme.xaml\n M src/CardGame.Wpf/ViewModels/MainViewModel.PlayerGuide.cs\n M src/CardGame.Wpf/ViewModels/MainViewModel.Presentation.cs\n M src/CardGame.Wpf/ViewModels/MainViewModel.TableSurface.cs\n M src/CardGame.Wpf/ViewModels/MainViewModel.ViewQueries.cs\n M src/CardGame.Wpf/ViewModels/MainViewModel.cs\n M tests/CardGame.Core.Tests/HandGuidanceChecks.cs\n M tests/CardGame.Wpf.Tests/TableInteractionChecks.cs\n?? src/CardGame.Core/HumanActionView.cs\n",
+  "contractSha256": "3ac6d991f9e17e1874b9d7e41a8760202aeac838bad2d9ac5b6e31d312169b3c",
+  "contractAddendumSha256": "8389023a303c0ab4bba6735667da7d707c2c750231d4aad9afb5f5dc4a20aa52",
+  "sourcePreflightManifestSha256": "587cbe41c9caa81c12289913a35abfacd2d17904642d2746ff715d60a87b1f6c",
+  "artManifestSha256": "b30853c2e3a80949b23dc5ecc2df205d018001216077f60d46080c1182190fed",
+  "httpResponses": [
+    {
+      "path": "raw\\320.html",
+      "url": "https://www.sanguosha.com/hero/320",
+      "startedUtc": "2026-10-02T13:58:47.325179+00:00",
+      "receivedUtc": "2026-10-02T13:58:47.554259+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/hero/320",
+      "sha256": "61d443a338875408c71878ca2639cbd89dc8f862f150137b486379fb1a503302",
+      "bytes": 24670
+    },
+    {
+      "path": "raw\\320-api.json",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=320",
+      "startedUtc": "2026-10-02T13:58:47.556473+00:00",
+      "receivedUtc": "2026-10-02T13:58:47.698693+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=320",
+      "sha256": "526f8ac9bd54e5fdb39948d0944f013dbc1babc77ea9eaeaecd30dec5dd3e8d5",
+      "bytes": 973
+    },
+    {
+      "path": "raw\\446.html",
+      "url": "https://www.sanguosha.com/hero/446",
+      "startedUtc": "2026-10-02T13:58:47.699854+00:00",
+      "receivedUtc": "2026-10-02T13:58:47.834310+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/hero/446",
+      "sha256": "85a06cd80dedb4ba45fdcba3c48256281555d65961e8dcedbd3809d32ffa5541",
+      "bytes": 24467
+    },
+    {
+      "path": "raw\\446-api.json",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=446",
+      "startedUtc": "2026-10-02T13:58:47.835350+00:00",
+      "receivedUtc": "2026-10-02T13:58:48.050193+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=446",
+      "sha256": "fe455425f9214b23e85534d23eb8d4bfdcfd37e8c692f19682c13b9657a4190c",
+      "bytes": 968
+    }
+  ],
+  "roster": [
+    {
+      "officialId": 320,
+      "name": "界公孙瓒",
+      "indexGroup": "界限突破",
+      "indexFields": {
+        "gid": 320,
+        "name": "界公孙瓒",
+        "resource": "32000",
+        "extend": "界限突破",
+        "hp": 4,
+        "initial_hp": 0,
+        "quality": "普通",
+        "figure": "群",
+        "figure_py": "qun",
+        "biography": "公孙瓒[zàn]，字伯珪，汉族，号“白马义从”。辽西令支人。东汉末年献帝年间占据幽州一带的军阀，汉末群雄之一。出身贵族，因母地位卑贱，只当了郡中小吏。他貌美，声音洪亮，机智善辩。后随卢植于缑[gōu]氏山中读书，粗通经传。",
+        "characteristic": "使用【杀】抢夺其他角色的坐骑牌，体力少时有较强的防御。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/320.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/32000.png",
+        "realname": "界公孙瓒 (界限突破)"
+      },
+      "apiInfo": {
+        "gid": 320,
+        "name": "界公孙瓒",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/320.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/32000.png",
+        "label": [
+          "防御",
+          "控制",
+          "卖血"
+        ],
+        "figure": "群",
+        "figure_py": "qun",
+        "quality": "普通",
+        "biography": "公孙瓒[zàn]，字伯珪，汉族，号“白马义从”。辽西令支人。东汉末年献帝年间占据幽州一带的军阀，汉末群雄之一。出身贵族，因母地位卑贱，只当了郡中小吏。他貌美，声音洪亮，机智善辩。后随卢植于缑[gōu]氏山中读书，粗通经传。",
+        "characteristic": "使用【杀】抢夺其他角色的坐骑牌，体力少时有较强的防御。",
+        "hp": 4,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "htmlSha256": "61d443a338875408c71878ca2639cbd89dc8f862f150137b486379fb1a503302",
+      "apiSha256": "526f8ac9bd54e5fdb39948d0944f013dbc1babc77ea9eaeaecd30dec5dd3e8d5",
+      "routeLiteralObserved": "/api/v1/hero/info?gid=",
+      "routeHtmlLine": 468,
+      "skills": [
+        {
+          "name": "义从",
+          "text": "锁定技，你计算与其他角色的距离-1；若你的体力值不大于2，其他角色计算与你的距离+1。",
+          "html": "锁定技，你计算与其他角色的距离-1；若你的体力值不大于2，其他角色计算与你的距离+1。",
+          "borrowedReferences": []
+        },
+        {
+          "name": "趫猛",
+          "text": "当你使用【杀】对一名角色造成伤害后，你可以弃置其区域里的一张牌。若此牌为坐骑牌，你获得之。",
+          "html": "当你使用【杀】对一名角色造成伤害后，你可以弃置其区域里的一张牌。若此牌为坐骑牌，你获得之。",
+          "borrowedReferences": []
+        }
+      ],
+      "structuredGender": null,
+      "genderBasis": "No structured official gender field; same-character repository default is separate",
+      "scope": "Source preflight only, not implementation or acceptance"
+    },
+    {
+      "officialId": 446,
+      "name": "界华雄",
+      "indexGroup": "界限突破",
+      "indexFields": {
+        "gid": 446,
+        "name": "界华雄",
+        "resource": "44600",
+        "extend": "界限突破",
+        "hp": 6,
+        "initial_hp": 0,
+        "quality": "稀有",
+        "figure": "群",
+        "figure_py": "qun",
+        "biography": "董卓旗下名将，自荐抵抗山东地区反对董卓的诸侯联军于汜水关前，他先后斩杀济北相鲍信之弟鲍忠和孙坚部将祖茂、以及袁术部将俞涉和韩馥手下潘凤等人，最后关东联军派出关羽与之一对一决斗而被杀。",
+        "characteristic": "拥有高额的体力值。受到红色牌伤害时使敌人获得好处。",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/446.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44600.png",
+        "realname": "界华雄 (界限突破)"
+      },
+      "apiInfo": {
+        "gid": 446,
+        "name": "界华雄",
+        "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/446.png",
+        "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44600.png",
+        "label": [
+          "防御",
+          "简单",
+          "转化大师"
+        ],
+        "figure": "群",
+        "figure_py": "qun",
+        "quality": "稀有",
+        "biography": "董卓旗下名将，自荐抵抗山东地区反对董卓的诸侯联军于汜水关前，他先后斩杀济北相鲍信之弟鲍忠和孙坚部将祖茂、以及袁术部将俞涉和韩馥手下潘凤等人，最后关东联军派出关羽与之一对一决斗而被杀。",
+        "characteristic": "拥有高额的体力值。受到红色牌伤害时使敌人获得好处。",
+        "hp": 6,
+        "initial_hp": 0,
+        "score": 0
+      },
+      "htmlSha256": "85a06cd80dedb4ba45fdcba3c48256281555d65961e8dcedbd3809d32ffa5541",
+      "apiSha256": "fe455425f9214b23e85534d23eb8d4bfdcfd37e8c692f19682c13b9657a4190c",
+      "routeLiteralObserved": "/api/v1/hero/info?gid=",
+      "routeHtmlLine": 468,
+      "skills": [
+        {
+          "name": "耀武",
+          "text": "锁定技，当你受到伤害时，若造成伤害的牌：为红色，伤害来源摸一张牌；不为红色，你摸一张牌。",
+          "html": "锁定技，当你受到伤害时，若造成伤害的牌：为红色，伤害来源摸一张牌；不为红色，你摸一张牌。",
+          "borrowedReferences": []
+        },
+        {
+          "name": "势斩",
+          "text": "出牌阶段限两次，你可以令一名其他角色视为对你使用一张【决斗】。",
+          "html": "出牌阶段限两次，你可以令一名其他角色视为对你使用一张【决斗】。",
+          "borrowedReferences": []
+        }
+      ],
+      "structuredGender": null,
+      "genderBasis": "No structured official gender field; same-character repository default is separate",
+      "scope": "Source preflight only, not implementation or acceptance"
+    }
+  ],
+  "artwork": [
+    {
+      "officialId": 320,
+      "name": "界公孙瓒",
+      "resourceId": "32000",
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/32000.png",
+      "apiPath": "inputs/raw/320-api.json",
+      "apiSha256": "526f8ac9bd54e5fdb39948d0944f013dbc1babc77ea9eaeaecd30dec5dd3e8d5",
+      "startedUtc": "2026-10-02T14:17:56.843744+00:00",
+      "apiHasGender": false,
+      "status": 200,
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/32000.png",
+      "receivedUtc": "2026-10-02T14:17:57.070440+00:00",
+      "path": "32000.png",
+      "sha256": "ee2b3d9c76bc04ce8b2d7a57f7df694a97ec4a682ae370ef752b490abfb5bfd6",
+      "bytes": 1098619,
+      "width": 750,
+      "height": 950,
+      "mode": "RGBA",
+      "format": "PNG",
+      "png": {
+        "allChunkCrcValid": true,
+        "iendPresent": true,
+        "trailingBytes": 0,
+        "chunks": [
+          {
+            "type": "IHDR",
+            "length": 13,
+            "crc32": "b7b712e4"
+          },
+          {
+            "type": "pHYs",
+            "length": 9,
+            "crc32": "009a9c18"
+          },
+          {
+            "type": "iTXt",
+            "length": 14364,
+            "crc32": "e6032c79"
+          },
+          {
+            "type": "cHRM",
+            "length": 32,
+            "crc32": "925fc546"
+          },
+          {
+            "type": "IDAT",
+            "length": 1084121,
+            "crc32": "52770f99"
+          },
+          {
+            "type": "IEND",
+            "length": 0,
+            "crc32": "ae426082"
+          }
+        ]
+      },
+      "pillowVerify": true,
+      "pillowLoad": true,
+      "visualInspection": {
+        "performed": true,
+        "tool": "functions tools.view_image",
+        "notes": "Actual original downloaded PNG displayed and inspected. Mounted armored general and background render coherently; no broken pixels, empty placeholder or failed decode observed. No edits/crop/resize/re-encoding."
+      }
+    },
+    {
+      "officialId": 446,
+      "name": "界华雄",
+      "resourceId": "44600",
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44600.png",
+      "apiPath": "inputs/raw/446-api.json",
+      "apiSha256": "fe455425f9214b23e85534d23eb8d4bfdcfd37e8c692f19682c13b9657a4190c",
+      "startedUtc": "2026-10-02T14:17:57.127248+00:00",
+      "apiHasGender": false,
+      "status": 200,
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44600.png",
+      "receivedUtc": "2026-10-02T14:17:57.300895+00:00",
+      "path": "44600.png",
+      "sha256": "ee70bdc32b0c3c36e96225ee86c1ecb4aa399c09a30518fcbe08483205665835",
+      "bytes": 1290506,
+      "width": 750,
+      "height": 950,
+      "mode": "RGBA",
+      "format": "PNG",
+      "png": {
+        "allChunkCrcValid": true,
+        "iendPresent": true,
+        "trailingBytes": 0,
+        "chunks": [
+          {
+            "type": "IHDR",
+            "length": 13,
+            "crc32": "b7b712e4"
+          },
+          {
+            "type": "pHYs",
+            "length": 9,
+            "crc32": "009a9c18"
+          },
+          {
+            "type": "iTXt",
+            "length": 14364,
+            "crc32": "bf52cc06"
+          },
+          {
+            "type": "cHRM",
+            "length": 32,
+            "crc32": "925fc546"
+          },
+          {
+            "type": "IDAT",
+            "length": 1276008,
+            "crc32": "4ad524a5"
+          },
+          {
+            "type": "IEND",
+            "length": 0,
+            "crc32": "ae426082"
+          }
+        ]
+      },
+      "pillowVerify": true,
+      "pillowLoad": true,
+      "visualInspection": {
+        "performed": true,
+        "tool": "functions tools.view_image",
+        "notes": "Actual original downloaded PNG displayed and inspected. Mounted armored general and background render coherently; no broken pixels, empty placeholder or failed decode observed. No edits/crop/resize/re-encoding."
+      }
+    }
+  ],
+  "designEvidence": [
+    {
+      "label": "source-preflight",
+      "source": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThirteenth-20261002\\next-gongsun-zan-hua-xiong-reference-01",
+      "manifestSha256": "587cbe41c9caa81c12289913a35abfacd2d17904642d2746ff715d60a87b1f6c",
+      "entries": 15
+    },
+    {
+      "label": "design-reference",
+      "source": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThirteenth-20261002\\next-small-boundary-design-01",
+      "manifestSha256": "46f960854d007752b9def12a7c6652d7f5acd2dc3466cafdbf1a27be3c6edeb0",
+      "entries": 56
+    },
+    {
+      "label": "art-source",
+      "source": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinThirteenth-20261002\\next-small-art-source-01",
+      "manifestSha256": "b30853c2e3a80949b23dc5ecc2df205d018001216077f60d46080c1182190fed",
+      "entries": 27
+    }
+  ],
+  "designRebaseManifestSha256": "f714f059e84cc8e4e1ef1beaa1eb98e7f3a911d32220dfba316c42227d926f94",
+  "engineeringDefaults": [
+    "Qiaomeng requires actual Use Slash provenance with owner as damage source; preserved genuine chain/transfer qualify",
+    "Actual discard movement record is registered before immutable paid receipt and before movement rule facts or children; claim only same entity still in that discard location",
+    "Exact paid tail continues for alive owner after source invalidation, terminates on actual owner death",
+    "Yaowu executes on DamageAppliedBeforeDying; this is an engineering timing interpretation of current text",
+    "Card origin follows typed damage facts, including virtual direct Duel and source-less delayed card damage; true cardless Program damage gives no benefit",
+    "Frozen owning CardAction effective colour takes precedence; otherwise printed actual card colour, or explicitly virtual colourless nonred",
+    "Shizhan issues actual selected-actor zero-entity colourless Duel Use through canonical legality, declarations, finalized targets, Nullification, Jizhi, responses, damage and typed parent completion",
+    "Two uses are per actual Play phase; actual extra Play resets quota; initial issuer identities do not prevent legitimate use rewrites"
+  ],
+  "acceptance": {
+    "status": "pending",
+    "mainFull": null,
+    "mainRoutine": null,
+    "compiledPortraits": null
+  },
+  "deliveries": {
+    "gongsun": {
+      "sources": 16,
+      "artifactsVerified": 928,
+      "finalFocusedPassed": 12,
+      "finalFocusedDurationMs": 13375,
+      "scope": "5 new behavior groups plus 7 old; transfer/provenance fault injections separated as static or host audits"
+    },
+    "hua": {
+      "sources": 16,
+      "artifactsVerified": 1791,
+      "externalAssemblyReferencesVerified": 240,
+      "finalFocusedPassed": 19,
+      "finalFocusedDurationMs": 15647,
+      "scope": "5 new groups plus old regressions; relation clone/source-removal host evidence separated"
+    }
+  },
+  "verification": {
+    "frozenSourceInputs": 4973,
+    "rootFocused": {
+      "corePassed": 34,
+      "wpfPassed": 2,
+      "durationMs": 24937
+    },
+    "originalCombinedFull": {
+      "corePassed": 534,
+      "coreFailed": 3,
+      "coreTotal": 537,
+      "wpfPassed": 50,
+      "wpfFailed": 2,
+      "durationMs": 219802,
+      "sourceInputsUnchanged": true,
+      "status": "test-failed; original log and summary immutable"
+    },
+    "coreRepair": {
+      "passed": 3,
+      "durationMs": 1977,
+      "changes": "4 private MoveCard reflection invocations explicitly supply null optional callback; all assertions retained",
+      "scope": "Focused rerun only, no repeat Core Full"
+    },
+    "wpfCurrentFrozenFull": {
+      "passed": 52,
+      "failed": 0,
+      "durationMs": 33643,
+      "buildDurationMs": 8560,
+      "sourceInputsUnchanged": true,
+      "dllInputsUnchanged": true
+    },
+    "routine": {
+      "corePassed": 154,
+      "wpfPassed": 17,
+      "coreFilters": 91,
+      "wpfFilters": 17,
+      "durationMs": 67846,
+      "buildMs": 9177,
+      "coreMs": 39604,
+      "wpfMs": 18982,
+      "sourceInputsUnchanged": true,
+      "scope": "Unfiltered Test-Changed on actual frozen combined working inputs; includes unowned overlapping-hand WPF filter"
+    },
+    "art": {
+      "offlineGenerals": 179,
+      "offlinePngs": 976,
+      "compiledOriginalPortraits": 2,
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "primaryTestHarnessDllCopiesEqual": true
+    },
+    "limits": "Automated and offscreen results cover captured bytes, not later concurrent UI/Core edits or official-client manual gameplay"
+  },
+  "evidenceRoot": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourteenth-20261002",
+  "evidence": {
+    "gongsunDelivery": {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourteenth-20261002\\gongsun-zan\\worker\\delivery-01\\source-manifest.json",
+      "sha256": "6937e115dd2b41b89926a4d8df20be44c23d4694136f59fe7758a1ff3204c7a9"
+    },
+    "huaDelivery": {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourteenth-20261002\\hua-xiong\\worker\\delivery-01\\source-manifest.json",
+      "sha256": "fad9a152c66aa6e4aa9602e0118ea51a4d0f3d8a563697c2f283fdfc1cb85a9a"
+    },
+    "gongsunParentVerification": {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourteenth-20261002\\root-gongsun-delivery-verification-01\\manifest.json",
+      "sha256": "34ccab862b3c0e54b923a75079294d7f136ae16e8e30204f107b905de41b9e09"
+    },
+    "huaParentVerification": {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourteenth-20261002\\root-hua-delivery-verification-01\\manifest.json",
+      "sha256": "2efa53655455d5c5d2aeefdaa8a80aa1771fa608522ee02661667eaa443e71f1"
+    },
+    "finalP2Audit": {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourteenth-20261002\\final-p2-delta-audit-01\\manifest.json",
+      "sha256": "75a3f55462bf46e36e90edd1b8825cb6fbed22de821b45c9d09c649e2b589cb4"
+    },
+    "integrationAudit": {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourteenth-20261002\\root-integration-readonly-audit-01\\manifest.json",
+      "sha256": "de36498517022a6a34613821ba135034d4150a73bad55152eabbf54d0cd3e6cd"
+    },
+    "integrationRefresh": {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourteenth-20261002\\integration-main-refresh-01\\manifest.json",
+      "sha256": "683f240601d2e1e4a8356526959d2e63099366ee4668bd3d1fe99948384ee56f"
+    },
+    "threeWayMerge": {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourteenth-20261002\\root-merge-01\\manifest.json",
+      "sha256": "8a077a91a69003bbb8685c442c8e0d003af31b7358c8311ac689d4a78177512e"
+    },
+    "conflictResolution": {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourteenth-20261002\\root-conflict-resolution-01\\manifest.json",
+      "sha256": "eeee11a076ae8e834b664a2f431ea5611709ffa29b5d23984055bc9b36a2a63f"
+    },
+    "coreFixtureRepair": {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourteenth-20261002\\root-core-fixture-fix-01\\source-manifest.json",
+      "sha256": "80c43a0d1cf00108e54d7e4f0a64bd3eab83580d9927b01e3f0793f50fdb42de"
+    },
+    "postFullRefresh": {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourteenth-20261002\\root-post-full-repair-01\\manifest.json",
+      "sha256": "1713b3bc0ac9bb72f72ffe849c9c55d2976a18d1b1eec4d60fbe05f3915cbb9c"
+    },
+    "latestUiRefresh": {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourteenth-20261002\\root-ui-refresh-02\\manifest.json",
+      "sha256": "cb13f6893a0e4907bea8d854c70f4d9e007e2fb835ae1a4c1306a98c0362aaf3"
+    },
+    "stableTableFixture": {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourteenth-20261002\\root-table-final-fixture-01\\manifest.json",
+      "sha256": "f46b2bebd9166ef8d6614abb931e1249a26a32416ca3e14c58c472cbce485d97"
+    },
+    "compiledResources": {
+      "path": "C:\\Users\\17917\\AppData\\Local\\Temp\\Card-FengLinFourteenth-20261002\\compiled-resources-final-02\\manifest.json",
+      "sha256": "5854edfb518351c0baee8fafbb64e757e62a9304dcfff0da921300225685f9d5"
+    }
+  },
+  "scopeOwnership": "35 original owned paths, 3 old Core reflection fixtures, 2 metadata paths, Core-filter hunk and 2 table-fixture lines; unrelated working/index content is preserved by guarded writes and a scoped index",
+  "versions": "Rules epoch, rules schema and content package versions unchanged; declarations remain in their existing source files",
+  "originalFailures": [
+    "Combined Full: 3 private reflection argument-count mismatches; fixed explicitly without changing production behavior",
+    "Combined Full: expanded-pool equipment fixture had no legal Equip; stable base-catalogue seed1 verified with QinggangSword79, all assertions preserved",
+    "Combined Full: concurrent feedback/autosave path; captured newer external persistence/playback code passed targeted and current frozen WPF Full",
+    "Post-full fixes attempt01: newer equipment-rail assertion preceded its concurrent cache code; captured actual new TableSurface/SeatViewModel bytes in refresh02",
+    "Table fixture attempt02 used base721019 but lacked equipment; bounded probe31 then1 selected actual equipment seed1",
+    "Probe01 missing System.IO compile; Probe02 wrong private field name; Probe03 uses actual _game and records two bounded setups"
+  ]
+}

@@ -102,7 +102,7 @@ public sealed partial class GameEngine
             conversionChain.AddRange(additionalConversions);
         }
         ConsumeProgramViewAsUsage(conversionChain);
-        var trackAppearance = HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard);
+        var trackAppearance = _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard);
         return CaptureFactionAction(new CardActionContext(++_cardActionSequence,
             _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
             CardActionType.Use, actorSeat, provider, provider == actorSeat ? null : actorSeat,
@@ -534,10 +534,10 @@ public sealed partial class GameEngine
         var action = use.Action!;
         if (action.Type != CardActionType.Use ||
             CardCatalog.Get(action.EffectiveKind).CategoryName != "锦囊牌" ||
-            action.PhysicalCards.All(cost => cost.CardId != continuation.EffectCardId))
+            action.PhysicalCards.All(cost => cost.CardId != continuation.EffectCardId) &&
+                !MatchesSelectedActorDuelAction(frame.ParentFrameId, action, continuation.EffectCardId))
             throw new InvalidOperationException("The trick trigger continuation does not match its card action.");
-        var card = _cardZones.CardsAt(CardLocation.Processing)
-            .Single(item => item.Id == continuation.EffectCardId);
+        var card = GetTrickRepresentation(frame.ParentFrameId, continuation.EffectCardId, requireProcessing: true);
         var pending = new JizhiResolution(
             action.ActorSeat,
             frame.ParentFrameId,
@@ -616,7 +616,8 @@ public sealed partial class GameEngine
             var trickContinuationMatches = frame.Continuation is ProgramCardContinuation.BeforeTrickTargetEffects or ProgramCardContinuation.CommittedTrick or ProgramCardContinuation.FinalizedTrick
                 ? frame.TrickContinuation is { } trick &&
                   frame.Action.Type == CardActionType.Use &&
-                  frame.Action.PhysicalCards.Any(cost => cost.CardId == trick.EffectCardId)
+                  (frame.Action.PhysicalCards.Any(cost => cost.CardId == trick.EffectCardId) ||
+                   MatchesSelectedActorDuelAction(frame.ParentFrameId, frame.Action, trick.EffectCardId))
                 : frame.TrickContinuation is null;
             var completedResponseMatches = frame.CompletedResponseReturn is { } completedResponse
                 ? frame.Continuation is null && IsCompletedResponseUse(frame.Action, completedResponse.Kind) &&

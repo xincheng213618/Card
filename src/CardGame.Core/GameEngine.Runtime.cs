@@ -32,6 +32,7 @@ public sealed partial class GameEngine
             case CardDeclarationFrame: ContinueCardDeclaration(frameId); break;
             case CardDeclarationChallengeFrame: ContinueCardDeclarationChallenge(frameId); break;
             case ProgramSkillFrame:
+                if (ResumeDamageTargetMount(frameId)) return;
                 if (ResumeProgramSlashSuitDiscard(frameId)) return;
                 if (ResumeDiamondDelayed(frameId)) return;
                 if (ResumeDistinctFactionDiscards(frameId)) return;
@@ -673,6 +674,13 @@ public sealed partial class GameEngine
                     "移动响应后技能持有人、装备持有人或技能实例已失效。");
                 return;
             }
+            AdvanceRuntimeProgram(frameId);
+            return;
+        }
+        if (frame.DamageTargetMount is { Receipt: not null })
+        {
+            if (!IsValidDamageTargetMount(frame)) throw new InvalidOperationException("The mount movement lost its actual payment.");
+            ReplaceRuntimeTop(frame with { PendingMovementContinuation = null });
             AdvanceRuntimeProgram(frameId);
             return;
         }

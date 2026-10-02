@@ -709,6 +709,14 @@ internal sealed class ProgramAiEstimateContext
         _otherAdjustment += 4d;
     }
 
+    internal void DamageTargetMountValue()
+    {
+        _targetDraw -= 1d;
+        if (_publicContext.HasOwnedCardCategory?.Invoke([CardZoneKind.Equipment], [],
+            [CardKind.OffensiveHorse, CardKind.DefensiveHorse, CardKind.Dawan, CardKind.Zixing, CardKind.Dilu, CardKind.Zhaohuangfeidian, CardKind.Hualiu]) == true)
+            _ownerDraw += 1d;
+    }
+
     internal void ChooseOtherOwnedCardDiscard(SkillProgramEffect effect) =>
         _otherAdjustment += 8d;
 
@@ -770,6 +778,16 @@ internal sealed class ProgramAiEstimateContext
         _discardsSelected = true;
     }
 
+    internal void SelectedActorDuel()
+    {
+        // Only public hand counts determine the risk prior. This is neither fixed damage nor a guaranteed Draw.
+        var otherHand = _publicContext.SelectedTarget?.HandCount ?? 3;
+        var ownerHand = _player.HandCount;
+        var ownerWin = Math.Clamp(0.5d + (ownerHand - otherHand) * 0.08d, 0.15d, 0.85d);
+        _otherAdjustment -= (1d - ownerWin) * 12d;
+        _targetAdjustment -= ownerWin * 20d;
+    }
+    internal void DamageAppearanceDraw() { /* The mandatory actual receipt chooses its recipient, not a speculative AI reward. */ }
     internal void Damage(SkillProgramEffect effect) => _targetHpLoss +=
         effect.Condition.Kind == SkillProgramConditionKind.BoundCardSuitMatchesChoice
             ? effect.Amount * 0.75d : effect.Amount;

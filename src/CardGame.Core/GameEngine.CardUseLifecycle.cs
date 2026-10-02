@@ -88,8 +88,7 @@ public sealed partial class GameEngine
     {
         var continuation = frame.TrickContinuation ??
             throw new InvalidOperationException("The committed trick lost its continuation.");
-        var card = _cardZones.CardsAt(CardLocation.Processing)
-            .Single(item => item.Id == continuation.EffectCardId);
+        var card = GetTrickRepresentation(frame.ParentFrameId, continuation.EffectCardId, requireProcessing: true);
         var action = _resolutionStack.OfType<CardUseFrame>().Single(use => use.Id == frame.ParentFrameId).Action!;
         BeginJizhiOrNullificationWindow(frame.ParentFrameId, card, action.ActorSeat,
             action.TargetSeats, continuation.ActionKind, continuation.TargetCardId,

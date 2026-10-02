@@ -91,9 +91,9 @@ internal static class BoundaryZhenJiChecks
         Replay(g,r);Answer(g,c=>Action(c)=="stop");Settle(g);Use(g,"discard",[grant.CardId]);Settle(g);Require(!g.State.Players[0].Hand.Any(c=>c.Id==grant.CardId),"Exact entity physically leaves Hand.");
         // A separate host identity audit: existing turn fact follows the entity on leave/return, never all turn gains.
         var zones=typeof(GameEngine).GetField("_cardZones",Flags)!.GetValue(g)!;var card=((IReadOnlyList<Card>)zones.GetType().GetMethod("CardsAt")!.Invoke(zones,[CardLocation.DiscardPile])!).Single(c=>c.Id==grant.CardId);
-        typeof(GameEngine).GetMethod("MoveCard",Flags)!.Invoke(g,[card,CardLocation.DiscardPile,CardLocation.Hand(1),new CardMoveReason("host-audit.identity-transfer")]);
+        typeof(GameEngine).GetMethod("MoveCard",Flags)!.Invoke(g,[card,CardLocation.DiscardPile,CardLocation.Hand(1),new CardMoveReason("host-audit.identity-transfer"),null]);
         Require(Eligible(g,1).Any(c=>c.Id==grant.CardId),"The same entity in another owner's Hand is not exempt.");
-        typeof(GameEngine).GetMethod("MoveCard",Flags)!.Invoke(g,[card,CardLocation.Hand(1),CardLocation.Hand(0),new CardMoveReason("host-audit.identity-return")]);
+        typeof(GameEngine).GetMethod("MoveCard",Flags)!.Invoke(g,[card,CardLocation.Hand(1),CardLocation.Hand(0),new CardMoveReason("host-audit.identity-return"),null]);
         Require(!Eligible(g,0).Any(c=>c.Id==grant.CardId),"Engineering default: the exact entity returning to original owner within actual turn remains exempt.");
         var(extra,xr)=Start("extra-play");Activate(extra);Reach(extra,p=>p.Kind==DecisionKind.ProgramRepeatJudgment);var actualTurn=extra.CreateSnapshot(0).TurnNumber;Answer(extra,c=>Action(c)=="stop");Settle(extra);
         Require(extra.Events.Select(e=>e.Payload).OfType<ProgramPhaseScheduledEvent>().Any(e=>e.Phase==TurnPhase.Play&&e.Started),"A real extra Play precedes normal preparation flow.");Replay(extra,xr);Accept(extra,new EndPlayPhaseCommand(0,extra.Revision,P(extra)!.PromptId));Settle(extra);

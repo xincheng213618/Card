@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:yaowu-current": {
+      "name": "耀武",
+      "description": "锁定技，当你受到伤害时，若造成伤害的牌：为红色，伤害来源摸一张牌；不为红色，你摸一张牌。"
+    },
+    "boundary:shizhan-current": {
+      "name": "势斩",
+      "description": "出牌阶段限两次，你可以令一名其他角色视为对你使用一张【决斗】。"
+    }
+  }
+}

@@ -1,4 +1,4 @@
-﻿namespace CardGame.Core;
+namespace CardGame.Core;
 
 /// <summary>
 /// Validates resource relationships independently of the operation or entry point.
@@ -19,6 +19,9 @@ internal static class ProgramCompositionValidator
         IReadOnlyList<CardZoneKind>? activationSourceZones = null, int? activationMinimumCards = null,
         IReadOnlyList<SkillProgramCardCategory>? activationCardCategories = null)
     {
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.UseSelectedActorDuel) &&
+            (window is not null || selectedCardCount != 0 || !initialSelectedTarget || initialTargetSetMaximum != 0 || effects.Count != 1))
+            throw Error(path, "Selected actor Duel is a single zero-card one-selected-target activation.");
         PaidHpLossProgram.ValidateComposition(path, effects, window, selectedCardCount, initialSelectedTarget, initialTargetSetMaximum);
         expandedCardDomain |= RequiresExpandedCardDomain(effects);
         var bindings = new Dictionary<string, Binding>(StringComparer.Ordinal);

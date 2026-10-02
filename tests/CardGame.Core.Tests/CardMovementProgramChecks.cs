@@ -324,7 +324,7 @@ internal static class CardMovementProgramChecks
             "MoveCard", BindingFlags.NonPublic | BindingFlags.Instance) ??
             throw new InvalidOperationException("The movement fixture could not find MoveCard.");
         _ = moveCard.Invoke(game,
-            [ox, CardLocation.Equipment(HumanSeat), CardLocation.Equipment(1), CardMoveReasons.WoodenOxTransfer]);
+            [ox, CardLocation.Equipment(HumanSeat), CardLocation.Equipment(1), CardMoveReasons.WoodenOxTransfer, null]);
 
         var pending = (IReadOnlyList<CardMovementBatchContext>)(typeof(GameEngine)
             .GetField("_pendingCardsMovedBatches", BindingFlags.NonPublic | BindingFlags.Instance)!

@@ -63,6 +63,9 @@
         'Paid HP loss source and legacy',
         'Boundary Deng Ai own turn slash discard judges authority',
         'Boundary Deng Ai awakening grants snatch and extra turn'
+        'Damage target mount paid children source lifetime',
+        'Damage appearance Draw definitions physical colors cardless legacy',
+        'Selected actor Duel actual Use and Nullification'
     )
     Wpf = @(
         'original card artwork', 'composed skills', 'conversion choices',
