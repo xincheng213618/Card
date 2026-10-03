@@ -72,7 +72,13 @@
         'Boundary Zhu Rong lost pindian takes nothing',
         'Boundary Zhu Rong unlimited slash damage draws at phase end',
         'Boundary Zhu Rong dodged slash skips phase end draw',
-        'Boundary Zhu Rong changbiao runs once per phase'
+        'Boundary Zhu Rong changbiao runs once per phase',
+        'Boundary Meng Huo definitions and metadata',
+        'Boundary Meng Huo barbarian immunity and attribution',
+        'Boundary Meng Huo zaiqi asks chosen participants in order',
+        'Boundary Meng Huo zaiqi draw only at full owner',
+        'Boundary Meng Huo zaiqi decline leaves everyone alone',
+        'Boundary Meng Huo zaiqi stays silent without red discards',
         'Damage target mount paid children source lifetime',
         'Damage appearance Draw definitions physical colors cardless legacy',
         'Selected actor Duel actual Use and Nullification'

@@ -16,6 +16,8 @@ internal static class CommittedEventProjection
         PlayPhaseSuitAllowanceGrantedEvent value => value with { Suits = FreezeList(value.Suits), DiscardedCardIds = FreezeList(value.DiscardedCardIds) },
         ProgramDiscardBudgetCommittedEvent value => value with
         { Participants = FreezeList(value.Participants) },
+        ProgramRedDiscardRecoveryCommittedEvent value => value with
+        { Seats = FreezeList(value.Seats) },
         CompletedFactionCostGiftedEvent value => value with
         { CardIds = FreezeList(value.CardIds) },
         ProgramViewAsConvertedEvent value => value with

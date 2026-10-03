@@ -1,4 +1,4 @@
-"""Sync original PNG portraits from the public official hero pages.
+﻿"""Sync original PNG portraits from the public official hero pages.
 
 From the repository root, run these phases in order:
   python tools/sync_general_art.py --phase classic
@@ -142,6 +142,7 @@ CURRENT_HEROES = {
     "boundary-deng-ai": (471, "界邓艾"),
     "boundary-jiang-wei": (480, "界姜维"),
     "boundary-zhu-rong": (479, "界祝融"),
+    "boundary-meng-huo": (492, "界孟获"),
     "boundary-gongsun-zan": (320, "界公孙瓒"),
     "boundary-hua-xiong": (446, "界华雄"),
 }

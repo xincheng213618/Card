@@ -371,7 +371,7 @@ public enum SkillProgramEffectOp
     PlaceSelectedEquipment = 2000, FreezeSelectedHpPair = 2001,
     PreventCurrentTargetSlashCancellation = 2100, AddCurrentTargetSlashDamage = 2101,
     ChooseOwnerHpLoss = 2200, DrawPaidHpLoss = 2201, GrantPaidHpLossDistance = 2202, GrantPaidHpLossSlashLimit = 2203,
-    DiscardDamageTargetAndClaimMount = 2300,
+    DiscardDamageTargetAndClaimMount = 2300, OfferRedDiscardRecoveryChoice = 2340,
     DrawByDamageCardColor = 2400, UseSelectedActorDuel = 2401
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets, HpPairHigher = 2000, HpPairLower = 2001 }
@@ -3219,6 +3219,10 @@ public sealed class SkillProgramCatalog
         if (effects.Any(e => e.Op == SkillProgramEffectOp.ResolveDiscardBudgetParticipants) &&
             (window != SkillProgramTriggerWindow.DiscardPhaseEnded || subject != SkillProgramTriggerSubject.Owner || !allowOwnDiscardPhaseEnded || turnOwnerScope != SkillProgramTurnOwnerScope.Own))
             Fail(path, "discard budget requires an actual own discard-phase end");
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.OfferRedDiscardRecoveryChoice) &&
+            (window != SkillProgramTriggerWindow.TurnEnding || subject != SkillProgramTriggerSubject.Owner ||
+             optional || turnOwnerScope != SkillProgramTurnOwnerScope.Own || effects.Count != 1))
+            Fail(path, "red discard recovery requires one mandatory own turn-ending operation");
         if (effects.Any(e => e.Op == SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage) &&
             (window != SkillProgramTriggerWindow.BeforeDamageApplied || subject != SkillProgramTriggerSubject.DamageSource || optional))
             Fail(path, "own play range prevention requires a mandatory damage-source window");

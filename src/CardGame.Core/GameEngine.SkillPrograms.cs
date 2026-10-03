@@ -1050,6 +1050,7 @@ public sealed partial class GameEngine
             AssertAssistedPhysicalCardDrafts(frame, paused);
             AssertPrivateOfferDrafts(frame, paused);
             AssertBudgetGiftDraft(frame, paused);
+            AssertRedDiscardRecoveryDraft(frame, paused);
             AssertCompletedCardGiftDraft(frame, paused);
             AssertCurrentCardEnhancementDraft(frame, paused);
             ValidateFactionRecoveryDraft(frame);

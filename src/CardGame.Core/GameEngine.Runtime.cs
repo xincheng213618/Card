@@ -46,6 +46,7 @@ public sealed partial class GameEngine
                 if (ResumeAlternatingSuitTop(frameId)) return;
                 if (TryResumeQuotaTop(frameId)) return;
                 if (ResumeBudgetGift(frameId)) return;
+                if (ResumeRedDiscardRecovery(frameId)) return;
                 if (TryResumeResponseEntityExchange(frameId)) return;
                 if (TryResumeDeckPrograms(frameId)) return;
                 if (TryResumeProgramTargetCommit(frameId)) return;

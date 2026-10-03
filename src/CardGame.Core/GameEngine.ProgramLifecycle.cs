@@ -3069,6 +3069,7 @@ public sealed partial class GameEngine
             return;
         }
         if (action == "discard-budget") { ResolveDiscardBudgetChoice(selected); return; }
+        if (action == "red-discard-recovery") { ResolveRedDiscardRecoveryChoice(selected); return; }
         if (action == "outside-range-discard") { ResolveOutsideRangeDiscard(selected); return; }
         if (action == "faction-cost-gift") { ResolveCompletedFactionGift(selected); return; }
         if (action == "completed-card-gift")
@@ -3854,6 +3855,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeSuitDiscard => SelectAiSlashSuitDiscard(decision, frame),
                 SkillProgramEffectOp.DiscardDistinctFactionParticipants => SelectAiDistinctFactionDiscard(decision,frame),
                 SkillProgramEffectOp.ResolveDiscardBudgetParticipants or SkillProgramEffectOp.DiscardOutsideRangeAfterInsufficientUses or SkillProgramEffectOp.OfferCompletedFactionCostGift => decision.Choices[0],
+                SkillProgramEffectOp.OfferRedDiscardRecoveryChoice => SelectAiRedDiscardRecovery(decision, frame),
                 SkillProgramEffectOp.SelectRelativeZoneDemandTarget => decision.Choices[0],
                 SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd => decision.Choices[0],
                 SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard or SkillProgramEffectOp.DeclareNameForTargetDefense or SkillProgramEffectOp.DrawAndDraftLowHandPopulation => decision.Choices[0],

@@ -203,6 +203,8 @@ public sealed record ProgramSkillFrame(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramDiscardBudgetDraft? DiscardBudgetDraft { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramRedDiscardRecoveryDraft? RedDiscardRecoveryDraft { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramCompletedFactionGiftDraft? CompletedFactionGiftDraft { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramCardEnhancementDraft? CardEnhancementDraft { get; init; }

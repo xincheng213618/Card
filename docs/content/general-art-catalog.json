@@ -11064,6 +11064,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-meng-huo",
+      "characterName": "界孟获",
+      "defaultSkinId": "49200",
+      "skins": [
+        {
+          "id": "49200",
+          "name": "默认皮肤",
+          "sourcePage": "https://www.sanguosha.com/hero/492",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/49200.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-meng-huo.png",
+          "sha256": "e0b9f1ee65d641253741df9a6d8577fb91e363fee12ef828dec0a2996da482bf",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }
