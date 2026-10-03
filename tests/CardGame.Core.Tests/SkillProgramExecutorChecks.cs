@@ -638,6 +638,10 @@ internal static class SkillProgramExecutorChecks
         string? resultBind, SkillProgramCardSetVisibility visibility, CardMoveReason reason) =>
             throw new NotSupportedException("The executor fixture does not exercise DrawBoundCardCount.");
 
+        public void DrawPhaseSkillUsage(long frameId, int ownerSeat, int targetSeat, string usageId,
+        string? resultBind, SkillProgramCardSetVisibility visibility, CardMoveReason reason) =>
+            throw new NotSupportedException("The executor fixture does not exercise DrawPhaseSkillUsage.");
+
         public SkillProgramStepOutcome ChooseOption(ProgramSkillFrame frame, int chooserSeat,
         string resultBind, IReadOnlyList<SkillProgramChoiceOption> options) =>
             throw new NotSupportedException("The executor fixture does not exercise ChooseOption.");

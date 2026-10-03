@@ -11047,6 +11047,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-zhu-rong",
+      "characterName": "界祝融",
+      "defaultSkinId": "47900",
+      "skins": [
+        {
+          "id": "47900",
+          "name": "默认皮肤",
+          "sourcePage": "https://www.sanguosha.com/hero/479",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/47900.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-zhu-rong.png",
+          "sha256": "773578a19ffff0434d55ce9b0948709f24eba00219b784b1f04063fe29d7dc11",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

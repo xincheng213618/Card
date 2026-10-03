@@ -302,7 +302,7 @@ public sealed partial class GameEngine
         foreach (var instance in GetSkillBindingShard(owner).ProgramInstances.Where(instance =>
                      instance.Program.ViewAs.Count != 0))
         foreach (var rule in instance.Program.ViewAs.Where(rule =>
-                     rule.InputCount > 1 &&
+                     rule.InputCount > 1 && !rule.VariableInputCount &&
                      (rule.OutputKind == outputKind || forResponse && rule.ExtendedUse && outputKind == CardKind.Slash && rule.OutputKind == CardKind.FireSlash) &&
                      (forResponse ? rule.ForResponse : rule.ForPlay) &&
                      rule.Condition.Evaluate(context)))
@@ -359,12 +359,56 @@ public sealed partial class GameEngine
         bool forResponse,
         CardConversionSource source)
     {
-        if (cardIds.Count < 2 || cardIds.Distinct().Count() != cardIds.Count) return null;
+        if (cardIds.Count == 0 || cardIds.Distinct().Count() != cardIds.Count) return null;
         var ordered = cardIds.Order().ToArray();
+        var variable = FindProgramVariableMultiCardViewAsSelection(owner, ordered, outputKind, forResponse, source);
+        if (variable is not null) return variable;
         return GetProgramMultiCardViewAsSelections(owner, outputKind, forResponse)
             .FirstOrDefault(candidate =>
                 candidate.Source == source &&
                 candidate.Cards.Select(card => card.Id).Order().SequenceEqual(ordered));
+    }
+
+    /// <summary>
+    /// Validates a known selection against a variable-input conversion directly.
+    /// Variable rules accept any non-empty eligible hand-card count, so they are
+    /// matched by validating the chosen ids instead of enumerating every subset.
+    /// </summary>
+    private ProgramMultiCardViewAsSelection? FindProgramVariableMultiCardViewAsSelection(
+        CharacterState owner,
+        int[] orderedCardIds,
+        CardKind outputKind,
+        bool forResponse,
+        CardConversionSource source)
+    {
+        if (!owner.IsAlive ||
+            IsCardUseForbidden(owner.Seat, outputKind,
+                forResponse ? CardActionType.Response : CardActionType.Use))
+            return null;
+        var instance = GetSkillBindingShard(owner).ProgramInstances.FirstOrDefault(item =>
+            item.SkillId == source.SkillId && item.SkillInstanceId == source.SkillInstanceId);
+        if (instance is null) return null;
+        var rule = instance.Program.ViewAs.FirstOrDefault(item =>
+            item.Id == source.BindingId && item.VariableInputCount &&
+            item.OutputKind == outputKind && (forResponse ? item.ForResponse : item.ForPlay));
+        if (rule is null || !rule.Condition.Evaluate(CreateSkillContext(owner))) return null;
+        var cards = new List<Card>();
+        foreach (var cardId in orderedCardIds)
+        {
+            var location = _cardZones.GetLocation(cardId);
+            if (location.OwnerSeat != owner.Seat) return null;
+            var card = _cardZones.CardsAt(location).SingleOrDefault(item => item.Id == cardId);
+            if (card is null ||
+                !rule.SourceZones.Contains(location.Zone) ||
+                IsTurnHandCardRestricted(owner, card) || HasProgramCardIdentity(owner, card) ||
+                rule.InputKinds.Count != 0 && !rule.InputKinds.Contains(card.Kind) ||
+                rule.InputSuits.Count != 0 && !rule.InputSuits.Contains(
+                    rule.UseEffectiveInputSuit == true ? EffectiveSuit(owner, card) : card.Suit))
+                return null;
+            cards.Add(card);
+        }
+        if (IsTurnPhysicalUseForbidden(owner.Seat, orderedCardIds)) return null;
+        return new(cards, source, outputKind);
     }
 
     private string ProgramConversionName(CardConversionSource source) =>

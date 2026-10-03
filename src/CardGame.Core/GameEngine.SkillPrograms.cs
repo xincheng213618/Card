@@ -87,6 +87,14 @@ public sealed partial class GameEngine
                     continue;
                 var selectedCardUse = features.Single(SkillProgramEffectOp.UseSelectedCardsAs);
                 var allHandTrickUse = features.Single(SkillProgramEffectOp.UseAllHandCardsAsOrdinaryTrick);
+                // A variable-input conversion accepts any eligible hand-card count,
+                // so the activation offers every eligible card instead of enumerated
+                // fixed-size combinations.
+                var variableSlashRule = selectedCardUse is { SourceBind: { } variableBind, OutputKind: { } variableKind }
+                    ? GetEnabledSkillProgram(owner, program.Id).ViewAs.FirstOrDefault(rule =>
+                        rule.VariableInputCount && rule.Id == variableBind &&
+                        rule.OutputKind == variableKind && rule.ForPlay && !rule.ForResponse)
+                    : null;
                 var multiCardUses = selectedCardUse is null
                     ? Array.Empty<ProgramMultiCardViewAsSelection>()
                     : GetProgramMultiCardViewAsSelections(
@@ -96,7 +104,9 @@ public sealed partial class GameEngine
                         .Where(item => item.Source.SkillId == program.Id &&
                                        item.Source.BindingId == selectedCardUse.SourceBind)
                         .ToArray();
-                var cards = selectedCardUse is not null
+                var cards = variableSlashRule is not null
+                    ? VariableSlashActivationCards(owner, variableSlashRule)
+                    : selectedCardUse is not null
                     ? multiCardUses.SelectMany(item => item.Cards).Select(card => card.Id).Distinct().Order().ToArray()
                     : allHandTrickUse is not null
                         ? GetHand(owner).Any(card => IsTurnHandCardRestricted(owner, card))
@@ -109,7 +119,10 @@ public sealed partial class GameEngine
                             EquipmentCatalog.IsEquipment(card.Kind) &&
                             activation.EquipmentSlots.Contains(EquipmentCatalog.Get(card.Kind).Slot))
                         .Select(card => card.Id).Distinct().Order().ToArray();
-                var targets = selectedCardUse is { OutputKind: CardKind.ArrowBarrage } ? []
+                var targets = variableSlashRule is not null
+                    ? _players.Where(target => CanUseVirtualSlashTarget(owner, target, ignoreDistance: true))
+                        .Select(target => target.Seat).Order().ToArray()
+                    : selectedCardUse is { OutputKind: CardKind.ArrowBarrage } ? []
                     : selectedCardUse is { OutputKind: CardKind.Peach } ? []
                     : selectedCardUse is not null
                     ? _players.Where(target => multiCardUses.Any(selection=>CanUseVirtualSlashTarget(owner,target,physicalSuit:PhysicalGroupSuit(owner,selection.Cards), effectiveColor:PhysicalGroupColor(owner,selection.Cards))))
@@ -194,7 +207,7 @@ public sealed partial class GameEngine
                         .Select(id => _cardZones.CardsAt(_cardZones.GetLocation(id))
                             .Single(card => card.Id == id).Suit)
                         .GroupBy(suit => suit).Any(group => group.Count() >= activation.MinCards) ||
-                    selectedCardUse is not null && multiCardUses.Length == 0 ||
+                    selectedCardUse is not null && multiCardUses.Length == 0 && variableSlashRule is null ||
                     selectedCardUse is { OutputKind: CardKind.ArrowBarrage } &&
                     !CanUseGlobalCard(owner, CardKind.ArrowBarrage) ||
                     allHandTrickUse is not null &&
@@ -627,7 +640,9 @@ public sealed partial class GameEngine
         }
         var target = _players.SingleOrDefault(player => player.Seat == targetSeat) ??
             throw new InvalidOperationException("The selected card-use target no longer exists.");
-        if (!CanUseVirtualSlashTarget(owner, target, physicalSuit:PhysicalGroupSuit(owner,selection.Cards), effectiveColor:PhysicalGroupColor(owner,selection.Cards)))
+        var slashRule = GetEnabledSkillProgram(owner, frame.SkillId).ViewAs.FirstOrDefault(item => item.Id == viewAsId);
+        if (!CanUseVirtualSlashTarget(owner, target, physicalSuit:PhysicalGroupSuit(owner,selection.Cards), effectiveColor:PhysicalGroupColor(owner,selection.Cards),
+                ignoreDistance: slashRule is { DistanceUnlimited: true }))
             throw new InvalidOperationException("The selected Slash target is no longer legal.");
         ResolveSlashCore(
             owner,
@@ -638,6 +653,21 @@ public sealed partial class GameEngine
             physicalCards: selection.Cards,
             conversionSource: selection.Source);
         return SkillProgramStepOutcome.AwaitChild;
+    }
+
+    private int[] VariableSlashActivationCards(CharacterState owner, SkillProgramViewAs rule)
+    {
+        if (!owner.IsAlive ||
+            IsCardUseForbidden(owner.Seat, rule.OutputKind, CardActionType.Use))
+            return [];
+        return GetHand(owner).Concat(GetEquipment(owner))
+            .Where(card => !IsTurnHandCardRestricted(owner, card) && !HasProgramCardIdentity(owner, card))
+            .Where(card => rule.SourceZones.Contains(_cardZones.GetLocation(card.Id).Zone))
+            .Where(card => rule.InputKinds.Count == 0 || rule.InputKinds.Contains(card.Kind))
+            .Where(card => rule.InputSuits.Count == 0 || rule.InputSuits.Contains(
+                rule.UseEffectiveInputSuit == true ? EffectiveSuit(owner, card) : card.Suit))
+            .Where(card => !IsTurnPhysicalUseForbidden(owner.Seat, [card.Id]))
+            .Select(card => card.Id).Order().ToArray();
     }
 
     private void PendProgramExtraTurn(ProgramSkillFrame frame, int? targetSeat)

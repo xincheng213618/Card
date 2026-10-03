@@ -105,6 +105,8 @@ public static class GeneralArt
             ["boundary-deng-ai"] = "official-boundary-deng-ai.png",
             // Current ordinary OL edition: docs/content/sources/boundary-jiang-wei-2026-10-03.json.
             ["boundary-jiang-wei"] = "official-boundary-jiang-wei.png",
+            // Current ordinary OL edition: docs/content/sources/boundary-zhu-rong-2026-10-04.json.
+            ["boundary-zhu-rong"] = "official-boundary-zhu-rong.png",
             // Current ordinary OL editions: docs/content/sources/fenglin-fourteenth-2026-10-02.json.
             ["boundary-gongsun-zan"] = "official-boundary-gongsun-zan.png",
             ["boundary-hua-xiong"] = "official-boundary-hua-xiong.png",

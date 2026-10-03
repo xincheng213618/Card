@@ -66,7 +66,13 @@
         'Boundary Jiang Wei declined taunt discards target card',
         'Boundary Jiang Wei dodged slash still discards',
         'Boundary Jiang Wei taunt runs twice per phase',
-        'Boundary Jiang Wei awakening wakes once across phases'
+        'Boundary Jiang Wei awakening wakes once across phases',
+        'Boundary Zhu Rong juxiang immunity claims resolved barbarian',
+        'Boundary Zhu Rong winning pindian takes target card',
+        'Boundary Zhu Rong lost pindian takes nothing',
+        'Boundary Zhu Rong unlimited slash damage draws at phase end',
+        'Boundary Zhu Rong dodged slash skips phase end draw',
+        'Boundary Zhu Rong changbiao runs once per phase'
         'Damage target mount paid children source lifetime',
         'Damage appearance Draw definitions physical colors cardless legacy',
         'Selected actor Duel actual Use and Nullification'

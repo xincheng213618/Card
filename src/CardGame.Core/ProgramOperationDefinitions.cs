@@ -387,6 +387,8 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
         {
             SkillProgramNumberExpression.BoundCardCount =>
                 new BoundCardCountProgramAmount(effect.SourceBind!),
+            SkillProgramNumberExpression.PhaseSkillUsage =>
+                new PhaseSkillUsageProgramAmount(effect.SourceBind!),
             { } expression => new ExpressionProgramAmount(expression),
             null => new FixedProgramAmount(effect.Amount)
         }, effect.ResultBind, effect.Visibility, effect.TargetReference);
@@ -404,11 +406,12 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
                 (SkillProgramNumberExpression.LivingFactionCount or SkillProgramNumberExpression.TargetMaxHpMinusHandCount or
                  SkillProgramNumberExpression.CategoryTargetTurnUsage or SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.BoundCardCount or
                  SkillProgramNumberExpression.CurrentAttackRange or SkillProgramNumberExpression.HandLimitMinusHandCount or
-                 SkillProgramNumberExpression.LostHpMinusHandCount or SkillProgramNumberExpression.SelectedTargetsHandGreaterThanLord)))
+                 SkillProgramNumberExpression.LostHpMinusHandCount or SkillProgramNumberExpression.SelectedTargetsHandGreaterThanLord or
+                 SkillProgramNumberExpression.PhaseSkillUsage)))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: draw accepts a constant or a supported public-state expression.");
         var source = r.OptionalIdentifier("sourceBind");
-        if ((expression == SkillProgramNumberExpression.BoundCardCount) != (source is not null))
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}: sourceBind is required only for boundCardCount draws.");
+        if ((expression is SkillProgramNumberExpression.BoundCardCount or SkillProgramNumberExpression.PhaseSkillUsage) != (source is not null))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: sourceBind is required only for boundCardCount and phaseSkillUsage draws.");
         var amount = expression is null ? Amount(r, 20, allowZero: r.AllowZeroDraw) : 0;
         var bind = r.OptionalIdentifier("resultBind");
         var targetRef = r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null;

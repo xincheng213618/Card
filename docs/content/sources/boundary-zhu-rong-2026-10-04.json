@@ -1,0 +1,55 @@
+{
+  "generalId": "boundary:zhu-rong",
+  "characterName": "界祝融",
+  "officialId": 479,
+  "sourcePage": "https://www.sanguosha.com/hero/479",
+  "capturedAt": "2026-10-04",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": { "gid": 479, "name": "界祝融", "extend": "界限突破", "hp": 4, "figure": "蜀", "quality": "史诗" },
+  "artwork": {
+    "skinId": "47900",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/47900.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-boundary-zhu-rong.png",
+    "sha256": "773578a19ffff0434d55ce9b0948709f24eba00219b784b1f04063fe29d7dc11",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "巨象",
+      "text": "锁定技，【南蛮入侵】对你无效。当其他角色使用的【南蛮入侵】结算结束后，你获得之。",
+      "programId": "boundary:juxiang-current",
+      "notes": [
+        "逐字复用已验收的 classic:juxiang 卡牌策略形状（excludeGlobalTarget 免疫 + claimResolvedGlobalCard 结算后获得），引擎实现本就只在 SourceSeat!=claimant 时结算获得，与官方界版“其他角色使用的”措辞一致。",
+        "按同名 classic 技能的界版命名惯例取 boundary:juxiang-current，注册为锁定技（SkillTag.Locked + ExecutionForms.State），presentation 携带官方逐字文案。"
+      ]
+    },
+    {
+      "name": "烈刃",
+      "text": "当你使用【杀】对目标角色造成伤害后，你可以与其拼点：若你赢，你获得其一张牌。",
+      "programId": "boundary:lieren-current",
+      "notes": [
+        "触发体逐字复用已验收的 classic:lieren 程序形状：afterDamageApplied、subject damageSource、直接用牌伤害且参与者存活时可选，startPindian(resultBind contest) 后仅拼点获胜分支执行 selectSourceCard(来源手牌+装备、暗槽选择) 与 moveBoundCards 入拥有者手牌。",
+        "与 classic 的差异仅在官方文案标点（“与其拼点：若你赢”），程序语义一致；按同名 classic 技能的界版命名惯例取 boundary:lieren-current。"
+      ]
+    },
+    {
+      "name": "长标",
+      "text": "出牌阶段限一次，你可以将任意张手牌当无距离限制的【杀】使用（计入使用次数），若此【杀】对目标角色造成伤害，本阶段结束时，你摸等量张牌。",
+      "programId": "boundary:changbiao-current",
+      "notes": [
+        "激活体（minCards 1、maxCards null 任意张手牌、单目标 otherLiving、usesPerPhase 1）经 useSelectedCardsAs 以变量转换 viewAs 结算一张【杀】，ResolveSlashCore 默认 countsTowardSlashLimit=true 即“计入使用次数”。",
+        "转换后的用牌数量经 accumulateSelectedCardCount(usageId changbiao-converted、Phase 范围)写入阶段用量账本；afterDamageApplied 触发（sourceSkillId+sourceViewAsId 过滤，仅本次转换造成的伤害）置 PlayPhase 范围布尔状态；playEnding 触发在状态成立时以新增表达式 phaseSkillUsage 读取账本摸等量张牌并清除状态（先图先例的显式清除模式）。",
+        "无距离限制表达为变量转换规则上的 distanceUnlimited 标志（候选枚举与执行校验均按规则放行距离子句），而不是 grantDirectedTurnCardPolicy——后者会令整回合对同一目标的普通【杀】也无距离限制，超出官方语义。"
+      ]
+    }
+  ],
+  "apiInfo": { "hp": 4, "figure": "shu", "initial_hp": 0 },
+  "genderBasis": "官方页无结构化性别字段；祝融为南蛮王孟获之妻，沿 classic:zhu-rong 的 GeneralGender.Female 惯例。",
+  "observations": [
+    "官方页 fetch 时间 2026-10-04，两次 HTTP 200（页面 + /api/v1/hero/info?gid=479）；官方页签为巨象/烈刃/长标三个技能，界版巨象文案较 classic 多出“其他角色使用的”定语。",
+    "本批为单武将批次，在独立 worktree（batch/zhu-rong）开发；未触碰主区并行工作。",
+    "共享能力扩展（详见 docs/benchmarks/2026-10-04-boundary-zhu-rong.md）：viewAs 新增 inputCount:null 变量输入与 distanceUnlimited 标志（仅限 forPlay 无类别过滤的手牌【杀】直接转换，useSelectedCardsAs 路径专用，变量规则不参与组合枚举）；draw 新增 numberExpression phaseSkillUsage（配 sourceBind 携带用量 id，经新指令 PhaseSkillUsageProgramAmount 读取 Phase 范围技能用量）。均为可选附加节点，RulesSchemaVersion 62 与 GameCheckpoint.CurrentRulesVersion 193 均不变，新内容以 minimumRulesVersion 193 与内容指纹区分。"
+  ]
+}
