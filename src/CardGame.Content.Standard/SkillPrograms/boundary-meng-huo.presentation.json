@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:huoshou-current": {
+      "name": "祸首",
+      "description": "锁定技，【南蛮入侵】对你无效。当其他角色使用【南蛮入侵】指定目标后，你代替其成为此牌的伤害来源。"
+    },
+    "boundary:zaiqi-current": {
+      "name": "再起",
+      "description": "结束阶段，你可以令至多X名角色各选择一项（X为本回合置入弃牌堆的红色牌数量）：1.摸一张牌；2.令你回复1点体力。"
+    }
+  }
+}

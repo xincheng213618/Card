@@ -10,6 +10,7 @@ internal abstract record ProgramAmount;
 internal sealed record FixedProgramAmount(int Value) : ProgramAmount;
 internal sealed record ExpressionProgramAmount(SkillProgramNumberExpression Expression) : ProgramAmount;
 internal sealed record BoundCardCountProgramAmount(string SourceBind) : ProgramAmount;
+internal sealed record PhaseSkillUsageProgramAmount(string UsageId) : ProgramAmount;
 
 internal sealed record DrawProgramInstruction(
     SkillProgramEffectTarget Target,

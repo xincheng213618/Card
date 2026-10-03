@@ -119,6 +119,8 @@ public static class GeneralGalleryCatalog
         groups.Add("boundary:deng-ai", "boundary");
         groups.Add("boundary:jiang-wei", "boundary");
         groups.Add("boundary:sun-ce", "boundary");
+        groups.Add("boundary:zhu-rong", "boundary");
+        groups.Add("boundary:meng-huo", "boundary");
         groups.Add("boundary:gongsun-zan", "boundary");
         groups.Add("boundary:hua-xiong", "boundary");
         groups.Add("boundary:xu-sheng", "boundary-fame");

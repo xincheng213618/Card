@@ -48,4 +48,7 @@ public sealed partial class GameEngine
     private int GetProgramCategoryTargetTurnUsage(ProgramSkillFrame frame) =>
         _skillRuntimeState.GetUsage(frame.OwnerSeat, frame.SkillId,
             GetProgramBindingId(frame), SkillUsageScope.Turn);
+
+    internal int GetProgramPhaseSkillUsage(ProgramSkillFrame frame, string usageId) =>
+        _skillRuntimeState.GetUsage(frame.OwnerSeat, frame.SkillId, usageId, SkillUsageScope.Phase);
 }

@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:juxiang-current",
+      "revision": 1,
+      "minimumRulesVersion": 193,
+      "cardPolicies": [
+        { "id": "barbarian-target-immunity", "kind": "excludeGlobalTarget", "cardKinds": ["barbarianAssault"] },
+        { "id": "claim-resolved-barbarian", "kind": "claimResolvedGlobalCard", "cardKinds": ["barbarianAssault"] }
+      ]
+    },
+    {
+      "id": "boundary:lieren-current",
+      "revision": 1,
+      "minimumRulesVersion": 193,
+      "triggers": [
+        {
+          "id": "contest-after-direct-damage",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "damageOccurrence": "perDamage",
+          "damageCardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "directCardUseDamage"
+              },
+              {
+                "kind": "otherDamageParticipantAlive"
+              }
+            ]
+          },
+          "optional": true,
+          "priority": -100,
+          "effects": [
+            {
+              "op": "startPindian",
+              "target": "owner",
+              "opponentRef": {
+                "kind": "eventTarget"
+              },
+              "resultBind": "contest",
+              "visibility": "public"
+            },
+            {
+              "op": "selectSourceCard",
+              "target": "owner",
+              "cardSource": "eventTarget",
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "resultBind": "taken",
+              "skipIfNoCards": true,
+              "condition": {
+                "kind": "pindianWon",
+                "sourceBind": "contest"
+              }
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "taken",
+              "destination": "ownerHand",
+              "condition": {
+                "kind": "pindianWon",
+                "sourceBind": "contest"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:changbiao-current",
+      "revision": 1,
+      "minimumRulesVersion": 193,
+      "viewAs": [
+        {
+          "id": "any-hand-cards-as-unlimited-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": null,
+          "distanceUnlimited": true,
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": false
+        }
+      ],
+      "states": [
+        {
+          "id": "converted-slash-damaged",
+          "initialValue": false,
+          "visibility": "private",
+          "resetScope": "playPhase",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "activations": [
+        {
+          "id": "any-hand-cards-as-unlimited-slash",
+          "minCards": 1,
+          "maxCards": null,
+          "sourceZones": ["hand"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "condition": { "kind": "always" },
+          "effects": [
+            {
+              "op": "useSelectedCardsAs",
+              "target": "selectedTarget",
+              "sourceBind": "any-hand-cards-as-unlimited-slash",
+              "outputKind": "slash"
+            },
+            {
+              "op": "accumulateSelectedCardCount",
+              "target": "owner",
+              "usageId": "changbiao-converted",
+              "threshold": 1,
+              "resultBind": "changbiao-count"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "mark-converted-slash-damage",
+          "window": "afterDamageApplied",
+          "subject": "source",
+          "sourceSkillId": "boundary:changbiao-current",
+          "sourceViewAsId": "any-hand-cards-as-unlimited-slash",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "converted-slash-damaged",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "draw-converted-count-at-phase-end",
+          "window": "playEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "converted-slash-damaged",
+            "expectedValue": true
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "phaseSkillUsage",
+              "sourceBind": "changbiao-converted"
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "converted-slash-damaged",
+              "value": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

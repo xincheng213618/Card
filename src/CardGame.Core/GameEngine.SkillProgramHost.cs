@@ -104,6 +104,12 @@ public sealed partial class GameEngine
             engine.DrawProgramCards(frameId, targetSeat, count, null, resultBind, visibility, reason);
         }
 
+        public void DrawPhaseSkillUsage(long frameId, int ownerSeat, int targetSeat, string usageId,
+            string? resultBind, SkillProgramCardSetVisibility visibility, CardMoveReason reason) =>
+            engine.DrawProgramCards(frameId, targetSeat,
+                engine.GetProgramPhaseSkillUsage(engine.GetActiveProgramFrame(frameId), usageId),
+                null, resultBind, visibility, reason);
+
         public void Recover(long frameId, int ownerSeat, int targetSeat, int amount,
             SkillProgramNumberExpression? numberExpression, string? sourceBind)
         {

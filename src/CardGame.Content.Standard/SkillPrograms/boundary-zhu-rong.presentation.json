@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:juxiang-current": {
+      "name": "巨象",
+      "description": "锁定技，【南蛮入侵】对你无效。当其他角色使用的【南蛮入侵】结算结束后，你获得之。"
+    },
+    "boundary:lieren-current": {
+      "name": "烈刃",
+      "description": "当你使用【杀】对目标角色造成伤害后，你可以与其拼点：若你赢，你获得其一张牌。"
+    },
+    "boundary:changbiao-current": {
+      "name": "长标",
+      "description": "出牌阶段限一次，你可以将任意张手牌当无距离限制的【杀】使用（计入使用次数），若此【杀】对目标角色造成伤害，本阶段结束时，你摸等量张牌。",
+      "activationLabels": {
+        "any-hand-cards-as-unlimited-slash": "将任意张手牌当无距离限制的【杀】使用"
+      }
+    }
+  }
+}

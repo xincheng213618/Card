@@ -64,6 +64,8 @@ public interface ISkillProgramEffectHost
     void DrawSelectedTargets(long frameId, int amount, CardMoveReason reason);
     void DrawBoundCardCount(long frameId, int ownerSeat, int targetSeat, string sourceBind,
         string? resultBind, SkillProgramCardSetVisibility visibility, CardMoveReason reason);
+    void DrawPhaseSkillUsage(long frameId, int ownerSeat, int targetSeat, string usageId,
+        string? resultBind, SkillProgramCardSetVisibility visibility, CardMoveReason reason);
     void Recover(long frameId, int ownerSeat, int targetSeat, int amount,
         SkillProgramNumberExpression? numberExpression, string? sourceBind);
     void RecoverSelectedTargets(long frameId, int ownerSeat, int amount);
@@ -390,6 +392,10 @@ public sealed class DrawSkillProgramEffectHandler : ISkillProgramEffectHandler
             case BoundCardCountProgramAmount bound:
                 host.DrawBoundCardCount(frame.Id, frame.OwnerSeat, targetSeat,
                     bound.SourceBind, instruction.ResultBind, instruction.Visibility, Reason(frame, effect));
+                break;
+            case PhaseSkillUsageProgramAmount phaseUsage:
+                host.DrawPhaseSkillUsage(frame.Id, frame.OwnerSeat, targetSeat,
+                    phaseUsage.UsageId, instruction.ResultBind, instruction.Visibility, Reason(frame, effect));
                 break;
             case FixedProgramAmount fixedAmount:
                 host.Draw(frame.Id, frame.OwnerSeat, targetSeat, fixedAmount.Value,

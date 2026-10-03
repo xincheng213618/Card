@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:huoshou-current",
+      "revision": 1,
+      "minimumRulesVersion": 193,
+      "cardPolicies": [
+        {
+          "id": "barbarian-target-immunity",
+          "kind": "excludeGlobalTarget",
+          "cardKinds": [
+            "barbarianAssault"
+          ]
+        },
+        {
+          "id": "barbarian-damage-attribution",
+          "kind": "attributeGlobalDamage",
+          "cardKinds": [
+            "barbarianAssault"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:zaiqi-current",
+      "revision": 1,
+      "minimumRulesVersion": 193,
+      "triggers": [
+        {
+          "id": "ending-red-discard-recovery",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "offerRedDiscardRecoveryChoice",
+              "target": "owner",
+              "condition": {
+                "kind": "always"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

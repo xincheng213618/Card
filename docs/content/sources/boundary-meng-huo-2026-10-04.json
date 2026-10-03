@@ -1,0 +1,48 @@
+{
+  "generalId": "boundary:meng-huo",
+  "characterName": "界孟获",
+  "officialId": 492,
+  "sourcePage": "https://www.sanguosha.com/hero/492",
+  "capturedAt": "2026-10-04",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": { "gid": 492, "name": "界孟获", "extend": "界限突破", "hp": 4, "figure": "蜀", "quality": "史诗" },
+  "artwork": {
+    "skinId": "49200",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/49200.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-boundary-meng-huo.png",
+    "sha256": "e0b9f1ee65d641253741df9a6d8577fb91e363fee12ef828dec0a2996da482bf",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "祸首",
+      "text": "锁定技，【南蛮入侵】对你无效。当其他角色使用【南蛮入侵】指定目标后，你代替其成为此牌的伤害来源。",
+      "programId": "boundary:huoshou-current",
+      "notes": [
+        "逐字复用已验收的 classic:huoshou 程序形状：cardPolicies excludeGlobalTarget（南蛮入侵指定目标时排除拥有者）+ attributeGlobalDamage（此牌伤害来源改为拥有者），均仅作用于 barbarianAssault。",
+        "官方界版文案把 classic 的“由此牌造成的伤害来源视为你”改为完整句式，程序语义一致，无需新引擎能力。"
+      ]
+    },
+    {
+      "name": "再起",
+      "text": "结束阶段，你可以令至多X名角色各选择一项（X为本回合置入弃牌堆的红色牌数量）：1.摸一张牌；2.令你回复1点体力。",
+      "programId": "boundary:zaiqi-current",
+      "notes": [
+        "结束阶段强制触发（optional=false），效果为新引擎操作 offerRedDiscardRecoveryChoice：X=本回合置入弃牌堆的红色牌数量，X=0 时静默跳过（不弹任何提示）。",
+        "拥有者先逐个点选至多 X 名其他角色（可“不发动”），确认后经 ProgramRedDiscardRecoveryCommittedEvent 公开承诺，再逐个询问每名被选角色：摸一张牌，或令界孟获回复1点体力（拥有者满体力时只提供摸牌分支）；每名角色的选择记录为 ProgramRedDiscardRecoveryChosenEvent。",
+        "既有 DSL 缺口：触发器不支持多目标选择，selectTargets 数量为静态整数，chooseOption 仅支持单一选择者，且没有“本回合置入弃牌堆的红色牌数量”值源；照 discard-budget 参与者迭代（classic:kuizhu）先例新增一个自带询问循环的操作，而非按 requestedSlashDamagedOwner 的条件先例。typed 草稿（ProgramRedDiscardRecoveryDraft）挂在拥有帧上，回放按命令重放确定性重建，检查点/回放格式零变化。",
+        "“至多X名”按每名角色至多被选一次实现（选择阶段去重）；同一角色不会被询问两次。"
+      ]
+    }
+  ],
+  "apiInfo": { "hp": 4, "figure": "shu", "initial_hp": 0 },
+  "genderBasis": "官方无结构化性别字段；沿仓库同角色男性惯例（classic:meng-huo 未指定默认男性）。",
+  "observations": [
+    "官方页 fetch 时间 2026-10-04，两次 HTTP 200（页面 https://www.sanguosha.com/hero/492 + /api/v1/hero/info?gid=492）。",
+    "官方页技能页签恰好两个：祸首（默认）、再起；技能文本逐字取自页面 HTML 的 skill-text 段。",
+    "立绘 49200.png 下载 HTTP 200，1177284 字节，PNG 头解析 750x950。",
+    "本批为单武将批次，在独立 worktree（batch/meng-huo）开发，不触碰主区并行工作。"
+  ]
+}
