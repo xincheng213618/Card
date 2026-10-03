@@ -30,6 +30,7 @@ public sealed class DrawAllHandSelectedBonusProgramHandler : ISkillProgramEffect
 public sealed partial class GameEngine
 {
     private bool BypassesSlashLimitBySuit(CharacterState owner, Card card, CardKind effectiveKind) =>
+        IsSlashCard(effectiveKind) && HasTurnSlashSuitAllowance(owner.Seat, EffectiveSuit(owner, card)) ||
         HasPhaseSuitAllowance(owner,card) || CardPolicies(owner, SkillProgramCardPolicyKind.BypassSlashLimitBySuit, effectiveKind)
             .Any(item => item.Policy.InputSuit == EffectiveSuit(owner, card));
     private bool CanUsePeachToRescue(int responderSeat, int victimSeat) =>

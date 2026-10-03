@@ -10,7 +10,7 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "targetRef", "resultBind", "cardCategories", "cardKinds", "skipIfNoCards", "allowSameOwnerHandReturn", "coverageResultBind", "awaitMovementTriggers", "revealBeforeMove", "freezeMovedCardSuit", "prohibitReplacingEquipment", "condition");
+        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "targetRef", "resultBind", "cardCategories", "cardKinds", "skipIfNoCards", "allowSameOwnerHandReturn", "coverageResultBind", "awaitMovementTriggers", "revealBeforeMove", "freezeMovedCardSuit", "prohibitReplacingEquipment", "allowDecline", "condition");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.target: must be owner.");
@@ -43,11 +43,14 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
                 $"Invalid skill program at {r.Path}: corresponding-zone moves accept equipment, judgment, or (with prohibitReplacingEquipment) hand cards only.");
         var prohibitReplacingEquipment = r.Has("prohibitReplacingEquipment") && r.RequiredBool("prohibitReplacingEquipment");
         if (prohibitReplacingEquipment && (destination != SkillProgramCardDestination.SelectedTargetCorrespondingZone ||
-            zones is not [CardZoneKind.Hand] ||
-            r.OptionalEnumArray<SkillProgramCardCategory>("cardCategories") is not [SkillProgramCardCategory.Equipment] ||
-            r.RequiredParticipantReference("targetRef").Kind != ProgramParticipantRef.SelectedTarget))
+            !(zones is [CardZoneKind.Hand] &&
+                r.OptionalEnumArray<SkillProgramCardCategory>("cardCategories") is [SkillProgramCardCategory.Equipment] &&
+                r.RequiredParticipantReference("targetRef").Kind == ProgramParticipantRef.SelectedTarget ||
+              zones.Contains(CardZoneKind.Equipment) && zones.All(zone => zone is CardZoneKind.Equipment or CardZoneKind.Judgment) &&
+                r.RequiredParticipantReference("targetRef").Kind is ProgramParticipantRef.SelectedTarget or
+                    ProgramParticipantRef.SelectedFirst or ProgramParticipantRef.SelectedSecond)))
             throw new InvalidOperationException(
-                $"Invalid skill program at {r.Path}: prohibitReplacingEquipment requires a single hand source, equipment category, and a selected target.");
+                $"Invalid skill program at {r.Path}: prohibitReplacingEquipment requires category-filtered hand cards and a selected target, or one equipment source and a selected participant.");
         if (!prohibitReplacingEquipment && destination == SkillProgramCardDestination.SelectedTargetCorrespondingZone &&
             zones.Count == 1 && zones[0] == CardZoneKind.Hand)
             throw new InvalidOperationException(
@@ -72,6 +75,13 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
         var coverageResultBind = r.Has("coverageResultBind") ? r.OptionalIdentifier("coverageResultBind") : null;
         var awaitMovementTriggers = r.Has("awaitMovementTriggers") && r.RequiredBool("awaitMovementTriggers");
         var revealBeforeMove = r.Has("revealBeforeMove") && r.RequiredBool("revealBeforeMove");
+        var allowDecline = r.Has("allowDecline") && r.RequiredBool("allowDecline");
+        if (allowDecline && (!skipIfNoCards || !awaitMovementTriggers ||
+            destination != SkillProgramCardDestination.SelectedTargetCorrespondingZone ||
+            zones.Any(zone => zone is not (CardZoneKind.Equipment or CardZoneKind.Judgment)) ||
+            chooserRef.Kind != ProgramParticipantRef.Owner || cardOwnerRef.Kind != ProgramParticipantRef.SelectedFirst ||
+            r.RequiredParticipantReference("targetRef").Kind != ProgramParticipantRef.SelectedSecond))
+            throw new InvalidOperationException("Decline requires an awaited optional public ordered field transfer.");
         if (revealBeforeMove && (chooserRef.Kind != ProgramParticipantRef.Owner ||
             cardOwnerRef.Kind != ProgramParticipantRef.Owner || zones.Count != 1 || zones[0] != CardZoneKind.Hand ||
             destination != SkillProgramCardDestination.SelectedTargetHand || !r.Has("resultBind") ||
@@ -92,7 +102,7 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
             skipIfNoCards: skipIfNoCards, allowSameOwnerHandReturn: allowSameOwnerHandReturn,
             coverageResultBind: coverageResultBind, awaitMovementTriggers: awaitMovementTriggers,
             revealBeforeMove: revealBeforeMove, cardKinds: cardKinds,
-            prohibitReplacingEquipment: prohibitReplacingEquipment,
+            prohibitReplacingEquipment: prohibitReplacingEquipment, allowDecline: allowDecline,
             freezeMovedCardSuit: r.Has("freezeMovedCardSuit") && r.RequiredBool("freezeMovedCardSuit"));
         var optionalEquipmentDiscard = effect.FreezeMovedCardSuit && effect.AwaitMovementTriggers &&
             effect.Destination == SkillProgramCardDestination.DiscardPile && effect.CardCategories is [SkillProgramCardCategory.Equipment] &&

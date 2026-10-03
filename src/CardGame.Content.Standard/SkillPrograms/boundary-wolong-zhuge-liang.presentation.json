@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:huoji-current": {"name":"火计","description":"你可以将一张红色牌当【火攻】使用。你的【火攻】改为令目标展示随机手牌，你弃置与展示牌颜色相同的牌以造成伤害。"},
+    "boundary:kanpo-current": {"name":"看破","description":"你可以将一张黑色牌当【无懈可击】使用。你的【无懈可击】不能被响应。"},
+    "boundary:cangzhuo": {"name":"藏拙","description":"锁定技，弃牌阶段开始时，若你本回合未使用过锦囊牌，你的锦囊牌不计入手牌上限。"}
+  }
+}

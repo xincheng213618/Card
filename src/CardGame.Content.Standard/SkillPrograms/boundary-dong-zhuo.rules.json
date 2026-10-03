@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:jiuchi-current", "revision": 1,
+      "viewAs": [
+        { "id": "spade-hand-as-alcohol", "inputKinds": [], "inputSuits": ["spade"], "outputKind": "alcohol", "forPlay": true, "forResponse": true }
+      ],
+      "cardPolicies": [
+        { "id": "unlimited-alcohol-use", "kind": "unlimitedAlcoholUse", "cardKinds": ["alcohol"] }
+      ],
+      "triggers": [
+        {
+          "id": "alcohol-slash-disables-own-decay", "window": "afterDamageApplied", "subject": "damageSource",
+          "optional": false, "priority": 100, "damageOccurrence": "perDamage",
+          "condition": { "kind": "all", "children": [ { "kind": "damageSourceIsOwner" }, { "kind": "damageCardIsSlash" } ] },
+          "effects": [
+            { "op": "suppressOwnSkillAfterAlcoholSlashDamage", "target": "owner", "skillIds": ["boundary:benghuai-current"] }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:roulin-current", "revision": 1,
+      "cardPolicies": [
+        { "id": "female-target-needs-two-dodges", "kind": "minimumResponseCount", "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "requiredCardKinds": ["dodge"], "value": 2, "condition": { "kind": "eventTargetGenderIs", "gender": "female" } },
+        { "id": "female-source-slash-needs-two-dodges", "kind": "minimumResponseCountAsTarget", "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "requiredCardKinds": ["dodge"], "value": 2, "condition": { "kind": "eventSourceGenderIs", "gender": "female" } }
+      ]
+    },
+    {
+      "id": "boundary:benghuai-current", "revision": 1,
+      "triggers": [
+        {
+          "id": "benghuai-decay", "window": "turnEnding", "subject": "owner", "optional": false,
+          "condition": { "kind": "compare", "left": { "kind": "currentHp" }, "operator": "greaterThan", "right": { "kind": "livingPlayersMinHp" } },
+          "effects": [
+            { "op": "chooseOption", "target": "owner", "resultBind": "benghuai-choice",
+              "options": [ { "id": "lose-hp", "condition": { "kind": "always" } }, { "id": "reduce-max-hp", "condition": { "kind": "always" } } ] },
+            { "op": "loseHp", "target": "owner", "amount": 1,
+              "condition": { "kind": "choiceIs", "sourceBind": "benghuai-choice", "optionId": "lose-hp" } },
+            { "op": "changeMaximumHp", "target": "owner", "amount": -1,
+              "condition": { "kind": "choiceIs", "sourceBind": "benghuai-choice", "optionId": "reduce-max-hp" } }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:baonue-current", "revision": 1,
+      "triggers": [
+        {
+          "id": "other-qun-damage-point-judgment", "window": "afterDamageApplied", "subject": "any", "optional": true,
+          "damageOccurrence": "perDamagePoint",
+          "condition": { "kind": "all", "children": [
+            { "kind": "not", "children": [ { "kind": "damageSourceIsOwner" } ] },
+            { "kind": "damageSourceFactionIs", "factions": ["qun"] }
+          ] },
+          "effects": [
+            { "op": "startOwnedDamagePointJudgment", "target": "owner", "judgmentReason": "skill.boundary.baonue-current", "resultBind": "baonue-judgment", "visibility": "public" },
+            { "op": "moveBoundCards", "target": "owner", "sourceBind": "baonue-judgment", "destination": "discardPile" }
+          ]
+        },
+        {
+          "id": "spade-judgment-recover-and-claim", "window": "judgmentFinalized", "subject": "owner", "optional": false,
+          "judgmentReasons": ["skill.boundary.baonue-current"], "excludedReasons": [], "suits": ["spade"], "minimumRank": 1, "maximumRank": 13,
+          "effects": [
+            { "op": "recover", "target": "owner", "amount": 1 },
+            { "op": "claimJudgmentCard", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}

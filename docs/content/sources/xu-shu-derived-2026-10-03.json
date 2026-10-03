@@ -1,0 +1,48 @@
+{
+  "officialEdition": "current ordinary Sanguosha OL",
+  "checkedDate": "2026-10-03",
+  "general": "boundary:xu-shu",
+  "primarySource": "https://www.sanguosha.com/hero/304",
+  "primarySkillTexts": {
+    "诛害": "其他角色的结束阶段，若其本回合造成过伤害，你可以对其使用一张【杀】。",
+    "潜心": "觉醒技，当你造成伤害后，若你已受伤，你减少1点体力上限并获得“荐言”。"
+  },
+  "linkedSkillSourceGap": {
+    "htmlReference": "<font href='707'>荐言</font>",
+    "resolverStatus": "No skill resolver found in the page or its linked heroDetail.js, commen.js and header.js; the 707 link was not successfully resolved.",
+    "implementationBasis": "The current page verifies the two printed skills. Jianyan is selected from official supplemental material with the same pre-breakthrough Zhuhai and Qianxin wording. This is a derived text choice, not a claim that the current 304 page supplied Jianyan in full."
+  },
+  "supplementalSources": [
+    {
+      "url": "https://www.sanguosha.com/news/20161117_1592_4417",
+      "publishedDate": "2016-11-17",
+      "edition": "ordinary OL official strategy guide",
+      "supports": ["Zhuhai can use Slash at a distant ending-turn target", "Jianyan selects a card category or color", "Jianyan requires a male recipient", "Unmatched revealed cards go into discard without being discarded"]
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20220511_9158_4609",
+      "publishedDate": "2022-05-11",
+      "edition": "Ten-Year Anniversary update, BEFORE-breakthrough column only",
+      "supports": ["Full Jianyan wording for the same printed Zhuhai/Qianxin pair"],
+      "selectedText": "出牌阶段限一次，你可以声明一种牌的类别或颜色，然后将牌库中第一张符合你声明的牌交给一名男性角色。",
+      "excluded": "The AFTER-breakthrough Zhuhai Slash/Dismantle conversion and Jianyan per-item limits belong to the enhanced Ten-Year Anniversary line and are not imported."
+    }
+  ],
+  "selectedJianyanText": "出牌阶段限一次，你可以声明一种牌的类别或颜色，然后将牌库中第一张符合你声明的牌交给一名男性角色。",
+  "supplementaryInterpretations": {
+    "zhuhaiIgnoreDistance": true,
+    "zhuhaiDistanceBasis": "Official 2016 ordinary-OL strategy guidance supplements the omission of a distance clause in current hero/304; presentation retains hero/304 verbatim.",
+    "jianyanCriteria": ["basic", "trick including delayed trick", "equipment", "red", "black"],
+    "recipient": "Any currently living male character, including self; CharacterState.Gender applies live override/avatar gender.",
+    "unmatchedMovement": "DrawPile to DiscardPile with program.declared-deck.unmatched, outside discard-action triggers."
+  },
+  "engineeringDefaults": {
+    "emptyInitialDeck": "Use the existing empty-only reshuffle once before searching.",
+    "searchCap": "Freeze the initial draw-pile count after that refill; every real top-card revelation consumes one slot. Re-read the current top after movement children. Do not refill mid-search; absent criteria terminate finitely.",
+    "matchedCard": "Hold the first matching physical entity publicly in Processing; let movement children finish before publishing the male-recipient choice.",
+    "lostSourceOrNoMale": "The owning frame cancels or completes and cleans its bound Processing card into DiscardPile without selecting a replacement private card.",
+    "jianyanQuota": "Once per actual play phase, without importing the later per-item enhancement.",
+    "awakening": "Mandatory once per game after actual source damage while wounded; reduce maximum HP then grant the chosen Jianyan skill.",
+    "ai": "Price only public opportunity; choose trick deterministically without deck inspection, then self if currently male. Fixed-target Slash chooses a legal owned payment before a faction request."
+  }
+}

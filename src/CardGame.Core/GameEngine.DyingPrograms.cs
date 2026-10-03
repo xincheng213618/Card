@@ -64,6 +64,10 @@ public sealed partial class GameEngine
             card, victim.Seat, [victim.Seat], CardKind.Alcohol, conversionSource: source);
         MoveCard(card, location, CardLocation.Processing, reason);
         SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
+        if (TryQueueRecoveryReplacement(resolutionId, victim.Seat, victim.Seat, 1,
+            new(RecoveryAttemptProducer.DyingBoundAlcohol, CardId: card.Id, CardKind: CardKind.Alcohol,
+                MoveReason: reason, ProgramFrameId: active.Id, DyingFrameId: dying.FrameId, SkillId: active.SkillId, SkillOwnerSeat: active.OwnerSeat)))
+        { TryBeginQueuedRecoveryReplacement(resolutionId, PostEventContinuation.RecoveryProducer); return; }
         var recoveryFrameId = BeginRecovery(resolutionId, victim.Seat, victim.Seat, 1);
         try
         {
@@ -106,6 +110,10 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(resolutionId, 0, CardKind.Alcohol, victim.Seat));
         AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(resolutionId, Array.AsReadOnly(new[] { victim.Seat })));
         SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
+        if (TryQueueRecoveryReplacement(resolutionId, victim.Seat, victim.Seat, 1,
+            new(RecoveryAttemptProducer.DyingVirtualAlcohol, CardId: 0, CardKind: CardKind.Alcohol,
+                ProgramFrameId: active.Id, DyingFrameId: dying.FrameId, SkillId: active.SkillId, SkillOwnerSeat: active.OwnerSeat)))
+        { TryBeginQueuedRecoveryReplacement(resolutionId, PostEventContinuation.RecoveryProducer); return; }
         var recoveryFrameId = BeginRecovery(resolutionId, victim.Seat, victim.Seat, 1);
         try
         {

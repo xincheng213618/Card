@@ -1,0 +1,1 @@
+{"schemaVersion":3,"skills":{"boundary:tianyi":{"name":"天义","description":"出牌阶段限一次，你可以拼点：若你赢，你本回合使用【杀】的次数+1、无距离限制且可以多指定一个目标；若你没赢，你本回合不能使用【杀】。"},"boundary:hanzhan":{"name":"酣战","description":"当你拼点前，你可以令对方用随机手牌拼点。当你拼点后，你可以获得拼点牌中点数最大的【杀】。"}}}

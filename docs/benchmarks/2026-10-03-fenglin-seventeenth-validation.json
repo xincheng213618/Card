@@ -1,0 +1,839 @@
+{
+  "runs": [
+    {
+      "label": "targeted-01",
+      "startedAt": "2026-10-03T16:38:09.6926451+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 13609,
+      "coreFilters": [
+        "Character turned over",
+        "composition kernel"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 13176,
+          "logName": "build.log",
+          "logSha256": "73c1494b14b28876aea993f866caf82c54c0f3207b55168c695015ef4c243c63",
+          "resultLines": []
+        },
+        {
+          "name": "Core selected checks (2 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 395,
+          "logName": "core-selected.log",
+          "logSha256": "deae501468c6da9919ca08df60e0142d6b52046d3a612fab4246c24894e50f55",
+          "resultLines": [
+            "[FAIL] Character turned over Shensu three branches and hand equipment payment",
+            "[FAIL] Character turned over Shebian both directions movement children cold replay",
+            "[FAIL] Character turned over natural skipped turn and old window compatibility",
+            "4 passed, 3 failed, 0 skipped (7 total)."
+          ]
+        }
+      ]
+    },
+    {
+      "label": "targeted-02",
+      "startedAt": "2026-10-03T16:41:21.1182338+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 9324,
+      "coreFilters": [
+        "Character turned over",
+        "Capped hand refresh",
+        "composition kernel"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 7020,
+          "logName": "build.log",
+          "logSha256": "569ed5d1e77fe505b13e186eb3133f3c12a938719c2205fd9decffc35d599d38",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ]
+        },
+        {
+          "name": "Core selected checks (3 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 2260,
+          "logName": "core-selected.log",
+          "logSha256": "c619515ba05564b18bc79a4665ade15e9a891df9fbc1efc03a3c3b972c735322",
+          "resultLines": [
+            "[FAIL] Character turned over Shebian both directions movement children cold replay",
+            "       InvalidOperationException: Fixed Xiahou Yuan fixture did not reach boundary: {\"Kind\":25,\"PlayerSeat\":0,\"Prompt\":\"\\u3010\\u8BBE\\u53D8\\u3011\\u8BF7\\u9009\\u62E9 2 \\u540D\\u76EE\\u6807\\u89D2\\u8272\\u3002\",\"ValidCardIds\":[],\"ValidTargetSeats\":[0,1,2,3],\"SourceSeat\":0,\"IncomingCard\":null,\"SkillPrompt\":{\"SkillId\":\"boundary:shebian\",\"Name\":\"\\u8BBE\\u53D8\",\"Title\":\"\\u8BBE\\u53D8 \\u00B7 \\u9009\\u62E9\\u76EE\\u6807\",\"Instructions\":\"\\u5F53\\u4F60\\u7FFB\\u9762\\u65F6\\uFF0C\\u4F60\\u53EF\\u4EE5\\u79FB\\u52A8\\u573A\\u4E0A",
+            "[FAIL] Capped hand refresh real damage private discard and cold replay",
+            "       InvalidOperationException: Invalid skill program at presentation.skills.fixture:xun-gain.optionLabels: missing label for option 'continue'.",
+            "[FAIL] Capped hand refresh dead owner exact parent and cold replay",
+            "       InvalidOperationException: Invalid skill program at presentation.skills.fixture:xun-gain.optionLabels: missing label for option 'continue'.",
+            "6 passed, 3 failed, 0 skipped (9 total)."
+          ]
+        }
+      ]
+    },
+    {
+      "label": "targeted-03",
+      "startedAt": "2026-10-03T16:53:40.0136062+08:00",
+      "status": "build-failed",
+      "mode": "targeted",
+      "durationMs": 11131,
+      "coreFilters": [
+        "Character turned over",
+        "Capped hand refresh",
+        "HP paid shield",
+        "composition kernel"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 11106,
+          "logName": "build.log",
+          "logSha256": "3c4fb20c68898fad04e0e609f4c269a59220bddf55dcfba717ee62c3223e1c53",
+          "resultLines": [
+            "    0 个警告",
+            "    42 个错误"
+          ],
+          "errorDiagnostics": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundarySunJianChecks.cs(179,51): error CS1002: 应输入 ; [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundarySunJianChecks.cs(179,51): error CS1003: 语法错误，应输入“:” [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundarySunJianChecks.cs(180,22): error CS1513: 应输入 } [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundarySunJianChecks.cs(179,51): error CS1525: 表达式项“{”无效 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundarySunJianChecks.cs(179,51): error CS8997: 未终止的字符串字面量。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundarySunJianChecks.cs(201,113): error CS9007: 内插原始字符串字面量的开头没有足够的 \\\"$\\\" 字符以允许将这么多连续的右大括号作为内容。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "targeted-04",
+      "startedAt": "2026-10-03T16:59:14.1661713+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 13704,
+      "coreFilters": [
+        "Character turned over",
+        "Capped hand refresh",
+        "HP paid shield",
+        "composition kernel"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 7455,
+          "logName": "build.log",
+          "logSha256": "acda585c5e2b5a78a834624a5777e99cbe4f4c8ccbfcca9c917a968f3233eacc",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (4 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 6210,
+          "logName": "core-selected.log",
+          "logSha256": "2c3e9fc5f2108c19f94458cdb116ab446dffe36ebcadee5573071d5053cc0bed",
+          "resultLines": [
+            "[FAIL] Character turned over Shebian both directions movement children cold replay",
+            "       InvalidOperationException: The movement observer belongs to the owning selected-card payment.",
+            "[FAIL] Character turned over actual damage cursor and movement child cold replay",
+            "       InvalidOperationException: The actual movement observer retains both the paid Shebian parent and original damage ancestor before either draw tail.",
+            "[FAIL] Capped hand refresh real damage private discard and cold replay",
+            "       InvalidOperationException: Invalid skill program at presentation.skills.fixture:xun-driver.optionLabels: unknown option 'continue'.",
+            "[FAIL] Capped hand refresh dead owner exact parent and cold replay",
+            "[FAIL] HP paid shield native AI affordable protection",
+            "       InvalidOperationException: Sun Jian fixture did not reach its requested boundary: null",
+            "9 passed, 5 failed, 0 skipped (14 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "targeted-05",
+      "startedAt": "2026-10-03T17:14:26.4756007+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 19539,
+      "coreFilters": [
+        "Character turned over",
+        "Capped hand refresh",
+        "HP paid shield",
+        "composition kernel",
+        "current classic catalogue modes and skill references",
+        "content registry compiles whole catalog dependencies"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 13697,
+          "logName": "build.log",
+          "logSha256": "08b91c436675917c05b2ef26862987011fd54896bec42d225c60e877471c7d09",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (6 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 5804,
+          "logName": "core-selected.log",
+          "logSha256": "0cfc5bb15fa0a1d01edba981aa83a2a2532913dd237728389e12cdd71173c0f4",
+          "resultLines": [
+            "[FAIL] Capped hand refresh real damage private discard and cold replay",
+            "       InvalidOperationException: Small fixture did not reach target prompt: 【节命】将手牌弃至 5 张，还需选择 6 张。",
+            "[FAIL] Capped hand refresh dead owner exact parent and cold replay",
+            "       InvalidOperationException: The game is already completed.",
+            "15 passed, 2 failed, 0 skipped (17 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "targeted-06",
+      "startedAt": "2026-10-03T17:19:12.3880259+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 9277,
+      "coreFilters": [
+        "Character turned over",
+        "Capped hand refresh",
+        "HP paid shield",
+        "composition kernel",
+        "current classic catalogue modes and skill references",
+        "content registry compiles whole catalog dependencies"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2926,
+          "logName": "build.log",
+          "logSha256": "0fde79c05ebb62ed27f33036fe0af0b19d702b035c20f97ff3bebba882f1850c",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (6 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 6308,
+          "logName": "core-selected.log",
+          "logSha256": "97286cf50f7f7fcd966c50f87ea8b29f6ca0ff100ff6fe371087703bcc73c83a",
+          "resultLines": [
+            "[FAIL] Capped hand refresh dead owner exact parent and cold replay",
+            "       InvalidOperationException: The fixed dead-owner fixture is the selected non-Lord source, so its death cannot decide the winner.",
+            "16 passed, 1 failed, 0 skipped (17 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "targeted-07",
+      "startedAt": "2026-10-03T17:24:26.9765456+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 13415,
+      "coreFilters": [
+        "Character turned over",
+        "Capped hand refresh",
+        "HP paid shield",
+        "composition kernel",
+        "current classic catalogue modes and skill references",
+        "content registry compiles whole catalog dependencies"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 5266,
+          "logName": "build.log",
+          "logSha256": "07dca16aeb272123c183d727348f8da36939349da03057fcc84ff9d23aa70d5e",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (6 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 8102,
+          "logName": "core-selected.log",
+          "logSha256": "c921f9319e0e6d0143f55d5f95e12b1bb89ed00f0dfdcaa5c7c5f1dc7e00d565",
+          "resultLines": [
+            "[FAIL] Capped hand refresh dead owner exact parent and cold replay",
+            "       InvalidOperationException: The real dead-owner continuation pays once and finishes living-target discard after the child returns.",
+            "16 passed, 1 failed, 0 skipped (17 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "targeted-08",
+      "startedAt": "2026-10-03T17:34:15.1197039+08:00",
+      "status": "build-failed",
+      "mode": "targeted",
+      "durationMs": 1891,
+      "coreFilters": [
+        "Capped hand refresh"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1868,
+          "logName": "build.log",
+          "logSha256": "0192f3444789a9e9e33fdced6a62bb1f7aeee0c6eb25c417995d17fa63905e67",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    1 个错误"
+          ],
+          "errorDiagnostics": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryXunYuChecks.cs(113,64): error CS1061: “ResolutionFrame”未包含“ParentFrameId”的定义，并且找不到可接受第一个“ResolutionFrame”类型参数的可访问扩展方法“ParentFrameId”(是否缺少 using 指令或程序集引用?) [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "targeted-09",
+      "startedAt": "2026-10-03T17:34:43.2185431+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 3998,
+      "coreFilters": [
+        "Capped hand refresh"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2043,
+          "logName": "build.log",
+          "logSha256": "39f1f1418109759b668e6056417977a989597aa8be52a583dfe3c6318f666896",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1915,
+          "logName": "core-selected.log",
+          "logSha256": "0efc2ec3460c0fb262b730f06b42a80e33bb7e2cc473aeceed46c3746de40a38",
+          "resultLines": [
+            "2 passed, 0 failed, 0 skipped (2 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "full-01",
+      "startedAt": "2026-10-03T17:35:03.7495846+08:00",
+      "status": "test-failed",
+      "mode": "full",
+      "durationMs": 228142,
+      "coreFilters": [],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 6271,
+          "logName": "build.log",
+          "logSha256": "93dce8e5be9ca1caa11c975b7e5212dc38492d0cad348f859e215cafbf3eb93d",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core full checks",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 183262,
+          "logName": "core-full.log",
+          "logSha256": "0c447b55905c960c9f976868b9a00953ca29093118a834d17a6c8c9c2a9927d3",
+          "resultLines": [
+            "[FAIL] turn-ending boundary orders Jushou Jujian Biyue and replays",
+            "       InvalidOperationException: Replay command 13 (AnswerPromptCommand) was rejected (InvalidChoice): The program choice is unavailable. Expected prompt 5; current prompt 5 (ProgramTrigger) at revision 13.",
+            "588 passed, 1 failed, 0 skipped (589 total)."
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "WPF full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 38569,
+          "logName": "wpf-full.log",
+          "logSha256": "9902c5ae0043e3a32c3c8fbb39c83113c39088618dd2902bfab268010aee8ae7",
+          "resultLines": [
+            "57 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders"
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "targeted-10",
+      "startedAt": "2026-10-03T17:48:19.7554682+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 10487,
+      "coreFilters": [
+        "turn-ending boundary orders Jushou",
+        "Character turned over",
+        "Capped hand refresh",
+        "HP paid shield",
+        "composition kernel",
+        "current classic catalogue modes and skill references",
+        "content registry compiles whole catalog dependencies"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3934,
+          "logName": "build.log",
+          "logSha256": "6ed7804fe318eedd05a75933b5e637a4cf8442b9f4f185695c291995153210a0",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (7 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 6511,
+          "logName": "core-selected.log",
+          "logSha256": "06a349214e9358ae302b0e5c513cdd73e11eb39a748615b50dce7ea001566b39",
+          "resultLines": [
+            "[FAIL] turn-ending boundary orders Jushou Jujian Biyue and replays",
+            "       InvalidOperationException: Invalid skill program at skill 'fixture:turn-ending-face-down' (rules.skills[0]).activations[0]: missing required property 'usesPerTurn'.",
+            "17 passed, 1 failed, 0 skipped (18 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "targeted-11",
+      "startedAt": "2026-10-03T17:48:54.5384288+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 4493,
+      "coreFilters": [
+        "turn-ending boundary orders Jushou"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3455,
+          "logName": "build.log",
+          "logSha256": "3503bae6aac06d2dad534fc170728131c2a98995536acc630d430623326266ca",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 998,
+          "logName": "core-selected.log",
+          "logSha256": "192f4856e5f13e565f6c4ab8a25029cc3bbbc7f1b3bd8f4a7bbd3fac855051b3",
+          "resultLines": [
+            "1 passed, 0 failed, 0 skipped (1 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "full-02",
+      "startedAt": "2026-10-03T17:49:14.5221163+08:00",
+      "status": "passed",
+      "mode": "full",
+      "durationMs": 207541,
+      "coreFilters": [],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1562,
+          "logName": "build.log",
+          "logSha256": "b49c5b447677d566d0c62c61bb4f310725669931713fcd4e673a4dfb10623217",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 170052,
+          "logName": "core-full.log",
+          "logSha256": "601c5e15b7fdd403d8272aa86901516fe57739206af82e0a07feacbf5bcb5a86",
+          "resultLines": [
+            "589 passed, 0 failed, 0 skipped (589 total)."
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "WPF full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 35890,
+          "logName": "wpf-full.log",
+          "logSha256": "0d4bdfb452f40d5369fc208d1132f55bb756e593650edaf09d115791e059c4d5",
+          "resultLines": [
+            "57 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders"
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "routine-01",
+      "startedAt": "2026-10-03T17:52:49.6255789+08:00",
+      "status": "passed",
+      "mode": "routine",
+      "durationMs": 59370,
+      "coreFilters": [
+        "command",
+        "observer",
+        "viewer",
+        "prepared snapshot",
+        "internal failure",
+        "skill program",
+        "lifecycle programs",
+        "shared post-event",
+        "shared use lifecycle",
+        "shared card-use",
+        "card movement",
+        "card inventory",
+        "initial deal",
+        "invalid single and batch",
+        "draw and recover",
+        "execution plans",
+        "skill executor",
+        "program gameplay hashes",
+        "physical deck recipes",
+        "structured skill metadata",
+        "content registry",
+        "standard package",
+        "composition kernel",
+        "rule query",
+        "slash resolution",
+        "dying response",
+        "Xingshang",
+        "response use completion",
+        "selected gift",
+        "configured active sequences",
+        "standard active programs",
+        "owned-card set",
+        "turn card-use effects",
+        "active Program contracts",
+        "hand guidance",
+        "actual marker payment",
+        "replacement draw and dying payment",
+        "two dynamic actual ends",
+        "ordered nested native owner",
+        "payment nested comparison",
+        "first target history",
+        "program conversion polarity shared state and replay",
+        "Feng Lin Lu Zhi actual discard entry boundaries",
+        "Ending child gift joins current boundary",
+        "Feng Lin Yuan Shu command loss regrant source suppression",
+        "Feng Lin Yuan Shu qualified awakening persistent local loss",
+        "Feng Lin Zhou Fei first domains and true equipment sequence",
+        "Feng Lin Zhou Fei same-source association freeze",
+        "Feng Lin Congjian Equipment gift nested replay",
+        "after turn ended return movement prelude ordering",
+        "after turn ended due before window nested replay",
+        "Feng Lin Zuo Ci initial privacy and replay",
+        "Feng Lin Zuo Ci layered suppression and local disable",
+        "Feng Lin Zuo Ci same avatar program and actual end",
+        "Feng Lin Yu Ji",
+        "boundary Lu Meng all table printed suits replay",
+        "boundary Lu Meng cross owner skip chain resume death",
+        "boundary Lu Meng Qinxue windows shared usage",
+        "boundary Lu Meng opt in usage legacy shape",
+        "Boundary Huang Gai actual provider color",
+        "Boundary Huang Gai multi card color source lifecycle",
+        "boundary Lu Xun actual trick hold lianying and return",
+        "boundary Lu Xun HE payment exact Hand batch count",
+        "boundary Liu Bei virtual Peach HP child",
+        "boundary Liu Bei native provided use decline once",
+        "boundary Liu Bei gift threshold recipient",
+        "boundary Da Qiao atomic mixed discard replay",
+        "boundary Hua Tuo ordered actual discard effective suit receipts",
+        "participant discard mandatory cost cancellation preserves legal composition",
+        "current turn nonlocked suppression host lifecycle audit",
+        "boundary Guan Yu actual Played and black Hand rejection",
+        "Boundary Zhang Fei actual recovery receipt limited child",
+        "boundary Ma Chao Tieqi Paoxiao exact cancellation integration",
+        "boundary Xiahou Dun real phases skip quota expiry",
+        "boundary Xiahou Dun receipt before gain child source audit",
+        "Exact top count partition normal draw",
+        "Bound draw receipt per point nested gain",
+        "boundary Zhen Ji exact receipt stop red discard",
+        "boundary Zhen Ji receipt before child source loss",
+        "Unconverted Trick draw receipt disposition",
+        "Foreign equipment discard program selections",
+        "Population reorder actual partition and short pile",
+        "Population reorder real Ending Extra Scheduled",
+        "HP pair freezes after payment children before draw children",
+        "Equipment placement slot self equal boundaries",
+        "Final target Slash frozen comparisons actual paid Dodge",
+        "Paid HP loss rescue and gain children",
+        "Paid HP loss source and legacy",
+        "Boundary Deng Ai own turn slash discard judges authority",
+        "Boundary Deng Ai awakening grants snatch and extra turn",
+        "Boundary Jiang Wei declined taunt discards target card",
+        "Boundary Jiang Wei dodged slash still discards",
+        "Boundary Jiang Wei taunt runs twice per phase",
+        "Boundary Jiang Wei awakening wakes once across phases",
+        "Damage target mount paid children source lifetime",
+        "Damage appearance Draw definitions physical colors cardless legacy",
+        "Selected actor Duel actual Use and Nullification",
+        "Damage target obtain nested Duel native cold",
+        "Boundary Yuan Shao population start role marker limit",
+        "Boundary Yuan Shao conversion actual remaining targets",
+        "Recovery replacement Silver Lion Zhiheng HP and reward children",
+        "Recovery replacement paid equipment tail",
+        "Recovery replacement faction request Silver Lion cost before providers",
+        "Program Iron Chain third target owned recast",
+        "Equipment recast Silver Lion recovery and movement children",
+        "BoundaryXuShu fixed target real Slash",
+        "BoundaryXuShu declared deck criterion",
+        "Character turned over Shebian both directions",
+        "Character turned over Shebian occupied equipment slot",
+        "Character turned over actual damage cursor",
+        "Capped hand refresh",
+        "HP paid shield"
+      ],
+      "wpfFilters": [
+        "original card artwork",
+        "overlapping hand",
+        "composed skills",
+        "conversion choices",
+        "response context",
+        "hand responses",
+        "opaque target-card",
+        "playback batches",
+        "saved UI boundaries",
+        "failed writes",
+        "public markers",
+        "deferred hand alignment",
+        "Program conversion polarity stays visible",
+        "declaration and general library views protect private faces",
+        "Program paid choices",
+        "Program exact top count restores private shared order",
+        "Program population count private faces restore shared free order",
+        "Program Iron Chain guide follows actual target count"
+      ],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1489,
+          "logName": "build.log",
+          "logSha256": "ad75cde4a45344fed0178ea90696ef2d096198aecf3296f3c073a8a16a096496",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (112 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 38452,
+          "logName": "core-selected.log",
+          "logSha256": "1e19d06260e44a1df5de63d8752003af8ac9e6b9d6c90c390ff280254c6ca2da",
+          "resultLines": [
+            "183 passed, 0 failed, 0 skipped (183 total)."
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "WPF selected checks (18 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 19363,
+          "logName": "wpf-selected.log",
+          "logSha256": "51a3491d21d696f8b6e0543c22f894141001e74044810a86361c12ca49876435",
+          "resultLines": [
+            "18 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders"
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    }
+  ],
+  "artCatalog": {
+    "status": "passed",
+    "method": "py tools/sync_general_art.py --phase verify",
+    "generals": 189,
+    "pngRecords": 986,
+    "checkedUtc": "2026-10-03T17:17:53.4970543+08:00"
+  },
+  "review": {
+    "participants": [
+      "next_batch_audit",
+      "pang_tong",
+      "sun_quan"
+    ],
+    "fixed": [
+      "Public target value gates optional HP payment before choosing beneficiaries",
+      "Equipment-source opt-in excludes occupied corresponding slots",
+      "Exact capped-refresh movement ancestry admits gain HP dying child without widening arbitrary observers"
+    ],
+    "scope": "New live engine behavior, private player views, committed events, typed return ownership",
+    "legacyHandNoReplaceChoices": "Known pre-existing hand-source prompt filtering gap kept frozen; actual replacement is already rejected. Deferred to an intentional compatibility change."
+  },
+  "inputVerification": {
+    "files": 2369,
+    "beforeFullSha256": "6f6cd9ecd0a9a8f863deefcf4fe93893398bf231cbd98240832d13ec74db9a59",
+    "beforeFullUtc": "2026-10-03T17:35:02.7933618+08:00",
+    "manifestScope": "Tracked and nonignored new src/tests/tools implementation inputs plus root build configuration and art catalog; includes PNG bytes.",
+    "status": "stable-through-full02-and-routine",
+    "full01AfterSha256": "6f6cd9ecd0a9a8f863deefcf4fe93893398bf231cbd98240832d13ec74db9a59",
+    "full01Stable": true,
+    "beforeFull02Sha256": "b9368731a11e0274363f1ee739cd661c5a593ab3d34c4f5ed48ba945c2a10e76",
+    "beforeFull02Utc": "2026-10-03T17:49:13.7738436+08:00",
+    "full01ToFull02ChangedPaths": [
+      "tests/CardGame.Core.Tests/TurnEndingBoundaryChecks.cs"
+    ],
+    "afterRoutineSha256": "b9368731a11e0274363f1ee739cd661c5a593ab3d34c4f5ed48ba945c2a10e76",
+    "afterRoutineUtc": "2026-10-03T09:54:27.3309857+00:00"
+  },
+  "compiledArt": [
+    {
+      "key": "assets/official-boundary-xun-yu.png",
+      "sourceSha256": "28e391189540559993ee810d7b3c25557ca73a55ed5351c00a9583dfa20deadd",
+      "compiledSha256": "28e391189540559993ee810d7b3c25557ca73a55ed5351c00a9583dfa20deadd",
+      "matched": true
+    },
+    {
+      "key": "assets/official-boundary-xiahou-yuan.png",
+      "sourceSha256": "bdfeffcc2af2b34a2fc8a86c177ef3959eef7216a311fde0f9a249942937f968",
+      "compiledSha256": "bdfeffcc2af2b34a2fc8a86c177ef3959eef7216a311fde0f9a249942937f968",
+      "matched": true
+    },
+    {
+      "key": "assets/official-boundary-sun-jian.png",
+      "sourceSha256": "90ac7cf93dec1dc40a249a8c8810d749e2729b11bc0f1ecb6d9f162b87768a2a",
+      "compiledSha256": "90ac7cf93dec1dc40a249a8c8810d749e2729b11bc0f1ecb6d9f162b87768a2a",
+      "matched": true
+    }
+  ],
+  "full01FailureResolution": {
+    "check": "turn-ending boundary orders Jushou Jujian Biyue and replays",
+    "cause": "Unjournaled reflection set IsFaceDown before Jushou; cold replay produced an actual transition with a different resolution sequence when new registered turned-over dependencies were present.",
+    "repair": "Prepare already-face-down premise using a zero-cost fixture activation and an accepted UseProgramSkillCommand; remove obsolete private Players helper.",
+    "scope": "Existing test only. Original order, already-face-down behavior, newly-drawn payment, serialized boundary facts, paused Biyue cold restore, full state and event equality all retained.",
+    "verification": "targeted-11 passed; Full02 passed 589 Core and 57 WPF, all original assertions retained."
+  },
+  "versions": {
+    "status": "unchanged-from-batch16",
+    "sources": [
+      "src/CardGame.Core/Replay.cs",
+      "src/CardGame.Core/SkillPrograms.cs",
+      "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs"
+    ],
+    "reason": "Additive opt-in capabilities and independent content fingerprints; no existing registered command semantics changed."
+  },
+  "warnings": {
+    "developmentBuilds": [
+      "Existing GaoDaYiHaoChecks.cs:27 CS8602",
+      "Existing GaoDaYiHaoChecks.cs:31 CS8602"
+    ],
+    "finalIncrementalFullBuild": "0 warnings, 0 errors",
+    "newWarnings": 0
+  },
+  "status": "batch-validated",
+  "completedUtc": "2026-10-03T09:56:19.2160521+00:00"
+}

@@ -551,6 +551,10 @@ public sealed class ContentRegistry
                             $"Skill '{skill.Id}' grants unknown skill '{grantedSkillId}'.");
                     }
                 }
+                foreach (var suppressedSkillId in skill.Program.Triggers.SelectMany(t => t.Effects)
+                    .Where(e => e.Op == SkillProgramEffectOp.SuppressOwnSkillAfterAlcoholSlashDamage).SelectMany(e => e.SkillIds))
+                    if (!_skills.ContainsKey(suppressedSkillId))
+                        throw new InvalidOperationException($"Skill '{skill.Id}' suppresses unknown skill '{suppressedSkillId}'.");
                 foreach (var countSource in skill.Program.Triggers.SelectMany(t => t.Effects)
                     .Where(e => e.Op == SkillProgramEffectOp.DiscardHandToNamedTurnCount).SelectMany(e => e.SkillIds))
                     if (_skills[countSource].Program?.Triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardNonFinalTargetCardThenDraw)) != true)

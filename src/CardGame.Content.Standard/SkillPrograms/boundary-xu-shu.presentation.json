@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:zhuhai-current": { "name": "诛害", "description": "其他角色的结束阶段，若其本回合造成过伤害，你可以对其使用一张【杀】。" },
+    "boundary:qianxin-current": { "name": "潜心", "description": "觉醒技，当你造成伤害后，若你已受伤，你减少1点体力上限并获得“荐言”。" },
+    "boundary:jianyan-current": { "name": "荐言", "description": "出牌阶段限一次，你可以声明一种牌的类别或颜色，然后将牌库中第一张符合你声明的牌交给一名男性角色。" }
+  }
+}

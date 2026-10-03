@@ -1,0 +1,195 @@
+{
+  "status": "historical-preflight-superseded",
+  "officialEdition": "Current ordinary Sanguosha OL",
+  "capturedDate": "2026-10-03",
+  "scope": "下一批候选预检；未注册、未实施、未下载媒体、未构建。现有 classic 技能保持冻结。",
+  "rawResponseRetention": "原始响应未落盘；以下 SHA256 均由实际 HTTP 原始字节在内存计算并保留于工具输出。技能正文经 HTML 去标签解码核对；三页未使用字体 resolver。",
+  "capabilityAnalysisStatus": "初步静态源码核对，未编译或行为验证；建议接口名称尚未定稿。",
+  "candidates": [
+    {
+      "gid": 462,
+      "name": "界庞德",
+      "faction": "qun",
+      "hp": 4,
+      "apiInitialHp": 0,
+      "registeredCurrentBoundary": false,
+      "priority": 1,
+      "skills": [
+        {
+          "name": "马术",
+          "text": "锁定技，你计算与其他角色的距离-1。"
+        },
+        {
+          "name": "鞬出",
+          "text": "当你使用【杀】指定目标后，你可以弃置其一张牌，若弃置的牌是：基本牌，其获得此【杀】；非基本牌，其不能抵消此【杀】，你本回合使用【杀】的限制次数+1。"
+        }
+      ],
+      "sources": [
+        {
+          "kind": "api",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=462",
+          "status": 200,
+          "retrievedUtc": "2026-10-03T18:40:08.709805+08:00",
+          "rawSha256": "79e4917aec6138f87d88d11cf4a765fff5aa391fbaa8039a9c740c20a0aef28b",
+          "bytes": 963,
+          "rawBodyRetained": false
+        },
+        {
+          "kind": "page",
+          "url": "https://www.sanguosha.com/hero/462",
+          "status": 200,
+          "retrievedUtc": "2026-10-03T18:40:08.942016+08:00",
+          "rawSha256": "57c98aad09ca001ef2e3958b2472987f02f937edf85aec681135ff3fc26257de",
+          "bytes": 24158,
+          "rawBodyRetained": false
+        }
+      ],
+      "existingCapabilities": [
+        "classic:mashu 可复用。经典庞德原技能是 classic:mengjin（杀被完全闪避后弃牌），不能把它当作当前鞬出的配置。",
+        "SlashBeforeResponse 有精确当前杀和目标上下文；selectAndMoveOwnedCard 可由技能拥有者弃置 eventTarget 的手牌/装备并返回绑定、等待移动子链。",
+        "boundCardsMatchCategories 可区分基本牌；prohibitCurrentResponse 和 grantTurnRuleModifier slashLimit add 1 已有。"
+      ],
+      "minimumGaps": [
+        "新增仅适用于当前杀响应前的实体牌获得 op：把原 CardUseFrame 的仍在 Processing 的实际支付牌交给此目标，保留原杀继续结算及清理边界；claimDamageCards 只允许 AfterDamageApplied，OfferCompletedCardGift 只允许 CardUseCompleted，均不可直接替代。",
+        "新获得 op 需要精确 owning-frame/paid receipt 和 movement/recovery/HP children 返回；不能令弃置或获得成本在恢复后重复。"
+      ],
+      "engineeringUndecided": [
+        "官网未列弃牌区域：手牌/装备作为拟议工程默认，需正式记录；不要把它声称为官网明文。",
+        "零实体虚拟杀、多牌转化杀、多目标杀中获得的物理牌集合和每目标发动范围；目标死、来源失效或赢家确定后的清理。",
+        "官网用语是不能抵消；既有禁止闪响应 gate 能覆盖通常的闪抵消，其他防止伤害能力的交互仍需明确。"
+      ],
+      "codeEvidence": [
+        "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs:1466",
+        "src/CardGame.Content.Standard/SkillPrograms/passive-response-rules.rules.json:39",
+        "src/CardGame.Core/GameEngine.ProgramAttackEffects.cs:21",
+        "src/CardGame.Core/GameEngine.CardUseModules.cs:210",
+        "src/CardGame.Core/GameEngine.ProgramLifecycle.cs:1374"
+      ]
+    },
+    {
+      "gid": 610,
+      "name": "界法正",
+      "faction": "shu",
+      "hp": 3,
+      "apiInitialHp": 0,
+      "registeredCurrentBoundary": false,
+      "priority": 2,
+      "skills": [
+        {
+          "name": "眩惑",
+          "text": "摸牌阶段结束时，你可以交给一名其他角色两张牌，令其选择一项：1.对你指定的另一名角色使用一张【杀】；2.你观看其手牌并获得其两张牌。"
+        },
+        {
+          "name": "恩怨",
+          "text": "当你获得一名其他角色至少两张牌后，你可以令其摸一张牌。当你受到1点伤害后，你可以令伤害来源选择一项：1.交给你一张红色手牌；2.失去1点体力。"
+        }
+      ],
+      "sources": [
+        {
+          "kind": "api",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=610",
+          "status": 200,
+          "retrievedUtc": "2026-10-03T18:40:08.735681+08:00",
+          "rawSha256": "4bc7b0485b33168a6bc64057319ab9ad648141e56695e9dd4277b3abe74f33ce",
+          "bytes": 854,
+          "rawBodyRetained": false
+        },
+        {
+          "kind": "page",
+          "url": "https://www.sanguosha.com/hero/610",
+          "status": 200,
+          "retrievedUtc": "2026-10-03T18:40:08.941213+08:00",
+          "rawSha256": "d48861e5e66814e002c89a4cd7b7a83941861bc483138b855e2010805102a71f",
+          "bytes": 23954,
+          "rawBodyRetained": false
+        }
+      ],
+      "existingCapabilities": [
+        "DrawPhaseEnded、选择两张自有区域牌、交给选定角色和 RequestSlashAgainstChosenTarget 已有基础；assisted physical Slash 已涵盖实体、转化、丈八和势力响应。",
+        "classic:enyuan 已有 CardsGained/perSourceOwner/movedCardCount>=2 和 AfterDamageApplied/perDamagePoint 的回报链。",
+        "selectOwnedCards 已可用 suits:[heart,diamond] 筛选付款人的有效红色手牌。"
+      ],
+      "minimumGaps": [
+        "新增通用私看选定角色手牌并获得至多两张手牌的 op/typed draft；现 TakeSelectedTargetCards 使用手牌暗槽和装备，既不观看手牌，也不限定手牌，不能原样复用。",
+        "恩怨的红色手牌交付选项必须检查付款人实际可支付的有效红手牌，且不能把私有可支付情况泄露给其他席；现 chooseOption 只有 handCountAtLeast 等条件，不足以正确关闭无红牌的交牌分支。",
+        "两张牌交付后须等待获得/失去牌等子链再请求杀；现 MoveBoundCards 的 awaitMovementTriggers 不接受 selectedTargetHand，此组合尚需最小通用接线或专属交付 continuation。"
+      ],
+      "engineeringUndecided": [
+        "交出的两张牌采用手牌/装备作为拟议默认；官网正文未写区域。",
+        "眩惑在对方无合法杀或目标不可用时进入观看获得分支；是否先选项后指定杀目标、来源失效/目标死时如何取消，需冻结工程口径。",
+        "观看快照只给法正本人，拿牌不足两张取实际剩余；牌面有效红色与 rewriteSuit、失技后的支付再验证。"
+      ],
+      "codeEvidence": [
+        "src/CardGame.Content.Standard/SkillPrograms/classic-fa-zheng.rules.json:5",
+        "src/CardGame.Core/GameEngine.AssistedPhysicalCards.cs:42",
+        "src/CardGame.Core/GameEngine.AssistedPhysicalCards.cs:205",
+        "src/CardGame.Core/ProgramOwnedCardsOperationDefinition.cs:14",
+        "src/CardGame.Core/ProgramChoiceOperationDefinition.cs:33",
+        "src/CardGame.Core/ProgramOperationDefinitions.cs:642",
+        "src/CardGame.Core/GameEngine.ConvertingGifts.cs:67"
+      ]
+    },
+    {
+      "gid": 676,
+      "name": "界韩当",
+      "faction": "wu",
+      "hp": 4,
+      "apiInitialHp": 0,
+      "registeredCurrentBoundary": false,
+      "priority": 3,
+      "skills": [
+        {
+          "name": "弓骑",
+          "text": "出牌阶段限一次，你可以弃置一张牌使你本回合攻击范围无限，且你使用与弃置的牌花色相同的【杀】无次数限制。若弃置的牌为装备牌，你可以弃置一名其他角色一张牌。"
+        },
+        {
+          "name": "解烦",
+          "text": "限定技，出牌阶段，你可以选择一名角色，令所有攻击范围内包含其的角色选择一项：1.弃置一张武器牌；2.令该角色摸一张牌。若此时为第一轮，回合结束时，此技能视为未发动过。"
+        }
+      ],
+      "sources": [
+        {
+          "kind": "api",
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=676",
+          "status": 200,
+          "retrievedUtc": "2026-10-03T18:40:08.710823+08:00",
+          "rawSha256": "f05dc3ac74734042bd7d621c4ff50f52f750996c230e0fc32427e1ec502be15b",
+          "bytes": 962,
+          "rawBodyRetained": false
+        },
+        {
+          "kind": "page",
+          "url": "https://www.sanguosha.com/hero/676",
+          "status": 200,
+          "retrievedUtc": "2026-10-03T18:40:08.945454+08:00",
+          "rawSha256": "f95ef31c221fa009543ba4ac822ffd74f22006a82c09b544a499346c799f8998",
+          "bytes": 23937,
+          "rawBodyRetained": false
+        }
+      ],
+      "existingCapabilities": [
+        "classic:gongqi 已有一次出牌阶段弃牌、attackRange unlimited 和弃装备后的可选目标弃牌。",
+        "classic:jiefan 已通过 RequestAttackRangeAid 覆盖范围内各角色弃武器或让受益者摸一张牌，usesPerGame:1 也已有。",
+        "静态 BypassSlashLimitBySuit 已接入合法动作和 CardUseDebit，回合效果 store/到期可复用；SkillRuntimeStateStore.ClearUsage 可清除确切 Game usage key，现轮数忽略额外回合。"
+      ],
+      "minimumGaps": [
+        "新增从实际弃牌绑定冻结有效花色的当回合 Slash 次数豁免 grant；必须同时影响可使用合法性及额度扣费，现静态花色 policy 和限当前出牌阶段的 suit allowance 不能代替当回合动态授权。",
+        "新增首轮限定技使用后在实际回合结束返还确切游戏额度的 obligation；现无公开程序 op 可把首轮事实和精确使用 key 延后清除。"
+      ],
+      "engineeringUndecided": [
+        "有效花色应在弃牌付款时冻结，不能在银狮回血、牌移动或失技子链结束后重算。",
+        "同花色豁免应保留当回合已发出的授权，并正确处理变身、无花色多牌转化、额外出牌阶段及实际回合到期。",
+        "第一轮采用项目现有正常座位轮转含义作为拟议默认；官网未说明额外回合、死亡和跳过座位的细则。首轮额外回合中使用解烦是否同样返还必须明确。"
+      ],
+      "codeEvidence": [
+        "src/CardGame.Content.Standard/SkillPrograms/classic-gongqi-skills.rules.json:5",
+        "src/CardGame.Content.Standard/SkillPrograms/classic-jiefan-skills.rules.json:5",
+        "src/CardGame.Core/ProgramAllHandBonusOperation.cs:32",
+        "src/CardGame.Core/GameEngine.CardUseDebits.cs:21",
+        "src/CardGame.Core/SkillRuntimeState.cs:104",
+        "src/CardGame.Core/GameEngine.MouLuMeng.cs:27"
+      ]
+    }
+  ],
+  "supersededBy": "fenglin-nineteenth-2026-10-03.json"
+}

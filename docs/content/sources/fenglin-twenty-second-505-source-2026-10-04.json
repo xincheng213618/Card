@@ -1,0 +1,110 @@
+{
+  "status": "read-only-preflight-not-implemented",
+  "gid": 505,
+  "edition": "current ordinary Sanguosha OL www.sanguosha.com",
+  "indexRow": {
+    "gid": 505,
+    "name": "界蔡文姬",
+    "resource": "50500",
+    "extend": "界限突破",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "史诗",
+    "figure": "群",
+    "figure_py": "qun",
+    "biography": "名琰，原字昭姬，晋时避司马昭讳，改字文姬，文学家蔡邕[yōng]的女儿，精于天文数理，既博学能文，又善诗赋，兼长辩才与音律。代表作有《胡笳十八拍》《悲愤诗》等 。",
+    "characteristic": "帮助队友抵御敌人的攻击，死亡时废掉敌人的技能。靠花色点数可以回收牌。",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/505.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/50500.png",
+    "realname": "界蔡文姬 (界限突破)"
+  },
+  "boundaryRegistrationFound": false,
+  "mediaDownloaded": false,
+  "page": {
+    "url": "https://www.sanguosha.com/hero/505",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T17:12:52.763522+00:00",
+    "rawSha256": "0051a264242204bc103a368e53e706271baec701b62b1e362d59de7caee3d04d",
+    "rawBytes": 25060,
+    "rawFile": "505-page.raw.html",
+    "shaScope": "HTTP response content bytes",
+    "rawBodyRetained": true,
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >锁定技，当你死亡时，杀死你的角色失去所有技能。</span>\n                            \n                                <span >当一名角色受到【杀】的伤害后，若你有牌，你可以令其判定，然后你可以弃置一张牌，根据判定结果执行：红桃，其回复1点体力；方片，其摸两张牌；梅花，伤害来源弃置两张牌；黑桃，伤害来源翻面。若判定牌与你弃置的牌：花色相同，你获得判定牌；点数相同，你获得你弃置的牌。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "断肠",
+      "悲歌"
+    ],
+    "skillTexts": [
+      "锁定技，当你死亡时，杀死你的角色失去所有技能。",
+      "当一名角色受到【杀】的伤害后，若你有牌，你可以令其判定，然后你可以弃置一张牌，根据判定结果执行：红桃，其回复1点体力；方片，其摸两张牌；梅花，伤害来源弃置两张牌；黑桃，伤害来源翻面。若判定牌与你弃置的牌：花色相同，你获得判定牌；点数相同，你获得你弃置的牌。"
+    ],
+    "skills": [
+      {
+        "name": "断肠",
+        "text": "锁定技，当你死亡时，杀死你的角色失去所有技能。"
+      },
+      {
+        "name": "悲歌",
+        "text": "当一名角色受到【杀】的伤害后，若你有牌，你可以令其判定，然后你可以弃置一张牌，根据判定结果执行：红桃，其回复1点体力；方片，其摸两张牌；梅花，伤害来源弃置两张牌；黑桃，伤害来源翻面。若判定牌与你弃置的牌：花色相同，你获得判定牌；点数相同，你获得你弃置的牌。"
+      }
+    ],
+    "pairingStatus": "equal-name-text-count",
+    "fontClasses": []
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=505",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T17:12:52.879607+00:00",
+    "rawSha256": "b2ab01da0c0b80e6ecf06f13189109071914290d8bda6525f0cca29e8957a4e6",
+    "rawBytes": 909,
+    "rawFile": "505-api.raw.json",
+    "shaScope": "HTTP response content bytes",
+    "rawBodyRetained": true,
+    "parsed": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 505,
+            "name": "界蔡文姬",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/505.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/50500.png",
+            "label": [
+              "防御",
+              "辅助",
+              "卖血"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "史诗",
+            "biography": "名琰，原字昭姬，晋时避司马昭讳，改字文姬，文学家蔡邕[yōng]的女儿，精于天文数理，既博学能文，又善诗赋，兼长辩才与音律。代表作有《胡笳十八拍》《悲愤诗》等 。",
+            "characteristic": "帮助队友抵御敌人的攻击，死亡时废掉敌人的技能。靠花色点数可以回收牌。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "主公",
+            "value": 3
+          },
+          {
+            "name": "忠臣",
+            "value": 6
+          },
+          {
+            "name": "反贼",
+            "value": 7
+          },
+          {
+            "name": "内奸",
+            "value": 3
+          }
+        ],
+        "deeds": []
+      }
+    }
+  }
+}

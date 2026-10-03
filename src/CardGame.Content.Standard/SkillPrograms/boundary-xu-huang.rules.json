@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:duanliang-current", "revision": 1,
+      "cardPolicies": [{ "id": "no-distance-before-actual-damage", "kind": "ignoreUseDistanceBeforeDealingDamage", "cardKinds": ["supplyShortage"] }],
+      "viewAs": [{ "id": "black-basic-or-equipment-as-supply-shortage", "sourceZones": ["hand", "equipment"],
+        "inputKinds": [], "inputCategories": ["basic", "equipment"], "inputSuits": ["spade", "club"],
+        "outputKind": "supplyShortage", "forPlay": true, "forResponse": false }]
+    },
+    {
+      "id": "boundary:jiezi-current", "revision": 1,
+      "triggers": [{ "id": "benefit-after-actual-skipped-draw", "window": "drawPhaseSkipped", "subject": "owner", "optional": true,
+        "effects": [{ "op": "selectTargets", "target": "owner", "targetKind": "anyLiving", "minimumTargets": 1, "maximumTargets": 1, "targetAiOrder": "supportDraw" },
+          { "op": "grantLeastHandMarkerOrDraw", "target": "selectedTarget", "marker": "zi", "amount": 1 }]
+      }]
+    }
+  ]
+}

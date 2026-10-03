@@ -1,0 +1,120 @@
+{
+  "status": "read-only-preflight-not-implemented",
+  "gid": 625,
+  "edition": "current ordinary Sanguosha OL www.sanguosha.com",
+  "indexRow": {
+    "gid": 625,
+    "name": "界张春华",
+    "resource": "62500",
+    "extend": "界限突破",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "传说",
+    "figure": "魏",
+    "figure_py": "wei",
+    "biography": "西晋宣穆皇后张春华（189－247），河内平皋[gāo]（今河南温县）人。她是晋宣帝司马懿之妻，晋景帝司马师、晋文帝司马昭的母亲。后被追尊为皇后。",
+    "characteristic": "能够源源不断地使用手牌，体力值越低越强。可以转化【决斗】。",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/625.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62500.png",
+    "realname": "界张春华 (界限突破)"
+  },
+  "boundaryRegistrationFound": false,
+  "mediaDownloaded": false,
+  "page": {
+    "url": "https://www.sanguosha.com/hero/625",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T17:18:00.890529+00:00",
+    "rawSha256": "df5a642b70e500d6647e5c6e4f4d301a9db9cbb88e764fdfd64f90a7bb7763b7",
+    "rawBytes": 24236,
+    "rawFile": "625-page.raw.html",
+    "shaScope": "HTTP response content bytes",
+    "rawBodyRetained": true,
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >锁定技，你即将造成的伤害视为失去体力。</span>\n                            \n                                <span >当你的手牌数小于X后，你可以将手牌摸至X张。（X为你已损失体力值）</span>\n                            \n                                <span >出牌阶段限一次，你可与一名其他角色同时选择一种颜色，你与其弃置各自选择颜色的手牌，然后弃置牌较多的角色视为对另一角色使用【决斗】。</span>\n                            \n                        \n                    </p>",
+    "skillTexts": [
+      "锁定技，你即将造成的伤害视为失去体力。",
+      "当你的手牌数小于X后，你可以将手牌摸至X张。（X为你已损失体力值）",
+      "出牌阶段限一次，你可与一名其他角色同时选择一种颜色，你与其弃置各自选择颜色的手牌，然后弃置牌较多的角色视为对另一角色使用【决斗】。"
+    ],
+    "fontClasses": [],
+    "skillNames": [
+      "绝情",
+      "伤逝",
+      "翦灭"
+    ],
+    "skills": [
+      {
+        "name": "绝情",
+        "text": "锁定技，你即将造成的伤害视为失去体力。"
+      },
+      {
+        "name": "伤逝",
+        "text": "当你的手牌数小于X后，你可以将手牌摸至X张。（X为你已损失体力值）"
+      },
+      {
+        "name": "翦灭",
+        "text": "出牌阶段限一次，你可与一名其他角色同时选择一种颜色，你与其弃置各自选择颜色的手牌，然后弃置牌较多的角色视为对另一角色使用【决斗】。"
+      }
+    ],
+    "pairingStatus": "equal-name-text-count"
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=625",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T17:18:01.020273+00:00",
+    "rawSha256": "c83d03e3fe4e7757d08c45262b3a56413e3a63246ce12f406b2cdbd8a9412522",
+    "rawBytes": 902,
+    "rawFile": "625-api.raw.json",
+    "shaScope": "HTTP response content bytes",
+    "rawBodyRetained": true,
+    "parsed": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 625,
+            "name": "界张春华",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/625.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62500.png",
+            "label": [
+              "进攻",
+              "过牌",
+              "转化大师"
+            ],
+            "figure": "魏",
+            "figure_py": "wei",
+            "quality": "传说",
+            "biography": "西晋宣穆皇后张春华（189－247），河内平皋[gāo]（今河南温县）人。她是晋宣帝司马懿之妻，晋景帝司马师、晋文帝司马昭的母亲。后被追尊为皇后。",
+            "characteristic": "能够源源不断地使用手牌，体力值越低越强。可以转化【决斗】。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位后手",
+            "value": 7
+          },
+          {
+            "name": "地主",
+            "value": 9
+          },
+          {
+            "name": "农民",
+            "value": 8
+          },
+          {
+            "name": "主公",
+            "value": 8
+          },
+          {
+            "name": "反贼",
+            "value": 8
+          }
+        ],
+        "deeds": []
+      }
+    }
+  }
+}

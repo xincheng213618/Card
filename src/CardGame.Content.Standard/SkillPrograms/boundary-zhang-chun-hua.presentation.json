@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:jianmie-current": {
+      "name": "翦灭",
+      "description": "出牌阶段限一次，你可与一名其他角色同时选择一种颜色，你与其弃置各自选择颜色的手牌，然后弃置牌较多的角色视为对另一角色使用【决斗】。"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:jiuchi-current": {
+      "name": "酒池",
+      "description": "你可以将一张黑桃手牌当【酒】使用。你使用【酒】无次数限制。当你使用【酒】【杀】造成伤害后，本回合“崩坏”失效。"
+    },
+    "boundary:roulin-current": {
+      "name": "肉林",
+      "description": "锁定技，你对女性角色使用的【杀】和女性角色对你使用的【杀】均需使用两张【闪】才能抵消。"
+    },
+    "boundary:benghuai-current": {
+      "name": "崩坏",
+      "description": "锁定技，结束阶段，若你不是体力值最小的角色，你失去1点体力或减少1点体力上限。",
+      "optionLabels": { "lose-hp": "失去1点体力", "reduce-max-hp": "减少1点体力上限" }
+    },
+    "boundary:baonue-current": {
+      "name": "暴虐",
+      "description": "主公技，当其他群势力角色造成1点伤害后，你可以判定，若结果为黑桃，你回复1点体力并获得此判定牌。"
+    }
+  }
+}

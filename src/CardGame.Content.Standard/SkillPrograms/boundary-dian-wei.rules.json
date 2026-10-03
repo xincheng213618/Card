@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:qiangxi", "revision": 1,
+      "activations": [
+        {
+          "id": "receive-damage", "usageGroup": "qiangxi", "usesPerTurn": null, "usesPerPhase": 2,
+          "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving",
+          "effects": [
+            { "op": "consumeDistinctTurnTarget", "target": "owner", "usageId": "qiangxi" },
+            { "op": "receiveOwnerDamage", "target": "owner", "amount": 1 },
+            { "op": "damage", "target": "selectedTarget", "amount": 1 }
+          ]
+        },
+        {
+          "id": "discard-weapon", "usageGroup": "qiangxi", "usesPerTurn": null, "usesPerPhase": 2,
+          "minCards": 1, "maxCards": 1, "sourceZones": ["hand", "equipment"], "equipmentSlots": ["weapon"],
+          "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving",
+          "effects": [
+            { "op": "consumeDistinctTurnTarget", "target": "owner", "usageId": "qiangxi" },
+            { "op": "discardSelected", "target": "owner", "amount": 1 },
+            { "op": "damage", "target": "selectedTarget", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:ninge", "revision": 1,
+      "triggers": [
+        {
+          "id": "second-injury-field-discard", "window": "afterDamageApplied", "subject": "any", "optional": false,
+          "damageOccurrence": "perDamage",
+          "condition": {
+            "kind": "all", "children": [
+              { "kind": "compare", "left": { "kind": "eventTargetDamageInstancesTakenThisTurn" }, "operator": "equal", "right": { "kind": "integerConstant", "value": 2 } },
+              { "kind": "any", "children": [
+                { "kind": "not", "children": [{ "kind": "damageTargetIsOther" }] },
+                { "kind": "damageSourceIsOwner" }
+              ] }
+            ]
+          },
+          "effects": [
+            { "op": "drawOwnerAtAppliedDamage", "target": "owner", "amount": 1 },
+            { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "eventTarget" }, "zones": ["equipment", "judgment"], "count": 1,
+              "destination": "discardPile", "skipIfNoCards": true, "awaitMovementTriggers": true }
+          ]
+        }
+      ]
+    }
+  ]
+}

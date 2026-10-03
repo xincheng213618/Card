@@ -1,0 +1,67 @@
+{
+  "status": "official-art-registered-full-and-routine-validated",
+  "capturedAtUtc": "2026-10-03T18:21:14.7926415+00:00",
+  "sourcePreflight": "docs/content/sources/fenglin-twenty-second-preflight-2026-10-04.json",
+  "images": [
+    {
+      "gid": 526,
+      "key": "boundary-dian-wei",
+      "name": "界典韦",
+      "sourcePage": "https://www.sanguosha.com/hero/526",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/52600.png",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-second-526-source-2026-10-04.json",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-03T18:14:08.6111730+00:00",
+      "byteLength": 1060631,
+      "sha256": "953244d1a8cd46d163b8c1eec77af594b3661115e28dd7f6479b5d9148f6d47b",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "nativeUnmodifiedBytes": true,
+      "existingIdenticalOwnedStageReused": true,
+      "status": "staged-not-main-registered",
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-dian-wei.png"
+    },
+    {
+      "gid": 505,
+      "key": "boundary-cai-wen-ji",
+      "name": "界蔡文姬",
+      "sourcePage": "https://www.sanguosha.com/hero/505",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/50500.png",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-second-505-source-2026-10-04.json",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-03T18:14:08.6400601+00:00",
+      "byteLength": 1087482,
+      "sha256": "29f17706e0e2ae41cf3d1304fc509cc0fed02dcf60c9f9d9a5bce54bc744a03c",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "nativeUnmodifiedBytes": true,
+      "existingIdenticalOwnedStageReused": true,
+      "status": "staged-not-main-registered",
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-cai-wen-ji.png"
+    },
+    {
+      "gid": 625,
+      "key": "boundary-zhang-chun-hua",
+      "name": "界张春华",
+      "sourcePage": "https://www.sanguosha.com/hero/625",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62500.png",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-second-625-source-2026-10-04.json",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-03T18:14:08.6571395+00:00",
+      "byteLength": 1056468,
+      "sha256": "3491cda56acf4e8c02f65ad4a27d0f6f40a33d07eecd43a017499fc413c38618",
+      "pixelWidth": 815,
+      "pixelHeight": 1080,
+      "nativeUnmodifiedBytes": true,
+      "existingIdenticalOwnedStageReused": false,
+      "status": "staged-not-main-registered",
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-zhang-chun-hua.png"
+    }
+  ],
+  "nativeBytesPreserved": true,
+  "dimensions": "526 and 505: 750x950; 625: native 815x1080; no resize or image edit",
+  "fetchDevelopmentNotes": [
+    "First PNG header check used byte shifts that truncated dimensions; corrected to int before shifts.",
+    "The fixed-size assumption was removed after official625 returned native815x1080; already downloaded task-owned526/505 reused only after exact response SHA verification."
+  ]
+}

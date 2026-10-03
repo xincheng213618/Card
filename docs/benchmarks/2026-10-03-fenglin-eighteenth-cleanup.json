@@ -1,0 +1,20 @@
+{
+  "recordedUtc": "2026-10-03T10:59:05.5256108+00:00",
+  "ownedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+  "status": "retained-after-prior-automatic-approval-review-rejection",
+  "files": 2734,
+  "bytes": 2139129312.0,
+  "boundaryVerifiedReadOnly": true,
+  "activeConsumers": 0,
+  "consumerNames": [],
+  "existsAfter": true,
+  "rejectionEvidence": "2026-10-03-fenglin-seventeenth-cleanup.json",
+  "reason": "The verified native Remove-Item command was previously rejected before launch: blocked by policy. No retry or alternate deletion mechanism attempted. Reused compatible cache for this batch.",
+  "previousOwnedPyc": {
+    "path": "C:\\Users\\17917\\Desktop\\Card\\tools\\__pycache__\\sync_general_art.cpython-314.pyc",
+    "exists": true,
+    "bytes": 35174,
+    "sha256": "4dfd4c1a5fba7d2e67185895f2e1c9551ec736ed6d22e2a10f43adc031e4f281",
+    "reason": "Prior native deletion was blocked by automatic approval review; no bypass."
+  }
+}

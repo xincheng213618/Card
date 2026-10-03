@@ -112,7 +112,7 @@ public sealed partial class GameEngine
                         AddProgramTargetCountSlashActions(actions, actor, usedCard, targets, name, kind, source);
                     }
                     else if (kind == CardKind.Peach && actor.Hp < actor.MaxHp ||
-                             kind == CardKind.Alcohol && !actor.HasAlcoholEffect && !actor.UsedPlayPhaseAlcoholThisTurn)
+                             kind == CardKind.Alcohol && !actor.HasAlcoholEffect && (!actor.UsedPlayPhaseAlcoholThisTurn || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)))
                         actions.Add(new LegalAction(kind == CardKind.Peach ? LegalActionKind.Peach : LegalActionKind.Alcohol,
                             card.Id, kind == CardKind.Peach ? actor.Seat : null,
                             DescribeConversion(source, $"将【{card.DisplayName}】当作【{name}】使用"),

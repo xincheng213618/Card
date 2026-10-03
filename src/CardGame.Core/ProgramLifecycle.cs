@@ -298,7 +298,7 @@ public enum ProgramLifecycleContinuation
     CompleteDiscardPhase, EndTurnAfterDiscardPhase, CompleteGameStarting,
     ResumeCardDeclaration = 1600,
     ResumeParentProgram = 500, ResumeDyingEntry = 660,
-    CompleteJudgmentPhaseStarting = 800, ResumeCharacterStateChange = 820, CompleteDrawPhaseEnded = 1140
+    CompleteJudgmentPhaseStarting = 800, ResumeCharacterStateChange = 820, CompleteDrawPhaseEnded = 1140, ResumeDrawPhaseObligation = 3800
 }
 
 public enum TurnEndingBoundaryItemKind { Program, GiftRetention = 1460 }
@@ -358,6 +358,10 @@ public sealed record ProgramLifecycleTriggerWindowFrame(
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? FrozenBaseDrawCount { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramActualPhaseSubstitution? ActualPhaseSubstitution { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public long? ResumeDrawPhaseObligationFrameId { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? DrawPhaseEndedDelayedEffects { get; init; }
     public long? ResumeProgramFrameId { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
@@ -366,6 +370,10 @@ public sealed record ProgramLifecycleTriggerWindowFrame(
     public long? ResumeDyingFrameId { get; init; }
 
     public IReadOnlyDictionary<int, SkillProgramTriggerFacts>? ParticipantFacts { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyDictionary<string, int>? FrozenFactionPopulation { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ProgramPopulationMarkerGrant>? PopulationMarkerGrants { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public CharacterStateContinuation? CharacterStateContinuation { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]

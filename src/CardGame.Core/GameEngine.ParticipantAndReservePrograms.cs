@@ -13,7 +13,10 @@ public sealed partial class GameEngine
         if (candidates.Length == 0) return false;
         PushRuntimeFrame(new ProgramLifecycleTriggerWindowFrame(++_resolutionSequence, _currentSeat,
             SkillProgramTriggerWindow.GameStarting, candidates, ProgramLifecycleContinuation.CompleteGameStarting,
-            facts[_currentSeat]) { ParticipantFacts = facts });
+            facts[_currentSeat]) { ParticipantFacts = facts,
+                FrozenFactionPopulation = _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GrantFactionPopulationMarker)
+                    ? new System.Collections.ObjectModel.ReadOnlyDictionary<string,int>(_players.GroupBy(player => GetEffectiveFactionId(player) ?? "")
+                        .ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal)) : null });
         AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
         return true;
     }
@@ -102,7 +105,7 @@ public sealed partial class GameEngine
             return SkillProgramStepOutcome.Continue;
         }
         // Chaotic Ambition walks the field from the owner's next turn neighbour.
-        var seats = effect.Op == SkillProgramEffectOp.RequestSlashByNearest
+        var seats = effect.Op is SkillProgramEffectOp.RequestSlashByNearest or SkillProgramEffectOp.RequestLegalSlashByNearest
             ? Enumerable.Range(1, _playerCount - 1)
                 .Select(offset => _players[(owner.Seat + offset) % _playerCount].Seat).ToArray()
             : effect.TargetKind is { } kind ? _players.Where(player =>
@@ -121,6 +124,8 @@ public sealed partial class GameEngine
             return BeginProgramSkillDamage(frame, seatNow, amount, nature: effect.DamageNature);
         if (effect.Op == SkillProgramEffectOp.LoseHpParticipants)
             return new ProgramSkillHost(this).LoseHp(frame.Id, frame.SkillId, seatNow, amount);
+        if (effect.Op == SkillProgramEffectOp.RequestLegalSlashByNearest)
+            return RequestLegalSlashByNearestActor(GetActiveProgramFrame(frame.Id), seatNow, amount);
         if (effect.Op == SkillProgramEffectOp.RequestSlashByNearest)
             return RequestProgramSlashByNearest(frame, seatNow, amount);
         if (effect.Zones.SequenceEqual([CardZoneKind.Equipment]))
@@ -232,7 +237,7 @@ public sealed partial class GameEngine
     {
         if (frame.ReexecuteParticipantInstruction && paused.Op is not (SkillProgramEffectOp.DamageParticipants or
                 SkillProgramEffectOp.LoseHpParticipants or SkillProgramEffectOp.DiscardParticipantCards or SkillProgramEffectOp.DiscardSelectedParticipantCards or
-                SkillProgramEffectOp.RequestSlashByNearest or SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or
+                SkillProgramEffectOp.RequestSlashByNearest or SkillProgramEffectOp.RequestLegalSlashByNearest or SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or
                 SkillProgramEffectOp.EscalatingDiscardOrDamage or SkillProgramEffectOp.ChooseHandCountIntervention or
                 SkillProgramEffectOp.RevealHandColorDiscardAndTake or SkillProgramEffectOp.DrawThenPutOwnedCardOnTopParticipants or
                 SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge or SkillProgramEffectOp.DistributePublicPileIfAllSuits))

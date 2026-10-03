@@ -72,6 +72,7 @@ public sealed partial class GameEngine
         if (!EquipmentCatalog.IsEquipment(card.Kind))
             throw new InvalidOperationException("Recast entity is not equipment.");
         MoveCard(card, location, CardLocation.DiscardPile, CardMoveReasons.RecastDiscard);
+        if (TryPauseProgramEquipmentRecast(frame, card)) return;
         var drawn = DrawCards(owner, 1, true, CardMoveReasons.RecastDraw);
         AdvanceEventRulesAndQueueFact(new CardRecastEvent(owner.Seat, card.Id, card.Kind, drawn.Count));
     }

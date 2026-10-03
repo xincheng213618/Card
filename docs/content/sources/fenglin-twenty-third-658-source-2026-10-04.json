@@ -1,0 +1,109 @@
+{
+  "status": "current-official-source-only-not-implemented",
+  "gid": 658,
+  "indexIdentity": {
+    "gid": 658,
+    "name": "界郭淮",
+    "resource": "65800",
+    "extend": "界限突破",
+    "hp": 4,
+    "initial_hp": 0,
+    "quality": "史诗",
+    "figure": "魏",
+    "figure_py": "wei",
+    "biography": "字伯济，太原人。郭淮跟随曹操征讨汉中后，留守汉中任夏侯渊帐下司马。在夏侯渊战死后，郭淮与杜袭推举张郃为新任主帅，后郭淮被曹操安排为张郃司马。",
+    "characteristic": "根据使用牌来摸牌，回合内还可以增加手牌上限",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/658.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/65800.png",
+    "realname": "界郭淮 (界限突破)"
+  },
+  "discovery": "gid advertised in the frozen current ordinary-OL Listdata[界限突破] 87-row index.",
+  "page": {
+    "url": "https://www.sanguosha.com/hero/658",
+    "finalUrl": "https://www.sanguosha.com/hero/658",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T19:28:20.753996+00:00",
+    "contentType": "text/html",
+    "rawBytes": 23232,
+    "rawSha256": "fbbb61b03c22bf28972f291c5a043aa079f980bef173679770fedb7aedeb10af",
+    "rawFile": "658-page.raw.html",
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >你每于回合内使用一种花色的手牌，本回合的手牌上限便+1；每个出牌阶段结束时，你可以摸X张牌（X为你本回合使用过牌的类型数）。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "精策"
+    ],
+    "skillTexts": [
+      "你每于回合内使用一种花色的手牌，本回合的手牌上限便+1；每个出牌阶段结束时，你可以摸X张牌（X为你本回合使用过牌的类型数）。"
+    ],
+    "fontRefs": [],
+    "scripts": [
+      "/assets/js/jquery-3.7.1.js",
+      "/assets/js/swiper-bundle.min.js",
+      "/assets/js/echarts.min.js",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "/assets/js/commen.js",
+      "/assets/js/header.js",
+      "/assets/js/heroDetail.js?1"
+    ]
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=658",
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=658",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T19:28:21.032071+00:00",
+    "contentType": "application/json",
+    "rawBytes": 887,
+    "rawSha256": "8792bdd7d3c501c2e04b6b576ca39706785ba0a506c4ca930b31b8f915d33a24",
+    "rawFile": "658-api.raw.json",
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 658,
+            "name": "界郭淮",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/658.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/65800.png",
+            "label": [
+              "防御",
+              "过牌",
+              "简单"
+            ],
+            "figure": "魏",
+            "figure_py": "wei",
+            "quality": "史诗",
+            "biography": "字伯济，太原人。郭淮跟随曹操征讨汉中后，留守汉中任夏侯渊帐下司马。在夏侯渊战死后，郭淮与杜袭推举张郃为新任主帅，后郭淮被曹操安排为张郃司马。",
+            "characteristic": "根据使用牌来摸牌，回合内还可以增加手牌上限",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 6
+          },
+          {
+            "name": "排位后手",
+            "value": 6
+          },
+          {
+            "name": "地主",
+            "value": 6
+          },
+          {
+            "name": "反贼",
+            "value": 7
+          },
+          {
+            "name": "内奸",
+            "value": 7
+          }
+        ],
+        "deeds": []
+      }
+    }
+  }
+}

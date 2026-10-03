@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:huoji-current", "revision": 1,
+      "viewAs": [{"id":"red-he-as-fire-attack","sourceZones":["hand","equipment"],"inputKinds":[],"inputSuits":["heart","diamond"],"outputKind":"fireAttack","forPlay":true,"forResponse":false}],
+      "cardPolicies": [{"id":"random-reveal-color-payment","kind":"randomRevealColorFireAttack","cardKinds":["fireAttack"]}]
+    },
+    {
+      "id": "boundary:kanpo-current", "revision": 1,
+      "viewAs": [{"id":"black-he-as-nullification","sourceZones":["hand","equipment"],"inputKinds":[],"inputSuits":["spade","club"],"outputKind":"nullification","forPlay":false,"forResponse":true}],
+      "cardPolicies": [{"id":"unrespondable-counterspell","kind":"unrespondableNullification","cardKinds":["nullification"]}]
+    },
+    {
+      "id": "boundary:cangzhuo", "revision": 1,
+      "triggers": [{"id":"no-own-trick-use","window":"discardPhaseStarting","subject":"owner","optional":false,
+        "condition":{"kind":"compare","left":{"kind":"ownerTrickUsesThisActualTurn"},"operator":"equal","right":{"kind":"integerConstant","value":0}},
+        "effects":[{"op":"grantTurnHandLimitCardKindExemption","target":"owner","cardKinds":["duel","drawTwo","barbarianAssault","arrowBarrage","peachGarden","fiveGrains","dismantlement","snatch","fireAttack","nullification","ironChain","indulgence","supplyShortage","lightning","borrowedSword"]}]}]
+    }
+  ]
+}

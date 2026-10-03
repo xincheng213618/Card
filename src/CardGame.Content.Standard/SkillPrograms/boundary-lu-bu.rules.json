@@ -1,0 +1,1 @@
+{"schemaVersion":62,"skills":[{"id":"boundary:liyu-current","revision":1,"triggers":[{"id":"obtain-damaged-target-card-and-resolve-category","window":"afterDamageApplied","subject":"damageSource","optional":true,"damageOccurrence":"perDamage","effects":[{"op":"obtainDamageTargetCardAndResolveCategory","target":"owner"}]}]}]}

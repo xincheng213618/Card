@@ -71,6 +71,7 @@ public sealed partial class GameEngine
         }
 
         public bool TryStartPostInstructionWindow(long frameId) =>
+            engine.TryBeginQueuedRecoveryReplacement(frameId, PostEventContinuation.Program) ||
             engine.TryBeginCharacterStateProgramWindow(frameId, CharacterStateContinuation.Program) ||
             engine.TryBeginHpChangedProgramWindow(frameId, PostEventContinuation.Program) ||
             engine.TryBeginCardsMovedProgramWindow(frameId) || engine.TryBeginAdvancedSkillsChanged(frameId) || engine.TryContinueAdvancedDamage(frameId);
@@ -118,6 +119,8 @@ public sealed partial class GameEngine
             };
             var recovered = Math.Min(requested, target.MaxHp - target.Hp);
             if (recovered <= 0) return;
+            if (engine.TryQueueRecoveryReplacement(frameId, ownerSeat, targetSeat, recovered,
+                new(RecoveryAttemptProducer.Program, engine.GetActiveProgramFrame(frameId).InstructionIndex))) return;
             var recovery = engine.BeginRecovery(frameId, ownerSeat, targetSeat, recovered);
             target.Hp += recovered;
             engine.AdvanceEventRulesAndQueueFact(new RecoveryAppliedEvent(ownerSeat, targetSeat, recovered, target.Hp));

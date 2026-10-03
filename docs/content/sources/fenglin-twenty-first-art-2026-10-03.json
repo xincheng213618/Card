@@ -1,0 +1,57 @@
+{
+  "status": "official-art-registered-full-and-routine-validated",
+  "fetchedOn": "2026-10-03",
+  "product": "current ordinary Sanguosha OL",
+  "images": [
+    {
+      "gid": 496,
+      "key": "boundary-xu-huang",
+      "name": "界徐晃",
+      "sourcePage": "https://www.sanguosha.com/hero/496",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/49600.png",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-first-496-source-2026-10-03.json",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-03T23:51:35.6028787+08:00",
+      "byteLength": 1063065,
+      "sha256": "df14db3f7a3478f99914c84edfb297bc5b7ef813ad749dd61d7daaf69c5d122c",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "nativeUnmodifiedBytes": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-xu-huang.png"
+    },
+    {
+      "gid": 470,
+      "key": "boundary-dong-zhuo",
+      "name": "界董卓",
+      "sourcePage": "https://www.sanguosha.com/hero/470",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/47000.png",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-first-470-source-2026-10-03.json",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-03T23:51:35.7743329+08:00",
+      "byteLength": 1265162,
+      "sha256": "20d1e9036a3639bcfe8d27b54bc8e7c71565dbc9d164c57da4cda8e0e6b52a3b",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "nativeUnmodifiedBytes": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-dong-zhuo.png"
+    },
+    {
+      "gid": 484,
+      "key": "boundary-jia-xu",
+      "name": "界贾诩",
+      "sourcePage": "https://www.sanguosha.com/hero/484",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/48400.png",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-first-484-source-2026-10-03.json",
+      "httpStatus": 200,
+      "fetchedAtUtc": "2026-10-03T23:51:35.953461+08:00",
+      "byteLength": 1167610,
+      "sha256": "f90b2d87b58422d14e039d53f5945d286dd1063be83dc56a55ee7fab49b0bccb",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "nativeUnmodifiedBytes": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-jia-xu.png"
+    }
+  ],
+  "evidenceBoundary": "Original HTTP PNG bytes in owned stage, no compiled resource claim yet",
+  "validation": "docs/benchmarks/2026-10-04-fenglin-twenty-first-validation.json"
+}

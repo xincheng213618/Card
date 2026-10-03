@@ -31,6 +31,8 @@ public sealed partial class GameEngine
         var target = _players[active.OwnerSeat];
         var recovered = target.IsAlive ? Math.Max(0, target.MaxHp - target.Hp) : 0;
         var recoveryId = 0L;
+        if (recovered > 0 && TryQueueRecoveryReplacement(active.Id, active.OwnerSeat, active.OwnerSeat, recovered,
+            new(RecoveryAttemptProducer.ProgramMaximum, active.InstructionIndex))) return;
         if (recovered > 0)
         {
             recoveryId = BeginRecovery(active.Id, active.OwnerSeat, active.OwnerSeat, recovered);

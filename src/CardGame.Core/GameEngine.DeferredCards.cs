@@ -17,7 +17,7 @@ public sealed partial class GameEngine
             .SelectMany(view => view.Ids)
             .Select(id => _cardZones.CardsAt(CardLocation.Processing).Single(card => card.Id == id))
             .Select(ToSnapshot);
-        return topCards.Concat(GetOfferedPrivatelyViewedCards(viewerSeat)).Concat(GetQuotaPrivatelyViewedCards(viewerSeat)).Concat(GetConvertingGiftPrivatelyViewedCards(viewerSeat)).Concat(GetExactTopPrivatelyViewedCards(viewerSeat)).Concat(GetPopulationTopPrivatelyViewedCards(viewerSeat)).DistinctBy(card => card.Id).ToArray();
+        return topCards.Concat(GetOfferedPrivatelyViewedCards(viewerSeat)).Concat(GetQuotaPrivatelyViewedCards(viewerSeat)).Concat(GetConvertingGiftPrivatelyViewedCards(viewerSeat)).Concat(GetExactTopPrivatelyViewedCards(viewerSeat)).Concat(GetPopulationTopPrivatelyViewedCards(viewerSeat)).Concat(GetParticipantPrivatelyViewedCards(viewerSeat)).DistinctBy(card => card.Id).ToArray();
     }
 
     // Checkpoints replay the complete accepted command prefix. The event stream is never
@@ -26,12 +26,14 @@ public sealed partial class GameEngine
     {
         var hand = GetHand(owner);
         var exactIds = _turnCardUseEffects.GetHandLimitExemptCardIds(_turnNumber, _turnProgression.OwnerSeat, owner.Seat);
+        var exemptKinds = _turnCardUseEffects.GetHandLimitExemptCardKinds(_turnNumber, _turnProgression.OwnerSeat, owner.Seat);
         if (!HasCardPolicy(owner, SkillProgramCardPolicyKind.IgnoreTurnObtainedHandCardsForDiscard))
-            return exactIds.Count == 0 ? hand : hand.Where(card => !exactIds.Contains(card.Id)).ToArray();
+            return exactIds.Count == 0 && exemptKinds.Count == 0 ? hand :
+                hand.Where(card => !exactIds.Contains(card.Id) && !exemptKinds.Contains(card.Kind)).ToArray();
         var obtained = EventsSinceLastBoundary(item => item is TurnStartedEvent)
             .OfType<CardMovedEvent>().Where(item => item.To == CardLocation.Hand(owner.Seat) && item.From != item.To)
             .Select(item => item.CardId).ToHashSet();
-        return hand.Where(card => !obtained.Contains(card.Id) && !exactIds.Contains(card.Id)).ToArray();
+        return hand.Where(card => !obtained.Contains(card.Id) && !exactIds.Contains(card.Id) && !exemptKinds.Contains(card.Kind)).ToArray();
     }
 
     private void ConsumeSkippedNextTurnDrawBenefits(CharacterState current)

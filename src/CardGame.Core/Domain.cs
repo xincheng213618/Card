@@ -122,7 +122,11 @@ public enum PlayerMarkerKind
     Junlue = 450,
     Camp = 451,
     Huang = 500,
-    Orange = 1280
+    Orange = 1280,
+    Yi = 2600,
+    Lie = 3000,
+    Bian = 3500,
+    Zi = 3800
 }
 
 public static class PlayerMarkerCatalog
@@ -132,6 +136,10 @@ public static class PlayerMarkerCatalog
         PlayerMarkerKind.Nightmare => "梦魇",
         PlayerMarkerKind.Huang => "黄",
         PlayerMarkerKind.Orange => "橘",
+        PlayerMarkerKind.Yi => "裔",
+        PlayerMarkerKind.Lie => "烈",
+        PlayerMarkerKind.Bian => "变",
+        PlayerMarkerKind.Zi => "辎",
         PlayerMarkerKind.Ren => "忍",
         PlayerMarkerKind.Rage => "暴怒",
         PlayerMarkerKind.Gale => "狂风",
@@ -181,7 +189,8 @@ public enum TurnPhase
 
 public enum DecisionKind
 {
-    SelectGeneral,
+    RecoveryReplacement = 2700,
+    SelectGeneral = 0,
     PlayCard,
     RespondDodge,
     RespondSlash,

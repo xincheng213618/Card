@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:beige", "revision": 1,
+      "triggers": [
+        {
+          "id": "judge-then-optional-discard", "window": "afterDamageApplied", "subject": "any",
+          "optional": true, "damageOccurrence": "perDamage", "condition": { "kind": "damageCardIsSlash" },
+          "effects": [
+            { "op": "judgeDamageTargetThenOfferSuitDiscard", "target": "owner",
+              "judgmentReason": "skill.boundary.beige", "resultBind": "judgment-result", "visibility": "public" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:duanchang", "revision": 1,
+      "triggers": [
+        { "id": "killer-loses-skills", "window": "ownerDied", "subject": "owner", "optional": false,
+          "effects": [ { "op": "loseDeathSourceSkills", "target": "owner" } ] }
+      ]
+    }
+  ]
+}

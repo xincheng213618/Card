@@ -1,0 +1,91 @@
+{
+  "status": "read-only-preflight-not-implemented",
+  "gid": 470,
+  "product": "current ordinary Sanguosha OL",
+  "boundaryRegistrationFound": false,
+  "page": {
+    "url": "https://www.sanguosha.com/hero/470",
+    "httpStatus": 200,
+    "fetchedAtUtc": "2026-10-03T14:52:42.4315243+00:00",
+    "byteLength": 25024,
+    "rawSha256": "fbb9fda9e94129db98cf453d8dcb0ca8cbf8fcc4f4362d0d6a5c474f086f007a",
+    "shaScope": "HTTP response content bytes",
+    "mediaDownloaded": false,
+    "skills": [
+      {
+        "name": "肉林",
+        "text": "锁定技，你对女性角色使用的【杀】和女性角色对你使用的【杀】均需使用两张【闪】才能抵消。"
+      },
+      {
+        "name": "崩坏",
+        "text": "锁定技，结束阶段，若你不是体力值最小的角色，你失去1点体力或减少1点体力上限。"
+      },
+      {
+        "name": "酒池",
+        "text": "你可以将一张黑桃手牌当【酒】使用。你使用【酒】无次数限制。当你使用【酒】【杀】造成伤害后，本回合“崩坏”失效。"
+      },
+      {
+        "name": "暴虐",
+        "text": "主公技，当其他群势力角色造成1点伤害后，你可以判定，若结果为黑桃，你回复1点体力并获得此判定牌。"
+      }
+    ],
+    "skillHtml": "<div class=\"character-tabs\">\n                        \n                            \n                                <div class=\"character-tab on\">肉林</div>\n                            \n                                <div class=\"character-tab \">崩坏</div>\n                            \n                                <div class=\"character-tab \">酒池</div>\n                            \n                                <div class=\"character-tab \">暴虐</div>\n                            \n                        \n                    </div>\n                    <p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >锁定技，你对女性角色使用的【杀】和女性角色对你使用的【杀】均需使用两张【闪】才能抵消。</span>\n                            \n                                <span >锁定技，结束阶段，若你不是体力值最小的角色，你失去1点体力或减少1点体力上限。</span>\n                            \n                                <span >你可以将一张黑桃手牌当【酒】使用。你使用【酒】无次数限制。当你使用【酒】【杀】造成伤害后，本回合“崩坏”失效。</span>\n                            \n                                <span >主公技，当其他群势力角色造成1点伤害后，你可以判定，若结果为黑桃，你回复1点体力并获得此判定牌。</span>\n                            \n                        \n                    </p>"
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=470",
+    "httpStatus": 200,
+    "fetchedAtUtc": "2026-10-03T14:52:42.6547483+00:00",
+    "byteLength": 1006,
+    "rawSha256": "34b9612c601ce056841825f7ebe7dd2b05d879d60d5d855046e03bbecaa85221",
+    "shaScope": "HTTP response content bytes",
+    "mediaDownloaded": false,
+    "rawText": "{\"code\":0,\"message\":\"OK\",\"data\":{\"info\":[{\"gid\":470,\"name\":\"界董卓\",\"avatar\":\"https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/470.png\",\"cover\":\"https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/47000.png\",\"label\":[\"进攻\",\"控制\",\"过牌\"],\"figure\":\"群\",\"figure_py\":\"qun\",\"quality\":\"稀有\",\"biography\":\"字仲颖，陇西临洮[táo]人。东汉末年少帝、献帝时权臣，西凉军阀。官至太师、郿[méi]侯。其为人残忍嗜杀，倒行逆施，招致群雄联合讨伐，但联合军在董卓迁都长安不久后瓦解。后被其亲信吕布所杀。\",\"characteristic\":\"拥有高额的体力值，能够转化【酒】，能够迅速杀死女性角色和脆弱的角色。受到女性角色的针对，游戏时间越久就越脆弱。\",\"hp\":8,\"initial_hp\":0,\"score\":0}],\"radar\":[{\"name\":\"主公\",\"value\":8},{\"name\":\"忠臣\",\"value\":6},{\"name\":\"反贼\",\"value\":7},{\"name\":\"国战\",\"value\":7}],\"deeds\":[]}}",
+    "parsed": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 470,
+            "name": "界董卓",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/470.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/47000.png",
+            "label": [
+              "进攻",
+              "控制",
+              "过牌"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "稀有",
+            "biography": "字仲颖，陇西临洮[táo]人。东汉末年少帝、献帝时权臣，西凉军阀。官至太师、郿[méi]侯。其为人残忍嗜杀，倒行逆施，招致群雄联合讨伐，但联合军在董卓迁都长安不久后瓦解。后被其亲信吕布所杀。",
+            "characteristic": "拥有高额的体力值，能够转化【酒】，能够迅速杀死女性角色和脆弱的角色。受到女性角色的针对，游戏时间越久就越脆弱。",
+            "hp": 8,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "主公",
+            "value": 8
+          },
+          {
+            "name": "忠臣",
+            "value": 6
+          },
+          {
+            "name": "反贼",
+            "value": 7
+          },
+          {
+            "name": "国战",
+            "value": 7
+          }
+        ],
+        "deeds": []
+      }
+    }
+  },
+  "capabilityAnalysisStatus": "pending-local-code-review"
+}

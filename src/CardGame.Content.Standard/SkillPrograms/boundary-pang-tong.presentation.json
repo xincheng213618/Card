@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:lianhuan": {
+      "name": "连环",
+      "description": "你可以将一张梅花牌当【铁索连环】使用或重铸。你使用【铁索连环】可以多指定一个目标。"
+    },
+    "boundary:niepan": {
+      "name": "涅槃",
+      "description": "限定技，当你处于濒死状态时，你可以：弃置所有牌，复原你的武将牌，摸三张牌，回复至3点体力，然后获得“八阵”“火计”“看破”中的一个。",
+      "optionLabels": { "bazhen": "获得“八阵”", "huoji": "获得“火计”", "kanpo": "获得“看破”" }
+    }
+  }
+}

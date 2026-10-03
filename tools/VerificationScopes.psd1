@@ -3,7 +3,11 @@
     # Full validation retains every registration, including individual content scenarios.
     Core = @(
         'command', 'observer', 'viewer', 'prepared snapshot', 'internal failure',
-        'skill program', 'lifecycle programs', 'shared post-event',
+        'skill program', 'lifecycle programs', 'shared post-event', 'Phase hand extra turn',
+        'Actual draw obligation', 'Owned damage point judgment',
+        'Prevented damage draw', 'Black trick target policy', 'Dying skill qualification', 'Nearest legal Slash',
+        'Actual turn target commitment', 'Applied damage occurrence', 'Applied damage benefit',
+        'Dual private color commitments', 'Damage judgment suit payment four suits',
         'shared use lifecycle', 'shared card-use', 'card movement', 'card inventory',
         'initial deal', 'invalid single and batch', 'draw and recover',
         'execution plans', 'skill executor', 'program gameplay hashes',
@@ -69,7 +73,49 @@
         'Boundary Jiang Wei awakening wakes once across phases'
         'Damage target mount paid children source lifetime',
         'Damage appearance Draw definitions physical colors cardless legacy',
-        'Selected actor Duel actual Use and Nullification'
+        'Selected actor Duel actual Use and Nullification',
+        'Damage target obtain nested Duel native cold',
+        'Boundary Yuan Shao population start role marker limit',
+        'Boundary Yuan Shao conversion actual remaining targets'
+        'Recovery replacement Silver Lion Zhiheng HP and reward children',
+        'Recovery replacement paid equipment tail',
+        'Recovery replacement faction request Silver Lion cost before providers',
+        'Program Iron Chain third target owned recast',
+        'Equipment recast Silver Lion recovery and movement children',
+        'BoundaryXuShu fixed target real Slash',
+        'BoundaryXuShu declared deck criterion'
+        'Character turned over Shebian both directions',
+        'Character turned over Shebian occupied equipment slot',
+        'Character turned over actual damage cursor',
+        'Capped hand refresh',
+        'HP paid shield',
+        'Random Pindian',
+        'Maximum Slash Pindian',
+        'Bound card recast dynamic Slash',
+        'Bound card recast Silver Lion',
+        'Turn kind hand exemption',
+        'Signed Slash modifier',
+        'Bound discard Slash frozen suit',
+        'Bound discard Slash equipment',
+        'First round limited refund exact',
+        'Current Slash entity claim basic',
+        'Current Slash entity claim nonbasic',
+        'Participant hand declined private take',
+        'Participant hand mixed HE gift',
+        'Participant hand per point effective red',
+        'Participant hand program bound alcohol',
+        'Next-use rank bonus',
+        'Other dying recovery equipment',
+        'Alternative phase cost actual',
+        'Alternative phase cost equipped',
+        'Ending hand count history',
+        'Random reveal color Fire Attack',
+        'Unrespondable counterspell equipment',
+        'Discarded provenance virtual Alcohol',
+        'Discarded provenance exact discard judgment',
+        'Discarded provenance real turn all materials',
+        'Actual turn use kinds independent hand suits',
+        'Actual turn use kinds per Play draw'
     )
     Wpf = @(
         'original card artwork', 'overlapping hand', 'composed skills', 'conversion choices',
@@ -80,5 +126,6 @@
         'Program paid choices',
         'Program exact top count restores private shared order',
         'Program population count private faces restore shared free order'
+        'Program Iron Chain guide follows actual target count'
     )
 }

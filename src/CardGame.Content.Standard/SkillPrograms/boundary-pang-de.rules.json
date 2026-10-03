@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:jianchu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "discard-final-target-card",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {"kind": "owner"},
+              "cardOwnerRef": {"kind": "eventTarget"},
+              "zones": ["hand", "equipment"],
+              "count": 1,
+              "destination": "discardPile",
+              "resultBind": "discarded-target-card",
+              "awaitMovementTriggers": true
+            },
+            {
+              "op": "claimCurrentUsePhysicalCards",
+              "target": "owner",
+              "condition": {"kind": "boundCardsMatchCategories", "sourceBind": "discarded-target-card", "cardCategories": ["basic"]}
+            },
+            {
+              "op": "preventCurrentTargetSlashCancellationByRule",
+              "target": "owner",
+              "condition": {"kind": "boundCardsMatchCategories", "sourceBind": "discarded-target-card", "cardCategories": ["trick", "equipment"]}
+            },
+            {
+              "op": "grantTurnRuleModifier",
+              "target": "owner",
+              "ruleQuery": "slashLimit",
+              "ruleOperation": "add",
+              "amount": 1,
+              "condition": {"kind": "boundCardsMatchCategories", "sourceBind": "discarded-target-card", "cardCategories": ["trick", "equipment"]}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

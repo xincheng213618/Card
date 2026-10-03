@@ -1,0 +1,64 @@
+{
+  "status": "official-art-registered-offline-and-current-compiled-sha256-verified",
+  "batch": 23,
+  "images": [
+    {
+      "gid": 454,
+      "key": "boundary-wolong-zhuge-liang",
+      "name": "界卧龙诸葛亮",
+      "sourcePage": "https://www.sanguosha.com/hero/454",
+      "sourceRecordSha256": "7a42bf2ce89bf8f38d6af1ca8f591b3801a51de585c5d13440567bb04ba8cfef",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45400.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45400.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-03T19:48:54.6889563+00:00",
+      "rawBytes": 1116690,
+      "sha256": "b90b0e0a6f4fae8fab8103ed882b83e6ecbb92ce3fa72d71c7fbe0c9a7edde29",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "contentType": "image/png",
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-wolong-zhuge-liang.png"
+    },
+    {
+      "gid": 629,
+      "key": "boundary-cao-zhi",
+      "name": "界曹植",
+      "sourcePage": "https://www.sanguosha.com/hero/629",
+      "sourceRecordSha256": "bb69f5d6012fb5e5f188d9e650074f518950f4828c46940bc2373d451cae8b68",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62900.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62900.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-03T19:48:54.7978903+00:00",
+      "rawBytes": 1097474,
+      "sha256": "cd93ab4634bb93f12e2647fe17620b0b96b12eb5d94b0dce1352161b7adad02f",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "contentType": "image/png",
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-cao-zhi.png"
+    },
+    {
+      "gid": 658,
+      "key": "boundary-guo-huai",
+      "name": "界郭淮",
+      "sourcePage": "https://www.sanguosha.com/hero/658",
+      "sourceRecordSha256": "bec539a138be8e754078248a604cec5ca7c1374bbfda74c9c80efd5c09d2d07a",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/65800.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/65800.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-03T19:48:54.9130024+00:00",
+      "rawBytes": 1037061,
+      "sha256": "926a4be07c091fd6f4e38704e1da430cd2d75a806c91e4cbc1a8a4c3fc622296",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "contentType": "image/png",
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-guo-huai.png"
+    }
+  ],
+  "verification": {
+    "offlinePngRecords": 1002,
+    "compiledByteSha256Matches": true,
+    "finalWholeBatchWpfChecks": "running",
+    "compiledResources": 3,
+    "offlineGenerals": 205
+  }
+}

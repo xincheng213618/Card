@@ -14,6 +14,8 @@ public sealed partial class GameEngine
         ObserveNextCardTargetAdjustmentEvent(payload);
         ObservePlayPhaseColorRestriction(payload);
         ObserveFirstTurnCategoryUse(payload);
+        ObserveCurrentTurnUseKinds(payload);
+        ObserveActualTurnTrickUse(payload);
         QueueGameEvent(payload);
         if (_started)
         {

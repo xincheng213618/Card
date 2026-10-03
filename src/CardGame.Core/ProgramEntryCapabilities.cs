@@ -35,7 +35,7 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.DyingExited or
         SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
         SkillProgramTriggerWindow.DrawPhaseStarting or
-        SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or
+        SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or SkillProgramTriggerWindow.DrawPhaseSkipped or
         SkillProgramTriggerWindow.SelfDyingResponse or
         SkillProgramTriggerWindow.DyingResponse or
         SkillProgramTriggerWindow.BeforeDamageApplied or
@@ -47,7 +47,7 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.TurnEnding or
         SkillProgramTriggerWindow.PlayPhaseStarting or
         SkillProgramTriggerWindow.JudgmentPhaseStarting or
-        SkillProgramTriggerWindow.CharacterTurnedFaceUp or
+        SkillProgramTriggerWindow.CharacterTurnedOver or SkillProgramTriggerWindow.CharacterTurnedFaceUp or
         SkillProgramTriggerWindow.CharacterEnteredChain or
         SkillProgramTriggerWindow.CardsMoved or
         SkillProgramTriggerWindow.CardsGained or
@@ -74,7 +74,7 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.AfterTurnEnded => Common,
         null => Common | ProgramContextCapability.Judgment | ProgramContextCapability.Pindian,
         SkillProgramTriggerWindow.TurnStartBeforeNormalFlow => Common | ProgramContextCapability.PhaseInsertion | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Judgment,
-        SkillProgramTriggerWindow.DrawPhaseStarting => Common | ProgramContextCapability.DrawPlan | ProgramContextCapability.Judgment,
+        SkillProgramTriggerWindow.DrawPhaseStarting => Common | ProgramContextCapability.DrawPlan | ProgramContextCapability.Judgment | ProgramContextCapability.PhaseSubstitution,
         SkillProgramTriggerWindow.DrawPhaseEnded => Common | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.AfterNormalDraw => Common | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.DiscardPhaseStarting => Common | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Judgment,
@@ -83,8 +83,8 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.TurnEnding => Common | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.PlayPhaseStarting =>
             Common | ProgramContextCapability.Judgment | ProgramContextCapability.PhaseOwner | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Pindian,
-        SkillProgramTriggerWindow.JudgmentPhaseStarting => Common | ProgramContextCapability.Judgment | ProgramContextCapability.PhaseOwner,
-        SkillProgramTriggerWindow.CharacterTurnedFaceUp or SkillProgramTriggerWindow.CharacterEnteredChain => Common | ProgramContextCapability.PhaseOwner,
+        SkillProgramTriggerWindow.JudgmentPhaseStarting => Common | ProgramContextCapability.Judgment | ProgramContextCapability.PhaseOwner | ProgramContextCapability.PhaseSubstitution,
+        SkillProgramTriggerWindow.CharacterTurnedOver or SkillProgramTriggerWindow.CharacterTurnedFaceUp or SkillProgramTriggerWindow.CharacterEnteredChain => Common | ProgramContextCapability.PhaseOwner,
         SkillProgramTriggerWindow.BeforeDamageApplied or
             SkillProgramTriggerWindow.DamageAppliedBeforeDying or
             SkillProgramTriggerWindow.AfterDamageApplied =>

@@ -12,6 +12,8 @@ internal static class CommittedEventProjection
     // Rules see the original fact first; only the committed projection is copied.
     public static IGameEvent Freeze(IGameEvent payload) => payload switch
     {
+        ProgramCurrentUsePhysicalCardsClaimedEvent value => value with
+        { Claim = value.Claim with { CardIds = FreezeList(value.Claim.CardIds) } },
         CardDeclarationCommittedEvent value => value with { TargetSeats = FreezeList(value.TargetSeats) },
         PlayPhaseSuitAllowanceGrantedEvent value => value with { Suits = FreezeList(value.Suits), DiscardedCardIds = FreezeList(value.DiscardedCardIds) },
         ProgramDiscardBudgetCommittedEvent value => value with
@@ -143,6 +145,8 @@ internal static class CommittedEventProjection
         },
         TurnRuleModifierGrantedEvent value => value with
         { Modifier = value.Modifier with { CardKinds = FreezeOptionalList(value.Modifier.CardKinds) } },
+        TurnHandLimitCardKindExemptionGrantedEvent value => value with
+        { Policy = value.Policy with { CardKinds = FreezeList(value.Policy.CardKinds) } },
         DirectedTurnCardPolicyGrantedEvent value => value with
         { Policy = value.Policy with { CardKinds = FreezeList(value.Policy.CardKinds) } },
         DeferredPublicPileDepositedEvent value => value with

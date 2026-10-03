@@ -76,7 +76,7 @@ public sealed partial class GameEngine
                 foreach (var owner in _players.Where(player => player.IsAlive && player.Seat != actor.Seat &&
                     player.Seat != action.TargetSeats[0] && GetWeapon(player) is not null &&
                     !IsDirectedCardTargetProhibited(actor.Seat, player.Seat, kind) &&
-                    !IsCardTargetProhibited(player, kind, FindOwnedPlayableCard(actor, action.CardId)!.Suit)))
+                    !IsCardTargetProhibited(player, kind, FindOwnedPlayableCard(actor, action.CardId)!.Suit, SuitColor(EffectiveSuit(actor, ApplyProgramUseAppearance(actor, FindOwnedPlayableCard(actor, action.CardId)!, action.ConversionSource))))))
                     foreach (var victim in _players.Where(player => IsLegalBorrowedSwordSlashTarget(owner, player)))
                         Add([.. action.TargetSeats, owner.Seat, victim.Seat]);
                 continue;
@@ -111,7 +111,7 @@ public sealed partial class GameEngine
     {
         var physical = FindOwnedPlayableCard(actor, action.CardId)!;
         if (!target.IsAlive || IsDirectedCardTargetProhibited(actor.Seat, target.Seat, kind) ||
-            IsCardTargetProhibited(target, kind, effectiveUseSuit ?? physical.Suit) ||
+            IsCardTargetProhibited(target, kind, effectiveUseSuit ?? physical.Suit, SuitColor(effectiveUseSuit ?? EffectiveSuit(actor, ApplyProgramUseAppearance(actor, physical, action.ConversionSource)))) ||
             HasBeneficiarySuitShield(actor.Seat, target.Seat, effectiveUseSuit ?? EffectiveSuit(actor, ApplyProgramUseAppearance(actor, physical, action.ConversionSource)))) return false;
         return action.Kind switch
         {

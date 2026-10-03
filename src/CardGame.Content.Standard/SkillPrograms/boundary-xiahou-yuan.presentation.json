@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:shensu": {
+      "name": "神速",
+      "description": "你可以选择至多三项：1.跳过判定阶段和摸牌阶段；2.跳过出牌阶段并弃置一张装备牌；3.跳过弃牌阶段并翻面。你每选择一项，你视为使用一张无距离限制的【杀】。"
+    },
+    "boundary:shebian": { "name": "设变", "description": "当你翻面时，你可以移动场上一张装备牌。" }
+  }
+}

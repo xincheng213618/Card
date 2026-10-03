@@ -25,6 +25,8 @@ public sealed partial class GameEngine
 
     private void PublishPindianSelection(PindianFrame frame)
     {
+        if (TryContinuePindianRandomSelection(frame)) return;
+        frame = (PindianFrame)_resolutionStack[^1];
         var selectingSource = frame.PindianStep is PindianStep.ChooseParticipants or PindianStep.ChooseSourceCard;
         var chooser = _players[selectingSource ? frame.SourceSeat : frame.OpponentSeat!.Value];
         var hand = GetHand(chooser);
@@ -84,6 +86,7 @@ public sealed partial class GameEngine
         var frame = (PindianFrame)_resolutionStack[^1];
         if (_pendingDecision!.Choices.All(choice => choice.Id != selected.Id))
             throw new InvalidOperationException("The Pindian answer was not published.");
+        if (TryResolvePindianRandomChoice(frame, selected)) return;
         if (frame.PindianStep == PindianStep.ClaimResult)
         {
             ResolvePindianClaimChoice(selected);
@@ -165,6 +168,12 @@ public sealed partial class GameEngine
     {
         var frame = (PindianFrame)_resolutionStack[^1];
         var decision = _pendingDecision!;
+        if (IsPindianRandomPrompt(frame))
+        {
+            ResolvePindianChoice(decision.Choices.First(choice => choice.Parameters.GetValueOrDefault("take") == "true"));
+            AdvanceRulesAndPublishState();
+            return;
+        }
         if (frame.PindianStep == PindianStep.ClaimResult)
         {
             ResolvePindianChoice(decision.Choices.First(choice => choice.Parameters.GetValueOrDefault("take") == "true"));
@@ -201,8 +210,10 @@ public sealed partial class GameEngine
             (opponent == frame.SourceSeat || !_players[opponent].IsAlive) ||
             _status != (_players[decision.PlayerSeat].IsHuman ? EngineStatus.AwaitingHumanResponse : EngineStatus.Running))
             throw new InvalidOperationException("Pindian prompt owner or participants are inconsistent.");
+        if (AssertPindianRandomSelection(frame, decision)) return;
         if (frame.PindianStep == PindianStep.ClaimResult)
         {
+            AssertPindianPolicyClaims(frame);
             if (frame.Result is null || frame.ClaimSeats is null || frame.ClaimIndex < 0 || frame.ClaimIndex >= frame.ClaimSeats.Count ||
                 decision.PlayerSeat != frame.ClaimSeats[frame.ClaimIndex] ||
                 decision.Choices.Any(choice => choice.Parameters.GetValueOrDefault("action") != "pindian-claim" ||

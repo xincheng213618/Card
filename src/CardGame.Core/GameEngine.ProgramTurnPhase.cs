@@ -20,9 +20,15 @@ public sealed partial class GameEngine
             phases.Count == 1 && phases[0] == SkillProgramTurnPhase.Play;
         var third = context.Window == SkillProgramTriggerWindow.DiscardPhaseStarting &&
             phases.Count == 1 && phases[0] == SkillProgramTurnPhase.Discard;
-        if (!first && !second && !third)
+        var actualJudgment = context.Window == SkillProgramTriggerWindow.JudgmentPhaseStarting &&
+            phases.SequenceEqual([SkillProgramTurnPhase.Judgment]);
+        var actualDraw = context.Window == SkillProgramTriggerWindow.DrawPhaseStarting &&
+            phases.SequenceEqual([SkillProgramTurnPhase.Draw]);
+        if (!first && !second && !third && !actualJudgment && !actualDraw)
             throw new InvalidOperationException("The configured phase substitution does not match its boundary.");
 
+        if (actualDraw && parent.ResumeDrawPhaseObligationFrameId is not null)
+        { RecordAlternativePhaseSkip(active, phases); return SkillProgramStepOutcome.Continue; }
         foreach (var phase in phases)
             _pendingTurnDelayedEffects |= phase switch
             {
@@ -32,6 +38,7 @@ public sealed partial class GameEngine
                 SkillProgramTurnPhase.Discard => DelayedTurnEffects.SkipDiscardPhase,
                 _ => throw new InvalidOperationException("Unknown turn phase.")
             };
+        RecordAlternativePhaseSkip(active, phases);
         return SkillProgramStepOutcome.Continue;
     }
 
@@ -39,7 +46,9 @@ public sealed partial class GameEngine
         int targetSeat, CardKind cardKind, bool ignoreDistance)
     {
         var active = GetActiveProgramFrame(frame.Id);
-        if (active.TriggerId is null || active.SelectedTargetSeats.Count != 1 ||
+        var instruction = ProgramInstructionResolver.Default.Resolve(active, _contentRegistry.GetSkill(active.SkillId).Program!)
+            .GetPausedInstruction(active.InstructionIndex).Effect;
+        if (active.TriggerId is null && instruction.Op != SkillProgramEffectOp.OfferUnlimitedVirtualSlash || active.SelectedTargetSeats.Count != 1 ||
             active.SelectedTargetSeats[0] != targetSeat || cardKind != CardKind.Slash ||
             !ignoreDistance || ActiveCardAttack is not null || ActiveDuel is not null ||
             !IsValidPlayerSeat(targetSeat))
@@ -52,8 +61,6 @@ public sealed partial class GameEngine
             return SkillProgramStepOutcome.Continue;
 
         var resolutionId = ++_resolutionSequence;
-        var instruction = ProgramInstructionResolver.Default.Resolve(active, _contentRegistry.GetSkill(active.SkillId).Program!)
-            .GetPausedInstruction(active.InstructionIndex).Effect;
         var action = instruction.UseCardActionWindows
             ? CaptureFactionAction(new CardActionContext(++_cardActionSequence, _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
                 CardActionType.Use, source.Seat, source.Seat, null, null, null, cardKind, [targetSeat], [], [],
@@ -61,6 +68,13 @@ public sealed partial class GameEngine
         PushRuntimeFrame(new CardUseFrame(resolutionId, source.Seat, 0, cardKind,
             Array.AsReadOnly(new[] { targetSeat }),
             PhysicalCardIds: Array.AsReadOnly(Array.Empty<int>())) { Action = action });
+        if (instruction.Op == SkillProgramEffectOp.OfferUnlimitedVirtualSlash && action is not null)
+        {
+            RecordYingboCardUse(resolutionId, source.Seat, cardKind);
+            RecordProgramUsedBasicCard(source.Seat, cardKind);
+            MarkSlashUsedOrPlayedDuringCurrentPlayPhase(source.Seat, cardKind);
+            RecordActualPlayPhaseUse(action);
+        }
         if (action is not null && TracksPlayCardHistory) AdvanceEventRulesAndQueueFact(new CardUseAppearanceCapturedEvent(action));
         AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(resolutionId, 0, cardKind, source.Seat));
         AdvanceEventRulesAndQueueFact(new TargetsConfirmedEvent(resolutionId, Array.AsReadOnly(new[] { targetSeat })));
@@ -68,7 +82,11 @@ public sealed partial class GameEngine
             damageAmount: action is not null && source.HasAlcoholEffect ? 2 : 1,
             playedCardKind: cardKind, ignoresArmor: action is not null && HasCardArmorBypass(source, target, cardKind),
             programSkillCardUseFrameId: frame.Id);
-        if (action is not null) source.HasAlcoholEffect = false;
+        if (action is not null)
+        {
+            CaptureProgramAlcoholConsumption(resolutionId, source);
+            source.HasAlcoholEffect = false;
+        }
         ActiveCardAttack = attack;
         AdvanceEventRulesAndQueueFact(new CardUsedEvent(0, cardKind, source.Seat, targetSeat));
         if (action is not null)

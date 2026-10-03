@@ -1,0 +1,978 @@
+{
+  "runs": [
+    {
+      "steps": [
+        {
+          "resultLines": [],
+          "logName": "build.log",
+          "exitCode": 0,
+          "status": "passed",
+          "name": "Build selected scope",
+          "logSha256": "9999ca908a95049dd02f4941db9775eed398bb98e9c8911c6bcbfab4455fc726",
+          "durationMs": 7803
+        },
+        {
+          "resultLines": [
+            "[FAIL] BoundaryXuShu fixed target real Slash cold replay",
+            "       InvalidOperationException: A native AI owner actually starts the optional fixed-target Slash operation.",
+            "[FAIL] Program Iron Chain third target owned recast cold replay",
+            "       TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+            "[FAIL] Program self dying restore chosen skill limited nested replay",
+            "       TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+            "2 passed, 3 failed, 0 skipped (5 total)."
+          ],
+          "logName": "core-selected.log",
+          "exitCode": 1,
+          "status": "failed",
+          "name": "Core selected checks (3 filters, union)",
+          "logSha256": "529a348560cf9095200d11471898b9c462555b9b9c7654756e0e49e4dc51515f",
+          "durationMs": 1639
+        },
+        {
+          "resultLines": [
+            "[FAIL] Program Iron Chain guide follows actual target count and submits set: System.TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+            "0 WPF checks passed, 1 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003\\verification-cache\\renders"
+          ],
+          "logName": "wpf-selected.log",
+          "exitCode": 1,
+          "status": "failed",
+          "name": "WPF selected checks (1 filters, union)",
+          "logSha256": "98adfd6149ae7fe65311fa5b2bdabecfe6c37f4fb034d78654087dbdce7b4765",
+          "durationMs": 531
+        }
+      ],
+      "durationMs": 10015,
+      "label": "targeted-01",
+      "coreFilters": [
+        "Program Iron Chain",
+        "Program self dying",
+        "BoundaryXuShu"
+      ],
+      "mode": "targeted",
+      "wpfFilters": [
+        "Program Iron Chain"
+      ],
+      "status": "test-failed",
+      "startedAt": "2026-10-03T14:03:20.8665169+08:00"
+    },
+    {
+      "mode": "targeted",
+      "steps": [
+        {
+          "resultLines": [],
+          "logSha256": "e9daa8eb1d9934e00385f7e0095d190baed077c405bc4030d7e2fdcb8c22b0ca",
+          "name": "Build selected scope",
+          "logName": "build.log",
+          "exitCode": 1,
+          "status": "failed",
+          "durationMs": 3623
+        }
+      ],
+      "durationMs": 3647,
+      "startedAt": "2026-10-03T14:05:39.2847736+08:00",
+      "wpfFilters": [
+        "Program Iron Chain"
+      ],
+      "status": "build-failed",
+      "coreFilters": [
+        "Program Iron Chain",
+        "Program self dying",
+        "BoundaryXuShu"
+      ],
+      "label": "targeted-02-incomplete-wiring"
+    },
+    {
+      "status": "test-failed",
+      "mode": "targeted",
+      "label": "targeted-03",
+      "wpfFilters": [
+        "Program Iron Chain"
+      ],
+      "coreFilters": [
+        "Recovery replacement",
+        "Program Iron Chain",
+        "Program self dying",
+        "BoundaryXuShu"
+      ],
+      "steps": [
+        {
+          "status": "passed",
+          "exitCode": 0,
+          "resultLines": [],
+          "durationMs": 8965,
+          "name": "Build selected scope",
+          "logSha256": "f41b5e2ac922b55f90d32dd67eb7648d250cc3e6e8791194c4d00741d3f13cb7",
+          "logName": "build.log"
+        },
+        {
+          "status": "failed",
+          "exitCode": 1,
+          "resultLines": [
+            "[FAIL] Recovery replacement Zhiheng selection and phase quota",
+            "       InvalidOperationException: Invalid skill program at presentation.skills.fixture:sq-driver.optionLabels: unknown option 'continue'.",
+            "[FAIL] Recovery replacement program amount and recover-to cold replay",
+            "       InvalidOperationException: Invalid skill program at presentation.skills.fixture:sq-driver.optionLabels: unknown option 'continue'.",
+            "[FAIL] Recovery replacement paid Peach acceptance decline cold replay",
+            "       InvalidOperationException: Invalid skill program at presentation.skills.fixture:sq-driver.optionLabels: unknown option 'continue'.",
+            "[FAIL] Recovery replacement Silver Lion Zhiheng HP and reward children",
+            "       InvalidOperationException: Invalid skill program at presentation.skills.fixture:sq-driver.optionLabels: unknown option 'continue'.",
+            "[FAIL] Recovery replacement equipment-only selection and qualification",
+            "       InvalidOperationException: Invalid skill program at presentation.skills.fixture:sq-driver.optionLabels: unknown option 'continue'.",
+            "[FAIL] Recovery replacement lost exact source keeps original recovery",
+            "       InvalidOperationException: Invalid skill program at presentation.skills.fixture:sq-driver.optionLabels: unknown option 'continue'.",
+            "[FAIL] Program self dying restore chosen skill limited nested replay",
+            "       InvalidOperationException: Silver Lion's real recovery child suspends the paid discard before restoration, draw and recovery-to-three.",
+            "4 passed, 7 failed, 0 skipped (11 total)."
+          ],
+          "durationMs": 2383,
+          "name": "Core selected checks (4 filters, union)",
+          "logSha256": "e91598111966ecd8656cc79e5dc22bdb4fa2929c8067575b0a4cab6a18c3b6fd",
+          "logName": "core-selected.log"
+        },
+        {
+          "status": "passed",
+          "exitCode": 0,
+          "resultLines": [
+            "1 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003\\verification-cache\\renders"
+          ],
+          "durationMs": 986,
+          "name": "WPF selected checks (1 filters, union)",
+          "logSha256": "28b0b963c2455b143d69a5438d7f3c455cfac70439b958b85d4318e7b99ae7f0",
+          "logName": "wpf-selected.log"
+        }
+      ],
+      "startedAt": "2026-10-03T14:12:34.2447723+08:00",
+      "durationMs": 12380
+    },
+    {
+      "mode": "targeted",
+      "startedAt": "2026-10-03T14:24:26.7537218+08:00",
+      "steps": [
+        {
+          "resultLines": [],
+          "status": "passed",
+          "exitCode": 0,
+          "logSha256": "90f50d890eaf9448087243af8d39bb2995b1aff0ac8a13c8cad5f74a63b11d44",
+          "logName": "build.log",
+          "durationMs": 14646,
+          "name": "Build selected scope"
+        },
+        {
+          "resultLines": [
+            "[FAIL] Recovery replacement Zhiheng selection and phase quota",
+            "       InvalidOperationException: The general is not one of the published candidates.",
+            "[FAIL] Recovery replacement program amount and recover-to cold replay",
+            "       InvalidOperationException: The general is not one of the published candidates.",
+            "[FAIL] Recovery replacement paid Peach acceptance decline cold replay",
+            "       InvalidOperationException: The general is not one of the published candidates.",
+            "[FAIL] Recovery replacement Silver Lion Zhiheng HP and reward children",
+            "       InvalidOperationException: The general is not one of the published candidates.",
+            "[FAIL] Recovery replacement equipment-only selection and qualification",
+            "       InvalidOperationException: The general is not one of the published candidates.",
+            "[FAIL] Recovery replacement lost exact source keeps original recovery",
+            "       InvalidOperationException: The general is not one of the published candidates.",
+            "[FAIL] Recovery replacement paid equipment tail Qixi and replaced ID",
+            "       InvalidOperationException: The general is not one of the published candidates.",
+            "[FAIL] Recovery replacement paid equipment tail Stone Axe before damage",
+            "       InvalidOperationException: The engine is not waiting for human decision RespondDodge.",
+            "[FAIL] Recovery replacement Qingxian damage HP reward observer chain",
+            "       InvalidOperationException: The general is not one of the published candidates.",
+            "[FAIL] Recovery replacement projected sources full beneficiary",
+            "       InvalidOperationException: The general is not one of the published candidates.",
+            "[FAIL] Program self dying restore chosen skill limited nested replay",
+            "       InvalidOperationException: Silver Lion's child suspends restoration: faceDown=False, chained=False.",
+            "4 passed, 11 failed, 0 skipped (15 total)."
+          ],
+          "status": "failed",
+          "exitCode": 1,
+          "logSha256": "f1a1ce2e98741099678800d15d342f01906ae10130d9b612ba9ef57fb73f72e5",
+          "logName": "core-selected.log",
+          "durationMs": 2732,
+          "name": "Core selected checks (4 filters, union)"
+        },
+        {
+          "resultLines": [
+            "1 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003\\verification-cache\\renders"
+          ],
+          "status": "passed",
+          "exitCode": 0,
+          "logSha256": "28b0b963c2455b143d69a5438d7f3c455cfac70439b958b85d4318e7b99ae7f0",
+          "logName": "wpf-selected.log",
+          "durationMs": 943,
+          "name": "WPF selected checks (1 filters, union)"
+        }
+      ],
+      "wpfFilters": [
+        "Program Iron Chain"
+      ],
+      "coreFilters": [
+        "Recovery replacement",
+        "Program Iron Chain",
+        "Program self dying",
+        "BoundaryXuShu"
+      ],
+      "label": "targeted-04",
+      "status": "test-failed",
+      "durationMs": 18363
+    },
+    {
+      "mode": "targeted",
+      "durationMs": 11444,
+      "label": "targeted-05-winner-fixture-syntax",
+      "startedAt": "2026-10-03T14:39:27.638977+08:00",
+      "status": "build-failed",
+      "steps": [
+        {
+          "logName": "build.log",
+          "resultLines": [],
+          "exitCode": 1,
+          "status": "failed",
+          "logSha256": "a6cb2b661a7a3beab6bd279ad961931b7cf165a4faa85cd13e2d0b92ff35e667",
+          "durationMs": 11421,
+          "name": "Build selected scope"
+        }
+      ],
+      "wpfFilters": [],
+      "coreFilters": [
+        "Recovery replacement",
+        "Program self dying",
+        "Equipment recast"
+      ]
+    },
+    {
+      "steps": [
+        {
+          "exitCode": 0,
+          "logName": "build.log",
+          "name": "Build selected scope",
+          "status": "passed",
+          "logSha256": "3ce1a326a6fb95f8d7bf899329d28c7048d5ae9df8f89f31ab4f763a3f2e6b3d",
+          "durationMs": 2631,
+          "resultLines": []
+        },
+        {
+          "exitCode": 1,
+          "logName": "core-selected.log",
+          "name": "Core selected checks (3 filters, union)",
+          "status": "failed",
+          "logSha256": "c8f5fba1f5ecfee2e1b03841e95e3ec6c2231c56cc1b7fbf82f3f858bb93bb97",
+          "durationMs": 5241,
+          "resultLines": [
+            "[FAIL] Recovery replacement Silver Lion Zhiheng HP and reward children",
+            "       InvalidOperationException: The fixed recovery fixture did not reach its expected boundary: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[51,41,19,4,25,54,38],\"ValidTargetSeats\":[],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":17,\"IsValid\":true},\"Revision\":185,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.equip.card-51\",\"IsValid\":true},\"Description\":\"\\u88C5 [diagnostic truncated; full log SHA retained]",
+            "[FAIL] Recovery replacement equipment-only selection and qualification",
+            "       InvalidOperationException: The fixed recovery fixture did not reach its expected boundary: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[51],\"ValidTargetSeats\":[],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":5,\"IsValid\":true},\"Revision\":181,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.equip.card-51\",\"IsValid\":true},\"Description\":\"\\u88C5\\u5907\\u3010\\u767D [diagnostic truncated; full log SHA retained]",
+            "[FAIL] Recovery replacement paid equipment tail Qixi and replaced ID",
+            "       InvalidOperationException: The fixed recovery fixture did not reach its expected boundary: {\"Kind\":10,\"PlayerSeat\":0,\"Prompt\":\"\\u4F60 \\u4F7F\\u7528\\u3010\\u8FC7\\u6CB3\\u62C6\\u6865\\u3011\\uFF0C\\u8BF7\\u9009\\u62E9 AI 2 \\u7684\\u4E00\\u5F20\\u6697\\u724C\\u3002\",\"ValidCardIds\":[],\"ValidTargetSeats\":[1],\"SourceSeat\":0,\"IncomingCard\":9,\"PromptId\":{\"Value\":4,\"IsValid\":true},\"Revision\":179,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"target-card.slot-0.resolution-56\",\"IsValid\":true},\"Description\":\"\\u9 [diagnostic truncated; full log SHA retained]",
+            "[FAIL] Recovery replacement paid equipment tail Stone Axe before damage",
+            "       InvalidOperationException: An active card resolution must have exactly one response continuation.",
+            "[FAIL] Recovery replacement Qingxian damage HP reward observer chain",
+            "       InvalidOperationException: The fixed recovery fixture did not reach its expected boundary: {\"Kind\":25,\"PlayerSeat\":0,\"Prompt\":\"\\u3010\\u6E05\\u5F26\\u3011\\u8BF7\\u9009\\u62E9\\u4E00\\u9879\\u3002\",\"ValidCardIds\":[],\"ValidTargetSeats\":[],\"SourceSeat\":3,\"IncomingCard\":null,\"SkillPrompt\":{\"SkillId\":\"classic:qingxian\",\"Name\":\"\\u6E05\\u5F26\",\"Title\":\"\\u6E05\\u5F26 \\u00B7 \\u9009\\u62E9\\u6548\\u679C\",\"Instructions\":\"\\u5F53\\u4F60\\u53D7\\u5230\\u4F24\\u5BB3/\\u56DE\\u590D\\u4F53\\u529B\\u540E\\uFF0C\\u82E5\\u6CA1\\u6709\\ [diagnostic truncated; full log SHA retained]",
+            "[FAIL] Recovery replacement paid Duel stops after observer victory",
+            "       InvalidOperationException: Invalid skill program at skill 'fixture:paid-winner-driver' (rules.skills[0]).viewAs[0].outputKind: this card kind has no configured viewAs use or response path.",
+            "[FAIL] Equipment recast Silver Lion recovery and movement children",
+            "       InvalidOperationException: The general is not one of the published candidates.",
+            "[FAIL] Program self dying restore chosen skill limited nested replay",
+            "       InvalidOperationException: Silver Lion applies its one actual recovery before the observer: before=4, expected=-3, actual=1.",
+            "6 passed, 8 failed, 0 skipped (14 total)."
+          ]
+        }
+      ],
+      "startedAt": "2026-10-03T14:40:47.3930376+08:00",
+      "label": "targeted-06",
+      "durationMs": 7910,
+      "coreFilters": [
+        "Recovery replacement",
+        "Program self dying",
+        "Equipment recast"
+      ],
+      "wpfFilters": [],
+      "status": "test-failed",
+      "mode": "targeted"
+    },
+    {
+      "mode": "targeted",
+      "label": "targeted-07",
+      "status": "test-failed",
+      "steps": [
+        {
+          "status": "passed",
+          "exitCode": 0,
+          "logName": "build.log",
+          "logSha256": "30cfd854be4bededec30bfc5872c77499d5fb5a9bac24819a079371473667778",
+          "name": "Build selected scope",
+          "durationMs": 6098,
+          "resultLines": []
+        },
+        {
+          "status": "failed",
+          "exitCode": 1,
+          "logName": "core-selected.log",
+          "logSha256": "a3d7d20ca0b574022b47f29a966e643958e2b2fbd1bb8edd3dcbff8380c47b9d",
+          "name": "Core selected checks (3 filters, union)",
+          "durationMs": 8832,
+          "resultLines": [
+            "[FAIL] Recovery replacement Silver Lion Zhiheng HP and reward children",
+            "       InvalidOperationException: Sequence contains more than one element",
+            "[FAIL] Recovery replacement Qingxian damage HP reward observer chain",
+            "       InvalidOperationException: The fixed recovery fixture did not reach its expected boundary: {\"Kind\":25,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u533A\\u57DF\\u724C\\u652F\\u4ED8\\u3002\",\"ValidCardIds\":[4,9,14,17,37,47,73],\"ValidTargetSeats\":[],\"SourceSeat\":0,\"IncomingCard\":null,\"SkillPrompt\":{\"SkillId\":\"classic:qingxian\",\"Name\":\"\\u6E05\\u5F26\",\"Title\":\"\\u6E05\\u5F26 \\u00B7 \\u9009\\u62E9\\u652F\\u4ED8\\u724C\",\"Instructions\":\"\\u5F53\\u4F60\\u53D7\\u5230\\u4F24\\u5BB3/\\u56DE\\u590D\\u4F53\\u529B\\ [diagnostic truncated; full log SHA retained]",
+            "[FAIL] Recovery replacement paid Qixi stops after observer victory",
+            "       InvalidOperationException: The fixed paid-recovery fixture did not reach its boundary: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[9,14,73,17,47],\"ValidTargetSeats\":[2,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":13,\"IsValid\":true},\"Revision\":179,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.equip.card-9\",\"IsValid\":true},\"Description\":\"\\u88C5\\u5907\\u [diagnostic truncated; full log SHA retained]",
+            "[FAIL] Equipment recast Silver Lion recovery and movement children",
+            "       InvalidOperationException: Pang Tong fixture did not reach its requested prompt: 请选择一张牌和目标，或结束出牌阶段。",
+            "[FAIL] Program self dying restore chosen skill limited nested replay",
+            "       InvalidOperationException: The game is already completed.",
+            "9 passed, 5 failed, 0 skipped (14 total)."
+          ]
+        }
+      ],
+      "durationMs": 14980,
+      "wpfFilters": [],
+      "startedAt": "2026-10-03T14:46:32.2192908+08:00",
+      "coreFilters": [
+        "Recovery replacement",
+        "Program self dying",
+        "Equipment recast"
+      ]
+    },
+    {
+      "label": "targeted-08-failures",
+      "startedAt": "2026-10-03T14:57:36.330328+08:00",
+      "mode": "targeted",
+      "wpfFilters": [],
+      "coreFilters": [
+        "Silver Lion Zhiheng",
+        "Qingxian damage",
+        "Equipment recast",
+        "Program self dying",
+        "paid Qixi stops"
+      ],
+      "durationMs": 22322,
+      "status": "test-failed",
+      "steps": [
+        {
+          "exitCode": 0,
+          "name": "Build selected scope",
+          "status": "passed",
+          "durationMs": 13858,
+          "resultLines": [],
+          "logSha256": "8f567eb874b84471df61396c9fee58bf5427b448524ed936d5cd2edd3121fd2a",
+          "logName": "build.log"
+        },
+        {
+          "exitCode": 1,
+          "name": "Core selected checks (5 filters, union)",
+          "status": "failed",
+          "durationMs": 8426,
+          "resultLines": [
+            "[FAIL] Recovery replacement Qingxian damage HP reward observer chain",
+            "       InvalidOperationException: The fixed recovery fixture did not reach its expected boundary: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[9,14,73,17,47,4],\"ValidTargetSeats\":[],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":21,\"IsValid\":true},\"Revision\":197,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.equip.card-9\",\"IsValid\":true},\"Description\":\"\\u88C5\\u590 [diagnostic truncated; full log SHA retained]",
+            "[FAIL] Recovery replacement paid Qixi stops after observer victory",
+            "       InvalidOperationException: The fixed paid-recovery fixture did not reach its boundary: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[9,14,73,17,47],\"ValidTargetSeats\":[2,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":15,\"IsValid\":true},\"Revision\":183,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.equip.card-9\",\"IsValid\":true},\"Description\":\"\\u88C5\\u5907\\u [diagnostic truncated; full log SHA retained]",
+            "4 passed, 2 failed, 0 skipped (6 total)."
+          ],
+          "logSha256": "95093fb85d775b9da97438966b717c0778a8623da5dc0e3ee8b33f5c485a3117",
+          "logName": "core-selected.log"
+        }
+      ]
+    },
+    {
+      "wpfFilters": [],
+      "status": "test-failed",
+      "durationMs": 7180,
+      "mode": "targeted",
+      "startedAt": "2026-10-03T15:01:26.6779005+08:00",
+      "label": "targeted-09-observer-and-victory",
+      "coreFilters": [
+        "Qingxian damage",
+        "paid Qixi stops"
+      ],
+      "steps": [
+        {
+          "exitCode": 0,
+          "logName": "build.log",
+          "status": "passed",
+          "name": "Build selected scope",
+          "resultLines": [],
+          "logSha256": "a720d4245a5e255d5ac62238f5d68165e96fabe640a96ccca7903d63da27e181",
+          "durationMs": 2412
+        },
+        {
+          "exitCode": 1,
+          "logName": "core-selected.log",
+          "status": "failed",
+          "name": "Core selected checks (2 filters, union)",
+          "resultLines": [
+            "[FAIL] Recovery replacement Qingxian damage HP reward observer chain",
+            "       InvalidOperationException: The fixed recovery fixture did not reach its expected boundary: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[9,14,73,17,47,4],\"ValidTargetSeats\":[],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":21,\"IsValid\":true},\"Revision\":197,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.equip.card-9\",\"IsValid\":true},\"Description\":\"\\u88C5\\u590 [diagnostic truncated; full log SHA retained]",
+            "1 passed, 1 failed, 0 skipped (2 total)."
+          ],
+          "logSha256": "b7e6f5b578f215810f9b3e5170c424b4cdea169e6b3337cfd5762c39570336d9",
+          "durationMs": 4732
+        }
+      ]
+    },
+    {
+      "durationMs": 7999,
+      "mode": "targeted",
+      "wpfFilters": [],
+      "status": "passed",
+      "startedAt": "2026-10-03T15:07:29.9796521+08:00",
+      "steps": [
+        {
+          "durationMs": 5912,
+          "exitCode": 0,
+          "resultLines": [],
+          "name": "Build selected scope",
+          "logSha256": "5892a59bb78a112b586826ce067f2f10428d1bb2772b638331c649f336ab4e9a",
+          "logName": "build.log",
+          "status": "passed"
+        },
+        {
+          "durationMs": 2050,
+          "exitCode": 0,
+          "resultLines": [
+            "1 passed, 0 failed, 0 skipped (1 total)."
+          ],
+          "name": "Core selected checks (1 filters, union)",
+          "logSha256": "485b67c50d374c6aa0a3da173d981aa547ede7a4e3bb3bd0382cd96981ead4c4",
+          "logName": "core-selected.log",
+          "status": "passed"
+        }
+      ],
+      "coreFilters": [
+        "Program equipment recast Silver Lion"
+      ],
+      "label": "targeted-10-program-recast"
+    },
+    {
+      "steps": [
+        {
+          "status": "failed",
+          "name": "Build selected scope",
+          "logSha256": "79458b663eb4507de22f32fa4f1fb920c13d01e81c3c470225fe9aeb2ea9c866",
+          "logName": "build.log",
+          "resultLines": [],
+          "exitCode": 1,
+          "durationMs": 3982
+        }
+      ],
+      "startedAt": "2026-10-03T15:16:59.8416185+08:00",
+      "label": "targeted-11-request-wiring-pending",
+      "coreFilters": [
+        "Recovery replacement Qingxian damage HP reward observer chain"
+      ],
+      "status": "build-failed",
+      "mode": "targeted",
+      "wpfFilters": [],
+      "durationMs": 4004
+    },
+    {
+      "wpfFilters": [],
+      "mode": "targeted",
+      "label": "targeted-12-qingxian-dying",
+      "durationMs": 16105,
+      "status": "passed",
+      "coreFilters": [
+        "Recovery replacement Qingxian damage HP reward observer chain"
+      ],
+      "startedAt": "2026-10-03T15:36:05.2448996+08:00",
+      "steps": [
+        {
+          "status": "passed",
+          "logName": "build.log",
+          "resultLines": [],
+          "durationMs": 12736,
+          "name": "Build selected scope",
+          "exitCode": 0,
+          "logSha256": "b2a78e68155377842fbb66de0f18c22664ae2ad6576c663307c53dd4c045ebdf"
+        },
+        {
+          "status": "passed",
+          "logName": "core-selected.log",
+          "resultLines": [
+            "1 passed, 0 failed, 0 skipped (1 total)."
+          ],
+          "durationMs": 3332,
+          "name": "Core selected checks (1 filters, union)",
+          "exitCode": 0,
+          "logSha256": "1cb5fd3955d7370849ab4f6b8830acdb240cb526d8bde8abfb5d3a6887f34822"
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-03T15:40:56.6972283+08:00",
+      "steps": [
+        {
+          "exitCode": 0,
+          "name": "Build selected scope",
+          "resultLines": [],
+          "status": "passed",
+          "durationMs": 2507,
+          "logName": "build.log",
+          "logSha256": "d886378e8f5b713cac933d3f57cd602adee9d5b0fdb58d6e0d989a548e50b4be"
+        },
+        {
+          "exitCode": 1,
+          "name": "Core selected checks (1 filters, union)",
+          "resultLines": [
+            "[FAIL] Recovery replacement faction request Silver Lion cost before providers",
+            "       InvalidOperationException: The engine is not waiting for human decision RespondSlash.",
+            "0 passed, 1 failed, 0 skipped (1 total)."
+          ],
+          "status": "failed",
+          "durationMs": 1062,
+          "logName": "core-selected.log",
+          "logSha256": "f8332ece32e55f031154cf090f900085be8f1fdb8831522e57350ef6298affb7"
+        }
+      ],
+      "mode": "targeted",
+      "wpfFilters": [],
+      "label": "targeted-13-faction-ai-answer-fixture",
+      "status": "test-failed",
+      "durationMs": 3618,
+      "coreFilters": [
+        "Recovery replacement faction request Silver Lion cost before providers"
+      ]
+    },
+    {
+      "wpfFilters": [],
+      "label": "targeted-14-faction-target-range-fixture",
+      "mode": "targeted",
+      "coreFilters": [
+        "Recovery replacement faction request Silver Lion cost before providers"
+      ],
+      "status": "test-failed",
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "durationMs": 1943,
+          "exitCode": 0,
+          "logName": "build.log",
+          "status": "passed",
+          "resultLines": [],
+          "logSha256": "a1cc212e79a70aea3c4ecda825b40be592847251a78e41cbfa0ecee6989ba085"
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "durationMs": 697,
+          "exitCode": 1,
+          "logName": "core-selected.log",
+          "status": "failed",
+          "resultLines": [
+            "[FAIL] Recovery replacement faction request Silver Lion cost before providers",
+            "       InvalidOperationException: The program's target selection is invalid.",
+            "0 passed, 1 failed, 0 skipped (1 total)."
+          ],
+          "logSha256": "dc054626e5642fc12ef6460057beff7ca51401b773bfd1993ae7fa9a68364881"
+        }
+      ],
+      "durationMs": 2681,
+      "startedAt": "2026-10-03T15:42:36.3949872+08:00"
+    },
+    {
+      "mode": "targeted",
+      "steps": [
+        {
+          "durationMs": 1844,
+          "name": "Build selected scope",
+          "status": "passed",
+          "logName": "build.log",
+          "resultLines": [],
+          "exitCode": 0,
+          "logSha256": "0a598086a670a8d6fa69ecd9d6006c5e912a6dd910d08df13dfcf029a61dcd6c"
+        },
+        {
+          "durationMs": 1105,
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "logName": "core-selected.log",
+          "resultLines": [
+            "[FAIL] Recovery replacement faction request Silver Lion cost before providers",
+            "       InvalidOperationException: The resumed request accepts an actual red-card Wusheng provider, finishes one real Slash, and never repays the armor.",
+            "0 passed, 1 failed, 0 skipped (1 total)."
+          ],
+          "exitCode": 1,
+          "logSha256": "a274f88b6aa735364aa3122c317daa350e03affb3f28cc059be425a609d40e06"
+        }
+      ],
+      "coreFilters": [
+        "Recovery replacement faction request Silver Lion cost before providers"
+      ],
+      "startedAt": "2026-10-03T15:43:16.7209584+08:00",
+      "status": "test-failed",
+      "durationMs": 2987,
+      "label": "targeted-15-faction-completion-assertion",
+      "wpfFilters": []
+    },
+    {
+      "wpfFilters": [],
+      "startedAt": "2026-10-03T15:47:52.1993448+08:00",
+      "label": "targeted-16-faction-observer-target-fixture",
+      "durationMs": 8345,
+      "mode": "targeted",
+      "steps": [
+        {
+          "logSha256": "cbb21deb1551d2ea1266ed100ede4f84a5f52dbd85478d7d1065cbb5d30bb0cc",
+          "name": "Build selected scope",
+          "logName": "build.log",
+          "exitCode": 0,
+          "durationMs": 5210,
+          "resultLines": [],
+          "status": "passed"
+        },
+        {
+          "logSha256": "9852644181ef24c0041b44b0d707449608f20950d176d0ecd329910e35d27472",
+          "name": "Core selected checks (1 filters, union)",
+          "logName": "core-selected.log",
+          "exitCode": 1,
+          "durationMs": 3097,
+          "resultLines": [
+            "[FAIL] Recovery replacement faction request Silver Lion cost before providers",
+            "       InvalidOperationException: Invalid skill program at skill 'fixture:paid-faction-winning-hp' (rules.skills[0]).triggers[0].effects[1].target: unsupported SkillProgramEffectTarget value 'eventSource'.",
+            "0 passed, 1 failed, 0 skipped (1 total)."
+          ],
+          "status": "failed"
+        }
+      ],
+      "status": "test-failed",
+      "coreFilters": [
+        "Recovery replacement faction request Silver Lion cost before providers"
+      ]
+    },
+    {
+      "steps": [
+        {
+          "durationMs": 1804,
+          "logSha256": "7c52e072362ba4155fd32a27fe484dcd37170e5207f390fc9ba9fcf82087b366",
+          "name": "Build selected scope",
+          "logName": "build.log",
+          "exitCode": 0,
+          "status": "passed",
+          "resultLines": []
+        },
+        {
+          "durationMs": 2279,
+          "logSha256": "ecfe562e3164c6f184c563e9310246ab99b3cc7206bd421edc9156b1c2d5ec90",
+          "name": "Core selected checks (1 filters, union)",
+          "logName": "core-selected.log",
+          "exitCode": 0,
+          "status": "passed",
+          "resultLines": [
+            "1 passed, 0 failed, 0 skipped (1 total)."
+          ]
+        }
+      ],
+      "startedAt": "2026-10-03T15:48:29.4063755+08:00",
+      "wpfFilters": [],
+      "label": "targeted-17-faction-five-branches",
+      "mode": "targeted",
+      "status": "passed",
+      "durationMs": 4122,
+      "coreFilters": [
+        "Recovery replacement faction request Silver Lion cost before providers"
+      ]
+    },
+    {
+      "steps": [
+        {
+          "status": "passed",
+          "resultLines": [],
+          "name": "Build selected scope",
+          "exitCode": 0,
+          "durationMs": 4456,
+          "logSha256": "e5891cfb42a8fd739f698163f4c49a6c6e94dc6225715e865a60261f356f443f",
+          "logName": "build.log"
+        },
+        {
+          "status": "passed",
+          "resultLines": [
+            "578 passed, 0 failed, 0 skipped (578 total)."
+          ],
+          "name": "Core full checks",
+          "exitCode": 0,
+          "durationMs": 159957,
+          "logSha256": "a4d1b5924abf4f0a0abb2f64cc708143c0549aaa904aea4768ca22d2d7e758ec",
+          "logName": "core-full.log"
+        },
+        {
+          "status": "passed",
+          "resultLines": [
+            "57 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003\\verification-cache\\renders"
+          ],
+          "name": "WPF full checks",
+          "exitCode": 0,
+          "durationMs": 34399,
+          "logSha256": "6f13fedf922de5973f4ae1a35e775f4b22926b0416d9f29db048d44971428442",
+          "logName": "wpf-full.log"
+        }
+      ],
+      "label": "full-stable-batch",
+      "wpfFilters": [],
+      "mode": "full",
+      "durationMs": 198849,
+      "status": "passed",
+      "startedAt": "2026-10-03T15:49:01.2703334+08:00",
+      "coreFilters": []
+    },
+    {
+      "startedAt": "2026-10-03T15:53:07.8196499+08:00",
+      "wpfFilters": [
+        "original card artwork",
+        "overlapping hand",
+        "composed skills",
+        "conversion choices",
+        "response context",
+        "hand responses",
+        "opaque target-card",
+        "playback batches",
+        "saved UI boundaries",
+        "failed writes",
+        "public markers",
+        "deferred hand alignment",
+        "Program conversion polarity stays visible",
+        "declaration and general library views protect private faces",
+        "Program paid choices",
+        "Program exact top count restores private shared order",
+        "Program population count private faces restore shared free order",
+        "Program Iron Chain guide follows actual target count"
+      ],
+      "status": "passed",
+      "coreFilters": [
+        "command",
+        "observer",
+        "viewer",
+        "prepared snapshot",
+        "internal failure",
+        "skill program",
+        "lifecycle programs",
+        "shared post-event",
+        "shared use lifecycle",
+        "shared card-use",
+        "card movement",
+        "card inventory",
+        "initial deal",
+        "invalid single and batch",
+        "draw and recover",
+        "execution plans",
+        "skill executor",
+        "program gameplay hashes",
+        "physical deck recipes",
+        "structured skill metadata",
+        "content registry",
+        "standard package",
+        "composition kernel",
+        "rule query",
+        "slash resolution",
+        "dying response",
+        "Xingshang",
+        "response use completion",
+        "selected gift",
+        "configured active sequences",
+        "standard active programs",
+        "owned-card set",
+        "turn card-use effects",
+        "active Program contracts",
+        "hand guidance",
+        "actual marker payment",
+        "replacement draw and dying payment",
+        "two dynamic actual ends",
+        "ordered nested native owner",
+        "payment nested comparison",
+        "first target history",
+        "program conversion polarity shared state and replay",
+        "Feng Lin Lu Zhi actual discard entry boundaries",
+        "Ending child gift joins current boundary",
+        "Feng Lin Yuan Shu command loss regrant source suppression",
+        "Feng Lin Yuan Shu qualified awakening persistent local loss",
+        "Feng Lin Zhou Fei first domains and true equipment sequence",
+        "Feng Lin Zhou Fei same-source association freeze",
+        "Feng Lin Congjian Equipment gift nested replay",
+        "after turn ended return movement prelude ordering",
+        "after turn ended due before window nested replay",
+        "Feng Lin Zuo Ci initial privacy and replay",
+        "Feng Lin Zuo Ci layered suppression and local disable",
+        "Feng Lin Zuo Ci same avatar program and actual end",
+        "Feng Lin Yu Ji",
+        "boundary Lu Meng all table printed suits replay",
+        "boundary Lu Meng cross owner skip chain resume death",
+        "boundary Lu Meng Qinxue windows shared usage",
+        "boundary Lu Meng opt in usage legacy shape",
+        "Boundary Huang Gai actual provider color",
+        "Boundary Huang Gai multi card color source lifecycle",
+        "boundary Lu Xun actual trick hold lianying and return",
+        "boundary Lu Xun HE payment exact Hand batch count",
+        "boundary Liu Bei virtual Peach HP child",
+        "boundary Liu Bei native provided use decline once",
+        "boundary Liu Bei gift threshold recipient",
+        "boundary Da Qiao atomic mixed discard replay",
+        "boundary Hua Tuo ordered actual discard effective suit receipts",
+        "participant discard mandatory cost cancellation preserves legal composition",
+        "current turn nonlocked suppression host lifecycle audit",
+        "boundary Guan Yu actual Played and black Hand rejection",
+        "Boundary Zhang Fei actual recovery receipt limited child",
+        "boundary Ma Chao Tieqi Paoxiao exact cancellation integration",
+        "boundary Xiahou Dun real phases skip quota expiry",
+        "boundary Xiahou Dun receipt before gain child source audit",
+        "Exact top count partition normal draw",
+        "Bound draw receipt per point nested gain",
+        "boundary Zhen Ji exact receipt stop red discard",
+        "boundary Zhen Ji receipt before child source loss",
+        "Unconverted Trick draw receipt disposition",
+        "Foreign equipment discard program selections",
+        "Population reorder actual partition and short pile",
+        "Population reorder real Ending Extra Scheduled",
+        "HP pair freezes after payment children before draw children",
+        "Equipment placement slot self equal boundaries",
+        "Final target Slash frozen comparisons actual paid Dodge",
+        "Paid HP loss rescue and gain children",
+        "Paid HP loss source and legacy",
+        "Boundary Deng Ai own turn slash discard judges authority",
+        "Boundary Deng Ai awakening grants snatch and extra turn",
+        "Boundary Jiang Wei declined taunt discards target card",
+        "Boundary Jiang Wei dodged slash still discards",
+        "Boundary Jiang Wei taunt runs twice per phase",
+        "Boundary Jiang Wei awakening wakes once across phases",
+        "Damage target mount paid children source lifetime",
+        "Damage appearance Draw definitions physical colors cardless legacy",
+        "Selected actor Duel actual Use and Nullification",
+        "Damage target obtain nested Duel native cold",
+        "Boundary Yuan Shao population start role marker limit",
+        "Boundary Yuan Shao conversion actual remaining targets",
+        "Recovery replacement Silver Lion Zhiheng HP and reward children",
+        "Recovery replacement paid equipment tail",
+        "Recovery replacement faction request Silver Lion cost before providers",
+        "Program Iron Chain third target owned recast",
+        "Equipment recast Silver Lion recovery and movement children",
+        "BoundaryXuShu fixed target real Slash",
+        "BoundaryXuShu declared deck criterion"
+      ],
+      "steps": [
+        {
+          "resultLines": [],
+          "exitCode": 0,
+          "name": "Build selected scope",
+          "logSha256": "8cf7015ded0d43ec929062ab9cc23d0cb95e5bdf7c78dddb194781a4b0c7298d",
+          "logName": "build.log",
+          "status": "passed",
+          "durationMs": 1467
+        },
+        {
+          "resultLines": [
+            "174 passed, 0 failed, 0 skipped (174 total)."
+          ],
+          "exitCode": 0,
+          "name": "Core selected checks (107 filters, union)",
+          "logSha256": "ccb295c0c295868024c7874db43c60bb2f381abfab6c749cc18146013b10cd80",
+          "logName": "core-selected.log",
+          "status": "passed",
+          "durationMs": 34482
+        },
+        {
+          "resultLines": [
+            "18 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003\\verification-cache\\renders"
+          ],
+          "exitCode": 0,
+          "name": "WPF selected checks (18 filters, union)",
+          "logSha256": "3669032b50f1af69a707e127658c30f7ad93a6ce5afb49e59d8984b94ab23d4f",
+          "logName": "wpf-selected.log",
+          "status": "passed",
+          "durationMs": 18756
+        }
+      ],
+      "mode": "routine",
+      "durationMs": 54763,
+      "label": "routine-stable-batch"
+    }
+  ],
+  "diagnostics": {
+    "truncatedLines": 18,
+    "retention": "Result counts, failure headers and first 500 characters of each exception; full log hashes retained. Temporary raw logs removed after acceptance.",
+    "developmentBuildFailures": {
+      "targeted-11-request-wiring-pending": "Faction cost helper was present before its shared fields and typed continuations were wired; 11 CS1061/CS0117 errors.",
+      "targeted-05-winner-fixture-syntax": "Raw JSON fixture string had an invalid interpolated brace sequence; replaced with JsonSerializer.",
+      "targeted-02-incomplete-wiring": "Paid recovery helper dependencies were not yet integrated."
+    },
+    "fixtureCorrections": [
+      "AI faction responses must use native AdvanceOneStep, rather than the human RespondSlash API.",
+      "The fixed hostile target is legal through the existing Mashu distance policy; no seed search.",
+      "Program faction requests emit real CardUsed and provider-reward movement; FactionSlashResolved is emitted only by other request purposes.",
+      "Observer HP loss uses the existing selectedTarget operation and real choice, rather than unsupported eventSource effect target."
+    ]
+  },
+  "artworkVerification": {
+    "offlinePngRecords": 983,
+    "compiledAssemblySha256": "c7970d97e6634974f4699bea55a3626f04d20b9759ac55c28eda62b55ad3606e",
+    "compiledResources": [
+      {
+        "resource": "assets/official-boundary-sun-quan.png",
+        "sha256": "f3b463dd9e80cbbfb30205bbf797a19227db0dbe6752984bd575b76f194a2945",
+        "bytes": 1152094,
+        "matched": true
+      },
+      {
+        "resource": "assets/official-boundary-xu-shu.png",
+        "sha256": "8589c2114f33f59f97feca4a3d43fb9bd06a7beb77c819f21e8e0a51a525e9d7",
+        "bytes": 1352080,
+        "matched": true
+      },
+      {
+        "resource": "assets/official-boundary-pang-tong.png",
+        "sha256": "5f9e82e9f014e5d1ddfa644f77c5e45a10a2887eab25e07dfecb201ed4eb35c1",
+        "bytes": 1048379,
+        "matched": true
+      }
+    ],
+    "offlineGenerals": 186
+  },
+  "newCoverage": {
+    "factionCostBranches": [
+      "keep",
+      "projected-redirect",
+      "legacy-no-policy",
+      "winning-observer",
+      "target-death-without-victory"
+    ],
+    "wpfRegistrations": 1,
+    "hostAudits": "Exact skill-source removal audits are separate from formal accepted-command replay.",
+    "coreRegistrations": 19
+  },
+  "acceptance": {
+    "status": "passed",
+    "validatedUtc": "2026-10-03T15:56:13.3710471+08:00",
+    "inputsCount": 2346,
+    "inputManifestSha256": "4b7ef0517941cce51ebbed1dc33d6c2ee3d5c176e50af219966e727d07e42948",
+    "inputManifestStable": true,
+    "full": {
+      "buildErrors": 0,
+      "coreFailed": 0,
+      "wpfFailed": 0,
+      "coreSkipped": 0,
+      "corePassed": 578,
+      "buildWarnings": 0,
+      "wpfPassed": 57,
+      "durationMs": 198849
+    },
+    "routine": {
+      "wpfFailed": 0,
+      "wpfPassed": 18,
+      "corePassed": 174,
+      "coreFailed": 0,
+      "buildErrors": 0,
+      "coreFilters": 107,
+      "buildWarnings": 0,
+      "coreSkipped": 0,
+      "durationMs": 54763,
+      "wpfFilters": 18
+    },
+    "scope": "Formal command/cold replay and separate HOST source lifetime audits; WPF checks do not prove manual native-window/device/FPS acceptance.",
+    "versions": "Existing rules epoch, skill JSON schema and content package versions unchanged.",
+    "workspace": "Preserved prior dirty changes; no commit, push, release or package workflow."
+  },
+  "cleanup": {
+    "remainingFiles": 2703,
+    "report": "2026-10-03-fenglin-sixteenth-cleanup.json",
+    "status": "blocked-by-automatic-approval",
+    "remainingLogicalBytes": 2112753571
+  }
+}

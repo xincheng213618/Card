@@ -1,0 +1,40 @@
+{
+  "status": "historical-preflight-superseded",
+  "supersededBy": "fenglin-eighteenth-2026-10-03.json",
+  "edition": "Current ordinary Sanguosha OL",
+  "verifiedUtc": "2026-10-03T09:36:51.0098583+00:00",
+  "generals": [
+    {
+      "gid": 463,
+      "name": "界太史慈",
+      "faction": "wu",
+      "hp": 4,
+      "page": "https://www.sanguosha.com/hero/463",
+      "api": "https://www.sanguosha.com/api/v1/hero/info?gid=463",
+      "pageStatus": 200,
+      "apiStatus": 200,
+      "skillNames": ["天义", "酣战"],
+      "skillsText": [
+        "出牌阶段限一次，你可以拼点：若你赢，你本回合使用【杀】的次数+1、无距离限制且可以多指定一个目标；若你没赢，你本回合不能使用【杀】。",
+        "当你拼点前，你可以令对方用随机手牌拼点。当你拼点后，你可以获得拼点牌中点数最大的【杀】。"
+      ],
+      "capabilityGaps": ["Both-participant opt-in policy freezes one random opponent card on the existing PindianFrame", "Post-pindian maximum Slash claim mode keeps existing claim semantics unchanged"],
+      "unresolvedDefaults": ["Equal maximum Slash cards and effective versus printed rank", "Ordering of random substitution and Qinmi top-card reservation"]
+    },
+    {
+      "gid": 599,
+      "name": "界曹彰",
+      "faction": "wei",
+      "hp": 4,
+      "page": "https://www.sanguosha.com/hero/599",
+      "api": "https://www.sanguosha.com/api/v1/hero/info?gid=599",
+      "pageStatus": 200,
+      "apiStatus": 200,
+      "skillNames": ["将驰"],
+      "skillsText": ["摸牌阶段结束时，你可以选择一项：1.摸一张牌，你本回合使用【杀】的次数-1，且【杀】不计入手牌上限；2.重铸一张牌，且本回合使用【杀】的次数+1，【杀】无距离限制。"],
+      "capabilityGaps": ["Negative temporary Slash limit modifier and its public AI value", "One-card recast inside a trigger with owned payment and reward continuations", "Dynamic card-kind exemption in the existing central discard eligibility path"],
+      "unresolvedDefaults": ["Hand and equipment source scope for a generic one-card recast"]
+    }
+  ],
+  "notes": ["Official page and API were checked directly; browser extraction timed out, PowerShell HTTP retrieval succeeded.", "No artwork downloaded, no implementation or registration created. Capture raw-byte SHA evidence before implementation.", "No existing classic or other product-line definitions are overwritten."]
+}

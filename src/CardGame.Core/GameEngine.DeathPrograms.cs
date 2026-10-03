@@ -505,19 +505,24 @@ public sealed partial class GameEngine
                 .ToArray();
             foreach (var item in attributed)
             {
-                player.MarkerSourceCounts.Remove(item.Key);
-                if (item.Value <= 0) continue;
+                var independent = IndependentMarkerCount(player, item.Key.Marker, owner.Seat) +
+                    IndependentIssuedDrawMarkerCount(player, item.Key.Marker, owner.Seat);
+                var removed = item.Value - independent;
+                if (removed < 0) throw new InvalidOperationException("Independent shields exceed their public attributed markers.");
+                if (removed == 0) continue;
+                if (independent == 0) player.MarkerSourceCounts.Remove(item.Key);
+                else player.MarkerSourceCounts[item.Key] = independent;
                 var total = player.Markers.GetValueOrDefault(item.Key.Marker);
-                if (total < item.Value)
+                if (total < removed)
                     throw new InvalidOperationException("An attributed marker source exceeds its public total.");
-                var remaining = total - item.Value;
+                var remaining = total - removed;
                 if (remaining == 0) player.Markers.Remove(item.Key.Marker);
                 else player.Markers[item.Key.Marker] = remaining;
                 AdvanceEventRulesAndQueueFact(new PlayerMarkerChangedEvent(
                     resolutionId,
                     player.Seat,
                     item.Key.Marker,
-                    Delta: -item.Value,
+                    Delta: -removed,
                     Count: remaining,
                     SkillOwnerSeat: owner.Seat,
                     Reason: "program.attributed-marker.death-clear"));

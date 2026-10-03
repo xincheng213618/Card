@@ -25,7 +25,9 @@ public interface ISkillProgramExecutionHost
     SkillProgramActorState GetActor(int seat);
     bool IsGameOver { get; }
     bool CanContinuePaidHpLoss(ProgramSkillFrame frame) => false;
+    bool CanContinuePaidDamageShield(ProgramSkillFrame frame) => false;
     bool CanContinuePaidDamageTargetMount(ProgramSkillFrame frame) => false;
+    bool CanContinuePaidDamageTargetObtain(ProgramSkillFrame frame) => false;
     bool OwnsSkillInstance(int ownerSeat, string skillId, string skillInstanceId);
     bool OwnsCards(int ownerSeat, IReadOnlyList<int> cardIds, IReadOnlyList<CardZoneKind> sourceZones);
     bool EvaluateCondition(ProgramSkillFrame frame, SkillProgramCondition condition, PlayerSkillContext context);
@@ -457,6 +459,9 @@ public sealed class TakeRandomHandCardFromSelectedTargetsSkillProgramEffectHandl
         int targetSeat,
         ISkillProgramEffectHost host)
     {
+        if (effect.AwaitMovementTriggers)
+            return ((IAwaitedBlindHandTakeProgramHost)host).TakeRandomHandCardsAndAwait(frame, effect.Amount,
+                new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
         host.TakeRandomHandCardFromSelectedTargets(
             frame.Id,
             frame.OwnerSeat,
@@ -1392,12 +1397,12 @@ public sealed class SkillProgramExecutor
             if (!string.Equals(program.GameplayHash, frame.GameplayHash, StringComparison.Ordinal))
                 throw new InvalidOperationException(
                     $"Running skill program '{frame.SkillId}' changed its gameplay hash.");
-            var allowsDeadOwner = frame.WindowContext?.Window == SkillProgramTriggerWindow.OwnerDied ||
+            var allowsDeadOwner = state.CanContinuePaidDamageShield(frame) || state.CanContinuePaidDamageTargetObtain(frame) || frame.WindowContext?.Window == SkillProgramTriggerWindow.OwnerDied ||
                 ProgramInstructionResolver.Default.FindActivation(program, frame.ActivationId)?.ContinueAfterOwnerDeath == true ||
                 ProgramInstructionResolver.Default.Find(program, ProgramInstructionSourceKind.Trigger, frame.ActivationId)
                     ?.Features.HasOperation(SkillProgramEffectOp.LoseHpParticipants) == true;
             if (!state.OwnsSkillInstance(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId) && (actor.IsAlive || !allowsDeadOwner) &&
-                !state.CanContinuePaidHpLoss(frame) && !state.CanContinuePaidDamageTargetMount(frame))
+                !state.CanContinuePaidHpLoss(frame) && !state.CanContinuePaidDamageShield(frame) && !state.CanContinuePaidDamageTargetMount(frame) && !state.CanContinuePaidDamageTargetObtain(frame))
             {
                 state.Complete(frame, completed: false, "技能实例在结算前已失效，剩余步骤取消。");
                 return;

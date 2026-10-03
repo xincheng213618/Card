@@ -8,7 +8,7 @@ public sealed partial class GameEngine
     private void AssertVirtualBasicDraft(ProgramSkillFrame frame, SkillProgramEffect effect)
     {
         if (frame.VirtualBasicDraft is not { } draft) return;
-        if (effect.Op != SkillProgramEffectOp.OfferVirtualBasicCard || draft.InstructionIndex != frame.InstructionIndex)
+        if ((effect.Op != SkillProgramEffectOp.OfferVirtualBasicCard && !(effect.Op == SkillProgramEffectOp.UseVirtualAlcohol && IsExactProvenanceVirtualBasicDraft(frame, draft))) || draft.InstructionIndex != frame.InstructionIndex)
             throw new InvalidOperationException("A virtual basic draft lost its exact instruction.");
         if (draft.ChildFrameId is { } childId)
         {
@@ -32,7 +32,7 @@ public sealed partial class GameEngine
         foreach (var kind in new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash })
             foreach (var target in _players.Where(t => CanUseVirtualSlashTarget(actor, t, kind) && !IsDirectedCardTargetProhibited(owner,t.Seat,kind) && !IsCardTargetProhibited(t,kind,Suit.None))) yield return (kind, target.Seat);
         if (actor.Hp < actor.MaxHp && !IsCardUseForbidden(owner, CardKind.Peach, CardActionType.Use) && !IsDirectedCardTargetProhibited(owner, owner, CardKind.Peach)) yield return (CardKind.Peach, owner);
-        if (!actor.HasAlcoholEffect && (!actor.UsedPlayPhaseAlcoholThisTurn || HasNextUnlimitedCard(actor)) && !IsCardUseForbidden(owner, CardKind.Alcohol, CardActionType.Use) && !IsDirectedCardTargetProhibited(owner, owner, CardKind.Alcohol)) yield return (CardKind.Alcohol, owner);
+        if (!actor.HasAlcoholEffect && (!actor.UsedPlayPhaseAlcoholThisTurn || HasNextUnlimitedCard(actor) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)) && !IsCardUseForbidden(owner, CardKind.Alcohol, CardActionType.Use) && !IsDirectedCardTargetProhibited(owner, owner, CardKind.Alcohol)) yield return (CardKind.Alcohol, owner);
     }
 
     private SkillProgramStepOutcome OfferVirtualBasicCard(ProgramSkillFrame frame)
@@ -82,6 +82,7 @@ public sealed partial class GameEngine
             MarkSlashUsedOrPlayedDuringCurrentPlayPhase(actor.Seat, chosen.Kind);
             var attack = new CardAttackHandle(this, id, actor.Seat, chosen.Target, null, damageAmount: actor.HasAlcoholEffect ? 2 : 1,
                 playedCardKind: chosen.Kind, ignoresArmor: HasCardArmorBypass(actor, _players[chosen.Target], chosen.Kind));
+            CaptureProgramAlcoholConsumption(id, actor);
             actor.HasAlcoholEffect = false;
             ActiveCardAttack = attack;
             AdvanceEventRulesAndQueueFact(new CardUsedEvent(0, chosen.Kind, actor.Seat, chosen.Target));
@@ -103,10 +104,13 @@ public sealed partial class GameEngine
         {
             if (use.CardKind == CardKind.Peach)
             {
-                var recovery = BeginRecovery(id, actor.Seat, actor.Seat, 1);
-                try { actor.Hp = Math.Min(actor.MaxHp, actor.Hp + 1); AdvanceEventRulesAndQueueFact(new RecoveryAppliedEvent(actor.Seat, actor.Seat, 1, actor.Hp)); }
-                finally { PopResolutionFrame(recovery, ResolutionFrameKind.Recovery); }
-                AddLog("Recovered", $"{actor.Name} 使用【桃】回复1点体力，至 {actor.Hp}/{actor.MaxHp}。", actor.Seat, actor.Seat);
+                if (!TryQueueRecoveryReplacement(id, actor.Seat, actor.Seat, 1, new(RecoveryAttemptProducer.VirtualBasic)))
+                {
+                    var recovery = BeginRecovery(id, actor.Seat, actor.Seat, 1);
+                    try { actor.Hp = Math.Min(actor.MaxHp, actor.Hp + 1); AdvanceEventRulesAndQueueFact(new RecoveryAppliedEvent(actor.Seat, actor.Seat, 1, actor.Hp)); }
+                    finally { PopResolutionFrame(recovery, ResolutionFrameKind.Recovery); }
+                    AddLog("Recovered", $"{actor.Name} 使用【桃】回复1点体力，至 {actor.Hp}/{actor.MaxHp}。", actor.Seat, actor.Seat);
+                }
             }
             else
             {

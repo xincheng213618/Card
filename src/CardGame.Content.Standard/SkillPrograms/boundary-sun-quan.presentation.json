@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:zhiheng": {
+      "name": "制衡",
+      "description": "出牌阶段限一次，你可以弃置任意张牌，然后摸等量张牌，若你以此法弃置了所有手牌，你额外摸一张牌。",
+      "activationLabels": { "exchange-owned-cards": "弃牌制衡" }
+    },
+    "boundary:jiuyuan": {
+      "name": "救援",
+      "description": "主公技，其他吴势力角色于其回合内回复体力时，若其体力值大于等于你，则其可以改为令你回复1点体力，然后其摸一张牌。"
+    }
+  }
+}

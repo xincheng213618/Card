@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private static bool HasFinalTargetSlashEffects(IEnumerable<SkillProgramEffect> effects) =>
-        effects.Any(effect => effect.Op is SkillProgramEffectOp.PreventCurrentTargetSlashCancellation or SkillProgramEffectOp.AddCurrentTargetSlashDamage);
+        effects.Any(effect => effect.Op is SkillProgramEffectOp.PreventCurrentTargetSlashCancellation or SkillProgramEffectOp.AddCurrentTargetSlashDamage or
+            SkillProgramEffectOp.ClaimCurrentUsePhysicalCards or SkillProgramEffectOp.PreventCurrentTargetSlashCancellationByRule);
     private static bool MatchesFinalTargetComparison(ProgramFinalTargetComparison comparison, SkillProgramTriggerFacts facts) => comparison switch
     {
         ProgramFinalTargetComparison.TargetHandAtMostActor => facts.EventTargetHandCount <= facts.CurrentHandCount,
@@ -59,7 +60,7 @@ public sealed partial class GameEngine
             receipt.EffectIndex < 0 || receipt.EffectIndex >= trigger.Effects.Count) return false;
         var effect = trigger.Effects[receipt.EffectIndex];
         return receipt.PreventCancellation
-            ? effect.Op == SkillProgramEffectOp.PreventCurrentTargetSlashCancellation && receipt.DamageBonus == 0
+            ? effect.Op is SkillProgramEffectOp.PreventCurrentTargetSlashCancellation or SkillProgramEffectOp.PreventCurrentTargetSlashCancellationByRule && receipt.DamageBonus == 0
             : effect.Op == SkillProgramEffectOp.AddCurrentTargetSlashDamage && effect.Amount == receipt.DamageBonus;
     }
     private bool CanOfferFinalTargetSlash(ProgramTriggerCandidate candidate, SkillProgramTrigger trigger, ProgramSkillWindowContext window)

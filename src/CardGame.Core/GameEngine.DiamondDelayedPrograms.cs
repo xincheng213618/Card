@@ -12,7 +12,7 @@ public sealed partial class GameEngine
         !IsTurnHandCardRestricted(_players[ownerSeat], card) && !IsPlayPhasePhysicalCardRestricted(_players[ownerSeat], card) &&
         !IsCardUseForbidden(ownerSeat, CardKind.Indulgence, CardActionType.Use) &&
         !IsDirectedCardTargetProhibited(ownerSeat, targetSeat, CardKind.Indulgence) &&
-        !IsCardTargetProhibited(_players[targetSeat], CardKind.Indulgence, EffectiveSuit(_players[ownerSeat], card)) &&
+        !IsCardTargetProhibited(_players[targetSeat], CardKind.Indulgence, EffectiveSuit(_players[ownerSeat], card), SuitColor(EffectiveSuit(_players[ownerSeat], card))) &&
         !HasBeneficiarySuitShield(ownerSeat, targetSeat, EffectiveSuit(_players[ownerSeat], card));
 
     private IEnumerable<(int Seat, Card Card)> DiamondJudgments() => _players.Where(p => p.IsAlive)

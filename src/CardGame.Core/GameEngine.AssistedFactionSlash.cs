@@ -132,7 +132,11 @@ public sealed partial class GameEngine
 
     private bool IsAssistedProvidedSlashTarget(int actorSeat, int targetSeat, CardKind kind, int? effectiveRank = null, bool allowPotentialRank = true) =>
         _players[actorSeat].IsAlive && _players[targetSeat].IsAlive && actorSeat != targetSeat &&
-        (ActiveFactionCardRequest is { IsAssistedProgramUse: true, ProgramSkillFrameId: { } giftFrameId } &&
+        (ActiveFactionCardRequest is { IsAssistedProgramUse: true, ProgramSkillFrameId: { } fixedFrameId } &&
+         _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(frame => frame.Id == fixedFrameId) is { FixedTargetSlash: { } fixedDraft } fixedFrame &&
+         fixedFrame.OwnerSeat == actorSeat && fixedDraft.TargetSeat == targetSeat
+            ? IsFixedTargetFactionSlashLegal(fixedFrame, kind, effectiveRank, allowPotentialRank)
+            : ActiveFactionCardRequest is { IsAssistedProgramUse: true, ProgramSkillFrameId: { } giftFrameId } &&
          _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(frame => frame.Id == giftFrameId) is { CompletedCardGiftDraft.RecipientSeat: { } recipient } giftFrame && recipient == actorSeat
             ? CompletedGiftSlashTargets(giftFrame, actorSeat).Contains(targetSeat)
             : IsWithinSpecificSlashRange(_players[actorSeat],_players[targetSeat],kind,effectiveRank) || allowPotentialRank && effectiveRank is null && HasPotentialRankSlashRange(_players[actorSeat],_players[targetSeat],kind)) &&
@@ -149,7 +153,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("An assisted faction Slash lost its program parent, actor or target.");
         var instruction = ProgramInstructionResolver.Default.Resolve(current, _contentRegistry.GetSkill(current.SkillId).Program!).GetPausedInstruction(current.InstructionIndex).Effect;
         if (!(instruction.Op == SkillProgramEffectOp.RequestSlashAgainstChosenTarget && instruction.ResultBind == resultBind ||
-              instruction.Op == SkillProgramEffectOp.OfferCompletedCardGift && resultBind == CompletedGiftFactionResultBind && current.CompletedCardGiftDraft is not null) ||
+              instruction.Op == SkillProgramEffectOp.OfferCompletedCardGift && resultBind == CompletedGiftFactionResultBind && current.CompletedCardGiftDraft is not null || IsNearestLegalFactionOrigin(current, actorSeat, targetSeat, resultBind)) ||
             current.ChoiceBindings.Any(binding => binding.Name == resultBind))
             throw new InvalidOperationException("An assisted faction Slash must answer its paused card request exactly once.");
         var policy = GetFactionResponsePolicy(_players[actorSeat], CardKind.Slash)!;
@@ -165,6 +169,8 @@ public sealed partial class GameEngine
 
     private void ValidateAssistedFactionSlashParent(FactionCardRequestHandle pending, ProgramSkillFrame frame)
     {
+        if (ValidateFixedTargetFactionSlashParent(pending, frame)) return;
+        if (ValidateNearestLegalFactionParent(pending, frame)) return;
         var effect = ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect;
         var answered = frame.ChoiceBindings.SingleOrDefault(binding => binding.Name == pending.AssistedResultBind);
         if (!(effect.Op == SkillProgramEffectOp.RequestSlashAgainstChosenTarget && effect.ResultBind == pending.AssistedResultBind ||

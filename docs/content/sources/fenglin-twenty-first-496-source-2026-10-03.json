@@ -1,0 +1,83 @@
+{
+  "status": "read-only-preflight-not-implemented",
+  "gid": 496,
+  "product": "current ordinary Sanguosha OL",
+  "boundaryRegistrationFound": false,
+  "page": {
+    "url": "https://www.sanguosha.com/hero/496",
+    "httpStatus": 200,
+    "fetchedAtUtc": "2026-10-03T14:52:42.3442348+00:00",
+    "byteLength": 24728,
+    "rawSha256": "828967d1a48013df9501a075f577df4c261afb09f5cadb3dff67761ec15dd59b",
+    "shaScope": "HTTP response content bytes",
+    "mediaDownloaded": false,
+    "skills": [
+      {
+        "name": "断粮",
+        "text": "你可以将一张黑色基本牌或黑色装备牌当【兵粮寸断】使用。若你本回合未造成过伤害，你使用【兵粮寸断】无距离限制。"
+      },
+      {
+        "name": "截辎",
+        "text": "当一名角色跳过摸牌阶段后，你可以选择一名角色，若其手牌数全场最少且没有“辎”，其获得“辎”标记，否则其摸一张牌。有“辎”的角色于其摸牌阶段结束时移除“辎”，然后执行一个额外的摸牌阶段。"
+      }
+    ],
+    "skillHtml": "<div class=\"character-tabs\">\n                        \n                            \n                                <div class=\"character-tab on\">断粮</div>\n                            \n                                <div class=\"character-tab \">截辎</div>\n                            \n                        \n                    </div>\n                    <p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >你可以将一张黑色基本牌或黑色装备牌当【兵粮寸断】使用。若你本回合未造成过伤害，你使用【兵粮寸断】无距离限制。</span>\n                            \n                                <span >当一名角色跳过摸牌阶段后，你可以选择一名角色，若其手牌数全场最少且没有“辎”，其获得“辎”标记，否则其摸一张牌。有“辎”的角色于其摸牌阶段结束时移除“辎”，然后执行一个额外的摸牌阶段。</span>\n                            \n                        \n                    </p>"
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=496",
+    "httpStatus": 200,
+    "fetchedAtUtc": "2026-10-03T14:52:42.5838686+00:00",
+    "byteLength": 940,
+    "rawSha256": "b1693d8e3e6e16fe3242e90351d310ebf86a1972f9a8c8d091d60aa29da7082a",
+    "shaScope": "HTTP response content bytes",
+    "mediaDownloaded": false,
+    "rawText": "{\"code\":0,\"message\":\"OK\",\"data\":{\"info\":[{\"gid\":496,\"name\":\"界徐晃\",\"avatar\":\"https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/496.png\",\"cover\":\"https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/49600.png\",\"label\":[\"控制\",\"辅助\",\"发育\"],\"figure\":\"魏\",\"figure_py\":\"wei\",\"quality\":\"史诗\",\"biography\":\"字公明，河东杨人。三国时期曹魏名将，本为杨奉帐下骑都尉，杨奉被曹操击败后转投曹操，在曹操手下多立功勋，参与官渡、赤壁、关中征伐、汉中征伐等几次重大战役。\",\"characteristic\":\"能够转化【兵粮寸断】限制敌人，并给缺牌的队友补给。黑色牌越多越好，会成为敌人优先攻击的目标。\",\"hp\":4,\"initial_hp\":0,\"score\":0}],\"radar\":[{\"name\":\"主公\",\"value\":3},{\"name\":\"忠臣\",\"value\":6},{\"name\":\"反贼\",\"value\":5},{\"name\":\"内奸\",\"value\":6}],\"deeds\":[]}}",
+    "parsed": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 496,
+            "name": "界徐晃",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/496.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/49600.png",
+            "label": [
+              "控制",
+              "辅助",
+              "发育"
+            ],
+            "figure": "魏",
+            "figure_py": "wei",
+            "quality": "史诗",
+            "biography": "字公明，河东杨人。三国时期曹魏名将，本为杨奉帐下骑都尉，杨奉被曹操击败后转投曹操，在曹操手下多立功勋，参与官渡、赤壁、关中征伐、汉中征伐等几次重大战役。",
+            "characteristic": "能够转化【兵粮寸断】限制敌人，并给缺牌的队友补给。黑色牌越多越好，会成为敌人优先攻击的目标。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "主公",
+            "value": 3
+          },
+          {
+            "name": "忠臣",
+            "value": 6
+          },
+          {
+            "name": "反贼",
+            "value": 5
+          },
+          {
+            "name": "内奸",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    }
+  },
+  "capabilityAnalysisStatus": "pending-local-code-review"
+}

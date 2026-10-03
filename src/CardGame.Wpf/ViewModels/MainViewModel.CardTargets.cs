@@ -77,8 +77,10 @@ public sealed partial class MainViewModel
     {
         var changes = Seats.Where(seat => _selectedCardTargetSeats.Contains(seat.Seat))
             .Select(seat => $"{seat.Seat + 1} 号位 {seat.GeneralName}：{(seat.IsChained ? "解除连环" : "进入连环")}").ToArray();
-        return [("选择一到两名存活武将，可包含自己。再次点击可取消，选满后先取消一个再更换。"
-),
+        var actions = MultiTargetCardActions;
+        var range = actions.Length == 0 ? "0" :
+            FormatSelectionRange(actions.Min(action => action.TargetSeats.Count), actions.Max(action => action.TargetSeats.Count));
+        return [$"选择 {range} 名存活武将，可包含自己。再次点击可取消，选满后先取消一个再更换。",
             changes.Length > 0 ? string.Join("；", changes) + "。" : "尚未选择目标。",
             ("确认前不会使用手牌。选目标后用主按钮或 Enter 切换连环；不选目标时可点击「重铸换牌」，将铁索置入弃牌堆并摸一张牌，不会触发无懈响应。Esc 取消选择。"
 ),

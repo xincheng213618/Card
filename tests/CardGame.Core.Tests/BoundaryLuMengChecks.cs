@@ -255,7 +255,13 @@ internal static class BoundaryLuMengChecks
         public void Register(IContentRegistryBuilder b)
         {
             foreach(var c in source.Cards.Values)b.AddCard(c);
-            foreach(var s in source.Skills.Values)b.AddSkill(removeOptIn&&s.Program?.Triggers.Any(t=>t.DynamicUsageLimit is not null)==true?s with{Program=null}:s);
+            foreach(var s in source.Skills.Values)
+            {
+                var optsIntoRound = s.Program is { } program &&
+                    (program.Triggers.Any(t=>t.DynamicUsageLimit is not null) ||
+                     program.Activations.SelectMany(a=>a.Effects).Any(e=>e.Op==SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund));
+                b.AddSkill(removeOptIn&&optsIntoRound?s with{Program=null}:s);
+            }
             foreach(var g in source.Generals.Values)b.AddGeneral(g);
             foreach(var d in source.Decks.Values)b.AddDeck(d);
             foreach(var m in source.Modes.Values)b.AddMode(m);

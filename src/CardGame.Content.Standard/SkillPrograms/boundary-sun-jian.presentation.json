@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:yinghun": {
+      "name": "英魂",
+      "description": "准备阶段，若你已受伤，你可以选择一名其他角色并选择一项：1.令其摸X张牌，然后弃置一张牌；2.令其摸一张牌，然后弃置X张牌。（X为你已损失体力值）",
+      "triggerChoices": {
+        "draw-many": "摸X张，弃一张",
+        "discard-many": "摸一张，弃X张"
+      }
+    },
+    "boundary:wulie": {
+      "name": "武烈",
+      "description": "限定技，结束阶段，你可以失去任意点体力，令X名其他角色获得“烈”标记（X为以此法失去的体力值）。当有“烈”的角色受到伤害时，其移除“烈”并防止此伤害。"
+    }
+  }
+}

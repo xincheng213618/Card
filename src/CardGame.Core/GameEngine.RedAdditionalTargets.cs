@@ -33,7 +33,7 @@ public sealed partial class GameEngine
             {
                 normal=action.TargetSeats.ToArray();
                 var originalHolders=normal.Where((_,index)=>index%2==0).ToArray();
-                var pairs=_players.Where(p=>p.IsAlive && p.Seat!=actor.Seat && !originalHolders.Contains(p.Seat) && GetWeapon(p) is not null && !IsDirectedCardTargetProhibited(actor.Seat,p.Seat,kind) && !IsCardTargetProhibited(p,kind,suit) && !HasBeneficiarySuitShield(actor.Seat,p.Seat,suit))
+                var pairs=_players.Where(p=>p.IsAlive && p.Seat!=actor.Seat && !originalHolders.Contains(p.Seat) && GetWeapon(p) is not null && !IsDirectedCardTargetProhibited(actor.Seat,p.Seat,kind) && !IsCardTargetProhibited(p,kind,suit,SuitColor(suit)) && !HasBeneficiarySuitShield(actor.Seat,p.Seat,suit))
                     .SelectMany(p=>_players.Where(v=>IsLegalBorrowedSwordSlashTarget(p,v)).Select(v=>new[]{p.Seat,v.Seat})).ToArray();
                 foreach(var pair in pairs) Add([..normal,..pair]);
                 if(grant.Maximum==2) foreach(var a in pairs) foreach(var b in pairs.Where(b=>b[0]>a[0])) Add([..normal,..a,..b]);

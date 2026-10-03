@@ -1,0 +1,91 @@
+{
+  "status": "read-only-preflight-not-implemented",
+  "gid": 484,
+  "product": "current ordinary Sanguosha OL",
+  "boundaryRegistrationFound": false,
+  "page": {
+    "url": "https://www.sanguosha.com/hero/484",
+    "httpStatus": 200,
+    "fetchedAtUtc": "2026-10-03T14:52:42.7811319+00:00",
+    "byteLength": 25684,
+    "rawSha256": "3a33962a8326cf9eb5e48d80fcb38f2f59424ba1c7f5884cda1e113e90214aef",
+    "shaScope": "HTTP response content bytes",
+    "mediaDownloaded": false,
+    "skills": [
+      {
+        "name": "帷幕",
+        "text": "锁定技，你不能成为黑色锦囊牌的目标。你防止回合内受到的伤害并摸所防止伤害值两倍数量的牌。"
+      },
+      {
+        "name": "乱武",
+        "text": "限定技，出牌阶段，你可以令所有其他角色依次选择一项：1.对其距离最小的另一名角色使用一张【杀】；2.失去1点体力。所有角色结算完毕后，你可以视为使用一张无距离限制的【杀】。"
+      },
+      {
+        "name": "完杀",
+        "text": "锁定技，在你的回合内：只有你和处于濒死状态的角色才能使用【桃】；任意角色的濒死结算中，除你和濒死角色外的其他角色的非锁定技失效。"
+      }
+    ],
+    "skillHtml": "<div class=\"character-tabs\">\n                        \n                            \n                                <div class=\"character-tab on\">帷幕</div>\n                            \n                                <div class=\"character-tab \">乱武</div>\n                            \n                                <div class=\"character-tab \">完杀</div>\n                            \n                        \n                    </div>\n                    <p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >锁定技，你不能成为黑色锦囊牌的目标。你防止回合内受到的伤害并摸所防止伤害值两倍数量的牌。</span>\n                            \n                                <span >限定技，出牌阶段，你可以令所有其他角色依次选择一项：1.对其距离最小的另一名角色使用一张【杀】；2.失去1点体力。所有角色结算完毕后，你可以视为使用一张无距离限制的【杀】。</span>\n                            \n                                <span >锁定技，在你的回合内：只有你和处于濒死状态的角色才能使用【桃】；任意角色的濒死结算中，除你和濒死角色外的其他角色的非锁定技失效。</span>\n                            \n                        \n                    </p>"
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=484",
+    "httpStatus": 200,
+    "fetchedAtUtc": "2026-10-03T14:52:43.0022353+00:00",
+    "byteLength": 923,
+    "rawSha256": "d1bdb72eb4839ebb01e30b7dcf6eaa985c979caf28c48336254ece57be975274",
+    "shaScope": "HTTP response content bytes",
+    "mediaDownloaded": false,
+    "rawText": "{\"code\":0,\"message\":\"OK\",\"data\":{\"info\":[{\"gid\":484,\"name\":\"界贾诩\",\"avatar\":\"https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/484.png\",\"cover\":\"https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/48400.png\",\"label\":[\"进攻\",\"防御\",\"控制\"],\"figure\":\"群\",\"figure_py\":\"qun\",\"quality\":\"稀有\",\"biography\":\"贾诩[xǔ]，字文和，武威姑臧[zāng]人。三国时期魏国著名谋士。曾先后担任三国军阀李傕[jué]、张绣、曹操的谋士。官至魏国太尉，谥曰肃侯。\",\"characteristic\":\"能够准确地杀死脆弱的敌人，让其队友无法救援。能够保证自身安全的情况下让全场角色互相残杀。\",\"hp\":3,\"initial_hp\":0,\"score\":0}],\"radar\":[{\"name\":\"地主\",\"value\":8},{\"name\":\"主公\",\"value\":7},{\"name\":\"忠臣\",\"value\":7},{\"name\":\"反贼\",\"value\":8},{\"name\":\"内奸\",\"value\":6}],\"deeds\":[]}}",
+    "parsed": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 484,
+            "name": "界贾诩",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/484.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/48400.png",
+            "label": [
+              "进攻",
+              "防御",
+              "控制"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "稀有",
+            "biography": "贾诩[xǔ]，字文和，武威姑臧[zāng]人。三国时期魏国著名谋士。曾先后担任三国军阀李傕[jué]、张绣、曹操的谋士。官至魏国太尉，谥曰肃侯。",
+            "characteristic": "能够准确地杀死脆弱的敌人，让其队友无法救援。能够保证自身安全的情况下让全场角色互相残杀。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "地主",
+            "value": 8
+          },
+          {
+            "name": "主公",
+            "value": 7
+          },
+          {
+            "name": "忠臣",
+            "value": 7
+          },
+          {
+            "name": "反贼",
+            "value": 8
+          },
+          {
+            "name": "内奸",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    }
+  },
+  "capabilityAnalysisStatus": "pending-local-code-review"
+}

@@ -51,16 +51,16 @@ public sealed partial class GameEngine
         var actor = _players[action.ActorSeat];
         var kind = action.EffectiveKind;
         if (!target.IsAlive || target.Seat == actor.Seat || IsDirectedCardTargetProhibited(actor.Seat, target.Seat, kind) ||
-            IsCardTargetProhibited(target, kind, action.EffectiveSuit ?? Suit.None) || HasBeneficiarySuitShield(actor.Seat, target.Seat, action.EffectiveSuit)) return false;
+            IsCardTargetProhibited(target, kind, action.EffectiveSuit ?? Suit.None, ActualTargetPolicyColor(action)) || HasBeneficiarySuitShield(actor.Seat, target.Seat, action.EffectiveSuit)) return false;
         var physical = action.PhysicalCards.Count > 0
             ? _cardZones.CardsAt(_cardZones.GetLocation(action.PhysicalCards[0].CardId)).Single(card => card.Id == action.PhysicalCards[0].CardId)
             : new Card(-1, kind, action.EffectiveSuit ?? Suit.None, action.EffectiveRank ?? 0);
         return kind switch
         {
             CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash =>
-                CanUseSlashTarget(actor, target, physical, action.ConversionChain.FirstOrDefault(), kind, HasIssuedFirstPlayUseDistance(use.Id), use.Id),
+                CanUseSlashTarget(actor, target, physical, action.ConversionChain.FirstOrDefault(), kind, HasIssuedFirstPlayUseDistance(use.Id), use.Id, physicalCardIds:action.PhysicalCards.Select(c=>c.CardId).ToArray()),
             CardKind.Duel => true,
-            CardKind.Snatch => HasTargetCard(target) && (HasCardDistanceExemption(actor, target, kind, use.Id) ||
+            CardKind.Snatch => HasTargetCard(target) && (HasIssuedProvenanceUseDistance(use.Id, actor.Seat) || HasCardDistanceExemption(actor, target, kind, use.Id) ||
                 HasCardPolicy(actor, SkillProgramCardPolicyKind.IgnoreUseDistance, kind) || GetCombatDistance(actor.Seat, target.Seat) == 1),
             CardKind.Dismantlement => HasTargetCard(target),
             CardKind.FireAttack => GetHand(target).Count > 0,
@@ -82,6 +82,7 @@ public sealed partial class GameEngine
         var previous = use.SourceSeat;
         var action = CaptureReplacedFactionActor(CloneRoleAction(use.Action!, actorSeat, use.TargetSeats), actorSeat);
         UpdateProgramRoleCardUse(use with { SourceSeat = actorSeat, Action = action }, action);
+        ClearProvenanceUseOnActorChange(use.Id, actorSeat);
         AdvanceEventRulesAndQueueFact(new ProgramCardUseActorReplacedEvent(frame.Id, frame.SkillId, frame.OwnerSeat,
             use.Id, previous, actorSeat, action.ProviderSeat));
     }
@@ -104,12 +105,12 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new ProgramCardUseTargetAddedEvent(frame.Id, frame.SkillId, frame.OwnerSeat, use.Id, targetSeat));
     }
 
-    private static CardActionContext CloneRoleAction(CardActionContext action, int actorSeat, IReadOnlyList<int> targets) =>
+    private CardActionContext CloneRoleAction(CardActionContext action, int actorSeat, IReadOnlyList<int> targets) =>
         new(action.ActionId, action.ParentActionId, action.Type, actorSeat, action.ProviderSeat,
             action.RequesterSeat, action.ResponderSeat, action.OpponentSeat, action.EffectiveKind, targets,
             action.PhysicalCards, action.ConversionChain,
             action.EffectiveKind == CardKind.BorrowedSword ? targets.Where((_, index) => index % 2 == 0).ToArray() : targets,
-            action.EffectiveSuit, action.EffectiveRank, action.FactionOrigin is null ? null : action.EffectiveIsRed, action.FactionOrigin);
+            action.EffectiveSuit, action.EffectiveRank, HasBlackTrickTargetPolicy || action.FactionOrigin is not null ? action.EffectiveIsRed : null, action.FactionOrigin);
 
     private void UpdateProgramRoleCardUse(CardUseFrame use, CardActionContext action)
     {

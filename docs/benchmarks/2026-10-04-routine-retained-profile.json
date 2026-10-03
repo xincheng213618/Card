@@ -1,0 +1,1126 @@
+{
+  "status": "profiled-existing-built-routine-no-production-edits",
+  "capturedAtUtc": "2026-10-04T03:52:11.8274308+08:00",
+  "lanes": [
+    {
+      "lane": "Core",
+      "exitCode": 0,
+      "durationMs": 55267,
+      "assemblySha256": "239abb1b0db4d03c1e836a223074003607e55c2c1e13c5391f93c39f2c29fd1b",
+      "logSha256": "4ad221a40c487c3162d7f1eac4532e43f16f73b1f18b283e3dc8a3080f3f22c0",
+      "checks": 224,
+      "timings": [
+        {
+          "name": "Damage judgment suit payment four suits and exact claims",
+          "milliseconds": 5877.09
+        },
+        {
+          "name": "Dual private color commitments atomic payment real Duel and cold",
+          "milliseconds": 430.5
+        },
+        {
+          "name": "Actual turn target commitment damage weapon shared quota",
+          "milliseconds": 246.883
+        },
+        {
+          "name": "Applied damage occurrence frozen victim and real source",
+          "milliseconds": 409.34
+        },
+        {
+          "name": "Applied damage benefit gain field recovery source death",
+          "milliseconds": 306.902
+        },
+        {
+          "name": "Owned damage point judgment actual alcohol suppression expiry",
+          "milliseconds": 867.554
+        },
+        {
+          "name": "Owned damage point judgment bonus and dodged virtual no suppression",
+          "milliseconds": 219.781
+        },
+        {
+          "name": "Owned damage point judgment per point recovery claim children native",
+          "milliseconds": 619.608
+        },
+        {
+          "name": "Owned damage point judgment claimed gain bound Alcohol rescue and cold replay",
+          "milliseconds": 324.985
+        },
+        {
+          "name": "Prevented damage draw exact amount owning children",
+          "milliseconds": 532.815
+        },
+        {
+          "name": "Black trick target policy actual color and lightning",
+          "milliseconds": 914.097
+        },
+        {
+          "name": "Dying skill qualification current source foreign grants",
+          "milliseconds": 182.998
+        },
+        {
+          "name": "Nearest legal Slash paid conversion provider optional finisher",
+          "milliseconds": 1121.833
+        },
+        {
+          "name": "Nearest legal Slash paid source loss native start history",
+          "milliseconds": 327.004
+        },
+        {
+          "name": "Actual draw obligation distance whole turn paid equipment",
+          "milliseconds": 291.266
+        },
+        {
+          "name": "Actual draw obligation least hand marker end observers",
+          "milliseconds": 498.618
+        },
+        {
+          "name": "Actual draw obligation existing marker nonminimum awaited gain",
+          "milliseconds": 112.077
+        },
+        {
+          "name": "Actual draw obligation skipped extra reissued marker source death",
+          "milliseconds": 640.679
+        },
+        {
+          "name": "Phase hand extra turn native public declaration paid selected beneficiary",
+          "milliseconds": 93.448
+        },
+        {
+          "name": "Phase hand extra turn owner only native legacy value",
+          "milliseconds": 84.689
+        },
+        {
+          "name": "Next-use rank bonus per point real consumption public pool and cold replay",
+          "milliseconds": 2058.119
+        },
+        {
+          "name": "Other dying recovery equipment payment turnover exact victim and cold replay",
+          "milliseconds": 458.684
+        },
+        {
+          "name": "Alternative phase cost actual Judgment Draw zero to two targets cold",
+          "milliseconds": 579.48
+        },
+        {
+          "name": "Alternative phase cost equipped payment HP movement children",
+          "milliseconds": 184.188
+        },
+        {
+          "name": "Ending hand count history Extra turns face down native AI",
+          "milliseconds": 511.323
+        },
+        {
+          "name": "Participant hand declined private take two cards atomic source reward",
+          "milliseconds": 93.0
+        },
+        {
+          "name": "Participant hand mixed HE gift atomic recovery and reward children",
+          "milliseconds": 568.283
+        },
+        {
+          "name": "Participant hand per point effective red and HP loss damage cursor",
+          "milliseconds": 950.774
+        },
+        {
+          "name": "Participant hand program bound alcohol rescue typed return and cold",
+          "milliseconds": 264.598
+        },
+        {
+          "name": "Current Slash entity claim basic payment original damage and multiple materials",
+          "milliseconds": 266.255
+        },
+        {
+          "name": "Current Slash entity claim nonbasic receipt real allowance and armor boundaries",
+          "milliseconds": 531.657
+        },
+        {
+          "name": "Bound discard Slash frozen suit quota prepared privacy and expiry",
+          "milliseconds": 549.472
+        },
+        {
+          "name": "Bound discard Slash equipment frozen suit recovery and movement children",
+          "milliseconds": 54.401
+        },
+        {
+          "name": "First round limited refund exact usage and second round consumption",
+          "milliseconds": 105.889
+        },
+        {
+          "name": "Character turned over Shebian both directions movement children cold replay",
+          "milliseconds": 399.471
+        },
+        {
+          "name": "Character turned over Shebian occupied equipment slot no replacement cold replay",
+          "milliseconds": 121.341
+        },
+        {
+          "name": "Character turned over actual damage cursor and movement child cold replay",
+          "milliseconds": 111.441
+        },
+        {
+          "name": "Turn kind hand exemption survives source suppression actual turn expiry",
+          "milliseconds": 53.765
+        },
+        {
+          "name": "Signed Slash modifier parser and prepared collection boundaries",
+          "milliseconds": 29.482
+        },
+        {
+          "name": "Random Pindian both strategies exact RNG tied Slash claims cold replay",
+          "milliseconds": 120.61
+        },
+        {
+          "name": "Random Pindian source decline opponent forces source cold replay",
+          "milliseconds": 151.587
+        },
+        {
+          "name": "Maximum Slash Pindian claim effective ranks deferred top cold replay",
+          "milliseconds": 35.706
+        },
+        {
+          "name": "Bound card recast dynamic Slash hand exemption actual expiry",
+          "milliseconds": 191.384
+        },
+        {
+          "name": "Bound card recast Silver Lion recovery movement before grants",
+          "milliseconds": 526.57
+        },
+        {
+          "name": "Capped hand refresh real damage private discard and cold replay",
+          "milliseconds": 501.374
+        },
+        {
+          "name": "Capped hand refresh dead owner exact parent and cold replay",
+          "milliseconds": 79.297
+        },
+        {
+          "name": "HP paid shield source death full damage prevention and once payment",
+          "milliseconds": 66.965
+        },
+        {
+          "name": "HP paid shield lethal payment exact dying return cold replay",
+          "milliseconds": 69.66
+        },
+        {
+          "name": "HP paid shield winner HP child cancels tail",
+          "milliseconds": 32.048
+        },
+        {
+          "name": "HP paid shield native AI affordable protection",
+          "milliseconds": 130.629
+        },
+        {
+          "name": "Recovery replacement Silver Lion Zhiheng HP and reward children",
+          "milliseconds": 432.194
+        },
+        {
+          "name": "Recovery replacement paid equipment tail Qixi and replaced ID",
+          "milliseconds": 489.809
+        },
+        {
+          "name": "Recovery replacement paid equipment tail Stone Axe before damage",
+          "milliseconds": 458.399
+        },
+        {
+          "name": "Recovery replacement Qingxian damage HP reward observer chain",
+          "milliseconds": 838.321
+        },
+        {
+          "name": "Recovery replacement paid Qixi stops after observer victory",
+          "milliseconds": 685.294
+        },
+        {
+          "name": "Recovery replacement faction request Silver Lion cost before providers",
+          "milliseconds": 596.909
+        },
+        {
+          "name": "Equipment recast Silver Lion recovery and movement children",
+          "milliseconds": 626.731
+        },
+        {
+          "name": "Program equipment recast Silver Lion recovery and movement children",
+          "milliseconds": 587.83
+        },
+        {
+          "name": "BoundaryXuShu fixed target real Slash cold replay",
+          "milliseconds": 190.378
+        },
+        {
+          "name": "BoundaryXuShu declared deck criterion male give",
+          "milliseconds": 113.121
+        },
+        {
+          "name": "Program Iron Chain third target owned recast cold replay",
+          "milliseconds": 107.256
+        },
+        {
+          "name": "boundary Ma Chao Tieqi Paoxiao exact cancellation integration",
+          "milliseconds": 168.834
+        },
+        {
+          "name": "program conversion polarity shared state and replay",
+          "milliseconds": 76.07
+        },
+        {
+          "name": "Population reorder actual partition and short pile",
+          "milliseconds": 113.52
+        },
+        {
+          "name": "Population reorder real Ending Extra Scheduled",
+          "milliseconds": 108.926
+        },
+        {
+          "name": "Unconverted Trick draw receipt disposition",
+          "milliseconds": 192.717
+        },
+        {
+          "name": "Foreign equipment discard program selections",
+          "milliseconds": 245.464
+        },
+        {
+          "name": "Damage target obtain nested Duel native cold",
+          "milliseconds": 490.613
+        },
+        {
+          "name": "Damage target mount paid children source lifetime",
+          "milliseconds": 897.422
+        },
+        {
+          "name": "Final target Slash frozen comparisons actual paid Dodge",
+          "milliseconds": 425.263
+        },
+        {
+          "name": "Boundary Yuan Shao population start role marker limit",
+          "milliseconds": 144.536
+        },
+        {
+          "name": "Boundary Yuan Shao conversion actual remaining targets",
+          "milliseconds": 133.172
+        },
+        {
+          "name": "Damage appearance Draw definitions physical colors cardless legacy",
+          "milliseconds": 322.791
+        },
+        {
+          "name": "Selected actor Duel actual Use and Nullification",
+          "milliseconds": 78.654
+        },
+        {
+          "name": "Paid HP loss rescue and gain children",
+          "milliseconds": 115.209
+        },
+        {
+          "name": "Paid HP loss source and legacy",
+          "milliseconds": 130.073
+        },
+        {
+          "name": "Boundary Deng Ai own turn slash discard judges authority",
+          "milliseconds": 101.313
+        },
+        {
+          "name": "Boundary Deng Ai awakening grants snatch and extra turn",
+          "milliseconds": 186.346
+        },
+        {
+          "name": "Boundary Jiang Wei declined taunt discards target card",
+          "milliseconds": 34.739
+        },
+        {
+          "name": "Boundary Jiang Wei dodged slash still discards",
+          "milliseconds": 27.904
+        },
+        {
+          "name": "Boundary Jiang Wei taunt runs twice per phase",
+          "milliseconds": 36.129
+        },
+        {
+          "name": "Boundary Jiang Wei awakening wakes once across phases",
+          "milliseconds": 111.106
+        },
+        {
+          "name": "HP pair freezes after payment children before draw children",
+          "milliseconds": 65.042
+        },
+        {
+          "name": "Equipment placement slot self equal boundaries",
+          "milliseconds": 103.057
+        },
+        {
+          "name": "Exact top count partition normal draw",
+          "milliseconds": 42.621
+        },
+        {
+          "name": "Bound draw receipt per point nested gain",
+          "milliseconds": 604.151
+        },
+        {
+          "name": "Boundary Zhang Fei actual recovery receipt limited child",
+          "milliseconds": 49.847
+        },
+        {
+          "name": "Feng Lin Kuai Ending child gift joins current boundary",
+          "milliseconds": 169.382
+        },
+        {
+          "name": "participant discard mandatory cost cancellation preserves legal composition",
+          "milliseconds": 180.128
+        },
+        {
+          "name": "boundary Hua Tuo ordered actual discard effective suit receipts",
+          "milliseconds": 80.725
+        },
+        {
+          "name": "boundary Lu Xun HE payment exact Hand batch count",
+          "milliseconds": 44.046
+        },
+        {
+          "name": "boundary Lu Xun actual trick hold lianying and return",
+          "milliseconds": 79.781
+        },
+        {
+          "name": "Feng Lin Zuo Ci initial privacy and replay",
+          "milliseconds": 27.191
+        },
+        {
+          "name": "Feng Lin Zuo Ci layered suppression and local disable",
+          "milliseconds": 11.868
+        },
+        {
+          "name": "Feng Lin Zuo Ci same avatar program and actual end",
+          "milliseconds": 59.482
+        },
+        {
+          "name": "Feng Lin Zhou Fei first domains and true equipment sequence",
+          "milliseconds": 436.153
+        },
+        {
+          "name": "Feng Lin Zhou Fei same-source association freeze",
+          "milliseconds": 37.339
+        },
+        {
+          "name": "Feng Lin Lu Zhi actual discard entry boundaries",
+          "milliseconds": 113.257
+        },
+        {
+          "name": "Feng Lin Lu Ji actual marker payment and damage",
+          "milliseconds": 146.723
+        },
+        {
+          "name": "Feng Lin Lu Ji replacement draw and dying payment",
+          "milliseconds": 97.351
+        },
+        {
+          "name": "boundary Liu Bei native provided use decline once",
+          "milliseconds": 311.392
+        },
+        {
+          "name": "boundary Liu Bei virtual Peach HP child",
+          "milliseconds": 119.188
+        },
+        {
+          "name": "boundary Liu Bei gift threshold recipient",
+          "milliseconds": 117.644
+        },
+        {
+          "name": "boundary Da Qiao atomic mixed discard replay",
+          "milliseconds": 76.316
+        },
+        {
+          "name": "boundary Lu Meng all table printed suits replay",
+          "milliseconds": 452.636
+        },
+        {
+          "name": "boundary Lu Meng cross owner skip chain resume death",
+          "milliseconds": 151.65
+        },
+        {
+          "name": "boundary Lu Meng Qinxue windows shared usage",
+          "milliseconds": 113.715
+        },
+        {
+          "name": "boundary Lu Meng opt in usage legacy shape",
+          "milliseconds": 162.125
+        },
+        {
+          "name": "after turn ended return movement prelude ordering",
+          "milliseconds": 75.865
+        },
+        {
+          "name": "after turn ended due before window nested replay",
+          "milliseconds": 128.569
+        },
+        {
+          "name": "FengLin Hao Zhao two dynamic actual ends native discard",
+          "milliseconds": 117.858
+        },
+        {
+          "name": "FengLin Hao Zhao ordered nested native owner",
+          "milliseconds": 181.252
+        },
+        {
+          "name": "Feng Lin Wang Ping payment nested comparison empty",
+          "milliseconds": 311.323
+        },
+        {
+          "name": "Feng Lin Wang Ping first target history independent reward",
+          "milliseconds": 1105.528
+        },
+        {
+          "name": "committed events see the accepted command",
+          "milliseconds": 3.665
+        },
+        {
+          "name": "command projection preparation failure preserves prior commit",
+          "milliseconds": 5.395
+        },
+        {
+          "name": "command delivery failure preserves visible commit",
+          "milliseconds": 6.063
+        },
+        {
+          "name": "command observer exception preserves commit and result",
+          "milliseconds": 2.696
+        },
+        {
+          "name": "prepared snapshot rejects observer collection mutation",
+          "milliseconds": 12.747
+        },
+        {
+          "name": "committed event collections reject observer mutation",
+          "milliseconds": 163.601
+        },
+        {
+          "name": "selected gift continues after recipient death",
+          "milliseconds": 14.022
+        },
+        {
+          "name": "internal failure stops the session and preserves its trusted prefix",
+          "milliseconds": 7.569
+        },
+        {
+          "name": "draw and recover compile typed instructions",
+          "milliseconds": 1.825
+        },
+        {
+          "name": "commands share prepared projection across result and reentry",
+          "milliseconds": 6.473
+        },
+        {
+          "name": "content registry compiles whole catalog dependencies",
+          "milliseconds": 28.639
+        },
+        {
+          "name": "execution plans reuse source bindings without order collisions",
+          "milliseconds": 6.921
+        },
+        {
+          "name": "active Program contracts share legality with public AI",
+          "milliseconds": 30.986
+        },
+        {
+          "name": "skill executor retires strategic damage batches",
+          "milliseconds": 452.185
+        },
+        {
+          "name": "lifecycle programs retire deferred provider rewards after owner death",
+          "milliseconds": 92.475
+        },
+        {
+          "name": "response use completion Dodge timing parent and replay",
+          "milliseconds": 48.21
+        },
+        {
+          "name": "response use completion counterspell chain and replay",
+          "milliseconds": 39.99
+        },
+        {
+          "name": "response use completion counterspell dying rescue exact parent",
+          "milliseconds": 61.949
+        },
+        {
+          "name": "response use completion Dodge dying rescue exact parent",
+          "milliseconds": 34.171
+        },
+        {
+          "name": "response use completion excludes group response and wrong loader window",
+          "milliseconds": 25.687
+        },
+        {
+          "name": "shared post-event recipient batch counts and reason filters",
+          "milliseconds": 14.246
+        },
+        {
+          "name": "shared post-event gained cards pause and replay",
+          "milliseconds": 14.987
+        },
+        {
+          "name": "shared post-event dying recovery ordering and replay",
+          "milliseconds": 20.456
+        },
+        {
+          "name": "shared post-event definition context validation",
+          "milliseconds": 1.233
+        },
+        {
+          "name": "shared use lifecycle nests rescue inside a suspended card window",
+          "milliseconds": 60.202
+        },
+        {
+          "name": "shared card-use phase-owner movement context validation",
+          "milliseconds": 0.835
+        },
+        {
+          "name": "Fame 2016 Taoluan response use completion",
+          "milliseconds": 559.854
+        },
+        {
+          "name": "Fame 2015 Wei observer Spade damage gate replay",
+          "milliseconds": 45.609
+        },
+        {
+          "name": "Fame 2013 discard movement origin native Dismantlement and replay",
+          "milliseconds": 15.884
+        },
+        {
+          "name": "turn-ending Xiaoguo Tianxiang game over stops later observers",
+          "milliseconds": 27.86
+        },
+        {
+          "name": "Feng Lin Congjian Equipment gift nested replay",
+          "milliseconds": 117.429
+        },
+        {
+          "name": "owned-card set private draft movement and replay",
+          "milliseconds": 29.185
+        },
+        {
+          "name": "owned-card set shortfall empty sources and invalidation",
+          "milliseconds": 35.936
+        },
+        {
+          "name": "shared use lifecycle preserves dying rescue and replay",
+          "milliseconds": 55.712
+        },
+        {
+          "name": "composition kernel resource graph safety",
+          "milliseconds": 5.77
+        },
+        {
+          "name": "composition kernel malformed nodes",
+          "milliseconds": 3.839
+        },
+        {
+          "name": "composition kernel boundary capabilities",
+          "milliseconds": 1.048
+        },
+        {
+          "name": "composition kernel target-set consumption",
+          "milliseconds": 0.201
+        },
+        {
+          "name": "execution plans freeze instructions and reject ambiguous bindings",
+          "milliseconds": 0.498
+        },
+        {
+          "name": "rule query reduction is input-order independent",
+          "milliseconds": 0.835
+        },
+        {
+          "name": "rule query reduction rejects invalid mutable inputs",
+          "milliseconds": 0.505
+        },
+        {
+          "name": "rule query distance runs both directions before clamping",
+          "milliseconds": 0.416
+        },
+        {
+          "name": "rule query registry rejects future Set conflicts",
+          "milliseconds": 3.616
+        },
+        {
+          "name": "boundary Zhen Ji exact receipt stop red discard",
+          "milliseconds": 81.832
+        },
+        {
+          "name": "boundary Zhen Ji receipt before child source loss",
+          "milliseconds": 63.491
+        },
+        {
+          "name": "boundary Xiahou Dun real phases skip quota expiry",
+          "milliseconds": 132.572
+        },
+        {
+          "name": "boundary Xiahou Dun receipt before gain child source audit",
+          "milliseconds": 374.739
+        },
+        {
+          "name": "boundary Guan Yu actual Played and black Hand rejection",
+          "milliseconds": 95.555
+        },
+        {
+          "name": "current turn nonlocked suppression host lifecycle audit",
+          "milliseconds": 5.377
+        },
+        {
+          "name": "skill executor resumes child resolution without repeating paid effects",
+          "milliseconds": 2.094
+        },
+        {
+          "name": "skill executor cancels remaining effects after an invalid selected cost",
+          "milliseconds": 0.299
+        },
+        {
+          "name": "skill executor rejects changed programs and missing or duplicate handlers",
+          "milliseconds": 0.913
+        },
+        {
+          "name": "active Program contracts reject invalid selections and preserve target order",
+          "milliseconds": 0.893
+        },
+        {
+          "name": "lifecycle programs reject live card bindings across inserted phases",
+          "milliseconds": 0.241
+        },
+        {
+          "name": "lifecycle programs cancel missing conditional bindings without leaks",
+          "milliseconds": 0.187
+        },
+        {
+          "name": "cancelled lifecycle programs preserve parent attack cards",
+          "milliseconds": 10.708
+        },
+        {
+          "name": "card movement programs compose atomic per-card and per-batch triggers with replay",
+          "milliseconds": 32.321
+        },
+        {
+          "name": "nested card movement batches retain immediate parent identity",
+          "milliseconds": 7.808
+        },
+        {
+          "name": "structured skill metadata normalizes explicitly and fingerprints content",
+          "milliseconds": 3.972
+        },
+        {
+          "name": "Boundary Huang Gai actual provider color",
+          "milliseconds": 165.11
+        },
+        {
+          "name": "Boundary Huang Gai multi card color source lifecycle",
+          "milliseconds": 742.201
+        },
+        {
+          "name": "Feng Lin Yu Ji actual dodge duel rescue parents",
+          "milliseconds": 1323.869
+        },
+        {
+          "name": "Feng Lin Yu Ji actual counterspell provider parents",
+          "milliseconds": 742.034
+        },
+        {
+          "name": "Feng Lin Yu Ji borrowed sword faction provider declaration",
+          "milliseconds": 3452.758
+        },
+        {
+          "name": "Feng Lin Yu Ji old registry virtual duel native continuation",
+          "milliseconds": 118.439
+        },
+        {
+          "name": "Feng Lin Yu Ji cost child atomic privacy restore",
+          "milliseconds": 491.52
+        },
+        {
+          "name": "Feng Lin Yu Ji all pass privacy quota replay",
+          "milliseconds": 559.682
+        },
+        {
+          "name": "Feng Lin Yu Ji first challenge true false",
+          "milliseconds": 713.204
+        },
+        {
+          "name": "Feng Lin Yuan Shu qualified awakening persistent local loss",
+          "milliseconds": 268.934
+        },
+        {
+          "name": "Feng Lin Yuan Shu command loss regrant source suppression",
+          "milliseconds": 171.543
+        },
+        {
+          "name": "skill program v2 trigger definitions validate and freeze",
+          "milliseconds": 2.755
+        },
+        {
+          "name": "skill program card triggers require exact conversion sources and replay",
+          "milliseconds": 76.273
+        },
+        {
+          "name": "skill program multi-target triggers wait for every Liuli redirection",
+          "milliseconds": 47.425
+        },
+        {
+          "name": "skill program final judgment triggers resume recovery, drawing and replay",
+          "milliseconds": 40.95
+        },
+        {
+          "name": "skill program judgment replacement commits both old-card destinations and replays",
+          "milliseconds": 308.55
+        },
+        {
+          "name": "skill program judgment damage resumes through dying, death and replay",
+          "milliseconds": 16.066
+        },
+        {
+          "name": "skill program direct Dodge and Lightning judgments resume and replay",
+          "milliseconds": 80.853
+        },
+        {
+          "name": "skill program contributions bind owner filters, phase ledger and replay",
+          "milliseconds": 63.334
+        },
+        {
+          "name": "skill program selected judgment subjects damage and replay",
+          "milliseconds": 62.993
+        },
+        {
+          "name": "turn card-use effects union order consume and expire by action semantics",
+          "milliseconds": 2.995
+        },
+        {
+          "name": "Chunlao spends one public Chun as virtual Alcohol in a dying response",
+          "milliseconds": 57.674
+        },
+        {
+          "name": "Xingshang claims nested direct death cleanup cards and replays",
+          "milliseconds": 32.729
+        },
+        {
+          "name": "recast is an independent validated card movement and replays exactly",
+          "milliseconds": 47.017
+        },
+        {
+          "name": "viewer snapshot hides private roles and hands",
+          "milliseconds": 1.046
+        },
+        {
+          "name": "viewer snapshot hides seed and other players' decisions",
+          "milliseconds": 2.533
+        },
+        {
+          "name": "viewer cannot mutate the engine pending decision",
+          "milliseconds": 3.277
+        },
+        {
+          "name": "commands publish a revision and reject stale input atomically",
+          "milliseconds": 3.575
+        },
+        {
+          "name": "play commands use one exact published card and target choice",
+          "milliseconds": 7.934
+        },
+        {
+          "name": "command reentry is a typed rejection",
+          "milliseconds": 1.777
+        },
+        {
+          "name": "manual discard checkpoints and commands replay exactly",
+          "milliseconds": 8.269
+        },
+        {
+          "name": "standard package builds an immutable isolated registry",
+          "milliseconds": 1.95
+        },
+        {
+          "name": "skill program loader separates canonical gameplay from presentation",
+          "milliseconds": 1.082
+        },
+        {
+          "name": "skill program loader rejects malformed and unsupported definitions",
+          "milliseconds": 2.799
+        },
+        {
+          "name": "configured active sequences reject forged input and replay exact moves",
+          "milliseconds": 32.349
+        },
+        {
+          "name": "program gameplay hashes control checkpoint compatibility independently of presentation",
+          "milliseconds": 4.971
+        },
+        {
+          "name": "physical deck recipes preserve exact suit, rank and content hashing",
+          "milliseconds": 2.848
+        },
+        {
+          "name": "standard active programs use typed selections and deterministic replay",
+          "milliseconds": 49.624
+        },
+        {
+          "name": "content registry rejects duplicate ids and bad references",
+          "milliseconds": 1.072
+        },
+        {
+          "name": "hand guidance is private, read-only and agrees with legal actions",
+          "milliseconds": 829.185
+        },
+        {
+          "name": "accepted command journals serialize and replay deterministically",
+          "milliseconds": 115.842
+        },
+        {
+          "name": "command checkpoints restore a paused private prompt deterministically",
+          "milliseconds": 11.553
+        },
+        {
+          "name": "command checkpoints reject same-version content drift",
+          "milliseconds": 1.084
+        },
+        {
+          "name": "initial deal registers every physical card in one zone",
+          "milliseconds": 0.926
+        },
+        {
+          "name": "invalid single and batch moves are atomic",
+          "milliseconds": 0.315
+        },
+        {
+          "name": "card inventory is conserved at every public boundary",
+          "milliseconds": 2569.122
+        },
+        {
+          "name": "observers run only after the public operation commits",
+          "milliseconds": 4.01
+        },
+        {
+          "name": "slash resolution exposes a serializable frame stack",
+          "milliseconds": 11.757
+        },
+        {
+          "name": "dying response can pause and recover with a private Peach",
+          "milliseconds": 69.228
+        },
+        {
+          "name": "throwing observers are isolated after commit",
+          "milliseconds": 7.019
+        },
+        {
+          "name": "synchronous observers cannot advance the engine reentrantly",
+          "milliseconds": 2.35
+        }
+      ],
+      "slowest": [
+        {
+          "name": "Damage judgment suit payment four suits and exact claims",
+          "milliseconds": 5877.09
+        },
+        {
+          "name": "Feng Lin Yu Ji borrowed sword faction provider declaration",
+          "milliseconds": 3452.758
+        },
+        {
+          "name": "card inventory is conserved at every public boundary",
+          "milliseconds": 2569.122
+        },
+        {
+          "name": "Next-use rank bonus per point real consumption public pool and cold replay",
+          "milliseconds": 2058.119
+        },
+        {
+          "name": "Feng Lin Yu Ji actual dodge duel rescue parents",
+          "milliseconds": 1323.869
+        },
+        {
+          "name": "Nearest legal Slash paid conversion provider optional finisher",
+          "milliseconds": 1121.833
+        },
+        {
+          "name": "Feng Lin Wang Ping first target history independent reward",
+          "milliseconds": 1105.528
+        },
+        {
+          "name": "Participant hand per point effective red and HP loss damage cursor",
+          "milliseconds": 950.774
+        },
+        {
+          "name": "Black trick target policy actual color and lightning",
+          "milliseconds": 914.097
+        },
+        {
+          "name": "Damage target mount paid children source lifetime",
+          "milliseconds": 897.422
+        },
+        {
+          "name": "Owned damage point judgment actual alcohol suppression expiry",
+          "milliseconds": 867.554
+        },
+        {
+          "name": "Recovery replacement Qingxian damage HP reward observer chain",
+          "milliseconds": 838.321
+        }
+      ]
+    },
+    {
+      "lane": "Wpf",
+      "exitCode": 0,
+      "durationMs": 20779,
+      "assemblySha256": "69be252529d3ec5168e65ba41a5dade59299f44d0b114ffe6ea1570e95d89ba9",
+      "logSha256": "78ea0805a432185b291cb0757001c5d3cf6b98ece400d14108217f209d3cc3ac",
+      "checks": 18,
+      "timings": [
+        {
+          "name": "overlapping hand cards keep stable pointer targets",
+          "milliseconds": 1407.112
+        },
+        {
+          "name": "original card artwork preserves physical card identity and interaction",
+          "milliseconds": 581.303
+        },
+        {
+          "name": "Program Iron Chain guide follows actual target count and submits set",
+          "milliseconds": 354.991
+        },
+        {
+          "name": "conversion choices retain exact provenance without leaking trusted action details",
+          "milliseconds": 145.291
+        },
+        {
+          "name": "composed skills share the generic WPF draft and submit their stable program identity",
+          "milliseconds": 102.369
+        },
+        {
+          "name": "Program paid choices preserve actor control and opaque slots",
+          "milliseconds": 785.208
+        },
+        {
+          "name": "declaration and general library views protect private faces",
+          "milliseconds": 732.834
+        },
+        {
+          "name": "Program conversion polarity stays visible with active entry and restore",
+          "milliseconds": 944.239
+        },
+        {
+          "name": "Program public markers restore actual payment transfer and consumption",
+          "milliseconds": 483.205
+        },
+        {
+          "name": "Program deferred hand alignment restores native private recipient and exact payment",
+          "milliseconds": 435.51
+        },
+        {
+          "name": "Program exact top count restores private shared order",
+          "milliseconds": 1973.889
+        },
+        {
+          "name": "Program population count private faces restore shared free order",
+          "milliseconds": 1866.003
+        },
+        {
+          "name": "hand responses select exact cards and confirm through shared controls",
+          "milliseconds": 3046.819
+        },
+        {
+          "name": "response context distinguishes recipients, opponents and private prompts",
+          "milliseconds": 31.69
+        },
+        {
+          "name": "playback batches internal steps while preserving human boundaries and replay",
+          "milliseconds": 6480.364
+        },
+        {
+          "name": "opaque target-card slots render privately and commit through WPF commands",
+          "milliseconds": 478.772
+        },
+        {
+          "name": "saved UI boundaries restore and continue through actual files",
+          "milliseconds": 383.968
+        },
+        {
+          "name": "failed writes and incompatible reads preserve the active game",
+          "milliseconds": 26.076
+        }
+      ],
+      "slowest": [
+        {
+          "name": "playback batches internal steps while preserving human boundaries and replay",
+          "milliseconds": 6480.364
+        },
+        {
+          "name": "hand responses select exact cards and confirm through shared controls",
+          "milliseconds": 3046.819
+        },
+        {
+          "name": "Program exact top count restores private shared order",
+          "milliseconds": 1973.889
+        },
+        {
+          "name": "Program population count private faces restore shared free order",
+          "milliseconds": 1866.003
+        },
+        {
+          "name": "overlapping hand cards keep stable pointer targets",
+          "milliseconds": 1407.112
+        },
+        {
+          "name": "Program conversion polarity stays visible with active entry and restore",
+          "milliseconds": 944.239
+        },
+        {
+          "name": "Program paid choices preserve actor control and opaque slots",
+          "milliseconds": 785.208
+        },
+        {
+          "name": "declaration and general library views protect private faces",
+          "milliseconds": 732.834
+        },
+        {
+          "name": "original card artwork preserves physical card identity and interaction",
+          "milliseconds": 581.303
+        },
+        {
+          "name": "Program public markers restore actual payment transfer and consumption",
+          "milliseconds": 483.205
+        },
+        {
+          "name": "opaque target-card slots render privately and commit through WPF commands",
+          "milliseconds": 478.772
+        },
+        {
+          "name": "Program deferred hand alignment restores native private recipient and exact payment",
+          "milliseconds": 435.51
+        }
+      ]
+    }
+  ],
+  "inputProof": {
+    "files": 2489,
+    "startSha256": "7bb28b9216c4b03bd4d23416de1c881a68ddb735603e24062b381997786bd1ec",
+    "endSha256": "7bb28b9216c4b03bd4d23416de1c881a68ddb735603e24062b381997786bd1ec",
+    "unchanged": true,
+    "build": "Existing current-source batch22 acceptance assemblies; no production or test changes during profile",
+    "coreRoutineChecks": 224,
+    "wpfRoutineChecks": 18
+  },
+  "playbackFixtureChange": {
+    "productionChanged": false,
+    "registrationRemoved": false,
+    "assertionsRemoved": false,
+    "previousMs": 6480.364,
+    "focusedAfterMs": 2319.541,
+    "previousAutomaticCommands": 200,
+    "afterAutomaticCommands": 49,
+    "afterTableRefreshes": 32,
+    "termination": "All original five coverage flags proven after slice state, checkpoint, feedback and presented snapshot equality assertions",
+    "failureInjection": "Automatic and manual observer-failure branches retained and passed",
+    "timingCaveat": "Different selected run; final whole routine remains to be measured"
+  },
+  "rescueFixtureChange": {
+    "productionChanged": false,
+    "registrationRemoved": false,
+    "assertionsRemoved": false,
+    "scope": "Only gainDying fixture: draw40 reduced to draw4; independent suit/rank combinations unchanged",
+    "previousRoutineFirstMs": 5877.09,
+    "focusedAfterFirstMs": 4878.954,
+    "retained": "Four suits plus real gain, HP loss, Dying entry, physical Peach, recovery observer and second exact claim all passed",
+    "timingCaveat": "First selected check includes embedded registry/JIT; final routine must be remeasured"
+  }
+}

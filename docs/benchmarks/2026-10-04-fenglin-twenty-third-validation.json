@@ -1,0 +1,1152 @@
+{
+  "status": "first-full-652-core-and-56-wpf-passed-two-retained-regressions-under-diagnosis",
+  "runs": [
+    {
+      "label": "454-focused-01-fixture-loader-failed",
+      "startedAt": "2026-10-04T04:00:20.4139537+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 17041,
+      "coreFilters": [
+        "Random reveal color Fire Attack",
+        "Unrespondable counterspell equipment",
+        "Actual turn trick history Cangzhuo"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 16481,
+          "logName": "build.log",
+          "logSha256": "bf6130265b5816882103eeb1b7e7a5899e4deea64918f7dd904128ae38c93458",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.ColorFireAttacks.cs(98,13): warning CS8629: 可为 null 的值类型可为 null。 [C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\CardGame.Core.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    3 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (3 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 494,
+          "logName": "core-selected.log",
+          "logSha256": "6d100054b1b42433d8782ed1bba81256950af33e32fae7033f040a03836687b6",
+          "resultLines": [
+            "[FAIL] Random reveal color Fire Attack HE payment and children cold",
+            "       InvalidOperationException: Invalid skill program at skill 'fixture:wolong-quiet' (rules.skills[5]).triggers[0].effects: phase substitution does not match its lifecycle boundary.",
+            "System.InvalidOperationException: Invalid skill program at skill 'fixture:wolong-quiet' (rules.skills[5]).triggers[0].effects: phase substitution does not match its lifecycle boundary.",
+            "[FAIL] Unrespondable counterspell equipment payment completed cold",
+            "[FAIL] Actual turn trick history Cangzhuo discard cold",
+            "0 passed, 3 failed, 0 skipped (3 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "454-focused-02-real-command-fixture-failed",
+      "startedAt": "2026-10-04T04:01:31.3096345+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 9642,
+      "coreFilters": [
+        "Random reveal color Fire Attack",
+        "Unrespondable counterspell equipment",
+        "Actual turn trick history Cangzhuo"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 7962,
+          "logName": "build.log",
+          "logSha256": "7135d920889e9011ab8f8c62a4f9809da87a1993b2afd4d8d2b77a622254afa1",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (3 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1633,
+          "logName": "core-selected.log",
+          "logSha256": "df453244a121e841b8c887f10764d65fb133665d1e98845a7bef558f2ac23db0",
+          "resultLines": [
+            "[FAIL] Random reveal color Fire Attack HE payment and children cold",
+            "       InvalidOperationException: There is no answerable prompt awaiting a response.",
+            "System.InvalidOperationException: There is no answerable prompt awaiting a response.",
+            "[FAIL] Unrespondable counterspell equipment payment completed cold",
+            "1 passed, 2 failed, 0 skipped (3 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "454-focused-03-counterspell-invariant-failed",
+      "startedAt": "2026-10-04T04:02:28.0342518+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 5478,
+      "coreFilters": [
+        "Random reveal color Fire Attack",
+        "Unrespondable counterspell equipment",
+        "Actual turn trick history Cangzhuo"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2860,
+          "logName": "build.log",
+          "logSha256": "acd89184e6f4a4421d0bf9434a22f09c7270a2212a1897a74867dcecee17dcdd",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (3 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 2577,
+          "logName": "core-selected.log",
+          "logSha256": "0d36cd326afa34c8b0604607b4f18325c249a99ba67b1ccd2bd7f5895bcf270c",
+          "resultLines": [
+            "[FAIL] Unrespondable counterspell equipment payment completed cold",
+            "       InvalidOperationException: An active Nullification window must retain exactly one response continuation.",
+            "System.InvalidOperationException: An active Nullification window must retain exactly one response continuation.",
+            "2 passed, 1 failed, 0 skipped (3 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "454-focused-04-physical-counterspell-failed",
+      "startedAt": "2026-10-04T04:03:28.7923408+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 9443,
+      "coreFilters": [
+        "Random reveal color Fire Attack",
+        "Unrespondable counterspell equipment",
+        "Actual turn trick history Cangzhuo"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 5176,
+          "logName": "build.log",
+          "logSha256": "8dcd10ddb692c9c1bc3f6a527fedb1a110e7a39b90178ec58899d367aa8476df",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (3 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 4221,
+          "logName": "core-selected.log",
+          "logSha256": "ede3055c81d87315b04b15897e517f587931e9923eecdbe20f732db8b8bb5988",
+          "resultLines": [
+            "[FAIL] Unrespondable counterspell equipment payment completed cold",
+            "       InvalidOperationException: Expected real boundary was not reached: SelectTargetCard/.",
+            "System.InvalidOperationException: Expected real boundary was not reached: SelectTargetCard/.",
+            "2 passed, 1 failed, 0 skipped (3 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "454-focused-05-passed",
+      "startedAt": "2026-10-04T04:05:30.3692828+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 7633,
+      "coreFilters": [
+        "Random reveal color Fire Attack",
+        "Unrespondable counterspell equipment",
+        "Actual turn trick history Cangzhuo"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2590,
+          "logName": "build.log",
+          "logSha256": "39930d17ebb2e2afa639bd34e91729d0f6eed204b79282bc78bb03d65b09aefb",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (3 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 5001,
+          "logName": "core-selected.log",
+          "logSha256": "8b85b42a383feaf636a3e04d6e4dd107780117bc1fd6c5589464044c61e360f3",
+          "resultLines": [
+            "3 passed, 0 failed, 0 skipped (3 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "retained-playback-fixed-prefix-focused-passed",
+      "startedAt": "2026-10-04T04:11:21.1499502+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 7978,
+      "coreFilters": [],
+      "wpfFilters": [
+        "playback batches internal steps"
+      ],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4993,
+          "logName": "build.log",
+          "logSha256": "c47cb1db6ea27571eb845edbb5ff992d0d39571be1da9a52ef1721815b03bc37",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "WPF selected checks (1 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2939,
+          "logName": "wpf-selected.log",
+          "logSha256": "2f5a5da1ca17cf34e3854937a432458284c42bf473bdef610e306c83d0b0175e",
+          "resultLines": [
+            "1 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders"
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "retained-beige-small-rescue-fixture-focused-passed",
+      "startedAt": "2026-10-04T04:12:52.1785804+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 11808,
+      "coreFilters": [
+        "Damage judgment suit payment"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3193,
+          "logName": "build.log",
+          "logSha256": "8a5ecbbc808e85ee1e67eb07418a6f70e14d6a5254e79e308145be547215d695",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 8554,
+          "logName": "core-selected.log",
+          "logSha256": "0f6ca8906b5b7d9a90f1c26522e79163194c059c1b9e0517e75725396da97a26",
+          "resultLines": [
+            "4 passed, 0 failed, 0 skipped (4 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "658-focused-01-fixture-field-build-failed",
+      "startedAt": "2026-10-04T04:17:10.9240972+08:00",
+      "status": "build-failed",
+      "mode": "targeted",
+      "durationMs": 6326,
+      "coreFilters": [
+        "Actual turn use kinds"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 6297,
+          "logName": "build.log",
+          "logSha256": "21557b410efb5099202d5ed630aa9174e35f3cd293ae95ddd460526c575f43a3",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    1 个错误"
+          ],
+          "errorDiagnostics": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryGuoHuaiChecks.cs(123,31): error CS1061: “PromptChoice”未包含“TargetSeats”的定义，并且找不到可接受第一个“PromptChoice”类型参数的可访问扩展方法“TargetSeats”(是否缺少 using 指令或程序集引用?) [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "658-focused-02-fixture-loader-failed",
+      "startedAt": "2026-10-04T04:17:31.1536571+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 3342,
+      "coreFilters": [
+        "Actual turn use kinds"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2908,
+          "logName": "build.log",
+          "logSha256": "0fde79c05ebb62ed27f33036fe0af0b19d702b035c20f97ff3bebba882f1850c",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 395,
+          "logName": "core-selected.log",
+          "logSha256": "7a8b5c55e4ed8225f2b625ec1aff7526c8917b81bb896a6e95602dcbcf9db5fe",
+          "resultLines": [
+            "[FAIL] Actual turn use kinds independent hand suits and effective types",
+            "       InvalidOperationException: Invalid skill program at skill 'fixture:gh-driver' (rules.skills[0]).activations: Selected actor Duel requires one other target, zero cards and exactly two uses per actual Play phase..",
+            "System.InvalidOperationException: Invalid skill program at skill 'fixture:gh-driver' (rules.skills[0]).activations: Selected actor Duel requires one other target, zero cards and exactly two uses per actual Play phase..",
+            "[FAIL] Actual turn use kinds per Play draw child and actual turn expiry",
+            "[FAIL] Actual turn use kinds conversion virtual use and qualified sources",
+            "[FAIL] Actual turn use kinds native public draw and strict expression loader",
+            "0 passed, 4 failed, 0 skipped (4 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "454-658-joint-01-fixture-boundaries-failed",
+      "startedAt": "2026-10-04T04:18:53.3062478+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 13169,
+      "coreFilters": [
+        "Actual turn use kinds",
+        "Random reveal color Fire Attack",
+        "Unrespondable counterspell equipment",
+        "Actual turn trick history Cangzhuo"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 6398,
+          "logName": "build.log",
+          "logSha256": "b4faa00766956b6b71fe59641c40087a785f13dafbade7d4d49ed279b55b6f3b",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (4 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 6730,
+          "logName": "core-selected.log",
+          "logSha256": "c194ab6a5cd1159b044c975a8a9e27629241262bf5e61554718a7545d9e1f1f3",
+          "resultLines": [
+            "[FAIL] Random reveal color Fire Attack HE payment and children cold",
+            "       InvalidOperationException: Invalid skill program at skill 'fixture:wolong-equipment-child' (rules.skills[5]).triggers[0].cardKinds: contains a card kind unsupported by cardUseTargetsFinalized.",
+            "System.InvalidOperationException: Invalid skill program at skill 'fixture:wolong-equipment-child' (rules.skills[5]).triggers[0].cardKinds: contains a card kind unsupported by cardUseTargetsFinalized.",
+            "[FAIL] Unrespondable counterspell equipment payment completed cold",
+            "[FAIL] Actual turn trick history Cangzhuo discard cold",
+            "[FAIL] Actual turn use kinds independent hand suits and effective types",
+            "       InvalidOperationException: Fixed Guo Huai fixture did not reach its boundary: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[1,5,37,53,61,9,25,57,45,30,46,54,42,58,18,38,2,22,3,11,19,63,59,51,39],\"ValidTargetSeats\":[1,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":16,\"IsValid\":true},\"Revision\":265,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.slash.card-1",
+            "System.InvalidOperationException: Fixed Guo Huai fixture did not reach its boundary: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[1,5,37,53,61,9,25,57,45,30,46,54,42,58,18,38,2,22,3,11,19,63,59,51,39],\"ValidTargetSeats\":[1,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":16,\"IsValid\":true},\"Revision\":265,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.slash.card-1",
+            "3 passed, 4 failed, 0 skipped (7 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "existing-response-lifecycle-declaration-regressions-passed",
+      "startedAt": "2026-10-04T04:25:19.4299501+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 17059,
+      "coreFilters": [
+        "shared use lifecycle",
+        "shared card-use",
+        "response use completion",
+        "Feng Lin Yu Ji"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1830,
+          "logName": "build.log",
+          "logSha256": "6d6753762ff74cbef92e9755368533f236f127d37197639861774b1913c8df56",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (4 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 15181,
+          "logName": "core-selected.log",
+          "logSha256": "c8d1f1c756245ea1f8870db78a54112a1bc5d5298b4862353d1f75144269240b",
+          "resultLines": [
+            "16 passed, 0 failed, 0 skipped (16 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "batch23-joint-01-luoying-registration-loader-failed",
+      "startedAt": "2026-10-04T04:31:17.0592957+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 18919,
+      "coreFilters": [
+        "Discarded provenance",
+        "Actual turn use kinds",
+        "Random reveal color Fire Attack",
+        "Unrespondable counterspell equipment",
+        "Actual turn trick history Cangzhuo"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 18327,
+          "logName": "build.log",
+          "logSha256": "ed67ed7e3f6df071023cd84cd01f8985f23527b0ded6641d0ac0584e42a31a59",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.ProvenanceCardPolicies.cs(6,18): warning CS8826: 分部方法声明“void GameEngine.TryFreezeProvenanceCounterspellSource(CharacterState owner, IReadOnlyList<int> physicalCardIds, ref CardConversionSource? source)”和“void GameEngine.TryFreezeProvenanceCounterspellSource(CharacterState owner, IReadOnlyList<int> physicalIds, ref CardConversionSource? source)”具有签名差异。 [C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\CardGame.Core.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    3 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (5 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 544,
+          "logName": "core-selected.log",
+          "logSha256": "111a2a41949eedabaccd3f5592f23777481e2ab1a3813c51c409ae56805ef4a4",
+          "resultLines": [
+            "[FAIL] Random reveal color Fire Attack HE payment and children cold",
+            "       TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+            "System.TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+            " ---> System.InvalidOperationException: Invalid skill program at skill 'boundary:luoying' (rules.skills[0]).triggers[0]: Provenance claims require unfiltered other-player per-card discard/judgment origins..",
+            "[FAIL] Unrespondable counterspell equipment payment completed cold",
+            "[FAIL] Actual turn trick history Cangzhuo discard cold",
+            "[FAIL] Actual turn use kinds independent hand suits and effective types",
+            "[FAIL] Actual turn use kinds per Play draw child and actual turn expiry",
+            "[FAIL] Actual turn use kinds conversion virtual use and qualified sources",
+            "[FAIL] Actual turn use kinds native public draw and strict expression loader",
+            "[FAIL] Discarded provenance virtual Alcohol face children and zero entity",
+            "[FAIL] Discarded provenance exact discard judgment origins and gain children",
+            "[FAIL] Discarded provenance real turn all materials no response",
+            "[FAIL] Discarded provenance outside threshold current maximum and native claims",
+            "0 passed, 11 failed, 0 skipped (11 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "batch23-joint-02-luoying-parser-implicit-filter-failed",
+      "startedAt": "2026-10-04T04:32:59.9926702+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 8649,
+      "coreFilters": [
+        "Discarded provenance",
+        "Actual turn use kinds",
+        "Random reveal color Fire Attack",
+        "Unrespondable counterspell equipment",
+        "Actual turn trick history Cangzhuo"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 8086,
+          "logName": "build.log",
+          "logSha256": "52a2a8a27855d6cdbe1b15c363aa919806863dfdf0a804724405bc91a14b8b09",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (5 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 513,
+          "logName": "core-selected.log",
+          "logSha256": "36b043c01e37c5022e7f2f2a50e97331e037d3575554dddcac77f9c236105a0b",
+          "resultLines": [
+            "[FAIL] Random reveal color Fire Attack HE payment and children cold",
+            "       TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+            "System.TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+            " ---> System.InvalidOperationException: Invalid skill program at skill 'boundary:luoying' (rules.skills[0]).triggers[0]: Provenance claims require unfiltered other-player per-card discard/judgment origins..",
+            "[FAIL] Unrespondable counterspell equipment payment completed cold",
+            "[FAIL] Actual turn trick history Cangzhuo discard cold",
+            "[FAIL] Actual turn use kinds independent hand suits and effective types",
+            "[FAIL] Actual turn use kinds per Play draw child and actual turn expiry",
+            "[FAIL] Actual turn use kinds conversion virtual use and qualified sources",
+            "[FAIL] Actual turn use kinds native public draw and strict expression loader",
+            "[FAIL] Discarded provenance virtual Alcohol face children and zero entity",
+            "[FAIL] Discarded provenance exact discard judgment origins and gain children",
+            "[FAIL] Discarded provenance real turn all materials no response",
+            "[FAIL] Discarded provenance outside threshold current maximum and native claims",
+            "0 passed, 11 failed, 0 skipped (11 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "batch23-joint-03-strict-discard-fixed-six-pass-five-fixture-fail",
+      "startedAt": "2026-10-04T04:40:50.2930651+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 21735,
+      "coreFilters": [
+        "Random reveal color Fire Attack",
+        "Unrespondable counterspell equipment",
+        "Actual turn trick history Cangzhuo",
+        "Actual turn use kinds",
+        "Discarded provenance"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 10729,
+          "logName": "build.log",
+          "logSha256": "2091d67824ef7585b6a1708eb9bb72ae515f8bc7a63fb4b82a8fdfe889ffcfed",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (5 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 10939,
+          "logName": "core-selected.log",
+          "logSha256": "db6ce15203841845c26f2b6abc42258a7fedac3bff65657d6dd33578201f7aee",
+          "resultLines": [
+            "[FAIL] Unrespondable counterspell equipment payment completed cold",
+            "       InvalidOperationException: Sequence contains no matching element",
+            "System.InvalidOperationException: Sequence contains no matching element",
+            "[FAIL] Discarded provenance virtual Alcohol face children and zero entity",
+            "       InvalidOperationException: Invalid skill program at skill 'fixture:co-quiet' (rules.skills[1]).triggers[0].effects[0].count: unsupported property.",
+            "System.InvalidOperationException: Invalid skill program at skill 'fixture:co-quiet' (rules.skills[1]).triggers[0].effects[0].count: unsupported property.",
+            "[FAIL] Discarded provenance exact discard judgment origins and gain children",
+            "[FAIL] Discarded provenance real turn all materials no response",
+            "[FAIL] Discarded provenance outside threshold current maximum and native claims",
+            "6 passed, 5 failed, 0 skipped (11 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "629-focused-01-quiet-fixed-viewas-same-kind-fixture-failed",
+      "startedAt": "2026-10-04T04:45:15.6316255+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 3876,
+      "coreFilters": [
+        "Discarded provenance"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3293,
+          "logName": "build.log",
+          "logSha256": "ea6e72e7cd14286f3dab3c04cbee3ac876c83a4f49476cc1208d95c79114ad8d",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 537,
+          "logName": "core-selected.log",
+          "logSha256": "802155364867cf3f4a50c76f8422822358b037e093ae12336f73a097c19018b1",
+          "resultLines": [
+            "[FAIL] Discarded provenance virtual Alcohol face children and zero entity",
+            "       InvalidOperationException: Invalid skill program at skill 'fixture:co-multi' (rules.skills[6]).viewAs[0].inputKinds: viewAs must change at least one accepted input kind.",
+            "System.InvalidOperationException: Invalid skill program at skill 'fixture:co-multi' (rules.skills[6]).viewAs[0].inputKinds: viewAs must change at least one accepted input kind.",
+            "[FAIL] Discarded provenance exact discard judgment origins and gain children",
+            "[FAIL] Discarded provenance real turn all materials no response",
+            "[FAIL] Discarded provenance outside threshold current maximum and native claims",
+            "0 passed, 4 failed, 0 skipped (4 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "batch23-joint-04-wolong-native-niepan-passed-629-one-pass-three-fail",
+      "startedAt": "2026-10-04T04:46:15.2123377+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 11891,
+      "coreFilters": [
+        "Unrespondable counterspell equipment",
+        "Discarded provenance"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3013,
+          "logName": "build.log",
+          "logSha256": "8068cc62d548115a10e2f74af99fd93d190c5f038c8ec390dac478769649f85c",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (2 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 8829,
+          "logName": "core-selected.log",
+          "logSha256": "5426be30ea42c05945954ce98e0770daf552fe74ce6ef7cb522c2e88620db33b",
+          "resultLines": [
+            "[FAIL] Discarded provenance virtual Alcohol face children and zero entity",
+            "       InvalidOperationException: Cao Zhi exact boundary missing: {\"Kind\":25,\"PlayerSeat\":0,\"Prompt\":\"\\u3010\\u9152\\u8BD7\\u3011\\u8BF7\\u9009\\u62E9\\u4E00\\u9879\\u3002\",\"ValidCardIds\":[],\"ValidTargetSeats\":[],\"SourceSeat\":0,\"IncomingCard\":null,\"SkillPrompt\":{\"SkillId\":\"boundary:jiushi\",\"Name\":\"\\u9152\\u8BD7\",\"Title\":\"\\u9152\\u8BD7 \\u00B7 \\u9009\\u62E9\\u6548\\u679C\",\"Instructions\":\"\\u4F60\\u53EF\\u4EE5\\u5C06\\u6B66\\u5C06\\u724C\\u7FFB\\u81F3\\u80CC\\u9762\\uFF0C\\u89C6\\u4E3A\\u4F7F\\u7528\\u4E00\\u5F20\\u3010\\u9152\\u301",
+            "System.InvalidOperationException: Cao Zhi exact boundary missing: {\"Kind\":25,\"PlayerSeat\":0,\"Prompt\":\"\\u3010\\u9152\\u8BD7\\u3011\\u8BF7\\u9009\\u62E9\\u4E00\\u9879\\u3002\",\"ValidCardIds\":[],\"ValidTargetSeats\":[],\"SourceSeat\":0,\"IncomingCard\":null,\"SkillPrompt\":{\"SkillId\":\"boundary:jiushi\",\"Name\":\"\\u9152\\u8BD7\",\"Title\":\"\\u9152\\u8BD7 \\u00B7 \\u9009\\u62E9\\u6548\\u679C\",\"Instructions\":\"\\u4F60\\u53EF\\u4EE5\\u5C06\\u6B66\\u5C06\\u724C\\u7FFB\\u81F3\\u80CC\\u9762\\uFF0C\\u89C6\\u4E3A\\u4F7F\\u7528\\u4E00\\u5F20\\u3010\\u9152\\u301",
+            "[FAIL] Discarded provenance exact discard judgment origins and gain children",
+            "       InvalidOperationException: Cao Zhi exact boundary missing: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[85,12,60,79,92,54],\"ValidTargetSeats\":[1,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":3,\"IsValid\":true},\"Revision\":269,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.slash.card-85.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u301",
+            "System.InvalidOperationException: Cao Zhi exact boundary missing: {\"Kind\":1,\"PlayerSeat\":0,\"Prompt\":\"\\u8BF7\\u9009\\u62E9\\u4E00\\u5F20\\u724C\\u548C\\u76EE\\u6807\\uFF0C\\u6216\\u7ED3\\u675F\\u51FA\\u724C\\u9636\\u6BB5\\u3002\",\"ValidCardIds\":[85,12,60,79,92,54],\"ValidTargetSeats\":[1,3],\"SourceSeat\":null,\"IncomingCard\":null,\"PromptId\":{\"Value\":3,\"IsValid\":true},\"Revision\":269,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"play.slash.card-85.target-1\",\"IsValid\":true},\"Description\":\"\\u5BF9 AI 2 \\u4F7F\\u7528\\u301",
+            "[FAIL] Discarded provenance real turn all materials no response",
+            "       InvalidOperationException: The selected Slash target is no longer legal.",
+            "System.InvalidOperationException: The selected Slash target is no longer legal.",
+            "2 passed, 3 failed, 0 skipped (5 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "629-focused-02-complete-four-real-checks-declaration-and-strict-contracts-passed",
+      "startedAt": "2026-10-04T04:58:04.5052535+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 35328,
+      "coreFilters": [
+        "Discarded provenance"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 23008,
+          "logName": "build.log",
+          "logSha256": "4f7a14be15ced962a481dbd07046a79fbb83bee5dda1f27354f3319cb4dec9e2",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 12262,
+          "logName": "core-selected.log",
+          "logSha256": "350aa39e0f91eb3532e9a9357b903df34e07ddde0b412f6e4a2cf2a9fce83dc1",
+          "resultLines": [
+            "4 passed, 0 failed, 0 skipped (4 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "batch23-joint-05-alcohol-cross-fixture-cs0136-build-failed",
+      "startedAt": "2026-10-04T05:04:10.2952892+08:00",
+      "status": "build-failed",
+      "mode": "targeted",
+      "durationMs": 8637,
+      "coreFilters": [
+        "Random reveal color Fire Attack",
+        "Unrespondable counterspell equipment",
+        "Actual turn trick history Cangzhuo",
+        "Actual turn use kinds",
+        "Discarded provenance"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 8595,
+          "logName": "build.log",
+          "logSha256": "4657638f7bb319deee0fa63dd7ec5278db2c6179cd5741ed1a00dffc0f63db4e",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryWolongZhugeLiangChecks.cs(389,115): warning CS8629: 可为 null 的值类型可为 null。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryWolongZhugeLiangChecks.cs(394,59): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryWolongZhugeLiangChecks.cs(394,74): warning CS8629: 可为 null 的值类型可为 null。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    5 个警告",
+            "    2 个错误"
+          ],
+          "errorDiagnostics": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryWolongZhugeLiangChecks.cs(393,167): error CS0136: 无法在此范围中声明名为“action”的局部变量或参数，因为该名称在封闭局部范围中用于定义局部变量或参数 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "batch23-joint-06-final-eleven-checks-all-alcohol-cross-producers-passed",
+      "startedAt": "2026-10-04T05:05:03.1086941+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 24397,
+      "coreFilters": [
+        "Random reveal color Fire Attack",
+        "Unrespondable counterspell equipment",
+        "Actual turn trick history Cangzhuo",
+        "Actual turn use kinds",
+        "Discarded provenance"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3232,
+          "logName": "build.log",
+          "logSha256": "5acfa34c09f23cbe085774f19ef5abb5d05986d2b08a8b2eabf59c862fa21980",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (5 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 21108,
+          "logName": "core-selected.log",
+          "logSha256": "a42143c4a600adc4d4fcdaf15081db1b67681ebf0d27b23fa629e2e0ea14300f",
+          "resultLines": [
+            "11 passed, 0 failed, 0 skipped (11 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "batch23-full-01-one-core-one-wpf-failed",
+      "startedAt": "2026-10-04T05:07:06.3081671+08:00",
+      "status": "test-failed",
+      "mode": "full",
+      "durationMs": 292565,
+      "coreFilters": [],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 6577,
+          "logName": "build.log",
+          "logSha256": "91cc24ae76b3b8c445f482b08dd36ff3c27b8ef3a8213bc93698b0f8e6fa2bab",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core full checks",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 243082,
+          "logName": "core-full.log",
+          "logSha256": "ef9d82a139d6946b7fc8d4160adda677d4a213593ecfd6c57fa261bf3412bb50",
+          "resultLines": [
+            "[FAIL] classic Qinglong opens a same-target follow-up Slash and replays",
+            "       InvalidOperationException: A completed gift lost its real recipient-owned Slash child.",
+            "System.InvalidOperationException: A completed gift lost its real recipient-owned Slash child.",
+            "652 passed, 1 failed, 0 skipped (653 total)."
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "WPF full checks",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 42863,
+          "logName": "wpf-full.log",
+          "logSha256": "dfc40ed4fc4fc5d25368d86f3a7a72235ce37cf0637fb41af5357a6b2933f82c",
+          "resultLines": [
+            "[FAIL] action dock keeps confirm cancel and end stable through real selection: System.InvalidOperationException: Selecting an equipment card moved the action buttons or left confirmation inaccessible.",
+            "56 WPF checks passed, 1 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders"
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "batch23-two-retained-failures-reproduced-focused",
+      "startedAt": "2026-10-04T05:14:11.8144725+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 7403,
+      "coreFilters": [
+        "classic Qinglong opens a same-target"
+      ],
+      "wpfFilters": [
+        "action dock keeps confirm"
+      ],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2621,
+          "logName": "build.log",
+          "logSha256": "ad425bb4ad44d337e96ac257163fe31c942475a100806f8f9e854c70bbfadbea",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1294,
+          "logName": "core-selected.log",
+          "logSha256": "220151590b157ab8354810eb4c6511a45ad5fe26c9678a5526f1da104c7fc35b",
+          "resultLines": [
+            "[FAIL] classic Qinglong opens a same-target follow-up Slash and replays",
+            "       InvalidOperationException: A completed gift lost its real recipient-owned Slash child.",
+            "System.InvalidOperationException: A completed gift lost its real recipient-owned Slash child.",
+            "0 passed, 1 failed, 0 skipped (1 total)."
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "WPF selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 3429,
+          "logName": "wpf-selected.log",
+          "logSha256": "4849afa7cae5d16e08944aad61d9de53ab78443655069fd7d5dc7a11709702b1",
+          "resultLines": [
+            "0 WPF checks passed, 1 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders",
+            "[FAIL] action dock keeps confirm cancel and end stable through real selection: System.InvalidOperationException: Selecting an equipment card moved the action buttons or left confirmation inaccessible."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    }
+  ],
+  "integrations": [
+    {
+      "gid": 454,
+      "manifestSha256": "482c5dad16d6621779acd112c7fe44953551e8027de291125a98ace9a7dd5f07",
+      "newFiles": 9,
+      "oldPatchFiles": 14,
+      "focusedPassed": 3,
+      "stageUnchanged": true,
+      "parentRepairs": [
+        "quiet Play skip uses AfterNormalDraw",
+        "PlayCard conversion submits actual published LegalAction instead of AnswerPrompt",
+        "paid FireAttack target checked explicitly",
+        "Nullification prompt contract accepts exact paid typed child ride",
+        "physical counterspell assertion preserves actual chain parity"
+      ]
+    },
+    {
+      "gid": 658,
+      "manifestSha256": "2d81e08f5e9cddfe2907551d7153ae92cf34f89b29188d1a0e15d67ba13ccd10",
+      "newFiles": 5,
+      "oldPatchFiles": 10,
+      "oldContentCompared": "All10 match frozen preview after CRLF normalization; actual applied hashes retained separately",
+      "focusedPassed": 3,
+      "focusedTotal": 4,
+      "parentRepairs": [
+        "PromptChoice uses Targets",
+        "Selected actor Duel fixture retains required two-use phase contract"
+      ],
+      "remaining": "First actual Slash response fixture plus 454 nested paid-child followups"
+    },
+    {
+      "status": "all-nine-new-and-twenty-exact-old-inputs-verified-and-applied",
+      "rootFixes": [
+        "partial physicalCardIds parameter name",
+        "new provenance op only parses explicit movementOccurrence or defaults PerCard; historical discard program null untouched"
+      ],
+      "manifestSha256": "17d2a0e54542ae8404bbc9b93adc227cbf02df93d017332a9d83f89f2fd9cfdc",
+      "general": "boundary:cao-zhi",
+      "patchSha256": "382361ae34773b11e96afa677768dc3049242caea6b7a4559aa9c6080170a760"
+    }
+  ],
+  "integrationFollowups": [
+    {
+      "status": "applied-exact-two-main-byte-baselines",
+      "manifestSha256": "a507cd03ec352c85f4ec5b9df0e16d97484a766a936ee8a860118084c6b86610",
+      "name": "454 real random Equipment typed Processing",
+      "patchSha256": "1ebbc2f848eacf7a63fce407a259b82d095be43775ff685af9aa9d9ca6f25d54"
+    },
+    {
+      "status": "applied-exact-main-byte-baseline-fixture-replacement-assumption-failed",
+      "manifestSha256": "8c00e67272e18851b695007c1b03b521823c9fcddd130578615a8cc147224154",
+      "name": "454 real HP observer fixture",
+      "patchSha256": "bc3a31c9f4e30cf32c28ca92654b719b91e5e5418211e7b4cda3d5b1534cd93a"
+    },
+    {
+      "status": "all-frozen-files-and-three-current-main-byte-baselines-verified-applied",
+      "manifestSha256": "a5f4fc56c60307b2ed30a1287c0596f7f9b362aa6879ba42c0299d61ce0ca131",
+      "name": "454 exact paid Program Dying and native Niepan",
+      "patchSha256": "a8a97f82b5db1f11f53f43a3bc662bde1d0c0aa0a03d9b0a7267aed652fedb13"
+    },
+    {
+      "status": "verified-applied-all-four-actual-focused-checks-passed",
+      "manifestSha256": "4b9eacbd3a60f351c2e2e75e8ede641438382ac9a0957a0355ec1a5d41d2a4e3",
+      "name": "658 actual chain Duel restoration fixture",
+      "patchSha256": "33a32ac4e3eb82363ae18252b06725889f3662b634fa8c03245c65220f8b5d5c"
+    },
+    {
+      "status": "frozen-bytes-and-main-baseline-verified-preserved-root-physicalCardIds-name-applied",
+      "name": "629 exact successful declaration payment qualification",
+      "patchSha256": "e7ef9a9458d7280797aee9870243d17182ba6d0cb2413e1ef99d0aa49c1246ed"
+    },
+    {
+      "patchSha256": "9501c5b6e00f1b4c40d3d542bce5ca6bfcadbe88134b2f3e12261702c061b33f",
+      "name": "629 quiet fixed-count descriptor fixture",
+      "status": "exact-main-byte-baseline-verified-applied"
+    },
+    {
+      "patchSha256": "b15d977d6a463f4151c1f2201b1b4701d413b13bf3ad4dda832673e56a60fd99",
+      "name": "454 actual finalized Equipment placement and direct Niepan recovery fixture",
+      "status": "all-frozen-files-exact-main-byte-baseline-verified-applied-complete-augmented-method-passed",
+      "manifestSha256": "3439b6e725e31fa7b4fc46028cbf2cc7ac9fb47abce79fcc32e1d74d3f19c20b"
+    },
+    {
+      "status": "exact-four-current-main-byte-baselines-verified-applied-all-four-checks-passed",
+      "name": "629 actual self-dying choice judgment-result handoff and complete-material precommit",
+      "patchSha256": "e6e0ed08163448eeb019bf18c6ffa96badfc22f189304fe6dc6f70a64b9a1281"
+    },
+    {
+      "patchSha256": "b10566a4cd30513969e811429f234802c3de8993966702a9d21832fca9bb72d8",
+      "manifestSha256": "9fcc1155f411f000129956fe1205f73f5ff517d3475fadecb6e3f4a54ed27089",
+      "staticOnly": "Unreachable ordinary fixture RecoveryProducer virtual replacement tail; real virtual test anchors CharacterTurnedOver before synchronous rescue",
+      "name": "454 exact actual Jiushi and bound Chunlao rescue cross-producers",
+      "rootRepair": "test-only nested variable names and explicit nonnull heldAlcoholId; assertions unchanged",
+      "status": "all-frozen-files-and-two-main-byte-baselines-verified-applied-final-joint-eleven-passed"
+    }
+  ],
+  "offlineArt": {
+    "compiled": "all-three-current-full-build-resource-byte-sha256-matches-passed",
+    "command": "python -B tools/sync_general_art.py --phase verify",
+    "pngRecords": 1002,
+    "status": "passed",
+    "generals": 205
+  },
+  "rootFixtureFixes": [
+    "629 two same-kind materials uses existing allowSameKind contract; unchanged strict loader",
+    "retained WPF playback checkpoint-count read removed and prefix ends after all five required behaviors; assertions and registrations retained",
+    "retained Cai gain-dying fixture draws four actual entities instead of forty; all four method assertions and registrations retained"
+  ],
+  "routineScope": {
+    "finalMeasuredSeconds": null,
+    "retainedOldRegistrations": true,
+    "targetSecondsAbout": 60,
+    "addedFilters": [
+      "Random reveal color Fire Attack",
+      "Unrespondable counterspell equipment",
+      "Discarded provenance virtual Alcohol",
+      "Discarded provenance exact discard judgment",
+      "Discarded provenance real turn all materials",
+      "Actual turn use kinds independent hand suits",
+      "Actual turn use kinds per Play draw"
+    ]
+  },
+  "readOnlyReviews": [
+    {
+      "inputSha256": "a3c44d5bb65f04f9691544ac3950d2159995a7b898f77aee29d25929b23f39b8",
+      "source": "guo-huai/readonly-629/review.md",
+      "sha256": "137214eda3f4e5e30989346ba03f4f5a6a740a0f06b9217bceede1bb99ec2158",
+      "finding": "exact successful declaration payment policy missed Processing after pre-paid Hand cost; independent followup integrated; pending actual test"
+    },
+    {
+      "inputSha256": "fbc469506d830bf23a79ff6f3f8560d0a9270c3294df5a37c222813b1323d1cb",
+      "source": "guo-huai/readonly-629/strict-main-review.md",
+      "sha256": "5dedf84881e5a09a1e613ab3fb80278fbb8c46293ea5dd34d812fa5e171328f4",
+      "finding": "new4500 only PerCard parser preserves historical discard null; complete content/metadata/asset routing static proof; fixture failures recorded separately"
+    }
+  ],
+  "compiledArt": [
+    {
+      "key": "assets/official-boundary-cao-zhi.png",
+      "sourceSha256": "cd93ab4634bb93f12e2647fe17620b0b96b12eb5d94b0dce1352161b7adad02f",
+      "compiledSha256": "cd93ab4634bb93f12e2647fe17620b0b96b12eb5d94b0dce1352161b7adad02f",
+      "matched": true
+    },
+    {
+      "key": "assets/official-boundary-wolong-zhuge-liang.png",
+      "sourceSha256": "b90b0e0a6f4fae8fab8103ed882b83e6ecbb92ce3fa72d71c7fbe0c9a7edde29",
+      "compiledSha256": "b90b0e0a6f4fae8fab8103ed882b83e6ecbb92ce3fa72d71c7fbe0c9a7edde29",
+      "matched": true
+    },
+    {
+      "key": "assets/official-boundary-guo-huai.png",
+      "sourceSha256": "926a4be07c091fd6f4e38704e1da430cd2d75a806c91e4cbc1a8a4c3fc622296",
+      "compiledSha256": "926a4be07c091fd6f4e38704e1da430cd2d75a806c91e4cbc1a8a4c3fc622296",
+      "matched": true
+    }
+  ],
+  "frozenSources": [
+    {
+      "gid": 454,
+      "name": "界卧龙诸葛亮",
+      "path": "docs/content/sources/fenglin-twenty-third-454-source-2026-10-04.json",
+      "sha256": "7a42bf2ce89bf8f38d6af1ca8f591b3801a51de585c5d13440567bb04ba8cfef",
+      "frozenBytesMatched": true
+    },
+    {
+      "gid": 629,
+      "name": "界曹植",
+      "path": "docs/content/sources/fenglin-twenty-third-629-source-2026-10-04.json",
+      "sha256": "bb69f5d6012fb5e5f188d9e650074f518950f4828c46940bc2373d451cae8b68",
+      "frozenBytesMatched": true
+    },
+    {
+      "gid": 658,
+      "name": "界郭淮",
+      "path": "docs/content/sources/fenglin-twenty-third-658-source-2026-10-04.json",
+      "sha256": "bec539a138be8e754078248a604cec5ca7c1374bbfda74c9c80efd5c09d2d07a",
+      "frozenBytesMatched": true
+    }
+  ],
+  "full01InputProof": {
+    "endSha256": "d2325cbb1584b17c8cce1145f4695f6ac6f9156a99be2be7973edc7567fa2f9b",
+    "startSha256": "d2325cbb1584b17c8cce1145f4695f6ac6f9156a99be2be7973edc7567fa2f9b",
+    "files": 2515
+  }
+}
