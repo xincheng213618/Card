@@ -819,6 +819,7 @@ public sealed partial class GameEngine
             AssertFrozenFactionRecovery(frame);
             AssertNextActualUseProgramSelection(frame, plan);
             AssertBoundDiscardSlashReceipt(frame);
+            AssertSharedSlashOffer(frame);
             AssertShownGiftReceipt(frame, plan.Instructions);
             AssertExactRepeatedJudgmentReceipt(frame, plan.Instructions);
             if (frame.InstructionIndex < 1 || frame.InstructionIndex > plan.Instructions.Count ||

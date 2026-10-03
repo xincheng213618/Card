@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:mingce-current",
+      "revision": 1,
+      "minimumRulesVersion": 195,
+      "activations": [
+        {
+          "id": "offer-command",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "minimumCards": 1,
+              "maximumCards": 1,
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "cardKinds": [
+                "slash",
+                "fireSlash",
+                "thunderSlash",
+                "crossbow",
+                "baguaFormation",
+                "renwangShield",
+                "offensiveHorse",
+                "defensiveHorse",
+                "jadeSeal",
+                "qinggangSword",
+                "stoneAxe",
+                "zhangbaSerpentSpear",
+                "cixiongDoubleSwords",
+                "qinglongCrescentBlade",
+                "iceSword",
+                "qilinBow",
+                "fangtianHalberd",
+                "gudingBlade",
+                "zhuqueFan",
+                "tengjia",
+                "silverLion",
+                "woodenOx",
+                "dawan",
+                "zixing",
+                "dilu",
+                "zhaohuangfeidian",
+                "hualiu",
+                "ghostDragonCrescentBlade",
+                "scarletBloodSword",
+                "xingtianAxe",
+                "redBloodBlade",
+                "generalWeapon"
+              ],
+              "resultBind": "command-gift"
+            },
+            {
+              "op": "giveBoundCardThenOfferVirtualSlashOrSharedDraw",
+              "target": "selectedTarget",
+              "sourceBind": "command-gift"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

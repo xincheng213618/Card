@@ -135,7 +135,8 @@
         'Discarded provenance real turn all materials',
         'Actual turn use kinds independent hand suits',
         'Actual turn use kinds per Play draw',
-        'Owner batch loss equipment OR two cards once'
+        'Owner batch loss equipment OR two cards once',
+        'Shared Slash gift equipment recovery both gain children cold'
     )
     Wpf = @(
         'original card artwork', 'overlapping hand', 'composed skills', 'conversion choices',

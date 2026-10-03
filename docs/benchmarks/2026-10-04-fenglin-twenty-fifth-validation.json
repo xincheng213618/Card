@@ -30,7 +30,9 @@
       "sourceSha256": "1b8dc3a45f48279062caf56f7d8967b0caf9a9c2fe29c0e488b0045d8d2504b7",
       "owner": "/root/sun_quan",
       "stage": ".artifacts/continuation-20261003-batch17/batch25/chen-gong",
-      "mainRegistered": false
+      "mainRegistered": true,
+      "status": "static-integrated-runtime-deferred",
+      "integrationNote": "docs/content/skill-composition/FENG_LIN_TWENTY_FIFTH_CHEN_GONG.md"
     },
     {
       "gid": 626,
@@ -60,15 +62,35 @@
       "loaderExecuted": false,
       "testsRun": false,
       "runtimeAcceptance": false
+    },
+    {
+      "gid": 597,
+      "integratedAtUtc": "2026-10-03T23:52:04.6294103+00:00",
+      "frozenDeliveryManifestSha256": "10f58f8355824a31be53a6e87f5bbab1fe9659041870194dbef6753c5638d9ff",
+      "originalOldBaselinesVerified": 12,
+      "originalNewFilesCopied": 6,
+      "originalNarrowPatchPreviewMatched": true,
+      "focusedChecksRegistered": 4,
+      "representativeRoutineFiltersAdded": 1,
+      "officialRawArtInstalled": true,
+      "knownCoverageGaps": [
+        "No actual 5100 plus 604/4901 extra-tail fixture: outside-turn recipient cannot naturally retain own-turn rights with current owner-only phase insertion; static typed/aggregate proof only",
+        "Dead-beneficiary/winner count-zero draw paths statically inspected but not separately included in behavior drafts"
+      ],
+      "buildsRun": false,
+      "loaderExecuted": false,
+      "testsRun": false,
+      "runtimeAcceptance": false
     }
   ],
   "media": "docs/content/sources/fenglin-twenty-fifth-art-2026-10-04.json",
   "fixturePreparation": "docs/benchmarks/2026-10-04-routine-preparation-static.json",
   "runtimeAcceptance": false,
   "pending": [
-    "597 and 626 frozen delivery/current OLD baseline verification and static integration",
+    "626 refreshed frozen delivery/current OLD baseline verification and static integration",
     "User later combined build, focused runtime, Full and measured routine verification",
-    "Offline and compiled raw art verification after waking"
+    "Offline and compiled raw art verification after waking",
+    "597 plus 604/4901 actual-tail combination currently static-only; no manufactured fixture"
   ],
   "cleanup": {
     "ownedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",

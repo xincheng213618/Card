@@ -25,7 +25,7 @@ public sealed partial class GameEngine
         {
             var location = new CardLocation(zone, cardOwnerSeat);
             return _cardZones.CardsAt(location)
-                .Where(card => cardKinds.Count == 0 || cardKinds.Contains(card.Kind))
+                .Where(card => MatchesProgramOwnedSelectionKind(active, resultBind, _players[cardOwnerSeat], card, location, cardKinds))
                 .Where(card => suits.Count == 0 || suits.Contains(GetProgramEffectiveSuit(_players[cardOwnerSeat], card)))
                 .Select(card => (card.Id, Location: location));
         }).ToArray();

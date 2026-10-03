@@ -118,6 +118,7 @@ public sealed record ProgramSkillFrame(
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramDiamondDelayedDraft? DiamondDelayed { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramShownGiftReceipt? ShownGiftReceipt { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public SharedSlashOfferReceipt? SharedSlashOffer { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramNextActualUseAdjustment? NextActualUseAdjustment { get; init; }
 
     /// <summary>The exact current grant selected when this execution was frozen.</summary>
@@ -424,6 +425,7 @@ public sealed record CardUseFrame(
     public ProgramDamageTargetDuelOrigin? DamageTargetDuelOrigin { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramDualColorDuelOrigin? DualColorDuelOrigin { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public SharedSlashBenefitReturn? SharedSlashBenefit { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramArrowBarrageExclusion? ArrowBarrageExclusion { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]

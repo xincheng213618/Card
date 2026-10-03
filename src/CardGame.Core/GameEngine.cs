@@ -12867,7 +12867,7 @@ public sealed partial class GameEngine
                 .Single(frame => frame.Id == attack.ResolutionId);
             if (virtualUse.Action is { } virtualAction)
             {
-                if (attack.ProgramSkillCardUseFrameId is { } programParentId)
+                if (attack.ProgramSkillCardUseFrameId is { } programParentId && virtualUse.SharedSlashBenefit is null)
                 {
                     var parentIndex = _resolutionStack.FindIndex(frame => frame.Id == programParentId);
                     if (parentIndex < 0 || _resolutionStack[parentIndex] is not ProgramSkillFrame parent)
@@ -13130,6 +13130,10 @@ public sealed partial class GameEngine
         {
             CompleteBorrowedSwordAfterSlash(borrowedSword);
             return;
+        }
+        if (completion.SharedSlashBenefit is not null)
+        {
+            CompleteSharedSlashBenefit(completion); return;
         }
         if (resumesProgramSkill && completion.ProgramFrameId is { } obtainedParent &&
             _resolutionStack.LastOrDefault() is ProgramSkillFrame obtainedFrame && obtainedFrame.Id == obtainedParent &&
@@ -16830,6 +16834,7 @@ public sealed partial class GameEngine
         AssertDiscardPromptInvariant();
         AssertYingboInvariant();
         AssertGrantedEntityDistancePolicies();
+        AssertSharedSlashUseReturns();
         _cardZones.AssertInvariants(_initialCardCount + _generatedPhysicalCardIds.Count);
 
         foreach (var player in _players)

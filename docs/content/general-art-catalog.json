@@ -11574,6 +11574,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-chen-gong",
+      "characterName": "界陈宫",
+      "defaultSkinId": "59700",
+      "skins": [
+        {
+          "id": "59700",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/597",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/59700.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-chen-gong.png",
+          "sha256": "92b6d601f086fac75815e45e65721492daee4bd04009c49fb0c6633c9cd1f662",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,31 @@
+{
+  "status": "official-raw-png-staged-no-main-registration-no-build-tests",
+  "batch": 26,
+  "images": [
+    {
+      "gid": 603,
+      "key": "boundary-yu-fan",
+      "name": "界虞翻",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-sixth-603-source-2026-10-04.json",
+      "sourceRecordSha256": "2002c486ce10219cb8dd5fe9f2d5aeddd28831fcbb4f592f357d7311d7970a38",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60300.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60300.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-03T23:33:24.7082309+00:00",
+      "contentType": "image/png",
+      "rawBytes": 985356,
+      "sha256": "2e352050db40c5c93e4d17a3c94506ec84b9a9bb344b3b79f77dc59c5abc7215",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch26\\official-art\\official-boundary-yu-fan.png",
+      "installed": false
+    }
+  ],
+  "verification": {
+    "rawPngSignatureAndIhdr": true,
+    "sourceRecordShaMatched": true,
+    "mainRegistration": false,
+    "fullOfflineCatalogRun": false,
+    "compiledVerificationRun": false
+  }
+}

@@ -34,6 +34,7 @@ public sealed partial class GameEngine
             case CardDeclarationFrame: ContinueCardDeclaration(frameId); break;
             case CardDeclarationChallengeFrame: ContinueCardDeclarationChallenge(frameId); break;
             case ProgramSkillFrame:
+                if (ResumeSharedSlashOffer(frameId)) return;
                 if (ResumeGrantedEntityPhaseTrailer(frameId) || ResumeGrantedPhaseSlashClaim(frameId)) return;
                 if (ResumeProvenanceClaim(frameId) || ResumeProvenanceAlcohol(frameId)) return;
                 if (ResumeDamageJudgmentSuitPayment(frameId)) return;

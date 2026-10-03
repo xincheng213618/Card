@@ -1,0 +1,66 @@
+{
+  "status": "one-agent-static-development-user-runtime-verification-deferred",
+  "batch": 26,
+  "baseCommit": "6540258e",
+  "userSteering": {
+    "instruction": "Keep adding content and commit; user will run unified tests after waking because CPU noise",
+    "buildsRun": false,
+    "testsRun": false,
+    "benchmarksRun": false,
+    "commitAuthorized": true,
+    "pushAuthorized": false
+  },
+  "candidates": [
+    {
+      "gid": 603,
+      "id": "boundary:yu-fan",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-sixth-603-source-2026-10-04.json",
+      "sourceSha256": "2002c486ce10219cb8dd5fe9f2d5aeddd28831fcbb4f592f357d7311d7970a38",
+      "owner": "/root/pang_de",
+      "stage": ".artifacts/continuation-20261003-batch17/batch26/yu-fan",
+      "mainRegistered": false,
+      "status": "owned-stage-implementation-in-progress"
+    },
+    {
+      "gid": 620,
+      "id": "boundary:cheng-pu",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-sixth-620-source-2026-10-04.json",
+      "sourceSha256": "0311e46c596eff1178e83e4d9a09890cd10f2aa2e4cfb9170543fc08884a3eb4",
+      "mainRegistered": false,
+      "status": "primary-source-only-not-assigned"
+    },
+    {
+      "gid": 640,
+      "id": "boundary:wu-guo-tai",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-sixth-640-source-2026-10-04.json",
+      "sourceSha256": "63ebbd951a00144754cc5fc515f8554d96e8dd597a67eec43ac286e31d14875a",
+      "mainRegistered": false,
+      "status": "primary-source-only-not-assigned"
+    }
+  ],
+  "runs": [],
+  "integrations": [],
+  "media": "docs/content/sources/fenglin-twenty-sixth-art-2026-10-04.json",
+  "runtimeAcceptance": false,
+  "pending": [
+    "603 frozen NEW/OLD patches and current baseline verification",
+    "603 static production/rule/runner/media integration",
+    "620 and 640 implementation remains unassigned",
+    "User later combined build, focused runtime, Full and measured routine verification",
+    "Offline and compiled raw art verification after waking"
+  ],
+  "versions": {
+    "perCharacterBumped": false,
+    "authoritativePaths": [
+      "src/CardGame.Core/Replay.cs",
+      "src/CardGame.Core/SkillPrograms.cs",
+      "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs"
+    ]
+  },
+  "cleanup": {
+    "ownedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+    "priorAutomaticApprovalRejection": "blocked by policy",
+    "retryPerformed": false,
+    "sourceStagesAndCacheRetainedForContinuation": true
+  }
+}

@@ -3223,6 +3223,10 @@ public sealed partial class GameEngine
             ResolveVirtualBasicChoice(selected);
             return;
         }
+        if (action == "shared-slash-offer")
+        {
+            ResolveSharedSlashOfferChoice(selected); return;
+        }
         if (action == "virtual-slash-offer")
         {
             ResolveProgramVirtualSlashOfferChoice(selected);
@@ -4004,6 +4008,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.OfferUnlimitedVirtualSlash => SelectAiUnlimitedSlash(decision),
                 SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention => decision.Choices[0],
                 SkillProgramEffectOp.OfferVirtualSlashOrDraw or SkillProgramEffectOp.OfferVirtualBasicCard => decision.Choices[0],
+                SkillProgramEffectOp.GiveBoundCardThenOfferVirtualSlashOrSharedDraw => SelectAiSharedSlashOffer(decision, frame),
                 SkillProgramEffectOp.RequestSlashAgainstChosenTarget or SkillProgramEffectOp.TakeSelectedTargetCards => decision.Choices[0],
                 SkillProgramEffectOp.ViewAndTakeSelectedTargetHand or SkillProgramEffectOp.RequestHandBySuitsOrLoseHp => SelectAiParticipantHandChoice(decision, frame),
                 SkillProgramEffectOp.RevealTargetHandCard => decision.Choices
