@@ -224,10 +224,10 @@ internal static class BoundaryWolongZhugeLiangChecks
         foreach (var seat in new[] { 1, 2, 3 }) { UseDriver(rescued, "empty-other-hand", seat); ReachPlay(rescued); }
         Require(rescued.State.Players[1].Hp == 8 && rescued.CreateSnapshot(0).Players[1].Equipment.Count == 0,
             "The real chosen rescue participant begins at eight HP with no armor or hand rescue material.");
-        for (var point = 0; point < 7; point++) { UseDriver(rescued, "hurt-other", 1); ReachPlay(rescued); }
+        UseDriver(rescued, "prepare-one-hp", 1); ReachPlay(rescued);
         Require(rescued.State.Players[1].Hp == 1 && Hand(rescued, 1).Count == 0 &&
             !Facts<ProgramBindingStartedEvent>(rescued).Any(fact => fact.OwnerSeat == 1 && fact.SkillId == "classic:niepan"),
-            "Seven real loss commands establish one HP without consuming actual Niepan beforehand.");
+            "One real seven-HP loss establishes one HP without consuming actual Niepan beforehand.");
         var rescuedMaterial = Hand(rescued, 0).First().Id;
         PlayAs(rescued, rescuedMaterial, [2], CardKind.Dismantlement);
         Reach(rescued, prompt => prompt.Kind == DecisionKind.Nullification && prompt.PlayerSeat == 0);
@@ -334,9 +334,10 @@ internal static class BoundaryWolongZhugeLiangChecks
             UseDriver(alcoholGame, "equip-other", 2); ReachPlay(alcoholGame);
             var untouchedArmor = alcoholGame.CreateSnapshot(0).Players[2].Equipment.Single().Id;
             foreach (var seat in new[] { 1, 2, 3 }) { UseDriver(alcoholGame, "empty-other-hand", seat); ReachPlay(alcoholGame); }
-            for (var point = 0; point < 7; point++) { UseDriver(alcoholGame, "hurt-other", 1); ReachPlay(alcoholGame); }
+            Require(alcoholGame.State.Players[1].Hp == 8, "The real alcohol rescue participant begins its preparation at eight HP.");
+            UseDriver(alcoholGame, "prepare-one-hp", 1); ReachPlay(alcoholGame);
             Require(alcoholGame.State.Players[1].Hp == 1 && Hand(alcoholGame, 1).Count == 0,
-                "The exact chosen participant reaches one HP via genuine loss commands before either program rescue starts.");
+                "The exact chosen participant reaches one HP via a genuine seven-HP loss before either program rescue starts.");
             var alcoholTrick = Hand(alcoholGame, 0).First().Id;
             PlayAs(alcoholGame, alcoholTrick, [2], CardKind.Dismantlement);
             Reach(alcoholGame, prompt => prompt.Kind == DecisionKind.Nullification && prompt.PlayerSeat == 0);
@@ -553,6 +554,7 @@ internal static class BoundaryWolongZhugeLiangChecks
                   {"id":"equip-self","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"useRandomDeckEquipment","target":"owner","resultBind":"self-equipment"}]},
                   {"id":"equip-other","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"useRandomDeckEquipment","target":"owner","resultBind":"equipment"}]},
                   {"id":"hurt-other","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"loseHp","target":"selectedTarget","amount":1}]},
+                  {"id":"prepare-one-hp","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"loseHp","target":"selectedTarget","amount":7}]},
                   {"id":"empty-other-hand","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"otherLiving","usesPerTurn":null,"effects":[{"op":"discardParticipantCards","target":"selectedTarget","amount":64,"zones":["hand"]}]}]},
                  {"id":"fixture:wolong-hp","revision":1,"triggers":[{"id":"recover","window":"afterHpRecovered","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"hp-seen","options":[{"id":"continue"}]},{"op":"draw","target":"owner","amount":1}]}]},
                  {"id":"fixture:wolong-gain","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"gain-seen","options":[{"id":"continue"}]}]}]},

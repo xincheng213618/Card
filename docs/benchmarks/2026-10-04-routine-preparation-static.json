@@ -1,0 +1,29 @@
+{
+  "status": "fixture-preparation-only-static-change-not-built-not-run",
+  "baselineCommit": "659f5af4",
+  "baselineFileSha256": "0ecfbd46f5a499093ab6f9c732de3f828c7b7bdac40fde968ca789c652da659e",
+  "currentFileSha256": "5c1c2d1407f1ef9916e5991938521899e8a98ab7a9abf42668df513ecbf30027",
+  "path": "tests/CardGame.Core.Tests/BoundaryWolongZhugeLiangChecks.cs",
+  "method": "UnrespondableCounterspellEquipmentPaymentAndCompletedCold",
+  "change": "Three independent HP8-to-1 preparations each use one real LoseHp7 instead of seven real LoseHp1 commands; actual last HP1-to-0/recovery remains unchanged",
+  "sourceCallSites": 2,
+  "actualScenarios": 3,
+  "fewerLiveUseProgramSkillCommands": 18,
+  "coldPrefixReplaysAfterPreparation": [
+    5,
+    5,
+    6
+  ],
+  "fewerReplayedPreparationCommands": 96,
+  "beforeColdSourceCalls": 36,
+  "afterColdSourceCalls": 36,
+  "existingOnePointFixtureRetained": true,
+  "allColdAndBehaviorAssertionsRetained": true,
+  "strongerAlcoholStartingHpAssertion": true,
+  "runtimeAcceptance": false,
+  "performanceMeasured": false,
+  "buildsRun": false,
+  "testsRun": false,
+  "requiredNextCheck": "Unrespondable counterspell equipment payment completed cold",
+  "userInstruction": "Defer CPU-heavy verification until the user wakes; no post-instruction builds/tests"
+}

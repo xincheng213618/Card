@@ -1,0 +1,68 @@
+{
+  "status": "three-agent-static-development-user-runtime-verification-deferred",
+  "batch": 25,
+  "baseCommit": "659f5af4",
+  "baseWasClean": true,
+  "userSteering": {
+    "instruction": "Keep adding content and commit; user will run unified tests after waking because CPU noise",
+    "buildsRun": false,
+    "testsRun": false,
+    "benchmarksRun": false,
+    "commitAuthorized": true,
+    "pushAuthorized": false
+  },
+  "candidates": [
+    {
+      "gid": 588,
+      "id": "boundary:ling-tong",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-fifth-588-source-2026-10-04.json",
+      "sourceSha256": "ff989953c58414a801767b33dcbbc70c26db0e2cee0238bbc823c72335e61862",
+      "owner": "/root/pang_de",
+      "stage": ".artifacts/continuation-20261003-batch17/batch25/ling-tong",
+      "mainRegistered": false
+    },
+    {
+      "gid": 597,
+      "id": "boundary:chen-gong",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-fifth-597-source-2026-10-04.json",
+      "sourceSha256": "1b8dc3a45f48279062caf56f7d8967b0caf9a9c2fe29c0e488b0045d8d2504b7",
+      "owner": "/root/sun_quan",
+      "stage": ".artifacts/continuation-20261003-batch17/batch25/chen-gong",
+      "mainRegistered": false
+    },
+    {
+      "gid": 626,
+      "id": "boundary:liu-biao",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-fifth-626-source-2026-10-04.json",
+      "sourceSha256": "d18a780765e6d2254fdb21ed8b635d8895fded6047fcf29e984f4bfe72823d85",
+      "owner": "/root/next_batch_audit",
+      "stage": ".artifacts/continuation-20261003-batch17/batch25/liu-biao",
+      "mainRegistered": false
+    }
+  ],
+  "runs": [],
+  "integrations": [],
+  "media": "docs/content/sources/fenglin-twenty-fifth-art-2026-10-04.json",
+  "fixturePreparation": "docs/benchmarks/2026-10-04-routine-preparation-static.json",
+  "runtimeAcceptance": false,
+  "pending": [
+    "Frozen NEW/OLD patches and current baseline verification",
+    "Static production/rule/runner/media integration",
+    "User later combined build and focused/runtime/Full/routine verification",
+    "Offline/compiled raw art verification after waking"
+  ],
+  "cleanup": {
+    "ownedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+    "priorAutomaticApprovalRejection": "blocked by policy",
+    "retryPerformed": false,
+    "sourceStagesAndCacheRetainedForContinuation": true
+  },
+  "versions": {
+    "perCharacterBumped": false,
+    "authoritativePaths": [
+      "src/CardGame.Core/Replay.cs",
+      "src/CardGame.Core/SkillPrograms.cs",
+      "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs"
+    ]
+  }
+}
