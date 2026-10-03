@@ -24,7 +24,8 @@ public sealed partial class GameEngine
             _currentSeat,
             actorSeat,
             effectiveKind,
-            actionType) || IsExclusiveTurnPeachUseForbidden(actorSeat, effectiveKind, actionType);
+            actionType) || IsExclusiveTurnPeachUseForbidden(actorSeat, effectiveKind, actionType) ||
+        IsNextActualUseCounterspellForbidden(actorSeat, effectiveKind, actionType) || IsForeignTurnAlcoholUseForbidden(actorSeat, effectiveKind, actionType);
 
     private IReadOnlyList<LegalAction> FilterTurnCardUseRestrictions(
         CharacterState actor,
@@ -104,6 +105,7 @@ public sealed partial class GameEngine
         ExpireCurrentTurnOwnSkillSuppressions(turnNumber, turnSeat);
         ExpireNextSlashDamage(turnNumber, turnSeat);
         ExpireDirectedTurnCardPolicies(turnNumber, turnSeat);
+        ExpireOriginalTargetAdditionGrants(turnNumber, turnSeat);
         ResolveFirstRoundGameUsageRefunds(turnNumber, turnSeat);
         var expired = _turnCardUseEffects.ExpireTurn(turnNumber, turnSeat);
         if (expired.Count == 0) return;

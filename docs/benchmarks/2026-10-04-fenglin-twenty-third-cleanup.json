@@ -1,0 +1,18 @@
+{
+  "capturedAtUtc": "2026-10-03T21:50:13.0516258+00:00",
+  "ownedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+  "verifiedInside": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\",
+  "fileCount": 3560,
+  "bytes": 2280593657,
+  "verificationConsumers": [],
+  "exclusiveCacheLockSucceeded": true,
+  "ownedPyc": {
+    "sha256": "4dfd4c1a5fba7d2e67185895f2e1c9551ec736ed6d22e2a10f43adc031e4f281",
+    "exists": true,
+    "path": "C:\\Users\\17917\\Desktop\\Card\\tools\\__pycache__\\sync_general_art.cpython-314.pyc"
+  },
+  "cleanupStatus": "Prior exact native PowerShell removal rejected by automatic approval: blocked by policy; no bypass or retry",
+  "sourceRetention": "Batch24 three agents actively use owned independent staging; current official sources, integration evidence and compatible verification cache remain in use for the continuing goal",
+  "readOnlyAudit": true,
+  "countIsPointInTimeWithActiveStageWriters": true
+}

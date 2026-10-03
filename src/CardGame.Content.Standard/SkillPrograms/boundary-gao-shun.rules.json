@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:xianzhen-current", "revision": 1,
+      "activations": [{
+        "id": "contest", "minCards": 1, "maxCards": 1, "sourceZones": ["hand"],
+        "minTargets": 1, "maxTargets": 1, "targetKind": "otherLivingWithHand", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [
+          { "op": "pindian", "target": "selectedTarget", "amount": 1 },
+          { "op": "grantDirectedTurnCardPolicy", "target": "owner", "actorRef": { "kind": "owner" }, "targetRef": { "kind": "selectedTarget" },
+            "effects": ["ignoreDistance", "bypassSlashLimit", "ignoreArmor"], "condition": { "kind": "pindianWon" } },
+          { "op": "grantTurnOriginalTargetAddition", "target": "selectedTarget", "condition": { "kind": "pindianWon" } },
+          { "op": "grantDirectedTurnCardPolicy", "target": "owner", "actorRef": { "kind": "owner" }, "targetRef": { "kind": "selectedTarget" },
+            "cardKinds": ["slash", "fireSlash", "thunderSlash"], "effects": ["forbidTarget"], "condition": { "kind": "pindianNotWon" } },
+          { "op": "grantTurnHandLimitCardKindExemption", "target": "owner", "cardKinds": ["slash", "fireSlash", "thunderSlash"], "condition": { "kind": "pindianNotWon" } }
+        ]
+      }],
+      "triggers": [{ "id": "add-original-target", "window": "cardUseTargetsFinalized", "ownerRelation": "actor", "optional": false,
+        "cardCategories": ["basic", "instantTrick"], "effects": [{ "op": "offerOriginalTargetAddition", "target": "owner" }] }]
+    },
+    {
+      "id": "boundary:jinjiu-current", "revision": 1,
+      "cardIdentities": [{ "id": "alcohol-as-slash", "zones": ["hand"], "inputKinds": ["alcohol"], "inputSuits": [], "outputKind": "slash" }],
+      "cardPolicies": [
+        { "id": "king-identity", "kind": "alcoholKingIdentityRank", "cardKinds": ["alcohol"] },
+        { "id": "ban-foreign-turn-wine", "kind": "foreignTurnAlcoholUseProhibition", "cardKinds": ["alcohol"] }
+      ]
+    }
+  ]
+}

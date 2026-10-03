@@ -11506,6 +11506,57 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-jian-yong",
+      "characterName": "界简雍",
+      "defaultSkinId": "60000",
+      "skins": [
+        {
+          "id": "60000",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/600",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60000.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-jian-yong.png",
+          "sha256": "204c3136d0aa2624e6985f6f57ab131e032b243a3b7ac51f1527d1a2429c6590",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "boundary-liao-hua",
+      "characterName": "界廖化",
+      "defaultSkinId": "64100",
+      "skins": [
+        {
+          "id": "64100",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/641",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64100.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-liao-hua.png",
+          "sha256": "20b1f2aa6461187dc1cf7fef27bc6043f765a1ddd9fa62a4fc2f2042cecad2ae",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "boundary-gao-shun",
+      "characterName": "界高顺",
+      "defaultSkinId": "60400",
+      "skins": [
+        {
+          "id": "60400",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/604",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60400.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-gao-shun.png",
+          "sha256": "d186ba353ac87a92c8cdf783e7b5511bdc75fc76968112573b48d09f632eab29",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

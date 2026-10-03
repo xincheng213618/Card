@@ -16,7 +16,8 @@ public sealed partial class GameEngine
         if (!_setupComplete || changed.Item1 < 0 || changed.Item3 <= 0 || _winner != Winner.None ||
             CollectProgramTriggerCandidates(_players[changed.Item1], SkillProgramTriggerWindow.AfterHealthChanged).Count == 0) return;
         var owner = _players[changed.Item1];
-        _pendingHpChanges.Add(new(++_resolutionSequence, _resolutionStack.LastOrDefault()?.Id, null, owner.Seat,
+        var healthOwner = GrantedEntityTrailerHealthOwner(payload) ?? _resolutionStack.LastOrDefault()?.Id;
+        _pendingHpChanges.Add(new(++_resolutionSequence, healthOwner, null, owner.Seat,
             changed.Item2, changed.Item3, payload is DamageAppliedEvent ? owner.Hp + changed.Item3 : owner.Hp, owner.Hp));
     }
 

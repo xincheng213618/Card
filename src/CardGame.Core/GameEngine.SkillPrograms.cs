@@ -217,7 +217,7 @@ public sealed partial class GameEngine
                     selectedCardUse is { OutputKind: CardKind.ArrowBarrage } &&
                     !CanUseGlobalCard(owner, CardKind.ArrowBarrage) ||
                     allHandTrickUse is not null &&
-                    (cards.Length == 0 || BuildProgramOrdinaryTrickUseOptions(owner, allHandTrickUse.OutputKind, physicalCardIds:cards).Count == 0)) continue;
+                    (cards.Length == 0 || BuildProgramOrdinaryTrickUseOptions(owner, allHandTrickUse.OutputKind, physicalCardIds:cards, includeNextActualUseAdjustment:true).Count == 0)) continue;
                 if (features.FirstInstruction is
                     {
                         Op: SkillProgramEffectOp.SelectTarget,
@@ -227,6 +227,8 @@ public sealed partial class GameEngine
                         .Any(seat => IsProgramTargetEligible(owner.Seat, dynamicKind,
                             dynamicSelection.Zones, seat, dynamicSelection.Marker)))
                     continue;
+                cards = OrderNextActualUsePindianCards(owner, activation, cards);
+                targets = NextActualUseProgramTargets(owner, plan, targets, multiCardUses).ToArray();
                 var minCardCount = allHandTrickUse is null ? requiredCards : cards.Length;
                 var maxCardCount = activation.CardCountExpression is not null ? requiredCards :
                     allHandTrickUse is not null || activation.MaxCards == int.MaxValue ? cards.Length : activation.MaxCards;
@@ -236,7 +238,7 @@ public sealed partial class GameEngine
                     $"发动【{_contentRegistry!.Skills[program.Id].Name}】" +
                     (activationLabel is null ? string.Empty : $" · {activationLabel}"),
                     MinCardCount: minCardCount, MaxCardCount: maxCardCount,
-                    MinTargetCount: activation.MinTargets, MaxTargetCount: activation.MaxTargets)
+                    MinTargetCount: activation.MinTargets, MaxTargetCount: NextActualUseProgramMaximum(owner, plan))
                 {
                     ProgramSkillId = program.Id,
                     ProgramActivationId = activation.Id,
@@ -322,7 +324,7 @@ public sealed partial class GameEngine
                     program.Id, usageId, SkillUsageScope.Phase),
                 BooleanState = stateId => GetProgramBooleanState(owner.Seat, program.Id, instanceId, stateId)
             }).Hint;
-        return EstimateProgramTargetReward(owner, program, activation, hint);
+        return EstimateProgramTargetReward(owner, program, activation, EstimateNextActualUsePindian(owner, activation, hint));
     }
 
     private CommandError? ValidateProgramSelection(LegalAction action,
@@ -356,6 +358,8 @@ public sealed partial class GameEngine
         if (activation is { } filtered && cards.Any(id => !CanSelectProgramActivationCard(filtered,
                     _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(card => card.Id == id), _currentSeat, program!.Id)))
             return new CommandError(CommandErrorCode.InvalidCard, "The selected cards do not satisfy the activation filters.");
+        if (ValidateNextActualUseProgramSelection(action, plan, cards, targets) is { } nextActualUseError)
+            return nextActualUseError;
         if (ValidateProvenanceSelectedCardUse(action,
                 plan?.Features.First(SkillProgramEffectOp.UseSelectedCardsAs), cards, targets) is { } provenanceUseError)
             return provenanceUseError;
@@ -458,6 +462,7 @@ public sealed partial class GameEngine
             program.GameplayHash, 0, Array.AsReadOnly(cards.ToArray()), Array.AsReadOnly(targets.ToArray()))
         {
             SkillInstanceId = GetRuntimeSkillInstanceId(owner, program.Id),
+            NextActualUseAdjustment = FreezeNextActualUseProgramSelection(owner, plan, targets),
             SelectedAllOwnerHandCards = plan.Features.HasOperation(SkillProgramEffectOp.DrawAllHandSelectedBonus)
                 ? GetHand(owner).Count > 0 && GetHand(owner).All(card => cards.Contains(card.Id)) : null
         };
@@ -646,10 +651,13 @@ public sealed partial class GameEngine
         if (outputKind == CardKind.Peach)
         {
             var rule = GetEnabledSkillProgram(owner, frame.SkillId).ViewAs.Single(item => item.Id == viewAsId);
+            PrepareNextActualUseSelectedRecovery(frame, selection);
             ResolveRecoveryCard(owner, owner, selection.Cards[0], "桃", CardKind.Peach,
                 1 + rule.RecoveryBonus, conversionSource: source, physicalCards: selection.Cards);
             return SkillProgramStepOutcome.AwaitChild;
         }
+        if (frame.NextActualUseAdjustment is { Kind: ProgramNextActualUseAdjustmentKind.AddSlashTarget })
+            return BeginNextActualUseSelectedSlash(frame, selection);
         var target = _players.SingleOrDefault(player => player.Seat == targetSeat) ??
             throw new InvalidOperationException("The selected card-use target no longer exists.");
         var slashRule = GetEnabledSkillProgram(owner, frame.SkillId).ViewAs.FirstOrDefault(item => item.Id == viewAsId);
@@ -807,6 +815,9 @@ public sealed partial class GameEngine
             {
                 throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
             }
+            AssertGrantedEntityPhase(frame);
+            AssertFrozenFactionRecovery(frame);
+            AssertNextActualUseProgramSelection(frame, plan);
             AssertBoundDiscardSlashReceipt(frame);
             AssertShownGiftReceipt(frame, plan.Instructions);
             AssertExactRepeatedJudgmentReceipt(frame, plan.Instructions);
@@ -1094,6 +1105,7 @@ public sealed partial class GameEngine
             AssertRedDiscardRecoveryDraft(frame, paused);
             AssertCompletedCardGiftDraft(frame, paused);
             AssertCurrentCardEnhancementDraft(frame, paused);
+            AssertOriginalTargetAdditionDraft(frame, paused);
             ValidateFactionRecoveryDraft(frame);
             ValidateWeaponDamageDraft(frame);
             AssertProgramHandControlDraft(frame, paused);
@@ -1153,7 +1165,7 @@ public sealed partial class GameEngine
                     _programPhaseUses.GetValueOrDefault((frame.OwnerSeat, frame.SkillId, activation.UsageGroup)) ||
                 executedSelection is null &&
                 (frame.SelectedTargetSeats.Count < activation.MinTargets ||
-                 frame.SelectedTargetSeats.Count > activation.MaxTargets))
+                 frame.SelectedTargetSeats.Count > activation.MaxTargets) && !HasExactNextActualUseProgramSelection(frame, plan))
                 throw new InvalidOperationException("An active skill program has an invalid cursor or selection.");
         }
         foreach (var scopeId in _pendingCardsMovedBatches

@@ -57,8 +57,9 @@
   "verification": {
     "offlinePngRecords": 1002,
     "compiledByteSha256Matches": true,
-    "finalWholeBatchWpfChecks": "running",
+    "finalWholeBatchWpfChecks": "57/57-passed-final-current-inputs",
     "compiledResources": 3,
-    "offlineGenerals": 205
+    "offlineGenerals": 205,
+    "finalFullRunLabel": "batch23-full-final-02-exact-final-inputs-all-653-core-57-wpf-passed"
   }
 }

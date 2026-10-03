@@ -1,0 +1,97 @@
+{
+  "gid": 604,
+  "status": "source-only-no-implementation",
+  "indexIdentity": {
+    "gid": 604,
+    "name": "界高顺",
+    "resource": "60400",
+    "extend": "界限突破",
+    "hp": 4,
+    "initial_hp": 0,
+    "quality": "稀有",
+    "figure": "群",
+    "figure_py": "qun",
+    "biography": "中国东汉末年将领，吕布帐下中郎将。史载高顺为人清白有威严，不好饮酒，所统率的部队精锐非常，号称“陷阵营”。屡进忠言于吕布，吕布虽知其忠而不能用。曹操击破吕布后，高顺被曹操所杀。",
+    "characteristic": "【酒】对界高顺是很有战略价值的牌。",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/604.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60400.png",
+    "realname": "界高顺 (界限突破)"
+  },
+  "discovery": "Exact current ordinary-OL 87-row frozen index ID, explicit current hero page and established official hero/info route. One bounded attempt per primary URL after web reader fetch timeout; no guessed endpoint or resource package scanning.",
+  "page": {
+    "url": "https://www.sanguosha.com/hero/604",
+    "finalUrl": "https://www.sanguosha.com/hero/604",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T20:46:54.678947+00:00",
+    "contentType": "text/html",
+    "rawBytes": 24158,
+    "rawSha256": "4856079f2783bf89ab1508c6248d5a0484863db13b11d3e08a3ce0351ffa953e",
+    "rawFile": "604-page.raw.html",
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >出牌阶段限一次，你可以与一名角色拼点：若你赢，你本回合对其使用牌无距离和次数限制且无视其防具，你使用【杀】或普通锦囊牌能多指定其为目标；若你没赢，你本回合不能对其使用【杀】且你的【杀】不计入手牌上限。</span>\n                            \n                                <span >锁定技，你的【酒】视为点数K的【杀】。其他角色不能于你的回合使用【酒】。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "陷阵",
+      "禁酒"
+    ],
+    "skillTexts": [
+      "出牌阶段限一次，你可以与一名角色拼点：若你赢，你本回合对其使用牌无距离和次数限制且无视其防具，你使用【杀】或普通锦囊牌能多指定其为目标；若你没赢，你本回合不能对其使用【杀】且你的【杀】不计入手牌上限。",
+      "锁定技，你的【酒】视为点数K的【杀】。其他角色不能于你的回合使用【酒】。"
+    ],
+    "fontRefs": []
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=604",
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=604",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T20:46:54.922089+00:00",
+    "contentType": "application/json",
+    "rawBytes": 889,
+    "rawSha256": "4e896d827202cdee7f1492678c1d331f1d84f59b004c528d48cb8ae5665978bd",
+    "rawFile": "604-api.raw.json",
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 604,
+            "name": "界高顺",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/604.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60400.png",
+            "label": [
+              "进攻",
+              "过牌",
+              "多刀"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "稀有",
+            "biography": "中国东汉末年将领，吕布帐下中郎将。史载高顺为人清白有威严，不好饮酒，所统率的部队精锐非常，号称“陷阵营”。屡进忠言于吕布，吕布虽知其忠而不能用。曹操击破吕布后，高顺被曹操所杀。",
+            "characteristic": "【酒】对界高顺是很有战略价值的牌。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "地主",
+            "value": 5
+          },
+          {
+            "name": "农民",
+            "value": 5
+          },
+          {
+            "name": "忠臣",
+            "value": 6
+          },
+          {
+            "name": "反贼",
+            "value": 5
+          }
+        ],
+        "deeds": []
+      }
+    }
+  }
+}

@@ -223,7 +223,7 @@ public sealed partial class GameEngine
     private bool ResumeScheduledProgramPhase()
     {
         if (_programPhaseSchedule is not { } schedule) return false;
-        var frame = schedule.Frame;
+        var frame = FreezeGrantedEntityPhaseEnd(schedule.Frame);
         _programPhaseSchedule = null;
         AdvanceEventRulesAndQueueFact(new ProgramPhaseScheduledEvent(
             frame.Id, frame.SkillId, frame.TriggerId!, frame.OwnerSeat, schedule.Phase, Started: false));
@@ -233,7 +233,7 @@ public sealed partial class GameEngine
             return true;
         }
         PushRuntimeFrame(schedule.ParentFrame);
-        if (!HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId))
+        if (!HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId) && !IsReturningGrantedEntityPhase(frame))
         {
             CompleteDetachedProgramBinding(frame, completed: false);
             AdvanceProgramLifecycleCursor(schedule.ParentFrame);
@@ -1812,13 +1812,15 @@ public sealed partial class GameEngine
         if (!IsValidPlayerSeat(candidate.OwnerSeat) || candidate.OwnerSeat != context.OwnerSeat) return false;
         var owner = _players[candidate.OwnerSeat];
         if (context.Window != SkillProgramTriggerWindow.OwnerDied && !owner.IsAlive ||
-            !HasRuntimeSkillInstance(owner, candidate.SkillId, candidate.SkillInstanceId) ||
+            !HasRuntimeSkillInstance(owner, candidate.SkillId, candidate.SkillInstanceId) && !HasIssuedOriginalTargetCandidate(candidate, context) ||
             _contentRegistry.Skills.GetValueOrDefault(candidate.SkillId)?.Program is not { } program ||
             program.GameplayHash != candidate.GameplayHash)
             return false;
         var trigger = ProgramInstructionResolver.Default.FindTrigger(program, candidate.BindingId);
         if (trigger is null || trigger.Window != context.Window || !CanPayProgramMarkerCost(owner, trigger.MarkerCost))
             return false;
+        if (!CanOfferOriginalTargetAddition(candidate, trigger, context)) return false;
+        if (!CanRunProgramDyingAlcoholPolicy(trigger, context, candidate.OwnerSeat)) return false;
         if (!CanOfferFinalTargetSlash(candidate, trigger, context)) return false;
         if (!CanRunOtherDyingVictimRecovery(trigger, context, candidate.OwnerSeat)) return false;
         if (!CanRunAlcoholSlashSuppression(trigger, context, candidate.OwnerSeat)) return false;
@@ -1851,6 +1853,7 @@ public sealed partial class GameEngine
                 candidate.SkillId, candidate.SkillInstanceId))
             return false;
         if (!HasInitialOwnedCardSelectionCandidates(owner, trigger)) return false;
+        if (!CanOfferGrantedPhaseSlash(candidate, trigger)) return false;
         if (!CanOfferAlternativePhaseCost(owner, trigger, candidate)) return false;
         if (IsConfirmedActualStartingSubstitution(context)) return false;
         if (trigger.UsageScope is { } scope && ProgramTriggerUsageLimit(trigger) is { } limit &&
@@ -2346,7 +2349,8 @@ public sealed partial class GameEngine
         {
             SkillInstanceId = candidate.SkillInstanceId,
             TriggerId = candidate.BindingId,
-            WindowContext = context
+            WindowContext = context,
+            DyingAlcoholPermission = CaptureProgramDyingAlcoholPermission(candidate, context)
         };
         AttachAfterTurnEndedChild(frame, candidate, context);
         PushRuntimeFrame(frame);
@@ -3125,6 +3129,7 @@ public sealed partial class GameEngine
             ResolveCompletedCardGiftChoice(selected);
             return;
         }
+        if (action == "original-target-addition") { ResolveOriginalTargetAdditionChoice(selected); return; }
         if (action == "current-card-enhancement")
         {
             ResolveCardEnhancementChoice(selected);
@@ -3208,6 +3213,7 @@ public sealed partial class GameEngine
             ResolveProgramDifferentCategoryDiscardChoice(selected);
             return;
         }
+        if (action == "granted-phase-slash") { ResolveGrantedPhaseSlashChoice(selected); return; }
         if (action == "provenance-face-up")
         {
             ResolveProvenanceFaceUp(selected); return;
@@ -3932,6 +3938,7 @@ public sealed partial class GameEngine
                 .GetPausedInstruction(frame.InstructionIndex).Effect;
             selected = paused.Op switch
             {
+                SkillProgramEffectOp.ClaimGrantedPhaseSlash => SelectAiGrantedPhaseSlash(decision),
                 SkillProgramEffectOp.ChoosePrivateColorsDiscardAndDuel => SelectAiDualColorChoice(decision, frame),
                 SkillProgramEffectOp.PayOwnedCardOrMarker => SelectAiAlternativePhaseCost(decision, frame),
                 SkillProgramEffectOp.ObtainDamageTargetCardAndResolveCategory => SelectAiDamageTargetObtain(decision, frame),
@@ -3961,6 +3968,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.ExchangePrivatePile or SkillProgramEffectOp.DiscardParticipantCards or
                     SkillProgramEffectOp.SpendMarkerOrLoseHp => decision.Choices[0],
                 SkillProgramEffectOp.SelectDistinctSuitHandDiscards or SkillProgramEffectOp.SuppressGeneralSkill or SkillProgramEffectOp.SelectChainedByMarker or SkillProgramEffectOp.SelectOneSelectedTarget => decision.Choices[0],
+                SkillProgramEffectOp.OfferOriginalTargetAddition => SelectAiOriginalTargetAddition(decision, frame),
                 SkillProgramEffectOp.OfferCompletedCardGift or SkillProgramEffectOp.ApplyCurrentCardEnhancements or
                     SkillProgramEffectOp.PayEquipmentColorDiscard or SkillProgramEffectOp.AddCurrentCardUseTarget => decision.Choices[0],
                 SkillProgramEffectOp.AlternatingSuitDrawDiscard or SkillProgramEffectOp.FirstCategoryCompletedTop => decision.Choices[0],

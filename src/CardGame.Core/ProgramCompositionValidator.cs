@@ -22,6 +22,8 @@ internal static class ProgramCompositionValidator
         if (effects.Any(e => e.Op == SkillProgramEffectOp.UseSelectedActorDuel) &&
             (window is not null || selectedCardCount != 0 || !initialSelectedTarget || initialTargetSetMaximum != 0 || effects.Count != 1))
             throw Error(path, "Selected actor Duel is a single zero-card one-selected-target activation.");
+        GrantNextActualUseTargetAdjustmentDescriptor.ValidateComposition(path, effects, window, selectedCardCount,
+            initialSelectedTarget, activationTargetKind, activationSourceZones, activationMinimumCards);
         DiscardedProvenanceComposition.Validate(path, effects, window, selectedCardCount, initialSelectedTarget, initialTargetSetMaximum);
         ChoosePrivateColorsDiscardAndDuelDescriptor.ValidateComposition(path, effects, window, selectedCardCount, initialSelectedTarget, initialTargetSetMaximum);
         PaidHpLossProgram.ValidateComposition(path, effects, window, selectedCardCount, initialSelectedTarget, initialTargetSetMaximum);

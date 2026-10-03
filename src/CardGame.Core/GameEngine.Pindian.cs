@@ -123,9 +123,11 @@ public sealed partial class GameEngine
         var opponent = _players[frame.OpponentSeat!.Value];
         var sourceCard = _cardZones.CardsAt(frame.SourceUsesDrawPileTop?CardLocation.Processing:CardLocation.Hand(source.Seat)).Single(card => card.Id == frame.SourceCardId);
         var opponentCard = _cardZones.CardsAt(opponentTop?CardLocation.DrawPile:CardLocation.Hand(opponent.Seat)).Single(card => card.Id == opponentCardId);
+        var sourceIdentityRank = CaptureAlcoholPindianRank(frame, source, sourceCard, true, frame.SourceUsesDrawPileTop);
+        var opponentIdentityRank = CaptureAlcoholPindianRank(frame, opponent, opponentCard, false, opponentTop);
         if(!frame.SourceUsesDrawPileTop) MoveCard(sourceCard, CardLocation.Hand(source.Seat), CardLocation.Processing, CardMoveReasons.PindianReveal);
         MoveCard(opponentCard, opponentTop?CardLocation.DrawPile:CardLocation.Hand(opponent.Seat), CardLocation.Processing, CardMoveReasons.PindianReveal);
-        var result = new PindianResult(source.Seat, opponent.Seat, sourceCard.Id, opponentCard.Id, EffectivePindianRank(source,sourceCard), EffectivePindianRank(opponent,opponentCard));
+        var result = new PindianResult(source.Seat, opponent.Seat, sourceCard.Id, opponentCard.Id, sourceIdentityRank ?? EffectivePindianRank(source,sourceCard), opponentIdentityRank ?? EffectivePindianRank(opponent,opponentCard));
         AdvanceEventRulesAndQueueFact(new PindianResultDeterminedEvent(frame.Id, frame.SkillId, result));
         AddLog("Pindian", $"{source.Name} 以 {result.SourceRank} 点与 {opponent.Name} 的 {result.OpponentRank} 点拼点，" +
             (result.SourceWon ? "发起者获胜。" : "发起者未赢。"), source.Seat, opponent.Seat);

@@ -39,7 +39,7 @@ public sealed partial class GameEngine
         bool RequestedSlashChild = false, bool DamageWasApplied = false, int FinalTargetSeat = 0, ProgramDamageTargetDuelOrigin? DamageTargetDuelReturn = null, ProgramDualColorDuelOrigin? DualColorDuelReturn = null);
     private AttackCompletionReceipt CaptureAttackCompletion(CardAttackHandle attack) =>
         new(attack.ResolutionId, attack.IsDelayedJudgmentDamage,
-            attack.ProgramSkillFrameId ?? attack.ProgramSkillCardUseFrameId,
+            attack.ProgramSkillFrameId ?? attack.ProgramSkillCardUseFrameId ?? NextActualUseAdjustedSlashParent(attack),
             attack.IsDelayedJudgmentDamage ? attack.DelayedJudgmentSeat ?? attack.SourceSeat : null,
             attack.ProgramSkillFrameId is null && attack.ProgramSkillCardUseFrameId is not null,
             attack.DamageWasApplied, attack.TargetSeat,

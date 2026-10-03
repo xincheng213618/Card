@@ -178,7 +178,7 @@ public sealed partial class GameEngine
     // Historical assisted consumers retain their existing range predicate.
     private bool NearestSlashPaymentHasRange(CharacterState actor, int target, IReadOnlyList<Card> cards,
         CardConversionSource? conversion, CardKind kind) => AssistedSlashPaymentHasRange(actor, target, cards) ||
-        HasProvenanceUseDistance(actor, cards.Select(c=>c.Id).ToArray()) || IgnoresProgramSlashDistance(actor, conversion) ||
+        (HasProvenanceUseDistance(actor, cards.Select(c=>c.Id).ToArray()) || HasGrantedPhaseEntityDistance(actor, cards.Select(c=>c.Id).ToArray())) || IgnoresProgramSlashDistance(actor, conversion) ||
         IgnoresSpGuanYuWushengDistance(actor, cards[0]) ||
         HasSlashUseDistanceBySuit(actor, kind, EffectiveSuit(actor, cards[0])) ||
         HasTurnRedSlashPolicy(actor.Seat, kind, EffectiveSuit(actor, cards[0])) ||
@@ -324,7 +324,9 @@ public sealed partial class GameEngine
             child is CardUseFrame { CardKind: CardKind.Slash, PhysicalCardIds.Count: 0 } virtualUse &&
             virtualUse.SourceSeat == frame.OwnerSeat && virtualUse.CardAttack?.ProgramSkillCardUseFrameId == frame.Id &&
             virtualUse.Action is { Type: CardActionType.Use, PhysicalCards.Count: 0 } virtualAction &&
-            virtualAction.ActorSeat == frame.OwnerSeat && virtualAction.TargetSeats.SequenceEqual([target]);
+            virtualAction.ActorSeat == frame.OwnerSeat &&
+            (virtualAction.TargetSeats.SequenceEqual([target]) ||
+                TryGetOriginalTargetVirtualSlashReturn(virtualUse, frame, out _));
     }
 
     private sealed partial class ProgramSkillHost : INearestLegalSlashProgramHost

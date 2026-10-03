@@ -24,6 +24,7 @@ public interface ISkillProgramExecutionHost
     SkillProgram GetProgram(string skillId);
     SkillProgramActorState GetActor(int seat);
     bool IsGameOver { get; }
+    bool CanContinueIssuedOriginalTargetAddition(ProgramSkillFrame frame) => false;
     bool CanContinuePaidHpLoss(ProgramSkillFrame frame) => false;
     bool CanContinuePaidDamageShield(ProgramSkillFrame frame) => false;
     bool CanContinuePaidDamageTargetMount(ProgramSkillFrame frame) => false;
@@ -1408,7 +1409,7 @@ public sealed class SkillProgramExecutor
                 ProgramInstructionResolver.Default.Find(program, ProgramInstructionSourceKind.Trigger, frame.ActivationId)
                     ?.Features.HasOperation(SkillProgramEffectOp.LoseHpParticipants) == true;
             if (!state.OwnsSkillInstance(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId) && (actor.IsAlive || !allowsDeadOwner) &&
-                !state.CanContinuePaidHpLoss(frame) && !state.CanContinuePaidDamageShield(frame) && !state.CanContinuePaidDamageTargetMount(frame) && !state.CanContinuePaidDamageTargetObtain(frame))
+                !state.CanContinueIssuedOriginalTargetAddition(frame) && !state.CanContinuePaidHpLoss(frame) && !state.CanContinuePaidDamageShield(frame) && !state.CanContinuePaidDamageTargetMount(frame) && !state.CanContinuePaidDamageTargetObtain(frame))
             {
                 state.Complete(frame, completed: false, "技能实例在结算前已失效，剩余步骤取消。");
                 return;
@@ -1484,6 +1485,9 @@ public sealed class SkillProgramExecutor
                     SkillProgramEffectTarget.Actor => frame.WindowContext?.CardUse?.ActorSeat ??
                         throw new InvalidOperationException(
                             $"Skill program '{frame.SkillId}' requires a frozen card-action actor."),
+                    SkillProgramEffectTarget.SelectedTarget when effect.Op == SkillProgramEffectOp.UseSelectedCardsAs &&
+                        frame.NextActualUseAdjustment is { Kind: ProgramNextActualUseAdjustmentKind.AddSlashTarget } adjusted &&
+                        adjusted.OutputKind == effect.OutputKind => frame.SelectedTargetSeats[0],
                     SkillProgramEffectTarget.SelectedTarget => frame.SelectedTargetSeats.Single(),
                     SkillProgramEffectTarget.SelectedTargets => frame.OwnerSeat,
                     SkillProgramEffectTarget.HpPairHigher => frame.HpPairSnapshot!.HigherSeat!.Value,

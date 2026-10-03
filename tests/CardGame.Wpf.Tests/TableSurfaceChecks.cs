@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using CardGame.Content.Standard;
 using CardGame.Core;
 using CardGame.Wpf;
 using CardGame.Wpf.Persistence;
@@ -136,14 +137,50 @@ internal static class TableSurfaceChecks
 
     private static MainViewModel FindEquipmentHand()
     {
-        for (var seed = 1; seed <= 50; seed++)
+        // The action-dock contract is a native equipment selection. An arbitrary
+        // expanded-pool general can add competing interpretations of the same card.
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new ActionDockFixture());
+        var game = GameEngine.CreateStandard(new GameOptions
         {
-            var vm = new MainViewModel(false, seed, false, new MemorySaveStore(), useExpandedContent: true);
-            vm.SelectGeneralChoiceCommand.Execute(vm.GeneralChoices[0]);
-            Program.AdvanceToDecision(vm);
-            if (Program.Engine(vm).GetHumanLegalActions().Any(action => action.Kind == LegalActionKind.Equip)) return vm;
-            vm.Dispose();
+            Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord,
+            ModeId = ActionDockFixture.ModeId, UseInteractiveSetup = true,
+            AdvanceAfterHumanCommands = false, MaxTurns = 4
+        }, registry);
+        Accept(new StartGameCommand());
+        Accept(new SelectGeneralCommand(0, "fixture:action-dock-0", game.Revision, game.PendingDecision!.PromptId));
+        for (var step = 0; step < 40 && game.PendingDecision?.Kind != DecisionKind.PlayCard; step++)
+            Accept(new AdvanceOneStepCommand(game.Revision));
+        Program.Assert(game.PendingDecision?.Kind == DecisionKind.PlayCard &&
+                       game.GetHumanLegalActions().Any(action => action.Kind == LegalActionKind.Equip),
+            "The fixed native-equipment fixture must reach a real playable equipment card.");
+        var store = new MemorySaveStore();
+        store.Write(GameSaveSlot.Manual, new(1, DateTimeOffset.UtcNow, false, game.CreateCheckpoint()));
+        var vm = new MainViewModel(false, game.Seed, false, store, contentRegistry: registry) { IsMotionEnabled = false };
+        vm.LoadManualGameCommand.Execute(null);
+        Program.Assert(!vm.HasSaveError, vm.SaveStatus);
+        return vm;
+
+        void Accept(GameCommand command)
+        {
+            var result = game.Submit(command);
+            Program.Assert(result.Accepted, result.Error?.Message ?? "Expected a real native-equipment fixture command.");
         }
-        throw new InvalidOperationException("No real equipment opening hand found.");
+    }
+
+    private sealed class ActionDockFixture : IGameContentPackage
+    {
+        internal const string ModeId = "identity:classic-action-dock";
+        public PackageManifest Manifest { get; } = new("fixture-action-dock", new Version(1, 0, 0), []);
+        public void Register(IContentRegistryBuilder builder)
+        {
+            var ids = Enumerable.Range(0, 4).Select(seat => $"fixture:action-dock-{seat}").ToArray();
+            foreach (var id in ids)
+                builder.AddGeneral(new(id, "装备操作栏", "supporter", "standard:none", "wei", 4));
+            builder.AddDeck(new("fixture:action-dock-deck", "装备操作栏", 4, 2,
+                [new ContentDeckCardCount("standard:crossbow", 40)]));
+            builder.AddMode(new(ModeId, "装备操作栏", 4, 4,
+                new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Loyalist)] = 1, [nameof(Role.Rebel)] = 2 },
+                "fixture:action-dock-deck", GeneralCandidateCount: 4, GeneralPoolIds: ids));
+        }
     }
 }

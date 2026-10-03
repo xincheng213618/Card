@@ -14,6 +14,8 @@ public sealed record SkillProgramAiHint(
     bool GivesSelected,
     bool DiscardsSelected)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool PreferPindianInputOrder { get; init; }
     public double ValueAdjustment { get; init; }
     public double TargetValueAdjustment { get; init; }
 }

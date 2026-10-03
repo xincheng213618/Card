@@ -118,9 +118,15 @@ public sealed record ProgramSkillFrame(
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramDiamondDelayedDraft? DiamondDelayed { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramShownGiftReceipt? ShownGiftReceipt { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramNextActualUseAdjustment? NextActualUseAdjustment { get; init; }
 
     /// <summary>The exact current grant selected when this execution was frozen.</summary>
     public string SkillInstanceId { get; init; } = "";
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public OriginalTargetAdditionDraft? OriginalTargetAdditionDraft { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramDyingAlcoholPermission? DyingAlcoholPermission { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public GrantedEntityPhaseReceipt? IssuedEntityPhase { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public GrantedPhaseSlashClaimReceipt? GrantedPhaseSlashClaim { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public FrozenFactionRecoveryReceipt? FrozenFactionRecovery { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramProvenanceClaimReceipt? ProvenanceClaim { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramProvenanceAlcoholReceipt? ProvenanceAlcohol { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -345,6 +351,7 @@ public sealed record FactionRecoveryDebtReturn(long DyingFrameId, long DyingPare
 
 public sealed record CardAttackState
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramAdjustedSlashReturn? AdjustedSlashReturn { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<int>? RangePreventionVisitedTargets { get; init; }
     public bool Active { get; init; }
@@ -410,6 +417,8 @@ public sealed record CardUseFrame(
     public CardActionContext? Action { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramSelectedActorDuelOrigin? SelectedActorDuelOrigin { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public OriginalTargetAdditionReceipt? OriginalTargetAddition { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public GrantedEntityDistanceUseIssued? GrantedEntityDistance { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public CardConversionSource? ProvenanceUseSource { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramDamageTargetDuelOrigin? DamageTargetDuelOrigin { get; init; }
@@ -442,6 +451,7 @@ public sealed record CardUseFrame(
     public bool FinalizedTrickProgramsStarted { get; init; }
     public bool FinalizedSimpleProgramsStarted { get; init; }
     public bool TargetsAdjusted { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramAdjustedSlashReturn? AdjustedSlashReturn { get; init; }
     public bool SlashTargetsCancelled { get; init; }
     public bool UnlimitedUse { get; init; }
     public bool YingboUnrespondable { get; init; }

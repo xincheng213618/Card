@@ -34,6 +34,7 @@ public sealed partial class GameEngine
             case CardDeclarationFrame: ContinueCardDeclaration(frameId); break;
             case CardDeclarationChallengeFrame: ContinueCardDeclarationChallenge(frameId); break;
             case ProgramSkillFrame:
+                if (ResumeGrantedEntityPhaseTrailer(frameId) || ResumeGrantedPhaseSlashClaim(frameId)) return;
                 if (ResumeProvenanceClaim(frameId) || ResumeProvenanceAlcohol(frameId)) return;
                 if (ResumeDamageJudgmentSuitPayment(frameId)) return;
                 if (ResumeDualColorDuel(frameId)) return;
@@ -115,6 +116,8 @@ public sealed partial class GameEngine
         if (parentId > 0 && !_resolutionStack.Any(parent => parent.Id == parentId))
             throw new InvalidOperationException("A runtime child cannot outlive its owning frame.");
         _resolutionStack.Push(frame);
+        if (frame is CardUseFrame use && use.Action is { Type: CardActionType.Use } action)
+            IssueOriginalTargetAdditionPolicy(use.Id, action);
     }
 
     private void ReplaceRuntimeFrame(long expectedFrameId, ResolutionFrame next)

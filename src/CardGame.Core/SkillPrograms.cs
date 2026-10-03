@@ -181,6 +181,8 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 public enum SkillProgramEffectOp
 {
     ClaimDiscardedEntityWithProvenance = 4500, UseVirtualAlcohol = 4501, OfferFaceUpForOutsideClaims = 4502,
+    InsertGrantedEntityPlayPhase = 4800, ClaimGrantedPhaseSlash = 4801,
+    FreezeLivingFactionRecovery = 4802, DrawToFrozenFactionCount = 4803, TurnOverIfFrozenFactionCountExceedsGameDamage = 4804,
     RevealTopCardsWithNextBooleanBonus = 3600, ObtainBoundCardsAndArmNextRevealBonus = 3601,
     RecoverOtherDyingVictimTo = 3602,
     SuppressOwnSkillAfterAlcoholSlashDamage = 3900,
@@ -361,6 +363,7 @@ public enum SkillProgramEffectOp
     PutDiscardedCardsOnDrawPileTop = 760,
     CollectPublicPile = 780,
     GrantNextCardTargetAdjustment = 782,
+    GrantNextActualUseTargetAdjustment = 4700,
     UseDiscardedCardAsDelayedTrick = 800,
     UseVirtualSlash = 801,
     PayEquipmentColorDiscard = 802,
@@ -393,6 +396,8 @@ public enum SkillProgramEffectOp
     DrawByDamageCardColor = 2400, UseSelectedActorDuel = 2401,
     ObtainDamageTargetCardAndResolveCategory = 2500,
     GrantFactionPopulationMarker = 2600, RemoveSelectedCurrentArrowBarrageTarget = 2601,
+    GrantTurnOriginalTargetAddition = 4900,
+    OfferOriginalTargetAddition = 4901,
     GrantTurnHandLimitCardKindExemption = 3101,
     PayOwnedCardOrMarker = 3500, RecordEndHandCountAndGrantMarker = 3501,
     ClaimCurrentUsePhysicalCards = 3200, PreventCurrentTargetSlashCancellationByRule = 3201,
@@ -1728,6 +1733,12 @@ public sealed class SkillProgramCatalog
                     Fail(skillPath + ".activations", "diamond delayed use requires one Diamond HE card, no initial targets, one operation and one use per Play phase");
             if (triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.UseDiamondDelayedOrDiscard)))
                 Fail(skillPath + ".triggers", "diamond delayed use is an activation operation");
+            foreach (var activation in activations)
+                foreach (var grant in activation.Effects.Where(e => e.Op == SkillProgramEffectOp.GrantNextActualUseTargetAdjustment))
+                    if (!booleanStates.Any(s => s.Id == grant.StateId && !s.InitialValue &&
+                            s.Visibility == SkillProgramStateVisibility.Public && s.ResetScope == SkillProgramStateResetScope.Turn) ||
+                        activation.Condition is not { Kind: SkillProgramConditionKind.BooleanState, ExpectedValue: false } gate || gate.StateId != grant.StateId)
+                        Fail(skillPath, "next actual-use adjustment requires its initially-false public Turn state and matching enabled activation condition");
             var declaredStateIds = booleanStates.Select(item => item.Id).ToHashSet(StringComparer.Ordinal);
             foreach (var trigger in triggers)
                 foreach (var condition in EnumerateTriggerConditions(trigger.Condition))
@@ -2042,6 +2053,10 @@ public sealed class SkillProgramCatalog
             (!cardKinds.SequenceEqual([CardKind.Alcohol]) || requiredKinds.Count != 0 || value != 0 ||
              inputSuit is not null || outputSuit is not null))
             Fail(path, "Unlimited Alcohol requires only Alcohol effective kind and no response, suit or numeric value.");
+        if (kind is SkillProgramCardPolicyKind.AlcoholKingIdentityRank or SkillProgramCardPolicyKind.ForeignTurnAlcoholUseProhibition &&
+            (!cardKinds.SequenceEqual([CardKind.Alcohol]) || requiredKinds.Count != 0 || value != 0 || inputSuit is not null || outputSuit is not null ||
+             factionId is not null || ownerRole is not null || OptionalCondition(node, path).Kind != SkillProgramConditionKind.Always))
+            Fail(path, "Alcohol identity/rank and foreign-turn use prohibition require exactly Alcohol and no other qualifiers.");
         if (kind == SkillProgramCardPolicyKind.VirtualEquipment &&
             cardKinds.Any(card => !EquipmentCatalog.IsEquipment(card)))
             Fail(path, "virtualEquipment requires equipment card kinds");
@@ -3369,6 +3384,8 @@ public sealed class SkillProgramCatalog
         if (effects.Any(e => e.NumberExpression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount) &&
             (window != SkillProgramTriggerWindow.PlayEnding || subject != SkillProgramTriggerSubject.Owner || turnOwnerScope != SkillProgramTurnOwnerScope.Own))
             Fail(path, "actual turn type-count draw requires an own Play-ending owner window");
+        GrantedEntityPhaseComposition.Validate(path, effects, window, subject, turnOwnerScope);
+        FrozenFactionRecoveryComposition.Validate(path, effects, window, subject, usageScope, usageLimit);
         AlternativePhaseCostCompositionContract.Validate(path, effects, window, subject, turnOwnerScope);
         ProgramCompositionValidator.Validate(path, effects, initialSelectedTarget: deferredOnly, window: window, drawPhaseMode: drawPhaseMode, cardActionRelation: ownerRelation, cardKinds: cardKinds, turnOwnerScope: turnOwnerScope);
         if (node.TryGetProperty("onlyDesignatedCardTargets", out _) && ownerRelation != SkillProgramCardActionOwnerRelation.Target) Fail(path + ".onlyDesignatedCardTargets", "requires a target-owner card trigger");

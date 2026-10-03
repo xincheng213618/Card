@@ -12,6 +12,7 @@ public sealed partial class GameEngine
         ObserveAdvancedLifecycleEvent(payload);
         ObserveBeneficiarySuitShield(payload);
         ObserveNextCardTargetAdjustmentEvent(payload);
+        ObserveNextActualUseAdjustment(payload);
         ObservePlayPhaseColorRestriction(payload);
         ObserveFirstTurnCategoryUse(payload);
         ObserveCurrentTurnUseKinds(payload);

@@ -1,0 +1,73 @@
+{
+  "status": "official-art-registered-pending-batch-validation",
+  "batch": 24,
+  "images": [
+    {
+      "gid": 600,
+      "key": "boundary-jian-yong",
+      "name": "界简雍",
+      "sourcePath": ".artifacts\\continuation-20261003-batch17\\batch23\\third-source-audit\\600-official-source.json",
+      "sourceRecordSha256": "e8c3d10021bcdf84e3b7c9051130fbf0549cbe7be9bf17474cab1cabf1d2fb7a",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60000.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60000.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-03T21:37:15.8765234+00:00",
+      "rawBytes": 1145458,
+      "sha256": "204c3136d0aa2624e6985f6f57ab131e032b243a3b7ac51f1527d1a2429c6590",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "contentType": "image/png",
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch24\\official-art\\official-boundary-jian-yong.png",
+      "installed": true,
+      "sourceRecord": "docs\\content\\sources\\fenglin-twenty-fourth-600-source-2026-10-04.json",
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-jian-yong.png"
+    },
+    {
+      "gid": 641,
+      "key": "boundary-liao-hua",
+      "name": "界廖化",
+      "sourcePath": ".artifacts\\continuation-20261003-batch17\\batch23\\third-source-audit\\641-official-source.json",
+      "sourceRecordSha256": "cf907bcfd59f2f6608d32033c166bf3e6bf80d2ea18e7e38f775ca8929861aae",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64100.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64100.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-03T21:37:15.9722347+00:00",
+      "rawBytes": 960613,
+      "sha256": "20b1f2aa6461187dc1cf7fef27bc6043f765a1ddd9fa62a4fc2f2042cecad2ae",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "contentType": "image/png",
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch24\\official-art\\official-boundary-liao-hua.png",
+      "installed": true,
+      "sourceRecord": "docs\\content\\sources\\fenglin-twenty-fourth-641-source-2026-10-04.json",
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-liao-hua.png"
+    },
+    {
+      "gid": 604,
+      "key": "boundary-gao-shun",
+      "name": "界高顺",
+      "sourcePath": ".artifacts\\continuation-20261003-batch17\\batch23\\guo-huai\\next-batch24\\604-official-source.json",
+      "sourceRecordSha256": "094dd411dec7c6141a7ecff9b3cb8a034eddb58cdae1925976e4aa0e6c679867",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60400.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60400.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-03T21:37:16.3306280+00:00",
+      "rawBytes": 763220,
+      "sha256": "d186ba353ac87a92c8cdf783e7b5511bdc75fc76968112573b48d09f632eab29",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "contentType": "image/png",
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch24\\official-art\\official-boundary-gao-shun.png",
+      "installed": true,
+      "sourceRecord": "docs\\content\\sources\\fenglin-twenty-fourth-604-source-2026-10-04.json",
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-gao-shun.png"
+    }
+  ],
+  "verification": {
+    "compiledVerificationRun": false,
+    "rawPngMetadata": true,
+    "mainRegistration": true,
+    "offlineVerificationRun": false,
+    "sourceRecordCopiesSha256Matched": true
+  }
+}
