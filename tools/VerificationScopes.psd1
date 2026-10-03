@@ -66,7 +66,13 @@
         'Boundary Jiang Wei declined taunt discards target card',
         'Boundary Jiang Wei dodged slash still discards',
         'Boundary Jiang Wei taunt runs twice per phase',
-        'Boundary Jiang Wei awakening wakes once across phases'
+        'Boundary Jiang Wei awakening wakes once across phases',
+        'Boundary Meng Huo definitions and metadata',
+        'Boundary Meng Huo barbarian immunity and attribution',
+        'Boundary Meng Huo zaiqi asks chosen participants in order',
+        'Boundary Meng Huo zaiqi draw only at full owner',
+        'Boundary Meng Huo zaiqi decline leaves everyone alone',
+        'Boundary Meng Huo zaiqi stays silent without red discards'
         'Damage target mount paid children source lifetime',
         'Damage appearance Draw definitions physical colors cardless legacy',
         'Selected actor Duel actual Use and Nullification'
