@@ -1,0 +1,112 @@
+{
+  "status": "current-official-source-only-not-implemented",
+  "gid": 603,
+  "indexIdentity": {
+    "gid": 603,
+    "name": "界虞翻",
+    "resource": "60300",
+    "extend": "界限突破",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "史诗",
+    "figure": "吴",
+    "figure_py": "wu",
+    "biography": "虞翻初在会稽被太守王朗任命为功曹，曾劝谏王朗躲开孙策未果。后孙策占江东仍任命他为功曹。吕蒙袭取荆州时，虞翻提醒其躲过了埋伏，成功占领城池。后因为直言进谏被孙权发配到交州。",
+    "characteristic": "在补给友方和打击敌人中平衡。",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/603.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60300.png",
+    "realname": "界虞翻 (界限突破)"
+  },
+  "discovery": "Exact gid advertised by retained ordinary OL Listdata[界限突破] index; known info route from current official heroDetail.js.",
+  "webReader": "Grouped primary website reader attempted first: 603 timed out; 620 and 640 returned cached text. Bounded current direct primary HTTP bytes captured for all three.",
+  "page": {
+    "url": "https://www.sanguosha.com/hero/603",
+    "finalUrl": "https://www.sanguosha.com/hero/603",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T23:09:44.172374+00:00",
+    "contentType": "text/html",
+    "rawBytes": 23680,
+    "rawSha256": "8ff83aae97e98989d89f27f80811b7e20d42f4a90085306e046c5f8e8a335881",
+    "rawFile": "603-page.raw.html",
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >当你的牌因弃置而置入弃牌堆后，或你上家的牌于每回合首次因弃置而置入弃牌堆后，你可以将其中任意张牌置于牌堆顶。</span>\n                            \n                                <span >你上家或你的结束阶段，你可以令一名角色摸一张牌并展示之，若为装备牌，其使用之并回复1点体力。若为非装备牌且其体力值不等于你，其失去1点体力。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "纵玄",
+      "直言"
+    ],
+    "skillTexts": [
+      "当你的牌因弃置而置入弃牌堆后，或你上家的牌于每回合首次因弃置而置入弃牌堆后，你可以将其中任意张牌置于牌堆顶。",
+      "你上家或你的结束阶段，你可以令一名角色摸一张牌并展示之，若为装备牌，其使用之并回复1点体力。若为非装备牌且其体力值不等于你，其失去1点体力。"
+    ],
+    "fontRefs": [],
+    "scripts": [
+      "/assets/js/jquery-3.7.1.js",
+      "/assets/js/swiper-bundle.min.js",
+      "/assets/js/echarts.min.js",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "/assets/js/commen.js",
+      "/assets/js/header.js",
+      "/assets/js/heroDetail.js?1"
+    ]
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=603",
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=603",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T23:09:44.436389+00:00",
+    "contentType": "application/json",
+    "rawBytes": 910,
+    "rawSha256": "cb466eb7f2fd7a2c0b554109f44acf0e58c9c58667c77d41aa933b9ebd2f3b1b",
+    "rawFile": "603-api.raw.json",
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 603,
+            "name": "界虞翻",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/603.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60300.png",
+            "label": [
+              "控制",
+              "过牌",
+              "回复"
+            ],
+            "figure": "吴",
+            "figure_py": "wu",
+            "quality": "史诗",
+            "biography": "虞翻初在会稽被太守王朗任命为功曹，曾劝谏王朗躲开孙策未果。后孙策占江东仍任命他为功曹。吕蒙袭取荆州时，虞翻提醒其躲过了埋伏，成功占领城池。后因为直言进谏被孙权发配到交州。",
+            "characteristic": "在补给友方和打击敌人中平衡。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 5
+          },
+          {
+            "name": "排位后手",
+            "value": 6
+          },
+          {
+            "name": "农民",
+            "value": 6
+          },
+          {
+            "name": "反贼",
+            "value": 6
+          },
+          {
+            "name": "内奸",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    }
+  }
+}

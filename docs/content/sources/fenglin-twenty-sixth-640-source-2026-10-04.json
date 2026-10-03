@@ -1,0 +1,112 @@
+{
+  "status": "current-official-source-only-not-implemented",
+  "gid": 640,
+  "indexIdentity": {
+    "gid": 640,
+    "name": "界吴国太",
+    "resource": "64000",
+    "extend": "界限突破",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "史诗",
+    "figure": "吴",
+    "figure_py": "wu",
+    "biography": "吴国太，小说《三国演义》中的人物，不见于正史记载。在小说中，吴国太被描述为孙坚的次妻，孙坚正妻武烈皇后[小说中写作吴太夫人]的妹妹，孙朗、孙仁[孙尚香]的母亲。",
+    "characteristic": "可以帮助队友回血，敌人面对吴国太要谨慎使用装备。",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/640.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64000.png",
+    "realname": "界吴国太 (界限突破)"
+  },
+  "discovery": "Exact gid advertised by retained ordinary OL Listdata[界限突破] index; known info route from current official heroDetail.js.",
+  "webReader": "Grouped primary website reader attempted first: 603 timed out; 620 and 640 returned cached text. Bounded current direct primary HTTP bytes captured for all three.",
+  "page": {
+    "url": "https://www.sanguosha.com/hero/640",
+    "finalUrl": "https://www.sanguosha.com/hero/640",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T23:09:44.173515+00:00",
+    "contentType": "text/html",
+    "rawBytes": 24088,
+    "rawSha256": "ab147141719944d2208ecc154b12fd989a1c4bc062872efaeec1ec2e64e7303b",
+    "rawFile": "640-page.raw.html",
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >出牌阶段限一次，你可以令两名角色交换装备区里的牌。若X大于你已损失的体力值，你须在选择角色时弃置X张牌（X为其装备区里的牌数之差）。</span>\n                            \n                                <span >当一名角色进入濒死状态时，你可以选择其一张牌，若此牌不为基本牌，则其弃置此牌，然后回复1点体力。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "甘露",
+      "补益"
+    ],
+    "skillTexts": [
+      "出牌阶段限一次，你可以令两名角色交换装备区里的牌。若X大于你已损失的体力值，你须在选择角色时弃置X张牌（X为其装备区里的牌数之差）。",
+      "当一名角色进入濒死状态时，你可以选择其一张牌，若此牌不为基本牌，则其弃置此牌，然后回复1点体力。"
+    ],
+    "fontRefs": [],
+    "scripts": [
+      "/assets/js/jquery-3.7.1.js",
+      "/assets/js/swiper-bundle.min.js",
+      "/assets/js/echarts.min.js",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "/assets/js/commen.js",
+      "/assets/js/header.js",
+      "/assets/js/heroDetail.js?1"
+    ]
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=640",
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=640",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T23:09:44.429245+00:00",
+    "contentType": "application/json",
+    "rawBytes": 908,
+    "rawSha256": "55cafd311e72b609693fb67b1152d9132486d0475750fc68cee7281753ef9abe",
+    "rawFile": "640-api.raw.json",
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 640,
+            "name": "界吴国太",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/640.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64000.png",
+            "label": [
+              "控制",
+              "辅助",
+              "回复"
+            ],
+            "figure": "吴",
+            "figure_py": "wu",
+            "quality": "史诗",
+            "biography": "吴国太，小说《三国演义》中的人物，不见于正史记载。在小说中，吴国太被描述为孙坚的次妻，孙坚正妻武烈皇后[小说中写作吴太夫人]的妹妹，孙朗、孙仁[孙尚香]的母亲。",
+            "characteristic": "可以帮助队友回血，敌人面对吴国太要谨慎使用装备。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "农民",
+            "value": 6
+          },
+          {
+            "name": "主公",
+            "value": 6
+          },
+          {
+            "name": "忠臣",
+            "value": 6
+          },
+          {
+            "name": "反贼",
+            "value": 7
+          },
+          {
+            "name": "内奸",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    }
+  }
+}

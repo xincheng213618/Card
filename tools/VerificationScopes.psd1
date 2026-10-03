@@ -134,7 +134,8 @@
         'Discarded provenance exact discard judgment',
         'Discarded provenance real turn all materials',
         'Actual turn use kinds independent hand suits',
-        'Actual turn use kinds per Play draw'
+        'Actual turn use kinds per Play draw',
+        'Owner batch loss equipment OR two cards once'
     )
     Wpf = @(
         'original card artwork', 'overlapping hand', 'composed skills', 'conversion choices',

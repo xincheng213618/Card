@@ -191,6 +191,7 @@ public sealed partial class GameEngine
                         new CardMovementSourceCount(count.Location,
                             ProgramMovementSourceCounts(batch, window).Where(item => (!item.DiscardOriginOnly || trigger.MovementDiscardOnly) && item.Count.Location.OwnerSeat == ownerSeat && trigger.SourceZones.Contains(item.Count.Location.Zone)).Sum(item => item.Count.CountBefore),
                             ProgramMovementSourceCounts(batch, window).Where(item => (!item.DiscardOriginOnly || trigger.MovementDiscardOnly) && item.Count.Location.OwnerSeat == ownerSeat && trigger.SourceZones.Contains(item.Count.Location.Zone)).Sum(item => item.Count.CountAfter)), window);
+                    ownerBatchFacts = CaptureOwnerBatchEquipmentLoss(ownerBatchFacts, batch, candidate, trigger, matching);
                     if (matching.Length > 0 && trigger.Condition.Evaluate(ownerBatchFacts, candidate.SkillId, candidate.SkillInstanceId))
                         candidates.Add(candidate);
                     continue;
@@ -382,8 +383,9 @@ public sealed partial class GameEngine
             var matching = MatchingOwnerBatchMovementIndexes(frame.Batch, candidate, trigger);
             return new ProgramSkillWindowContext(trigger.Window, frame.Id, candidate.OwnerSeat,
                 SourceSeat: candidate.OwnerSeat, TargetSeat: candidate.OwnerSeat,
-                Facts: CaptureCardsMovedTriggerFacts(_players[candidate.OwnerSeat], matching.Length,
+                Facts: CaptureOwnerBatchEquipmentLoss(CaptureCardsMovedTriggerFacts(_players[candidate.OwnerSeat], matching.Length,
                     new CardMovementSourceCount(counts[0].Location, counts.Sum(item => item.CountBefore), counts.Sum(item => item.CountAfter)), trigger.Window),
+                    frame.Batch, candidate, trigger, matching),
                 MovementBatch: frame.Batch);
         }
         var gained = trigger.Window == SkillProgramTriggerWindow.CardsGained;

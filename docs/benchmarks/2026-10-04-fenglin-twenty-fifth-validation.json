@@ -19,7 +19,9 @@
       "sourceSha256": "ff989953c58414a801767b33dcbbc70c26db0e2cee0238bbc823c72335e61862",
       "owner": "/root/pang_de",
       "stage": ".artifacts/continuation-20261003-batch17/batch25/ling-tong",
-      "mainRegistered": false
+      "mainRegistered": true,
+      "status": "static-integrated-runtime-deferred",
+      "integrationNote": "docs/content/skill-composition/FENG_LIN_TWENTY_FIFTH_LING_TONG.md"
     },
     {
       "gid": 597,
@@ -41,15 +43,32 @@
     }
   ],
   "runs": [],
-  "integrations": [],
+  "integrations": [
+    {
+      "gid": 588,
+      "integratedAtUtc": "2026-10-03T23:26:03.3978862+00:00",
+      "frozenDeliveryManifestSha256": "d41df3966300e03411bf9b6ead423ea0b5d469ca22f695d793983f8ef4692021",
+      "originalOldBaselinesVerified": 5,
+      "originalNewFilesCopied": 5,
+      "originalNarrowPatchPreviewMatched": true,
+      "fixtureFollowupManifestSha256": "d5646a73506142593ad00af61cc4f122798975a3e0219208157ecfdd25059d91",
+      "fixtureFollowupPreviewMatched": true,
+      "focusedChecksRegistered": 4,
+      "representativeRoutineFiltersAdded": 1,
+      "officialRawArtInstalled": true,
+      "buildsRun": false,
+      "loaderExecuted": false,
+      "testsRun": false,
+      "runtimeAcceptance": false
+    }
+  ],
   "media": "docs/content/sources/fenglin-twenty-fifth-art-2026-10-04.json",
   "fixturePreparation": "docs/benchmarks/2026-10-04-routine-preparation-static.json",
   "runtimeAcceptance": false,
   "pending": [
-    "Frozen NEW/OLD patches and current baseline verification",
-    "Static production/rule/runner/media integration",
-    "User later combined build and focused/runtime/Full/routine verification",
-    "Offline/compiled raw art verification after waking"
+    "597 and 626 frozen delivery/current OLD baseline verification and static integration",
+    "User later combined build, focused runtime, Full and measured routine verification",
+    "Offline and compiled raw art verification after waking"
   ],
   "cleanup": {
     "ownedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",

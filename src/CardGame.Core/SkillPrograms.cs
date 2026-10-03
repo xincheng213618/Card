@@ -103,7 +103,8 @@ public enum SkillProgramTriggerValueKind
     LivingWoundedCount = 451,
     GlobalMarkerCount = 452,
     OwnerLostHp = 600, CardActionHandCardCount = 601, PlayPhaseDamageTakenByAny = 900,
-    EventTargetMarkerCount = 1280
+    EventTargetMarkerCount = 1280,
+    MovedEquipmentCardCount = 5000
 }
 public enum SkillProgramComparisonOperator
 {
@@ -807,6 +808,8 @@ public sealed record SkillProgramTriggerFacts(
     public int? CurrentTurnUsedCardCategoryCount { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? OwnerTrickUsesThisActualTurn { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int MovedEquipmentCardCount { get; init; }
 
     public bool GetBooleanState(string skillId, string skillInstanceId, string stateId) =>
         BooleanStates?.GetValueOrDefault(BooleanStateKey(skillId, skillInstanceId, stateId)) ??
@@ -867,6 +870,7 @@ public sealed record SkillProgramTriggerValue(SkillProgramTriggerValueKind Kind,
         SkillProgramTriggerValueKind.HpBeforeChange => facts.HpBeforeChange,
         SkillProgramTriggerValueKind.HpAfterChange => facts.HpAfterChange,
         SkillProgramTriggerValueKind.MovedCardCount => facts.MovedCardCount,
+        SkillProgramTriggerValueKind.MovedEquipmentCardCount => facts.MovedEquipmentCardCount,
         SkillProgramTriggerValueKind.SourceZoneCountBefore => facts.SourceZoneCountBefore,
         SkillProgramTriggerValueKind.SourceZoneCountAfter => facts.SourceZoneCountAfter,
         SkillProgramTriggerValueKind.EventTargetHp => facts.EventTargetHp,
@@ -3341,6 +3345,10 @@ public sealed class SkillProgramCatalog
              cardKinds.Count != 0 || cardCategories.Count != 0 || movementReasons.Count != 0 || excludedMovementReasons.Count != 0))
             Fail(path, "Provenance claims require unfiltered other-player per-card discard/judgment origins.");
         var movementDiscardOnly = node.TryGetProperty("movementDiscardOnly", out _) && RequiredBool(node, "movementDiscardOnly", path);
+        if (EnumerateTriggerValues(condition).Any(value => value.Kind == SkillProgramTriggerValueKind.MovedEquipmentCardCount) &&
+            (window != SkillProgramTriggerWindow.CardsMoved || movementOccurrence != SkillProgramMovementOccurrence.PerOwnerBatch ||
+             subject != SkillProgramTriggerSubject.Owner || movementDiscardOnly || !sourceZones.Contains(CardZoneKind.Equipment)))
+            Fail(path + ".condition", "equipment-loss values require an actual owner-batch cardsMoved boundary including equipment");
         var discardOwnerScope = node.TryGetProperty("discardOwnerScope", out _)
             ? EnumValue<SkillProgramDiscardOwnerScope>(node, "discardOwnerScope", path) : SkillProgramDiscardOwnerScope.Other;
         if (node.TryGetProperty("discardOwnerScope", out _) && window != SkillProgramTriggerWindow.DiscardPileReceived)

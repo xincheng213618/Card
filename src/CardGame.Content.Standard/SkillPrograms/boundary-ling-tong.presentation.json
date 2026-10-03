@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:xuanfeng-current": {
+      "name": "旋风",
+      "description": "当你失去装备区里的牌后，或一次性失去至少两张牌后，你可以依次弃置至多两名其他角色共计至多两张牌。",
+      "triggerChoices": { "owner-batch-loss-discard": "依次弃置至多两张其他角色的牌" }
+    }
+  }
+}

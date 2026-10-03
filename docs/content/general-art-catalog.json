@@ -11557,6 +11557,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-ling-tong",
+      "characterName": "界凌统",
+      "defaultSkinId": "58800",
+      "skins": [
+        {
+          "id": "58800",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/588",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/58800.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-ling-tong.png",
+          "sha256": "f67abf429ddbd772c9d9da33a09670c603808744190acc492b86e7eedc662af4",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }
