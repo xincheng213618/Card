@@ -9,7 +9,7 @@ internal readonly record struct SkillBindingIndexStamp(
     bool PrimaryRevealed,
     bool HasSecondary,
     bool SecondarySelected,
-    bool SecondaryRevealed, long ProjectionRevision = 0);
+    bool SecondaryRevealed, long ProjectionRevision = 0, Role? MarkerQualificationRole = null);
 
 internal sealed record IndexedSkillProgramInstance(
     string SkillId,
@@ -155,6 +155,7 @@ internal sealed class MatchSkillBindingIndex
     private readonly Func<CharacterState, SkillGrant, bool>? _grantQualification;
     private readonly Func<CharacterState,IReadOnlySet<string>>? _suppressionInputs;
     private readonly Func<long>? _projectionStamp;
+    private readonly bool _trackMarkerQualification;
     private readonly Dictionary<int, SkillBindingShard> _shards = [];
     private readonly Dictionary<int, int> _rebuildCounts = [];
 
@@ -162,13 +163,14 @@ internal sealed class MatchSkillBindingIndex
         Func<string, ContentSkillDefinition> resolveDefinition,
         bool isNationalWarMode,
         Func<CharacterState, bool>? hasHpSensitiveSuppression = null,
-        Func<CharacterState, SkillGrant, bool>? grantQualification = null, Func<long>? projectionStamp = null, Func<CharacterState,IReadOnlySet<string>>? suppressionInputs = null)
+        Func<CharacterState, SkillGrant, bool>? grantQualification = null, Func<long>? projectionStamp = null, Func<CharacterState,IReadOnlySet<string>>? suppressionInputs = null, bool trackMarkerQualification = false)
     {
         ArgumentNullException.ThrowIfNull(resolveDefinition);
         _resolveDefinition = resolveDefinition;
         _isNationalWarMode = isNationalWarMode;
         _hasHpSensitiveSuppression = hasHpSensitiveSuppression;
         _grantQualification = grantQualification; _projectionStamp = projectionStamp; _suppressionInputs = suppressionInputs;
+        _trackMarkerQualification = trackMarkerQualification;
     }
 
     internal int CachedSeatCount => _shards.Count;
@@ -181,7 +183,8 @@ internal sealed class MatchSkillBindingIndex
         var stamp = CaptureStamp(player) with
         {
             CurrentHp = _hasHpSensitiveSuppression?.Invoke(player) == true ? player.Hp : 0,
-            ProjectionRevision = _projectionStamp?.Invoke() ?? 0
+            ProjectionRevision = _projectionStamp?.Invoke() ?? 0,
+            MarkerQualificationRole = _trackMarkerQualification ? player.Role : null
         };
         if (_shards.TryGetValue(player.Seat, out var existing) && existing.Stamp == stamp)
             return existing;

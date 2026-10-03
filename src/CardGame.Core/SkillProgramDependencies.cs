@@ -23,6 +23,10 @@ internal sealed class SkillProgramDependencies
         var definitions = skills.ToArray();
         var programs = definitions.Select(skill => skill.Program).OfType<SkillProgram>().ToArray();
         var triggers = programs.SelectMany(program => program.Triggers).ToArray();
+        UsesOwnerMarkerCount = programs.Any(program => program.Modifiers.Any(modifier => modifier.ValueExpression == SkillRuleValueExpression.OwnerMarkerCount));
+        TracksCurrentTurnUseKinds = programs.Any(program =>
+            program.Modifiers.Any(modifier => modifier.ValueExpression == SkillRuleValueExpression.CurrentTurnUsedHandSuitCount) ||
+            program.Triggers.SelectMany(trigger => trigger.Effects).Any(effect => effect.NumberExpression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount));
         var resolver = ProgramInstructionResolver.Default;
         _conditions = triggers.SelectMany(trigger => resolver.Features(trigger).ConditionKinds).ToFrozenSet();
         _values = triggers.SelectMany(trigger => resolver.Features(trigger).ValueKinds).ToFrozenSet();
@@ -37,6 +41,7 @@ internal sealed class SkillProgramDependencies
                     .Distinct(StringComparer.Ordinal).ToArray()));
         _windows = triggers.Select(trigger => trigger.Window).ToFrozenSet();
         UsesDynamicRoundUsage = triggers.Any(trigger => trigger.DynamicUsageLimit is not null);
+        UsesRoundTracking = UsesDynamicRoundUsage || HasActivationOperation(SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund);
         _maximumCardPolicyKind = programs.SelectMany(program => program.CardPolicies)
             .Select(policy => (int?)policy.Kind).Max();
         var finalized = triggers.Where(trigger => trigger.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized).ToArray();
@@ -56,7 +61,10 @@ internal sealed class SkillProgramDependencies
             UsesTriggerCondition(SkillProgramTriggerConditionKind.CardActionSuitIs);
     }
 
+    internal bool UsesOwnerMarkerCount { get; }
+    internal bool TracksCurrentTurnUseKinds { get; }
     internal bool UsesDynamicRoundUsage { get; }
+    internal bool UsesRoundTracking { get; }
     internal bool CapturesCompletedResponseSuit { get; }
     internal bool TracksPlayCardHistory { get; }
     internal bool UsesTriggerCondition(SkillProgramTriggerConditionKind kind) => _conditions.Contains(kind);

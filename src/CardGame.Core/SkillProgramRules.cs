@@ -5,7 +5,13 @@ public sealed record SkillProgramRuleContext(
     int LivingFactionCount,
     Func<CardZoneKind, int>? OwnedZoneCount = null,
     CardKind? EffectiveCardKind = null,
-    Func<string, string, CardZoneKind, int>? SourceOwnedZoneCount = null);
+    Func<string, string, CardZoneKind, int>? SourceOwnedZoneCount = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public Func<PlayerMarkerKind, int>? OwnerMarkerCount { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? CurrentTurnUsedHandSuitCount { get; init; }
+}
 
 public sealed record SkillProgramRuleSource(
     string SkillId,

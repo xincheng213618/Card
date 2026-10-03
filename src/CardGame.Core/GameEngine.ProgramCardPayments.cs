@@ -61,7 +61,9 @@ public sealed partial class GameEngine
                 ? (zone, card) => destinationSeat is { } seat &&
                     CanMoveProgramCardToCorrespondingZone(card, zone, seat)
                 : null,
-            destination, destinationSeat, prohibitReplacingEquipment);
+            destination, destinationSeat, prohibitReplacingEquipment,
+            correspondingZoneSeat: prohibitReplacingEquipment && zones.Contains(CardZoneKind.Equipment)
+                ? destinationSeat : null);
         if (choices.Count == 0)
         {
             if (skipIfNoCards)
@@ -73,6 +75,11 @@ public sealed partial class GameEngine
             CancelProgramBindingAndCleanup(active, "没有可支付的区域牌，技能结算已取消。");
             return SkillProgramStepOutcome.AwaitChild;
         }
+        if (GetOwnedSelectionEffect(active).AllowDecline)
+            choices = Array.AsReadOnly(choices.Append(new PromptChoice(
+                new ChoiceId($"program-field-decline.frame-{active.Id}"), "不移动场上的牌。", [], [],
+                new System.Collections.ObjectModel.ReadOnlyDictionary<string, string>(new Dictionary<string, string>
+                { ["program-action"] = "decline-owned-field-move", ["frame-id"] = active.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) }))).ToArray());
         var visibleCardIds = choices.SelectMany(choice => choice.Cards).Distinct().Order().ToArray();
         var skill = _contentRegistry!.GetSkill(frame.SkillId);
         _pendingDecision = new PendingDecision(

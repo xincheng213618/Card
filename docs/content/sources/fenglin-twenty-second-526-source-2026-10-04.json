@@ -1,0 +1,114 @@
+{
+  "status": "read-only-preflight-not-implemented",
+  "gid": 526,
+  "edition": "current ordinary Sanguosha OL www.sanguosha.com",
+  "indexRow": {
+    "gid": 526,
+    "name": "界典韦",
+    "resource": "52600",
+    "extend": "界限突破",
+    "hp": 4,
+    "initial_hp": 0,
+    "quality": "史诗",
+    "figure": "魏",
+    "figure_py": "wei",
+    "biography": "曹魏猛将，擅使大双戟，壮猛任侠，曾为乡人报仇，杀人出市，人莫敢近。相貌魁梧，膂力过人。张绣背叛曹操时，典韦为保护曹操而独挡叛军，击杀多人，但最终因寡不敌众而战死。",
+    "characteristic": "能直接强命，定点追击和扛多刀时会有额外收益。",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/526.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/52600.png",
+    "realname": "界典韦 (界限突破)"
+  },
+  "boundaryRegistrationFound": false,
+  "mediaDownloaded": false,
+  "page": {
+    "url": "https://www.sanguosha.com/hero/526",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T17:12:52.754034+00:00",
+    "rawSha256": "d74957046775252dfe145bb4697fca95aa8b1d20ea6292acfdac11d447f230d9",
+    "rawBytes": 24800,
+    "rawFile": "526-page.raw.html",
+    "shaScope": "HTTP response content bytes",
+    "rawBodyRetained": true,
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >出牌阶段限两次，你可以受到1点伤害或弃置一张武器牌，对一名本回合内未以此法指定过的其他角色造成1点伤害。</span>\n                            \n                                <span >锁定技，当一名角色每回合第二次受到伤害后，若其为你或伤害来源为你，你摸一张牌并弃置其场上一张牌。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "强袭",
+      "狞恶"
+    ],
+    "skillTexts": [
+      "出牌阶段限两次，你可以受到1点伤害或弃置一张武器牌，对一名本回合内未以此法指定过的其他角色造成1点伤害。",
+      "锁定技，当一名角色每回合第二次受到伤害后，若其为你或伤害来源为你，你摸一张牌并弃置其场上一张牌。"
+    ],
+    "skills": [
+      {
+        "name": "强袭",
+        "text": "出牌阶段限两次，你可以受到1点伤害或弃置一张武器牌，对一名本回合内未以此法指定过的其他角色造成1点伤害。"
+      },
+      {
+        "name": "狞恶",
+        "text": "锁定技，当一名角色每回合第二次受到伤害后，若其为你或伤害来源为你，你摸一张牌并弃置其场上一张牌。"
+      }
+    ],
+    "pairingStatus": "equal-name-text-count",
+    "fontClasses": []
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=526",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T17:12:52.896573+00:00",
+    "rawSha256": "65123a9d7ba04c2b5b1b8b4073ac80e8fc68a2069f22d1649af5128809dc6530",
+    "rawBytes": 923,
+    "rawFile": "526-api.raw.json",
+    "shaScope": "HTTP response content bytes",
+    "rawBodyRetained": true,
+    "parsed": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 526,
+            "name": "界典韦",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/526.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/52600.png",
+            "label": [
+              "进攻",
+              "简单",
+              "强命"
+            ],
+            "figure": "魏",
+            "figure_py": "wei",
+            "quality": "史诗",
+            "biography": "曹魏猛将，擅使大双戟，壮猛任侠，曾为乡人报仇，杀人出市，人莫敢近。相貌魁梧，膂力过人。张绣背叛曹操时，典韦为保护曹操而独挡叛军，击杀多人，但最终因寡不敌众而战死。",
+            "characteristic": "能直接强命，定点追击和扛多刀时会有额外收益。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 6
+          },
+          {
+            "name": "排位后手",
+            "value": 6
+          },
+          {
+            "name": "农民",
+            "value": 7
+          },
+          {
+            "name": "忠臣",
+            "value": 6
+          },
+          {
+            "name": "反贼",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:qiangxi": { "name": "强袭", "description": "出牌阶段限两次，你可以受到1点伤害或弃置一张武器牌，对一名本回合内未以此法指定过的其他角色造成1点伤害。", "activationLabels": { "receive-damage": "受到1点伤害", "discard-weapon": "弃置一张武器牌" } },
+    "boundary:ninge": { "name": "狞恶", "description": "锁定技，当一名角色每回合第二次受到伤害后，若其为你或伤害来源为你，你摸一张牌并弃置其场上一张牌。" }
+  }
+}

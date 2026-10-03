@@ -1,0 +1,956 @@
+{
+  "status": "full-and-routine-validated",
+  "runs": [
+    {
+      "label": "focused-dian-01-build",
+      "startedAt": "2026-10-04T02:36:48.7381756+08:00",
+      "status": "build-failed",
+      "mode": "targeted",
+      "durationMs": 11399,
+      "coreFilters": [
+        "Actual turn target commitment",
+        "Applied damage occurrence",
+        "Applied damage benefit",
+        "Received damage cost"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 11367,
+          "logName": "build.log",
+          "logSha256": "25623a48dd2736e29678b5215385368e429130a9726e445322072a532b880ec8",
+          "resultLines": [
+            "    0 个警告",
+            "    1 个错误"
+          ],
+          "errorDiagnostics": [
+            "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs(2637,22): error CS0136: 无法在此范围中声明名为“field”的局部变量或参数，因为该名称在封闭局部范围中用于定义局部变量或参数 [C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\CardGame.Core.csproj]"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "focused-dian-02-content-form",
+      "startedAt": "2026-10-04T02:38:30.5816107+08:00",
+      "status": "build-failed",
+      "mode": "targeted",
+      "durationMs": 6437,
+      "coreFilters": [
+        "Actual turn target commitment",
+        "Applied damage occurrence",
+        "Applied damage benefit",
+        "Received damage cost"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 6414,
+          "logName": "build.log",
+          "logSha256": "66bbb9c23c3d06f53ed5286a434411d8c01d43b9bbbb2919d2739794cc610885",
+          "resultLines": [
+            "    0 个警告",
+            "    1 个错误"
+          ],
+          "errorDiagnostics": [
+            "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Content.Standard\\BoundaryDianWeiContent.cs(11,89): error CS0117: “SkillExecutionForm”未包含“Active”的定义 [C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Content.Standard\\CardGame.Content.Standard.csproj]"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "focused-dian-03-raw-string",
+      "startedAt": "2026-10-04T02:39:08.7644531+08:00",
+      "status": "build-failed",
+      "mode": "targeted",
+      "durationMs": 1847,
+      "coreFilters": [
+        "Actual turn target commitment",
+        "Applied damage occurrence",
+        "Applied damage benefit",
+        "Received damage cost"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1825,
+          "logName": "build.log",
+          "logSha256": "c608d20c121be40a0b7bbf759f7fda3ec6cd40025382427b7df1f75db9640155",
+          "resultLines": [
+            "    0 个警告",
+            "    1 个错误"
+          ],
+          "errorDiagnostics": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryDianWeiChecks.cs(217,356): error CS9007: 内插原始字符串字面量的开头没有足够的 \\\"$\\\" 字符以允许将这么多连续的右大括号作为内容。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "focused-dian-04-package-interface",
+      "startedAt": "2026-10-04T02:39:46.869257+08:00",
+      "status": "build-failed",
+      "mode": "targeted",
+      "durationMs": 1655,
+      "coreFilters": [
+        "Actual turn target commitment",
+        "Applied damage occurrence",
+        "Applied damage benefit",
+        "Received damage cost"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1632,
+          "logName": "build.log",
+          "logSha256": "830f17a74f17d385989be2d52999ea1f875bc93e87d8d6c1e55e012edc21fa49",
+          "resultLines": [
+            "    0 个警告",
+            "    1 个错误"
+          ],
+          "errorDiagnostics": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryDianWeiChecks.cs(199,136): error CS0246: 未能找到类型或命名空间名“IContentPackage”(是否缺少 using 指令或程序集引用?) [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "focused-dian-05-first-real",
+      "startedAt": "2026-10-04T02:40:10.1379103+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 7428,
+      "coreFilters": [
+        "Actual turn target commitment",
+        "Applied damage occurrence",
+        "Applied damage benefit",
+        "Received damage cost"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4044,
+          "logName": "build.log",
+          "logSha256": "51d4c1901b56b132efe98efe563d00af73ffd241f372a3df8ae570729fd81dd2",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (4 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 3325,
+          "logName": "core-selected.log",
+          "logSha256": "e60318b3861571898c68d992dc5021ff5ce8dc863b0fc4bef1743d2623353b36",
+          "resultLines": [
+            "[FAIL] Applied damage benefit gain field recovery source death",
+            "       InvalidOperationException: Deck 'fixture:dw-deck' references unknown card 'standard:silver_lion'.",
+            "[FAIL] Received damage cost fatal payment native target history",
+            "       InvalidOperationException: The game is already completed.",
+            "2 passed, 2 failed, 0 skipped (4 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-dian-06-gain-field-death-real",
+      "startedAt": "2026-10-04T02:43:00.1698586+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 4160,
+      "coreFilters": [
+        "Applied damage benefit"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2536,
+          "logName": "build.log",
+          "logSha256": "ffbb5e7627331cdc05b85f25e94389bf632da85622865cb2c0447c0675202455",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1584,
+          "logName": "core-selected.log",
+          "logSha256": "01539fcb8ba891df5ce44ede3e087e95e1f6556bb91ffc76deaebd4cd3409552",
+          "resultLines": [
+            "1 passed, 0 failed, 0 skipped (1 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-zhang-01-loader",
+      "startedAt": "2026-10-04T02:44:16.9920702+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 7146,
+      "coreFilters": [
+        "Dual private color"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 6682,
+          "logName": "build.log",
+          "logSha256": "a34b9d1acd4a329ee26b4aab3c9c21bfecfebc7c54954bc47de760d1f5297bd6",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 421,
+          "logName": "core-selected.log",
+          "logSha256": "1250ec716288a8aa82ad800badd47033aeda4702594ad16532b6ef2fbc6b3b03",
+          "resultLines": [
+            "[FAIL] Dual private color commitments atomic payment real Duel and cold",
+            "       InvalidOperationException: Invalid skill program at skill 'fixture:dual-quiet' (rules.skills[4]).triggers[0].effects: phase substitution does not match its lifecycle boundary.",
+            "[FAIL] Dual private color opponent actor and paid source death typed return cold",
+            "0 passed, 2 failed, 0 skipped (2 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-zhang-02-actual-fixture-prefix",
+      "startedAt": "2026-10-04T02:46:14.2913971+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 3651,
+      "coreFilters": [
+        "Dual private color"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2590,
+          "logName": "build.log",
+          "logSha256": "39930d17ebb2e2afa639bd34e91729d0f6eed204b79282bc78bb03d65b09aefb",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1023,
+          "logName": "core-selected.log",
+          "logSha256": "4f3defe3be29999f7db552c339e36b07dabfca22ebd48b9ce5a37d09e2bf6965",
+          "resultLines": [
+            "[FAIL] Dual private color commitments atomic payment real Duel and cold",
+            "       InvalidOperationException: The formal Lord fixture really begins wounded with six actual black Slashes.",
+            "[FAIL] Dual private color opponent actor and paid source death typed return cold",
+            "       InvalidOperationException: Sequence contains no elements",
+            "0 passed, 2 failed, 0 skipped (2 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-dian-zhang-07-draw-and-native",
+      "startedAt": "2026-10-04T02:47:48.8150634+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 5532,
+      "coreFilters": [
+        "Dual private color",
+        "Received damage cost"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2781,
+          "logName": "build.log",
+          "logSha256": "bce6e69938b3bd295244218835565db0df928700aa319c07654a4f2eaba6ca9d",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (2 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 2712,
+          "logName": "core-selected.log",
+          "logSha256": "d2a8acb16d06ac069015b517caad26e0deb0d7358a80db684c7fe88c91dc2f67",
+          "resultLines": [
+            "[FAIL] Received damage cost fatal payment native target history",
+            "       InvalidOperationException: Native AI uses the same legal two-branch offer and exact actual-turn target commitments without a character runner or private opponent-hand reads. {\"Source\":0,\"Player\":{\"Seat\":0,\"Name\":\"AI 1\",\"IsHuman\":false,\"Role\":2,\"IsRoleRevealed\":true,\"GeneralId\":\"fixture:dw-owner\",\"GeneralName\":\"\\u771F\\u5B9E\\u754C\\u5178\\u97E6\\u673A\\u5236\",\"PortraitKey\":\"supporter\",\"Hp\":8,\"MaxHp\":8,\"IsAlive\":true,\"HandCount\":0,\"Hand\":[],\"IsGeneralPublic\":true,\"HasAlcoholEffect\":false,\"Skills",
+            "2 passed, 1 failed, 0 skipped (3 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-cai-01-build",
+      "startedAt": "2026-10-04T02:54:52.8168486+08:00",
+      "status": "build-failed",
+      "mode": "targeted",
+      "durationMs": 5015,
+      "coreFilters": [
+        "Damage judgment suit payment"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 4990,
+          "logName": "build.log",
+          "logSha256": "6fd3086a4376875967bd2648658ae675575c416e99097c8da0226311a4f98685",
+          "resultLines": [
+            "    0 个警告",
+            "    2 个错误"
+          ],
+          "errorDiagnostics": [
+            "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.DamageJudgmentSuitPaymentObservers.cs(113,109): error CS1061: “ProgramLifecycleTriggerWindowFrame”未包含“CharacterStateChange”的定义，并且找不到可接受第一个“ProgramLifecycleTriggerWindowFrame”类型参数的可访问扩展方法“CharacterStateChange”(是否缺少 using 指令或程序集引用?) [C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\CardGame.Core.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.DamageJudgmentSuitPayments.cs(16,139): error CS1503: 参数 1: 无法从“CardGame.Core.CardKind?”转换为“CardGame.Core.CardKind” [C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\CardGame.Core.csproj]"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "focused-cai-02-type-init",
+      "startedAt": "2026-10-04T02:56:40.5393632+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 7902,
+      "coreFilters": [
+        "Damage judgment suit payment"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 7390,
+          "logName": "build.log",
+          "logSha256": "8a708ea4f8f5990037b0d6aee9ed65b969315c8eb7aa692bfc7f0d782edcb42f",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 461,
+          "logName": "core-selected.log",
+          "logSha256": "b65a0eb013fd4ae82ba676daacf8eb8a05b38c1e1a25ad9cf1057cddda43082d",
+          "resultLines": [
+            "[FAIL] Damage judgment suit payment four suits and exact claims",
+            "       TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+            "[FAIL] Damage judgment suit payment independent matches and foreign claim",
+            "[FAIL] Damage judgment suit payment declines source loss and legacy virtual Slash",
+            "[FAIL] Damage judgment suit payment native AI and strict loader",
+            "0 passed, 4 failed, 0 skipped (4 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-cai-dian-03-two-pass",
+      "startedAt": "2026-10-04T03:00:36.1399212+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 16763,
+      "coreFilters": [
+        "Damage judgment suit payment",
+        "Received damage cost"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 7250,
+          "logName": "build.log",
+          "logSha256": "6aa4202701e78b41899ae2404e3db8c24229129e45948a657cdea02fc09eb80e",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (2 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 9469,
+          "logName": "core-selected.log",
+          "logSha256": "6b782a19ed316bd1e9436bb83d2cf49bc9d887e8cb48279e9e1728969a5e7e32",
+          "resultLines": [
+            "[FAIL] Damage judgment suit payment four suits and exact claims",
+            "       InvalidOperationException: An active damage trigger window must retain its ordered cursor as the stack top.",
+            "[FAIL] Damage judgment suit payment independent matches and foreign claim",
+            "       InvalidOperationException: Fixed Cai Wen Ji command prefix missed its boundary: {\"Kind\":25,\"PlayerSeat\":0,\"Prompt\":\"\\u5224\\u5B9A\\u4E3A\\u7EA2\\u68437\\uFF0C\\u4F60\\u53EF\\u4EE5\\u5F03\\u7F6E\\u4E00\\u5F20\\u724C\\u6267\\u884C\\u6548\\u679C\\u3002\",\"ValidCardIds\":[60,16,23,24,34],\"ValidTargetSeats\":[],\"SourceSeat\":0,\"IncomingCard\":null,\"SkillPrompt\":{\"SkillId\":\"boundary:beige\",\"Name\":\"\\u60B2\\u6B4C\",\"Title\":\"\\u60B2\\u6B4C\",\"Instructions\":\"\\u5F53\\u4E00\\u540D\\u89D2\\u8272\\u53D7\\u5230\\u3010\\u6740\\u3011\\u7684\\u",
+            "[FAIL] Received damage cost fatal payment native target history",
+            "       InvalidOperationException: Native AI uses the same legal two-branch offer and exact actual-turn target commitments without a character runner or private opponent-hand reads. {\"Source\":0,\"Player\":{\"Seat\":0,\"Name\":\"AI 1\",\"IsHuman\":false,\"Role\":2,\"IsRoleRevealed\":true,\"GeneralId\":\"fixture:dw-owner\",\"GeneralName\":\"\\u771F\\u5B9E\\u754C\\u5178\\u97E6\\u673A\\u5236\",\"PortraitKey\":\"supporter\",\"Hp\":8,\"MaxHp\":8,\"IsAlive\":true,\"HandCount\":0,\"Hand\":[],\"IsGeneralPublic\":true,\"HasAlcoholEffect\":false,\"Skills",
+            "2 passed, 3 failed, 0 skipped (5 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-dian-08-native-first-turn-bounded",
+      "startedAt": "2026-10-04T03:14:43.8843504+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 6059,
+      "coreFilters": [
+        "Received damage cost"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4773,
+          "logName": "build.log",
+          "logSha256": "d4e637b4f011aaf470f2d4823dbe04b6e385521e558f4b83c3d60e63e0947c88",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1245,
+          "logName": "core-selected.log",
+          "logSha256": "f3df79b53b8f88b9159accce931e70608d5f5de4583535733174a52fb402e17c",
+          "resultLines": [
+            "1 passed, 0 failed, 0 skipped (1 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-all-10-01-paid-dying-and-foreign-claim",
+      "startedAt": "2026-10-04T03:23:28.7879362+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 23479,
+      "coreFilters": [
+        "Damage judgment suit payment",
+        "Actual turn target commitment",
+        "Applied damage occurrence",
+        "Applied damage benefit",
+        "Received damage cost",
+        "Dual private color"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 12744,
+          "logName": "build.log",
+          "logSha256": "dd9df5a3a5961479b34c5f0665ad731d42820fc7b7c7f22fb93c852744aa57d1",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (6 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 10694,
+          "logName": "core-selected.log",
+          "logSha256": "f57065fa9299f8b62ceb07ca8b1bca3a66a226a049dd908e7b10dfd7bb5db43d",
+          "resultLines": [
+            "10 passed, 0 failed, 0 skipped (10 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "full-01-final",
+      "startedAt": "2026-10-04T03:24:13.5679323+08:00",
+      "status": "passed",
+      "mode": "full",
+      "durationMs": 248745,
+      "coreFilters": [],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 5335,
+          "logName": "build.log",
+          "logSha256": "26ae58361625d7b1b13b317bb3d26019816fa8cd5650f18f11aa4377f5b4d932",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 205506,
+          "logName": "core-full.log",
+          "logSha256": "0c8882201dbc99bb7663ad428ab027a2101bdd29681b8dad477cf001416ea57a",
+          "resultLines": [
+            "642 passed, 0 failed, 0 skipped (642 total)."
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "WPF full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 37870,
+          "logName": "wpf-full.log",
+          "logSha256": "83e827407f4f6eaf13ad4511e9be99e3729d7ceffa33fa04622335e9745a3b98",
+          "resultLines": [
+            "57 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders"
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "routine-01-final",
+      "startedAt": "2026-10-04T03:32:18.6907366+08:00",
+      "status": "passed",
+      "mode": "routine",
+      "durationMs": 77991,
+      "coreFilters": [
+        "command",
+        "observer",
+        "viewer",
+        "prepared snapshot",
+        "internal failure",
+        "skill program",
+        "lifecycle programs",
+        "shared post-event",
+        "Phase hand extra turn",
+        "Actual draw obligation",
+        "Owned damage point judgment",
+        "Prevented damage draw",
+        "Black trick target policy",
+        "Dying skill qualification",
+        "Nearest legal Slash",
+        "Actual turn target commitment",
+        "Applied damage occurrence",
+        "Applied damage benefit",
+        "Dual private color commitments",
+        "Damage judgment suit payment four suits",
+        "shared use lifecycle",
+        "shared card-use",
+        "card movement",
+        "card inventory",
+        "initial deal",
+        "invalid single and batch",
+        "draw and recover",
+        "execution plans",
+        "skill executor",
+        "program gameplay hashes",
+        "physical deck recipes",
+        "structured skill metadata",
+        "content registry",
+        "standard package",
+        "composition kernel",
+        "rule query",
+        "slash resolution",
+        "dying response",
+        "Xingshang",
+        "response use completion",
+        "selected gift",
+        "configured active sequences",
+        "standard active programs",
+        "owned-card set",
+        "turn card-use effects",
+        "active Program contracts",
+        "hand guidance",
+        "actual marker payment",
+        "replacement draw and dying payment",
+        "two dynamic actual ends",
+        "ordered nested native owner",
+        "payment nested comparison",
+        "first target history",
+        "program conversion polarity shared state and replay",
+        "Feng Lin Lu Zhi actual discard entry boundaries",
+        "Ending child gift joins current boundary",
+        "Feng Lin Yuan Shu command loss regrant source suppression",
+        "Feng Lin Yuan Shu qualified awakening persistent local loss",
+        "Feng Lin Zhou Fei first domains and true equipment sequence",
+        "Feng Lin Zhou Fei same-source association freeze",
+        "Feng Lin Congjian Equipment gift nested replay",
+        "after turn ended return movement prelude ordering",
+        "after turn ended due before window nested replay",
+        "Feng Lin Zuo Ci initial privacy and replay",
+        "Feng Lin Zuo Ci layered suppression and local disable",
+        "Feng Lin Zuo Ci same avatar program and actual end",
+        "Feng Lin Yu Ji",
+        "boundary Lu Meng all table printed suits replay",
+        "boundary Lu Meng cross owner skip chain resume death",
+        "boundary Lu Meng Qinxue windows shared usage",
+        "boundary Lu Meng opt in usage legacy shape",
+        "Boundary Huang Gai actual provider color",
+        "Boundary Huang Gai multi card color source lifecycle",
+        "boundary Lu Xun actual trick hold lianying and return",
+        "boundary Lu Xun HE payment exact Hand batch count",
+        "boundary Liu Bei virtual Peach HP child",
+        "boundary Liu Bei native provided use decline once",
+        "boundary Liu Bei gift threshold recipient",
+        "boundary Da Qiao atomic mixed discard replay",
+        "boundary Hua Tuo ordered actual discard effective suit receipts",
+        "participant discard mandatory cost cancellation preserves legal composition",
+        "current turn nonlocked suppression host lifecycle audit",
+        "boundary Guan Yu actual Played and black Hand rejection",
+        "Boundary Zhang Fei actual recovery receipt limited child",
+        "boundary Ma Chao Tieqi Paoxiao exact cancellation integration",
+        "boundary Xiahou Dun real phases skip quota expiry",
+        "boundary Xiahou Dun receipt before gain child source audit",
+        "Exact top count partition normal draw",
+        "Bound draw receipt per point nested gain",
+        "boundary Zhen Ji exact receipt stop red discard",
+        "boundary Zhen Ji receipt before child source loss",
+        "Unconverted Trick draw receipt disposition",
+        "Foreign equipment discard program selections",
+        "Population reorder actual partition and short pile",
+        "Population reorder real Ending Extra Scheduled",
+        "HP pair freezes after payment children before draw children",
+        "Equipment placement slot self equal boundaries",
+        "Final target Slash frozen comparisons actual paid Dodge",
+        "Paid HP loss rescue and gain children",
+        "Paid HP loss source and legacy",
+        "Boundary Deng Ai own turn slash discard judges authority",
+        "Boundary Deng Ai awakening grants snatch and extra turn",
+        "Boundary Jiang Wei declined taunt discards target card",
+        "Boundary Jiang Wei dodged slash still discards",
+        "Boundary Jiang Wei taunt runs twice per phase",
+        "Boundary Jiang Wei awakening wakes once across phases",
+        "Damage target mount paid children source lifetime",
+        "Damage appearance Draw definitions physical colors cardless legacy",
+        "Selected actor Duel actual Use and Nullification",
+        "Damage target obtain nested Duel native cold",
+        "Boundary Yuan Shao population start role marker limit",
+        "Boundary Yuan Shao conversion actual remaining targets",
+        "Recovery replacement Silver Lion Zhiheng HP and reward children",
+        "Recovery replacement paid equipment tail",
+        "Recovery replacement faction request Silver Lion cost before providers",
+        "Program Iron Chain third target owned recast",
+        "Equipment recast Silver Lion recovery and movement children",
+        "BoundaryXuShu fixed target real Slash",
+        "BoundaryXuShu declared deck criterion",
+        "Character turned over Shebian both directions",
+        "Character turned over Shebian occupied equipment slot",
+        "Character turned over actual damage cursor",
+        "Capped hand refresh",
+        "HP paid shield",
+        "Random Pindian",
+        "Maximum Slash Pindian",
+        "Bound card recast dynamic Slash",
+        "Bound card recast Silver Lion",
+        "Turn kind hand exemption",
+        "Signed Slash modifier",
+        "Bound discard Slash frozen suit",
+        "Bound discard Slash equipment",
+        "First round limited refund exact",
+        "Current Slash entity claim basic",
+        "Current Slash entity claim nonbasic",
+        "Participant hand declined private take",
+        "Participant hand mixed HE gift",
+        "Participant hand per point effective red",
+        "Participant hand program bound alcohol",
+        "Next-use rank bonus",
+        "Other dying recovery equipment",
+        "Alternative phase cost actual",
+        "Alternative phase cost equipped",
+        "Ending hand count history"
+      ],
+      "wpfFilters": [
+        "original card artwork",
+        "overlapping hand",
+        "composed skills",
+        "conversion choices",
+        "response context",
+        "hand responses",
+        "opaque target-card",
+        "playback batches",
+        "saved UI boundaries",
+        "failed writes",
+        "public markers",
+        "deferred hand alignment",
+        "Program conversion polarity stays visible",
+        "declaration and general library views protect private faces",
+        "Program paid choices",
+        "Program exact top count restores private shared order",
+        "Program population count private faces restore shared free order",
+        "Program Iron Chain guide follows actual target count"
+      ],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2248,
+          "logName": "build.log",
+          "logSha256": "a689bac86dbd85c0c26188eb580d5abe96710afb9d15dc4f5ab3ca92bb861c03",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (144 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 55246,
+          "logName": "core-selected.log",
+          "logSha256": "57ccf6561b6f61ec62a6b8aba4d6c21629a1a71e849fa6af38609a39afc0c5ec",
+          "resultLines": [
+            "224 passed, 0 failed, 0 skipped (224 total)."
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "WPF selected checks (18 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 20416,
+          "logName": "wpf-selected.log",
+          "logSha256": "b22eab864bfc295318e1371313ebe045878bb8b386ff5f8dc21033beaa902650",
+          "resultLines": [
+            "18 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders"
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    }
+  ],
+  "sourcePreflight": "docs/content/sources/fenglin-twenty-second-preflight-2026-10-04.json",
+  "artStage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch22\\art",
+  "parentValidatedBase": "docs/benchmarks/2026-10-04-fenglin-twenty-first-validation.json",
+  "currentRegistration": [],
+  "releaseActions": false,
+  "integration": {
+    "utc": "2026-10-03T18:59:25.3864264+00:00",
+    "modules": [
+      "BoundaryDianWeiContent",
+      "BoundaryZhangChunHuaContent",
+      "BoundaryCaiWenJiContent"
+    ],
+    "stagedManifests": {
+      "dianWei": "620434226431c4538c59313c995a42c63e598b93dcc3cd4db1bd1abbfa3f3348",
+      "zhangChunHua": "23b98c3ad51c10bbefe8e8c3428d1ae282d46b7f1725d9dde1009ea83398925a",
+      "caiWenJi": "39699ff990eaeb58aee6419047c99d141061ca6b04cdfb3cd80b592a1b637295"
+    },
+    "officialArt": {
+      "pngRecords": 999,
+      "status": "offline-passed",
+      "generals": 202
+    },
+    "stageOriginalsPreserved": true,
+    "newChecks": 10,
+    "noPerCharacterVersionChange": true,
+    "rootFixes": [
+      "Dian Wei parser name/content form/raw JSON/fixture interface and known equipment ID",
+      "Dian Wei native interactive Rebel setup; stop at first real TurnEnded and exact costs/damage assertions",
+      "Zhang Chun Hua quiet window afterNormalDraw and true two-card normal draw",
+      "Cai Wen Ji nullable actual Slash matching and CharacterStateChanged exact owning fact",
+      "Cai Wen Ji strict loader negative uses valid perDamagePoint",
+      "Cai standalone judgment result internally consumed by descriptor resource contract",
+      "Cai exact DyingEntering and actual HP-loss/PlayerDying typed edge; forced actual foreign preclaim fixture"
+    ]
+  },
+  "compiledArt": [
+    {
+      "key": "assets/official-boundary-cai-wen-ji.png",
+      "sourceSha256": "29f17706e0e2ae41cf3d1304fc509cc0fed02dcf60c9f9d9a5bce54bc744a03c",
+      "compiledSha256": "29f17706e0e2ae41cf3d1304fc509cc0fed02dcf60c9f9d9a5bce54bc744a03c",
+      "matched": true
+    },
+    {
+      "key": "assets/official-boundary-zhang-chun-hua.png",
+      "sourceSha256": "3491cda56acf4e8c02f65ad4a27d0f6f40a33d07eecd43a017499fc413c38618",
+      "compiledSha256": "3491cda56acf4e8c02f65ad4a27d0f6f40a33d07eecd43a017499fc413c38618",
+      "matched": true
+    },
+    {
+      "key": "assets/official-boundary-dian-wei.png",
+      "sourceSha256": "953244d1a8cd46d163b8c1eec77af594b3661115e28dd7f6479b5d9148f6d47b",
+      "compiledSha256": "953244d1a8cd46d163b8c1eec77af594b3661115e28dd7f6479b5d9148f6d47b",
+      "matched": true
+    }
+  ],
+  "diagnostics": [
+    "First Cai initializer failure: standalone judgment temporary result lacked resource consumption; append MoveCardSet final-disposition declaration, retain strict validator",
+    "First Cai Dying entry failure: generic character-state candidate branch shadowed the exact DyingEntering candidate; add exact typed entry and HP loss/PlayerDying fact proof inside 4200 root only",
+    "Cai foreign preclaim fixture optional AI could decline; mandatory actual observer now proves exact claim event and unique Judgment-to-Hand movement before second matching",
+    "Native Dian promptless AdvanceOneStep may advance several turns; MaxTurns4 bounds real setup and full native first owner turn. Exact two commitments/costs/damage/resolved/TurnEnded assertions retained"
+  ],
+  "focusedFinal": {
+    "label": "focused-all-10-01-paid-dying-and-foreign-claim",
+    "newChecks": 10,
+    "passed": 10,
+    "failed": 0,
+    "durationMs": 23479,
+    "buildMs": 12744,
+    "coreMs": 10694
+  },
+  "inputProof": {
+    "same": true,
+    "records": [
+      {
+        "label": "full-01-start",
+        "files": 2489,
+        "sha256": "7bb28b9216c4b03bd4d23416de1c881a68ddb735603e24062b381997786bd1ec"
+      },
+      {
+        "label": "full-01-end",
+        "files": 2489,
+        "sha256": "7bb28b9216c4b03bd4d23416de1c881a68ddb735603e24062b381997786bd1ec"
+      },
+      {
+        "label": "routine-01-end",
+        "files": 2489,
+        "sha256": "7bb28b9216c4b03bd4d23416de1c881a68ddb735603e24062b381997786bd1ec"
+      }
+    ],
+    "scope": "tracked and non-ignored src/tests/tools code/resources/config plus art catalog; stages and diagnostic documentation excluded"
+  },
+  "final": {
+    "full": {
+      "label": "full-01-final",
+      "corePassed": 642,
+      "coreFailed": 0,
+      "wpfPassed": 57,
+      "wpfFailed": 0,
+      "durationMs": 248745,
+      "buildMs": 5335,
+      "coreMs": 205506,
+      "wpfMs": 37870
+    },
+    "routine": {
+      "label": "routine-01-final",
+      "corePassed": 224,
+      "coreFailed": 0,
+      "wpfPassed": 18,
+      "wpfFailed": 0,
+      "durationMs": 77991,
+      "buildMs": 2248,
+      "coreMs": 55246,
+      "wpfMs": 20416,
+      "coreNameFilters": 144,
+      "wpfNameFilters": 18,
+      "aboutOneMinuteTargetMet": false,
+      "priorCoveragePreserved": true
+    },
+    "art": {
+      "generals": 202,
+      "pngRecords": 999,
+      "compiledOriginalsMatched": 3
+    },
+    "cleanup": "2026-10-04-fenglin-twenty-second-cleanup.json",
+    "versionChange": "none per ordinary content",
+    "gitHead": "ddf3dc1ed177a7592ff47fb813e633a8e105b045",
+    "commitPushPublishPackage": false,
+    "limits": [
+      "Focused build has existing GaoDaYiHao nullable warnings; final Full/routine incremental outputs report zero warnings/errors",
+      "Redirected legacy virtual Slash, complex rescue/death tails, issued Duel source invalidity and nullification not independently exercised by new subfixtures",
+      "Local checks and compiled resources do not establish field/device/install/production acceptance"
+    ],
+    "nextBatch": {
+      "gids": [
+        454,
+        629,
+        658
+      ],
+      "threeAgentsActive": true,
+      "state": "owned-stage-only-not-main-registered",
+      "current452DerivedText": "unresolved-deferred",
+      "current451Sishu": "unresolved-deferred"
+    }
+  }
+}

@@ -17,6 +17,7 @@ public sealed partial class GameEngine
         PostEventContinuation continuation = PostEventContinuation.Boundary,
         int? cardId = null, CardKind? cardKind = null)
     {
+        if (TryBeginQueuedRecoveryReplacement(resumeFrameId, continuation, cardId, cardKind)) return true;
         if (_pendingDecision is not null || _winner != Winner.None || _status == EngineStatus.Completed ||
             (resumeFrameId is null ? _resolutionStack.Count != 0 : _resolutionStack.LastOrDefault()?.Id != resumeFrameId))
             return false;
@@ -104,6 +105,27 @@ public sealed partial class GameEngine
                     case PostEventContinuation.VirtualBasicCardUse:
                         FinishVirtualBasicUse(frame.ResumeFrameId!.Value);
                         break;
+                    case PostEventContinuation.RecoveryReplacement:
+                        AdvanceRuntimeFrame(frame.ResumeFrameId!.Value);
+                        break;
+                    case PostEventContinuation.RecoveryPaidCardUse:
+                        ContinueRecoveryPaidCardUse(frame.ResumeFrameId!.Value);
+                        break;
+                    case PostEventContinuation.DrawPhaseObligation:
+                        AdvanceRuntimeFrame(frame.ResumeFrameId!.Value);
+                        break;
+                    case PostEventContinuation.CounterspellPayment:
+                        ContinuePolicyCounterspellPayment(frame.ResumeFrameId!.Value);
+                        break;
+                    case PostEventContinuation.ColorFireAttackPayment:
+                        ContinueColorFireAttackPayment(frame.ResumeFrameId!.Value);
+                        break;
+                    case PostEventContinuation.EquipmentRecast:
+                        ContinueEquipmentRecast(frame.ResumeFrameId!.Value);
+                        break;
+                    case PostEventContinuation.FactionRequestCost:
+                        ContinuePaidFactionRequestCost(frame.ResumeFrameId!.Value);
+                        break;
                     case PostEventContinuation.GroupRecovery:
                         CompleteGroupRecoveryTarget();
                         break;
@@ -170,6 +192,13 @@ public sealed partial class GameEngine
                      awaited.SelectedCardPayment is not { } payment || payment.ActiveChildFrameId == hp.Id),
                 PostEventContinuation.CardUse => parent is CardUseFrame use && use.Id == hp.ResumeFrameId && hp.CardId is not null,
                 PostEventContinuation.VirtualBasicCardUse => parent is CardUseFrame basic && basic.Id == hp.ResumeFrameId && basic.CardId == 0 && basic.VirtualBasicReturn is not null && basic.VirtualBasicEffectApplied == true && hp.CardId is null && hp.CardKind == basic.CardKind,
+                PostEventContinuation.RecoveryReplacement => parent is RecoveryReplacementFrame recovery && recovery.Id == hp.ResumeFrameId,
+                PostEventContinuation.RecoveryPaidCardUse => parent is CardUseFrame paidUse && paidUse.Id == hp.ResumeFrameId && paidUse.RecoveryPaidContinuation is not null,
+                PostEventContinuation.CounterspellPayment => parent is NullificationWindowFrame { CounterspellPayment: not null } counter && counter.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == counter.Id,
+                PostEventContinuation.ColorFireAttackPayment => parent is CardUseFrame { ColorFireAttack.PaidCardId: not null } fire && fire.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == fire.Id,
+                PostEventContinuation.EquipmentRecast => parent is EquipmentRecastFrame recast && recast.Id == hp.ResumeFrameId,
+                PostEventContinuation.DrawPhaseObligation => parent is DrawPhaseObligationFrame draw && draw.Id == hp.ResumeFrameId,
+                PostEventContinuation.FactionRequestCost => parent?.PaidFactionRequestCostRecovery is not null && parent.Id == hp.ResumeFrameId,
                 PostEventContinuation.GroupRecovery => parent is CardUseFrame group && group.Id == hp.ResumeFrameId &&
                     ActiveGroupCard is { Effect: GroupCardEffect.Recovery } pending && pending.ResolutionId == group.Id,
                 _ => false

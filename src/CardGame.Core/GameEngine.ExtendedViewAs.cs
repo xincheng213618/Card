@@ -64,6 +64,7 @@ public sealed partial class GameEngine
         {
             var pending = ActiveNullificationWindow ?? throw new InvalidOperationException("Missing counterspell window.");
             ClearPendingDecision();
+            var unrespondableSource = FreezeUnrespondableCounterspellSource(owner, selection.Cards.Select(card => card.Id).ToArray());
             var action = MoveProgramMultiCardResponse(owner, selection, pending.ParentFrameId, pending.SourceSeat);
             FinishProgramMultiCardResponse(selection);
             pending = ReplaceNullificationWindowFrame(pending with
@@ -76,6 +77,7 @@ public sealed partial class GameEngine
             });
             AdvanceEventRulesAndQueueFact(new NullificationRespondedEvent(pending.ParentFrameId, pending.EffectCardId,
                 pending.EffectCardKind, owner.Seat, selection.Cards[0].Id, pending.EffectNullified, pending.ChainDepth));
+            if (TryBeginPolicyCounterspellPayment(pending, action, unrespondableSource, selection.Cards.Select(card => card.Id).ToArray())) return;
             if (TryBeginCommittedResponseUsePrograms(null, action, ProgramCardContinuation.NullificationResponse)) return;
             if (!TryBeginProgramCardWindow(null, action, SkillProgramTriggerWindow.CardResponseAccepted, [],
                 ProgramCardContinuation.NullificationResponse)) ContinueNullificationAfterResponseUse(action);

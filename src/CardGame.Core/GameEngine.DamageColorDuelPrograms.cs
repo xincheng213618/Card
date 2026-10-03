@@ -29,10 +29,10 @@ public sealed partial class GameEngine
 
     private bool IsSelectedActorDuelUse(long id) => LifecycleCardUse(id) is {SelectedActorDuelOrigin:not null,CardId:0,CardKind:CardKind.Duel,PhysicalCardIds.Count:0};
     private Card GetTrickRepresentation(long frameId,int cardId,bool requireProcessing=false) =>
-        cardId==0 && IsSelectedActorDuelUse(frameId) ? new Card(0,CardKind.Duel,Suit.None,0) :
+        cardId==0 && IsIssuedZeroEntityDuel(frameId) ? new Card(0,CardKind.Duel,Suit.None,0) :
             _cardZones.CardsAt(requireProcessing ? CardLocation.Processing : _cardZones.GetLocation(cardId)).Single(c=>c.Id==cardId);
     private bool MatchesSelectedActorDuelAction(long frameId,CardActionContext action,int cardId) =>
-        cardId==0 && IsSelectedActorDuelUse(frameId) && LifecycleCardUse(frameId)?.Action?.ActionId==action.ActionId &&
+        cardId==0 && IsIssuedZeroEntityDuel(frameId) && LifecycleCardUse(frameId)?.Action?.ActionId==action.ActionId &&
         action.Type==CardActionType.Use && action.EffectiveKind==CardKind.Duel && action.PhysicalCards.Count==0 && action.ConversionChain.Count==0;
 
     private void ReturnSelectedActorDuel(CardUseFrame use)

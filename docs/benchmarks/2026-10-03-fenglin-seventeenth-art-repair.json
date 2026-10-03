@@ -1,0 +1,15 @@
+{
+  "utc": "2026-10-03T08:30:07.0473969+00:00",
+  "path": "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Wpf\\Assets\\Skins\\boundary-diao-chan\\44500.png",
+  "previousSha256": "718fa13c122f2b75b8ccdc9f8a3e78ba660ef44178fa7d207ee1acff3ad7871e",
+  "officialSha256": "89fd5f98e8695131245a20a5464f7288d87ae28eab8b95a7a208632b1b35d35e",
+  "length": 1010751,
+  "differences": [
+    373538,
+    373542,
+    373662,
+    373670
+  ],
+  "source": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/44500.png",
+  "gitIndex": "21b7aa67a51efc8a814a71328effd33daee35420"
+}

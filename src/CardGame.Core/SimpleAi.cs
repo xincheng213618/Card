@@ -1175,7 +1175,7 @@ public sealed partial class SimpleAiBrain
         int chainDepth,
         IReadOnlyList<int> validCardIds,
         int thoughtSequence,
-        IReadOnlyList<int>? targetSeats = null)
+        IReadOnlyList<int>? targetSeats = null, bool includeEquipment = false, bool includeGrain = false)
     {
         var self = view.Players.Single(player => player.Seat == Seat);
         var selfRole = self.Role ?? Role.Renegade;
@@ -1207,7 +1207,7 @@ public sealed partial class SimpleAiBrain
         }
 
         var candidates = validCardIds
-            .Select(cardId => self.Hand.SingleOrDefault(card => card.Id == cardId))
+            .Select(cardId => (includeEquipment ? self.Hand.Concat(self.Equipment).Concat(includeGrain ? self.WoodenOxGrain ?? [] : []) : self.Hand).SingleOrDefault(card => card.Id == cardId))
             .Where(card => card is not null)
             .Select(card =>
             {

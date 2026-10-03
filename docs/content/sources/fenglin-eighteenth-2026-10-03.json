@@ -1,0 +1,110 @@
+{
+  "officialEdition": "Current ordinary Sanguosha OL",
+  "capturedUtc": "2026-10-03T18:18:06.053801+08:00",
+  "status": "implemented-and-batch-validated",
+  "httpLedger": [
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=463",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T18:18:05.395446+08:00",
+      "sha256": "36ae05e46bb7e8851b2b6d6d45df1283e83ac527d446d26174eec665ad67a11a",
+      "bytes": 1063
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/463",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T18:18:05.52+08:00",
+      "sha256": "9406cd76df0d423903e33359faae4c28b6ed3f6cca9043f05752de153cae721e",
+      "bytes": 25297
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/46300.png",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T18:18:05.628013+08:00",
+      "sha256": "38a4081f28ea7e39d00815312f2c32d872e98e5d63c4ce875df3b9eaea1233ee",
+      "bytes": 1355433
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=599",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T18:18:05.799468+08:00",
+      "sha256": "835dc810761721668628a738a267a0ca5275ff80d87d13f56a1f8ff04dce3dde",
+      "bytes": 866
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/599",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T18:18:05.94021+08:00",
+      "sha256": "cbcd09c9421bf56c9356daaa51bda0bc9fe72fe0cbcf8b7742eb2a3278243277",
+      "bytes": 24111
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/59900.png",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T18:18:06.051657+08:00",
+      "sha256": "8732f33b9a5ebb025cb361a38d628b48fc47ae1838e9db9c53108fe805244899",
+      "bytes": 1252633
+    }
+  ],
+  "generals": [
+    {
+      "key": "boundary-taishi-ci",
+      "gid": 463,
+      "name": "界太史慈",
+      "faction": "wu",
+      "hp": 4,
+      "initialHp": 0,
+      "gender": "Male",
+      "genderProvenance": "Same historical character as the registered classic general; official API has no structured gender.",
+      "officialPage": "https://www.sanguosha.com/hero/463",
+      "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=463",
+      "skillNames": [
+        "天义",
+        "酣战"
+      ],
+      "skillsText": [
+        "出牌阶段限一次，你可以拼点：若你赢，你本回合使用【杀】的次数+1、无距离限制且可以多指定一个目标；若你没赢，你本回合不能使用【杀】。",
+        "当你拼点前，你可以令对方用随机手牌拼点。当你拼点后，你可以获得拼点牌中点数最大的【杀】。"
+      ],
+      "artwork": {
+        "id": "46300",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/463",
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/46300.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-taishi-ci.png",
+        "sha256": "38a4081f28ea7e39d00815312f2c32d872e98e5d63c4ce875df3b9eaea1233ee",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      }
+    },
+    {
+      "key": "boundary-cao-zhang",
+      "gid": 599,
+      "name": "界曹彰",
+      "faction": "wei",
+      "hp": 4,
+      "initialHp": 0,
+      "gender": "Male",
+      "genderProvenance": "Same historical character as the registered classic general; official API has no structured gender.",
+      "officialPage": "https://www.sanguosha.com/hero/599",
+      "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=599",
+      "skillNames": [
+        "将驰"
+      ],
+      "skillsText": [
+        "摸牌阶段结束时，你可以选择一项：1.摸一张牌，你本回合使用【杀】的次数-1，且【杀】不计入手牌上限；2.重铸一张牌，且本回合使用【杀】的次数+1，【杀】无距离限制。"
+      ],
+      "artwork": {
+        "id": "59900",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/599",
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/59900.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-cao-zhang.png",
+        "sha256": "8732f33b9a5ebb025cb361a38d628b48fc47ae1838e9db9c53108fe805244899",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      }
+    }
+  ],
+  "validation": "../../benchmarks/2026-10-03-fenglin-eighteenth-validation.json"
+}

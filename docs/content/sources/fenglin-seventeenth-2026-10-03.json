@@ -1,0 +1,178 @@
+{
+  "officialEdition": "Current ordinary Sanguosha OL",
+  "capturedUtc": "2026-10-03T16:27:02.121314+08:00",
+  "status": "implemented-and-batch-validated",
+  "httpLedger": [
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=515",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T16:27:00.988329+08:00",
+      "sha256": "4b931a6bd8237944a20be5d552d9612ec1f28e3c71eb68e54db6ac132e6d88ec",
+      "bytes": 842
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/515",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T16:27:01.127413+08:00",
+      "sha256": "e3e428bfe4a10187896522ca0999125ed22cdeaaed9e56518395326cf6f26213",
+      "bytes": 24262
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/51500.png",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T16:27:01.293054+08:00",
+      "sha256": "28e391189540559993ee810d7b3c25557ca73a55ed5351c00a9583dfa20deadd",
+      "bytes": 923958
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=458",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T16:27:01.446074+08:00",
+      "sha256": "c6c39748720b0d72f94f79297b8c9e9aea7cef513dbe76ea808e4498f7406ce2",
+      "bytes": 979
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/458",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T16:27:01.580146+08:00",
+      "sha256": "0c68c2c2d0eb262bd40b06e0fad68ca319b0f9f27fdab3847b2db68f3a5a9a34",
+      "bytes": 24715
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45800.png",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T16:27:01.730654+08:00",
+      "sha256": "90ac7cf93dec1dc40a249a8c8810d749e2729b11bc0f1ecb6d9f162b87768a2a",
+      "bytes": 1166071
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=453",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T16:27:01.859855+08:00",
+      "sha256": "7034ce15d9efb89f3afd4a342c1846ef69dc797651faca4ca6461805c9b8d54a",
+      "bytes": 995
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/453",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T16:27:02.010515+08:00",
+      "sha256": "cde3ef3a4de2e6080561ed50f546f2dab4ea0b6a41e89922e02632e1055c7780",
+      "bytes": 24674
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45300.png",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T16:27:02.119444+08:00",
+      "sha256": "bdfeffcc2af2b34a2fc8a86c177ef3959eef7216a311fde0f9a249942937f968",
+      "bytes": 1024651
+    },
+    {
+      "bytes": 36693,
+      "retrievedUtc": "2026-10-03T17:09:58.6040714+08:00",
+      "url": "https://www.sanguosha.com/news/20161121_8702_5915",
+      "sha256": "cadfe05525673ecdea99cc282d53e73214c0f4cf14fedea48ba87aac9d5da58c",
+      "status": 200
+    }
+  ],
+  "generals": [
+    {
+      "key": "boundary-xun-yu",
+      "gid": 515,
+      "name": "界荀彧",
+      "faction": "wei",
+      "hp": 3,
+      "initialHp": 0,
+      "gender": "Male",
+      "genderProvenance": "Same historical character as the registered classic general; official API has no structured gender.",
+      "officialPage": "https://www.sanguosha.com/hero/515",
+      "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=515",
+      "skillNames": [
+        "驱虎",
+        "节命"
+      ],
+      "skillsText": [
+        "出牌阶段限一次，你可以与体力值大于你的一名角色拼点：若你赢，其对其攻击范围内一名由你选择的角色造成1点伤害；若你没赢，其对你造成1点伤害。",
+        "当你受到1点伤害后或死亡时，你可以令一名角色摸X张牌，然后将手牌弃至X张（X为其体力上限且至多为5）。"
+      ],
+      "artwork": {
+        "id": "51500",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/515",
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/51500.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-xun-yu.png",
+        "sha256": "28e391189540559993ee810d7b3c25557ca73a55ed5351c00a9583dfa20deadd",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      }
+    },
+    {
+      "key": "boundary-sun-jian",
+      "gid": 458,
+      "name": "界孙坚",
+      "faction": "wu",
+      "hp": 5,
+      "initialHp": 4,
+      "gender": "Male",
+      "genderProvenance": "Same historical character as the registered classic general; official API has no structured gender.",
+      "officialPage": "https://www.sanguosha.com/hero/458",
+      "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=458",
+      "skillNames": [
+        "英魂",
+        "武烈"
+      ],
+      "skillsText": [
+        "准备阶段，若你已受伤，你可以选择一名其他角色并选择一项：1.令其摸X张牌，然后弃置一张牌；2.令其摸一张牌，然后弃置X张牌。（X为你已损失体力值）",
+        "限定技，结束阶段，你可以失去任意点体力，令X名其他角色获得“烈”标记（X为以此法失去的体力值）。当有“烈”的角色受到伤害时，其移除“烈”并防止此伤害。"
+      ],
+      "artwork": {
+        "id": "45800",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/458",
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45800.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-sun-jian.png",
+        "sha256": "90ac7cf93dec1dc40a249a8c8810d749e2729b11bc0f1ecb6d9f162b87768a2a",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      }
+    },
+    {
+      "key": "boundary-xiahou-yuan",
+      "gid": 453,
+      "name": "界夏侯渊",
+      "faction": "wei",
+      "hp": 4,
+      "initialHp": 0,
+      "gender": "Male",
+      "genderProvenance": "Same historical character as the registered classic general; official API has no structured gender.",
+      "officialPage": "https://www.sanguosha.com/hero/453",
+      "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=453",
+      "skillNames": [
+        "神速",
+        "设变"
+      ],
+      "skillsText": [
+        "你可以选择至多三项：1.跳过判定阶段和摸牌阶段；2.跳过出牌阶段并弃置一张装备牌；3.跳过弃牌阶段并翻面。你每选择一项，你视为使用一张无距离限制的【杀】。",
+        "当你翻面时，你可以移动场上一张装备牌。"
+      ],
+      "artwork": {
+        "id": "45300",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/453",
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45300.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-xiahou-yuan.png",
+        "sha256": "bdfeffcc2af2b34a2fc8a86c177ef3959eef7216a311fde0f9a249942937f968",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      }
+    }
+  ],
+  "equipmentMovementEvidence": {
+    "scope": "Official ordinary OL strategy article for Cai Furen Qieting; not a Shebian-specific FAQ",
+    "paraphrase": "Equipment movement for Qieting does not replace existing equipment, and refers to Qiaobian.",
+    "url": "https://www.sanguosha.com/news/20161121_8702_5915",
+    "application": "Inference: Shebian uses the same no-replacement equipment movement boundary through an additive opt-in flag.",
+    "publishedDate": "2016-11-21"
+  },
+  "validationReport": "docs/benchmarks/2026-10-03-fenglin-seventeenth-validation.json",
+  "validatedUtc": "2026-10-03T09:56:19.2160521+00:00"
+}

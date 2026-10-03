@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:luanji-current",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "same-suit-pair-as-arrow-barrage",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 2,
+          "sameSuit": true,
+          "outputKind": "arrowBarrage",
+          "forPlay": true,
+          "forResponse": false
+        }
+      ],
+      "activations": [
+        {
+          "id": "same-suit-pair-as-arrow-barrage",
+          "usesPerTurn": null,
+          "minCards": 2,
+          "maxCards": 2,
+          "sourceZones": [
+            "hand"
+          ],
+          "selectedCardsSameSuit": true,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "effects": [
+            {
+              "op": "useSelectedCardsAs",
+              "target": "owner",
+              "sourceBind": "same-suit-pair-as-arrow-barrage",
+              "outputKind": "arrowBarrage"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "exclude-current-arrow-target",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "arrowBarrage"
+          ],
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTargets",
+              "target": "owner",
+              "targetKind": "currentArrowBarrageTargets",
+              "minimumTargets": 1,
+              "maximumTargets": 1,
+              "targetAiOrder": "cardEffectIntervention"
+            },
+            {
+              "op": "removeSelectedCurrentArrowBarrageTarget",
+              "target": "selectedTargets"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:xueyi-current",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "remaining-yi-hand-limit",
+          "query": "handLimit",
+          "operation": "add",
+          "valueExpression": "ownerMarkerCount",
+          "valueMarker": "yi",
+          "priority": 0
+        }
+      ],
+      "triggers": [
+        {
+          "id": "initial-yi",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "grantFactionPopulationMarker",
+              "target": "owner",
+              "factionId": "qun",
+              "marker": "yi",
+              "multiplier": 2
+            }
+          ]
+        },
+        {
+          "id": "spend-yi-draw",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "markerCost": {
+            "marker": "yi",
+            "amount": 1
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

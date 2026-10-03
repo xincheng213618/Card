@@ -72,7 +72,7 @@ public sealed partial class GameEngine
         var card = use.Action!.PhysicalCards.Select(cost => _cardZones.CardsAt(_cardZones.GetLocation(cost.CardId)).Single(item => item.Id == cost.CardId)).FirstOrDefault();
         return _players.Where(target => target.IsAlive && !use.Action!.EffectiveDesignatedTargetSeats.Contains(target.Seat) &&
             !IsDirectedCardTargetProhibited(actor.Seat, target.Seat, use.CardKind) &&
-            !IsCardTargetProhibited(target, use.CardKind, card?.Suit ?? Suit.Spade) &&
+            !IsCardTargetProhibited(target, use.CardKind, card?.Suit ?? Suit.Spade, ActualTargetPolicyColor(use.Action!)) &&
             (IsSlashCard(use.CardKind) ? target.Seat != actor.Seat && (card is null ? !IsSlashProhibited(target) : CanUseSlashTarget(actor, target, card, effectiveKind: use.CardKind, ignoreDistance: true)) :
              use.CardKind switch
              {

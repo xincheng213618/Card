@@ -1,0 +1,222 @@
+{
+  "status": "source-frozen-three-agent-staged-implementation-in-progress-not-registered",
+  "capturedAtUtc": "2026-10-03T23:03:55.0848949+08:00",
+  "product": "current ordinary Sanguosha OL www.sanguosha.com only",
+  "registrationCheck": "No boundary:xu-huang / boundary:dong-zhuo / boundary:jia-xu GeneralModule or content registration found; classic counterparts remain registered.",
+  "registrationEvidence": [
+    {
+      "file": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+      "sha256": "3f341fdf42c65b41f17373783e83120b81d2f4d02501c9885cddb67af72be8d0"
+    },
+    {
+      "file": "tools/sync_general_art.py",
+      "sha256": "981064e95739d8a4c34c37c40dd33d9b25082dc208c7189b10948e7b986c3a44"
+    }
+  ],
+  "captureNotes": [
+    "API raw responses are retained verbatim in the per-hero source JSON, with independently hashed HTTP content bytes. API data.info has identity/HP but no skill text; skill text comes from the paired current hero page.",
+    "Page raw SHA and the exact skill-region HTML/text are retained; full HTML is not retained. Media URLs appear in API data only; no media bytes were downloaded.",
+    "API initial_hp0 and generic page meta-description0 are not proof of an actual zero starting HP; only API hp is used for base HP.",
+    "Capability gaps are local static preflight, not implementation or runtime acceptance. No opcode, registration, content version, build or source change was made."
+  ],
+  "candidates": [
+    {
+      "status": "source-frozen-staged-implementation-in-progress-not-registered",
+      "gid": 496,
+      "name": "界徐晃",
+      "faction": "wei",
+      "baseHp": 4,
+      "sourceFile": "fenglin-twenty-first-496-source-2026-10-03.json",
+      "sourceFileSha256": "b77fb1285b3e2eda9f374c0c1fd047e5d2612bb12dc6f097947f7451921ff0da",
+      "officialPageUrl": "https://www.sanguosha.com/hero/496",
+      "pageStatus": 200,
+      "pageRawSha256": "828967d1a48013df9501a075f577df4c261afb09f5cadb3dff67761ec15dd59b",
+      "pageFetchedAtUtc": "2026-10-03T22:52:42.3442348+08:00",
+      "officialApiUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=496",
+      "apiStatus": 200,
+      "apiRawSha256": "b1693d8e3e6e16fe3242e90351d310ebf86a1972f9a8c8d091d60aa29da7082a",
+      "apiFetchedAtUtc": "2026-10-03T22:52:42.5838686+08:00",
+      "officialSkillTexts": [
+        {
+          "name": "断粮",
+          "text": "你可以将一张黑色基本牌或黑色装备牌当【兵粮寸断】使用。若你本回合未造成过伤害，你使用【兵粮寸断】无距离限制。"
+        },
+        {
+          "name": "截辎",
+          "text": "当一名角色跳过摸牌阶段后，你可以选择一名角色，若其手牌数全场最少且没有“辎”，其获得“辎”标记，否则其摸一张牌。有“辎”的角色于其摸牌阶段结束时移除“辎”，然后执行一个额外的摸牌阶段。"
+        }
+      ],
+      "source": {
+        "name": "界徐晃",
+        "identity": "wei",
+        "baseHp": 4,
+        "recommendation": "phase infrastructure follow-up, conditional on a generic skipped-draw producer",
+        "reusable": [
+          "classic:duanliang HE black basic/equipment→SupplyShortage conversion (conversion-cutover.rules.json)",
+          "IgnoreUseDistance card policy with cardKinds filtering",
+          "turn-reset exact-source BooleanState subsystem and afterDamageApplied source facts",
+          "AnyLivingLeastHandCount target facts, attributed markers, DrawPhaseEnded",
+          "batch20 exact actual phase-substitution receipt may supply one verified skip cause"
+        ],
+        "gaps": [
+          "No complete generic DrawPhaseSkipped window found. SupplyShortage, old skip programs, new Qiaobian skip, scheduled phases and whole-turn skips need one clearly defined event boundary without duplicating rewards.",
+          "InsertPhase currently parses Play only and BeforeNormalPreparation only (ProgramLifecycleOperationDefinitions.cs:105); extra Draw after DrawPhaseEnded is not supported by pure configuration.",
+          "Need generic selected-participant least-current-hand/no-marker branch: give Zi when qualifying; otherwise draw1. All living minimum ties, existing marker and actual marker consumption before extra Draw must be frozen at the correct points.",
+          "Conditional SupplyShortage distance can likely use turn-reset state plus a fresh policy qualification; RuntimeBooleanState projection/source mapping and damage on inserted phases must be proven. Existing TurnOwnerDamageDealtThisTurn trigger value is restricted to TurnEnding, so it cannot simply be placed into a card policy."
+        ],
+        "unresolved": [
+          "Whether a whole skipped face-down turn counts as skipped Draw is not stated by this page; do not invent a trigger for it.",
+          "Extra Draw has its own ending window; Zi must be removed before scheduling so repeated insertion cannot loop.",
+          "During suppression/reacquisition, issued Zi belongs to the recipient; exact source and continuation ownership require an explicit contract."
+        ],
+        "codeReferences": [
+          "src/CardGame.Content.Standard/SkillPrograms/conversion-cutover.rules.json:10",
+          "src/CardGame.Core/ProgramLifecycleOperationDefinitions.cs:105",
+          "src/CardGame.Core/SkillPrograms.cs:2961",
+          "src/CardGame.Core/GameEngine.NamedUseConversions.cs:24"
+        ]
+      }
+    },
+    {
+      "status": "source-frozen-staged-implementation-in-progress-not-registered",
+      "gid": 470,
+      "name": "界董卓",
+      "faction": "qun",
+      "baseHp": 8,
+      "sourceFile": "fenglin-twenty-first-470-source-2026-10-03.json",
+      "sourceFileSha256": "ddde7907afc71bfcd89a1470441fe971becc0552ac071777f245fd795727bae2",
+      "officialPageUrl": "https://www.sanguosha.com/hero/470",
+      "pageStatus": 200,
+      "pageRawSha256": "fbb9fda9e94129db98cf453d8dcb0ca8cbf8fcc4f4362d0d6a5c474f086f007a",
+      "pageFetchedAtUtc": "2026-10-03T22:52:42.4315243+08:00",
+      "officialApiUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=470",
+      "apiStatus": 200,
+      "apiRawSha256": "34b9612c601ce056841825f7ebe7dd2b05d879d60d5d855046e03bbecaa85221",
+      "apiFetchedAtUtc": "2026-10-03T22:52:42.6547483+08:00",
+      "officialSkillTexts": [
+        {
+          "name": "肉林",
+          "text": "锁定技，你对女性角色使用的【杀】和女性角色对你使用的【杀】均需使用两张【闪】才能抵消。"
+        },
+        {
+          "name": "崩坏",
+          "text": "锁定技，结束阶段，若你不是体力值最小的角色，你失去1点体力或减少1点体力上限。"
+        },
+        {
+          "name": "酒池",
+          "text": "你可以将一张黑桃手牌当【酒】使用。你使用【酒】无次数限制。当你使用【酒】【杀】造成伤害后，本回合“崩坏”失效。"
+        },
+        {
+          "name": "暴虐",
+          "text": "主公技，当其他群势力角色造成1点伤害后，你可以判定，若结果为黑桃，你回复1点体力并获得此判定牌。"
+        }
+      ],
+      "source": {
+        "name": "界董卓",
+        "identity": "qun",
+        "baseHp": 8,
+        "recommendation": "smallest initial reuse candidate, with exact Alcohol consumption provenance as the main new contract",
+        "reusable": [
+          "classic:roulin two-Dodge source/target gender policies can be reused unchanged",
+          "classic:benghuai own TurnEnding lowest-living-HP comparison, ChooseOption, LoseHp/ChangeMaximumHp",
+          "classic:jiuchi Spade hand→Alcohol configured viewAs, including formal dying Alcohol response",
+          "perPoint afterDamageApplied, DamageSourceFactionIs qun, owner Role.Lord qualification, StartJudgment",
+          "JudgmentFinalized Spade→Recover1 and ClaimJudgmentCard owning-frame claim"
+        ],
+        "gaps": [
+          "No AlcoholLimit rule query/card policy exists. Normal physical, converted and virtual legal-action paths use UsedPlayPhaseAlcoholThisTurn directly, so unlimited play Alcohol needs one generic qualification used at every existing gate; it must not relax dying Alcohol legality.",
+          "Alcohol-boosted Slash damage must carry a frozen consumed-Alcohol flag/provenance on the actual CardUse/attack owning frame. Damage amount2 alone is not proof of Wine Slash because other bonuses also produce2.",
+          "Suppress exactly Benghuai for the current actual turn after real boosted Slash damage. Existing current-turn suppression only targets other participants and non-locked skills, so it cannot be reused to disable locked own Benghuai.",
+          "Baonue must use perPoint, owner Lord choice rather than the classic damage-source choice, and obtain the exact successful judgment entity after its recovery children."
+        ],
+        "unresolved": [
+          "Official Jiuchi text renders 使用【酒】【杀】造成伤害; use a reviewed Wine Slash interpretation, do not infer every Slash after an earlier Alcohol use qualifies.",
+          "Repeated Alcohol while an unused Alcohol effect is present is distinct from per-turn use quota; preserve standard effect stacking rules unless an official clarification says otherwise.",
+          "Whether an issued Benghuai exemption persists through Jiuchi suppression or a replacement skill instance is an engineering default not stated here."
+        ],
+        "codeReferences": [
+          "src/CardGame.Content.Standard/SkillPrograms/classic-dong-zhuo.rules.json",
+          "src/CardGame.Core/SkillPrograms.cs:10",
+          "src/CardGame.Core/CharacterState.cs:54",
+          "src/CardGame.Core/GameEngine.VirtualBasicOffers.cs:35",
+          "src/CardGame.Core/GameEngine.CurrentTurnSkillSuppressions.cs:24",
+          "src/CardGame.Core/ProgramJudgmentOperationDefinitions.cs:34"
+        ]
+      }
+    },
+    {
+      "status": "source-frozen-staged-implementation-in-progress-not-registered",
+      "gid": 484,
+      "name": "界贾诩",
+      "faction": "qun",
+      "baseHp": 3,
+      "sourceFile": "fenglin-twenty-first-484-source-2026-10-03.json",
+      "sourceFileSha256": "d7bbd32f40c41cacbec80893eab0747becb23dad7c17802b9c645588816ce7d1",
+      "officialPageUrl": "https://www.sanguosha.com/hero/484",
+      "pageStatus": 200,
+      "pageRawSha256": "3a33962a8326cf9eb5e48d80fcb38f2f59424ba1c7f5884cda1e113e90214aef",
+      "pageFetchedAtUtc": "2026-10-03T22:52:42.7811319+08:00",
+      "officialApiUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=484",
+      "apiStatus": 200,
+      "apiRawSha256": "d1bdb72eb4839ebb01e30b7dcf6eaa985c979caf28c48336254ece57be975274",
+      "apiFetchedAtUtc": "2026-10-03T22:52:43.0022353+08:00",
+      "officialSkillTexts": [
+        {
+          "name": "帷幕",
+          "text": "锁定技，你不能成为黑色锦囊牌的目标。你防止回合内受到的伤害并摸所防止伤害值两倍数量的牌。"
+        },
+        {
+          "name": "乱武",
+          "text": "限定技，出牌阶段，你可以令所有其他角色依次选择一项：1.对其距离最小的另一名角色使用一张【杀】；2.失去1点体力。所有角色结算完毕后，你可以视为使用一张无距离限制的【杀】。"
+        },
+        {
+          "name": "完杀",
+          "text": "锁定技，在你的回合内：只有你和处于濒死状态的角色才能使用【桃】；任意角色的濒死结算中，除你和濒死角色外的其他角色的非锁定技失效。"
+        }
+      ],
+      "source": {
+        "name": "界贾诩",
+        "identity": "qun",
+        "baseHp": 3,
+        "recommendation": "high reusable content share, but dynamic Dying qualification is a substantive shared change",
+        "reusable": [
+          "classic:weimu Spade/Club trick target prohibition",
+          "BeforeDamageApplied own-turn qualification plus PreventCurrentDamage with exact frozen parent Amount",
+          "classic:luanwu limited activation RequestSlashByNearest real sequential Slash-or-LoseHp participants",
+          "UseVirtualSlash creates a real no-material CardUse with no range check and typed program return",
+          "classic:wansha ExclusiveDyingPeachRescue policy preserves only owner/victim Peach providers"
+        ],
+        "gaps": [
+          "Weimu double prevented-damage draw needs a generic frozen before-damage Amount or a small owned prevention+draw op; Draw number expressions currently have no damage amount. It must drain draw/gain children before the prevented original attack returns.",
+          "Add optional post-Luanwu virtual Slash after every participant returns, with owner/winner/source cancellation and no-distance target selection. Existing UseVirtualSlash is reusable, but its Slash usage accounting must be explicitly reviewed for this own Play activation.",
+          "Wansha requires dynamic non-locked skill qualification only during the exact active Dying token and only in owner actual turn, excluding owner and that victim. Current-turn issued suppression is too long-lived and cannot model this.",
+          "Dying token/victim transitions must invalidate cached skill projections so true providers, observers, rescue offers and checkpoint replay all regain eligibility immediately after Dying resolves."
+        ],
+        "unresolved": [
+          "Official final virtual Slash says no distance limit only; ordinary Slash-count accounting is not explicitly clarified, so do not quietly equate it with the existing ignore-quota triggered helper.",
+          "Multiple active Jia Xu sources, nested observer/rescue children and victim replacement require an exact source+typed Dying contract.",
+          "Lock tags are registry semantics; do not suppress a locked skill solely because it contains optional effects."
+        ],
+        "codeReferences": [
+          "src/CardGame.Content.Standard/SkillPrograms/classic-jia-xu.rules.json",
+          "src/CardGame.Core/ProgramLifecycleOperationDefinitions.cs:421",
+          "src/CardGame.Core/GameEngine.DamagePreventionPrograms.cs:192",
+          "src/CardGame.Core/ProgramParticipantAndReserveOperations.cs:57",
+          "src/CardGame.Core/GameEngine.TriggeredCardPrograms.cs:21",
+          "src/CardGame.Core/GameEngine.CurrentTurnSkillSuppressions.cs"
+        ]
+      }
+    }
+  ],
+  "rootIntegrationState": {
+    "status": "three-generals-main-registered-full-and-routine-validated",
+    "validatedAtUtc": "2026-10-03T18:28:55.4571732+00:00",
+    "generalIds": [
+      "boundary:xu-huang",
+      "boundary:dong-zhuo",
+      "boundary:jia-xu"
+    ],
+    "validation": "docs/benchmarks/2026-10-04-fenglin-twenty-first-validation.json",
+    "scope": "Original preflight remains a capture-time record; this field reports the later parent result."
+  }
+}

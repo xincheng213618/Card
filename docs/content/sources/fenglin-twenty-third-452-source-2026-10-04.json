@@ -1,0 +1,120 @@
+{
+  "status": "read-only-preflight-not-implemented",
+  "gid": 452,
+  "edition": "current ordinary Sanguosha OL www.sanguosha.com",
+  "indexRow": {
+    "gid": 452,
+    "name": "界孙策",
+    "resource": "45200",
+    "extend": "界限突破",
+    "hp": 4,
+    "initial_hp": 0,
+    "quality": "稀有",
+    "figure": "吴",
+    "figure_py": "wu",
+    "biography": "字伯符，吴郡富春人。孙坚长子，孙权长兄。东汉末年割据江东一带的军阀，汉末群雄之一，三国时期吴国的奠基者。三国演义中绰号“小霸王”，统一江东。在一次狩猎中为刺客所伤，不久后身亡，年仅二十六岁。其弟孙权接掌孙策势力，并于称帝后，追谥孙策为长沙桓王。",
+    "characteristic": "通过【决斗】和红色【杀】获得好处，觉醒后可以获得较多的牌并让敌人弃置较多的牌。个人能力强。",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/452.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45200.png",
+    "realname": "界孙策 (界限突破)"
+  },
+  "boundaryRegistrationFound": false,
+  "mediaDownloaded": false,
+  "page": {
+    "url": "https://www.sanguosha.com/hero/452",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T17:12:52.802700+00:00",
+    "rawSha256": "736f55c30c89302ba8b8d2a7557514162c1cedcee036db4721e718aa175ac860",
+    "rawBytes": 27885,
+    "rawFile": "452-page.raw.html",
+    "shaScope": "HTTP response content bytes",
+    "rawBodyRetained": true,
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >主公技，出牌阶段限一次，你可以与一名其他吴势力角色拼点；其他吴势力角色出牌阶段限一次，其可以与你拼点（你可以拒绝）：若其没赢，你可以获得两张拼点牌。</span>\n                            \n                                <span >当你使用【决斗】或红色【杀】指定目标后，或成为【决斗】或红色【杀】的目标后，你可以摸一张牌。每回合首次【决斗】或红色【杀】因弃置进入弃牌堆后，你可以失去1点体力获得之。</span>\n                            \n                                <span >觉醒技，准备阶段，若你的体力值为1，你减少1点体力上限并获得“<font href='712'>英姿</font>”“<font href='108'>英魂</font>”，本回合结束阶段，你摸两张牌或回复1点体力。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "制霸",
+      "激昂",
+      "魂姿"
+    ],
+    "skillTexts": [
+      "主公技，出牌阶段限一次，你可以与一名其他吴势力角色拼点；其他吴势力角色出牌阶段限一次，其可以与你拼点（你可以拒绝）：若其没赢，你可以获得两张拼点牌。",
+      "当你使用【决斗】或红色【杀】指定目标后，或成为【决斗】或红色【杀】的目标后，你可以摸一张牌。每回合首次【决斗】或红色【杀】因弃置进入弃牌堆后，你可以失去1点体力获得之。",
+      "觉醒技，准备阶段，若你的体力值为1，你减少1点体力上限并获得“英姿”“英魂”，本回合结束阶段，你摸两张牌或回复1点体力。"
+    ],
+    "skills": [
+      {
+        "name": "制霸",
+        "text": "主公技，出牌阶段限一次，你可以与一名其他吴势力角色拼点；其他吴势力角色出牌阶段限一次，其可以与你拼点（你可以拒绝）：若其没赢，你可以获得两张拼点牌。"
+      },
+      {
+        "name": "激昂",
+        "text": "当你使用【决斗】或红色【杀】指定目标后，或成为【决斗】或红色【杀】的目标后，你可以摸一张牌。每回合首次【决斗】或红色【杀】因弃置进入弃牌堆后，你可以失去1点体力获得之。"
+      },
+      {
+        "name": "魂姿",
+        "text": "觉醒技，准备阶段，若你的体力值为1，你减少1点体力上限并获得“英姿”“英魂”，本回合结束阶段，你摸两张牌或回复1点体力。"
+      }
+    ],
+    "pairingStatus": "equal-name-text-count",
+    "fontClasses": []
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=452",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T17:12:52.923469+00:00",
+    "rawSha256": "26e2828368f3f178c9b01601ad2cbf7d83fb8949518e5abfa5b57d958d73ca42",
+    "rawBytes": 1102,
+    "rawFile": "452-api.raw.json",
+    "shaScope": "HTTP response content bytes",
+    "rawBodyRetained": true,
+    "parsed": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 452,
+            "name": "界孙策",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/452.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45200.png",
+            "label": [
+              "控制",
+              "过牌",
+              "辅助"
+            ],
+            "figure": "吴",
+            "figure_py": "wu",
+            "quality": "稀有",
+            "biography": "字伯符，吴郡富春人。孙坚长子，孙权长兄。东汉末年割据江东一带的军阀，汉末群雄之一，三国时期吴国的奠基者。三国演义中绰号“小霸王”，统一江东。在一次狩猎中为刺客所伤，不久后身亡，年仅二十六岁。其弟孙权接掌孙策势力，并于称帝后，追谥孙策为长沙桓王。",
+            "characteristic": "通过【决斗】和红色【杀】获得好处，觉醒后可以获得较多的牌并让敌人弃置较多的牌。个人能力强。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "地主",
+            "value": 7
+          },
+          {
+            "name": "农民",
+            "value": 6
+          },
+          {
+            "name": "主公",
+            "value": 7
+          },
+          {
+            "name": "忠臣",
+            "value": 6
+          },
+          {
+            "name": "内奸",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    }
+  }
+}

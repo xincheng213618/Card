@@ -1,0 +1,88 @@
+{
+  "task": "batch20-boundary-liu-shan-sishu-read-only-preflight",
+  "status": "ordinary-ol-official-definition-found-current-linked-skill-api-unverified",
+  "checkedDate": "2026-10-03",
+  "scope": "Official ordinary OL page/API/news and static capability reads only; no source, tests, tools, build, image download or implementation changes.",
+  "identity": {
+    "gid": 451,
+    "name": "界刘禅",
+    "edition": "ordinary 三国杀OL / 界限突破",
+    "figure": "蜀",
+    "figure_py": "shu",
+    "hp": 3,
+    "initial_hp": 0,
+    "initialHpInterpretation": "Official heroDetail.js uses hp when initial_hp is zero; this field does not establish a zero starting HP.",
+    "currentPageGrantingSkill": "若愚",
+    "currentPageLinkedSishuId": 895,
+    "correction": "若愚 grants 激将 and 思蜀. 放权 skips Play and pays a hand card at DiscardPhaseStarting for another character's extra turn."
+  },
+  "sources": [
+    {
+      "url": "https://www.sanguosha.com/hero/451",
+      "httpStatus": 200,
+      "retrievedUtc": "2026-10-03T12:43:04.1212044Z",
+      "utf8DecodedBodyBytes": 25661,
+      "utf8DecodedBodySha256": "AA216410CF2A34DB5B7328FA5CFE18E6F44BE117CD8035C338B39201F7B9D90A",
+      "evidence": "Current ordinary OL title identifies 界刘禅; 若愚 says RecoverTo3 and grants 激将/思蜀; HTML font href='895' identifies the linked 思蜀 skill. It does not contain 思蜀's complete definition.",
+      "skillLinkHtmlExcerpt": "<font href='895'>“思蜀</font>",
+      "rawBodyRetained": false
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=451",
+      "httpStatus": 200,
+      "retrievedUtc": "2026-10-03T12:43:04.1212044Z",
+      "utf8DecodedBodyBytes": 953,
+      "utf8DecodedBodySha256": "344EAB0152CDA9B44D2E754D11A693AF1E030765B4C20EC381E35CF598F09459",
+      "evidence": "code=0; data.info[0] confirms gid451, 界刘禅, 蜀/shu, hp3, initial_hp0. The returned object contains no skill definitions.",
+      "rawBodyRetained": false
+    },
+    {
+      "url": "https://sanguosha.com/news/20200224_7489_0913",
+      "title": "《三国杀OL》2月26日版本更新公告 主公界限突破！",
+      "publishedLocal": "2020-02-25 16:14:01",
+      "httpStatus": 200,
+      "retrievedUtc": "2026-10-03T12:51:15.9227998Z",
+      "utf8DecodedBodyBytes": 41803,
+      "utf8DecodedBodySha256": "D2B1D85EC7B1333E62A220B3A932E6EFFB10A42A94AA25DAA5D0D2FE75A508AC",
+      "evidence": "Official ordinary OL version2.119 release names new 界刘禅 蜀3 and lists 思蜀 under his granted skills.",
+      "sishuOfficialText": "出牌阶段开始时，你可以指定一名角色，令其本局游戏中【乐不思蜀】判定效果反转。",
+      "rawBodyRetained": false
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20200325_5115_3921",
+      "title": "3.27-4.2充值返利火热开启，7天限时秒杀乐不停",
+      "publishedLocal": "2020-03-26 21:19:37",
+      "retrieval": "official-domain web search indexed page",
+      "evidence": "A second ordinary OL official announcement repeats the same 思蜀 definition under 界刘禅. This is historical corroboration, not a live skill895 API result."
+    }
+  ],
+  "boundedSkillEndpointAttempts": [
+    { "url": "https://www.sanguosha.com/api/v1/skill/info?sid=895", "httpStatus": 404 },
+    { "url": "https://www.sanguosha.com/api/v1/hero/skill?sid=895", "httpStatus": 404 }
+  ],
+  "endpointBoundary": "These two conventional candidate paths were bounded probes, not endpoints advertised by the official page. No current skill895 response was obtained; do not label the historical full definition as current API verified.",
+  "currentnessAssessment": "Current page still explicitly grants 思蜀895 and describes controlling Indulgence judgment. The full rule is verified from ordinary OL official historical announcements. Treat unchanged-current wording as an inference, not direct current-definition verification; no mobile, 10th-anniversary, X or third-party text was substituted.",
+  "existingCapabilities": [
+    { "capability": "PlayPhaseStarting and DiscardPhaseStarting triggers", "evidence": "src/CardGame.Core/SkillPrograms.cs:408,419" },
+    { "capability": "SelectTarget, skill grant, extra turn with selected recipient", "evidence": "src/CardGame.Content.Standard/SkillPrograms/classic-liu-shan.rules.json; src/CardGame.Core/ProgramLifecycleOperationDefinitions.cs:88; src/CardGame.Core/ProgramExtraTurnOperations.cs:3" },
+    { "capability": "RecoverTo constant3 clamped to maximum HP", "evidence": "src/CardGame.Core/ProgramLifecycleOperationDefinitions.cs:128" },
+    { "capability": "Final effective judgment card/suit and existing replacement/claim children", "evidence": "src/CardGame.Core/GameEngine.cs:11027; src/CardGame.Core/ProgramJudgmentOperationDefinitions.cs:3" }
+  ],
+  "minimalCapabilityGap": {
+    "finding": "No 思蜀 skill or general game-persistent selected-participant Indulgence-result inversion capability was found in current content/Core. Current Indulgence success is hard-coded as Heart.",
+    "ruleEvidence": "src/CardGame.Core/GameEngine.cs:11043",
+    "aiEvidence": "src/CardGame.Core/SimpleAi.Judgment.cs:21; judgment replacement AI also assumes Heart succeeds.",
+    "proposalOnly": [
+      "Compose acquired 思蜀 with optional owner PlayPhaseStarting, select any living character including self, then issue an explicit generic game-persistent participant judgment-result policy limited to Indulgence.",
+      "Policy ownership must retain exact issuing source, target and game lifetime; resolve against the final effective suit after replacement children. It must not change the card, other judgment reasons or physical movement.",
+      "Use one shared result evaluator for judgment facts/continuation and public AI. Expose/freeze any new public policy collection in player snapshots and collection-bearing committed events.",
+      "Use the existing acquiring-skill and recovery composition for 若愚; compose 放权 payment at DiscardPhaseStarting with owning-turn pending state and movement children completed before queueing the extra turn."
+    ]
+  },
+  "unresolvedOfficialFaq": [
+    "No current skill895 full API definition or explicit current ordinary-OL revision date was obtained.",
+    "Repeated 思蜀 on the same target: whether each use toggles parity or an already reversed target remains reversed. The historical text alone is insufficient for an exact multiple-use default.",
+    "Source death, skill loss and reacquisition after a policy is issued: 本局游戏 suggests persistence but exact interaction must be recorded as an engineering default if no FAQ is found."
+  ],
+  "verification": "Evidence JSON parsed only. Static analysis is not parser, runtime, replay, privacy or AI acceptance."
+}

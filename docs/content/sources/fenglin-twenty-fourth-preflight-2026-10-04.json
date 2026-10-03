@@ -1,0 +1,54 @@
+{
+  "status": "three-complete-current-ordinary-OL-candidates-preflight-verified-one-staging-not-main",
+  "batch": 24,
+  "capturedUtc": "2026-10-03T20:55:57.7537238+00:00",
+  "verifiedManifestSha256": "4364009282ac9821d591c04777d8742527b4b74e34c303b57c7d93c76410aab7",
+  "candidateNotesSha256": "f4ee51a61e0702e51ab233123c89e85594f6bb713292ad8990e9436674cff2d7",
+  "candidateNotes": ".artifacts\\continuation-20261003-batch17\\batch23\\guo-huai\\next-batch24\\NEXT-CANDIDATES.md",
+  "recommendedGids": [
+    600,
+    641,
+    604
+  ],
+  "sourceFiles": {
+    "604-api.raw.json": {
+      "bytes": 889,
+      "sha256": "4e896d827202cdee7f1492678c1d331f1d84f59b004c528d48cb8ae5665978bd"
+    },
+    "604-official-source.json": {
+      "bytes": 4766,
+      "sha256": "094dd411dec7c6141a7ecff9b3cb8a034eddb58cdae1925976e4aa0e6c679867"
+    },
+    "604-page.raw.html": {
+      "bytes": 24158,
+      "sha256": "4856079f2783bf89ab1508c6248d5a0484863db13b11d3e08a3ce0351ffa953e"
+    },
+    "NEXT-CANDIDATES.md": {
+      "bytes": 9136,
+      "sha256": "f4ee51a61e0702e51ab233123c89e85594f6bb713292ad8990e9436674cff2d7"
+    }
+  },
+  "readOnlyInputSha256": {
+    ".artifacts/continuation-20261003-batch17/batch23/third-source-audit/600-official-source.json": "e8c3d10021bcdf84e3b7c9051130fbf0549cbe7be9bf17474cab1cabf1d2fb7a",
+    ".artifacts/continuation-20261003-batch17/batch23/third-source-audit/641-official-source.json": "cf907bcfd59f2f6608d32033c166bf3e6bf80d2ea18e7e38f775ca8929861aae",
+    "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs": "a45221314800665c5e2e2c51dca4f892dab4ef6987619ba2fc44934680f80a09",
+    "src/CardGame.Content.Standard/SkillPrograms/classic-jian-yong.rules.json": "47f8619769911c8a79d8e5dfe670c632ecd72aac122b962712d0154bf850e829",
+    "src/CardGame.Content.Standard/SkillPrograms/classic-lifecycle-skills.rules.json": "38cb82497eb82c44b9e088f3d23b2d1def35c7ff62e255e1bed9671b296a88a9",
+    "src/CardGame.Content.Standard/SkillPrograms/active-pindian-skills.rules.json": "da1e39f4e7d7fb2baed0b2761efbf43ec3e1da460029fb7cfe1bae0841713698",
+    "src/CardGame.Core/SkillPrograms.cs": "a663814aa85ba7c3cb3442c022ff51725209754fd2d6e80e167d756ffe0737eb",
+    "src/CardGame.Core/GameEngine.NextCardTargetAdjustments.cs": "392184f1bb26780cc9e4cecbc6311de8051308db03d58dbf0998c16ae8986c00",
+    "src/CardGame.Core/ProgramConvertingGiftOperations.cs": "5febc7b3a3da8c63d897d2537a54cb854d91abd5fabaa61b5bb3fee632194823"
+  },
+  "implementationStatus": {
+    "gid641": "source-complete-not-implemented",
+    "gid600": "independent-stage-started-no-main-write-no-build",
+    "gid604": "source-complete-not-implemented"
+  },
+  "faq": "No independently verified current ordinary OL FAQ; explicit engineering defaults remain separate from original source",
+  "deferred": [
+    451,
+    452
+  ],
+  "mainWrites": [],
+  "builds": []
+}

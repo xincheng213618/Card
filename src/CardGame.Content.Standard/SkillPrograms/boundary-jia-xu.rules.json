@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:wansha", "revision": 1,
+      "cardPolicies": [
+        { "id": "exclusive-dying-peach", "kind": "exclusiveDyingPeachRescue", "cardKinds": ["peach"] },
+        { "id": "exclusive-own-turn-peach-use", "kind": "exclusiveTurnPeachUse", "cardKinds": ["peach"] },
+        { "id": "dying-window-nonlocked-suppression", "kind": "suppressOthersNonLockedDuringDying" }
+      ]
+    },
+    {
+      "id": "boundary:weimu", "revision": 1,
+      "cardPolicies": [ { "id": "all-black-trick-targets", "kind": "prohibitBlackTrickTarget" } ],
+      "triggers": [
+        {
+          "id": "own-turn-prevent-and-double-draw", "window": "beforeDamageApplied", "subject": "damageTarget",
+          "optional": false, "condition": { "kind": "ownerIsTurnPlayer" },
+          "effects": [ { "op": "preventCurrentDamageAndDrawMultiple", "target": "owner", "amount": 2 } ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:luanwu", "revision": 1,
+      "activations": [
+        {
+          "id": "nearest-slashes-and-unlimited-final-slash", "minCards": 0, "maxCards": 0,
+          "minTargets": 0, "maxTargets": 0, "targetKind": "otherLiving",
+          "usesPerTurn": null, "usesPerGame": 1,
+          "effects": [
+            { "op": "requestLegalSlashByNearest", "target": "owner", "targetKind": "otherLiving", "amount": 1 },
+            { "op": "offerUnlimitedVirtualSlash", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}

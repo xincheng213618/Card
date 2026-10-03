@@ -31,7 +31,7 @@ public sealed partial class GameEngine
             var card = _cardZones.CardsAt(_cardZones.GetLocation(cost.CardId)).Single(item => item.Id == cost.CardId);
             suit = EffectiveSuit(_players[actorSeat], card);
         }
-        if (HasPhaseSuitAllowance(actorSeat,suit)) return;
+        if (HasPhaseSuitAllowance(actorSeat,suit) || HasTurnSlashSuitAllowance(actorSeat, suit)) return;
         if (suit is { } usedSuit && CardPolicies(_players[actorSeat],
                 SkillProgramCardPolicyKind.BypassSlashLimitBySuit, action.EffectiveKind)
             .Any(item => item.Policy.InputSuit == usedSuit)) return;

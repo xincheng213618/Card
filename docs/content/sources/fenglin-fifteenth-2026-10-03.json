@@ -1,0 +1,156 @@
+{
+  "officialEdition": "current ordinary Sanguosha OL",
+  "capturedUtc": "2026-10-02T19:38:49.700465+00:00",
+  "status": "Implemented directly in Main; fresh focused, Full and routine checks passed",
+  "httpLedger": [
+    {
+      "name": "319-api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=319",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=319",
+      "status": 200,
+      "utc": "2026-10-02T19:36:41.984522+00:00",
+      "sha256": "2f31fce04585c248bab7d15eb1aa507f464a59d576741ad41e3544f0cf458b39",
+      "bytes": 974
+    },
+    {
+      "name": "450-api",
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=450",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=450",
+      "status": 200,
+      "utc": "2026-10-02T19:36:42.018390+00:00",
+      "sha256": "fc4b4a7b6782cf06b42b5fc8cdeb35cb0fec6ff4fc6326a83f54447911b09fd8",
+      "bytes": 1256
+    },
+    {
+      "name": "319-page",
+      "url": "https://www.sanguosha.com/hero/319",
+      "finalUrl": "https://www.sanguosha.com/hero/319",
+      "status": 200,
+      "utc": "2026-10-02T19:36:41.950999+00:00",
+      "sha256": "66cad80c11db76d7ac6a75171976a731f5ee6ba0f22423f2c68a3560e6307b61",
+      "bytes": 26563
+    },
+    {
+      "name": "450-page",
+      "url": "https://www.sanguosha.com/hero/450",
+      "finalUrl": "https://www.sanguosha.com/hero/450",
+      "status": 200,
+      "utc": "2026-10-02T19:36:41.946586+00:00",
+      "sha256": "6db9289d837e153ad8a53398ff8b3d90cc4db2890d8898484b39e0600be9766b",
+      "bytes": 25490
+    },
+    {
+      "name": "boundary-lu-bu-portrait",
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/31900.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/31900.png",
+      "status": 200,
+      "utc": "2026-10-02T19:38:49.328252+00:00",
+      "sha256": "00117008426e99d03fc614c3bc49f003f78597b7b3a4050abb5d003a4bbab455",
+      "bytes": 1172760
+    },
+    {
+      "name": "boundary-yuan-shao-portrait",
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45000.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45000.png",
+      "status": 200,
+      "utc": "2026-10-02T19:38:49.695449+00:00",
+      "sha256": "677092abc3e2318ebd407dcd4f11f0274e93d02b2f5f6d3ad942d5b5dfcbdfe6",
+      "bytes": 893242
+    }
+  ],
+  "generals": [
+    {
+      "heroId": 319,
+      "name": "界吕布",
+      "faction": "qun",
+      "hp": 5,
+      "genderNote": "Male follows existing character convention; API has no structured gender",
+      "skills": [
+        {
+          "name": "无双",
+          "text": "锁定技，你使用的【杀】需两张【闪】才能抵消；与你【决斗】的角色每次需打出两张【杀】。"
+        },
+        {
+          "name": "利驭",
+          "text": "当你使用【杀】对其他角色造成伤害后，你可以获得其区域里的一张牌，若获得的牌：不为装备牌，其摸一张牌；为装备牌，你视为对由其指定的另一名角色使用一张【决斗】。"
+        }
+      ],
+      "portrait": {
+        "id": "31900",
+        "name": "默认皮肤",
+        "sourcePage": "https://www.sanguosha.com/hero/319",
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/31900.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-lu-bu.png",
+        "sha256": "00117008426e99d03fc614c3bc49f003f78597b7b3a4050abb5d003a4bbab455",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      }
+    },
+    {
+      "heroId": 450,
+      "name": "界袁绍",
+      "faction": "qun",
+      "hp": 4,
+      "genderNote": "Male follows existing character convention; API has no structured gender",
+      "skills": [
+        {
+          "name": "乱击",
+          "text": "你可以将两张花色相同的手牌当【万箭齐发】使用。你使用【万箭齐发】可以少选一个目标。"
+        },
+        {
+          "name": "血裔",
+          "text": "主公技，游戏开始时，你获得X枚“裔”标记（X为群势力角色数的两倍）。出牌阶段开始时，你可以移除1枚“裔”并摸一张牌。你每有1枚“裔”，手牌上限便+1。"
+        }
+      ],
+      "portrait": {
+        "id": "45000",
+        "name": "默认皮肤",
+        "sourcePage": "https://www.sanguosha.com/hero/450",
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45000.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-yuan-shao.png",
+        "sha256": "677092abc3e2318ebd407dcd4f11f0274e93d02b2f5f6d3ad942d5b5dfcbdfe6",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      }
+    }
+  ],
+  "recoveryNote": "The prior uncommitted worker tree was removed during user cleanup. Rebuild and validation must be performed again; prior pass counts are not acceptance for this source.",
+  "verification": {
+    "capturedUtc": "2026-10-02T19:54:33.066389+00:00",
+    "scope": "Fresh Main input after recovery; previous deleted-worker pass results are not counted",
+    "counts": {
+      "focusedCore": 35,
+      "fullCore": 552,
+      "fullWpf": 56,
+      "routineCore": 159,
+      "routineWpf": 17
+    },
+    "focusedDurationMs": 27719,
+    "fullDurationMs": 203752,
+    "routineDurationMs": 59846,
+    "sourceInputSha256": "a34259fc56e27f2a33fd323fd1844004e563819daef580348a0ff771d14d1225",
+    "readOnlyAuditSha256": "071ca3d08e86c6be228da4d2aedfb700c394af9bb824c2660d72b5879f9d8dd6",
+    "compiledPortraits": [
+      {
+        "resource": "assets/official-boundary-lu-bu.png",
+        "sha256": "00117008426e99d03fc614c3bc49f003f78597b7b3a4050abb5d003a4bbab455",
+        "bytes": 1172760,
+        "width": 750,
+        "height": 950
+      },
+      {
+        "resource": "assets/official-boundary-yuan-shao.png",
+        "sha256": "677092abc3e2318ebd407dcd4f11f0274e93d02b2f5f6d3ad942d5b5dfcbdfe6",
+        "bytes": 893242,
+        "width": 750,
+        "height": 950
+      }
+    ],
+    "compiledWpfAssemblySha256": "2daeaabc8a2487c66672edc0b30749b689329d920471b62c51aef3d36647268f",
+    "artOffline": {
+      "generals": 182,
+      "pngRecords": 979
+    },
+    "limits": "Actual command/cold checks and separately labeled HOST audits; no live user-window/device acceptance. Initial focused cold build had two existing GaoDa nullable warnings; no new production warning."
+  }
+}

@@ -1,0 +1,526 @@
+{
+  "runs": [
+    {
+      "label": "baseline-01-build",
+      "startedAt": "2026-10-03T23:33:59.8751212+08:00",
+      "status": "build-failed",
+      "mode": "targeted",
+      "durationMs": 3670,
+      "coreFilters": [
+        "Phase hand extra turn"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 3647,
+          "logName": "build.log",
+          "logSha256": "3e371c25bc50a5149d1651b0c49d685e91e6c8a6a8eb3de00a8c5402cc28a3cd",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    2 个错误"
+          ],
+          "errorDiagnostics": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\PhaseHandExtraTurnAiChecks.cs(45,51): error CS0019: 运算符“==”无法应用于“CardMoveReason”和“string”类型的操作数 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "baseline-02-native-fixture",
+      "startedAt": "2026-10-03T23:34:26.8677235+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 5311,
+      "coreFilters": [
+        "Phase hand extra turn"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4182,
+          "logName": "build.log",
+          "logSha256": "cd8a25a5a62d31c3c5e457109942c6eee85532e2658efcb31dfb6c8eae5633a8",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1086,
+          "logName": "core-selected.log",
+          "logSha256": "19309b3b5a4e90531e03bf6dcb2e856e638d3c25eb080bfd94d69798df662f89",
+          "resultLines": [
+            "[FAIL] Phase hand extra turn native public declaration paid selected beneficiary",
+            "       InvalidOperationException: The fixed native fixture completed before a known ally's real benefit.",
+            "[FAIL] Phase hand extra turn owner only native legacy value",
+            "       InvalidOperationException: The small owner-only fixture completed before its optional real benefit.",
+            "0 passed, 2 failed, 0 skipped (2 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "baseline-03-diagnostic",
+      "startedAt": "2026-10-03T23:37:37.0836946+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 6652,
+      "coreFilters": [
+        "Phase hand extra turn"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 5396,
+          "logName": "build.log",
+          "logSha256": "a64b805309d1204ad0fb397dd156de116b94229d81ee649b88bd1aff27a124c6",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1209,
+          "logName": "core-selected.log",
+          "logSha256": "4ade57474b8852290793c149053495c30039958ff67b47a4100d7705720f4ee0",
+          "resultLines": [
+            "[FAIL] Phase hand extra turn native public declaration paid selected beneficiary",
+            "       InvalidOperationException: The fixed native fixture completed before a known ally's real benefit. {\"State\":{\"Seed\":null,\"HumanSeat\":-1,\"Status\":7,\"Winner\":4,\"TurnNumber\":8,\"CurrentSeat\":1,\"Phase\":4,\"DrawPileCount\":16,\"DiscardPileCount\":13,\"Players\":[{\"Seat\":0,\"Name\":\"AI 1\",\"IsHuman\":false,\"Role\":2,\"IsRoleRevealed\":true,\"GeneralId\":\"fixture:ls-native-1\",\"GeneralName\":\"\\u65E0\\u653E\\u6743\\u53D7\\u8D60\\u8005\",\"PortraitKey\":\"supporter\",\"Hp\":8,\"MaxHp\":8,\"IsAlive\":true,\"HandCount\":4,\"Hand\":[],\"Is",
+            "[FAIL] Phase hand extra turn owner only native legacy value",
+            "       InvalidOperationException: The small owner-only fixture completed before its optional real benefit. {\"State\":{\"Seed\":null,\"HumanSeat\":-1,\"Status\":7,\"Winner\":4,\"TurnNumber\":8,\"CurrentSeat\":1,\"Phase\":4,\"DrawPileCount\":16,\"DiscardPileCount\":13,\"Players\":[{\"Seat\":0,\"Name\":\"AI 1\",\"IsHuman\":false,\"Role\":2,\"IsRoleRevealed\":true,\"GeneralId\":\"fixture:ls-native-2\",\"GeneralName\":\"\\u65E7\\u81EA\\u8EAB\\u989D\\u5916\\u56DE\\u5408\",\"PortraitKey\":\"supporter\",\"Hp\":8,\"MaxHp\":8,\"IsAlive\":true,\"HandCount\":6,\"Hand",
+            "0 passed, 2 failed, 0 skipped (2 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "baseline-04-native-event-timing",
+      "startedAt": "2026-10-03T23:47:00.979482+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 4592,
+      "coreFilters": [
+        "Phase hand extra turn"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3236,
+          "logName": "build.log",
+          "logSha256": "d7e9795afcec4b3cb8952c225312abcf70af67ab8f81cae0ffb6e3bb1803a58e",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1310,
+          "logName": "core-selected.log",
+          "logSha256": "f3b7312e373b6ce8fd3bef3b8d726bb1595b7e11d0cead71a5314c1ebd50065d",
+          "resultLines": [
+            "[FAIL] Phase hand extra turn native public declaration paid selected beneficiary",
+            "       InvalidOperationException: The fixed native fixture completed before a known ally's real benefit. {\"Status\":7,\"TurnNumber\":4,\"Revision\":1,\"ExtraTurns\":[],\"Thoughts\":[{\"ActorSeat\":2,\"Decision\":\"\\u8DF3\\u8FC7\\u3010\\u653E\\u6743\\u3011\",\"Candidates\":[{\"Description\":\"\\u8DF3\\u8FC7\\u3010\\u653E\\u6743\\u3011\",\"Score\":0},{\"Description\":\"\\u53D1\\u52A8\\u3010\\u653E\\u6743\\u3011\",\"Score\":-1000}]}]}",
+            "1 passed, 1 failed, 0 skipped (2 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-01-native-fix",
+      "startedAt": "2026-10-03T23:47:56.7365013+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 8932,
+      "coreFilters": [
+        "Phase hand extra turn"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 7468,
+          "logName": "build.log",
+          "logSha256": "6a597d0b0caaafdacb914cbe94c69a3ce6ecb9c4520317e6b4897131cdbcbf86",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1406,
+          "logName": "core-selected.log",
+          "logSha256": "43574f1ac23dfcbd63228d49c333b119c6ad439e529ce3c4f9cd2394e8a05f44",
+          "resultLines": [
+            "2 passed, 0 failed, 0 skipped (2 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "full-01",
+      "startedAt": "2026-10-03T23:48:44.9760061+08:00",
+      "status": "passed",
+      "mode": "full",
+      "durationMs": 255694,
+      "coreFilters": [],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 5830,
+          "logName": "build.log",
+          "logSha256": "aa2826951b369c51303cc4a7e31ebeea3762a3268e6573c3e11a3ae003e65946",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 208102,
+          "logName": "core-full.log",
+          "logSha256": "f1a6d6dde1336ccfd00bb5c9ed5617f5af30daa70c32ece941340b19ebb40fa1",
+          "resultLines": [
+            "619 passed, 0 failed, 0 skipped (619 total)."
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "WPF full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 41718,
+          "logName": "wpf-full.log",
+          "logSha256": "2d4f0f482d0c987113b054ff92c50bed79c9a8909f71d81dfde42490e686b553",
+          "resultLines": [
+            "57 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders"
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "routine-01",
+      "startedAt": "2026-10-03T23:54:10.5262046+08:00",
+      "status": "passed",
+      "mode": "routine",
+      "durationMs": 73869,
+      "coreFilters": [
+        "command",
+        "observer",
+        "viewer",
+        "prepared snapshot",
+        "internal failure",
+        "skill program",
+        "lifecycle programs",
+        "shared post-event",
+        "Phase hand extra turn",
+        "shared use lifecycle",
+        "shared card-use",
+        "card movement",
+        "card inventory",
+        "initial deal",
+        "invalid single and batch",
+        "draw and recover",
+        "execution plans",
+        "skill executor",
+        "program gameplay hashes",
+        "physical deck recipes",
+        "structured skill metadata",
+        "content registry",
+        "standard package",
+        "composition kernel",
+        "rule query",
+        "slash resolution",
+        "dying response",
+        "Xingshang",
+        "response use completion",
+        "selected gift",
+        "configured active sequences",
+        "standard active programs",
+        "owned-card set",
+        "turn card-use effects",
+        "active Program contracts",
+        "hand guidance",
+        "actual marker payment",
+        "replacement draw and dying payment",
+        "two dynamic actual ends",
+        "ordered nested native owner",
+        "payment nested comparison",
+        "first target history",
+        "program conversion polarity shared state and replay",
+        "Feng Lin Lu Zhi actual discard entry boundaries",
+        "Ending child gift joins current boundary",
+        "Feng Lin Yuan Shu command loss regrant source suppression",
+        "Feng Lin Yuan Shu qualified awakening persistent local loss",
+        "Feng Lin Zhou Fei first domains and true equipment sequence",
+        "Feng Lin Zhou Fei same-source association freeze",
+        "Feng Lin Congjian Equipment gift nested replay",
+        "after turn ended return movement prelude ordering",
+        "after turn ended due before window nested replay",
+        "Feng Lin Zuo Ci initial privacy and replay",
+        "Feng Lin Zuo Ci layered suppression and local disable",
+        "Feng Lin Zuo Ci same avatar program and actual end",
+        "Feng Lin Yu Ji",
+        "boundary Lu Meng all table printed suits replay",
+        "boundary Lu Meng cross owner skip chain resume death",
+        "boundary Lu Meng Qinxue windows shared usage",
+        "boundary Lu Meng opt in usage legacy shape",
+        "Boundary Huang Gai actual provider color",
+        "Boundary Huang Gai multi card color source lifecycle",
+        "boundary Lu Xun actual trick hold lianying and return",
+        "boundary Lu Xun HE payment exact Hand batch count",
+        "boundary Liu Bei virtual Peach HP child",
+        "boundary Liu Bei native provided use decline once",
+        "boundary Liu Bei gift threshold recipient",
+        "boundary Da Qiao atomic mixed discard replay",
+        "boundary Hua Tuo ordered actual discard effective suit receipts",
+        "participant discard mandatory cost cancellation preserves legal composition",
+        "current turn nonlocked suppression host lifecycle audit",
+        "boundary Guan Yu actual Played and black Hand rejection",
+        "Boundary Zhang Fei actual recovery receipt limited child",
+        "boundary Ma Chao Tieqi Paoxiao exact cancellation integration",
+        "boundary Xiahou Dun real phases skip quota expiry",
+        "boundary Xiahou Dun receipt before gain child source audit",
+        "Exact top count partition normal draw",
+        "Bound draw receipt per point nested gain",
+        "boundary Zhen Ji exact receipt stop red discard",
+        "boundary Zhen Ji receipt before child source loss",
+        "Unconverted Trick draw receipt disposition",
+        "Foreign equipment discard program selections",
+        "Population reorder actual partition and short pile",
+        "Population reorder real Ending Extra Scheduled",
+        "HP pair freezes after payment children before draw children",
+        "Equipment placement slot self equal boundaries",
+        "Final target Slash frozen comparisons actual paid Dodge",
+        "Paid HP loss rescue and gain children",
+        "Paid HP loss source and legacy",
+        "Boundary Deng Ai own turn slash discard judges authority",
+        "Boundary Deng Ai awakening grants snatch and extra turn",
+        "Boundary Jiang Wei declined taunt discards target card",
+        "Boundary Jiang Wei dodged slash still discards",
+        "Boundary Jiang Wei taunt runs twice per phase",
+        "Boundary Jiang Wei awakening wakes once across phases",
+        "Damage target mount paid children source lifetime",
+        "Damage appearance Draw definitions physical colors cardless legacy",
+        "Selected actor Duel actual Use and Nullification",
+        "Damage target obtain nested Duel native cold",
+        "Boundary Yuan Shao population start role marker limit",
+        "Boundary Yuan Shao conversion actual remaining targets",
+        "Recovery replacement Silver Lion Zhiheng HP and reward children",
+        "Recovery replacement paid equipment tail",
+        "Recovery replacement faction request Silver Lion cost before providers",
+        "Program Iron Chain third target owned recast",
+        "Equipment recast Silver Lion recovery and movement children",
+        "BoundaryXuShu fixed target real Slash",
+        "BoundaryXuShu declared deck criterion",
+        "Character turned over Shebian both directions",
+        "Character turned over Shebian occupied equipment slot",
+        "Character turned over actual damage cursor",
+        "Capped hand refresh",
+        "HP paid shield",
+        "Random Pindian",
+        "Maximum Slash Pindian",
+        "Bound card recast dynamic Slash",
+        "Bound card recast Silver Lion",
+        "Turn kind hand exemption",
+        "Signed Slash modifier",
+        "Bound discard Slash frozen suit",
+        "Bound discard Slash equipment",
+        "First round limited refund exact",
+        "Current Slash entity claim basic",
+        "Current Slash entity claim nonbasic",
+        "Participant hand declined private take",
+        "Participant hand mixed HE gift",
+        "Participant hand per point effective red",
+        "Participant hand program bound alcohol",
+        "Next-use rank bonus",
+        "Other dying recovery equipment",
+        "Alternative phase cost actual",
+        "Alternative phase cost equipped",
+        "Ending hand count history"
+      ],
+      "wpfFilters": [
+        "original card artwork",
+        "overlapping hand",
+        "composed skills",
+        "conversion choices",
+        "response context",
+        "hand responses",
+        "opaque target-card",
+        "playback batches",
+        "saved UI boundaries",
+        "failed writes",
+        "public markers",
+        "deferred hand alignment",
+        "Program conversion polarity stays visible",
+        "declaration and general library views protect private faces",
+        "Program paid choices",
+        "Program exact top count restores private shared order",
+        "Program population count private faces restore shared free order",
+        "Program Iron Chain guide follows actual target count"
+      ],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2662,
+          "logName": "build.log",
+          "logSha256": "bef735120e43498f5f4eebef2b6821ca90323665dc47b67d5a7aed6481db681c",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (133 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 49714,
+          "logName": "core-selected.log",
+          "logSha256": "3420c049f735c336db457c04ef85db95a580eeeb570a19ebf2cde5fb8b58e4e9",
+          "resultLines": [
+            "206 passed, 0 failed, 0 skipped (206 total)."
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "WPF selected checks (18 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 21445,
+          "logName": "wpf-selected.log",
+          "logSha256": "be101cedb7390763c1521d8b950afa3a472bafe9930732a169889eea83128e22",
+          "resultLines": [
+            "18 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders"
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    }
+  ],
+  "baselineNative": {
+    "rulesVersion": 193,
+    "diagnostic": {
+      "Status": 7,
+      "TurnNumber": 4,
+      "Revision": 1,
+      "ExtraTurns": [],
+      "Thoughts": [
+        {
+          "ActorSeat": 2,
+          "Decision": "跳过【放权】",
+          "Candidates": [
+            {
+              "Description": "跳过【放权】",
+              "Score": 0
+            },
+            {
+              "Description": "发动【放权】",
+              "Score": -1000
+            }
+          ]
+        }
+      ]
+    },
+    "ownerOnlyControl": "passed: native score20, real own extra turn, command checkpoint restore",
+    "testFileSha256": "0de49bf3947a2b47e44f6695f1d857a3a9d6fc802c9fe3b4f71cd36297e29ac1",
+    "fixture": "seed31, 4 players, 4 actual turns; Start runs complete native match; inspect history before Completed guard"
+  },
+  "status": "mechanism-validated",
+  "finalizedAtUtc": "2026-10-03T16:08:55.9494501+00:00",
+  "finalVerification": {
+    "focusedCore": 2,
+    "fullCore": 619,
+    "fullWpf": 57,
+    "fullDurationMs": 255694,
+    "routineCore": 206,
+    "routineWpf": 18,
+    "routineDurationMs": 73869,
+    "routineCoreFilterCount": 133,
+    "routineWpfFilterCount": 18,
+    "inputEvidence": [
+      {
+        "sha256": "019cc2bd93416aae3f9d894db56c9aa744f72534fc8373548ddb48d389050b87",
+        "label": "full-01-start",
+        "fileCount": 2437
+      },
+      {
+        "sha256": "019cc2bd93416aae3f9d894db56c9aa744f72534fc8373548ddb48d389050b87",
+        "label": "full-01-end",
+        "fileCount": 2437
+      },
+      {
+        "sha256": "019cc2bd93416aae3f9d894db56c9aa744f72534fc8373548ddb48d389050b87",
+        "label": "routine-01-end",
+        "fileCount": 2437
+      }
+    ],
+    "rulesVersion": 194,
+    "rulesSchema": 62,
+    "classicPackageVersion": "1.164.0",
+    "versionReason": "Same content fingerprint accepted Start/Advance prefixes select different native AI actions; Replay.cs sole epoch source",
+    "oldOwnerOnlyValue": 20,
+    "noCommitPushPublishPackage": true
+  },
+  "evidenceBoundaries": [
+    "Native fixed seed31 four-player four-turn match; Start can complete the match before first Advance",
+    "First control baseline lacked Fangquan actual receipt; owner-only native score20 and own extra turn passed",
+    "New no-forced-answer native declaration, one hand entity paid, visible allied Lord extra turn, saved natural seat and four-view cold restore passed",
+    "Old epoch gates and all retained checks covered by Full; local Core/WPF only",
+    "Boundary Liu Shan full Sishu895 remains unregistered; no current-source/full-general claim",
+    "Batch21 three generals remain own frozen/in-progress stage outside captured input"
+  ],
+  "cleanupRecord": "docs/benchmarks/2026-10-03-phase-hand-extra-turn-ai-cleanup.json"
+}

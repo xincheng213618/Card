@@ -177,8 +177,8 @@ internal static class BoundaryLiuBeiChecks
         Require(chooser.Invoke(g,[3,trigger,ownTurn]) is null,"The genuine actor's own actual turn excludes an otherwise eligible Shu response.");
         var lordUse=new CardActionContext(6,null,CardActionType.Use,3,0,3,null,null,CardKind.Slash,[2],[],[],factionOrigin:new(g.CreateSnapshot(0).TurnNumber,0,"shu","shu"));
         Require(chooser.Invoke(g,[3,trigger,lordUse]) is null,"A Lord's final use cannot qualify a genuine provider who is the actual turn owner.");
-        var clone=typeof(GameEngine).GetMethod("CloneRoleAction",flags|System.Reflection.BindingFlags.Static)!;
-        var sameActor=(CardActionContext)clone.Invoke(null,[original,0,new[]{2,3}])!;
+        var clone=typeof(GameEngine).GetMethod("CloneRoleAction",flags)!;
+        var sameActor=(CardActionContext)clone.Invoke(g,[original,0,new[]{2,3}])!;
         Require(sameActor.FactionOrigin==original.FactionOrigin&&sameActor.EffectiveIsRed==true,"Ordinary opted-in role/target clones preserve frozen faction provenance and effective color.");
         var plain=new CardActionContext(2,null,CardActionType.Use,1,0,null,null,null,CardKind.Slash,[2],[],[]);
         Require(ReferenceEquals(plain,replace.Invoke(g,[plain,1]))&&!JsonSerializer.Serialize(plain).Contains("FactionOrigin",StringComparison.Ordinal),"No-cap actor clone retains absent optional origin.");

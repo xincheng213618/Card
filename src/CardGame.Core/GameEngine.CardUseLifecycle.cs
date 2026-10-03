@@ -98,6 +98,7 @@ public sealed partial class GameEngine
     private void BeginSimpleCardUse(long frameId, ProgramSimpleCardContinuation continuation)
     {
         var use = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == frameId);
+        if (TryPauseRecoveryPaidCardUse(frameId, new(RecoveryPaidCardUseKind.Simple, use.SourceSeat, continuation.CardId, Simple: continuation))) return;
         if ((LifecycleCardUse(frameId)?.TargetsAdjusted == true) && use.TargetSeats.Count > 1 &&
             continuation.Effect is SimpleCardUseEffect.Recovery or SimpleCardUseEffect.Alcohol)
             UpdateLifecycleCardUse(frameId, frame => frame with { AdjustedSimpleContinuation = continuation with

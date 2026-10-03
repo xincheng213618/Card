@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:luanji-current": {
+      "name": "乱击",
+      "description": "你可以将两张花色相同的手牌当【万箭齐发】使用。你使用【万箭齐发】可以少选一个目标。"
+    },
+    "boundary:xueyi-current": {
+      "name": "血裔",
+      "description": "主公技，游戏开始时，你获得X枚“裔”标记（X为群势力角色数的两倍）。出牌阶段开始时，你可以移除1枚“裔”并摸一张牌。你每有1枚“裔”，手牌上限便+1。"
+    }
+  }
+}

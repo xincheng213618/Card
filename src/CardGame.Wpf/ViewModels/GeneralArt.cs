@@ -114,6 +114,31 @@ public static class GeneralArt
             // Current ordinary OL editions: docs/content/sources/fenglin-fourteenth-2026-10-02.json.
             ["boundary-gongsun-zan"] = "official-boundary-gongsun-zan.png",
             ["boundary-hua-xiong"] = "official-boundary-hua-xiong.png",
+            // Current OL source: docs/content/sources/fenglin-fifteenth-2026-10-03.json.
+            ["boundary-lu-bu"] = "official-boundary-lu-bu.png",
+            ["boundary-yuan-shao"] = "official-boundary-yuan-shao.png",
+            ["boundary-sun-quan"] = "official-boundary-sun-quan.png",
+            ["boundary-pang-tong"] = "official-boundary-pang-tong.png",
+            ["boundary-xu-shu"] = "official-boundary-xu-shu.png",
+            // Current ordinary OL: docs/content/sources/fenglin-seventeenth-2026-10-03.json.
+            ["boundary-xun-yu"] = "official-boundary-xun-yu.png",
+            ["boundary-sun-jian"] = "official-boundary-sun-jian.png",
+            ["boundary-xiahou-yuan"] = "official-boundary-xiahou-yuan.png",
+            // Current ordinary OL: docs/content/sources/fenglin-eighteenth-2026-10-03.json.
+            ["boundary-taishi-ci"] = "official-boundary-taishi-ci.png",
+            ["boundary-cao-zhang"] = "official-boundary-cao-zhang.png",
+            // Current ordinary OL: docs/content/sources/fenglin-nineteenth-2026-10-03.json.
+            ["boundary-pang-de"] = "official-boundary-pang-de.png",
+            ["boundary-fa-zheng"] = "official-boundary-fa-zheng.png",
+            ["boundary-han-dang"] = "official-boundary-han-dang.png",
+            ["boundary-zhang-he"] = "official-boundary-zhang-he.png",
+            ["boundary-cao-chong"] = "official-boundary-cao-chong.png",
+            ["boundary-xu-huang"] = "official-boundary-xu-huang.png",
+            ["boundary-dong-zhuo"] = "official-boundary-dong-zhuo.png",
+            ["boundary-jia-xu"] = "official-boundary-jia-xu.png",
+            ["boundary-dian-wei"] = "official-boundary-dian-wei.png",
+            ["boundary-cai-wen-ji"] = "official-boundary-cai-wen-ji.png",
+            ["boundary-zhang-chun-hua"] = "official-boundary-zhang-chun-hua.png",
             ["zhang-chun-hua"] = "official-zhang-chun-hua.png",
             ["ling-tong"] = "official-ling-tong.png",
             ["chen-gong"] = "official-chen-gong.png",

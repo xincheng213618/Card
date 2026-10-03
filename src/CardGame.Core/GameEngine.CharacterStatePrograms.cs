@@ -1,19 +1,24 @@
 namespace CardGame.Core;
 
 public enum CharacterStateContinuation { Boundary, Program, CardUse, SkippedTurn, VirtualBasicCardUse }
-public sealed record CharacterStateChangeContext(long Id, long? ParentFrameId, int TargetSeat, SkillProgramTriggerWindow Window);
+public sealed record CharacterStateChangeContext(long Id, long? ParentFrameId, int TargetSeat, SkillProgramTriggerWindow Window)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public CharacterTurnedOverState? TurnedOver { get; init; }
+}
 public sealed record CharacterStateChangedEvent(CharacterStateChangeContext Change) : IGameEvent;
 
 public sealed partial class GameEngine
 {
     private readonly List<CharacterStateChangeContext> _pendingCharacterStateChanges = [];
 
-    private void RecordCharacterStateChange(int targetSeat, SkillProgramTriggerWindow window, long? parentFrameId = null)
+    private void RecordCharacterStateChange(int targetSeat, SkillProgramTriggerWindow window, long? parentFrameId = null,
+        CharacterTurnedOverState? turnedOver = null)
     {
         // Opt-in event boundaries leave command journals for older content unchanged.
         if (!_setupComplete || !_contentRegistry.ProgramDependencies.HasTriggerWindow(window)) return;
         var change = new CharacterStateChangeContext(++_resolutionSequence,
-            parentFrameId ?? _resolutionStack.LastOrDefault()?.Id, targetSeat, window);
+            parentFrameId ?? _resolutionStack.LastOrDefault()?.Id, targetSeat, window) { TurnedOver = turnedOver };
         _pendingCharacterStateChanges.Add(change);
         AdvanceEventRulesAndQueueFact(new CharacterStateChangedEvent(change));
     }
@@ -29,6 +34,8 @@ public sealed partial class GameEngine
             _pendingCharacterStateChanges.Remove(change);
             if (!_players[change.TargetSeat].IsAlive) continue;
             var facts = _players.Where(player => player.IsAlive).ToDictionary(player => player.Seat, CaptureProgramTriggerFacts);
+            if (change.TurnedOver is { } turnedOver)
+                facts[change.TargetSeat] = facts[change.TargetSeat] with { OwnerIsFaceDown = turnedOver.IsFaceDown };
             var candidates = _players.Where(player => player.IsAlive).SelectMany(player =>
                 CollectEligibleProgramTriggerCandidates(player, change.Window, facts[player.Seat])
                     .Where(candidate => GetProgramTrigger(candidate).Subject == SkillProgramTriggerSubject.Any || player.Seat == change.TargetSeat))

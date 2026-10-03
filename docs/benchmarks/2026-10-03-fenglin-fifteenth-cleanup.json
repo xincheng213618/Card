@@ -1,0 +1,21 @@
+{
+  "utc": "2026-10-02T19:56:53.2473861+00:00",
+  "method": "Exact task-owned roots; consumers stopped; per-file SHA verified then LiteralPath deletion; verified empty directories only; no recursive deletion",
+  "outputs": [
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\verification-cache",
+      "removed": true,
+      "files": 2669,
+      "logicalBytes": 2091921099,
+      "consumers": 0
+    },
+    {
+      "path": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\general-expansion\\current",
+      "removed": true,
+      "files": 38,
+      "logicalBytes": 5055527,
+      "consumers": 0
+    }
+  ],
+  "failure": null
+}

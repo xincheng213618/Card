@@ -351,6 +351,8 @@ public sealed partial class GameEngine
                 { Window: SkillProgramTriggerWindow.JudgmentFinalized, ParentFrameId: var ownedParentId } &&
             ownedParentId == frame.Id;
         resolvingProgram |= IsExactRepeatedJudgmentFinalizedChildSubtree(frame, judgmentFrame, frameIndex);
+        resolvingProgram |= IsExactOwnedDamagePointJudgmentFinalizedChildSubtree(frame, judgmentFrame, frameIndex);
+        resolvingProgram |= IsExactDamageJudgmentSuitPaymentFinalizedSubtree(frame, judgmentFrame, frameIndex);
         if (pending is null || pending.Succeeded is null ||
             (!ReferenceEquals(_resolutionStack.Last(), frame) && !resolvingDamage && !resolvingProgram) ||
             judgmentFrame is null || judgmentFrame.Id != frame.ParentFrameId ||

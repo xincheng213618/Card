@@ -21,7 +21,7 @@ public sealed partial class GameEngine
             .Where(player => player.IsAlive &&
                 // The two cards share one suit, so the virtual Arrow Barrage
                 // carries that suit into suit-based target shields.
-                !IsCardTargetProhibited(player, CardKind.ArrowBarrage, selection.Cards[0].Suit) &&
+                !IsCardTargetProhibited(player, CardKind.ArrowBarrage, selection.Cards[0].Suit, PhysicalGroupColor(owner, selection.Cards)) &&
                 !HasBeneficiarySuitShield(owner.Seat, player.Seat, EffectiveSuit(owner, selection.Cards[0])))
             .Select(player => player.Seat)
             .ToArray();

@@ -36,13 +36,15 @@ public sealed partial class GameEngine
 
     private sealed record AttackCompletionReceipt(long ResolutionId, bool DelayedTurn,
         long? ProgramFrameId, int? DelayedTurnSeat,
-        bool RequestedSlashChild = false, bool DamageWasApplied = false, int FinalTargetSeat = 0);
+        bool RequestedSlashChild = false, bool DamageWasApplied = false, int FinalTargetSeat = 0, ProgramDamageTargetDuelOrigin? DamageTargetDuelReturn = null, ProgramDualColorDuelOrigin? DualColorDuelReturn = null);
     private AttackCompletionReceipt CaptureAttackCompletion(CardAttackHandle attack) =>
         new(attack.ResolutionId, attack.IsDelayedJudgmentDamage,
             attack.ProgramSkillFrameId ?? attack.ProgramSkillCardUseFrameId,
             attack.IsDelayedJudgmentDamage ? attack.DelayedJudgmentSeat ?? attack.SourceSeat : null,
             attack.ProgramSkillFrameId is null && attack.ProgramSkillCardUseFrameId is not null,
-            attack.DamageWasApplied, attack.TargetSeat);
+            attack.DamageWasApplied, attack.TargetSeat,
+            LifecycleCardUse(attack.ResolutionId)?.DamageTargetDuelOrigin,
+            LifecycleCardUse(attack.ResolutionId)?.DualColorDuelOrigin);
     private Card ReadCardAppearance(CardAppearanceReference appearance) => GetAttackCard(appearance.Id) with
         { Kind = appearance.Kind, Suit = appearance.Suit, Rank = appearance.Rank };
     private CardResolutionContinuations GetCardContinuations(long id) =>

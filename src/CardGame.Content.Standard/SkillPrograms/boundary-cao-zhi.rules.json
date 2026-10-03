@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "claim-club-origin",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "movementOccurrence": "perCard",
+          "suits": [
+            "club"
+          ],
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "claimDiscardedEntityWithProvenance",
+              "target": "owner",
+              "provenanceId": "luoying"
+            },
+            {
+              "op": "offerFaceUpForOutsideClaims",
+              "target": "owner",
+              "provenanceId": "luoying"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "id": "boundary:luoying"
+    },
+    {
+      "revision": 1,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "virtual-alcohol",
+          "usesPerTurn": null,
+          "targetKind": "anyLiving",
+          "condition": {
+            "kind": "not",
+            "children": [
+              {
+                "kind": "faceDown"
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "useVirtualAlcohol",
+              "target": "owner"
+            }
+          ],
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0
+        }
+      ],
+      "triggers": [
+        {
+          "id": "flip-for-dying-alcohol",
+          "window": "selfDyingResponse",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "jiushi-choice",
+              "options": [
+                {
+                  "id": "flip",
+                  "condition": {
+                    "kind": "not",
+                    "children": [
+                      {
+                        "kind": "faceDown"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "pass",
+                  "condition": {
+                    "kind": "always"
+                  }
+                }
+              ]
+            },
+            {
+              "op": "turnOver",
+              "target": "owner",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "jiushi-choice",
+                "optionId": "flip"
+              }
+            },
+            {
+              "op": "useVirtualDyingAlcohol",
+              "target": "owner",
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "jiushi-choice",
+                "optionId": "flip"
+              }
+            }
+          ]
+        },
+        {
+          "id": "flip-after-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "faceDown"
+          },
+          "effects": [
+            {
+              "op": "turnOver",
+              "target": "owner",
+              "condition": {
+                "kind": "faceDown"
+              }
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "id": "boundary:jiushi",
+      "cardPolicies": [
+        {
+          "id": "luoying",
+          "kind": "claimedEntitiesFaceDownUse",
+          "condition": {
+            "kind": "faceDown"
+          }
+        }
+      ]
+    }
+  ]
+}

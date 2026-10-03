@@ -27,7 +27,7 @@ public sealed partial class GameEngine
 
     private void MoveFinishedTrickCard(long frameId, Card card)
     {
-        if (IsExchangedUseCardClaim(frameId,card.Id) || HasRemainingSequentialTrickTargets(frameId) || HasRemainingAdjustedBorrowedSwordTargets(frameId)) return;
+        if (IsClaimedUseCardEntity(frameId,card.Id) || HasRemainingSequentialTrickTargets(frameId) || HasRemainingAdjustedBorrowedSwordTargets(frameId)) return;
         MoveCard(card, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.UseFinished);
     }
 

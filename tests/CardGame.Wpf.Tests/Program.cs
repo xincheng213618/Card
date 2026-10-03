@@ -74,6 +74,7 @@ internal static class Program
             Check("overlapping hand cards keep stable pointer targets", () => HandPointerChecks.OverlapAndPointer(output));
             Check("stored grain updates its badge without replacing hand controls", () => HandGrainChecks.StoredCardKeepsItsControlAndUpdatesItsZone(output));
             Check("original card artwork preserves physical card identity and interaction", () => CardArtworkChecks.FacesAndInteractions(output));
+            Check("Program Iron Chain guide follows actual target count and submits set", ProgramIronChainUiChecks.TargetCountGuideAndSubmission);
             Check("reference table layout preserves equipment and skill controls", () => TableSurfaceChecks.EquipmentAndSkillControls(output));
             Check("action dock keeps confirm cancel and end stable through real selection", () => TableSurfaceChecks.ActionDockSelection(output));
             Check("player guide renders current actions, private hand hints and searchable card rules", () => PlayerGuideChecks.ControlsAndSearch(output));

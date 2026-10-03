@@ -20,8 +20,8 @@ public sealed partial class GameEngine
             command.PromptId, CommandErrorCode.IllegalAction);
         if (validation is not null) return Reject(validation.Code, validation.Message);
         var actor = _players[command.ActorSeat];
-        if (!GetHand(actor).Any(card => card.Id == command.CardId))
-            return Reject(CommandErrorCode.InvalidCard, "The recast card is not in the actor's hand.");
+        if (FindOwnedPlayableCard(actor, command.CardId) is null)
+            return Reject(CommandErrorCode.InvalidCard, "The recast card is not in the actor's playable zones.");
         var action = BuildLegalActions(actor).SingleOrDefault(action =>
             action.Kind == LegalActionKind.Recast && action.CardId == command.CardId &&
             action.ConversionSource == command.ConversionSource);
@@ -42,7 +42,9 @@ public sealed partial class GameEngine
         if ((playedCardKind is null && card.Kind != CardKind.IronChain) ||
             (playedCardKind is not null && playedCardKind != CardKind.IronChain))
             throw new InvalidOperationException("Only Iron Chain may be recast.");
-        MoveCards([card], CardLocation.Hand(actor.Seat), CardLocation.DiscardPile, CardMoveReasons.RecastDiscard);
+        if (FindOwnedCardLocation(actor, card).Zone == CardZoneKind.Equipment)
+        { BeginEquipmentRecast(actor, card, playedCardKind ?? card.Kind); return; }
+        MoveCards([card], FindOwnedCardLocation(actor, card), CardLocation.DiscardPile, CardMoveReasons.RecastDiscard);
         var drawn = DrawCards(actor, 1, log: false, reason: CardMoveReasons.RecastDraw);
         if (_aiBrains.TryGetValue(actor.Seat, out var brain)) brain.ObserveRecast(_turnNumber, card.Id);
         AdvanceEventRulesAndQueueFact(new CardRecastEvent(actor.Seat, card.Id, playedCardKind ?? card.Kind, drawn.Count));
@@ -102,7 +104,7 @@ public sealed partial class GameEngine
             conversionChain.AddRange(additionalConversions);
         }
         ConsumeProgramViewAsUsage(conversionChain);
-        var trackAppearance = _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard);
+        var trackAppearance = HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard);
         return CaptureFactionAction(new CardActionContext(++_cardActionSequence,
             _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
             CardActionType.Use, actorSeat, provider, provider == actorSeat ? null : actorSeat,
@@ -628,7 +630,10 @@ public sealed partial class GameEngine
                 !trickContinuationMatches || !completedResponseMatches ||
                 !candidateCursorValid ||
                 !sharedPromptMatches && !sharedChildMatches ||
-                 frame.Action.PhysicalCards.Where(cost => !IsExchangedCardClaim(frame.Action.ActionId,cost.CardId)).Any(cost =>
+                 frame.Action.PhysicalCards.Where(cost => !IsExchangedCardClaim(frame.Action.ActionId,cost.CardId) &&
+                     !(frame.Action.Type == CardActionType.Use &&
+                       _resolutionStack.OfType<CardUseFrame>().Any(use => use.Id == frame.ParentFrameId && use.Action?.ActionId == frame.Action.ActionId) &&
+                       IsCurrentUsePhysicalCardClaim(frame.ParentFrameId, cost.CardId))).Any(cost =>
                      frame.CompletedResponseReturn is { IsCommitted: false } ||
                      frame.Continuation is ProgramCardContinuation.CompletedSlash or ProgramCardContinuation.CompletedCard
                          ? _cardZones.GetLocation(cost.CardId).Zone is not

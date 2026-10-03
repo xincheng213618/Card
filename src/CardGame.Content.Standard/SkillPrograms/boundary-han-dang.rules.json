@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:gongqi-current", "revision": 1,
+      "activations": [
+        {
+          "id": "discard-for-turn-benefits", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0,
+          "targetKind": "anyLiving", "usesPerTurn": null, "usesPerPhase": 1,
+          "effects": [
+            { "op": "selectOwnedCards", "target": "owner", "minimumCards": 1, "maximumCards": 1, "zones": ["hand", "equipment"], "resultBind": "cost" },
+            { "op": "discardBoundCardForTurnSlashBenefits", "target": "owner", "sourceBind": "cost" },
+            { "op": "chooseOtherOwnedCardDiscard", "target": "owner", "chooserRef": { "kind": "owner" }, "zones": ["hand", "equipment"],
+              "condition": { "kind": "boundCardsMatchCategories", "sourceBind": "cost", "cardCategories": ["equipment"] } }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:jiefan-current", "revision": 1,
+      "activations": [
+        {
+          "id": "aid-by-attack-range", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1,
+          "targetKind": "anyLiving", "usesPerTurn": null, "usesPerGame": 1,
+          "effects": [
+            { "op": "scheduleFirstRoundGameUsageRefund", "target": "owner" },
+            { "op": "requestAttackRangeAid", "target": "selectedTarget" }
+          ]
+        }
+      ]
+    }
+  ]
+}

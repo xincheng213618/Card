@@ -13,7 +13,7 @@ public sealed partial class GameEngine
                 parent.Id != window.ResumeProgramFrameId ||
                 (window.CharacterStateContinuation == CharacterStateContinuation.VirtualBasicCardUse ? parent.CardId != 0 || parent.VirtualBasicReturn is null || parent.VirtualBasicEffectApplied != true || window.ResumeCardId is not null || window.ResumeCardKind != parent.CardKind : parent.CardId != window.ResumeCardId) ||
                 window.Continuation != ProgramLifecycleContinuation.ResumeCharacterStateChange ||
-                window.Window is not (SkillProgramTriggerWindow.CharacterTurnedFaceUp or SkillProgramTriggerWindow.CharacterEnteredChain) ||
+                window.Window is not (SkillProgramTriggerWindow.CharacterTurnedOver or SkillProgramTriggerWindow.CharacterTurnedFaceUp or SkillProgramTriggerWindow.CharacterEnteredChain) ||
                 window.CandidateIndex < 0 || window.CandidateIndex >= window.Candidates.Count)
                 throw new InvalidOperationException("A character-state card continuation lost its exact parent or candidate cursor.");
         }

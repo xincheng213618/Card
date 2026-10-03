@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:jingce-current", "revision": 1,
+      "modifiers": [
+        { "id": "actual-turn-hand-suits", "query": "handLimit", "operation": "add",
+          "valueExpression": "currentTurnUsedHandSuitCount", "priority": 0,
+          "condition": { "kind": "always" } }
+      ],
+      "triggers": [
+        {
+          "id": "play-ending-type-draw", "window": "playEnding", "subject": "owner",
+          "optional": true, "turnOwnerScope": "own", "usageScope": "phase", "usageLimit": 1,
+          "effects": [ { "op": "draw", "target": "owner", "numberExpression": "currentTurnUsedCardCategoryCount" } ]
+        }
+      ]
+    }
+  ]
+}

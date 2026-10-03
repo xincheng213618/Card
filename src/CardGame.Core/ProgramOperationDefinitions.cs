@@ -407,8 +407,7 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
                  SkillProgramNumberExpression.CategoryTargetTurnUsage or SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.BoundCardCount or
                  SkillProgramNumberExpression.CurrentAttackRange or SkillProgramNumberExpression.HandLimitMinusHandCount or
                  SkillProgramNumberExpression.LostHpMinusHandCount or SkillProgramNumberExpression.SelectedTargetsHandGreaterThanLord or
-                 SkillProgramNumberExpression.PhaseSkillUsage)))
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}: draw accepts a constant or a supported public-state expression.");
+                 SkillProgramNumberExpression.PhaseSkillUsage or SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount)))            throw new InvalidOperationException($"Invalid skill program at {r.Path}: draw accepts a constant or a supported public-state expression.");
         var source = r.OptionalIdentifier("sourceBind");
         if ((expression is SkillProgramNumberExpression.BoundCardCount or SkillProgramNumberExpression.PhaseSkillUsage) != (source is not null))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: sourceBind is required only for boundCardCount and phaseSkillUsage draws.");
@@ -431,6 +430,9 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
             sourceBind: source, resultBind: bind, targetReference: targetRef,
             replacementSuits: replacementSuits, minimumReplacementRank: minimumReplacementRank,
             maximumReplacementRank: maximumReplacementRank);
+        if (expression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount &&
+            (target != SkillProgramEffectTarget.Owner || bind is not null || targetRef is not null || replacementSuits.Count != 0))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: actual turn type-count draw requires the owner and no card binding or replacement filter.");
         if (bind is not null && target is not (SkillProgramEffectTarget.Owner or SkillProgramEffectTarget.SelectedTarget))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: bound draws require owner or selectedTarget.");
         if (bind is not null) RequireAlways(effect, r.Path);
@@ -444,7 +446,10 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
             .Concat(effect.ResultBind is { } bind
                 ? new ProgramResourceOperation[] { new CreateCardSet(bind, effect.NumberExpression is null ? effect.Amount : int.MaxValue, false, CardOwner: effect.Target) }
                 : Array.Empty<ProgramResourceOperation>())),
-            .. ParticipantResources(effect.TargetReference)];
+            .. ParticipantResources(effect.TargetReference),
+            .. effect.NumberExpression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount
+                ? new ProgramResourceOperation[] { new RequireTriggerWindow(SkillProgramTriggerWindow.PlayEnding), new RequireOwnTurnBoundary() }
+                : Array.Empty<ProgramResourceOperation>()];
     internal static int Amount(ProgramOperationNodeReader r, int maximum, bool allowZero = false)
     {
         var amount = r.RequiredInt("amount");
@@ -667,8 +672,8 @@ internal sealed class MoveBoundCardsProgramOperationDescriptor : ProgramOperatio
                 (CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.Chunlao))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.destinationZone: must be a persistent owner zone.");
         var awaitMovementTriggers = r.Has("awaitMovementTriggers") && r.RequiredBool("awaitMovementTriggers");
-        if (awaitMovementTriggers && destination is not (SkillProgramCardDestination.DiscardPile or SkillProgramCardDestination.DrawPileTop or SkillProgramCardDestination.OwnerHand))
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}: awaited bound movement supports discardPile, drawPileTop or ownerHand.");
+        if (awaitMovementTriggers && destination is not (SkillProgramCardDestination.DiscardPile or SkillProgramCardDestination.DrawPileTop or SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.SelectedTargetHand))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: awaited bound movement supports discardPile, drawPileTop, ownerHand or selectedTargetHand.");
         var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), sourceBind: source,
             exceptBind: except, destination: destination, destinationZone: destinationZone, awaitMovementTriggers: awaitMovementTriggers);
         // A named-choice branch may gate a discard, a gain into the owner's own
@@ -685,6 +690,10 @@ internal sealed class MoveBoundCardsProgramOperationDescriptor : ProgramOperatio
         return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
+        effect is { Destination: SkillProgramCardDestination.SelectedTargetHand, AwaitMovementTriggers: true }
+            ? [new RequireTriggerWindow(SkillProgramTriggerWindow.DrawPhaseEnded), new ReadSelectedTarget(),
+                new RequireOwnedCardSet(effect.SourceBind!, SkillProgramEffectTarget.Owner, null, [CardZoneKind.Hand, CardZoneKind.Equipment]),
+                new MoveCardSet(effect.SourceBind!, effect.ExceptBind, SkillProgramCardDestination.SelectedTargetHand)] :
         effect.Destination == SkillProgramCardDestination.PhaseOwnerHand
             ? [new RequireContext(ProgramContextCapability.PhaseOwner),
                 new MoveCardSet(effect.SourceBind!, effect.ExceptBind, effect.Destination.Value)]

@@ -78,6 +78,9 @@ public sealed partial class GameEngine
                 AlternatingChoiceStates = GetAlternatingChoiceStateSnapshot(player),
                 BeneficiarySuitShields = _beneficiarySuitShields.Any(s => s.BeneficiarySeat == player.Seat) ? _beneficiarySuitShields.Where(s => s.BeneficiarySeat == player.Seat).ToArray() : null,
                 DeferredHandAlignments = _deferredHandAlignments.Where(d => d.TargetSeat == player.Seat).ToArray() is { Length: > 0 } alignments ? alignments : null,
+                TurnHandLimitCardKindExemptions = GetTurnHandLimitCardKindExemptionsSnapshot(player.Seat),
+                TurnSlashSuitAllowances = GetTurnSlashSuitAllowancesSnapshot(player.Seat),
+                FirstRoundGameUsageRefunds = GetFirstRoundGameUsageRefundsSnapshot(player.Seat),
                 ActualPlayPhaseCardUseState = TracksActualPlayPhaseCardUses && _phase == TurnPhase.Play && player.Seat == _currentSeat ? new(player.Seat, _turnNumber, _cardUseDebitPhaseInstanceId, GetActualPlayPhaseUseCount(player.Seat)) : null,
                 IssuedPlayPhaseUseProhibitions = _issuedPlayPhaseUseProhibitions.Where(p => p.ActorSeat == player.Seat && HasIssuedPlayPhaseUseBan(player.Seat)).ToArray() is { Length: > 0 } issuedBans ? issuedBans : null,
                 IssuedPlayPhaseSuitUseAllowances = GetIssuedPlayPhaseSuitUseAllowances(player.Seat),
@@ -267,6 +270,11 @@ public sealed partial class GameEngine
         AlternatingChoiceStates = FreezeViewList(player.AlternatingChoiceStates),
         BeneficiarySuitShields = FreezeViewList(player.BeneficiarySuitShields),
         DeferredHandAlignments = FreezeViewList(player.DeferredHandAlignments),
+        TurnHandLimitCardKindExemptions = player.TurnHandLimitCardKindExemptions is { } kindExemptions ?
+            Array.AsReadOnly(kindExemptions.Select(policy => policy with
+                { CardKinds = FreezeViewList(policy.CardKinds)! }).ToArray()) : null,
+        TurnSlashSuitAllowances = FreezeViewList(player.TurnSlashSuitAllowances),
+        FirstRoundGameUsageRefunds = FreezeViewList(player.FirstRoundGameUsageRefunds),
         IssuedPlayPhaseUseProhibitions = FreezeViewList(player.IssuedPlayPhaseUseProhibitions),
         IssuedPlayPhaseSuitUseAllowances = player.IssuedPlayPhaseSuitUseAllowances is null ? null :
             Array.AsReadOnly(player.IssuedPlayPhaseSuitUseAllowances.Select(a => a with { Suits = Array.AsReadOnly(a.Suits.ToArray()) }).ToArray()),

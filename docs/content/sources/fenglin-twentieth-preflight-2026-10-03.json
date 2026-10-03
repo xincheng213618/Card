@@ -1,0 +1,298 @@
+{
+  "status": "read-only-preflight-not-implemented",
+  "edition": "current ordinary Sanguosha OL www.sanguosha.com only",
+  "createdUtc": "2026-10-03T20:01:47.031233+08:00",
+  "scope": "Source and capability preflight only; no source registration, media download, build, or version change.",
+  "officialIndex": {
+    "url": "https://www.sanguosha.com/hero",
+    "httpStatus": 200,
+    "retrievedUtc": "2026-10-03T20:05:26.036923+08:00",
+    "rawSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+    "rawBytes": 1319990,
+    "rawBodyRetained": false,
+    "arrayExamined": "Listdata",
+    "exactBoundaryCaoPiOccurrencesInHtml": 0
+  },
+  "officialIndexMatchingRows": [
+    {
+      "gid": 2013,
+      "name": "国战曹丕",
+      "extend": "国战",
+      "hp": 1.5,
+      "figure": "魏",
+      "figure_py": "wei",
+      "realname": "国战曹丕 (国战)"
+    },
+    {
+      "gid": 451,
+      "name": "界刘禅",
+      "extend": "界限突破",
+      "hp": 3,
+      "figure": "蜀",
+      "figure_py": "shu",
+      "realname": "界刘禅 (界限突破)"
+    },
+    {
+      "gid": 486,
+      "name": "界张郃",
+      "extend": "界限突破",
+      "hp": 4,
+      "figure": "魏",
+      "figure_py": "wei",
+      "realname": "界张郃 (界限突破)"
+    },
+    {
+      "gid": 587,
+      "name": "界徐盛",
+      "extend": "界限突破",
+      "hp": 4,
+      "figure": "吴",
+      "figure_py": "wu",
+      "realname": "界徐盛 (界限突破)"
+    },
+    {
+      "gid": 628,
+      "name": "界曹冲",
+      "extend": "界限突破",
+      "hp": 3,
+      "figure": "魏",
+      "figure_py": "wei",
+      "realname": "界曹冲 (界限突破)"
+    },
+    {
+      "gid": 43,
+      "name": "曹丕",
+      "extend": "风林火山",
+      "hp": 3,
+      "figure": "魏",
+      "figure_py": "wei",
+      "realname": "曹丕 (风林火山)"
+    }
+  ],
+  "exclusions": [
+    {
+      "name": "界徐盛",
+      "reason": "Already registered boundary:xu-sheng in StandardClassicGeneralPackage.cs:1803 and pool at2388; existing frozen entry not revised."
+    },
+    {
+      "name": "界曹丕",
+      "reason": "No exact boundary Cao Pi name in the live ordinary OL /hero HTML or its Listdata catalog. Official search returned classic43 and national-war2013 only. This is a source-blocked candidate, not evidence that no such general can exist in another edition; no rules imported from classic/national-war/10th/mobile."
+    }
+  ],
+  "candidates": [
+    {
+      "gid": 486,
+      "name": "界张郃",
+      "status": "read-only-preflight-not-implemented",
+      "registeredBoundary": false,
+      "identity": {
+        "figure": "魏",
+        "figure_py": "wei",
+        "hp": 4,
+        "initial_hp": 0,
+        "extend": null,
+        "realname": null
+      },
+      "sources": [
+        {
+          "url": "https://www.sanguosha.com/hero/486",
+          "httpStatus": 200,
+          "retrievedUtc": "2026-10-03T20:01:46.791453+08:00",
+          "rawSha256": "478cf2e50c3cecc76478cd08e12e2f4b657cbac19d5e6278b46b9d9c4e34f1d6",
+          "rawBytes": 24522,
+          "rawBodyRetained": false
+        },
+        {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=486",
+          "httpStatus": 200,
+          "retrievedUtc": "2026-10-03T20:01:46.952899+08:00",
+          "rawSha256": "a9d631bdb1b2e0229d023e1a268cf2f9ba4c5045962ad6eb0073ade92404dac1",
+          "rawBytes": 1069,
+          "rawBodyRetained": false
+        }
+      ],
+      "skillPairingStatus": "verified-name-text-count",
+      "capabilityAnalysisStatus": "source-code-static-preflight-no-implementation-or-test",
+      "existingCapabilities": [
+        {
+          "capability": "Phase skip, obtain up to two other hands, move one equipment/judgment field card",
+          "evidence": "src/CardGame.Content.Standard/SkillPrograms/classic-zhang-he.rules.json; SelectOwnedCards, MoveBoundCards, SkipTurnPhases, SelectTargets, TakeRandomHandCardFromSelectedTargets, SelectAndMoveOwnedCard."
+        },
+        {
+          "capability": "Public markers, boolean state, GameStarting/TurnEnding lifecycle",
+          "evidence": "src/CardGame.Core/ProgramStrategicOperations.cs; src/CardGame.Core/SkillPrograms.cs."
+        }
+      ],
+      "capabilityGaps": [
+        "Persistent exact-source set of prior owner turn-ending hand counts, including the current-turn compare-before-insert order; existing boolean state does not encode this set.",
+        "General reusable alternative cost (discard one legal owned card OR remove one marker), then a paid continuation that waits equipment recovery/movement children before phase-skip benefits. Existing classic Qiaobian pays hand only.",
+        "Current SkipTurnPhases static validator permits judgment/draw at TurnStartBeforeNormalFlow, play at AfterNormalDraw, discard at DiscardPhaseStarting. Official phase wording is broader than a single before-turn choice; verify exact judgment/draw boundary placement before freezing content."
+      ],
+      "engineeringUnresolved": [
+        "Does the unspecified one-card discard include equipment? Official page says one card without a zone. No FAQ ruling frozen.",
+        "Determine whether historical ending hand counts include extra turns and whether a skipped ending phase records a count; do not infer from classic Qiaobian.",
+        "Zero-target selection (up to two includes zero), current marker/public-view representation and exact-source reacquire history policy require explicit engineering decisions."
+      ],
+      "skills": [
+        {
+          "name": "巧变",
+          "officialPageText": "游戏开始时，你获得2枚“变”标记。你可以弃置一张牌或移除1枚“变”，跳过你的一个阶段（准备阶段和结束阶段除外）：若跳过摸牌阶段，你可以获得至多两名角色各一张手牌；若跳过出牌阶段，你可以移动场上的一张牌。结束阶段，若你的手牌数与之前你每回合结束阶段的手牌数均不相等，你获得1枚“变”。"
+        }
+      ],
+      "priority": "medium; useful reusable history/cost ability, more than pure content"
+    },
+    {
+      "gid": 451,
+      "name": "界刘禅",
+      "status": "read-only-preflight-not-implemented",
+      "registeredBoundary": false,
+      "identity": {
+        "figure": "蜀",
+        "figure_py": "shu",
+        "hp": 3,
+        "initial_hp": 0,
+        "extend": null,
+        "realname": null
+      },
+      "sources": [
+        {
+          "url": "https://www.sanguosha.com/hero/451",
+          "httpStatus": 200,
+          "retrievedUtc": "2026-10-03T20:01:46.874817+08:00",
+          "rawSha256": "aa216410cf2a34db5b7328fa5cfe18e6f44be117cd8035c338b39201f7b9d90a",
+          "rawBytes": 25661,
+          "rawBodyRetained": false
+        },
+        {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=451",
+          "httpStatus": 200,
+          "retrievedUtc": "2026-10-03T20:01:47.03085+08:00",
+          "rawSha256": "344eab0152cda9b44d2e754d11a693af1e030765b4c20ec381e35cf598f09459",
+          "rawBytes": 953,
+          "rawBodyRetained": false
+        }
+      ],
+      "skillPairingStatus": "verified-name-text-count",
+      "capabilityAnalysisStatus": "source-code-static-preflight-no-implementation-or-test",
+      "existingCapabilities": [
+        {
+          "capability": "Xiangle basic-card payment/nullify Slash, Fangquan phase skip and selected-target extra turn, Ruoyu max-HP increase and awakening skill grant",
+          "evidence": "src/CardGame.Content.Standard/SkillPrograms/classic-liu-shan.rules.json; classic:xiangle, classic:fangquan, classic:ruoyu."
+        },
+        {
+          "capability": "Recover to fixed HP and original Jijiang faction Slash request",
+          "evidence": "src/CardGame.Core/ProgramLifecycleOperationDefinitions.cs:128; existing recoverTo integerConstant minimumValue3 clampToMaxHp=true and classic:jijiang."
+        }
+      ],
+      "capabilityGaps": [
+        "Fangquan payment/extra-turn declaration now at DiscardPhaseStarting, whereas classic content uses TurnEnding. Existing discard-phase trigger and PendExtraTurn likely allow composition but need validator confirmation.",
+        "Ruoyu uses RecoverTo3 (existing op) and grants both Jijiang and Sishu; no Sishu skill or rule text exists in current source tree."
+      ],
+      "engineeringUnresolved": [
+        "Current hero451 page names Sishu only; its linked skill full definition and ordinary-OL version remain unverified. Do not substitute a recalled classic/national-war/10th Sishu text.",
+        "Verify that the requested skip-play then discard-phase payment captures only the original actual turn and that payment card children complete before extra-turn queueing."
+      ],
+      "skills": [
+        {
+          "name": "享乐",
+          "officialPageText": "锁定技，当你成为一名角色使用【杀】的目标后，除非其弃置一张基本牌，否则令此【杀】对你无效。"
+        },
+        {
+          "name": "放权",
+          "officialPageText": "你可以跳过出牌阶段，然后弃牌阶段开始时，你可以弃置一张手牌并令一名其他角色执行一个额外的回合。"
+        },
+        {
+          "name": "若愚",
+          "officialPageText": "主公技，觉醒技，准备阶段，若你是全场体力值最小的角色，你增加1点体力上限，回复至3点体力，然后获得“激将”“思蜀”。"
+        }
+      ],
+      "priority": "high after official Sishu resolution; main three skills mostly composition"
+    },
+    {
+      "gid": 628,
+      "name": "界曹冲",
+      "status": "read-only-preflight-not-implemented",
+      "registeredBoundary": false,
+      "identity": {
+        "figure": "魏",
+        "figure_py": "wei",
+        "hp": 3,
+        "initial_hp": 0,
+        "extend": null,
+        "realname": null
+      },
+      "sources": [
+        {
+          "url": "https://www.sanguosha.com/hero/628",
+          "httpStatus": 200,
+          "retrievedUtc": "2026-10-03T20:01:46.825266+08:00",
+          "rawSha256": "7090dff046c2d61ef178f27f31ea2cc35ba6fb6365895c0afa871ed88fe225dc",
+          "rawBytes": 24037,
+          "rawBodyRetained": false
+        },
+        {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=628",
+          "httpStatus": 200,
+          "retrievedUtc": "2026-10-03T20:01:47.008844+08:00",
+          "rawSha256": "0ae13c39c20ef7d77d82e2eff803682de78018f09883e4c9b97b6bc1a2c52bb3",
+          "rawBytes": 913,
+          "rawBodyRetained": false
+        }
+      ],
+      "skillPairingStatus": "verified-name-text-count",
+      "capabilityAnalysisStatus": "source-code-static-preflight-no-implementation-or-test",
+      "existingCapabilities": [
+        {
+          "capability": "Reveal four public top cards, choose arbitrary subset with sum<=13, obtain selected and discard remainder",
+          "evidence": "src/CardGame.Content.Standard/SkillPrograms/classic-lifecycle-skills.rules.json:66 classic:chengxiang; src/CardGame.Core/ProgramOperationDefinitions.cs:532 RevealTopCards / SelectCardSubset."
+        },
+        {
+          "capability": "Equipment-category HE discard, turn over, generic DyingResponse and fixed RecoverTo1",
+          "evidence": "src/CardGame.Content.Standard/SkillPrograms/damage-prevention-skills.rules.json classic:renxin has payment+turnOver but prevents damage; src/CardGame.Core/GameEngine.DyingPrograms.cs; RecoverTo descriptor."
+        }
+      ],
+      "capabilityGaps": [
+        "Chengxiang perDamagePoint occurrence replaces classic perDamage. Exact selected-subset rank-sum==13 must produce a next-successful-activation +1 reveal bonus; existing condition catalog has no bound-subset rank-sum predicate and RevealTopCards amount is static.",
+        "Next-use bonus must be consumed once and preserve exact source instance/checkpoint/public-view boundaries; source suppression/reacquire behavior requires an explicit policy.",
+        "Renxin current timing is another character entering dying and healing to1, unlike classic pre-damage prevention; validate typed Dying parent, exact dying victim selection, and paid equipment recovery/movement child return before turnover/heal."
+      ],
+      "engineeringUnresolved": [
+        "Does repeated sum13 stack next activation reveal counts or simply reserve +1 once? Page says next activation one extra; no additional FAQ frozen.",
+        "Define whether bonus is consumed on accepted activation if deck shortage or source/target invalidation occurs, and avoid off-by-one consumption when another damage point triggers afterward.",
+        "Current ordinary OL source explicitly uses dying/recover, so classic prevention content cannot be aliased."
+      ],
+      "skills": [
+        {
+          "name": "称象",
+          "officialPageText": "当你受到1点伤害后，你可以亮出牌堆顶四张牌，获得其中任意张点数和不大于13的牌；若获得的牌点数和恰好为13，你下次发动“称象”多亮出一张牌。"
+        },
+        {
+          "name": "仁心",
+          "officialPageText": "当一名其他角色进入濒死时，你可以弃置一张装备牌并翻面，然后令其回复至1点体力。"
+        }
+      ],
+      "priority": "high; reusable bound-rank conditional next-use receipt and dying payment"
+    }
+  ],
+  "recommendedOrder": [
+    451,
+    628,
+    486
+  ],
+  "staticRegistrationEvidence": {
+    "boundaryXuSheng": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs:1803 and2388",
+    "unregisteredCandidates": "rg of boundary:zhang-he / boundary:liu-shan / boundary:cao-chong and content file inventory found no registered boundary entries; classic entries exist."
+  },
+  "validationBoundary": "source and static capability analysis only; Liu Shan granted Sishu definition remains unverified",
+  "freeze": {
+    "sourceSha256": "d63b8791e0755053941daa72ca00f2b83e44a4cb5a9cc74be517a1bab4979c96",
+    "copiedUtc": "2026-10-03T20:18:04.8881354+08:00"
+  },
+  "liuShanGrantedSkillFollowup": {
+    "evidence": "boundary-liu-shan-sishu-preflight-2026-10-03.json",
+    "correction": "Ruo Yu grants Si Shu; Fang Quan gives an extra turn at discard phase beginning",
+    "currentPageSkillId": 895,
+    "definitionStatus": "2020 ordinary OL official announcement verified; current complete skill endpoint not obtained",
+    "notImplemented": true
+  }
+}

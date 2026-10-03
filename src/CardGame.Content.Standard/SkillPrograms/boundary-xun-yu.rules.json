@@ -1,0 +1,138 @@
+{
+  "skills": [
+    {
+      "id": "boundary:quhu-current",
+      "revision": 1,
+      "minimumRulesVersion": 172,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "contest",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingWithHandHpGreaterThanOwner",
+          "usesPerTurn": null,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "pindian",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "always"
+              }
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingInBoundParticipantAttackRange",
+              "actorRef": {
+                "kind": "resultOpponent",
+                "resultBind": "__active-pindian-result"
+              },
+              "skipIfNoTarget": true,
+              "condition": {
+                "kind": "pindianWon",
+                "sourceBind": "__active-pindian-result"
+              }
+            },
+            {
+              "op": "damage",
+              "target": "selectedTarget",
+              "sourceRef": {
+                "kind": "resultOpponent",
+                "resultBind": "__active-pindian-result"
+              },
+              "amount": 1,
+              "skipIfNoTarget": true,
+              "condition": {
+                "kind": "pindianWon",
+                "sourceBind": "__active-pindian-result"
+              }
+            },
+            {
+              "op": "damage",
+              "target": "owner",
+              "sourceRef": {
+                "kind": "resultOpponent",
+                "resultBind": "__active-pindian-result"
+              },
+              "amount": 1,
+              "condition": {
+                "kind": "pindianNotWon",
+                "sourceBind": "__active-pindian-result"
+              }
+            }
+          ],
+          "usesPerPhase": 1
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "viewAs": [],
+      "activations": [],
+      "id": "boundary:jieming-current",
+      "triggers": [
+        {
+          "condition": {
+            "kind": "always"
+          },
+          "optional": true,
+          "id": "per-damage-point",
+          "damageOccurrence": "perDamagePoint",
+          "effects": [
+            {
+              "op": "selectTarget",
+              "targetKind": "anyLiving",
+              "target": "owner"
+            },
+            {
+              "amount": 5,
+              "op": "drawThenDiscardHandToMaximumHp",
+              "target": "selectedTarget"
+            }
+          ],
+          "subject": "owner",
+          "window": "afterDamageApplied"
+        },
+        {
+          "condition": {
+            "kind": "always"
+          },
+          "optional": true,
+          "id": "death",
+          "effects": [
+            {
+              "op": "selectTarget",
+              "targetKind": "anyLiving",
+              "target": "owner"
+            },
+            {
+              "amount": 5,
+              "op": "drawThenDiscardHandToMaximumHp",
+              "target": "selectedTarget"
+            }
+          ],
+          "subject": "owner",
+          "window": "ownerDied"
+        }
+      ],
+      "cardIdentities": [],
+      "modifiers": [],
+      "contributions": [],
+      "revision": 1
+    }
+  ],
+  "schemaVersion": 62
+}

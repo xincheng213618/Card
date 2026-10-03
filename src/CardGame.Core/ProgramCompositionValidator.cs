@@ -22,7 +22,18 @@ internal static class ProgramCompositionValidator
         if (effects.Any(e => e.Op == SkillProgramEffectOp.UseSelectedActorDuel) &&
             (window is not null || selectedCardCount != 0 || !initialSelectedTarget || initialTargetSetMaximum != 0 || effects.Count != 1))
             throw Error(path, "Selected actor Duel is a single zero-card one-selected-target activation.");
+        DiscardedProvenanceComposition.Validate(path, effects, window, selectedCardCount, initialSelectedTarget, initialTargetSetMaximum);
+        ChoosePrivateColorsDiscardAndDuelDescriptor.ValidateComposition(path, effects, window, selectedCardCount, initialSelectedTarget, initialTargetSetMaximum);
         PaidHpLossProgram.ValidateComposition(path, effects, window, selectedCardCount, initialSelectedTarget, initialTargetSetMaximum);
+        PayHpToGrantOneUseDamageShieldDescriptor.ValidateComposition(path, effects, window, initialSelectedTarget, initialTargetSetMaximum);
+        if (effects.Any(effect => effect.Op == SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner) &&
+            (window != SkillProgramTriggerWindow.TurnEnding || turnOwnerScope != SkillProgramTurnOwnerScope.OtherLiving ||
+             effects.Count != 1 || selectedCardCount != 0 || initialSelectedTarget || initialTargetSetMaximum != 0))
+            throw Error(path, "Fixed-target owner Slash requires one standalone other-living turnEnding operation.");
+        if (effects.Any(effect => effect.Op == SkillProgramEffectOp.DeclareDeckCriterionAndGiveMatchingCard) &&
+            (window is not null || effects.Count != 1 || selectedCardCount != 0 || initialSelectedTarget ||
+             initialTargetSetCount != 0 || initialTargetSetMaximum != 0))
+            throw Error(path, "Declared deck criterion requires one standalone zero-input activation.");
         expandedCardDomain |= RequiresExpandedCardDomain(effects);
         var bindings = new Dictionary<string, Binding>(StringComparer.Ordinal);
         var choiceGuardedBindings = new Dictionary<string, SkillProgramCondition>(StringComparer.Ordinal);
@@ -360,6 +371,9 @@ internal static class ProgramCompositionValidator
                     case RequireSingleOwnedActivationGift:
                         if (window is not null || selectedCardCount != 1 || activationMinimumCards != 1 || cardsConsumed || !initialSelectedTarget || activationTargetKind != SkillProgramTargetKind.OtherLivingHighestHand || activationSourceZones is null || !activationSourceZones.SequenceEqual([CardZoneKind.Hand, CardZoneKind.Equipment])) Fail("gift damage needs one unconsumed HE activation input and highest-hand other target");
                         cardsConsumed = true;
+                        break;
+                    case RequireFirstLimitedActivation:
+                        if (window is not null || selectedCardCount != 0 || index != 0) Fail("a first-round limited refund must be the first zero-card activation instruction");
                         break;
                     case RequireActivationEntry:
                         if (window is not null || selectedCardCount != 0 || initialSelectedTarget) Fail("operation requires a zero-input activation");

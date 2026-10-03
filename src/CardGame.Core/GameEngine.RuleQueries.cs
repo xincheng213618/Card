@@ -179,6 +179,10 @@ public sealed partial class GameEngine
         SkillRuleQuery query,
         CardKind? effectiveCardKind = null)
     {
+        var bindings = GetSkillBindingShard(player).GetNumericModifiers(query)
+            .Where(binding => binding.Modifier.ValueExpression != SkillRuleValueExpression.OwnerMarkerCount ||
+                !_contentRegistry.GetSkill(binding.Source.SkillId).Tags.HasFlag(SkillTag.Lord) ||
+                HasSkillRoleQualification(player, binding.Source.SkillId, binding.Source.SkillInstanceId, Role.Lord)).ToArray();
         var context = new SkillProgramRuleContext(
             CreateSkillContext(player),
             GetLivingFactionCount(),
@@ -186,11 +190,17 @@ public sealed partial class GameEngine
             effectiveCardKind,
             (skill, instance, zone) => zone == CardZoneKind.PublicPersistentPile && SupportsMultiplePublicPiles
                 ? PublicPileProgramCount(player.Seat, skill, instance)
-                : _cardZones.Count(new CardLocation(zone, player.Seat)));
+                : _cardZones.Count(new CardLocation(zone, player.Seat)))
+        {
+            OwnerMarkerCount = bindings.Any(binding => binding.Modifier.QueryDependencies.Contains(SkillRuleQueryDependency.MarkerState))
+                ? marker => player.Markers.GetValueOrDefault(marker) : null,
+            CurrentTurnUsedHandSuitCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.CurrentTurnUsedHandSuitCount)
+                ? CurrentTurnUseKinds(player.Seat).HandSuits : null
+        };
         var programContributions = SkillProgramRules.CollectIndexedContributions(
             query,
             context,
-            GetSkillBindingShard(player).GetNumericModifiers(query));
+            bindings);
         return programContributions.Concat(CollectStrategicRuleContributions(player, query)).ToArray();
     }
 

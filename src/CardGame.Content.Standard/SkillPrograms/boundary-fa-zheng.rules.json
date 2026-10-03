@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "boundary:xuanhuo", "revision": 1, "triggers": [
+      { "id": "give-two-and-request", "window": "drawPhaseEnded", "subject": "owner", "optional": true, "effects": [
+        { "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" },
+        { "op": "selectOwnedCards", "target": "owner", "minimumCards": 2, "maximumCards": 2, "zones": ["hand", "equipment"], "resultBind": "given-two" },
+        { "op": "moveBoundCards", "target": "owner", "sourceBind": "given-two", "destination": "selectedTargetHand", "awaitMovementTriggers": true },
+        { "op": "requestSlashAgainstChosenTarget", "target": "selectedTarget", "resultBind": "command-answer" },
+        { "op": "viewAndTakeSelectedTargetHand", "target": "selectedTarget", "amount": 2,
+          "condition": { "kind": "choiceIs", "sourceBind": "command-answer", "optionId": "declined" } }
+      ] }
+    ] },
+    { "id": "boundary:enyuan", "revision": 1, "triggers": [
+      { "id": "reward-card-giver", "window": "cardsGained", "subject": "owner", "destinationZones": ["hand"],
+        "movementOccurrence": "perSourceOwner", "optional": true,
+        "condition": { "kind": "compare", "left": { "kind": "movedCardCount" }, "operator": "greaterThanOrEqual", "right": { "kind": "integerConstant", "value": 2 } },
+        "effects": [ { "op": "draw", "target": "owner", "targetRef": { "kind": "eventSource" }, "amount": 1 } ] },
+      { "id": "repay-each-damage", "window": "afterDamageApplied", "subject": "owner", "damageOccurrence": "perDamagePoint", "optional": true,
+        "condition": { "kind": "otherDamageParticipantAlive" }, "effects": [
+          { "op": "selectTarget", "target": "owner", "targetKind": "eventSource" },
+          { "op": "requestHandBySuitsOrLoseHp", "target": "selectedTarget", "suits": ["heart", "diamond"] }
+        ] }
+    ] }
+  ]
+}

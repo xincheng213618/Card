@@ -28,10 +28,26 @@ public sealed partial class GameEngine
         if (index != _resolutionStack.Count - 1) return;
         switch (_resolutionStack[index])
         {
+            case NullificationWindowFrame { CounterspellPayment: not null }: ContinuePolicyCounterspellPayment(frameId); break;
+            case CardUseFrame { ColorFireAttack.PaidCardId: not null }: ContinueColorFireAttackPayment(frameId); break;
             case CardEffectBeforeApplyFrame: ContinueCardEffectBeforeApply(); break;
             case CardDeclarationFrame: ContinueCardDeclaration(frameId); break;
             case CardDeclarationChallengeFrame: ContinueCardDeclarationChallenge(frameId); break;
             case ProgramSkillFrame:
+                if (ResumeProvenanceClaim(frameId) || ResumeProvenanceAlcohol(frameId)) return;
+                if (ResumeDamageJudgmentSuitPayment(frameId)) return;
+                if (ResumeDualColorDuel(frameId)) return;
+                if (ResumeLeastHandMarkerDraw(frameId)) return;
+                if (ResumeAlternativePhaseCost(frameId)) return;
+                if (ResumeAwaitedBlindHandTake(frameId)) return;
+                if (ResumeParticipantHandPayment(frameId)) return;
+                if (ResumeBoundDiscardSlashBenefits(frameId)) return;
+                if (ResumeProgramBoundCardRecast(frameId)) return;
+                if (ResumeHpDamageShieldPayment(frameId)) return;
+                if (ResumeProgramEquipmentRecast(frameId)) return;
+                if (ResumeCappedHandRefresh(frameId)) return;
+                if (TryResumeFixedSlashAndDeclaredDeck(frameId)) return;
+                if (ResumeDamageTargetObtain(frameId)) return;
                 if (ResumeDamageTargetMount(frameId)) return;
                 if (ResumeProgramSlashSuitDiscard(frameId)) return;
                 if (ResumeDiamondDelayed(frameId)) return;
@@ -58,6 +74,9 @@ public sealed partial class GameEngine
             case ProgramCardTriggerWindowFrame: ContinueProgramCardWindowCore(); break;
             case ProgramLifecycleTriggerWindowFrame: ContinueProgramLifecycleWindowCore(); break;
             case HpChangedTriggerWindowFrame: ContinueHpChangedProgramWindowCore(); break;
+            case RecoveryReplacementFrame: ContinueRecoveryReplacement(); break;
+            case EquipmentRecastFrame: ContinueEquipmentRecast(frameId); break;
+            case DrawPhaseObligationFrame: ContinueDrawPhaseObligation(frameId); break;
             case CardsMovedTriggerWindowFrame: ContinueCardsMovedProgramWindowCore(); break;
             case BeforeDamageProgramWindowFrame: ContinueBeforeDamageProgramWindowCore(); break;
             case ProgramDeathTriggerWindowFrame: ContinueOwnerDiedProgramWindowCore(); break;
@@ -85,6 +104,8 @@ public sealed partial class GameEngine
             DamageFrame child => child.ParentFrameId,
             DamageTriggerWindowFrame child => child.ParentFrameId,
             RecoveryFrame child => child.ParentFrameId,
+            RecoveryReplacementFrame child => child.ParentFrameId,
+            DrawPhaseObligationFrame child => child.ParentFrameId ?? 0,
             DyingFrame child => child.ParentFrameId,
             DeathFrame child => child.ParentFrameId,
             NullificationWindowFrame child => child.ParentFrameId,
@@ -112,6 +133,10 @@ public sealed partial class GameEngine
 
     private void PopResolutionFrame(long frameId, ResolutionFrameKind expectedKind)
     {
+        if (_resolutionStack.LastOrDefault() is { PendingRecoveryAttempts.Count: > 0 })
+            throw new InvalidOperationException("A producer cannot complete with unconsumed recovery attempts.");
+        if (_resolutionStack.LastOrDefault()?.PaidFactionRequestCostRecovery is not null)
+            throw new InvalidOperationException("A producer cannot complete with an unconsumed paid faction request cost.");
         var top = _resolutionStack.CompleteTop(frameId, expectedKind);
         if (top is RecoveryFrame recovery)
             RecordHpChange(recovery.ParentFrameId, recovery.SourceSeat, recovery.TargetSeat,
@@ -202,6 +227,23 @@ public sealed partial class GameEngine
 
     private void RunOneEngineStep()
     {
+        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is NullificationWindowFrame { CounterspellPayment: not null } paidCounter)
+        { AdvanceRuntimeFrame(paidCounter.Id); AdvanceRulesAndPublishState(); return; }
+        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is CardUseFrame { ColorFireAttack.PaidCardId: not null } paidFire)
+        { AdvanceRuntimeFrame(paidFire.Id); AdvanceRulesAndPublishState(); return; }
+        if (_resolutionStack.LastOrDefault() is DrawPhaseObligationFrame draw)
+        { AdvanceRuntimeFrame(draw.Id); AdvanceRulesAndPublishState(); return; }
+        if (_resolutionStack.LastOrDefault() is EquipmentRecastFrame recast)
+        { AdvanceRuntimeFrame(recast.Id); AdvanceRulesAndPublishState(); return; }
+        if (_resolutionStack.LastOrDefault() is RecoveryReplacementFrame recoveryReplacement)
+        {
+            if (_pendingDecision is { Kind: DecisionKind.RecoveryReplacement } decision)
+            {
+                if (!_players[decision.PlayerSeat].IsHuman) ResolveAiRecoveryReplacement();
+            }
+            else { AdvanceRuntimeFrame(recoveryReplacement.Id); AdvanceRulesAndPublishState(); }
+            return;
+        }
         if (_resolutionStack.LastOrDefault() is CardDeclarationChallengeFrame challenge)
         {
             if (_pendingDecision is null) ContinueCardDeclarationChallenge(challenge.Id);
@@ -278,6 +320,20 @@ public sealed partial class GameEngine
             return;
         }
 
+
+        if (ActiveDying is { } paidProgramDying &&
+            _resolutionStack.LastOrDefault() is ProgramSkillFrame { WindowContext: { } paidContext } paidDyingProgram &&
+            _resolutionStack.Count >= 2 && _resolutionStack[^2] is DyingFrame paidDyingParent && paidDyingParent.Id == paidProgramDying.Id &&
+            paidContext.ParentFrameId == paidProgramDying.Id && paidContext.TargetSeat == paidProgramDying.VictimSeat &&
+            paidContext.OwnerSeat == paidDyingProgram.OwnerSeat &&
+            (paidContext.Window == SkillProgramTriggerWindow.DyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.ResponderSeat ||
+             paidContext.Window == SkillProgramTriggerWindow.SelfDyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.VictimSeat) &&
+            (IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying()))
+        {
+            AdvanceRuntimeProgram(paidDyingProgram.Id);
+            AdvanceRulesAndPublishState();
+            return;
+        }
 
         if (ActiveDying is not null)
         {
@@ -414,6 +470,8 @@ public sealed partial class GameEngine
             case SkillProgramTriggerWindow.DyingEntering:
             case SkillProgramTriggerWindow.SkillsChanged:
             case SkillProgramTriggerWindow.JudgmentPhaseStarting:
+            case SkillProgramTriggerWindow.DrawPhaseSkipped:
+            case SkillProgramTriggerWindow.CharacterTurnedOver:
             case SkillProgramTriggerWindow.CharacterTurnedFaceUp:
             case SkillProgramTriggerWindow.CharacterEnteredChain:
                 if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame changed || changed.Id != context.ParentFrameId)
@@ -657,6 +715,8 @@ public sealed partial class GameEngine
     private void ReturnRuntimeProgramMovement(long frameId)
     {
         var frame = GetActiveProgramFrame(frameId);
+        if (ReturnDamageJudgmentSuitPaymentMovement(frame)) return;
+        if (ReturnCappedHandRefreshMovement(frame)) return;
         if (frame.SelectedCardPayment is { } payment && frame.SelectedCardPaymentResult is null)
         {
             if (frame.PendingMovementContinuation is not null || !payment.MovementCommitted ||
@@ -675,6 +735,13 @@ public sealed partial class GameEngine
                     "移动响应后技能持有人、装备持有人或技能实例已失效。");
                 return;
             }
+            AdvanceRuntimeProgram(frameId);
+            return;
+        }
+        if (frame.DamageTargetObtain is not null)
+        {
+            if (!IsValidDamageTargetObtain(frame)) throw new InvalidOperationException("The obtain movement lost its actual producer.");
+            ReplaceRuntimeTop(frame with { PendingMovementContinuation = null });
             AdvanceRuntimeProgram(frameId);
             return;
         }

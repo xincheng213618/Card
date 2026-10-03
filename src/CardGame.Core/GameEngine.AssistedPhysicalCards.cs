@@ -37,7 +37,7 @@ public sealed partial class GameEngine
             pair.First.Parameters.OrderBy(item => item.Key).SequenceEqual(pair.Second.Parameters.OrderBy(item => item.Key)));
 
     private int[] AssistedPhysicalSlashTargets(int actorSeat) => _players.Where(target => _players[actorSeat].IsAlive && target.IsAlive && target.Seat != actorSeat &&
-        (IsWithinAttackRange(actorSeat, target.Seat) || HasPotentialRankSlashRange(_players[actorSeat],target,CardKind.Slash))).Select(target => target.Seat).ToArray();
+        (HasPotentialProvenanceSlash(_players[actorSeat]) || IsWithinAttackRange(actorSeat, target.Seat) || HasPotentialRankSlashRange(_players[actorSeat],target,CardKind.Slash))).Select(target => target.Seat).ToArray();
 
     private SkillProgramStepOutcome RequestProgramSlashAgainstChosenTarget(ProgramSkillFrame frame, int actorSeat, string bind, bool actorChoosesTarget)
     {
@@ -91,7 +91,7 @@ public sealed partial class GameEngine
         }
         foreach (var pair in GetZhangbaSlashPairs(actor))
         {
-            if (!CanUseSlashTarget(actor, _players[targetSeat], pair[0], noEffectiveRank:true, specificEffectiveRank:ZhangbaSpecificSlashRank(actor,pair))) continue;
+            if (!CanUseSlashTarget(actor, _players[targetSeat], pair[0], noEffectiveRank:true, specificEffectiveRank:ZhangbaSpecificSlashRank(actor,pair), physicalCardIds:pair.Select(c=>c.Id).ToArray())) continue;
             var parameters = Parameters("use");
             parameters["effective-kind"] = CardKind.Slash.ToString();
             parameters["equipment"] = CardKind.ZhangbaSerpentSpear.ToString();
@@ -101,7 +101,7 @@ public sealed partial class GameEngine
         foreach (var kind in SlashKinds)
         foreach (var selection in GetProgramMultiCardViewAsSelections(actor, kind, false))
         {
-            if (!AssistedSlashPaymentHasRange(actor, targetSeat, selection.Cards) || !CanUseSlashTarget(actor, _players[targetSeat], selection.Cards[0], selection.Source, kind, noEffectiveRank: selection.Cards.Count > 1)) continue;
+            if (!AssistedSlashPaymentHasRange(actor, targetSeat, selection.Cards) || !CanUseSlashTarget(actor, _players[targetSeat], selection.Cards[0], selection.Source, kind, noEffectiveRank: selection.Cards.Count > 1, physicalCardIds:selection.Cards.Select(c=>c.Id).ToArray())) continue;
             var parameters = Parameters("use");
             parameters["effective-kind"] = kind.ToString();
             AddConversionParameters(parameters, selection.Source);
@@ -120,7 +120,7 @@ public sealed partial class GameEngine
     }
 
     private bool AssistedSlashPaymentHasRange(CharacterState actor, int targetSeat, IReadOnlyList<Card> cards) =>
-        cards.Count == 1 && HasRankSlashRange(actor, CardKind.Slash) && cards[0].Rank > 0 ||
+        HasProvenanceUseDistance(actor, cards.Select(c=>c.Id).ToArray()) || cards.Count == 1 && HasRankSlashRange(actor, CardKind.Slash) && cards[0].Rank > 0 ||
         !cards.Any(card => _cardZones.GetLocation(card.Id) == CardLocation.Equipment(actor.Seat) && EquipmentCatalog.Get(card.Kind).Slot == EquipmentSlot.Weapon) ||
         GetCombatDistance(actor.Seat, targetSeat) <= 1;
 
@@ -166,36 +166,8 @@ public sealed partial class GameEngine
             return;
         }
         var actor = _players[draft.ActorSeat];
-        var kind = Enum.Parse<CardKind>(selected.Parameters["effective-kind"]);
-        IReadOnlyList<Card> cards;
-        CardConversionSource? conversion;
-        if (selected.Cards.Count > 1)
-        {
-            if (selected.Parameters.GetValueOrDefault("equipment") == CardKind.ZhangbaSerpentSpear.ToString())
-            {
-                cards = GetZhangbaSlashPairs(actor).Single(pair => pair.Select(card => card.Id).SequenceEqual(selected.Cards));
-                conversion = null;
-            }
-            else
-            {
-                if (!TryReadConversionSource(selected.Parameters, out conversion) || conversion is null) throw new InvalidOperationException("A multi-card Slash lost its conversion source.");
-                cards = FindProgramMultiCardViewAsSelection(actor, selected.Cards, kind, false, conversion)?.Cards ?? throw new InvalidOperationException("The physical Slash source cards became unavailable.");
-            }
-        }
-        else
-        {
-            var card = GetPlayableCards(actor).Concat(GetEquipment(actor)).Single(item => item.Id == selected.Cards.Single());
-            TryReadConversionSource(selected.Parameters, out _selectedUseConversion);
-            _hasSelectedUseConversionChoice = true;
-            conversion = GetSelectedUseConversion(actor, actor, card, kind);
-            if (conversion is null)
-            {
-                _selectedUseConversion = null;
-                _hasSelectedUseConversionChoice = true;
-            }
-            cards = [card];
-        }
-        if (!AssistedPhysicalSlashTargets(actor.Seat).Contains(draft.TargetSeat.Value) || !AssistedSlashPaymentHasRange(actor, draft.TargetSeat.Value, cards) || !CanUseSlashTarget(actor, _players[draft.TargetSeat.Value], cards[0], conversion, kind, noEffectiveRank:cards.Count > 1, specificEffectiveRank:selected.Parameters.GetValueOrDefault("equipment") == CardKind.ZhangbaSerpentSpear.ToString() ? ZhangbaSpecificSlashRank(actor,cards) : null))
+        var (cards, kind, conversion) = ReadAssistedSlashPayment(actor, selected);
+        if (!AssistedPhysicalSlashTargets(actor.Seat).Contains(draft.TargetSeat.Value) || !AssistedSlashPaymentHasRange(actor, draft.TargetSeat.Value, cards) || !CanUseSlashTarget(actor, _players[draft.TargetSeat.Value], cards[0], conversion, kind, noEffectiveRank:cards.Count > 1, specificEffectiveRank:selected.Parameters.GetValueOrDefault("equipment") == CardKind.ZhangbaSerpentSpear.ToString() ? ZhangbaSpecificSlashRank(actor,cards) : null, physicalCardIds:cards.Select(c=>c.Id).ToArray()))
             throw new InvalidOperationException("The assisted Slash target became illegal.");
         CommitProgramChoiceResult(frame.Id, effect.ResultBind!, "used-slash", actor.Seat, "使用【杀】。");
         ResolveSlashCore(actor, _players[draft.TargetSeat.Value], cards[0], kind, actor.Seat, physicalCards: cards, countsTowardSlashLimit: false,

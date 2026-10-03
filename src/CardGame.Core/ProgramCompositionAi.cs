@@ -33,7 +33,9 @@ internal sealed record ProgramAiPublicContext(
     int? LivingPlayersMinHp = null,
     int? TurnOwnerDiscardPhaseHandDiscardCount = null,
     IReadOnlyDictionary<PlayerMarkerKind,int>? AttributedMarkerPaymentCounts = null,
-    int? TurnCriterionQuota = null, SkillProgramTriggerFacts? FinalTargetFacts = null);
+    int? TurnCriterionQuota = null, SkillProgramTriggerFacts? FinalTargetFacts = null,
+    double? HpDamageShieldTargetValue = null,
+    bool PricePhaseHandExtraTurnTarget = false, int? CurrentTurnUsedCardCategoryCount = null);
 
 /// <summary>
 /// Pure, public-state estimate for schema-23 program compositions. Unknown cards use a
@@ -54,6 +56,19 @@ internal static class ProgramCompositionAi
         var supplied = publicContext ?? new ProgramAiPublicContext(0);
         var facts = supplied with { ChoiceResult = name => choices.GetValueOrDefault(name) ?? supplied.ChoiceResult?.Invoke(name) };
         var context = new ProgramAiEstimateContext(player, faceDown, facts);
+        // Only the new category-dependent current-use capability prices unknown
+        // discarded categories. The estimate uses a public half-basic prior.
+        foreach (var payment in instructions.Where(effect => effect is
+            { Op: SkillProgramEffectOp.SelectAndMoveOwnedCard, Destination: SkillProgramCardDestination.DiscardPile,
+              ResultBind: not null, CardOwnerRef.Kind: ProgramParticipantRef.EventTarget, Condition.Kind: SkillProgramConditionKind.Always }))
+        {
+            var branches = instructions.Where(effect => effect.Condition is
+                { Kind: SkillProgramConditionKind.BoundCardsMatchCategories } condition && condition.SourceBind == payment.ResultBind).ToArray();
+            var claim = branches.Any(effect => effect.Op == SkillProgramEffectOp.ClaimCurrentUsePhysicalCards);
+            var prevent = branches.Any(effect => effect.Op == SkillProgramEffectOp.PreventCurrentTargetSlashCancellationByRule);
+            if (claim || prevent) context.CurrentUseDiscardCategoryValue(claim, prevent,
+                branches.Any(effect => effect is { Op: SkillProgramEffectOp.GrantTurnRuleModifier, RuleQuery: SkillRuleQuery.SlashLimit, RuleOperation: SkillRuleOperation.Add, Amount: > 0 }));
+        }
         for (var index = 0; index < instructions.Length; index++)
         {
             var effect = instructions[index];
@@ -114,7 +129,7 @@ internal static class ProgramCompositionAi
     }
 }
 
-internal sealed class ProgramAiEstimateContext
+internal sealed partial class ProgramAiEstimateContext
 {
     private static readonly Suit[] EstimatedSuits = Enum.GetValues<Suit>();
     private sealed record CardSetEstimate(double Count, double[] Suits, bool OwnerHeld, bool TargetHeld = false,
@@ -203,6 +218,7 @@ internal sealed class ProgramAiEstimateContext
              _publicContext.SelectedTarget.Seat == _player.Seat)) return;
         var amount = effect.NumberExpression switch
         {
+            SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount => _publicContext.CurrentTurnUsedCardCategoryCount ?? 0,
             SkillProgramNumberExpression.OwnerLostHp => Math.Max(0, _player.MaxHp - _player.Hp),
               SkillProgramNumberExpression.LostHpMinusHandCount => Math.Max(0, _player.MaxHp - Math.Max(0, _player.Hp) - _estimatedHandCount),
             SkillProgramNumberExpression.LivingFactionCount => _publicContext.LivingFactionCount,
@@ -568,7 +584,8 @@ internal sealed class ProgramAiEstimateContext
         if (!_canUseSlashOnOther && effect.RuleQuery is
             SkillRuleQuery.SlashLimit or SkillRuleQuery.SlashDistanceLimit or SkillRuleQuery.AttackRange)
             return;
-        _otherAdjustment += 8d;
+        _otherAdjustment += effect.RuleQuery == SkillRuleQuery.SlashLimit &&
+            effect.RuleOperation == SkillRuleOperation.Add && effect.Amount < 0 ? -8d : 8d;
     }
 
     internal void GrantTurnCardTargetRestriction(SkillProgramEffect effect)
@@ -597,7 +614,17 @@ internal sealed class ProgramAiEstimateContext
         else if (stage == 1) _ownerDraw += n;
         else _otherAdjustment += n * (stage == 2 ? 6d : 12d);
     }
+    internal void CurrentUsePhysicalClaimValue() => _targetDraw += 1d;
+    internal void CurrentTargetCancellationByRuleValue() => _targetAdjustment -= 20d;
+    internal void CurrentUseDiscardCategoryValue(bool claim, bool prevent, bool allowance)
+    {
+        _targetDraw -= 1d;
+        if (claim) _targetDraw += 0.5d;
+        if (prevent) _targetAdjustment -= 10d;
+        if (allowance) _otherAdjustment += 4d;
+    }
     internal void PublicControlValue(double value) => _otherAdjustment += value;
+    internal double? HpDamageShieldTargetValue => _publicContext.HpDamageShieldTargetValue;
     internal void FinalTargetSlashValue(SkillProgramEffect effect)
     {
         if (_publicContext.FinalTargetFacts is not { } facts || effect.FinalTargetComparison is not { } comparison) return;
@@ -644,7 +671,14 @@ internal sealed class ProgramAiEstimateContext
     internal void UseBoundCardByTarget(SkillProgramEffect effect) =>
         _otherAdjustment += 8d;
 
-    internal void PendExtraTurn() => _otherAdjustment += 20d;
+    internal void PendExtraTurn(SkillProgramEffect effect)
+    {
+        if (_publicContext.PricePhaseHandExtraTurnTarget &&
+            effect.TargetReference?.Kind == ProgramParticipantRef.SelectedTarget &&
+            _publicContext.SelectedTarget is { } beneficiary)
+            _targetAdjustment += ProgramPhaseHandExtraTurnAi.PublicBeneficiaryValue(beneficiary);
+        else _otherAdjustment += 20d;
+    }
 
     internal void ClaimDeathCleanupCards() => _otherAdjustment += 10d;
 
@@ -707,6 +741,13 @@ internal sealed class ProgramAiEstimateContext
         // exact set is public discard-pile state the estimate does not model, so
         // a single-card phase conservatively scores neutral.
         _otherAdjustment += 4d;
+    }
+
+    internal void DamageTargetObtainValue()
+    {
+        _ownerDraw += 1d;
+        // Unknown hand is priced from public counts only. Equipment can invite an adverse Duel.
+        _otherAdjustment += 2d;
     }
 
     internal void DamageTargetMountValue()

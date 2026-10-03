@@ -39,14 +39,16 @@ public sealed partial class GameEngine
     }
 
     private bool IsCurrentTurnSkillGrantQualified(CharacterState owner, SkillGrant grant) =>
-        !_currentTurnSkillSuppressions.Any(s => s.TurnNumber == _turnNumber &&
+        IsCurrentTurnOwnSkillGrantQualified(owner, grant) &&
+        (!_currentTurnSkillSuppressions.Any(s => s.TurnNumber == _turnNumber &&
             s.TurnOwnerSeat == _currentSeat && s.TargetSeat == owner.Seat) ||
-        _contentRegistry.GetSkill(grant.SkillId).Tags.HasFlag(SkillTag.Locked);
+         _contentRegistry.GetSkill(grant.SkillId).Tags.HasFlag(SkillTag.Locked)) &&
+        IsDyingWindowGrantQualified(owner, grant);
 
     private long CaptureCurrentTurnQualificationStamp()
     {
         var projection = CaptureCombinedProjectionDependencyStamp();
-        if (_currentTurnSkillSuppressionRevision == 0) return projection;
+        if (_currentTurnSkillSuppressionRevision == 0) return CaptureDyingWindowQualificationStamp(projection);
         var current = (projection, _currentTurnSkillSuppressionRevision);
         if (current != _currentTurnQualificationDependencies)
         {
@@ -54,7 +56,7 @@ public sealed partial class GameEngine
             _currentTurnQualificationStamp++;
         }
         // Disjoint from the nonnegative legacy projection stamp.
-        return -_currentTurnQualificationStamp;
+        return CaptureDyingWindowQualificationStamp(-_currentTurnQualificationStamp);
     }
 
     private void ExpireCurrentTurnNonLockedSkillSuppressions(int turnNumber, int turnOwnerSeat)

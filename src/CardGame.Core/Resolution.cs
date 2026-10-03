@@ -18,6 +18,9 @@ public static class JudgmentReasons
 
 public enum ResolutionFrameKind
 {
+    DrawPhaseObligation = 3800,
+    EquipmentRecast = 2703,
+    RecoveryReplacement = 2700,
     CardEffectBeforeApply = 1700,
     CardDeclaration = 1600,
     CardDeclarationChallenge = 1601,
@@ -69,6 +72,9 @@ public enum ResolutionFrameStep
 [JsonDerivedType(typeof(DamageFrame), "damage")]
 [JsonDerivedType(typeof(DamageTriggerWindowFrame), "damage-trigger-window")]
 [JsonDerivedType(typeof(RecoveryFrame), "recovery")]
+[JsonDerivedType(typeof(RecoveryReplacementFrame), "recovery-replacement")]
+[JsonDerivedType(typeof(EquipmentRecastFrame), "equipment-recast")]
+[JsonDerivedType(typeof(DrawPhaseObligationFrame), "draw-phase-obligation")]
 [JsonDerivedType(typeof(HpChangedTriggerWindowFrame), "hp-changed-trigger-window")]
 [JsonDerivedType(typeof(DyingFrame), "dying")]
 [JsonDerivedType(typeof(DeathFrame), "death")]
@@ -91,6 +97,10 @@ public abstract record ResolutionFrame(
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public DeclaredCardPayment? AcceptedDeclarationPayment { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<RecoveryAttempt>? PendingRecoveryAttempts { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public PaidFactionRequestCostRecovery? PaidFactionRequestCostRecovery { get; init; }
 }
 
 /// <summary>A resumable program cursor; child resolutions cannot repeat paid effects.</summary>
@@ -111,6 +121,10 @@ public sealed record ProgramSkillFrame(
 
     /// <summary>The exact current grant selected when this execution was frozen.</summary>
     public string SkillInstanceId { get; init; } = "";
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramProvenanceClaimReceipt? ProvenanceClaim { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramProvenanceAlcoholReceipt? ProvenanceAlcohol { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramDualColorDuelDraft? DualColorDuel { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramPrivateTurnHoldDraft? PrivateTurnHoldDraft { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
@@ -130,6 +144,24 @@ public sealed record ProgramSkillFrame(
     public ProgramGeneralLibraryDraft? GeneralLibraryDraft {get;init;}
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramPileEquipmentDraft? PileEquipment { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramEquipmentRecastReceipt? EquipmentRecast { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramBoundCardRecastReceipt? BoundCardRecast { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramAlternativePhaseCostReceipt? AlternativePhaseCost { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramBlindHandTakeReceipt? BlindHandTake { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramLeastHandMarkerDrawReceipt? LeastHandMarkerDraw { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramPrivateHandTakeDraft? PrivateHandTake { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramHandRepaymentDraft? HandRepayment { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramBoundParticipantGiftReceipt? BoundParticipantGift { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramBoundDiscardSlashReceipt? BoundDiscardSlashBenefits { get; init; }
 
     /// <summary>Null for a play activation; otherwise the stable trigger/binding id.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -165,9 +197,17 @@ public sealed record ProgramSkillFrame(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramDamageTargetMount? DamageTargetMount { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramDamageTargetObtain? DamageTargetObtain { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramPaidHpLossReceipt? PaidHpLossReceipt { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramHpDamageShieldDraft? HpDamageShieldDraft { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramHpDamageShieldReceipt? HpDamageShieldReceipt { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramDamageAppearanceReceipt? DamageAppearanceReceipt { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramAppliedDamageBenefit? AppliedDamageBenefit { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ProgramPhaseGiftReceipt? PhaseGiftReceipt { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -186,6 +226,10 @@ public sealed record ProgramSkillFrame(
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramAssistedSlashRequest? AssistedSlashRequest { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramNearestLegalSlashRequest? NearestLegalSlashRequest { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramPreventionDrawReceipt? PreventionDrawReceipt { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramOtherCardSelection? OtherCardSelection { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -240,6 +284,9 @@ public sealed record ProgramSkillFrame(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramDeckEndExchange? DeckEndExchange { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramRelativeZoneDemand? RelativeZoneDemand { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramDeckSlashSequence? DeckSlashSequence { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramFixedTargetSlashDraft? FixedTargetSlash { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramCappedHandRefresh? CappedHandRefresh { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramDeckCriterionDraft? DeckCriterion { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramSelectedParticipantDiscardDraft? SelectedParticipantDiscard { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -250,6 +297,10 @@ public sealed record ProgramSkillFrame(
     public AttackAttemptState? AttackAttempt { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramAttackReturn? AttackReturn { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramOwnedDamagePointJudgment? OwnedDamagePointJudgment { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramDamageJudgmentSuitPayment? DamageJudgmentSuitPayment { get; init; }
     public CardResolutionContinuations Continuations { get; init; } = new();
     public CardAttackState? CardAttack { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -359,8 +410,17 @@ public sealed record CardUseFrame(
     public CardActionContext? Action { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramSelectedActorDuelOrigin? SelectedActorDuelOrigin { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public CardConversionSource? ProvenanceUseSource { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramDamageTargetDuelOrigin? DamageTargetDuelOrigin { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramDualColorDuelOrigin? DualColorDuelOrigin { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramArrowBarrageExclusion? ArrowBarrageExclusion { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool FirstOwnPlayUseDistanceUnlimited { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool ConsumedAlcoholBoost { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IssuedCardNoResponse? IssuedNoResponse { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -375,6 +435,8 @@ public sealed record CardUseFrame(
     public CardAttackState? CardAttack { get; init; }
     public IReadOnlyList<CardAttackState>? PreparedTargetAttacks { get; init; }
     public bool CausedDamage { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public RecoveryPaidCardUseContinuation? RecoveryPaidContinuation { get; init; }
     public bool ProgramUseAccepted { get; init; }
     public bool ProgramUseCommitted { get; init; }
     public bool FinalizedTrickProgramsStarted { get; init; }
@@ -386,6 +448,8 @@ public sealed record CardUseFrame(
     public bool YingboRepeated { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<ProgramTargetSlashReceipt>? FinalTargetSlashReceipts { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ProgramCurrentUsePhysicalClaim>? CurrentUsePhysicalClaims { get; init; }
     public int? ProgramAdjustedSlashBaseDamage { get; init; }
     public int? ForeignPublicPileSlashBaseDamage { get; init; }
     public ProgramSimpleCardContinuation? AdjustedSimpleContinuation { get; init; }
@@ -401,6 +465,8 @@ public sealed record CardUseFrame(
     public IReadOnlyList<int>? IneffectiveTargetSeats { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public FireAttackSelectionState? FireAttackSelection { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ColorFireAttackReceipt? ColorFireAttack { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public SequentialTrickUse? SequentialTrick { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -495,7 +561,11 @@ public sealed record DamageTriggerWindowFrame(
     SkillProgramTriggerWindow TriggerWindow,
     int CandidateIndex = 0,
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
-    : ResolutionFrame(Id, ResolutionFrameKind.DamageTriggerWindow, Step);
+    : ResolutionFrame(Id, ResolutionFrameKind.DamageTriggerWindow, Step)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? EventTargetDamageInstancesTakenThisTurn { get; init; }
+}
 
 public sealed record RecoveryFrame(
     long Id,
@@ -577,6 +647,10 @@ public sealed record NullificationWindowFrame(
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IssuedCounterspellNode? IssuedNoResponseNode { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public UnrespondableCounterspellReceipt? UnrespondableCounterspell { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public CounterspellPaidUseReceipt? CounterspellPayment { get; init; }
 }
 
 /// <summary>

@@ -42,6 +42,12 @@ public sealed partial class GameEngine
         ClearPendingDecision();
         pending.CostPaid = true;
         MoveCard(card, from, CardLocation.DiscardPile, new CardMoveReason("program.faction-request.cost"));
+        if (TryPausePaidFactionRequestCost(pending, card, from))
+        {
+            AdvanceRulesAndPublishState();
+            if (advanceToHumanBoundary) AdvanceToHumanBoundary();
+            return;
+        }
         AdvanceFactionSlashCandidate();
         AdvanceRulesAndPublishState();
         if (advanceToHumanBoundary) AdvanceToHumanBoundary();

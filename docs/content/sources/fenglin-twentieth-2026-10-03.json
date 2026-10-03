@@ -1,0 +1,111 @@
+{
+  "officialEdition": "Current ordinary Sanguosha OL",
+  "capturedUtc": "2026-10-03T22:05:23.436347+08:00",
+  "status": "implemented-and-batch-validated",
+  "httpLedger": [
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=486",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T22:05:22.633325+08:00",
+      "sha256": "a9d631bdb1b2e0229d023e1a268cf2f9ba4c5045962ad6eb0073ade92404dac1",
+      "bytes": 1069
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/486",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T22:05:22.832912+08:00",
+      "sha256": "478cf2e50c3cecc76478cd08e12e2f4b657cbac19d5e6278b46b9d9c4e34f1d6",
+      "bytes": 24522
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/48600.png",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T22:05:23.009776+08:00",
+      "sha256": "baa5aed791baa6d79f1da2946539fce74792f07982e0d70ee6d3a723dec588f3",
+      "bytes": 980053
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=628",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T22:05:23.182839+08:00",
+      "sha256": "0ae13c39c20ef7d77d82e2eff803682de78018f09883e4c9b97b6bc1a2c52bb3",
+      "bytes": 913
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/628",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T22:05:23.281578+08:00",
+      "sha256": "7090dff046c2d61ef178f27f31ea2cc35ba6fb6365895c0afa871ed88fe225dc",
+      "bytes": 24037
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62800.png",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T22:05:23.434399+08:00",
+      "sha256": "7538b265b8b343718839003f8e79dac88a5c001c6dc07ccf9f6f521d7c90c9c4",
+      "bytes": 1113401
+    }
+  ],
+  "generals": [
+    {
+      "key": "boundary-zhang-he",
+      "gid": 486,
+      "name": "界张郃",
+      "faction": "wei",
+      "hp": 4,
+      "initialHp": 0,
+      "gender": "Male",
+      "genderProvenance": "Same historical character as the registered classic general; official API has no structured gender.",
+      "officialPage": "https://www.sanguosha.com/hero/486",
+      "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=486",
+      "skillNames": [
+        "巧变"
+      ],
+      "skillsText": [
+        "游戏开始时，你获得2枚“变”标记。你可以弃置一张牌或移除1枚“变”，跳过你的一个阶段（准备阶段和结束阶段除外）：若跳过摸牌阶段，你可以获得至多两名角色各一张手牌；若跳过出牌阶段，你可以移动场上的一张牌。结束阶段，若你的手牌数与之前你每回合结束阶段的手牌数均不相等，你获得1枚“变”。"
+      ],
+      "artwork": {
+        "id": "48600",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/486",
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/48600.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-zhang-he.png",
+        "sha256": "baa5aed791baa6d79f1da2946539fce74792f07982e0d70ee6d3a723dec588f3",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      }
+    },
+    {
+      "key": "boundary-cao-chong",
+      "gid": 628,
+      "name": "界曹冲",
+      "faction": "wei",
+      "hp": 3,
+      "initialHp": 0,
+      "gender": "Male",
+      "genderProvenance": "Same historical character as the registered classic general; official API has no structured gender.",
+      "officialPage": "https://www.sanguosha.com/hero/628",
+      "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=628",
+      "skillNames": [
+        "称象",
+        "仁心"
+      ],
+      "skillsText": [
+        "当你受到1点伤害后，你可以亮出牌堆顶四张牌，获得其中任意张点数和不大于13的牌；若获得的牌点数和恰好为13，你下次发动“称象”多亮出一张牌。",
+        "当一名其他角色进入濒死时，你可以弃置一张装备牌并翻面，然后令其回复至1点体力。"
+      ],
+      "artwork": {
+        "id": "62800",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/628",
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62800.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-cao-chong.png",
+        "sha256": "7538b265b8b343718839003f8e79dac88a5c001c6dc07ccf9f6f521d7c90c9c4",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      }
+    }
+  ],
+  "validationRecord": "../../benchmarks/2026-10-03-fenglin-twentieth-validation.json",
+  "inputSha256": "fd3833d171c11dd40c7e38b6c627953c5742c9860a27d80e6ecaf3e978fdcc57"
+}

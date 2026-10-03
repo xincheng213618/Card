@@ -1,0 +1,164 @@
+{
+  "officialEdition": "Current ordinary Sanguosha OL",
+  "capturedUtc": "2026-10-03T19:04:47.153611+08:00",
+  "status": "implemented-and-batch-validated",
+  "httpLedger": [
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=462",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T19:04:45.98122+08:00",
+      "sha256": "79e4917aec6138f87d88d11cf4a765fff5aa391fbaa8039a9c740c20a0aef28b",
+      "bytes": 963
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/462",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T19:04:46.141386+08:00",
+      "sha256": "57c98aad09ca001ef2e3958b2472987f02f937edf85aec681135ff3fc26257de",
+      "bytes": 24158
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/46200.png",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T19:04:46.256742+08:00",
+      "sha256": "7ce8d73edef1be313b75ad728ec6bf7524f8ea0b81dc1b858b780df59fb82c4c",
+      "bytes": 1185921
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=610",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T19:04:46.427871+08:00",
+      "sha256": "4bc7b0485b33168a6bc64057319ab9ad648141e56695e9dd4277b3abe74f33ce",
+      "bytes": 854
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/610",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T19:04:46.574455+08:00",
+      "sha256": "d48861e5e66814e002c89a4cd7b7a83941861bc483138b855e2010805102a71f",
+      "bytes": 23954
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/61000.png",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T19:04:46.702339+08:00",
+      "sha256": "5a4496af2953a2f0a36122487439b52c649a53db0e682a83071cef829ff804ef",
+      "bytes": 1049783
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=676",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T19:04:46.859972+08:00",
+      "sha256": "f05dc3ac74734042bd7d621c4ff50f52f750996c230e0fc32427e1ec502be15b",
+      "bytes": 962
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/676",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T19:04:47.066465+08:00",
+      "sha256": "f95ef31c221fa009543ba4ac822ffd74f22006a82c09b544a499346c799f8998",
+      "bytes": 23937
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/67600.png",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T19:04:47.151767+08:00",
+      "sha256": "b6adfa7c5b89b5316fa09b89fe6c92fe3f31f9769b71c140fd304c9a2dfa54bc",
+      "bytes": 913193
+    }
+  ],
+  "generals": [
+    {
+      "key": "boundary-pang-de",
+      "gid": 462,
+      "name": "界庞德",
+      "faction": "qun",
+      "hp": 4,
+      "initialHp": 0,
+      "gender": "Male",
+      "genderProvenance": "Same historical character as the registered classic general; official API has no structured gender.",
+      "officialPage": "https://www.sanguosha.com/hero/462",
+      "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=462",
+      "skillNames": [
+        "马术",
+        "鞬出"
+      ],
+      "skillsText": [
+        "锁定技，你计算与其他角色的距离-1。",
+        "当你使用【杀】指定目标后，你可以弃置其一张牌，若弃置的牌是：基本牌，其获得此【杀】；非基本牌，其不能抵消此【杀】，你本回合使用【杀】的限制次数+1。"
+      ],
+      "artwork": {
+        "id": "46200",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/462",
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/46200.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-pang-de.png",
+        "sha256": "7ce8d73edef1be313b75ad728ec6bf7524f8ea0b81dc1b858b780df59fb82c4c",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      }
+    },
+    {
+      "key": "boundary-fa-zheng",
+      "gid": 610,
+      "name": "界法正",
+      "faction": "shu",
+      "hp": 3,
+      "initialHp": 0,
+      "gender": "Male",
+      "genderProvenance": "Same historical character as the registered classic general; official API has no structured gender.",
+      "officialPage": "https://www.sanguosha.com/hero/610",
+      "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=610",
+      "skillNames": [
+        "眩惑",
+        "恩怨"
+      ],
+      "skillsText": [
+        "摸牌阶段结束时，你可以交给一名其他角色两张牌，令其选择一项：1.对你指定的另一名角色使用一张【杀】；2.你观看其手牌并获得其两张牌。",
+        "当你获得一名其他角色至少两张牌后，你可以令其摸一张牌。当你受到1点伤害后，你可以令伤害来源选择一项：1.交给你一张红色手牌；2.失去1点体力。"
+      ],
+      "artwork": {
+        "id": "61000",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/610",
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/61000.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-fa-zheng.png",
+        "sha256": "5a4496af2953a2f0a36122487439b52c649a53db0e682a83071cef829ff804ef",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      }
+    },
+    {
+      "key": "boundary-han-dang",
+      "gid": 676,
+      "name": "界韩当",
+      "faction": "wu",
+      "hp": 4,
+      "initialHp": 0,
+      "gender": "Male",
+      "genderProvenance": "Same historical character as the registered classic general; official API has no structured gender.",
+      "officialPage": "https://www.sanguosha.com/hero/676",
+      "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=676",
+      "skillNames": [
+        "弓骑",
+        "解烦"
+      ],
+      "skillsText": [
+        "出牌阶段限一次，你可以弃置一张牌使你本回合攻击范围无限，且你使用与弃置的牌花色相同的【杀】无次数限制。若弃置的牌为装备牌，你可以弃置一名其他角色一张牌。",
+        "限定技，出牌阶段，你可以选择一名角色，令所有攻击范围内包含其的角色选择一项：1.弃置一张武器牌；2.令该角色摸一张牌。若此时为第一轮，回合结束时，此技能视为未发动过。"
+      ],
+      "artwork": {
+        "id": "67600",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/676",
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/67600.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-han-dang.png",
+        "sha256": "b6adfa7c5b89b5316fa09b89fe6c92fe3f31f9769b71c140fd304c9a2dfa54bc",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      }
+    }
+  ],
+  "validationRecord": "../../benchmarks/2026-10-03-fenglin-nineteenth-validation.json",
+  "inputSha256": "e1fccafe0853fe860a6b1ed2c9bb5f64d5c1da6cc1b646b46fafcbf98b9f0b83"
+}

@@ -1,0 +1,114 @@
+{
+  "status": "read-only-preflight-not-implemented",
+  "gid": 629,
+  "edition": "current ordinary Sanguosha OL www.sanguosha.com",
+  "indexRow": {
+    "gid": 629,
+    "name": "界曹植",
+    "resource": "62900",
+    "extend": "界限突破",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "传说",
+    "figure": "魏",
+    "figure_py": "wei",
+    "biography": "字子建，沛国谯人，三国曹魏著名文学家，建安文学代表人物。魏武帝曹操之子，魏文帝曹丕之弟，生前曾为陈王，去世后谥号“思”，因此又称陈思王。南朝宋文学家谢灵运更有“天下才有一石，曹子建独占八斗”的评价。王士祯尝论汉魏以来二千年间诗家堪称“仙才”者，曹植、李白、苏轼三人耳。",
+    "characteristic": "能够获得其他角色的弃牌和判定牌。能够通过翻面来转化【酒】，背面朝上时有着极高的爆发。",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/629.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62900.png",
+    "realname": "界曹植 (界限突破)"
+  },
+  "boundaryRegistrationFound": false,
+  "mediaDownloaded": false,
+  "page": {
+    "url": "https://www.sanguosha.com/hero/629",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T17:18:00.815444+00:00",
+    "rawSha256": "7196a2b1d7d6e27dddbaf76495a90cb0266ffe7e811e82d2290c8fe229492b7f",
+    "rawBytes": 25596,
+    "rawFile": "629-page.raw.html",
+    "shaScope": "HTTP response content bytes",
+    "rawBodyRetained": true,
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >当其他角色的梅花牌因弃置或判定而置入弃牌堆后，你可以获得其中任意张牌。</span>\n                            \n                                <span >你可以将武将牌翻至背面，视为使用一张【酒】。若你的武将牌背面朝上，你使用的“落英”牌无距离限制且不能被响应。<br>当你受到伤害后，或回合外累计获得至少X张“落英”牌后（X为你体力值上限），若你的武将牌背面朝上，你可以翻至正面。</span>\n                            \n                        \n                    </p>",
+    "skillTexts": [
+      "当其他角色的梅花牌因弃置或判定而置入弃牌堆后，你可以获得其中任意张牌。",
+      "你可以将武将牌翻至背面，视为使用一张【酒】。若你的武将牌背面朝上，你使用的“落英”牌无距离限制且不能被响应。当你受到伤害后，或回合外累计获得至少X张“落英”牌后（X为你体力值上限），若你的武将牌背面朝上，你可以翻至正面。"
+    ],
+    "fontClasses": [],
+    "skillNames": [
+      "落英",
+      "酒诗"
+    ],
+    "skills": [
+      {
+        "name": "落英",
+        "text": "当其他角色的梅花牌因弃置或判定而置入弃牌堆后，你可以获得其中任意张牌。"
+      },
+      {
+        "name": "酒诗",
+        "text": "你可以将武将牌翻至背面，视为使用一张【酒】。若你的武将牌背面朝上，你使用的“落英”牌无距离限制且不能被响应。当你受到伤害后，或回合外累计获得至少X张“落英”牌后（X为你体力值上限），若你的武将牌背面朝上，你可以翻至正面。"
+      }
+    ],
+    "pairingStatus": "equal-name-text-count"
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=629",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T17:18:00.977030+00:00",
+    "rawSha256": "b753f8975dfba1d98bed948e793616c8a7b17ed913f322da114a7ad3dfa71915",
+    "rawBytes": 1136,
+    "rawFile": "629-api.raw.json",
+    "shaScope": "HTTP response content bytes",
+    "rawBodyRetained": true,
+    "parsed": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 629,
+            "name": "界曹植",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/629.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62900.png",
+            "label": [
+              "进攻",
+              "防御",
+              "过牌"
+            ],
+            "figure": "魏",
+            "figure_py": "wei",
+            "quality": "传说",
+            "biography": "字子建，沛国谯人，三国曹魏著名文学家，建安文学代表人物。魏武帝曹操之子，魏文帝曹丕之弟，生前曾为陈王，去世后谥号“思”，因此又称陈思王。南朝宋文学家谢灵运更有“天下才有一石，曹子建独占八斗”的评价。王士祯尝论汉魏以来二千年间诗家堪称“仙才”者，曹植、李白、苏轼三人耳。",
+            "characteristic": "能够获得其他角色的弃牌和判定牌。能够通过翻面来转化【酒】，背面朝上时有着极高的爆发。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 5
+          },
+          {
+            "name": "主公",
+            "value": 7
+          },
+          {
+            "name": "忠臣",
+            "value": 7
+          },
+          {
+            "name": "反贼",
+            "value": 8
+          },
+          {
+            "name": "内奸",
+            "value": 7
+          }
+        ],
+        "deeds": []
+      }
+    }
+  }
+}

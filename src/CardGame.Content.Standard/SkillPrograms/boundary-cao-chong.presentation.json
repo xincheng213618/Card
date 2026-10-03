@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:chengxiang-current": {
+      "name": "称象",
+      "description": "当你受到1点伤害后，你可以亮出牌堆顶四张牌，获得其中任意张点数和不大于13的牌；若获得的牌点数和恰好为13，你下次发动“称象”多亮出一张牌。",
+      "booleanStates": { "next-reveal-bonus": { "trueText": "下次称象多亮出一张牌", "falseText": "下次称象亮出四张牌" } }
+    },
+    "boundary:renxin-current": {
+      "name": "仁心",
+      "description": "当一名其他角色进入濒死时，你可以弃置一张装备牌并翻面，然后令其回复至1点体力。"
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:zhiheng",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "exchange-owned-cards",
+          "minCards": 1,
+          "maxCards": null,
+          "sourceZones": ["hand", "equipment"],
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            { "op": "captureSelectedCards", "target": "owner", "resultBind": "exchange-cards" },
+            { "op": "moveBoundCards", "target": "owner", "sourceBind": "exchange-cards", "destination": "discardPile" },
+            { "op": "draw", "target": "owner", "numberExpression": "boundCardCount", "sourceBind": "exchange-cards" },
+            { "op": "drawAllHandSelectedBonus", "target": "owner", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:jiuyuan",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "redirect-allied-recovery",
+          "kind": "redirectOwnTurnFactionRecovery",
+          "factionId": "wu",
+          "ownerRole": "lord",
+          "value": 1,
+          "providerDrawCount": 1
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "recordedUtc": "2026-10-03T15:20:50.0343660+00:00",
+  "ownedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+  "status": "retained-after-prior-automatic-approval-review-rejection",
+  "boundaryVerifiedReadOnly": true,
+  "files": 2877,
+  "bytes": 2166417749,
+  "activeVerificationConsumers": 0,
+  "cacheLockProbe": "exclusive-open-succeeded",
+  "existsAfter": true,
+  "rejectionEvidence": "2026-10-03-fenglin-seventeenth-cleanup.json",
+  "reason": "The exact native Remove-Item was previously rejected before launch: blocked by policy. No retry or alternate deletion mechanism. Compatible cache reused.",
+  "retainedStage": "Batch21 and the separate classic AI mechanism candidate are needed source deliverables for the active goal. Three agents write only assigned stage directories. Counts are a point-in-time snapshot.",
+  "previousOwnedPyc": {
+    "path": "C:\\Users\\17917\\Desktop\\Card\\tools\\__pycache__\\sync_general_art.cpython-314.pyc",
+    "exists": true,
+    "reason": "Prior exact native deletion was rejected; no bypass.",
+    "bytes": 35174,
+    "sha256": "4dfd4c1a5fba7d2e67185895f2e1c9551ec736ed6d22e2a10f43adc031e4f281"
+  }
+}

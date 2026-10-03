@@ -1,0 +1,149 @@
+{
+  "status": "frozen-source-only-audit",
+  "frozenAtUtc": "2026-10-03T19:34:19.290064+00:00",
+  "batch": 23,
+  "replacementAcceptedByParent": {
+    "deferredGid": 452,
+    "recommendedGid": 658
+  },
+  "sunCeCurrentDerivedSkillDefinitionResolved": false,
+  "sunCeMainTextsMatchFrozenCurrent452": true,
+  "sunCeCurrentFontRefs": [
+    {
+      "id": "712",
+      "label": "英姿"
+    },
+    {
+      "id": "108",
+      "label": "英魂"
+    }
+  ],
+  "currentRouteEvidence": "current-route-capture.json",
+  "currentRouteConclusion": "Current business JS only toggles skill-text spans; no font resolver or skill-detail request. Explicit info API has info/radar/deeds only. Bounded conclusion, not proof that no other official source exists.",
+  "noHeroIdSubstitution": {
+    "712": "族荀彧",
+    "108": "SP赵云"
+  },
+  "officialIndexEvidence": {
+    "path": ".artifacts\\continuation-20261003-batch17\\batch21\\dong-zhuo\\next-batch22\\index-preflight.json",
+    "sha256": "3b564ba6fa141eed58449d91dbe669a48094a381a1efa97a51ceb7f81fb0cb87",
+    "arrayExamined": "Listdata[界限突破]",
+    "rowCount": 87
+  },
+  "guoHuaiCurrentSource": {
+    "ledger": "658-official-source.json",
+    "ledgerSha256": "bec539a138be8e754078248a604cec5ca7c1374bbfda74c9c80efd5c09d2d07a",
+    "page": {
+      "url": "https://www.sanguosha.com/hero/658",
+      "finalUrl": "https://www.sanguosha.com/hero/658",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-03T19:28:20.753996+00:00",
+      "contentType": "text/html",
+      "rawBytes": 23232,
+      "rawSha256": "fbbb61b03c22bf28972f291c5a043aa079f980bef173679770fedb7aedeb10af",
+      "rawFile": "658-page.raw.html",
+      "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >你每于回合内使用一种花色的手牌，本回合的手牌上限便+1；每个出牌阶段结束时，你可以摸X张牌（X为你本回合使用过牌的类型数）。</span>\n                            \n                        \n                    </p>",
+      "skillNames": [
+        "精策"
+      ],
+      "skillTexts": [
+        "你每于回合内使用一种花色的手牌，本回合的手牌上限便+1；每个出牌阶段结束时，你可以摸X张牌（X为你本回合使用过牌的类型数）。"
+      ],
+      "fontRefs": [],
+      "scripts": [
+        "/assets/js/jquery-3.7.1.js",
+        "/assets/js/swiper-bundle.min.js",
+        "/assets/js/echarts.min.js",
+        "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+        "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+        "/assets/js/commen.js",
+        "/assets/js/header.js",
+        "/assets/js/heroDetail.js?1"
+      ]
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=658",
+      "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=658",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-03T19:28:21.032071+00:00",
+      "contentType": "application/json",
+      "rawBytes": 887,
+      "rawSha256": "8792bdd7d3c501c2e04b6b576ca39706785ba0a506c4ca930b31b8f915d33a24",
+      "rawFile": "658-api.raw.json",
+      "parsedBody": {
+        "code": 0,
+        "message": "OK",
+        "data": {
+          "info": [
+            {
+              "gid": 658,
+              "name": "界郭淮",
+              "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/658.png",
+              "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/65800.png",
+              "label": [
+                "防御",
+                "过牌",
+                "简单"
+              ],
+              "figure": "魏",
+              "figure_py": "wei",
+              "quality": "史诗",
+              "biography": "字伯济，太原人。郭淮跟随曹操征讨汉中后，留守汉中任夏侯渊帐下司马。在夏侯渊战死后，郭淮与杜袭推举张郃为新任主帅，后郭淮被曹操安排为张郃司马。",
+              "characteristic": "根据使用牌来摸牌，回合内还可以增加手牌上限",
+              "hp": 4,
+              "initial_hp": 0,
+              "score": 0
+            }
+          ],
+          "radar": [
+            {
+              "name": "排位先手",
+              "value": 6
+            },
+            {
+              "name": "排位后手",
+              "value": 6
+            },
+            {
+              "name": "地主",
+              "value": 6
+            },
+            {
+              "name": "反贼",
+              "value": 7
+            },
+            {
+              "name": "内奸",
+              "value": 7
+            }
+          ],
+          "deeds": []
+        }
+      }
+    },
+    "completeSkillCount": 1,
+    "unresolvedDerivedSkillRefs": []
+  },
+  "registrationReadOnlyEvidence": {
+    "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+    "sha256": "2712a74282a90d5224ece7dce10509cc0f1a56b8babb7a3d1ac405fd42ee9fd1",
+    "existing": [
+      {
+        "line": 1730,
+        "id": "classic:guo-huai"
+      },
+      {
+        "line": 1731,
+        "skill": "classic:jingce"
+      }
+    ],
+    "currentChineseNameAndBoundaryIdAbsentAcrossStandardContentSource": true,
+    "runtimeRegistryBuiltByThisTask": false
+  },
+  "contractNotes": "SOURCE-CONTRACT.md",
+  "limits": [
+    "No guessed skill API, login, media, other-product or third-party substitute, giant client/package download.",
+    "No src/tests/tools, build, main registration, version or runtime implementation writes in this audit.",
+    "No official FAQ claimed for mixed material, provider, no-suit virtual use or phase-external use edge cases."
+  ]
+}

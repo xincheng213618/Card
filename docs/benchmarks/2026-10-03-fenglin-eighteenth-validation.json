@@ -1,0 +1,467 @@
+{
+  "status": "batch-validated",
+  "edition": "Current ordinary Sanguosha OL",
+  "generals": [
+    "boundary:taishi-ci",
+    "boundary:cao-zhang"
+  ],
+  "artifactCache": ".artifacts/continuation-20261003-batch17/verification-cache",
+  "offlineArtwork": {
+    "status": "passed",
+    "generals": 191,
+    "pngRecords": 988
+  },
+  "runs": [
+    {
+      "label": "targeted-01",
+      "startedAt": "2026-10-03T18:45:43.8658338+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 17683,
+      "coreFilters": [
+        "Random Pindian",
+        "Maximum Slash Pindian",
+        "Bound card recast",
+        "Turn kind hand exemption",
+        "Signed Slash modifier",
+        "composition kernel",
+        "Pindian",
+        "Jiangchi",
+        "Equipment recast"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 16374,
+          "logName": "build.log",
+          "logSha256": "e5b9fb49b771ec565a5675d28b332269a26a50b6000f3e04f091d9263336d450",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (9 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1250,
+          "logName": "core-selected.log",
+          "logSha256": "de289e2fcdbd2036b312bd419c290835e9d20f61f0a296c0559187de1d77ffa1",
+          "resultLines": [
+            "[FAIL] Random Pindian both strategies exact RNG tied Slash claims cold replay",
+            "       TypeInitializationException: The type initializer for 'CardGame.Content.Standard.StandardClassicGeneralPackage' threw an exception.",
+            "[FAIL] Random Pindian source decline opponent forces source cold replay",
+            "[FAIL] Maximum Slash Pindian claim effective ranks deferred top cold replay",
+            "[FAIL] Bound card recast draw mode real Slash response cold replay",
+            "[FAIL] Bound card recast dynamic Slash hand exemption actual expiry",
+            "[FAIL] Bound card recast hand cost and reward children two distant Slashes",
+            "[FAIL] Bound card recast Silver Lion recovery movement before grants",
+            "[FAIL] Equipment recast Silver Lion recovery and movement children",
+            "[FAIL] Program equipment recast Silver Lion recovery and movement children",
+            "[FAIL] FengLin Lu Kang live chain delayed Pindian policies",
+            "[FAIL] FengLin Lu Kang real equipment recast atomic child",
+            "[FAIL] Jiangchi extra draw blocks Slash use and play",
+            "7 passed, 12 failed, 0 skipped (19 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "targeted-02-msbuild-node-exit",
+      "startedAt": "2026-10-03T18:49:23.7545987+08:00",
+      "status": "build-failed",
+      "mode": "targeted",
+      "durationMs": 4200,
+      "coreFilters": [
+        "Random Pindian",
+        "Maximum Slash Pindian",
+        "Bound card recast",
+        "Turn kind hand exemption",
+        "Signed Slash modifier",
+        "composition kernel",
+        "Pindian",
+        "Jiangchi",
+        "Equipment recast"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 4177,
+          "logName": "build.log",
+          "logSha256": "b724480e679586c2299006a6380f7564a5b5c856ea50e273ea1e745384823166",
+          "resultLines": [
+            "    0 个警告",
+            "    1 个错误"
+          ],
+          "errorDiagnostics": [
+            "MSBUILD : error MSB4166: 子节点“2”过早退出。正在关闭。可以在“C:\\Users\\17917\\AppData\\Local\\Temp\\MSBuildTemp\\”中的文件中找到诊断信息，并将其命名为 MSBuild_*.failure.txt。通过将 MSBUILDDEBUGPATH 环境变量设为其他目录，可更改此位置。"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "targeted-03",
+      "startedAt": "2026-10-03T18:50:20.3775279+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 18858,
+      "coreFilters": [
+        "Random Pindian",
+        "Maximum Slash Pindian",
+        "Bound card recast",
+        "Turn kind hand exemption",
+        "Signed Slash modifier",
+        "composition kernel",
+        "Pindian",
+        "Jiangchi",
+        "Equipment recast"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 9574,
+          "logName": "build.log",
+          "logSha256": "5cfef49b56b29844c0413f0b39b1ddaf49d5adf718fffdbcdab169355ad13c82",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (9 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 9240,
+          "logName": "core-selected.log",
+          "logSha256": "645f6e15ad5c6951420c5a08232a9b27439c10bb64c6ae668a2ce492bbd6236b",
+          "resultLines": [
+            "[FAIL] Bound card recast draw mode real Slash response cold replay",
+            "       InvalidOperationException: Invalid skill program at skill 'fixture:cz-driver' (rules.skills[0]).activations[1].effects[0]: missing required property 'amount'.",
+            "[FAIL] Bound card recast dynamic Slash hand exemption actual expiry",
+            "[FAIL] Bound card recast hand cost and reward children two distant Slashes",
+            "[FAIL] Bound card recast Silver Lion recovery movement before grants",
+            "15 passed, 4 failed, 0 skipped (19 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "targeted-04-recast",
+      "startedAt": "2026-10-03T18:51:30.6946985+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 6171,
+      "coreFilters": [
+        "Bound card recast"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2676,
+          "logName": "build.log",
+          "logSha256": "d73abe58f2f5dc0eca3020e6dc0b356d1d4249507856e4a12e8a544630d12bfc",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3448,
+          "logName": "core-selected.log",
+          "logSha256": "02c5b5735d921863fc0ffd155a889970da4105ef381e0fc75b7f6fc6aa0a9433",
+          "resultLines": [
+            "4 passed, 0 failed, 0 skipped (4 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "full-01",
+      "startedAt": "2026-10-03T18:52:51.0768969+08:00",
+      "status": "passed",
+      "mode": "full",
+      "durationMs": 219042,
+      "coreFilters": [],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4815,
+          "logName": "build.log",
+          "logSha256": "78e44c1f7e3d915a6ffb055322a7bed8c786087cd6228b6a93c6a34d3441adf3",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 177911,
+          "logName": "core-full.log",
+          "logSha256": "3958afe21ec5692fdfc2f9068b826a43348e4a33274f865c3cc99ccbde24416f",
+          "resultLines": [
+            "598 passed, 0 failed, 0 skipped (598 total)."
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "WPF full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 36284,
+          "logName": "wpf-full.log",
+          "logSha256": "b1ab4023f3bef14960ebd779af6a40904e4d2c1055b59236c15db1615c92a11c",
+          "resultLines": [
+            "57 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders"
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "routine-01",
+      "startedAt": "2026-10-03T18:56:41.8864458+08:00",
+      "status": "passed",
+      "mode": "routine",
+      "durationMs": 61666,
+      "coreFilters": [
+        "command",
+        "observer",
+        "viewer",
+        "prepared snapshot",
+        "internal failure",
+        "skill program",
+        "lifecycle programs",
+        "shared post-event",
+        "shared use lifecycle",
+        "shared card-use",
+        "card movement",
+        "card inventory",
+        "initial deal",
+        "invalid single and batch",
+        "draw and recover",
+        "execution plans",
+        "skill executor",
+        "program gameplay hashes",
+        "physical deck recipes",
+        "structured skill metadata",
+        "content registry",
+        "standard package",
+        "composition kernel",
+        "rule query",
+        "slash resolution",
+        "dying response",
+        "Xingshang",
+        "response use completion",
+        "selected gift",
+        "configured active sequences",
+        "standard active programs",
+        "owned-card set",
+        "turn card-use effects",
+        "active Program contracts",
+        "hand guidance",
+        "actual marker payment",
+        "replacement draw and dying payment",
+        "two dynamic actual ends",
+        "ordered nested native owner",
+        "payment nested comparison",
+        "first target history",
+        "program conversion polarity shared state and replay",
+        "Feng Lin Lu Zhi actual discard entry boundaries",
+        "Ending child gift joins current boundary",
+        "Feng Lin Yuan Shu command loss regrant source suppression",
+        "Feng Lin Yuan Shu qualified awakening persistent local loss",
+        "Feng Lin Zhou Fei first domains and true equipment sequence",
+        "Feng Lin Zhou Fei same-source association freeze",
+        "Feng Lin Congjian Equipment gift nested replay",
+        "after turn ended return movement prelude ordering",
+        "after turn ended due before window nested replay",
+        "Feng Lin Zuo Ci initial privacy and replay",
+        "Feng Lin Zuo Ci layered suppression and local disable",
+        "Feng Lin Zuo Ci same avatar program and actual end",
+        "Feng Lin Yu Ji",
+        "boundary Lu Meng all table printed suits replay",
+        "boundary Lu Meng cross owner skip chain resume death",
+        "boundary Lu Meng Qinxue windows shared usage",
+        "boundary Lu Meng opt in usage legacy shape",
+        "Boundary Huang Gai actual provider color",
+        "Boundary Huang Gai multi card color source lifecycle",
+        "boundary Lu Xun actual trick hold lianying and return",
+        "boundary Lu Xun HE payment exact Hand batch count",
+        "boundary Liu Bei virtual Peach HP child",
+        "boundary Liu Bei native provided use decline once",
+        "boundary Liu Bei gift threshold recipient",
+        "boundary Da Qiao atomic mixed discard replay",
+        "boundary Hua Tuo ordered actual discard effective suit receipts",
+        "participant discard mandatory cost cancellation preserves legal composition",
+        "current turn nonlocked suppression host lifecycle audit",
+        "boundary Guan Yu actual Played and black Hand rejection",
+        "Boundary Zhang Fei actual recovery receipt limited child",
+        "boundary Ma Chao Tieqi Paoxiao exact cancellation integration",
+        "boundary Xiahou Dun real phases skip quota expiry",
+        "boundary Xiahou Dun receipt before gain child source audit",
+        "Exact top count partition normal draw",
+        "Bound draw receipt per point nested gain",
+        "boundary Zhen Ji exact receipt stop red discard",
+        "boundary Zhen Ji receipt before child source loss",
+        "Unconverted Trick draw receipt disposition",
+        "Foreign equipment discard program selections",
+        "Population reorder actual partition and short pile",
+        "Population reorder real Ending Extra Scheduled",
+        "HP pair freezes after payment children before draw children",
+        "Equipment placement slot self equal boundaries",
+        "Final target Slash frozen comparisons actual paid Dodge",
+        "Paid HP loss rescue and gain children",
+        "Paid HP loss source and legacy",
+        "Boundary Deng Ai own turn slash discard judges authority",
+        "Boundary Deng Ai awakening grants snatch and extra turn",
+        "Boundary Jiang Wei declined taunt discards target card",
+        "Boundary Jiang Wei dodged slash still discards",
+        "Boundary Jiang Wei taunt runs twice per phase",
+        "Boundary Jiang Wei awakening wakes once across phases",
+        "Damage target mount paid children source lifetime",
+        "Damage appearance Draw definitions physical colors cardless legacy",
+        "Selected actor Duel actual Use and Nullification",
+        "Damage target obtain nested Duel native cold",
+        "Boundary Yuan Shao population start role marker limit",
+        "Boundary Yuan Shao conversion actual remaining targets",
+        "Recovery replacement Silver Lion Zhiheng HP and reward children",
+        "Recovery replacement paid equipment tail",
+        "Recovery replacement faction request Silver Lion cost before providers",
+        "Program Iron Chain third target owned recast",
+        "Equipment recast Silver Lion recovery and movement children",
+        "BoundaryXuShu fixed target real Slash",
+        "BoundaryXuShu declared deck criterion",
+        "Character turned over Shebian both directions",
+        "Character turned over Shebian occupied equipment slot",
+        "Character turned over actual damage cursor",
+        "Capped hand refresh",
+        "HP paid shield",
+        "Random Pindian",
+        "Maximum Slash Pindian",
+        "Bound card recast dynamic Slash",
+        "Bound card recast Silver Lion",
+        "Turn kind hand exemption",
+        "Signed Slash modifier"
+      ],
+      "wpfFilters": [
+        "original card artwork",
+        "overlapping hand",
+        "composed skills",
+        "conversion choices",
+        "response context",
+        "hand responses",
+        "opaque target-card",
+        "playback batches",
+        "saved UI boundaries",
+        "failed writes",
+        "public markers",
+        "deferred hand alignment",
+        "Program conversion polarity stays visible",
+        "declaration and general library views protect private faces",
+        "Program paid choices",
+        "Program exact top count restores private shared order",
+        "Program population count private faces restore shared free order",
+        "Program Iron Chain guide follows actual target count"
+      ],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2236,
+          "logName": "build.log",
+          "logSha256": "9cf5e9505b6c2a7beb03a79366473833549bcb805e0e8e2951a721ffdff93f23",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (118 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 40103,
+          "logName": "core-selected.log",
+          "logSha256": "8af95e178171bf77910910bc524e819af23503a5ef1ef78e00ecc5b9e1b38ad7",
+          "resultLines": [
+            "190 passed, 0 failed, 0 skipped (190 total)."
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "WPF selected checks (18 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 19289,
+          "logName": "wpf-selected.log",
+          "logSha256": "46522c916e1694d33d0e084b92e5841a172da9679d78888b12d7ca8a4d3e5435",
+          "resultLines": [
+            "18 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders"
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    }
+  ],
+  "compiledArt": [
+    {
+      "key": "assets/official-boundary-taishi-ci.png",
+      "sourceSha256": "38a4081f28ea7e39d00815312f2c32d872e98e5d63c4ce875df3b9eaea1233ee",
+      "compiledSha256": "38a4081f28ea7e39d00815312f2c32d872e98e5d63c4ce875df3b9eaea1233ee",
+      "matched": true
+    },
+    {
+      "key": "assets/official-boundary-cao-zhang.png",
+      "sourceSha256": "8732f33b9a5ebb025cb361a38d628b48fc47ae1838e9db9c53108fe805244899",
+      "compiledSha256": "8732f33b9a5ebb025cb361a38d628b48fc47ae1838e9db9c53108fe805244899",
+      "matched": true
+    }
+  ],
+  "inputConsistency": {
+    "files": 2386,
+    "sha256": "8da0949cbe52dd70504f5ed773c9294c37de0e03f613e6768b487d61592b0006",
+    "labels": [
+      "full-start",
+      "full-end",
+      "routine-end",
+      "final"
+    ],
+    "identical": true
+  },
+  "cleanup": "2026-10-03-fenglin-eighteenth-cleanup.json",
+  "versionPolicy": "Unchanged; authoritative sources remain Replay.cs, SkillPrograms.cs and package CurrentVersion."
+}

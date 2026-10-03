@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:jiangchi": {
+      "name": "将驰",
+      "description": "摸牌阶段结束时，你可以选择一项：1.摸一张牌，你本回合使用【杀】的次数-1，且【杀】不计入手牌上限；2.重铸一张牌，且本回合使用【杀】的次数+1，【杀】无距离限制。",
+      "triggerChoices": { "draw-more": "摸一张牌，本回合少使用一张杀", "recast-assault": "重铸一张牌，本回合多使用一张无距离限制的杀" }
+    }
+  }
+}

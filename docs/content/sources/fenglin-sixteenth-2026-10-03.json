@@ -1,0 +1,142 @@
+{
+  "officialEdition": "Current ordinary Sanguosha OL",
+  "capturedUtc": "2026-10-03T13:32:03.252814+08:00",
+  "status": "implemented-and-batch-validated",
+  "httpLedger": [
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=442",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T13:31:59.763819+08:00",
+      "sha256": "d34390014c84ca82064f7cc4b140f1d7dd65546a2130c1aedda01801a116b380",
+      "bytes": 787
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/442",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T13:32:00.193077+08:00",
+      "sha256": "b8346af2f575ec33f5b0f866d01468a3102948306ad40de10f82c9ec4ae25cc2",
+      "bytes": 26709
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44200.png",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T13:32:00.670909+08:00",
+      "sha256": "f3b463dd9e80cbbfb30205bbf797a19227db0dbe6752984bd575b76f194a2945",
+      "bytes": 1152094
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=455",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T13:32:01.158213+08:00",
+      "sha256": "de334cf45c615bc9f2aee0890b3e4026dc1943b368452d0f293f4eea32769fff",
+      "bytes": 1011
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/455",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T13:32:01.652873+08:00",
+      "sha256": "a12f5e5118be647bbfcf7e289360033b609861415f87567c80581efb575562fc",
+      "bytes": 24895
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45500.png",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T13:32:02.003623+08:00",
+      "sha256": "5f9e82e9f014e5d1ddfa644f77c5e45a10a2887eab25e07dfecb201ed4eb35c1",
+      "bytes": 1048379
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=304",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T13:32:02.483812+08:00",
+      "sha256": "97c93c6078a0562a6f4e72416cc945f12ba3576a7c22c93dd0d9a34388a314b4",
+      "bytes": 994
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/304",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T13:32:02.930865+08:00",
+      "sha256": "1ad6576c6d7d99c34222a0abccb117c05e2ed4c6b30bb1bc6a1af9a40dcb6ddc",
+      "bytes": 26209
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/30400.png",
+      "status": 200,
+      "retrievedUtc": "2026-10-03T13:32:03.249907+08:00",
+      "sha256": "8589c2114f33f59f97feca4a3d43fb9bd06a7beb77c819f21e8e0a51a525e9d7",
+      "bytes": 1352080
+    }
+  ],
+  "generals": [
+    {
+      "key": "boundary-sun-quan",
+      "gid": 442,
+      "name": "界孙权",
+      "faction": "wu",
+      "hp": 4,
+      "initialHp": 0,
+      "officialPage": "https://www.sanguosha.com/hero/442",
+      "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=442",
+      "skillsText": "出牌阶段限一次，你可以弃置任意张牌，然后摸等量张牌，若你以此法弃置了所有手牌，你额外摸一张牌。 主公技，其他吴势力角色于其回合内回复体力时，若其体力值大于等于你，则其可以改为令你回复1点体力，然后其摸一张牌。",
+      "artwork": {
+        "id": "44200",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/442",
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44200.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-sun-quan.png",
+        "sha256": "f3b463dd9e80cbbfb30205bbf797a19227db0dbe6752984bd575b76f194a2945",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      },
+      "gender": "Male",
+      "genderProvenance": "Same historical character as existing classic general; the official API has no structured gender."
+    },
+    {
+      "key": "boundary-pang-tong",
+      "gid": 455,
+      "name": "界庞统",
+      "faction": "shu",
+      "hp": 3,
+      "initialHp": 0,
+      "officialPage": "https://www.sanguosha.com/hero/455",
+      "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=455",
+      "skillsText": "你可以将一张梅花牌当【铁索连环】使用或重铸。你使用【铁索连环】可以多指定一个目标。 限定技，当你处于濒死状态时，你可以：弃置所有牌，复原你的武将牌，摸三张牌，回复至3点体力，然后获得“ 八阵 ”“ 火计 ”“ 看破 ”中的一个。",
+      "artwork": {
+        "id": "45500",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/455",
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45500.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-pang-tong.png",
+        "sha256": "5f9e82e9f014e5d1ddfa644f77c5e45a10a2887eab25e07dfecb201ed4eb35c1",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      },
+      "gender": "Male",
+      "genderProvenance": "Same historical character as existing classic general; the official API has no structured gender."
+    },
+    {
+      "key": "boundary-xu-shu",
+      "gid": 304,
+      "name": "界徐庶",
+      "faction": "shu",
+      "hp": 4,
+      "initialHp": 0,
+      "officialPage": "https://www.sanguosha.com/hero/304",
+      "officialApi": "https://www.sanguosha.com/api/v1/hero/info?gid=304",
+      "skillsText": "其他角色的结束阶段，若其本回合造成过伤害，你可以对其使用一张【杀】。 觉醒技，当你造成伤害后，若你已受伤，你减少1点体力上限并获得“ 荐言 ”。",
+      "artwork": {
+        "id": "30400",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/304",
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/30400.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-boundary-xu-shu.png",
+        "sha256": "8589c2114f33f59f97feca4a3d43fb9bd06a7beb77c819f21e8e0a51a525e9d7",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      },
+      "gender": "Male",
+      "genderProvenance": "Same historical character as existing classic general; the official API has no structured gender."
+    }
+  ],
+  "validationReport": "../../benchmarks/2026-10-03-fenglin-sixteenth.md"
+}

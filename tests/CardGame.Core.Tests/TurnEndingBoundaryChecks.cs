@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Text.Json;
 using CardGame.Content.Standard;
 using CardGame.Core;
@@ -14,6 +13,13 @@ internal static class TurnEndingBoundaryChecks
         var game = CreateAndSelect(registry, CombinedScenarioPackage.ModeId,
             CombinedScenarioPackage.OwnerGeneralId);
         ReachHumanPlay(game);
+        var play = game.PendingDecision!;
+        var prepared = game.Submit(new UseProgramSkillCommand(HumanSeat,
+            CombinedScenarioPackage.FaceDownDriverSkillId, "prepare-face-down", [], [], game.Revision, play.PromptId));
+        Require(prepared.Accepted, prepared.Error?.Message ?? "The recorded face-down setup was rejected.");
+        ReachHumanPlay(game);
+        Require(game.CreateSnapshot(HumanSeat).Players[HumanSeat].IsFaceDown,
+            "The already face-down Jushou premise must be established by an accepted replayable command.");
         EndPlayAndReachSkill(game, "classic:jushou");
 
         var frame = game.ResolutionStack.OfType<TurnEndingBoundaryFrame>().Single();
@@ -34,8 +40,6 @@ internal static class TurnEndingBoundaryChecks
                 JsonSerializer.Serialize(serializedRoundTrip) == serializedFrames,
             "The TurnEnding parent and its union items must be plain serializable resolution data.");
 
-        var owner = Players(game)[HumanSeat];
-        owner.IsFaceDown = true;
         var handBefore = game.CreateSnapshot(HumanSeat, revealAll: true).Players[HumanSeat].Hand.Count;
         var turnEndsBefore = game.Events.Select(item => item.Payload).OfType<TurnEndedEvent>().Count();
         AnswerProgram(game, "activate");
@@ -209,11 +213,6 @@ internal static class TurnEndingBoundaryChecks
     private static GameCheckpoint RoundTrip(GameCheckpoint checkpoint) =>
         GameCheckpointJson.Deserialize(GameCheckpointJson.Serialize(checkpoint));
 
-    private static IReadOnlyList<CharacterState> Players(GameEngine game) =>
-        (IReadOnlyList<CharacterState>)(typeof(GameEngine)
-            .GetField("_players", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .GetValue(game) ?? throw new InvalidOperationException("The TurnEnding players are unavailable."));
-
     private static string State(GameEngine game) =>
         SnapshotJson.Serialize(game.CreateSnapshot(HumanSeat, revealAll: true));
 
@@ -231,6 +230,7 @@ internal static class TurnEndingBoundaryChecks
     private sealed class CombinedScenarioPackage : IGameContentPackage
     {
         public const string OwnerGeneralId = "fixture:turn-ending-owner";
+        public const string FaceDownDriverSkillId = "fixture:turn-ending-face-down";
         public const string ModeId = "identity:classic-turn-ending-test-5";
         private const string DeckId = "fixture:turn-ending-deck";
 
@@ -241,6 +241,15 @@ internal static class TurnEndingBoundaryChecks
 
         public void Register(IContentRegistryBuilder builder)
         {
+            var driver = SkillProgramCatalog.Load($$"""
+                {"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[
+                  {"id":"{{FaceDownDriverSkillId}}","revision":1,"activations":[
+                    {"id":"prepare-face-down","usesPerTurn":1,"minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving",
+                      "effects":[{"op":"setFaceState","target":"owner","faceDown":true}]}]}]}
+                """, JsonSerializer.Serialize(new { schemaVersion = 3, skills = new Dictionary<string, object>
+                { [FaceDownDriverSkillId] = new { name = "背面前提", description = "通过真实命令建立已背面的检查前提。" } } }));
+            builder.AddSkill(new ContentSkillDefinition(FaceDownDriverSkillId, "背面前提", "真实命令检查前提")
+                { Program = driver.Programs[FaceDownDriverSkillId] });
             var targetIds = Enumerable.Range(1, 4)
                 .Select(index => $"fixture:turn-ending-target-{index}").ToArray();
             builder.AddGeneral(new ContentGeneralDefinition(
@@ -250,7 +259,7 @@ internal static class TurnEndingBoundaryChecks
                 "classic:jushou",
                 "wei",
                 BaseHp: 4,
-                AdditionalSkillIds: ["classic:jujian", "classic:biyue"]));
+                AdditionalSkillIds: ["classic:jujian", "classic:biyue", FaceDownDriverSkillId]));
             foreach (var id in targetIds)
                 builder.AddGeneral(new ContentGeneralDefinition(
                     id, "结束阶段测试目标", "supporter", "standard:none", "wei", BaseHp: 4));

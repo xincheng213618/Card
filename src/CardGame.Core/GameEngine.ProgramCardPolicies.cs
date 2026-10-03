@@ -15,7 +15,9 @@ public sealed partial class GameEngine
             .OrderBy(instance => instance.SkillId, StringComparer.Ordinal)
             .ThenBy(instance => instance.SkillInstanceId, StringComparer.Ordinal)
             .SelectMany(instance => instance.Program.CardPolicies
-                .Where(policy => policy.Kind == kind &&
+                .Where(policy => (policy.Kind == kind || kind == SkillProgramCardPolicyKind.IgnoreUseDistance &&
+                    policy.Kind == SkillProgramCardPolicyKind.IgnoreUseDistanceBeforeDealingDamage) &&
+                    (policy.Kind != SkillProgramCardPolicyKind.IgnoreUseDistanceBeforeDealingDamage || IsBeforeActualDamageDistancePolicyQualified(owner)) &&
                     (policy.OwnerRole is null || HasSkillRoleQualification(owner, instance.SkillId, instance.SkillInstanceId, policy.OwnerRole.Value)) &&
                     (policy.CardKinds.Count == 0 ||
                      effectiveKind is { } card && policy.CardKinds.Contains(card)) &&

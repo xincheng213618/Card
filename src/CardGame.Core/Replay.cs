@@ -39,7 +39,10 @@ public sealed record GameCheckpoint(
     // the responder and opponent swap after a successful Slash response.
     // Borrowed Sword faction supply validates reconstructed continuation
     // handles by exact resolution identity instead of reference equality.
-    public const int CurrentRulesVersion = 193;
+    // 194: Native optional phase declarations price their exact hand-cost
+    // successor and public extra-turn beneficiary. The same accepted command
+    // prefix and content hash can therefore choose different AI actions.
+    public const int CurrentRulesVersion = 194;
     // 187 was consumed by main-side Zhang He / Shen Zhao Yun work.
 
     public int RulesVersion { get; init; }

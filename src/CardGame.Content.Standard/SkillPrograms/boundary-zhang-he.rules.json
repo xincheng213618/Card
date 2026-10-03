@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:qiaobian",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "initial-change-markers",
+          "window": "gameStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "changeAttributedMarker",
+              "target": "owner",
+              "targetRef": {
+                "kind": "owner"
+              },
+              "marker": "bian",
+              "amount": 2
+            }
+          ]
+        },
+        {
+          "id": "skip-judgment",
+          "window": "judgmentPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 200,
+          "effects": [
+            {
+              "op": "payOwnedCardOrMarker",
+              "target": "owner",
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "marker": "bian"
+            },
+            {
+              "op": "skipTurnPhases",
+              "target": "owner",
+              "phases": [
+                "judgment"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "skip-draw-and-take-hands",
+          "window": "drawPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 200,
+          "effects": [
+            {
+              "op": "payOwnedCardOrMarker",
+              "target": "owner",
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "marker": "bian"
+            },
+            {
+              "op": "skipTurnPhases",
+              "target": "owner",
+              "phases": [
+                "draw"
+              ]
+            },
+            {
+              "op": "selectTargets",
+              "target": "owner",
+              "targetKind": "otherLivingWithHand",
+              "minimumTargets": 0,
+              "maximumTargets": 2,
+              "targetAiOrder": "hostileThenHandCount"
+            },
+            {
+              "op": "takeRandomHandCardFromSelectedTargets",
+              "target": "owner",
+              "amount": 1,
+              "awaitMovementTriggers": true
+            }
+          ]
+        },
+        {
+          "id": "skip-play-and-move-field-card",
+          "window": "afterNormalDraw",
+          "subject": "owner",
+          "optional": true,
+          "priority": 200,
+          "effects": [
+            {
+              "op": "payOwnedCardOrMarker",
+              "target": "owner",
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "marker": "bian"
+            },
+            {
+              "op": "skipTurnPhases",
+              "target": "owner",
+              "phases": [
+                "play"
+              ]
+            },
+            {
+              "op": "selectTargets",
+              "target": "owner",
+              "targetKind": "livingPairDistinct",
+              "minimumTargets": 2,
+              "maximumTargets": 2,
+              "targetAiOrder": "stable"
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": {
+                "kind": "owner"
+              },
+              "cardOwnerRef": {
+                "kind": "selectedFirst"
+              },
+              "targetRef": {
+                "kind": "selectedSecond"
+              },
+              "zones": [
+                "equipment",
+                "judgment"
+              ],
+              "count": 1,
+              "destination": "selectedTargetCorrespondingZone",
+              "skipIfNoCards": true,
+              "awaitMovementTriggers": true,
+              "prohibitReplacingEquipment": true,
+              "allowDecline": true
+            }
+          ]
+        },
+        {
+          "id": "skip-discard",
+          "window": "discardPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "priority": 200,
+          "effects": [
+            {
+              "op": "payOwnedCardOrMarker",
+              "target": "owner",
+              "zones": [
+                "hand",
+                "equipment"
+              ],
+              "marker": "bian"
+            },
+            {
+              "op": "skipTurnPhases",
+              "target": "owner",
+              "phases": [
+                "discard"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "new-ending-hand-count",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "recordEndHandCountAndGrantMarker",
+              "target": "owner",
+              "stateId": "ending-hand-counts",
+              "marker": "bian",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

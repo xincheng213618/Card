@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:jianmie-current",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "simultaneous-color-discard-duel",
+          "minCards": 0, "maxCards": 0,
+          "minTargets": 1, "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null, "usesPerPhase": 1,
+          "effects": [ { "op": "choosePrivateColorsDiscardAndDuel", "target": "owner" } ]
+        }
+      ]
+    }
+  ]
+}

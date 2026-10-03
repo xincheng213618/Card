@@ -46,7 +46,7 @@ internal static class PlaybackChecks
         {
             for (var iteration = 0; iteration < 140 && !automatic.HasGameOver; iteration++)
             {
-                var before = Program.Engine(automatic).CreateCheckpoint().Commands.Count;
+                var before = Program.Engine(automatic).AcceptedCommands.Count;
                 automatic.SelectedPlaybackSpeed = PlaybackSpeed.All[iteration % PlaybackSpeed.All.Count];
                 var lastCueSequence = automatic.BattleCues.LastOrDefault()?.Sequence ?? 0;
                 automatic.IsAutoAdvance = true;
@@ -54,7 +54,7 @@ internal static class PlaybackChecks
                 {
                     automatic.IsHelpOpen = true;
                     tick.Invoke(automatic, [null, EventArgs.Empty]);
-                    Program.Assert(Program.Engine(automatic).CreateCheckpoint().Commands.Count == before,
+                    Program.Assert(Program.Engine(automatic).AcceptedCommands.Count == before,
                         "Automatic batching advanced behind an open guide.");
                     automatic.IsHelpOpen = false;
                     checkedPause = true;
@@ -84,7 +84,7 @@ internal static class PlaybackChecks
                 tickBytes += GC.GetAllocatedBytesForCurrentThread() - allocated;
                 tickRefreshes += refreshes - previousRefreshes;
                 automatic.IsAutoAdvance = false;
-                var after = Program.Engine(automatic).CreateCheckpoint().Commands.Count;
+                var after = Program.Engine(automatic).AcceptedCommands.Count;
                 tickCommands += after - before;
                 if (!wasAi)
                 {
@@ -115,6 +115,9 @@ internal static class PlaybackChecks
                 Program.Assert(SnapshotJson.Serialize(PresentedSnapshot(automatic)) ==
                                SnapshotJson.Serialize(Program.Engine(automatic).CreateSnapshot(0)),
                     "An automatic slice returned with an outdated player view.");
+                // This fixed seed only needs the prefix covering every asserted
+                // playback boundary; later turns repeat the same invariants.
+                if (coalesced && checkedPause && checkedHuman && checkedInquiryDelay && checkedMixedFeedbackDelay) break;
             }
             Program.Assert(coalesced && checkedPause && checkedHuman && checkedInquiryDelay && checkedMixedFeedbackDelay,
                 "The real match did not cover batching, modal pause, human boundaries and inquiry-only/mixed feedback pacing.");

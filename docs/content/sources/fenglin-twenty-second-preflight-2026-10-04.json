@@ -1,0 +1,380 @@
+{
+  "status": "read-only-preflight-not-implemented",
+  "batch": 22,
+  "createdAtUtc": "2026-10-03T17:26:33.850059+00:00",
+  "scope": "Ordinary current OL only; recommendation pending root decision; no main-tree writes, registration, version change, media download or build",
+  "officialIndex": {
+    "url": "https://www.sanguosha.com/hero",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T17:09:18.318761+00:00",
+    "rawSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+    "rawBytes": 1319990,
+    "rawBodyRetained": true,
+    "rawFile": "index.raw.html"
+  },
+  "registrationSnapshot": {
+    "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+    "sha256": "5203b91d718601fd33400b7667d54bf56d5c86463cd76fb30ddb134f82fe146d",
+    "capturedAtUtc": "2026-10-03T17:26:33.850059+00:00",
+    "checkedCandidateModuleNames": [
+      "BoundaryDianWeiContent",
+      "BoundaryCaiWenJiContent",
+      "BoundaryZhangChunHuaContent"
+    ],
+    "existingBoundaryExcluded": [
+      "xu-sheng",
+      "zhang-song",
+      "ju-shou",
+      "zhao-yun"
+    ],
+    "inFlightExcluded": [
+      {
+        "gid": 496,
+        "name": "界徐晃"
+      },
+      {
+        "gid": 470,
+        "name": "界董卓"
+      },
+      {
+        "gid": 484,
+        "name": "界贾诩"
+      }
+    ]
+  },
+  "priorEvidenceRead": [
+    "docs/benchmarks/CONTINUOUS_EXPANSION.md",
+    "docs/content/sources/fenglin-twentieth-preflight-2026-10-03.json",
+    "docs/content/sources/fenglin-twenty-first-preflight-2026-10-03.json"
+  ],
+  "sourceReuseResult": "No frozen current ordinary-OL full text for the recommended candidates found in docs/content/sources; existing classic Sun Ce/Cai Wen Ji snapshots are not current boundary authority. Fresh www page/API captures retained here.",
+  "explicitExclusions": [
+    {
+      "gid": 451,
+      "name": "界刘禅",
+      "reason": "Full current derived 思蜀895 text not frozen; do not infer classic/other edition."
+    },
+    {
+      "name": "界曹丕",
+      "reason": "No exact current ordinary-OL boundary directory row; classic/national-war entries are not a substitute."
+    }
+  ],
+  "recommendedCandidates": [
+    {
+      "gid": 625,
+      "name": "界张春华",
+      "priority": 1,
+      "edition": "current ordinary OL; www directory extend=界限突破",
+      "faction": "wei",
+      "baseHp": 3,
+      "apiInitialHp": 0,
+      "officialSkills": [
+        {
+          "name": "绝情",
+          "text": "锁定技，你即将造成的伤害视为失去体力。"
+        },
+        {
+          "name": "伤逝",
+          "text": "当你的手牌数小于X后，你可以将手牌摸至X张。（X为你已损失体力值）"
+        },
+        {
+          "name": "翦灭",
+          "text": "出牌阶段限一次，你可与一名其他角色同时选择一种颜色，你与其弃置各自选择颜色的手牌，然后弃置牌较多的角色视为对另一角色使用【决斗】。"
+        }
+      ],
+      "sourceCapture": {
+        "recordFile": "625-official-source.json",
+        "recordSha256": "227810a08756a98ab19761b1fa4183957cbeaed23d645eb6fb835af782affaff",
+        "page": {
+          "url": "https://www.sanguosha.com/hero/625",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-03T17:18:00.890529+00:00",
+          "rawSha256": "df5a642b70e500d6647e5c6e4f4d301a9db9cbb88e764fdfd64f90a7bb7763b7",
+          "rawFile": "625-page.raw.html"
+        },
+        "api": {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=625",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-03T17:18:01.020273+00:00",
+          "rawSha256": "c83d03e3fe4e7757d08c45262b3a56413e3a63246ce12f406b2cdbd8a9412522",
+          "rawFile": "625-api.raw.json"
+        }
+      },
+      "registrationStatus": "not registered in current formal boundary package; preflight only",
+      "implementationStatus": "read-only-preflight-not-implemented",
+      "reusableCapabilities": [
+        {
+          "capability": "绝情与伤逝当前正文逐字等于既有经典 presentation；可引用已经冻结的 classic:jueqing / classic:shangshi，不修改旧技能。",
+          "evidence": [
+            "src/CardGame.Content.Standard/SkillPrograms/classic-zhang-chun-hua.presentation.json",
+            "src/CardGame.Content.Standard/SkillPrograms/classic-zhang-chun-hua.rules.json"
+          ]
+        },
+        {
+          "capability": "现有HE/手牌移动、owned choice、HP/获牌子窗口及真实零实体 Duel 卡窗/typed return 可作新能力的底层构件。",
+          "evidence": [
+            "src/CardGame.Core/GameEngine.ProgramHandControl.cs",
+            "src/CardGame.Core/GameEngine.DamageColorDuelPrograms.cs:5"
+          ]
+        }
+      ],
+      "minimumGaps": [
+        "一个通用双参与者隐藏选色→两边冻结指定颜色手牌→精确两次弃置支付/子返回→按真实弃置数选 Duel actor/target 的 owning-frame 操作；同数不发行 Duel。两人的选色在双方确定前不可向对方公开。",
+        "当前 useSelectedActorDuel 严格限单一指令/零牌/每阶段2次/其他actor对owner，不可直接拼在选色支付后；旧 startVirtualDuel 直接进入 Duel response，没有实际 CardUse 卡窗，不能替代正文“视为使用”。需新增精确 issuance receipt 或仅新操作专属 typed return，不放宽旧生产者。"
+      ],
+      "unresolvedEngineeringRulings": [
+        "“同时选择”工程实现应采用顺序私密承诺、双方选完再公开；当前正文不另给UI或事件协议。",
+        "双方弃置的先后子结算、颜色是否按付款前有效身份、付款后角色死亡/来源失效/赢家的终止规则必须另作工程默认并用真实命令验证。",
+        "绝情会将新 Duel 的伤害替换为失去体力，必须复用既有替代语义，不能直接手写伤害。"
+      ],
+      "focusedCheckProposal": [
+        "真人选择与原生AI：对方不能从 prepared view 得知第一方颜色/私有实体；支付发生一次，选择和牌集合均冻结，四视角 cold replay。",
+        "不等数两种方向发行真实 Duel（Nullification/响应/伤害或绝情失血）；同数不发行；弃置后HP/获牌观察暂停返回与目标死亡/winner退出。"
+      ],
+      "risk": "moderate: 2 skills pure composition; one new private-choice + paid real-Duel workflow"
+    },
+    {
+      "gid": 526,
+      "name": "界典韦",
+      "priority": 2,
+      "edition": "current ordinary OL; www directory extend=界限突破",
+      "faction": "wei",
+      "baseHp": 4,
+      "apiInitialHp": 0,
+      "officialSkills": [
+        {
+          "name": "强袭",
+          "text": "出牌阶段限两次，你可以受到1点伤害或弃置一张武器牌，对一名本回合内未以此法指定过的其他角色造成1点伤害。"
+        },
+        {
+          "name": "狞恶",
+          "text": "锁定技，当一名角色每回合第二次受到伤害后，若其为你或伤害来源为你，你摸一张牌并弃置其场上一张牌。"
+        }
+      ],
+      "sourceCapture": {
+        "recordFile": "526-official-source.json",
+        "recordSha256": "ca236ec598c02e8aea06c3822f8691d4ea31f3f54361f1baae91958a9959ca52",
+        "page": {
+          "url": "https://www.sanguosha.com/hero/526",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-03T17:12:52.754034+00:00",
+          "rawSha256": "d74957046775252dfe145bb4697fca95aa8b1d20ea6292acfdac11d447f230d9",
+          "rawFile": "526-page.raw.html"
+        },
+        "api": {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=526",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-03T17:12:52.896573+00:00",
+          "rawSha256": "65123a9d7ba04c2b5b1b8b4073ac80e8fc68a2069f22d1649af5128809dc6530",
+          "rawFile": "526-api.raw.json"
+        }
+      },
+      "registrationStatus": "not registered in current formal boundary package; preflight only",
+      "implementationStatus": "read-only-preflight-not-implemented",
+      "reusableCapabilities": [
+        {
+          "capability": "classic:qiangxi已有零牌/单武器HE两种启动、共用usage group与 damage/discard；只能复用构件，不能复制旧失血/攻击范围/一次规则。",
+          "evidence": [
+            "src/CardGame.Content.Standard/SkillPrograms/classic-active-cutover.rules.json"
+          ]
+        },
+        {
+          "capability": "DamageInstancesTakenThisTurn 已按实际 TurnStartedEvent 边界统计 DamageAppliedEvent 次数；perDamage 与 perDamagePoint 可区分。当前 trigger fact只给 owner 的计数。",
+          "evidence": [
+            "src/CardGame.Core/GameEngine.PlayCardHistory.cs:46",
+            "src/CardGame.Core/GameEngine.ProgramLifecycle.cs:4484",
+            "src/CardGame.Core/SkillPrograms.cs:2988"
+          ]
+        },
+        {
+          "capability": "draw、选指定伤害目标的区域牌弃置、真实 damage/HP/Dying/movement child 已有。",
+          "evidence": [
+            "src/CardGame.Core/GameEngine.DamageTargetMountPrograms.cs",
+            "src/CardGame.Core/GameEngine.CardMovementPrograms.cs"
+          ]
+        }
+      ],
+      "minimumGaps": [
+        "通用“本实际回合已指定目标”标量usage ledger/candidate gate：两种强袭付款共享每出牌阶段2次，目标去重跨同一回合的多个出牌阶段保留。现 consumeCategoryTargetLedger要求1HE牌且 category+target 按Phase，不能直接用于零牌自伤支路或Turn目标去重。",
+        "新增 eventTarget 的本回合受伤次数 trigger fact（owner已有同类事实）用于狞恶；第二次为第二个实际 DamageApplied occurrence，并非第二点。锁定 draw1 返回后弃该 victim 场上一牌；无场上牌仍摸牌。"
+      ],
+      "unresolvedEngineeringRulings": [
+        "官网强袭明确“受到1点伤害”，没有“失去1点体力”也没有攻击范围限制。自伤付款的伤害来源/属性未在该页另释，需核FAQ或明确工程默认；不可沿用 classic loseHp。",
+        "“场上一张牌”按装备/判定处理；若来源/目标在付款或摸牌子结算死亡、winner已定，取消未执行效果的默认需记录。",
+        "已指定目标的消耗时点应在真实发动冻结，不能因付款回复/目标死亡而重复退款；重获同名技能是否继承当前turn目标ledger需明确。"
+      ],
+      "focusedCheckProposal": [
+        "零牌真实自伤与HE武器付款各一路；两次phase共组、第三次拒绝、同回合再阶段不能重复目标；真实伤害而非LoseHP，支付/子返回/cold。",
+        "狞恶分别owner第二次受伤、owner造成他人第二次受伤；单次2点伤害不冒充2次；他人来源/第1或第3次/实际回合到期均不触发，区域为空仍draw。"
+      ],
+      "risk": "moderate: two small scalar ledger/fact gaps; self-damage source ruling not yet frozen"
+    },
+    {
+      "gid": 505,
+      "name": "界蔡文姬",
+      "priority": 3,
+      "edition": "current ordinary OL; www directory extend=界限突破",
+      "faction": "qun",
+      "baseHp": 3,
+      "apiInitialHp": 0,
+      "officialSkills": [
+        {
+          "name": "断肠",
+          "text": "锁定技，当你死亡时，杀死你的角色失去所有技能。"
+        },
+        {
+          "name": "悲歌",
+          "text": "当一名角色受到【杀】的伤害后，若你有牌，你可以令其判定，然后你可以弃置一张牌，根据判定结果执行：红桃，其回复1点体力；方片，其摸两张牌；梅花，伤害来源弃置两张牌；黑桃，伤害来源翻面。若判定牌与你弃置的牌：花色相同，你获得判定牌；点数相同，你获得你弃置的牌。"
+        }
+      ],
+      "sourceCapture": {
+        "recordFile": "505-official-source.json",
+        "recordSha256": "f98feb407defd2ee45fa57c22b56be92c004b9ed0c3fd370d60611ce417b622d",
+        "page": {
+          "url": "https://www.sanguosha.com/hero/505",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-03T17:12:52.763522+00:00",
+          "rawSha256": "0051a264242204bc103a368e53e706271baec701b62b1e362d59de7caee3d04d",
+          "rawFile": "505-page.raw.html"
+        },
+        "api": {
+          "url": "https://www.sanguosha.com/api/v1/hero/info?gid=505",
+          "httpStatus": 200,
+          "capturedAtUtc": "2026-10-03T17:12:52.879607+00:00",
+          "rawSha256": "b2ab01da0c0b80e6ecf06f13189109071914290d8bda6525f0cca29e8957a4e6",
+          "rawFile": "505-api.raw.json"
+        }
+      },
+      "registrationStatus": "not registered in current formal boundary package; preflight only",
+      "implementationStatus": "read-only-preflight-not-implemented",
+      "reusableCapabilities": [
+        {
+          "capability": "断肠全文与现 classic:duanchang相同，可引用 ownerDied→loseDeathSourceSkills 的已冻结 typed death-source 操作。",
+          "evidence": [
+            "src/CardGame.Content.Standard/SkillPrograms/classic-cai-wen-ji.rules.json"
+          ]
+        },
+        {
+          "capability": "已有判定替换/四花色收益、Recover/Draw/受伤来源弃牌及翻面、实体牌移动/回收，3901有 owned damage→judgment→HP/movement nested observer 精确链可参考。",
+          "evidence": [
+            "src/CardGame.Content.Standard/SkillPrograms/classic-cai-wen-ji.rules.json",
+            "src/CardGame.Core/GameEngine.OwnedDamagePointJudgments.cs"
+          ]
+        }
+      ],
+      "minimumGaps": [
+        "新通用“精确伤害victim判定→可选择付款→按冻结判定结果施益→同花色/同点数两种精确实体回收”owning receipt。当前 classic 悲歌先弃手牌再判定且在 judgmentFinalized 自动执行四收益，顺序不符；不能通过修改经典技能解决。",
+        "3901现生产者始终判定 owner，严格 Judge.TargetSeat==root.OwnerSeat；不能直接给其他伤害victim。新操作必须限定当前 Slash perDamage candidate、精确源/受伤者/判定frame及付款 ledger，保持裁判改判和子返回。",
+        "同时命中花色/点数可取得判定牌与付款牌两张不同实体；回收须只领取仍在相应合法位置的冻结ID，不重查挑替代牌，支付及领取children逐项返回。"
+      ],
+      "unresolvedEngineeringRulings": [
+        "官网“若你有牌/弃置一张牌”未显式枚举区域；沿用通用自己弃牌HE范围是待冻结工程口径，不能声称正文写了HE。",
+        "判定结果采用最终有效花色/点数；付款牌比较是否采用付款前有效身份（如红颜）需查FAQ或明确默认。",
+        "锁定断肠有现成机制；可选悲歌的 victim 已死/来源为空或死亡、付款后source失效、判定牌已被别的合法观察者取得、winner结尾都需精确取消/跳过默认，不泛化dead-source allowlist。"
+      ],
+      "focusedCheckProposal": [
+        "真实 Slash→判定改判/判定暂停→可不付；付装备引HP/移动观察暂停→收益后双实体回收，成本一次及四视角cold；prepared公开event集合冻结。",
+        "四花色分支、同花色不同点/同点不同花色/双命中/不命中、判定实体已被先取时不替换领取；断肠无需重复人物定义快照。"
+      ],
+      "risk": "moderate-high but bounded: one new exact judgment/payment workflow; one skill pure composition"
+    }
+  ],
+  "verifiedButDeferred": [
+    {
+      "gid": 452,
+      "name": "界孙策",
+      "faction": "wu",
+      "baseHp": 4,
+      "officialSkills": [
+        {
+          "name": "制霸",
+          "text": "主公技，出牌阶段限一次，你可以与一名其他吴势力角色拼点；其他吴势力角色出牌阶段限一次，其可以与你拼点（你可以拒绝）：若其没赢，你可以获得两张拼点牌。"
+        },
+        {
+          "name": "激昂",
+          "text": "当你使用【决斗】或红色【杀】指定目标后，或成为【决斗】或红色【杀】的目标后，你可以摸一张牌。每回合首次【决斗】或红色【杀】因弃置进入弃牌堆后，你可以失去1点体力获得之。"
+        },
+        {
+          "name": "魂姿",
+          "text": "觉醒技，准备阶段，若你的体力值为1，你减少1点体力上限并获得“英姿”“英魂”，本回合结束阶段，你摸两张牌或回复1点体力。"
+        }
+      ],
+      "sourceRecord": "452-official-source.json",
+      "sourceRecordSha256": "f88900d93d97953c64aaed314cd5d3ccf39c38b89008d70e8a27bdb90bcfeb3e",
+      "disposition": "verified source, deferred for this recommendation",
+      "reason": "当前制霸双向拼点/拒绝在 classic孙策实际注册中尚不存在；激昂新增首次弃置后失血回收，魂姿新增当回合结束奖励，独立共享增量较多，暂后备。"
+    },
+    {
+      "gid": 454,
+      "name": "界卧龙诸葛亮",
+      "faction": "shu",
+      "baseHp": 3,
+      "officialSkills": [
+        {
+          "name": "八阵",
+          "text": "锁定技，若你的装备区里没有防具牌，你视为装备着【八卦阵】。"
+        },
+        {
+          "name": "藏拙",
+          "text": "锁定技，弃牌阶段开始时，若你本回合未使用过锦囊牌，你的锦囊牌不计入手牌上限。"
+        },
+        {
+          "name": "火计",
+          "text": "你可以将一张红色牌当【火攻】使用。你的【火攻】改为令目标展示随机手牌，你弃置与展示牌颜色相同的牌以造成伤害。"
+        },
+        {
+          "name": "看破",
+          "text": "你可以将一张黑色牌当【无懈可击】使用。你的【无懈可击】不能被响应。"
+        }
+      ],
+      "sourceRecord": "454-official-source.json",
+      "sourceRecordSha256": "7a42bf2ce89bf8f38d6af1ca8f591b3801a51de585c5d13440567bb04ba8cfef",
+      "disposition": "verified source, deferred for this recommendation",
+      "reason": "当前火计改随机展示手牌+同颜色付款，看破不可响应，藏拙为条件锦囊手牌上限豁免；3101现按CardKind，不直接等同category；至少两类CardUse覆盖政策，暂后备。"
+    },
+    {
+      "gid": 629,
+      "name": "界曹植",
+      "faction": "wei",
+      "baseHp": 3,
+      "officialSkills": [
+        {
+          "name": "落英",
+          "text": "当其他角色的梅花牌因弃置或判定而置入弃牌堆后，你可以获得其中任意张牌。"
+        },
+        {
+          "name": "酒诗",
+          "text": "你可以将武将牌翻至背面，视为使用一张【酒】。若你的武将牌背面朝上，你使用的“落英”牌无距离限制且不能被响应。当你受到伤害后，或回合外累计获得至少X张“落英”牌后（X为你体力值上限），若你的武将牌背面朝上，你可以翻至正面。"
+        }
+      ],
+      "sourceRecord": "629-official-source.json",
+      "sourceRecordSha256": "bb69f5d6012fb5e5f188d9e650074f518950f4828c46940bc2373d451cae8b68",
+      "disposition": "verified source, deferred for this recommendation",
+      "reason": "当前落英实体provenance会延续到背面酒诗的无距离/不可响应与回合外累计阈值；虽有经典落英/翻面酒，新增生命周期和实体标签政策较多，暂后备。"
+    }
+  ],
+  "validation": {
+    "performed": [
+      "87-row ordinary boundary official index parse",
+      "Each 6 hero page/API HTTP200 and raw response SHA256 retained",
+      "Exact page title/text pairing; zero fontNNN resolver requirement",
+      "Current package and specific shared capability source reads"
+    ],
+    "notPerformed": [
+      "Implementation",
+      "Content loader or compilation",
+      "Focused behavior tests",
+      "Full/routine verification",
+      "Official media download"
+    ]
+  },
+  "rootIntegrationState": {
+    "checkedAtUtc": "2026-10-03T19:37:56.0122343+00:00",
+    "status": "all-three-main-registered-full-and-routine-validated",
+    "originalPreflightSha256": "59e3ad531a8431de0f98405e7993b09f93453525535bcad3d6e9eb2d9dcfac3f",
+    "deliveryManifestSha256": "c2b20e6018fd2751fbcdff9d869e08bebb99dfb1815aefb30b839fb77969fcea",
+    "verifiedFrozenFiles": 23,
+    "sourceCopy": "three official-source files copied byte-for-byte",
+    "scope": "Focused10/10, FullCore642/642 WPF57/57, routine224/224 WPF18/18; same2489 inputs SHA"
+  }
+}

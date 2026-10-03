@@ -15,7 +15,7 @@ public sealed partial class GameEngine
         var card = _cardZones.CardsAt(CardLocation.DiscardPile).Single(item => item.Id == movement.CardId);
         return card.Suit is Suit.Spade or Suit.Club &&
             ProgramCardSetFilter.Matches(card.Kind, card.Suit, [], [SkillProgramCardCategory.Basic], [], []) &&
-            !IsCardTargetProhibited(target, CardKind.SupplyShortage, card.Suit);
+            !IsCardTargetProhibited(target, CardKind.SupplyShortage, card.Suit, SuitColor(EffectiveSuit(_players[ownerSeat], card)));
     }
 
     private SkillProgramStepOutcome UseTriggeredProgramVirtualSlash(ProgramSkillFrame frame, int targetSeat)
@@ -40,6 +40,7 @@ public sealed partial class GameEngine
         var attack = new CardAttackHandle(this, resolutionId, source.Seat, targetSeat, card: null,
             damageAmount: source.HasAlcoholEffect ? 2 : 1, playedCardKind: CardKind.Slash,
             ignoresArmor: HasCardArmorBypass(source, target, CardKind.Slash), programSkillCardUseFrameId: active.Id);
+        CaptureProgramAlcoholConsumption(resolutionId, source);
         source.HasAlcoholEffect = false;
         ActiveCardAttack = attack;
         AdvanceEventRulesAndQueueFact(new CardUsedEvent(0, CardKind.Slash, source.Seat, targetSeat));
@@ -67,7 +68,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The frozen discarded card is not a black basic card.");
         if (!IsValidPlayerSeat(targetSeat) || !_players[targetSeat].IsAlive || targetSeat == active.OwnerSeat ||
             _players[targetSeat].JudgmentAreaAbolished || HasJudgmentEffectiveCard(_players[targetSeat], kind) ||
-            IsCardUseForbidden(active.OwnerSeat, kind, CardActionType.Use) || IsDirectedCardTargetProhibited(active.OwnerSeat, targetSeat, kind) || IsCardTargetProhibited(_players[targetSeat], kind, card.Suit))
+            IsCardUseForbidden(active.OwnerSeat, kind, CardActionType.Use) || IsDirectedCardTargetProhibited(active.OwnerSeat, targetSeat, kind) || IsCardTargetProhibited(_players[targetSeat], kind, card.Suit, SuitColor(EffectiveSuit(_players[active.OwnerSeat], card))))
             return SkillProgramStepOutcome.Continue;
         var source = new CardConversionSource(active.SkillId, GetProgramBindingId(active), active.OwnerSeat, active.SkillInstanceId);
         var resolutionId = BeginCardUse(card, active.OwnerSeat, [targetSeat], kind, conversionSource: source);

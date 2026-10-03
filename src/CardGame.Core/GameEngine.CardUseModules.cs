@@ -24,7 +24,7 @@ public sealed partial class GameEngine
             _currentSeat,
             actorSeat,
             effectiveKind,
-            actionType);
+            actionType) || IsExclusiveTurnPeachUseForbidden(actorSeat, effectiveKind, actionType);
 
     private IReadOnlyList<LegalAction> FilterTurnCardUseRestrictions(
         CharacterState actor,
@@ -101,8 +101,10 @@ public sealed partial class GameEngine
     {
         _currentTurnHeartSlashBonuses.RemoveAll(b => b.TurnNumber == turnNumber && b.TurnOwnerSeat == turnSeat);
         ExpireCurrentTurnNonLockedSkillSuppressions(turnNumber, turnSeat);
+        ExpireCurrentTurnOwnSkillSuppressions(turnNumber, turnSeat);
         ExpireNextSlashDamage(turnNumber, turnSeat);
         ExpireDirectedTurnCardPolicies(turnNumber, turnSeat);
+        ResolveFirstRoundGameUsageRefunds(turnNumber, turnSeat);
         var expired = _turnCardUseEffects.ExpireTurn(turnNumber, turnSeat);
         if (expired.Count == 0) return;
         AdvanceEventRulesAndQueueFact(new TurnCardUseEffectsExpiredEvent(turnNumber, turnSeat, expired));
@@ -216,7 +218,7 @@ public sealed partial class GameEngine
         IReadOnlyList<CardKind> cardKinds)
     {
         ValidateProgramTurnEffectGrant(frame);
-        var valid = query == SkillRuleQuery.SlashLimit && operation == SkillRuleOperation.Add && amount > 0 ||
+        var valid = query == SkillRuleQuery.SlashLimit && operation == SkillRuleOperation.Add && (amount > 0 || amount is >= -20 and <= -1) ||
                     query == SkillRuleQuery.HandLimit && operation == SkillRuleOperation.Add && amount is >= -20 and <= 20 && amount != 0 ||
                     query == SkillRuleQuery.OutgoingDistance && operation == SkillRuleOperation.Add && amount is >= -20 and <= 20 && amount != 0 ||
                     (query is SkillRuleQuery.CardUseDistanceLimit or SkillRuleQuery.SlashDistanceLimit or SkillRuleQuery.AttackRange) &&

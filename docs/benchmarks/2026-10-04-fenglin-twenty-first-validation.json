@@ -1,0 +1,1761 @@
+{
+  "runs": [
+    {
+      "label": "focused-xu-01-build",
+      "startedAt": "2026-10-04T00:11:03.803422+08:00",
+      "status": "build-failed",
+      "mode": "targeted",
+      "durationMs": 13627,
+      "coreFilters": [
+        "Actual draw obligation"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 13602,
+          "logName": "build.log",
+          "logSha256": "75d4ee8bc242655a9208b1d59b7184c83320df911c8e5ab0f41b89f3ebecf42f",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    1 个错误"
+          ],
+          "errorDiagnostics": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryXuHuangChecks.cs(185,85): error CS0411: 无法从用法中推断出方法“Enumerable.Select<TSource, TResult>(IEnumerable<TSource>, Func<TSource, int, TResult>)”的类型参数。请尝试显式指定类型参数。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "focused-xu-02-real",
+      "startedAt": "2026-10-04T00:20:20.5889939+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 6793,
+      "coreFilters": [
+        "Actual draw obligation"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3123,
+          "logName": "build.log",
+          "logSha256": "1044c775fcd6f59a5d070977ee4b13bbaf521fdaf3d2bfae35d9502253fc349f",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3625,
+          "logName": "core-selected.log",
+          "logSha256": "08c73fb5b50578fd38deaf97456645a72aa0e35605f20412bd865649d5056800",
+          "resultLines": [
+            "4 passed, 0 failed, 0 skipped (4 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-xu-03-normal-gain",
+      "startedAt": "2026-10-04T00:31:56.1309964+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 5636,
+      "coreFilters": [
+        "Actual draw obligation least hand"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4504,
+          "logName": "build.log",
+          "logSha256": "6c6d6f01f2ead6a5e5abb296675fc5dd3ba34a1df50b80150ce6bc217d6d1e86",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1092,
+          "logName": "core-selected.log",
+          "logSha256": "0e07fa9dc161ee1a91bde83d9188226e3ed91da4d38d0da9f404dd85222a23fd",
+          "resultLines": [
+            "[FAIL] Actual draw obligation least hand marker end observers",
+            "       InvalidOperationException: Normal Draw's committed rootless batch is inherited by its exact actual draw frame; its real gain candidate pauses before DrawEnded and marker consumption.",
+            "0 passed, 1 failed, 0 skipped (1 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-xu-04-normal-gain-diagnostic",
+      "startedAt": "2026-10-04T00:33:58.2663616+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 5057,
+      "coreFilters": [
+        "Actual draw obligation least hand"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3876,
+          "logName": "build.log",
+          "logSha256": "83af515a568ed016f39e51bc34c393fa20ed57e95e5b453c8b7e16b511ff545b",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1143,
+          "logName": "core-selected.log",
+          "logSha256": "85ec683a8524bac0639b2516e19d14a6d4dc480999846a7e8e2a14980e587ea7",
+          "resultLines": [
+            "[FAIL] Actual draw obligation least hand marker end observers",
+            "       InvalidOperationException: Normal Draw's committed rootless batch is inherited by its exact actual draw frame; its real gain candidate pauses before DrawEnded and marker consumption. {\"normal\":{\"OwnerSeat\":0,\"ActualTurnNumber\":5,\"IsExtra\":false,\"DelayedEffects\":0,\"Stage\":3,\"ParentFrameId\":null,\"NormalDrawReplaced\":false,\"DrawAdjustment\":0,\"FrozenBaseDrawCount\":null,\"Skipped\":false,\"DrawCount\":2,\"ActiveWindowFrameId\":null,\"InheritedMovementBatchIds\":[61,62],\"Id\":63,\"Kind\":3800,\"Step\":2},\"I",
+            "0 passed, 1 failed, 0 skipped (1 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-xu-05-normal-gain-real",
+      "startedAt": "2026-10-04T00:35:18.5562095+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 5704,
+      "coreFilters": [
+        "Actual draw obligation least hand"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3537,
+          "logName": "build.log",
+          "logSha256": "d52e693c989715a8a3bdd6bebfa5880f65f3620174ac8c921c6113055d8edf1d",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2126,
+          "logName": "core-selected.log",
+          "logSha256": "8887a42793da569e2c840478f649ee2efc267cfdcd1c34ad67132ebb32953e85",
+          "resultLines": [
+            "1 passed, 0 failed, 0 skipped (1 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-dong-01-loader",
+      "startedAt": "2026-10-04T00:40:06.1279623+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 6660,
+      "coreFilters": [
+        "Owned damage point judgment"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 6396,
+          "logName": "build.log",
+          "logSha256": "43889e737d933cf805c35b027c60a3b71e66ba9a64d934e2d2113cecf29ff90f",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 224,
+          "logName": "core-selected.log",
+          "logSha256": "fe76218647c2d003869ef95b24e0ab0dfbfce0e9c56fbe688d89454682c49aa9",
+          "resultLines": [
+            "[FAIL] Owned damage point judgment actual alcohol suppression expiry",
+            "       InvalidOperationException: Invalid skill program at skill 'boundary:baonue-current' (rules.skills[3]).triggers[0].damageOccurrence: unsupported SkillProgramDamageOccurrence value 'perPoint'.",
+            "[FAIL] Owned damage point judgment bonus and dodged virtual no suppression",
+            "[FAIL] Owned damage point judgment per point recovery claim children native",
+            "0 passed, 3 failed, 0 skipped (3 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-dong-02-loader",
+      "startedAt": "2026-10-04T00:40:38.172565+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 1874,
+      "coreFilters": [
+        "Owned damage point judgment"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1643,
+          "logName": "build.log",
+          "logSha256": "9668fb325b4629be063f32a1d052cca0636ea97ac4dcf4ff2a6ce7e5abe30254",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 193,
+          "logName": "core-selected.log",
+          "logSha256": "d63f23def56b20a16b66bfbb4a4d3da9232b7910aec60c45bbc314b981584dd8",
+          "resultLines": [
+            "[FAIL] Owned damage point judgment actual alcohol suppression expiry",
+            "       InvalidOperationException: Invalid skill program at skill 'boundary:baonue-current' (rules.skills[3]).triggers[1]: missing required property 'excludedReasons'.",
+            "[FAIL] Owned damage point judgment bonus and dodged virtual no suppression",
+            "[FAIL] Owned damage point judgment per point recovery claim children native",
+            "0 passed, 3 failed, 0 skipped (3 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-dong-03-fixture-loader",
+      "startedAt": "2026-10-04T00:41:12.461616+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 1912,
+      "coreFilters": [
+        "Owned damage point judgment"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1648,
+          "logName": "build.log",
+          "logSha256": "9668fb325b4629be063f32a1d052cca0636ea97ac4dcf4ff2a6ce7e5abe30254",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 214,
+          "logName": "core-selected.log",
+          "logSha256": "c84f4d6edb4d301363aeb5eac8c71a1d32fc30efa2c4f275780ccf69317f0048",
+          "resultLines": [
+            "[FAIL] Owned damage point judgment actual alcohol suppression expiry",
+            "       InvalidOperationException: Invalid skill program at skill 'fixture:dz-damage' (rules.skills[2]).triggers[0]: missing required property 'damageOccurrence'.",
+            "[FAIL] Owned damage point judgment bonus and dodged virtual no suppression",
+            "[FAIL] Owned damage point judgment per point recovery claim children native",
+            "0 passed, 3 failed, 0 skipped (3 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-dong-04-behavior",
+      "startedAt": "2026-10-04T00:41:39.031308+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 3761,
+      "coreFilters": [
+        "Owned damage point judgment"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2350,
+          "logName": "build.log",
+          "logSha256": "a5dddffb3decc5954adddb8c68e999f5c3a9b564d15df8cb7e5f6794fedc3840",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1371,
+          "logName": "core-selected.log",
+          "logSha256": "2571b213841defba3269a1523471494a772b576922927229ec5ab848bb8370db",
+          "resultLines": [
+            "[FAIL] Owned damage point judgment actual alcohol suppression expiry",
+            "       InvalidOperationException: The fixed eighteen-card deck gives the real Lord twelve cards and the formal eight-plus-one HP.",
+            "[FAIL] Owned damage point judgment per point recovery claim children native",
+            "       InvalidOperationException: A final judgment trigger window has an invalid cursor or prompt.",
+            "1 passed, 2 failed, 0 skipped (3 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-dong-05-alcohol-fixture",
+      "startedAt": "2026-10-04T00:44:13.891242+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 4899,
+      "coreFilters": [
+        "Owned damage point judgment actual alcohol"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2572,
+          "logName": "build.log",
+          "logSha256": "a45f1e38a2514cbbda0642216a883234b4e878e52d57d968080c1c7e750871c3",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 2288,
+          "logName": "core-selected.log",
+          "logSha256": "393b658dcc9f30e92d186a85e8b3d9715a5d4c7ccd4093e55ad2203629365ca5",
+          "resultLines": [
+            "[FAIL] Owned damage point judgment actual alcohol suppression expiry",
+            "       InvalidOperationException: The game is already completed.",
+            "0 passed, 1 failed, 0 skipped (1 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-dong-06-owned-finalized",
+      "startedAt": "2026-10-04T00:50:05.585653+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 10870,
+      "coreFilters": [
+        "Owned damage point judgment"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 6120,
+          "logName": "build.log",
+          "logSha256": "5210fffb4f29f014e7c7562f25bdf7ffc105eb5d985eccc4607fbba0026c6adc",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 4709,
+          "logName": "core-selected.log",
+          "logSha256": "22769e005f19f4114e7192b58bff5c3a59a573b900814bdad2b6e8102429f42b",
+          "resultLines": [
+            "[FAIL] Owned damage point judgment actual alcohol suppression expiry",
+            "       InvalidOperationException: The fixed Dong Zhuo fixture completed before its requested boundary. {\"TurnNumber\":8,\"Players\":[{\"Seat\":0,\"Hp\":8,\"MaxHp\":9,\"GeneralId\":\"fixture:dz-owner\"},{\"Seat\":1,\"Hp\":4,\"MaxHp\":8,\"GeneralId\":\"fixture:dz-target-1\"},{\"Seat\":2,\"Hp\":8,\"MaxHp\":8,\"GeneralId\":\"fixture:dz-target-2\"},{\"Seat\":3,\"Hp\":8,\"MaxHp\":8,\"GeneralId\":\"fixture:dz-target-3\"}],\"Decay\":[{\"FrameId\":43,\"SkillId\":\"boundary:benghuai-current\",\"BindingId\":\"benghuai-decay\",\"SkillInstanceId\":\"template:primar",
+            "2 passed, 1 failed, 0 skipped (3 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-dong-07-forbid-implicit-choice",
+      "startedAt": "2026-10-04T00:59:29.3839313+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 4791,
+      "coreFilters": [
+        "Owned damage point judgment actual alcohol"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2430,
+          "logName": "build.log",
+          "logSha256": "735cf35d49dd3cda00b9bf5ef34eb3acb02b408cec39807301700eb7e95e80e6",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 2324,
+          "logName": "core-selected.log",
+          "logSha256": "ff711eff3075f8911819e6aa3c987e7c03d94b789924c5c80a77334b815582f0",
+          "resultLines": [
+            "[FAIL] Owned damage point judgment actual alcohol suppression expiry",
+            "       InvalidOperationException: The fixed Dong Zhuo fixture completed before its requested boundary. {\"TurnNumber\":8,\"Players\":[{\"Seat\":0,\"Hp\":8,\"MaxHp\":9,\"GeneralId\":\"fixture:dz-owner\"},{\"Seat\":1,\"Hp\":4,\"MaxHp\":8,\"GeneralId\":\"fixture:dz-target-1\"},{\"Seat\":2,\"Hp\":8,\"MaxHp\":8,\"GeneralId\":\"fixture:dz-target-2\"},{\"Seat\":3,\"Hp\":8,\"MaxHp\":8,\"GeneralId\":\"fixture:dz-target-3\"}],\"Decay\":[{\"FrameId\":43,\"SkillId\":\"boundary:benghuai-current\",\"BindingId\":\"benghuai-decay\",\"SkillInstanceId\":\"template:primar",
+            "0 passed, 1 failed, 0 skipped (1 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-dong-08-boundary-diagnostic",
+      "startedAt": "2026-10-04T01:00:38.429518+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 4567,
+      "coreFilters": [
+        "Owned damage point judgment actual alcohol"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2361,
+          "logName": "build.log",
+          "logSha256": "da8fb8b6466a7e94666e6e0d45987d92ba41aa39ae4eb1d95ac7c0cc31833388",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 2168,
+          "logName": "core-selected.log",
+          "logSha256": "1855a8934884dca6cb8bef8c5cc00a2c89b7bb3d49f4afcb581d481fe39f8548",
+          "resultLines": [
+            "[FAIL] Owned damage point judgment actual alcohol suppression expiry",
+            "       InvalidOperationException: The fixed Dong Zhuo fixture completed before its requested boundary. {\"TurnNumber\":8,\"Players\":[{\"Seat\":0,\"Hp\":8,\"MaxHp\":9,\"GeneralId\":\"fixture:dz-owner\"},{\"Seat\":1,\"Hp\":4,\"MaxHp\":8,\"GeneralId\":\"fixture:dz-target-1\"},{\"Seat\":2,\"Hp\":8,\"MaxHp\":8,\"GeneralId\":\"fixture:dz-target-2\"},{\"Seat\":3,\"Hp\":8,\"MaxHp\":8,\"GeneralId\":\"fixture:dz-target-3\"}],\"Decay\":[{\"FrameId\":43,\"SkillId\":\"boundary:benghuai-current\",\"BindingId\":\"benghuai-decay\",\"SkillInstanceId\":\"template:primar",
+            "0 passed, 1 failed, 0 skipped (1 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-dong-09-event-diagnostic",
+      "startedAt": "2026-10-04T01:01:17.94224+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 4711,
+      "coreFilters": [
+        "Owned damage point judgment actual alcohol"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2480,
+          "logName": "build.log",
+          "logSha256": "1cc15a4dfd8eca6ecca3210c79b417fbc2b8a4263e1168736e01fa8b1af2a298",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 2194,
+          "logName": "core-selected.log",
+          "logSha256": "fb5c1ec5ce7efa3bf432f05f8e207b6d46cc5c3f1b7e91060afaffca63383f94",
+          "resultLines": [
+            "[FAIL] Owned damage point judgment actual alcohol suppression expiry",
+            "       InvalidOperationException: The fixed Dong Zhuo fixture completed before its requested boundary. {\"TurnNumber\":8,\"Players\":[{\"Seat\":0,\"Hp\":8,\"MaxHp\":9,\"GeneralId\":\"fixture:dz-owner\"},{\"Seat\":1,\"Hp\":4,\"MaxHp\":8,\"GeneralId\":\"fixture:dz-target-1\"},{\"Seat\":2,\"Hp\":8,\"MaxHp\":8,\"GeneralId\":\"fixture:dz-target-2\"},{\"Seat\":3,\"Hp\":8,\"MaxHp\":8,\"GeneralId\":\"fixture:dz-target-3\"}],\"Decay\":[{\"FrameId\":43,\"SkillId\":\"boundary:benghuai-current\",\"BindingId\":\"benghuai-decay\",\"SkillInstanceId\":\"template:primar",
+            "0 passed, 1 failed, 0 skipped (1 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-dong-11-command-prefix-diagnostic",
+      "startedAt": "2026-10-04T01:02:31.181173+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 4589,
+      "coreFilters": [
+        "Owned damage point judgment actual alcohol"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2444,
+          "logName": "build.log",
+          "logSha256": "dff49698d5fa09956c16c0a748ddba1f6f912d24eb1288ed4ab8b8daef91cd8e",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 2114,
+          "logName": "core-selected.log",
+          "logSha256": "fddb07a98a482185c5bb02d894fa9e5aa4676d118dbc9e772f31ea1d50cf2915",
+          "resultLines": [
+            "[FAIL] Owned damage point judgment actual alcohol suppression expiry",
+            "       InvalidOperationException: The fixed Dong Zhuo fixture completed before its requested boundary. {\"TurnNumber\":8,\"Players\":[{\"Seat\":0,\"Hp\":8,\"MaxHp\":9,\"GeneralId\":\"fixture:dz-owner\",\"IsHuman\":true},{\"Seat\":1,\"Hp\":4,\"MaxHp\":8,\"GeneralId\":\"fixture:dz-target-1\",\"IsHuman\":false},{\"Seat\":2,\"Hp\":8,\"MaxHp\":8,\"GeneralId\":\"fixture:dz-target-2\",\"IsHuman\":false},{\"Seat\":3,\"Hp\":8,\"MaxHp\":8,\"GeneralId\":\"fixture:dz-target-3\",\"IsHuman\":false}],\"Decay\":[{\"FrameId\":43,\"SkillId\":\"boundary:benghuai-current\",",
+            "0 passed, 1 failed, 0 skipped (1 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-dong-12-real",
+      "startedAt": "2026-10-04T01:03:31.5190275+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 7873,
+      "coreFilters": [
+        "Owned damage point judgment"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2433,
+          "logName": "build.log",
+          "logSha256": "b2f55b051856a41100eb4699ab2fc38d103efc479b5ba4342ad813c7c24d8613",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 5406,
+          "logName": "core-selected.log",
+          "logSha256": "1a949587ce1970f5a396923d361df60f7549500997fde30a58518b6f56fb67c1",
+          "resultLines": [
+            "3 passed, 0 failed, 0 skipped (3 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-xu-dong-13-owning-review",
+      "startedAt": "2026-10-04T01:10:50.0665064+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 11247,
+      "coreFilters": [
+        "Actual draw obligation",
+        "Owned damage point judgment"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4830,
+          "logName": "build.log",
+          "logSha256": "759dd34397fa05bd8425ec00ac1e2fff0bc68c8c3de49e24221f7b3e960051f5",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (2 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 6379,
+          "logName": "core-selected.log",
+          "logSha256": "8c3115695302d87bc5998e90369f91fb5139f5dd3dfa35376018865369bdeadc",
+          "resultLines": [
+            "7 passed, 0 failed, 0 skipped (7 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-dong-14-bound-alcohol-real",
+      "startedAt": "2026-10-04T01:23:08.6268002+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 5965,
+      "coreFilters": [
+        "Owned damage point judgment claimed gain"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4243,
+          "logName": "build.log",
+          "logSha256": "fa0c20bd0a3ee7890b0fb8d5e0065173138e84d85a852f6212422ae43972d986",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1671,
+          "logName": "core-selected.log",
+          "logSha256": "95259cedb648a9e6c08f81ca8fbe73994e736d776e46fb0ded1ec109e8bd1a40",
+          "resultLines": [
+            "1 passed, 0 failed, 0 skipped (1 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-dong-15-unfixed-alcohol-baseline",
+      "startedAt": "2026-10-04T01:27:20.8716276+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 12344,
+      "coreFilters": [
+        "Owned damage point judgment claimed gain"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 10725,
+          "logName": "build.log",
+          "logSha256": "e0b0d6f0630722fb02bb68ccbd0525dba513a88d421951471ff8fd3a78720fa8",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1576,
+          "logName": "core-selected.log",
+          "logSha256": "27a67353c173f91e1b62eed55d60ffc0712212ceb54fa7fbb7aeed847ada7fb2",
+          "resultLines": [
+            "[FAIL] Owned damage point judgment claimed gain bound Alcohol rescue and cold replay",
+            "       InvalidOperationException: A final judgment trigger window has an invalid cursor or prompt.",
+            "0 passed, 1 failed, 0 skipped (1 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-jia-01-loader",
+      "startedAt": "2026-10-04T01:28:59.9567633+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 10697,
+      "coreFilters": [
+        "Prevented damage draw",
+        "Black trick target policy",
+        "Dying skill qualification",
+        "Nearest legal Slash",
+        "Owned damage point judgment claimed gain"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 8778,
+          "logName": "build.log",
+          "logSha256": "832aaf1989edc46939827d07e7b6930ef17e0dc66b4bc1cd0136ac1bf2b06293",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (5 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1876,
+          "logName": "core-selected.log",
+          "logSha256": "c945521a485ce1701a248f02cf4cce87ed9bd7334bca5911643f4dfcff8b863d",
+          "resultLines": [
+            "[FAIL] Prevented damage draw exact amount owning children",
+            "       InvalidOperationException: Invalid skill program at skill 'fixture:jx-driver' (rules.skills[0]).activations[4].effects[0].amount: must be between 1 and 20.",
+            "[FAIL] Black trick target policy actual color and lightning",
+            "[FAIL] Dying skill qualification current source foreign grants",
+            "[FAIL] Nearest legal Slash paid conversion provider optional finisher",
+            "[FAIL] Nearest legal Slash paid source loss native start history",
+            "1 passed, 5 failed, 0 skipped (6 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-jia-02-behavior",
+      "startedAt": "2026-10-04T01:30:18.3460404+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 5028,
+      "coreFilters": [
+        "Prevented damage draw",
+        "Black trick target policy",
+        "Dying skill qualification",
+        "Nearest legal Slash"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2630,
+          "logName": "build.log",
+          "logSha256": "96854969533dba984b593acf11c3ef55bda32aad6295ea84871018220cd7cdd5",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (4 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 2356,
+          "logName": "core-selected.log",
+          "logSha256": "5badea527de5da3df0f8a57189b4911957e907fa3e60d9a378ace598d796bf06",
+          "resultLines": [
+            "[FAIL] Prevented damage draw exact amount owning children",
+            "       InvalidOperationException: An active skill program has an invalid cursor or selection.",
+            "[FAIL] Black trick target policy actual color and lightning",
+            "       InvalidOperationException: Black self-targeted tricks also obey the universal target policy before any physical cost is paid.",
+            "[FAIL] Dying skill qualification current source foreign grants",
+            "       InvalidOperationException: The foreign Locked entry observer really grants its own new ordinary skill during this Dying settlement.",
+            "[FAIL] Nearest legal Slash paid conversion provider optional finisher",
+            "[FAIL] Nearest legal Slash paid source loss native start history",
+            "0 passed, 5 failed, 0 skipped (5 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-jia-03-cursor-color-and-seat-proof",
+      "startedAt": "2026-10-04T01:36:42.3652457+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 14052,
+      "coreFilters": [
+        "Prevented damage draw",
+        "Black trick target policy",
+        "Dying skill qualification",
+        "Nearest legal Slash"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 6571,
+          "logName": "build.log",
+          "logSha256": "e353ea18d3dae3a877f81672ec94c11d3ca24fe3efc63d56152b6a3e8855ff1f",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (4 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 7406,
+          "logName": "core-selected.log",
+          "logSha256": "b554025863233b4215d512bd27efdc811eaec2b8ab03322c16b21e90fe6cc210",
+          "resultLines": [
+            "[FAIL] Prevented damage draw exact amount owning children",
+            "       InvalidOperationException: An active before-damage program must retain its damage and parent window.",
+            "[FAIL] Dying skill qualification current source foreign grants",
+            "       InvalidOperationException: The foreign Locked entry observer really grants its own new ordinary skill during this Dying settlement: {\"PendingOwner\":1,\"Generals\":[{\"Seat\":0,\"GeneralId\":\"fixture:jx-owner\"},{\"Seat\":1,\"GeneralId\":\"fixture:jx-other-2\"},{\"Seat\":2,\"GeneralId\":\"fixture:jx-other-1\"},{\"Seat\":3,\"GeneralId\":\"fixture:jx-other-3\"}],\"ActualGrants\":[{\"PlayerSeat\":1,\"SourceSkillId\":\"fixture:jx-foreign-grant\",\"SkillIds\":[\"fixture:jx-later\"]}]}",
+            "[FAIL] Nearest legal Slash paid source loss native start history",
+            "       InvalidOperationException: Fixed Jia Xu prefix missed its boundary: {\"Kind\":25,\"PlayerSeat\":0,\"Prompt\":\"\\u4F60\\u53EF\\u4EE5\\u89C6\\u4E3A\\u4F7F\\u7528\\u4E00\\u5F20\\u65E0\\u8DDD\\u79BB\\u9650\\u5236\\u7684\\u3010\\u6740\\u3011\\u3002\",\"ValidCardIds\":[],\"ValidTargetSeats\":[1,2,3],\"SourceSeat\":0,\"IncomingCard\":null,\"SkillPrompt\":{\"SkillId\":\"boundary:luanwu\",\"Name\":\"\\u4E71\\u6B66\",\"Title\":\"\\u4E71\\u6B66\",\"Instructions\":\"\\u9650\\u5B9A\\u6280\\uFF0C\\u51FA\\u724C\\u9636\\u6BB5\\uFF0C\\u4F60\\u53EF\\u4EE5\\u4EE4\\u6240\\u670",
+            "2 passed, 3 failed, 0 skipped (5 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-jia-04-fixture-raw-string",
+      "startedAt": "2026-10-04T01:38:37.8794889+08:00",
+      "status": "build-failed",
+      "mode": "targeted",
+      "durationMs": 5484,
+      "coreFilters": [
+        "Prevented damage draw",
+        "Dying skill qualification",
+        "Nearest legal Slash paid source"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 5466,
+          "logName": "build.log",
+          "logSha256": "a86913c20c6423dd339719a1350cdcd2cfb147ca168de0918b8390419e2f978e",
+          "resultLines": [
+            "    0 个警告",
+            "    1 个错误"
+          ],
+          "errorDiagnostics": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryJiaXuChecks.cs(343,272): error CS9007: 内插原始字符串字面量的开头没有足够的 \\\"$\\\" 字符以允许将这么多连续的右大括号作为内容。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "focused-jia-05-dying-fixture-and-ancestry-diagnostic",
+      "startedAt": "2026-10-04T01:39:09.1033884+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 5620,
+      "coreFilters": [
+        "Prevented damage draw",
+        "Dying skill qualification",
+        "Nearest legal Slash paid source"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2597,
+          "logName": "build.log",
+          "logSha256": "aa6bd65a642015cd0783985a4c71182b1e73fad000523e2a01be9e619eb7db06",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (3 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 2979,
+          "logName": "core-selected.log",
+          "logSha256": "d4a6c0f5221ee31ae253dc5f267642c160595d683554d58078720f44c7dab167",
+          "resultLines": [
+            "[FAIL] Prevented damage draw exact amount owning children",
+            "       InvalidOperationException: An active before-damage program must retain its damage and parent window: {\"Before\":{\"ParentFrameId\":20,\"SourceSeat\":1,\"TargetSeat\":0,\"Amount\":1,\"Nature\":0,\"Continuation\":0,\"Candidates\":[{\"Candidate\":{\"OwnerSeat\":0,\"SkillId\":\"boundary:weimu\",\"BindingId\":\"own-turn-prevent-and-double-draw\",\"SkillInstanceId\":\"template:primary:boundary:weimu\",\"GameplayHash\":\"8ab8900b20650ad272bf0932942621323c5ef62021e8366ed88735f12d7825e2\",\"Priority\":0,\"OccurrenceIndex\":0},\"Facts\":{",
+            "[FAIL] Nearest legal Slash paid source loss native start history",
+            "       InvalidOperationException: Fixed Jia Xu prefix missed its boundary: {\"Kind\":25,\"PlayerSeat\":0,\"Prompt\":\"\\u4F60\\u53EF\\u4EE5\\u89C6\\u4E3A\\u4F7F\\u7528\\u4E00\\u5F20\\u65E0\\u8DDD\\u79BB\\u9650\\u5236\\u7684\\u3010\\u6740\\u3011\\u3002\",\"ValidCardIds\":[],\"ValidTargetSeats\":[1,2,3],\"SourceSeat\":0,\"IncomingCard\":null,\"SkillPrompt\":{\"SkillId\":\"boundary:luanwu\",\"Name\":\"\\u4E71\\u6B66\",\"Title\":\"\\u4E71\\u6B66\",\"Instructions\":\"\\u9650\\u5B9A\\u6280\\uFF0C\\u51FA\\u724C\\u9636\\u6BB5\\uFF0C\\u4F60\\u53EF\\u4EE5\\u4EE4\\u6240\\u670",
+            "1 passed, 2 failed, 0 skipped (3 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-jia-06-actual-draw-bridge",
+      "startedAt": "2026-10-04T01:41:11.9029576+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 8167,
+      "coreFilters": [
+        "Prevented damage draw",
+        "Nearest legal Slash paid source"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 5009,
+          "logName": "build.log",
+          "logSha256": "ef4ee45c0c7c2ed45932fae741111ce541ac1bde8c420215f2771a64a7e76145",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (2 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 3115,
+          "logName": "core-selected.log",
+          "logSha256": "8a93dc09611201c1843d332c362f02d1eecefed88443ec48244b534ac2da573b",
+          "resultLines": [
+            "[FAIL] Prevented damage draw exact amount owning children",
+            "       InvalidOperationException: Fixed Jia Xu prefix missed its boundary: {\"Kind\":4,\"PlayerSeat\":0,\"Prompt\":\"\\u4F60 \\u8FDB\\u5165\\u6FD2\\u6B7B\\u72B6\\u6001\\uFF0C\\u662F\\u5426\\u4F7F\\u7528\\u3010\\u6843\\u3011\\u6551\\u63F4\\uFF1F\",\"ValidCardIds\":[60,16,23,24,34,7,8],\"ValidTargetSeats\":[],\"SourceSeat\":0,\"IncomingCard\":null,\"PromptId\":{\"Value\":8,\"IsValid\":true},\"Revision\":173,\"RequiredCardCount\":0,\"Choices\":[{\"Id\":{\"Value\":\"dying.peach.card-60.source-0\",\"IsValid\":true},\"Description\":\"\\u4F7F\\u7528\\u3010\\u684",
+            "[FAIL] Nearest legal Slash paid source loss native start history",
+            "       InvalidOperationException: Fixed Jia Xu prefix missed its boundary: {\"Kind\":25,\"PlayerSeat\":0,\"Prompt\":\"\\u4F60\\u53EF\\u4EE5\\u89C6\\u4E3A\\u4F7F\\u7528\\u4E00\\u5F20\\u65E0\\u8DDD\\u79BB\\u9650\\u5236\\u7684\\u3010\\u6740\\u3011\\u3002\",\"ValidCardIds\":[],\"ValidTargetSeats\":[1,2,3],\"SourceSeat\":0,\"IncomingCard\":null,\"SkillPrompt\":{\"SkillId\":\"boundary:luanwu\",\"Name\":\"\\u4E71\\u6B66\",\"Title\":\"\\u4E71\\u6B66\",\"Instructions\":\"\\u9650\\u5B9A\\u6280\\uFF0C\\u51FA\\u724C\\u9636\\u6BB5\\uFF0C\\u4F60\\u53EF\\u4EE5\\u4EE4\\u6240\\u670",
+            "0 passed, 2 failed, 0 skipped (2 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-jia-07-prevention-and-paid-source-real",
+      "startedAt": "2026-10-04T01:49:51.6388849+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 9771,
+      "coreFilters": [
+        "Prevented damage draw",
+        "Nearest legal Slash paid source"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 6546,
+          "logName": "build.log",
+          "logSha256": "bf2e247eb9fe75058e944947c5760a87c0c1cf29f42198d5732c602c3692bcec",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (2 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3192,
+          "logName": "core-selected.log",
+          "logSha256": "c95541a538086ed44141c60ba8ab327742fa6f2c018a7e3a3e4823ca889e02c2",
+          "resultLines": [
+            "2 passed, 0 failed, 0 skipped (2 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-all-08-integrated-real",
+      "startedAt": "2026-10-04T01:51:23.9642182+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 13448,
+      "coreFilters": [
+        "Actual draw obligation",
+        "Owned damage point judgment",
+        "Prevented damage draw",
+        "Black trick target policy",
+        "Dying skill qualification",
+        "Nearest legal Slash"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1583,
+          "logName": "build.log",
+          "logSha256": "fcfe88673c84f86d72af2bf00f90966bb34e5c3b1ab16826fd164d957b8ae189",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (6 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 11833,
+          "logName": "core-selected.log",
+          "logSha256": "d62a81eb805f8a9906e6e62e460eeb6d1350d596c18104ed405ba3917e55ad65",
+          "resultLines": [
+            "13 passed, 0 failed, 0 skipped (13 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-jia-09-activation-loader-precondition",
+      "startedAt": "2026-10-04T01:54:36.4217809+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 6814,
+      "coreFilters": [
+        "Prevented damage draw"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 6609,
+          "logName": "build.log",
+          "logSha256": "0f001a0caeb6b99672f941b3c230bc2b0db8e5c79339482e9b398c9fa2b9cff5",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 174,
+          "logName": "core-selected.log",
+          "logSha256": "75061799dbf3cd8ddb95b0ea274e5edb9fb0b8cb38a510b7d329390162e3750f",
+          "resultLines": [
+            "[FAIL] Prevented damage draw exact amount owning children",
+            "       InvalidOperationException: Invalid skill program at skill 'fixture:invalid-slash-trigger' (rules.skills[0]).triggers[0].effects[0]: a replacement target requires one existing single target.",
+            "0 passed, 1 failed, 0 skipped (1 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-jia-10-selection-parser-precondition",
+      "startedAt": "2026-10-04T01:55:07.7330308+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 2836,
+      "coreFilters": [
+        "Prevented damage draw"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2633,
+          "logName": "build.log",
+          "logSha256": "ccb15474f173107af47fef1d4169fc8bbccfbd1429a642990476b5fa7d253c06",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 171,
+          "logName": "core-selected.log",
+          "logSha256": "6786ca57922163a89c44566983604270ed2baf5947d98e87c663c21d9a698c19",
+          "resultLines": [
+            "[FAIL] Prevented damage draw exact amount owning children",
+            "       InvalidOperationException: Invalid skill program at skill 'fixture:invalid-slash-trigger' (rules.skills[0]).triggers[0].effects[1]: a composition may select its target only once.",
+            "0 passed, 1 failed, 0 skipped (1 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-jia-11-activation-loader-real",
+      "startedAt": "2026-10-04T01:56:53.3852873+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 4947,
+      "coreFilters": [
+        "Prevented damage draw"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2542,
+          "logName": "build.log",
+          "logSha256": "d540d780d37a312381c75bdbf8164485b0d76fbb43f7e272c49c647fa70fc52e",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2370,
+          "logName": "core-selected.log",
+          "logSha256": "3006fb902bb2dad1932bb4e114d3c73d84e4681b5ec7b9c6a5d93873742371db",
+          "resultLines": [
+            "1 passed, 0 failed, 0 skipped (1 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "full-01-real",
+      "startedAt": "2026-10-04T01:57:30.1156787+08:00",
+      "status": "test-failed",
+      "mode": "full",
+      "durationMs": 245745,
+      "coreFilters": [],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 5232,
+          "logName": "build.log",
+          "logSha256": "34d6f9994cd67e5c9131992de2be413a4d2717e26997c88ee07c45b4a5c11a42",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core full checks",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 203710,
+          "logName": "core-full.log",
+          "logSha256": "56ce8f3e3fcc588b13dfeea3cfc2926458bb5219a99ecd0eb85e916b497aed82",
+          "resultLines": [
+            "[FAIL] boundary Liu Bei origin legacy mechanism",
+            "       TargetException: Non-static method requires a target.",
+            "631 passed, 1 failed, 0 skipped (632 total)."
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "WPF full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 36773,
+          "logName": "wpf-full.log",
+          "logSha256": "182fe1de7f3111f73ac7456affdc11efa269a77f2d574a0f3ee50a8fdcf6fb0c",
+          "resultLines": [
+            "57 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders"
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-legacy-liu-bei-instance-clone",
+      "startedAt": "2026-10-04T02:07:04.8275128+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 7622,
+      "coreFilters": [
+        "boundary Liu Bei"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2674,
+          "logName": "build.log",
+          "logSha256": "4e8a476ca06c0de60f484c63991b71297c67f5b9bdd618807f9196a618addda5",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 4909,
+          "logName": "core-selected.log",
+          "logSha256": "bd453cc9ecd7209daa5055dd338c73aa5c2793f132329bd7bed941285253885f",
+          "resultLines": [
+            "11 passed, 0 failed, 0 skipped (11 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "full-02-real",
+      "startedAt": "2026-10-04T02:07:24.8305053+08:00",
+      "status": "passed",
+      "mode": "full",
+      "durationMs": 240569,
+      "coreFilters": [],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2236,
+          "logName": "build.log",
+          "logSha256": "9cf5e9505b6c2a7beb03a79366473833549bcb805e0e8e2951a721ffdff93f23",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 200995,
+          "logName": "core-full.log",
+          "logSha256": "9348f7cb6836254c941c64b0e8ce642013337b48c3fc738b6a1cda29d1e5c216",
+          "resultLines": [
+            "632 passed, 0 failed, 0 skipped (632 total)."
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "WPF full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 37309,
+          "logName": "wpf-full.log",
+          "logSha256": "e3f9ebb9f0f53568f1e2bc1e5913177a349df74e157f71f30d59b951e33c67d2",
+          "resultLines": [
+            "57 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders"
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "routine-01-real",
+      "startedAt": "2026-10-04T02:13:29.5637538+08:00",
+      "status": "passed",
+      "mode": "routine",
+      "durationMs": 80270,
+      "coreFilters": [
+        "command",
+        "observer",
+        "viewer",
+        "prepared snapshot",
+        "internal failure",
+        "skill program",
+        "lifecycle programs",
+        "shared post-event",
+        "Phase hand extra turn",
+        "Actual draw obligation",
+        "Owned damage point judgment",
+        "Prevented damage draw",
+        "Black trick target policy",
+        "Dying skill qualification",
+        "Nearest legal Slash",
+        "shared use lifecycle",
+        "shared card-use",
+        "card movement",
+        "card inventory",
+        "initial deal",
+        "invalid single and batch",
+        "draw and recover",
+        "execution plans",
+        "skill executor",
+        "program gameplay hashes",
+        "physical deck recipes",
+        "structured skill metadata",
+        "content registry",
+        "standard package",
+        "composition kernel",
+        "rule query",
+        "slash resolution",
+        "dying response",
+        "Xingshang",
+        "response use completion",
+        "selected gift",
+        "configured active sequences",
+        "standard active programs",
+        "owned-card set",
+        "turn card-use effects",
+        "active Program contracts",
+        "hand guidance",
+        "actual marker payment",
+        "replacement draw and dying payment",
+        "two dynamic actual ends",
+        "ordered nested native owner",
+        "payment nested comparison",
+        "first target history",
+        "program conversion polarity shared state and replay",
+        "Feng Lin Lu Zhi actual discard entry boundaries",
+        "Ending child gift joins current boundary",
+        "Feng Lin Yuan Shu command loss regrant source suppression",
+        "Feng Lin Yuan Shu qualified awakening persistent local loss",
+        "Feng Lin Zhou Fei first domains and true equipment sequence",
+        "Feng Lin Zhou Fei same-source association freeze",
+        "Feng Lin Congjian Equipment gift nested replay",
+        "after turn ended return movement prelude ordering",
+        "after turn ended due before window nested replay",
+        "Feng Lin Zuo Ci initial privacy and replay",
+        "Feng Lin Zuo Ci layered suppression and local disable",
+        "Feng Lin Zuo Ci same avatar program and actual end",
+        "Feng Lin Yu Ji",
+        "boundary Lu Meng all table printed suits replay",
+        "boundary Lu Meng cross owner skip chain resume death",
+        "boundary Lu Meng Qinxue windows shared usage",
+        "boundary Lu Meng opt in usage legacy shape",
+        "Boundary Huang Gai actual provider color",
+        "Boundary Huang Gai multi card color source lifecycle",
+        "boundary Lu Xun actual trick hold lianying and return",
+        "boundary Lu Xun HE payment exact Hand batch count",
+        "boundary Liu Bei virtual Peach HP child",
+        "boundary Liu Bei native provided use decline once",
+        "boundary Liu Bei gift threshold recipient",
+        "boundary Da Qiao atomic mixed discard replay",
+        "boundary Hua Tuo ordered actual discard effective suit receipts",
+        "participant discard mandatory cost cancellation preserves legal composition",
+        "current turn nonlocked suppression host lifecycle audit",
+        "boundary Guan Yu actual Played and black Hand rejection",
+        "Boundary Zhang Fei actual recovery receipt limited child",
+        "boundary Ma Chao Tieqi Paoxiao exact cancellation integration",
+        "boundary Xiahou Dun real phases skip quota expiry",
+        "boundary Xiahou Dun receipt before gain child source audit",
+        "Exact top count partition normal draw",
+        "Bound draw receipt per point nested gain",
+        "boundary Zhen Ji exact receipt stop red discard",
+        "boundary Zhen Ji receipt before child source loss",
+        "Unconverted Trick draw receipt disposition",
+        "Foreign equipment discard program selections",
+        "Population reorder actual partition and short pile",
+        "Population reorder real Ending Extra Scheduled",
+        "HP pair freezes after payment children before draw children",
+        "Equipment placement slot self equal boundaries",
+        "Final target Slash frozen comparisons actual paid Dodge",
+        "Paid HP loss rescue and gain children",
+        "Paid HP loss source and legacy",
+        "Boundary Deng Ai own turn slash discard judges authority",
+        "Boundary Deng Ai awakening grants snatch and extra turn",
+        "Boundary Jiang Wei declined taunt discards target card",
+        "Boundary Jiang Wei dodged slash still discards",
+        "Boundary Jiang Wei taunt runs twice per phase",
+        "Boundary Jiang Wei awakening wakes once across phases",
+        "Damage target mount paid children source lifetime",
+        "Damage appearance Draw definitions physical colors cardless legacy",
+        "Selected actor Duel actual Use and Nullification",
+        "Damage target obtain nested Duel native cold",
+        "Boundary Yuan Shao population start role marker limit",
+        "Boundary Yuan Shao conversion actual remaining targets",
+        "Recovery replacement Silver Lion Zhiheng HP and reward children",
+        "Recovery replacement paid equipment tail",
+        "Recovery replacement faction request Silver Lion cost before providers",
+        "Program Iron Chain third target owned recast",
+        "Equipment recast Silver Lion recovery and movement children",
+        "BoundaryXuShu fixed target real Slash",
+        "BoundaryXuShu declared deck criterion",
+        "Character turned over Shebian both directions",
+        "Character turned over Shebian occupied equipment slot",
+        "Character turned over actual damage cursor",
+        "Capped hand refresh",
+        "HP paid shield",
+        "Random Pindian",
+        "Maximum Slash Pindian",
+        "Bound card recast dynamic Slash",
+        "Bound card recast Silver Lion",
+        "Turn kind hand exemption",
+        "Signed Slash modifier",
+        "Bound discard Slash frozen suit",
+        "Bound discard Slash equipment",
+        "First round limited refund exact",
+        "Current Slash entity claim basic",
+        "Current Slash entity claim nonbasic",
+        "Participant hand declined private take",
+        "Participant hand mixed HE gift",
+        "Participant hand per point effective red",
+        "Participant hand program bound alcohol",
+        "Next-use rank bonus",
+        "Other dying recovery equipment",
+        "Alternative phase cost actual",
+        "Alternative phase cost equipped",
+        "Ending hand count history"
+      ],
+      "wpfFilters": [
+        "original card artwork",
+        "overlapping hand",
+        "composed skills",
+        "conversion choices",
+        "response context",
+        "hand responses",
+        "opaque target-card",
+        "playback batches",
+        "saved UI boundaries",
+        "failed writes",
+        "public markers",
+        "deferred hand alignment",
+        "Program conversion polarity stays visible",
+        "declaration and general library views protect private faces",
+        "Program paid choices",
+        "Program exact top count restores private shared order",
+        "Program population count private faces restore shared free order",
+        "Program Iron Chain guide follows actual target count"
+      ],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2273,
+          "logName": "build.log",
+          "logSha256": "00c4dcc9124aabd332f18b2c9f12b996d30caad0569866258477747783149e06",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (139 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 56869,
+          "logName": "core-selected.log",
+          "logSha256": "e47eb11e1b0eb930fcc3904c6124396253792bc15369f81fc0a47a9b4a18754f",
+          "resultLines": [
+            "219 passed, 0 failed, 0 skipped (219 total)."
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "WPF selected checks (18 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 21076,
+          "logName": "wpf-selected.log",
+          "logSha256": "3cf6d2662108f2c0bee0fe94f3a2b50535c2a1ae3ccbadae5e89c6e929635a4a",
+          "resultLines": [
+            "18 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders"
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    }
+  ],
+  "status": "full-and-routine-validated",
+  "currentRegistration": [
+    "boundary:xu-huang",
+    "boundary:dong-zhuo",
+    "boundary:jia-xu"
+  ],
+  "finalFocused": {
+    "label": "focused-all-08-integrated-real",
+    "corePassed": 13,
+    "durationMs": 13448,
+    "postLoaderGuard": "focused-jia-11-activation-loader-real",
+    "postLoaderCorePassed": 1
+  },
+  "inputHashes": [
+    {
+      "sha256": "0f1016f92e9bb15a8d87072b1177a3deeef97394dd442b25c0d0ad7f5c7eb886",
+      "label": "full-01-start",
+      "files": 2466
+    },
+    {
+      "sha256": "0f1016f92e9bb15a8d87072b1177a3deeef97394dd442b25c0d0ad7f5c7eb886",
+      "label": "full-01-end",
+      "files": 2466
+    },
+    {
+      "sha256": "7d212119b69422f309bf1f55e01d36de8de3ba8ed19ebfb977f0a371d3047f94",
+      "label": "full-02-start",
+      "files": 2466
+    },
+    {
+      "sha256": "7d212119b69422f309bf1f55e01d36de8de3ba8ed19ebfb977f0a371d3047f94",
+      "label": "full-02-end",
+      "files": 2466
+    },
+    {
+      "sha256": "7d212119b69422f309bf1f55e01d36de8de3ba8ed19ebfb977f0a371d3047f94",
+      "label": "routine-01-end",
+      "files": 2466
+    }
+  ],
+  "offlineArt": {
+    "passed": true,
+    "generalCount": 199,
+    "pngRecords": 996,
+    "command": "python -B tools/sync_general_art.py --phase verify"
+  },
+  "alcoholRegression": {
+    "unfixedLabel": "focused-dong-15-unfixed-alcohol-baseline",
+    "unfixedPassed": 0,
+    "unfixedFailed": 1,
+    "failure": "A final judgment trigger window has an invalid cursor or prompt.",
+    "fixedLabel": "focused-dong-14-bound-alcohol-real",
+    "fixedPassed": 1,
+    "originalSourceRestoredExactly": true,
+    "sha256": "ec8edd36ef02b1dd2a0a0fe1110ab614dcc388e2ec7ddc437163838c5849d9a3"
+  },
+  "integration": {
+    "xuStageManifest": "bedf4ee9427bae5a688a71d9ab26b4e607bc7e228db49cb8b08affa02f1f43b2",
+    "dongStageManifest": "b348925673a6204d79e257cd0936370b2f047c3a9d9af8b8ccfbe6b8b9481e66",
+    "jiaStageManifest": "3a24ed408cfb3c25f79798f91c13795e42c895efc4a6fb509438b7d4ccd6f0c1",
+    "jiaOldWiring": "db05782824dc17ef69f78a62c50c357f7e68c25c7c33f4991c2665ca4731df57",
+    "rootAuthorityFiles": [
+      {
+        "path": "tests/CardGame.Core.Tests/BoundaryXuHuangChecks.cs",
+        "sha256": "165655959271124836c18594ebce43d459065fa53544599c06ab2fec93939a06"
+      },
+      {
+        "path": "tests/CardGame.Core.Tests/BoundaryDongZhuoChecks.cs",
+        "sha256": "b9d3387416f0697464a7d19c0a2a5097911ab905c0400e378bbc35121aabee2d"
+      },
+      {
+        "path": "tests/CardGame.Core.Tests/BoundaryJiaXuChecks.cs",
+        "sha256": "27cbed30911d6b900647d07184ff632b954d1166d0a385fe5e28b27ad53b7c16"
+      },
+      {
+        "path": "src/CardGame.Core/GameEngine.NearestLegalSlashRequests.cs",
+        "sha256": "0b98afec2f2ea71a52e623fe52ca54889f30b4053a81e609a84701fab5217728"
+      },
+      {
+        "path": "src/CardGame.Core/GameEngine.PreventionDrawObservers.cs",
+        "sha256": "1212808b4dffeaa9002e8771ec30c705cbb92733583506a16b7a4a1dc30a0faf"
+      },
+      {
+        "path": "src/CardGame.Core/GameEngine.OwnedDamagePointJudgments.cs",
+        "sha256": "ec8edd36ef02b1dd2a0a0fe1110ab614dcc388e2ec7ddc437163838c5849d9a3"
+      }
+    ]
+  },
+  "compiledArt": [
+    {
+      "key": "assets/official-boundary-jia-xu.png",
+      "sourceSha256": "f90b2d87b58422d14e039d53f5945d286dd1063be83dc56a55ee7fab49b0bccb",
+      "compiledSha256": "f90b2d87b58422d14e039d53f5945d286dd1063be83dc56a55ee7fab49b0bccb",
+      "matched": true
+    },
+    {
+      "key": "assets/official-boundary-xu-huang.png",
+      "sourceSha256": "df14db3f7a3478f99914c84edfb297bc5b7ef813ad749dd61d7daaf69c5d122c",
+      "compiledSha256": "df14db3f7a3478f99914c84edfb297bc5b7ef813ad749dd61d7daaf69c5d122c",
+      "matched": true
+    },
+    {
+      "key": "assets/official-boundary-dong-zhuo.png",
+      "sourceSha256": "20d1e9036a3639bcfe8d27b54bc8e7c71565dbc9d164c57da4cda8e0e6b52a3b",
+      "compiledSha256": "20d1e9036a3639bcfe8d27b54bc8e7c71565dbc9d164c57da4cda8e0e6b52a3b",
+      "matched": true
+    }
+  ],
+  "validatedAtUtc": "2026-10-03T18:16:33.2126778+00:00",
+  "finalFull": {
+    "label": "full-02-real",
+    "corePassed": 632,
+    "wpfPassed": 57,
+    "durationMs": 240569,
+    "buildMs": 2236,
+    "coreMs": 200995,
+    "wpfMs": 37309
+  },
+  "finalRoutine": {
+    "label": "routine-01-real",
+    "corePassed": 219,
+    "wpfPassed": 18,
+    "durationMs": 80270,
+    "buildMs": 2273,
+    "coreMs": 56869,
+    "wpfMs": 21076,
+    "coreFilterItems": 139,
+    "wpfFilterItems": 18,
+    "oneMinuteTarget": "Measured above the approximately one-minute target; no historical coverage removed to reduce time."
+  },
+  "legacyRegression": {
+    "failedFull": "full-01-real",
+    "failure": "boundary Liu Bei origin legacy mechanism: TargetException: Non-static method requires a target.",
+    "cause": "CloneRoleAction now depends on actual engine target-policy capability; existing reflection check still invoked as static.",
+    "fix": "Existing check invokes instance method on its original engine; original assertions retained.",
+    "focusedLabel": "focused-legacy-liu-bei-instance-clone",
+    "focusedPassed": 11,
+    "onlyInputChangedBetweenFullRuns": "tests/CardGame.Core.Tests/BoundaryLiuBeiChecks.cs",
+    "sourceSha256": "339837ece93ea7ff2327e05ca83b1e2a4a3d3ed73238c47a16903959d91303b7"
+  },
+  "versions": {
+    "ruleChange": false,
+    "schemaChange": false,
+    "packageChange": false,
+    "reference": "src/CardGame.Core/Replay.cs; src/CardGame.Core/SkillPrograms.cs; src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs"
+  },
+  "cleanupRecord": "docs/benchmarks/2026-10-04-fenglin-twenty-first-cleanup.json",
+  "nextBatch": {
+    "status": "three-agents-staging-no-main-registration",
+    "gids": [
+      526,
+      505,
+      625
+    ],
+    "preflight": "docs/content/sources/fenglin-twenty-second-preflight-2026-10-04.json",
+    "frozenFilesVerified": 23,
+    "artStaged": 3
+  }
+}

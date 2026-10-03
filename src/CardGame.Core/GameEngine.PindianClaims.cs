@@ -4,6 +4,7 @@ public sealed partial class GameEngine
 {
     private bool BeginPindianClaims(PindianFrame frame)
     {
+        if (HasMaximumSlashPindianClaim(frame)) return BeginMaximumSlashPindianClaims(frame);
         var result = frame.Result ?? throw new InvalidOperationException("Pindian claim requires a revealed result.");
         var seats = frame.ClaimSeats ?? new[] { result.SourceSeat, result.OpponentSeat }
             .Where(seat => CardPolicies(_players[seat], SkillProgramCardPolicyKind.PindianClaim).Any() ||
@@ -50,6 +51,7 @@ public sealed partial class GameEngine
     private void ResolvePindianClaimChoice(PromptChoice selected)
     {
         var frame = (PindianFrame)_resolutionStack[^1];
+        if (frame.PolicyClaims is not null) { ResolveMaximumSlashPindianClaim(frame, selected); return; }
         var seat = frame.ClaimSeats![frame.ClaimIndex];
         if (_pendingDecision?.PlayerSeat != seat || !_pendingDecision.Choices.Any(choice => choice.Id == selected.Id))
             throw new InvalidOperationException("Pindian claim does not match its published claimant.");

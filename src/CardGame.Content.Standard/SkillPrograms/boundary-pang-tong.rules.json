@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:lianhuan",
+      "revision": 1,
+      "modifiers": [
+        { "id": "iron-chain-extra-target", "query": "cardTargetCount", "operation": "add", "value": 1,
+          "cardKinds": ["ironChain"], "priority": 0 }
+      ],
+      "viewAs": [
+        { "id": "club-owned-as-iron-chain", "sourceZones": ["hand", "equipment"], "inputKinds": [],
+          "inputSuits": ["club"], "outputKind": "ironChain", "forPlay": true, "forResponse": false }
+      ]
+    },
+    {
+      "id": "boundary:niepan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "activation", "window": "selfDyingResponse", "subject": "owner", "optional": true,
+          "usageScope": "game", "usageLimit": 1,
+          "effects": [
+            { "op": "discardOwnedZoneCards", "target": "owner", "zones": ["hand", "equipment", "judgment"] },
+            { "op": "setChainedState", "target": "owner", "chained": false },
+            { "op": "setFaceState", "target": "owner", "faceDown": false },
+            { "op": "draw", "target": "owner", "amount": 3 },
+            { "op": "recoverTo", "target": "owner", "numberExpression": "integerConstant", "minimumValue": 3,
+              "clampToMaxHp": true },
+            { "op": "chooseOption", "target": "owner", "resultBind": "reborn-skill",
+              "options": [{ "id": "bazhen" }, { "id": "huoji" }, { "id": "kanpo" }] },
+            { "op": "grantSkills", "target": "owner", "skillIds": ["classic:bazhen"],
+              "condition": { "kind": "choiceIs", "sourceBind": "reborn-skill", "optionId": "bazhen" } },
+            { "op": "grantSkills", "target": "owner", "skillIds": ["classic:huoji"],
+              "condition": { "kind": "choiceIs", "sourceBind": "reborn-skill", "optionId": "huoji" } },
+            { "op": "grantSkills", "target": "owner", "skillIds": ["classic:kanpo"],
+              "condition": { "kind": "choiceIs", "sourceBind": "reborn-skill", "optionId": "kanpo" } }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -3,6 +3,14 @@ namespace CardGame.Core;
 /// <summary>Card and turn rules supplied by an enabled program instance.</summary>
 public enum SkillProgramCardPolicyKind
 {
+    ClaimedEntitiesFaceDownUse = 4500,
+    RandomRevealColorFireAttack = 4400, UnrespondableNullification = 4401,
+    IgnoreUseDistanceBeforeDealingDamage = 3800,
+    UnlimitedAlcoholUse = 3900,
+    SuppressOthersNonLockedDuringDying = 4000, ExclusiveTurnPeachUse = 4001, ProhibitBlackTrickTarget = 4002,
+    PindianOpponentRandomHand = 3100,
+    PindianMaximumSlashClaim = 3101,
+    RedirectOwnTurnFactionRecovery = 2700,
     SlashRangeFromEffectiveRank = 2100,
     PreventForeignEquipmentDiscard = 1980,
     IgnoreSlashUseDistanceBySuit = 1860,

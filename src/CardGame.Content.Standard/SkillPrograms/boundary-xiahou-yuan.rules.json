@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:shensu", "revision": 1,
+      "triggers": [
+        {
+          "id": "skip-judgment-and-draw", "window": "turnStartBeforeNormalFlow",
+          "subject": "owner", "optional": true, "priority": 10,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingVirtualSlashTarget" },
+            { "op": "skipTurnPhases", "target": "owner", "phases": ["judgment", "draw"] },
+            { "op": "useVirtualCard", "target": "selectedTarget", "outputKind": "slash", "targetRestriction": "distanceUnlimitedAgainstTarget" }
+          ]
+        },
+        {
+          "id": "skip-play-pay-equipment", "window": "afterNormalDraw",
+          "subject": "owner", "optional": true,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingVirtualSlashTarget" },
+            { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" }, "count": 1, "zones": ["hand", "equipment"], "cardCategories": ["equipment"], "destination": "discardPile", "awaitMovementTriggers": true },
+            { "op": "skipTurnPhases", "target": "owner", "phases": ["play"] },
+            { "op": "useVirtualCard", "target": "selectedTarget", "outputKind": "slash", "targetRestriction": "distanceUnlimitedAgainstTarget" }
+          ]
+        },
+        {
+          "id": "skip-discard-and-turn-over", "window": "discardPhaseStarting",
+          "subject": "owner", "optional": true,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingVirtualSlashTarget" },
+            { "op": "skipTurnPhases", "target": "owner", "phases": ["discard"] },
+            { "op": "turnOver", "target": "owner" },
+            { "op": "useVirtualCard", "target": "selectedTarget", "outputKind": "slash", "targetRestriction": "distanceUnlimitedAgainstTarget" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:shebian", "revision": 1,
+      "triggers": [
+        {
+          "id": "move-field-equipment-after-turn-over", "window": "characterTurnedOver",
+          "subject": "owner", "optional": true,
+          "effects": [
+            { "op": "selectTargets", "target": "owner", "targetKind": "livingPairDistinct", "minimumTargets": 2, "maximumTargets": 2, "targetAiOrder": "stable" },
+            { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "selectedFirst" }, "targetRef": { "kind": "selectedSecond" }, "zones": ["equipment"], "count": 1, "destination": "selectedTargetCorrespondingZone", "skipIfNoCards": true, "awaitMovementTriggers": true, "prohibitReplacingEquipment": true }
+          ]
+        }
+      ]
+    }
+  ]
+}

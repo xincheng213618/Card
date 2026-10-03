@@ -1,0 +1,1043 @@
+{
+  "status": "batch-validated",
+  "edition": "Current ordinary Sanguosha OL",
+  "generals": [
+    "boundary:pang-de",
+    "boundary:fa-zheng",
+    "boundary:han-dang"
+  ],
+  "artifactCache": ".artifacts/continuation-20261003-batch17/verification-cache",
+  "offlineArtwork": {
+    "status": "passed",
+    "generals": 194,
+    "pngRecords": 991
+  },
+  "galleryCorrection": {
+    "general": "boundary:cao-zhang",
+    "from": "boundary",
+    "to": "boundary-fame",
+    "source": "https://www.sanguosha.com/news/20150723_5319_3515"
+  },
+  "runs": [
+    {
+      "label": "focused-01-build",
+      "startedAt": "2026-10-03T20:54:13.0016248+08:00",
+      "status": "build-failed",
+      "mode": "targeted",
+      "durationMs": 16527,
+      "coreFilters": [
+        "Current Slash entity claim",
+        "Participant hand",
+        "Bound discard Slash",
+        "First round limited refund",
+        "Final target Slash",
+        "classic Pang De",
+        "turn card-use effects",
+        "composition kernel",
+        "prepared snapshot",
+        "owned-card set",
+        "shared card-use"
+      ],
+      "wpfFilters": [
+        "composed skills",
+        "opaque target-card",
+        "declaration and general library views protect private faces"
+      ],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 16497,
+          "logName": "build.log",
+          "logSha256": "8a0f3233739f308d5c1360cc9faf0def519444a647a02aadf024cbcde241ee2f",
+          "resultLines": [
+            "    0 个警告",
+            "    1 个错误"
+          ],
+          "errorDiagnostics": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs(215,187): error CS9007: 内插原始字符串字面量的开头没有足够的 \\\"$\\\" 字符以允许将这么多连续的右大括号作为内容。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "focused-02-build",
+      "startedAt": "2026-10-03T20:55:50.2565287+08:00",
+      "status": "build-failed",
+      "mode": "targeted",
+      "durationMs": 2566,
+      "coreFilters": [
+        "Current Slash entity claim",
+        "Participant hand",
+        "Bound discard Slash",
+        "First round limited refund",
+        "Final target Slash",
+        "classic Pang De",
+        "turn card-use effects",
+        "composition kernel",
+        "prepared snapshot",
+        "owned-card set",
+        "shared card-use"
+      ],
+      "wpfFilters": [
+        "composed skills",
+        "opaque target-card",
+        "declaration and general library views protect private faces"
+      ],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 2541,
+          "logName": "build.log",
+          "logSha256": "e840689819fd15befef3b85f2a4bcd91d13bbf60c3c79aa826b1debfcdbff778",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    1 个错误"
+          ],
+          "errorDiagnostics": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs(82,127): error CS1061: “CardMovementBatchContext”未包含“OriginProgramSkillFrameId”的定义，并且找不到可接受第一个“CardMovementBatchContext”类型参数的可访问扩展方法“OriginProgramSkillFrameId”(是否缺少 using 指令或程序集引用?) [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "focused-03",
+      "startedAt": "2026-10-03T20:56:23.2973691+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 15808,
+      "coreFilters": [
+        "Current Slash entity claim",
+        "Participant hand",
+        "Bound discard Slash",
+        "First round limited refund",
+        "Final target Slash",
+        "classic Pang De",
+        "turn card-use effects",
+        "composition kernel",
+        "prepared snapshot",
+        "owned-card set",
+        "shared card-use"
+      ],
+      "wpfFilters": [
+        "composed skills",
+        "opaque target-card",
+        "declaration and general library views protect private faces"
+      ],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2828,
+          "logName": "build.log",
+          "logSha256": "310aedeb6782851386765f471d54a7b5c21eefec9bf523f0c7bccd928f60cae3",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (11 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 9754,
+          "logName": "core-selected.log",
+          "logSha256": "d1ad14fdf02494ed6c2f23b61e497a4393a94c37294de86273836f3735055b08",
+          "resultLines": [
+            "[FAIL] Participant hand program bound alcohol rescue typed return and cold",
+            "       InvalidOperationException: Resolution frame 38 is not the top Dying frame.",
+            "System.InvalidOperationException: Resolution frame 38 is not the top Dying frame.",
+            "[FAIL] Current Slash entity claim basic payment original damage and multiple materials",
+            "       InvalidOperationException: Invalid skill program at skill 'fixture:pd-loss' (rules.skills[4]).triggers[0].effects[0]: Owner skill replacement must terminate an activation..",
+            "System.InvalidOperationException: Invalid skill program at skill 'fixture:pd-loss' (rules.skills[4]).triggers[0].effects[0]: Owner skill replacement must terminate an activation..",
+            "[FAIL] Current Slash entity claim nonbasic receipt real allowance and armor boundaries",
+            "[FAIL] Current Slash entity claim multi target virtual and source loss owning use",
+            "[FAIL] Current Slash entity claim native AI public category prior real payment",
+            "[FAIL] Bound discard Slash frozen suit quota prepared privacy and expiry",
+            "[FAIL] Bound discard Slash equipment frozen suit recovery and movement children",
+            "       InvalidOperationException: The real Silver Lion fixture starts wounded before its removal.",
+            "System.InvalidOperationException: The real Silver Lion fixture starts wounded before its removal.",
+            "[FAIL] First round limited refund exact usage and second round consumption",
+            "[FAIL] First round limited refund extra turn and native AI Gongqi",
+            "18 passed, 9 failed, 0 skipped (27 total)."
+          ],
+          "errorDiagnostics": [],
+          "failureDetails": [
+            {
+              "name": "[FAIL] Participant hand program bound alcohol rescue typed return and cold",
+              "message": "       InvalidOperationException: Resolution frame 38 is not the top Dying frame.",
+              "topStack": [
+                "   at CardGame.Core.FrameStore.CompleteTop(Int64 frameId, ResolutionFrameKind expectedKind) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\FrameStore.cs:line 30",
+                "   at CardGame.Core.GameEngine.PopResolutionFrame(Int64 frameId, ResolutionFrameKind expectedKind) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.Runtime.cs:line 129",
+                "   at CardGame.Core.GameEngine.CompleteDyingAfterDeath(DyingFrame dying, Boolean survived) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.cs:line 12736",
+                "   at CardGame.Core.GameEngine.CompleteDying(DyingFrame dying, Boolean survived) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.cs:line 12724",
+                "   at CardGame.Core.GameEngine.CompleteDyingCardResponse(DyingResponseEvent response) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\GameEngine.cs:line 12695"
+              ],
+              "fixtureLocations": [
+                "   at ParticipantHandProgramRescueChecks.Accept(GameEngine game, GameCommand command) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\ParticipantHandProgramRescueChecks.cs:line 148",
+                "   at ParticipantHandProgramRescueChecks.Advance(GameEngine game) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\ParticipantHandProgramRescueChecks.cs:line 143",
+                "   at ParticipantHandProgramRescueChecks.Reach(GameEngine game, Func`2 predicate) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\ParticipantHandProgramRescueChecks.cs:line 132"
+              ]
+            },
+            {
+              "name": "[FAIL] Current Slash entity claim basic payment original damage and multiple materials",
+              "message": "       InvalidOperationException: Invalid skill program at skill 'fixture:pd-loss' (rules.skills[4]).triggers[0].effects[0]: Owner skill replacement must terminate an activation..",
+              "topStack": [
+                "   at CardGame.Core.ProgramCompositionValidator.Validate(String path, IReadOnlyList`1 effects, Boolean initialSelectedTarget, Int32 selectedCardCount, Nullable`1 window, SkillProgramDrawPhaseMode drawPhaseMode, Int32 initialTargetSetCount, Int32 initialTargetSetMaximum, Boolean expandedCardDomain, Nullable`1 cardActionRelation, IReadOnlyList`1 cardKinds, Nullable`1 turnOwnerScope, Nullable`1 activationTargetKind, IReadOnlyList`1 activationSourceZones, Nullable`1 activationMinimumCards, IReadOnlyList`1 activationCardCategories) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\ProgramCompositionValidator.cs:line 73",
+                "   at CardGame.Core.SkillProgramCatalog.ParseTrigger(JsonElement node, String path) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs:line 3258",
+                "   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs:line 3767",
+                "   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs:line 1625",
+                "   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs:line 1557"
+              ],
+              "fixtureLocations": [
+                "   at BoundaryPangDeChecks.Fixture.Register(IContentRegistryBuilder b) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryPangDeChecks.cs:line 219",
+                "   at BoundaryPangDeChecks.Create(Boolean tricks, String armor, Boolean observers, Boolean loseSource, Boolean native, Boolean borrowed) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryPangDeChecks.cs:line 197",
+                "   at BoundaryPangDeChecks.BasicDiscardClaimsExactEntitiesAndStillResolvesOriginalSlash() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryPangDeChecks.cs:line 16"
+              ]
+            },
+            {
+              "name": "[FAIL] Current Slash entity claim nonbasic receipt real allowance and armor boundaries",
+              "message": "       InvalidOperationException: Invalid skill program at skill 'fixture:pd-loss' (rules.skills[4]).triggers[0].effects[0]: Owner skill replacement must terminate an activation..",
+              "topStack": [
+                "   at CardGame.Core.ProgramCompositionValidator.Validate(String path, IReadOnlyList`1 effects, Boolean initialSelectedTarget, Int32 selectedCardCount, Nullable`1 window, SkillProgramDrawPhaseMode drawPhaseMode, Int32 initialTargetSetCount, Int32 initialTargetSetMaximum, Boolean expandedCardDomain, Nullable`1 cardActionRelation, IReadOnlyList`1 cardKinds, Nullable`1 turnOwnerScope, Nullable`1 activationTargetKind, IReadOnlyList`1 activationSourceZones, Nullable`1 activationMinimumCards, IReadOnlyList`1 activationCardCategories) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\ProgramCompositionValidator.cs:line 73",
+                "   at CardGame.Core.SkillProgramCatalog.ParseTrigger(JsonElement node, String path) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs:line 3258",
+                "   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs:line 3767",
+                "   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs:line 1625",
+                "   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs:line 1557"
+              ],
+              "fixtureLocations": [
+                "   at BoundaryPangDeChecks.Fixture.Register(IContentRegistryBuilder b) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryPangDeChecks.cs:line 219",
+                "   at BoundaryPangDeChecks.Create(Boolean tricks, String armor, Boolean observers, Boolean loseSource, Boolean native, Boolean borrowed) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryPangDeChecks.cs:line 197",
+                "   at BoundaryPangDeChecks.NonBasicDiscardUsesOneTargetReceiptAndAddsRealTurnAllowance() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryPangDeChecks.cs:line 54"
+              ]
+            },
+            {
+              "name": "[FAIL] Current Slash entity claim multi target virtual and source loss owning use",
+              "message": "       InvalidOperationException: Invalid skill program at skill 'fixture:pd-loss' (rules.skills[4]).triggers[0].effects[0]: Owner skill replacement must terminate an activation..",
+              "topStack": [
+                "   at CardGame.Core.ProgramCompositionValidator.Validate(String path, IReadOnlyList`1 effects, Boolean initialSelectedTarget, Int32 selectedCardCount, Nullable`1 window, SkillProgramDrawPhaseMode drawPhaseMode, Int32 initialTargetSetCount, Int32 initialTargetSetMaximum, Boolean expandedCardDomain, Nullable`1 cardActionRelation, IReadOnlyList`1 cardKinds, Nullable`1 turnOwnerScope, Nullable`1 activationTargetKind, IReadOnlyList`1 activationSourceZones, Nullable`1 activationMinimumCards, IReadOnlyList`1 activationCardCategories) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\ProgramCompositionValidator.cs:line 73",
+                "   at CardGame.Core.SkillProgramCatalog.ParseTrigger(JsonElement node, String path) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs:line 3258",
+                "   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs:line 3767",
+                "   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs:line 1625",
+                "   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs:line 1557"
+              ],
+              "fixtureLocations": [
+                "   at BoundaryPangDeChecks.Fixture.Register(IContentRegistryBuilder b) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryPangDeChecks.cs:line 219",
+                "   at BoundaryPangDeChecks.Create(Boolean tricks, String armor, Boolean observers, Boolean loseSource, Boolean native, Boolean borrowed) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryPangDeChecks.cs:line 197",
+                "   at BoundaryPangDeChecks.MultipleTargetsVirtualUseAndSourceLossKeepTheirOwningUses() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryPangDeChecks.cs:line 89"
+              ]
+            },
+            {
+              "name": "[FAIL] Current Slash entity claim native AI public category prior real payment",
+              "message": "       InvalidOperationException: Invalid skill program at skill 'fixture:pd-loss' (rules.skills[4]).triggers[0].effects[0]: Owner skill replacement must terminate an activation..",
+              "topStack": [
+                "   at CardGame.Core.ProgramCompositionValidator.Validate(String path, IReadOnlyList`1 effects, Boolean initialSelectedTarget, Int32 selectedCardCount, Nullable`1 window, SkillProgramDrawPhaseMode drawPhaseMode, Int32 initialTargetSetCount, Int32 initialTargetSetMaximum, Boolean expandedCardDomain, Nullable`1 cardActionRelation, IReadOnlyList`1 cardKinds, Nullable`1 turnOwnerScope, Nullable`1 activationTargetKind, IReadOnlyList`1 activationSourceZones, Nullable`1 activationMinimumCards, IReadOnlyList`1 activationCardCategories) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\ProgramCompositionValidator.cs:line 73",
+                "   at CardGame.Core.SkillProgramCatalog.ParseTrigger(JsonElement node, String path) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs:line 3258",
+                "   at CardGame.Core.SkillProgramCatalog.ReadArray[T](JsonElement owner, String name, String path, Func`3 parser, Boolean optional) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs:line 3767",
+                "   at CardGame.Core.SkillProgramCatalog.LoadPrograms(JsonElement root) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs:line 1625",
+                "   at CardGame.Core.SkillProgramCatalog.Load(String rulesJson, String presentationJson) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\SkillPrograms.cs:line 1557"
+              ],
+              "fixtureLocations": [
+                "   at BoundaryPangDeChecks.Fixture.Register(IContentRegistryBuilder b) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryPangDeChecks.cs:line 219",
+                "   at BoundaryPangDeChecks.Create(Boolean tricks, String armor, Boolean observers, Boolean loseSource, Boolean native, Boolean borrowed) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryPangDeChecks.cs:line 197",
+                "   at BoundaryPangDeChecks.NativeAiUsesPublicCategoryPriorAndPaysRealCosts() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryPangDeChecks.cs:line 143"
+              ]
+            },
+            {
+              "name": "[FAIL] Bound discard Slash frozen suit quota prepared privacy and expiry",
+              "message": "       ArgumentOutOfRangeException: Initial HP must be between 1 and base maximum HP. (Parameter 'definition')",
+              "topStack": [
+                "   at CardGame.Core.ContentRegistry.RegistryBuilder.NormalizeGeneral(ContentGeneralDefinition definition) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\ContentRegistry.cs:line 869",
+                "   at CardGame.Core.ContentRegistry.RegistryBuilder.AddGeneral(ContentGeneralDefinition definition) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\ContentRegistry.cs:line 475",
+                "   at CardGame.Core.ContentRegistry.RegistryBuilder.PackageBuilder.AddGeneral(ContentGeneralDefinition definition) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\ContentRegistry.cs:line 955",
+                "   at BoundaryHanDangChecks.Fixture.Register(IContentRegistryBuilder builder) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs:line 226",
+                "   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\ContentRegistry.cs:line 243"
+              ],
+              "fixtureLocations": [
+                "   at BoundaryHanDangChecks.Fixture.Register(IContentRegistryBuilder builder) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs:line 226",
+                "   at BoundaryHanDangChecks.Create(Boolean equipment, Boolean aiOthers) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs:line 150",
+                "   at BoundaryHanDangChecks.FrozenSuitQuotaPreparedPrivacyAndExpiry() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs:line 18"
+              ]
+            },
+            {
+              "name": "[FAIL] Bound discard Slash equipment frozen suit recovery and movement children",
+              "message": "       InvalidOperationException: The real Silver Lion fixture starts wounded before its removal.",
+              "topStack": [
+                "   at BoundaryHanDangChecks.Require(Boolean value, String message) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs:line 196",
+                "   at BoundaryHanDangChecks.EquipmentPaymentFreezesSuitBeforeRecoveryAndMovementChildren() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs:line 69",
+                "   at Program.<Main>$(String[] args) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\Program.cs:line 683",
+                "   at BoundaryHanDangChecks.Require(Boolean value, String message) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs:line 196",
+                "   at BoundaryHanDangChecks.EquipmentPaymentFreezesSuitBeforeRecoveryAndMovementChildren() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs:line 69"
+              ],
+              "fixtureLocations": [
+                "   at BoundaryHanDangChecks.Require(Boolean value, String message) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs:line 196",
+                "   at BoundaryHanDangChecks.EquipmentPaymentFreezesSuitBeforeRecoveryAndMovementChildren() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs:line 69",
+                "   at BoundaryHanDangChecks.Require(Boolean value, String message) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs:line 196"
+              ]
+            },
+            {
+              "name": "[FAIL] First round limited refund exact usage and second round consumption",
+              "message": "       ArgumentOutOfRangeException: Initial HP must be between 1 and base maximum HP. (Parameter 'definition')",
+              "topStack": [
+                "   at CardGame.Core.ContentRegistry.RegistryBuilder.NormalizeGeneral(ContentGeneralDefinition definition) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\ContentRegistry.cs:line 869",
+                "   at CardGame.Core.ContentRegistry.RegistryBuilder.AddGeneral(ContentGeneralDefinition definition) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\ContentRegistry.cs:line 475",
+                "   at CardGame.Core.ContentRegistry.RegistryBuilder.PackageBuilder.AddGeneral(ContentGeneralDefinition definition) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\ContentRegistry.cs:line 955",
+                "   at BoundaryHanDangChecks.Fixture.Register(IContentRegistryBuilder builder) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs:line 226",
+                "   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\ContentRegistry.cs:line 243"
+              ],
+              "fixtureLocations": [
+                "   at BoundaryHanDangChecks.Fixture.Register(IContentRegistryBuilder builder) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs:line 226",
+                "   at BoundaryHanDangChecks.Create(Boolean equipment, Boolean aiOthers) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs:line 150",
+                "   at BoundaryHanDangChecks.FirstRoundExactUsageRefundAndSecondRoundConsumption() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs:line 99"
+              ]
+            },
+            {
+              "name": "[FAIL] First round limited refund extra turn and native AI Gongqi",
+              "message": "       ArgumentOutOfRangeException: Initial HP must be between 1 and base maximum HP. (Parameter 'definition')",
+              "topStack": [
+                "   at CardGame.Core.ContentRegistry.RegistryBuilder.NormalizeGeneral(ContentGeneralDefinition definition) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\ContentRegistry.cs:line 869",
+                "   at CardGame.Core.ContentRegistry.RegistryBuilder.AddGeneral(ContentGeneralDefinition definition) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\ContentRegistry.cs:line 475",
+                "   at CardGame.Core.ContentRegistry.RegistryBuilder.PackageBuilder.AddGeneral(ContentGeneralDefinition definition) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\ContentRegistry.cs:line 955",
+                "   at BoundaryHanDangChecks.Fixture.Register(IContentRegistryBuilder builder) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs:line 226",
+                "   at CardGame.Core.ContentRegistry.Build(IGameContentPackage[] packages) in C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\ContentRegistry.cs:line 243"
+              ],
+              "fixtureLocations": [
+                "   at BoundaryHanDangChecks.Fixture.Register(IContentRegistryBuilder builder) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs:line 226",
+                "   at BoundaryHanDangChecks.Create(Boolean equipment, Boolean aiOthers) in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs:line 150",
+                "   at BoundaryHanDangChecks.FirstRoundExtraTurnAndNativeAiGongqi() in C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryHanDangChecks.cs:line 128"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "WPF selected checks (3 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3174,
+          "logName": "wpf-selected.log",
+          "logSha256": "4c4f9699097922b048dedd1886e7e8e68bc8655a7d1bef82b189f2a50c351bdc",
+          "resultLines": [
+            "3 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders"
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-04",
+      "startedAt": "2026-10-03T21:03:46.0198132+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 9894,
+      "coreFilters": [
+        "Current Slash entity claim",
+        "Bound discard Slash",
+        "First round limited refund",
+        "Participant hand program bound alcohol"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 5646,
+          "logName": "build.log",
+          "logSha256": "45c29c03c8e6a153a6afe2c62070ae98c2c96d0cc176ab28d8042a21fe43e50f",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (4 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 4208,
+          "logName": "core-selected.log",
+          "logSha256": "3fcd19dce8231f5f743527bee84620adabe90201933739e85a4e1add7ebadf02",
+          "resultLines": [
+            "[FAIL] Current Slash entity claim basic payment original damage and multiple materials",
+            "       InvalidOperationException: A card trigger window has an invalid cursor, prompt or paid card.",
+            "System.InvalidOperationException: A card trigger window has an invalid cursor, prompt or paid card.",
+            "[FAIL] Current Slash entity claim nonbasic receipt real allowance and armor boundaries",
+            "       InvalidOperationException: Deck 'fixture:pd-deck' references unknown card 'classic:bagua-formation'.",
+            "System.InvalidOperationException: Deck 'fixture:pd-deck' references unknown card 'classic:bagua-formation'.",
+            "[FAIL] Current Slash entity claim multi target virtual and source loss owning use",
+            "[FAIL] Current Slash entity claim native AI public category prior real payment",
+            "       ArgumentException: HumanRole must be null when HumanSeat is -1. (Parameter 'options')",
+            "System.ArgumentException: HumanRole must be null when HumanSeat is -1. (Parameter 'options')",
+            "5 passed, 4 failed, 0 skipped (9 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-05",
+      "startedAt": "2026-10-03T21:05:45.0196413+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 11706,
+      "coreFilters": [
+        "Current Slash entity claim",
+        "classic Pang De",
+        "Final target Slash"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 5612,
+          "logName": "build.log",
+          "logSha256": "3b326bb43af72dcd0673e40ae4b868dff8434b43e6fa4a2f10d08ac1e35a992e",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (3 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 6056,
+          "logName": "core-selected.log",
+          "logSha256": "4d042ae9186277ca68431da2a2166a6a751a41e4d1403fd7369a6bd6db49b3a3",
+          "resultLines": [
+            "[FAIL] Current Slash entity claim nonbasic receipt real allowance and armor boundaries",
+            "       InvalidOperationException: Deck 'fixture:pd-deck' references unknown card 'standard:bagua-formation'.",
+            "System.InvalidOperationException: Deck 'fixture:pd-deck' references unknown card 'standard:bagua-formation'.",
+            "[FAIL] Current Slash entity claim native AI public category prior real payment",
+            "       InvalidOperationException: The game is already completed.",
+            "System.InvalidOperationException: The game is already completed.",
+            "7 passed, 2 failed, 0 skipped (9 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-06",
+      "startedAt": "2026-10-03T21:12:30.0879484+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 8974,
+      "coreFilters": [
+        "Current Slash entity claim"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 5723,
+          "logName": "build.log",
+          "logSha256": "301d54d10ba74f660a1c7eba67fc87361f3a4a83da424cd74add519f0a8da582",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 3213,
+          "logName": "core-selected.log",
+          "logSha256": "2ffb464d9f705074942e61cdf2e7fc38184e7543d77fe8330ac2c9158444daef",
+          "resultLines": [
+            "[FAIL] Current Slash entity claim nonbasic receipt real allowance and armor boundaries",
+            "       InvalidOperationException: A real red Bagua response can be paid but cannot cancel the current use.",
+            "System.InvalidOperationException: A real red Bagua response can be paid but cannot cancel the current use.",
+            "3 passed, 1 failed, 0 skipped (4 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-07",
+      "startedAt": "2026-10-03T21:19:02.7320677+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 5425,
+      "coreFilters": [
+        "Current Slash entity claim nonbasic"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2840,
+          "logName": "build.log",
+          "logSha256": "e79534cc41abc26fe4c8db6f4570b6bf1f16658af89567af8dfed1cb6e989a67",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2543,
+          "logName": "core-selected.log",
+          "logSha256": "f04ea556408cabc55aa06a6a54c812aa8a054f03935c267df67da950aabdd8be",
+          "resultLines": [
+            "1 passed, 0 failed, 0 skipped (1 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "full-01",
+      "startedAt": "2026-10-03T21:19:24.3808834+08:00",
+      "status": "test-failed",
+      "mode": "full",
+      "durationMs": 220575,
+      "coreFilters": [],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 5958,
+          "logName": "build.log",
+          "logSha256": "a243798c4a1c7756c3bfaaaa836c935c1b8af05e68c98c84f89b4f7b17ec83da",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core full checks",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 179751,
+          "logName": "core-full.log",
+          "logSha256": "1f66edc50fcfa2b6022802a2cf68b35094775cd935e8adda33f0e427d2b77501",
+          "resultLines": [
+            "[FAIL] boundary Lu Meng opt in usage legacy shape",
+            "       InvalidOperationException: A registry without Classic or the new cap/history emits neither new Round nor suit-history events.",
+            "610 passed, 1 failed, 0 skipped (611 total)."
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "WPF full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 34819,
+          "logName": "wpf-full.log",
+          "logSha256": "f8b65e154dce4e63ae072d13bd73cb92c9584e444e0e2d03e07a9ebb3944f1c5",
+          "resultLines": [
+            "57 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders"
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "focused-08-legacy-round-fixture",
+      "startedAt": "2026-10-03T21:24:01.5622385+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 4076,
+      "coreFilters": [
+        "boundary Lu Meng opt in usage legacy shape",
+        "First round limited refund"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2462,
+          "logName": "build.log",
+          "logSha256": "dff49698d5fa09956c16c0a748ddba1f6f912d24eb1288ed4ab8b8daef91cd8e",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (2 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 1578,
+          "logName": "core-selected.log",
+          "logSha256": "ef90936b55381b83b88331db279526f51874189ae6c7eb57020188aa17b6081c",
+          "resultLines": [
+            "3 passed, 0 failed, 0 skipped (3 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "full-02",
+      "startedAt": "2026-10-03T21:38:58.2140598+08:00",
+      "status": "passed",
+      "mode": "full",
+      "durationMs": 215692,
+      "coreFilters": [],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2202,
+          "logName": "build.log",
+          "logSha256": "f4b95b46b62bffc837f398a4e78ca2c3f5507109eeb491adac4f3b6eaad8e961",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 177940,
+          "logName": "core-full.log",
+          "logSha256": "30771d34b40b800dd7b002c14d61e74b6fd06e08584b532aaddb24daf1be209e",
+          "resultLines": [
+            "611 passed, 0 failed, 0 skipped (611 total)."
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "WPF full checks",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 35509,
+          "logName": "wpf-full.log",
+          "logSha256": "40ba74f535d50b7d42b5a520f2090e30c1be108e3defeb987f9e0e5a9093ff35",
+          "resultLines": [
+            "57 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders"
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "routine-01",
+      "startedAt": "2026-10-03T21:46:01.5426153+08:00",
+      "status": "passed",
+      "mode": "routine",
+      "durationMs": 63665,
+      "coreFilters": [
+        "command",
+        "observer",
+        "viewer",
+        "prepared snapshot",
+        "internal failure",
+        "skill program",
+        "lifecycle programs",
+        "shared post-event",
+        "shared use lifecycle",
+        "shared card-use",
+        "card movement",
+        "card inventory",
+        "initial deal",
+        "invalid single and batch",
+        "draw and recover",
+        "execution plans",
+        "skill executor",
+        "program gameplay hashes",
+        "physical deck recipes",
+        "structured skill metadata",
+        "content registry",
+        "standard package",
+        "composition kernel",
+        "rule query",
+        "slash resolution",
+        "dying response",
+        "Xingshang",
+        "response use completion",
+        "selected gift",
+        "configured active sequences",
+        "standard active programs",
+        "owned-card set",
+        "turn card-use effects",
+        "active Program contracts",
+        "hand guidance",
+        "actual marker payment",
+        "replacement draw and dying payment",
+        "two dynamic actual ends",
+        "ordered nested native owner",
+        "payment nested comparison",
+        "first target history",
+        "program conversion polarity shared state and replay",
+        "Feng Lin Lu Zhi actual discard entry boundaries",
+        "Ending child gift joins current boundary",
+        "Feng Lin Yuan Shu command loss regrant source suppression",
+        "Feng Lin Yuan Shu qualified awakening persistent local loss",
+        "Feng Lin Zhou Fei first domains and true equipment sequence",
+        "Feng Lin Zhou Fei same-source association freeze",
+        "Feng Lin Congjian Equipment gift nested replay",
+        "after turn ended return movement prelude ordering",
+        "after turn ended due before window nested replay",
+        "Feng Lin Zuo Ci initial privacy and replay",
+        "Feng Lin Zuo Ci layered suppression and local disable",
+        "Feng Lin Zuo Ci same avatar program and actual end",
+        "Feng Lin Yu Ji",
+        "boundary Lu Meng all table printed suits replay",
+        "boundary Lu Meng cross owner skip chain resume death",
+        "boundary Lu Meng Qinxue windows shared usage",
+        "boundary Lu Meng opt in usage legacy shape",
+        "Boundary Huang Gai actual provider color",
+        "Boundary Huang Gai multi card color source lifecycle",
+        "boundary Lu Xun actual trick hold lianying and return",
+        "boundary Lu Xun HE payment exact Hand batch count",
+        "boundary Liu Bei virtual Peach HP child",
+        "boundary Liu Bei native provided use decline once",
+        "boundary Liu Bei gift threshold recipient",
+        "boundary Da Qiao atomic mixed discard replay",
+        "boundary Hua Tuo ordered actual discard effective suit receipts",
+        "participant discard mandatory cost cancellation preserves legal composition",
+        "current turn nonlocked suppression host lifecycle audit",
+        "boundary Guan Yu actual Played and black Hand rejection",
+        "Boundary Zhang Fei actual recovery receipt limited child",
+        "boundary Ma Chao Tieqi Paoxiao exact cancellation integration",
+        "boundary Xiahou Dun real phases skip quota expiry",
+        "boundary Xiahou Dun receipt before gain child source audit",
+        "Exact top count partition normal draw",
+        "Bound draw receipt per point nested gain",
+        "boundary Zhen Ji exact receipt stop red discard",
+        "boundary Zhen Ji receipt before child source loss",
+        "Unconverted Trick draw receipt disposition",
+        "Foreign equipment discard program selections",
+        "Population reorder actual partition and short pile",
+        "Population reorder real Ending Extra Scheduled",
+        "HP pair freezes after payment children before draw children",
+        "Equipment placement slot self equal boundaries",
+        "Final target Slash frozen comparisons actual paid Dodge",
+        "Paid HP loss rescue and gain children",
+        "Paid HP loss source and legacy",
+        "Boundary Deng Ai own turn slash discard judges authority",
+        "Boundary Deng Ai awakening grants snatch and extra turn",
+        "Boundary Jiang Wei declined taunt discards target card",
+        "Boundary Jiang Wei dodged slash still discards",
+        "Boundary Jiang Wei taunt runs twice per phase",
+        "Boundary Jiang Wei awakening wakes once across phases",
+        "Damage target mount paid children source lifetime",
+        "Damage appearance Draw definitions physical colors cardless legacy",
+        "Selected actor Duel actual Use and Nullification",
+        "Damage target obtain nested Duel native cold",
+        "Boundary Yuan Shao population start role marker limit",
+        "Boundary Yuan Shao conversion actual remaining targets",
+        "Recovery replacement Silver Lion Zhiheng HP and reward children",
+        "Recovery replacement paid equipment tail",
+        "Recovery replacement faction request Silver Lion cost before providers",
+        "Program Iron Chain third target owned recast",
+        "Equipment recast Silver Lion recovery and movement children",
+        "BoundaryXuShu fixed target real Slash",
+        "BoundaryXuShu declared deck criterion",
+        "Character turned over Shebian both directions",
+        "Character turned over Shebian occupied equipment slot",
+        "Character turned over actual damage cursor",
+        "Capped hand refresh",
+        "HP paid shield",
+        "Random Pindian",
+        "Maximum Slash Pindian",
+        "Bound card recast dynamic Slash",
+        "Bound card recast Silver Lion",
+        "Turn kind hand exemption",
+        "Signed Slash modifier",
+        "Bound discard Slash frozen suit",
+        "Bound discard Slash equipment",
+        "First round limited refund exact",
+        "Current Slash entity claim basic",
+        "Current Slash entity claim nonbasic",
+        "Participant hand declined private take",
+        "Participant hand mixed HE gift",
+        "Participant hand per point effective red",
+        "Participant hand program bound alcohol"
+      ],
+      "wpfFilters": [
+        "original card artwork",
+        "overlapping hand",
+        "composed skills",
+        "conversion choices",
+        "response context",
+        "hand responses",
+        "opaque target-card",
+        "playback batches",
+        "saved UI boundaries",
+        "failed writes",
+        "public markers",
+        "deferred hand alignment",
+        "Program conversion polarity stays visible",
+        "declaration and general library views protect private faces",
+        "Program paid choices",
+        "Program exact top count restores private shared order",
+        "Program population count private faces restore shared free order",
+        "Program Iron Chain guide follows actual target count"
+      ],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2152,
+          "logName": "build.log",
+          "logSha256": "7e6b5056a14dd531dabfe3da0ba6c95afafc4e1b1ee53cac653b7cb29b1cb5db",
+          "resultLines": [
+            "    0 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (127 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 42585,
+          "logName": "core-selected.log",
+          "logSha256": "ee342dd7e599b86e5919e9a80304ff9c8824be81358c800c6c23cabdfe225d68",
+          "resultLines": [
+            "199 passed, 0 failed, 0 skipped (199 total)."
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "WPF selected checks (18 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 18865,
+          "logName": "wpf-selected.log",
+          "logSha256": "197c37faa6dcc6b181896e8df3875f8549fd8a64d9fa7f55a77022eac2ef4781",
+          "resultLines": [
+            "18 WPF checks passed, 0 failed. Renders: C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\verification-cache\\renders"
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    }
+  ],
+  "implementationMilestone": {
+    "awaitingChecks": [
+      "participant-program-alcohol-rescue"
+    ],
+    "registeredGenerals": 3,
+    "capturedUtc": "2026-10-03T19:59:06.2703682+08:00",
+    "noBuildYet": true,
+    "frozenAgent": "han-dang",
+    "registeredNewBehaviorChecks": 13,
+    "sharedWiring": "pang-de + participant-hand + han-dang applied by root",
+    "awaitingFocusedCases": [
+      "multi-material and HE conversion Peach with exact typed CardUse windows",
+      "program-backed actual alcohol rescue with paid HP observer"
+    ],
+    "frozenAgents": [
+      "pang-de",
+      "han-dang"
+    ]
+  },
+  "preBuildAudit": {
+    "status": "fixing-confirmed-reachable-parent-chains",
+    "newEffect": "RequestHandBySuitsOrLoseHp",
+    "findings": [
+      "paid HP reaches DyingEntering lifecycle pause",
+      "physical or extended conversion Peach HP recovery pause",
+      "rescue CardUseCommitted trigger pause",
+      "DyingResponse program uses bound Chunlao entity as Alcohol"
+    ],
+    "directRescueFreeze": {
+      "files": [
+        {
+          "path": "src/CardGame.Core/ParticipantHandDamageRides.cs",
+          "sha256": "61a3d9f84b18b0c5aa4cb625e6fd863cefd3935c3c0893b1fef86db9718dc7e3"
+        },
+        {
+          "path": "tests/CardGame.Core.Tests/BoundaryFaZhengChecks.cs",
+          "sha256": "f4cafd32fd61b423da47a318e9484a19221558d277cdcb45396412c01c65a61c"
+        }
+      ],
+      "scope": [
+        "native printed Spade Peach",
+        "two material registered ViewAs Peach",
+        "precise committed card and HP recovery windows",
+        "DyingEntering and no rescue death",
+        "all four viewer cold restore"
+      ],
+      "status": "saved-not-yet-built"
+    },
+    "runtimeOutcome": {
+      "directFaChecks": "4/4 passed focused03",
+      "boundAlcohol": "actual HP and CompletedCard pauses + cold and typed return passed focused04",
+      "hanDang": "4/4 passed focused04",
+      "pangDe": "basic/material/multitarget/source-suppression/borrowed passed focused05; armor/native fixtures pending",
+      "claimGate": "new receipt exemption in original Use window only, exact same ActionId and CardUse parent; response costs retain independent ActionId checks",
+      "versions": "unchanged; paid dying dispatch is gated to the new hand repayment root"
+    }
+  },
+  "verificationPlan": {
+    "orderedScopes": [
+      "focused relevant name filters",
+      "Full all registered checks",
+      "routine without filter arguments"
+    ],
+    "buildNodeReuse": false,
+    "inputManifest": "tracked and nonignored src/tests/tools cs,xaml,json,projects,PowerShell,Python,resx,PNG plus build configuration and art catalog",
+    "compareFullToRoutine": true,
+    "retainOriginalFailures": true,
+    "cacheOwnership": "continuation goal own cache reused, no separate build tree",
+    "noPublishing": true,
+    "manifestScopeChange": "batch19 frozen scope additionally includes Python verification tools; prior baseline hashes retain their original recorded scope"
+  },
+  "integrationAudit": {
+    "status": "no-clear-wiring-defect-found",
+    "evidence": [
+      "StandardClassicGeneralPackage.cs module registrations",
+      "op3200/3201/3300/3301/3400/3401 descriptor-resource-host alignment",
+      "new Core names and routine generic prefixes",
+      "CommittedEventProjection entity list freeze",
+      "PlayerViewProjector nested private view and public turn policy list freeze",
+      "actual turn refund before expiry"
+    ],
+    "limitation": "read-only static review; runtime and loader validation pending"
+  },
+  "developmentFixes": [
+    {
+      "finding": "new Han fixture raw string and missing movement-context member",
+      "repair": "JSON whitespace and current ParentFrameId, no rule semantics change"
+    },
+    {
+      "finding": "new Pang source-loss fixture used activation-only replacement in trigger",
+      "status": "agent fixing legal fixture"
+    },
+    {
+      "finding": "new Han fixture assigned Lord-adjusted HP to base definition",
+      "status": "saved base3/4 and actual MaxHp assertions"
+    },
+    {
+      "finding": "completed Chunlao use leaves responder program on top while ActiveDying dispatches parent first",
+      "repair": "dispatch exact top DyingResponse program first, restricted to new paid hand repayment root",
+      "boundary": "no broad parent skip and no event/use-ID sidecar; original typed return closes Dying"
+    }
+  ],
+  "frozenInputs": {
+    "scope": "includes Python verification tools in addition to original implementation scope",
+    "files": 2416,
+    "fullStartSha256": "6b2566010e9be23464e444ed597d8c77a80930e2acdb127a5025164e962d0be1",
+    "utc": "2026-10-03T21:19:23.312621+08:00"
+  },
+  "nextBatchParallel": {
+    "generals": [
+      "boundary:zhang-he",
+      "boundary:cao-chong",
+      "boundary:liu-shan"
+    ],
+    "stageRoot": ".artifacts/continuation-20261003-batch17/batch20",
+    "sourceIntegration": "not started; agents write staged source and contracts only",
+    "noSharedInputWrites": true,
+    "noAgentBuilds": true,
+    "status": "three-agent-staged-implementation-and-real-checks-in-progress",
+    "liuShanBoundary": "Current 451 grants Sishu895; full current895 body unavailable. Historical official2020 text does not constitute current API verification. General remains unregistered pending this boundary."
+  },
+  "compiledArt": [
+    {
+      "key": "assets/official-boundary-han-dang.png",
+      "sourceSha256": "b6adfa7c5b89b5316fa09b89fe6c92fe3f31f9769b71c140fd304c9a2dfa54bc",
+      "compiledSha256": "b6adfa7c5b89b5316fa09b89fe6c92fe3f31f9769b71c140fd304c9a2dfa54bc",
+      "matched": true
+    },
+    {
+      "key": "assets/official-boundary-fa-zheng.png",
+      "sourceSha256": "5a4496af2953a2f0a36122487439b52c649a53db0e682a83071cef829ff804ef",
+      "compiledSha256": "5a4496af2953a2f0a36122487439b52c649a53db0e682a83071cef829ff804ef",
+      "matched": true
+    },
+    {
+      "key": "assets/official-boundary-pang-de.png",
+      "sourceSha256": "7ce8d73edef1be313b75ad728ec6bf7524f8ea0b81dc1b858b780df59fb82c4c",
+      "compiledSha256": "7ce8d73edef1be313b75ad728ec6bf7524f8ea0b81dc1b858b780df59fb82c4c",
+      "matched": true
+    }
+  ],
+  "finalVerification": {
+    "registeredNewCoreChecks": 13,
+    "fullCorePassed": 611,
+    "fullWpfPassed": 57,
+    "fullDurationMs": 215692,
+    "routineCorePassed": 199,
+    "routineWpfPassed": 18,
+    "routineDurationMs": 63665,
+    "routineCoreFilters": 127,
+    "routineWpfFilters": 18,
+    "inputFiles": 2416,
+    "inputSha256": "e1fccafe0853fe860a6b1ed2c9bb5f64d5c1da6cc1b646b46fafcbf98b9f0b83",
+    "manifests": [
+      {
+        "label": "full-02-start",
+        "files": 2416,
+        "sha256": "e1fccafe0853fe860a6b1ed2c9bb5f64d5c1da6cc1b646b46fafcbf98b9f0b83",
+        "utc": "2026-10-03T13:38:35.2042907Z"
+      },
+      {
+        "label": "full-02-end",
+        "files": 2416,
+        "sha256": "e1fccafe0853fe860a6b1ed2c9bb5f64d5c1da6cc1b646b46fafcbf98b9f0b83",
+        "utc": "2026-10-03T13:45:54.2807581Z"
+      },
+      {
+        "label": "routine-01-end",
+        "files": 2416,
+        "sha256": "e1fccafe0853fe860a6b1ed2c9bb5f64d5c1da6cc1b646b46fafcbf98b9f0b83",
+        "utc": "2026-10-03T13:47:58.0475301Z"
+      }
+    ],
+    "unchangedInputAcrossFullAndRoutine": true,
+    "compiledOriginalArtworkMatches": 3,
+    "diffCheck": "passed; existing LF-to-CRLF notices only",
+    "cleanupRecord": "2026-10-03-fenglin-nineteenth-cleanup.json",
+    "versions": "unchanged; authoritative Replay.cs, SkillPrograms.cs and StandardClassicGeneralPackage.cs",
+    "noCommitPushPublishOrPackaging": true
+  },
+  "finalEvidenceBoundaries": {
+    "actual": "All 13 new Core checks passed in full02; typed payment children, all-viewer cold replay, original Slash entity use, paid HP/Peach/converted Peach/Chunlao rescue, frozen suit quotas and exact first-round refund.",
+    "conversionPeach": "Actual two Hand materials; HE input contract statically preserved, no new actual equipment-material rescue test.",
+    "refundTail": "Dead source, replaced source instance and finished-game refund cancellation remain engineering defaults and static audit, not new actual command tests.",
+    "dispatchCompatibility": "Top DyingResponse program priority is limited to the new paid hand repayment root. No broad legacy dispatcher semantic change.",
+    "paidCardCompatibility": "New physical claim exemption is limited to Use and the exact same action and parent CardUse; a later Response remains a new paid action.",
+    "historicalFailures": "Earlier failures remain in runs. Full01 sole old LuMeng opt-in fixture omitted the new round-tracking capability. Fixture now strips all round opt-in programs; original legacy negative and positive assertions retained, focused08 passed3/3.",
+    "acceptance": "Local Core and WPF runners plus compiled resources; not a claim of field, device or production release acceptance."
+  }
+}

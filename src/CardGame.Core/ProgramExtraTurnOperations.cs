@@ -6,7 +6,7 @@ internal sealed class PendExtraTurnProgramOperationDescriptor : ProgramOperation
     public override ISkillProgramEffectHandler Handler { get; } = new PendExtraTurnSkillProgramEffectHandler();
     public override ProgramContextCapability RequiredCapabilities => ProgramContextCapability.TurnEffects;
     public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.PendExtraTurn,
-        static (_, context) => context.PendExtraTurn());
+        static (effect, context) => context.PendExtraTurn(effect));
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {

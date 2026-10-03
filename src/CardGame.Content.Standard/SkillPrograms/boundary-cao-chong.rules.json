@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:chengxiang-current",
+      "revision": 1,
+      "states": [{ "id": "next-reveal-bonus", "initialValue": false, "visibility": "public", "resetScope": "game", "reacquirePolicy": "preserveUntilGameEnd" }],
+      "triggers": [{
+        "id": "weigh-each-damage-point",
+        "window": "afterDamageApplied",
+        "subject": "owner",
+        "damageOccurrence": "perDamagePoint",
+        "optional": true,
+        "effects": [
+          { "op": "revealTopCardsWithNextBooleanBonus", "target": "owner", "amount": 4, "bonusAmount": 1, "stateId": "next-reveal-bonus", "resultBind": "revealed", "visibility": "public" },
+          { "op": "selectCardSubset", "target": "owner", "sourceBind": "revealed", "resultBind": "selected", "minimumCards": 0, "maximumCards": 5, "maximumRankSum": 13, "aiOrder": "mostCardsThenRankSum" },
+          { "op": "obtainBoundCardsAndArmNextRevealBonus", "target": "owner", "sourceBind": "selected", "stateId": "next-reveal-bonus", "maximumRankSum": 13 },
+          { "op": "moveBoundCards", "target": "owner", "sourceBind": "revealed", "exceptBind": "selected", "destination": "discardPile", "awaitMovementTriggers": true }
+        ]
+      }]
+    },
+    {
+      "id": "boundary:renxin-current",
+      "revision": 1,
+      "triggers": [{
+        "id": "equip-for-other-dying",
+        "window": "dyingEntering",
+        "subject": "any",
+        "optional": true,
+        "effects": [
+          { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" }, "zones": ["hand", "equipment"], "cardCategories": ["equipment"], "count": 1, "destination": "discardPile", "resultBind": "renxin-cost", "awaitMovementTriggers": true },
+          { "op": "turnOver", "target": "owner" },
+          { "op": "recoverOtherDyingVictimTo", "target": "owner", "amount": 1 }
+        ]
+      }]
+    }
+  ]
+}
