@@ -1,0 +1,319 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:jiang-current",
+      "revision": 1,
+      "minimumRulesVersion": 193,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "draw-on-using-duel",
+          "window": "cardUseBeforeTargetEffects",
+          "ownerRelation": "actor",
+          "cardKinds": ["duel"],
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "draw-on-using-red-slash",
+          "window": "cardUseBeforeTargetEffects",
+          "ownerRelation": "actor",
+          "cardKinds": ["slash", "fireSlash"],
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "cardActionCardIsRed"
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "draw-on-targeted-by-duel",
+          "window": "cardUseBeforeTargetEffects",
+          "ownerRelation": "target",
+          "cardKinds": ["duel"],
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "draw-on-targeted-by-red-slash",
+          "window": "cardUseBeforeTargetEffects",
+          "ownerRelation": "target",
+          "cardKinds": ["slash", "fireSlash"],
+          "optional": true,
+          "priority": 0,
+          "condition": {
+            "kind": "cardActionCardIsRed"
+          },
+          "effects": [
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "reclaim-discarded-duel",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "cardKinds": ["duel"],
+          "excludedMovementReasons": [
+            "card.use-finished",
+            "card.response-finished",
+            "card.respond.nullification-finished",
+            "card.effect.iron-chain-finished",
+            "card.effect.delayed-finish",
+            "card.effect.fire-attack-finished",
+            "card.effect.fire-attack-discard-finished",
+            "card.effect.dismantlement-finished",
+            "card.effect.snatch-finished",
+            "card.effect.dismantlement-judgment-finished",
+            "card.effect.snatch-judgment-finished"
+          ],
+          "optional": true,
+          "priority": 0,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "namedUsageGroup": "jiang-reclaim",
+          "effects": [
+            {
+              "op": "loseHp",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "claimMovedCards",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "reclaim-discarded-red-slash",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "cardKinds": ["slash", "fireSlash"],
+          "suits": ["heart", "diamond"],
+          "excludedMovementReasons": [
+            "card.use-finished",
+            "card.response-finished",
+            "card.respond.nullification-finished",
+            "card.effect.iron-chain-finished",
+            "card.effect.delayed-finish",
+            "card.effect.fire-attack-finished",
+            "card.effect.fire-attack-discard-finished",
+            "card.effect.dismantlement-finished",
+            "card.effect.snatch-finished",
+            "card.effect.dismantlement-judgment-finished",
+            "card.effect.snatch-judgment-finished"
+          ],
+          "optional": true,
+          "priority": 0,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "namedUsageGroup": "jiang-reclaim",
+          "effects": [
+            {
+              "op": "loseHp",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "claimMovedCards",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "boundary:hunzi-current",
+      "revision": 1,
+      "minimumRulesVersion": 193,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "states": [
+        {
+          "id": "woke",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "game",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "triggers": [
+        {
+          "id": "awakening",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "compare",
+            "left": {
+              "kind": "currentHp"
+            },
+            "operator": "equal",
+            "right": {
+              "kind": "integerConstant",
+              "value": 1
+            }
+          },
+          "effects": [
+            {
+              "op": "changeMaximumHp",
+              "target": "owner",
+              "amount": -1
+            },
+            {
+              "op": "grantSkills",
+              "target": "owner",
+              "skillIds": ["classic:yingzi", "classic:yinghun"]
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "woke",
+              "value": true
+            }
+          ]
+        },
+        {
+          "id": "awakening-turn-end",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": false,
+          "priority": 0,
+          "usageScope": "game",
+          "usageLimit": 1,
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "woke",
+            "expectedValue": true
+          },
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "hunzi-choice",
+              "options": [
+                {
+                  "id": "draw-two",
+                  "condition": {
+                    "kind": "always"
+                  }
+                },
+                {
+                  "id": "recover",
+                  "condition": {
+                    "kind": "always"
+                  }
+                }
+              ]
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "hunzi-choice",
+                "optionId": "draw-two"
+              }
+            },
+            {
+              "op": "recover",
+              "target": "owner",
+              "amount": 1,
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "hunzi-choice",
+                "optionId": "recover"
+              }
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "woke",
+              "value": false
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": []
+    },
+    {
+      "id": "boundary:zhiba-current",
+      "revision": 1,
+      "minimumRulesVersion": 193,
+      "cardPolicies": [
+        {
+          "id": "claim-both-contest-cards",
+          "kind": "pindianClaimAllWhenSourceWins"
+        }
+      ],
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [
+        {
+          "id": "challenge-wu",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": ["hand"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingWuFactionWithHand",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "usesPerGame": null,
+          "condition": {
+            "kind": "always"
+          },
+          "effects": [
+            {
+              "op": "pindian",
+              "target": "selectedTarget",
+              "amount": 1,
+              "condition": {
+                "kind": "always"
+              }
+            }
+          ]
+        }
+      ],
+      "triggers": [],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    }
+  ]
+}

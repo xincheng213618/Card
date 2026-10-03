@@ -149,6 +149,9 @@ public sealed partial class GameEngine
                             SkillProgramTargetKind.AnyLivingWithHand => GetHand(target).Count > 0,
                             SkillProgramTargetKind.OtherLivingWithHand =>
                                 target.Seat != owner.Seat && GetHand(target).Count > 0,
+                            SkillProgramTargetKind.OtherLivingWuFactionWithHand =>
+                                target.Seat != owner.Seat && GetHand(target).Count > 0 &&
+                                GetEffectiveFactionId(target) == "wu",
                             SkillProgramTargetKind.OtherLivingWithHandOrEquipment =>
                                 target.Seat != owner.Seat && GetHand(target).Count + GetEquipment(target).Count > 0,
                             SkillProgramTargetKind.OtherLivingEmptyHand =>

@@ -43,6 +43,7 @@ public enum SkillProgramCardPolicyKind
     DamageBecomesHpLoss = 600,
     ForeignPublicPileSlash = 781,
     PindianClaim = 784,
+    PindianClaimAllWhenSourceWins = 785,
     IgnoreTurnObtainedHandCardsForDiscard = 1000
 }
 

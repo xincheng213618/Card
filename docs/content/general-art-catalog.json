@@ -11047,6 +11047,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-sun-ce",
+      "characterName": "界孙策",
+      "defaultSkinId": "45200",
+      "skins": [
+        {
+          "id": "45200",
+          "name": "默认皮肤",
+          "sourcePage": "https://www.sanguosha.com/hero/452",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/45200.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-sun-ce.png",
+          "sha256": "d0fa2a2167f0d5106f70893f3902bba8a788adb315f6f5adf576bff496d4db3a",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

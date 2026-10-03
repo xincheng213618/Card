@@ -150,7 +150,8 @@ public enum SkillProgramTargetKind
     OtherLivingDelayedTrickTarget = 800,
     OtherLegalCurrentCardTarget = 820,
     OtherLivingWithHandOrEquipment = 940,
-    AnyLivingMale = 2000
+    AnyLivingMale = 2000,
+    OtherLivingWuFactionWithHand = 2001
 }
 public enum SkillProgramCardCategory { Basic, Trick, Equipment }
 public enum SkillProgramGainPhaseQualification { OutsideOwnerDraw }
@@ -1940,7 +1941,7 @@ public sealed class SkillProgramCatalog
             SkillProgramCardPolicyKind.FirstActualPlayUseDistanceUnlimited or SkillProgramCardPolicyKind.PindianTopCardChoice or SkillProgramCardPolicyKind.PindianRankBySuit or
             SkillProgramCardPolicyKind.RewriteSuit or
             SkillProgramCardPolicyKind.FactionHandLimitBonus or
-            SkillProgramCardPolicyKind.ForeignPublicPileSlash or SkillProgramCardPolicyKind.PindianClaim or SkillProgramCardPolicyKind.IgnoreTurnObtainedHandCardsForDiscard)
+            SkillProgramCardPolicyKind.ForeignPublicPileSlash or SkillProgramCardPolicyKind.PindianClaim or SkillProgramCardPolicyKind.PindianClaimAllWhenSourceWins or SkillProgramCardPolicyKind.IgnoreTurnObtainedHandCardsForDiscard)
         {
             if (cardKinds.Count != 0) Fail(path + ".cardKinds", "this policy does not accept card kinds");
         }

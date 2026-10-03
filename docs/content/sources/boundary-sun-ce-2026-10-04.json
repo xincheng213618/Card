@@ -1,0 +1,73 @@
+{
+  "generalId": "boundary:sun-ce",
+  "characterName": "界孙策",
+  "officialId": 452,
+  "sourcePage": "https://www.sanguosha.com/hero/452",
+  "capturedAt": "2026-10-04",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": { "gid": 452, "name": "界孙策", "extend": "界限突破", "hp": 4, "figure": "吴", "quality": "稀有" },
+  "artwork": {
+    "skinId": "45200",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/45200.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-boundary-sun-ce.png",
+    "sha256": "d0fa2a2167f0d5106f70893f3902bba8a788adb315f6f5adf576bff496d4db3a",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "激昂",
+      "text": "当你使用【决斗】或红色【杀】指定目标后，或成为【决斗】或红色【杀】的目标后，你可以摸一张牌。每回合首次【决斗】或红色【杀】因弃置进入弃牌堆后，你可以失去1点体力获得之。",
+      "programId": "boundary:jiang-current",
+      "notes": [
+        "前半句与 classic:jiang 逐字同文，四个触发体（cardUseBeforeTargetEffects × ownerRelation actor/target × 决斗 / 红杀 cardActionCardIsRed）逐字复用已验收形状，无次数限制。",
+        "界升级点为后半句新增的弃牌回收：两个 discardPileReceived 触发体，红杀用 cardKinds slash/fireSlash + suits heart/diamond 表达红色，排除清单复用 classic:luoying 的因使用/结算完毕清单，只保留因弃置入堆的移动。",
+        "效果链 loseHp 1 → claimMovedCards；每回合首次用 usageScope turn + usageLimit 1 的共享 namedUsageGroup \"jiang-reclaim\" 表达，两种牌型合计每回合一次。",
+        "已知口径：claimMovedCards 沿用仓库牌移动边界（只回收其他角色弃置入堆的牌，见 GameEngine.CardMovementPrograms 的来源校验），拥有者自己弃置的决斗/红杀不在回收范围内；可选触发在被拒绝时不计次，本回合后续符合条件的牌会再次询问（引擎契约：触发次数在接受时消耗）。"
+      ]
+    },
+    {
+      "name": "魂姿",
+      "text": "觉醒技，准备阶段，若你的体力值为1，你减少1点体力上限并获得“英姿”“英魂”，本回合结束阶段，你摸两张牌或回复1点体力。",
+      "programId": "boundary:hunzi-current",
+      "notes": [
+        "觉醒体（turnStartBeforeNormalFlow、currentHp==1、changeMaximumHp -1、grantSkills classic:yingzi + classic:yinghun）与 classic:hunzi 一致，获得的英姿/英魂直接授予已验收的 classic 程序。",
+        "界升级点为觉醒当回合结束阶段的摸二/回一：新增 turnEnding 触发体，用技能级 boolean state \"woke\"（states 声明，resetScope game，形状照 classic:xingshuai）把觉醒与本回合结束阶段关联，觉醒置 true、结算后置 false；另挂 usageScope game + usageLimit 1 作一次性护栏。",
+        "chooseOption 提供 draw-two（摸两张牌）/recover（回复1点体力）两个恒可选分支（官方无“可以”，为锁定二选一），presentation 附 optionLabels。"
+      ]
+    },
+    {
+      "name": "制霸",
+      "text": "主公技，出牌阶段限一次，你可以与一名其他吴势力角色拼点；其他吴势力角色出牌阶段限一次，其可以与你拼点（你可以拒绝）：若其没赢，你可以获得两张拼点牌。",
+      "programId": "boundary:zhiba-current",
+      "notes": [
+        "主公技资格由注册元数据 Tags=SkillTag.Lord 表达，引擎按非主公位排除授予（MatchSkillBindingIndex），与界激将口径一致。",
+        "本批实现前半句：激活体 challenge-wu（一张手牌 + targetKind=otherLivingWuFactionWithHand、usesPerPhase=1）+ op pindian，逐字复用 classic:tianyi 的拼点激活形状，仅目标集收窄为吴势力。",
+        "拼点牌回收走引擎已有的拼点 claim 流程（BeginPindianClaims）：新增 cardPolicy kind pindianClaimAllWhenSourceWins（枚举 785），发起拼点的拼点方没赢（含平局）时拥有者可一次获得两张拼点牌；解析门控仅要求该 kind 不携带 cardKinds 等附加字段。",
+        "新增引擎目标集 otherLivingWuFactionWithHand（SkillProgramTargetKind 2001）：GetProgramTargetSeats 纯静态过滤（存活其他角色 + 有手牌 + GetEffectiveFactionId==wu），照 OtherLivingMale 等既有静态目标集先例。",
+        "已知缺口：后半句“其他吴势力角色出牌阶段限一次，其可以与你拼点（你可以拒绝）”需要由他人主动发起拥有者技能的全新跨玩家交互流（含拥有者拒绝门），既有 DSL 原语（contributions 仅移牌、激活仅拥有者发起）无法表达，也不符合本仓库“typed 标量 + 解析门控”的最小扩展模式，本批不做，后续批次再补。"
+      ]
+    },
+    {
+      "name": "英姿",
+      "text": "摸牌阶段，你可以多摸一张牌。",
+      "programId": "classic:yingzi",
+      "notes": ["官方页魂姿文案内嵌引用；觉醒后 grantSkills 直接授予已验收的 classic:yingzi，不复制定义。"]
+    },
+    {
+      "name": "英魂",
+      "text": "准备阶段开始时，若你已受伤，你可以选择一项：1.令一名其他角色摸X张牌，然后其弃置一张牌；2.令一名其他角色摸一张牌，然后其弃置X张牌。（X为你已损失的体力值）",
+      "programId": "classic:yinghun",
+      "notes": ["同上，授予已验收的 classic:yinghun。"]
+    }
+  ],
+  "apiInfo": { "hp": 4, "figure": "wu", "initial_hp": 0 },
+  "genderBasis": "官方无结构化性别字段；沿仓库同角色男性惯例。",
+  "observations": [
+    "官方页 fetch 时间 2026-10-04，页面 https://www.sanguosha.com/hero/452 与 /api/v1/hero/info?gid=452 均 HTTP 200；技能文案取自官方页服务端渲染的 skill-text 区块（制霸/激昂/魂姿三个页签）。",
+    "gid 定位：官方武将列表页数据中 \"gid\":452 与资源 45200.png 对应界孙策（界姜维=480、界邓艾=471 相邻段核对）。",
+    "本批为单武将批次：仅接入界孙策，不涉及其它并行批次范围。",
+    "激昂每回合首次的次数语义按“两种牌型合计每回合一次”实现（namedUsageGroup 共享每回合计数）。"
+  ]
+}

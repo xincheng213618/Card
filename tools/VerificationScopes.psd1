@@ -66,7 +66,11 @@
         'Boundary Jiang Wei declined taunt discards target card',
         'Boundary Jiang Wei dodged slash still discards',
         'Boundary Jiang Wei taunt runs twice per phase',
-        'Boundary Jiang Wei awakening wakes once across phases'
+        'Boundary Jiang Wei awakening wakes once across phases',
+        'Boundary Sun Ce own duel and red slash draw',
+        'Boundary Sun Ce reclaim once per turn',
+        'Boundary Sun Ce hunzi wakes draws and stays silent',
+        'Boundary Sun Ce zhiba declined claim discards both'
         'Damage target mount paid children source lifetime',
         'Damage appearance Draw definitions physical colors cardless legacy',
         'Selected actor Duel actual Use and Nullification'
