@@ -147,6 +147,8 @@ public sealed record ProgramSkillFrame(
     public IReadOnlyList<ProgramSkillNumberBinding> NumberBindings { get; init; } = [];
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? SelectedAllOwnerHandCards { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? RequestedSlashDamagedOwner { get; init; }
     public IReadOnlyList<ProgramAttackRangeCoverageBinding> AttackRangeCoverageBindings { get; init; } = [];
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramMovementContinuation? PendingMovementContinuation { get; init; }

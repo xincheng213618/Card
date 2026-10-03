@@ -11030,6 +11030,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-jiang-wei",
+      "characterName": "界姜维",
+      "defaultSkinId": "48000",
+      "skins": [
+        {
+          "id": "48000",
+          "name": "默认皮肤",
+          "sourcePage": "https://www.sanguosha.com/hero/480",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/48000.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-jiang-wei.png",
+          "sha256": "d5fff47cc58681206279dd50d6a52a2f2f087c4f0a8f76f95cc1ae3db5b44ed7",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

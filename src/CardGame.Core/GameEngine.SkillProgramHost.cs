@@ -66,7 +66,8 @@ public sealed partial class GameEngine
                 frame.SelectedCardIds.Count,
                 (cardBind, choiceBind) => engine.DoesProgramFrozenSuitMatchChoice(frame, cardBind, choiceBind),
                 (bind, suits) => engine.DoProgramBoundCardsMatchSuits(frame, bind, suits),
-                (bind, _) => engine.DoProgramBoundCardCategoryMatchAction(frame, bind));
+                (bind, _) => engine.DoProgramBoundCardCategoryMatchAction(frame, bind),
+                requestedSlashDamagedOwner: frame.RequestedSlashDamagedOwner == true);
         }
 
         public bool TryStartPostInstructionWindow(long frameId) =>

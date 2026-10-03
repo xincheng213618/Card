@@ -13060,6 +13060,12 @@ public sealed partial class GameEngine
             if (completion.ProgramFrameId is not { } frameId ||
                 _resolutionStack.LastOrDefault() is not ProgramSkillFrame frame || frame.Id != frameId)
                 throw new InvalidOperationException("The program child attack lost its parent frame.");
+            if (completion.RequestedSlashChild)
+                ReplaceRuntimeFrame(frame.Id, frame with
+                {
+                    RequestedSlashDamagedOwner =
+                        completion.DamageWasApplied && completion.FinalTargetSeat == frame.OwnerSeat
+                });
             AdvanceRuntimeProgram(frameId);
         }
         else if (resumesDelayedTurn && _winner == Winner.None && _status != EngineStatus.Completed)

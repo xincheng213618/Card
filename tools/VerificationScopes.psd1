@@ -1,4 +1,4 @@
-@{
+﻿@{
     # Routine checks use existing name filters; each runner executes their union once.
     # Full validation retains every registration, including individual content scenarios.
     Core = @(
@@ -62,7 +62,11 @@
         'Paid HP loss rescue and gain children',
         'Paid HP loss source and legacy',
         'Boundary Deng Ai own turn slash discard judges authority',
-        'Boundary Deng Ai awakening grants snatch and extra turn'
+        'Boundary Deng Ai awakening grants snatch and extra turn',
+        'Boundary Jiang Wei declined taunt discards target card',
+        'Boundary Jiang Wei dodged slash still discards',
+        'Boundary Jiang Wei taunt runs twice per phase',
+        'Boundary Jiang Wei awakening wakes once across phases'
         'Damage target mount paid children source lifetime',
         'Damage appearance Draw definitions physical colors cardless legacy',
         'Selected actor Duel actual Use and Nullification'

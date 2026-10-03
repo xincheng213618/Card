@@ -140,6 +140,7 @@ CURRENT_HEROES = {
     "boundary-huang-zhong": (26, "界黄忠"),
     "boundary-wei-yan": (456, "界魏延"),
     "boundary-deng-ai": (471, "界邓艾"),
+    "boundary-jiang-wei": (480, "界姜维"),
     "boundary-gongsun-zan": (320, "界公孙瓒"),
     "boundary-hua-xiong": (446, "界华雄"),
 }
