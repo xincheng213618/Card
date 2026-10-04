@@ -74,5 +74,14 @@
     "priorAutomaticApprovalRejection": "blocked by policy",
     "retryPerformed": false,
     "sourceStagesAndCacheRetainedForContinuation": true
+  },
+  "media": {
+    "record": "docs/content/sources/fenglin-twenty-ninth-art-2026-10-04.json",
+    "rawCaptured": 3,
+    "installed": 0,
+    "originalPngOnly": true,
+    "sourceShaMatched": true,
+    "fullOfflineCatalogRun": false,
+    "compiledVerificationRun": false
   }
 }

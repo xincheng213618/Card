@@ -1,0 +1,68 @@
+{
+  "status": "official-raw-art-staged-not-main-registered",
+  "batch": 29,
+  "images": [
+    {
+      "gid": 563,
+      "key": "boundary-zhang-zhao-zhang-hong",
+      "name": "界张昭张纮",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-563-source-2026-10-04.json",
+      "sourceRecordSha256": "40e306cedc0c0dfec0fabacb8bffc9a0da88a3b744b850e729d4ce5d0728ad69",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/56300.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/56300.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-04T03:31:37.2930992Z",
+      "contentType": "image/png",
+      "rawBytes": 849947,
+      "sha256": "2c3d9b4bc04530355758b817a026b3802c1d254851dc2c55ae933c92fa7caea1",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch29\\official-art\\official-boundary-zhang-zhao-zhang-hong.png",
+      "installed": false
+    },
+    {
+      "gid": 775,
+      "key": "boundary-bu-lian-shi",
+      "name": "界步练师",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-775-source-2026-10-04.json",
+      "sourceRecordSha256": "76212903e4e86c42fe8f9f14b2e9108b706514164b81a8e6698d562cb179bbab",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/77500.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/77500.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-04T03:31:37.4846762Z",
+      "contentType": "image/png",
+      "rawBytes": 1001387,
+      "sha256": "88df186050ed556c59fe3ac44a0fa55a586fc24a42d2e0bebcab8df5f8140d48",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch29\\official-art\\official-boundary-bu-lian-shi.png",
+      "installed": false
+    },
+    {
+      "gid": 671,
+      "key": "boundary-fu-huang-hou",
+      "name": "界伏皇后",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-671-source-2026-10-04.json",
+      "sourceRecordSha256": "1c004024c9b94b5e39f653a31d5e928406102e7e8efe576db102e2749b1dc247",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/67100.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/67100.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-04T03:31:37.6562431Z",
+      "contentType": "image/png",
+      "rawBytes": 948710,
+      "sha256": "8df34043ffc82feefdf2cdea7c392b19c1eacad977c13f613afc9fc07525af3e",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch29\\official-art\\official-boundary-fu-huang-hou.png",
+      "installed": false
+    }
+  ],
+  "verification": {
+    "rawPngSignatureAndIhdr": true,
+    "sourceRecordShaMatched": true,
+    "mainRegistration": false,
+    "fullOfflineCatalogRun": false,
+    "compiledVerificationRun": false,
+    "installedCount": 0
+  }
+}
