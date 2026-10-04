@@ -1,0 +1,141 @@
+{
+  "status": "current-official-source-only-not-implemented",
+  "gid": 550,
+  "indexIdentity": {
+    "gid": 550,
+    "name": "界颜良文丑",
+    "resource": "55000",
+    "extend": "界限突破",
+    "hp": 4,
+    "initial_hp": 0,
+    "quality": "史诗",
+    "figure": "群",
+    "figure_py": "qun",
+    "biography": "东汉末年河北袁绍部下武将，素有威名。颜良与文丑一起作为袁绍军队的勇将而闻名。建安四年（199），袁绍以颜良、文丑为将，率精卒十万，准备攻许都；次年，兵进黎阳，遣颜良攻白马。终均亡于关羽刀下。",
+    "characteristic": "能大量使用【决斗】，有辅助时输出能力更强。",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/550.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/55000.png",
+    "realname": "界颜良文丑 (界限突破)"
+  },
+  "discovery": "Cached ordinary OL Listdata boundary index exact gid; current registered module display-name exclusion saved in candidate-registration-preflight.json.",
+  "webReader": "Grouped primary reader attempted all six selected URLs first: 457 page text readable; 485/550 pages timed out; all info API URLs inaccessible. Parsed reader does not supply original bytes/status/rawSHA. Exactly six bounded direct GETs retained original page/API bytes; no retries or other URLs.",
+  "page": {
+    "url": "https://www.sanguosha.com/hero/550",
+    "capturedAtUtc": "2026-10-04T02:27:39.737480+00:00",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "finalUrl": "https://www.sanguosha.com/hero/550",
+    "httpStatus": 200,
+    "contentType": "text/html",
+    "rawBytes": 23910,
+    "rawSha256": "3e70661e35eabe7360485322e5d56ed789589700dc4ac4838cdab38914d18f0f",
+    "rawFile": "550-page.raw.html",
+    "completedAtUtc": "2026-10-04T02:27:39.913059+00:00",
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >摸牌阶段结束时，你可以弃置一张牌，然后你本回合可以将一张与之颜色不同的牌当【决斗】使用。结束阶段，你获得本回合对你造成伤害的牌。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "双雄"
+    ],
+    "skillTexts": [
+      "摸牌阶段结束时，你可以弃置一张牌，然后你本回合可以将一张与之颜色不同的牌当【决斗】使用。结束阶段，你获得本回合对你造成伤害的牌。"
+    ],
+    "fontRefs": [],
+    "scripts": [
+      "/assets/js/jquery-3.7.1.js",
+      "/assets/js/swiper-bundle.min.js",
+      "/assets/js/echarts.min.js",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "/assets/js/commen.js",
+      "/assets/js/header.js",
+      "/assets/js/heroDetail.js?1"
+    ]
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=550",
+    "capturedAtUtc": "2026-10-04T02:27:39.765621+00:00",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=550",
+    "httpStatus": 200,
+    "contentType": "application/json",
+    "rawBytes": 950,
+    "rawSha256": "c44b415a7d11273d9cb7b0012db5d39e5a3a834dd24d64d285c3ceda1c2e04d4",
+    "rawFile": "550-api.raw.json",
+    "completedAtUtc": "2026-10-04T02:27:40.025006+00:00",
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 550,
+            "name": "界颜良文丑",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/550.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/55000.png",
+            "label": [
+              "进攻",
+              "简单",
+              "爆发"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "史诗",
+            "biography": "东汉末年河北袁绍部下武将，素有威名。颜良与文丑一起作为袁绍军队的勇将而闻名。建安四年（199），袁绍以颜良、文丑为将，率精卒十万，准备攻许都；次年，兵进黎阳，遣颜良攻白马。终均亡于关羽刀下。",
+            "characteristic": "能大量使用【决斗】，有辅助时输出能力更强。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "地主",
+            "value": 4
+          },
+          {
+            "name": "农民",
+            "value": 7
+          },
+          {
+            "name": "忠臣",
+            "value": 5
+          },
+          {
+            "name": "反贼",
+            "value": 7
+          },
+          {
+            "name": "内奸",
+            "value": 5
+          }
+        ],
+        "deeds": []
+      }
+    }
+  },
+  "genderEvidence": {
+    "apiHasIndependentGenderField": false,
+    "supplementedGender": null,
+    "note": "No classic gender value is attributed to this API; implementation may separately cite retained classic identity."
+  },
+  "initialHpInterpretation": "API initial_hp=0 is a placeholder, not an assertion of starting at zero HP.",
+  "blockedReasons": [],
+  "derivativeTextStatus": "Manually read all captured skill tabs/texts. No granted derivative skill is named in these current texts; no external font reference appears in skill HTML/page.",
+  "implementationStarted": false,
+  "mediaDownloaded": false,
+  "buildsRun": false,
+  "loadersRun": false,
+  "testsRun": false,
+  "completeCurrentMainTexts": true,
+  "hasUnexpandedGrantedSkill": false,
+  "namedGrantedSkills": [],
+  "currentApiIdentity": {
+    "gid": 550,
+    "name": "界颜良文丑",
+    "faction": "qun",
+    "baseHp": 4,
+    "initialHpApiPlaceholder": 0,
+    "gender": null,
+    "genderSource": "No gender/sex field in current info API; no supplemented gender claimed."
+  }
+}

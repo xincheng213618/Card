@@ -1,0 +1,69 @@
+{
+  "status": "primary-sources-frozen-one-candidate-assigned-runtime-deferred",
+  "batch": 28,
+  "baseCommit": "a794646f",
+  "userSteering": {
+    "instruction": "Keep adding and commit; user will run unified tests after waking because CPU noise",
+    "buildsRun": false,
+    "productionLoaderExecuted": false,
+    "testsRun": false,
+    "benchmarksRun": false,
+    "commitAuthorized": true,
+    "pushAuthorized": false
+  },
+  "candidates": [
+    {
+      "gid": 457,
+      "name": "界小乔",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-eighth-457-source-2026-10-04.json",
+      "sourceSha256": "2304874b07f5090197b0e270099c2f6dd76d778294c506e59331f178b585f17f",
+      "mainRegistered": false,
+      "status": "owned-stage-implementation-in-progress",
+      "owner": "/root/sun_quan",
+      "stage": ".artifacts/continuation-20261003-batch17/batch28/xiao-qiao"
+    },
+    {
+      "gid": 485,
+      "name": "界鲁肃",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-eighth-485-source-2026-10-04.json",
+      "sourceSha256": "612f55221790ad7a9d947e33e3e00c955c076d82ffc8daedf9699f3d954e69e9",
+      "mainRegistered": false,
+      "status": "source-only-not-assigned",
+      "owner": null,
+      "stage": null
+    },
+    {
+      "gid": 550,
+      "name": "界颜良文丑",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-eighth-550-source-2026-10-04.json",
+      "sourceSha256": "ea966f179fad53e5c283adc3ff2b31d13505456f9504661833473f58462be677",
+      "mainRegistered": false,
+      "status": "source-only-not-assigned",
+      "owner": null,
+      "stage": null
+    }
+  ],
+  "runs": [],
+  "integrations": [],
+  "runtimeAcceptance": false,
+  "pending": [
+    "457 complete NEW draft and later frozen shared baseline",
+    "485 and 550 await available agent assignment",
+    "Original art capture and registration",
+    "User later combined build, focused runtime, Full and measured routine verification"
+  ],
+  "versions": {
+    "perCharacterBumped": false,
+    "authoritativePaths": [
+      "src/CardGame.Core/Replay.cs",
+      "src/CardGame.Core/SkillPrograms.cs",
+      "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs"
+    ]
+  },
+  "cleanup": {
+    "ownedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+    "priorAutomaticApprovalRejection": "blocked by policy",
+    "retryPerformed": false,
+    "sourceStagesAndCacheRetainedForContinuation": true
+  }
+}

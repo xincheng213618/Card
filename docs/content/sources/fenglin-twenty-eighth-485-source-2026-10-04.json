@@ -1,0 +1,143 @@
+{
+  "status": "current-official-source-only-not-implemented",
+  "gid": 485,
+  "indexIdentity": {
+    "gid": 485,
+    "name": "界鲁肃",
+    "resource": "48500",
+    "extend": "界限突破",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "史诗",
+    "figure": "吴",
+    "figure_py": "wu",
+    "biography": "字子敬，汉族，临淮东城人，中国东汉末年东吴的著名军事统帅。他曾为孙权提出鼎足江东的战略规划，因此得到孙权的赏识，于周瑜死后代替周瑜领兵，守陆口。曾单刀赴会关羽于荆州。",
+    "characteristic": "能获得大量手牌并分配给脆弱的角色，能够将敌人的牌交换给队友。自身很脆弱，被好施的队友最好帮鲁肃留一些防御牌。",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/485.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/48500.png",
+    "realname": "界鲁肃 (界限突破)"
+  },
+  "discovery": "Cached ordinary OL Listdata boundary index exact gid; current registered module display-name exclusion saved in candidate-registration-preflight.json.",
+  "webReader": "Grouped primary reader attempted all six selected URLs first: 457 page text readable; 485/550 pages timed out; all info API URLs inaccessible. Parsed reader does not supply original bytes/status/rawSHA. Exactly six bounded direct GETs retained original page/API bytes; no retries or other URLs.",
+  "page": {
+    "url": "https://www.sanguosha.com/hero/485",
+    "capturedAtUtc": "2026-10-04T02:27:39.317732+00:00",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "finalUrl": "https://www.sanguosha.com/hero/485",
+    "httpStatus": 200,
+    "contentType": "text/html",
+    "rawBytes": 25307,
+    "rawSha256": "82d3bbfbbba28c4eeb1f94f9a8c45fb7066164625c231a42ea76b6537cb89a41",
+    "rawFile": "485-page.raw.html",
+    "completedAtUtc": "2026-10-04T02:27:39.764892+00:00",
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >摸牌阶段，你可以多摸两张牌，然后若你的手牌数大于5，你将一半的手牌（向下取整）交给手牌最少的一名其他角色，然后直到你的下回合开始，当你成为【杀】或普通锦囊牌的目标后，其可以交给你一张手牌。</span>\n                            \n                                <span >出牌阶段限一次，你可以令两名其他角色交换手牌（两者手牌数之差不大于你的牌数量），若如此做，出牌阶段结束时，你弃置X张牌（X为这两名角色手牌数之差）。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "好施",
+      "缔盟"
+    ],
+    "skillTexts": [
+      "摸牌阶段，你可以多摸两张牌，然后若你的手牌数大于5，你将一半的手牌（向下取整）交给手牌最少的一名其他角色，然后直到你的下回合开始，当你成为【杀】或普通锦囊牌的目标后，其可以交给你一张手牌。",
+      "出牌阶段限一次，你可以令两名其他角色交换手牌（两者手牌数之差不大于你的牌数量），若如此做，出牌阶段结束时，你弃置X张牌（X为这两名角色手牌数之差）。"
+    ],
+    "fontRefs": [],
+    "scripts": [
+      "/assets/js/jquery-3.7.1.js",
+      "/assets/js/swiper-bundle.min.js",
+      "/assets/js/echarts.min.js",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "/assets/js/commen.js",
+      "/assets/js/header.js",
+      "/assets/js/heroDetail.js?1"
+    ]
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=485",
+    "capturedAtUtc": "2026-10-04T02:27:39.588317+00:00",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=485",
+    "httpStatus": 200,
+    "contentType": "application/json",
+    "rawBytes": 1024,
+    "rawSha256": "c721e82c6d5114e5d7c1dbe02f265aedc1bdfb248417d0c90a19627f1e73c7ac",
+    "rawFile": "485-api.raw.json",
+    "completedAtUtc": "2026-10-04T02:27:39.850260+00:00",
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 485,
+            "name": "界鲁肃",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/485.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/48500.png",
+            "label": [
+              "控制",
+              "过牌",
+              "困难"
+            ],
+            "figure": "吴",
+            "figure_py": "wu",
+            "quality": "史诗",
+            "biography": "字子敬，汉族，临淮东城人，中国东汉末年东吴的著名军事统帅。他曾为孙权提出鼎足江东的战略规划，因此得到孙权的赏识，于周瑜死后代替周瑜领兵，守陆口。曾单刀赴会关羽于荆州。",
+            "characteristic": "能获得大量手牌并分配给脆弱的角色，能够将敌人的牌交换给队友。自身很脆弱，被好施的队友最好帮鲁肃留一些防御牌。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 5
+          },
+          {
+            "name": "排位后手",
+            "value": 7
+          },
+          {
+            "name": "农民",
+            "value": 6
+          },
+          {
+            "name": "主公",
+            "value": 5
+          },
+          {
+            "name": "反贼",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    }
+  },
+  "genderEvidence": {
+    "apiHasIndependentGenderField": false,
+    "supplementedGender": null,
+    "note": "No classic gender value is attributed to this API; implementation may separately cite retained classic identity."
+  },
+  "initialHpInterpretation": "API initial_hp=0 is a placeholder, not an assertion of starting at zero HP.",
+  "blockedReasons": [],
+  "derivativeTextStatus": "Manually read all captured skill tabs/texts. No granted derivative skill is named in these current texts; no external font reference appears in skill HTML/page.",
+  "implementationStarted": false,
+  "mediaDownloaded": false,
+  "buildsRun": false,
+  "loadersRun": false,
+  "testsRun": false,
+  "completeCurrentMainTexts": true,
+  "hasUnexpandedGrantedSkill": false,
+  "namedGrantedSkills": [],
+  "currentApiIdentity": {
+    "gid": 485,
+    "name": "界鲁肃",
+    "faction": "wu",
+    "baseHp": 3,
+    "initialHpApiPlaceholder": 0,
+    "gender": null,
+    "genderSource": "No gender/sex field in current info API; no supplemented gender claimed."
+  }
+}
