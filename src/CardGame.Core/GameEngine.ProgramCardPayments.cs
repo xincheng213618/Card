@@ -37,7 +37,8 @@ public sealed partial class GameEngine
         bool awaitMovementTriggers = false,
         bool revealBeforeMove = false,
         IReadOnlyList<CardKind>? cardKinds = null,
-        bool prohibitReplacingEquipment = false)
+        bool prohibitReplacingEquipment = false,
+        IReadOnlyList<Suit>? suits = null)
     {
         var active = GetActiveProgramFrame(frame.Id);
         var chooserSeat = ResolveProgramParticipant(active, chooser);
@@ -56,7 +57,7 @@ public sealed partial class GameEngine
              destinationSeat is not { } recipient || !_players[recipient].IsAlive))
             throw new InvalidOperationException("A no-replace corresponding-zone transfer requires a living selected target.");
         var choices = BuildOwnedCardPaymentChoices(active.Id, chooserSeat, cardOwnerSeat, zones, destination == SkillProgramCardDestination.DiscardPile ? OwnedCardMoveIntent.Discard : OwnedCardMoveIntent.Transfer,
-            cardCategories, cardKinds,
+            cardCategories, cardKinds, suits,
             destination == SkillProgramCardDestination.SelectedTargetCorrespondingZone
                 ? (zone, card) => destinationSeat is { } seat &&
                     CanMoveProgramCardToCorrespondingZone(card, zone, seat)
@@ -110,6 +111,7 @@ public sealed partial class GameEngine
         long frameId, int chooserSeat, int cardOwnerSeat, IReadOnlyList<CardZoneKind> zones, OwnedCardMoveIntent intent,
         IReadOnlyList<SkillProgramCardCategory>? cardCategories = null,
         IReadOnlyList<CardKind>? cardKinds = null,
+        IReadOnlyList<Suit>? suits = null,
         Func<CardZoneKind, Card, bool>? canSelect = null,
         SkillProgramCardDestination destination = SkillProgramCardDestination.DiscardPile,
         int? destinationSeat = null,
@@ -133,6 +135,8 @@ public sealed partial class GameEngine
                 if (cardCategories is { Count: > 0 } && !MatchesProgramCardCategory(cards[slot].Kind, cardCategories))
                     continue;
                 if (cardKinds is { Count: > 0 } && !cardKinds.Contains(cards[slot].Kind))
+                    continue;
+                if (suits is { Count: > 0 } && !suits.Contains(cards[slot].Suit))
                     continue;
                 if (canSelect is not null && !canSelect(zone, cards[slot]))
                     continue;

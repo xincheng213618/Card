@@ -125,6 +125,7 @@ public enum PlayerMarkerKind
     Orange = 1280,
     Yi = 2600,
     Lie = 3000,
+    LiuShi = 3100,
     Bian = 3500,
     Zi = 3800
 }
@@ -138,6 +139,7 @@ public static class PlayerMarkerCatalog
         PlayerMarkerKind.Orange => "橘",
         PlayerMarkerKind.Yi => "裔",
         PlayerMarkerKind.Lie => "烈",
+        PlayerMarkerKind.LiuShi => "流矢",
         PlayerMarkerKind.Bian => "变",
         PlayerMarkerKind.Zi => "辎",
         PlayerMarkerKind.Ren => "忍",

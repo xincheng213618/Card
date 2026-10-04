@@ -2,12 +2,12 @@ namespace CardGame.Core;
 internal interface IHandComparisonProgramHost
 {
  SkillProgramStepOutcome CompareSelectedHandWithHpHand(ProgramSkillFrame frame, SkillProgramEffect effect);
- void AdjustPersistentHandLimit(ProgramSkillFrame frame,int amount,string stateId);
+ void AdjustPersistentHandLimit(ProgramSkillFrame frame,int targetSeat,int amount,string stateId);
  void ProhibitSelfCardTargetsForTurn(ProgramSkillFrame frame);
 }
 public sealed record ProgramHandComparisonDraft(int TargetSeat,int SourceCardId,IReadOnlyList<int> CandidateIds,int Required,IReadOnlyList<int> RevealedIds,string Stage);
 public sealed record ProgramHandComparisonResolvedEvent(int OwnerSeat,string SkillId,string SkillInstanceId,string StateId,int TurnNumber,int SourceCardId,int TargetSeat,IReadOnlyList<int> RevealedIds,bool ColorMatched,bool RankMatched) : IGameEvent;
-public sealed record ProgramPersistentHandLimitChangedEvent(int OwnerSeat,string SkillId,string SkillInstanceId,string StateId,int Amount) : IGameEvent;
+public sealed record ProgramPersistentHandLimitChangedEvent(int OwnerSeat,string SkillId,string SkillInstanceId,string StateId,int Amount,int TargetSeat = -1) : IGameEvent;
 public sealed record ProgramSelfCardTargetsProhibitedEvent(int OwnerSeat,string SkillId,string SkillInstanceId,int TurnNumber,int TurnSeat) : IGameEvent;
 internal sealed record RequireActivationHandComparison : ProgramResourceOperation;
 internal sealed class CompareSelectedHandWithHpHandDescriptor : ProgramOperationDescriptorBase
@@ -30,8 +30,10 @@ internal sealed class AdjustPersistentHandLimitDescriptor : ProgramOperationDesc
  public override ProgramOperationAiPolicy AiPolicy {get;}=new(ProgramOperationAiSemantic.GrantTurnRuleModifier,static(e,c)=>c.GrantTurnRuleModifier(e));
  public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
  {
-  r.AllowOnly("op","target","amount","stateId","condition");var amount=r.RequiredInt("amount");if(amount is not (-1 or 1))throw new InvalidOperationException("Persistent hand-limit adjustment must be -1 or +1.");
-  return new(Op,FilterBoundCardsProgramOperationDescriptor.Owner(r),amount,r.Condition(),stateId:r.RequiredIdentifier("stateId"));
+  r.AllowOnly("op","target","targetRef","amount","stateId","condition");var amount=r.RequiredInt("amount");if(amount is < -20 or > 20 or 0)throw new InvalidOperationException("Persistent hand-limit adjustment must be a nonzero bounded amount.");
+  var targetRef=r.Has("targetRef")?r.RequiredParticipantReference("targetRef"):null;
+  if(targetRef is not null&&targetRef.Kind!=ProgramParticipantRef.EventTarget)throw new InvalidOperationException("Persistent hand-limit references support only eventTarget.");
+  return new(Op,FilterBoundCardsProgramOperationDescriptor.Owner(r),amount,r.Condition(),stateId:r.RequiredIdentifier("stateId"),targetReference:targetRef);
  }
  public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[];
 }
@@ -46,6 +48,6 @@ internal sealed class ProhibitSelfCardTargetsForTurnDescriptor : ProgramOperatio
 public sealed class CompareSelectedHandWithHpHandHandler : ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>SkillProgramEffectOp.CompareSelectedHandWithHpHand;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host)=>((IHandComparisonProgramHost)host).CompareSelectedHandWithHpHand(f,e);}
 public sealed class AdjustPersistentHandLimitHandler : ISkillProgramEffectHandler
-{public SkillProgramEffectOp Op=>SkillProgramEffectOp.AdjustPersistentHandLimit;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host){((IHandComparisonProgramHost)host).AdjustPersistentHandLimit(f,e.Amount,e.StateId!);return SkillProgramStepOutcome.Continue;}}
+{public SkillProgramEffectOp Op=>SkillProgramEffectOp.AdjustPersistentHandLimit;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host){((IHandComparisonProgramHost)host).AdjustPersistentHandLimit(f,seat,e.Amount,e.StateId!);return SkillProgramStepOutcome.Continue;}}
 public sealed class ProhibitSelfCardTargetsForTurnHandler : ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>SkillProgramEffectOp.ProhibitSelfCardTargetsForTurn;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int seat,ISkillProgramEffectHost host){((IHandComparisonProgramHost)host).ProhibitSelfCardTargetsForTurn(f);return SkillProgramStepOutcome.Continue;}}

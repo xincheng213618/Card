@@ -34,7 +34,7 @@ public sealed partial class GameEngine
  private bool IsHandComparisonTarget(SkillProgramActivation activation,CharacterState p)=>!activation.Effects.Any(e=>e.Op==SkillProgramEffectOp.CompareSelectedHandWithHpHand)||p.Hp>0&&GetHand(p).Count>0;
  private IEnumerable<RuleQueryContribution> PersistentHandLimitContributions(CharacterState owner)
  {
-  foreach(var g in HandComparisonHistory().OfType<ProgramPersistentHandLimitChangedEvent>().Where(e=>e.OwnerSeat==owner.Seat&&HasRuntimeSkillInstance(owner,e.SkillId,e.SkillInstanceId)).GroupBy(e=>(e.SkillId,e.SkillInstanceId,e.StateId)))
+  foreach(var g in HandComparisonHistory().OfType<ProgramPersistentHandLimitChangedEvent>().Where(e=>(e.TargetSeat<0?e.OwnerSeat:e.TargetSeat)==owner.Seat&&HasRuntimeSkillInstance(_players[e.OwnerSeat],e.SkillId,e.SkillInstanceId)).GroupBy(e=>(e.SkillId,e.SkillInstanceId,e.StateId)))
    yield return new FiniteRuleQueryContribution("persistent:"+g.Key,SkillRuleOperation.Add,g.Sum(e=>e.Amount),0);
  }
  private bool HasSelfCardTargetProhibition(int seat)=>HandComparisonHistory().OfType<ProgramSelfCardTargetsProhibitedEvent>().Any(e=>e.OwnerSeat==seat&&e.TurnNumber==_turnNumber&&e.TurnSeat==_currentSeat&&HasRuntimeSkillInstance(_players[seat],e.SkillId,e.SkillInstanceId));
@@ -49,10 +49,10 @@ public sealed partial class GameEngine
  private sealed partial class ProgramSkillHost : IHandComparisonProgramHost
  {
   public SkillProgramStepOutcome CompareSelectedHandWithHpHand(ProgramSkillFrame f,SkillProgramEffect e)=>engine.CompareSelectedHandWithHpHand(f,e);
-  public void AdjustPersistentHandLimit(ProgramSkillFrame f,int amount,string stateId)=>engine.AdjustPersistentHandLimit(f,amount,stateId);
+  public void AdjustPersistentHandLimit(ProgramSkillFrame f,int targetSeat,int amount,string stateId)=>engine.AdjustPersistentHandLimit(f,targetSeat,amount,stateId);
   public void ProhibitSelfCardTargetsForTurn(ProgramSkillFrame f){engine.ValidateProgramTurnEffectGrant(f);engine.AdvanceEventRulesAndQueueFact(new ProgramSelfCardTargetsProhibitedEvent(f.OwnerSeat,f.SkillId,f.SkillInstanceId,engine._turnNumber,engine._currentSeat));}
  }
- private void AdjustPersistentHandLimit(ProgramSkillFrame f,int amount,string stateId)=>AdvanceEventRulesAndQueueFact(new ProgramPersistentHandLimitChangedEvent(f.OwnerSeat,f.SkillId,f.SkillInstanceId,stateId,amount));
+ private void AdjustPersistentHandLimit(ProgramSkillFrame f,int targetSeat,int amount,string stateId)=>AdvanceEventRulesAndQueueFact(new ProgramPersistentHandLimitChangedEvent(f.OwnerSeat,f.SkillId,f.SkillInstanceId,stateId,amount,targetSeat));
  private SkillProgramStepOutcome CompareSelectedHandWithHpHand(ProgramSkillFrame f,SkillProgramEffect effect)
  {
   if(f.TriggerId is not null||f.SelectedCardIds is not [var source]||f.SelectedTargetSeats is not [var target]||target==f.OwnerSeat||_cardZones.GetLocation(source)!=CardLocation.Hand(f.OwnerSeat)||!_players[target].IsAlive||_players[target].Hp<=0||GetHand(_players[target]).Count==0)throw new InvalidOperationException("A hand comparison requires one own hand card and another living positive-HP nonempty hand.");
@@ -95,7 +95,7 @@ public sealed partial class GameEngine
    var own=GetHand(_players[f.OwnerSeat]).Single(c=>c.Id==d.SourceCardId);var revealed=GetHand(_players[d.TargetSeat]).Where(c=>d.RevealedIds.Contains(c.Id)).ToArray();
    var color=revealed.Any(c=>IsRedSuit(EffectiveSuit(_players[d.TargetSeat],c))==IsRedSuit(EffectiveSuit(_players[f.OwnerSeat],own)));var rank=revealed.Any(c=>c.Rank==own.Rank);
    AdvanceEventRulesAndQueueFact(new ProgramHandComparisonResolvedEvent(f.OwnerSeat,f.SkillId,f.SkillInstanceId,effect.StateId!,_turnNumber,d.SourceCardId,d.TargetSeat,d.RevealedIds,color,rank));
-   if(!color&&!rank)AdjustPersistentHandLimit(f,-1,effect.StateId!);
+   if(!color&&!rank)AdjustPersistentHandLimit(f,f.OwnerSeat,-1,effect.StateId!);
    if(color){ReplaceRuntimeTop(f=f with{HandComparisonDraft=d with{Stage="benefit"}});PublishHandComparison(f);return;}
    ReplaceRuntimeTop(f=f with{HandComparisonDraft=d with{Stage="complete"}});PublishHandComparison(f);return;
   }

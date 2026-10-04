@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:liu-shi", "revision": 1,
+      "triggers": [
+        {
+          "id": "topdeck-heart-slash", "window": "playPhaseStarting",
+          "subject": "owner", "optional": true, "priority": 0,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingVirtualSlashTarget" },
+            { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand"], "count": 1, "suits": ["heart"], "destination": "drawPileTop",
+              "resultBind": "top-cost", "awaitMovementTriggers": true },
+            { "op": "useVirtualCard", "target": "selectedTarget", "outputKind": "slash", "useCardActionWindows": true, "targetRestriction": "distanceUnlimitedAgainstTarget" }
+          ]
+        },
+        {
+          "id": "liu-shi-damage", "window": "cardUseCompleted",
+          "ownerRelation": "actor", "cardKinds": ["slash"],
+          "optional": false, "priority": 0,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "cardUseCausedDamage" },
+              { "kind": "cardUseConversionSkillIs", "conversionSkillId": "ol:liu-shi" }
+            ]
+          },
+          "effects": [
+            { "op": "changeParticipantMarker", "target": "owner", "targetRef": { "kind": "eventTarget" }, "marker": "liuShi", "amount": 1 },
+            { "op": "adjustPersistentHandLimit", "target": "owner", "targetRef": { "kind": "eventTarget" }, "amount": -1, "stateId": "liu-shi-limit" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:zhan-wan", "revision": 1,
+      "triggers": [
+        {
+          "id": "discard-end-drain", "window": "discardPhaseEnded",
+          "turnOwnerScope": "otherLiving",
+          "subject": "owner", "optional": false, "priority": 0,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "eventTargetMarkerCount", "marker": "liuShi" },
+            "operator": "greaterThanOrEqual",
+            "right": { "kind": "integerConstant", "value": 1 }
+          },
+          "effects": [
+            { "op": "draw", "target": "owner", "numberExpression": "turnOwnerDiscardPhaseHandDiscardCount" },
+            { "op": "changeParticipantMarker", "target": "owner", "targetRef": { "kind": "eventTarget" }, "marker": "liuShi", "amount": -1 },
+            { "op": "adjustPersistentHandLimit", "target": "owner", "targetRef": { "kind": "eventTarget" }, "amount": 1, "stateId": "liu-shi-limit" }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -609,6 +609,7 @@ public sealed partial class GameEngine
                     : GetAttackRange(target.Seat),
             SkillProgramNumberExpression.HandLimitMinusHandCount =>
                 Math.Max(0, GetHandLimit(target) - GetHand(target).Count),
+            SkillProgramNumberExpression.TurnOwnerDiscardPhaseHandDiscardCount => TurnOwnerDiscardPhaseHandDiscardCount,
             _ => throw new InvalidOperationException(
                 $"Unsupported draw number expression '{numberExpression}'.")
         };
@@ -2611,6 +2612,13 @@ public sealed partial class GameEngine
             return false;
         var participants = _players.Where(player => player.IsAlive).ToArray();
         var participantFacts = participants.ToDictionary(player => player.Seat, CaptureProgramTriggerFacts);
+        if (HasAttributedEventOperations())
+            foreach (var seat in participantFacts.Keys.ToArray())
+                participantFacts[seat] = participantFacts[seat] with
+                {
+                    // A foreign discard-phase end reports the discarder's markers as the event target.
+                    EventTargetMarkerCounts = new Dictionary<PlayerMarkerKind, int>(phaseOwner.Markers)
+                };
         var candidates = participants.SelectMany(player =>
                 CollectEligibleProgramTriggerCandidates(player, SkillProgramTriggerWindow.DiscardPhaseEnded,
                     participantFacts[player.Seat])
@@ -2958,7 +2966,9 @@ public sealed partial class GameEngine
                 SourceSeat: frame.ResumeDyingFrameId is not null ? ActiveDying?.KillerSeat : frame.OwnerSeat,
                 TargetSeat: frame.OwnerSeat,
                 OccurrenceIndex: candidate.OccurrenceIndex,
-                Facts: frame.Window==SkillProgramTriggerWindow.DrawPhaseStarting && HasAttributedEventOperations() ? (frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts) with { EventTargetMarkerCounts = new Dictionary<PlayerMarkerKind,int>(_players[frame.OwnerSeat].Markers) } : frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts);
+                Facts: frame.Window==SkillProgramTriggerWindow.DrawPhaseStarting && HasAttributedEventOperations() ? (frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts) with { EventTargetMarkerCounts = new Dictionary<PlayerMarkerKind,int>(_players[frame.OwnerSeat].Markers) } :
+                    frame.Window==SkillProgramTriggerWindow.DiscardPhaseEnded && HasAttributedEventOperations() ? (frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts) with { EventTargetMarkerCounts = new Dictionary<PlayerMarkerKind,int>(_players[frame.OwnerSeat].Markers) } :
+                    frame.ParticipantFacts?.GetValueOrDefault(candidate.OwnerSeat) ?? frame.Facts);
             if (frame.ProgramTarget is { } commit) context = context with { SourceSeat = commit.OwnerSeat, TargetSeat = commit.TargetSeat, ProgramTarget = commit };
             if (!CanRunProgramTrigger(candidate, context))
             {

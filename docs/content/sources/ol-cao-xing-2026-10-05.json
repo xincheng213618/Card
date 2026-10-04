@@ -1,0 +1,52 @@
+{
+  "generalId": "ol:cao-xing",
+  "characterName": "曹性",
+  "officialId": 476,
+  "sourcePage": "https://www.sanguosha.com/hero/476",
+  "capturedAt": "2026-10-05",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 476,
+    "name": "曹性",
+    "extend": "",
+    "hp": 4,
+    "figure": "群",
+    "quality": "稀有"
+  },
+  "artwork": {
+    "skinId": "47600",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/47600.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-cao-xing.png",
+    "sha256": "8ddec9c34498ae9dfc7f50b30f0e5e2d9683f0f26b4d33d3a4b97b258dcf9b20",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "流矢",
+      "text": "出牌阶段，你可以将一张红桃牌置于牌堆顶，视为对一名角色使用一张无距离和次数限制的【杀】，若此【杀】造成伤害，其手牌上限-1。",
+      "programId": "ol:liu-shi",
+      "notes": [
+        "Modeled as a compulsory-offer playPhaseStarting trigger: selectTarget otherLivingVirtualSlashTarget, one heart hand card via selectAndMoveOwnedCard suits:[heart] to drawPileTop, then useVirtualCard slash with useCardActionWindows and distanceUnlimitedAgainstTarget.",
+        "The damaging aftermath is a compulsory cardUseCompleted trigger (ownerRelation actor, cardKinds slash) guarded by cardUseCausedDamage plus cardUseConversionSkillIs; the program virtual use now records its own CardConversionSource so the conversion-skill condition can match.",
+        "Aftermath effects: changeParticipantMarker marker liuShi +1 and adjustPersistentHandLimit -1 against the eventTarget; both op families gained owner-placeholder targetRef (eventTarget) support."
+      ]
+    },
+    {
+      "name": "斩腕",
+      "text": "锁定技，当受到“流矢”效果影响的角色于弃牌阶段弃牌后，你摸等量张牌并移除其“流矢”效果。",
+      "programId": "ol:zhan-wan",
+      "notes": [
+        "Compulsory discardPhaseEnded trigger with turnOwnerScope otherLiving; condition compares eventTargetMarkerCount liuShi >= 1.",
+        "Draw amount uses the new numberExpression turnOwnerDiscardPhaseHandDiscardCount; then changeParticipantMarker -1 and adjustPersistentHandLimit +1 restore the limit.",
+        "DiscardPhaseEnded candidate collection overlays the phase owner's markers as eventTargetMarkerCounts so foreign-marker conditions evaluate; each discard-phase end removes one marker stack."
+      ]
+    }
+  ],
+  "observations": [
+    "OL lists 曹性 as qun 4HP with labels 进攻/控制/过牌; quality 稀有.",
+    "The hand-limit reduction is implemented with the persistent hand-limit public state; the event now carries TargetSeat so the adjustment lands on the victim instead of the skill owner.",
+    "Marker stacks drain one per affected discard phase; the fixture deck of heart nullifications keeps the AI from playing around the slash."
+  ]
+}

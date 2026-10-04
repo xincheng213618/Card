@@ -334,7 +334,7 @@ public interface ISkillProgramEffectHost
         string? coverageResultBind = null,
         bool awaitMovementTriggers = false, bool revealBeforeMove = false,
         IReadOnlyList<CardKind>? cardKinds = null,
-        bool prohibitReplacingEquipment = false);
+        bool prohibitReplacingEquipment = false, IReadOnlyList<Suit>? suits = null);
     SkillProgramStepOutcome ChooseOtherOwnedCardDiscard(
         ProgramSkillFrame frame,
         ProgramParticipantReference chooser,
@@ -1112,7 +1112,7 @@ public sealed class SelectAndMoveOwnedCardSkillProgramEffectHandler : ISkillProg
         new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"), effect.CardCategories,
         effect.SkipIfNoCards, effect.AllowSameOwnerHandReturn,
         effect.CoverageResultBind, effect.AwaitMovementTriggers, effect.RevealBeforeMove,
-        effect.CardKinds, effect.ProhibitReplacingEquipment);
+        effect.CardKinds, effect.ProhibitReplacingEquipment, effect.Suits);
 }
 
 public sealed class ChooseOtherOwnedCardDiscardSkillProgramEffectHandler : ISkillProgramEffectHandler
@@ -1478,8 +1478,8 @@ public sealed class SkillProgramExecutor
             }
             var targetSeat = effect.Op is SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets
                 ? frame.OwnerSeat
-                : effect.Op == SkillProgramEffectOp.Damage &&
-                  effect.TargetReference is { } targetReference
+                : effect.TargetReference is { } targetReference &&
+                  effect.Op is (SkillProgramEffectOp.Damage or SkillProgramEffectOp.ChangeParticipantMarker or SkillProgramEffectOp.AdjustPersistentHandLimit)
                 ? effects.ResolveParticipant(frame, targetReference)
                 : effect.Target switch
                 {

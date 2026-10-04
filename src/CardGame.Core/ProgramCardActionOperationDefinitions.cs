@@ -10,7 +10,7 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "targetRef", "resultBind", "cardCategories", "cardKinds", "skipIfNoCards", "allowSameOwnerHandReturn", "coverageResultBind", "awaitMovementTriggers", "revealBeforeMove", "freezeMovedCardSuit", "prohibitReplacingEquipment", "allowDecline", "condition");
+        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "targetRef", "resultBind", "cardCategories", "cardKinds", "suits", "skipIfNoCards", "allowSameOwnerHandReturn", "coverageResultBind", "awaitMovementTriggers", "revealBeforeMove", "freezeMovedCardSuit", "prohibitReplacingEquipment", "allowDecline", "condition");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.target: must be owner.");
@@ -95,9 +95,13 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
         if (coverageResultBind is not null && (zones.Count != 1 || zones[0] != CardZoneKind.Equipment ||
             destination is not (SkillProgramCardDestination.SelectedTargetHand or SkillProgramCardDestination.DiscardPile)))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: coverageResultBind requires equipment movement to hand or discard.");
+        var suits = r.OptionalEnumArray<Suit>("suits");
+        if (suits is { Count: 0 })
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.suits: must not be empty when specified.");
         var effect = new SkillProgramEffect(Op, target, count, r.Condition(), zones: zones,
             destination: destination, resultBind: r.OptionalIdentifier("resultBind"),
             chooserRef: chooserRef, cardOwnerRef: cardOwnerRef, cardCategories: cardCategories,
+            suits: suits,
             targetReference: r.Has("targetRef") ? r.RequiredParticipantReference("targetRef") : null,
             skipIfNoCards: skipIfNoCards, allowSameOwnerHandReturn: allowSameOwnerHandReturn,
             coverageResultBind: coverageResultBind, awaitMovementTriggers: awaitMovementTriggers,

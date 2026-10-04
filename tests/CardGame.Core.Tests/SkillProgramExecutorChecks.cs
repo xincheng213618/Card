@@ -787,7 +787,7 @@ internal static class SkillProgramExecutorChecks
         string? coverageResultBind = null,
         bool awaitMovementTriggers = false, bool revealBeforeMove = false,
         IReadOnlyList<CardKind>? cardKinds = null,
-        bool prohibitReplacingEquipment = false) =>
+        bool prohibitReplacingEquipment = false, IReadOnlyList<Suit>? suits = null) =>
             throw new NotSupportedException("The executor fixture does not exercise SelectAndMoveOwnedCard.");
 
         public SkillProgramStepOutcome ChooseOtherOwnedCardDiscard(

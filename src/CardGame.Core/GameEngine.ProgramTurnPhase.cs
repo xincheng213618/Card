@@ -63,7 +63,8 @@ public sealed partial class GameEngine
         var resolutionId = ++_resolutionSequence;
         var action = instruction.UseCardActionWindows || HasCommittedSlashFireCapability(source)
             ? CaptureFactionAction(new CardActionContext(++_cardActionSequence, _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
-                CardActionType.Use, source.Seat, source.Seat, null, null, null, cardKind, [targetSeat], [], [],
+                CardActionType.Use, source.Seat, source.Seat, null, null, null, cardKind, [targetSeat], [],
+                Array.AsReadOnly(new[] { new CardConversionSource(active.SkillId, GetProgramBindingId(active), active.OwnerSeat, active.SkillInstanceId) }),
                 effectiveSuit: Suit.None, effectiveRank: 0)) : null;
         PushRuntimeFrame(new CardUseFrame(resolutionId, source.Seat, 0, cardKind,
             Array.AsReadOnly(new[] { targetSeat }),

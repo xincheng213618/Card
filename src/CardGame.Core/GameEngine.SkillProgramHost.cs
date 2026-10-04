@@ -607,11 +607,11 @@ public sealed partial class GameEngine
             bool skipIfNoCards = false, bool allowSameOwnerHandReturn = false,
             string? coverageResultBind = null, bool awaitMovementTriggers = false,
             bool revealBeforeMove = false, IReadOnlyList<CardKind>? cardKinds = null,
-            bool prohibitReplacingEquipment = false) =>
+            bool prohibitReplacingEquipment = false, IReadOnlyList<Suit>? suits = null) =>
             engine.SelectAndMoveProgramOwnedCard(frame, chooser, cardOwner, zones, destination, destinationRef, resultBind,
                 reason, cardCategories, skipIfNoCards, allowSameOwnerHandReturn,
                 coverageResultBind, awaitMovementTriggers, revealBeforeMove, cardKinds,
-                prohibitReplacingEquipment);
+                prohibitReplacingEquipment, suits);
 
         public SkillProgramStepOutcome ChooseOtherOwnedCardDiscard(
             ProgramSkillFrame frame,

@@ -526,7 +526,8 @@ public enum SkillProgramNumberExpression
     HandLimitMinusHandCount = 15,
     LostHpMinusHandCount = 600,
     CategoryTargetTurnUsage = 820, CurrentHp = 1020, SelectedTargetsHandGreaterThanLord = 1021,
-    PhaseSkillUsage = 1022, EventMovedCardCount = 1700, CurrentTurnUsedCardCategoryCount = 4600, OwnerLostHpAtLeastOne = 7400}
+    PhaseSkillUsage = 1022, EventMovedCardCount = 1700, CurrentTurnUsedCardCategoryCount = 4600, OwnerLostHpAtLeastOne = 7400,
+    TurnOwnerDiscardPhaseHandDiscardCount = 3100}
 public enum SkillProgramCardSetVisibility { Private, Public }
 public enum SkillProgramCardDestination
 {
@@ -3217,7 +3218,7 @@ public sealed class SkillProgramCatalog
         if (EnumerateTriggerConditions(condition).Any(c => c.Kind == SkillProgramTriggerConditionKind.TurnDiscardIncludesAllSuits) &&
             window != SkillProgramTriggerWindow.AfterTurnEnded)
             Fail(path, "turn discard suit history requires AfterTurnEnded");
-        if (EnumerateTriggerValues(condition).Any(v=>v.Kind==SkillProgramTriggerValueKind.EventTargetMarkerCount) && window is not (SkillProgramTriggerWindow.BeforeDamageApplied or SkillProgramTriggerWindow.DrawPhaseStarting)) Fail(path + ".condition", "eventTargetMarkerCount requires an actual damage or draw subject");
+        if (EnumerateTriggerValues(condition).Any(v=>v.Kind==SkillProgramTriggerValueKind.EventTargetMarkerCount) && window is not (SkillProgramTriggerWindow.BeforeDamageApplied or SkillProgramTriggerWindow.DrawPhaseStarting or SkillProgramTriggerWindow.DiscardPhaseEnded)) Fail(path + ".condition", "eventTargetMarkerCount requires an actual damage, draw, or discard subject");
         if (EnumerateTriggerConditions(condition).Any(item => item.Kind == SkillProgramTriggerConditionKind.OwnerKilledThisTurn) &&
             window != SkillProgramTriggerWindow.TurnEnding)
             Fail(path + ".condition", "turn kill history requires turnEnding");
@@ -3463,7 +3464,8 @@ public sealed class SkillProgramCatalog
             window is not (SkillProgramTriggerWindow.SlashFullyDodged or SkillProgramTriggerWindow.SlashBeforeResponse or
                 SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.PlayEnding or
                 SkillProgramTriggerWindow.JudgmentPhaseStarting or SkillProgramTriggerWindow.CharacterTurnedOver or SkillProgramTriggerWindow.CharacterTurnedFaceUp or
-                SkillProgramTriggerWindow.CharacterEnteredChain) &&
+                SkillProgramTriggerWindow.CharacterEnteredChain or SkillProgramTriggerWindow.CardUseCompleted or
+                SkillProgramTriggerWindow.DiscardPhaseEnded) &&
             effects.SelectMany(EnumerateParticipantReferences)
                 .Any(reference => reference.Kind == ProgramParticipantRef.EventTarget))
             Fail(path + ".effects", "eventTarget requires a target-related card-action owner relation");
