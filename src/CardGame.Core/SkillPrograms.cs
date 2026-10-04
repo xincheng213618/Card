@@ -3333,9 +3333,6 @@ public sealed class SkillProgramCatalog
         if (allowNoEventTarget && (!isCardActionWindow || ownerRelation != SkillProgramCardActionOwnerRelation.ConversionSource ||
             effects.SelectMany(EnumerateParticipantReferences).Any(reference => reference.Kind == ProgramParticipantRef.EventTarget)))
             Fail(path + ".allowNoEventTarget", "requires a conversion-source card action without event-target participants");
-        LoseHpIfRevealedNonEquipmentDiffersDescriptor.Validate(path, effects, window, subject,
-            movementOccurrence, movementDiscardOnly, sourceZones, turnOwnerScope,
-            movementReasons, excludedMovementReasons, ignoreOwnSkillMovements);
         var allowOwnDiscardPhaseEnded = node.TryGetProperty("allowOwnDiscardPhaseEnded", out _) && RequiredBool(node, "allowOwnDiscardPhaseEnded", path);
         if (node.TryGetProperty("allowOwnDiscardPhaseEnded", out _) && (window != SkillProgramTriggerWindow.DiscardPhaseEnded ||
             turnOwnerScope != SkillProgramTurnOwnerScope.Own))
@@ -3358,6 +3355,9 @@ public sealed class SkillProgramCatalog
              cardKinds.Count != 0 || cardCategories.Count != 0 || movementReasons.Count != 0 || excludedMovementReasons.Count != 0))
             Fail(path, "Provenance claims require unfiltered other-player per-card discard/judgment origins.");
         var movementDiscardOnly = node.TryGetProperty("movementDiscardOnly", out _) && RequiredBool(node, "movementDiscardOnly", path);
+        LoseHpIfRevealedNonEquipmentDiffersDescriptor.Validate(path, effects, window, subject,
+            movementOccurrence, movementDiscardOnly, sourceZones, turnOwnerScope,
+            movementReasons, excludedMovementReasons, ignoreOwnSkillMovements);
         if (EnumerateTriggerValues(condition).Any(value => value.Kind == SkillProgramTriggerValueKind.MovedEquipmentCardCount) &&
             (window != SkillProgramTriggerWindow.CardsMoved || movementOccurrence != SkillProgramMovementOccurrence.PerOwnerBatch ||
              subject != SkillProgramTriggerSubject.Owner || movementDiscardOnly || !sourceZones.Contains(CardZoneKind.Equipment)))

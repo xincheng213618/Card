@@ -1,0 +1,66 @@
+{
+  "status": "one-agent-static-development-user-runtime-verification-deferred",
+  "batch": 27,
+  "baseCommit": "655c3eec",
+  "userSteering": {
+    "instruction": "Keep adding and commit; user will run unified tests after waking because CPU noise",
+    "buildsRun": false,
+    "productionLoaderExecuted": false,
+    "testsRun": false,
+    "benchmarksRun": false,
+    "commitAuthorized": true,
+    "pushAuthorized": false
+  },
+  "candidates": [
+    {
+      "gid": 621,
+      "id": "boundary:wang-yi",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-seventh-621-source-2026-10-04.json",
+      "sourceSha256": "d1e82784d133cb26ad50ec8dbcf1e9a0acb4913bb1b06b54fc1f2c84acc932a6",
+      "owner": "/root/pang_de",
+      "stage": ".artifacts/continuation-20261003-batch17/batch27/wang-yi",
+      "mainRegistered": false,
+      "status": "owned-stage-implementation-in-progress"
+    },
+    {
+      "gid": 627,
+      "id": "boundary:cai-fu-ren",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-seventh-627-source-2026-10-04.json",
+      "sourceSha256": "4c93bf6cf1d09c9e064a7f60e1b9724febf8cfdc66b7fcf9e587e2ea3b069b19",
+      "mainRegistered": false,
+      "status": "primary-source-only-not-assigned"
+    },
+    {
+      "gid": 642,
+      "id": "boundary:li-ru",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-seventh-642-source-2026-10-04.json",
+      "sourceSha256": "64f750ebff02bc7d4e2eed71913883cda07df1f26759b9de7c3342b696fa78eb",
+      "mainRegistered": false,
+      "status": "primary-source-only-not-assigned"
+    }
+  ],
+  "runs": [],
+  "integrations": [],
+  "media": "docs/content/sources/fenglin-twenty-seventh-art-2026-10-04.json",
+  "runtimeAcceptance": false,
+  "pending": [
+    "621 complete opt-in implementation, frozen baseline and integration",
+    "627 and 642 implementation not yet assigned",
+    "User later combined build, focused runtime, Full and measured routine verification",
+    "Official art registration followed by user later offline/compiled verification"
+  ],
+  "versions": {
+    "perCharacterBumped": false,
+    "authoritativePaths": [
+      "src/CardGame.Core/Replay.cs",
+      "src/CardGame.Core/SkillPrograms.cs",
+      "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs"
+    ]
+  },
+  "cleanup": {
+    "ownedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+    "priorAutomaticApprovalRejection": "blocked by policy",
+    "retryPerformed": false,
+    "sourceStagesAndCacheRetainedForContinuation": true
+  }
+}

@@ -73,7 +73,15 @@
         "originalPngShaMatched": true,
         "scopeDataParsedWithoutExecuting": true
       },
-      "documentation": "docs/content/skill-composition/FENG_LIN_TWENTY_SIXTH_YU_FAN.md"
+      "documentation": "docs/content/skill-composition/FENG_LIN_TWENTY_SIXTH_YU_FAN.md",
+      "postIntegrationStaticRepair": {
+        "path": "src/CardGame.Core/SkillPrograms.cs",
+        "reason": "New validation referenced movementDiscardOnly before its local declaration",
+        "repair": "Move only new Validate call after existing declaration; preserve expression and old validation order",
+        "sha256": "ede918ca55de3c8a3593fdcc6906a9ea355d24a337b18fb92ba101a2511e2de1",
+        "compiled": false,
+        "testsRun": false
+      }
     }
   ],
   "media": "docs/content/sources/fenglin-twenty-sixth-art-2026-10-04.json",

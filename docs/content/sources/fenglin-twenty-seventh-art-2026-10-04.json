@@ -1,0 +1,31 @@
+{
+  "status": "official-raw-png-staged-no-main-registration-no-build-tests",
+  "batch": 27,
+  "images": [
+    {
+      "gid": 621,
+      "key": "boundary-wang-yi",
+      "name": "界王异",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-seventh-621-source-2026-10-04.json",
+      "sourceRecordSha256": "d1e82784d133cb26ad50ec8dbcf1e9a0acb4913bb1b06b54fc1f2c84acc932a6",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62100.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62100.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-04T00:32:53.4680936+00:00",
+      "contentType": "image/png",
+      "rawBytes": 355041,
+      "sha256": "a1b22a0e3f66bb57d609dac46d3b14668cb2a527b606a33ae7604a853ccb2149",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch27\\official-art\\official-boundary-wang-yi.png",
+      "installed": false
+    }
+  ],
+  "verification": {
+    "rawPngSignatureAndIhdr": true,
+    "sourceRecordShaMatched": true,
+    "mainRegistration": false,
+    "fullOfflineCatalogRun": false,
+    "compiledVerificationRun": false
+  }
+}
