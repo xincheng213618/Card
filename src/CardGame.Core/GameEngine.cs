@@ -233,7 +233,7 @@ public sealed partial class GameEngine
             window.SourceCard == attack.EffectiveCardKind)
         : null;
     private DyingFrame? ActiveDying =>
-        _resolutionStack.OfType<DyingFrame>().LastOrDefault();
+        _resolutionStack.OfType<DyingFrame>().LastOrDefault(frame => !IsOriginalDyingSuspendedByOwnedDeathBenefit(frame));
     private JudgmentFrame? ActiveJudgment =>
         _resolutionStack.OfType<JudgmentFrame>().LastOrDefault(frame => frame.CardAttack is null);
 
@@ -16903,6 +16903,8 @@ public sealed partial class GameEngine
                     $"Judgment effective card {cardId}/{effectiveKind} is outside a delayed judgment zone.");
             }
         }
+
+        AssertOwnedDeathBenefitReturns();
 
         if (_resolutionStack.OfType<DeathFrame>().LastOrDefault() is { } currentDeath)
         {

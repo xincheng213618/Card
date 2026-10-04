@@ -353,6 +353,7 @@ public sealed record ProgramSkillFrame(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPairObtainDraft? PairObtain { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramShownPairGiftReceipt? ShownPairGift { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramFixedRecipientReceipt? FixedRecipient { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramOwnedDeathBenefitReturn? OwnedDeathBenefitReturn { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramEndingPairDrawReceipt? EndingPairDraw { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPlaySlashRecastReceipt? PlaySlashRecast { get; init; }
     public bool ReexecuteParticipantInstruction { get; init; }

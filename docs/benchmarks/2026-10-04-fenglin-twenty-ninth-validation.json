@@ -47,11 +47,12 @@
       "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-775-source-2026-10-04.json",
       "sourceSha256": "76212903e4e86c42fe8f9f14b2e9108b706514164b81a8e6698d562cb179bbab",
       "mainRegistered": true,
-      "status": "static-main-integrated-user-runtime-verification-deferred-known-death-nesting-limit",
+      "status": "static-main-integrated-with-owned-death-return-followup-runtime-deferred",
       "owner": "/root/next_batch_audit",
       "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch29\\bu-lian-shi",
       "reservedCapacity": "6300-6399",
-      "assignmentRecordedAtUtc": "2026-10-04T03:35:07.4621605Z"
+      "assignmentRecordedAtUtc": "2026-10-04T03:35:07.4621605Z",
+      "deathReturnStaticFollowup": "docs/content/sources/fenglin-thirtieth-775-death-return-static-integration-2026-10-04.json"
     },
     {
       "gid": 671,
@@ -164,7 +165,14 @@
         "Alive Anxu/initial Ending gain or HP children issuing Damage, AttackHpLoss or SelfDyingResponse are statically typed only",
         "Silver Lion Jiuyuan RecoveryReplacement, zero Wine, material/pile alcohol rescue, nested equipment and winner cleanup combinations are statically typed only",
         "All possible native active pair choices, current source equipment changes and national-war privacy combinations"
-      ]
+      ],
+      "currentDeathReturnFollowup": {
+        "path": "docs/content/sources/fenglin-thirtieth-775-death-return-static-integration-2026-10-04.json",
+        "legacyKnownUnsupportedRecordIsHistorical": true,
+        "optIn6800ImplementationAdded": true,
+        "runtimeVerified": false,
+        "twoSimultaneousLivingDyingSupported": false
+      }
     },
     {
       "gid": 671,
@@ -214,9 +222,9 @@
   ],
   "runtimeAcceptance": false,
   "pending": [
-    "563, 775 and 671 are statically integrated; 775 retains the documented OwnerDied benefit -> new Damage/Dying mechanism limit",
+    "563,775,671 statically integrated;775 original death-nesting limitation now has an opt-in6800 source implementation, awaiting runtime verification",
     "451 full current linked grants remain unverified after bounded advertised-script followup; no partial implementation",
-    "696, 756 and 752 continue in independent batch30 stages; final OLD windows remain root-serialized",
+    "696,756,752 also statically integrated;726 owned development continues with root-serialized final OLD windows",
     "User later combined build, focused runtime, Full and measured routine verification"
   ],
   "versions": {

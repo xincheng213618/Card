@@ -8,6 +8,7 @@ internal static class BoundaryBuLianShiChecks
 {
     private const string Anxu = "boundary:anxu-current", Zhuiyi = "boundary:zhuiyi-current";
     private const string Driver = "fixture:bls-driver", Gain = "fixture:bls-gain", Gift = "fixture:bls-gift", Hp = "fixture:bls-hp", Reward = "fixture:bls-reward";
+    private const string NestedGain = "fixture:bls-nested-gain", NestedHp = "fixture:bls-nested-hp", NestedEntry = "fixture:bls-nested-entry", NestedRescue = "fixture:bls-nested-rescue", NestedCommitted = "fixture:bls-nested-committed";
     private const string Mode = "identity:classic-bu-lian-shi-fixture";
     private const string ObtainReason = "skill-program." + Anxu + ".ObtainOneFromEachSelectedTarget";
     private const string GiftReason = "skill-program." + Anxu + ".GiveShownCardToLeastOriginalTarget";
@@ -145,6 +146,8 @@ internal static class BoundaryBuLianShiChecks
             F<FixedRecipientBenefitDrawIssuedEvent>(g).Length == 2 && F<FixedRecipientBenefitDrawIssuedEvent>(g).All(e => e.RecipientSeat == 2 && e.ActualCount == 3) &&
             F<FixedRecipientBenefitRecoveryRequestedEvent>(g).Length == 2 && F<FixedRecipientBenefitRecoveryRequestedEvent>(g).All(e => e.RecipientSeat == 2 && e.Amount == 1),
             "Native beneficiary observers and real cold-restored commands complete Draw3/Recover1 twice for the same recipient and then return the original death."); Cold(g, r);
+        NestedOriginalDeathBenefit("damage");
+        NestedOriginalDeathBenefit("hp-loss");
     }
 
     public static void UnissuedOrDeadRecipientNeverPublishesReplacementDeathTarget()
@@ -169,9 +172,81 @@ internal static class BoundaryBuLianShiChecks
             "A dead original recipient cancels the death opportunity and does not turn it into a new target or a second issuance."); Cold(g, r);
     }
 
-    private static (GameEngine, ContentRegistry) Create(Suit suit = Suit.Spade, bool equipment = false, bool deathOwner = false, bool removePaidSource = false)
+
+    private static void NestedOriginalDeathBenefit(string mode)
     {
-        var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(suit, equipment, deathOwner, removePaidSource));
+        var (g, r) = Create(deathOwner: true, deathNesting: mode); Play(g);
+        End(g); ActivateZhuiyi(g); Reach(g, p => Action(p, "select-target")); Answer(g, c => c.Targets.SequenceEqual([2]));
+        Play(g);
+        // Actual commands lower the beneficiary to 1, never reflection/state injection.
+        for (var i = 0; i < 7 && g.State.Players[2].Hp > 1; i++) { Use(g, "hurt", [2]); Play(g); }
+        Require(g.State.Players[2].Hp == 1, "The fixed real beneficiary has 1 HP before the original owner dies.");
+        var issued = F<FixedRecipientBenefitIssuedEvent>(g).Single();
+        Use(g, "kill-damage", [0]); Reach(g, p => p.SkillPrompt?.SkillId == Zhuiyi && Action(p, "activate"));
+        var originalDying = g.ResolutionStack.OfType<DyingFrame>().Single(d => d.VictimSeat == 0);
+        var originalDeath = g.ResolutionStack.OfType<DeathFrame>().Single(d => d.VictimSeat == 0);
+        var frozenOriginalDeath = JsonSerializer.Serialize(originalDeath);
+        var window = g.ResolutionStack.OfType<ProgramDeathTriggerWindowFrame>().Single(w => w.DeathFrameId == originalDeath.Id);
+        var originalAttack = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.AttackAttempt is not null);
+        Require(originalDeath.ParentFrameId == originalDying.Id && originalDying.Continuation == DyingContinuationKind.Damage &&
+            g.ResolutionStack.OfType<DamageFrame>().Single(d => d.Id == originalDying.ParentFrameId).ParentFrameId == originalAttack.Id,
+            "A true source-owned Damage -> Dying -> Death chain remains the original parent.");
+        g = RestoreAfterCold(g, r); ActivateZhuiyi(g);
+        Reach(g, p => p.SkillPrompt?.SkillId == (mode == "damage" ? NestedGain : NestedHp) && p.PlayerSeat == 2);
+        var root = FixedRoot(g); var returnReceipt = root.OwnedDeathBenefitReturn!;
+        Require(returnReceipt.ProgramFrameId == root.Id && returnReceipt.OriginalDeath.FrameId == originalDeath.Id &&
+            returnReceipt.OriginalDying?.FrameId == originalDying.Id && returnReceipt.OwnerDeathWindowFrameId == window.Id &&
+            returnReceipt.OriginalAttackOwnerFrameId == originalAttack.Id && root.FixedRecipient!.IssuanceProgramFrameId == issued.ProgramFrameId &&
+            returnReceipt.OriginalDeath.CleanedUpCardIds is System.Collections.IList { IsReadOnly: true } &&
+            returnReceipt.OriginalDying!.ResponderSeats is System.Collections.IList { IsReadOnly: true } &&
+            returnReceipt.OriginalDying!.AttemptedSelfDyingBindings is System.Collections.IList { IsReadOnly: true },
+            "The opt-in return freezes only this original dead victim, its exact cursor/source and original paid benefit.");
+        Private(g, 2); Reject(g); g = RestoreAfterCold(g, r); Continue(g);
+        Reach(g, p => p.SkillPrompt?.SkillId == NestedEntry && p.PlayerSeat == 2);
+        var nestedDying = g.ResolutionStack.OfType<DyingFrame>().Single(d => d.VictimSeat == 2);
+        Require(g.State.Players[2].IsAlive && g.State.Players[2].Hp == 0 && nestedDying.Id != originalDying.Id &&
+            g.ResolutionStack.OfType<DyingFrame>().Count() == 2 &&
+            JsonSerializer.Serialize(g.ResolutionStack.OfType<DeathFrame>().Single(d => d.Id == originalDeath.Id)) == frozenOriginalDeath &&
+            g.ResolutionStack.OfType<ProgramDeathTriggerWindowFrame>().Single(w => w.Id == window.Id).CandidateIndex == window.CandidateIndex &&
+            g.ResolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().Any(w => w.ResumeDyingFrameId == nestedDying.Id &&
+                w.Window == SkillProgramTriggerWindow.DyingEntering && w.Continuation == ProgramLifecycleContinuation.ResumeDyingEntry),
+            "Actual gain Damage or recovery LoseHp reaches a distinct live DyingEntering pause without advancing or removing the original death.");
+        g = RestoreAfterCold(g, r); Continue(g);
+        if (mode == "hp-loss")
+        {
+            Reach(g, p => p.SkillPrompt?.SkillId == NestedCommitted && p.PlayerSeat == 2);
+            var rescue = g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.DyingResponse?.ResolutionId == nestedDying.Id);
+            var materialIds = rescue.PhysicalCardIds!.ToArray();
+            Require(rescue.CardKind == CardKind.Peach && rescue.SourceSeat == 2 && materialIds.Length == 2 &&
+                rescue.Action!.PhysicalCards.Select(c => c.CardId).SequenceEqual(materialIds) &&
+                materialIds.All(id => g.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Hand(2) && m.To == CardLocation.Processing) == 1),
+                "The newly granted response issues one real Peach from two real black materials, only after the original owner is already dead.");
+            g = RestoreAfterCold(g, r); Continue(g);
+            Reach(g, p => p.SkillPrompt?.SkillId == Hp && p.PlayerSeat == 2 && g.ResolutionStack.OfType<DyingFrame>().Any(d => d.Id == nestedDying.Id));
+            Require(g.ResolutionStack.OfType<HpChangedTriggerWindowFrame>().Any(h => h.Continuation == PostEventContinuation.CardUse &&
+                h.ResumeFrameId == rescue.Id && h.Change.ParentFrameId == rescue.Id && h.Change.TargetSeat == 2),
+                "Actual Peach HP observers retain the exact rescue use and both original and new Dying ancestors.");
+            g = RestoreAfterCold(g, r); Continue(g);
+            Until(g, engine => !engine.ResolutionStack.OfType<DyingFrame>().Any(d => d.Id == nestedDying.Id));
+            Require(materialIds.All(id => g.CardMovements.Count(m => m.CardId == id && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile) == 1),
+                "Cold-restored two-material rescue pays and cleans each entity once.");
+        }
+        Until(g, engine => !engine.ResolutionStack.OfType<DeathFrame>().Any(d => d.Id == originalDeath.Id) &&
+            !engine.ResolutionStack.OfType<ProgramSkillFrame>().Any(f => f.Id == root.Id || f.Id == originalAttack.Id));
+        Require(g.State.Players[2].IsAlive && !g.State.Players[0].IsAlive &&
+            F<OwnedDeathBenefitReturnIssuedEvent>(g).Length == 1 && F<OwnedDeathBenefitReturnedEvent>(g) is [var returned] && returned.Completed &&
+            returned.ProgramFrameId == root.Id && returned.OriginalDeathFrameId == originalDeath.Id && returned.OriginalDyingFrameId == originalDying.Id &&
+            F<FixedRecipientBenefitDrawIssuedEvent>(g).Length == 2 && F<FixedRecipientBenefitDrawIssuedEvent>(g).All(e => e.ActualCount == 3 && e.RecipientSeat == 2) &&
+            F<FixedRecipientBenefitRecoveryRequestedEvent>(g).Length == 2 &&
+            F<PlayerDiedEvent>(g).Count(e => e.VictimSeat == 0) == 1 &&
+            F<PlayerDyingEvent>(g).Count(e => e.ResolutionId == nestedDying.Id && e.VictimSeat == 2) == 1,
+            "The original recipient's two benefits, nested real Dying/rescue, original damage/death cursor and typed return complete once.");
+        Cold(g, r);
+    }
+
+    private static (GameEngine, ContentRegistry) Create(Suit suit = Suit.Spade, bool equipment = false, bool deathOwner = false, bool removePaidSource = false, string? deathNesting = null)
+    {
+        var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(suit, equipment, deathOwner, removePaidSource, deathNesting));
         var g = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = deathOwner ? Role.Renegade : Role.Lord,
             ModeId = Mode, UseInteractiveSetup = true, UseInteractiveDiscard = true, AdvanceAfterHumanCommands = false, MaxTurns = 20 }, r);
         Accept(g, new StartGameCommand()); Reach(g, p => p.PlayerSeat == 0 && p.Kind == DecisionKind.SelectGeneral);
@@ -224,7 +299,7 @@ internal static class BoundaryBuLianShiChecks
             p.Choices.All(c => c.Cards is System.Collections.IList { IsReadOnly: true } && c.Targets is System.Collections.IList { IsReadOnly: true }), "Prepared outer and nested choice lists expose only frozen collections."); }
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
 
-    private sealed class Fixture(Suit suit, bool equipment, bool deathOwner, bool removePaidSource) : IGameContentPackage
+    private sealed class Fixture(Suit suit, bool equipment, bool deathOwner, bool removePaidSource, string? deathNesting) : IGameContentPackage
     {
         public PackageManifest Manifest { get; } = new("fixture:boundary-bu-lian-shi", "1.0.0", "当前OL机制真实命令草稿");
         public void Register(IContentRegistryBuilder b)
@@ -243,11 +318,42 @@ internal static class BoundaryBuLianShiChecks
                 """)!;
             rules["schemaVersion"] = SkillProgramCatalog.RulesSchemaVersion;
             if (removePaidSource) ((JsonArray)rules["skills"]![2]!["triggers"]![0]!["effects"]!).Add(JsonNode.Parse("""{"op":"loseOwnerSkillsAndGrant","target":"owner","skillIds":["boundary:anxu-current"],"sourceBind":"fixture:bls-noop"}"""));
+
+            if (deathNesting is not null)
+            {
+                ((JsonArray)rules["skills"]![0]!["activations"]!).Add(JsonNode.Parse("""{"id":"kill-damage","minCards":0,"maxCards":0,"minTargets":1,"maxTargets":1,"targetKind":"anyLiving","usesPerTurn":null,"effects":[{"op":"damage","target":"selectedTarget","amount":1}]}"""));
+                // This is a real first-Ending HP observer's skill grant. The new
+                // candidates are absent from that already-frozen HP window.
+                ((JsonArray)rules["skills"]![4]!["triggers"]![0]!["effects"]!).Add(JsonSerializer.SerializeToNode(new
+                    { op = "grantSkills", target = "owner", skillIds = new[] { deathNesting == "damage" ? NestedGain : NestedHp } }));
+                var nested = JsonNode.Parse("""
+                    [
+                     {"id":"fixture:bls-nested-gain","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","optional":false,"priority":20,"usageScope":"game","usageLimit":1,"destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:zhuiyi-current.Draw"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"nested-seen","options":[{"id":"continue"}]},{"op":"grantSkills","target":"owner","skillIds":["fixture:bls-nested-entry"]},{"op":"damage","target":"owner","amount":1}]}]},
+                     {"id":"fixture:bls-nested-hp","revision":1,"triggers":[{"id":"recovered","window":"afterHpRecovered","subject":"owner","optional":false,"priority":20,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"nested-seen","options":[{"id":"continue"}]},{"op":"grantSkills","target":"owner","skillIds":["fixture:bls-nested-entry","fixture:bls-nested-rescue","fixture:bls-nested-committed"]},{"op":"loseHp","target":"owner","amount":2}]}]},
+                     {"id":"fixture:bls-nested-entry","revision":1,"triggers":[{"id":"entering","window":"dyingEntering","subject":"owner","optional":false,"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"entry-seen","options":[{"id":"continue"}]}]}]},
+                     {"id":"fixture:bls-nested-rescue","revision":1,"viewAs":[{"id":"two-spades","inputKinds":["slash"],"inputSuits":["spade"],"outputKind":"peach","forPlay":false,"forResponse":true,"inputCount":2,"sameSuit":true,"sourceZones":["hand","equipment"],"extendedUse":true}]},
+                     {"id":"fixture:bls-nested-committed","revision":1,"triggers":[{"id":"committed","window":"cardUseCommitted","ownerRelation":"actor","cardKinds":["peach"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"rescue-seen","options":[{"id":"continue"}]}]}]}
+                    ]
+                    """)!.AsArray();
+                if (deathNesting == "damage")
+                    ((JsonArray)nested[2]!["triggers"]![0]!["effects"]!).Add(JsonNode.Parse("""{"op":"recoverTo","target":"owner","numberExpression":"integerConstant","minimumValue":3,"clampToMaxHp":true}"""));
+                foreach (var definition in nested.ToArray()) ((JsonArray)rules["skills"]!).Add(definition!.DeepClone());
+            }
+
             var presentation = JsonSerializer.Serialize(new { schemaVersion = 3, skills = new Dictionary<string, object>
                 { [Driver] = new { name = "真实命令", description = "固定实体与真实HP" }, ["fixture:bls-quiet"] = new { name = "安静回合", description = "真实跳过出牌" },
                   [Gain] = Pause("真实获得"), [Gift] = Pause("展示后赠牌"), [Hp] = Pause("真实回复"), [Reward] = Pause("非黑桃奖励") } });
+            if (deathNesting is not null)
+            {
+                var p = JsonNode.Parse(presentation)!;
+                foreach (var id in new[] { NestedGain, NestedHp, NestedEntry, NestedCommitted }) p["skills"]![id] = JsonSerializer.SerializeToNode(Pause("死亡收益实际子链"));
+                p["skills"]![NestedRescue] = JsonSerializer.SerializeToNode(new { name = "两实体真实救援", description = "全黑实体真实转换桃" });
+                presentation = p.ToJsonString();
+            }
+
             var catalog = SkillProgramCatalog.Load(rules.ToJsonString(), presentation);
             foreach (var id in new[] { Driver, "fixture:bls-quiet", Gain, Gift, Hp, Reward }) b.AddSkill(new(id, id, "真实程序夹具") { Program = catalog.Programs[id] });
+            if (deathNesting is not null) foreach (var id in new[] { NestedGain, NestedHp, NestedEntry, NestedRescue, NestedCommitted }) b.AddSkill(new(id, id, "死亡收益实际子链") { Program = catalog.Programs[id] });
             b.AddSkill(new("fixture:bls-noop", "已替换来源", "无运行能力"));
             b.AddSkill(new("fixture:bls-selection", "固定选将", "无运行能力") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, _ => 100d) });
             b.AddGeneral(new("fixture:bls-owner", "界步练师机制", "supporter", Anxu, "wu", 3, [Zhuiyi, Driver, Gain, Gift, Hp, Reward], Gender: GeneralGender.Female) { InitialHp = 1 });

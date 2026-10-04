@@ -10,7 +10,7 @@ public sealed partial class GameEngine
         if (trigger.Effects.FirstOrDefault(e => e.Op == SkillProgramEffectOp.IssueFixedRecipientBenefit) is { } issue)
             return context.Window == SkillProgramTriggerWindow.TurnEnding && candidate.OwnerSeat == _currentSeat &&
                 OriginalFixedRecipient(candidate.OwnerSeat, candidate.SkillId, candidate.GameplayHash, issue.StateId!) is null;
-        var select = trigger.Effects.FirstOrDefault(e => e.Op == SkillProgramEffectOp.SelectIssuedFixedRecipient);
+        var select = trigger.Effects.FirstOrDefault(e => e.Op is SkillProgramEffectOp.SelectIssuedFixedRecipient or SkillProgramEffectOp.SelectIssuedFixedRecipientWithDeathReturn);
         if (select is null) return true;
         var issued = OriginalFixedRecipient(candidate.OwnerSeat, candidate.SkillId, candidate.GameplayHash, select.StateId!);
         return context.Window == SkillProgramTriggerWindow.OwnerDied && issued is not null && issued.Source.SkillInstanceId == candidate.SkillInstanceId &&
@@ -19,7 +19,7 @@ public sealed partial class GameEngine
     }
     private IReadOnlyList<int>? PublishedFixedRecipientForAi(CharacterState owner, IReadOnlyList<SkillProgramEffect> effects, ProgramSkillWindowContext? context)
     {
-        var selection = effects.FirstOrDefault(e => e.Op == SkillProgramEffectOp.SelectIssuedFixedRecipient);
+        var selection = effects.FirstOrDefault(e => e.Op is SkillProgramEffectOp.SelectIssuedFixedRecipient or SkillProgramEffectOp.SelectIssuedFixedRecipientWithDeathReturn);
         if (selection is null) return null;
         if (context is not { Window: SkillProgramTriggerWindow.OwnerDied } || context.OwnerSeat != owner.Seat ||
             _resolutionStack.OfType<ProgramDeathTriggerWindowFrame>().LastOrDefault() is not { } window || context.ParentFrameId != window.Id ||
@@ -92,9 +92,11 @@ public sealed partial class GameEngine
                      { Op: SkillProgramEffectOp.Draw, Target: SkillProgramEffectTarget.SelectedTarget, Amount: 3 },
                      { Op: SkillProgramEffectOp.Recover, Target: SkillProgramEffectTarget.SelectedTarget, Amount: 1 }] && state == r.StateId;
         return r.InstructionIndex == 0 && f.InstructionIndex is >= 1 and <= 3 && ExactFixedRecipientDeath(f, out var window) && r.OwnerDeathWindowFrameId == window.Id &&
-            plan is [{ Op: SkillProgramEffectOp.SelectIssuedFixedRecipient, StateId: var stateId },
+            plan is [{ Op: var selectOp, StateId: var stateId },
                      { Op: SkillProgramEffectOp.Draw, Target: SkillProgramEffectTarget.SelectedTarget, Amount: 3 },
                      { Op: SkillProgramEffectOp.Recover, Target: SkillProgramEffectTarget.SelectedTarget, Amount: 1 }] && stateId == r.StateId &&
+            (selectOp == SkillProgramEffectOp.SelectIssuedFixedRecipient ||
+             selectOp == SkillProgramEffectOp.SelectIssuedFixedRecipientWithDeathReturn && ExactOwnedDeathBenefitReturn(f)) &&
             CompleteProgramEventHistory().OfType<FixedRecipientDeathBenefitStartedEvent>().Count(e => e.ProgramFrameId == f.Id && e.IssuanceProgramFrameId == r.IssuanceProgramFrameId &&
                 e.OwnerDeathWindowFrameId == window.Id && e.StateId == r.StateId && e.Source == r.Source && e.GameplayHash == r.GameplayHash && e.RecipientSeat == r.RecipientSeat) == 1;
     }

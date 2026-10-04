@@ -420,6 +420,7 @@ public enum SkillProgramEffectOp
     DrawEndingPairThenBlockRoundIfUnequal = 6700, RecastSelectedPhysicalSlash = 6701,
     ObtainOneFromEachSelectedTarget = 6300, GiveShownCardToLeastOriginalTarget = 6301,
     IssueFixedRecipientBenefit = 6302, SelectIssuedFixedRecipient = 6303,
+    SelectIssuedFixedRecipientWithDeathReturn = 6800,
     ChooseCategoryOrSequentialDiscard = 5700, EscalatingDiscardOrDamageFromSelected = 5701,
     DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
     ReceiveOwnerDamage = 4100, ConsumeDistinctTurnTarget = 4101, DrawOwnerAtAppliedDamage = 4102,
@@ -3562,6 +3563,7 @@ public sealed class SkillProgramCatalog
             MarkerCost = ParseMarkerCost(node, path)
         };
         PairObtainFixedRecipientComposition.ValidateTrigger(path, parsedTrigger);
+        SelectIssuedFixedRecipientWithDeathReturnDescriptor.ValidateTrigger(path, parsedTrigger);
         EndingPairSlashLossComposition.ValidateTrigger(path, parsedTrigger);
         return parsedTrigger;
     }

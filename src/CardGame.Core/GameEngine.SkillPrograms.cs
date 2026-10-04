@@ -591,7 +591,8 @@ public sealed partial class GameEngine
         if (CurrentDamageAttempt is not null && !judgmentNested && !damageWindowNested &&
             frame.FactionRecoveryDraft?.SettlingDebts != true && !AllowsSuitPreventionNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
             !AllowsHalfHandSupportNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
-            !AllowsActualEquipmentOrDiscardNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || ActiveDying is not null ||
+            !AllowsActualEquipmentOrDiscardNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsOwnedDeathBenefitNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || ActiveDying is not null ||
             _resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
             amount <= 0 || !IsValidPlayerSeat(targetSeat) || !_players[targetSeat].IsAlive)
             throw new InvalidOperationException("A program damage effect requires one active program and living target.");
@@ -1040,7 +1041,8 @@ public sealed partial class GameEngine
                     SkillProgramEffectOp.SelectRelativeZoneDemandTarget or SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets or
                     SkillProgramEffectOp.SelectChainedByMarker or SkillProgramEffectOp.SelectOneSelectedTarget or
                     SkillProgramEffectOp.DamageFarthestCharacter or SkillProgramEffectOp.OfferCompletedCardGift or
-                    SkillProgramEffectOp.RequestLegalSlashByNearest or SkillProgramEffectOp.OfferUnlimitedVirtualSlash);
+                    SkillProgramEffectOp.RequestLegalSlashByNearest or SkillProgramEffectOp.OfferUnlimitedVirtualSlash or
+                    SkillProgramEffectOp.SelectIssuedFixedRecipientWithDeathReturn);
             var awaitingCurrentSelection = executedSelection is not null &&
                 ReferenceEquals(executedSelection, plan.Instructions[frame.InstructionIndex - 1]) &&
                 ReferenceEquals(frame, _resolutionStack.LastOrDefault()) &&
@@ -1058,6 +1060,8 @@ public sealed partial class GameEngine
             {
                 SkillProgramEffectOp.RequestLegalSlashByNearest or SkillProgramEffectOp.OfferUnlimitedVirtualSlash =>
                     IsValidNearestSlashProgramSelection(frame, executedSelection, plan.Instructions),
+                SkillProgramEffectOp.SelectIssuedFixedRecipientWithDeathReturn =>
+                    ExactOwnedDeathBenefitReturn(frame) && ValidFixedRecipientReceipt(frame),
                 SkillProgramEffectOp.SelectRelativeZoneDemandTarget => frame.SelectedTargetSeats.Count == 1 || awaitingCurrentSelection && frame.SelectedTargetSeats.Count == 0,
                 SkillProgramEffectOp.OfferCompletedCardGift => frame.SelectedTargetSeats.Count == 0 && frame.CompletedCardGiftDraft?.RecipientSeat is null || IsValidCompletedGiftTargetSelection(frame),
                 SkillProgramEffectOp.SelectTarget =>

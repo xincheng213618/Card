@@ -27,7 +27,7 @@
           ] },
         { "id": "death-original-beneficiary", "window": "ownerDied", "subject": "owner", "optional": true,
           "effects": [
-            { "op": "selectIssuedFixedRecipient", "target": "owner", "stateId": "original-beneficiary" },
+            { "op": "selectIssuedFixedRecipientWithDeathReturn", "target": "owner", "stateId": "original-beneficiary" },
             { "op": "draw", "target": "selectedTarget", "amount": 3 },
             { "op": "recover", "target": "selectedTarget", "amount": 1 }
           ] }

@@ -27,3 +27,5 @@
 后续752按9 NEW、9 OLD、16 support及5stage证据完成逐文件静态核对和窄整合，完整当前樵拾、燕语、四方法/一个routine及官方原始PNG已登记。原冻结交付不变；根另存静态followup，修正已付重铸成本后取消未尝试摸牌却发布DrawIssued(0)的边界，并在原第三方法补真实成本来源移除及冷恢复后继续命令草稿。752运行验收仍为false，详见XIAHOU_SHI_STATIC_REVIEW。756继续NEW并等待下一个稳定最终OLD；775死亡收益opt-in新协议仍在独占stage开发，当前已记录限制尚未解除。已释放代理转向第31批690/726/449的有界官方source预检，尚未主登记新内容。
 
 后续756按10 NEW、12 OLD、19 support完成原字节与LF静态核对及窄整合，完整镇军、毅重、四方法/一个routine及官方原始PNG已主登记。各公开新事件均为标量，弃牌实体与原位置集合只在拥有帧中冻结；同一实际回合承诺、N=0不发行摸牌事件、独立颜色捕获与真实actor/provider已静态核对。详见YU_JIN_STATIC_REVIEW和756静态整合记录。未构建、运行loader、执行草稿或验收原图。第30批三位均完成静态接入；775死亡收益的新Damage/Dying opt-in仍等待最终OLD与静态整合，现有限制尚未解除。
+
+后续775死亡收益6800协议按3 NEW、10 OLD、8 support完成静态窄整合，原始775来源与主文不变、内容hash随opt-in节点变化。只过滤精确原已死亡者的Dying，原Death/Dying/Damage帧不删除或改写；真实已付摸牌/回复首子结算、typed pendingAttack完成、恢复替代优先级与Death早退前断言已核对。原四方法/一个routine保留，第3方法只追加两真实命令回归草稿。详见BU_LIAN_SHI_DEATH_RETURN_STATIC_REVIEW与775静态整合记录。新协议已加代码但尚未经构建/loader/运行验收，不能称现有限制实测解除；两个同时活人濒死仍不支持。726完整三档、全部基本/普通锦囊真正0材料使用将接下一个最终OLD窗口。

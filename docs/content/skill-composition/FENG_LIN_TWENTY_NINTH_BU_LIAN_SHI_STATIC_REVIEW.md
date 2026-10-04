@@ -13,3 +13,5 @@
 已知共享机制限制：OwnerDied 收益观察者若进一步发起 Damage 或新的 Dying，旧 BeginProgramSkillDamage、BeginProgramSkillDying、CompleteProgramAttack 仍拒绝原 ActiveDying 残留。该组合尚未支持，需要专门的原 Death/Dying suspension/return 协议。本次未宽化通用入口、吞掉触发或伪造体力事实；这项限制与仅未运行的检查明确分开。
 
 模块登记一次，既有 Core runner 四方法、routine 一个前缀已静态登记。官方 750×950 原始 PNG 已复制并入 catalog，SHA256 为 `88df186050ed556c59fe3ac44a0fa55a586fc24a42d2e0bebcab8df5f8140d48`。没有改变经典定义、全局规则版本、规则 schema 或包版本。触及 JSON 仅解析语法，PSD1 仅读取数据；检查草稿、编译、生产 loader、测试、基准和全资源验收均未执行，运行接受状态仍为 false。
+
+第30批后续已另加opt-in6800拥有帧死亡收益返回协议，原交付及其限制记录保留为历史。当前规则的死亡选择节点改为新协议；新增Damage/Dying的真实producer与两材料Peach返回已有静态实现和待运行草稿，原四方法与断言未删。请以第30批BU_LIAN_SHI_DEATH_RETURN_STATIC_REVIEW和775静态整合记录查看当前实现边界，运行验证仍为false，双活人同时濒死仍不支持。

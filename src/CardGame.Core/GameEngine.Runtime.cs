@@ -337,6 +337,8 @@ public sealed partial class GameEngine
         }
 
 
+        if (TryAdvanceOwnedDeathBenefitSubtree()) return;
+
         if (ActiveDying is { } paidProgramDying &&
             _resolutionStack.LastOrDefault() is ProgramSkillFrame { WindowContext: { } paidContext } paidDyingProgram &&
             _resolutionStack.Count >= 2 && _resolutionStack[^2] is DyingFrame paidDyingParent && paidDyingParent.Id == paidProgramDying.Id &&
@@ -344,7 +346,7 @@ public sealed partial class GameEngine
             paidContext.OwnerSeat == paidDyingProgram.OwnerSeat &&
             (paidContext.Window == SkillProgramTriggerWindow.DyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.ResponderSeat ||
              paidContext.Window == SkillProgramTriggerWindow.SelfDyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.VictimSeat) &&
-            (IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying()))
+            (IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsOwnedDeathBenefitProgramDying()))
         {
             AdvanceRuntimeProgram(paidDyingProgram.Id);
             AdvanceRulesAndPublishState();
@@ -476,6 +478,7 @@ public sealed partial class GameEngine
         var context = frame.WindowContext ??
             throw new InvalidOperationException("A trigger program frame lost its window context.");
         FinishPaidOwnTargetBeforeProgramCompletion(frame);
+        FinishOwnedDeathBenefitReturn(frame, completed);
         PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramSkill);
         AdvanceEventRulesAndQueueFact(new ProgramBindingResolvedEvent(
             frame.Id, frame.SkillId, frame.TriggerId!, frame.SkillInstanceId,

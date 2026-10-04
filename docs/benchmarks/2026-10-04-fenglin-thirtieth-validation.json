@@ -194,12 +194,39 @@
         "Exact equipment producer, native AI and child prompt order require actual verification",
         "HE and shortfall, generated weapon exclusion, source loss and skipped Ending remain explicit engineering defaults without current FAQ"
       ]
+    },
+    {
+      "gid": 775,
+      "name": "界步练师死亡收益嵌套",
+      "capability": 6800,
+      "integratedAtUtc": "2026-10-04T08:38:50.6038501Z",
+      "baselineCommit": "cb0418e5e161b06159fa9b66df526ca7e95b9c6a",
+      "manifestSha256": "17cc10ce391cc18117add00ad966de1914f5a13ac3aeacde9b9e2efd514c1f7d",
+      "patchSha256": "d932d32b35f29cd23627c075aa5ad5bcb0e88d1dcd0cfea8124fb63a26ea05cd",
+      "sourceSha256": "76212903e4e86c42fe8f9f14b2e9108b706514164b81a8e6698d562cb179bbab",
+      "newFiles": 3,
+      "oldFiles": 10,
+      "supportFiles": 8,
+      "registeredChecksUnchanged": 4,
+      "originalThirdStatementsPreserved": true,
+      "routinePrefix": "boundary bu lian shi ordered opaque pair gift",
+      "staticIntegration": "docs/content/sources/fenglin-thirtieth-775-death-return-static-integration-2026-10-04.json",
+      "optInProtocolAdded": true,
+      "legacy6303Preserved": true,
+      "buildsRun": false,
+      "productionLoaderExecuted": false,
+      "checksRun": false,
+      "benchmarksRun": false,
+      "runtimeAcceptance": false,
+      "unsupported": [
+        "Two simultaneous living victims in Dying; no active living Dying is filtered."
+      ]
     }
   ],
   "runtimeAcceptance": false,
   "pending": [
-    "696, 752 and 756 statically integrated; 775 opt-in death-benefit followup receives next final OLD window",
-    "775 existing death-benefit new Damage/Dying limitation now has an owned opt-in followup stage; unsupported until that exact protocol is integrated and verified",
+    "696,752,756 and775 dedicated death-return protocol statically integrated; runtime acceptance remains unproven",
+    "726 complete tiered true-Round conversion and zero-material use is in its owned stage; next serialized final OLD window",
     "User later combined build, focused runtime, Full and measured routine verification"
   ],
   "versions": {
@@ -234,10 +261,14 @@
       "reservedCapacity": "6800-6899",
       "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-775-source-2026-10-04.json",
       "sourceSha256": "76212903e4e86c42fe8f9f14b2e9108b706514164b81a8e6698d562cb179bbab",
-      "status": "owned-contract-and-new-development-no-main-integration",
+      "status": "static-main-protocol-integrated-runtime-verification-deferred",
       "currentKnownLimitResolved": false,
       "buildsRun": false,
-      "testsRun": false
+      "testsRun": false,
+      "limitationImplementationAdded": true,
+      "runtimeAcceptance": false,
+      "staticIntegration": "docs/content/sources/fenglin-thirtieth-775-death-return-static-integration-2026-10-04.json",
+      "manifestSha256": "17cc10ce391cc18117add00ad966de1914f5a13ac3aeacde9b9e2efd514c1f7d"
     }
   ]
 }
