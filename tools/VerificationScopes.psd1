@@ -11,6 +11,7 @@
         'Granted entity extra phase distance', 'Frozen faction recovery game damage',
         'Next actual-use paid wins',
         'Original target addition rights', 'Foreign turn Wine actual actor',
+        'Neighbor discard own first previous',
         'shared use lifecycle', 'shared card-use', 'card movement', 'card inventory',
         'initial deal', 'invalid single and batch', 'draw and recover',
         'execution plans', 'skill executor', 'program gameplay hashes',

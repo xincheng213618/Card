@@ -159,7 +159,7 @@ public enum SkillProgramTargetKind
     OtherLivingWuFactionWithHand = 2001, CurrentArrowBarrageTargets = 2601}
 public enum SkillProgramCardCategory { Basic, Trick, Equipment }
 public enum SkillProgramGainPhaseQualification { OutsideOwnerDraw }
-public enum SkillProgramTurnOwnerScope { Own = 0, OtherLiving = 1 }
+public enum SkillProgramTurnOwnerScope { Own = 0, OtherLiving = 1, OwnOrPreviousLiving = 5300 }
 public enum SkillProgramDiscardOwnerScope { Other = 0, Own = 1 }
 public enum SkillProgramDamageModifierExpiration { CurrentTurnEnd = 0, NextOwnerTurnStart = 1 }
 public enum SkillProgramDamageModifierSourceScope { OwnerUsed = 0, DamageSource = 1, DamageParticipant = 2 }
@@ -362,6 +362,7 @@ public enum SkillProgramEffectOp
     ChooseCategoryAlternativeDiscard = 740,
     EscalatingDiscardOrDamage = 741,
     PutDiscardedCardsOnDrawPileTop = 760,
+    PutOwnOrPreviousFirstDiscardOnTop = 5300, LoseHpIfRevealedNonEquipmentDiffers = 5301,
     CollectPublicPile = 780,
     GrantNextCardTargetAdjustment = 782,
     GrantNextActualUseTargetAdjustment = 4700,
@@ -812,6 +813,8 @@ public sealed record SkillProgramTriggerFacts(
     public int? OwnerTrickUsesThisActualTurn { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int MovedEquipmentCardCount { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? FrozenPreviousLivingSeat { get; init; }
 
     public bool GetBooleanState(string skillId, string skillInstanceId, string stateId) =>
         BooleanStates?.GetValueOrDefault(BooleanStateKey(skillId, skillInstanceId, stateId)) ??
@@ -3330,6 +3333,9 @@ public sealed class SkillProgramCatalog
         if (allowNoEventTarget && (!isCardActionWindow || ownerRelation != SkillProgramCardActionOwnerRelation.ConversionSource ||
             effects.SelectMany(EnumerateParticipantReferences).Any(reference => reference.Kind == ProgramParticipantRef.EventTarget)))
             Fail(path + ".allowNoEventTarget", "requires a conversion-source card action without event-target participants");
+        LoseHpIfRevealedNonEquipmentDiffersDescriptor.Validate(path, effects, window, subject,
+            movementOccurrence, movementDiscardOnly, sourceZones, turnOwnerScope,
+            movementReasons, excludedMovementReasons, ignoreOwnSkillMovements);
         var allowOwnDiscardPhaseEnded = node.TryGetProperty("allowOwnDiscardPhaseEnded", out _) && RequiredBool(node, "allowOwnDiscardPhaseEnded", path);
         if (node.TryGetProperty("allowOwnDiscardPhaseEnded", out _) && (window != SkillProgramTriggerWindow.DiscardPhaseEnded ||
             turnOwnerScope != SkillProgramTurnOwnerScope.Own))

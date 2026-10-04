@@ -73,6 +73,7 @@ public sealed partial class GameEngine
                 item.Value,
                 _cardZones.Count(item.Key)))
             .ToArray();
+        CaptureNeighborDiscardOpportunity(batch.Id, batch.TurnNumber, movements);
         CaptureTurnDiscardSuitFact(batch.TurnNumber,movements);
         CaptureTurnRedDiscardCount(batch.TurnNumber,movements);
         CaptureActionDiscardFact(batch.Id,batch.TurnNumber,movements);
@@ -178,6 +179,7 @@ public sealed partial class GameEngine
             foreach (var candidate in CollectProgramTriggerCandidates(_players[ownerSeat], window))
             {
                 var trigger = GetProgramTrigger(candidate);
+                if (IsNeighborDiscardTopTrigger(trigger)) continue;
                 if (!IsGainPhaseQualified(trigger, ownerSeat, batch.MovementTiming)) continue;
                 if (discardOriginOnly && !trigger.MovementDiscardOnly) continue;
                 if (!(window == SkillProgramTriggerWindow.CardsMoved ? trigger.SourceZones : trigger.DestinationZones).Contains(count.Location.Zone)) continue;
@@ -215,6 +217,7 @@ public sealed partial class GameEngine
                 candidates.AddRange(occurrences.Select(index => candidate with { OccurrenceIndex = index }));
             }
         }
+        candidates.AddRange(CollectNeighborDiscardCandidates(batch));
         return candidates
             .OrderBy(candidate => (candidate.OwnerSeat - _currentSeat + _players.Count) % _players.Count)
             .ThenByDescending(candidate => candidate.Priority)
@@ -361,6 +364,7 @@ public sealed partial class GameEngine
         if (frame.Contexts is { } contexts) return contexts[frame.CandidateIndex];
         var trigger = GetProgramTrigger(candidate);
         if (trigger.Window == SkillProgramTriggerWindow.FirstGameDomainCrossing) return CreateFirstDomainContext(frame,candidate);
+        if (IsNeighborDiscardTopTrigger(trigger)) return CreateNeighborDiscardContext(frame, candidate);
         if (trigger.Window == SkillProgramTriggerWindow.DiscardPileReceived)
         {
             var movement = frame.Batch.Movements[candidate.OccurrenceIndex];

@@ -11608,6 +11608,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-yu-fan",
+      "characterName": "界虞翻",
+      "defaultSkinId": "60300",
+      "skins": [
+        {
+          "id": "60300",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/603",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60300.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-yu-fan.png",
+          "sha256": "2e352050db40c5c93e4d17a3c94506ec84b9a9bb344b3b79f77dc59c5abc7215",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

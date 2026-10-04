@@ -1,0 +1,109 @@
+{
+  "status": "current-official-source-only-not-implemented",
+  "gid": 642,
+  "indexIdentity": {
+    "gid": 642,
+    "name": "界李儒",
+    "resource": "64200",
+    "extend": "界限突破",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "史诗",
+    "figure": "群",
+    "figure_py": "qun",
+    "biography": "董卓的首席谋士，为董卓所亲信，大小事宜皆与其商议。董卓趁乱进京、说降吕布、废立皇帝、迁都长安等举动，均离不开李儒的参谋之功，并奉命毒杀皇帝刘辩。李傕被曹操击败后，李儒从此不知所踪，消失在历史长河中。",
+    "characteristic": "实时观察局势来选择焚城的目标。",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/642.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64200.png",
+    "realname": "界李儒 (界限突破)"
+  },
+  "discovery": {
+    "indexPath": ".artifacts\\continuation-20261003-batch17\\batch21\\dong-zhuo\\next-batch22\\index-preflight.json",
+    "indexSha256": "3b564ba6fa141eed58449d91dbe669a48094a381a1efa97a51ceb7f81fb0cb87",
+    "indexCapturedAtUtc": "2026-10-03T17:09:18.318761+00:00",
+    "ordinaryOlArray": "Listdata[界限突破]"
+  },
+  "webReader": "Primary website reader attempted first: 621 and 642 timed out; 627 returned cached text. Bounded direct current primary HTTP capture follows.",
+  "page": {
+    "url": "https://www.sanguosha.com/hero/642",
+    "finalUrl": "https://www.sanguosha.com/hero/642",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-04T00:21:38.924829+00:00",
+    "contentType": "text/html",
+    "rawBytes": 24488,
+    "rawSha256": "42d1971c771e955dae37ce28989eb2c362feb0a27b6cfc3f5aa7512a7d6e69fd",
+    "rawFile": "642-page.raw.html",
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >出牌阶段限一次，你可以将一张锦囊牌置于牌堆顶并令一名有手牌的其他角色选择一项：1.弃置一张锦囊牌；2.依次弃置两张牌。</span>\n                            \n                                <span >限定技，出牌阶段，你可以选择一名其他角色开始，令所有其他角色依次选择一项：1.弃置任意张牌（须比上家弃置的牌多）；2.受到你造成的2点火焰伤害。</span>\n                            \n                                <span >结束阶段，你可以对一名手牌数小于等于你的其他角色造成一点伤害。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "灭计",
+      "焚城",
+      "绝策"
+    ],
+    "skillTexts": [
+      "出牌阶段限一次，你可以将一张锦囊牌置于牌堆顶并令一名有手牌的其他角色选择一项：1.弃置一张锦囊牌；2.依次弃置两张牌。",
+      "限定技，出牌阶段，你可以选择一名其他角色开始，令所有其他角色依次选择一项：1.弃置任意张牌（须比上家弃置的牌多）；2.受到你造成的2点火焰伤害。",
+      "结束阶段，你可以对一名手牌数小于等于你的其他角色造成一点伤害。"
+    ],
+    "fontRefs": []
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=642",
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=642",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-04T00:21:39.233109+00:00",
+    "contentType": "application/json",
+    "rawBytes": 956,
+    "rawSha256": "40cd63f1c98bc60fe06dedb188775a989b178ada8835326941097cb78e68ebc2",
+    "rawFile": "642-api.raw.json",
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 642,
+            "name": "界李儒",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/642.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64200.png",
+            "label": [
+              "控制",
+              "过牌",
+              "爆发"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "史诗",
+            "biography": "董卓的首席谋士，为董卓所亲信，大小事宜皆与其商议。董卓趁乱进京、说降吕布、废立皇帝、迁都长安等举动，均离不开李儒的参谋之功，并奉命毒杀皇帝刘辩。李傕被曹操击败后，李儒从此不知所踪，消失在历史长河中。",
+            "characteristic": "实时观察局势来选择焚城的目标。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 6
+          },
+          {
+            "name": "排位后手",
+            "value": 7
+          },
+          {
+            "name": "地主",
+            "value": 6
+          },
+          {
+            "name": "忠臣",
+            "value": 8
+          },
+          {
+            "name": "反贼",
+            "value": 7
+          }
+        ],
+        "deeds": []
+      }
+    }
+  }
+}

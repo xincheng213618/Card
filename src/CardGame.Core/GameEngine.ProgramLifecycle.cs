@@ -1962,9 +1962,11 @@ public sealed partial class GameEngine
                 starting.Id == context.ParentFrameId && starting.OwnerSeat == _currentSeat,
             SkillProgramTriggerWindow.TurnEnding =>
                 context.SourceSeat == _currentSeat && context.TargetSeat == _currentSeat &&
-                (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own
-                    ? owner.Seat == _currentSeat
-                    : owner.Seat != _currentSeat && _players[_currentSeat].IsAlive) &&
+                (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.OwnOrPreviousLiving
+                    ? MatchesFrozenOwnOrPreviousEnding(candidate, context)
+                    : trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own
+                        ? owner.Seat == _currentSeat
+                        : owner.Seat != _currentSeat && _players[_currentSeat].IsAlive) &&
                 _resolutionStack.OfType<TurnEndingBoundaryFrame>().LastOrDefault() is { } ending &&
                 ending.Id == context.ParentFrameId && ending.OwnerSeat == _currentSeat,
             SkillProgramTriggerWindow.DyingEntering =>
@@ -2019,9 +2021,13 @@ public sealed partial class GameEngine
                 context.MovementBatch is { } batch &&
                 batch.Id == context.ParentFrameId &&
                 _resolutionStack.OfType<CardsMovedTriggerWindowFrame>().LastOrDefault()?.Id == batch.Id &&
-                ProgramMovementSourceCounts(batch, context.Window)
-                    .Any(item => item.Count.Location.OwnerSeat == owner.Seat &&
-                        (!item.DiscardOriginOnly || trigger.MovementDiscardOnly)),
+                (IsNeighborDiscardTopTrigger(trigger)
+                    ? NeighborDiscardIndexes(batch, owner.Seat).Length > 0 &&
+                      context.TargetSeat == owner.Seat && context.SourceSeat == NeighborDiscardSourceSeat(batch, owner.Seat) &&
+                      NeighborDiscardFact(batch, owner.Seat)?.PreviousLivingSeat == context.Facts?.FrozenPreviousLivingSeat
+                    : ProgramMovementSourceCounts(batch, context.Window)
+                        .Any(item => item.Count.Location.OwnerSeat == owner.Seat &&
+                            (!item.DiscardOriginOnly || trigger.MovementDiscardOnly))),
             SkillProgramTriggerWindow.FirstGameDomainCrossing =>
                 context.MovementBatch is { } domainBatch && domainBatch.Id == context.ParentFrameId &&
                 _resolutionStack.OfType<CardsMovedTriggerWindowFrame>().LastOrDefault()?.Id == domainBatch.Id &&
@@ -2592,14 +2598,14 @@ public sealed partial class GameEngine
                     playerFacts = playerFacts with { EventTargetHandCount = GetHand(owner).Count };
                 return CollectEligibleProgramTriggerCandidates(
                         player, SkillProgramTriggerWindow.TurnEnding, playerFacts)
-                    .Where(candidate => GetProgramTrigger(candidate).TurnOwnerScope ==
-                        (player.Seat == owner.Seat ? SkillProgramTurnOwnerScope.Own :
-                            SkillProgramTurnOwnerScope.OtherLiving))
+                    .Where(candidate => MatchesTurnEndingScope(candidate, owner.Seat))
                     .Select(candidate => new TurnEndingBoundaryItem(
                         TurnEndingBoundaryItemKind.Program,
                         candidate.Priority,
                         $"program:{candidate.SkillId}:{candidate.BindingId}:{candidate.SkillInstanceId}",
-                        candidate, player.Seat == owner.Seat ? null : playerFacts));
+                        candidate, GetProgramTrigger(candidate).TurnOwnerScope == SkillProgramTurnOwnerScope.OwnOrPreviousLiving
+                            ? playerFacts with { FrozenPreviousLivingSeat = PreviousLivingSeatFor(player.Seat) }
+                            : player.Seat == owner.Seat ? null : playerFacts));
             }).ToList();
         AppendGiftRetentionEndingItems(items);
         var ordered = items
@@ -3987,7 +3993,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.ChooseOption => SelectAiProgramOption(decision, frame),
                 SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamage =>
                     SelectAiProgramDiscardChallenge(decision, frame),
-                SkillProgramEffectOp.PutDiscardedCardsOnDrawPileTop => decision.Choices[0],
+                SkillProgramEffectOp.PutDiscardedCardsOnDrawPileTop or SkillProgramEffectOp.PutOwnOrPreviousFirstDiscardOnTop => decision.Choices[0],
                 SkillProgramEffectOp.CollectPublicPile => decision.Choices.OrderByDescending(choice => choice.Targets.Count).First(),
                 SkillProgramEffectOp.ChooseDifferentCategoryDiscard =>
                     SelectAiProgramCategoryDiscard(decision, frame),

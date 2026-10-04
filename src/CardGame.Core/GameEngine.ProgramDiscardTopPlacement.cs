@@ -13,13 +13,13 @@ public sealed partial class GameEngine
         if (frame.DiscardTopPlacement is not { } state) return;
         var paused = ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry!.GetSkill(frame.SkillId).Program!)
             .GetPausedInstruction(frame.InstructionIndex).Effect;
-        if (paused.Op != SkillProgramEffectOp.PutDiscardedCardsOnDrawPileTop ||
+        if (paused.Op is not (SkillProgramEffectOp.PutDiscardedCardsOnDrawPileTop or SkillProgramEffectOp.PutOwnOrPreviousFirstDiscardOnTop) ||
             frame.WindowContext is not { Window: SkillProgramTriggerWindow.CardsMoved, MovementBatch: { } batch } ||
             state.CandidateCardIds.Count == 0 || state.CandidateCardIds.Distinct().Count() != state.CandidateCardIds.Count ||
             state.SelectedCardIds.Distinct().Count() != state.SelectedCardIds.Count ||
             state.SelectedCardIds.Any(id => !state.CandidateCardIds.Contains(id)) ||
             state.CandidateCardIds.Any(id => _cardZones.GetLocation(id) != CardLocation.DiscardPile ||
-                !batch.Movements.Any(move => move.CardId == id && GetProgramDiscardSource(move)?.OwnerSeat == frame.OwnerSeat)) ||
+                !batch.Movements.Any(move => move.CardId == id && IsProgramDiscardTopMovement(frame, move))) ||
             !ReferenceEquals(frame, _resolutionStack.LastOrDefault()) ||
             _pendingDecision is not { Kind: DecisionKind.ProgramTrigger } decision || decision.PlayerSeat != frame.OwnerSeat ||
             decision.Choices.Any(choice => choice.Parameters.GetValueOrDefault("program-action") is not ("discard-top-select" or "discard-top-finish")))
@@ -56,7 +56,7 @@ public sealed partial class GameEngine
         if (active.WindowContext is not { Window: SkillProgramTriggerWindow.CardsMoved, MovementBatch: { } batch } ||
             active.DiscardTopPlacement is not null || _pendingDecision is not null)
             throw new InvalidOperationException("Discard-top placement requires a clean frozen movement window.");
-        var ids = batch.Movements.Where(move => GetProgramDiscardSource(move)?.OwnerSeat == active.OwnerSeat &&
+        var ids = batch.Movements.Where(move => IsProgramDiscardTopMovement(active, move) &&
                 _cardZones.GetLocation(move.CardId) == CardLocation.DiscardPile)
             .Select(move => move.CardId).Distinct().ToArray();
         if (ids.Length == 0 || !_players[active.OwnerSeat].IsAlive) return SkillProgramStepOutcome.Continue;
