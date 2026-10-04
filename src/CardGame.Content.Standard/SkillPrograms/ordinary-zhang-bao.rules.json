@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:zhoufu",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "place-source-curse",
+          "minCards": 1,
+          "maxCards": 1,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "effects": [
+            {
+              "op": "depositSelectedSourceCurse",
+              "target": "owner",
+              "skillIds": [
+                "ol:yingbing"
+              ]
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "lost-curse-own-turn-ended",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": false,
+          "effects": [
+            {
+              "op": "loseHpForLostSourceCurses",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "lost-curse-other-turn-ended",
+          "window": "afterTurnEnded",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": false,
+          "effects": [
+            {
+              "op": "loseHpForLostSourceCurses",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:yingbing",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "matching-curse-actual-use",
+          "window": "cardUseCommitted",
+          "ownerRelation": "observer",
+          "optional": false,
+          "effects": [
+            {
+              "op": "drawForSourceCurseUse",
+              "target": "owner",
+              "skillIds": [
+                "ol:zhoufu"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

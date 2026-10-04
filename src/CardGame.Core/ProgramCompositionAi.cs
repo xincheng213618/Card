@@ -218,6 +218,7 @@ internal sealed partial class ProgramAiEstimateContext
              _publicContext.SelectedTarget.Seat == _player.Seat)) return;
         var amount = effect.NumberExpression switch
         {
+            SkillProgramNumberExpression.CurrentHandEmptyTwoOtherwiseOne => _estimatedHandCount == 0 ? 2 : 1,
             SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount => _publicContext.CurrentTurnUsedCardCategoryCount ?? 0,
             SkillProgramNumberExpression.OwnerLostHp => Math.Max(0, _player.MaxHp - _player.Hp),
               SkillProgramNumberExpression.LostHpMinusHandCount => Math.Max(0, _player.MaxHp - Math.Max(0, _player.Hp) - _estimatedHandCount),

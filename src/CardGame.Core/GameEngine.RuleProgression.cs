@@ -21,6 +21,8 @@ public sealed partial class GameEngine
         ObserveActualForeignUseTargets(payload);
         ObserveActualTurnDamageEntities(payload);
         ObserveTrueRoundCardNames(payload);
+        ObservePhaseHandSeizureDeath(payload);
+        ObserveUnnullifiableOrdinaryTrick(payload);
         QueueGameEvent(payload);
         if (_started)
         {

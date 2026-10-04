@@ -317,6 +317,7 @@ public sealed partial class GameEngine
             .Select(skill => skill.Id)
             .ToHashSet(StringComparer.Ordinal);
         _hasLordProjectionCapability = contentRegistry.Skills.Values.Any(s => s.Program?.LordSkillProjection == true);
+        _hasOrdinaryTrickCannotNullifyCapability = contentRegistry.Skills.Values.Any(s => s.Program?.CardPolicies.Any(p => p.Kind == SkillProgramCardPolicyKind.CannotNullifyOwnOrdinaryTrick) == true);
         _hasGainPhaseQualificationCapability = contentRegistry.Skills.Values.Any(s => s.Program?.Triggers.Any(t => t.GainPhaseQualification is not null) == true);
         _skillBindingIndex = new MatchSkillBindingIndex(
             contentRegistry.GetSkill,
@@ -4288,7 +4289,7 @@ public sealed partial class GameEngine
         CardKind? playedCardKind = null)
     {
         targetSeats = FreezeSequentialTrickTarget(resolutionId, targetSeats, actionKind, targetCardId, requiredCardKind);
-        if (IsYingboUnrespondable(resolutionId) || IsIssuedCardUnrespondable(resolutionId))
+        if (IsOriginalOrdinaryTrickCannotNullify(resolutionId) || IsYingboUnrespondable(resolutionId) || IsIssuedCardUnrespondable(resolutionId))
         {
             SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
             ResolveNullifiableEffect(new NullificationWindowFrame(
@@ -10936,7 +10937,8 @@ public sealed partial class GameEngine
             reason,
             sourceCard));
 
-        if (!EnsureDrawPile())
+        var curseCard = TakeSourceCurseForJudgment(frame);
+        if (curseCard is null && !EnsureDrawPile())
         {
             frame = frame with
             {
@@ -10969,7 +10971,8 @@ public sealed partial class GameEngine
             return false;
         }
 
-        var judgmentCard = _cardZones.CardsAt(CardLocation.DrawPile)[^1];
+        frame = GetJudgmentFrame(frame.Id);
+        var judgmentCard = curseCard ?? _cardZones.CardsAt(CardLocation.DrawPile)[^1];
         frame = frame with
         {
             CardId = judgmentCard.Id,
@@ -10979,7 +10982,7 @@ public sealed partial class GameEngine
         ReplaceJudgmentFrame(frame);
         MoveCard(
             judgmentCard,
-            CardLocation.DrawPile,
+            curseCard is null ? CardLocation.DrawPile : CardLocation.Processing,
             CardLocation.Judgment(targetSeat),
             CardMoveReasons.JudgmentReveal);
 
@@ -15749,6 +15752,7 @@ public sealed partial class GameEngine
 
     private void BeginDiscardPhase()
     {
+        if (HasCurrentIssuedPhaseHandDebt() && TryBeginPlayEndingProgramWindow(_players[_currentSeat])) return;
         _phase = TurnPhase.Discard;
         StartActualDiscardRecoveryPhase(ActualDiscardRecoveryPhaseKind.Discard, _currentSeat);
         _fullDiscardPhaseSuitTurn = -1;
@@ -15886,6 +15890,7 @@ public sealed partial class GameEngine
 
     private void EndTurn()
     {
+        if (TryBeginForcedPhaseHandDebtReturn()) return;
 
         var previous = _players[_currentSeat];
         CancelScheduledProgramPhase();
@@ -16039,6 +16044,8 @@ public sealed partial class GameEngine
                 _cardZones.CardsAt(CardLocation.Chunlao(victim.Seat)),
                 CardLocation.Chunlao(victim.Seat),
                 CardMoveReasons.ChunlaoDeathDiscard);
+            foreach (var curse in _sourceCurses.Where(c => c.TargetSeat == victim.Seat).ToArray())
+                MoveDiedCards(_cardZones.CardsAt(curse.Location), curse.Location, new("program.source-curse.target-death"));
             var publicPileSources = PublicPileSources(victim.Seat).ToArray();
             if (publicPileSources.Length == 0)
                 MoveDiedCards(_cardZones.CardsAt(PublicPileLocation(victim.Seat)), PublicPileLocation(victim.Seat), new("skill-program.public-pile.owner-death"));
@@ -16847,6 +16854,7 @@ public sealed partial class GameEngine
             to,
             reason) { ActualPlaySlashLoss = CaptureActualPlaySlashLoss(card, from, to) };
         _cardMovements.Add(movement);
+        ObserveSourceCurseMovement(movement);
         beforeFact?.Invoke(movement);
         CaptureRequestedDeckBasicPaid(card, from, to);
         CaptureDiscardedEntityOrigin(card, movement);
@@ -16936,7 +16944,7 @@ public sealed partial class GameEngine
         AssertRequestedDeckBasicMaterials();
         var coreDecision = RequestedDeckBasicInvariantDecision();
         var coreTop = RequestedDeckBasicInvariantTop();
-        var damageProgramDying = IsPrivateOfferProgramDying() || IsPlacedEquipmentBenefitProgramDying() || IsFireTargetBenefitProgramDying() || IsNamedAcquisitionProgramDying() || IsDynamicDiscardDamageProgramDying() || IsOwnTrickDrawProgramDying() || IsConditionalDiscardDuelProgramDying() || IsInspectedHandProgramDying() || IsRecipientContestProgramDying() || IsProvenanceClaimProgramDying() || IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying() || IsPaidDamageTargetMountDying() || IsPaidDamageTargetObtainDying() || IsDamageAppearanceDrawProgramDying() || IsRecoveryReplacementProgramDying() || IsCharacterTurnedOverProgramDying() || IsCappedHandRefreshProgramDying() || IsPaidHandRepaymentProgramDying() || IsBoundRankBonusMovementDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawInsideDamageProgramDying() || IsSourceFactionYieldInsideDamageProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsAppliedDamageBenefitDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPreventionInsideDamageProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying() || IsDyingSuitsProgramDying();
+        var damageProgramDying = IsPhaseHandSeizureProgramDying() || IsSourceCurseProgramDying() || IsPrivateOfferProgramDying() || IsPlacedEquipmentBenefitProgramDying() || IsFireTargetBenefitProgramDying() || IsNamedAcquisitionProgramDying() || IsDynamicDiscardDamageProgramDying() || IsOwnTrickDrawProgramDying() || IsConditionalDiscardDuelProgramDying() || IsInspectedHandProgramDying() || IsRecipientContestProgramDying() || IsProvenanceClaimProgramDying() || IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying() || IsPaidDamageTargetMountDying() || IsPaidDamageTargetObtainDying() || IsDamageAppearanceDrawProgramDying() || IsRecoveryReplacementProgramDying() || IsCharacterTurnedOverProgramDying() || IsCappedHandRefreshProgramDying() || IsPaidHandRepaymentProgramDying() || IsBoundRankBonusMovementDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawInsideDamageProgramDying() || IsSourceFactionYieldInsideDamageProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsAppliedDamageBenefitDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPreventionInsideDamageProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying() || IsDyingSuitsProgramDying();
         _turnCardUseEffects.AssertInvariants();
         AssertPaidHpLossModifiers();
         AssertCurrentTurnOwnSkillSuppressions();
@@ -16982,6 +16990,7 @@ public sealed partial class GameEngine
         AssertRecipientScopedDamageStates();
         AssertOwnedDeathBenefitReturns();
         AssertDyingSuitsSubtree();
+        AssertRecipientConsequencesSubtrees();
 
         if (_resolutionStack.OfType<DeathFrame>().LastOrDefault() is { } currentDeath)
         {
@@ -17825,7 +17834,7 @@ public sealed partial class GameEngine
             }
             else if (ActiveDamageTrigger is { } triggerContinuation)
             {
-                var effectiveTop = DamageCursorEffectiveTop(includeNestedObservers: HasPaidDamageTargetMountObserver(triggerContinuation.Id) || HasPaidDamageTargetObtainObserver(triggerContinuation.Id) || HasDamageAppearanceDrawObserver(triggerContinuation.Id) || HasCappedHandRefreshObserver(triggerContinuation.Id) || HasPaidHandRepaymentObserver(triggerContinuation.Id) || HasBoundRankBonusMovementObserver(triggerContinuation.Id) || HasOwnedDamagePointJudgmentObserver(triggerContinuation.Id) || HasDamageJudgmentSuitPaymentObserver(triggerContinuation.Id) || HasAppliedDamageBenefitObserver(triggerContinuation.Id) || HasFireTargetBenefitObserver(triggerContinuation.Id) || HasNamedAcquisitionDamageObserver(triggerContinuation.Id) || HasProvenanceClaimObserver(triggerContinuation.Id) || HasEquipmentDonationDamageObserver(triggerContinuation.Id) || HasPaidColorDamageClaimDamageObserver(triggerContinuation.Id) || HasHalfHandPaidDamageObserver(triggerContinuation.Id) || (HasDynamicDiscardDamageObserver(triggerContinuation.Id) || HasSignedDamagePaymentObserver(triggerContinuation.Id)) || HasPairBenefitDamageObserver(triggerContinuation.Id) || HasEndingPairSlashDamageObserver(triggerContinuation.Id) || HasActualDiscardRecoveryDamageObserver(triggerContinuation.Id) || HasForeignContestAidDamageObserver(triggerContinuation.Id) || HasPrepDiscardDamageObserver(triggerContinuation.Id) || HasSlashBenefitDamageObserver(triggerContinuation.Id) || HasTargetPenaltyDamageObserver(triggerContinuation.Id) || HasCappedConversionBenefitObserver(triggerContinuation.Id) || HasPlacedEquipmentBenefitDamageObserver(triggerContinuation.Id) || HasRecipientContestDamageObserver(triggerContinuation.Id) || HasPrivateOfferDamageObserver(triggerContinuation.Id) || HasInspectedHandDamageObserver(triggerContinuation.Id));
+                var effectiveTop = DamageCursorEffectiveTop(includeNestedObservers: HasPaidDamageTargetMountObserver(triggerContinuation.Id) || HasPaidDamageTargetObtainObserver(triggerContinuation.Id) || HasDamageAppearanceDrawObserver(triggerContinuation.Id) || HasCappedHandRefreshObserver(triggerContinuation.Id) || HasPaidHandRepaymentObserver(triggerContinuation.Id) || HasBoundRankBonusMovementObserver(triggerContinuation.Id) || HasOwnedDamagePointJudgmentObserver(triggerContinuation.Id) || HasDamageJudgmentSuitPaymentObserver(triggerContinuation.Id) || HasAppliedDamageBenefitObserver(triggerContinuation.Id) || HasFireTargetBenefitObserver(triggerContinuation.Id) || HasNamedAcquisitionDamageObserver(triggerContinuation.Id) || HasProvenanceClaimObserver(triggerContinuation.Id) || HasEquipmentDonationDamageObserver(triggerContinuation.Id) || HasPaidColorDamageClaimDamageObserver(triggerContinuation.Id) || HasHalfHandPaidDamageObserver(triggerContinuation.Id) || (HasDynamicDiscardDamageObserver(triggerContinuation.Id) || HasSignedDamagePaymentObserver(triggerContinuation.Id)) || HasPairBenefitDamageObserver(triggerContinuation.Id) || HasEndingPairSlashDamageObserver(triggerContinuation.Id) || HasActualDiscardRecoveryDamageObserver(triggerContinuation.Id) || HasForeignContestAidDamageObserver(triggerContinuation.Id) || HasPrepDiscardDamageObserver(triggerContinuation.Id) || HasSlashBenefitDamageObserver(triggerContinuation.Id) || HasTargetPenaltyDamageObserver(triggerContinuation.Id) || HasCappedConversionBenefitObserver(triggerContinuation.Id) || HasPlacedEquipmentBenefitDamageObserver(triggerContinuation.Id) || HasRecipientContestDamageObserver(triggerContinuation.Id) || HasSourceCurseDamageObserver(triggerContinuation.Id) || HasPhaseHandSeizureDamageObserver(triggerContinuation.Id) || HasPrivateOfferDamageObserver(triggerContinuation.Id) || HasInspectedHandDamageObserver(triggerContinuation.Id));
                 var topMatchesWindow = effectiveTop is DamageTriggerWindowFrame frame &&
                     frame.Id == triggerContinuation.Id &&
                     frame.ParentFrameId == triggerContinuation.ParentFrameId &&
@@ -17951,7 +17960,9 @@ public sealed partial class GameEngine
         AssertTargetPenaltyWindows();
         AssertHpLossMaterialSlashes();
         AssertLostHpOwnedGifts();
+        AssertSourceCurseState();
         AssertPrivateOfferPrograms();
+        AssertPhaseHandSeizurePrograms();
         AssertEquipmentDonationPrograms();
         AssertActualEquipmentOrDiscardPrograms();
         AssertShownEntityTurnPrograms();
@@ -18087,7 +18098,7 @@ public sealed partial class GameEngine
                     "A damage trigger continuation must retain a valid trigger window frame.");
             }
 
-            var damageCursorTop = DamageCursorEffectiveTop(includeNestedObservers: _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.ConvertingGift is { Observe: true } && f.WindowContext?.ParentFrameId == pendingDamageTrigger.Id) || HasAvailableBoundDamageObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetMountObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetObtainObserver(pendingDamageTrigger.Id) || HasDamageAppearanceDrawObserver(pendingDamageTrigger.Id) || HasCappedHandRefreshObserver(pendingDamageTrigger.Id) || HasPaidHandRepaymentObserver(pendingDamageTrigger.Id) || HasBoundRankBonusMovementObserver(pendingDamageTrigger.Id) || HasOwnedDamagePointJudgmentObserver(pendingDamageTrigger.Id) || HasDamageJudgmentSuitPaymentObserver(pendingDamageTrigger.Id) || HasAppliedDamageBenefitObserver(pendingDamageTrigger.Id) || HasFireTargetBenefitObserver(pendingDamageTrigger.Id) || HasNamedAcquisitionDamageObserver(pendingDamageTrigger.Id) || HasProvenanceClaimObserver(pendingDamageTrigger.Id) || HasEquipmentDonationDamageObserver(pendingDamageTrigger.Id) || HasPaidColorDamageClaimDamageObserver(pendingDamageTrigger.Id) || HasHalfHandPaidDamageObserver(pendingDamageTrigger.Id) || (HasDynamicDiscardDamageObserver(pendingDamageTrigger.Id) || HasSignedDamagePaymentObserver(pendingDamageTrigger.Id)) || HasPairBenefitDamageObserver(pendingDamageTrigger.Id) || HasEndingPairSlashDamageObserver(pendingDamageTrigger.Id) || HasActualDiscardRecoveryDamageObserver(pendingDamageTrigger.Id) || HasForeignContestAidDamageObserver(pendingDamageTrigger.Id) || HasPrepDiscardDamageObserver(pendingDamageTrigger.Id) || HasSlashBenefitDamageObserver(pendingDamageTrigger.Id) || HasTargetPenaltyDamageObserver(pendingDamageTrigger.Id) || HasCappedConversionBenefitObserver(pendingDamageTrigger.Id) || HasPlacedEquipmentBenefitDamageObserver(pendingDamageTrigger.Id) || HasRecipientContestDamageObserver(pendingDamageTrigger.Id) || HasPrivateOfferDamageObserver(pendingDamageTrigger.Id) || HasInspectedHandDamageObserver(pendingDamageTrigger.Id));
+            var damageCursorTop = DamageCursorEffectiveTop(includeNestedObservers: _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.ConvertingGift is { Observe: true } && f.WindowContext?.ParentFrameId == pendingDamageTrigger.Id) || HasAvailableBoundDamageObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetMountObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetObtainObserver(pendingDamageTrigger.Id) || HasDamageAppearanceDrawObserver(pendingDamageTrigger.Id) || HasCappedHandRefreshObserver(pendingDamageTrigger.Id) || HasPaidHandRepaymentObserver(pendingDamageTrigger.Id) || HasBoundRankBonusMovementObserver(pendingDamageTrigger.Id) || HasOwnedDamagePointJudgmentObserver(pendingDamageTrigger.Id) || HasDamageJudgmentSuitPaymentObserver(pendingDamageTrigger.Id) || HasAppliedDamageBenefitObserver(pendingDamageTrigger.Id) || HasFireTargetBenefitObserver(pendingDamageTrigger.Id) || HasNamedAcquisitionDamageObserver(pendingDamageTrigger.Id) || HasProvenanceClaimObserver(pendingDamageTrigger.Id) || HasEquipmentDonationDamageObserver(pendingDamageTrigger.Id) || HasPaidColorDamageClaimDamageObserver(pendingDamageTrigger.Id) || HasHalfHandPaidDamageObserver(pendingDamageTrigger.Id) || (HasDynamicDiscardDamageObserver(pendingDamageTrigger.Id) || HasSignedDamagePaymentObserver(pendingDamageTrigger.Id)) || HasPairBenefitDamageObserver(pendingDamageTrigger.Id) || HasEndingPairSlashDamageObserver(pendingDamageTrigger.Id) || HasActualDiscardRecoveryDamageObserver(pendingDamageTrigger.Id) || HasForeignContestAidDamageObserver(pendingDamageTrigger.Id) || HasPrepDiscardDamageObserver(pendingDamageTrigger.Id) || HasSlashBenefitDamageObserver(pendingDamageTrigger.Id) || HasTargetPenaltyDamageObserver(pendingDamageTrigger.Id) || HasCappedConversionBenefitObserver(pendingDamageTrigger.Id) || HasPlacedEquipmentBenefitDamageObserver(pendingDamageTrigger.Id) || HasRecipientContestDamageObserver(pendingDamageTrigger.Id) || HasSourceCurseDamageObserver(pendingDamageTrigger.Id) || HasPhaseHandSeizureDamageObserver(pendingDamageTrigger.Id) || HasPrivateOfferDamageObserver(pendingDamageTrigger.Id) || HasInspectedHandDamageObserver(pendingDamageTrigger.Id));
             var activeDamageProgram = damageCursorTop is ProgramSkillFrame programFrame &&
                 programFrame.WindowContext is
                 {
@@ -18116,7 +18127,7 @@ public sealed partial class GameEngine
                     } && damageWindowId == pendingDamageTrigger.Id);
             var awaitingDamageProgramPrompt = coreDecision is { Kind: DecisionKind.ProgramTrigger } &&
                 pendingDamageTrigger.CandidateIndex < pendingDamageTrigger.Candidates.Count;
-            var expectedTop = HasPrivateOfferDamageObserver(pendingDamageTrigger.Id) || (HasDynamicDiscardDamageObserver(pendingDamageTrigger.Id) || HasSignedDamagePaymentObserver(pendingDamageTrigger.Id)) || damageProgramDying
+            var expectedTop = HasPhaseHandSeizureDamageObserver(pendingDamageTrigger.Id) || HasSourceCurseDamageObserver(pendingDamageTrigger.Id) || HasPrivateOfferDamageObserver(pendingDamageTrigger.Id) || (HasDynamicDiscardDamageObserver(pendingDamageTrigger.Id) || HasSignedDamagePaymentObserver(pendingDamageTrigger.Id)) || damageProgramDying
                 ? true
                 : activeDamageProgram || activeDamageProgramPindian || activeDamageProgramJudgment
                 ? true

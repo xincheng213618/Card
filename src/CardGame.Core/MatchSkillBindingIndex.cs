@@ -220,7 +220,7 @@ internal sealed class MatchSkillBindingIndex
             var isTemplate = grant.SourceId is CharacterState.PrimarySkillSource or
                 CharacterState.SecondarySkillSource;
             if (isTemplate && definition.Tags.HasFlag(SkillTag.Lord) &&
-                player.Role != Role.Lord)
+                player.Role != Role.Lord && !PrintedLordSkillQualifications.Matches(player, grant))
                 continue;
             activeGrants.Add(grant);
             definitions.TryAdd(grant.SkillId, definition);

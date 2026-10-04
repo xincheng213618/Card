@@ -12101,6 +12101,57 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-sp-diao-chan",
+      "characterName": "SP貂蝉",
+      "defaultSkinId": "10900",
+      "skins": [
+        {
+          "id": "10900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/109",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/10900.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-sp-diao-chan.png",
+          "sha256": "775a63d79897d285fa852e34cd770c1b02fbd725835d788a335ac3d63d5739cc",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-sp-jia-xu",
+      "characterName": "SP贾诩",
+      "defaultSkinId": "11000",
+      "skins": [
+        {
+          "id": "11000",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/110",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11000.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-sp-jia-xu.png",
+          "sha256": "85cf05ac77e20929ee445173b726502fddf318da78fb3e4dd78fb3533db5e2a5",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-zhang-bao",
+      "characterName": "张宝",
+      "defaultSkinId": "11900",
+      "skins": [
+        {
+          "id": "11900",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/119",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11900.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-zhang-bao.png",
+          "sha256": "19f42e5f117e49c59b61e6d0ef44d2e28b74da0e57b70acffb59b88b4be62175",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

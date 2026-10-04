@@ -7,7 +7,9 @@ public sealed record SkillGrant(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     LordSkillProjectionSource? LordProjection = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    GeneralLibraryProjectionSource? GeneralLibraryProjection = null);
+    GeneralLibraryProjectionSource? GeneralLibraryProjection = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    PrintedLordSkillQualification? PrintedLordQualification = null);
 
 /// <summary>
 /// Source-aware skill ownership for one character. Definitions and execution
@@ -49,6 +51,19 @@ public sealed class CharacterSkillSet
         if (!_grants.Remove(grantId)) return false;
         Revision++;
         return true;
+    }
+
+    internal bool SetPrintedLordQualification(string grantId, PrintedLordSkillQualification? qualification)
+    {
+        if (!_grants.TryGetValue(grantId, out var grant)) throw new KeyNotFoundException($"Unknown skill grant '{grantId}'.");
+        if (qualification is not null && (qualification.GrantId != grant.GrantId || qualification.SkillId != grant.SkillId ||
+            qualification.SkillInstanceId != grant.SkillInstanceId || qualification.TemplateSourceId != grant.SourceId ||
+            grant.SourceId is not (CharacterState.PrimarySkillSource or CharacterState.SecondarySkillSource) ||
+            grant.LordProjection is not null || grant.GeneralLibraryProjection is not null))
+            throw new InvalidOperationException("Printed-lord qualification requires its exact original template grant.");
+        if (grant.PrintedLordQualification == qualification) return false;
+        _grants[grantId] = grant with { PrintedLordQualification = qualification };
+        Revision++; return true;
     }
 
     public bool SetEnabled(string grantId, bool enabled)

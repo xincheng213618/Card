@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:zhenlue", "revision": 1, "cardPolicies": [
+      { "id": "own-ordinary-trick-cannot-nullify", "kind": "cannotNullifyOwnOrdinaryTrick", "cardKinds": ["drawTwo", "duel", "barbarianAssault", "arrowBarrage", "peachGarden", "fiveGrains", "dismantlement", "snatch", "fireAttack", "ironChain", "borrowedSword"] },
+      { "id": "own-counterspell-unrespondable", "kind": "unrespondableNullification", "cardKinds": ["nullification"] },
+      { "id": "no-delayed-target", "kind": "prohibitDelayedTrickTarget" }
+    ] },
+    { "id": "ol:jianshu", "revision": 1, "activations": [ {
+      "id": "limited-black-hand-recipient-contest", "minCards": 1, "maxCards": 1, "sourceZones": ["hand"],
+      "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving", "usesPerTurn": null, "usesPerGame": 1,
+      "effects": [ { "op": "giveBlackHandAndResolveRecipientContest", "target": "selectedTarget" } ]
+    } ] },
+    { "id": "ol:yongdi", "revision": 1, "triggers": [ {
+      "id": "limited-own-start-printed-lord", "window": "turnStartBeforeNormalFlow", "subject": "owner",
+      "optional": true, "usageScope": "game", "usageLimit": 1,
+      "effects": [ { "op": "raiseMaximumRecoverAndQualifyPrintedLord", "target": "owner" } ]
+    } ] }
+  ]
+}

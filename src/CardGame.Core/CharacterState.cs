@@ -81,6 +81,11 @@ public sealed class CharacterState
             if (existing is not null && (existing.SkillId != id || existing.SourceId != sourceId))
                 throw new InvalidOperationException($"Default skill grant '{sourceId}:{id}' has a conflicting owner.");
         }
+        // A real template replacement clears stale qualification even when
+        // the replacement happens to retain the same skill/grant instance.
+        foreach (var grant in SkillGrants.Grants.Where(grant => grant.SourceId == sourceId &&
+                     grant.PrintedLordQualification is { } q && q.GeneralId != template?.Id))
+            SkillGrants.SetPrintedLordQualification(grant.GrantId, null);
         foreach (var grant in SkillGrants.Grants.Where(grant => grant.SourceId == sourceId && !ids.Contains(grant.SkillId)))
             SkillGrants.RemoveGrant(grant.GrantId);
         foreach (var id in ids)

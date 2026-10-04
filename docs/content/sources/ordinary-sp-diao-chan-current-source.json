@@ -1,0 +1,68 @@
+{
+  "generalId": "ol:sp-diao-chan",
+  "gid": 109,
+  "officialPageUrl": "https://www.sanguosha.com/hero/109",
+  "ruleAuthority": "current official HTML and advertised current info API captured in batch38",
+  "sources": [
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-109-page.raw.html",
+      "sha256": "b5f62ff2fdd1742a3f89861a264801bd6cf32357f5cbcb1ff4b6130beaa74425"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-109-info.raw.json",
+      "sha256": "ed74457c7dab3ec4f39a453ab7072c01e1aa2be82c2ab985acb80c5f9a0108b8"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-current-source.json",
+      "sha256": "0c4103d3f036f49d46d4692bf1852ae9b06dd2feca023614fc305e4595b0ffe2"
+    }
+  ],
+  "skills": [
+    {
+      "name": "离魂",
+      "text": "出牌阶段限一次，你可以弃置一张牌、翻面并获得一名男性角色的所有手牌。出牌阶段结束时，你交给其与其体力值等量张牌。"
+    },
+    {
+      "name": "闭月",
+      "text": "结束阶段，若你没有手牌，你可以摸两张牌，否则你可以摸一张牌。"
+    }
+  ],
+  "metadata": {
+    "faction": "qun",
+    "factionAuthority": "current data.info[0].figure=群 / figure_py=qun",
+    "gender": "Female",
+    "structuredApiGenderPresent": false,
+    "genderAuthority": "explicitly identified inference from current biography 义女 / 妾",
+    "maximumHp": 3,
+    "rawInitialHp": 0,
+    "initialHpOverride": null,
+    "initialHpAuthority": {
+      "rootScriptStagePath": ".artifacts/continuation-20261003-batch17/batch39/root-source/current-heroDetail.raw.js",
+      "sha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+      "sourceLines": [
+        101,
+        127
+      ],
+      "meaning": "if(initial_hp) differential else detailHp full HP; zero is absent override"
+    }
+  },
+  "portrait": {
+    "key": "ol-sp-diao-chan",
+    "rootOwnedPngMainPath": "src/CardGame.Wpf/Assets/official-ol-sp-diao-chan.png",
+    "rootAssetStagePath": ".artifacts/continuation-20261003-batch17/batch39/root-source/preview/src/CardGame.Wpf/Assets/official-ol-sp-diao-chan.png",
+    "sha256": "775a63d79897d285fa852e34cd770c1b02fbd725835d788a335ac3d63d5739cc",
+    "authorDownloaded": false
+  },
+  "engineeringDefaults": [
+    "Return from HE rather than only Hand because the current text says cards.",
+    "Insufficient transferable HE returns all available, minimum HP is zero.",
+    "The same actual phase issued fact survives source loss and later ResetSkill ordinary usage clearing.",
+    "Equipped fixed general weapons are not transferable, since the mature movement primitive returns them OutsideGame.",
+    "Self-target same-Hand selections are no-op fulfillment; selected Equipment is a real Equipment-to-Hand transfer and its removal children cannot raise the frozen HP invoice.",
+    "A true Completed/Finished/GameEnded terminal state closes each unpaid issued liability as game-end without transfer. Only this producer retains paid movement/identity diagnostics; an unfinished Choosing draft and a normal physically paid MovementChildren receipt remain distinct."
+  ],
+  "authorHttpRequests": 0,
+  "otherVariantSubstitution": false,
+  "runtimeVerified": false,
+  "sourceMetadataCompleteness": "current skills and metadata evidence identified; root owns final portrait/catalog integration, author static source review alone does not claim final loader or implementation acceptance"
+}

@@ -1,0 +1,86 @@
+[
+  {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/10900.png",
+    "stem": "109-cover",
+    "extension": "png",
+    "advertisedBy": "docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-109-info.raw.json data.info[0].cover",
+    "method": "GET",
+    "rawPath": "109-cover.raw.png",
+    "headersPath": "109-cover.headers.txt",
+    "startedUtc": "2026-10-04T21:02:13.077166+00:00",
+    "redirectsFollowed": false,
+    "retries": 0,
+    "finishedUtc": "2026-10-04T21:02:13.311001+00:00",
+    "httpStatus": "200",
+    "curlExitCode": 0,
+    "error": "",
+    "rawBytes": 907153,
+    "rawSha256": "775a63d79897d285fa852e34cd770c1b02fbd725835d788a335ac3d63d5739cc",
+    "pngDimensions": [
+      750,
+      950
+    ]
+  },
+  {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11000.png",
+    "stem": "110-cover",
+    "extension": "png",
+    "advertisedBy": "docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-110-info.raw.json data.info[0].cover",
+    "method": "GET",
+    "rawPath": "110-cover.raw.png",
+    "headersPath": "110-cover.headers.txt",
+    "startedUtc": "2026-10-04T21:02:13.312645+00:00",
+    "redirectsFollowed": false,
+    "retries": 0,
+    "finishedUtc": "2026-10-04T21:02:13.500935+00:00",
+    "httpStatus": "200",
+    "curlExitCode": 0,
+    "error": "",
+    "rawBytes": 1119577,
+    "rawSha256": "85cf05ac77e20929ee445173b726502fddf318da78fb3e4dd78fb3533db5e2a5",
+    "pngDimensions": [
+      750,
+      950
+    ]
+  },
+  {
+    "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11900.png",
+    "stem": "119-cover",
+    "extension": "png",
+    "advertisedBy": "docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-119-info.raw.json data.info[0].cover",
+    "method": "GET",
+    "rawPath": "119-cover.raw.png",
+    "headersPath": "119-cover.headers.txt",
+    "startedUtc": "2026-10-04T21:02:13.502785+00:00",
+    "redirectsFollowed": false,
+    "retries": 0,
+    "finishedUtc": "2026-10-04T21:02:13.640362+00:00",
+    "httpStatus": "200",
+    "curlExitCode": 0,
+    "error": "",
+    "rawBytes": 1112056,
+    "rawSha256": "19f42e5f117e49c59b61e6d0ef44d2e28b74da0e57b70acffb59b88b4be62175",
+    "pngDimensions": [
+      750,
+      950
+    ]
+  },
+  {
+    "url": "https://www.sanguosha.com/assets/js/heroDetail.js?1",
+    "stem": "current-heroDetail",
+    "extension": "js",
+    "advertisedBy": "docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-109-page.raw.html:515",
+    "method": "GET",
+    "rawPath": "current-heroDetail.raw.js",
+    "headersPath": "current-heroDetail.headers.txt",
+    "startedUtc": "2026-10-04T21:02:13.642175+00:00",
+    "redirectsFollowed": false,
+    "retries": 0,
+    "finishedUtc": "2026-10-04T21:02:13.987137+00:00",
+    "httpStatus": "200",
+    "curlExitCode": 0,
+    "error": "",
+    "rawBytes": 15166,
+    "rawSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59"
+  }
+]

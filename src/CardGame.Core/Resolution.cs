@@ -116,7 +116,7 @@ public abstract record ResolutionFrame(
 }
 
 /// <summary>A resumable program cursor; child resolutions cannot repeat paid effects.</summary>
-public sealed record ProgramSkillFrame(
+public sealed partial record ProgramSkillFrame(
     long Id,
     int OwnerSeat,
     string SkillId,
@@ -373,6 +373,8 @@ public sealed record ProgramSkillFrame(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramHalfHandGiftPayment? HalfHandGift { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPhaseHandExchangeReceipt? PhaseHandExchange { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPhaseHandDebtPayment? PhaseHandDebtPayment { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPhaseHandSeizureReceipt? PhaseHandSeizure { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPhaseHandDebtReturnReceipt? PhaseHandDebtReturn { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramHalfHandSupportPayment? HalfHandSupport { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPairObtainDraft? PairObtain { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramShownPairGiftReceipt? ShownPairGift { get; init; }
@@ -383,6 +385,8 @@ public sealed record ProgramSkillFrame(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramCappedConversionBenefitReceipt? CappedConversionBenefit { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public UniqueHpPeerReceipt? UniqueHpPeer { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public RecipientContestReceipt? RecipientContest { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public BlackGiftContestReceipt? BlackGiftContest { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public PrintedLordBenefitReceipt? PrintedLordBenefit { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public SlashTargetPenaltyDraft? SlashTargetPenaltyDraft { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public HpLossSlashSelection? HpLossSlashSelection { get; init; }
     public bool ReexecuteParticipantInstruction { get; init; }
@@ -594,6 +598,7 @@ public sealed record CardUseFrame(
     public FireAttackSelectionState? FireAttackSelection { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ColorFireAttackReceipt? ColorFireAttack { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public OrdinaryTrickCannotNullifyReceipt? OrdinaryTrickCannotNullify { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public SequentialTrickUse? SequentialTrick { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -634,7 +639,7 @@ public enum JudgmentContinuationKind
     Lightning
 }
 
-public sealed record JudgmentFrame(
+public sealed partial record JudgmentFrame(
     long Id,
     long ParentFrameId,
     int TargetSeat,

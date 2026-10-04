@@ -36,9 +36,12 @@ public sealed partial class GameEngine
             case CardDeclarationFrame: ContinueCardDeclaration(frameId); break;
             case CardDeclarationChallengeFrame: ContinueCardDeclarationChallenge(frameId); break;
             case ProgramSkillFrame:
+                if (ResumePhaseHandSeizure(frameId)) return;
+                if (ResumeSourceCurse(frameId)) return;
                 if (ResumePrivateOffer(frameId) || ResumeGameHandHp(frameId)) return;
                 if (ResumeFireTargetBenefit(frameId) || ResumeNamedCardAcquisition(frameId)) return;
                 if (ResumeUniqueHpPeer(frameId) || ResumeRecipientContest(frameId)) return;
+                if (ResumeBlackGiftContest(frameId) || ResumePrintedLordBenefit(frameId)) return;
                 if (ResumeDyingSuits(frameId) || ResumeEndingHistoricalUses(frameId)) return;
                 if (ResumeCappedConversionBenefit(frameId)) return;
                 if (ResumeEndingPairOrSlashRecast(frameId)) return;
@@ -361,6 +364,7 @@ public sealed partial class GameEngine
 
 
         if (TryAdvanceDyingSuitsSubtree()) return;
+        if (TryAdvanceRecipientConsequencesSubtree()) return;
         if (TryAdvanceOwnedDeathBenefitSubtree()) return;
         if (TryAdvanceDynamicDiscardDamageSubtree()) return;
         if (TryAdvanceSignedDamagePaymentSubtree()) return;
@@ -771,12 +775,15 @@ public sealed partial class GameEngine
     private void ReturnRuntimeProgramMovement(long frameId)
     {
         var frame = GetActiveProgramFrame(frameId);
+        if (ReturnPhaseHandSeizureMovement(frame)) return;
+        if (ReturnSourceCurseMovement(frame)) return;
         if (ReturnPrivateOfferMovement(frame) || ReturnGameTargetHandHpMovement(frame)) return;
         if (ReturnLostHpChainedMovement(frame) || ReturnFireTargetBenefitMovement(frame) || ReturnNamedCardAcquisitionMovement(frame)) return;
         if (ReturnConditionalDuelMovement(frame)) return;
         if (ReturnInspectedHandMovement(frame)) return;
         if (ReturnPlacedEquipmentMovement(frame)) return;
         if (ReturnRecipientContestMovement(frame)) return;
+        if (ReturnRecipientConsequencesMovement(frame)) return;
         if (ReturnCappedConversionBenefitMovement(frame)) return;
         if (ReturnDyingSuitsMovement(frame)) return;
         if (ReturnCapturedEquipmentOrDiscardMovement(frame)) return;

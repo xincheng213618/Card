@@ -104,7 +104,7 @@ public sealed partial class GameEngine
             conversionChain.AddRange(additionalConversions);
         }
         ConsumeProgramViewAsUsage(conversionChain);
-        var trackAppearance = TracksOwnPlayHistory || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) || HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard) || TracksPaidColorUseAppearance(actorSeat, effectiveKind, conversionChain) || HasSameTypeActualUseAid && IsSameTypeAidEffectiveCard(effectiveKind) || HasComparedBlackSlashPolicies && IsSlashCard(effectiveKind);
+        var trackAppearance = HasSourceCurseActionColors || TracksOwnPlayHistory || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) || HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard) || TracksPaidColorUseAppearance(actorSeat, effectiveKind, conversionChain) || HasSameTypeActualUseAid && IsSameTypeAidEffectiveCard(effectiveKind) || HasComparedBlackSlashPolicies && IsSlashCard(effectiveKind);
         return CaptureFactionAction(new CardActionContext(++_cardActionSequence,
             _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
             CardActionType.Use, actorSeat, provider, provider == actorSeat ? null : actorSeat,
@@ -348,6 +348,12 @@ public sealed partial class GameEngine
                 };
                 var context = CreateCardActionProgramContext(action, window, parentFrameId: 0,
                     owner.Seat, eventTarget, facts) with { OptionalChooserSeat = rewardChooser };
+                if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DrawForSourceCurseUse))
+                {
+                    var curse = EligibleSourceCurseUse(owner.Seat, binding.SkillId, binding.SkillInstanceId, action, trigger.Effects.Single());
+                    if (window != SkillProgramTriggerWindow.CardUseCommitted || curse is null) continue;
+                    context = context with { SourceCurseUse = new(curse, action.ActionId, action.ActorSeat, action.EffectiveIsRed) };
+                }
                 result.Add(new(owner.Seat, eventTarget, binding.SkillId, trigger.Id,
                     binding.Program.GameplayHash, binding.SkillInstanceId, trigger.Priority, context));
             }

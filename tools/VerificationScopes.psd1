@@ -2,6 +2,7 @@
     # Routine checks use existing name filters; each runner executes their union once.
     # Full validation retains every registration, including individual content scenarios.
     Core = @(
+        'Phase hand seizure:', 'RecipientContestConsequences',
         'command', 'observer', 'viewer', 'prepared snapshot', 'internal failure',
         'skill program', 'lifecycle programs', 'shared post-event', 'Phase hand extra turn',
         'Actual draw obligation', 'Owned damage point judgment',

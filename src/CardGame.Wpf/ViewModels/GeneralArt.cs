@@ -242,6 +242,10 @@ public static class GeneralArt
             // Official artwork URL and hash: docs/content/sources/boundary-cao-ren-2026-10-05.json.
             ["cao-ren"] = "official-cao-ren-jie.png",
             // Official artwork URL and hash: docs/content/sources/ol-yi-ji-2026-10-05.json.
+            // Current OL source and original portraits: docs/content/sources/ordinary-other-thirty-ninth-metadata-and-art.json.
+            ["ol-sp-diao-chan"] = "official-ol-sp-diao-chan.png",
+            ["ol-sp-jia-xu"] = "official-ol-sp-jia-xu.png",
+            ["ol-zhang-bao"] = "official-ol-zhang-bao.png",
             ["ol-yi-ji"] = "official-ol-yi-ji.png",
             // Official artwork URL and hash: docs/content/sources/ol-huang-zu-2026-10-05.json.
             ["ol-huang-zu"] = "official-ol-huang-zu.png",

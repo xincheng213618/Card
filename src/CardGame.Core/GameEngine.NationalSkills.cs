@@ -41,14 +41,16 @@ public sealed partial class GameEngine
     /// after game start use their own future grant source and deliberately do
     /// not pass through this printed-skill restriction.
     /// </summary>
-    private bool CanOwnPrintedSkill(CharacterState player, SkillTag tags) =>
-        !tags.HasFlag(SkillTag.Lord) ||
-        player.Role == Role.Lord;
+    private bool CanOwnPrintedSkill(CharacterState player, GeneralDefinition general, GeneralSkillDefinition skill) =>
+        !skill.Tags.HasFlag(SkillTag.Lord) || player.Role == Role.Lord ||
+        player.SkillGrants.Grants.Any(g => g.SkillId == skill.ContentId &&
+            g.SourceId == (general.Id == player.General.Id ? CharacterState.PrimarySkillSource : CharacterState.SecondarySkillSource) &&
+            IsPrintedLordGrantQualified(player, g));
 
     private IEnumerable<GeneralSkillDefinition> OwnedPrintedSkills(
         CharacterState player,
         GeneralDefinition general) =>
-        general.Skills.Where(skill => CanOwnPrintedSkill(player, skill.Tags) &&
+        general.Skills.Where(skill => CanOwnPrintedSkill(player, general, skill) &&
             IsEnabledTemplateSkill(player, general, skill.ContentId));
 
     private bool IsEnabledTemplateSkill(CharacterState player, GeneralDefinition general, string? skillId)
@@ -111,7 +113,7 @@ public sealed partial class GameEngine
         GeneralDefinition general)
     {
         var emitted = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var skill in general.Skills.Where(skill => CanOwnPrintedSkill(player, skill.Tags) &&
+        foreach (var skill in general.Skills.Where(skill => CanOwnPrintedSkill(player, general, skill) &&
                      IsEnabledTemplateSkill(player, general, skill.ContentId)))
         {
             if (skill.ContentId is null || emitted.Add(skill.ContentId)) yield return skill;
@@ -155,7 +157,7 @@ public sealed partial class GameEngine
         GetSkillBindingShard(player).HasInstance(skillId, skillInstanceId);
 
     private string GetRuntimeSkillInstanceId(CharacterState player, string skillId) =>
-        EnabledRuntimeSkillGrants(player)
+        PreferredQualifiedPrintedLordInstance(player, skillId) ?? EnabledRuntimeSkillGrants(player)
             .Where(grant => grant.SkillId == skillId)
             .OrderBy(grant => grant.SkillInstanceId, StringComparer.Ordinal)
             .Select(grant => grant.SkillInstanceId)

@@ -52,7 +52,7 @@ public sealed partial class GameEngine
                 (effects & (int)DelayedTurnEffects.SkipDrawPhase) != 0 || frame.Continuation != ProgramLifecycleContinuation.CompleteDrawPhaseEnded) ||
             frame.Window != SkillProgramTriggerWindow.DrawPhaseEnded && frame.DrawPhaseEndedDelayedEffects is not null)
             throw new InvalidOperationException("Draw end continuation must describe an actual completed draw phase.");
-        if (frame.Window == SkillProgramTriggerWindow.PlayEnding && _phase != TurnPhase.Play)
+        if (frame.Window == SkillProgramTriggerWindow.PlayEnding && _phase != TurnPhase.Play && !IsTerminalPhaseHandDebtBoundary(frame))
             throw new InvalidOperationException("A PlayEnding lifecycle frame must remain in its Play phase.");
         if (frame.Window is (SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded) && _phase != TurnPhase.Draw)
@@ -594,6 +594,7 @@ public sealed partial class GameEngine
         var drawCount = numberExpression switch
         {
             null => amount,
+            SkillProgramNumberExpression.CurrentHandEmptyTwoOtherwiseOne => GetHand(target).Count == 0 ? 2 : 1,
             SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount => CurrentTurnCategoryDrawCount(frame, targetSeat),
             SkillProgramNumberExpression.CategoryTargetTurnUsage => GetProgramCategoryTargetTurnUsage(frame),
             SkillProgramNumberExpression.SelectedTargetsHandGreaterThanLord => CountSelectedTargetsHandGreaterThanLord(frame),
@@ -1784,6 +1785,7 @@ public sealed partial class GameEngine
                 binding.Program.GameplayHash,
                 binding.Trigger.Priority,
                 occurrenceIndex))
+            .Concat(IssuedPhaseHandDebtCandidates(owner, window, occurrenceIndex))
             .DistinctBy(candidate => (candidate.SkillId, candidate.BindingId,
                 GetProgramTrigger(candidate).NamedUsageGroup is not null || GetProgramTrigger(candidate).DynamicUsageLimit is not null || GetProgramTrigger(candidate).Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardHandToNamedTurnCount) ? "" : candidate.SkillInstanceId))
             .ToArray();
@@ -1801,7 +1803,7 @@ public sealed partial class GameEngine
             .Where(candidate =>
             {
                 var trigger = GetProgramTrigger(candidate);
-                return !trigger.DeferredTurnEndOnly && (trigger.EvaluateConditionAtResolution || trigger.Condition.Evaluate(facts, candidate.SkillId, candidate.SkillInstanceId)) &&
+                return !trigger.DeferredTurnEndOnly && (!IsPhaseHandDebtResolver(candidate) || CurrentPhaseHandSeizureDebt(candidate.OwnerSeat, candidate.SkillId, candidate.SkillInstanceId, candidate.GameplayHash, candidate.BindingId) is not null) && (trigger.EvaluateConditionAtResolution || trigger.Condition.Evaluate(facts, candidate.SkillId, candidate.SkillInstanceId)) &&
                     HasInitialOwnedCardSelectionCandidates(owner, trigger);
             })
             .ToArray();
@@ -1830,6 +1832,7 @@ public sealed partial class GameEngine
         ProgramSkillWindowContext context)
     {
         if (!IsValidPlayerSeat(candidate.OwnerSeat) || candidate.OwnerSeat != context.OwnerSeat) return false;
+        if (IsPhaseHandDebtResolver(candidate)) return CanRunIssuedPhaseHandDebt(candidate, context);
         if (IsDeferredPrivateOfferResolver(candidate)) return CanRunDeferredPrivateOffer(candidate, context);
         if (context.Window == SkillProgramTriggerWindow.ActualSlashTargetPenalty) return CanRunSlashTargetPenalty(candidate, context);
         if (IsSlashTargetBenefitWindow(context.Window)) return CanRunSlashTargetBenefitCandidate(candidate, context);
@@ -1845,11 +1848,13 @@ public sealed partial class GameEngine
         if (!CanRunTurnDrawDebtPayment(candidate, trigger, context) || !CanRunSourceFactionPrevention(candidate, trigger, context)) return false;
         if (!CanRunDyingSuitsAndEndingHistory(candidate, trigger, context)) return false;
         if (!CanRunDyingOwnedCard(candidate, trigger, context)) return false;
+        if (!CanRunSourceCurseTrigger(candidate, trigger, context)) return false;
         if (!CanRunFireTargetBenefit(candidate, trigger, context)) return false;
         if (!CanRunPaidColorDamageClaim(candidate, trigger, context)) return false;
         if (!CanRunSameTypeAid(candidate, trigger, context)) return false;
         if (!CanRunPrepDiscard(candidate, trigger, context)) return false;
         if (!CanRunUniqueHpPeer(candidate, trigger, context)) return false;
+        if (!CanRunRecipientConsequences(candidate, trigger)) return false;
         if (!CanRunHalfHandPhaseDebt(candidate, trigger, context)) return false;
         if (!CanRunFixedRecipientBenefit(candidate, trigger, context)) return false;
         if (!CanRunEndingPair(candidate, trigger, context)) return false;
@@ -2936,6 +2941,9 @@ public sealed partial class GameEngine
                     case ProgramLifecycleContinuation.CompletePlayPhase:
                         CompletePlayPhaseAfterProgramWindow();
                         break;
+                    case ProgramLifecycleContinuation.CompletePhaseHandDebtForcedEnd:
+                        EndTurn();
+                        break;
                     case ProgramLifecycleContinuation.CompleteJudgmentPhaseStarting:
                         CompleteActualJudgmentStarting(frame);
                         break;
@@ -3135,6 +3143,8 @@ public sealed partial class GameEngine
         if (selected?.Parameters.GetValueOrDefault("program-action") == "diamond-delayed" && !IsDiamondDelayedChoiceLegal(selected))
             return Reject(CommandErrorCode.InvalidChoice, "The diamond delayed payment or target is no longer legal.");
         if (selected is null) return Reject(CommandErrorCode.InvalidChoice, "The program choice is unavailable.");
+        if (selected.Parameters.GetValueOrDefault("program-action") == "phase-hand-debt-return" && !IsPhaseHandDebtChoiceLegal(selected))
+            return Reject(CommandErrorCode.InvalidChoice, "The issued phase-hand return is no longer legal.");
         if (selected.Parameters.GetValueOrDefault("program-action") is "alternative-phase-cost-card" or "alternative-phase-cost-marker" && !IsAlternativePhaseCostChoiceLegal(selected))
             return Reject(CommandErrorCode.InvalidChoice, "The alternative phase cost is no longer payable.");
         if (selected.Parameters.GetValueOrDefault("program-action") == "slash-suit-discard" && !IsProgramSlashSuitDiscardChoiceLegal(selected))
@@ -3152,6 +3162,7 @@ public sealed partial class GameEngine
 
     private void ResolveProgramTriggerChoice(PromptChoice selected)
     {
+        if (selected.Parameters.GetValueOrDefault("program-action") == "phase-hand-debt-return") { ResolvePhaseHandDebtChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "dynamic-discard-damage") { ResolveDynamicDiscardDamageChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") is "alternative-phase-cost-card" or "alternative-phase-cost-marker")
         { ResolveAlternativePhaseCost(selected); return; }
@@ -3179,6 +3190,8 @@ public sealed partial class GameEngine
         if (selected.Parameters.GetValueOrDefault("program-action") == "half-hand-support") { ResolveHalfHandSupportChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "unique-hp-peer") { ResolveUniqueHpPeerChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "recipient-contest") { ResolveRecipientContestChoice(selected); return; }
+        if (selected.Parameters.GetValueOrDefault("program-action") == "black-gift-contest") { ResolveBlackGiftChoice(selected); return; }
+        if (selected.Parameters.GetValueOrDefault("program-action") == "printed-lord-benefit") { ResolvePrintedLordChoice(selected); return; }
         var action = selected.Parameters.GetValueOrDefault("program-action");
         if (action == "relative-zone-target") { ResolveRelativeZoneTarget(selected); return; }
         if (action == "deck-end-exchange") { ResolveDeckEndChoice(selected); return; }
@@ -4146,6 +4159,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.CompareSelectedHandWithHpHand => decision.Choices[0],
                 SkillProgramEffectOp.OfferFaceUpForOutsideClaims => decision.Choices[0],
                 SkillProgramEffectOp.ChooseOption => SelectAiProgramOption(decision, frame),
+                SkillProgramEffectOp.ReturnIssuedPhaseHandDebt => SelectAiPhaseHandDebt(decision, frame),
                 SkillProgramEffectOp.OfferHalfHandRecipientSupport => SelectAiHalfHandSupport(decision, frame),
                 SkillProgramEffectOp.ObtainOneFromEachSelectedTarget or SkillProgramEffectOp.GiveShownCardToLeastOriginalTarget => SelectAiPairBenefit(decision, frame),
                 SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected =>
@@ -4163,6 +4177,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.ChooseOwnCardDiscard =>
                     SelectAiProgramOwnCardDiscard(decision, frame),
                 SkillProgramEffectOp.DiscardDrawAndOfferUniqueHpPeer or SkillProgramEffectOp.GiveAllHandAndStartRecipientPindian => SelectAiRecipientContest(decision, frame),
+                SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest or SkillProgramEffectOp.RaiseMaximumRecoverAndQualifyPrintedLord => SelectAiRecipientConsequences(decision, frame),
                 SkillProgramEffectOp.SelectEquipmentPairAndPayment => SelectAiEquipmentPairPayment(decision, frame),
                 SkillProgramEffectOp.SelectDyingOwnedCard => SelectAiDyingOwnedCard(decision),
                 SkillProgramEffectOp.SelectOwnedCards or SkillProgramEffectOp.ResolveDeferredHandAlignment or SkillProgramEffectOp.SelectTurnDamageUseDebtPayment or SkillProgramEffectOp.SelectFrozenHandExchangeDebtPayment => SelectAiProgramOwnedCards(decision, frame),

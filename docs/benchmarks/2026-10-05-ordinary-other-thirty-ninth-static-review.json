@@ -1,0 +1,1670 @@
+{
+  "status": "source-static-reviewed-runtime-unverified",
+  "authorBaseHead": "ee8e85229c5e3d11efb414b0be4f12c97386525b",
+  "integrationParentHead": "f928a513817a2e641250e351e03d15c1f22fd6e4",
+  "reviewedSourceManifestSha256": "3e1a120f980e8384850ec40aca7a62d3b7b0e38f20da3d235f34e71d50154b51",
+  "generals": [
+    {
+      "gid": 109,
+      "generalId": "ol:sp-diao-chan",
+      "skillIds": [
+        "ol:lihun",
+        "ol:biyue"
+      ],
+      "exactOfficialDescriptions": true,
+      "portraitAsset": "src/CardGame.Wpf/Assets/official-ol-sp-diao-chan.png",
+      "portraitSha256": "775a63d79897d285fa852e34cd770c1b02fbd725835d788a335ac3d63d5739cc",
+      "portraitDimensions": [
+        750,
+        950
+      ],
+      "faction": "qun",
+      "maximumHp": 3,
+      "initialHpOverride": null,
+      "gender": "Female",
+      "structuredOfficialGenderField": false,
+      "genderAuthority": "Editorial inference from the current official biography using explicit female family terms yi-nu and qie; structured API gender is absent.",
+      "currentApiFactionConfirmed": true,
+      "sourcePageSha256": "b5f62ff2fdd1742a3f89861a264801bd6cf32357f5cbcb1ff4b6130beaa74425",
+      "sourceInfoSha256": "ed74457c7dab3ec4f39a453ab7072c01e1aa2be82c2ab985acb80c5f9a0108b8"
+    },
+    {
+      "gid": 110,
+      "generalId": "ol:sp-jia-xu",
+      "skillIds": [
+        "ol:zhenlue",
+        "ol:jianshu",
+        "ol:yongdi"
+      ],
+      "exactOfficialDescriptions": true,
+      "portraitAsset": "src/CardGame.Wpf/Assets/official-ol-sp-jia-xu.png",
+      "portraitSha256": "85cf05ac77e20929ee445173b726502fddf318da78fb3e4dd78fb3533db5e2a5",
+      "portraitDimensions": [
+        750,
+        950
+      ],
+      "faction": "wei",
+      "maximumHp": 3,
+      "initialHpOverride": null,
+      "gender": "Male",
+      "structuredOfficialGenderField": false,
+      "genderAuthority": "Editorial metadata choice for the same historical Jia Xu identity, consistent with the existing classic/boundary character metadata and current official portrait; structured API gender is absent.",
+      "currentApiFactionConfirmed": true,
+      "sourcePageSha256": "3147c1450f5126a3861d8ed24c3ab18bb82d37f1c38554723e764d4d6737d864",
+      "sourceInfoSha256": "f1ebf400f1bdad03f8e593fcf8bc1a1a77239f9bf7a4fc2a9fbcfde65b01b82e"
+    },
+    {
+      "gid": 119,
+      "generalId": "ol:zhang-bao",
+      "skillIds": [
+        "ol:zhoufu",
+        "ol:yingbing"
+      ],
+      "exactOfficialDescriptions": true,
+      "portraitAsset": "src/CardGame.Wpf/Assets/official-ol-zhang-bao.png",
+      "portraitSha256": "19f42e5f117e49c59b61e6d0ef44d2e28b74da0e57b70acffb59b88b4be62175",
+      "portraitDimensions": [
+        750,
+        950
+      ],
+      "faction": "qun",
+      "maximumHp": 3,
+      "initialHpOverride": null,
+      "gender": "Male",
+      "structuredOfficialGenderField": false,
+      "genderAuthority": "Editorial inference from the current official biography explicitly identifying Zhang Jiao younger brother and Zhang Liang elder brother; structured API gender is absent.",
+      "currentApiFactionConfirmed": true,
+      "sourcePageSha256": "ac8ffd1ad4eb498607e248ed7d6db815cc1561389a7bd526d293338ca5734881",
+      "sourceInfoSha256": "18093e6c76e8c1219b4934eed0e0b2fe5e280d23517c08fd058dc9398ac9c370"
+    }
+  ],
+  "skillCount": 7,
+  "sourceVerification": {
+    "scope": "Python static JSON/string/hash/PNG-header checks; no production loader, C#, AI, UI or tests",
+    "currentRuleEvidence": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-current-source.json",
+    "currentRuleEvidenceSha256": "0c4103d3f036f49d46d4692bf1852ae9b06dd2feca023614fc305e4595b0ffe2",
+    "metadataEvidenceSha256": "ed825cd9d33d9bcc5ebc8827752433e80ac058775349cfa48060ca62f5c76052",
+    "characters": [
+      {
+        "gid": 109,
+        "generalId": "ol:sp-diao-chan",
+        "skillIds": [
+          "ol:lihun",
+          "ol:biyue"
+        ],
+        "exactOfficialDescriptions": true,
+        "portraitAsset": "src/CardGame.Wpf/Assets/official-ol-sp-diao-chan.png",
+        "portraitSha256": "775a63d79897d285fa852e34cd770c1b02fbd725835d788a335ac3d63d5739cc",
+        "portraitDimensions": [
+          750,
+          950
+        ],
+        "faction": "qun",
+        "maximumHp": 3,
+        "initialHpOverride": null,
+        "gender": "Female",
+        "structuredOfficialGenderField": false,
+        "genderAuthority": "Editorial inference from the current official biography using explicit female family terms yi-nu and qie; structured API gender is absent.",
+        "currentApiFactionConfirmed": true,
+        "sourcePageSha256": "b5f62ff2fdd1742a3f89861a264801bd6cf32357f5cbcb1ff4b6130beaa74425",
+        "sourceInfoSha256": "ed74457c7dab3ec4f39a453ab7072c01e1aa2be82c2ab985acb80c5f9a0108b8"
+      },
+      {
+        "gid": 110,
+        "generalId": "ol:sp-jia-xu",
+        "skillIds": [
+          "ol:zhenlue",
+          "ol:jianshu",
+          "ol:yongdi"
+        ],
+        "exactOfficialDescriptions": true,
+        "portraitAsset": "src/CardGame.Wpf/Assets/official-ol-sp-jia-xu.png",
+        "portraitSha256": "85cf05ac77e20929ee445173b726502fddf318da78fb3e4dd78fb3533db5e2a5",
+        "portraitDimensions": [
+          750,
+          950
+        ],
+        "faction": "wei",
+        "maximumHp": 3,
+        "initialHpOverride": null,
+        "gender": "Male",
+        "structuredOfficialGenderField": false,
+        "genderAuthority": "Editorial metadata choice for the same historical Jia Xu identity, consistent with the existing classic/boundary character metadata and current official portrait; structured API gender is absent.",
+        "currentApiFactionConfirmed": true,
+        "sourcePageSha256": "3147c1450f5126a3861d8ed24c3ab18bb82d37f1c38554723e764d4d6737d864",
+        "sourceInfoSha256": "f1ebf400f1bdad03f8e593fcf8bc1a1a77239f9bf7a4fc2a9fbcfde65b01b82e"
+      },
+      {
+        "gid": 119,
+        "generalId": "ol:zhang-bao",
+        "skillIds": [
+          "ol:zhoufu",
+          "ol:yingbing"
+        ],
+        "exactOfficialDescriptions": true,
+        "portraitAsset": "src/CardGame.Wpf/Assets/official-ol-zhang-bao.png",
+        "portraitSha256": "19f42e5f117e49c59b61e6d0ef44d2e28b74da0e57b70acffb59b88b4be62175",
+        "portraitDimensions": [
+          750,
+          950
+        ],
+        "faction": "qun",
+        "maximumHp": 3,
+        "initialHpOverride": null,
+        "gender": "Male",
+        "structuredOfficialGenderField": false,
+        "genderAuthority": "Editorial inference from the current official biography explicitly identifying Zhang Jiao younger brother and Zhang Liang elder brother; structured API gender is absent.",
+        "currentApiFactionConfirmed": true,
+        "sourcePageSha256": "ac8ffd1ad4eb498607e248ed7d6db815cc1561389a7bd526d293338ca5734881",
+        "sourceInfoSha256": "18093e6c76e8c1219b4934eed0e0b2fe5e280d23517c08fd058dc9398ac9c370"
+      }
+    ],
+    "skillCount": 7,
+    "oldArtEntriesPreserved": 243,
+    "threeNewOriginalPortraits": true,
+    "runtimeAcceptance": false
+  },
+  "versions": {
+    "rules": 196,
+    "schema": 62,
+    "package": "1, 164, 0"
+  },
+  "epochDecision": "Source review found no difference in old paths for existing content fingerprints. New operations, receipts and optional printed-grant qualification are reached through new content/capabilities; the rules epoch is retained. Existing enum members and marker-free qualification behavior are preserved by source review. No runtime replay proof was executed.",
+  "enumScope": "enum declarations in the changed C# preview files only",
+  "oldEnumMembersPreserved": 943,
+  "staticAuditProof": {
+    "stagePath": ".artifacts/continuation-20261003-batch17/batch39/root-integration/static-audit.json",
+    "sha256": "f58e69b3c199d603b322a1168cf227740db9239433f9a46b496123c83098a3d8",
+    "inputManifestSha256": "3e1a120f980e8384850ec40aca7a62d3b7b0e38f20da3d235f34e71d50154b51"
+  },
+  "enumAdditions": [
+    {
+      "repoPath": "src/CardGame.Core/ProgramLifecycle.cs",
+      "enum": "ProgramLifecycleContinuation",
+      "oldMemberCount": 15,
+      "newMembers": {
+        "CompletePhaseHandDebtForcedEnd": 8007
+      }
+    },
+    {
+      "repoPath": "src/CardGame.Core/ProgramPhaseHandSeizureOperations.cs",
+      "enum": "PhaseHandSeizureStage",
+      "oldMemberCount": 0,
+      "newMembers": {
+        "PaymentChildren": 8002,
+        "FlipChildren": 8003,
+        "TakeChildren": 8004
+      }
+    },
+    {
+      "repoPath": "src/CardGame.Core/ProgramPhaseHandSeizureOperations.cs",
+      "enum": "PhaseHandDebtReturnStage",
+      "oldMemberCount": 0,
+      "newMembers": {
+        "Choosing": 8005,
+        "MovementChildren": 8006
+      }
+    },
+    {
+      "repoPath": "src/CardGame.Core/ProgramRecipientContestConsequences.cs",
+      "enum": "BlackGiftContestStage",
+      "oldMemberCount": 0,
+      "newMembers": {
+        "GiftPaid": 0,
+        "ChoosingSecond": 1,
+        "Pindian": 2,
+        "ChoosingDiscard": 3,
+        "DiscardPaid": 4,
+        "LossReady": 5,
+        "LossPaid": 6,
+        "Complete": 7
+      }
+    },
+    {
+      "repoPath": "src/CardGame.Core/ProgramRecipientContestConsequences.cs",
+      "enum": "PrintedLordBenefitStage",
+      "oldMemberCount": 0,
+      "newMembers": {
+        "ChoosingBeneficiary": 0,
+        "MaximumPaid": 1,
+        "RecoveryPaid": 2,
+        "Qualifying": 3,
+        "Complete": 4
+      }
+    },
+    {
+      "repoPath": "src/CardGame.Core/ProgramSourceCurses.cs",
+      "enum": "SourceCurseStage",
+      "oldMemberCount": 0,
+      "newMembers": {
+        "DepositChildren": 0,
+        "DrawChildren": 1,
+        "ObtainChildren": 2,
+        "LossHpChildren": 3
+      }
+    },
+    {
+      "repoPath": "src/CardGame.Core/SkillProgramCardPolicies.cs",
+      "enum": "SkillProgramCardPolicyKind",
+      "oldMemberCount": 62,
+      "newMembers": {
+        "CannotNullifyOwnOrdinaryTrick": 8102
+      }
+    },
+    {
+      "repoPath": "src/CardGame.Core/SkillPrograms.cs",
+      "enum": "SkillProgramEffectOp",
+      "oldMemberCount": 364,
+      "newMembers": {
+        "DepositSelectedSourceCurse": 8200,
+        "DrawForSourceCurseUse": 8201,
+        "LoseHpForLostSourceCurses": 8202,
+        "DiscardTurnOverAndTakeHand": 8000,
+        "ReturnIssuedPhaseHandDebt": 8001,
+        "GiveBlackHandAndResolveRecipientContest": 8100,
+        "RaiseMaximumRecoverAndQualifyPrintedLord": 8101
+      }
+    },
+    {
+      "repoPath": "src/CardGame.Core/SkillPrograms.cs",
+      "enum": "SkillProgramNumberExpression",
+      "oldMemberCount": 25,
+      "newMembers": {
+        "CurrentHandEmptyTwoOtherwiseOne": 8008
+      }
+    }
+  ],
+  "sourceFiles": [
+    {
+      "repoPath": "docs/content/general-art-catalog.json",
+      "beforeRawSha256": "d22f07d7ceea7b09734c1a04663b4c08388c858c34d850e1ae310ca18f1b1f79",
+      "afterRawSha256": "41382dc14425b14fff5f4f3726d1ece7f7a00a8f915707bee538cae1d0b910f3",
+      "authors": [
+        "root"
+      ]
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-ninth-109-cover.headers.txt",
+      "beforeRawSha256": null,
+      "afterRawSha256": "0e78d8d8b691c6a2a86fb04aca2efc6dcd2505c1852e958218324de0123a5787",
+      "authors": [
+        "root"
+      ]
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-ninth-110-cover.headers.txt",
+      "beforeRawSha256": null,
+      "afterRawSha256": "8b1ca6a2ccea39c4ed1e8ae2203427c057116b159f55b53347526acd629aabba",
+      "authors": [
+        "root"
+      ]
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-ninth-119-cover.headers.txt",
+      "beforeRawSha256": null,
+      "afterRawSha256": "be93019e5abc36cae6e057c4f8dc6a9ef90267ec3a849c321a138250805f5734",
+      "authors": [
+        "root"
+      ]
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-ninth-baseline.json",
+      "beforeRawSha256": null,
+      "afterRawSha256": "6b24d005f42bbe8257c8b1099b3cc85a71c5f88c3d7a5d4ab36f1cb38ea1a937",
+      "authors": [
+        "root"
+      ]
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-ninth-current-heroDetail.headers.txt",
+      "beforeRawSha256": null,
+      "afterRawSha256": "bc9f31ec73218083426783dc153e410886d5dd11a5e900c183a8abc76bacc324",
+      "authors": [
+        "root"
+      ]
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-ninth-current-heroDetail.raw.js",
+      "beforeRawSha256": null,
+      "afterRawSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+      "authors": [
+        "root"
+      ]
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-ninth-request-ledger.json",
+      "beforeRawSha256": null,
+      "afterRawSha256": "95cb50cfd6ea710b497c5021a0d83d231aad8af88ed29fe683ee49b8ea9c485f",
+      "authors": [
+        "root"
+      ]
+    },
+    {
+      "repoPath": "docs/content/sources/ordinary-other-thirty-ninth-metadata-and-art.json",
+      "beforeRawSha256": null,
+      "afterRawSha256": "ed825cd9d33d9bcc5ebc8827752433e80ac058775349cfa48060ca62f5c76052",
+      "authors": [
+        "root"
+      ]
+    },
+    {
+      "repoPath": "docs/content/sources/ordinary-sp-diao-chan-current-source.json",
+      "beforeRawSha256": null,
+      "afterRawSha256": "797c64734c2b33c9a47c53717b73a8c7c3d05081727b27885868de647cedae56",
+      "authors": [
+        "sp-diao-chan"
+      ]
+    },
+    {
+      "repoPath": "docs/content/sources/ordinary-sp-jia-xu-2026-10-05.json",
+      "beforeRawSha256": null,
+      "afterRawSha256": "1aaabb220f374bdb1ac25f8b9253e68ecd9193381eb2830d71c645810371178b",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Content.Standard/OrdinarySpDiaoChanContent.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "94fcfd43b59dc78af892e5bb527154f6dfd8c0c0b143d67606bff8e9917cf430",
+      "authors": [
+        "sp-diao-chan"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Content.Standard/OrdinarySpJiaXuContent.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "995c35e1a5a99efc123c9f120a2202b17ecb2e26d4233f725d8eb3072eecf3ff",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Content.Standard/OrdinaryZhangBaoContent.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "31faafac1bdafe4b398f6d23a4bc2b0fd260d5ecf30f121e0862c4b2d64a99d7",
+      "authors": [
+        "zhang-bao"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Content.Standard/SkillPrograms/ordinary-sp-diao-chan.presentation.json",
+      "beforeRawSha256": null,
+      "afterRawSha256": "39915cc853de5b91a26eeb3a19bca631e63f5356b1c276de2e5ba76129196a5b",
+      "authors": [
+        "sp-diao-chan"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Content.Standard/SkillPrograms/ordinary-sp-diao-chan.rules.json",
+      "beforeRawSha256": null,
+      "afterRawSha256": "cbd6d237471b91faba8f924fd6f57cef771ed78813ed9968a3092c472613028d",
+      "authors": [
+        "sp-diao-chan"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Content.Standard/SkillPrograms/ordinary-sp-jia-xu.presentation.json",
+      "beforeRawSha256": null,
+      "afterRawSha256": "a376d83f6623e4eba0dc1203d438dbfc98cca093ed314d353f194bf28cad5a6f",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Content.Standard/SkillPrograms/ordinary-sp-jia-xu.rules.json",
+      "beforeRawSha256": null,
+      "afterRawSha256": "15f0e183c4b133a87ec759614de6e57cfc77b9808a97488c0e321a9a28c11031",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Content.Standard/SkillPrograms/ordinary-zhang-bao.presentation.json",
+      "beforeRawSha256": null,
+      "afterRawSha256": "108df2239f97551fea35d22325203f189d298442ae1a8efddc604c9f1ed6ba57",
+      "authors": [
+        "zhang-bao"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Content.Standard/SkillPrograms/ordinary-zhang-bao.rules.json",
+      "beforeRawSha256": null,
+      "afterRawSha256": "2c40072cef93520626fb5d6b86cb409ca8c31b9e377723f3db682e25c6cb0afe",
+      "authors": [
+        "zhang-bao"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+      "beforeRawSha256": "dd8c5f7e6a7919588fa189473ee02cdc989abeccd0a43142c8fe48820f12b450",
+      "afterRawSha256": "6f0a1df7a4c76b56ea85928ac50f3975cbb1f0bab948417fc47fd9717281a430",
+      "authors": [
+        "root",
+        "preserved-concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/CharacterSkillSet.cs",
+      "beforeRawSha256": "9e4359331a32fce3a0af1c2a54dfcb33b8ac8315d0d8e5a68e77e24a16271603",
+      "afterRawSha256": "460aab47a44963a0495d5edcd5ac6285bfe8a0c986fa8717efdbaac70a3d3890",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/CharacterState.cs",
+      "beforeRawSha256": "4107a09930d4aeb6d234a078dc74be97adc6fcf119fef7324d3ea0775cc8ff8d",
+      "afterRawSha256": "f5b4e83a16852197da32ac5fe0bcdfab1b85eff87741ccad0d8d97fa1e76452c",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.AfterTurnEndedPrograms.cs",
+      "beforeRawSha256": "212176c83799c8d326a237b585d5fd477ded2abb2571d9fc26dd648c2b0b5402",
+      "afterRawSha256": "39fb7193ead40b817d09e06415a7d9428a786d9942a43240888be0ab97956d21",
+      "authors": [
+        "zhang-bao"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.BlackGiftContests.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "67369237df6ddf668122cca3b83122458c41a03b7d96a6e522d8a1f02d2a49cb",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.CardActions.cs",
+      "beforeRawSha256": "bf3eddb64908ecd5a7a352fa2cac4edbbf77b680b65d73329d8597e2c598aba4",
+      "afterRawSha256": "bdf84bd97d9f570562751f6011d19061216f8ceca79131d94cdeae612dd01530",
+      "authors": [
+        "zhang-bao"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.LordSkillProjections.cs",
+      "beforeRawSha256": "da85d3855e5114c25c900dffe9918dcbf731b180bb19815883671308fb417c5f",
+      "afterRawSha256": "20b7d5741286c5de218f27c2c566d7915fb195b865b898f2e6ea72d875ebcc3d",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.NationalSkills.cs",
+      "beforeRawSha256": "7f62375f9744c09596ca2365fe8212bd739293b033ebc34b6d33b20594a941ef",
+      "afterRawSha256": "681b56da053bf78045ca3c07f7a58af17dae4c49065b34d5b87ccbe1d9978efd",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.PhaseHandSeizure.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "b83e06d534e6d06209be056c0c9cca68f8881fce12f422924e9e06f3c49a8755",
+      "authors": [
+        "sp-diao-chan"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.PhaseHandSeizureObservers.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "f3ab29d0e1db2d48ce7e43c02dd968fb2aea373f771b8d44872f059ff66140e8",
+      "authors": [
+        "sp-diao-chan"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.PhaseHandSeizureReceipts.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "0715e4d0cadd113d89bc556eaa50c11ce4df71754b1c2ccee96c9de0dcd2c5ac",
+      "authors": [
+        "sp-diao-chan"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.PrintedLordBenefits.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "895ab3068fda7a7d2c997ac15f8532666ac5b0aa137892dbfb5fbbf0bee76ef0",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.PrivateGeneralLibraries.cs",
+      "beforeRawSha256": "115deb5276a757a3ecf47d6799e230bff053f362814b44ef465804c50587259d",
+      "afterRawSha256": "1f4c705f36f7c4ba1b3ffb1a6daf2ca54e6d1cbd67e25ce0531c2a5e1f4a1ccc",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.ProgramDiscardTopPlacement.cs",
+      "beforeRawSha256": "818bfc90eb63ae5645137b3d030e7c4b90d807ac864d4b13d1ede102e0a9bb22",
+      "afterRawSha256": "25699f558f4fbc2c6d9c25d4368bef224722a8d4d89ebe7e17339c3b9a72bb1e",
+      "authors": [
+        "sp-diao-chan",
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+      "beforeRawSha256": "be79ee23ef8975875e7a26650552b170c6e62a014f89ed02ad04e9d8826c7a60",
+      "afterRawSha256": "dbd2f5340e221d78b7ad14a286ba035a9004ee1cbf266c70e41563efa1be846d",
+      "authors": [
+        "sp-diao-chan",
+        "sp-jia-xu",
+        "zhang-bao",
+        "preserved-concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.RecipientConsequencesObservers.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "8eceb27ddc780a13a5370b35d2041c21bf8250fe8e14da7c5d0ba271db058d46",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.RecipientConsequencesReceipts.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "a9603517f333b603feec3720e61417c8ba0da7574192de6f2435cc357d04d657",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.RecipientContestObservers.cs",
+      "beforeRawSha256": "11c9639ac3a3819df8550bf9b7701fcc3bc9d587cae9145270e8d1ba46f3a9de",
+      "afterRawSha256": "a916606303d298fafcb95e46a5d3ff89b5adfe03a6fa4826315ef55b9fea3d9e",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.RuleProgression.cs",
+      "beforeRawSha256": "67ebb1e5ca12334412cff7c244b2ce4141412aaf2c16e8a09a1e5cb02758e760",
+      "afterRawSha256": "4317f41cb6d4ebc2cd572b9a8b2d6ccb55d3bb63acdcc5fbd0f7e98b9ac968b1",
+      "authors": [
+        "sp-diao-chan",
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.Runtime.cs",
+      "beforeRawSha256": "30e40b58f26b01ff10667d9d838c311d28562eced70630bace5857b959a148f5",
+      "afterRawSha256": "cc0ce44bc4b40ad321b7f5735ec8317ea27d0d759e8ffc4482d2db64e4683c28",
+      "authors": [
+        "sp-diao-chan",
+        "sp-jia-xu",
+        "zhang-bao"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.SkillPrograms.cs",
+      "beforeRawSha256": "26e9a5ecdbe57dd4efd771ec83e3311b4a51c0d4337567356883e7cdf2e3fab7",
+      "afterRawSha256": "c8e290aea29d5a0738d86c0064904a7fb443cf500a2b4b1a9aac0735b8a28333",
+      "authors": [
+        "sp-diao-chan",
+        "sp-jia-xu",
+        "zhang-bao"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.SourceCurseObservers.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "63a1dcd20a7a74bcb8877fba06ce223816e7431976f82c0b9b027710a5f48183",
+      "authors": [
+        "zhang-bao"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.SourceCurses.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "e9daa5cd2632957344c9c864f73637214f527babb526fee265bb7892c869bf39",
+      "authors": [
+        "zhang-bao"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.TurnRedSlashBenefits.cs",
+      "beforeRawSha256": "f14f0ab9c7b0ec140786d72d043baf802a33cfeb0254c12f85757390cac0bee0",
+      "afterRawSha256": "9eeebae4efb89e51dc3e664159d225b7108a4d5b6d6544ee575b74af7bf1c3e1",
+      "authors": [
+        "zhang-bao"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.UnnullifiableOrdinaryTricks.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "1a7c91562f4447b9f603924dce53f2b63e81f6fe3689125c3b096b350e0ce821",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.cs",
+      "beforeRawSha256": "8ec3ba3cbc61c96efbff370b9303afd4a34958fde2f8327e0cce735ded6b60f5",
+      "afterRawSha256": "4a3ac526883fddf0ca6ed798a2f6b7716fdcaad506f2723dee14964b36a5e415",
+      "authors": [
+        "sp-diao-chan",
+        "sp-jia-xu",
+        "zhang-bao"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/MatchSkillBindingIndex.cs",
+      "beforeRawSha256": "d1c5dafc6a81d1aad943b248a6c213c56f2b843a8f08a1ed577f9279dab5932d",
+      "afterRawSha256": "bb45a01ce8d742103be96231c2bff8b2e89c9f5278d7e4adccde5dabf97b80fe",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/PrintedLordSkillQualifications.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "cf2a863d3dd224ad2820a3f32c3299bd1810ccadcdfc98d02fbd56d9f940e9f2",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/ProgramCompositionAi.cs",
+      "beforeRawSha256": "aef8ab554521b2f2b37a1cd5838d65874b1cfdd8a423450103690effec914274",
+      "afterRawSha256": "9ccb3768e87b871ee5add3d2a251f43e9c2430950aadae024ce451bf4bbf5245",
+      "authors": [
+        "sp-diao-chan"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/ProgramCompositionValidator.cs",
+      "beforeRawSha256": "477756072eed647bffe4c781a07eada6155fee4cea0a32cf89ff13b8a6b51446",
+      "afterRawSha256": "f0769d7c8f70df8b1cef0ebdf0fdb7d501b3bb0ff4cb01d8a6e8d44e43a80664",
+      "authors": [
+        "sp-diao-chan",
+        "preserved-concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/ProgramLifecycle.cs",
+      "beforeRawSha256": "e1f72bbaea997d1c09f7795afb3df57057282af4af66af0db2217bbeee3b215a",
+      "afterRawSha256": "511e221c5fd1aded0e0bef2e6816511687685d522b3c4aeb3b981b57dd9cd1b9",
+      "authors": [
+        "sp-diao-chan",
+        "zhang-bao"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/ProgramOperationDefinitions.cs",
+      "beforeRawSha256": "10e62fc4f5c4f27616218a31c457adabf1babf87d64452b9393ff583c1212fb9",
+      "afterRawSha256": "e502c929b6c0204933560b7658d0b7c09be9f517abada7148dc4ca388ae4ae9f",
+      "authors": [
+        "sp-diao-chan",
+        "preserved-concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/ProgramPhaseHandSeizureAi.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "43930b266d8074503cc24312dce85945372589546d69cbd7afe24c76957a2be1",
+      "authors": [
+        "sp-diao-chan"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/ProgramPhaseHandSeizureOperations.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "72903547ac2cd85ed119a4ae8cfa6f08c98cc4b15a62b7fa2201227cfadcce33",
+      "authors": [
+        "sp-diao-chan"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/ProgramRecipientContestConsequences.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "af31072caa624e1925594203a89915d68d2277b03b2a39a5c727ce1ea100d211",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/ProgramSourceCurses.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "8654d23990011e1942b2b813e753ee9aa0bb0d53ca7cba6be10e40651ce54c3f",
+      "authors": [
+        "zhang-bao"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/Projection/CommittedEventProjection.cs",
+      "beforeRawSha256": "9d609453624097b6b6693d6bd28e61698470c3d29699d741e95760f66644f92e",
+      "afterRawSha256": "272fae28230787c92776b920b9b912b7afb535f6c979953d00ea4dcf4157bbdc",
+      "authors": [
+        "zhang-bao"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/Projection/PlayerViewProjector.cs",
+      "beforeRawSha256": "39996999de15e93124ef4b7a583ecb162610d45fca83e11bc3d29151989947d0",
+      "afterRawSha256": "9e3406c56675a84bdd066f06f4f53eb42fce8bd53e58d6f27cd0535d764e389a",
+      "authors": [
+        "zhang-bao"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/Resolution.cs",
+      "beforeRawSha256": "026c66634fc122f3d70424cef1b3f3cb75e774738ecd5cba101cb896a09eb180",
+      "afterRawSha256": "8e08b6fec995e9cd463303f655b64481f7e667b1e81b6d317e36c4f57fc18aeb",
+      "authors": [
+        "sp-diao-chan",
+        "sp-jia-xu",
+        "zhang-bao"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/SkillProgramCardPolicies.cs",
+      "beforeRawSha256": "356b6bc7be66d2213d4a1a01620ecdbc0df613c550945061687c30dcf64c2abe",
+      "afterRawSha256": "75ecdf46025c57b07b8c2a9c76bfe3655839e7dbb20d37fd5cb711b100d43791",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/SkillProgramExecutor.cs",
+      "beforeRawSha256": "01fa7a76175bc15b3c4566fed46518a746079af0653518206f1229ced93a96ea",
+      "afterRawSha256": "89018ae5077e6bbada2d864c642061b2bdc5061c47f4b2bd64354ebcad44606e",
+      "authors": [
+        "sp-diao-chan",
+        "preserved-concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Core/SkillPrograms.cs",
+      "beforeRawSha256": "aa74a015d560bb3be3d4a3a03813d54d8996caf5919ebb296e07355596045ccc",
+      "afterRawSha256": "adfb50b3e5a687cc84b66fe00c01cb95d8a53fd3c0816a4099dd90ba06b3747e",
+      "authors": [
+        "sp-diao-chan",
+        "sp-jia-xu",
+        "zhang-bao",
+        "preserved-concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Wpf/Assets/official-ol-sp-diao-chan.png",
+      "beforeRawSha256": null,
+      "afterRawSha256": "775a63d79897d285fa852e34cd770c1b02fbd725835d788a335ac3d63d5739cc",
+      "authors": [
+        "root"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Wpf/Assets/official-ol-sp-jia-xu.png",
+      "beforeRawSha256": null,
+      "afterRawSha256": "85cf05ac77e20929ee445173b726502fddf318da78fb3e4dd78fb3533db5e2a5",
+      "authors": [
+        "root"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Wpf/Assets/official-ol-zhang-bao.png",
+      "beforeRawSha256": null,
+      "afterRawSha256": "19f42e5f117e49c59b61e6d0ef44d2e28b74da0e57b70acffb59b88b4be62175",
+      "authors": [
+        "root"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Wpf/Presentation/GeneralGalleryCatalog.cs",
+      "beforeRawSha256": "00d1bd9a5955f7a8bdaffc5724c07172f7b5093374391ece944b06ed5b208c88",
+      "afterRawSha256": "6c5009dad729ac33a32834e1e69535fd55647eff9c094fe20547bafcce52a5c8",
+      "authors": [
+        "root",
+        "preserved-concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Wpf/ViewModels/GeneralArt.cs",
+      "beforeRawSha256": "c88b5cba06df57ca4fa8937f42c79869dd01da1dad260c7d49fe28dfa2ea4c01",
+      "afterRawSha256": "31742cb4edc831e009d8d2f6222aad4d6deaa93c7376ff65d58718f9b6022177",
+      "authors": [
+        "root",
+        "preserved-concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+      ]
+    },
+    {
+      "repoPath": "src/CardGame.Wpf/ViewModels/MainViewModel.DeferredCards.cs",
+      "beforeRawSha256": "ef081b1cf2fab36126b2e1ab65edc0eb2a4ae12d6c3f192a0813bb762458442f",
+      "afterRawSha256": "461f842f4c8583c776dca409638d93a2007caaa3adae6dab62e80cc6fd7e0e8c",
+      "authors": [
+        "zhang-bao"
+      ]
+    },
+    {
+      "repoPath": "tests/CardGame.Core.Tests/OrdinaryZhangBaoChecks.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "762c541ce58f87cfd544ec06719d8080cc65ce9fd903573aaed0233d67381783",
+      "authors": [
+        "zhang-bao"
+      ]
+    },
+    {
+      "repoPath": "tests/CardGame.Core.Tests/PhaseHandSeizureChecks.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "cfb85f5be187b2b02795b83338e86fbbc112746c0532542ae6eba6876126b869",
+      "authors": [
+        "sp-diao-chan"
+      ]
+    },
+    {
+      "repoPath": "tests/CardGame.Core.Tests/RecipientContestConsequencesChecks.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "d476cbf046b834d06389fda8e67640e957c76a906a6dfaba37a062fd867ec387",
+      "authors": [
+        "sp-jia-xu"
+      ]
+    },
+    {
+      "repoPath": "tests/CardGame.Core.Tests/Program.cs",
+      "beforeRawSha256": "8188e5230490e8fc17e02d3cfd4f36eecdba45b74b5a9c1f6e4837f6250adaff",
+      "afterRawSha256": "132564e888eb85a2aa3035263c8634321f543a7c0b642298f46c428529cef37a",
+      "authors": [
+        "root-check-registration",
+        "preserved-concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+      ]
+    },
+    {
+      "repoPath": "tools/VerificationScopes.psd1",
+      "beforeRawSha256": "bfabc889446bfa78f12af6c4f3ab4d12f30f250c204951effa2bc3a052554fd4",
+      "afterRawSha256": "0ae1941e988163f183c88c3219b8197b6a69a66b50dce569bbc1951f6ccfa42f",
+      "authors": [
+        "root-check-registration"
+      ]
+    }
+  ],
+  "sourceFileCount": 73,
+  "crossReviews": [
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch39/sp-diao-chan/cross-review-zhang-bao.json",
+      "sha256": "5e5b3e78463e343799e34b7b63b89f3ba536f2697774d014fecbee174dcc574a",
+      "scope": "independent-source-only-cross-review",
+      "remainingDefiniteIssuesAtThatInput": [],
+      "coverageNote": "Each frozen report covers only its named inputs. The five-file focused review predates the WoodenOx expansion; the separate WoodenOx addendum and adoption proof cover that final delta.",
+      "runtimeAcceptance": false
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch39/sp-diao-chan/cross-review-jia-xu.json",
+      "sha256": "66ba3705e866f9daf19c92a209a889b870cce55d384f38b14b32090a735bf648",
+      "scope": "frozen-static-production-review-with-root-amendments",
+      "remainingDefiniteIssuesAtThatInput": [],
+      "coverageNote": "Each frozen report covers only its named inputs. The five-file focused review predates the WoodenOx expansion; the separate WoodenOx addendum and adoption proof cover that final delta.",
+      "runtimeAcceptance": false
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch39/sp-jia-xu/cross-review-merged-shared.json",
+      "sha256": "4764118151ab7464b69fbb3adc3a910e335c5fd610f127bcd853f35bdf0902fc",
+      "scope": "Nine multi-author shared files plus nine-target concurrent Cao Xing delta and recorded root revisions; source-only",
+      "remainingDefiniteIssuesAtThatInput": [],
+      "coverageNote": "Each frozen report covers only its named inputs. The five-file focused review predates the WoodenOx expansion; the separate WoodenOx addendum and adoption proof cover that final delta.",
+      "runtimeAcceptance": false
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch39/zhang-bao/cross-review-diao-chan.json",
+      "sha256": "6b8a8b0d0b43a675c3b2e47ab0badba5014a019e6a390966ed7a56ccceaebfef",
+      "scope": "Frozen author final only; not final mixed shared review or runtime acceptance",
+      "remainingDefiniteIssuesAtThatInput": [
+        {
+          "id": "B39-DIAO-01",
+          "repoPath": "src/CardGame.Core/GameEngine.PhaseHandSeizure.cs",
+          "lines": [
+            110,
+            139
+          ],
+          "classification": "genuine terminal paid producer entry resumes work",
+          "evidencePaths": [
+            "src/CardGame.Core/RecoveryReplacement.cs:178",
+            "src/CardGame.Core/GameEngine.cs:16141"
+          ],
+          "recommendation": "After exact producer/receipt validation, match PhaseHandSeizureTerminalState before drain/pending-clearing/Finish in all three local entries. Preserve paid diagnostics."
+        }
+      ],
+      "coverageNote": "Each frozen report covers only its named inputs. The five-file focused review predates the WoodenOx expansion; the separate WoodenOx addendum and adoption proof cover that final delta.",
+      "runtimeAcceptance": false
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch39/zhang-bao/cross-review-diao-chan-amendment.json",
+      "sha256": "295644664ff6977931ab5181db030a90fcd562f8b7109de037c1f3ea8166d852",
+      "scope": "B39R02 exact two-file delta only; no final mixed shared or runtime acceptance",
+      "remainingDefiniteIssuesAtThatInput": [],
+      "coverageNote": "Each frozen report covers only its named inputs. The five-file focused review predates the WoodenOx expansion; the separate WoodenOx addendum and adoption proof cover that final delta.",
+      "runtimeAcceptance": false
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch39/zhang-bao/cross-review-focused-drafts.json",
+      "sha256": "30bea216916bb913e1a63cbf5b5d2cae744d028d9691a244e0a3a0a3b1086d7d",
+      "scope": "Final three Core focused source drafts, their 14 tuples and routine prefixes only; no renewed full production review",
+      "remainingDefiniteIssuesAtThatInput": [],
+      "coverageNote": "Each frozen report covers only its named inputs. The five-file focused review predates the WoodenOx expansion; the separate WoodenOx addendum and adoption proof cover that final delta.",
+      "runtimeAcceptance": false
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch39/sp-diao-chan/cross-review-jia-xu-wooden-ox.json",
+      "sha256": "f58cb662d45b6dbaff7a18130ec839b210696b5a79606f8c1cf37684d48a6abd",
+      "scope": "frozen-static-owned-proposal-review",
+      "remainingDefiniteIssuesAtThatInput": [],
+      "coverageNote": "Each frozen report covers only its named inputs. The five-file focused review predates the WoodenOx expansion; the separate WoodenOx addendum and adoption proof cover that final delta.",
+      "runtimeAcceptance": false
+    }
+  ],
+  "woodenOxAdoptionProof": {
+    "stagePath": ".artifacts/continuation-20261003-batch17/batch39/sp-diao-chan/adoption-proof.json",
+    "sha256": "69bc1cebe8172b4e50717b5ddbe67d9d9cdc117c45da355757a1074664936485",
+    "proof": {
+      "schema": 1,
+      "baseHead": "f928a513817a2e641250e351e03d15c1f22fd6e4",
+      "combinedManifest": {
+        "stagePath": ".artifacts/continuation-20261003-batch17/batch39/root-integration/combined-delivery.json",
+        "sha256": "3e1a120f980e8384850ec40aca7a62d3b7b0e38f20da3d235f34e71d50154b51"
+      },
+      "adoptedFocused": {
+        "repoPath": "tests/CardGame.Core.Tests/RecipientContestConsequencesChecks.cs",
+        "rootPreviewPath": ".artifacts/continuation-20261003-batch17/batch39/root-integration/combined-preview/tests/CardGame.Core.Tests/RecipientContestConsequencesChecks.cs",
+        "proposalPath": ".artifacts/continuation-20261003-batch17/batch39/sp-diao-chan/jia-wooden-ox-proposal/RecipientContestConsequencesChecks.cs",
+        "rawSha256": "d476cbf046b834d06389fda8e67640e957c76a906a6dfaba37a062fd867ec387",
+        "manifestRowMatches": true,
+        "rawBytesExactlyEqual": true
+      },
+      "productionObserver": {
+        "repoPath": "src/CardGame.Core/GameEngine.RecipientConsequencesObservers.cs",
+        "rootPreviewPath": ".artifacts/continuation-20261003-batch17/batch39/root-integration/combined-preview/src/CardGame.Core/GameEngine.RecipientConsequencesObservers.cs",
+        "rawSha256": "8eceb27ddc780a13a5370b35d2041c21bf8250fe8e14da7c5d0ba271db058d46",
+        "manifestRowMatches": true,
+        "previousReviewedBytesUnchanged": true
+      },
+      "rootAdoptionVerified": true,
+      "remainingDefiniteIssues": [],
+      "execution": {
+        "http": false,
+        "csharp": false,
+        "compile": false,
+        "build": false,
+        "productionLoader": false,
+        "tests": false,
+        "game": false,
+        "replay": false,
+        "nativeAi": false,
+        "ui": false,
+        "benchmark": false,
+        "seedSearch": false,
+        "release": false,
+        "publish": false,
+        "push": false,
+        "cleanup": false,
+        "mainWrites": false,
+        "indexWrites": false,
+        "branchWrites": false,
+        "authorFrozenWrites": false,
+        "frozenReviewWrites": false,
+        "commit": false
+      }
+    }
+  },
+  "rootAmendments": [
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.SourceCurses.cs",
+      "reason": "B39R01: preserve old trigger tails at the new shared hook; terminal restriction belongs only to curse producers",
+      "beforePreviewSha256": "6ef1f9503b67a9511c9eacf38c5ea12153fab1840660d4a941da8e430634eac8",
+      "afterPreviewSha256": "e9daa5cd2632957344c9c864f73637214f527babb526fee265bb7892c869bf39",
+      "replacementCount": 1
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.PhaseHandSeizure.cs",
+      "reason": "B39R02: genuine matching GameEnded leaves this paid producer diagnostic; no queued recovery, cleared receipts or synthetic parent completion",
+      "beforePreviewSha256": "3af4e9b2dfdfc6bdcfe7ba1c54fc4027325368fab87a92ec2dfa08af92df16bc",
+      "afterPreviewSha256": "b83e06d534e6d06209be056c0c9cca68f8881fce12f422924e9e06f3c49a8755",
+      "replacementCount": 3
+    },
+    {
+      "repoPath": "tests/CardGame.Core.Tests/PhaseHandSeizureChecks.cs",
+      "reason": "B39R02 focused source draft extension: three idempotent terminal host entry points after actual GameEnded; deliberately outside accepted-command cold replay claim",
+      "beforePreviewSha256": "baa102d68eb4f191734c9913b1864759abc4e91e4ce8edf4b2d1b17714e630d1",
+      "afterPreviewSha256": "cfb85f5be187b2b02795b83338e86fbbc112746c0532542ae6eba6876126b869",
+      "replacementCount": 1
+    },
+    {
+      "repoPath": "tests/CardGame.Core.Tests/RecipientContestConsequencesChecks.cs",
+      "reason": "B39R03: actual GameSnapshot API exposes players, not a top-level Hand",
+      "beforePreviewSha256": "4ee41bf5fa11303741c96d7e117c602b8f8a3046fc8ae285f5db0a2c534e0b1b",
+      "afterPreviewSha256": "bd3ab6dc10bbc87d8cc4760a8d92cca94ae07b928e36c6b2951a02064e96beef",
+      "replacementCount": 1
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.RecipientConsequencesObservers.cs",
+      "reason": "B39R04: exact awaited-movement shape has ResumeProgramFrameId null; retain distinct root/Pindian parents and real ledgers",
+      "beforePreviewSha256": "42651b1c06095978f90f7cbb5cf982546f521e7c91bbe6eccaf64b352ae010ad",
+      "afterPreviewSha256": "c41f622c8b1d2f45c1a73223758ed91c0c3c1deb741955d114c47539083f4aff",
+      "replacementCount": 1
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.RecipientConsequencesObservers.cs",
+      "reason": "B39R05: grain cleanup records follow the atomic paid-cost callback; preserve the original invoice range and prove subsequent WoodenOx grain records separately",
+      "beforePreviewSha256": "c41f622c8b1d2f45c1a73223758ed91c0c3c1deb741955d114c47539083f4aff",
+      "afterPreviewSha256": "8eceb27ddc780a13a5370b35d2041c21bf8250fe8e14da7c5d0ba271db058d46",
+      "replacementCount": 1
+    },
+    {
+      "repoPath": "tests/CardGame.Core.Tests/RecipientContestConsequencesChecks.cs",
+      "reason": "B39R05 focused source draft: real WoodenOx Equip/Store and two exact awaited discard batches with later grain sequence, fixed 80-card recipe and initial hand 6; no execution",
+      "beforePreviewSha256": "bd3ab6dc10bbc87d8cc4760a8d92cca94ae07b928e36c6b2951a02064e96beef",
+      "afterPreviewSha256": "d476cbf046b834d06389fda8e67640e957c76a906a6dfaba37a062fd867ec387",
+      "proposalReviewSha256": "f58cb662d45b6dbaff7a18130ec839b210696b5a79606f8c1cf37684d48a6abd",
+      "newPublicMethods": 0,
+      "addedPrivateScenarios": 1
+    }
+  ],
+  "concurrentRebase": {
+    "fromHead": "ee8e85229c5e3d11efb414b0be4f12c97386525b",
+    "toHead": "f928a513817a2e641250e351e03d15c1f22fd6e4",
+    "paths": [
+      {
+        "repoPath": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+        "originalBeforeSha256": "ed6d2acf193e6fb5723bce1776126823d1bcc51e768ba39ad27d682a763a40d6",
+        "concurrentBeforeSha256": "dd8c5f7e6a7919588fa189473ee02cdc989abeccd0a43142c8fe48820f12b450",
+        "batchBeforeRebaseSha256": "3c7156681ebf8d0112746d21b0d67ce108c7e17d5030be8b95b8681a7e59eac9",
+        "afterRebaseSha256": "6f0a1df7a4c76b56ea85928ac50f3975cbb1f0bab948417fc47fd9717281a430",
+        "mergeDetails": [
+          {
+            "originalStartLine": 124,
+            "originalEndLineExclusive": 124,
+            "authors": [
+              "concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 128,
+            "originalEndLineExclusive": 128,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          }
+        ]
+      },
+      {
+        "repoPath": "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+        "originalBeforeSha256": "50754a0a051ea344b3e037b2a020376334707466bb79243fe8bbbcebbb781d5e",
+        "concurrentBeforeSha256": "be79ee23ef8975875e7a26650552b170c6e62a014f89ed02ad04e9d8826c7a60",
+        "batchBeforeRebaseSha256": "e36d813c19791f73d5befec805081cc856d4a46cd0659675910f249aed903b23",
+        "afterRebaseSha256": "dbd2f5340e221d78b7ad14a286ba035a9004ee1cbf266c70e41563efa1be846d",
+        "mergeDetails": [
+          {
+            "originalStartLine": 55,
+            "originalEndLineExclusive": 56,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 597,
+            "originalEndLineExclusive": 597,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 612,
+            "originalEndLineExclusive": 612,
+            "authors": [
+              "concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 1786,
+            "originalEndLineExclusive": 1786,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 1803,
+            "originalEndLineExclusive": 1804,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 1832,
+            "originalEndLineExclusive": 1832,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 1847,
+            "originalEndLineExclusive": 1847,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 1852,
+            "originalEndLineExclusive": 1852,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 2614,
+            "originalEndLineExclusive": 2614,
+            "authors": [
+              "concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 2931,
+            "originalEndLineExclusive": 2931,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 2961,
+            "originalEndLineExclusive": 2962,
+            "authors": [
+              "concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 3128,
+            "originalEndLineExclusive": 3128,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 3145,
+            "originalEndLineExclusive": 3145,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 3172,
+            "originalEndLineExclusive": 3172,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 4140,
+            "originalEndLineExclusive": 4140,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 4157,
+            "originalEndLineExclusive": 4157,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          }
+        ]
+      },
+      {
+        "repoPath": "src/CardGame.Core/ProgramCompositionValidator.cs",
+        "originalBeforeSha256": "897ca9b4b7d365ec854e71d2c2f1dac64b6b023de2ca9b753633042ac0e33bde",
+        "concurrentBeforeSha256": "477756072eed647bffe4c781a07eada6155fee4cea0a32cf89ff13b8a6b51446",
+        "batchBeforeRebaseSha256": "5b5184108277c7566ce3010e6d3a86abe2fad066385836305904fc888692d38f",
+        "afterRebaseSha256": "f0769d7c8f70df8b1cef0ebdf0fdb7d501b3bb0ff4cb01d8a6e8d44e43a80664",
+        "mergeDetails": [
+          {
+            "originalStartLine": 32,
+            "originalEndLineExclusive": 32,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 484,
+            "originalEndLineExclusive": 485,
+            "authors": [
+              "concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+            ],
+            "characterEdits": 1
+          }
+        ]
+      },
+      {
+        "repoPath": "src/CardGame.Core/ProgramOperationDefinitions.cs",
+        "originalBeforeSha256": "cffb2fa47c06018039ecf779075dc06c20275184e09038c4ca597cdacfbdf7ab",
+        "concurrentBeforeSha256": "10e62fc4f5c4f27616218a31c457adabf1babf87d64452b9393ff583c1212fb9",
+        "batchBeforeRebaseSha256": "1adf711d1837c3ffdb8f6ef8bf6e2707968dadbfac1d97308823a7201a4515e0",
+        "afterRebaseSha256": "e502c929b6c0204933560b7658d0b7c09be9f517abada7148dc4ca388ae4ae9f",
+        "mergeDetails": [
+          {
+            "originalStartLine": 410,
+            "originalEndLineExclusive": 411,
+            "authors": [
+              "concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4",
+              "batch39-reviewed"
+            ],
+            "characterEdits": 2
+          },
+          {
+            "originalStartLine": 433,
+            "originalEndLineExclusive": 433,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          }
+        ]
+      },
+      {
+        "repoPath": "src/CardGame.Core/SkillProgramExecutor.cs",
+        "originalBeforeSha256": "10a4011f924fef91687aae2847fa270346e68a9b1f9bf6d6ec74c2c4a6c10fbd",
+        "concurrentBeforeSha256": "01fa7a76175bc15b3c4566fed46518a746079af0653518206f1229ced93a96ea",
+        "batchBeforeRebaseSha256": "a707e9603ffe16b0bcb83414a901740f43f05b4485cada2f95e34afbd84bae90",
+        "afterRebaseSha256": "89018ae5077e6bbada2d864c642061b2bdc5061c47f4b2bd64354ebcad44606e",
+        "mergeDetails": [
+          {
+            "originalStartLine": 30,
+            "originalEndLineExclusive": 30,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 337,
+            "originalEndLineExclusive": 338,
+            "authors": [
+              "concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 1115,
+            "originalEndLineExclusive": 1116,
+            "authors": [
+              "concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 1414,
+            "originalEndLineExclusive": 1415,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 1481,
+            "originalEndLineExclusive": 1483,
+            "authors": [
+              "concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+            ],
+            "characterEdits": 3
+          }
+        ]
+      },
+      {
+        "repoPath": "src/CardGame.Core/SkillPrograms.cs",
+        "originalBeforeSha256": "83301847e698247fcec194b723c7c700bf784526a352730e48aca99aabc9ad51",
+        "concurrentBeforeSha256": "aa74a015d560bb3be3d4a3a03813d54d8996caf5919ebb296e07355596045ccc",
+        "batchBeforeRebaseSha256": "ee13648140d17f0be2c63744cd2d48e0b605ba7e406d19a33261543069f15bd6",
+        "afterRebaseSha256": "adfb50b3e5a687cc84b66fe00c01cb95d8a53fd3c0816a4099dd90ba06b3747e",
+        "mergeDetails": [
+          {
+            "originalStartLine": 189,
+            "originalEndLineExclusive": 189,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 428,
+            "originalEndLineExclusive": 428,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 449,
+            "originalEndLineExclusive": 449,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 529,
+            "originalEndLineExclusive": 530,
+            "authors": [
+              "concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4",
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 1753,
+            "originalEndLineExclusive": 1753,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 2141,
+            "originalEndLineExclusive": 2141,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 2737,
+            "originalEndLineExclusive": 2737,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 3220,
+            "originalEndLineExclusive": 3221,
+            "authors": [
+              "concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+            ],
+            "characterEdits": 4
+          },
+          {
+            "originalStartLine": 3466,
+            "originalEndLineExclusive": 3467,
+            "authors": [
+              "concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 3582,
+            "originalEndLineExclusive": 3582,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 3584,
+            "originalEndLineExclusive": 3584,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 3607,
+            "originalEndLineExclusive": 3607,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 3742,
+            "originalEndLineExclusive": 3742,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          }
+        ]
+      },
+      {
+        "repoPath": "src/CardGame.Wpf/Presentation/GeneralGalleryCatalog.cs",
+        "originalBeforeSha256": "a5a291a4fbe83a47b8c23d197c30e2a76c4863fcb29f90e57d5b37a6692410ee",
+        "concurrentBeforeSha256": "00d1bd9a5955f7a8bdaffc5724c07172f7b5093374391ece944b06ed5b208c88",
+        "batchBeforeRebaseSha256": "60e3d2ae3280f5eacb67f0f251df307658dc3b96a6375cb77114ff7547ce75b4",
+        "afterRebaseSha256": "6c5009dad729ac33a32834e1e69535fd55647eff9c094fe20547bafcce52a5c8",
+        "mergeDetails": [
+          {
+            "originalStartLine": 88,
+            "originalEndLineExclusive": 88,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 167,
+            "originalEndLineExclusive": 167,
+            "authors": [
+              "concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+            ],
+            "characterEdits": 1
+          }
+        ]
+      },
+      {
+        "repoPath": "src/CardGame.Wpf/ViewModels/GeneralArt.cs",
+        "originalBeforeSha256": "8f9cbb5fb9a2650ee1550644f82f14e9f62c75207f9633c3742743fac44a5c89",
+        "concurrentBeforeSha256": "c88b5cba06df57ca4fa8937f42c79869dd01da1dad260c7d49fe28dfa2ea4c01",
+        "batchBeforeRebaseSha256": "68a772128f962270543c3ac6f4e229fdea9a7185e1cce5a2daded977b3110211",
+        "afterRebaseSha256": "31742cb4edc831e009d8d2f6222aad4d6deaa93c7376ff65d58718f9b6022177",
+        "mergeDetails": [
+          {
+            "originalStartLine": 245,
+            "originalEndLineExclusive": 245,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 248,
+            "originalEndLineExclusive": 248,
+            "authors": [
+              "concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+            ],
+            "characterEdits": 1
+          }
+        ]
+      },
+      {
+        "repoPath": "tests/CardGame.Core.Tests/Program.cs",
+        "originalBeforeSha256": "dd9c95fc4fb6641714a65173b41aa6ccb0ba8581264401c55738b531a8ed9df7",
+        "concurrentBeforeSha256": "8188e5230490e8fc17e02d3cfd4f36eecdba45b74b5a9c1f6e4837f6250adaff",
+        "batchBeforeRebaseSha256": "e3a30869e96d7cd39ec950fe7abd95e809b122148b00d1e759aac22ed86c1025",
+        "afterRebaseSha256": "132564e888eb85a2aa3035263c8634321f543a7c0b642298f46c428529cef37a",
+        "mergeDetails": [
+          {
+            "originalStartLine": 40,
+            "originalEndLineExclusive": 40,
+            "authors": [
+              "batch39-reviewed"
+            ],
+            "characterEdits": 1
+          },
+          {
+            "originalStartLine": 138,
+            "originalEndLineExclusive": 138,
+            "authors": [
+              "concurrent-f928a513817a2e641250e351e03d15c1f22fd6e4"
+            ],
+            "characterEdits": 1
+          }
+        ]
+      }
+    ],
+    "unrelatedCommittedPathsPreserved": true,
+    "runtimeExecuted": false
+  },
+  "checkRegistration": {
+    "checks": [
+      {
+        "name": "Phase hand seizure: LihunRealCostFlipTakeAndFrozenHpReturnColdReplay",
+        "method": "PhaseHandSeizureChecks.LihunRealCostFlipTakeAndFrozenHpReturnColdReplay",
+        "owner": "sp-diao-chan",
+        "executed": false
+      },
+      {
+        "name": "Phase hand seizure: LihunMaleSelfEquipmentTransferCountsOnlyPhysicalCards",
+        "method": "PhaseHandSeizureChecks.LihunMaleSelfEquipmentTransferCountsOnlyPhysicalCards",
+        "owner": "sp-diao-chan",
+        "executed": false
+      },
+      {
+        "name": "Phase hand seizure: LihunSourceLossInsufficientAndForcedEndHostBoundaries",
+        "method": "PhaseHandSeizureChecks.LihunSourceLossInsufficientAndForcedEndHostBoundaries",
+        "owner": "sp-diao-chan",
+        "executed": false
+      },
+      {
+        "name": "Phase hand seizure: BiyueCurrentHandBranchesSingleActualDrawBatch",
+        "method": "PhaseHandSeizureChecks.BiyueCurrentHandBranchesSingleActualDrawBatch",
+        "owner": "sp-diao-chan",
+        "executed": false
+      },
+      {
+        "name": "Phase hand seizure: LihunDeathTerminalClosureAndFrozenReceiptCollections",
+        "method": "PhaseHandSeizureChecks.LihunDeathTerminalClosureAndFrozenReceiptCollections",
+        "owner": "sp-diao-chan",
+        "executed": false
+      },
+      {
+        "name": "RecipientContestConsequencesActualBlackGiftSelfSecondAndTie",
+        "method": "RecipientContestConsequencesChecks.ActualBlackGiftSelfSecondAndTie",
+        "owner": "sp-jia-xu",
+        "executed": false
+      },
+      {
+        "name": "RecipientContestConsequencesActualWinnerDiscardPaidChildAndReturn",
+        "method": "RecipientContestConsequencesChecks.ActualWinnerDiscardPaidChildAndReturn",
+        "owner": "sp-jia-xu",
+        "executed": false
+      },
+      {
+        "name": "RecipientContestConsequencesActualPrintedLordQualificationNativeAndPersistent",
+        "method": "RecipientContestConsequencesChecks.ActualPrintedLordQualificationNativeAndPersistent",
+        "owner": "sp-jia-xu",
+        "executed": false
+      },
+      {
+        "name": "RecipientContestConsequencesPrintedQualificationExactGrantAndReplacement",
+        "method": "RecipientContestConsequencesChecks.PrintedQualificationExactGrantAndReplacement",
+        "owner": "sp-jia-xu",
+        "executed": false
+      },
+      {
+        "name": "RecipientContestConsequencesActualOrdinaryTrickProtectionAndDelayedBoundary",
+        "method": "RecipientContestConsequencesChecks.ActualOrdinaryTrickProtectionAndDelayedBoundary",
+        "owner": "sp-jia-xu",
+        "executed": false
+      },
+      {
+        "name": "RecipientContestConsequencesReceiptCollectionsAndLegacyGrantAbi",
+        "method": "RecipientContestConsequencesChecks.ReceiptCollectionsAndLegacyGrantAbi",
+        "owner": "sp-jia-xu",
+        "executed": false
+      },
+      {
+        "name": "skill program source curse physical initial judgment replacement and actual turn loss",
+        "method": "OrdinaryZhangBaoChecks.CurseIsThePhysicalInitialJudgmentBeforeGuidao",
+        "owner": "zhang-bao",
+        "executed": false
+      },
+      {
+        "name": "skill program source curse locked reward and second paid source loss return",
+        "method": "OrdinaryZhangBaoChecks.LockedOriginalRewardSurvivesZhoufuLossAndPaidYingbingLoss",
+        "owner": "zhang-bao",
+        "executed": false
+      },
+      {
+        "name": "skill program source curse HP Dying parent and physical death cleanup",
+        "method": "OrdinaryZhangBaoChecks.ActualHpDyingAndPhysicalDeathCleanupRetainTypedParents",
+        "owner": "zhang-bao",
+        "executed": false
+      }
+    ],
+    "oldLiteralTupleSubset": 851,
+    "newLiteralTupleSubset": 865,
+    "oldLiteralTuplesBytePreserved": true,
+    "newPrefixes": [
+      "Phase hand seizure:",
+      "RecipientContestConsequences"
+    ],
+    "otherNewPrefixAlreadyCovered": "skill program",
+    "execution": false,
+    "scopeNote": "Literal tuple subset only, not complete registered runtime check count; routine/full unmeasured"
+  },
+  "execution": {
+    "csharp": false,
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "focusedTests": false,
+    "routineTests": false,
+    "coreTests": false,
+    "wpfTests": false,
+    "fullTests": false,
+    "game": false,
+    "nativeAi": false,
+    "ui": false,
+    "benchmark": false,
+    "seedSearch": false,
+    "release": false,
+    "publish": false,
+    "push": false
+  },
+  "staticOnlyEvidence": [
+    "source reading and independent source review",
+    "Python -B JSON/string/numeric-enum/SHA/PNG-header checks",
+    "read-only Git and exact named-byte merge"
+  ],
+  "runtimeAcceptance": false,
+  "routineTiming": null,
+  "fullTiming": null,
+  "newHttpRequests": 4,
+  "httpStatuses": [
+    200,
+    200,
+    200,
+    200
+  ],
+  "redirectsFollowed": false,
+  "retries": 0,
+  "pngBodyEvidenceMapping": "Three HTTP cover bodies are retained once as the named original PNG assets, identified by their metadata SHA256; the request ledger rawPath is the original capture-stage path.",
+  "cleanup": {
+    "automaticApprovalRejected": true,
+    "reason": "blocked by policy",
+    "retriedOrBypassed": false,
+    "remainingTaskOwnedPaths": [
+      "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+      "C:\\Users\\17917\\Desktop\\Card\\tools\\__pycache__\\sync_general_art.cpython-314.pyc"
+    ]
+  }
+}

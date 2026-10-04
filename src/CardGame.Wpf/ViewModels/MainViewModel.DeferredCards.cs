@@ -55,6 +55,9 @@ public sealed partial class MainViewModel
 
     private static IEnumerable<(string Name, int Count, IReadOnlyList<CardSnapshot> Cards)> PublicPersistentOwnedPiles(PlayerSnapshot player)
     {
+        // Issued foreign curses are target-owned public cards, not own-source piles.
+        foreach (var curse in player.SourceCurses ?? [])
+            yield return ("咒", 1, new[] { curse.Card });
         if (player.PublicPersistentPiles is { Count: > 0 } piles)
         {
             foreach (var pile in piles.Where(pile => pile.Count > 0))

@@ -408,7 +408,7 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
                  SkillProgramNumberExpression.CurrentAttackRange or SkillProgramNumberExpression.HandLimitMinusHandCount or
                  SkillProgramNumberExpression.LostHpMinusHandCount or SkillProgramNumberExpression.SelectedTargetsHandGreaterThanLord or
                  SkillProgramNumberExpression.PhaseSkillUsage or SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount or
-                 SkillProgramNumberExpression.TurnOwnerDiscardPhaseHandDiscardCount)))            throw new InvalidOperationException($"Invalid skill program at {r.Path}: draw accepts a constant or a supported public-state expression.");
+                 SkillProgramNumberExpression.TurnOwnerDiscardPhaseHandDiscardCount or SkillProgramNumberExpression.CurrentHandEmptyTwoOtherwiseOne)))            throw new InvalidOperationException($"Invalid skill program at {r.Path}: draw accepts a constant or a supported public-state expression.");
         var source = r.OptionalIdentifier("sourceBind");
         if ((expression is SkillProgramNumberExpression.BoundCardCount or SkillProgramNumberExpression.PhaseSkillUsage) != (source is not null))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: sourceBind is required only for boundCardCount and phaseSkillUsage draws.");
@@ -431,6 +431,9 @@ internal sealed class DrawProgramOperationDescriptor : ProgramOperationDescripto
             sourceBind: source, resultBind: bind, targetReference: targetRef,
             replacementSuits: replacementSuits, minimumReplacementRank: minimumReplacementRank,
             maximumReplacementRank: maximumReplacementRank);
+        if (expression == SkillProgramNumberExpression.CurrentHandEmptyTwoOtherwiseOne &&
+            (target != SkillProgramEffectTarget.Owner || bind is not null || targetRef is not null || replacementSuits.Count != 0))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: empty-hand draw requires the owner and no binding or replacement filter.");
         if (expression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount &&
             (target != SkillProgramEffectTarget.Owner || bind is not null || targetRef is not null || replacementSuits.Count != 0))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: actual turn type-count draw requires the owner and no card binding or replacement filter.");

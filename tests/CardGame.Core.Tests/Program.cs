@@ -37,6 +37,20 @@ if (unknownArguments.Length > 0)
 // Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("Phase hand seizure: LihunRealCostFlipTakeAndFrozenHpReturnColdReplay", PhaseHandSeizureChecks.LihunRealCostFlipTakeAndFrozenHpReturnColdReplay),
+    ("Phase hand seizure: LihunMaleSelfEquipmentTransferCountsOnlyPhysicalCards", PhaseHandSeizureChecks.LihunMaleSelfEquipmentTransferCountsOnlyPhysicalCards),
+    ("Phase hand seizure: LihunSourceLossInsufficientAndForcedEndHostBoundaries", PhaseHandSeizureChecks.LihunSourceLossInsufficientAndForcedEndHostBoundaries),
+    ("Phase hand seizure: BiyueCurrentHandBranchesSingleActualDrawBatch", PhaseHandSeizureChecks.BiyueCurrentHandBranchesSingleActualDrawBatch),
+    ("Phase hand seizure: LihunDeathTerminalClosureAndFrozenReceiptCollections", PhaseHandSeizureChecks.LihunDeathTerminalClosureAndFrozenReceiptCollections),
+    ("RecipientContestConsequencesActualBlackGiftSelfSecondAndTie", RecipientContestConsequencesChecks.ActualBlackGiftSelfSecondAndTie),
+    ("RecipientContestConsequencesActualWinnerDiscardPaidChildAndReturn", RecipientContestConsequencesChecks.ActualWinnerDiscardPaidChildAndReturn),
+    ("RecipientContestConsequencesActualPrintedLordQualificationNativeAndPersistent", RecipientContestConsequencesChecks.ActualPrintedLordQualificationNativeAndPersistent),
+    ("RecipientContestConsequencesPrintedQualificationExactGrantAndReplacement", RecipientContestConsequencesChecks.PrintedQualificationExactGrantAndReplacement),
+    ("RecipientContestConsequencesActualOrdinaryTrickProtectionAndDelayedBoundary", RecipientContestConsequencesChecks.ActualOrdinaryTrickProtectionAndDelayedBoundary),
+    ("RecipientContestConsequencesReceiptCollectionsAndLegacyGrantAbi", RecipientContestConsequencesChecks.ReceiptCollectionsAndLegacyGrantAbi),
+    ("skill program source curse physical initial judgment replacement and actual turn loss", OrdinaryZhangBaoChecks.CurseIsThePhysicalInitialJudgmentBeforeGuidao),
+    ("skill program source curse locked reward and second paid source loss return", OrdinaryZhangBaoChecks.LockedOriginalRewardSurvivesZhoufuLossAndPaidYingbingLoss),
+    ("skill program source curse HP Dying parent and physical death cleanup", OrdinaryZhangBaoChecks.ActualHpDyingAndPhysicalDeathCleanupRetainTypedParents),
     ("skill program activation BooleanState nested gates and current instance isolation", ProgramActivationBooleanStateChecks.NestedGatesUseTheCurrentOwnerSkillInstance),
     ("Damage judgment suit payment four suits and exact claims", BoundaryCaiWenJiChecks.DamageJudgmentBeforePaymentFourSuitsAndExactClaims),
     ("Damage judgment suit payment independent matches and foreign claim", BoundaryCaiWenJiChecks.IndependentSuitRankMatchesAndPreviouslyClaimedJudgment),

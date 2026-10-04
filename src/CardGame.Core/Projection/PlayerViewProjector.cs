@@ -102,6 +102,7 @@ public sealed partial class GameEngine
                 PublicPersistentPileCount = PublicPileCards(player.Seat).Count,
                 PublicPersistentPileName = SinglePublicPileSource(player.Seat) is { } publicPile ? _contentRegistry.GetSkill(publicPile.SkillId).ProgramPresentation?.AuthorityName : null,
                 PublicPersistentPileSkillId = SinglePublicPileSource(player.Seat)?.SkillId,
+                SourceCurses = CreateSourceCurseSnapshots(player.Seat),
                 PublicPersistentPiles = CreatePublicPersistentPileSnapshots(player.Seat),
                 PrivateGeneralLibraries = ProjectPrivateGeneralLibraries(player,viewerSeat,revealAll),
                 PrivateTurnHolds = ProjectPrivateTurnHolds(player.Seat, viewerSeat, revealAll),
@@ -250,6 +251,7 @@ public sealed partial class GameEngine
 
     private static PlayerSnapshot FreezePlayer(PlayerSnapshot player) => player with
     {
+        SourceCurses = FreezeViewList(player.SourceCurses),
         Hand = FreezeViewList(player.Hand)!,
         Equipment = FreezeViewList(player.Equipment)!,
         Judgment = FreezeViewList(player.Judgment)!,

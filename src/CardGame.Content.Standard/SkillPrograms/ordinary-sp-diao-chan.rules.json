@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:lihun", "revision": 1,
+      "activations": [{
+        "id": "discard-flip-take-male-hand", "minCards": 1, "maxCards": 1,
+        "sourceZones": ["hand", "equipment"], "minTargets": 1, "maxTargets": 1,
+        "targetKind": "anyLivingMale", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [{ "op": "discardTurnOverAndTakeHand", "target": "owner", "stateId": "return-original-male-hand-debt" }]
+      }],
+      "triggers": [{
+        "id": "return-original-male-hand-debt", "window": "playEnding", "subject": "owner",
+        "turnOwnerScope": "own", "optional": false,
+        "effects": [{ "op": "returnIssuedPhaseHandDebt", "target": "owner" }]
+      }]
+    },
+    { "id": "ol:biyue", "revision": 1, "triggers": [{
+      "id": "current-ending-hand-draw", "window": "turnEnding", "subject": "owner",
+      "turnOwnerScope": "own", "optional": true,
+      "effects": [{ "op": "draw", "target": "owner", "numberExpression": "currentHandEmptyTwoOtherwiseOne" }]
+    }] }
+  ]
+}

@@ -29,6 +29,7 @@ internal static class ProgramCompositionValidator
         SelectIssuedFixedRecipientWithDeathReturnDescriptor.ValidateComposition(path, effects, window, selectedCardCount, initialSelectedTarget, initialTargetSetMaximum);
         EndingPairSlashLossComposition.Validate(path, effects, window, selectedCardCount);
         HalfHandPhaseDebtComposition.Validate(path, effects, window, selectedCardCount, initialTargetSetMaximum, turnOwnerScope);
+        PhaseHandSeizureComposition.Validate(path, effects, window, selectedCardCount, initialSelectedTarget, activationTargetKind, activationSourceZones, activationMinimumCards, turnOwnerScope);
         EquipmentPairDyingCardComposition.Validate(path, effects, window);
         GrantNextActualUseTargetAdjustmentDescriptor.ValidateComposition(path, effects, window, selectedCardCount,
             initialSelectedTarget, activationTargetKind, activationSourceZones, activationMinimumCards);

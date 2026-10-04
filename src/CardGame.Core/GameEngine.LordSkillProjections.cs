@@ -16,7 +16,7 @@ public sealed partial class GameEngine
             (g.SourceId != CharacterState.PrimarySkillSource || !IsNationalWarMode || owner.GeneralSelected && owner.GeneralRevealed) &&
             (g.SourceId != CharacterState.SecondarySkillSource || IsNationalWarMode && owner.SecondaryGeneralSelected && owner.SecondaryGeneralRevealed) &&
             (g.SourceId is not (CharacterState.PrimarySkillSource or CharacterState.SecondarySkillSource) ||
-             !_contentRegistry.GetSkill(g.SkillId).Tags.HasFlag(SkillTag.Lord) || owner.Role == Role.Lord)).ToArray();
+             !_contentRegistry.GetSkill(g.SkillId).Tags.HasFlag(SkillTag.Lord) || owner.Role == Role.Lord || IsPrintedLordGrantQualified(owner, g))).ToArray();
         var suppressors = HasPrivateGeneralLibraryCapability ? PrivateGeneralLibrarySuppressionInputs(owner) : active.Where(g => _contentRegistry.GetSkill(g.SkillId).SuppressionRule is {} r && owner.Hp == r.OwnerHpEquals)
             .Select(g => g.SkillId).ToHashSet(StringComparer.Ordinal);
         return suppressors.Count == 0 ? active : active.Where(g => suppressors.Contains(g.SkillId) || g.SourceId.StartsWith("equipment:", StringComparison.Ordinal));
@@ -59,9 +59,9 @@ public sealed partial class GameEngine
         if (owner.Role == role) return true;
         if (role != Role.Lord || !_contentRegistry.GetSkill(skillId).Tags.HasFlag(SkillTag.Lord)) return false;
         // The menu uses the same stable instance that execution resolves. Do not let another grant authorize it.
-        instance ??= GetSkillBindingShard(owner).ActiveGrants.Where(g => g.SkillId == skillId)
+        instance ??= PreferredQualifiedPrintedLordInstance(owner, skillId) ?? GetSkillBindingShard(owner).ActiveGrants.Where(g => g.SkillId == skillId)
             .OrderBy(g => g.SkillInstanceId, StringComparer.Ordinal).Select(g => g.SkillInstanceId).FirstOrDefault();
-        return owner.SkillGrants.Grants.Any(g => g.SkillId == skillId && g.SkillInstanceId == instance && g.IsEnabled && g.LordProjection is not null && IsProjectedGrantQualified(owner, g));
+        return owner.SkillGrants.Grants.Any(g => g.SkillId == skillId && g.SkillInstanceId == instance && g.IsEnabled && (IsPrintedLordGrantQualified(owner, g) || g.LordProjection is not null && IsProjectedGrantQualified(owner, g)));
     }
 
     // Preserve the established local ownership semantics for ordinary grants. A retained,

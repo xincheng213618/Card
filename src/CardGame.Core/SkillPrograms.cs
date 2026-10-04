@@ -186,6 +186,7 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    DepositSelectedSourceCurse = 8200, DrawForSourceCurseUse = 8201, LoseHpForLostSourceCurses = 8202,
     DepositBoundPrivateCardOffer = 7700, ResolveDeferredPrivateCardOffer = 7701, ResolveGameTargetHandHpChoice = 7702,
     DiscardTargetHpCardsAndDamage = 7601,
     DiscardOwnedCardToAdjustCurrentDamage = 7100,
@@ -425,6 +426,7 @@ public enum SkillProgramEffectOp
     DrawExtraAndArmHalfHandSupport = 6000, GiveHalfHandAndIssueTargetSupport = 6001,
     ExchangeHandsAndArmPhaseDebt = 6002, SelectFrozenHandExchangeDebtPayment = 6003, OfferHalfHandRecipientSupport = 6004,
     DrawThenDiscardSuitsForDyingPeach = 7900, UseOwnPlayHistoryAtEnding = 7901,
+    DiscardTurnOverAndTakeHand = 8000, ReturnIssuedPhaseHandDebt = 8001,
     DrawEndingPairThenBlockRoundIfUnequal = 6700, RecastSelectedPhysicalSlash = 6701,
     ObtainOneFromEachSelectedTarget = 6300, GiveShownCardToLeastOriginalTarget = 6301,
     IssueFixedRecipientBenefit = 6302, SelectIssuedFixedRecipient = 6303,
@@ -446,6 +448,7 @@ public enum SkillProgramEffectOp
     DiscardSlashThenOtherCardAndUseDuel = 7320,
     DrawThenNullifyOwnMultiTargetTrick = 7300, RestrictDamageSourceHandCategory = 7301,
     PlaceOwnedEquipmentThenResolveSlotBenefit = 7500,
+    GiveBlackHandAndResolveRecipientContest = 8100, RaiseMaximumRecoverAndQualifyPrintedLord = 8101,
     PayHpInspectHandThenDiscardOrSlash = 7800
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets, HpPairHigher = 2000, HpPairLower = 2001 }
@@ -527,7 +530,7 @@ public enum SkillProgramNumberExpression
     LostHpMinusHandCount = 600,
     CategoryTargetTurnUsage = 820, CurrentHp = 1020, SelectedTargetsHandGreaterThanLord = 1021,
     PhaseSkillUsage = 1022, EventMovedCardCount = 1700, CurrentTurnUsedCardCategoryCount = 4600, OwnerLostHpAtLeastOne = 7400,
-    TurnOwnerDiscardPhaseHandDiscardCount = 3100}
+    TurnOwnerDiscardPhaseHandDiscardCount = 3100, CurrentHandEmptyTwoOtherwiseOne = 8008}
 public enum SkillProgramCardSetVisibility { Private, Public }
 public enum SkillProgramCardDestination
 {
@@ -1751,6 +1754,7 @@ public sealed class SkillProgramCatalog
             }
             EnsureUniqueIds(triggers.Select(item => item.Id), skillPath + ".triggers");
             PrivateOfferComposition.ValidateBindings(skillPath, triggers);
+            PhaseHandSeizureComposition.ValidateBindings(skillPath, activations, triggers);
             ValidateTriggerChoiceGroups(skillPath, triggers);
             foreach (var group in triggers.Where(t => t.NamedUsageGroup is not null).GroupBy(t => t.NamedUsageGroup!, StringComparer.Ordinal))
             {
@@ -2139,6 +2143,12 @@ public sealed class SkillProgramCatalog
                      SkillProgramCardPolicyKind.NextCardUnlimitedAfterNonLockedSkill or SkillProgramCardPolicyKind.DamageBecomesHpLoss or
                      SkillProgramCardPolicyKind.ForeignPublicPileSlash or SkillProgramCardPolicyKind.PindianClaim or SkillProgramCardPolicyKind.IgnoreTurnObtainedHandCardsForDiscard or SkillProgramCardPolicyKind.PreventForeignEquipmentDiscard))
             Fail(path + ".cardKinds", "this policy requires effective card kinds");
+        if (kind == SkillProgramCardPolicyKind.CannotNullifyOwnOrdinaryTrick &&
+            (cardKinds.Count == 0 || cardKinds.Any(k => CardCatalog.Get(k).CategoryName != "锦囊牌" ||
+                k is CardKind.Indulgence or CardKind.SupplyShortage or CardKind.Lightning or CardKind.Nullification) ||
+             requiredKinds.Count != 0 || value != 0 || inputSuit is not null || outputSuit is not null || ownerRole is not null || factionId is not null ||
+             OptionalCondition(node, path).Kind != SkillProgramConditionKind.Always))
+            Fail(path, "Cannot-nullify ordinary tricks require genuine non-delayed trick kinds and no other qualifiers; counterspells use their paid node policy.");
         if (kind is SkillProgramCardPolicyKind.RandomRevealColorFireAttack or SkillProgramCardPolicyKind.UnrespondableNullification)
         {
             var required = kind == SkillProgramCardPolicyKind.RandomRevealColorFireAttack ? CardKind.FireAttack : CardKind.Nullification;
@@ -2735,6 +2745,8 @@ public sealed class SkillProgramCatalog
                 ContinueAfterOwnerDeath = node.TryGetProperty("continueAfterOwnerDeath", out _) && RequiredBool(node, "continueAfterOwnerDeath", path),
                 SelectedCardsDistinctSuits = node.TryGetProperty("selectedCardsDistinctSuits", out _) && RequiredBool(node, "selectedCardsDistinctSuits", path),
                 CardCountExpression = cardCountExpression, CardKinds = cardKinds, CardSuits = cardSuits, CardCategories = cardCategories };
+        RecipientContestConsequencesComposition.Activation(path, activation);
+        SourceCurseComposition.ValidateActivation(path, activation);
         ActualDiscardRecoveryComposition.ValidateActivation(path, activation);
         EquipmentDonationComposition.ValidateActivation(path, activation);
         ConditionalDiscardDuelComposition.Validate(path, activation);
@@ -3581,8 +3593,10 @@ public sealed class SkillProgramCatalog
         if (effects.Any(e => e.NumberExpression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount) &&
             (window != SkillProgramTriggerWindow.PlayEnding || subject != SkillProgramTriggerSubject.Owner || turnOwnerScope != SkillProgramTurnOwnerScope.Own))
             Fail(path, "actual turn type-count draw requires an own Play-ending owner window");
+        SourceCurseComposition.ValidateTrigger(path, effects, window, subject, turnOwnerScope, optional, ownerRelation, includeResponseUses);
         PrivateOfferComposition.ValidateTrigger(path, effects, window, subject, turnOwnerScope, optional);
         HalfHandPhaseDebtTriggerContract.Validate(path, effects, subject, optional);
+        PhaseHandSeizureComposition.ValidateTrigger(path, effects, subject, optional);
         DyingSuitsAndEndingHistoryComposition.Validate(path, effects, window, subject, optional, usageScope, usageLimit, turnOwnerScope);
         OwnTrickAndHandCategoryComposition.Validate(path, effects, window, subject, optional);
         PaidTargetEndingComposition.Validate(path, effects, window, subject, turnOwnerScope, optional);
@@ -3606,6 +3620,7 @@ public sealed class SkillProgramCatalog
         PlacedEquipmentBenefitComposition.Validate(path, effects, window, subject, turnOwnerScope, optional);
         PaidColorDamageClaimComposition.Validate(path, effects, window, subject, turnOwnerScope, optional);
         ForeignTurnContestAidComposition.Validate(path, effects, window, subject, optional, ownerRelation, cardKinds);
+        RecipientContestConsequencesComposition.Trigger(path, effects, window, subject, optional, turnOwnerScope, usageScope, usageLimit);
         RecipientContestComposition.Validate(path, effects, window, 0, 0, SkillProgramTargetKind.AnyLiving, null);
         if (effects.Any(e => e.Op == SkillProgramEffectOp.DiscardDrawAndOfferUniqueHpPeer) &&
             (subject != SkillProgramTriggerSubject.Owner || !optional || cardKinds.Count != 0 || ownerRelation is not null))
@@ -3741,6 +3756,7 @@ public sealed class SkillProgramCatalog
 
     private static void ValidateTriggerSources(IReadOnlyDictionary<string, SkillProgram> programs)
     {
+        SourceCurseComposition.ValidatePrograms(programs);
         foreach (var owner in programs.Values)
             foreach (var trigger in owner.Triggers)
             {

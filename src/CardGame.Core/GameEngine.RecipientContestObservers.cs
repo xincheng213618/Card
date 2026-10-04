@@ -83,10 +83,11 @@ public sealed partial class GameEngine
             f.UniqueHpPeer is not { CardUseFrameId: var original } || original != useId || !ValidUniqueHpPeer(f)) return false;
         return index + 2 == _resolutionStack.Count || RecipientContestPaidPrefix(index + 1, _resolutionStack.Count - 1);
     }
-    private bool IsRecipientContestProgramDying() => ActiveDying is { } dying && RecipientContestPaidObserverRoot() is { } root &&
+    private bool IsRecipientContestProgramDying() => IsRecipientConsequencesProgramDying() || ActiveDying is { } dying && RecipientContestPaidObserverRoot() is { } root &&
         _resolutionStack.FindIndex(f => f.Id == dying.FrameId) > _resolutionStack.FindIndex(f => f.Id == root.Id);
     private bool HasRecipientContestDamageObserver(long windowId)
     {
+        if (HasRecipientConsequencesDamageObserver(windowId)) return true;
         var index = _resolutionStack.FindIndex(f => f.Id == windowId && f is DamageTriggerWindowFrame);
         return index >= 2 && _resolutionStack[index] is DamageTriggerWindowFrame window && _resolutionStack[index - 1] is DamageFrame damage &&
             window.ParentFrameId == damage.Id && _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(f => f.Id == damage.ParentFrameId) is { AttackAttempt: not null, AttackReturn: not null } attack &&

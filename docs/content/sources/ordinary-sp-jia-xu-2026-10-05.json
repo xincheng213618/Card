@@ -1,0 +1,56 @@
+{
+  "generalId": "ol:sp-jia-xu",
+  "module": "OrdinarySpJiaXuContent",
+  "bundle": "ordinary-sp-jia-xu",
+  "gid": 110,
+  "primaryEvidence": [
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-110-page.raw.html",
+      "sha256": "3147c1450f5126a3861d8ed24c3ab18bb82d37f1c38554723e764d4d6737d864"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-110-info.raw.json",
+      "sha256": "f1ebf400f1bdad03f8e593fcf8bc1a1a77239f9bf7a4fc2a9fbcfde65b01b82e"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-current-source.json",
+      "sha256": "0c4103d3f036f49d46d4692bf1852ae9b06dd2feca023614fc305e4595b0ffe2"
+    }
+  ],
+  "sourceDate": "2026-10-05",
+  "exactSkills": {
+    "ol:zhenlue": {
+      "name": "缜略",
+      "description": "锁定技，你的普通锦囊牌不能被抵消；你不能成为延时锦囊牌的目标。"
+    },
+    "ol:jianshu": {
+      "name": "间书",
+      "description": "限定技，出牌阶段，你可以交给一名其他角色一张黑色手牌，并选择另一名角色，然后令两者拼点：赢的角色弃置两张牌，没赢的角色失去1点体力。"
+    },
+    "ol:yongdi": {
+      "name": "拥嫡",
+      "description": "限定技，回合开始时，你可以令一名其他男性角色增加1点体力上限并回复1点体力，然后令其武将牌上的主公技生效。"
+    }
+  },
+  "metadata": {
+    "faction": "wei",
+    "maximumHp": 3,
+    "initialHpOverride": null,
+    "rawInitialHp": 0,
+    "initialHpSemantics": "Full maximum HP, proven by retained current heroDetail.js lines101-127",
+    "gender": "Male",
+    "structuredApiGender": false,
+    "genderBasis": "Engineering metadata choice from same historical Jia Xu identity/existing metadata/current original art"
+  },
+  "rootMetadataManifest": {
+    "repoPath": ".artifacts/continuation-20261003-batch17/batch39/root-source/delivery-manifest.json",
+    "sha256": "ff021d3d013a74453bc1380b8fcac74f7b56a99bf24f66c940c9c26845ad171b"
+  },
+  "sourceGaps": [],
+  "engineeringDefaults": [
+    "The distinct second Pindian participant may be the issuer after actual gift costs and children.",
+    "Already-qualified other male lords remain valid Yongdi beneficiaries; qualification is idempotent.",
+    "Nullification means the mature paid counterspell boundary, not every target-effect Ineffective/prevention operation."
+  ],
+  "validation": "Source-only reviewed; no compilation, loader, test, game or runtime acceptance."
+}

@@ -1,0 +1,49 @@
+{
+  "baseHead": "ee8e85229c5e3d11efb414b0be4f12c97386525b",
+  "scope": "Capture three exactly advertised original portraits and one exactly advertised current display script to close metadata/art source gaps.",
+  "candidateSourceSha256": "0c4103d3f036f49d46d4692bf1852ae9b06dd2feca023614fc305e4595b0ffe2",
+  "maxHttpRequests": 4,
+  "requests": [
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/10900.png",
+      "stem": "109-cover",
+      "extension": "png",
+      "advertisedBy": "docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-109-info.raw.json data.info[0].cover"
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11000.png",
+      "stem": "110-cover",
+      "extension": "png",
+      "advertisedBy": "docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-110-info.raw.json data.info[0].cover"
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11900.png",
+      "stem": "119-cover",
+      "extension": "png",
+      "advertisedBy": "docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-119-info.raw.json data.info[0].cover"
+    },
+    {
+      "url": "https://www.sanguosha.com/assets/js/heroDetail.js?1",
+      "stem": "current-heroDetail",
+      "extension": "js",
+      "advertisedBy": "docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-109-page.raw.html:515"
+    }
+  ],
+  "redirects": false,
+  "retries": 0,
+  "maxResponseBytes": 3145728,
+  "compiler": false,
+  "build": false,
+  "productionLoader": false,
+  "tests": false,
+  "game": false,
+  "nativeAi": false,
+  "ui": false,
+  "benchmark": false,
+  "release": false,
+  "publish": false,
+  "push": false,
+  "protectedConcurrentPath": "src/CardGame.Core/GameEngine.PrepDiscardReceipts.cs",
+  "unrelatedUntrackedPathPreserved": ".tmp-round5/",
+  "cleanupRetryOrBypass": false
+}

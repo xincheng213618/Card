@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:zhoufu": {
+      "name": "咒缚",
+      "description": "出牌阶段限一次，你可以将一张牌置于一名其他角色的武将牌上，称为“咒”。当有“咒”的角色判定时，将“咒”作为判定牌。每回合结束时，你令本回合失去过“咒”的角色各失去1点体力。",
+      "activationLabels": {
+        "place-source-curse": "咒缚 · 明置一张牌"
+      },
+      "triggerChoices": {
+        "lost-curse-own-turn-ended": "令本回合失去咒的角色各失去1点体力",
+        "lost-curse-other-turn-ended": "令本回合失去咒的角色各失去1点体力"
+      }
+    },
+    "ol:yingbing": {
+      "name": "影兵",
+      "description": "锁定技，有“咒”的角色使用与“咒”颜色相同的牌时，你摸一张牌；若这是你第二次因此“咒”摸牌，你获得此“咒”。",
+      "triggerChoices": {
+        "matching-curse-actual-use": "摸一张牌；第二次实际摸牌后获得原咒"
+      }
+    }
+  }
+}

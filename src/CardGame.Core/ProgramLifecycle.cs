@@ -1,7 +1,7 @@
 namespace CardGame.Core;
 
 /// <summary>Frozen public facts and parent identity for one configured lifecycle binding.</summary>
-public sealed record ProgramSkillWindowContext(
+public sealed partial record ProgramSkillWindowContext(
     SkillProgramTriggerWindow Window,
     long ParentFrameId,
     int OwnerSeat,
@@ -319,7 +319,7 @@ public enum ProgramLifecycleContinuation
     CompleteDiscardPhase, EndTurnAfterDiscardPhase, CompleteGameStarting,
     ResumeCardDeclaration = 1600,
     ResumeParentProgram = 500, ResumeDyingEntry = 660,
-    CompleteJudgmentPhaseStarting = 800, ResumeCharacterStateChange = 820, CompleteDrawPhaseEnded = 1140, ResumeDrawPhaseObligation = 3800
+    CompleteJudgmentPhaseStarting = 800, ResumeCharacterStateChange = 820, CompleteDrawPhaseEnded = 1140, ResumeDrawPhaseObligation = 3800, CompletePhaseHandDebtForcedEnd = 8007
 }
 
 public enum TurnEndingBoundaryItemKind { Program, GiftRetention = 1460 }
