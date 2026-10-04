@@ -194,6 +194,8 @@ public sealed partial class GameEngine
         {
             OwnerMarkerCount = bindings.Any(binding => binding.Modifier.QueryDependencies.Contains(SkillRuleQueryDependency.MarkerState))
                 ? marker => player.Markers.GetValueOrDefault(marker) : null,
+            PublicLivingFactionCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.PublicLivingFactionCount)
+                ? GetPublicLivingFactionCount() : null,
             CurrentTurnUsedHandSuitCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.CurrentTurnUsedHandSuitCount)
                 ? CurrentTurnUseKinds(player.Seat).HandSuits : null
         };

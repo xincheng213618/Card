@@ -116,6 +116,9 @@ public sealed record ProgramSkillFrame(
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
     : ResolutionFrame(Id, ResolutionFrameKind.ProgramSkill, Step)
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramExtraDrawReceipt? ExtraDrawReceipt { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramTurnDrawDebtPayment? TurnDrawDebtPayment { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramSourceFactionPreventionReceipt? SourceFactionPrevention { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramDiamondDelayedDraft? DiamondDelayed { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramShownGiftReceipt? ShownGiftReceipt { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public SharedSlashOfferReceipt? SharedSlashOffer { get; init; }

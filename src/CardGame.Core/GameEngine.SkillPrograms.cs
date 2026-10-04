@@ -822,6 +822,8 @@ public sealed partial class GameEngine
             AssertSharedSlashOffer(frame);
             AssertShownGiftReceipt(frame, plan.Instructions);
             AssertExactRepeatedJudgmentReceipt(frame, plan.Instructions);
+            AssertTurnDrawDebtReceipts(frame, plan.Instructions);
+            AssertSourceFactionPrevention(frame);
             if (frame.InstructionIndex < 1 || frame.InstructionIndex > plan.Instructions.Count ||
                 frame.SelectedCardIds.Distinct().Count() != frame.SelectedCardIds.Count ||
                 frame.SelectedTargetSeats.Any(seat => !IsValidPlayerSeat(seat)) ||
@@ -831,7 +833,7 @@ public sealed partial class GameEngine
                     binding.SelectionActorSeat is { } selectionActor &&
                     (!HasForeignDiscardCapability || !IsValidPlayerSeat(selectionActor) ||
                      !plan.Instructions.Take(frame.InstructionIndex).Any(e => e.ResultBind == binding.Name &&
-                        e.Op is SkillProgramEffectOp.SelectOwnedCards or SkillProgramEffectOp.SelectSourceCard or SkillProgramEffectOp.SelectCardSubset or SkillProgramEffectOp.FilterBoundCards)) ||
+                        e.Op is SkillProgramEffectOp.SelectOwnedCards or SkillProgramEffectOp.SelectSourceCard or SkillProgramEffectOp.SelectCardSubset or SkillProgramEffectOp.FilterBoundCards or SkillProgramEffectOp.SelectTurnDamageUseDebtPayment)) ||
                     binding.CardIds.Count != binding.SourceLocations.Count ||
                     binding.CardIds.Distinct().Count() != binding.CardIds.Count ||
                     plan.Instructions.Any(instruction => instruction is { FreezeMovedCardSuit: true } frozen && frozen.ResultBind == binding.Name) &&
@@ -967,7 +969,7 @@ public sealed partial class GameEngine
                     !(paidEffect?.Op == SkillProgramEffectOp.ObtainDamageTargetCardAndResolveCategory && frame.DamageTargetObtain is not null && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(paidEffect?.Op == SkillProgramEffectOp.DiscardDamageTargetAndClaimMount && frame.DamageTargetMount is { Receipt: not null } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !awaitsCappedHandRefresh && !awaitsDeclaredDeck && !awaitsShownGift && !awaitsJudgmentClaim && !awaitsRepeatedJudgment && !awaitsOwnedMovement &&
-                    !IsPreventionDrawMovement(frame, paidEffect, pendingMovement) && !IsDamageJudgmentSuitPaymentMovement(frame, paidEffect, pendingMovement) && !awaitsExchangedMovement && !(paidEffect?.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.DeferredHandAlignmentResolution is { } deferredAlignment && pendingMovement.SubjectSeat == deferredAlignment.TargetSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseRandomDeckEquipment && frame.SelectedTargetSeats is [var equipmentUser] && pendingMovement.SubjectSeat == equipmentUser && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
+                    !IsExtraDrawDebtMovement(frame, paidEffect, pendingMovement) && !IsPreventionDrawMovement(frame, paidEffect, pendingMovement) && !IsDamageJudgmentSuitPaymentMovement(frame, paidEffect, pendingMovement) && !awaitsExchangedMovement && !(paidEffect?.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.DeferredHandAlignmentResolution is { } deferredAlignment && pendingMovement.SubjectSeat == deferredAlignment.TargetSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseRandomDeckEquipment && frame.SelectedTargetSeats is [var equipmentUser] && pendingMovement.SubjectSeat == equipmentUser && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(paidEffect is { Op: SkillProgramEffectOp.MoveBoundCards, AwaitMovementTriggers: true } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(paidEffect?.Op == SkillProgramEffectOp.ObtainBoundCardsAndArmNextRevealBonus &&
                         pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.BeforeCount == 0 && pendingMovement.CoverageResultBind is null) &&

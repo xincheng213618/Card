@@ -332,7 +332,7 @@ public sealed partial class GameEngine
             paidContext.OwnerSeat == paidDyingProgram.OwnerSeat &&
             (paidContext.Window == SkillProgramTriggerWindow.DyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.ResponderSeat ||
              paidContext.Window == SkillProgramTriggerWindow.SelfDyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.VictimSeat) &&
-            (IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying()))
+            (IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying()))
         {
             AdvanceRuntimeProgram(paidDyingProgram.Id);
             AdvanceRulesAndPublishState();

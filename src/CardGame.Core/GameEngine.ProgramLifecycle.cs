@@ -1819,6 +1819,7 @@ public sealed partial class GameEngine
         var trigger = ProgramInstructionResolver.Default.FindTrigger(program, candidate.BindingId);
         if (trigger is null || trigger.Window != context.Window || !CanPayProgramMarkerCost(owner, trigger.MarkerCost))
             return false;
+        if (!CanRunTurnDrawDebtPayment(candidate, trigger, context) || !CanRunSourceFactionPrevention(candidate, trigger, context)) return false;
         if (!CanOfferOriginalTargetAddition(candidate, trigger, context)) return false;
         if (!CanRunProgramDyingAlcoholPolicy(trigger, context, candidate.OwnerSeat)) return false;
         if (!CanOfferFinalTargetSlash(candidate, trigger, context)) return false;
@@ -3996,7 +3997,7 @@ public sealed partial class GameEngine
                     SelectAiProgramPhaseHandDiscardRestore(decision, frame),
                 SkillProgramEffectOp.ChooseOwnCardDiscard =>
                     SelectAiProgramOwnCardDiscard(decision, frame),
-                SkillProgramEffectOp.SelectOwnedCards or SkillProgramEffectOp.ResolveDeferredHandAlignment => SelectAiProgramOwnedCards(decision, frame),
+                SkillProgramEffectOp.SelectOwnedCards or SkillProgramEffectOp.ResolveDeferredHandAlignment or SkillProgramEffectOp.SelectTurnDamageUseDebtPayment => SelectAiProgramOwnedCards(decision, frame),
                 SkillProgramEffectOp.DrawThenDiscardHandToMaximumHp => decision.Choices[0],
                 SkillProgramEffectOp.HoldTargetCards => SelectAiProgramHoldCards(decision, frame),
                 SkillProgramEffectOp.RequestSlashByTarget => SelectAiProgramRequestSlash(decision, frame),
@@ -4234,7 +4235,8 @@ public sealed partial class GameEngine
                     WouldEquipmentRemovalReduceCoverage(player.Seat, card.Id))),
             LivingPlayersMinHp: GetLivingPlayersMinHp(),
             TurnOwnerDiscardPhaseHandDiscardCount: TurnOwnerDiscardPhaseHandDiscardCount,
-            CurrentTurnUsedCardCategoryCount: TracksCurrentTurnUseKinds ? CurrentTurnUseKinds(owner.Seat).Categories : null);
+            CurrentTurnUsedCardCategoryCount: TracksCurrentTurnUseKinds ? CurrentTurnUseKinds(owner.Seat).Categories : null,
+            PublicLivingFactionCount: TracksTurnDrawDebt ? GetPublicLivingFactionCount() : null);
 
     private ProgramAiPublicContext WithProgramConditionFacts(ProgramAiPublicContext context,
         CharacterState owner, string skillId, string skillInstanceId)

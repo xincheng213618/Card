@@ -3,7 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private SkillProgramEffect GetOwnedSelectionEffect(ProgramSkillFrame frame) =>
-        ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect;
+        TurnDrawDebtOwnedSelectionEffect(frame, ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect);
 
     private int GetProgramOwnerLostHp(ProgramSkillFrame frame)
     {
@@ -138,6 +138,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Owned selection lost its actual choosing participant.");
         var deferred = effect.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment;
         if (deferred) effect = DeferredOwnedSelectionEffect(frame, effect);
+        effect = TurnDrawDebtOwnedSelectionEffect(frame, effect);
         var draft = frame.OwnedCardSelection ?? throw new InvalidOperationException("Missing owned-card draft.");
         var finish = selected.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards";
         if (effect.Op != SkillProgramEffectOp.SelectOwnedCards || draft.ResultBind != effect.ResultBind ||
@@ -181,6 +182,7 @@ public sealed partial class GameEngine
     private void AssertProgramOwnedCardSelection(ProgramSkillFrame frame, SkillProgramEffect paused)
     {
         if (paused.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.OwnedCardSelection is not null) paused = DeferredOwnedSelectionEffect(frame, paused);
+        if (paused.Op == SkillProgramEffectOp.SelectTurnDamageUseDebtPayment && frame.OwnedCardSelection is not null) paused = TurnDrawDebtOwnedSelectionEffect(frame, paused);
         if (paused.Op != SkillProgramEffectOp.SelectOwnedCards)
         {
             if (frame.OwnedCardSelection is not null)

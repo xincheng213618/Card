@@ -21,7 +21,7 @@ public enum SkillRuleQuery
     CardEffectImmunity = 630
 }
 public enum SkillRuleOperation { Add, Set, Unlimited }
-public enum SkillRuleValueExpression { LivingFactionCount, OwnedZoneCount, OwnerLostHp = 2, NegatedOwnedZoneCount = 3, NegatedOwnerLostHp = 900, OwnerMarkerCount = 2600, CurrentTurnUsedHandSuitCount = 4600 }
+public enum SkillRuleValueExpression { LivingFactionCount, OwnedZoneCount, OwnerLostHp = 2, NegatedOwnedZoneCount = 3, NegatedOwnerLostHp = 900, OwnerMarkerCount = 2600, CurrentTurnUsedHandSuitCount = 4600, PublicLivingFactionCount = 5200 }
 public enum SkillRuleQueryDependency { MarkerState }
 public enum SkillProgramConditionKind { Always, OwnTurn, NotOwnTurn, Wounded, HpAtLeast, HandCountAtLeast, CardUseIsRed, SelectedTargetIsOther, SelectedTargetHandGreaterThanOwner, PindianWon, PindianNotWon, BooleanState, All, Any, Not, FaceDown, Chained, ChoiceIs, BoundCardsSameColor, BoundCardsMatchCategories, BoundCardsMatchKinds = 20, HasClaimableDamageCards = 21, AttackRangeCoverageDecreased = 22, HasOwnedCardCategory = 23, BoundCardCountAtLeast = 24, ActivationCardCountAtLeast = 25, ClassicIdentityMode = 26, BoundCardSuitMatchesChoice = 27, BoundCardsMatchSuits = 28, BoundCardCategoryMatchesCardAction = 29, EventTargetGenderIs = 30, EventSourceGenderIs = 31, SelectedTargetWounded = 820, RuntimeBooleanState = 450, PublicCounterAtLeast = 451, PublicCounterOdd = 452, HandCountGreaterThanHp = 1020, PositiveHandLimit = 1021, HasUsableHandCard = 1022, RequestedSlashDamagedOwner = 1023 }
 public enum SkillProgramTriggerConditionKind
@@ -404,6 +404,7 @@ public enum SkillProgramEffectOp
     ClaimCurrentUsePhysicalCards = 3200, PreventCurrentTargetSlashCancellationByRule = 3201,
     DiscardBoundCardForTurnSlashBenefits = 3400, ScheduleFirstRoundGameUsageRefund = 3401,
     PreventCurrentDamageAndDrawMultiple = 4000, RequestLegalSlashByNearest = 4002, OfferUnlimitedVirtualSlash = 4003,
+    DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
     ReceiveOwnerDamage = 4100, ConsumeDistinctTurnTarget = 4101, DrawOwnerAtAppliedDamage = 4102,
     GiveBoundCardThenOfferVirtualSlashOrSharedDraw = 5100
 }
@@ -1047,6 +1048,8 @@ public sealed class SkillProgramModifier
         SkillRuleValueExpression.LivingFactionCount when context.LivingFactionCount >= 0 => context.LivingFactionCount,
         SkillRuleValueExpression.LivingFactionCount => throw new ArgumentOutOfRangeException(
             nameof(context), context.LivingFactionCount, "Living faction count cannot be negative."),
+        SkillRuleValueExpression.PublicLivingFactionCount => context.PublicLivingFactionCount is >= 0 ? context.PublicLivingFactionCount.Value :
+            throw new InvalidOperationException("Public living factions were not captured."),
         SkillRuleValueExpression.CurrentTurnUsedHandSuitCount => context.CurrentTurnUsedHandSuitCount ??
             throw new InvalidOperationException("Actual turn hand-suit facts were not captured."),
         SkillRuleValueExpression.OwnerLostHp => Math.Max(0, context.Owner.MaxHp - context.Owner.Hp),
@@ -2124,6 +2127,9 @@ public sealed class SkillProgramCatalog
             : null;
         var valueZone = node.TryGetProperty("valueZone", out _)
             ? EnumValue<CardZoneKind>(node, "valueZone", path) : (CardZoneKind?)null;
+        if (valueExpression == SkillRuleValueExpression.PublicLivingFactionCount &&
+            (query != SkillRuleQuery.HandLimit || operation != SkillRuleOperation.Add))
+            Fail(path, "public living factions require an additive hand-limit modifier");
         if (valueExpression is SkillRuleValueExpression.OwnedZoneCount or SkillRuleValueExpression.NegatedOwnedZoneCount)
         {
             if (valueZone is not (CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or
@@ -3396,6 +3402,7 @@ public sealed class SkillProgramCatalog
         GrantedEntityPhaseComposition.Validate(path, effects, window, subject, turnOwnerScope);
         FrozenFactionRecoveryComposition.Validate(path, effects, window, subject, usageScope, usageLimit);
         AlternativePhaseCostCompositionContract.Validate(path, effects, window, subject, turnOwnerScope);
+        TurnDrawDebtComposition.Validate(path, effects, window, subject, optional, drawPhaseMode, turnOwnerScope);
         ProgramCompositionValidator.Validate(path, effects, initialSelectedTarget: deferredOnly, window: window, drawPhaseMode: drawPhaseMode, cardActionRelation: ownerRelation, cardKinds: cardKinds, turnOwnerScope: turnOwnerScope);
         if (node.TryGetProperty("onlyDesignatedCardTargets", out _) && ownerRelation != SkillProgramCardActionOwnerRelation.Target) Fail(path + ".onlyDesignatedCardTargets", "requires a target-owner card trigger");
         if (effects.Any(e => e.Op == SkillProgramEffectOp.ResolveDiscardBudgetParticipants) &&

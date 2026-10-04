@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:zishou-current", "revision": 1, "minimumRulesVersion": 195,
+      "triggers": [
+        {
+          "id": "extra-draw-debt", "window": "drawPhaseStarting", "subject": "owner", "optional": true,
+          "priority": 120, "drawPhaseMode": "additive",
+          "effects": [{ "op": "drawExtraAndArmTurnDamageUseDebt", "target": "owner", "stateId": "extra-draw" }]
+        },
+        {
+          "id": "ending-damage-use-debt", "window": "turnEnding", "subject": "owner", "optional": false,
+          "turnOwnerScope": "own", "priority": 120,
+          "effects": [
+            { "op": "selectTurnDamageUseDebtPayment", "target": "owner", "stateId": "extra-draw", "resultBind": "debt-cost" },
+            { "op": "moveBoundCards", "target": "owner", "sourceBind": "debt-cost", "destination": "discardPile", "awaitMovementTriggers": true },
+            { "op": "awaitBoundCardMovements", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:zongshi-current", "revision": 1, "minimumRulesVersion": 195,
+      "modifiers": [{ "id": "living-faction-hand-limit", "query": "handLimit", "operation": "add", "valueExpression": "publicLivingFactionCount", "priority": 0 }],
+      "triggers": [{
+        "id": "source-faction-yield", "window": "beforeDamageApplied", "subject": "damageTarget", "optional": false,
+        "priority": 100,
+        "effects": [
+          { "op": "preventDamageAndConsumeSourceFaction", "target": "owner", "stateId": "source-faction" },
+          { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "eventSource" },
+            "cardOwnerRef": { "kind": "owner" }, "zones": ["hand", "equipment", "judgment"], "count": 1,
+            "destination": "selectedTargetHand", "targetRef": { "kind": "eventSource" }, "skipIfNoCards": true,
+            "resultBind": "yield-card", "awaitMovementTriggers": true }
+        ]
+      }]
+    }
+  ]
+}

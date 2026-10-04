@@ -22,6 +22,7 @@ internal static class ProgramCompositionValidator
         if (effects.Any(e => e.Op == SkillProgramEffectOp.UseSelectedActorDuel) &&
             (window is not null || selectedCardCount != 0 || !initialSelectedTarget || initialTargetSetMaximum != 0 || effects.Count != 1))
             throw Error(path, "Selected actor Duel is a single zero-card one-selected-target activation.");
+        TurnDrawDebtComposition.Validate(path, effects, window, drawMode: drawPhaseMode, turnOwnerScope: turnOwnerScope);
         GrantNextActualUseTargetAdjustmentDescriptor.ValidateComposition(path, effects, window, selectedCardCount,
             initialSelectedTarget, activationTargetKind, activationSourceZones, activationMinimumCards);
         DiscardedProvenanceComposition.Validate(path, effects, window, selectedCardCount, initialSelectedTarget, initialTargetSetMaximum);

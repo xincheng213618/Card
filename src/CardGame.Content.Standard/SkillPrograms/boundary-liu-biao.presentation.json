@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:zishou-current": {
+      "name": "自守",
+      "description": "摸牌阶段，你可以多摸X张牌，你以此法摸牌的结束阶段，若你本回合使用过伤害牌，你弃置X张牌（X为全场势力数）。",
+      "triggerLabels": { "extra-draw-debt": "自守 · 额外摸牌", "ending-damage-use-debt": "自守 · 结束阶段弃牌" }
+    },
+    "boundary:zongshi-current": {
+      "name": "宗室",
+      "description": "锁定技，全场每有一个势力，你的手牌上限便+1。其他角色对你造成伤害时，防止此伤害改为令其获得你区域内的一张牌，每个势力限一次。",
+      "triggerLabels": { "source-faction-yield": "宗室 · 防伤并交牌" }
+    }
+  }
+}

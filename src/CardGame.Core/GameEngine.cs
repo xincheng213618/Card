@@ -16821,7 +16821,7 @@ public sealed partial class GameEngine
 
     private void AssertCoreInvariants()
     {
-        var damageProgramDying = IsProvenanceClaimProgramDying() || IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying() || IsPaidDamageTargetMountDying() || IsPaidDamageTargetObtainDying() || IsDamageAppearanceDrawProgramDying() || IsRecoveryReplacementProgramDying() || IsCharacterTurnedOverProgramDying() || IsCappedHandRefreshProgramDying() || IsPaidHandRepaymentProgramDying() || IsBoundRankBonusMovementDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawInsideDamageProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsAppliedDamageBenefitDying();
+        var damageProgramDying = IsProvenanceClaimProgramDying() || IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying() || IsPaidDamageTargetMountDying() || IsPaidDamageTargetObtainDying() || IsDamageAppearanceDrawProgramDying() || IsRecoveryReplacementProgramDying() || IsCharacterTurnedOverProgramDying() || IsCappedHandRefreshProgramDying() || IsPaidHandRepaymentProgramDying() || IsBoundRankBonusMovementDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawInsideDamageProgramDying() || IsSourceFactionYieldInsideDamageProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsAppliedDamageBenefitDying();
         _turnCardUseEffects.AssertInvariants();
         AssertPaidHpLossModifiers();
         AssertCurrentTurnOwnSkillSuppressions();
@@ -17674,7 +17674,7 @@ public sealed partial class GameEngine
                     } && parentFrameId == beforeDamage.Id;
                 if (beforeDamage.SourceSeat != pendingAttack.SourceSeat ||
                     (beforeDamage.RedirectedTargetSeat ?? beforeDamage.TargetSeat) != pendingAttack.TargetSeat ||
-                    !topMatchesWindow && !topMatchesProgram && !HasPreventionDrawDying(beforeDamage.Id))
+                    !topMatchesWindow && !topMatchesProgram && !HasPreventionDrawDying(beforeDamage.Id) && !HasSourceFactionYieldObserver(beforeDamage.Id))
                 {
                     throw new InvalidOperationException(
                         "An active before-damage program must retain its damage and parent window.");

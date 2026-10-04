@@ -1,5 +1,5 @@
 {
-  "status": "three-agent-static-development-user-runtime-verification-deferred",
+  "status": "all-three-static-integrated-runtime-verification-deferred",
   "batch": 25,
   "baseCommit": "659f5af4",
   "baseWasClean": true,
@@ -41,7 +41,9 @@
       "sourceSha256": "d18a780765e6d2254fdb21ed8b635d8895fded6047fcf29e984f4bfe72823d85",
       "owner": "/root/next_batch_audit",
       "stage": ".artifacts/continuation-20261003-batch17/batch25/liu-biao",
-      "mainRegistered": false
+      "mainRegistered": true,
+      "status": "static-integrated-runtime-deferred",
+      "integrationNote": "docs/content/skill-composition/FENG_LIN_TWENTY_FIFTH_LIU_BIAO.md"
     }
   ],
   "runs": [],
@@ -81,16 +83,49 @@
       "loaderExecuted": false,
       "testsRun": false,
       "runtimeAcceptance": false
+    },
+    {
+      "gid": 626,
+      "integratedAtUtc": "2026-10-04T00:06:29.3345712+00:00",
+      "frozenDeliveryManifestSha256": "4da3e3b251697d1db6291117627c73b1da0fc9d08ab41a8794e2d5cf1889ac12",
+      "originalOldBaselinesVerified": 13,
+      "originalNewFilesCopied": 12,
+      "narrowPatchRawLogicalAfterHashesMatched": 13,
+      "focusedChecksRegistered": 4,
+      "representativeRoutineFiltersAdded": 2,
+      "officialRawArtInstalled": true,
+      "closedStaticReviewFindings": [
+        "fixture skipPlay trigger moved from invalid TurnStartBeforeNormalFlow to supported AfterNormalDraw",
+        "5201 and 5202 first RecoveryReplacement child admitted only by exact awaited program movement return, real own SilverLion producer/reason and original payment ledger",
+        "Dying incoming edge proved before bound Alcohol whole-tail helper",
+        "dead real source still consumes public faction prevention; reward tail canceled",
+        "5202 opt-in added to existing real chain-damage range capability gates"
+      ],
+      "unrunBoundaries": [
+        "all four new behavior checks await compilation and actual execution",
+        "source faction changes before issuance; unknown current FAQ for X timings and Lightning classification",
+        "unrevealed NationalWar source/public count; no hidden faction event or AI inference",
+        "accepted damage from dead source and real chain propagation second target",
+        "gain/payment Dying, native/provider/virtual/bound rescue and death descendants",
+        "Wu acquired-skill SilverLion payment -> recovery replacement -> HP/reward -> Dying composition",
+        "source death/suppression or equipment granting original skill removed during paid children",
+        "extra and skipped actual-turn expiry, repeated additional Draw boundaries in one actual turn"
+      ],
+      "buildsRun": false,
+      "loaderExecuted": false,
+      "testsRun": false,
+      "runtimeAcceptance": false
     }
   ],
   "media": "docs/content/sources/fenglin-twenty-fifth-art-2026-10-04.json",
   "fixturePreparation": "docs/benchmarks/2026-10-04-routine-preparation-static.json",
   "runtimeAcceptance": false,
   "pending": [
-    "626 refreshed frozen delivery/current OLD baseline verification and static integration",
-    "User later combined build, focused runtime, Full and measured routine verification",
+    "User later combined current-source build, new focused runtime and relevant classic/shared verification",
+    "User later Full Core/WPF and measured routine verification; current default timing is unmeasured",
     "Offline and compiled raw art verification after waking",
-    "597 plus 604/4901 actual-tail combination currently static-only; no manufactured fixture"
+    "597 plus 604/4901 actual-tail combination remains static-only; no manufactured fixture",
+    "626 special acquired-skill, unrevealed faction, death and chain combinations remain static-reviewed but unrun"
   ],
   "cleanup": {
     "ownedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",

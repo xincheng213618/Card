@@ -11,6 +11,8 @@ public sealed record SkillProgramRuleContext(
     public Func<PlayerMarkerKind, int>? OwnerMarkerCount { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? CurrentTurnUsedHandSuitCount { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? PublicLivingFactionCount { get; init; }
 }
 
 public sealed record SkillProgramRuleSource(

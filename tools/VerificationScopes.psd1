@@ -137,6 +137,8 @@
         'Actual turn use kinds per Play draw',
         'Owner batch loss equipment OR two cards once',
         'Shared Slash gift equipment recovery both gain children cold'
+        'Turn damage-use draw debt actual gain and frozen ending cost'
+        'Source faction prevention quota opaque HEJ equipment children'
     )
     Wpf = @(
         'original card artwork', 'overlapping hand', 'composed skills', 'conversion choices',

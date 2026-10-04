@@ -1,5 +1,5 @@
 {
-  "status": "official-raw-art-partially-registered-runtime-verification-deferred",
+  "status": "official-raw-art-all-registered-runtime-verification-deferred",
   "batch": 25,
   "images": [
     {
@@ -56,15 +56,16 @@
       "pixelWidth": 750,
       "pixelHeight": 950,
       "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch25\\official-art\\official-boundary-liu-biao.png",
-      "installed": false
+      "installed": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-liu-biao.png"
     }
   ],
   "verification": {
     "rawPngSignatureAndIhdr": true,
     "sourceRecordShaMatched": true,
-    "mainRegistration": false,
+    "mainRegistration": true,
     "fullOfflineCatalogRun": false,
     "compiledVerificationRun": false,
-    "installedCount": 2
+    "installedCount": 3
   }
 }
