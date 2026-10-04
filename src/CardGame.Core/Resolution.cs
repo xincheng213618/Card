@@ -119,6 +119,8 @@ public sealed record ProgramSkillFrame(
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
     : ResolutionFrame(Id, ResolutionFrameKind.ProgramSkill, Step)
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramCapturedEquipmentDrawReceipt? CapturedEquipmentDraw { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramActualDiscardRecoveryReceipt? ActualDiscardRecovery { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramSuitPreventionBenefitReceipt? SuitPreventionBenefit { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramMatchedJudgmentPlacementReceipt? MatchedJudgmentPlacement { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramExtraDrawReceipt? ExtraDrawReceipt { get; init; }

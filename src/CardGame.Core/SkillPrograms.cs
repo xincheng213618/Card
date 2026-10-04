@@ -182,6 +182,7 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,
     ClaimDiscardedEntityWithProvenance = 4500, UseVirtualAlcohol = 4501, OfferFaceUpForOutsideClaims = 4502,
     InsertGrantedEntityPlayPhase = 4800, ClaimGrantedPhaseSlash = 4801,
@@ -2631,6 +2632,7 @@ public sealed class SkillProgramCatalog
                 ContinueAfterOwnerDeath = node.TryGetProperty("continueAfterOwnerDeath", out _) && RequiredBool(node, "continueAfterOwnerDeath", path),
                 SelectedCardsDistinctSuits = node.TryGetProperty("selectedCardsDistinctSuits", out _) && RequiredBool(node, "selectedCardsDistinctSuits", path),
                 CardCountExpression = cardCountExpression, CardKinds = cardKinds, CardSuits = cardSuits, CardCategories = cardCategories };
+        ActualDiscardRecoveryComposition.ValidateActivation(path, activation);
         EquipmentDonationComposition.ValidateActivation(path, activation);
         return activation;
     }
@@ -3467,6 +3469,8 @@ public sealed class SkillProgramCatalog
             Fail(path, "at-most-owner hand targeting requires the exact owner Ending window");
         SuitPreventionAndJudgmentPlacementComposition.Validate(path, effects, window, subject, turnOwnerScope);
         EquipmentPairDyingCardComposition.Validate(path, effects, window, subject);
+        ActualDiscardRecoveryComposition.ValidateTrigger(path, effects, window, subject, optional, discardOwnerScope,
+            movementDiscardOnly, suits, cardKinds, cardCategories, movementReasons, excludedMovementReasons, movementOccurrence);
         EquipmentDonationComposition.ValidateTrigger(path, effects, window, subject, turnOwnerScope, optional);
         PaidColorDamageClaimComposition.Validate(path, effects, window, subject, turnOwnerScope, optional);
         ProgramCompositionValidator.Validate(path, effects, initialSelectedTarget: deferredOnly, window: window, drawPhaseMode: drawPhaseMode, cardActionRelation: ownerRelation, cardKinds: cardKinds, turnOwnerScope: turnOwnerScope);

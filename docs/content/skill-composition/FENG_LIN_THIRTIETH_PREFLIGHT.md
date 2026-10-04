@@ -15,3 +15,5 @@
 进度记录为 `docs/benchmarks/2026-10-04-fenglin-thirtieth-validation.json`，来源摘要为 `docs/content/sources/fenglin-thirtieth-preflight-2026-10-04.json`。按用户睡醒后统一测试的要求，本次只保存来源、做有界静态名字核对；未构建、执行生产 loader、运行检查、基准或全资源验收。
 
 三张官方原始 PNG 已各读取一次 HTTP200，均为750×950，原字节和精确来源 SHA 另存第30批 art 记录。图片仍在 owned stage，未复制到主线 Assets、登记 catalog 或进行离线全目录验收；source 记录中的 mediaDownloaded=false 保留其来源捕获时快照。
+
+后续分配：563 冻结后，`/root/sun_quan` 已在 `batch30/ma-dai` 开始 696 界马岱的完整马术、潜袭，容量 6500–6599。756、752 继续等待另外两位代理交付第29批；主线登记、编译及运行状态仍按 validation 单独记录，来源捕获时快照保留。

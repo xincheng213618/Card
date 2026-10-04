@@ -296,7 +296,11 @@ public sealed record ProgramPhaseSchedule(
     ProgramSkillFrame Frame,
     ProgramLifecycleTriggerWindowFrame ParentFrame,
     TurnPhase Phase,
-    SkillProgramPhaseContinuation Continuation);
+    SkillProgramPhaseContinuation Continuation)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ActualDiscardRecoveryPhaseKey? DiscardRecoveryReturnPhase { get; init; }
+}
 
 public enum ProgramLifecycleContinuation
 {

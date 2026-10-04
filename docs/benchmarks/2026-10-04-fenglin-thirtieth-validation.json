@@ -1,5 +1,5 @@
 {
-  "status": "three-source-only-unassigned-runtime-deferred",
+  "status": "one-owned-stage-two-current-source-only-runtime-deferred",
   "batch": 30,
   "baseCommit": "d2990fba",
   "userSteering": {
@@ -25,9 +25,11 @@
       ],
       "completeCurrentDefinition": true,
       "mainRegistered": false,
-      "status": "current-source-only-unassigned",
-      "owner": null,
-      "stage": null
+      "status": "owned-stage-contract-and-new-development",
+      "owner": "/root/sun_quan",
+      "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch30\\ma-dai",
+      "reservedCapacity": "6500-6599",
+      "assignmentRecordedAtUtc": "2026-10-04T05:18:48.2373075Z"
     },
     {
       "gid": 756,
@@ -68,7 +70,7 @@
   "integrations": [],
   "runtimeAcceptance": false,
   "pending": [
-    "Three complete current sources await available agents after their owned batch29 deliveries",
+    "696 assigned after frozen563; 756 and 752 await the other two owned batch29 deliveries",
     "User later combined build, focused runtime, Full and measured routine verification"
   ],
   "versions": {

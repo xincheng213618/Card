@@ -33,6 +33,7 @@ public sealed partial class GameEngine
         public IReadOnlyDictionary<CardLocation, int> DestinationCountsBefore { get; } = destinationCountsBefore;
         public ProgramSkillFrame? OriginProgram { get; } = originProgram;
         public CardMovementTiming? MovementTiming { get; init; }
+        public ActualDiscardRecoveryPhaseKey? DiscardRecoveryPhase { get; init; }
     }
 
     private CardMovementBatchBuilder BeginCardMovementBatch(IEnumerable<CardLocation> sourceLocations, IEnumerable<CardLocation> destinationLocations)
@@ -50,7 +51,7 @@ public sealed partial class GameEngine
             _turnNumber,
             sources,
             destinationLocations.Distinct().ToDictionary(location => location, location => _cardZones.Count(location)),
-            _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault()) { MovementTiming = CaptureMovementTiming() };
+            _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault()) { MovementTiming = CaptureMovementTiming(), DiscardRecoveryPhase = CurrentActualDiscardRecoveryPhase() };
         _activeCardMovementBatchIds.Push(batch.Id);
         return batch;
     }
@@ -73,6 +74,7 @@ public sealed partial class GameEngine
                 item.Value,
                 _cardZones.Count(item.Key)))
             .ToArray();
+        CaptureActualDiscardRecoveryBatch(batch.Id, batch.DiscardRecoveryPhase, movements);
         CaptureNeighborDiscardOpportunity(batch.Id, batch.TurnNumber, movements);
         CaptureTurnDiscardSuitFact(batch.TurnNumber,movements);
         CaptureTurnRedDiscardCount(batch.TurnNumber,movements);
@@ -89,7 +91,7 @@ public sealed partial class GameEngine
             batch.DestinationCountsBefore.OrderBy(item => item.Key.Zone).ThenBy(item => item.Key.OwnerSeat)
                 .Select(item => new CardMovementSourceCount(item.Key, item.Value, _cardZones.Count(item.Key))).ToArray(),
             batch.OriginProgram?.SkillId, batch.OriginProgram?.SkillInstanceId, batch.OriginProgram?.OwnerSeat)
-            { MovementTiming = batch.MovementTiming });
+            { MovementTiming = batch.MovementTiming, DiscardRecoveryPhase = batch.DiscardRecoveryPhase });
     }
 
     private bool HasCardsMovedProgramBoundaryFrame()
@@ -256,6 +258,8 @@ public sealed partial class GameEngine
     private int[] MatchingDiscardPileIndexes(CardMovementBatchContext batch,
         ProgramTriggerCandidate candidate, SkillProgramTrigger trigger)
     {
+        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RestoreActualDiscardBatch))
+            return MatchingActualDiscardRecoveryIndexes(batch, candidate);
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance))
             return MatchingProvenanceDiscardIndexes(batch, candidate, trigger);
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.StoreAdjacentDiscardedSlash))
@@ -367,6 +371,7 @@ public sealed partial class GameEngine
     {
         if (frame.Contexts is { } contexts) return contexts[frame.CandidateIndex];
         var trigger = GetProgramTrigger(candidate);
+        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RestoreActualDiscardBatch)) return CreateActualDiscardRecoveryContext(frame, candidate);
         if (trigger.Window == SkillProgramTriggerWindow.FirstGameDomainCrossing) return CreateFirstDomainContext(frame,candidate);
         if (IsNeighborDiscardTopTrigger(trigger)) return CreateNeighborDiscardContext(frame, candidate);
         if (trigger.Window == SkillProgramTriggerWindow.DiscardPileReceived)

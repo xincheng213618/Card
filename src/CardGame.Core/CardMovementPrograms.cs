@@ -21,6 +21,8 @@ public sealed record CardMovementBatchContext(
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public CardMovementTiming? MovementTiming { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ActualDiscardRecoveryPhaseKey? DiscardRecoveryPhase { get; init; }
 }
 
 public sealed record CardMovementSourceCount(

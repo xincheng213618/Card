@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:zhijian": {
+      "name": "直谏",
+      "description": "出牌阶段，你可以将一张装备牌置于其他角色的装备区（替换原装备），然后摸一张牌。"
+    },
+    "boundary:guzheng": {
+      "name": "固政",
+      "description": "每阶段限一次，当其他角色的至少两张牌因弃置置入弃牌堆后，你可以令其获得其中一张牌，然后你可以获得剩余牌。"
+    }
+  }
+}

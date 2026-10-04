@@ -11761,6 +11761,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-zhang-zhao-zhang-hong",
+      "characterName": "界张昭张纮",
+      "defaultSkinId": "56300",
+      "skins": [
+        {
+          "id": "56300",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/563",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/56300.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-zhang-zhao-zhang-hong.png",
+          "sha256": "2c3d9b4bc04530355758b817a026b3802c1d254851dc2c55ae933c92fa7caea1",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

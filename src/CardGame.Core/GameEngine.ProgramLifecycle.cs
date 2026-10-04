@@ -208,14 +208,19 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The inserted phase lost its lifecycle parent window.");
         PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramSkill);
         PopResolutionFrame(parent.Id, ResolutionFrameKind.ProgramLifecycleTriggerWindow);
-        _programPhaseSchedule = new ProgramPhaseSchedule(frame, parent, phase, continuation);
+        _programPhaseSchedule = new ProgramPhaseSchedule(frame, parent, phase, continuation)
+        { DiscardRecoveryReturnPhase = CurrentActualDiscardRecoveryPhase() };
         AdvanceEventRulesAndQueueFact(new ProgramPhaseScheduledEvent(
             frame.Id, frame.SkillId, frame.TriggerId!, frame.OwnerSeat, phase, Started: true));
         if (phase == TurnPhase.Play) EnterPlayPhase(_players[frame.OwnerSeat]);
-        else if (!TryBeginDrawPhaseProgramWindow(_players[frame.OwnerSeat], false))
+        else
         {
-            DrawCards(_players[frame.OwnerSeat], GetTurnDrawCount(_players[frame.OwnerSeat]), true);
-            CompleteTurnStartAfterDraw(_players[frame.OwnerSeat], DelayedTurnEffects.None);
+            StartActualDiscardRecoveryPhase(ActualDiscardRecoveryPhaseKind.Draw, frame.OwnerSeat);
+            if (!TryBeginDrawPhaseProgramWindow(_players[frame.OwnerSeat], false))
+            {
+                DrawCards(_players[frame.OwnerSeat], GetTurnDrawCount(_players[frame.OwnerSeat]), true);
+                CompleteTurnStartAfterDraw(_players[frame.OwnerSeat], DelayedTurnEffects.None);
+            }
         }
         return SkillProgramStepOutcome.AwaitChild;
     }
@@ -229,9 +234,11 @@ public sealed partial class GameEngine
             frame.Id, frame.SkillId, frame.TriggerId!, frame.OwnerSeat, schedule.Phase, Started: false));
         if (_winner != Winner.None || !_players[frame.OwnerSeat].IsAlive)
         {
+            ClearActualDiscardRecoveryPhase();
             CompleteDetachedProgramBinding(frame, completed: false);
             return true;
         }
+        RestoreActualDiscardRecoveryPhase(schedule);
         PushRuntimeFrame(schedule.ParentFrame);
         if (!HasRuntimeSkillInstance(_players[frame.OwnerSeat], frame.SkillId, frame.SkillInstanceId) && !IsReturningGrantedEntityPhase(frame))
         {
@@ -249,6 +256,7 @@ public sealed partial class GameEngine
     {
         if (_programPhaseSchedule is not { } schedule) return;
         _programPhaseSchedule = null;
+        ClearActualDiscardRecoveryPhase();
         AdvanceEventRulesAndQueueFact(new ProgramPhaseScheduledEvent(
             schedule.Frame.Id,
             schedule.Frame.SkillId,
@@ -1830,6 +1838,7 @@ public sealed partial class GameEngine
         if (!CanOfferOriginalTargetAddition(candidate, trigger, context)) return false;
         if (!CanRunProgramDyingAlcoholPolicy(trigger, context, candidate.OwnerSeat)) return false;
         if (!CanOfferRoundPileAlcohol(candidate, trigger, context) || !CanOfferCurrentSlashFire(candidate, trigger, context) || !CanOfferSuitPreventionBenefit(candidate, trigger, context)) return false;
+        if (!CanOfferActualDiscardRecovery(candidate, context)) return false;
         if (!CanOfferFinalTargetSlash(candidate, trigger, context)) return false;
         if (!CanRunOtherDyingVictimRecovery(trigger, context, candidate.OwnerSeat)) return false;
         if (!CanRunAlcoholSlashSuppression(trigger, context, candidate.OwnerSeat)) return false;
@@ -3147,6 +3156,7 @@ public sealed partial class GameEngine
             return;
         }
         if (action == "discard-budget") { ResolveDiscardBudgetChoice(selected); return; }
+        if (action == "actual-discard-recovery") { ResolveActualDiscardRecovery(selected); return; }
         if (action == "suit-prevention-benefit") { ResolveSuitPreventionBenefit(selected); return; }
         if (action == "matched-judgment-placement") { ResolveMatchedJudgmentPlacement(selected); return; }
         if (action == "completed-use-payment") { ResolveCompletedUsePayment(selected); return; }
@@ -4027,6 +4037,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.SelectDistinctSuitHandDiscards or SkillProgramEffectOp.SuppressGeneralSkill or SkillProgramEffectOp.SelectChainedByMarker or SkillProgramEffectOp.SelectOneSelectedTarget => decision.Choices[0],
                 SkillProgramEffectOp.OfferOriginalTargetAddition => SelectAiOriginalTargetAddition(decision, frame),
                 SkillProgramEffectOp.DiscardSuitPreventDamageAndBenefit => SelectAiSuitPreventionBenefit(decision, frame),
+                SkillProgramEffectOp.RestoreActualDiscardBatch => SelectAiActualDiscardRecovery(decision, frame),
                 SkillProgramEffectOp.PlaceMatchedJudgmentCard => SelectAiMatchedJudgmentPlacement(decision, frame),
                 SkillProgramEffectOp.PayCompletedUseDiscardOrLoseHp => SelectAiCompletedUsePayment(decision),
                 SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol => decision.Choices.First(c => c.Parameters.GetValueOrDefault("branch") != "pass"),

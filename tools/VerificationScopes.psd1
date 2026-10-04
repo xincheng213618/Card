@@ -20,6 +20,7 @@
         'boundary xiao qiao suit prevention equipment cost',
         'boundary lu su extra draw half hand gift',
         'Real color payment Duel back-damage and mandatory Ending claim',
+        'boundary two zhangs equipment replacement',
         'shared use lifecycle', 'shared card-use', 'card movement', 'card inventory',
         'initial deal', 'invalid single and batch', 'draw and recover',
         'execution plans', 'skill executor', 'program gameplay hashes',

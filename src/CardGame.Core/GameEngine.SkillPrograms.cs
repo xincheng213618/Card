@@ -205,6 +205,11 @@ public sealed partial class GameEngine
                     targets = targets.Where(seat => cards.Any(id => CanPlaceActivationEquipment(owner.Seat, seat, id))).ToArray();
                     cards = cards.Where(id => targets.Any(seat => CanPlaceActivationEquipment(owner.Seat, seat, id))).ToArray();
                 }
+                if (features.HasOperation(SkillProgramEffectOp.PlaceCapturedEquipmentAndDraw))
+                {
+                    targets = targets.Where(seat => cards.Any(id => CanPlaceCapturedEquipmentActivation(owner.Seat, seat, id, program.Id))).ToArray();
+                    cards = cards.Where(id => targets.Any(seat => CanPlaceCapturedEquipmentActivation(owner.Seat, seat, id, program.Id))).ToArray();
+                }
                 if (DistinctTurnTargetUsage(activation) is { } actualTurnLedger)
                     targets = targets.Where(seat => CanActivateDistinctTurnTarget(owner.Seat, program.Id, actualTurnLedger, seat)).ToArray();
                 if (activation.TargetPhaseLedgerId is { } targetLedger)
@@ -365,6 +370,9 @@ public sealed partial class GameEngine
         if (plan?.Features.HasOperation(SkillProgramEffectOp.PlaceSelectedEquipment) == true &&
             (cards.Count != 1 || targets.Count != 1 || !CanPlaceActivationEquipment(_currentSeat, targets[0], cards[0])))
             return new CommandError(CommandErrorCode.InvalidCard, "The selected equipment cannot be placed on this target.");
+        if (plan?.Features.HasOperation(SkillProgramEffectOp.PlaceCapturedEquipmentAndDraw) == true &&
+            (cards.Count != 1 || targets.Count != 1 || !CanPlaceCapturedEquipmentActivation(_currentSeat, targets[0], cards[0], program!.Id)))
+            return new CommandError(CommandErrorCode.InvalidCard, "The captured equipment cannot actually be placed on this other target.");
         if (activation is { SelectedCardsDistinctSuits: true } && cards.Select(id => _cardZones.CardsAt(_cardZones.GetLocation(id))
                 .Single(card => card.Id == id).Suit).Distinct().Count() != cards.Count)
             return new CommandError(CommandErrorCode.InvalidCard, "The selected cards must have distinct printed suits.");
@@ -573,7 +581,8 @@ public sealed partial class GameEngine
             outerWindow.Id == frame.WindowContext.ParentFrameId;
         if (CurrentDamageAttempt is not null && !judgmentNested && !damageWindowNested &&
             frame.FactionRecoveryDraft?.SettlingDebts != true && !AllowsSuitPreventionNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
-            !AllowsHalfHandSupportNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || ActiveDying is not null ||
+            !AllowsHalfHandSupportNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+            !AllowsActualEquipmentOrDiscardNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || ActiveDying is not null ||
             _resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
             amount <= 0 || !IsValidPlayerSeat(targetSeat) || !_players[targetSeat].IsAlive)
             throw new InvalidOperationException("A program damage effect requires one active program and living target.");
@@ -928,6 +937,7 @@ public sealed partial class GameEngine
             AssertHpDamageShieldState(frame);
             AssertDamageTargetMountState(frame);
             AssertDamageTargetObtainState(frame);
+            AssertCapturedEquipmentAndDraw(frame); AssertActualDiscardRecovery(frame);
             AssertSuitPreventionBenefit(frame); AssertMatchedJudgmentPlacement(frame);
             AssertDamageJudgmentSuitPayment(frame);
             AssertDamageAppearanceReceipt(frame, plan);
@@ -993,7 +1003,7 @@ public sealed partial class GameEngine
                     !(paidEffect?.Op == SkillProgramEffectOp.ObtainDamageTargetCardAndResolveCategory && frame.DamageTargetObtain is not null && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(paidEffect?.Op == SkillProgramEffectOp.DiscardDamageTargetAndClaimMount && frame.DamageTargetMount is { Receipt: not null } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !awaitsSuitPlacement && !awaitsCappedHandRefresh && !awaitsDeclaredDeck && !awaitsShownGift && !awaitsJudgmentClaim && !awaitsRepeatedJudgment && !awaitsOwnedMovement &&
-                    !IsPaidColorDamageClaimMovement(frame, paidEffect, pendingMovement) && !IsEquipmentDonationMovement(frame, paidEffect, pendingMovement) && !IsHalfHandPhaseMovement(frame, paidEffect, pendingMovement) && !IsExtraDrawDebtMovement(frame, paidEffect, pendingMovement) && !IsPreventionDrawMovement(frame, paidEffect, pendingMovement) && !IsDamageJudgmentSuitPaymentMovement(frame, paidEffect, pendingMovement) && !awaitsExchangedMovement && !(paidEffect?.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.DeferredHandAlignmentResolution is { } deferredAlignment && pendingMovement.SubjectSeat == deferredAlignment.TargetSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseRandomDeckEquipment && frame.SelectedTargetSeats is [var equipmentUser] && pendingMovement.SubjectSeat == equipmentUser && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
+                    !IsActualEquipmentOrDiscardMovement(frame, paidEffect, pendingMovement) && !IsPaidColorDamageClaimMovement(frame, paidEffect, pendingMovement) && !IsEquipmentDonationMovement(frame, paidEffect, pendingMovement) && !IsHalfHandPhaseMovement(frame, paidEffect, pendingMovement) && !IsExtraDrawDebtMovement(frame, paidEffect, pendingMovement) && !IsPreventionDrawMovement(frame, paidEffect, pendingMovement) && !IsDamageJudgmentSuitPaymentMovement(frame, paidEffect, pendingMovement) && !awaitsExchangedMovement && !(paidEffect?.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.DeferredHandAlignmentResolution is { } deferredAlignment && pendingMovement.SubjectSeat == deferredAlignment.TargetSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseRandomDeckEquipment && frame.SelectedTargetSeats is [var equipmentUser] && pendingMovement.SubjectSeat == equipmentUser && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(paidEffect is { Op: SkillProgramEffectOp.MoveBoundCards, AwaitMovementTriggers: true } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(paidEffect?.Op == SkillProgramEffectOp.ObtainBoundCardsAndArmNextRevealBonus &&
                         pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.BeforeCount == 0 && pendingMovement.CoverageResultBind is null) &&

@@ -22,3 +22,5 @@
 以上“没有媒体操作”是来源捕获时的快照。随后按 563、775、671 的冻结 API cover 地址分别保存官方原始 PNG；三图的来源散列、HTTP200、原始字节散列和 750×950 IHDR 在 `docs/content/sources/fenglin-twenty-ninth-art-2026-10-04.json` 中记录。当前仍只保存在本任务 stage，尚未登记 WPF 素材，也没有运行完整离线素材扫描、编译或测试。
 
 后续实现已安排：563 由 `/root/sun_quan` 接续，容量 6200–6299；775 由 `/root/next_batch_audit` 接续，容量 6300–6399；671 由 `/root/pang_de` 接续，容量 6400–6499。各代理先冻结自己的第28批交付，再在第29批独占 stage 开始 NEW；最终 OLD 接线由主代理按稳定主基线依次通知。此安排不表示角色已经主登记、编译或通过运行检查。
+
+后续 563 已按冻结交付完成静态集成，直谏、固政、四个待运行 Core 方法、一个 routine 前缀及官方原始 PNG 均已登记。775 和 671 仍在独占 stage 开发；563 原代理已开始第30批 696。运行验收仍为 false，详细边界见 ZHANG_ZHAO_ZHANG_HONG_STATIC_REVIEW 和第29批 validation。
