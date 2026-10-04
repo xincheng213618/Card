@@ -69,5 +69,4 @@ public sealed partial class GameEngine
             (d.Stage == PrepDiscardStage.TargetChildren && d.TargetPayment?.PayerSeat == pending.SubjectSeat ||
              d.Stage == PrepDiscardStage.OwnerChildren && d.OwnerPayment?.PayerSeat == pending.SubjectSeat) ||
          effect?.Op == SkillProgramEffectOp.DrawPrepDiscardEnding && f.PrepDiscardEndingDraw?.Promise.TargetSeat == pending.SubjectSeat);
-    }
 }
