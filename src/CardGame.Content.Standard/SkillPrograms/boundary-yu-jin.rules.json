@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:zhenjun-current", "revision": 1,
+      "triggers": [
+        { "id": "actual-preparation-discard", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": true,
+          "effects": [{ "op": "resolvePrepDiscardOrEnding", "target": "owner", "zones": ["hand", "equipment"], "stateId": "paid-prep-ending" }] },
+        { "id": "paid-prep-ending", "window": "turnEnding", "subject": "owner", "optional": false, "turnOwnerScope": "paidPrepDiscardEnding",
+          "effects": [{ "op": "drawPrepDiscardEnding", "target": "owner" }] }
+      ]
+    },
+    {
+      "id": "boundary:yizhong-current", "revision": 1,
+      "cardPolicies": [
+        { "id": "incoming-hp-black-slash", "kind": "nullifyBlackSlashByCurrentHp", "cardKinds": ["slash", "fireSlash", "thunderSlash"] },
+        { "id": "outgoing-hand-black-slash", "kind": "prohibitBlackSlashResponseByCurrentHand", "cardKinds": ["slash", "fireSlash", "thunderSlash"] }
+      ]
+    }
+  ]
+}

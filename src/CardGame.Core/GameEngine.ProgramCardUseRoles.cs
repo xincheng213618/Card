@@ -110,7 +110,7 @@ public sealed partial class GameEngine
             action.RequesterSeat, action.ResponderSeat, action.OpponentSeat, action.EffectiveKind, targets,
             action.PhysicalCards, action.ConversionChain,
             action.EffectiveKind == CardKind.BorrowedSword ? targets.Where((_, index) => index % 2 == 0).ToArray() : targets,
-            action.EffectiveSuit, action.EffectiveRank, HasBlackTrickTargetPolicy || action.FactionOrigin is not null ? action.EffectiveIsRed : null, action.FactionOrigin);
+            action.EffectiveSuit, action.EffectiveRank, HasBlackTrickTargetPolicy || action.FactionOrigin is not null || HasComparedBlackSlashPolicies && IsSlashCard(action.EffectiveKind) ? action.EffectiveIsRed : null, action.FactionOrigin);
 
     private void UpdateProgramRoleCardUse(CardUseFrame use, CardActionContext action)
     {

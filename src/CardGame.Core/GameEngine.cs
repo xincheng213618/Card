@@ -3378,6 +3378,7 @@ public sealed partial class GameEngine
 
     private void ContinueTurnAfterForeignActualContests(CharacterState current)
     {
+        ExpirePrepDiscardEndingPromises();
         ConsumeSkippedNextTurnDrawBenefits(current);
         CleanupDeferredHandAlignments();
         CleanupLostDeferredPileSources();
@@ -7133,6 +7134,12 @@ public sealed partial class GameEngine
         var ignoresArmor = attack.IgnoresArmor;
         var resolutionId = attack.ResolutionId;
         var slashName = CardCatalog.Get(playedCardKind).DisplayName;
+
+        if (ApplyComparedBlackSlashPolicies(attack))
+        {
+            SetCardUseStep(resolutionId, ResolutionFrameStep.ResolvingEffect);
+            CompleteAttack(attack); return;
+        }
 
         if (attack.SuccessfulDodgeResponses == 0)
         {
@@ -16854,7 +16861,7 @@ public sealed partial class GameEngine
 
     private void AssertCoreInvariants()
     {
-        var damageProgramDying = IsProvenanceClaimProgramDying() || IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying() || IsPaidDamageTargetMountDying() || IsPaidDamageTargetObtainDying() || IsDamageAppearanceDrawProgramDying() || IsRecoveryReplacementProgramDying() || IsCharacterTurnedOverProgramDying() || IsCappedHandRefreshProgramDying() || IsPaidHandRepaymentProgramDying() || IsBoundRankBonusMovementDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawInsideDamageProgramDying() || IsSourceFactionYieldInsideDamageProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsAppliedDamageBenefitDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPreventionInsideDamageProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying();
+        var damageProgramDying = IsProvenanceClaimProgramDying() || IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying() || IsPaidDamageTargetMountDying() || IsPaidDamageTargetObtainDying() || IsDamageAppearanceDrawProgramDying() || IsRecoveryReplacementProgramDying() || IsCharacterTurnedOverProgramDying() || IsCappedHandRefreshProgramDying() || IsPaidHandRepaymentProgramDying() || IsBoundRankBonusMovementDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawInsideDamageProgramDying() || IsSourceFactionYieldInsideDamageProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsAppliedDamageBenefitDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPreventionInsideDamageProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying();
         _turnCardUseEffects.AssertInvariants();
         AssertPaidHpLossModifiers();
         AssertCurrentTurnOwnSkillSuppressions();
@@ -17711,7 +17718,7 @@ public sealed partial class GameEngine
                     } && parentFrameId == beforeDamage.Id;
                 if (beforeDamage.SourceSeat != pendingAttack.SourceSeat ||
                     (beforeDamage.RedirectedTargetSeat ?? beforeDamage.TargetSeat) != pendingAttack.TargetSeat ||
-                    !topMatchesWindow && !topMatchesProgram && !HasPreventionDrawDying(beforeDamage.Id) && !HasSourceFactionYieldObserver(beforeDamage.Id) && !HasSuitPreventionBenefitObserver(beforeDamage.Id) && !HasPaidColorDamageClaimDamageObserver(beforeDamage.Id) && !HasActualDiscardRecoveryBeforeDamageObserver(beforeDamage.Id) && !HasForeignContestAidDamageObserver(beforeDamage.Id))
+                    !topMatchesWindow && !topMatchesProgram && !HasPreventionDrawDying(beforeDamage.Id) && !HasSourceFactionYieldObserver(beforeDamage.Id) && !HasSuitPreventionBenefitObserver(beforeDamage.Id) && !HasPaidColorDamageClaimDamageObserver(beforeDamage.Id) && !HasActualDiscardRecoveryBeforeDamageObserver(beforeDamage.Id) && !HasForeignContestAidDamageObserver(beforeDamage.Id) && !HasPrepDiscardDamageObserver(beforeDamage.Id))
                 {
                     throw new InvalidOperationException(
                         "An active before-damage program must retain its damage and parent window.");
@@ -17719,7 +17726,7 @@ public sealed partial class GameEngine
             }
             else if (ActiveDamageTrigger is { } triggerContinuation)
             {
-                var effectiveTop = DamageCursorEffectiveTop(includeNestedObservers: HasPaidDamageTargetMountObserver(triggerContinuation.Id) || HasPaidDamageTargetObtainObserver(triggerContinuation.Id) || HasDamageAppearanceDrawObserver(triggerContinuation.Id) || HasCappedHandRefreshObserver(triggerContinuation.Id) || HasPaidHandRepaymentObserver(triggerContinuation.Id) || HasBoundRankBonusMovementObserver(triggerContinuation.Id) || HasOwnedDamagePointJudgmentObserver(triggerContinuation.Id) || HasDamageJudgmentSuitPaymentObserver(triggerContinuation.Id) || HasAppliedDamageBenefitObserver(triggerContinuation.Id) || HasProvenanceClaimObserver(triggerContinuation.Id) || HasEquipmentDonationDamageObserver(triggerContinuation.Id) || HasPaidColorDamageClaimDamageObserver(triggerContinuation.Id) || HasHalfHandPaidDamageObserver(triggerContinuation.Id) || HasPairBenefitDamageObserver(triggerContinuation.Id) || HasEndingPairSlashDamageObserver(triggerContinuation.Id) || HasActualDiscardRecoveryDamageObserver(triggerContinuation.Id) || HasForeignContestAidDamageObserver(triggerContinuation.Id));
+                var effectiveTop = DamageCursorEffectiveTop(includeNestedObservers: HasPaidDamageTargetMountObserver(triggerContinuation.Id) || HasPaidDamageTargetObtainObserver(triggerContinuation.Id) || HasDamageAppearanceDrawObserver(triggerContinuation.Id) || HasCappedHandRefreshObserver(triggerContinuation.Id) || HasPaidHandRepaymentObserver(triggerContinuation.Id) || HasBoundRankBonusMovementObserver(triggerContinuation.Id) || HasOwnedDamagePointJudgmentObserver(triggerContinuation.Id) || HasDamageJudgmentSuitPaymentObserver(triggerContinuation.Id) || HasAppliedDamageBenefitObserver(triggerContinuation.Id) || HasProvenanceClaimObserver(triggerContinuation.Id) || HasEquipmentDonationDamageObserver(triggerContinuation.Id) || HasPaidColorDamageClaimDamageObserver(triggerContinuation.Id) || HasHalfHandPaidDamageObserver(triggerContinuation.Id) || HasPairBenefitDamageObserver(triggerContinuation.Id) || HasEndingPairSlashDamageObserver(triggerContinuation.Id) || HasActualDiscardRecoveryDamageObserver(triggerContinuation.Id) || HasForeignContestAidDamageObserver(triggerContinuation.Id) || HasPrepDiscardDamageObserver(triggerContinuation.Id));
                 var topMatchesWindow = effectiveTop is DamageTriggerWindowFrame frame &&
                     frame.Id == triggerContinuation.Id &&
                     frame.ParentFrameId == triggerContinuation.ParentFrameId &&
@@ -17977,7 +17984,7 @@ public sealed partial class GameEngine
                     "A damage trigger continuation must retain a valid trigger window frame.");
             }
 
-            var damageCursorTop = DamageCursorEffectiveTop(includeNestedObservers: _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.ConvertingGift is { Observe: true } && f.WindowContext?.ParentFrameId == pendingDamageTrigger.Id) || HasAvailableBoundDamageObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetMountObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetObtainObserver(pendingDamageTrigger.Id) || HasDamageAppearanceDrawObserver(pendingDamageTrigger.Id) || HasCappedHandRefreshObserver(pendingDamageTrigger.Id) || HasPaidHandRepaymentObserver(pendingDamageTrigger.Id) || HasBoundRankBonusMovementObserver(pendingDamageTrigger.Id) || HasOwnedDamagePointJudgmentObserver(pendingDamageTrigger.Id) || HasDamageJudgmentSuitPaymentObserver(pendingDamageTrigger.Id) || HasAppliedDamageBenefitObserver(pendingDamageTrigger.Id) || HasProvenanceClaimObserver(pendingDamageTrigger.Id) || HasEquipmentDonationDamageObserver(pendingDamageTrigger.Id) || HasPaidColorDamageClaimDamageObserver(pendingDamageTrigger.Id) || HasHalfHandPaidDamageObserver(pendingDamageTrigger.Id) || HasPairBenefitDamageObserver(pendingDamageTrigger.Id) || HasEndingPairSlashDamageObserver(pendingDamageTrigger.Id) || HasActualDiscardRecoveryDamageObserver(pendingDamageTrigger.Id) || HasForeignContestAidDamageObserver(pendingDamageTrigger.Id));
+            var damageCursorTop = DamageCursorEffectiveTop(includeNestedObservers: _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.ConvertingGift is { Observe: true } && f.WindowContext?.ParentFrameId == pendingDamageTrigger.Id) || HasAvailableBoundDamageObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetMountObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetObtainObserver(pendingDamageTrigger.Id) || HasDamageAppearanceDrawObserver(pendingDamageTrigger.Id) || HasCappedHandRefreshObserver(pendingDamageTrigger.Id) || HasPaidHandRepaymentObserver(pendingDamageTrigger.Id) || HasBoundRankBonusMovementObserver(pendingDamageTrigger.Id) || HasOwnedDamagePointJudgmentObserver(pendingDamageTrigger.Id) || HasDamageJudgmentSuitPaymentObserver(pendingDamageTrigger.Id) || HasAppliedDamageBenefitObserver(pendingDamageTrigger.Id) || HasProvenanceClaimObserver(pendingDamageTrigger.Id) || HasEquipmentDonationDamageObserver(pendingDamageTrigger.Id) || HasPaidColorDamageClaimDamageObserver(pendingDamageTrigger.Id) || HasHalfHandPaidDamageObserver(pendingDamageTrigger.Id) || HasPairBenefitDamageObserver(pendingDamageTrigger.Id) || HasEndingPairSlashDamageObserver(pendingDamageTrigger.Id) || HasActualDiscardRecoveryDamageObserver(pendingDamageTrigger.Id) || HasForeignContestAidDamageObserver(pendingDamageTrigger.Id) || HasPrepDiscardDamageObserver(pendingDamageTrigger.Id));
             var activeDamageProgram = damageCursorTop is ProgramSkillFrame programFrame &&
                 programFrame.WindowContext is
                 {

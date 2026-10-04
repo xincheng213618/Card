@@ -161,7 +161,9 @@ public enum SkillProgramTargetKind
     OtherLivingWuFactionWithHand = 2001, CurrentArrowBarrageTargets = 2601}
 public enum SkillProgramCardCategory { Basic, Trick, Equipment }
 public enum SkillProgramGainPhaseQualification { OutsideOwnerDraw }
-public enum SkillProgramTurnOwnerScope { Own = 0, OtherLiving = 1, OwnOrPreviousLiving = 5300, EarnedActualEnding = 5601 }
+public enum SkillProgramTurnOwnerScope { Own = 0, OtherLiving = 1, OwnOrPreviousLiving = 5300, EarnedActualEnding = 5601,
+    PaidPrepDiscardEnding = 6600
+}
 public enum SkillProgramDiscardOwnerScope { Other = 0, Own = 1 }
 public enum SkillProgramDamageModifierExpiration { CurrentTurnEnd = 0, NextOwnerTurnStart = 1 }
 public enum SkillProgramDamageModifierSourceScope { OwnerUsed = 0, DamageSource = 1, DamageParticipant = 2 }
@@ -425,7 +427,8 @@ public enum SkillProgramEffectOp
     PayHpThenNullifyOwnActualUseTarget = 5600, ScheduleEarnedActualEndingBenefit = 5601, DrawLostHpThenOfferOwnedCardsUpTo = 5602,
     DonateAllEquipmentAndOfferRecipientBenefits = 5800, ChooseEquipmentOrDrawAfterOtherActualTurn = 5801,
     DiscardBoundCardForOppositeTurnDuel = 6100, ClaimActualTurnDamageEntities = 6101,
-    ResolveForeignTurnPindian = 6400, OfferSameTypeDifferentNameOrExtraTarget = 6401
+    ResolveForeignTurnPindian = 6400, OfferSameTypeDifferentNameOrExtraTarget = 6401,
+    ResolvePrepDiscardOrEnding = 6600, DrawPrepDiscardEnding = 6601
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets, HpPairHigher = 2000, HpPairLower = 2001 }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -2111,9 +2114,11 @@ public sealed class SkillProgramCatalog
         if (kind == SkillProgramCardPolicyKind.RedirectOwnTurnFactionRecovery &&
             (discardCost != 0 || providerDrawCount != 1))
             Fail(path, "Own-turn faction recovery replacement rewards exactly one card and charges no payment.");
-        return new SkillProgramCardPolicy(id, kind, cardKinds, requiredKinds, value,
+        var policy = new SkillProgramCardPolicy(id, kind, cardKinds, requiredKinds, value,
             inputSuit, outputSuit, OptionalCondition(node, path), factionId, ownerRole)
         { DiscardCost = discardCost, ProviderDrawCount = providerDrawCount };
+        GameEngine.ValidateComparedBlackSlashPolicy(path, policy);
+        return policy;
     }
 
     private static SkillProgramDamageModifier ParseDamageModifier(JsonElement node, string path)
@@ -3499,6 +3504,7 @@ public sealed class SkillProgramCatalog
         EquipmentDonationComposition.ValidateTrigger(path, effects, window, subject, turnOwnerScope, optional);
         PaidColorDamageClaimComposition.Validate(path, effects, window, subject, turnOwnerScope, optional);
         ForeignTurnContestAidComposition.Validate(path, effects, window, subject, optional, ownerRelation, cardKinds);
+        PrepDiscardEndingComposition.Validate(path, effects, window, subject, turnOwnerScope, optional);
         ProgramCompositionValidator.Validate(path, effects, initialSelectedTarget: deferredOnly, window: window, drawPhaseMode: drawPhaseMode, cardActionRelation: ownerRelation, cardKinds: cardKinds, turnOwnerScope: turnOwnerScope);
         if (node.TryGetProperty("onlyDesignatedCardTargets", out _) && ownerRelation != SkillProgramCardActionOwnerRelation.Target) Fail(path + ".onlyDesignatedCardTargets", "requires a target-owner card trigger");
         if (effects.Any(e => e.Op == SkillProgramEffectOp.ResolveDiscardBudgetParticipants) &&

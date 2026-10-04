@@ -2,7 +2,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool HasTurnRedSlashCapability=>_contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GrantTurnRedSlashBenefits)==true;
-    private bool CapturesActionColor=>TracksActionDiscardColor||HasTurnRedSlashCapability||HasBlackTrickTargetPolicy;
+    private bool CapturesActionColor=>TracksActionDiscardColor||HasTurnRedSlashCapability||HasBlackTrickTargetPolicy||HasComparedBlackSlashPolicies;
     private void GrantTurnRedSlashBenefits(ProgramSkillFrame frame)
     {
         ValidateProgramTurnEffectGrant(frame);

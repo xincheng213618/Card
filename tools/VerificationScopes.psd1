@@ -25,6 +25,7 @@
         'Foreign actual turn contest decline win expiry',
         'boundary ma dai shown color hand ban',
         'Ending pair two draws own extra round and cold',
+        'Preparation discard actual cost',
         'shared use lifecycle', 'shared card-use', 'card movement', 'card inventory',
         'initial deal', 'invalid single and batch', 'draw and recover',
         'execution plans', 'skill executor', 'program gameplay hashes',

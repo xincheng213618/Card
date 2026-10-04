@@ -1,5 +1,5 @@
 {
-  "status": "two-static-integrated-one-owned-stage-runtime-deferred",
+  "status": "three-static-integrated-owned-followups-runtime-deferred",
   "batch": 30,
   "baseCommit": "d2990fba",
   "userSteering": {
@@ -43,8 +43,8 @@
         "毅重"
       ],
       "completeCurrentDefinition": true,
-      "mainRegistered": false,
-      "status": "owned-stage-contract-and-new-development",
+      "mainRegistered": true,
+      "status": "static-main-integrated-user-runtime-verification-deferred",
       "owner": "/root/pang_de",
       "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch30\\yu-jin",
       "reservedCapacity": "6600-6699",
@@ -155,11 +155,50 @@
         "gain or HP child Damage/AttackHpLoss/SelfDying/Peach/bound or virtual alcohol/RecoveryReplacement",
         "All four actual-command drafts and root source-loss cancellation branch remain uncompiled, unloaded and unrun"
       ]
+    },
+    {
+      "gid": 756,
+      "name": "界于禁",
+      "integratedAtUtc": "2026-10-04T07:22:33.3520108Z",
+      "baselineCommit": "f1c48c3c6b093694c5f9e0755a63218df5796694",
+      "manifest": "manifest.json",
+      "manifestSha256": "d56351894794712573cd4226827af0df97005a40025a7c51a05749052f455850",
+      "patch": "old-wiring.patch",
+      "patchSha256": "a80c2a6a025bc8897e7efe2879438ce4ac3521d38a1af509294e25a88a67a191",
+      "sourceSha256": "b953813aa986734c25b18b7f30798074c94befa3bd05a120bded2f01e6ad7dd7",
+      "newFiles": 10,
+      "oldFiles": 12,
+      "supportFiles": 19,
+      "registeredChecks": [
+        "Preparation discard actual cost",
+        "Preparation discard promised ending",
+        "Compared black Slash actual target",
+        "Preparation discard native contracts"
+      ],
+      "routinePrefix": "Preparation discard actual cost",
+      "exactRawBeforeNewAndBothLfAfterMatched": true,
+      "originalFrozenChanged": false,
+      "rootCorrections": [],
+      "scalarPublicEventsAndFrozenPrivateCollections": true,
+      "actualTurnEndingPromise": true,
+      "zeroPromiseNoDrawFact": true,
+      "independentAppearanceCaptureGate": true,
+      "originalArtSha256": "ae0f973cc751e505b071f6634fe369591feea67f7edafbb65a9e47b337369324",
+      "buildsRun": false,
+      "productionLoaderExecuted": false,
+      "checksRun": false,
+      "benchmarksRun": false,
+      "runtimeAcceptance": false,
+      "deferred": [
+        "All four fixed-seed actual-command drafts remain uncompiled, unloaded and unrun",
+        "Exact equipment producer, native AI and child prompt order require actual verification",
+        "HE and shortfall, generated weapon exclusion, source loss and skipped Ending remain explicit engineering defaults without current FAQ"
+      ]
     }
   ],
   "runtimeAcceptance": false,
   "pending": [
-    "696 and 752 statically integrated; 756 receives the next final OLD window, then 775 opt-in death-benefit followup",
+    "696, 752 and 756 statically integrated; 775 opt-in death-benefit followup receives next final OLD window",
     "775 existing death-benefit new Damage/Dying limitation now has an owned opt-in followup stage; unsupported until that exact protocol is integrated and verified",
     "User later combined build, focused runtime, Full and measured routine verification"
   ],
@@ -180,7 +219,7 @@
   "media": {
     "record": "docs/content/sources/fenglin-thirtieth-art-2026-10-04.json",
     "rawCaptured": 3,
-    "installed": 2,
+    "installed": 3,
     "originalPngOnly": true,
     "sourceShaMatched": true,
     "fullOfflineCatalogRun": false,

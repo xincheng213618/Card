@@ -147,6 +147,8 @@ public sealed record ProgramSkillFrame(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramActualEndedTurnEquipmentReceipt? ActualEndedEquipment { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPaidColorConversionReceipt? PaidColorConversion { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramActualTurnDamageClaimReceipt? ActualTurnDamageClaim { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public PrepDiscardDraft? PrepDiscard { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public PrepDiscardEndingDrawReceipt? PrepDiscardEndingDraw { get; init; }
 
     /// <summary>The exact current grant selected when this execution was frozen.</summary>
     public string SkillInstanceId { get; init; } = "";
@@ -393,6 +395,7 @@ public sealed record FactionRecoveryDebtReturn(long DyingFrameId, long DyingPare
 
 public sealed record CardAttackState
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ComparedBlackSlashReceipt? ComparedBlackSlash { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramAdjustedSlashReturn? AdjustedSlashReturn { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<int>? RangePreventionVisitedTargets { get; init; }

@@ -1,5 +1,5 @@
 {
-  "status": "official-raw-art-partially-registered-runtime-verification-deferred",
+  "status": "official-raw-art-all-registered-runtime-verification-deferred",
   "batch": 30,
   "images": [
     {
@@ -37,7 +37,8 @@
       "pixelWidth": 750,
       "pixelHeight": 950,
       "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch30\\official-art\\official-boundary-yu-jin.png",
-      "installed": false
+      "installed": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-yu-jin.png"
     },
     {
       "gid": 752,
@@ -62,9 +63,9 @@
   "verification": {
     "rawPngSignatureAndIhdr": true,
     "sourceRecordShaMatched": true,
-    "mainRegistration": false,
+    "mainRegistration": true,
     "fullOfflineCatalogRun": false,
     "compiledVerificationRun": false,
-    "installedCount": 2
+    "installedCount": 3
   }
 }

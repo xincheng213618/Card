@@ -344,7 +344,7 @@ public sealed partial class GameEngine
             paidContext.OwnerSeat == paidDyingProgram.OwnerSeat &&
             (paidContext.Window == SkillProgramTriggerWindow.DyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.ResponderSeat ||
              paidContext.Window == SkillProgramTriggerWindow.SelfDyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.VictimSeat) &&
-            (IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying()))
+            (IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying()))
         {
             AdvanceRuntimeProgram(paidDyingProgram.Id);
             AdvanceRulesAndPublishState();
@@ -776,6 +776,7 @@ public sealed partial class GameEngine
             AdvanceRuntimeProgram(frameId);
             return;
         }
+        if (TryReturnPrepDiscardMovement(frame)) return;
         if (TryReturnSequentialDiscardMovement(frame)) return;
         if (TryReturnPairBenefitMovement(frame)) return;
         if (ReturnEndingPairMovement(frame)) return;

@@ -1836,6 +1836,7 @@ public sealed partial class GameEngine
         if (!CanRunDyingOwnedCard(candidate, trigger, context)) return false;
         if (!CanRunPaidColorDamageClaim(candidate, trigger, context)) return false;
         if (!CanRunSameTypeAid(candidate, trigger, context)) return false;
+        if (!CanRunPrepDiscard(candidate, trigger, context)) return false;
         if (!CanRunHalfHandPhaseDebt(candidate, trigger, context)) return false;
         if (!CanRunFixedRecipientBenefit(candidate, trigger, context)) return false;
         if (!CanRunEndingPair(candidate, trigger, context)) return false;
@@ -1986,7 +1987,9 @@ public sealed partial class GameEngine
                 starting.Id == context.ParentFrameId && starting.OwnerSeat == _currentSeat,
             SkillProgramTriggerWindow.TurnEnding =>
                 context.SourceSeat == _currentSeat && context.TargetSeat == _currentSeat &&
-                (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.EarnedActualEnding
+                (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.PaidPrepDiscardEnding
+                    ? MatchesPrepDiscardEnding(candidate, context, false)
+                    : trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.EarnedActualEnding
                     ? MatchesEarnedActualEnding(candidate, context, false)
                     : trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.OwnOrPreviousLiving
                     ? MatchesFrozenOwnOrPreviousEnding(candidate, context)
@@ -2366,6 +2369,7 @@ public sealed partial class GameEngine
         if (!CanRunProgramTrigger(candidate, context))
             throw new InvalidOperationException("The configured program binding is no longer eligible.");
         ConsumeEarnedActualEndingAtBegin(candidate, context);
+        ConsumePrepDiscardEndingAtBegin(candidate, context);
         ConsumeProgramTriggerUsage(candidate);
         PayProgramMarkerCost(_players[candidate.OwnerSeat], GetProgramTrigger(candidate).MarkerCost,
             candidate.SkillId, candidate.BindingId);
@@ -2637,6 +2641,7 @@ public sealed partial class GameEngine
                             : player.Seat == owner.Seat ? null : playerFacts));
             }).ToList();
         AppendEarnedActualEndingItems(items);
+        AppendPrepDiscardEndingItems(items);
         AppendGiftRetentionEndingItems(items);
         var ordered = items
             .OrderBy(item => (((item.Candidate?.OwnerSeat ?? item.RetentionOwnerSeat!.Value) - owner.Seat + _players.Count) % _players.Count))
@@ -2667,7 +2672,7 @@ public sealed partial class GameEngine
             TargetSeat: frame.OwnerSeat,
             OccurrenceIndex: candidate.OccurrenceIndex,
             Facts: candidateFacts ?? frame.Facts)
-        { EarnedBenefit = frame.Items[frame.ItemIndex].EarnedBenefit };
+        { EarnedBenefit = frame.Items[frame.ItemIndex].EarnedBenefit, PrepDiscardPromise = frame.Items[frame.ItemIndex].PrepDiscardPromise };
 
     private void ContinueTurnEndingBoundaryCore()
     {
@@ -2703,6 +2708,7 @@ public sealed partial class GameEngine
                         if (!CanRunProgramTrigger(candidate, context))
                         {
                             ConsumeSkippedEarnedActualEnding(frame);
+                            ConsumeSkippedPrepDiscardEnding(frame);
                             AdvanceTurnEndingBoundaryCandidate(frame, candidate, activated: false, completed: false);
                             continue;
                         }
@@ -3177,6 +3183,11 @@ public sealed partial class GameEngine
         {
             ResolveCompletedCardGiftChoice(selected);
             return;
+        }
+        if (action == "prep-discard-ending")
+        {
+            ResolvePrepDiscardChoice(_resolutionStack.LastOrDefault() as ProgramSkillFrame ??
+                throw new InvalidOperationException("The preparation choice lost its owning program."), selected); return;
         }
         if (action == "same-type-actual-use-aid") { ResolveSameTypeAidChoice(selected); return; }
         if (action == "original-target-addition") { ResolveOriginalTargetAdditionChoice(selected); return; }
@@ -4094,6 +4105,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.SelectOwnedCards or SkillProgramEffectOp.ResolveDeferredHandAlignment or SkillProgramEffectOp.SelectTurnDamageUseDebtPayment or SkillProgramEffectOp.SelectFrozenHandExchangeDebtPayment => SelectAiProgramOwnedCards(decision, frame),
                 SkillProgramEffectOp.DrawThenDiscardHandToMaximumHp => decision.Choices[0],
                 SkillProgramEffectOp.HoldTargetCards => SelectAiProgramHoldCards(decision, frame),
+                SkillProgramEffectOp.ResolvePrepDiscardOrEnding => SelectAiPrepDiscard(decision, frame),
                 SkillProgramEffectOp.RequestSlashByTarget => SelectAiProgramRequestSlash(decision, frame),
                 SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner or SkillProgramEffectOp.DeclareDeckCriterionAndGiveMatchingCard =>
                     SelectAiFixedSlashAndDeclaredDeck(decision, frame),

@@ -11846,6 +11846,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-yu-jin",
+      "characterName": "界于禁",
+      "defaultSkinId": "75600",
+      "skins": [
+        {
+          "id": "75600",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/756",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/75600.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-yu-jin.png",
+          "sha256": "ae0f973cc751e505b071f6634fe369591feea67f7edafbb65a9e47b337369324",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

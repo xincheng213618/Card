@@ -28,6 +28,8 @@ public sealed record ProgramSkillWindowContext(
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public EarnedActualEndingBenefit? EarnedBenefit { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PrepDiscardEndingPromise? PrepDiscardPromise { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ActualEndedTurnEquipmentContext? ActualEndedEquipment { get; init; }
 }
 
@@ -329,6 +331,8 @@ public sealed record TurnEndingBoundaryItem(
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public EarnedActualEndingBenefit? EarnedBenefit { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PrepDiscardEndingPromise? PrepDiscardPromise { get; init; }
 }
 
 /// <summary>
