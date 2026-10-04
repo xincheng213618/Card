@@ -1,0 +1,88 @@
+{
+  "status": "supplementary-historical-classification-current-engineering-inference",
+  "gid": 671,
+  "capturedAtUtc": "2026-10-04T04:55:17.6915352Z",
+  "originalFrozenSource": {
+    "path": "docs/content/sources/fenglin-twenty-ninth-671-source-2026-10-04.json",
+    "sha256": "1c004024c9b94b5e39f653a31d5e928406102e7e8efe576db102e2749b1dc247",
+    "modified": false
+  },
+  "rawEvidenceRoot": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/671-classification-source",
+  "directReadCount": 2,
+  "retryCount": 0,
+  "sources": [
+    {
+      "kind": "historical-official-hosted-community-guide",
+      "title": "萌新引导三国杀小技巧系列之锦囊牌篇",
+      "author": "三国杀社区玩家阿阳无敌",
+      "publicationYear": 2018,
+      "metadata": {
+        "url": "https://sanguosha.com/news/20180906_8699_5918",
+        "capturedAtUtc": "2026-10-04T04:54:09.3515242Z",
+        "completedAtUtc": "2026-10-04T04:54:09.6525226Z",
+        "httpStatus": 200,
+        "finalUrl": "https://sanguosha.com/news/20180906_8699_5918",
+        "contentType": "text/html",
+        "rawFile": "2018-damage-trick-guide.raw.html",
+        "rawBytes": 94781,
+        "rawSha256": "09f1fd9956c0889bc9a78b1d92d9eda8a56f495bd7eccc89b4badb5f94e69e96",
+        "directAttemptCount": 1,
+        "retryCount": 0
+      },
+      "facts": {
+        "ordinaryDirectDamageTricks": [
+          "南蛮入侵",
+          "万箭齐发",
+          "决斗",
+          "火攻"
+        ],
+        "lightningListedAsDelayed": true
+      },
+      "currentFAQ": false
+    },
+    {
+      "kind": "official-2025-announcement-current-skill-corroboration",
+      "title": "4.19-4.25百谷祈福裴元绍界伏皇后来袭",
+      "publicationYear": 2025,
+      "metadata": {
+        "url": "https://www.sanguosha.com/news/20250416_1697_2417",
+        "capturedAtUtc": "2026-10-04T04:54:09.7210411Z",
+        "completedAtUtc": "2026-10-04T04:54:10.1358364Z",
+        "httpStatus": 200,
+        "finalUrl": "https://www.sanguosha.com/news/20250416_1697_2417",
+        "contentType": "text/html",
+        "rawFile": "2025-current-fu-huang-hou.raw.html",
+        "rawBytes": 576911,
+        "rawSha256": "f3f559e7dd7a5c7af2151f4f056512050effd5b0086602104252011bac281bf8",
+        "directAttemptCount": 1,
+        "retryCount": 0
+      },
+      "currentHelpTextMatchesFrozenHero": true,
+      "definesDamageTrickCategory": false,
+      "currentFAQ": false
+    }
+  ],
+  "decision": {
+    "scope": "New current boundary Fu Huang Hou target-aid capability only",
+    "localDamageTricks": [
+      "南蛮入侵",
+      "万箭齐发",
+      "决斗",
+      "火攻"
+    ],
+    "lightningIncluded": false,
+    "basis": "Historical hosted category list plus current ordinary direct-damage producers; explicitly an engineering inference",
+    "latest671FAQVerified": false,
+    "classicRulesChanged": false,
+    "delayedMultiTargetPhysicalEntitiesInvented": false,
+    "completeCurrentTwoSkillsStillRequired": true
+  },
+  "verification": {
+    "namedResponseHashes": true,
+    "buildsRun": false,
+    "productionLoaderExecuted": false,
+    "testsRun": false,
+    "benchmarksRun": false,
+    "mainRegistered": false
+  }
+}
