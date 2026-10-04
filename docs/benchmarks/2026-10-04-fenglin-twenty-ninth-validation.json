@@ -1,0 +1,68 @@
+{
+  "status": "two-complete-sources-unassigned-one-current-definition-gap",
+  "batch": 29,
+  "baseCommit": "2e805f43",
+  "userSteering": {
+    "instruction": "Keep adding and commit; user will run unified tests after waking because CPU noise",
+    "buildsRun": false,
+    "productionLoaderExecuted": false,
+    "testsRun": false,
+    "benchmarksRun": false,
+    "commitAuthorized": true,
+    "pushAuthorized": false
+  },
+  "candidates": [
+    {
+      "gid": 451,
+      "name": "界刘禅",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-451-source-2026-10-04.json",
+      "sourceSha256": "d9a656e8e8c334c3a1719525194df07eebf6c1809dc8787c7948c3b4e984f37c",
+      "mainRegistered": false,
+      "status": "current-granted-definition-gap-no-partial-registration",
+      "owner": null,
+      "stage": null
+    },
+    {
+      "gid": 563,
+      "name": "界张昭张纮",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-563-source-2026-10-04.json",
+      "sourceSha256": "40e306cedc0c0dfec0fabacb8bffc9a0da88a3b744b850e729d4ce5d0728ad69",
+      "mainRegistered": false,
+      "status": "source-only-not-assigned",
+      "owner": null,
+      "stage": null
+    },
+    {
+      "gid": 775,
+      "name": "界步练师",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-775-source-2026-10-04.json",
+      "sourceSha256": "76212903e4e86c42fe8f9f14b2e9108b706514164b81a8e6698d562cb179bbab",
+      "mainRegistered": false,
+      "status": "source-only-not-assigned",
+      "owner": null,
+      "stage": null
+    }
+  ],
+  "runs": [],
+  "integrations": [],
+  "runtimeAcceptance": false,
+  "pending": [
+    "563 and 775 await available agents after batch28",
+    "451 full current linked grants unverified; do not implement a partial general",
+    "User later combined build, focused runtime, Full and measured routine verification"
+  ],
+  "versions": {
+    "perCharacterBumped": false,
+    "authoritativePaths": [
+      "src/CardGame.Core/Replay.cs",
+      "src/CardGame.Core/SkillPrograms.cs",
+      "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs"
+    ]
+  },
+  "cleanup": {
+    "ownedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+    "priorAutomaticApprovalRejection": "blocked by policy",
+    "retryPerformed": false,
+    "sourceStagesAndCacheRetainedForContinuation": true
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "status": "current-primary-source-only-not-implemented",
+  "gid": 775,
+  "currentApiIdentity": {
+    "name": "界步练师",
+    "faction": "wu",
+    "hp": 3,
+    "gender": null,
+    "initialHpApiPlaceholder": 0
+  },
+  "discovery": {
+    "path": ".artifacts/continuation-20261003-batch17/batch28/source-preflight/candidate-registration-preflight.json",
+    "rawSha256": "cfc3ff50973a4898a4ff01fba36718c91e372d58edd226b5f05c5d647d863a8c",
+    "purpose": "Cached ordinary OL candidate discovery only; current identity comes from these bounded primary page/API responses"
+  },
+  "webReader": {
+    "attempted": true,
+    "result": "URL unavailable via web reader",
+    "fallback": "one direct bounded GET per exact page/API URL; no retries"
+  },
+  "page": {
+    "url": "https://www.sanguosha.com/hero/775",
+    "capturedAtUtc": "2026-10-04T03:04:45.7728729Z",
+    "completedAtUtc": "2026-10-04T03:04:46.0384740Z",
+    "httpStatus": 200,
+    "finalUrl": "https://www.sanguosha.com/hero/775",
+    "contentType": "text/html",
+    "rawBytes": 24373,
+    "rawSha256": "a765301c0f24bdadebddfc07f0cec1a2147cf474743723eed26fad66b748ec56",
+    "rawFile": "775-page.raw.html",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >出牌阶段限一次，你可以获得两名角色各一张牌。然后你展示一张牌并交给其中手牌较少的角色，若不为黑桃，你摸一张牌。</span>\n                            \n                                <span >限定技，结束阶段，你可令一名其他角色摸三张牌并回复1点体力。然后你死亡时，可以对其再次发动本技能。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "安恤",
+      "追忆"
+    ],
+    "skillTexts": [
+      "出牌阶段限一次，你可以获得两名角色各一张牌。然后你展示一张牌并交给其中手牌较少的角色，若不为黑桃，你摸一张牌。",
+      "限定技，结束阶段，你可令一名其他角色摸三张牌并回复1点体力。然后你死亡时，可以对其再次发动本技能。"
+    ],
+    "fontRefs": []
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=775",
+    "capturedAtUtc": "2026-10-04T03:04:46.1152226Z",
+    "completedAtUtc": "2026-10-04T03:04:46.3282035Z",
+    "httpStatus": 200,
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=775",
+    "contentType": "application/json",
+    "rawBytes": 872,
+    "rawSha256": "3930a087a188ab94489462cda6c3f40044415f21ccadaa86b79701f3baac31ee",
+    "rawFile": "775-api.raw.json",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 775,
+            "name": "界步练师",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/775.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/77500.png",
+            "label": [
+              "控制",
+              "过牌",
+              "辅助"
+            ],
+            "figure": "吴",
+            "figure_py": "wu",
+            "quality": "史诗",
+            "biography": "全公主和朱公主生母。在孙权先后废掉宠爱的正妻谢夫人、徐夫人 后，步练师在其众多姬妾中最受宠，其次是王夫人。黄龙元年四月，孙权即帝位，群臣都想立徐夫人为后，孙权犹豫十余年，在步练师生前都没有立她为后。赤乌元年去世，追封皇后，葬于蒋陵。 ",
+            "characteristic": "安恤灵活给牌辅助队友；追忆为队友回血摸牌",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [],
+        "deeds": []
+      }
+    }
+  },
+  "completeCurrentMainTexts": true,
+  "hasUnexpandedGrantedSkill": false,
+  "namedGrantedSkills": [
+    null
+  ],
+  "blockedReasons": null,
+  "advertisedScriptEvidence": null,
+  "genderEvidence": "Current API has no independent gender field; no supplement claimed in this source-only record",
+  "initialHpInterpretation": "initial_hp=0 is not an assertion of starting at zero HP",
+  "implementationStarted": false,
+  "mediaDownloaded": false,
+  "buildsRun": false,
+  "loadersRun": false,
+  "testsRun": false
+}

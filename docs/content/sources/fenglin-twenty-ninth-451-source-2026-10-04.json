@@ -1,0 +1,142 @@
+{
+  "status": "current-main-text-frozen-derived-full-text-unverified",
+  "gid": 451,
+  "currentApiIdentity": {
+    "name": "界刘禅",
+    "faction": "shu",
+    "hp": 3,
+    "gender": null,
+    "initialHpApiPlaceholder": 0
+  },
+  "discovery": {
+    "path": ".artifacts/continuation-20261003-batch17/batch28/source-preflight/candidate-registration-preflight.json",
+    "rawSha256": "cfc3ff50973a4898a4ff01fba36718c91e372d58edd226b5f05c5d647d863a8c",
+    "purpose": "Cached ordinary OL candidate discovery only; current identity comes from these bounded primary page/API responses"
+  },
+  "webReader": {
+    "attempted": true,
+    "result": "Timeout fetching via web reader",
+    "fallback": "one direct bounded GET per exact page/API URL; no retries"
+  },
+  "page": {
+    "url": "https://www.sanguosha.com/hero/451",
+    "capturedAtUtc": "2026-10-04T03:04:45.6489651Z",
+    "completedAtUtc": "2026-10-04T03:04:45.9336983Z",
+    "httpStatus": 200,
+    "finalUrl": "https://www.sanguosha.com/hero/451",
+    "contentType": "text/html",
+    "rawBytes": 25661,
+    "rawSha256": "aa216410cf2a34db5b7328fa5cfe18e6f44be117cd8035c338b39201f7b9d90a",
+    "rawFile": "451-page.raw.html",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >锁定技，当你成为一名角色使用【杀】的目标后，除非其弃置一张基本牌，否则令此【杀】对你无效。</span>\n                            \n                                <span >你可以跳过出牌阶段，然后弃牌阶段开始时，你可以弃置一张手牌并令一名其他角色执行一个额外的回合。</span>\n                            \n                                <span >主公技，觉醒技，准备阶段，若你是全场体力值最小的角色，你增加1点体力上限，回复至3点体力，然后获得<font href='3045'>“激将</font>”<font href='895'>“思蜀</font>”。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "享乐",
+      "放权",
+      "若愚"
+    ],
+    "skillTexts": [
+      "锁定技，当你成为一名角色使用【杀】的目标后，除非其弃置一张基本牌，否则令此【杀】对你无效。",
+      "你可以跳过出牌阶段，然后弃牌阶段开始时，你可以弃置一张手牌并令一名其他角色执行一个额外的回合。",
+      "主公技，觉醒技，准备阶段，若你是全场体力值最小的角色，你增加1点体力上限，回复至3点体力，然后获得“激将”“思蜀”。"
+    ],
+    "fontRefs": [
+      {
+        "skillId": 3045,
+        "name": "激将",
+        "html": "<font href='3045'>“激将</font>",
+        "fullCurrentDefinitionCaptured": false
+      },
+      {
+        "skillId": 895,
+        "name": "思蜀",
+        "html": "<font href='895'>“思蜀</font>",
+        "fullCurrentDefinitionCaptured": false
+      }
+    ]
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=451",
+    "capturedAtUtc": "2026-10-04T03:04:46.0139383Z",
+    "completedAtUtc": "2026-10-04T03:04:46.2271873Z",
+    "httpStatus": 200,
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=451",
+    "contentType": "application/json",
+    "rawBytes": 953,
+    "rawSha256": "344eab0152cda9b44d2e754d11a693af1e030765b4c20ec381e35cf598f09459",
+    "rawFile": "451-api.raw.json",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 451,
+            "name": "界刘禅",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/451.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45100.png",
+            "label": [
+              "辅助",
+              "发育",
+              "回复"
+            ],
+            "figure": "蜀",
+            "figure_py": "shu",
+            "quality": "稀有",
+            "biography": "蜀汉后主，字公嗣。小名阿斗。刘备之子，母亲是昭烈皇后甘氏。三国时期蜀汉第二位皇帝，公元223－263年在位。公元263年蜀汉被曹魏所灭，刘禅投降曹魏，被封为安乐公。",
+            "characteristic": "让队友获得额外行动的机会，能控制乐不思蜀的判定。会成为敌人优先攻击的目标。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 6
+          },
+          {
+            "name": "排位后手",
+            "value": 6
+          },
+          {
+            "name": "农民",
+            "value": 5
+          },
+          {
+            "name": "主公",
+            "value": 6
+          },
+          {
+            "name": "忠臣",
+            "value": 8
+          }
+        ],
+        "deeds": []
+      }
+    }
+  },
+  "completeCurrentMainTexts": true,
+  "hasUnexpandedGrantedSkill": true,
+  "namedGrantedSkills": [
+    "激将",
+    "思蜀"
+  ],
+  "blockedReasons": "Current main text grants linked skills 3045 and 895 but their full current definitions are not present; no partial registration or classic/historical substitution",
+  "advertisedScriptEvidence": {
+    "path": ".artifacts\\continuation-20261003-batch17\\batch29\\source-preflight\\heroDetail.js.raw",
+    "rawSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+    "executed": false,
+    "result": "Current advertised script was read; no full linked skill resolver text was obtained"
+  },
+  "genderEvidence": "Current API has no independent gender field; no supplement claimed in this source-only record",
+  "initialHpInterpretation": "initial_hp=0 is not an assertion of starting at zero HP",
+  "implementationStarted": false,
+  "mediaDownloaded": false,
+  "buildsRun": false,
+  "loadersRun": false,
+  "testsRun": false
+}
