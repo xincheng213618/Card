@@ -1,5 +1,5 @@
 {
-  "status": "one-agent-static-development-user-runtime-verification-deferred",
+  "status": "two-agents-static-development-user-runtime-verification-deferred",
   "batch": 27,
   "baseCommit": "655c3eec",
   "userSteering": {
@@ -36,7 +36,9 @@
       "sourceRecord": "docs/content/sources/fenglin-twenty-seventh-642-source-2026-10-04.json",
       "sourceSha256": "64f750ebff02bc7d4e2eed71913883cda07df1f26759b9de7c3342b696fa78eb",
       "mainRegistered": false,
-      "status": "primary-source-only-not-assigned"
+      "status": "owned-stage-implementation-in-progress",
+      "owner": "/root/next_batch_audit",
+      "stage": ".artifacts/continuation-20261003-batch17/batch27/li-ru"
     }
   ],
   "runs": [],
@@ -45,7 +47,7 @@
   "runtimeAcceptance": false,
   "pending": [
     "621 complete opt-in implementation, frozen baseline and integration",
-    "627 and 642 implementation not yet assigned",
+    "627 implementation not yet assigned; 642 NEW implementation in progress while 640 awaits shared baseline",
     "User later combined build, focused runtime, Full and measured routine verification",
     "Official art registration followed by user later offline/compiled verification"
   ],
