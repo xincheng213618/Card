@@ -1,0 +1,32 @@
+{
+  "gid": 114,
+  "product": "sanguosha-ol",
+  "variant": "ordinary",
+  "detailUrl": "https://www.sanguosha.com/hero/114",
+  "detailRawSha256": "026aa6d29af9539c074538c0ea0ef1b116b233498f2b3b262c49eaf73229ffcf",
+  "apiUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=114",
+  "apiRawSha256": "21649496bbc5607edf32d6a586705f213b371e8b5fd70cf29d2ddc738b76452a",
+  "identity": {
+    "name": "曹洪",
+    "faction": "wei",
+    "maxHp": 4,
+    "genderFieldPresent": false,
+    "initialHpZeroIsPlaceholder": true,
+    "genderEngineeringSource": "Male inferred from official biography 曹操从弟; no explicit API gender field"
+  },
+  "skills": [
+    {
+      "name": "援护",
+      "description": "结束阶段，你可以将一张装备牌置入一名角色的装备区，若为：武器牌，你弃置其距离为1的一名角色区域里的一张牌；防具牌，其摸一张牌；坐骑牌，其回复1点体力。",
+      "complete": true,
+      "grantedSkills": []
+    }
+  ],
+  "completeCurrentDefinition": true,
+  "historicalSameNamedSkillReused": false,
+  "portrait": {
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "sha256": "a06726c5d13bc809fba870a155fd4ec3ad5fc53e74a9739c6cacecf9eaf59468"
+  }
+}

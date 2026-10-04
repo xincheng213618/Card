@@ -1,0 +1,13 @@
+{
+  "url": "https://www.sanguosha.com/api/v1/hero/info?gid=118",
+  "actualUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=118",
+  "method": "GET",
+  "advertisedBy": "118-page.raw.html lines 481-492: pathname hero/gid and fetch info?gid=",
+  "requestedUtc": "2026-10-04T14:57:12.4338448+00:00",
+  "completedUtc": "2026-10-04T14:57:12.6941252+00:00",
+  "status": 200,
+  "redirectsAllowed": false,
+  "retries": 0,
+  "bytes": 919,
+  "rawSha256": "bbe03397218d84cc00f1702e0177521753c3aa46e4751468a7bf8f0f90ffe89d"
+}

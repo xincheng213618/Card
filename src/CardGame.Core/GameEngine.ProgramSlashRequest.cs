@@ -17,8 +17,8 @@ public sealed partial class GameEngine
             CancelProgramBindingAndCleanup(active, "技能拥有者已失效，技能剩余结算已取消。");
             return SkillProgramStepOutcome.AwaitChild;
         }
-        var slashes = GetHand(user).Where(card => IsSlashCard(card.Kind) && !IsTurnHandCategoryRestricted(user, card)).ToArray();
-        if (slashes.Length == 0)
+        var slashes = GetHand(user).Concat(SelectedRequestedDeckBasicCards(user)).Where(card => IsSlashCard(card.Kind) && !IsTurnHandCategoryRestricted(user, card)).ToArray();
+        if (slashes.Length == 0 && !HasRequestedDeckBasicSource(user, CardKind.Slash))
         {
             CommitProgramChoiceResult(frame.Id, resultBind,
                 RequestSlashByTargetProgramOperationDescriptor.DeclinedOption,
@@ -113,7 +113,7 @@ public sealed partial class GameEngine
             selected.Targets.Count != 1 || selected.Targets[0] != frame.OwnerSeat)
             throw new InvalidOperationException("The slash request answer is malformed.");
         var location = _cardZones.GetLocation(cardId);
-        var card = location.Zone == CardZoneKind.Hand && location.OwnerSeat == userSeat
+        var card = location.Zone == CardZoneKind.Hand && location.OwnerSeat == userSeat || IsSelectedRequestedDeckBasicMaterial(userSeat, cardId)
             ? _cardZones.CardsAt(location).SingleOrDefault(item => item.Id == cardId)
             : null;
         if (card is null || !IsSlashCard(card.Kind) || IsTurnHandCategoryRestricted(_players[userSeat], card))
@@ -161,11 +161,11 @@ public sealed partial class GameEngine
         }
         var participant = _players[participantSeat];
         var nearest = GetNearestLivingCharacterSeats(participantSeat);
-        var slashes = GetHand(participant)
+        var slashes = GetHand(participant).Concat(SelectedRequestedDeckBasicCards(participant))
             .Where(card => IsSlashCard(card.Kind))
             .OrderBy(card => card.Id)
             .ToArray();
-        if (nearest.Length == 0 || slashes.Length == 0)
+        if (nearest.Length == 0 || slashes.Length == 0 && !HasRequestedDeckBasicSource(participant, CardKind.Slash))
             return new ProgramSkillHost(this).LoseHp(active.Id, active.SkillId, participantSeat, hpAmount);
 
         var skill = _contentRegistry!.GetSkill(frame.SkillId);
@@ -261,7 +261,7 @@ public sealed partial class GameEngine
             selected.Targets.Count != 1 || selected.Targets[0] != targetSeat)
             throw new InvalidOperationException("The nearest-character slash request answer is malformed.");
         var location = _cardZones.GetLocation(cardId);
-        var card = location == CardLocation.Hand(participantSeat)
+        var card = location == CardLocation.Hand(participantSeat) || IsSelectedRequestedDeckBasicMaterial(participantSeat, cardId)
             ? _cardZones.CardsAt(location).SingleOrDefault(item => item.Id == cardId)
             : null;
         if (card is null || !IsSlashCard(card.Kind) ||

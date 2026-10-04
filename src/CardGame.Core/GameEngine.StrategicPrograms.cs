@@ -174,6 +174,13 @@ public sealed partial class GameEngine
                 PublishStrategicPrompt(frame);
                 return SkillProgramStepOutcome.AwaitChoice;
             case SkillProgramEffectOp.SelectOneSelectedTarget:
+                if (HasLostHpTargetSelection(frame))
+                {
+                    var live = frame.SelectedTargetSeats.Where(seat => _players[seat].IsAlive).ToArray();
+                    if (live.Length == 0)
+                    { CancelProgramBindingAndCleanup(frame, "原连环目标均已死亡，未发行火焰伤害已取消。"); return SkillProgramStepOutcome.AwaitChild; }
+                    ReplaceRuntimeTop(frame = frame with { SelectedTargetSeats = Array.AsReadOnly(live) });
+                }
                 if (frame.SelectedTargetSeats.Count == 0) return SkillProgramStepOutcome.Continue;
                 _strategicDrafts[frame.Id] = new(effect.Op, -1, null, frame.SelectedTargetSeats.ToArray(), [], 1);
                 PublishStrategicPrompt(frame);

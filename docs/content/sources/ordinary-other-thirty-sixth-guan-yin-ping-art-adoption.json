@@ -1,0 +1,26 @@
+{
+  "catalogEntry": {
+    "key": "ol-guan-yin-ping",
+    "characterName": "关银屏",
+    "defaultSkinId": "11500",
+    "skins": [
+      {
+        "id": "11500",
+        "name": "经典形象",
+        "sourcePage": "https://www.sanguosha.com/hero/115",
+        "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11500.png",
+        "localPath": "src/CardGame.Wpf/Assets/official-ol-guan-yin-ping.png",
+        "sha256": "27c3d5e90243bf475bf3048520eae69ffcf7b66723b40e42ffc364a8f1ddd283",
+        "pixelWidth": 750,
+        "pixelHeight": 950
+      }
+    ]
+  },
+  "pngMainPath": "src/CardGame.Wpf/Assets/official-ol-guan-yin-ping.png",
+  "pngStagePath": "115-cover.original.png",
+  "sha256": "27c3d5e90243bf475bf3048520eae69ffcf7b66723b40e42ffc364a8f1ddd283",
+  "edited": false,
+  "requests": 1,
+  "catalogMainPath": "docs/content/general-art-catalog.json",
+  "installed": false
+}

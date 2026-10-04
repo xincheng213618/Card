@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:yuanhu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "ending-place-equipment",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "effects": [
+            {
+              "op": "placeOwnedEquipmentThenResolveSlotBenefit",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

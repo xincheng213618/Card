@@ -232,5 +232,6 @@ public sealed partial class GameEngine
          _slashCountThisTurn < GetSlashUseLimit(player) ||
          physicalCard is not null && BypassesSlashLimitBySuit(player, physicalCard, effectiveKind) ||
          HasDirectedTurnCardPolicy(player.Seat, target.Seat, effectiveKind,
-             DirectedTurnCardPolicyEffect.BypassSlashLimit));
+             DirectedTurnCardPolicyEffect.BypassSlashLimit) ||
+         HasTargetCardQuotaAllowance(player.Seat, target.Seat));
 }

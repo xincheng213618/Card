@@ -1,0 +1,370 @@
+*** Begin Patch
+*** Update File: src/CardGame.Core/SkillPrograms.cs
+@@
+     SelectIssuedFixedRecipientWithDeathReturn = 6800,
+     DrawBeforeCappedConversionTierUpgrade = 6900,
+     ChooseCategoryOrSequentialDiscard = 5700, EscalatingDiscardOrDamageFromSelected = 5701,
+     DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
++    DrawFireTargetAndGrantTurnUseQuota = 7401, LoseSkillsAndObtainNamedCard = 7402,
+     ReceiveOwnerDamage = 4100, ConsumeDistinctTurnTarget = 4101, DrawOwnerAtAppliedDamage = 4102,
+     GiveBoundCardThenOfferVirtualSlashOrSharedDraw = 5100,
+     PayHpThenNullifyOwnActualUseTarget = 5600, ScheduleEarnedActualEndingBenefit = 5601, DrawLostHpThenOfferOwnedCardsUpTo = 5602,
+     DonateAllEquipmentAndOfferRecipientBenefits = 5800, ChooseEquipmentOrDrawAfterOtherActualTurn = 5801,
+@@
+     LivingPlayersMinHp = 14,
+     HandLimitMinusHandCount = 15,
+     LostHpMinusHandCount = 600,
+     CategoryTargetTurnUsage = 820, CurrentHp = 1020, SelectedTargetsHandGreaterThanLord = 1021,
+-    PhaseSkillUsage = 1022, EventMovedCardCount = 1700, CurrentTurnUsedCardCategoryCount = 4600}
++    PhaseSkillUsage = 1022, EventMovedCardCount = 1700, CurrentTurnUsedCardCategoryCount = 4600, OwnerLostHpAtLeastOne = 7400}
+ public enum SkillProgramCardSetVisibility { Private, Public }
+ public enum SkillProgramCardDestination
+ {
+     OwnerHand, DiscardPile, SelectedTargetHand, OwnerPersistentZone, DrawPileBottom, PhaseOwnerHand,
+@@
+         foreach (var program in result.Values)
+         {
+             SlashTargetBenefitComposition.ValidateProgram(program);
+             SlashTargetPenaltyComposition.Validate(program);
++            FireTargetBenefitComposition.Validate(program);
+             foreach (var effect in program.Activations.SelectMany(activation => activation.Effects)
+                          .Concat(program.Triggers.SelectMany(trigger => trigger.Effects))
+                          .Where(effect => effect.Op is SkillProgramEffectOp.DeclareBoundCardNameUntilTurnEnd or SkillProgramEffectOp.UpgradeConversionTier or SkillProgramEffectOp.DrawBeforeCappedConversionTierUpgrade))
+                 if (!conversionStates.Contains(effect.StateId!)) Fail("skill '" + program.Id + "'", "conversion operation references an unknown conversionStateId");
+*** Update File: src/CardGame.Core/Resolution.cs
+@@
+     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public SlashTargetBenefitDraft? SlashTargetBenefitDraft { get; init; }
+ 
+     /// <summary>The exact current grant selected when this execution was frozen.</summary>
+     public string SkillInstanceId { get; init; } = "";
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramFireTargetBenefit? FireTargetBenefit { get; init; }
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramNamedCardAcquisition? NamedCardAcquisition { get; init; }
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramLostHpChainedPayment? LostHpChainedPayment { get; init; }
+     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public OriginalTargetAdditionDraft? OriginalTargetAdditionDraft { get; init; }
+     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramDyingAlcoholPermission? DyingAlcoholPermission { get; init; }
+     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public GrantedEntityPhaseReceipt? IssuedEntityPhase { get; init; }
+     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public GrantedPhaseSlashClaimReceipt? GrantedPhaseSlashClaim { get; init; }
+*** Update File: src/CardGame.Core/ProgramLifecycleOperationDefinitions.cs
+@@
+         var maximum = r.RequiredInt("maximumTargets");
+         var numberExpression = r.Has("numberExpression")
+             ? r.RequiredEnum<SkillProgramNumberExpression>("numberExpression") : (SkillProgramNumberExpression?)null;
+         if (numberExpression is not null and not (SkillProgramNumberExpression.EventMovedCardCount or SkillProgramNumberExpression.CurrentHandCount or
+-            SkillProgramNumberExpression.PlannedNormalDrawCount or SkillProgramNumberExpression.BoundCardCount or SkillProgramNumberExpression.CurrentHp))
++            SkillProgramNumberExpression.PlannedNormalDrawCount or SkillProgramNumberExpression.BoundCardCount or SkillProgramNumberExpression.CurrentHp or SkillProgramNumberExpression.OwnerLostHpAtLeastOne))
+             throw new InvalidOperationException($"Invalid skill program at {r.Path}: unsupported target maximum expression.");
++        if (numberExpression == SkillProgramNumberExpression.OwnerLostHpAtLeastOne && (kind != SkillProgramTargetKind.AnyLiving || minimum != 1))
++            throw new InvalidOperationException("Lost-HP-at-least-one targets require anyLiving and minimum one.");
+         if ((minimum < 1 && !(minimum == 0 && kind == SkillProgramTargetKind.OtherLivingWithHand)) || maximum < minimum || maximum > (kind == SkillProgramTargetKind.CurrentCardUseTargets
+             ? 64 : kind is SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.LivingWhoseAttackRangeIncludesLord or SkillProgramTargetKind.AnyWounded or
+                 SkillProgramTargetKind.OtherLivingHandAtLeastOwner ? 8 : 2))
+             throw new InvalidOperationException($"Invalid skill program at {r.Path}: target bounds exceed the supported participant count.");
+*** Update File: src/CardGame.Core/GameEngine.ProgramLifecycle.cs
+@@
+             SkillProgramNumberExpression.EventMovedCardCount => frame.WindowContext?.Window == SkillProgramTriggerWindow.CardsMoved ? frame.WindowContext.Facts?.MovedCardCount ?? 0 : throw new InvalidOperationException("Moved-card target count requires its owning movement window."),
+             SkillProgramNumberExpression.BoundCardCount => frame.CardSetBindings.Last().CardIds.Count,
+             SkillProgramNumberExpression.CurrentHandCount => GetHand(_players[ownerSeat]).Count,
+             SkillProgramNumberExpression.CurrentHp => Math.Max(0, _players[ownerSeat].Hp),
++            SkillProgramNumberExpression.OwnerLostHpAtLeastOne => Math.Max(1, _players[ownerSeat].MaxHp - _players[ownerSeat].Hp),
+             SkillProgramNumberExpression.PlannedNormalDrawCount =>
+                 GetProgramPlannedNormalDrawCount(frame),
+             _ => maximumTargets
+         };
+@@
+                     ["program-action"] = "select-targets",
+                     ["frame-id"] = frameId.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                     ["target-kind"] = targetKind.ToString(),
+                     ["minimum-targets"] = minimumTargets.ToString(System.Globalization.CultureInfo.InvariantCulture),
+-                    ["maximum-targets"] = (numberExpression == SkillProgramNumberExpression.PlannedNormalDrawCount ||
++                    ["maximum-targets"] = (numberExpression is SkillProgramNumberExpression.PlannedNormalDrawCount or SkillProgramNumberExpression.OwnerLostHpAtLeastOne ||
+                         targetKind == SkillProgramTargetKind.CurrentCardUseTargets
+                         ? cappedMaximum : maximumTargets).ToString(System.Globalization.CultureInfo.InvariantCulture),
+                     ["target-ai-order"] = aiOrder.ToString()
+                 });
+         }).ToArray();
+         var presentation = _contentRegistry!.GetSkill(frame.SkillId);
+-        var displayedMaximum = numberExpression == SkillProgramNumberExpression.PlannedNormalDrawCount ||
++        var displayedMaximum = numberExpression is SkillProgramNumberExpression.PlannedNormalDrawCount or SkillProgramNumberExpression.OwnerLostHpAtLeastOne ||
+             targetKind == SkillProgramTargetKind.CurrentCardUseTargets
+             ? cappedMaximum : maximumTargets;
+         var targetCountText = minimumTargets == displayedMaximum
+             ? minimumTargets.ToString(System.Globalization.CultureInfo.InvariantCulture)
+@@
+         IReadOnlyList<int>? bottomOrder = null)
+     {
+         var frame = GetActiveProgramFrame(frameId);
+         frame = FreezeSequentialDiscardTopPayment(frame, sourceBind, exceptBind, destination);
++        frame = FreezeLostHpChainedPayment(frame, sourceBind, exceptBind, destination);
+         var source = frame.CardSetBindings.SingleOrDefault(binding => binding.Name == sourceBind);
+         if (source is null)
+         {
+             CancelProgramBindingAndCleanup(
+@@
+                     _cardZones.PlaceDrawPileCardsAtTop(cards.Select(card => card.Id).ToArray());
+                     break;
+             }
+         }
++        CommitLostHpChainedPayment(frameId);
+         return SkillProgramStepOutcome.Continue;
+     }
+ 
+     private static IEnumerable<int[]> EnumerateProgramCardOrders(IReadOnlyList<int> ids)
+@@
+         if (trigger is null || trigger.Window != context.Window || !CanPayProgramMarkerCost(owner, trigger.MarkerCost))
+             return false;
+         if (!CanRunTurnDrawDebtPayment(candidate, trigger, context) || !CanRunSourceFactionPrevention(candidate, trigger, context)) return false;
+         if (!CanRunDyingOwnedCard(candidate, trigger, context)) return false;
++        if (!CanRunFireTargetBenefit(candidate, trigger, context)) return false;
+         if (!CanRunPaidColorDamageClaim(candidate, trigger, context)) return false;
+         if (!CanRunSameTypeAid(candidate, trigger, context)) return false;
+         if (!CanRunPrepDiscard(candidate, trigger, context)) return false;
+         if (!CanRunUniqueHpPeer(candidate, trigger, context)) return false;
+@@
+         {
+             ResolveCompletedCardGiftChoice(selected);
+             return;
+         }
++        if (action == "named-card-acquisition") { ResolveNamedCardAcquisitionChoice(selected); return; }
+         if (action == "slash-target-penalty") { ResolveTargetPenaltyChoice(selected); return; }
+         if (action == "slash-target-benefit") { ResolveSlashTargetBenefitChoice(selected); return; }
+         if (action == "prep-discard-ending")
+         {
+@@
+                 .Resolve(frame, _contentRegistry!.GetSkill(frame.SkillId).Program!)
+                 .GetPausedInstruction(frame.InstructionIndex).Effect;
+             selected = paused.Op switch
+             {
++                SkillProgramEffectOp.LoseSkillsAndObtainNamedCard => decision.Choices.OrderBy(c => c.Cards.Count == 0 ? 0 : 1).ThenBy(c => c.Id.Value, StringComparer.Ordinal).First(),
+                 SkillProgramEffectOp.DonateAllEquipmentAndOfferRecipientBenefits => SelectAiEquipmentDonation(decision, frame),
+                 SkillProgramEffectOp.ChooseEquipmentOrDrawAfterOtherActualTurn => SelectAiActualEndedEquipment(decision, frame),
+                 SkillProgramEffectOp.DrawLostHpThenOfferOwnedCardsUpTo => SelectAiLostHpOwnedGift(decision, frame),
+                 SkillProgramEffectOp.ClaimGrantedPhaseSlash => SelectAiGrantedPhaseSlash(decision),
+*** Update File: src/CardGame.Core/GameEngine.Runtime.cs
+@@
+             case CardEffectBeforeApplyFrame: ContinueCardEffectBeforeApply(); break;
+             case CardDeclarationFrame: ContinueCardDeclaration(frameId); break;
+             case CardDeclarationChallengeFrame: ContinueCardDeclarationChallenge(frameId); break;
+             case ProgramSkillFrame:
++                if (ResumeFireTargetBenefit(frameId) || ResumeNamedCardAcquisition(frameId)) return;
+                 if (ResumeUniqueHpPeer(frameId) || ResumeRecipientContest(frameId)) return;
+                 if (ResumeCappedConversionBenefit(frameId)) return;
+                 if (ResumeEndingPairOrSlashRecast(frameId)) return;
+                 if (ResumeCapturedEquipmentAndDraw(frameId) || ResumeActualDiscardRecovery(frameId)) return;
+@@
+             paidContext.ParentFrameId == paidProgramDying.Id && paidContext.TargetSeat == paidProgramDying.VictimSeat &&
+             paidContext.OwnerSeat == paidDyingProgram.OwnerSeat &&
+             (paidContext.Window == SkillProgramTriggerWindow.DyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.ResponderSeat ||
+              paidContext.Window == SkillProgramTriggerWindow.SelfDyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.VictimSeat) &&
+-            (IsConditionalDiscardDuelProgramDying() || IsRecipientContestProgramDying() || IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsOwnTrickDrawProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsOwnedDeathBenefitProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying()))
++            (IsFireTargetBenefitProgramDying() || IsNamedAcquisitionProgramDying() || IsConditionalDiscardDuelProgramDying() || IsRecipientContestProgramDying() || IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsOwnTrickDrawProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsOwnedDeathBenefitProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying()))
+         {
+             AdvanceRuntimeProgram(paidDyingProgram.Id);
+             AdvanceRulesAndPublishState();
+             return;
+@@
+ 
+     private void ReturnRuntimeProgramMovement(long frameId)
+     {
+         var frame = GetActiveProgramFrame(frameId);
++        if (ReturnLostHpChainedMovement(frame) || ReturnFireTargetBenefitMovement(frame) || ReturnNamedCardAcquisitionMovement(frame)) return;
+         if (ReturnConditionalDuelMovement(frame)) return;
+         if (ReturnRecipientContestMovement(frame)) return;
+         if (ReturnCappedConversionBenefitMovement(frame)) return;
+         if (ReturnCapturedEquipmentOrDiscardMovement(frame)) return;
+*** Update File: src/CardGame.Core/GameEngine.StrategicPrograms.cs
+@@
+                 SetStrategicMarker(owner.Seat, effect.Marker.Value, owner.Seat, 0, frame);
+                 PublishStrategicPrompt(frame);
+                 return SkillProgramStepOutcome.AwaitChoice;
+             case SkillProgramEffectOp.SelectOneSelectedTarget:
++                if (HasLostHpTargetSelection(frame))
++                {
++                    var live = frame.SelectedTargetSeats.Where(seat => _players[seat].IsAlive).ToArray();
++                    if (live.Length == 0)
++                    { CancelProgramBindingAndCleanup(frame, "原连环目标均已死亡，未发行火焰伤害已取消。"); return SkillProgramStepOutcome.AwaitChild; }
++                    ReplaceRuntimeTop(frame = frame with { SelectedTargetSeats = Array.AsReadOnly(live) });
++                }
+                 if (frame.SelectedTargetSeats.Count == 0) return SkillProgramStepOutcome.Continue;
+                 _strategicDrafts[frame.Id] = new(effect.Op, -1, null, frame.SelectedTargetSeats.ToArray(), [], 1);
+                 PublishStrategicPrompt(frame);
+                 return SkillProgramStepOutcome.AwaitChoice;
+*** Update File: src/CardGame.Core/GameEngine.SkillPrograms.cs
+@@
+                     continue;
+                 if(features.HasOperation(SkillProgramEffectOp.DiscardDistinctFactionParticipants) && !HasPayableDistinctFactionOwnerHe(owner.Seat,program.Id,GetRuntimeSkillInstanceId(owner,program.Id)))continue;
+                 if (features.First(SkillProgramEffectOp.DonateAllEquipmentAndOfferRecipientBenefits) is { } donation &&
+                     !HasPayableAllEquipmentDonation(owner.Seat, program.Id, donation.StateId!)) continue;
++                if (!CanStartLostHpTargetSelection(owner, activation)) continue;
+                 if (features.HasOperation(SkillProgramEffectOp.DiscardSlashThenOtherCardAndUseDuel) && !CanStartConditionalDiscardDuel(owner)) continue;
+                 var requiredCards = GetProgramActivationMinimumCards(owner.Seat, program.Id, activation);
+                 if (features.HasOperation(SkillProgramEffectOp.GiveAllHandAndStartRecipientPindian) && !CanStartRecipientContest(owner)) continue;
+                 if (features.HasOperation(SkillProgramEffectOp.UseVirtualAlcohol) && !CanStartProvenanceAlcohol(owner)) continue;
+@@
+             !AllowsHalfHandSupportNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+             !AllowsSignedDamagePaymentNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+             !AllowsRecipientContestNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+             !AllowsCappedConversionNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
++            !AllowsFireOrNamedNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+             !AllowsSlashTargetBenefitNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+             !AllowsTargetPenaltyNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+             !AllowsActualEquipmentOrDiscardNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+             !AllowsOwnedDeathBenefitNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || ActiveDying is not null ||
+@@
+                 if (!(paidEffect?.Op == SkillProgramEffectOp.SuppressCurrentSlashTargetAndJudgeSuitDiscard && frame.SlashSuitDiscard is { Stage: ProgramSlashSuitDiscardStage.JudgmentMovement or ProgramSlashSuitDiscardStage.PaymentMovement } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseDiamondDelayedOrDiscard && frame.DiamondDelayed is { Stage: ProgramDiamondDelayedStage.Moving or ProgramDiamondDelayedStage.Drawing } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(awaitsParticipantDiscard || awaitsPrivateHold || paidEffect?.Op is SkillProgramEffectOp.ResolveFirstGameDomainCrossing or SkillProgramEffectOp.StoreArbitraryOwnedPublicPile or SkillProgramEffectOp.UsePublicPileEquipmentSequence && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsAppliedDamageBenefit && !awaitsNamedTurnFlow && !awaitsConvertingGift && !(paidEffect?.Op is SkillProgramEffectOp.AwaitOwnedCardMovement or SkillProgramEffectOp.StoreBoundHandInPublicPile or SkillProgramEffectOp.PublicPileColorDamage or SkillProgramEffectOp.RewardDiscardedActionColor && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsAlternatingSuitTop && !awaitsFinalTargetPublicPile && !awaitsQuotaTop && !awaitsBudgetOrGift && !(paidEffect?.Op == SkillProgramEffectOp.DrawOnFirstProgramTargetEncounter && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.ExchangeOwnedCardThroughDeckEnd or SkillProgramEffectOp.UseDeckSlashesThenShuffle && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.ExchangeRespondedCardEntities or SkillProgramEffectOp.DrawPublicSuitThenEscalatingDiscard && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.CompareSelectedHandWithHpHand && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DeclareNameForTargetDefense or SkillProgramEffectOp.DrawAndDraftLowHandPopulation or SkillProgramEffectOp.ObtainDeckCardWithConsecutiveTarget && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.ChooseDifferentActionCategoryGift && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DepositBoundCardsUntilNextTurn or SkillProgramEffectOp.ObtainDeferredPile or SkillProgramEffectOp.ViewTopCardsAndObtainMatchingCards or SkillProgramEffectOp.StoreTopCardInPublicPile or SkillProgramEffectOp.ExchangePublicPile or SkillProgramEffectOp.DistributePublicPileIfAllSuits && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !awaitsRandomTransfer &&
+                     !(paidEffect?.Op == SkillProgramEffectOp.ObtainDamageTargetCardAndResolveCategory && frame.DamageTargetObtain is not null && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
+                     !(paidEffect?.Op == SkillProgramEffectOp.DiscardDamageTargetAndClaimMount && frame.DamageTargetMount is { Receipt: not null } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
+                     !awaitsSuitPlacement && !awaitsCappedHandRefresh && !awaitsDeclaredDeck && !awaitsShownGift && !awaitsJudgmentClaim && !awaitsRepeatedJudgment && !awaitsOwnedMovement &&
+-                    !IsCappedConversionAwaitedMovement(frame, pendingMovement) && !IsForeignContestOrAidMovement(frame, paidEffect, pendingMovement) && !IsConditionalDuelAwaitedMovement(frame, paidEffect, pendingMovement) && !IsRecipientContestMovement(frame, paidEffect, pendingMovement) && !IsPrepDiscardMovement(frame, paidEffect, pendingMovement) && !IsSlashTargetBenefitMovement(frame, paidEffect, pendingMovement) && !IsTargetPenaltyMovement(frame, paidEffect, pendingMovement) && !IsActualEquipmentOrDiscardMovement(frame, paidEffect, pendingMovement) && !IsPaidColorDamageClaimMovement(frame, paidEffect, pendingMovement) && !IsEquipmentDonationMovement(frame, paidEffect, pendingMovement) && !IsHalfHandPhaseMovement(frame, paidEffect, pendingMovement) && !IsPairBenefitMovement(frame, paidEffect, pendingMovement) && !IsEndingPairMovement(frame, paidEffect, pendingMovement) && !IsExtraDrawDebtMovement(frame, paidEffect, pendingMovement) && !IsOwnTrickDrawMovement(frame, paidEffect, pendingMovement) && !IsPreventionDrawMovement(frame, paidEffect, pendingMovement) && !IsDamageJudgmentSuitPaymentMovement(frame, paidEffect, pendingMovement) && !awaitsExchangedMovement && !(paidEffect?.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.DeferredHandAlignmentResolution is { } deferredAlignment && pendingMovement.SubjectSeat == deferredAlignment.TargetSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseRandomDeckEquipment && frame.SelectedTargetSeats is [var equipmentUser] && pendingMovement.SubjectSeat == equipmentUser && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
++                    !IsFireTargetBenefitMovement(frame, paidEffect, pendingMovement) && !IsNamedCardAcquisitionMovement(frame, paidEffect, pendingMovement) && !IsCappedConversionAwaitedMovement(frame, pendingMovement) && !IsForeignContestOrAidMovement(frame, paidEffect, pendingMovement) && !IsConditionalDuelAwaitedMovement(frame, paidEffect, pendingMovement) && !IsRecipientContestMovement(frame, paidEffect, pendingMovement) && !IsPrepDiscardMovement(frame, paidEffect, pendingMovement) && !IsSlashTargetBenefitMovement(frame, paidEffect, pendingMovement) && !IsTargetPenaltyMovement(frame, paidEffect, pendingMovement) && !IsActualEquipmentOrDiscardMovement(frame, paidEffect, pendingMovement) && !IsPaidColorDamageClaimMovement(frame, paidEffect, pendingMovement) && !IsEquipmentDonationMovement(frame, paidEffect, pendingMovement) && !IsHalfHandPhaseMovement(frame, paidEffect, pendingMovement) && !IsPairBenefitMovement(frame, paidEffect, pendingMovement) && !IsEndingPairMovement(frame, paidEffect, pendingMovement) && !IsExtraDrawDebtMovement(frame, paidEffect, pendingMovement) && !IsOwnTrickDrawMovement(frame, paidEffect, pendingMovement) && !IsPreventionDrawMovement(frame, paidEffect, pendingMovement) && !IsDamageJudgmentSuitPaymentMovement(frame, paidEffect, pendingMovement) && !awaitsExchangedMovement && !(paidEffect?.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.DeferredHandAlignmentResolution is { } deferredAlignment && pendingMovement.SubjectSeat == deferredAlignment.TargetSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseRandomDeckEquipment && frame.SelectedTargetSeats is [var equipmentUser] && pendingMovement.SubjectSeat == equipmentUser && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
+                     !(paidEffect is { Op: SkillProgramEffectOp.MoveBoundCards, AwaitMovementTriggers: true } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
+                     !(paidEffect?.Op == SkillProgramEffectOp.ObtainBoundCardsAndArmNextRevealBonus &&
+                         pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.BeforeCount == 0 && pendingMovement.CoverageResultBind is null) &&
+                     !(paidEffect?.Op is SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamage && frame.DiscardChallenge is { } challenge && challenge.ChooserSeat == pendingMovement.SubjectSeat && pendingMovement.CoverageResultBind is null) &&
+@@
+             AssertDeckProgramDrafts(frame, paused);
+             AssertFixedSlashAndDeclaredDeckDrafts(frame, paused);
+             AssertCappedHandRefresh(frame, paused);
+             AssertAppliedDamageBenefitReceipt(frame);
++            AssertFireTargetBenefit(frame);
++            AssertNamedCardAcquisition(frame);
++            AssertLostHpChainedPayment(frame);
+             AssertProgramTargetDraft(frame, paused);
+             ValidateProgramDiscardChallengeState(frame);
+             AssertPrepDiscardReceipts(frame);
+             AssertSlashTargetBenefitProgram(frame);
+*** Update File: src/CardGame.Core/SkillProgramExecutor.cs
+@@
+     bool CanContinuePaidHpLoss(ProgramSkillFrame frame) => false;
+     bool CanContinuePaidDamageShield(ProgramSkillFrame frame) => false;
+     bool CanContinuePaidDamageTargetMount(ProgramSkillFrame frame) => false;
+     bool CanContinuePaidDamageTargetObtain(ProgramSkillFrame frame) => false;
++    bool CanContinuePaidLostHpChain(ProgramSkillFrame frame) => false;
+     bool OwnsSkillInstance(int ownerSeat, string skillId, string skillInstanceId);
+     bool OwnsCards(int ownerSeat, IReadOnlyList<int> cardIds, IReadOnlyList<CardZoneKind> sourceZones);
+     bool EvaluateCondition(ProgramSkillFrame frame, SkillProgramCondition condition, PlayerSkillContext context);
+     void UpdateFrame(ProgramSkillFrame frame);
+@@
+                 ProgramInstructionResolver.Default.FindActivation(program, frame.ActivationId)?.ContinueAfterOwnerDeath == true ||
+                 ProgramInstructionResolver.Default.Find(program, ProgramInstructionSourceKind.Trigger, frame.ActivationId)
+                     ?.Features.HasOperation(SkillProgramEffectOp.LoseHpParticipants) == true;
+             if (!state.OwnsSkillInstance(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId) && (actor.IsAlive || !allowsDeadOwner) &&
+-                !state.CanContinueIssuedOriginalTargetAddition(frame) && !state.CanContinuePaidHpLoss(frame) && !state.CanContinuePaidDamageShield(frame) && !state.CanContinuePaidDamageTargetMount(frame) && !state.CanContinuePaidDamageTargetObtain(frame))
++                !state.CanContinueIssuedOriginalTargetAddition(frame) && !state.CanContinuePaidHpLoss(frame) && !state.CanContinuePaidDamageShield(frame) && !state.CanContinuePaidDamageTargetMount(frame) && !state.CanContinuePaidDamageTargetObtain(frame) && !state.CanContinuePaidLostHpChain(frame))
+             {
+                 state.Complete(frame, completed: false, "技能实例在结算前已失效，剩余步骤取消。");
+                 return;
+             }
+*** Update File: src/CardGame.Core/CardUseModules.cs
+@@
+     }
+ 
+     internal IReadOnlyList<long> ExpireTurn(int turnNumber, int turnSeat)
+     {
+-        var expired = ExpiringHandCategoryRestrictions(turnNumber, turnSeat).Concat(ExpiringBoundSlashBenefits(turnNumber, turnSeat)).Concat(ExpiringHandLimitKindExemptions(turnNumber, turnSeat)).Concat(ExpiringHandLimitExemptCards(turnNumber, turnSeat)).Concat(ExpiringRedSlashPolicies(turnNumber, turnSeat)).Concat(_targetAdjustments
++        var expired = ExpiringTargetCardQuotaAllowances(turnNumber, turnSeat).Concat(ExpiringHandCategoryRestrictions(turnNumber, turnSeat)).Concat(ExpiringBoundSlashBenefits(turnNumber, turnSeat)).Concat(ExpiringHandLimitKindExemptions(turnNumber, turnSeat)).Concat(ExpiringHandLimitExemptCards(turnNumber, turnSeat)).Concat(ExpiringRedSlashPolicies(turnNumber, turnSeat)).Concat(_targetAdjustments
+             .Where(item => item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
+             .Select(item => item.GrantSequence))
+             .Concat(_prohibitions
+                 .Where(item => item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
+@@
+         ExpireHandLimitExemptCards(expiredSet);
+         ExpireHandLimitKindExemptions(expiredSet);
+         ExpireBoundSlashBenefits(expiredSet);
+         ExpireHandCategoryRestrictions(expiredSet);
++        ExpireTargetCardQuotaAllowances(expiredSet);
+         return expired;
+     }
+ 
+     internal IReadOnlyList<long> ExpireDamageModifiersAtOwnerTurnStart(int ownerSeat, int turnNumber) =>
+*** Update File: src/CardGame.Core/GameEngine.RuleQueries.cs
+@@
+         (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount ||
+          _slashCountThisTurn < GetSlashUseLimit(player) ||
+          physicalCard is not null && BypassesSlashLimitBySuit(player, physicalCard, effectiveKind) ||
+          HasDirectedTurnCardPolicy(player.Seat, target.Seat, effectiveKind,
+-             DirectedTurnCardPolicyEffect.BypassSlashLimit));
++             DirectedTurnCardPolicyEffect.BypassSlashLimit) ||
++         HasTargetCardQuotaAllowance(player.Seat, target.Seat));
+ }
+*** Update File: src/CardGame.Core/GameEngine.cs
+@@
+             }
+         }
+ 
+         if (!actor.HasAlcoholEffect &&
+-            (!actor.UsedPlayPhaseAlcoholThisTurn || HasNextUnlimitedCard(actor) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)))
++            (!actor.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || HasNextUnlimitedCard(actor) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)))
+         {
+             foreach (var alcohol in playableCards.Where(card => card.Kind == CardKind.Alcohol))
+             {
+                 actions.Add(new LegalAction(
+@@
+     };
+ 
+     private void AssertCoreInvariants()
+     {
+-        var damageProgramDying = IsOwnTrickDrawProgramDying() || IsConditionalDiscardDuelProgramDying() || IsRecipientContestProgramDying() || IsProvenanceClaimProgramDying() || IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying() || IsPaidDamageTargetMountDying() || IsPaidDamageTargetObtainDying() || IsDamageAppearanceDrawProgramDying() || IsRecoveryReplacementProgramDying() || IsCharacterTurnedOverProgramDying() || IsCappedHandRefreshProgramDying() || IsPaidHandRepaymentProgramDying() || IsBoundRankBonusMovementDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawInsideDamageProgramDying() || IsSourceFactionYieldInsideDamageProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsAppliedDamageBenefitDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPreventionInsideDamageProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying();
++        var damageProgramDying = IsFireTargetBenefitProgramDying() || IsNamedAcquisitionProgramDying() || IsOwnTrickDrawProgramDying() || IsConditionalDiscardDuelProgramDying() || IsRecipientContestProgramDying() || IsProvenanceClaimProgramDying() || IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying() || IsPaidDamageTargetMountDying() || IsPaidDamageTargetObtainDying() || IsDamageAppearanceDrawProgramDying() || IsRecoveryReplacementProgramDying() || IsCharacterTurnedOverProgramDying() || IsCappedHandRefreshProgramDying() || IsPaidHandRepaymentProgramDying() || IsBoundRankBonusMovementDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawInsideDamageProgramDying() || IsSourceFactionYieldInsideDamageProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsAppliedDamageBenefitDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPreventionInsideDamageProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying();
+         _turnCardUseEffects.AssertInvariants();
+         AssertPaidHpLossModifiers();
+         AssertCurrentTurnOwnSkillSuppressions();
+         AssertPostEventProgramInvariants();
+@@
+                 }
+             }
+             else if (ActiveDamageTrigger is { } triggerContinuation)
+             {
+-                var effectiveTop = DamageCursorEffectiveTop(includeNestedObservers: HasPaidDamageTargetMountObserver(triggerContinuation.Id) || HasPaidDamageTargetObtainObserver(triggerContinuation.Id) || HasDamageAppearanceDrawObserver(triggerContinuation.Id) || HasCappedHandRefreshObserver(triggerContinuation.Id) || HasPaidHandRepaymentObserver(triggerContinuation.Id) || HasBoundRankBonusMovementObserver(triggerContinuation.Id) || HasOwnedDamagePointJudgmentObserver(triggerContinuation.Id) || HasDamageJudgmentSuitPaymentObserver(triggerContinuation.Id) || HasAppliedDamageBenefitObserver(triggerContinuation.Id) || HasProvenanceClaimObserver(triggerContinuation.Id) || HasEquipmentDonationDamageObserver(triggerContinuation.Id) || HasPaidColorDamageClaimDamageObserver(triggerContinuation.Id) || HasHalfHandPaidDamageObserver(triggerContinuation.Id) || HasSignedDamagePaymentObserver(triggerContinuation.Id) || HasPairBenefitDamageObserver(triggerContinuation.Id) || HasEndingPairSlashDamageObserver(triggerContinuation.Id) || HasActualDiscardRecoveryDamageObserver(triggerContinuation.Id) || HasForeignContestAidDamageObserver(triggerContinuation.Id) || HasPrepDiscardDamageObserver(triggerContinuation.Id) || HasSlashBenefitDamageObserver(triggerContinuation.Id) || HasTargetPenaltyDamageObserver(triggerContinuation.Id) || HasCappedConversionBenefitObserver(triggerContinuation.Id) || HasRecipientContestDamageObserver(triggerContinuation.Id));
++                var effectiveTop = DamageCursorEffectiveTop(includeNestedObservers: HasPaidDamageTargetMountObserver(triggerContinuation.Id) || HasPaidDamageTargetObtainObserver(triggerContinuation.Id) || HasDamageAppearanceDrawObserver(triggerContinuation.Id) || HasCappedHandRefreshObserver(triggerContinuation.Id) || HasPaidHandRepaymentObserver(triggerContinuation.Id) || HasBoundRankBonusMovementObserver(triggerContinuation.Id) || HasOwnedDamagePointJudgmentObserver(triggerContinuation.Id) || HasDamageJudgmentSuitPaymentObserver(triggerContinuation.Id) || HasAppliedDamageBenefitObserver(triggerContinuation.Id) || HasFireTargetBenefitObserver(triggerContinuation.Id) || HasNamedAcquisitionDamageObserver(triggerContinuation.Id) || HasProvenanceClaimObserver(triggerContinuation.Id) || HasEquipmentDonationDamageObserver(triggerContinuation.Id) || HasPaidColorDamageClaimDamageObserver(triggerContinuation.Id) || HasHalfHandPaidDamageObserver(triggerContinuation.Id) || HasSignedDamagePaymentObserver(triggerContinuation.Id) || HasPairBenefitDamageObserver(triggerContinuation.Id) || HasEndingPairSlashDamageObserver(triggerContinuation.Id) || HasActualDiscardRecoveryDamageObserver(triggerContinuation.Id) || HasForeignContestAidDamageObserver(triggerContinuation.Id) || HasPrepDiscardDamageObserver(triggerContinuation.Id) || HasSlashBenefitDamageObserver(triggerContinuation.Id) || HasTargetPenaltyDamageObserver(triggerContinuation.Id) || HasCappedConversionBenefitObserver(triggerContinuation.Id) || HasRecipientContestDamageObserver(triggerContinuation.Id));
+                 var topMatchesWindow = effectiveTop is DamageTriggerWindowFrame frame &&
+                     frame.Id == triggerContinuation.Id &&
+                     frame.ParentFrameId == triggerContinuation.ParentFrameId &&
+                     frame.CandidateIndex == triggerContinuation.CandidateIndex;
+@@
+                 throw new InvalidOperationException(
+                     "A damage trigger continuation must retain a valid trigger window frame.");
+             }
+ 
+-            var damageCursorTop = DamageCursorEffectiveTop(includeNestedObservers: _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.ConvertingGift is { Observe: true } && f.WindowContext?.ParentFrameId == pendingDamageTrigger.Id) || HasAvailableBoundDamageObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetMountObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetObtainObserver(pendingDamageTrigger.Id) || HasDamageAppearanceDrawObserver(pendingDamageTrigger.Id) || HasCappedHandRefreshObserver(pendingDamageTrigger.Id) || HasPaidHandRepaymentObserver(pendingDamageTrigger.Id) || HasBoundRankBonusMovementObserver(pendingDamageTrigger.Id) || HasOwnedDamagePointJudgmentObserver(pendingDamageTrigger.Id) || HasDamageJudgmentSuitPaymentObserver(pendingDamageTrigger.Id) || HasAppliedDamageBenefitObserver(pendingDamageTrigger.Id) || HasProvenanceClaimObserver(pendingDamageTrigger.Id) || HasEquipmentDonationDamageObserver(pendingDamageTrigger.Id) || HasPaidColorDamageClaimDamageObserver(pendingDamageTrigger.Id) || HasHalfHandPaidDamageObserver(pendingDamageTrigger.Id) || HasSignedDamagePaymentObserver(pendingDamageTrigger.Id) || HasPairBenefitDamageObserver(pendingDamageTrigger.Id) || HasEndingPairSlashDamageObserver(pendingDamageTrigger.Id) || HasActualDiscardRecoveryDamageObserver(pendingDamageTrigger.Id) || HasForeignContestAidDamageObserver(pendingDamageTrigger.Id) || HasPrepDiscardDamageObserver(pendingDamageTrigger.Id) || HasSlashBenefitDamageObserver(pendingDamageTrigger.Id) || HasTargetPenaltyDamageObserver(pendingDamageTrigger.Id) || HasCappedConversionBenefitObserver(pendingDamageTrigger.Id) || HasRecipientContestDamageObserver(pendingDamageTrigger.Id));
++            var damageCursorTop = DamageCursorEffectiveTop(includeNestedObservers: _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.ConvertingGift is { Observe: true } && f.WindowContext?.ParentFrameId == pendingDamageTrigger.Id) || HasAvailableBoundDamageObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetMountObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetObtainObserver(pendingDamageTrigger.Id) || HasDamageAppearanceDrawObserver(pendingDamageTrigger.Id) || HasCappedHandRefreshObserver(pendingDamageTrigger.Id) || HasPaidHandRepaymentObserver(pendingDamageTrigger.Id) || HasBoundRankBonusMovementObserver(pendingDamageTrigger.Id) || HasOwnedDamagePointJudgmentObserver(pendingDamageTrigger.Id) || HasDamageJudgmentSuitPaymentObserver(pendingDamageTrigger.Id) || HasAppliedDamageBenefitObserver(pendingDamageTrigger.Id) || HasFireTargetBenefitObserver(pendingDamageTrigger.Id) || HasNamedAcquisitionDamageObserver(pendingDamageTrigger.Id) || HasProvenanceClaimObserver(pendingDamageTrigger.Id) || HasEquipmentDonationDamageObserver(pendingDamageTrigger.Id) || HasPaidColorDamageClaimDamageObserver(pendingDamageTrigger.Id) || HasHalfHandPaidDamageObserver(pendingDamageTrigger.Id) || HasSignedDamagePaymentObserver(pendingDamageTrigger.Id) || HasPairBenefitDamageObserver(pendingDamageTrigger.Id) || HasEndingPairSlashDamageObserver(pendingDamageTrigger.Id) || HasActualDiscardRecoveryDamageObserver(pendingDamageTrigger.Id) || HasForeignContestAidDamageObserver(pendingDamageTrigger.Id) || HasPrepDiscardDamageObserver(pendingDamageTrigger.Id) || HasSlashBenefitDamageObserver(pendingDamageTrigger.Id) || HasTargetPenaltyDamageObserver(pendingDamageTrigger.Id) || HasCappedConversionBenefitObserver(pendingDamageTrigger.Id) || HasRecipientContestDamageObserver(pendingDamageTrigger.Id));
+             var activeDamageProgram = damageCursorTop is ProgramSkillFrame programFrame &&
+                 programFrame.WindowContext is
+                 {
+                     Window: SkillProgramTriggerWindow.DamageAppliedBeforeDying or
+*** Update File: src/CardGame.Core/GameEngine.PlayCardHistory.cs
+@@
+                         AddFangtianHalberdSlashActions(actions, actor, usedCard, targets, name, kind, source);
+                         AddProgramTargetCountSlashActions(actions, actor, usedCard, targets, name, kind, source);
+                     }
+                     else if (kind == CardKind.Peach && actor.Hp < actor.MaxHp ||
+-                             kind == CardKind.Alcohol && !actor.HasAlcoholEffect && (!actor.UsedPlayPhaseAlcoholThisTurn || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)))
++                             kind == CardKind.Alcohol && !actor.HasAlcoholEffect && (!actor.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)))
+                         actions.Add(new LegalAction(kind == CardKind.Peach ? LegalActionKind.Peach : LegalActionKind.Alcohol,
+                             card.Id, kind == CardKind.Peach ? actor.Seat : null,
+                             DescribeConversion(source, $"将【{card.DisplayName}】当作【{name}】使用"),
+                             PlayedCardKind: kind) { ConversionSource = source });
+*** Update File: src/CardGame.Core/GameEngine.TieredRoundZeroUses.cs
+@@
+             else if (kind == CardKind.Peach && actor.Hp < actor.MaxHp && !HasSelfCardTargetProhibition(actor.Seat) &&
+                 !HasBeneficiarySuitShield(actor.Seat, actor.Seat, Suit.None))
+                 result.Add(new(LegalActionKind.Peach, 0, null, DescribeConversion(source, "视为使用【桃】"), kind) { ConversionSource = source });
+             else if (kind == CardKind.Alcohol && !actor.HasAlcoholEffect && !HasSelfCardTargetProhibition(actor.Seat) &&
+-                (!actor.UsedPlayPhaseAlcoholThisTurn || HasNextUnlimitedCard(actor) ||
++                (!actor.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || HasNextUnlimitedCard(actor) ||
+                  HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)) &&
+                 !HasBeneficiarySuitShield(actor.Seat, actor.Seat, Suit.None))
+                 result.Add(new(LegalActionKind.Alcohol, 0, null, DescribeConversion(source, "视为使用【酒】"), kind) { ConversionSource = source });
+             else if (IsOrdinaryTrick(kind) && kind != CardKind.Nullification)
+*** Update File: src/CardGame.Core/GameEngine.VirtualBasicOffers.cs
+@@
+         if (!actor.IsAlive || _winner != Winner.None || _phase != TurnPhase.Play || _currentSeat != owner) yield break;
+         foreach (var kind in new[] { CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash })
+             foreach (var target in _players.Where(t => CanUseVirtualSlashTarget(actor, t, kind) && !IsDirectedCardTargetProhibited(owner,t.Seat,kind) && !IsCardTargetProhibited(t,kind,Suit.None))) yield return (kind, target.Seat);
+         if (actor.Hp < actor.MaxHp && !IsCardUseForbidden(owner, CardKind.Peach, CardActionType.Use) && !IsDirectedCardTargetProhibited(owner, owner, CardKind.Peach)) yield return (CardKind.Peach, owner);
+-        if (!actor.HasAlcoholEffect && (!actor.UsedPlayPhaseAlcoholThisTurn || HasNextUnlimitedCard(actor) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)) && !IsCardUseForbidden(owner, CardKind.Alcohol, CardActionType.Use) && !IsDirectedCardTargetProhibited(owner, owner, CardKind.Alcohol)) yield return (CardKind.Alcohol, owner);
++        if (!actor.HasAlcoholEffect && (!actor.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || HasNextUnlimitedCard(actor) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)) && !IsCardUseForbidden(owner, CardKind.Alcohol, CardActionType.Use) && !IsDirectedCardTargetProhibited(owner, owner, CardKind.Alcohol)) yield return (CardKind.Alcohol, owner);
+     }
+ 
+     private SkillProgramStepOutcome OfferVirtualBasicCard(ProgramSkillFrame frame)
+     {
+*** End Patch

@@ -185,6 +185,7 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    DiscardTargetHpCardsAndDamage = 7601,
     DiscardOwnedCardToAdjustCurrentDamage = 7100,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
@@ -426,6 +427,7 @@ public enum SkillProgramEffectOp
     DrawBeforeCappedConversionTierUpgrade = 6900,
     ChooseCategoryOrSequentialDiscard = 5700, EscalatingDiscardOrDamageFromSelected = 5701,
     DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
+    DrawFireTargetAndGrantTurnUseQuota = 7401, LoseSkillsAndObtainNamedCard = 7402,
     ReceiveOwnerDamage = 4100, ConsumeDistinctTurnTarget = 4101, DrawOwnerAtAppliedDamage = 4102,
     GiveBoundCardThenOfferVirtualSlashOrSharedDraw = 5100,
     PayHpThenNullifyOwnActualUseTarget = 5600, ScheduleEarnedActualEndingBenefit = 5601, DrawLostHpThenOfferOwnedCardsUpTo = 5602,
@@ -437,7 +439,8 @@ public enum SkillProgramEffectOp
     OfferSlashTargetBenefit = 7000, SettleDodgeCancelledSlashBenefit = 7001,
     DiscardDrawAndOfferUniqueHpPeer = 7200, GiveAllHandAndStartRecipientPindian = 7201, UsePindianWinnerSlash = 7202,
     DiscardSlashThenOtherCardAndUseDuel = 7320,
-    DrawThenNullifyOwnMultiTargetTrick = 7300, RestrictDamageSourceHandCategory = 7301
+    DrawThenNullifyOwnMultiTargetTrick = 7300, RestrictDamageSourceHandCategory = 7301,
+    PlaceOwnedEquipmentThenResolveSlotBenefit = 7500
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets, HpPairHigher = 2000, HpPairLower = 2001 }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -517,7 +520,7 @@ public enum SkillProgramNumberExpression
     HandLimitMinusHandCount = 15,
     LostHpMinusHandCount = 600,
     CategoryTargetTurnUsage = 820, CurrentHp = 1020, SelectedTargetsHandGreaterThanLord = 1021,
-    PhaseSkillUsage = 1022, EventMovedCardCount = 1700, CurrentTurnUsedCardCategoryCount = 4600}
+    PhaseSkillUsage = 1022, EventMovedCardCount = 1700, CurrentTurnUsedCardCategoryCount = 4600, OwnerLostHpAtLeastOne = 7400}
 public enum SkillProgramCardSetVisibility { Private, Public }
 public enum SkillProgramCardDestination
 {
@@ -1847,6 +1850,7 @@ public sealed class SkillProgramCatalog
         {
             SlashTargetBenefitComposition.ValidateProgram(program);
             SlashTargetPenaltyComposition.Validate(program);
+            FireTargetBenefitComposition.Validate(program);
             foreach (var effect in program.Activations.SelectMany(activation => activation.Effects)
                          .Concat(program.Triggers.SelectMany(trigger => trigger.Effects))
                          .Where(effect => effect.Op is SkillProgramEffectOp.DeclareBoundCardNameUntilTurnEnd or SkillProgramEffectOp.UpgradeConversionTier or SkillProgramEffectOp.DrawBeforeCappedConversionTierUpgrade))
@@ -2062,6 +2066,13 @@ public sealed class SkillProgramCatalog
         {
             if (cardKinds.Count == 0 || requiredKinds.Count == 0 || value is < 2 or > 20)
                 Fail(path, "minimumResponseCount requires incoming and response card kinds and value 2..20");
+        }
+        else if (kind == SkillProgramCardPolicyKind.PrivateTopBasicRequest)
+        {
+            if (!cardKinds.SequenceEqual([CardKind.Slash, CardKind.Dodge, CardKind.Peach, CardKind.Alcohol]) ||
+                requiredKinds.Count != 0 || value != 2 || inputSuit is not null || outputSuit is not null ||
+                factionId is not null || ownerRole is not null || OptionalCondition(node, path).Kind != SkillProgramConditionKind.Always)
+                Fail(path, "Private top basic requests require exactly four basic needs, two/four viewing and no other qualifiers.");
         }
         else if (kind == SkillProgramCardPolicyKind.FactionResponseRequest)
         {
@@ -2559,6 +2570,10 @@ public sealed class SkillProgramCatalog
             Fail(path + ".effects", "card-use color conditions require a card-action trigger");
         if (effects.Any(effect => effect.Op == SkillProgramEffectOp.SkipTurnPhases))
             Fail(path + ".effects", "phase substitution requires a lifecycle trigger");
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.DiscardTargetHpCardsAndDamage) &&
+            (effects.Count != 1 || minCards != 0 || maxCards != 0 || minTargets != 1 || maxTargets != 1 ||
+             targetKind != SkillProgramTargetKind.OtherLivingInAttackRange || uses is not null || usesPerPhase is not null || usesPerGame is not null))
+            Fail(path, "Variable target-HP discard damage requires one standalone zero-input, attack-range-target activation.");
         if (effects.Count == 0) Fail(path + ".effects", "must contain at least one effect");
         if (effects.Any(e => e.Op == SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund) && usesPerGame != 1)
             Fail(path, "a first-round refund requires usesPerGame:1");
@@ -3548,12 +3563,15 @@ public sealed class SkillProgramCatalog
              turnOwnerScope != SkillProgramTurnOwnerScope.Own))
             Fail(path, "at-most-owner hand targeting requires the exact owner Ending window");
         SuitPreventionAndJudgmentPlacementComposition.Validate(path, effects, window, subject, turnOwnerScope);
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.DiscardTargetHpCardsAndDamage))
+            Fail(path, "Variable target-HP discard damage requires its standalone activation.");
         SignedDamagePaymentComposition.Validate(path, effects, window, subject);
         EquipmentPairDyingCardComposition.Validate(path, effects, window, subject);
         ActualDiscardRecoveryComposition.ValidateTrigger(path, effects, window, subject, optional, discardOwnerScope,
             movementDiscardOnly, suits, cardKinds, cardCategories, movementReasons, excludedMovementReasons, movementOccurrence);
         ShownEntityTurnPolicyComposition.Validate(path, effects, window, subject, turnOwnerScope);
         EquipmentDonationComposition.ValidateTrigger(path, effects, window, subject, turnOwnerScope, optional);
+        PlacedEquipmentBenefitComposition.Validate(path, effects, window, subject, turnOwnerScope, optional);
         PaidColorDamageClaimComposition.Validate(path, effects, window, subject, turnOwnerScope, optional);
         ForeignTurnContestAidComposition.Validate(path, effects, window, subject, optional, ownerRelation, cardKinds);
         RecipientContestComposition.Validate(path, effects, window, 0, 0, SkillProgramTargetKind.AnyLiving, null);

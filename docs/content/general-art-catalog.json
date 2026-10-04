@@ -11999,6 +11999,57 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-cao-hong",
+      "characterName": "曹洪",
+      "defaultSkinId": "11400",
+      "skins": [
+        {
+          "id": "11400",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/114",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11400.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-cao-hong.png",
+          "sha256": "a06726c5d13bc809fba870a155fd4ec3ad5fc53e74a9739c6cacecf9eaf59468",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-guan-yin-ping",
+      "characterName": "关银屏",
+      "defaultSkinId": "11500",
+      "skins": [
+        {
+          "id": "11500",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/115",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11500.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-guan-yin-ping.png",
+          "sha256": "27c3d5e90243bf475bf3048520eae69ffcf7b66723b40e42ffc364a8f1ddd283",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-zhuge-ke",
+      "characterName": "诸葛恪",
+      "defaultSkinId": "11800",
+      "skins": [
+        {
+          "id": "11800",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/118",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11800.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-zhuge-ke.png",
+          "sha256": "a6fe34d90cc756a235597dfd634ebb575147d5c0dd2f43f7301cedc1805af7a1",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

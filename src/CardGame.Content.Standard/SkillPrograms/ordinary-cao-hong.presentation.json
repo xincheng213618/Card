@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:yuanhu": {
+      "name": "援护",
+      "description": "结束阶段，你可以将一张装备牌置入一名角色的装备区，若为：武器牌，你弃置其距离为1的一名角色区域里的一张牌；防具牌，其摸一张牌；坐骑牌，其回复1点体力。",
+      "triggerChoices": {
+        "ending-place-equipment": "将一张装备牌置入一名角色的装备区"
+      }
+    }
+  }
+}

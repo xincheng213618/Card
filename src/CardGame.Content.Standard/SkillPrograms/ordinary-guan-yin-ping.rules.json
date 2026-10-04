@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:xuehen", "revision": 1, "activations": [{
+      "id": "red-cost-chain-fire", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0,
+      "targetKind": "anyLiving", "usesPerTurn": null, "usesPerPhase": 1,
+      "effects": [
+        { "op": "selectOwnedCards", "target": "owner", "minimumCards": 1, "maximumCards": 1,
+          "zones": ["hand", "equipment"], "suits": ["heart", "diamond"], "resultBind": "red-cost" },
+        { "op": "moveBoundCards", "target": "owner", "sourceBind": "red-cost", "destination": "discardPile", "awaitMovementTriggers": true },
+        { "op": "awaitBoundCardMovements", "target": "owner" },
+        { "op": "selectTargets", "target": "owner", "targetKind": "anyLiving", "minimumTargets": 1, "maximumTargets": 8,
+          "numberExpression": "ownerLostHpAtLeastOne", "targetAiOrder": "hostileThenHandCount" },
+        { "op": "setChainedState", "target": "selectedTargets", "chained": true },
+        { "op": "selectOneSelectedTarget", "target": "owner" },
+        { "op": "damage", "target": "selectedTarget", "amount": 1, "nature": "fire" }
+      ]
+    }] },
+    { "id": "ol:huxiao", "revision": 1, "triggers": [{
+      "id": "fire-recipient-draw-and-quota", "window": "afterDamageApplied", "subject": "damageSource",
+      "optional": false, "damageOccurrence": "perDamage",
+      "effects": [{ "op": "drawFireTargetAndGrantTurnUseQuota", "target": "owner" }]
+    }] },
+    { "id": "ol:wuji", "revision": 1, "triggers": [{
+      "id": "three-damage-awakening", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "own",
+      "optional": false, "usageScope": "game", "usageLimit": 1,
+      "condition": { "kind": "compare", "left": { "kind": "turnOwnerDamageDealtThisTurn" },
+        "operator": "greaterThanOrEqual", "right": { "kind": "integerConstant", "value": 3 } },
+      "effects": [
+        { "op": "changeMaximumHp", "target": "owner", "amount": 1 },
+        { "op": "recover", "target": "owner", "amount": 1 },
+        { "op": "loseSkillsAndObtainNamedCard", "target": "owner", "skillIds": ["ol:huxiao"], "outputKind": "qinglongCrescentBlade" }
+      ]
+    }] }
+  ]
+}

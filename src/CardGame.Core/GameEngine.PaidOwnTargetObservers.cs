@@ -100,6 +100,7 @@ public sealed partial class GameEngine
     // The old generic movement/Dying edge remains unchanged.
     private bool PaidTargetObserverEdge(int index)
     {
+        if (RequestedDeckBasicFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1])) return true;
         if (PolicyCounterspellDyingFaceEdge(index)) return true;
         if (_resolutionStack[index - 1] is DyingFrame dying && _resolutionStack[index] is ProgramSkillFrame response)
             return PolicyCounterspellDyingProgramRidesOn(response, dying);

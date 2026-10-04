@@ -176,8 +176,10 @@ internal sealed class SelectTargetsProgramOperationDescriptor : ProgramOperation
         var numberExpression = r.Has("numberExpression")
             ? r.RequiredEnum<SkillProgramNumberExpression>("numberExpression") : (SkillProgramNumberExpression?)null;
         if (numberExpression is not null and not (SkillProgramNumberExpression.EventMovedCardCount or SkillProgramNumberExpression.CurrentHandCount or
-            SkillProgramNumberExpression.PlannedNormalDrawCount or SkillProgramNumberExpression.BoundCardCount or SkillProgramNumberExpression.CurrentHp))
+            SkillProgramNumberExpression.PlannedNormalDrawCount or SkillProgramNumberExpression.BoundCardCount or SkillProgramNumberExpression.CurrentHp or SkillProgramNumberExpression.OwnerLostHpAtLeastOne))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: unsupported target maximum expression.");
+        if (numberExpression == SkillProgramNumberExpression.OwnerLostHpAtLeastOne && (kind != SkillProgramTargetKind.AnyLiving || minimum != 1))
+            throw new InvalidOperationException("Lost-HP-at-least-one targets require anyLiving and minimum one.");
         if ((minimum < 1 && !(minimum == 0 && kind == SkillProgramTargetKind.OtherLivingWithHand)) || maximum < minimum || maximum > (kind == SkillProgramTargetKind.CurrentCardUseTargets
             ? 64 : kind is SkillProgramTargetKind.AnyLiving or SkillProgramTargetKind.LivingWhoseAttackRangeIncludesLord or SkillProgramTargetKind.AnyWounded or
                 SkillProgramTargetKind.OtherLivingHandAtLeastOwner ? 8 : 2))

@@ -85,6 +85,9 @@ public static class GeneralGalleryCatalog
                      "liu-bei", "lu-xun", "gan-ning", "zhang-liao", "sun-quan", "zhang-jiao", "dian-wei", "huang-zhong" })
             groups.Add("ol:shen-" + id, "god");
         groups.Add("ol:sp-pang-de", "other");
+        groups.Add("ol:guan-yin-ping", "other");
+        groups.Add("ol:zhuge-ke", "other");
+        groups.Add("ol:cao-hong", "other");
         groups.Add("ol:sp-ma-chao", "other");
         groups.Add("ol:fu-wan", "other");
         groups.Add("ol:liu-xie", "other");

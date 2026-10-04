@@ -1,0 +1,131 @@
+{
+  "gid": 118,
+  "product": "current ordinary Sanguosha OL",
+  "category": "ordinaryOther",
+  "name": "诸葛恪",
+  "currentApiIdentity": {
+    "faction": "wu",
+    "hp": 3,
+    "initial_hp": 0,
+    "initialHpInterpretation": "API placeholder; do not start at zero",
+    "genderFieldPresent": false,
+    "genderEngineeringInference": "Male from biography: 吴臣、诸葛瑾长子; no structured API gender claim"
+  },
+  "skills": [
+    {
+      "name": "傲才",
+      "text": "当你于回合外需要使用或打出基本牌时，若你有/没有手牌，你可以观看牌堆顶两/四张牌，然后可以使用或打出其中的基本牌。"
+    },
+    {
+      "name": "黩武",
+      "text": "出牌阶段，你可以弃置X张牌对你攻击范围内一名其他角色造成1点伤害（X为其体力值）。若其因此进入濒死状态且于濒死结算后存活，你失去1点体力且本回合本技能失效。"
+    }
+  ],
+  "derivedSkills": [],
+  "fullCurrentMainText": true,
+  "fullImplementationSourceReady": true,
+  "page": {
+    "capture": {
+      "url": "https://www.sanguosha.com/hero/118",
+      "actualUrl": "https://www.sanguosha.com/hero/118",
+      "method": "GET",
+      "requestedUtc": "2026-10-04T22:56:26.6191721+08:00",
+      "completedUtc": "2026-10-04T22:56:26.8720922+08:00",
+      "status": 200,
+      "redirectsAllowed": false,
+      "retries": 0,
+      "bytes": 26818,
+      "rawSha256": "e6d8caad010e5859c47fdf9095dc14f7aa7dd2dc5292ceb076a9e5345e13986f"
+    },
+    "rawPath": "118-page.raw.html",
+    "skillTextLines": "269-280",
+    "advertisedApiLines": "481-492"
+  },
+  "api": {
+    "capture": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=118",
+      "actualUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=118",
+      "method": "GET",
+      "advertisedBy": "118-page.raw.html lines 481-492: pathname hero/gid and fetch info?gid=",
+      "requestedUtc": "2026-10-04T22:57:12.4338448+08:00",
+      "completedUtc": "2026-10-04T22:57:12.6941252+08:00",
+      "status": 200,
+      "redirectsAllowed": false,
+      "retries": 0,
+      "bytes": 919,
+      "rawSha256": "bbe03397218d84cc00f1702e0177521753c3aa46e4751468a7bf8f0f90ffe89d"
+    },
+    "rawPath": "118-info.raw.json",
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 118,
+            "name": "诸葛恪",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/118.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11800.png",
+            "label": [
+              "进攻",
+              "防御",
+              "上限超高"
+            ],
+            "figure": "吴",
+            "figure_py": "wu",
+            "quality": "史诗",
+            "biography": "字元逊，琅琊阳都（今山东沂南）人。三国时期吴臣，蜀丞相诸葛亮之侄，吴大将军诸葛瑾长子，从小就以神童著称，深受孙权赏识。",
+            "characteristic": "能够使用牌堆顶的牌，能够迅速杀死脆弱的角色。没有牌时很脆弱，会成为敌人优先攻击的目标。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 5
+          },
+          {
+            "name": "地主",
+            "value": 6
+          },
+          {
+            "name": "农民",
+            "value": 6
+          },
+          {
+            "name": "反贼",
+            "value": 6
+          },
+          {
+            "name": "内奸",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    }
+  },
+  "registration": {
+    "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+    "rawSha256": "49bed2e7c92c87a2aa00048069e8e5d7c84ff0a43956804954100793f16dc6d3",
+    "exactNameAndModulePatterns": [
+      "诸葛恪",
+      "ZhugeKe",
+      "zhuge-ke",
+      "zhuge_ke"
+    ],
+    "matches": [],
+    "conclusion": "No exact current module/name registration found; classic text not substituted"
+  },
+  "execution": {
+    "build": false,
+    "compiler": false,
+    "loader": false,
+    "coreTests": false,
+    "wpfTests": false,
+    "nativeGame": false,
+    "benchmark": false
+  }
+}

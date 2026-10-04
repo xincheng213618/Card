@@ -1,0 +1,32 @@
+{
+  "status": "source-ready-not-implemented",
+  "gid": 115,
+  "name": "关银屏",
+  "faction": "shu",
+  "hp": 3,
+  "classification": "ordinaryOther",
+  "gender": {
+    "value": "female",
+    "provenance": "Current official biography explicitly daughter; API has no gender field.",
+    "isApiField": false
+  },
+  "skills": [
+    {
+      "name": "雪恨",
+      "text": "出牌阶段限一次，你可以弃置一张红色牌并令至多X名角色（X为你已损失体力值且至少为1）进入连环状态，然后对其中一名角色造成1点火焰伤害。"
+    },
+    {
+      "name": "虎啸",
+      "text": "锁定技，当你对一名角色造成火焰伤害后，其摸一张牌，你本回合对其使用牌无次数限制。"
+    },
+    {
+      "name": "武继",
+      "text": "觉醒技，结束阶段，若你本回合造成了至少3点伤害，你增加1点体力上限并回复1点体力，失去“虎啸”，然后从场上、牌堆或弃牌堆中获得【青龙偃月刀】。"
+    }
+  ],
+  "derivedSkillGap": false,
+  "pageRequest": "115-page.request.json",
+  "apiRequest": "115-info.request.json",
+  "faqDefaultsNotOfficial": [],
+  "runtimeExecuted": false
+}

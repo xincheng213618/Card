@@ -64,13 +64,13 @@ public sealed partial class GameEngine
             action.PhysicalCards[0].CardId != rescue.CardId ||
             !action.PhysicalCards.Select(c => c.CardId).SequenceEqual(rescue.PhysicalCardIds ?? [rescue.CardId]) ||
             action.PhysicalCards.Select(c => c.CardId).Distinct().Count() != action.PhysicalCards.Count ||
-            action.PhysicalCards.Any(cost => cost.From.OwnerSeat != rescue.SourceSeat ||
+            action.PhysicalCards.Any(cost => cost.From.OwnerSeat != rescue.SourceSeat && !IsRequestedDeckBasicRescueCost(rescue, dying, cost) ||
                 !_cardZones.CardsAt(_cardZones.GetLocation(cost.CardId)).Any(c => c.Id == cost.CardId && c.Kind == cost.CardKind)))
             return false;
         if (action.ConversionChain.Count == 0)
         {
             if (action.PhysicalCards is not [var native] || native.CardKind != rescue.CardKind ||
-                native.From.Zone is not (CardZoneKind.Hand or CardZoneKind.WoodenOxGrain) || response.UsedPeachPhysicalCardKind is not null) return false;
+                native.From.Zone is not (CardZoneKind.Hand or CardZoneKind.WoodenOxGrain) && !IsRequestedDeckBasicRescueCost(rescue, dying, native) || response.UsedPeachPhysicalCardKind is not null) return false;
         }
         else
         {

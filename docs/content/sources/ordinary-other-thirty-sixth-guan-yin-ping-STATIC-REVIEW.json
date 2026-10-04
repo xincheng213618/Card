@@ -1,0 +1,102 @@
+{
+  "status": "static-text-only",
+  "reviewUtc": "2026-10-04T16:25:14.025953+00:00",
+  "baselineHead": "22ea8a809b36af0249953743612678a9fe2b2a99",
+  "namedApiSources": [
+    {
+      "mainPath": "src/CardGame.Core/Commands.cs",
+      "rawSha256": "f540392d38cf7fd39cf79091a78a62ed2ec21637dda54f62043481d2cadab9e5"
+    },
+    {
+      "mainPath": "src/CardGame.Core/ContentRegistry.cs",
+      "rawSha256": "305ac78e19dbf71c591e06ecebd4d8a9f9f763711caa3a346f27091b96c70c32"
+    },
+    {
+      "mainPath": "src/CardGame.Core/ProgramCompositionValidator.cs",
+      "rawSha256": "1d23d037ed21c4cfdc04d2e0cd62d84dec0d8eb91a2d366a2b351022b68e2457"
+    },
+    {
+      "mainPath": "src/CardGame.Core/ProgramLifecycle.cs",
+      "rawSha256": "8c2764526853ca0d96656da61063befbd09ec335aa9d865fa92c9bc199a4a8c7"
+    },
+    {
+      "mainPath": "src/CardGame.Core/ProgramAdvancedLifecycleOperations.cs",
+      "rawSha256": "d8296a6af334ba2c1868639c33a20e29cb8fc17c927b61e5d724f43bca69f3a8"
+    },
+    {
+      "mainPath": "src/CardGame.Core/GameEngine.AdvancedLifecycle.cs",
+      "rawSha256": "6321e5bc5aff08e1ecfcd4e3a03f80e2443054ba5d91e9560cca84ab7befb661"
+    },
+    {
+      "mainPath": "src/CardGame.Core/GameEngine.AdvancedLifecycleChoices.cs",
+      "rawSha256": "018ddf384c69dd3b9b64e746295fe7250f95108c36594765717bf6ee7df756aa"
+    },
+    {
+      "mainPath": "src/CardGame.Core/ProgramDeckEquipmentOperations.cs",
+      "rawSha256": "f765dec853f182422dae5d79b32bdf8e5f123dadafacf594e05c1b04e55efc50"
+    },
+    {
+      "mainPath": "src/CardGame.Core/GameEngine.DeckEquipmentPrograms.cs",
+      "rawSha256": "6e1b1273eed0a252eae963580a615aeb5590c4e232a68f94d195f89937ac7429"
+    },
+    {
+      "mainPath": "src/CardGame.Core/Projection/CommittedEventProjection.cs",
+      "rawSha256": "f972747f0cb31db12501c5906d0a727d004bd19ea3aac0743f5150fbcd906ae7"
+    },
+    {
+      "mainPath": "src/CardGame.Content.Standard/EmbeddedSkillProgramCatalog.cs",
+      "rawSha256": "f5e57bb9297f874d6087fac204f09de27195dc254ec18b96287f16e10e499361"
+    },
+    {
+      "mainPath": "src/CardGame.Content.Standard/StandardContentPackage.cs",
+      "rawSha256": "2e47bf6b5d9660ebc75094c70be32c508f789acaa29d43ee9dec05122597ee93"
+    },
+    {
+      "mainPath": "src/CardGame.Content.Standard/SkillPrograms/classic-wusheng-skills.rules.json",
+      "rawSha256": "f4e6fff6a5409b68833cf9773ebb6108f2304e248c8e253f2637cfe14d05bb67"
+    }
+  ],
+  "textPatchReconstruction": {
+    "oldFiles": 14,
+    "singleUpdatePerFile": true,
+    "matchesAllPreviews": true,
+    "mainUntouched": true
+  },
+  "sourceLossDraftProducer": "ReplaceSkillsOnAwakening legal observer: actual MaxHP-1, select exact original skill, finish real replacement; activation-only LoseOwnerSkillsAndGrant removed from fixtures",
+  "quotaTrace": [
+    "RuleQueries.CanSpendSlashUse: existing target legality then exact issued-right finite limit OR",
+    "CardUseDebits.RecordSlashUseDebit unchanged: true physical/converted Slash still debits",
+    "GameEngine/PlayCardHistory/TieredRoundZeroUses/VirtualBasicOffers: only self Alcohol finite-limit OR, HasAlcoholEffect unchanged",
+    "CardUseModules actual turn expiry removes issued store grants"
+  ],
+  "newPublicPayloads": "all collection-free scalar/value records including Source/Payment; CommittedEventProjection default safe for immutable payloads; no before-discard public material fact",
+  "coldMeaning": "accepted-journal restore with four-view/state/facts/ledger equality; actual restored game continues at draft anchors, no pending-frame JSON serialization claim",
+  "knownUnexecuted": [
+    "generic named-card SilverLion/replacement",
+    "nested gain Damage/Dying/native/pile/zero rescue matrix",
+    "extra actual turn/Play phase",
+    "recipient death and winner cleanup",
+    "all originally chained targets dying in children",
+    "generated red equipment destroyed into OutsideGame",
+    "Alcohol self-target quota branch",
+    "prepared event/store mutation validation beyond existing readonly list draft"
+  ],
+  "execution": {
+    "compile": false,
+    "build": false,
+    "loader": false,
+    "tests": false,
+    "core": false,
+    "wpf": false,
+    "game": false,
+    "nativeAi": false,
+    "ui": false,
+    "benchmark": false,
+    "publish": false
+  },
+  "versionChanges": {
+    "rules": false,
+    "schema": false,
+    "package": false
+  }
+}

@@ -68,7 +68,12 @@ public sealed partial class GameEngine
     private bool _started;
     private bool _setupComplete;
     private bool _isExecutingPublicOperation;
-    private PendingDecision? _pendingDecision;
+    private PendingDecision? _pendingDecisionBacking;
+    private PendingDecision? _pendingDecision
+    {
+        get => _pendingDecisionBacking;
+        set => _pendingDecisionBacking = AddRequestedDeckBasicChoices(value);
+    }
     private CardAttackHandle? ActiveCardAttack
     {
         get => _resolutionStack.LastOrDefault(frame => frame switch
@@ -906,6 +911,7 @@ public sealed partial class GameEngine
 
     private CommandResult SubmitPromptAnswer(int actorSeat, PromptId prompt, ChoiceId choice)
     {
+        if (IsRequestedDeckBasicAnswer(choice)) return SubmitRequestedDeckBasicAnswer(actorSeat, prompt, choice);
         if (_pendingDecision?.Kind == DecisionKind.ProgramJudgmentTrigger)
         {
             return SubmitProgramJudgmentTriggerAnswer(actorSeat, prompt, choice);
@@ -6179,7 +6185,8 @@ public sealed partial class GameEngine
         var canRequestFactionSlash = requiredCardKind == CardKind.Slash && CanRequestFactionSlashResponse(target, attack);
         if (responseCards.Count == 0 && zhangbaPairs.Count == 0 && programMultiCardResponses.Count == 0 &&
             !hasBagua && !canRequestFactionDefense && !canRequestFactionSlash &&
-            !(requiredCardKind == CardKind.Dodge && ProgramDodgeResponseChoices(target).Any()))
+            !(requiredCardKind == CardKind.Dodge && ProgramDodgeResponseChoices(target).Any()) &&
+            !HasRequestedDeckBasicSource(target, requiredCardKind))
         {
             SetCardUseStep(group.ResolutionId, ResolutionFrameStep.ResolvingEffect);
             ResolveGroupResponse(group, target, selectedResponse: null);
@@ -6321,7 +6328,8 @@ public sealed partial class GameEngine
             weaponOwner, CardKind.Slash, forResponse: false).Where(selection => !HasBeneficiarySuitShield(weaponOwner.Seat, slashTarget.Seat, selection.Cards.Select(card => EffectiveSuit(weaponOwner, card)).Distinct().ToArray() is [var suit] ? suit : null)).ToArray();
         var canRequestFactionSlash = includeFactionSlash && CanRequestBorrowedSwordFactionSlash(pending);
         if (slashes.Count == 0 && zhangbaPairs.Length == 0 && programMultiCardUses.Length == 0 && !canRequestFactionSlash &&
-            TieredRoundZeroForcedSlashChoices(weaponOwner, slashTarget, pending.ResolutionId, false).Count == 0)
+            TieredRoundZeroForcedSlashChoices(weaponOwner, slashTarget, pending.ResolutionId, false).Count == 0 &&
+            !HasRequestedDeckBasicSource(weaponOwner, CardKind.Slash))
         {
             CompleteBorrowedSwordWithoutSlash(pending, transferWeapon: true);
             return;
@@ -7264,7 +7272,7 @@ public sealed partial class GameEngine
         var responsePrompt = attack.RequiredDodgeResponses > 1
             ? $"{source.Name} 的【无双】要求你打出第 {responseOrdinal} 张【闪】，是否响应？"
             : $"{source.Name} 对你使用了【{slashName}】，是否打出【闪】？";
-        if ((dodges.Count > 0 || hasBagua || canRequestFactionDefense || ProgramDodgeResponseChoices(target).Any()) && target.IsHuman)
+        if ((dodges.Count > 0 || hasBagua || canRequestFactionDefense || ProgramDodgeResponseChoices(target).Any() || HasRequestedDeckBasicSource(target, CardKind.Dodge)) && target.IsHuman)
         {
             PushResponseWindow(
                 resolutionId,
@@ -7302,7 +7310,7 @@ public sealed partial class GameEngine
             return;
         }
 
-        if (dodge is not null || hasBagua || canRequestFactionDefense || ProgramDodgeResponseChoices(target).Any())
+        if (dodge is not null || hasBagua || canRequestFactionDefense || ProgramDodgeResponseChoices(target).Any() || HasRequestedDeckBasicSource(target, CardKind.Dodge))
         {
             // Choosing to respond is a separate continuation. Advance() consumes it
             // immediately, while AdvanceOneStep() exposes it as the next AI decision.
@@ -7600,7 +7608,7 @@ public sealed partial class GameEngine
         var programMultiCardResponses = GetProgramMultiCardViewAsSelections(
             responder, CardKind.Slash, forResponse: true);
         var canRequestFactionSlash = CanRequestFactionSlashResponse(responder, duel.Attack);
-        if (slashes.Count == 0 && zhangbaPairs.Count == 0 && programMultiCardResponses.Count == 0 && !canRequestFactionSlash)
+        if (slashes.Count == 0 && zhangbaPairs.Count == 0 && programMultiCardResponses.Count == 0 && !canRequestFactionSlash && !HasRequestedDeckBasicSource(responder, CardKind.Slash))
         {
             if (ActiveCardAttack is null)
             {
@@ -7999,7 +8007,8 @@ public sealed partial class GameEngine
                 : [];
             var hasBagua = provider.IsAlive &&
                            HasBagua(provider);
-            if (responseCards.Count == 0 && !hasBagua && !ProgramDodgeResponseChoices(provider).Any())
+            if (responseCards.Count == 0 && !hasBagua && !ProgramDodgeResponseChoices(provider).Any() &&
+                !(provider.IsAlive && GetEffectiveFactionId(provider)==pending.Source.FactionId && HasRequestedDeckBasicSource(provider, CardKind.Dodge)))
             {
                 pending.CandidateIndex++;
                 continue;
@@ -8413,7 +8422,7 @@ public sealed partial class GameEngine
         var pending = new QinglongCrescentBladeHandle(this, attack);
         var slashes = GetQinglongCrescentBladeSlashCards(source, target);
         if (slashes.Count == 0 && !CanRequestQinglongCrescentBladeFactionSlash(pending) &&
-            !TieredRoundZeroForcedSlashRules(source, target, true).Any())
+            !TieredRoundZeroForcedSlashRules(source, target, true).Any() && !HasRequestedDeckBasicSource(source, CardKind.Slash))
         {
             return false;
         }
@@ -9078,7 +9087,8 @@ public sealed partial class GameEngine
                                               string.Equals(GetEffectiveFactionId(provider), pending.ProviderFactionId, StringComparison.Ordinal)
                 ? GetFactionRequestMultiCardSelections(pending, provider)
                 : [];
-            if (slashes.Count == 0 && zhangbaPairs.Count == 0 && programMultiCardConversions.Count == 0)
+            if (slashes.Count == 0 && zhangbaPairs.Count == 0 && programMultiCardConversions.Count == 0 &&
+                !(provider.IsAlive && GetEffectiveFactionId(provider)==pending.ProviderFactionId && HasRequestedDeckBasicSource(provider, CardKind.Slash)))
             {
                 pending.CandidateIndex++;
                 continue;
@@ -12418,6 +12428,7 @@ public sealed partial class GameEngine
             responderSeats,
             ResponderIndex: 0,
             DyingContinuationKind.Damage));
+        CaptureDynamicDiscardDamageDying(frameId, damageFrameId, victim.Seat);
         AdvanceEventRulesAndQueueFact(new PlayerDyingEvent(frameId, victim.Seat, attack.IsSourceLess ? null : killer.Seat));
         _status = EngineStatus.Running;
         if (TryBeginMandatorySelfDyingProgram(ActiveDying!) || TryBeginDyingEntryProgramWindow(ActiveDying!))
@@ -12466,7 +12477,7 @@ public sealed partial class GameEngine
 
     private Card[] GetDyingAlcohols(CharacterState responder, int victimSeat) =>
         responder.Seat == victimSeat && !HasSelfCardTargetProhibition(responder.Seat)
-            ? GetHand(responder).Concat(GetEquipment(responder))
+            ? GetHand(responder).Concat(GetEquipment(responder)).Concat(SelectedRequestedDeckBasicCards(responder))
                 .Where(card => !IsTurnHandCardRestricted(responder, card) &&
                     !IsCardUseForbidden(responder.Seat, CardKind.Alcohol, CardActionType.Use) &&
                     !HasProgramCardIdentity(responder, card) &&
@@ -12475,7 +12486,7 @@ public sealed partial class GameEngine
                 .ToArray()
             : [];
 
-    private void RunOneDyingStep()
+    private void RunOneDyingStep(bool skipRequestedDeckBasic = false)
     {
         var dying = ActiveDying ??
             throw new InvalidOperationException("A dying step requires a pending dying resolution.");
@@ -12498,7 +12509,7 @@ public sealed partial class GameEngine
         if (responder.IsHuman)
         {
             if (peaches.Length > 0 || alcohols.Length > 0 || programCandidates.Count > 0 ||
-                ExtendedViewAsResponseChoices(responder, CardKind.Peach).Count > 0 || HasTieredRoundZeroDyingResponse(responder))
+                ExtendedViewAsResponseChoices(responder, CardKind.Peach).Count > 0 || HasTieredRoundZeroDyingResponse(responder) || HasRequestedDeckBasicSource(responder, CardKind.Peach))
             {
                 RequestHumanDyingResponse(responder, peaches, alcohols);
                 return;
@@ -12536,6 +12547,8 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (!skipRequestedDeckBasic && HasRequestedDeckBasicSource(responder, CardKind.Peach))
+        { RequestHumanDyingResponse(responder, peaches, alcohols); AdvanceRulesAndPublishState(); return; }
         if (TryResolveTieredRoundZeroAiDying()) return;
         var view = CreateSnapshot(responder.Seat);
         if (peaches.Length == 0 && CanUsePeachToRescue(responder.Seat, dying.VictimSeat) &&
@@ -12594,7 +12607,7 @@ public sealed partial class GameEngine
         var alcohols = GetDyingAlcohols(responder, dying.VictimSeat);
         var programCandidates = GetDyingProgramCandidates(responder, dying);
         if (peaches.Length > 0 || alcohols.Length > 0 || programCandidates.Count > 0 ||
-            ExtendedViewAsResponseChoices(responder, CardKind.Peach).Count > 0 || HasTieredRoundZeroDyingResponse(responder))
+            ExtendedViewAsResponseChoices(responder, CardKind.Peach).Count > 0 || HasTieredRoundZeroDyingResponse(responder) || HasRequestedDeckBasicSource(responder, CardKind.Peach))
         {
             RequestHumanDyingResponse(responder, peaches, alcohols);
         }
@@ -12830,6 +12843,7 @@ public sealed partial class GameEngine
         }
         var receipt = new DyingCompletionReceipt(
             dying.Id, dying.ParentFrameId, dying.VictimSeat, dying.Continuation);
+        CaptureDynamicDiscardDamageSurvival(receipt, survived);
         AdvanceEventRulesAndQueueFact(new DyingResolvedEvent(dying.FrameId, dying.VictimSeat, survived));
         PopResolutionFrame(dying.FrameId, ResolutionFrameKind.Dying);
         if (TryBeginFactionRecoveryDebts(receipt, survived)) return;
@@ -13607,6 +13621,7 @@ public sealed partial class GameEngine
             targetSeat,
             amount,
             Nature: nature));
+        CaptureDynamicDiscardDamageFrame(frameId, parentFrameId, targetSeat);
         return frameId;
     }
 
@@ -14452,7 +14467,7 @@ public sealed partial class GameEngine
         }
 
         if (!actor.HasAlcoholEffect &&
-            (!actor.UsedPlayPhaseAlcoholThisTurn || HasNextUnlimitedCard(actor) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)))
+            (!actor.UsedPlayPhaseAlcoholThisTurn || HasTargetCardQuotaAllowance(actor.Seat, actor.Seat) || HasNextUnlimitedCard(actor) || HasCardPolicy(actor, SkillProgramCardPolicyKind.UnlimitedAlcoholUse, CardKind.Alcohol)))
         {
             foreach (var alcohol in playableCards.Where(card => card.Kind == CardKind.Alcohol))
             {
@@ -14888,6 +14903,7 @@ public sealed partial class GameEngine
 
     private CardLocation FindOwnedCardLocation(CharacterState actor, Card card)
     {
+        if (IsSelectedRequestedDeckBasicMaterial(actor.Seat, card.Id)) return CardLocation.DrawPile;
         if (UnclaimedDeclarationPayment(actor.Seat, card.Id) is { } paid) return paid.Cost.From;
         if (GetHand(actor).Any(candidate => candidate.Id == card.Id))
         {
@@ -16358,10 +16374,10 @@ public sealed partial class GameEngine
         => ConvertRuleValue(EvaluateHandLimit(player));
 
     private IReadOnlyList<Card> GetPlayableCards(CharacterState player) =>
-        AvailableDeclarationCard(player) is {} declared ? GetHand(player).Append(declared).ToArray() :
+        AppendRequestedDeckBasicCards(player, AvailableDeclarationCard(player) is {} declared ? GetHand(player).Append(declared).ToArray() :
         UsesFormalWoodenOx && GetEquipment(player).Any(card => card.Kind == CardKind.WoodenOx)
             ? GetHand(player).Concat(GetWoodenOxGrain(player)).ToArray()
-            : GetHand(player);
+            : GetHand(player));
 
     private IReadOnlyList<Card> GetEquipment(CharacterState player) =>
         GetEquipment(player.Seat);
@@ -16820,6 +16836,7 @@ public sealed partial class GameEngine
             reason) { ActualPlaySlashLoss = CaptureActualPlaySlashLoss(card, from, to) };
         _cardMovements.Add(movement);
         beforeFact?.Invoke(movement);
+        CaptureRequestedDeckBasicPaid(card, from, to);
         CaptureDiscardedEntityOrigin(card, movement);
         CaptureAdjacentDiscardOrigin(card, movement, adjacentDiscardIdentity);
         CollectFullDiscardPhaseSuit(card, movement);
@@ -16862,7 +16879,7 @@ public sealed partial class GameEngine
     private ResolutionFrame? DamageCursorEffectiveTop(bool includeNestedObservers = false)
     {
         var index = _resolutionStack.Count - 1;
-        while (index >= 1 && (DamageFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) ||
+        while (index >= 1 && (RequestedDeckBasicFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) || DamageFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) ||
                ProvenanceClaimTurnedOverEdge(_resolutionStack[index], _resolutionStack[index - 1]) ||
                CharacterTurnedOverFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) ||
                RecoveryReplacementFrameRidesOn(_resolutionStack[index], _resolutionStack[index - 1]) ||
@@ -16904,7 +16921,10 @@ public sealed partial class GameEngine
 
     private void AssertCoreInvariants()
     {
-        var damageProgramDying = IsOwnTrickDrawProgramDying() || IsConditionalDiscardDuelProgramDying() || IsRecipientContestProgramDying() || IsProvenanceClaimProgramDying() || IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying() || IsPaidDamageTargetMountDying() || IsPaidDamageTargetObtainDying() || IsDamageAppearanceDrawProgramDying() || IsRecoveryReplacementProgramDying() || IsCharacterTurnedOverProgramDying() || IsCappedHandRefreshProgramDying() || IsPaidHandRepaymentProgramDying() || IsBoundRankBonusMovementDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawInsideDamageProgramDying() || IsSourceFactionYieldInsideDamageProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsAppliedDamageBenefitDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPreventionInsideDamageProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying();
+        AssertRequestedDeckBasicMaterials();
+        var coreDecision = RequestedDeckBasicInvariantDecision();
+        var coreTop = RequestedDeckBasicInvariantTop();
+        var damageProgramDying = IsPlacedEquipmentBenefitProgramDying() || IsFireTargetBenefitProgramDying() || IsNamedAcquisitionProgramDying() || IsDynamicDiscardDamageProgramDying() || IsOwnTrickDrawProgramDying() || IsConditionalDiscardDuelProgramDying() || IsRecipientContestProgramDying() || IsProvenanceClaimProgramDying() || IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying() || IsPaidDamageTargetMountDying() || IsPaidDamageTargetObtainDying() || IsDamageAppearanceDrawProgramDying() || IsRecoveryReplacementProgramDying() || IsCharacterTurnedOverProgramDying() || IsCappedHandRefreshProgramDying() || IsPaidHandRepaymentProgramDying() || IsBoundRankBonusMovementDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawInsideDamageProgramDying() || IsSourceFactionYieldInsideDamageProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsAppliedDamageBenefitDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPreventionInsideDamageProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying();
         _turnCardUseEffects.AssertInvariants();
         AssertPaidHpLossModifiers();
         AssertCurrentTurnOwnSkillSuppressions();
@@ -16967,6 +16987,7 @@ public sealed partial class GameEngine
         AssertColorFireAttackReceipts();
         AssertDualColorDuels();
         AssertConditionalDiscardDuels();
+        AssertPlacedEquipmentBenefits();
         AssertSelectedActorDuels();
         AssertDamageTargetDuels();
         var processing = _cardZones.CardsAt(CardLocation.Processing);
@@ -17005,7 +17026,7 @@ public sealed partial class GameEngine
             var responseWindow = _resolutionStack.OfType<ResponseWindowFrame>().LastOrDefault(frame =>
                 frame.ParentFrameId == borrowedSword.ResolutionId);
             var awaitingOwnerChoice = borrowedSword.AwaitingSlashChoice &&
-                _pendingDecision is { Kind: DecisionKind.RespondSlash } borrowedDecision &&
+                coreDecision is { Kind: DecisionKind.RespondSlash } borrowedDecision &&
                 borrowedDecision.PlayerSeat == borrowedSword.WeaponOwnerSeat &&
                 responseWindow is not null &&
                 responseWindow.ResponderSeat == borrowedSword.WeaponOwnerSeat;
@@ -17065,7 +17086,7 @@ public sealed partial class GameEngine
                     "A FireAttack selection cannot coexist with another card continuation.");
             }
 
-            if (_resolutionStack.LastOrDefault() is not CardUseFrame cardUse ||
+            if (coreTop is not CardUseFrame cardUse ||
                 !ReferenceEquals(cardUse, fireAttack) ||
                 cardUse.CardKind != CardKind.FireAttack)
             {
@@ -17076,7 +17097,7 @@ public sealed partial class GameEngine
             var expectedKind = fireAttack.FireAttackSelection?.RevealedCardId is null
                 ? DecisionKind.FireAttackReveal
                 : DecisionKind.FireAttackDiscard;
-            if (_pendingDecision is not { } fireDecision ||
+            if (coreDecision is not { } fireDecision ||
                 fireDecision.Kind != expectedKind ||
                 fireDecision.PlayerSeat != (expectedKind == DecisionKind.FireAttackReveal
                     ? GetFireAttackTargetSeat(fireAttack)
@@ -17146,7 +17167,7 @@ public sealed partial class GameEngine
                     ? GetNullificationCards(_players[nullification.CandidateSeats[nullification.CandidateIndex]])
                         .Select(card => card.Id).ToArray()
                     : Array.Empty<int>();
-                if (_pendingDecision is not { Kind: DecisionKind.Nullification } nullificationDecision ||
+                if (coreDecision is not { Kind: DecisionKind.Nullification } nullificationDecision ||
                     nullification.CandidateIndex >= nullification.CandidateSeats.Count ||
                     nullificationDecision.PlayerSeat != nullification.CandidateSeats[nullification.CandidateIndex] ||
                     nullificationDecision.SourceSeat != nullification.SourceSeat ||
@@ -17193,7 +17214,7 @@ public sealed partial class GameEngine
                     "A hidden target-card selection cannot coexist with another continuation.");
             }
 
-            if (!ReferenceEquals(_resolutionStack.LastOrDefault(), targetCardSelection) ||
+            if (!ReferenceEquals(coreTop, targetCardSelection) ||
                 targetCardSelection.Step != ResolutionFrameStep.AwaitingResponse ||
                 _resolutionStack.OfType<CardUseFrame>().LastOrDefault(
                     use => use.Id == targetCardSelection.ParentFrameId) is null ||
@@ -17203,7 +17224,7 @@ public sealed partial class GameEngine
                     "A hidden target-card selection must retain only its opaque slot cursor as the stack top.");
             }
 
-            var expectedDecision = _pendingDecision;
+            var expectedDecision = coreDecision;
             if (expectedDecision is not { Kind: DecisionKind.SelectTargetCard } decision ||
                 decision.PlayerSeat != targetCardSelection.SourceSeat ||
                 decision.SourceSeat != targetCardSelection.SourceSeat ||
@@ -17254,7 +17275,7 @@ public sealed partial class GameEngine
         if (ActiveStoneAxe is { } stoneAxe)
         {
             var stoneAxeAttack = stoneAxe.Attack;
-            var decision = _pendingDecision;
+            var decision = coreDecision;
             var source = _players[stoneAxeAttack.SourceSeat];
             var target = _players[stoneAxeAttack.TargetSeat];
             var currentCandidates = GetStoneAxeDiscardCards(source).Select(card => card.Id).ToArray();
@@ -17266,7 +17287,7 @@ public sealed partial class GameEngine
                 !HasWeaponAbility(source, CardKind.StoneAxe) ||
                 stoneAxeAttack.SuccessfulDodgeResponses != stoneAxeAttack.RequiredDodgeResponses ||
                 !stoneAxe.CandidateCardIds.SequenceEqual(currentCandidates) ||
-                _resolutionStack.LastOrDefault() is not CardUseFrame cardUse ||
+                coreTop is not CardUseFrame cardUse ||
                 cardUse.Id != stoneAxeAttack.ResolutionId ||
                 cardUse.SourceSeat != stoneAxeAttack.SourceSeat ||
                 cardUse.CardKind != stoneAxeAttack.EffectiveCardKind ||
@@ -17306,7 +17327,7 @@ public sealed partial class GameEngine
             ActiveFactionCardRequest?.IsQinglongCrescentBladeUse != true)
         {
             var qinglongAttack = qinglong.Attack;
-            var decision = _pendingDecision;
+            var decision = coreDecision;
             var source = _players[qinglongAttack.SourceSeat];
             var target = _players[qinglongAttack.TargetSeat];
             var currentCandidates = GetQinglongCrescentBladeSlashCards(source, target)
@@ -17316,7 +17337,7 @@ public sealed partial class GameEngine
             if (!UsesFormalQinglongCrescentBlade ||
                 !SameAttackOwner(ActiveCardAttack, qinglongAttack) ||
                 qinglongAttack.SuccessfulDodgeResponses != qinglongAttack.RequiredDodgeResponses ||
-                _resolutionStack.LastOrDefault() is not CardUseFrame cardUse ||
+                coreTop is not CardUseFrame cardUse ||
                 cardUse.Id != qinglongAttack.ResolutionId ||
                 cardUse.SourceSeat != qinglongAttack.SourceSeat ||
                 cardUse.CardKind != qinglongAttack.EffectiveCardKind ||
@@ -17370,7 +17391,7 @@ public sealed partial class GameEngine
             var equipmentIds = GetEquipment(target).Where(card => !IsForeignEquipmentDiscardPrevented(
                 iceSwordAttack.SourceSeat, card, CardLocation.Equipment(target.Seat), OwnedCardMoveIntent.Discard))
                 .Select(card => card.Id).ToArray();
-            var decision = _pendingDecision;
+            var decision = coreDecision;
             var discardChoices = decision?.Choices.Where(choice =>
                 choice.Parameters.GetValueOrDefault("action") == "ice-sword-discard").ToArray() ?? [];
             var expectedSkipCount = iceSword.Activated ? 0 : 1;
@@ -17384,7 +17405,7 @@ public sealed partial class GameEngine
                 !iceSwordAttack.DamageAmountFinalized ||
                 iceSwordAttack.IsChainPropagation ||
                 !HasWeaponAbility(source, CardKind.IceSword) ||
-                _resolutionStack.LastOrDefault() is not CardUseFrame cardUse ||
+                coreTop is not CardUseFrame cardUse ||
                 cardUse.Id != iceSwordAttack.ResolutionId ||
                 cardUse.Step != ResolutionFrameStep.AwaitingResponse ||
                 decision is not { Kind: DecisionKind.IceSword, IsPrivate: true } ||
@@ -17424,7 +17445,7 @@ public sealed partial class GameEngine
             var source = _players[qilinAttack.SourceSeat];
             var target = _players[qilinAttack.TargetSeat];
             var mountIds = GetQilinBowTargetMounts(target).Select(card => card.Id).ToArray();
-            var decision = _pendingDecision;
+            var decision = coreDecision;
             var discardChoices = decision?.Choices.Where(choice =>
                 choice.Parameters.GetValueOrDefault("action") == "qilin-bow-discard").ToArray() ?? [];
             if (!UsesFormalQilinBow ||
@@ -17434,7 +17455,7 @@ public sealed partial class GameEngine
                 qilinAttack.IsChainPropagation ||
                 !HasWeaponAbility(source, CardKind.QilinBow) ||
                 mountIds.Length == 0 ||
-                _resolutionStack.LastOrDefault() is not CardUseFrame cardUse ||
+                coreTop is not CardUseFrame cardUse ||
                 cardUse.Id != qilinAttack.ResolutionId ||
                 cardUse.Step != ResolutionFrameStep.AwaitingResponse ||
                 decision is not { Kind: DecisionKind.QilinBow, IsPrivate: true } ||
@@ -17469,7 +17490,7 @@ public sealed partial class GameEngine
         if (ActiveCixiongDoubleSwords is { } cixiong)
         {
             var cixiongAttack = cixiong.Attack;
-            var decision = _pendingDecision;
+            var decision = coreDecision;
             var source = _players[cixiongAttack.SourceSeat];
             var target = _players[cixiongAttack.TargetSeat];
             var targetHandIds = GetHand(target).OrderBy(card => card.Id).Select(card => card.Id).ToArray();
@@ -17509,7 +17530,7 @@ public sealed partial class GameEngine
                 source.Gender == target.Gender ||
                 !HasWeaponAbility(source, CardKind.CixiongDoubleSwords) ||
                 cixiongAttack.CixiongDoubleSwordsResolved ||
-                _resolutionStack.LastOrDefault() is not CardUseFrame cardUse ||
+                coreTop is not CardUseFrame cardUse ||
                 cardUse.Id != cixiongAttack.ResolutionId ||
                 cardUse.SourceSeat != cixiongAttack.SourceSeat ||
                 cardUse.CardKind != cixiongAttack.EffectiveCardKind ||
@@ -17538,7 +17559,7 @@ public sealed partial class GameEngine
             }
         }
 
-        if (_pendingDecision is { Kind: DecisionKind.SkipDiscardPolicy } kejiDecision)
+        if (coreDecision is { Kind: DecisionKind.SkipDiscardPolicy } kejiDecision)
         {
             var validPolicy = kejiDecision.Choices.Count == 2 &&
                 kejiDecision.Choices[0].Parameters.TryGetValue("skill-id", out var skillId) &&
@@ -17646,7 +17667,7 @@ public sealed partial class GameEngine
             else if (ActiveStoneAxe is { } stoneAxeContinuation)
             {
                 if (!SameAttackOwner(stoneAxeContinuation.Attack, pendingAttack) ||
-                    _resolutionStack.LastOrDefault() is not CardUseFrame stoneAxeCardUse ||
+                    coreTop is not CardUseFrame stoneAxeCardUse ||
                     stoneAxeCardUse.Id != pendingAttack.ResolutionId ||
                     stoneAxeCardUse.Step != ResolutionFrameStep.AwaitingResponse)
                 {
@@ -17657,7 +17678,7 @@ public sealed partial class GameEngine
             else if (ActiveQinglongCrescentBlade is { } qinglongContinuation)
             {
                 if (!SameAttackOwner(qinglongContinuation.Attack, pendingAttack) ||
-                    _resolutionStack.LastOrDefault() is not CardUseFrame qinglongCardUse ||
+                    coreTop is not CardUseFrame qinglongCardUse ||
                     qinglongCardUse.Id != pendingAttack.ResolutionId ||
                     qinglongCardUse.Step != ResolutionFrameStep.AwaitingResponse)
                 {
@@ -17668,7 +17689,7 @@ public sealed partial class GameEngine
             else if (ActiveIceSword is { } iceSwordContinuation)
             {
                 if (!SameAttackOwner(iceSwordContinuation.Attack, pendingAttack) ||
-                    _resolutionStack.LastOrDefault() is not CardUseFrame iceSwordCardUse ||
+                    coreTop is not CardUseFrame iceSwordCardUse ||
                     iceSwordCardUse.Id != pendingAttack.ResolutionId ||
                     iceSwordCardUse.Step != ResolutionFrameStep.AwaitingResponse)
                 {
@@ -17679,7 +17700,7 @@ public sealed partial class GameEngine
             else if (ActiveQilinBow is { } qilinContinuation)
             {
                 if (!SameAttackOwner(qilinContinuation.Attack, pendingAttack) ||
-                    _resolutionStack.LastOrDefault() is not CardUseFrame qilinCardUse ||
+                    coreTop is not CardUseFrame qilinCardUse ||
                     qilinCardUse.Id != pendingAttack.ResolutionId ||
                     qilinCardUse.Step != ResolutionFrameStep.AwaitingResponse)
                 {
@@ -17690,7 +17711,7 @@ public sealed partial class GameEngine
             else if (ActiveCixiongDoubleSwords is { } cixiongContinuation)
             {
                 if (!SameAttackOwner(cixiongContinuation.Attack, pendingAttack) ||
-                    _resolutionStack.LastOrDefault() is not CardUseFrame cixiongCardUse ||
+                    coreTop is not CardUseFrame cixiongCardUse ||
                     cixiongCardUse.Id != pendingAttack.ResolutionId ||
                     cixiongCardUse.Step != ResolutionFrameStep.Declared)
                 {
@@ -17698,7 +17719,7 @@ public sealed partial class GameEngine
                         "An active Cixiong Double Swords choice must retain its declared Slash frame as the stack top.");
                 }
             }
-            else if (HasSignedDamagePaymentAttackObserver(pendingAttack))
+            else if ((HasDynamicDiscardDamageAttackObserver(pendingAttack) || HasSignedDamagePaymentAttackObserver(pendingAttack)))
             {
                 // Only this new paid root proves the complete contiguous child pipeline.
             }
@@ -17717,7 +17738,7 @@ public sealed partial class GameEngine
             else if (ActiveJudgment is { } judgmentContinuation)
             {
                 var judgmentFrame = _resolutionStack.OfType<JudgmentFrame>().LastOrDefault();
-                var judgmentIsActive = _resolutionStack.LastOrDefault() switch
+                var judgmentIsActive = coreTop switch
                 {
                     JudgmentFrame current => current.Id == judgmentContinuation.Id,
                     ProgramJudgmentTriggerWindowFrame program =>
@@ -17745,7 +17766,7 @@ public sealed partial class GameEngine
             })
             {
                 if (!SameAttackOwner(giftAttack, pendingAttack) ||
-                    _resolutionStack.LastOrDefault() is not CardUseFrame giftCardUse ||
+                    coreTop is not CardUseFrame giftCardUse ||
                     giftCardUse.Id != pendingAttack.ResolutionId)
                 {
                     throw new InvalidOperationException(
@@ -17756,7 +17777,7 @@ public sealed partial class GameEngine
                 ActiveDamageTrigger is null &&
                 !_resolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any())
             {
-                if ((_resolutionStack.LastOrDefault() is not ResponseWindowFrame response ||
+                if ((coreTop is not ResponseWindowFrame response ||
                     response.ParentFrameId != pendingAttack.ResolutionId) &&
                     !HasProgramDodgeResponseContinuation(pendingAttack))
                 {
@@ -17780,7 +17801,7 @@ public sealed partial class GameEngine
                     } && parentFrameId == beforeDamage.Id;
                 if (beforeDamage.SourceSeat != pendingAttack.SourceSeat ||
                     (beforeDamage.RedirectedTargetSeat ?? beforeDamage.TargetSeat) != pendingAttack.TargetSeat ||
-                    !topMatchesWindow && !topMatchesProgram && !HasPreventionDrawDying(beforeDamage.Id) && !HasSourceFactionYieldObserver(beforeDamage.Id) && !HasSuitPreventionBenefitObserver(beforeDamage.Id) && !HasSignedDamagePaymentObserver(beforeDamage.Id) && !HasPaidColorDamageClaimDamageObserver(beforeDamage.Id) && !HasActualDiscardRecoveryBeforeDamageObserver(beforeDamage.Id) && !HasForeignContestAidDamageObserver(beforeDamage.Id) && !HasPrepDiscardDamageObserver(beforeDamage.Id) && !HasSlashBenefitDamageObserver(beforeDamage.Id) && !HasTargetPenaltyDamageObserver(beforeDamage.Id))
+                    !topMatchesWindow && !topMatchesProgram && !HasPreventionDrawDying(beforeDamage.Id) && !HasSourceFactionYieldObserver(beforeDamage.Id) && !HasSuitPreventionBenefitObserver(beforeDamage.Id) && !(HasDynamicDiscardDamageObserver(beforeDamage.Id) || HasSignedDamagePaymentObserver(beforeDamage.Id)) && !HasPaidColorDamageClaimDamageObserver(beforeDamage.Id) && !HasPlacedEquipmentBenefitDamageObserver(beforeDamage.Id) && !HasActualDiscardRecoveryBeforeDamageObserver(beforeDamage.Id) && !HasForeignContestAidDamageObserver(beforeDamage.Id) && !HasPrepDiscardDamageObserver(beforeDamage.Id) && !HasSlashBenefitDamageObserver(beforeDamage.Id) && !HasTargetPenaltyDamageObserver(beforeDamage.Id))
                 {
                     throw new InvalidOperationException(
                         "An active before-damage program must retain its damage and parent window.");
@@ -17788,7 +17809,7 @@ public sealed partial class GameEngine
             }
             else if (ActiveDamageTrigger is { } triggerContinuation)
             {
-                var effectiveTop = DamageCursorEffectiveTop(includeNestedObservers: HasPaidDamageTargetMountObserver(triggerContinuation.Id) || HasPaidDamageTargetObtainObserver(triggerContinuation.Id) || HasDamageAppearanceDrawObserver(triggerContinuation.Id) || HasCappedHandRefreshObserver(triggerContinuation.Id) || HasPaidHandRepaymentObserver(triggerContinuation.Id) || HasBoundRankBonusMovementObserver(triggerContinuation.Id) || HasOwnedDamagePointJudgmentObserver(triggerContinuation.Id) || HasDamageJudgmentSuitPaymentObserver(triggerContinuation.Id) || HasAppliedDamageBenefitObserver(triggerContinuation.Id) || HasProvenanceClaimObserver(triggerContinuation.Id) || HasEquipmentDonationDamageObserver(triggerContinuation.Id) || HasPaidColorDamageClaimDamageObserver(triggerContinuation.Id) || HasHalfHandPaidDamageObserver(triggerContinuation.Id) || HasSignedDamagePaymentObserver(triggerContinuation.Id) || HasPairBenefitDamageObserver(triggerContinuation.Id) || HasEndingPairSlashDamageObserver(triggerContinuation.Id) || HasActualDiscardRecoveryDamageObserver(triggerContinuation.Id) || HasForeignContestAidDamageObserver(triggerContinuation.Id) || HasPrepDiscardDamageObserver(triggerContinuation.Id) || HasSlashBenefitDamageObserver(triggerContinuation.Id) || HasTargetPenaltyDamageObserver(triggerContinuation.Id) || HasCappedConversionBenefitObserver(triggerContinuation.Id) || HasRecipientContestDamageObserver(triggerContinuation.Id));
+                var effectiveTop = DamageCursorEffectiveTop(includeNestedObservers: HasPaidDamageTargetMountObserver(triggerContinuation.Id) || HasPaidDamageTargetObtainObserver(triggerContinuation.Id) || HasDamageAppearanceDrawObserver(triggerContinuation.Id) || HasCappedHandRefreshObserver(triggerContinuation.Id) || HasPaidHandRepaymentObserver(triggerContinuation.Id) || HasBoundRankBonusMovementObserver(triggerContinuation.Id) || HasOwnedDamagePointJudgmentObserver(triggerContinuation.Id) || HasDamageJudgmentSuitPaymentObserver(triggerContinuation.Id) || HasAppliedDamageBenefitObserver(triggerContinuation.Id) || HasFireTargetBenefitObserver(triggerContinuation.Id) || HasNamedAcquisitionDamageObserver(triggerContinuation.Id) || HasProvenanceClaimObserver(triggerContinuation.Id) || HasEquipmentDonationDamageObserver(triggerContinuation.Id) || HasPaidColorDamageClaimDamageObserver(triggerContinuation.Id) || HasHalfHandPaidDamageObserver(triggerContinuation.Id) || (HasDynamicDiscardDamageObserver(triggerContinuation.Id) || HasSignedDamagePaymentObserver(triggerContinuation.Id)) || HasPairBenefitDamageObserver(triggerContinuation.Id) || HasEndingPairSlashDamageObserver(triggerContinuation.Id) || HasActualDiscardRecoveryDamageObserver(triggerContinuation.Id) || HasForeignContestAidDamageObserver(triggerContinuation.Id) || HasPrepDiscardDamageObserver(triggerContinuation.Id) || HasSlashBenefitDamageObserver(triggerContinuation.Id) || HasTargetPenaltyDamageObserver(triggerContinuation.Id) || HasCappedConversionBenefitObserver(triggerContinuation.Id) || HasPlacedEquipmentBenefitDamageObserver(triggerContinuation.Id) || HasRecipientContestDamageObserver(triggerContinuation.Id));
                 var topMatchesWindow = effectiveTop is DamageTriggerWindowFrame frame &&
                     frame.Id == triggerContinuation.Id &&
                     frame.ParentFrameId == triggerContinuation.ParentFrameId &&
@@ -17801,7 +17822,7 @@ public sealed partial class GameEngine
                         ParentFrameId: var parentFrameId
                     } &&
                     parentFrameId == triggerContinuation.Id;
-                var topMatchesProgramPindian = _resolutionStack.LastOrDefault() is PindianFrame pindian &&
+                var topMatchesProgramPindian = coreTop is PindianFrame pindian &&
                     _resolutionStack.Count >= 2 &&
                     _resolutionStack[^2] is ProgramSkillFrame pindianProgram &&
                     pindian.ParentFrameId == pindianProgram.Id &&
@@ -17828,10 +17849,10 @@ public sealed partial class GameEngine
                         "The dying continuation does not belong to the active Slash.");
                 }
 
-                var topMatchesDying = _resolutionStack.LastOrDefault() is DyingFrame dying &&
+                var topMatchesDying = coreTop is DyingFrame dying &&
                     dying.Id == dyingContinuation.FrameId &&
                     dying.ParentFrameId == dyingContinuation.ParentFrameId;
-                var topMatchesDyingProgram = _resolutionStack.LastOrDefault() is ProgramSkillFrame
+                var topMatchesDyingProgram = coreTop is ProgramSkillFrame
                 {
                     WindowContext:
                     {
@@ -17847,7 +17868,7 @@ public sealed partial class GameEngine
                 // down and require it to anchor on the active dying continuation, either
                 // directly on the Dying frame or through that rescue card use.
                 var topMatchesDyingCardWindow = false;
-                if (_resolutionStack.LastOrDefault() is ProgramCardTriggerWindowFrame topCardWindow)
+                if (coreTop is ProgramCardTriggerWindowFrame topCardWindow)
                 {
                     var windowIndex = _resolutionStack.Count - 1;
                     var currentWindow = topCardWindow;
@@ -17892,7 +17913,7 @@ public sealed partial class GameEngine
                     !IsExactDyingOwnedCardRide(dyingContinuation.FrameId) &&
                     !(dyingFrameIndex >= 0 && IsRoundPricedPileAlcoholRide(dyingFrameIndex, (DyingFrame)_resolutionStack[dyingFrameIndex])))
                 {
-                    var top = _resolutionStack.LastOrDefault();
+                    var top = coreTop;
                     var topShape = top is ProgramSkillFrame diagnosticProgram
                         ? $"ProgramSkillFrame({diagnosticProgram.SkillId}, window {diagnosticProgram.WindowContext?.Window.ToString() ?? "none"}, owner {diagnosticProgram.OwnerSeat})"
                         : top?.GetType().Name ?? "empty";
@@ -17980,7 +18001,7 @@ public sealed partial class GameEngine
                     item.WindowContext?.Judgment?.JudgmentFrameId == pendingJudgment.Id ||
                     item.WindowContext?.JudgmentReplacement?.JudgmentFrameId == pendingJudgment.Id);
             var isProgramJudgmentChoice = programJudgmentFrame is not null &&
-                                          ReferenceEquals(_resolutionStack.LastOrDefault(), programJudgmentFrame) &&
+                                          ReferenceEquals(coreTop, programJudgmentFrame) &&
                                           !belongsToProgramJudgmentDamage;
             var programReplacementCandidate = activeJudgmentProgram is null && !isProgramJudgmentChoice &&
                                               pendingJudgment.Succeeded is null &&
@@ -17999,10 +18020,10 @@ public sealed partial class GameEngine
             var promptMatches = activeJudgmentProgram is not null || belongsToProgramJudgmentDamage
                 ? true
                 : isProgramJudgmentChoice
-                ? _pendingDecision is null ||
+                ? coreDecision is null ||
                   IsProgramJudgmentPromptValid(programJudgmentFrame!)
                 : isProgramReplacementChoice
-                    ? _pendingDecision is { Kind: DecisionKind.ProgramJudgmentReplacement } replacementDecision &&
+                    ? coreDecision is { Kind: DecisionKind.ProgramJudgmentReplacement } replacementDecision &&
                       replacementDecision.PlayerSeat == expectedJudgmentOwner &&
                       replacementDecision.ValidCardIds.SequenceEqual(
                           GetProgramJudgmentReplacementCards(
@@ -18020,7 +18041,7 @@ public sealed partial class GameEngine
 
             if (activeJudgmentProgram is null && !belongsToProgramJudgmentDamage)
             {
-                var expectedJudgmentStatus = isProgramJudgmentChoice && _pendingDecision is null
+                var expectedJudgmentStatus = isProgramJudgmentChoice && coreDecision is null
                     ? EngineStatus.Running
                     : _players[expectedJudgmentOwner].IsHuman
                         ? EngineStatus.AwaitingHumanResponse
@@ -18049,7 +18070,7 @@ public sealed partial class GameEngine
                     "A damage trigger continuation must retain a valid trigger window frame.");
             }
 
-            var damageCursorTop = DamageCursorEffectiveTop(includeNestedObservers: _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.ConvertingGift is { Observe: true } && f.WindowContext?.ParentFrameId == pendingDamageTrigger.Id) || HasAvailableBoundDamageObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetMountObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetObtainObserver(pendingDamageTrigger.Id) || HasDamageAppearanceDrawObserver(pendingDamageTrigger.Id) || HasCappedHandRefreshObserver(pendingDamageTrigger.Id) || HasPaidHandRepaymentObserver(pendingDamageTrigger.Id) || HasBoundRankBonusMovementObserver(pendingDamageTrigger.Id) || HasOwnedDamagePointJudgmentObserver(pendingDamageTrigger.Id) || HasDamageJudgmentSuitPaymentObserver(pendingDamageTrigger.Id) || HasAppliedDamageBenefitObserver(pendingDamageTrigger.Id) || HasProvenanceClaimObserver(pendingDamageTrigger.Id) || HasEquipmentDonationDamageObserver(pendingDamageTrigger.Id) || HasPaidColorDamageClaimDamageObserver(pendingDamageTrigger.Id) || HasHalfHandPaidDamageObserver(pendingDamageTrigger.Id) || HasSignedDamagePaymentObserver(pendingDamageTrigger.Id) || HasPairBenefitDamageObserver(pendingDamageTrigger.Id) || HasEndingPairSlashDamageObserver(pendingDamageTrigger.Id) || HasActualDiscardRecoveryDamageObserver(pendingDamageTrigger.Id) || HasForeignContestAidDamageObserver(pendingDamageTrigger.Id) || HasPrepDiscardDamageObserver(pendingDamageTrigger.Id) || HasSlashBenefitDamageObserver(pendingDamageTrigger.Id) || HasTargetPenaltyDamageObserver(pendingDamageTrigger.Id) || HasCappedConversionBenefitObserver(pendingDamageTrigger.Id) || HasRecipientContestDamageObserver(pendingDamageTrigger.Id));
+            var damageCursorTop = DamageCursorEffectiveTop(includeNestedObservers: _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.ConvertingGift is { Observe: true } && f.WindowContext?.ParentFrameId == pendingDamageTrigger.Id) || HasAvailableBoundDamageObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetMountObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetObtainObserver(pendingDamageTrigger.Id) || HasDamageAppearanceDrawObserver(pendingDamageTrigger.Id) || HasCappedHandRefreshObserver(pendingDamageTrigger.Id) || HasPaidHandRepaymentObserver(pendingDamageTrigger.Id) || HasBoundRankBonusMovementObserver(pendingDamageTrigger.Id) || HasOwnedDamagePointJudgmentObserver(pendingDamageTrigger.Id) || HasDamageJudgmentSuitPaymentObserver(pendingDamageTrigger.Id) || HasAppliedDamageBenefitObserver(pendingDamageTrigger.Id) || HasFireTargetBenefitObserver(pendingDamageTrigger.Id) || HasNamedAcquisitionDamageObserver(pendingDamageTrigger.Id) || HasProvenanceClaimObserver(pendingDamageTrigger.Id) || HasEquipmentDonationDamageObserver(pendingDamageTrigger.Id) || HasPaidColorDamageClaimDamageObserver(pendingDamageTrigger.Id) || HasHalfHandPaidDamageObserver(pendingDamageTrigger.Id) || (HasDynamicDiscardDamageObserver(pendingDamageTrigger.Id) || HasSignedDamagePaymentObserver(pendingDamageTrigger.Id)) || HasPairBenefitDamageObserver(pendingDamageTrigger.Id) || HasEndingPairSlashDamageObserver(pendingDamageTrigger.Id) || HasActualDiscardRecoveryDamageObserver(pendingDamageTrigger.Id) || HasForeignContestAidDamageObserver(pendingDamageTrigger.Id) || HasPrepDiscardDamageObserver(pendingDamageTrigger.Id) || HasSlashBenefitDamageObserver(pendingDamageTrigger.Id) || HasTargetPenaltyDamageObserver(pendingDamageTrigger.Id) || HasCappedConversionBenefitObserver(pendingDamageTrigger.Id) || HasPlacedEquipmentBenefitDamageObserver(pendingDamageTrigger.Id) || HasRecipientContestDamageObserver(pendingDamageTrigger.Id));
             var activeDamageProgram = damageCursorTop is ProgramSkillFrame programFrame &&
                 programFrame.WindowContext is
                 {
@@ -18058,7 +18079,7 @@ public sealed partial class GameEngine
                     ParentFrameId: var programParentId
                 } &&
                 programParentId == pendingDamageTrigger.Id;
-            var activeDamageProgramPindian = _resolutionStack.LastOrDefault() is PindianFrame pindianFrame &&
+            var activeDamageProgramPindian = coreTop is PindianFrame pindianFrame &&
                 _resolutionStack.Count >= 2 &&
                 _resolutionStack[^2] is ProgramSkillFrame pindianParent &&
                 pindianParent.Id == pindianFrame.ParentFrameId &&
@@ -18076,9 +18097,9 @@ public sealed partial class GameEngine
                         Window: SkillProgramTriggerWindow.AfterDamageApplied,
                         ParentFrameId: var damageWindowId
                     } && damageWindowId == pendingDamageTrigger.Id);
-            var awaitingDamageProgramPrompt = _pendingDecision is { Kind: DecisionKind.ProgramTrigger } &&
+            var awaitingDamageProgramPrompt = coreDecision is { Kind: DecisionKind.ProgramTrigger } &&
                 pendingDamageTrigger.CandidateIndex < pendingDamageTrigger.Candidates.Count;
-            var expectedTop = HasSignedDamagePaymentObserver(pendingDamageTrigger.Id) || damageProgramDying
+            var expectedTop = (HasDynamicDiscardDamageObserver(pendingDamageTrigger.Id) || HasSignedDamagePaymentObserver(pendingDamageTrigger.Id)) || damageProgramDying
                 ? true
                 : activeDamageProgram || activeDamageProgramPindian || activeDamageProgramJudgment
                 ? true
@@ -18137,7 +18158,7 @@ public sealed partial class GameEngine
             var awaitingBaguaJudgment = ActiveJudgment is { Continuation: JudgmentContinuationKind.FactionDefenseBagua } judgment &&
                                          SameAttackOwner(GetJudgmentAttack(judgment), hujia.Attack) &&
                                         judgment.TargetSeat == hujia.CurrentCandidateSeat;
-            var awaitingProvider = _pendingDecision is { Kind: DecisionKind.RespondDodge } hujiaDecision &&
+            var awaitingProvider = coreDecision is { Kind: DecisionKind.RespondDodge } hujiaDecision &&
                                    hujiaDecision.PlayerSeat == hujia.CurrentCandidateSeat ||
                                    HasProgramDodgeResponseContinuation(hujia.Attack);
             if (ActiveCardAttack is null ||
@@ -18161,9 +18182,9 @@ public sealed partial class GameEngine
             var candidateCursorValid = jijiang.CandidateIndex >= 0 &&
                                        jijiang.CandidateIndex < jijiang.CandidateSeats.Count;
             var providerPromptMatches = IsFactionRequestCostPrompt(jijiang) || HasPaidFactionRequestCostRecovery(jijiang) ||
-                                        _pendingDecision is { Kind: DecisionKind.RespondSlash } jijiangDecision &&
+                                        coreDecision is { Kind: DecisionKind.RespondSlash } jijiangDecision &&
                                         jijiangDecision.PlayerSeat == jijiang.CurrentCandidateSeat;
-            var zhuquePromptMatches = _pendingDecision is { Kind: DecisionKind.ZhuqueFan } zhuqueDecision &&
+            var zhuquePromptMatches = coreDecision is { Kind: DecisionKind.ZhuqueFan } zhuqueDecision &&
                                       zhuqueDecision.PlayerSeat == jijiang.OwnerSeat &&
                                       jijiang.ZhuqueFanProviderSeat == jijiang.CurrentCandidateSeat &&
                                       jijiang.ZhuqueFanPhysicalCards.Count > 0;
@@ -18290,7 +18311,7 @@ public sealed partial class GameEngine
             }
 
             var expectedPicker = draft.TargetSeats[draft.TargetIndex];
-            if (_pendingDecision is not { Kind: DecisionKind.SelectHarvestCard } harvestDecision ||
+            if (coreDecision is not { Kind: DecisionKind.SelectHarvestCard } harvestDecision ||
                 harvestDecision.PlayerSeat != expectedPicker ||
                 !harvestDecision.ValidCardIds.SequenceEqual(draft.RevealedCardIds))
             {
@@ -18308,81 +18329,81 @@ public sealed partial class GameEngine
             }
         }
 
-        if (_pendingDecision?.Kind == DecisionKind.SelectHarvestCard &&
+        if (coreDecision?.Kind == DecisionKind.SelectHarvestCard &&
             ActiveGroupCard is not { Effect: GroupCardEffect.PublicDraft })
         {
             throw new InvalidOperationException(
                 "A harvest selection cannot exist without a public draft.");
         }
 
-        if (_pendingDecision?.Kind is DecisionKind.FireAttackReveal or DecisionKind.FireAttackDiscard &&
+        if (coreDecision?.Kind is DecisionKind.FireAttackReveal or DecisionKind.FireAttackDiscard &&
             ActiveFireAttack is null)
         {
             throw new InvalidOperationException(
                 "A FireAttack selection cannot exist without a FireAttack resolution.");
         }
 
-        if (_pendingDecision?.Kind == DecisionKind.ProgramJudgmentReplacement &&
+        if (coreDecision?.Kind == DecisionKind.ProgramJudgmentReplacement &&
             ActiveJudgment is null)
         {
             throw new InvalidOperationException(
                 "A configured replacement prompt cannot exist without a judgment continuation.");
         }
 
-        if (_pendingDecision?.Kind == DecisionKind.StoneAxe &&
+        if (coreDecision?.Kind == DecisionKind.StoneAxe &&
             ActiveStoneAxe is null)
         {
             throw new InvalidOperationException(
                 "A Stone Axe prompt cannot exist without its Slash continuation.");
         }
 
-        if (_pendingDecision?.Kind == DecisionKind.CixiongDoubleSwords &&
+        if (coreDecision?.Kind == DecisionKind.CixiongDoubleSwords &&
             ActiveCixiongDoubleSwords is null)
         {
             throw new InvalidOperationException(
                 "A Cixiong Double Swords prompt cannot exist without its Slash continuation.");
         }
 
-        if (_pendingDecision?.Kind == DecisionKind.QinglongCrescentBlade &&
+        if (coreDecision?.Kind == DecisionKind.QinglongCrescentBlade &&
             ActiveQinglongCrescentBlade is null)
         {
             throw new InvalidOperationException(
                 "A Qinglong Crescent Blade prompt cannot exist without its Slash continuation.");
         }
 
-        if (_pendingDecision?.Kind == DecisionKind.IceSword &&
+        if (coreDecision?.Kind == DecisionKind.IceSword &&
             ActiveIceSword is null)
         {
             throw new InvalidOperationException(
                 "An Ice Sword prompt cannot exist without its Slash continuation.");
         }
 
-        if (_pendingDecision?.Kind == DecisionKind.QilinBow &&
+        if (coreDecision?.Kind == DecisionKind.QilinBow &&
             ActiveQilinBow is null)
         {
             throw new InvalidOperationException(
                 "A Qilin Bow prompt cannot exist without its Slash continuation.");
         }
 
-        if (_pendingDecision?.Kind == DecisionKind.Yingbo && ActiveYingboGift is null)
+        if (coreDecision?.Kind == DecisionKind.Yingbo && ActiveYingboGift is null)
         {
             throw new InvalidOperationException(
                 "A Yingbo prompt cannot exist without its card continuation.");
         }
 
-        if (_pendingDecision?.Kind == DecisionKind.ZhuqueFan &&
+        if (coreDecision?.Kind == DecisionKind.ZhuqueFan &&
             ActiveFactionCardRequest is not { AwaitingZhuqueFanChoice: true })
         {
             throw new InvalidOperationException(
                 "A Zhuque Fan prompt cannot exist without its FactionSlash continuation.");
         }
 
-        var hasCardProgramPrompt = _pendingDecision is { Kind: DecisionKind.ProgramTrigger } &&
+        var hasCardProgramPrompt = coreDecision is { Kind: DecisionKind.ProgramTrigger } &&
             (_resolutionStack.OfType<ProgramCardTriggerWindowFrame>().Any() || _resolutionStack.OfType<CardEffectBeforeApplyFrame>().Any()) || HasCardActionPindianContinuation();
-        var hasBeforeDamageProgramPrompt = _pendingDecision is { Kind: DecisionKind.ProgramTrigger } &&
+        var hasBeforeDamageProgramPrompt = coreDecision is { Kind: DecisionKind.ProgramTrigger } &&
             _resolutionStack.OfType<BeforeDamageProgramWindowFrame>().Any();
         var awaitingHumanResponse =
-            (_pendingDecision?.Kind is DecisionKind.RespondDodge or
+            (coreDecision?.Kind is DecisionKind.RespondDodge or
                 DecisionKind.RespondSlash or
                 DecisionKind.StoneAxe or
                 DecisionKind.CixiongDoubleSwords or
@@ -18394,13 +18415,16 @@ public sealed partial class GameEngine
                 DecisionKind.ProgramJudgmentReplacement || hasCardProgramPrompt || hasBeforeDamageProgramPrompt) &&
              _status == EngineStatus.AwaitingHumanResponse;
         var awaitingHumanNullification =
-            _pendingDecision?.Kind == DecisionKind.Nullification &&
+            coreDecision?.Kind == DecisionKind.Nullification &&
             _status == EngineStatus.AwaitingHumanResponse;
         var awaitingHumanDying =
-            _pendingDecision?.Kind == DecisionKind.RescueDying &&
+            coreDecision?.Kind == DecisionKind.RescueDying &&
             _status == EngineStatus.AwaitingHumanDying;
         var awaitingAiResponse = IsAiResponsePending() ||
-                                  (_pendingDecision is { } programDecision &&
+                                  (_resolutionStack.LastOrDefault() is RequestedDeckBasicFrame &&
+                                   coreDecision is { Kind: DecisionKind.RespondDodge or DecisionKind.RespondSlash or DecisionKind.QinglongCrescentBlade } originalNeed &&
+                                   originalNeed.PlayerSeat != _options.HumanSeat) ||
+                                  (coreDecision is { } programDecision &&
                                    (hasCardProgramPrompt || hasBeforeDamageProgramPrompt) &&
                                    !_players[programDecision.PlayerSeat].IsHuman) ||
                                  IsAiProgramJudgmentReplacementPending() ||
@@ -18461,7 +18485,7 @@ public sealed partial class GameEngine
         }
 
         if (_status == EngineStatus.Completed &&
-            (_pendingDecision is not null ||
+            (coreDecision is not null ||
              ActiveCardAttack is not null ||
              ActiveDuel is not null ||
              ActiveGroupCard is not null ||

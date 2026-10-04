@@ -14,7 +14,7 @@ public sealed partial class GameEngine
                 request.TargetSeat is { } target && !AssistedPhysicalSlashTargets(actor).Contains(target) || frame.ChoiceBindings.Any(binding => binding.Name == paused.ResultBind) || request.ActorChoosesTarget != (paused.ChooserRef?.Kind == ProgramParticipantRef.SelectedTarget))
                 throw new InvalidOperationException("An assisted physical Slash draft lost its frozen instruction or participants.");
             if (ReferenceEquals(frame, _resolutionStack.LastOrDefault()) && (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } prompt ||
-                prompt.PlayerSeat != (request.TargetSeat is null && !request.ActorChoosesTarget ? frame.OwnerSeat : actor) || !AssistedChoicesEqual(prompt.Choices, AssistedPhysicalSlashChoices(frame))))
+                prompt.PlayerSeat != (request.TargetSeat is null && !request.ActorChoosesTarget ? frame.OwnerSeat : actor) || !AssistedChoicesEqual(RequestedDeckBasicNativeDecision(prompt).Choices, AssistedPhysicalSlashChoices(frame))))
                 throw new InvalidOperationException("An assisted physical Slash prompt changed while suspended.");
         }
         if (frame.OtherCardSelection is { } draft)

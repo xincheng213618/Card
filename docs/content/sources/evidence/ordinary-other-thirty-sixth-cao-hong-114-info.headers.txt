@@ -1,0 +1,21 @@
+HTTP/1.1 200 OK
+content-type: application/json
+server: istio-envoy
+trace-id: ff148ac81feae78fca4385aa9c7f41ad
+date: Sun, 04 Oct 2026 14:55:51 GMT
+x-varnish: 56790892
+x-varnish-cache: miss
+req-cost-time: 55
+req-arrive-time: 1791125751941
+resp-start-time: 1791125751996
+x-envoy-upstream-service-time: 54
+set-cookie: acw_tc=1801138d17911257519412008e26002bb9715bd83298f8aa55779797066d41;path=/;HttpOnly;Max-Age=1800
+vary: Accept-Encoding
+X-Cache-Lookup: Cache Miss
+X-Cache-Lookup: Hit From Upstream Cluster
+Age: 0
+Transfer-Encoding: chunked
+X-NWS-LOG-UUID: 2756460725572145358
+Connection: keep-alive
+X-Cache-Lookup: Cache Miss
+

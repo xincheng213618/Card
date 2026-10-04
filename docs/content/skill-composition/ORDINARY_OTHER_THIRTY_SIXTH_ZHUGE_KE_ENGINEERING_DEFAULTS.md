@@ -1,0 +1,16 @@
+# 118 current ordinary OL engineering defaults
+
+These choices are implementation policy, not an official FAQ. The captured current page has complete 傲才/黩武 texts and no unexpanded grant/font reference.
+
+- Identity is current `ordinaryOther`, `ol:zhuge-ke`, Wu/3, VariantId ordinary, RulesetId sanguosha-ol. API initial_hp=0 is a placeholder. Male is inferred from biography “诸葛瑾长子”; the API has no gender property.
+- 傲才 requires a genuine existing basic-card need outside the owner's actual turn. This capability is not a free off-turn Play action. In each actual request, viewing is optional and can be refused once; later exact requests/cursors can view again.
+- A viewed native Slash/FireSlash/ThunderSlash satisfies a Slash need; native Dodge, Peach and self-rescue Alcohol retain their ordinary semantics and current prohibitions. Viewing does not grant arbitrary ViewAs of unrelated printed material. Real user/provider/target belong to the original producer, not the viewing skill.
+- At activation, actual hand count determines two/four. Mature EnsureDrawPile runs once; a nonempty short pile shows only available top entities. The real discard pile may supply a mature reshuffle only when DrawPile was empty. Unchosen entities never move or change order.
+- Before viewing, public choices contain skill source only. Top IDs and ordered identities are actor-only prepared views. A selected ID becomes public only after real DrawPile→Processing movement. The frame freezes nested original prompt choices through ctor/init/with/JSON, and the collection event is committed with explicit projection.
+- 黩武 selects an alive other target with HP>0 in the current attack range. Before payment, target HP, distance/range and source instance must still match. HP0/negative targets cannot start a new action. This avoids treating a genuine unresolved Dying target as a free cost.
+- Exactly X eligible own Hand/Equipment materials are discarded once as one real batch. Generated weapons and active-source equipment are excluded. Self-discard restrictions remain active. No generated card or restricted material is silently paid through a new shortcut.
+- After real payment, lost skill/source, removed weapon/mount and SilverLion recovery do not reprice the cost or revoke an already accepted living target. All queued recovery, HP and original movement children settle first. Owner death does not repay or undo a paid cost; the native explicit-source damage path retains that owner. Target death or terminal winner before issuance completes without a new damage.
+- The penalty follows the actual native damage recipient after a legal redirect. Only that direct DamageFrame's own DyingResolved(Survived=true) counts. Child Dying, prevented damage, damage-as-HP-loss and a dead victim do not. A living owner loses one HP; a dead owner cannot lose it again, while the issued turn restriction remains until actual turn reset.
+- A winner determined by a later native damage/HP child completes the root after existing children; an unissued penalty/usage is not newly issued. There are no new broad exemptions for ActiveDying/CurrentDamageAttempt.
+
+All static contracts and four draft checks remain uncompiled/unloaded/unexecuted. The mature route matrix is a call-chain record, not runtime acceptance.

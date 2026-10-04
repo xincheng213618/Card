@@ -1,0 +1,14 @@
+{
+  "generalId": "ol:guan-yin-ping",
+  "module": "OrdinaryGuanYinPingContent.Register",
+  "gallery": { "generalId": "ol:guan-yin-ping", "group": "other" },
+  "checks": [
+    { "method": "OrdinaryGuanYinPingChecks.RedEquipmentCostFinishesBeforeLostHpTargetsAndRealFireDraw", "displayName": "Ordinary Guan Yin Ping red equipment cost before lost HP targets and real fire draw" },
+    { "method": "OrdinaryGuanYinPingChecks.FireRecipientQuotaKeepsRealUseDebitsAndExpiresOnActualTurnEnd", "displayName": "Ordinary Guan Yin Ping fire recipient quota real use debits and actual turn expiry" },
+    { "method": "OrdinaryGuanYinPingChecks.AwakeningGetsOriginalPublicWeaponAndDrainsPaidGainAfterSourceLoss", "displayName": "Ordinary Guan Yin Ping awakening original weapon and paid gain source loss return" },
+    { "method": "OrdinaryGuanYinPingChecks.PaidFireDrawKeepsIssuedRightAfterLossAndNativeActorCanResolveIt", "displayName": "Ordinary Guan Yin Ping paid fire draw source loss and native actor" }
+  ],
+  "routinePrefixes": ["Ordinary Guan Yin Ping red equipment cost before lost HP targets and real fire draw"],
+  "versions": { "rules": false, "schema": false, "package": false },
+  "runtimeExecuted": false
+}

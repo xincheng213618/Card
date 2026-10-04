@@ -1,0 +1,21 @@
+{
+  "status": "static-data-validation-only",
+  "oldFileCount": 10,
+  "updateCount": 10,
+  "hunkCount": 20,
+  "everyRawBaselineMatchesNamedMain": true,
+  "everyPatchRebuildMatchesCompletePreview": true,
+  "contentJsonSyntaxParsed": true,
+  "fixtureLiteralJsonVariantsParsed": 2,
+  "focusedMethods": [
+    "RealPlacementReplacementAndArmorDraw",
+    "DirectedRecipientDistanceOpaqueHejAndEquipmentSource",
+    "MountRecoveryPaidSourceLossAndGainDying",
+    "NativeOptionalEndingAndStrictComposition"
+  ],
+  "coreUnchangedFromProductionSnapshot": true,
+  "productionLoaderExecuted": false,
+  "compilerExecuted": false,
+  "testsExecuted": false,
+  "nativeGameExecuted": false
+}

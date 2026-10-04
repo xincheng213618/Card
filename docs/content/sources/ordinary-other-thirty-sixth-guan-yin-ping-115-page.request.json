@@ -1,0 +1,13 @@
+{
+  "url": "https://www.sanguosha.com/hero/115",
+  "actualUrl": "https://www.sanguosha.com/hero/115",
+  "method": "GET",
+  "status": 200,
+  "requestUtc": "2026-10-04T14:57:24.740293+00:00",
+  "completedUtc": "2026-10-04T14:57:24.992039+00:00",
+  "rawBytes": 29030,
+  "rawSha256": "8455d75994919f4efc665e15c9c7826cd3497df95e77d65e8d69c13e8bf186c6",
+  "requests": 1,
+  "redirectsAllowed": false,
+  "retries": 0
+}

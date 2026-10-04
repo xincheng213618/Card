@@ -1,0 +1,32 @@
+{
+  "module": "OrdinaryCaoHongContent",
+  "bundle": "ordinary-cao-hong",
+  "skillId": "ol:yuanhu",
+  "generalId": "ol:cao-hong",
+  "galleryGroup": "other",
+  "automaticEmbeddedResources": true,
+  "manualPresentationOrCsprojRegistrationRequired": false,
+  "checks": [
+    {
+      "method": "OrdinaryCaoHongChecks.RealPlacementReplacementAndArmorDraw",
+      "displayName": "Ordinary Cao Hong real placement replacement and armor draw"
+    },
+    {
+      "method": "OrdinaryCaoHongChecks.DirectedRecipientDistanceOpaqueHejAndEquipmentSource",
+      "displayName": "Ordinary Cao Hong directed recipient distance and opaque HEJ"
+    },
+    {
+      "method": "OrdinaryCaoHongChecks.MountRecoveryPaidSourceLossAndGainDying",
+      "displayName": "Ordinary Cao Hong mount recovery paid source loss and gain Dying"
+    },
+    {
+      "method": "OrdinaryCaoHongChecks.NativeOptionalEndingAndStrictComposition",
+      "displayName": "Ordinary Cao Hong native optional Ending and strict composition"
+    }
+  ],
+  "routinePrefixes": [
+    "Ordinary Cao Hong real placement"
+  ],
+  "artCatalogEntryFile": "portrait-entry.json",
+  "sourceMainPath": "docs/content/sources/fenglin-thirty-sixth-114-source-2026-10-04.json"
+}

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "status": "bounded-static-data-checks-only",
+  "baseHead": "2598870d3d9dd3b0c1996bcaa4effe802547abcd",
+  "manifestMappingsChecked": 110,
+  "uniqueFilesChecked": 110,
+  "jsonDocumentsParsed": 36,
+  "oldEnumMembersPreserved": 819,
+  "contentAndGalleryRegistrations": 3,
+  "originalPngHeadersAndHashesChecked": 3,
+  "draftBehaviorMethodsRegistered": 12,
+  "routinePrefixesAdded": 3,
+  "oldPortraitEntriesPreserved": 237,
+  "versionSourcesUnchanged": true,
+  "unrelatedDirtyBytesPreserved": true,
+  "execution": {
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "coreTests": false,
+    "wpfTests": false,
+    "game": false,
+    "native": false,
+    "benchmark": false,
+    "publish": false
+  },
+  "measuredRoutineSeconds": null,
+  "measuredFullSeconds": null,
+  "limitations": [
+    "Behavior drafts are uncompiled and unexecuted.",
+    "Static source reading, data parsing and hashes do not prove runtime correctness or performance."
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:aocai",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "outside-basic-need",
+          "kind": "privateTopBasicRequest",
+          "cardKinds": ["slash", "dodge", "peach", "alcohol"],
+          "value": 2
+        }
+      ]
+    },
+    {
+      "id": "ol:duwu",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "target-hp-cost",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingInAttackRange",
+          "usesPerTurn": null,
+          "effects": [{"op": "discardTargetHpCardsAndDamage", "target": "selectedTarget"}]
+        }
+      ]
+    }
+  ]
+}

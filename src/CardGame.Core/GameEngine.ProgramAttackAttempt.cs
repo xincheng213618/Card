@@ -240,6 +240,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Program damage lost its owner continuation.");
         var receipt = program.AttackReturn;
         CaptureSuitPreventionDamageCompleted(program, attack.DamageWasApplied);
+        program = CaptureDynamicDiscardDamageCompleted(program);
         ReplaceRuntimeFrame(_resolutionStack[index].Id, program with { AttackAttempt = null, AttackReturn = null });
         if (receipt?.ParentAttackOwnerFrameId is { } parentId && CurrentDamageAttempt?.ResolutionId != parentId)
             throw new InvalidOperationException("Program damage changed its suspended parent owner.");

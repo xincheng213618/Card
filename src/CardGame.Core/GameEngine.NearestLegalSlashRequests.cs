@@ -279,7 +279,7 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("Nearest legal Slash owning draft lost its exact cursor or frozen actors.");
             if (ReferenceEquals(frame, _resolutionStack.LastOrDefault()) && !draft.AwaitingFaction &&
                 (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } decision || decision.PlayerSeat != draft.ActorSeat ||
-                 !AssistedChoicesEqual(decision.Choices, NearestLegalSlashChoices(frame))))
+                 !AssistedChoicesEqual(RequestedDeckBasicNativeDecision(decision).Choices, NearestLegalSlashChoices(frame))))
                 throw new InvalidOperationException("Nearest legal Slash prompt changed its actual material choices.");
         }
         if (paused.Op == SkillProgramEffectOp.OfferUnlimitedVirtualSlash && ReferenceEquals(frame, _resolutionStack.LastOrDefault()) &&
