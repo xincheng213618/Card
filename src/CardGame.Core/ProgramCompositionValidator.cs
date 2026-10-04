@@ -471,6 +471,8 @@ internal static class ProgramCompositionValidator
                         if (selection is null && effects.Take(index)
                                 .Any(item => item.Op == SkillProgramEffectOp.SelectEquipmentPairAndPayment))
                             break; // The paid pair selection produces exactly its two exchange targets.
+                        if (selection is null && index == 0 && initialSelectedTarget && read.Minimum <= 1)
+                            break; // The activation's own single target selection satisfies a one-target read.
                         var minimum = selection?.MinimumTargets ?? initialTargetSetCount;
                         var maximum = selection?.MaximumTargets ?? initialTargetSetMaximum;
                         if (!targetSetAvailable || minimum < read.Minimum ||

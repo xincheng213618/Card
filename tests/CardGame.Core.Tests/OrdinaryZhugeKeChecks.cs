@@ -205,10 +205,10 @@ internal static class OrdinaryZhugeKeChecks
         public void Register(IContentRegistryBuilder b)
         {
             var rules=FixtureRules.Replace("$SCHEMA$",SkillProgramCatalog.RulesSchemaVersion.ToString(System.Globalization.CultureInfo.InvariantCulture));
-            var labels=new Dictionary<string,object>();foreach(var id in new[]{Driver,"fixture:zk-quiet",Hp,Pulse,Loss})labels[id]=id is Hp or Pulse or Loss?
-                new{name=id,description="真正子帧",optionLabels=new Dictionary<string,string>{["continue"]="继续"}}:(object)new{name=id,description="固定真实命令能力"};
+            var labels=new Dictionary<string,object>();foreach(var labelKey in new[]{Driver,"fixture:zk-quiet",Hp,Pulse,Loss})labels[labelKey]=labelKey is Hp or Pulse or Loss?
+                new{name=labelKey,description="真正子帧",optionLabels=new Dictionary<string,string>{["continue"]="继续"}}:(object)new{name=labelKey,description="固定真实命令能力"};
             var c=SkillProgramCatalog.Load(rules,JsonSerializer.Serialize(new{schemaVersion=SkillProgramCatalog.PresentationSchemaVersion,skills=labels}));
-            foreach(var(id,program)in c.Programs)b.AddSkill(new(id,id,"原请求/费用子链小夹具"){Program=program,ProgramPresentation=c.Presentations[id],Tags=id=="fixture:zk-quiet"?SkillTag.Locked:SkillTag.None});
+            foreach(var(skillId,program)in c.Programs)b.AddSkill(new(skillId,skillId,"原请求/费用子链小夹具"){Program=program,ProgramPresentation=c.Presentations[skillId],Tags=skillId=="fixture:zk-quiet"?SkillTag.Locked:SkillTag.None});
             b.AddSkill(new("fixture:zk-pick","固定其他角色","真实身份选将偏好"){SelectionWeights=Enum.GetValues<Role>().ToDictionary(role=>role,_=>100000d)});
             var ownerSkills=new List<string>{"ol:aocai","ol:duwu","classic:longdan",Hp,"classic:mashu"};if(sourceLoss)ownerSkills.Add(Loss);
             b.AddGeneral(new("fixture:zk-owner","真实诸葛恪规则","supporter",Driver,"wu",6,ownerSkills){InitialHp=2});

@@ -6,7 +6,7 @@ public sealed partial class GameEngine
     {
         if (f.FireTargetBenefit is not { } r || f.InstructionIndex != r.InstructionIndex ||
             ProgramInstructionResolver.Default.Resolve(f, _contentRegistry.GetSkill(f.SkillId).Program!)
-                .GetPausedInstruction(f.InstructionIndex).Op != SkillProgramEffectOp.DrawFireTargetAndGrantTurnUseQuota ||
+                .GetPausedInstruction(f.InstructionIndex).Effect.Op != SkillProgramEffectOp.DrawFireTargetAndGrantTurnUseQuota ||
             f.WindowContext is not { Window: SkillProgramTriggerWindow.AfterDamageApplied } c ||
             c.ParentFrameId != r.DamageWindowId || c.DamageFrameId != r.DamageFrameId || c.SourceSeat != r.OwnerSeat ||
             c.TargetSeat != r.TargetSeat || r.OwnerSeat != f.OwnerSeat || r.DrawCount is < 0 or > 1 ||
