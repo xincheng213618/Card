@@ -11710,6 +11710,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-xiao-qiao",
+      "characterName": "界小乔",
+      "defaultSkinId": "45700",
+      "skins": [
+        {
+          "id": "45700",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/457",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45700.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-xiao-qiao.png",
+          "sha256": "f00ce70a04c6a254bb2582f00936d42f5d4de42b1751221134858c81d54191d1",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

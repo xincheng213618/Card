@@ -1,5 +1,5 @@
 {
-  "status": "all-candidates-owned-static-development-user-runtime-deferred",
+  "status": "one-static-integrated-two-owned-stage-user-runtime-deferred",
   "batch": 28,
   "baseCommit": "a794646f",
   "userSteering": {
@@ -17,8 +17,8 @@
       "name": "界小乔",
       "sourceRecord": "docs/content/sources/fenglin-twenty-eighth-457-source-2026-10-04.json",
       "sourceSha256": "2304874b07f5090197b0e270099c2f6dd76d778294c506e59331f178b585f17f",
-      "mainRegistered": false,
-      "status": "owned-stage-implementation-in-progress",
+      "mainRegistered": true,
+      "status": "static-main-integrated-user-runtime-verification-deferred",
       "owner": "/root/sun_quan",
       "stage": ".artifacts/continuation-20261003-batch17/batch28/xiao-qiao"
     },
@@ -44,11 +44,40 @@
     }
   ],
   "runs": [],
-  "integrations": [],
+  "integrations": [
+    {
+      "gid": 457,
+      "name": "界小乔",
+      "integratedAtUtc": "2026-10-04T03:52:55.1721491Z",
+      "baselineCommit": "4ad52f99",
+      "manifest": "delivery-manifest.json",
+      "manifestSha256": "c66c2b94b0bc3f4398ccdf2b5ae22eb93af53fcbbcdeb819a4fce93c3b36367e",
+      "patch": "shared-wiring.patch",
+      "patchSha256": "396b56a7346041707ec6913b4a9acabb400589e58614972c1911b29c23bbb56c",
+      "sourceSha256": "2304874b07f5090197b0e270099c2f6dd76d778294c506e59331f178b585f17f",
+      "newFiles": 9,
+      "oldFiles": 10,
+      "registeredChecks": [
+        "boundary xiao qiao heart equipment exact maximum hp hand limit",
+        "boundary xiao qiao suit prevention equipment cost and capped draw",
+        "boundary xiao qiao suit prevention real dying and exact gift",
+        "boundary xiao qiao heart judgment exact placement and native prevention"
+      ],
+      "routinePrefix": "boundary xiao qiao suit prevention equipment cost",
+      "owningScalarReceipts": true,
+      "exactRawNewAndLfOldMatched": true,
+      "originalArtSha256": "f00ce70a04c6a254bb2582f00936d42f5d4de42b1751221134858c81d54191d1",
+      "buildsRun": false,
+      "productionLoaderExecuted": false,
+      "checksRun": false,
+      "benchmarksRun": false,
+      "runtimeAcceptance": false
+    }
+  ],
   "runtimeAcceptance": false,
   "pending": [
-    "457, 485 and 550 complete implementations and sequential frozen shared baselines",
-    "Staged original art registration after each module integration",
+    "485 and 550 complete implementations and sequential frozen shared baselines; 457 integrated statically",
+    "457 original art registered; other staged original art awaits its module integration",
     "User later combined build, focused runtime, Full and measured routine verification"
   ],
   "versions": {

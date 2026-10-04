@@ -1827,7 +1827,7 @@ public sealed partial class GameEngine
         if (!CanRunActualUseTarget(candidate, context)) return false;
         if (!CanOfferOriginalTargetAddition(candidate, trigger, context)) return false;
         if (!CanRunProgramDyingAlcoholPolicy(trigger, context, candidate.OwnerSeat)) return false;
-        if (!CanOfferRoundPileAlcohol(candidate, trigger, context) || !CanOfferCurrentSlashFire(candidate, trigger, context)) return false;
+        if (!CanOfferRoundPileAlcohol(candidate, trigger, context) || !CanOfferCurrentSlashFire(candidate, trigger, context) || !CanOfferSuitPreventionBenefit(candidate, trigger, context)) return false;
         if (!CanOfferFinalTargetSlash(candidate, trigger, context)) return false;
         if (!CanRunOtherDyingVictimRecovery(trigger, context, candidate.OwnerSeat)) return false;
         if (!CanRunAlcoholSlashSuppression(trigger, context, candidate.OwnerSeat)) return false;
@@ -3144,6 +3144,8 @@ public sealed partial class GameEngine
             return;
         }
         if (action == "discard-budget") { ResolveDiscardBudgetChoice(selected); return; }
+        if (action == "suit-prevention-benefit") { ResolveSuitPreventionBenefit(selected); return; }
+        if (action == "matched-judgment-placement") { ResolveMatchedJudgmentPlacement(selected); return; }
         if (action == "completed-use-payment") { ResolveCompletedUsePayment(selected); return; }
         if (action == "round-pile-alcohol") { ResolveRoundPileAlcohol(selected); return; }
         if (action == "current-slash-fire") { ResolveCurrentSlashFireChoice(selected); return; }
@@ -4021,6 +4023,8 @@ public sealed partial class GameEngine
                     SkillProgramEffectOp.SpendMarkerOrLoseHp => decision.Choices[0],
                 SkillProgramEffectOp.SelectDistinctSuitHandDiscards or SkillProgramEffectOp.SuppressGeneralSkill or SkillProgramEffectOp.SelectChainedByMarker or SkillProgramEffectOp.SelectOneSelectedTarget => decision.Choices[0],
                 SkillProgramEffectOp.OfferOriginalTargetAddition => SelectAiOriginalTargetAddition(decision, frame),
+                SkillProgramEffectOp.DiscardSuitPreventDamageAndBenefit => SelectAiSuitPreventionBenefit(decision, frame),
+                SkillProgramEffectOp.PlaceMatchedJudgmentCard => SelectAiMatchedJudgmentPlacement(decision, frame),
                 SkillProgramEffectOp.PayCompletedUseDiscardOrLoseHp => SelectAiCompletedUsePayment(decision),
                 SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol => decision.Choices.First(c => c.Parameters.GetValueOrDefault("branch") != "pass"),
                 SkillProgramEffectOp.OfferCurrentSlashFireAndExtraTarget => decision.Choices[0],

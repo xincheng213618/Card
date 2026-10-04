@@ -42,7 +42,8 @@ public sealed partial class GameEngine
                 nameof(SkillProgramEffectOp.ChooseCategoryAlternativeDiscard) or nameof(SkillProgramEffectOp.EscalatingDiscardOrDamage) or
                 nameof(SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard) or nameof(SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected) or
                 nameof(SkillProgramEffectOp.RequestAttackRangeAid) or nameof(SkillProgramEffectOp.PayEquipmentColorDiscard) or
-                nameof(SkillProgramEffectOp.PayCompletedUseDiscardOrLoseHp);
+                nameof(SkillProgramEffectOp.PayCompletedUseDiscardOrLoseHp) or
+                nameof(SkillProgramEffectOp.DiscardSuitPreventDamageAndBenefit) or nameof(SkillProgramEffectOp.PlaceMatchedJudgmentCard);
         }
         // Recasting, use/response cleanup, death cleanup and replacement are not discards.
         if (value.StartsWith("card.recast.", StringComparison.Ordinal) || value.Contains("death", StringComparison.Ordinal) ||

@@ -1,5 +1,5 @@
 {
-  "status": "three-complete-sources-assigned-after-owned-batch28-deliveries",
+  "status": "one-owned-new-two-assigned-after-owned-batch28-deliveries",
   "batch": 29,
   "baseCommit": "2e805f43",
   "userSteering": {
@@ -28,7 +28,7 @@
       "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-563-source-2026-10-04.json",
       "sourceSha256": "40e306cedc0c0dfec0fabacb8bffc9a0da88a3b744b850e729d4ce5d0728ad69",
       "mainRegistered": false,
-      "status": "assigned-new-after-prior-owned-delivery",
+      "status": "owned-stage-contract-and-new-development",
       "owner": "/root/sun_quan",
       "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch29\\zhang-zhao-zhang-hong",
       "reservedCapacity": "6200-6299",

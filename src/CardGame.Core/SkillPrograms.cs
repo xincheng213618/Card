@@ -182,6 +182,7 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,
     ClaimDiscardedEntityWithProvenance = 4500, UseVirtualAlcohol = 4501, OfferFaceUpForOutsideClaims = 4502,
     InsertGrantedEntityPlayPhase = 4800, ClaimGrantedPhaseSlash = 4801,
     FreezeLivingFactionRecovery = 4802, DrawToFrozenFactionCount = 4803, TurnOverIfFrozenFactionCountExceedsGameDamage = 4804,
@@ -1972,6 +1973,12 @@ public sealed class SkillProgramCatalog
             if(inputSuit is null || outputSuit is not null || value is < 1 or > 13 || cardKinds.Count != 0 || requiredKinds.Count != 0)
                 Fail(path,"Pindian suit rank requires one input suit, rank 1..13 and no card filters.");
         }
+        else if (kind == SkillProgramCardPolicyKind.EquipmentSuitHandLimitAtMaxHp)
+        {
+            if (inputSuit is null or Suit.None || outputSuit is not null || value != 0 || cardKinds.Count != 0 || requiredKinds.Count != 0 ||
+                ownerRole is not null || factionId is not null || OptionalCondition(node, path).Kind != SkillProgramConditionKind.Always)
+                Fail(path, "Equipment-suit exact MaxHP hand limit requires one ordinary input suit and no other filters.");
+        }
         else if (kind == SkillProgramCardPolicyKind.RewriteSuit)
         {
             if (inputSuit is null || outputSuit is null || inputSuit == outputSuit ||
@@ -2040,7 +2047,7 @@ public sealed class SkillProgramCatalog
         if (kind is SkillProgramCardPolicyKind.ClaimedEntitiesFaceDownUse or SkillProgramCardPolicyKind.SuppressOthersNonLockedDuringDying or SkillProgramCardPolicyKind.ProhibitBlackTrickTarget or SkillProgramCardPolicyKind.PreventForeignEquipmentDiscard or SkillProgramCardPolicyKind.OfferSkipDiscard or SkillProgramCardPolicyKind.DrawFromBottom or
             SkillProgramCardPolicyKind.PreventEnteringChain or SkillProgramCardPolicyKind.ProhibitDelayedTrickTarget or SkillProgramCardPolicyKind.ProhibitPindianTarget or
             SkillProgramCardPolicyKind.FirstActualPlayUseDistanceUnlimited or SkillProgramCardPolicyKind.PindianTopCardChoice or SkillProgramCardPolicyKind.PindianRankBySuit or
-            SkillProgramCardPolicyKind.RewriteSuit or
+            SkillProgramCardPolicyKind.RewriteSuit or SkillProgramCardPolicyKind.EquipmentSuitHandLimitAtMaxHp or
             SkillProgramCardPolicyKind.FactionHandLimitBonus or SkillProgramCardPolicyKind.RedirectOwnTurnFactionRecovery or
             SkillProgramCardPolicyKind.ForeignPublicPileSlash or SkillProgramCardPolicyKind.PindianClaim or SkillProgramCardPolicyKind.PindianClaimAllWhenSourceWins or SkillProgramCardPolicyKind.IgnoreTurnObtainedHandCardsForDiscard or
             SkillProgramCardPolicyKind.PindianOpponentRandomHand or SkillProgramCardPolicyKind.PindianMaximumSlashClaim)        {
@@ -3449,6 +3456,7 @@ public sealed class SkillProgramCatalog
             (window != SkillProgramTriggerWindow.TurnEnding || subject != SkillProgramTriggerSubject.Owner ||
              turnOwnerScope != SkillProgramTurnOwnerScope.Own))
             Fail(path, "at-most-owner hand targeting requires the exact owner Ending window");
+        SuitPreventionAndJudgmentPlacementComposition.Validate(path, effects, window, subject, turnOwnerScope);
         EquipmentPairDyingCardComposition.Validate(path, effects, window, subject);
         EquipmentDonationComposition.ValidateTrigger(path, effects, window, subject, turnOwnerScope, optional);
         ProgramCompositionValidator.Validate(path, effects, initialSelectedTarget: deferredOnly, window: window, drawPhaseMode: drawPhaseMode, cardActionRelation: ownerRelation, cardKinds: cardKinds, turnOwnerScope: turnOwnerScope);
