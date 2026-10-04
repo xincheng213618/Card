@@ -129,7 +129,11 @@ public sealed record TurnCardConversion(
     string SourceBind,
     SkillProgramCardColorRelation ColorRelation,
     bool BoundCardIsRed,
-    CardKind OutputKind);
+    CardKind OutputKind)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramPaidColorConversionOrigin? PaidColorOrigin { get; init; }
+}
 
 public sealed record CardTargetAdjustmentGrantedEvent(TurnCardTargetAdjustment Adjustment) : IGameEvent;
 
@@ -442,7 +446,8 @@ internal sealed partial class TurnCardUseEffectStore
         string sourceBind,
         SkillProgramCardColorRelation colorRelation,
         bool boundCardIsRed,
-        CardKind outputKind)
+        CardKind outputKind,
+        ProgramPaidColorConversionOrigin? paidColorOrigin = null)
     {
         var existing = _conversions.SingleOrDefault(item =>
             item.ParentFrameId == parentFrameId && item.EffectIndex == effectIndex);
@@ -451,14 +456,14 @@ internal sealed partial class TurnCardUseEffectStore
             if (existing.TurnNumber != turnNumber || existing.TurnSeat != turnSeat ||
                 existing.Source != source || existing.SourceBind != sourceBind ||
                 existing.ColorRelation != colorRelation || existing.BoundCardIsRed != boundCardIsRed ||
-                existing.OutputKind != outputKind)
+                existing.OutputKind != outputKind || existing.PaidColorOrigin != paidColorOrigin)
                 throw new InvalidOperationException("A card-conversion grant key changed its meaning.");
             return existing;
         }
 
         var granted = new TurnCardConversion(
             ++_grantSequence, turnNumber, turnSeat, parentFrameId, effectIndex, source,
-            sourceBind, colorRelation, boundCardIsRed, outputKind);
+            sourceBind, colorRelation, boundCardIsRed, outputKind) { PaidColorOrigin = paidColorOrigin };
         _conversions.Add(granted);
         return granted;
     }
@@ -525,7 +530,7 @@ internal sealed partial class TurnCardUseEffectStore
         CardKind outputKind,
         bool inputIsRed) =>
         _conversions.Where(item =>
-                item.TurnNumber == turnNumber && item.TurnSeat == turnSeat &&
+                item.PaidColorOrigin is null && item.TurnNumber == turnNumber && item.TurnSeat == turnSeat &&
                 item.Source.OwnerSeat == actorSeat && item.OutputKind == outputKind &&
                 item.ColorRelation == SkillProgramCardColorRelation.OppositeBoundCard &&
                 item.BoundCardIsRed != inputIsRed)

@@ -1824,6 +1824,7 @@ public sealed partial class GameEngine
             return false;
         if (!CanRunTurnDrawDebtPayment(candidate, trigger, context) || !CanRunSourceFactionPrevention(candidate, trigger, context)) return false;
         if (!CanRunDyingOwnedCard(candidate, trigger, context)) return false;
+        if (!CanRunPaidColorDamageClaim(candidate, trigger, context)) return false;
         if (!CanRunHalfHandPhaseDebt(candidate, trigger, context)) return false;
         if (!CanRunActualUseTarget(candidate, context)) return false;
         if (!CanOfferOriginalTargetAddition(candidate, trigger, context)) return false;

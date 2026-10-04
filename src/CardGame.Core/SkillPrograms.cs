@@ -417,7 +417,8 @@ public enum SkillProgramEffectOp
     ReceiveOwnerDamage = 4100, ConsumeDistinctTurnTarget = 4101, DrawOwnerAtAppliedDamage = 4102,
     GiveBoundCardThenOfferVirtualSlashOrSharedDraw = 5100,
     PayHpThenNullifyOwnActualUseTarget = 5600, ScheduleEarnedActualEndingBenefit = 5601, DrawLostHpThenOfferOwnedCardsUpTo = 5602,
-    DonateAllEquipmentAndOfferRecipientBenefits = 5800, ChooseEquipmentOrDrawAfterOtherActualTurn = 5801
+    DonateAllEquipmentAndOfferRecipientBenefits = 5800, ChooseEquipmentOrDrawAfterOtherActualTurn = 5801,
+    DiscardBoundCardForOppositeTurnDuel = 6100, ClaimActualTurnDamageEntities = 6101
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets, HpPairHigher = 2000, HpPairLower = 2001 }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -3467,6 +3468,7 @@ public sealed class SkillProgramCatalog
         SuitPreventionAndJudgmentPlacementComposition.Validate(path, effects, window, subject, turnOwnerScope);
         EquipmentPairDyingCardComposition.Validate(path, effects, window, subject);
         EquipmentDonationComposition.ValidateTrigger(path, effects, window, subject, turnOwnerScope, optional);
+        PaidColorDamageClaimComposition.Validate(path, effects, window, subject, turnOwnerScope, optional);
         ProgramCompositionValidator.Validate(path, effects, initialSelectedTarget: deferredOnly, window: window, drawPhaseMode: drawPhaseMode, cardActionRelation: ownerRelation, cardKinds: cardKinds, turnOwnerScope: turnOwnerScope);
         if (node.TryGetProperty("onlyDesignatedCardTargets", out _) && ownerRelation != SkillProgramCardActionOwnerRelation.Target) Fail(path + ".onlyDesignatedCardTargets", "requires a target-owner card trigger");
         if (effects.Any(e => e.Op == SkillProgramEffectOp.ResolveDiscardBudgetParticipants) &&

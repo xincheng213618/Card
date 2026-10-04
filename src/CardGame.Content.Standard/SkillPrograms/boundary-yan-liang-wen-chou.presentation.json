@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:shuangxiong-current": {
+      "name": "双雄",
+      "description": "摸牌阶段结束时，你可以弃置一张牌，然后你本回合可以将一张与之颜色不同的牌当【决斗】使用。结束阶段，你获得本回合对你造成伤害的牌。",
+      "triggerChoices": { "completed-draw-paid-color": "弃一张牌，获得本回合异色决斗转换" }
+    }
+  }
+}

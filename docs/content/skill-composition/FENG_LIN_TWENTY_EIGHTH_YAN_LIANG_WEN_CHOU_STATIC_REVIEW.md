@@ -1,0 +1,15 @@
+Bounded static review only; no compiler, C# loader or behavior has run.
+
+- Official 550 is one complete current skill with two independent clauses. The draw-end clause uses default Own because the existing loader does not allow an explicit turnOwnerScope at DrawPhaseEnded. Actual Ending retains explicit Own and is mandatory.
+- The 6100 descriptor's resources consume the exact single owned HE selection. Its actual first removal ledger is frozen before children. A native generated weapon payment is recognized only at Equipment→OutsideGame with its original generated flag; the new Duel source does not publish that material as a candidate.
+- No collection-bearing new event was introduced. One scalar causal fact per original material and one scalar claim fact per actual entity keep event observers detached. The only new collection is the owning frame's readonly copied claim IDs. New conversion origin is scalar and nullable/default-ignored.
+- Actual ordinary damage requires the live DamageFrame, actual Requested/Applied amount and the causal attack owner; material IDs come from the original action/use and actual attack. Duel response Slash costs are not causal materials. Actual Lightning takes the held delayed ID and excludes the judgment card. SourceLess preserves the existing producer.
+- The mandatory Ending has no color-payment prerequisite. It binds its original actual turn/candidate/instance/hash, claims only exact remaining DiscardPile materials, and does not require them to remain in the receiving Hand after later observers.
+- Exact initial movement or SilverLion recovery admits the paid subtree. The local EquipmentDonationDamageObserverEdge reuse preserves candidate/hash and typed Program damage windows. Current-window admission requires that same window to occur inside this complete new paid root. The old generic edges remain unchanged.
+- At every Dying whole-tail proof, the incoming edge is validated first. Existing exact material rescue, bound Alcohol and virtual Alcohol proofs cover their complete descendant tail; a null token or unrelated Dying is not accepted.
+- Four checks use small fixed real-command fixtures. JSON restore returns a new engine and subsequent commands use it. Native fixture uses native command progression and formal selection weights. Fixed seed/card distribution and every runtime assertion remain unverified.
+- Static peer review by next_batch_audit found no additional definite defect in ordinary damage material causality, the Lightning held-card proof or the scalar mandatory Ending receipt. This is not runtime acceptance.
+
+Root 静态整合：以07c2b018为共享基线。冻结manifest 26f8a09031af1586caf1f20c967ddf5abdb20f425197db522af0e6c5b3acdafe、patch 3fd16a0faf579a882de534df75112a2469f09afb35c5ea2665ebb04d1ea3ccc9。校验8NEW/10OLD改前raw、全部36份冻结交付raw/LF与13support、来源SHA和单文件patch范围后应用；主区8NEW raw/10OLD改后LF均匹配。核对JSON语法、原runner四方法与首项唯一routine；导入VerificationScopes仅为数据。官方原PNG原字节登记；未编译/载包/运行检查、基准或资源离线验收。
+
+Root发现并在冻结前收束独立转换来源花色opt-in与真正Damage/AttackHpLoss Dying的自动返回资格；旧generic helper不扩大，全部已付孩子先证原candidate/receipt/ledger。保留无实体伤害、不匹配材料和真实使用者替换归属边界。新增四项及全部冷恢复断言均为未运行草稿，不声称验收通过。

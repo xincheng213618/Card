@@ -1,5 +1,5 @@
 {
-  "status": "two-owned-stage-one-assigned-after-owned-batch28-delivery",
+  "status": "two-owned-new-one-owned-source-contract",
   "batch": 29,
   "baseCommit": "2e805f43",
   "userSteering": {
@@ -52,7 +52,7 @@
       "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-671-source-2026-10-04.json",
       "sourceSha256": "1c004024c9b94b5e39f653a31d5e928406102e7e8efe576db102e2749b1dc247",
       "mainRegistered": false,
-      "status": "assigned-new-after-prior-owned-delivery",
+      "status": "owned-source-contract-and-capability-design",
       "owner": "/root/pang_de",
       "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch29\\fu-huang-hou",
       "reservedCapacity": "6400-6499",
@@ -63,7 +63,7 @@
   "integrations": [],
   "runtimeAcceptance": false,
   "pending": [
-    "563 and 775 owned NEW in progress; 671 NEW begins after 550 freeze; final OLD remains root-serialized",
+    "563 and 775 owned NEW; 671 complete current texts with damage-trick category contract under review; final OLD remains root-serialized after batch28 integration",
     "451 full current linked grants unverified; do not implement a partial general",
     "User later combined build, focused runtime, Full and measured routine verification"
   ],

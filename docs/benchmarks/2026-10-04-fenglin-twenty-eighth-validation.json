@@ -1,5 +1,5 @@
 {
-  "status": "two-static-integrated-one-owned-stage-user-runtime-deferred",
+  "status": "all-static-integrated-user-runtime-verification-deferred",
   "batch": 28,
   "baseCommit": "a794646f",
   "userSteering": {
@@ -37,8 +37,8 @@
       "name": "界颜良文丑",
       "sourceRecord": "docs/content/sources/fenglin-twenty-eighth-550-source-2026-10-04.json",
       "sourceSha256": "ea966f179fad53e5c283adc3ff2b31d13505456f9504661833473f58462be677",
-      "mainRegistered": false,
-      "status": "owned-stage-implementation-in-progress",
+      "mainRegistered": true,
+      "status": "static-main-integrated-user-runtime-verification-deferred",
       "owner": "/root/pang_de",
       "stage": ".artifacts/continuation-20261003-batch17/batch28/yan-liang-wen-chou"
     }
@@ -119,12 +119,49 @@
       "checksRun": false,
       "benchmarksRun": false,
       "runtimeAcceptance": false
+    },
+    {
+      "gid": 550,
+      "name": "界颜良文丑",
+      "integratedAtUtc": "2026-10-04T04:51:58.5344325Z",
+      "baselineCommit": "07c2b018",
+      "manifest": "manifest.json",
+      "manifestSha256": "26f8a09031af1586caf1f20c967ddf5abdb20f425197db522af0e6c5b3acdafe",
+      "patch": "old-wiring.patch",
+      "patchSha256": "3fd16a0faf579a882de534df75112a2469f09afb35c5ea2665ebb04d1ea3ccc9",
+      "sourceSha256": "ea966f179fad53e5c283adc3ff2b31d13505456f9504661833473f58462be677",
+      "newFiles": 8,
+      "oldFiles": 10,
+      "registeredChecks": [
+        "Real color payment Duel back-damage and mandatory Ending claim",
+        "Multiple original materials already moved and empty virtual responses",
+        "Lightning held entity source loss and gain Dying cold return",
+        "Real equipment conversion native and strict operation contracts"
+      ],
+      "routinePrefix": "Real color payment Duel back-damage and mandatory Ending claim",
+      "owningScalarReceipts": true,
+      "exactRawNewBeforeAndLfOldAfterMatched": true,
+      "oldEnumValuesPreserved": 322,
+      "paidGainDamageDyingProofsFrom485": true,
+      "originalArtSha256": "c4e0c068204f9038673cb584277a3ce17c0f68a545883930590c0dc7927ce2de",
+      "buildsRun": false,
+      "productionLoaderExecuted": false,
+      "checksRun": false,
+      "benchmarksRun": false,
+      "runtimeAcceptance": false,
+      "deferred": [
+        "all compile/strict loader/behavior/native/true cold restore execution",
+        "fixed seed assumptions and opponent real response selection",
+        "SilverLion/Jiuyuan/WoodenOx exact removal tails",
+        "ordinary card redirection/chained damage/provider-assisted use and partial remaining materials",
+        "source suppression/reacquisition, foreign instance grants, winner/death cleanup",
+        "gain native damage observer, Jiushi/SelfDying, material rescue/Chunlao tails"
+      ]
     }
   ],
   "runtimeAcceptance": false,
   "pending": [
-    "457 and 485 statically integrated; 550 final OLD freezes on committed 485 baseline",
-    "457/485 original art registered; 550 staged original art awaits module integration",
+    "All 457/485/550 content, four checks each, one routine prefix each and original art registered statically",
     "User later combined build, focused runtime, Full and measured routine verification"
   ],
   "versions": {

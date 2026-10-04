@@ -11744,6 +11744,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-yan-liang-wen-chou",
+      "characterName": "界颜良文丑",
+      "defaultSkinId": "55000",
+      "skins": [
+        {
+          "id": "55000",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/550",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/55000.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-yan-liang-wen-chou.png",
+          "sha256": "c4e0c068204f9038673cb584277a3ce17c0f68a545883930590c0dc7927ce2de",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

@@ -270,7 +270,7 @@ public sealed partial class GameEngine
                     item.Source.OwnerSeat,
                     item.Source.SkillInstanceId))
                 .ToArray();
-        return configured.Concat(turnScoped)
+        return configured.Concat(turnScoped).Concat(GetPaidColorTurnDuelConversions(owner, card, outputKind, forResponse, zone.Value))
             .Distinct()
             .OrderBy(source => source.SkillId, StringComparer.Ordinal)
             .ThenBy(source => source.BindingId, StringComparer.Ordinal)
