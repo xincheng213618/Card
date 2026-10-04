@@ -1,0 +1,13 @@
+{
+  "url": "https://www.sanguosha.com/hero/113",
+  "method": "GET",
+  "startedUtc": "2026-10-04T17:26:06.7564932Z",
+  "finishedUtc": "2026-10-04T17:26:07.0229977Z",
+  "httpStatus": "200",
+  "curlExitCode": 0,
+  "redirectsFollowed": false,
+  "retries": 0,
+  "rawSha256": "d5a8cd57ec357f7243c2c4267f89d57aa5e643891fc930f191ace64c475e7e30",
+  "rawPath": "source/113-page.raw.html",
+  "headersPath": "source/113-page.headers.txt"
+}

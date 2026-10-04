@@ -1,0 +1,182 @@
+[
+  {
+    "mainPath": "src/CardGame.Core/Resolution.cs",
+    "baselineStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/before/src/CardGame.Core/Resolution.cs",
+    "previewStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/preview/src/CardGame.Core/Resolution.cs",
+    "beforeRepresentation": "verifiedCurrentRawForSameCanonicalBase",
+    "baselineGitBlobId": "c57813a9859267907907b83577f263cd910a611f",
+    "rawBeforeSha256": "8800598239ca204c2d1d5fa726164b3e213f6bbf2c02431818c9ad5bf156d0a4",
+    "normalizedLfBeforeSha256": "cd3dfe0afb85fdf2cde888d3af41e773429b03790cf5a76594b9c3de2f411832",
+    "rawAfterSha256": "b06ce11ba2172db69de7f0bee23e1a25c47346dcb70cf15e25fc3004516a250b"
+  },
+  {
+    "mainPath": "src/CardGame.Core/SkillPrograms.cs",
+    "baselineStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/before/src/CardGame.Core/SkillPrograms.cs",
+    "previewStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/preview/src/CardGame.Core/SkillPrograms.cs",
+    "beforeRepresentation": "gitBlob",
+    "baselineGitBlobId": "9a99bae5060d86c7dce9edbd341f31e849a28f29",
+    "rawBeforeSha256": "a33e3caf928af7b83258ebfbd468c2f8c093b82fceb827bd1d9a9fcfab6f50cd",
+    "normalizedLfBeforeSha256": "a33e3caf928af7b83258ebfbd468c2f8c093b82fceb827bd1d9a9fcfab6f50cd",
+    "rawAfterSha256": "7e7b1961dbab2971b13323149e949763ff573b0a695a36d8b26da84788b88f3a"
+  },
+  {
+    "mainPath": "src/CardGame.Core/GameEngine.Runtime.cs",
+    "baselineStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/before/src/CardGame.Core/GameEngine.Runtime.cs",
+    "previewStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/preview/src/CardGame.Core/GameEngine.Runtime.cs",
+    "beforeRepresentation": "verifiedCurrentRawForSameCanonicalBase",
+    "baselineGitBlobId": "dd8d21c51ac6ccb13924821ac4fdc90dea757a30",
+    "rawBeforeSha256": "9e8189cb5ee6a57efb048c73226dbeb23e5e34ee621c3ee3bf7128e0947bf606",
+    "normalizedLfBeforeSha256": "9e8189cb5ee6a57efb048c73226dbeb23e5e34ee621c3ee3bf7128e0947bf606",
+    "rawAfterSha256": "7072b546c8e748588eb32e9a5cccf463a5d3332f11804040d8243eef8c963535"
+  },
+  {
+    "mainPath": "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+    "baselineStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/before/src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+    "previewStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/preview/src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+    "beforeRepresentation": "gitBlob",
+    "baselineGitBlobId": "d73584fded358ca0eef7671c18a32113239eb85b",
+    "rawBeforeSha256": "51e6050594a57035377094e8301ab0a1f9f172b06bca04e1671951b0b6ed0a5c",
+    "normalizedLfBeforeSha256": "51e6050594a57035377094e8301ab0a1f9f172b06bca04e1671951b0b6ed0a5c",
+    "rawAfterSha256": "5ce6221c80dc9591eb3be9ed09dff040c6480c9b897b025d2b98f94288552a32"
+  },
+  {
+    "mainPath": "src/CardGame.Core/GameEngine.SkillPrograms.cs",
+    "baselineStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/before/src/CardGame.Core/GameEngine.SkillPrograms.cs",
+    "previewStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/preview/src/CardGame.Core/GameEngine.SkillPrograms.cs",
+    "beforeRepresentation": "verifiedCurrentRawForSameCanonicalBase",
+    "baselineGitBlobId": "733d1101ee806c42b738f16e226f5659e1d7e403",
+    "rawBeforeSha256": "3795ddc39fa5ae504d80478ff3f0c820127c5a6f664ce887cba0f6ede53205c7",
+    "normalizedLfBeforeSha256": "788612996ed8a4c17de24ab3c94853f3b67bad96b65f2d3e0a2f68d345b7e0ed",
+    "rawAfterSha256": "405ae7dc71672c7c88032adf6fcdb05063769e56787a11b81837ae471239babf"
+  },
+  {
+    "mainPath": "src/CardGame.Core/SkillProgramDependencies.cs",
+    "baselineStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/before/src/CardGame.Core/SkillProgramDependencies.cs",
+    "previewStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/preview/src/CardGame.Core/SkillProgramDependencies.cs",
+    "beforeRepresentation": "verifiedCurrentRawForSameCanonicalBase",
+    "baselineGitBlobId": "795ec81b0d7030f73f258bb183fc2d0bb644e341",
+    "rawBeforeSha256": "07498f6f6bdc4dc6593293147b2936db675c6699c7750f88b11a777932efb52e",
+    "normalizedLfBeforeSha256": "8442e6702ec9c72237b369b49cb6ffcf3c1478d601c2188923285541299c0964",
+    "rawAfterSha256": "a55e6787ec709c425b600f537e12cd7deb6ae1b095de725bb591e307d6010964"
+  },
+  {
+    "mainPath": "src/CardGame.Core/GameEngine.ActualPlayPhaseCardUses.cs",
+    "baselineStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/before/src/CardGame.Core/GameEngine.ActualPlayPhaseCardUses.cs",
+    "previewStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/preview/src/CardGame.Core/GameEngine.ActualPlayPhaseCardUses.cs",
+    "beforeRepresentation": "verifiedCurrentRawForSameCanonicalBase",
+    "baselineGitBlobId": "8adda8823c060bf54028cf7ed61d89e32456310e",
+    "rawBeforeSha256": "76a164056679c270cd26775300ad0986bf074a35463f210d497eb140f7da5603",
+    "normalizedLfBeforeSha256": "76a164056679c270cd26775300ad0986bf074a35463f210d497eb140f7da5603",
+    "rawAfterSha256": "efb9f52c12e1c102116c412598890294db8cd1a8a29a312f4394df2babcee270"
+  },
+  {
+    "mainPath": "src/CardGame.Core/GameEngine.CardUseLifecycle.cs",
+    "baselineStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/before/src/CardGame.Core/GameEngine.CardUseLifecycle.cs",
+    "previewStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/preview/src/CardGame.Core/GameEngine.CardUseLifecycle.cs",
+    "beforeRepresentation": "verifiedCurrentRawForSameCanonicalBase",
+    "baselineGitBlobId": "0f3696ad1561e8a53ca459dae01580b5b5542856",
+    "rawBeforeSha256": "2b5a8ba7c5b8850ec5a95978616dbb24a527a6573d51d2f12ed920f7e484a9a6",
+    "normalizedLfBeforeSha256": "da42e05cb7eee56f441544f689a9b0d165512494ff8405d5a33c313ec96d834b",
+    "rawAfterSha256": "a852ad8b1e0395e652393953ca65fc4b65356c586300ef16ba3de3e74ad60895"
+  },
+  {
+    "mainPath": "src/CardGame.Core/GameEngine.CardActions.cs",
+    "baselineStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/before/src/CardGame.Core/GameEngine.CardActions.cs",
+    "previewStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/preview/src/CardGame.Core/GameEngine.CardActions.cs",
+    "beforeRepresentation": "verifiedCurrentRawForSameCanonicalBase",
+    "baselineGitBlobId": "bf6b4e7798c32d9211548f45eed992a0875391dd",
+    "rawBeforeSha256": "a123b2e126b6350e2a25f9f20f41486fb1481fece36ade5929a261dfe4da0c1f",
+    "normalizedLfBeforeSha256": "b5570961a93d54375c7a2e41aee2e5ed75a2f3b6d56bf831c85dd5cff77e702d",
+    "rawAfterSha256": "bf3eddb64908ecd5a7a352fa2cac4edbbf77b680b65d73329d8597e2c598aba4"
+  },
+  {
+    "mainPath": "src/CardGame.Core/GameEngine.DamageColorDuelPrograms.cs",
+    "baselineStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/before/src/CardGame.Core/GameEngine.DamageColorDuelPrograms.cs",
+    "previewStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/preview/src/CardGame.Core/GameEngine.DamageColorDuelPrograms.cs",
+    "beforeRepresentation": "verifiedCurrentRawForSameCanonicalBase",
+    "baselineGitBlobId": "3a1dabc41f0beeee1f4b4161a6f78a9e89e7b95f",
+    "rawBeforeSha256": "41de49dfd01e9fecf324bd9a7b1f546dfd1f00f1ae48ce91f19438b1c6efc728",
+    "normalizedLfBeforeSha256": "7d8ad9619a79aecdbf58865ea74fe7d34a0cd7a419c6f31c01e5952c391a2e63",
+    "rawAfterSha256": "0510e4979fd92c58db973c5b2143494d9e39c109ed002a9fc70e384ff98d003c"
+  },
+  {
+    "mainPath": "src/CardGame.Core/GameEngine.CardAttackState.cs",
+    "baselineStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/before/src/CardGame.Core/GameEngine.CardAttackState.cs",
+    "previewStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/preview/src/CardGame.Core/GameEngine.CardAttackState.cs",
+    "beforeRepresentation": "verifiedCurrentRawForSameCanonicalBase",
+    "baselineGitBlobId": "5eeed8f24f0eaf82e04c5295a9ff8664f4951d42",
+    "rawBeforeSha256": "64b2fce4d723d109fbac7a791da70d57347438d332276a693e869b58f41b1779",
+    "normalizedLfBeforeSha256": "64b2fce4d723d109fbac7a791da70d57347438d332276a693e869b58f41b1779",
+    "rawAfterSha256": "69d14a4d97b9fe4d626e97d4c454ae30e8c544d8e930d675a44f940ddd31e06a"
+  },
+  {
+    "mainPath": "src/CardGame.Core/HpChangePrograms.cs",
+    "baselineStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/before/src/CardGame.Core/HpChangePrograms.cs",
+    "previewStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/preview/src/CardGame.Core/HpChangePrograms.cs",
+    "beforeRepresentation": "verifiedCurrentRawForSameCanonicalBase",
+    "baselineGitBlobId": "34e4add2c12a924ccf19e19b7f2e953a9a7c238b",
+    "rawBeforeSha256": "79de2e1ebbdfe30ffeddfefa219d52131a12f1336c6b686d1f2522d45537bb8e",
+    "normalizedLfBeforeSha256": "739b163557c407f140e87b29643d7a27b513d87fd83f0e62e3914450bc916309",
+    "rawAfterSha256": "5a1d54e1f50adfb64e859bf79251c63aa94ba064102e647e76c40764456871a4"
+  },
+  {
+    "mainPath": "src/CardGame.Core/GameEngine.HpChangePrograms.cs",
+    "baselineStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/before/src/CardGame.Core/GameEngine.HpChangePrograms.cs",
+    "previewStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/preview/src/CardGame.Core/GameEngine.HpChangePrograms.cs",
+    "beforeRepresentation": "verifiedCurrentRawForSameCanonicalBase",
+    "baselineGitBlobId": "a85d4a4830ff7b988e56d3af339e3f6c94455f93",
+    "rawBeforeSha256": "be22d7fb3479044eb54e49a5b5010ecccf7cfc14f8f693264ddb197aa4cc8932",
+    "normalizedLfBeforeSha256": "823c545f6252a1776fcce4440803b9d4c0f7f059c306ee777396dfb3838e9718",
+    "rawAfterSha256": "6d57946a6cf62d4fa69345d8355872377bd76a8056e2ecc215a91d2936379d25"
+  },
+  {
+    "mainPath": "src/CardGame.Core/GameEngine.CardMovementPrograms.cs",
+    "baselineStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/before/src/CardGame.Core/GameEngine.CardMovementPrograms.cs",
+    "previewStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/preview/src/CardGame.Core/GameEngine.CardMovementPrograms.cs",
+    "beforeRepresentation": "gitBlob",
+    "baselineGitBlobId": "d9cad7a2fed08ba093f162d76329547e374eba6b",
+    "rawBeforeSha256": "72bd3944edd97010e4bfb3c5a04e6a51420dfd12af3eb69fb113708ec15504c8",
+    "normalizedLfBeforeSha256": "72bd3944edd97010e4bfb3c5a04e6a51420dfd12af3eb69fb113708ec15504c8",
+    "rawAfterSha256": "2e84cc7a4d94bb27060b25137461216f9a4162bcaf41cb91c692d20ada126c8f"
+  },
+  {
+    "mainPath": "src/CardGame.Core/CardMovementPrograms.cs",
+    "baselineStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/before/src/CardGame.Core/CardMovementPrograms.cs",
+    "previewStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/preview/src/CardGame.Core/CardMovementPrograms.cs",
+    "beforeRepresentation": "verifiedCurrentRawForSameCanonicalBase",
+    "baselineGitBlobId": "b3c678131e53dd3aab833435195f5de9e0c18d00",
+    "rawBeforeSha256": "be873c35fa9b4cd9e370f8a8716a532d140169a3a011743a8329f6aa54d44599",
+    "normalizedLfBeforeSha256": "43c20a52a521fd7fd06809d630ef4b9438dff09fff05f9e21948b50701950f0e",
+    "rawAfterSha256": "acbdd7469e3f127c6faf7fc4459a6469e21582ed382484d0dae71610b8b2d779"
+  },
+  {
+    "mainPath": "src/CardGame.Core/Projection/CommittedEventProjection.cs",
+    "baselineStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/before/src/CardGame.Core/Projection/CommittedEventProjection.cs",
+    "previewStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/preview/src/CardGame.Core/Projection/CommittedEventProjection.cs",
+    "beforeRepresentation": "verifiedCurrentRawForSameCanonicalBase",
+    "baselineGitBlobId": "f988f1a5f1ac50e62ca72aa01678e64c45aa725b",
+    "rawBeforeSha256": "b8ca994034c8ebfb417d07af14b6fe2e4e5138b5072742bdd9f8bcaf7f365a07",
+    "normalizedLfBeforeSha256": "1c56824fb8f928969e7d2b5037988746574c0ea64e41708dcf77704f8087ec9a",
+    "rawAfterSha256": "9d609453624097b6b6693d6bd28e61698470c3d29699d741e95760f66644f92e"
+  },
+  {
+    "mainPath": "src/CardGame.Core/GameEngine.cs",
+    "baselineStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/before/src/CardGame.Core/GameEngine.cs",
+    "previewStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/preview/src/CardGame.Core/GameEngine.cs",
+    "beforeRepresentation": "verifiedCurrentRawForSameCanonicalBase",
+    "baselineGitBlobId": "a30fd672e8753c8418a146078a0fb5bc952fb252",
+    "rawBeforeSha256": "e299b3c3a730cc0dbe34c0a42ab499802971bab31cc507efb1ee8f74140bcc79",
+    "normalizedLfBeforeSha256": "d97747b9193b569cf9e8d05ceec9771640b4c1c9d0d5b580d3b029769de27107",
+    "rawAfterSha256": "49fb07a83396ee0f143298175721216a0345bdedcaa9a1b4174f502ee8767e55"
+  },
+  {
+    "mainPath": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+    "baselineStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/before/src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+    "previewStagePath": ".artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji/preview/src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+    "beforeRepresentation": "gitBlob",
+    "baselineGitBlobId": "31bffec5872b3ff92c3856cd0f3d2c3a6a195090",
+    "rawBeforeSha256": "840fedff9fcd32fc1f3ae0b25db5a7ef091ef65bc52a9c24d9509534a93308a2",
+    "normalizedLfBeforeSha256": "840fedff9fcd32fc1f3ae0b25db5a7ef091ef65bc52a9c24d9509534a93308a2",
+    "rawAfterSha256": "68a5cf008278eafec42ed35889c9913aed51c3e9dbb47c0c39862b8b34bbc87e"
+  }
+]

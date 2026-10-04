@@ -1,0 +1,45 @@
+{
+  "baselineHead": "f373ef47ff50f735bed91cf74a2bc0d2c622d2a7",
+  "generalRegistration": "OrdinarySpCaiWenJiContent.Register",
+  "galleryGeneralId": "ol:sp-cai-wen-ji",
+  "galleryGroup": "other",
+  "checks": [
+    {
+      "method": "DyingSuitsAndEndingHistoryChecks.ChenqingOriginalDyingFourSuitsPrivateCostAndColdReplay",
+      "displayName": "Ordinary SP Cai Wen Ji original Dying four suits private cost cold replay"
+    },
+    {
+      "method": "DyingSuitsAndEndingHistoryChecks.ChenqingDuplicateSuitsAndNestedHpDyingRetainOriginalCursor",
+      "displayName": "Ordinary SP Cai Wen Ji duplicate suits nested HP Damage original cursor"
+    },
+    {
+      "method": "DyingSuitsAndEndingHistoryChecks.MoshiFirstUseCompletionBeforeSecondMultiSlashAndSkip",
+      "displayName": "Ordinary SP Cai Wen Ji historical first completion second multi Slash skip"
+    },
+    {
+      "method": "DyingSuitsAndEndingHistoryChecks.DyingSuitsCollectionsAndCompositionContracts",
+      "displayName": "Ordinary SP Cai Wen Ji frozen collections strict composition"
+    },
+    {
+      "method": "DyingSuitsAndEndingHistoryChecks.MoshiFireAttackDamageCompletesOneHistoricalReturn",
+      "displayName": "Ordinary SP Cai Wen Ji FireAttack whole historical return"
+    },
+    {
+      "method": "DyingSuitsAndEndingHistoryChecks.MoshiMultiDuelLastNullifiedTargetReturnsAfterPriorAttack",
+      "displayName": "Ordinary SP Cai Wen Ji multi Duel last nullified target whole return"
+    },
+    {
+      "method": "DyingSuitsAndEndingHistoryChecks.MoshiLastHandFangtianUsesRealOrderedOwner",
+      "displayName": "Ordinary SP Cai Wen Ji last hand Fangtian ordered whole Use"
+    },
+    {
+      "method": "DyingSuitsAndEndingHistoryChecks.MoshiBasicConsumesActualNextUseGrantAtEnding",
+      "displayName": "Ordinary SP Cai Wen Ji Basic real next Use grant at Ending"
+    }
+  ],
+  "routinePrefixes": [
+    "Ordinary SP Cai Wen Ji original Dying four suits private cost cold replay"
+  ],
+  "rootOwnsIntegration": true,
+  "runnerExecuted": false
+}

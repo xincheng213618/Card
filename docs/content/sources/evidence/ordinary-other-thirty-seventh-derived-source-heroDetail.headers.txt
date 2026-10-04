@@ -1,0 +1,19 @@
+HTTP/1.1 200 OK
+Last-Modified: Thu, 02 Jul 2026 10:10:34 GMT
+content-type: text/javascript; charset=utf-8
+date: Sat, 03 Oct 2026 19:26:24 GMT
+x-varnish: 57377097
+x-varnish-cache: miss
+req-cost-time: 140
+req-arrive-time: 1791055584379
+resp-start-time: 1791055584519
+x-envoy-upstream-service-time: 139
+vary: Accept-Encoding
+server: istio-envoy
+Age: 79499
+Content-Length: 15166
+Accept-Ranges: bytes
+X-NWS-LOG-UUID: 12058612909432054407
+Connection: keep-alive
+X-Cache-Lookup: Cache Hit
+

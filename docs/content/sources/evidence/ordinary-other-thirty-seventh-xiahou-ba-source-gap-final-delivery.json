@@ -1,0 +1,140 @@
+{
+  "schema": "source-gap-final-delivery/v1",
+  "status": "frozen-unresolved-derived-definitions",
+  "createdUtc": "2026-10-04T17:42:59.500036+00:00",
+  "baselineHead": "f373ef47ff50f735bed91cf74a2bc0d2c622d2a7",
+  "identity": {
+    "gid": 116,
+    "name": "夏侯霸",
+    "registered": false
+  },
+  "supportFiles": [
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-xiahou-ba-116-official-source.json",
+      "stagePath": "116-official-source.json",
+      "sha256": "da6ebc353a0bcf6351e16495521c0017231c5b0a393207d6780e873bd028336d"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-xiahou-ba-SOURCE-AND-CAPABILITY-ASSESSMENT.md",
+      "stagePath": "SOURCE-AND-CAPABILITY-ASSESSMENT.md",
+      "sha256": "a53d8837c1a1d04b491327048ac0ea98111d216dc4e2b7a24fb02c14b9e4538e"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-xiahou-ba-116-page.raw.html",
+      "stagePath": "source/116-page.raw.html",
+      "sha256": "1c6b8f30829b7baed210a9804fd025698996331c60296ee7a75014efe8efb555"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-xiahou-ba-116-page.headers.txt",
+      "stagePath": "source/116-page.headers.txt",
+      "sha256": "9cf4e45bc7ac867474d8e3c40b241092f7858d7003300db8937d8b1781779bbb"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-xiahou-ba-116-page.request.json",
+      "stagePath": "source/116-page.request.json",
+      "sha256": "612873a11665ffe14cecc008a277797f80eac1ca6f2b25b03bbaf7b9b9bc1681"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-xiahou-ba-116-info.raw.json",
+      "stagePath": "source/116-info.raw.json",
+      "sha256": "edd6cfc82dcae7b4242bc8a274b43e2a600be5d945749665b408becb37053f47"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-xiahou-ba-116-info.headers.txt",
+      "stagePath": "source/116-info.headers.txt",
+      "sha256": "db0b02c74c6f0b70afbd4bb5c3e54f58ab500f30a6069829ed7f8ace165ce208"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-xiahou-ba-116-info.request.json",
+      "stagePath": "source/116-info.request.json",
+      "sha256": "a7dced3b95928e0457487d558a1b5d87010394bec82f3c01be62f3ddd0fef691"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-xiahou-ba-116-cover.raw.png",
+      "stagePath": "source/116-cover.raw.png",
+      "sha256": "73cbadf66af2cd09ed66898d7318d64842c4668fa4d362e3b29d407b39b2b80c"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-xiahou-ba-116-cover.headers.txt",
+      "stagePath": "source/116-cover.headers.txt",
+      "sha256": "7920d3448151f607c8c505d35e45acf35044751b95b9b68861bde08e5c9ff517"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-xiahou-ba-116-cover.request.json",
+      "stagePath": "source/116-cover.request.json",
+      "sha256": "ee29ca1e667d3b2931002266b2fccf8aefbb38ca7878064dd1bcdcf0b2940a77"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-xiahou-ba-primary-capture-manifest.json",
+      "stagePath": "primary-capture-manifest.json",
+      "sha256": "de6c552950a273df716b28b13f870590ae2b377f7852683e2e1c144edbb41797"
+    }
+  ],
+  "newFiles": [],
+  "oldFiles": [],
+  "rootScriptEvidence": [
+    {
+      "repoPath": ".artifacts/continuation-20261003-batch17/batch37/derived-source/heroDetail.request.json",
+      "sha256": "fcdb02b2b77f405a6304dd8b27fbbc9cb3f96170befc634863c32d7925465da3",
+      "rootOwned": true
+    },
+    {
+      "repoPath": ".artifacts/continuation-20261003-batch17/batch37/derived-source/heroDetail.raw.js",
+      "sha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+      "rootOwned": true
+    },
+    {
+      "repoPath": ".artifacts/continuation-20261003-batch17/batch37/derived-source/heroDetail.headers.txt",
+      "sha256": "c05b3b1bea339e632fd47e44802f1c8158b89743c2644dbdc4be9a550b2e3679",
+      "rootOwned": true
+    },
+    {
+      "repoPath": ".artifacts/continuation-20261003-batch17/batch37/derived-source/commen.request.json",
+      "sha256": "11d21577e5ee2e182a1fab7ce26cdd9cfa73fa07aca5b24b486246f7c6924aed",
+      "rootOwned": true
+    },
+    {
+      "repoPath": ".artifacts/continuation-20261003-batch17/batch37/derived-source/commen.raw.js",
+      "sha256": "95ca9d3ff648d5c4f045019b9d2252883db452b04db508f6ea5a735c2e725129",
+      "rootOwned": true
+    },
+    {
+      "repoPath": ".artifacts/continuation-20261003-batch17/batch37/derived-source/commen.headers.txt",
+      "sha256": "aec08a051dd22c94c17b5c31a8be1a1f994313bd57b29bc7224510ca2b4449e0",
+      "rootOwned": true
+    }
+  ],
+  "assessment": {
+    "currentMainSkillBodyComplete": true,
+    "derivedDefinitions": {
+      "985": false,
+      "34": false,
+      "363": false
+    },
+    "reason": "Current BaoBian page binds font skill IDs 985/34/363 but does not include their bodies. Root captured both explicitly advertised current scripts once; neither exposes a linked-font detail route. Retained named batch29 script likewise has no resolver. These bounded findings do not prove global absence; no guessed endpoints were probed. Same-name classic or boundary skills are not exact current version bindings.",
+    "partialRegistration": false,
+    "nextStep": "Resolve exact current linked skill bodies before any character implementation."
+  },
+  "artInstalled": false,
+  "checks": [],
+  "execution": {
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "tests": false,
+    "game": false,
+    "nativeAi": false,
+    "ui": false,
+    "benchmark": false,
+    "release": false,
+    "publish": false,
+    "push": false
+  },
+  "versionChanges": {
+    "rulesEpoch": false,
+    "rulesSchema": false,
+    "contentPackage": false
+  },
+  "mainModified": false,
+  "frozenPriorFilesModified": false
+}

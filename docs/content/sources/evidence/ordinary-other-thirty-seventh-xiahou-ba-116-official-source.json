@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "captureStatus": "primary-main-text-complete-linked-definitions-awaiting-advertised-route",
+  "baselineHead": "f373ef47ff50f735bed91cf74a2bc0d2c622d2a7",
+  "capturedUtc": "2026-10-04T17:32:27.983312+00:00",
+  "productLine": "Current ordinary Sanguosha OL",
+  "officialId": 116,
+  "identity": {
+    "name": "夏侯霸",
+    "faction": "shu",
+    "hp": 4,
+    "apiInitialHp": 0,
+    "initialHpInterpretation": "Zero placeholder, not actual starting HP.",
+    "genderFieldPresent": false,
+    "genderIfEventuallyRegistered": "Male inferred only from the official biography calling him Xiahou Yuan second son; no structured gender claim.",
+    "biography": "夏侯渊次子。本为曹魏武将，后因司马懿诛曹爽一族，夏侯霸身为曹氏宗室而心怀不安，遂投降蜀汉。后随蜀将姜维北伐，官至车骑将军。",
+    "proposedGeneralId": "ol:xiahou-ba",
+    "proposedVariantId": "ordinary",
+    "registered": false
+  },
+  "skill": {
+    "name": "豹变",
+    "rawMarkup": "锁定技，若你的体力值：不大于3，你视为拥有“<font href='985'>挑衅</font>”；不大于2，你视为拥有“<font href='34'>咆哮</font>”；为1，你视为拥有“<font href='363'>神速</font>”。",
+    "text": "锁定技，若你的体力值：不大于3，你视为拥有“挑衅”；不大于2，你视为拥有“咆哮”；为1，你视为拥有“神速”。",
+    "mainDefinitionVerified": true,
+    "linkedSkills": [
+      {
+        "fontId": 985,
+        "name": "挑衅",
+        "currentFullDefinitionVerified": false,
+        "runtimeBindingVerified": false
+      },
+      {
+        "fontId": 34,
+        "name": "咆哮",
+        "currentFullDefinitionVerified": false,
+        "runtimeBindingVerified": false
+      },
+      {
+        "fontId": 363,
+        "name": "神速",
+        "currentFullDefinitionVerified": false,
+        "runtimeBindingVerified": false
+      }
+    ]
+  },
+  "httpRequests": [
+    {
+      "url": "https://www.sanguosha.com/hero/116",
+      "method": "GET",
+      "startedUtc": "2026-10-04T17:27:24.1019089+00:00",
+      "completedUtc": "2026-10-04T17:27:24.3384267+00:00",
+      "httpStatus": "200",
+      "curlExitCode": 0,
+      "redirectsAllowed": false,
+      "retries": 0,
+      "bodySha256": "1c6b8f30829b7baed210a9804fd025698996331c60296ee7a75014efe8efb555",
+      "headersSha256": "9cf4e45bc7ac867474d8e3c40b241092f7858d7003300db8937d8b1781779bbb"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=116",
+      "method": "GET",
+      "advertisedBy": "116-page.raw.html:480",
+      "startedUtc": "2026-10-04T17:27:44.1969106+00:00",
+      "completedUtc": "2026-10-04T17:27:44.4378092+00:00",
+      "httpStatus": "200",
+      "curlExitCode": 0,
+      "redirectsAllowed": false,
+      "retries": 0,
+      "bodySha256": "edd6cfc82dcae7b4242bc8a274b43e2a600be5d945749665b408becb37053f47",
+      "headersSha256": "db0b02c74c6f0b70afbd4bb5c3e54f58ab500f30a6069829ed7f8ace165ce208"
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11600.png",
+      "method": "GET",
+      "advertisedBy": "116-info.raw.json:data.info[0].cover",
+      "startedUtc": "2026-10-04T17:28:27.6379739+00:00",
+      "completedUtc": "2026-10-04T17:28:27.8899098+00:00",
+      "httpStatus": "200",
+      "curlExitCode": 0,
+      "redirectsAllowed": false,
+      "retries": 0,
+      "bodySha256": "73cbadf66af2cd09ed66898d7318d64842c4668fa4d362e3b29d407b39b2b80c",
+      "headersSha256": "7920d3448151f607c8c505d35e45acf35044751b95b9b68861bde08e5c9ff517"
+    }
+  ],
+  "artwork": {
+    "advertisedCover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11600.png",
+    "stagePath": "source/116-cover.raw.png",
+    "pngMainPathIfRegistered": "src/CardGame.Wpf/Assets/official-ol-xiahou-ba.png",
+    "sha256": "73cbadf66af2cd09ed66898d7318d64842c4668fa4d362e3b29d407b39b2b80c",
+    "bytes": 1181535,
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "installed": false
+  },
+  "sourceCompleteness": {
+    "mainSkill": true,
+    "font985Tiaoxin": false,
+    "font34Paoxiao": false,
+    "font363Shensu": false,
+    "wholeGeneral": false
+  },
+  "boundaries": [
+    "Font IDs are skill IDs; no hero URL inferred from them.",
+    "API supplies identity and cover, not skill definitions.",
+    "Existing classic or boundary same-name definitions are runtime references only, not proof of these three font bindings.",
+    "No extra HTTP after the three owned requests; root separately investigates the exact advertised linked-skill route.",
+    "No partial general registration."
+  ],
+  "execution": {
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "tests": false,
+    "game": false,
+    "nativeAi": false,
+    "ui": false,
+    "benchmark": false,
+    "release": false,
+    "publish": false,
+    "push": false
+  },
+  "versionChanges": {
+    "rulesEpoch": false,
+    "rulesSchema": false,
+    "contentPackage": false
+  }
+}

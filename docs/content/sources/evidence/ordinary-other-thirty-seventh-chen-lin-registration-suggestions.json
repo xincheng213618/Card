@@ -1,0 +1,26 @@
+{
+  "baselineHead": "f373ef47ff50f735bed91cf74a2bc0d2c622d2a7",
+  "generalRegistration": "OrdinaryChenLinContent.Register",
+  "galleryGeneralId": "ol:chen-lin",
+  "checks": [
+    {
+      "method": "OrdinaryChenLinChecks.DeferredPrivateOfferTargetsNextActualStartAndExchangeReturnsOnce",
+      "displayName": "Ordinary Chen Lin deferred private offer next actual start exchange"
+    },
+    {
+      "method": "OrdinaryChenLinChecks.PrivateRemovalLosesRealHpAndRescueReturnsToOriginalDueBinding",
+      "displayName": "Ordinary Chen Lin private removal HP loss rescue typed return"
+    },
+    {
+      "method": "OrdinaryChenLinChecks.GameTargetHandHpDrawUsesPersistentPerTargetLedgerAndRealGainChildren",
+      "displayName": "Ordinary Chen Lin persistent game target draw real gain children"
+    },
+    {
+      "method": "OrdinaryChenLinChecks.GameTargetHandHpEquipmentDiscardDrainsRecoveryAfterSourceLoss",
+      "displayName": "Ordinary Chen Lin equipment discard recovery paid source loss"
+    }
+  ],
+  "routinePrefixes": [
+    "Ordinary Chen Lin deferred private offer next actual start exchange"
+  ]
+}

@@ -33,8 +33,10 @@ public sealed partial class GameEngine
             "mode.identity.lord-killed-loyalist" or "skill.gongqi.cost") return true;
         if (value.StartsWith("skill-program.", StringComparison.Ordinal))
         {
+            // Only this exact paid producer suffix is a discard.
+            if (value.EndsWith($".{nameof(SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach)}.discard", StringComparison.Ordinal)) return true;
             var operation = value[(value.LastIndexOf('.') + 1)..];
-            return operation is nameof(SkillProgramEffectOp.DiscardSelected) or nameof(SkillProgramEffectOp.MoveBoundCards) or
+            return operation is nameof(SkillProgramEffectOp.ResolveGameTargetHandHpChoice) or nameof(SkillProgramEffectOp.DiscardSelected) or nameof(SkillProgramEffectOp.MoveBoundCards) or
                 nameof(SkillProgramEffectOp.DiscardOwnedZoneCards) or nameof(SkillProgramEffectOp.SelectAndMoveOwnedCard) or
                 nameof(SkillProgramEffectOp.ChooseOwnCardDiscard) or nameof(SkillProgramEffectOp.ChooseOtherOwnedCardDiscard) or
                 nameof(SkillProgramEffectOp.ChooseDifferentCategoryDiscard) or nameof(SkillProgramEffectOp.DiscardParticipantCards) or

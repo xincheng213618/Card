@@ -1,0 +1,168 @@
+{
+  "schema": "frozen-primary-capture-static-assessment/v1",
+  "status": "frozen-primary-evidence-not-character-delivery",
+  "createdUtc": "2026-10-04T17:35:17.064821+00:00",
+  "baselineHead": "f373ef47ff50f735bed91cf74a2bc0d2c622d2a7",
+  "identity": {
+    "gid": 116,
+    "name": "夏侯霸",
+    "proposedGeneralId": "ol:xiahou-ba",
+    "proposedPortraitKey": "ol-xiahou-ba",
+    "registered": false
+  },
+  "ownedFiles": [
+    {
+      "stagePath": "116-official-source.json",
+      "sha256": "da6ebc353a0bcf6351e16495521c0017231c5b0a393207d6780e873bd028336d"
+    },
+    {
+      "stagePath": "SOURCE-AND-CAPABILITY-ASSESSMENT.md",
+      "sha256": "a53d8837c1a1d04b491327048ac0ea98111d216dc4e2b7a24fb02c14b9e4538e"
+    },
+    {
+      "stagePath": "source/116-page.raw.html",
+      "sha256": "1c6b8f30829b7baed210a9804fd025698996331c60296ee7a75014efe8efb555"
+    },
+    {
+      "stagePath": "source/116-page.headers.txt",
+      "sha256": "9cf4e45bc7ac867474d8e3c40b241092f7858d7003300db8937d8b1781779bbb"
+    },
+    {
+      "stagePath": "source/116-page.request.json",
+      "sha256": "612873a11665ffe14cecc008a277797f80eac1ca6f2b25b03bbaf7b9b9bc1681"
+    },
+    {
+      "stagePath": "source/116-info.raw.json",
+      "sha256": "edd6cfc82dcae7b4242bc8a274b43e2a600be5d945749665b408becb37053f47"
+    },
+    {
+      "stagePath": "source/116-info.headers.txt",
+      "sha256": "db0b02c74c6f0b70afbd4bb5c3e54f58ab500f30a6069829ed7f8ace165ce208"
+    },
+    {
+      "stagePath": "source/116-info.request.json",
+      "sha256": "a7dced3b95928e0457487d558a1b5d87010394bec82f3c01be62f3ddd0fef691"
+    },
+    {
+      "stagePath": "source/116-cover.raw.png",
+      "sha256": "73cbadf66af2cd09ed66898d7318d64842c4668fa4d362e3b29d407b39b2b80c"
+    },
+    {
+      "stagePath": "source/116-cover.headers.txt",
+      "sha256": "7920d3448151f607c8c505d35e45acf35044751b95b9b68861bde08e5c9ff517"
+    },
+    {
+      "stagePath": "source/116-cover.request.json",
+      "sha256": "ee29ca1e667d3b2931002266b2fccf8aefbb38ca7878064dd1bcdcf0b2940a77"
+    }
+  ],
+  "readInputs": [
+    {
+      "repoPath": ".artifacts/continuation-20261003-batch17/batch37/baseline.json",
+      "sha256": "151373dd18dd87663bc7acb9031055abf4d128800bf07bcac0dc308f3debcb23"
+    },
+    {
+      "repoPath": "AGENTS.md",
+      "sha256": "e9ae036d2d7776a535b82e27d49f70ed39d7dee5f3fd5f90310bbf72dc0d3f0a"
+    },
+    {
+      "repoPath": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+      "sha256": "29b7f87162868444dadb3b6140616e3e2700e0b7dac24b42ed6e856f175517c0"
+    },
+    {
+      "repoPath": "src/CardGame.Content.Standard/SkillPrograms/classic-jiang-wei.rules.json",
+      "sha256": "1cc13d9f5f7d3aa52305c398f97af0503ebd8613d37d048ff966bf78b189a4e4"
+    },
+    {
+      "repoPath": "src/CardGame.Content.Standard/SkillPrograms/judgment-cutover.rules.json",
+      "sha256": "5f3375175f34baab029c76442270b73bc82d98aef3b733eeee0b87f096e5176a"
+    },
+    {
+      "repoPath": "src/CardGame.Content.Standard/SkillPrograms/judgment-cutover.presentation.json",
+      "sha256": "875da71a6e5585db21216cfea8795f32f94a2eb20526de5986eb75fbe6891cf9"
+    },
+    {
+      "repoPath": "src/CardGame.Content.Standard/SkillPrograms/rule-query-skills.rules.json",
+      "sha256": "3670ca7f49a8a4ab320a0b2c639e065d4e8f50d1e11340daa5a42553e08b051b"
+    },
+    {
+      "repoPath": "src/CardGame.Content.Standard/SkillPrograms/rule-query-skills.presentation.json",
+      "sha256": "e5a2218ad36198d9eb894b332a723f344e9453c15bebf7c755211ad5e5b0500b"
+    },
+    {
+      "repoPath": "src/CardGame.Content.Standard/SkillPrograms/boundary-xiahou-yuan.presentation.json",
+      "sha256": "db3a72dbe3a650b5d6a8f9af9fc5360b269576976c7d6a7b49c747f82eeb453c"
+    },
+    {
+      "repoPath": "src/CardGame.Content.Standard/SkillPrograms/boundary-jiang-wei.presentation.json",
+      "sha256": "e1a7289ec73fc4918d774934edddf8a6caf9bd3bb159d1f0074007a500934f5c"
+    },
+    {
+      "repoPath": "docs/content/sources/jiang-wei-2026-09-29.json",
+      "sha256": "ae0e1f625050743d39775a55bdf7107cf6a16566abc6c0bd9a6704eaf2f5daa4"
+    },
+    {
+      "repoPath": "docs/content/sources/boundary-jiang-wei-2026-10-03.json",
+      "sha256": "0d72926ad4b04110211334ff474923920194f52f681baacaee8a4dc02875878e"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/fenglin-thirty-third-690-current-grant-evidence.json",
+      "sha256": "bb0f270469a320d8e7645ac92f8f30ed59e4727509a532e7f31d7ade476891de"
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.LordSkillProjections.cs",
+      "sha256": "da85d3855e5114c25c900dffe9918dcbf731b180bb19815883671308fb417c5f"
+    },
+    {
+      "repoPath": "src/CardGame.Core/SkillPrograms.cs",
+      "sha256": "9286d3872a032b5624eddefb5d21fcdd98836a179222b3faf59c4c9c33f4a56d"
+    },
+    {
+      "repoPath": "docs/content/general-art-catalog.json",
+      "sha256": "329c74e11625ae5729e5bfe8ac7c4b422cbca5271070a1db9095ff3de2e6751b"
+    }
+  ],
+  "http": {
+    "completedRequests": 3,
+    "maximumOwnedRequests": 3,
+    "statuses": [
+      200,
+      200,
+      200
+    ],
+    "redirects": 0,
+    "retries": 0,
+    "furtherOwnedHttpAuthorized": false
+  },
+  "linkedDefinitions": {
+    "font985Verified": false,
+    "font34Verified": false,
+    "font363Verified": false,
+    "awaitingRootAdvertisedRouteEvidence": true
+  },
+  "reservedRange": "7800–7899, not used",
+  "newProductionFiles": [],
+  "oldFiles": [],
+  "checks": [],
+  "routinePrefixes": [],
+  "execution": {
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "tests": false,
+    "game": false,
+    "nativeAi": false,
+    "ui": false,
+    "benchmark": false,
+    "release": false,
+    "publish": false,
+    "push": false
+  },
+  "versionChanges": {
+    "rulesEpoch": false,
+    "rulesSchema": false,
+    "contentPackage": false
+  },
+  "mainModified": false,
+  "frozenPriorFilesModified": false
+}

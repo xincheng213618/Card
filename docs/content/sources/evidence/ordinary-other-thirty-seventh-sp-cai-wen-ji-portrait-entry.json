@@ -1,0 +1,17 @@
+{
+  "key": "ol-sp-cai-wen-ji",
+  "characterName": "SP蔡文姬",
+  "defaultSkinId": "11200",
+  "skins": [
+    {
+      "id": "11200",
+      "name": "经典形象",
+      "sourcePage": "https://www.sanguosha.com/hero/112",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11200.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-sp-cai-wen-ji.png",
+      "sha256": "3d22af699d71b94d2be7e48cdcaf2b7242b101723b7b2268ba1daa51513a4002",
+      "pixelWidth": 750,
+      "pixelHeight": 950
+    }
+  ]
+}

@@ -1,0 +1,300 @@
+*** Begin Patch
+*** Update File: src/CardGame.Core/SkillPrograms.cs
+@@
+ }
+ public enum SkillProgramEffectOp
+ {
++    DepositBoundPrivateCardOffer = 7700, ResolveDeferredPrivateCardOffer = 7701, ResolveGameTargetHandHpChoice = 7702,
+     DiscardTargetHpCardsAndDamage = 7601,
+     DiscardOwnedCardToAdjustCurrentDamage = 7100,
+     IssueShownEntityTurnPolicy = 6500,
+@@
+                         $"usageGroup '{group.Key}' must use identical turn, phase and game limits");
+             }
+             EnsureUniqueIds(triggers.Select(item => item.Id), skillPath + ".triggers");
++            PrivateOfferComposition.ValidateBindings(skillPath, triggers);
+             ValidateTriggerChoiceGroups(skillPath, triggers);
+             foreach (var group in triggers.Where(t => t.NamedUsageGroup is not null).GroupBy(t => t.NamedUsageGroup!, StringComparer.Ordinal))
+             {
+@@
+              targetKind != SkillProgramTargetKind.OtherLivingInAttackRange || uses is not null || usesPerPhase is not null || usesPerGame is not null))
+             Fail(path, "Variable target-HP discard damage requires one standalone zero-input, attack-range-target activation.");
+         if (effects.Count == 0) Fail(path + ".effects", "must contain at least one effect");
++        PrivateOfferComposition.ValidateActivation(path, effects, minCards, maxCards, minTargets, maxTargets, targetKind,
++            uses, usesPerPhase, usesPerGame, node.TryGetProperty("continueAfterOwnerDeath", out var privateOfferDeath) && privateOfferDeath.GetBoolean());
+         if (effects.Any(e => e.Op == SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund) && usesPerGame != 1)
+             Fail(path, "a first-round refund requires usesPerGame:1");
+         if (effects.Any(e => e.Op == SkillProgramEffectOp.SelectEquipmentPairAndPayment) &&
+@@
+         if (effects.Any(e => e.NumberExpression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount) &&
+             (window != SkillProgramTriggerWindow.PlayEnding || subject != SkillProgramTriggerSubject.Owner || turnOwnerScope != SkillProgramTurnOwnerScope.Own))
+             Fail(path, "actual turn type-count draw requires an own Play-ending owner window");
++        PrivateOfferComposition.ValidateTrigger(path, effects, window, subject, turnOwnerScope, optional);
+         HalfHandPhaseDebtTriggerContract.Validate(path, effects, subject, optional);
+         OwnTrickAndHandCategoryComposition.Validate(path, effects, window, subject, optional);
+         PaidTargetEndingComposition.Validate(path, effects, window, subject, turnOwnerScope, optional);
+*** Update File: src/CardGame.Core/ProgramPrivateTurnHoldOperation.cs
+@@
+ using System.Text.Json.Serialization;
+ namespace CardGame.Core;
+ 
+-public sealed record PrivateTurnHoldIdentity(long HoldId, string SkillId, string SkillInstanceId, string SourceId, int ExpiresTurnNumber);
++public sealed record PrivateTurnHoldIdentity(long HoldId, string SkillId, string SkillInstanceId, string SourceId, int ExpiresTurnNumber)
++{
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public DeferredPrivateOfferIdentity? DeferredOffer { get; init; }
++}
+ public sealed record PrivateTurnHoldSnapshot(long HoldId, int OwnerSeat, string SkillId, string SkillInstanceId, string SourceId, int ExpiresTurnNumber, int Count,
+-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<CardSnapshot>? Cards = null);
++    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<CardSnapshot>? Cards = null)
++{
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public int? DeferredSourceSeat { get; init; }
++}
+ public sealed record ProgramPrivateTurnHoldDraft(CardLocation Location, bool Paid);
+ internal interface IPrivateTurnHoldProgramHost { SkillProgramStepOutcome HoldOwnerHandUntilTurnEnd(ProgramSkillFrame frame); }
+ internal sealed class HoldOwnerHandUntilTurnEndDescriptor : ProgramOperationDescriptorBase
+*** Update File: src/CardGame.Core/Resolution.cs
+@@
+     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public DynamicDiscardDamageReceipt? DynamicDiscardDamage { get; init; }
+     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramSignedDamagePaymentReceipt? SignedDamagePayment { get; init; }
+     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramSuitPreventionBenefitReceipt? SuitPreventionBenefit { get; init; }
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPrivateOfferReceipt? PrivateOffer { get; init; }
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramGameTargetHandHpReceipt? GameTargetHandHp { get; init; }
+     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramMatchedJudgmentPlacementReceipt? MatchedJudgmentPlacement { get; init; }
+     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramExtraDrawReceipt? ExtraDrawReceipt { get; init; }
+     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramAdjacentDiscardReceipt? AdjacentDiscardStorage { get; init; }
+*** Update File: src/CardGame.Core/ProgramLifecycle.cs
+@@
+ 
+ public enum ProgramLifecycleContinuation
+ {
+-    NormalTurnStart, CompleteDrawPhase, CompletePlayPhase, CompleteAfterNormalDraw,
++    ResumeAfterDeferredPrivateOffers = 7700,
++    NormalTurnStart = 0, CompleteDrawPhase, CompletePlayPhase, CompleteAfterNormalDraw,
+     CompleteDiscardPhase, EndTurnAfterDiscardPhase, CompleteGameStarting,
+     ResumeCardDeclaration = 1600,
+     ResumeParentProgram = 500, ResumeDyingEntry = 660,
+@@
+     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
+     : ResolutionFrame(Id, ResolutionFrameKind.ProgramLifecycleTriggerWindow, Step)
+ {
++    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
++    public DeferredPrivateOfferDue? DeferredPrivateOffers { get; init; }
+     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+     public int? FrozenBaseDrawCount { get; init; }
+     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+*** Update File: src/CardGame.Core/GameEngine.PrivateTurnHolds.cs
+@@
+     private bool HasActualTurnEndMovementPrelude => HasAfterTurnEndedPrograms || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.HoldOwnerHandUntilTurnEnd);
+     private void ReturnPrivateTurnHoldsAtTurnEnd()
+     {
+-        foreach (var location in _cardZones.PrivateTurnHoldLocations.Where(l => l.PrivateTurnHold!.ExpiresTurnNumber <= _turnNumber))
++        foreach (var location in _cardZones.PrivateTurnHoldLocations.Where(l => l.PrivateTurnHold!.DeferredOffer is null && l.PrivateTurnHold.ExpiresTurnNumber <= _turnNumber))
+             MoveCards(_cardZones.CardsAt(location).ToArray(),location,
+                 _players[location.OwnerSeat!.Value].IsAlive ? CardLocation.Hand(location.OwnerSeat.Value) : CardLocation.DiscardPile,
+                 new("skill.private-turn-hold.return"));
+     }
+     private IReadOnlyList<PrivateTurnHoldSnapshot>? ProjectPrivateTurnHolds(int owner,int viewer,bool revealAll)
+     {
+-        var holds = _cardZones.PrivateTurnHoldLocations.Where(l => l.OwnerSeat == owner).Select(l =>
++        var holds = _cardZones.PrivateTurnHoldLocations.Where(l => (l.PrivateTurnHold?.DeferredOffer?.TargetSeat ?? l.OwnerSeat) == owner).Select(l =>
+         {
+             var h = l.PrivateTurnHold!; var cards = _cardZones.CardsAt(l);
+             return new PrivateTurnHoldSnapshot(h.HoldId,owner,h.SkillId,h.SkillInstanceId,h.SourceId,h.ExpiresTurnNumber,cards.Count,
+-                owner == viewer || revealAll ? Array.AsReadOnly(cards.Select(ToSnapshot).ToArray()) : null);
++                (h.DeferredOffer is null ? owner == viewer : l.OwnerSeat == viewer || DeferredPrivateOfferViewedCards(viewer).Any(c => cards.Any(card => card.Id == c.Id))) || revealAll
++                    ? Array.AsReadOnly(cards.Select(ToSnapshot).ToArray()) : null)
++                { DeferredSourceSeat = h.DeferredOffer is null ? null : l.OwnerSeat };
+         }).ToArray();
+         return holds.Length == 0 ? null : Array.AsReadOnly(holds);
+     }
+*** Update File: src/CardGame.Core/GameEngine.DeferredCards.cs
+@@
+             .SelectMany(view => view.Ids)
+             .Select(id => _cardZones.CardsAt(CardLocation.Processing).Single(card => card.Id == id))
+             .Select(ToSnapshot);
+-        return topCards.Concat(RequestedDeckBasicPrivateCards(viewerSeat)).Concat(GetOfferedPrivatelyViewedCards(viewerSeat)).Concat(GetQuotaPrivatelyViewedCards(viewerSeat)).Concat(GetConvertingGiftPrivatelyViewedCards(viewerSeat)).Concat(GetExactTopPrivatelyViewedCards(viewerSeat)).Concat(GetPopulationTopPrivatelyViewedCards(viewerSeat)).Concat(GetParticipantPrivatelyViewedCards(viewerSeat)).DistinctBy(card => card.Id).ToArray();
++        return topCards.Concat(DeferredPrivateOfferViewedCards(viewerSeat)).Concat(RequestedDeckBasicPrivateCards(viewerSeat)).Concat(GetOfferedPrivatelyViewedCards(viewerSeat)).Concat(GetQuotaPrivatelyViewedCards(viewerSeat)).Concat(GetConvertingGiftPrivatelyViewedCards(viewerSeat)).Concat(GetExactTopPrivatelyViewedCards(viewerSeat)).Concat(GetPopulationTopPrivatelyViewedCards(viewerSeat)).Concat(GetParticipantPrivatelyViewedCards(viewerSeat)).DistinctBy(card => card.Id).ToArray();
+     }
+ 
+     // Checkpoints replay the complete accepted command prefix. The event stream is never
+*** Update File: src/CardGame.Core/SkillProgramExecutor.cs
+@@
+     bool IsGameOver { get; }
+     bool CanContinueIssuedOriginalTargetAddition(ProgramSkillFrame frame) => false;
+     bool CanContinuePaidHpLoss(ProgramSkillFrame frame) => false;
++    bool CanContinueIssuedPrivateOffer(ProgramSkillFrame frame) => false;
+     bool CanContinuePaidDamageShield(ProgramSkillFrame frame) => false;
+     bool CanContinuePaidDamageTargetMount(ProgramSkillFrame frame) => false;
+     bool CanContinuePaidDamageTargetObtain(ProgramSkillFrame frame) => false;
+@@
+                 ProgramInstructionResolver.Default.Find(program, ProgramInstructionSourceKind.Trigger, frame.ActivationId)
+                     ?.Features.HasOperation(SkillProgramEffectOp.LoseHpParticipants) == true;
+             if (!state.OwnsSkillInstance(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId) && (actor.IsAlive || !allowsDeadOwner) &&
+-                !state.CanContinueIssuedOriginalTargetAddition(frame) && !state.CanContinuePaidHpLoss(frame) && !state.CanContinuePaidDamageShield(frame) && !state.CanContinuePaidDamageTargetMount(frame) && !state.CanContinuePaidDamageTargetObtain(frame) && !state.CanContinuePaidLostHpChain(frame))
++                !state.CanContinueIssuedPrivateOffer(frame) && !state.CanContinueIssuedOriginalTargetAddition(frame) && !state.CanContinuePaidHpLoss(frame) && !state.CanContinuePaidDamageShield(frame) && !state.CanContinuePaidDamageTargetMount(frame) && !state.CanContinuePaidDamageTargetObtain(frame) && !state.CanContinuePaidLostHpChain(frame))
+             {
+                 state.Complete(frame, completed: false, "技能实例在结算前已失效，剩余步骤取消。");
+                 return;
+*** Update File: src/CardGame.Core/GameEngine.ProgramLifecycle.cs
+@@
+         ProgramSkillWindowContext context)
+     {
+         if (!IsValidPlayerSeat(candidate.OwnerSeat) || candidate.OwnerSeat != context.OwnerSeat) return false;
++        if (IsDeferredPrivateOfferResolver(candidate)) return CanRunDeferredPrivateOffer(candidate, context);
+         if (context.Window == SkillProgramTriggerWindow.ActualSlashTargetPenalty) return CanRunSlashTargetPenalty(candidate, context);
+         if (IsSlashTargetBenefitWindow(context.Window)) return CanRunSlashTargetBenefitCandidate(candidate, context);
+         var owner = _players[candidate.OwnerSeat];
+@@
+                 { ReturnDrawPhaseObligationWindow(frame); return; }
+                 switch (frame.Continuation)
+                 {
++                    case ProgramLifecycleContinuation.ResumeAfterDeferredPrivateOffers:
++                        ContinueTurnAfterForeignActualContests(_players[frame.OwnerSeat]);
++                        break;
+                     case ProgramLifecycleContinuation.ResumeDyingEntry:
+                         CompleteDyingEntryProgramWindow(frame);
+                         break;
+@@
+             ResolveProgramOrdinaryTrickUseChoice(selected);
+             return;
+         }
++        if (action == "deferred-private-offer") { ResolveDeferredPrivateOfferChoice(selected); return; }
++        if (action == "game-hand-hp-discard") { ResolveGameHandHpDiscard(selected); return; }
+         if (action == "order-bound-cards")
+         {
+             var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
+@@
+                 SkillProgramEffectOp.ResolvePrepDiscardOrEnding => SelectAiPrepDiscard(decision, frame),
+                 SkillProgramEffectOp.RequireTargetDiscardOrEquipmentRecast => SelectAiTargetPenalty(decision, frame),
+                 SkillProgramEffectOp.OfferSlashTargetBenefit or SkillProgramEffectOp.SettleDodgeCancelledSlashBenefit => SelectAiSlashTargetBenefit(decision, frame),
++                SkillProgramEffectOp.ResolveDeferredPrivateCardOffer or SkillProgramEffectOp.ResolveGameTargetHandHpChoice => decision.Choices[0],
+                 SkillProgramEffectOp.DiscardTargetHpCardsAndDamage => decision.Choices[0],
+                 SkillProgramEffectOp.RequestSlashByTarget => SelectAiProgramRequestSlash(decision, frame),
+                 SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner or SkillProgramEffectOp.DeclareDeckCriterionAndGiveMatchingCard =>
+*** Update File: src/CardGame.Core/GameEngine.Runtime.cs
+@@
+             case CardDeclarationFrame: ContinueCardDeclaration(frameId); break;
+             case CardDeclarationChallengeFrame: ContinueCardDeclarationChallenge(frameId); break;
+             case ProgramSkillFrame:
++                if (ResumePrivateOffer(frameId) || ResumeGameHandHp(frameId)) return;
+                 if (ResumeFireTargetBenefit(frameId) || ResumeNamedCardAcquisition(frameId)) return;
+                 if (ResumeUniqueHpPeer(frameId) || ResumeRecipientContest(frameId)) return;
+                 if (ResumeCappedConversionBenefit(frameId)) return;
+@@
+             paidContext.OwnerSeat == paidDyingProgram.OwnerSeat &&
+             (paidContext.Window == SkillProgramTriggerWindow.DyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.ResponderSeat ||
+              paidContext.Window == SkillProgramTriggerWindow.SelfDyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.VictimSeat) &&
+-            (IsPlacedEquipmentBenefitProgramDying() || IsFireTargetBenefitProgramDying() || IsNamedAcquisitionProgramDying() || IsDynamicDiscardDamageProgramDying() || IsConditionalDiscardDuelProgramDying() || IsRecipientContestProgramDying() || IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsOwnTrickDrawProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsOwnedDeathBenefitProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying()))
++            (IsPrivateOfferProgramDying() || IsPlacedEquipmentBenefitProgramDying() || IsFireTargetBenefitProgramDying() || IsNamedAcquisitionProgramDying() || IsDynamicDiscardDamageProgramDying() || IsConditionalDiscardDuelProgramDying() || IsRecipientContestProgramDying() || IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsOwnTrickDrawProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsOwnedDeathBenefitProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying()))
+         {
+             AdvanceRuntimeProgram(paidDyingProgram.Id);
+             AdvanceRulesAndPublishState();
+@@
+     private void ReturnRuntimeProgramMovement(long frameId)
+     {
+         var frame = GetActiveProgramFrame(frameId);
++        if (ReturnPrivateOfferMovement(frame) || ReturnGameTargetHandHpMovement(frame)) return;
+         if (ReturnLostHpChainedMovement(frame) || ReturnFireTargetBenefitMovement(frame) || ReturnNamedCardAcquisitionMovement(frame)) return;
+         if (ReturnConditionalDuelMovement(frame)) return;
+         if (ReturnPlacedEquipmentMovement(frame)) return;
+*** Update File: src/CardGame.Core/GameEngine.SkillPrograms.cs
+@@
+                     : activation.MaxTargets == 0 ? [] : _players
+                     .Where(target => target.IsAlive && IsHandComparisonTarget(activation, target) &&
+                         IsAdvancedActivationTargetAllowed(owner, target, program.Id, activation) &&
++                        (features.First(SkillProgramEffectOp.ResolveGameTargetHandHpChoice) is not { } handHp || CanSelectGameHandHpTarget(owner.Seat, program.Id, handHp.StateId!, target.Seat)) &&
+                         (!features.HasOperation(SkillProgramEffectOp.DiscardTargetHpCardsAndDamage) || CanSelectDynamicDiscardDamageTarget(owner, program.Id, target.Seat)) &&
+                         (!activation.TargetRequiresEmptyEquipmentSlot ||
+                          HasEmptyEquipmentSlotForOwnerHandEquipment(owner, target)) &&
+@@
+             (targets is not [var dynamicTarget] || !CanStartDynamicDiscardDamage(_players[_currentSeat], program!.Id) ||
+              !CanSelectDynamicDiscardDamageTarget(_players[_currentSeat], program!.Id, dynamicTarget)))
+             return new CommandError(CommandErrorCode.InvalidTarget, "The exact dynamic target HP/range cost is unavailable.");
++        if (plan?.Features.First(SkillProgramEffectOp.ResolveGameTargetHandHpChoice) is { } handHp &&
++            (cards.Count != 0 || targets is not [var handHpTarget] || !CanSelectGameHandHpTarget(_currentSeat, program!.Id, handHp.StateId!, handHpTarget)))
++            return new CommandError(CommandErrorCode.InvalidTarget, "This game target is spent or its current hand/HP are equal.");
+         if (ValidateNextActualUseProgramSelection(action, plan, cards, targets) is { } nextActualUseError)
+             return nextActualUseError;
+         if (ValidateProvenanceSelectedCardUse(action,
+@@
+                     !(paidEffect?.Op == SkillProgramEffectOp.ObtainDamageTargetCardAndResolveCategory && frame.DamageTargetObtain is not null && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
+                     !(paidEffect?.Op == SkillProgramEffectOp.DiscardDamageTargetAndClaimMount && frame.DamageTargetMount is { Receipt: not null } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
+                     !awaitsSuitPlacement && !awaitsCappedHandRefresh && !awaitsDeclaredDeck && !awaitsShownGift && !awaitsJudgmentClaim && !awaitsRepeatedJudgment && !awaitsOwnedMovement &&
+-                    !IsFireTargetBenefitMovement(frame, paidEffect, pendingMovement) && !IsNamedCardAcquisitionMovement(frame, paidEffect, pendingMovement) && !IsCappedConversionAwaitedMovement(frame, pendingMovement) && !IsForeignContestOrAidMovement(frame, paidEffect, pendingMovement) && !IsPlacedEquipmentBenefitMovement(frame, paidEffect, pendingMovement) && !IsDynamicDiscardDamageMovement(frame, paidEffect, pendingMovement) && !IsConditionalDuelAwaitedMovement(frame, paidEffect, pendingMovement) && !IsRecipientContestMovement(frame, paidEffect, pendingMovement) && !IsPrepDiscardMovement(frame, paidEffect, pendingMovement) && !IsSlashTargetBenefitMovement(frame, paidEffect, pendingMovement) && !IsTargetPenaltyMovement(frame, paidEffect, pendingMovement) && !IsActualEquipmentOrDiscardMovement(frame, paidEffect, pendingMovement) && !IsPaidColorDamageClaimMovement(frame, paidEffect, pendingMovement) && !IsEquipmentDonationMovement(frame, paidEffect, pendingMovement) && !IsHalfHandPhaseMovement(frame, paidEffect, pendingMovement) && !IsPairBenefitMovement(frame, paidEffect, pendingMovement) && !IsEndingPairMovement(frame, paidEffect, pendingMovement) && !IsExtraDrawDebtMovement(frame, paidEffect, pendingMovement) && !IsOwnTrickDrawMovement(frame, paidEffect, pendingMovement) && !IsPreventionDrawMovement(frame, paidEffect, pendingMovement) && !IsDamageJudgmentSuitPaymentMovement(frame, paidEffect, pendingMovement) && !awaitsExchangedMovement && !(paidEffect?.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.DeferredHandAlignmentResolution is { } deferredAlignment && pendingMovement.SubjectSeat == deferredAlignment.TargetSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseRandomDeckEquipment && frame.SelectedTargetSeats is [var equipmentUser] && pendingMovement.SubjectSeat == equipmentUser && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
++                    !IsPrivateOfferMovement(frame, paidEffect, pendingMovement) && !IsGameHandHpMovement(frame, paidEffect, pendingMovement) && !IsFireTargetBenefitMovement(frame, paidEffect, pendingMovement) && !IsNamedCardAcquisitionMovement(frame, paidEffect, pendingMovement) && !IsCappedConversionAwaitedMovement(frame, pendingMovement) && !IsForeignContestOrAidMovement(frame, paidEffect, pendingMovement) && !IsPlacedEquipmentBenefitMovement(frame, paidEffect, pendingMovement) && !IsDynamicDiscardDamageMovement(frame, paidEffect, pendingMovement) && !IsConditionalDuelAwaitedMovement(frame, paidEffect, pendingMovement) && !IsRecipientContestMovement(frame, paidEffect, pendingMovement) && !IsPrepDiscardMovement(frame, paidEffect, pendingMovement) && !IsSlashTargetBenefitMovement(frame, paidEffect, pendingMovement) && !IsTargetPenaltyMovement(frame, paidEffect, pendingMovement) && !IsActualEquipmentOrDiscardMovement(frame, paidEffect, pendingMovement) && !IsPaidColorDamageClaimMovement(frame, paidEffect, pendingMovement) && !IsEquipmentDonationMovement(frame, paidEffect, pendingMovement) && !IsHalfHandPhaseMovement(frame, paidEffect, pendingMovement) && !IsPairBenefitMovement(frame, paidEffect, pendingMovement) && !IsEndingPairMovement(frame, paidEffect, pendingMovement) && !IsExtraDrawDebtMovement(frame, paidEffect, pendingMovement) && !IsOwnTrickDrawMovement(frame, paidEffect, pendingMovement) && !IsPreventionDrawMovement(frame, paidEffect, pendingMovement) && !IsDamageJudgmentSuitPaymentMovement(frame, paidEffect, pendingMovement) && !awaitsExchangedMovement && !(paidEffect?.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.DeferredHandAlignmentResolution is { } deferredAlignment && pendingMovement.SubjectSeat == deferredAlignment.TargetSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseRandomDeckEquipment && frame.SelectedTargetSeats is [var equipmentUser] && pendingMovement.SubjectSeat == equipmentUser && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
+                     !(paidEffect is { Op: SkillProgramEffectOp.MoveBoundCards, AwaitMovementTriggers: true } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
+                     !(paidEffect?.Op == SkillProgramEffectOp.ObtainBoundCardsAndArmNextRevealBonus &&
+                         pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.BeforeCount == 0 && pendingMovement.CoverageResultBind is null) &&
+*** Update File: src/CardGame.Core/GameEngine.ProgramDiscardTopPlacement.cs
+@@
+         if (value.StartsWith("skill-program.", StringComparison.Ordinal))
+         {
+             var operation = value[(value.LastIndexOf('.') + 1)..];
+-            return operation is nameof(SkillProgramEffectOp.DiscardSelected) or nameof(SkillProgramEffectOp.MoveBoundCards) or
++            return operation is nameof(SkillProgramEffectOp.ResolveGameTargetHandHpChoice) or nameof(SkillProgramEffectOp.DiscardSelected) or nameof(SkillProgramEffectOp.MoveBoundCards) or
+                 nameof(SkillProgramEffectOp.DiscardOwnedZoneCards) or nameof(SkillProgramEffectOp.SelectAndMoveOwnedCard) or
+                 nameof(SkillProgramEffectOp.ChooseOwnCardDiscard) or nameof(SkillProgramEffectOp.ChooseOtherOwnedCardDiscard) or
+                 nameof(SkillProgramEffectOp.ChooseDifferentCategoryDiscard) or nameof(SkillProgramEffectOp.DiscardParticipantCards) or
+*** Update File: src/CardGame.Core/GameEngine.cs
+@@
+ 
+     private void ContinueTurnAfterForeignActualContests(CharacterState current)
+     {
++        if (TryBeginDeferredPrivateOffers(current)) return;
+         ExpirePrepDiscardEndingPromises();
+         ConsumeSkippedNextTurnDrawBenefits(current);
+         CleanupDeferredHandAlignments();
+@@
+             MoveDiedCards(_cardZones.CardsAt(new CardLocation(CardZoneKind.PublicDeferredPile, victim.Seat)),
+                 new CardLocation(CardZoneKind.PublicDeferredPile, victim.Seat), new CardMoveReason("skill-program.deferred-pile.owner-death"));
+             _deferredPublicPileDeposits.RemoveAll(item => item.OwnerSeat == victim.Seat);
+-            foreach (var location in _cardZones.PrivateTurnHoldLocations.Where(l => l.OwnerSeat == victim.Seat))
++            foreach (var location in _cardZones.PrivateTurnHoldLocations.Where(l => l.OwnerSeat == victim.Seat || l.PrivateTurnHold?.DeferredOffer?.TargetSeat == victim.Seat))
+                 MoveDiedCards(_cardZones.CardsAt(location),location,new("skill.private-turn-hold.death"));
+             MoveDiedCards(
+                 _cardZones.CardsAt(CardLocation.PojunHold(victim.Seat)),
+@@
+         AssertRequestedDeckBasicMaterials();
+         var coreDecision = RequestedDeckBasicInvariantDecision();
+         var coreTop = RequestedDeckBasicInvariantTop();
+-        var damageProgramDying = IsPlacedEquipmentBenefitProgramDying() || IsFireTargetBenefitProgramDying() || IsNamedAcquisitionProgramDying() || IsDynamicDiscardDamageProgramDying() || IsOwnTrickDrawProgramDying() || IsConditionalDiscardDuelProgramDying() || IsRecipientContestProgramDying() || IsProvenanceClaimProgramDying() || IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying() || IsPaidDamageTargetMountDying() || IsPaidDamageTargetObtainDying() || IsDamageAppearanceDrawProgramDying() || IsRecoveryReplacementProgramDying() || IsCharacterTurnedOverProgramDying() || IsCappedHandRefreshProgramDying() || IsPaidHandRepaymentProgramDying() || IsBoundRankBonusMovementDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawInsideDamageProgramDying() || IsSourceFactionYieldInsideDamageProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsAppliedDamageBenefitDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPreventionInsideDamageProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying();
++        var damageProgramDying = IsPrivateOfferProgramDying() || IsPlacedEquipmentBenefitProgramDying() || IsFireTargetBenefitProgramDying() || IsNamedAcquisitionProgramDying() || IsDynamicDiscardDamageProgramDying() || IsOwnTrickDrawProgramDying() || IsConditionalDiscardDuelProgramDying() || IsRecipientContestProgramDying() || IsProvenanceClaimProgramDying() || IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying() || IsPaidDamageTargetMountDying() || IsPaidDamageTargetObtainDying() || IsDamageAppearanceDrawProgramDying() || IsRecoveryReplacementProgramDying() || IsCharacterTurnedOverProgramDying() || IsCappedHandRefreshProgramDying() || IsPaidHandRepaymentProgramDying() || IsBoundRankBonusMovementDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawInsideDamageProgramDying() || IsSourceFactionYieldInsideDamageProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsAppliedDamageBenefitDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPreventionInsideDamageProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying();
+         _turnCardUseEffects.AssertInvariants();
+         AssertPaidHpLossModifiers();
+         AssertCurrentTurnOwnSkillSuppressions();
+@@
+             }
+             else if (ActiveDamageTrigger is { } triggerContinuation)
+             {
+-                var effectiveTop = DamageCursorEffectiveTop(includeNestedObservers: HasPaidDamageTargetMountObserver(triggerContinuation.Id) || HasPaidDamageTargetObtainObserver(triggerContinuation.Id) || HasDamageAppearanceDrawObserver(triggerContinuation.Id) || HasCappedHandRefreshObserver(triggerContinuation.Id) || HasPaidHandRepaymentObserver(triggerContinuation.Id) || HasBoundRankBonusMovementObserver(triggerContinuation.Id) || HasOwnedDamagePointJudgmentObserver(triggerContinuation.Id) || HasDamageJudgmentSuitPaymentObserver(triggerContinuation.Id) || HasAppliedDamageBenefitObserver(triggerContinuation.Id) || HasFireTargetBenefitObserver(triggerContinuation.Id) || HasNamedAcquisitionDamageObserver(triggerContinuation.Id) || HasProvenanceClaimObserver(triggerContinuation.Id) || HasEquipmentDonationDamageObserver(triggerContinuation.Id) || HasPaidColorDamageClaimDamageObserver(triggerContinuation.Id) || HasHalfHandPaidDamageObserver(triggerContinuation.Id) || (HasDynamicDiscardDamageObserver(triggerContinuation.Id) || HasSignedDamagePaymentObserver(triggerContinuation.Id)) || HasPairBenefitDamageObserver(triggerContinuation.Id) || HasEndingPairSlashDamageObserver(triggerContinuation.Id) || HasActualDiscardRecoveryDamageObserver(triggerContinuation.Id) || HasForeignContestAidDamageObserver(triggerContinuation.Id) || HasPrepDiscardDamageObserver(triggerContinuation.Id) || HasSlashBenefitDamageObserver(triggerContinuation.Id) || HasTargetPenaltyDamageObserver(triggerContinuation.Id) || HasCappedConversionBenefitObserver(triggerContinuation.Id) || HasPlacedEquipmentBenefitDamageObserver(triggerContinuation.Id) || HasRecipientContestDamageObserver(triggerContinuation.Id));
++                var effectiveTop = DamageCursorEffectiveTop(includeNestedObservers: HasPaidDamageTargetMountObserver(triggerContinuation.Id) || HasPaidDamageTargetObtainObserver(triggerContinuation.Id) || HasDamageAppearanceDrawObserver(triggerContinuation.Id) || HasCappedHandRefreshObserver(triggerContinuation.Id) || HasPaidHandRepaymentObserver(triggerContinuation.Id) || HasBoundRankBonusMovementObserver(triggerContinuation.Id) || HasOwnedDamagePointJudgmentObserver(triggerContinuation.Id) || HasDamageJudgmentSuitPaymentObserver(triggerContinuation.Id) || HasAppliedDamageBenefitObserver(triggerContinuation.Id) || HasFireTargetBenefitObserver(triggerContinuation.Id) || HasNamedAcquisitionDamageObserver(triggerContinuation.Id) || HasProvenanceClaimObserver(triggerContinuation.Id) || HasEquipmentDonationDamageObserver(triggerContinuation.Id) || HasPaidColorDamageClaimDamageObserver(triggerContinuation.Id) || HasHalfHandPaidDamageObserver(triggerContinuation.Id) || (HasDynamicDiscardDamageObserver(triggerContinuation.Id) || HasSignedDamagePaymentObserver(triggerContinuation.Id)) || HasPairBenefitDamageObserver(triggerContinuation.Id) || HasEndingPairSlashDamageObserver(triggerContinuation.Id) || HasActualDiscardRecoveryDamageObserver(triggerContinuation.Id) || HasForeignContestAidDamageObserver(triggerContinuation.Id) || HasPrepDiscardDamageObserver(triggerContinuation.Id) || HasSlashBenefitDamageObserver(triggerContinuation.Id) || HasTargetPenaltyDamageObserver(triggerContinuation.Id) || HasCappedConversionBenefitObserver(triggerContinuation.Id) || HasPlacedEquipmentBenefitDamageObserver(triggerContinuation.Id) || HasRecipientContestDamageObserver(triggerContinuation.Id) || HasPrivateOfferDamageObserver(triggerContinuation.Id));
+                 var topMatchesWindow = effectiveTop is DamageTriggerWindowFrame frame &&
+                     frame.Id == triggerContinuation.Id &&
+                     frame.ParentFrameId == triggerContinuation.ParentFrameId &&
+@@
+         AssertTargetPenaltyWindows();
+         AssertHpLossMaterialSlashes();
+         AssertLostHpOwnedGifts();
++        AssertPrivateOfferPrograms();
+         AssertEquipmentDonationPrograms();
+         AssertActualEquipmentOrDiscardPrograms();
+         AssertShownEntityTurnPrograms();
+@@
+                     "A damage trigger continuation must retain a valid trigger window frame.");
+             }
+ 
+-            var damageCursorTop = DamageCursorEffectiveTop(includeNestedObservers: _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.ConvertingGift is { Observe: true } && f.WindowContext?.ParentFrameId == pendingDamageTrigger.Id) || HasAvailableBoundDamageObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetMountObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetObtainObserver(pendingDamageTrigger.Id) || HasDamageAppearanceDrawObserver(pendingDamageTrigger.Id) || HasCappedHandRefreshObserver(pendingDamageTrigger.Id) || HasPaidHandRepaymentObserver(pendingDamageTrigger.Id) || HasBoundRankBonusMovementObserver(pendingDamageTrigger.Id) || HasOwnedDamagePointJudgmentObserver(pendingDamageTrigger.Id) || HasDamageJudgmentSuitPaymentObserver(pendingDamageTrigger.Id) || HasAppliedDamageBenefitObserver(pendingDamageTrigger.Id) || HasFireTargetBenefitObserver(pendingDamageTrigger.Id) || HasNamedAcquisitionDamageObserver(pendingDamageTrigger.Id) || HasProvenanceClaimObserver(pendingDamageTrigger.Id) || HasEquipmentDonationDamageObserver(pendingDamageTrigger.Id) || HasPaidColorDamageClaimDamageObserver(pendingDamageTrigger.Id) || HasHalfHandPaidDamageObserver(pendingDamageTrigger.Id) || (HasDynamicDiscardDamageObserver(pendingDamageTrigger.Id) || HasSignedDamagePaymentObserver(pendingDamageTrigger.Id)) || HasPairBenefitDamageObserver(pendingDamageTrigger.Id) || HasEndingPairSlashDamageObserver(pendingDamageTrigger.Id) || HasActualDiscardRecoveryDamageObserver(pendingDamageTrigger.Id) || HasForeignContestAidDamageObserver(pendingDamageTrigger.Id) || HasPrepDiscardDamageObserver(pendingDamageTrigger.Id) || HasSlashBenefitDamageObserver(pendingDamageTrigger.Id) || HasTargetPenaltyDamageObserver(pendingDamageTrigger.Id) || HasCappedConversionBenefitObserver(pendingDamageTrigger.Id) || HasPlacedEquipmentBenefitDamageObserver(pendingDamageTrigger.Id) || HasRecipientContestDamageObserver(pendingDamageTrigger.Id));
++            var damageCursorTop = DamageCursorEffectiveTop(includeNestedObservers: _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.ConvertingGift is { Observe: true } && f.WindowContext?.ParentFrameId == pendingDamageTrigger.Id) || HasAvailableBoundDamageObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetMountObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetObtainObserver(pendingDamageTrigger.Id) || HasDamageAppearanceDrawObserver(pendingDamageTrigger.Id) || HasCappedHandRefreshObserver(pendingDamageTrigger.Id) || HasPaidHandRepaymentObserver(pendingDamageTrigger.Id) || HasBoundRankBonusMovementObserver(pendingDamageTrigger.Id) || HasOwnedDamagePointJudgmentObserver(pendingDamageTrigger.Id) || HasDamageJudgmentSuitPaymentObserver(pendingDamageTrigger.Id) || HasAppliedDamageBenefitObserver(pendingDamageTrigger.Id) || HasFireTargetBenefitObserver(pendingDamageTrigger.Id) || HasNamedAcquisitionDamageObserver(pendingDamageTrigger.Id) || HasProvenanceClaimObserver(pendingDamageTrigger.Id) || HasEquipmentDonationDamageObserver(pendingDamageTrigger.Id) || HasPaidColorDamageClaimDamageObserver(pendingDamageTrigger.Id) || HasHalfHandPaidDamageObserver(pendingDamageTrigger.Id) || (HasDynamicDiscardDamageObserver(pendingDamageTrigger.Id) || HasSignedDamagePaymentObserver(pendingDamageTrigger.Id)) || HasPairBenefitDamageObserver(pendingDamageTrigger.Id) || HasEndingPairSlashDamageObserver(pendingDamageTrigger.Id) || HasActualDiscardRecoveryDamageObserver(pendingDamageTrigger.Id) || HasForeignContestAidDamageObserver(pendingDamageTrigger.Id) || HasPrepDiscardDamageObserver(pendingDamageTrigger.Id) || HasSlashBenefitDamageObserver(pendingDamageTrigger.Id) || HasTargetPenaltyDamageObserver(pendingDamageTrigger.Id) || HasCappedConversionBenefitObserver(pendingDamageTrigger.Id) || HasPlacedEquipmentBenefitDamageObserver(pendingDamageTrigger.Id) || HasRecipientContestDamageObserver(pendingDamageTrigger.Id) || HasPrivateOfferDamageObserver(pendingDamageTrigger.Id));
+             var activeDamageProgram = damageCursorTop is ProgramSkillFrame programFrame &&
+                 programFrame.WindowContext is
+                 {
+@@
+                     } && damageWindowId == pendingDamageTrigger.Id);
+             var awaitingDamageProgramPrompt = coreDecision is { Kind: DecisionKind.ProgramTrigger } &&
+                 pendingDamageTrigger.CandidateIndex < pendingDamageTrigger.Candidates.Count;
+-            var expectedTop = (HasDynamicDiscardDamageObserver(pendingDamageTrigger.Id) || HasSignedDamagePaymentObserver(pendingDamageTrigger.Id)) || damageProgramDying
++            var expectedTop = HasPrivateOfferDamageObserver(pendingDamageTrigger.Id) || (HasDynamicDiscardDamageObserver(pendingDamageTrigger.Id) || HasSignedDamagePaymentObserver(pendingDamageTrigger.Id)) || damageProgramDying
+                 ? true
+                 : activeDamageProgram || activeDamageProgramPindian || activeDamageProgramJudgment
+                 ? true
+*** End Patch

@@ -1,0 +1,12 @@
+{
+  "requestedUrl": "https://www.sanguosha.com/hero/117",
+  "startedUtc": "2026-10-04T17:26:54.3292070Z",
+  "endedUtc": "2026-10-04T17:26:54.5461077Z",
+  "curlExitCode": 0,
+  "curlReported": "200|https://www.sanguosha.com/hero/117|26695",
+  "method": "GET",
+  "redirectsAllowed": false,
+  "retries": 0,
+  "bodySha256": "566d7f3c7a8c3c0f97ea43fb1a81c8a3f14919b7bdc96866c27ff03b8d0cc530",
+  "bodyBytes": 26695
+}

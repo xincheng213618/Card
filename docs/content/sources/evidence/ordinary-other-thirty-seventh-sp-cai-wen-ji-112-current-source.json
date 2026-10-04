@@ -1,0 +1,35 @@
+{
+  "gid": 112,
+  "name": "SP蔡文姬",
+  "currentPage": "https://www.sanguosha.com/hero/112",
+  "currentApi": "https://www.sanguosha.com/api/v1/hero/info?gid=112",
+  "identity": {
+    "faction": "魏",
+    "factionCode": "wei",
+    "baseHp": 3,
+    "apiInitialHp": 0,
+    "apiInitialHpPlaceholder": true,
+    "apiGenderFieldPresent": false,
+    "genderEngineeringInference": "Female",
+    "genderInferenceEvidence": "Current API biography says 女儿 and 才女; not an API gender value"
+  },
+  "skills": [
+    {
+      "name": "陈情",
+      "text": "每轮限一次，当一名角色进入濒死状态时，你可以令另一名其他角色摸四张牌，然后弃置四张牌，若弃置牌包含四种花色，其视为对处于濒死状态的角色使用一张【桃】。"
+    },
+    {
+      "name": "默识",
+      "text": "结束阶段，你可以将一张手牌当你出牌阶段内使用过的第一张基本牌或普通锦囊牌使用，然后你可以将一张手牌当你出牌阶段使用过的第二张基本牌或普通锦囊牌使用。"
+    }
+  ],
+  "fontRefs": [],
+  "fullCurrentMainText": true,
+  "fullImplementationSourceReady": true,
+  "advertisedCover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11200.png",
+  "httpRequests": 3,
+  "redirects": false,
+  "retries": 0,
+  "runtimeExecuted": false,
+  "implementationRegistered": false
+}

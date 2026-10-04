@@ -1,0 +1,16 @@
+{
+  "requestedUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11700.png",
+  "advertisedBy": "117-info.raw.json data.info[0].cover",
+  "startedUtc": "2026-10-04T17:28:15.6401368Z",
+  "endedUtc": "2026-10-04T17:28:15.8324675Z",
+  "curlExitCode": 0,
+  "curlReported": "200|https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11700.png|1075590",
+  "method": "GET",
+  "redirectsAllowed": false,
+  "retries": 0,
+  "bodySha256": "2309eb94fe32c6bffc1886a742ee9ca0857647e69e229dcc461242209dc5a7e2",
+  "bodyBytes": 1075590,
+  "pngSignature": "89504E470D0A1A0A",
+  "ihdrWidth": 750,
+  "ihdrHeight": 950
+}

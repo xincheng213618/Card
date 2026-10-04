@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:chenqing", "revision": 1, "triggers": [{
+      "id": "round-original-dying-suits", "window": "dyingEntering", "subject": "any",
+      "optional": true, "usageScope": "round", "usageLimit": 1,
+      "effects": [{ "op": "drawThenDiscardSuitsForDyingPeach", "target": "owner" }]
+    }] },
+    { "id": "ol:moshi", "revision": 1, "triggers": [{
+      "id": "own-ending-first-two-uses", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "own",
+      "optional": true,
+      "effects": [{ "op": "useOwnPlayHistoryAtEnding", "target": "owner" }]
+    }] }
+  ]
+}

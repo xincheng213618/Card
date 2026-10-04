@@ -1,0 +1,76 @@
+{
+  "baseHead": "f373ef47ff50f735bed91cf74a2bc0d2c622d2a7",
+  "scope": "Continue complete ordinary OL Other content; retain unresolved 116/117 exact derived bindings, implement source-ready candidates 113/111/112 if current details close.",
+  "executionBoundary": {
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "tests": false,
+    "game": false,
+    "nativeAi": false,
+    "benchmark": false,
+    "publish": false,
+    "push": false
+  },
+  "sourceCaptureAllowance": {
+    "totalHttpRequests": 17,
+    "requestsPerCandidate": 3,
+    "kinds": [
+      "advertised official detail page",
+      "advertised current hero info",
+      "advertised original cover"
+    ],
+    "redirectsAllowed": false,
+    "retries": 0,
+    "reuseCompletedRequests": true,
+    "initialRequestAllowance": 9,
+    "additionalNamedCurrentScriptCaptures": [
+      "https://www.sanguosha.com/assets/js/heroDetail.js?1",
+      "https://www.sanguosha.com/assets/js/commen.js"
+    ],
+    "additionalPrimaryCandidates": [
+      111,
+      112
+    ],
+    "noGuessedDerivedEndpointProbes": true
+  },
+  "protectedConcurrentPath": "src/CardGame.Core/GameEngine.PrepDiscardReceipts.cs",
+  "protectedRawSha256": "d94c540e827ba6d70ba44ca65b0a02c41f77f12c4572fc7fa209444e1e7a8194",
+  "cleanup": {
+    "status": "previous-automatic-approval-review-rejected",
+    "reason": "blocked by policy",
+    "retryOrBypassAllowed": false,
+    "reuseOwnedRoot": "C:/Users/17917/Desktop/Card/.artifacts/continuation-20261003-batch17",
+    "remainingOwnedBytecode": "C:/Users/17917/Desktop/Card/tools/__pycache__/sync_general_art.cpython-314.pyc"
+  },
+  "rawBaselineHashes": {
+    "src/CardGame.Core/Replay.cs": "83773c8192521c8202aa932201ff15efbed438212467508d95780ca83889f966",
+    "src/CardGame.Core/SkillPrograms.cs": "9286d3872a032b5624eddefb5d21fcdd98836a179222b3faf59c4c9c33f4a56d",
+    "src/CardGame.Core/Resolution.cs": "8800598239ca204c2d1d5fa726164b3e213f6bbf2c02431818c9ad5bf156d0a4",
+    "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs": "29b7f87162868444dadb3b6140616e3e2700e0b7dac24b42ed6e856f175517c0",
+    "docs/content/general-art-catalog.json": "329c74e11625ae5729e5bfe8ac7c4b422cbca5271070a1db9095ff3de2e6751b",
+    "tools/VerificationScopes.psd1": "5a47afb6667f46d4be636ae0209cd43d98ed392490f352da659b9fdb100b0b65",
+    "src/CardGame.Core/GameEngine.PrepDiscardReceipts.cs": "d94c540e827ba6d70ba44ca65b0a02c41f77f12c4572fc7fa209444e1e7a8194"
+  },
+  "workingTreeClean": true,
+  "initialCandidates": [
+    113,
+    116,
+    117
+  ],
+  "pendingExactDerivedBindings": {
+    "116": [
+      985,
+      34,
+      363
+    ],
+    "117": [
+      382,
+      61
+    ]
+  },
+  "continuedCompleteCandidateBackfill": [
+    111,
+    112
+  ]
+}

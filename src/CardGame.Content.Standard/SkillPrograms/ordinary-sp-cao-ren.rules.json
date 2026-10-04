@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:weikui",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "pay-hp-inspect-hand",
+          "minCards": 0, "maxCards": 0,
+          "minTargets": 1, "maxTargets": 1,
+          "targetKind": "otherLivingWithHand",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [{ "op": "payHpInspectHandThenDiscardOrSlash", "target": "owner" }]
+        }
+      ]
+    },
+    {
+      "id": "ol:lizhan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "draw-for-wounded-at-ending",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "effects": [
+            { "op": "selectTargets", "target": "owner", "targetKind": "anyWounded", "minimumTargets": 1, "maximumTargets": 8, "targetAiOrder": "supportDraw" },
+            { "op": "draw", "target": "selectedTargets", "amount": 1 }
+          ]
+        }
+      ]
+    }
+  ]
+}

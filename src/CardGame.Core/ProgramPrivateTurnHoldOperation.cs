@@ -1,9 +1,15 @@
 using System.Text.Json.Serialization;
 namespace CardGame.Core;
 
-public sealed record PrivateTurnHoldIdentity(long HoldId, string SkillId, string SkillInstanceId, string SourceId, int ExpiresTurnNumber);
+public sealed record PrivateTurnHoldIdentity(long HoldId, string SkillId, string SkillInstanceId, string SourceId, int ExpiresTurnNumber)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public DeferredPrivateOfferIdentity? DeferredOffer { get; init; }
+}
 public sealed record PrivateTurnHoldSnapshot(long HoldId, int OwnerSeat, string SkillId, string SkillInstanceId, string SourceId, int ExpiresTurnNumber, int Count,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<CardSnapshot>? Cards = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<CardSnapshot>? Cards = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public int? DeferredSourceSeat { get; init; }
+}
 public sealed record ProgramPrivateTurnHoldDraft(CardLocation Location, bool Paid);
 internal interface IPrivateTurnHoldProgramHost { SkillProgramStepOutcome HoldOwnerHandUntilTurnEnd(ProgramSkillFrame frame); }
 internal sealed class HoldOwnerHandUntilTurnEndDescriptor : ProgramOperationDescriptorBase

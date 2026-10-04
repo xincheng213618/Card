@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:bifa": { "name": "笔伐", "description": "结束阶段，你可以将一张手牌暗置于一名其他角色的武将牌上，其下回合开始时观看之并选择一项：1.交给你一张类型相同的手牌并获得此牌；2.移去此牌并失去1点体力。",
+      "triggerChoices": { "deposit-at-ending": "暗置一张手牌", "resolve-next-turn": "观看并结算暗置牌" } },
+    "ol:songci": { "name": "颂词", "description": "每名角色限一次，出牌阶段，你可以选择一项：1.令一名手牌数小于体力值的角色摸两张牌；2.令一名手牌数大于体力值的角色弃置两张牌。" }
+  }
+}

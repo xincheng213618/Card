@@ -162,13 +162,14 @@ public sealed partial class GameEngine
         var drawPhase = _resolutionStack.LastOrDefault() is DrawPhaseObligationFrame draw && draw.Id == instructionFrameId ? draw : null;
         var colorFireAttack = _resolutionStack.LastOrDefault() is CardUseFrame { ColorFireAttack.PaidCardId: not null } fire && fire.Id == instructionFrameId ? fire : null;
         var counterspellPayment = _resolutionStack.LastOrDefault() is NullificationWindowFrame { CounterspellPayment: not null } counter && counter.Id == instructionFrameId ? counter : null;
+        var historicalEnding = _resolutionStack.LastOrDefault() is CardUseFrame { EndingHistoricalUseReturn: not null, EndingHistoricalCostDrained: false } history && history.Id == instructionFrameId ? history : null;
         var roundPileAlcohol = _resolutionStack.LastOrDefault() is CardUseFrame { RoundPileAlcoholReturn: not null, RoundPileAlcoholCostDrained: false } wine && wine.Id == instructionFrameId ? wine : null;
-        bool Eligible(CardMovementBatchContext batch) => roundPileAlcohol is not null ? batch.ParentFrameId == roundPileAlcohol.Id && batch.AwaitingProgramFrameId is null : counterspellPayment is not null ? batch.ParentFrameId == counterspellPayment.Id && batch.AwaitingProgramFrameId is null : colorFireAttack is not null ? batch.ParentFrameId == colorFireAttack.Id && batch.AwaitingProgramFrameId is null : drawPhase is not null ? batch.ParentFrameId == drawPhase.Id || drawPhase.InheritedMovementBatchIds?.Contains(batch.Id) == true : factionRequestCost is not null ? batch.ParentFrameId == factionRequestCost.Id : equipmentRecast is not null ? batch.ParentFrameId == equipmentRecast.Id : recoveryReplacement is not null ? batch.ParentFrameId == recoveryReplacement.Id : declaration is not null ? batch.ParentFrameId == declaration.Id : awaitingFrame is null
+        bool Eligible(CardMovementBatchContext batch) => historicalEnding is not null ? batch.ParentFrameId == historicalEnding.Id && batch.AwaitingProgramFrameId is null : roundPileAlcohol is not null ? batch.ParentFrameId == roundPileAlcohol.Id && batch.AwaitingProgramFrameId is null : counterspellPayment is not null ? batch.ParentFrameId == counterspellPayment.Id && batch.AwaitingProgramFrameId is null : colorFireAttack is not null ? batch.ParentFrameId == colorFireAttack.Id && batch.AwaitingProgramFrameId is null : drawPhase is not null ? batch.ParentFrameId == drawPhase.Id || drawPhase.InheritedMovementBatchIds?.Contains(batch.Id) == true : factionRequestCost is not null ? batch.ParentFrameId == factionRequestCost.Id : equipmentRecast is not null ? batch.ParentFrameId == equipmentRecast.Id : recoveryReplacement is not null ? batch.ParentFrameId == recoveryReplacement.Id : declaration is not null ? batch.ParentFrameId == declaration.Id : awaitingFrame is null
             ? batch.AwaitingProgramFrameId is null
             : batch.AwaitingProgramFrameId == awaitingFrame.Id ||
               batch.AwaitingProgramFrameId is null && batch.ParentFrameId == awaitingFrame.Id;
         if (_pendingDecision is not null ||
-            (_resolutionStack.Count != 0 && awaitingFrame is null && declaration is null && recoveryReplacement is null && equipmentRecast is null && factionRequestCost is null && drawPhase is null && colorFireAttack is null && counterspellPayment is null && roundPileAlcohol is null) ||
+            (_resolutionStack.Count != 0 && awaitingFrame is null && declaration is null && recoveryReplacement is null && equipmentRecast is null && factionRequestCost is null && drawPhase is null && colorFireAttack is null && counterspellPayment is null && roundPileAlcohol is null && historicalEnding is null) ||
             _winner != Winner.None || _status == EngineStatus.Completed)
             return false;
 
@@ -189,6 +190,7 @@ public sealed partial class GameEngine
             if (drawPhase is not null) window = window with { ResumeDrawPhaseObligationFrameId = drawPhase.Id };
             if (colorFireAttack is not null) window = window with { ResumeColorFireAttackFrameId = colorFireAttack.Id };
             if (counterspellPayment is not null) window = window with { ResumeCounterspellPaymentFrameId = counterspellPayment.Id };
+            if (historicalEnding is not null) window = window with { ResumeHistoricalEndingUseFrameId = historicalEnding.Id };
             if (roundPileAlcohol is not null) window = window with { ResumeRoundPileAlcoholUseFrameId = roundPileAlcohol.Id };
             if (factionRequestCost is not null) window = window with { ResumeFactionRequestCostFrameId = factionRequestCost.Id, ResumeProgramFrameId = null };
             if (declaration is not null)
@@ -530,6 +532,12 @@ public sealed partial class GameEngine
                         frame.Batch.ParentFrameId != drawId && drawParent.InheritedMovementBatchIds?.Contains(frame.Batch.Id) != true)
                         throw new InvalidOperationException("An actual draw lost its exact gain movement return.");
                     AdvanceRuntimeFrame(drawId); return;
+                }
+                if (frame.ResumeHistoricalEndingUseFrameId is { } historyId)
+                {
+                    if (_resolutionStack.LastOrDefault() is not CardUseFrame { EndingHistoricalUseReturn: not null, EndingHistoricalCostDrained: false } historyParent || historyParent.Id != historyId || frame.Batch.ParentFrameId != historyId || frame.Batch.AwaitingProgramFrameId is not null)
+                        throw new InvalidOperationException("Historical Ending lost its exact one-Hand movement return.");
+                    ContinueHistoricalEndingPayment(historyId); return;
                 }
                 if (frame.ResumeRoundPileAlcoholUseFrameId is { } wineId)
                 {

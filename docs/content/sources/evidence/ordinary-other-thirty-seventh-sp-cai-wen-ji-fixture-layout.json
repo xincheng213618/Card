@@ -1,0 +1,135 @@
+{
+  "kind": "source-static-fixed-seed-layout",
+  "seed": 31,
+  "uintBits": 32,
+  "generator": "xorshift32 shifts 13,17,5; Next=max modulo",
+  "prefixShuffles": [
+    {
+      "purpose": "forced Lord role remainder",
+      "count": 3,
+      "draws": 2
+    },
+    {
+      "purpose": "interactive available general pool",
+      "count": 4,
+      "draws": 3
+    }
+  ],
+  "prefixState": 110515222,
+  "completeSetupShufflesDrawPile": true,
+  "deckShuffleCount": 96,
+  "finalState": 1985956776,
+  "drawPileTop": "last",
+  "initialHandSize": 4,
+  "drawPerTurn": 0,
+  "initialRecipeIndicesInActualDrawOrder": [
+    60,
+    23,
+    57,
+    71,
+    79,
+    39,
+    48,
+    85,
+    94,
+    73,
+    84,
+    65,
+    30,
+    88,
+    9,
+    12
+  ],
+  "ownerInitialRecipeIndices": [
+    60,
+    79,
+    94,
+    30
+  ],
+  "preparationRecipeIndices": [
+    55,
+    92,
+    24,
+    77,
+    75,
+    80,
+    28,
+    59,
+    2,
+    18,
+    93,
+    35,
+    31,
+    87,
+    37,
+    33,
+    34,
+    82,
+    38,
+    15
+  ],
+  "chenqingDrawRecipeIndices": [
+    22,
+    56,
+    26,
+    89
+  ],
+  "initialSeats": {
+    "0": [
+      60,
+      79,
+      94,
+      30
+    ],
+    "1": [
+      23,
+      39,
+      73,
+      88
+    ],
+    "2": [
+      57,
+      48,
+      84,
+      9
+    ],
+    "3": [
+      71,
+      85,
+      65,
+      12
+    ]
+  },
+  "fourSuitRecipient2AfterPrepareAndChenqing": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "allScenarioEffectiveSuits": "Heart",
+  "allScenarioRanks": 7,
+  "scenarioMapping": {
+    "fire": "owner first FireAttack, remaining owner Slash; peer initial DrawTwo; remaining Slash",
+    "duel": "owner first Duel, second Nullification, remaining DrawTwo; peer initial DrawTwo; remaining Nullification",
+    "fangtian": "owner first Fangtian Halberd, remaining owner Slash; peer initial DrawTwo; remaining Slash",
+    "next": "owner initial Slash; peer initial DrawTwo; remaining Slash"
+  },
+  "sourceFiles": [
+    {
+      "path": "src/CardGame.Core/DeterministicRandom.cs",
+      "sha256": "12afd0180f955db780b275c289a162a9a78029c4893a08ee2af321b259336215"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.cs",
+      "sha256": "e299b3c3a730cc0dbe34c0a42ab499802971bab31cc507efb1ee8f74140bcc79"
+    },
+    {
+      "path": "src/CardGame.Core/CardZones.cs",
+      "sha256": "20550b9aa67f565c42ff451528a4090344f3b1c4660964ffe435dcf456c5c3d7"
+    }
+  ],
+  "cSharpExecuted": false,
+  "gameExecuted": false,
+  "seedSearch": false,
+  "limitation": "Arithmetic translation and source mapping only; does not establish runtime fixture acceptance."
+}

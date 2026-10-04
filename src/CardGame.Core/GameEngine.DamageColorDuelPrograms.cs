@@ -29,6 +29,7 @@ public sealed partial class GameEngine
 
     private bool IsSelectedActorDuelUse(long id) => LifecycleCardUse(id) is {SelectedActorDuelOrigin:not null,CardId:0,CardKind:CardKind.Duel,PhysicalCardIds.Count:0};
     private Card GetTrickRepresentation(long frameId,int cardId,bool requireProcessing=false) =>
+        cardId==0 && LifecycleCardUse(frameId) is { DyingSuitsPeachReturn: { } dyingReturn } dyingUse && ValidDyingSuitsPeachUse(dyingUse,dyingReturn) ? new Card(0,CardKind.Peach,Suit.None,0) :
         cardId==0 && IsTieredRoundZeroUse(frameId) ? TieredRoundZeroRepresentation(frameId) :
         cardId==0 && IsIssuedZeroEntityDuel(frameId) ? new Card(0,CardKind.Duel,Suit.None,0) :
             _cardZones.CardsAt(requireProcessing ? CardLocation.Processing : _cardZones.GetLocation(cardId)).Single(c=>c.Id==cardId);

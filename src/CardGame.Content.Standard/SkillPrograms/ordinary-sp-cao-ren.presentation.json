@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:weikui": {
+      "name": "伪溃",
+      "description": "出牌阶段限一次，你可以失去1点体力并观看一名有手牌的其他角色的手牌，若其中没有【闪】，你弃置其中一张牌，否则你视为对其使用一张【杀】，且你本回合计算与其的距离视为1。",
+      "activationLabels": {
+        "pay-hp-inspect-hand": "伪溃 · 失去体力并观看手牌"
+      }
+    },
+    "ol:lizhan": {
+      "name": "励战",
+      "description": "结束阶段，你可以令任意名已受伤角色摸一张牌。",
+      "triggerChoices": {
+        "draw-for-wounded-at-ending": "令选定的已受伤角色各摸一张牌"
+      }
+    }
+  }
+}

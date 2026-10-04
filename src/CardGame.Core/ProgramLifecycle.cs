@@ -314,7 +314,8 @@ public sealed record ProgramPhaseSchedule(
 
 public enum ProgramLifecycleContinuation
 {
-    NormalTurnStart, CompleteDrawPhase, CompletePlayPhase, CompleteAfterNormalDraw,
+    ResumeAfterDeferredPrivateOffers = 7700,
+    NormalTurnStart = 0, CompleteDrawPhase, CompletePlayPhase, CompleteAfterNormalDraw,
     CompleteDiscardPhase, EndTurnAfterDiscardPhase, CompleteGameStarting,
     ResumeCardDeclaration = 1600,
     ResumeParentProgram = 500, ResumeDyingEntry = 660,
@@ -381,6 +382,8 @@ public sealed record ProgramLifecycleTriggerWindowFrame(
     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
     : ResolutionFrame(Id, ResolutionFrameKind.ProgramLifecycleTriggerWindow, Step)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public DeferredPrivateOfferDue? DeferredPrivateOffers { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? FrozenBaseDrawCount { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]

@@ -24,6 +24,7 @@ public sealed partial class GameEngine
     // responses and supplied faction cards, after their actual entity payment.
     private void RecordActualPlayPhaseUse(CardActionContext action)
     {
+        RecordOwnPlayEligibleUse(action);
         RecordFirstTurnCategoryUse(action);
         if (!TracksActualPlayPhaseCardUses || _phase != TurnPhase.Play || action.ActorSeat != _currentSeat) return;
         if (_actualPlayPhaseUseActions.Add(action.ActionId))

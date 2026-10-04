@@ -1,0 +1,80 @@
+{
+  "gid": 113,
+  "status": "current-full-source-ready",
+  "name": "陈琳",
+  "faction": "wei",
+  "hp": 3,
+  "initialHpApi": 0,
+  "generalId": "ol:chen-lin",
+  "fullTextComplete": true,
+  "placeholder": false,
+  "derivedBindingGaps": [],
+  "gender": {
+    "apiFieldPresent": false,
+    "provenance": "historical identity engineering inference",
+    "engineValue": "Male"
+  },
+  "skills": [
+    {
+      "text": "结束阶段，你可以将一张手牌暗置于一名其他角色的武将牌上，其下回合开始时观看之并选择一项：1.交给你一张类型相同的手牌并获得此牌；2.移去此牌并失去1点体力。",
+      "id": "ol:bifa",
+      "name": "笔伐"
+    },
+    {
+      "text": "每名角色限一次，出牌阶段，你可以选择一项：1.令一名手牌数小于体力值的角色摸两张牌；2.令一名手牌数大于体力值的角色弃置两张牌。",
+      "id": "ol:songci",
+      "name": "颂词"
+    }
+  ],
+  "captures": [
+    {
+      "url": "https://www.sanguosha.com/hero/113",
+      "method": "GET",
+      "startedUtc": "2026-10-04T17:26:06.7564932Z",
+      "finishedUtc": "2026-10-04T17:26:07.0229977Z",
+      "httpStatus": "200",
+      "curlExitCode": 0,
+      "redirectsFollowed": false,
+      "retries": 0,
+      "rawSha256": "d5a8cd57ec357f7243c2c4267f89d57aa5e643891fc930f191ace64c475e7e30",
+      "rawPath": "source/113-page.raw.html",
+      "headersPath": "source/113-page.headers.txt"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=113",
+      "method": "GET",
+      "advertisedBy": "source/113-page.raw.html lines 462-480: gid=113 and fetch literal",
+      "startedUtc": "2026-10-04T17:26:26.5538988Z",
+      "finishedUtc": "2026-10-04T17:26:26.7940475Z",
+      "httpStatus": "200",
+      "curlExitCode": 0,
+      "redirectsFollowed": false,
+      "retries": 0,
+      "rawSha256": "017de70afb9b9ac95282ef6e947c144632c55c68db3dd5dc1c531aef8e0f9e1a",
+      "rawPath": "source/113-info.raw.json",
+      "headersPath": "source/113-info.headers.txt"
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11300.png",
+      "method": "GET",
+      "advertisedBy": "source/113-info.raw.json data.info[0].cover",
+      "startedUtc": "2026-10-04T17:26:50.5025364Z",
+      "finishedUtc": "2026-10-04T17:26:50.6698526Z",
+      "httpStatus": "200",
+      "curlExitCode": 0,
+      "redirectsFollowed": false,
+      "retries": 0,
+      "rawSha256": "aa0ef39d08c715a112c3305aa3a9b1a2ec31d0c5bf2beae2e4e5f9987bc196a0",
+      "rawPath": "source/113-cover.original.png",
+      "headersPath": "source/113-cover.headers.txt",
+      "bytes": 1000931,
+      "pngSignature": true,
+      "width": 750,
+      "height": 950
+    }
+  ],
+  "faqVerified": false,
+  "httpRequests": 3,
+  "redirects": 0,
+  "retries": 0
+}

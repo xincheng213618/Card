@@ -1,0 +1,17 @@
+{
+  "key": "ol-chen-lin",
+  "characterName": "陈琳",
+  "defaultSkinId": "11300",
+  "skins": [
+    {
+      "id": "11300",
+      "name": "经典形象",
+      "sourcePage": "https://www.sanguosha.com/hero/113",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11300.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-chen-lin.png",
+      "sha256": "aa0ef39d08c715a112c3305aa3a9b1a2ec31d0c5bf2beae2e4e5f9987bc196a0",
+      "pixelWidth": 750,
+      "pixelHeight": 950
+    }
+  ]
+}

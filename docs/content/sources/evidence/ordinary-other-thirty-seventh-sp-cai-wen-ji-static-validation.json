@@ -1,0 +1,75 @@
+{
+  "kind": "static-source-only",
+  "authorBaseline": "f373ef47ff50f735bed91cf74a2bc0d2c622d2a7",
+  "oldNamedGitBaselineCount": 18,
+  "oldNormalizedDiffReconstructionCount": 18,
+  "newNamedFiles": 11,
+  "draftMethods": 8,
+  "jsonSyntaxFiles": 12,
+  "fixtureRawJsonSyntaxVariants": [
+    null,
+    "loseHp",
+    "damage"
+  ],
+  "sourceTextPresentationExact": true,
+  "pngOriginalByteCopy": true,
+  "pngSignatureIhdr": [
+    750,
+    950
+  ],
+  "fixedSeedLayout": "fixture-layout.json; source arithmetic only, not runtime acceptance",
+  "protectedPathNotChangedByDelivery": "src/CardGame.Core/GameEngine.PrepDiscardReceipts.cs",
+  "namedStaticFixes": [
+    "original living Dying producer/entry adjacency and full cursor/parent hashes",
+    "pure continuous paid subtree without ActiveDying recursion",
+    "original ProgramSkill HP-Dying checks while retaining old hidden OwnedDeathBenefit behavior",
+    "actual CardUse/Program/Judgment AttackHpLoss parent kinds",
+    "mature Slash continuation enum",
+    "ordinary judgment/replacement/finalized, random equipment, exact paid discarded delayed-card descendants",
+    "self target suit bans and material turn suit use bans",
+    "mature ordered multi-Slash/Fangtian ownership",
+    "BorrowedSword designated holder roles",
+    "Basic next-actual-use grant options and consumed fact",
+    "Ending-only permission and Play Slash/Alcohol quota semantics",
+    "FireAttack active tail one return and inactive multi-Duel skipped last target direct return",
+    "named authorized legal-choice AI hooks",
+    "collection ctor/init/with/JSON and committed discard projection",
+    "fixture classic mode and exact CompleteSetup fixed seed shuffle mapping"
+  ],
+  "execution": {
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "focusedTests": false,
+    "routineTests": false,
+    "fullTests": false,
+    "game": false,
+    "nativeAi": false,
+    "ui": false,
+    "benchmark": false,
+    "release": false,
+    "publish": false,
+    "commit": false,
+    "push": false,
+    "httpAfterCapture": false,
+    "generator": false
+  },
+  "testSeconds": null,
+  "unexecutedBoundaries": [
+    "Wansha/Peach prohibition",
+    "recovery prevention/redirection",
+    "paid source loss",
+    "ResetSkill/round expiry",
+    "Tuntian/discarded-delayed/random-equipment observer combinations",
+    "broader native/WPF"
+  ],
+  "helperAdoption": false,
+  "mainMutation": false,
+  "indexMutation": false,
+  "branchMutation": false,
+  "cleanup": {
+    "retry": false,
+    "stageRetained": "C:/Users/17917/Desktop/Card/.artifacts/continuation-20261003-batch17/batch37/sp-cai-wen-ji",
+    "reason": "Previously automatic approval review blocked cleanup; no deletion/move/wrapper retry. Deliverables and excluded source-only preparation helpers remain in owned ignored stage."
+  }
+}

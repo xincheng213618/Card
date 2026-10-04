@@ -1,7 +1,7 @@
 namespace CardGame.Core;
 
 public enum HpChangeKind { Loss, Recovery, Damage = 600, MaximumHp = 601 }
-public enum PostEventContinuation { Boundary, Program, CardUse, GroupRecovery, AwaitedProgramMovement, VirtualBasicCardUse, RecoveryReplacement = 2700, RecoveryProducer = 2701, RecoveryPaidCardUse = 2702, EquipmentRecast = 2703, FactionRequestCost = 2705, DrawPhaseObligation = 3800, ColorFireAttackPayment = 4400, CounterspellPayment = 4401 }
+public enum PostEventContinuation { Boundary, Program, CardUse, GroupRecovery, AwaitedProgramMovement, VirtualBasicCardUse, RecoveryReplacement = 2700, RecoveryProducer = 2701, RecoveryPaidCardUse = 2702, EquipmentRecast = 2703, FactionRequestCost = 2705, DrawPhaseObligation = 3800, ColorFireAttackPayment = 4400, CounterspellPayment = 4401, HistoricalEndingCardUse = 7901 }
 
 /// <summary>Actual committed HP delta. Damage and setting HP are separate rules operations.</summary>
 public sealed record HpChangeContext(

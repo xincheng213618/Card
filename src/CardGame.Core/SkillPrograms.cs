@@ -185,6 +185,7 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    DepositBoundPrivateCardOffer = 7700, ResolveDeferredPrivateCardOffer = 7701, ResolveGameTargetHandHpChoice = 7702,
     DiscardTargetHpCardsAndDamage = 7601,
     DiscardOwnedCardToAdjustCurrentDamage = 7100,
     DiscardHandOrUseEquipment = 7150, MoveFieldEquipment = 7151,
@@ -422,6 +423,7 @@ public enum SkillProgramEffectOp
     SelectEquipmentPairAndPayment = 5500, SelectDyingOwnedCard = 5501,
     DrawExtraAndArmHalfHandSupport = 6000, GiveHalfHandAndIssueTargetSupport = 6001,
     ExchangeHandsAndArmPhaseDebt = 6002, SelectFrozenHandExchangeDebtPayment = 6003, OfferHalfHandRecipientSupport = 6004,
+    DrawThenDiscardSuitsForDyingPeach = 7900, UseOwnPlayHistoryAtEnding = 7901,
     DrawEndingPairThenBlockRoundIfUnequal = 6700, RecastSelectedPhysicalSlash = 6701,
     ObtainOneFromEachSelectedTarget = 6300, GiveShownCardToLeastOriginalTarget = 6301,
     IssueFixedRecipientBenefit = 6302, SelectIssuedFixedRecipient = 6303,
@@ -442,7 +444,8 @@ public enum SkillProgramEffectOp
     DiscardDrawAndOfferUniqueHpPeer = 7200, GiveAllHandAndStartRecipientPindian = 7201, UsePindianWinnerSlash = 7202,
     DiscardSlashThenOtherCardAndUseDuel = 7320,
     DrawThenNullifyOwnMultiTargetTrick = 7300, RestrictDamageSourceHandCategory = 7301,
-    PlaceOwnedEquipmentThenResolveSlotBenefit = 7500
+    PlaceOwnedEquipmentThenResolveSlotBenefit = 7500,
+    PayHpInspectHandThenDiscardOrSlash = 7800
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets, HpPairHigher = 2000, HpPairLower = 2001 }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -1740,6 +1743,7 @@ public sealed class SkillProgramCatalog
                         $"usageGroup '{group.Key}' must use identical turn, phase and game limits");
             }
             EnsureUniqueIds(triggers.Select(item => item.Id), skillPath + ".triggers");
+            PrivateOfferComposition.ValidateBindings(skillPath, triggers);
             ValidateTriggerChoiceGroups(skillPath, triggers);
             foreach (var group in triggers.Where(t => t.NamedUsageGroup is not null).GroupBy(t => t.NamedUsageGroup!, StringComparer.Ordinal))
             {
@@ -1790,6 +1794,8 @@ public sealed class SkillProgramCatalog
                     activation.SourceZones.Any(z => z is not (CardZoneKind.Hand or CardZoneKind.Equipment)) ||
                     !activation.CardSuits.SequenceEqual([Suit.Diamond]) || activation.UsesPerPhase != 1 || activation.Effects.Count != 1)
                     Fail(skillPath + ".activations", "diamond delayed use requires one Diamond HE card, no initial targets, one operation and one use per Play phase");
+            if (triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.PayHpInspectHandThenDiscardOrSlash)))
+                Fail(skillPath + ".triggers", "HP hand inspection is a standalone activation operation");
             if (triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.DiscardSlashThenOtherCardAndUseDuel)))
                 Fail(skillPath + ".triggers", "conditional discard Duel is a standalone activation operation");
             if (triggers.Any(t => t.Effects.Any(e => e.Op == SkillProgramEffectOp.UseDiamondDelayedOrDiscard)))
@@ -2577,6 +2583,8 @@ public sealed class SkillProgramCatalog
              targetKind != SkillProgramTargetKind.OtherLivingInAttackRange || uses is not null || usesPerPhase is not null || usesPerGame is not null))
             Fail(path, "Variable target-HP discard damage requires one standalone zero-input, attack-range-target activation.");
         if (effects.Count == 0) Fail(path + ".effects", "must contain at least one effect");
+        PrivateOfferComposition.ValidateActivation(path, effects, minCards, maxCards, minTargets, maxTargets, targetKind,
+            uses, usesPerPhase, usesPerGame, node.TryGetProperty("continueAfterOwnerDeath", out var privateOfferDeath) && privateOfferDeath.GetBoolean());
         if (effects.Any(e => e.Op == SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund) && usesPerGame != 1)
             Fail(path, "a first-round refund requires usesPerGame:1");
         if (effects.Any(e => e.Op == SkillProgramEffectOp.SelectEquipmentPairAndPayment) &&
@@ -2723,6 +2731,7 @@ public sealed class SkillProgramCatalog
         ActualDiscardRecoveryComposition.ValidateActivation(path, activation);
         EquipmentDonationComposition.ValidateActivation(path, activation);
         ConditionalDiscardDuelComposition.Validate(path, activation);
+        InspectedHandSlashComposition.Validate(path, activation);
         RecipientContestComposition.Validate(path, effects, null, minCards, minTargets, targetKind, usesPerPhase);
         if (effects.Any(e => e.Op == SkillProgramEffectOp.GiveAllHandAndStartRecipientPindian) &&
             (maxCards != 0 || maxTargets != 1 || uses is not null || usesPerGame is not null ||
@@ -3564,7 +3573,9 @@ public sealed class SkillProgramCatalog
         if (effects.Any(e => e.NumberExpression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount) &&
             (window != SkillProgramTriggerWindow.PlayEnding || subject != SkillProgramTriggerSubject.Owner || turnOwnerScope != SkillProgramTurnOwnerScope.Own))
             Fail(path, "actual turn type-count draw requires an own Play-ending owner window");
+        PrivateOfferComposition.ValidateTrigger(path, effects, window, subject, turnOwnerScope, optional);
         HalfHandPhaseDebtTriggerContract.Validate(path, effects, subject, optional);
+        DyingSuitsAndEndingHistoryComposition.Validate(path, effects, window, subject, optional, usageScope, usageLimit, turnOwnerScope);
         OwnTrickAndHandCategoryComposition.Validate(path, effects, window, subject, optional);
         PaidTargetEndingComposition.Validate(path, effects, window, subject, turnOwnerScope, optional);
         GrantedEntityPhaseComposition.Validate(path, effects, window, subject, turnOwnerScope);

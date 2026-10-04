@@ -1,0 +1,48 @@
+{
+  "baselineHead": "f373ef47ff50f735bed91cf74a2bc0d2c622d2a7",
+  "registrationPath": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+  "registrationRawSha256": "29b7f87162868444dadb3b6140616e3e2700e0b7dac24b42ed6e856f175517c0",
+  "checkedExactNames": [
+    "大乔小乔",
+    "da-qiao-xiao-qiao",
+    "da_qiao_xiao_qiao",
+    "xingwu",
+    "luoyan",
+    "OrdinaryDaQiaoXiaoQiaoContent"
+  ],
+  "matchingRows": [],
+  "sameCharacterRegistered": false,
+  "classicOtherCharacters": [
+    {
+      "generalId": "classic:da-qiao",
+      "name": "大乔",
+      "primary": "classic:guose",
+      "additional": "classic:liuli",
+      "line": 1472
+    },
+    {
+      "generalId": "classic:xiao-qiao",
+      "name": "小乔",
+      "primary": "classic:hongyan",
+      "additional": "classic:tianxiang",
+      "line": 1565
+    }
+  ],
+  "classicDefinitionsNotExactCurrentGrantedFontEvidence": true,
+  "retainedOtherRow": {
+    "gid": 117,
+    "name": "大乔小乔",
+    "resource": "11700",
+    "extend": "其他",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "稀有",
+    "figure": "吴",
+    "figure_py": "wu",
+    "biography": "大乔，庐江皖县人，为乔公长女，孙策之妻，容貌国色流离。小乔为大乔之妹，周瑜之妻，资貌绝伦。两人合称“二乔”。",
+    "characteristic": "积累标记来获得防御，能够对男性角色造成大量伤害。没有牌时很脆弱。",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/117.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11700.png",
+    "realname": "大乔小乔 (其他)"
+  }
+}

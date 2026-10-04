@@ -1,0 +1,17 @@
+{
+  "key": "ol-sp-cao-ren",
+  "characterName": "SP曹仁",
+  "defaultSkinId": "11100",
+  "skins": [
+    {
+      "id": "11100",
+      "name": "经典形象",
+      "sourcePage": "https://www.sanguosha.com/hero/111",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11100.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-sp-cao-ren.png",
+      "sha256": "db6d75c0ce6429f69ac2070994eac3ed05a66a9cbee6b0f312952efffed3a1f8",
+      "pixelWidth": 750,
+      "pixelHeight": 950
+    }
+  ]
+}

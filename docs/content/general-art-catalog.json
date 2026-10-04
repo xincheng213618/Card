@@ -12050,6 +12050,57 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-chen-lin",
+      "characterName": "陈琳",
+      "defaultSkinId": "11300",
+      "skins": [
+        {
+          "id": "11300",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/113",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11300.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-chen-lin.png",
+          "sha256": "aa0ef39d08c715a112c3305aa3a9b1a2ec31d0c5bf2beae2e4e5f9987bc196a0",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-sp-cao-ren",
+      "characterName": "SP曹仁",
+      "defaultSkinId": "11100",
+      "skins": [
+        {
+          "id": "11100",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/111",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11100.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-sp-cao-ren.png",
+          "sha256": "db6d75c0ce6429f69ac2070994eac3ed05a66a9cbee6b0f312952efffed3a1f8",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-sp-cai-wen-ji",
+      "characterName": "SP蔡文姬",
+      "defaultSkinId": "11200",
+      "skins": [
+        {
+          "id": "11200",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/112",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11200.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-sp-cai-wen-ji.png",
+          "sha256": "3d22af699d71b94d2be7e48cdcaf2b7242b101723b7b2268ba1daa51513a4002",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,155 @@
+{
+  "kind": "source-gap-final-delivery",
+  "baselineHead": "f373ef47ff50f735bed91cf74a2bc0d2c622d2a7",
+  "identity": {
+    "gid": 117,
+    "name": "大乔小乔",
+    "generalId": null,
+    "module": null,
+    "portraitKey": null
+  },
+  "fullCurrentMainText": true,
+  "fullImplementationSourceReady": false,
+  "registered": false,
+  "implementationStarted": false,
+  "newFiles": [],
+  "oldFiles": [],
+  "supportFiles": [
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-da-qiao-xiao-qiao-117-page.raw.html",
+      "stagePath": "source/117-page.raw.html",
+      "sha256": "566d7f3c7a8c3c0f97ea43fb1a81c8a3f14919b7bdc96866c27ff03b8d0cc530"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-da-qiao-xiao-qiao-117-page.headers.txt",
+      "stagePath": "source/117-page.headers.txt",
+      "sha256": "c4eed1e2357db3228c941e168482c7f409d333b9ddb174f9e216ca334b660827"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-da-qiao-xiao-qiao-117-page.request.json",
+      "stagePath": "source/117-page.request.json",
+      "sha256": "88e10550db13fbbc3328ec7725ce0b730a0dd2ce2176d9240a1a85cb45356ddf"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-da-qiao-xiao-qiao-117-info.raw.json",
+      "stagePath": "source/117-info.raw.json",
+      "sha256": "4991b9bad467087480c1288c450e5c96b2150709f88242e04d15d8263ff20ebd"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-da-qiao-xiao-qiao-117-info.headers.txt",
+      "stagePath": "source/117-info.headers.txt",
+      "sha256": "dd07c68093c5a87fb805a99a92a51354a2207875ba45658643748ec5ff042349"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-da-qiao-xiao-qiao-117-info.request.json",
+      "stagePath": "source/117-info.request.json",
+      "sha256": "7cf6c9e3a04a7bcd4e7f04ded837a2dd98544cd0ba0542df8d87898d3667a5a2"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-da-qiao-xiao-qiao-117-cover.raw.png",
+      "stagePath": "source/117-cover.raw.png",
+      "sha256": "2309eb94fe32c6bffc1886a742ee9ca0857647e69e229dcc461242209dc5a7e2"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-da-qiao-xiao-qiao-117-cover.headers.txt",
+      "stagePath": "source/117-cover.headers.txt",
+      "sha256": "a8aa875f72a2554d0d21fbf543959a8ece0bca00b645b90dd361707d6312cae8"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-da-qiao-xiao-qiao-117-cover.request.json",
+      "stagePath": "source/117-cover.request.json",
+      "sha256": "7c7911672e4a708911371a7ca2196bb8f44b8e89870f2bdf07e54a5dabb34a87"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-da-qiao-xiao-qiao-117-current-source.json",
+      "stagePath": "117-current-source.json",
+      "sha256": "a2aa3346b05527ae285c80a9f5b01e524944c197b85148b7a53370070ad0e5cf"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-da-qiao-xiao-qiao-registration-proof.json",
+      "stagePath": "registration-proof.json",
+      "sha256": "d9ad4468771a9f1d2b1d2df1f1f234921cbd526afba8bccede50701e94703fc6"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-da-qiao-xiao-qiao-SOURCE-AND-CONTRACT.md",
+      "stagePath": "SOURCE-AND-CONTRACT.md",
+      "sha256": "2945e06307371a5fd0de4673242eef0f8f58184c46802161ef1bcf57e4a7b2c1"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-da-qiao-xiao-qiao-source-capture-manifest.json",
+      "stagePath": "source-capture-manifest.json",
+      "sha256": "6bb99ab611ba91a0f5931250064f3ece64e8872ab52cb3e492ec9c25d9d81e3b"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch37/derived-source/heroDetail.raw.js",
+      "sha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+      "adoptedByRootSeparately": true
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch37/derived-source/heroDetail.headers.txt",
+      "sha256": "c05b3b1bea339e632fd47e44802f1c8158b89743c2644dbdc4be9a550b2e3679",
+      "adoptedByRootSeparately": true
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch37/derived-source/heroDetail.request.json",
+      "sha256": "fcdb02b2b77f405a6304dd8b27fbbc9cb3f96170befc634863c32d7925465da3",
+      "adoptedByRootSeparately": true
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch37/derived-source/commen.raw.js",
+      "sha256": "95ca9d3ff648d5c4f045019b9d2252883db452b04db508f6ea5a735c2e725129",
+      "adoptedByRootSeparately": true
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch37/derived-source/commen.headers.txt",
+      "sha256": "aec08a051dd22c94c17b5c31a8be1a1f994313bd57b29bc7224510ca2b4449e0",
+      "adoptedByRootSeparately": true
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch37/derived-source/commen.request.json",
+      "sha256": "11d21577e5ee2e182a1fab7ce26cdd9cfa73fa07aca5b24b486246f7c6924aed",
+      "adoptedByRootSeparately": true
+    }
+  ],
+  "checks": [],
+  "routinePrefixes": [],
+  "artAdoption": null,
+  "sourceGap": {
+    "unexpandedSkillIds": [
+      382,
+      61
+    ],
+    "names": [
+      "天香",
+      "流离"
+    ],
+    "rootCurrentScriptRequests": 2,
+    "currentScriptsExposeResolver": false,
+    "boundedConclusion": "The actual captured current page/API and the two actual advertised scripts do not bind full derived definitions. This is not proof that no source exists elsewhere.",
+    "notImported": [
+      "classic:tianxiang",
+      "classic:liuli",
+      "boundary:tianxiang"
+    ]
+  },
+  "execution": {
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "tests": false,
+    "game": false,
+    "nativeAi": false,
+    "ui": false,
+    "benchmark": false,
+    "release": false,
+    "publish": false,
+    "push": false
+  },
+  "versionChanges": false,
+  "sourceRequestsPerformed": 3,
+  "rootScriptRequestsPerformedSeparately": 2,
+  "mainModified": false,
+  "priorFrozenBytesModified": false
+}

@@ -594,7 +594,7 @@ internal sealed partial class TurnCardUseEffectStore
 
     internal IReadOnlyList<long> ExpireTurn(int turnNumber, int turnSeat)
     {
-        var expired = ExpiringTargetCardQuotaAllowances(turnNumber, turnSeat).Concat(ExpiringHandCategoryRestrictions(turnNumber, turnSeat)).Concat(ExpiringBoundSlashBenefits(turnNumber, turnSeat)).Concat(ExpiringHandLimitKindExemptions(turnNumber, turnSeat)).Concat(ExpiringHandLimitExemptCards(turnNumber, turnSeat)).Concat(ExpiringRedSlashPolicies(turnNumber, turnSeat)).Concat(_targetAdjustments
+        var expired = ExpiringInspectedHandDistances(turnNumber, turnSeat).Concat(ExpiringTargetCardQuotaAllowances(turnNumber, turnSeat)).Concat(ExpiringHandCategoryRestrictions(turnNumber, turnSeat)).Concat(ExpiringBoundSlashBenefits(turnNumber, turnSeat)).Concat(ExpiringHandLimitKindExemptions(turnNumber, turnSeat)).Concat(ExpiringHandLimitExemptCards(turnNumber, turnSeat)).Concat(ExpiringRedSlashPolicies(turnNumber, turnSeat)).Concat(_targetAdjustments
             .Where(item => item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
             .Select(item => item.GrantSequence))
             .Concat(_prohibitions
@@ -637,6 +637,7 @@ internal sealed partial class TurnCardUseEffectStore
         ExpireBoundSlashBenefits(expiredSet);
         ExpireHandCategoryRestrictions(expiredSet);
         ExpireTargetCardQuotaAllowances(expiredSet);
+        ExpireInspectedHandDistances(expiredSet);
         return expired;
     }
 
@@ -671,7 +672,8 @@ internal sealed partial class TurnCardUseEffectStore
             .Concat(_handCategoryRestrictions.Select(item => item.GrantSequence))
             .Concat(_handLimitKindExemptions.Select(item => item.GrantSequence))
             .Concat(_slashSuitAllowances.Select(item => item.GrantSequence))
-            .Concat(_firstRoundGameUsageRefunds.Select(item => item.GrantSequence)).ToArray();
+            .Concat(_firstRoundGameUsageRefunds.Select(item => item.GrantSequence))
+            .Concat(_inspectedHandDistances.Select(item => item.GrantSequence)).ToArray();
         if (all.Length != all.Distinct().Count() || all.Any(sequence => sequence <= 0) ||
             all.Any(sequence => sequence > _grantSequence) ||
             _targetAdjustments.Any(item => !CardUseCategoryCatalog.IsValid(item.Categories) ||

@@ -1,0 +1,415 @@
+--- a/src/CardGame.Core/Resolution.cs
++++ b/src/CardGame.Core/Resolution.cs
+@@ -128,6 +128,8 @@
+     ResolutionFrameStep Step = ResolutionFrameStep.ResolvingEffect)
+     : ResolutionFrame(Id, ResolutionFrameKind.ProgramSkill, Step)
+ {
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public DyingSuitsReceipt? DyingSuits { get; init; }
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public EndingHistoricalUseReceipt? EndingHistoricalUses { get; init; }
+     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramCapturedEquipmentDrawReceipt? CapturedEquipmentDraw { get; init; }
+     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramActualDiscardRecoveryReceipt? ActualDiscardRecovery { get; init; }
+     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public DynamicDiscardDamageReceipt? DynamicDiscardDamage { get; init; }
+@@ -490,6 +492,16 @@
+ {
+     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+     public CardActionContext? Action { get; init; }
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public DyingSuitsPeachReturn? DyingSuitsPeachReturn { get; init; }
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public EndingHistoricalUseReturn? EndingHistoricalUseReturn { get; init; }
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public long EndingHistoricalCostBefore { get; init; }
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public long EndingHistoricalCostAfter { get; init; }
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public bool EndingHistoricalCostDrained { get; init; }
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public bool EndingHistoricalUsesFangtian { get; init; }
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public bool EndingHistoricalUsesProgramTargetCount { get; init; }
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public LegalActionKind? EndingHistoricalActionKind { get; init; }
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public int? EndingHistoricalTargetCardId { get; init; }
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public CardKind? EndingHistoricalRequiredCardKind { get; init; }
+     private readonly IReadOnlyList<ShownEntityUseBenefit>? _shownEntityBenefits;
+     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+     public IReadOnlyList<ShownEntityUseBenefit>? ShownEntityBenefits
+--- a/src/CardGame.Core/SkillPrograms.cs
++++ b/src/CardGame.Core/SkillPrograms.cs
+@@ -420,6 +420,7 @@
+     SelectEquipmentPairAndPayment = 5500, SelectDyingOwnedCard = 5501,
+     DrawExtraAndArmHalfHandSupport = 6000, GiveHalfHandAndIssueTargetSupport = 6001,
+     ExchangeHandsAndArmPhaseDebt = 6002, SelectFrozenHandExchangeDebtPayment = 6003, OfferHalfHandRecipientSupport = 6004,
++    DrawThenDiscardSuitsForDyingPeach = 7900, UseOwnPlayHistoryAtEnding = 7901,
+     DrawEndingPairThenBlockRoundIfUnequal = 6700, RecastSelectedPhysicalSlash = 6701,
+     ObtainOneFromEachSelectedTarget = 6300, GiveShownCardToLeastOriginalTarget = 6301,
+     IssueFixedRecipientBenefit = 6302, SelectIssuedFixedRecipient = 6303,
+@@ -3552,6 +3553,7 @@
+             (window != SkillProgramTriggerWindow.PlayEnding || subject != SkillProgramTriggerSubject.Owner || turnOwnerScope != SkillProgramTurnOwnerScope.Own))
+             Fail(path, "actual turn type-count draw requires an own Play-ending owner window");
+         HalfHandPhaseDebtTriggerContract.Validate(path, effects, subject, optional);
++        DyingSuitsAndEndingHistoryComposition.Validate(path, effects, window, subject, optional, usageScope, usageLimit, turnOwnerScope);
+         OwnTrickAndHandCategoryComposition.Validate(path, effects, window, subject, optional);
+         PaidTargetEndingComposition.Validate(path, effects, window, subject, turnOwnerScope, optional);
+         GrantedEntityPhaseComposition.Validate(path, effects, window, subject, turnOwnerScope);
+--- a/src/CardGame.Core/GameEngine.Runtime.cs
++++ b/src/CardGame.Core/GameEngine.Runtime.cs
+@@ -30,6 +30,7 @@
+         {
+             case NullificationWindowFrame { CounterspellPayment: not null }: ContinuePolicyCounterspellPayment(frameId); break;
+             case CardUseFrame { ColorFireAttack.PaidCardId: not null }: ContinueColorFireAttackPayment(frameId); break;
++            case CardUseFrame { EndingHistoricalUseReturn: not null, EndingHistoricalCostDrained: false }: ContinueHistoricalEndingPayment(frameId); break;
+             case CardUseFrame { RoundPileAlcoholReturn: not null, RoundPileAlcoholCostDrained: false }: ContinueRoundPileAlcoholUse(frameId); break;
+             case CardEffectBeforeApplyFrame: ContinueCardEffectBeforeApply(); break;
+             case CardDeclarationFrame: ContinueCardDeclaration(frameId); break;
+@@ -37,6 +38,7 @@
+             case ProgramSkillFrame:
+                 if (ResumeFireTargetBenefit(frameId) || ResumeNamedCardAcquisition(frameId)) return;
+                 if (ResumeUniqueHpPeer(frameId) || ResumeRecipientContest(frameId)) return;
++                if (ResumeDyingSuits(frameId) || ResumeEndingHistoricalUses(frameId)) return;
+                 if (ResumeCappedConversionBenefit(frameId)) return;
+                 if (ResumeEndingPairOrSlashRecast(frameId)) return;
+                 if (ResumeCapturedEquipmentAndDraw(frameId) || ResumeActualDiscardRecovery(frameId)) return;
+@@ -356,6 +358,7 @@
+         }
+ 
+ 
++        if (TryAdvanceDyingSuitsSubtree()) return;
+         if (TryAdvanceOwnedDeathBenefitSubtree()) return;
+         if (TryAdvanceDynamicDiscardDamageSubtree()) return;
+         if (TryAdvanceSignedDamagePaymentSubtree()) return;
+@@ -367,7 +370,7 @@
+             paidContext.OwnerSeat == paidDyingProgram.OwnerSeat &&
+             (paidContext.Window == SkillProgramTriggerWindow.DyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.ResponderSeat ||
+              paidContext.Window == SkillProgramTriggerWindow.SelfDyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.VictimSeat) &&
+-            (IsPlacedEquipmentBenefitProgramDying() || IsFireTargetBenefitProgramDying() || IsNamedAcquisitionProgramDying() || IsDynamicDiscardDamageProgramDying() || IsConditionalDiscardDuelProgramDying() || IsRecipientContestProgramDying() || IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsOwnTrickDrawProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsOwnedDeathBenefitProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying()))
++            (IsPlacedEquipmentBenefitProgramDying() || IsFireTargetBenefitProgramDying() || IsNamedAcquisitionProgramDying() || IsDynamicDiscardDamageProgramDying() || IsConditionalDiscardDuelProgramDying() || IsRecipientContestProgramDying() || IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsOwnTrickDrawProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsOwnedDeathBenefitProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying() || IsDyingSuitsProgramDying()))
+         {
+             AdvanceRuntimeProgram(paidDyingProgram.Id);
+             AdvanceRulesAndPublishState();
+@@ -771,6 +774,7 @@
+         if (ReturnPlacedEquipmentMovement(frame)) return;
+         if (ReturnRecipientContestMovement(frame)) return;
+         if (ReturnCappedConversionBenefitMovement(frame)) return;
++        if (ReturnDyingSuitsMovement(frame)) return;
+         if (ReturnCapturedEquipmentOrDiscardMovement(frame)) return;
+         if (ReturnDynamicDiscardDamageMovement(frame)) return;
+         if (ReturnSignedDamageMovement(frame)) return;
+--- a/src/CardGame.Core/GameEngine.ProgramLifecycle.cs
++++ b/src/CardGame.Core/GameEngine.ProgramLifecycle.cs
+@@ -1839,6 +1839,7 @@
+         if (trigger is null || trigger.Window != context.Window || !CanPayProgramMarkerCost(owner, trigger.MarkerCost))
+             return false;
+         if (!CanRunTurnDrawDebtPayment(candidate, trigger, context) || !CanRunSourceFactionPrevention(candidate, trigger, context)) return false;
++        if (!CanRunDyingSuitsAndEndingHistory(candidate, trigger, context)) return false;
+         if (!CanRunDyingOwnedCard(candidate, trigger, context)) return false;
+         if (!CanRunFireTargetBenefit(candidate, trigger, context)) return false;
+         if (!CanRunPaidColorDamageClaim(candidate, trigger, context)) return false;
+@@ -3154,6 +3155,8 @@
+         if (selected.Parameters.GetValueOrDefault("program-action") == "named-turn-flow") { ResolveNamedTurnFlowChoice(selected); return; }
+         if (selected.Parameters.GetValueOrDefault("program-action") == "alternating-suit-top") { ResolveAlternatingSuitTopChoice(selected); return; }
+         if (selected.Parameters.GetValueOrDefault("program-action") == "equipment-pair-payment") { ResolveEquipmentPairPaymentChoice(selected); return; }
++        if (selected.Parameters.GetValueOrDefault("program-action") == "dying-suits") { ResolveDyingSuitsChoice(selected); return; }
++        if (selected.Parameters.GetValueOrDefault("program-action") == "historical-ending") { ResolveHistoricalEndingChoice(selected); return; }
+         if (selected.Parameters.GetValueOrDefault("program-action") == "dying-owned-card") { ResolveDyingOwnedCardChoice(selected); return; }
+         if (selected.Parameters.GetValueOrDefault("program-action") == "sequential-discard") { ResolveSequentialDiscardChoice(selected); return; }
+         if (selected.Parameters.GetValueOrDefault("program-action") == "half-hand-support") { ResolveHalfHandSupportChoice(selected); return; }
+@@ -4191,6 +4194,8 @@
+                     .OrderBy(choice => choice.Parameters.GetValueOrDefault("card-kind") == nameof(CardKind.DrawTwo) ? 0 : 1)
+                     .ThenBy(choice => choice.Id.Value, StringComparer.Ordinal)
+                     .First(),
++                SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach => SelectAiDyingSuits(decision, frame),
++                SkillProgramEffectOp.UseOwnPlayHistoryAtEnding => SelectAiHistoricalEndingUse(decision, frame),
+                 _ => throw new InvalidOperationException(
+                     $"The AI does not support suspended program instruction '{paused.Op}'.")
+             };
+--- a/src/CardGame.Core/GameEngine.SkillPrograms.cs
++++ b/src/CardGame.Core/GameEngine.SkillPrograms.cs
+@@ -612,6 +612,7 @@
+             !AllowsTargetPenaltyNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+             !AllowsActualEquipmentOrDiscardNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+             !AllowsOwnedDeathBenefitNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
++            !AllowsDyingSuitsNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) &&
+             !AllowsPlacedEquipmentBenefitNestedDamage(frame, targetSeat, amount, sourceReference, nature, sourceLess) || ActiveDying is not null ||
+             _resolutionStack.LastOrDefault() is not ProgramSkillFrame current || current.Id != frame.Id ||
+             amount <= 0 || !IsValidPlayerSeat(targetSeat) || !_players[targetSeat].IsAlive)
+@@ -859,7 +860,7 @@
+         AssertTieredRoundConversionUses();
+         AssertTieredRoundResponseUses();
+         foreach (var use in _resolutionStack.OfType<CardUseFrame>())
+-        { AssertRoundPileAlcoholUse(use); AssertCurrentSlashFirePolicy(use); AssertComparedBlackSlashReceipt(use); }
++        { AssertHistoricalEndingUse(use); AssertRoundPileAlcoholUse(use); AssertCurrentSlashFirePolicy(use); AssertComparedBlackSlashReceipt(use); }
+         var frames = _resolutionStack.OfType<ProgramSkillFrame>().ToArray();
+         foreach (var frame in frames)
+         {
+@@ -889,6 +890,7 @@
+             AssertTurnDrawDebtReceipts(frame, plan.Instructions);
+             AssertSourceFactionPrevention(frame);
+             AssertEquipmentPairPayment(frame);
++            AssertDyingSuits(frame); AssertEndingHistoricalUses(frame);
+             AssertDyingOwnedCardReceipt(frame);
+             AssertPairBenefitState(frame);
+             AssertRecipientContestPrograms(frame);
+@@ -1046,7 +1048,7 @@
+                     !(paidEffect?.Op == SkillProgramEffectOp.ObtainDamageTargetCardAndResolveCategory && frame.DamageTargetObtain is not null && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
+                     !(paidEffect?.Op == SkillProgramEffectOp.DiscardDamageTargetAndClaimMount && frame.DamageTargetMount is { Receipt: not null } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
+                     !awaitsSuitPlacement && !awaitsCappedHandRefresh && !awaitsDeclaredDeck && !awaitsShownGift && !awaitsJudgmentClaim && !awaitsRepeatedJudgment && !awaitsOwnedMovement &&
+-                    !IsFireTargetBenefitMovement(frame, paidEffect, pendingMovement) && !IsNamedCardAcquisitionMovement(frame, paidEffect, pendingMovement) && !IsCappedConversionAwaitedMovement(frame, pendingMovement) && !IsForeignContestOrAidMovement(frame, paidEffect, pendingMovement) && !IsPlacedEquipmentBenefitMovement(frame, paidEffect, pendingMovement) && !IsDynamicDiscardDamageMovement(frame, paidEffect, pendingMovement) && !IsConditionalDuelAwaitedMovement(frame, paidEffect, pendingMovement) && !IsRecipientContestMovement(frame, paidEffect, pendingMovement) && !IsPrepDiscardMovement(frame, paidEffect, pendingMovement) && !IsSlashTargetBenefitMovement(frame, paidEffect, pendingMovement) && !IsTargetPenaltyMovement(frame, paidEffect, pendingMovement) && !IsActualEquipmentOrDiscardMovement(frame, paidEffect, pendingMovement) && !IsPaidColorDamageClaimMovement(frame, paidEffect, pendingMovement) && !IsEquipmentDonationMovement(frame, paidEffect, pendingMovement) && !IsHalfHandPhaseMovement(frame, paidEffect, pendingMovement) && !IsPairBenefitMovement(frame, paidEffect, pendingMovement) && !IsEndingPairMovement(frame, paidEffect, pendingMovement) && !IsExtraDrawDebtMovement(frame, paidEffect, pendingMovement) && !IsOwnTrickDrawMovement(frame, paidEffect, pendingMovement) && !IsPreventionDrawMovement(frame, paidEffect, pendingMovement) && !IsDamageJudgmentSuitPaymentMovement(frame, paidEffect, pendingMovement) && !awaitsExchangedMovement && !(paidEffect?.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.DeferredHandAlignmentResolution is { } deferredAlignment && pendingMovement.SubjectSeat == deferredAlignment.TargetSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseRandomDeckEquipment && frame.SelectedTargetSeats is [var equipmentUser] && pendingMovement.SubjectSeat == equipmentUser && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
++                    !IsDyingSuitsMovement(frame, paidEffect, pendingMovement) && !IsFireTargetBenefitMovement(frame, paidEffect, pendingMovement) && !IsNamedCardAcquisitionMovement(frame, paidEffect, pendingMovement) && !IsCappedConversionAwaitedMovement(frame, pendingMovement) && !IsForeignContestOrAidMovement(frame, paidEffect, pendingMovement) && !IsPlacedEquipmentBenefitMovement(frame, paidEffect, pendingMovement) && !IsDynamicDiscardDamageMovement(frame, paidEffect, pendingMovement) && !IsConditionalDuelAwaitedMovement(frame, paidEffect, pendingMovement) && !IsRecipientContestMovement(frame, paidEffect, pendingMovement) && !IsPrepDiscardMovement(frame, paidEffect, pendingMovement) && !IsSlashTargetBenefitMovement(frame, paidEffect, pendingMovement) && !IsTargetPenaltyMovement(frame, paidEffect, pendingMovement) && !IsActualEquipmentOrDiscardMovement(frame, paidEffect, pendingMovement) && !IsPaidColorDamageClaimMovement(frame, paidEffect, pendingMovement) && !IsEquipmentDonationMovement(frame, paidEffect, pendingMovement) && !IsHalfHandPhaseMovement(frame, paidEffect, pendingMovement) && !IsPairBenefitMovement(frame, paidEffect, pendingMovement) && !IsEndingPairMovement(frame, paidEffect, pendingMovement) && !IsExtraDrawDebtMovement(frame, paidEffect, pendingMovement) && !IsOwnTrickDrawMovement(frame, paidEffect, pendingMovement) && !IsPreventionDrawMovement(frame, paidEffect, pendingMovement) && !IsDamageJudgmentSuitPaymentMovement(frame, paidEffect, pendingMovement) && !awaitsExchangedMovement && !(paidEffect?.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.DeferredHandAlignmentResolution is { } deferredAlignment && pendingMovement.SubjectSeat == deferredAlignment.TargetSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.UseRandomDeckEquipment && frame.SelectedTargetSeats is [var equipmentUser] && pendingMovement.SubjectSeat == equipmentUser && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op is SkillProgramEffectOp.DiscardSelectedParticipantCards or SkillProgramEffectOp.OfferBoundCardsForDamagePrevention && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) && !(paidEffect?.Op == SkillProgramEffectOp.TakeSelectedTargetCards && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
+                     !(paidEffect is { Op: SkillProgramEffectOp.MoveBoundCards, AwaitMovementTriggers: true } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
+                     !(paidEffect?.Op == SkillProgramEffectOp.ObtainBoundCardsAndArmNextRevealBonus &&
+                         pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.BeforeCount == 0 && pendingMovement.CoverageResultBind is null) &&
+@@ -1281,7 +1283,8 @@
+                 throw new InvalidOperationException("A scoped movement window lost its waiting ancestor.");
+         }
+ 
+-        if (ActiveDying is { ResumesProgramSkill: true } dying)
++        foreach (var dying in _resolutionStack.OfType<DyingFrame>().Where(dying => dying.ResumesProgramSkill &&
++                     (ActiveDying?.FrameId == dying.Id || IsOriginalDyingSuspendedByDyingSuits(dying))))
+         {
+             var parentIndex = _resolutionStack.FindLastIndex(item => item is ProgramSkillFrame program &&
+                 program.Id == dying.ParentFrameId);
+--- a/src/CardGame.Core/SkillProgramDependencies.cs
++++ b/src/CardGame.Core/SkillProgramDependencies.cs
+@@ -42,7 +42,7 @@
+         _windows = triggers.Select(trigger => trigger.Window).ToFrozenSet();
+         UsesTieredRoundConversions = programs.Any(program => program.ViewAs.Any(rule => rule.TieredRoundConversion is not null));
+         UsesDynamicRoundUsage = triggers.Any(trigger => trigger.DynamicUsageLimit is not null);
+-        UsesRoundTracking = UsesTieredRoundConversions || UsesDynamicRoundUsage || HasActivationOperation(SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund) || HasTriggerOperation(SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol) || HasTriggerOperation(SkillProgramEffectOp.DrawEndingPairThenBlockRoundIfUnequal);
++        UsesRoundTracking = HasTriggerOperation(SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach) || UsesTieredRoundConversions || UsesDynamicRoundUsage || HasActivationOperation(SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund) || HasTriggerOperation(SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol) || HasTriggerOperation(SkillProgramEffectOp.DrawEndingPairThenBlockRoundIfUnequal);
+         _maximumCardPolicyKind = programs.SelectMany(program => program.CardPolicies)
+             .Select(policy => (int?)policy.Kind).Max();
+         var finalized = triggers.Where(trigger => trigger.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized).ToArray();
+--- a/src/CardGame.Core/GameEngine.ActualPlayPhaseCardUses.cs
++++ b/src/CardGame.Core/GameEngine.ActualPlayPhaseCardUses.cs
+@@ -24,6 +24,7 @@
+     // responses and supplied faction cards, after their actual entity payment.
+     private void RecordActualPlayPhaseUse(CardActionContext action)
+     {
++        RecordOwnPlayEligibleUse(action);
+         RecordFirstTurnCategoryUse(action);
+         if (!TracksActualPlayPhaseCardUses || _phase != TurnPhase.Play || action.ActorSeat != _currentSeat) return;
+         if (_actualPlayPhaseUseActions.Add(action.ActionId))
+--- a/src/CardGame.Core/GameEngine.CardUseLifecycle.cs
++++ b/src/CardGame.Core/GameEngine.CardUseLifecycle.cs
+@@ -112,6 +112,7 @@
+     {
+         if (TryBeginFinalizedSimpleCardPrograms(frameId, continuation)) return;
+         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == frameId);
++        if (ContinueDyingSuitsPeach(frameId, continuation)) return;
+         if (ContinueTieredRoundZeroSimpleUse(frameId, continuation)) return;
+         if (ContinueVirtualBasicEffect(frameId, continuation)) return;
+         var card = _cardZones.CardsAt(_cardZones.GetLocation(continuation.CardId)).Single(item => item.Id == continuation.CardId);
+--- a/src/CardGame.Core/GameEngine.CardActions.cs
++++ b/src/CardGame.Core/GameEngine.CardActions.cs
+@@ -104,7 +104,7 @@
+             conversionChain.AddRange(additionalConversions);
+         }
+         ConsumeProgramViewAsUsage(conversionChain);
+-        var trackAppearance = _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) || HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard) || TracksPaidColorUseAppearance(actorSeat, effectiveKind, conversionChain) || HasSameTypeActualUseAid && IsSameTypeAidEffectiveCard(effectiveKind) || HasComparedBlackSlashPolicies && IsSlashCard(effectiveKind);
++        var trackAppearance = TracksOwnPlayHistory || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) || HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard) || TracksPaidColorUseAppearance(actorSeat, effectiveKind, conversionChain) || HasSameTypeActualUseAid && IsSameTypeAidEffectiveCard(effectiveKind) || HasComparedBlackSlashPolicies && IsSlashCard(effectiveKind);
+         return CaptureFactionAction(new CardActionContext(++_cardActionSequence,
+             _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
+             CardActionType.Use, actorSeat, provider, provider == actorSeat ? null : actorSeat,
+--- a/src/CardGame.Core/GameEngine.DamageColorDuelPrograms.cs
++++ b/src/CardGame.Core/GameEngine.DamageColorDuelPrograms.cs
+@@ -29,6 +29,7 @@
+ 
+     private bool IsSelectedActorDuelUse(long id) => LifecycleCardUse(id) is {SelectedActorDuelOrigin:not null,CardId:0,CardKind:CardKind.Duel,PhysicalCardIds.Count:0};
+     private Card GetTrickRepresentation(long frameId,int cardId,bool requireProcessing=false) =>
++        cardId==0 && LifecycleCardUse(frameId) is { DyingSuitsPeachReturn: { } dyingReturn } dyingUse && ValidDyingSuitsPeachUse(dyingUse,dyingReturn) ? new Card(0,CardKind.Peach,Suit.None,0) :
+         cardId==0 && IsTieredRoundZeroUse(frameId) ? TieredRoundZeroRepresentation(frameId) :
+         cardId==0 && IsIssuedZeroEntityDuel(frameId) ? new Card(0,CardKind.Duel,Suit.None,0) :
+             _cardZones.CardsAt(requireProcessing ? CardLocation.Processing : _cardZones.GetLocation(cardId)).Single(c=>c.Id==cardId);
+--- a/src/CardGame.Core/GameEngine.CardAttackState.cs
++++ b/src/CardGame.Core/GameEngine.CardAttackState.cs
+@@ -38,7 +38,7 @@
+         long? ProgramFrameId, int? DelayedTurnSeat,
+         bool RequestedSlashChild = false, bool DamageWasApplied = false, int FinalTargetSeat = 0, ProgramDamageTargetDuelOrigin? DamageTargetDuelReturn = null, ProgramDualColorDuelOrigin? DualColorDuelReturn = null,
+         SharedSlashBenefitReturn? SharedSlashBenefit = null, bool SharedSlashCausedDamage = false,
+-        ForeignTurnContestSlashReturn? ForeignTurnContestSlashReturn = null, PindianWinnerSlashReturn? PindianWinnerSlashReturn = null, ConditionalDiscardDuelOrigin? ConditionalDiscardDuelReturn = null);
++        ForeignTurnContestSlashReturn? ForeignTurnContestSlashReturn = null, PindianWinnerSlashReturn? PindianWinnerSlashReturn = null, ConditionalDiscardDuelOrigin? ConditionalDiscardDuelReturn = null, EndingHistoricalUseReturn? EndingHistoricalUseReturn = null);
+     private AttackCompletionReceipt CaptureAttackCompletion(CardAttackHandle attack) =>
+         new(attack.ResolutionId, attack.IsDelayedJudgmentDamage,
+             attack.ProgramSkillFrameId ?? attack.ProgramSkillCardUseFrameId ?? NextActualUseAdjustedSlashParent(attack) ?? HpLossMaterialSlashParent(attack),
+@@ -51,7 +51,8 @@
+             LifecycleCardUse(attack.ResolutionId)?.SharedSlashBenefit is not null && attack.CardUseCausedDamage,
+             LifecycleCardUse(attack.ResolutionId)?.ForeignTurnContestSlashReturn,
+             LifecycleCardUse(attack.ResolutionId)?.PindianWinnerSlashReturn,
+-            LifecycleCardUse(attack.ResolutionId)?.ConditionalDiscardDuelOrigin);
++            LifecycleCardUse(attack.ResolutionId)?.ConditionalDiscardDuelOrigin,
++            LifecycleCardUse(attack.ResolutionId)?.EndingHistoricalUseReturn);
+     private Card ReadCardAppearance(CardAppearanceReference appearance) => GetAttackCard(appearance.Id) with
+         { Kind = appearance.Kind, Suit = appearance.Suit, Rank = appearance.Rank };
+     private CardResolutionContinuations GetCardContinuations(long id) =>
+--- a/src/CardGame.Core/HpChangePrograms.cs
++++ b/src/CardGame.Core/HpChangePrograms.cs
+@@ -1,7 +1,7 @@
+ namespace CardGame.Core;
+ 
+ public enum HpChangeKind { Loss, Recovery, Damage = 600, MaximumHp = 601 }
+-public enum PostEventContinuation { Boundary, Program, CardUse, GroupRecovery, AwaitedProgramMovement, VirtualBasicCardUse, RecoveryReplacement = 2700, RecoveryProducer = 2701, RecoveryPaidCardUse = 2702, EquipmentRecast = 2703, FactionRequestCost = 2705, DrawPhaseObligation = 3800, ColorFireAttackPayment = 4400, CounterspellPayment = 4401 }
++public enum PostEventContinuation { Boundary, Program, CardUse, GroupRecovery, AwaitedProgramMovement, VirtualBasicCardUse, RecoveryReplacement = 2700, RecoveryProducer = 2701, RecoveryPaidCardUse = 2702, EquipmentRecast = 2703, FactionRequestCost = 2705, DrawPhaseObligation = 3800, ColorFireAttackPayment = 4400, CounterspellPayment = 4401, HistoricalEndingCardUse = 7901 }
+ 
+ /// <summary>Actual committed HP delta. Damage and setting HP are separate rules operations.</summary>
+ public sealed record HpChangeContext(
+--- a/src/CardGame.Core/GameEngine.HpChangePrograms.cs
++++ b/src/CardGame.Core/GameEngine.HpChangePrograms.cs
+@@ -113,6 +113,9 @@
+                     case PostEventContinuation.DrawPhaseObligation:
+                         AdvanceRuntimeFrame(frame.ResumeFrameId!.Value);
+                         break;
++                    case PostEventContinuation.HistoricalEndingCardUse:
++                        ContinueHistoricalEndingPayment(frame.ResumeFrameId!.Value);
++                        break;
+                     case PostEventContinuation.CounterspellPayment:
+                         ContinuePolicyCounterspellPayment(frame.ResumeFrameId!.Value);
+                         break;
+@@ -169,8 +172,9 @@
+             }
+             if (_resolutionStack[index] is ProgramLifecycleTriggerWindowFrame { ResumeDyingFrameId: { } dyingId } entry &&
+                 (entry.Window != SkillProgramTriggerWindow.DyingEntering || entry.Continuation != ProgramLifecycleContinuation.ResumeDyingEntry ||
+-                 parent is not DyingFrame || parent.Id != dyingId || ActiveDying?.FrameId != dyingId ||
+-                 entry.OwnerSeat != ActiveDying.VictimSeat || entry.CandidateIndex < 0 || entry.CandidateIndex >= entry.Candidates.Count))
++                 parent is not DyingFrame originalDying || parent.Id != dyingId ||
++                 (ActiveDying?.FrameId != dyingId && !IsOriginalDyingSuspendedByDyingSuits(originalDying)) ||
++                 entry.OwnerSeat != originalDying.VictimSeat || entry.CandidateIndex < 0 || entry.CandidateIndex >= entry.Candidates.Count))
+                 throw new InvalidOperationException("Dying entry lost its frozen parent or cursor.");
+             if (_resolutionStack[index] is not HpChangedTriggerWindowFrame hp) continue;
+             var window = hp.Change.Kind == HpChangeKind.Loss
+@@ -193,6 +197,7 @@
+                 PostEventContinuation.VirtualBasicCardUse => parent is CardUseFrame basic && basic.Id == hp.ResumeFrameId && basic.CardId == 0 && basic.VirtualBasicReturn is not null && basic.VirtualBasicEffectApplied == true && hp.CardId is null && hp.CardKind == basic.CardKind,
+                 PostEventContinuation.RecoveryReplacement => parent is RecoveryReplacementFrame recovery && recovery.Id == hp.ResumeFrameId,
+                 PostEventContinuation.RecoveryPaidCardUse => parent is CardUseFrame paidUse && paidUse.Id == hp.ResumeFrameId && paidUse.RecoveryPaidContinuation is not null,
++                PostEventContinuation.HistoricalEndingCardUse => parent is CardUseFrame { EndingHistoricalUseReturn: not null, EndingHistoricalCostDrained: false } history && history.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == history.Id,
+                 PostEventContinuation.CounterspellPayment => parent is NullificationWindowFrame { CounterspellPayment: not null } counter && counter.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == counter.Id,
+                 PostEventContinuation.ColorFireAttackPayment => parent is CardUseFrame { ColorFireAttack.PaidCardId: not null } fire && fire.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == fire.Id,
+                 PostEventContinuation.EquipmentRecast => parent is EquipmentRecastFrame recast && recast.Id == hp.ResumeFrameId,
+--- a/src/CardGame.Core/GameEngine.CardMovementPrograms.cs
++++ b/src/CardGame.Core/GameEngine.CardMovementPrograms.cs
+@@ -162,13 +162,14 @@
+         var drawPhase = _resolutionStack.LastOrDefault() is DrawPhaseObligationFrame draw && draw.Id == instructionFrameId ? draw : null;
+         var colorFireAttack = _resolutionStack.LastOrDefault() is CardUseFrame { ColorFireAttack.PaidCardId: not null } fire && fire.Id == instructionFrameId ? fire : null;
+         var counterspellPayment = _resolutionStack.LastOrDefault() is NullificationWindowFrame { CounterspellPayment: not null } counter && counter.Id == instructionFrameId ? counter : null;
++        var historicalEnding = _resolutionStack.LastOrDefault() is CardUseFrame { EndingHistoricalUseReturn: not null, EndingHistoricalCostDrained: false } history && history.Id == instructionFrameId ? history : null;
+         var roundPileAlcohol = _resolutionStack.LastOrDefault() is CardUseFrame { RoundPileAlcoholReturn: not null, RoundPileAlcoholCostDrained: false } wine && wine.Id == instructionFrameId ? wine : null;
+-        bool Eligible(CardMovementBatchContext batch) => roundPileAlcohol is not null ? batch.ParentFrameId == roundPileAlcohol.Id && batch.AwaitingProgramFrameId is null : counterspellPayment is not null ? batch.ParentFrameId == counterspellPayment.Id && batch.AwaitingProgramFrameId is null : colorFireAttack is not null ? batch.ParentFrameId == colorFireAttack.Id && batch.AwaitingProgramFrameId is null : drawPhase is not null ? batch.ParentFrameId == drawPhase.Id || drawPhase.InheritedMovementBatchIds?.Contains(batch.Id) == true : factionRequestCost is not null ? batch.ParentFrameId == factionRequestCost.Id : equipmentRecast is not null ? batch.ParentFrameId == equipmentRecast.Id : recoveryReplacement is not null ? batch.ParentFrameId == recoveryReplacement.Id : declaration is not null ? batch.ParentFrameId == declaration.Id : awaitingFrame is null
++        bool Eligible(CardMovementBatchContext batch) => historicalEnding is not null ? batch.ParentFrameId == historicalEnding.Id && batch.AwaitingProgramFrameId is null : roundPileAlcohol is not null ? batch.ParentFrameId == roundPileAlcohol.Id && batch.AwaitingProgramFrameId is null : counterspellPayment is not null ? batch.ParentFrameId == counterspellPayment.Id && batch.AwaitingProgramFrameId is null : colorFireAttack is not null ? batch.ParentFrameId == colorFireAttack.Id && batch.AwaitingProgramFrameId is null : drawPhase is not null ? batch.ParentFrameId == drawPhase.Id || drawPhase.InheritedMovementBatchIds?.Contains(batch.Id) == true : factionRequestCost is not null ? batch.ParentFrameId == factionRequestCost.Id : equipmentRecast is not null ? batch.ParentFrameId == equipmentRecast.Id : recoveryReplacement is not null ? batch.ParentFrameId == recoveryReplacement.Id : declaration is not null ? batch.ParentFrameId == declaration.Id : awaitingFrame is null
+             ? batch.AwaitingProgramFrameId is null
+             : batch.AwaitingProgramFrameId == awaitingFrame.Id ||
+               batch.AwaitingProgramFrameId is null && batch.ParentFrameId == awaitingFrame.Id;
+         if (_pendingDecision is not null ||
+-            (_resolutionStack.Count != 0 && awaitingFrame is null && declaration is null && recoveryReplacement is null && equipmentRecast is null && factionRequestCost is null && drawPhase is null && colorFireAttack is null && counterspellPayment is null && roundPileAlcohol is null) ||
++            (_resolutionStack.Count != 0 && awaitingFrame is null && declaration is null && recoveryReplacement is null && equipmentRecast is null && factionRequestCost is null && drawPhase is null && colorFireAttack is null && counterspellPayment is null && roundPileAlcohol is null && historicalEnding is null) ||
+             _winner != Winner.None || _status == EngineStatus.Completed)
+             return false;
+ 
+@@ -189,6 +190,7 @@
+             if (drawPhase is not null) window = window with { ResumeDrawPhaseObligationFrameId = drawPhase.Id };
+             if (colorFireAttack is not null) window = window with { ResumeColorFireAttackFrameId = colorFireAttack.Id };
+             if (counterspellPayment is not null) window = window with { ResumeCounterspellPaymentFrameId = counterspellPayment.Id };
++            if (historicalEnding is not null) window = window with { ResumeHistoricalEndingUseFrameId = historicalEnding.Id };
+             if (roundPileAlcohol is not null) window = window with { ResumeRoundPileAlcoholUseFrameId = roundPileAlcohol.Id };
+             if (factionRequestCost is not null) window = window with { ResumeFactionRequestCostFrameId = factionRequestCost.Id, ResumeProgramFrameId = null };
+             if (declaration is not null)
+@@ -507,6 +509,12 @@
+                         throw new InvalidOperationException("An actual draw lost its exact gain movement return.");
+                     AdvanceRuntimeFrame(drawId); return;
+                 }
++                if (frame.ResumeHistoricalEndingUseFrameId is { } historyId)
++                {
++                    if (_resolutionStack.LastOrDefault() is not CardUseFrame { EndingHistoricalUseReturn: not null, EndingHistoricalCostDrained: false } historyParent || historyParent.Id != historyId || frame.Batch.ParentFrameId != historyId || frame.Batch.AwaitingProgramFrameId is not null)
++                        throw new InvalidOperationException("Historical Ending lost its exact one-Hand movement return.");
++                    ContinueHistoricalEndingPayment(historyId); return;
++                }
+                 if (frame.ResumeRoundPileAlcoholUseFrameId is { } wineId)
+                 {
+                     if (_resolutionStack.LastOrDefault() is not CardUseFrame { RoundPileAlcoholReturn: not null, RoundPileAlcoholCostDrained: false } wineParent ||
+--- a/src/CardGame.Core/CardMovementPrograms.cs
++++ b/src/CardGame.Core/CardMovementPrograms.cs
+@@ -55,6 +55,7 @@
+     public long? ResumeColorFireAttackFrameId { get; init; }
+     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+     public long? ResumeCounterspellPaymentFrameId { get; init; }
++    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] public long? ResumeHistoricalEndingUseFrameId { get; init; }
+     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] public long? ResumeRoundPileAlcoholUseFrameId { get; init; }
+     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+     public long? ResumeDrawPhaseObligationFrameId { get; init; }
+--- a/src/CardGame.Core/Projection/CommittedEventProjection.cs
++++ b/src/CardGame.Core/Projection/CommittedEventProjection.cs
+@@ -12,6 +12,7 @@
+     // Rules see the original fact first; only the committed projection is copied.
+     public static IGameEvent Freeze(IGameEvent payload) => payload switch
+     {
++        DyingSuitsDiscardPaidEvent value => value with { CardIds = FreezeList(value.CardIds), Suits = FreezeList(value.Suits) },
+         DynamicDiscardDamagePaidEvent value => value with { CardIds = FreezeList(value.CardIds) },
+         SlashTargetPenaltyPaidEvent value => value with { CardIds = FreezeList(value.CardIds) },
+         ShownEntityTurnPolicyGrantedEvent value => value with
+--- a/src/CardGame.Core/GameEngine.cs
++++ b/src/CardGame.Core/GameEngine.cs
+@@ -238,7 +238,7 @@
+             window.SourceCard == attack.EffectiveCardKind)
+         : null;
+     private DyingFrame? ActiveDying =>
+-        _resolutionStack.OfType<DyingFrame>().LastOrDefault(frame => !IsOriginalDyingSuspendedByOwnedDeathBenefit(frame));
++        _resolutionStack.OfType<DyingFrame>().LastOrDefault(frame => !IsOriginalDyingSuspendedByDyingSuits(frame) && !IsOriginalDyingSuspendedByOwnedDeathBenefit(frame));
+     private JudgmentFrame? ActiveJudgment =>
+         _resolutionStack.OfType<JudgmentFrame>().LastOrDefault(frame => frame.CardAttack is null);
+ 
+@@ -13203,6 +13203,10 @@
+         {
+             CompleteBorrowedSwordAfterSlash(borrowedSword);
+             return;
++        }
++        if (completion.EndingHistoricalUseReturn is not null)
++        {
++            CompleteHistoricalEndingAttack(completion); return;
+         }
+         if (completion.ConditionalDiscardDuelReturn is not null)
+         {
+@@ -13854,6 +13858,8 @@
+         ReturnDualColorDuel(completedUse);
+         ReturnConditionalDiscardDuel(completedUse);
+         ReturnRoundPileAlcoholUse(completedUse);
++        ReturnDyingSuitsPeach(completedUse);
++        ReturnHistoricalEndingUse(completedUse);
+     }
+ 
+     private bool CanUseSlashTarget(
+@@ -16924,7 +16930,7 @@
+         AssertRequestedDeckBasicMaterials();
+         var coreDecision = RequestedDeckBasicInvariantDecision();
+         var coreTop = RequestedDeckBasicInvariantTop();
+-        var damageProgramDying = IsPlacedEquipmentBenefitProgramDying() || IsFireTargetBenefitProgramDying() || IsNamedAcquisitionProgramDying() || IsDynamicDiscardDamageProgramDying() || IsOwnTrickDrawProgramDying() || IsConditionalDiscardDuelProgramDying() || IsRecipientContestProgramDying() || IsProvenanceClaimProgramDying() || IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying() || IsPaidDamageTargetMountDying() || IsPaidDamageTargetObtainDying() || IsDamageAppearanceDrawProgramDying() || IsRecoveryReplacementProgramDying() || IsCharacterTurnedOverProgramDying() || IsCappedHandRefreshProgramDying() || IsPaidHandRepaymentProgramDying() || IsBoundRankBonusMovementDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawInsideDamageProgramDying() || IsSourceFactionYieldInsideDamageProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsAppliedDamageBenefitDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPreventionInsideDamageProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying();
++        var damageProgramDying = IsPlacedEquipmentBenefitProgramDying() || IsFireTargetBenefitProgramDying() || IsNamedAcquisitionProgramDying() || IsDynamicDiscardDamageProgramDying() || IsOwnTrickDrawProgramDying() || IsConditionalDiscardDuelProgramDying() || IsRecipientContestProgramDying() || IsProvenanceClaimProgramDying() || IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying() || IsPaidDamageTargetMountDying() || IsPaidDamageTargetObtainDying() || IsDamageAppearanceDrawProgramDying() || IsRecoveryReplacementProgramDying() || IsCharacterTurnedOverProgramDying() || IsCappedHandRefreshProgramDying() || IsPaidHandRepaymentProgramDying() || IsBoundRankBonusMovementDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawInsideDamageProgramDying() || IsSourceFactionYieldInsideDamageProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsAppliedDamageBenefitDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPreventionInsideDamageProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying() || IsDyingSuitsProgramDying();
+         _turnCardUseEffects.AssertInvariants();
+         AssertPaidHpLossModifiers();
+         AssertCurrentTurnOwnSkillSuppressions();
+@@ -16969,6 +16975,7 @@
+ 
+         AssertRecipientScopedDamageStates();
+         AssertOwnedDeathBenefitReturns();
++        AssertDyingSuitsSubtree();
+ 
+         if (_resolutionStack.OfType<DeathFrame>().LastOrDefault() is { } currentDeath)
+         {
+@@ -17639,6 +17646,8 @@
+             {
+                 // The retained card owner is suspended beneath the program damage owner.
+             }
++            else if (HasDyingSuitsSuspendedAttack(pendingAttack.ResolutionId))
++            { AssertDyingSuitsSubtree(); }
+             else if (HasTargetPenaltyUseObserver(pendingAttack.ResolutionId))
+             { AssertTargetPenaltyWindows(); }
+             else if (HasSlashTargetBenefitUseObserver(pendingAttack.ResolutionId))
+@@ -18479,7 +18488,7 @@
+             awaitingHumanResponse == awaitingAiResponse &&
+             !HasProgramDodgeResponseContinuation(ActiveCardAttack) &&
+             !HasRecoveryPaidCardUseObserver(ActiveCardAttack.ResolutionId) &&
+-            !HasPaidFactionRequestCostRecovery(ActiveFactionCardRequest))
++            !HasPaidFactionRequestCostRecovery(ActiveFactionCardRequest) && !HasDyingSuitsSuspendedAttack(ActiveCardAttack.ResolutionId))
+         {
+             throw new InvalidOperationException("An active card resolution must have exactly one response continuation.");
+         }
+--- a/src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs
++++ b/src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs
+@@ -119,6 +119,7 @@
+         new(OrdinaryFuWanContent.Register),
+         new(OrdinaryLiuXieContent.Register),
+         new(OrdinarySpMaChaoContent.Register),
++        new(OrdinarySpCaiWenJiContent.Register),
+         new(OrdinaryGuanYinPingContent.Register),
+         new(OrdinaryLingJuContent.Register),
+         new(OrdinaryZhugeKeContent.Register),

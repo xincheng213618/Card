@@ -1,0 +1,100 @@
+{
+  "schema": "current-official-ordinary-other-source/v1",
+  "capturedUtc": "2026-10-04T17:58:32.226643+00:00",
+  "gid": 111,
+  "identity": {
+    "name": "SP曹仁",
+    "faction": "wei",
+    "hp": 4,
+    "initialHpApi": 0,
+    "initialHpZeroIsPlaceholder": true,
+    "genderApiFieldPresent": false,
+    "maleEvidence": "Existing classic:cao-ren same character explicitly GeneralGender.Male; current biography identifies him as Cao Cao’s younger male cousin (从弟). This is supplemental identity evidence, not an API gender field.",
+    "generalId": "ol:sp-cao-ren",
+    "module": "OrdinarySpCaoRenContent",
+    "portraitKey": "ol-sp-cao-ren",
+    "characterId": "character:cao-ren",
+    "variantId": "sp",
+    "rulesetId": "sanguosha-ol"
+  },
+  "skills": [
+    {
+      "name": "伪溃",
+      "text": "出牌阶段限一次，你可以失去1点体力并观看一名有手牌的其他角色的手牌，若其中没有【闪】，你弃置其中一张牌，否则你视为对其使用一张【杀】，且你本回合计算与其的距离视为1。"
+    },
+    {
+      "name": "励战",
+      "text": "结束阶段，你可以令任意名已受伤角色摸一张牌。"
+    }
+  ],
+  "fullCurrentBodies": true,
+  "linkedSkillDefinitionsRequired": false,
+  "fontReferences": [],
+  "primaryUrls": {
+    "page": "https://www.sanguosha.com/hero/111",
+    "info": "https://www.sanguosha.com/api/v1/hero/info?gid=111",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11100.png"
+  },
+  "http": [
+    {
+      "url": "https://www.sanguosha.com/hero/111",
+      "method": "GET",
+      "requestUtc": "2026-10-04T17:43:25.1010128+00:00",
+      "completedUtc": "2026-10-04T17:43:25.3779498+00:00",
+      "status": 200,
+      "curlExitCode": 0,
+      "redirectsAllowed": false,
+      "retries": 0,
+      "rawSha256": "ef3de3666a9628623f0906d26840a962d383be558e1101c0c26601646ecf05a4",
+      "headersSha256": "fe9b84a1d2ede9808e989394a9f382ecbce3ff1248d1184e24dc2728a51872a9"
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=111",
+      "method": "GET",
+      "requestUtc": "2026-10-04T17:43:44.5173744+00:00",
+      "completedUtc": "2026-10-04T17:43:44.7675627+00:00",
+      "status": 200,
+      "curlExitCode": 0,
+      "redirectsAllowed": false,
+      "retries": 0,
+      "advertisedBy": "111-page.raw.html:484",
+      "rawSha256": "b50ea68c3fa1ad14e61c9d89a3a4e9b24f49d3e3ad31a995be53c8cb324ec7f9",
+      "headersSha256": "4c3239a8f0f7c3f7d94f9a1a02354bfbf6295c22353c5955279a745ef69a98cd"
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11100.png",
+      "method": "GET",
+      "requestUtc": "2026-10-04T17:44:18.7648685+00:00",
+      "completedUtc": "2026-10-04T17:44:18.9535765+00:00",
+      "status": 200,
+      "curlExitCode": 0,
+      "redirectsAllowed": false,
+      "retries": 0,
+      "advertisedBy": "111-info.raw.json:data.info[0].cover",
+      "rawSha256": "db6d75c0ce6429f69ac2070994eac3ed05a66a9cbee6b0f312952efffed3a1f8",
+      "headersSha256": "b76f042af7648ec7781a8c3f1cb6d8115a5f645b531806a99a656212f968fe80"
+    }
+  ],
+  "art": {
+    "signatureVerified": true,
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "bytes": 1322760,
+    "sha256": "db6d75c0ce6429f69ac2070994eac3ed05a66a9cbee6b0f312952efffed3a1f8",
+    "pngMainPath": "src/CardGame.Wpf/Assets/official-ol-sp-cao-ren.png"
+  },
+  "furtherHttpAuthorized": false,
+  "execution": {
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "tests": false,
+    "game": false,
+    "nativeAi": false,
+    "ui": false,
+    "benchmark": false,
+    "release": false,
+    "publish": false,
+    "push": false
+  }
+}

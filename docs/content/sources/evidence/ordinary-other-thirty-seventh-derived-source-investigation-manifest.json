@@ -1,0 +1,68 @@
+{
+  "status": "exact-derived-binding-pending",
+  "sourceReady": false,
+  "registered": false,
+  "pending": {
+    "116": [
+      985,
+      34,
+      363
+    ],
+    "117": [
+      382,
+      61
+    ]
+  },
+  "supportFiles": [
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch37/derived-source/commen.headers.txt",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-derived-source-commen.headers.txt",
+      "rawSha256": "aec08a051dd22c94c17b5c31a8be1a1f994313bd57b29bc7224510ca2b4449e0"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch37/derived-source/commen.raw.js",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-derived-source-commen.raw.js",
+      "rawSha256": "95ca9d3ff648d5c4f045019b9d2252883db452b04db508f6ea5a735c2e725129"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch37/derived-source/commen.request.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-derived-source-commen.request.json",
+      "rawSha256": "11d21577e5ee2e182a1fab7ce26cdd9cfa73fa07aca5b24b486246f7c6924aed"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch37/derived-source/heroDetail.headers.txt",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-derived-source-heroDetail.headers.txt",
+      "rawSha256": "c05b3b1bea339e632fd47e44802f1c8158b89743c2644dbdc4be9a550b2e3679"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch37/derived-source/heroDetail.raw.js",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-derived-source-heroDetail.raw.js",
+      "rawSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch37/derived-source/heroDetail.request.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-derived-source-heroDetail.request.json",
+      "rawSha256": "fcdb02b2b77f405a6304dd8b27fbbc9cb3f96170befc634863c32d7925465da3"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch37/derived-source/INVESTIGATION.md",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-seventh-derived-source-INVESTIGATION.md",
+      "rawSha256": "4183857d5a9007f02ae04d3c4fabe7d890a56151c46acebcf08c69f5dd458e05"
+    }
+  ],
+  "httpRequests": 2,
+  "noGuessedEndpointProbes": true,
+  "oldCapturesModified": false,
+  "execution": {
+    "compiler": false,
+    "build": false,
+    "loader": false,
+    "tests": false,
+    "game": false,
+    "native": false,
+    "ui": false,
+    "benchmark": false,
+    "publish": false,
+    "push": false
+  }
+}

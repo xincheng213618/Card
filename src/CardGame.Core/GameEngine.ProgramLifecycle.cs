@@ -1829,6 +1829,7 @@ public sealed partial class GameEngine
         ProgramSkillWindowContext context)
     {
         if (!IsValidPlayerSeat(candidate.OwnerSeat) || candidate.OwnerSeat != context.OwnerSeat) return false;
+        if (IsDeferredPrivateOfferResolver(candidate)) return CanRunDeferredPrivateOffer(candidate, context);
         if (context.Window == SkillProgramTriggerWindow.ActualSlashTargetPenalty) return CanRunSlashTargetPenalty(candidate, context);
         if (IsSlashTargetBenefitWindow(context.Window)) return CanRunSlashTargetBenefitCandidate(candidate, context);
         var owner = _players[candidate.OwnerSeat];
@@ -1841,6 +1842,7 @@ public sealed partial class GameEngine
         if (trigger is null || trigger.Window != context.Window || !CanPayProgramMarkerCost(owner, trigger.MarkerCost))
             return false;
         if (!CanRunTurnDrawDebtPayment(candidate, trigger, context) || !CanRunSourceFactionPrevention(candidate, trigger, context)) return false;
+        if (!CanRunDyingSuitsAndEndingHistory(candidate, trigger, context)) return false;
         if (!CanRunDyingOwnedCard(candidate, trigger, context)) return false;
         if (!CanRunFireTargetBenefit(candidate, trigger, context)) return false;
         if (!CanRunPaidColorDamageClaim(candidate, trigger, context)) return false;
@@ -2897,6 +2899,9 @@ public sealed partial class GameEngine
                 { ReturnDrawPhaseObligationWindow(frame); return; }
                 switch (frame.Continuation)
                 {
+                    case ProgramLifecycleContinuation.ResumeAfterDeferredPrivateOffers:
+                        ContinueTurnAfterForeignActualContests(_players[frame.OwnerSeat]);
+                        break;
                     case ProgramLifecycleContinuation.ResumeDyingEntry:
                         CompleteDyingEntryProgramWindow(frame);
                         break;
@@ -3156,6 +3161,8 @@ public sealed partial class GameEngine
         if (selected.Parameters.GetValueOrDefault("program-action") == "named-turn-flow") { ResolveNamedTurnFlowChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "alternating-suit-top") { ResolveAlternatingSuitTopChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "equipment-pair-payment") { ResolveEquipmentPairPaymentChoice(selected); return; }
+        if (selected.Parameters.GetValueOrDefault("program-action") == "dying-suits") { ResolveDyingSuitsChoice(selected); return; }
+        if (selected.Parameters.GetValueOrDefault("program-action") == "historical-ending") { ResolveHistoricalEndingChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "dying-owned-card") { ResolveDyingOwnedCardChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "sequential-discard") { ResolveSequentialDiscardChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "half-hand-support") { ResolveHalfHandSupportChoice(selected); return; }
@@ -3329,6 +3336,11 @@ public sealed partial class GameEngine
             ResolvePlacedEquipmentChoice(selected);
             return;
         }
+        if (action == "inspected-hand-slash")
+        {
+            ResolveInspectedHandChoice(selected);
+            return;
+        }
         if (action == "conditional-discard-duel")
         {
             ResolveConditionalDuelPayment(selected);
@@ -3359,6 +3371,8 @@ public sealed partial class GameEngine
             ResolveProgramOrdinaryTrickUseChoice(selected);
             return;
         }
+        if (action == "deferred-private-offer") { ResolveDeferredPrivateOfferChoice(selected); return; }
+        if (action == "game-hand-hp-discard") { ResolveGameHandHpDiscard(selected); return; }
         if (action == "order-bound-cards")
         {
             var frame = _resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -4071,6 +4085,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.ClaimGrantedPhaseSlash => SelectAiGrantedPhaseSlash(decision),
                 SkillProgramEffectOp.ChoosePrivateColorsDiscardAndDuel => SelectAiDualColorChoice(decision, frame),
                 SkillProgramEffectOp.DiscardSlashThenOtherCardAndUseDuel => SelectAiConditionalDuel(decision, frame),
+                SkillProgramEffectOp.PayHpInspectHandThenDiscardOrSlash => SelectAiInspectedHand(decision, frame),
                 SkillProgramEffectOp.PlaceOwnedEquipmentThenResolveSlotBenefit => SelectAiPlacedEquipmentBenefit(decision, frame),
                 SkillProgramEffectOp.PayOwnedCardOrMarker => SelectAiAlternativePhaseCost(decision, frame),
                 SkillProgramEffectOp.ObtainDamageTargetCardAndResolveCategory => SelectAiDamageTargetObtain(decision, frame),
@@ -4145,6 +4160,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.ResolvePrepDiscardOrEnding => SelectAiPrepDiscard(decision, frame),
                 SkillProgramEffectOp.RequireTargetDiscardOrEquipmentRecast => SelectAiTargetPenalty(decision, frame),
                 SkillProgramEffectOp.OfferSlashTargetBenefit or SkillProgramEffectOp.SettleDodgeCancelledSlashBenefit => SelectAiSlashTargetBenefit(decision, frame),
+                SkillProgramEffectOp.ResolveDeferredPrivateCardOffer or SkillProgramEffectOp.ResolveGameTargetHandHpChoice => decision.Choices[0],
                 SkillProgramEffectOp.DiscardTargetHpCardsAndDamage => decision.Choices[0],
                 SkillProgramEffectOp.RequestSlashByTarget => SelectAiProgramRequestSlash(decision, frame),
                 SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner or SkillProgramEffectOp.DeclareDeckCriterionAndGiveMatchingCard =>
@@ -4194,6 +4210,8 @@ public sealed partial class GameEngine
                     .OrderBy(choice => choice.Parameters.GetValueOrDefault("card-kind") == nameof(CardKind.DrawTwo) ? 0 : 1)
                     .ThenBy(choice => choice.Id.Value, StringComparer.Ordinal)
                     .First(),
+                SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach => SelectAiDyingSuits(decision, frame),
+                SkillProgramEffectOp.UseOwnPlayHistoryAtEnding => SelectAiHistoricalEndingUse(decision, frame),
                 _ => throw new InvalidOperationException(
                     $"The AI does not support suspended program instruction '{paused.Op}'.")
             };

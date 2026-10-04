@@ -1,0 +1,14 @@
+{
+  "url": "https://www.sanguosha.com/api/v1/hero/info?gid=113",
+  "method": "GET",
+  "advertisedBy": "source/113-page.raw.html lines 462-480: gid=113 and fetch literal",
+  "startedUtc": "2026-10-04T17:26:26.5538988Z",
+  "finishedUtc": "2026-10-04T17:26:26.7940475Z",
+  "httpStatus": "200",
+  "curlExitCode": 0,
+  "redirectsFollowed": false,
+  "retries": 0,
+  "rawSha256": "017de70afb9b9ac95282ef6e947c144632c55c68db3dd5dc1c531aef8e0f9e1a",
+  "rawPath": "source/113-info.raw.json",
+  "headersPath": "source/113-info.headers.txt"
+}

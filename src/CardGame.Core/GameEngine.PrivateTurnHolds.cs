@@ -29,18 +29,20 @@ public sealed partial class GameEngine
     private bool HasActualTurnEndMovementPrelude => HasAfterTurnEndedPrograms || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.HoldOwnerHandUntilTurnEnd);
     private void ReturnPrivateTurnHoldsAtTurnEnd()
     {
-        foreach (var location in _cardZones.PrivateTurnHoldLocations.Where(l => l.PrivateTurnHold!.ExpiresTurnNumber <= _turnNumber))
+        foreach (var location in _cardZones.PrivateTurnHoldLocations.Where(l => l.PrivateTurnHold!.DeferredOffer is null && l.PrivateTurnHold.ExpiresTurnNumber <= _turnNumber))
             MoveCards(_cardZones.CardsAt(location).ToArray(),location,
                 _players[location.OwnerSeat!.Value].IsAlive ? CardLocation.Hand(location.OwnerSeat.Value) : CardLocation.DiscardPile,
                 new("skill.private-turn-hold.return"));
     }
     private IReadOnlyList<PrivateTurnHoldSnapshot>? ProjectPrivateTurnHolds(int owner,int viewer,bool revealAll)
     {
-        var holds = _cardZones.PrivateTurnHoldLocations.Where(l => l.OwnerSeat == owner).Select(l =>
+        var holds = _cardZones.PrivateTurnHoldLocations.Where(l => (l.PrivateTurnHold?.DeferredOffer?.TargetSeat ?? l.OwnerSeat) == owner).Select(l =>
         {
             var h = l.PrivateTurnHold!; var cards = _cardZones.CardsAt(l);
             return new PrivateTurnHoldSnapshot(h.HoldId,owner,h.SkillId,h.SkillInstanceId,h.SourceId,h.ExpiresTurnNumber,cards.Count,
-                owner == viewer || revealAll ? Array.AsReadOnly(cards.Select(ToSnapshot).ToArray()) : null);
+                (h.DeferredOffer is null ? owner == viewer : l.OwnerSeat == viewer || DeferredPrivateOfferViewedCards(viewer).Any(c => cards.Any(card => card.Id == c.Id))) || revealAll
+                    ? Array.AsReadOnly(cards.Select(ToSnapshot).ToArray()) : null)
+                { DeferredSourceSeat = h.DeferredOffer is null ? null : l.OwnerSeat };
         }).ToArray();
         return holds.Length == 0 ? null : Array.AsReadOnly(holds);
     }

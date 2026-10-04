@@ -1,0 +1,13 @@
+{
+  "url": "https://www.sanguosha.com/api/v1/hero/info?gid=116",
+  "method": "GET",
+  "advertisedBy": "116-page.raw.html:480",
+  "startedUtc": "2026-10-04T17:27:44.1969106+00:00",
+  "completedUtc": "2026-10-04T17:27:44.4378092+00:00",
+  "httpStatus": "200",
+  "curlExitCode": 0,
+  "redirectsAllowed": false,
+  "retries": 0,
+  "bodySha256": "edd6cfc82dcae7b4242bc8a274b43e2a600be5d945749665b408becb37053f47",
+  "headersSha256": "db0b02c74c6f0b70afbd4bb5c3e54f58ab500f30a6069829ed7f8ace165ce208"
+}

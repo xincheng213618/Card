@@ -1,0 +1,75 @@
+{
+  "gid": 117,
+  "name": "大乔小乔",
+  "classification": "ordinary OL Other (retained index discovery only)",
+  "capturedCurrentPage": "https://www.sanguosha.com/hero/117",
+  "capturedCurrentApi": "https://www.sanguosha.com/api/v1/hero/info?gid=117",
+  "identity": {
+    "faction": "吴",
+    "factionCode": "wu",
+    "baseHp": 3,
+    "initialHpApi": 0,
+    "initialHpInterpretation": "API 0 is a placeholder, not starting at 0 HP",
+    "apiGenderFieldPresent": false,
+    "genderEngineeringInference": "Female",
+    "genderInferenceEvidence": "Current API biography identifies them as Sun Ce and Zhou Yu wives; not a direct API gender value"
+  },
+  "skills": [
+    {
+      "name": "星舞",
+      "currentText": "弃牌阶段开始时，你可以将一张牌置于你的武将牌上，然后你可以移去三张“星舞”牌或翻面并弃置两张手牌，弃置一名其他角色装备区里的所有牌，若其为男性/女性，你对其造成2/1点伤害。"
+    },
+    {
+      "name": "落雁",
+      "currentText": "锁定技，若你有“星舞”牌，你视为拥有“天香”和“流离”。"
+    }
+  ],
+  "grantedSkillReferences": [
+    {
+      "fontId": 382,
+      "name": "天香",
+      "expandedInCapturedPage": false,
+      "exactCurrentVersionBindingProven": false
+    },
+    {
+      "fontId": 61,
+      "name": "流离",
+      "expandedInCapturedPage": false,
+      "exactCurrentVersionBindingProven": false
+    }
+  ],
+  "fullCurrentMainText": true,
+  "fullImplementationSourceReady": false,
+  "blockedReasons": [
+    "Luoyan grants Tianxiang font382 and Liuli font61; captured page does not expand their full definitions or version binding.",
+    "Retained current boundary Xiao Qiao gid457 text has no font382 reference and is not proof of the font382 Tianxiang granted here.",
+    "Classic same-name definitions are not authority for these precise current font bindings."
+  ],
+  "httpBudget": {
+    "allowed": 3,
+    "performed": 3,
+    "remaining": 0,
+    "redirects": false,
+    "retries": 0
+  },
+  "rawRecords": [
+    "source/117-page.request.json",
+    "source/117-info.request.json",
+    "source/117-cover.request.json"
+  ],
+  "implementationStarted": false,
+  "partialGeneralRegistered": false,
+  "execution": {
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "tests": false,
+    "game": false,
+    "nativeAi": false,
+    "ui": false,
+    "benchmark": false,
+    "publish": false,
+    "push": false
+  },
+  "versionChanges": false
+}

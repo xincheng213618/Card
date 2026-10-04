@@ -1,0 +1,123 @@
+{
+  "kind": "original-three-request-source-capture",
+  "baselineHead": "f373ef47ff50f735bed91cf74a2bc0d2c622d2a7",
+  "gid": 117,
+  "state": "frozen-captured-main-text-with-unexpanded-derived-bindings",
+  "fullCurrentMainText": true,
+  "fullImplementationSourceReady": false,
+  "derivedGaps": [
+    {
+      "skillId": 382,
+      "name": "天香"
+    },
+    {
+      "skillId": 61,
+      "name": "流离"
+    }
+  ],
+  "sourceFiles": [
+    {
+      "stagePath": "source/117-page.raw.html",
+      "sha256": "566d7f3c7a8c3c0f97ea43fb1a81c8a3f14919b7bdc96866c27ff03b8d0cc530",
+      "bytes": 26695
+    },
+    {
+      "stagePath": "source/117-page.headers.txt",
+      "sha256": "c4eed1e2357db3228c941e168482c7f409d333b9ddb174f9e216ca334b660827",
+      "bytes": 662
+    },
+    {
+      "stagePath": "source/117-page.request.json",
+      "sha256": "88e10550db13fbbc3328ec7725ce0b730a0dd2ce2176d9240a1a85cb45356ddf",
+      "bytes": 421
+    },
+    {
+      "stagePath": "source/117-info.raw.json",
+      "sha256": "4991b9bad467087480c1288c450e5c96b2150709f88242e04d15d8263ff20ebd",
+      "bytes": 834
+    },
+    {
+      "stagePath": "source/117-info.headers.txt",
+      "sha256": "dd07c68093c5a87fb805a99a92a51354a2207875ba45658643748ec5ff042349",
+      "bytes": 646
+    },
+    {
+      "stagePath": "source/117-info.request.json",
+      "sha256": "7cf6c9e3a04a7bcd4e7f04ded837a2dd98544cd0ba0542df8d87898d3667a5a2",
+      "bytes": 503
+    },
+    {
+      "stagePath": "source/117-cover.raw.png",
+      "sha256": "2309eb94fe32c6bffc1886a742ee9ca0857647e69e229dcc461242209dc5a7e2",
+      "bytes": 1075590
+    },
+    {
+      "stagePath": "source/117-cover.headers.txt",
+      "sha256": "a8aa875f72a2554d0d21fbf543959a8ece0bca00b645b90dd361707d6312cae8",
+      "bytes": 815
+    },
+    {
+      "stagePath": "source/117-cover.request.json",
+      "sha256": "7c7911672e4a708911371a7ca2196bb8f44b8e89870f2bdf07e54a5dabb34a87",
+      "bytes": 690
+    },
+    {
+      "stagePath": "117-current-source.json",
+      "sha256": "a2aa3346b05527ae285c80a9f5b01e524944c197b85148b7a53370070ad0e5cf",
+      "bytes": 2579
+    },
+    {
+      "stagePath": "registration-proof.json",
+      "sha256": "d9ad4468771a9f1d2b1d2df1f1f234921cbd526afba8bccede50701e94703fc6",
+      "bytes": 1746
+    },
+    {
+      "stagePath": "SOURCE-AND-CONTRACT.md",
+      "sha256": "2945e06307371a5fd0de4673242eef0f8f58184c46802161ef1bcf57e4a7b2c1",
+      "bytes": 5416
+    }
+  ],
+  "namedInputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "e9ae036d2d7776a535b82e27d49f70ed39d7dee5f3fd5f90310bbf72dc0d3f0a"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch37/baseline.json",
+      "sha256": "151373dd18dd87663bc7acb9031055abf4d128800bf07bcac0dc308f3debcb23"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/cached-other-first20.json",
+      "sha256": "4609fc35bc5ed5b32c8e741d1d5bf6dfb974236622ee8b5aede3be492855a4b2"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+      "sha256": "29b7f87162868444dadb3b6140616e3e2700e0b7dac24b42ed6e856f175517c0"
+    },
+    {
+      "path": "docs/content/sources/fenglin-twenty-eighth-457-source-2026-10-04.json",
+      "sha256": "2304874b07f5090197b0e270099c2f6dd76d778294c506e59331f178b585f17f"
+    }
+  ],
+  "networkRequests": 3,
+  "networkRetries": 0,
+  "networkRedirects": 0,
+  "execution": {
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "tests": false,
+    "game": false,
+    "nativeAi": false,
+    "ui": false,
+    "benchmark": false,
+    "release": false,
+    "publish": false,
+    "push": false
+  },
+  "mainModified": false,
+  "implementationStarted": false,
+  "registered": false,
+  "versionChanges": false,
+  "note": "A separately captured root linked-definition supplement may close these gaps; this original capture remains immutable."
+}

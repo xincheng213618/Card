@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:bifa", "revision": 1, "triggers": [
+      { "id": "deposit-at-ending", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+        "effects": [
+          { "op": "selectOwnedCards", "target": "owner", "minimumCards": 1, "maximumCards": 1, "zones": ["hand"], "resultBind": "offer-card" },
+          { "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" },
+          { "op": "depositBoundPrivateCardOffer", "target": "owner", "sourceBind": "offer-card", "stateId": "resolve-next-turn" }
+        ] },
+      { "id": "resolve-next-turn", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false,
+        "effects": [{ "op": "resolveDeferredPrivateCardOffer", "target": "owner" }] }
+    ] },
+    { "id": "ol:songci", "revision": 1, "activations": [
+      { "id": "per-target-hand-hp", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1,
+        "targetKind": "anyLiving", "usesPerTurn": null,
+        "effects": [{ "op": "resolveGameTargetHandHpChoice", "target": "selectedTarget", "stateId": "game-target" }] }
+    ] }
+  ]
+}

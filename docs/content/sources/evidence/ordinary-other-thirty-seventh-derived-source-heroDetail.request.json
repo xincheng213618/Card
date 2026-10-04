@@ -1,0 +1,13 @@
+{
+  "url": "https://www.sanguosha.com/assets/js/heroDetail.js?1",
+  "method": "GET",
+  "status": 200,
+  "requestUtc": "2026-10-04T17:31:18.8629151Z",
+  "completedUtc": "2026-10-04T17:31:19.0053485Z",
+  "curlExitCode": 0,
+  "redirectsAllowed": false,
+  "retries": 0,
+  "advertisedBy": "117-page.raw.html:523",
+  "rawSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+  "rawBytes": 15166
+}

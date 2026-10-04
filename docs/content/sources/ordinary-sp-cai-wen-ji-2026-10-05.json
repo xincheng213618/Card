@@ -1,0 +1,135 @@
+{
+  "generalId": "ol:sp-cai-wen-ji",
+  "characterName": "SP蔡文姬",
+  "officialId": 112,
+  "sourcePage": "https://www.sanguosha.com/hero/112",
+  "capturedAt": "2026-10-05",
+  "rulesetId": "sanguosha-ol",
+  "module": "OrdinarySpCaiWenJiContent",
+  "bundle": "ordinary-sp-cai-wen-ji",
+  "characterId": "character:cai-wen-ji",
+  "variantId": "sp",
+  "apiInfo": {
+    "hp": 3,
+    "figure": "wei",
+    "initial_hp": 0,
+    "initialHpPlaceholder": true,
+    "genderFieldPresent": false
+  },
+  "genderBasis": "Current API biography says 女儿 and 才女; not an API gender value",
+  "artwork": {
+    "id": "11200",
+    "name": "经典形象",
+    "sourcePage": "https://www.sanguosha.com/hero/112",
+    "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11200.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-sp-cai-wen-ji.png",
+    "sha256": "3d22af699d71b94d2be7e48cdcaf2b7242b101723b7b2268ba1daa51513a4002",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "陈情",
+      "text": "每轮限一次，当一名角色进入濒死状态时，你可以令另一名其他角色摸四张牌，然后弃置四张牌，若弃置牌包含四种花色，其视为对处于濒死状态的角色使用一张【桃】。",
+      "programId": "ol:chenqing"
+    },
+    {
+      "name": "默识",
+      "text": "结束阶段，你可以将一张手牌当你出牌阶段内使用过的第一张基本牌或普通锦囊牌使用，然后你可以将一张手牌当你出牌阶段使用过的第二张基本牌或普通锦囊牌使用。",
+      "programId": "ol:moshi"
+    }
+  ],
+  "engineeringDefaults": [
+    "另一名其他角色 excludes the skill owner and exact original Dying victim; no additional official FAQ ruling was supplied.",
+    "The recipient performs actual Draw4 and legal HE Discard4 with actual effective suits frozen at payment; fewer legal cards cannot manufacture four suits.",
+    "Issued round owner+skill facts survive ResetSkill. Already-issued children and their frozen obligation drain once; later unissued effects cancel according to source/recipient/winner state.",
+    "Moshi records the first two genuine issued own-Play Basic/InstantTrick Uses across actual own Play phases; responses and Equipment are excluded.",
+    "The first whole historical Use must finish before slot2; skipping or an unusable first slot terminates this activation.",
+    "Ending retains mature material/target legality and actual next-use grants; finite Play Slash/Alcohol counters do not become all-turn restrictions."
+  ],
+  "newOperations": [
+    {
+      "id": 7900,
+      "name": "drawThenDiscardSuitsForDyingPeach"
+    },
+    {
+      "id": 7901,
+      "name": "useOwnPlayHistoryAtEnding"
+    }
+  ],
+  "sourceCaptures": [
+    {
+      "requestedUrl": "https://www.sanguosha.com/hero/112",
+      "startedUtc": "2026-10-04T17:41:52.3193465Z",
+      "endedUtc": "2026-10-04T17:41:52.5393118Z",
+      "curlExitCode": 0,
+      "curlReported": "200|https://www.sanguosha.com/hero/112|28905",
+      "method": "GET",
+      "redirectsAllowed": false,
+      "retries": 0,
+      "bodySha256": "a3ec476810016f7e5fd11b5a6847d92444c9b3542afbc2e71d37a9f5397488b6",
+      "bodyBytes": 28905,
+      "bodyStagePath": "source/112-page.raw.html",
+      "headersSha256": "2aac40547efa2ba6c64cb10bf2c939b4430f4d08b6122dd98818e438cc3a144c"
+    },
+    {
+      "requestedUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=112",
+      "advertisedBy": "112-page.raw.html fetch line508",
+      "startedUtc": "2026-10-04T17:42:16.4730655Z",
+      "endedUtc": "2026-10-04T17:42:16.8125516Z",
+      "curlExitCode": 0,
+      "curlReported": "200|https://www.sanguosha.com/api/v1/hero/info?gid=112|1068",
+      "method": "GET",
+      "redirectsAllowed": false,
+      "retries": 0,
+      "bodySha256": "16ae6334e4be9656088ec5168738f3fa86d1def3c4098294436ead8b43b90468",
+      "bodyBytes": 1068,
+      "bodyStagePath": "source/112-info.raw.json",
+      "headersSha256": "3c9e5651d17684f2a093de05206fb1c6129f6c21c5d618ca729f03d143d47242"
+    },
+    {
+      "requestedUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11200.png",
+      "advertisedBy": "112-info.raw.json data.info[0].cover",
+      "startedUtc": "2026-10-04T17:43:14.0891750Z",
+      "endedUtc": "2026-10-04T17:43:14.2839981Z",
+      "curlExitCode": 0,
+      "curlReported": "200|https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11200.png|1221389",
+      "method": "GET",
+      "redirectsAllowed": false,
+      "retries": 0,
+      "bodySha256": "3d22af699d71b94d2be7e48cdcaf2b7242b101723b7b2268ba1daa51513a4002",
+      "bodyBytes": 1221389,
+      "pngSignature": "89504E470D0A1A0A",
+      "ihdrWidth": 750,
+      "ihdrHeight": 950,
+      "bodyStagePath": "source/112-cover.raw.png",
+      "headersSha256": "fed5fac47a4f366a7539cb18d4c5489e3f68d5b6a15f8f4c490d82c8fcacdc51"
+    }
+  ],
+  "currentSourceSha256": "789336eed4ab6ced9eb7e625ef2727879ee6a8ea44202992f570610845049a84",
+  "verification": {
+    "kind": "static-source-only",
+    "draftCheckCount": 8,
+    "compiler": false,
+    "productionLoader": false,
+    "tests": false,
+    "game": false,
+    "nativeAi": false,
+    "ui": false,
+    "benchmark": false,
+    "testSeconds": null,
+    "unexecutedBoundaries": [
+      "Wansha/Peach prohibition",
+      "recovery prevention/redirection",
+      "paid source loss",
+      "ResetSkill/round expiry",
+      "Tuntian/discarded-delayed/random-equipment combinations",
+      "broader native/WPF behavior"
+    ]
+  },
+  "observations": [
+    "Captured current full primary text and advertised original PNG in three GETs with no redirects/retries.",
+    "No global rules, schema or package version change.",
+    "Generator code is not part of this delivery."
+  ]
+}

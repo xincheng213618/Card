@@ -26,6 +26,7 @@ public interface ISkillProgramExecutionHost
     bool IsGameOver { get; }
     bool CanContinueIssuedOriginalTargetAddition(ProgramSkillFrame frame) => false;
     bool CanContinuePaidHpLoss(ProgramSkillFrame frame) => false;
+    bool CanContinueIssuedPrivateOffer(ProgramSkillFrame frame) => false;
     bool CanContinuePaidDamageShield(ProgramSkillFrame frame) => false;
     bool CanContinuePaidDamageTargetMount(ProgramSkillFrame frame) => false;
     bool CanContinuePaidDamageTargetObtain(ProgramSkillFrame frame) => false;
@@ -1410,7 +1411,7 @@ public sealed class SkillProgramExecutor
                 ProgramInstructionResolver.Default.Find(program, ProgramInstructionSourceKind.Trigger, frame.ActivationId)
                     ?.Features.HasOperation(SkillProgramEffectOp.LoseHpParticipants) == true;
             if (!state.OwnsSkillInstance(frame.OwnerSeat, frame.SkillId, frame.SkillInstanceId) && (actor.IsAlive || !allowsDeadOwner) &&
-                !state.CanContinueIssuedOriginalTargetAddition(frame) && !state.CanContinuePaidHpLoss(frame) && !state.CanContinuePaidDamageShield(frame) && !state.CanContinuePaidDamageTargetMount(frame) && !state.CanContinuePaidDamageTargetObtain(frame) && !state.CanContinuePaidLostHpChain(frame))
+                !state.CanContinueIssuedPrivateOffer(frame) && !state.CanContinueIssuedOriginalTargetAddition(frame) && !state.CanContinuePaidHpLoss(frame) && !state.CanContinuePaidDamageShield(frame) && !state.CanContinuePaidDamageTargetMount(frame) && !state.CanContinuePaidDamageTargetObtain(frame) && !state.CanContinuePaidLostHpChain(frame))
             {
                 state.Complete(frame, completed: false, "技能实例在结算前已失效，剩余步骤取消。");
                 return;

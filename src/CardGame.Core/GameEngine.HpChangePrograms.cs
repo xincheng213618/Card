@@ -113,6 +113,9 @@ public sealed partial class GameEngine
                     case PostEventContinuation.DrawPhaseObligation:
                         AdvanceRuntimeFrame(frame.ResumeFrameId!.Value);
                         break;
+                    case PostEventContinuation.HistoricalEndingCardUse:
+                        ContinueHistoricalEndingPayment(frame.ResumeFrameId!.Value);
+                        break;
                     case PostEventContinuation.CounterspellPayment:
                         ContinuePolicyCounterspellPayment(frame.ResumeFrameId!.Value);
                         break;
@@ -169,8 +172,9 @@ public sealed partial class GameEngine
             }
             if (_resolutionStack[index] is ProgramLifecycleTriggerWindowFrame { ResumeDyingFrameId: { } dyingId } entry &&
                 (entry.Window != SkillProgramTriggerWindow.DyingEntering || entry.Continuation != ProgramLifecycleContinuation.ResumeDyingEntry ||
-                 parent is not DyingFrame || parent.Id != dyingId || ActiveDying?.FrameId != dyingId ||
-                 entry.OwnerSeat != ActiveDying.VictimSeat || entry.CandidateIndex < 0 || entry.CandidateIndex >= entry.Candidates.Count))
+                 parent is not DyingFrame originalDying || parent.Id != dyingId ||
+                 (ActiveDying?.FrameId != dyingId && !IsOriginalDyingSuspendedByDyingSuits(originalDying)) ||
+                 entry.OwnerSeat != originalDying.VictimSeat || entry.CandidateIndex < 0 || entry.CandidateIndex >= entry.Candidates.Count))
                 throw new InvalidOperationException("Dying entry lost its frozen parent or cursor.");
             if (_resolutionStack[index] is not HpChangedTriggerWindowFrame hp) continue;
             var window = hp.Change.Kind == HpChangeKind.Loss
@@ -193,6 +197,7 @@ public sealed partial class GameEngine
                 PostEventContinuation.VirtualBasicCardUse => parent is CardUseFrame basic && basic.Id == hp.ResumeFrameId && basic.CardId == 0 && basic.VirtualBasicReturn is not null && basic.VirtualBasicEffectApplied == true && hp.CardId is null && hp.CardKind == basic.CardKind,
                 PostEventContinuation.RecoveryReplacement => parent is RecoveryReplacementFrame recovery && recovery.Id == hp.ResumeFrameId,
                 PostEventContinuation.RecoveryPaidCardUse => parent is CardUseFrame paidUse && paidUse.Id == hp.ResumeFrameId && paidUse.RecoveryPaidContinuation is not null,
+                PostEventContinuation.HistoricalEndingCardUse => parent is CardUseFrame { EndingHistoricalUseReturn: not null, EndingHistoricalCostDrained: false } history && history.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == history.Id,
                 PostEventContinuation.CounterspellPayment => parent is NullificationWindowFrame { CounterspellPayment: not null } counter && counter.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == counter.Id,
                 PostEventContinuation.ColorFireAttackPayment => parent is CardUseFrame { ColorFireAttack.PaidCardId: not null } fire && fire.Id == hp.ResumeFrameId && hp.Change.ParentFrameId == fire.Id,
                 PostEventContinuation.EquipmentRecast => parent is EquipmentRecastFrame recast && recast.Id == hp.ResumeFrameId,

@@ -1,0 +1,13 @@
+{
+  "url": "https://www.sanguosha.com/assets/js/commen.js",
+  "method": "GET",
+  "status": 200,
+  "requestUtc": "2026-10-04T17:33:00.9148137Z",
+  "completedUtc": "2026-10-04T17:33:01.0141644Z",
+  "curlExitCode": 0,
+  "redirectsAllowed": false,
+  "retries": 0,
+  "advertisedBy": "117-page.raw.html script src=/assets/js/commen.js",
+  "rawSha256": "95ca9d3ff648d5c4f045019b9d2252883db452b04db508f6ea5a735c2e725129",
+  "rawBytes": 4424
+}
