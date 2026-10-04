@@ -1,0 +1,22 @@
+{
+  "capture": "portrait",
+  "requestedUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/7300.png",
+  "actualUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/7300.png",
+  "startedUtc": "2026-10-04T11:46:01.2222693+00:00",
+  "endedUtc": "2026-10-04T11:46:01.3534111+00:00",
+  "httpStatus": 200,
+  "curlExitCode": 0,
+  "redirectsFollowed": 0,
+  "retries": 0,
+  "authorizedGetAttempts": 1,
+  "rawPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch34\\root-liu-xie-source-art\\7300-original.png",
+  "rawBytes": 713449,
+  "rawSha256": "8fea3705a1c3bd786990b86c52f09eec46585b5f878ac524b7530b7d13b19d62",
+  "headersPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch34\\root-liu-xie-source-art\\portrait.headers.txt",
+  "headersRawSha256": "028af0bd86c3187b671bcaf15554ddd2766b1478ab52642fa203c9c13a44fe2e",
+  "sourceBinding": "C:\\Users\\17917\\Desktop\\Card\\docs\\content\\sources\\ordinary-other-thirty-third-73-source-2026-10-04.json",
+  "sourceSha256": "e6ca90cf756b583d7481f6dc7a6e26d395c768bdacb8c1f517c150c52ba9bb84",
+  "evidenceRole": "Current advertised original classic portrait.",
+  "buildExecuted": false,
+  "runtimeExecuted": false
+}

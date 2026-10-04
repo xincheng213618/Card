@@ -1,0 +1,466 @@
+{
+  "status": "frozen",
+  "frozenUtc": "2026-10-04T12:25:18.777536+00:00",
+  "baselineHead": "a9d192479fbd781c4eeba1256e17ac2436ea7df8",
+  "identity": {
+    "generalId": "ol:liu-xie",
+    "skillIds": [
+      "ol:tianming",
+      "ol:mizhao"
+    ],
+    "module": "OrdinaryLiuXieContent",
+    "bundle": "ordinary-liu-xie",
+    "artKey": "ol-liu-xie",
+    "gallery": "other",
+    "faction": "qun",
+    "baseHp": 3,
+    "gender": "Male biography-based engineering judgment, API absent"
+  },
+  "source": {
+    "path": "docs/content/sources/ordinary-other-thirty-third-73-source-2026-10-04.json",
+    "rawSha256": "e6ca90cf756b583d7481f6dc7a6e26d395c768bdacb8c1f517c150c52ba9bb84",
+    "bytes": 9374,
+    "utf8Bom": false,
+    "bomFreeLfSha256": "e6ca90cf756b583d7481f6dc7a6e26d395c768bdacb8c1f517c150c52ba9bb84",
+    "lfWithOriginalBomSha256": "e6ca90cf756b583d7481f6dc7a6e26d395c768bdacb8c1f517c150c52ba9bb84"
+  },
+  "rootSourceArtManifest": {
+    "path": ".artifacts/continuation-20261003-batch17/batch34/root-liu-xie-source-art/delivery-manifest.json",
+    "rawSha256": "d73bc43d27e124023adaf47f46e2fc860ad2ad9dbe8aeb452bb1764ea6488909",
+    "bytes": 1316,
+    "utf8Bom": false,
+    "bomFreeLfSha256": "2ec57c856b9206f726c538c255c6a8f4293061d73a1d8722139b50ac72f1732f",
+    "lfWithOriginalBomSha256": "2ec57c856b9206f726c538c255c6a8f4293061d73a1d8722139b50ac72f1732f"
+  },
+  "schema": {
+    "RulesSchemaVersion": 62,
+    "PresentationSchemaVersion": 3
+  },
+  "new": [
+    {
+      "path": "src/CardGame.Core/ProgramRecipientContestOperations.cs",
+      "rawSha256": "917ac746779dc13718a7864743f11c125457d92910c75ccfb1054242e053b0f5",
+      "bytes": 11466,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "c9af0b8282c47a9eff869427a02e9ab83a3ab7a31e571876965f888e85e4dbb1",
+      "lfWithOriginalBomSha256": "c9af0b8282c47a9eff869427a02e9ab83a3ab7a31e571876965f888e85e4dbb1",
+      "destination": "src/CardGame.Core/ProgramRecipientContestOperations.cs"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.UniqueHpPeerPrograms.cs",
+      "rawSha256": "b96f63baf2dba4202892d18130d52d596a4d29701814a978f3ae9cb364b2d1ee",
+      "bytes": 15798,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "bfe97743750e4f6b7fcfdcae6e9f9554a9a255a00d256373d78277e4163c73da",
+      "lfWithOriginalBomSha256": "bfe97743750e4f6b7fcfdcae6e9f9554a9a255a00d256373d78277e4163c73da",
+      "destination": "src/CardGame.Core/GameEngine.UniqueHpPeerPrograms.cs"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.RecipientContests.cs",
+      "rawSha256": "f08339512ea389f96d914f975c257931f4bc6894948fa46d4b31e44d311fedc1",
+      "bytes": 13520,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "f08339512ea389f96d914f975c257931f4bc6894948fa46d4b31e44d311fedc1",
+      "lfWithOriginalBomSha256": "f08339512ea389f96d914f975c257931f4bc6894948fa46d4b31e44d311fedc1",
+      "destination": "src/CardGame.Core/GameEngine.RecipientContests.cs"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.RecipientContestReceipts.cs",
+      "rawSha256": "f4d645fb7fedd3018449eda8d2f4fde1c785452197251aefcd9d5817e6756013",
+      "bytes": 14952,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "5305f69d8812c1c44c66aa137f2aa7d26eeaf554aeb639409efdbe88b5d6631a",
+      "lfWithOriginalBomSha256": "5305f69d8812c1c44c66aa137f2aa7d26eeaf554aeb639409efdbe88b5d6631a",
+      "destination": "src/CardGame.Core/GameEngine.RecipientContestReceipts.cs"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.RecipientContestObservers.cs",
+      "rawSha256": "11c9639ac3a3819df8550bf9b7701fcc3bc9d587cae9145270e8d1ba46f3a9de",
+      "bytes": 10084,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "a28975fe42309fee2ea35c7b09ac08da91c72d9499a16fafc43c179e8b43e13e",
+      "lfWithOriginalBomSha256": "a28975fe42309fee2ea35c7b09ac08da91c72d9499a16fafc43c179e8b43e13e",
+      "destination": "src/CardGame.Core/GameEngine.RecipientContestObservers.cs"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.UniqueHpTargetAnnouncements.cs",
+      "rawSha256": "bd46bc1df01c14e4763883bfedbeb48c9c695fa4c97d8368c1f0b829776ed0da",
+      "bytes": 7481,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "bd46bc1df01c14e4763883bfedbeb48c9c695fa4c97d8368c1f0b829776ed0da",
+      "lfWithOriginalBomSha256": "bd46bc1df01c14e4763883bfedbeb48c9c695fa4c97d8368c1f0b829776ed0da",
+      "destination": "src/CardGame.Core/GameEngine.UniqueHpTargetAnnouncements.cs"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/OrdinaryLiuXieContent.cs",
+      "rawSha256": "2f0774b7e566d90bb74f3eaca183f3875b0a73e3bad47c3de47162f0b58ee5ff",
+      "bytes": 532,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "8cdc6966b249f3d92429ea7fd373d736460c52ca782a4649ba7b9baedad4ea01",
+      "lfWithOriginalBomSha256": "8cdc6966b249f3d92429ea7fd373d736460c52ca782a4649ba7b9baedad4ea01",
+      "destination": "src/CardGame.Content.Standard/OrdinaryLiuXieContent.cs"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ordinary-liu-xie.rules.json",
+      "rawSha256": "72b392faa790119c023d5acfa882ff9bfd48d44b923474a806205edce34eb7d9",
+      "bytes": 807,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "fcd1cc03c7f890b7426e510bcab1dcec56f5d6b529d4a62587f29b2166be6a38",
+      "lfWithOriginalBomSha256": "fcd1cc03c7f890b7426e510bcab1dcec56f5d6b529d4a62587f29b2166be6a38",
+      "destination": "src/CardGame.Content.Standard/SkillPrograms/ordinary-liu-xie.rules.json"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/ordinary-liu-xie.presentation.json",
+      "rawSha256": "d5d6e7575342de7fcc64ef870dab50c1445e73e8acd6499d485f098b40929708",
+      "bytes": 722,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "ce5b52ae728f1b805d0d4596f189db0b3f01e210e9422d28449202db931f088d",
+      "lfWithOriginalBomSha256": "ce5b52ae728f1b805d0d4596f189db0b3f01e210e9422d28449202db931f088d",
+      "destination": "src/CardGame.Content.Standard/SkillPrograms/ordinary-liu-xie.presentation.json"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/OrdinaryLiuXieChecks.cs",
+      "rawSha256": "db061e53ab68380cae8c68ac1757301462cb3f0766716e8509d9b36a2e3c5474",
+      "bytes": 32324,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "db061e53ab68380cae8c68ac1757301462cb3f0766716e8509d9b36a2e3c5474",
+      "lfWithOriginalBomSha256": "db061e53ab68380cae8c68ac1757301462cb3f0766716e8509d9b36a2e3c5474",
+      "destination": "tests/CardGame.Core.Tests/OrdinaryLiuXieChecks.cs"
+    }
+  ],
+  "old": [
+    {
+      "path": "src/CardGame.Core/SkillPrograms.cs",
+      "beforeRawSha256": "a85646fb0a1707c2b9c3d4f7a74cfb160d94fad64dce909e55e98955ec9a3bfa",
+      "beforeUtf8Bom": false,
+      "beforeBomFreeLfSha256": "c3ede2340af6e77fce75d8a6607c31b4189118ede7ed4fdecbc39e875f4ddc92",
+      "beforeLfWithOriginalBomSha256": "c3ede2340af6e77fce75d8a6607c31b4189118ede7ed4fdecbc39e875f4ddc92",
+      "previewRawSha256": "482a879d77dd0574fcb53d3a93fc5f7147777d4eae3cf9a6f705f9deae99974a",
+      "afterBomFreeLfSha256": "482a879d77dd0574fcb53d3a93fc5f7147777d4eae3cf9a6f705f9deae99974a",
+      "afterLfWithOriginalBomSha256": "482a879d77dd0574fcb53d3a93fc5f7147777d4eae3cf9a6f705f9deae99974a",
+      "baselinePath": "baseline/src/CardGame.Core/SkillPrograms.cs",
+      "previewPath": "preview/src/CardGame.Core/SkillPrograms.cs"
+    },
+    {
+      "path": "src/CardGame.Core/Resolution.cs",
+      "beforeRawSha256": "1a46c364c92c0a721c9992e6cf8ff6595fd742f95f05782a3ddef0ec4a576382",
+      "beforeUtf8Bom": false,
+      "beforeBomFreeLfSha256": "56d71da5a0cc26492d3217e36a59d4a22530e69164ca5a6f0e18a8b5e9549282",
+      "beforeLfWithOriginalBomSha256": "56d71da5a0cc26492d3217e36a59d4a22530e69164ca5a6f0e18a8b5e9549282",
+      "previewRawSha256": "e9ab36ccf3151cb6c3d0f90b6fbe153a4248da6fdcffaccfaaba3933d2350117",
+      "afterBomFreeLfSha256": "e9ab36ccf3151cb6c3d0f90b6fbe153a4248da6fdcffaccfaaba3933d2350117",
+      "afterLfWithOriginalBomSha256": "e9ab36ccf3151cb6c3d0f90b6fbe153a4248da6fdcffaccfaaba3933d2350117",
+      "baselinePath": "baseline/src/CardGame.Core/Resolution.cs",
+      "previewPath": "preview/src/CardGame.Core/Resolution.cs"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.Runtime.cs",
+      "beforeRawSha256": "3df7af589312dfbc4f4168b7d0ef57afcf55ae81c3b089751cc357be4f693683",
+      "beforeUtf8Bom": false,
+      "beforeBomFreeLfSha256": "c9bcddc5d88cd9ae3e01ae742d926697f0d6a6560466043b5183db2d9cbf1ac0",
+      "beforeLfWithOriginalBomSha256": "c9bcddc5d88cd9ae3e01ae742d926697f0d6a6560466043b5183db2d9cbf1ac0",
+      "previewRawSha256": "418391aebb1b160cd31b46ff00f34dec4ce09f5c6be393ef0213289ed17a7f76",
+      "afterBomFreeLfSha256": "418391aebb1b160cd31b46ff00f34dec4ce09f5c6be393ef0213289ed17a7f76",
+      "afterLfWithOriginalBomSha256": "418391aebb1b160cd31b46ff00f34dec4ce09f5c6be393ef0213289ed17a7f76",
+      "baselinePath": "baseline/src/CardGame.Core/GameEngine.Runtime.cs",
+      "previewPath": "preview/src/CardGame.Core/GameEngine.Runtime.cs"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+      "beforeRawSha256": "1bdc074ac6c55da718f73b556ce0ba68db0daeeba1aa0918a2393db516851694",
+      "beforeUtf8Bom": false,
+      "beforeBomFreeLfSha256": "a1509c5397873967719bc9f9f3f0d3358707d691fb0a6483332ad20f00f99f97",
+      "beforeLfWithOriginalBomSha256": "a1509c5397873967719bc9f9f3f0d3358707d691fb0a6483332ad20f00f99f97",
+      "previewRawSha256": "59996e1856a4519fb4b50d718ba942286a0abe2001308dd38b21c388d6b12de3",
+      "afterBomFreeLfSha256": "59996e1856a4519fb4b50d718ba942286a0abe2001308dd38b21c388d6b12de3",
+      "afterLfWithOriginalBomSha256": "59996e1856a4519fb4b50d718ba942286a0abe2001308dd38b21c388d6b12de3",
+      "baselinePath": "baseline/src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+      "previewPath": "preview/src/CardGame.Core/GameEngine.ProgramLifecycle.cs"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SkillPrograms.cs",
+      "beforeRawSha256": "ac6083fcdf0a1517f35fc1e8d14b4e97197e43211b5aaabf147555898e7dd530",
+      "beforeUtf8Bom": false,
+      "beforeBomFreeLfSha256": "67631168f4bffd6169e502dc7355a22d67ce47b1c9da4187a473ef003fe05435",
+      "beforeLfWithOriginalBomSha256": "67631168f4bffd6169e502dc7355a22d67ce47b1c9da4187a473ef003fe05435",
+      "previewRawSha256": "a16c4ccdd189a1305ac593f74d137afa90def2856915cb4fc93bbb4bc0cbef0d",
+      "afterBomFreeLfSha256": "a16c4ccdd189a1305ac593f74d137afa90def2856915cb4fc93bbb4bc0cbef0d",
+      "afterLfWithOriginalBomSha256": "a16c4ccdd189a1305ac593f74d137afa90def2856915cb4fc93bbb4bc0cbef0d",
+      "baselinePath": "baseline/src/CardGame.Core/GameEngine.SkillPrograms.cs",
+      "previewPath": "preview/src/CardGame.Core/GameEngine.SkillPrograms.cs"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ActualUseTargetPrograms.cs",
+      "beforeRawSha256": "8328ab2999a1f5502b278336052312e983b43d71dfca66cd0237579d55af9ad7",
+      "beforeUtf8Bom": false,
+      "beforeBomFreeLfSha256": "41f75bfd56558bd0c0a5cd9190a33dcf0afb263fe494d95e96c70473f354fcd2",
+      "beforeLfWithOriginalBomSha256": "41f75bfd56558bd0c0a5cd9190a33dcf0afb263fe494d95e96c70473f354fcd2",
+      "previewRawSha256": "f0c7522f73e3691166581b7b38768d77e01da6599228ea7474928b1e054ee403",
+      "afterBomFreeLfSha256": "f0c7522f73e3691166581b7b38768d77e01da6599228ea7474928b1e054ee403",
+      "afterLfWithOriginalBomSha256": "f0c7522f73e3691166581b7b38768d77e01da6599228ea7474928b1e054ee403",
+      "baselinePath": "baseline/src/CardGame.Core/GameEngine.ActualUseTargetPrograms.cs",
+      "previewPath": "preview/src/CardGame.Core/GameEngine.ActualUseTargetPrograms.cs"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.PaidOwnTargetObservers.cs",
+      "beforeRawSha256": "1b6fafbd17f859e4d6d1b947a6b17509a5b0872ea52824d2831ec65594d37e47",
+      "beforeUtf8Bom": false,
+      "beforeBomFreeLfSha256": "1945dae10793da130648725c0203a8dc53c648a1d89daebbf5973d67bfc19a65",
+      "beforeLfWithOriginalBomSha256": "1945dae10793da130648725c0203a8dc53c648a1d89daebbf5973d67bfc19a65",
+      "previewRawSha256": "0f694a4149e72ddd3b34fd8159b89f2b103e23830a82c61a668a8eda1861dfe6",
+      "afterBomFreeLfSha256": "0f694a4149e72ddd3b34fd8159b89f2b103e23830a82c61a668a8eda1861dfe6",
+      "afterLfWithOriginalBomSha256": "0f694a4149e72ddd3b34fd8159b89f2b103e23830a82c61a668a8eda1861dfe6",
+      "baselinePath": "baseline/src/CardGame.Core/GameEngine.PaidOwnTargetObservers.cs",
+      "previewPath": "preview/src/CardGame.Core/GameEngine.PaidOwnTargetObservers.cs"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CardAttackState.cs",
+      "beforeRawSha256": "1bd8b67d0e91e7c112bb6b9bef527d835b7611b468fca2524a68351eede21643",
+      "beforeUtf8Bom": false,
+      "beforeBomFreeLfSha256": "e3909ae0b7ee132ec3b0f1883ab181d2cc134bb91ad88fe81b2ca35eb57833cc",
+      "beforeLfWithOriginalBomSha256": "e3909ae0b7ee132ec3b0f1883ab181d2cc134bb91ad88fe81b2ca35eb57833cc",
+      "previewRawSha256": "80c17365da5bd1e938e827973e64d0b681ade4e2c21f9d53ddf30c03ad6d352c",
+      "afterBomFreeLfSha256": "80c17365da5bd1e938e827973e64d0b681ade4e2c21f9d53ddf30c03ad6d352c",
+      "afterLfWithOriginalBomSha256": "80c17365da5bd1e938e827973e64d0b681ade4e2c21f9d53ddf30c03ad6d352c",
+      "baselinePath": "baseline/src/CardGame.Core/GameEngine.CardAttackState.cs",
+      "previewPath": "preview/src/CardGame.Core/GameEngine.CardAttackState.cs"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.cs",
+      "beforeRawSha256": "52a8704e0627c3b07e4b126a70199df56734968de5b31d6dff124465b0ed8b04",
+      "beforeUtf8Bom": false,
+      "beforeBomFreeLfSha256": "a4f62a948fd45a2bb7076f633e9bc70153411cdb22e09936e1603568d54615d8",
+      "beforeLfWithOriginalBomSha256": "a4f62a948fd45a2bb7076f633e9bc70153411cdb22e09936e1603568d54615d8",
+      "previewRawSha256": "c43dd1d7746b4e644e2a8e09e97978e137133b36295b38b275a5574b4e904564",
+      "afterBomFreeLfSha256": "c43dd1d7746b4e644e2a8e09e97978e137133b36295b38b275a5574b4e904564",
+      "afterLfWithOriginalBomSha256": "c43dd1d7746b4e644e2a8e09e97978e137133b36295b38b275a5574b4e904564",
+      "baselinePath": "baseline/src/CardGame.Core/GameEngine.cs",
+      "previewPath": "preview/src/CardGame.Core/GameEngine.cs"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SameTypeActualUseAid.cs",
+      "beforeRawSha256": "950e90b261b0dd70e4759b88924361c2d37447fe9c0c84110015711bf5604f22",
+      "beforeUtf8Bom": false,
+      "beforeBomFreeLfSha256": "950e90b261b0dd70e4759b88924361c2d37447fe9c0c84110015711bf5604f22",
+      "beforeLfWithOriginalBomSha256": "950e90b261b0dd70e4759b88924361c2d37447fe9c0c84110015711bf5604f22",
+      "previewRawSha256": "67dddfd5de0875abc73c96a85eeeb7eebb85c67f8a013e4a4b0a4f696384cfbc",
+      "afterBomFreeLfSha256": "67dddfd5de0875abc73c96a85eeeb7eebb85c67f8a013e4a4b0a4f696384cfbc",
+      "afterLfWithOriginalBomSha256": "67dddfd5de0875abc73c96a85eeeb7eebb85c67f8a013e4a4b0a4f696384cfbc",
+      "baselinePath": "baseline/src/CardGame.Core/GameEngine.SameTypeActualUseAid.cs",
+      "previewPath": "preview/src/CardGame.Core/GameEngine.SameTypeActualUseAid.cs"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ProgramDiscardOrigins.cs",
+      "beforeRawSha256": "90c4ec80c8609c6c151b790867ea5b722b55b8284de5cdaa520b2201576ad8c0",
+      "beforeUtf8Bom": false,
+      "beforeBomFreeLfSha256": "90c4ec80c8609c6c151b790867ea5b722b55b8284de5cdaa520b2201576ad8c0",
+      "beforeLfWithOriginalBomSha256": "90c4ec80c8609c6c151b790867ea5b722b55b8284de5cdaa520b2201576ad8c0",
+      "previewRawSha256": "50061c968de1819ed803c4c27619b1899a11a515e0a9598b10689e70ca6aa3eb",
+      "afterBomFreeLfSha256": "50061c968de1819ed803c4c27619b1899a11a515e0a9598b10689e70ca6aa3eb",
+      "afterLfWithOriginalBomSha256": "50061c968de1819ed803c4c27619b1899a11a515e0a9598b10689e70ca6aa3eb",
+      "baselinePath": "baseline/src/CardGame.Core/GameEngine.ProgramDiscardOrigins.cs",
+      "previewPath": "preview/src/CardGame.Core/GameEngine.ProgramDiscardOrigins.cs"
+    }
+  ],
+  "patch": {
+    "path": "shared-wiring.patch",
+    "rawSha256": "70021c7f9aed968e53788a4193f43c00719d1a429b439013342627e9b81ad319",
+    "bytes": 42951,
+    "utf8Bom": false,
+    "bomFreeLfSha256": "70021c7f9aed968e53788a4193f43c00719d1a429b439013342627e9b81ad319",
+    "lfWithOriginalBomSha256": "70021c7f9aed968e53788a4193f43c00719d1a429b439013342627e9b81ad319"
+  },
+  "support": [
+    {
+      "path": "CONTRACT.md",
+      "rawSha256": "10944976eee9805af609fae438228c13ee1568395c40d13fb852ced984c341de",
+      "bytes": 8533,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "10944976eee9805af609fae438228c13ee1568395c40d13fb852ced984c341de",
+      "lfWithOriginalBomSha256": "10944976eee9805af609fae438228c13ee1568395c40d13fb852ced984c341de"
+    },
+    {
+      "path": "ENGINEERING-DEFAULTS.md",
+      "rawSha256": "1aedd17a27b5213902056445d14f8d145df79e764d1f1b7a2de975b3f88616aa",
+      "bytes": 4558,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "1aedd17a27b5213902056445d14f8d145df79e764d1f1b7a2de975b3f88616aa",
+      "lfWithOriginalBomSha256": "1aedd17a27b5213902056445d14f8d145df79e764d1f1b7a2de975b3f88616aa"
+    },
+    {
+      "path": "STATIC-API-REVIEW.md",
+      "rawSha256": "9bcb7ed82956ccf375a34ef1edde35ec183c895300bfeef37128d890fa23c9fd",
+      "bytes": 4736,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "9bcb7ed82956ccf375a34ef1edde35ec183c895300bfeef37128d890fa23c9fd",
+      "lfWithOriginalBomSha256": "9bcb7ed82956ccf375a34ef1edde35ec183c895300bfeef37128d890fa23c9fd"
+    },
+    {
+      "path": "make-wiring.py",
+      "rawSha256": "55a8f28e14787f952b5b1d046bb9f713521042e898ea13cc18e77fef60ce4e30",
+      "bytes": 13609,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "642f572eb7d1d89744c62566221c37e0a0d162b224bd4ed4491c3c33e953de38",
+      "lfWithOriginalBomSha256": "642f572eb7d1d89744c62566221c37e0a0d162b224bd4ed4491c3c33e953de38"
+    },
+    {
+      "path": "freeze-delivery.py",
+      "rawSha256": "122acfbcb9a458d2a3fd6005f7774fdf4866416557393990e1f285e6ff705702",
+      "bytes": 7724,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "122acfbcb9a458d2a3fd6005f7774fdf4866416557393990e1f285e6ff705702",
+      "lfWithOriginalBomSha256": "122acfbcb9a458d2a3fd6005f7774fdf4866416557393990e1f285e6ff705702"
+    },
+    {
+      "path": "old-files-manifest.json",
+      "rawSha256": "cca4cf01b1ac91215d7428afdad6ea439743f69523ca1c31c2438d04423658c1",
+      "bytes": 9854,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "3d5ea4859c28722588167d11a4b728d5d18746e9aa5f0a1c21aa3de41f8b7d7d",
+      "lfWithOriginalBomSha256": "3d5ea4859c28722588167d11a4b728d5d18746e9aa5f0a1c21aa3de41f8b7d7d"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "src/CardGame.Core/SkillProgramExecutor.cs",
+      "rawSha256": "f7a0823a0b0b3854a4ec26fb9da8c173b0b2f25c72dabeea716ae1a73e52b85d",
+      "bytes": 73046,
+      "utf8Bom": true,
+      "bomFreeLfSha256": "652564d7ed595b2c1b9daf3aa888f7a64d409cbb84e4bddba7b531d01676b9f1",
+      "lfWithOriginalBomSha256": "a1abb7de542f1a7c6f9e19776adccd5c57b6e02631bfef7e95f6ed99385821e0"
+    },
+    {
+      "path": "src/CardGame.Core/ProgramLifecycle.cs",
+      "rawSha256": "64067a1d7b0a274d41eaed50424c19fc7a45da1b2dc5aa218cd0bdde31f976fd",
+      "bytes": 21546,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "f586856754ccccce920be4b221da4ebab9749d6b72bba48d19b2f83a273afe2e",
+      "lfWithOriginalBomSha256": "f586856754ccccce920be4b221da4ebab9749d6b72bba48d19b2f83a273afe2e"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.HalfHandPhaseDebtDamageObservers.cs",
+      "rawSha256": "061db7a883721edc4f84cb6f91f4795b0eb6017890f2408a45012433a689edfe",
+      "bytes": 14978,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "061db7a883721edc4f84cb6f91f4795b0eb6017890f2408a45012433a689edfe",
+      "lfWithOriginalBomSha256": "061db7a883721edc4f84cb6f91f4795b0eb6017890f2408a45012433a689edfe"
+    },
+    {
+      "path": "src/CardGame.Core/ParticipantHandProgramRescueRides.cs",
+      "rawSha256": "6da6e299163ddcc7bd04daf65b704e1e0896dc03044cf4c7764f30aa48307d48",
+      "bytes": 3689,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "6da6e299163ddcc7bd04daf65b704e1e0896dc03044cf4c7764f30aa48307d48",
+      "lfWithOriginalBomSha256": "6da6e299163ddcc7bd04daf65b704e1e0896dc03044cf4c7764f30aa48307d48"
+    },
+    {
+      "path": "src/CardGame.Core/ParticipantHandDamageRides.cs",
+      "rawSha256": "61a3d9f84b18b0c5aa4cb625e6fd863cefd3935c3c0893b1fef86db9718dc7e3",
+      "bytes": 12525,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "61a3d9f84b18b0c5aa4cb625e6fd863cefd3935c3c0893b1fef86db9718dc7e3",
+      "lfWithOriginalBomSha256": "61a3d9f84b18b0c5aa4cb625e6fd863cefd3935c3c0893b1fef86db9718dc7e3"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CardUseLifecycle.cs",
+      "rawSha256": "2b5a8ba7c5b8850ec5a95978616dbb24a527a6573d51d2f12ed920f7e484a9a6",
+      "bytes": 7492,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "da42e05cb7eee56f441544f689a9b0d165512494ff8405d5a33c313ec96d834b",
+      "lfWithOriginalBomSha256": "da42e05cb7eee56f441544f689a9b0d165512494ff8405d5a33c313ec96d834b"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CurrentCardEnhancements.cs",
+      "rawSha256": "da138b4598224989908091e1c41ce336c48b5de9954343de0863eafc75f6e704",
+      "bytes": 15497,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "b5434a6b2708a219714233c0e6788d94d0646c4005c97255857b5e595189d679",
+      "lfWithOriginalBomSha256": "b5434a6b2708a219714233c0e6788d94d0646c4005c97255857b5e595189d679"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/EmbeddedSkillProgramCatalog.cs",
+      "rawSha256": "f5e57bb9297f874d6087fac204f09de27195dc254ec18b96287f16e10e499361",
+      "bytes": 4762,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "a89d8c0c3ee0c7ff0e53d4a922bd07395d60ff7e0818093d671b6b66fe63b3ce",
+      "lfWithOriginalBomSha256": "a89d8c0c3ee0c7ff0e53d4a922bd07395d60ff7e0818093d671b6b66fe63b3ce"
+    },
+    {
+      "path": "src/CardGame.Core/ContentRegistry.cs",
+      "rawSha256": "2054e1bf7964965b0fd015ab40e52f4b10d2e9a123fcc90ab00b7c2c95616e9c",
+      "bytes": 50230,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "c1a9bb0e9a85c6c8b69a49ebebfe8848bdf450231a8a668b2f98142a003cd443",
+      "lfWithOriginalBomSha256": "c1a9bb0e9a85c6c8b69a49ebebfe8848bdf450231a8a668b2f98142a003cd443"
+    },
+    {
+      "path": "src/CardGame.Core/Replay.cs",
+      "rawSha256": "83773c8192521c8202aa932201ff15efbed438212467508d95780ca83889f966",
+      "bytes": 8926,
+      "utf8Bom": false,
+      "bomFreeLfSha256": "2e72dd2be683dbca281cba1b8d0dac1ccc41c1424cc741abd1b7ab74f3eca380",
+      "lfWithOriginalBomSha256": "2e72dd2be683dbca281cba1b8d0dac1ccc41c1424cc741abd1b7ab74f3eca380"
+    }
+  ],
+  "sharedIntegrationDependency": {
+    "owner": "root and pang_de",
+    "method": "TryBeginUnannouncedUniqueHpTargets(CardAttackHandle attack, bool legacy)",
+    "file": "src/CardGame.Core/GameEngine.UniqueHpTargetAnnouncements.cs",
+    "requiredMerge": "Preserve 7000-only AfterActualTargetsSlash/Legacy callback in ContinueAfterActualUseTargets; merge shared ActualUseTargetPrograms/SkillPrograms/Runtime/GameEngine hunks instead of overwriting either preview."
+  },
+  "checks": {
+    "type": "unexecuted real-command drafts",
+    "className": "OrdinaryLiuXieChecks",
+    "methods": [
+      "TianmingSilverLionPaymentAndUniqueCurrentHpPeerOwnColdChildren",
+      "TianmingZeroInsufficientCostAndWholeTargetTimingKeepRealProducers",
+      "MizhaoAtomicGiftForeignPindianWinnerSlashAndColdReturn",
+      "MizhaoTieOpponentWinnerAndPaidSourceLossCancelOnlyUnissued"
+    ],
+    "routineCandidate": "TianmingSilverLionPaymentAndUniqueCurrentHpPeerOwnColdChildren",
+    "existingRunnerOnly": true
+  },
+  "rootRegistration": [
+    "StandardClassicGeneralPackage module",
+    "four Core runner entries",
+    "one routine representative",
+    "GeneralGalleryCatalog other group",
+    "source/art catalog and PNG"
+  ],
+  "excludedMainDirty": [
+    "src/CardGame.Core/GameEngine.PrepDiscardReceipts.cs"
+  ],
+  "runtime": {
+    "compiler": false,
+    "build": false,
+    "loader": false,
+    "game": false,
+    "tests": false,
+    "nativeAi": false,
+    "benchmark": false,
+    "wpf": false,
+    "http": false
+  },
+  "staticValidation": {
+    "namedBeforeRaw": true,
+    "patchTextReconstruction": true,
+    "fullPreviewLogicalMatch": true,
+    "jsonSyntaxOnly": true,
+    "actualApiSourceReview": true
+  },
+  "staticOnlyBoundaries": [
+    "7000/7200 children adding targets",
+    "actor replacement",
+    "5403 Slash-fire",
+    "4901/SameTypeAid additional tails",
+    "WoodenOx cleanup",
+    "Wu SilverLion replacement",
+    "gain damage and HP-loss replacement with rescue variants",
+    "winner/death/immunity/armor combinations",
+    "native owner setup/valuation",
+    "WPF command selection"
+  ],
+  "noVersionChange": true,
+  "noMainWrite": true,
+  "completeCurrentPrimaryText": true
+}

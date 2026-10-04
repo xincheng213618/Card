@@ -1,0 +1,36 @@
+{
+  "status": "frozen-static-final-effective-check-not-compiled-not-run",
+  "frozenUtc": "2026-10-04T12:32:59.864616+00:00",
+  "previousManifestPath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-command-api-followup/nullable-card-followup/delivery-manifest.json",
+  "previousManifestRawSha256": "c74f8ad7cb72687c572f5e8d5147b3e9b64a5ef23a602015d09d5f6933251615",
+  "originalManifestPath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/delivery-manifest.json",
+  "target": "tests/CardGame.Core.Tests/OrdinaryLingJuChecks.cs",
+  "rawBeforeSha256": "041015a6c185c322ec9e7fe1de22174d5386e15c134761b80e82cbe906c56e78",
+  "bomFreeLfBeforeSha256": "041015a6c185c322ec9e7fe1de22174d5386e15c134761b80e82cbe906c56e78",
+  "bomPreservingLfBeforeSha256": "041015a6c185c322ec9e7fe1de22174d5386e15c134761b80e82cbe906c56e78",
+  "previewPath": "preview/tests/CardGame.Core.Tests/OrdinaryLingJuChecks.cs",
+  "rawAfterSha256": "5a394f558c8bda5e2dec85b8662ab8f987cfe47be295d6e9b21c1ba368130caf",
+  "bomFreeLfAfterSha256": "5a394f558c8bda5e2dec85b8662ab8f987cfe47be295d6e9b21c1ba368130caf",
+  "bomPreservingLfAfterSha256": "5a394f558c8bda5e2dec85b8662ab8f987cfe47be295d6e9b21c1ba368130caf",
+  "patchPath": "typed-physical-ids.patch",
+  "patchRawSha256": "7a6eb6df7b551ece19de0a5b03ba967b2278937bb0e3ca12dee496db4745dd8c",
+  "support": [
+    {
+      "path": "prepare-followup.py",
+      "rawSha256": "425c3ae3370c736d56f88600b4cb056b6863a3256a888133bdc8df6a07636e13"
+    }
+  ],
+  "changes": "Slash and equipment each capture the real required non-null physical int ID once, then commands/private choices/ledger assertions use it. Both conversion sources and every behavior assertion remain.",
+  "originalFrozenFilesChanged": false,
+  "previousFrozenFilesChanged": false,
+  "mainWritten": false,
+  "compiler": false,
+  "build": false,
+  "loader": false,
+  "tests": false,
+  "game": false,
+  "nativeAi": false,
+  "benchmark": false,
+  "http": false,
+  "pureTextReverseMatchesPrevious": true
+}

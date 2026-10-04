@@ -1823,6 +1823,7 @@ public sealed partial class GameEngine
         ProgramSkillWindowContext context)
     {
         if (!IsValidPlayerSeat(candidate.OwnerSeat) || candidate.OwnerSeat != context.OwnerSeat) return false;
+        if (IsSlashTargetBenefitWindow(context.Window)) return CanRunSlashTargetBenefitCandidate(candidate, context);
         var owner = _players[candidate.OwnerSeat];
         if (context.Window != SkillProgramTriggerWindow.OwnerDied && !owner.IsAlive ||
             !HasRuntimeSkillInstance(owner, candidate.SkillId, candidate.SkillInstanceId) && !HasIssuedOriginalTargetCandidate(candidate, context) ||
@@ -1837,13 +1838,14 @@ public sealed partial class GameEngine
         if (!CanRunPaidColorDamageClaim(candidate, trigger, context)) return false;
         if (!CanRunSameTypeAid(candidate, trigger, context)) return false;
         if (!CanRunPrepDiscard(candidate, trigger, context)) return false;
+        if (!CanRunUniqueHpPeer(candidate, trigger, context)) return false;
         if (!CanRunHalfHandPhaseDebt(candidate, trigger, context)) return false;
         if (!CanRunFixedRecipientBenefit(candidate, trigger, context)) return false;
         if (!CanRunEndingPair(candidate, trigger, context)) return false;
         if (!CanRunActualUseTarget(candidate, context)) return false;
         if (!CanOfferOriginalTargetAddition(candidate, trigger, context)) return false;
         if (!CanRunProgramDyingAlcoholPolicy(trigger, context, candidate.OwnerSeat)) return false;
-        if (!CanOfferRoundPileAlcohol(candidate, trigger, context) || !CanOfferCurrentSlashFire(candidate, trigger, context) || !CanOfferSuitPreventionBenefit(candidate, trigger, context)) return false;
+        if (!CanOfferRoundPileAlcohol(candidate, trigger, context) || !CanOfferCurrentSlashFire(candidate, trigger, context) || !CanOfferSuitPreventionBenefit(candidate, trigger, context) || !CanOfferSignedDamagePayment(candidate, trigger, context)) return false;
         if (!CanOfferActualDiscardRecovery(candidate, context)) return false;
         if (!CanOfferShownEntityTurnPolicy(candidate, context)) return false;
         if (!CanOfferFinalTargetSlash(candidate, trigger, context)) return false;
@@ -3144,6 +3146,8 @@ public sealed partial class GameEngine
         if (selected.Parameters.GetValueOrDefault("program-action") == "dying-owned-card") { ResolveDyingOwnedCardChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "sequential-discard") { ResolveSequentialDiscardChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "half-hand-support") { ResolveHalfHandSupportChoice(selected); return; }
+        if (selected.Parameters.GetValueOrDefault("program-action") == "unique-hp-peer") { ResolveUniqueHpPeerChoice(selected); return; }
+        if (selected.Parameters.GetValueOrDefault("program-action") == "recipient-contest") { ResolveRecipientContestChoice(selected); return; }
         var action = selected.Parameters.GetValueOrDefault("program-action");
         if (action == "relative-zone-target") { ResolveRelativeZoneTarget(selected); return; }
         if (action == "deck-end-exchange") { ResolveDeckEndChoice(selected); return; }
@@ -3171,6 +3175,7 @@ public sealed partial class GameEngine
         }
         if (action == "discard-budget") { ResolveDiscardBudgetChoice(selected); return; }
         if (action == "actual-discard-recovery") { ResolveActualDiscardRecovery(selected); return; }
+        if (action == "signed-damage-payment") { ResolveSignedDamagePayment(selected); return; }
         if (action == "suit-prevention-benefit") { ResolveSuitPreventionBenefit(selected); return; }
         if (action == "matched-judgment-placement") { ResolveMatchedJudgmentPlacement(selected); return; }
         if (action == "completed-use-payment") { ResolveCompletedUsePayment(selected); return; }
@@ -3184,6 +3189,7 @@ public sealed partial class GameEngine
             ResolveCompletedCardGiftChoice(selected);
             return;
         }
+        if (action == "slash-target-benefit") { ResolveSlashTargetBenefitChoice(selected); return; }
         if (action == "prep-discard-ending")
         {
             ResolvePrepDiscardChoice(_resolutionStack.LastOrDefault() as ProgramSkillFrame ??
@@ -4067,6 +4073,7 @@ public sealed partial class GameEngine
                     SkillProgramEffectOp.SpendMarkerOrLoseHp => decision.Choices[0],
                 SkillProgramEffectOp.SelectDistinctSuitHandDiscards or SkillProgramEffectOp.SuppressGeneralSkill or SkillProgramEffectOp.SelectChainedByMarker or SkillProgramEffectOp.SelectOneSelectedTarget => decision.Choices[0],
                 SkillProgramEffectOp.OfferOriginalTargetAddition => SelectAiOriginalTargetAddition(decision, frame),
+                SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage => SelectAiSignedDamagePayment(decision, frame),
                 SkillProgramEffectOp.DiscardSuitPreventDamageAndBenefit => SelectAiSuitPreventionBenefit(decision, frame),
                 SkillProgramEffectOp.RestoreActualDiscardBatch => SelectAiActualDiscardRecovery(decision, frame),
                 SkillProgramEffectOp.PlaceMatchedJudgmentCard => SelectAiMatchedJudgmentPlacement(decision, frame),
@@ -4100,12 +4107,14 @@ public sealed partial class GameEngine
                     SelectAiProgramPhaseHandDiscardRestore(decision, frame),
                 SkillProgramEffectOp.ChooseOwnCardDiscard =>
                     SelectAiProgramOwnCardDiscard(decision, frame),
+                SkillProgramEffectOp.DiscardDrawAndOfferUniqueHpPeer or SkillProgramEffectOp.GiveAllHandAndStartRecipientPindian => SelectAiRecipientContest(decision, frame),
                 SkillProgramEffectOp.SelectEquipmentPairAndPayment => SelectAiEquipmentPairPayment(decision, frame),
                 SkillProgramEffectOp.SelectDyingOwnedCard => SelectAiDyingOwnedCard(decision),
                 SkillProgramEffectOp.SelectOwnedCards or SkillProgramEffectOp.ResolveDeferredHandAlignment or SkillProgramEffectOp.SelectTurnDamageUseDebtPayment or SkillProgramEffectOp.SelectFrozenHandExchangeDebtPayment => SelectAiProgramOwnedCards(decision, frame),
                 SkillProgramEffectOp.DrawThenDiscardHandToMaximumHp => decision.Choices[0],
                 SkillProgramEffectOp.HoldTargetCards => SelectAiProgramHoldCards(decision, frame),
                 SkillProgramEffectOp.ResolvePrepDiscardOrEnding => SelectAiPrepDiscard(decision, frame),
+                SkillProgramEffectOp.OfferSlashTargetBenefit or SkillProgramEffectOp.SettleDodgeCancelledSlashBenefit => SelectAiSlashTargetBenefit(decision, frame),
                 SkillProgramEffectOp.RequestSlashByTarget => SelectAiProgramRequestSlash(decision, frame),
                 SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner or SkillProgramEffectOp.DeclareDeckCriterionAndGiveMatchingCard =>
                     SelectAiFixedSlashAndDeclaredDeck(decision, frame),

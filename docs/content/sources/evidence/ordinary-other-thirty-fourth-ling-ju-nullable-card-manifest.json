@@ -1,0 +1,40 @@
+{
+  "status": "frozen-static-nullable-card-correction-not-compiled-not-run",
+  "frozenUtc": "2026-10-04T12:31:54.185418+00:00",
+  "previousManifestPath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-command-api-followup/delivery-manifest.json",
+  "previousManifestRawSha256": "0c6306e5f9ce60fd813c696165543053b437e91c89e87505b9574b67839abbdc",
+  "target": "tests/CardGame.Core.Tests/OrdinaryLingJuChecks.cs",
+  "rawBeforeSha256": "011401109f2e9d793c03744ba3b4e5173413aa689d42c251ef96c902575ec4a4",
+  "bomFreeLfBeforeSha256": "011401109f2e9d793c03744ba3b4e5173413aa689d42c251ef96c902575ec4a4",
+  "bomPreservingLfBeforeSha256": "011401109f2e9d793c03744ba3b4e5173413aa689d42c251ef96c902575ec4a4",
+  "previewPath": "preview/tests/CardGame.Core.Tests/OrdinaryLingJuChecks.cs",
+  "rawAfterSha256": "041015a6c185c322ec9e7fe1de22174d5386e15c134761b80e82cbe906c56e78",
+  "bomFreeLfAfterSha256": "041015a6c185c322ec9e7fe1de22174d5386e15c134761b80e82cbe906c56e78",
+  "bomPreservingLfAfterSha256": "041015a6c185c322ec9e7fe1de22174d5386e15c134761b80e82cbe906c56e78",
+  "patchPath": "nullable-card.patch",
+  "patchRawSha256": "b22b24ae3e382a596f783738b20a77d54fec700408c12916c39700c46dd7f8d2",
+  "support": [
+    {
+      "path": "prepare-followup.py",
+      "rawSha256": "50c0ef3b11b4f880812a0ff149dc604b6b336dd55f85f14e8fa12ad67a063880"
+    }
+  ],
+  "evidence": {
+    "path": "src/CardGame.Core/Domain.cs",
+    "rawSha256": "a62227d950284de7dfef598c5a9daa466d7f584a8c6bf2a7545e353238a2bfeb",
+    "symbol": "LegalAction.CardId: int?"
+  },
+  "change": "Only the exact paid equipment SequenceEqual element is required non-null, matching the real command entity; all prior assertions and four runner methods retained.",
+  "originalFrozenFilesChanged": false,
+  "previousFrozenFilesChanged": false,
+  "mainWritten": false,
+  "compiler": false,
+  "build": false,
+  "loader": false,
+  "tests": false,
+  "game": false,
+  "nativeAi": false,
+  "benchmark": false,
+  "http": false,
+  "pureTextReverseMatchesPrevious": true
+}

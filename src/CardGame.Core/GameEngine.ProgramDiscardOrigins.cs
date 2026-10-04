@@ -54,7 +54,7 @@ public sealed partial class GameEngine
             if (operation is nameof(SkillProgramEffectOp.ChooseCategoryAlternativeDiscard) or
                 nameof(SkillProgramEffectOp.EscalatingDiscardOrDamage) or nameof(SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard) or nameof(SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected) or
                 nameof(SkillProgramEffectOp.RequestAttackRangeAid) or
-                nameof(SkillProgramEffectOp.PayEquipmentColorDiscard)) return true;
+                nameof(SkillProgramEffectOp.PayEquipmentColorDiscard) or nameof(SkillProgramEffectOp.DiscardDrawAndOfferUniqueHpPeer)) return true;
         }
         return IsDiscardMovementReason(reason);
     }

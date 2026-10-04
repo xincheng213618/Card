@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "status": "static-integrity-only-runtime-deferred",
+  "recordedAtUtc": "2026-10-04T20:37:43.583011+08:00",
+  "reviewBaseHead": "a9d192479fbd781c4eeba1256e17ac2436ea7df8",
+  "integrationRecord": "docs/content/sources/ordinary-other-thirty-fourth-static-integration-2026-10-04.json",
+  "integrationRecordRawSha256": "b8bc7e1d70afb5ff48705bf737a06822da594d98d521e714b4d015255fe6c47b",
+  "execution": {
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "coreChecks": false,
+    "wpfChecks": false,
+    "nativeGame": false,
+    "game": false,
+    "benchmark": false,
+    "ui": false,
+    "publish": false,
+    "push": false
+  },
+  "staticIntegrity": {
+    "adoptedMappings": 80,
+    "jsonSyntaxFiles": 6,
+    "registeredGenerals": 3,
+    "registeredCoreDraftMethods": 12,
+    "routineRepresentatives": 3,
+    "artCatalogHashesAndPngHeaders": true,
+    "oldEnumValuesPreserved": true,
+    "unrelatedDirtyRawBytesPreserved": true
+  },
+  "runtimeAcceptance": false,
+  "measurements": {
+    "routineSeconds": null,
+    "fullSeconds": null
+  },
+  "cleanup": {
+    "previousAutomaticApprovalRejection": "blocked by policy",
+    "notRetriedOrBypassed": true,
+    "newBuildOrPublishTreesCreated": false,
+    "stillPresentExactPaths": [
+      "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+      "C:\\Users\\17917\\Desktop\\Card\\tools\\__pycache__\\sync_general_art.cpython-314.pyc"
+    ]
+  }
+}

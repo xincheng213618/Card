@@ -3,7 +3,8 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool TracksPaidOwnTargets => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PayHpThenNullifyOwnActualUseTarget) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferHalfHandRecipientSupport) || HasSameTypeActualUseAid;
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferHalfHandRecipientSupport) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardDrawAndOfferUniqueHpPeer) || HasSameTypeActualUseAid;
 
     private ActualUseTargetIdentity? FreezeActualUseTarget(CardUseFrame use, int target)
     {
@@ -27,7 +28,7 @@ public sealed partial class GameEngine
                 action.ActionId == actionId && action.ActorSeat == identity.ActorSeat && action.ProviderSeat == identity.ProviderSeat &&
                 action.EffectiveKind == identity.EffectiveKind;
         return identity.LegacyProducerProgramId is { } producer && use.Action is null &&
-            LegacyDamageJudgmentVirtualProducer(use, identity.TargetSeat) == producer;
+            (LegacyDamageJudgmentVirtualProducer(use, identity.TargetSeat) == producer || MatchesAnnouncedUniqueHpLegacyTarget(identity));
     }
 
     private bool TryBeginActualUseTargetPrograms(CardAttackHandle attack, ActualUseTargetReturnKind kind)
@@ -64,7 +65,9 @@ public sealed partial class GameEngine
                     { ActualUseTarget = identity }));
             }
         }
-        if (entries.Count == 0) return false;
+        var previouslyAnnounced = use.UniqueHpAnnouncedTargets?.Count ?? 0;
+        AppendUnannouncedUniqueHpTargets(use, id, entries);
+        if (entries.Count == 0 && (LifecycleCardUse(use.Id)?.UniqueHpAnnouncedTargets?.Count ?? 0) == previouslyAnnounced) return false;
         entries = entries.OrderByDescending(e => e.Candidate.Priority).ThenBy(e => e.Candidate.OwnerSeat)
             .ThenBy(e => e.Candidate.SkillId, StringComparer.Ordinal).ToList();
         _resolutionSequence = id;
@@ -89,6 +92,7 @@ public sealed partial class GameEngine
     {
         while (_resolutionStack.LastOrDefault() is ActualUseTargetWindowFrame parent)
         {
+            parent = AppendUniqueHpTargetsToCurrentWindow(parent);
             if (parent.CandidateIndex >= parent.Candidates.Count || _winner != Winner.None)
             {
                 PopResolutionFrame(parent.Id, ResolutionFrameKind.ActualUseTargetWindow);
@@ -154,6 +158,7 @@ public sealed partial class GameEngine
         }
         var attack = ActiveCardAttack;
         if (attack is null || attack.ResolutionId != use.Id) throw new InvalidOperationException("The target return lost its actual Slash.");
+        if (TryBeginSlashTargetBenefits(attack, parent.ReturnKind == ActualUseTargetReturnKind.LegacyVirtualSlash, afterActualTargets: true)) return;
         if (parent.ReturnKind == ActualUseTargetReturnKind.LegacyVirtualSlash)
         {
             if (IsCardEffectIneffective(use.Id, attack.TargetSeat)) { SetCardUseStep(use.Id, ResolutionFrameStep.ResolvingEffect); CompleteAttack(attack); }

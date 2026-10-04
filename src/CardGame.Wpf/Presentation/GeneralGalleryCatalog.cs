@@ -84,6 +84,9 @@ public static class GeneralGalleryCatalog
         foreach (var id in new[] { "guan-yu", "zhou-yu", "zhuge-liang", "lu-bu", "zhao-yun", "sima-yi",
                      "liu-bei", "lu-xun", "gan-ning", "zhang-liao", "sun-quan", "zhang-jiao", "dian-wei", "huang-zhong" })
             groups.Add("ol:shen-" + id, "god");
+        groups.Add("ol:fu-wan", "other");
+        groups.Add("ol:liu-xie", "other");
+        groups.Add("ol:ling-ju", "other");
         groups.Add("classic:qu-yi", "other");
         Add("sp", "gongsun-zan");
         groups.Add("sp:le-jin", "sp");
