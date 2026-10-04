@@ -249,12 +249,12 @@ public sealed partial class GameEngine
                 throw new InvalidOperationException("A shared Slash lost its original typed use issuance.");
             var use = _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(u => u.Id == returned.CardUseFrameId);
             if (use is not null && (use.SharedSlashBenefit != returned ||
-                use.CardId != 0 || use.CardKind != CardKind.Slash || use.PhysicalCardIds?.Count != 0 ||
-                use.Action is not { Type: CardActionType.Use, EffectiveKind: CardKind.Slash } a ||
+                use.CardId != 0 || use.CardKind != CardKind.Slash && !IsCurrentSlashFireChangedUse(use) || use.PhysicalCardIds?.Count != 0 ||
+                (use.CurrentSlashFirePolicy?.OriginalAction ?? use.Action) is not { Type: CardActionType.Use, EffectiveKind: CardKind.Slash } a ||
                 a.ActionId != returned.CardActionId || a.ActorSeat != actor || a.ProviderSeat != actor ||
                 a.PhysicalCards.Count != 0 || a.ConversionChain.Count != 0 ||
-                !a.TargetSeats.SequenceEqual(use.TargetSeats) ||
-                use.TargetSeats.Count > 1 && !HasIssuedOriginalTargetAdditionTail(use) ||
+                !a.TargetSeats.SequenceEqual(use.TargetSeats) && !IsCurrentSlashFireChangedUse(use) ||
+                use.TargetSeats.Count > 1 && !HasIssuedOriginalTargetAdditionTail(use) && !IsCurrentSlashFireChangedUse(use) ||
                 !SharedSlashHistory().OfType<TargetsConfirmedEvent>().Any(e => e.ResolutionId == use.Id && e.TargetSeats.SequenceEqual([returned.OriginalTargetSeat]))))
                 throw new InvalidOperationException("A shared Slash changed its exact zero-entity accepted action.");
             if (r.Stage == SharedSlashOfferStage.SlashIssued && (use is null || r.CausedDamage is not null) ||

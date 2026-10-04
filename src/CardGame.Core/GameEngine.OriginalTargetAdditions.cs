@@ -142,6 +142,7 @@ public sealed partial class GameEngine
         ProgramSkillFrame parent, out IReadOnlyList<int> primaryTarget)
     {
         primaryTarget = Array.Empty<int>();
+        if (TryGetCurrentSlashFirePrimaryReturn(use, parent, out primaryTarget)) return true;
         if (!HasIssuedOriginalTargetAdditionTail(use) || use.CardId != 0 || use.CardKind != CardKind.Slash ||
             use.PhysicalCardIds is not { Count: 0 } || use.CardAttack is not
                 { CardId: null, EffectiveCardKind: CardKind.Slash, PhysicalCardIds.Count: 0 } attack ||

@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:lihuo",
+      "revision": 1,
+      "minimumRulesVersion": 195,
+      "modifiers": [
+        {
+          "id": "fire-slash-extra-target",
+          "query": "cardTargetCount",
+          "operation": "add",
+          "value": 1,
+          "priority": 0,
+          "cardKinds": [
+            "fireSlash"
+          ]
+        }
+      ],
+      "viewAs": [
+        {
+          "id": "non-fire-slash-to-fire",
+          "inputKinds": [
+            "slash",
+            "thunderSlash"
+          ],
+          "inputSuits": [],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "allowChainedInput": true
+        }
+      ],
+      "triggers": [
+        {
+          "id": "committed-slash-fire-or-extra",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": true,
+          "effects": [
+            {
+              "op": "offerCurrentSlashFireAndExtraTarget",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "converted-use-completion-cost",
+          "window": "cardUseCompleted",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "fireSlash"
+          ],
+          "optional": false,
+          "condition": {
+            "kind": "all",
+            "children": [
+              {
+                "kind": "cardUseCausedDamage"
+              },
+              {
+                "kind": "cardUseConversionSkillIs",
+                "conversionSkillId": "boundary:lihuo"
+              }
+            ]
+          },
+          "effects": [
+            {
+              "op": "payCompletedUseDiscardOrLoseHp",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:chunlao",
+      "revision": 1,
+      "minimumRulesVersion": 195,
+      "triggers": [
+        {
+          "id": "store-own-or-neighbor-discard",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "storeAdjacentDiscardedSlash",
+              "target": "owner",
+              "destinationZone": "chunlao"
+            }
+          ]
+        },
+        {
+          "id": "round-priced-pile-alcohol",
+          "window": "dyingResponse",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "useRoundPricedPileDyingAlcohol",
+              "target": "owner",
+              "zones": [
+                "chunlao"
+              ],
+              "stateId": "round-wine-uses"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

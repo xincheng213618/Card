@@ -11625,6 +11625,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-cheng-pu",
+      "characterName": "界程普",
+      "defaultSkinId": "62000",
+      "skins": [
+        {
+          "id": "62000",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/620",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62000.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-cheng-pu.png",
+          "sha256": "53cd46f55c65bacbdb9e9bc54a321f648d0be469e04e30fa294d1f2d63c57f22",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

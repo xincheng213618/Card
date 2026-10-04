@@ -363,6 +363,8 @@ public enum SkillProgramEffectOp
     EscalatingDiscardOrDamage = 741,
     PutDiscardedCardsOnDrawPileTop = 760,
     PutOwnOrPreviousFirstDiscardOnTop = 5300, LoseHpIfRevealedNonEquipmentDiffers = 5301,
+    StoreAdjacentDiscardedSlash = 5400, PayCompletedUseDiscardOrLoseHp = 5401,
+    UseRoundPricedPileDyingAlcohol = 5402, OfferCurrentSlashFireAndExtraTarget = 5403,
     CollectPublicPile = 780,
     GrantNextCardTargetAdjustment = 782,
     GrantNextActualUseTargetAdjustment = 4700,
@@ -2363,9 +2365,9 @@ public sealed class SkillProgramCatalog
             Fail(path + ".outputKind", "thunderSlash requires phase-limited play viewAs");
         if (output == CardKind.FireSlash && usesPerPhase is null && !extended && !useOnly)
         {
-            if (inputCount == 1 && inputs.Count == 1 && suits.Count == 0)
+            if (inputCount == 1 && inputs.Count > 0 && suits.Count == 0)
             {
-                if (inputs[0] != CardKind.Slash || forResponse)
+                if (inputs.Any(kind => kind is not (CardKind.Slash or CardKind.ThunderSlash)) || forResponse)
                     Fail(path + ".forResponse",
                         "fireSlash viewAs currently requires one physical slash for play only");
             }
@@ -3341,7 +3343,7 @@ public sealed class SkillProgramCatalog
         // The provenance operation makes that existing boundary explicit without
         // changing the occurrence contract of historical discard programs.
         if (window == SkillProgramTriggerWindow.DiscardPileReceived &&
-            effects.Any(e => e.Op == SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance))
+            effects.Any(e => e.Op is SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance or SkillProgramEffectOp.StoreAdjacentDiscardedSlash))
             movementOccurrence = node.TryGetProperty("movementOccurrence", out _)
                 ? EnumValue<SkillProgramMovementOccurrence>(node, "movementOccurrence", path)
                 : SkillProgramMovementOccurrence.PerCard;
@@ -3355,6 +3357,14 @@ public sealed class SkillProgramCatalog
              cardKinds.Count != 0 || cardCategories.Count != 0 || movementReasons.Count != 0 || excludedMovementReasons.Count != 0))
             Fail(path, "Provenance claims require unfiltered other-player per-card discard/judgment origins.");
         var movementDiscardOnly = node.TryGetProperty("movementDiscardOnly", out _) && RequiredBool(node, "movementDiscardOnly", path);
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.StoreAdjacentDiscardedSlash) &&
+            (window != SkillProgramTriggerWindow.DiscardPileReceived || movementOccurrence != SkillProgramMovementOccurrence.PerCard ||
+             subject != SkillProgramTriggerSubject.Owner || optional || cardKinds.Count != 0 || cardCategories.Count != 0 ||
+             movementReasons.Count != 0 || excludedMovementReasons.Count != 0 || node.TryGetProperty("discardOwnerScope", out _)))
+            Fail(path, "Adjacent Slash storage requires an unfiltered mandatory owner per-card actual discard boundary.");
+        if (effects.Any(e => e.Op is SkillProgramEffectOp.OfferCurrentSlashFireAndExtraTarget or SkillProgramEffectOp.PayCompletedUseDiscardOrLoseHp) &&
+            ownerRelation != SkillProgramCardActionOwnerRelation.Actor)
+            Fail(path, "Current Slash conversion and completed use payment require the actual actor relation.");
         LoseHpIfRevealedNonEquipmentDiffersDescriptor.Validate(path, effects, window, subject,
             movementOccurrence, movementDiscardOnly, sourceZones, turnOwnerScope,
             movementReasons, excludedMovementReasons, ignoreOwnSkillMovements);

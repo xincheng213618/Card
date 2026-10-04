@@ -12860,6 +12860,7 @@ public sealed partial class GameEngine
         }
 
         if (attack.Card is null && (attack.EffectiveCardKind == CardKind.Slash ||
+            LifecycleCardUse(attack.ResolutionId) is { } fireUse && IsCurrentSlashFireChangedUse(fireUse) ||
             IsSlashCard(attack.EffectiveCardKind ?? CardKind.Slash) && LifecycleCardUse(attack.ResolutionId)?.VirtualBasicReturn is not null) &&
             (attack.ProgramSkillCardUseFrameId is not null || LifecycleCardUse(attack.ResolutionId)?.VirtualBasicReturn is not null || IsForeignPublicPileSlashUse(attack.ResolutionId)))
         {
@@ -13769,6 +13770,7 @@ public sealed partial class GameEngine
         ReturnSelectedActorDuel(completedUse);
         ReturnDamageTargetDuel(completedUse);
         ReturnDualColorDuel(completedUse);
+        ReturnRoundPileAlcoholUse(completedUse);
     }
 
     private bool CanUseSlashTarget(
@@ -13999,6 +14001,7 @@ public sealed partial class GameEngine
                     foreach (var target in GetFangtianOrderedSlashTargets(actor, converted, conversion, effectiveKind: CardKind.FireSlash))
                         actions.Add(new LegalAction(LegalActionKind.Slash, converted.Id, target.Seat,
                             DescribeConversion(conversion, $"当作【火杀】对 {target.Name} 使用"), PlayedCardKind: CardKind.FireSlash) { ConversionSource = conversion });
+            AddCurrentNonFireConvertedTargetActions(actions, actor);
             foreach (var converted in playableCards)
             {
                 var programSources = GetProgramViewAsConversions(
@@ -16548,13 +16551,14 @@ public sealed partial class GameEngine
         to = NormalizeProgramViewAsCostDestination(card, from, to, reason);
         if (card.IsGeneralWeapon && from.Zone == CardZoneKind.Equipment)
             to = CardLocation.OutsideGame;
+        var adjacentIdentity = FreezeAdjacentDiscardPaymentIdentity(card, from, to, reason);
         var batch = BeginCardMovementBatch([from], [to]);
         var movements = new List<CardMovementRecord>(1);
         var committed = false;
         try
         {
             _cardZones.Move(card.Id, from, to);
-            movements.Add(RecordMovement(card, from, to, reason, beforeFact));
+            movements.Add(RecordMovement(card, from, to, reason, beforeFact, adjacentIdentity));
             ResolveEquipmentSkillGrant(card, from, to);
             ClearJudgmentEffectiveKindAfterMove(card, from, to);
             ResolveSilverLionRemoval(card, from, reason);
@@ -16580,6 +16584,7 @@ public sealed partial class GameEngine
             return;
         }
         var batch = BeginCardMovementBatch([from], [to]);
+        var adjacentIdentities = TracksAdjacentDiscardStorage ? cards.ToDictionary(card => card.Id, card => FreezeAdjacentDiscardPaymentIdentity(card, from, to, reason)) : null;
         var movements = new List<CardMovementRecord>(cards.Count);
         var committed = false;
         try
@@ -16587,7 +16592,7 @@ public sealed partial class GameEngine
             var moved = _cardZones.MoveMany(cards.Select(card => card.Id), from, to);
             foreach (var card in moved)
             {
-                movements.Add(RecordMovement(card, from, to, reason));
+                movements.Add(RecordMovement(card, from, to, reason, adjacentDiscardIdentity: adjacentIdentities?.GetValueOrDefault(card.Id)));
                 ResolveEquipmentSkillGrant(card, from, to);
                 ClearJudgmentEffectiveKindAfterMove(card, from, to);
                 ResolveSilverLionRemoval(card, from, reason);
@@ -16613,6 +16618,7 @@ public sealed partial class GameEngine
             return;
         }
         var batch = BeginCardMovementBatch([from], [to]);
+        var adjacentIdentities = TracksAdjacentDiscardStorage ? _cardZones.CardsAt(from).ToDictionary(card => card.Id, card => FreezeAdjacentDiscardPaymentIdentity(card, from, to, reason)) : null;
         var movements = new List<CardMovementRecord>();
         var committed = false;
         try
@@ -16620,7 +16626,7 @@ public sealed partial class GameEngine
             var cards = _cardZones.MoveAll(from, to);
             foreach (var card in cards)
             {
-                movements.Add(RecordMovement(card, from, to, reason));
+                movements.Add(RecordMovement(card, from, to, reason, adjacentDiscardIdentity: adjacentIdentities?.GetValueOrDefault(card.Id)));
                 ResolveEquipmentSkillGrant(card, from, to);
                 ClearJudgmentEffectiveKindAfterMove(card, from, to);
                 ResolveSilverLionRemoval(card, from, reason);
@@ -16727,7 +16733,7 @@ public sealed partial class GameEngine
         Card card,
         CardLocation from,
         CardLocation to,
-        CardMoveReason reason, Action<CardMovementRecord>? beforeFact = null)
+        CardMoveReason reason, Action<CardMovementRecord>? beforeFact = null, CardKind? adjacentDiscardIdentity = null)
     {
         var movement = new CardMovementRecord(
             ++_movementSequence,
@@ -16740,6 +16746,7 @@ public sealed partial class GameEngine
         _cardMovements.Add(movement);
         beforeFact?.Invoke(movement);
         CaptureDiscardedEntityOrigin(card, movement);
+        CaptureAdjacentDiscardOrigin(card, movement, adjacentDiscardIdentity);
         CollectFullDiscardPhaseSuit(card, movement);
         if (_started)
         {
@@ -17782,7 +17789,8 @@ public sealed partial class GameEngine
                     _resolutionStack.Skip(dyingFrameIndex + 2).All(frame => frame is ProgramSkillFrame or
                         HpChangedTriggerWindowFrame or CardsMovedTriggerWindowFrame);
                 if (!topMatchesDying && !topMatchesDyingProgram && !topMatchesDyingCardWindow &&
-                    !nestedResponseUseOnDying && !nestedDyingEntry && !IsExactOtherDyingRecoveryRide(dyingContinuation.FrameId))
+                    !nestedResponseUseOnDying && !nestedDyingEntry && !IsExactOtherDyingRecoveryRide(dyingContinuation.FrameId) &&
+                    !(dyingFrameIndex >= 0 && IsRoundPricedPileAlcoholRide(dyingFrameIndex, (DyingFrame)_resolutionStack[dyingFrameIndex])))
                 {
                     var top = _resolutionStack.LastOrDefault();
                     var topShape = top is ProgramSkillFrame diagnosticProgram
@@ -18429,6 +18437,7 @@ public sealed partial class GameEngine
         }
 
         if (attack.Card is null && (attack.EffectiveCardKind == CardKind.Slash ||
+            LifecycleCardUse(attack.ResolutionId) is { } fireUse && IsCurrentSlashFireChangedUse(fireUse) ||
             IsSlashCard(attack.EffectiveCardKind ?? CardKind.Slash) && LifecycleCardUse(attack.ResolutionId)?.VirtualBasicReturn is not null) &&
             (attack.ProgramSkillCardUseFrameId is not null || LifecycleCardUse(attack.ResolutionId)?.VirtualBasicReturn is not null || IsForeignPublicPileSlashUse(attack.ResolutionId)))
         {

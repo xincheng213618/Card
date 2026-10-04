@@ -1,5 +1,5 @@
 {
-  "status": "two-agents-static-development-user-runtime-verification-deferred",
+  "status": "all-candidates-owned-static-development-user-runtime-verification-deferred",
   "batch": 27,
   "baseCommit": "655c3eec",
   "userSteering": {
@@ -28,7 +28,9 @@
       "sourceRecord": "docs/content/sources/fenglin-twenty-seventh-627-source-2026-10-04.json",
       "sourceSha256": "4c93bf6cf1d09c9e064a7f60e1b9724febf8cfdc66b7fcf9e587e2ea3b069b19",
       "mainRegistered": false,
-      "status": "primary-source-only-not-assigned"
+      "status": "owned-stage-implementation-in-progress",
+      "owner": "/root/pang_de",
+      "stage": ".artifacts/continuation-20261003-batch17/batch27/cai-fu-ren"
     },
     {
       "gid": 642,
@@ -47,7 +49,7 @@
   "runtimeAcceptance": false,
   "pending": [
     "621 complete opt-in implementation, frozen baseline and integration",
-    "627 implementation not yet assigned; 642 NEW implementation in progress while 640 awaits shared baseline",
+    "627 and 642 NEW implementation in progress while 621 and 640 await sequential shared baselines",
     "User later combined build, focused runtime, Full and measured routine verification",
     "Official art registration followed by user later offline/compiled verification"
   ],

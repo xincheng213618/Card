@@ -52,7 +52,8 @@ public sealed partial class GameEngine
 
     private static bool HasDyingAlcoholProducer(SkillProgramTrigger trigger) =>
         ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.UseBoundCardAsDyingAlcohol) ||
-        ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.UseVirtualDyingAlcohol);
+        ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.UseVirtualDyingAlcohol) ||
+        ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol);
 
     private bool CanRunProgramDyingAlcoholPolicy(SkillProgramTrigger trigger, ProgramSkillWindowContext context, int responder)
     {

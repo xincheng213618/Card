@@ -26,6 +26,7 @@ internal static class ProgramCompositionValidator
         GrantNextActualUseTargetAdjustmentDescriptor.ValidateComposition(path, effects, window, selectedCardCount,
             initialSelectedTarget, activationTargetKind, activationSourceZones, activationMinimumCards);
         DiscardedProvenanceComposition.Validate(path, effects, window, selectedCardCount, initialSelectedTarget, initialTargetSetMaximum);
+        AdjacentDiscardAndRoundAlcoholComposition.Validate(path, effects, window);
         GiveBoundCardThenOfferVirtualSlashOrSharedDrawDescriptor.ValidateComposition(path, effects, window, selectedCardCount,
             initialSelectedTarget, activationTargetKind, initialTargetSetMaximum);
         ChoosePrivateColorsDiscardAndDuelDescriptor.ValidateComposition(path, effects, window, selectedCardCount, initialSelectedTarget, initialTargetSetMaximum);

@@ -1822,6 +1822,7 @@ public sealed partial class GameEngine
         if (!CanRunTurnDrawDebtPayment(candidate, trigger, context) || !CanRunSourceFactionPrevention(candidate, trigger, context)) return false;
         if (!CanOfferOriginalTargetAddition(candidate, trigger, context)) return false;
         if (!CanRunProgramDyingAlcoholPolicy(trigger, context, candidate.OwnerSeat)) return false;
+        if (!CanOfferRoundPileAlcohol(candidate, trigger, context) || !CanOfferCurrentSlashFire(candidate, trigger, context)) return false;
         if (!CanOfferFinalTargetSlash(candidate, trigger, context)) return false;
         if (!CanRunOtherDyingVictimRecovery(trigger, context, candidate.OwnerSeat)) return false;
         if (!CanRunAlcoholSlashSuppression(trigger, context, candidate.OwnerSeat)) return false;
@@ -3128,6 +3129,9 @@ public sealed partial class GameEngine
             return;
         }
         if (action == "discard-budget") { ResolveDiscardBudgetChoice(selected); return; }
+        if (action == "completed-use-payment") { ResolveCompletedUsePayment(selected); return; }
+        if (action == "round-pile-alcohol") { ResolveRoundPileAlcohol(selected); return; }
+        if (action == "current-slash-fire") { ResolveCurrentSlashFireChoice(selected); return; }
         if (action == "red-discard-recovery") { ResolveRedDiscardRecoveryChoice(selected); return; }
         if (action == "outside-range-discard") { ResolveOutsideRangeDiscard(selected); return; }
         if (action == "faction-cost-gift") { ResolveCompletedFactionGift(selected); return; }
@@ -3980,6 +3984,9 @@ public sealed partial class GameEngine
                     SkillProgramEffectOp.SpendMarkerOrLoseHp => decision.Choices[0],
                 SkillProgramEffectOp.SelectDistinctSuitHandDiscards or SkillProgramEffectOp.SuppressGeneralSkill or SkillProgramEffectOp.SelectChainedByMarker or SkillProgramEffectOp.SelectOneSelectedTarget => decision.Choices[0],
                 SkillProgramEffectOp.OfferOriginalTargetAddition => SelectAiOriginalTargetAddition(decision, frame),
+                SkillProgramEffectOp.PayCompletedUseDiscardOrLoseHp => SelectAiCompletedUsePayment(decision),
+                SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol => decision.Choices.First(c => c.Parameters.GetValueOrDefault("branch") != "pass"),
+                SkillProgramEffectOp.OfferCurrentSlashFireAndExtraTarget => decision.Choices[0],
                 SkillProgramEffectOp.OfferCompletedCardGift or SkillProgramEffectOp.ApplyCurrentCardEnhancements or
                     SkillProgramEffectOp.PayEquipmentColorDiscard or SkillProgramEffectOp.AddCurrentCardUseTarget => decision.Choices[0],
                 SkillProgramEffectOp.AlternatingSuitDrawDiscard or SkillProgramEffectOp.FirstCategoryCompletedTop => decision.Choices[0],

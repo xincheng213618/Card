@@ -1,5 +1,5 @@
 {
-  "status": "one-static-integrated-two-agent-development-runtime-verification-deferred",
+  "status": "two-static-integrated-one-agent-waiting-baseline-runtime-verification-deferred",
   "batch": 26,
   "baseCommit": "3e36e653",
   "userSteering": {
@@ -30,8 +30,9 @@
       "sourceSha256": "0311e46c596eff1178e83e4d9a09890cd10f2aa2e4cfb9170543fc08884a3eb4",
       "owner": "/root/sun_quan",
       "stage": ".artifacts/continuation-20261003-batch17/batch26/cheng-pu",
-      "mainRegistered": false,
-      "status": "owned-stage-implementation-in-progress"
+      "mainRegistered": true,
+      "status": "static-integrated-runtime-deferred",
+      "frozenManifestSha256": "f8832d72c29f6ec8ba947a44174974f8a59442d4d86fb83bd03a86d3e18323ea"
     },
     {
       "gid": 640,
@@ -82,12 +83,40 @@
         "compiled": false,
         "testsRun": false
       }
+    },
+    {
+      "gid": 620,
+      "baseCommit": "3a7af9d6",
+      "sourceCodeBaseline": "448761ac",
+      "newFiles": 9,
+      "oldFiles": 19,
+      "allOldBaselinesRawMatched": true,
+      "allOldAppliedNormalizedLfShaMatched": true,
+      "newRawShaMatched": true,
+      "patchSha256": "eccf98387eb1b3e792411f658054c1cdab5f5c3b38519102ad98a7b6c980e5cc",
+      "newChecks": 4,
+      "routinePrefixes": [
+        "boundary cheng pu completion payment"
+      ],
+      "checksExecuted": false,
+      "staticReview": {
+        "privateProcessingOriginsOnOwningFrame": true,
+        "actualRoundDependencyOptIn": true,
+        "actualWineActorVictimProviderOwner": true,
+        "committedVirtualFireUseAndPrimaryReturn": true,
+        "orderedTargetChangeProof": true,
+        "originalAndExtraSuitShields": true,
+        "originalPngShaMatched": true,
+        "restoredEngineContinuesChildPausesInCheckSource": true,
+        "scopeDataParsedWithoutExecuting": true
+      },
+      "documentation": "docs/content/skill-composition/FENG_LIN_TWENTY_SIXTH_CHENG_PU.md"
     }
   ],
   "media": "docs/content/sources/fenglin-twenty-sixth-art-2026-10-04.json",
   "runtimeAcceptance": false,
   "pending": [
-    "620 and 640 complete opt-in implementation, frozen baseline and integration",
+    "640 frozen NEW retained; final shared baseline and integration after committed 620",
     "User later combined build, focused runtime, Full and measured routine verification",
     "Offline and compiled raw art verification after waking"
   ],

@@ -37,7 +37,8 @@
       "pixelWidth": 750,
       "pixelHeight": 950,
       "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch26\\official-art\\official-boundary-cheng-pu.png",
-      "installed": false
+      "installed": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-cheng-pu.png"
     },
     {
       "gid": 640,
@@ -64,6 +65,6 @@
     "mainRegistration": false,
     "fullOfflineCatalogRun": false,
     "compiledVerificationRun": false,
-    "installedCount": 1
+    "installedCount": 2
   }
 }

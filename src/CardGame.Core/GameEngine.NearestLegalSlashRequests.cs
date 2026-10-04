@@ -321,7 +321,7 @@ public sealed partial class GameEngine
             _events.Select(item => item.Payload).Concat(_pendingEvents).OfType<ProgramUnlimitedSlashChoiceEvent>().Any(fact =>
                 fact.FrameId == frame.Id && fact.SkillId == frame.SkillId && fact.SkillInstanceId == frame.SkillInstanceId &&
                 fact.OwnerSeat == frame.OwnerSeat && fact.Used && fact.TargetSeat == target) &&
-            child is CardUseFrame { CardKind: CardKind.Slash, PhysicalCardIds.Count: 0 } virtualUse &&
+            child is CardUseFrame { PhysicalCardIds.Count: 0 } virtualUse && (virtualUse.CardKind == CardKind.Slash || IsCurrentSlashFireChangedUse(virtualUse)) &&
             virtualUse.SourceSeat == frame.OwnerSeat && virtualUse.CardAttack?.ProgramSkillCardUseFrameId == frame.Id &&
             virtualUse.Action is { Type: CardActionType.Use, PhysicalCards.Count: 0 } virtualAction &&
             virtualAction.ActorSeat == frame.OwnerSeat &&

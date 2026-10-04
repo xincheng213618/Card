@@ -797,6 +797,9 @@ public sealed partial class GameEngine
 
     private void AssertProgramSkillState()
     {
+        AssertPendingAdjacentDiscardOrigins();
+        foreach (var use in _resolutionStack.OfType<CardUseFrame>())
+        { AssertRoundPileAlcoholUse(use); AssertCurrentSlashFirePolicy(use); }
         var frames = _resolutionStack.OfType<ProgramSkillFrame>().ToArray();
         foreach (var frame in frames)
         {
@@ -1096,6 +1099,7 @@ public sealed partial class GameEngine
             AssertProgramAttackRangeAid(frame, paused);
             AssertProvenanceClaim(frame);
             AssertProvenanceAlcohol(frame);
+            AssertAdjacentDiscardStorage(frame); AssertCompletedUsePayment(frame); AssertRoundPileAlcohol(frame); AssertCurrentSlashFireDraft(frame);
             AssertVirtualBasicDraft(frame, paused);
             AssertProgramVirtualSlashOffer(frame, paused);
             if (!frame.CardSetBindings.Any(binding => binding.Name == paused.ResultBind))

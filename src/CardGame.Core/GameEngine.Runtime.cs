@@ -30,10 +30,12 @@ public sealed partial class GameEngine
         {
             case NullificationWindowFrame { CounterspellPayment: not null }: ContinuePolicyCounterspellPayment(frameId); break;
             case CardUseFrame { ColorFireAttack.PaidCardId: not null }: ContinueColorFireAttackPayment(frameId); break;
+            case CardUseFrame { RoundPileAlcoholReturn: not null, RoundPileAlcoholCostDrained: false }: ContinueRoundPileAlcoholUse(frameId); break;
             case CardEffectBeforeApplyFrame: ContinueCardEffectBeforeApply(); break;
             case CardDeclarationFrame: ContinueCardDeclaration(frameId); break;
             case CardDeclarationChallengeFrame: ContinueCardDeclarationChallenge(frameId); break;
             case ProgramSkillFrame:
+                if (ResumeAdjacentDiscardStorage(frameId) || ResumeCompletedUsePayment(frameId) || ResumeRoundPileAlcohol(frameId)) return;
                 if (ResumeSharedSlashOffer(frameId)) return;
                 if (ResumeGrantedEntityPhaseTrailer(frameId) || ResumeGrantedPhaseSlashClaim(frameId)) return;
                 if (ResumeProvenanceClaim(frameId) || ResumeProvenanceAlcohol(frameId)) return;

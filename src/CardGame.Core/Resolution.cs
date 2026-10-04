@@ -101,6 +101,7 @@ public abstract record ResolutionFrame(
     public IReadOnlyList<RecoveryAttempt>? PendingRecoveryAttempts { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public PaidFactionRequestCostRecovery? PaidFactionRequestCostRecovery { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public PendingAdjacentDiscardOrigins? PendingAdjacentDiscardOrigins { get; init; }
 }
 
 /// <summary>A resumable program cursor; child resolutions cannot repeat paid effects.</summary>
@@ -117,6 +118,10 @@ public sealed record ProgramSkillFrame(
     : ResolutionFrame(Id, ResolutionFrameKind.ProgramSkill, Step)
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramExtraDrawReceipt? ExtraDrawReceipt { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramAdjacentDiscardReceipt? AdjacentDiscardStorage { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramCompletedUsePaymentReceipt? CompletedUsePayment { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramRoundPileAlcoholReceipt? RoundPileAlcohol { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public CurrentSlashFireDraft? CurrentSlashFireDraft { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramTurnDrawDebtPayment? TurnDrawDebtPayment { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramSourceFactionPreventionReceipt? SourceFactionPrevention { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramDiamondDelayedDraft? DiamondDelayed { get; init; }
@@ -419,6 +424,9 @@ public sealed record CardUseFrame(
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public CardActionContext? Action { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public RoundPileAlcoholReturn? RoundPileAlcoholReturn { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public bool RoundPileAlcoholCostDrained { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public CurrentSlashFirePolicy? CurrentSlashFirePolicy { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramSelectedActorDuelOrigin? SelectedActorDuelOrigin { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public OriginalTargetAdditionReceipt? OriginalTargetAddition { get; init; }

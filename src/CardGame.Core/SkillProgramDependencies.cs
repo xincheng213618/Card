@@ -41,7 +41,7 @@ internal sealed class SkillProgramDependencies
                     .Distinct(StringComparer.Ordinal).ToArray()));
         _windows = triggers.Select(trigger => trigger.Window).ToFrozenSet();
         UsesDynamicRoundUsage = triggers.Any(trigger => trigger.DynamicUsageLimit is not null);
-        UsesRoundTracking = UsesDynamicRoundUsage || HasActivationOperation(SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund);
+        UsesRoundTracking = UsesDynamicRoundUsage || HasActivationOperation(SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund) || HasTriggerOperation(SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol);
         _maximumCardPolicyKind = programs.SelectMany(program => program.CardPolicies)
             .Select(policy => (int?)policy.Kind).Max();
         var finalized = triggers.Where(trigger => trigger.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized).ToArray();

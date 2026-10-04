@@ -61,14 +61,14 @@ public sealed partial class GameEngine
             return SkillProgramStepOutcome.Continue;
 
         var resolutionId = ++_resolutionSequence;
-        var action = instruction.UseCardActionWindows
+        var action = instruction.UseCardActionWindows || HasCommittedSlashFireCapability(source)
             ? CaptureFactionAction(new CardActionContext(++_cardActionSequence, _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
                 CardActionType.Use, source.Seat, source.Seat, null, null, null, cardKind, [targetSeat], [], [],
                 effectiveSuit: Suit.None, effectiveRank: 0)) : null;
         PushRuntimeFrame(new CardUseFrame(resolutionId, source.Seat, 0, cardKind,
             Array.AsReadOnly(new[] { targetSeat }),
             PhysicalCardIds: Array.AsReadOnly(Array.Empty<int>())) { Action = action });
-        if (instruction.Op == SkillProgramEffectOp.OfferUnlimitedVirtualSlash && action is not null)
+        if ((instruction.Op == SkillProgramEffectOp.OfferUnlimitedVirtualSlash || HasCommittedSlashFireCapability(source)) && action is not null)
         {
             RecordYingboCardUse(resolutionId, source.Seat, cardKind);
             RecordProgramUsedBasicCard(source.Seat, cardKind);
