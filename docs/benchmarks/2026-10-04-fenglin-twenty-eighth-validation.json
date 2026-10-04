@@ -1,5 +1,5 @@
 {
-  "status": "primary-sources-frozen-one-candidate-assigned-runtime-deferred",
+  "status": "primary-sources-frozen-two-candidates-assigned-runtime-deferred",
   "batch": 28,
   "baseCommit": "a794646f",
   "userSteering": {
@@ -28,9 +28,9 @@
       "sourceRecord": "docs/content/sources/fenglin-twenty-eighth-485-source-2026-10-04.json",
       "sourceSha256": "612f55221790ad7a9d947e33e3e00c955c076d82ffc8daedf9699f3d954e69e9",
       "mainRegistered": false,
-      "status": "source-only-not-assigned",
-      "owner": null,
-      "stage": null
+      "status": "owned-stage-implementation-in-progress",
+      "owner": "/root/next_batch_audit",
+      "stage": ".artifacts/continuation-20261003-batch17/batch28/lu-su"
     },
     {
       "gid": 550,
@@ -47,8 +47,8 @@
   "integrations": [],
   "runtimeAcceptance": false,
   "pending": [
-    "457 complete NEW draft and later frozen shared baseline",
-    "485 and 550 await available agent assignment",
+    "457 and 485 complete NEW drafts and later frozen shared baselines",
+    "550 awaits available agent assignment",
     "Staged original art registration after each module integration",
     "User later combined build, focused runtime, Full and measured routine verification"
   ],

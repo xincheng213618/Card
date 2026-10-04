@@ -779,6 +779,8 @@ public sealed partial class GameEngine
                     target.Seat != ownerSeat && GetHand(target).Count + GetEquipment(target).Count > 0,
                 SkillProgramTargetKind.OtherLivingEmptyHand =>
                     target.Seat != ownerSeat && GetHand(target).Count == 0,
+                SkillProgramTargetKind.OtherLivingHandAtMostOwner =>
+                    target.Seat != ownerSeat && GetHand(target).Count <= GetHand(_players[ownerSeat]).Count,
                 SkillProgramTargetKind.OtherLivingWithHandHpGreaterThanOwner =>
                                     target.Seat != ownerSeat && GetHand(target).Count > 0 &&
                                     target.Hp > _players[ownerSeat].Hp,
@@ -1534,6 +1536,7 @@ public sealed partial class GameEngine
         IReadOnlyList<int>? bottomOrder = null)
     {
         var frame = GetActiveProgramFrame(frameId);
+        frame = FreezeSequentialDiscardTopPayment(frame, sourceBind, exceptBind, destination);
         var source = frame.CardSetBindings.SingleOrDefault(binding => binding.Name == sourceBind);
         if (source is null)
         {
@@ -3114,6 +3117,7 @@ public sealed partial class GameEngine
         if (selected.Parameters.GetValueOrDefault("program-action") == "alternating-suit-top") { ResolveAlternatingSuitTopChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "equipment-pair-payment") { ResolveEquipmentPairPaymentChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "dying-owned-card") { ResolveDyingOwnedCardChoice(selected); return; }
+        if (selected.Parameters.GetValueOrDefault("program-action") == "sequential-discard") { ResolveSequentialDiscardChoice(selected); return; }
         var action = selected.Parameters.GetValueOrDefault("program-action");
         if (action == "relative-zone-target") { ResolveRelativeZoneTarget(selected); return; }
         if (action == "deck-end-exchange") { ResolveDeckEndChoice(selected); return; }
@@ -4023,6 +4027,8 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.CompareSelectedHandWithHpHand => decision.Choices[0],
                 SkillProgramEffectOp.OfferFaceUpForOutsideClaims => decision.Choices[0],
                 SkillProgramEffectOp.ChooseOption => SelectAiProgramOption(decision, frame),
+                SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected =>
+                    SelectAiSequentialDiscard(decision, frame),
                 SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamage =>
                     SelectAiProgramDiscardChallenge(decision, frame),
                 SkillProgramEffectOp.PutDiscardedCardsOnDrawPileTop or SkillProgramEffectOp.PutOwnOrPreviousFirstDiscardOnTop => decision.Choices[0],

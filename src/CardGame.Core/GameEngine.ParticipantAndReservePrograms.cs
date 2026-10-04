@@ -238,7 +238,8 @@ public sealed partial class GameEngine
         if (frame.ReexecuteParticipantInstruction && paused.Op is not (SkillProgramEffectOp.DamageParticipants or
                 SkillProgramEffectOp.LoseHpParticipants or SkillProgramEffectOp.DiscardParticipantCards or SkillProgramEffectOp.DiscardSelectedParticipantCards or
                 SkillProgramEffectOp.RequestSlashByNearest or SkillProgramEffectOp.RequestLegalSlashByNearest or SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or
-                SkillProgramEffectOp.EscalatingDiscardOrDamage or SkillProgramEffectOp.ChooseHandCountIntervention or
+                SkillProgramEffectOp.EscalatingDiscardOrDamage or SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard or
+                SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected or SkillProgramEffectOp.ChooseHandCountIntervention or
                 SkillProgramEffectOp.RevealHandColorDiscardAndTake or SkillProgramEffectOp.DrawThenPutOwnedCardOnTopParticipants or
                 SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge or SkillProgramEffectOp.DistributePublicPileIfAllSuits))
             throw new InvalidOperationException("A participant cursor must resume its own committed instruction.");

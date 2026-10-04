@@ -38,10 +38,11 @@
       "id": "boundary:li-ru",
       "sourceRecord": "docs/content/sources/fenglin-twenty-seventh-642-source-2026-10-04.json",
       "sourceSha256": "64f750ebff02bc7d4e2eed71913883cda07df1f26759b9de7c3342b696fa78eb",
-      "mainRegistered": false,
-      "status": "owned-stage-implementation-in-progress",
+      "mainRegistered": true,
+      "status": "statically-integrated-runtime-verification-deferred",
       "owner": "/root/next_batch_audit",
-      "stage": ".artifacts/continuation-20261003-batch17/batch27/li-ru"
+      "stage": ".artifacts/continuation-20261003-batch17/batch27/li-ru",
+      "manifestSha256": "6875ab4250d1d07163e8d5f34969fb6729a0e428476773636a26ab72170923fb"
     }
   ],
   "runs": [],
@@ -58,12 +59,25 @@
       "testsRun": false,
       "normalizedFrozenPreviewMatches": true,
       "exactNewHashesMatch": true
+    },
+    {
+      "gid": 642,
+      "baselineCommit": "a794646f",
+      "newFiles": 8,
+      "oldWiringFiles": 10,
+      "focusedChecksRegistered": 4,
+      "routineFiltersAdded": 1,
+      "compiled": false,
+      "loaderExecuted": false,
+      "testsRun": false,
+      "normalizedFrozenPreviewMatches": true,
+      "exactNewHashesMatch": true
     }
   ],
   "media": "docs/content/sources/fenglin-twenty-seventh-art-2026-10-04.json",
   "runtimeAcceptance": false,
   "pending": [
-    "627 and 642 complete implementation, frozen baselines and sequential integration",
+    "627 complete implementation, frozen baseline and sequential integration",
     "User later combined build, focused runtime, Full and measured routine verification",
     "Official art registration followed by user later offline/compiled verification"
   ],

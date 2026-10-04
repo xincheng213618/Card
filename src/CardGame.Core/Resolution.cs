@@ -327,6 +327,10 @@ public sealed record ProgramSkillFrame(
     public CardAttackState? CardAttack { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public FactionRecoveryDebtReturn? FactionRecoveryDebtReturn { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramSequentialDiscardDraft? SequentialDiscard { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramSequentialDiscardTopPayment? SequentialDiscardTopPayment { get; init; }
     public bool ReexecuteParticipantInstruction { get; init; }
 }
 

@@ -978,7 +978,11 @@ public sealed partial class GameEngine
                     !(paidEffect is { Op: SkillProgramEffectOp.MoveBoundCards, AwaitMovementTriggers: true } && pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.CoverageResultBind is null) &&
                     !(paidEffect?.Op == SkillProgramEffectOp.ObtainBoundCardsAndArmNextRevealBonus &&
                         pendingMovement.SubjectSeat == frame.OwnerSeat && pendingMovement.BeforeCount == 0 && pendingMovement.CoverageResultBind is null) &&
-                    !(paidEffect?.Op is SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamage && frame.DiscardChallenge is { } challenge && challenge.ChooserSeat == pendingMovement.SubjectSeat && pendingMovement.CoverageResultBind is null))
+                    !(paidEffect?.Op is SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamage && frame.DiscardChallenge is { } challenge && challenge.ChooserSeat == pendingMovement.SubjectSeat && pendingMovement.CoverageResultBind is null) &&
+                    !(paidEffect is { } sequentialEffect && IsSequentialDiscardOp(sequentialEffect.Op) &&
+                        frame.SequentialDiscard is { Stage: ProgramSequentialDiscardStage.AwaitingMovement, Payment: { } sequentialPayment } &&
+                        ValidSequentialDiscard(frame) && sequentialPayment.ChooserSeat == pendingMovement.SubjectSeat &&
+                        pendingMovement.BeforeCount == 0 && pendingMovement.CoverageResultBind is null))
                     throw new InvalidOperationException("A movement continuation lost its paid instruction.");
             }
             foreach (var coverage in frame.AttackRangeCoverageBindings)
@@ -1081,6 +1085,7 @@ public sealed partial class GameEngine
             AssertAppliedDamageBenefitReceipt(frame);
             AssertProgramTargetDraft(frame, paused);
             ValidateProgramDiscardChallengeState(frame);
+            AssertSequentialDiscard(frame);
             AssertProgramDiscardTopPlacement(frame);
             AssertStrategicProgramSelection(frame, paused);
             AssertConfiguredCardDeclaration(frame, paused);

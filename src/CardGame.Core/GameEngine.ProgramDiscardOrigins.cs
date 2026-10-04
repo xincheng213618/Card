@@ -52,7 +52,8 @@ public sealed partial class GameEngine
         {
             var operation = value[(value.LastIndexOf('.') + 1)..];
             if (operation is nameof(SkillProgramEffectOp.ChooseCategoryAlternativeDiscard) or
-                nameof(SkillProgramEffectOp.EscalatingDiscardOrDamage) or nameof(SkillProgramEffectOp.RequestAttackRangeAid) or
+                nameof(SkillProgramEffectOp.EscalatingDiscardOrDamage) or nameof(SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard) or nameof(SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected) or
+                nameof(SkillProgramEffectOp.RequestAttackRangeAid) or
                 nameof(SkillProgramEffectOp.PayEquipmentColorDiscard)) return true;
         }
         return IsDiscardMovementReason(reason);

@@ -40,6 +40,7 @@ public sealed partial class GameEngine
                 nameof(SkillProgramEffectOp.ChooseDifferentCategoryDiscard) or nameof(SkillProgramEffectOp.DiscardParticipantCards) or
                 nameof(SkillProgramEffectOp.DiscardTargetEquipment) or nameof(SkillProgramEffectOp.TakeSelectedTargetCards) or
                 nameof(SkillProgramEffectOp.ChooseCategoryAlternativeDiscard) or nameof(SkillProgramEffectOp.EscalatingDiscardOrDamage) or
+                nameof(SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard) or nameof(SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected) or
                 nameof(SkillProgramEffectOp.RequestAttackRangeAid) or nameof(SkillProgramEffectOp.PayEquipmentColorDiscard) or
                 nameof(SkillProgramEffectOp.PayCompletedUseDiscardOrLoseHp);
         }

@@ -11676,6 +11676,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-li-ru",
+      "characterName": "界李儒",
+      "defaultSkinId": "64200",
+      "skins": [
+        {
+          "id": "64200",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/642",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64200.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-li-ru.png",
+          "sha256": "161c36c658e3a68aac81907e9d667d74806182029271d3ea00bf0e024774fa7c",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

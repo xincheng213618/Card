@@ -152,6 +152,7 @@ public enum SkillProgramTargetKind
     AnyLivingHighestHp = 730,
     AnyLivingHighestHand = 731,
     OtherLivingEmptyHand = 742,
+    OtherLivingHandAtMostOwner = 5700,
     OtherLivingDelayedTrickTarget = 800,
     OtherLegalCurrentCardTarget = 820,
     OtherLivingWithHandOrEquipment = 940,
@@ -408,6 +409,7 @@ public enum SkillProgramEffectOp
     DiscardBoundCardForTurnSlashBenefits = 3400, ScheduleFirstRoundGameUsageRefund = 3401,
     PreventCurrentDamageAndDrawMultiple = 4000, RequestLegalSlashByNearest = 4002, OfferUnlimitedVirtualSlash = 4003,
     SelectEquipmentPairAndPayment = 5500, SelectDyingOwnedCard = 5501,
+    ChooseCategoryOrSequentialDiscard = 5700, EscalatingDiscardOrDamageFromSelected = 5701,
     DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
     ReceiveOwnerDamage = 4100, ConsumeDistinctTurnTarget = 4101, DrawOwnerAtAppliedDamage = 4102,
     GiveBoundCardThenOfferVirtualSlashOrSharedDraw = 5100,
@@ -2495,6 +2497,18 @@ public sealed class SkillProgramCatalog
              uses is not null || usesPerGame is not null || targetKind != SkillProgramTargetKind.AnyLiving ||
              node.TryGetProperty("continueAfterOwnerDeath", out var pairDeath) && pairDeath.GetBoolean()))
             Fail(path, "a paid equipment pair requires one use per phase, zero initial cards/targets and normal source lifetime");
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard) &&
+            (minCards != 1 || maxCards != 1 || minTargets != 1 || maxTargets != 1 || usesPerPhase != 1 ||
+             uses is not null || usesPerGame is not null || targetKind != SkillProgramTargetKind.OtherLivingWithHand ||
+             node.TryGetProperty("continueAfterOwnerDeath", out var sequentialDeath) && sequentialDeath.GetBoolean()))
+            Fail(path, "a category/sequential challenge requires one real hand-trick cost, one other hand-bearing target and one use per play phase");
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected) &&
+            (minCards != 0 || maxCards != 0 || minTargets != 1 || maxTargets != 1 || usesPerGame != 1 ||
+             uses is not null || usesPerPhase is not null || targetKind != SkillProgramTargetKind.OtherLiving ||
+             node.TryGetProperty("continueAfterOwnerDeath", out var ringDeath) && ringDeath.GetBoolean()))
+            Fail(path, "a chosen-start escalating discard requires one standalone other target and one exact original game usage");
+        if (targetKind == SkillProgramTargetKind.OtherLivingHandAtMostOwner)
+            Fail(path, "at-most-owner hand targeting is only supported by its Ending selection composition");
         if (effects.Any(PaidHpLossProgram.IsOperation) && (usesPerGame != 1 || minCards != 0 || maxCards != 0 || minTargets != 0 || maxTargets != 0))
             Fail(path, "Paid HP loss requires a limited one-use zero-card zero-target activation.");
         SkillProgramCardCountExpression? cardCountExpression = node.TryGetProperty("cardCountExpression", out _)
@@ -3428,6 +3442,10 @@ public sealed class SkillProgramCatalog
         FrozenFactionRecoveryComposition.Validate(path, effects, window, subject, usageScope, usageLimit);
         AlternativePhaseCostCompositionContract.Validate(path, effects, window, subject, turnOwnerScope);
         TurnDrawDebtComposition.Validate(path, effects, window, subject, optional, drawPhaseMode, turnOwnerScope);
+        if (effects.Any(e => e.TargetKind == SkillProgramTargetKind.OtherLivingHandAtMostOwner) &&
+            (window != SkillProgramTriggerWindow.TurnEnding || subject != SkillProgramTriggerSubject.Owner ||
+             turnOwnerScope != SkillProgramTurnOwnerScope.Own))
+            Fail(path, "at-most-owner hand targeting requires the exact owner Ending window");
         EquipmentPairDyingCardComposition.Validate(path, effects, window, subject);
         ProgramCompositionValidator.Validate(path, effects, initialSelectedTarget: deferredOnly, window: window, drawPhaseMode: drawPhaseMode, cardActionRelation: ownerRelation, cardKinds: cardKinds, turnOwnerScope: turnOwnerScope);
         if (node.TryGetProperty("onlyDesignatedCardTargets", out _) && ownerRelation != SkillProgramCardActionOwnerRelation.Target) Fail(path + ".onlyDesignatedCardTargets", "requires a target-owner card trigger");

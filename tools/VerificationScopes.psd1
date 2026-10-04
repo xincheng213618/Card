@@ -15,6 +15,7 @@
         'boundary cheng pu completion payment',
         'boundary wu guo tai paid equipment pair',
         'Paid actual target HP and original use return',
+        'boundary li ru sequential discard top cost',
         'shared use lifecycle', 'shared card-use', 'card movement', 'card inventory',
         'initial deal', 'invalid single and batch', 'draw and recover',
         'execution plans', 'skill executor', 'program gameplay hashes',
