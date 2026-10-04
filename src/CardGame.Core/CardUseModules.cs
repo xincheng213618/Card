@@ -87,7 +87,11 @@ public sealed record TurnHandCardColorRestriction(
     int EffectIndex,
     CardUseEffectSource Source,
     int AffectedSeat,
-    bool IsRed);
+    bool IsRed)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool RequiresChromaticSuit { get; init; }
+}
 
 public sealed record TurnRuleModifier(
     long GrantSequence,
@@ -391,20 +395,23 @@ internal sealed partial class TurnCardUseEffectStore
         int effectIndex,
         CardUseEffectSource source,
         int affectedSeat,
-        bool isRed)
+        bool isRed,
+        bool requiresChromaticSuit = false)
     {
         var existing = _handColorRestrictions.SingleOrDefault(item =>
             item.ParentFrameId == parentFrameId && item.EffectIndex == effectIndex);
         if (existing is not null)
         {
             if (existing.TurnNumber != turnNumber || existing.TurnSeat != turnSeat ||
-                existing.Source != source || existing.AffectedSeat != affectedSeat || existing.IsRed != isRed)
+                existing.Source != source || existing.AffectedSeat != affectedSeat || existing.IsRed != isRed ||
+                existing.RequiresChromaticSuit != requiresChromaticSuit)
                 throw new InvalidOperationException("A hand-color restriction grant key changed its meaning.");
             return existing;
         }
 
         var granted = new TurnHandCardColorRestriction(
-            ++_grantSequence, turnNumber, turnSeat, parentFrameId, effectIndex, source, affectedSeat, isRed);
+            ++_grantSequence, turnNumber, turnSeat, parentFrameId, effectIndex, source, affectedSeat, isRed)
+        { RequiresChromaticSuit = requiresChromaticSuit };
         _handColorRestrictions.Add(granted);
         return granted;
     }
@@ -493,10 +500,12 @@ internal sealed partial class TurnCardUseEffectStore
         int turnNumber,
         int turnSeat,
         int affectedSeat,
-        bool isRed) =>
+        bool isRed,
+        bool isColorless = false) =>
         _handColorRestrictions.Any(item =>
             item.TurnNumber == turnNumber && item.TurnSeat == turnSeat &&
-            item.AffectedSeat == affectedSeat && item.IsRed == isRed);
+            item.AffectedSeat == affectedSeat && item.IsRed == isRed &&
+            (!item.RequiresChromaticSuit || !isColorless));
 
     internal IReadOnlyList<TurnRuleModifier> GetRuleModifiers(
         int turnNumber,

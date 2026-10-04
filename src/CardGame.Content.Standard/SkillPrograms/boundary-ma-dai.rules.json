@@ -1,0 +1,15 @@
+{
+  "schemaVersion":62,
+  "skills":[{
+    "id":"boundary:qianxi","revision":1,"minimumRulesVersion":195,
+    "triggers":[{
+      "id":"shown-entity-turn-policy","window":"playPhaseStarting","subject":"owner","optional":true,
+      "condition":{"kind":"compare","left":{"kind":"currentHandCount"},"operator":"greaterThan","right":{"kind":"integerConstant","value":0}},
+      "effects":[
+        {"op":"selectOwnedCards","target":"owner","amount":1,"zones":["hand"],"resultBind":"shown-entity"},
+        {"op":"revealOwnedBoundCardAppearance","target":"owner","sourceBind":"shown-entity"},
+        {"op":"issueShownEntityTurnPolicy","target":"owner","sourceBind":"shown-entity","stateId":"shown-entity-turn"}
+      ]
+    }]
+  }]
+}

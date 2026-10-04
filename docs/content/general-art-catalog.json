@@ -11812,6 +11812,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-ma-dai",
+      "characterName": "界马岱",
+      "defaultSkinId": "69600",
+      "skins": [
+        {
+          "id": "69600",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/696",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/69600.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-ma-dai.png",
+          "sha256": "8d295248a8f2fb4adac0b91d42db01b7ad2b0235f72ac3825148374c738c10ca",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

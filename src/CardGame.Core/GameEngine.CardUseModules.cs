@@ -10,11 +10,13 @@ public sealed partial class GameEngine
         if (ActiveCardAttack is { ProhibitsTargetHandResponses: true } attack &&
             attack.TargetSeat == player.Seat && attack.CardUserSeat != player.Seat)
             return true;
+        var suit = EffectiveSuit(player, card);
         return _turnCardUseEffects.IsHandColorRestricted(
             _turnNumber,
             _currentSeat,
             player.Seat,
-            IsRedSuit(EffectiveSuit(player, card)));
+            IsRedSuit(suit),
+            isColorless: suit == Suit.None);
     }
 
     private bool IsCardUseForbidden(int actorSeat, CardKind effectiveKind, CardActionType actionType, bool ignoreIssuedPlayBan=false) =>

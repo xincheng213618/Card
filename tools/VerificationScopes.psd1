@@ -23,6 +23,7 @@
         'boundary two zhangs equipment replacement',
         'boundary bu lian shi ordered opaque pair gift',
         'Foreign actual turn contest decline win expiry',
+        'boundary ma dai shown color hand ban',
         'shared use lifecycle', 'shared card-use', 'card movement', 'card inventory',
         'initial deal', 'invalid single and batch', 'draw and recover',
         'execution plans', 'skill executor', 'program gameplay hashes',

@@ -455,6 +455,10 @@ public sealed record CardUseFrame(
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public CardActionContext? Action { get; init; }
+    private readonly IReadOnlyList<ShownEntityUseBenefit>? _shownEntityBenefits;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ShownEntityUseBenefit>? ShownEntityBenefits
+    { get => _shownEntityBenefits; init => _shownEntityBenefits = value is null ? null : Array.AsReadOnly(value.ToArray()); }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public RoundPileAlcoholReturn? RoundPileAlcoholReturn { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public bool RoundPileAlcoholCostDrained { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public CurrentSlashFirePolicy? CurrentSlashFirePolicy { get; init; }

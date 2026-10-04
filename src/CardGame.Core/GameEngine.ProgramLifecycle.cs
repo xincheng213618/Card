@@ -1843,6 +1843,7 @@ public sealed partial class GameEngine
         if (!CanRunProgramDyingAlcoholPolicy(trigger, context, candidate.OwnerSeat)) return false;
         if (!CanOfferRoundPileAlcohol(candidate, trigger, context) || !CanOfferCurrentSlashFire(candidate, trigger, context) || !CanOfferSuitPreventionBenefit(candidate, trigger, context)) return false;
         if (!CanOfferActualDiscardRecovery(candidate, context)) return false;
+        if (!CanOfferShownEntityTurnPolicy(candidate, context)) return false;
         if (!CanOfferFinalTargetSlash(candidate, trigger, context)) return false;
         if (!CanRunOtherDyingVictimRecovery(trigger, context, candidate.OwnerSeat)) return false;
         if (!CanRunAlcoholSlashSuppression(trigger, context, candidate.OwnerSeat)) return false;

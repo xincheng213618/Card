@@ -13502,6 +13502,7 @@ public sealed partial class GameEngine
         { SelectedActorDuelOrigin = selectedActorDuelOrigin, DamageTargetDuelOrigin = damageTargetDuelOrigin, DualColorDuelOrigin = dualColorDuelOrigin, Enhancements = actionContext is { Type: CardActionType.Use, EffectiveIsRed: true } && HasTurnRedSlashPolicyForColor(sourceSeat, effectiveCardKind, actionContext.EffectiveIsRed) ? CurrentCardEnhancement.Uncancelable : CurrentCardEnhancement.None, AcceptedDeclarationPayment = declarationPayment, Action = actionContext, TargetsAdjusted = adjustedTargets is not null, FirstOwnPlayUseDistanceUnlimited = firstUseDistance, ColorFireAttack = colorFireAttack });
         if (colorFireAttack is not null) AdvanceEventRulesAndQueueFact(new ColorFireAttackPolicyIssuedEvent(resolutionId, colorFireAttack.ActionId, colorFireAttack.Source));
         IssueProvenanceUsePolicy(resolutionId, actionContext);
+        IssueShownEntityUseBenefits(resolutionId, actionContext);
         IssueGrantedPhaseEntityUseDistance(resolutionId, actionContext);
         AdvanceEventRulesAndQueueFact(new CardUseDeclaredEvent(
             resolutionId,
@@ -15100,6 +15101,7 @@ public sealed partial class GameEngine
             .Select(modifier => (modifier.Source, modifier.Amount))
             .Concat(GetPassiveProgramDamageModifiers(attack))
             .Concat(GetCurrentTurnHeartSlashBonuses(attack))
+            .Concat(GetShownEntityUseDamageBenefits(attack))
             .ToArray();
         var programDamageBonus = programDamageModifiers.Sum(modifier => modifier.Amount) + FinalTargetSlashDamage(attack) + FrozenNextSlashDamage(attack) +
             (attack is CardAttackHandle bladed ? RedBladeDamageBonus(bladed) : 0);
@@ -17842,6 +17844,7 @@ public sealed partial class GameEngine
         AssertLostHpOwnedGifts();
         AssertEquipmentDonationPrograms();
         AssertActualEquipmentOrDiscardPrograms();
+        AssertShownEntityTurnPrograms();
         AssertPaidColorDamageClaims();
         AssertProgramAttackState();
         AssertFinalTargetSlashReceipts();

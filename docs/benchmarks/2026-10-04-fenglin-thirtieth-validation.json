@@ -1,5 +1,5 @@
 {
-  "status": "three-owned-stages-runtime-deferred",
+  "status": "one-static-integrated-two-owned-stages-runtime-deferred",
   "batch": 30,
   "baseCommit": "d2990fba",
   "userSteering": {
@@ -24,8 +24,8 @@
         "潜袭"
       ],
       "completeCurrentDefinition": true,
-      "mainRegistered": false,
-      "status": "owned-stage-contract-and-new-development",
+      "mainRegistered": true,
+      "status": "static-main-integrated-user-runtime-verification-deferred",
       "owner": "/root/sun_quan",
       "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch30\\ma-dai",
       "reservedCapacity": "6500-6599",
@@ -71,10 +71,52 @@
     }
   ],
   "runs": [],
-  "integrations": [],
+  "integrations": [
+    {
+      "gid": 696,
+      "name": "界马岱",
+      "integratedAtUtc": "2026-10-04T06:31:10.2397587Z",
+      "baselineCommit": "141474a2bff72103bd9e6a7eed16f3f5ae7a03f5",
+      "manifest": "delivery-manifest.json",
+      "manifestSha256": "38220a6c6785d26e7f0ad14b49952c5ea755a831925619c7662fbfd241cc3cc4",
+      "patch": "shared-wiring.patch",
+      "patchSha256": "95de69c07082c71d0f5581ed4123eca9955fe7a6c34005f317f89dabd9919254",
+      "sourceSha256": "0d16dfce1985cf844eb92ff15e1d8295c5d98168a7f5f26a184f403f1684176a",
+      "newFiles": 6,
+      "oldFiles": 7,
+      "supportFiles": 6,
+      "sourceAuthorityBaselines": 3,
+      "registeredChecks": [
+        "boundary ma dai shown color hand ban and equipment response",
+        "boundary ma dai full materials damage benefit and cold return",
+        "boundary ma dai extra play cohort and actual turn expiry",
+        "boundary ma dai native reveal and real foreign provider"
+      ],
+      "routinePrefix": "boundary ma dai shown color hand ban",
+      "exactRawBeforeNewAndBomFreeLfAfterMatched": true,
+      "originalFrozenChanged": false,
+      "publicPolicyCollectionProjection": true,
+      "otherMaterialsRemainPrivateOwningReceipt": true,
+      "actualActorBothDirectionsAndProviderPreserved": true,
+      "oldColorPolicyDefaultPreserved": true,
+      "originalArtSha256": "8d295248a8f2fb4adac0b91d42db01b7ad2b0235f72ac3825148374c738c10ca",
+      "buildsRun": false,
+      "productionLoaderExecuted": false,
+      "checksRun": false,
+      "benchmarksRun": false,
+      "runtimeAcceptance": false,
+      "deferred": [
+        "All four fixed-seed actual-command drafts and continued four-view cold replay remain uncompiled, unloaded and unrun",
+        "Source loss, colorless, source-less/chain damage and additional same-turn displayed material combinations",
+        "True declaration/deck/private-pile material and both actor-change directions are source-proved contracts, without separate executed checks",
+        "Native AI, exact provider, equipment response recovery/HP and damage observer pauses are drafted and await unified actual verification"
+      ]
+    }
+  ],
   "runtimeAcceptance": false,
   "pending": [
-    "696 and 752 assigned after frozen563/775; 756 awaits owned671 delivery",
+    "696 statically integrated; 752 receives the next final OLD window, then 756",
+    "775 existing death-benefit new Damage/Dying limitation now has an owned opt-in followup stage; unsupported until that exact protocol is integrated and verified",
     "User later combined build, focused runtime, Full and measured routine verification"
   ],
   "versions": {
@@ -94,10 +136,25 @@
   "media": {
     "record": "docs/content/sources/fenglin-thirtieth-art-2026-10-04.json",
     "rawCaptured": 3,
-    "installed": 0,
+    "installed": 1,
     "originalPngOnly": true,
     "sourceShaMatched": true,
     "fullOfflineCatalogRun": false,
     "compiledVerificationRun": false
-  }
+  },
+  "ownedFollowups": [
+    {
+      "gid": 775,
+      "name": "界步练师死亡收益嵌套",
+      "owner": "/root/sun_quan",
+      "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch30\\bu-lian-shi-death-nesting",
+      "reservedCapacity": "6800-6899",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-775-source-2026-10-04.json",
+      "sourceSha256": "76212903e4e86c42fe8f9f14b2e9108b706514164b81a8e6698d562cb179bbab",
+      "status": "owned-contract-and-new-development-no-main-integration",
+      "currentKnownLimitResolved": false,
+      "buildsRun": false,
+      "testsRun": false
+    }
+  ]
 }

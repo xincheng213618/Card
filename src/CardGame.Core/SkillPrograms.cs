@@ -182,6 +182,7 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,
     ClaimDiscardedEntityWithProvenance = 4500, UseVirtualAlcohol = 4501, OfferFaceUpForOutsideClaims = 4502,
@@ -3480,6 +3481,7 @@ public sealed class SkillProgramCatalog
         EquipmentPairDyingCardComposition.Validate(path, effects, window, subject);
         ActualDiscardRecoveryComposition.ValidateTrigger(path, effects, window, subject, optional, discardOwnerScope,
             movementDiscardOnly, suits, cardKinds, cardCategories, movementReasons, excludedMovementReasons, movementOccurrence);
+        ShownEntityTurnPolicyComposition.Validate(path, effects, window, subject, turnOwnerScope);
         EquipmentDonationComposition.ValidateTrigger(path, effects, window, subject, turnOwnerScope, optional);
         PaidColorDamageClaimComposition.Validate(path, effects, window, subject, turnOwnerScope, optional);
         ForeignTurnContestAidComposition.Validate(path, effects, window, subject, optional, ownerRelation, cardKinds);

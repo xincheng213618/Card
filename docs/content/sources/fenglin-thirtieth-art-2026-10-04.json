@@ -1,5 +1,5 @@
 {
-  "status": "official-raw-art-staged-not-main-registered",
+  "status": "official-raw-art-partially-registered-runtime-verification-deferred",
   "batch": 30,
   "images": [
     {
@@ -18,7 +18,8 @@
       "pixelWidth": 750,
       "pixelHeight": 950,
       "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch30\\official-art\\official-boundary-ma-dai.png",
-      "installed": false
+      "installed": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-ma-dai.png"
     },
     {
       "gid": 756,
@@ -63,6 +64,6 @@
     "mainRegistration": false,
     "fullOfflineCatalogRun": false,
     "compiledVerificationRun": false,
-    "installedCount": 0
+    "installedCount": 1
   }
 }
