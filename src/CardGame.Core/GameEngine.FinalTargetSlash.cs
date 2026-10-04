@@ -9,6 +9,7 @@ public sealed partial class GameEngine
     {
         ProgramFinalTargetComparison.TargetHandAtMostActor => facts.EventTargetHandCount <= facts.CurrentHandCount,
         ProgramFinalTargetComparison.TargetHpAtLeastActor => facts.EventTargetHp >= facts.CurrentHp,
+        ProgramFinalTargetComparison.Always => true,
         _ => throw new InvalidOperationException("Unknown frozen final target comparison.")
     };
     private void IssueFinalTargetSlashReceipt(ProgramSkillFrame frame, SkillProgramEffect effect)

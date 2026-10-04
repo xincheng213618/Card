@@ -59,7 +59,10 @@ internal sealed class SkillProgramDependencies
             HasTriggerOperation(SkillProgramEffectOp.GrantRandomSkillAndSuitShield) ||
             programs.Any(program => program.ViewAs.Any(rule => rule.InheritPreviousPlaySuit)) ||
             UsesTriggerCondition(SkillProgramTriggerConditionKind.CardActionMatchesPreviousPlayCard) ||
-            UsesTriggerCondition(SkillProgramTriggerConditionKind.CardActionSuitIs);
+            UsesTriggerCondition(SkillProgramTriggerConditionKind.CardActionSuitIs) ||
+            UsesTriggerCondition(SkillProgramTriggerConditionKind.PreviousPlayCardIsBasic) ||
+            programs.Any(program => program.Modifiers.Any(item => item.Condition.ContainsPreviousPlayCardIsBasic()) ||
+                program.CardPolicies.Any(item => item.Condition.ContainsPreviousPlayCardIsBasic()));
     }
 
     internal bool UsesOwnerMarkerCount { get; }

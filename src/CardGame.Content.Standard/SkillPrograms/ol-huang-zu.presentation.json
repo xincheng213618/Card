@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:wangong": {
+      "name": "挽弓",
+      "description": "若你使用的上一张牌是基本牌，你使用【杀】无距离和次数限制且造成的伤害+1。"
+    }
+  }
+}

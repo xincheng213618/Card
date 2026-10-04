@@ -23,7 +23,7 @@ public enum SkillRuleQuery
 public enum SkillRuleOperation { Add, Set, Unlimited }
 public enum SkillRuleValueExpression { LivingFactionCount, OwnedZoneCount, OwnerLostHp = 2, NegatedOwnedZoneCount = 3, NegatedOwnerLostHp = 900, OwnerMarkerCount = 2600, CurrentTurnUsedHandSuitCount = 4600, PublicLivingFactionCount = 5200 }
 public enum SkillRuleQueryDependency { MarkerState }
-public enum SkillProgramConditionKind { Always, OwnTurn, NotOwnTurn, Wounded, HpAtLeast, HandCountAtLeast, CardUseIsRed, SelectedTargetIsOther, SelectedTargetHandGreaterThanOwner, PindianWon, PindianNotWon, BooleanState, All, Any, Not, FaceDown, Chained, ChoiceIs, BoundCardsSameColor, BoundCardsMatchCategories, BoundCardsMatchKinds = 20, HasClaimableDamageCards = 21, AttackRangeCoverageDecreased = 22, HasOwnedCardCategory = 23, BoundCardCountAtLeast = 24, ActivationCardCountAtLeast = 25, ClassicIdentityMode = 26, BoundCardSuitMatchesChoice = 27, BoundCardsMatchSuits = 28, BoundCardCategoryMatchesCardAction = 29, EventTargetGenderIs = 30, EventSourceGenderIs = 31, SelectedTargetWounded = 820, RuntimeBooleanState = 450, PublicCounterAtLeast = 451, PublicCounterOdd = 452, HandCountGreaterThanHp = 1020, PositiveHandLimit = 1021, HasUsableHandCard = 1022, RequestedSlashDamagedOwner = 1023 }
+public enum SkillProgramConditionKind { Always, OwnTurn, NotOwnTurn, Wounded, HpAtLeast, HandCountAtLeast, CardUseIsRed, SelectedTargetIsOther, SelectedTargetHandGreaterThanOwner, PindianWon, PindianNotWon, BooleanState, All, Any, Not, FaceDown, Chained, ChoiceIs, BoundCardsSameColor, BoundCardsMatchCategories, BoundCardsMatchKinds = 20, HasClaimableDamageCards = 21, AttackRangeCoverageDecreased = 22, HasOwnedCardCategory = 23, BoundCardCountAtLeast = 24, ActivationCardCountAtLeast = 25, ClassicIdentityMode = 26, BoundCardSuitMatchesChoice = 27, BoundCardsMatchSuits = 28, BoundCardCategoryMatchesCardAction = 29, EventTargetGenderIs = 30, EventSourceGenderIs = 31, SelectedTargetWounded = 820, RuntimeBooleanState = 450, PublicCounterAtLeast = 451, PublicCounterOdd = 452, HandCountGreaterThanHp = 1020, PositiveHandLimit = 1021, HasUsableHandCard = 1022, RequestedSlashDamagedOwner = 1023, PreviousPlayCardIsBasic = 1024 }
 public enum SkillProgramTriggerConditionKind
 {
     Always,
@@ -61,7 +61,8 @@ public enum SkillProgramTriggerConditionKind
     CardActionSuitIs = 901,
     OwnerKilledThisTurn = 550,
     TurnDiscardIncludesAllSuits = 1660,
-    DeathExtinguishedFaction = 1020, DiscardPhaseSuitsAllDistinct = 1021, OtherDamageSourceAlive = 1022, DamageSourcePairUnused = 1023
+    DeathExtinguishedFaction = 1020, DiscardPhaseSuitsAllDistinct = 1021, OtherDamageSourceAlive = 1022, DamageSourcePairUnused = 1023,
+    PreviousPlayCardIsBasic = 1024
 }
 public enum SkillProgramTriggerValueKind
 {
@@ -640,6 +641,8 @@ public sealed class SkillProgramCondition
 
     internal bool ContainsHasClaimableDamageCards() => Kind == SkillProgramConditionKind.HasClaimableDamageCards ||
         Children.Any(child => child.ContainsHasClaimableDamageCards());
+    internal bool ContainsPreviousPlayCardIsBasic() => Kind == SkillProgramConditionKind.PreviousPlayCardIsBasic ||
+        Children.Any(child => child.ContainsPreviousPlayCardIsBasic());
 
     internal bool ContainsBoundCardCountAtLeast() => Kind == SkillProgramConditionKind.BoundCardCountAtLeast ||
         Children.Any(child => child.ContainsBoundCardCountAtLeast());
@@ -684,6 +687,7 @@ public sealed class SkillProgramCondition
             SkillProgramConditionKind.PositiveHandLimit => context.HandLimit > 0,
             SkillProgramConditionKind.HasUsableHandCard => context.HasUsableHandCard == true,
             SkillProgramConditionKind.CardUseIsRed => cardUseIsRed == true,
+            SkillProgramConditionKind.PreviousPlayCardIsBasic => context.PreviousPlayCardIsBasic == true,
             SkillProgramConditionKind.EventTargetGenderIs => eventTargetIsFemale == (Gender == GeneralGender.Female),
             SkillProgramConditionKind.EventSourceGenderIs => eventSourceIsFemale == (Gender == GeneralGender.Female),
             SkillProgramConditionKind.PindianWon or SkillProgramConditionKind.BooleanState or
@@ -817,6 +821,7 @@ public sealed record SkillProgramTriggerFacts(
     bool OwnerIsFaceDown = false,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     bool? CardActionMatchesPreviousPlayCard = null,
+    bool? PreviousPlayCardIsBasic = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     int? DamageInstancesTakenThisTurn = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
@@ -1029,6 +1034,7 @@ public sealed class SkillProgramTriggerCondition
         SkillProgramTriggerConditionKind.OwnerIsTurnPlayer => facts.OwnerIsTurnPlayer == true,
         SkillProgramTriggerConditionKind.CardActionFromOwnerHand => facts.CardActionFromOwnerHand == true,
         SkillProgramTriggerConditionKind.DamageSourceIsOwner => facts.DamageSourceIsOwner == true,
+        SkillProgramTriggerConditionKind.PreviousPlayCardIsBasic => facts.PreviousPlayCardIsBasic == true,
         SkillProgramTriggerConditionKind.DamageSourceFactionIs => facts.DamageSourceFactionId is { } faction &&
             Factions.Contains(faction, StringComparer.Ordinal),
         SkillProgramTriggerConditionKind.FaceDown => facts.OwnerIsFaceDown,

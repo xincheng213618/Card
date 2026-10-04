@@ -1,6 +1,6 @@
 namespace CardGame.Core;
 
-public enum ProgramFinalTargetComparison { TargetHandAtMostActor, TargetHpAtLeastActor }
+public enum ProgramFinalTargetComparison { TargetHandAtMostActor, TargetHpAtLeastActor, Always }
 public sealed record ProgramTargetSlashReceipt(long ActionId, int ActorSeat, int TargetSeat,
     long CardUseFrameId, long ProducerFrameId, string SkillId, string SkillInstanceId, string GameplayHash, string TriggerId,
     int EffectIndex, bool PreventCancellation, int DamageBonus);

@@ -163,6 +163,7 @@ public static class GeneralGalleryCatalog
         groups.Add("boundary:zhou-tai", "boundary");
         groups.Add("boundary:cao-ren", "boundary");
         groups.Add("ol:yi-ji", "other");
+        groups.Add("ol:huang-zu", "other");
         return groups;
 
         void Add(string group, string ids)

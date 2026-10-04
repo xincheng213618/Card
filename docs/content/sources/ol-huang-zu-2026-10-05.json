@@ -1,0 +1,47 @@
+{
+  "generalId": "ol:huang-zu",
+  "characterName": "黄祖",
+  "officialId": 477,
+  "sourcePage": "https://www.sanguosha.com/hero/477",
+  "capturedAt": "2026-10-05",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 477,
+    "name": "黄祖",
+    "extend": "",
+    "hp": 4,
+    "figure": "群",
+    "quality": ""
+  },
+  "artwork": {
+    "skinId": "47700",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/47700.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-huang-zu.png",
+    "sha256": "c8b0cc816c62806e3cad79efab3a817ea48ecdf2e183a02df7159acb0865f6f6",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "挽弓",
+      "text": "若你使用的上一张牌是基本牌，你使用【杀】无距离和次数限制且造成的伤害+1。",
+      "programId": "ol:wangong",
+      "notes": [
+        "次数：modifier slashLimit unlimited（condition previousPlayCardIsBasic 本批新条件，咆哮查询口径）；距离：四种花色各一条 ignoreSlashUseDistanceBySuit policy（同条件，既有普通【杀】距离机制）。",
+        "伤害+1：cardUseTargetsFinalized（ownerRelation actor）+ addCurrentTargetSlashDamage 1（comparison always 本批新增枚举值），触发条件同为 previousPlayCardIsBasic（界黄忠烈弓既有操作面）。",
+        "previousPlayCardIsBasic 本批同时补齐两个条件枚举：SkillProgramTriggerConditionKind（触发事实，按 CardActionMatchesPreviousPlayCard 的 ActionId 排除口径取上一张使用牌）与 SkillProgramConditionKind（PlayerSkillContext，供 modifier/policy 在无帧上下文评估），并纳入 TracksPlayCardHistory 依赖开关。"
+      ]
+    }
+  ],
+  "apiInfo": {
+    "hp": 4,
+    "figure": "qun",
+    "initial_hp": 0
+  },
+  "genderBasis": "官方无结构化性别字段；沿仓库同角色男性惯例。",
+  "observations": [
+    "官方页 fetch 时间 2026-10-05（页面 + /api/v1/hero/info?gid=477），gid 477 为 OL 当前黄祖页，单技能武将。",
+    "“上一张牌是基本牌”与既有 cardActionMatchesPreviousPlayCard（同花色或同点数）语义不同，故新增独立条件而非复用。"
+  ]
+}

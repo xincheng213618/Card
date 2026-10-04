@@ -42,6 +42,15 @@ public sealed partial class GameEngine
             (action.EffectiveSuit is { } suit && previous.EffectiveSuit == suit ||
              action.EffectiveRank is > 0 && previous.EffectiveRank == action.EffectiveRank);
     }
+    private bool PreviousPlayCardIsBasic(CardActionContext action)
+    {
+        var previous = PreviousPlayCard(action.ActorSeat, action.ActionId);
+        return previous is not null && MatchesSkillProgramCardCategory(previous.EffectiveKind, SkillProgramCardCategory.Basic);
+    }
+
+    private bool? PreviousPlayCardIsBasicFor(int actorSeat) =>
+        PreviousPlayCard(actorSeat) is { } previous &&
+        MatchesSkillProgramCardCategory(previous.EffectiveKind, SkillProgramCardCategory.Basic);
 
     private int DamageInstancesTakenThisTurn(int ownerSeat) =>
         EventsSinceLastBoundary(item => item is TurnStartedEvent)

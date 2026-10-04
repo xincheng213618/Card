@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:wangong",
+      "revision": 1,
+      "modifiers": [
+        {
+          "id": "unlimited-slash-uses",
+          "query": "slashLimit",
+          "operation": "unlimited",
+          "value": 0,
+          "priority": 0,
+          "condition": {
+            "kind": "previousPlayCardIsBasic"
+          }
+        }
+      ],
+      "triggers": [
+        {
+          "id": "bonus-damage-after-basic",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "actor",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "optional": false,
+          "priority": 0,
+          "condition": {
+            "kind": "previousPlayCardIsBasic"
+          },
+          "effects": [
+            {
+              "op": "addCurrentTargetSlashDamage",
+              "target": "owner",
+              "amount": 1,
+              "comparison": "always"
+            }
+          ]
+        }
+      ],
+      "cardPolicies": [
+        {
+          "id": "wangong-distance-spade",
+          "kind": "ignoreSlashUseDistanceBySuit",
+          "inputSuit": "spade",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "condition": {
+            "kind": "previousPlayCardIsBasic"
+          }
+        },
+        {
+          "id": "wangong-distance-heart",
+          "kind": "ignoreSlashUseDistanceBySuit",
+          "inputSuit": "heart",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "condition": {
+            "kind": "previousPlayCardIsBasic"
+          }
+        },
+        {
+          "id": "wangong-distance-club",
+          "kind": "ignoreSlashUseDistanceBySuit",
+          "inputSuit": "club",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "condition": {
+            "kind": "previousPlayCardIsBasic"
+          }
+        },
+        {
+          "id": "wangong-distance-diamond",
+          "kind": "ignoreSlashUseDistanceBySuit",
+          "inputSuit": "diamond",
+          "cardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash"
+          ],
+          "condition": {
+            "kind": "previousPlayCardIsBasic"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -16592,7 +16592,8 @@ public sealed partial class GameEngine
             GetPublicProgramBooleanStates(player),
             GetProgramPublicCounters(player),
             includeHandLimit ? GetHandLimit(player) : null,
-            includeHandLimit ? HasActuallyUsableHandCard(player) : null);
+            includeHandLimit ? HasActuallyUsableHandCard(player) : null,
+            TracksPlayCardHistory ? PreviousPlayCardIsBasicFor(player.Seat) : null);
 
     private void CollectDiscardPhaseHandDiscard(Card card, CardLocation from, CardLocation to)
     {

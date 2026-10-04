@@ -2353,6 +2353,7 @@ public sealed partial class GameEngine
                 ? action.PhysicalCards.Count : null,
             CardActionCategory = GetProgramCardCategory(action.EffectiveKind),
             CardActionMatchesPreviousPlayCard = TracksPlayCardHistory ? MatchesPreviousPlayCard(action) : null,
+            PreviousPlayCardIsBasic = TracksPlayCardHistory ? PreviousPlayCardIsBasic(action) : null,
             CardActionFromOwnerHand = action.PhysicalCards.Count > 0 &&
                 action.PhysicalCards.All(cost =>
                     cost.From is { Zone: CardZoneKind.Hand, OwnerSeat: { } holder } &&

@@ -132,6 +132,8 @@ var tests = new (string Name, Action Body)[]
     ("SP Ma Chao equipment recast drains Silver Lion and paid source loss before draw", OrdinarySpMaChaoChecks.EquipmentRecastDrainsSilverLionAndPaidSourceLossBeforeRealDraw),
     ("SP Ma Chao selected and spear material Slashes keep typed return and maximum", OrdinarySpMaChaoChecks.SelectedAndSpearMaterialSlashesUseOwnTypedReturnAndFrozenMaximum),
     ("SP Ma Chao legacy Slash and target windows keep one visit per target", OrdinarySpMaChaoChecks.LegacySlashAndExistingTargetWindowsKeepOneVisitPerOriginalTarget),
+    ("Ol Huang Zu definitions and metadata", OrdinaryHuangZuChecks.Definitions),
+    ("Ol Huang Zu wangong unlocks after each basic play", OrdinaryHuangZuChecks.WangongUnlocksAfterEachBasicPlay),
     ("Ol Yi Ji definitions and metadata", OrdinaryYiJiChecks.Definitions),
     ("Ol Yi Ji jijie hands deck bottom to selected participant", OrdinaryYiJiChecks.JijieHandsDeckBottomToSelectedParticipant),
     ("Ol Yi Ji jiyuan covers dying entries and own gifts", OrdinaryYiJiChecks.JiyuanCoversDyingEntriesAndOwnGifts),
