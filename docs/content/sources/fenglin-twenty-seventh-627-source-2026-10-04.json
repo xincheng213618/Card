@@ -1,0 +1,107 @@
+{
+  "status": "current-official-source-only-not-implemented",
+  "gid": 627,
+  "indexIdentity": {
+    "gid": 627,
+    "name": "界蔡夫人",
+    "resource": "62700",
+    "extend": "界限突破",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "史诗",
+    "figure": "群",
+    "figure_py": "qun",
+    "biography": "原是刘表的小妾，正室死后，成为了刘表的后妻。因刘琮娶了自己的侄女所以对其偏爱有加。刘备客居荆州时险些受其所害。刘表死后为了让刘琮即位不惜献州于曹操。",
+    "characteristic": "回合外能够限制对别人使用牌的角色，回合内可以令队友造成多点伤害。",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/627.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62700.png",
+    "realname": "界蔡夫人 (界限突破)"
+  },
+  "discovery": {
+    "indexPath": ".artifacts\\continuation-20261003-batch17\\batch21\\dong-zhuo\\next-batch22\\index-preflight.json",
+    "indexSha256": "3b564ba6fa141eed58449d91dbe669a48094a381a1efa97a51ceb7f81fb0cb87",
+    "indexCapturedAtUtc": "2026-10-03T17:09:18.318761+00:00",
+    "ordinaryOlArray": "Listdata[界限突破]"
+  },
+  "webReader": "Primary website reader attempted first: 621 and 642 timed out; 627 returned cached text. Bounded direct current primary HTTP capture follows.",
+  "page": {
+    "url": "https://www.sanguosha.com/hero/627",
+    "finalUrl": "https://www.sanguosha.com/hero/627",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-04T00:21:38.924473+00:00",
+    "contentType": "text/html",
+    "rawBytes": 24665,
+    "rawSha256": "b359d3036f615c80caac9a2b7c44370c95668f9ad1a2f2a935499a2e8b8877c4",
+    "rawFile": "627-page.raw.html",
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >限定技，出牌阶段，你可以将你装备区里的所有牌交给一名其他角色，然后其选择一项：1.令你回复X点体力；2.对其攻击范围内至多X名角色各造成1点伤害。（X为你给出的牌数）</span>\n                            \n                                <span >其他角色的回合结束后，若其本回合未对其他角色造成伤害，你可以选择一项；若其本回合未对其他角色使用过牌，你可以选择两项；1.将其装备区里的一张牌置入你的装备区；2.摸一张牌。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "献州",
+      "窃听"
+    ],
+    "skillTexts": [
+      "限定技，出牌阶段，你可以将你装备区里的所有牌交给一名其他角色，然后其选择一项：1.令你回复X点体力；2.对其攻击范围内至多X名角色各造成1点伤害。（X为你给出的牌数）",
+      "其他角色的回合结束后，若其本回合未对其他角色造成伤害，你可以选择一项；若其本回合未对其他角色使用过牌，你可以选择两项；1.将其装备区里的一张牌置入你的装备区；2.摸一张牌。"
+    ],
+    "fontRefs": []
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=627",
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=627",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-04T00:21:39.218461+00:00",
+    "contentType": "application/json",
+    "rawBytes": 923,
+    "rawSha256": "d18bebd12d120b4f50fd4f428cb712d2c74c5d240abfbce584ff071e4a61825a",
+    "rawFile": "627-api.raw.json",
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 627,
+            "name": "界蔡夫人",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/627.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62700.png",
+            "label": [
+              "进攻",
+              "控制",
+              "过牌"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "史诗",
+            "biography": "原是刘表的小妾，正室死后，成为了刘表的后妻。因刘琮娶了自己的侄女所以对其偏爱有加。刘备客居荆州时险些受其所害。刘表死后为了让刘琮即位不惜献州于曹操。",
+            "characteristic": "回合外能够限制对别人使用牌的角色，回合内可以令队友造成多点伤害。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "农民",
+            "value": 4
+          },
+          {
+            "name": "主公",
+            "value": 7
+          },
+          {
+            "name": "忠臣",
+            "value": 6
+          },
+          {
+            "name": "反贼",
+            "value": 6
+          },
+          {
+            "name": "内奸",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    }
+  }
+}

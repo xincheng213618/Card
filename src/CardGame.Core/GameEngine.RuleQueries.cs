@@ -142,11 +142,11 @@ public sealed partial class GameEngine
                 checked(allies * policy.Value));
         }
         AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
-        return RuleQueryService.Evaluate(
+        return ApplyEquipmentSuitHandLimit(player, RuleQueryService.Evaluate(
             SkillRuleQuery.HandLimit,
             new RuleQueryBounds(0, int.MaxValue),
             baseTerms,
-            contributions);
+            contributions));
     }
 
     private RuleQueryEvaluation EvaluateCardTargetCount(
@@ -194,6 +194,8 @@ public sealed partial class GameEngine
         {
             OwnerMarkerCount = bindings.Any(binding => binding.Modifier.QueryDependencies.Contains(SkillRuleQueryDependency.MarkerState))
                 ? marker => player.Markers.GetValueOrDefault(marker) : null,
+            PublicLivingFactionCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.PublicLivingFactionCount)
+                ? GetPublicLivingFactionCount() : null,
             CurrentTurnUsedHandSuitCount = bindings.Any(binding => binding.Modifier.ValueExpression == SkillRuleValueExpression.CurrentTurnUsedHandSuitCount)
                 ? CurrentTurnUseKinds(player.Seat).HandSuits : null
         };

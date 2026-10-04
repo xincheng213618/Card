@@ -1,0 +1,113 @@
+{
+  "status": "all-static-integrated-user-runtime-verification-deferred",
+  "batch": 27,
+  "baseCommit": "655c3eec",
+  "userSteering": {
+    "instruction": "Keep adding and commit; user will run unified tests after waking because CPU noise",
+    "buildsRun": false,
+    "productionLoaderExecuted": false,
+    "testsRun": false,
+    "benchmarksRun": false,
+    "commitAuthorized": true,
+    "pushAuthorized": false
+  },
+  "candidates": [
+    {
+      "gid": 621,
+      "id": "boundary:wang-yi",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-seventh-621-source-2026-10-04.json",
+      "sourceSha256": "d1e82784d133cb26ad50ec8dbcf1e9a0acb4913bb1b06b54fc1f2c84acc932a6",
+      "owner": "/root/pang_de",
+      "stage": ".artifacts/continuation-20261003-batch17/batch27/wang-yi",
+      "mainRegistered": true,
+      "status": "statically-integrated-runtime-verification-deferred",
+      "manifestSha256": "3f2f79fa8c40a508cc264c061decffe28a19e6e8a86dcd25d2fbb0b890cc9e01"
+    },
+    {
+      "gid": 627,
+      "id": "boundary:cai-fu-ren",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-seventh-627-source-2026-10-04.json",
+      "sourceSha256": "4c93bf6cf1d09c9e064a7f60e1b9724febf8cfdc66b7fcf9e587e2ea3b069b19",
+      "mainRegistered": true,
+      "status": "statically-integrated-runtime-verification-deferred",
+      "owner": "/root/pang_de",
+      "stage": ".artifacts/continuation-20261003-batch17/batch27/cai-fu-ren",
+      "manifestSha256": "f77e1ff8091efe5a194aec85874ee9e2bc58bfc8e8f2817c0b21bf602688f104",
+      "followupManifestSha256": "4177a54ca74743f1c16e77895b655d91a463aade56207c08984ac3047a537408"
+    },
+    {
+      "gid": 642,
+      "id": "boundary:li-ru",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-seventh-642-source-2026-10-04.json",
+      "sourceSha256": "64f750ebff02bc7d4e2eed71913883cda07df1f26759b9de7c3342b696fa78eb",
+      "mainRegistered": true,
+      "status": "statically-integrated-runtime-verification-deferred",
+      "owner": "/root/next_batch_audit",
+      "stage": ".artifacts/continuation-20261003-batch17/batch27/li-ru",
+      "manifestSha256": "6875ab4250d1d07163e8d5f34969fb6729a0e428476773636a26ab72170923fb"
+    }
+  ],
+  "runs": [],
+  "integrations": [
+    {
+      "gid": 621,
+      "baselineCommit": "636afb35",
+      "newFiles": 9,
+      "oldWiringFiles": 11,
+      "focusedChecksRegistered": 4,
+      "routineFiltersAdded": 1,
+      "compiled": false,
+      "loaderExecuted": false,
+      "testsRun": false,
+      "normalizedFrozenPreviewMatches": true,
+      "exactNewHashesMatch": true
+    },
+    {
+      "gid": 642,
+      "baselineCommit": "a794646f",
+      "newFiles": 8,
+      "oldWiringFiles": 10,
+      "focusedChecksRegistered": 4,
+      "routineFiltersAdded": 1,
+      "compiled": false,
+      "loaderExecuted": false,
+      "testsRun": false,
+      "normalizedFrozenPreviewMatches": true,
+      "exactNewHashesMatch": true
+    },
+    {
+      "gid": 627,
+      "baselineCommit": "2e805f43",
+      "newFiles": 8,
+      "oldWiringFiles": 9,
+      "focusedChecksRegistered": 4,
+      "routineFiltersAdded": 1,
+      "compiled": false,
+      "loaderExecuted": false,
+      "testsRun": false,
+      "normalizedFrozenPreviewMatches": true,
+      "exactNewHashesMatch": true,
+      "followup": "NEW pattern-variable names only; exact after SHA matched"
+    }
+  ],
+  "media": "docs/content/sources/fenglin-twenty-seventh-art-2026-10-04.json",
+  "runtimeAcceptance": false,
+  "pending": [
+    "User later combined build, focused runtime, Full and measured routine verification",
+    "User later offline/compiled art verification; all three original images installed"
+  ],
+  "versions": {
+    "perCharacterBumped": false,
+    "authoritativePaths": [
+      "src/CardGame.Core/Replay.cs",
+      "src/CardGame.Core/SkillPrograms.cs",
+      "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs"
+    ]
+  },
+  "cleanup": {
+    "ownedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+    "priorAutomaticApprovalRejection": "blocked by policy",
+    "retryPerformed": false,
+    "sourceStagesAndCacheRetainedForContinuation": true
+  }
+}

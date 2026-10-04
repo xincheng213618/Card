@@ -1,0 +1,98 @@
+{
+  "status": "current-primary-source-only-not-implemented",
+  "gid": 752,
+  "currentApiIdentity": {
+    "name": "界夏侯氏",
+    "faction": "shu",
+    "hp": 3,
+    "gender": null,
+    "initialHpApiPlaceholder": 0
+  },
+  "discovery": {
+    "path": ".artifacts/continuation-20261003-batch17/batch28/source-preflight/candidate-registration-preflight.json",
+    "rawSha256": "cfc3ff50973a4898a4ff01fba36718c91e372d58edd226b5f05c5d647d863a8c",
+    "purpose": "Cached ordinary OL discovery only; identity and full skill text come from these current primary responses"
+  },
+  "webReader": {
+    "attempted": true,
+    "result": "Web reader timed out; one bounded direct GET retained for each exact page and info API",
+    "retainedEvidence": "One direct bounded GET per exact page/API URL; no retries"
+  },
+  "page": {
+    "url": "https://www.sanguosha.com/hero/752",
+    "capturedAtUtc": "2026-10-04T04:17:55.6988137Z",
+    "completedAtUtc": "2026-10-04T04:17:56.0533039Z",
+    "httpStatus": 200,
+    "finalUrl": "https://www.sanguosha.com/hero/752",
+    "contentType": "text/html",
+    "rawBytes": 23728,
+    "rawSha256": "c154e639534315cf1f745aadd2dc19f88b5754b36541d27da5e35024b76d7585",
+    "rawFile": "752-page.raw.html",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >每个结束阶段，你可以与当前回合角色各摸一张牌。然后若其与你手牌数不相等，此技能本轮失效。</span>\n                            \n                                <span >出牌阶段，你可以重铸【杀】。出牌阶段结束时，若你本阶段失去过至少两张【杀】，你可以令一名男性角色摸两张牌。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "樵拾",
+      "燕语"
+    ],
+    "skillTexts": [
+      "每个结束阶段，你可以与当前回合角色各摸一张牌。然后若其与你手牌数不相等，此技能本轮失效。",
+      "出牌阶段，你可以重铸【杀】。出牌阶段结束时，若你本阶段失去过至少两张【杀】，你可以令一名男性角色摸两张牌。"
+    ],
+    "fontRefs": []
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=752",
+    "capturedAtUtc": "2026-10-04T04:17:56.1128768Z",
+    "completedAtUtc": "2026-10-04T04:17:56.2448895Z",
+    "httpStatus": 200,
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=752",
+    "contentType": "application/json",
+    "rawBytes": 664,
+    "rawSha256": "5ffc7d006dea4ca0d4700fcb574fa4fe1dbae23c961bbbd4f256d76d4f62a045",
+    "rawFile": "752-api.raw.json",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 752,
+            "name": "界夏侯氏",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/752.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/75200.png",
+            "label": [
+              "防御",
+              "过牌",
+              "辅助"
+            ],
+            "figure": "蜀",
+            "figure_py": "shu",
+            "quality": "史诗",
+            "biography": "夏侯渊从女，夏侯霸从妹，出城拾柴时被张飞所得，取其为妻。与张飞生有二女，即为刘禅大张皇后、小张皇后。",
+            "characteristic": "能够重铸杀，辅助补牌能力较灵活。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [],
+        "deeds": []
+      }
+    }
+  },
+  "completeCurrentMainTexts": true,
+  "hasUnexpandedGrantedSkill": false,
+  "namedGrantedSkills": [],
+  "blockedReasons": [],
+  "advertisedScriptEvidence": null,
+  "genderEvidence": "Current API has no independent gender field; implementation must use explicit biography or retained same-person identity evidence without calling it an API field",
+  "initialHpInterpretation": "initial_hp=0 is not an assertion of starting at zero HP",
+  "implementationStarted": false,
+  "mediaDownloaded": false,
+  "buildsRun": false,
+  "loadersRun": false,
+  "testsRun": false
+}

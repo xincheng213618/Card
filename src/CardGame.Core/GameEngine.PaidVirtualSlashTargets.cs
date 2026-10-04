@@ -19,8 +19,8 @@ public sealed partial class GameEngine
         SetCardUseTargetIndex(use.Id, next);
         SetCardUseStep(use.Id, ResolutionFrameStep.ResolvingEffect);
         var continued = new CardAttackHandle(this, use.Id, use.SourceSeat, targetSeat, card: null,
-            damageAmount: GetForeignPublicPileSlashBaseDamage(use.Id), playedCardKind: CardKind.Slash,
-            ignoresArmor: HasCardArmorBypass(_players[use.SourceSeat], _players[targetSeat], CardKind.Slash));
+            damageAmount: GetForeignPublicPileSlashBaseDamage(use.Id), playedCardKind: IsCurrentSlashFireChangedUse(use) ? use.CardKind : CardKind.Slash,
+            ignoresArmor: HasCardArmorBypass(_players[use.SourceSeat], _players[targetSeat], IsCurrentSlashFireChangedUse(use) ? use.CardKind : CardKind.Slash));
         continued.SetCardUseCausedDamage(attack.CardUseCausedDamage);
         ActiveCardAttack = continued;
         ActiveDuel = null;

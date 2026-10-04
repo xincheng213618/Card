@@ -1,0 +1,106 @@
+{
+  "status": "current-official-source-only-not-implemented",
+  "gid": 588,
+  "indexIdentity": {
+    "gid": 588,
+    "name": "界凌统",
+    "resource": "58800",
+    "extend": "界限突破",
+    "hp": 4,
+    "initial_hp": 0,
+    "quality": "史诗",
+    "figure": "吴",
+    "figure_py": "wu",
+    "biography": "字公绩，吴郡馀杭人，三国时期吴国名将。凌操之子，官至偏将军。",
+    "characteristic": "能通过装备和弃牌来控制全场。",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/588.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/58800.png",
+    "realname": "界凌统 (界限突破)"
+  },
+  "discovery": "Exact gid advertised by retained ordinary OL Listdata[界限突破] index; known info route from current official heroDetail.js.",
+  "webReader": "Single grouped web open attempted first; reader returned timeout for all three pages. Bounded direct primary HTTP byte capture follows.",
+  "page": {
+    "url": "https://www.sanguosha.com/hero/588",
+    "finalUrl": "https://www.sanguosha.com/hero/588",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T22:33:37.057572+00:00",
+    "contentType": "text/html",
+    "rawBytes": 23550,
+    "rawSha256": "2664e5c41c41213a6bd7f5ae19177ff4cf3e06e31af3c2246c12f5e269f6b371",
+    "rawFile": "588-page.raw.html",
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >当你失去装备区里的牌后，或一次性失去至少两张牌后，你可以依次弃置至多两名其他角色共计至多两张牌。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "旋风"
+    ],
+    "skillTexts": [
+      "当你失去装备区里的牌后，或一次性失去至少两张牌后，你可以依次弃置至多两名其他角色共计至多两张牌。"
+    ],
+    "fontRefs": [],
+    "scripts": [
+      "/assets/js/jquery-3.7.1.js",
+      "/assets/js/swiper-bundle.min.js",
+      "/assets/js/echarts.min.js",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "/assets/js/commen.js",
+      "/assets/js/header.js",
+      "/assets/js/heroDetail.js?1"
+    ]
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=588",
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=588",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T22:33:37.345996+00:00",
+    "contentType": "application/json",
+    "rawBytes": 711,
+    "rawSha256": "2b1028375d1e453c34d04898c73e71e5981e089fd6ebb589a28aa38d724063e7",
+    "rawFile": "588-api.raw.json",
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 588,
+            "name": "界凌统",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/588.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/58800.png",
+            "label": [
+              "控制",
+              "困难",
+              "配合神将"
+            ],
+            "figure": "吴",
+            "figure_py": "wu",
+            "quality": "史诗",
+            "biography": "字公绩，吴郡馀杭人，三国时期吴国名将。凌操之子，官至偏将军。",
+            "characteristic": "能通过装备和弃牌来控制全场。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "农民",
+            "value": 4
+          },
+          {
+            "name": "忠臣",
+            "value": 5
+          },
+          {
+            "name": "反贼",
+            "value": 5
+          },
+          {
+            "name": "内奸",
+            "value": 5
+          }
+        ],
+        "deeds": []
+      }
+    }
+  }
+}

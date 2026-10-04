@@ -1,0 +1,274 @@
+{
+  "status": "three-static-integrated-owned-followups-runtime-deferred",
+  "batch": 30,
+  "baseCommit": "d2990fba",
+  "userSteering": {
+    "instruction": "Keep adding and commit; user will run unified tests after waking because CPU noise",
+    "buildsRun": false,
+    "productionLoaderExecuted": false,
+    "testsRun": false,
+    "benchmarksRun": false,
+    "commitAuthorized": true,
+    "pushAuthorized": false
+  },
+  "candidates": [
+    {
+      "gid": 696,
+      "name": "界马岱",
+      "sourceRecord": "docs/content/sources/fenglin-thirtieth-696-source-2026-10-04.json",
+      "sourceSha256": "0d16dfce1985cf844eb92ff15e1d8295c5d98168a7f5f26a184f403f1684176a",
+      "faction": "shu",
+      "hp": 4,
+      "skillNames": [
+        "马术",
+        "潜袭"
+      ],
+      "completeCurrentDefinition": true,
+      "mainRegistered": true,
+      "status": "static-main-integrated-user-runtime-verification-deferred",
+      "owner": "/root/sun_quan",
+      "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch30\\ma-dai",
+      "reservedCapacity": "6500-6599",
+      "assignmentRecordedAtUtc": "2026-10-04T05:18:48.2373075Z"
+    },
+    {
+      "gid": 756,
+      "name": "界于禁",
+      "sourceRecord": "docs/content/sources/fenglin-thirtieth-756-source-2026-10-04.json",
+      "sourceSha256": "b953813aa986734c25b18b7f30798074c94befa3bd05a120bded2f01e6ad7dd7",
+      "faction": "wei",
+      "hp": 4,
+      "skillNames": [
+        "镇军",
+        "毅重"
+      ],
+      "completeCurrentDefinition": true,
+      "mainRegistered": true,
+      "status": "static-main-integrated-user-runtime-verification-deferred",
+      "owner": "/root/pang_de",
+      "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch30\\yu-jin",
+      "reservedCapacity": "6600-6699",
+      "assignmentRecordedAtUtc": "2026-10-04T06:12:26.8532756Z"
+    },
+    {
+      "gid": 752,
+      "name": "界夏侯氏",
+      "sourceRecord": "docs/content/sources/fenglin-thirtieth-752-source-2026-10-04.json",
+      "sourceSha256": "27a56606cc569f098e3726a203268761566b02200d50553f799ddd2b259672d6",
+      "faction": "shu",
+      "hp": 3,
+      "skillNames": [
+        "樵拾",
+        "燕语"
+      ],
+      "completeCurrentDefinition": true,
+      "mainRegistered": true,
+      "status": "static-main-integrated-user-runtime-verification-deferred",
+      "owner": "/root/next_batch_audit",
+      "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch30\\xiahou-shi",
+      "reservedCapacity": "6700-6799",
+      "assignmentRecordedAtUtc": "2026-10-04T05:44:35.8121931Z"
+    }
+  ],
+  "runs": [],
+  "integrations": [
+    {
+      "gid": 696,
+      "name": "界马岱",
+      "integratedAtUtc": "2026-10-04T06:31:10.2397587Z",
+      "baselineCommit": "141474a2bff72103bd9e6a7eed16f3f5ae7a03f5",
+      "manifest": "delivery-manifest.json",
+      "manifestSha256": "38220a6c6785d26e7f0ad14b49952c5ea755a831925619c7662fbfd241cc3cc4",
+      "patch": "shared-wiring.patch",
+      "patchSha256": "95de69c07082c71d0f5581ed4123eca9955fe7a6c34005f317f89dabd9919254",
+      "sourceSha256": "0d16dfce1985cf844eb92ff15e1d8295c5d98168a7f5f26a184f403f1684176a",
+      "newFiles": 6,
+      "oldFiles": 7,
+      "supportFiles": 6,
+      "sourceAuthorityBaselines": 3,
+      "registeredChecks": [
+        "boundary ma dai shown color hand ban and equipment response",
+        "boundary ma dai full materials damage benefit and cold return",
+        "boundary ma dai extra play cohort and actual turn expiry",
+        "boundary ma dai native reveal and real foreign provider"
+      ],
+      "routinePrefix": "boundary ma dai shown color hand ban",
+      "exactRawBeforeNewAndBomFreeLfAfterMatched": true,
+      "originalFrozenChanged": false,
+      "publicPolicyCollectionProjection": true,
+      "otherMaterialsRemainPrivateOwningReceipt": true,
+      "actualActorBothDirectionsAndProviderPreserved": true,
+      "oldColorPolicyDefaultPreserved": true,
+      "originalArtSha256": "8d295248a8f2fb4adac0b91d42db01b7ad2b0235f72ac3825148374c738c10ca",
+      "buildsRun": false,
+      "productionLoaderExecuted": false,
+      "checksRun": false,
+      "benchmarksRun": false,
+      "runtimeAcceptance": false,
+      "deferred": [
+        "All four fixed-seed actual-command drafts and continued four-view cold replay remain uncompiled, unloaded and unrun",
+        "Source loss, colorless, source-less/chain damage and additional same-turn displayed material combinations",
+        "True declaration/deck/private-pile material and both actor-change directions are source-proved contracts, without separate executed checks",
+        "Native AI, exact provider, equipment response recovery/HP and damage observer pauses are drafted and await unified actual verification"
+      ]
+    },
+    {
+      "gid": 752,
+      "name": "界夏侯氏",
+      "integratedAtUtc": "2026-10-04T06:48:02.0424402Z",
+      "baselineCommit": "da931c4c97600741ac521bd4c1be4d83d9ed9cce",
+      "manifest": "delivery-manifest.json",
+      "manifestSha256": "186cf9c393d173d7233b938e80bad2535655d0187f134e4275033406dff7dd88",
+      "patch": "shared-wiring.patch",
+      "patchSha256": "38c16bef1bc783b529ec9ecde86249716e13cdf2153c16d6947b5427a1660ac4",
+      "sourceSha256": "27a56606cc569f098e3726a203268761566b02200d50553f799ddd2b259672d6",
+      "newFiles": 9,
+      "oldFiles": 9,
+      "supportFiles": 16,
+      "stageEvidence": 5,
+      "registeredChecks": [
+        "Ending pair two draws own extra round and cold",
+        "Ending pair final hand true-round suppression and reacquisition",
+        "Actual play Slash use recast loss and cleanup",
+        "Actual play Slash give loss and next phase"
+      ],
+      "routinePrefix": "Ending pair two draws own extra round and cold",
+      "exactRawBeforeNewAndBothLfAfterMatched": true,
+      "originalFrozenChanged": false,
+      "independentStaticFollowup": "docs/content/sources/fenglin-thirtieth-752-static-followup-2026-10-04.json",
+      "distinctOwnEndingDraws": true,
+      "trueRoundBlockAcrossReacquisition": true,
+      "trustedActualPlaySlashLossStampOnly": true,
+      "publicCardMovedShapePreserved": true,
+      "unattemptedDrawInvoicePrevented": true,
+      "originalArtSha256": "4f6fc04c3ae8354cc25ccfb63ac0495e40c235701b3267c2d3cce628687b5f1f",
+      "buildsRun": false,
+      "productionLoaderExecuted": false,
+      "checksRun": false,
+      "benchmarksRun": false,
+      "runtimeAcceptance": false,
+      "deferred": [
+        "zero actual draw",
+        "owner/current actor death and winner cancellation",
+        "same entity regain then loss",
+        "extra Play phase",
+        "gain or HP child Damage/AttackHpLoss/SelfDying/Peach/bound or virtual alcohol/RecoveryReplacement",
+        "All four actual-command drafts and root source-loss cancellation branch remain uncompiled, unloaded and unrun"
+      ]
+    },
+    {
+      "gid": 756,
+      "name": "界于禁",
+      "integratedAtUtc": "2026-10-04T07:22:33.3520108Z",
+      "baselineCommit": "f1c48c3c6b093694c5f9e0755a63218df5796694",
+      "manifest": "manifest.json",
+      "manifestSha256": "d56351894794712573cd4226827af0df97005a40025a7c51a05749052f455850",
+      "patch": "old-wiring.patch",
+      "patchSha256": "a80c2a6a025bc8897e7efe2879438ce4ac3521d38a1af509294e25a88a67a191",
+      "sourceSha256": "b953813aa986734c25b18b7f30798074c94befa3bd05a120bded2f01e6ad7dd7",
+      "newFiles": 10,
+      "oldFiles": 12,
+      "supportFiles": 19,
+      "registeredChecks": [
+        "Preparation discard actual cost",
+        "Preparation discard promised ending",
+        "Compared black Slash actual target",
+        "Preparation discard native contracts"
+      ],
+      "routinePrefix": "Preparation discard actual cost",
+      "exactRawBeforeNewAndBothLfAfterMatched": true,
+      "originalFrozenChanged": false,
+      "rootCorrections": [],
+      "scalarPublicEventsAndFrozenPrivateCollections": true,
+      "actualTurnEndingPromise": true,
+      "zeroPromiseNoDrawFact": true,
+      "independentAppearanceCaptureGate": true,
+      "originalArtSha256": "ae0f973cc751e505b071f6634fe369591feea67f7edafbb65a9e47b337369324",
+      "buildsRun": false,
+      "productionLoaderExecuted": false,
+      "checksRun": false,
+      "benchmarksRun": false,
+      "runtimeAcceptance": false,
+      "deferred": [
+        "All four fixed-seed actual-command drafts remain uncompiled, unloaded and unrun",
+        "Exact equipment producer, native AI and child prompt order require actual verification",
+        "HE and shortfall, generated weapon exclusion, source loss and skipped Ending remain explicit engineering defaults without current FAQ"
+      ]
+    },
+    {
+      "gid": 775,
+      "name": "界步练师死亡收益嵌套",
+      "capability": 6800,
+      "integratedAtUtc": "2026-10-04T08:38:50.6038501Z",
+      "baselineCommit": "cb0418e5e161b06159fa9b66df526ca7e95b9c6a",
+      "manifestSha256": "17cc10ce391cc18117add00ad966de1914f5a13ac3aeacde9b9e2efd514c1f7d",
+      "patchSha256": "d932d32b35f29cd23627c075aa5ad5bcb0e88d1dcd0cfea8124fb63a26ea05cd",
+      "sourceSha256": "76212903e4e86c42fe8f9f14b2e9108b706514164b81a8e6698d562cb179bbab",
+      "newFiles": 3,
+      "oldFiles": 10,
+      "supportFiles": 8,
+      "registeredChecksUnchanged": 4,
+      "originalThirdStatementsPreserved": true,
+      "routinePrefix": "boundary bu lian shi ordered opaque pair gift",
+      "staticIntegration": "docs/content/sources/fenglin-thirtieth-775-death-return-static-integration-2026-10-04.json",
+      "optInProtocolAdded": true,
+      "legacy6303Preserved": true,
+      "buildsRun": false,
+      "productionLoaderExecuted": false,
+      "checksRun": false,
+      "benchmarksRun": false,
+      "runtimeAcceptance": false,
+      "unsupported": [
+        "Two simultaneous living victims in Dying; no active living Dying is filtered."
+      ]
+    }
+  ],
+  "runtimeAcceptance": false,
+  "pending": [
+    "696,752,756 and775 dedicated death-return protocol statically integrated; runtime acceptance remains unproven",
+    "726 complete tiered true-Round conversion and zero-material use is in its owned stage; next serialized final OLD window",
+    "User later combined build, focused runtime, Full and measured routine verification"
+  ],
+  "versions": {
+    "perCharacterBumped": false,
+    "authoritativePaths": [
+      "src/CardGame.Core/Replay.cs",
+      "src/CardGame.Core/SkillPrograms.cs",
+      "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs"
+    ]
+  },
+  "cleanup": {
+    "ownedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+    "priorAutomaticApprovalRejection": "blocked by policy",
+    "retryPerformed": false,
+    "sourceStagesAndCacheRetainedForContinuation": true
+  },
+  "media": {
+    "record": "docs/content/sources/fenglin-thirtieth-art-2026-10-04.json",
+    "rawCaptured": 3,
+    "installed": 3,
+    "originalPngOnly": true,
+    "sourceShaMatched": true,
+    "fullOfflineCatalogRun": false,
+    "compiledVerificationRun": false
+  },
+  "ownedFollowups": [
+    {
+      "gid": 775,
+      "name": "界步练师死亡收益嵌套",
+      "owner": "/root/sun_quan",
+      "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch30\\bu-lian-shi-death-nesting",
+      "reservedCapacity": "6800-6899",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-775-source-2026-10-04.json",
+      "sourceSha256": "76212903e4e86c42fe8f9f14b2e9108b706514164b81a8e6698d562cb179bbab",
+      "status": "static-main-protocol-integrated-runtime-verification-deferred",
+      "currentKnownLimitResolved": false,
+      "buildsRun": false,
+      "testsRun": false,
+      "limitationImplementationAdded": true,
+      "runtimeAcceptance": false,
+      "staticIntegration": "docs/content/sources/fenglin-thirtieth-775-death-return-static-integration-2026-10-04.json",
+      "manifestSha256": "17cc10ce391cc18117add00ad966de1914f5a13ac3aeacde9b9e2efd514c1f7d"
+    }
+  ]
+}

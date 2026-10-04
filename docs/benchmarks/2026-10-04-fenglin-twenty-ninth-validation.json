@@ -1,0 +1,253 @@
+{
+  "status": "three-static-integrated-current-grant-source-gap-runtime-deferred",
+  "batch": 29,
+  "baseCommit": "2e805f43",
+  "userSteering": {
+    "instruction": "Keep adding and commit; user will run unified tests after waking because CPU noise",
+    "buildsRun": false,
+    "productionLoaderExecuted": false,
+    "testsRun": false,
+    "benchmarksRun": false,
+    "commitAuthorized": true,
+    "pushAuthorized": false
+  },
+  "candidates": [
+    {
+      "gid": 451,
+      "name": "界刘禅",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-451-source-2026-10-04.json",
+      "sourceSha256": "d9a656e8e8c334c3a1719525194df07eebf6c1809dc8787c7948c3b4e984f37c",
+      "mainRegistered": false,
+      "status": "current-granted-definition-gap-no-partial-registration",
+      "owner": null,
+      "stage": null,
+      "linkedScriptFollowup": {
+        "path": "docs/content/sources/fenglin-twenty-ninth-451-linked-script-followup-2026-10-04.json",
+        "rawSha256": "b356429bb04d9aa08c4bfb2780520ae7060bdd82f3d0e1e55e727c97be77dc9f",
+        "originalSourceChanged": false,
+        "fullCurrentGrantsCaptured": false,
+        "partialRegistration": false
+      }
+    },
+    {
+      "gid": 563,
+      "name": "界张昭张纮",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-563-source-2026-10-04.json",
+      "sourceSha256": "40e306cedc0c0dfec0fabacb8bffc9a0da88a3b744b850e729d4ce5d0728ad69",
+      "mainRegistered": true,
+      "status": "static-main-integrated-user-runtime-verification-deferred",
+      "owner": "/root/sun_quan",
+      "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch29\\zhang-zhao-zhang-hong",
+      "reservedCapacity": "6200-6299",
+      "assignmentRecordedAtUtc": "2026-10-04T03:35:07.4592989Z"
+    },
+    {
+      "gid": 775,
+      "name": "界步练师",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-775-source-2026-10-04.json",
+      "sourceSha256": "76212903e4e86c42fe8f9f14b2e9108b706514164b81a8e6698d562cb179bbab",
+      "mainRegistered": true,
+      "status": "static-main-integrated-with-owned-death-return-followup-runtime-deferred",
+      "owner": "/root/next_batch_audit",
+      "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch29\\bu-lian-shi",
+      "reservedCapacity": "6300-6399",
+      "assignmentRecordedAtUtc": "2026-10-04T03:35:07.4621605Z",
+      "deathReturnStaticFollowup": "docs/content/sources/fenglin-thirtieth-775-death-return-static-integration-2026-10-04.json"
+    },
+    {
+      "gid": 671,
+      "name": "界伏皇后",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-671-source-2026-10-04.json",
+      "sourceSha256": "1c004024c9b94b5e39f653a31d5e928406102e7e8efe576db102e2749b1dc247",
+      "mainRegistered": true,
+      "status": "static-main-integrated-user-runtime-verification-deferred",
+      "owner": "/root/pang_de",
+      "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch29\\fu-huang-hou",
+      "reservedCapacity": "6400-6499",
+      "assignmentRecordedAtUtc": "2026-10-04T03:35:07.4623277Z",
+      "classificationSupplement": {
+        "path": "docs/content/sources/fenglin-twenty-ninth-671-damage-trick-classification-2026-10-04.json",
+        "sha256": "e696a2e436a2bd4ec05723d594e86ae08b09661928f0544c5c6adef05e2bc58f",
+        "historicalGuideOnly": true,
+        "currentEngineeringInference": true,
+        "latestFAQVerified": false,
+        "originalSourceChanged": false
+      }
+    }
+  ],
+  "runs": [],
+  "integrations": [
+    {
+      "gid": 563,
+      "name": "界张昭张纮",
+      "integratedAtUtc": "2026-10-04T05:18:48.2072869Z",
+      "baselineCommit": "cecc456e",
+      "coreBaselineCommit": "64f10e3c",
+      "manifest": "delivery-manifest.json",
+      "manifestSha256": "a144e63012bde231b0e5780f2ea8919d5501a164d041d5b585c5b02582377508",
+      "patch": "shared-wiring.patch",
+      "patchSha256": "5c25617b96b20475170f2342cfb8b605b0884d1b87b0419c5a8257d46f42a5df",
+      "sourceSha256": "40e306cedc0c0dfec0fabacb8bffc9a0da88a3b744b850e729d4ce5d0728ad69",
+      "newFiles": 9,
+      "oldFiles": 11,
+      "supportFiles": 8,
+      "registeredChecks": [
+        "boundary two zhangs equipment replacement paid children and cold draw",
+        "boundary two zhangs return claim phase quota and damage dying cold",
+        "boundary two zhangs extra play and normal discard actual phase",
+        "boundary two zhangs native public cohort and frozen receipts"
+      ],
+      "routinePrefix": "boundary two zhangs equipment replacement",
+      "exactRawBeforeNewAndLfAfterMatched": true,
+      "phaseFactsOptIn": true,
+      "typedInterruptedPreparationAndNormalDrawReturn": true,
+      "publicClaimedCollectionProjection": true,
+      "receiptLocalNativeDamageDyingEdges": true,
+      "originalArtSha256": "2c3d9b4bc04530355758b817a026b3802c1d254851dc2c55ae933c92fa7caea1",
+      "buildsRun": false,
+      "productionLoaderExecuted": false,
+      "checksRun": false,
+      "benchmarksRun": false,
+      "runtimeAcceptance": false,
+      "deferred": [
+        "All four fixed-seed actual-command drafts and four-view continued cold replay are uncompiled, unloaded and unrun",
+        "Generated target weapon and WoodenOx replacement/transfer branches",
+        "Inserted extra Draw token restoration and known phase skip/cancel/death/winner variants",
+        "Native paid Gain Damage -> Dying self-response is drafted; physical/multi-material Peach, bound Alcohol and virtual Alcohol are static proof reuse, not executed",
+        "Source-equipment removal, paid source loss, arbitrary content/observer combinations and full/routine integration await unified verification"
+      ]
+    },
+    {
+      "gid": 775,
+      "name": "界步练师",
+      "integratedAtUtc": "2026-10-04T05:44:35.7743144Z",
+      "baselineCommit": "7e0814da",
+      "manifest": "delivery-manifest.json",
+      "manifestSha256": "821e685877dc43d76480a67e8da23c599f4dac2adb021908e7c22bc7ebaf2ec2",
+      "patch": "shared-wiring.patch",
+      "patchSha256": "2088ec13f1129223d5b4a36703e4ed832693c0367d431b3faad6f2f22115df31",
+      "sourceSha256": "76212903e4e86c42fe8f9f14b2e9108b706514164b81a8e6698d562cb179bbab",
+      "newFiles": 10,
+      "oldFiles": 9,
+      "stageSupportFiles": 7,
+      "mainSupportFiles": 9,
+      "exactRawBeforeNewAndNormalizedAfterMatched": true,
+      "executorOriginalManifestLfIncludesBom": true,
+      "executorBomFreeLfAfter": "ff902c3a591dfde07866a7e0cabc537fe3e0128c4283324f50537057dee8476f",
+      "followup": {
+        "path": "docs/content/sources/fenglin-twenty-ninth-775-static-followup-2026-10-04.json",
+        "rawSha256": "2cbce5f2cd5b168c81e2c61c7fd41964a632741aa60b5532e2f590f8cfd9419d",
+        "originalFrozenChanged": false,
+        "presentationCorrectedRawSha256": "686bbd685c4ad22f32056beb5f1c4498ea2e274e13ed84355df0b62c057c862c",
+        "semanticDescriptionsChanged": false
+      },
+      "registeredChecks": [
+        "boundary bu lian shi ordered opaque pair gift and reward",
+        "boundary bu lian shi self hand equipment recovery and source loss",
+        "boundary bu lian shi ending issued recipient death repeat and cold",
+        "boundary bu lian shi unissued or dead recipient cancels death repeat"
+      ],
+      "routinePrefix": "boundary bu lian shi ordered opaque pair gift",
+      "noPrivateHandIdentityInNewPublicFacts": true,
+      "selfHandSelectionNoMovement": true,
+      "originalDeathRecipientOnly": true,
+      "knownUnsupportedCombinations": [
+        "OwnerDied fixed-recipient benefit observer issuing new Damage or new Dying: mature BeginProgramSkillDamage, BeginProgramSkillDying and CompleteProgramAttack reject residual ActiveDying. Requires dedicated exact Death/Dying suspension/return; no generic relaxation or swallowed trigger in this delivery."
+      ],
+      "originalArtSha256": "88df186050ed556c59fe3ac44a0fa55a586fc24a42d2e0bebcab8df5f8140d48",
+      "buildsRun": false,
+      "productionLoaderExecuted": false,
+      "checksRun": false,
+      "benchmarksRun": false,
+      "runtimeAcceptance": false,
+      "deferred": [
+        "All four small actual-command/four-view JSON cold continuation drafts are uncompiled, unloaded and unrun",
+        "Alive Anxu/initial Ending gain or HP children issuing Damage, AttackHpLoss or SelfDyingResponse are statically typed only",
+        "Silver Lion Jiuyuan RecoveryReplacement, zero Wine, material/pile alcohol rescue, nested equipment and winner cleanup combinations are statically typed only",
+        "All possible native active pair choices, current source equipment changes and national-war privacy combinations"
+      ],
+      "currentDeathReturnFollowup": {
+        "path": "docs/content/sources/fenglin-thirtieth-775-death-return-static-integration-2026-10-04.json",
+        "legacyKnownUnsupportedRecordIsHistorical": true,
+        "optIn6800ImplementationAdded": true,
+        "runtimeVerified": false,
+        "twoSimultaneousLivingDyingSupported": false
+      }
+    },
+    {
+      "gid": 671,
+      "name": "界伏皇后",
+      "integratedAtUtc": "2026-10-04T06:12:26.8190737Z",
+      "baselineCommit": "d2e3d72cec6e54002ba36a13419fbd4ab31fb3bf",
+      "manifest": "manifest.json",
+      "manifestSha256": "087eddfbe32206b31a4a84b3a9d718ee69b3b2f4a9dd0b8c24eb51e588fb5101",
+      "patch": "old-wiring.patch",
+      "patchSha256": "d587a43b3e33cfcf68a5e9dcded0238e3f1a66757e032799b7bced10ef93b517",
+      "sourceSha256": "1c004024c9b94b5e39f653a31d5e928406102e7e8efe576db102e2749b1dc247",
+      "newFiles": 8,
+      "oldFiles": 19,
+      "supportFiles": 26,
+      "registeredChecks": [
+        "Foreign actual turn contest decline win expiry",
+        "Foreign contest original claim private aid rescue return",
+        "Same actual use aid extra duel physical slash targets",
+        "Actual use aid damage trick legacy native contracts"
+      ],
+      "routinePrefix": "Foreign actual turn contest decline win expiry",
+      "exactRawBeforeNewAndBomFreeLfAfterMatchedBeforeFollowup": true,
+      "followup": {
+        "path": "docs/content/sources/fenglin-twenty-ninth-671-static-followup-2026-10-04.json",
+        "rawSha256": "c9384666e646a1f16a588f9f9965a96bed22077a6fb8b5a952aa4ffe72784b55",
+        "originalFrozenChanged": false,
+        "owningWindowByExactParentId": true,
+        "existingSecondMethodNestedPeachDraft": true
+      },
+      "noPrivateGiftIdentityInNewPublicFact": true,
+      "newWindowNestedFactsFrozen": true,
+      "actualForeignPindianAndOriginalUseOnly": true,
+      "legacyProducerAndZeroDuelTailProof": true,
+      "originalArtSha256": "8df34043ffc82feefdf2cdea7c392b19c1eacad977c13f613afc9fc07525af3e",
+      "buildsRun": false,
+      "productionLoaderExecuted": false,
+      "checksRun": false,
+      "benchmarksRun": false,
+      "runtimeAcceptance": false,
+      "deferred": [
+        "Four retained real-command drafts and the added nested physical Peach completion cold scenario are uncompiled, unloaded and unrun",
+        "HE/shared Slash name/damage Trick classification/Discard-only claim/Hengye ordering are explicit unverified current FAQ defaults",
+        "Native AI, Silver Lion/WoodenOx, Damage/AttackHpLoss/SelfDying and Alcohol/Peach typed combinations remain static only",
+        "4901/600/Fire, mixed full material effective appearance, source loss, winner/death and additional same-use target combinations require unified verification"
+      ]
+    }
+  ],
+  "runtimeAcceptance": false,
+  "pending": [
+    "563,775,671 statically integrated;775 original death-nesting limitation now has an opt-in6800 source implementation, awaiting runtime verification",
+    "451 full current linked grants remain unverified after bounded advertised-script followup; no partial implementation",
+    "696,756,752 also statically integrated;726 owned development continues with root-serialized final OLD windows",
+    "User later combined build, focused runtime, Full and measured routine verification"
+  ],
+  "versions": {
+    "perCharacterBumped": false,
+    "authoritativePaths": [
+      "src/CardGame.Core/Replay.cs",
+      "src/CardGame.Core/SkillPrograms.cs",
+      "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs"
+    ]
+  },
+  "cleanup": {
+    "ownedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+    "priorAutomaticApprovalRejection": "blocked by policy",
+    "retryPerformed": false,
+    "sourceStagesAndCacheRetainedForContinuation": true
+  },
+  "media": {
+    "record": "docs/content/sources/fenglin-twenty-ninth-art-2026-10-04.json",
+    "rawCaptured": 3,
+    "installed": 3,
+    "originalPngOnly": true,
+    "sourceShaMatched": true,
+    "fullOfflineCatalogRun": false,
+    "compiledVerificationRun": false
+  }
+}

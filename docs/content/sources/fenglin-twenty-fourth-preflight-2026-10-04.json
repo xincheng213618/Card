@@ -1,7 +1,7 @@
 {
-  "status": "three-complete-current-ordinary-OL-candidates-preflight-verified-one-staging-not-main",
+  "status": "all-three-main-registered-tests-deferred-explicit-user-cpu-noise",
   "batch": 24,
-  "capturedUtc": "2026-10-03T20:55:57.7537238+00:00",
+  "capturedUtc": "2026-10-04T04:55:57.7537238+08:00",
   "verifiedManifestSha256": "4364009282ac9821d591c04777d8742527b4b74e34c303b57c7d93c76410aab7",
   "candidateNotesSha256": "f4ee51a61e0702e51ab233123c89e85594f6bb713292ad8990e9436674cff2d7",
   "candidateNotes": ".artifacts\\continuation-20261003-batch17\\batch23\\guo-huai\\next-batch24\\NEXT-CANDIDATES.md",
@@ -40,15 +40,27 @@
     "src/CardGame.Core/ProgramConvertingGiftOperations.cs": "5febc7b3a3da8c63d897d2537a54cb854d91abd5fabaa61b5bb3fee632194823"
   },
   "implementationStatus": {
-    "gid641": "source-complete-not-implemented",
-    "gid600": "independent-stage-started-no-main-write-no-build",
-    "gid604": "source-complete-not-implemented"
+    "gid641": "main-code-registered-prior4focused-pass-final-policy-followup-unrun",
+    "gid600": "main-code-registered-inputsuits-followup-static-only-unified-tests-deferred",
+    "gid604": "main-code-registered-static-only-no-build-tests"
   },
   "faq": "No independently verified current ordinary OL FAQ; explicit engineering defaults remain separate from original source",
   "deferred": [
+    451
+  ],
+  "mainWrites": [
+    "Three content modules/rules/presentation, shared runtime capabilities and12 existing-runner registrations",
+    "Exact frozen patches with all OLD baseline hashes; narrow641/600/604 static followups",
+    "Three official raw PNGs and catalog registrations"
+  ],
+  "builds": [
+    "641 initial descriptor build failure retained",
+    "641 focused3/4 before exact HP owning correction",
+    "641 focused4/4 after correction; 13.529 seconds including build"
+  ],
+  "currentRosterCaveat": "This batch did not establish missing451/452 derived-source proof; existing independently integrated BoundarySunCeContent is preserved, no absence assertion about current roster",
+  "missingDerivedProofInThisBatch": [
     451,
     452
-  ],
-  "mainWrites": [],
-  "builds": []
+  ]
 }

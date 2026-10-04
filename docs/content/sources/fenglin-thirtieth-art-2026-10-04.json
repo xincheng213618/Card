@@ -1,0 +1,71 @@
+{
+  "status": "official-raw-art-all-registered-runtime-verification-deferred",
+  "batch": 30,
+  "images": [
+    {
+      "gid": 696,
+      "key": "boundary-ma-dai",
+      "name": "界马岱",
+      "sourceRecord": "docs/content/sources/fenglin-thirtieth-696-source-2026-10-04.json",
+      "sourceRecordSha256": "0d16dfce1985cf844eb92ff15e1d8295c5d98168a7f5f26a184f403f1684176a",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/69600.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/69600.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-04T04:21:53.4640662Z",
+      "contentType": "image/png",
+      "rawBytes": 1148460,
+      "sha256": "8d295248a8f2fb4adac0b91d42db01b7ad2b0235f72ac3825148374c738c10ca",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch30\\official-art\\official-boundary-ma-dai.png",
+      "installed": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-ma-dai.png"
+    },
+    {
+      "gid": 756,
+      "key": "boundary-yu-jin",
+      "name": "界于禁",
+      "sourceRecord": "docs/content/sources/fenglin-thirtieth-756-source-2026-10-04.json",
+      "sourceRecordSha256": "b953813aa986734c25b18b7f30798074c94befa3bd05a120bded2f01e6ad7dd7",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/75600.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/75600.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-04T04:21:53.6359048Z",
+      "contentType": "image/png",
+      "rawBytes": 1406302,
+      "sha256": "ae0f973cc751e505b071f6634fe369591feea67f7edafbb65a9e47b337369324",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch30\\official-art\\official-boundary-yu-jin.png",
+      "installed": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-yu-jin.png"
+    },
+    {
+      "gid": 752,
+      "key": "boundary-xiahou-shi",
+      "name": "界夏侯氏",
+      "sourceRecord": "docs/content/sources/fenglin-thirtieth-752-source-2026-10-04.json",
+      "sourceRecordSha256": "27a56606cc569f098e3726a203268761566b02200d50553f799ddd2b259672d6",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/75200.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/75200.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-04T04:21:53.8265156Z",
+      "contentType": "image/png",
+      "rawBytes": 1028929,
+      "sha256": "4f6fc04c3ae8354cc25ccfb63ac0495e40c235701b3267c2d3cce628687b5f1f",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch30\\official-art\\official-boundary-xiahou-shi.png",
+      "installed": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-xiahou-shi.png"
+    }
+  ],
+  "verification": {
+    "rawPngSignatureAndIhdr": true,
+    "sourceRecordShaMatched": true,
+    "mainRegistration": true,
+    "fullOfflineCatalogRun": false,
+    "compiledVerificationRun": false,
+    "installedCount": 3
+  }
+}

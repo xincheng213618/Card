@@ -30,10 +30,18 @@ public sealed partial class GameEngine
         {
             case NullificationWindowFrame { CounterspellPayment: not null }: ContinuePolicyCounterspellPayment(frameId); break;
             case CardUseFrame { ColorFireAttack.PaidCardId: not null }: ContinueColorFireAttackPayment(frameId); break;
+            case CardUseFrame { RoundPileAlcoholReturn: not null, RoundPileAlcoholCostDrained: false }: ContinueRoundPileAlcoholUse(frameId); break;
             case CardEffectBeforeApplyFrame: ContinueCardEffectBeforeApply(); break;
             case CardDeclarationFrame: ContinueCardDeclaration(frameId); break;
             case CardDeclarationChallengeFrame: ContinueCardDeclarationChallenge(frameId); break;
             case ProgramSkillFrame:
+                if (ResumeEndingPairOrSlashRecast(frameId)) return;
+                if (ResumeCapturedEquipmentAndDraw(frameId) || ResumeActualDiscardRecovery(frameId)) return;
+                if (ResumeSuitPreventionBenefit(frameId) || ResumeMatchedJudgmentPlacement(frameId)) return;
+                if (ResumeAdjacentDiscardStorage(frameId) || ResumeCompletedUsePayment(frameId) || ResumeRoundPileAlcohol(frameId)) return;
+                if (ResumeForeignTurnContest(frameId) || ResumeSameTypeAid(frameId)) return;
+                if (ResumeSharedSlashOffer(frameId)) return;
+                if (ResumeGrantedEntityPhaseTrailer(frameId) || ResumeGrantedPhaseSlashClaim(frameId)) return;
                 if (ResumeProvenanceClaim(frameId) || ResumeProvenanceAlcohol(frameId)) return;
                 if (ResumeDamageJudgmentSuitPayment(frameId)) return;
                 if (ResumeDualColorDuel(frameId)) return;
@@ -41,6 +49,7 @@ public sealed partial class GameEngine
                 if (ResumeAlternativePhaseCost(frameId)) return;
                 if (ResumeAwaitedBlindHandTake(frameId)) return;
                 if (ResumeParticipantHandPayment(frameId)) return;
+                if (ResumePaidColorDamageClaims(frameId)) return;
                 if (ResumeBoundDiscardSlashBenefits(frameId)) return;
                 if (ResumeProgramBoundCardRecast(frameId)) return;
                 if (ResumeHpDamageShieldPayment(frameId)) return;
@@ -71,6 +80,8 @@ public sealed partial class GameEngine
                 var host = new ProgramSkillHost(this);
                 new SkillProgramExecutor().Run(frameId, host, host);
                 break;
+            case ForeignActualTurnStartWindowFrame: ContinueForeignActualTurnStartCore(); break;
+            case ActualUseTargetWindowFrame: ContinueActualUseTargetWindowCore(); break;
             case ProgramCardTriggerWindowFrame: ContinueProgramCardWindowCore(); break;
             case ProgramLifecycleTriggerWindowFrame: ContinueProgramLifecycleWindowCore(); break;
             case HpChangedTriggerWindowFrame: ContinueHpChangedProgramWindowCore(); break;
@@ -97,6 +108,7 @@ public sealed partial class GameEngine
         // to completed facts, so they are validated by their typed return path.
         var parentId = frame switch
         {
+            ActualUseTargetWindowFrame child => child.ParentFrameId,
             CardDeclarationFrame child => child.Return.ParentFrameId,
             CardDeclarationChallengeFrame child => child.ParentFrameId,
             ResponseWindowFrame child => child.ParentFrameId,
@@ -115,6 +127,8 @@ public sealed partial class GameEngine
         if (parentId > 0 && !_resolutionStack.Any(parent => parent.Id == parentId))
             throw new InvalidOperationException("A runtime child cannot outlive its owning frame.");
         _resolutionStack.Push(frame);
+        if (frame is CardUseFrame use && use.Action is { Type: CardActionType.Use } action)
+            IssueOriginalTargetAdditionPolicy(use.Id, action);
     }
 
     private void ReplaceRuntimeFrame(long expectedFrameId, ResolutionFrame next)
@@ -227,6 +241,8 @@ public sealed partial class GameEngine
 
     private void RunOneEngineStep()
     {
+        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is ActualUseTargetWindowFrame actualTargets)
+        { AdvanceRuntimeFrame(actualTargets.Id); AdvanceRulesAndPublishState(); return; }
         if (_pendingDecision is null && _resolutionStack.LastOrDefault() is NullificationWindowFrame { CounterspellPayment: not null } paidCounter)
         { AdvanceRuntimeFrame(paidCounter.Id); AdvanceRulesAndPublishState(); return; }
         if (_pendingDecision is null && _resolutionStack.LastOrDefault() is CardUseFrame { ColorFireAttack.PaidCardId: not null } paidFire)
@@ -321,6 +337,8 @@ public sealed partial class GameEngine
         }
 
 
+        if (TryAdvanceOwnedDeathBenefitSubtree()) return;
+
         if (ActiveDying is { } paidProgramDying &&
             _resolutionStack.LastOrDefault() is ProgramSkillFrame { WindowContext: { } paidContext } paidDyingProgram &&
             _resolutionStack.Count >= 2 && _resolutionStack[^2] is DyingFrame paidDyingParent && paidDyingParent.Id == paidProgramDying.Id &&
@@ -328,7 +346,7 @@ public sealed partial class GameEngine
             paidContext.OwnerSeat == paidDyingProgram.OwnerSeat &&
             (paidContext.Window == SkillProgramTriggerWindow.DyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.ResponderSeat ||
              paidContext.Window == SkillProgramTriggerWindow.SelfDyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.VictimSeat) &&
-            (IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying()))
+            (IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsOwnedDeathBenefitProgramDying()))
         {
             AdvanceRuntimeProgram(paidDyingProgram.Id);
             AdvanceRulesAndPublishState();
@@ -459,6 +477,8 @@ public sealed partial class GameEngine
     {
         var context = frame.WindowContext ??
             throw new InvalidOperationException("A trigger program frame lost its window context.");
+        FinishPaidOwnTargetBeforeProgramCompletion(frame);
+        FinishOwnedDeathBenefitReturn(frame, completed);
         PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramSkill);
         AdvanceEventRulesAndQueueFact(new ProgramBindingResolvedEvent(
             frame.Id, frame.SkillId, frame.TriggerId!, frame.SkillInstanceId,
@@ -466,6 +486,9 @@ public sealed partial class GameEngine
         if (CompleteDeferredTurnEndBinding(frame, context)) return;
         switch (context.Window)
         {
+            case SkillProgramTriggerWindow.OtherActualUseTargeted:
+                CompleteActualUseTargetBinding(frame, completed);
+                break;
             case SkillProgramTriggerWindow.ProgramTargetCommitted:
             case SkillProgramTriggerWindow.DyingEntering:
             case SkillProgramTriggerWindow.SkillsChanged:
@@ -479,6 +502,8 @@ public sealed partial class GameEngine
                 AdvanceProgramLifecycleCursor(changed);
                 AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
                 break;
+            case SkillProgramTriggerWindow.OtherActualTurnStarted:
+                CompleteForeignActualTurnStartBinding(frame); break;
             case SkillProgramTriggerWindow.TurnStartBeforeNormalFlow:
                 if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame lifecycle ||
                     lifecycle.Id != context.ParentFrameId)
@@ -715,6 +740,8 @@ public sealed partial class GameEngine
     private void ReturnRuntimeProgramMovement(long frameId)
     {
         var frame = GetActiveProgramFrame(frameId);
+        if (ReturnCapturedEquipmentOrDiscardMovement(frame)) return;
+        if (ReturnSuitPlacementMovement(frame)) return;
         if (ReturnDamageJudgmentSuitPaymentMovement(frame)) return;
         if (ReturnCappedHandRefreshMovement(frame)) return;
         if (frame.SelectedCardPayment is { } payment && frame.SelectedCardPaymentResult is null)
@@ -752,6 +779,10 @@ public sealed partial class GameEngine
             AdvanceRuntimeProgram(frameId);
             return;
         }
+        if (TryReturnPrepDiscardMovement(frame)) return;
+        if (TryReturnSequentialDiscardMovement(frame)) return;
+        if (TryReturnPairBenefitMovement(frame)) return;
+        if (ReturnEndingPairMovement(frame)) return;
         var pending = frame.PendingMovementContinuation ??
             throw new InvalidOperationException("The movement continuation is missing.");
         ReplaceRuntimeTop(frame with { PendingMovementContinuation = null });

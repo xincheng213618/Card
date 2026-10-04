@@ -7,6 +7,7 @@ public sealed partial class GameEngine
     // exact paid program/use chain; its source qualification may change later.
     private bool IsPaidHandRepaymentProgramAlcoholRide(int dyingIndex, DyingFrame dying)
     {
+        if (IsRoundPricedPileAlcoholRide(dyingIndex, dying)) return true;
         var programIndex = dyingIndex + 1;
         var useIndex = programIndex + 1;
         if (dyingIndex < 0 || useIndex >= _resolutionStack.Count ||

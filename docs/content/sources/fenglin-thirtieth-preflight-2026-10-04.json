@@ -1,0 +1,106 @@
+{
+  "status": "three-current-complete-sources-unassigned",
+  "batch": 30,
+  "capturedAtUtc": "2026-10-04T04:20:15.3001916Z",
+  "baseCommit": "d2990fba",
+  "rawEvidenceRoot": ".artifacts/continuation-20261003-batch17/batch30/source-preflight",
+  "directReadCount": 6,
+  "retryCount": 0,
+  "rawFiles": [
+    {
+      "path": "696-page.raw.html",
+      "bytes": 23408,
+      "sha256": "35169c509844099d8c1acf54188ca97ae1b1f4d8dbfcd97ce3bacef231d1466c"
+    },
+    {
+      "path": "696-api.raw.json",
+      "bytes": 854,
+      "sha256": "8c5e27de5e07037b1edbab0c44fcebafe86b5be7b4d8ccafea668f747153bc27"
+    },
+    {
+      "path": "756-page.raw.html",
+      "bytes": 23773,
+      "sha256": "f99384dbfbb20b82835dc970d86d49ea7c9277f63924aece61d4c5a483efe18f"
+    },
+    {
+      "path": "756-api.raw.json",
+      "bytes": 781,
+      "sha256": "49f80ebdbd93bf3241f89de8b6059ca4a995836945db5d791065fc5fd1596b97"
+    },
+    {
+      "path": "752-page.raw.html",
+      "bytes": 23728,
+      "sha256": "c154e639534315cf1f745aadd2dc19f88b5754b36541d27da5e35024b76d7585"
+    },
+    {
+      "path": "752-api.raw.json",
+      "bytes": 664,
+      "sha256": "5ffc7d006dea4ca0d4700fcb574fa4fe1dbae23c961bbbd4f256d76d4f62a045"
+    }
+  ],
+  "candidates": [
+    {
+      "gid": 696,
+      "name": "界马岱",
+      "sourceRecord": "docs/content/sources/fenglin-thirtieth-696-source-2026-10-04.json",
+      "sourceSha256": "0d16dfce1985cf844eb92ff15e1d8295c5d98168a7f5f26a184f403f1684176a",
+      "faction": "shu",
+      "hp": 4,
+      "skillNames": [
+        "马术",
+        "潜袭"
+      ],
+      "completeCurrentDefinition": true,
+      "mainRegistered": false,
+      "status": "current-source-only-unassigned",
+      "owner": null,
+      "stage": null
+    },
+    {
+      "gid": 756,
+      "name": "界于禁",
+      "sourceRecord": "docs/content/sources/fenglin-thirtieth-756-source-2026-10-04.json",
+      "sourceSha256": "b953813aa986734c25b18b7f30798074c94befa3bd05a120bded2f01e6ad7dd7",
+      "faction": "wei",
+      "hp": 4,
+      "skillNames": [
+        "镇军",
+        "毅重"
+      ],
+      "completeCurrentDefinition": true,
+      "mainRegistered": false,
+      "status": "current-source-only-unassigned",
+      "owner": null,
+      "stage": null
+    },
+    {
+      "gid": 752,
+      "name": "界夏侯氏",
+      "sourceRecord": "docs/content/sources/fenglin-thirtieth-752-source-2026-10-04.json",
+      "sourceSha256": "27a56606cc569f098e3726a203268761566b02200d50553f799ddd2b259672d6",
+      "faction": "shu",
+      "hp": 3,
+      "skillNames": [
+        "樵拾",
+        "燕语"
+      ],
+      "completeCurrentDefinition": true,
+      "mainRegistered": false,
+      "status": "current-source-only-unassigned",
+      "owner": null,
+      "stage": null
+    }
+  ],
+  "userSteering": {
+    "instruction": "Keep adding and commit; user will run unified tests after waking because CPU noise",
+    "buildsRun": false,
+    "productionLoaderExecuted": false,
+    "testsRun": false,
+    "benchmarksRun": false,
+    "commitAuthorized": true,
+    "pushAuthorized": false
+  },
+  "staticRegistrationSearchOnly": true,
+  "runtimeAcceptance": false,
+  "mediaDownloaded": false
+}

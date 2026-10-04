@@ -8,6 +8,24 @@
         'Prevented damage draw', 'Black trick target policy', 'Dying skill qualification', 'Nearest legal Slash',
         'Actual turn target commitment', 'Applied damage occurrence', 'Applied damage benefit',
         'Dual private color commitments', 'Damage judgment suit payment four suits',
+        'Granted entity extra phase distance', 'Frozen faction recovery game damage',
+        'Next actual-use paid wins',
+        'Original target addition rights', 'Foreign turn Wine actual actor',
+        'Neighbor discard own first previous',
+        'boundary cheng pu completion payment',
+        'boundary wu guo tai paid equipment pair',
+        'Paid actual target HP and original use return',
+        'boundary li ru sequential discard top cost',
+        'Whole equipment donation actual X and recovery',
+        'boundary xiao qiao suit prevention equipment cost',
+        'boundary lu su extra draw half hand gift',
+        'Real color payment Duel back-damage and mandatory Ending claim',
+        'boundary two zhangs equipment replacement',
+        'boundary bu lian shi ordered opaque pair gift',
+        'Foreign actual turn contest decline win expiry',
+        'boundary ma dai shown color hand ban',
+        'Ending pair two draws own extra round and cold',
+        'Preparation discard actual cost',
         'shared use lifecycle', 'shared card-use', 'card movement', 'card inventory',
         'initial deal', 'invalid single and batch', 'draw and recover',
         'execution plans', 'skill executor', 'program gameplay hashes',
@@ -133,7 +151,11 @@
         'Discarded provenance exact discard judgment',
         'Discarded provenance real turn all materials',
         'Actual turn use kinds independent hand suits',
-        'Actual turn use kinds per Play draw'
+        'Actual turn use kinds per Play draw',
+        'Owner batch loss equipment OR two cards once',
+        'Shared Slash gift equipment recovery both gain children cold'
+        'Turn damage-use draw debt actual gain and frozen ending cost'
+        'Source faction prevention quota opaque HEJ equipment children'
     )
     Wpf = @(
         'original card artwork', 'overlapping hand', 'composed skills', 'conversion choices',

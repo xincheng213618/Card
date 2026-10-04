@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "boundary:qiaoshi-current", "revision": 1, "triggers": [
+      { "id": "own-ending-pair", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+        "effects": [{ "op": "drawEndingPairThenBlockRoundIfUnequal", "target": "owner", "stateId": "unequal-ending" }] },
+      { "id": "foreign-ending-pair", "window": "turnEnding", "subject": "owner", "turnOwnerScope": "otherLiving", "optional": true,
+        "effects": [{ "op": "drawEndingPairThenBlockRoundIfUnequal", "target": "owner", "stateId": "unequal-ending" }] }
+    ] },
+    { "id": "boundary:yanyu-current", "revision": 1,
+      "activations": [
+        { "id": "recast-physical-slash", "minCards": 1, "maxCards": 1, "sourceZones": ["hand"],
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"], "minTargets": 0, "maxTargets": 0,
+          "targetKind": "anyLiving", "usesPerTurn": null,
+          "effects": [{ "op": "recastSelectedPhysicalSlash", "target": "owner" }] }
+      ],
+      "triggers": [
+        { "id": "lost-two-slashes-support", "window": "playEnding", "subject": "owner", "turnOwnerScope": "own", "optional": true,
+          "evaluateConditionAtResolution": true,
+          "condition": { "kind": "compare", "left": { "kind": "currentActualPlayPhysicalSlashLossCount" },
+            "operator": "greaterThanOrEqual", "right": { "kind": "integerConstant", "value": 2 } },
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "anyLivingMale" },
+            { "op": "draw", "target": "selectedTarget", "amount": 2 }
+          ] }
+      ]
+    }
+  ]
+}

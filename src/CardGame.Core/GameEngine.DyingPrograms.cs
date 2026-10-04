@@ -45,6 +45,8 @@ public sealed partial class GameEngine
             _players[dying.VictimSeat].Hp > 0)
             throw new InvalidOperationException("The configured rescue lost its responder or dying victim.");
 
+        if (!CanUseProgramDyingAlcohol(active, SkillProgramEffectOp.UseBoundCardAsDyingAlcohol))
+        { CancelProgramBindingAndCleanup(active, "当前实际回合禁止该濒死角色使用酒，未支付牌。 "); return; }
         var binding = GetProgramCardSet(active, sourceBind);
         if (binding.CardIds.Count != 1 || binding.SourceLocations.Count != 1)
             throw new InvalidOperationException("A configured dying rescue requires exactly one bound card.");
@@ -102,6 +104,8 @@ public sealed partial class GameEngine
             _players[dying.VictimSeat].Hp > 0)
             throw new InvalidOperationException("The configured rescue lost its dying owner.");
 
+        if (!CanUseProgramDyingAlcohol(active, SkillProgramEffectOp.UseVirtualDyingAlcohol))
+        { CancelProgramBindingAndCleanup(active, "当前实际回合禁止该濒死角色使用酒，未支付成本。 "); return; }
         var victim = _players[dying.VictimSeat];
         var resolutionId = ++_resolutionSequence;
         PushRuntimeFrame(new CardUseFrame(resolutionId, victim.Seat, 0, CardKind.Alcohol,

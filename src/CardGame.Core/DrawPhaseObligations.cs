@@ -9,6 +9,8 @@ public sealed record DrawPhaseObligationFrame(long Id, int OwnerSeat, int Actual
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public IReadOnlyList<long>? InheritedMovementBatchIds { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ActualDiscardRecoveryPhaseKey? DiscardRecoveryPhase { get; init; }
 }
 public sealed record DrawPhaseSkippedEvent(long FrameId, int OwnerSeat, int ActualTurnNumber, bool IsExtra) : IGameEvent;
 public sealed record ExtraDrawPhaseStartedEvent(long FrameId, long ParentFrameId, int OwnerSeat,
@@ -65,7 +67,7 @@ public sealed partial class GameEngine
         var frame = new DrawPhaseObligationFrame(++_resolutionSequence, owner.Seat, _turnNumber, false,
             (int)delayedEffects, skipped ? DrawPhaseObligationStage.SkipObservers : DrawPhaseObligationStage.EndObservers,
             Skipped: skipped, DrawCount: _pendingCardsMovedBatches.Where(batch => inherited.Contains(batch.Id)).Sum(batch => batch.Movements.Count))
-        { InheritedMovementBatchIds = inherited };
+        { InheritedMovementBatchIds = inherited, DiscardRecoveryPhase = CurrentActualDiscardRecoveryPhase() };
         PushRuntimeFrame(frame); AdvanceRuntimeFrame(frame.Id); return true;
     }
 
@@ -119,8 +121,10 @@ public sealed partial class GameEngine
                     var policy = ConsumeIssuedExtraDrawMarker(frame);
                     if (policy is null)
                     { ReplaceRuntimeTop(frame with { Stage = DrawPhaseObligationStage.Finished }); break; }
+                    StartActualDiscardRecoveryPhase(ActualDiscardRecoveryPhaseKind.Draw, frame.OwnerSeat);
                     var child = new DrawPhaseObligationFrame(++_resolutionSequence, frame.OwnerSeat, frame.ActualTurnNumber,
-                        true, 0, DrawPhaseObligationStage.Starting, ParentFrameId: frame.Id);
+                        true, 0, DrawPhaseObligationStage.Starting, ParentFrameId: frame.Id)
+                    { DiscardRecoveryPhase = CurrentActualDiscardRecoveryPhase() };
                     // This phase's ended boundary has consumed its obligation. A
                     // marker issued inside the child cannot borrow this old boundary.
                     ReplaceRuntimeTop(frame with { Stage = DrawPhaseObligationStage.Finished });
@@ -213,6 +217,7 @@ public sealed partial class GameEngine
                 parent.OwnerSeat != frame.OwnerSeat || parent.ActualTurnNumber != frame.ActualTurnNumber ||
                 parent.Stage != DrawPhaseObligationStage.Finished)
                 throw new InvalidOperationException("An inserted draw phase lost its exact parent phase.");
+            RestoreActualDiscardRecoveryPhase(parent);
             AdvanceRuntimeFrame(parent.Id); return;
         }
         if (_winner != Winner.None) { AdvanceRulesAndPublishState(); return; }

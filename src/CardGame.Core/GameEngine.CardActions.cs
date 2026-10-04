@@ -104,18 +104,18 @@ public sealed partial class GameEngine
             conversionChain.AddRange(additionalConversions);
         }
         ConsumeProgramViewAsUsage(conversionChain);
-        var trackAppearance = HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard);
+        var trackAppearance = _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) || HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard) || TracksPaidColorUseAppearance(actorSeat, effectiveKind, conversionChain) || HasSameTypeActualUseAid && IsSameTypeAidEffectiveCard(effectiveKind) || HasComparedBlackSlashPolicies && IsSlashCard(effectiveKind);
         return CaptureFactionAction(new CardActionContext(++_cardActionSequence,
             _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
             CardActionType.Use, actorSeat, provider, provider == actorSeat ? null : actorSeat,
             null, null, effectiveKind, targets, costs, conversionChain,
             (designatedTargetSeats ?? targets ),
             effectiveSuit: trackAppearance ? CaptureUsedCardSuit(actorSeat, physicalIds, card) : null,
-            effectiveRank: HasRankSlashRange(_players[actorSeat], effectiveKind)
+            effectiveRank: CaptureAlcoholActionRank(provider, effectiveKind, physicalIds) ?? (HasRankSlashRange(_players[actorSeat], effectiveKind)
                 ? physicalIds.Count == 1 && card.Rank > 0 ? card.Rank
                     : isTrueZhangbaSlash && physicalIds.Count == 2 && conversionChain.Count == 0
                         ? ZhangbaSpecificSlashRank(_players[actorSeat], physicalIds.Select(id => GetAttackCard(id)).ToArray(), _players[provider]) : null
-                : trackAppearance && physicalIds.Count == 1 && card.Rank > 0 ? card.Rank : null, effectiveIsRed: CaptureActionColor(costs,trackAppearance ? CaptureUsedCardSuit(actorSeat,physicalIds,card) : null)));
+                : trackAppearance && physicalIds.Count == 1 && card.Rank > 0 ? card.Rank : null), effectiveIsRed: CaptureActionColor(costs,trackAppearance ? CaptureUsedCardSuit(actorSeat,physicalIds,card) : null)));
     }
 
     private bool TryBeginCardResponsePrograms(CardAttackHandle attack, CharacterState actor,
@@ -126,7 +126,7 @@ public sealed partial class GameEngine
         var parent = _resolutionStack.OfType<CardUseFrame>().LastOrDefault(frame => frame.Id == attack.ResolutionId);
         var action = CaptureFactionAction(new CardActionContext(++_cardActionSequence, parent?.Action?.ActionId,
             CardActionType.Response, actor.Seat, provider.Seat, requesterSeat, actor.Seat,
-            opponentSeat, effectiveKind, [], costs, conversionSource is null ? [] : [conversionSource], effectiveSuit: completedResponseUseSuit,effectiveIsRed:CaptureActionColor(costs,completedResponseUseSuit)));
+            opponentSeat, effectiveKind, [], costs, conversionSource is null ? [] : [conversionSource], effectiveSuit: completedResponseUseSuit, effectiveRank: CaptureAlcoholResponseRank(provider, effectiveKind, costs),effectiveIsRed:CaptureActionColor(costs,completedResponseUseSuit)));
         if (actor.Seat == provider.Seat && requesterSeat is null && IsProgramResponseCardUse(actor, effectiveKind))
         {
             RecordProgramUsedBasicCard(actor.Seat, effectiveKind);
@@ -252,6 +252,7 @@ public sealed partial class GameEngine
     /// <summary>Called before Jizhi/Nullification and the first trick target effect.</summary>
     private bool TryBeginProgramCardUseBeforeTargetEffects(JizhiResolution pending)
     {
+        if (TryBeginActualUseTargetPrograms(pending)) return true;
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == pending.ResolutionId);
         var action = frame.Action ?? throw new InvalidOperationException(
             "A trick before-target-effects program window requires the frozen card action.");
@@ -349,6 +350,7 @@ public sealed partial class GameEngine
                     binding.Program.GameplayHash, binding.SkillInstanceId, trigger.Priority, context));
             }
         }
+        CollectIssuedOriginalTargetCandidates(action, window, result);
         string GrantIdentity(ProgramCardTriggerCandidate candidate)
         {
             var trigger=_contentRegistry.GetSkill(candidate.SkillId).Program!.Triggers.Single(t=>t.Id==candidate.TriggerId);
@@ -591,7 +593,11 @@ public sealed partial class GameEngine
             var resolvingProgramJudgmentDamage =
                 ActiveCardAttack is { IsProgramJudgmentDamage: true } &&
                 ActiveJudgment?.Continuation == JudgmentContinuationKind.ProgramSkill;
-            var attackMatches = frame != frames[^1] || resolvingProgramJudgmentDamage ||
+            var suspendedCompletedGiftFollowup = frameIndex + 1 < _resolutionStack.Count &&
+                _resolutionStack[frameIndex + 1] is ProgramSkillFrame gift &&
+                gift.WindowContext?.ParentFrameId == frame.Id && IsUnselectedCompletedGiftQinglongRide(gift);
+            var completedGiftRecipientFollowup = TryGetCompletedGiftRecipientSlashRide(frame, out var recipientUse);
+            var attackMatches = HasSameTypeAidTargetObserver(frame.ParentFrameId) || frame != frames[^1] || resolvingProgramJudgmentDamage || suspendedCompletedGiftFollowup || completedGiftRecipientFollowup ||
                 (frame.Continuation is ProgramCardContinuation.DelayedCard or
                         ProgramCardContinuation.BeforeTrickTargetEffects or ProgramCardContinuation.FinalizedTrick or
                         ProgramCardContinuation.NullificationResponse or ProgramCardContinuation.CommittedTrick or
@@ -629,8 +635,11 @@ public sealed partial class GameEngine
                 frameIndex < 1 || _resolutionStack[frameIndex - 1].Id != frame.ParentFrameId ||
                 !trickContinuationMatches || !completedResponseMatches ||
                 !candidateCursorValid ||
-                !sharedPromptMatches && !sharedChildMatches ||
-                 frame.Action.PhysicalCards.Where(cost => !IsExchangedCardClaim(frame.Action.ActionId,cost.CardId) &&
+                !sharedPromptMatches && !sharedChildMatches && !HasSameTypeAidTargetObserver(frame.ParentFrameId) ||
+                 frame.Action.PhysicalCards.Where(cost =>
+                     !(completedGiftRecipientFollowup && _cardZones.GetLocation(cost.CardId) == CardLocation.Processing &&
+                       recipientUse.Action!.PhysicalCards.Any(payment => payment.CardId == cost.CardId)) &&
+                     !IsExchangedCardClaim(frame.Action.ActionId,cost.CardId) &&
                      !(frame.Action.Type == CardActionType.Use &&
                        _resolutionStack.OfType<CardUseFrame>().Any(use => use.Id == frame.ParentFrameId && use.Action?.ActionId == frame.Action.ActionId) &&
                        IsCurrentUsePhysicalCardClaim(frame.ParentFrameId, cost.CardId))).Any(cost =>

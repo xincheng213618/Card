@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:anxu-current", "revision": 1,
+      "activations": [
+        { "id": "pair-obtain-show-give", "minCards": 0, "maxCards": 0, "minTargets": 2, "maxTargets": 2,
+          "sourceZones": ["hand"], "targetKind": "livingPairDistinct", "usesPerTurn": null, "usesPerPhase": 1,
+          "effects": [
+            { "op": "obtainOneFromEachSelectedTarget", "target": "owner", "zones": ["hand", "equipment", "judgment"] },
+            { "op": "selectOwnedCards", "target": "owner", "zones": ["hand"], "minimumCards": 1, "maximumCards": 1, "resultBind": "shown-gift" },
+            { "op": "revealBoundCards", "target": "owner", "sourceBind": "shown-gift" },
+            { "op": "giveShownCardToLeastOriginalTarget", "target": "owner", "sourceBind": "shown-gift" }
+          ] }
+      ]
+    },
+    {
+      "id": "boundary:zhuiyi-current", "revision": 1,
+      "triggers": [
+        { "id": "ending-original-beneficiary", "window": "turnEnding", "subject": "owner", "optional": true,
+          "usageScope": "game", "usageLimit": 1, "namedUsageGroup": "fixed-beneficiary",
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" },
+            { "op": "issueFixedRecipientBenefit", "target": "owner", "stateId": "original-beneficiary" },
+            { "op": "draw", "target": "selectedTarget", "amount": 3 },
+            { "op": "recover", "target": "selectedTarget", "amount": 1 }
+          ] },
+        { "id": "death-original-beneficiary", "window": "ownerDied", "subject": "owner", "optional": true,
+          "effects": [
+            { "op": "selectIssuedFixedRecipientWithDeathReturn", "target": "owner", "stateId": "original-beneficiary" },
+            { "op": "draw", "target": "selectedTarget", "amount": 3 },
+            { "op": "recover", "target": "selectedTarget", "amount": 1 }
+          ] }
+      ]
+    }
+  ]
+}

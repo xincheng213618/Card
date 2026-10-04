@@ -304,6 +304,8 @@ public sealed partial class SimpleAiBrain
 
         var self = view.Players.Single(player => player.Seat == Seat);
         var selectableCards = GetActiveSkillSelectableCards(self, action);
+        if (action.ProgramAiHint?.PreferPindianInputOrder == true)
+            return action.SelectableCardIds.Take(action.MinCardCount).ToArray();
         if (action.SelectedCardsDistinctSuits)
             return selectableCards.GroupBy(card => card.Suit)
                 .Select(group => group.OrderBy(card => CardCatalog.Get(card.Kind).HandKeepValue).ThenBy(card => card.Id).First())

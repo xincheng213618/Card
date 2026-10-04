@@ -1,0 +1,140 @@
+{
+  "status": "frozen-current-official-source-only-no-implementation-no-build-no-tests",
+  "batch": 26,
+  "frozenManifestSha256": "6cc7b88993d6706e6965971f0923851ae215c0571a07910394480d8dcc259340",
+  "candidates": [
+    {
+      "gid": 603,
+      "name": "界虞翻",
+      "proposedContentId": "boundary:yu-fan",
+      "identity": {
+        "faction": "wu",
+        "hp": 3,
+        "initialHp": 0,
+        "gender": "Current info API has no independent gender field; future same-person classic reuse must be separately attributed."
+      },
+      "sourceLedger": "docs/content/sources/fenglin-twenty-sixth-603-source-2026-10-04.json",
+      "sourceSha256": "2002c486ce10219cb8dd5fe9f2d5aeddd28831fcbb4f592f357d7311d7970a38",
+      "pageUrl": "https://www.sanguosha.com/hero/603",
+      "pageHttpStatus": 200,
+      "pageSha256": "8ff83aae97e98989d89f27f80811b7e20d42f4a90085306e046c5f8e8a335881",
+      "apiUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=603",
+      "apiHttpStatus": 200,
+      "apiSha256": "cb466eb7f2fd7a2c0b554109f44acf0e58c9c58667c77d41aa933b9ebd2f3b1b",
+      "skills": [
+        [
+          "纵玄",
+          "当你的牌因弃置而置入弃牌堆后，或你上家的牌于每回合首次因弃置而置入弃牌堆后，你可以将其中任意张牌置于牌堆顶。"
+        ],
+        [
+          "直言",
+          "你上家或你的结束阶段，你可以令一名角色摸一张牌并展示之，若为装备牌，其使用之并回复1点体力。若为非装备牌且其体力值不等于你，其失去1点体力。"
+        ]
+      ],
+      "fontRefs": [],
+      "completeCurrentMainTexts": true,
+      "hasUnexpandedGrantedSkill": false,
+      "proposedModuleRegistered": false,
+      "capabilitiesImplementedByThisTask": false
+    },
+    {
+      "gid": 620,
+      "name": "界程普",
+      "proposedContentId": "boundary:cheng-pu",
+      "identity": {
+        "faction": "wu",
+        "hp": 4,
+        "initialHp": 0,
+        "gender": "Current info API has no independent gender field; future same-person classic reuse must be separately attributed."
+      },
+      "sourceLedger": "docs/content/sources/fenglin-twenty-sixth-620-source-2026-10-04.json",
+      "sourceSha256": "0311e46c596eff1178e83e4d9a09890cd10f2aa2e4cfb9170543fc08884a3eb4",
+      "pageUrl": "https://www.sanguosha.com/hero/620",
+      "pageHttpStatus": 200,
+      "pageSha256": "cc32964d1163b1a2dcf9bcfb9c381369b1a064ea5b7e6da6cf7a93d08f5260e7",
+      "apiUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=620",
+      "apiHttpStatus": 200,
+      "apiSha256": "2a73ace5b0468590f79683eecb8d3b5492507df341c2f55320cbdb02b9eeb402",
+      "skills": [
+        [
+          "疠火",
+          "你使用的非火【杀】可以改为火【杀】使用，此牌结算后，若其造成伤害，你弃置一张牌或失去1体力。你使用的火【杀】可以多指定一个目标。"
+        ],
+        [
+          "醇醪",
+          "你或你相邻角色的【杀】因弃置置入弃牌堆后，将之置于你的武将牌上，称为“醇”。当一名角色处于濒死状态时，你可以移去X张“醇”视为其使用一张【酒】(X为本轮以此法使用【酒】的次数)。"
+        ]
+      ],
+      "fontRefs": [],
+      "completeCurrentMainTexts": true,
+      "hasUnexpandedGrantedSkill": false,
+      "proposedModuleRegistered": false,
+      "capabilitiesImplementedByThisTask": false
+    },
+    {
+      "gid": 640,
+      "name": "界吴国太",
+      "proposedContentId": "boundary:wu-guo-tai",
+      "identity": {
+        "faction": "wu",
+        "hp": 3,
+        "initialHp": 0,
+        "gender": "Current info API has no independent gender field; future same-person classic reuse must be separately attributed."
+      },
+      "sourceLedger": "docs/content/sources/fenglin-twenty-sixth-640-source-2026-10-04.json",
+      "sourceSha256": "63ebbd951a00144754cc5fc515f8554d96e8dd597a67eec43ac286e31d14875a",
+      "pageUrl": "https://www.sanguosha.com/hero/640",
+      "pageHttpStatus": 200,
+      "pageSha256": "ab147141719944d2208ecc154b12fd989a1c4bc062872efaeec1ec2e64e7303b",
+      "apiUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=640",
+      "apiHttpStatus": 200,
+      "apiSha256": "55cafd311e72b609693fb67b1152d9132486d0475750fc68cee7281753ef9abe",
+      "skills": [
+        [
+          "甘露",
+          "出牌阶段限一次，你可以令两名角色交换装备区里的牌。若X大于你已损失的体力值，你须在选择角色时弃置X张牌（X为其装备区里的牌数之差）。"
+        ],
+        [
+          "补益",
+          "当一名角色进入濒死状态时，你可以选择其一张牌，若此牌不为基本牌，则其弃置此牌，然后回复1点体力。"
+        ]
+      ],
+      "fontRefs": [],
+      "completeCurrentMainTexts": true,
+      "hasUnexpandedGrantedSkill": false,
+      "proposedModuleRegistered": false,
+      "capabilitiesImplementedByThisTask": false
+    }
+  ],
+  "staticMainPackage": {
+    "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+    "sha256": "7ece73907220e8e8f6b2adbe51fe6e1ab39fc9d9abc66fb60a5fd264ff806188",
+    "scope": "Three proposed module registration literals only; no executable registry initialization or full catalog/input hash sweep."
+  },
+  "excluded": {
+    "inFlightBatch25": [
+      588,
+      597,
+      626
+    ],
+    "alreadyIntegratedBatch24": [
+      600,
+      641,
+      604
+    ],
+    "sourceBoundaryDeferred": [
+      451
+    ],
+    "historicalDeferredNowRegistered": [
+      452
+    ]
+  },
+  "implementationStarted": false,
+  "mediaDownloaded": false,
+  "buildsRun": false,
+  "testsRun": false,
+  "benchmarksRun": false,
+  "runtimeAcceptance": false,
+  "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch25\\next-source-audit",
+  "engineeringPreflight": "docs/content/skill-composition/FENG_LIN_TWENTY_SIXTH_PREFLIGHT.md"
+}

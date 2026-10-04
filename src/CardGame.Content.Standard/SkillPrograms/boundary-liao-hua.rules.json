@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:dangxian", "revision": 1,
+      "triggers": [
+        { "id": "extra-play", "window": "turnStartBeforeNormalFlow", "subject": "owner", "optional": false,
+          "effects": [{ "op": "insertGrantedEntityPlayPhase", "target": "owner" }] },
+        { "id": "extra-play-slash", "window": "playPhaseStarting", "subject": "owner", "optional": false,
+          "effects": [{ "op": "claimGrantedPhaseSlash", "target": "owner" }] }
+      ]
+    },
+    {
+      "id": "boundary:fuli", "revision": 1,
+      "triggers": [
+        { "id": "self-dying-benefit", "window": "selfDyingResponse", "subject": "owner", "optional": true,
+          "usageScope": "game", "usageLimit": 1,
+          "effects": [
+            { "op": "freezeLivingFactionRecovery", "target": "owner" },
+            { "op": "drawToFrozenFactionCount", "target": "owner" },
+            { "op": "turnOverIfFrozenFactionCountExceedsGameDamage", "target": "owner" }
+          ] }
+      ]
+    }
+  ]
+}

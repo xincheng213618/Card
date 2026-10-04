@@ -42,7 +42,9 @@ public sealed record GameCheckpoint(
     // 194: Native optional phase declarations price their exact hand-cost
     // successor and public extra-turn beneficiary. The same accepted command
     // prefix and content hash can therefore choose different AI actions.
-    public const int CurrentRulesVersion = 194;
+    // 195: Completed-card gift windows retain their exact program parent through
+    // Qinglong follow-ups and the recipient's real reuse of the gifted entity.
+    public const int CurrentRulesVersion = 195;
     // 187 was consumed by main-side Zhang He / Shen Zhao Yun work.
 
     public int RulesVersion { get; init; }

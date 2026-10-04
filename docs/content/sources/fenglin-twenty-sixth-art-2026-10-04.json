@@ -1,0 +1,71 @@
+{
+  "status": "official-raw-art-all-registered-runtime-verification-deferred",
+  "batch": 26,
+  "images": [
+    {
+      "gid": 603,
+      "key": "boundary-yu-fan",
+      "name": "界虞翻",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-sixth-603-source-2026-10-04.json",
+      "sourceRecordSha256": "2002c486ce10219cb8dd5fe9f2d5aeddd28831fcbb4f592f357d7311d7970a38",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60300.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/60300.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-03T23:33:24.7082309+00:00",
+      "contentType": "image/png",
+      "rawBytes": 985356,
+      "sha256": "2e352050db40c5c93e4d17a3c94506ec84b9a9bb344b3b79f77dc59c5abc7215",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch26\\official-art\\official-boundary-yu-fan.png",
+      "installed": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-yu-fan.png"
+    },
+    {
+      "gid": 620,
+      "key": "boundary-cheng-pu",
+      "name": "界程普",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-sixth-620-source-2026-10-04.json",
+      "sourceRecordSha256": "0311e46c596eff1178e83e4d9a09890cd10f2aa2e4cfb9170543fc08884a3eb4",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62000.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62000.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-04T00:12:57.7526193+00:00",
+      "contentType": "image/png",
+      "rawBytes": 856082,
+      "sha256": "53cd46f55c65bacbdb9e9bc54a321f648d0be469e04e30fa294d1f2d63c57f22",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch26\\official-art\\official-boundary-cheng-pu.png",
+      "installed": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-cheng-pu.png"
+    },
+    {
+      "gid": 640,
+      "key": "boundary-wu-guo-tai",
+      "name": "界吴国太",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-sixth-640-source-2026-10-04.json",
+      "sourceRecordSha256": "63ebbd951a00144754cc5fc515f8554d96e8dd597a67eec43ac286e31d14875a",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64000.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64000.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-04T00:12:57.8973120+00:00",
+      "contentType": "image/png",
+      "rawBytes": 1200582,
+      "sha256": "25b70f67046779a63fb2fafe0197852608d8e76b0bfc271ff8ee14c9696e242a",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch26\\official-art\\official-boundary-wu-guo-tai.png",
+      "installed": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-wu-guo-tai.png"
+    }
+  ],
+  "verification": {
+    "rawPngSignatureAndIhdr": true,
+    "sourceRecordShaMatched": true,
+    "mainRegistration": true,
+    "fullOfflineCatalogRun": false,
+    "compiledVerificationRun": false,
+    "installedCount": 3
+  }
+}

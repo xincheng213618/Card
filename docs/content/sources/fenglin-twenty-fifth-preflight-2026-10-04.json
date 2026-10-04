@@ -1,0 +1,134 @@
+{
+  "status": "frozen-current-official-source-only-no-implementation-no-build-no-tests",
+  "batch": 25,
+  "frozenManifestSha256": "ce0c7207b7849cf8ed72893f149c0309b23510f69af0a1cc71d608f29633d342",
+  "candidates": [
+    {
+      "gid": 588,
+      "name": "界凌统",
+      "proposedContentId": "boundary:ling-tong",
+      "identity": {
+        "faction": "wu",
+        "hp": 4,
+        "initialHp": 0,
+        "gender": "Current info API has no gender field; any future same-person classic reuse must be identified separately."
+      },
+      "sourceLedger": "docs/content/sources/fenglin-twenty-fifth-588-source-2026-10-04.json",
+      "sourceSha256": "ff989953c58414a801767b33dcbbc70c26db0e2cee0238bbc823c72335e61862",
+      "pageUrl": "https://www.sanguosha.com/hero/588",
+      "pageHttpStatus": 200,
+      "pageSha256": "2664e5c41c41213a6bd7f5ae19177ff4cf3e06e31af3c2246c12f5e269f6b371",
+      "apiUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=588",
+      "apiHttpStatus": 200,
+      "apiSha256": "2b1028375d1e453c34d04898c73e71e5981e089fd6ebb589a28aa38d724063e7",
+      "skills": [
+        [
+          "旋风",
+          "当你失去装备区里的牌后，或一次性失去至少两张牌后，你可以依次弃置至多两名其他角色共计至多两张牌。"
+        ]
+      ],
+      "fontRefs": [],
+      "completeCurrentMainTexts": true,
+      "hasUnexpandedGrantedSkill": false,
+      "proposedIdLiteralAlreadyPresent": false,
+      "staticRegisteredNameMatches": [],
+      "capabilitiesImplementedByThisTask": false
+    },
+    {
+      "gid": 597,
+      "name": "界陈宫",
+      "proposedContentId": "boundary:chen-gong",
+      "identity": {
+        "faction": "qun",
+        "hp": 3,
+        "initialHp": 0,
+        "gender": "Current info API has no gender field; any future same-person classic reuse must be identified separately."
+      },
+      "sourceLedger": "docs/content/sources/fenglin-twenty-fifth-597-source-2026-10-04.json",
+      "sourceSha256": "1b8dc3a45f48279062caf56f7d8967b0caf9a9c2fe29c0e488b0045d8d2504b7",
+      "pageUrl": "https://www.sanguosha.com/hero/597",
+      "pageHttpStatus": 200,
+      "pageSha256": "c43ad8cfb670a41ffd6ab50f2583a9bf9afb7bdb82c6a7bd7cd93d39f9268596",
+      "apiUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=597",
+      "apiHttpStatus": 200,
+      "apiSha256": "dd7211c0e34ae9192d0404425d9123141e610220ad8972b3f212b249f6357684",
+      "skills": [
+        [
+          "智迟",
+          "锁定技，当你于回合外受到伤害后，本回合【杀】和普通锦囊牌对你无效。"
+        ],
+        [
+          "明策",
+          "出牌阶段限一次，你可以交给一名其他角色一张【杀】或装备牌，然后其选择一项：1.视为对你选择的另一名角色使用一张【杀】，若造成伤害，执行另一项；2.你与其各摸一张牌。"
+        ]
+      ],
+      "fontRefs": [],
+      "completeCurrentMainTexts": true,
+      "hasUnexpandedGrantedSkill": false,
+      "proposedIdLiteralAlreadyPresent": false,
+      "staticRegisteredNameMatches": [],
+      "capabilitiesImplementedByThisTask": false
+    },
+    {
+      "gid": 626,
+      "name": "界刘表",
+      "proposedContentId": "boundary:liu-biao",
+      "identity": {
+        "faction": "qun",
+        "hp": 3,
+        "initialHp": 0,
+        "gender": "Current info API has no gender field; any future same-person classic reuse must be identified separately."
+      },
+      "sourceLedger": "docs/content/sources/fenglin-twenty-fifth-626-source-2026-10-04.json",
+      "sourceSha256": "d18a780765e6d2254fdb21ed8b635d8895fded6047fcf29e984f4bfe72823d85",
+      "pageUrl": "https://www.sanguosha.com/hero/626",
+      "pageHttpStatus": 200,
+      "pageSha256": "e08618846df4f0c188bac4a4a451f1b61346adecde396fba354825418bf5ccf3",
+      "apiUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=626",
+      "apiHttpStatus": 200,
+      "apiSha256": "b76a984389d00d945b27b45ecdb3366a398c825e53493e235a71107da5076f4a",
+      "skills": [
+        [
+          "自守",
+          "摸牌阶段，你可以多摸X张牌，你以此法摸牌的结束阶段，若你本回合使用过伤害牌，你弃置X张牌（X为全场势力数）。"
+        ],
+        [
+          "宗室",
+          "锁定技，全场每有一个势力，你的手牌上限便+1。其他角色对你造成伤害时，防止此伤害改为令其获得你区域内的一张牌，每个势力限一次。"
+        ]
+      ],
+      "fontRefs": [],
+      "completeCurrentMainTexts": true,
+      "hasUnexpandedGrantedSkill": false,
+      "proposedIdLiteralAlreadyPresent": false,
+      "staticRegisteredNameMatches": [],
+      "capabilitiesImplementedByThisTask": false
+    }
+  ],
+  "historicalIndex": {
+    "path": ".artifacts\\continuation-20261003-batch17\\batch21\\dong-zhuo\\next-batch22\\index-preflight.json",
+    "sha256": "3b564ba6fa141eed58449d91dbe669a48094a381a1efa97a51ceb7f81fb0cb87",
+    "officialUrl": "https://www.sanguosha.com/hero",
+    "httpStatus": 200,
+    "indexRawSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+    "indexCapturedAtUtc": "2026-10-04T01:09:18.318761+08:00",
+    "rowCount": 87
+  },
+  "readOnlyModuleBaseline": {
+    "path": "src\\CardGame.Content.Standard\\StandardClassicGeneralPackage.cs",
+    "sha256": "aa3bb692a6611a15934219013c43e373e2a0ef30d2fcf441ba0953769eb33e63",
+    "moduleCount": 84
+  },
+  "limitations": [
+    "No independently verified current FAQ; engineering default questions are explicitly separated in notes.",
+    "Gender absent from current API; no unmarked identity inference.",
+    "Actual batch24 build/behavior/full/routine acceptance remains paused at user request.",
+    "Remaining movement, virtual Slash completion, actual damage-card classification, per-faction prevention and child-return gaps are not implemented by this audit."
+  ],
+  "mainWrites": [
+    "Only source records and preflight notes; no implementation, registration or media"
+  ],
+  "contractNotes": "docs/content/skill-composition/FENG_LIN_TWENTY_FIFTH_PREFLIGHT.md",
+  "buildsRun": false,
+  "testsRun": false
+}

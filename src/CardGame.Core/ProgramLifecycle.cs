@@ -23,6 +23,14 @@ public sealed record ProgramSkillWindowContext(
     public ProgramTargetCommitContext? ProgramTarget { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? OptionalChooserSeat { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ActualUseTargetIdentity? ActualUseTarget { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public EarnedActualEndingBenefit? EarnedBenefit { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PrepDiscardEndingPromise? PrepDiscardPromise { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ActualEndedTurnEquipmentContext? ActualEndedEquipment { get; init; }
 }
 
 public sealed record ProgramSkillNumberBinding(string Name, int Value);
@@ -128,7 +136,11 @@ public sealed record ProgramPindianResultBinding(
     int SourceRank,
     int OpponentRank,
     bool SourceWon,
-    SkillProgramCardSetVisibility Visibility);
+    SkillProgramCardSetVisibility Visibility)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ForeignTurnPindianOrigin? ForeignTurnOrigin { get; init; }
+}
 
 public sealed record ProgramSkillCardSetBinding(
     string Name,
@@ -290,7 +302,11 @@ public sealed record ProgramPhaseSchedule(
     ProgramSkillFrame Frame,
     ProgramLifecycleTriggerWindowFrame ParentFrame,
     TurnPhase Phase,
-    SkillProgramPhaseContinuation Continuation);
+    SkillProgramPhaseContinuation Continuation)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ActualDiscardRecoveryPhaseKey? DiscardRecoveryReturnPhase { get; init; }
+}
 
 public enum ProgramLifecycleContinuation
 {
@@ -311,7 +327,13 @@ public sealed record TurnEndingBoundaryItem(
     ProgramTriggerCandidate? Candidate = null,
     SkillProgramTriggerFacts? Facts = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] long? RetentionId = null,
-    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? RetentionOwnerSeat = null);
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? RetentionOwnerSeat = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public EarnedActualEndingBenefit? EarnedBenefit { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PrepDiscardEndingPromise? PrepDiscardPromise { get; init; }
+}
 
 /// <summary>
 /// Serializable end-of-turn cursor. Program bindings resume this one frame

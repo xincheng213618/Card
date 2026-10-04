@@ -1,0 +1,166 @@
+{
+  "status": "all-static-integrated-user-runtime-verification-deferred",
+  "batch": 26,
+  "baseCommit": "3e36e653",
+  "userSteering": {
+    "instruction": "Keep adding content and commit; user will run unified tests after waking because CPU noise",
+    "buildsRun": false,
+    "testsRun": false,
+    "benchmarksRun": false,
+    "commitAuthorized": true,
+    "pushAuthorized": false
+  },
+  "candidates": [
+    {
+      "gid": 603,
+      "id": "boundary:yu-fan",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-sixth-603-source-2026-10-04.json",
+      "sourceSha256": "2002c486ce10219cb8dd5fe9f2d5aeddd28831fcbb4f592f357d7311d7970a38",
+      "owner": "/root/pang_de",
+      "stage": ".artifacts/continuation-20261003-batch17/batch26/yu-fan",
+      "mainRegistered": true,
+      "status": "static-integrated-runtime-deferred",
+      "frozenManifestSha256": "da59e5a4358229e4cd783cf7fbb1fb5a803442dc1ab7c59002bdb684eaf9dc8a",
+      "coldContinuationFollowupSha256": "db678f41aa98fc5ea92b897aa4b49bcac2ce5fbab07217a71473f360573a338f"
+    },
+    {
+      "gid": 620,
+      "id": "boundary:cheng-pu",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-sixth-620-source-2026-10-04.json",
+      "sourceSha256": "0311e46c596eff1178e83e4d9a09890cd10f2aa2e4cfb9170543fc08884a3eb4",
+      "owner": "/root/sun_quan",
+      "stage": ".artifacts/continuation-20261003-batch17/batch26/cheng-pu",
+      "mainRegistered": true,
+      "status": "static-integrated-runtime-deferred",
+      "frozenManifestSha256": "f8832d72c29f6ec8ba947a44174974f8a59442d4d86fb83bd03a86d3e18323ea"
+    },
+    {
+      "gid": 640,
+      "id": "boundary:wu-guo-tai",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-sixth-640-source-2026-10-04.json",
+      "sourceSha256": "63ebbd951a00144754cc5fc515f8554d96e8dd597a67eec43ac286e31d14875a",
+      "owner": "/root/next_batch_audit",
+      "stage": ".artifacts/continuation-20261003-batch17/batch26/wu-guo-tai",
+      "mainRegistered": true,
+      "status": "static-integrated-runtime-deferred",
+      "frozenManifestSha256": "d59a005e1a2c4f5b58e765ca97d6bcf7e7941803eb58fa638b116041b611d35b"
+    }
+  ],
+  "runs": [],
+  "integrations": [
+    {
+      "gid": 603,
+      "baseCommit": "3e36e653",
+      "newFiles": 7,
+      "oldFiles": 8,
+      "allOldBaselinesRawMatched": true,
+      "allOldAppliedRawShaMatched": true,
+      "newRawShaMatched": true,
+      "newChecks": 4,
+      "routinePrefixes": [
+        "Neighbor discard own first previous"
+      ],
+      "checksExecuted": false,
+      "followup": {
+        "patchSha256": "36ba4845d00495458ec79fff3c9de910244adc9aacf3df66fd34a9b2cb1b6c51",
+        "mainCheckSha256": "166e8fe980dcff561a6438ac1f9e23576e0e960f6ac5eff1b2840fed5230a1be",
+        "restoredEngineContinuesThreeChildPausePoints": true,
+        "executed": false
+      },
+      "staticReview": {
+        "frozenComparisonUsesScalarFacts": true,
+        "dictionaryReferenceEqualityRejected": true,
+        "current626ProofsPreserved": true,
+        "newPublicEventsScalarOnly": true,
+        "originalPngShaMatched": true,
+        "scopeDataParsedWithoutExecuting": true
+      },
+      "documentation": "docs/content/skill-composition/FENG_LIN_TWENTY_SIXTH_YU_FAN.md",
+      "postIntegrationStaticRepair": {
+        "path": "src/CardGame.Core/SkillPrograms.cs",
+        "reason": "New validation referenced movementDiscardOnly before its local declaration",
+        "repair": "Move only new Validate call after existing declaration; preserve expression and old validation order",
+        "sha256": "ede918ca55de3c8a3593fdcc6906a9ea355d24a337b18fb92ba101a2511e2de1",
+        "compiled": false,
+        "testsRun": false
+      }
+    },
+    {
+      "gid": 620,
+      "baseCommit": "3a7af9d6",
+      "sourceCodeBaseline": "448761ac",
+      "newFiles": 9,
+      "oldFiles": 19,
+      "allOldBaselinesRawMatched": true,
+      "allOldAppliedNormalizedLfShaMatched": true,
+      "newRawShaMatched": true,
+      "patchSha256": "eccf98387eb1b3e792411f658054c1cdab5f5c3b38519102ad98a7b6c980e5cc",
+      "newChecks": 4,
+      "routinePrefixes": [
+        "boundary cheng pu completion payment"
+      ],
+      "checksExecuted": false,
+      "staticReview": {
+        "privateProcessingOriginsOnOwningFrame": true,
+        "actualRoundDependencyOptIn": true,
+        "actualWineActorVictimProviderOwner": true,
+        "committedVirtualFireUseAndPrimaryReturn": true,
+        "orderedTargetChangeProof": true,
+        "originalAndExtraSuitShields": true,
+        "originalPngShaMatched": true,
+        "restoredEngineContinuesChildPausesInCheckSource": true,
+        "scopeDataParsedWithoutExecuting": true
+      },
+      "documentation": "docs/content/skill-composition/FENG_LIN_TWENTY_SIXTH_CHENG_PU.md"
+    },
+    {
+      "gid": 640,
+      "baseCommit": "71407cae",
+      "newFiles": 10,
+      "newProductionFiles": 9,
+      "oldFiles": 9,
+      "allOldBaselinesRawMatched": true,
+      "allOldAppliedRawShaMatched": true,
+      "allOldAppliedNormalizedLfShaMatched": true,
+      "newRawShaMatched": true,
+      "patchSha256": "8bc21c3875636ec8abf7cf59993cb811f50e406913a83978e0efb705f340a48c",
+      "newChecks": 4,
+      "routinePrefixes": [
+        "boundary wu guo tai paid equipment pair"
+      ],
+      "checksExecuted": false,
+      "staticReview": {
+        "originalPairFullXCostFrozen": true,
+        "currentPairExchangeAfterChildren": true,
+        "opaqueForeignBasicSelectionNoPayment": true,
+        "nonBasicActualDiscardBeforeRecovery": true,
+        "original620RoundRidePreserved": true,
+        "exactMovementBatchNullReturnAssertionsRepaired": true,
+        "restoredEngineContinuesChildPausesInCheckSource": true,
+        "originalPngShaMatched": true,
+        "scopeDataParsedWithoutExecuting": true
+      },
+      "documentation": "docs/content/skill-composition/FENG_LIN_TWENTY_SIXTH_WU_GUO_TAI.md"
+    }
+  ],
+  "media": "docs/content/sources/fenglin-twenty-sixth-art-2026-10-04.json",
+  "runtimeAcceptance": false,
+  "pending": [
+    "User later combined build, focused runtime, Full and measured routine verification",
+    "Offline and compiled raw art verification after waking"
+  ],
+  "versions": {
+    "perCharacterBumped": false,
+    "authoritativePaths": [
+      "src/CardGame.Core/Replay.cs",
+      "src/CardGame.Core/SkillPrograms.cs",
+      "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs"
+    ]
+  },
+  "cleanup": {
+    "ownedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+    "priorAutomaticApprovalRejection": "blocked by policy",
+    "retryPerformed": false,
+    "sourceStagesAndCacheRetainedForContinuation": true
+  }
+}

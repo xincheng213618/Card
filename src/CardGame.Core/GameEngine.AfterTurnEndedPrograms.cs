@@ -26,11 +26,15 @@ public sealed partial class GameEngine
     private ProgramSkillWindowContext CreateAfterTurnEndedContext(DeferredTurnEndFrame parent, ProgramTriggerCandidate candidate) =>
         new(SkillProgramTriggerWindow.AfterTurnEnded, parent.Id, candidate.OwnerSeat,
             SourceSeat: parent.OwnerSeat, TargetSeat: parent.OwnerSeat, OccurrenceIndex: candidate.OccurrenceIndex,
-            Facts: parent.AfterTurnEnded!.Items[parent.AfterTurnEnded.ItemIndex].Facts);
+            Facts: parent.AfterTurnEnded!.Items[parent.AfterTurnEnded.ItemIndex].Facts)
+        { ActualEndedEquipment = IsActualEndedEquipmentTrigger(GetProgramTrigger(candidate))
+            ? CaptureActualEndedEquipmentContext(parent) : null };
 
     private bool CanRunAfterTurnEndedCandidate(ProgramTriggerCandidate candidate, ProgramSkillWindowContext context, SkillProgramTrigger trigger)
     {
         var parent = _resolutionStack.OfType<DeferredTurnEndFrame>().LastOrDefault();
+        if (IsActualEndedEquipmentTrigger(trigger))
+            return parent is not null && MatchesActualEndedEquipmentContext(parent, candidate, context, trigger);
         return context.Window == SkillProgramTriggerWindow.AfterTurnEnded && trigger.Window == context.Window &&
             parent is not null && IsActualAfterTurnEndedParent(parent) && parent.Id == context.ParentFrameId &&
             AfterTurnEndedCandidate(parent) == candidate && context.OwnerSeat == candidate.OwnerSeat &&
@@ -110,7 +114,9 @@ public sealed partial class GameEngine
         return current.FrameId == child.Id && current.Candidate == candidate && context.Window == SkillProgramTriggerWindow.AfterTurnEnded &&
             context.ParentFrameId == parent.Id && context.OwnerSeat == candidate.OwnerSeat && context.SourceSeat == parent.OwnerSeat &&
             context.TargetSeat == parent.OwnerSeat && context.OccurrenceIndex == candidate.OccurrenceIndex &&
-            context.Facts == parent.AfterTurnEnded.Items[parent.AfterTurnEnded.ItemIndex].Facts && child.OwnerSeat == candidate.OwnerSeat &&
+            (IsActualEndedEquipmentTrigger(GetProgramTrigger(candidate))
+                ? MatchesActualEndedEquipmentContext(parent, candidate, context, GetProgramTrigger(candidate), requireLivingTurnOwner: false)
+                : context.Facts == parent.AfterTurnEnded.Items[parent.AfterTurnEnded.ItemIndex].Facts) && child.OwnerSeat == candidate.OwnerSeat &&
             child.SkillId == candidate.SkillId && child.SkillInstanceId == candidate.SkillInstanceId && child.TriggerId == candidate.BindingId &&
             child.ActivationId == candidate.BindingId && child.GameplayHash == candidate.GameplayHash;
     }

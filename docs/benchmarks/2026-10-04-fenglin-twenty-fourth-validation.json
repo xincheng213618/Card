@@ -1,0 +1,408 @@
+{
+  "runs": [
+    {
+      "label": "liao-hua-focused-01-build-failed-descriptor-ai-policy",
+      "startedAt": "2026-10-04T06:03:54.8306811+08:00",
+      "status": "build-failed",
+      "mode": "targeted",
+      "durationMs": 1585,
+      "coreFilters": [
+        "Granted entity",
+        "Frozen faction recovery"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1562,
+          "logName": "build.log",
+          "logSha256": "4ccf1db1098e9458f539d0b0a8c519e8da25f2d75c0c8db5dfe0884543480a76",
+          "resultLines": [
+            "    0 个警告",
+            "    1 个错误"
+          ],
+          "errorDiagnostics": [
+            "C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\FrozenFactionRecoveryPrograms.cs(42,23): error CS0534: “TurnOverIfFrozenFactionCountExceedsGameDamageDescriptor”不实现继承的抽象成员“ProgramOperationDescriptorBase.AiPolicy.get” [C:\\Users\\17917\\Desktop\\Card\\src\\CardGame.Core\\CardGame.Core.csproj]"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "liao-hua-focused-02-three-pass-self-damage-parent-fail",
+      "startedAt": "2026-10-04T06:04:41.0686981+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 12691,
+      "coreFilters": [
+        "Granted entity",
+        "Frozen faction recovery"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 7642,
+          "logName": "build.log",
+          "logSha256": "93fbebda4ef83290264aa1fec6f3061c29ab5b50deab3caec152639e248ad680",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (2 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 5004,
+          "logName": "core-selected.log",
+          "logSha256": "040539ddd2c141957ffbd928e2d05d491862487b99055653cab71d7c9ca36205",
+          "resultLines": [
+            "[FAIL] Granted entity extra phase skip unused claim self damage once",
+            "       InvalidOperationException: Sequence contains no matching element",
+            "3 passed, 1 failed, 0 skipped (4 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "liao-hua-self-damage-diagnostic-01-parent-finished-before-hp-child",
+      "startedAt": "2026-10-04T06:06:07.5339671+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 4475,
+      "coreFilters": [
+        "Granted entity extra phase skip"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 3357,
+          "logName": "build.log",
+          "logSha256": "ed0babbe56fd57fffe04c118dde1f0ae45769f192937ae0d0ff819569f8d45da",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 1070,
+          "logName": "core-selected.log",
+          "logSha256": "de3866c9dd9adc644e41bf11c274d51355c9d4b55eb74641b3e2a7bd8b9eb11f",
+          "resultLines": [
+            "[FAIL] Granted entity extra phase skip unused claim self damage once",
+            "       InvalidOperationException: The paid extra-phase trailer is missing: {\"take\":false,\"ResolutionStack\":[{\"$type\":\"hp-changed-trigger-window\",\"Change\":{\"Id\":22,\"ParentFrameId\":21,\"SourceSeat\":null,\"TargetSeat\":0,\"Kind\":600,\"Amount\":1,\"HpBefore\":4,\"HpAfter\":3},\"Candidates\":[{\"OwnerSeat\":0,\"SkillId\":\"fixture:lh-hp\",\"BindingId\":\"hp-child\",\"SkillInstanceId\":\"template:primary:fixture:lh-hp\",\"GameplayHash\":\"db06dd6124cd3bfb427d92be808639caa3847d1adc3b470097c903f1b45416af\",\"Priority\":0,\"OccurrenceIn",
+            "0 passed, 1 failed, 0 skipped (1 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "liao-hua-focused-03-four-pass-exact-health-child-owning",
+      "startedAt": "2026-10-04T06:08:28.1550569+08:00",
+      "status": "passed",
+      "mode": "targeted",
+      "durationMs": 13529,
+      "coreFilters": [
+        "Granted entity",
+        "Frozen faction recovery"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 8178,
+          "logName": "build.log",
+          "logSha256": "7d91c890b74a722f77267994f843b160bf47288ddc755553371a29518ae90716",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (2 filters, union)",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 5298,
+          "logName": "core-selected.log",
+          "logSha256": "da46bf769956a4bde01f63061a5e976826ea59b20cc02bdd75bd8dbf7250b617",
+          "resultLines": [
+            "4 passed, 0 failed, 0 skipped (4 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    },
+    {
+      "label": "jian-yong-focused-01-build-failed-native-status-access",
+      "startedAt": "2026-10-04T06:16:18.0072919+08:00",
+      "status": "build-failed",
+      "mode": "targeted",
+      "durationMs": 9491,
+      "coreFilters": [
+        "Next actual-use"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 9455,
+          "logName": "build.log",
+          "logSha256": "47e6a7672e4b6b186730bb6e80ad82e96cc8deaca298e2b9047d4bd62d227282",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    1 个错误"
+          ],
+          "errorDiagnostics": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\BoundaryJianYongChecks.cs(207,77): error CS1061: “GameEngine”未包含“Status”的定义，并且找不到可接受第一个“GameEngine”类型参数的可访问扩展方法“Status”(是否缺少 using 指令或程序集引用?) [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "jian-yong-focused-02-four-fixture-viewas-inputsuits-load-fail",
+      "startedAt": "2026-10-04T06:17:14.7090619+08:00",
+      "status": "test-failed",
+      "mode": "targeted",
+      "durationMs": 3444,
+      "coreFilters": [
+        "Next actual-use"
+      ],
+      "wpfFilters": [],
+      "steps": [
+        {
+          "name": "Build selected scope",
+          "status": "passed",
+          "exitCode": 0,
+          "durationMs": 2946,
+          "logName": "build.log",
+          "logSha256": "0fde79c05ebb62ed27f33036fe0af0b19d702b035c20f97ff3bebba882f1850c",
+          "resultLines": [
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(27,46): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\GaoDaYiHaoChecks.cs(31,22): warning CS8602: 解引用可能出现空引用。 [C:\\Users\\17917\\Desktop\\Card\\tests\\CardGame.Core.Tests\\CardGame.Core.Tests.csproj]",
+            "    2 个警告",
+            "    0 个错误"
+          ],
+          "errorDiagnostics": []
+        },
+        {
+          "name": "Core selected checks (1 filters, union)",
+          "status": "failed",
+          "exitCode": 1,
+          "durationMs": 451,
+          "logName": "core-selected.log",
+          "logSha256": "944c32b8793e648b736f735b3bcbbe08023c776f669f55707607781ce83e37dc",
+          "resultLines": [
+            "[FAIL] Next actual-use paid wins refresh one target token and original claims",
+            "       InvalidOperationException: Invalid skill program at skill 'fixture:jy-multi' (rules.skills[3]).viewAs[0]: missing required property 'inputSuits'.",
+            "[FAIL] Next actual-use failure preserves Zongshi and prohibits tricks before payment",
+            "[FAIL] Next actual-use multi material Slash global recovery and typed returns",
+            "[FAIL] Next actual-use counterspell response source loss native and strict loader",
+            "0 passed, 4 failed, 0 skipped (4 total)."
+          ],
+          "errorDiagnostics": []
+        }
+      ]
+    }
+  ],
+  "status": "three-main-generals-code-integrated-runtime-acceptance-deferred-by-user",
+  "batch": 24,
+  "candidates": [
+    {
+      "gid": 600,
+      "generalId": "boundary:jian-yong",
+      "source": "docs/content/sources/fenglin-twenty-fourth-600-source-2026-10-04.json",
+      "sourceSha256": "e8c3d10021bcdf84e3b7c9051130fbf0549cbe7be9bf17474cab1cabf1d2fb7a",
+      "status": "main-registered-static-followups-integrated-runtime-pending-user-unified-tests",
+      "previousFocusedEvidence": "Initial build error corrected; fixture failed before behavior; inputSuits followup now static-only, no rerun"
+    },
+    {
+      "gid": 641,
+      "generalId": "boundary:liao-hua",
+      "source": "docs/content/sources/fenglin-twenty-fourth-641-source-2026-10-04.json",
+      "sourceSha256": "cf907bcfd59f2f6608d32033c166bf3e6bf80d2ea18e7e38f775ca8929861aae",
+      "status": "main-registered-static-followups-integrated-runtime-pending-user-unified-tests",
+      "previousFocusedEvidence": "4/4 on earlier inputs before final accepted-policy followup and combined604 integration; not final batch acceptance"
+    },
+    {
+      "gid": 604,
+      "generalId": "boundary:gao-shun",
+      "source": "docs/content/sources/fenglin-twenty-fourth-604-source-2026-10-04.json",
+      "sourceSha256": "094dd411dec7c6141a7ecff9b3cb8a034eddb58cdae1925976e4aa0e6c679867",
+      "status": "main-registered-static-followups-integrated-runtime-pending-user-unified-tests",
+      "previousFocusedEvidence": "No build or actual check has run for604"
+    }
+  ],
+  "integrations": [
+    {
+      "gid": 641,
+      "manifestSha256": "d92bcc16d57f9df50630761cb02c60eb354271c7f989057e1f9d263056c85044",
+      "oldPatchSha256": "55d7e10dc7311ab04007aea0c6a0735abdd33267a5cf9b54f01914f0157a957d",
+      "newFiles": 8,
+      "oldFiles": 8,
+      "allExactBaselinesVerified": true,
+      "allLogicalNewHashesVerified": true,
+      "rootCorrections": [
+        "Required flip descriptor AiPolicy",
+        "Only new signed4800 Program-Damage-DamageApplied HP observation owned by original Program",
+        "Failure diagnostic preserves full self-damage suspension assertions"
+      ]
+    },
+    {
+      "gid": 600,
+      "manifestSha256": "ef832b53e679ae4b0aa6d2b2489c025e6d2af6e7127855f15191295d31513bd6",
+      "oldPatchSha256": "117dd7a69d9b71244c0e4d0007ebf641e1c2ae452e24c8344d2e6f458f752084",
+      "newFiles": 7,
+      "oldFiles": 14,
+      "allExactBaselinesVerified": true,
+      "allLogicalPreviewsVerified": true,
+      "rootCorrections": [
+        "Native fixture Status read uses native.State.Status"
+      ]
+    },
+    {
+      "gid": 604,
+      "manifestSha256": "bd9956f026a20ffb751d5d39713593d0d853ed2cdedfc9509f49e74eef3f6b08",
+      "oldPatchSha256": "4a43cf3cbd3edf7be14fb2cce776c3d62299f5cae95f9b8b5427c86ae9133b25",
+      "newFiles": 7,
+      "oldFiles": 17,
+      "allExactBaselinesVerified": true,
+      "followingRuntimePending": true
+    }
+  ],
+  "pending": [
+    "Final combined build and all12 new focused checks after user wakes",
+    "Full Core/WPF after user wakes",
+    "Unfiltered routine measured timing after user wakes",
+    "Offline full PNG catalog and compiled raw art after user wakes",
+    "Policy-blocked exact temporary cleanup; read-only audit recorded"
+  ],
+  "versions": {
+    "epoch": "src/CardGame.Core/Replay.cs",
+    "schema": "src/CardGame.Core/SkillPrograms.cs",
+    "package": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+    "perCharacterBumped": false
+  },
+  "userSteering": {
+    "instruction": "No full tests now: CPU noise; user will run unified tests after waking; add remaining content and commit",
+    "receivedLocalDate": "2026-10-04",
+    "postInstructionBuildsOrTestsRun": false,
+    "verificationConsumerCount": 0,
+    "commitAuthorized": true,
+    "pushAuthorized": false
+  },
+  "followups": [
+    {
+      "gid": 641,
+      "manifestSha256": "628b005e18da799622540e537aeb2fa7a2b9239af6cfba9d94dbf0557d26f13c",
+      "patchSha256": "689700600fd339f579b310b15998b0afc74605d18c9e2a2eb148e17ca3fa3900",
+      "scope": "Global exact accepted-distance phase/action/actual issued facts and payment invariant; original method adds clone-only 3scalar tamper rejection",
+      "integrated": true,
+      "run": false
+    },
+    {
+      "gid": 600,
+      "manifestSha256": "d22bb4d951983cc43a39e9ef8054109606ecbae3c602df1c88e131cc768e2bbc",
+      "patchSha256": "d0ee4350d958b5eba93fde281bc94d9c09d9c0eae77cb60836e36260f1736636",
+      "scope": "Existing fixture three viewAs inputSuits required fields",
+      "integrated": true,
+      "run": false
+    },
+    {
+      "gid": 604,
+      "manifestSha256": "113d8f66e50fd67c4ce59ce36ad5d4ce4dff872b1319899c6ed7b8c574bfdef5",
+      "patchSha256": "929ca25b3425cfdca0afc9371cc1c67d0fc2608e13e54e724f8d9b5a7b236a72",
+      "scope": "Issued candidate remains exact current owning Use actor after role replacement",
+      "integrated": true,
+      "run": false
+    },
+    {
+      "gid": 604,
+      "manifestSha256": "b4a9076fbc8527be1e8f97d97c2dce774780fdffbd9bdf6e9b26573c5fbc50df",
+      "patchSha256": "2a2c0ff54977c54e34fcead664d2665d52f955e87613e8394f04bc9876f4f344",
+      "scope": "Exact issued original-target tail cursor, 600 material typed return and frozen suit/beneficiary shield qualification",
+      "allExactBaselinesVerified": true,
+      "allLogicalPostPatchHashesVerified": true,
+      "integrated": true,
+      "run": false
+    },
+    {
+      "gid": 604,
+      "manifestSha256": "38682d585b8162021893a9ee09a0e32aeb8962429a42fc2b5d928102f372c7c9",
+      "patchSha256": "a879575e4ed7a918408424a7ad8c291ce7ddf54dd5ac96f0b7a8320f852ea594",
+      "scope": "Exact real zero-entity Slash Added4901 receipt, direct paused producer and issued/resolved facts preserve primary target return; same proof used by4003 invariant",
+      "allExactBaselinesVerified": true,
+      "allLogicalPostPatchHashesVerified": true,
+      "integrated": true,
+      "run": false
+    }
+  ],
+  "media": {
+    "installedThreeRawPngs": true,
+    "sourceShaChecked": true,
+    "fullOfflineCatalogRun": false,
+    "compiledResourceRun": false
+  },
+  "commitScope": "Batch23 owned retained fixes/evidence and batch24 implementation plus static next-source/routine-review deliverables; see Git history for commit",
+  "runtimeAcceptance": false,
+  "staticNextBatchPreflight": "docs/content/sources/fenglin-twenty-fifth-preflight-2026-10-04.json",
+  "staticRoutineReview": "docs/benchmarks/2026-10-04-routine-static-review.md",
+  "staticChecks": {
+    "jsonBundles": 6,
+    "jsonParseAndPresentationIdsAligned": true,
+    "uniqueModuleRegistrations": 3,
+    "uniqueExistingRunnerMethods": 12,
+    "rulesVersionSource": "src/CardGame.Core/Replay.cs",
+    "rulesSchemaSource": "src/CardGame.Core/SkillPrograms.cs",
+    "packageVersionSource": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+    "perCharacterVersionBump": false,
+    "grantedEntityExactInvariantWired": true,
+    "compilationVerified": false,
+    "runtimeVerified": false
+  },
+  "commitAndExternalActions": {
+    "commitAuthorized": true,
+    "commitRecord": "See Git history; evidence prepared before batch commit",
+    "pushPerformed": false,
+    "releasePerformed": false,
+    "packagingPerformed": false
+  },
+  "nextBatchQuietDevelopment": {
+    "gids": [
+      588,
+      597,
+      626
+    ],
+    "stagingRoot": ".artifacts/continuation-20261003-batch17/batch25",
+    "mainImplementationIntegrated": false,
+    "buildsRun": false,
+    "testsRun": false,
+    "agents": 3
+  }
+}

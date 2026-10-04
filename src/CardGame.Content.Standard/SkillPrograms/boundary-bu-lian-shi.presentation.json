@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:anxu-current": {
+      "name": "安恤", "description": "出牌阶段限一次，你可以获得两名角色各一张牌。然后你展示一张牌并交给其中手牌较少的角色，若不为黑桃，你摸一张牌。",
+      "activationLabels": { "pair-obtain-show-give": "获得两名角色各一张牌，再展示并交牌" }
+    },
+    "boundary:zhuiyi-current": {
+      "name": "追忆", "description": "限定技，结束阶段，你可令一名其他角色摸三张牌并回复1点体力。然后你死亡时，可以对其再次发动本技能。",
+      "triggerChoices": { "ending-original-beneficiary": "选定原受益者", "death-original-beneficiary": "对原受益者再发动追忆" }
+    }
+  }
+}

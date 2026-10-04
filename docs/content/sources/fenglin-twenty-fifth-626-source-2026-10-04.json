@@ -1,0 +1,112 @@
+{
+  "status": "current-official-source-only-not-implemented",
+  "gid": 626,
+  "indexIdentity": {
+    "gid": 626,
+    "name": "界刘表",
+    "resource": "62600",
+    "extend": "界限突破",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "史诗",
+    "figure": "群",
+    "figure_py": "qun",
+    "biography": "刘表，字景升，山阳郡高平（今山东微山）人。东汉末年名士，汉室宗亲，荆州牧，汉末群雄之一。",
+    "characteristic": "能够获得并积累大量的手牌。可以一次性防止他人造成的伤害。",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/626.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62600.png",
+    "realname": "界刘表 (界限突破)"
+  },
+  "discovery": "Exact gid advertised by retained ordinary OL Listdata[界限突破] index; known info route from current official heroDetail.js.",
+  "webReader": "Single grouped web open attempted first; reader returned timeout for all three pages. Bounded direct primary HTTP byte capture follows.",
+  "page": {
+    "url": "https://www.sanguosha.com/hero/626",
+    "finalUrl": "https://www.sanguosha.com/hero/626",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T22:33:37.057930+00:00",
+    "contentType": "text/html",
+    "rawBytes": 23800,
+    "rawSha256": "e08618846df4f0c188bac4a4a451f1b61346adecde396fba354825418bf5ccf3",
+    "rawFile": "626-page.raw.html",
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >摸牌阶段，你可以多摸X张牌，你以此法摸牌的结束阶段，若你本回合使用过伤害牌，你弃置X张牌（X为全场势力数）。</span>\n                            \n                                <span >锁定技，全场每有一个势力，你的手牌上限便+1。<br>其他角色对你造成伤害时，防止此伤害改为令其获得你区域内的一张牌，每个势力限一次。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "自守",
+      "宗室"
+    ],
+    "skillTexts": [
+      "摸牌阶段，你可以多摸X张牌，你以此法摸牌的结束阶段，若你本回合使用过伤害牌，你弃置X张牌（X为全场势力数）。",
+      "锁定技，全场每有一个势力，你的手牌上限便+1。其他角色对你造成伤害时，防止此伤害改为令其获得你区域内的一张牌，每个势力限一次。"
+    ],
+    "fontRefs": [],
+    "scripts": [
+      "/assets/js/jquery-3.7.1.js",
+      "/assets/js/swiper-bundle.min.js",
+      "/assets/js/echarts.min.js",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "/assets/js/commen.js",
+      "/assets/js/header.js",
+      "/assets/js/heroDetail.js?1"
+    ]
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=626",
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=626",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T22:33:37.370169+00:00",
+    "contentType": "application/json",
+    "rawBytes": 818,
+    "rawSha256": "b76a984389d00d945b27b45ecdb3366a398c825e53493e235a71107da5076f4a",
+    "rawFile": "626-api.raw.json",
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 626,
+            "name": "界刘表",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/626.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62600.png",
+            "label": [
+              "防御",
+              "过牌",
+              "发育"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "史诗",
+            "biography": "刘表，字景升，山阳郡高平（今山东微山）人。东汉末年名士，汉室宗亲，荆州牧，汉末群雄之一。",
+            "characteristic": "能够获得并积累大量的手牌。可以一次性防止他人造成的伤害。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "地主",
+            "value": 5
+          },
+          {
+            "name": "主公",
+            "value": 6
+          },
+          {
+            "name": "忠臣",
+            "value": 7
+          },
+          {
+            "name": "反贼",
+            "value": 6
+          },
+          {
+            "name": "内奸",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    }
+  }
+}

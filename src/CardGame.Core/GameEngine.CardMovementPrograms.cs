@@ -33,6 +33,7 @@ public sealed partial class GameEngine
         public IReadOnlyDictionary<CardLocation, int> DestinationCountsBefore { get; } = destinationCountsBefore;
         public ProgramSkillFrame? OriginProgram { get; } = originProgram;
         public CardMovementTiming? MovementTiming { get; init; }
+        public ActualDiscardRecoveryPhaseKey? DiscardRecoveryPhase { get; init; }
     }
 
     private CardMovementBatchBuilder BeginCardMovementBatch(IEnumerable<CardLocation> sourceLocations, IEnumerable<CardLocation> destinationLocations)
@@ -50,7 +51,7 @@ public sealed partial class GameEngine
             _turnNumber,
             sources,
             destinationLocations.Distinct().ToDictionary(location => location, location => _cardZones.Count(location)),
-            _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault()) { MovementTiming = CaptureMovementTiming() };
+            _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault()) { MovementTiming = CaptureMovementTiming(), DiscardRecoveryPhase = CurrentActualDiscardRecoveryPhase() };
         _activeCardMovementBatchIds.Push(batch.Id);
         return batch;
     }
@@ -73,6 +74,8 @@ public sealed partial class GameEngine
                 item.Value,
                 _cardZones.Count(item.Key)))
             .ToArray();
+        CaptureActualDiscardRecoveryBatch(batch.Id, batch.DiscardRecoveryPhase, movements);
+        CaptureNeighborDiscardOpportunity(batch.Id, batch.TurnNumber, movements);
         CaptureTurnDiscardSuitFact(batch.TurnNumber,movements);
         CaptureTurnRedDiscardCount(batch.TurnNumber,movements);
         CaptureActionDiscardFact(batch.Id,batch.TurnNumber,movements);
@@ -88,7 +91,7 @@ public sealed partial class GameEngine
             batch.DestinationCountsBefore.OrderBy(item => item.Key.Zone).ThenBy(item => item.Key.OwnerSeat)
                 .Select(item => new CardMovementSourceCount(item.Key, item.Value, _cardZones.Count(item.Key))).ToArray(),
             batch.OriginProgram?.SkillId, batch.OriginProgram?.SkillInstanceId, batch.OriginProgram?.OwnerSeat)
-            { MovementTiming = batch.MovementTiming });
+            { MovementTiming = batch.MovementTiming, DiscardRecoveryPhase = batch.DiscardRecoveryPhase });
     }
 
     private bool HasCardsMovedProgramBoundaryFrame()
@@ -117,12 +120,13 @@ public sealed partial class GameEngine
         var drawPhase = _resolutionStack.LastOrDefault() is DrawPhaseObligationFrame draw && draw.Id == instructionFrameId ? draw : null;
         var colorFireAttack = _resolutionStack.LastOrDefault() is CardUseFrame { ColorFireAttack.PaidCardId: not null } fire && fire.Id == instructionFrameId ? fire : null;
         var counterspellPayment = _resolutionStack.LastOrDefault() is NullificationWindowFrame { CounterspellPayment: not null } counter && counter.Id == instructionFrameId ? counter : null;
-        bool Eligible(CardMovementBatchContext batch) => counterspellPayment is not null ? batch.ParentFrameId == counterspellPayment.Id && batch.AwaitingProgramFrameId is null : colorFireAttack is not null ? batch.ParentFrameId == colorFireAttack.Id && batch.AwaitingProgramFrameId is null : drawPhase is not null ? batch.ParentFrameId == drawPhase.Id || drawPhase.InheritedMovementBatchIds?.Contains(batch.Id) == true : factionRequestCost is not null ? batch.ParentFrameId == factionRequestCost.Id : equipmentRecast is not null ? batch.ParentFrameId == equipmentRecast.Id : recoveryReplacement is not null ? batch.ParentFrameId == recoveryReplacement.Id : declaration is not null ? batch.ParentFrameId == declaration.Id : awaitingFrame is null
+        var roundPileAlcohol = _resolutionStack.LastOrDefault() is CardUseFrame { RoundPileAlcoholReturn: not null, RoundPileAlcoholCostDrained: false } wine && wine.Id == instructionFrameId ? wine : null;
+        bool Eligible(CardMovementBatchContext batch) => roundPileAlcohol is not null ? batch.ParentFrameId == roundPileAlcohol.Id && batch.AwaitingProgramFrameId is null : counterspellPayment is not null ? batch.ParentFrameId == counterspellPayment.Id && batch.AwaitingProgramFrameId is null : colorFireAttack is not null ? batch.ParentFrameId == colorFireAttack.Id && batch.AwaitingProgramFrameId is null : drawPhase is not null ? batch.ParentFrameId == drawPhase.Id || drawPhase.InheritedMovementBatchIds?.Contains(batch.Id) == true : factionRequestCost is not null ? batch.ParentFrameId == factionRequestCost.Id : equipmentRecast is not null ? batch.ParentFrameId == equipmentRecast.Id : recoveryReplacement is not null ? batch.ParentFrameId == recoveryReplacement.Id : declaration is not null ? batch.ParentFrameId == declaration.Id : awaitingFrame is null
             ? batch.AwaitingProgramFrameId is null
             : batch.AwaitingProgramFrameId == awaitingFrame.Id ||
               batch.AwaitingProgramFrameId is null && batch.ParentFrameId == awaitingFrame.Id;
         if (_pendingDecision is not null ||
-            (_resolutionStack.Count != 0 && awaitingFrame is null && declaration is null && recoveryReplacement is null && equipmentRecast is null && factionRequestCost is null && drawPhase is null && colorFireAttack is null && counterspellPayment is null) ||
+            (_resolutionStack.Count != 0 && awaitingFrame is null && declaration is null && recoveryReplacement is null && equipmentRecast is null && factionRequestCost is null && drawPhase is null && colorFireAttack is null && counterspellPayment is null && roundPileAlcohol is null) ||
             _winner != Winner.None || _status == EngineStatus.Completed)
             return false;
 
@@ -143,6 +147,7 @@ public sealed partial class GameEngine
             if (drawPhase is not null) window = window with { ResumeDrawPhaseObligationFrameId = drawPhase.Id };
             if (colorFireAttack is not null) window = window with { ResumeColorFireAttackFrameId = colorFireAttack.Id };
             if (counterspellPayment is not null) window = window with { ResumeCounterspellPaymentFrameId = counterspellPayment.Id };
+            if (roundPileAlcohol is not null) window = window with { ResumeRoundPileAlcoholUseFrameId = roundPileAlcohol.Id };
             if (factionRequestCost is not null) window = window with { ResumeFactionRequestCostFrameId = factionRequestCost.Id, ResumeProgramFrameId = null };
             if (declaration is not null)
             {
@@ -178,6 +183,7 @@ public sealed partial class GameEngine
             foreach (var candidate in CollectProgramTriggerCandidates(_players[ownerSeat], window))
             {
                 var trigger = GetProgramTrigger(candidate);
+                if (IsNeighborDiscardTopTrigger(trigger)) continue;
                 if (!IsGainPhaseQualified(trigger, ownerSeat, batch.MovementTiming)) continue;
                 if (discardOriginOnly && !trigger.MovementDiscardOnly) continue;
                 if (!(window == SkillProgramTriggerWindow.CardsMoved ? trigger.SourceZones : trigger.DestinationZones).Contains(count.Location.Zone)) continue;
@@ -191,6 +197,7 @@ public sealed partial class GameEngine
                         new CardMovementSourceCount(count.Location,
                             ProgramMovementSourceCounts(batch, window).Where(item => (!item.DiscardOriginOnly || trigger.MovementDiscardOnly) && item.Count.Location.OwnerSeat == ownerSeat && trigger.SourceZones.Contains(item.Count.Location.Zone)).Sum(item => item.Count.CountBefore),
                             ProgramMovementSourceCounts(batch, window).Where(item => (!item.DiscardOriginOnly || trigger.MovementDiscardOnly) && item.Count.Location.OwnerSeat == ownerSeat && trigger.SourceZones.Contains(item.Count.Location.Zone)).Sum(item => item.Count.CountAfter)), window);
+                    ownerBatchFacts = CaptureOwnerBatchEquipmentLoss(ownerBatchFacts, batch, candidate, trigger, matching);
                     if (matching.Length > 0 && trigger.Condition.Evaluate(ownerBatchFacts, candidate.SkillId, candidate.SkillInstanceId))
                         candidates.Add(candidate);
                     continue;
@@ -214,6 +221,7 @@ public sealed partial class GameEngine
                 candidates.AddRange(occurrences.Select(index => candidate with { OccurrenceIndex = index }));
             }
         }
+        candidates.AddRange(CollectNeighborDiscardCandidates(batch));
         return candidates
             .OrderBy(candidate => (candidate.OwnerSeat - _currentSeat + _players.Count) % _players.Count)
             .ThenByDescending(candidate => candidate.Priority)
@@ -250,8 +258,12 @@ public sealed partial class GameEngine
     private int[] MatchingDiscardPileIndexes(CardMovementBatchContext batch,
         ProgramTriggerCandidate candidate, SkillProgramTrigger trigger)
     {
+        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RestoreActualDiscardBatch))
+            return MatchingActualDiscardRecoveryIndexes(batch, candidate);
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance))
             return MatchingProvenanceDiscardIndexes(batch, candidate, trigger);
+        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.StoreAdjacentDiscardedSlash))
+            return MatchingAdjacentDiscardIndexes(batch, candidate);
         if(trigger.Effects.Any(e=>e.Op==SkillProgramEffectOp.RewardDiscardedActionColor))
         {
             var action=CompleteProgramEventHistory().OfType<ActionCardsDiscardedEvent>().LastOrDefault(e=>e.BatchId==batch.Id);
@@ -359,7 +371,9 @@ public sealed partial class GameEngine
     {
         if (frame.Contexts is { } contexts) return contexts[frame.CandidateIndex];
         var trigger = GetProgramTrigger(candidate);
+        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RestoreActualDiscardBatch)) return CreateActualDiscardRecoveryContext(frame, candidate);
         if (trigger.Window == SkillProgramTriggerWindow.FirstGameDomainCrossing) return CreateFirstDomainContext(frame,candidate);
+        if (IsNeighborDiscardTopTrigger(trigger)) return CreateNeighborDiscardContext(frame, candidate);
         if (trigger.Window == SkillProgramTriggerWindow.DiscardPileReceived)
         {
             var movement = frame.Batch.Movements[candidate.OccurrenceIndex];
@@ -382,8 +396,9 @@ public sealed partial class GameEngine
             var matching = MatchingOwnerBatchMovementIndexes(frame.Batch, candidate, trigger);
             return new ProgramSkillWindowContext(trigger.Window, frame.Id, candidate.OwnerSeat,
                 SourceSeat: candidate.OwnerSeat, TargetSeat: candidate.OwnerSeat,
-                Facts: CaptureCardsMovedTriggerFacts(_players[candidate.OwnerSeat], matching.Length,
+                Facts: CaptureOwnerBatchEquipmentLoss(CaptureCardsMovedTriggerFacts(_players[candidate.OwnerSeat], matching.Length,
                     new CardMovementSourceCount(counts[0].Location, counts.Sum(item => item.CountBefore), counts.Sum(item => item.CountAfter)), trigger.Window),
+                    frame.Batch, candidate, trigger, matching),
                 MovementBatch: frame.Batch);
         }
         var gained = trigger.Window == SkillProgramTriggerWindow.CardsGained;
@@ -449,6 +464,13 @@ public sealed partial class GameEngine
                         frame.Batch.ParentFrameId != drawId && drawParent.InheritedMovementBatchIds?.Contains(frame.Batch.Id) != true)
                         throw new InvalidOperationException("An actual draw lost its exact gain movement return.");
                     AdvanceRuntimeFrame(drawId); return;
+                }
+                if (frame.ResumeRoundPileAlcoholUseFrameId is { } wineId)
+                {
+                    if (_resolutionStack.LastOrDefault() is not CardUseFrame { RoundPileAlcoholReturn: not null, RoundPileAlcoholCostDrained: false } wineParent ||
+                        wineParent.Id != wineId || frame.Batch.ParentFrameId != wineId || frame.Batch.AwaitingProgramFrameId is not null)
+                        throw new InvalidOperationException("Pile Alcohol lost its exact cost movement return.");
+                    ContinueRoundPileAlcoholUse(wineId); return;
                 }
                 if (frame.ResumeCounterspellPaymentFrameId is { } counterId)
                 {

@@ -229,7 +229,7 @@ public static class CardMoveReasons
     public static CardMoveReason Reshuffle { get; } = new("deck.reshuffle");
 }
 
-public sealed record CardMovementRecord(
+public sealed partial record CardMovementRecord(
     int Sequence,
     int TurnNumber,
     int CardId,

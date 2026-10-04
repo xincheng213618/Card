@@ -1,0 +1,145 @@
+{
+  "status": "current-official-source-only-not-implemented",
+  "gid": 457,
+  "indexIdentity": {
+    "gid": 457,
+    "name": "界小乔",
+    "resource": "45700",
+    "extend": "界限突破",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "稀有",
+    "figure": "吴",
+    "figure_py": "wu",
+    "biography": "庐江皖县人也。父桥国老德尊于时。小乔国色流离，资貌绝伦。建安三年，周瑜协策攻皖，拔之。娶小乔为妻。后人谓英雄美女，天作之合。",
+    "characteristic": "能够将敌人的伤害反弹出去，不怕【闪电】。受到【寒冰剑】的针对，没有手牌时很脆弱。",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/457.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45700.png",
+    "realname": "界小乔 (界限突破)"
+  },
+  "discovery": "Cached ordinary OL Listdata boundary index exact gid; current registered module display-name exclusion saved in candidate-registration-preflight.json.",
+  "webReader": "Grouped primary reader attempted all six selected URLs first: 457 page text readable; 485/550 pages timed out; all info API URLs inaccessible. Parsed reader does not supply original bytes/status/rawSHA. Exactly six bounded direct GETs retained original page/API bytes; no retries or other URLs.",
+  "page": {
+    "url": "https://www.sanguosha.com/hero/457",
+    "capturedAtUtc": "2026-10-04T02:27:39.317109+00:00",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "finalUrl": "https://www.sanguosha.com/hero/457",
+    "httpStatus": 200,
+    "contentType": "text/html",
+    "rawBytes": 26367,
+    "rawSha256": "23b304418f606f71f5e01369cba156149723d4449ce8bb5ccfbce14002967177",
+    "rawFile": "457-page.raw.html",
+    "completedAtUtc": "2026-10-04T02:27:39.736382+00:00",
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >锁定技，你的黑桃牌和黑桃判定牌视为红桃牌。若你的装备区里有红桃牌，你的手牌上限等于体力上限。</span>\n                            \n                                <span >当你受到伤害时，你可以弃置一张红桃牌防止之并选择一项，令一名其他角色：1.受到伤害来源的1点伤害并摸X张牌（X为其已损失体力值且至多为5）；2.失去1点体力并获得你弃置的牌。</span>\n                            \n                                <span >结束阶段，你可以判定，若结果为红桃，你将判定牌置于牌堆顶或交给一名角色，若该角色是你，你弃置一张牌。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "红颜",
+      "天香",
+      "飘零"
+    ],
+    "skillTexts": [
+      "锁定技，你的黑桃牌和黑桃判定牌视为红桃牌。若你的装备区里有红桃牌，你的手牌上限等于体力上限。",
+      "当你受到伤害时，你可以弃置一张红桃牌防止之并选择一项，令一名其他角色：1.受到伤害来源的1点伤害并摸X张牌（X为其已损失体力值且至多为5）；2.失去1点体力并获得你弃置的牌。",
+      "结束阶段，你可以判定，若结果为红桃，你将判定牌置于牌堆顶或交给一名角色，若该角色是你，你弃置一张牌。"
+    ],
+    "fontRefs": [],
+    "scripts": [
+      "/assets/js/jquery-3.7.1.js",
+      "/assets/js/swiper-bundle.min.js",
+      "/assets/js/echarts.min.js",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "/assets/js/commen.js",
+      "/assets/js/header.js",
+      "/assets/js/heroDetail.js?1"
+    ]
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=457",
+    "capturedAtUtc": "2026-10-04T02:27:39.317477+00:00",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=457",
+    "httpStatus": 200,
+    "contentType": "application/json",
+    "rawBytes": 907,
+    "rawSha256": "428f3171911c7f25d9225d84182b181a27bc821002760c9603f838c873a6eaa0",
+    "rawFile": "457-api.raw.json",
+    "completedAtUtc": "2026-10-04T02:27:39.587247+00:00",
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 457,
+            "name": "界小乔",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/457.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45700.png",
+            "label": [
+              "防御",
+              "辅助",
+              "卖血"
+            ],
+            "figure": "吴",
+            "figure_py": "wu",
+            "quality": "稀有",
+            "biography": "庐江皖县人也。父桥国老德尊于时。小乔国色流离，资貌绝伦。建安三年，周瑜协策攻皖，拔之。娶小乔为妻。后人谓英雄美女，天作之合。",
+            "characteristic": "能够将敌人的伤害反弹出去，不怕【闪电】。受到【寒冰剑】的针对，没有手牌时很脆弱。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "地主",
+            "value": 6
+          },
+          {
+            "name": "农民",
+            "value": 6
+          },
+          {
+            "name": "主公",
+            "value": 7
+          },
+          {
+            "name": "忠臣",
+            "value": 6
+          },
+          {
+            "name": "反贼",
+            "value": 7
+          }
+        ],
+        "deeds": []
+      }
+    }
+  },
+  "genderEvidence": {
+    "apiHasIndependentGenderField": false,
+    "supplementedGender": null,
+    "note": "No classic gender value is attributed to this API; implementation may separately cite retained classic identity."
+  },
+  "initialHpInterpretation": "API initial_hp=0 is a placeholder, not an assertion of starting at zero HP.",
+  "blockedReasons": [],
+  "derivativeTextStatus": "Manually read all captured skill tabs/texts. No granted derivative skill is named in these current texts; no external font reference appears in skill HTML/page.",
+  "implementationStarted": false,
+  "mediaDownloaded": false,
+  "buildsRun": false,
+  "loadersRun": false,
+  "testsRun": false,
+  "completeCurrentMainTexts": true,
+  "hasUnexpandedGrantedSkill": false,
+  "namedGrantedSkills": [],
+  "currentApiIdentity": {
+    "gid": 457,
+    "name": "界小乔",
+    "faction": "wu",
+    "baseHp": 3,
+    "initialHpApiPlaceholder": 0,
+    "gender": null,
+    "genderSource": "No gender/sex field in current info API; no supplemented gender claimed."
+  }
+}

@@ -19,7 +19,7 @@ public sealed partial class GameEngine
             .SingleOrDefault(frame => frame.Id == resolutionId)?.Action;
         // Damage sources can change (for example in a duel). The policy belongs
         // to the original card actor and its actual declared targets.
-        return action is not null && action.TargetSeats.Contains(targetSeat) &&
+        return HasIssuedOriginalTargetArmorBypass(resolutionId, targetSeat) || action is not null && action.TargetSeats.Contains(targetSeat) &&
             HasDirectedTurnCardPolicy(action.ActorSeat, targetSeat, action.EffectiveKind,
                 DirectedTurnCardPolicyEffect.IgnoreArmor);
     }

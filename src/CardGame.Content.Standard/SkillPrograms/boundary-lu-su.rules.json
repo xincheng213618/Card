@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:haoshi-current", "revision": 1,
+      "triggers": [
+        { "id": "extra-draw", "window": "drawPhaseStarting", "subject": "owner", "optional": true,
+          "effects": [{ "op": "drawExtraAndArmHalfHandSupport", "target": "owner", "amount": 2, "stateId": "half-hand-support" }] },
+        { "id": "give-half", "window": "afterNormalDraw", "subject": "owner", "optional": false,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingLeastHandCount" },
+            { "op": "selectOwnedCards", "target": "owner", "zones": ["hand"], "numberExpression": "handHalfFloor", "resultBind": "half-hand" },
+            { "op": "giveHalfHandAndIssueTargetSupport", "target": "owner", "sourceBind": "half-hand", "stateId": "half-hand-support" }
+          ] },
+        { "id": "targeted-aid", "window": "otherActualUseTargeted", "subject": "owner", "optional": false,
+          "effects": [{ "op": "offerHalfHandRecipientSupport", "target": "owner", "stateId": "half-hand-support" }] }
+      ]
+    },
+    {
+      "id": "boundary:dimeng-current", "revision": 1,
+      "activations": [
+        { "id": "swap-first", "minCards": 0, "maxCards": 0, "minTargets": 2, "maxTargets": 2,
+          "sourceZones": ["hand"], "targetKind": "otherLivingPair", "usesPerTurn": null, "usesPerPhase": 1,
+          "effects": [{ "op": "exchangeHandsAndArmPhaseDebt", "target": "owner", "stateId": "phase-swap-debt" }] }
+      ],
+      "triggers": [
+        { "id": "pay-phase-debt", "window": "playEnding", "subject": "owner", "optional": false,
+          "effects": [
+            { "op": "selectFrozenHandExchangeDebtPayment", "target": "owner", "stateId": "phase-swap-debt", "resultBind": "phase-debt-cost" },
+            { "op": "moveBoundCards", "target": "owner", "sourceBind": "phase-debt-cost", "destination": "discardPile", "awaitMovementTriggers": true },
+            { "op": "awaitBoundCardMovements", "target": "owner" }
+          ] }
+      ]
+    }
+  ]
+}

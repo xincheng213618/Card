@@ -7,7 +7,8 @@ public sealed partial class GameEngine
     {
         var active = GetActiveProgramFrame(frame.Id);
         var owner = _players[frame.OwnerSeat];
-        if (active.TriggerId is not null || active.SelectedTargetSeats.Count != 0 ||
+        if (active.TriggerId is not null || active.SelectedTargetSeats.Count != 0 &&
+            !HasExactNextActualUseProgramSelection(active, ProgramInstructionResolver.Default.Resolve(active, _contentRegistry.GetSkill(active.SkillId).Program!)) ||
             selection.OutputKind != CardKind.ArrowBarrage ||
             selection.Cards.Count != 2 ||
             selection.Cards[0].Suit != selection.Cards[1].Suit ||
@@ -25,11 +26,14 @@ public sealed partial class GameEngine
                 !HasBeneficiarySuitShield(owner.Seat, player.Seat, EffectiveSuit(owner, selection.Cards[0])))
             .Select(player => player.Seat)
             .ToArray();
+        var adjusted = ApplyNextActualUseGlobalRemoval(active, targets, out var changedTargets);
+        targets = changedTargets.ToArray();
         var representative = selection.Cards[0];
         var physicalIds = selection.Cards.Select(card => card.Id).ToArray();
         var resolutionId = BeginCardUse(representative, owner.Seat, targets,
             CardKind.ArrowBarrage, physicalCardIds: physicalIds,
             conversionSource: selection.Source);
+        if (adjusted) UpdateLifecycleCardUse(resolutionId, use => use with { TargetsAdjusted = true });
         MoveCards(selection.Cards, CardLocation.Hand(owner.Seat), CardLocation.Processing,
             CardMoveReasons.Use);
         AdvanceEventRulesAndQueueFact(new ProgramViewAsConvertedEvent(resolutionId, frame.SkillId,

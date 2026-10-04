@@ -1,0 +1,267 @@
+{
+  "status": "static-main-integration-uncompiled-unexecuted",
+  "gid": 775,
+  "capability": 6800,
+  "baselineCommit": "cb0418e5e161b06159fa9b66df526ca7e95b9c6a",
+  "manifestSha256": "17cc10ce391cc18117add00ad966de1914f5a13ac3aeacde9b9e2efd514c1f7d",
+  "patchSha256": "d932d32b35f29cd23627c075aa5ad5bcb0e88d1dcd0cfea8124fb63a26ea05cd",
+  "source": {
+    "path": "docs/content/sources/fenglin-twenty-ninth-775-source-2026-10-04.json",
+    "rawSha256": "76212903e4e86c42fe8f9f14b2e9108b706514164b81a8e6698d562cb179bbab"
+  },
+  "newFiles": [
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/src/CardGame.Core/ProgramOwnedDeathBenefitOperations.cs",
+      "mainPath": "src/CardGame.Core/ProgramOwnedDeathBenefitOperations.cs",
+      "rawSha256": "e0341611d829abd2f62774ab595bf1abb6c11a2abb95a84870bc8ebec7d84cd9"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/src/CardGame.Core/GameEngine.OwnedDeathBenefitReturns.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.OwnedDeathBenefitReturns.cs",
+      "rawSha256": "e0b7ec10cc979324ba32f75557a08044c40174809f21f03b1d3a9a253c472a2c"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/src/CardGame.Core/GameEngine.OwnedDeathBenefitObservers.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.OwnedDeathBenefitObservers.cs",
+      "rawSha256": "05c32488b544058d543a8fbc35f27426402cf27c601ad1ed17d776c1e15ef356"
+    }
+  ],
+  "oldFiles": [
+    {
+      "mainPath": "src/CardGame.Core/SkillPrograms.cs",
+      "baselinePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/baseline/src/CardGame.Core/SkillPrograms.cs",
+      "rawBeforeSha256": "87348eff5bddaf4cff54515815a8aabce9ee05f0fe3643d7d77ec09ac2d2e71b",
+      "beforeHasUtf8Bom": false,
+      "normalizedLfBeforeSha256": "db689cb123eefad1ce11676a54d8e87ce807be677d38223ed52fa8e8c261045f",
+      "bomFreeNormalizedLfBeforeSha256": "db689cb123eefad1ce11676a54d8e87ce807be677d38223ed52fa8e8c261045f",
+      "previewPath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/preview/src/CardGame.Core/SkillPrograms.cs",
+      "rawPreviewAfterSha256": "8a9f2f3e0141236a3ccde209a6acb099ee4d4c41c4dc46c48f0bb51aaf7f71a9",
+      "normalizedLfAfterSha256": "8a9f2f3e0141236a3ccde209a6acb099ee4d4c41c4dc46c48f0bb51aaf7f71a9",
+      "bomFreeNormalizedLfAfterSha256": "8a9f2f3e0141236a3ccde209a6acb099ee4d4c41c4dc46c48f0bb51aaf7f71a9"
+    },
+    {
+      "mainPath": "src/CardGame.Core/ProgramCompositionValidator.cs",
+      "baselinePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/baseline/src/CardGame.Core/ProgramCompositionValidator.cs",
+      "rawBeforeSha256": "14f34219afae6b23aa38fb0ca9ed01d5b721ee0435634c17aec72c552151b85f",
+      "beforeHasUtf8Bom": false,
+      "normalizedLfBeforeSha256": "f8bc18367dd90a20155f2103b52bc8a34def18090f17946e0d78cb27f7f0e5ac",
+      "bomFreeNormalizedLfBeforeSha256": "f8bc18367dd90a20155f2103b52bc8a34def18090f17946e0d78cb27f7f0e5ac",
+      "previewPath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/preview/src/CardGame.Core/ProgramCompositionValidator.cs",
+      "rawPreviewAfterSha256": "0725221ccc7a6b665cc017b4f4f19308ecb01234d09c18878484cdd06e6ba7ad",
+      "normalizedLfAfterSha256": "0725221ccc7a6b665cc017b4f4f19308ecb01234d09c18878484cdd06e6ba7ad",
+      "bomFreeNormalizedLfAfterSha256": "0725221ccc7a6b665cc017b4f4f19308ecb01234d09c18878484cdd06e6ba7ad"
+    },
+    {
+      "mainPath": "src/CardGame.Core/Resolution.cs",
+      "baselinePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/baseline/src/CardGame.Core/Resolution.cs",
+      "rawBeforeSha256": "30e1d790e28492478af178aa8b373d8a9886a3bf09acaf6003c316d9da35999f",
+      "beforeHasUtf8Bom": false,
+      "normalizedLfBeforeSha256": "022ec7ebddd26c7779c33de1ce1aa40b2cb8fc665c689fb751d186214ea55f4f",
+      "bomFreeNormalizedLfBeforeSha256": "022ec7ebddd26c7779c33de1ce1aa40b2cb8fc665c689fb751d186214ea55f4f",
+      "previewPath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/preview/src/CardGame.Core/Resolution.cs",
+      "rawPreviewAfterSha256": "fbe0794865ed353d6b8a890c40d86efec09ebd4534bdc452af0a6f1bba724555",
+      "normalizedLfAfterSha256": "fbe0794865ed353d6b8a890c40d86efec09ebd4534bdc452af0a6f1bba724555",
+      "bomFreeNormalizedLfAfterSha256": "fbe0794865ed353d6b8a890c40d86efec09ebd4534bdc452af0a6f1bba724555"
+    },
+    {
+      "mainPath": "src/CardGame.Core/GameEngine.FixedRecipientBenefits.cs",
+      "baselinePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/baseline/src/CardGame.Core/GameEngine.FixedRecipientBenefits.cs",
+      "rawBeforeSha256": "68a97b7cc9f24240602b3dea024899d3baa24376312d3ee06fe31252f8871b82",
+      "beforeHasUtf8Bom": false,
+      "normalizedLfBeforeSha256": "68a97b7cc9f24240602b3dea024899d3baa24376312d3ee06fe31252f8871b82",
+      "bomFreeNormalizedLfBeforeSha256": "68a97b7cc9f24240602b3dea024899d3baa24376312d3ee06fe31252f8871b82",
+      "previewPath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/preview/src/CardGame.Core/GameEngine.FixedRecipientBenefits.cs",
+      "rawPreviewAfterSha256": "93cff00bb42674a00319fb028645be5dba327898f8f4a374add82dc68b2d6dc2",
+      "normalizedLfAfterSha256": "93cff00bb42674a00319fb028645be5dba327898f8f4a374add82dc68b2d6dc2",
+      "bomFreeNormalizedLfAfterSha256": "93cff00bb42674a00319fb028645be5dba327898f8f4a374add82dc68b2d6dc2"
+    },
+    {
+      "mainPath": "src/CardGame.Core/SkillProgramExecutor.cs",
+      "baselinePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/baseline/src/CardGame.Core/SkillProgramExecutor.cs",
+      "rawBeforeSha256": "8125749a6096c25fa71ef152e61ed7093766f4e960dda61ca571f3d1581f7566",
+      "beforeHasUtf8Bom": true,
+      "normalizedLfBeforeSha256": "ac48cca0ceadb9fba4354bbf8a2ad50aee34e499582844023a1de077efbe062e",
+      "bomFreeNormalizedLfBeforeSha256": "ff902c3a591dfde07866a7e0cabc537fe3e0128c4283324f50537057dee8476f",
+      "previewPath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/preview/src/CardGame.Core/SkillProgramExecutor.cs",
+      "rawPreviewAfterSha256": "652564d7ed595b2c1b9daf3aa888f7a64d409cbb84e4bddba7b531d01676b9f1",
+      "normalizedLfAfterSha256": "652564d7ed595b2c1b9daf3aa888f7a64d409cbb84e4bddba7b531d01676b9f1",
+      "bomFreeNormalizedLfAfterSha256": "652564d7ed595b2c1b9daf3aa888f7a64d409cbb84e4bddba7b531d01676b9f1"
+    },
+    {
+      "mainPath": "src/CardGame.Core/GameEngine.SkillPrograms.cs",
+      "baselinePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/baseline/src/CardGame.Core/GameEngine.SkillPrograms.cs",
+      "rawBeforeSha256": "725a26f0d0a5f35609f73aa23c3534e86ce3fc2de8e91bd251b3a92532e79b50",
+      "beforeHasUtf8Bom": false,
+      "normalizedLfBeforeSha256": "de3d61a7c1763f4f873949311b1489889c2019a2b6af02ea65afb21f513ab1cc",
+      "bomFreeNormalizedLfBeforeSha256": "de3d61a7c1763f4f873949311b1489889c2019a2b6af02ea65afb21f513ab1cc",
+      "previewPath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/preview/src/CardGame.Core/GameEngine.SkillPrograms.cs",
+      "rawPreviewAfterSha256": "3883b9c6ef2ff295b6399ff9415ce201642a4aefe061950189407b1fe46e86c8",
+      "normalizedLfAfterSha256": "3883b9c6ef2ff295b6399ff9415ce201642a4aefe061950189407b1fe46e86c8",
+      "bomFreeNormalizedLfAfterSha256": "3883b9c6ef2ff295b6399ff9415ce201642a4aefe061950189407b1fe46e86c8"
+    },
+    {
+      "mainPath": "src/CardGame.Core/GameEngine.cs",
+      "baselinePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/baseline/src/CardGame.Core/GameEngine.cs",
+      "rawBeforeSha256": "2c8af4985deb6e64ca5550007168e6342eda42c9f80b67c1ef2eef94add52be6",
+      "beforeHasUtf8Bom": false,
+      "normalizedLfBeforeSha256": "f5f19602739ae29795fe33942eacd651eb7630ace350ad37fa41216afe109826",
+      "bomFreeNormalizedLfBeforeSha256": "f5f19602739ae29795fe33942eacd651eb7630ace350ad37fa41216afe109826",
+      "previewPath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/preview/src/CardGame.Core/GameEngine.cs",
+      "rawPreviewAfterSha256": "3cd0a8aeb51aebc0159c5c0fd02c2c1f42cb2a84eed2a171338b6cfd548a7787",
+      "normalizedLfAfterSha256": "3cd0a8aeb51aebc0159c5c0fd02c2c1f42cb2a84eed2a171338b6cfd548a7787",
+      "bomFreeNormalizedLfAfterSha256": "3cd0a8aeb51aebc0159c5c0fd02c2c1f42cb2a84eed2a171338b6cfd548a7787"
+    },
+    {
+      "mainPath": "src/CardGame.Core/GameEngine.Runtime.cs",
+      "baselinePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/baseline/src/CardGame.Core/GameEngine.Runtime.cs",
+      "rawBeforeSha256": "e13ec73178ae8dae74f632c6ef0741583e517e0eee23d0ee69a4d73aa5db2244",
+      "beforeHasUtf8Bom": false,
+      "normalizedLfBeforeSha256": "f84a63889ec3389f09a21ada03b8bd2b9904a8af6f14cc1ad2f6e36f9ce95cdb",
+      "bomFreeNormalizedLfBeforeSha256": "f84a63889ec3389f09a21ada03b8bd2b9904a8af6f14cc1ad2f6e36f9ce95cdb",
+      "previewPath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/preview/src/CardGame.Core/GameEngine.Runtime.cs",
+      "rawPreviewAfterSha256": "2d6f8374b38315869a0e4c5cc34f8a75e1b98744c7d42a5d16b2fb92d3149659",
+      "normalizedLfAfterSha256": "2d6f8374b38315869a0e4c5cc34f8a75e1b98744c7d42a5d16b2fb92d3149659",
+      "bomFreeNormalizedLfAfterSha256": "2d6f8374b38315869a0e4c5cc34f8a75e1b98744c7d42a5d16b2fb92d3149659"
+    },
+    {
+      "mainPath": "src/CardGame.Content.Standard/SkillPrograms/boundary-bu-lian-shi.rules.json",
+      "baselinePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/baseline/src/CardGame.Content.Standard/SkillPrograms/boundary-bu-lian-shi.rules.json",
+      "rawBeforeSha256": "9ed4725811b6a4fe62728b2b1904b0ee9516f8c9467ebfaa018d19a19af650ba",
+      "beforeHasUtf8Bom": false,
+      "normalizedLfBeforeSha256": "9ed4725811b6a4fe62728b2b1904b0ee9516f8c9467ebfaa018d19a19af650ba",
+      "bomFreeNormalizedLfBeforeSha256": "9ed4725811b6a4fe62728b2b1904b0ee9516f8c9467ebfaa018d19a19af650ba",
+      "previewPath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/preview/src/CardGame.Content.Standard/SkillPrograms/boundary-bu-lian-shi.rules.json",
+      "rawPreviewAfterSha256": "63eb3b83bb1b27337345e08e41d03eafa10be19e28754cbefb8e6a493b8c82ce",
+      "normalizedLfAfterSha256": "63eb3b83bb1b27337345e08e41d03eafa10be19e28754cbefb8e6a493b8c82ce",
+      "bomFreeNormalizedLfAfterSha256": "63eb3b83bb1b27337345e08e41d03eafa10be19e28754cbefb8e6a493b8c82ce"
+    },
+    {
+      "mainPath": "tests/CardGame.Core.Tests/BoundaryBuLianShiChecks.cs",
+      "baselinePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/baseline/tests/CardGame.Core.Tests/BoundaryBuLianShiChecks.cs",
+      "rawBeforeSha256": "5202f9db06617c09e12de407971a47bc3bfe54e9709e82d06c9c41027f0b37dc",
+      "beforeHasUtf8Bom": false,
+      "normalizedLfBeforeSha256": "5202f9db06617c09e12de407971a47bc3bfe54e9709e82d06c9c41027f0b37dc",
+      "bomFreeNormalizedLfBeforeSha256": "5202f9db06617c09e12de407971a47bc3bfe54e9709e82d06c9c41027f0b37dc",
+      "previewPath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/preview/tests/CardGame.Core.Tests/BoundaryBuLianShiChecks.cs",
+      "rawPreviewAfterSha256": "f7c9080ba1bd6ccb3d0a7bc5b7d0f271db66dbdda7ba0481a7cedc45e7a44ecf",
+      "normalizedLfAfterSha256": "f7c9080ba1bd6ccb3d0a7bc5b7d0f271db66dbdda7ba0481a7cedc45e7a44ecf",
+      "bomFreeNormalizedLfAfterSha256": "f7c9080ba1bd6ccb3d0a7bc5b7d0f271db66dbdda7ba0481a7cedc45e7a44ecf"
+    }
+  ],
+  "supportFiles": [
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/CONTRACT.md",
+      "rawSha256": "4558c60aec2934bf1c4feaabce6d3d2edff9ef78836a949c903784138ca95729"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/ENGINEERING-DEFAULTS.md",
+      "rawSha256": "ad541c7aa587b8987f38da9c5f42a963c5e9ba9913df5b8b976a882474adbedb"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/OLD-HOOKS.md",
+      "rawSha256": "597d619ae313dccda7b40aa73cff8972abd425542b6b85174c87ca5b4f8ede7f"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/prepare-check-draft.py",
+      "rawSha256": "df042bc0cf8a89ec07972998f5cf5979798925f1974a8cee366c45b2d83e0fab"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/prepare-new-review-manifest.py",
+      "rawSha256": "b0fc865a530d8dc84040d411ac6d9fc179d6c9322f407caf99aee6ee85123ce0"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/prepare-final-wiring.py",
+      "rawSha256": "a0319d08ff1fd7f9daaacc59069a10736d9b0ebe3c2983bf149f944c39dfec05"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/new-review-manifest.json",
+      "rawSha256": "1eabc340998eb59089359bd918e5d29df00246bd44c097951523e4ed907b3b9d"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch30/bu-lian-shi-death-nesting/FINAL-DELIVERY.md",
+      "rawSha256": "f37a28b8bf7b08b454f99dfb9668fc0276767c99d89749bb6ecb3045127c1d9d"
+    }
+  ],
+  "registeredChecks": [
+    {
+      "displayName": "boundary bu lian shi ordered opaque pair gift and reward",
+      "method": "BoundaryBuLianShiChecks.OrderedOpaquePairPaysBeforePublicGiftAndReward",
+      "registration": "unchanged"
+    },
+    {
+      "displayName": "boundary bu lian shi self hand equipment recovery and source loss",
+      "method": "BoundaryBuLianShiChecks.SelfHandSelectionIsNoMoveAndEquipmentObtainOwnsRecovery",
+      "registration": "unchanged"
+    },
+    {
+      "displayName": "boundary bu lian shi ending issued recipient death repeat and cold",
+      "method": "BoundaryBuLianShiChecks.EndingIssuanceAndOwnerDeathRepeatOnlyOriginalRecipient",
+      "registration": "unchanged; actual nested Damage and HP-loss/multi-material Peach drafts appended"
+    },
+    {
+      "displayName": "boundary bu lian shi unissued or dead recipient cancels death repeat",
+      "method": "BoundaryBuLianShiChecks.UnissuedOrDeadRecipientNeverPublishesReplacementDeathTarget",
+      "registration": "unchanged"
+    }
+  ],
+  "routinePrefix": "boundary bu lian shi ordered opaque pair gift",
+  "rootStaticEvidence": {
+    "exactNamedNewOldSourceSupportsRaw": true,
+    "bothLfBeforeAndPreviewAfter": true,
+    "oneUpdatePerOldFile": 10,
+    "appliedOldBomFreeLfMatchesPreview": true,
+    "oldExecutorUtf8BomPreserved": true,
+    "oldExplicitEnumValuesPreserved": 337,
+    "newExplicitEnumValue": 6800,
+    "allOriginalThirdStatementsPreserved": true,
+    "originalThirdCharacters": 4192,
+    "literalJsonSyntaxBlocks": 5,
+    "allFourMethodsAndRoutineUnchanged": true,
+    "legacy6303NoReturnRemainsUnchanged": true,
+    "onlyAlreadyDeadExactOriginalDyingFiltered": true,
+    "originalDeathDyingDamageUnmodified": true,
+    "currentDamageAttemptNarrowPaidRoot": true,
+    "recoveryReplacementPriorityPreserved": true,
+    "pendingAttackMatureCompletion": true,
+    "assertBeforeDeathEarlyReturn": true,
+    "nullableReceiptOmittedWhenUnused": true,
+    "publicNewEventsScalarOnly": true,
+    "privateNestedListsConstructorInitWithJsonFrozen": true,
+    "wholeFileOverwrite": false
+  },
+  "independentNewReview": {
+    "manifestSha256": "fceec4fba701154915d6df45a0367c417d442c111c49d92fbe1eaf4a53517ade",
+    "report": "docs/content/skill-composition/FENG_LIN_THIRTIETH_BU_LIAN_SHI_DEATH_RETURN_NEW_REVIEW.md",
+    "reportSha256": "6d96cca5ff1cd0d4ecfbd355affa127f9a5673863370b4b63bc409ce2c42e9ea",
+    "finalOldReviewed": false
+  },
+  "independentFinalOldReview": {
+    "manifestSha256": "740154a0a3d4890cc1f836c7fb3482445e1bf9bdb7864afdd402b60cf30d1314",
+    "report": "docs/content/skill-composition/FENG_LIN_THIRTIETH_BU_LIAN_SHI_DEATH_RETURN_FINAL_REVIEW.md",
+    "reportSha256": "48bbb8a9d4170b8bc51f260b0514d42ffac671845b8b6c0e257d911b1608590f",
+    "allTenPreviewsReconstructed": true,
+    "orderedHunks": 22,
+    "confirmedFindings": [],
+    "runtimeAcceptance": false
+  },
+  "originalFrozenChanged": false,
+  "rootCorrections": [],
+  "unsupported": [
+    "Two simultaneous living victims in Dying; no active living Dying is filtered."
+  ],
+  "execution": {
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "tests": false,
+    "nativeAiRun": false,
+    "benchmark": false,
+    "http": false
+  },
+  "runtimeAcceptance": false,
+  "deferred": [
+    "Both real nested Damage/Dying and HP-loss/two-material Peach cold-continuation drafts remain uncompiled, unloaded and unrun",
+    "Layered dead-original returns, bound/virtual Alcohol, native choices and winner/dead-beneficiary cancellation have only source-level proof",
+    "No support for two simultaneously living Dying victims"
+  ]
+}

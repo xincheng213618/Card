@@ -202,6 +202,7 @@ public sealed partial class GameEngine
             (ActiveFactionCardRequest is not { IsAssistedProgramUse: true } faction || faction.ProgramSkillFrameId != frame.Id || faction.TargetSeat != target || faction.OwnerSeat != draft.RecipientSeat))
             throw new InvalidOperationException("A completed gift faction request lost its frozen target or recipient.");
         if (!ReferenceEquals(frame, _resolutionStack.LastOrDefault()) && draft.RequestTargetSeat is null &&
+            !IsUnselectedCompletedGiftQinglongRide(frame) &&
             !_resolutionStack.OfType<CardUseFrame>().Any(child => child.Action is { } action && action.ParentActionId == draft.CardActionId &&
                 action.ActorSeat == draft.RecipientSeat && IsSlashCard(action.EffectiveKind) && action.PhysicalCards.Count > 0))
             throw new InvalidOperationException("A completed gift lost its real recipient-owned Slash child.");

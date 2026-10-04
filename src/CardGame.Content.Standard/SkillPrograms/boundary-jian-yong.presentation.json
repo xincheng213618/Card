@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:qiaoshui-current": {
+      "name": "巧说",
+      "description": "出牌阶段，你可以拼点：若你赢，你本回合使用的下一张牌可以多指定或少指定一个目标；若你没赢，此技能失效且你不能使用锦囊牌直到回合结束。",
+      "activationLabels": {
+        "contest": "拼点"
+      }
+    }
+  }
+}

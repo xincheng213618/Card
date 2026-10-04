@@ -1,0 +1,166 @@
+{
+  "status": "three-current-complete-sources-assigned-one-granted-definition-gap",
+  "batch": 29,
+  "capturedAtUtc": "2026-10-04T03:07:51.6811622Z",
+  "baseCommit": "2e805f43",
+  "rawEvidenceRoot": ".artifacts/continuation-20261003-batch17/batch29/source-preflight",
+  "currentReads": "Six exact primary page/API GETs and one advertised JS GET; bounded and no retries; scripts never executed",
+  "rawFiles": [
+    {
+      "path": "451-page.raw.html",
+      "bytes": 25661,
+      "rawSha256": "aa216410cf2a34db5b7328fa5cfe18e6f44be117cd8035c338b39201f7b9d90a"
+    },
+    {
+      "path": "451-api.raw.json",
+      "bytes": 953,
+      "rawSha256": "344eab0152cda9b44d2e754d11a693af1e030765b4c20ec381e35cf598f09459"
+    },
+    {
+      "path": "563-page.raw.html",
+      "bytes": 24783,
+      "rawSha256": "b9784233881137e714022cb4cec18282c75aa60168676c9dd44792930a20ed19"
+    },
+    {
+      "path": "563-api.raw.json",
+      "bytes": 1123,
+      "rawSha256": "dd7f5967af62f25f0b56c1dea37cfe5d4ec88ecedc647a98311b2ca6840cf518"
+    },
+    {
+      "path": "775-page.raw.html",
+      "bytes": 24373,
+      "rawSha256": "a765301c0f24bdadebddfc07f0cec1a2147cf474743723eed26fad66b748ec56"
+    },
+    {
+      "path": "775-api.raw.json",
+      "bytes": 872,
+      "rawSha256": "3930a087a188ab94489462cda6c3f40044415f21ccadaa86b79701f3baac31ee"
+    },
+    {
+      "path": "671-page.raw.html",
+      "bytes": 23876,
+      "rawSha256": "c712389af139fcf7e0501386b4d7b4c69905928406576a9b7a59b382542f5386"
+    },
+    {
+      "path": "671-api.raw.json",
+      "bytes": 824,
+      "rawSha256": "38848ded4011bf523e448604a8fbfecd6a65fe758bb4c6b9dbb11b9889f23f19"
+    }
+  ],
+  "candidates": [
+    {
+      "gid": 451,
+      "name": "界刘禅",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-451-source-2026-10-04.json",
+      "rawSha256": "d9a656e8e8c334c3a1719525194df07eebf6c1809dc8787c7948c3b4e984f37c",
+      "faction": "shu",
+      "hp": 3,
+      "skillNames": [
+        "享乐",
+        "放权",
+        "若愚"
+      ],
+      "unexpandedGrantedSkills": [
+        {
+          "skillId": 3045,
+          "name": "激将",
+          "html": "<font href='3045'>“激将</font>",
+          "fullCurrentDefinitionCaptured": false
+        },
+        {
+          "skillId": 895,
+          "name": "思蜀",
+          "html": "<font href='895'>“思蜀</font>",
+          "fullCurrentDefinitionCaptured": false
+        }
+      ],
+      "completeDefinition": false,
+      "mainRegistered": false,
+      "implementationAssigned": false
+    },
+    {
+      "gid": 563,
+      "name": "界张昭张纮",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-563-source-2026-10-04.json",
+      "rawSha256": "40e306cedc0c0dfec0fabacb8bffc9a0da88a3b744b850e729d4ce5d0728ad69",
+      "faction": "wu",
+      "hp": 3,
+      "skillNames": [
+        "直谏",
+        "固政"
+      ],
+      "unexpandedGrantedSkills": [],
+      "completeDefinition": true,
+      "mainRegistered": false,
+      "implementationAssigned": true,
+      "owner": "/root/sun_quan",
+      "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch29\\zhang-zhao-zhang-hong",
+      "reservedCapacity": "6200-6299"
+    },
+    {
+      "gid": 775,
+      "name": "界步练师",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-775-source-2026-10-04.json",
+      "rawSha256": "76212903e4e86c42fe8f9f14b2e9108b706514164b81a8e6698d562cb179bbab",
+      "faction": "wu",
+      "hp": 3,
+      "skillNames": [
+        "安恤",
+        "追忆"
+      ],
+      "unexpandedGrantedSkills": [],
+      "completeDefinition": true,
+      "mainRegistered": false,
+      "implementationAssigned": true,
+      "owner": "/root/next_batch_audit",
+      "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch29\\bu-lian-shi",
+      "reservedCapacity": "6300-6399"
+    },
+    {
+      "gid": 671,
+      "name": "界伏皇后",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-671-source-2026-10-04.json",
+      "rawSha256": "1c004024c9b94b5e39f653a31d5e928406102e7e8efe576db102e2749b1dc247",
+      "faction": "qun",
+      "hp": 3,
+      "skillNames": [
+        "惴恐",
+        "求援"
+      ],
+      "unexpandedGrantedSkills": [],
+      "completeCurrentDefinition": true,
+      "implementationStarted": false,
+      "mainRegistered": false,
+      "implementationAssigned": true,
+      "owner": "/root/pang_de",
+      "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch29\\fu-huang-hou",
+      "reservedCapacity": "6400-6499"
+    }
+  ],
+  "verification": {
+    "sourceOnly": true,
+    "staticExactNameAndIdSearchOnly": true,
+    "buildsRun": false,
+    "loadersRun": false,
+    "testsRun": false,
+    "benchmarksRun": false,
+    "artworkDownloaded": false,
+    "versionsBumped": false,
+    "releaseRun": false
+  },
+  "pending": [
+    "451 exact full current grants remain missing; preserve earlier no-partial-registration boundary",
+    "563 and 775 await available agents after batch28",
+    "User later unified runtime verification"
+  ],
+  "supplementaryCapture": {
+    "capturedAtUtc": "2026-10-04T03:28:14.318023Z",
+    "baseCommit": "eafdd5d8",
+    "gid": 671,
+    "primaryPageRendered": true,
+    "directReadCount": 2,
+    "retryCount": 0,
+    "rawEvidenceRoot": ".artifacts/continuation-20261003-batch17/batch29/source-preflight",
+    "priorCapturePreserved": true
+  }
+}

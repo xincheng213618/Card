@@ -1,0 +1,119 @@
+{
+  "status": "current-primary-source-only-not-implemented",
+  "gid": 696,
+  "currentApiIdentity": {
+    "name": "界马岱",
+    "faction": "shu",
+    "hp": 4,
+    "gender": null,
+    "initialHpApiPlaceholder": 0
+  },
+  "discovery": {
+    "path": ".artifacts/continuation-20261003-batch17/batch28/source-preflight/candidate-registration-preflight.json",
+    "rawSha256": "cfc3ff50973a4898a4ff01fba36718c91e372d58edd226b5f05c5d647d863a8c",
+    "purpose": "Cached ordinary OL discovery only; identity and full skill text come from these current primary responses"
+  },
+  "webReader": {
+    "attempted": true,
+    "result": "Web reader timed out; one bounded direct GET retained for each exact page and info API",
+    "retainedEvidence": "One direct bounded GET per exact page/API URL; no retries"
+  },
+  "page": {
+    "url": "https://www.sanguosha.com/hero/696",
+    "capturedAtUtc": "2026-10-04T04:17:54.3545058Z",
+    "completedAtUtc": "2026-10-04T04:17:54.819163Z",
+    "httpStatus": 200,
+    "finalUrl": "https://www.sanguosha.com/hero/696",
+    "contentType": "text/html",
+    "rawBytes": 23408,
+    "rawSha256": "35169c509844099d8c1acf54188ca97ae1b1f4d8dbfcd97ce3bacef231d1466c",
+    "rawFile": "696-page.raw.html",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >锁定技，你计算与其他角色的距离-1。</span>\n                            \n                                <span >出牌阶段开始时，你可以展示一张牌。若如此做，距离为1的其他角色本回合不能使用或打出与“潜袭”牌颜色相同的手牌，你本回合使用“潜袭”牌造成的伤害+1。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "马术",
+      "潜袭"
+    ],
+    "skillTexts": [
+      "锁定技，你计算与其他角色的距离-1。",
+      "出牌阶段开始时，你可以展示一张牌。若如此做，距离为1的其他角色本回合不能使用或打出与“潜袭”牌颜色相同的手牌，你本回合使用“潜袭”牌造成的伤害+1。"
+    ],
+    "fontRefs": []
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=696",
+    "capturedAtUtc": "2026-10-04T04:17:54.8944111Z",
+    "completedAtUtc": "2026-10-04T04:17:55.05721Z",
+    "httpStatus": 200,
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=696",
+    "contentType": "application/json",
+    "rawBytes": 854,
+    "rawSha256": "8c5e27de5e07037b1edbab0c44fcebafe86b5be7b4d8ccafea668f747153bc27",
+    "rawFile": "696-api.raw.json",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 696,
+            "name": "界马岱",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/696.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/69600.png",
+            "label": [
+              "进攻",
+              "强命",
+              "加伤"
+            ],
+            "figure": "蜀",
+            "figure_py": "shu",
+            "quality": "史诗",
+            "biography": "马超从弟，跟随马超大战曹操。马超死前将马岱托付与刘备。诸葛亮病逝后，马岱受杨仪派遣追斩魏延。后率军北伐，为牛金所败。",
+            "characteristic": "可以限制他人用牌能力，展示的牌可以增加伤害。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 6
+          },
+          {
+            "name": "排位后手",
+            "value": 6
+          },
+          {
+            "name": "地主",
+            "value": 8
+          },
+          {
+            "name": "农民",
+            "value": 6
+          },
+          {
+            "name": "忠臣",
+            "value": 5
+          }
+        ],
+        "deeds": []
+      }
+    }
+  },
+  "completeCurrentMainTexts": true,
+  "hasUnexpandedGrantedSkill": false,
+  "namedGrantedSkills": [],
+  "blockedReasons": [],
+  "advertisedScriptEvidence": null,
+  "genderEvidence": "Current API has no independent gender field; implementation must use explicit biography or retained same-person identity evidence without calling it an API field",
+  "initialHpInterpretation": "initial_hp=0 is not an assertion of starting at zero HP",
+  "implementationStarted": false,
+  "mediaDownloaded": false,
+  "buildsRun": false,
+  "loadersRun": false,
+  "testsRun": false
+}

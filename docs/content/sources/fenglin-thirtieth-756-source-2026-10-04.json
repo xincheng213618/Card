@@ -1,0 +1,98 @@
+{
+  "status": "current-primary-source-only-not-implemented",
+  "gid": 756,
+  "currentApiIdentity": {
+    "name": "界于禁",
+    "faction": "wei",
+    "hp": 4,
+    "gender": null,
+    "initialHpApiPlaceholder": 0
+  },
+  "discovery": {
+    "path": ".artifacts/continuation-20261003-batch17/batch28/source-preflight/candidate-registration-preflight.json",
+    "rawSha256": "cfc3ff50973a4898a4ff01fba36718c91e372d58edd226b5f05c5d647d863a8c",
+    "purpose": "Cached ordinary OL discovery only; identity and full skill text come from these current primary responses"
+  },
+  "webReader": {
+    "attempted": true,
+    "result": "Current primary page rendered with both skill texts",
+    "retainedEvidence": "One direct bounded GET per exact page/API URL; no retries"
+  },
+  "page": {
+    "url": "https://www.sanguosha.com/hero/756",
+    "capturedAtUtc": "2026-10-04T04:17:55.0665784Z",
+    "completedAtUtc": "2026-10-04T04:17:55.4936846Z",
+    "httpStatus": 200,
+    "finalUrl": "https://www.sanguosha.com/hero/756",
+    "contentType": "text/html",
+    "rawBytes": 23773,
+    "rawSha256": "f99384dbfbb20b82835dc970d86d49ea7c9277f63924aece61d4c5a483efe18f",
+    "rawFile": "756-page.raw.html",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >准备阶段，你可以弃置一名角色X张牌（X为其手牌数减体力值且至少为1)，然后选择一项：<br>&nbsp;1.你弃置与其中非装备牌数等量张牌；<br>&nbsp;2.结束阶段，其摸与其中非装备牌数等量张牌。</span>\n                            \n                                <span >锁定技，体力值大于等于你的角色的黑色【杀】对你无效；手牌数小于等于你的角色无法响应你的黑色【杀】。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "镇军",
+      "毅重"
+    ],
+    "skillTexts": [
+      "准备阶段，你可以弃置一名角色X张牌（X为其手牌数减体力值且至少为1)，然后选择一项： 1.你弃置与其中非装备牌数等量张牌； 2.结束阶段，其摸与其中非装备牌数等量张牌。",
+      "锁定技，体力值大于等于你的角色的黑色【杀】对你无效；手牌数小于等于你的角色无法响应你的黑色【杀】。"
+    ],
+    "fontRefs": []
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=756",
+    "capturedAtUtc": "2026-10-04T04:17:55.557826Z",
+    "completedAtUtc": "2026-10-04T04:17:55.6916669Z",
+    "httpStatus": 200,
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=756",
+    "contentType": "application/json",
+    "rawBytes": 781,
+    "rawSha256": "49f80ebdbd93bf3241f89de8b6059ca4a995836945db5d791065fc5fd1596b97",
+    "rawFile": "756-api.raw.json",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 756,
+            "name": "界于禁",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/756.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/75600.png",
+            "label": [
+              "进攻",
+              "防御",
+              "控制"
+            ],
+            "figure": "魏",
+            "figure_py": "wei",
+            "quality": "史诗",
+            "biography": "字文则，泰山钜平人。三国时期曹魏武将。本为鲍信部将，后属曹操，曹操称赞他可与古代名将相比。然而在建安二十四年的襄樊之战中，于禁在败给关羽后投降，致使一代名将晚节不保。",
+            "characteristic": "掌握直观的拆牌能力，特定情况下可以防御黑色杀。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [],
+        "deeds": []
+      }
+    }
+  },
+  "completeCurrentMainTexts": true,
+  "hasUnexpandedGrantedSkill": false,
+  "namedGrantedSkills": [],
+  "blockedReasons": [],
+  "advertisedScriptEvidence": null,
+  "genderEvidence": "Current API has no independent gender field; implementation must use explicit biography or retained same-person identity evidence without calling it an API field",
+  "initialHpInterpretation": "initial_hp=0 is not an assertion of starting at zero HP",
+  "implementationStarted": false,
+  "mediaDownloaded": false,
+  "buildsRun": false,
+  "loadersRun": false,
+  "testsRun": false
+}

@@ -1,0 +1,7 @@
+{
+  "schemaVersion":3,
+  "skills":{
+    "boundary:ganlu-current":{"name":"甘露","description":"出牌阶段限一次，你可以令两名角色交换装备区里的牌。若X大于你已损失的体力值，你须在选择角色时弃置X张牌（X为其装备区里的牌数之差）。","activationLabels":{"exchange-equipment":"甘露 · 选择两名角色"}},
+    "boundary:buyi-current":{"name":"补益","description":"当一名角色进入濒死状态时，你可以选择其一张牌，若此牌不为基本牌，则其弃置此牌，然后回复1点体力。","triggerLabels":{"support-dying-card":"补益 · 选择濒死角色的一张牌"}}
+  }
+}

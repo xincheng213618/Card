@@ -1,0 +1,144 @@
+{
+  "status": "all-three-static-integrated-runtime-verification-deferred",
+  "batch": 25,
+  "baseCommit": "659f5af4",
+  "baseWasClean": true,
+  "userSteering": {
+    "instruction": "Keep adding content and commit; user will run unified tests after waking because CPU noise",
+    "buildsRun": false,
+    "testsRun": false,
+    "benchmarksRun": false,
+    "commitAuthorized": true,
+    "pushAuthorized": false
+  },
+  "candidates": [
+    {
+      "gid": 588,
+      "id": "boundary:ling-tong",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-fifth-588-source-2026-10-04.json",
+      "sourceSha256": "ff989953c58414a801767b33dcbbc70c26db0e2cee0238bbc823c72335e61862",
+      "owner": "/root/pang_de",
+      "stage": ".artifacts/continuation-20261003-batch17/batch25/ling-tong",
+      "mainRegistered": true,
+      "status": "static-integrated-runtime-deferred",
+      "integrationNote": "docs/content/skill-composition/FENG_LIN_TWENTY_FIFTH_LING_TONG.md"
+    },
+    {
+      "gid": 597,
+      "id": "boundary:chen-gong",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-fifth-597-source-2026-10-04.json",
+      "sourceSha256": "1b8dc3a45f48279062caf56f7d8967b0caf9a9c2fe29c0e488b0045d8d2504b7",
+      "owner": "/root/sun_quan",
+      "stage": ".artifacts/continuation-20261003-batch17/batch25/chen-gong",
+      "mainRegistered": true,
+      "status": "static-integrated-runtime-deferred",
+      "integrationNote": "docs/content/skill-composition/FENG_LIN_TWENTY_FIFTH_CHEN_GONG.md"
+    },
+    {
+      "gid": 626,
+      "id": "boundary:liu-biao",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-fifth-626-source-2026-10-04.json",
+      "sourceSha256": "d18a780765e6d2254fdb21ed8b635d8895fded6047fcf29e984f4bfe72823d85",
+      "owner": "/root/next_batch_audit",
+      "stage": ".artifacts/continuation-20261003-batch17/batch25/liu-biao",
+      "mainRegistered": true,
+      "status": "static-integrated-runtime-deferred",
+      "integrationNote": "docs/content/skill-composition/FENG_LIN_TWENTY_FIFTH_LIU_BIAO.md"
+    }
+  ],
+  "runs": [],
+  "integrations": [
+    {
+      "gid": 588,
+      "integratedAtUtc": "2026-10-03T23:26:03.3978862+00:00",
+      "frozenDeliveryManifestSha256": "d41df3966300e03411bf9b6ead423ea0b5d469ca22f695d793983f8ef4692021",
+      "originalOldBaselinesVerified": 5,
+      "originalNewFilesCopied": 5,
+      "originalNarrowPatchPreviewMatched": true,
+      "fixtureFollowupManifestSha256": "d5646a73506142593ad00af61cc4f122798975a3e0219208157ecfdd25059d91",
+      "fixtureFollowupPreviewMatched": true,
+      "focusedChecksRegistered": 4,
+      "representativeRoutineFiltersAdded": 1,
+      "officialRawArtInstalled": true,
+      "buildsRun": false,
+      "loaderExecuted": false,
+      "testsRun": false,
+      "runtimeAcceptance": false
+    },
+    {
+      "gid": 597,
+      "integratedAtUtc": "2026-10-03T23:52:04.6294103+00:00",
+      "frozenDeliveryManifestSha256": "10f58f8355824a31be53a6e87f5bbab1fe9659041870194dbef6753c5638d9ff",
+      "originalOldBaselinesVerified": 12,
+      "originalNewFilesCopied": 6,
+      "originalNarrowPatchPreviewMatched": true,
+      "focusedChecksRegistered": 4,
+      "representativeRoutineFiltersAdded": 1,
+      "officialRawArtInstalled": true,
+      "knownCoverageGaps": [
+        "No actual 5100 plus 604/4901 extra-tail fixture: outside-turn recipient cannot naturally retain own-turn rights with current owner-only phase insertion; static typed/aggregate proof only",
+        "Dead-beneficiary/winner count-zero draw paths statically inspected but not separately included in behavior drafts"
+      ],
+      "buildsRun": false,
+      "loaderExecuted": false,
+      "testsRun": false,
+      "runtimeAcceptance": false
+    },
+    {
+      "gid": 626,
+      "integratedAtUtc": "2026-10-04T00:06:29.3345712+00:00",
+      "frozenDeliveryManifestSha256": "4da3e3b251697d1db6291117627c73b1da0fc9d08ab41a8794e2d5cf1889ac12",
+      "originalOldBaselinesVerified": 13,
+      "originalNewFilesCopied": 12,
+      "narrowPatchRawLogicalAfterHashesMatched": 13,
+      "focusedChecksRegistered": 4,
+      "representativeRoutineFiltersAdded": 2,
+      "officialRawArtInstalled": true,
+      "closedStaticReviewFindings": [
+        "fixture skipPlay trigger moved from invalid TurnStartBeforeNormalFlow to supported AfterNormalDraw",
+        "5201 and 5202 first RecoveryReplacement child admitted only by exact awaited program movement return, real own SilverLion producer/reason and original payment ledger",
+        "Dying incoming edge proved before bound Alcohol whole-tail helper",
+        "dead real source still consumes public faction prevention; reward tail canceled",
+        "5202 opt-in added to existing real chain-damage range capability gates"
+      ],
+      "unrunBoundaries": [
+        "all four new behavior checks await compilation and actual execution",
+        "source faction changes before issuance; unknown current FAQ for X timings and Lightning classification",
+        "unrevealed NationalWar source/public count; no hidden faction event or AI inference",
+        "accepted damage from dead source and real chain propagation second target",
+        "gain/payment Dying, native/provider/virtual/bound rescue and death descendants",
+        "Wu acquired-skill SilverLion payment -> recovery replacement -> HP/reward -> Dying composition",
+        "source death/suppression or equipment granting original skill removed during paid children",
+        "extra and skipped actual-turn expiry, repeated additional Draw boundaries in one actual turn"
+      ],
+      "buildsRun": false,
+      "loaderExecuted": false,
+      "testsRun": false,
+      "runtimeAcceptance": false
+    }
+  ],
+  "media": "docs/content/sources/fenglin-twenty-fifth-art-2026-10-04.json",
+  "fixturePreparation": "docs/benchmarks/2026-10-04-routine-preparation-static.json",
+  "runtimeAcceptance": false,
+  "pending": [
+    "User later combined current-source build, new focused runtime and relevant classic/shared verification",
+    "User later Full Core/WPF and measured routine verification; current default timing is unmeasured",
+    "Offline and compiled raw art verification after waking",
+    "597 plus 604/4901 actual-tail combination remains static-only; no manufactured fixture",
+    "626 special acquired-skill, unrevealed faction, death and chain combinations remain static-reviewed but unrun"
+  ],
+  "cleanup": {
+    "ownedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+    "priorAutomaticApprovalRejection": "blocked by policy",
+    "retryPerformed": false,
+    "sourceStagesAndCacheRetainedForContinuation": true
+  },
+  "versions": {
+    "perCharacterBumped": false,
+    "authoritativePaths": [
+      "src/CardGame.Core/Replay.cs",
+      "src/CardGame.Core/SkillPrograms.cs",
+      "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs"
+    ]
+  }
+}

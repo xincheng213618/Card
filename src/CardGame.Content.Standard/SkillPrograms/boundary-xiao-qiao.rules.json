@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:hongyan",
+      "revision": 1,
+      "minimumRulesVersion": 195,
+      "cardPolicies": [
+        {
+          "id": "spade-becomes-heart",
+          "kind": "rewriteSuit",
+          "inputSuit": "spade",
+          "outputSuit": "heart"
+        },
+        {
+          "id": "heart-equipment-hand-limit",
+          "kind": "equipmentSuitHandLimitAtMaxHp",
+          "inputSuit": "heart"
+        }
+      ]
+    },
+    {
+      "id": "boundary:tianxiang",
+      "revision": 1,
+      "minimumRulesVersion": 195,
+      "triggers": [
+        {
+          "id": "prevent-and-benefit",
+          "window": "beforeDamageApplied",
+          "subject": "damageTarget",
+          "priority": -100,
+          "optional": true,
+          "effects": [
+            {
+              "op": "discardSuitPreventDamageAndBenefit",
+              "target": "owner",
+              "suits": [
+                "heart"
+              ],
+              "amount": 1,
+              "maximumCards": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:piaoling",
+      "revision": 1,
+      "minimumRulesVersion": 195,
+      "triggers": [
+        {
+          "id": "ending-heart-placement",
+          "window": "turnEnding",
+          "optional": true,
+          "effects": [
+            {
+              "op": "startJudgment",
+              "target": "owner",
+              "judgmentReason": "boundary:piaoling",
+              "resultBind": "piaoling-result",
+              "visibility": "public"
+            },
+            {
+              "op": "placeMatchedJudgmentCard",
+              "target": "owner",
+              "sourceBind": "piaoling-result",
+              "suits": [
+                "heart"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

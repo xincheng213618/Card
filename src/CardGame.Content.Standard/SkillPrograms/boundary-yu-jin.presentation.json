@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:zhenjun-current": {
+      "name": "镇军",
+      "description": "准备阶段，你可以弃置一名角色X张牌（X为其手牌数减体力值且至少为1)，然后选择一项： 1.你弃置与其中非装备牌数等量张牌； 2.结束阶段，其摸与其中非装备牌数等量张牌。",
+      "triggerChoices": { "actual-preparation-discard": "镇军：实际弃牌与后续代价" }
+    },
+    "boundary:yizhong-current": {
+      "name": "毅重",
+      "description": "锁定技，体力值大于等于你的角色的黑色【杀】对你无效；手牌数小于等于你的角色无法响应你的黑色【杀】。"
+    }
+  }
+}

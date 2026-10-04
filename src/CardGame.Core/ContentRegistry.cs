@@ -494,6 +494,16 @@ public sealed class ContentRegistry
         {
             foreach (var skill in _skills.Values.Where(item => item.Program is not null))
             {
+                foreach (var schedule in skill.Program!.Triggers.SelectMany(t => t.Effects)
+                    .Where(e => e.Op == SkillProgramEffectOp.ScheduleEarnedActualEndingBenefit))
+                {
+                    if (!_skills.TryGetValue(schedule.SourceBind!, out var benefitSkill) || benefitSkill.Program is null ||
+                        benefitSkill.Program.Triggers.SingleOrDefault(t => t.Id == schedule.StateId) is not
+                        { Window: SkillProgramTriggerWindow.TurnEnding, Subject: SkillProgramTriggerSubject.Owner,
+                            TurnOwnerScope: SkillProgramTurnOwnerScope.EarnedActualEnding, Optional: false } benefit ||
+                        benefit.Effects is not [{ Op: SkillProgramEffectOp.DrawLostHpThenOfferOwnedCardsUpTo }])
+                        throw new InvalidOperationException("An earned actual Ending schedule requires its exact mandatory lost-HP gift binding.");
+                }
                 foreach (var declaration in skill.Program!.ViewAs.Where(rule => rule.DeclarationValidation is not null))
                     if (!_skills.ContainsKey(declaration.DeclarationValidation!.ChallengeGrantSkillId))
                         throw new InvalidOperationException("A declaration validation references an unknown challenge grant skill.");

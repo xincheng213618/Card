@@ -1,0 +1,111 @@
+{
+  "status": "current-official-source-only-not-implemented",
+  "gid": 641,
+  "indexIdentity": {
+    "gid": 641,
+    "name": "界廖化",
+    "resource": "64100",
+    "extend": "界限突破",
+    "hp": 4,
+    "initial_hp": 0,
+    "quality": "史诗",
+    "figure": "蜀",
+    "figure_py": "shu",
+    "biography": "本名淳，字元俭，襄阳中卢（今湖北襄樊）人。三国时期蜀国后期将领，以勇敢果断著称。廖化是三国时代中经历了魏、蜀、吴整个兴衰过程极少数人中的一个，与严颜、黄忠共称为蜀汉三老将。",
+    "characteristic": "要谨慎考量是否获取杀。",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/641.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64100.png",
+    "realname": "界廖化 (界限突破)"
+  },
+  "discovery": "gid advertised in the frozen current ordinary-OL Listdata[界限突破] 87-row index.",
+  "page": {
+    "url": "https://www.sanguosha.com/hero/641",
+    "finalUrl": "https://www.sanguosha.com/hero/641",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T19:28:20.754382+00:00",
+    "contentType": "text/html",
+    "rawBytes": 23711,
+    "rawSha256": "6326624f143a01d6005ed8812e7919e354242ac7c91fae43bdb5996979bad8c7",
+    "rawFile": "641-page.raw.html",
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >回合开始时，你执行一个额外的出牌阶段。此阶段开始时，你可以从牌堆或弃牌堆中获得一张无距离限制的【杀】，然后若你未于此阶段造成过伤害，阶段结束时你对自己造成1点伤害。</span>\n                            \n                                <span >限定技，当你处于濒死状态时，你可以将体力回复至X点且手牌摸至X张（X为全场势力数）。然后若X大于你造成的伤害数，你翻面。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "当先",
+      "伏枥"
+    ],
+    "skillTexts": [
+      "回合开始时，你执行一个额外的出牌阶段。此阶段开始时，你可以从牌堆或弃牌堆中获得一张无距离限制的【杀】，然后若你未于此阶段造成过伤害，阶段结束时你对自己造成1点伤害。",
+      "限定技，当你处于濒死状态时，你可以将体力回复至X点且手牌摸至X张（X为全场势力数）。然后若X大于你造成的伤害数，你翻面。"
+    ],
+    "fontRefs": [],
+    "scripts": [
+      "/assets/js/jquery-3.7.1.js",
+      "/assets/js/swiper-bundle.min.js",
+      "/assets/js/echarts.min.js",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "/assets/js/commen.js",
+      "/assets/js/header.js",
+      "/assets/js/heroDetail.js?1"
+    ]
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=641",
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=641",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T19:28:20.993243+00:00",
+    "contentType": "application/json",
+    "rawBytes": 905,
+    "rawSha256": "ce16c9ab8b0c737992a72b856bfb5b717b93b0141b71936c2e73cbef4ff25295",
+    "rawFile": "641-api.raw.json",
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 641,
+            "name": "界廖化",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/641.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64100.png",
+            "label": [
+              "进攻",
+              "回复",
+              "简单"
+            ],
+            "figure": "蜀",
+            "figure_py": "shu",
+            "quality": "史诗",
+            "biography": "本名淳，字元俭，襄阳中卢（今湖北襄樊）人。三国时期蜀国后期将领，以勇敢果断著称。廖化是三国时代中经历了魏、蜀、吴整个兴衰过程极少数人中的一个，与严颜、黄忠共称为蜀汉三老将。",
+            "characteristic": "要谨慎考量是否获取杀。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 6
+          },
+          {
+            "name": "排位后手",
+            "value": 6
+          },
+          {
+            "name": "地主",
+            "value": 6
+          },
+          {
+            "name": "主公",
+            "value": 7
+          },
+          {
+            "name": "反贼",
+            "value": 7
+          }
+        ],
+        "deeds": []
+      }
+    }
+  }
+}

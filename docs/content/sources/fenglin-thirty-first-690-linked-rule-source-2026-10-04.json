@@ -1,0 +1,64 @@
+{
+  "scope": "Bounded primary-source linked-rule followup only; no implementation or main writes",
+  "capturedUtc": "2026-10-04T06:50:45Z",
+  "timestampMeaning": "UTC recorded when retaining tool results after the bounded requests; individual request-start UTC was not exposed by web tool.",
+  "searchProvider": "web official-domain search, www.sanguosha.com",
+  "sourceRetrievalNotes": "web tool readable content/snippets retained as selected evidence. HTTP raw bytes, response headers/status were not exposed and are not represented as successfully captured.",
+  "execution": {
+    "mainWrites": false,
+    "pageJavaScript": false,
+    "media": false,
+    "compiler": false,
+    "loader": false,
+    "tests": false,
+    "benchmark": false,
+    "nativeAi": false
+  },
+  "budget": {
+    "officialDomainSearchQueries": 1,
+    "officialNewsOpenAttempts": 1,
+    "oldHeroOrApiRequests": 0,
+    "derivedResolverRequests": 0
+  },
+  "officialId": 690,
+  "status": "current-grant-source-gap-retained",
+  "baseSource": {
+    "path": ".artifacts/continuation-20261003-batch17/batch31/source-preflight/690-official-source.json",
+    "sha256": "a9d4e50225c01265c72db3bb0ba1485d354b0f237a402618344b7ceb0bb86779"
+  },
+  "query": "\"界关兴张苞\" \"父魂\" \"武圣\" \"咆哮\"",
+  "domainFilter": [
+    "www.sanguosha.com"
+  ],
+  "selectedHit": {
+    "url": "https://www.sanguosha.com/news/20161221_2508_2516",
+    "title": "[攻略] 一将成名2012武将：关兴张苞攻略文",
+    "publishedLocalAsDisplayed": "2016-12-21 15:11:25",
+    "timezoneNotExplicitlyDisplayed": true,
+    "openResult": "Internal Error",
+    "httpStatus": null,
+    "evidenceAuthority": "Official search readable extract; independent open failed; no raw response capture.",
+    "mainText": "你可以将两张手牌当【杀】使用或打出；当你于出牌阶段内以此法使用的【杀】造成伤害后，你获得“武圣”和“咆哮”，直到回合结束。",
+    "derivedTextAsSearchExtract": {
+      "武圣": "你可以将一张红色牌当【杀】使用或打出。",
+      "咆哮": "锁定技，你使用【杀】无次数限制。"
+    },
+    "typography": "Search renderer uses 〖杀〗; bracket glyphs normalized here without changing wording."
+  },
+  "otherRelevantOfficialSearchHit": {
+    "url": "https://www.sanguosha.com/news/20170619_5564_1015",
+    "publishedLocalAsDisplayed": null,
+    "opened": false,
+    "reason": "Classic 一将名2012 same old two-hand-card Fuhun; not current bound hero."
+  },
+  "applicability": {
+    "currentSameVersionProved": false,
+    "reason": "Title explicitly 一将成名2012. Old main restricts two hand cards and granting after damage by this converted Slash only; current690 says two cards, current converted-Slash response-color restriction, and grants after Play Slash damage. No font878/font939 binding or current inheritance was proved.",
+    "notUsedAsCurrentDerivedRule": true
+  },
+  "fullImplementationSourceReady": false,
+  "remainingGap": [
+    "Current font878武圣 and font939咆哮 exact derived definitions/inheritance remain unresolved."
+  ],
+  "boundedSearchConclusion": "This bounded result did not close the current grant source gap; it does not establish absence from the entire official site."
+}

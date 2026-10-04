@@ -18,7 +18,7 @@ public sealed partial class GameEngine
         var firstHand = GetHand(first).OrderBy(card => card.Id).ToArray();
         var secondHand = GetHand(second).OrderBy(card => card.Id).ToArray();
         if (firstHand.Length == 0 && secondHand.Length == 0)
-            return SkillProgramStepOutcome.Continue;
+        { FinalizeDeferredHandExchange(frame.Id); return SkillProgramStepOutcome.Continue; }
         var reason = new CardMoveReason($"skill-program.{frame.SkillId}.exchange");
         ReplaceRuntimeTop(active with
         {
@@ -34,6 +34,7 @@ public sealed partial class GameEngine
             MoveCard(card, CardLocation.Hand(second.Seat), CardLocation.Processing, reason);
             MoveCard(card, CardLocation.Processing, CardLocation.Hand(first.Seat), reason);
         }
+        FinalizeDeferredHandExchange(frame.Id);
         if (!TryBeginCardsMovedProgramWindow())
             ReturnRuntimeProgramMovement(frame.Id);
         return SkillProgramStepOutcome.AwaitChild;

@@ -35,7 +35,7 @@ internal sealed record ProgramAiPublicContext(
     IReadOnlyDictionary<PlayerMarkerKind,int>? AttributedMarkerPaymentCounts = null,
     int? TurnCriterionQuota = null, SkillProgramTriggerFacts? FinalTargetFacts = null,
     double? HpDamageShieldTargetValue = null,
-    bool PricePhaseHandExtraTurnTarget = false, int? CurrentTurnUsedCardCategoryCount = null);
+    bool PricePhaseHandExtraTurnTarget = false, int? CurrentTurnUsedCardCategoryCount = null, int? PublicLivingFactionCount = null);
 
 /// <summary>
 /// Pure, public-state estimate for schema-23 program compositions. Unknown cards use a

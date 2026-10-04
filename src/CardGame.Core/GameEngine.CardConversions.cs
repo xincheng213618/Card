@@ -140,14 +140,15 @@ public sealed partial class GameEngine
         CharacterState owner,
         Card card)
     {
-        if (_cardZones.GetLocation(card.Id) != CardLocation.Hand(owner.Seat))
-            return [];
+        var identityHand = _cardZones.GetLocation(card.Id) == CardLocation.Hand(owner.Seat);
+        if (!identityHand && !IsAlcoholIdentityOwnedLocation(owner, card)) return [];
 
         var context = CreateSkillContext(owner);
         return GetSkillBindingShard(owner).ProgramInstances
             .Where(instance => instance.Program.CardIdentities.Count != 0)
             .SelectMany(instance => instance.Program.CardIdentities
-                .Where(identity => identity.Zones.Contains(CardZoneKind.Hand) &&
+                .Where(identity => (identityHand || instance.Program.CardPolicies.Any(p => p.Kind == SkillProgramCardPolicyKind.AlcoholKingIdentityRank) &&
+                                    identity.InputKinds.SequenceEqual([CardKind.Alcohol]) && identity.OutputKind == CardKind.Slash) && identity.Zones.Contains(CardZoneKind.Hand) &&
                                    identity.Condition.Evaluate(context) &&
                                    (identity.InputKinds.Count == 0 || identity.InputKinds.Contains(card.Kind)) &&
                                    (identity.InputSuits.Count == 0 || identity.InputSuits.Contains(card.Suit)))
@@ -269,7 +270,7 @@ public sealed partial class GameEngine
                     item.Source.OwnerSeat,
                     item.Source.SkillInstanceId))
                 .ToArray();
-        return configured.Concat(turnScoped)
+        return configured.Concat(turnScoped).Concat(GetPaidColorTurnDuelConversions(owner, card, outputKind, forResponse, zone.Value))
             .Distinct()
             .OrderBy(source => source.SkillId, StringComparer.Ordinal)
             .ThenBy(source => source.BindingId, StringComparer.Ordinal)

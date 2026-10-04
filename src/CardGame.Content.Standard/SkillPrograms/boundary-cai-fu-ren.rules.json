@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "boundary:xianzhou-current", "revision": 1, "minimumRulesVersion": 195,
+      "activations": [{ "id": "all-equipment-donation", "minCards": 0, "maxCards": 0,
+        "minTargets": 1, "maxTargets": 1, "targetKind": "otherLiving", "usesPerTurn": null,
+        "effects": [{ "op": "donateAllEquipmentAndOfferRecipientBenefits", "target": "owner", "stateId": "limited-donation" }] }] },
+    { "id": "boundary:qieting-current", "revision": 1, "minimumRulesVersion": 195,
+      "triggers": [{ "id": "other-actual-turn-equipment-options", "window": "afterTurnEnded", "subject": "owner",
+        "turnOwnerScope": "otherLiving", "optional": true,
+        "effects": [{ "op": "chooseEquipmentOrDrawAfterOtherActualTurn", "target": "owner" }] }] }
+  ]
+}

@@ -22,6 +22,8 @@ public sealed partial class GameEngine
 
     private long? LegacyDamageJudgmentVirtualProducer(CardUseFrame use, int target)
     {
+        if (SameTypeAidLegacyCurrentProducer(use, target) is { } aidedProducer) return aidedProducer;
+
         if (use.Action is not null || use.CardId != 0 || use.CardKind != CardKind.Slash || use.PhysicalCardIds is not { Count: 0 } ||
             use.TargetSeats is not [var currentTarget] || currentTarget != target || use.CardAttack is not
                 { Active: true, IsSourceLess: false, EffectiveCardKind: CardKind.Slash, CardId: null, PhysicalCardIds.Count: 0,

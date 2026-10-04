@@ -1,0 +1,15 @@
+{
+  "skills": {
+    "boundary:haoshi-current": {
+      "name": "好施",
+      "description": "摸牌阶段，你可以多摸两张牌，然后若你的手牌数大于5，你将一半的手牌（向下取整）交给手牌最少的一名其他角色，然后直到你的下回合开始，当你成为【杀】或普通锦囊牌的目标后，其可以交给你一张手牌。",
+      "triggerLabels": { "extra-draw": "额外摸两张牌", "give-half": "交付一半手牌", "targeted-aid": "受赠者可援助手牌" }
+    },
+    "boundary:dimeng-current": {
+      "name": "缔盟",
+      "description": "出牌阶段限一次，你可以令两名其他角色交换手牌（两者手牌数之差不大于你的牌数量），若如此做，出牌阶段结束时，你弃置X张牌（X为这两名角色手牌数之差）。",
+      "activationLabels": { "swap-first": "先交换两名角色手牌" },
+      "triggerLabels": { "pay-phase-debt": "弃置冻结差额" }
+    }
+  }
+}

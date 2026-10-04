@@ -1,0 +1,264 @@
+{
+  "status": "current-main-text-ready-grant-source-gap",
+  "scope": "Current ordinary OL 界限突破; no classic/x/mobile/national-war skill substitution",
+  "capturedUtc": "2026-10-04T06:47:39.835863+00:00",
+  "officialId": 449,
+  "identity": {
+    "name": "界于吉",
+    "faction": "qun",
+    "factionName": "群",
+    "hp": 3,
+    "initialHpRaw": 0,
+    "productLineAuthority": "Retained official index Listdata[界限突破] exact row plus current hero page/API identity"
+  },
+  "genderProvenance": {
+    "currentApiHasGender": false,
+    "currentApiValue": null,
+    "supplement": "Male",
+    "supplementAuthority": "Existing classic definition explicitly GeneralGender.Male; same-person supplement only.",
+    "path": "src/CardGame.Content.Standard/FengLinYuJiContent.cs",
+    "rawSha256": "8bcd30bf0181605b4cf047ee2397491089f7671ff590a47ffd6751d1f9d969ec",
+    "defaultDefinitionPath": null
+  },
+  "page": {
+    "requestUrl": "https://www.sanguosha.com/hero/449",
+    "responseUrl": "https://www.sanguosha.com/hero/449",
+    "method": "GET",
+    "httpStatus": 200,
+    "requestStartedUtc": "2026-10-04T06:43:17.2804115Z",
+    "completedUtc": "2026-10-04T06:43:17.4120619Z",
+    "rawPath": "449-page.raw.html",
+    "rawBytes": 24426,
+    "rawSha256": "81571fb470ed369fad6f75b8537a3c7d180819765658b2da1b8d9b94957d67df",
+    "headers": {
+      "Server": [
+        "istio-envoy"
+      ],
+      "trace-id": [
+        "6aec227d87f14c8ef655ce0adac10b0a"
+      ],
+      "Date": [
+        "Sun, 04 Oct 2026 06:43:20 GMT"
+      ],
+      "Vary": [
+        "Accept-Encoding"
+      ],
+      "x-varnish": [
+        "53017785"
+      ],
+      "Accept-Ranges": [
+        "bytes"
+      ],
+      "x-varnish-cache": [
+        "miss"
+      ],
+      "req-cost-time": [
+        "51"
+      ],
+      "req-arrive-time": [
+        "1791096200635"
+      ],
+      "resp-start-time": [
+        "1791096200686"
+      ],
+      "x-envoy-upstream-service-time": [
+        "50"
+      ],
+      "X-Cache-Lookup": [
+        "Cache Miss",
+        "Hit From Upstream Cluster",
+        "Cache Miss"
+      ],
+      "Age": [
+        "0"
+      ],
+      "Transfer-Encoding": [
+        "chunked"
+      ],
+      "X-NWS-LOG-UUID": [
+        "11005043875123459250"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Content-Type": [
+        "text/html"
+      ]
+    },
+    "redirectsFollowed": false,
+    "execution": "response bytes only; no page JavaScript",
+    "provenance": "exact URL advertised in retained index.raw.html"
+  },
+  "api": {
+    "requestUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=449",
+    "responseUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=449",
+    "method": "GET",
+    "httpStatus": 200,
+    "requestStartedUtc": "2026-10-04T06:43:44.6253410Z",
+    "completedUtc": "2026-10-04T06:43:44.7339316Z",
+    "rawPath": "449-api.raw.json",
+    "rawBytes": 820,
+    "rawSha256": "9d8f7fd1e49ae6847dc80986d04eda6a89a5b933e3d5d99bb9a29b26c44bb684",
+    "headers": {
+      "Server": [
+        "istio-envoy"
+      ],
+      "trace-id": [
+        "58efe71a9032735659c15becdf67188a"
+      ],
+      "Date": [
+        "Sun, 04 Oct 2026 06:43:48 GMT"
+      ],
+      "x-varnish": [
+        "57515171"
+      ],
+      "x-varnish-cache": [
+        "miss"
+      ],
+      "req-cost-time": [
+        "48"
+      ],
+      "req-arrive-time": [
+        "1791096227977"
+      ],
+      "resp-start-time": [
+        "1791096228025"
+      ],
+      "x-envoy-upstream-service-time": [
+        "48"
+      ],
+      "Vary": [
+        "Accept-Encoding"
+      ],
+      "X-Cache-Lookup": [
+        "Cache Miss",
+        "Hit From Upstream Cluster",
+        "Cache Miss"
+      ],
+      "Age": [
+        "0"
+      ],
+      "Transfer-Encoding": [
+        "chunked"
+      ],
+      "X-NWS-LOG-UUID": [
+        "8517014872587443107"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "redirectsFollowed": false,
+    "execution": "response bytes only; no JavaScript",
+    "advertisedProducer": "fetch('/api/v1/hero/info?gid=' + gid)",
+    "advertisedBy": "449-page.raw.html"
+  },
+  "apiIdentityRaw": {
+    "gid": 449,
+    "name": "界于吉",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/449.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44900.png",
+    "label": [
+      "回复",
+      "困难",
+      "转化大师"
+    ],
+    "figure": "群",
+    "figure_py": "qun",
+    "quality": "稀有",
+    "biography": "自号太平道人，琅琊人，在吴郡、会稽一带为百姓治病，甚得人心。孙策怒之，以惑人心为由斩之，后策常受吉咒而亡。",
+    "characteristic": "与敌人进行心理战，可以教训鲁莽的敌人。没有牌时很脆弱。",
+    "hp": 3,
+    "initial_hp": 0,
+    "score": 0
+  },
+  "apiHasSkillText": false,
+  "selectedSkills": [
+    {
+      "name": "蛊惑",
+      "currentText": "每回合限一次，你可以扣置一张手牌当任意基本牌或普通锦囊牌使用或打出。其他角色可以同时质疑并翻开此牌：若为假，此牌作废，质疑者摸一张牌；若为真，质疑者获得“缠怨”，然后弃置一张牌或失去1点体力。",
+      "html": "每回合限一次，你可以扣置一张手牌当任意基本牌或普通锦囊牌使用或打出。其他角色可以同时质疑并翻开此牌：若为假，此牌作废，质疑者摸一张牌；若为真，质疑者获得“<font href='885'>缠怨</font>”，然后弃置一张牌或失去1点体力。",
+      "fontReferences": [
+        {
+          "id": 885,
+          "label": "缠怨",
+          "resolved": false
+        }
+      ]
+    }
+  ],
+  "currentMainTextComplete": true,
+  "fullImplementationSourceReady": false,
+  "placeholder": {
+    "unresolvedNumericFontReferences": [
+      {
+        "id": 885,
+        "label": "缠怨",
+        "resolved": false
+      }
+    ],
+    "unexpandedModification": false,
+    "skillBodyEmpty": false
+  },
+  "sourceGaps": [
+    "Current page names derived 缠怨/font885 but gives no full derived text or resolver; detail API has no skills.",
+    "Do not import classic Chanyuan as the current grant. Full implementation remains grant-source-blocked."
+  ],
+  "faqAndEngineeringGaps": [
+    "Simultaneous challenge requires private frozen votes before public reveal; challenger order and complete cost children must be defined.",
+    "Discard zones and insufficient legal cards for the true-declaration discard-or-loseHP are not specified.",
+    "Each actual turn usage, source loss, native responders and exact original declared-action return remain implementation questions after the derived source is resolved."
+  ],
+  "partialReuseNotes": [
+    "Existing classic declaration validation/Chanyuan is a partial building block only.",
+    "Current simultaneous challenges plus real discard-or-HP aftermath differ from the classic existing producer."
+  ],
+  "registration": {
+    "officialId": 449,
+    "currentName": "界于吉",
+    "expectedBoundaryModuleNames": [
+      "BoundaryYuJiContent"
+    ],
+    "registeredBoundaryModuleMatches": [],
+    "exactCurrentBoundaryNameInPackage": false,
+    "existingClassicOnly": {
+      "contentId": "classic:yu-ji",
+      "path": "src/CardGame.Content.Standard/FengLinYuJiContent.cs",
+      "literal": "\"classic:yu-ji\", \"于吉\""
+    },
+    "registeredCurrent": false,
+    "cacheUsedAsCurrentRegistrationFact": false
+  },
+  "retainedIndexProvenance": {
+    "path": ".artifacts/continuation-20261003-batch17/batch21/dong-zhuo/next-batch22/index.raw.html",
+    "rawSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+    "capturedAtUtcAsRetained": "2026-10-03T17:09:18.318761+00:00",
+    "advertisedPageUrl": "https://www.sanguosha.com/hero/449",
+    "cachedCandidatePath": ".artifacts/continuation-20261003-batch17/batch28/source-preflight/candidate-registration-preflight.json",
+    "cachedCandidateNotCurrentFact": {
+      "gid": 449,
+      "name": "界于吉",
+      "faction": "qun",
+      "hp": 3,
+      "nameLiteralMatchesInRegisteredModules": []
+    }
+  },
+  "requestBudget": {
+    "pageRequests": 1,
+    "advertisedDetailApiRequests": 1,
+    "derivedResolverRequests": 0,
+    "mediaRequests": 0
+  },
+  "execution": {
+    "pageJavaScript": false,
+    "application": false,
+    "registryLoader": false,
+    "compiler": false,
+    "tests": false,
+    "benchmark": false,
+    "nativeAi": false
+  }
+}

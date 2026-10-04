@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:zongxuan-current", "revision": 1, "minimumRulesVersion": 195,
+      "triggers": [{ "id": "own-or-previous-first-discard", "window": "cardsMoved", "subject": "owner",
+        "sourceZones": ["hand", "equipment", "judgment"], "movementOccurrence": "perOwnerBatch",
+        "movementDiscardOnly": true, "optional": true,
+        "effects": [{ "op": "putOwnOrPreviousFirstDiscardOnTop", "target": "owner" }] }]
+    },
+    {
+      "id": "boundary:zhiyan-current", "revision": 1, "minimumRulesVersion": 195,
+      "triggers": [{ "id": "own-or-previous-ending-reveal", "window": "turnEnding", "subject": "owner",
+        "turnOwnerScope": "ownOrPreviousLiving", "optional": true,
+        "effects": [
+          { "op": "selectTarget", "target": "owner", "targetKind": "anyLiving" },
+          { "op": "draw", "target": "selectedTarget", "amount": 1, "resultBind": "drawn" },
+          { "op": "revealBoundCards", "target": "owner", "sourceBind": "drawn" },
+          { "op": "filterBoundCards", "target": "owner", "sourceBind": "drawn", "resultBind": "equipment", "categories": ["equipment"] },
+          { "op": "useBoundCardByTarget", "target": "selectedTarget", "sourceBind": "equipment", "condition": { "kind": "boundCardsMatchCategories", "sourceBind": "equipment", "cardCategories": ["equipment"] } },
+          { "op": "recover", "target": "selectedTarget", "amount": 1, "condition": { "kind": "boundCardsMatchCategories", "sourceBind": "equipment", "cardCategories": ["equipment"] } },
+          { "op": "loseHpIfRevealedNonEquipmentDiffers", "target": "selectedTarget", "sourceBind": "drawn" }
+        ] }]
+    }
+  ]
+}

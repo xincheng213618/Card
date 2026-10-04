@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:zhijian",
+      "revision": 1,
+      "minimumRulesVersion": 195,
+      "activations": [
+        {
+          "id": "place-equipment",
+          "usesPerTurn": null,
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "cardCategories": [
+            "equipment"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "effects": [
+            {
+              "op": "captureSelectedCards",
+              "target": "owner",
+              "resultBind": "actual-equipment"
+            },
+            {
+              "op": "placeCapturedEquipmentAndDraw",
+              "target": "selectedTarget",
+              "sourceBind": "actual-equipment",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary:guzheng",
+      "revision": 1,
+      "minimumRulesVersion": 195,
+      "triggers": [
+        {
+          "id": "restore-actual-discard-batch",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "optional": true,
+          "discardOwnerScope": "other",
+          "movementDiscardOnly": true,
+          "effects": [
+            {
+              "op": "restoreActualDiscardBatch",
+              "target": "owner",
+              "stateId": "phase-restore"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

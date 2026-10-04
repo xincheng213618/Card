@@ -1,0 +1,34 @@
+{
+  "status": "static-presentation-repair-and-bom-convention-record-runtime-deferred",
+  "gid": 775,
+  "capturedAtUtc": "2026-10-04T05:40:53.8698612Z",
+  "originalFrozenManifestSha256": "821e685877dc43d76480a67e8da23c599f4dac2adb021908e7c22bc7ebaf2ec2",
+  "originalFrozenPatchSha256": "2088ec13f1129223d5b4a36703e4ed832693c0367d431b3faad6f2f22115df31",
+  "originalFrozenChanged": false,
+  "presentation": {
+    "path": "src/CardGame.Content.Standard/SkillPrograms/boundary-bu-lian-shi.presentation.json",
+    "originalRawSha256": "7b5314db9dcd5b3e280d9927dc93ffed16463c394940dd379842332ebe9dd29f",
+    "correctedRawSha256": "686bbd685c4ad22f32056beb5f1c4498ea2e274e13ed84355df0b62c057c862c",
+    "corrections": [
+      "Add the current required PresentationSchemaVersion at presentation root without changing any version source",
+      "Rename unsupported triggerLabels to supported triggerChoices; preserve exact original trigger IDs and labels"
+    ],
+    "sourceContract": "src/CardGame.Core/SkillPrograms.cs: LoadPresentations / RequireVersion / CheckProperties",
+    "sourceDescriptionsMatched": true,
+    "fieldAndReferencedIdsStaticMatched": true,
+    "productionLoaderExecuted": false
+  },
+  "executorHashConvention": {
+    "path": "src/CardGame.Core/SkillProgramExecutor.cs",
+    "originalManifestLfIncludesUtf8Bom": true,
+    "normalizedLfIncludingBom": "ac48cca0ceadb9fba4354bbf8a2ad50aee34e499582844023a1de077efbe062e",
+    "normalizedLfExcludingBom": "ff902c3a591dfde07866a7e0cabc537fe3e0128c4283324f50537057dee8476f",
+    "sourceDifference": false,
+    "rawPreviewMatched": true,
+    "afterBomFreeLfMatched": true
+  },
+  "buildsRun": false,
+  "testsRun": false,
+  "benchmarksRun": false,
+  "runtimeAcceptance": false
+}

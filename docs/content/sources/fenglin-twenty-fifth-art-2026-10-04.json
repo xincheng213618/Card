@@ -1,0 +1,71 @@
+{
+  "status": "official-raw-art-all-registered-runtime-verification-deferred",
+  "batch": 25,
+  "images": [
+    {
+      "gid": 588,
+      "key": "boundary-ling-tong",
+      "name": "界凌统",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-fifth-588-source-2026-10-04.json",
+      "sourceRecordSha256": "ff989953c58414a801767b33dcbbc70c26db0e2cee0238bbc823c72335e61862",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/58800.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/58800.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-03T22:58:53.5367961+00:00",
+      "contentType": "image/png",
+      "rawBytes": 1025510,
+      "sha256": "f67abf429ddbd772c9d9da33a09670c603808744190acc492b86e7eedc662af4",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch25\\official-art\\official-boundary-ling-tong.png",
+      "installed": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-ling-tong.png"
+    },
+    {
+      "gid": 597,
+      "key": "boundary-chen-gong",
+      "name": "界陈宫",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-fifth-597-source-2026-10-04.json",
+      "sourceRecordSha256": "1b8dc3a45f48279062caf56f7d8967b0caf9a9c2fe29c0e488b0045d8d2504b7",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/59700.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/59700.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-03T22:58:53.7167223+00:00",
+      "contentType": "image/png",
+      "rawBytes": 1032635,
+      "sha256": "92b6d601f086fac75815e45e65721492daee4bd04009c49fb0c6633c9cd1f662",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch25\\official-art\\official-boundary-chen-gong.png",
+      "installed": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-chen-gong.png"
+    },
+    {
+      "gid": 626,
+      "key": "boundary-liu-biao",
+      "name": "界刘表",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-fifth-626-source-2026-10-04.json",
+      "sourceRecordSha256": "d18a780765e6d2254fdb21ed8b635d8895fded6047fcf29e984f4bfe72823d85",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62600.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62600.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-03T22:58:53.9430376+00:00",
+      "contentType": "image/png",
+      "rawBytes": 1289450,
+      "sha256": "8d2d95f09d28810573954a8356e69e1ea1d0dfb3f26e74330adf3f988d10affa",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch25\\official-art\\official-boundary-liu-biao.png",
+      "installed": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-liu-biao.png"
+    }
+  ],
+  "verification": {
+    "rawPngSignatureAndIhdr": true,
+    "sourceRecordShaMatched": true,
+    "mainRegistration": true,
+    "fullOfflineCatalogRun": false,
+    "compiledVerificationRun": false,
+    "installedCount": 3
+  }
+}

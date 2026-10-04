@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "boundary:zhenlie-current", "revision": 1, "minimumRulesVersion": 195,
+      "triggers": [{ "id": "paid-own-target", "window": "otherActualUseTargeted", "subject": "owner", "optional": true,
+        "effects": [
+          { "op": "payHpThenNullifyOwnActualUseTarget", "target": "owner" },
+          { "op": "chooseOption", "target": "owner", "resultBind": "benefit", "options": [{ "id": "obtain" }, { "id": "ending" }, { "id": "skip" }] },
+          { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "eventSource" },
+            "zones": ["hand", "equipment"], "count": 1, "destination": "ownerHand", "skipIfNoCards": true, "awaitMovementTriggers": true,
+            "condition": { "kind": "choiceIs", "sourceBind": "benefit", "optionId": "obtain" } },
+          { "op": "scheduleEarnedActualEndingBenefit", "target": "owner", "sourceBind": "boundary:miji-current", "stateId": "earned-ending",
+            "condition": { "kind": "choiceIs", "sourceBind": "benefit", "optionId": "ending" } }
+        ] }] },
+    { "id": "boundary:miji-current", "revision": 1, "minimumRulesVersion": 195,
+      "triggers": [
+        { "id": "natural-ending", "window": "turnEnding", "subject": "owner", "optional": true, "priority": 180,
+          "effects": [{ "op": "drawLostHpThenOfferOwnedCardsUpTo", "target": "owner" }] },
+        { "id": "earned-ending", "window": "turnEnding", "subject": "owner", "optional": false, "priority": 180, "turnOwnerScope": "earnedActualEnding",
+          "effects": [{ "op": "drawLostHpThenOfferOwnedCardsUpTo", "target": "owner" }] }
+      ] }
+  ]
+}

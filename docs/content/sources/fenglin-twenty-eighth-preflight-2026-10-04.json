@@ -1,0 +1,107 @@
+{
+  "status": "current-primary-sources-frozen-xiao-qiao-assigned-runtime-deferred",
+  "batch": 28,
+  "capturedAtUtc": "2026-10-04T02:27:40.153948+00:00",
+  "captureCommit": "636afb35b93cbf131dc06ab7fad639f40c5f567c",
+  "registrationDiscoveryCommit": "71407cae03f0560b5df75f30fbcac3eeac9dffc2",
+  "documentationCommit": "a794646f",
+  "discoveryIndex": {
+    "path": ".artifacts/continuation-20261003-batch17/batch21/dong-zhuo/next-batch22/index-preflight.json",
+    "rows": 87,
+    "capturedAtUtc": "2026-10-03T17:09:18.318761+00:00",
+    "officialUrl": "https://www.sanguosha.com/hero",
+    "retainedRawSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+    "noHttpInThisTask": true
+  },
+  "historicalIndexIsCurrentIdentityProof": false,
+  "discoveryManifest": {
+    "path": ".artifacts\\continuation-20261003-batch17\\batch28\\source-preflight\\candidate-registration-preflight.json",
+    "rawSha256": "cfc3ff50973a4898a4ff01fba36718c91e372d58edd226b5f05c5d647d863a8c"
+  },
+  "rawEvidenceRoot": ".artifacts/continuation-20261003-batch17/batch28/source-preflight",
+  "sourceManifest": {
+    "path": ".artifacts\\continuation-20261003-batch17\\batch28\\source-preflight\\frozen-source-manifest.json",
+    "rawSha256": "48ed45f12c1faae8351afd8a3d1da5307d18cf303388d978fe1fd0c83d9867c6"
+  },
+  "staticScope": "Exact selected names in registered modules and Standard package only; no executable registry or full inputs sweep",
+  "excludedActiveGids": [
+    603,
+    620,
+    621,
+    627,
+    640,
+    642
+  ],
+  "candidates": [
+    {
+      "gid": 457,
+      "name": "界小乔",
+      "faction": "wu",
+      "hp": 3,
+      "sourceRecord": "docs/content/sources/fenglin-twenty-eighth-457-source-2026-10-04.json",
+      "rawSha256": "2304874b07f5090197b0e270099c2f6dd76d778294c506e59331f178b585f17f",
+      "skills": [
+        "红颜",
+        "天香",
+        "飘零"
+      ],
+      "pageStatus": 200,
+      "apiStatus": 200,
+      "unresolvedFontRefs": 0,
+      "hasUnexpandedGrantedSkill": false,
+      "mainRegistered": false,
+      "implementationAssigned": true
+    },
+    {
+      "gid": 485,
+      "name": "界鲁肃",
+      "faction": "wu",
+      "hp": 3,
+      "sourceRecord": "docs/content/sources/fenglin-twenty-eighth-485-source-2026-10-04.json",
+      "rawSha256": "612f55221790ad7a9d947e33e3e00c955c076d82ffc8daedf9699f3d954e69e9",
+      "skills": [
+        "好施",
+        "缔盟"
+      ],
+      "pageStatus": 200,
+      "apiStatus": 200,
+      "unresolvedFontRefs": 0,
+      "hasUnexpandedGrantedSkill": false,
+      "mainRegistered": false,
+      "implementationAssigned": false
+    },
+    {
+      "gid": 550,
+      "name": "界颜良文丑",
+      "faction": "qun",
+      "hp": 4,
+      "sourceRecord": "docs/content/sources/fenglin-twenty-eighth-550-source-2026-10-04.json",
+      "rawSha256": "ea966f179fad53e5c283adc3ff2b31d13505456f9504661833473f58462be677",
+      "skills": [
+        "双雄"
+      ],
+      "pageStatus": 200,
+      "apiStatus": 200,
+      "unresolvedFontRefs": 0,
+      "hasUnexpandedGrantedSkill": false,
+      "mainRegistered": false,
+      "implementationAssigned": false
+    }
+  ],
+  "verification": {
+    "sourceOnly": true,
+    "buildsRun": false,
+    "loadersRun": false,
+    "testsRun": false,
+    "benchmarksRun": false,
+    "artworkDownloaded": false,
+    "versionBumped": false,
+    "releaseRun": false
+  },
+  "pending": [
+    "Complete current skill implementations and explicit engineering defaults",
+    "Sequential frozen NEW and narrow OLD integration",
+    "Original official image registration",
+    "User later unified runtime verification"
+  ]
+}

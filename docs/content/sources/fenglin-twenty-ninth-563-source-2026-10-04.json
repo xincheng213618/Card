@@ -1,0 +1,117 @@
+{
+  "status": "current-primary-source-only-not-implemented",
+  "gid": 563,
+  "currentApiIdentity": {
+    "name": "界张昭张纮",
+    "faction": "wu",
+    "hp": 3,
+    "gender": null,
+    "initialHpApiPlaceholder": 0
+  },
+  "discovery": {
+    "path": ".artifacts/continuation-20261003-batch17/batch28/source-preflight/candidate-registration-preflight.json",
+    "rawSha256": "cfc3ff50973a4898a4ff01fba36718c91e372d58edd226b5f05c5d647d863a8c",
+    "purpose": "Cached ordinary OL candidate discovery only; current identity comes from these bounded primary page/API responses"
+  },
+  "webReader": {
+    "attempted": true,
+    "result": "Timeout fetching via web reader",
+    "fallback": "one direct bounded GET per exact page/API URL; no retries"
+  },
+  "page": {
+    "url": "https://www.sanguosha.com/hero/563",
+    "capturedAtUtc": "2026-10-04T03:04:45.3630413Z",
+    "completedAtUtc": "2026-10-04T03:04:45.6212855Z",
+    "httpStatus": 200,
+    "finalUrl": "https://www.sanguosha.com/hero/563",
+    "contentType": "text/html",
+    "rawBytes": 24783,
+    "rawSha256": "b9784233881137e714022cb4cec18282c75aa60168676c9dd44792930a20ed19",
+    "rawFile": "563-page.raw.html",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >出牌阶段，你可以将一张装备牌置于其他角色的装备区（替换原装备），然后摸一张牌。</span>\n                            \n                                <span >每阶段限一次，当其他角色的至少两张牌因弃置置入弃牌堆后，你可以令其获得其中一张牌，然后你可以获得剩余牌。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "直谏",
+      "固政"
+    ],
+    "skillTexts": [
+      "出牌阶段，你可以将一张装备牌置于其他角色的装备区（替换原装备），然后摸一张牌。",
+      "每阶段限一次，当其他角色的至少两张牌因弃置置入弃牌堆后，你可以令其获得其中一张牌，然后你可以获得剩余牌。"
+    ],
+    "fontRefs": []
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=563",
+    "capturedAtUtc": "2026-10-04T03:04:45.6962703Z",
+    "completedAtUtc": "2026-10-04T03:04:45.9165886Z",
+    "httpStatus": 200,
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=563",
+    "contentType": "application/json",
+    "rawBytes": 1123,
+    "rawSha256": "dd7f5967af62f25f0b56c1dea37cfe5d4ec88ecedc647a98311b2ca6840cf518",
+    "rawFile": "563-api.raw.json",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 563,
+            "name": "界张昭张纮",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/563.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/56300.png",
+            "label": [
+              "辅助",
+              "发育",
+              "简单"
+            ],
+            "figure": "吴",
+            "figure_py": "wu",
+            "quality": "史诗",
+            "biography": "张昭，字子布，彭城人，三国时期吴国重臣，善丹青。拜辅吴将军，班亚三司，改封娄侯。年八十一卒，谥曰文侯。张纮[hong]，字子纲，广陵人。东吴谋士，和张昭一起合称“二张”。孙策平定江东时亲自登门邀请，张纮遂出仕为官。张纮后来建议孙权迁都秣[mo]陵，孙权正在准备时张纮病逝，其年六十岁。孙权为之流涕。",
+            "characteristic": "将装备牌分配给队友，获得其他角色的弃牌。自身很脆弱，会成为敌人优先攻击的目标。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "主公",
+            "value": 7
+          },
+          {
+            "name": "忠臣",
+            "value": 7
+          },
+          {
+            "name": "反贼",
+            "value": 7
+          },
+          {
+            "name": "内奸",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    }
+  },
+  "completeCurrentMainTexts": true,
+  "hasUnexpandedGrantedSkill": false,
+  "namedGrantedSkills": [
+    null
+  ],
+  "blockedReasons": null,
+  "advertisedScriptEvidence": null,
+  "genderEvidence": "Current API has no independent gender field; no supplement claimed in this source-only record",
+  "initialHpInterpretation": "initial_hp=0 is not an assertion of starting at zero HP",
+  "implementationStarted": false,
+  "mediaDownloaded": false,
+  "buildsRun": false,
+  "loadersRun": false,
+  "testsRun": false
+}

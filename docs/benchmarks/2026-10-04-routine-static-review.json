@@ -1,0 +1,167 @@
+{
+  "status": "read-only-source-review-no-build-no-tests-no-performance-patch",
+  "reviewedAt": "2026-10-04T06:36:27.5076511+08:00",
+  "workspace": "C:\\Users\\17917\\Desktop\\Card",
+  "profile": {
+    "status": "actual-routine-log-profile-final-batch23-inputs",
+    "startedAt": "2026-10-04T05:42:12.4739892+08:00",
+    "durationIncludingBuildMs": 95776,
+    "inputFiles": 2516,
+    "inputSha256": "6c46469211f62b5d60084a6b38b151ec55b828f16398279c501f0d8c2b69016e",
+    "coreChecks": 231,
+    "coreDurationMs": 73385,
+    "coreLogSha256": "048c1fed1454e7dd79adbd6d5b4466ca8bb16c5d76df7c81836be32e96237fb8",
+    "wpfChecks": 18,
+    "wpfDurationMs": 18613,
+    "wpfLogSha256": "1f660f85090c9c594ef7e31ef4d430a44d7d51ed10f358b9bebed15cdd6eba02",
+    "topThree": [
+      {
+        "name": "Unrespondable counterspell equipment payment completed cold",
+        "milliseconds": 7530.993
+      },
+      {
+        "name": "Damage judgment suit payment four suits and exact claims",
+        "milliseconds": 5371.106
+      },
+      {
+        "name": "Discarded provenance real turn all materials no response",
+        "milliseconds": 3926.948
+      }
+    ],
+    "topThreeTotalMs": 16829.047,
+    "topThreePercentOfCore": 22.932543,
+    "timingBoundary": "Historical final batch23 input profile; not a measurement of current batch24 or proposed changes"
+  },
+  "sources": [
+    {
+      "path": "docs/benchmarks/2026-10-04-routine-current-profile.json",
+      "sha256": "2c2c9380585958c57c1c8429991f2a1d1b3e9901096208ed5d5512610ca69508",
+      "bytes": 39425
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/BoundaryWolongZhugeLiangChecks.cs",
+      "sha256": "0ecfbd46f5a499093ab6f9c732de3f828c7b7bdac40fde968ca789c652da659e",
+      "bytes": 62733
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/BoundaryCaiWenJiChecks.cs",
+      "sha256": "d253f5842b2890890dd7c359d00c5b13fe2bcf2df8cc0dec55f2068f8e49f5f4",
+      "bytes": 31423
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/BoundaryCaoZhiChecks.cs",
+      "sha256": "8b3e7823eddb0153a0a9eade6a42bc577115f2bfacfa24fc785bb6e1afa0390d",
+      "bytes": 28232
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/Program.cs",
+      "sha256": "6bc3374398a3dd9f679327f22ba7d8e98032fded23daef837084194f85423be1",
+      "bytes": 196525
+    },
+    {
+      "path": "tools/VerificationScopes.psd1",
+      "sha256": "ba2f33eddeaae5670ac1973ebd10deab7c0a63f208ea5cc06f6576b3e0ae8787",
+      "bytes": 9002
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.cs",
+      "sha256": "f0ba9184ac8812d7a653649b036cdb5db6617c50fb3d7d727f15d4d9cc170cb8",
+      "bytes": 917795
+    },
+    {
+      "path": "src/CardGame.Core/ProgramOperationDefinitions.cs",
+      "sha256": "5318bcc34af76cd052509ea5f5523175f25b947ccca38a32f19e53d9c4d7783b",
+      "bytes": 63134
+    },
+    {
+      "path": "src/CardGame.Core/ContentRegistry.cs",
+      "sha256": "01a0e79bfc932a32bf9ea280edb0ff9d382afc67b70b9dbd0701169e4451de27",
+      "bytes": 49267
+    },
+    {
+      "path": "src/CardGame.Core/Replay.cs",
+      "sha256": "37ba6488a753d6e2b81ac9a6aa1d8a33be24aed87c15663d1cb11e245d0359b1",
+      "bytes": 8762
+    }
+  ],
+  "staticCoverage": {
+    "counterspell": {
+      "removedReplayUseCommandSubmissions": 96,
+      "originalOneHpPreparationUseCommands": 21,
+      "coldCallsAfterBranchExpansion": 29,
+      "oneHpPreparationLoops": 3,
+      "adjacentPrivateAndFrozenCold": 9,
+      "scenarios": 7,
+      "removedLiveUseCommands": 18,
+      "proposedPreparationUseCommands": 3,
+      "postPreparationColdCalls": 16
+    },
+    "cai": {
+      "scenarios": 5,
+      "gainDyingScenario": 1,
+      "alreadyAppliedGainDyingDraw": "2+2",
+      "fourSuitScenarios": 4,
+      "adjacentColdReject": 12,
+      "coldCallsAfterBranchExpansion": 29
+    },
+    "cao": {
+      "actualClaimOneCalls": 4,
+      "scenarios": 2,
+      "playerCountMustRemain": 4,
+      "quietDiscardCurrent": 2,
+      "coldCallsIncludingClaimOne": 11,
+      "adjacentColdReject": 3,
+      "quietDiscardProposedOnlyForThisMethod": 1
+    },
+    "repeatedSourceStateProjectionsAvoidable": 24,
+    "correspondingSnapshotProjectionsAvoidable": 96,
+    "countBoundary": "Static source expansion, not dynamic counters or timings. Restore counts must remain unchanged."
+  },
+  "preserved": {
+    "productionFiles": "unchanged by review",
+    "testFiles": "unchanged by review",
+    "registration": "unchanged",
+    "routineScope": "unchanged",
+    "coldCoverage": "29/29/11 unchanged in proposals",
+    "playerViews": "remain CreateSnapshot(viewerSeat)",
+    "actualCommands": "Submit and CommandJson round-trip retained",
+    "invalidInputs": "same rejection and full-state equality retained"
+  },
+  "unmeasured": [
+    "Per-boundary elapsed time and allocations",
+    "Dynamic accepted-prefix lengths and extra Advance steps",
+    "Actual speedup of any proposed optimization",
+    "Cao one-card quiet fixture behavior after modification",
+    "Current batch24 full or routine performance"
+  ],
+  "proposals": [
+    {
+      "id": "W1",
+      "priority": 1,
+      "scope": "counterspell fixture only",
+      "proposal": "One actual loseHp7 preparation per rescue scenario; preserve HP8 -> HP1/no premature rescue; old amount1 driver unchanged",
+      "benefitBoundary": "18 fewer live commands and 96 fewer repeated replay submissions statically known; elapsed savings unmeasured"
+    },
+    {
+      "id": "S1",
+      "priority": 2,
+      "scope": "three test helper files only",
+      "proposal": "Reuse immutable source-State string across adjacent Cold/Reject or verified PrivateAndFrozen/Cold, retaining full restored/after-rejection equality",
+      "benefitBoundary": "24 fewer source State constructions, 96 snapshot projections; same 69 actual cold restores"
+    },
+    {
+      "id": "P1",
+      "priority": 2,
+      "scope": "three test helper files only",
+      "proposal": "Pass already-prepared prompt from Reach into Step/Advance and same-step Answer; reacquire after every Submit",
+      "forbiddenShortcut": "GameEngine.PendingDecision uses HumanSeat State view and misses AI participant prompts"
+    },
+    {
+      "id": "C1",
+      "priority": 3,
+      "scope": "only two Cao provenance turn scenarios",
+      "proposal": "Parameterize fixture quiet discard to one actual hand card; keep all four players, real turns/natural face-up, real claims/cold and distance2 checks",
+      "benefitBoundary": "Fewer irrelevant rejected per-card claims; net command/time savings not yet measured"
+    }
+  ]
+}

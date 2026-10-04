@@ -1,0 +1,112 @@
+{
+  "status": "current-official-source-only-not-implemented",
+  "gid": 620,
+  "indexIdentity": {
+    "gid": 620,
+    "name": "界程普",
+    "resource": "62000",
+    "extend": "界限突破",
+    "hp": 4,
+    "initial_hp": 0,
+    "quality": "史诗",
+    "figure": "吴",
+    "figure_py": "wu",
+    "biography": "字德谋，右北平土垠[yín]人。历仕孙坚、孙策、孙权三任君主。孙策死后，他与张昭等人共同辅佐孙权，并讨伐江东境内的山贼，功勋卓著。被人们尊称为“程公”。",
+    "characteristic": "付出一定代价使用强化火【杀】。弃置【杀】可以转化为【酒】救助队友。",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/620.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62000.png",
+    "realname": "界程普 (界限突破)"
+  },
+  "discovery": "Exact gid advertised by retained ordinary OL Listdata[界限突破] index; known info route from current official heroDetail.js.",
+  "webReader": "Grouped primary website reader attempted first: 603 timed out; 620 and 640 returned cached text. Bounded current direct primary HTTP bytes captured for all three.",
+  "page": {
+    "url": "https://www.sanguosha.com/hero/620",
+    "finalUrl": "https://www.sanguosha.com/hero/620",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T23:09:44.173157+00:00",
+    "contentType": "text/html",
+    "rawBytes": 24594,
+    "rawSha256": "cc32964d1163b1a2dcf9bcfb9c381369b1a064ea5b7e6da6cf7a93d08f5260e7",
+    "rawFile": "620-page.raw.html",
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >你使用的非火【杀】可以改为火【杀】使用，此牌结算后，若其造成伤害，你弃置一张牌或失去1体力。你使用的火【杀】可以多指定一个目标。</span>\n                            \n                                <span >你或你相邻角色的【杀】因弃置置入弃牌堆后，将之置于你的武将牌上，称为“醇”。当一名角色处于濒死状态时，你可以移去X张“醇”视为其使用一张【酒】(X为本轮以此法使用【酒】的次数)。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "疠火",
+      "醇醪"
+    ],
+    "skillTexts": [
+      "你使用的非火【杀】可以改为火【杀】使用，此牌结算后，若其造成伤害，你弃置一张牌或失去1体力。你使用的火【杀】可以多指定一个目标。",
+      "你或你相邻角色的【杀】因弃置置入弃牌堆后，将之置于你的武将牌上，称为“醇”。当一名角色处于濒死状态时，你可以移去X张“醇”视为其使用一张【酒】(X为本轮以此法使用【酒】的次数)。"
+    ],
+    "fontRefs": [],
+    "scripts": [
+      "/assets/js/jquery-3.7.1.js",
+      "/assets/js/swiper-bundle.min.js",
+      "/assets/js/echarts.min.js",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "/assets/js/commen.js",
+      "/assets/js/header.js",
+      "/assets/js/heroDetail.js?1"
+    ]
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=620",
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=620",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T23:09:44.513601+00:00",
+    "contentType": "application/json",
+    "rawBytes": 919,
+    "rawSha256": "2a73ace5b0468590f79683eecb8d3b5492507df341c2f55320cbdb02b9eeb402",
+    "rawFile": "620-api.raw.json",
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 620,
+            "name": "界程普",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/620.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62000.png",
+            "label": [
+              "进攻",
+              "辅助",
+              "发育"
+            ],
+            "figure": "吴",
+            "figure_py": "wu",
+            "quality": "史诗",
+            "biography": "字德谋，右北平土垠[yín]人。历仕孙坚、孙策、孙权三任君主。孙策死后，他与张昭等人共同辅佐孙权，并讨伐江东境内的山贼，功勋卓著。被人们尊称为“程公”。",
+            "characteristic": "付出一定代价使用强化火【杀】。弃置【杀】可以转化为【酒】救助队友。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "地主",
+            "value": 5
+          },
+          {
+            "name": "主公",
+            "value": 6
+          },
+          {
+            "name": "忠臣",
+            "value": 6
+          },
+          {
+            "name": "反贼",
+            "value": 6
+          },
+          {
+            "name": "内奸",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    }
+  }
+}

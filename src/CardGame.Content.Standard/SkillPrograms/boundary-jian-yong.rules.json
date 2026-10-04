@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:qiaoshui-current",
+      "revision": 1,
+      "states": [
+        {
+          "id": "failed-this-turn",
+          "initialValue": false,
+          "visibility": "public",
+          "resetScope": "turn",
+          "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "activations": [
+        {
+          "id": "contest",
+          "minCards": 1,
+          "maxCards": 1,
+          "sourceZones": [
+            "hand"
+          ],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLivingWithHand",
+          "usesPerTurn": null,
+          "condition": {
+            "kind": "booleanState",
+            "stateId": "failed-this-turn",
+            "expectedValue": false
+          },
+          "effects": [
+            {
+              "op": "pindian",
+              "target": "selectedTarget",
+              "amount": 1
+            },
+            {
+              "op": "grantNextActualUseTargetAdjustment",
+              "target": "owner",
+              "stateId": "failed-this-turn",
+              "condition": {
+                "kind": "pindianWon"
+              }
+            },
+            {
+              "op": "setBooleanState",
+              "target": "owner",
+              "stateId": "failed-this-turn",
+              "value": true,
+              "condition": {
+                "kind": "pindianNotWon"
+              }
+            },
+            {
+              "op": "grantTurnCardActionProhibition",
+              "target": "owner",
+              "actionTypes": [
+                "use"
+              ],
+              "cardKinds": [
+                "duel",
+                "barbarianAssault",
+                "arrowBarrage",
+                "peachGarden",
+                "fiveGrains",
+                "ironChain",
+                "indulgence",
+                "supplyShortage",
+                "lightning",
+                "drawTwo",
+                "dismantlement",
+                "snatch",
+                "borrowedSword",
+                "nullification",
+                "fireAttack"
+              ],
+              "condition": {
+                "kind": "pindianNotWon"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

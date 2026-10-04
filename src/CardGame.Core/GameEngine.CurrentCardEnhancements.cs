@@ -25,9 +25,11 @@ public sealed partial class GameEngine
         var targetSeat = use.TargetSeats[next];
         SetCardUseTargetIndex(use.Id, next); SetCardUseStep(use.Id, ResolutionFrameStep.ResolvingEffect);
         var continued = new CardAttackHandle(this, use.Id, use.SourceSeat, targetSeat, attack.Card, baseDamage, use.CardKind,
-            ignoresArmor: use.IgnoresArmor || HasCardArmorBypass(_players[use.SourceSeat], _players[targetSeat], use.CardKind),
+            ignoresArmor: use.IgnoresArmor || HasDirectedCardArmorBypass(use.Id, targetSeat) || HasCardArmorBypass(_players[use.SourceSeat], _players[targetSeat], use.CardKind),
             physicalCards: attack.PhysicalCards, conversionSource: attack.ConversionSource,
             programSkillCardUseFrameId: attack.ProgramSkillCardUseFrameId);
+        if ((HasIssuedOriginalTargetAdditionTail(use) || HasSameTypeAidTargetTail(use)) && use.AdjustedSlashReturn is { } adjustedReturn && adjustedReturn.CardUseFrameId == use.Id)
+            UpdateCardAttackState(use.Id, state => state! with { AdjustedSlashReturn = adjustedReturn, PhysicalCardIds = use.PhysicalCardIds! });
         continued.SetCardUseCausedDamage(attack.CardUseCausedDamage);
         ActiveCardAttack = continued; ActiveDuel = null; ClearPendingDecision();
         if (ActiveFactionCardRequest is { ActiveAttack: { } factionAttack } faction && SameAttackOwner(factionAttack, attack)) faction.ActiveAttack = continued;

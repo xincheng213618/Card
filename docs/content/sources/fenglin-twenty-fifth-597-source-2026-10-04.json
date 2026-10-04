@@ -1,0 +1,112 @@
+{
+  "status": "current-official-source-only-not-implemented",
+  "gid": 597,
+  "indexIdentity": {
+    "gid": 597,
+    "name": "界陈宫",
+    "resource": "59700",
+    "extend": "界限突破",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "史诗",
+    "figure": "群",
+    "figure_py": "qun",
+    "biography": "字公台，东汉末年吕布帐下谋士，东郡东武阳人。性情刚直，足智多谋，年少时与海内知名之士相互结交。192年，陈宫等人主张曹操接任兖[yǎn]州牧。但此后陈宫因曹操杀害边让而与曹操反目，并游说张邈等人背叛曹操迎吕布入兖[yǎn]州，辅助吕布攻打曹操。吕布战败后，随吕布等一同被曹操所擒，决意赴死。",
+    "characteristic": "整体上可以考虑更积极的打法。",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/597.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/59700.png",
+    "realname": "界陈宫 (界限突破)"
+  },
+  "discovery": "Exact gid advertised by retained ordinary OL Listdata[界限突破] index; known info route from current official heroDetail.js.",
+  "webReader": "Single grouped web open attempted first; reader returned timeout for all three pages. Bounded direct primary HTTP byte capture follows.",
+  "page": {
+    "url": "https://www.sanguosha.com/hero/597",
+    "finalUrl": "https://www.sanguosha.com/hero/597",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T22:33:37.056204+00:00",
+    "contentType": "text/html",
+    "rawBytes": 24503,
+    "rawSha256": "c43ad8cfb670a41ffd6ab50f2583a9bf9afb7bdb82c6a7bd7cd93d39f9268596",
+    "rawFile": "597-page.raw.html",
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >锁定技，当你于回合外受到伤害后，本回合【杀】和普通锦囊牌对你无效。</span>\n                            \n                                <span >出牌阶段限一次，你可以交给一名其他角色一张【杀】或装备牌，然后其选择一项：1.视为对你选择的另一名角色使用一张【杀】，若造成伤害，执行另一项；2.你与其各摸一张牌。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "智迟",
+      "明策"
+    ],
+    "skillTexts": [
+      "锁定技，当你于回合外受到伤害后，本回合【杀】和普通锦囊牌对你无效。",
+      "出牌阶段限一次，你可以交给一名其他角色一张【杀】或装备牌，然后其选择一项：1.视为对你选择的另一名角色使用一张【杀】，若造成伤害，执行另一项；2.你与其各摸一张牌。"
+    ],
+    "fontRefs": [],
+    "scripts": [
+      "/assets/js/jquery-3.7.1.js",
+      "/assets/js/swiper-bundle.min.js",
+      "/assets/js/echarts.min.js",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "https://10th-device.sanguosha.com/sgsCensus/startup.php",
+      "/assets/js/commen.js",
+      "/assets/js/header.js",
+      "/assets/js/heroDetail.js?1"
+    ]
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=597",
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=597",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-03T22:33:37.324124+00:00",
+    "contentType": "application/json",
+    "rawBytes": 1067,
+    "rawSha256": "dd7211c0e34ae9192d0404425d9123141e610220ad8972b3f212b249f6357684",
+    "rawFile": "597-api.raw.json",
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 597,
+            "name": "界陈宫",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/597.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/59700.png",
+            "label": [
+              "过牌",
+              "辅助",
+              "多刀"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "史诗",
+            "biography": "字公台，东汉末年吕布帐下谋士，东郡东武阳人。性情刚直，足智多谋，年少时与海内知名之士相互结交。192年，陈宫等人主张曹操接任兖[yǎn]州牧。但此后陈宫因曹操杀害边让而与曹操反目，并游说张邈等人背叛曹操迎吕布入兖[yǎn]州，辅助吕布攻打曹操。吕布战败后，随吕布等一同被曹操所擒，决意赴死。",
+            "characteristic": "整体上可以考虑更积极的打法。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 7
+          },
+          {
+            "name": "排位后手",
+            "value": 7
+          },
+          {
+            "name": "农民",
+            "value": 6
+          },
+          {
+            "name": "忠臣",
+            "value": 7
+          },
+          {
+            "name": "反贼",
+            "value": 8
+          }
+        ],
+        "deeds": []
+      }
+    }
+  }
+}

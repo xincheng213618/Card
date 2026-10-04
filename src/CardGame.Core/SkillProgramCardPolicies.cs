@@ -3,6 +3,8 @@ namespace CardGame.Core;
 /// <summary>Card and turn rules supplied by an enabled program instance.</summary>
 public enum SkillProgramCardPolicyKind
 {
+    EquipmentSuitHandLimitAtMaxHp = 5900,
+    AlcoholKingIdentityRank = 4902, ForeignTurnAlcoholUseProhibition = 4903,
     ClaimedEntitiesFaceDownUse = 4500,
     RandomRevealColorFireAttack = 4400, UnrespondableNullification = 4401,
     IgnoreUseDistanceBeforeDealingDamage = 3800,
@@ -53,8 +55,9 @@ public enum SkillProgramCardPolicyKind
     PindianClaim = 784,
     PindianClaimAllWhenSourceWins = 785,
     ConvertedSlashSameColorResponseOnly = 786,
-    IgnoreTurnObtainedHandCardsForDiscard = 1000
-}
+    IgnoreTurnObtainedHandCardsForDiscard = 1000,
+    IgnoreTurnObtainedHandCardsForDiscard = 1000,
+    NullifyBlackSlashByCurrentHp = 6602, ProhibitBlackSlashResponseByCurrentHand = 6603}
 
 public sealed record SkillProgramCardPolicy(
     string Id,

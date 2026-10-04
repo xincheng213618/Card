@@ -1,0 +1,107 @@
+{
+  "status": "current-official-source-only-not-implemented",
+  "gid": 621,
+  "indexIdentity": {
+    "gid": 621,
+    "name": "界王异",
+    "resource": "62100",
+    "extend": "界限突破",
+    "hp": 3,
+    "initial_hp": 0,
+    "quality": "传说",
+    "figure": "魏",
+    "figure_py": "wei",
+    "biography": "益州刺史赵昂之妻，赵英、赵月之母。马超作乱凉州时，王异协助丈夫守城，多有功勋，自马超攻冀城至祁山坚守，赵昂曾出奇计九条，王异皆有参与。",
+    "characteristic": "控制防御集于一身，可辅助，可单挑",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/621.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62100.png",
+    "realname": "界王异 (界限突破)"
+  },
+  "discovery": {
+    "indexPath": ".artifacts\\continuation-20261003-batch17\\batch21\\dong-zhuo\\next-batch22\\index-preflight.json",
+    "indexSha256": "3b564ba6fa141eed58449d91dbe669a48094a381a1efa97a51ceb7f81fb0cb87",
+    "indexCapturedAtUtc": "2026-10-03T17:09:18.318761+00:00",
+    "ordinaryOlArray": "Listdata[界限突破]"
+  },
+  "webReader": "Primary website reader attempted first: 621 and 642 timed out; 627 returned cached text. Bounded direct current primary HTTP capture follows.",
+  "page": {
+    "url": "https://www.sanguosha.com/hero/621",
+    "finalUrl": "https://www.sanguosha.com/hero/621",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-04T00:21:38.923953+00:00",
+    "contentType": "text/html",
+    "rawBytes": 23921,
+    "rawSha256": "02df6d7406e6906421fdadeb9c57812f9a051bb81f755d395215e6a10f351f97",
+    "rawFile": "621-page.raw.html",
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >当你成为其他角色【杀】或普通锦囊牌的目标后，你可以失去1点体力令此牌对你无效，然后你可以选择一项：<br>&nbsp;1.获得使用者一张牌；<br>&nbsp;2.本回合结束阶段，发动一次“秘计”。</span>\n                            \n                                <span >结束阶段，你可以摸X张牌（X为你已损失的体力值），然后你可以交给其他角色至多X张牌。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "贞烈",
+      "秘计"
+    ],
+    "skillTexts": [
+      "当你成为其他角色【杀】或普通锦囊牌的目标后，你可以失去1点体力令此牌对你无效，然后你可以选择一项： 1.获得使用者一张牌； 2.本回合结束阶段，发动一次“秘计”。",
+      "结束阶段，你可以摸X张牌（X为你已损失的体力值），然后你可以交给其他角色至多X张牌。"
+    ],
+    "fontRefs": []
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=621",
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=621",
+    "httpStatus": 200,
+    "capturedAtUtc": "2026-10-04T00:21:39.145891+00:00",
+    "contentType": "application/json",
+    "rawBytes": 851,
+    "rawSha256": "9801f3d44fcec3b008ef0e202d9001be548d57dc721d90c2f0fd4a473fd03e10",
+    "rawFile": "621-api.raw.json",
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 621,
+            "name": "界王异",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/621.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62100.png",
+            "label": [
+              "防御",
+              "控制",
+              "辅助"
+            ],
+            "figure": "魏",
+            "figure_py": "wei",
+            "quality": "传说",
+            "biography": "益州刺史赵昂之妻，赵英、赵月之母。马超作乱凉州时，王异协助丈夫守城，多有功勋，自马超攻冀城至祁山坚守，赵昂曾出奇计九条，王异皆有参与。",
+            "characteristic": "控制防御集于一身，可辅助，可单挑",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "地主",
+            "value": 7
+          },
+          {
+            "name": "农民",
+            "value": 7
+          },
+          {
+            "name": "主公",
+            "value": 8
+          },
+          {
+            "name": "忠臣",
+            "value": 7
+          },
+          {
+            "name": "反贼",
+            "value": 8
+          }
+        ],
+        "deeds": []
+      }
+    }
+  }
+}

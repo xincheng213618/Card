@@ -1,0 +1,71 @@
+{
+  "status": "official-raw-art-all-registered-runtime-verification-deferred",
+  "batch": 27,
+  "images": [
+    {
+      "gid": 621,
+      "key": "boundary-wang-yi",
+      "name": "界王异",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-seventh-621-source-2026-10-04.json",
+      "sourceRecordSha256": "d1e82784d133cb26ad50ec8dbcf1e9a0acb4913bb1b06b54fc1f2c84acc932a6",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62100.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62100.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-04T00:32:53.4680936+00:00",
+      "contentType": "image/png",
+      "rawBytes": 355041,
+      "sha256": "a1b22a0e3f66bb57d609dac46d3b14668cb2a527b606a33ae7604a853ccb2149",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch27\\official-art\\official-boundary-wang-yi.png",
+      "installed": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-wang-yi.png"
+    },
+    {
+      "gid": 627,
+      "key": "boundary-cai-fu-ren",
+      "name": "界蔡夫人",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-seventh-627-source-2026-10-04.json",
+      "sourceRecordSha256": "4c93bf6cf1d09c9e064a7f60e1b9724febf8cfdc66b7fcf9e587e2ea3b069b19",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62700.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62700.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-04T01:07:52.3579638+00:00",
+      "contentType": "image/png",
+      "rawBytes": 1001473,
+      "sha256": "bd569eb7fbb1b9c6fe6278c5456f185cc439c5cf4d6b1f1d9e7fff3c75a6eb74",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch27\\official-art\\official-boundary-cai-fu-ren.png",
+      "installed": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-cai-fu-ren.png"
+    },
+    {
+      "gid": 642,
+      "key": "boundary-li-ru",
+      "name": "界李儒",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-seventh-642-source-2026-10-04.json",
+      "sourceRecordSha256": "64f750ebff02bc7d4e2eed71913883cda07df1f26759b9de7c3342b696fa78eb",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64200.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64200.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-04T01:07:52.5247384+00:00",
+      "contentType": "image/png",
+      "rawBytes": 1024715,
+      "sha256": "161c36c658e3a68aac81907e9d667d74806182029271d3ea00bf0e024774fa7c",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch27\\official-art\\official-boundary-li-ru.png",
+      "installed": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-li-ru.png"
+    }
+  ],
+  "verification": {
+    "rawPngSignatureAndIhdr": true,
+    "sourceRecordShaMatched": true,
+    "mainRegistration": true,
+    "fullOfflineCatalogRun": false,
+    "compiledVerificationRun": false,
+    "installedCount": 3
+  }
+}

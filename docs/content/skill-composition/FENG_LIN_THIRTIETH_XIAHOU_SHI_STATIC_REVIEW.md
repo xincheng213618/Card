@@ -1,0 +1,15 @@
+# 第30批界夏侯氏静态整合记录
+
+752 当前官方来源原 SHA 保持 `27a56606cc569f098e3726a203268761566b02200d50553f799ddd2b259672d6`。樵拾为每个实际结束阶段两位角色各摸一张牌，再比较最终手牌数；燕语为出牌阶段重铸实体【杀】，以及本阶段实际失去至少两张【杀】后可令一名男性角色摸两张牌。性别是经典同人身份补充，详情 API 未提供 gender；initial_hp=0 按已有来源约定为占位值。手牌重铸区、拥有区失去口径及未展开 FAQ 边界见独立工程默认说明。
+
+原 delivery-manifest SHA 为 `186cf9c393d173d7233b938e80bad2535655d0187f134e4275033406dff7dd88`，shared-wiring.patch SHA 为 `38c16bef1bc783b529ec9ecde86249716e13cdf2153c16d6947b5427a1660ac4`，基线 `da931c4c97600741ac521bd4c1be4d83d9ed9cce`。根逐项核对9 NEW原字节、9 OLD原字节和保留BOM/去BOM两种LF前后值、16主线support、5stage证据及官方source；patch恰好9个唯一单Update。窄应用后9 NEW raw、9 OLD去BOM LF after全部匹配。冻结stage及历史NEW-ready manifest未改写。
+
+樵拾只使用实际Ending原父帧、发行来源/内容指纹/真实Round和有序两份Draw1账单。自己也是当前角色时保持两次独立真实摸牌，第一份gain/Recover/HP子结算完成后才发行第二份，第二份子结算完成后才比较最终手牌。已接受的两份收益不因中途来源丢失而撤销；死亡或赢家仅取消尚未发行部分。最终不等使用成熟owner+skill+state Round账，重获实例不能清掉本轮失效，真实额外回合不能推进Round；该节点显式启用Round依赖，独立内容夹具也能获得真实Round。
+
+燕语重铸仅使用拥有者手牌里印刷的三种实体【杀】，真实Hand→Discard成本先入账、公开实体事实后发，再处理成本观察者，最后才发行真实Draw1及收益观察者。实际Play失去统计只按opt-in可信CardMovementRecord的标量phase stamp，拥有者Hand/Equipment/Judgment离开拥有区时计数；Processing清理不再次计数，同拥有区转移不计，私有粮堆/牌堆起点不扩入未验证口径。公开CardMovedEvent维持原五项形状，没有新增逐失去牌的公开身份事实。PlayEnded通过原阶段账及成熟男性目标/Draw2处理支持收益。
+
+根独立纠正两项当前主线字节，原冻结交付保持原样，散列见 `docs/content/sources/fenglin-thirtieth-752-static-followup-2026-10-04.json`。原实现会在成本子结算后来源失效、死亡或赢家出现时未调用DrawCards，却仍发布DrawIssued(0)。现在保留真实已付CardRecast(0)及失去账，清除原receipt/pending，取消并立即返回，避免对已pop帧继续executor；真正调用DrawCards且空堆的Draw0路径继续记录真实账单。原第三检查方法增加真实成本观察者移除来源、成本点四视角冷存档后继续命令的取消分支，核对已付账保留、无未尝试摸牌invoice/移动、原帧取消及移除，没有增加runner方法。
+
+主线登记BoundaryXiahouShiContent、原四方法和第一项名称routine前缀。官方原始750×950 PNG为1028929字节，SHA `4f6fc04c3ae8354cc25ccfb63ac0495e40c235701b3267c2d3cce628687b5f1f`；精确来源及图像SHA核对后复制到Assets并单项登记catalog，没有运行全目录离线验收。没有按武将修改全局规则epoch、rules schema或内容包版本。
+
+以上为静态证据。四个真实命令/四视角冷恢复检查及根取消分支均未编译、加载或执行；空堆、死亡/赢家、同实体重获再失去、额外Play、深层Damage/AttackHpLoss/SelfDying/酒/RecoveryReplacement是合同及源码边界，不能称为运行通过。根据用户休息期间指令，全部build、production loader、tests、native AI和benchmark继续延后，runs为空、runtimeAcceptance=false；routine耗时也尚未测量。

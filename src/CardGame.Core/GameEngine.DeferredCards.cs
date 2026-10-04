@@ -29,11 +29,11 @@ public sealed partial class GameEngine
         var exemptKinds = _turnCardUseEffects.GetHandLimitExemptCardKinds(_turnNumber, _turnProgression.OwnerSeat, owner.Seat);
         if (!HasCardPolicy(owner, SkillProgramCardPolicyKind.IgnoreTurnObtainedHandCardsForDiscard))
             return exactIds.Count == 0 && exemptKinds.Count == 0 ? hand :
-                hand.Where(card => !exactIds.Contains(card.Id) && !exemptKinds.Contains(card.Kind)).ToArray();
+                hand.Where(card => !exactIds.Contains(card.Id) && !IsEffectiveHandKindExempt(owner, card, exemptKinds)).ToArray();
         var obtained = EventsSinceLastBoundary(item => item is TurnStartedEvent)
             .OfType<CardMovedEvent>().Where(item => item.To == CardLocation.Hand(owner.Seat) && item.From != item.To)
             .Select(item => item.CardId).ToHashSet();
-        return hand.Where(card => !obtained.Contains(card.Id) && !exactIds.Contains(card.Id) && !exemptKinds.Contains(card.Kind)).ToArray();
+        return hand.Where(card => !obtained.Contains(card.Id) && !exactIds.Contains(card.Id) && !IsEffectiveHandKindExempt(owner, card, exemptKinds)).ToArray();
     }
 
     private void ConsumeSkippedNextTurnDrawBenefits(CharacterState current)

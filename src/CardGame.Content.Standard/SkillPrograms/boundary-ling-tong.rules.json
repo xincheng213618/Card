@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:xuanfeng-current",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "owner-batch-loss-discard",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "sourceZones": ["hand", "equipment", "judgment"],
+          "movementOccurrence": "perOwnerBatch",
+          "optional": true,
+          "condition": {
+            "kind": "any",
+            "children": [
+              {
+                "kind": "compare",
+                "left": { "kind": "movedEquipmentCardCount" },
+                "operator": "greaterThan",
+                "right": { "kind": "integerConstant", "value": 0 }
+              },
+              {
+                "kind": "compare",
+                "left": { "kind": "movedCardCount" },
+                "operator": "greaterThanOrEqual",
+                "right": { "kind": "integerConstant", "value": 2 }
+              }
+            ]
+          },
+          "effects": [
+            { "op": "chooseOtherOwnedCardDiscard", "target": "owner", "chooserRef": { "kind": "owner" }, "zones": ["hand", "equipment"] },
+            { "op": "chooseOtherOwnedCardDiscard", "target": "owner", "chooserRef": { "kind": "owner" }, "zones": ["hand", "equipment"] }
+          ]
+        }
+      ]
+    }
+  ]
+}
