@@ -1,0 +1,55 @@
+{
+  "generalId": "boundary:cao-ren",
+  "characterName": "界曹仁",
+  "officialId": 29,
+  "sourcePage": "https://www.sanguosha.com/hero/29",
+  "capturedAt": "2026-10-05",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 29,
+    "name": "曹仁",
+    "extend": "",
+    "hp": 4,
+    "figure": "魏",
+    "quality": ""
+  },
+  "artwork": {
+    "skinId": "2900",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/2900.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-cao-ren-jie.png",
+    "sha256": "3276704647bd5569021efa72f5d584fa12668e2e2682b0726e6bc54e34634849",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "据守",
+      "text": "结束阶段，你可以翻面并摸四张牌，然后你弃置一张手牌或使用一张装备牌。",
+      "programId": "boundary:jushou-current",
+      "notes": [
+        "playEnding 可选触发：setFaceState(faceDown) + draw 4 + discardHandOrUseEquipment（本批新操作）。"
+      ]
+    },
+    {
+      "name": "解围",
+      "text": "你可以将装备区里的一张牌当【无懈可击】使用；当你的武将牌翻至正面朝上时，你可以弃置一张牌，然后选择一名其他角色，将其装备区里的一张牌移动到另一名角色的装备区。",
+      "programId": "boundary:jiewei-current",
+      "notes": [
+        "viewAs：equipment 源区 → outputKind nullification（forResponse，非出牌阶段使用）。",
+        "翻面触发 characterTurnedFaceUp：selectAndMoveOwnedCard(own hand+equipment 1→discardPile, skipIfNoCards) + selectTarget(otherLiving, skipIfNoTarget) + moveFieldEquipment（本批新操作，ReadSelectedTarget 提供来源，非 IsGeneralWeapon 且目标槽位可入）。",
+        "“将其装备区里的一张牌移动到另一名角色的装备区”的可达配对等价于任意 (来源, 去向) 不同角色对；实现取 selectTarget 选定去向角色、候选覆盖场上其余角色装备牌（非 IsGeneralWeapon 且去向槽位可入）的口径，outcome 集合与原文一致。移动落槽沿用装备移动公共路径（Processing 暂存 + ResolveEquipmentSkillGrant + ResolveSilverLionRemoval）。"
+      ]
+    }
+  ],
+  "apiInfo": {
+    "hp": 4,
+    "figure": "wei",
+    "initial_hp": 0
+  },
+  "genderBasis": "官方无结构化性别字段；沿仓库同角色（曹仁）男性惯例。",
+  "observations": [
+    "官方页 fetch 时间 2026-10-05（页面 + /api/v1/hero/info?gid=29），gid 29 为 OL 当前曹仁页，页面文本即界版（据守 + 解围）。",
+    "据守/解围各引入一个新 SkillProgramEffectOp（discardHandOrUseEquipment 7150、moveFieldEquipment 7151），均为独立标准形态：前者是“弃置或使用”二选一应答，后者是跨角色装备区移动。"
+  ]
+}

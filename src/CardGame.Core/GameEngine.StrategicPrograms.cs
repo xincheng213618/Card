@@ -207,6 +207,17 @@ public sealed partial class GameEngine
             }
             choices.Add(Choice("decline", "不弃置牌", [], []));
         }
+        else if (draft.Op is SkillProgramEffectOp.DiscardHandOrUseEquipment or SkillProgramEffectOp.MoveFieldEquipment)
+        {
+            // Both costs are mandatory once the owning skill activated; the draft only ever lists pay options.
+            foreach (var cardId in draft.Candidates.Where(id => !draft.Selected.Contains(id)))
+            {
+                var location = _cardZones.GetLocation(cardId);
+                var card = _cardZones.CardsAt(location).Single(item => item.Id == cardId);
+                var holder = location.OwnerSeat is { } seat ? _players[seat].Name : "牌堆";
+                choices.Add(Choice($"card-{cardId}", $"{holder}：{card.DisplayName}", [cardId], []));
+            }
+        }
         else if (draft.Op == SkillProgramEffectOp.SuppressGeneralSkill)
         {
             var target = _players[draft.TargetSeat];
@@ -247,6 +258,15 @@ public sealed partial class GameEngine
                 if (selected.Length < 4) { _strategicDrafts[frame.Id] = draft with { Selected = selected }; PublishStrategicPrompt(frame); return; }
                 SetProgramCardSet(frame.Id, draft.Bind!, selected, SkillProgramCardSetVisibility.Private, selected.Select(card => _cardZones.GetLocation(card)).ToArray());
             }
+        }
+        else if (draft.Op is SkillProgramEffectOp.DiscardHandOrUseEquipment or SkillProgramEffectOp.MoveFieldEquipment)
+        {
+            _strategicDrafts.Remove(frame.Id);
+            var cardId = choice.Cards.Single();
+            if (draft.Op == SkillProgramEffectOp.DiscardHandOrUseEquipment)
+                ResolveDiscardHandOrUseEquipment(frame, cardId);
+            else ResolveMoveFieldEquipment(frame, cardId);
+            return;
         }
         else if (draft.Op == SkillProgramEffectOp.SuppressGeneralSkill)
         {

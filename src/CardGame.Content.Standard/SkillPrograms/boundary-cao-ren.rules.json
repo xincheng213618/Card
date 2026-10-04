@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:jushou-current",
+      "revision": 1,
+      "minimumRulesVersion": 195,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "ending-flip-draw-and-cost",
+          "window": "playEnding",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "setFaceState",
+              "target": "owner",
+              "faceDown": true
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 4
+            },
+            {
+              "op": "discardHandOrUseEquipment",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "boundary:jiewei-current",
+      "revision": 1,
+      "minimumRulesVersion": 195,
+      "modifiers": [],
+      "viewAs": [
+        {
+          "id": "equipment-as-nullification",
+          "sourceZones": ["equipment"],
+          "inputKinds": [],
+          "inputSuits": [],
+          "outputKind": "nullification",
+          "forPlay": false,
+          "forResponse": true
+        }
+      ],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "face-up-relocation",
+          "window": "characterTurnedFaceUp",
+          "subject": "owner",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand", "equipment"],
+              "count": 1,
+              "destination": "discardPile",
+              "skipIfNoCards": true
+            },
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving",
+              "skipIfNoTarget": true
+            },
+            {
+              "op": "moveFieldEquipment",
+              "target": "owner"
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    }
+  ]
+}

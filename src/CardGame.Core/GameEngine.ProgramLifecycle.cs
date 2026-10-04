@@ -4061,7 +4061,8 @@ public sealed partial class GameEngine
                 .GetPausedInstruction(frame.InstructionIndex).Effect;
             selected = paused.Op switch
             {
-                SkillProgramEffectOp.LoseSkillsAndObtainNamedCard => decision.Choices.OrderBy(c => c.Cards.Count == 0 ? 0 : 1).ThenBy(c => c.Id.Value, StringComparer.Ordinal).First(),
+                SkillProgramEffectOp.DiscardHandOrUseEquipment or SkillProgramEffectOp.MoveFieldEquipment =>
+                    decision.Choices.First(),
                 SkillProgramEffectOp.DonateAllEquipmentAndOfferRecipientBenefits => SelectAiEquipmentDonation(decision, frame),
                 SkillProgramEffectOp.ChooseEquipmentOrDrawAfterOtherActualTurn => SelectAiActualEndedEquipment(decision, frame),
                 SkillProgramEffectOp.DrawLostHpThenOfferOwnedCardsUpTo => SelectAiLostHpOwnedGift(decision, frame),

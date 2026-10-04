@@ -187,6 +187,7 @@ public enum SkillProgramEffectOp
 {
     DiscardTargetHpCardsAndDamage = 7601,
     DiscardOwnedCardToAdjustCurrentDamage = 7100,
+    DiscardHandOrUseEquipment = 7150, MoveFieldEquipment = 7151,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,

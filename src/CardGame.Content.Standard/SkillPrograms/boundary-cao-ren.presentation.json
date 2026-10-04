@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:jushou-current": {
+      "name": "据守",
+      "description": "结束阶段，你可以翻面并摸四张牌，然后你弃置一张手牌或使用一张装备牌。"
+    },
+    "boundary:jiewei-current": {
+      "name": "解围",
+      "description": "你可以将装备区里的一张牌当【无懈可击】使用；当你的武将牌翻至正面朝上时，你可以弃置一张牌，然后选择一名其他角色，将其装备区里的一张牌移动到另一名角色的装备区。"
+    }
+  }
+}
