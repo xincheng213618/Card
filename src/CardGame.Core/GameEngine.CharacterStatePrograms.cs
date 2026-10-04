@@ -63,7 +63,7 @@ public sealed partial class GameEngine
         {
             case CharacterStateContinuation.Program: AdvanceRuntimeProgram(frame.ResumeProgramFrameId!.Value); break;
             case CharacterStateContinuation.CardUse:
-                var card = _cardZones.CardsAt(_cardZones.GetLocation(frame.ResumeCardId!.Value)).Single(item => item.Id == frame.ResumeCardId);
+                var card = GetTrickRepresentation(frame.ResumeProgramFrameId!.Value, frame.ResumeCardId!.Value);
                 FinishCardUse(frame.ResumeProgramFrameId!.Value, card, frame.ResumeCardKind); break;
             case CharacterStateContinuation.VirtualBasicCardUse: FinishVirtualBasicUse(frame.ResumeProgramFrameId!.Value); break;
             case CharacterStateContinuation.SkippedTurn: CompleteFaceUpSkippedTurn(_players[frame.OwnerSeat]); break;

@@ -1,8 +1,8 @@
 {
-  "status": "one-owned-implementation-two-current-grant-source-gaps-runtime-deferred",
+  "status": "one-full-static-main-integration-two-current-grant-source-gaps-runtime-deferred",
   "batch": 31,
   "baselineCommit": "c0cf5dfec064882b3b4b513a6ec04dc29843ac3b",
-  "recordedAtUtc": "2026-10-04T07:26:28.6581780Z",
+  "recordedAtUtc": "2026-10-04T07:26:28.658178Z",
   "userSteering": {
     "instruction": "Keep adding and commit; user will run unified tests after waking because CPU noise",
     "buildsRun": false,
@@ -38,12 +38,13 @@
       "linkedRuleSha256": "f66822510b9c9716788f0d0768e79ebc40ae3933dcf29c6885400b21a05b8bda",
       "originalSnapshotReady": false,
       "currentFullImplementationSourceReady": true,
-      "mainRegistered": false,
-      "status": "owned-contract-and-new-development-no-main-integration",
+      "mainRegistered": true,
+      "status": "full-static-main-integrated-runtime-deferred",
       "owner": "/root/next_batch_audit",
       "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch31\\guo-huang-hou",
       "reservedCapacity": "6900-6999",
-      "runtimeAcceptance": false
+      "runtimeAcceptance": false,
+      "integrationRecord": "docs/content/sources/fenglin-thirty-first-726-static-integration-2026-10-04.json"
     },
     {
       "gid": 449,
@@ -82,7 +83,14 @@
     "unresolved690And449": true
   },
   "runs": [],
-  "integrations": [],
+  "integrations": [
+    {
+      "gid": 726,
+      "record": "docs/content/sources/fenglin-thirty-first-726-static-integration-2026-10-04.json",
+      "staticOnly": true,
+      "runtimeAcceptance": false
+    }
+  ],
   "runtimeAcceptance": false,
   "engineeringDefaults": {
     "officialFAQ": false,
@@ -96,7 +104,7 @@
   "media": {
     "record": "docs/content/sources/fenglin-thirty-first-art-2026-10-04.json",
     "rawCaptured": 1,
-    "installed": 0,
+    "installed": 1,
     "sha256": "e5a4b72b604fb293dd51220c4a152e4a69fe9021d1a030b00f4b247a8f327091",
     "originalBytesUnmodified": true,
     "fullOfflineCatalogRun": false,
@@ -106,14 +114,29 @@
     "perCharacterBumped": false
   },
   "pending": [
-    "726 full NEW/final OLD static review and registration",
-    "690 font878/939 and449 font885 current grant-source evidence remains unresolved",
-    "All runtime, full and measured routine verification deferred until user resumes"
+    "726 Core/WPF execution, appropriate full and measured routine verification deferred until user resumes",
+    "690 font878/939 and449 font885 current grant-source evidence remains unresolved"
   ],
   "cleanup": {
     "ownedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
     "priorAutomaticApprovalRejection": "blocked by policy",
     "retryPerformed": false,
     "sourceStagesAndCacheRetainedForContinuation": true
+  },
+  "currentGrantFollowup": {
+    "status": "bounded-primary-history-strengthened-current-grants-still-unresolved",
+    "sourceJson": "docs/content/sources/fenglin-thirty-first-current-grant-followup-2026-10-04.json",
+    "notes": "docs/content/skill-composition/FENG_LIN_THIRTY_FIRST_CURRENT_GRANT_FOLLOWUP.md",
+    "readiness": {
+      "690": false,
+      "449": false
+    },
+    "historical449RawCaptured": true,
+    "currentFont878Resolved": false,
+    "currentFont939Resolved": false,
+    "currentFont885InheritanceProved": false,
+    "runtime": false,
+    "build": false,
+    "test": false
   }
 }

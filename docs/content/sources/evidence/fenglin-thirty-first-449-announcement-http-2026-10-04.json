@@ -1,0 +1,73 @@
+{
+  "requestUrl": "https://www.sanguosha.com/news/20200101_3308_3113",
+  "method": "GET",
+  "requestStartedUtc": "2026-10-04T08:34:52.9553211+00:00",
+  "redirectsFollowed": false,
+  "retries": 0,
+  "pageJavaScript": false,
+  "media": false,
+  "httpStatus": 200,
+  "responseUrl": "https://www.sanguosha.com/news/20200101_3308_3113",
+  "completedUtc": "2026-10-04T08:34:53.3408476+00:00",
+  "rawPath": ".artifacts/continuation-20261003-batch17/batch31/current-grant-followup/449-20200101-official-announcement.raw.html",
+  "rawBytes": 136091,
+  "rawSha256": "1651923c0c6ee3c09db59477f90ff3640688a8fefe098ccc2f22ba28593d2574",
+  "headers": {
+    "Server": [
+      "istio-envoy"
+    ],
+    "trace-id": [
+      "f5f06610328fdff7c4791502b79a76ba"
+    ],
+    "Date": [
+      "Sun, 04 Oct 2026 08:34:56 GMT"
+    ],
+    "Vary": [
+      "Accept-Encoding"
+    ],
+    "x-varnish": [
+      "57412259"
+    ],
+    "Age": [
+      "0"
+    ],
+    "Accept-Ranges": [
+      "bytes"
+    ],
+    "x-varnish-cache": [
+      "miss"
+    ],
+    "req-cost-time": [
+      "33"
+    ],
+    "req-arrive-time": [
+      "1791102896696"
+    ],
+    "resp-start-time": [
+      "1791102896729"
+    ],
+    "x-envoy-upstream-service-time": [
+      "32"
+    ],
+    "Set-Cookie": [
+      "acw_tc=180113d117911028966968094e2b00063779452f206fede78353454a882857;path=/;HttpOnly;Max-Age=1800"
+    ],
+    "X-Cache-Lookup": [
+      "Cache Miss",
+      "Hit From Upstream Cluster",
+      "Cache Miss"
+    ],
+    "Transfer-Encoding": [
+      "chunked"
+    ],
+    "X-NWS-LOG-UUID": [
+      "12748427452819792476"
+    ],
+    "Connection": [
+      "keep-alive"
+    ],
+    "Content-Type": [
+      "text/html"
+    ]
+  }
+}

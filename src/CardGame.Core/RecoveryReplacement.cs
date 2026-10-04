@@ -340,7 +340,7 @@ public sealed partial class GameEngine
             case PostEventContinuation.AwaitedProgramMovement:
                 if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.CardUse:
-                var card = _cardZones.CardsAt(_cardZones.GetLocation(continuation.CardId!.Value)).Single(c => c.Id == continuation.CardId);
+                var card = GetTrickRepresentation(continuation.ResumeFrameId!.Value, continuation.CardId!.Value);
                 FinishCardUse(continuation.ResumeFrameId!.Value, card, continuation.CardKind); break;
             case PostEventContinuation.VirtualBasicCardUse: FinishVirtualBasicUse(continuation.ResumeFrameId!.Value); break;
             case PostEventContinuation.GroupRecovery: CompleteGroupRecoveryTarget(); break;

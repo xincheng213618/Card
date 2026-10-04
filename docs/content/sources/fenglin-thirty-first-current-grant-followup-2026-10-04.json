@@ -1,0 +1,283 @@
+{
+  "status": "additive-current-grant-evidence-followup-gaps-retained",
+  "draftGeneratedAtUtc": "2026-10-04T09:03:02.016552+00:00",
+  "documentationReviewHead": "e492e9e8d83a1d921de471d1463c4ae288b0251f",
+  "authority": "Only the frozen batch31 original/current source and bounded followup evidence; no new search or inherited-version assertion.",
+  "frozenManifestOrigin": {
+    "stagePath": ".artifacts/continuation-20261003-batch17/batch31/current-grant-followup/delivery-manifest.json",
+    "rawSha256": "b95adb2efbefc3ea3f8e537025437f0348ac594a195476d550b1be93a43b6816"
+  },
+  "sourceReadiness": {
+    "690": false,
+    "449": false
+  },
+  "records": [
+    {
+      "officialId": 690,
+      "name": "界关兴张苞",
+      "capturedUtc": "2026-10-04T08:39:31.123054+00:00",
+      "status": "current-font878-font939-source-gap-retained",
+      "currentSource": {
+        "path": "docs/content/sources/fenglin-thirty-first-690-source-2026-10-04.json",
+        "rawSha256": "a9d4e50225c01265c72db3bb0ba1485d354b0f237a402618344b7ceb0bb86779"
+      },
+      "previousLinkedEvidence": {
+        "path": "docs/content/sources/fenglin-thirty-first-690-linked-rule-source-2026-10-04.json",
+        "rawSha256": "497cc3fc43413267fe3353b5ab28fd680b73ba318555773df8ce4259b34d4fdb"
+      },
+      "currentMain": [
+        {
+          "name": "父魂",
+          "currentText": "你可将两张牌当【杀】使用或打出。你使用的转化【杀】目标角色只能使用颜色相同的手牌响应；\n你于出牌阶段使用【杀】造成伤害后，你本回合获得“武圣”“咆哮”。",
+          "html": "你可将两张牌当【杀】使用或打出。你使用的转化【杀】目标角色只能使用颜色相同的手牌响应；<br>你于出牌阶段使用【杀】造成伤害后，你本回合获得“<font href='878'>武圣</font>”“<font href='939'>咆哮</font>”。",
+          "fontReferences": [
+            {
+              "id": 878,
+              "label": "武圣",
+              "resolved": false
+            },
+            {
+              "id": 939,
+              "label": "咆哮",
+              "resolved": false
+            }
+          ]
+        }
+      ],
+      "newSearchEvidence": {
+        "path": "docs/content/sources/evidence/fenglin-thirty-first-current-grant-search-2026-10-04.json",
+        "queryIndex": 0
+      },
+      "currentExpandedGrantFound": false,
+      "priorHistoricalAuthority": {
+        "url": "https://www.sanguosha.com/news/20161221_2508_2516",
+        "title": "[攻略] 一将成名2012武将：关兴张苞攻略文",
+        "publishedLocalAsDisplayed": "2016-12-21 15:11:25",
+        "timezoneNotExplicitlyDisplayed": true,
+        "openResult": "Internal Error",
+        "httpStatus": null,
+        "evidenceAuthority": "Official search readable extract; independent open failed; no raw response capture.",
+        "mainText": "你可以将两张手牌当【杀】使用或打出；当你于出牌阶段内以此法使用的【杀】造成伤害后，你获得“武圣”和“咆哮”，直到回合结束。",
+        "derivedTextAsSearchExtract": {
+          "武圣": "你可以将一张红色牌当【杀】使用或打出。",
+          "咆哮": "锁定技，你使用【杀】无次数限制。"
+        },
+        "typography": "Search renderer uses 〖杀〗; bracket glyphs normalized here without changing wording."
+      },
+      "mainDifferences": [
+        {
+          "area": "conversion materials",
+          "current": "两张牌",
+          "historical2012": "两张手牌",
+          "kind": "substantive source-zone wording difference"
+        },
+        {
+          "area": "target responses",
+          "current": "转化杀的目标只能使用颜色相同的手牌响应",
+          "historical2012": "No corresponding restriction in the retained main body",
+          "kind": "substantive current added behavior"
+        },
+        {
+          "area": "grant condition",
+          "current": "出牌阶段使用杀造成伤害后",
+          "historical2012": "出牌阶段内以此法使用的杀造成伤害后",
+          "kind": "current condition is not limited to this conversion"
+        },
+        {
+          "area": "grant duration",
+          "current": "本回合",
+          "historical2012": "直到回合结束",
+          "kind": "wording corresponds to turn-end duration; not a derived-version identity proof"
+        }
+      ],
+      "unresolved": [
+        {
+          "fontId": 878,
+          "label": "武圣"
+        },
+        {
+          "fontId": 939,
+          "label": "咆哮"
+        }
+      ],
+      "versionEvidence": {
+        "matchingCurrentGrantedVersionProved": false,
+        "reason": "New search expands neither font. The previous complete grant definitions belong to explicitly classic 一将成名2012 with a different main recipe."
+      },
+      "fullImplementationSourceReady": false,
+      "recommendation": "Retain bounded grant-source gap; no classic/same-name import and no partial module registration.",
+      "execution": {
+        "runtime": false,
+        "implementation": false,
+        "mainWrites": false,
+        "gitWrites": false,
+        "build": false,
+        "compiler": false,
+        "loader": false,
+        "tests": false,
+        "nativeAi": false,
+        "nativeGame": false,
+        "benchmark": false,
+        "newHttpRequests": 0,
+        "newWebSearches": 0,
+        "media": false,
+        "originalFrozenEvidenceModified": false
+      },
+      "frozenEvidenceOrigin": {
+        "stagePath": ".artifacts/continuation-20261003-batch17/batch31/current-grant-followup/690-current-grant-followup.json",
+        "rawSha256": "0db7ef0e6b039f47d792ba2cc7bc0d86229e8a33ab8dd89f35439126844add7e"
+      },
+      "fullCurrentMainText": true,
+      "runtimeAcceptance": false
+    },
+    {
+      "officialId": 449,
+      "name": "界于吉",
+      "capturedUtc": "2026-10-04T08:39:31.123054+00:00",
+      "status": "ordinary-ol-boundary-historical-primary-captured-current-font885-inheritance-gap",
+      "currentSource": {
+        "path": "docs/content/sources/fenglin-thirty-first-449-source-2026-10-04.json",
+        "rawSha256": "53d1ea9e3de088db5d760816be8c09de176ee870699031586ac3997c88623fe1"
+      },
+      "previousLinkedEvidence": {
+        "path": "docs/content/sources/fenglin-thirty-first-449-linked-rule-source-2026-10-04.json",
+        "rawSha256": "e9b38dc096022a5d3e9a57815918db61e26f44335e560e077e3fcec2ff685d2b"
+      },
+      "currentMain": [
+        {
+          "name": "蛊惑",
+          "currentText": "每回合限一次，你可以扣置一张手牌当任意基本牌或普通锦囊牌使用或打出。其他角色可以同时质疑并翻开此牌：若为假，此牌作废，质疑者摸一张牌；若为真，质疑者获得“缠怨”，然后弃置一张牌或失去1点体力。",
+          "html": "每回合限一次，你可以扣置一张手牌当任意基本牌或普通锦囊牌使用或打出。其他角色可以同时质疑并翻开此牌：若为假，此牌作废，质疑者摸一张牌；若为真，质疑者获得“<font href='885'>缠怨</font>”，然后弃置一张牌或失去1点体力。",
+          "fontReferences": [
+            {
+              "id": 885,
+              "label": "缠怨",
+              "resolved": false
+            }
+          ]
+        }
+      ],
+      "newSearchEvidence": {
+        "path": "docs/content/sources/evidence/fenglin-thirty-first-current-grant-search-2026-10-04.json",
+        "queryIndex": 1
+      },
+      "primary": {
+        "url": "https://www.sanguosha.com/news/20200101_3308_3113",
+        "httpStatus": 200,
+        "requestStartedUtc": "2026-10-04T08:34:52.9553211+00:00",
+        "completedUtc": "2026-10-04T08:34:53.3408476+00:00",
+        "rawPath": "docs/content/sources/evidence/fenglin-thirty-first-449-announcement-20200101.raw.html",
+        "rawBytes": 136091,
+        "rawSha256": "1651923c0c6ee3c09db59477f90ff3640688a8fefe098ccc2f22ba28593d2574",
+        "headersEvidencePath": "docs/content/sources/evidence/fenglin-thirty-first-449-announcement-http-2026-10-04.json",
+        "title": "1.3-1.9 界于吉新品上架，夺宝转盘更新",
+        "publishedLocalAsDisplayed": "2020-01-02 18:51:16",
+        "timezoneNotExplicitlyDisplayed": true,
+        "editionEvidence": [
+          "Actual article section 三国杀OL商城上架",
+          "Actual named hero 界于吉新品礼包/界于吉正式上架",
+          "经典版界于吉 occurs as package shape/skin wording; not treated as proof that this is the classic unbounded hero rule"
+        ],
+        "skills": [
+          {
+            "name": "蛊惑",
+            "text": "每名角色的回合限一次，你可以扣置一张手牌当任意一张基本牌或普通锦囊牌使用或打出。其他角色可以进行质疑并翻开此牌：若为假则此牌作废，且质疑者摸一张牌；若为真则所有质疑者需要选择弃置一张牌或失去1点体力,并且获得\"缠怨\"。",
+            "visibleRawLine": 1447,
+            "identicalRawOccurrences": 2
+          },
+          {
+            "name": "缠怨",
+            "text": "锁定技，你不能质疑\"蛊惑\"；你的体力值小于等于1时，你的其他技能失效。",
+            "visibleRawLine": 1450,
+            "identicalRawOccurrences": 2
+          }
+        ],
+        "rawCurrentFont885BindingFound": false
+      },
+      "mainDifferences": [
+        {
+          "area": "usage boundary",
+          "current": "每回合限一次",
+          "historical2020": "每名角色的回合限一次",
+          "kind": "wording corresponds to actual per-turn scope; not an inheritance proof"
+        },
+        {
+          "area": "declared kinds/material",
+          "current": "扣置一张手牌当任意基本牌或普通锦囊牌使用或打出",
+          "historical2020": "扣置一张手牌当任意一张基本牌或普通锦囊牌使用或打出",
+          "kind": "same described material and kind set"
+        },
+        {
+          "area": "challenge timing",
+          "current": "其他角色可以同时质疑",
+          "historical2020": "其他角色可以进行质疑",
+          "kind": "current explicitly specifies simultaneous; historical body does not"
+        },
+        {
+          "area": "fake challenge result",
+          "current": "此牌作废，质疑者摸一张牌",
+          "historical2020": "此牌作废，且质疑者摸一张牌",
+          "kind": "same described invalidation and draw result"
+        },
+        {
+          "area": "true challenge result and order",
+          "current": "质疑者获得缠怨，然后弃置一张牌或失去1点体力",
+          "historical2020": "所有质疑者需要选择弃置一张牌或失去1点体力,并且获得缠怨",
+          "kind": "current explicitly fixes grant-before-cost; historical conjunction states both outcomes without the same explicit order"
+        }
+      ],
+      "derivedComparison": {
+        "currentBody": null,
+        "currentFontId": 885,
+        "currentLabel": "缠怨",
+        "historicalBody": "锁定技，你不能质疑\"蛊惑\"；你的体力值小于等于1时，你的其他技能失效。",
+        "currentIdentityOrInheritanceProved": false
+      },
+      "newlyClosedEvidenceGap": "Successful retained full primary announcement/raw response, exact ordinary-OL boundary edition and historical derived body.",
+      "remainingGap": "No current font885 mapping or explicit current inheritance/version evidence; current main has simultaneous and explicit grant-before-cost wording absent from the historical main.",
+      "fullImplementationSourceReady": false,
+      "recommendation": "Parent may review historical supplement, but do not automatically declare current full source ready or register a partial general.",
+      "execution": {
+        "runtime": false,
+        "implementation": false,
+        "mainWrites": false,
+        "gitWrites": false,
+        "build": false,
+        "compiler": false,
+        "loader": false,
+        "tests": false,
+        "nativeAi": false,
+        "nativeGame": false,
+        "benchmark": false,
+        "newHttpRequests": 0,
+        "newWebSearches": 0,
+        "media": false,
+        "originalFrozenEvidenceModified": false
+      },
+      "frozenEvidenceOrigin": {
+        "stagePath": ".artifacts/continuation-20261003-batch17/batch31/current-grant-followup/449-current-grant-followup.json",
+        "rawSha256": "87d7dd9486d75f237c21ebe131df0331175a94d553d43bd52995cef0201a5090"
+      },
+      "fullCurrentMainText": true,
+      "runtimeAcceptance": false
+    }
+  ],
+  "publicationCaution": "Historical published-local dates remain as displayed with unspecified timezone; search extracts without raw successful opens are labeled as such.",
+  "execution": {
+    "runtime": false,
+    "implementation": false,
+    "mainWrites": false,
+    "gitWrites": false,
+    "build": false,
+    "compiler": false,
+    "loader": false,
+    "tests": false,
+    "nativeAi": false,
+    "nativeGame": false,
+    "benchmark": false,
+    "newHttpRequests": 0,
+    "newWebSearches": 0,
+    "media": false,
+    "originalFrozenEvidenceModified": false
+  }
+}

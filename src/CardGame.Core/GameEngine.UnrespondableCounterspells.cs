@@ -27,7 +27,7 @@ public sealed partial class GameEngine
             action.RequesterSeat is not null || action.ParentActionId != parent.Action?.ActionId ||
             frozenSource.OwnerSeat != action.ActorSeat || string.IsNullOrWhiteSpace(frozenSource.SkillId) ||
             string.IsNullOrWhiteSpace(frozenSource.BindingId) || string.IsNullOrWhiteSpace(frozenSource.SkillInstanceId) ||
-            action.PhysicalCards.Count == 0 || current.ChainDepth <= 0 ||
+            action.PhysicalCards.Count == 0 && !IsIssuedTieredRoundZeroResponse(current, action) || current.ChainDepth <= 0 ||
             current.UnrespondableCounterspell is not null)
             throw new InvalidOperationException("Unrespondable counterspell lost its exact paid response action.");
         var receipt = new UnrespondableCounterspellReceipt(frozenSource, current.Id,

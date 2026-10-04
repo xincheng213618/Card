@@ -57,6 +57,7 @@ public sealed partial class GameEngine
                 action.ActorSeat, action.ProviderSeat, action.RequesterSeat, action.ResponderSeat, action.OpponentSeat, action.EffectiveKind,
                 targets, action.PhysicalCards, action.ConversionChain, targets, action.EffectiveSuit, action.EffectiveRank, action.EffectiveIsRed, action.FactionOrigin)) };
             ReplaceRuntimeFrame(_resolutionStack[_resolutionStack.FindIndex(item => item.Id == use.Id)].Id, use);
+            SyncIssuedTieredRoundZeroTrickTargetWindows(use.Id, action);
         }
         if (_currentSeat != frame.OwnerSeat || use.Action!.EffectiveDesignatedTargetSeats.Count != 1 ||
             !IsSlashCard(use.CardKind) && CardUseCategoryCatalog.Get(use.CardKind) != CardUseCategories.InstantTrick ||
@@ -141,6 +142,7 @@ public sealed partial class GameEngine
             TargetsAdjusted = use.TargetsAdjusted || option == "target" && use.CardKind == CardKind.BorrowedSword,
             EnhancementOwnerSeat = frame.OwnerSeat,
             IgnoresArmor = use.IgnoresArmor || enhancement == CurrentCardEnhancement.IgnoreArmor });
+        if (option == "target") SyncIssuedTieredRoundZeroTrickTargetWindows(use.Id, action);
         AdvanceEventRulesAndQueueFact(new CurrentCardEnhancedEvent(use.Id, action.ActionId, frame.OwnerSeat, enhancement, option == "target" ? selected.Targets[0] : null));
         ReplaceRuntimeTop(frame = frame with { CardEnhancementDraft = draft with { Selected = draft.Selected.Append(enhancement).ToArray(), ChoosingExtraTarget = false } });
         if (frame.CardEnhancementDraft.Selected.Count >= effect.Amount) { FinishProgramCardEnhancements(frame); return; }

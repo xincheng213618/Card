@@ -65,6 +65,7 @@ public sealed partial class GameEngine
     {
         foreach (var source in sources)
         {
+            ConsumeTieredRoundConversion(source);
             ConsumeNamedUseConversion(source);
             if (ViewAsRule(source) is not { UsesPerPhase: { } limit } rule) continue;
             if (rule.ActivationUsageGroup is { } activationGroup)

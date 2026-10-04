@@ -1,0 +1,96 @@
+{
+  "retainedAtUtc": "2026-10-04T09:11:52.858427+00:00",
+  "timestampMeaning": "Retention time only; the web tool exposed no per-request UTC/raw HTTP metadata.",
+  "domains": [
+    "sanguosha.com",
+    "weixin.sgsonline.com.cn"
+  ],
+  "searches": [
+    {
+      "query": "界左慈 化身 三张 限定技",
+      "count": 1
+    },
+    {
+      "query": "\"界左慈\" \"化身\" \"移去\" \"两张\"",
+      "count": 1
+    }
+  ],
+  "selectedLinks": [
+    {
+      "url": "https://www.sanguosha.com/news/20191212_3649_0318",
+      "title": "《三国杀OL》12月19日版本更新公告 燎原之势·合纵抗秦！ - 三国杀OL官网",
+      "selectedOpenCount": 1,
+      "webOpenResult": "Internal Error; (400) Timeout fetching",
+      "originHttpStatusKnownFromWeb": false,
+      "webOriginHttpStatus": null,
+      "webRawBodyAvailable": false,
+      "webHeadersAvailable": false,
+      "separateRootAuthorizedSingleGet": {
+        "status": 200,
+        "startedAtUtc": "2026-10-04T09:07:09.3870395+00:00",
+        "completedAtUtc": "2026-10-04T09:07:09.7480437+00:00",
+        "bytes": 88333,
+        "rawPath": ".artifacts/continuation-20261003-batch17/batch32/zuo-ci-scope-followup/2019-ol-boundary-release.raw",
+        "rawSha256": "8b4ea680c49c4a89079c6083b339afb6137c622ba8406e9905ec999962a71f98",
+        "fullHeadersEvidencePath": ".artifacts/continuation-20261003-batch17/batch32/zuo-ci-scope-followup/2019-ol-boundary-release.http.json",
+        "httpEvidenceRawSha256": "2ec0dee548320c205b410241d5f84a8d125b8328568d46cea8f31bef2b74c18c",
+        "redirectsFollowed": false,
+        "retries": 0
+      }
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20210903_6756_2218",
+      "title": "9月15日《三国杀OL》版本更新公告 - 三国杀OL官网",
+      "selectedOpenCount": 1,
+      "webOpenResult": "Internal Error; (400) Timeout fetching",
+      "originHttpStatusKnownFromWeb": false,
+      "webOriginHttpStatus": null,
+      "webRawBodyAvailable": false,
+      "webHeadersAvailable": false,
+      "separateRootAuthorizedSingleGet": {
+        "status": 200,
+        "startedAtUtc": "2026-10-04T09:07:09.7739870+00:00",
+        "completedAtUtc": "2026-10-04T09:07:10.2438991+00:00",
+        "bytes": 107337,
+        "rawPath": ".artifacts/continuation-20261003-batch17/batch32/zuo-ci-scope-followup/2021-ol-avatar-scope.raw",
+        "rawSha256": "ea507031f65b5511c665504534d95e328353d2752be086a0491d838dde51d1c5",
+        "fullHeadersEvidencePath": ".artifacts/continuation-20261003-batch17/batch32/zuo-ci-scope-followup/2021-ol-avatar-scope.http.json",
+        "httpEvidenceRawSha256": "f022d59eba842a985d0499d47f2c3e13e27f42f5ab3efb966a2ea7d3bdba1aef",
+        "redirectsFollowed": false,
+        "retries": 0
+      }
+    }
+  ],
+  "otherRelevantSearchHitsNotOpened": [
+    {
+      "url": "https://www.sanguosha.com/hero/447",
+      "reason": "Already captured current source; no repeat open."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20140521_8678_1419",
+      "reason": "Classic two-avatar player-submitted strategy; not a matching current boundary authority."
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/56",
+      "reason": "Classic same-person page, not current boundary."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20201205_4385_2018",
+      "reason": "Ten-anniversary/national-war source; wrong product/rule variant."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20220120_3198_2416",
+      "reason": "National-war ZuoCi change, not the current ordinary-OL avatar recipe."
+    }
+  ],
+  "budgetUsed": {
+    "searches": 2,
+    "selectedWebOpens": 2,
+    "separatelyAuthorizedRawGets": 2,
+    "retries": 0,
+    "newLinkFollows": 0,
+    "guessedResolvers": 0,
+    "mediaRequests": 0
+  },
+  "notASiteWideAbsenceClaim": true
+}

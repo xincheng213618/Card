@@ -241,6 +241,8 @@ public sealed partial class GameEngine
                                (dyingUse ? rule.ForResponse || rule.UseOnly && rule.ForPlay : forResponse ? rule.ForResponse && (!rule.UseOnly || IsProgramResponseCardUse(owner, outputKind) || (rule.ConversionStateId is not null || rule.UnusedOutputNameThisGame) && outputKind == CardKind.Nullification) : rule.ForPlay) &&
                                (rule.DeclarationValidation is null || CanDeclareCard(owner, instance.SkillId)) &&
                                IsNamedUseConversionAvailable(owner, instance, rule) &&
+                               (rule.TieredRoundConversion is null || !card.IsGeneralWeapon) &&
+                               CanUseTieredRoundConversion(owner, instance, rule, forResponse, dyingUse) &&
                                IsConfiguredConversionAvailable(owner, card, instance, rule, dyingUse) &&
                                (!rule.UnusedOutputThisTurn || !HasProgramUsedBasicCardThisTurn(owner.Seat, outputKind)) &&
                                (card.Kind != outputKind || rule.InheritPreviousPlaySuit || rule.ConversionStateId is not null || rule.AllowSameKind) &&

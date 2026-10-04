@@ -20,6 +20,7 @@ public sealed partial class GameEngine
         ObserveActualTurnTrickUse(payload);
         ObserveActualForeignUseTargets(payload);
         ObserveActualTurnDamageEntities(payload);
+        ObserveTrueRoundCardNames(payload);
         QueueGameEvent(payload);
         if (_started)
         {

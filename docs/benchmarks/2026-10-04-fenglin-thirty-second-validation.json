@@ -1,0 +1,49 @@
+{
+  "status": "bounded-one-source-candidate-historical-scope-strengthened-current-scope-gap-runtime-deferred",
+  "batch": 32,
+  "preflight": {
+    "status": "single-candidate-bounded-87-index-source-gap",
+    "retainedIndexRows": 87,
+    "siteWideClaim": false,
+    "postCacheExcludedCandidates": 13,
+    "freshCandidateGids": [
+      447
+    ],
+    "sourceJson": "docs/content/sources/fenglin-thirty-second-447-source-2026-10-04.json",
+    "preflightJson": "docs/content/sources/fenglin-thirty-second-candidate-exclusion-preflight-2026-10-04.json",
+    "notes": "docs/content/skill-composition/FENG_LIN_THIRTY_SECOND_SOURCE_PREFLIGHT.md",
+    "fullCurrentMainText": true,
+    "fullImplementationSourceReady": false,
+    "implemented": false,
+    "registered": false,
+    "runtime": false,
+    "build": false,
+    "test": false
+  },
+  "scopeFollowup": {
+    "currentInheritanceProved": false,
+    "shortageProved": false,
+    "recyclingProved": false,
+    "record": "docs/content/sources/fenglin-thirty-second-447-scope-followup-2026-10-04.json",
+    "runtime": false,
+    "currentCompletePoolProved": false
+  },
+  "sourceAdoptionRecord": "docs/content/sources/fenglin-thirty-second-source-adoption-2026-10-04.json",
+  "runs": [],
+  "integrations": [],
+  "runtimeAcceptance": false,
+  "originalSourceSnapshotsUnchanged": true,
+  "priorGaps": [
+    451,
+    690,
+    449
+  ],
+  "allBuildLoaderTestsDeferred": true,
+  "nextSourceGapPlan": {
+    "record": "docs/content/sources/fenglin-thirty-second-next-source-gap-plan-2026-10-04.json",
+    "notes": "docs/content/skill-composition/FENG_LIN_THIRTY_SECOND_NEXT_SOURCE_GAP_PLAN.md",
+    "newEvidence": false,
+    "readyGids": [],
+    "network": false
+  }
+}

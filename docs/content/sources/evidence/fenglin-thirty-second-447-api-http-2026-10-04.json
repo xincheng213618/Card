@@ -1,0 +1,69 @@
+{
+  "url": "https://www.sanguosha.com/api/v1/hero/info?gid=447",
+  "method": "GET",
+  "requestCount": 1,
+  "retries": 0,
+  "autoRedirect": false,
+  "startedAtUtc": "2026-10-04T08:47:27.8589202+00:00",
+  "status": 200,
+  "reasonPhrase": "OK",
+  "headers": {
+    "Server": [
+      "istio-envoy"
+    ],
+    "trace-id": [
+      "d25a93b6c35100b869636972cf0ed2bb"
+    ],
+    "Date": [
+      "Sun, 04 Oct 2026 08:47:31 GMT"
+    ],
+    "x-varnish": [
+      "55292390"
+    ],
+    "x-varnish-cache": [
+      "miss"
+    ],
+    "req-cost-time": [
+      "47"
+    ],
+    "req-arrive-time": [
+      "1791103651578"
+    ],
+    "resp-start-time": [
+      "1791103651625"
+    ],
+    "x-envoy-upstream-service-time": [
+      "46"
+    ],
+    "Set-Cookie": [
+      "acw_tc=180113d117911036515782820e2b006e50752cce352779b18a26ba46014c3b;path=/;HttpOnly;Max-Age=1800"
+    ],
+    "Vary": [
+      "Accept-Encoding"
+    ],
+    "X-Cache-Lookup": [
+      "Cache Miss",
+      "Hit From Upstream Cluster",
+      "Cache Miss"
+    ],
+    "Age": [
+      "0"
+    ],
+    "X-NWS-LOG-UUID": [
+      "12401329455203878446"
+    ],
+    "Connection": [
+      "keep-alive"
+    ],
+    "Content-Type": [
+      "application/json"
+    ],
+    "Content-Length": [
+      "851"
+    ]
+  },
+  "bytes": 851,
+  "rawPath": "447-api.raw",
+  "rawSha256": "fe92a94cfb78db260a19d3e61d434642f4bc8427619094d6c0f7e4617bb1bb22",
+  "completedAtUtc": "2026-10-04T08:47:28.1730465+00:00"
+}

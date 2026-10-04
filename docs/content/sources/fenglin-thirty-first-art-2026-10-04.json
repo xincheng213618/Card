@@ -1,5 +1,5 @@
 {
-  "status": "official-advertised-original-png-owned-stage-uninstalled",
+  "status": "official-original-png-registered-static-runtime-verification-deferred",
   "gid": 726,
   "name": "界郭皇后",
   "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/72600.png",
@@ -24,7 +24,11 @@
   "pixelWidth": 750,
   "pixelHeight": 950,
   "originalBytesUnmodified": true,
-  "installed": false,
+  "installed": true,
   "fullOfflineCatalogRun": false,
-  "compiledVerification": false
+  "compiledVerification": false,
+  "localPath": "src/CardGame.Wpf/Assets/official-boundary-guo-huang-hou.png",
+  "registeredModule": "BoundaryGuoHuangHouContent",
+  "matchingRuleFollowupMainPath": "docs/content/sources/fenglin-thirty-first-726-linked-rule-source-2026-10-04.json",
+  "mainRegistrationVerifiedStatically": true
 }

@@ -11880,6 +11880,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-guo-huang-hou",
+      "characterName": "界郭皇后",
+      "defaultSkinId": "72600",
+      "skins": [
+        {
+          "id": "72600",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/726",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/72600.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-guo-huang-hou.png",
+          "sha256": "e5a4b72b604fb293dd51220c4a152e4a69fe9021d1a030b00f4b247a8f327091",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

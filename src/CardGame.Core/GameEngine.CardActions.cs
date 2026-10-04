@@ -127,6 +127,8 @@ public sealed partial class GameEngine
         var action = CaptureFactionAction(new CardActionContext(++_cardActionSequence, parent?.Action?.ActionId,
             CardActionType.Response, actor.Seat, provider.Seat, requesterSeat, actor.Seat,
             opponentSeat, effectiveKind, [], costs, conversionSource is null ? [] : [conversionSource], effectiveSuit: completedResponseUseSuit, effectiveRank: CaptureAlcoholResponseRank(provider, effectiveKind, costs),effectiveIsRed:CaptureActionColor(costs,completedResponseUseSuit)));
+        if (parent is not null && actor.Seat == provider.Seat && requesterSeat is null && IsProgramResponseCardUse(actor, effectiveKind))
+            TryIssueTieredRoundResponse(parent, action);
         if (actor.Seat == provider.Seat && requesterSeat is null && IsProgramResponseCardUse(actor, effectiveKind))
         {
             RecordProgramUsedBasicCard(actor.Seat, effectiveKind);
@@ -539,7 +541,8 @@ public sealed partial class GameEngine
         if (action.Type != CardActionType.Use ||
             CardCatalog.Get(action.EffectiveKind).CategoryName != "锦囊牌" ||
             action.PhysicalCards.All(cost => cost.CardId != continuation.EffectCardId) &&
-                !MatchesSelectedActorDuelAction(frame.ParentFrameId, action, continuation.EffectCardId))
+                !MatchesSelectedActorDuelAction(frame.ParentFrameId, action, continuation.EffectCardId) &&
+                !MatchesTieredRoundZeroUseAction(frame.ParentFrameId, action, continuation.EffectCardId))
             throw new InvalidOperationException("The trick trigger continuation does not match its card action.");
         var card = GetTrickRepresentation(frame.ParentFrameId, continuation.EffectCardId, requireProcessing: true);
         var pending = new JizhiResolution(
@@ -625,7 +628,8 @@ public sealed partial class GameEngine
                 ? frame.TrickContinuation is { } trick &&
                   frame.Action.Type == CardActionType.Use &&
                   (frame.Action.PhysicalCards.Any(cost => cost.CardId == trick.EffectCardId) ||
-                   MatchesSelectedActorDuelAction(frame.ParentFrameId, frame.Action, trick.EffectCardId))
+                   MatchesSelectedActorDuelAction(frame.ParentFrameId, frame.Action, trick.EffectCardId) ||
+                   MatchesTieredRoundZeroUseAction(frame.ParentFrameId, frame.Action, trick.EffectCardId))
                 : frame.TrickContinuation is null;
             var completedResponseMatches = frame.CompletedResponseReturn is { } completedResponse
                 ? frame.Continuation is null && IsCompletedResponseUse(frame.Action, completedResponse.Kind) &&

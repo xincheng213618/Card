@@ -241,6 +241,7 @@ public sealed partial class GameEngine
         {
             var targets = Array.AsReadOnly(new[] { use.SourceSeat });
             UpdateLifecycleCardUse(use.Id, old => old with { TargetSeats = targets, Action = CloneRoleAction(old.Action!, old.SourceSeat, targets) });
+            SyncIssuedTieredRoundZeroTrickTargetWindows(use.Id, use.Action!);
             use = EnhancementCardUse(frame);
         }
         ReplaceRuntimeTop(frame = frame with { OriginalTargetAdditionDraft = new(use.Id, use.Action!.ActionId) });
@@ -266,6 +267,7 @@ public sealed partial class GameEngine
             UpdateLifecycleCardUse(use.Id, old => old with { TargetSeats = targets, Action = CloneRoleAction(action, action.ActorSeat, targets),
                 OriginalTargetAddition = old.OriginalTargetAddition! with { Added = true }, Enhancements = old.Enhancements | CurrentCardEnhancement.ExtraTarget,
                 TargetsAdjusted = old.TargetsAdjusted || old.CardKind == CardKind.BorrowedSword, EnhancementOwnerSeat = frame.OwnerSeat });
+            SyncIssuedTieredRoundZeroTrickTargetWindows(use.Id, action);
         }
         AdvanceEventRulesAndQueueFact(new OriginalTargetAdditionResolvedEvent(use.Id, action.ActionId, frame.OwnerSeat, choice.Targets.FirstOrDefault(-1), choice.Targets.Count > 0));
         ClearPendingDecision(); ReplaceRuntimeTop(frame with { OriginalTargetAdditionDraft = null }); AdvanceRuntimeProgram(frame.Id);

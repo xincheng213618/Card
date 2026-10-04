@@ -1,0 +1,244 @@
+{
+  "status": "current-main-text-complete-random-avatar-inheritance-scope-gap",
+  "officialId": 447,
+  "scope": "Current ordinary OL 界限突破, never substitutes classic/x/mobile/national-war text.",
+  "capturedUtc": "2026-10-04T08:47:28.1730465+00:00",
+  "discovery": {
+    "path": ".artifacts/continuation-20261003-batch17/batch21/dong-zhuo/next-batch22/index.raw.html",
+    "rawSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+    "row": {
+      "gid": 447,
+      "name": "界左慈",
+      "extend": "界限突破",
+      "figure": "群",
+      "figure_py": "qun",
+      "hp": 3,
+      "initial_hp": 0
+    },
+    "exactAdvertisedHeroUrl": "https://www.sanguosha.com/hero/447"
+  },
+  "identity": {
+    "name": "界左慈",
+    "faction": "qun",
+    "factionName": "群",
+    "hp": 3,
+    "initialHpRaw": 0,
+    "initialHpMeaning": "API placeholder 0; never interpreted as actual starting HP 0."
+  },
+  "genderProvenance": {
+    "currentApiHasGender": false,
+    "currentApiValue": null,
+    "supplementCandidate": "Male from the explicitly male same-person classic definition, only if implementation is later authorized.",
+    "notOfficialApiEvidence": true,
+    "classicDefinitionProof": [
+      {
+        "path": "src/CardGame.Content.Standard/FengLinZuoCiContent.cs",
+        "line": 8,
+        "text": "builder.AddGeneral(new ContentGeneralDefinition(\"classic:zuo-ci\",\"左慈\",\"zuo_ci\",\"classic:huashen\",\"qun\",3,[\"classic:xinsheng\"],GeneralGender.Male){CharacterId=\"character:zuo-ci\",VariantId=\"classic\",RulesetId=\"sanguosha-ol\"});"
+      }
+    ]
+  },
+  "page": {
+    "url": "https://www.sanguosha.com/hero/447",
+    "status": 200,
+    "bytes": 24388,
+    "startedAtUtc": "2026-10-04T08:47:10.8989994+00:00",
+    "completedAtUtc": "2026-10-04T08:47:11.2526378+00:00",
+    "rawPath": "docs/content/sources/evidence/fenglin-thirty-second-447-hero-2026-10-04.raw.html",
+    "rawSha256": "ff8f3ae73932b5b788524db4085d6333feba8612cccfa993100b36bb3e44683a",
+    "httpEvidencePath": "docs/content/sources/evidence/fenglin-thirty-second-447-hero-http-2026-10-04.json",
+    "title": "三国杀界左慈 - 三国杀OL-三国杀官网-武将技能介绍",
+    "serverCacheHeaderCaution": "Retained headers report cache hit/Age. Capture UTC is the request time, not an asserted text publication date.",
+    "misleadingOpenGraphHp": "og:description says 0体力 because of placeholder initial_hp. API hp=3 and index hp=3 are the recorded HP authority."
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=447",
+    "status": 200,
+    "bytes": 851,
+    "startedAtUtc": "2026-10-04T08:47:27.8589202+00:00",
+    "completedAtUtc": "2026-10-04T08:47:28.1730465+00:00",
+    "rawPath": "docs/content/sources/evidence/fenglin-thirty-second-447-api-2026-10-04.raw.json",
+    "rawSha256": "fe92a94cfb78db260a19d3e61d434642f4bc8427619094d6c0f7e4617bb1bb22",
+    "httpEvidencePath": "docs/content/sources/evidence/fenglin-thirty-second-447-api-http-2026-10-04.json",
+    "advertisedApiProof": {
+      "path": "docs/content/sources/evidence/fenglin-thirty-second-447-hero-2026-10-04.raw.html",
+      "pageDeclarations": [
+        "var gid = getUrlParam('gid');",
+        "var pathname = window.location.pathname;",
+        "var match = pathname.match(/\\/hero\\/(\\d+)/);",
+        "gid = match[1];",
+        "fetch('/api/v1/hero/info?gid=' + gid)"
+      ],
+      "resolution": "Static literal/path inspection of the captured /hero/447 page; no page JavaScript executed and no resolver guessed."
+    },
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 447,
+            "name": "界左慈",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/447.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/44700.png",
+            "label": [
+              "发育",
+              "回复",
+              "困难"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "限定",
+            "biography": "左慈，字元放，东汉末方士，汉族，庐江（今安徽庐江西南）人。在道教历史上，东汉时期的丹鼎派道术是从他一脉相传。",
+            "characteristic": "可以根据当前局势化身成最适合的武将，不需要的化身牌可以换掉",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "地主",
+            "value": 6
+          },
+          {
+            "name": "农民",
+            "value": 6
+          },
+          {
+            "name": "主公",
+            "value": 6
+          },
+          {
+            "name": "忠臣",
+            "value": 6
+          },
+          {
+            "name": "反贼",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    }
+  },
+  "skills": [
+    {
+      "name": "化身",
+      "text": "游戏开始时，你随机获得三张武将牌作为“化身”牌，然后展示其中一张，获得此“化身”牌上的一个技能，且性别和势力视为与之相同。回合开始时和回合结束后，你可以选择一项：1.替换展示的“化身”牌及因此获得的技能；2.移去至多两张“化身”牌并获得等量新的“化身”牌。",
+      "authority": "All visible current hero skill tabs and their exact skill-text spans."
+    },
+    {
+      "name": "新生",
+      "text": "当你受到1点伤害后，你可以获得一张新的“化身”牌。",
+      "authority": "All visible current hero skill tabs and their exact skill-text spans."
+    }
+  ],
+  "fontRefs": [],
+  "unexpandedDerivedFontRefs": [],
+  "randomGrantedSkillScope": {
+    "stated": "随机获得武将牌；展示其中一张；获得此化身牌上的一个技能；性别和势力与之相同。",
+    "currentPageDoesNotSpecify": [
+      "Candidate general pool or ruleset/mode exclusions; availability/repetition/depletion rules.",
+      "Which skills on the avatar may be selected, including locked/limited/awakening/lord or other exclusions.",
+      "Whether removed avatars return to the random pool and the empty/insufficient-pool resolution."
+    ],
+    "noScopeSubstitution": "The existing classic recipe excludes limited/awakening/lord and uses eligible unused library content. Those are current project classic contracts, not proof of current boundary inheritance rules."
+  },
+  "classicImplementationComparison": {
+    "paths": [
+      "src/CardGame.Content.Standard/FengLinZuoCiContent.cs",
+      "src/CardGame.Content.Standard/SkillPrograms/classic-zuo-ci.rules.json",
+      "src/CardGame.Content.Standard/SkillPrograms/classic-zuo-ci.presentation.json"
+    ],
+    "classicCurrentDescriptions": {
+      "classic:huashen": {
+        "name": "化身",
+        "description": "游戏开始时，你随机获得两张未加入游戏的武将牌，选一张展示并获得其一项技能（限定技、觉醒技、主公技除外），你的性别和势力与之相同。回合开始时或回合结束后，你可以更改展示的化身牌及获得的技能。"
+      },
+      "classic:xinsheng": {
+        "name": "新生",
+        "description": "当你受到1点伤害后，你可以随机获得一张新的化身牌。"
+      }
+    },
+    "differences": [
+      "Current initial avatar count is three; current registered classic initialization amount is two.",
+      "Current start/end alternatives include removing up to two avatars and acquiring the same number of new ones; classic recipe only chooses/replaces displayed avatar/skill.",
+      "Current main text does not state the classic description's unused-generals and limited/awakening/lord exclusions; these cannot be relabeled current official evidence.",
+      "新生 main text retains one new avatar per received damage point; reuse still depends on current avatar-pool/inheritance contract."
+    ],
+    "reuseCandidatesNotImplementationAcceptance": [
+      "Private general library owning selection, hidden library versus public displayed avatar, projected skill/gender/faction mechanism.",
+      "Existing per-damage-point acquisition and start/after-turn-ended trigger windows."
+    ],
+    "missingBehavior": "Current removal-and-equal-replacement alternative needs an exact owning receipt and current-pool policy; no code is introduced by this source task."
+  },
+  "registration": {
+    "gid": 447,
+    "name": "界左慈",
+    "currentBoundaryRegistered": false,
+    "classicOnlyDoesNotExcludeBoundary": {
+      "registrationProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 45,
+          "text": "new(FengLinZuoCiContent.Register),"
+        }
+      ],
+      "exactClassicNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/FengLinZuoCiContent.cs",
+          "line": 8,
+          "text": "builder.AddGeneral(new ContentGeneralDefinition(\"classic:zuo-ci\",\"左慈\",\"zuo_ci\",\"classic:huashen\",\"qun\",3,[\"classic:xinsheng\"],GeneralGender.Male){CharacterId=\"character:zuo-ci\",VariantId=\"classic\",RulesetId=\"sanguosha-ol\"});"
+        }
+      ]
+    }
+  },
+  "fullCurrentMainText": true,
+  "FullImplementationSourceReady": false,
+  "readinessReason": "Both current main skill texts are complete, but the random avatar and inherited skill selection universe is not closed by a current primary scope/version authority. No partial boundary registration is proposed.",
+  "execution": {
+    "runtime": false,
+    "implementation": false,
+    "mainWrites": false,
+    "gitWrites": false,
+    "build": false,
+    "compiler": false,
+    "loader": false,
+    "tests": false,
+    "nativeAi": false,
+    "nativeGame": false,
+    "benchmark": false,
+    "newHttpRequests": 0,
+    "newWebSearches": 0,
+    "media": false,
+    "originalFrozenEvidenceModified": false
+  },
+  "frozenEvidenceOrigin": {
+    "stagePath": ".artifacts/continuation-20261003-batch17/batch32/source-preflight/447-official-source.json",
+    "rawSha256": "9450b8178a6ad336d7d6aa4dd6b25c9c789d3e398a71b0a94f45b3fc92644fd7"
+  },
+  "frozenManifestOrigin": {
+    "stagePath": ".artifacts/continuation-20261003-batch17/batch32/source-preflight/delivery-manifest.json",
+    "rawSha256": "f593a13e8f1b63b56ffa9acd2d64545088749d9108401029758d75225ecd16fb"
+  },
+  "documentationReviewHead": "e492e9e8d83a1d921de471d1463c4ae288b0251f",
+  "fullImplementationSourceReady": false,
+  "runtimeAcceptance": false,
+  "priorCaptureExecution": {
+    "httpRequests": 2,
+    "retries": 0,
+    "webSearches": 0,
+    "javascriptExecuted": false,
+    "resolverGuesses": 0,
+    "mediaRequests": 0,
+    "mainWrites": false,
+    "gitMutation": false,
+    "build": false,
+    "compiler": false,
+    "productionLoader": false,
+    "tests": false,
+    "nativeGame": false,
+    "benchmark": false
+  }
+}

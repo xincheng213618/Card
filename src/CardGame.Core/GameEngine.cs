@@ -800,6 +800,7 @@ public sealed partial class GameEngine
         }
 
         var actor = _players[command.ActorSeat];
+        if (TrySubmitTieredRoundZeroPlay(command, out var tieredZeroResult)) return tieredZeroResult;
         var card = FindOwnedPlayableCard(actor, command.CardId);
         if (card is null)
         {
@@ -978,6 +979,8 @@ public sealed partial class GameEngine
             return SubmitRecoveryReplacementAnswer(selected);
         if (_resolutionStack.LastOrDefault() is CardDeclarationChallengeFrame)
             return Accept(() => { AnswerCardDeclaration(selected); AdvanceRulesAndPublishState(); });
+        if (selected.Parameters.GetValueOrDefault("response") == "tiered-round-zero-use")
+            return Accept(() => ResolveTieredRoundZeroResponse(selected, _options.AdvanceAfterHumanCommands));
         if (selected.Parameters.GetValueOrDefault("response") == "extended-view-as")
             return Accept(() => ResolveExtendedViewAsResponse(selected));
         if (selected.Parameters.GetValueOrDefault("response") == "program-dodge")
@@ -1328,6 +1331,8 @@ public sealed partial class GameEngine
 
         return action switch
         {
+            "tiered-round-zero-forced-slash" when selected.Cards.Count == 0 && selected.Targets.Count == 1 =>
+                Accept(() => TryResolveTieredRoundZeroForcedSlash(selected, _options.AdvanceAfterHumanCommands)),
             "qinglong-slash" when selected.Cards.Count == 1 && selected.Targets.Count == 1 =>
                 Accept(() => HumanQinglongCrescentBladeCore(
                     selected,
@@ -1442,6 +1447,8 @@ public sealed partial class GameEngine
 
     private CommandResult SubmitSlashPromptAnswer(PromptChoice selected)
     {
+        if (selected.Parameters.GetValueOrDefault("response") == "tiered-round-zero-forced-slash")
+            return Accept(() => TryResolveTieredRoundZeroForcedSlash(selected, _options.AdvanceAfterHumanCommands));
         if (!selected.Parameters.TryGetValue("response", out var response))
         {
             return Reject(CommandErrorCode.InvalidChoice, "The Slash response prompt has no supported response effect.");
@@ -3914,6 +3921,7 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (TryExecuteTieredRoundZeroPlay(actor, action)) return;
         var card = FindOwnedPlayableCard(actor, action.CardId) ??
             throw new InvalidOperationException("The chosen card is no longer in the actor's playable zones.");
         if (TryBeginCardDeclaration(actor, card, action.PlayedCardKind ?? card.Kind, action.ConversionSource,
@@ -4337,7 +4345,7 @@ public sealed partial class GameEngine
                             pending.EffectCardKind, pending.TargetSeats)
                 ? []
                 : GetNullificationCards(responder);
-            if (cards.Count == 0)
+            if (cards.Count == 0 && TieredRoundZeroResponseChoices(responder, CardKind.Nullification).Count == 0)
             {
                 pending = ReplaceNullificationWindowFrame(pending with
                 {
@@ -4415,6 +4423,7 @@ public sealed partial class GameEngine
                 }))
             .ToList();
         choices.AddRange(ExtendedViewAsResponseChoices(responder, CardKind.Nullification));
+        choices.AddRange(TieredRoundZeroResponseChoices(responder, CardKind.Nullification));
         choices.Add(new PromptChoice(
             new ChoiceId($"nullification.pass.depth-{pending.ChainDepth}"),
             "不使用【无懈可击】。",
@@ -4502,7 +4511,7 @@ public sealed partial class GameEngine
         }
         ValidateNullificationConversion(responder, card, selectedConversionSource);
         if (selectedConversionSource is not null && ViewAsRule(selectedConversionSource) is { } usageRule &&
-            (usageRule.UnusedOutputNameThisGame || usageRule.ConversionStateId is not null && usageRule.UsesPerPhase is not null)) ConsumeProgramViewAsUsage([selectedConversionSource]);
+            (usageRule.TieredRoundConversion is not null || usageRule.UnusedOutputNameThisGame || usageRule.ConversionStateId is not null && usageRule.UsesPerPhase is not null)) ConsumeProgramViewAsUsage([selectedConversionSource]);
 
         var unrespondableSource = FreezeUnrespondableCounterspellSource(responder, [card.Id]);
         var responseFrom = FindOwnedCardLocation(responder, card);
@@ -4554,6 +4563,7 @@ public sealed partial class GameEngine
             pending.SourceSeat, CardKind.Nullification, [],
             [new CardActionCost(card.Id, card.Kind, responseFrom,responseCostIsRed)],
             selectedConversionSource is null ? [] : [selectedConversionSource], effectiveSuit: completedResponseUseSuit,effectiveIsRed:TracksActionDiscardColor?SuitColor(completedResponseUseSuit) ?? responseCostIsRed:null));
+        TryIssueTieredRoundResponse(pending, responseAction);
         RecordActualPlayPhaseUse(responseAction);
         AdvanceEventRulesAndQueueFact(new CardActionAcceptedEvent(responseAction));
         if (TryBeginPolicyCounterspellPayment(pending, responseAction, unrespondableSource, [card.Id])) return;
@@ -4910,8 +4920,7 @@ public sealed partial class GameEngine
         }
 
         var targetCard = targetHand[slot];
-        var effectCard = _cardZones.CardsAt(CardLocation.Processing)
-            .Single(card => card.Id == pending.EffectCardId);
+        var effectCard = GetTrickRepresentation(pending.ParentFrameId, pending.EffectCardId, requireProcessing: true);
         ReplaceRuntimeTop(pending with { Step = ResolutionFrameStep.Completed });
         PopResolutionFrame(pending.Id, ResolutionFrameKind.TargetCardSelection);
         SetCardUseStep(pending.ParentFrameId, ResolutionFrameStep.ResolvingEffect);
@@ -5101,7 +5110,7 @@ public sealed partial class GameEngine
             pending.ParentFrameId,
             source.Seat,
             target.Seat,
-            virtualOrigin is not null || obtainOrigin is not null || dualColorOrigin is not null ? null : GetNullificationEffectCard(pending),
+            virtualOrigin is not null || obtainOrigin is not null || dualColorOrigin is not null || IsTieredRoundZeroUse(pending.ParentFrameId) ? null : GetNullificationEffectCard(pending),
             playedCardKind: pending.EffectCardKind,
             physicalCards: GetCardUsePhysicalCards(pending.ParentFrameId),
             programSkillCardUseFrameId: virtualOrigin?.ParentProgramFrameId ?? obtainOrigin?.ParentProgramFrameId ?? dualColorOrigin?.ParentProgramFrameId);
@@ -5153,11 +5162,9 @@ public sealed partial class GameEngine
                 ? $"{source.Name} 使用【铁索连环】，但目标已无存活角色。"
                 : $"{source.Name} 使用【铁索连环】，" + string.Join("、", changes) + "。",
             source.Seat);
-        MoveCard(
-            GetNullificationEffectCard(pending),
-            CardLocation.Processing,
-            CardLocation.DiscardPile,
-            CardMoveReasons.IronChainFinished);
+        var finishedIronChain = GetNullificationEffectCard(pending);
+        if (!SkipTieredRoundZeroFinishedMovement(pending.ParentFrameId, finishedIronChain))
+            MoveCard(finishedIronChain, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.IronChainFinished);
         FinishCardUse(pending.ParentFrameId, GetNullificationEffectCard(pending));
     }
 
@@ -5860,7 +5867,7 @@ public sealed partial class GameEngine
             : throw new InvalidOperationException("FireAttack lost its current target.");
 
     private Card GetFireAttackEffectCard(CardUseFrame pending) =>
-        _cardZones.CardsAt(CardLocation.Processing).Single(card => card.Id == pending.CardId);
+        GetTrickRepresentation(pending.Id, pending.CardId, requireProcessing: true);
 
     private CardUseFrame SetFireAttackSelection(long frameId, FireAttackSelectionState? selection)
     {
@@ -6007,19 +6014,13 @@ public sealed partial class GameEngine
         }
         group.ClearRevealedCards();
 
-        var cardLocation = _cardZones.GetLocation(group.Card.Id);
-        if (cardLocation == CardLocation.Processing)
+        if (!SkipTieredRoundZeroFinishedMovement(group.ResolutionId, group.Card))
         {
-            MoveCard(
-                group.Card,
-                CardLocation.Processing,
-                CardLocation.DiscardPile,
-                CardMoveReasons.UseFinished);
-        }
-        else if (cardLocation != CardLocation.DiscardPile)
-        {
-            throw new InvalidOperationException(
-                $"A resolved {group.Card.Kind} left Processing through an unsupported destination: {cardLocation}.");
+            var cardLocation = _cardZones.GetLocation(group.Card.Id);
+            if (cardLocation == CardLocation.Processing)
+                MoveCard(group.Card, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.UseFinished);
+            else if (cardLocation != CardLocation.DiscardPile)
+                throw new InvalidOperationException($"A resolved {group.Card.Kind} left Processing through an unsupported destination: {cardLocation}.");
         }
 
         SetCardUseTargetIndex(group.ResolutionId, group.TargetSeats.Count);
@@ -6133,7 +6134,7 @@ public sealed partial class GameEngine
             group.ResolutionId,
             group.DamageSourceSeat,
             target.Seat,
-            group.Card,
+            IsTieredRoundZeroUse(group.ResolutionId) ? null : group.Card,
             playedCardKind: group.Card.Kind,
             physicalCards: group.PhysicalCards,
             ignoresArmor: HasDirectedCardArmorBypass(group.ResolutionId, target.Seat));
@@ -6314,7 +6315,8 @@ public sealed partial class GameEngine
         var programMultiCardUses = GetProgramMultiCardViewAsSelections(
             weaponOwner, CardKind.Slash, forResponse: false).Where(selection => !HasBeneficiarySuitShield(weaponOwner.Seat, slashTarget.Seat, selection.Cards.Select(card => EffectiveSuit(weaponOwner, card)).Distinct().ToArray() is [var suit] ? suit : null)).ToArray();
         var canRequestFactionSlash = includeFactionSlash && CanRequestBorrowedSwordFactionSlash(pending);
-        if (slashes.Count == 0 && zhangbaPairs.Length == 0 && programMultiCardUses.Length == 0 && !canRequestFactionSlash)
+        if (slashes.Count == 0 && zhangbaPairs.Length == 0 && programMultiCardUses.Length == 0 && !canRequestFactionSlash &&
+            TieredRoundZeroForcedSlashChoices(weaponOwner, slashTarget, pending.ResolutionId, false).Count == 0)
         {
             CompleteBorrowedSwordWithoutSlash(pending, transferWeapon: true);
             return;
@@ -6405,6 +6407,7 @@ public sealed partial class GameEngine
                 }));
         }
 
+        choices.AddRange(TieredRoundZeroForcedSlashChoices(weaponOwner, slashTarget, pending.ResolutionId, false));
         choices.Add(new PromptChoice(
             new ChoiceId("borrowed-sword.give-weapon"),
             $"不使用【杀】，将【{weapon.DisplayName}】交给 {source.Name}。",
@@ -8257,6 +8260,7 @@ public sealed partial class GameEngine
 
     private void CompleteSuccessfulDodgeResponse(CardAttackHandle attack)
     {
+        ClearTieredRoundDodgeResponse(attack);
         FinishSuccessfulDodgeResponse(attack);
     }
 
@@ -8393,7 +8397,8 @@ public sealed partial class GameEngine
 
         var pending = new QinglongCrescentBladeHandle(this, attack);
         var slashes = GetQinglongCrescentBladeSlashCards(source, target);
-        if (slashes.Count == 0 && !CanRequestQinglongCrescentBladeFactionSlash(pending))
+        if (slashes.Count == 0 && !CanRequestQinglongCrescentBladeFactionSlash(pending) &&
+            !TieredRoundZeroForcedSlashRules(source, target, true).Any())
         {
             return false;
         }
@@ -8450,6 +8455,7 @@ public sealed partial class GameEngine
                     ["skill"] = GetFactionResponsePolicy(source, CardKind.Slash)!.SkillId
                 }));
         }
+        choices.AddRange(TieredRoundZeroForcedSlashChoices(source, target, attack.ResolutionId, true));
         choices.Add(new PromptChoice(
             new ChoiceId($"qinglong.skip.resolution-{attack.ResolutionId}"),
             "不发动【青龙偃月刀】，此【杀】被【闪】抵消。",
@@ -8488,6 +8494,7 @@ public sealed partial class GameEngine
 
         var source = _players[attack.SourceSeat];
         var target = _players[attack.TargetSeat];
+        if (TryResolveTieredRoundZeroForcedSlash(selected, false)) return;
         var action = selected.Parameters.GetValueOrDefault("action");
         var usesSlash = action == "qinglong-slash";
         var requestsFactionSlash = action == "qinglong-jijiang";
@@ -10269,6 +10276,8 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (useSlash && decision.Choices.FirstOrDefault(c => c.Parameters.GetValueOrDefault("response") == "tiered-round-zero-forced-slash") is { } zeroForced)
+        { TryResolveTieredRoundZeroForcedSlash(zeroForced, false); return; }
         var selectedSlash = useSlash
             ? GetBorrowedSwordSlashCards(owner, target).FirstOrDefault()
             : null;
@@ -10401,6 +10410,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A human Nullification prompt cannot be resolved as AI.");
         }
 
+        if (TryResolveTieredRoundZeroAiCounterspell()) return;
         var view = CreateSnapshot(responder.Seat);
         var (cardId, thought) = _aiBrains[responder.Seat].ChooseNullification(
             view,
@@ -10721,6 +10731,7 @@ public sealed partial class GameEngine
 
     private void ResolvePendingAiDodge()
     {
+        if (TryResolveTieredRoundZeroAiDodge()) return;
         var attack = ActiveCardAttack ??
             throw new InvalidOperationException("AI Dodge continuation has no pending Slash.");
         var source = _players[attack.SourceSeat];
@@ -12471,7 +12482,7 @@ public sealed partial class GameEngine
         if (responder.IsHuman)
         {
             if (peaches.Length > 0 || alcohols.Length > 0 || programCandidates.Count > 0 ||
-                ExtendedViewAsResponseChoices(responder, CardKind.Peach).Count > 0)
+                ExtendedViewAsResponseChoices(responder, CardKind.Peach).Count > 0 || HasTieredRoundZeroDyingResponse(responder))
             {
                 RequestHumanDyingResponse(responder, peaches, alcohols);
                 return;
@@ -12509,6 +12520,7 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (TryResolveTieredRoundZeroAiDying()) return;
         var view = CreateSnapshot(responder.Seat);
         if (peaches.Length == 0 && CanUsePeachToRescue(responder.Seat, dying.VictimSeat) &&
             GetProgramMultiCardViewAsSelections(responder, CardKind.Peach, true).FirstOrDefault(selection => !IsShieldedRescueSelection(responder, selection)) is { } multiPeach)
@@ -12566,7 +12578,7 @@ public sealed partial class GameEngine
         var alcohols = GetDyingAlcohols(responder, dying.VictimSeat);
         var programCandidates = GetDyingProgramCandidates(responder, dying);
         if (peaches.Length > 0 || alcohols.Length > 0 || programCandidates.Count > 0 ||
-            ExtendedViewAsResponseChoices(responder, CardKind.Peach).Count > 0)
+            ExtendedViewAsResponseChoices(responder, CardKind.Peach).Count > 0 || HasTieredRoundZeroDyingResponse(responder))
         {
             RequestHumanDyingResponse(responder, peaches, alcohols);
         }
@@ -12613,6 +12625,8 @@ public sealed partial class GameEngine
             }, dyingUse: true)));
         var programCandidates = GetDyingProgramCandidates(responder, dying);
         choices.AddRange(ExtendedViewAsResponseChoices(responder, CardKind.Peach));
+        choices.AddRange(TieredRoundZeroResponseChoices(responder, CardKind.Peach, true));
+        choices.AddRange(TieredRoundZeroResponseChoices(responder, CardKind.Alcohol, true));
         foreach (var candidate in programCandidates)
         {
             var skill = _contentRegistry!.GetSkill(candidate.SkillId);
@@ -12873,6 +12887,7 @@ public sealed partial class GameEngine
             return false;
         }
 
+        if (FinishTieredRoundZeroAttack(attack, out var tieredZeroPaused)) return tieredZeroPaused;
         if (attack.Card is null && attack.EffectiveCardKind == CardKind.Duel && IsIssuedZeroEntityDuel(attack.ResolutionId))
         {
             var use = LifecycleCardUse(attack.ResolutionId)!;
@@ -13292,19 +13307,13 @@ public sealed partial class GameEngine
                 "A group recovery cannot finish while another continuation is pending.");
         }
 
-        var cardLocation = _cardZones.GetLocation(group.Card.Id);
-        if (cardLocation == CardLocation.Processing)
+        if (!SkipTieredRoundZeroFinishedMovement(group.ResolutionId, group.Card))
         {
-            MoveCard(
-                group.Card,
-                CardLocation.Processing,
-                CardLocation.DiscardPile,
-                CardMoveReasons.UseFinished);
-        }
-        else if (cardLocation != CardLocation.DiscardPile)
-        {
-            throw new InvalidOperationException(
-                $"A resolved {group.Card.Kind} left Processing through an unsupported destination: {cardLocation}.");
+            var cardLocation = _cardZones.GetLocation(group.Card.Id);
+            if (cardLocation == CardLocation.Processing)
+                MoveCard(group.Card, CardLocation.Processing, CardLocation.DiscardPile, CardMoveReasons.UseFinished);
+            else if (cardLocation != CardLocation.DiscardPile)
+                throw new InvalidOperationException($"A resolved {group.Card.Kind} left Processing through an unsupported destination: {cardLocation}.");
         }
 
         SetCardUseTargetIndex(group.ResolutionId, group.TargetSeats.Count);
@@ -13512,6 +13521,7 @@ public sealed partial class GameEngine
             PhysicalCardIds: physicalIds)
         { SelectedActorDuelOrigin = selectedActorDuelOrigin, DamageTargetDuelOrigin = damageTargetDuelOrigin, DualColorDuelOrigin = dualColorDuelOrigin, Enhancements = actionContext is { Type: CardActionType.Use, EffectiveIsRed: true } && HasTurnRedSlashPolicyForColor(sourceSeat, effectiveCardKind, actionContext.EffectiveIsRed) ? CurrentCardEnhancement.Uncancelable : CurrentCardEnhancement.None, AcceptedDeclarationPayment = declarationPayment, Action = actionContext, TargetsAdjusted = adjustedTargets is not null, FirstOwnPlayUseDistanceUnlimited = firstUseDistance, ColorFireAttack = colorFireAttack });
         if (colorFireAttack is not null) AdvanceEventRulesAndQueueFact(new ColorFireAttackPolicyIssuedEvent(resolutionId, colorFireAttack.ActionId, colorFireAttack.Source));
+        IssueTieredRoundConversionUse(LifecycleCardUse(resolutionId)!);
         IssueProvenanceUsePolicy(resolutionId, actionContext);
         IssueShownEntityUseBenefits(resolutionId, actionContext);
         IssueGrantedPhaseEntityUseDistance(resolutionId, actionContext);
@@ -13907,6 +13917,7 @@ public sealed partial class GameEngine
             return actions;
         }
 
+        actions.AddRange(TieredRoundZeroPlayActions(actor));
         if (IsNationalWarMode)
         {
             actions.AddRange(BuildNationalRevealActions(actor));
@@ -16865,7 +16876,7 @@ public sealed partial class GameEngine
 
     private void AssertCoreInvariants()
     {
-        var damageProgramDying = IsProvenanceClaimProgramDying() || IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying() || IsPaidDamageTargetMountDying() || IsPaidDamageTargetObtainDying() || IsDamageAppearanceDrawProgramDying() || IsRecoveryReplacementProgramDying() || IsCharacterTurnedOverProgramDying() || IsCappedHandRefreshProgramDying() || IsPaidHandRepaymentProgramDying() || IsBoundRankBonusMovementDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawInsideDamageProgramDying() || IsSourceFactionYieldInsideDamageProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsAppliedDamageBenefitDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPreventionInsideDamageProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying();
+        var damageProgramDying = IsProvenanceClaimProgramDying() || IsPendingDamageProgramDying() || IsAvailableBoundDamageProgramDying() || IsPaidDamageTargetMountDying() || IsPaidDamageTargetObtainDying() || IsDamageAppearanceDrawProgramDying() || IsRecoveryReplacementProgramDying() || IsCharacterTurnedOverProgramDying() || IsCappedHandRefreshProgramDying() || IsPaidHandRepaymentProgramDying() || IsBoundRankBonusMovementDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawInsideDamageProgramDying() || IsSourceFactionYieldInsideDamageProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsAppliedDamageBenefitDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPreventionInsideDamageProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying();
         _turnCardUseEffects.AssertInvariants();
         AssertPaidHpLossModifiers();
         AssertCurrentTurnOwnSkillSuppressions();
@@ -16959,7 +16970,8 @@ public sealed partial class GameEngine
         {
             var parentFrame = _resolutionStack.OfType<CardUseFrame>()
                 .FirstOrDefault(frame => frame.Id == borrowedSword.ResolutionId);
-            var parentCardInProcessing = processing.Any(card => card.Id == borrowedSword.Card.Id);
+            var parentCardInProcessing = IsTieredRoundZeroProcessingParent(borrowedSword.ResolutionId, borrowedSword.Card.Id) ||
+                processing.Any(card => card.Id == borrowedSword.Card.Id);
             var responseWindow = _resolutionStack.OfType<ResponseWindowFrame>().LastOrDefault(frame =>
                 frame.ParentFrameId == borrowedSword.ResolutionId);
             var awaitingOwnerChoice = borrowedSword.AwaitingSlashChoice &&
@@ -16983,15 +16995,16 @@ public sealed partial class GameEngine
         }
 
         if (ActiveGroupCard is { Effect: GroupCardEffect.Recovery } recoveryGroup &&
-            (processing.Count != 1 || processing[0].Id != recoveryGroup.Card.Id))
+            (IsTieredRoundZeroUse(recoveryGroup.ResolutionId) ? processing.Count != 0 :
+                processing.Count != 1 || processing[0].Id != recoveryGroup.Card.Id))
         {
             throw new InvalidOperationException(
                 "The active group recovery and Processing zone are inconsistent.");
         }
 
         if (ActiveGroupCard is { Effect: GroupCardEffect.PublicDraft } publicDraft &&
-            (processing.Count != 1 + publicDraft.RevealedCardIds.Count ||
-             processing.All(card => card.Id != publicDraft.Card.Id) ||
+            (processing.Count != (IsTieredRoundZeroUse(publicDraft.ResolutionId) ? 0 : 1) + publicDraft.RevealedCardIds.Count ||
+             !IsTieredRoundZeroUse(publicDraft.ResolutionId) && processing.All(card => card.Id != publicDraft.Card.Id) ||
              publicDraft.RevealedCardIds.Any(cardId => processing.All(card => card.Id != cardId))))
         {
             throw new InvalidOperationException(
@@ -17000,9 +17013,10 @@ public sealed partial class GameEngine
 
         if (ActiveFireAttack is { } fireAttack)
         {
-            const int expectedProcessingCount = 1;
+            var zeroFireAttack = IsTieredRoundZeroUse(fireAttack.Id);
+            var expectedProcessingCount = zeroFireAttack ? 0 : 1;
             if (processing.Count != expectedProcessingCount ||
-                processing.All(card => card.Id != fireAttack.CardId) ||
+                !zeroFireAttack && processing.All(card => card.Id != fireAttack.CardId) ||
                 (fireAttack.FireAttackSelection?.RevealedCardId is { } revealedId &&
                  fireAttack.ColorFireAttack?.PaidCardId is null && GetHand(_players[GetFireAttackTargetSeat(fireAttack)]).All(card => card.Id != revealedId)))
             {
@@ -17064,7 +17078,7 @@ public sealed partial class GameEngine
             var counterspellPaymentRide = TryGetPolicyCounterspellPaymentRide(nullification, out var paymentRescueCosts);
             completedResponseDying |= counterspellPaymentRide && ActiveDying is not null;
             if (counterspellPaymentRide) rescueCosts = paymentRescueCosts;
-            var expectedPhysicalCardIds = IsDamageTargetDuelUse(nullification.ParentFrameId) ? DamageTargetDuelOuterProcessing(nullification.ParentFrameId) : (IsSelectedActorDuelUse(nullification.ParentFrameId) || IsDualColorDuelUse(nullification.ParentFrameId)) ? Array.Empty<int>() : nullificationCardUse?.PhysicalCardIds is { Count: > 0 } physicalCardIds
+            var expectedPhysicalCardIds = IsTieredRoundZeroUse(nullification.ParentFrameId) ? Array.Empty<int>() : IsDamageTargetDuelUse(nullification.ParentFrameId) ? DamageTargetDuelOuterProcessing(nullification.ParentFrameId) : (IsSelectedActorDuelUse(nullification.ParentFrameId) || IsDualColorDuelUse(nullification.ParentFrameId)) ? Array.Empty<int>() : nullificationCardUse?.PhysicalCardIds is { Count: > 0 } physicalCardIds
                 ? physicalCardIds
                 : [nullification.EffectCardId];
             expectedPhysicalCardIds = expectedPhysicalCardIds.Where(id => !IsClaimedUseCardEntity(nullification.ParentFrameId,id)).ToArray();
@@ -17129,7 +17143,8 @@ public sealed partial class GameEngine
         {
             var target = _players[targetCardSelection.TargetSeat];
             var expectedSlots = Enumerable.Range(0, targetCardSelection.CandidateSlots.Count).ToArray();
-            if (processing.Count != 1 || processing[0].Id != targetCardSelection.EffectCardId)
+            if (IsTieredRoundZeroProcessingParent(targetCardSelection.ParentFrameId, targetCardSelection.EffectCardId)
+                ? processing.Count != 0 : processing.Count != 1 || processing[0].Id != targetCardSelection.EffectCardId)
             {
                 throw new InvalidOperationException(
                     "The active hidden target-card selection and Processing zone are inconsistent.");
@@ -17283,7 +17298,10 @@ public sealed partial class GameEngine
                 decision.IncomingCard != qinglongAttack.EffectiveCardKind ||
                 !decision.ValidCardIds.SequenceEqual(currentCandidates) ||
                 !decision.ValidTargetSeats.SequenceEqual([target.Seat]) ||
-                decision.Choices.Count != currentCandidates.Length + 1 + (canRequestFactionSlash ? 1 : 0) ||
+                decision.Choices.Count != currentCandidates.Length + 1 + (canRequestFactionSlash ? 1 : 0) +
+                    TieredRoundZeroForcedSlashChoices(source, target, qinglongAttack.ResolutionId, true).Count ||
+                !AssistedChoicesEqual(decision.Choices.Where(c => c.Parameters.GetValueOrDefault("action") == "tiered-round-zero-forced-slash").ToArray(),
+                    TieredRoundZeroForcedSlashChoices(source, target, qinglongAttack.ResolutionId, true)) ||
                 decision.Choices.Count(choice =>
                     choice.Parameters.GetValueOrDefault("action") == "qinglong-skip" &&
                     choice.Cards.Count == 0 &&
@@ -17732,7 +17750,7 @@ public sealed partial class GameEngine
             }
             else if (ActiveDamageTrigger is { } triggerContinuation)
             {
-                var effectiveTop = DamageCursorEffectiveTop(includeNestedObservers: HasPaidDamageTargetMountObserver(triggerContinuation.Id) || HasPaidDamageTargetObtainObserver(triggerContinuation.Id) || HasDamageAppearanceDrawObserver(triggerContinuation.Id) || HasCappedHandRefreshObserver(triggerContinuation.Id) || HasPaidHandRepaymentObserver(triggerContinuation.Id) || HasBoundRankBonusMovementObserver(triggerContinuation.Id) || HasOwnedDamagePointJudgmentObserver(triggerContinuation.Id) || HasDamageJudgmentSuitPaymentObserver(triggerContinuation.Id) || HasAppliedDamageBenefitObserver(triggerContinuation.Id) || HasProvenanceClaimObserver(triggerContinuation.Id) || HasEquipmentDonationDamageObserver(triggerContinuation.Id) || HasPaidColorDamageClaimDamageObserver(triggerContinuation.Id) || HasHalfHandPaidDamageObserver(triggerContinuation.Id) || HasPairBenefitDamageObserver(triggerContinuation.Id) || HasEndingPairSlashDamageObserver(triggerContinuation.Id) || HasActualDiscardRecoveryDamageObserver(triggerContinuation.Id) || HasForeignContestAidDamageObserver(triggerContinuation.Id) || HasPrepDiscardDamageObserver(triggerContinuation.Id));
+                var effectiveTop = DamageCursorEffectiveTop(includeNestedObservers: HasPaidDamageTargetMountObserver(triggerContinuation.Id) || HasPaidDamageTargetObtainObserver(triggerContinuation.Id) || HasDamageAppearanceDrawObserver(triggerContinuation.Id) || HasCappedHandRefreshObserver(triggerContinuation.Id) || HasPaidHandRepaymentObserver(triggerContinuation.Id) || HasBoundRankBonusMovementObserver(triggerContinuation.Id) || HasOwnedDamagePointJudgmentObserver(triggerContinuation.Id) || HasDamageJudgmentSuitPaymentObserver(triggerContinuation.Id) || HasAppliedDamageBenefitObserver(triggerContinuation.Id) || HasProvenanceClaimObserver(triggerContinuation.Id) || HasEquipmentDonationDamageObserver(triggerContinuation.Id) || HasPaidColorDamageClaimDamageObserver(triggerContinuation.Id) || HasHalfHandPaidDamageObserver(triggerContinuation.Id) || HasPairBenefitDamageObserver(triggerContinuation.Id) || HasEndingPairSlashDamageObserver(triggerContinuation.Id) || HasActualDiscardRecoveryDamageObserver(triggerContinuation.Id) || HasForeignContestAidDamageObserver(triggerContinuation.Id) || HasPrepDiscardDamageObserver(triggerContinuation.Id) || HasCappedConversionBenefitObserver(triggerContinuation.Id));
                 var topMatchesWindow = effectiveTop is DamageTriggerWindowFrame frame &&
                     frame.Id == triggerContinuation.Id &&
                     frame.ParentFrameId == triggerContinuation.ParentFrameId &&
@@ -17990,7 +18008,7 @@ public sealed partial class GameEngine
                     "A damage trigger continuation must retain a valid trigger window frame.");
             }
 
-            var damageCursorTop = DamageCursorEffectiveTop(includeNestedObservers: _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.ConvertingGift is { Observe: true } && f.WindowContext?.ParentFrameId == pendingDamageTrigger.Id) || HasAvailableBoundDamageObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetMountObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetObtainObserver(pendingDamageTrigger.Id) || HasDamageAppearanceDrawObserver(pendingDamageTrigger.Id) || HasCappedHandRefreshObserver(pendingDamageTrigger.Id) || HasPaidHandRepaymentObserver(pendingDamageTrigger.Id) || HasBoundRankBonusMovementObserver(pendingDamageTrigger.Id) || HasOwnedDamagePointJudgmentObserver(pendingDamageTrigger.Id) || HasDamageJudgmentSuitPaymentObserver(pendingDamageTrigger.Id) || HasAppliedDamageBenefitObserver(pendingDamageTrigger.Id) || HasProvenanceClaimObserver(pendingDamageTrigger.Id) || HasEquipmentDonationDamageObserver(pendingDamageTrigger.Id) || HasPaidColorDamageClaimDamageObserver(pendingDamageTrigger.Id) || HasHalfHandPaidDamageObserver(pendingDamageTrigger.Id) || HasPairBenefitDamageObserver(pendingDamageTrigger.Id) || HasEndingPairSlashDamageObserver(pendingDamageTrigger.Id) || HasActualDiscardRecoveryDamageObserver(pendingDamageTrigger.Id) || HasForeignContestAidDamageObserver(pendingDamageTrigger.Id) || HasPrepDiscardDamageObserver(pendingDamageTrigger.Id));
+            var damageCursorTop = DamageCursorEffectiveTop(includeNestedObservers: _resolutionStack.OfType<ProgramSkillFrame>().Any(f => f.ConvertingGift is { Observe: true } && f.WindowContext?.ParentFrameId == pendingDamageTrigger.Id) || HasAvailableBoundDamageObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetMountObserver(pendingDamageTrigger.Id) || HasPaidDamageTargetObtainObserver(pendingDamageTrigger.Id) || HasDamageAppearanceDrawObserver(pendingDamageTrigger.Id) || HasCappedHandRefreshObserver(pendingDamageTrigger.Id) || HasPaidHandRepaymentObserver(pendingDamageTrigger.Id) || HasBoundRankBonusMovementObserver(pendingDamageTrigger.Id) || HasOwnedDamagePointJudgmentObserver(pendingDamageTrigger.Id) || HasDamageJudgmentSuitPaymentObserver(pendingDamageTrigger.Id) || HasAppliedDamageBenefitObserver(pendingDamageTrigger.Id) || HasProvenanceClaimObserver(pendingDamageTrigger.Id) || HasEquipmentDonationDamageObserver(pendingDamageTrigger.Id) || HasPaidColorDamageClaimDamageObserver(pendingDamageTrigger.Id) || HasHalfHandPaidDamageObserver(pendingDamageTrigger.Id) || HasPairBenefitDamageObserver(pendingDamageTrigger.Id) || HasEndingPairSlashDamageObserver(pendingDamageTrigger.Id) || HasActualDiscardRecoveryDamageObserver(pendingDamageTrigger.Id) || HasForeignContestAidDamageObserver(pendingDamageTrigger.Id) || HasPrepDiscardDamageObserver(pendingDamageTrigger.Id) || HasCappedConversionBenefitObserver(pendingDamageTrigger.Id));
             var activeDamageProgram = damageCursorTop is ProgramSkillFrame programFrame &&
                 programFrame.WindowContext is
                 {
@@ -18470,6 +18488,7 @@ public sealed partial class GameEngine
             else if (responseIds.Any(id => processing.All(card => card.Id != id))) return false;
             processing = processing.Where(card => !responseIds.Contains(card.Id)).ToArray();
         }
+        if (IsTieredRoundZeroAttackConsistent(attack, processing) || IsTieredRoundZeroBorrowedAttackConsistent(attack, processing)) return true;
         if (TryValidateProgramAlternativeCostAttack(attack, processing, out var alternativeCostValid))
             return alternativeCostValid;
         if (attack.IsProgramJudgmentDamage)
@@ -19590,7 +19609,7 @@ public sealed partial class GameEngine
         public int SourceSeat { get => State.SourceSeat; }
         public int WeaponOwnerSeat { get => State.WeaponOwnerSeat; }
         public int SlashTargetSeat { get => State.SlashTargetSeat; }
-        public Card Card { get => _engine.ReadCardAppearance(State.Card); }
+        public Card Card { get => _engine.ReadTieredRoundUseAppearance(OwnerFrameId, State.Card); }
         public bool AwaitingSlashChoice { get => State.AwaitingSlashChoice; set => Update(state => state with { AwaitingSlashChoice = value }); }
         public bool FactionSlashAttempted { get => State.FactionSlashAttempted; set => Update(state => state with { FactionSlashAttempted = value }); }
         public CardAttackHandle? ActiveAttack { get => State.ActiveAttackOwnerId is { } id ? new(_engine, id) : null; set => Update(state => state with { ActiveAttackOwnerId = value?.ResolutionId }); }
@@ -19795,7 +19814,7 @@ public sealed partial class GameEngine
         public long ResolutionId => OwnerFrameId;
         public int SourceSeat { get => State.SourceSeat; }
         public int DamageSourceSeat { get => State.DamageSourceSeat; set => Update(state => state with { DamageSourceSeat = value }); }
-        public Card Card { get => _engine.ReadCardAppearance(State.Card); }
+        public Card Card { get => _engine.ReadTieredRoundUseAppearance(OwnerFrameId, State.Card); }
         public IReadOnlyList<int> TargetSeats { get => State.TargetSeats; }
         public GroupCardEffect Effect { get => State.Effect; }
         public CardKind? RequiredCardKind { get => State.RequiredCardKind; }

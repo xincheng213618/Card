@@ -1,0 +1,1198 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:jiaozhao-round-current",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "level-0-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 0,
+          "maximumTier": 0,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-0-fireSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 0,
+          "maximumTier": 0,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-0-thunderSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "thunderSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 0,
+          "maximumTier": 0,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-0-dodge",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 0,
+          "maximumTier": 0,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-0-peach",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 0,
+          "maximumTier": 0,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-0-alcohol",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 0,
+          "maximumTier": 0,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-0-duel",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "duel",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 0,
+          "maximumTier": 0,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-0-drawTwo",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "drawTwo",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 0,
+          "maximumTier": 0,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-0-barbarianAssault",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "barbarianAssault",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 0,
+          "maximumTier": 0,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-0-arrowBarrage",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "arrowBarrage",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 0,
+          "maximumTier": 0,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-0-peachGarden",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "peachGarden",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 0,
+          "maximumTier": 0,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-0-fiveGrains",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "fiveGrains",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 0,
+          "maximumTier": 0,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-0-dismantlement",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "dismantlement",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 0,
+          "maximumTier": 0,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-0-snatch",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "snatch",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 0,
+          "maximumTier": 0,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-0-fireAttack",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "fireAttack",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 0,
+          "maximumTier": 0,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-0-nullification",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "nullification",
+          "forPlay": false,
+          "forResponse": true,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 0,
+          "maximumTier": 0,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-0-ironChain",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "ironChain",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 0,
+          "maximumTier": 0,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-0-borrowedSword",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "borrowedSword",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 0,
+          "maximumTier": 0,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-1-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-1-fireSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-1-thunderSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "thunderSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-1-dodge",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-1-peach",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-1-alcohol",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-1-duel",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "duel",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-1-drawTwo",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "drawTwo",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-1-barbarianAssault",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "barbarianAssault",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-1-arrowBarrage",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "arrowBarrage",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-1-peachGarden",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "peachGarden",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-1-fiveGrains",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "fiveGrains",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-1-dismantlement",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "dismantlement",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-1-snatch",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "snatch",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-1-fireAttack",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "fireAttack",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-1-nullification",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "nullification",
+          "forPlay": false,
+          "forResponse": true,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-1-ironChain",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "ironChain",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-1-borrowedSword",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": [
+            "hand",
+            "equipment"
+          ],
+          "outputKind": "borrowedSword",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 1,
+          "maximumTier": 1,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-2-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": null,
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-2-fireSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": null,
+          "outputKind": "fireSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-2-thunderSlash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": null,
+          "outputKind": "thunderSlash",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-2-dodge",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": null,
+          "outputKind": "dodge",
+          "forPlay": false,
+          "forResponse": true,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-2-peach",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": null,
+          "outputKind": "peach",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-2-alcohol",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": null,
+          "outputKind": "alcohol",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-2-duel",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": null,
+          "outputKind": "duel",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-2-drawTwo",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": null,
+          "outputKind": "drawTwo",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-2-barbarianAssault",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": null,
+          "outputKind": "barbarianAssault",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-2-arrowBarrage",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": null,
+          "outputKind": "arrowBarrage",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-2-peachGarden",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": null,
+          "outputKind": "peachGarden",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-2-fiveGrains",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": null,
+          "outputKind": "fiveGrains",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-2-dismantlement",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": null,
+          "outputKind": "dismantlement",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-2-snatch",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": null,
+          "outputKind": "snatch",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-2-fireAttack",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": null,
+          "outputKind": "fireAttack",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-2-nullification",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": null,
+          "outputKind": "nullification",
+          "forPlay": false,
+          "forResponse": true,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          }
+        },
+        {
+          "id": "level-2-ironChain",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": null,
+          "outputKind": "ironChain",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        },
+        {
+          "id": "level-2-borrowedSword",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 0,
+          "sourceZones": null,
+          "outputKind": "borrowedSword",
+          "forPlay": true,
+          "forResponse": false,
+          "useOnly": true,
+          "allowSameKind": true,
+          "conversionStateId": "boundary-jiaozhao-round-tier",
+          "minimumTier": 2,
+          "maximumTier": 2,
+          "tieredRoundConversion": {
+            "stateId": "boundary-jiaozhao-round-tier",
+            "usageId": "jiaozhao"
+          },
+          "singleCardTrickUse": true
+        }
+      ]
+    },
+    {
+      "id": "boundary:danxin-capped-current",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "draw-before-modification",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "optional": true,
+          "damageOccurrence": "perDamage",
+          "effects": [
+            {
+              "op": "drawBeforeCappedConversionTierUpgrade",
+              "target": "owner",
+              "stateId": "boundary-jiaozhao-round-tier"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -421,6 +421,7 @@ public enum SkillProgramEffectOp
     ObtainOneFromEachSelectedTarget = 6300, GiveShownCardToLeastOriginalTarget = 6301,
     IssueFixedRecipientBenefit = 6302, SelectIssuedFixedRecipient = 6303,
     SelectIssuedFixedRecipientWithDeathReturn = 6800,
+    DrawBeforeCappedConversionTierUpgrade = 6900,
     ChooseCategoryOrSequentialDiscard = 5700, EscalatingDiscardOrDamageFromSelected = 5701,
     DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
     ReceiveOwnerDamage = 4100, ConsumeDistinctTurnTarget = 4101, DrawOwnerAtAppliedDamage = 4102,
@@ -1167,6 +1168,8 @@ public sealed class SkillProgramViewAs
     public SkillProgramDeclarationValidation? DeclarationValidation { get; internal init; }
     public bool DeclaredEntity { get; internal init; }
     public string? ActivationUsageGroup { get; internal init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramTieredRoundConversionPolicy? TieredRoundConversion { get; internal init; }
 }
 
 public sealed class SkillProgramEffect
@@ -1830,7 +1833,7 @@ public sealed class SkillProgramCatalog
         {
             foreach (var effect in program.Activations.SelectMany(activation => activation.Effects)
                          .Concat(program.Triggers.SelectMany(trigger => trigger.Effects))
-                         .Where(effect => effect.Op is SkillProgramEffectOp.DeclareBoundCardNameUntilTurnEnd or SkillProgramEffectOp.UpgradeConversionTier))
+                         .Where(effect => effect.Op is SkillProgramEffectOp.DeclareBoundCardNameUntilTurnEnd or SkillProgramEffectOp.UpgradeConversionTier or SkillProgramEffectOp.DrawBeforeCappedConversionTierUpgrade))
                 if (!conversionStates.Contains(effect.StateId!)) Fail("skill '" + program.Id + "'", "conversion operation references an unknown conversionStateId");
             foreach (var rule in program.ViewAs.Where(rule => rule.ConversionStateId is not null))
             {
@@ -2279,7 +2282,9 @@ public sealed class SkillProgramCatalog
         CheckProperties(node, path, "id", "inputKinds", "inputSuits", "inputCategories", "inputCount", "sourceZones",
             "outputKind", "forPlay", "forResponse", "allowChainedInput", "sameSuit", "condition",
             "usesPerPhase", "usageGroup", "inheritPreviousPlaySuit", "extendedUse", "damageBonus", "recoveryBonus",
-            "costDestination", "unusedOutputThisTurn", "useOnly", "singleCardTrickUse", "excludeOwnerEffects", "conversionStateId", "minimumTier", "maximumTier", "declaredEntity", "activationUsageGroup", "allowSameKind", "noDying", "unusedOutputNameThisGame", "nameLedgerId", "declarationValidation", "useEffectiveInputSuit", "distanceUnlimited");
+            "costDestination", "unusedOutputThisTurn", "useOnly", "singleCardTrickUse", "excludeOwnerEffects", "conversionStateId", "minimumTier", "maximumTier", "declaredEntity", "activationUsageGroup", "allowSameKind", "noDying", "unusedOutputNameThisGame", "nameLedgerId", "declarationValidation", "useEffectiveInputSuit", "distanceUnlimited", "tieredRoundConversion");
+        var tieredRound = node.TryGetProperty("tieredRoundConversion", out var tieredRoundNode)
+            ? TieredRoundConversionSchema.Parse(tieredRoundNode, path + ".tieredRoundConversion") : null;
         SkillProgramDeclarationValidation? declaration = null;
         if (node.TryGetProperty("declarationValidation", out var declarationNode))
         {
@@ -2316,32 +2321,33 @@ public sealed class SkillProgramCatalog
         var variableInput = node.TryGetProperty("inputCount", out var inputCountNode) &&
                             inputCountNode.ValueKind == JsonValueKind.Null;
         var inputCount = variableInput ? 1
-            : node.TryGetProperty("inputCount", out _) ? PositiveInt(node, "inputCount", path) : 1;
+            : node.TryGetProperty("inputCount", out _)
+                ? tieredRound is null ? PositiveInt(node, "inputCount", path) : NonNegativeInt(node, "inputCount", path) : 1;
         if (inputCount > 64) Fail(path + ".inputCount", "must not exceed 64");
         var distanceUnlimited = node.TryGetProperty("distanceUnlimited", out _) &&
                                 RequiredBool(node, "distanceUnlimited", path);
         var sourceZones = node.TryGetProperty("sourceZones", out _)
             ? EnumArray<CardZoneKind>(node, "sourceZones", path)
             : [CardZoneKind.Hand];
-        if (sourceZones.Count == 0 || sourceZones.Any(zone =>
+        if (sourceZones.Count == 0 && !(tieredRound is not null && inputCount == 0) || sourceZones.Any(zone =>
                 zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Authority or CardZoneKind.WoodenOxGrain)))
             Fail(path + ".sourceZones", "viewAs accepts hand, equipment or authority sources only");
         if (inputCount > 1 && !extended && !sourceZones.SequenceEqual([CardZoneKind.Hand]))
             Fail(path + ".sourceZones", "multi-card viewAs currently accepts hand cards only");
         var output = EnumValue<CardKind>(node, "outputKind", path);
-        if (!singleTrick && output is not (CardKind.Slash or CardKind.Dodge or CardKind.FireSlash or CardKind.ThunderSlash or
+        if (tieredRound is null && !singleTrick && output is not (CardKind.Slash or CardKind.Dodge or CardKind.FireSlash or CardKind.ThunderSlash or
                 CardKind.Dismantlement or CardKind.SupplyShortage or CardKind.Indulgence or
                 CardKind.IronChain or CardKind.FireAttack or CardKind.Nullification or CardKind.Peach or
                 CardKind.ArrowBarrage or CardKind.Alcohol or CardKind.Snatch))
             Fail(path + ".outputKind", "this card kind has no configured viewAs use or response path");
         var forPlay = RequiredBool(node, "forPlay", path);
         var forResponse = RequiredBool(node, "forResponse", path);
-        if (singleTrick && (inputCount != 1 || !forPlay || forResponse || output is not
+        if (tieredRound is null && singleTrick && (inputCount != 1 || !forPlay || forResponse || output is not
             (CardKind.DrawTwo or CardKind.Duel or CardKind.BarbarianAssault or CardKind.ArrowBarrage or
              CardKind.PeachGarden or CardKind.FiveGrains or CardKind.Dismantlement or CardKind.Snatch or
              CardKind.FireAttack or CardKind.IronChain or CardKind.BorrowedSword)))
             Fail(path + ".singleCardTrickUse", "requires one physical source and an ordinary trick for play");
-        if (useOnly && !singleTrick && !((conversionState is not null || unusedName) && output == CardKind.Nullification && !forPlay && forResponse && inputCount == 1) && (inputCount != 1 ||
+        if (tieredRound is null && useOnly && !singleTrick && !((conversionState is not null || unusedName) && output == CardKind.Nullification && !forPlay && forResponse && inputCount == 1) && (inputCount != 1 ||
             (output == CardKind.Dodge ? forPlay || !forResponse :
              !forPlay || forResponse || output is not
                 (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash or CardKind.Peach or CardKind.Alcohol))))
@@ -2383,7 +2389,7 @@ public sealed class SkillProgramCatalog
             Fail(path + ".inputCount", "multi-card viewAs has no use or response executor for this output kind");
         if (sameSuit && inputCount < 2)
             Fail(path + ".sameSuit", "sameSuit requires multiple physical inputs");
-        if (!singleTrick && output == CardKind.ArrowBarrage &&
+        if (tieredRound is null && !singleTrick && output == CardKind.ArrowBarrage &&
             (!sameSuit || inputCount != 2 || !forPlay || forResponse))
             Fail(path, "arrowBarrage viewAs requires two same-suit hand cards for play only");
         if (inputCount > 1 && inputCategories.Count != 0)
@@ -2436,13 +2442,15 @@ public sealed class SkillProgramCatalog
             Fail(path, "variable-input viewAs supports plain hand-card slash conversions for play only");
         if (distanceUnlimited && !variableInput)
             Fail(path + ".distanceUnlimited", "requires a variable-input conversion");
-        return new SkillProgramViewAs(id, inputs, suits, output, forPlay, forResponse,
+        var parsedViewAs = new SkillProgramViewAs(id, inputs, suits, output, forPlay, forResponse,
             OptionalCondition(node, path), inputCount, sourceZones, allowChainedInput, inputCategories, sameSuit,
             usesPerPhase, usageGroup, inheritPreviousPlaySuit)
-        { UseEffectiveInputSuit = node.TryGetProperty("useEffectiveInputSuit", out _) ? RequiredBool(node, "useEffectiveInputSuit", path) : null, DeclarationValidation = declaration, AllowSameKind = allowSameKind, NoDying = noDying, UnusedOutputNameThisGame = unusedName, NameLedgerId = nameLedger, ConversionStateId = conversionState, MinimumTier = minimumTier, MaximumTier = maximumTier, DeclaredEntity = declaredEntity, ActivationUsageGroup = activationGroup, SingleCardTrickUse = singleTrick, ExcludeOwnerEffects = excludeOwner, ExtendedUse = extended, UseOnly = useOnly, UnusedOutputThisTurn = unusedOutputThisTurn, CostDestination = costDestination,
+        { TieredRoundConversion = tieredRound, UseEffectiveInputSuit = node.TryGetProperty("useEffectiveInputSuit", out _) ? RequiredBool(node, "useEffectiveInputSuit", path) : null, DeclarationValidation = declaration, AllowSameKind = allowSameKind, NoDying = noDying, UnusedOutputNameThisGame = unusedName, NameLedgerId = nameLedger, ConversionStateId = conversionState, MinimumTier = minimumTier, MaximumTier = maximumTier, DeclaredEntity = declaredEntity, ActivationUsageGroup = activationGroup, SingleCardTrickUse = singleTrick, ExcludeOwnerEffects = excludeOwner, ExtendedUse = extended, UseOnly = useOnly, UnusedOutputThisTurn = unusedOutputThisTurn, CostDestination = costDestination,
           VariableInputCount = variableInput, DistanceUnlimited = distanceUnlimited,
           DamageBonus = node.TryGetProperty("damageBonus", out _) ? NonNegativeInt(node, "damageBonus", path) : 0,
           RecoveryBonus = node.TryGetProperty("recoveryBonus", out _) ? NonNegativeInt(node, "recoveryBonus", path) : 0 };
+        TieredRoundConversionSchema.Validate(parsedViewAs, path);
+        return parsedViewAs;
     }
 
     private static SkillProgramActivation ParseActivation(JsonElement node, string path)
@@ -3565,6 +3573,7 @@ public sealed class SkillProgramCatalog
         PairObtainFixedRecipientComposition.ValidateTrigger(path, parsedTrigger);
         SelectIssuedFixedRecipientWithDeathReturnDescriptor.ValidateTrigger(path, parsedTrigger);
         EndingPairSlashLossComposition.ValidateTrigger(path, parsedTrigger);
+        CappedConversionBenefitComposition.ValidateTrigger(path, parsedTrigger);
         return parsedTrigger;
     }
 
