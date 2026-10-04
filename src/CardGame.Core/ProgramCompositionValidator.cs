@@ -482,7 +482,7 @@ internal static class ProgramCompositionValidator
                         break;
                     }
                     case RequireMarkerLifecycle markerLifecycle:
-                        if (markerLifecycle.Selected ? window != SkillProgramTriggerWindow.PlayPhaseStarting : window is not (SkillProgramTriggerWindow.GameStarting or SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.DrawPhaseStarting or SkillProgramTriggerWindow.AfterDamageApplied or SkillProgramTriggerWindow.DiscardPhaseEnded or SkillProgramTriggerWindow.CardUseCompleted)) Fail("marker mutation requires an explicit supported lifecycle window");
+                        if (markerLifecycle.Selected ? window != SkillProgramTriggerWindow.PlayPhaseStarting : window is not (SkillProgramTriggerWindow.GameStarting or SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.DrawPhaseStarting or SkillProgramTriggerWindow.AfterDamageApplied or SkillProgramTriggerWindow.DiscardPhaseEnded or SkillProgramTriggerWindow.CardUseCompleted or SkillProgramTriggerWindow.TurnEnding)) Fail("marker mutation requires an explicit supported lifecycle window");
                         break;
                     case RequirePublicPileActivation:
                         if (window is not null || index != 0 || selectedCardCount != 0 || initialSelectedTarget || initialTargetSetMaximum != 0)

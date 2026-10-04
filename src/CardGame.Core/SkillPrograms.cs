@@ -105,7 +105,7 @@ public enum SkillProgramTriggerValueKind
     LivingWoundedCount = 451,
     GlobalMarkerCount = 452,
     OwnerLostHp = 600, CardActionHandCardCount = 601, PlayPhaseDamageTakenByAny = 900,
-    EventTargetMarkerCount = 1280,
+    EventTargetMarkerCount = 1280, EventSourceMarkerCount = 3101,
     MovedEquipmentCardCount = 5000
 }
 public enum SkillProgramComparisonOperator
@@ -191,7 +191,7 @@ public enum SkillProgramEffectOp
     DiscardTargetHpCardsAndDamage = 7601,
     DiscardOwnedCardToAdjustCurrentDamage = 7100,
     DiscardHandOrUseEquipment = 7150, MoveFieldEquipment = 7151,
-    GiveDrawPileBottomCard = 7160,
+    GiveDrawPileBottomCard = 7160, GivePindianCard = 7161,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,
@@ -848,6 +848,7 @@ public sealed record SkillProgramTriggerFacts(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<string>? BlockedDamageSourceSkills = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<int>? LowHandPopulationSeats = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<PlayerMarkerKind,int>? EventTargetMarkerCounts = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<PlayerMarkerKind,int>? EventSourceMarkerCounts = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? CurrentAvailableEquipmentSlotCount = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, int>? PublicPersistentPileCounts = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? TurnDiscardSuitMask = null,
@@ -944,6 +945,7 @@ public sealed record SkillProgramTriggerValue(SkillProgramTriggerValueKind Kind,
         SkillProgramTriggerValueKind.PlayPhaseDamageTakenByAny => facts.PlayPhaseDamageTakenByAny,
         SkillProgramTriggerValueKind.OwnerEventTargetDistance => facts.OwnerEventTargetDistance,
         SkillProgramTriggerValueKind.EventTargetMarkerCount => facts.EventTargetMarkerCounts?.GetValueOrDefault(Marker!.Value) ?? 0,
+        SkillProgramTriggerValueKind.EventSourceMarkerCount => facts.EventSourceMarkerCounts?.GetValueOrDefault(Marker!.Value) ?? 0,
         SkillProgramTriggerValueKind.OwnerAttributedMarkerCount => Marker is { } marker &&
             facts.MarkerCounts is { } counts && counts.TryGetValue(marker, out var markerCount) ? markerCount : 0,
         _ => throw new InvalidOperationException($"Unsupported trigger value kind '{Kind}'.")
@@ -3230,7 +3232,8 @@ public sealed class SkillProgramCatalog
         if (EnumerateTriggerConditions(condition).Any(c => c.Kind == SkillProgramTriggerConditionKind.TurnDiscardIncludesAllSuits) &&
             window != SkillProgramTriggerWindow.AfterTurnEnded)
             Fail(path, "turn discard suit history requires AfterTurnEnded");
-        if (EnumerateTriggerValues(condition).Any(v=>v.Kind==SkillProgramTriggerValueKind.EventTargetMarkerCount) && window is not (SkillProgramTriggerWindow.BeforeDamageApplied or SkillProgramTriggerWindow.DrawPhaseStarting or SkillProgramTriggerWindow.DiscardPhaseEnded)) Fail(path + ".condition", "eventTargetMarkerCount requires an actual damage, draw, or discard subject");
+        if (EnumerateTriggerValues(condition).Any(v=>v.Kind==SkillProgramTriggerValueKind.EventTargetMarkerCount) && window is not (SkillProgramTriggerWindow.BeforeDamageApplied or SkillProgramTriggerWindow.DrawPhaseStarting or SkillProgramTriggerWindow.DiscardPhaseEnded or SkillProgramTriggerWindow.TurnEnding)) Fail(path + ".condition", "eventTargetMarkerCount requires an actual damage, draw, or discard subject");
+        if (EnumerateTriggerValues(condition).Any(v=>v.Kind==SkillProgramTriggerValueKind.EventSourceMarkerCount) && window != SkillProgramTriggerWindow.AfterDamageApplied) Fail(path + ".condition", "eventSourceMarkerCount requires the after-damage subject");
         if (EnumerateTriggerConditions(condition).Any(item => item.Kind == SkillProgramTriggerConditionKind.OwnerKilledThisTurn) &&
             window != SkillProgramTriggerWindow.TurnEnding)
             Fail(path + ".condition", "turn kill history requires turnEnding");
@@ -3477,7 +3480,7 @@ public sealed class SkillProgramCatalog
                 SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.PlayEnding or
                 SkillProgramTriggerWindow.JudgmentPhaseStarting or SkillProgramTriggerWindow.CharacterTurnedOver or SkillProgramTriggerWindow.CharacterTurnedFaceUp or
                 SkillProgramTriggerWindow.CharacterEnteredChain or SkillProgramTriggerWindow.CardUseCompleted or
-                SkillProgramTriggerWindow.DiscardPhaseEnded) &&
+                SkillProgramTriggerWindow.DiscardPhaseEnded or SkillProgramTriggerWindow.TurnEnding) &&
             effects.SelectMany(EnumerateParticipantReferences)
                 .Any(reference => reference.Kind == ProgramParticipantRef.EventTarget))
             Fail(path + ".effects", "eventTarget requires a target-related card-action owner relation");
@@ -3974,7 +3977,7 @@ public sealed class SkillProgramCatalog
         var hasValue = node.TryGetProperty("value", out _);
         var hasZone = node.TryGetProperty("zone", out _);
         var hasMarker = node.TryGetProperty("marker", out _);
-        var usesMarker = kind is SkillProgramTriggerValueKind.EventTargetMarkerCount or SkillProgramTriggerValueKind.OwnerAttributedMarkerCount or SkillProgramTriggerValueKind.MarkerParity or SkillProgramTriggerValueKind.GlobalMarkerCount;
+        var usesMarker = kind is SkillProgramTriggerValueKind.EventTargetMarkerCount or SkillProgramTriggerValueKind.EventSourceMarkerCount or SkillProgramTriggerValueKind.OwnerAttributedMarkerCount or SkillProgramTriggerValueKind.MarkerParity or SkillProgramTriggerValueKind.GlobalMarkerCount;
         if (usesMarker != hasMarker)
             Fail(path, usesMarker ? "ownerAttributedMarkerCount requires marker" :
                 "this trigger value does not accept marker");

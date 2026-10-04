@@ -1,0 +1,52 @@
+{
+  "generalId": "ol:xun-chen",
+  "characterName": "荀谌",
+  "officialId": 460,
+  "sourcePage": "https://www.sanguosha.com/hero/460",
+  "capturedAt": "2026-10-05",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 460,
+    "name": "荀谌",
+    "extend": "",
+    "hp": 3,
+    "figure": "群",
+    "quality": "稀有"
+  },
+  "artwork": {
+    "skinId": "46000",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/46000.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-xun-chen.png",
+    "sha256": "0e288cb1430016b16d2364f1cad5f075fae69b4a222747ebbef55439aa58757f",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "锋略",
+      "text": "出牌阶段开始时，你可以拼点：若你赢，被拼点者将其每个区域各一张牌交给你；若你没赢，你交给被拼点者一张牌。拼点结算后你可以令其获得你的拼点牌。",
+      "programId": "ol:fenglve",
+      "notes": [
+        "playPhaseStarting optional trigger: selectTarget otherLivingWithHand, startPindian with resultBind (trigger-based pindian, 简庸/伏皇后 precedent).",
+        "Win branch: three selectAndMoveOwnedCard ops (hand/equipment/judgment, chooser = the counterpart, destination ownerHand, skipIfNoCards) gated by pindianWon with the contest sourceBind.",
+        "Loss branch: one hand card to selectedTargetHand gated by pindianNotWon. Settlement gift: chooseOption give/keep plus the new givePindianCard op, which claims the owner's own pindian card out of the discard pile into the counterpart's hand."
+      ]
+    },
+    {
+      "name": "谋识",
+      "text": "出牌阶段限一次，你可以交给一名角色一张手牌，然后当其于其下回合出牌阶段对一名角色首次造成伤害后，你摸一张牌。",
+      "programId": "ol:moushi",
+      "notes": [
+        "Gift: playPhaseStarting optional trigger gated by a turn-scoped boolean state ledger and a non-empty hand; selectAndMoveOwnedCard to selectedTargetHand then changeParticipantMarker mouShi +1 (PlayPhaseStarting SelectedTarget path, 陆绩 precedent).",
+        "Drain: compulsory afterDamageApplied trigger (subject any) gated by cardActionPhaseIsPlay plus the new eventSourceMarkerCount compare; draws one and consumes the marker via targetRef eventSource.",
+        "Expiry: compulsory turnEnding trigger (turnOwnerScope otherLiving) consuming any remaining marker from the turn owner (eventTarget)."
+      ]
+    }
+  ],
+  "observations": [
+    "OL lists 荀谌 as qun 3HP with quality 稀有; the hero page labels him 通过拼点获得敌人大量的牌.",
+    "New shared pieces: trigger value eventSourceMarkerCount (after-damage facts carry the source's markers), attributed marker targetRef eventSource, and the givePindianCard effect (reads the skill's PindianResultDeterminedEvent and moves the owner's pindian card from the discard pile).",
+    "Marker whitelists (composition validator, runtime lifecycle gate, eventTarget/eventSource reference lists) gained the TurnEnding window for expiry-style markers."
+  ]
+}

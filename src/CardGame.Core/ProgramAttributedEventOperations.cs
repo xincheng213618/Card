@@ -10,7 +10,7 @@ internal abstract class AttributedEventDescriptor : ProgramOperationDescriptorBa
   r.AllowOnly("op","target","targetRef","amount","marker","condition");var target=r.RequiredEnum<SkillProgramEffectTarget>("target");var amount=r.RequiredInt("amount");
   if(amount is < -20 or > 20 || amount==0 || amount<0&&target!=SkillProgramEffectTarget.Owner || target is not (SkillProgramEffectTarget.Owner or SkillProgramEffectTarget.SelectedTarget) || Op!=SkillProgramEffectOp.ChangeParticipantMarker && (target!=SkillProgramEffectTarget.Owner || amount!=1))throw new InvalidOperationException("Invalid attributed event marker operation.");
   var targetRef=r.Has("targetRef")?r.RequiredParticipantReference("targetRef"):null;
-  if(targetRef is not null&&(target!=SkillProgramEffectTarget.Owner||targetRef.Kind!=ProgramParticipantRef.EventTarget))throw new InvalidOperationException("Attributed marker references support only owner placeholder with eventTarget.");
+  if(targetRef is not null&&(target!=SkillProgramEffectTarget.Owner||targetRef.Kind is not (ProgramParticipantRef.EventTarget or ProgramParticipantRef.EventSource)))throw new InvalidOperationException("Attributed marker references support only owner placeholder with eventTarget or eventSource.");
   return new(Op,target,amount,r.Condition(),marker:r.RequiredEnum<PlayerMarkerKind>("marker"),targetReference:targetRef);
  }
  public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>Op switch {

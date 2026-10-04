@@ -4733,6 +4733,9 @@ public sealed partial class GameEngine
             EventTargetDamageInstancesTakenThisTurn = damage.EventTargetDamageInstancesTakenThisTurn,
             DamageTargetIsOther = candidate.OwnerSeat != attack.TargetSeat,
             DamageSourceIsOwner = !attack.IsSourceLess && candidate.OwnerSeat == attack.SourceSeat,
+            EventSourceMarkerCounts = HasAttributedEventOperations() && !attack.IsSourceLess &&
+                IsValidPlayerSeat(attack.SourceSeat)
+                ? new Dictionary<PlayerMarkerKind, int>(_players[attack.SourceSeat].Markers) : null,
             DamageSourceFactionId = attack.IsSourceLess ? null : GetEffectiveFactionId(_players[attack.SourceSeat]),
             DamageInstancesTakenThisTurn =
                 GetSkillBindingShard(owner).ProgramInstances.Any(instance =>

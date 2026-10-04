@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:fenglve", "revision": 1,
+      "triggers": [
+        {
+          "id": "contest", "window": "playPhaseStarting",
+          "subject": "owner", "optional": true, "priority": 0,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLivingWithHand" },
+            { "op": "startPindian", "target": "owner", "opponentRef": { "kind": "selectedTarget" }, "resultBind": "fenglve-contest", "visibility": "public" },
+            { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "selectedTarget" }, "cardOwnerRef": { "kind": "selectedTarget" },
+              "zones": ["hand"], "count": 1, "destination": "ownerHand", "skipIfNoCards": true,
+              "condition": { "kind": "pindianWon", "sourceBind": "fenglve-contest" } },
+            { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "selectedTarget" }, "cardOwnerRef": { "kind": "selectedTarget" },
+              "zones": ["equipment"], "count": 1, "destination": "ownerHand", "skipIfNoCards": true,
+              "condition": { "kind": "pindianWon", "sourceBind": "fenglve-contest" } },
+            { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "selectedTarget" }, "cardOwnerRef": { "kind": "selectedTarget" },
+              "zones": ["judgment"], "count": 1, "destination": "ownerHand", "skipIfNoCards": true,
+              "condition": { "kind": "pindianWon", "sourceBind": "fenglve-contest" } },
+            { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand"], "count": 1, "destination": "selectedTargetHand", "targetRef": { "kind": "selectedTarget" },
+              "skipIfNoCards": true,
+              "condition": { "kind": "pindianNotWon", "sourceBind": "fenglve-contest" } },
+            { "op": "chooseOption", "target": "owner", "resultBind": "fenglve-gift", "options": [ { "id": "give" }, { "id": "keep" } ] },
+            { "op": "givePindianCard", "target": "selectedTarget", "condition": { "kind": "choiceIs", "sourceBind": "fenglve-gift", "optionId": "give" } }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:moushi", "revision": 1,
+      "states": [
+        {
+          "id": "moushi-spent", "initialValue": false, "visibility": "public",
+          "resetScope": "turn", "reacquirePolicy": "preserveUntilGameEnd"
+        }
+      ],
+      "triggers": [
+        {
+          "id": "gift", "window": "playPhaseStarting",
+          "subject": "owner", "optional": true, "priority": 1,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "booleanState", "stateId": "moushi-spent", "expectedValue": false },
+              { "kind": "compare", "left": { "kind": "currentHandCount" },
+                "operator": "greaterThanOrEqual", "right": { "kind": "integerConstant", "value": 1 } }
+            ]
+          },
+          "effects": [
+            { "op": "setBooleanState", "target": "owner", "stateId": "moushi-spent", "value": true },
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" },
+            { "op": "selectAndMoveOwnedCard", "target": "owner", "chooserRef": { "kind": "owner" }, "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand"], "count": 1, "destination": "selectedTargetHand", "targetRef": { "kind": "selectedTarget" },
+              "skipIfNoCards": true, "awaitMovementTriggers": true },
+            { "op": "changeParticipantMarker", "target": "selectedTarget", "marker": "mouShi", "amount": 1 }
+          ]
+        },
+        {
+          "id": "moushi-drain", "window": "afterDamageApplied",
+          "subject": "any", "damageOccurrence": "perDamage",
+          "optional": false, "priority": 0,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "cardActionPhaseIsPlay" },
+              { "kind": "compare", "left": { "kind": "eventSourceMarkerCount", "marker": "mouShi" },
+                "operator": "greaterThanOrEqual", "right": { "kind": "integerConstant", "value": 1 } }
+            ]
+          },
+          "effects": [
+            { "op": "draw", "target": "owner", "amount": 1 },
+            { "op": "changeParticipantMarker", "target": "owner", "targetRef": { "kind": "eventSource" }, "marker": "mouShi", "amount": -1 }
+          ]
+        },
+        {
+          "id": "moushi-expiry", "window": "turnEnding",
+          "turnOwnerScope": "otherLiving",
+          "subject": "owner", "optional": false, "priority": 0,
+          "condition": {
+            "kind": "compare", "left": { "kind": "eventTargetMarkerCount", "marker": "mouShi" },
+            "operator": "greaterThanOrEqual", "right": { "kind": "integerConstant", "value": 1 }
+          },
+          "effects": [
+            { "op": "changeParticipantMarker", "target": "owner", "targetRef": { "kind": "eventTarget" }, "marker": "mouShi", "amount": -1 }
+          ]
+        }
+      ]
+    }
+  ]
+}
