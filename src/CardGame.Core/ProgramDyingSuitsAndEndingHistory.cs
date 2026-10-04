@@ -96,7 +96,7 @@ public sealed class UseOwnPlayHistoryAtEndingHandler : ISkillProgramEffectHandle
 internal static class DyingSuitsAndEndingHistoryComposition
 {
     internal static void Validate(string path, IReadOnlyList<SkillProgramEffect> effects, SkillProgramTriggerWindow? window,
-        SkillProgramTriggerSubject subject, bool optional, SkillUsageScope? usageScope, int? usageLimit, SkillProgramTurnOwnerScope? turnOwnerScope)
+        SkillProgramTriggerSubject? subject, bool optional, SkillUsageScope? usageScope, int? usageLimit, SkillProgramTurnOwnerScope? turnOwnerScope)
     {
         if (!effects.Any(e => e.Op is SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach or SkillProgramEffectOp.UseOwnPlayHistoryAtEnding)) return;
         if (effects.Count != 1 || !optional || effects[0].Op == SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach &&

@@ -15,8 +15,9 @@
 
 ## 验证
 
-（合并前填写实测数字）
-
+- 定向 `--filter="Ol Huang Zu"`：2/2 通过（定义元数据、两段普通【杀】距离/次数/伤害行为，含冷恢复重放比对）。
+- 例行 `tools/Test-Changed.ps1`：Core 257 通过 + WPF 18/18。既有 26 项基线失败保持不变；另有 3 项失败（Ordinary Chen Lin / SP Cai Wen Ji / SP Cao Ren）全部来自并行批次 fd1cc271 自带的新检查（其特性在 main 上本就未完成），与本批无关。
+- 本批顺带修复 fd1cc271 遗留的编译错误：DyingSuitsAndEndingHistoryComposition.Validate 与 PrivateOfferComposition.ValidateTrigger 的 subject 参数补 nullable（其传入的解析局部变量本即可空）、OrdinarySpCaoRenChecks 的 CardUseDebitIdentity.CardActionId 字段名（fd1cc271 落地时 main 无法编译）。
 ## 边界说明
 
 - OL 界限突破仅剩 451 界刘禅、749 界沮授未实现（均需新共享机制）。

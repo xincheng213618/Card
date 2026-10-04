@@ -16,7 +16,7 @@ internal static class PrivateOfferComposition
     }
 
     internal static void ValidateTrigger(string path, IReadOnlyList<SkillProgramEffect> effects,
-        SkillProgramTriggerWindow window, SkillProgramTriggerSubject subject, SkillProgramTurnOwnerScope scope, bool optional)
+        SkillProgramTriggerWindow window, SkillProgramTriggerSubject? subject, SkillProgramTurnOwnerScope scope, bool optional)
     {
         if (effects.Any(e => e.Op == SkillProgramEffectOp.ResolveGameTargetHandHpChoice))
             throw new InvalidOperationException($"{path}: game-target hand/HP choice requires an active Play command.");

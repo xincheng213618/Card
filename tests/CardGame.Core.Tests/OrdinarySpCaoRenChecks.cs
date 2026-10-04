@@ -51,7 +51,7 @@ internal static class OrdinarySpCaoRenChecks
             E<CardActionAcceptedEvent>(g).Any(e => e.Action.ActionId == issued.ActionId && e.Action.Type == CardActionType.Use &&
                 e.Action.ActorSeat == 0 && e.Action.ProviderSeat == 0 && e.Action.EffectiveKind == CardKind.Slash && e.Action.PhysicalCards.Count == 0) &&
             E<CardUseDeclaredEvent>(g).Count(e => e.ResolutionId == issued.CardUseFrameId && e.CardId == 0 && e.CardKind == CardKind.Slash) == 1 &&
-            E<CardUseDebitRecordedEvent>(g).All(e => e.Debit.ActionId != issued.ActionId),
+            E<CardUseDebitRecordedEvent>(g).All(e => e.Debit.CardActionId != issued.ActionId),
             "The mature forced-skill contract creates a real zero-material Use and exact directed distance1 while ignoring, without refunding or debiting, ordinary quota.");
         g = Cold(g, r); Answer(g, c => c.Parameters.GetValueOrDefault("response") == "pass");
         Reach(g, p => p.SkillPrompt?.SkillId == Entry && g.ResolutionStack.OfType<ProgramSkillFrame>().Last().WindowContext?.Window == SkillProgramTriggerWindow.CardUseCompleted);
