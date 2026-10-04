@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "ol:juesi", "revision": 1,
+    "activations": [{ "id": "discard-slash-and-challenge", "minCards": 0, "maxCards": 0,
+      "minTargets": 1, "maxTargets": 1, "targetKind": "otherLivingInAttackRange", "usesPerTurn": null,
+      "effects": [{ "op": "discardSlashThenOtherCardAndUseDuel", "target": "owner" }]
+    }]
+  }]
+}

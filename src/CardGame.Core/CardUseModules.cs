@@ -594,7 +594,7 @@ internal sealed partial class TurnCardUseEffectStore
 
     internal IReadOnlyList<long> ExpireTurn(int turnNumber, int turnSeat)
     {
-        var expired = ExpiringBoundSlashBenefits(turnNumber, turnSeat).Concat(ExpiringHandLimitKindExemptions(turnNumber, turnSeat)).Concat(ExpiringHandLimitExemptCards(turnNumber, turnSeat)).Concat(ExpiringRedSlashPolicies(turnNumber, turnSeat)).Concat(_targetAdjustments
+        var expired = ExpiringHandCategoryRestrictions(turnNumber, turnSeat).Concat(ExpiringBoundSlashBenefits(turnNumber, turnSeat)).Concat(ExpiringHandLimitKindExemptions(turnNumber, turnSeat)).Concat(ExpiringHandLimitExemptCards(turnNumber, turnSeat)).Concat(ExpiringRedSlashPolicies(turnNumber, turnSeat)).Concat(_targetAdjustments
             .Where(item => item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
             .Select(item => item.GrantSequence))
             .Concat(_prohibitions
@@ -635,6 +635,7 @@ internal sealed partial class TurnCardUseEffectStore
         ExpireHandLimitExemptCards(expiredSet);
         ExpireHandLimitKindExemptions(expiredSet);
         ExpireBoundSlashBenefits(expiredSet);
+        ExpireHandCategoryRestrictions(expiredSet);
         return expired;
     }
 
@@ -666,6 +667,7 @@ internal sealed partial class TurnCardUseEffectStore
             .Concat(_ruleModifiers.Select(item => item.GrantSequence))
             .Concat(_targetRestrictions.Select(item => item.GrantSequence))
             .Concat(_conversions.Select(item => item.GrantSequence))
+            .Concat(_handCategoryRestrictions.Select(item => item.GrantSequence))
             .Concat(_handLimitKindExemptions.Select(item => item.GrantSequence))
             .Concat(_slashSuitAllowances.Select(item => item.GrantSequence))
             .Concat(_firstRoundGameUsageRefunds.Select(item => item.GrantSequence)).ToArray();
@@ -682,7 +684,7 @@ internal sealed partial class TurnCardUseEffectStore
                 item.Suits is not null && (item.CardKinds.Count != 0 || !item.ActionTypes.SequenceEqual([CardActionType.Use]) || item.Suits.Distinct().Count() != item.Suits.Count || item.Suits.Any(suit => !Enum.IsDefined(suit))) || item.ActionTypes.Count == 0 ||
                 item.CardKinds.Distinct().Count() != item.CardKinds.Count ||
                 item.ActionTypes.Distinct().Count() != item.ActionTypes.Count) ||
-            _handColorRestrictions.Any(item => item.AffectedSeat < 0) || HandLimitKindExemptionsAreInvalid() || BoundSlashBenefitsAreInvalid() ||
+            _handColorRestrictions.Any(item => item.AffectedSeat < 0) || HandCategoryRestrictionsAreInvalid() || HandLimitKindExemptionsAreInvalid() || BoundSlashBenefitsAreInvalid() ||
             _ruleModifiers.Any(item =>
                 item.AffectedSeat is < 0 || item.PaidHpLossOrigin is not null && !PaidHpLossProgram.IsValidModifierOrigin(item) ||
                 item.Query == SkillRuleQuery.HandLimit &&

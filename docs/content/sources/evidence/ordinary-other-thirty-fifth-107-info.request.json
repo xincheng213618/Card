@@ -1,0 +1,12 @@
+{
+  "url": "https://www.sanguosha.com/api/v1/hero/info?gid=107",
+  "method": "GET",
+  "requestedUtc": "2026-10-04T12:53:11.256648+00:00",
+  "redirectsAllowed": false,
+  "retries": 0,
+  "completedUtc": "2026-10-04T12:53:11.490082+00:00",
+  "status": 200,
+  "actualUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=107",
+  "bytes": 907,
+  "rawSha256": "bd331b57bd7d88c164febcd91bebecf125fa335c214874432f92774b86d092f0"
+}

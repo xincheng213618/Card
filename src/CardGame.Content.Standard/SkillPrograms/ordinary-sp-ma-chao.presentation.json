@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:zhuiji": {
+      "name": "追击",
+      "description": "锁定技，你计算与体力值不大于你的角色的距离视为1。当你使用【杀】指定距离为1的角色为目标后，其弃置一张牌或重铸其装备区里的所有牌。",
+      "triggerChoices": { "distance-one-target-payment": "追击：指定距离为1的目标后，由其弃一张牌或重铸全部装备。" }
+    },
+    "ol:shichou": {
+      "name": "誓仇",
+      "description": "你使用的【杀】可以多指定X+1个目标（X为你已损失体力值）。"
+    }
+  }
+}

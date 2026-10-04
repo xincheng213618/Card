@@ -1,0 +1,13 @@
+{
+  "url": "https://www.sanguosha.com/api/v1/hero/info?gid=105",
+  "purpose": "Single current detail-page-advertised info GET; exact fetch at 105-page.raw.html line484 and gid path line477",
+  "method": "GET",
+  "startedUtc": "2026-10-04T12:49:25.3484079Z",
+  "finishedUtc": "2026-10-04T12:49:25.6822995Z",
+  "httpStatus": "200",
+  "curlExitCode": 0,
+  "redirectsFollowed": false,
+  "retries": 0,
+  "rawSha256": "287d7cfedd926ae0894620c05de9c375a33989e344cea60de18b796a9d1408bf",
+  "rawBytes": 835
+}

@@ -25,6 +25,7 @@ public sealed partial class GameEngine
         {
             var location = new CardLocation(zone, cardOwnerSeat);
             return _cardZones.CardsAt(location)
+                .Where(card => CanSelectSelfDiscardBinding(active, resultBind, cardOwnerSeat, card, location))
                 .Where(card => MatchesEquipmentPairOwnedCost(active, resultBind, card, location))
                 .Where(card => MatchesDeferredHandDebtCost(active, resultBind, card, location))
                 .Where(card => MatchesProgramOwnedSelectionKind(active, resultBind, _players[cardOwnerSeat], card, location, cardKinds))
@@ -165,6 +166,8 @@ public sealed partial class GameEngine
             return;
         }
         var ids = finish ? draft.SelectedCardIds.ToArray() : draft.SelectedCardIds.Append(selected.Cards[0]).ToArray();
+        if (ids.Any(id => !CanSelectSelfDiscardBinding(frame, draft.ResultBind, draft.CardOwnerSeat, _cardZones.CardsAt(_cardZones.GetLocation(id)).Single(c => c.Id == id), _cardZones.GetLocation(id))))
+        { CancelProgramBindingAndCleanup(frame, "所选手牌不能自行弃置，未移动费用。"); return; }
         if (!finish && ids.Length < draft.RequiredCount)
         {
             frame = frame with { OwnedCardSelection = draft with { SelectedCardIds = Array.AsReadOnly(ids) } };

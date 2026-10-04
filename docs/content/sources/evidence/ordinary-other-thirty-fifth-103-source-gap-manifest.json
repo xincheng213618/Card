@@ -1,0 +1,44 @@
+{
+  "status": "frozen-source-gap",
+  "capturedUtc": "2026-10-04T12:57:07.094389+00:00",
+  "files": [
+    {
+      "stagePath": "103-page.raw.html",
+      "sha256": "27675739788106b45d801057404a8546ad7e2fa8f9c0406683ce5d37e5ca47ca",
+      "bytes": 29020
+    },
+    {
+      "stagePath": "103-page.headers.txt",
+      "sha256": "880da9cb9c221019aa40074fae7b537b9ce660276a1afdb0795f1c4b41bdc621",
+      "bytes": 640
+    },
+    {
+      "stagePath": "103-page.request.json",
+      "sha256": "820d2458cad7d496029585567fe5e238a80219c3275961f3962ee7236ace86d3",
+      "bytes": 405
+    },
+    {
+      "stagePath": "103-info.raw.json",
+      "sha256": "db5922fe9f6e0f102856acc1eaefefb7acdf91d47f38a89f1bd14ab4f06d9837",
+      "bytes": 889
+    },
+    {
+      "stagePath": "103-info.headers.txt",
+      "sha256": "101a07dbd403c1934d1f589ee703210a574c09629e9d56cc00e4ed3ebb398bcf",
+      "bytes": 625
+    },
+    {
+      "stagePath": "103-info.request.json",
+      "sha256": "55a4355ebcf5b474c191aaa629a1fa3ff9e15c36e834d6220df9a5d04956cff5",
+      "bytes": 435
+    },
+    {
+      "stagePath": "source-gap.json",
+      "sha256": "d753dc97678739c6fc1baac82fd17724c8328e034f093433336659d9b62c64b7",
+      "bytes": 2742
+    }
+  ],
+  "fullCurrentCharacterReady": false,
+  "registered": false,
+  "runtimeAllFalse": true
+}

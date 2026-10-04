@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:juesi": { "name": "决死", "description": "出牌阶段，你可以弃置一张【杀】并令攻击范围内一名其他角色弃置一张牌，若弃置牌不为【杀】且其体力值不小于你，你视为对其使用【决斗】。",
+      "activationLabels": { "discard-slash-and-challenge": "弃置一张杀，令攻击范围内目标自行弃牌" } }
+  }
+}

@@ -162,7 +162,7 @@ public sealed partial class GameEngine
                     ContinueSlashAfterTargetBenefitAdditions(attack, w.ReturnKind == SlashTargetBenefitReturn.AfterActualTargetsLegacy);
                 else if (w.ReturnKind == SlashTargetBenefitReturn.LegacyVirtualSlash)
                 {
-                    if (!TryBeginActualUseTargetPrograms(attack, ActualUseTargetReturnKind.LegacyVirtualSlash)) ContinueSlashAfterResponsePrograms(attack);
+                    if (!TryBeginSlashTargetPenalties(attack, legacy: true) && !TryBeginActualUseTargetPrograms(attack, ActualUseTargetReturnKind.LegacyVirtualSlash)) ContinueSlashAfterResponsePrograms(attack);
                 }
                 else ContinueSlashAfterFinalizedTargets(attack);
                 return;
@@ -183,6 +183,7 @@ public sealed partial class GameEngine
     {
         // New gains can themselves add another genuine target. Refill only this
         // capability's unvisited benefit keys before entering the original effect.
+        if (TryBeginSlashTargetPenalties(attack, legacy, afterActualTargets: true)) return;
         if (TryBeginSlashTargetBenefits(attack, legacy, afterActualTargets: true)) return;
         if (TryBeginUnannouncedUniqueHpTargets(attack, legacy)) return;
         if (legacy)

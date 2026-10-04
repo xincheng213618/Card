@@ -1,0 +1,17 @@
+{
+  "mainHead": "ffee9fd86044be71859235335225fd2dc394f925",
+  "boundedSearch": "Exact current StandardClassicGeneralPackage module/name, not a whole catalog scan",
+  "inputPath": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+  "inputSha256": "43fd55baaac570379b0419ae4b7ae5262c114cebe20a44853a15723ea173993f",
+  "priorYangXiuModulePresent": false,
+  "priorGeneralIdPresent": false,
+  "priorNamePresent": false,
+  "previewModuleCount": 1,
+  "newIdentity": {
+    "gid": 104,
+    "generalId": "ol:yang-xiu",
+    "variantId": "ordinary",
+    "rulesetId": "sanguosha-ol",
+    "gallery": "other"
+  }
+}

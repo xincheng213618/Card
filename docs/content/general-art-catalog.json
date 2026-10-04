@@ -11931,6 +11931,57 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-yang-xiu",
+      "characterName": "杨修",
+      "defaultSkinId": "10400",
+      "skins": [
+        {
+          "id": "10400",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/104",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/10400.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-yang-xiu.png",
+          "sha256": "c8ea21de27c48b7ca4a5bde30137552537b8eb6fab929204e4b91ba127c35c62",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-sp-pang-de",
+      "characterName": "SP庞德",
+      "defaultSkinId": "10500",
+      "skins": [
+        {
+          "id": "10500",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/105",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/10500.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-sp-pang-de.png",
+          "sha256": "f23ec7fb25b6977e0c0bf026768c7417150cee7b465e031f8cdb0ee75eda33b0",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-sp-ma-chao",
+      "characterName": "SP马超",
+      "defaultSkinId": "10700",
+      "skins": [
+        {
+          "id": "10700",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/107",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/10700.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-sp-ma-chao.png",
+          "sha256": "20e5dbca560fdde80f48aa395b5e7f7b99fc8c0eef491fbbbaf5950a9a42a2c7",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

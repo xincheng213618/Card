@@ -81,7 +81,7 @@ public sealed partial class GameEngine
         foreach (var zone in effect.Zones)
         foreach (var card in _cardZones.CardsAt(new CardLocation(zone, draft.ChooserSeat)))
         {
-            if (draft.SelectedIds.Contains(card.Id) || draft.Mode == "category" && draft.ComplementOnly &&
+            if (IsSelfHandCategoryDiscardForbidden(draft.ChooserSeat, card, new(zone, draft.ChooserSeat), OwnedCardMoveIntent.Discard) || draft.SelectedIds.Contains(card.Id) || draft.Mode == "category" && draft.ComplementOnly &&
                 effect.CardCategories.Contains(GetProgramCardCategory(card.Kind))) continue;
             choices.Add(new(new ChoiceId($"discard-challenge.card-{card.Id}"), $"{(draft.Mode == "escalating" ? "选择" : "弃置")}【{card.DisplayName}】", [card.Id], [draft.ChooserSeat],
                 new Dictionary<string, string> { ["program-action"] = "discard-challenge", ["branch"] = "card" }));
@@ -136,6 +136,8 @@ public sealed partial class GameEngine
             var remaining = draft.Remaining < 0 ? (primary ? 0 : effect.MinimumValue - 1) : draft.Remaining - 1;
             ReplaceRuntimeTop(frame with { DiscardChallenge = draft with { Remaining = remaining, ComplementOnly = !primary },
                 ReexecuteParticipantInstruction = true, PendingMovementContinuation = new(draft.ChooserSeat, 0, null) });
+            if (IsSelfHandCategoryDiscardForbidden(draft.ChooserSeat, card, location, OwnedCardMoveIntent.Discard))
+            { CancelProgramBindingAndCleanup(frame, "当前手牌不能自行弃置，费用未支付。"); return; }
             MoveCard(card, location, CardLocation.DiscardPile, new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
             if (!TryBeginCardsMovedProgramWindow()) ReturnRuntimeProgramMovement(frame.Id);
             return;
@@ -144,7 +146,8 @@ public sealed partial class GameEngine
             branch is not ("finish" or "damage") || branch == "finish" && draft.SelectedIds.Count <= draft.PreviousCount)
             throw new InvalidOperationException("Invalid discard challenge branch.");
         var physical = draft.SelectedIds.Select(id => (Id: id, Location: _cardZones.GetLocation(id))).ToArray();
-        if (branch == "finish" && physical.Any(c => c.Location.OwnerSeat != draft.ChooserSeat || !effect.Zones.Contains(c.Location.Zone)))
+        if (branch == "finish" && physical.Any(c => c.Location.OwnerSeat != draft.ChooserSeat || !effect.Zones.Contains(c.Location.Zone) ||
+            IsSelfHandCategoryDiscardForbidden(draft.ChooserSeat, _cardZones.CardsAt(c.Location).Single(card => card.Id == c.Id), c.Location, OwnedCardMoveIntent.Discard)))
             throw new InvalidOperationException("Staged discard card moved.");
         ClearPendingDecision();
         ReplaceRuntimeTop(frame with { DiscardChallenge = draft with { Cursor = draft.Cursor + 1,

@@ -17,7 +17,7 @@ public sealed partial class GameEngine
             CancelProgramBindingAndCleanup(active, "技能拥有者已失效，技能剩余结算已取消。");
             return SkillProgramStepOutcome.AwaitChild;
         }
-        var slashes = GetHand(user).Where(card => IsSlashCard(card.Kind)).ToArray();
+        var slashes = GetHand(user).Where(card => IsSlashCard(card.Kind) && !IsTurnHandCategoryRestricted(user, card)).ToArray();
         if (slashes.Length == 0)
         {
             CommitProgramChoiceResult(frame.Id, resultBind,
@@ -116,7 +116,7 @@ public sealed partial class GameEngine
         var card = location.Zone == CardZoneKind.Hand && location.OwnerSeat == userSeat
             ? _cardZones.CardsAt(location).SingleOrDefault(item => item.Id == cardId)
             : null;
-        if (card is null || !IsSlashCard(card.Kind))
+        if (card is null || !IsSlashCard(card.Kind) || IsTurnHandCategoryRestricted(_players[userSeat], card))
         {
             CancelProgramBindingAndCleanup(frame, "所选【杀】已离开用牌者手牌，技能剩余结算已取消。");
             return;

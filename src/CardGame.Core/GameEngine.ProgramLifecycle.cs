@@ -323,6 +323,7 @@ public sealed partial class GameEngine
             };
             foreach (var card in cards)
             {
+                if (IsSelfHandCategoryDiscardForbidden(owner.Seat, card, location, OwnedCardMoveIntent.Discard)) continue;
                 MoveCard(card, location, CardLocation.DiscardPile, reason);
                 discarded++;
             }
@@ -1823,6 +1824,7 @@ public sealed partial class GameEngine
         ProgramSkillWindowContext context)
     {
         if (!IsValidPlayerSeat(candidate.OwnerSeat) || candidate.OwnerSeat != context.OwnerSeat) return false;
+        if (context.Window == SkillProgramTriggerWindow.ActualSlashTargetPenalty) return CanRunSlashTargetPenalty(candidate, context);
         if (IsSlashTargetBenefitWindow(context.Window)) return CanRunSlashTargetBenefitCandidate(candidate, context);
         var owner = _players[candidate.OwnerSeat];
         if (context.Window != SkillProgramTriggerWindow.OwnerDied && !owner.IsAlive ||
@@ -1842,7 +1844,7 @@ public sealed partial class GameEngine
         if (!CanRunHalfHandPhaseDebt(candidate, trigger, context)) return false;
         if (!CanRunFixedRecipientBenefit(candidate, trigger, context)) return false;
         if (!CanRunEndingPair(candidate, trigger, context)) return false;
-        if (!CanRunActualUseTarget(candidate, context)) return false;
+        if (!CanRunActualUseTarget(candidate, context) || !CanOfferOwnTrickOrHandCategory(candidate, trigger, context)) return false;
         if (!CanOfferOriginalTargetAddition(candidate, trigger, context)) return false;
         if (!CanRunProgramDyingAlcoholPolicy(trigger, context, candidate.OwnerSeat)) return false;
         if (!CanOfferRoundPileAlcohol(candidate, trigger, context) || !CanOfferCurrentSlashFire(candidate, trigger, context) || !CanOfferSuitPreventionBenefit(candidate, trigger, context) || !CanOfferSignedDamagePayment(candidate, trigger, context)) return false;
@@ -1894,6 +1896,7 @@ public sealed partial class GameEngine
         {
             var available = features.InitialDiscardPaymentZones
                 .SelectMany(zone => _cardZones.CardsAt(new CardLocation(zone, owner.Seat))
+                    .Where(card => !IsSelfHandCategoryDiscardForbidden(owner.Seat, card, new(zone, owner.Seat), OwnedCardMoveIntent.Discard))
                     .Where(card => zone != CardZoneKind.Equipment ||
                         !IsActiveProgramSourceEquipmentCard(owner.Seat, candidate.SkillId,
                             candidate.SkillInstanceId, card)))
@@ -3189,6 +3192,7 @@ public sealed partial class GameEngine
             ResolveCompletedCardGiftChoice(selected);
             return;
         }
+        if (action == "slash-target-penalty") { ResolveTargetPenaltyChoice(selected); return; }
         if (action == "slash-target-benefit") { ResolveSlashTargetBenefitChoice(selected); return; }
         if (action == "prep-discard-ending")
         {
@@ -3307,6 +3311,11 @@ public sealed partial class GameEngine
         if (action is "fixed-target-slash" or "declared-deck-criterion" or "declared-deck-recipient")
         {
             ResolveFixedSlashAndDeclaredDeckChoice(selected);
+            return;
+        }
+        if (action == "conditional-discard-duel")
+        {
+            ResolveConditionalDuelPayment(selected);
             return;
         }
         if (action == "dual-color-choice")
@@ -4043,6 +4052,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.DrawLostHpThenOfferOwnedCardsUpTo => SelectAiLostHpOwnedGift(decision, frame),
                 SkillProgramEffectOp.ClaimGrantedPhaseSlash => SelectAiGrantedPhaseSlash(decision),
                 SkillProgramEffectOp.ChoosePrivateColorsDiscardAndDuel => SelectAiDualColorChoice(decision, frame),
+                SkillProgramEffectOp.DiscardSlashThenOtherCardAndUseDuel => SelectAiConditionalDuel(decision, frame),
                 SkillProgramEffectOp.PayOwnedCardOrMarker => SelectAiAlternativePhaseCost(decision, frame),
                 SkillProgramEffectOp.ObtainDamageTargetCardAndResolveCategory => SelectAiDamageTargetObtain(decision, frame),
                 SkillProgramEffectOp.OfferSameTypeDifferentNameOrExtraTarget => SelectAiSameTypeAid(decision, frame),
@@ -4114,6 +4124,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.DrawThenDiscardHandToMaximumHp => decision.Choices[0],
                 SkillProgramEffectOp.HoldTargetCards => SelectAiProgramHoldCards(decision, frame),
                 SkillProgramEffectOp.ResolvePrepDiscardOrEnding => SelectAiPrepDiscard(decision, frame),
+                SkillProgramEffectOp.RequireTargetDiscardOrEquipmentRecast => SelectAiTargetPenalty(decision, frame),
                 SkillProgramEffectOp.OfferSlashTargetBenefit or SkillProgramEffectOp.SettleDodgeCancelledSlashBenefit => SelectAiSlashTargetBenefit(decision, frame),
                 SkillProgramEffectOp.RequestSlashByTarget => SelectAiProgramRequestSlash(decision, frame),
                 SkillProgramEffectOp.UseOwnerSlashAgainstTurnOwner or SkillProgramEffectOp.DeclareDeckCriterionAndGiveMatchingCard =>

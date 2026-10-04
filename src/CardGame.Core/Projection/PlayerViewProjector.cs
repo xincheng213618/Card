@@ -78,6 +78,7 @@ public sealed partial class GameEngine
                 AlternatingChoiceStates = GetAlternatingChoiceStateSnapshot(player),
                 BeneficiarySuitShields = _beneficiarySuitShields.Any(s => s.BeneficiarySeat == player.Seat) ? _beneficiarySuitShields.Where(s => s.BeneficiarySeat == player.Seat).ToArray() : null,
                 DeferredHandAlignments = _deferredHandAlignments.Where(d => d.TargetSeat == player.Seat).ToArray() is { Length: > 0 } alignments ? alignments : null,
+                TurnHandCategoryRestrictions = GetTurnHandCategoryRestrictionSnapshot(player.Seat),
                 TurnHandLimitCardKindExemptions = GetTurnHandLimitCardKindExemptionsSnapshot(player.Seat),
                 TurnSlashSuitAllowances = GetTurnSlashSuitAllowancesSnapshot(player.Seat),
                 FirstRoundGameUsageRefunds = GetFirstRoundGameUsageRefundsSnapshot(player.Seat),
@@ -270,6 +271,7 @@ public sealed partial class GameEngine
         AlternatingChoiceStates = FreezeViewList(player.AlternatingChoiceStates),
         BeneficiarySuitShields = FreezeViewList(player.BeneficiarySuitShields),
         DeferredHandAlignments = FreezeViewList(player.DeferredHandAlignments),
+        TurnHandCategoryRestrictions = FreezeViewList(player.TurnHandCategoryRestrictions),
         TurnHandLimitCardKindExemptions = player.TurnHandLimitCardKindExemptions is { } kindExemptions ?
             Array.AsReadOnly(kindExemptions.Select(policy => policy with
                 { CardKinds = FreezeViewList(policy.CardKinds)! }).ToArray()) : null,

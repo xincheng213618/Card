@@ -1,0 +1,10 @@
+{
+  "format": "PNG",
+  "width": 750,
+  "height": 950,
+  "rawSha256": "c8ea21de27c48b7ca4a5bde30137552537b8eb6fab929204e4b91ba127c35c62",
+  "rawBytes": 871083,
+  "source": "advertised cover in current API",
+  "mainDestination": "src/CardGame.Wpf/Assets/official-ol-yang-xiu.png",
+  "executedImageDecoder": false
+}

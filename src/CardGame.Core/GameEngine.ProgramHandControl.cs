@@ -153,7 +153,8 @@ public sealed partial class GameEngine
         {
             var hand = GetHand(_players[frame.OwnerSeat]);
             foreach (var red in new[] { false, true })
-                if (hand.Any(card => HandControlIsRed(frame.OwnerSeat, card) == red))
+                if (hand.Any(card => HandControlIsRed(frame.OwnerSeat, card) == red) && !hand.Any(card => HandControlIsRed(frame.OwnerSeat, card) == red &&
+                    IsSelfHandCategoryDiscardForbidden(frame.OwnerSeat, card, CardLocation.Hand(frame.OwnerSeat), OwnedCardMoveIntent.Discard)))
                     Add(red ? "red" : "black", $"弃置全部{(red ? "红色" : "黑色")}手牌");
         }
         else if (draft.Stage == "participants")
@@ -203,6 +204,8 @@ public sealed partial class GameEngine
         var draft = frame.HandControlDraft!;
         var chooser = draft.Stage == "participant-top" ? draft.CardOwnerSeat!.Value : frame.OwnerSeat;
         var choices = BuildProgramHandControlChoices(frame);
+        if (draft.Stage == "color" && choices.Count == 0)
+        { CancelProgramBindingAndCleanup(frame, "没有可完整支付的颜色手牌费用。"); return; }
         var skill = _contentRegistry.GetSkill(frame.SkillId);
         _pendingDecision = new(DecisionKind.ProgramTrigger, chooser, $"【{skill.Name}】请选择", choices.SelectMany(choice => choice.Cards).Distinct().ToArray(),
             choices.SelectMany(choice => choice.Targets).Distinct().ToArray(), frame.OwnerSeat)
@@ -246,6 +249,8 @@ public sealed partial class GameEngine
             var red = action == "red";
             var cards = GetHand(_players[frame.OwnerSeat]).Where(card => HandControlIsRed(frame.OwnerSeat, card) == red).ToArray();
             if (cards.Length == 0) throw new InvalidOperationException("Color cost cannot be empty.");
+            if (cards.Any(card => IsSelfHandCategoryDiscardForbidden(frame.OwnerSeat, card, CardLocation.Hand(frame.OwnerSeat), OwnedCardMoveIntent.Discard)))
+            { CancelProgramBindingAndCleanup(frame, "完整颜色费用包含不可自弃手牌，未支付。"); return; }
             ReplaceRuntimeTop(frame with { HandControlDraft = draft with { Stage = "take-targets", Maximum = cards.Length }, ReexecuteParticipantInstruction = true });
             MoveCards(cards, CardLocation.Hand(frame.OwnerSeat), CardLocation.DiscardPile, new CardMoveReason("program.hand-color.discard"));
             AdvanceEventRulesAndQueueFact(new ProgramHandColorDiscardEvent(frame.Id, frame.SkillId, frame.OwnerSeat, red, cards.Select(card => card.Id).ToArray()));

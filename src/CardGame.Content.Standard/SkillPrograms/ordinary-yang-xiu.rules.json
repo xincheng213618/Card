@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:danlao",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "own-multi-trick",
+          "window": "otherActualUseTargeted",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "drawThenNullifyOwnMultiTargetTrick",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:jilei",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "declare-source-category",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "requireDamageSource": true,
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "effects": [
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "category",
+              "options": [
+                {
+                  "id": "basic"
+                },
+                {
+                  "id": "trick"
+                },
+                {
+                  "id": "equipment"
+                }
+              ]
+            },
+            {
+              "op": "restrictDamageSourceHandCategory",
+              "target": "owner",
+              "cardCategories": [
+                "basic"
+              ],
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "category",
+                "optionId": "basic"
+              }
+            },
+            {
+              "op": "restrictDamageSourceHandCategory",
+              "target": "owner",
+              "cardCategories": [
+                "trick"
+              ],
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "category",
+                "optionId": "trick"
+              }
+            },
+            {
+              "op": "restrictDamageSourceHandCategory",
+              "target": "owner",
+              "cardCategories": [
+                "equipment"
+              ],
+              "condition": {
+                "kind": "choiceIs",
+                "sourceBind": "category",
+                "optionId": "equipment"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

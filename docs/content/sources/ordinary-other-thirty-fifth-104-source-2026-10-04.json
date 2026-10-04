@@ -1,0 +1,92 @@
+{
+  "scope": "Current ordinary OL Other category gid104 only; two single requests, no JavaScript executed.",
+  "currentApiIdentity": {
+    "gid": 104,
+    "name": "杨修",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/104.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/10400.png",
+    "label": [
+      "防御",
+      "控制",
+      "卖血"
+    ],
+    "figure": "魏",
+    "figure_py": "wei",
+    "quality": "史诗",
+    "biography": "字德祖，今陕西华阴人，是东汉末年的文学家。杨修学问渊博，极聪慧，任丞相府主簿。史载，“是时，军国多事，修总知外内，事皆称意”。",
+    "characteristic": "免于【南蛮入侵】和【万箭齐发】的伤害，受伤后封印敌人的手牌。自身很脆弱，受到【寒冰剑】的针对。",
+    "hp": 3,
+    "initial_hp": 0,
+    "score": 0
+  },
+  "skills": [
+    {
+      "name": "啖酪",
+      "description": "当你成为锦囊牌的目标后，若你不是此牌的唯一目标，你可以摸一张牌，然后此牌对你无效。"
+    },
+    {
+      "name": "鸡肋",
+      "description": "当你受到伤害后，你可以声明一种牌的类型，伤害来源本回合不能使用、打出或弃置你声明的此类手牌。"
+    }
+  ],
+  "fontReferences": [],
+  "derivedSkillGap": false,
+  "fullCurrentMainText": true,
+  "fullImplementationSourceReady": true,
+  "apiSkillsFieldPresent": false,
+  "pageApiComparison": "API supplies matching name/faction/HP; skill authority is complete server-rendered current page, not an invented API skill list.",
+  "gender": {
+    "apiFieldPresent": false,
+    "engineeringValue": "Male",
+    "basis": "Historical person Yang Xiu; engineering metadata, not an API gender value."
+  },
+  "initialHp": {
+    "apiValue": 0,
+    "treatedAsPlaceholder": true,
+    "implementationInitialHpOverride": null
+  },
+  "requests": {
+    "page": {
+      "url": "https://www.sanguosha.com/hero/104",
+      "startUtc": "2026-10-04T12:49:32.5242461Z",
+      "endUtc": "2026-10-04T12:49:32.7607557Z",
+      "curlExitCode": 0,
+      "httpStatus": "200",
+      "rawBytes": 25947,
+      "rawSha256": "590999d7289a4782d63e2eb0fc809ed2810134bb14475169f7af0948db971c7f",
+      "headersSha256": "b15fea66c3f0f0ec2c6f61f1b26969b2cf282d2143540a1e8102e37e10014218"
+    },
+    "api": {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=104",
+      "advertisedBy": "104-page.raw.html:484",
+      "startUtc": "2026-10-04T12:49:55.6182905Z",
+      "endUtc": "2026-10-04T12:49:55.8637828Z",
+      "curlExitCode": 0,
+      "httpStatus": "200",
+      "rawBytes": 901,
+      "rawSha256": "77ccd26fb17dba41eac38e4bd2f6e6705883b4a1ca1bb7b323f49259d7a21d68",
+      "headersSha256": "34d59d6b024cdc8127a411f5b6cb7c1af020243f6a3f7f6da711831c1da353bd"
+    }
+  },
+  "registrationProof": {
+    "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+    "rawSha256": "43fd55baaac570379b0419ae4b7ae5262c114cebe20a44853a15723ea173993f",
+    "searchedExactIdentifiers": [
+      "YangXiu",
+      "yang-xiu",
+      "杨修"
+    ],
+    "matches": [],
+    "registered": false
+  },
+  "retainedDiscoveryInput": {
+    "path": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/cached-other-first20.json",
+    "rawSha256": "4609fc35bc5ed5b32c8e741d1d5bf6dfb974236622ee8b5aede3be492855a4b2"
+  },
+  "compilerExecuted": false,
+  "loaderExecuted": false,
+  "testsExecuted": false,
+  "nativeGameExecuted": false,
+  "uiExecuted": false,
+  "benchmarkExecuted": false
+}
