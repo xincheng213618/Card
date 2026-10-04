@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:jijie",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "give",
+          "usesPerTurn": 1,
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "anyLiving",
+          "effects": [
+            {
+              "op": "giveDrawPileBottomCard",
+              "target": "selectedTarget"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:jiyuan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "dying-draw",
+          "window": "dyingEntering",
+          "subject": "any",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "eventTarget"
+            },
+            {
+              "op": "draw",
+              "target": "selectedTarget",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "give-draw",
+          "window": "cardsMoved",
+          "subject": "owner",
+          "movementOccurrence": "perOwnerSourceHandGain",
+          "sourceZones": ["hand"],
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "eventTarget"
+            },
+            {
+              "op": "draw",
+              "target": "selectedTarget",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

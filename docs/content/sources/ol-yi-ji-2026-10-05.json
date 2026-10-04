@@ -1,0 +1,58 @@
+{
+  "generalId": "ol:yi-ji",
+  "characterName": "伊籍",
+  "officialId": 503,
+  "sourcePage": "https://www.sanguosha.com/hero/503",
+  "capturedAt": "2026-10-05",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 503,
+    "name": "伊籍",
+    "extend": "",
+    "hp": 3,
+    "figure": "蜀",
+    "quality": ""
+  },
+  "artwork": {
+    "skinId": "50300",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/50300.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-yi-ji.png",
+    "sha256": "c02f5bd1cb4f6c885b251cc7132553b7ca6231f37d2c137e852b0286e53968fc",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "机捷",
+      "text": "出牌阶段限一次，你可以观看牌堆底的一张牌，然后交给任意角色。",
+      "programId": "ol:jijie",
+      "notes": [
+        "出牌阶段限一次激活，激活目标即交给对象（anyLiving 含自己）。",
+        "新操作 giveDrawPileBottomCard（7160）：ReadSelectedTarget 提供接收者，取牌堆底（列表首张，拼点翻牌取 Last 即牌堆顶的镜像位）移动到其手牌，走弃牌/移动公共窗口路径。",
+        "“观看”在引擎内不产生私有可见性产物：日志只记录“观看牌堆底的一张牌”不点名，避免向未观看者泄露；拥有者的私有查看通道留待提示层补齐。"
+      ]
+    },
+    {
+      "name": "急援",
+      "text": "当一名角色进入濒死状态或你交给一名其他角色牌时，你可以令其摸一张牌。",
+      "programId": "ol:jiyuan",
+      "notes": [
+        "濒死分支：dyingEntering subject any（仁心/补益先例），selectTarget(eventTarget)+draw(selectedTarget 1)，其=濒死角色。",
+        "给牌分支：cardsMoved 新增 movementOccurrence perOwnerSourceHandGain（枚举 763）——以 seat 解耦收集器逐张观察“观察者自己的手牌进入另一名存活角色手牌”的移动，上下文 SourceSeat=来源（自己）、TargetSeat=接收者，selectTarget(eventTarget)+draw(selectedTarget) 全走既有操作面。",
+        "“交给”含任意给牌途径（机捷或其它技能/效果造成的 hand→hand 移动），非仅机捷。"
+      ]
+    }
+  ],
+  "apiInfo": {
+    "hp": 3,
+    "figure": "shu",
+    "initial_hp": 0
+  },
+  "genderBasis": "官方无结构化性别字段；沿仓库同角色男性惯例。",
+  "observations": [
+    "官方页 fetch 时间 2026-10-05（页面 + /api/v1/hero/info?gid=503），gid 503 为 OL 当前伊籍页。",
+    "本批 gid 段封面 URL 为 gid*100（50300.png），与 200 段 gid*10（2100.png）口径不同，统一以 API cover 字段为准。",
+    "OL 界限突破系列经本轮普查仅剩 451 界刘禅、749 界沮授未实现（均需新共享机制）；OL 常规新将（伊籍等 2018 后发布段）为后续批次的主要候选池。"
+  ]
+}

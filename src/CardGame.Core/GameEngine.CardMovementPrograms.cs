@@ -225,7 +225,8 @@ public sealed partial class GameEngine
             foreach (var candidate in CollectProgramTriggerCandidates(_players[ownerSeat], window))
             {
                 var trigger = GetProgramTrigger(candidate);
-                if (IsNeighborDiscardTopTrigger(trigger) || IsThirdPartyHandGainTrigger(trigger)) continue;
+                if (IsNeighborDiscardTopTrigger(trigger) || IsThirdPartyHandGainTrigger(trigger) ||
+                    IsOwnerSourceHandGainTrigger(trigger)) continue;
                 if (!IsGainPhaseQualified(trigger, ownerSeat, batch.MovementTiming)) continue;
                 if (discardOriginOnly && !trigger.MovementDiscardOnly) continue;
                 if (!(window == SkillProgramTriggerWindow.CardsMoved ? trigger.SourceZones : trigger.DestinationZones).Contains(count.Location.Zone)) continue;
@@ -265,6 +266,7 @@ public sealed partial class GameEngine
         }
         candidates.AddRange(CollectNeighborDiscardCandidates(batch));
         candidates.AddRange(CollectThirdPartyHandGainCandidates(batch));
+        candidates.AddRange(CollectOwnerSourceHandGainCandidates(batch));
         return candidates
             .OrderBy(candidate => (candidate.OwnerSeat - _currentSeat + _players.Count) % _players.Count)
             .ThenByDescending(candidate => candidate.Priority)
@@ -446,7 +448,8 @@ public sealed partial class GameEngine
                     frame.Batch, candidate, trigger, matching),
                 MovementBatch: frame.Batch);
         }
-        if (trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerThirdPartyHandGain)
+        if (trigger.MovementOccurrence is SkillProgramMovementOccurrence.PerThirdPartyHandGain
+            or SkillProgramMovementOccurrence.PerOwnerSourceHandGain)
         {
             var movement = frame.Batch.Movements[candidate.OccurrenceIndex];
             var destinationCount = ProgramMovementSourceCounts(frame.Batch, trigger.Window)

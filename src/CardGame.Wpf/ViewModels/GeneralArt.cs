@@ -241,6 +241,8 @@ public static class GeneralArt
             ["zhou-tai"] = "official-zhou-tai.png",
             // Official artwork URL and hash: docs/content/sources/boundary-cao-ren-2026-10-05.json.
             ["cao-ren"] = "official-cao-ren-jie.png",
+            // Official artwork URL and hash: docs/content/sources/ol-yi-ji-2026-10-05.json.
+            ["ol-yi-ji"] = "official-ol-yi-ji.png",
             // Official artwork URL and hash: docs/content/sources/bu-lian-shi-a63-2026-09-21.json.
             ["bu-lian-shi"] = "official-bu-lian-shi.png",
             // Official artwork URL and hash: docs/content/sources/cheng-pu-a64b-2026-09-21.json.

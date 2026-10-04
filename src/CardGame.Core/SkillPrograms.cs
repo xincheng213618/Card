@@ -188,6 +188,7 @@ public enum SkillProgramEffectOp
     DiscardTargetHpCardsAndDamage = 7601,
     DiscardOwnedCardToAdjustCurrentDamage = 7100,
     DiscardHandOrUseEquipment = 7150, MoveFieldEquipment = 7151,
+    GiveDrawPileBottomCard = 7160,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,
@@ -495,7 +496,7 @@ public enum SkillProgramTriggerWindow
     ActualSlashTargetBenefit = 7000, SlashDodgeCancelledBenefit = 7001, ActualSlashTargetPenalty = 7340
 }
 public enum SkillProgramTriggerSubject { Owner, Any, Source, DamageSource, DamageTarget }
-public enum SkillProgramMovementOccurrence { PerBatch, PerCard, PerSourceOwner = 700, PerOwnerBatch = 761, PerThirdPartyHandGain = 762 }
+public enum SkillProgramMovementOccurrence { PerBatch, PerCard, PerSourceOwner = 700, PerOwnerBatch = 761, PerThirdPartyHandGain = 762, PerOwnerSourceHandGain = 763 }
 public enum SkillProgramCardCountExpression { NextPhaseActivationOrdinal = 760 }
 public enum SkillProgramHpChangeOccurrence { PerEvent, PerPoint }
 public enum SkillProgramDamageOccurrence { PerDamage, PerDamagePoint }
@@ -3497,6 +3498,8 @@ public sealed class SkillProgramCatalog
             Fail(path + ".movementOccurrence", "perOwnerBatch requires a cardsMoved boundary");
         if (movementOccurrence == SkillProgramMovementOccurrence.PerThirdPartyHandGain && window != SkillProgramTriggerWindow.CardsGained)
             Fail(path + ".movementOccurrence", "perThirdPartyHandGain requires a cardsGained boundary");
+        if (movementOccurrence == SkillProgramMovementOccurrence.PerOwnerSourceHandGain && window != SkillProgramTriggerWindow.CardsMoved)
+            Fail(path + ".movementOccurrence", "perOwnerSourceHandGain requires a cardsMoved boundary");
         if (effects.Any(e => e.Op == SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance) &&
             (movementOccurrence != SkillProgramMovementOccurrence.PerCard || subject != SkillProgramTriggerSubject.Owner ||
              node.TryGetProperty("discardOwnerScope", out var provenanceScope) && !string.Equals(provenanceScope.GetString(), "other", StringComparison.OrdinalIgnoreCase) ||

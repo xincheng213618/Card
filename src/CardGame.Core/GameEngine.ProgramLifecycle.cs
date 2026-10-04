@@ -681,7 +681,9 @@ public sealed partial class GameEngine
         if (targetKind == SkillProgramTargetKind.EventTarget)
         {
             if (windowContext is { Window: SkillProgramTriggerWindow.CharacterTurnedOver or SkillProgramTriggerWindow.CharacterTurnedFaceUp or
-                SkillProgramTriggerWindow.CharacterEnteredChain, TargetSeat: { } changedSeat })
+                SkillProgramTriggerWindow.CharacterEnteredChain or SkillProgramTriggerWindow.DyingEntering or
+                SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.CardsGained or
+                SkillProgramTriggerWindow.DiscardPileReceived, TargetSeat: { } changedSeat })
                 return _players[changedSeat].IsAlive ? [changedSeat] : [];
             if (windowContext is { Window: SkillProgramTriggerWindow.TurnEnding, TargetSeat: { } endingSeat } &&
                 _resolutionStack.OfType<TurnEndingBoundaryFrame>().SingleOrDefault(item =>
