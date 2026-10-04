@@ -14,6 +14,7 @@
         'Neighbor discard own first previous',
         'boundary cheng pu completion payment',
         'boundary wu guo tai paid equipment pair',
+        'Paid actual target HP and original use return',
         'shared use lifecycle', 'shared card-use', 'card movement', 'card inventory',
         'initial deal', 'invalid single and batch', 'draw and recover',
         'execution plans', 'skill executor', 'program gameplay hashes',

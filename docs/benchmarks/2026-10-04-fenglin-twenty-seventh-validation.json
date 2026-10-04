@@ -1,5 +1,5 @@
 {
-  "status": "all-candidates-owned-static-development-user-runtime-verification-deferred",
+  "status": "partially-static-integrated-user-runtime-verification-deferred",
   "batch": 27,
   "baseCommit": "655c3eec",
   "userSteering": {
@@ -19,8 +19,9 @@
       "sourceSha256": "d1e82784d133cb26ad50ec8dbcf1e9a0acb4913bb1b06b54fc1f2c84acc932a6",
       "owner": "/root/pang_de",
       "stage": ".artifacts/continuation-20261003-batch17/batch27/wang-yi",
-      "mainRegistered": false,
-      "status": "owned-stage-implementation-in-progress"
+      "mainRegistered": true,
+      "status": "statically-integrated-runtime-verification-deferred",
+      "manifestSha256": "3f2f79fa8c40a508cc264c061decffe28a19e6e8a86dcd25d2fbb0b890cc9e01"
     },
     {
       "gid": 627,
@@ -44,12 +45,25 @@
     }
   ],
   "runs": [],
-  "integrations": [],
+  "integrations": [
+    {
+      "gid": 621,
+      "baselineCommit": "636afb35",
+      "newFiles": 9,
+      "oldWiringFiles": 11,
+      "focusedChecksRegistered": 4,
+      "routineFiltersAdded": 1,
+      "compiled": false,
+      "loaderExecuted": false,
+      "testsRun": false,
+      "normalizedFrozenPreviewMatches": true,
+      "exactNewHashesMatch": true
+    }
+  ],
   "media": "docs/content/sources/fenglin-twenty-seventh-art-2026-10-04.json",
   "runtimeAcceptance": false,
   "pending": [
-    "621 complete opt-in implementation, frozen baseline and integration",
-    "627 and 642 NEW implementation in progress while 621 and 640 await sequential shared baselines",
+    "627 and 642 complete implementation, frozen baselines and sequential integration",
     "User later combined build, focused runtime, Full and measured routine verification",
     "Official art registration followed by user later offline/compiled verification"
   ],

@@ -363,7 +363,7 @@ internal abstract class ProgramOperationDescriptorBase : IProgramOperationDescri
                 new ProgramResourceOperation[] { new RequireAnyContext(ProgramContextCapability.CardAction |
                     ProgramContextCapability.Damage | ProgramContextCapability.Judgment | ProgramContextCapability.PhaseOwner) },
             ProgramParticipantRef.EventSource =>
-                new ProgramResourceOperation[] { new RequireAnyContext(ProgramContextCapability.Damage | ProgramContextCapability.MovementSource) },
+                new ProgramResourceOperation[] { new RequireAnyContext(ProgramContextCapability.Damage | ProgramContextCapability.MovementSource | ProgramContextCapability.ActualUseSource) },
             ProgramParticipantRef.SelectedTarget =>
                 new ProgramResourceOperation[] { new ReadSelectedTarget() },
             ProgramParticipantRef.SelectedFirst =>

@@ -1821,6 +1821,7 @@ public sealed partial class GameEngine
             return false;
         if (!CanRunTurnDrawDebtPayment(candidate, trigger, context) || !CanRunSourceFactionPrevention(candidate, trigger, context)) return false;
         if (!CanRunDyingOwnedCard(candidate, trigger, context)) return false;
+        if (!CanRunActualUseTarget(candidate, context)) return false;
         if (!CanOfferOriginalTargetAddition(candidate, trigger, context)) return false;
         if (!CanRunProgramDyingAlcoholPolicy(trigger, context, candidate.OwnerSeat)) return false;
         if (!CanOfferRoundPileAlcohol(candidate, trigger, context) || !CanOfferCurrentSlashFire(candidate, trigger, context)) return false;
@@ -1924,6 +1925,7 @@ public sealed partial class GameEngine
         if (features.ForOperation(SkillProgramEffectOp.SelectTargets).Any(effect => effect.TargetKind == SkillProgramTargetKind.LivingWhoseAttackRangeIncludesLord && GetProgramTargetSeats(owner.Seat, effect.TargetKind.Value, context).Count < effect.MinimumTargets)) return false;
         return context.Window switch
         {
+            SkillProgramTriggerWindow.OtherActualUseTargeted => CanRunActualUseTarget(candidate, context),
             SkillProgramTriggerWindow.SkillsChanged => true,
             SkillProgramTriggerWindow.ProgramTargetCommitted => IsProgramTargetContextValid(context) && EnabledSkillPrograms(owner).Any(item => item.Id == candidate.SkillId),
             SkillProgramTriggerWindow.CharacterTurnedOver or SkillProgramTriggerWindow.CharacterTurnedFaceUp or SkillProgramTriggerWindow.CharacterEnteredChain =>
@@ -1964,7 +1966,9 @@ public sealed partial class GameEngine
                 starting.Id == context.ParentFrameId && starting.OwnerSeat == _currentSeat,
             SkillProgramTriggerWindow.TurnEnding =>
                 context.SourceSeat == _currentSeat && context.TargetSeat == _currentSeat &&
-                (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.OwnOrPreviousLiving
+                (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.EarnedActualEnding
+                    ? MatchesEarnedActualEnding(candidate, context, false)
+                    : trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.OwnOrPreviousLiving
                     ? MatchesFrozenOwnOrPreviousEnding(candidate, context)
                     : trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own
                         ? owner.Seat == _currentSeat
@@ -2339,6 +2343,7 @@ public sealed partial class GameEngine
     {
         if (!CanRunProgramTrigger(candidate, context))
             throw new InvalidOperationException("The configured program binding is no longer eligible.");
+        ConsumeEarnedActualEndingAtBegin(candidate, context);
         ConsumeProgramTriggerUsage(candidate);
         PayProgramMarkerCost(_players[candidate.OwnerSeat], GetProgramTrigger(candidate).MarkerCost,
             candidate.SkillId, candidate.BindingId);
@@ -2609,6 +2614,7 @@ public sealed partial class GameEngine
                             ? playerFacts with { FrozenPreviousLivingSeat = PreviousLivingSeatFor(player.Seat) }
                             : player.Seat == owner.Seat ? null : playerFacts));
             }).ToList();
+        AppendEarnedActualEndingItems(items);
         AppendGiftRetentionEndingItems(items);
         var ordered = items
             .OrderBy(item => (((item.Candidate?.OwnerSeat ?? item.RetentionOwnerSeat!.Value) - owner.Seat + _players.Count) % _players.Count))
@@ -2638,7 +2644,8 @@ public sealed partial class GameEngine
             SourceSeat: frame.OwnerSeat,
             TargetSeat: frame.OwnerSeat,
             OccurrenceIndex: candidate.OccurrenceIndex,
-            Facts: candidateFacts ?? frame.Facts);
+            Facts: candidateFacts ?? frame.Facts)
+        { EarnedBenefit = frame.Items[frame.ItemIndex].EarnedBenefit };
 
     private void ContinueTurnEndingBoundaryCore()
     {
@@ -2673,6 +2680,7 @@ public sealed partial class GameEngine
                         var context = CreateTurnEndingProgramContext(frame, candidate, item.Facts);
                         if (!CanRunProgramTrigger(candidate, context))
                         {
+                            ConsumeSkippedEarnedActualEnding(frame);
                             AdvanceTurnEndingBoundaryCandidate(frame, candidate, activated: false, completed: false);
                             continue;
                         }
@@ -3511,6 +3519,10 @@ public sealed partial class GameEngine
 
         switch (action)
         {
+            case "limited-owned-gift":
+            case "finish-limited-owned-gift":
+                ResolveLostHpOwnedGift(frame, effect, selected);
+                return;
             case "select-target":
                 {
                     if (effect is not
@@ -3780,6 +3792,8 @@ public sealed partial class GameEngine
     private (ProgramTriggerCandidate Candidate, ProgramSkillWindowContext Context)
         GetPendingProgramTriggerCandidate()
     {
+        if (_resolutionStack.LastOrDefault() is ActualUseTargetWindowFrame actualTargets)
+            return (actualTargets.Candidates[actualTargets.CandidateIndex], actualTargets.Contexts[actualTargets.CandidateIndex]);
         if (_resolutionStack.LastOrDefault() is CardEffectBeforeApplyFrame effect)
         {
             var candidate = effect.Candidates[effect.CandidateIndex];
@@ -3849,6 +3863,13 @@ public sealed partial class GameEngine
 
     private void CompleteSkippedProgramCandidate(ProgramTriggerCandidate candidate)
     {
+        if (_resolutionStack.LastOrDefault() is ActualUseTargetWindowFrame actualTargets &&
+            actualTargets.Candidates[actualTargets.CandidateIndex] == candidate)
+        {
+            AdvanceActualUseTargetCandidate(actualTargets, false, false);
+            AdvanceRuntimeTop<ActualUseTargetWindowFrame>();
+            return;
+        }
         if (_resolutionStack.LastOrDefault() is CardEffectBeforeApplyFrame effect)
         {
             if (ToSharedCandidate(effect.Candidates[effect.CandidateIndex]) != candidate) throw new InvalidOperationException("Skipped effect candidate changed.");
@@ -3956,6 +3977,7 @@ public sealed partial class GameEngine
                 .GetPausedInstruction(frame.InstructionIndex).Effect;
             selected = paused.Op switch
             {
+                SkillProgramEffectOp.DrawLostHpThenOfferOwnedCardsUpTo => SelectAiLostHpOwnedGift(decision, frame),
                 SkillProgramEffectOp.ClaimGrantedPhaseSlash => SelectAiGrantedPhaseSlash(decision),
                 SkillProgramEffectOp.ChoosePrivateColorsDiscardAndDuel => SelectAiDualColorChoice(decision, frame),
                 SkillProgramEffectOp.PayOwnedCardOrMarker => SelectAiAlternativePhaseCost(decision, frame),
@@ -4185,6 +4207,10 @@ public sealed partial class GameEngine
         CharacterState owner,
         int ownerSeat)
     {
+        if (trigger.Window == SkillProgramTriggerWindow.OtherActualUseTargeted &&
+            _resolutionStack.OfType<ActualUseTargetWindowFrame>().LastOrDefault() is { } actualTargets &&
+            actualTargets.Contexts[actualTargets.CandidateIndex].ActualUseTarget is { } actualUse)
+            return CreateAttributedPaymentAiContext(owner, trigger) with { CardUseEffectiveKind = actualUse.EffectiveKind };
         if (ProgramInstructionResolver.Default.Features(trigger).HasOperation(SkillProgramEffectOp.PayHpToGrantOneUseDamageShield))
             return CreateAttributedPaymentAiContext(owner, trigger) with { HpDamageShieldTargetValue = GetHpDamageShieldAiTargetValue(owner) };
         if (trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.PeekTurnQuotaTop))

@@ -11659,6 +11659,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-wang-yi",
+      "characterName": "界王异",
+      "defaultSkinId": "62100",
+      "skins": [
+        {
+          "id": "62100",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/621",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62100.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-wang-yi.png",
+          "sha256": "a1b22a0e3f66bb57d609dac46d3b14668cb2a527b606a33ae7604a853ccb2149",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

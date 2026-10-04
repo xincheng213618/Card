@@ -75,6 +75,7 @@ public sealed partial class GameEngine
                 var host = new ProgramSkillHost(this);
                 new SkillProgramExecutor().Run(frameId, host, host);
                 break;
+            case ActualUseTargetWindowFrame: ContinueActualUseTargetWindowCore(); break;
             case ProgramCardTriggerWindowFrame: ContinueProgramCardWindowCore(); break;
             case ProgramLifecycleTriggerWindowFrame: ContinueProgramLifecycleWindowCore(); break;
             case HpChangedTriggerWindowFrame: ContinueHpChangedProgramWindowCore(); break;
@@ -101,6 +102,7 @@ public sealed partial class GameEngine
         // to completed facts, so they are validated by their typed return path.
         var parentId = frame switch
         {
+            ActualUseTargetWindowFrame child => child.ParentFrameId,
             CardDeclarationFrame child => child.Return.ParentFrameId,
             CardDeclarationChallengeFrame child => child.ParentFrameId,
             ResponseWindowFrame child => child.ParentFrameId,
@@ -233,6 +235,8 @@ public sealed partial class GameEngine
 
     private void RunOneEngineStep()
     {
+        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is ActualUseTargetWindowFrame actualTargets)
+        { AdvanceRuntimeFrame(actualTargets.Id); AdvanceRulesAndPublishState(); return; }
         if (_pendingDecision is null && _resolutionStack.LastOrDefault() is NullificationWindowFrame { CounterspellPayment: not null } paidCounter)
         { AdvanceRuntimeFrame(paidCounter.Id); AdvanceRulesAndPublishState(); return; }
         if (_pendingDecision is null && _resolutionStack.LastOrDefault() is CardUseFrame { ColorFireAttack.PaidCardId: not null } paidFire)
@@ -334,7 +338,7 @@ public sealed partial class GameEngine
             paidContext.OwnerSeat == paidDyingProgram.OwnerSeat &&
             (paidContext.Window == SkillProgramTriggerWindow.DyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.ResponderSeat ||
              paidContext.Window == SkillProgramTriggerWindow.SelfDyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.VictimSeat) &&
-            (IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying()))
+            (IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsLostHpOwnedGiftProgramDying()))
         {
             AdvanceRuntimeProgram(paidDyingProgram.Id);
             AdvanceRulesAndPublishState();
@@ -465,6 +469,7 @@ public sealed partial class GameEngine
     {
         var context = frame.WindowContext ??
             throw new InvalidOperationException("A trigger program frame lost its window context.");
+        FinishPaidOwnTargetBeforeProgramCompletion(frame);
         PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramSkill);
         AdvanceEventRulesAndQueueFact(new ProgramBindingResolvedEvent(
             frame.Id, frame.SkillId, frame.TriggerId!, frame.SkillInstanceId,
@@ -472,6 +477,9 @@ public sealed partial class GameEngine
         if (CompleteDeferredTurnEndBinding(frame, context)) return;
         switch (context.Window)
         {
+            case SkillProgramTriggerWindow.OtherActualUseTargeted:
+                CompleteActualUseTargetBinding(frame, completed);
+                break;
             case SkillProgramTriggerWindow.ProgramTargetCommitted:
             case SkillProgramTriggerWindow.DyingEntering:
             case SkillProgramTriggerWindow.SkillsChanged:

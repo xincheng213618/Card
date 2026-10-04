@@ -7059,6 +7059,8 @@ public sealed partial class GameEngine
         var currentUse = _resolutionStack.OfType<CardUseFrame>().Single(frame => frame.Id == attack.ResolutionId);
         if (currentUse.SourceSeat != attack.CardUserSeat) attack.ReplaceCardUser(currentUse.SourceSeat);
         if (HasCurrentCardEnhancement(attack.ResolutionId, CurrentCardEnhancement.IgnoreArmor)) attack.SetIgnoresArmor(true);
+        if (TryBeginActualUseTargetPrograms(attack, ActualUseTargetReturnKind.Slash))
+        { AdvanceRulesAndPublishState(); return; }
         if (TryBeginProgramCardUseBeforeTargetEffects(attack))
         {
             AdvanceRulesAndPublishState();
@@ -17533,6 +17535,10 @@ public sealed partial class GameEngine
             {
                 // The retained card owner is suspended beneath the program damage owner.
             }
+            else if (HasActualUseTargetObserver(pendingAttack.ResolutionId))
+            {
+                AssertActualUseTargetPrograms();
+            }
             else if (ProgramCardAttack is not null)
             {
                 // The generic window owns the pending attack until all effects finish.
@@ -17812,6 +17818,8 @@ public sealed partial class GameEngine
         }
 
         AssertProgramSkillState();
+        AssertActualUseTargetPrograms();
+        AssertLostHpOwnedGifts();
         AssertProgramAttackState();
         AssertFinalTargetSlashReceipts();
         AssertCurrentUsePhysicalClaims();

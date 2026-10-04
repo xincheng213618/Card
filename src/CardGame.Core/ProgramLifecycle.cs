@@ -23,6 +23,10 @@ public sealed record ProgramSkillWindowContext(
     public ProgramTargetCommitContext? ProgramTarget { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int? OptionalChooserSeat { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ActualUseTargetIdentity? ActualUseTarget { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public EarnedActualEndingBenefit? EarnedBenefit { get; init; }
 }
 
 public sealed record ProgramSkillNumberBinding(string Name, int Value);
@@ -311,7 +315,11 @@ public sealed record TurnEndingBoundaryItem(
     ProgramTriggerCandidate? Candidate = null,
     SkillProgramTriggerFacts? Facts = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] long? RetentionId = null,
-    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? RetentionOwnerSeat = null);
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? RetentionOwnerSeat = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public EarnedActualEndingBenefit? EarnedBenefit { get; init; }
+}
 
 /// <summary>
 /// Serializable end-of-turn cursor. Program bindings resume this one frame

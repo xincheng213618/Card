@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:zhenlie-current": {
+      "name": "贞烈",
+      "description": "当你成为其他角色【杀】或普通锦囊牌的目标后，你可以失去1点体力令此牌对你无效，然后你可以选择一项： 1.获得使用者一张牌； 2.本回合结束阶段，发动一次“秘计”。",
+      "optionLabels": { "obtain": "获得使用者一张牌", "ending": "本回合结束阶段发动一次秘计", "skip": "不选择后续收益" }
+    },
+    "boundary:miji-current": { "name": "秘计", "description": "结束阶段，你可以摸X张牌（X为你已损失的体力值），然后你可以交给其他角色至多X张牌。" }
+  }
+}

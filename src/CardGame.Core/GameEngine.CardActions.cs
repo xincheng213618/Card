@@ -252,6 +252,7 @@ public sealed partial class GameEngine
     /// <summary>Called before Jizhi/Nullification and the first trick target effect.</summary>
     private bool TryBeginProgramCardUseBeforeTargetEffects(JizhiResolution pending)
     {
+        if (TryBeginActualUseTargetPrograms(pending)) return true;
         var frame = _resolutionStack.OfType<CardUseFrame>().Single(item => item.Id == pending.ResolutionId);
         var action = frame.Action ?? throw new InvalidOperationException(
             "A trick before-target-effects program window requires the frozen card action.");

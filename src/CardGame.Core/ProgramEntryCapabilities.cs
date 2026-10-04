@@ -17,7 +17,8 @@ internal enum ProgramContextCapability
     JudgmentReplacement = 512,
     PhaseSubstitution = 1024,
     PhaseOwner = 2048,
-    MovementSource = 4096
+    MovementSource = 4096,
+    ActualUseSource = 8192
 }
 
 internal static class ProgramEntryCapabilities
@@ -25,6 +26,7 @@ internal static class ProgramEntryCapabilities
     internal const ProgramContextCapability Common = ProgramContextCapability.TurnEffects;
 
     internal static bool SupportsWindow(SkillProgramTriggerWindow window) => window is
+        SkillProgramTriggerWindow.OtherActualUseTargeted or
         SkillProgramTriggerWindow.CardEffectBeforeApply or
         SkillProgramTriggerWindow.AfterTurnEnded or
         SkillProgramTriggerWindow.FirstGameDomainCrossing or
@@ -70,6 +72,7 @@ internal static class ProgramEntryCapabilities
 
     internal static ProgramContextCapability For(SkillProgramTriggerWindow? window) => window switch
     {
+        SkillProgramTriggerWindow.OtherActualUseTargeted => Common | ProgramContextCapability.ActualUseSource,
         SkillProgramTriggerWindow.CardEffectBeforeApply => Common | ProgramContextCapability.CardAction,
         SkillProgramTriggerWindow.AfterTurnEnded => Common,
         null => Common | ProgramContextCapability.Judgment | ProgramContextCapability.Pindian,
