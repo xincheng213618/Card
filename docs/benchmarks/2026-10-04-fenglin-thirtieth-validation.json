@@ -1,0 +1,97 @@
+{
+  "status": "three-source-only-unassigned-runtime-deferred",
+  "batch": 30,
+  "baseCommit": "d2990fba",
+  "userSteering": {
+    "instruction": "Keep adding and commit; user will run unified tests after waking because CPU noise",
+    "buildsRun": false,
+    "productionLoaderExecuted": false,
+    "testsRun": false,
+    "benchmarksRun": false,
+    "commitAuthorized": true,
+    "pushAuthorized": false
+  },
+  "candidates": [
+    {
+      "gid": 696,
+      "name": "界马岱",
+      "sourceRecord": "docs/content/sources/fenglin-thirtieth-696-source-2026-10-04.json",
+      "sourceSha256": "0d16dfce1985cf844eb92ff15e1d8295c5d98168a7f5f26a184f403f1684176a",
+      "faction": "shu",
+      "hp": 4,
+      "skillNames": [
+        "马术",
+        "潜袭"
+      ],
+      "completeCurrentDefinition": true,
+      "mainRegistered": false,
+      "status": "current-source-only-unassigned",
+      "owner": null,
+      "stage": null
+    },
+    {
+      "gid": 756,
+      "name": "界于禁",
+      "sourceRecord": "docs/content/sources/fenglin-thirtieth-756-source-2026-10-04.json",
+      "sourceSha256": "b953813aa986734c25b18b7f30798074c94befa3bd05a120bded2f01e6ad7dd7",
+      "faction": "wei",
+      "hp": 4,
+      "skillNames": [
+        "镇军",
+        "毅重"
+      ],
+      "completeCurrentDefinition": true,
+      "mainRegistered": false,
+      "status": "current-source-only-unassigned",
+      "owner": null,
+      "stage": null
+    },
+    {
+      "gid": 752,
+      "name": "界夏侯氏",
+      "sourceRecord": "docs/content/sources/fenglin-thirtieth-752-source-2026-10-04.json",
+      "sourceSha256": "27a56606cc569f098e3726a203268761566b02200d50553f799ddd2b259672d6",
+      "faction": "shu",
+      "hp": 3,
+      "skillNames": [
+        "樵拾",
+        "燕语"
+      ],
+      "completeCurrentDefinition": true,
+      "mainRegistered": false,
+      "status": "current-source-only-unassigned",
+      "owner": null,
+      "stage": null
+    }
+  ],
+  "runs": [],
+  "integrations": [],
+  "runtimeAcceptance": false,
+  "pending": [
+    "Three complete current sources await available agents after their owned batch29 deliveries",
+    "User later combined build, focused runtime, Full and measured routine verification"
+  ],
+  "versions": {
+    "perCharacterBumped": false,
+    "authoritativePaths": [
+      "src/CardGame.Core/Replay.cs",
+      "src/CardGame.Core/SkillPrograms.cs",
+      "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs"
+    ]
+  },
+  "cleanup": {
+    "ownedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+    "priorAutomaticApprovalRejection": "blocked by policy",
+    "retryPerformed": false,
+    "sourceStagesAndCacheRetainedForContinuation": true
+  },
+  "media": {
+    "record": "docs/content/sources/fenglin-thirtieth-art-2026-10-04.json",
+    "rawCaptured": 3,
+    "installed": 0,
+    "originalPngOnly": true,
+    "sourceShaMatched": true,
+    "fullOfflineCatalogRun": false,
+    "compiledVerificationRun": false
+  }
+}
