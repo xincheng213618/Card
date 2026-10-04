@@ -1,5 +1,5 @@
 {
-  "status": "official-raw-art-partially-registered-runtime-verification-deferred",
+  "status": "official-raw-art-all-registered-runtime-verification-deferred",
   "batch": 27,
   "images": [
     {
@@ -37,7 +37,8 @@
       "pixelWidth": 750,
       "pixelHeight": 950,
       "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch27\\official-art\\official-boundary-cai-fu-ren.png",
-      "installed": false
+      "installed": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-cai-fu-ren.png"
     },
     {
       "gid": 642,
@@ -62,9 +63,9 @@
   "verification": {
     "rawPngSignatureAndIhdr": true,
     "sourceRecordShaMatched": true,
-    "mainRegistration": false,
+    "mainRegistration": true,
     "fullOfflineCatalogRun": false,
     "compiledVerificationRun": false,
-    "installedCount": 2
+    "installedCount": 3
   }
 }

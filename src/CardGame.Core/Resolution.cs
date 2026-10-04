@@ -135,6 +135,8 @@ public sealed record ProgramSkillFrame(
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPaidOwnTargetReceipt? PaidOwnTarget { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramLostHpOwnedGiftReceipt? LostHpOwnedGift { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramEquipmentDonationReceipt? EquipmentDonation { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramActualEndedTurnEquipmentReceipt? ActualEndedEquipment { get; init; }
 
     /// <summary>The exact current grant selected when this execution was frozen.</summary>
     public string SkillInstanceId { get; init; } = "";

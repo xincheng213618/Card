@@ -413,7 +413,8 @@ public enum SkillProgramEffectOp
     DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
     ReceiveOwnerDamage = 4100, ConsumeDistinctTurnTarget = 4101, DrawOwnerAtAppliedDamage = 4102,
     GiveBoundCardThenOfferVirtualSlashOrSharedDraw = 5100,
-    PayHpThenNullifyOwnActualUseTarget = 5600, ScheduleEarnedActualEndingBenefit = 5601, DrawLostHpThenOfferOwnedCardsUpTo = 5602
+    PayHpThenNullifyOwnActualUseTarget = 5600, ScheduleEarnedActualEndingBenefit = 5601, DrawLostHpThenOfferOwnedCardsUpTo = 5602,
+    DonateAllEquipmentAndOfferRecipientBenefits = 5800, ChooseEquipmentOrDrawAfterOtherActualTurn = 5801
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets, HpPairHigher = 2000, HpPairLower = 2001 }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -2607,7 +2608,7 @@ public sealed class SkillProgramCatalog
                      "usesPerTurn" or "usesPerPhase" or "sourceZones" or "effects" or "condition")))
                 Fail(path, "deck-end exchange requires one standalone unconditional effect, one HE card, no target/filter or owner-only gate/cost, and one use per provider play phase");
         }
-        return new SkillProgramActivation(id, minCards, maxCards, minTargets, maxTargets, targetKind, uses,
+        var activation = new SkillProgramActivation(id, minCards, maxCards, minTargets, maxTargets, targetKind, uses,
             OptionalCondition(node, path), effects, sourceZones, usesPerPhase, usesPerGame,
             selectedCardsSameSuit, equipmentSlots,
             node.TryGetProperty("usageGroup", out _) ? Identifier(node, "usageGroup", path) : null,
@@ -2615,6 +2616,8 @@ public sealed class SkillProgramCatalog
                 ContinueAfterOwnerDeath = node.TryGetProperty("continueAfterOwnerDeath", out _) && RequiredBool(node, "continueAfterOwnerDeath", path),
                 SelectedCardsDistinctSuits = node.TryGetProperty("selectedCardsDistinctSuits", out _) && RequiredBool(node, "selectedCardsDistinctSuits", path),
                 CardCountExpression = cardCountExpression, CardKinds = cardKinds, CardSuits = cardSuits, CardCategories = cardCategories };
+        EquipmentDonationComposition.ValidateActivation(path, activation);
+        return activation;
     }
 
     private static SkillProgramContribution ParseContribution(JsonElement node, string path)
@@ -3447,6 +3450,7 @@ public sealed class SkillProgramCatalog
              turnOwnerScope != SkillProgramTurnOwnerScope.Own))
             Fail(path, "at-most-owner hand targeting requires the exact owner Ending window");
         EquipmentPairDyingCardComposition.Validate(path, effects, window, subject);
+        EquipmentDonationComposition.ValidateTrigger(path, effects, window, subject, turnOwnerScope, optional);
         ProgramCompositionValidator.Validate(path, effects, initialSelectedTarget: deferredOnly, window: window, drawPhaseMode: drawPhaseMode, cardActionRelation: ownerRelation, cardKinds: cardKinds, turnOwnerScope: turnOwnerScope);
         if (node.TryGetProperty("onlyDesignatedCardTargets", out _) && ownerRelation != SkillProgramCardActionOwnerRelation.Target) Fail(path + ".onlyDesignatedCardTargets", "requires a target-owner card trigger");
         if (effects.Any(e => e.Op == SkillProgramEffectOp.ResolveDiscardBudgetParticipants) &&

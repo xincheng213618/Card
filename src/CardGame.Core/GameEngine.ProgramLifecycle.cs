@@ -3523,6 +3523,12 @@ public sealed partial class GameEngine
 
         switch (action)
         {
+            case "equipment-donation":
+                ResolveEquipmentDonationChoice(frame, selected);
+                return;
+            case "actual-ended-equipment":
+                ResolveActualEndedEquipmentChoice(frame, selected);
+                return;
             case "limited-owned-gift":
             case "finish-limited-owned-gift":
                 ResolveLostHpOwnedGift(frame, effect, selected);
@@ -3981,6 +3987,8 @@ public sealed partial class GameEngine
                 .GetPausedInstruction(frame.InstructionIndex).Effect;
             selected = paused.Op switch
             {
+                SkillProgramEffectOp.DonateAllEquipmentAndOfferRecipientBenefits => SelectAiEquipmentDonation(decision, frame),
+                SkillProgramEffectOp.ChooseEquipmentOrDrawAfterOtherActualTurn => SelectAiActualEndedEquipment(decision, frame),
                 SkillProgramEffectOp.DrawLostHpThenOfferOwnedCardsUpTo => SelectAiLostHpOwnedGift(decision, frame),
                 SkillProgramEffectOp.ClaimGrantedPhaseSlash => SelectAiGrantedPhaseSlash(decision),
                 SkillProgramEffectOp.ChoosePrivateColorsDiscardAndDuel => SelectAiDualColorChoice(decision, frame),

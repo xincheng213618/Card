@@ -11693,6 +11693,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-cai-fu-ren",
+      "characterName": "界蔡夫人",
+      "defaultSkinId": "62700",
+      "skins": [
+        {
+          "id": "62700",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/627",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/62700.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-cai-fu-ren.png",
+          "sha256": "bd569eb7fbb1b9c6fe6278c5456f185cc439c5cf4d6b1f1d9e7fff3c75a6eb74",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

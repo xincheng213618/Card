@@ -18,6 +18,7 @@ public sealed partial class GameEngine
         ObserveCurrentTurnUseKinds(payload);
         ObserveTurnDrawDebtUse(payload);
         ObserveActualTurnTrickUse(payload);
+        ObserveActualForeignUseTargets(payload);
         QueueGameEvent(payload);
         if (_started)
         {

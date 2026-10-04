@@ -1,5 +1,5 @@
 {
-  "status": "partially-static-integrated-user-runtime-verification-deferred",
+  "status": "all-static-integrated-user-runtime-verification-deferred",
   "batch": 27,
   "baseCommit": "655c3eec",
   "userSteering": {
@@ -28,10 +28,12 @@
       "id": "boundary:cai-fu-ren",
       "sourceRecord": "docs/content/sources/fenglin-twenty-seventh-627-source-2026-10-04.json",
       "sourceSha256": "4c93bf6cf1d09c9e064a7f60e1b9724febf8cfdc66b7fcf9e587e2ea3b069b19",
-      "mainRegistered": false,
-      "status": "owned-stage-implementation-in-progress",
+      "mainRegistered": true,
+      "status": "statically-integrated-runtime-verification-deferred",
       "owner": "/root/pang_de",
-      "stage": ".artifacts/continuation-20261003-batch17/batch27/cai-fu-ren"
+      "stage": ".artifacts/continuation-20261003-batch17/batch27/cai-fu-ren",
+      "manifestSha256": "f77e1ff8091efe5a194aec85874ee9e2bc58bfc8e8f2817c0b21bf602688f104",
+      "followupManifestSha256": "4177a54ca74743f1c16e77895b655d91a463aade56207c08984ac3047a537408"
     },
     {
       "gid": 642,
@@ -72,14 +74,27 @@
       "testsRun": false,
       "normalizedFrozenPreviewMatches": true,
       "exactNewHashesMatch": true
+    },
+    {
+      "gid": 627,
+      "baselineCommit": "2e805f43",
+      "newFiles": 8,
+      "oldWiringFiles": 9,
+      "focusedChecksRegistered": 4,
+      "routineFiltersAdded": 1,
+      "compiled": false,
+      "loaderExecuted": false,
+      "testsRun": false,
+      "normalizedFrozenPreviewMatches": true,
+      "exactNewHashesMatch": true,
+      "followup": "NEW pattern-variable names only; exact after SHA matched"
     }
   ],
   "media": "docs/content/sources/fenglin-twenty-seventh-art-2026-10-04.json",
   "runtimeAcceptance": false,
   "pending": [
-    "627 complete implementation, frozen baseline and sequential integration",
     "User later combined build, focused runtime, Full and measured routine verification",
-    "Official art registration followed by user later offline/compiled verification"
+    "User later offline/compiled art verification; all three original images installed"
   ],
   "versions": {
     "perCharacterBumped": false,
