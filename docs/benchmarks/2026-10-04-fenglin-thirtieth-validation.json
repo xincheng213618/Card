@@ -1,5 +1,5 @@
 {
-  "status": "one-static-integrated-two-owned-stages-runtime-deferred",
+  "status": "two-static-integrated-one-owned-stage-runtime-deferred",
   "batch": 30,
   "baseCommit": "d2990fba",
   "userSteering": {
@@ -62,8 +62,8 @@
         "燕语"
       ],
       "completeCurrentDefinition": true,
-      "mainRegistered": false,
-      "status": "owned-stage-contract-and-new-development",
+      "mainRegistered": true,
+      "status": "static-main-integrated-user-runtime-verification-deferred",
       "owner": "/root/next_batch_audit",
       "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch30\\xiahou-shi",
       "reservedCapacity": "6700-6799",
@@ -111,11 +111,55 @@
         "True declaration/deck/private-pile material and both actor-change directions are source-proved contracts, without separate executed checks",
         "Native AI, exact provider, equipment response recovery/HP and damage observer pauses are drafted and await unified actual verification"
       ]
+    },
+    {
+      "gid": 752,
+      "name": "界夏侯氏",
+      "integratedAtUtc": "2026-10-04T06:48:02.0424402Z",
+      "baselineCommit": "da931c4c97600741ac521bd4c1be4d83d9ed9cce",
+      "manifest": "delivery-manifest.json",
+      "manifestSha256": "186cf9c393d173d7233b938e80bad2535655d0187f134e4275033406dff7dd88",
+      "patch": "shared-wiring.patch",
+      "patchSha256": "38c16bef1bc783b529ec9ecde86249716e13cdf2153c16d6947b5427a1660ac4",
+      "sourceSha256": "27a56606cc569f098e3726a203268761566b02200d50553f799ddd2b259672d6",
+      "newFiles": 9,
+      "oldFiles": 9,
+      "supportFiles": 16,
+      "stageEvidence": 5,
+      "registeredChecks": [
+        "Ending pair two draws own extra round and cold",
+        "Ending pair final hand true-round suppression and reacquisition",
+        "Actual play Slash use recast loss and cleanup",
+        "Actual play Slash give loss and next phase"
+      ],
+      "routinePrefix": "Ending pair two draws own extra round and cold",
+      "exactRawBeforeNewAndBothLfAfterMatched": true,
+      "originalFrozenChanged": false,
+      "independentStaticFollowup": "docs/content/sources/fenglin-thirtieth-752-static-followup-2026-10-04.json",
+      "distinctOwnEndingDraws": true,
+      "trueRoundBlockAcrossReacquisition": true,
+      "trustedActualPlaySlashLossStampOnly": true,
+      "publicCardMovedShapePreserved": true,
+      "unattemptedDrawInvoicePrevented": true,
+      "originalArtSha256": "4f6fc04c3ae8354cc25ccfb63ac0495e40c235701b3267c2d3cce628687b5f1f",
+      "buildsRun": false,
+      "productionLoaderExecuted": false,
+      "checksRun": false,
+      "benchmarksRun": false,
+      "runtimeAcceptance": false,
+      "deferred": [
+        "zero actual draw",
+        "owner/current actor death and winner cancellation",
+        "same entity regain then loss",
+        "extra Play phase",
+        "gain or HP child Damage/AttackHpLoss/SelfDying/Peach/bound or virtual alcohol/RecoveryReplacement",
+        "All four actual-command drafts and root source-loss cancellation branch remain uncompiled, unloaded and unrun"
+      ]
     }
   ],
   "runtimeAcceptance": false,
   "pending": [
-    "696 statically integrated; 752 receives the next final OLD window, then 756",
+    "696 and 752 statically integrated; 756 receives the next final OLD window, then 775 opt-in death-benefit followup",
     "775 existing death-benefit new Damage/Dying limitation now has an owned opt-in followup stage; unsupported until that exact protocol is integrated and verified",
     "User later combined build, focused runtime, Full and measured routine verification"
   ],
@@ -136,7 +180,7 @@
   "media": {
     "record": "docs/content/sources/fenglin-thirtieth-art-2026-10-04.json",
     "rawCaptured": 3,
-    "installed": 1,
+    "installed": 2,
     "originalPngOnly": true,
     "sourceShaMatched": true,
     "fullOfflineCatalogRun": false,

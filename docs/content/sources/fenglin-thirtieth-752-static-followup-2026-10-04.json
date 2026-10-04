@@ -1,0 +1,42 @@
+{
+  "status": "independent-root-static-followup-uncompiled-unrun",
+  "gid": 752,
+  "baselineCommit": "da931c4c97600741ac521bd4c1be4d83d9ed9cce",
+  "capturedUtc": "2026-10-04T06:48:02.0349396Z",
+  "originalManifest": {
+    "sha256": "186cf9c393d173d7233b938e80bad2535655d0187f134e4275033406dff7dd88",
+    "path": "delivery-manifest.json"
+  },
+  "originalPatch": {
+    "sha256": "38c16bef1bc783b529ec9ecde86249716e13cdf2153c16d6947b5427a1660ac4",
+    "path": "shared-wiring.patch"
+  },
+  "officialSource": {
+    "path": "docs/content/sources/fenglin-thirtieth-752-source-2026-10-04.json",
+    "sha256": "27a56606cc569f098e3726a203268761566b02200d50553f799ddd2b259672d6"
+  },
+  "originalFrozenChanged": false,
+  "originalBeforeAndNewRawAndBothLfAfterVerified": true,
+  "reason": "A source-invalid/dead/winner cancellation after a real paid recast must not fabricate an unattempted DrawIssued zero-card invoice; a genuine attempted empty-deck Draw0 remains supported",
+  "changes": [
+    {
+      "path": "src/CardGame.Core/GameEngine.PlaySlashRecasts.cs",
+      "originalFrozenRawSha256": "b48cd110ddd8642df64e60118c6e8534e68c39c69b2e51a9007bc0f55b84d98c",
+      "currentRawSha256": "489e4e060a5d9488ca83ac97a7a2e2332cc6c14142a852f98b50b552cd377c06"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/BoundaryXiahouShiChecks.cs",
+      "originalFrozenRawSha256": "f4721dd672ec0e68a39d6e3375517e3f1121a134fae8919821f365968869d2f6",
+      "currentRawSha256": "62ed1f79c84801f8e7c1080674210cb5780146c1963550a484021da8d85a737d"
+    }
+  ],
+  "draft": "Extended existing UseAndRecastCountRealLossAndIgnoreProcessingCleanup with actual cost-observer source removal and continued four-view cold return; still four methods and no new runner",
+  "execution": {
+    "benchmark": false,
+    "compiler": false,
+    "loader": false,
+    "tests": false
+  },
+  "runs": [],
+  "runtimeAcceptance": false
+}

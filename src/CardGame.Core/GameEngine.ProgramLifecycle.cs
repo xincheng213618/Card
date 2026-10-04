@@ -1838,6 +1838,7 @@ public sealed partial class GameEngine
         if (!CanRunSameTypeAid(candidate, trigger, context)) return false;
         if (!CanRunHalfHandPhaseDebt(candidate, trigger, context)) return false;
         if (!CanRunFixedRecipientBenefit(candidate, trigger, context)) return false;
+        if (!CanRunEndingPair(candidate, trigger, context)) return false;
         if (!CanRunActualUseTarget(candidate, context)) return false;
         if (!CanOfferOriginalTargetAddition(candidate, trigger, context)) return false;
         if (!CanRunProgramDyingAlcoholPolicy(trigger, context, candidate.OwnerSeat)) return false;
@@ -2317,7 +2318,8 @@ public sealed partial class GameEngine
                 ? Enum.GetValues<PlayerMarkerKind>().Where(marker => marker is PlayerMarkerKind.Camp or PlayerMarkerKind.Junlue).ToDictionary(marker => marker,
                     marker => _players.Where(player => player.IsAlive).Sum(player => player.Markers.GetValueOrDefault(marker))) : null)
         { OwnerTrickUsesThisActualTurn = TracksActualTurnTrickUses ? ActualTurnTrickUseCount(owner.Seat) : null,
-          CurrentTurnUsedCardCategoryCount = TracksCurrentTurnUseKinds ? CurrentTurnUseKinds(owner.Seat).Categories : null };
+          CurrentTurnUsedCardCategoryCount = TracksCurrentTurnUseKinds ? CurrentTurnUseKinds(owner.Seat).Categories : null,
+          CurrentActualPlayPhysicalSlashLossCount = TracksActualPlaySlashLoss ? CurrentActualPlaySlashLossCount(owner.Seat) : null };
     }
 
     private SkillProgramTriggerFacts CaptureProgramTriggerFacts(CharacterState owner, CardActionContext action) =>
@@ -4259,6 +4261,11 @@ public sealed partial class GameEngine
         CharacterState owner,
         int ownerSeat)
     {
+        if (trigger.Window == SkillProgramTriggerWindow.TurnEnding &&
+            trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DrawEndingPairThenBlockRoundIfUnequal))
+            return CreateAttributedPaymentAiContext(owner, trigger) with
+            { Actor = CreateSkillContext(_players[_currentSeat]), SelectedTarget = CreateSkillContext(_players[_currentSeat]),
+              CardActionActorIsOwner = _currentSeat == ownerSeat };
         if (trigger.Window == SkillProgramTriggerWindow.OtherActualUseTargeted &&
             _resolutionStack.OfType<ActualUseTargetWindowFrame>().LastOrDefault() is { } actualTargets &&
             actualTargets.Contexts[actualTargets.CandidateIndex].ActualUseTarget is { } actualUse)
@@ -4370,6 +4377,7 @@ public sealed partial class GameEngine
     {
         var effects = sourceEffects.ToArray();
         publishedTargets ??= PublishedFixedRecipientForAi(owner, effects, windowContext);
+        publishedTargets ??= PublishedEndingPairActorForAi(owner, effects, windowContext);
         if (effects.Any(effect => effect.Op is SkillProgramEffectOp.RecoverOtherDyingVictimTo or SkillProgramEffectOp.SelectDyingOwnedCard) &&
             windowContext is { Window: SkillProgramTriggerWindow.DyingEntering, TargetSeat: { } dyingVictim })
             publishedTargets = [dyingVictim];

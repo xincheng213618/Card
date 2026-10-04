@@ -11829,6 +11829,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-xiahou-shi",
+      "characterName": "界夏侯氏",
+      "defaultSkinId": "75200",
+      "skins": [
+        {
+          "id": "75200",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/752",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/75200.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-xiahou-shi.png",
+          "sha256": "4f6fc04c3ae8354cc25ccfb63ac0495e40c235701b3267c2d3cce628687b5f1f",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

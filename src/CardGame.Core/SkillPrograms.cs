@@ -65,6 +65,7 @@ public enum SkillProgramTriggerConditionKind
 }
 public enum SkillProgramTriggerValueKind
 {
+    CurrentActualPlayPhysicalSlashLossCount = 6700,
     OwnerTrickUsesThisActualTurn = 4400,
     TurnOwnerDamageDealtThisTurn = 2800,
     CurrentAvailableEquipmentSlotCount = 1400,
@@ -414,6 +415,7 @@ public enum SkillProgramEffectOp
     SelectEquipmentPairAndPayment = 5500, SelectDyingOwnedCard = 5501,
     DrawExtraAndArmHalfHandSupport = 6000, GiveHalfHandAndIssueTargetSupport = 6001,
     ExchangeHandsAndArmPhaseDebt = 6002, SelectFrozenHandExchangeDebtPayment = 6003, OfferHalfHandRecipientSupport = 6004,
+    DrawEndingPairThenBlockRoundIfUnequal = 6700, RecastSelectedPhysicalSlash = 6701,
     ObtainOneFromEachSelectedTarget = 6300, GiveShownCardToLeastOriginalTarget = 6301,
     IssueFixedRecipientBenefit = 6302, SelectIssuedFixedRecipient = 6303,
     ChooseCategoryOrSequentialDiscard = 5700, EscalatingDiscardOrDamageFromSelected = 5701,
@@ -829,6 +831,8 @@ public sealed record SkillProgramTriggerFacts(
     public int? CurrentTurnUsedCardCategoryCount { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? OwnerTrickUsesThisActualTurn { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? CurrentActualPlayPhysicalSlashLossCount { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int MovedEquipmentCardCount { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -863,6 +867,8 @@ public sealed record SkillProgramTriggerValue(SkillProgramTriggerValueKind Kind,
     public int Resolve(SkillProgramTriggerFacts facts) => Kind switch
     {
         SkillProgramTriggerValueKind.IntegerConstant => Value,
+        SkillProgramTriggerValueKind.CurrentActualPlayPhysicalSlashLossCount => facts.CurrentActualPlayPhysicalSlashLossCount ??
+            throw new InvalidOperationException("Actual Play physical Slash loss facts were not captured."),
         SkillProgramTriggerValueKind.TurnOwnerDamageDealtThisTurn => facts.TurnOwnerDamageDealtThisTurn ??
             throw new InvalidOperationException("Ending-turn damage facts were not captured."),
         SkillProgramTriggerValueKind.OwnerTrickUsesThisActualTurn => facts.OwnerTrickUsesThisActualTurn ??
@@ -2536,6 +2542,11 @@ public sealed class SkillProgramCatalog
              usesPerPhase != 1 || uses is not null || usesPerGame is not null ||
              node.TryGetProperty("continueAfterOwnerDeath", out var pairObtainAfterDeath) && pairObtainAfterDeath.GetBoolean()))
             Fail(path, "ordered pair obtain requires two original living targets, zero cards and one actual Play-phase usage");
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.RecastSelectedPhysicalSlash) &&
+            (minCards != 1 || maxCards != 1 || minTargets != 0 || maxTargets != 0 || uses is not null || usesPerGame is not null || usesPerPhase is not null ||
+             !sourceZones.SequenceEqual([CardZoneKind.Hand]) || targetKind != SkillProgramTargetKind.AnyLiving ||
+             node.TryGetProperty("continueAfterOwnerDeath", out var slashRecastAfterDeath) && slashRecastAfterDeath.GetBoolean()))
+            Fail(path, "physical Slash recast requires an unrestricted one-hand-card zero-target active program");
         if (effects.Any(PaidHpLossProgram.IsOperation) && (usesPerGame != 1 || minCards != 0 || maxCards != 0 || minTargets != 0 || maxTargets != 0))
             Fail(path, "Paid HP loss requires a limited one-use zero-card zero-target activation.");
         SkillProgramCardCountExpression? cardCountExpression = node.TryGetProperty("cardCountExpression", out _)
@@ -2565,6 +2576,9 @@ public sealed class SkillProgramCatalog
                 Fail(path, "paid phase gift counting requires one unconditional earlier Hand gift and a target phase ledger");
         }
         var cardKinds = node.TryGetProperty("cardKinds", out _) ? EnumArray<CardKind>(node, "cardKinds", path) : [];
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.RecastSelectedPhysicalSlash) &&
+            !cardKinds.ToHashSet().SetEquals([CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash]))
+            Fail(path + ".cardKinds", "physical Slash recast requires exactly the three printed physical Slash kinds");
         var cardSuits = node.TryGetProperty("cardSuits", out _) ? EnumArray<Suit>(node, "cardSuits", path) : [];
         var cardCategories = node.TryGetProperty("cardCategories", out _) ? EnumArray<SkillProgramCardCategory>(node, "cardCategories", path) : [];
         if ((cardKinds.Count > 0 || cardSuits.Count > 0 || cardCategories.Count > 0) && maxCards == 0)
@@ -3542,6 +3556,7 @@ public sealed class SkillProgramCatalog
             MarkerCost = ParseMarkerCost(node, path)
         };
         PairObtainFixedRecipientComposition.ValidateTrigger(path, parsedTrigger);
+        EndingPairSlashLossComposition.ValidateTrigger(path, parsedTrigger);
         return parsedTrigger;
     }
 

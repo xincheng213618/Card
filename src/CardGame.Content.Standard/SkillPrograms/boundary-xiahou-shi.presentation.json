@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:qiaoshi-current": {
+      "name": "樵拾",
+      "description": "每个结束阶段，你可以与当前回合角色各摸一张牌。然后若其与你手牌数不相等，此技能本轮失效。",
+      "triggerChoices": { "own-ending-pair": "你与自己分别摸一张牌", "foreign-ending-pair": "你与当前回合角色各摸一张牌" }
+    },
+    "boundary:yanyu-current": {
+      "name": "燕语",
+      "description": "出牌阶段，你可以重铸【杀】。出牌阶段结束时，若你本阶段失去过至少两张【杀】，你可以令一名男性角色摸两张牌。",
+      "activationLabels": { "recast-physical-slash": "重铸一张【杀】" },
+      "triggerChoices": { "lost-two-slashes-support": "令一名男性角色摸两张牌" }
+    }
+  }
+}
