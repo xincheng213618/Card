@@ -1,0 +1,104 @@
+{
+  "status": "frozen-bounded-source-gap-retained-no-implementation",
+  "ownedStage": ".artifacts/continuation-20261003-batch17/batch33/current449-grants",
+  "sourceReadiness": {
+    "449": false
+  },
+  "files": [
+    {
+      "path": "449-current-grant-evidence.json",
+      "rawSha256": "4c1fbff8514d7268a82db188000592bd05154a8bb326feb85ff53778481d8c14",
+      "bytes": 11432
+    },
+    {
+      "path": "SOURCE-REVIEW.md",
+      "rawSha256": "fbb5c07adda5782a1b1da241d32ee1f39a01e12a98018a8df3d1d48bbbcbbd5a",
+      "bytes": 2243
+    },
+    {
+      "path": "prepare-evidence.py",
+      "rawSha256": "adfc652db44ec049c7d245a319d16984acd25a9e50a54813f1a4d282246720f5",
+      "bytes": 7675
+    },
+    {
+      "path": "search-01-tool-result.json",
+      "rawSha256": "096a04e399c7a640564b6aa8f3816b6d291e22422061a76b2d7ff7714fe32327",
+      "bytes": 18503
+    },
+    {
+      "path": "search-02-03-tool-result.json",
+      "rawSha256": "c09321a1474f0b739c326ce4b18d681d9680ea0739bedfe4b91c45d316c30555",
+      "bytes": 70
+    },
+    {
+      "path": "20220822-http.json",
+      "rawSha256": "b3b77f3e1d4b794f96b6dbe6c15d5d08d29e4acf5428ca16eaa26c88adfe8329",
+      "bytes": 1767
+    },
+    {
+      "path": "20220822-official-update.raw.html",
+      "rawSha256": "6c35ee23714a7e451e3488dfa9267b9ead0365674740d3a31a9c90923b1f0ca1",
+      "bytes": 38167
+    }
+  ],
+  "retainedInputs": [
+    {
+      "path": "docs/content/sources/fenglin-thirty-first-449-source-2026-10-04.json",
+      "rawSha256": "53d1ea9e3de088db5d760816be8c09de176ee870699031586ac3997c88623fe1"
+    },
+    {
+      "path": "docs/content/sources/fenglin-thirty-first-449-linked-rule-source-2026-10-04.json",
+      "rawSha256": "e9b38dc096022a5d3e9a57815918db61e26f44335e560e077e3fcec2ff685d2b"
+    },
+    {
+      "path": "docs/content/sources/fenglin-thirty-first-current-grant-followup-2026-10-04.json",
+      "rawSha256": "3e313913f354ce67b28c84b39dea6692c533144bcb4d0532ba729b9917fd7040"
+    },
+    {
+      "path": "docs/content/sources/fenglin-thirty-second-next-source-gap-plan-2026-10-04.json",
+      "rawSha256": "f72a7e4ba0b2f175ae512c71023d08d95774bdc265187c19cef5c565851ac05b"
+    },
+    {
+      "path": "docs/content/skill-composition/FENG_LIN_THIRTY_FIRST_CURRENT_GRANT_FOLLOWUP.md",
+      "rawSha256": "6be698823259f142b732ab0081475e13710734c7db76352104855e745abb7873"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch32/next-source-gap-plan/next-source-gap-plan.md",
+      "rawSha256": "a590149f3fd24ec89577ba53811775f1a9e0a4396d30393de67490b52404459b"
+    }
+  ],
+  "budget": {
+    "officialDomainQueryLimit": 3,
+    "officialDomainQueriesUsed": 3,
+    "searchToolCalls": 2,
+    "realHitPageOpenOrGetLimit": 3,
+    "rawGetsUsed": 1,
+    "webOpensUsed": 0,
+    "httpRetries": 0,
+    "guessedEndpointRequests": 0,
+    "pageJavaScriptExecuted": false,
+    "mediaRequests": 0
+  },
+  "execution": {
+    "implementation": false,
+    "mainWrites": false,
+    "oldFrozenModified": false,
+    "gitWrites": false,
+    "compiler": false,
+    "build": false,
+    "loader": false,
+    "tests": false,
+    "nativeAi": false,
+    "nativeGame": false,
+    "benchmark": false,
+    "fullDirectoryScan": false,
+    "network": true,
+    "boundedOfficialSearch": true,
+    "boundedRawGet": true
+  },
+  "newCurrentFontDefinitionFound": false,
+  "currentFont885Resolved": false,
+  "fullImplementationSourceReady": false,
+  "oldFrozenModified": false,
+  "stageFilesAreDeliverableEvidence": true
+}

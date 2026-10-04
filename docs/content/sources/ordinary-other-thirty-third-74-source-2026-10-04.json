@@ -1,0 +1,189 @@
+{
+  "candidateGid": 74,
+  "candidateName": "灵雎",
+  "edition": "current ordinary 三国杀OL; retained Other discovery and current page title; not 国战/谋/魔",
+  "capturedUtcDate": "2026-10-04",
+  "discovery": {
+    "indexPath": ".artifacts/continuation-20261003-batch17/batch21/dong-zhuo/next-batch22/index.raw.html",
+    "indexRawSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+    "category": "其他",
+    "first20Position": 3,
+    "advertisedHeroUrl": "https://www.sanguosha.com/hero/74",
+    "advertisedHeroUrlLine": 1480,
+    "cachedRow": {
+      "gid": 74,
+      "name": "灵雎",
+      "resource": "7400",
+      "extend": "其他",
+      "hp": 3,
+      "initial_hp": 0,
+      "quality": "传说",
+      "figure": "群",
+      "figure_py": "qun",
+      "biography": "相传为吕布与貂蝉的女儿，被汉献帝掳走并训练为死士，被秘密送入宫中接近曹操，成为其“忘年红颜知己”。外表是柔弱的女子，实际上身怀致命的杀人绝技，等待时机给予曹操致命一击。",
+      "characteristic": "通过其他角色死亡来成长，游戏后期输出和防御都极强。手牌越多越好。",
+      "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/74.png",
+      "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/7400.png",
+      "realname": "灵雎 (其他)"
+    },
+    "cacheIsCurrentRulesAuthority": false
+  },
+  "page": {
+    "requestedUrl": "https://www.sanguosha.com/hero/74",
+    "actualUrl": "https://www.sanguosha.com/hero/74",
+    "startedUtc": "2026-10-04T10:19:47.9608133Z",
+    "endedUtc": "2026-10-04T10:19:48.3132035Z",
+    "httpStatus": 200,
+    "curlExitCode": 0,
+    "redirectsFollowed": 0,
+    "retries": 0,
+    "rawPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-page.raw.html",
+    "rawBytes": 27339,
+    "rawSha256": "3d0a4cdbd7cddf919edae6db2d3bd3a703205ffd1df34da13d9b7b4012c6aea3",
+    "headersPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-page.headers.txt",
+    "headersBytes": 665,
+    "headersRawSha256": "bee5bea889a38040a0a28dde9a3d01ee892040f6c36b6bafc4271e0d9e19cc2f",
+    "requestRecordPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-page.request.json",
+    "requestRecordRawSha256": "cc5017e47df44c58e39d20b11d5ec0d022e35363c0011e9fa36c2e6d94903b8b",
+    "title": "三国杀灵雎 - 三国杀OL-三国杀官网-武将技能介绍",
+    "heroName": "灵雎",
+    "canonicalUrl": "https://www.sanguosha.com/hero/74",
+    "skillNames": [
+      "竭缘",
+      "焚心"
+    ],
+    "allSkills": [
+      {
+        "name": "竭缘",
+        "text": "当你对其他角色造成伤害时，若其体力值不小于你，你可以弃置一张黑色手牌令此伤害+1；当其他角色对你造成伤害时，若其体力值不小于你，你可以弃置一张红色手牌令此伤害-1。",
+        "rawHtml": "当你对其他角色造成伤害时，若其体力值不小于你，你可以弃置一张黑色手牌令此伤害+1；当其他角色对你造成伤害时，若其体力值不小于你，你可以弃置一张红色手牌令此伤害-1。",
+        "pageLine": 278,
+        "fontRefs": []
+      },
+      {
+        "name": "焚心",
+        "text": "锁定技，若场上有已阵亡的：忠臣，“竭缘”减少伤害无体力值限制；反贼，“竭缘”增加伤害无体力值限制；内奸，“竭缘”弃置牌无颜色限制且可以弃置装备区里的牌。",
+        "rawHtml": "锁定技，若场上有已阵亡的：忠臣，“竭缘”减少伤害无体力值限制；反贼，“竭缘”增加伤害无体力值限制；内奸，“竭缘”弃置牌无颜色限制且可以弃置装备区里的牌。",
+        "pageLine": 280,
+        "fontRefs": []
+      }
+    ],
+    "allSkillHtml": "\n                        \n                            \n                                <span class=\"on\" >当你对其他角色造成伤害时，若其体力值不小于你，你可以弃置一张黑色手牌令此伤害+1；当其他角色对你造成伤害时，若其体力值不小于你，你可以弃置一张红色手牌令此伤害-1。</span>\n                            \n                                <span >锁定技，若场上有已阵亡的：忠臣，“竭缘”减少伤害无体力值限制；反贼，“竭缘”增加伤害无体力值限制；内奸，“竭缘”弃置牌无颜色限制且可以弃置装备区里的牌。</span>\n                            \n                        \n                    ",
+    "unresolvedFontRefs": []
+  },
+  "api": {
+    "requestedUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=74",
+    "actualUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=74",
+    "startedUtc": "2026-10-04T10:20:45.0498196Z",
+    "endedUtc": "2026-10-04T10:20:45.3571561Z",
+    "httpStatus": 200,
+    "curlExitCode": 0,
+    "redirectsFollowed": 0,
+    "retries": 0,
+    "rawPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-api.raw.json",
+    "rawBytes": 916,
+    "rawSha256": "3c04ebfe37ba40592bd0b4a55c8a2d381d26258349bf7cfd4557eb9eeb3ca9ee",
+    "headersPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-api.headers.txt",
+    "headersBytes": 639,
+    "headersRawSha256": "4038f157e7fee75dcb90695dec2f8d286b1e414814b6988776aa230b5e8f373f",
+    "requestRecordPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-api.request.json",
+    "requestRecordRawSha256": "043de3e33d514a4dec562cb89416564c12b22380af29a764751a3b7e5e36e4f6",
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 74,
+            "name": "灵雎",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/74.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/7400.png",
+            "label": [
+              "进攻",
+              "防御",
+              "困难"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "传说",
+            "biography": "相传为吕布与貂蝉的女儿，被汉献帝掳走并训练为死士，被秘密送入宫中接近曹操，成为其“忘年红颜知己”。外表是柔弱的女子，实际上身怀致命的杀人绝技，等待时机给予曹操致命一击。",
+            "characteristic": "通过其他角色死亡来成长，游戏后期输出和防御都极强。手牌越多越好。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "主公",
+            "value": 3
+          },
+          {
+            "name": "忠臣",
+            "value": 4
+          },
+          {
+            "name": "反贼",
+            "value": 4
+          },
+          {
+            "name": "内奸",
+            "value": 3
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "advertisedEndpointProof": {
+      "pagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-page.raw.html",
+      "pageRawSha256": "3d0a4cdbd7cddf919edae6db2d3bd3a703205ffd1df34da13d9b7b4012c6aea3",
+      "pageLine": 486,
+      "staticLiteralAndPathGidBinding": "var gid = getUrlParam('gid');\n    if (!gid) {\n        var pathname = window.location.pathname;\n        var match = pathname.match(/\\/hero\\/(\\d+)/);\n        if (match && match[1]) {\n            gid = match[1];\n        }\n    }\n\n    if (gid) {\n        fetch('/api/v1/hero/info?gid=' + gid)",
+      "resolvedExactUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=74",
+      "embeddedScriptExecuted": false
+    }
+  },
+  "currentApiIdentity": {
+    "gid": 74,
+    "name": "灵雎",
+    "faction": "群",
+    "factionId": "qun",
+    "baseHp": 3,
+    "quality": "传说",
+    "genderFieldPresent": false,
+    "gender": null,
+    "initialHpRaw": 0,
+    "initialHpMeaning": "0 is an API placeholder; not a claim of starting at 0 HP"
+  },
+  "crossCheck": {
+    "pageNameAndApiIdentityAgree": true,
+    "cachedMetadataAndCurrentApiAgree": true,
+    "apiContainsSkillDefinitions": false,
+    "skillsAuthority": "All named skill bodies come from the current raw hero page. This API exposes identity/biography/radar, not a second copy of skill rules."
+  },
+  "registrationProofPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/candidate-registration-proof.json",
+  "fullCurrentMainText": true,
+  "fullImplementationSourceReady": true,
+  "derivedSkillsRequiringAdditionalSource": [],
+  "randomSkillPoolGap": false,
+  "remainingSourceGaps": [],
+  "engineeringDefaultsConfirmedByThisCapture": false,
+  "implementationPresent": false,
+  "runtimeValidation": {
+    "compiler": false,
+    "loader": false,
+    "coreTests": false,
+    "wpfTests": false,
+    "nativeGame": false,
+    "ui": false,
+    "benchmark": false
+  },
+  "httpBudget": {
+    "taskTotalAllowedSingleGets": 6,
+    "taskTotalUsedSingleGets": 6,
+    "candidateUsedSingleGets": 2,
+    "retries": 0,
+    "images": 0,
+    "extraScripts": 0
+  }
+}

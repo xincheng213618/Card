@@ -1,0 +1,32 @@
+{
+  "files": [
+    {
+      "rawSha256": "f2637f6880c585946e0df014f9f26ea92c032b983922df36ab1658ba27f76a31",
+      "bytes": 789,
+      "path": "search-tool-result.txt"
+    },
+    {
+      "rawSha256": "2d1580bb9f99c2af64bbc472e88bfc92d8f3dc9a4abddd595051314e41769ed5",
+      "bytes": 2279,
+      "path": "447-current-pool-followup.json"
+    },
+    {
+      "rawSha256": "1c976069aaa0380a0ce8582885554f93bbe58553b245a08de272a85513582fe5",
+      "bytes": 778,
+      "path": "SOURCE-REVIEW.md"
+    }
+  ],
+  "retainedInputs": [
+    {
+      "path": "docs/content/sources/fenglin-thirty-second-447-source-2026-10-04.json",
+      "rawSha256": "48749a7df2a85ce2f17c66955908c1770bf74fd0dd05137e3d03741e2cf72940"
+    },
+    {
+      "path": "docs/content/sources/fenglin-thirty-second-447-scope-followup-2026-10-04.json",
+      "rawSha256": "518cb2bd9210305897b17fd7cda05dd8bfee08276ec890885ea2d2e8e47e3e94"
+    }
+  ],
+  "status": "frozen",
+  "fullImplementationSourceReady": false,
+  "ownedStage": ".artifacts/continuation-20261003-batch17/batch33/current447-pool"
+}

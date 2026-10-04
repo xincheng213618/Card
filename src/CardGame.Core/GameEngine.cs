@@ -5842,7 +5842,7 @@ public sealed partial class GameEngine
             pending.Id,
             source.Seat,
             target.Seat,
-            attackCard,
+            IsTieredRoundZeroFireAttackUse(pending.Id) ? null : attackCard,
             damageAmount: 1,
             playedCardKind: CardKind.FireAttack,
             physicalCards: GetCardUsePhysicalCards(pending.Id));

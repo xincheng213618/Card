@@ -1,0 +1,139 @@
+{
+  "checks": {
+    "existingMethods": [
+      "TrueRoundNamesPhysicalConversionAndPrivateCold",
+      "CappedDrawBeforeModificationOwnsChildrenAndCold",
+      "SharedRoundQuotaSurvivesTierRegrantAndExtraTurn",
+      "ZeroCounterspellDodgeAndDyingTypedReturns"
+    ],
+    "modifiedMethod": "SharedRoundQuotaSurvivesTierRegrantAndExtraTurn",
+    "additionalRegisteredMethods": 0,
+    "newDraftBranches": [
+      "ordinary same-suit Hand payment",
+      "mature color policy Hand payment"
+    ],
+    "actualDraftColdPoints": [
+      "real published FireAttackDiscard choice",
+      "real Damage/source ChooseOption",
+      "real CardUseCompleted ChooseOption"
+    ],
+    "executed": false
+  },
+  "integratedUtc": "2026-10-04T10:40:18.6389924Z",
+  "runtimeAcceptance": false,
+  "status": "static-reviewed-integrated-runtime-deferred-by-user",
+  "schemaVersion": 1,
+  "execution": {
+    "game": false,
+    "loader": false,
+    "native": false,
+    "benchmark": false,
+    "push": false,
+    "tests": false,
+    "compiler": false,
+    "build": false
+  },
+  "baseHead": "17fead66d0d20bb39867f8da92d1bc75f9381b83",
+  "fixManifestRawSha256": "f3283a1d5b7c1ec7dc674b15b243e9d18a7558db2b1a15a1fe0ab30ad509265f",
+  "mappings": [
+    {
+      "rawSha256": "1f2be23be59d00b670c4441e3bc9573b0d76fe6d40ffb3720de89ebfaa384706",
+      "mainPath": "docs/content/skill-composition/FENG_LIN_THIRTY_THIRD_ZERO_FIRE_ATTACK_FIX.md",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/CONTRACT.md"
+    },
+    {
+      "rawSha256": "325bcd5b265d28e9f9348ecad6435eb13ff53c1eb03a87988c1b62c8f7995e78",
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-zero-fire-attack-producer-review.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/STATIC-REVIEW.json"
+    },
+    {
+      "rawSha256": "f3283a1d5b7c1ec7dc674b15b243e9d18a7558db2b1a15a1fe0ab30ad509265f",
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-zero-fire-attack-delivery-manifest.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/delivery-manifest.json"
+    },
+    {
+      "rawSha256": "a1da2d2366ef1c29d560ff046a4f92b81fe7d44d847e8c46eedf489512d6b980",
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-zero-fire-attack-preview-manifest.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/baseline-preview-manifest.json"
+    },
+    {
+      "rawSha256": "1a383d34f3b066734bf8c2420d8589bf54858582c9b00ab4bdd9a01daa012205",
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-zero-fire-attack.patch",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/zero-fire-attack.patch"
+    },
+    {
+      "mainPath": "docs/content/skill-composition/FENG_LIN_THIRTY_THIRD_ZERO_FIRE_ATTACK_INDEPENDENT_REVIEW.md",
+      "rawSha256": "fe104109425eab7247297cdbce37fc5b8cb559a01038b7bc9a617735b2a46192",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-review/independent-review.md"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-zero-fire-attack-independent-verification.json",
+      "rawSha256": "51dfa67c8e9b70c41aaf8c6d24cce12a8b1cd91c6b4d2e95f454be8548a5282b",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-review/named-text-verification.json"
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-zero-fire-attack-independent-manifest.json",
+      "rawSha256": "472f2b0e7a4153a643ee279292db57bad01d5de69bd9c9030784c30c1ddb646b",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-review/review-manifest.json"
+    }
+  ],
+  "unexecutedCombinationBoundaries": [
+    "Color equipment payment/HP or Recovery child",
+    "chain propagation or redirect",
+    "sequential FireAttack targets",
+    "damage prevention/replacement",
+    "source loss/winner/Dying",
+    "WPF selection"
+  ],
+  "sourceVersionsUnchanged": true,
+  "excludedConcurrentDirty": [
+    "src/CardGame.Core/GameEngine.PrepDiscardReceipts.cs"
+  ],
+  "effectiveCode": [
+    {
+      "afterMainRawSha256": "52a8704e0627c3b07e4b126a70199df56734968de5b31d6dff124465b0ed8b04",
+      "beforeRawSha256": "b20aba18e50aa248eb5312ecff18856876c3a7c00ae393cf5f9d9108d8af0875",
+      "previewRawSha256": "a4f62a948fd45a2bb7076f633e9bc70153411cdb22e09936e1603568d54615d8",
+      "afterMainLfSha256": "a4f62a948fd45a2bb7076f633e9bc70153411cdb22e09936e1603568d54615d8",
+      "beforeLfSha256": "b2f3be9aaebd63a6a7e6a9d92bb15513c121b738b7afa1d32a2ca533f05078ac",
+      "path": "src/CardGame.Core/GameEngine.cs"
+    },
+    {
+      "afterMainRawSha256": "ba10e69f1e0d16912e59ca7f1aec17ca7d8cda2153c17adf78a04dca9ea52823",
+      "beforeRawSha256": "997b4f242ecb9f8ca5adaf5f9122730171661b7c1e6aaa89b3e96c9e21fd7ba0",
+      "previewRawSha256": "ba10e69f1e0d16912e59ca7f1aec17ca7d8cda2153c17adf78a04dca9ea52823",
+      "afterMainLfSha256": "ba10e69f1e0d16912e59ca7f1aec17ca7d8cda2153c17adf78a04dca9ea52823",
+      "beforeLfSha256": "997b4f242ecb9f8ca5adaf5f9122730171661b7c1e6aaa89b3e96c9e21fd7ba0",
+      "path": "src/CardGame.Core/GameEngine.ColorFireAttacks.cs"
+    },
+    {
+      "afterMainRawSha256": "49540cfb87b3ad63e922f7d4be74c665f1e3435457ff3a88fce5bd2ce2c796f5",
+      "beforeRawSha256": "f61c05cd904cd0bf0cb37707ef24c851be86eb2a7c513c1f5f85ec2b5d8dde55",
+      "previewRawSha256": "49540cfb87b3ad63e922f7d4be74c665f1e3435457ff3a88fce5bd2ce2c796f5",
+      "afterMainLfSha256": "49540cfb87b3ad63e922f7d4be74c665f1e3435457ff3a88fce5bd2ce2c796f5",
+      "beforeLfSha256": "f61c05cd904cd0bf0cb37707ef24c851be86eb2a7c513c1f5f85ec2b5d8dde55",
+      "path": "src/CardGame.Core/GameEngine.TieredRoundZeroReturns.cs"
+    },
+    {
+      "afterMainRawSha256": "0b10b7cb8a1f2f7e5aee53faed06de08e6cc443844f1851f47493b580919f4cb",
+      "beforeRawSha256": "56496044044d8a2ea820f60d5e14194899ecedf0bc23f21e97a71e9b21ab8fe4",
+      "previewRawSha256": "0b10b7cb8a1f2f7e5aee53faed06de08e6cc443844f1851f47493b580919f4cb",
+      "afterMainLfSha256": "0b10b7cb8a1f2f7e5aee53faed06de08e6cc443844f1851f47493b580919f4cb",
+      "beforeLfSha256": "56496044044d8a2ea820f60d5e14194899ecedf0bc23f21e97a71e9b21ab8fe4",
+      "path": "src/CardGame.Core/GameEngine.TieredRoundZeroUses.cs"
+    },
+    {
+      "afterMainRawSha256": "e5d16bfbce8ff57759b614e565fc2fb7e02f982f04a7cabad14dc6fef29b36cc",
+      "beforeRawSha256": "d30d41f23fbe6837019e41ce49082e81fb029abe13226c17b7abdfb28010bb3f",
+      "previewRawSha256": "e5d16bfbce8ff57759b614e565fc2fb7e02f982f04a7cabad14dc6fef29b36cc",
+      "afterMainLfSha256": "e5d16bfbce8ff57759b614e565fc2fb7e02f982f04a7cabad14dc6fef29b36cc",
+      "beforeLfSha256": "d30d41f23fbe6837019e41ce49082e81fb029abe13226c17b7abdfb28010bb3f",
+      "path": "tests/CardGame.Core.Tests/BoundaryGuoHuangHouChecks.cs"
+    }
+  ],
+  "independentReview": {
+    "manifestRawSha256": "472f2b0e7a4153a643ee279292db57bad01d5de69bd9c9030784c30c1ddb646b",
+    "runtimeAcceptance": false,
+    "result": "No additional confirmed P1/P2 in bounded static producer/consumer/API/return/payment scope"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "url": "https://www.sanguosha.com/hero/300",
+  "method": "GET",
+  "purpose": "One expressly authorized current raw GET to inspect exact grant-ID binding absent from retained ninth-batch body-only record.",
+  "startedUtc": "2026-10-04T10:11:37.1171573+00:00",
+  "completedUtc": "2026-10-04T10:11:37.5238166+00:00",
+  "httpStatus": 200,
+  "reasonPhrase": "OK",
+  "responseHeaders": {
+    "Server": [
+      "istio-envoy"
+    ],
+    "trace-id": [
+      "c8a3fefc3040a4cd737777a05fea520f"
+    ],
+    "Date": [
+      "Sun, 04 Oct 2026 09:04:39 GMT"
+    ],
+    "Vary": [
+      "Accept-Encoding"
+    ],
+    "x-varnish": [
+      "55359672 56600695"
+    ],
+    "Accept-Ranges": [
+      "bytes"
+    ],
+    "x-varnish-cache": [
+      "hit"
+    ],
+    "req-cost-time": [
+      "2"
+    ],
+    "req-arrive-time": [
+      "1791108701026"
+    ],
+    "resp-start-time": [
+      "1791108701029"
+    ],
+    "x-envoy-upstream-service-time": [
+      "2"
+    ],
+    "Set-Cookie": [
+      "acw_tc=1801138d17911087010263010e26005554c2896b4f00c44f71aabba1809070;path=/;HttpOnly;Max-Age=1800"
+    ],
+    "X-Cache-Lookup": [
+      "Cache Miss",
+      "Hit From Upstream Cluster",
+      "Cache Miss"
+    ],
+    "Age": [
+      "4021"
+    ],
+    "X-NWS-LOG-UUID": [
+      "6508738099727058076"
+    ],
+    "Connection": [
+      "keep-alive"
+    ],
+    "Content-Type": [
+      "text/html"
+    ],
+    "Content-Length": [
+      "27469"
+    ]
+  },
+  "bodyPath": "300-page.raw.html",
+  "rawResponseBodySha256": "0e63a5afb715a5256353c0258844135bd93f9351174a5b541eda32bac31f215b",
+  "bytes": 27469,
+  "redirectsFollowed": 0,
+  "retryCount": 0,
+  "transportError": null
+}

@@ -1,0 +1,138 @@
+{
+  "status": "bounded-current-grant-version-followup-font-bindings-still-unverified",
+  "officialId": 451,
+  "savedAtUtc": "2026-10-04T10:11:22.435436+00:00",
+  "timeMeaning": "Local evidence serialization time, not origin publication time or HTTP request timing.",
+  "source": {
+    "path": "docs/content/sources/fenglin-twenty-ninth-451-source-2026-10-04.json",
+    "rawSha256": "d9a656e8e8c334c3a1719525194df07eebf6c1809dc8787c7948c3b4e984f37c"
+  },
+  "fullCurrentMainTexts": true,
+  "fullImplementationSourceReady": false,
+  "queries": [
+    {
+      "q": "\"若愚\" \"回复至3点体力\" \"思蜀\"",
+      "domains": [
+        "www.sanguosha.com",
+        "sanguosha.com",
+        "weixin.sgsonline.com.cn"
+      ],
+      "toolResultFile": "web-search-01.txt"
+    },
+    {
+      "q": "\"界刘备\" \"激将\" \"技能调整\"",
+      "domains": [
+        "www.sanguosha.com",
+        "sanguosha.com",
+        "weixin.sgsonline.com.cn"
+      ],
+      "toolResultFile": "web-search-01.txt"
+    },
+    {
+      "q": "site:www.sanguosha.com \"激将\" \"界刘备\" \"主公技\" -site:x.sanguosha.com",
+      "domains": [
+        "www.sanguosha.com"
+      ],
+      "toolResultFile": "web-search-02.txt"
+    }
+  ],
+  "readonlyLocalDiscovery": {
+    "scope": "Named existing source JSON collection only; no runtime catalog or full repository sweep.",
+    "patterns": [
+      "3045",
+      "font895",
+      "href895",
+      "skillId895"
+    ],
+    "exactCurrentOtherOwnerFontBindingFound": false,
+    "sourceDuplicateReferencesNotCountedAsNewBinding": true
+  },
+  "derived": [
+    {
+      "fontId": 3045,
+      "name": "激将",
+      "currentGrantIdentityBindingProved": false,
+      "matchingCurrentNameDefinitionAvailableElsewhere": true,
+      "definition": "主公技，其他蜀势力角色可以在你需要时代替你使用或打出【杀】（视为由你使用或打出）；每回合限一次，其他蜀势力角色于其回合外使用、打出或替你使用或打出【杀】时，其可以令你摸一张牌。",
+      "definitionOwnerOfficialId": 299,
+      "definitionSourcePath": "docs/content/sources/fenglin-eighth-2026-10-02.json",
+      "definitionSourcePage": "https://www.sanguosha.com/hero/299",
+      "existingCapturedUtc": "2026-10-01T23:44:50.383467+00:00",
+      "existingResponseSha256": "6dcb5870547c7f38141b1a07fc06f2106c152fd20c6cad6bb303f89d2b38eccf",
+      "newHeroPageFetched": false,
+      "assessment": "Current same-name text and current web search excerpt correspond. Neither records an exact font3045/451 inheritance proof. Registered classic no-reward Jijiang is not substituted."
+    },
+    {
+      "fontId": 895,
+      "name": "思蜀",
+      "currentGrantIdentityBindingProved": false,
+      "historicalCompleteDefinitionAvailable": true,
+      "definition": "出牌阶段开始时，你可以指定一名角色，令其本局游戏中【乐不思蜀】判定效果反转。",
+      "historicalSourceUrl": "https://sanguosha.com/news/20200224_7489_0913",
+      "historicalPublishedLocal": "2020-02-25 16:14:01",
+      "historicalSourcePath": "docs/content/sources/boundary-liu-shan-sishu-preflight-2026-10-03.json",
+      "previousRawBodyRetained": false,
+      "newHistoricalPageFetched": false,
+      "assessment": "Existing historical ordinary OL full text remains an applicability candidate; unchanged-current inheritance is not directly verified."
+    }
+  ],
+  "selectionDecisions": [
+    {
+      "url": "https://www.sanguosha.com/hero/451",
+      "opened": false,
+      "reason": "Already captured, no new derived text in search result."
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/299",
+      "opened": false,
+      "reason": "New lead was found already fully retained in the named eighth-batch source; avoid repeat page capture."
+    },
+    {
+      "url": "https://x.sanguosha.com/news?page=28",
+      "opened": false,
+      "reason": "Different product/news index; no matching current ordinary OL grant binding."
+    },
+    {
+      "url": "https://x.sanguosha.com/news?page=25",
+      "opened": false,
+      "reason": "Different product/news index; no matching current ordinary OL grant binding."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20150918_2160_1915",
+      "opened": false,
+      "reason": "Historical earlier Jijiang without current additional benefit; not selected to prove font3045."
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20160316_5056_1416",
+      "opened": false,
+      "reason": "Historical earlier edition cannot close exact current grant by name alone."
+    }
+  ],
+  "webEvidenceBoundary": "Saved readable tool results only. No origin HTTP status/header/raw-body hash is claimed for this task.",
+  "budgetUsed": {
+    "officialDomainQueries": 3,
+    "selectedUrlOpens": 0,
+    "rawGets": 0,
+    "retries": 0
+  },
+  "remainingFields": {
+    "font3045CurrentDefinitionAndInheritance": false,
+    "font895CurrentDefinitionAndInheritance": false
+  },
+  "boundedConclusion": "No closing primary version/inheritance evidence in these three queries and named local records; not an all-site absence claim.",
+  "implementationStarted": false,
+  "partialGeneralRegistered": false,
+  "existingSourceSnapshotsModified": false,
+  "execution": {
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "tests": false,
+    "ui": false,
+    "native": false,
+    "benchmark": false,
+    "media": false,
+    "js": false,
+    "gitWrites": false
+  }
+}

@@ -1,0 +1,283 @@
+{
+  "status": "frozen",
+  "frozenUtc": "2026-10-04T10:35:07.765517+00:00",
+  "ownedStage": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix",
+  "baseHead": "17fead66d0d20bb39867f8da92d1bc75f9381b83",
+  "scope": "Existing 726 tier2 issued zero-material FireAttack physical identity/owned damage completion bug fix",
+  "whitelist": [
+    "src/CardGame.Core/GameEngine.cs",
+    "src/CardGame.Core/GameEngine.ColorFireAttacks.cs",
+    "src/CardGame.Core/GameEngine.TieredRoundZeroReturns.cs",
+    "src/CardGame.Core/GameEngine.TieredRoundZeroUses.cs",
+    "tests/CardGame.Core.Tests/BoundaryGuoHuangHouChecks.cs"
+  ],
+  "oldFiles": [
+    {
+      "path": "src/CardGame.Core/GameEngine.cs",
+      "beforeRawSha256": "b20aba18e50aa248eb5312ecff18856876c3a7c00ae393cf5f9d9108d8af0875",
+      "beforeHasUtf8Bom": false,
+      "beforeLfWithBomSha256": "b2f3be9aaebd63a6a7e6a9d92bb15513c121b738b7afa1d32a2ca533f05078ac",
+      "beforeBomFreeLfSha256": "b2f3be9aaebd63a6a7e6a9d92bb15513c121b738b7afa1d32a2ca533f05078ac",
+      "previewPath": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/src/CardGame.Core/GameEngine.cs",
+      "afterRawSha256": "a4f62a948fd45a2bb7076f633e9bc70153411cdb22e09936e1603568d54615d8",
+      "afterHasUtf8Bom": false,
+      "afterLfWithBomSha256": "a4f62a948fd45a2bb7076f633e9bc70153411cdb22e09936e1603568d54615d8",
+      "afterBomFreeLfSha256": "a4f62a948fd45a2bb7076f633e9bc70153411cdb22e09936e1603568d54615d8"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ColorFireAttacks.cs",
+      "beforeRawSha256": "997b4f242ecb9f8ca5adaf5f9122730171661b7c1e6aaa89b3e96c9e21fd7ba0",
+      "beforeHasUtf8Bom": false,
+      "beforeLfWithBomSha256": "997b4f242ecb9f8ca5adaf5f9122730171661b7c1e6aaa89b3e96c9e21fd7ba0",
+      "beforeBomFreeLfSha256": "997b4f242ecb9f8ca5adaf5f9122730171661b7c1e6aaa89b3e96c9e21fd7ba0",
+      "previewPath": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/src/CardGame.Core/GameEngine.ColorFireAttacks.cs",
+      "afterRawSha256": "ba10e69f1e0d16912e59ca7f1aec17ca7d8cda2153c17adf78a04dca9ea52823",
+      "afterHasUtf8Bom": false,
+      "afterLfWithBomSha256": "ba10e69f1e0d16912e59ca7f1aec17ca7d8cda2153c17adf78a04dca9ea52823",
+      "afterBomFreeLfSha256": "ba10e69f1e0d16912e59ca7f1aec17ca7d8cda2153c17adf78a04dca9ea52823"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.TieredRoundZeroReturns.cs",
+      "beforeRawSha256": "f61c05cd904cd0bf0cb37707ef24c851be86eb2a7c513c1f5f85ec2b5d8dde55",
+      "beforeHasUtf8Bom": false,
+      "beforeLfWithBomSha256": "f61c05cd904cd0bf0cb37707ef24c851be86eb2a7c513c1f5f85ec2b5d8dde55",
+      "beforeBomFreeLfSha256": "f61c05cd904cd0bf0cb37707ef24c851be86eb2a7c513c1f5f85ec2b5d8dde55",
+      "previewPath": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/src/CardGame.Core/GameEngine.TieredRoundZeroReturns.cs",
+      "afterRawSha256": "49540cfb87b3ad63e922f7d4be74c665f1e3435457ff3a88fce5bd2ce2c796f5",
+      "afterHasUtf8Bom": false,
+      "afterLfWithBomSha256": "49540cfb87b3ad63e922f7d4be74c665f1e3435457ff3a88fce5bd2ce2c796f5",
+      "afterBomFreeLfSha256": "49540cfb87b3ad63e922f7d4be74c665f1e3435457ff3a88fce5bd2ce2c796f5"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.TieredRoundZeroUses.cs",
+      "beforeRawSha256": "56496044044d8a2ea820f60d5e14194899ecedf0bc23f21e97a71e9b21ab8fe4",
+      "beforeHasUtf8Bom": false,
+      "beforeLfWithBomSha256": "56496044044d8a2ea820f60d5e14194899ecedf0bc23f21e97a71e9b21ab8fe4",
+      "beforeBomFreeLfSha256": "56496044044d8a2ea820f60d5e14194899ecedf0bc23f21e97a71e9b21ab8fe4",
+      "previewPath": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/src/CardGame.Core/GameEngine.TieredRoundZeroUses.cs",
+      "afterRawSha256": "0b10b7cb8a1f2f7e5aee53faed06de08e6cc443844f1851f47493b580919f4cb",
+      "afterHasUtf8Bom": false,
+      "afterLfWithBomSha256": "0b10b7cb8a1f2f7e5aee53faed06de08e6cc443844f1851f47493b580919f4cb",
+      "afterBomFreeLfSha256": "0b10b7cb8a1f2f7e5aee53faed06de08e6cc443844f1851f47493b580919f4cb"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/BoundaryGuoHuangHouChecks.cs",
+      "beforeRawSha256": "d30d41f23fbe6837019e41ce49082e81fb029abe13226c17b7abdfb28010bb3f",
+      "beforeHasUtf8Bom": false,
+      "beforeLfWithBomSha256": "d30d41f23fbe6837019e41ce49082e81fb029abe13226c17b7abdfb28010bb3f",
+      "beforeBomFreeLfSha256": "d30d41f23fbe6837019e41ce49082e81fb029abe13226c17b7abdfb28010bb3f",
+      "previewPath": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/tests/CardGame.Core.Tests/BoundaryGuoHuangHouChecks.cs",
+      "afterRawSha256": "e5d16bfbce8ff57759b614e565fc2fb7e02f982f04a7cabad14dc6fef29b36cc",
+      "afterHasUtf8Bom": false,
+      "afterLfWithBomSha256": "e5d16bfbce8ff57759b614e565fc2fb7e02f982f04a7cabad14dc6fef29b36cc",
+      "afterBomFreeLfSha256": "e5d16bfbce8ff57759b614e565fc2fb7e02f982f04a7cabad14dc6fef29b36cc"
+    }
+  ],
+  "effectiveFullPreviews": [
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/src/CardGame.Core/GameEngine.cs",
+      "rawBytes": 908473,
+      "rawSha256": "a4f62a948fd45a2bb7076f633e9bc70153411cdb22e09936e1603568d54615d8"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/src/CardGame.Core/GameEngine.ColorFireAttacks.cs",
+      "rawBytes": 11197,
+      "rawSha256": "ba10e69f1e0d16912e59ca7f1aec17ca7d8cda2153c17adf78a04dca9ea52823"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/src/CardGame.Core/GameEngine.TieredRoundZeroReturns.cs",
+      "rawBytes": 11294,
+      "rawSha256": "49540cfb87b3ad63e922f7d4be74c665f1e3435457ff3a88fce5bd2ce2c796f5"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/src/CardGame.Core/GameEngine.TieredRoundZeroUses.cs",
+      "rawBytes": 24257,
+      "rawSha256": "0b10b7cb8a1f2f7e5aee53faed06de08e6cc443844f1851f47493b580919f4cb"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/tests/CardGame.Core.Tests/BoundaryGuoHuangHouChecks.cs",
+      "rawBytes": 45377,
+      "rawSha256": "e5d16bfbce8ff57759b614e565fc2fb7e02f982f04a7cabad14dc6fef29b36cc"
+    }
+  ],
+  "patch": {
+    "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/zero-fire-attack.patch",
+    "rawBytes": 23045,
+    "rawSha256": "1a383d34f3b066734bf8c2420d8589bf54858582c9b00ab4bdd9a01daa012205"
+  },
+  "ownedFiles": [
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/make-fix.py",
+      "rawBytes": 16613,
+      "rawSha256": "89bba5ff6d8bff72e64499d7b909b7413ebef378cc0d690d853d1b190b1c539d"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/freeze-delivery.py",
+      "rawBytes": 7495,
+      "rawSha256": "57fdb72c82dc8210c1584f1d782e75c4271cfeee3fa4a5e8db00095f5f5542bf"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/zero-fire-attack.patch",
+      "rawBytes": 23045,
+      "rawSha256": "1a383d34f3b066734bf8c2420d8589bf54858582c9b00ab4bdd9a01daa012205"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/baseline-preview-manifest.json",
+      "rawBytes": 4326,
+      "rawSha256": "a1da2d2366ef1c29d560ff046a4f92b81fe7d44d847e8c46eedf489512d6b980"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/CONTRACT.md",
+      "rawBytes": 3861,
+      "rawSha256": "1f2be23be59d00b670c4441e3bc9573b0d76fe6d40ffb3720de89ebfaa384706"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/STATIC-REVIEW.json",
+      "rawBytes": 3682,
+      "rawSha256": "325bcd5b265d28e9f9348ecad6435eb13ff53c1eb03a87988c1b62c8f7995e78"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/src/CardGame.Core/GameEngine.cs",
+      "rawBytes": 908473,
+      "rawSha256": "a4f62a948fd45a2bb7076f633e9bc70153411cdb22e09936e1603568d54615d8"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/src/CardGame.Core/GameEngine.ColorFireAttacks.cs",
+      "rawBytes": 11197,
+      "rawSha256": "ba10e69f1e0d16912e59ca7f1aec17ca7d8cda2153c17adf78a04dca9ea52823"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/src/CardGame.Core/GameEngine.TieredRoundZeroReturns.cs",
+      "rawBytes": 11294,
+      "rawSha256": "49540cfb87b3ad63e922f7d4be74c665f1e3435457ff3a88fce5bd2ce2c796f5"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/src/CardGame.Core/GameEngine.TieredRoundZeroUses.cs",
+      "rawBytes": 24257,
+      "rawSha256": "0b10b7cb8a1f2f7e5aee53faed06de08e6cc443844f1851f47493b580919f4cb"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/tests/CardGame.Core.Tests/BoundaryGuoHuangHouChecks.cs",
+      "rawBytes": 45377,
+      "rawSha256": "e5d16bfbce8ff57759b614e565fc2fb7e02f982f04a7cabad14dc6fef29b36cc"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-ordinary-route-audit/finding-fire-attack.json",
+      "rawBytes": 4647,
+      "rawSha256": "1d7bc7ea915deda97d6202853eab9bda4533b69846c5c62ea56a3bdd3f6821b0"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CardAttackState.cs",
+      "rawBytes": 7392,
+      "rawSha256": "1bd8b67d0e91e7c112bb6b9bef527d835b7611b468fca2524a68351eede21643"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SequentialTrickTargets.cs",
+      "rawBytes": 4580,
+      "rawSha256": "cc6490f48fffd3f366fef4b86edaa90c04aa2a5ca6532fa241a7fbb4260775f5"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CardActions.cs",
+      "rawBytes": 46145,
+      "rawSha256": "a123b2e126b6350e2a25f9f20f41486fb1481fece36ade5929a261dfe4da0c1f"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.DamageColorDuelPrograms.cs",
+      "rawBytes": 13526,
+      "rawSha256": "41de49dfd01e9fecf324bd9a7b1f546dfd1f00f1ae48ce91f19438b1c6efc728"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+      "rawBytes": 278878,
+      "rawSha256": "1bdc074ac6c55da718f73b556ce0ba68db0daeeba1aa0918a2393db516851694"
+    },
+    {
+      "path": "src/CardGame.Core/Events.cs",
+      "rawBytes": 34755,
+      "rawSha256": "704ec46bad5cd96999577689ac3961042b0c9ffecbcf61954e8a991c6fa50108"
+    },
+    {
+      "path": "src/CardGame.Core/Resolution.cs",
+      "rawBytes": 43852,
+      "rawSha256": "1a46c364c92c0a721c9992e6cf8ff6595fd742f95f05782a3ddef0ec4a576382"
+    },
+    {
+      "path": "src/CardGame.Core/CardActions.cs",
+      "rawBytes": 6996,
+      "rawSha256": "c2306c7e65233e51a93706019b20f035f361b75e783eeec63203f4ed27b886cb"
+    },
+    {
+      "path": "src/CardGame.Core/ColorFireAttackPolicies.cs",
+      "rawBytes": 1399,
+      "rawSha256": "96161c0fb507dd72005d54698c9d793a588f6c42dd104624fe01711e561943d6"
+    },
+    {
+      "path": "src/CardGame.Core/ProgramTieredRoundConversion.cs",
+      "rawBytes": 8588,
+      "rawSha256": "634d33f67fb54fff91aeaf14d716ec70050506a1933f221d1689be4d90f19531"
+    },
+    {
+      "path": "src/CardGame.Core/SkillPrograms.cs",
+      "rawBytes": 305812,
+      "rawSha256": "a85646fb0a1707c2b9c3d4f7a74cfb160d94fad64dce909e55e98955ec9a3bfa"
+    },
+    {
+      "path": "docs/content/sources/fenglin-thirty-first-726-source-2026-10-04.json",
+      "rawBytes": 8570,
+      "rawSha256": "9387c8212c44a4909ee2ace1e5657ac9d8632151f8f3093035ec0bcd7e06251e"
+    },
+    {
+      "path": "docs/content/sources/fenglin-thirty-first-726-linked-rule-source-2026-10-04.json",
+      "rawBytes": 4671,
+      "rawSha256": "f66822510b9c9716788f0d0768e79ebc40ae3933dcf29c6885400b21a05b8bda"
+    }
+  ],
+  "checks": {
+    "existingMethods": [
+      "TrueRoundNamesPhysicalConversionAndPrivateCold",
+      "CappedDrawBeforeModificationOwnsChildrenAndCold",
+      "SharedRoundQuotaSurvivesTierRegrantAndExtraTurn",
+      "ZeroCounterspellDodgeAndDyingTypedReturns"
+    ],
+    "modifiedMethod": "SharedRoundQuotaSurvivesTierRegrantAndExtraTurn",
+    "additionalRegisteredMethods": 0,
+    "newDraftBranches": [
+      "ordinary same-suit Hand payment",
+      "mature color policy Hand payment"
+    ],
+    "actualDraftColdPoints": [
+      "real published FireAttackDiscard choice",
+      "real Damage/source ChooseOption",
+      "real CardUseCompleted ChooseOption"
+    ],
+    "executed": false
+  },
+  "excludedConcurrentDirty": [
+    "src/CardGame.Core/GameEngine.PrepDiscardReceipts.cs"
+  ],
+  "originalFrozenFilesModified": false,
+  "newProductionFiles": 0,
+  "runtimeExecution": {
+    "compiler": false,
+    "build": false,
+    "loader": false,
+    "tests": false,
+    "game": false,
+    "nativeAi": false,
+    "benchmark": false,
+    "http": false,
+    "mainWrites": false,
+    "gitStage": false,
+    "commit": false
+  },
+  "unexecutedCombinationBoundaries": [
+    "Color equipment payment/HP or Recovery child",
+    "chain propagation or redirect",
+    "sequential FireAttack targets",
+    "damage prevention/replacement",
+    "source loss/winner/Dying",
+    "WPF selection"
+  ]
+}

@@ -1,0 +1,281 @@
+{
+  "status": "bounded-primary-followup-current-font885-gap-retained",
+  "recordedUtc": "2026-10-04T10:09:54.750508+00:00",
+  "baselineHeadAsAuthorized": "17fead66",
+  "officialId": 449,
+  "name": "界于吉",
+  "scope": "Current ordinary OL boundary YuJi derived Chanyuan only; no classic/x/mobile/national-war substitution or partial implementation",
+  "currentMain": [
+    {
+      "name": "蛊惑",
+      "currentText": "每回合限一次，你可以扣置一张手牌当任意基本牌或普通锦囊牌使用或打出。其他角色可以同时质疑并翻开此牌：若为假，此牌作废，质疑者摸一张牌；若为真，质疑者获得“缠怨”，然后弃置一张牌或失去1点体力。",
+      "html": "每回合限一次，你可以扣置一张手牌当任意基本牌或普通锦囊牌使用或打出。其他角色可以同时质疑并翻开此牌：若为假，此牌作废，质疑者摸一张牌；若为真，质疑者获得“<font href='885'>缠怨</font>”，然后弃置一张牌或失去1点体力。",
+      "fontReferences": [
+        {
+          "id": 885,
+          "label": "缠怨",
+          "resolved": false
+        }
+      ]
+    }
+  ],
+  "currentMainTextComplete": true,
+  "currentDerivedDefinition": {
+    "fontId": 885,
+    "label": "缠怨",
+    "body": null,
+    "resolved": false
+  },
+  "retainedHistoricalSupplementNotRefetched": {
+    "primary": {
+      "url": "https://www.sanguosha.com/news/20200101_3308_3113",
+      "httpStatus": 200,
+      "requestStartedUtc": "2026-10-04T08:34:52.9553211+00:00",
+      "completedUtc": "2026-10-04T08:34:53.3408476+00:00",
+      "rawPath": "docs/content/sources/evidence/fenglin-thirty-first-449-announcement-20200101.raw.html",
+      "rawBytes": 136091,
+      "rawSha256": "1651923c0c6ee3c09db59477f90ff3640688a8fefe098ccc2f22ba28593d2574",
+      "headersEvidencePath": "docs/content/sources/evidence/fenglin-thirty-first-449-announcement-http-2026-10-04.json",
+      "title": "1.3-1.9 界于吉新品上架，夺宝转盘更新",
+      "publishedLocalAsDisplayed": "2020-01-02 18:51:16",
+      "timezoneNotExplicitlyDisplayed": true,
+      "editionEvidence": [
+        "Actual article section 三国杀OL商城上架",
+        "Actual named hero 界于吉新品礼包/界于吉正式上架",
+        "经典版界于吉 occurs as package shape/skin wording; not treated as proof that this is the classic unbounded hero rule"
+      ],
+      "skills": [
+        {
+          "name": "蛊惑",
+          "text": "每名角色的回合限一次，你可以扣置一张手牌当任意一张基本牌或普通锦囊牌使用或打出。其他角色可以进行质疑并翻开此牌：若为假则此牌作废，且质疑者摸一张牌；若为真则所有质疑者需要选择弃置一张牌或失去1点体力,并且获得\"缠怨\"。",
+          "visibleRawLine": 1447,
+          "identicalRawOccurrences": 2
+        },
+        {
+          "name": "缠怨",
+          "text": "锁定技，你不能质疑\"蛊惑\"；你的体力值小于等于1时，你的其他技能失效。",
+          "visibleRawLine": 1450,
+          "identicalRawOccurrences": 2
+        }
+      ],
+      "rawCurrentFont885BindingFound": false
+    },
+    "derivedComparison": {
+      "currentBody": null,
+      "currentFontId": 885,
+      "currentLabel": "缠怨",
+      "historicalBody": "锁定技，你不能质疑\"蛊惑\"；你的体力值小于等于1时，你的其他技能失效。",
+      "currentIdentityOrInheritanceProved": false
+    },
+    "mainDifferences": [
+      {
+        "area": "usage boundary",
+        "current": "每回合限一次",
+        "historical2020": "每名角色的回合限一次",
+        "kind": "wording corresponds to actual per-turn scope; not an inheritance proof"
+      },
+      {
+        "area": "declared kinds/material",
+        "current": "扣置一张手牌当任意基本牌或普通锦囊牌使用或打出",
+        "historical2020": "扣置一张手牌当任意一张基本牌或普通锦囊牌使用或打出",
+        "kind": "same described material and kind set"
+      },
+      {
+        "area": "challenge timing",
+        "current": "其他角色可以同时质疑",
+        "historical2020": "其他角色可以进行质疑",
+        "kind": "current explicitly specifies simultaneous; historical body does not"
+      },
+      {
+        "area": "fake challenge result",
+        "current": "此牌作废，质疑者摸一张牌",
+        "historical2020": "此牌作废，且质疑者摸一张牌",
+        "kind": "same described invalidation and draw result"
+      },
+      {
+        "area": "true challenge result and order",
+        "current": "质疑者获得缠怨，然后弃置一张牌或失去1点体力",
+        "historical2020": "所有质疑者需要选择弃置一张牌或失去1点体力,并且获得缠怨",
+        "kind": "current explicitly fixes grant-before-cost; historical conjunction states both outcomes without the same explicit order"
+      }
+    ],
+    "boundary": "The prior successful 2020 raw capture is preserved. No request was made to it, current449 hero/API or guessed font endpoints."
+  },
+  "queries": [
+    {
+      "query": "\"缠怨\" \"技能调整\"",
+      "domains": [
+        "www.sanguosha.com"
+      ],
+      "toolResultPath": "search-01-tool-result.json",
+      "toolResultKind": "Official-domain search readable extraction; no originating HTTP status/headers/raw HTML available from this tool",
+      "resultsUsed": [
+        "https://www.sanguosha.com/news/20220822_2139_1416"
+      ],
+      "knownRetainedResultNotReopened": "https://www.sanguosha.com/news/20191212_3649_0318"
+    },
+    {
+      "query": "\"缠怨\" \"2025\"",
+      "domains": [
+        "www.sanguosha.com"
+      ],
+      "toolResultPath": "search-02-03-tool-result.json",
+      "result": "Empty search results"
+    },
+    {
+      "query": "\"885\" \"缠怨\"",
+      "domains": [
+        "www.sanguosha.com"
+      ],
+      "toolResultPath": "search-02-03-tool-result.json",
+      "result": "Empty search results"
+    }
+  ],
+  "newPrimary": {
+    "httpEvidencePath": "20220822-http.json",
+    "http": {
+      "requestUrl": "https://www.sanguosha.com/news/20220822_2139_1416",
+      "responseUrl": "https://www.sanguosha.com/news/20220822_2139_1416",
+      "method": "GET",
+      "httpStatus": 200,
+      "requestStartedUtc": "2026-10-04T10:06:45.0089386+00:00",
+      "completedUtc": "2026-10-04T10:06:45.4101110+00:00",
+      "redirectsFollowed": false,
+      "rawPath": "20220822-official-update.raw.html",
+      "rawBytes": 38167,
+      "rawSha256": "6c35ee23714a7e451e3488dfa9267b9ead0365674740d3a31a9c90923b1f0ca1",
+      "headers": {
+        "Server": [
+          "istio-envoy"
+        ],
+        "trace-id": [
+          "9e72921c536a26a123c5aaa33dcdcb4b"
+        ],
+        "Date": [
+          "Sun, 04 Oct 2026 10:06:48 GMT"
+        ],
+        "Vary": [
+          "Accept-Encoding"
+        ],
+        "x-varnish": [
+          "56787083"
+        ],
+        "Accept-Ranges": [
+          "bytes"
+        ],
+        "x-varnish-cache": [
+          "miss"
+        ],
+        "req-cost-time": [
+          "31"
+        ],
+        "req-arrive-time": [
+          "1791108408874"
+        ],
+        "resp-start-time": [
+          "1791108408906"
+        ],
+        "x-envoy-upstream-service-time": [
+          "31"
+        ],
+        "Set-Cookie": [
+          "acw_tc=18a9a98f17911084088747692e260079022dc5139bcd67d4701672a7b5c78f;path=/;HttpOnly;Max-Age=1800"
+        ],
+        "X-Cache-Lookup": [
+          "Cache Miss",
+          "Hit From Upstream Cluster",
+          "Cache Miss"
+        ],
+        "Age": [
+          "0"
+        ],
+        "Transfer-Encoding": [
+          "chunked"
+        ],
+        "X-NWS-LOG-UUID": [
+          "4167105953983763562"
+        ],
+        "Connection": [
+          "keep-alive"
+        ],
+        "Content-Type": [
+          "text/html"
+        ]
+      },
+      "advertisedSource": "Real official URL returned by bounded official-domain search01",
+      "execution": "Raw byte GET only; no JavaScript, media, API guesses or HTTP retries"
+    },
+    "selectedBody": {
+      "title": "8月24日《三国杀OL》3.3.2版本更新公告",
+      "publishedLocalAsDisplayed": "2022-08-23 17:06:51",
+      "timezoneNotExplicitlyDisplayed": true,
+      "selectedRawClause": "7、修复【止息】被【缠怨】禁止后依旧不能使用牌的问题。",
+      "rawVisibleLineNumbers": [
+        151,
+        463
+      ],
+      "sourceType": "Official ordinary OL version-update bulletin; interaction bug-fix item, not a complete skill definition or a font resolver",
+      "currentFont885BindingFound": false,
+      "completeDerivedSkillBodyFound": false,
+      "explicitCurrentInheritanceOrUnmodifiedVersionFound": false,
+      "applicability": "Shows Chanyuan disabled Zhixi in an ordinary-OL 2022 fix. Does not identify current hero449/font885, the HP threshold, the challenge prohibition or the whole current derived definition."
+    }
+  },
+  "exactDifference": [
+    {
+      "area": "current main vs retained historical main",
+      "difference": "Current main explicitly has simultaneous challenges and grant-before-discard-or-HP ordering; prior main's conjunction does not establish the same explicit order or a strict reverse order."
+    },
+    {
+      "area": "derived body",
+      "current": null,
+      "retainedHistorical2020": "锁定技，你不能质疑\"蛊惑\"；你的体力值小于等于1时，你的其他技能失效。",
+      "new2022": "7、修复【止息】被【缠怨】禁止后依旧不能使用牌的问题。",
+      "difference": "The new item is an interaction fix, with no full Chanyuan definition or identity/inheritance statement. Similar disabling behavior cannot close the current font885 version gap."
+    }
+  ],
+  "currentFont885Resolved": false,
+  "matchingCurrentGrantedVersionProved": false,
+  "fullImplementationSourceReady": false,
+  "runtimeAcceptance": false,
+  "unresolved": [
+    "Complete current font885 skill body",
+    "Explicit current ordinary449/version inheritance or a real current font mapping"
+  ],
+  "boundedResultLimit": "No qualifying definition was found by these three queries and this one raw GET; this does not assert that the official site or whole web lacks such evidence.",
+  "447IncidentalClues": {
+    "newSpecificCurrentPoolOrExclusionClueFound": false,
+    "retained2019DuplicateNotReopened": true,
+    "requestsIssuedFor447": 0,
+    "notes": "The search returned the already retained 2019 shared-release announcement. The new 2022 bulletin's mode-specific landlord pool edits do not specify current447's full Huashen pool or inherited exclusion policy."
+  },
+  "budget": {
+    "officialDomainQueryLimit": 3,
+    "officialDomainQueriesUsed": 3,
+    "searchToolCalls": 2,
+    "realHitPageOpenOrGetLimit": 3,
+    "rawGetsUsed": 1,
+    "webOpensUsed": 0,
+    "httpRetries": 0,
+    "guessedEndpointRequests": 0,
+    "pageJavaScriptExecuted": false,
+    "mediaRequests": 0
+  },
+  "execution": {
+    "implementation": false,
+    "mainWrites": false,
+    "oldFrozenModified": false,
+    "gitWrites": false,
+    "compiler": false,
+    "build": false,
+    "loader": false,
+    "tests": false,
+    "nativeAi": false,
+    "nativeGame": false,
+    "benchmark": false,
+    "fullDirectoryScan": false,
+    "network": true,
+    "boundedOfficialSearch": true,
+    "boundedRawGet": true
+  }
+}

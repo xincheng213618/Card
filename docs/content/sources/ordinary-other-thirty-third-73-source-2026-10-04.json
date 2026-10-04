@@ -1,0 +1,193 @@
+{
+  "candidateGid": 73,
+  "candidateName": "刘协",
+  "edition": "current ordinary 三国杀OL; retained Other discovery and current page title; not 国战/谋/魔",
+  "capturedUtcDate": "2026-10-04",
+  "discovery": {
+    "indexPath": ".artifacts/continuation-20261003-batch17/batch21/dong-zhuo/next-batch22/index.raw.html",
+    "indexRawSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+    "category": "其他",
+    "first20Position": 2,
+    "advertisedHeroUrl": "https://www.sanguosha.com/hero/73",
+    "advertisedHeroUrlLine": 1461,
+    "cachedRow": {
+      "gid": 73,
+      "name": "刘协",
+      "resource": "7300",
+      "extend": "其他",
+      "hp": 3,
+      "initial_hp": 0,
+      "quality": "稀有",
+      "figure": "群",
+      "figure_py": "qun",
+      "biography": "字伯和，又字合。汉族，祖籍沛县，生于洛阳。汉灵帝第三子，被董卓迎立为帝。董卓被王允和吕布诛杀后，董卓部将李傕等攻入长安，再次挟持了他，后来逃出长安。公元196年，曹操控制了刘协，并迁都许昌，“挟天子以令诸侯”。公元220年，曹操病死，刘协被曹丕控制，随后被迫禅让于曹丕。",
+      "characteristic": "将手牌交给队友来攻击敌人。会成为敌人优先攻击的目标。",
+      "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/73.png",
+      "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/7300.png",
+      "realname": "刘协 (其他)"
+    },
+    "cacheIsCurrentRulesAuthority": false
+  },
+  "page": {
+    "requestedUrl": "https://www.sanguosha.com/hero/73",
+    "actualUrl": "https://www.sanguosha.com/hero/73",
+    "startedUtc": "2026-10-04T10:19:47.7703162Z",
+    "endedUtc": "2026-10-04T10:19:47.9872697Z",
+    "httpStatus": 200,
+    "curlExitCode": 0,
+    "redirectsFollowed": 0,
+    "retries": 0,
+    "rawPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-page.raw.html",
+    "rawBytes": 27222,
+    "rawSha256": "e4fc2c0bce3fd785774d43da2dbb911b47797ff783f5ff77cfc69758ac6b409d",
+    "headersPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-page.headers.txt",
+    "headersBytes": 662,
+    "headersRawSha256": "c709dc29a54d86b9dd36cb39c65a33338231d0d347692ac717f86928cbb780e2",
+    "requestRecordPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-page.request.json",
+    "requestRecordRawSha256": "6cdbcde48403ce712edd725586d3411a4ad991deb4810ab5b33e177c1a4f885f",
+    "title": "三国杀刘协 - 三国杀OL-三国杀官网-武将技能介绍",
+    "heroName": "刘协",
+    "canonicalUrl": "https://www.sanguosha.com/hero/73",
+    "skillNames": [
+      "天命",
+      "密诏"
+    ],
+    "allSkills": [
+      {
+        "name": "天命",
+        "text": "当你成为【杀】的目标后，你可以：弃置两张牌（不足则全弃），摸两张牌。若全场体力值唯一最大的角色不为你，其可以如此做。",
+        "rawHtml": "当你成为【杀】的目标后，你可以：弃置两张牌（不足则全弃），摸两张牌。若全场体力值唯一最大的角色不为你，其可以如此做。",
+        "pageLine": 278,
+        "fontRefs": []
+      },
+      {
+        "name": "密诏",
+        "text": "出牌阶段限一次，你可以交给一名其他角色所有手牌，然后令其与另一名其他角色拼点：拼点赢的角色视为对没赢的角色使用一张【杀】。",
+        "rawHtml": "出牌阶段限一次，你可以交给一名其他角色所有手牌，然后令其与另一名其他角色拼点：拼点赢的角色视为对没赢的角色使用一张【杀】。",
+        "pageLine": 280,
+        "fontRefs": []
+      }
+    ],
+    "allSkillHtml": "\n                        \n                            \n                                <span class=\"on\" >当你成为【杀】的目标后，你可以：弃置两张牌（不足则全弃），摸两张牌。若全场体力值唯一最大的角色不为你，其可以如此做。</span>\n                            \n                                <span >出牌阶段限一次，你可以交给一名其他角色所有手牌，然后令其与另一名其他角色拼点：拼点赢的角色视为对没赢的角色使用一张【杀】。</span>\n                            \n                        \n                    ",
+    "unresolvedFontRefs": []
+  },
+  "api": {
+    "requestedUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=73",
+    "actualUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=73",
+    "startedUtc": "2026-10-04T10:20:44.6729250Z",
+    "endedUtc": "2026-10-04T10:20:44.8865539Z",
+    "httpStatus": 200,
+    "curlExitCode": 0,
+    "redirectsFollowed": 0,
+    "retries": 0,
+    "rawPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-api.raw.json",
+    "rawBytes": 1073,
+    "rawSha256": "cb7f8d3d01387a3c57752ee8ff779a4cebce4b5a517b5a6302031de07cce2a95",
+    "headersPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-api.headers.txt",
+    "headersBytes": 644,
+    "headersRawSha256": "979ef77b5258b2b25a6243b2d1f721b817a98b1be0c5d4aa6fa961621f6777e8",
+    "requestRecordPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-api.request.json",
+    "requestRecordRawSha256": "b87bd13c5c13cd15794801c51be72f74f57b448d68b6c13949647e8db82f5b6a",
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 73,
+            "name": "刘协",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/73.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/7300.png",
+            "label": [
+              "防御",
+              "辅助",
+              "配合神将"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "稀有",
+            "biography": "字伯和，又字合。汉族，祖籍沛县，生于洛阳。汉灵帝第三子，被董卓迎立为帝。董卓被王允和吕布诛杀后，董卓部将李傕等攻入长安，再次挟持了他，后来逃出长安。公元196年，曹操控制了刘协，并迁都许昌，“挟天子以令诸侯”。公元220年，曹操病死，刘协被曹丕控制，随后被迫禅让于曹丕。",
+            "characteristic": "将手牌交给队友来攻击敌人。会成为敌人优先攻击的目标。",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "地主",
+            "value": 4
+          },
+          {
+            "name": "农民",
+            "value": 5
+          },
+          {
+            "name": "主公",
+            "value": 3
+          },
+          {
+            "name": "忠臣",
+            "value": 6
+          },
+          {
+            "name": "反贼",
+            "value": 5
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "advertisedEndpointProof": {
+      "pagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-page.raw.html",
+      "pageRawSha256": "e4fc2c0bce3fd785774d43da2dbb911b47797ff783f5ff77cfc69758ac6b409d",
+      "pageLine": 482,
+      "staticLiteralAndPathGidBinding": "var gid = getUrlParam('gid');\n    if (!gid) {\n        var pathname = window.location.pathname;\n        var match = pathname.match(/\\/hero\\/(\\d+)/);\n        if (match && match[1]) {\n            gid = match[1];\n        }\n    }\n\n    if (gid) {\n        fetch('/api/v1/hero/info?gid=' + gid)",
+      "resolvedExactUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=73",
+      "embeddedScriptExecuted": false
+    }
+  },
+  "currentApiIdentity": {
+    "gid": 73,
+    "name": "刘协",
+    "faction": "群",
+    "factionId": "qun",
+    "baseHp": 3,
+    "quality": "稀有",
+    "genderFieldPresent": false,
+    "gender": null,
+    "initialHpRaw": 0,
+    "initialHpMeaning": "0 is an API placeholder; not a claim of starting at 0 HP"
+  },
+  "crossCheck": {
+    "pageNameAndApiIdentityAgree": true,
+    "cachedMetadataAndCurrentApiAgree": true,
+    "apiContainsSkillDefinitions": false,
+    "skillsAuthority": "All named skill bodies come from the current raw hero page. This API exposes identity/biography/radar, not a second copy of skill rules."
+  },
+  "registrationProofPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/candidate-registration-proof.json",
+  "fullCurrentMainText": true,
+  "fullImplementationSourceReady": true,
+  "derivedSkillsRequiringAdditionalSource": [],
+  "randomSkillPoolGap": false,
+  "remainingSourceGaps": [],
+  "engineeringDefaultsConfirmedByThisCapture": false,
+  "implementationPresent": false,
+  "runtimeValidation": {
+    "compiler": false,
+    "loader": false,
+    "coreTests": false,
+    "wpfTests": false,
+    "nativeGame": false,
+    "ui": false,
+    "benchmark": false
+  },
+  "httpBudget": {
+    "taskTotalAllowedSingleGets": 6,
+    "taskTotalUsedSingleGets": 6,
+    "candidateUsedSingleGets": 2,
+    "retries": 0,
+    "images": 0,
+    "extraScripts": 0
+  }
+}

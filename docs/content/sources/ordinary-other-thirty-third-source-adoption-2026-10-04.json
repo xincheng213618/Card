@@ -1,0 +1,184 @@
+{
+  "partialRegistration": false,
+  "schemaVersion": 1,
+  "reviewHead": "17fead66d0d20bb39867f8da92d1bc75f9381b83",
+  "mappings": [
+    {
+      "rawSha256": "94f4a3fd205ad80fc6a038e923d756efc495216b99369c4591ec6f5da7c0bc9e",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-official-source.json",
+      "mainPath": "docs/content/sources/ordinary-other-thirty-third-72-source-2026-10-04.json",
+      "bytes": 8127
+    },
+    {
+      "rawSha256": "e6ca90cf756b583d7481f6dc7a6e26d395c768bdacb8c1f517c150c52ba9bb84",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-official-source.json",
+      "mainPath": "docs/content/sources/ordinary-other-thirty-third-73-source-2026-10-04.json",
+      "bytes": 9374
+    },
+    {
+      "rawSha256": "77409ab6db370f94fa2be0c2f679cfb4829919d571a833424e325c8d3f567413",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-official-source.json",
+      "mainPath": "docs/content/sources/ordinary-other-thirty-third-74-source-2026-10-04.json",
+      "bytes": 9370
+    },
+    {
+      "rawSha256": "657d2e312a6cbdb33d170bbda5528c0fe03cf581c04573d5b9a199b102d2a6e4",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-page.raw.html",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-72-page.raw.html",
+      "bytes": 24754
+    },
+    {
+      "rawSha256": "bf976c1fbc1ac5e6457a790e7752c2ef4fcc0b8fe108ae878e0426017a0108f3",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-page.headers.txt",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-72-page.headers.txt",
+      "bytes": 662
+    },
+    {
+      "rawSha256": "03a26a34d3fd26df54a5b0b2b85b6a5b153602417c3652499914b8a994b1c74e",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-page.request.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-72-page.request.json",
+      "bytes": 16988
+    },
+    {
+      "rawSha256": "333dc51c5810bf0992701db1489869b7e7f044d5153d60ea6e3361f604bfa175",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-api.raw.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-72-api.raw.json",
+      "bytes": 854
+    },
+    {
+      "rawSha256": "797a1e47c55d4365b31c309905d1a99038dd1b030abe8ddddaffba55c204a69d",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-api.headers.txt",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-72-api.headers.txt",
+      "bytes": 640
+    },
+    {
+      "rawSha256": "85fb9ddb578181ccb2a816086ebf2c40e73674e8d309a58bc5bab3ce1ebfc55f",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-api.request.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-72-api.request.json",
+      "bytes": 17064
+    },
+    {
+      "rawSha256": "e4fc2c0bce3fd785774d43da2dbb911b47797ff783f5ff77cfc69758ac6b409d",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-page.raw.html",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-73-page.raw.html",
+      "bytes": 27222
+    },
+    {
+      "rawSha256": "c709dc29a54d86b9dd36cb39c65a33338231d0d347692ac717f86928cbb780e2",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-page.headers.txt",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-73-page.headers.txt",
+      "bytes": 662
+    },
+    {
+      "rawSha256": "6cdbcde48403ce712edd725586d3411a4ad991deb4810ab5b33e177c1a4f885f",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-page.request.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-73-page.request.json",
+      "bytes": 16989
+    },
+    {
+      "rawSha256": "cb7f8d3d01387a3c57752ee8ff779a4cebce4b5a517b5a6302031de07cce2a95",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-api.raw.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-73-api.raw.json",
+      "bytes": 1073
+    },
+    {
+      "rawSha256": "979ef77b5258b2b25a6243b2d1f721b817a98b1be0c5d4aa6fa961621f6777e8",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-api.headers.txt",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-73-api.headers.txt",
+      "bytes": 644
+    },
+    {
+      "rawSha256": "b87bd13c5c13cd15794801c51be72f74f57b448d68b6c13949647e8db82f5b6a",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-api.request.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-73-api.request.json",
+      "bytes": 17064
+    },
+    {
+      "rawSha256": "3d0a4cdbd7cddf919edae6db2d3bd3a703205ffd1df34da13d9b7b4012c6aea3",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-page.raw.html",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-74-page.raw.html",
+      "bytes": 27339
+    },
+    {
+      "rawSha256": "bee5bea889a38040a0a28dde9a3d01ee892040f6c36b6bafc4271e0d9e19cc2f",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-page.headers.txt",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-74-page.headers.txt",
+      "bytes": 665
+    },
+    {
+      "rawSha256": "cc5017e47df44c58e39d20b11d5ec0d022e35363c0011e9fa36c2e6d94903b8b",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-page.request.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-74-page.request.json",
+      "bytes": 16988
+    },
+    {
+      "rawSha256": "3c04ebfe37ba40592bd0b4a55c8a2d381d26258349bf7cfd4557eb9eeb3ca9ee",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-api.raw.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-74-api.raw.json",
+      "bytes": 916
+    },
+    {
+      "rawSha256": "4038f157e7fee75dcb90695dec2f8d286b1e414814b6988776aa230b5e8f373f",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-api.headers.txt",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-74-api.headers.txt",
+      "bytes": 639
+    },
+    {
+      "rawSha256": "043de3e33d514a4dec562cb89416564c12b22380af29a764751a3b7e5e36e4f6",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-api.request.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-74-api.request.json",
+      "bytes": 17064
+    },
+    {
+      "rawSha256": "4609fc35bc5ed5b32c8e741d1d5bf6dfb974236622ee8b5aede3be492855a4b2",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/cached-other-first20.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-cached-other-first20.json",
+      "bytes": 17830
+    },
+    {
+      "rawSha256": "8836d99aacdc527ad15902c91e55941e8a6b41e3aeb15f7339d4f2c7de428a7b",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/candidate-registration-proof.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-candidate-registration-proof.json",
+      "bytes": 17911
+    },
+    {
+      "rawSha256": "170fdc6097d6b6932d69d794e4622d79111421deb17fe0e167fc28820620a7c5",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/SOURCE-PREFLIGHT.md",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-SOURCE-PREFLIGHT.md",
+      "bytes": 3900
+    },
+    {
+      "rawSha256": "5faf2966c95dfb72ce45e210a726f00a36d9d57888edded30e03806bb15a3d4f",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/delivery-manifest.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-third-delivery-manifest.json",
+      "bytes": 8027
+    }
+  ],
+  "boundedScope": "Retained Other first20 only, plus three selected current ordinary OL pages and their advertised info APIs. Not an inventory of the whole site.",
+  "httpBudgetUsed": {
+    "mediaRequests": 0,
+    "rawGets": 6,
+    "retries": 0,
+    "scriptRequests": 0
+  },
+  "runtimeAcceptance": false,
+  "sourceManifestRawSha256": "5faf2966c95dfb72ce45e210a726f00a36d9d57888edded30e03806bb15a3d4f",
+  "status": "adopted-complete-current-sources-not-implemented-not-run",
+  "adoptedAtUtc": "2026-10-04T10:30:09.1914978Z",
+  "execution": {
+    "tests": false,
+    "compiler": false,
+    "native": false,
+    "build": false,
+    "benchmark": false,
+    "push": false,
+    "game": false,
+    "loader": false
+  },
+  "candidateReadiness": {
+    "73": true,
+    "72": true,
+    "74": true
+  },
+  "engineeringDefaultsConfirmedBySources": false
+}

@@ -1,0 +1,113 @@
+{
+  "status": "static-text-and-byte-checks-only-not-runtime-validation",
+  "patchFiles": [
+    {
+      "path": "src/CardGame.Core/GameEngine.cs",
+      "updateCount": 1,
+      "fullTextHunks": 1,
+      "rawBeforeMatched": true,
+      "patchRebuildEqualsBomFreeLfPreview": true
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ColorFireAttacks.cs",
+      "updateCount": 1,
+      "fullTextHunks": 1,
+      "rawBeforeMatched": true,
+      "patchRebuildEqualsBomFreeLfPreview": true
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.TieredRoundZeroReturns.cs",
+      "updateCount": 1,
+      "fullTextHunks": 1,
+      "rawBeforeMatched": true,
+      "patchRebuildEqualsBomFreeLfPreview": true
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.TieredRoundZeroUses.cs",
+      "updateCount": 1,
+      "fullTextHunks": 1,
+      "rawBeforeMatched": true,
+      "patchRebuildEqualsBomFreeLfPreview": true
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/BoundaryGuoHuangHouChecks.cs",
+      "updateCount": 1,
+      "fullTextHunks": 6,
+      "rawBeforeMatched": true,
+      "patchRebuildEqualsBomFreeLfPreview": true
+    }
+  ],
+  "originalPublicMethodNamesPreserved": [
+    "TrueRoundNamesPhysicalConversionAndPrivateCold",
+    "CappedDrawBeforeModificationOwnsChildrenAndCold",
+    "SharedRoundQuotaSurvivesTierRegrantAndExtraTurn",
+    "ZeroCounterspellDodgeAndDyingTypedReturns"
+  ],
+  "fixtureRawLiteralGenericJsonSyntaxValid": true,
+  "fixtureNewTrigger": {
+    "id": "fixture:ghh-fire-damage",
+    "revision": 1,
+    "triggers": [
+      {
+        "id": "damage",
+        "window": "afterDamageApplied",
+        "subject": "damageSource",
+        "optional": false,
+        "damageOccurrence": "perDamage",
+        "effects": [
+          {
+            "op": "chooseOption",
+            "target": "owner",
+            "resultBind": "seen",
+            "options": [
+              {
+                "id": "continue"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "fixtureNewPolicy": {
+    "id": "fixture:ghh-fire-color",
+    "revision": 1,
+    "cardPolicies": [
+      {
+        "id": "color-payment",
+        "kind": "randomRevealColorFireAttack",
+        "cardKinds": [
+          "fireAttack"
+        ]
+      }
+    ]
+  },
+  "apiSourceNotes": [
+    "CardAttackHandle constructor accepts Card?; card:null stores CardId/appearance null and explicit empty owning PhysicalCardIds.",
+    "DamageFrame.ParentFrameId/DamageTriggerWindowFrame.ParentFrameId and SourceCard/SourceCardId are actual typed properties in Resolution.cs.",
+    "ProgramCardTriggerWindowFrame.AttackOwnerFrameId is populated from the real attack in GameEngine.CardActions.cs.",
+    "FireAttackResolvedEvent/ColorFireAttackPaidEvent/TrueRoundCardNameUsedEvent/DamageAppliedEvent field names were checked against their named definitions.",
+    "AfterDamageApplied DamageSource+ChooseOption, CardUseCompleted FireAttack filter, RandomRevealColorFireAttack policy and mandatory choice labels were inspected against current loader source, not loaded."
+  ],
+  "sourceCodeContractPreserved": [
+    "No fake physical entity0",
+    "No physical movement fabricated",
+    "No legacy physical producer fallback changed",
+    "No new event collection",
+    "No new runner",
+    "No version changed"
+  ],
+  "runtimeExecution": {
+    "compiler": false,
+    "build": false,
+    "loader": false,
+    "tests": false,
+    "game": false,
+    "nativeAi": false,
+    "benchmark": false,
+    "http": false,
+    "mainWrites": false,
+    "gitStage": false,
+    "commit": false
+  }
+}

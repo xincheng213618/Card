@@ -1,0 +1,183 @@
+{
+  "sourceReadiness": {
+    "449": false,
+    "451": false,
+    "690": false,
+    "447": false
+  },
+  "status": "adopted-original-evidence-bytes-static-only",
+  "budgetUsed": {
+    "webOpens": 0,
+    "rawGets": 4,
+    "officialQueries": 12,
+    "retries": 0
+  },
+  "reviewHead": "17fead66d0d20bb39867f8da92d1bc75f9381b83",
+  "adoptedAtUtc": "2026-10-04T10:25:43.0617616Z",
+  "runtimeAcceptance": false,
+  "execution": {
+    "native": false,
+    "build": false,
+    "tests": false,
+    "loader": false,
+    "compiler": false,
+    "versionChanges": false,
+    "game": false,
+    "benchmark": false,
+    "push": false
+  },
+  "mappings": [
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-449-449-current-grant-evidence.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current449-grants/449-current-grant-evidence.json",
+      "rawSha256": "4c1fbff8514d7268a82db188000592bd05154a8bb326feb85ff53778481d8c14",
+      "bytes": 11432
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-449-search-01-tool-result.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current449-grants/search-01-tool-result.json",
+      "rawSha256": "096a04e399c7a640564b6aa8f3816b6d291e22422061a76b2d7ff7714fe32327",
+      "bytes": 18503
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-449-search-02-03-tool-result.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current449-grants/search-02-03-tool-result.json",
+      "rawSha256": "c09321a1474f0b739c326ce4b18d681d9680ea0739bedfe4b91c45d316c30555",
+      "bytes": 70
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-449-20220822-http.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current449-grants/20220822-http.json",
+      "rawSha256": "b3b77f3e1d4b794f96b6dbe6c15d5d08d29e4acf5428ca16eaa26c88adfe8329",
+      "bytes": 1767
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-449-20220822-official-update.raw.html",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current449-grants/20220822-official-update.raw.html",
+      "rawSha256": "6c35ee23714a7e451e3488dfa9267b9ead0365674740d3a31a9c90923b1f0ca1",
+      "bytes": 38167
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-449-delivery-manifest.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current449-grants/delivery-manifest.json",
+      "rawSha256": "418e101ccda48b828b2177cac371e147bc9579303b833b61a2d0daa5ff35a6cd",
+      "bytes": 3472
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-451-451-current-grants-followup.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current451-grants/451-current-grants-followup.json",
+      "rawSha256": "065b83ac84be7671dcf477fb3559549dc01185c43fa6d2fb43ce4df0818f0a4e",
+      "bytes": 5480
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-451-web-search-01.txt",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current451-grants/web-search-01.txt",
+      "rawSha256": "9df7ce39555d16c9dc7a8a90e8d361026703831919d05e1c00c38e3a02b1bd68",
+      "bytes": 23227
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-451-web-search-02.txt",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current451-grants/web-search-02.txt",
+      "rawSha256": "7324e6b3e7e8eb556db7a59f644d710c28b507044298d2e5479207065e2708f5",
+      "bytes": 27034
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-451-delivery-manifest.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current451-grants/delivery-manifest.json",
+      "rawSha256": "8ed01c3f3c399f4327511a89f73034a0b8787d3ec8f045fa75c7b1f6ea23bbcb",
+      "bytes": 2813
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-690-current-grant-evidence.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current690-grants/current-grant-evidence.json",
+      "rawSha256": "bb0f270469a320d8e7645ac92f8f30ed59e4727509a532e7f31d7ade476891de",
+      "bytes": 6821
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-690-official-search-results.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current690-grants/official-search-results.json",
+      "rawSha256": "1dba97fa924ff59ad808429cd9857cce3afa06a9d29c7729f2faa97108049bd4",
+      "bytes": 1151
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-690-authorized-raw-followup.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current690-grants/authorized-raw-followup.json",
+      "rawSha256": "06a18dc9c8692f4527af65b5947b2832be05aaa6395ec1353636c3715687706a",
+      "bytes": 3637
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-690-300-page.raw.html",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current690-grants/300-page.raw.html",
+      "rawSha256": "0e63a5afb715a5256353c0258844135bd93f9351174a5b541eda32bac31f215b",
+      "bytes": 27469
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-690-300-page-capture.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current690-grants/300-page-capture.json",
+      "rawSha256": "9da9cf3d5a6d9b5a3c793bfd2f84b961880e2fd01131a17a9d41a22737bde960",
+      "bytes": 1732
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-690-301-page.raw.html",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current690-grants/301-page.raw.html",
+      "rawSha256": "ac86213821282a7f4162488067164126dface288ba6a88fa0675fcb4c59c6abf",
+      "bytes": 26273
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-690-301-page-capture.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current690-grants/301-page-capture.json",
+      "rawSha256": "d506857ebafbe6f7269fbce399a3c28129c43ae97ca102f75b8f6adc51dde6f6",
+      "bytes": 1595
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-690-delivery-manifest.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current690-grants/delivery-manifest.json",
+      "rawSha256": "f1fba20e126bfa4f2a1d3ca5093227b052d84cced74446844c7026eaffea2458",
+      "bytes": 4986
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-resolver-advertised-rule-resolver-evidence.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/advertised-rule-resolver/advertised-rule-resolver-evidence.json",
+      "rawSha256": "c809a9bf7b72b458aafa0cf0e7d0a3395189b79b240e493ff30f7aaf313ce626",
+      "bytes": 14046
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-resolver-01-login-entry.raw",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/advertised-rule-resolver/01-login-entry.raw",
+      "rawSha256": "3883e4fbe34d88220161ffc6c6696fbe1bf5e222ed6ff967284c6e73a4f58346",
+      "bytes": 11439
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-resolver-01-login-entry.http.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/advertised-rule-resolver/01-login-entry.http.json",
+      "rawSha256": "41c4e4fc8c80477a954f8492877a315c23660e3f18aabc75d799505d495f63a8",
+      "bytes": 2269
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-resolver-delivery-manifest.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/advertised-rule-resolver/delivery-manifest.json",
+      "rawSha256": "1f1c0f576edc81f30dc3507a792692cb0629ab8d2935ef4595cbb567f2255fed",
+      "bytes": 4756
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-447-447-current-pool-followup.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current447-pool/447-current-pool-followup.json",
+      "rawSha256": "2d1580bb9f99c2af64bbc472e88bfc92d8f3dc9a4abddd595051314e41769ed5",
+      "bytes": 2279
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-447-search-tool-result.txt",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current447-pool/search-tool-result.txt",
+      "rawSha256": "f2637f6880c585946e0df014f9f26ea92c032b983922df36ab1658ba27f76a31",
+      "bytes": 789
+    },
+    {
+      "mainPath": "docs/content/sources/evidence/fenglin-thirty-third-447-delivery-manifest.json",
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/current447-pool/delivery-manifest.json",
+      "rawSha256": "b61be7278103d044435fa81fa93eae98f58831702bcb527d645c5fffbacfc9c0",
+      "bytes": 1086
+    }
+  ],
+  "sourceBoundary": "No current numbered grant identity or complete current avatar policy was closed. Same names, historical rules and official-host user reports remain separately classified. Negative findings are bounded to the listed inputs and requests.",
+  "schemaVersion": 1
+}

@@ -1,0 +1,60 @@
+{
+  "schema": "card.independent-static-review-delivery.v1",
+  "status": "frozen",
+  "frozenUtc": "2026-10-04T10:47:13.6916136+00:00",
+  "task": "batch33 726 exact issued zero FireAttack repair",
+  "authorManifest": {
+    "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/delivery-manifest.json",
+    "rawSha256": "f3283a1d5b7c1ec7dc674b15b243e9d18a7558db2b1a15a1fe0ab30ad509265f"
+  },
+  "authorPatchRawSha256": "1a383d34f3b066734bf8c2420d8589bf54858582c9b00ab4bdd9a01daa012205",
+  "authorBaseHead": "17fead66d0d20bb39867f8da92d1bc75f9381b83",
+  "reviewResult": "No additional confirmed P1/P2 in bounded static producer/consumer/API/return/payment scope",
+  "originalFinding": "Exact original Card0 physical lookup defect; frozen repair addresses these two producers",
+  "namedRawMatches": 25,
+  "oldUpdatesRebuilt": 5,
+  "rebuildMode": "Reverse each already-applied current effective text to frozen before BOM-free-LF; preview LF/BOM and raw matched",
+  "methodsPreserved": [
+    "TrueRoundNamesPhysicalConversionAndPrivateCold",
+    "CappedDrawBeforeModificationOwnsChildrenAndCold",
+    "SharedRoundQuotaSurvivesTierRegrantAndExtraTurn",
+    "ZeroCounterspellDodgeAndDyingTypedReturns"
+  ],
+  "additionalMethods": 0,
+  "newBranches": "Ordinary and color payment in original third method; three actual-command Cold prefixes each; not executed",
+  "evidence": [
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-review/independent-review.md",
+      "rawSha256": "fe104109425eab7247297cdbce37fc5b8cb559a01038b7bc9a617735b2a46192",
+      "bytes": 5208
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-review/named-text-verification.json",
+      "rawSha256": "51dfa67c8e9b70c41aaf8c6d24cce12a8b1cd91c6b4d2e95f454be8548a5282b",
+      "bytes": 9241
+    }
+  ],
+  "execution": {
+    "compiler": false,
+    "build": false,
+    "loader": false,
+    "tests": false,
+    "game": false,
+    "native": false,
+    "benchmark": false,
+    "http": false,
+    "mainWrites": false,
+    "authorWrites": false,
+    "gitMutation": false
+  },
+  "unvalidated": [
+    "All behavior drafts",
+    "Color equipment payment and recovery children",
+    "Chain/redirect",
+    "Sequential multiple FireAttack targets",
+    "Prevention/replacement",
+    "Source-loss/winner/Dying",
+    "WPF"
+  ],
+  "checkpointNote": "accepted journal checkpoint Restore reruns producers; no pending-field alias reproduction claimed"
+}

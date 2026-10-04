@@ -1,0 +1,390 @@
+{
+  "status": "frozen-advertised-rule-resolver-negative-within-bounded-scope",
+  "generatedUtc": "2026-10-04T10:18:20.445215+00:00",
+  "reviewHead": "17fead66d0d20bb39867f8da92d1bc75f9381b83",
+  "scope": "Retained named official hero447/451 and their advertised heroDetail/commen/header; one literal game-entry HTML only.",
+  "retainedInputs": [
+    {
+      "path": "docs/content/sources/fenglin-thirty-second-447-source-2026-10-04.json",
+      "rawBytes": 11262,
+      "rawSha256": "48749a7df2a85ce2f17c66955908c1770bf74fd0dd05137e3d03741e2cf72940",
+      "hasUtf8Bom": false
+    },
+    {
+      "path": "docs/content/sources/evidence/fenglin-thirty-second-447-hero-2026-10-04.raw.html",
+      "rawBytes": 24388,
+      "rawSha256": "ff8f3ae73932b5b788524db4085d6333feba8612cccfa993100b36bb3e44683a",
+      "hasUtf8Bom": false
+    },
+    {
+      "path": "docs/content/sources/fenglin-twenty-ninth-451-linked-script-followup-2026-10-04.json",
+      "rawBytes": 2849,
+      "rawSha256": "b356429bb04d9aa08c4bfb2780520ae7060bdd82f3d0e1e55e727c97be77dc9f",
+      "hasUtf8Bom": false
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/451-page.raw.html",
+      "rawBytes": 25661,
+      "rawSha256": "aa216410cf2a34db5b7328fa5cfe18e6f44be117cd8035c338b39201f7b9d90a",
+      "hasUtf8Bom": false
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/heroDetail.js.raw",
+      "rawBytes": 15166,
+      "rawSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+      "hasUtf8Bom": false
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/451-linked-skill-followup/commen.js.raw",
+      "rawBytes": 4424,
+      "rawSha256": "95ca9d3ff648d5c4f045019b9d2252883db452b04db508f6ea5a735c2e725129",
+      "hasUtf8Bom": false
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/451-linked-skill-followup/header.js.raw",
+      "rawBytes": 17929,
+      "rawSha256": "2e7ae2b016577a88f00269d9409cffac9bd6976df54be12efd7fbf31c36c32d0",
+      "hasUtf8Bom": false
+    },
+    {
+      "path": "docs/content/sources/fenglin-thirty-first-current-grant-followup-2026-10-04.json",
+      "rawBytes": 13537,
+      "rawSha256": "3e313913f354ce67b28c84b39dea6692c533144bcb4d0532ba729b9917fd7040",
+      "hasUtf8Bom": false
+    }
+  ],
+  "targets": [
+    {
+      "number": 878,
+      "label": "武圣",
+      "currentHero": 690,
+      "advertisedFullDefinitionResourceFound": false,
+      "currentNumberToDefinitionBindingProved": false,
+      "currentDefinitionResolved": false,
+      "historicalSameNameUsedAsBinding": false
+    },
+    {
+      "number": 939,
+      "label": "咆哮",
+      "currentHero": 690,
+      "advertisedFullDefinitionResourceFound": false,
+      "currentNumberToDefinitionBindingProved": false,
+      "currentDefinitionResolved": false,
+      "historicalSameNameUsedAsBinding": false
+    },
+    {
+      "number": 3045,
+      "label": "激将",
+      "currentHero": 451,
+      "advertisedFullDefinitionResourceFound": false,
+      "currentNumberToDefinitionBindingProved": false,
+      "currentDefinitionResolved": false,
+      "historicalSameNameUsedAsBinding": false
+    },
+    {
+      "number": 895,
+      "label": "思蜀",
+      "currentHero": 451,
+      "advertisedFullDefinitionResourceFound": false,
+      "currentNumberToDefinitionBindingProved": false,
+      "currentDefinitionResolved": false,
+      "historicalSameNameUsedAsBinding": false
+    },
+    {
+      "number": 885,
+      "label": "缠怨",
+      "currentHero": 449,
+      "advertisedFullDefinitionResourceFound": false,
+      "currentNumberToDefinitionBindingProved": false,
+      "currentDefinitionResolved": false,
+      "historicalSameNameUsedAsBinding": false
+    }
+  ],
+  "retainedScriptStaticObservations": [
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/heroDetail.js.raw",
+      "targetNumberLiteralMatches": [],
+      "textReadOnly": true,
+      "scriptExecuted": false
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/451-linked-skill-followup/commen.js.raw",
+      "targetNumberLiteralMatches": [],
+      "textReadOnly": true,
+      "scriptExecuted": false
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/451-linked-skill-followup/header.js.raw",
+      "targetNumberLiteralMatches": [],
+      "textReadOnly": true,
+      "scriptExecuted": false
+    }
+  ],
+  "advertisingChain": [
+    {
+      "from": "docs/content/sources/evidence/fenglin-thirty-second-447-hero-2026-10-04.raw.html",
+      "line": 162,
+      "literal": "<a class=\"header-play-btn\" href=\"javascript:void(0)\">",
+      "meaning": "Hero447 advertises the header play control; this is not a skill URL."
+    },
+    {
+      "from": "docs/content/sources/evidence/fenglin-thirty-second-447-hero-2026-10-04.raw.html",
+      "lines": [
+        497,
+        498,
+        499
+      ],
+      "literals": [
+        "/assets/js/commen.js",
+        "/assets/js/header.js",
+        "/assets/js/heroDetail.js?1"
+      ],
+      "meaning": "Exact advertised scripts; retained451 bytes were reused, not refetched; current447-version equality was not independently asserted."
+    },
+    {
+      "from": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/451-linked-skill-followup/header.js.raw",
+      "lines": [
+        339,
+        362
+      ],
+      "literal": "https://web.sanguosha.com/login/index.html",
+      "meaning": "Exact non-register desktop header-play branch; this branch URL was fetched directly without executing the branch."
+    },
+    {
+      "from": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/451-linked-skill-followup/header.js.raw",
+      "lines": [
+        271,
+        282
+      ],
+      "literal": "https://web.sanguosha.com/login/index.html",
+      "meaning": "Same literal URL on a second shared header start-game handler."
+    },
+    {
+      "from": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/451-page.raw.html",
+      "line": 284,
+      "literals": [
+        "<font href='3045'>",
+        "<font href='895'>"
+      ],
+      "meaning": "Numbered font attributes in current451 main text do not specify a fetch URL or full-definition resource."
+    }
+  ],
+  "newRequest": {
+    "requestUrl": "https://web.sanguosha.com/login/index.html",
+    "requestMethod": "GET",
+    "startedUtc": "2026-10-04T10:14:59.1602335+00:00",
+    "automaticRedirects": false,
+    "javascriptExecuted": false,
+    "maximumBytes": 262144,
+    "responseBodyDownloaded": true,
+    "rawResponseComplete": true,
+    "responseUrl": "https://web.sanguosha.com/login/index.html",
+    "httpStatus": 200,
+    "reasonPhrase": "OK",
+    "headers": {
+      "Server": [
+        "Tengine"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Date": [
+        "Sun, 04 Oct 2026 10:15:02 GMT"
+      ],
+      "Vary": [
+        "Accept-Encoding"
+      ],
+      "x-oss-request-id": [
+        "6AC227266F011130338CA8CA"
+      ],
+      "Accept-Ranges": [
+        "bytes"
+      ],
+      "ETag": [
+        "\"4731AA08BD4A0BB618F3CB3D88F95ACB\""
+      ],
+      "x-oss-object-type": [
+        "Normal"
+      ],
+      "x-oss-hash-crc64ecma": [
+        "2322689094862184620"
+      ],
+      "x-oss-storage-class": [
+        "Standard"
+      ],
+      "x-oss-server-time": [
+        "3"
+      ],
+      "Via": [
+        "cache8.l2cn3059[21,21,200-0,M], cache28.l2cn3059[23,0], vcache22.cn5626[34,34,200-0,M], vcache8.cn5626[36,0]"
+      ],
+      "Ali-Swift-Global-Savetime": [
+        "1791108902"
+      ],
+      "X-Cache": [
+        "MISS TCP_MISS dirn:-2:-2"
+      ],
+      "X-Swift-SaveTime": [
+        "Sun, 04 Oct 2026 10:15:02 GMT"
+      ],
+      "X-Swift-CacheTime": [
+        "0"
+      ],
+      "Access-Control-Allow-Origin": [
+        "*"
+      ],
+      "Timing-Allow-Origin": [
+        "*"
+      ],
+      "EagleId": [
+        "de49211c17911089029255010e"
+      ],
+      "Content-Type": [
+        "text/html; charset=utf-8"
+      ],
+      "Content-Length": [
+        "11439"
+      ],
+      "Last-Modified": [
+        "Tue, 15 Sep 2026 09:05:27 GMT"
+      ],
+      "Content-MD5": [
+        "RzGqCL1KC7YY88s9iPlayw=="
+      ],
+      "Expires": [
+        "180d"
+      ]
+    },
+    "contentLength": 11439,
+    "contentType": "text/html; charset=utf-8",
+    "rawPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch33\\advertised-rule-resolver\\01-login-entry.raw",
+    "rawBytes": 11439,
+    "rawSha256": "3883e4fbe34d88220161ffc6c6696fbe1bf5e222ed6ff967284c6e73a4f58346",
+    "completedUtc": "2026-10-04T10:14:59.3917937+00:00"
+  },
+  "entryLiteralReferences": [
+    {
+      "tag": "script",
+      "attribute": "src",
+      "literal": "https://web.sanguosha.com/js/chunk-vendors/chunk-vendors.0b24.js"
+    },
+    {
+      "tag": "script",
+      "attribute": "src",
+      "literal": "https://web.sanguosha.com/js/index/index.0b24.js"
+    },
+    {
+      "tag": "a",
+      "attribute": "href",
+      "literal": "http://www.sanguosha.com"
+    },
+    {
+      "tag": "a",
+      "attribute": "href",
+      "literal": "https://www.sanguosha.com/static/pc/dist/age.html"
+    },
+    {
+      "tag": "a",
+      "attribute": "href",
+      "literal": "https://dlsgsnew.sanguosha.com/pc/sgs/Sgsc10thinstall.exe"
+    },
+    {
+      "tag": "a",
+      "attribute": "href",
+      "literal": "http://cn.account.sanguosha.com"
+    },
+    {
+      "tag": "script",
+      "attribute": "src",
+      "literal": "https://web.sanguosha.com/sgsCensus/startup.php"
+    },
+    {
+      "tag": "script",
+      "attribute": "src",
+      "literal": "https://web.sanguosha.com/static/js/captcha/index-1.0.1.js"
+    },
+    {
+      "tag": "script",
+      "attribute": "src",
+      "literal": "https://web.sanguosha.com/static/js/sgslogin-sdk-972285.js"
+    },
+    {
+      "tag": "script",
+      "attribute": "src",
+      "literal": "https://web.sanguosha.com/static/js/sgsReg-sdk-0f53fb.js"
+    },
+    {
+      "tag": "script",
+      "attribute": "src",
+      "literal": "https://web.sanguosha.com/static/js/sgsSms-b5d8c8.js"
+    }
+  ],
+  "entryTargetNumberLiteralMatches": [],
+  "entryClassification": "Static login/account and download UI shell with login/captcha SDKs and vendor/index scripts; no explicit numbered skill-text manifest or resolver advertised in this HTML.",
+  "stopDecision": "Stop at the login shell because it advertises no skill-definition resource. Vendor/index scripts have unmeasured size and were not fetched; no claim about their uninspected contents is made.",
+  "unfollowedReferences": [
+    {
+      "source": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/heroDetail.js.raw",
+      "line": 252,
+      "literal": "/assets/js/china.json",
+      "reason": "Explicit echarts map data, not numbered skills."
+    },
+    {
+      "source": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/451-linked-skill-followup/commen.js.raw",
+      "line": 134,
+      "literal": "${window.location.origin}/api/v1/report.json",
+      "reason": "Analytics POST, not read-only skill definitions; not requested."
+    },
+    {
+      "source": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/451-linked-skill-followup/header.js.raw",
+      "line": 405,
+      "literal": "https://oldownload.sanguosha.com/download/config.json?t=${timestamp}",
+      "reason": "Static consumers read installer versions to form APK/DMG/EXE URLs. Not a demonstrated skill manifest; timestamp not invented, no GET."
+    },
+    {
+      "source": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/451-linked-skill-followup/header.js.raw",
+      "line": 351,
+      "literal": "https://web.sanguosha.com/login/online/index.html?key_channel_id=${registerId}",
+      "reason": "Campaign/login branch requiring runtime registerId; not guessed or requested."
+    },
+    {
+      "source": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/451-linked-skill-followup/header.js.raw",
+      "line": 365,
+      "literal": "/download",
+      "reason": "Mobile installer page branch, not a demonstrated skill-definition resource; not requested."
+    },
+    {
+      "source": ".artifacts/continuation-20261003-batch17/batch33/advertised-rule-resolver/01-login-entry.raw",
+      "literals": [
+        "https://web.sanguosha.com/js/chunk-vendors/chunk-vendors.0b24.js",
+        "https://web.sanguosha.com/js/index/index.0b24.js"
+      ],
+      "reason": "Generic application bundles, no explicit skill resource in entry HTML; stop condition, not downloaded/executed."
+    }
+  ],
+  "negativeScope": {
+    "limitedToNamedRetainedInputsAndOneReturnedEntryHtml": true,
+    "globalAbsenceClaim": false,
+    "uninspectedBundleContentsClaimedAbsent": false,
+    "currentFontVersionBindingEstablished": false,
+    "originalHero447PoolOrExclusionGapClosed": false,
+    "reason": "No advertised numbered-to-full-definition path was found in the inspected bytes. This does not establish that no such public resource exists elsewhere."
+  },
+  "execution": {
+    "singleGetBudget": 3,
+    "singleGetsUsed": 1,
+    "automaticRedirects": false,
+    "retainedScriptsRefetched": false,
+    "endpointOrResourcePathGuesses": 0,
+    "loginOrAccountActions": false,
+    "javascriptOrGameExecution": false,
+    "mediaDownloaded": false,
+    "clientOrAssetBundleDownloaded": false,
+    "mainWritten": false,
+    "gitStageOrCommit": false,
+    "compiler": false,
+    "loader": false,
+    "tests": false,
+    "benchmark": false
+  }
+}

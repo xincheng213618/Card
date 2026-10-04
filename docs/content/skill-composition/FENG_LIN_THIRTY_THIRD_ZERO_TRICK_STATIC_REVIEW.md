@@ -1,0 +1,31 @@
+# 726零材料普通锦囊实际路径审查
+
+结论：发现1项有明确producer/consumer依据的P2：零实体火攻实付弃牌后把逻辑Card0写入物理伤害句柄。已另冻 `finding-fire-attack.json/.md` 并交root授权独立修复；本报告不把后续fix计为已审或已运行。其余本次具名路径未找到第二个确定的新缺陷。
+
+## 已读实际路径
+
+|输出/入口|实际callee与实体0处理|本次结论|
+|---|---|---|
+|DrawTwo|ZeroUses:163–194直接BeginCardUse，绕过原实牌ResolveDrawTwo:5171。ResolveDrawTwoEffect:4669–4675以真实target/隐式source摸2；GetNullificationEffectCard→GetTrickRepresentation:31–34接exact零Use。MoveFinishedTrickCard:30先skip零实体，FinishCardUse:13754遍历真实空material。|未发现新实体0查找；Committed/Finalized/BeforeTarget使用原owning action及04精确同步。|
+|GlobalHeal / PeachGarden|ResolvePeachGardenEffect:4722–4747建GroupRecovery；GroupCardHandle.Card:19813使用ReadTieredRoundUseAppearance。RunOneGroupRecoveryStep:6039后真实HP或RecoveryReplacement；FinishGroupRecovery:13306先跳过0清理。|未发现新实体0读卡或错误普通父返回。|
+|Steal / Snatch、Dismantlement|ResolveTargetCardEffect→真实公开区域或opaque hand slot；ResolveHiddenTargetCardSelection:4923用GetTrickRepresentation恢复effect。ApplyTargetCardEffect:4938–4997只移动真实目标实体，再专属skip effect0清理。|未发现新命令拒绝或effect0被当被取实体。|
+|FireAttack|ResolveFireAttackEffect→真实展示→同花色手牌实弃。GameEngine:5839–5848把effect Card0作为nonnull attack；CardAttackState:6和CardZoneStore:309–312拒查实体0，FinishZeroAttack只Slash/Duel。ColorFireAttack:104–105同构。|确定P2，详独立finding。放弃伤害路径:5808–5811已有skip0，无同一缺口。|
+|Harvest / FiveGrains|BuildProgramOrdinaryTrickUseOptions:194–202按Draw+Discard现有实体数截取targets；ResolveFiveGrainsEffect:4764只真实DrawOneToProcessing，公开选择只操作揭示的真entity。Group.Card使用exact零representation，FinishFiveGrains:6017跳过effect0，实际revealed剩余清理仍保留。|未发现新的短牌堆、伪revealed实体0或effect0清理问题。未把任意观察子链宣称已验。|
+|IronChain / Recast|BuildOptions:239只发布IronChain target Use；EnumerateProgramIronChainTargets:15从1名开始。ResolveIronChainEffect:5130–5168真实状态变化，skip0清理。零rule全部useOnly；没有零Recast LegalAction，SubmitRecast:23确需拥有实体。|零转换不是重铸；原真实体重铸付款/摸牌保持。未发现将0误发布成重铸的路径。|
+|BorrowedSword|ResolveBorrowedSwordEffect:5070用exact表示建owning continuation；BorrowedSwordHandle.Card:19608用ReadTieredRoundUseAppearance。真实持武器人Slash选择/虚拟Slash分别走现0子链；fallback只移动真实武器。FinishBorrowedSword:6648调用MoveFinishedTrickCard跳过0后返回原Use；CompleteAttackAfterCardResolution:13158–13171回同Borrowed。|未发现外层effect0实牌查找或已发行receipt错误替代父帧。|
+|Duel|ResolveDuelEffect:5113仅exact零Use传card:null/空materials；BeginDuelResponse仍是真Slash打出。CompleteAttack:13138先逐target，再FinishTieredRoundZeroAttack:290独立finish。CompletedSlash保存原attack；普通Finish卡不抢先返回Program parent。|未发现第二目标/结束清理实体0缺口。|
+|Barbarian / Arrow|ResolveGroupCardEffect:4684空Use materials，RunOneGroupAttackResponse:6137只exact零parent令attack.card=null。Group.Card为exact表示，实际当前attack proof包含群伤；最终group空materials正常退出。|只额外核本18输出的群伤ordinary生产边，不扩全面救援组合。未找到确定缺陷。|
+
+## 暂停续接和当前API
+
+`ContinueCommittedTrickUse`（CardUseLifecycle:92–102）和 `ContinueTrickAfterProgramTargetEffects`（CardActions:535–560）都用原ParentFrameId和真实GetTrickRepresentation；后者的0许可调用MatchesTieredRoundZeroUseAction，保留完整action结构值、same kind与空materials，不泛允许实体0。逐目标SequentialTrickTargets:49独立取准确零representation。
+
+`FinishCardUse` 的CharacterState/HpChange暂停分别通过 CharacterStatePrograms:62–64、HpChangePrograms:100–102恢复原CardUse/GetTrickRepresentation。CompletedCard（CardActions:430–431）仅Pop原已完成Use；Duel CompletedSlash保留原attack后再完整typed尾返回。未发现这些边再次通过普通zonestore读取effect0。
+
+实际当前定义确认：Domain的CardKind含全部18输出；Card、LegalAction构造与TieredRoundZeroUse属性存在（Domain:368、720、783）；SkillPrograms的SkillProgramViewAs.TieredRoundConversion存在（1172）；CardUseFrame receipt字段存在（Resolution:542–543）；ProgramTrick/SimpleContinuation存在（CardActions:30–39）。本次JSON仅用文本解析列出18个level2规则，未运行严格C# loader或编译器。
+
+## 精确范围与限制
+
+这是当前源码的具名callee静态审查，未运行编译、loader、命令、游戏、native或检查。未HTTP/下载、未改main/旧冻结稿、未扫描全仓或全量哈希。只保存本任务报告与具名源码SHA。Root指出的独立PrepDiscardReceipts脏改未读取、未覆盖、未纳入审查。
+
+本报告不是全部18输出或组合运行通过的声明，也没有要求为每牌种新增重复检查。FireAttack原finding的首段line数组范围较宽；应以实际ExecuteTieredRoundZeroPlay:163–194中的BeginCardUse:173及BeginJizhi:193为准确producer入口，实体0伤害/物理查找行号5839–5848/19098/19109/12939不变。GameCheckpoint存accepted journal、Restore重放producer；本次不把JSON文本或对象alias推断当冷恢复故障已复现。

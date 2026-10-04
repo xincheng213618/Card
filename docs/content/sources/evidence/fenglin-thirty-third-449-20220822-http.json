@@ -1,0 +1,72 @@
+{
+  "requestUrl": "https://www.sanguosha.com/news/20220822_2139_1416",
+  "responseUrl": "https://www.sanguosha.com/news/20220822_2139_1416",
+  "method": "GET",
+  "httpStatus": 200,
+  "requestStartedUtc": "2026-10-04T10:06:45.0089386+00:00",
+  "completedUtc": "2026-10-04T10:06:45.4101110+00:00",
+  "redirectsFollowed": false,
+  "rawPath": "20220822-official-update.raw.html",
+  "rawBytes": 38167,
+  "rawSha256": "6c35ee23714a7e451e3488dfa9267b9ead0365674740d3a31a9c90923b1f0ca1",
+  "headers": {
+    "Server": [
+      "istio-envoy"
+    ],
+    "trace-id": [
+      "9e72921c536a26a123c5aaa33dcdcb4b"
+    ],
+    "Date": [
+      "Sun, 04 Oct 2026 10:06:48 GMT"
+    ],
+    "Vary": [
+      "Accept-Encoding"
+    ],
+    "x-varnish": [
+      "56787083"
+    ],
+    "Accept-Ranges": [
+      "bytes"
+    ],
+    "x-varnish-cache": [
+      "miss"
+    ],
+    "req-cost-time": [
+      "31"
+    ],
+    "req-arrive-time": [
+      "1791108408874"
+    ],
+    "resp-start-time": [
+      "1791108408906"
+    ],
+    "x-envoy-upstream-service-time": [
+      "31"
+    ],
+    "Set-Cookie": [
+      "acw_tc=18a9a98f17911084088747692e260079022dc5139bcd67d4701672a7b5c78f;path=/;HttpOnly;Max-Age=1800"
+    ],
+    "X-Cache-Lookup": [
+      "Cache Miss",
+      "Hit From Upstream Cluster",
+      "Cache Miss"
+    ],
+    "Age": [
+      "0"
+    ],
+    "Transfer-Encoding": [
+      "chunked"
+    ],
+    "X-NWS-LOG-UUID": [
+      "4167105953983763562"
+    ],
+    "Connection": [
+      "keep-alive"
+    ],
+    "Content-Type": [
+      "text/html"
+    ]
+  },
+  "advertisedSource": "Real official URL returned by bounded official-domain search01",
+  "execution": "Raw byte GET only; no JavaScript, media, API guesses or HTTP retries"
+}
