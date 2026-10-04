@@ -11642,6 +11642,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-wu-guo-tai",
+      "characterName": "界吴国太",
+      "defaultSkinId": "64000",
+      "skins": [
+        {
+          "id": "64000",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/640",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/64000.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-wu-guo-tai.png",
+          "sha256": "25b70f67046779a63fb2fafe0197852608d8e76b0bfc271ff8ee14c9696e242a",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

@@ -407,6 +407,7 @@ public enum SkillProgramEffectOp
     ClaimCurrentUsePhysicalCards = 3200, PreventCurrentTargetSlashCancellationByRule = 3201,
     DiscardBoundCardForTurnSlashBenefits = 3400, ScheduleFirstRoundGameUsageRefund = 3401,
     PreventCurrentDamageAndDrawMultiple = 4000, RequestLegalSlashByNearest = 4002, OfferUnlimitedVirtualSlash = 4003,
+    SelectEquipmentPairAndPayment = 5500, SelectDyingOwnedCard = 5501,
     DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
     ReceiveOwnerDamage = 4100, ConsumeDistinctTurnTarget = 4101, DrawOwnerAtAppliedDamage = 4102,
     GiveBoundCardThenOfferVirtualSlashOrSharedDraw = 5100
@@ -2487,6 +2488,11 @@ public sealed class SkillProgramCatalog
         if (effects.Count == 0) Fail(path + ".effects", "must contain at least one effect");
         if (effects.Any(e => e.Op == SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund) && usesPerGame != 1)
             Fail(path, "a first-round refund requires usesPerGame:1");
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.SelectEquipmentPairAndPayment) &&
+            (minCards != 0 || maxCards != 0 || minTargets != 0 || maxTargets != 0 || usesPerPhase != 1 ||
+             uses is not null || usesPerGame is not null || targetKind != SkillProgramTargetKind.AnyLiving ||
+             node.TryGetProperty("continueAfterOwnerDeath", out var pairDeath) && pairDeath.GetBoolean()))
+            Fail(path, "a paid equipment pair requires one use per phase, zero initial cards/targets and normal source lifetime");
         if (effects.Any(PaidHpLossProgram.IsOperation) && (usesPerGame != 1 || minCards != 0 || maxCards != 0 || minTargets != 0 || maxTargets != 0))
             Fail(path, "Paid HP loss requires a limited one-use zero-card zero-target activation.");
         SkillProgramCardCountExpression? cardCountExpression = node.TryGetProperty("cardCountExpression", out _)
@@ -3419,6 +3425,7 @@ public sealed class SkillProgramCatalog
         FrozenFactionRecoveryComposition.Validate(path, effects, window, subject, usageScope, usageLimit);
         AlternativePhaseCostCompositionContract.Validate(path, effects, window, subject, turnOwnerScope);
         TurnDrawDebtComposition.Validate(path, effects, window, subject, optional, drawPhaseMode, turnOwnerScope);
+        EquipmentPairDyingCardComposition.Validate(path, effects, window, subject);
         ProgramCompositionValidator.Validate(path, effects, initialSelectedTarget: deferredOnly, window: window, drawPhaseMode: drawPhaseMode, cardActionRelation: ownerRelation, cardKinds: cardKinds, turnOwnerScope: turnOwnerScope);
         if (node.TryGetProperty("onlyDesignatedCardTargets", out _) && ownerRelation != SkillProgramCardActionOwnerRelation.Target) Fail(path + ".onlyDesignatedCardTargets", "requires a target-owner card trigger");
         if (effects.Any(e => e.Op == SkillProgramEffectOp.ResolveDiscardBudgetParticipants) &&

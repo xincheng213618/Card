@@ -290,7 +290,9 @@ public sealed partial class GameEngine
         _options = options;
         _contentRegistry = contentRegistry;
         _hasForeignDiscardCapability = contentRegistry.Skills.Values.Any(skill =>
-            skill.Program?.CardPolicies.Any(policy => policy.Kind == SkillProgramCardPolicyKind.PreventForeignEquipmentDiscard) == true);
+            skill.Program?.CardPolicies.Any(policy => policy.Kind == SkillProgramCardPolicyKind.PreventForeignEquipmentDiscard) == true) ||
+            contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.SelectEquipmentPairAndPayment) ||
+            contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.SelectDyingOwnedCard);
         var requiredProgramRulesVersion = contentRegistry.Skills.Values
             .Where(skill => skill.Program is not null)
             .Select(skill => skill.Program!.MinimumRulesVersion)
@@ -17790,6 +17792,7 @@ public sealed partial class GameEngine
                         HpChangedTriggerWindowFrame or CardsMovedTriggerWindowFrame);
                 if (!topMatchesDying && !topMatchesDyingProgram && !topMatchesDyingCardWindow &&
                     !nestedResponseUseOnDying && !nestedDyingEntry && !IsExactOtherDyingRecoveryRide(dyingContinuation.FrameId) &&
+                    !IsExactDyingOwnedCardRide(dyingContinuation.FrameId) &&
                     !(dyingFrameIndex >= 0 && IsRoundPricedPileAlcoholRide(dyingFrameIndex, (DyingFrame)_resolutionStack[dyingFrameIndex])))
                 {
                     var top = _resolutionStack.LastOrDefault();

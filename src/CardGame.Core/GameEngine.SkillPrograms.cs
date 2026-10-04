@@ -57,7 +57,7 @@ public sealed partial class GameEngine
                 if(features.HasOperation(SkillProgramEffectOp.DiscardDistinctFactionParticipants) && !HasPayableDistinctFactionOwnerHe(owner.Seat,program.Id,GetRuntimeSkillInstanceId(owner,program.Id)))continue;
                 var requiredCards = GetProgramActivationMinimumCards(owner.Seat, program.Id, activation);
                 if (features.HasOperation(SkillProgramEffectOp.UseVirtualAlcohol) && !CanStartProvenanceAlcohol(owner)) continue;
-                if (!CanActivateDiamondDelayed(owner, activation, program.Id) || !CanActivateConvertingGift(owner, program.Id, features) || !CanActivatePublicPileColor(owner,program.Id,features) || !CanActivatePublicPileFlow(owner, features) || !CanPayEquipmentSlotGroup(owner, activation) || !CanActivateHandComparison(owner, activation) || !activation.Condition.Evaluate(context) || !CanPayProgramMarkerCost(owner, activation.MarkerCost) ||
+                if (!CanActivateEquipmentPairPayment(owner, program.Id, features) || !CanActivateDiamondDelayed(owner, activation, program.Id) || !CanActivateConvertingGift(owner, program.Id, features) || !CanActivatePublicPileColor(owner,program.Id,features) || !CanActivatePublicPileFlow(owner, features) || !CanPayEquipmentSlotGroup(owner, activation) || !CanActivateHandComparison(owner, activation) || !activation.Condition.Evaluate(context) || !CanPayProgramMarkerCost(owner, activation.MarkerCost) ||
                     activation.UsesPerTurn is { } limit &&
                     _programUses.GetValueOrDefault((owner.Seat, program.Id, activation.UsageGroup)) >= limit ||
                     HandComparisonPhaseLimit(owner, program, activation) is { } phaseLimit &&
@@ -827,6 +827,8 @@ public sealed partial class GameEngine
             AssertExactRepeatedJudgmentReceipt(frame, plan.Instructions);
             AssertTurnDrawDebtReceipts(frame, plan.Instructions);
             AssertSourceFactionPrevention(frame);
+            AssertEquipmentPairPayment(frame);
+            AssertDyingOwnedCardReceipt(frame);
             if (frame.InstructionIndex < 1 || frame.InstructionIndex > plan.Instructions.Count ||
                 frame.SelectedCardIds.Distinct().Count() != frame.SelectedCardIds.Count ||
                 frame.SelectedTargetSeats.Any(seat => !IsValidPlayerSeat(seat)) ||
@@ -836,7 +838,7 @@ public sealed partial class GameEngine
                     binding.SelectionActorSeat is { } selectionActor &&
                     (!HasForeignDiscardCapability || !IsValidPlayerSeat(selectionActor) ||
                      !plan.Instructions.Take(frame.InstructionIndex).Any(e => e.ResultBind == binding.Name &&
-                        e.Op is SkillProgramEffectOp.SelectOwnedCards or SkillProgramEffectOp.SelectSourceCard or SkillProgramEffectOp.SelectCardSubset or SkillProgramEffectOp.FilterBoundCards or SkillProgramEffectOp.SelectTurnDamageUseDebtPayment)) ||
+                        e.Op is SkillProgramEffectOp.SelectOwnedCards or SkillProgramEffectOp.SelectSourceCard or SkillProgramEffectOp.SelectCardSubset or SkillProgramEffectOp.FilterBoundCards or SkillProgramEffectOp.SelectTurnDamageUseDebtPayment or SkillProgramEffectOp.SelectEquipmentPairAndPayment or SkillProgramEffectOp.SelectDyingOwnedCard)) ||
                     binding.CardIds.Count != binding.SourceLocations.Count ||
                     binding.CardIds.Distinct().Count() != binding.CardIds.Count ||
                     plan.Instructions.Any(instruction => instruction is { FreezeMovedCardSuit: true } frozen && frozen.ResultBind == binding.Name) &&

@@ -15,7 +15,18 @@ public sealed partial class GameEngine
     private SkillProgramStepOutcome ExchangeProgramSelectedTargetEquipment(ProgramSkillFrame frame)
     {
         var active = GetActiveProgramFrame(frame.Id);
-        if (active.SelectedTargetSeats.Count != 2 ||
+        if (active.EquipmentPairPayment is not null)
+        {
+            if (!CanResumePaidEquipmentPair(active))
+            {
+                CancelProgramBindingAndCleanup(active, "足额付款已完成，但原来源或交换对象已失效；保留真实成本。");
+                return SkillProgramStepOutcome.AwaitChild;
+            }
+            active = FreezePaidEquipmentExchangeStart(active);
+            if (active.SelectedTargetSeats.All(seat => GetEquipment(_players[seat]).Count == 0))
+                return SkillProgramStepOutcome.Continue;
+        }
+        else if (active.SelectedTargetSeats.Count != 2 ||
             !IsProgramEquipmentExchangePair(active.OwnerSeat, active.SelectedTargetSeats[0], active.SelectedTargetSeats[1]))
             throw new InvalidOperationException("Equipment exchange requires a current legal equipment pair.");
         var first = active.SelectedTargetSeats[0];

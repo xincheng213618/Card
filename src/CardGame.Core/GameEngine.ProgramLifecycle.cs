@@ -1820,6 +1820,7 @@ public sealed partial class GameEngine
         if (trigger is null || trigger.Window != context.Window || !CanPayProgramMarkerCost(owner, trigger.MarkerCost))
             return false;
         if (!CanRunTurnDrawDebtPayment(candidate, trigger, context) || !CanRunSourceFactionPrevention(candidate, trigger, context)) return false;
+        if (!CanRunDyingOwnedCard(candidate, trigger, context)) return false;
         if (!CanOfferOriginalTargetAddition(candidate, trigger, context)) return false;
         if (!CanRunProgramDyingAlcoholPolicy(trigger, context, candidate.OwnerSeat)) return false;
         if (!CanOfferRoundPileAlcohol(candidate, trigger, context) || !CanOfferCurrentSlashFire(candidate, trigger, context)) return false;
@@ -3103,6 +3104,8 @@ public sealed partial class GameEngine
         if (selected.Parameters.GetValueOrDefault("program-action")?.StartsWith("quota-top-", StringComparison.Ordinal) == true) { ResolveQuotaTopChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "named-turn-flow") { ResolveNamedTurnFlowChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "alternating-suit-top") { ResolveAlternatingSuitTopChoice(selected); return; }
+        if (selected.Parameters.GetValueOrDefault("program-action") == "equipment-pair-payment") { ResolveEquipmentPairPaymentChoice(selected); return; }
+        if (selected.Parameters.GetValueOrDefault("program-action") == "dying-owned-card") { ResolveDyingOwnedCardChoice(selected); return; }
         var action = selected.Parameters.GetValueOrDefault("program-action");
         if (action == "relative-zone-target") { ResolveRelativeZoneTarget(selected); return; }
         if (action == "deck-end-exchange") { ResolveDeckEndChoice(selected); return; }
@@ -4010,6 +4013,8 @@ public sealed partial class GameEngine
                     SelectAiProgramPhaseHandDiscardRestore(decision, frame),
                 SkillProgramEffectOp.ChooseOwnCardDiscard =>
                     SelectAiProgramOwnCardDiscard(decision, frame),
+                SkillProgramEffectOp.SelectEquipmentPairAndPayment => SelectAiEquipmentPairPayment(decision, frame),
+                SkillProgramEffectOp.SelectDyingOwnedCard => SelectAiDyingOwnedCard(decision),
                 SkillProgramEffectOp.SelectOwnedCards or SkillProgramEffectOp.ResolveDeferredHandAlignment or SkillProgramEffectOp.SelectTurnDamageUseDebtPayment => SelectAiProgramOwnedCards(decision, frame),
                 SkillProgramEffectOp.DrawThenDiscardHandToMaximumHp => decision.Choices[0],
                 SkillProgramEffectOp.HoldTargetCards => SelectAiProgramHoldCards(decision, frame),
@@ -4286,7 +4291,7 @@ public sealed partial class GameEngine
         ProgramSkillWindowContext? windowContext = null)
     {
         var effects = sourceEffects.ToArray();
-        if (effects.Any(effect => effect.Op == SkillProgramEffectOp.RecoverOtherDyingVictimTo) &&
+        if (effects.Any(effect => effect.Op is SkillProgramEffectOp.RecoverOtherDyingVictimTo or SkillProgramEffectOp.SelectDyingOwnedCard) &&
             windowContext is { Window: SkillProgramTriggerWindow.DyingEntering, TargetSeat: { } dyingVictim })
             publishedTargets = [dyingVictim];
         if (effects.Any(e => e.Op == SkillProgramEffectOp.ObtainDamageTargetCardAndResolveCategory) && windowContext?.TargetSeat is { } obtainTarget)

@@ -1,5 +1,5 @@
 {
-  "status": "two-static-integrated-one-agent-waiting-baseline-runtime-verification-deferred",
+  "status": "all-static-integrated-user-runtime-verification-deferred",
   "batch": 26,
   "baseCommit": "3e36e653",
   "userSteering": {
@@ -41,8 +41,9 @@
       "sourceSha256": "63ebbd951a00144754cc5fc515f8554d96e8dd597a67eec43ac286e31d14875a",
       "owner": "/root/next_batch_audit",
       "stage": ".artifacts/continuation-20261003-batch17/batch26/wu-guo-tai",
-      "mainRegistered": false,
-      "status": "owned-stage-implementation-in-progress"
+      "mainRegistered": true,
+      "status": "static-integrated-runtime-deferred",
+      "frozenManifestSha256": "d59a005e1a2c4f5b58e765ca97d6bcf7e7941803eb58fa638b116041b611d35b"
     }
   ],
   "runs": [],
@@ -111,12 +112,40 @@
         "scopeDataParsedWithoutExecuting": true
       },
       "documentation": "docs/content/skill-composition/FENG_LIN_TWENTY_SIXTH_CHENG_PU.md"
+    },
+    {
+      "gid": 640,
+      "baseCommit": "71407cae",
+      "newFiles": 10,
+      "newProductionFiles": 9,
+      "oldFiles": 9,
+      "allOldBaselinesRawMatched": true,
+      "allOldAppliedRawShaMatched": true,
+      "allOldAppliedNormalizedLfShaMatched": true,
+      "newRawShaMatched": true,
+      "patchSha256": "8bc21c3875636ec8abf7cf59993cb811f50e406913a83978e0efb705f340a48c",
+      "newChecks": 4,
+      "routinePrefixes": [
+        "boundary wu guo tai paid equipment pair"
+      ],
+      "checksExecuted": false,
+      "staticReview": {
+        "originalPairFullXCostFrozen": true,
+        "currentPairExchangeAfterChildren": true,
+        "opaqueForeignBasicSelectionNoPayment": true,
+        "nonBasicActualDiscardBeforeRecovery": true,
+        "original620RoundRidePreserved": true,
+        "exactMovementBatchNullReturnAssertionsRepaired": true,
+        "restoredEngineContinuesChildPausesInCheckSource": true,
+        "originalPngShaMatched": true,
+        "scopeDataParsedWithoutExecuting": true
+      },
+      "documentation": "docs/content/skill-composition/FENG_LIN_TWENTY_SIXTH_WU_GUO_TAI.md"
     }
   ],
   "media": "docs/content/sources/fenglin-twenty-sixth-art-2026-10-04.json",
   "runtimeAcceptance": false,
   "pending": [
-    "640 frozen NEW retained; final shared baseline and integration after committed 620",
     "User later combined build, focused runtime, Full and measured routine verification",
     "Offline and compiled raw art verification after waking"
   ],

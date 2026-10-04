@@ -124,6 +124,8 @@ public sealed record ProgramSkillFrame(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public CurrentSlashFireDraft? CurrentSlashFireDraft { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramTurnDrawDebtPayment? TurnDrawDebtPayment { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramSourceFactionPreventionReceipt? SourceFactionPrevention { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramEquipmentPairPaymentReceipt? EquipmentPairPayment { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramDyingOwnedCardReceipt? DyingOwnedCard { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramDiamondDelayedDraft? DiamondDelayed { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramShownGiftReceipt? ShownGiftReceipt { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public SharedSlashOfferReceipt? SharedSlashOffer { get; init; }

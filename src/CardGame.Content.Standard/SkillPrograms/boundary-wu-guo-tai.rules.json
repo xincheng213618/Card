@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:ganlu-current", "revision": 1,
+      "activations": [{
+        "id": "exchange-equipment", "minCards": 0, "maxCards": 0, "minTargets": 0, "maxTargets": 0,
+        "targetKind": "anyLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [
+          {"op":"selectEquipmentPairAndPayment","target":"owner","resultBind":"exchange-cost"},
+          {"op":"moveBoundCards","target":"owner","sourceBind":"exchange-cost","destination":"discardPile","awaitMovementTriggers":true},
+          {"op":"awaitBoundCardMovements","target":"owner"},
+          {"op":"exchangeSelectedTargetEquipment","target":"owner"}
+        ]
+      }]
+    },
+    {
+      "id":"boundary:buyi-current", "revision":1,
+      "triggers":[{
+        "id":"support-dying-card","window":"dyingEntering","subject":"any","optional":true,"priority":0,
+        "effects":[
+          {"op":"selectDyingOwnedCard","target":"owner","zones":["hand","equipment","judgment"],"resultBind":"non-basic"},
+          {"op":"moveBoundCards","target":"owner","sourceBind":"non-basic","destination":"discardPile","awaitMovementTriggers":true},
+          {"op":"awaitBoundCardMovements","target":"owner"},
+          {"op":"recover","target":"selectedTarget","amount":1,"condition":{"kind":"boundCardsMatchCategories","sourceBind":"non-basic","cardCategories":["trick","equipment"]}}
+        ]
+      }]
+    }
+  ]
+}
