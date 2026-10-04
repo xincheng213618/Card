@@ -1509,7 +1509,7 @@ public sealed class SkillProgramExecutor
             }
             if (!target.IsAlive && !(allowsDeadOwner && effect.Op is
                     (SkillProgramEffectOp.SelectTarget or SkillProgramEffectOp.SelectTargets or
-                     SkillProgramEffectOp.LoseDeathSourceSkills or SkillProgramEffectOp.DamageParticipants or SkillProgramEffectOp.LoseHpParticipants)))
+                     SkillProgramEffectOp.LoseDeathSourceSkills or SkillProgramEffectOp.DamageParticipants or SkillProgramEffectOp.LoseHpParticipants or SkillProgramEffectOp.SelectIssuedFixedRecipient)))
             {
                 if (effect.Op is SkillProgramEffectOp.ChooseOption or SkillProgramEffectOp.SelectOwnedCards)
                 {

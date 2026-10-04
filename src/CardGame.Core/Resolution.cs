@@ -344,6 +344,9 @@ public sealed record ProgramSkillFrame(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPhaseHandExchangeReceipt? PhaseHandExchange { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPhaseHandDebtPayment? PhaseHandDebtPayment { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramHalfHandSupportPayment? HalfHandSupport { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPairObtainDraft? PairObtain { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramShownPairGiftReceipt? ShownPairGift { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramFixedRecipientReceipt? FixedRecipient { get; init; }
     public bool ReexecuteParticipantInstruction { get; init; }
 }
 

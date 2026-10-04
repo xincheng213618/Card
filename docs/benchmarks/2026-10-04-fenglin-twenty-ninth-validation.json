@@ -1,5 +1,5 @@
 {
-  "status": "one-static-integrated-two-owned-stage-runtime-deferred",
+  "status": "two-static-integrated-one-owned-stage-runtime-deferred",
   "batch": 29,
   "baseCommit": "2e805f43",
   "userSteering": {
@@ -39,8 +39,8 @@
       "name": "界步练师",
       "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-775-source-2026-10-04.json",
       "sourceSha256": "76212903e4e86c42fe8f9f14b2e9108b706514164b81a8e6698d562cb179bbab",
-      "mainRegistered": false,
-      "status": "owned-stage-contract-and-new-development",
+      "mainRegistered": true,
+      "status": "static-main-integrated-user-runtime-verification-deferred-known-death-nesting-limit",
       "owner": "/root/next_batch_audit",
       "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch29\\bu-lian-shi",
       "reservedCapacity": "6300-6399",
@@ -108,11 +108,61 @@
         "Native paid Gain Damage -> Dying self-response is drafted; physical/multi-material Peach, bound Alcohol and virtual Alcohol are static proof reuse, not executed",
         "Source-equipment removal, paid source loss, arbitrary content/observer combinations and full/routine integration await unified verification"
       ]
+    },
+    {
+      "gid": 775,
+      "name": "界步练师",
+      "integratedAtUtc": "2026-10-04T05:44:35.7743144Z",
+      "baselineCommit": "7e0814da",
+      "manifest": "delivery-manifest.json",
+      "manifestSha256": "821e685877dc43d76480a67e8da23c599f4dac2adb021908e7c22bc7ebaf2ec2",
+      "patch": "shared-wiring.patch",
+      "patchSha256": "2088ec13f1129223d5b4a36703e4ed832693c0367d431b3faad6f2f22115df31",
+      "sourceSha256": "76212903e4e86c42fe8f9f14b2e9108b706514164b81a8e6698d562cb179bbab",
+      "newFiles": 10,
+      "oldFiles": 9,
+      "stageSupportFiles": 7,
+      "mainSupportFiles": 9,
+      "exactRawBeforeNewAndNormalizedAfterMatched": true,
+      "executorOriginalManifestLfIncludesBom": true,
+      "executorBomFreeLfAfter": "ff902c3a591dfde07866a7e0cabc537fe3e0128c4283324f50537057dee8476f",
+      "followup": {
+        "path": "docs/content/sources/fenglin-twenty-ninth-775-static-followup-2026-10-04.json",
+        "rawSha256": "2cbce5f2cd5b168c81e2c61c7fd41964a632741aa60b5532e2f590f8cfd9419d",
+        "originalFrozenChanged": false,
+        "presentationCorrectedRawSha256": "686bbd685c4ad22f32056beb5f1c4498ea2e274e13ed84355df0b62c057c862c",
+        "semanticDescriptionsChanged": false
+      },
+      "registeredChecks": [
+        "boundary bu lian shi ordered opaque pair gift and reward",
+        "boundary bu lian shi self hand equipment recovery and source loss",
+        "boundary bu lian shi ending issued recipient death repeat and cold",
+        "boundary bu lian shi unissued or dead recipient cancels death repeat"
+      ],
+      "routinePrefix": "boundary bu lian shi ordered opaque pair gift",
+      "noPrivateHandIdentityInNewPublicFacts": true,
+      "selfHandSelectionNoMovement": true,
+      "originalDeathRecipientOnly": true,
+      "knownUnsupportedCombinations": [
+        "OwnerDied fixed-recipient benefit observer issuing new Damage or new Dying: mature BeginProgramSkillDamage, BeginProgramSkillDying and CompleteProgramAttack reject residual ActiveDying. Requires dedicated exact Death/Dying suspension/return; no generic relaxation or swallowed trigger in this delivery."
+      ],
+      "originalArtSha256": "88df186050ed556c59fe3ac44a0fa55a586fc24a42d2e0bebcab8df5f8140d48",
+      "buildsRun": false,
+      "productionLoaderExecuted": false,
+      "checksRun": false,
+      "benchmarksRun": false,
+      "runtimeAcceptance": false,
+      "deferred": [
+        "All four small actual-command/four-view JSON cold continuation drafts are uncompiled, unloaded and unrun",
+        "Alive Anxu/initial Ending gain or HP children issuing Damage, AttackHpLoss or SelfDyingResponse are statically typed only",
+        "Silver Lion Jiuyuan RecoveryReplacement, zero Wine, material/pile alcohol rescue, nested equipment and winner cleanup combinations are statically typed only",
+        "All possible native active pair choices, current source equipment changes and national-war privacy combinations"
+      ]
     }
   ],
   "runtimeAcceptance": false,
   "pending": [
-    "563 integrated statically; 775 and 671 owned NEW in progress, final OLD remains root-serialized on exact committed baselines",
+    "563 and 775 integrated statically; 671 NEW in progress and receives next root-serialized final OLD window",
     "451 full current linked grants unverified; do not implement a partial general",
     "User later combined build, focused runtime, Full and measured routine verification"
   ],
@@ -133,7 +183,7 @@
   "media": {
     "record": "docs/content/sources/fenglin-twenty-ninth-art-2026-10-04.json",
     "rawCaptured": 3,
-    "installed": 1,
+    "installed": 2,
     "originalPngOnly": true,
     "sourceShaMatched": true,
     "fullOfflineCatalogRun": false,

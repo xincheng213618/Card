@@ -24,3 +24,5 @@
 后续实现已安排：563 由 `/root/sun_quan` 接续，容量 6200–6299；775 由 `/root/next_batch_audit` 接续，容量 6300–6399；671 由 `/root/pang_de` 接续，容量 6400–6499。各代理先冻结自己的第28批交付，再在第29批独占 stage 开始 NEW；最终 OLD 接线由主代理按稳定主基线依次通知。此安排不表示角色已经主登记、编译或通过运行检查。
 
 后续 563 已按冻结交付完成静态集成，直谏、固政、四个待运行 Core 方法、一个 routine 前缀及官方原始 PNG 均已登记。775 和 671 仍在独占 stage 开发；563 原代理已开始第30批 696。运行验收仍为 false，详细边界见 ZHANG_ZHAO_ZHANG_HONG_STATIC_REVIEW 和第29批 validation。
+
+后续 775 也已静态集成完整安恤、追忆、四个待运行 Core 方法、一个 routine 及原始 PNG。静态审阅补了 presentation 必填/允许字段，原冻结交付保留；另记清楚 BOM 散列口径及死亡收益嵌套 Damage/新 Dying 的已有机制限制。671 继续准备下一稳定主基线；775 原代理接续第30批 752。见 BU_LIAN_SHI_STATIC_REVIEW、独立 static-followup 与 validation，运行接受状态仍为 false。

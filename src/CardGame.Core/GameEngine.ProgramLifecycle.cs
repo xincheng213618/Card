@@ -611,7 +611,9 @@ public sealed partial class GameEngine
             _ => throw new InvalidOperationException(
                 $"Unsupported draw number expression '{numberExpression}'.")
         };
+        var fixedRecipientSequenceBefore = frame.FixedRecipient is null ? 0 : PairBenefitSequence;
         var drawn = DrawCards(target, drawCount, log: true, reason);
+        if (frame.FixedRecipient is not null) CaptureFixedRecipientDraw(frameId, targetSeat, reason, fixedRecipientSequenceBefore, drawn.Count);
         if (frame.WindowContext?.JudgmentReplacement is { } replacement)
         {
             var active = GetActiveProgramFrame(frameId);
@@ -1834,6 +1836,7 @@ public sealed partial class GameEngine
         if (!CanRunDyingOwnedCard(candidate, trigger, context)) return false;
         if (!CanRunPaidColorDamageClaim(candidate, trigger, context)) return false;
         if (!CanRunHalfHandPhaseDebt(candidate, trigger, context)) return false;
+        if (!CanRunFixedRecipientBenefit(candidate, trigger, context)) return false;
         if (!CanRunActualUseTarget(candidate, context)) return false;
         if (!CanOfferOriginalTargetAddition(candidate, trigger, context)) return false;
         if (!CanRunProgramDyingAlcoholPolicy(trigger, context, candidate.OwnerSeat)) return false;
@@ -3538,6 +3541,8 @@ public sealed partial class GameEngine
 
         switch (action)
         {
+            case "pair-obtain": ResolvePairObtainChoice(selected); return;
+            case "shown-pair-gift": ResolveShownPairGiftChoice(selected); return;
             case "equipment-donation":
                 ResolveEquipmentDonationChoice(frame, selected);
                 return;
@@ -4054,6 +4059,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.OfferFaceUpForOutsideClaims => decision.Choices[0],
                 SkillProgramEffectOp.ChooseOption => SelectAiProgramOption(decision, frame),
                 SkillProgramEffectOp.OfferHalfHandRecipientSupport => SelectAiHalfHandSupport(decision, frame),
+                SkillProgramEffectOp.ObtainOneFromEachSelectedTarget or SkillProgramEffectOp.GiveShownCardToLeastOriginalTarget => SelectAiPairBenefit(decision, frame),
                 SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected =>
                     SelectAiSequentialDiscard(decision, frame),
                 SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamage =>
@@ -4350,6 +4356,7 @@ public sealed partial class GameEngine
         ProgramSkillWindowContext? windowContext = null)
     {
         var effects = sourceEffects.ToArray();
+        publishedTargets ??= PublishedFixedRecipientForAi(owner, effects, windowContext);
         if (effects.Any(effect => effect.Op is SkillProgramEffectOp.RecoverOtherDyingVictimTo or SkillProgramEffectOp.SelectDyingOwnedCard) &&
             windowContext is { Window: SkillProgramTriggerWindow.DyingEntering, TargetSeat: { } dyingVictim })
             publishedTargets = [dyingVictim];

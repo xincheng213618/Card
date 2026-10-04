@@ -413,6 +413,8 @@ public enum SkillProgramEffectOp
     SelectEquipmentPairAndPayment = 5500, SelectDyingOwnedCard = 5501,
     DrawExtraAndArmHalfHandSupport = 6000, GiveHalfHandAndIssueTargetSupport = 6001,
     ExchangeHandsAndArmPhaseDebt = 6002, SelectFrozenHandExchangeDebtPayment = 6003, OfferHalfHandRecipientSupport = 6004,
+    ObtainOneFromEachSelectedTarget = 6300, GiveShownCardToLeastOriginalTarget = 6301,
+    IssueFixedRecipientBenefit = 6302, SelectIssuedFixedRecipient = 6303,
     ChooseCategoryOrSequentialDiscard = 5700, EscalatingDiscardOrDamageFromSelected = 5701,
     DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
     ReceiveOwnerDamage = 4100, ConsumeDistinctTurnTarget = 4101, DrawOwnerAtAppliedDamage = 4102,
@@ -2526,6 +2528,11 @@ public sealed class SkillProgramCatalog
              usesPerPhase != 1 || uses is not null || usesPerGame is not null ||
              node.TryGetProperty("continueAfterOwnerDeath", out var phaseExchangeDeath) && phaseExchangeDeath.GetBoolean()))
             Fail(path, "a deferred hand exchange requires a zero-card original other pair and one actual Play-phase usage");
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.ObtainOneFromEachSelectedTarget) &&
+            (minCards != 0 || maxCards != 0 || minTargets != 2 || maxTargets != 2 || targetKind != SkillProgramTargetKind.LivingPairDistinct ||
+             usesPerPhase != 1 || uses is not null || usesPerGame is not null ||
+             node.TryGetProperty("continueAfterOwnerDeath", out var pairObtainAfterDeath) && pairObtainAfterDeath.GetBoolean()))
+            Fail(path, "ordered pair obtain requires two original living targets, zero cards and one actual Play-phase usage");
         if (effects.Any(PaidHpLossProgram.IsOperation) && (usesPerGame != 1 || minCards != 0 || maxCards != 0 || minTargets != 0 || maxTargets != 0))
             Fail(path, "Paid HP loss requires a limited one-use zero-card zero-target activation.");
         SkillProgramCardCountExpression? cardCountExpression = node.TryGetProperty("cardCountExpression", out _)
@@ -3504,7 +3511,7 @@ public sealed class SkillProgramCatalog
         if (requireDamageSource is not null &&
             (window != SkillProgramTriggerWindow.AfterDamageApplied || subject != SkillProgramTriggerSubject.Owner))
             Fail(path + ".requireDamageSource", "requires an afterDamageApplied owner trigger");
-        return new SkillProgramTrigger(id, window, sourceSkillId, sourceViewAsId, subject, suits,
+        var parsedTrigger = new SkillProgramTrigger(id, window, sourceSkillId, sourceViewAsId, subject, suits,
             minimumRank, maximumRank, excludedReasons, judgmentReasons, judgmentSource,
             cardKinds, sourceZones, movementOccurrence, damageOccurrence, drawPhaseMode, optional,
             condition, effects, priority, usageScope, usageLimit, choiceGroup, ownerRelation,
@@ -3529,6 +3536,8 @@ public sealed class SkillProgramCatalog
             HpChangeOccurrence = hpChangeOccurrence,
             MarkerCost = ParseMarkerCost(node, path)
         };
+        PairObtainFixedRecipientComposition.ValidateTrigger(path, parsedTrigger);
+        return parsedTrigger;
     }
 
     private static SkillProgramMarkerCost? ParseMarkerCost(JsonElement node, string path)

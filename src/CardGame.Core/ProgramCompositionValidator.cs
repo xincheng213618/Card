@@ -25,6 +25,7 @@ internal static class ProgramCompositionValidator
         TurnDrawDebtComposition.Validate(path, effects, window, drawMode: drawPhaseMode, turnOwnerScope: turnOwnerScope);
         SequentialDiscardComposition.Validate(path, effects, window, selectedCardCount, initialSelectedTarget,
             initialTargetSetMaximum, activationSourceZones, activationCardCategories);
+        PairObtainFixedRecipientComposition.Validate(path, effects, window, selectedCardCount, initialSelectedTarget, initialTargetSetMaximum);
         HalfHandPhaseDebtComposition.Validate(path, effects, window, selectedCardCount, initialTargetSetMaximum, turnOwnerScope);
         EquipmentPairDyingCardComposition.Validate(path, effects, window);
         GrantNextActualUseTargetAdjustmentDescriptor.ValidateComposition(path, effects, window, selectedCardCount,

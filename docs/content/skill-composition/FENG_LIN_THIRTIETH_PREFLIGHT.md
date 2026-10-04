@@ -17,3 +17,5 @@
 三张官方原始 PNG 已各读取一次 HTTP200，均为750×950，原字节和精确来源 SHA 另存第30批 art 记录。图片仍在 owned stage，未复制到主线 Assets、登记 catalog 或进行离线全目录验收；source 记录中的 mediaDownloaded=false 保留其来源捕获时快照。
 
 后续分配：563 冻结后，`/root/sun_quan` 已在 `batch30/ma-dai` 开始 696 界马岱的完整马术、潜袭，容量 6500–6599。756、752 继续等待另外两位代理交付第29批；主线登记、编译及运行状态仍按 validation 单独记录，来源捕获时快照保留。
+
+775 冻结后，`/root/next_batch_audit` 已在 `batch30/xiahou-shi` 开始 752 界夏侯氏的完整樵拾、燕语，容量 6700–6799；756 继续等待 671 交付。两位已分配代理仅开发独占 stage 中的 NEW、合同和待运行草稿，最终 OLD 按主代理稳定窗口串行冻结。没有编译或运行 loader/检查。

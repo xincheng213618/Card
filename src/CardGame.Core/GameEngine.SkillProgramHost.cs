@@ -125,6 +125,7 @@ public sealed partial class GameEngine
             };
             var recovered = Math.Min(requested, target.MaxHp - target.Hp);
             if (recovered <= 0) return;
+            if (engine.GetActiveProgramFrame(frameId).FixedRecipient is not null) engine.CaptureFixedRecipientRecovery(frameId, ownerSeat, targetSeat, recovered);
             if (engine.TryQueueRecoveryReplacement(frameId, ownerSeat, targetSeat, recovered,
                 new(RecoveryAttemptProducer.Program, engine.GetActiveProgramFrame(frameId).InstructionIndex))) return;
             var recovery = engine.BeginRecovery(frameId, ownerSeat, targetSeat, recovered);

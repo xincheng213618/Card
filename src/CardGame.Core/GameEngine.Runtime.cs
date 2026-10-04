@@ -341,7 +341,7 @@ public sealed partial class GameEngine
             paidContext.OwnerSeat == paidDyingProgram.OwnerSeat &&
             (paidContext.Window == SkillProgramTriggerWindow.DyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.ResponderSeat ||
              paidContext.Window == SkillProgramTriggerWindow.SelfDyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.VictimSeat) &&
-            (IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying()))
+            (IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsPairBenefitProgramDying()))
         {
             AdvanceRuntimeProgram(paidDyingProgram.Id);
             AdvanceRulesAndPublishState();
@@ -772,6 +772,7 @@ public sealed partial class GameEngine
             return;
         }
         if (TryReturnSequentialDiscardMovement(frame)) return;
+        if (TryReturnPairBenefitMovement(frame)) return;
         var pending = frame.PendingMovementContinuation ??
             throw new InvalidOperationException("The movement continuation is missing.");
         ReplaceRuntimeTop(frame with { PendingMovementContinuation = null });

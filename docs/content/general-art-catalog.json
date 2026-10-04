@@ -11778,6 +11778,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-bu-lian-shi",
+      "characterName": "界步练师",
+      "defaultSkinId": "77500",
+      "skins": [
+        {
+          "id": "77500",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/775",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/77500.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-bu-lian-shi.png",
+          "sha256": "88df186050ed556c59fe3ac44a0fa55a586fc24a42d2e0bebcab8df5f8140d48",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }
