@@ -672,8 +672,8 @@ internal sealed class MoveBoundCardsProgramOperationDescriptor : ProgramOperatio
                 (CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or CardZoneKind.Chunlao))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.destinationZone: must be a persistent owner zone.");
         var awaitMovementTriggers = r.Has("awaitMovementTriggers") && r.RequiredBool("awaitMovementTriggers");
-        if (awaitMovementTriggers && destination is not (SkillProgramCardDestination.DiscardPile or SkillProgramCardDestination.DrawPileTop or SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.SelectedTargetHand))
-            throw new InvalidOperationException($"Invalid skill program at {r.Path}: awaited bound movement supports discardPile, drawPileTop, ownerHand or selectedTargetHand.");
+        if (awaitMovementTriggers && destination is not (SkillProgramCardDestination.DiscardPile or SkillProgramCardDestination.DrawPileTop or SkillProgramCardDestination.OwnerHand or SkillProgramCardDestination.SelectedTargetHand or SkillProgramCardDestination.OwnerPersistentZone))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}: awaited bound movement supports discardPile, drawPileTop, ownerHand, selectedTargetHand or a persistent owner zone.");
         var effect = new SkillProgramEffect(Op, target, 0, r.Condition(), sourceBind: source,
             exceptBind: except, destination: destination, destinationZone: destinationZone, awaitMovementTriggers: awaitMovementTriggers);
         // A named-choice branch may gate a discard, a gain into the owner's own
