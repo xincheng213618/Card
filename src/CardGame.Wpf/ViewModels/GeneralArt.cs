@@ -261,6 +261,8 @@ public static class GeneralArt
             ["zhu-huan"] = "official-zhu-huan.png",
             ["boundary-cao-cao"] = "official-boundary-cao-cao.png",
             ["boundary-zhang-liao"] = "official-boundary-zhang-liao.png",
+            // Current ordinary OL edition: docs/content/sources/boundary-guan-xing-zhang-bao-2026-10-04.json.
+            ["boundary-guan-xing-zhang-bao"] = "official-boundary-guan-xing-zhang-bao.png",
             ["sun-jian"] = "official-sun-jian.png",
             ["meng-huo"] = "official-meng-huo.png",
             ["zhu-rong"] = "official-zhu-rong.png",

@@ -86,7 +86,9 @@
         'Boundary Meng Huo zaiqi asks chosen participants in order',
         'Boundary Meng Huo zaiqi draw only at full owner',
         'Boundary Meng Huo zaiqi decline leaves everyone alone',
-        'Boundary Meng Huo zaiqi stays silent without red discards',
+        'Boundary Meng Huo zaiqi stays silent without red discards',,
+        'Boundary Guan Xing Zhang Bao converted slash response follows pair color',
+        'Boundary Guan Xing Zhang Bao turn skills expire with the turn'
         'Damage target mount paid children source lifetime',
         'Damage appearance Draw definitions physical colors cardless legacy',
         'Selected actor Duel actual Use and Nullification',

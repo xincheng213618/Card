@@ -1,0 +1,39 @@
+{
+  "generalId": "boundary:guan-xing-zhang-bao",
+  "characterName": "界关兴张苞",
+  "officialId": 690,
+  "sourcePage": "https://www.sanguosha.com/hero/690",
+  "capturedAt": "2026-10-04",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": { "gid": 690, "name": "界关兴张苞", "extend": "界限突破", "hp": 4, "figure": "蜀", "quality": "史诗" },
+  "artwork": {
+    "skinId": "69000",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/69000.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-boundary-guan-xing-zhang-bao.png",
+    "sha256": "fafe7a80094475d5e69da117a47cc69525094cce9e3e25274b1e2296568e4b2a",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "父魂",
+      "text": "你可将两张牌当【杀】使用或打出。你使用的转化【杀】目标角色只能使用颜色相同的手牌响应；你于出牌阶段使用【杀】造成伤害后，你本回合获得“武圣”“咆哮”。",
+      "programId": "boundary:fuhun-current",
+      "notes": [
+        "转化体（inputCount 2、outputKind slash、forPlay+forResponse）与激活体逐字复用已验收的 classic:fuhun 程序形状，仅换 boundary id。",
+        "界升级点一：新增引擎卡牌策略 convertedSlashSameColorResponseOnly（枚举 786）——当一次【杀】攻击的用牌来源是该技能实例时，目标响应用的【闪】必须与转化实体牌同色（实体牌全红要求红闪、全黑要求黑闪、红黑混合不施加单色限制）；在人类与 AI 两处闪避选择构建点按颜色过滤，解析门控要求恰为杀族 cardKinds 且无数值/花色附加。",
+        "界升级点二：afterDamageApplied（subject damageSource、perDamage、杀族 damageCardKinds、turnOwnerScope own）触发 grantTurnSkills 授予 classic:wusheng 与 classic:paoxiao——回合限授予走既有 GrantTurnSkills 机制，回合结束随 turn: 前缀授予清理。",
+        "官方文案“使用【杀】造成伤害”未限定转化【杀】，故授予触发不按 sourceSkillId 过滤，任何回合内以其为伤害来源的杀族伤害均满足。"
+      ]
+    }
+  ],
+  "apiInfo": { "hp": 4, "figure": "shu", "initial_hp": 0 },
+  "genderBasis": "官方无结构化性别字段；沿仓库同角色（关兴、张苞）男性惯例。",
+  "observations": [
+    "官方页 fetch 时间 2026-10-04，两次 HTTP 200（页面 + /api/v1/hero/info?gid=690）。",
+    "官方页仅列出父魂一个页签（界版单技能），无其他隐藏技能。",
+    "本批为单武将批次：界郭皇后（726）由并行批次认领（main 已见其修改权限档案），界于吉（449）的质疑交互流尚未有人认领；本批在独立 worktree（batch/guan-xing-zhang-bao）开发后合并回 main。",
+    "main 在本批开发期间（c0cf5dfe/cb0418e5）存在并行会话的半截快照提交（引用未提交的引擎成员），本批附带两处最小构建修复：GameEngine.PrepDiscardReceipts.cs 多余右括号、CardMovementPrograms.cs 一处未全限定 JsonIgnore 特性。"
+  ]
+}

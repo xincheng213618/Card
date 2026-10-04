@@ -11506,6 +11506,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-guan-xing-zhang-bao",
+      "characterName": "界关兴张苞",
+      "defaultSkinId": "69000",
+      "skins": [
+        {
+          "id": "69000",
+          "name": "默认皮肤",
+          "sourcePage": "https://www.sanguosha.com/hero/690",
+          "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/69000.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-guan-xing-zhang-bao.png",
+          "sha256": "fafe7a80094475d5e69da117a47cc69525094cce9e3e25274b1e2296568e4b2a",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

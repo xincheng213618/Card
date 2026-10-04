@@ -167,6 +167,7 @@ CURRENT_HEROES = {
     "boundary-dian-wei": (526, "界典韦"),
     "boundary-cai-wen-ji": (505, "界蔡文姬"),
     "boundary-zhang-chun-hua": (625, "界张春华"),
+    "boundary-guan-xing-zhang-bao": (690, "界关兴张苞"),
 }
 
 NEW_OFFICIAL_DEFAULTS = {"boundary-gan-ning", "boundary-xu-chu", "qu-yi", "shen-zhou-yu", "shen-lu-bu", "fu-huanghou"}

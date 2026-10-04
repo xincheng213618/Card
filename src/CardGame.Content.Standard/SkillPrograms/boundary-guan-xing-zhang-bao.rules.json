@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:fuhun-current",
+      "revision": 1,
+      "minimumRulesVersion": 193,
+      "modifiers": [],
+      "viewAs": [
+        {
+          "id": "two-hand-cards-as-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 2,
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": true,
+          "condition": { "kind": "always" }
+        }
+      ],
+      "activations": [
+        {
+          "id": "two-hand-cards-as-slash",
+          "minCards": 2,
+          "maxCards": 2,
+          "sourceZones": ["hand"],
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "condition": { "kind": "always" },
+          "effects": [
+            {
+              "op": "useSelectedCardsAs",
+              "target": "selectedTarget",
+              "sourceBind": "two-hand-cards-as-slash",
+              "outputKind": "slash"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "turn-skills-after-slash-damage",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "damageOccurrence": "perDamage",
+          "damageCardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "cardActionActorIsCurrentTurn" },
+              { "kind": "cardActionPhaseIsPlay" }
+            ]
+          },
+          "optional": false,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "grantTurnSkills",
+              "target": "owner",
+              "skillIds": ["classic:wusheng", "classic:paoxiao"]
+            }
+          ]
+        }
+      ],
+      "cardPolicies": [
+        {
+          "id": "same-color-response",
+          "kind": "convertedSlashSameColorResponseOnly",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    }
+  ]
+}

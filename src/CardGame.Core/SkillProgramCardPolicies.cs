@@ -52,6 +52,7 @@ public enum SkillProgramCardPolicyKind
     ForeignPublicPileSlash = 781,
     PindianClaim = 784,
     PindianClaimAllWhenSourceWins = 785,
+    ConvertedSlashSameColorResponseOnly = 786,
     IgnoreTurnObtainedHandCardsForDiscard = 1000
 }
 

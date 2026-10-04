@@ -7212,6 +7212,8 @@ public sealed partial class GameEngine
         }
 
         var dodges = GetResponseCards(target, CardKind.Dodge);
+        if (ConvertedSlashSameColorResponseColor(attack) is { } requireRed)
+            dodges = dodges.Where(card => IsRedSuit(EffectiveSuit(target, card)) == requireRed).ToList();
         var hasBagua = !ignoresArmor && HasBagua(target) && !HasIssuedPlayPhaseUseBan(target.Seat);
         var dodge = dodges.FirstOrDefault();
         var canRequestFactionDefense = CanRequestFactionDefense(target, attack);
@@ -10706,6 +10708,8 @@ public sealed partial class GameEngine
         SetCardUseStep(attack.ResolutionId, ResolutionFrameStep.ResolvingEffect);
         _pendingDecision = null;
         var dodges = GetResponseCards(target, CardKind.Dodge);
+        if (ConvertedSlashSameColorResponseColor(attack) is { } requireRed)
+            dodges = dodges.Where(card => IsRedSuit(EffectiveSuit(target, card)) == requireRed).ToList();
         var dodge = dodges.FirstOrDefault();
         var hasBagua = !attack.IgnoresArmor && HasBagua(target);
 
