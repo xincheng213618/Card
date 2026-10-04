@@ -1,0 +1,119 @@
+{
+  "status": "current-primary-source-only-not-implemented",
+  "gid": 671,
+  "currentApiIdentity": {
+    "name": "界伏皇后",
+    "faction": "qun",
+    "hp": 3,
+    "gender": null,
+    "initialHpApiPlaceholder": 0
+  },
+  "discovery": {
+    "path": ".artifacts/continuation-20261003-batch17/batch28/source-preflight/candidate-registration-preflight.json",
+    "rawSha256": "cfc3ff50973a4898a4ff01fba36718c91e372d58edd226b5f05c5d647d863a8c",
+    "purpose": "Cached ordinary OL candidate discovery only; current identity comes from these bounded primary page/API responses"
+  },
+  "webReader": {
+    "attempted": true,
+    "result": "Current primary page rendered with both full texts",
+    "retainedEvidence": "one direct bounded GET per exact page/API URL; no retries"
+  },
+  "page": {
+    "url": "https://www.sanguosha.com/hero/671",
+    "capturedAtUtc": "2026-10-04T03:25:24.8089158Z",
+    "completedAtUtc": "2026-10-04T03:25:25.0409363Z",
+    "httpStatus": 200,
+    "finalUrl": "https://www.sanguosha.com/hero/671",
+    "contentType": "text/html",
+    "rawBytes": 23876,
+    "rawSha256": "c712389af139fcf7e0501386b4d7b4c69905928406576a9b7a59b382542f5386",
+    "rawFile": "671-page.raw.html",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "skillHtml": "<p class=\"skill-text\">\n                        \n                            \n                                <span class=\"on\" >其他角色的回合开始时，若你已受伤，你可以与其拼点：若你赢，其本回合不能对除其以外的角色使用牌；若你没赢，你获得其拼点牌，然后其视为对你使用一张【杀】。</span>\n                            \n                                <span >当你成为【杀】或伤害锦囊的目标时，你可以令另一名其他角色选择一项：1.交给你一张与此牌同类型不同牌名的牌；2.成为此牌的额外目标。</span>\n                            \n                        \n                    </p>",
+    "skillNames": [
+      "惴恐",
+      "求援"
+    ],
+    "skillTexts": [
+      "其他角色的回合开始时，若你已受伤，你可以与其拼点：若你赢，其本回合不能对除其以外的角色使用牌；若你没赢，你获得其拼点牌，然后其视为对你使用一张【杀】。",
+      "当你成为【杀】或伤害锦囊的目标时，你可以令另一名其他角色选择一项：1.交给你一张与此牌同类型不同牌名的牌；2.成为此牌的额外目标。"
+    ],
+    "fontRefs": []
+  },
+  "api": {
+    "url": "https://www.sanguosha.com/api/v1/hero/info?gid=671",
+    "capturedAtUtc": "2026-10-04T03:25:25.0008855Z",
+    "completedAtUtc": "2026-10-04T03:25:25.3687626Z",
+    "httpStatus": 200,
+    "finalUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=671",
+    "contentType": "application/json",
+    "rawBytes": 824,
+    "rawSha256": "38848ded4011bf523e448604a8fbfecd6a65fe758bb4c6b9dbb11b9889f23f19",
+    "rawFile": "671-api.raw.json",
+    "directAttemptCount": 1,
+    "retryCount": 0,
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 671,
+            "name": "界伏皇后",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/671.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/67100.png",
+            "label": [
+              "防御",
+              "控制",
+              "简单"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "史诗",
+            "biography": "名寿，伏完之女，汉献帝皇后。曹操诛杀董氏外戚后恐惧，与伏完谋诛曹操，后因事泄被杀。",
+            "characteristic": "能够限制他人出牌，受到攻击时可以寻求他人的帮助或拖他下水",
+            "hp": 3,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "排位先手",
+            "value": 6
+          },
+          {
+            "name": "排位后手",
+            "value": 5
+          },
+          {
+            "name": "主公",
+            "value": 4
+          },
+          {
+            "name": "忠臣",
+            "value": 6
+          },
+          {
+            "name": "反贼",
+            "value": 6
+          }
+        ],
+        "deeds": []
+      }
+    }
+  },
+  "completeCurrentMainTexts": true,
+  "hasUnexpandedGrantedSkill": false,
+  "namedGrantedSkills": [],
+  "blockedReasons": [],
+  "advertisedScriptEvidence": null,
+  "genderEvidence": "Current API has no independent gender field; biography explicitly identifies the empress, without pretending this is an API gender field",
+  "initialHpInterpretation": "initial_hp=0 is not an assertion of starting at zero HP",
+  "implementationStarted": false,
+  "mediaDownloaded": false,
+  "buildsRun": false,
+  "loadersRun": false,
+  "testsRun": false
+}
