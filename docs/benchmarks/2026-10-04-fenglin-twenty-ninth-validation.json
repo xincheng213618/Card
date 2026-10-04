@@ -1,5 +1,5 @@
 {
-  "status": "three-complete-sources-unassigned-one-current-definition-gap",
+  "status": "three-complete-sources-assigned-after-owned-batch28-deliveries",
   "batch": 29,
   "baseCommit": "2e805f43",
   "userSteering": {
@@ -28,9 +28,11 @@
       "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-563-source-2026-10-04.json",
       "sourceSha256": "40e306cedc0c0dfec0fabacb8bffc9a0da88a3b744b850e729d4ce5d0728ad69",
       "mainRegistered": false,
-      "status": "source-only-not-assigned",
-      "owner": null,
-      "stage": null
+      "status": "assigned-new-after-prior-owned-delivery",
+      "owner": "/root/sun_quan",
+      "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch29\\zhang-zhao-zhang-hong",
+      "reservedCapacity": "6200-6299",
+      "assignmentRecordedAtUtc": "2026-10-04T03:35:07.4592989Z"
     },
     {
       "gid": 775,
@@ -38,9 +40,11 @@
       "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-775-source-2026-10-04.json",
       "sourceSha256": "76212903e4e86c42fe8f9f14b2e9108b706514164b81a8e6698d562cb179bbab",
       "mainRegistered": false,
-      "status": "source-only-not-assigned",
-      "owner": null,
-      "stage": null
+      "status": "assigned-new-after-prior-owned-delivery",
+      "owner": "/root/next_batch_audit",
+      "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch29\\bu-lian-shi",
+      "reservedCapacity": "6300-6399",
+      "assignmentRecordedAtUtc": "2026-10-04T03:35:07.4621605Z"
     },
     {
       "gid": 671,
@@ -48,16 +52,18 @@
       "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-671-source-2026-10-04.json",
       "sourceSha256": "1c004024c9b94b5e39f653a31d5e928406102e7e8efe576db102e2749b1dc247",
       "mainRegistered": false,
-      "status": "source-only-not-assigned",
-      "owner": null,
-      "stage": null
+      "status": "assigned-new-after-prior-owned-delivery",
+      "owner": "/root/pang_de",
+      "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch29\\fu-huang-hou",
+      "reservedCapacity": "6400-6499",
+      "assignmentRecordedAtUtc": "2026-10-04T03:35:07.4623277Z"
     }
   ],
   "runs": [],
   "integrations": [],
   "runtimeAcceptance": false,
   "pending": [
-    "563, 775 and 671 await available agents after batch28",
+    "563, 775 and 671 assigned; NEW begins after each agent freezes its own batch28 delivery; final OLD remains root-serialized",
     "451 full current linked grants unverified; do not implement a partial general",
     "User later combined build, focused runtime, Full and measured routine verification"
   ],
