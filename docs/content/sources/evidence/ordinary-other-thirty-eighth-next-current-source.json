@@ -1,0 +1,137 @@
+{
+  "baseHead": "fd1cc271a028bc549517e5d08baf185ae55894bb",
+  "status": "current-primary-text-captured; implementations-pending",
+  "httpRequests": 6,
+  "redirectsFollowed": false,
+  "retries": 0,
+  "endpointBinding": "Each current page explicitly derives gid from its observed pathname and advertises the info fetch URL; no numeric font IDs or guessed endpoints were probed.",
+  "candidateDiscoveryAuditSha256": "39b3bbb6d57866cd85c4e41a2f13857b26d26783019fcb43488eea09c9b6b444",
+  "retainedDirectorySha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+  "candidates": [
+    {
+      "gid": 109,
+      "name": "SP貂蝉",
+      "officialPageUrl": "https://www.sanguosha.com/hero/109",
+      "pageSha256": "b5f62ff2fdd1742a3f89861a264801bd6cf32357f5cbcb1ff4b6130beaa74425",
+      "infoSha256": "ed74457c7dab3ec4f39a453ab7072c01e1aa2be82c2ab985acb80c5f9a0108b8",
+      "productTitle": "三国杀SP貂蝉 - 三国杀OL-三国杀官网-武将技能介绍",
+      "hp": 3,
+      "initialHp": 0,
+      "directoryFaction": "群",
+      "directoryFactionAuthority": "retained official directory only; recheck the required metadata contract before implementation",
+      "genderFieldNotPublishedByInfoApi": true,
+      "advertisedOriginalCoverUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/10900.png",
+      "coverDownloaded": false,
+      "skills": [
+        {
+          "name": "离魂",
+          "officialText": "出牌阶段限一次，你可以弃置一张牌、翻面并获得一名男性角色的所有手牌。出牌阶段结束时，你交给其与其体力值等量张牌。"
+        },
+        {
+          "name": "闭月",
+          "officialText": "结束阶段，若你没有手牌，你可以摸两张牌，否则你可以摸一张牌。"
+        }
+      ],
+      "completeCurrentPageSkillTextCaptured": true,
+      "exactDerivedFontReferences": [],
+      "registeredByThisBatch": false,
+      "implementationStillRequired": [
+        "explicit mechanism contract",
+        "gender and other metadata authority review",
+        "portrait capture",
+        "implementation and focused behavior drafts"
+      ]
+    },
+    {
+      "gid": 110,
+      "name": "SP贾诩",
+      "officialPageUrl": "https://www.sanguosha.com/hero/110",
+      "pageSha256": "3147c1450f5126a3861d8ed24c3ab18bb82d37f1c38554723e764d4d6737d864",
+      "infoSha256": "f1ebf400f1bdad03f8e593fcf8bc1a1a77239f9bf7a4fc2a9fbcfde65b01b82e",
+      "productTitle": "三国杀SP贾诩 - 三国杀OL-三国杀官网-武将技能介绍",
+      "hp": 3,
+      "initialHp": 0,
+      "directoryFaction": "魏",
+      "directoryFactionAuthority": "retained official directory only; recheck the required metadata contract before implementation",
+      "genderFieldNotPublishedByInfoApi": true,
+      "advertisedOriginalCoverUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11000.png",
+      "coverDownloaded": false,
+      "skills": [
+        {
+          "name": "缜略",
+          "officialText": "锁定技，你的普通锦囊牌不能被抵消；你不能成为延时锦囊牌的目标。"
+        },
+        {
+          "name": "间书",
+          "officialText": "限定技，出牌阶段，你可以交给一名其他角色一张黑色手牌，并选择另一名角色，然后令两者拼点：赢的角色弃置两张牌，没赢的角色失去1点体力。"
+        },
+        {
+          "name": "拥嫡",
+          "officialText": "限定技，回合开始时，你可以令一名其他男性角色增加1点体力上限并回复1点体力，然后令其武将牌上的主公技生效。"
+        }
+      ],
+      "completeCurrentPageSkillTextCaptured": true,
+      "exactDerivedFontReferences": [],
+      "registeredByThisBatch": false,
+      "implementationStillRequired": [
+        "explicit mechanism contract",
+        "gender and other metadata authority review",
+        "portrait capture",
+        "implementation and focused behavior drafts"
+      ]
+    },
+    {
+      "gid": 119,
+      "name": "张宝",
+      "officialPageUrl": "https://www.sanguosha.com/hero/119",
+      "pageSha256": "ac8ffd1ad4eb498607e248ed7d6db815cc1561389a7bd526d293338ca5734881",
+      "infoSha256": "18093e6c76e8c1219b4934eed0e0b2fe5e280d23517c08fd058dc9398ac9c370",
+      "productTitle": "三国杀张宝 - 三国杀OL-三国杀官网-武将技能介绍",
+      "hp": 3,
+      "initialHp": 0,
+      "directoryFaction": "群",
+      "directoryFactionAuthority": "retained official directory only; recheck the required metadata contract before implementation",
+      "genderFieldNotPublishedByInfoApi": true,
+      "advertisedOriginalCoverUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/11900.png",
+      "coverDownloaded": false,
+      "skills": [
+        {
+          "name": "咒缚",
+          "officialText": "出牌阶段限一次，你可以将一张牌置于一名其他角色的武将牌上，称为“咒”。当有“咒”的角色判定时，将“咒”作为判定牌。每回合结束时，你令本回合失去过“咒”的角色各失去1点体力。"
+        },
+        {
+          "name": "影兵",
+          "officialText": "锁定技，有“咒”的角色使用与“咒”颜色相同的牌时，你摸一张牌；若这是你第二次因此“咒”摸牌，你获得此“咒”。"
+        }
+      ],
+      "completeCurrentPageSkillTextCaptured": true,
+      "exactDerivedFontReferences": [],
+      "registeredByThisBatch": false,
+      "implementationStillRequired": [
+        "explicit mechanism contract",
+        "gender and other metadata authority review",
+        "portrait capture",
+        "implementation and focused behavior drafts"
+      ]
+    }
+  ],
+  "heldSourceGaps": {
+    "116": [
+      985,
+      34,
+      363
+    ],
+    "117": [
+      382,
+      61
+    ]
+  },
+  "heldSourceGapDecision": "Exact referenced definitions and explicit version binding remain absent from the saved evidence; same-name classic or boundary variants are not replacements.",
+  "compiler": false,
+  "productionLoader": false,
+  "tests": false,
+  "game": false,
+  "nativeAi": false,
+  "publish": false,
+  "push": false
+}

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using CardGame.Content.Standard;
 using CardGame.Core;
 
@@ -315,14 +316,22 @@ internal static class BoundaryChenGongChecks
                     effects = suppressAfterUse ? new object[] { option }.Concat(suppress).ToArray() : [option] } } },
                 new { id = Pulse, revision = 1, triggers = new[] { new { id = "actual-rescue", window = "selfDyingResponse", subject = "owner", optional = false, usageScope = "game", usageLimit = 1,
                     effects = new object[] { option, new { op = "recoverTo", target = "owner", numberExpression = "integerConstant", minimumValue = 3, clampToMaxHp = true } } } } },
-                new { id = "fixture:cg-prevent", revision = 1, triggers = new[] { new { id = "prevent", window = "beforeDamage", subject = "damageTarget", optional = false,
+                new { id = "fixture:cg-prevent", revision = 1, triggers = new[] { new { id = "prevent", window = "beforeDamageApplied", subject = "damageTarget", optional = false,
                     effects = new object[] { new { op = "preventCurrentDamage", target = "owner" } } } } }
             };
             var presentations = new Dictionary<string, object>();
             foreach (var id in new[] { Driver, "fixture:cg-quiet", "fixture:cg-prevent" }) presentations[id] = new { name = id, description = "真实命令夹具" };
             foreach (var id in new[] { GiftGain, RewardGain, Hp, Completed, Pulse }) presentations[id] = new { name = id, description = "真实孩子暂停", optionLabels = new Dictionary<string, string> { ["continue"] = "继续" } };
             var json = new JsonSerializerOptions { DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull };
-            var catalog = SkillProgramCatalog.Load(JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.RulesSchemaVersion, skills }, json),
+            var rules = JsonNode.Parse(JsonSerializer.Serialize(new { schemaVersion = SkillProgramCatalog.RulesSchemaVersion, skills }, json))!;
+            var driver = rules["skills"]!.AsArray().Single(skill => skill!["id"]!.GetValue<string>() == Driver)!;
+            // Unlimited activations require an explicit null even when optional observer fields are omitted.
+            foreach (var activation in driver["activations"]!.AsArray())
+            {
+                var node = activation!.AsObject();
+                if (!node.ContainsKey("usesPerTurn")) node["usesPerTurn"] = null;
+            }
+            var catalog = SkillProgramCatalog.Load(rules.ToJsonString(),
                 JsonSerializer.Serialize(new { schemaVersion = 3, skills = presentations }));
             foreach (var id in catalog.Programs.Keys) b.AddSkill(new(id, id, "真实命令夹具") { Program = catalog.Programs[id], Tags = id == "fixture:cg-quiet" ? SkillTag.Locked : SkillTag.None });
             b.AddSkill(new("fixture:cg-pick-owner", "固定主公", "公开选将评分") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, role => role == Role.Lord ? 100000d : -100000d) });

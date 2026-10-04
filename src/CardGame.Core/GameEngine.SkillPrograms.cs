@@ -40,6 +40,27 @@ public sealed partial class GameEngine
         throw new InvalidOperationException(
             $"Player {player.Seat} does not own enabled skill program '{skillId}'.");
 
+    // Activation gates can read their current skill instance before a frame exists.
+    // Other frame-dependent conditions retain the original evaluator.
+    private bool EvaluateProgramActivationCondition(
+        SkillProgramCondition condition,
+        PlayerSkillContext context,
+        string skillId,
+        string skillInstanceId) => condition.Kind switch
+        {
+            SkillProgramConditionKind.BooleanState => condition.Evaluate(context,
+                static _ => throw new InvalidOperationException(
+                    "A Pindian condition requires a running program frame."),
+                stateId => GetProgramBooleanState(context.Seat, skillId, skillInstanceId, stateId)),
+            SkillProgramConditionKind.All => condition.Children.All(child =>
+                EvaluateProgramActivationCondition(child, context, skillId, skillInstanceId)),
+            SkillProgramConditionKind.Any => condition.Children.Any(child =>
+                EvaluateProgramActivationCondition(child, context, skillId, skillInstanceId)),
+            SkillProgramConditionKind.Not => !EvaluateProgramActivationCondition(
+                condition.Children[0], context, skillId, skillInstanceId),
+            _ => condition.Evaluate(context)
+        };
+
     private IEnumerable<LegalAction> BuildProgramActions(CharacterState owner)
     {
         if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Play) yield break;
@@ -64,7 +85,7 @@ public sealed partial class GameEngine
                 var requiredCards = GetProgramActivationMinimumCards(owner.Seat, program.Id, activation);
                 if (features.HasOperation(SkillProgramEffectOp.GiveAllHandAndStartRecipientPindian) && !CanStartRecipientContest(owner)) continue;
                 if (features.HasOperation(SkillProgramEffectOp.UseVirtualAlcohol) && !CanStartProvenanceAlcohol(owner)) continue;
-                if (!CanActivateEquipmentPairPayment(owner, program.Id, features) || !CanActivateDiamondDelayed(owner, activation, program.Id) || !CanActivateConvertingGift(owner, program.Id, features) || !CanActivatePublicPileColor(owner,program.Id,features) || !CanActivatePublicPileFlow(owner, features) || !CanPayEquipmentSlotGroup(owner, activation) || !CanActivateHandComparison(owner, activation) || !activation.Condition.Evaluate(context) || !CanPayProgramMarkerCost(owner, activation.MarkerCost) ||
+                if (!CanActivateEquipmentPairPayment(owner, program.Id, features) || !CanActivateDiamondDelayed(owner, activation, program.Id) || !CanActivateConvertingGift(owner, program.Id, features) || !CanActivatePublicPileColor(owner,program.Id,features) || !CanActivatePublicPileFlow(owner, features) || !CanPayEquipmentSlotGroup(owner, activation) || !CanActivateHandComparison(owner, activation) || !EvaluateProgramActivationCondition(activation.Condition, context, program.Id, GetRuntimeSkillInstanceId(owner, program.Id)) || !CanPayProgramMarkerCost(owner, activation.MarkerCost) ||
                     activation.UsesPerTurn is { } limit &&
                     _programUses.GetValueOrDefault((owner.Seat, program.Id, activation.UsageGroup)) >= limit ||
                     HandComparisonPhaseLimit(owner, program, activation) is { } phaseLimit &&

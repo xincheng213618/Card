@@ -1,0 +1,36 @@
+{
+  "baseHead": "fd1cc271a028bc549517e5d08baf185ae55894bb",
+  "scope": "Capture only the three previously advertised official hero pages and each page-advertised current info endpoint, for the next implementation batch.",
+  "candidateAuditSha256": "39b3bbb6d57866cd85c4e41a2f13857b26d26783019fcb43488eea09c9b6b444",
+  "candidates": [
+    {
+      "gid": 109,
+      "name": "SP貂蝉",
+      "url": "https://www.sanguosha.com/hero/109"
+    },
+    {
+      "gid": 110,
+      "name": "SP贾诩",
+      "url": "https://www.sanguosha.com/hero/110"
+    },
+    {
+      "gid": 119,
+      "name": "张宝",
+      "url": "https://www.sanguosha.com/hero/119"
+    }
+  ],
+  "maxHttpRequests": 6,
+  "maxResponseBytes": 2097152,
+  "timeoutPerRequestSeconds": 20,
+  "redirects": false,
+  "retries": 0,
+  "artRequests": false,
+  "compiler": false,
+  "productionLoader": false,
+  "tests": false,
+  "game": false,
+  "nativeAi": false,
+  "build": false,
+  "push": false,
+  "cleanupRetry": false
+}

@@ -44,7 +44,9 @@ public sealed record GameCheckpoint(
     // prefix and content hash can therefore choose different AI actions.
     // 195: Completed-card gift windows retain their exact program parent through
     // Qinglong follow-ups and the recipient's real reuse of the gifted entity.
-    public const int CurrentRulesVersion = 195;
+    // Activation BooleanState gates read their owning runtime instance; pair
+    // obtain/gift instructions resume their paid cursor instead of being rejected.
+    public const int CurrentRulesVersion = 196;
     // 187 was consumed by main-side Zhang He / Shen Zhao Yun work.
 
     public int RulesVersion { get; init; }

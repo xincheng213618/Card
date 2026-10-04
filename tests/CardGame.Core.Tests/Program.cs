@@ -37,6 +37,7 @@ if (unknownArguments.Length > 0)
 // Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("skill program activation BooleanState nested gates and current instance isolation", ProgramActivationBooleanStateChecks.NestedGatesUseTheCurrentOwnerSkillInstance),
     ("Damage judgment suit payment four suits and exact claims", BoundaryCaiWenJiChecks.DamageJudgmentBeforePaymentFourSuitsAndExactClaims),
     ("Damage judgment suit payment independent matches and foreign claim", BoundaryCaiWenJiChecks.IndependentSuitRankMatchesAndPreviouslyClaimedJudgment),
     ("Damage judgment suit payment declines source loss and legacy virtual Slash", BoundaryCaiWenJiChecks.OptionalDeclinesAndActualSourceLossKeepOriginalDamage),

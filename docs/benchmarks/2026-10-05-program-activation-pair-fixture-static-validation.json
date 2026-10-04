@@ -1,0 +1,296 @@
+{
+  "status": "source-reviewed-runtime-unverified",
+  "recordedUtc": "2026-10-04T20:49:02.031360+00:00",
+  "authorBaselineHead": "fd1cc271a028bc549517e5d08baf185ae55894bb",
+  "integrationParentHead": "bd52d6e23f91b87abc379d8ae1aace32b78b5a3a",
+  "concurrentCommitsPreserved": [
+    "bd52d6e23f91b87abc379d8ae1aace32b78b5a3a Add current OL Huang Zu; repair fd1cc271 compile gaps",
+    "8b051847d60af29ed7e75ce019d64535db5d2917 Add current OL Huang Zu"
+  ],
+  "concurrentPathCount": 22,
+  "historicalFailureContextHead": "1394b09f1fa76a766c6baa1694a9a415c6c2800f",
+  "historicalLogPerRunHeadExplicit": false,
+  "historicalExecutionAttribution": "Saved logs belong to another chat; no historical failure or success is current validation.",
+  "historicalLogInputs": [
+    {
+      "stagePath": ".artifacts/worktree-merge-20261005-01a10861/audit.json",
+      "sha256": "5cfc31e521250fdd458b29740d17fc4b9e76b8265593ab8890607227eeb28005"
+    },
+    {
+      "stagePath": ".artifacts/worktree-merge-20261005-01a10861/full-core.log",
+      "sha256": "095d2f3aaf21cd2d0a5956aea81a64d1c73059f06035a8b54aa1961a95c4209f"
+    },
+    {
+      "stagePath": ".artifacts/worktree-merge-20261005-01a10861/full-wpf.log",
+      "sha256": "0879e9549a420773fd89deb9a7f682cc20732ed655f55f9be1ade4b203fc2656"
+    }
+  ],
+  "fixes": [
+    {
+      "id": "PFA-01",
+      "change": "Evaluate activation BooleanState and nested All/Any/Not through the exact owner, skill and enabled runtime instance; other leaves keep their existing evaluator and frame-only exceptions."
+    },
+    {
+      "id": "PFA-02",
+      "change": "Allow the two existing ordered pair obtain/shown gift operations to resume their paid instruction; receipt, cursor, physical movement and typed-return guards are unchanged."
+    },
+    {
+      "id": "PFA-03",
+      "change": "Preserve optional null omission while restoring the two required unlimited activation keys and the supported beforeDamageApplied window in the Chen Gong fixture."
+    }
+  ],
+  "authorDeliveries": [
+    {
+      "stage": "activation-boolean-state",
+      "manifestSha256": "000cbbfce844c5a79f8457a53482170601890c7ec007fe9dbc34dbaf78563908"
+    },
+    {
+      "stage": "pair-reexecution",
+      "manifestSha256": "d1527f41bd8a411055872ee4a97e70aa69ceab3ae7977390e5fb783b000da756"
+    },
+    {
+      "stage": "chen-gong-fixture",
+      "manifestSha256": "c974d5ed7129f74de9ffbef01617ed452b6b2c67b1de772852e01e3e729c1d1e"
+    }
+  ],
+  "files": [
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.SkillPrograms.cs",
+      "beforeRawSha256": "9d6e939eeac2f2c368c8a05bd898f2c5d3669a50538d40065d68b8aa9fd5b7af",
+      "afterRawSha256": "26e9a5ecdbe57dd4efd771ec83e3311b4a51c0d4337567356883e7cdf2e3fab7",
+      "previewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch38\\activation-boolean-state\\preview\\src\\CardGame.Core\\GameEngine.SkillPrograms.cs",
+      "integrationParentBlob": "2c07eb849809a2b0bdc13cf57454d41841313344",
+      "canonicalAfterBlob": "2ded85bd9dbbc1a2a8bef630f0eda99f1ad07030"
+    },
+    {
+      "repoPath": "tests/CardGame.Core.Tests/ProgramActivationBooleanStateChecks.cs",
+      "beforeRawSha256": null,
+      "afterRawSha256": "fb61e72ebddb4bd99497759173f87f8aafaa63c8a46a3b83cbccd099be742926",
+      "previewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch38\\activation-boolean-state\\preview\\tests\\CardGame.Core.Tests\\ProgramActivationBooleanStateChecks.cs",
+      "canonicalAfterBlob": "fc11ad8df40c734bbda7219b5aca5cc779001b36"
+    },
+    {
+      "repoPath": "src/CardGame.Core/GameEngine.ParticipantAndReservePrograms.cs",
+      "beforeRawSha256": "3d986870bae68ebe66c44b3e7c827e0ef18c7200b788584773e4847c3300b0e0",
+      "afterRawSha256": "c86af7fd1dce884ca7f9841989ff396fbeb6dd35c33323ba7edf477be6663832",
+      "previewPath": "C:/Users/17917/Desktop/Card/.artifacts/continuation-20261003-batch17/batch38/pair-reexecution/preview/src/CardGame.Core/GameEngine.ParticipantAndReservePrograms.cs",
+      "integrationParentBlob": "d12b84fd82293b2bdb40cdc7d6961dfb61b68c8d",
+      "canonicalAfterBlob": "d1214a78180997b26997038fc03ba0396e52574e"
+    },
+    {
+      "repoPath": "tests/CardGame.Core.Tests/BoundaryChenGongChecks.cs",
+      "beforeRawSha256": "e430da5ddd7425017515335b0294fe2026376cb4a66fca6f6a6d94f970515199",
+      "afterRawSha256": "8373d8d9dfb27ce64a27041d76cdd9cced35e54b26d88875dde06fbcb64946c9",
+      "previewPath": "C:/Users/17917/Desktop/Card/.artifacts/continuation-20261003-batch17/batch38/chen-gong-fixture/preview/tests/CardGame.Core.Tests/BoundaryChenGongChecks.cs",
+      "integrationParentBlob": "e4b9706ae676cc91140a81088acc679768f94bb2",
+      "canonicalAfterBlob": "f9f7302e7c5e292c4b9f3361b86b1b2d3b261111"
+    },
+    {
+      "repoPath": "src/CardGame.Core/Replay.cs",
+      "beforeRawSha256": "83773c8192521c8202aa932201ff15efbed438212467508d95780ca83889f966",
+      "afterRawSha256": "2c1893ecf015dc590e5c49f9e23b16a4661ade77c6a5ae7479273fd0a32131c6",
+      "previewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch38\\root-integration\\preview\\src\\CardGame.Core\\Replay.cs",
+      "integrationParentBlob": "278a492a5ba9a67ba7ab60915a8f4890131acba3",
+      "canonicalAfterBlob": "36f2e458f0097aee1b6d076c2a464aa5f4e547a6"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-baseline.json",
+      "beforeRawSha256": null,
+      "afterRawSha256": "c7523f5cfe59d109c516fefb518441f5da932c4149fc6caae5c15fd17cf18ce2",
+      "previewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch38\\root-integration\\preview\\docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-baseline.json",
+      "canonicalAfterBlob": "b3ae61d84bb7b1b2dad18820988c8851090bb17c"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-request-ledger.json",
+      "beforeRawSha256": null,
+      "afterRawSha256": "db4f19eef5da20e2cc32662c07afb383340891efc85bc79f3e56a9028e3d9bd8",
+      "previewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch38\\root-integration\\preview\\docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-request-ledger.json",
+      "canonicalAfterBlob": "329b784f81fc258f3e33ec91c7542ded17836875"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-109-page.raw.html",
+      "beforeRawSha256": null,
+      "afterRawSha256": "b5f62ff2fdd1742a3f89861a264801bd6cf32357f5cbcb1ff4b6130beaa74425",
+      "previewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch38\\root-integration\\preview\\docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-109-page.raw.html",
+      "canonicalAfterBlob": "d02b5cfcf02f7a8b6a55eac15580c0352ca1b710"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-109-page.headers.txt",
+      "beforeRawSha256": null,
+      "afterRawSha256": "2bef988f230fb7b52345bbea8a339d16c8ed85d1df87d720bdca791e65bef14f",
+      "previewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch38\\root-integration\\preview\\docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-109-page.headers.txt",
+      "canonicalAfterBlob": "66a29a720383bec2aa2bf5eecff00be39e7e9dba"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-110-page.raw.html",
+      "beforeRawSha256": null,
+      "afterRawSha256": "3147c1450f5126a3861d8ed24c3ab18bb82d37f1c38554723e764d4d6737d864",
+      "previewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch38\\root-integration\\preview\\docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-110-page.raw.html",
+      "canonicalAfterBlob": "a2f6b1221ac772489df98a6ee898dbf851424423"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-110-page.headers.txt",
+      "beforeRawSha256": null,
+      "afterRawSha256": "63fb724fbb47da3327beacbc5c38558c6f98b3137f0c968946ad27990452f26a",
+      "previewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch38\\root-integration\\preview\\docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-110-page.headers.txt",
+      "canonicalAfterBlob": "2d97842f4de9848d1baffa966cb2434abcdbbca7"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-119-page.raw.html",
+      "beforeRawSha256": null,
+      "afterRawSha256": "ac8ffd1ad4eb498607e248ed7d6db815cc1561389a7bd526d293338ca5734881",
+      "previewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch38\\root-integration\\preview\\docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-119-page.raw.html",
+      "canonicalAfterBlob": "4f0f6171654dbfc9ecfd8fe91948e4626d63f3a6"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-119-page.headers.txt",
+      "beforeRawSha256": null,
+      "afterRawSha256": "7133a06f2779b850bc2c8e68ea1ad5814a812f28f5313d7a19df13c4be0cf83e",
+      "previewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch38\\root-integration\\preview\\docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-119-page.headers.txt",
+      "canonicalAfterBlob": "f0d253aafd8cfd937e82b4922eebe39ba7a69a3c"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-109-info.raw.json",
+      "beforeRawSha256": null,
+      "afterRawSha256": "ed74457c7dab3ec4f39a453ab7072c01e1aa2be82c2ab985acb80c5f9a0108b8",
+      "previewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch38\\root-integration\\preview\\docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-109-info.raw.json",
+      "canonicalAfterBlob": "5c3f7182f0c4f7dad151d96f474e8936f77c01f0"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-109-info.headers.txt",
+      "beforeRawSha256": null,
+      "afterRawSha256": "de4dcbfffcb3ad66f8490e652e22f98d697b0413a659670db56bbccfb7a587fe",
+      "previewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch38\\root-integration\\preview\\docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-109-info.headers.txt",
+      "canonicalAfterBlob": "4d53cba089caedf7e32f3c84659d9da75f63c128"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-110-info.raw.json",
+      "beforeRawSha256": null,
+      "afterRawSha256": "f1ebf400f1bdad03f8e593fcf8bc1a1a77239f9bf7a4fc2a9fbcfde65b01b82e",
+      "previewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch38\\root-integration\\preview\\docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-110-info.raw.json",
+      "canonicalAfterBlob": "0eda430343b60d7511af4cce6a95255e4279f37d"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-110-info.headers.txt",
+      "beforeRawSha256": null,
+      "afterRawSha256": "c425087574871e27a212ed40d4f0b71e037dcea5e86c352d11bfe3885b8df73b",
+      "previewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch38\\root-integration\\preview\\docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-110-info.headers.txt",
+      "canonicalAfterBlob": "a52dafe893d93f6dce5243464afd933e2dbbd853"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-119-info.raw.json",
+      "beforeRawSha256": null,
+      "afterRawSha256": "18093e6c76e8c1219b4934eed0e0b2fe5e280d23517c08fd058dc9398ac9c370",
+      "previewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch38\\root-integration\\preview\\docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-119-info.raw.json",
+      "canonicalAfterBlob": "e8918ff0f81a97d09c7394e5b8b8e58a2a00c9c3"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-119-info.headers.txt",
+      "beforeRawSha256": null,
+      "afterRawSha256": "7cf34372059c5758412b12b33582712dd51997a172bfaa4fee80ad01f7ea2b70",
+      "previewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch38\\root-integration\\preview\\docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-119-info.headers.txt",
+      "canonicalAfterBlob": "6c1e61b65895157d7b51b3c5d3e6842cb1b82b97"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-thirty-eighth-next-current-source.json",
+      "beforeRawSha256": null,
+      "afterRawSha256": "0c4103d3f036f49d46d4692bf1852ae9b06dd2feca023614fc305e4595b0ffe2",
+      "previewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch38\\root-integration\\preview\\docs\\content\\sources\\evidence\\ordinary-other-thirty-eighth-next-current-source.json",
+      "canonicalAfterBlob": "c13802cdde111a8f1fdfc0540dd3b0fd52731f33"
+    },
+    {
+      "repoPath": "tests/CardGame.Core.Tests/Program.cs",
+      "beforeRawSha256": "e8dba84eed196f8d76c17e1aa1a9c36ed12ecb738b71744fd31a0e444f364a1d",
+      "afterRawSha256": "dd9c95fc4fb6641714a65173b41aa6ccb0ba8581264401c55738b531a8ed9df7",
+      "previewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch38\\root-integration\\preview\\tests\\CardGame.Core.Tests\\Program.cs",
+      "integrationParentBlob": "cd099b8221020c8f3a5d97aba4163ed65bcb6287",
+      "canonicalAfterBlob": "405d144ec33d0763b79340d933ee248e04a02592"
+    }
+  ],
+  "newSharedDraftChecks": 1,
+  "sharedDraftName": "skill program activation BooleanState nested gates and current instance isolation",
+  "sharedDraftReplayedSegment": "Real command prefix before the direct host grant audit only.",
+  "existingChecksRetained": {
+    "jianYong": 4,
+    "pairObtainAndGift": 2,
+    "chenGong": 4
+  },
+  "existingChecksExecuted": false,
+  "rulesEpochDecision": {
+    "baseHead": "fd1cc271a028bc549517e5d08baf185ae55894bb",
+    "file": "src/CardGame.Core/Replay.cs",
+    "beforeSha256": "83773c8192521c8202aa932201ff15efbed438212467508d95780ca83889f966",
+    "afterSha256": "2c1893ecf015dc590e5c49f9e23b16a4661ade77c6a5ae7479273fd0a32131c6",
+    "priorRulesEpoch": 195,
+    "nextRulesEpoch": 196,
+    "reason": "The same content fingerprint now exposes the legitimate BooleanState-gated activation and accepts/resumes paid pair instructions; development checkpoints must reject the earlier engine semantics.",
+    "schemaAndPackageVersionsChanged": false,
+    "existingCompatibilityCoverage": "tests/CardGame.Core.Tests/Program.cs checks CurrentRulesVersion + 1 and - 1 without copying the current number.",
+    "compilationExecuted": false,
+    "testsExecuted": false
+  },
+  "skillJsonSchemaAndPackageVersionsChanged": false,
+  "protectedConcurrentPath": "src/CardGame.Core/GameEngine.PrepDiscardReceipts.cs",
+  "protectedConcurrentRawSha256": "d94c540e827ba6d70ba44ca65b0a02c41f77f12c4572fc7fa209444e1e7a8194",
+  "sourceCapture": {
+    "httpRequests": 6,
+    "pages": [
+      109,
+      110,
+      119
+    ],
+    "currentSkillTexts": 7,
+    "allResponses": "200",
+    "redirects": false,
+    "retries": 0,
+    "budgetRemaining": 0,
+    "registrationsAdded": 0,
+    "portraitCaptureAndMetadataInterpretationStillPending": true,
+    "derived116And117ExactDefinitionGapsRemain": true
+  },
+  "execution": {
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "focusedTests": false,
+    "routineTests": false,
+    "fullTests": false,
+    "wpfTests": false,
+    "game": false,
+    "nativeAi": false,
+    "ui": false,
+    "benchmark": false,
+    "release": false,
+    "publish": false,
+    "push": false
+  },
+  "routineSeconds": null,
+  "fullSeconds": null,
+  "limitations": [
+    "No C# compilation or runtime checks were performed at the user request.",
+    "Other saved failures were not adjudicated by these three source fixes.",
+    "Current source capture is groundwork; next candidate implementations are not included.",
+    "Automatic approval review previously rejected cleanup with blocked by policy; no retry or workaround was attempted."
+  ],
+  "staticVerification": {
+    "payloadRawHashesChecked": 21,
+    "jsonDocumentsParsed": 6,
+    "literalNamedRunnerTuplesBefore": 831,
+    "literalNamedRunnerTuplesAfter": 832,
+    "allPriorRunnerBytesPreservedByOneTupleInsertion": true,
+    "newSharedDraftMethods": 1,
+    "chenGongRetainedMethods": 4,
+    "existingRoutinePrefixMatchesNewSharedDraft": true,
+    "verificationScopesModified": false,
+    "requiredNullAndExistingOptionalNullPolicyPreserved": true,
+    "rulesEpochIncrementedOnce": true,
+    "schemaAndPackageSourcesModified": false,
+    "rootReadBothCompleteActivationDiffAndDraft": true,
+    "runtimeAcceptance": false,
+    "exactCachedScopeFiles": 23,
+    "cachedAuthoredWhitespaceCheckPassed": true,
+    "cachedFullWhitespaceCheckPassed": true,
+    "wireAndLocalRawHashesSeparateFromGitCanonicalBlobs": true,
+    "payloadCanonicalBlobsMatchStagedIndex": true
+  }
+}
