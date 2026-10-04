@@ -139,8 +139,8 @@ public sealed partial class GameEngine
             plan.Instructions[0] is { Op: SkillProgramEffectOp.UseSelectedCardsAs, OutputKind: CardKind.ArrowBarrage or CardKind.Peach } global ? global : null;
 
     private int NextActualUseProgramMaximum(CharacterState owner, ProgramExecutionPlan plan) =>
-        CurrentNextActualUseAdjustment(owner.Seat) is not null && NextActualUseSelectedProducer(plan) is not null
-            ? plan.Activation!.MaxTargets + 1 : plan.Activation!.MaxTargets;
+        HpLossSlashProgramMaximum(owner, plan, CurrentNextActualUseAdjustment(owner.Seat) is not null && NextActualUseSelectedProducer(plan) is not null
+            ? plan.Activation!.MaxTargets + 1 : plan.Activation!.MaxTargets);
 
     private IReadOnlyList<int> NextActualUseProgramTargets(CharacterState owner, ProgramExecutionPlan plan,
         IReadOnlyList<int> normal, IReadOnlyList<ProgramMultiCardViewAsSelection> selections) =>
@@ -160,6 +160,8 @@ public sealed partial class GameEngine
     {
         if (plan?.Activation is not { } activation || targets.Count <= activation.MaxTargets) return null;
         var owner = _players[_currentSeat];
+        if (HasHpLossSlashTargets(owner) && HpLossSlashProgramProducer(plan) is not null)
+            return ValidateHpLossSlashProgramSelection(action, plan, cards, targets);
         var effect = NextActualUseSelectedProducer(plan);
         var source = effect is null ? null : new CardConversionSource(action.ProgramSkillId!, effect.SourceBind!, owner.Seat,
             GetRuntimeSkillInstanceId(owner, action.ProgramSkillId!));
@@ -183,6 +185,7 @@ public sealed partial class GameEngine
         ProgramExecutionPlan plan, IReadOnlyList<int> targets)
     {
         if (targets.Count <= plan.Activation!.MaxTargets) return null;
+        if (HasHpLossSlashTargets(owner) && HpLossSlashProgramProducer(plan) is not null) return null;
         var grant = CurrentNextActualUseAdjustment(owner.Seat) ?? throw new InvalidOperationException("The selected new adjustment expired before its producer started.");
         var effect = NextActualUseSelectedProducer(plan) ?? throw new InvalidOperationException("The producer cannot adjust targets.");
         return effect.OutputKind switch
@@ -281,6 +284,7 @@ public sealed partial class GameEngine
     private CommandError? ValidateNextActualUseZhangba(CharacterState owner, IReadOnlyList<int> ids, IReadOnlyList<int> targets)
     {
         if (targets.Count <= 1) return null;
+        if (HasHpLossSlashTargets(owner)) return ValidateHpLossSlashZhangba(owner, ids, targets);
         var cards = GetZhangbaSlashPairs(owner).FirstOrDefault(pair => pair.Select(c => c.Id).Order().SequenceEqual(ids.Order()));
         if (targets.Count != 2 || CurrentNextActualUseAdjustment(owner.Seat) is null || !CanUseZhangbaSerpentSpear(owner) || cards is null ||
             targets.Any(t => !CanUseVirtualSlashTarget(owner, _players[t], CardKind.Slash, PhysicalGroupSuit(owner, cards),
@@ -296,6 +300,7 @@ public sealed partial class GameEngine
     {
         if (ValidateNextActualUseZhangba(owner, cards.Select(c => c.Id).ToArray(), targets) is { } error)
             throw new InvalidOperationException(error.Message);
+        if (HasHpLossSlashTargets(owner)) { ResolveHpLossSlashZhangba(owner, targets, cards); return; }
         BeginNextActualUseMaterialSlash(owner, cards, CardKind.Slash, targets, null,
             CurrentNextActualUseAdjustment(owner.Seat) ?? throw new InvalidOperationException("Adjusted spear source expired before payment."), null);
     }

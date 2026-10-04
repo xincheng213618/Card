@@ -113,7 +113,14 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         new(BoundaryYuJinContent.Register),
         new(BoundaryGuoHuangHouContent.Register),
         new(BoundaryChenGongContent.Register),
-        new(BoundaryLiuBiaoContent.Register),        new(FengLinYuJiContent.Register)
+        new(BoundaryLiuBiaoContent.Register),
+        new(OrdinarySpPangDeContent.Register),
+        new(OrdinaryFuWanContent.Register),
+        new(OrdinaryLiuXieContent.Register),
+        new(OrdinarySpMaChaoContent.Register),
+        new(OrdinaryLingJuContent.Register),
+        new(OrdinaryYangXiuContent.Register),
+        new(FengLinYuJiContent.Register)
     ];
 
     private static SkillProgramCatalog ClassicShenLuMengCatalog =>

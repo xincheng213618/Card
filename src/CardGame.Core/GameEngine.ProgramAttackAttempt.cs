@@ -170,6 +170,7 @@ public sealed partial class GameEngine
                     IsChainPropagation = true,
                     DamageAmountFinalized = resetDamageForTargetModifiers ? false : current.DamageAmountFinalized
                 });
+                _engine.RestoreRecipientScopedDamageBase(this, fromSeat);
                 return true;
             }
             Update(current => current with { ChainedTargetIndex = cursor });

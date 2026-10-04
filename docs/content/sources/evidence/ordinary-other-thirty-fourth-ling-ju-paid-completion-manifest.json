@@ -1,0 +1,64 @@
+{
+  "status": "frozen-static-correction-not-compiled-not-loaded-not-run",
+  "originalDeliveryManifestSha256": "50ec607a37d6b2c92eab009e9cffc78bb545beed7133ed123f74f364e739fa10",
+  "correctionTarget": "src/CardGame.Core/GameEngine.SignedDamagePayments.cs",
+  "originalStagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/src/CardGame.Core/GameEngine.SignedDamagePayments.cs",
+  "rawBeforeSha256": "fcfa9c418ad7a0c7b629726735379a4e453b341efc2a5e710a828b565d99cade",
+  "bomPreservingLfBeforeSha256": "fcfa9c418ad7a0c7b629726735379a4e453b341efc2a5e710a828b565d99cade",
+  "bomFreeLfBeforeSha256": "fcfa9c418ad7a0c7b629726735379a4e453b341efc2a5e710a828b565d99cade",
+  "previewPath": "preview/src/CardGame.Core/GameEngine.SignedDamagePayments.cs",
+  "rawPreviewAfterSha256": "b073f9e0d5e031e6d1eb94c5ed8aeb04dcf6bf084843c4306858d091150765d9",
+  "bomPreservingLfAfterSha256": "b073f9e0d5e031e6d1eb94c5ed8aeb04dcf6bf084843c4306858d091150765d9",
+  "bomFreeLfAfterSha256": "b073f9e0d5e031e6d1eb94c5ed8aeb04dcf6bf084843c4306858d091150765d9",
+  "patchPath": "paid-completion.patch",
+  "patchRawSha256": "73498401bd54690edad6232dd2f315dd4a9bfdb94c7be80cfdeddbd8fd9a3d82",
+  "inputs": [
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/delivery-manifest.json",
+      "rawSha256": "50ec607a37d6b2c92eab009e9cffc78bb545beed7133ed123f74f364e739fa10"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/src/CardGame.Core/ProgramSignedDamagePayment.cs",
+      "rawSha256": "2961a8d8c24d26b85cf8efcf5267e6f365943be72721e632957f757ba7bec606"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/preview/src/CardGame.Core/GameEngine.Runtime.cs",
+      "rawSha256": "fae641d41fc2bfb018de109bb8d49c3301ca6206d56c265fbf96747443fe58b7"
+    },
+    {
+      "path": "src/CardGame.Core/SkillProgramExecutor.cs",
+      "rawSha256": "f7a0823a0b0b3854a4ec26fb9da8c173b0b2f25c72dabeea716ae1a73e52b85d"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SkillProgramHost.cs",
+      "rawSha256": "32055f27b98ca27460bf32356f454b959990b237e720b976538af007f9e888ff"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SkillPrograms.cs",
+      "rawSha256": "ac6083fcdf0a1517f35fc1e8d14b4e97197e43211b5aaabf147555898e7dd530"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.Runtime.cs",
+      "rawSha256": "3df7af589312dfbc4f4168b7d0ef57afcf55ae81c3b089751cc357be4f693683"
+    }
+  ],
+  "supportFiles": [
+    {
+      "path": "prepare-followup.py",
+      "rawSha256": "9aeac4673e48902635827c8e02c033f5b5edac3cca5b644b7cb444492610ad0a"
+    },
+    {
+      "path": "REVIEW.md",
+      "rawSha256": "ee16b8f2632da0f868b3ae51b6b1bcd964705b76a8466dc2702389c1dcfce3b1"
+    }
+  ],
+  "priorCaptureChanged": false,
+  "genericExecutorOrOwnershipChanged": false,
+  "originalFrozenFilesChanged": false,
+  "compilerExecuted": false,
+  "loaderExecuted": false,
+  "testsExecuted": false,
+  "nativeGameExecuted": false,
+  "benchmarkExecuted": false,
+  "dataOnlyPatchReconstructionMatched": true
+}

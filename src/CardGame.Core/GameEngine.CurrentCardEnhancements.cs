@@ -30,6 +30,8 @@ public sealed partial class GameEngine
             programSkillCardUseFrameId: attack.ProgramSkillCardUseFrameId);
         if ((HasIssuedOriginalTargetAdditionTail(use) || HasSameTypeAidTargetTail(use)) && use.AdjustedSlashReturn is { } adjustedReturn && adjustedReturn.CardUseFrameId == use.Id)
             UpdateCardAttackState(use.Id, state => state! with { AdjustedSlashReturn = adjustedReturn, PhysicalCardIds = use.PhysicalCardIds! });
+        if (use.HpLossMaterialSlashReturn is not null)
+            UpdateCardAttackState(use.Id, state => state! with { PhysicalCardIds = use.PhysicalCardIds! });
         continued.SetCardUseCausedDamage(attack.CardUseCausedDamage);
         ActiveCardAttack = continued; ActiveDuel = null; ClearPendingDecision();
         if (ActiveFactionCardRequest is { ActiveAttack: { } factionAttack } faction && SameAttackOwner(factionAttack, attack)) faction.ActiveAttack = continued;

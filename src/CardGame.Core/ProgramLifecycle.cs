@@ -31,6 +31,10 @@ public sealed record ProgramSkillWindowContext(
     public PrepDiscardEndingPromise? PrepDiscardPromise { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ActualEndedTurnEquipmentContext? ActualEndedEquipment { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public SlashTargetBenefitReceipt? SlashTargetBenefit { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public SlashTargetPenaltyIdentity? SlashTargetPenalty { get; init; }
 }
 
 public sealed record ProgramSkillNumberBinding(string Name, int Value);

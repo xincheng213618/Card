@@ -59,12 +59,36 @@ public sealed partial class GameEngine
             if (exactParentIds.Any(id => processing.All(c => c.Id != id))) return false;
             remaining = processing.Where(c => !exactParentIds.Contains(c.Id)).ToArray();
         }
+        if (use.CardKind == CardKind.FireAttack)
+            return remaining.Count == 0 && MatchesTieredRoundZeroFireAttackAttack(attack);
         return remaining.Count == 0 &&
             ((IsSlashCard(use.CardKind) || use.CardKind == CardKind.Duel) && attack.SourceSeat == use.SourceSeat ||
                 use.CardKind is CardKind.BarbarianAssault or CardKind.ArrowBarrage && ActiveGroupCard is { } group &&
                     group.ResolutionId == use.Id && group.SourceSeat == use.SourceSeat && group.DamageSourceSeat == attack.SourceSeat &&
                     group.CurrentAttack?.ResolutionId == use.Id);
     }
+
+    private bool IsTieredRoundZeroFireAttackUse(long id) =>
+        LifecycleCardUse(id) is { CardId: 0, CardKind: CardKind.FireAttack, PhysicalCardIds.Count: 0 } use &&
+        IsIssuedTieredRoundUse(use, true);
+
+    // The logical parent is an exact issued tier2 Use, not a physical card0.
+    // The real reveal/discard fact proves that one of the mature payment
+    // producers has reached this damage route. Its initial target remains in
+    // the owning target list even after legitimate redirect/chain propagation
+    // or sequential-target completion changes the attack target/cursor.
+    private bool MatchesTieredRoundZeroFireAttackAttack(CardAttackHandle attack) =>
+        IsTieredRoundZeroFireAttackUse(attack.ResolutionId) &&
+        LifecycleCardUse(attack.ResolutionId) is { } use &&
+        attack.Card is null && attack.PhysicalCards.Count == 0 &&
+        attack.EffectiveCardKind == CardKind.FireAttack &&
+        attack.SourceSeat == use.SourceSeat && attack.CardUserSeat == use.SourceSeat &&
+        attack.ProgramSkillFrameId is null && attack.ProgramSkillCardUseFrameId is null &&
+        attack.ProgramJudgmentFrameId is null && !attack.IsDelayedJudgmentDamage &&
+        CompleteProgramEventHistory().OfType<FireAttackResolvedEvent>()
+            .LastOrDefault(fact => fact.ResolutionId == use.Id) is
+                { CausedDamage: true, MatchingDiscardCardId: > 0 } paid &&
+        paid.SourceSeat == use.SourceSeat && use.TargetSeats.Contains(paid.TargetSeat);
 
     private bool IsTieredRoundZeroProcessingParent(long id, int cardId) => cardId == 0 && IsTieredRoundZeroUse(id);
 

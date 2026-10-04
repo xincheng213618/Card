@@ -1,0 +1,181 @@
+{
+  "candidateGid": 72,
+  "candidateName": "伏完",
+  "edition": "current ordinary 三国杀OL; retained Other discovery and current page title; not 国战/谋/魔",
+  "capturedUtcDate": "2026-10-04",
+  "discovery": {
+    "indexPath": ".artifacts/continuation-20261003-batch17/batch21/dong-zhuo/next-batch22/index.raw.html",
+    "indexRawSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+    "category": "其他",
+    "first20Position": 1,
+    "advertisedHeroUrl": "https://www.sanguosha.com/hero/72",
+    "advertisedHeroUrlLine": 1442,
+    "cachedRow": {
+      "gid": 72,
+      "name": "伏完",
+      "resource": "7200",
+      "extend": "其他",
+      "hp": 4,
+      "initial_hp": 0,
+      "quality": "稀有",
+      "figure": "群",
+      "figure_py": "qun",
+      "biography": "伏完（?－209），琅邪东武（今属山东）人，东汉末大臣，汉献帝伏皇后之父。历官辅国将军、中散大夫、屯骑校尉。",
+      "characteristic": "通过【杀】来获得牌或弃置敌人的牌使其变得脆弱。需要武器牌提供攻击范围，需要较多的【杀】。",
+      "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/72.png",
+      "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/7200.png",
+      "realname": "伏完 (其他)"
+    },
+    "cacheIsCurrentRulesAuthority": false
+  },
+  "page": {
+    "requestedUrl": "https://www.sanguosha.com/hero/72",
+    "actualUrl": "https://www.sanguosha.com/hero/72",
+    "startedUtc": "2026-10-04T10:19:47.5953865Z",
+    "endedUtc": "2026-10-04T10:19:47.8683402Z",
+    "httpStatus": 200,
+    "curlExitCode": 0,
+    "redirectsFollowed": 0,
+    "retries": 0,
+    "rawPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-page.raw.html",
+    "rawBytes": 24754,
+    "rawSha256": "657d2e312a6cbdb33d170bbda5528c0fe03cf581c04573d5b9a199b102d2a6e4",
+    "headersPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-page.headers.txt",
+    "headersBytes": 662,
+    "headersRawSha256": "bf976c1fbc1ac5e6457a790e7752c2ef4fcc0b8fe108ae878e0426017a0108f3",
+    "requestRecordPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-page.request.json",
+    "requestRecordRawSha256": "03a26a34d3fd26df54a5b0b2b85b6a5b153602417c3652499914b8a994b1c74e",
+    "title": "三国杀伏完 - 三国杀OL-三国杀官网-武将技能介绍",
+    "heroName": "伏完",
+    "canonicalUrl": "https://www.sanguosha.com/hero/72",
+    "skillNames": [
+      "谋溃"
+    ],
+    "allSkills": [
+      {
+        "name": "谋溃",
+        "text": "当你使用【杀】指定目标后，你可以选择一项：1.摸一张牌；2.弃置其一张牌。然后若此【杀】被【闪】抵消，其弃置你一张牌。",
+        "rawHtml": "当你使用【杀】指定目标后，你可以选择一项：1.摸一张牌；2.弃置其一张牌。然后若此【杀】被【闪】抵消，其弃置你一张牌。",
+        "pageLine": 276,
+        "fontRefs": []
+      }
+    ],
+    "allSkillHtml": "\n                        \n                            \n                                <span class=\"on\" >当你使用【杀】指定目标后，你可以选择一项：1.摸一张牌；2.弃置其一张牌。然后若此【杀】被【闪】抵消，其弃置你一张牌。</span>\n                            \n                        \n                    ",
+    "unresolvedFontRefs": []
+  },
+  "api": {
+    "requestedUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=72",
+    "actualUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=72",
+    "startedUtc": "2026-10-04T10:20:44.8536724Z",
+    "endedUtc": "2026-10-04T10:20:45.0613920Z",
+    "httpStatus": 200,
+    "curlExitCode": 0,
+    "redirectsFollowed": 0,
+    "retries": 0,
+    "rawPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-api.raw.json",
+    "rawBytes": 854,
+    "rawSha256": "333dc51c5810bf0992701db1489869b7e7f044d5153d60ea6e3361f604bfa175",
+    "headersPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-api.headers.txt",
+    "headersBytes": 640,
+    "headersRawSha256": "797a1e47c55d4365b31c309905d1a99038dd1b030abe8ddddaffba55c204a69d",
+    "requestRecordPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-api.request.json",
+    "requestRecordRawSha256": "85fb9ddb578181ccb2a816086ebf2c40e73674e8d309a58bc5bab3ce1ebfc55f",
+    "parsedBody": {
+      "code": 0,
+      "message": "OK",
+      "data": {
+        "info": [
+          {
+            "gid": 72,
+            "name": "伏完",
+            "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/72.png",
+            "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/7200.png",
+            "label": [
+              "控制",
+              "过牌",
+              "简单"
+            ],
+            "figure": "群",
+            "figure_py": "qun",
+            "quality": "稀有",
+            "biography": "伏完（?－209），琅邪东武（今属山东）人，东汉末大臣，汉献帝伏皇后之父。历官辅国将军、中散大夫、屯骑校尉。",
+            "characteristic": "通过【杀】来获得牌或弃置敌人的牌使其变得脆弱。需要武器牌提供攻击范围，需要较多的【杀】。",
+            "hp": 4,
+            "initial_hp": 0,
+            "score": 0
+          }
+        ],
+        "radar": [
+          {
+            "name": "地主",
+            "value": 6
+          },
+          {
+            "name": "农民",
+            "value": 4
+          },
+          {
+            "name": "忠臣",
+            "value": 5
+          },
+          {
+            "name": "内奸",
+            "value": 5
+          }
+        ],
+        "deeds": []
+      }
+    },
+    "advertisedEndpointProof": {
+      "pagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-page.raw.html",
+      "pageRawSha256": "657d2e312a6cbdb33d170bbda5528c0fe03cf581c04573d5b9a199b102d2a6e4",
+      "pageLine": 462,
+      "staticLiteralAndPathGidBinding": "var gid = getUrlParam('gid');\n    if (!gid) {\n        var pathname = window.location.pathname;\n        var match = pathname.match(/\\/hero\\/(\\d+)/);\n        if (match && match[1]) {\n            gid = match[1];\n        }\n    }\n\n    if (gid) {\n        fetch('/api/v1/hero/info?gid=' + gid)",
+      "resolvedExactUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=72",
+      "embeddedScriptExecuted": false
+    }
+  },
+  "currentApiIdentity": {
+    "gid": 72,
+    "name": "伏完",
+    "faction": "群",
+    "factionId": "qun",
+    "baseHp": 4,
+    "quality": "稀有",
+    "genderFieldPresent": false,
+    "gender": null,
+    "initialHpRaw": 0,
+    "initialHpMeaning": "0 is an API placeholder; not a claim of starting at 0 HP"
+  },
+  "crossCheck": {
+    "pageNameAndApiIdentityAgree": true,
+    "cachedMetadataAndCurrentApiAgree": true,
+    "apiContainsSkillDefinitions": false,
+    "skillsAuthority": "All named skill bodies come from the current raw hero page. This API exposes identity/biography/radar, not a second copy of skill rules."
+  },
+  "registrationProofPath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/candidate-registration-proof.json",
+  "fullCurrentMainText": true,
+  "fullImplementationSourceReady": true,
+  "derivedSkillsRequiringAdditionalSource": [],
+  "randomSkillPoolGap": false,
+  "remainingSourceGaps": [],
+  "engineeringDefaultsConfirmedByThisCapture": false,
+  "implementationPresent": false,
+  "runtimeValidation": {
+    "compiler": false,
+    "loader": false,
+    "coreTests": false,
+    "wpfTests": false,
+    "nativeGame": false,
+    "ui": false,
+    "benchmark": false
+  },
+  "httpBudget": {
+    "taskTotalAllowedSingleGets": 6,
+    "taskTotalUsedSingleGets": 6,
+    "candidateUsedSingleGets": 2,
+    "retries": 0,
+    "images": 0,
+    "extraScripts": 0
+  }
+}

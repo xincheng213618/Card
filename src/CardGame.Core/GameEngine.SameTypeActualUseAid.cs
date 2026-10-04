@@ -101,6 +101,7 @@ public sealed partial class GameEngine
     }
     private bool SameTypeAidIssuedSlashIgnoresDistance(CardUseFrame use)
     {
+        if (use.PindianWinnerSlashReturn is { } winner) return MatchesPindianWinnerUse(use, winner);
         if (use.ForeignTurnContestSlashReturn is not null) return true;
         if (use.CardAttack?.ProgramSkillCardUseFrameId is not { } id ||
             _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(f => f.Id == id) is not { } parent ||

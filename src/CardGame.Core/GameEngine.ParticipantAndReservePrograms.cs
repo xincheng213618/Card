@@ -135,7 +135,7 @@ public sealed partial class GameEngine
                 new CardMoveReason("program.participants.discard-equipment"));
             return SkillProgramStepOutcome.Continue;
         }
-        var required = Math.Min(amount, GetHand(_players[seatNow]).Count);
+        var required = Math.Min(amount, GetSelfDiscardableOwnedHand(_players[seatNow]).Count);
         if (required == 0) return SkillProgramStepOutcome.Continue;
         // Restore the committed cursor for private input; the draft resumes this instruction.
         ReplaceRuntimeTop(frame with { ReexecuteParticipantInstruction = false,
@@ -150,7 +150,8 @@ public sealed partial class GameEngine
         var starPhase = draft.Mode == "exchange-stars";
         var location = starPhase ? new CardLocation(CardZoneKind.PrivateReserve, draft.ChooserSeat) : CardLocation.Hand(draft.ChooserSeat);
         var selected = starPhase ? draft.SelectedReserveIds : draft.SelectedHandIds;
-        var choices = _cardZones.CardsAt(location).Where(card => !selected.Contains(card.Id)).Select(card =>
+        var choices = _cardZones.CardsAt(location).Where(card => !selected.Contains(card.Id) &&
+            (draft.Mode != "discard-hand" || !IsSelfHandCategoryDiscardForbidden(draft.ChooserSeat, card, location, OwnedCardMoveIntent.Discard))).Select(card =>
             new PromptChoice(new ChoiceId("private-reserve." + card.Id), card.DisplayName, [card.Id], [],
                 new Dictionary<string, string> { ["program-action"] = "private-reserve-choice", ["card-id"] = card.Id.ToString() })).ToList();
         if (draft.Mode == "exchange-hand" && selected.Count > 0)
@@ -175,6 +176,9 @@ public sealed partial class GameEngine
         if (finish && (draft.Mode != "exchange-hand" || selected.Count == 0) || !finish &&
             (choice.Cards.Count != 1 || selected.Contains(choice.Cards[0]) || _cardZones.GetLocation(choice.Cards[0]) != location))
             throw new InvalidOperationException("Invalid private reserve choice.");
+        if (draft.Mode == "discard-hand" && choice.Cards.Any(id => IsSelfHandCategoryDiscardForbidden(draft.ChooserSeat,
+            _cardZones.CardsAt(location).Single(card => card.Id == id), location, OwnedCardMoveIntent.Discard)))
+            throw new InvalidOperationException("A protected hand card cannot be selected for self discard.");
         ClearPendingDecision();
         var ids = finish ? selected : selected.Append(choice.Cards[0]).ToArray();
         draft = star ? draft with { SelectedReserveIds = ids } : draft with { SelectedHandIds = ids };

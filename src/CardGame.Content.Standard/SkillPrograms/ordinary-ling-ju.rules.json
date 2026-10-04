@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:jieyuan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "increase-other-damage",
+          "window": "beforeDamageApplied",
+          "subject": "damageSource",
+          "optional": true,
+          "effects": [
+            {
+              "op": "discardOwnedCardToAdjustCurrentDamage",
+              "target": "owner",
+              "amount": 1,
+              "suits": ["spade", "club"],
+              "qualifierSkillId": "ol:fenxin",
+              "waiveHpDeadRoles": ["rebel"],
+              "anyColorDeadRoles": ["renegade"],
+              "allowEquipmentDeadRoles": ["renegade"]
+            }
+          ]
+        },
+        {
+          "id": "reduce-other-source-damage",
+          "window": "beforeDamageApplied",
+          "subject": "damageTarget",
+          "optional": true,
+          "effects": [
+            {
+              "op": "discardOwnedCardToAdjustCurrentDamage",
+              "target": "owner",
+              "amount": -1,
+              "suits": ["heart", "diamond"],
+              "qualifierSkillId": "ol:fenxin",
+              "waiveHpDeadRoles": ["loyalist"],
+              "anyColorDeadRoles": ["renegade"],
+              "allowEquipmentDeadRoles": ["renegade"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

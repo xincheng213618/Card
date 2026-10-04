@@ -1,0 +1,218 @@
+{
+  "schema": "card.independent-static-text-review.v1",
+  "verifiedUtc": "2026-10-04T10:45:35.6036529+00:00",
+  "authorManifestSha256": "f3283a1d5b7c1ec7dc674b15b243e9d18a7558db2b1a15a1fe0ab30ad509265f",
+  "authorPatchSha256": "1a383d34f3b066734bf8c2420d8589bf54858582c9b00ab4bdd9a01daa012205",
+  "namedFrozenFiles": [
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/make-fix.py",
+      "rawSha256": "89bba5ff6d8bff72e64499d7b909b7413ebef378cc0d690d853d1b190b1c539d",
+      "bytes": 16613,
+      "rawMatches": true
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/freeze-delivery.py",
+      "rawSha256": "57fdb72c82dc8210c1584f1d782e75c4271cfeee3fa4a5e8db00095f5f5542bf",
+      "bytes": 7495,
+      "rawMatches": true
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/zero-fire-attack.patch",
+      "rawSha256": "1a383d34f3b066734bf8c2420d8589bf54858582c9b00ab4bdd9a01daa012205",
+      "bytes": 23045,
+      "rawMatches": true
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/baseline-preview-manifest.json",
+      "rawSha256": "a1da2d2366ef1c29d560ff046a4f92b81fe7d44d847e8c46eedf489512d6b980",
+      "bytes": 4326,
+      "rawMatches": true
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/CONTRACT.md",
+      "rawSha256": "1f2be23be59d00b670c4441e3bc9573b0d76fe6d40ffb3720de89ebfaa384706",
+      "bytes": 3861,
+      "rawMatches": true
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/STATIC-REVIEW.json",
+      "rawSha256": "325bcd5b265d28e9f9348ecad6435eb13ff53c1eb03a87988c1b62c8f7995e78",
+      "bytes": 3682,
+      "rawMatches": true
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/src/CardGame.Core/GameEngine.cs",
+      "rawSha256": "a4f62a948fd45a2bb7076f633e9bc70153411cdb22e09936e1603568d54615d8",
+      "bytes": 908473,
+      "rawMatches": true
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/src/CardGame.Core/GameEngine.ColorFireAttacks.cs",
+      "rawSha256": "ba10e69f1e0d16912e59ca7f1aec17ca7d8cda2153c17adf78a04dca9ea52823",
+      "bytes": 11197,
+      "rawMatches": true
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/src/CardGame.Core/GameEngine.TieredRoundZeroReturns.cs",
+      "rawSha256": "49540cfb87b3ad63e922f7d4be74c665f1e3435457ff3a88fce5bd2ce2c796f5",
+      "bytes": 11294,
+      "rawMatches": true
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/src/CardGame.Core/GameEngine.TieredRoundZeroUses.cs",
+      "rawSha256": "0b10b7cb8a1f2f7e5aee53faed06de08e6cc443844f1851f47493b580919f4cb",
+      "bytes": 24257,
+      "rawMatches": true
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-zero-fire-attack-fix/preview/tests/CardGame.Core.Tests/BoundaryGuoHuangHouChecks.cs",
+      "rawSha256": "e5d16bfbce8ff57759b614e565fc2fb7e02f982f04a7cabad14dc6fef29b36cc",
+      "bytes": 45377,
+      "rawMatches": true
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/726-ordinary-route-audit/finding-fire-attack.json",
+      "rawSha256": "1d7bc7ea915deda97d6202853eab9bda4533b69846c5c62ea56a3bdd3f6821b0",
+      "bytes": 4647,
+      "rawMatches": true
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CardAttackState.cs",
+      "rawSha256": "1bd8b67d0e91e7c112bb6b9bef527d835b7611b468fca2524a68351eede21643",
+      "bytes": 7392,
+      "rawMatches": true
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SequentialTrickTargets.cs",
+      "rawSha256": "cc6490f48fffd3f366fef4b86edaa90c04aa2a5ca6532fa241a7fbb4260775f5",
+      "bytes": 4580,
+      "rawMatches": true
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CardActions.cs",
+      "rawSha256": "a123b2e126b6350e2a25f9f20f41486fb1481fece36ade5929a261dfe4da0c1f",
+      "bytes": 46145,
+      "rawMatches": true
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.DamageColorDuelPrograms.cs",
+      "rawSha256": "41de49dfd01e9fecf324bd9a7b1f546dfd1f00f1ae48ce91f19438b1c6efc728",
+      "bytes": 13526,
+      "rawMatches": true
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+      "rawSha256": "1bdc074ac6c55da718f73b556ce0ba68db0daeeba1aa0918a2393db516851694",
+      "bytes": 278878,
+      "rawMatches": true
+    },
+    {
+      "path": "src/CardGame.Core/Events.cs",
+      "rawSha256": "704ec46bad5cd96999577689ac3961042b0c9ffecbcf61954e8a991c6fa50108",
+      "bytes": 34755,
+      "rawMatches": true
+    },
+    {
+      "path": "src/CardGame.Core/Resolution.cs",
+      "rawSha256": "1a46c364c92c0a721c9992e6cf8ff6595fd742f95f05782a3ddef0ec4a576382",
+      "bytes": 43852,
+      "rawMatches": true
+    },
+    {
+      "path": "src/CardGame.Core/CardActions.cs",
+      "rawSha256": "c2306c7e65233e51a93706019b20f035f361b75e783eeec63203f4ed27b886cb",
+      "bytes": 6996,
+      "rawMatches": true
+    },
+    {
+      "path": "src/CardGame.Core/ColorFireAttackPolicies.cs",
+      "rawSha256": "96161c0fb507dd72005d54698c9d793a588f6c42dd104624fe01711e561943d6",
+      "bytes": 1399,
+      "rawMatches": true
+    },
+    {
+      "path": "src/CardGame.Core/ProgramTieredRoundConversion.cs",
+      "rawSha256": "634d33f67fb54fff91aeaf14d716ec70050506a1933f221d1689be4d90f19531",
+      "bytes": 8588,
+      "rawMatches": true
+    },
+    {
+      "path": "src/CardGame.Core/SkillPrograms.cs",
+      "rawSha256": "a85646fb0a1707c2b9c3d4f7a74cfb160d94fad64dce909e55e98955ec9a3bfa",
+      "bytes": 305812,
+      "rawMatches": true
+    },
+    {
+      "path": "docs/content/sources/fenglin-thirty-first-726-source-2026-10-04.json",
+      "rawSha256": "9387c8212c44a4909ee2ace1e5657ac9d8632151f8f3093035ec0bcd7e06251e",
+      "bytes": 8570,
+      "rawMatches": true
+    },
+    {
+      "path": "docs/content/sources/fenglin-thirty-first-726-linked-rule-source-2026-10-04.json",
+      "rawSha256": "f66822510b9c9716788f0d0768e79ebc40ae3933dcf29c6885400b21a05b8bda",
+      "bytes": 4671,
+      "rawMatches": true
+    }
+  ],
+  "oldTextReconstruction": [
+    {
+      "path": "src/CardGame.Core/GameEngine.cs",
+      "mode": "reverse-from-current-effective",
+      "hunks": 1,
+      "beforeBomFreeLfSha256": "b2f3be9aaebd63a6a7e6a9d92bb15513c121b738b7afa1d32a2ca533f05078ac",
+      "afterBomFreeLfSha256": "a4f62a948fd45a2bb7076f633e9bc70153411cdb22e09936e1603568d54615d8",
+      "previewRawSha256": "a4f62a948fd45a2bb7076f633e9bc70153411cdb22e09936e1603568d54615d8",
+      "previewBom": false,
+      "patchTextRebuilt": true
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ColorFireAttacks.cs",
+      "mode": "reverse-from-current-effective",
+      "hunks": 1,
+      "beforeBomFreeLfSha256": "997b4f242ecb9f8ca5adaf5f9122730171661b7c1e6aaa89b3e96c9e21fd7ba0",
+      "afterBomFreeLfSha256": "ba10e69f1e0d16912e59ca7f1aec17ca7d8cda2153c17adf78a04dca9ea52823",
+      "previewRawSha256": "ba10e69f1e0d16912e59ca7f1aec17ca7d8cda2153c17adf78a04dca9ea52823",
+      "previewBom": false,
+      "patchTextRebuilt": true
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.TieredRoundZeroReturns.cs",
+      "mode": "reverse-from-current-effective",
+      "hunks": 1,
+      "beforeBomFreeLfSha256": "f61c05cd904cd0bf0cb37707ef24c851be86eb2a7c513c1f5f85ec2b5d8dde55",
+      "afterBomFreeLfSha256": "49540cfb87b3ad63e922f7d4be74c665f1e3435457ff3a88fce5bd2ce2c796f5",
+      "previewRawSha256": "49540cfb87b3ad63e922f7d4be74c665f1e3435457ff3a88fce5bd2ce2c796f5",
+      "previewBom": false,
+      "patchTextRebuilt": true
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.TieredRoundZeroUses.cs",
+      "mode": "reverse-from-current-effective",
+      "hunks": 1,
+      "beforeBomFreeLfSha256": "56496044044d8a2ea820f60d5e14194899ecedf0bc23f21e97a71e9b21ab8fe4",
+      "afterBomFreeLfSha256": "0b10b7cb8a1f2f7e5aee53faed06de08e6cc443844f1851f47493b580919f4cb",
+      "previewRawSha256": "0b10b7cb8a1f2f7e5aee53faed06de08e6cc443844f1851f47493b580919f4cb",
+      "previewBom": false,
+      "patchTextRebuilt": true
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/BoundaryGuoHuangHouChecks.cs",
+      "mode": "reverse-from-current-effective",
+      "hunks": 6,
+      "beforeBomFreeLfSha256": "d30d41f23fbe6837019e41ce49082e81fb029abe13226c17b7abdfb28010bb3f",
+      "afterBomFreeLfSha256": "e5d16bfbce8ff57759b614e565fc2fb7e02f982f04a7cabad14dc6fef29b36cc",
+      "previewRawSha256": "e5d16bfbce8ff57759b614e565fc2fb7e02f982f04a7cabad14dc6fef29b36cc",
+      "previewBom": false,
+      "patchTextRebuilt": true
+    }
+  ],
+  "duplicateUpdateSections": false,
+  "compiler": false,
+  "loader": false,
+  "tests": false,
+  "game": false,
+  "native": false,
+  "http": false,
+  "mainWrites": false
+}

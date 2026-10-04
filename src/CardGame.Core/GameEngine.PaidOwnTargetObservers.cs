@@ -85,13 +85,14 @@ public sealed partial class GameEngine
         if (_resolutionStack[wi + 1] is not ProgramSkillFrame root || !MountObserverCandidateMatches(root, window.Candidates[window.CandidateIndex]) ||
             root.WindowContext?.ParentFrameId != window.Id || root.WindowContext.ActualUseTarget != identity) return null;
         if (wi + 2 == _resolutionStack.Count) return root;
-        if (!PaidOwnTargetMatches(root, window, true) && !HalfHandSupportObserverRootMatches(root, window)) return null;
+        if (!PaidOwnTargetMatches(root, window, true) && !HalfHandSupportObserverRootMatches(root, window) && !OwnTrickDrawMatches(root, window)) return null;
+        if (root.OwnTrickDraw is not null && !OwnTrickDrawFirstChild(root, _resolutionStack[wi + 2])) return null;
         for (var i = wi + 2; i < _resolutionStack.Count; i++)
         {
-            if (!(root.HalfHandSupport is { Paid: true } ? HalfHandPaidDamageObserverEdge(i) : PaidTargetObserverEdge(i))) return null;
+            if (!(root.HalfHandSupport is { Paid: true } || root.OwnTrickDraw is not null ? HalfHandPaidDamageObserverEdge(i) : PaidTargetObserverEdge(i))) return null;
             if (_resolutionStack[i] is DyingFrame d &&
                 (IsPaidHandRepaymentProgramAlcoholRide(i, d) || IsPaidHandRepaymentRescueRide(i, d) || PolicyCounterspellVirtualAlcoholRide(i, d) ||
-                 root.HalfHandSupport is { Paid: true } && PaidObserverDamageVirtualAlcoholRide(i, d))) break;
+                 (root.HalfHandSupport is { Paid: true } || root.OwnTrickDraw is not null) && PaidObserverDamageVirtualAlcoholRide(i, d))) break;
         }
         return root;
     }
@@ -111,7 +112,7 @@ public sealed partial class GameEngine
         if (_resolutionStack.LastOrDefault()?.Id == window.Id)
             return window.Candidates.Count == window.Contexts.Count && window.CandidateIndex >= 0 && window.CandidateIndex <= window.Candidates.Count &&
                 (window.CandidateIndex == window.Candidates.Count || window.Contexts[window.CandidateIndex].ActualUseTarget is { } use && MatchesActualUseTarget(use));
-        return HasSameTypeAidTargetObserver(useId) || ActualUseTargetObserverRoot(useId) is not null;
+        return HasUniqueHpPeerActualTargetObserver(useId) || HasSameTypeAidTargetObserver(useId) || ActualUseTargetObserverRoot(useId) is not null;
     }
     private bool IsPaidOwnTargetProgramDying() => ActiveDying is { ResumesProgramSkill: true } &&
         _resolutionStack.OfType<ActualUseTargetWindowFrame>().Any(w => ActualUseTargetObserverRoot(w.ParentFrameId) is { PaidOwnTarget: not null });
@@ -122,7 +123,7 @@ public sealed partial class GameEngine
         {
             if (!HasActualUseTargetObserver(parent.ParentFrameId)) throw new InvalidOperationException("An actual target window lost its exact typed subtree.");
             foreach (var root in _resolutionStack.OfType<ProgramSkillFrame>().Where(f => f.WindowContext?.ParentFrameId == parent.Id))
-                if (root.PaidOwnTarget is not null && !PaidOwnTargetMatches(root, parent, true))
+                if (root.OwnTrickDraw is not null && !OwnTrickDrawMatches(root, parent) || root.PaidOwnTarget is not null && !PaidOwnTargetMatches(root, parent, true))
                     throw new InvalidOperationException("The paid target scalar cost receipt is not backed by its original HP fact.");
         }
     }

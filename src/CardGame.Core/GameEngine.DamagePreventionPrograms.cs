@@ -5,7 +5,7 @@ public sealed partial class GameEngine
 {
     private bool? _hasRangePreventionPrograms;
     private bool HasRangePreventionPrograms => _hasRangePreventionPrograms ??= _contentRegistry.Skills.Values.Any(s =>
-        s.Program?.Triggers.Any(t => t.Effects.Any(e => e.Op is SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage or SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple or SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction)) == true);
+        s.Program?.Triggers.Any(t => t.Effects.Any(e => e.Op is SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage or SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple or SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction or SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage)) == true);
 
     private bool TryVisitRangePreventionChainTarget(IDamageAttempt attack)
     {
@@ -74,7 +74,7 @@ public sealed partial class GameEngine
                         ? _players[sourceSeat].Gender : null
                 };
                 return CollectProgramTriggerCandidates(owner, SkillProgramTriggerWindow.BeforeDamageApplied)
-                    .Where(candidate => !rangeChainOnly || GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage or SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple or SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction))
+                    .Where(candidate => !rangeChainOnly || GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.PreventOwnPlayOutsideTargetRangeDamage or SkillProgramEffectOp.PreventCurrentDamageAndDrawMultiple or SkillProgramEffectOp.PreventDamageAndConsumeSourceFaction or SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage))
                     .Where(candidate => GetProgramTrigger(candidate).Subject switch
                     {
                         SkillProgramTriggerSubject.DamageTarget => owner.Seat == targetSeat &&

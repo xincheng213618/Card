@@ -38,10 +38,10 @@ public sealed partial class GameEngine
         long? ProgramFrameId, int? DelayedTurnSeat,
         bool RequestedSlashChild = false, bool DamageWasApplied = false, int FinalTargetSeat = 0, ProgramDamageTargetDuelOrigin? DamageTargetDuelReturn = null, ProgramDualColorDuelOrigin? DualColorDuelReturn = null,
         SharedSlashBenefitReturn? SharedSlashBenefit = null, bool SharedSlashCausedDamage = false,
-        ForeignTurnContestSlashReturn? ForeignTurnContestSlashReturn = null);
+        ForeignTurnContestSlashReturn? ForeignTurnContestSlashReturn = null, PindianWinnerSlashReturn? PindianWinnerSlashReturn = null, ConditionalDiscardDuelOrigin? ConditionalDiscardDuelReturn = null);
     private AttackCompletionReceipt CaptureAttackCompletion(CardAttackHandle attack) =>
         new(attack.ResolutionId, attack.IsDelayedJudgmentDamage,
-            attack.ProgramSkillFrameId ?? attack.ProgramSkillCardUseFrameId ?? NextActualUseAdjustedSlashParent(attack),
+            attack.ProgramSkillFrameId ?? attack.ProgramSkillCardUseFrameId ?? NextActualUseAdjustedSlashParent(attack) ?? HpLossMaterialSlashParent(attack),
             attack.IsDelayedJudgmentDamage ? attack.DelayedJudgmentSeat ?? attack.SourceSeat : null,
             attack.ProgramSkillFrameId is null && attack.ProgramSkillCardUseFrameId is not null,
             attack.DamageWasApplied, attack.TargetSeat,
@@ -49,7 +49,9 @@ public sealed partial class GameEngine
             LifecycleCardUse(attack.ResolutionId)?.DualColorDuelOrigin,
             LifecycleCardUse(attack.ResolutionId)?.SharedSlashBenefit,
             LifecycleCardUse(attack.ResolutionId)?.SharedSlashBenefit is not null && attack.CardUseCausedDamage,
-            LifecycleCardUse(attack.ResolutionId)?.ForeignTurnContestSlashReturn);
+            LifecycleCardUse(attack.ResolutionId)?.ForeignTurnContestSlashReturn,
+            LifecycleCardUse(attack.ResolutionId)?.PindianWinnerSlashReturn,
+            LifecycleCardUse(attack.ResolutionId)?.ConditionalDiscardDuelOrigin);
     private Card ReadCardAppearance(CardAppearanceReference appearance) => GetAttackCard(appearance.Id) with
         { Kind = appearance.Kind, Suit = appearance.Suit, Rank = appearance.Rank };
     private CardResolutionContinuations GetCardContinuations(long id) =>

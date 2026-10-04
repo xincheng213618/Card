@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "url": "https://www.sanguosha.com/hero/301",
+  "method": "GET",
+  "purpose": "One expressly authorized current raw GET to inspect exact grant-ID binding absent from retained ninth-batch body-only record.",
+  "startedUtc": "2026-10-04T10:11:37.5458010+00:00",
+  "completedUtc": "2026-10-04T10:11:37.6693974+00:00",
+  "httpStatus": 200,
+  "reasonPhrase": "OK",
+  "responseHeaders": {
+    "Server": [
+      "istio-envoy"
+    ],
+    "trace-id": [
+      "803a6c888d17d2eb401e53ccfae09308"
+    ],
+    "Date": [
+      "Sun, 04 Oct 2026 09:43:52 GMT"
+    ],
+    "Vary": [
+      "Accept-Encoding"
+    ],
+    "x-varnish": [
+      "55013477 55456727"
+    ],
+    "Accept-Ranges": [
+      "bytes"
+    ],
+    "x-varnish-cache": [
+      "hit"
+    ],
+    "req-cost-time": [
+      "1"
+    ],
+    "req-arrive-time": [
+      "1791108701242"
+    ],
+    "resp-start-time": [
+      "1791108701244"
+    ],
+    "x-envoy-upstream-service-time": [
+      "0"
+    ],
+    "X-Cache-Lookup": [
+      "Cache Miss",
+      "Hit From Upstream Cluster",
+      "Cache Miss"
+    ],
+    "Age": [
+      "1669"
+    ],
+    "X-NWS-LOG-UUID": [
+      "5081425831990742505"
+    ],
+    "Connection": [
+      "keep-alive"
+    ],
+    "Content-Type": [
+      "text/html"
+    ],
+    "Content-Length": [
+      "26273"
+    ]
+  },
+  "bodyPath": "301-page.raw.html",
+  "rawResponseBodySha256": "ac86213821282a7f4162488067164126dface288ba6a88fa0675fcb4c59c6abf",
+  "bytes": 26273,
+  "redirectsFollowed": 0,
+  "retryCount": 0,
+  "transportError": null
+}

@@ -23,7 +23,9 @@ public sealed partial class GameEngine
                 var slashes = GetHand(owner).Where(card => SlashKinds.Contains(AdvancedEffectiveHandKind(owner, card))).ToArray();
                 var tricks = GetHand(owner).Where(card => AdvancedIsOrdinaryTrick(AdvancedEffectiveHandKind(owner, card))).ToArray();
                 if (slashes.Length == tricks.Length) { DrawCards(owner, 1, true); return SkillProgramStepOutcome.Continue; }
-                return BeginAdvancedSelection(frame, effect, (slashes.Length > tricks.Length ? slashes : tricks).Select(card => card.Id.ToString()).ToArray(), Math.Abs(slashes.Length - tricks.Length));
+                var balancing = (slashes.Length > tricks.Length ? slashes : tricks).Where(card => !IsSelfHandCategoryDiscardForbidden(owner.Seat, card, CardLocation.Hand(owner.Seat), OwnedCardMoveIntent.Discard)).ToArray();
+                if (balancing.Length < Math.Abs(slashes.Length - tricks.Length)) return SkillProgramStepOutcome.Continue;
+                return BeginAdvancedSelection(frame, effect, balancing.Select(card => card.Id.ToString()).ToArray(), Math.Abs(slashes.Length - tricks.Length));
             case SkillProgramEffectOp.ReplaceJudgmentPhase:
                 _pendingTurnDelayedEffects |= DelayedTurnEffects.SkipJudgmentPhase;
                 var polarity = _skillRuntimeState.GetConversionState(owner.Seat, frame.SkillId);
@@ -38,7 +40,7 @@ public sealed partial class GameEngine
                 if (available.Length > 0) SetEquipmentSlotCapacity(target, available[_random.Next(available.Length)], 0);
                 return SkillProgramStepOutcome.Continue;
             case SkillProgramEffectOp.SampleFactionSkills:
-                return BeginAdvancedSelection(frame, effect, GetHand(owner).Concat(GetEquipment(owner)).Select(card => card.Id.ToString()).ToArray());
+                return BeginAdvancedSelection(frame, effect, GetHand(owner).Concat(GetEquipment(owner)).Where(card => !IsSelfHandCategoryDiscardForbidden(owner.Seat, card, _cardZones.GetLocation(card.Id), OwnedCardMoveIntent.Discard)).Select(card => card.Id.ToString()).ToArray());
             case SkillProgramEffectOp.ExpireSampledSkills:
                 var source = $"acquired:{effect.StateId ?? frame.SkillId}:sample:";
                 var grants = owner.SkillGrants.Grants.Where(grant => grant.SourceId.StartsWith(source, StringComparison.Ordinal)).ToArray();

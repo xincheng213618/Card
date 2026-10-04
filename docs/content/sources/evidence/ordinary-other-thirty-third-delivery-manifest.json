@@ -1,0 +1,182 @@
+{
+  "status": "frozen-source-only-not-implemented-not-run",
+  "mainHeadAtReview": "17fead66d0d20bb39867f8da92d1bc75f9381b83",
+  "scope": "Only cached Other first20 plus current72/73/74; no whole-site conclusion.",
+  "selectedCandidates": [
+    {
+      "gid": 72,
+      "name": "伏完",
+      "stageSourcePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-official-source.json",
+      "suggestedMainDestination": "docs/content/sources/ordinary-other-thirty-third-72-source-2026-10-04.json",
+      "fullCurrentMainText": true,
+      "fullImplementationSourceReady": true
+    },
+    {
+      "gid": 73,
+      "name": "刘协",
+      "stageSourcePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-official-source.json",
+      "suggestedMainDestination": "docs/content/sources/ordinary-other-thirty-third-73-source-2026-10-04.json",
+      "fullCurrentMainText": true,
+      "fullImplementationSourceReady": true
+    },
+    {
+      "gid": 74,
+      "name": "灵雎",
+      "stageSourcePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-official-source.json",
+      "suggestedMainDestination": "docs/content/sources/ordinary-other-thirty-third-74-source-2026-10-04.json",
+      "fullCurrentMainText": true,
+      "fullImplementationSourceReady": true
+    }
+  ],
+  "inputFiles": [
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch21/dong-zhuo/next-batch22/index.raw.html",
+      "rawSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "bytes": 1319990
+    },
+    {
+      "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+      "rawSha256": "59cf97988d28dfa6d8f9c9a84e1dd8715b922e56fcf18c1a828c84829e6cbca1",
+      "bytes": 114067
+    }
+  ],
+  "payloadFiles": [
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-api.headers.txt",
+      "rawSha256": "797a1e47c55d4365b31c309905d1a99038dd1b030abe8ddddaffba55c204a69d",
+      "bytes": 640
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-api.raw.json",
+      "rawSha256": "333dc51c5810bf0992701db1489869b7e7f044d5153d60ea6e3361f604bfa175",
+      "bytes": 854
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-api.request.json",
+      "rawSha256": "85fb9ddb578181ccb2a816086ebf2c40e73674e8d309a58bc5bab3ce1ebfc55f",
+      "bytes": 17064
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-official-source.json",
+      "rawSha256": "94f4a3fd205ad80fc6a038e923d756efc495216b99369c4591ec6f5da7c0bc9e",
+      "bytes": 8127
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-page.headers.txt",
+      "rawSha256": "bf976c1fbc1ac5e6457a790e7752c2ef4fcc0b8fe108ae878e0426017a0108f3",
+      "bytes": 662
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-page.raw.html",
+      "rawSha256": "657d2e312a6cbdb33d170bbda5528c0fe03cf581c04573d5b9a199b102d2a6e4",
+      "bytes": 24754
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/72-page.request.json",
+      "rawSha256": "03a26a34d3fd26df54a5b0b2b85b6a5b153602417c3652499914b8a994b1c74e",
+      "bytes": 16988
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-api.headers.txt",
+      "rawSha256": "979ef77b5258b2b25a6243b2d1f721b817a98b1be0c5d4aa6fa961621f6777e8",
+      "bytes": 644
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-api.raw.json",
+      "rawSha256": "cb7f8d3d01387a3c57752ee8ff779a4cebce4b5a517b5a6302031de07cce2a95",
+      "bytes": 1073
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-api.request.json",
+      "rawSha256": "b87bd13c5c13cd15794801c51be72f74f57b448d68b6c13949647e8db82f5b6a",
+      "bytes": 17064
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-official-source.json",
+      "rawSha256": "e6ca90cf756b583d7481f6dc7a6e26d395c768bdacb8c1f517c150c52ba9bb84",
+      "bytes": 9374
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-page.headers.txt",
+      "rawSha256": "c709dc29a54d86b9dd36cb39c65a33338231d0d347692ac717f86928cbb780e2",
+      "bytes": 662
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-page.raw.html",
+      "rawSha256": "e4fc2c0bce3fd785774d43da2dbb911b47797ff783f5ff77cfc69758ac6b409d",
+      "bytes": 27222
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/73-page.request.json",
+      "rawSha256": "6cdbcde48403ce712edd725586d3411a4ad991deb4810ab5b33e177c1a4f885f",
+      "bytes": 16989
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-api.headers.txt",
+      "rawSha256": "4038f157e7fee75dcb90695dec2f8d286b1e414814b6988776aa230b5e8f373f",
+      "bytes": 639
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-api.raw.json",
+      "rawSha256": "3c04ebfe37ba40592bd0b4a55c8a2d381d26258349bf7cfd4557eb9eeb3ca9ee",
+      "bytes": 916
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-api.request.json",
+      "rawSha256": "043de3e33d514a4dec562cb89416564c12b22380af29a764751a3b7e5e36e4f6",
+      "bytes": 17064
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-official-source.json",
+      "rawSha256": "77409ab6db370f94fa2be0c2f679cfb4829919d571a833424e325c8d3f567413",
+      "bytes": 9370
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-page.headers.txt",
+      "rawSha256": "bee5bea889a38040a0a28dde9a3d01ee892040f6c36b6bafc4271e0d9e19cc2f",
+      "bytes": 665
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-page.raw.html",
+      "rawSha256": "3d0a4cdbd7cddf919edae6db2d3bd3a703205ffd1df34da13d9b7b4012c6aea3",
+      "bytes": 27339
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/74-page.request.json",
+      "rawSha256": "cc5017e47df44c58e39d20b11d5ec0d022e35363c0011e9fa36c2e6d94903b8b",
+      "bytes": 16988
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/cached-other-first20.json",
+      "rawSha256": "4609fc35bc5ed5b32c8e741d1d5bf6dfb974236622ee8b5aede3be492855a4b2",
+      "bytes": 17830
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/candidate-registration-proof.json",
+      "rawSha256": "8836d99aacdc527ad15902c91e55941e8a6b41e3aeb15f7339d4f2c7de428a7b",
+      "bytes": 17911
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/prepare-records.py",
+      "rawSha256": "7628b6b0d5572e6093fa0806825fd76b9f23617c5517fc84d4383369c4b42584",
+      "bytes": 14573
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch33/other-candidate-preflight/SOURCE-PREFLIGHT.md",
+      "rawSha256": "170fdc6097d6b6932d69d794e4622d79111421deb17fe0e167fc28820620a7c5",
+      "bytes": 3900
+    }
+  ],
+  "httpBudget": {
+    "singleGetsAllowed": 6,
+    "singleGetsUsed": 6,
+    "retries": 0,
+    "selectedPages": 3,
+    "selectedApis": 3,
+    "media": 0,
+    "scripts": 0
+  },
+  "allRuntimeFalse": true,
+  "mainFilesWritten": false,
+  "gitWrites": false
+}

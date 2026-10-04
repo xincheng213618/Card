@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "status": "frozen-explicitly-authorized-raw-page-supplement-no-id-binding",
+  "capturedUtc": "2026-10-04T10:12:14.7604765Z",
+  "authorization": "Parent expressly authorized hero300 and hero301 one exact raw GET each, no retry, after the initial three-query audit. Purpose: retain missing raw identifier evidence. Old 690 and 2016 pages remained untouched.",
+  "requests": [
+    {
+      "officialId": 300,
+      "url": "https://www.sanguosha.com/hero/300",
+      "startedUtc": "2026-10-04T10:11:37.1171573+00:00",
+      "completedUtc": "2026-10-04T10:11:37.5238166+00:00",
+      "httpStatus": 200,
+      "bytes": 27469,
+      "rawResponseBodySha256": "0e63a5afb715a5256353c0258844135bd93f9351174a5b541eda32bac31f215b",
+      "body": "300-page.raw.html",
+      "captureWithHeaders": "300-page-capture.json",
+      "equalToNinthRetainedOriginBodySha256": true,
+      "skillSectionLines": {
+        "labels": [
+          269,
+          271
+        ],
+        "bodies": [
+          278,
+          280
+        ]
+      },
+      "selectedDefinition": {
+        "name": "武圣",
+        "text": "你可以将一张红色牌当【杀】使用或打出。你使用的方片【杀】无距离限制。"
+      },
+      "exact878Matches": 0,
+      "exact939Matches": 0,
+      "selfSkillIdentifierFound": false,
+      "binds690Grant878": false
+    },
+    {
+      "officialId": 301,
+      "url": "https://www.sanguosha.com/hero/301",
+      "startedUtc": "2026-10-04T10:11:37.5458010+00:00",
+      "completedUtc": "2026-10-04T10:11:37.6693974+00:00",
+      "httpStatus": 200,
+      "bytes": 26273,
+      "rawResponseBodySha256": "ac86213821282a7f4162488067164126dface288ba6a88fa0675fcb4c59c6abf",
+      "body": "301-page.raw.html",
+      "captureWithHeaders": "301-page-capture.json",
+      "equalToNinthRetainedOriginBodySha256": true,
+      "skillSectionLines": {
+        "labels": [
+          269,
+          271
+        ],
+        "bodies": [
+          278,
+          280
+        ]
+      },
+      "selectedDefinition": {
+        "name": "咆哮",
+        "text": "锁定技，你使用【杀】无次数限制。当你使用的【杀】被抵消后，你本回合下一次【杀】造成的伤害+1。"
+      },
+      "exact878Matches": 0,
+      "exact939Matches": 0,
+      "selfSkillIdentifierFound": false,
+      "binds690Grant939": false
+    }
+  ],
+  "advertisedSameExistingAssets": {
+    "scripts": [
+      "/assets/js/commen.js",
+      "/assets/js/header.js",
+      "/assets/js/heroDetail.js?1"
+    ],
+    "heroInfoFetchTemplate": "/api/v1/hero/info?gid=",
+    "interpretation": "These are already-known hero-page assets, not a newly identified font resolver. No asset/API fetch or script execution followed."
+  },
+  "budget": {
+    "officialQueries": 3,
+    "rawExactPageGets": 2,
+    "selectedWebOpenAttempts": 0,
+    "retries": 0,
+    "redirectsFollowed": 0,
+    "guessedEndpoints": 0,
+    "furtherRequests": 0
+  },
+  "readiness": {
+    "font878CurrentFullDefinition": false,
+    "font939CurrentFullDefinition": false,
+    "full690ImplementationSourceReady": false
+  },
+  "conclusion": "Fresh raw current pages independently confirm the preserved same-name definitions, but neither page exposes its skill ID or an exact 878/939 binding. Do not register 690 with guessed inherited versions. This is a bounded page/query result, not a site-wide absence claim.",
+  "execution": {
+    "compiler": false,
+    "build": false,
+    "loader": false,
+    "tests": false,
+    "native": false,
+    "benchmark": false,
+    "mainWrites": false,
+    "oldFrozenWrites": false,
+    "versionChanges": false,
+    "commit": false
+  }
+}

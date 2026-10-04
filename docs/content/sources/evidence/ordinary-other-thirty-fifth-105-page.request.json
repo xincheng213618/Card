@@ -1,0 +1,13 @@
+{
+  "url": "https://www.sanguosha.com/hero/105",
+  "purpose": "Single authorized current ordinary OL gid105 detail read; URL pattern from retained canonical hero/72 page",
+  "method": "GET",
+  "startedUtc": "2026-10-04T12:48:51.4499021Z",
+  "finishedUtc": "2026-10-04T12:48:51.7069301Z",
+  "httpStatus": "200",
+  "curlExitCode": 0,
+  "redirectsFollowed": false,
+  "retries": 0,
+  "rawSha256": "8a707fd2fe5a5462f8453ead0ff46f2cc27a898ca35080c1d7287e7727f69883",
+  "rawBytes": 25751
+}

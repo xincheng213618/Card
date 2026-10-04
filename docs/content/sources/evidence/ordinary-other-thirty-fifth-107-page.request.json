@@ -1,0 +1,12 @@
+{
+  "url": "https://www.sanguosha.com/hero/107",
+  "method": "GET",
+  "requestedUtc": "2026-10-04T12:52:50.960844+00:00",
+  "redirectsAllowed": false,
+  "retries": 0,
+  "completedUtc": "2026-10-04T12:52:51.208377+00:00",
+  "status": 200,
+  "actualUrl": "https://www.sanguosha.com/hero/107",
+  "bytes": 25899,
+  "rawSha256": "714caced43e2360122de6c842363e2531db258f1e5a8e17104672d973b407935"
+}

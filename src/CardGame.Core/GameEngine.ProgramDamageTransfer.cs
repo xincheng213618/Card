@@ -31,6 +31,7 @@ public sealed partial class GameEngine
         attack.RedirectFinalizedDamageTarget(recipientSeat,
             new ProgramDamageTransferFollowup(active.SkillId, active.OwnerSeat,
                 recipientSeat, drawLostHpAfterDamage));
+        UpdateRecipientScopedDamageRedirect(attack);
         ReplaceRuntimeFrame(_resolutionStack[^2].Id, window with { RedirectedTargetSeat = recipientSeat });
         AdvanceEventRulesAndQueueFact(new ProgramDamageTransferredEvent(
             attack.ResolutionId, active.SkillId, active.OwnerSeat, attack.SourceSeat,

@@ -35,17 +35,22 @@ public sealed partial class GameEngine
             case CardDeclarationFrame: ContinueCardDeclaration(frameId); break;
             case CardDeclarationChallengeFrame: ContinueCardDeclarationChallenge(frameId); break;
             case ProgramSkillFrame:
+                if (ResumeUniqueHpPeer(frameId) || ResumeRecipientContest(frameId)) return;
                 if (ResumeCappedConversionBenefit(frameId)) return;
                 if (ResumeEndingPairOrSlashRecast(frameId)) return;
                 if (ResumeCapturedEquipmentAndDraw(frameId) || ResumeActualDiscardRecovery(frameId)) return;
+                if (ResumeSignedDamagePayment(frameId) || ResumeOwnTrickDraw(frameId)) return;
                 if (ResumeSuitPreventionBenefit(frameId) || ResumeMatchedJudgmentPlacement(frameId)) return;
                 if (ResumeAdjacentDiscardStorage(frameId) || ResumeCompletedUsePayment(frameId) || ResumeRoundPileAlcohol(frameId)) return;
                 if (ResumeForeignTurnContest(frameId) || ResumeSameTypeAid(frameId)) return;
                 if (ResumeSharedSlashOffer(frameId)) return;
+                if (ResumeSlashTargetBenefit(frameId)) return;
+                if (ResumeTargetPenalty(frameId)) return;
                 if (ResumeGrantedEntityPhaseTrailer(frameId) || ResumeGrantedPhaseSlashClaim(frameId)) return;
                 if (ResumeProvenanceClaim(frameId) || ResumeProvenanceAlcohol(frameId)) return;
                 if (ResumeDamageJudgmentSuitPayment(frameId)) return;
                 if (ResumeDualColorDuel(frameId)) return;
+                if (ResumeConditionalDiscardDuel(frameId)) return;
                 if (ResumeLeastHandMarkerDraw(frameId)) return;
                 if (ResumeAlternativePhaseCost(frameId)) return;
                 if (ResumeAwaitedBlindHandTake(frameId)) return;
@@ -83,6 +88,8 @@ public sealed partial class GameEngine
                 break;
             case ForeignActualTurnStartWindowFrame: ContinueForeignActualTurnStartCore(); break;
             case ActualUseTargetWindowFrame: ContinueActualUseTargetWindowCore(); break;
+            case SlashTargetBenefitWindowFrame: ContinueSlashTargetBenefitWindowCore(); break;
+            case SlashTargetPenaltyWindowFrame: ContinueSlashTargetPenaltyWindow(); break;
             case ProgramCardTriggerWindowFrame: ContinueProgramCardWindowCore(); break;
             case ProgramLifecycleTriggerWindowFrame: ContinueProgramLifecycleWindowCore(); break;
             case HpChangedTriggerWindowFrame: ContinueHpChangedProgramWindowCore(); break;
@@ -110,6 +117,8 @@ public sealed partial class GameEngine
         var parentId = frame switch
         {
             ActualUseTargetWindowFrame child => child.ParentFrameId,
+            SlashTargetBenefitWindowFrame child => child.ParentFrameId,
+            SlashTargetPenaltyWindowFrame child => child.ParentFrameId,
             CardDeclarationFrame child => child.Return.ParentFrameId,
             CardDeclarationChallengeFrame child => child.ParentFrameId,
             ResponseWindowFrame child => child.ParentFrameId,
@@ -242,6 +251,10 @@ public sealed partial class GameEngine
 
     private void RunOneEngineStep()
     {
+        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is SlashTargetPenaltyWindowFrame penalty)
+        { AdvanceRuntimeFrame(penalty.Id); AdvanceRulesAndPublishState(); return; }
+        if (_pendingDecision is null && _resolutionStack.LastOrDefault() is SlashTargetBenefitWindowFrame benefit)
+        { AdvanceRuntimeFrame(benefit.Id); AdvanceRulesAndPublishState(); return; }
         if (_pendingDecision is null && _resolutionStack.LastOrDefault() is ActualUseTargetWindowFrame actualTargets)
         { AdvanceRuntimeFrame(actualTargets.Id); AdvanceRulesAndPublishState(); return; }
         if (_pendingDecision is null && _resolutionStack.LastOrDefault() is NullificationWindowFrame { CounterspellPayment: not null } paidCounter)
@@ -339,6 +352,7 @@ public sealed partial class GameEngine
 
 
         if (TryAdvanceOwnedDeathBenefitSubtree()) return;
+        if (TryAdvanceSignedDamagePaymentSubtree()) return;
 
         if (ActiveDying is { } paidProgramDying &&
             _resolutionStack.LastOrDefault() is ProgramSkillFrame { WindowContext: { } paidContext } paidDyingProgram &&
@@ -347,7 +361,7 @@ public sealed partial class GameEngine
             paidContext.OwnerSeat == paidDyingProgram.OwnerSeat &&
             (paidContext.Window == SkillProgramTriggerWindow.DyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.ResponderSeat ||
              paidContext.Window == SkillProgramTriggerWindow.SelfDyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.VictimSeat) &&
-            (IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsOwnedDeathBenefitProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying()))
+            (IsConditionalDiscardDuelProgramDying() || IsRecipientContestProgramDying() || IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsOwnTrickDrawProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsOwnedDeathBenefitProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying()))
         {
             AdvanceRuntimeProgram(paidDyingProgram.Id);
             AdvanceRulesAndPublishState();
@@ -455,7 +469,7 @@ public sealed partial class GameEngine
         {
             var current = _players[_currentSeat];
             if (_options.UseInteractiveDiscard && current.IsHuman && current.IsAlive &&
-                GetDiscardEligibleHand(current).Count > GetHandLimit(current))
+                RequiredSelfHandLimitDiscard(current) > 0)
             {
                 RequestHumanDiscard(current);
                 return;
@@ -487,6 +501,11 @@ public sealed partial class GameEngine
         if (CompleteDeferredTurnEndBinding(frame, context)) return;
         switch (context.Window)
         {
+            case SkillProgramTriggerWindow.ActualSlashTargetPenalty:
+                CompleteSlashTargetPenaltyBinding(frame); break;
+            case SkillProgramTriggerWindow.ActualSlashTargetBenefit:
+            case SkillProgramTriggerWindow.SlashDodgeCancelledBenefit:
+                CompleteSlashTargetBenefitBinding(frame); break;
             case SkillProgramTriggerWindow.OtherActualUseTargeted:
                 CompleteActualUseTargetBinding(frame, completed);
                 break;
@@ -741,8 +760,11 @@ public sealed partial class GameEngine
     private void ReturnRuntimeProgramMovement(long frameId)
     {
         var frame = GetActiveProgramFrame(frameId);
+        if (ReturnConditionalDuelMovement(frame)) return;
+        if (ReturnRecipientContestMovement(frame)) return;
         if (ReturnCappedConversionBenefitMovement(frame)) return;
         if (ReturnCapturedEquipmentOrDiscardMovement(frame)) return;
+        if (ReturnSignedDamageMovement(frame)) return;
         if (ReturnSuitPlacementMovement(frame)) return;
         if (ReturnDamageJudgmentSuitPaymentMovement(frame)) return;
         if (ReturnCappedHandRefreshMovement(frame)) return;
@@ -781,6 +803,8 @@ public sealed partial class GameEngine
             AdvanceRuntimeProgram(frameId);
             return;
         }
+        if (ReturnSlashBenefitMovement(frame)) return;
+        if (ReturnTargetPenaltyMovement(frame)) return;
         if (TryReturnPrepDiscardMovement(frame)) return;
         if (TryReturnSequentialDiscardMovement(frame)) return;
         if (TryReturnPairBenefitMovement(frame)) return;

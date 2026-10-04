@@ -102,7 +102,8 @@ public sealed partial class GameEngine
         ReplaceRuntimeTop(pending with { FireAttackSelection = null,
             ColorFireAttack = new(receipt.Source, receipt.ActionId) });
         var attack = new CardAttackHandle(this, useId, pending.SourceSeat, targetSeat,
-            effect, damageAmount: 1, playedCardKind: CardKind.FireAttack, physicalCards: GetCardUsePhysicalCards(useId));
+            IsTieredRoundZeroFireAttackUse(useId) ? null : effect,
+            damageAmount: 1, playedCardKind: CardKind.FireAttack, physicalCards: GetCardUsePhysicalCards(useId));
         ActiveCardAttack = attack;
         if (!ApplyAttackDamage(attack)) CompleteAttack(attack);
     }

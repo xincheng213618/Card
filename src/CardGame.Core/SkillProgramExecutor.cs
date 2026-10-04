@@ -1485,6 +1485,7 @@ public sealed class SkillProgramExecutor
                     SkillProgramEffectTarget.Actor => frame.WindowContext?.CardUse?.ActorSeat ??
                         throw new InvalidOperationException(
                             $"Skill program '{frame.SkillId}' requires a frozen card-action actor."),
+                    SkillProgramEffectTarget.SelectedTarget when effect.Op == SkillProgramEffectOp.UseSelectedCardsAs && frame.HpLossSlashSelection is not null => frame.SelectedTargetSeats[0],
                     SkillProgramEffectTarget.SelectedTarget when effect.Op == SkillProgramEffectOp.UseSelectedCardsAs &&
                         frame.NextActualUseAdjustment is { Kind: ProgramNextActualUseAdjustmentKind.AddSlashTarget } adjusted &&
                         adjusted.OutputKind == effect.OutputKind => frame.SelectedTargetSeats[0],

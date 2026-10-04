@@ -1,0 +1,77 @@
+{
+  "gid": 105,
+  "name": "SP庞德",
+  "productLine": "ordinary OL",
+  "variant": "sp",
+  "detailUrl": "https://www.sanguosha.com/hero/105",
+  "infoUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=105",
+  "pageAdvertisedInfo": true,
+  "fullCurrentSkills": true,
+  "grantTextComplete": true,
+  "skills": [
+    {
+      "name": "马术",
+      "text": "锁定技，你计算与其他角色的距离-1。",
+      "reuse": "classic:mashu"
+    },
+    {
+      "name": "决死",
+      "text": "出牌阶段，你可以弃置一张【杀】并令攻击范围内一名其他角色弃置一张牌，若弃置牌不为【杀】且其体力值不小于你，你视为对其使用【决斗】。",
+      "id": "ol:juesi"
+    }
+  ],
+  "faction": "wei",
+  "hp": 4,
+  "initialHpPlaceholder": 0,
+  "apiHasGender": false,
+  "apiHasSkillText": false,
+  "genderSupplement": {
+    "value": "Male",
+    "source": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+    "samePersonGeneral": "classic:pang-de",
+    "notCurrentApiField": true
+  },
+  "requests": [
+    {
+      "url": "https://www.sanguosha.com/hero/105",
+      "purpose": "Single authorized current ordinary OL gid105 detail read; URL pattern from retained canonical hero/72 page",
+      "method": "GET",
+      "startedUtc": "2026-10-04T12:48:51.4499021Z",
+      "finishedUtc": "2026-10-04T12:48:51.7069301Z",
+      "httpStatus": "200",
+      "curlExitCode": 0,
+      "redirectsFollowed": false,
+      "retries": 0,
+      "rawSha256": "8a707fd2fe5a5462f8453ead0ff46f2cc27a898ca35080c1d7287e7727f69883",
+      "rawBytes": 25751
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=105",
+      "purpose": "Single current detail-page-advertised info GET; exact fetch at 105-page.raw.html line484 and gid path line477",
+      "method": "GET",
+      "startedUtc": "2026-10-04T12:49:25.3484079Z",
+      "finishedUtc": "2026-10-04T12:49:25.6822995Z",
+      "httpStatus": "200",
+      "curlExitCode": 0,
+      "redirectsFollowed": false,
+      "retries": 0,
+      "rawSha256": "287d7cfedd926ae0894620c05de9c375a33989e344cea60de18b796a9d1408bf",
+      "rawBytes": 835
+    },
+    {
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/10500.png",
+      "purpose": "One authorized exact current info data.info[0].cover GET; no other art or retries",
+      "method": "GET",
+      "startedUtc": "2026-10-04T12:53:46.7599684Z",
+      "finishedUtc": "2026-10-04T12:53:46.9668320Z",
+      "httpStatus": "200",
+      "curlExitCode": 0,
+      "redirectsFollowed": false,
+      "retries": 0,
+      "rawSha256": "f23ec7fb25b6977e0c0bf026768c7417150cee7b465e031f8cdb0ee75eda33b0",
+      "rawBytes": 1144861
+    }
+  ],
+  "sourceBoundary": "Current complete ordinary OL SP variant, not classic Qun Mengjin or boundary Qun Jianchu; no FAQ queried.",
+  "noAdditionalNetwork": true
+}

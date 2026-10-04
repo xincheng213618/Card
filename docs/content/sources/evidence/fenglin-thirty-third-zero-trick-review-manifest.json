@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "status": "frozen-static-ordinary-route-review-one-confirmed-p2",
+  "frozenUtc": "2026-10-04T10:25:57.9934549+00:00",
+  "mainHeadAsParentReported": "17fead66",
+  "ownedStage": ".artifacts/continuation-20261003-batch17/batch33/726-ordinary-route-audit",
+  "files": [
+    {
+      "path": "finding-fire-attack.json",
+      "rawSha256": "1d7bc7ea915deda97d6202853eab9bda4533b69846c5c62ea56a3bdd3f6821b0",
+      "bytes": 4647
+    },
+    {
+      "path": "finding-fire-attack.md",
+      "rawSha256": "711b84498843b5a84cb304a3a4fffaa9b54302a0386aa05641f060d66c6e8995",
+      "bytes": 1419
+    },
+    {
+      "path": "ordinary-route-review.md",
+      "rawSha256": "0d386b76149ae6f12b0188dc38d85e01293dd819c4552adb1f965e457c871fb6",
+      "bytes": 5877
+    }
+  ],
+  "namedSourceInputs": [
+    {
+      "path": "src/CardGame.Core/GameEngine.TieredRoundZeroUses.cs",
+      "rawSha256": "56496044044d8a2ea820f60d5e14194899ecedf0bc23f21e97a71e9b21ab8fe4"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.TieredRoundZeroReturns.cs",
+      "rawSha256": "f61c05cd904cd0bf0cb37707ef24c851be86eb2a7c513c1f5f85ec2b5d8dde55"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CardActions.cs",
+      "rawSha256": "a123b2e126b6350e2a25f9f20f41486fb1481fece36ade5929a261dfe4da0c1f"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.SequentialTrickTargets.cs",
+      "rawSha256": "cc6490f48fffd3f366fef4b86edaa90c04aa2a5ca6532fa241a7fbb4260775f5"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CardUseLifecycle.cs",
+      "rawSha256": "2b5a8ba7c5b8850ec5a95978616dbb24a527a6573d51d2f12ed920f7e484a9a6"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.cs",
+      "rawSha256": "b20aba18e50aa248eb5312ecff18856876c3a7c00ae393cf5f9d9108d8af0875"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ProgramOrdinaryTrickUses.cs",
+      "rawSha256": "53ce49fac7055ab8ba6992b2b7e1f7d49fac4827813aabdd8ee9f0eaa07b9fd6"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.DamageColorDuelPrograms.cs",
+      "rawSha256": "41de49dfd01e9fecf324bd9a7b1f546dfd1f00f1ae48ce91f19438b1c6efc728"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CardAttackState.cs",
+      "rawSha256": "1bd8b67d0e91e7c112bb6b9bef527d835b7611b468fca2524a68351eede21643"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ColorFireAttacks.cs",
+      "rawSha256": "997b4f242ecb9f8ca5adaf5f9122730171661b7c1e6aaa89b3e96c9e21fd7ba0"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.HpChangePrograms.cs",
+      "rawSha256": "be22d7fb3479044eb54e49a5b5010ecccf7cfc14f8f693264ddb197aa4cc8932"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CharacterStatePrograms.cs",
+      "rawSha256": "eb506019f5a83587683539d103d6de921e0806f3cf0d87ad39992f606ae0d5ff"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ProgramIronChainTargets.cs",
+      "rawSha256": "e3703edc07e07ba79300752cc0a59127a55376322b1f67b03a433ff3be176a7e"
+    },
+    {
+      "path": "src/CardGame.Core/Domain.cs",
+      "rawSha256": "a62227d950284de7dfef598c5a9daa466d7f584a8c6bf2a7545e353238a2bfeb"
+    },
+    {
+      "path": "src/CardGame.Core/CardActions.cs",
+      "rawSha256": "c2306c7e65233e51a93706019b20f035f361b75e783eeec63203f4ed27b886cb"
+    },
+    {
+      "path": "src/CardGame.Core/CardZones.cs",
+      "rawSha256": "d07a4be72c3d4ac3553356c4bbc3b38d8be9f6fbde6fbdceec25ec59e0b3017e"
+    },
+    {
+      "path": "src/CardGame.Core/Resolution.cs",
+      "rawSha256": "1a46c364c92c0a721c9992e6cf8ff6595fd742f95f05782a3ddef0ec4a576382"
+    },
+    {
+      "path": "src/CardGame.Core/SkillPrograms.cs",
+      "rawSha256": "a85646fb0a1707c2b9c3d4f7a74cfb160d94fad64dce909e55e98955ec9a3bfa"
+    },
+    {
+      "path": "src/CardGame.Content.Standard/SkillPrograms/boundary-guo-huang-hou.rules.json",
+      "rawSha256": "544f75dfcb14222cb1fc25b3c57ad2714a816237367139f9057132d823ce5c0a"
+    }
+  ],
+  "confirmedFindings": 1,
+  "findingPriority": "P2",
+  "findingTitle": "Zero-material FireAttack is passed as nonnull physical card0 to damage handle",
+  "otherNamedOrdinaryRoutes": "No second concrete defect found in inspected callee/finish/typed-return range; not runtime acceptance.",
+  "ordinaryRoutes": [
+    "drawTwo",
+    "peachGarden",
+    "snatch",
+    "dismantlement",
+    "fireAttack",
+    "fiveGrains",
+    "ironChain-use/recast-boundary",
+    "borrowedSword",
+    "duel",
+    "barbarianAssault",
+    "arrowBarrage"
+  ],
+  "apiDefinitionsChecked": [
+    "CardKind",
+    "Card",
+    "LegalAction",
+    "TieredRoundZeroUse",
+    "SkillProgramViewAs.TieredRoundConversion",
+    "CardUseFrame.TieredRoundConversionUse",
+    "ProgramTrickContinuation",
+    "ProgramSimpleCardContinuation"
+  ],
+  "sourceLineErratum": "Initial FireAttack producer line array was overwide; exact zero dispatch is ExecuteTieredRoundZeroPlay163-194, BeginCardUse173 and BeginJizhi193. Damage/physical-lookup lines unchanged.",
+  "execution": {
+    "textJsonParsingOnly": true,
+    "compiler": false,
+    "loader": false,
+    "build": false,
+    "tests": false,
+    "game": false,
+    "native": false,
+    "benchmark": false,
+    "http": false,
+    "mainWrites": false,
+    "oldFrozenWrites": false,
+    "codeFix": false,
+    "gitMutation": false,
+    "versionChanges": false
+  },
+  "limitations": [
+    "No claimed reproduction or all18 runtime acceptance.",
+    "Followup fix belongs to independent root-authorized stage and is not part of this review.",
+    "Checkpoint journal replay causality retained; no direct pending-frame JSON alias reproduction inferred.",
+    "Unrelated PrepDiscardReceipts main dirty change is excluded."
+  ]
+}

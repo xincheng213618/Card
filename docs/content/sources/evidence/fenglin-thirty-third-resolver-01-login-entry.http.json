@@ -1,0 +1,93 @@
+{
+  "requestUrl": "https://web.sanguosha.com/login/index.html",
+  "requestMethod": "GET",
+  "startedUtc": "2026-10-04T10:14:59.1602335+00:00",
+  "automaticRedirects": false,
+  "javascriptExecuted": false,
+  "maximumBytes": 262144,
+  "responseBodyDownloaded": true,
+  "rawResponseComplete": true,
+  "responseUrl": "https://web.sanguosha.com/login/index.html",
+  "httpStatus": 200,
+  "reasonPhrase": "OK",
+  "headers": {
+    "Server": [
+      "Tengine"
+    ],
+    "Connection": [
+      "keep-alive"
+    ],
+    "Date": [
+      "Sun, 04 Oct 2026 10:15:02 GMT"
+    ],
+    "Vary": [
+      "Accept-Encoding"
+    ],
+    "x-oss-request-id": [
+      "6AC227266F011130338CA8CA"
+    ],
+    "Accept-Ranges": [
+      "bytes"
+    ],
+    "ETag": [
+      "\"4731AA08BD4A0BB618F3CB3D88F95ACB\""
+    ],
+    "x-oss-object-type": [
+      "Normal"
+    ],
+    "x-oss-hash-crc64ecma": [
+      "2322689094862184620"
+    ],
+    "x-oss-storage-class": [
+      "Standard"
+    ],
+    "x-oss-server-time": [
+      "3"
+    ],
+    "Via": [
+      "cache8.l2cn3059[21,21,200-0,M], cache28.l2cn3059[23,0], vcache22.cn5626[34,34,200-0,M], vcache8.cn5626[36,0]"
+    ],
+    "Ali-Swift-Global-Savetime": [
+      "1791108902"
+    ],
+    "X-Cache": [
+      "MISS TCP_MISS dirn:-2:-2"
+    ],
+    "X-Swift-SaveTime": [
+      "Sun, 04 Oct 2026 10:15:02 GMT"
+    ],
+    "X-Swift-CacheTime": [
+      "0"
+    ],
+    "Access-Control-Allow-Origin": [
+      "*"
+    ],
+    "Timing-Allow-Origin": [
+      "*"
+    ],
+    "EagleId": [
+      "de49211c17911089029255010e"
+    ],
+    "Content-Type": [
+      "text/html; charset=utf-8"
+    ],
+    "Content-Length": [
+      "11439"
+    ],
+    "Last-Modified": [
+      "Tue, 15 Sep 2026 09:05:27 GMT"
+    ],
+    "Content-MD5": [
+      "RzGqCL1KC7YY88s9iPlayw=="
+    ],
+    "Expires": [
+      "180d"
+    ]
+  },
+  "contentLength": 11439,
+  "contentType": "text/html; charset=utf-8",
+  "rawPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch33\\advertised-rule-resolver\\01-login-entry.raw",
+  "rawBytes": 11439,
+  "rawSha256": "3883e4fbe34d88220161ffc6c6696fbe1bf5e222ed6ff967284c6e73a4f58346",
+  "completedUtc": "2026-10-04T10:14:59.3917937+00:00"
+}

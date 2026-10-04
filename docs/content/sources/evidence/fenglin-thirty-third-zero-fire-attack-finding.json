@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "status": "frozen-static-confirmed-route-defect",
+  "priority": "P2",
+  "title": "Zero-material FireAttack is stored as a physical cardId0 attack.",
+  "trigger": "A tier2 Jiaozhao zero-material FireAttack is legally selected against a living nonempty-hand target; after ordinary reveal the actor pays a matching-suit real hand card and damage resolves. No color-FireAttack policy, optional observer or Dying is required.",
+  "producer": [
+    {
+      "file": "src/CardGame.Core/GameEngine.TieredRoundZeroUses.cs",
+      "lines": [
+        18,
+        44,
+        192,
+        194,
+        201
+      ],
+      "proof": "Published legal zero ordinary use, then BeginCardUse(Card0, physicalCardIds:[]) and ordinary trick continuation."
+    },
+    {
+      "file": "src/CardGame.Core/GameEngine.DamageColorDuelPrograms.cs",
+      "lines": [
+        31,
+        34
+      ],
+      "proof": "GetTrickRepresentation returns Card(0, FireAttack, None,0) for exact issued zero use."
+    },
+    {
+      "file": "src/CardGame.Core/GameEngine.cs",
+      "lines": [
+        5771,
+        5815,
+        5839,
+        5848
+      ],
+      "proof": "After actual same-suit Hand→Processing→Discard payment, ordinary ResolveFireAttackDiscard passes that Card0 as nonnull attack card with physicalCards=[]."
+    },
+    {
+      "file": "src/CardGame.Core/GameEngine.cs",
+      "lines": [
+        19098,
+        19111
+      ],
+      "proof": "CardAttackHandle stores CardId=0; its Card getter always resolves nonnull ID through GetAttackCard."
+    }
+  ],
+  "consumer": [
+    {
+      "file": "src/CardGame.Core/GameEngine.CardAttackState.cs",
+      "line": 6,
+      "proof": "GetAttackCard(0) calls the real zone store, rather than a logical representation."
+    },
+    {
+      "file": "src/CardGame.Core/CardZones.cs",
+      "lines": [
+        309,
+        312
+      ],
+      "proof": "Zero is not a registered card entity; missing location throws."
+    },
+    {
+      "file": "src/CardGame.Core/GameEngine.cs",
+      "lines": [
+        12886,
+        12939
+      ],
+      "proof": "FinishTieredRoundZeroAttack does not accept FireAttack; ordinary FinishAttack calls RequireAttackCard which reads CardId0 through the physical getter."
+    },
+    {
+      "file": "src/CardGame.Core/GameEngine.TieredRoundZeroReturns.cs",
+      "lines": [
+        37,
+        40,
+        61,
+        65
+      ],
+      "proof": "Issued zero-attack invariant requires Card=null and only Slash/Duel or group attack kinds. FireAttack has no admitted branch."
+    }
+  ],
+  "otherAffectedActualProducer": {
+    "file": "src/CardGame.Core/GameEngine.ColorFireAttacks.cs",
+    "lines": [
+      101,
+      108
+    ],
+    "proof": "The mature optional color-FireAttack payment route also passes its zero representation as nonnull card; same new opt-in combination has the same problem."
+  },
+  "suggestedScope": "Keep legacy physical producers unchanged. Only exact issued tier2 zero FireAttack should create CardAttackHandle(card:null, EffectiveKind:FireAttack, PhysicalCards:[]). Extend its precise zero attack ownership/consistency and finish return to include FireAttack with that exact issued parent. Do not globally invent entity0 in GetAttackCard or weaken zone invariants; verify same-use damage and Completed/sequential return cleanup.",
+  "runtimeBoundary": "Source-level producer/consumer contradiction; no command, compiler, loader, game or test was run. No claimed runtime reproduction.",
+  "sourceRawSha256": [
+    {
+      "path": "src/CardGame.Core/GameEngine.TieredRoundZeroUses.cs",
+      "sha": "56496044044d8a2ea820f60d5e14194899ecedf0bc23f21e97a71e9b21ab8fe4"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.TieredRoundZeroReturns.cs",
+      "sha": "f61c05cd904cd0bf0cb37707ef24c851be86eb2a7c513c1f5f85ec2b5d8dde55"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.cs",
+      "sha": "b20aba18e50aa248eb5312ecff18856876c3a7c00ae393cf5f9d9108d8af0875"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.CardAttackState.cs",
+      "sha": "1bd8b67d0e91e7c112bb6b9bef527d835b7611b468fca2524a68351eede21643"
+    },
+    {
+      "path": "src/CardGame.Core/GameEngine.ColorFireAttacks.cs",
+      "sha": "997b4f242ecb9f8ca5adaf5f9122730171661b7c1e6aaa89b3e96c9e21fd7ba0"
+    },
+    {
+      "path": "src/CardGame.Core/CardZones.cs",
+      "sha": "d07a4be72c3d4ac3553356c4bbc3b38d8be9f6fbde6fbdceec25ec59e0b3017e"
+    }
+  ],
+  "execution": {
+    "compiler": false,
+    "loader": false,
+    "tests": false,
+    "game": false,
+    "native": false,
+    "benchmark": false,
+    "http": false,
+    "mainWrites": false,
+    "codeFix": false
+  }
+}

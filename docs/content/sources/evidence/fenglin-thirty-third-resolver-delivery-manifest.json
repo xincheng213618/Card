@@ -1,0 +1,120 @@
+{
+  "status": "frozen",
+  "scope": "source-only advertised resolver preflight; no implementation",
+  "frozenUtc": "2026-10-04T10:18:20.446945+00:00",
+  "reviewHead": "17fead66d0d20bb39867f8da92d1bc75f9381b83",
+  "ownedStage": ".artifacts/continuation-20261003-batch17/batch33/advertised-rule-resolver",
+  "files": [
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/advertised-rule-resolver/capture-advertised-entry.ps1",
+      "rawBytes": 3863,
+      "rawSha256": "8a9b857e9af39c7c18e0d733b0d0b6cbe59123f5a75248c691588075e61cb161",
+      "hasUtf8Bom": false
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/advertised-rule-resolver/freeze-evidence.py",
+      "rawBytes": 10965,
+      "rawSha256": "f1b6272ffc6fbc02b7f218584586a42bd6ac9bdfde114bbc420b9cca0d3849bd",
+      "hasUtf8Bom": false
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/advertised-rule-resolver/01-login-entry.raw",
+      "rawBytes": 11439,
+      "rawSha256": "3883e4fbe34d88220161ffc6c6696fbe1bf5e222ed6ff967284c6e73a4f58346",
+      "hasUtf8Bom": false
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/advertised-rule-resolver/01-login-entry.http.json",
+      "rawBytes": 2269,
+      "rawSha256": "41c4e4fc8c80477a954f8492877a315c23660e3f18aabc75d799505d495f63a8",
+      "hasUtf8Bom": false
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/advertised-rule-resolver/advertised-rule-resolver-evidence.json",
+      "rawBytes": 14046,
+      "rawSha256": "c809a9bf7b72b458aafa0cf0e7d0a3395189b79b240e493ff30f7aaf313ce626",
+      "hasUtf8Bom": false
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch33/advertised-rule-resolver/SOURCE-REVIEW.md",
+      "rawBytes": 2081,
+      "rawSha256": "283fdd1624da7a207d6a69cc50cf5801ac5bb33881e8feb245e70f595c175d38",
+      "hasUtf8Bom": false
+    }
+  ],
+  "retainedInputs": [
+    {
+      "path": "docs/content/sources/fenglin-thirty-second-447-source-2026-10-04.json",
+      "rawBytes": 11262,
+      "rawSha256": "48749a7df2a85ce2f17c66955908c1770bf74fd0dd05137e3d03741e2cf72940",
+      "hasUtf8Bom": false
+    },
+    {
+      "path": "docs/content/sources/evidence/fenglin-thirty-second-447-hero-2026-10-04.raw.html",
+      "rawBytes": 24388,
+      "rawSha256": "ff8f3ae73932b5b788524db4085d6333feba8612cccfa993100b36bb3e44683a",
+      "hasUtf8Bom": false
+    },
+    {
+      "path": "docs/content/sources/fenglin-twenty-ninth-451-linked-script-followup-2026-10-04.json",
+      "rawBytes": 2849,
+      "rawSha256": "b356429bb04d9aa08c4bfb2780520ae7060bdd82f3d0e1e55e727c97be77dc9f",
+      "hasUtf8Bom": false
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/451-page.raw.html",
+      "rawBytes": 25661,
+      "rawSha256": "aa216410cf2a34db5b7328fa5cfe18e6f44be117cd8035c338b39201f7b9d90a",
+      "hasUtf8Bom": false
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/heroDetail.js.raw",
+      "rawBytes": 15166,
+      "rawSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+      "hasUtf8Bom": false
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/451-linked-skill-followup/commen.js.raw",
+      "rawBytes": 4424,
+      "rawSha256": "95ca9d3ff648d5c4f045019b9d2252883db452b04db508f6ea5a735c2e725129",
+      "hasUtf8Bom": false
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/451-linked-skill-followup/header.js.raw",
+      "rawBytes": 17929,
+      "rawSha256": "2e7ae2b016577a88f00269d9409cffac9bd6976df54be12efd7fbf31c36c32d0",
+      "hasUtf8Bom": false
+    },
+    {
+      "path": "docs/content/sources/fenglin-thirty-first-current-grant-followup-2026-10-04.json",
+      "rawBytes": 13537,
+      "rawSha256": "3e313913f354ce67b28c84b39dea6692c533144bcb4d0532ba729b9917fd7040",
+      "hasUtf8Bom": false
+    }
+  ],
+  "execution": {
+    "singleGetBudget": 3,
+    "singleGetsUsed": 1,
+    "automaticRedirects": false,
+    "retainedScriptsRefetched": false,
+    "endpointOrResourcePathGuesses": 0,
+    "loginOrAccountActions": false,
+    "javascriptOrGameExecution": false,
+    "mediaDownloaded": false,
+    "clientOrAssetBundleDownloaded": false,
+    "mainWritten": false,
+    "gitStageOrCommit": false,
+    "compiler": false,
+    "loader": false,
+    "tests": false,
+    "benchmark": false
+  },
+  "currentNumberToFullDefinitionReady": {
+    "878": false,
+    "939": false,
+    "3045": false,
+    "895": false,
+    "885": false
+  },
+  "mainSourceRecordsChanged": false
+}

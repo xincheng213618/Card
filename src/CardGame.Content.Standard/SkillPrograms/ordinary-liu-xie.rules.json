@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:tianming", "revision": 1,
+      "triggers": [{ "id": "actual-slash-target", "window": "otherActualUseTargeted", "subject": "owner", "optional": true,
+        "effects": [{ "op": "discardDrawAndOfferUniqueHpPeer", "target": "owner" }] }] },
+    { "id": "ol:mizhao", "revision": 1,
+      "activations": [{ "id": "recipient-contest", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1,
+        "sourceZones": ["hand"], "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [{ "op": "giveAllHandAndStartRecipientPindian", "target": "selectedTarget", "resultBind": "recipient-contest" },
+          { "op": "usePindianWinnerSlash", "target": "owner", "sourceBind": "recipient-contest" }] }] }
+  ]
+}

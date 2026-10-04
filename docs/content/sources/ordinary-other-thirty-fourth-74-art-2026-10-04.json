@@ -1,0 +1,21 @@
+{
+  "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/7400.png",
+  "startedUtc": "2026-10-04T11:44:05.5428844Z",
+  "endedUtc": "2026-10-04T11:44:05.7468377Z",
+  "httpStatus": "200",
+  "curlExitCode": 0,
+  "requests": 1,
+  "retryPerformed": false,
+  "redirectsFollowed": false,
+  "bodyPath": "art/official-ol-ling-ju.png",
+  "rawBodySha256": "ce7be6c2e2f46ef00c1d16c1fabfd1f103f4457a37587900356d21a618a90a0b",
+  "bodyBytes": 930813,
+  "pixelWidth": 750,
+  "pixelHeight": 950,
+  "headerPath": "art/74-cover.headers.txt",
+  "rawHeaderSha256": "c30eb0364bdcbba2cf34cb9cb501b8c0c3509460bf9358f4a72aafc5e5fd7bf4",
+  "sourceRecordPath": "docs/content/sources/ordinary-other-thirty-third-74-source-2026-10-04.json",
+  "sourceRecordRawSha256": "77409ab6db370f94fa2be0c2f679cfb4829919d571a833424e325c8d3f567413",
+  "advertisedCoverProof": "api.parsedBody.data.info[0].cover; exact URL, one GET, no redirect/retry",
+  "installed": false
+}

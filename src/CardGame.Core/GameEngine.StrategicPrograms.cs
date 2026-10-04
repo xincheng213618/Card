@@ -147,13 +147,13 @@ public sealed partial class GameEngine
                 });
                 return BeginProgramSkillDamage(frame, damageSeat, effect.Amount == 0 ? 1 : effect.Amount);
             case SkillProgramEffectOp.SelectDistinctSuitHandDiscards:
-                var candidates = GetHand(owner).Concat(GetHand(_players[targetSeat])).Select(card => card.Id).ToArray();
+                var candidates = GetHand(owner).Where(card => !IsSelfHandCategoryDiscardForbidden(owner.Seat, card, CardLocation.Hand(owner.Seat), OwnedCardMoveIntent.Discard)).Concat(GetHand(_players[targetSeat])).Select(card => card.Id).ToArray();
                 _strategicDrafts[frame.Id] = new(effect.Op, targetSeat, effect.ResultBind, candidates, [], 4);
                 PublishStrategicPrompt(frame);
                 return SkillProgramStepOutcome.AwaitChoice;
             case SkillProgramEffectOp.ApplyHandDiscardShare:
                 var binding = GetProgramCardSet(frame, effect.SourceBind!);
-                if (binding.CardIds.Count != 4) return SkillProgramStepOutcome.Continue;
+                if (binding.CardIds.Count != 4 || binding.CardIds.Select((id, i) => IsSelfHandCategoryDiscardForbidden(frame.OwnerSeat, _cardZones.CardsAt(binding.SourceLocations[i]).Single(card => card.Id == id), binding.SourceLocations[i], OwnedCardMoveIntent.Discard)).Any(blocked => blocked)) return SkillProgramStepOutcome.Continue;
                 var mine = binding.SourceLocations.Count(location => location.OwnerSeat == frame.OwnerSeat);
                 foreach (var group in binding.CardIds.Select((id, index) => (id, Location: binding.SourceLocations[index])).GroupBy(item => item.Location))
                     MoveCards(group.Select(item => _cardZones.CardsAt(item.Location).Single(card => card.Id == item.id)).ToArray(), group.Key, CardLocation.DiscardPile, reason);

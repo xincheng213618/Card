@@ -4,9 +4,9 @@ public sealed partial class GameEngine
 {
     private void RequestHumanDiscard(CharacterState player)
     {
-        var hand = GetDiscardEligibleHand(player);
+        var hand = GetSelfDiscardableHand(player);
         var handLimit = GetHandLimit(player);
-        var count = hand.Count - handLimit;
+        var count = RequiredSelfHandLimitDiscard(player);
         _pendingDecision = new PendingDecision(
             DecisionKind.DiscardCards,
             player.Seat,
@@ -36,12 +36,12 @@ public sealed partial class GameEngine
         if (ids.Length != prompt.RequiredCardCount || ids.Distinct().Count() != ids.Length)
             return Reject(CommandErrorCode.InvalidChoice, $"Select exactly {prompt.RequiredCardCount} distinct cards.");
 
-        var hand = GetDiscardEligibleHand(actor);
+        var hand = GetSelfDiscardableHand(actor);
         var handIds = hand.Select(card => card.Id).ToHashSet();
         if (ids.Any(id => !prompt.ValidCardIds.Contains(id) || !handIds.Contains(id)))
             return Reject(CommandErrorCode.InvalidCard, "Every selected card must be in the published hand.");
 
-        if (hand.Count - GetHandLimit(actor) != prompt.RequiredCardCount)
+        if (RequiredSelfHandLimitDiscard(actor) != prompt.RequiredCardCount)
             return Reject(CommandErrorCode.IllegalAction, "The hand limit changed; refresh the discard prompt.");
 
         var selected = ids.ToHashSet();
@@ -65,10 +65,10 @@ public sealed partial class GameEngine
         if (_pendingDecision is { Kind: DecisionKind.DiscardCards } prompt)
         {
             var owner = _players[prompt.PlayerSeat];
-            var hand = GetDiscardEligibleHand(owner);
+            var hand = GetSelfDiscardableHand(owner);
             if (!owner.IsHuman || !owner.IsAlive || _phase != TurnPhase.Discard ||
                 _currentSeat != owner.Seat || _status != EngineStatus.AwaitingHumanDiscard ||
-                prompt.RequiredCardCount <= 0 || prompt.RequiredCardCount != hand.Count - GetHandLimit(owner) ||
+                prompt.RequiredCardCount <= 0 || prompt.RequiredCardCount != RequiredSelfHandLimitDiscard(owner) ||
                 !prompt.ValidCardIds.Order().SequenceEqual(hand.Select(card => card.Id).Order()) ||
                 prompt.Choices.Count != 0 || prompt.ValidTargetSeats.Count != 0 || !prompt.IsPrivate)
                 throw new InvalidOperationException("The private discard prompt must match its current owner's hand limit.");

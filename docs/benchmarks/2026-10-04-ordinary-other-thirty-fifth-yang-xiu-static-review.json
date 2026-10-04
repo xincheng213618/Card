@@ -1,0 +1,96 @@
+{
+  "scope": "Named stage NEW/OLD/source only; no production loader, compiler or gameplay execution",
+  "mainHead": "ffee9fd86044be71859235335225fd2dc394f925",
+  "sourceReady": true,
+  "sourceSha256": "1abfdfb63826bb84e655a0bf9a8b16b82fa8868cd97211046574110ca1c9a792",
+  "staticJsonSyntaxAndSkillIdsAligned": true,
+  "borrowedSwordTargetCount": "Even indices only for weapon holders, shared by self/offer/receipt",
+  "selfDiscardActor": "Real owned selection chooser cardOwnerSeat, frozen SelectionActorSeat; foreign actor unchanged",
+  "conditionalPayment": "Only unconditional or already selected ChoiceIs future bound discard prefilters; execution revalidates actual discard",
+  "handLimit": "min(max(countedHand-limit,0),discardableCount), protected cards still counted",
+  "frozenPublicCollections": "PlayerSnapshot explicit init clone, prepared projector FreezeViewList; new event receipts/policies scalar only",
+  "capabilities": [
+    7300,
+    7301
+  ],
+  "newTriggerWindows": [],
+  "versionConstantsUnchanged": true,
+  "versionSourceFileBytesUnchangedClaimed": false,
+  "dataOnlyArtifactGenerationExecuted": true,
+  "runtime": {
+    "compiled": false,
+    "build": false,
+    "productionLoader": false,
+    "coreChecks": false,
+    "wpfChecks": false,
+    "ui": false,
+    "game": false,
+    "native": false,
+    "benchmark": false
+  },
+  "namedInputs": [
+    {
+      "mainPath": "src/CardGame.Core/Replay.cs",
+      "rawSha256": "83773c8192521c8202aa932201ff15efbed438212467508d95780ca83889f966"
+    },
+    {
+      "mainPath": "src/CardGame.Core/SkillPrograms.cs",
+      "rawSha256": "20c6816411cc10ba7291f4238503f870fe01cba424e0b0ff3c18de61d4fe9a6a"
+    },
+    {
+      "mainPath": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+      "rawSha256": "43fd55baaac570379b0419ae4b7ae5262c114cebe20a44853a15723ea173993f"
+    },
+    {
+      "mainPath": "src/CardGame.Core/GameEngine.HalfHandPhaseDebtDamageObservers.cs",
+      "rawSha256": "061db7a883721edc4f84cb6f91f4795b0eb6017890f2408a45012433a689edfe"
+    },
+    {
+      "mainPath": "src/CardGame.Core/GameEngine.EquipmentDonationObservers.cs",
+      "rawSha256": "f196676e6850407afcc33225db54b19162bf87c5e375dbc613a53b36c0b0cea0"
+    },
+    {
+      "mainPath": "src/CardGame.Core/ParticipantHandProgramRescueRides.cs",
+      "rawSha256": "6da6e299163ddcc7bd04daf65b704e1e0896dc03044cf4c7764f30aa48307d48"
+    },
+    {
+      "mainPath": "src/CardGame.Core/ProgramOperationDefinitions.cs",
+      "rawSha256": "36e5aba602e6c90bc76dd745def2569ae5648e782b05a10d1f4886c6bc4f34af"
+    },
+    {
+      "mainPath": "src/CardGame.Core/ProgramCardActionOperationDefinitions.cs",
+      "rawSha256": "b0eba5a9824a57d70dd00dd4acd0a0181f0a1b6cd23ecacf553fd969b694ddcd"
+    },
+    {
+      "mainPath": "src/CardGame.Core/Commands.cs",
+      "rawSha256": "f540392d38cf7fd39cf79091a78a62ed2ec21637dda54f62043481d2cadab9e5"
+    },
+    {
+      "mainPath": "src/CardGame.Core/Domain.cs",
+      "rawSha256": "a62227d950284de7dfef598c5a9daa466d7f584a8c6bf2a7545e353238a2bfeb"
+    },
+    {
+      "mainPath": "src/CardGame.Core/Events.cs",
+      "rawSha256": "704ec46bad5cd96999577689ac3961042b0c9ffecbcf61954e8a991c6fa50108"
+    },
+    {
+      "mainPath": "src/CardGame.Core/ContentRegistry.cs",
+      "rawSha256": "305ac78e19dbf71c591e06ecebd4d8a9f9f763711caa3a346f27091b96c70c32"
+    },
+    {
+      "mainPath": "src/CardGame.Wpf/ViewModels/GeneralArt.cs",
+      "rawSha256": "e0a0ccbd257683dbfa1325ee76a00c7e23a25216a0228a14f0ffabac703a07c7"
+    },
+    {
+      "mainPath": "src/CardGame.Wpf/CardGame.Wpf.csproj",
+      "rawSha256": "1069e4a0479035a3f8adce8355c32c13cfe514605be8f46befdd0eaf69e29bf0"
+    }
+  ],
+  "unexecutedBoundaries": [
+    "All four registered check drafts",
+    "All shared cost consumers beyond representative actual commands",
+    "Every HE/private-pile/multi-material/card-declaration use or response producer",
+    "Actual Silver Lion cost recovery",
+    "Source death and winner cleanup"
+  ]
+}

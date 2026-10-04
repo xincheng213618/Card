@@ -291,7 +291,9 @@ public sealed partial class GameEngine
     {
         paused = false;
         if (attack.Card is not null || !IsTieredRoundZeroUse(attack.ResolutionId) ||
-            attack.EffectiveCardKind is not { } kind || !IsSlashCard(kind) && kind != CardKind.Duel) return false;
+            attack.EffectiveCardKind is not { } kind ||
+            !IsSlashCard(kind) && kind != CardKind.Duel &&
+                !(kind == CardKind.FireAttack && MatchesTieredRoundZeroFireAttackAttack(attack))) return false;
         var use = LifecycleCardUse(attack.ResolutionId)!;
         SetCardUseStep(use.Id, ResolutionFrameStep.Completed);
         AdvanceEventRulesAndQueueFact(new CardUseFinishedEvent(use.Id, 0, use.CardKind));

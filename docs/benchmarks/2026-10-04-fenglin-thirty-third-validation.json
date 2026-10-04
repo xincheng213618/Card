@@ -1,0 +1,87 @@
+{
+  "integrationRecord": "docs/content/sources/fenglin-thirty-third-static-integration-2026-10-04.json",
+  "execution": {
+    "push": false,
+    "benchmark": false,
+    "ui": false,
+    "publish": false,
+    "loader": false,
+    "compiler": false,
+    "native": false,
+    "tests": false,
+    "game": false,
+    "build": false
+  },
+  "unresolvedCandidatesFullSourceReady": {
+    "690": false,
+    "449": false,
+    "451": false,
+    "447": false
+  },
+  "recordedAtUtc": "2026-10-04T10:50:44.2587098Z",
+  "cleanup": {
+    "notRetriedOrBypassed": true,
+    "previousAutomaticApprovalRejection": "blocked by policy",
+    "newBuildOrPublishTreesCreated": false,
+    "stillPresentExactPaths": [
+      "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+      "C:\\Users\\17917\\Desktop\\Card\\tools\\__pycache__\\sync_general_art.cpython-314.pyc"
+    ]
+  },
+  "versionsUnchanged": true,
+  "schemaVersion": 1,
+  "newGeneralRegistrations": 0,
+  "reviewBaseHead": "17fead66d0d20bb39867f8da92d1bc75f9381b83",
+  "status": "static-source-and-code-verification-only",
+  "excludedConcurrentDirty": [
+    "src/CardGame.Core/GameEngine.PrepDiscardReceipts.cs"
+  ],
+  "nextBatchContracts": [
+    {
+      "candidate": 72,
+      "rawSha256": "77a33280d4235def7928803eea27cb9733683f89af247913d485f5839405786c",
+      "stageManifest": ".artifacts/continuation-20261003-batch17/batch33/fu-wan-contract/delivery-manifest.json"
+    },
+    {
+      "candidate": 73,
+      "rawSha256": "f5d98ba4b3193e9a1ff0465d4e9a2bb62efbbfa4f64d1601c7bc9d9d74599ac1",
+      "stageManifest": ".artifacts/continuation-20261003-batch17/batch34/liu-xie-contract/delivery-manifest.json"
+    },
+    {
+      "candidate": 74,
+      "rawSha256": "9e2088e714eee6447f2372a4af0da0b28a6aae91b0ee4756c17596b2980fd0ed",
+      "stageManifest": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-contract/delivery-manifest.json"
+    }
+  ],
+  "actualCodeFilesChanged": 5,
+  "candidateSourceRecord": "docs/content/sources/ordinary-other-thirty-third-source-adoption-2026-10-04.json",
+  "runtimeBoundary": "All builds, production loaders, commands/games, behavior drafts and routine/full verification are deferred by the user. Static source/API/JSON checks do not establish runtime acceptance.",
+  "completeSourceCandidates": {
+    "73": true,
+    "72": true,
+    "74": true
+  },
+  "staticChecks": {
+    "namedSourcesAndOriginalEvidenceBytesMatch": true,
+    "fiveEffectiveCodeLfPreviewsMatch": true,
+    "jsonLiteralSyntax": true,
+    "independentBoundedReviewCompleted": true
+  },
+  "sourceFollowupRecord": "docs/content/sources/fenglin-thirty-third-current-source-followup-2026-10-04.json",
+  "checks": {
+    "routineTimingSeconds": null,
+    "coldDraftPrefixes": [
+      "real discard choice",
+      "real after-damage child",
+      "real CardUseCompleted child"
+    ],
+    "modifiedExistingCoreMethod": "SharedRoundQuotaSurvivesTierRegrantAndExtraTurn",
+    "executed": false,
+    "draftBranches": [
+      "ordinary FireAttack Hand payment",
+      "color-policy FireAttack Hand payment"
+    ],
+    "fullTimingSeconds": null,
+    "addedRegisteredMethods": 0
+  }
+}

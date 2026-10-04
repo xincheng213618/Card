@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "purpose": "One authorized exact source72 advertised cover GET; no redirects/retries/media scan",
+  "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/7200.png",
+  "startedUtc": "2026-10-04T11:36:26.9716378Z",
+  "endedUtc": "2026-10-04T11:36:27.2127668Z",
+  "status": 200,
+  "headers": {
+    "Server": [
+      "Tengine"
+    ],
+    "Connection": [
+      "keep-alive"
+    ],
+    "Date": [
+      "Sun, 04 Oct 2026 11:36:30 GMT"
+    ],
+    "Access-Control-Allow-Origin": [
+      "*"
+    ],
+    "Access-Control-Allow-Methods": [
+      "GET, POST, OPTIONS"
+    ],
+    "Access-Control-Allow-Headers": [
+      "DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization"
+    ],
+    "Accept-Ranges": [
+      "bytes"
+    ],
+    "Via": [
+      "cache38.l2cn3059[17,35,304-0,H], cache33.l2cn3059[36,0], vcache9.cn5626[48,65,200-0,H], vcache26.cn5626[69,0]"
+    ],
+    "ETag": [
+      "\"6a2624bf-97c58\""
+    ],
+    "Age": [
+      "0"
+    ],
+    "Ali-Swift-Global-Savetime": [
+      "1791113790"
+    ],
+    "X-Cache": [
+      "HIT TCP_REFRESH_HIT dirn:4:134395425"
+    ],
+    "X-Swift-SaveTime": [
+      "Sun, 04 Oct 2026 11:36:30 GMT"
+    ],
+    "X-Swift-CacheTime": [
+      "3600"
+    ],
+    "Timing-Allow-Origin": [
+      "*"
+    ],
+    "EagleId": [
+      "de49212e17911137908645175e"
+    ],
+    "Content-Type": [
+      "image/png"
+    ],
+    "Content-Length": [
+      "621656"
+    ],
+    "Last-Modified": [
+      "Mon, 08 Jun 2026 02:11:11 GMT"
+    ],
+    "Expires": [
+      "180d"
+    ]
+  },
+  "rawSha256": "508801d306a19b380cf24f460d03ba315e8e473da53ed384201c5e781625ed8b",
+  "bytes": 621656,
+  "pngSignature": true,
+  "width": 750,
+  "height": 950,
+  "generalId": "ol:fu-wan",
+  "normalizedArtKey": "ol-fu-wan",
+  "mainInstalled": false
+}

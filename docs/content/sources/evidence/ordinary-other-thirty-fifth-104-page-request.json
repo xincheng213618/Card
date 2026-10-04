@@ -1,0 +1,10 @@
+{
+  "url": "https://www.sanguosha.com/hero/104",
+  "startUtc": "2026-10-04T12:49:32.5242461Z",
+  "endUtc": "2026-10-04T12:49:32.7607557Z",
+  "curlExitCode": 0,
+  "httpStatus": "200",
+  "rawBytes": 25947,
+  "rawSha256": "590999d7289a4782d63e2eb0fc809ed2810134bb14475169f7af0948db971c7f",
+  "headersSha256": "b15fea66c3f0f0ec2c6f61f1b26969b2cf282d2143540a1e8102e37e10014218"
+}

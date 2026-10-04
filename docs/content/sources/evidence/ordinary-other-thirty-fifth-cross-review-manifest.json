@@ -1,0 +1,740 @@
+{
+  "schemaVersion": 1,
+  "status": "frozen-static-review-of-author-drafts",
+  "capturedAtUtc": "2026-10-04T13:50:09.974539+00:00",
+  "findings": [
+    {
+      "id": "MA-001",
+      "status": "withdrawn-after-complete-preview-read",
+      "summary": "No-600-grant FreezeNextActualUseProgramSelection concern already guarded by exact new policy/producer opt-in"
+    },
+    {
+      "id": "MA-002",
+      "priority": "P2",
+      "status": "corrected-and-statically-reread",
+      "summary": "Zhangba issued receipt rejected genuine 5403 FireSlash conversion; latest local proof uses mature current-fire assertion and original action"
+    },
+    {
+      "id": "MA-003",
+      "priority": "P2",
+      "status": "corrected-and-statically-reread",
+      "summary": "Stray added plus before boolean expression in SkillPrograms preview removed"
+    },
+    {
+      "id": "MA-004",
+      "priority": "P2",
+      "status": "corrected-and-statically-reread",
+      "summary": "HpLoss target maximum recomputed after true Declared consumed 600 token; latest freezes maximum before BeginCardUse"
+    }
+  ],
+  "yangXiu": "No definite additional P1/P2 or API gap found within 4NEW and 26OLD changed interfaces read",
+  "inputFiles": [
+    {
+      "scope": "sp-ma-chao",
+      "role": "new-core",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/new/src/CardGame.Core/GameEngine.HpLossSlashMaterials.cs",
+      "bytes": 18094,
+      "rawSha256": "01b9a0f4294d69512b6ec1384eea23cb0a97e8d215071ee90b00022332bba98b",
+      "bomFreeLfSha256": "01b9a0f4294d69512b6ec1384eea23cb0a97e8d215071ee90b00022332bba98b",
+      "semanticRead": "full new implementation"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "new-core",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/new/src/CardGame.Core/GameEngine.HpOrderedDistancePolicies.cs",
+      "bytes": 1049,
+      "rawSha256": "f50ea00742a297249d6e5450cd5ba8868a44952c5cd25df7c008ca0f2ff57942",
+      "bomFreeLfSha256": "f50ea00742a297249d6e5450cd5ba8868a44952c5cd25df7c008ca0f2ff57942",
+      "semanticRead": "full new implementation"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "new-core",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/new/src/CardGame.Core/GameEngine.SlashTargetPenaltyObservers.cs",
+      "bytes": 8879,
+      "rawSha256": "98741e71c2898fc19b51a26791e3c7f10dbe56fdafb15e581bc0b231c1b3553d",
+      "bomFreeLfSha256": "98741e71c2898fc19b51a26791e3c7f10dbe56fdafb15e581bc0b231c1b3553d",
+      "semanticRead": "full new implementation"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "new-core",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/new/src/CardGame.Core/GameEngine.SlashTargetPenaltyPayments.cs",
+      "bytes": 15093,
+      "rawSha256": "1e07f6023a6f95edf3a99a34d100481600d64654c08530d45d9fe8f164e71799",
+      "bomFreeLfSha256": "1e07f6023a6f95edf3a99a34d100481600d64654c08530d45d9fe8f164e71799",
+      "semanticRead": "full new implementation"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "new-core",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/new/src/CardGame.Core/GameEngine.SlashTargetPenaltyWindows.cs",
+      "bytes": 10633,
+      "rawSha256": "2b3aaeb2772117c233b4adeb8251a978b06357a360f14e101107e1496e9197b6",
+      "bomFreeLfSha256": "2b3aaeb2772117c233b4adeb8251a978b06357a360f14e101107e1496e9197b6",
+      "semanticRead": "full new implementation"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "new-core",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/new/src/CardGame.Core/ProgramSlashTargetPenaltyOperations.cs",
+      "bytes": 5716,
+      "rawSha256": "0efc5412eeec1e54978eed10ef5bafe11513c1f4e91eb67fc907c2cf92480d18",
+      "bomFreeLfSha256": "0efc5412eeec1e54978eed10ef5bafe11513c1f4e91eb67fc907c2cf92480d18",
+      "semanticRead": "full new implementation"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/preview/src/CardGame.Core/SkillPrograms.cs",
+      "bytes": 304444,
+      "rawSha256": "4301372d106a88721fab10dd976477f20899752d3ebf76c00ee4c7396d79d1bf",
+      "bomFreeLfSha256": "4301372d106a88721fab10dd976477f20899752d3ebf76c00ee4c7396d79d1bf",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/preview/src/CardGame.Core/SkillProgramCardPolicies.cs",
+      "bytes": 2639,
+      "rawSha256": "4038fa3d3db5eb6b3c1266fea957797e5b05fdf6222be7eb9f389fabf588c11f",
+      "bomFreeLfSha256": "4038fa3d3db5eb6b3c1266fea957797e5b05fdf6222be7eb9f389fabf588c11f",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/preview/src/CardGame.Core/Resolution.cs",
+      "bytes": 45757,
+      "rawSha256": "7477efcdc11532bd99858114f8041f7cfb142e8d24b4e0e7d7a8fe03c4a23d8a",
+      "bomFreeLfSha256": "7477efcdc11532bd99858114f8041f7cfb142e8d24b4e0e7d7a8fe03c4a23d8a",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/preview/src/CardGame.Core/ProgramLifecycle.cs",
+      "bytes": 21433,
+      "rawSha256": "8c2764526853ca0d96656da61063befbd09ec335aa9d865fa92c9bc199a4a8c7",
+      "bomFreeLfSha256": "8c2764526853ca0d96656da61063befbd09ec335aa9d865fa92c9bc199a4a8c7",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/preview/src/CardGame.Core/Projection/CommittedEventProjection.cs",
+      "bytes": 10360,
+      "rawSha256": "5c7aefa1f29f2398dc890234774b69d63b1371262119d6c97041c734631ffc42",
+      "bomFreeLfSha256": "5c7aefa1f29f2398dc890234774b69d63b1371262119d6c97041c734631ffc42",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/preview/src/CardGame.Core/GameEngine.RuleQueries.cs",
+      "bytes": 12867,
+      "rawSha256": "a1dd565b6106209dc00b85538bf0c56e9c8a3235a4c252e84262b0b44946df4e",
+      "bomFreeLfSha256": "a1dd565b6106209dc00b85538bf0c56e9c8a3235a4c252e84262b0b44946df4e",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/preview/src/CardGame.Core/GameEngine.Runtime.cs",
+      "bytes": 44118,
+      "rawSha256": "35681c9c2b65c29beae62f5a460231b268f53045803441471de73095a4782eff",
+      "bomFreeLfSha256": "35681c9c2b65c29beae62f5a460231b268f53045803441471de73095a4782eff",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/preview/src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+      "bytes": 275759,
+      "rawSha256": "96550b9a50da323c0fbb2a4f1798c5feb625fdce1c472297008d7d5ed0b3344d",
+      "bomFreeLfSha256": "96550b9a50da323c0fbb2a4f1798c5feb625fdce1c472297008d7d5ed0b3344d",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/preview/src/CardGame.Core/GameEngine.ProgramTurnPhase.cs",
+      "bytes": 6695,
+      "rawSha256": "dac32e2a0f25284eb197f8de828893fba9c075aa2015fca011af1572b2840236",
+      "bomFreeLfSha256": "dac32e2a0f25284eb197f8de828893fba9c075aa2015fca011af1572b2840236",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/preview/src/CardGame.Core/GameEngine.ActualUseTargetPrograms.cs",
+      "bytes": 12690,
+      "rawSha256": "511b97a95c64fb4ca97b5e8e3088a38bcb969c9a33b454e76266d6aa70756371",
+      "bomFreeLfSha256": "511b97a95c64fb4ca97b5e8e3088a38bcb969c9a33b454e76266d6aa70756371",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/preview/src/CardGame.Core/GameEngine.SlashTargetBenefitWindows.cs",
+      "bytes": 17502,
+      "rawSha256": "4834213424953e70b205b83be1426a5355c0f4745f23ca900945dc02c1d3f206",
+      "bomFreeLfSha256": "4834213424953e70b205b83be1426a5355c0f4745f23ca900945dc02c1d3f206",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/preview/src/CardGame.Core/GameEngine.SkillPrograms.cs",
+      "bytes": 103363,
+      "rawSha256": "633174b59576f985ddda10946e0a7db2e38b85f4b89c6efd51f8a85201640a3f",
+      "bomFreeLfSha256": "633174b59576f985ddda10946e0a7db2e38b85f4b89c6efd51f8a85201640a3f",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/preview/src/CardGame.Core/SkillProgramExecutor.cs",
+      "bytes": 71706,
+      "rawSha256": "31a6b1d906bb0c5ff90356d36da7a5faa0b410ac84b08960425480c37f75167e",
+      "bomFreeLfSha256": "31a6b1d906bb0c5ff90356d36da7a5faa0b410ac84b08960425480c37f75167e",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/preview/src/CardGame.Core/GameEngine.NextActualUseTargetAdjustments.cs",
+      "bytes": 38657,
+      "rawSha256": "af7537640db1d083602854293a35f31d19295963f87c1af96856ac26b70adf13",
+      "bomFreeLfSha256": "af7537640db1d083602854293a35f31d19295963f87c1af96856ac26b70adf13",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/preview/src/CardGame.Core/GameEngine.CardAttackState.cs",
+      "bytes": 7452,
+      "rawSha256": "bbb0c93c57a61c531d287fe254da75023d31feff33f2183cae8c188c724c330a",
+      "bomFreeLfSha256": "bbb0c93c57a61c531d287fe254da75023d31feff33f2183cae8c188c724c330a",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/preview/src/CardGame.Core/GameEngine.cs",
+      "bytes": 911172,
+      "rawSha256": "1cdfa2d1134ad613e978ac2a55f694d6c32a4a4c08d556fa3b6a0c538964da58",
+      "bomFreeLfSha256": "1cdfa2d1134ad613e978ac2a55f694d6c32a4a4c08d556fa3b6a0c538964da58",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/preview/src/CardGame.Core/GameEngine.CurrentCardEnhancements.cs",
+      "bytes": 15476,
+      "rawSha256": "4032ff30c94d250aeed6e5f563b3e1e885f300a119a2deacd96013ea8de26ccb",
+      "bomFreeLfSha256": "4032ff30c94d250aeed6e5f563b3e1e885f300a119a2deacd96013ea8de26ccb",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/preview/src/CardGame.Core/GameEngine.ProgramDiscardTopPlacement.cs",
+      "bytes": 9635,
+      "rawSha256": "14e88a06507cc991358a862f7e1edce26676d808b2464eb7c90f32fc43b8e0d2",
+      "bomFreeLfSha256": "14e88a06507cc991358a862f7e1edce26676d808b2464eb7c90f32fc43b8e0d2",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/preview/src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+      "bytes": 111736,
+      "rawSha256": "a832a00da9986867d45134c295725e92676d83d62692ad83d77774fcbb7bd465",
+      "bomFreeLfSha256": "a832a00da9986867d45134c295725e92676d83d62692ad83d77774fcbb7bd465",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "support",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/shared-wiring.patch",
+      "bytes": 55047,
+      "rawSha256": "47531def8da705327ca8eb7c742b1257f6386d353bcb58e98a5db6d881dffa5e",
+      "bomFreeLfSha256": "47531def8da705327ca8eb7c742b1257f6386d353bcb58e98a5db6d881dffa5e",
+      "semanticRead": "named evidence/metadata or method context"
+    },
+    {
+      "scope": "sp-ma-chao",
+      "role": "support",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/sp-ma-chao/old-files.json",
+      "bytes": 14618,
+      "rawSha256": "61bd4f73e2f6344770c0664a5d61ccb9ce951b45767b852e5abc182ebe171b9d",
+      "bomFreeLfSha256": "96fb7a60dcdd7aea01425c7fd14a14d3cfc1d66eb01714f9348d489fc3099424",
+      "semanticRead": "named evidence/metadata or method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "new-core",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/new/src/CardGame.Core/GameEngine.OwnTrickDrawTargets.cs",
+      "bytes": 9397,
+      "rawSha256": "48bb8499c6545fc471b8f5d0cf9660bafff70593312750aa23c70048500e6e0c",
+      "bomFreeLfSha256": "48bb8499c6545fc471b8f5d0cf9660bafff70593312750aa23c70048500e6e0c",
+      "semanticRead": "full new implementation"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "new-core",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/new/src/CardGame.Core/GameEngine.TurnHandCategoryRestrictions.cs",
+      "bytes": 5276,
+      "rawSha256": "cd3695171656704068811f98bd75aec4837f4bb5747a375797253d1b2abf3a87",
+      "bomFreeLfSha256": "cd3695171656704068811f98bd75aec4837f4bb5747a375797253d1b2abf3a87",
+      "semanticRead": "full new implementation"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "new-core",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/new/src/CardGame.Core/ProgramOwnTrickAndHandCategoryOperations.cs",
+      "bytes": 6313,
+      "rawSha256": "82fe82e1367aabed7e4262c427bc9708187b505119441291ff42d9a713ea5904",
+      "bomFreeLfSha256": "82fe82e1367aabed7e4262c427bc9708187b505119441291ff42d9a713ea5904",
+      "semanticRead": "full new implementation"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "new-core",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/new/src/CardGame.Core/ProgramTurnHandCategoryRestrictions.cs",
+      "bytes": 2295,
+      "rawSha256": "08a1dc10e89ba73fa5a30ca84ea06d94473ce990e5dd5e379ea51e39edac2832",
+      "bomFreeLfSha256": "08a1dc10e89ba73fa5a30ca84ea06d94473ce990e5dd5e379ea51e39edac2832",
+      "semanticRead": "full new implementation"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/SkillPrograms.cs",
+      "bytes": 303842,
+      "rawSha256": "016ba72e42e82d33f0d5c99cbdee34b46d5656a2491da892100b235a19892452",
+      "bomFreeLfSha256": "016ba72e42e82d33f0d5c99cbdee34b46d5656a2491da892100b235a19892452",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/Resolution.cs",
+      "bytes": 44994,
+      "rawSha256": "e2ed71ebee114739d0df7e784787225d611471abead2d8604ae60b9a9b0145d0",
+      "bomFreeLfSha256": "e2ed71ebee114739d0df7e784787225d611471abead2d8604ae60b9a9b0145d0",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/ProgramPaidTargetEndingOperations.cs",
+      "bytes": 13115,
+      "rawSha256": "fc0ed89bb2c04ea933834ec7587740487db411da9d5ee192dd1118eb989739c2",
+      "bomFreeLfSha256": "fc0ed89bb2c04ea933834ec7587740487db411da9d5ee192dd1118eb989739c2",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/GameEngine.ActualUseTargetPrograms.cs",
+      "bytes": 12721,
+      "rawSha256": "f795148a9fc9b50f7e2a004a03e254a160e9e76e8133553d1c6c939036c3bd6e",
+      "bomFreeLfSha256": "f795148a9fc9b50f7e2a004a03e254a160e9e76e8133553d1c6c939036c3bd6e",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+      "bytes": 275739,
+      "rawSha256": "7f7de13603a068ebb56d5c2e774add8e131cee1d45424a8a6209a96b5162d03b",
+      "bomFreeLfSha256": "7f7de13603a068ebb56d5c2e774add8e131cee1d45424a8a6209a96b5162d03b",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/GameEngine.Runtime.cs",
+      "bytes": 43518,
+      "rawSha256": "ca590186f3bdaa6ae685100b6258b6b7cc3aafebaffa3809d017d9c6ab703459",
+      "bomFreeLfSha256": "ca590186f3bdaa6ae685100b6258b6b7cc3aafebaffa3809d017d9c6ab703459",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/GameEngine.SkillPrograms.cs",
+      "bytes": 102924,
+      "rawSha256": "64a2aedc5abdbed91ffc254415d3b33d8fee1975c04ca07a1a1b68ef9e98ed3a",
+      "bomFreeLfSha256": "64a2aedc5abdbed91ffc254415d3b33d8fee1975c04ca07a1a1b68ef9e98ed3a",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/GameEngine.PaidOwnTargetObservers.cs",
+      "bytes": 10347,
+      "rawSha256": "3b2337f28c40b33b8cec95a37054a8f38fe29f53f39fdad35f3e9b271f59efc8",
+      "bomFreeLfSha256": "3b2337f28c40b33b8cec95a37054a8f38fe29f53f39fdad35f3e9b271f59efc8",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/GameEngine.CardUseModules.cs",
+      "bytes": 16008,
+      "rawSha256": "c6155200424982f05168080f7b7f1364bd53032f27b9fd09bdc6bd5cb7b776ef",
+      "bomFreeLfSha256": "c6155200424982f05168080f7b7f1364bd53032f27b9fd09bdc6bd5cb7b776ef",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/ProgramParticipantPhaseOperations.cs",
+      "bytes": 8060,
+      "rawSha256": "d91e1a45797342e2315cb57fa49baa1fa5145cce48a5afbd5d80047814ebc7c0",
+      "bomFreeLfSha256": "d91e1a45797342e2315cb57fa49baa1fa5145cce48a5afbd5d80047814ebc7c0",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/ForeignEquipmentDiscardPolicies.cs",
+      "bytes": 1767,
+      "rawSha256": "ce81139c85d175c762ccaec99eccc4bcb47316a26d2d798ffcea239133ad25c5",
+      "bomFreeLfSha256": "ce81139c85d175c762ccaec99eccc4bcb47316a26d2d798ffcea239133ad25c5",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/CardUseModules.cs",
+      "bytes": 33544,
+      "rawSha256": "ba16c19bfec170298d693e81591ea34f7a47f149d36c32fdaad4ae4b69909191",
+      "bomFreeLfSha256": "ba16c19bfec170298d693e81591ea34f7a47f149d36c32fdaad4ae4b69909191",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/GameEngine.Discard.cs",
+      "bytes": 3938,
+      "rawSha256": "7308931ff79b31c7dfab7d3e49789dce97606eab1d01378381d0597ab5e06b92",
+      "bomFreeLfSha256": "7308931ff79b31c7dfab7d3e49789dce97606eab1d01378381d0597ab5e06b92",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/GameEngine.cs",
+      "bytes": 910286,
+      "rawSha256": "9b5d55ab86c2d64257cfb651ad1ae1985a6d7c4fed9bf557b2fbe044b77fe5b4",
+      "bomFreeLfSha256": "9b5d55ab86c2d64257cfb651ad1ae1985a6d7c4fed9bf557b2fbe044b77fe5b4",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/GameEngine.ProgramOwnedCards.cs",
+      "bytes": 16431,
+      "rawSha256": "b39fd9990b5930fb2941d9094aa3b3bce2eec0c91d152f7520b6a5f70e247c6e",
+      "bomFreeLfSha256": "b39fd9990b5930fb2941d9094aa3b3bce2eec0c91d152f7520b6a5f70e247c6e",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/GameEngine.SkillProgramHost.cs",
+      "bytes": 35779,
+      "rawSha256": "5d9da4bacf746be54b1f883c645968499fe4b7c9131b4076410d12d93a1f2975",
+      "bomFreeLfSha256": "5d9da4bacf746be54b1f883c645968499fe4b7c9131b4076410d12d93a1f2975",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/GameEngine.ProgramOwnCardDiscards.cs",
+      "bytes": 7082,
+      "rawSha256": "d92eee1c8721e591c778b9f9f8ccd9caa11497d7f69850b288ff79c165dd216b",
+      "bomFreeLfSha256": "d92eee1c8721e591c778b9f9f8ccd9caa11497d7f69850b288ff79c165dd216b",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/GameEngine.ProgramDiscardChallenges.cs",
+      "bytes": 12802,
+      "rawSha256": "4785bd770f85d5e604ef590ef0804bef646f473b55e236b19c0944454ec45109",
+      "bomFreeLfSha256": "4785bd770f85d5e604ef590ef0804bef646f473b55e236b19c0944454ec45109",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/GameEngine.ParticipantAndReservePrograms.cs",
+      "bytes": 19614,
+      "rawSha256": "c0c326ce77dcc057595fa79b0597ac73d84b42d8221104ce846f109a1ed8a178",
+      "bomFreeLfSha256": "c0c326ce77dcc057595fa79b0597ac73d84b42d8221104ce846f109a1ed8a178",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/GameEngine.ProgramHandControl.cs",
+      "bytes": 26495,
+      "rawSha256": "cba0d8a0536bc92eea6d863e8cfd095de3c9755a882496edb6541549bb901f7c",
+      "bomFreeLfSha256": "cba0d8a0536bc92eea6d863e8cfd095de3c9755a882496edb6541549bb901f7c",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/GameEngine.AdvancedLifecycle.cs",
+      "bytes": 12509,
+      "rawSha256": "4cf39bca7d39ef6dfcf2d8366f8a791a02dc72137aaba600440708745a100322",
+      "bomFreeLfSha256": "4cf39bca7d39ef6dfcf2d8366f8a791a02dc72137aaba600440708745a100322",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/GameEngine.AdvancedLifecycleChoices.cs",
+      "bytes": 11659,
+      "rawSha256": "367ee6622ee6d324463c6c8e352752d61d79739790842b7b32b49945f76624db",
+      "bomFreeLfSha256": "367ee6622ee6d324463c6c8e352752d61d79739790842b7b32b49945f76624db",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/GameEngine.StrategicPrograms.cs",
+      "bytes": 22711,
+      "rawSha256": "1261d7a1358fe74345ac3acdc011531711e90a2db47d76d85790e684521ce077",
+      "bomFreeLfSha256": "1261d7a1358fe74345ac3acdc011531711e90a2db47d76d85790e684521ce077",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/GameEngine.ProgramSlashRequest.cs",
+      "bytes": 16002,
+      "rawSha256": "2d5d3ae4631e391207f182f9b433bcf95d24bfd2998949b2d08e2440cfa948eb",
+      "bomFreeLfSha256": "2d5d3ae4631e391207f182f9b433bcf95d24bfd2998949b2d08e2440cfa948eb",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Core/Projection/PlayerViewProjector.cs",
+      "bytes": 21346,
+      "rawSha256": "c1f2ddec07de2e4a6f45f3b6b064e3bfabebd5d707a39156c07cd5aa273f4b45",
+      "bomFreeLfSha256": "c1f2ddec07de2e4a6f45f3b6b064e3bfabebd5d707a39156c07cd5aa273f4b45",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+      "bytes": 111735,
+      "rawSha256": "835669d6c351aafdd8dcc7bfc40142f204b167d06557af0df2d8a89da67873a3",
+      "bomFreeLfSha256": "835669d6c351aafdd8dcc7bfc40142f204b167d06557af0df2d8a89da67873a3",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "old-preview",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/preview/src/CardGame.Wpf/Presentation/GeneralGalleryCatalog.cs",
+      "bytes": 9379,
+      "rawSha256": "f7a6d26ffe25127404841b60cdaad0acccb4299cc8dfa47ce8188fdae7088e04",
+      "bomFreeLfSha256": "f7a6d26ffe25127404841b60cdaad0acccb4299cc8dfa47ce8188fdae7088e04",
+      "semanticRead": "changed hunks and named dependent method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "support",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/shared-wiring.patch",
+      "bytes": 49749,
+      "rawSha256": "084b504b2bec2ce104ea323928996b0b478977c45922c0c1497e65494279c183",
+      "bomFreeLfSha256": "084b504b2bec2ce104ea323928996b0b478977c45922c0c1497e65494279c183",
+      "semanticRead": "named evidence/metadata or method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "support",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/old-baselines.json",
+      "bytes": 22606,
+      "rawSha256": "216c032729775ded103ab8987fc57c7669bd8043474bbd3667443fe4e86ef074",
+      "bomFreeLfSha256": "216c032729775ded103ab8987fc57c7669bd8043474bbd3667443fe4e86ef074",
+      "semanticRead": "named evidence/metadata or method context"
+    },
+    {
+      "scope": "yang-xiu",
+      "role": "support",
+      "path": ".artifacts/continuation-20261003-batch17/batch35/yang-xiu/CONTRACT.md",
+      "bytes": 2370,
+      "rawSha256": "7e4c0ad4472743cea1e0d1f785d024ae52e9d600d733fab6fc964d197ce2103b",
+      "bomFreeLfSha256": "7e4c0ad4472743cea1e0d1f785d024ae52e9d600d733fab6fc964d197ce2103b",
+      "semanticRead": "named evidence/metadata or method context"
+    },
+    {
+      "scope": "current-main",
+      "role": "dependency",
+      "path": "src/CardGame.Core/GameEngine.CurrentSlashFireOffers.cs",
+      "bytes": 22515,
+      "rawSha256": "98ee499ecf28f651563b34a47c695bf3b601a6c99d7f8fcfd81c45f116fcdc80",
+      "bomFreeLfSha256": "40860c94e59c2ad5b6965d53af4831c28b0b44618534e8d385796fc773ca2e42",
+      "semanticRead": "named evidence/metadata or method context"
+    },
+    {
+      "scope": "current-main",
+      "role": "dependency",
+      "path": "src/CardGame.Core/GameEngine.NextActualUseTargetAdjustments.cs",
+      "bytes": 38600,
+      "rawSha256": "13158b072bc4bf8b0bab279c48c44640c4fbd390a30bf03115219dfd2787add9",
+      "bomFreeLfSha256": "9675c990a7cfcc2ed60ddde8a55f430e25f45744c2f713a3254703a6a8f241c2",
+      "semanticRead": "named evidence/metadata or method context"
+    },
+    {
+      "scope": "current-main",
+      "role": "dependency",
+      "path": "src/CardGame.Core/GameEngine.SlashTargetBenefitWindows.cs",
+      "bytes": 17355,
+      "rawSha256": "8c4c58f4e74cc78024fadd1ea2de2b1e2721e82697d63b138e7bc4ad19cee1a2",
+      "bomFreeLfSha256": "8c4c58f4e74cc78024fadd1ea2de2b1e2721e82697d63b138e7bc4ad19cee1a2",
+      "semanticRead": "named evidence/metadata or method context"
+    },
+    {
+      "scope": "current-main",
+      "role": "dependency",
+      "path": "src/CardGame.Core/GameEngine.CardConversions.cs",
+      "bytes": 39844,
+      "rawSha256": "d68ed6ae07df4ac36695f008898c137819aff65248f33058f4730036768eadab",
+      "bomFreeLfSha256": "eaa356e8d4694296280df009547f2a444dc56c887294d9b2c4dcd70153c7a860",
+      "semanticRead": "named evidence/metadata or method context"
+    },
+    {
+      "scope": "current-main",
+      "role": "dependency",
+      "path": "src/CardGame.Core/GameEngine.ExtendedViewAs.cs",
+      "bytes": 7412,
+      "rawSha256": "b26ba037877a6e7aa27967dba7bb8bfa8113a3d21e4cd80ea8b83d57a31e066d",
+      "bomFreeLfSha256": "25a56212a4d711d299eac84e0095f2750ab56dfbf442c53ffc69ffed549eba79",
+      "semanticRead": "named evidence/metadata or method context"
+    },
+    {
+      "scope": "current-main",
+      "role": "dependency",
+      "path": "src/CardGame.Core/GameEngine.AssistedPhysicalCards.cs",
+      "bytes": 22573,
+      "rawSha256": "afc495f84b6ef9e2812a5e5c815bb9382396d91a6d7c9a40908afe3abe278307",
+      "bomFreeLfSha256": "79947ff4596090c9fd4932b6b58f3429f3f550d4697c0bc1f502ef23b1ad7c29",
+      "semanticRead": "named evidence/metadata or method context"
+    },
+    {
+      "scope": "current-main",
+      "role": "dependency",
+      "path": "src/CardGame.Core/GameEngine.PaidOwnTargetObservers.cs",
+      "bytes": 10055,
+      "rawSha256": "0f694a4149e72ddd3b34fd8159b89f2b103e23830a82c61a668a8eda1861dfe6",
+      "bomFreeLfSha256": "0f694a4149e72ddd3b34fd8159b89f2b103e23830a82c61a668a8eda1861dfe6",
+      "semanticRead": "named evidence/metadata or method context"
+    },
+    {
+      "scope": "current-main",
+      "role": "dependency",
+      "path": "src/CardGame.Core/GameEngine.HalfHandPhaseDebtDamageObservers.cs",
+      "bytes": 14978,
+      "rawSha256": "061db7a883721edc4f84cb6f91f4795b0eb6017890f2408a45012433a689edfe",
+      "bomFreeLfSha256": "061db7a883721edc4f84cb6f91f4795b0eb6017890f2408a45012433a689edfe",
+      "semanticRead": "named evidence/metadata or method context"
+    },
+    {
+      "scope": "current-main",
+      "role": "dependency",
+      "path": "src/CardGame.Core/GameEngine.SkillPrograms.cs",
+      "bytes": 102790,
+      "rawSha256": "27e9b787ef2a3f9e254f8a35152bfe4fd9ec9b0853354ae23c188495fd0fdeb5",
+      "bomFreeLfSha256": "27e9b787ef2a3f9e254f8a35152bfe4fd9ec9b0853354ae23c188495fd0fdeb5",
+      "semanticRead": "named evidence/metadata or method context"
+    },
+    {
+      "scope": "current-main",
+      "role": "dependency",
+      "path": "src/CardGame.Core/GameEngine.ProgramAttackAttempt.cs",
+      "bytes": 15237,
+      "rawSha256": "c1f9da4d902e2cc4fbc4cbb34d5f55f8945eefcfc9eab087d08b5d4b6c58193f",
+      "bomFreeLfSha256": "c1f9da4d902e2cc4fbc4cbb34d5f55f8945eefcfc9eab087d08b5d4b6c58193f",
+      "semanticRead": "named evidence/metadata or method context"
+    },
+    {
+      "scope": "current-main",
+      "role": "dependency",
+      "path": "src/CardGame.Core/GameEngine.ProgramOwnedCards.cs",
+      "bytes": 16229,
+      "rawSha256": "3a8d955785db1273d0accbb6070d94619927b0340082a7fa70f97164ea9b51f5",
+      "bomFreeLfSha256": "d8792694967df6be328b224a71559dbcbda05229d653accf1199f1dd3d04459e",
+      "semanticRead": "named evidence/metadata or method context"
+    },
+    {
+      "scope": "current-main",
+      "role": "dependency",
+      "path": "src/CardGame.Core/GameEngine.SkillProgramHost.cs",
+      "bytes": 36104,
+      "rawSha256": "32055f27b98ca27460bf32356f454b959990b237e720b976538af007f9e888ff",
+      "bomFreeLfSha256": "a4051c57577c1a7d1bb6799f70433174797b72f27b17fd67cd53ea97d060ce76",
+      "semanticRead": "named evidence/metadata or method context"
+    },
+    {
+      "scope": "current-main",
+      "role": "dependency",
+      "path": "src/CardGame.Core/GameEngine.CardAttackState.cs",
+      "bytes": 7415,
+      "rawSha256": "80c17365da5bd1e938e827973e64d0b681ade4e2c21f9d53ddf30c03ad6d352c",
+      "bomFreeLfSha256": "80c17365da5bd1e938e827973e64d0b681ade4e2c21f9d53ddf30c03ad6d352c",
+      "semanticRead": "named evidence/metadata or method context"
+    },
+    {
+      "scope": "current-main",
+      "role": "dependency",
+      "path": "src/CardGame.Core/GameEngine.OriginalTargetAdditions.cs",
+      "bytes": 25018,
+      "rawSha256": "f587383d9ff62fbabb2d3dca3194df1a1949de31ddcbbb3f45707ca4d5320886",
+      "bomFreeLfSha256": "f587383d9ff62fbabb2d3dca3194df1a1949de31ddcbbb3f45707ca4d5320886",
+      "semanticRead": "named evidence/metadata or method context"
+    },
+    {
+      "scope": "current-main",
+      "role": "dependency",
+      "path": "src/CardGame.Core/GameEngine.CurrentCardEnhancements.cs",
+      "bytes": 15497,
+      "rawSha256": "da138b4598224989908091e1c41ce336c48b5de9954343de0863eafc75f6e704",
+      "bomFreeLfSha256": "b5434a6b2708a219714233c0e6788d94d0646c4005c97255857b5e595189d679",
+      "semanticRead": "named evidence/metadata or method context"
+    }
+  ],
+  "execution": {
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "coreChecks": false,
+    "wpfChecks": false,
+    "native": false,
+    "game": false,
+    "benchmark": false,
+    "network": false,
+    "mainWrites": false,
+    "authorStageWrites": false
+  },
+  "limits": [
+    "Author drafts were not yet frozen at review; hashes bind the captured named bytes, not future author delivery.",
+    "Focused test drafts and all legacy producer combinations were not exercised.",
+    "No claim of runtime or loader acceptance.",
+    "No repository-wide scan or hash, no unrelated dirty PrepDiscardReceipts read/capture."
+  ],
+  "report": {
+    "stagePath": "review.md",
+    "sha256": "d9def4bef60d810479ee1e888805062365caf8169e3aeebc138abe23a1b3f8bc"
+  }
+}

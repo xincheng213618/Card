@@ -504,6 +504,10 @@ public sealed class ContentRegistry
                         benefit.Effects is not [{ Op: SkillProgramEffectOp.DrawLostHpThenOfferOwnedCardsUpTo }])
                         throw new InvalidOperationException("An earned actual Ending schedule requires its exact mandatory lost-HP gift binding.");
                 }
+                foreach (var policy in skill.Program!.Triggers.SelectMany(t => t.Effects)
+                    .Where(e => e.Op == SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage).Select(e => e.PublicDeathDamageCost!))
+                    if (!_skills.ContainsKey(policy.QualifierSkillId))
+                        throw new InvalidOperationException("Signed damage cost references an unknown public-death qualifier skill.");
                 foreach (var declaration in skill.Program!.ViewAs.Where(rule => rule.DeclarationValidation is not null))
                     if (!_skills.ContainsKey(declaration.DeclarationValidation!.ChallengeGrantSkillId))
                         throw new InvalidOperationException("A declaration validation references an unknown challenge grant skill.");

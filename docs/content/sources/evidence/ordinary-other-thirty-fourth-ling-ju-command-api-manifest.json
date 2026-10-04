@@ -1,0 +1,68 @@
+{
+  "status": "frozen-static-api-correction-not-compiled-not-loaded-not-run",
+  "frozenUtc": "2026-10-04T12:29:34.017885+00:00",
+  "originalFrozenManifest": {
+    "path": "delivery-manifest.json",
+    "rawSha256": "50ec607a37d6b2c92eab009e9cffc78bb545beed7133ed123f74f364e739fa10",
+    "utf8Bom": false,
+    "bomFreeLfSha256": "50ec607a37d6b2c92eab009e9cffc78bb545beed7133ed123f74f364e739fa10",
+    "bomPreservingLfSha256": "50ec607a37d6b2c92eab009e9cffc78bb545beed7133ed123f74f364e739fa10"
+  },
+  "target": "tests/CardGame.Core.Tests/OrdinaryLingJuChecks.cs",
+  "originalFrozenPath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/tests/CardGame.Core.Tests/OrdinaryLingJuChecks.cs",
+  "rawBeforeSha256": "5b9c6675ef3c4d1f0c750ca3f46eb435b8c287cbef1c3919797f10f6bd694873",
+  "beforeUtf8Bom": false,
+  "bomFreeLfBeforeSha256": "5b9c6675ef3c4d1f0c750ca3f46eb435b8c287cbef1c3919797f10f6bd694873",
+  "bomPreservingLfBeforeSha256": "5b9c6675ef3c4d1f0c750ca3f46eb435b8c287cbef1c3919797f10f6bd694873",
+  "preview": {
+    "path": "preview/tests/CardGame.Core.Tests/OrdinaryLingJuChecks.cs",
+    "rawSha256": "011401109f2e9d793c03744ba3b4e5173413aa689d42c251ef96c902575ec4a4",
+    "utf8Bom": false,
+    "bomFreeLfSha256": "011401109f2e9d793c03744ba3b4e5173413aa689d42c251ef96c902575ec4a4",
+    "bomPreservingLfSha256": "011401109f2e9d793c03744ba3b4e5173413aa689d42c251ef96c902575ec4a4"
+  },
+  "patch": {
+    "path": "command-api.patch",
+    "rawSha256": "0c50ffc55adc30bfd7560966761c4b0ba9106ac61e73243b77a9f23af539133a",
+    "utf8Bom": false,
+    "bomFreeLfSha256": "0c50ffc55adc30bfd7560966761c4b0ba9106ac61e73243b77a9f23af539133a",
+    "bomPreservingLfSha256": "0c50ffc55adc30bfd7560966761c4b0ba9106ac61e73243b77a9f23af539133a"
+  },
+  "support": [
+    {
+      "path": "prepare-followup.py",
+      "rawSha256": "409a0233f4e334716399aa2466612acf7dc633d9658e67d9e2a130775139fa00",
+      "utf8Bom": false,
+      "bomFreeLfSha256": "409a0233f4e334716399aa2466612acf7dc633d9658e67d9e2a130775139fa00",
+      "bomPreservingLfSha256": "409a0233f4e334716399aa2466612acf7dc633d9658e67d9e2a130775139fa00"
+    },
+    {
+      "path": "REVIEW.md",
+      "rawSha256": "e4dfdc8d24d24397422fba46b84d3558279486a4bd4bc779a4d72da54f5126e8",
+      "utf8Bom": false,
+      "bomFreeLfSha256": "e4dfdc8d24d24397422fba46b84d3558279486a4bd4bc779a4d72da54f5126e8",
+      "bomPreservingLfSha256": "e4dfdc8d24d24397422fba46b84d3558279486a4bd4bc779a4d72da54f5126e8"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "src/CardGame.Core/Commands.cs",
+      "rawSha256": "f540392d38cf7fd39cf79091a78a62ed2ec21637dda54f62043481d2cadab9e5",
+      "utf8Bom": false,
+      "bomFreeLfSha256": "3a981faae53cd1f11475fa9eaca53c7e83762881a2e05a11a0744317e278f23f",
+      "bomPreservingLfSha256": "3a981faae53cd1f11475fa9eaca53c7e83762881a2e05a11a0744317e278f23f"
+    }
+  ],
+  "changes": "Only two obsolete PlayCardCommand constructor sites; exact actor=0/card/targets and both conversion initializer sources retained. Existing assertions and four method registrations unchanged.",
+  "originalFrozenFilesChanged": false,
+  "mainWritten": false,
+  "compiler": false,
+  "build": false,
+  "loader": false,
+  "tests": false,
+  "game": false,
+  "nativeAi": false,
+  "benchmark": false,
+  "http": false,
+  "pureTextReverseMatchesOriginal": true
+}

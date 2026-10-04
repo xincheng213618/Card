@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 62,
+  "skills": [{
+    "id": "ol:moukui", "revision": 1,
+    "triggers": [
+      { "id": "actual-slash-target-benefit", "window": "actualSlashTargetBenefit", "subject": "owner", "optional": false,
+        "effects": [{ "op": "offerSlashTargetBenefit", "target": "owner", "settlementBinding": "dodge-cancelled-settlement" }] },
+      { "id": "dodge-cancelled-settlement", "window": "slashDodgeCancelledBenefit", "subject": "owner", "optional": false,
+        "effects": [{ "op": "settleDodgeCancelledSlashBenefit", "target": "owner" }] }
+    ]
+  }]
+}

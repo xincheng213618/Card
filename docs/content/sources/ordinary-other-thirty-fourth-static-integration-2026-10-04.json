@@ -1,0 +1,576 @@
+{
+  "schemaVersion": 1,
+  "status": "static-reviewed-integrated-runtime-deferred-by-user",
+  "integratedUtc": "2026-10-04T20:37:43.583011+08:00",
+  "baseHead": "a9d192479fbd781c4eeba1256e17ac2436ea7df8",
+  "generalIds": [
+    "ol:fu-wan",
+    "ol:liu-xie",
+    "ol:ling-ju"
+  ],
+  "skillIds": [
+    "ol:moukui",
+    "ol:tianming",
+    "ol:mizhao",
+    "ol:jieyuan",
+    "ol:fenxin"
+  ],
+  "mappings": [
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-liu-xie-source-art/7300-original.png",
+      "mainPath": "src/CardGame.Wpf/Assets/official-ol-liu-xie.png",
+      "rawSha256": "8fea3705a1c3bd786990b86c52f09eec46585b5f878ac524b7530b7d13b19d62"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-liu-xie-source-art/portrait.headers.txt",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-fourth-73-portrait.headers.txt",
+      "rawSha256": "028af0bd86c3187b671bcaf15554ddd2766b1478ab52642fa203c9c13a44fe2e"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-liu-xie-source-art/portrait.request.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-fourth-73-portrait.request.json",
+      "rawSha256": "7ee25644ab1e3e6e2e460414249b94cd5b5bf79de5683db219a42cde49d50a95"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-liu-xie-source-art/2016-liu-xie-distance.raw.html",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-fourth-73-historical-distance.raw.html",
+      "rawSha256": "3e4ae81ef261b95e16a0bab80b004cab1c9e722cc8f06716b3803d9014a9af94"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-liu-xie-source-art/historical-distance.headers.txt",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-fourth-73-historical-distance.headers.txt",
+      "rawSha256": "5517cb5c67cc7e20461e4b7252bed3cc56b754f87f48eb46e7602f5267ac727f"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-liu-xie-source-art/historical-distance.request.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-fourth-73-historical-distance.request.json",
+      "rawSha256": "ece3d00251625b0783588932946660cca7b843901ab195a89377c92ee194c0d1"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-liu-xie-source-art/source-art-metadata.json",
+      "mainPath": "docs/content/sources/ordinary-other-thirty-fourth-73-art-2026-10-04.json",
+      "rawSha256": "62050ce6f61ab214013ed7679faea78499ca26a4def55bbb04fc749231df3b0d"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-liu-xie-source-art/delivery-manifest.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-fourth-73-root-source-art-manifest.json",
+      "rawSha256": "d73bc43d27e124023adaf47f46e2fc860ad2ad9dbe8aeb452bb1764ea6488909"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/fu-wan-implementation/new/src/CardGame.Core/ProgramSlashTargetBenefits.cs",
+      "mainPath": "src/CardGame.Core/ProgramSlashTargetBenefits.cs",
+      "rawSha256": "c3b2321ab1ed3a0e960b91f36ad6ef05d803c8156917162516b9df78154b216d"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/fu-wan-implementation/new/src/CardGame.Core/GameEngine.SlashTargetBenefitWindows.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.SlashTargetBenefitWindows.cs",
+      "rawSha256": "8c4c58f4e74cc78024fadd1ea2de2b1e2721e82697d63b138e7bc4ad19cee1a2"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/fu-wan-implementation/new/src/CardGame.Core/GameEngine.SlashTargetBenefitPayments.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.SlashTargetBenefitPayments.cs",
+      "rawSha256": "f55f3f3595fc6dedfc071d27bd8f56fb6dd614bf324517fac2871c028f721c83"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/fu-wan-implementation/new/src/CardGame.Core/GameEngine.SlashTargetBenefitObservers.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.SlashTargetBenefitObservers.cs",
+      "rawSha256": "84818b720ba6170a292a9f1e860e4c475ea0c4dbdcc651dff37e2abbeaede206"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/fu-wan-implementation/new/src/CardGame.Content.Standard/OrdinaryFuWanContent.cs",
+      "mainPath": "src/CardGame.Content.Standard/OrdinaryFuWanContent.cs",
+      "rawSha256": "17c32b86d665c28488bbe9854c1e61e22e5171c311d2c5fb4d6edf8e31eabc66"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/fu-wan-implementation/new/src/CardGame.Content.Standard/SkillPrograms/ordinary-fu-wan.rules.json",
+      "mainPath": "src/CardGame.Content.Standard/SkillPrograms/ordinary-fu-wan.rules.json",
+      "rawSha256": "60f263694d768cdfc52c44e40df442bbdd37c8d58c8f92118f2c433d253e17ca"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/fu-wan-implementation/new/src/CardGame.Content.Standard/SkillPrograms/ordinary-fu-wan.presentation.json",
+      "mainPath": "src/CardGame.Content.Standard/SkillPrograms/ordinary-fu-wan.presentation.json",
+      "rawSha256": "699ad61e578290fc3b843a044e8dec879fa6aebdab4a5d8d00dc821d6950b876"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/fu-wan-implementation/new/tests/CardGame.Core.Tests/OrdinaryFuWanChecks.cs",
+      "mainPath": "tests/CardGame.Core.Tests/OrdinaryFuWanChecks.cs",
+      "rawSha256": "ab622c674fcf1d83e0a6272791ca01d665343faf31f4e236773029224ba26d0e"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/liu-xie-implementation/src/CardGame.Core/ProgramRecipientContestOperations.cs",
+      "mainPath": "src/CardGame.Core/ProgramRecipientContestOperations.cs",
+      "rawSha256": "917ac746779dc13718a7864743f11c125457d92910c75ccfb1054242e053b0f5"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/liu-xie-implementation/src/CardGame.Core/GameEngine.UniqueHpPeerPrograms.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.UniqueHpPeerPrograms.cs",
+      "rawSha256": "b96f63baf2dba4202892d18130d52d596a4d29701814a978f3ae9cb364b2d1ee"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/liu-xie-implementation/src/CardGame.Core/GameEngine.RecipientContests.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.RecipientContests.cs",
+      "rawSha256": "f08339512ea389f96d914f975c257931f4bc6894948fa46d4b31e44d311fedc1"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/liu-xie-implementation/src/CardGame.Core/GameEngine.RecipientContestReceipts.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.RecipientContestReceipts.cs",
+      "rawSha256": "f4d645fb7fedd3018449eda8d2f4fde1c785452197251aefcd9d5817e6756013"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/liu-xie-implementation/src/CardGame.Core/GameEngine.RecipientContestObservers.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.RecipientContestObservers.cs",
+      "rawSha256": "11c9639ac3a3819df8550bf9b7701fcc3bc9d587cae9145270e8d1ba46f3a9de"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/liu-xie-implementation/src/CardGame.Core/GameEngine.UniqueHpTargetAnnouncements.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.UniqueHpTargetAnnouncements.cs",
+      "rawSha256": "bd46bc1df01c14e4763883bfedbeb48c9c695fa4c97d8368c1f0b829776ed0da"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/liu-xie-implementation/src/CardGame.Content.Standard/OrdinaryLiuXieContent.cs",
+      "mainPath": "src/CardGame.Content.Standard/OrdinaryLiuXieContent.cs",
+      "rawSha256": "2f0774b7e566d90bb74f3eaca183f3875b0a73e3bad47c3de47162f0b58ee5ff"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/liu-xie-implementation/src/CardGame.Content.Standard/SkillPrograms/ordinary-liu-xie.rules.json",
+      "mainPath": "src/CardGame.Content.Standard/SkillPrograms/ordinary-liu-xie.rules.json",
+      "rawSha256": "72b392faa790119c023d5acfa882ff9bfd48d44b923474a806205edce34eb7d9"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/liu-xie-implementation/src/CardGame.Content.Standard/SkillPrograms/ordinary-liu-xie.presentation.json",
+      "mainPath": "src/CardGame.Content.Standard/SkillPrograms/ordinary-liu-xie.presentation.json",
+      "rawSha256": "d5d6e7575342de7fcc64ef870dab50c1445e73e8acd6499d485f098b40929708"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/liu-xie-implementation/tests/CardGame.Core.Tests/OrdinaryLiuXieChecks.cs",
+      "mainPath": "tests/CardGame.Core.Tests/OrdinaryLiuXieChecks.cs",
+      "rawSha256": "db061e53ab68380cae8c68ac1757301462cb3f0766716e8509d9b36a2e3c5474"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/src/CardGame.Core/ProgramSignedDamagePayment.cs",
+      "mainPath": "src/CardGame.Core/ProgramSignedDamagePayment.cs",
+      "rawSha256": "2961a8d8c24d26b85cf8efcf5267e6f365943be72721e632957f757ba7bec606"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-paid-completion-followup/preview/src/CardGame.Core/GameEngine.SignedDamagePayments.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.SignedDamagePayments.cs",
+      "rawSha256": "b073f9e0d5e031e6d1eb94c5ed8aeb04dcf6bf084843c4306858d091150765d9"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/src/CardGame.Core/GameEngine.SignedDamagePaymentObservers.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.SignedDamagePaymentObservers.cs",
+      "rawSha256": "262fcd63ca1207fb68e215ee41f2da83556783fbf09081a72ef847728202cfb4"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/src/CardGame.Core/GameEngine.RecipientScopedDamage.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.RecipientScopedDamage.cs",
+      "rawSha256": "78a23da7269000ae900ac9c4cb783e4f7b3fbdca29f8c0c3ad0106642e629c9f"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/src/CardGame.Content.Standard/OrdinaryLingJuContent.cs",
+      "mainPath": "src/CardGame.Content.Standard/OrdinaryLingJuContent.cs",
+      "rawSha256": "42a7e54865ef087a108283a1f4d0405f1fac82cee63e3bd68808225ff29d63e9"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/src/CardGame.Content.Standard/SkillPrograms/ordinary-ling-ju.rules.json",
+      "mainPath": "src/CardGame.Content.Standard/SkillPrograms/ordinary-ling-ju.rules.json",
+      "rawSha256": "cdd11634e9bb3fe23bddac176d6c463ed18466b27544ddfa9a3c49f5086b88bb"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/src/CardGame.Content.Standard/SkillPrograms/ordinary-ling-ju.presentation.json",
+      "mainPath": "src/CardGame.Content.Standard/SkillPrograms/ordinary-ling-ju.presentation.json",
+      "rawSha256": "ae4b7aa8662485bfe3365eba530bde9d4f6358b83d92a2b632f66769f894c30c"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-command-api-followup/final-effective-followup/preview/tests/CardGame.Core.Tests/OrdinaryLingJuChecks.cs",
+      "mainPath": "tests/CardGame.Core.Tests/OrdinaryLingJuChecks.cs",
+      "rawSha256": "5a394f558c8bda5e2dec85b8662ab8f987cfe47be295d6e9b21c1ba368130caf"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/art/official-ol-ling-ju.png",
+      "mainPath": "src/CardGame.Wpf/Assets/official-ol-ling-ju.png",
+      "rawSha256": "ce7be6c2e2f46ef00c1d16c1fabfd1f103f4457a37587900356d21a618a90a0b"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/fu-wan-implementation/art/7200-original.png",
+      "mainPath": "src/CardGame.Wpf/Assets/official-ol-fu-wan.png",
+      "rawSha256": "508801d306a19b380cf24f460d03ba315e8e473da53ed384201c5e781625ed8b"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-integration/preview/src/CardGame.Core/ContentRegistry.cs",
+      "mainPath": "src/CardGame.Core/ContentRegistry.cs",
+      "beforeRawSha256": "2054e1bf7964965b0fd015ab40e52f4b10d2e9a123fcc90ab00b7c2c95616e9c",
+      "rawSha256": "305ac78e19dbf71c591e06ecebd4d8a9f9f763711caa3a346f27091b96c70c32"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-integration/preview/src/CardGame.Core/GameEngine.ActualUseTargetPrograms.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.ActualUseTargetPrograms.cs",
+      "beforeRawSha256": "8328ab2999a1f5502b278336052312e983b43d71dfca66cd0237579d55af9ad7",
+      "rawSha256": "57644ad580d5e6144499482be689ed2054e38844f41cfbb9fa196fffe17f128c"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-integration/preview/src/CardGame.Core/GameEngine.CardAttackState.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.CardAttackState.cs",
+      "beforeRawSha256": "1bd8b67d0e91e7c112bb6b9bef527d835b7611b468fca2524a68351eede21643",
+      "rawSha256": "80c17365da5bd1e938e827973e64d0b681ade4e2c21f9d53ddf30c03ad6d352c"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-integration/preview/src/CardGame.Core/GameEngine.DamagePreventionPrograms.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.DamagePreventionPrograms.cs",
+      "beforeRawSha256": "66fb467a4438f6cee685496177dd07225f506f8d597a996fe067c68685ae072e",
+      "rawSha256": "d64138915e3006d6f8a42b125ef885d43a4f400581e33328f7a31cf91c78043d"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-integration/preview/src/CardGame.Core/GameEngine.PaidOwnTargetObservers.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.PaidOwnTargetObservers.cs",
+      "beforeRawSha256": "1b6fafbd17f859e4d6d1b947a6b17509a5b0872ea52824d2831ec65594d37e47",
+      "rawSha256": "0f694a4149e72ddd3b34fd8159b89f2b103e23830a82c61a668a8eda1861dfe6"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-integration/preview/src/CardGame.Core/GameEngine.ProgramAttackAttempt.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.ProgramAttackAttempt.cs",
+      "beforeRawSha256": "72d805033e3cfa93569ef290f14e15d47ee1d931011eef7c4c2e633661a22d3e",
+      "rawSha256": "c1f9da4d902e2cc4fbc4cbb34d5f55f8945eefcfc9eab087d08b5d4b6c58193f"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-integration/preview/src/CardGame.Core/GameEngine.ProgramDamageTransfer.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.ProgramDamageTransfer.cs",
+      "beforeRawSha256": "722329bdb30d607045b9692632ff3592d4a8bafcb91fc75fa23f7a13421751df",
+      "rawSha256": "098562940489227e5e0e42a4cede7f8535ba01e4e908dc03ce161adbc79e45fb"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-integration/preview/src/CardGame.Core/GameEngine.ProgramDiscardOrigins.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.ProgramDiscardOrigins.cs",
+      "beforeRawSha256": "90c4ec80c8609c6c151b790867ea5b722b55b8284de5cdaa520b2201576ad8c0",
+      "rawSha256": "50061c968de1819ed803c4c27619b1899a11a515e0a9598b10689e70ca6aa3eb"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-integration/preview/src/CardGame.Core/GameEngine.ProgramDiscardTopPlacement.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.ProgramDiscardTopPlacement.cs",
+      "beforeRawSha256": "4fa188cb032263c004930b2ac2ef0bc2ac11a15beec4a3473ded5f29e861326e",
+      "rawSha256": "9bdc7b3a6f3d941d7254b135569b616db5a7f144ecf614522e298438e9b31815"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-integration/preview/src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+      "beforeRawSha256": "1bdc074ac6c55da718f73b556ce0ba68db0daeeba1aa0918a2393db516851694",
+      "rawSha256": "1c4a884b2ad08d292afe9ee8844ca562c481737526eac39c460ff4767651dfc6"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-integration/preview/src/CardGame.Core/GameEngine.ProgramTurnPhase.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.ProgramTurnPhase.cs",
+      "beforeRawSha256": "1166be5de1813a147eb90e0d07d79b056412c337694e474dc90a4b9edb3bd461",
+      "rawSha256": "6637583ccd2de8f7d4a960a6d527f373b08d077c1c6de408b5f9ab34a4c649e7"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-integration/preview/src/CardGame.Core/GameEngine.Runtime.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.Runtime.cs",
+      "beforeRawSha256": "3df7af589312dfbc4f4168b7d0ef57afcf55ae81c3b089751cc357be4f693683",
+      "rawSha256": "2e69c802819525a0411a4f65056f2542772bc6c1ea1ca9c8189288036166a344"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-integration/preview/src/CardGame.Core/GameEngine.SameTypeActualUseAid.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.SameTypeActualUseAid.cs",
+      "beforeRawSha256": "950e90b261b0dd70e4759b88924361c2d37447fe9c0c84110015711bf5604f22",
+      "rawSha256": "67dddfd5de0875abc73c96a85eeeb7eebb85c67f8a013e4a4b0a4f696384cfbc"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-integration/preview/src/CardGame.Core/GameEngine.SkillPrograms.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.SkillPrograms.cs",
+      "beforeRawSha256": "ac6083fcdf0a1517f35fc1e8d14b4e97197e43211b5aaabf147555898e7dd530",
+      "rawSha256": "27e9b787ef2a3f9e254f8a35152bfe4fd9ec9b0853354ae23c188495fd0fdeb5"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-integration/preview/src/CardGame.Core/GameEngine.cs",
+      "mainPath": "src/CardGame.Core/GameEngine.cs",
+      "beforeRawSha256": "52a8704e0627c3b07e4b126a70199df56734968de5b31d6dff124465b0ed8b04",
+      "rawSha256": "a0c8d2a46bec7f82868d80ed88734af2dc8f9c342947e80e0f24ea5ffeac8630"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-integration/preview/src/CardGame.Core/ProgramLifecycle.cs",
+      "mainPath": "src/CardGame.Core/ProgramLifecycle.cs",
+      "beforeRawSha256": "64067a1d7b0a274d41eaed50424c19fc7a45da1b2dc5aa218cd0bdde31f976fd",
+      "rawSha256": "f84cd4611bb58541d1a98c9bece9b02cc4483ddaf1559d07d50532484c6cc27f"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-integration/preview/src/CardGame.Core/Resolution.cs",
+      "mainPath": "src/CardGame.Core/Resolution.cs",
+      "beforeRawSha256": "1a46c364c92c0a721c9992e6cf8ff6595fd742f95f05782a3ddef0ec4a576382",
+      "rawSha256": "e1e3801adf0e6f070e651faaa23570828ff99c99b5f80ad7a13c05172350c421"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/root-integration/preview/src/CardGame.Core/SkillPrograms.cs",
+      "mainPath": "src/CardGame.Core/SkillPrograms.cs",
+      "beforeRawSha256": "a85646fb0a1707c2b9c3d4f7a74cfb160d94fad64dce909e55e98955ec9a3bfa",
+      "rawSha256": "20c6816411cc10ba7291f4238503f870fe01cba424e0b0ff3c18de61d4fe9a6a"
+    },
+    {
+      "mainPath": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+      "beforeRawSha256": "59cf97988d28dfa6d8f9c9a84e1dd8715b922e56fcf18c1a828c84829e6cbca1",
+      "rawSha256": "43fd55baaac570379b0419ae4b7ae5262c114cebe20a44853a15723ea173993f",
+      "rootRegistration": true
+    },
+    {
+      "mainPath": "tests/CardGame.Core.Tests/Program.cs",
+      "beforeRawSha256": "f49622ec32f79b86c0ec0a1a77777b1a6508ba4612de90975d21ec5ae65c604f",
+      "rawSha256": "79afdb365523fae14b23fcd5d84c3e35912d981f1abe9251cc38dfddbc56a6ee",
+      "rootRegistration": true
+    },
+    {
+      "mainPath": "tools/VerificationScopes.psd1",
+      "beforeRawSha256": "caa7b9a1f5157e8ba44665edf6c83c7338328d4396dc7a65e7821b5ab23a8539",
+      "rawSha256": "ab1adad2c6f2ed7d0cb0facd542a162c21d087dfecd07cb9230363e7e9d5a75a",
+      "rootRegistration": true
+    },
+    {
+      "mainPath": "src/CardGame.Wpf/Presentation/GeneralGalleryCatalog.cs",
+      "beforeRawSha256": "4a80f60bf4a49d3b77d6a8d73e5815ed9885fd2bd177f3de0c49e910acf83946",
+      "rawSha256": "121e77ff5e8ccebaf77482422a2da65c9780e999c88e12ff4fa84f1744228830",
+      "rootRegistration": true
+    },
+    {
+      "mainPath": "docs/content/general-art-catalog.json",
+      "beforeRawSha256": "cb128b83e3d6729cc0dea872e5ca22d2ea9411051dd879e7ee78ae8e2ffbb067",
+      "rawSha256": "f75be4c71e2ba8be758710a7561417c69bb87bc874b19e174eaff2d624d3faec",
+      "addedKeys": [
+        "ol-fu-wan",
+        "ol-liu-xie",
+        "ol-ling-ju"
+      ]
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/fu-wan-implementation/CONTRACT.md",
+      "mainPath": "docs/content/skill-composition/ORDINARY_OTHER_THIRTY_FOURTH_FU_WAN_CONTRACT.md",
+      "rawSha256": "5ab9b5c297c0de88944a960f636c55ae2a58383901efc2226f7f05ba564504ad"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/fu-wan-implementation/ENGINEERING_DEFAULTS.md",
+      "mainPath": "docs/content/skill-composition/ORDINARY_OTHER_THIRTY_FOURTH_FU_WAN_ENGINEERING_DEFAULTS.md",
+      "rawSha256": "dd6592fee009973c00ad674f7e3d8cc9f6a7151004fc6fd0af0be02da1898093"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/fu-wan-implementation/REGISTRATION_AND_CHECKS.md",
+      "mainPath": "docs/content/skill-composition/ORDINARY_OTHER_THIRTY_FOURTH_FU_WAN_REGISTRATION_AND_CHECKS.md",
+      "rawSha256": "77d79e443f2cca109157e30c7a412c20a5909aebff3b1b8085c10227094d380b"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/fu-wan-implementation/delivery-manifest.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-fourth-fu-wan-delivery-manifest.json",
+      "rawSha256": "8d7e2bcfef24e359cdb439fc0b1a922f2012441ebb2c790c10a8b24a6d6b6fc1"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/liu-xie-implementation/CONTRACT.md",
+      "mainPath": "docs/content/skill-composition/ORDINARY_OTHER_THIRTY_FOURTH_LIU_XIE_CONTRACT.md",
+      "rawSha256": "10944976eee9805af609fae438228c13ee1568395c40d13fb852ced984c341de"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/liu-xie-implementation/ENGINEERING-DEFAULTS.md",
+      "mainPath": "docs/content/skill-composition/ORDINARY_OTHER_THIRTY_FOURTH_LIU_XIE_ENGINEERING_DEFAULTS.md",
+      "rawSha256": "1aedd17a27b5213902056445d14f8d145df79e764d1f1b7a2de975b3f88616aa"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/liu-xie-implementation/STATIC-API-REVIEW.md",
+      "mainPath": "docs/content/skill-composition/ORDINARY_OTHER_THIRTY_FOURTH_LIU_XIE_STATIC_API_REVIEW.md",
+      "rawSha256": "9bcb7ed82956ccf375a34ef1edde35ec183c895300bfeef37128d890fa23c9fd"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/liu-xie-implementation/delivery-manifest.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-fourth-liu-xie-delivery-manifest.json",
+      "rawSha256": "ed30c8bce949f0b8d981660913020e26db5577307fa3c22b39cd623bd96e2d51"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/CONTRACT.md",
+      "mainPath": "docs/content/skill-composition/ORDINARY_OTHER_THIRTY_FOURTH_LING_JU_CONTRACT.md",
+      "rawSha256": "690c811d395b3e556b822443cb4adeda12a5f60d0180bce2e9a790202d6648de"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/ENGINEERING-DEFAULTS.md",
+      "mainPath": "docs/content/skill-composition/ORDINARY_OTHER_THIRTY_FOURTH_LING_JU_ENGINEERING_DEFAULTS.md",
+      "rawSha256": "5270295ea940568334a5165ef2dee049665c3cafc04954716aae227ff2dc297d"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/CHECK-COVERAGE.md",
+      "mainPath": "docs/content/skill-composition/ORDINARY_OTHER_THIRTY_FOURTH_LING_JU_CHECK_COVERAGE.md",
+      "rawSha256": "c9546cfbd803ac004ae697dd3c693aa546bcb74715fb73b2bdd8d121ecc6915b"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/STATIC-REVIEW.md",
+      "mainPath": "docs/content/skill-composition/ORDINARY_OTHER_THIRTY_FOURTH_LING_JU_STATIC_REVIEW.md",
+      "rawSha256": "3078defd1a1fbe9c6f8664d759596fcbbe5f6c62cd571144df42026271a9de0e"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/delivery-manifest.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-fourth-ling-ju-delivery-manifest.json",
+      "rawSha256": "50ec607a37d6b2c92eab009e9cffc78bb545beed7133ed123f74f364e739fa10"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/fu-wan-implementation/art/request-ledger.json",
+      "mainPath": "docs/content/sources/ordinary-other-thirty-fourth-72-art-2026-10-04.json",
+      "rawSha256": "2e1a7c49792caa7ef17cbd931a8663060af5f4fb8a31d20cbb11c74eb78a23c2"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/art/official-art-source.json",
+      "mainPath": "docs/content/sources/ordinary-other-thirty-fourth-74-art-2026-10-04.json",
+      "rawSha256": "d359e105e163ad4f250d351f20ce5fbcfb5771917b434d3567552c3042742203"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/art/74-cover.headers.txt",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-fourth-74-portrait.headers.txt",
+      "rawSha256": "c30eb0364bdcbba2cf34cb9cb501b8c0c3509460bf9358f4a72aafc5e5fd7bf4"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-implementation/art/capture.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-fourth-74-portrait.capture.json",
+      "rawSha256": "f2e991c31544955b6b0022e4f9180d3b93d3b090de6e02d21ec61bc3e77e2292"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-paid-completion-followup/delivery-manifest.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-fourth-ling-ju-paid-completion-manifest.json",
+      "rawSha256": "bd0a1528a7ee71ceb3b337a6b97cfd9a48d7580309afbbf74aef0cb97218af12"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-command-api-followup/delivery-manifest.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-fourth-ling-ju-command-api-manifest.json",
+      "rawSha256": "0c6306e5f9ce60fd813c696165543053b437e91c89e87505b9574b67839abbdc"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-command-api-followup/nullable-card-followup/delivery-manifest.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-fourth-ling-ju-nullable-card-manifest.json",
+      "rawSha256": "c74f8ad7cb72687c572f5e8d5147b3e9b64a5ef23a602015d09d5f6933251615"
+    },
+    {
+      "stagePath": ".artifacts/continuation-20261003-batch17/batch34/ling-ju-command-api-followup/final-effective-followup/delivery-manifest.json",
+      "mainPath": "docs/content/sources/evidence/ordinary-other-thirty-fourth-ling-ju-typed-physical-ids-manifest.json",
+      "rawSha256": "5e04f6aa6985b9feeac4d53258c0fffeec59bcf88b2d8dd0cbb56e4913f90250"
+    }
+  ],
+  "checks": [
+    {
+      "displayName": "Ordinary Fu Wan same-use benefit and real Dodge settlement",
+      "method": "OrdinaryFuWanChecks.RealBenefitAndDodgeCancellationPayOriginalEntitiesOnce",
+      "executed": false
+    },
+    {
+      "displayName": "Ordinary Fu Wan all actual targets and prevented cancellation",
+      "method": "OrdinaryFuWanChecks.MultipleActualTargetsAndPreventedCancellationStayIndependent",
+      "executed": false
+    },
+    {
+      "displayName": "Ordinary Fu Wan legacy virtual Slash and Bagua cancellation",
+      "method": "OrdinaryFuWanChecks.LegacyVirtualSlashAndBaguaUseExactCancellationProducer",
+      "executed": false
+    },
+    {
+      "displayName": "Ordinary Fu Wan paid gain children source loss native and strict composition",
+      "method": "OrdinaryFuWanChecks.PaidGainDyingSourceLossNativeAndStrictComposition",
+      "executed": false
+    },
+    {
+      "displayName": "Ordinary Liu Xie Tianming SilverLion cost and unique current HP peer",
+      "method": "OrdinaryLiuXieChecks.TianmingSilverLionPaymentAndUniqueCurrentHpPeerOwnColdChildren",
+      "executed": false
+    },
+    {
+      "displayName": "Ordinary Liu Xie Tianming zero HE all targets and real producers",
+      "method": "OrdinaryLiuXieChecks.TianmingZeroInsufficientCostAndWholeTargetTimingKeepRealProducers",
+      "executed": false
+    },
+    {
+      "displayName": "Ordinary Liu Xie Mizhao atomic gift foreign Pindian winner Slash",
+      "method": "OrdinaryLiuXieChecks.MizhaoAtomicGiftForeignPindianWinnerSlashAndColdReturn",
+      "executed": false
+    },
+    {
+      "displayName": "Ordinary Liu Xie Mizhao tie foreign winner and paid source loss",
+      "method": "OrdinaryLiuXieChecks.MizhaoTieOpponentWinnerAndPaidSourceLossCancelOnlyUnissued",
+      "executed": false
+    },
+    {
+      "displayName": "OL signed damage actual material effective color and amount",
+      "method": "OrdinaryLingJuChecks.PaidDamageAdjustmentUsesEffectiveOwnedColorAndActualAmount",
+      "executed": false
+    },
+    {
+      "displayName": "OL public dead role costs and prior death acquisition",
+      "method": "OrdinaryLingJuChecks.PublicDeadRoleRelaxationsIncludeDeathsBeforeSkillAcquisition",
+      "executed": false
+    },
+    {
+      "displayName": "OL signed equipment cost HP fatal children and once return",
+      "method": "OrdinaryLingJuChecks.EquipmentPaymentWaitsForHpAndFatalChildrenThenReturnsOnce",
+      "executed": false
+    },
+    {
+      "displayName": "OL recipient chain base native selection and strict contract",
+      "method": "OrdinaryLingJuChecks.RecipientScopedChainAdjustmentAndNativeSelectionStayExact",
+      "executed": false
+    }
+  ],
+  "routinePrefixes": [
+    "Ordinary Fu Wan same-use benefit",
+    "Ordinary Liu Xie Tianming SilverLion cost and unique current HP peer",
+    "OL signed damage actual material"
+  ],
+  "execution": {
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "coreChecks": false,
+    "wpfChecks": false,
+    "nativeGame": false,
+    "game": false,
+    "benchmark": false,
+    "ui": false,
+    "publish": false,
+    "push": false
+  },
+  "runtimeAcceptance": false,
+  "manualMergeResolutions": [
+    "Combine exact recipient-contest and Slash-benefit movement guards",
+    "Separate explicitly numbered 7000/7200 enum entries with comma"
+  ],
+  "excludedDirty": {
+    "path": "src/CardGame.Core/GameEngine.PrepDiscardReceipts.cs",
+    "beforeRawSha256": "d94c540e827ba6d70ba44ca65b0a02c41f77f12c4572fc7fa209444e1e7a8194",
+    "afterRawSha256": "d94c540e827ba6d70ba44ca65b0a02c41f77f12c4572fc7fa209444e1e7a8194"
+  },
+  "versions": {
+    "rulesEpochChanged": false,
+    "rulesJsonSchemaChanged": false,
+    "contentPackageVersionChanged": false
+  },
+  "reviews": {
+    "scope": "bounded static review of named producers, typed returns, collections, checks and shared merge",
+    "fuWanConfirmedFixes": [
+      "Paid observer real Damage admission",
+      "Paid source-loss exact Resume before generic executor"
+    ],
+    "lingJuConfirmedFixes": [
+      "Already adjusted paid instruction completes through exact typed tail",
+      "Physical command API and nullable entity IDs in check drafts"
+    ],
+    "liuXieConfirmedFixes": [
+      "Tianming cancellation draft uses trigger binding event"
+    ],
+    "withdrawnFinding": "5402 rescue was already indirectly covered by the existing paid-hand wrapper; no missing rescue support claimed",
+    "sharedMergeOldEnumValuesPreserved": {
+      "effectOps": 339,
+      "windows": 48
+    }
+  },
+  "sourceArt": {
+    "originalPortraits": 3,
+    "localPngDimensions": [
+      750,
+      950
+    ],
+    "historicalDistanceArticle": "2016 official SP strategy supplements distance engineering interpretation only; not current FAQ or current ordinary variant identity"
+  },
+  "coverageLimits": {
+    "allChecksUnexecuted": true,
+    "focusedDraftsAreNotAcceptance": true,
+    "lingJuMissingBehaviorDraftsDocument": "docs/content/skill-composition/ORDINARY_OTHER_THIRTY_FOURTH_LING_JU_CHECK_COVERAGE.md",
+    "fullVerificationDeferred": true,
+    "measuredRoutineSeconds": null
+  }
+}

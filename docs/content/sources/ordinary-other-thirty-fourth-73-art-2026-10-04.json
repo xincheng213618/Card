@@ -1,0 +1,35 @@
+{
+  "status": "frozen-static-capture",
+  "generalId": "ol:liu-xie",
+  "sourceBinding": "docs/content/sources/ordinary-other-thirty-third-73-source-2026-10-04.json",
+  "sourceRawSha256": "e6ca90cf756b583d7481f6dc7a6e26d395c768bdacb8c1f517c150c52ba9bb84",
+  "portrait": {
+    "key": "ol-liu-xie",
+    "characterName": "刘协",
+    "defaultSkinId": "7300",
+    "skins": [{
+      "id": "7300",
+      "name": "经典形象",
+      "sourcePage": "https://www.sanguosha.com/hero/73",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/7300.png",
+      "localPath": "src/CardGame.Wpf/Assets/official-ol-liu-xie.png",
+      "sha256": "8fea3705a1c3bd786990b86c52f09eec46585b5f878ac524b7530b7d13b19d62",
+      "pixelWidth": 750,
+      "pixelHeight": 950
+    }]
+  },
+  "historicalDistanceSupplement": {
+    "sourcePage": "https://www.sanguosha.com/news/20161110_8162_4518",
+    "title": "[攻略] SP武将：刘协攻略文  - 三国杀OL官网",
+    "published": "2016-11-10 18:36:22",
+    "rawSha256": "3e4ae81ef261b95e16a0bab80b004cab1c9e722cc8f06716b3803d9014a9af94",
+    "finding": "The historical official SP strategy article describes Mizhao's derived Slash as ignoring distance. This supplements the engineering default; it does not bind current ordinary OL character identity to the historical SP variant and is not a current FAQ.",
+    "retrievedUtc": "2026-10-04T11:46:01.6940755+00:00"
+  },
+  "httpGetAttempts": 2,
+  "redirectsFollowed": 0,
+  "retries": 0,
+  "buildExecuted": false,
+  "runtimeExecuted": false,
+  "testExecuted": false
+}

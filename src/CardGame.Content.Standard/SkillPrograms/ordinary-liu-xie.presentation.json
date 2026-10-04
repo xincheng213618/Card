@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:tianming": { "name": "天命", "description": "当你成为【杀】的目标后，你可以：弃置两张牌（不足则全弃），摸两张牌。若全场体力值唯一最大的角色不为你，其可以如此做。", "triggerChoices": { "actual-slash-target": "弃牌摸牌，然后询问唯一最高体力者" } },
+    "ol:mizhao": { "name": "密诏", "description": "出牌阶段限一次，你可以交给一名其他角色所有手牌，然后令其与另一名其他角色拼点：拼点赢的角色视为对没赢的角色使用一张【杀】。", "activationLabels": { "recipient-contest": "交出全部手牌，令受赠者与第三者拼点" } }
+  }
+}

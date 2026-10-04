@@ -3,11 +3,12 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool TracksPaidOwnTargets => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PayHpThenNullifyOwnActualUseTarget) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferHalfHandRecipientSupport) || HasSameTypeActualUseAid;
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferHalfHandRecipientSupport) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardDrawAndOfferUniqueHpPeer) || HasSameTypeActualUseAid || HasOwnMultiTargetTrickDraw;
 
     private ActualUseTargetIdentity? FreezeActualUseTarget(CardUseFrame use, int target)
     {
-        if (!TracksPaidOwnTargets || !IsValidPlayerSeat(target) || target == use.SourceSeat && !HasHalfHandSelfTargetSupport(target) || !_players[target].IsAlive ||
+        if (!TracksPaidOwnTargets || !IsValidPlayerSeat(target) || target == use.SourceSeat && !HasHalfHandSelfTargetSupport(target) && !HasOwnMultiTargetTrickSelfTarget(use, target) || !_players[target].IsAlive ||
             !use.TargetSeats.Contains(target) && !IsHalfHandImplicitSelfTarget(use, target) || !IsSlashCard(use.CardKind) && !IsOrdinaryTrick(use.CardKind)) return null;
         if (use.CardKind == CardKind.BorrowedSword && !use.TargetSeats.Where((_, i) => i % 2 == 0).Contains(target)) return null;
         if (use.Action is { Type: CardActionType.Use } action && action.ActorSeat == use.SourceSeat && action.EffectiveKind == use.CardKind)
@@ -27,7 +28,7 @@ public sealed partial class GameEngine
                 action.ActionId == actionId && action.ActorSeat == identity.ActorSeat && action.ProviderSeat == identity.ProviderSeat &&
                 action.EffectiveKind == identity.EffectiveKind;
         return identity.LegacyProducerProgramId is { } producer && use.Action is null &&
-            LegacyDamageJudgmentVirtualProducer(use, identity.TargetSeat) == producer;
+            (LegacyDamageJudgmentVirtualProducer(use, identity.TargetSeat) == producer || MatchesAnnouncedUniqueHpLegacyTarget(identity));
     }
 
     private bool TryBeginActualUseTargetPrograms(CardAttackHandle attack, ActualUseTargetReturnKind kind)
@@ -57,14 +58,16 @@ public sealed partial class GameEngine
                 : CaptureProgramTriggerFacts(_players[target]);
             foreach (var candidate in CollectEligibleProgramTriggerCandidates(_players[target], SkillProgramTriggerWindow.OtherActualUseTargeted, facts))
             {
-                if (!GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.PayHpThenNullifyOwnActualUseTarget or SkillProgramEffectOp.OfferHalfHandRecipientSupport ||
+                if (!GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.PayHpThenNullifyOwnActualUseTarget or SkillProgramEffectOp.OfferHalfHandRecipientSupport or SkillProgramEffectOp.DrawThenNullifyOwnMultiTargetTrick ||
                     e.Op == SkillProgramEffectOp.OfferSameTypeDifferentNameOrExtraTarget && identity.ActionId is null)) continue;
                 entries.Add((candidate, new(SkillProgramTriggerWindow.OtherActualUseTargeted, id, target,
                     SourceSeat: identity.ActorSeat, TargetSeat: target, OccurrenceIndex: candidate.OccurrenceIndex, Facts: facts)
                     { ActualUseTarget = identity }));
             }
         }
-        if (entries.Count == 0) return false;
+        var previouslyAnnounced = use.UniqueHpAnnouncedTargets?.Count ?? 0;
+        AppendUnannouncedUniqueHpTargets(use, id, entries);
+        if (entries.Count == 0 && (LifecycleCardUse(use.Id)?.UniqueHpAnnouncedTargets?.Count ?? 0) == previouslyAnnounced) return false;
         entries = entries.OrderByDescending(e => e.Candidate.Priority).ThenBy(e => e.Candidate.OwnerSeat)
             .ThenBy(e => e.Candidate.SkillId, StringComparer.Ordinal).ToList();
         _resolutionSequence = id;
@@ -78,7 +81,7 @@ public sealed partial class GameEngine
     {
         if (context.Window != SkillProgramTriggerWindow.OtherActualUseTargeted) return true;
         return context.ActualUseTarget is { } use && use.TargetSeat == candidate.OwnerSeat && context.TargetSeat == use.TargetSeat &&
-            context.SourceSeat == use.ActorSeat && (candidate.OwnerSeat != use.ActorSeat || IsHalfHandSupportCandidate(candidate)) && _players[candidate.OwnerSeat].Hp > 0 &&
+            context.SourceSeat == use.ActorSeat && (candidate.OwnerSeat != use.ActorSeat || IsHalfHandSupportCandidate(candidate) || OwnMultiTargetTrickCandidate(candidate)) && _players[candidate.OwnerSeat].Hp > 0 &&
             MatchesActualUseTarget(use) && !IsCardEffectIneffective(use.CardUseFrameId, use.TargetSeat) &&
             _resolutionStack.OfType<ActualUseTargetWindowFrame>().LastOrDefault() is { } parent && parent.Id == context.ParentFrameId &&
             parent.ParentFrameId == use.CardUseFrameId && parent.CandidateIndex >= 0 && parent.CandidateIndex < parent.Candidates.Count &&
@@ -89,6 +92,7 @@ public sealed partial class GameEngine
     {
         while (_resolutionStack.LastOrDefault() is ActualUseTargetWindowFrame parent)
         {
+            parent = AppendUniqueHpTargetsToCurrentWindow(parent);
             if (parent.CandidateIndex >= parent.Candidates.Count || _winner != Winner.None)
             {
                 PopResolutionFrame(parent.Id, ResolutionFrameKind.ActualUseTargetWindow);
@@ -154,6 +158,8 @@ public sealed partial class GameEngine
         }
         var attack = ActiveCardAttack;
         if (attack is null || attack.ResolutionId != use.Id) throw new InvalidOperationException("The target return lost its actual Slash.");
+        if (TryBeginSlashTargetPenalties(attack, parent.ReturnKind == ActualUseTargetReturnKind.LegacyVirtualSlash, afterActualTargets: true)) return;
+        if (TryBeginSlashTargetBenefits(attack, parent.ReturnKind == ActualUseTargetReturnKind.LegacyVirtualSlash, afterActualTargets: true)) return;
         if (parent.ReturnKind == ActualUseTargetReturnKind.LegacyVirtualSlash)
         {
             if (IsCardEffectIneffective(use.Id, attack.TargetSeat)) { SetCardUseStep(use.Id, ResolutionFrameStep.ResolvingEffect); CompleteAttack(attack); }

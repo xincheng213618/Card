@@ -1,0 +1,13 @@
+{
+  "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/10500.png",
+  "purpose": "One authorized exact current info data.info[0].cover GET; no other art or retries",
+  "method": "GET",
+  "startedUtc": "2026-10-04T12:53:46.7599684Z",
+  "finishedUtc": "2026-10-04T12:53:46.9668320Z",
+  "httpStatus": "200",
+  "curlExitCode": 0,
+  "redirectsFollowed": false,
+  "retries": 0,
+  "rawSha256": "f23ec7fb25b6977e0c0bf026768c7417150cee7b465e031f8cdb0ee75eda33b0",
+  "rawBytes": 1144861
+}

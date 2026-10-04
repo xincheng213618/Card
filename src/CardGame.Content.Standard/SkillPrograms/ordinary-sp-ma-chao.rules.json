@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    { "id": "ol:zhuiji", "revision": 1,
+      "cardPolicies": [{ "id": "hp-ordered-distance", "kind": "distanceOneToNotHigherHp" }],
+      "triggers": [{ "id": "distance-one-target-payment", "window": "actualSlashTargetPenalty", "subject": "owner", "optional": false,
+        "effects": [{ "op": "requireTargetDiscardOrEquipmentRecast", "target": "owner" }] }] },
+    { "id": "ol:shichou", "revision": 1,
+      "cardPolicies": [{ "id": "actual-slash-target-templates", "kind": "slashExtraTargetsByLostHp" }],
+      "modifiers": [
+        { "id": "lost-hp-extra-targets", "query": "cardTargetCount", "operation": "add", "valueExpression": "ownerLostHp",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"], "priority": 0 },
+        { "id": "one-extra-target", "query": "cardTargetCount", "operation": "add", "value": 1,
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"], "priority": 0 }
+      ] }
+  ]
+}

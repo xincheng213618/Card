@@ -60,6 +60,7 @@ public sealed partial class GameEngine
             };
             for (var slot = 0; slot < cards.Count; slot++)
             {
+                if (IsSelfHandCategoryDiscardForbidden(chooserSeat, cards[slot], new(zone, chooserSeat), OwnedCardMoveIntent.Discard)) continue;
                 result.Add(new PromptChoice(
                     new ChoiceId($"program-own-card.frame-{frameId}.zone-{zone}.slot-{slot}"),
                     zone == CardZoneKind.Hand
@@ -125,6 +126,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The own-card discard identity changed.");
 
         ClearPendingDecision();
+        if (IsSelfHandCategoryDiscardForbidden(chooserSeat, card, source, OwnedCardMoveIntent.Discard))
+        { CancelProgramBindingAndCleanup(frame, "当前手牌不能自行弃置，费用未支付。"); return; }
         MoveCard(card, source, CardLocation.DiscardPile,
             new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));
         AdvanceRuntimeProgram(frame.Id);

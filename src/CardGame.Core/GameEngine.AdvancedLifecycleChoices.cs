@@ -58,6 +58,9 @@ public sealed partial class GameEngine
         if (value != "finish")
         {
             if (!draft.Candidates.Contains(value) || draft.Selected.Contains(value)) throw new InvalidOperationException("Advanced selection is unavailable.");
+            if (draft.Operation is SkillProgramEffectOp.SampleFactionSkills or SkillProgramEffectOp.BalanceHandAttackTricks &&
+                IsSelfHandCategoryDiscardForbidden(frame.OwnerSeat, GetAdvancedCard(int.Parse(value)), _cardZones.GetLocation(int.Parse(value)), OwnedCardMoveIntent.Discard))
+            { CancelProgramBindingAndCleanup(frame, "当前手牌不能用于自弃费用。"); return; }
             draft = draft with { Selected = draft.Selected.Append(value).ToArray() };
             ReplaceRuntimeTop(frame = frame with { AdvancedSelection = draft });
             if (draft.Operation == SkillProgramEffectOp.DamageFarthestCharacter)

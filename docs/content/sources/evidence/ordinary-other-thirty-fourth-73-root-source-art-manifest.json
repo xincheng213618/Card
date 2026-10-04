@@ -1,0 +1,42 @@
+{
+  "status": "frozen",
+  "baselineHead": "a9d192479fbd781c4eeba1256e17ac2436ea7df8",
+  "files": [
+    {
+      "path": "7300-original.png",
+      "bytes": 713449,
+      "rawSha256": "8fea3705a1c3bd786990b86c52f09eec46585b5f878ac524b7530b7d13b19d62"
+    },
+    {
+      "path": "portrait.headers.txt",
+      "bytes": 827,
+      "rawSha256": "028af0bd86c3187b671bcaf15554ddd2766b1478ab52642fa203c9c13a44fe2e"
+    },
+    {
+      "path": "portrait.request.json",
+      "bytes": 1328,
+      "rawSha256": "7ee25644ab1e3e6e2e460414249b94cd5b5bf79de5683db219a42cde49d50a95"
+    },
+    {
+      "path": "2016-liu-xie-distance.raw.html",
+      "bytes": 77759,
+      "rawSha256": "3e4ae81ef261b95e16a0bab80b004cab1c9e722cc8f06716b3803d9014a9af94"
+    },
+    {
+      "path": "historical-distance.headers.txt",
+      "bytes": 661,
+      "rawSha256": "5517cb5c67cc7e20461e4b7252bed3cc56b754f87f48eb46e7602f5267ac727f"
+    },
+    {
+      "path": "historical-distance.request.json",
+      "bytes": 1358,
+      "rawSha256": "ece3d00251625b0783588932946660cca7b843901ab195a89377c92ee194c0d1"
+    },
+    {
+      "path": "source-art-metadata.json",
+      "bytes": 1593,
+      "rawSha256": "62050ce6f61ab214013ed7679faea78499ca26a4def55bbb04fc749231df3b0d"
+    }
+  ],
+  "runtimeExecuted": false
+}

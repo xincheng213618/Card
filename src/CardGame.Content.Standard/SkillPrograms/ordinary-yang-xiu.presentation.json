@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:danlao": {
+      "name": "啖酪",
+      "description": "当你成为锦囊牌的目标后，若你不是此牌的唯一目标，你可以摸一张牌，然后此牌对你无效。"
+    },
+    "ol:jilei": {
+      "name": "鸡肋",
+      "description": "当你受到伤害后，你可以声明一种牌的类型，伤害来源本回合不能使用、打出或弃置你声明的此类手牌。",
+      "optionLabels": {
+        "basic": "基本牌",
+        "trick": "锦囊牌",
+        "equipment": "装备牌"
+      }
+    }
+  }
+}

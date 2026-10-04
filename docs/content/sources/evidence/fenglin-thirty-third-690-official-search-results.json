@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "capturedUtc": "2026-10-04T10:09:16.4573754Z",
+  "timestampMeaning": "UTC evidence-retention time; individual web request times were not exposed.",
+  "provider": "web.run",
+  "domains": [
+    "sanguosha.com"
+  ],
+  "queries": [
+    {
+      "query": "\"878\" \"武圣\"",
+      "purpose": "Exact granted font ID and skill label."
+    },
+    {
+      "query": "\"939\" \"咆哮\"",
+      "purpose": "Exact granted font ID and skill label."
+    },
+    {
+      "query": "\"关兴张苞\" \"武圣\" \"方片\" \"咆哮\"",
+      "purpose": "Current family grant plus distinctive boundary Wusheng clause; differs from retained prior Fuhun queries."
+    }
+  ],
+  "returnedBody": "Empty search results\nNo results were found for the provided queries",
+  "results": [],
+  "newSourceUrls": [],
+  "httpStatus": null,
+  "httpHeaders": null,
+  "rawHttpBodySha256": null,
+  "metadataBoundary": "The web tool exposed only its empty-results text. Saved-file hashes identify this local evidence artifact, not origin HTTP bytes. No origin HTTP success, failure, or status is inferred.",
+  "selectedUrlOpenAttempts": 0,
+  "rawGetRequests": 0
+}

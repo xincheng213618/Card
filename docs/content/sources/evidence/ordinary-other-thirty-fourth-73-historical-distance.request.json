@@ -1,0 +1,22 @@
+{
+  "capture": "historical-distance",
+  "requestedUrl": "https://www.sanguosha.com/news/20161110_8162_4518",
+  "actualUrl": "https://www.sanguosha.com/news/20161110_8162_4518",
+  "startedUtc": "2026-10-04T11:46:01.3889738+00:00",
+  "endedUtc": "2026-10-04T11:46:01.6940755+00:00",
+  "httpStatus": 200,
+  "curlExitCode": 0,
+  "redirectsFollowed": 0,
+  "retries": 0,
+  "authorizedGetAttempts": 1,
+  "rawPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch34\\root-liu-xie-source-art\\2016-liu-xie-distance.raw.html",
+  "rawBytes": 77759,
+  "rawSha256": "3e4ae81ef261b95e16a0bab80b004cab1c9e722cc8f06716b3803d9014a9af94",
+  "headersPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch34\\root-liu-xie-source-art\\historical-distance.headers.txt",
+  "headersRawSha256": "5517cb5c67cc7e20461e4b7252bed3cc56b754f87f48eb46e7602f5267ac727f",
+  "sourceBinding": "C:\\Users\\17917\\Desktop\\Card\\docs\\content\\sources\\ordinary-other-thirty-third-73-source-2026-10-04.json",
+  "sourceSha256": "e6ca90cf756b583d7481f6dc7a6e26d395c768bdacb8c1f517c150c52ba9bb84",
+  "evidenceRole": "Historical official SP strategy supplement; not a current FAQ or a binding of the current ordinary OL page to the historical variant.",
+  "buildExecuted": false,
+  "runtimeExecuted": false
+}

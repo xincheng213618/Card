@@ -1,0 +1,237 @@
+*** Begin Patch
+*** Update File: src/CardGame.Core/GameEngine.cs
+@@
+         var attack = new CardAttackHandle(this,
+             pending.Id,
+             source.Seat,
+             target.Seat,
+-            attackCard,
++            IsTieredRoundZeroFireAttackUse(pending.Id) ? null : attackCard,
+             damageAmount: 1,
+             playedCardKind: CardKind.FireAttack,
+             physicalCards: GetCardUsePhysicalCards(pending.Id));
+         ActiveCardAttack = attack;
+*** Update File: src/CardGame.Core/GameEngine.ColorFireAttacks.cs
+@@
+         var effect = GetFireAttackEffectCard(pending);
+         ReplaceRuntimeTop(pending with { FireAttackSelection = null,
+             ColorFireAttack = new(receipt.Source, receipt.ActionId) });
+         var attack = new CardAttackHandle(this, useId, pending.SourceSeat, targetSeat,
+-            effect, damageAmount: 1, playedCardKind: CardKind.FireAttack, physicalCards: GetCardUsePhysicalCards(useId));
++            IsTieredRoundZeroFireAttackUse(useId) ? null : effect,
++            damageAmount: 1, playedCardKind: CardKind.FireAttack, physicalCards: GetCardUsePhysicalCards(useId));
+         ActiveCardAttack = attack;
+         if (!ApplyAttackDamage(attack)) CompleteAttack(attack);
+     }
+ 
+*** Update File: src/CardGame.Core/GameEngine.TieredRoundZeroReturns.cs
+@@
+                 .Select(c => c.Id).ToArray() ?? [];
+             if (exactParentIds.Any(id => processing.All(c => c.Id != id))) return false;
+             remaining = processing.Where(c => !exactParentIds.Contains(c.Id)).ToArray();
+         }
++        if (use.CardKind == CardKind.FireAttack)
++            return remaining.Count == 0 && MatchesTieredRoundZeroFireAttackAttack(attack);
+         return remaining.Count == 0 &&
+             ((IsSlashCard(use.CardKind) || use.CardKind == CardKind.Duel) && attack.SourceSeat == use.SourceSeat ||
+                 use.CardKind is CardKind.BarbarianAssault or CardKind.ArrowBarrage && ActiveGroupCard is { } group &&
+                     group.ResolutionId == use.Id && group.SourceSeat == use.SourceSeat && group.DamageSourceSeat == attack.SourceSeat &&
+                     group.CurrentAttack?.ResolutionId == use.Id);
+     }
++
++    private bool IsTieredRoundZeroFireAttackUse(long id) =>
++        LifecycleCardUse(id) is { CardId: 0, CardKind: CardKind.FireAttack, PhysicalCardIds.Count: 0 } use &&
++        IsIssuedTieredRoundUse(use, true);
++
++    // The logical parent is an exact issued tier2 Use, not a physical card0.
++    // The real reveal/discard fact proves that one of the mature payment
++    // producers has reached this damage route. Its initial target remains in
++    // the owning target list even after legitimate redirect/chain propagation
++    // or sequential-target completion changes the attack target/cursor.
++    private bool MatchesTieredRoundZeroFireAttackAttack(CardAttackHandle attack) =>
++        IsTieredRoundZeroFireAttackUse(attack.ResolutionId) &&
++        LifecycleCardUse(attack.ResolutionId) is { } use &&
++        attack.Card is null && attack.PhysicalCards.Count == 0 &&
++        attack.EffectiveCardKind == CardKind.FireAttack &&
++        attack.SourceSeat == use.SourceSeat && attack.CardUserSeat == use.SourceSeat &&
++        attack.ProgramSkillFrameId is null && attack.ProgramSkillCardUseFrameId is null &&
++        attack.ProgramJudgmentFrameId is null && !attack.IsDelayedJudgmentDamage &&
++        CompleteProgramEventHistory().OfType<FireAttackResolvedEvent>()
++            .LastOrDefault(fact => fact.ResolutionId == use.Id) is
++                { CausedDamage: true, MatchingDiscardCardId: > 0 } paid &&
++        paid.SourceSeat == use.SourceSeat && use.TargetSeats.Contains(paid.TargetSeat);
+ 
+     private bool IsTieredRoundZeroProcessingParent(long id, int cardId) => cardId == 0 && IsTieredRoundZeroUse(id);
+ 
+     private bool MatchesTieredRoundZeroUseAction(long id, CardActionContext action, int cardId) =>
+*** Update File: src/CardGame.Core/GameEngine.TieredRoundZeroUses.cs
+@@
+     private bool FinishTieredRoundZeroAttack(CardAttackHandle attack, out bool paused)
+     {
+         paused = false;
+         if (attack.Card is not null || !IsTieredRoundZeroUse(attack.ResolutionId) ||
+-            attack.EffectiveCardKind is not { } kind || !IsSlashCard(kind) && kind != CardKind.Duel) return false;
++            attack.EffectiveCardKind is not { } kind ||
++            !IsSlashCard(kind) && kind != CardKind.Duel &&
++                !(kind == CardKind.FireAttack && MatchesTieredRoundZeroFireAttackAttack(attack))) return false;
+         var use = LifecycleCardUse(attack.ResolutionId)!;
+         SetCardUseStep(use.Id, ResolutionFrameStep.Completed);
+         AdvanceEventRulesAndQueueFact(new CardUseFinishedEvent(use.Id, 0, use.CardKind));
+         if (_winner == Winner.None && TryBeginProgramCardWindow(attack, use.Action!, SkillProgramTriggerWindow.CardUseCompleted,
+*** Update File: tests/CardGame.Core.Tests/BoundaryGuoHuangHouChecks.cs
+@@
+ internal static class BoundaryGuoHuangHouChecks
+ {
+     private const string Jiaozhao = "boundary:jiaozhao-round-current", Danxin = "boundary:danxin-capped-current";
+     private const string Driver = "fixture:ghh-driver", Gain = "fixture:ghh-gain", Hp = "fixture:ghh-hp", Completed = "fixture:ghh-completed";
+-    private const string TrickChild = "fixture:ghh-trick-child";
++    private const string TrickChild = "fixture:ghh-trick-child", FireDamage = "fixture:ghh-fire-damage", FireColor = "fixture:ghh-fire-color";
+     private const string StateId = "boundary-jiaozhao-round-tier", Mode = "identity:classic-guo-huang-hou-fixture";
+     private const string DrawReason = "skill-program." + Danxin + ".capped-conversion-draw";
+ 
+     public static void TrueRoundNamesPhysicalConversionAndPrivateCold()
+@@
+             F<SkillUsageConsumedEvent>(g).Count(e => e.SkillId == Jiaozhao && e.Scope == SkillUsageScope.Round) == 1 &&
+             g.CardMovements.All(m => m.CardId != 0) && !g.ResolutionStack.Any(f => f.Id == enhancedReceipt.OwnerFrameId),
+             "Both real targets draw two after the restored choice; one issued Round payment returns through the original trick without a synthetic entity.");
+         _ = Cold(g, r);
++
++        // Both mature real payment producers retain an exact logical FireAttack
++        // owning frame. This drafts actual commands and journal-cold resumptions;
++        // no physical entity0, fabricated accepted action or direct HP write.
++        foreach (var colorPayment in new[] { false, true })
++        {
++            (g, r) = Create(fireAttackChildren: true, colorFireAttack: colorPayment);
++            Play(g); UpgradeTwo(g);
++            var fire = g.GetHumanLegalActions().First(a => a.CardId == 0 &&
++                a.ConversionSource?.SkillId == Jiaozhao && a.PlayedCardKind == CardKind.FireAttack &&
++                a.TargetSeats.SequenceEqual([1]));
++            var fireHand = V(g, 0).HandCount; var victimHp = V(g, 1).Hp;
++            SubmitPlay(g, fire); Reach(g, p => p.Kind == DecisionKind.FireAttackDiscard && p.PlayerSeat == 0);
++            var fireReceipt = F<TieredRoundConversionUseIssuedEvent>(g).Single().Receipt;
++            var fireUse = g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.Id == fireReceipt.OwnerFrameId);
++            var discard = P(g)!.Choices.First(c => c.Cards.Count == 1 &&
++                c.Parameters.GetValueOrDefault("response") == "fire-attack-discard").Cards.Single();
++            Require(fireReceipt is { FrozenTier: 2, MaterialCount: 0, EffectiveKind: CardKind.FireAttack } &&
++                fireUse.CardId == 0 && fireUse.PhysicalCardIds is { Count: 0 } &&
++                fireUse.Action is { Type: CardActionType.Use, EffectiveKind: CardKind.FireAttack, PhysicalCards.Count: 0 } &&
++                (fireUse.ColorFireAttack is not null) == colorPayment && V(g, 0).HandCount == fireHand,
++                "A genuine zero-material FireAttack reaches its mature real matching discard choice with the correct optional color policy and no synthetic use cost.");
++            Private(g); Reject(g); g = Cold(g, r);
++            Answer(g, c => c.Cards.SequenceEqual([discard]) && c.Parameters.GetValueOrDefault("response") == "fire-attack-discard");
++            Reach(g, p => p.SkillPrompt?.SkillId == FireDamage);
++            fireUse = g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.Id == fireReceipt.OwnerFrameId);
++            var damage = g.ResolutionStack.OfType<DamageFrame>().Single();
++            var damageWindow = g.ResolutionStack.OfType<DamageTriggerWindowFrame>().Single();
++            var damageChild = g.ResolutionStack.OfType<ProgramSkillFrame>().Single(f => f.SkillId == FireDamage);
++            var fireFact = F<FireAttackResolvedEvent>(g).Single(f => f.ResolutionId == fireUse.Id);
++            Require(fireUse.CardAttack is { CardId: null, EffectiveCardKind: CardKind.FireAttack, PhysicalCardIds.Count: 0,
++                    SourceSeat: 0, CardUserSeat: 0, TargetSeat: 1 } && fireUse.TieredRoundConversionUse == fireReceipt &&
++                damage.ParentFrameId == fireUse.Id && damage.SourceSeat == 0 && damage.TargetSeat == 1 && damage.Nature == DamageNature.Fire &&
++                damageWindow.ParentFrameId == damage.Id && damageWindow.SourceCardId is null && damageWindow.SourceCard == CardKind.FireAttack &&
++                damageChild.WindowContext is { } damageContext && damageContext.ParentFrameId == damageWindow.Id && damageContext.DamageFrameId == damage.Id &&
++                fireFact is { SourceSeat: 0, TargetSeat: 1, CausedDamage: true } && fireFact.MatchingDiscardCardId == discard &&
++                V(g, 1).Hp == victimHp - 1 && V(g, 0).HandCount == fireHand - 1 &&
++                g.CardMovements.Count(m => m.CardId == discard && m.From == CardLocation.Hand(0)) == 1 &&
++                (colorPayment
++                    ? g.CardMovements.Count(m => m.CardId == discard && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.FireAttackDiscard) == 1
++                    : g.CardMovements.Count(m => m.CardId == discard && m.From == CardLocation.Processing && m.To == CardLocation.DiscardPile && m.Reason == CardMoveReasons.FireAttackDiscardFinished) == 1),
++                "Real fire damage pauses on its exact CardUse→Damage→source observer chain after one matching entity payment, with no physical card0 attack.");
++            Private(g); g = Cold(g, r); Continue(g); Reach(g, p => p.SkillPrompt?.SkillId == Completed);
++            fireUse = g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.Id == fireReceipt.OwnerFrameId);
++            var fireCompleted = g.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Single(w => w.ParentFrameId == fireUse.Id);
++            Require(fireUse.Step == ResolutionFrameStep.Completed && fireUse.CardAttack is { CardId: null, EffectiveCardKind: CardKind.FireAttack } &&
++                fireCompleted.Continuation == ProgramCardContinuation.CompletedSlash && fireCompleted.AttackOwnerFrameId == fireUse.Id &&
++                fireCompleted.Action.ActionId == fireReceipt.CardActionId && fireCompleted.Action.EffectiveKind == CardKind.FireAttack &&
++                fireCompleted.Action.PhysicalCards.Count == 0 &&
++                F<CardUseFinishedEvent>(g).Count(f => f.ResolutionId == fireUse.Id && f.CardId == 0 && f.CardKind == CardKind.FireAttack) == 1,
++                "The original logical FireAttack owns one real completed window before final typed cleanup.");
++            Private(g); g = Cold(g, r); Continue(g); Play(g);
++            Require(!g.ResolutionStack.Any(f => f.Id == fireReceipt.OwnerFrameId) &&
++                !g.ResolutionStack.OfType<ProgramCardTriggerWindowFrame>().Any(w => w.ParentFrameId == fireReceipt.OwnerFrameId) &&
++                g.CardMovements.Count(m => m.CardId == discard && m.From == CardLocation.Hand(0)) == 1 &&
++                !g.CreateCardZoneDiagnostics().Any(c => c.Location == CardLocation.Processing) &&
++                g.CardMovements.All(m => m.CardId != 0) &&
++                F<FireAttackResolvedEvent>(g).Count(f => f.ResolutionId == fireReceipt.OwnerFrameId) == 1 &&
++                F<CardUseFinishedEvent>(g).Count(f => f.ResolutionId == fireReceipt.OwnerFrameId && f.CardKind == CardKind.FireAttack && f.CardId == 0) == 1 &&
++                F<TieredRoundConversionUseIssuedEvent>(g).Count(f => f.Receipt.OwnerFrameId == fireReceipt.OwnerFrameId) == 1 &&
++                F<TrueRoundCardNameUsedEvent>(g).Count(f => f.CardActionId == fireReceipt.CardActionId && f.ActorSeat == 0 && f.EffectiveKind == CardKind.FireAttack) == 1 &&
++                F<DamageAppliedEvent>(g).Count(f => f.SourceSeat == 0 && f.TargetSeat == 1 && f.Amount == 1 && f.Nature == DamageNature.Fire) == 1 &&
++                F<SkillUsageConsumedEvent>(g).Count(f => f.SkillId == Jiaozhao && f.Scope == SkillUsageScope.Round) == 1 &&
++                V(g, 1).Hp == victimHp - 1 && V(g, 0).HandCount == fireHand - 1 &&
++                (!colorPayment || F<ColorFireAttackPaidEvent>(g).Count(f => f.CardUseFrameId == fireReceipt.OwnerFrameId) == 1),
++                "Journal-restored damage and completed children return to Play with one real discard, one damage/finish/quota and no entity0 cleanup.");
++            _ = Cold(g, r);
++        }
+     }
+ 
+     public static void ZeroCounterspellDodgeAndDyingTypedReturns()
+     {
+@@
+     { for (var i = 0; i < 220; i++) { if (predicate(g)) return; Advance(g); } throw new InvalidOperationException("Fixed郭皇后边界 absent: " + JsonSerializer.Serialize(new { Prompt = P(g), Frames = g.ResolutionStack, Facts = g.Events.TakeLast(4).Select(e => JsonSerializer.Serialize(e.Payload, e.Payload.GetType())) })); }
+     private static void Advance(GameEngine g)
+     {
+         var p = P(g);
+-        if (p is { PlayerSeat: 0 } && p.SkillPrompt?.SkillId is Gain or Hp or Completed or TrickChild) Continue(g);
++        if (p is { PlayerSeat: 0 } && p.SkillPrompt?.SkillId is Gain or Hp or Completed or TrickChild or FireDamage) Continue(g);
+         else if (p is { PlayerSeat: 0, Kind: DecisionKind.DiscardCards }) Accept(g, new DiscardCardsCommand(0, p.ValidCardIds.Take(p.RequiredCardCount).ToArray(), p.PromptId, g.Revision));
+         else if (p is { PlayerSeat: 0 } && HasAction(p, "skip")) Answer(g, c => c.Parameters.GetValueOrDefault("program-action") == "skip");
+         else if (p is { PlayerSeat: 0, Kind: DecisionKind.SelectTargetCard }) Answer(g, _ => true);
+         else if (p is { PlayerSeat: 0, Kind: DecisionKind.PlayCard }) End(g);
+@@
+         Require(p.Choices is System.Collections.IList { IsReadOnly: true } && p.ValidCardIds is System.Collections.IList { IsReadOnly: true } && p.Choices.All(c => c.Cards is System.Collections.IList { IsReadOnly: true } && c.Targets is System.Collections.IList { IsReadOnly: true }), "Prepared outer/nested choices resist mutation."); }
+     private static void Reject(GameEngine g) { var state = State(g); var p = P(g)!; Require(!g.Submit(new AnswerPromptCommand(p.PlayerSeat, p.PromptId, new ChoiceId("unpublished"), g.Revision)).Accepted && State(g) == state, "An invalid answer does not pay or advance the original benefit."); }
+     private static void Require(bool ok, string message) { if (!ok) throw new InvalidOperationException(message); }
+ 
+-    private static (GameEngine, ContentRegistry) Create(CardKind material = CardKind.Slash, bool benefitChildren = false, bool foreignSlash = false, bool rescueHpChild = false, bool trickChild = false, bool benxi = false)
+-    {
+-        var r = ContentRegistry.Build(new StandardContentPackage(), new Fixture(material, benefitChildren, foreignSlash, rescueHpChild, trickChild, benxi));
++    private static (GameEngine, ContentRegistry) Create(CardKind material = CardKind.Slash, bool benefitChildren = false, bool foreignSlash = false, bool rescueHpChild = false, bool trickChild = false, bool benxi = false, bool fireAttackChildren = false, bool colorFireAttack = false)
++    {
++        var r = ContentRegistry.Build(new StandardContentPackage(), new Fixture(material, benefitChildren, foreignSlash, rescueHpChild, trickChild, benxi, fireAttackChildren, colorFireAttack));
+         var g = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord, ModeId = Mode,
+             UseInteractiveSetup = true, UseInteractiveDiscard = true, AdvanceAfterHumanCommands = false, MaxTurns = 20 }, r);
+         Accept(g, new StartGameCommand()); Reach(g, p => p.Kind == DecisionKind.SelectGeneral && p.PlayerSeat == 0);
+         Require(P(g)!.ValidContentIds.Contains("fixture:ghh-owner"), "The fixed four-general published choice contains the actual owner.");
+         Accept(g, new SelectGeneralCommand(0, "fixture:ghh-owner", g.Revision, P(g)!.PromptId)); return (g, r);
+     }
+ 
+-    private sealed class Fixture(CardKind material, bool benefitChildren, bool foreignSlash, bool rescueHpChild, bool trickChild, bool benxi) : IGameContentPackage
++    private sealed class Fixture(CardKind material, bool benefitChildren, bool foreignSlash, bool rescueHpChild, bool trickChild, bool benxi, bool fireAttackChildren, bool colorFireAttack) : IGameContentPackage
+     {
+         public PackageManifest Manifest { get; } = new("fixture:boundary-guo-huang-hou", "1.0.0", "当前OL矫诏/殚心真实命令草稿");
+         public void Register(IContentRegistryBuilder b)
+         {
+@@
+                 {"id":"regain","minCards":0,"maxCards":0,"minTargets":0,"maxTargets":0,"targetKind":"anyLiving","usesPerTurn":1,"effects":[{"op":"grantSkills","target":"owner","skillIds":["boundary:jiaozhao-round-current"]}]}]},
+               {"id":"fixture:ghh-quiet","revision":1,"triggers":[{"id":"quiet","window":"afterNormalDraw","subject":"owner","optional":false,"effects":[{"op":"skipTurnPhases","target":"owner","phases":["play"]}]}]},
+               {"id":"fixture:ghh-gain","revision":1,"triggers":[{"id":"gain","window":"cardsGained","subject":"owner","optional":false,"destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["skill-program.boundary:danxin-capped-current.capped-conversion-draw"],"usageScope":"game","usageLimit":1,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]},{"op":"recover","target":"owner","amount":1}]}]},
+               {"id":"fixture:ghh-hp","revision":1,"triggers":[{"id":"hp","window":"afterHpRecovered","subject":"owner","optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
+-              {"id":"fixture:ghh-completed","revision":1,"triggers":[{"id":"response","window":"cardUseCompleted","subject":"owner","optional":false,"ownerRelation":"actor","includeResponseUses":true,"cardKinds":["nullification","dodge"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
++              {"id":"fixture:ghh-completed","revision":1,"triggers":[{"id":"response","window":"cardUseCompleted","subject":"owner","optional":false,"ownerRelation":"actor","includeResponseUses":true,"cardKinds":["nullification","dodge","fireAttack"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
+               {"id":"fixture:ghh-trick-child","revision":1,"triggers":[{"id":"committed","window":"cardUseCommitted","subject":"owner","optional":false,"ownerRelation":"actor","cardKinds":["drawTwo"],"effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
++              {"id":"fixture:ghh-fire-damage","revision":1,"triggers":[{"id":"damage","window":"afterDamageApplied","subject":"damageSource","optional":false,"damageOccurrence":"perDamage","effects":[{"op":"chooseOption","target":"owner","resultBind":"seen","options":[{"id":"continue"}]}]}]},
++              {"id":"fixture:ghh-fire-color","revision":1,"cardPolicies":[{"id":"color-payment","kind":"randomRevealColorFireAttack","cardKinds":["fireAttack"]}]},
+               {"id":"fixture:ghh-foreign-slash","revision":1,"viewAs":[{"id":"real-slash","inputKinds":[],"inputSuits":[],"outputKind":"slash","forPlay":true,"forResponse":false,"useOnly":true}],"triggers":[{"id":"slash","window":"turnEnding","subject":"owner","turnOwnerScope":"otherLiving","optional":false,"effects":[{"op":"useOwnerSlashAgainstTurnOwner","target":"owner","ignoreDistance":true}]}]}
+             ]}
+             """)!;
+             root["schemaVersion"] = SkillProgramCatalog.RulesSchemaVersion;
+@@
+                 id = "die-" + amount, minCards = 0, maxCards = 0, minTargets = 0, maxTargets = 0, targetKind = "anyLiving", usesPerTurn = (int?)null,
+                 effects = new[] { new { op = "loseHp", target = "owner", amount } } })));
+             var catalog = SkillProgramCatalog.Load(root.ToJsonString(), JsonSerializer.Serialize(new { schemaVersion = 3, skills = new Dictionary<string, object> {
+                 [Driver] = new { name = "实际规则命令", description = "真实伤害、死亡入口、额外回合和来源重新获得" }, ["fixture:ghh-quiet"] = new { name = "安静回合", description = "真实跳过出牌" },
+-                [Gain] = Pause("真实gain"), [Hp] = Pause("真实HP"), [Completed] = Pause("真实完成响应"), [TrickChild] = Pause("真实锦囊提交"), ["fixture:ghh-foreign-slash"] = new { name = "真实外部杀", description = "固定真实实体Slash producer" } } }));
++                [Gain] = Pause("真实gain"), [Hp] = Pause("真实HP"), [Completed] = Pause("真实完成响应"), [TrickChild] = Pause("真实锦囊提交"), [FireDamage] = Pause("真实火攻伤害"), [FireColor] = new { name = "同颜色弃置", description = "成熟火攻付款政策" }, ["fixture:ghh-foreign-slash"] = new { name = "真实外部杀", description = "固定真实实体Slash producer" } } }));
+             foreach (var id in catalog.Programs.Keys) b.AddSkill(new(id, id, "实际小夹具") { Program = catalog.Programs[id] });
+             b.AddSkill(new("fixture:ghh-noop", "旧来源替换", "无运行能力"));
+             b.AddSkill(new("fixture:ghh-selection", "固定候选", "无运行能力") { SelectionWeights = Enum.GetValues<Role>().ToDictionary(role => role, _ => 100d) });
+             var skills = new List<string> { Danxin, Driver, Completed };
+             if (trickChild) skills.Add(TrickChild);
++            if (fireAttackChildren) skills.Add(FireDamage);
++            if (colorFireAttack) skills.Add(FireColor);
+             if (benxi) skills.Add("classic:benxi");
+             if (benefitChildren) { skills.Add(Gain); skills.Add(Hp); } else if (rescueHpChild) skills.Add(Hp);
+             b.AddGeneral(new("fixture:ghh-owner", "当前郭皇后机制", "supporter", Jiaozhao, "wei", 8, skills, GeneralGender.Female));
+             for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:ghh-target-{i}", "固定原生目标", "supporter", "fixture:ghh-selection", "qun", 8,
+*** End Patch

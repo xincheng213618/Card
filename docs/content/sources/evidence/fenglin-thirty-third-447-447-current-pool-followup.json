@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "status": "frozen-bounded-source-gap-retained",
+  "officialId": 447,
+  "reviewHead": "17fead66d0d20bb39867f8da92d1bc75f9381b83",
+  "retainedAtUtc": "2026-10-04 10:22:38 UTC",
+  "queries": [
+    {
+      "q": "\"界左慈\" \"化身池\"",
+      "domains": [
+        "sanguosha.com",
+        "sgsonline.com.cn"
+      ]
+    },
+    {
+      "q": "\"界左慈\" \"化身\" \"2025\"",
+      "domains": [
+        "sanguosha.com",
+        "sgsonline.com.cn"
+      ]
+    },
+    {
+      "q": "\"界左慈\" \"移去\" \"返回\"",
+      "domains": [
+        "sanguosha.com",
+        "sgsonline.com.cn"
+      ]
+    }
+  ],
+  "budget": {
+    "queries": 3,
+    "selectedOpens": 0,
+    "rawGets": 0,
+    "retries": 0
+  },
+  "hit": {
+    "url": "https://bug.sanguosha.com/view?id=75312&mod=view",
+    "author": "户方狸奴",
+    "displayedDate": "2025-03-28 13:10",
+    "reportedOccurrence": "2025.3.27 18时左右",
+    "kind": "official-host-user-submitted-bug-report",
+    "authority": "Not a developer rule or current pool policy",
+    "relevance": "Avatar-viewer closing cancels a start-turn Huashen prompt; no current pool/exclusion/return/exhaustion definition"
+  },
+  "readiness": {
+    "fullImplementationSourceReady": false,
+    "currentCompletePool": false,
+    "currentSkillExclusions": false,
+    "removedAvatarReturn": false,
+    "shortageOrExhaustionPolicy": false,
+    "duplicatePolicy": false
+  },
+  "httpEvidence": {
+    "originStatus": null,
+    "originHeaders": null,
+    "originBodySha256": null,
+    "requestStartUtc": null,
+    "reason": "Search tool returned extracted text only. No page open or raw HTTP GET performed."
+  },
+  "retainedInputs": [
+    {
+      "path": "docs/content/sources/fenglin-thirty-second-447-source-2026-10-04.json",
+      "rawSha256": "48749a7df2a85ce2f17c66955908c1770bf74fd0dd05137e3d03741e2cf72940"
+    },
+    {
+      "path": "docs/content/sources/fenglin-thirty-second-447-scope-followup-2026-10-04.json",
+      "rawSha256": "518cb2bd9210305897b17fd7cda05dd8bfee08276ec890885ea2d2e8e47e3e94"
+    }
+  ],
+  "execution": {
+    "mainWrites": false,
+    "originalFrozenModified": false,
+    "compiler": false,
+    "loader": false,
+    "tests": false,
+    "game": false,
+    "native": false,
+    "benchmark": false
+  }
+}

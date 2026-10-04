@@ -3,6 +3,7 @@ namespace CardGame.Core;
 /// <summary>Card and turn rules supplied by an enabled program instance.</summary>
 public enum SkillProgramCardPolicyKind
 {
+    DistanceOneToNotHigherHp = 7340, SlashExtraTargetsByLostHp = 7341,
     EquipmentSuitHandLimitAtMaxHp = 5900,
     AlcoholKingIdentityRank = 4902, ForeignTurnAlcoholUseProhibition = 4903,
     ClaimedEntitiesFaceDownUse = 4500,

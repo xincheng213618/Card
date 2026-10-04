@@ -1,0 +1,54 @@
+{
+  "capturedOldFiles": [
+    "src/CardGame.Core/SkillPrograms.cs",
+    "src/CardGame.Core/Resolution.cs",
+    "src/CardGame.Core/GameEngine.Runtime.cs",
+    "src/CardGame.Core/GameEngine.ProgramLifecycle.cs",
+    "src/CardGame.Core/GameEngine.SkillPrograms.cs",
+    "src/CardGame.Core/GameEngine.DamageTargetObtainPrograms.cs",
+    "src/CardGame.Core/GameEngine.CardAttackState.cs",
+    "src/CardGame.Core/GameEngine.cs",
+    "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+    "src/CardGame.Wpf/Presentation/GeneralGalleryCatalog.cs",
+    "tests/CardGame.Core.Tests/Program.cs",
+    "tools/VerificationScopes.psd1"
+  ],
+  "fullPatchRebuilt": true,
+  "allCurrentRawBaselinesMatch": true,
+  "oldEnumValuesPreserved": {
+    "SkillProgramEffectOp": 345,
+    "SkillProgramTriggerWindow": 50,
+    "SkillProgramEffectTarget": 6
+  },
+  "newEffect": 7320,
+  "parsedLiteralJson": [
+    "new/src/CardGame.Content.Standard/SkillPrograms/ordinary-sp-pang-de.rules.json",
+    "new/src/CardGame.Content.Standard/SkillPrograms/ordinary-sp-pang-de.presentation.json"
+  ],
+  "fixtureLiteralJson": [
+    {
+      "ownerDying": false,
+      "issuedSourceLoss": false,
+      "skillCount": 4,
+      "rawRuleTextSha256": "668f064b1403b5df3ddbaef4f79df23476f7878fa8ab43012ee6be2e44d243f4"
+    },
+    {
+      "ownerDying": true,
+      "issuedSourceLoss": false,
+      "skillCount": 4,
+      "rawRuleTextSha256": "3d189ffd7631b32dc7e1e5a0628d017d7b64490eab32994d1ae142fa7b0c63f8"
+    },
+    {
+      "ownerDying": false,
+      "issuedSourceLoss": true,
+      "skillCount": 4,
+      "rawRuleTextSha256": "526800b26c7aac361953eaf97bbc8f53a1c817d89a7341121ce3a9fd37f424c4"
+    }
+  ],
+  "thisIsNotProductionLoader": true,
+  "compilerExecuted": false,
+  "testsExecuted": false,
+  "nativeExecuted": false,
+  "gameExecuted": false,
+  "httpAfterSourceCapture": false
+}

@@ -95,7 +95,7 @@ public sealed partial class GameEngine
             if (!TryBeginProgramCardWindow(attack, action, SkillProgramTriggerWindow.CardUseCommitted,
                 action.TargetSeats, ProgramCardContinuation.CommittedSlash)) BeginSlashTargetResolution(attack);
         }
-        else if (!TryBeginActualUseTargetPrograms(attack, ActualUseTargetReturnKind.LegacyVirtualSlash)) ContinueSlashAfterResponsePrograms(attack);
+        else if (!TryBeginSlashTargetPenalties(attack, legacy: true) && !TryBeginSlashTargetBenefits(attack, legacy: true) && !TryBeginActualUseTargetPrograms(attack, ActualUseTargetReturnKind.LegacyVirtualSlash)) ContinueSlashAfterResponsePrograms(attack);
         return SkillProgramStepOutcome.AwaitChild;
     }
 }

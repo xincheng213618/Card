@@ -230,6 +230,8 @@ public sealed partial class GameEngine
                     Location: locations[0]);
             }).ToArray();
             var active = engine.GetActiveProgramFrame(frame.Id);
+            if (toDiscard && selected.Any(item => engine.IsSelfHandCategoryDiscardForbidden(frame.OwnerSeat, item.Card, item.Location, OwnedCardMoveIntent.Discard)))
+            { engine.CancelProgramBindingAndCleanup(active, "所选手牌不能自行弃置，费用未支付。"); return SkillProgramStepOutcome.AwaitChild; }
             var operation = toDiscard ? SkillProgramEffectOp.DiscardSelected : SkillProgramEffectOp.GiveSelected;
             if (active.PendingMovementContinuation is not null ||
                 active.SelectedCardPayment is not null &&

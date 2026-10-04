@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 3,
+  "skills": { "ol:moukui": {
+    "name": "谋溃",
+    "description": "当你使用【杀】指定目标后，你可以选择一项：1.摸一张牌；2.弃置其一张牌。然后若此【杀】被【闪】抵消，其弃置你一张牌。",
+    "triggerChoices": { "actual-slash-target-benefit": "选择摸一张牌或弃目标一张牌", "dodge-cancelled-settlement": "此目标弃置使用者一张牌" }
+  } }
+}
