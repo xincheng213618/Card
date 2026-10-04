@@ -1,0 +1,68 @@
+{
+  "status": "official-raw-art-staged-not-main-registered",
+  "batch": 28,
+  "images": [
+    {
+      "gid": 457,
+      "key": "boundary-xiao-qiao",
+      "name": "界小乔",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-eighth-457-source-2026-10-04.json",
+      "sourceRecordSha256": "2304874b07f5090197b0e270099c2f6dd76d778294c506e59331f178b585f17f",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45700.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/45700.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-04T02:45:08.9995471Z",
+      "contentType": "image/png",
+      "rawBytes": 1095608,
+      "sha256": "f00ce70a04c6a254bb2582f00936d42f5d4de42b1751221134858c81d54191d1",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch28\\official-art\\official-boundary-xiao-qiao.png",
+      "installed": false
+    },
+    {
+      "gid": 485,
+      "key": "boundary-lu-su",
+      "name": "界鲁肃",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-eighth-485-source-2026-10-04.json",
+      "sourceRecordSha256": "612f55221790ad7a9d947e33e3e00c955c076d82ffc8daedf9699f3d954e69e9",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/48500.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/48500.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-04T02:45:09.1071309Z",
+      "contentType": "image/png",
+      "rawBytes": 1074150,
+      "sha256": "07d21e64dbd77f8d9376f741841c271f2ddac4bd6d938b139562945b4da11c34",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch28\\official-art\\official-boundary-lu-su.png",
+      "installed": false
+    },
+    {
+      "gid": 550,
+      "key": "boundary-yan-liang-wen-chou",
+      "name": "界颜良文丑",
+      "sourceRecord": "docs/content/sources/fenglin-twenty-eighth-550-source-2026-10-04.json",
+      "sourceRecordSha256": "ea966f179fad53e5c283adc3ff2b31d13505456f9504661833473f58462be677",
+      "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/55000.png",
+      "finalUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/55000.png",
+      "httpStatus": 200,
+      "capturedAtUtc": "2026-10-04T02:45:09.2653572Z",
+      "contentType": "image/png",
+      "rawBytes": 1213150,
+      "sha256": "c4e0c068204f9038673cb584277a3ce17c0f68a545883930590c0dc7927ce2de",
+      "pixelWidth": 750,
+      "pixelHeight": 950,
+      "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch28\\official-art\\official-boundary-yan-liang-wen-chou.png",
+      "installed": false
+    }
+  ],
+  "verification": {
+    "rawPngSignatureAndIhdr": true,
+    "sourceRecordShaMatched": true,
+    "mainRegistration": false,
+    "fullOfflineCatalogRun": false,
+    "compiledVerificationRun": false,
+    "installedCount": 0
+  }
+}
