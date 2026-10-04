@@ -141,6 +141,8 @@ public sealed partial class GameEngine
 
     private void CompletePindian(PindianFrame frame)
     {
+        var foreignOrigin = _resolutionStack.Count >= 2 && _resolutionStack[^2] is ProgramSkillFrame owner
+            ? FreezeForeignTurnPindianOrigin(owner, frame) : null;
         foreach (var id in AvailablePindianCards(frame.Result!))
         {
             var card = _cardZones.CardsAt(CardLocation.Processing).Single(card => card.Id == id);
@@ -159,7 +161,7 @@ public sealed partial class GameEngine
                     new ProgramPindianResultBinding(
                         bind, result.SourceSeat, result.OpponentSeat,
                         result.SourceRank, result.OpponentRank, result.SourceWon,
-                        frame.ProgramResultVisibility)).ToArray())
+                        frame.ProgramResultVisibility) { ForeignTurnOrigin = foreignOrigin }).ToArray())
             });
             AdvanceRuntimeProgram(program.Id);
         }

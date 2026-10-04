@@ -421,7 +421,8 @@ public enum SkillProgramEffectOp
     GiveBoundCardThenOfferVirtualSlashOrSharedDraw = 5100,
     PayHpThenNullifyOwnActualUseTarget = 5600, ScheduleEarnedActualEndingBenefit = 5601, DrawLostHpThenOfferOwnedCardsUpTo = 5602,
     DonateAllEquipmentAndOfferRecipientBenefits = 5800, ChooseEquipmentOrDrawAfterOtherActualTurn = 5801,
-    DiscardBoundCardForOppositeTurnDuel = 6100, ClaimActualTurnDamageEntities = 6101
+    DiscardBoundCardForOppositeTurnDuel = 6100, ClaimActualTurnDamageEntities = 6101,
+    ResolveForeignTurnPindian = 6400, OfferSameTypeDifferentNameOrExtraTarget = 6401
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets, HpPairHigher = 2000, HpPairLower = 2001 }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -470,7 +471,8 @@ public enum SkillProgramTriggerWindow
     CharacterTurnedOver = 2900,
     DrawPhaseSkipped = 3800,
     CharacterEnteredChain = 821, DrawPhaseEnded = 1140, ProgramTargetCommitted = 1260,
-    OtherActualUseTargeted = 5600
+    OtherActualUseTargeted = 5600,
+    OtherActualTurnStarted = 6400
 }
 public enum SkillProgramTriggerSubject { Owner, Any, Source, DamageSource, DamageTarget }
 public enum SkillProgramMovementOccurrence { PerBatch, PerCard, PerSourceOwner = 700, PerOwnerBatch = 761 }
@@ -2813,7 +2815,7 @@ public sealed class SkillProgramCatalog
             if (cardCategories.Count == 0 || cardCategories.Distinct().Count() != cardCategories.Count)
                 Fail(path + ".cardCategories", "must contain distinct card categories");
         }
-        var isLifecycleWindow = window == SkillProgramTriggerWindow.OtherActualUseTargeted || window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
+        var isLifecycleWindow = window == SkillProgramTriggerWindow.OtherActualTurnStarted || window == SkillProgramTriggerWindow.OtherActualUseTargeted || window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
             SkillProgramTriggerWindow.DyingEntering or SkillProgramTriggerWindow.DyingEntered or SkillProgramTriggerWindow.DyingExited or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or SkillProgramTriggerWindow.DrawPhaseSkipped or
@@ -2831,7 +2833,7 @@ public sealed class SkillProgramCatalog
             SkillProgramTriggerWindow.CharacterDied or
             SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.JudgmentPhaseStarting or
             SkillProgramTriggerWindow.CharacterTurnedOver or SkillProgramTriggerWindow.CharacterTurnedFaceUp or SkillProgramTriggerWindow.CharacterEnteredChain;
-        var supportsTriggerCondition = window == SkillProgramTriggerWindow.OtherActualUseTargeted || window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isCardActionWindow || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
+        var supportsTriggerCondition = window == SkillProgramTriggerWindow.OtherActualTurnStarted || window == SkillProgramTriggerWindow.OtherActualUseTargeted || window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isCardActionWindow || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
             SkillProgramTriggerWindow.DyingEntering or SkillProgramTriggerWindow.DyingEntered or SkillProgramTriggerWindow.DyingExited or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or SkillProgramTriggerWindow.DrawPhaseSkipped or
@@ -3480,6 +3482,7 @@ public sealed class SkillProgramCatalog
             movementDiscardOnly, suits, cardKinds, cardCategories, movementReasons, excludedMovementReasons, movementOccurrence);
         EquipmentDonationComposition.ValidateTrigger(path, effects, window, subject, turnOwnerScope, optional);
         PaidColorDamageClaimComposition.Validate(path, effects, window, subject, turnOwnerScope, optional);
+        ForeignTurnContestAidComposition.Validate(path, effects, window, subject, optional, ownerRelation, cardKinds);
         ProgramCompositionValidator.Validate(path, effects, initialSelectedTarget: deferredOnly, window: window, drawPhaseMode: drawPhaseMode, cardActionRelation: ownerRelation, cardKinds: cardKinds, turnOwnerScope: turnOwnerScope);
         if (node.TryGetProperty("onlyDesignatedCardTargets", out _) && ownerRelation != SkillProgramCardActionOwnerRelation.Target) Fail(path + ".onlyDesignatedCardTargets", "requires a target-owner card trigger");
         if (effects.Any(e => e.Op == SkillProgramEffectOp.ResolveDiscardBudgetParticipants) &&

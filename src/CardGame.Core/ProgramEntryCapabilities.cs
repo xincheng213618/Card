@@ -26,6 +26,7 @@ internal static class ProgramEntryCapabilities
     internal const ProgramContextCapability Common = ProgramContextCapability.TurnEffects;
 
     internal static bool SupportsWindow(SkillProgramTriggerWindow window) => window is
+        SkillProgramTriggerWindow.OtherActualTurnStarted or
         SkillProgramTriggerWindow.OtherActualUseTargeted or
         SkillProgramTriggerWindow.CardEffectBeforeApply or
         SkillProgramTriggerWindow.AfterTurnEnded or
@@ -72,6 +73,7 @@ internal static class ProgramEntryCapabilities
 
     internal static ProgramContextCapability For(SkillProgramTriggerWindow? window) => window switch
     {
+        SkillProgramTriggerWindow.OtherActualTurnStarted => Common | ProgramContextCapability.Pindian,
         SkillProgramTriggerWindow.OtherActualUseTargeted => Common | ProgramContextCapability.ActualUseSource,
         SkillProgramTriggerWindow.CardEffectBeforeApply => Common | ProgramContextCapability.CardAction,
         SkillProgramTriggerWindow.AfterTurnEnded => Common,

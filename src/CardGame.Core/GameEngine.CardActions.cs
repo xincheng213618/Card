@@ -104,7 +104,7 @@ public sealed partial class GameEngine
             conversionChain.AddRange(additionalConversions);
         }
         ConsumeProgramViewAsUsage(conversionChain);
-        var trackAppearance = _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) || HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard) || TracksPaidColorUseAppearance(actorSeat, effectiveKind, conversionChain);
+        var trackAppearance = _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferOriginalTargetAddition) || HasBlackTrickTargetPolicy || _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DrawByDamageCardColor) || HasShownCardTurnCapability || HasTurnRedSlashCapability || TracksPlayCardHistory || TracksCurrentTurnUseKinds || _contentRegistry.ProgramDependencies.HasActivationOperation(SkillProgramEffectOp.AlternatingSuitDrawDiscard) || TracksPaidColorUseAppearance(actorSeat, effectiveKind, conversionChain) || HasSameTypeActualUseAid && IsSameTypeAidEffectiveCard(effectiveKind);
         return CaptureFactionAction(new CardActionContext(++_cardActionSequence,
             _resolutionStack.OfType<CardUseFrame>().LastOrDefault()?.Action?.ActionId,
             CardActionType.Use, actorSeat, provider, provider == actorSeat ? null : actorSeat,
@@ -597,7 +597,7 @@ public sealed partial class GameEngine
                 _resolutionStack[frameIndex + 1] is ProgramSkillFrame gift &&
                 gift.WindowContext?.ParentFrameId == frame.Id && IsUnselectedCompletedGiftQinglongRide(gift);
             var completedGiftRecipientFollowup = TryGetCompletedGiftRecipientSlashRide(frame, out var recipientUse);
-            var attackMatches = frame != frames[^1] || resolvingProgramJudgmentDamage || suspendedCompletedGiftFollowup || completedGiftRecipientFollowup ||
+            var attackMatches = HasSameTypeAidTargetObserver(frame.ParentFrameId) || frame != frames[^1] || resolvingProgramJudgmentDamage || suspendedCompletedGiftFollowup || completedGiftRecipientFollowup ||
                 (frame.Continuation is ProgramCardContinuation.DelayedCard or
                         ProgramCardContinuation.BeforeTrickTargetEffects or ProgramCardContinuation.FinalizedTrick or
                         ProgramCardContinuation.NullificationResponse or ProgramCardContinuation.CommittedTrick or
@@ -635,7 +635,7 @@ public sealed partial class GameEngine
                 frameIndex < 1 || _resolutionStack[frameIndex - 1].Id != frame.ParentFrameId ||
                 !trickContinuationMatches || !completedResponseMatches ||
                 !candidateCursorValid ||
-                !sharedPromptMatches && !sharedChildMatches ||
+                !sharedPromptMatches && !sharedChildMatches && !HasSameTypeAidTargetObserver(frame.ParentFrameId) ||
                  frame.Action.PhysicalCards.Where(cost =>
                      !(completedGiftRecipientFollowup && _cardZones.GetLocation(cost.CardId) == CardLocation.Processing &&
                        recipientUse.Action!.PhysicalCards.Any(payment => payment.CardId == cost.CardId)) &&

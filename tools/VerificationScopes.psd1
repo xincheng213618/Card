@@ -22,6 +22,7 @@
         'Real color payment Duel back-damage and mandatory Ending claim',
         'boundary two zhangs equipment replacement',
         'boundary bu lian shi ordered opaque pair gift',
+        'Foreign actual turn contest decline win expiry',
         'shared use lifecycle', 'shared card-use', 'card movement', 'card inventory',
         'initial deal', 'invalid single and batch', 'draw and recover',
         'execution plans', 'skill executor', 'program gameplay hashes',

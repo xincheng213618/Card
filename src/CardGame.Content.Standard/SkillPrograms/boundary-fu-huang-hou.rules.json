@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:zhuikong-current", "revision": 1,
+      "triggers": [{
+        "id": "foreign-actual-turn-contest", "window": "otherActualTurnStarted",
+        "subject": "owner", "optional": true,
+        "effects": [
+          {"op":"selectTarget","target":"owner","targetKind":"eventSource"},
+          {"op":"startPindian","target":"owner","opponentRef":{"kind":"selectedTarget"},"resultBind":"foreign-contest","visibility":"public"},
+          {"op":"resolveForeignTurnPindian","target":"owner","sourceBind":"foreign-contest"}
+        ]
+      }]
+    },
+    {
+      "id": "boundary:qiuyuan-current", "revision": 1,
+      "triggers": [
+        {
+          "id": "finalized-actual-use-aid", "window": "cardUseTargetsFinalized",
+          "ownerRelation": "target", "cardKinds": ["slash","fireSlash","thunderSlash","duel","fireAttack","barbarianAssault","arrowBarrage"],
+          "optional": true,
+          "effects": [{"op":"offerSameTypeDifferentNameOrExtraTarget","target":"owner"}]
+        },
+        {
+          "id": "legacy-virtual-target-aid", "window": "otherActualUseTargeted",
+          "subject": "owner", "optional": true,
+          "effects": [{"op":"offerSameTypeDifferentNameOrExtraTarget","target":"owner"}]
+        }
+      ]
+    }
+  ]
+}

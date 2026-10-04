@@ -46,7 +46,8 @@ public enum ResolutionFrameKind
     BeforeDamageProgramWindow,
     ProgramDeathTriggerWindow,
     HpChangedTriggerWindow,
-    ActualUseTargetWindow = 5600
+    ActualUseTargetWindow = 5600,
+    ForeignActualTurnStartWindow = 6400
 }
 
 public enum ResolutionFrameStep
@@ -63,6 +64,7 @@ public enum ResolutionFrameStep
 /// can inspect and later persist the stack without coupling it to the UI.
 /// </summary>
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+[JsonDerivedType(typeof(ForeignActualTurnStartWindowFrame), "foreign-actual-turn-start-window")]
 [JsonDerivedType(typeof(ActualUseTargetWindowFrame), "actual-use-target-window")]
 [JsonDerivedType(typeof(DeferredTurnEndFrame), "deferred-turn-end")]
 [JsonDerivedType(typeof(CardEffectBeforeApplyFrame), "card-effect-before-apply")]
@@ -139,6 +141,8 @@ public sealed record ProgramSkillFrame(
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPaidOwnTargetReceipt? PaidOwnTarget { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramLostHpOwnedGiftReceipt? LostHpOwnedGift { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ForeignTurnContestReceipt? ForeignTurnContest { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public SameTypeAidReceipt? SameTypeAid { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramEquipmentDonationReceipt? EquipmentDonation { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramActualEndedTurnEquipmentReceipt? ActualEndedEquipment { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPaidColorConversionReceipt? PaidColorConversion { get; init; }
@@ -464,6 +468,7 @@ public sealed record CardUseFrame(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramDualColorDuelOrigin? DualColorDuelOrigin { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public SharedSlashBenefitReturn? SharedSlashBenefit { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ForeignTurnContestSlashReturn? ForeignTurnContestSlashReturn { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramArrowBarrageExclusion? ArrowBarrageExclusion { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]

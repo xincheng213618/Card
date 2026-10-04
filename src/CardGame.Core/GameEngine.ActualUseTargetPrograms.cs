@@ -3,7 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private bool TracksPaidOwnTargets => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PayHpThenNullifyOwnActualUseTarget) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferHalfHandRecipientSupport);
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferHalfHandRecipientSupport) || HasSameTypeActualUseAid;
 
     private ActualUseTargetIdentity? FreezeActualUseTarget(CardUseFrame use, int target)
     {
@@ -57,7 +57,8 @@ public sealed partial class GameEngine
                 : CaptureProgramTriggerFacts(_players[target]);
             foreach (var candidate in CollectEligibleProgramTriggerCandidates(_players[target], SkillProgramTriggerWindow.OtherActualUseTargeted, facts))
             {
-                if (!GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.PayHpThenNullifyOwnActualUseTarget or SkillProgramEffectOp.OfferHalfHandRecipientSupport)) continue;
+                if (!GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.PayHpThenNullifyOwnActualUseTarget or SkillProgramEffectOp.OfferHalfHandRecipientSupport ||
+                    e.Op == SkillProgramEffectOp.OfferSameTypeDifferentNameOrExtraTarget && identity.ActionId is null)) continue;
                 entries.Add((candidate, new(SkillProgramTriggerWindow.OtherActualUseTargeted, id, target,
                     SourceSeat: identity.ActorSeat, TargetSeat: target, OccurrenceIndex: candidate.OccurrenceIndex, Facts: facts)
                     { ActualUseTarget = identity }));

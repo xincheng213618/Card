@@ -134,7 +134,11 @@ public sealed record ProgramPindianResultBinding(
     int SourceRank,
     int OpponentRank,
     bool SourceWon,
-    SkillProgramCardSetVisibility Visibility);
+    SkillProgramCardSetVisibility Visibility)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ForeignTurnPindianOrigin? ForeignTurnOrigin { get; init; }
+}
 
 public sealed record ProgramSkillCardSetBinding(
     string Name,

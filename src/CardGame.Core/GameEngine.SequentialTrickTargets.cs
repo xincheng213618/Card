@@ -45,7 +45,9 @@ public sealed partial class GameEngine
         }
         if (!ReferenceEquals(use, _resolutionStack.LastOrDefault()))
             throw new InvalidOperationException("A trick must finish its child before the next target.");
-        var card = _cardZones.CardsAt(CardLocation.Processing).Single(card => card.Id == use.CardId);
+        var card = HasSameTypeAidTargetTail(use) && use.CardId == 0 && IsIssuedZeroEntityDuel(use.Id)
+            ? GetTrickRepresentation(use.Id, use.CardId, requireProcessing: true)
+            : _cardZones.CardsAt(CardLocation.Processing).Single(card => card.Id == use.CardId);
         ReplaceRuntimeFrame(_resolutionStack[index].Id, use with { TargetIndex = next, Step = ResolutionFrameStep.ResolvingEffect });
         if (afterAttack)
         {
@@ -66,7 +68,8 @@ public sealed partial class GameEngine
                 use.TargetSeats.Distinct().Count() != use.TargetSeats.Count ||
                 use.TargetSeats.Any(seat => !IsValidPlayerSeat(seat)) ||
                 use.TargetIndex < 0 || use.TargetIndex >= use.TargetSeats.Count ||
-                _cardZones.GetLocation(use.CardId) != CardLocation.Processing)
+                _cardZones.GetLocation(use.CardId) != CardLocation.Processing &&
+                !(use.CardId == 0 && use.PhysicalCardIds is { Count: 0 } && IsIssuedZeroEntityDuel(use.Id) && HasSameTypeAidTargetTail(use)))
                 throw new InvalidOperationException("A sequential trick lost its targets, cursor or physical card.");
         }
     }

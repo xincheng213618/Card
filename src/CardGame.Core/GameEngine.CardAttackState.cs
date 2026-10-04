@@ -37,7 +37,8 @@ public sealed partial class GameEngine
     private sealed record AttackCompletionReceipt(long ResolutionId, bool DelayedTurn,
         long? ProgramFrameId, int? DelayedTurnSeat,
         bool RequestedSlashChild = false, bool DamageWasApplied = false, int FinalTargetSeat = 0, ProgramDamageTargetDuelOrigin? DamageTargetDuelReturn = null, ProgramDualColorDuelOrigin? DualColorDuelReturn = null,
-        SharedSlashBenefitReturn? SharedSlashBenefit = null, bool SharedSlashCausedDamage = false);
+        SharedSlashBenefitReturn? SharedSlashBenefit = null, bool SharedSlashCausedDamage = false,
+        ForeignTurnContestSlashReturn? ForeignTurnContestSlashReturn = null);
     private AttackCompletionReceipt CaptureAttackCompletion(CardAttackHandle attack) =>
         new(attack.ResolutionId, attack.IsDelayedJudgmentDamage,
             attack.ProgramSkillFrameId ?? attack.ProgramSkillCardUseFrameId ?? NextActualUseAdjustedSlashParent(attack),
@@ -47,7 +48,8 @@ public sealed partial class GameEngine
             LifecycleCardUse(attack.ResolutionId)?.DamageTargetDuelOrigin,
             LifecycleCardUse(attack.ResolutionId)?.DualColorDuelOrigin,
             LifecycleCardUse(attack.ResolutionId)?.SharedSlashBenefit,
-            LifecycleCardUse(attack.ResolutionId)?.SharedSlashBenefit is not null && attack.CardUseCausedDamage);
+            LifecycleCardUse(attack.ResolutionId)?.SharedSlashBenefit is not null && attack.CardUseCausedDamage,
+            LifecycleCardUse(attack.ResolutionId)?.ForeignTurnContestSlashReturn);
     private Card ReadCardAppearance(CardAppearanceReference appearance) => GetAttackCard(appearance.Id) with
         { Kind = appearance.Kind, Suit = appearance.Suit, Rank = appearance.Rank };
     private CardResolutionContinuations GetCardContinuations(long id) =>

@@ -175,6 +175,7 @@ public sealed partial class GameEngine
             {
                 CurrentCardEnhancedEvent { Enhancement: CurrentCardEnhancement.ExtraTarget } enhancement when enhancement.CardUseFrameId == use.Id && enhancement.CardActionId == p.OriginalAction.ActionId => enhancement.ExtraTargetSeat,
                 OriginalTargetAdditionResolvedEvent addition when addition.CardUseFrameId == use.Id && addition.ActionId == p.OriginalAction.ActionId && addition.Added => addition.TargetSeat,
+                SameTypeAidTargetAddedEvent aid when IsSameTypeAidTargetFact(use, aid) => aid.RecipientSeat,
                 _ => null
             };
             if (added is { } target) { designated.Add(target); actual.Add(target); planned.Add(target); }

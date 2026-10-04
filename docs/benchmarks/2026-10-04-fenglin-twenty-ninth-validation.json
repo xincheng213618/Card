@@ -1,5 +1,5 @@
 {
-  "status": "two-static-integrated-one-owned-stage-runtime-deferred",
+  "status": "three-static-integrated-current-grant-source-gap-runtime-deferred",
   "batch": 29,
   "baseCommit": "2e805f43",
   "userSteering": {
@@ -20,7 +20,14 @@
       "mainRegistered": false,
       "status": "current-granted-definition-gap-no-partial-registration",
       "owner": null,
-      "stage": null
+      "stage": null,
+      "linkedScriptFollowup": {
+        "path": "docs/content/sources/fenglin-twenty-ninth-451-linked-script-followup-2026-10-04.json",
+        "rawSha256": "b356429bb04d9aa08c4bfb2780520ae7060bdd82f3d0e1e55e727c97be77dc9f",
+        "originalSourceChanged": false,
+        "fullCurrentGrantsCaptured": false,
+        "partialRegistration": false
+      }
     },
     {
       "gid": 563,
@@ -51,8 +58,8 @@
       "name": "界伏皇后",
       "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-671-source-2026-10-04.json",
       "sourceSha256": "1c004024c9b94b5e39f653a31d5e928406102e7e8efe576db102e2749b1dc247",
-      "mainRegistered": false,
-      "status": "owned-stage-contract-and-new-development",
+      "mainRegistered": true,
+      "status": "static-main-integrated-user-runtime-verification-deferred",
       "owner": "/root/pang_de",
       "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch29\\fu-huang-hou",
       "reservedCapacity": "6400-6499",
@@ -158,12 +165,58 @@
         "Silver Lion Jiuyuan RecoveryReplacement, zero Wine, material/pile alcohol rescue, nested equipment and winner cleanup combinations are statically typed only",
         "All possible native active pair choices, current source equipment changes and national-war privacy combinations"
       ]
+    },
+    {
+      "gid": 671,
+      "name": "界伏皇后",
+      "integratedAtUtc": "2026-10-04T06:12:26.8190737Z",
+      "baselineCommit": "d2e3d72cec6e54002ba36a13419fbd4ab31fb3bf",
+      "manifest": "manifest.json",
+      "manifestSha256": "087eddfbe32206b31a4a84b3a9d718ee69b3b2f4a9dd0b8c24eb51e588fb5101",
+      "patch": "old-wiring.patch",
+      "patchSha256": "d587a43b3e33cfcf68a5e9dcded0238e3f1a66757e032799b7bced10ef93b517",
+      "sourceSha256": "1c004024c9b94b5e39f653a31d5e928406102e7e8efe576db102e2749b1dc247",
+      "newFiles": 8,
+      "oldFiles": 19,
+      "supportFiles": 26,
+      "registeredChecks": [
+        "Foreign actual turn contest decline win expiry",
+        "Foreign contest original claim private aid rescue return",
+        "Same actual use aid extra duel physical slash targets",
+        "Actual use aid damage trick legacy native contracts"
+      ],
+      "routinePrefix": "Foreign actual turn contest decline win expiry",
+      "exactRawBeforeNewAndBomFreeLfAfterMatchedBeforeFollowup": true,
+      "followup": {
+        "path": "docs/content/sources/fenglin-twenty-ninth-671-static-followup-2026-10-04.json",
+        "rawSha256": "c9384666e646a1f16a588f9f9965a96bed22077a6fb8b5a952aa4ffe72784b55",
+        "originalFrozenChanged": false,
+        "owningWindowByExactParentId": true,
+        "existingSecondMethodNestedPeachDraft": true
+      },
+      "noPrivateGiftIdentityInNewPublicFact": true,
+      "newWindowNestedFactsFrozen": true,
+      "actualForeignPindianAndOriginalUseOnly": true,
+      "legacyProducerAndZeroDuelTailProof": true,
+      "originalArtSha256": "8df34043ffc82feefdf2cdea7c392b19c1eacad977c13f613afc9fc07525af3e",
+      "buildsRun": false,
+      "productionLoaderExecuted": false,
+      "checksRun": false,
+      "benchmarksRun": false,
+      "runtimeAcceptance": false,
+      "deferred": [
+        "Four retained real-command drafts and the added nested physical Peach completion cold scenario are uncompiled, unloaded and unrun",
+        "HE/shared Slash name/damage Trick classification/Discard-only claim/Hengye ordering are explicit unverified current FAQ defaults",
+        "Native AI, Silver Lion/WoodenOx, Damage/AttackHpLoss/SelfDying and Alcohol/Peach typed combinations remain static only",
+        "4901/600/Fire, mixed full material effective appearance, source loss, winner/death and additional same-use target combinations require unified verification"
+      ]
     }
   ],
   "runtimeAcceptance": false,
   "pending": [
-    "563 and 775 integrated statically; 671 NEW in progress and receives next root-serialized final OLD window",
-    "451 full current linked grants unverified; do not implement a partial general",
+    "563, 775 and 671 are statically integrated; 775 retains the documented OwnerDied benefit -> new Damage/Dying mechanism limit",
+    "451 full current linked grants remain unverified after bounded advertised-script followup; no partial implementation",
+    "696, 756 and 752 continue in independent batch30 stages; final OLD windows remain root-serialized",
     "User later combined build, focused runtime, Full and measured routine verification"
   ],
   "versions": {
@@ -183,7 +236,7 @@
   "media": {
     "record": "docs/content/sources/fenglin-twenty-ninth-art-2026-10-04.json",
     "rawCaptured": 3,
-    "installed": 2,
+    "installed": 3,
     "originalPngOnly": true,
     "sourceShaMatched": true,
     "fullOfflineCatalogRun": false,

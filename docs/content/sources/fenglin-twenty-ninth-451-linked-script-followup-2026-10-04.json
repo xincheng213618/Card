@@ -1,0 +1,62 @@
+{
+  "status": "current-granted-definition-gap-retained",
+  "gid": 451,
+  "originalSource": {
+    "path": "docs/content/sources/fenglin-twenty-ninth-451-source-2026-10-04.json",
+    "rawSha256": "d9a656e8e8c334c3a1719525194df07eebf6c1809dc8787c7948c3b4e984f37c",
+    "changed": false
+  },
+  "page": {
+    "url": "https://www.sanguosha.com/hero/451",
+    "rawPath": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/451-page.raw.html",
+    "rawSha256": "aa216410cf2a34db5b7328fa5cfe18e6f44be117cd8035c338b39201f7b9d90a",
+    "advertisedScriptLines": [509, 510, 511]
+  },
+  "previousHeroDetailScript": {
+    "rawPath": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/heroDetail.js.raw",
+    "rawSha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+    "executed": false,
+    "fullLinkedDefinitionObtained": false
+  },
+  "additionalAdvertisedScripts": [
+    {
+      "url": "https://www.sanguosha.com/assets/js/commen.js",
+      "capturedAtUtc": "2026-10-04T05:30:30.2412657Z",
+      "completedAtUtc": "2026-10-04T05:30:30.4077965Z",
+      "httpStatus": 200,
+      "rawBytes": 4424,
+      "rawSha256": "95ca9d3ff648d5c4f045019b9d2252883db452b04db508f6ea5a735c2e725129",
+      "rawPath": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/451-linked-skill-followup/commen.js.raw",
+      "attempts": 1,
+      "retries": 0,
+      "executed": false,
+      "result": "Generic ajax helper, responsive font sizing and report call; no current linked-skill definition or resolver identified in this captured file"
+    },
+    {
+      "url": "https://www.sanguosha.com/assets/js/header.js",
+      "capturedAtUtc": "2026-10-04T05:47:05.6080161Z",
+      "completedAtUtc": "2026-10-04T05:47:05.7642757Z",
+      "httpStatus": 200,
+      "rawBytes": 17929,
+      "rawSha256": "2e7ae2b016577a88f00269d9409cffac9bd6976df54be12efd7fbf31c36c32d0",
+      "rawPath": ".artifacts/continuation-20261003-batch17/batch29/source-preflight/451-linked-skill-followup/header.js.raw",
+      "attempts": 1,
+      "retries": 0,
+      "executed": false,
+      "result": "Header navigation, download and analytics code; no current linked-skill definition or resolver identified in this captured file"
+    }
+  ],
+  "unresolvedCurrentGrants": [
+    {"skillId": 3045, "name": "激将", "fullCurrentDefinitionCaptured": false},
+    {"skillId": 895, "name": "思蜀", "fullCurrentDefinitionCaptured": false}
+  ],
+  "scope": "Negative result applies only to these exact captured scripts, not to all website endpoints or all Internet sources",
+  "endpointGuessingPerformed": false,
+  "scriptExecutionPerformed": false,
+  "historicalOrClassicSubstitutionPerformed": false,
+  "partialGeneralRegistered": false,
+  "buildsRun": false,
+  "productionLoaderExecuted": false,
+  "testsRun": false,
+  "runtimeAcceptance": false
+}

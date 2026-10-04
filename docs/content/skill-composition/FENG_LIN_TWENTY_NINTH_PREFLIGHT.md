@@ -26,3 +26,7 @@
 后续 563 已按冻结交付完成静态集成，直谏、固政、四个待运行 Core 方法、一个 routine 前缀及官方原始 PNG 均已登记。775 和 671 仍在独占 stage 开发；563 原代理已开始第30批 696。运行验收仍为 false，详细边界见 ZHANG_ZHAO_ZHANG_HONG_STATIC_REVIEW 和第29批 validation。
 
 后续 775 也已静态集成完整安恤、追忆、四个待运行 Core 方法、一个 routine 及原始 PNG。静态审阅补了 presentation 必填/允许字段，原冻结交付保留；另记清楚 BOM 散列口径及死亡收益嵌套 Damage/新 Dying 的已有机制限制。671 继续准备下一稳定主基线；775 原代理接续第30批 752。见 BU_LIAN_SHI_STATIC_REVIEW、独立 static-followup 与 validation，运行接受状态仍为 false。
+
+界刘禅来源补查只沿原页面明确引用的 commen.js、header.js，各保存一次有界 HTTP200 响应并静态读取，没有执行脚本。这两份响应仍未提供激将、思蜀的完整当前定义或可识别的技能解析入口；这仅是对已捕获脚本的结果，不断言全站或全网没有定义。独立 `fenglin-twenty-ninth-451-linked-script-followup-2026-10-04.json` 保留原来源散列、两份响应和缺口；未猜测接口、替换历史正文或部分登记角色。
+
+后续 671 已按 8 NEW、19 OLD 冻结交付静态整合惴恐、求援、四个待运行方法、一个 routine 及官方原始 PNG。独立 static-followup 修正原 Finalized 父窗口的精确定位，并在现有第二方法添加真正赠牌后濒死桃完成窗口恢复草稿；原冻稿保持。第29批三位完整来源现在均主登记，451 两项授予定义缺口仍保留。671 原代理接续第30批756，运行验收仍为 false。

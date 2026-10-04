@@ -111,7 +111,7 @@ public sealed partial class GameEngine
         if (_resolutionStack.LastOrDefault()?.Id == window.Id)
             return window.Candidates.Count == window.Contexts.Count && window.CandidateIndex >= 0 && window.CandidateIndex <= window.Candidates.Count &&
                 (window.CandidateIndex == window.Candidates.Count || window.Contexts[window.CandidateIndex].ActualUseTarget is { } use && MatchesActualUseTarget(use));
-        return ActualUseTargetObserverRoot(useId) is not null;
+        return HasSameTypeAidTargetObserver(useId) || ActualUseTargetObserverRoot(useId) is not null;
     }
     private bool IsPaidOwnTargetProgramDying() => ActiveDying is { ResumesProgramSkill: true } &&
         _resolutionStack.OfType<ActualUseTargetWindowFrame>().Any(w => ActualUseTargetObserverRoot(w.ParentFrameId) is { PaidOwnTarget: not null });

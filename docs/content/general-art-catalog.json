@@ -11795,6 +11795,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-fu-huang-hou",
+      "characterName": "界伏皇后",
+      "defaultSkinId": "67100",
+      "skins": [
+        {
+          "id": "67100",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/671",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/67100.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-fu-huang-hou.png",
+          "sha256": "8df34043ffc82feefdf2cdea7c392b19c1eacad977c13f613afc9fc07525af3e",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

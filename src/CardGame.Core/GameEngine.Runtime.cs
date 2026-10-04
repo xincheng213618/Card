@@ -38,6 +38,7 @@ public sealed partial class GameEngine
                 if (ResumeCapturedEquipmentAndDraw(frameId) || ResumeActualDiscardRecovery(frameId)) return;
                 if (ResumeSuitPreventionBenefit(frameId) || ResumeMatchedJudgmentPlacement(frameId)) return;
                 if (ResumeAdjacentDiscardStorage(frameId) || ResumeCompletedUsePayment(frameId) || ResumeRoundPileAlcohol(frameId)) return;
+                if (ResumeForeignTurnContest(frameId) || ResumeSameTypeAid(frameId)) return;
                 if (ResumeSharedSlashOffer(frameId)) return;
                 if (ResumeGrantedEntityPhaseTrailer(frameId) || ResumeGrantedPhaseSlashClaim(frameId)) return;
                 if (ResumeProvenanceClaim(frameId) || ResumeProvenanceAlcohol(frameId)) return;
@@ -78,6 +79,7 @@ public sealed partial class GameEngine
                 var host = new ProgramSkillHost(this);
                 new SkillProgramExecutor().Run(frameId, host, host);
                 break;
+            case ForeignActualTurnStartWindowFrame: ContinueForeignActualTurnStartCore(); break;
             case ActualUseTargetWindowFrame: ContinueActualUseTargetWindowCore(); break;
             case ProgramCardTriggerWindowFrame: ContinueProgramCardWindowCore(); break;
             case ProgramLifecycleTriggerWindowFrame: ContinueProgramLifecycleWindowCore(); break;
@@ -341,7 +343,7 @@ public sealed partial class GameEngine
             paidContext.OwnerSeat == paidDyingProgram.OwnerSeat &&
             (paidContext.Window == SkillProgramTriggerWindow.DyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.ResponderSeat ||
              paidContext.Window == SkillProgramTriggerWindow.SelfDyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.VictimSeat) &&
-            (IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsPairBenefitProgramDying()))
+            (IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying()))
         {
             AdvanceRuntimeProgram(paidDyingProgram.Id);
             AdvanceRulesAndPublishState();
@@ -496,6 +498,8 @@ public sealed partial class GameEngine
                 AdvanceProgramLifecycleCursor(changed);
                 AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
                 break;
+            case SkillProgramTriggerWindow.OtherActualTurnStarted:
+                CompleteForeignActualTurnStartBinding(frame); break;
             case SkillProgramTriggerWindow.TurnStartBeforeNormalFlow:
                 if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame lifecycle ||
                     lifecycle.Id != context.ParentFrameId)

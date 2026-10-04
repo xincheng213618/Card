@@ -12,7 +12,7 @@ public sealed partial class GameEngine
         var eventOpponent = opponentReference.Kind == ProgramParticipantRef.EventTarget &&
             frame.WindowContext is { Window: SkillProgramTriggerWindow.AfterDamageApplied, TargetSeat: { } };
         var phaseOpponent = opponentReference.Kind == ProgramParticipantRef.SelectedTarget &&
-            frame.WindowContext is { Window: SkillProgramTriggerWindow.PlayPhaseStarting };
+            (frame.WindowContext is { Window: SkillProgramTriggerWindow.PlayPhaseStarting } || IsForeignActualTurnPindian(frame));
         if (!eventOpponent && (frame.TriggerId is not null && !phaseOpponent ||
                 opponentReference.Kind != ProgramParticipantRef.SelectedTarget ||
                 frame.SelectedTargetSeats.Count != 1 ||
@@ -1835,6 +1835,7 @@ public sealed partial class GameEngine
         if (!CanRunTurnDrawDebtPayment(candidate, trigger, context) || !CanRunSourceFactionPrevention(candidate, trigger, context)) return false;
         if (!CanRunDyingOwnedCard(candidate, trigger, context)) return false;
         if (!CanRunPaidColorDamageClaim(candidate, trigger, context)) return false;
+        if (!CanRunSameTypeAid(candidate, trigger, context)) return false;
         if (!CanRunHalfHandPhaseDebt(candidate, trigger, context)) return false;
         if (!CanRunFixedRecipientBenefit(candidate, trigger, context)) return false;
         if (!CanRunActualUseTarget(candidate, context)) return false;
@@ -2035,6 +2036,7 @@ public sealed partial class GameEngine
                     _ => false
                 } &&
                 CanRunAfterDamageProgramTrigger(owner, trigger, context),
+            SkillProgramTriggerWindow.OtherActualTurnStarted => CanRunForeignActualTurnContest(candidate, context),
             SkillProgramTriggerWindow.AfterHpLost or SkillProgramTriggerWindow.AfterHpRecovered or SkillProgramTriggerWindow.AfterHealthChanged =>
                 context.HpChange is { } change && change.TargetSeat == owner.Seat && change.Amount > 0 &&
                 _resolutionStack.OfType<HpChangedTriggerWindowFrame>().LastOrDefault() is { } hpWindow &&
@@ -3173,6 +3175,7 @@ public sealed partial class GameEngine
             ResolveCompletedCardGiftChoice(selected);
             return;
         }
+        if (action == "same-type-actual-use-aid") { ResolveSameTypeAidChoice(selected); return; }
         if (action == "original-target-addition") { ResolveOriginalTargetAdditionChoice(selected); return; }
         if (action == "current-card-enhancement")
         {
@@ -3822,6 +3825,8 @@ public sealed partial class GameEngine
     private (ProgramTriggerCandidate Candidate, ProgramSkillWindowContext Context)
         GetPendingProgramTriggerCandidate()
     {
+        if (_resolutionStack.LastOrDefault() is ForeignActualTurnStartWindowFrame foreign)
+            return (foreign.Candidates[foreign.CandidateIndex], foreign.Contexts[foreign.CandidateIndex]);
         if (_resolutionStack.LastOrDefault() is ActualUseTargetWindowFrame actualTargets)
             return (actualTargets.Candidates[actualTargets.CandidateIndex], actualTargets.Contexts[actualTargets.CandidateIndex]);
         if (_resolutionStack.LastOrDefault() is CardEffectBeforeApplyFrame effect)
@@ -3893,6 +3898,12 @@ public sealed partial class GameEngine
 
     private void CompleteSkippedProgramCandidate(ProgramTriggerCandidate candidate)
     {
+        if (_resolutionStack.LastOrDefault() is ForeignActualTurnStartWindowFrame foreign &&
+            foreign.Candidates[foreign.CandidateIndex] == candidate)
+        {
+            AdvanceForeignActualTurnStartCandidate(foreign, false, false);
+            AdvanceRuntimeTop<ForeignActualTurnStartWindowFrame>(); return;
+        }
         if (_resolutionStack.LastOrDefault() is ActualUseTargetWindowFrame actualTargets &&
             actualTargets.Candidates[actualTargets.CandidateIndex] == candidate)
         {
@@ -4014,6 +4025,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.ChoosePrivateColorsDiscardAndDuel => SelectAiDualColorChoice(decision, frame),
                 SkillProgramEffectOp.PayOwnedCardOrMarker => SelectAiAlternativePhaseCost(decision, frame),
                 SkillProgramEffectOp.ObtainDamageTargetCardAndResolveCategory => SelectAiDamageTargetObtain(decision, frame),
+                SkillProgramEffectOp.OfferSameTypeDifferentNameOrExtraTarget => SelectAiSameTypeAid(decision, frame),
                 SkillProgramEffectOp.DiscardDamageTargetAndClaimMount => SelectAiProgramOtherOwnedCardDiscard(decision, frame),
                 SkillProgramEffectOp.ChooseOwnerHpLoss => SelectAiHpLossQuantity(decision),
                 SkillProgramEffectOp.PayHpToGrantOneUseDamageShield => SelectAiHpDamageShield(decision),

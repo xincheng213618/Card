@@ -1,0 +1,43 @@
+{
+  "status": "static-main-followup-uncompiled-unrun",
+  "gid": 671,
+  "originalFrozen": {
+    "stage": ".artifacts/continuation-20261003-batch17/batch29/fu-huang-hou",
+    "baselineHead": "d2e3d72cec6e54002ba36a13419fbd4ab31fb3bf",
+    "manifest": "manifest.json",
+    "manifestSha256": "087eddfbe32206b31a4a84b3a9d718ee69b3b2f4a9dd0b8c24eb51e588fb5101",
+    "patch": "old-wiring.patch",
+    "patchSha256": "d587a43b3e33cfcf68a5e9dcded0238e3f1a66757e032799b7bced10ef93b517",
+    "changed": false,
+    "exactBeforeNewAndNormalizedOldAfterVerifiedBeforeFollowup": true
+  },
+  "corrections": [
+    {
+      "path": "src/CardGame.Core/GameEngine.SameTypeActualUseAid.cs",
+      "originalRawSha256": "b5bdb9141b4ffd401affad9ffca9524c1aa1c9e9d961e7b5f52137d242c4b96b",
+      "correctedRawSha256": "950e90b261b0dd70e4759b88924361c2d37447fe9c0c84110015711bf5604f22",
+      "change": "Locate the original Finalized ProgramCardTriggerWindowFrame by the frozen context.ParentFrameId rather than the most recent card window",
+      "reason": "A real paid gift observer may enter a physical Peach recovery use with another card window; validation of the original aid must retain its owning window",
+      "guardsPreserved": "Actual window kind, original parent use/action, actor/provider, original owner target, effective kind and actual turn guards stay intact"
+    },
+    {
+      "path": "tests/CardGame.Core.Tests/BoundaryFuHuangHouChecks.cs",
+      "originalRawSha256": "ea7fab70a98e6fbf8f7e706b64bd923883a61ce6f40602c6f33d7d4291f262f1",
+      "correctedRawSha256": "ec28b6384e4941390e0a0d08fe9dd2ac475d12ffd64d5882065a48b1d2870904",
+      "change": "Extend the existing second method with real private gift -> HP loss -> Dying -> physical Peach completion window -> four-view JSON restoration and resumed original Slash",
+      "separateRunnerAdded": false,
+      "fakeFrameOrActionAdded": false,
+      "compiledLoadedOrExecuted": false
+    }
+  ],
+  "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-671-source-2026-10-04.json",
+  "sourceSha256": "1c004024c9b94b5e39f653a31d5e928406102e7e8efe576db102e2749b1dc247",
+  "semanticDescriptionsChanged": false,
+  "publicGiftFactContainsPrivateEntity": false,
+  "oldGenericObserverAdmissionChanged": false,
+  "buildsRun": false,
+  "productionLoaderExecuted": false,
+  "testsRun": false,
+  "benchmarksRun": false,
+  "runtimeAcceptance": false
+}

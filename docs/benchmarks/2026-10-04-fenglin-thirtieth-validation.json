@@ -1,5 +1,5 @@
 {
-  "status": "two-owned-stage-one-current-source-only-runtime-deferred",
+  "status": "three-owned-stages-runtime-deferred",
   "batch": 30,
   "baseCommit": "d2990fba",
   "userSteering": {
@@ -44,9 +44,11 @@
       ],
       "completeCurrentDefinition": true,
       "mainRegistered": false,
-      "status": "current-source-only-unassigned",
-      "owner": null,
-      "stage": null
+      "status": "owned-stage-contract-and-new-development",
+      "owner": "/root/pang_de",
+      "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch30\\yu-jin",
+      "reservedCapacity": "6600-6699",
+      "assignmentRecordedAtUtc": "2026-10-04T06:12:26.8532756Z"
     },
     {
       "gid": 752,
