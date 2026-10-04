@@ -18,6 +18,7 @@
         'boundary li ru sequential discard top cost',
         'Whole equipment donation actual X and recovery',
         'boundary xiao qiao suit prevention equipment cost',
+        'boundary lu su extra draw half hand gift',
         'shared use lifecycle', 'shared card-use', 'card movement', 'card inventory',
         'initial deal', 'invalid single and batch', 'draw and recover',
         'execution plans', 'skill executor', 'program gameplay hashes',

@@ -410,6 +410,8 @@ public enum SkillProgramEffectOp
     DiscardBoundCardForTurnSlashBenefits = 3400, ScheduleFirstRoundGameUsageRefund = 3401,
     PreventCurrentDamageAndDrawMultiple = 4000, RequestLegalSlashByNearest = 4002, OfferUnlimitedVirtualSlash = 4003,
     SelectEquipmentPairAndPayment = 5500, SelectDyingOwnedCard = 5501,
+    DrawExtraAndArmHalfHandSupport = 6000, GiveHalfHandAndIssueTargetSupport = 6001,
+    ExchangeHandsAndArmPhaseDebt = 6002, SelectFrozenHandExchangeDebtPayment = 6003, OfferHalfHandRecipientSupport = 6004,
     ChooseCategoryOrSequentialDiscard = 5700, EscalatingDiscardOrDamageFromSelected = 5701,
     DrawExtraAndArmTurnDamageUseDebt = 5200, SelectTurnDamageUseDebtPayment = 5201, PreventDamageAndConsumeSourceFaction = 5202,
     ReceiveOwnerDamage = 4100, ConsumeDistinctTurnTarget = 4101, DrawOwnerAtAppliedDamage = 4102,
@@ -2517,6 +2519,11 @@ public sealed class SkillProgramCatalog
             Fail(path, "a chosen-start escalating discard requires one standalone other target and one exact original game usage");
         if (targetKind == SkillProgramTargetKind.OtherLivingHandAtMostOwner)
             Fail(path, "at-most-owner hand targeting is only supported by its Ending selection composition");
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.ExchangeHandsAndArmPhaseDebt) &&
+            (minCards != 0 || maxCards != 0 || minTargets != 2 || maxTargets != 2 || targetKind != SkillProgramTargetKind.OtherLivingPair ||
+             usesPerPhase != 1 || uses is not null || usesPerGame is not null ||
+             node.TryGetProperty("continueAfterOwnerDeath", out var phaseExchangeDeath) && phaseExchangeDeath.GetBoolean()))
+            Fail(path, "a deferred hand exchange requires a zero-card original other pair and one actual Play-phase usage");
         if (effects.Any(PaidHpLossProgram.IsOperation) && (usesPerGame != 1 || minCards != 0 || maxCards != 0 || minTargets != 0 || maxTargets != 0))
             Fail(path, "Paid HP loss requires a limited one-use zero-card zero-target activation.");
         SkillProgramCardCountExpression? cardCountExpression = node.TryGetProperty("cardCountExpression", out _)
@@ -3447,6 +3454,7 @@ public sealed class SkillProgramCatalog
         if (effects.Any(e => e.NumberExpression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount) &&
             (window != SkillProgramTriggerWindow.PlayEnding || subject != SkillProgramTriggerSubject.Owner || turnOwnerScope != SkillProgramTurnOwnerScope.Own))
             Fail(path, "actual turn type-count draw requires an own Play-ending owner window");
+        HalfHandPhaseDebtTriggerContract.Validate(path, effects, subject, optional);
         PaidTargetEndingComposition.Validate(path, effects, window, subject, turnOwnerScope, optional);
         GrantedEntityPhaseComposition.Validate(path, effects, window, subject, turnOwnerScope);
         FrozenFactionRecoveryComposition.Validate(path, effects, window, subject, usageScope, usageLimit);

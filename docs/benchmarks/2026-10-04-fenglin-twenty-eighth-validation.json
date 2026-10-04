@@ -1,5 +1,5 @@
 {
-  "status": "one-static-integrated-two-owned-stage-user-runtime-deferred",
+  "status": "two-static-integrated-one-owned-stage-user-runtime-deferred",
   "batch": 28,
   "baseCommit": "a794646f",
   "userSteering": {
@@ -27,8 +27,8 @@
       "name": "界鲁肃",
       "sourceRecord": "docs/content/sources/fenglin-twenty-eighth-485-source-2026-10-04.json",
       "sourceSha256": "612f55221790ad7a9d947e33e3e00c955c076d82ffc8daedf9699f3d954e69e9",
-      "mainRegistered": false,
-      "status": "owned-stage-implementation-in-progress",
+      "mainRegistered": true,
+      "status": "static-main-integrated-user-runtime-verification-deferred",
       "owner": "/root/next_batch_audit",
       "stage": ".artifacts/continuation-20261003-batch17/batch28/lu-su"
     },
@@ -72,12 +72,59 @@
       "checksRun": false,
       "benchmarksRun": false,
       "runtimeAcceptance": false
+    },
+    {
+      "gid": 485,
+      "name": "界鲁肃",
+      "integratedAtUtc": "2026-10-04T04:36:40.4446963Z",
+      "baselineCommit": "e48303e7",
+      "originalCoreBaselineCommit": "d2990fba",
+      "manifest": "delivery-manifest.json",
+      "manifestSha256": "046a5fd14aaf88c96d409b46dee4ddecfe4b4d9c2c7e063e3ffb6899dde69419",
+      "patch": "shared-wiring.patch",
+      "patchSha256": "ae28c34a41cac4e77497e7a6acffdb294f638b382835ca58779b308df95d755e",
+      "sourceSha256": "612f55221790ad7a9d947e33e3e00c955c076d82ffc8daedf9699f3d954e69e9",
+      "newFiles": 9,
+      "oldFiles": 12,
+      "registeredChecks": [
+        "boundary lu su extra draw half hand gift and cold children",
+        "boundary lu su exchange first frozen ending silver lion debt",
+        "boundary lu su ending debt shortfall and source loss",
+        "boundary lu su actual target recipient support and expiry"
+      ],
+      "routinePrefix": "boundary lu su extra draw half hand gift",
+      "owningScalarReceipts": true,
+      "exactRawNewAndLfOldMatched": true,
+      "followups": [
+        {
+          "path": "followup-01-gain-damage",
+          "manifestSha256": "d62b6c8547b782cc5b863146b23b232068450b5496afcc61f564065af642cc56",
+          "patchSha256": "65e60655132d913c65db3f13d843d5a4b1b58aca16d2b5e9256b1bcab2a3714c",
+          "newFiles": 1,
+          "oldFiles": 5,
+          "exactRawBeforeNewAndLfAfterMatched": true,
+          "originalFrozenUnchanged": true,
+          "newRunner": false,
+          "staticOnlyBoundaries": [
+            "AttackHpLoss replacement and its exact current Dying token",
+            "Jiushi changed-face observer",
+            "Zero-entity virtual Alcohol RecoveryReplacement producer suffix",
+            "Existing bound-pile Alcohol and physical rescue suffix"
+          ]
+        }
+      ],
+      "originalArtSha256": "07d21e64dbd77f8d9376f741841c271f2ddac4bd6d938b139562945b4da11c34",
+      "buildsRun": false,
+      "productionLoaderExecuted": false,
+      "checksRun": false,
+      "benchmarksRun": false,
+      "runtimeAcceptance": false
     }
   ],
   "runtimeAcceptance": false,
   "pending": [
-    "485 and 550 complete implementations and sequential frozen shared baselines; 457 integrated statically",
-    "457 original art registered; other staged original art awaits its module integration",
+    "457 and 485 statically integrated; 550 final OLD freezes on committed 485 baseline",
+    "457/485 original art registered; 550 staged original art awaits module integration",
     "User later combined build, focused runtime, Full and measured routine verification"
   ],
   "versions": {

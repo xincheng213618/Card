@@ -2,12 +2,13 @@ namespace CardGame.Core;
 
 public sealed partial class GameEngine
 {
-    private bool TracksPaidOwnTargets => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PayHpThenNullifyOwnActualUseTarget);
+    private bool TracksPaidOwnTargets => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PayHpThenNullifyOwnActualUseTarget) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferHalfHandRecipientSupport);
 
     private ActualUseTargetIdentity? FreezeActualUseTarget(CardUseFrame use, int target)
     {
-        if (!TracksPaidOwnTargets || !IsValidPlayerSeat(target) || target == use.SourceSeat || !_players[target].IsAlive ||
-            !use.TargetSeats.Contains(target) || !IsSlashCard(use.CardKind) && !IsOrdinaryTrick(use.CardKind)) return null;
+        if (!TracksPaidOwnTargets || !IsValidPlayerSeat(target) || target == use.SourceSeat && !HasHalfHandSelfTargetSupport(target) || !_players[target].IsAlive ||
+            !use.TargetSeats.Contains(target) && !IsHalfHandImplicitSelfTarget(use, target) || !IsSlashCard(use.CardKind) && !IsOrdinaryTrick(use.CardKind)) return null;
         if (use.CardKind == CardKind.BorrowedSword && !use.TargetSeats.Where((_, i) => i % 2 == 0).Contains(target)) return null;
         if (use.Action is { Type: CardActionType.Use } action && action.ActorSeat == use.SourceSeat && action.EffectiveKind == use.CardKind)
             return new(use.Id, action.ActionId, action.ActorSeat, action.ProviderSeat, action.EffectiveKind, target,
@@ -19,7 +20,7 @@ public sealed partial class GameEngine
     private bool MatchesActualUseTarget(ActualUseTargetIdentity identity)
     {
         if (LifecycleCardUse(identity.CardUseFrameId) is not { } use || use.SourceSeat != identity.ActorSeat ||
-            use.CardKind != identity.EffectiveKind || !use.TargetSeats.Contains(identity.TargetSeat) ||
+            use.CardKind != identity.EffectiveKind || !use.TargetSeats.Contains(identity.TargetSeat) && !IsHalfHandImplicitSelfTarget(use, identity.TargetSeat) ||
             identity.ActualTurnNumber != _turnNumber || identity.ActualTurnOwnerSeat != _currentSeat) return false;
         if (identity.ActionId is { } actionId)
             return identity.LegacyProducerProgramId is null && use.Action is { Type: CardActionType.Use } action &&
@@ -38,7 +39,7 @@ public sealed partial class GameEngine
     {
         var use = LifecycleCardUse(pending.ResolutionId);
         return use is not null && IsOrdinaryTrick(use.CardKind) && StartActualUseTargetWindow(use,
-            use.CardKind == CardKind.BorrowedSword ? pending.TargetSeats.Take(1).ToArray() : pending.TargetSeats,
+            use.CardKind == CardKind.BorrowedSword ? pending.TargetSeats.Take(1).ToArray() : HalfHandActualTrickTargets(use, pending.TargetSeats),
             ActualUseTargetReturnKind.OrdinaryTrick, new(pending.Card.Id, pending.ActionKind, pending.TargetCardId, pending.RequiredCardKind));
     }
     private bool StartActualUseTargetWindow(CardUseFrame use, IReadOnlyList<int> targets,
@@ -56,7 +57,7 @@ public sealed partial class GameEngine
                 : CaptureProgramTriggerFacts(_players[target]);
             foreach (var candidate in CollectEligibleProgramTriggerCandidates(_players[target], SkillProgramTriggerWindow.OtherActualUseTargeted, facts))
             {
-                if (!GetProgramTrigger(candidate).Effects.Any(e => e.Op == SkillProgramEffectOp.PayHpThenNullifyOwnActualUseTarget)) continue;
+                if (!GetProgramTrigger(candidate).Effects.Any(e => e.Op is SkillProgramEffectOp.PayHpThenNullifyOwnActualUseTarget or SkillProgramEffectOp.OfferHalfHandRecipientSupport)) continue;
                 entries.Add((candidate, new(SkillProgramTriggerWindow.OtherActualUseTargeted, id, target,
                     SourceSeat: identity.ActorSeat, TargetSeat: target, OccurrenceIndex: candidate.OccurrenceIndex, Facts: facts)
                     { ActualUseTarget = identity }));
@@ -76,7 +77,7 @@ public sealed partial class GameEngine
     {
         if (context.Window != SkillProgramTriggerWindow.OtherActualUseTargeted) return true;
         return context.ActualUseTarget is { } use && use.TargetSeat == candidate.OwnerSeat && context.TargetSeat == use.TargetSeat &&
-            context.SourceSeat == use.ActorSeat && candidate.OwnerSeat != use.ActorSeat && _players[candidate.OwnerSeat].Hp > 0 &&
+            context.SourceSeat == use.ActorSeat && (candidate.OwnerSeat != use.ActorSeat || IsHalfHandSupportCandidate(candidate)) && _players[candidate.OwnerSeat].Hp > 0 &&
             MatchesActualUseTarget(use) && !IsCardEffectIneffective(use.CardUseFrameId, use.TargetSeat) &&
             _resolutionStack.OfType<ActualUseTargetWindowFrame>().LastOrDefault() is { } parent && parent.Id == context.ParentFrameId &&
             parent.ParentFrameId == use.CardUseFrameId && parent.CandidateIndex >= 0 && parent.CandidateIndex < parent.Candidates.Count &&

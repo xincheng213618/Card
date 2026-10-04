@@ -1,5 +1,5 @@
 {
-  "status": "one-owned-new-two-assigned-after-owned-batch28-deliveries",
+  "status": "two-owned-stage-one-assigned-after-owned-batch28-delivery",
   "batch": 29,
   "baseCommit": "2e805f43",
   "userSteering": {
@@ -40,7 +40,7 @@
       "sourceRecord": "docs/content/sources/fenglin-twenty-ninth-775-source-2026-10-04.json",
       "sourceSha256": "76212903e4e86c42fe8f9f14b2e9108b706514164b81a8e6698d562cb179bbab",
       "mainRegistered": false,
-      "status": "assigned-new-after-prior-owned-delivery",
+      "status": "owned-stage-contract-and-new-development",
       "owner": "/root/next_batch_audit",
       "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch29\\bu-lian-shi",
       "reservedCapacity": "6300-6399",
@@ -63,7 +63,7 @@
   "integrations": [],
   "runtimeAcceptance": false,
   "pending": [
-    "563, 775 and 671 assigned; NEW begins after each agent freezes its own batch28 delivery; final OLD remains root-serialized",
+    "563 and 775 owned NEW in progress; 671 NEW begins after 550 freeze; final OLD remains root-serialized",
     "451 full current linked grants unverified; do not implement a partial general",
     "User later combined build, focused runtime, Full and measured routine verification"
   ],

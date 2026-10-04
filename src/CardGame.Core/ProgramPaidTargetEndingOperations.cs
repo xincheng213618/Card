@@ -122,8 +122,9 @@ internal static class PaidTargetEndingComposition
     internal static void Validate(string path, IReadOnlyList<SkillProgramEffect> effects,
         SkillProgramTriggerWindow window, SkillProgramTriggerSubject? subject, SkillProgramTurnOwnerScope scope, bool optional)
     {
-        if (window == SkillProgramTriggerWindow.OtherActualUseTargeted ||
-            effects.Any(e => e.Op is SkillProgramEffectOp.PayHpThenNullifyOwnActualUseTarget or SkillProgramEffectOp.ScheduleEarnedActualEndingBenefit))
+        if ((window == SkillProgramTriggerWindow.OtherActualUseTargeted ||
+            effects.Any(e => e.Op is SkillProgramEffectOp.PayHpThenNullifyOwnActualUseTarget or SkillProgramEffectOp.ScheduleEarnedActualEndingBenefit)) &&
+            !effects.Any(e => e.Op == SkillProgramEffectOp.OfferHalfHandRecipientSupport))
         {
             bool Choice(SkillProgramEffect e, string option) => e.Condition.Kind == SkillProgramConditionKind.ChoiceIs &&
                 e.Condition.SourceBind == "benefit" && e.Condition.OptionId == option;

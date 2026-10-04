@@ -335,6 +335,11 @@ public sealed record ProgramSkillFrame(
     public ProgramSequentialDiscardDraft? SequentialDiscard { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramSequentialDiscardTopPayment? SequentialDiscardTopPayment { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramHalfHandDrawReceipt? HalfHandDraw { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramHalfHandGiftPayment? HalfHandGift { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPhaseHandExchangeReceipt? PhaseHandExchange { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPhaseHandDebtPayment? PhaseHandDebtPayment { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramHalfHandSupportPayment? HalfHandSupport { get; init; }
     public bool ReexecuteParticipantInstruction { get; init; }
 }
 

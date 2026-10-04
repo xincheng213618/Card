@@ -11727,6 +11727,23 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "boundary-lu-su",
+      "characterName": "界鲁肃",
+      "defaultSkinId": "48500",
+      "skins": [
+        {
+          "id": "48500",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/485",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/48500.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-boundary-lu-su.png",
+          "sha256": "07d21e64dbd77f8d9376f741841c271f2ddac4bd6d938b139562945b4da11c34",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

@@ -1824,6 +1824,7 @@ public sealed partial class GameEngine
             return false;
         if (!CanRunTurnDrawDebtPayment(candidate, trigger, context) || !CanRunSourceFactionPrevention(candidate, trigger, context)) return false;
         if (!CanRunDyingOwnedCard(candidate, trigger, context)) return false;
+        if (!CanRunHalfHandPhaseDebt(candidate, trigger, context)) return false;
         if (!CanRunActualUseTarget(candidate, context)) return false;
         if (!CanOfferOriginalTargetAddition(candidate, trigger, context)) return false;
         if (!CanRunProgramDyingAlcoholPolicy(trigger, context, candidate.OwnerSeat)) return false;
@@ -3118,6 +3119,7 @@ public sealed partial class GameEngine
         if (selected.Parameters.GetValueOrDefault("program-action") == "equipment-pair-payment") { ResolveEquipmentPairPaymentChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "dying-owned-card") { ResolveDyingOwnedCardChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "sequential-discard") { ResolveSequentialDiscardChoice(selected); return; }
+        if (selected.Parameters.GetValueOrDefault("program-action") == "half-hand-support") { ResolveHalfHandSupportChoice(selected); return; }
         var action = selected.Parameters.GetValueOrDefault("program-action");
         if (action == "relative-zone-target") { ResolveRelativeZoneTarget(selected); return; }
         if (action == "deck-end-exchange") { ResolveDeckEndChoice(selected); return; }
@@ -4039,6 +4041,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.CompareSelectedHandWithHpHand => decision.Choices[0],
                 SkillProgramEffectOp.OfferFaceUpForOutsideClaims => decision.Choices[0],
                 SkillProgramEffectOp.ChooseOption => SelectAiProgramOption(decision, frame),
+                SkillProgramEffectOp.OfferHalfHandRecipientSupport => SelectAiHalfHandSupport(decision, frame),
                 SkillProgramEffectOp.ChooseCategoryOrSequentialDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected =>
                     SelectAiSequentialDiscard(decision, frame),
                 SkillProgramEffectOp.ChooseCategoryAlternativeDiscard or SkillProgramEffectOp.EscalatingDiscardOrDamage =>
@@ -4055,7 +4058,7 @@ public sealed partial class GameEngine
                     SelectAiProgramOwnCardDiscard(decision, frame),
                 SkillProgramEffectOp.SelectEquipmentPairAndPayment => SelectAiEquipmentPairPayment(decision, frame),
                 SkillProgramEffectOp.SelectDyingOwnedCard => SelectAiDyingOwnedCard(decision),
-                SkillProgramEffectOp.SelectOwnedCards or SkillProgramEffectOp.ResolveDeferredHandAlignment or SkillProgramEffectOp.SelectTurnDamageUseDebtPayment => SelectAiProgramOwnedCards(decision, frame),
+                SkillProgramEffectOp.SelectOwnedCards or SkillProgramEffectOp.ResolveDeferredHandAlignment or SkillProgramEffectOp.SelectTurnDamageUseDebtPayment or SkillProgramEffectOp.SelectFrozenHandExchangeDebtPayment => SelectAiProgramOwnedCards(decision, frame),
                 SkillProgramEffectOp.DrawThenDiscardHandToMaximumHp => decision.Choices[0],
                 SkillProgramEffectOp.HoldTargetCards => SelectAiProgramHoldCards(decision, frame),
                 SkillProgramEffectOp.RequestSlashByTarget => SelectAiProgramRequestSlash(decision, frame),

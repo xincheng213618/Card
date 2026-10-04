@@ -3,7 +3,7 @@ namespace CardGame.Core;
 public sealed partial class GameEngine
 {
     private SkillProgramEffect GetOwnedSelectionEffect(ProgramSkillFrame frame) =>
-        EquipmentPairOwnedSelectionEffect(frame, TurnDrawDebtOwnedSelectionEffect(frame, ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect));
+        PhaseHandDebtOwnedSelectionEffect(frame, EquipmentPairOwnedSelectionEffect(frame, TurnDrawDebtOwnedSelectionEffect(frame, ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!).GetPausedInstruction(frame.InstructionIndex).Effect)));
 
     private int GetProgramOwnerLostHp(ProgramSkillFrame frame)
     {
@@ -26,6 +26,7 @@ public sealed partial class GameEngine
             var location = new CardLocation(zone, cardOwnerSeat);
             return _cardZones.CardsAt(location)
                 .Where(card => MatchesEquipmentPairOwnedCost(active, resultBind, card, location))
+                .Where(card => MatchesDeferredHandDebtCost(active, resultBind, card, location))
                 .Where(card => MatchesProgramOwnedSelectionKind(active, resultBind, _players[cardOwnerSeat], card, location, cardKinds))
                 .Where(card => suits.Count == 0 || suits.Contains(GetProgramEffectiveSuit(_players[cardOwnerSeat], card)))
                 .Select(card => (card.Id, Location: location));
@@ -139,7 +140,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("Owned selection lost its actual choosing participant.");
         var deferred = effect.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment;
         if (deferred) effect = DeferredOwnedSelectionEffect(frame, effect);
-        effect = EquipmentPairOwnedSelectionEffect(frame, TurnDrawDebtOwnedSelectionEffect(frame, effect));
+        effect = PhaseHandDebtOwnedSelectionEffect(frame, EquipmentPairOwnedSelectionEffect(frame, TurnDrawDebtOwnedSelectionEffect(frame, effect)));
         var draft = frame.OwnedCardSelection ?? throw new InvalidOperationException("Missing owned-card draft.");
         var finish = selected.Parameters.GetValueOrDefault("program-action") == "finish-owned-cards";
         if (effect.Op != SkillProgramEffectOp.SelectOwnedCards || draft.ResultBind != effect.ResultBind ||
@@ -184,6 +185,7 @@ public sealed partial class GameEngine
     {
         if (paused.Op == SkillProgramEffectOp.ResolveDeferredHandAlignment && frame.OwnedCardSelection is not null) paused = DeferredOwnedSelectionEffect(frame, paused);
         if (paused.Op == SkillProgramEffectOp.SelectTurnDamageUseDebtPayment && frame.OwnedCardSelection is not null) paused = TurnDrawDebtOwnedSelectionEffect(frame, paused);
+        if (paused.Op == SkillProgramEffectOp.SelectFrozenHandExchangeDebtPayment && frame.OwnedCardSelection is not null) paused = PhaseHandDebtOwnedSelectionEffect(frame, paused);
         if (paused.Op == SkillProgramEffectOp.SelectEquipmentPairAndPayment && frame.OwnedCardSelection is not null) paused = EquipmentPairOwnedSelectionEffect(frame, paused);
         if (paused.Op != SkillProgramEffectOp.SelectOwnedCards)
         {

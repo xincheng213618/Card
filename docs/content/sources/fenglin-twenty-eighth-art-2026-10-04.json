@@ -37,7 +37,8 @@
       "pixelWidth": 750,
       "pixelHeight": 950,
       "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch28\\official-art\\official-boundary-lu-su.png",
-      "installed": false
+      "installed": true,
+      "localPath": "src/CardGame.Wpf/Assets/official-boundary-lu-su.png"
     },
     {
       "gid": 550,
@@ -64,6 +65,6 @@
     "mainRegistration": false,
     "fullOfflineCatalogRun": false,
     "compiledVerificationRun": false,
-    "installedCount": 1
+    "installedCount": 2
   }
 }

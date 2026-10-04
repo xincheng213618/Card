@@ -85,12 +85,13 @@ public sealed partial class GameEngine
         if (_resolutionStack[wi + 1] is not ProgramSkillFrame root || !MountObserverCandidateMatches(root, window.Candidates[window.CandidateIndex]) ||
             root.WindowContext?.ParentFrameId != window.Id || root.WindowContext.ActualUseTarget != identity) return null;
         if (wi + 2 == _resolutionStack.Count) return root;
-        if (!PaidOwnTargetMatches(root, window, true)) return null;
+        if (!PaidOwnTargetMatches(root, window, true) && !HalfHandSupportObserverRootMatches(root, window)) return null;
         for (var i = wi + 2; i < _resolutionStack.Count; i++)
         {
-            if (!PaidTargetObserverEdge(i)) return null;
+            if (!(root.HalfHandSupport is { Paid: true } ? HalfHandPaidDamageObserverEdge(i) : PaidTargetObserverEdge(i))) return null;
             if (_resolutionStack[i] is DyingFrame d &&
-                (IsPaidHandRepaymentProgramAlcoholRide(i, d) || IsPaidHandRepaymentRescueRide(i, d) || PolicyCounterspellVirtualAlcoholRide(i, d))) break;
+                (IsPaidHandRepaymentProgramAlcoholRide(i, d) || IsPaidHandRepaymentRescueRide(i, d) || PolicyCounterspellVirtualAlcoholRide(i, d) ||
+                 root.HalfHandSupport is { Paid: true } && PaidObserverDamageVirtualAlcoholRide(i, d))) break;
         }
         return root;
     }
