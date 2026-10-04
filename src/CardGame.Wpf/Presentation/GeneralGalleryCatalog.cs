@@ -157,6 +157,7 @@ public static class GeneralGalleryCatalog
         groups.Add("boundary:zhang-song", "boundary-fame");
         groups.Add("boundary:ju-shou", "boundary-fame");
         groups.Add("boundary:guan-xing-zhang-bao", "boundary");
+        groups.Add("boundary:zhou-tai", "boundary");
         return groups;
 
         void Add(string group, string ids)

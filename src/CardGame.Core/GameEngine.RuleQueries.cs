@@ -118,7 +118,7 @@ public sealed partial class GameEngine
 
     private RuleQueryEvaluation EvaluateHandLimit(CharacterState player)
     {
-        var woundCount = HasProgramSkill(player, "classic:buqu")
+        var woundCount = HasProgramSkill(player, "classic:buqu") || HasProgramSkill(player, "boundary:buqu-current")
             ? GetBuquWounds(player).Count
             : 0;
         var baseTerms = new List<RuleQueryBaseTerm>

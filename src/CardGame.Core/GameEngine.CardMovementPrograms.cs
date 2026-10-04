@@ -225,7 +225,7 @@ public sealed partial class GameEngine
             foreach (var candidate in CollectProgramTriggerCandidates(_players[ownerSeat], window))
             {
                 var trigger = GetProgramTrigger(candidate);
-                if (IsNeighborDiscardTopTrigger(trigger)) continue;
+                if (IsNeighborDiscardTopTrigger(trigger) || IsThirdPartyHandGainTrigger(trigger)) continue;
                 if (!IsGainPhaseQualified(trigger, ownerSeat, batch.MovementTiming)) continue;
                 if (discardOriginOnly && !trigger.MovementDiscardOnly) continue;
                 if (!(window == SkillProgramTriggerWindow.CardsMoved ? trigger.SourceZones : trigger.DestinationZones).Contains(count.Location.Zone)) continue;
@@ -264,6 +264,7 @@ public sealed partial class GameEngine
             }
         }
         candidates.AddRange(CollectNeighborDiscardCandidates(batch));
+        candidates.AddRange(CollectThirdPartyHandGainCandidates(batch));
         return candidates
             .OrderBy(candidate => (candidate.OwnerSeat - _currentSeat + _players.Count) % _players.Count)
             .ThenByDescending(candidate => candidate.Priority)
@@ -317,8 +318,10 @@ public sealed partial class GameEngine
         var discardPile = _cardZones.CardsAt(CardLocation.DiscardPile).ToDictionary(card => card.Id);
         return batch.Movements.Select((movement, index) => (movement, index))
             .Where(item => item.movement.To == CardLocation.DiscardPile &&
-                (trigger.MovementDiscardOnly ? GetProgramDiscardSource(item.movement) : item.movement.From)?.OwnerSeat is { } source &&
+                (trigger.MovementDiscardOnly ? GetProgramDiscardSource(item.movement) : item.movement.From) is { } discardSource &&
+                discardSource.OwnerSeat is { } source &&
                 (trigger.DiscardOwnerScope == SkillProgramDiscardOwnerScope.Own ? source == candidate.OwnerSeat : source != candidate.OwnerSeat) &&
+                (trigger.SourceZones.Count == 0 || trigger.SourceZones.Contains(discardSource.Zone)) &&
                 item.movement.From != item.movement.To &&
                 (trigger.MovementReasons.Count == 0 ||
                     trigger.MovementReasons.Contains(item.movement.Reason.Value)) &&
@@ -442,6 +445,24 @@ public sealed partial class GameEngine
                     new CardMovementSourceCount(counts[0].Location, counts.Sum(item => item.CountBefore), counts.Sum(item => item.CountAfter)), trigger.Window),
                     frame.Batch, candidate, trigger, matching),
                 MovementBatch: frame.Batch);
+        }
+        if (trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerThirdPartyHandGain)
+        {
+            var movement = frame.Batch.Movements[candidate.OccurrenceIndex];
+            var destinationCount = ProgramMovementSourceCounts(frame.Batch, trigger.Window)
+                .FirstOrDefault(item => item.Count.Location == movement.To).Count is { } matched ? matched
+                : new CardMovementSourceCount(movement.To, 0, 1);
+            return new ProgramSkillWindowContext(
+                trigger.Window,
+                frame.Id,
+                candidate.OwnerSeat,
+                SourceSeat: movement.From.OwnerSeat,
+                TargetSeat: movement.To.OwnerSeat,
+                OccurrenceIndex: candidate.OccurrenceIndex,
+                Facts: CaptureCardsMovedTriggerFacts(_players[candidate.OwnerSeat], 1,
+                    destinationCount, trigger.Window),
+                MovementBatch: frame.Batch,
+                MovementIndex: candidate.OccurrenceIndex);
         }
         var gained = trigger.Window == SkillProgramTriggerWindow.CardsGained;
         var location = new CardLocation((gained ? trigger.DestinationZones : trigger.SourceZones).Single(), candidate.OwnerSeat);

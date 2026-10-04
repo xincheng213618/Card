@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "boundary:buqu-current",
+      "revision": 1,
+      "minimumRulesVersion": 195,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "unique-rank-dying-rescue",
+          "window": "selfDyingResponse",
+          "subject": "owner",
+          "optional": false,
+          "priority": 100,
+          "effects": [
+            {
+              "op": "revealUniqueRankForDying",
+              "target": "owner",
+              "zone": "buquWound",
+              "rescueHp": 1
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    },
+    {
+      "id": "boundary:fenji-current",
+      "revision": 1,
+      "minimumRulesVersion": 195,
+      "modifiers": [],
+      "viewAs": [],
+      "activations": [],
+      "triggers": [
+        {
+          "id": "other-hand-discarded",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "movementDiscardOnly": true,
+          "sourceZones": ["hand"],
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "eventSource",
+              "skipIfNoTarget": true
+            },
+            {
+              "op": "loseHp",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "draw",
+              "target": "selectedTarget",
+              "amount": 2
+            }
+          ]
+        },
+        {
+          "id": "own-hand-discarded",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "movementDiscardOnly": true,
+          "sourceZones": ["hand"],
+          "discardOwnerScope": "own",
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "loseHp",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "amount": 2
+            }
+          ]
+        },
+        {
+          "id": "hand-gained",
+          "window": "cardsGained",
+          "subject": "owner",
+          "movementOccurrence": "perThirdPartyHandGain",
+          "destinationZones": ["hand"],
+          "optional": true,
+          "priority": 0,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "eventSource",
+              "skipIfNoTarget": true
+            },
+            {
+              "op": "loseHp",
+              "target": "owner",
+              "amount": 1
+            },
+            {
+              "op": "draw",
+              "target": "selectedTarget",
+              "amount": 2
+            }
+          ]
+        }
+      ],
+      "contributions": [],
+      "cardIdentities": [],
+      "states": []
+    }
+  ]
+}

@@ -92,6 +92,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         new(BoundaryGuoHuaiContent.Register),
         new(BoundaryCaoZhiContent.Register),
         new(BoundaryGuanXingZhangBaoContent.Register),
+        new(BoundaryZhouTaiContent.Register),
         new(BoundaryLiaoHuaContent.Register),
         new(BoundaryJianYongContent.Register),
         new(BoundaryGaoShunContent.Register),

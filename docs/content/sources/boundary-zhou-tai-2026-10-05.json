@@ -1,0 +1,57 @@
+{
+  "generalId": "boundary:zhou-tai",
+  "characterName": "界周泰",
+  "officialId": 210,
+  "sourcePage": "https://www.sanguosha.com/hero/210",
+  "capturedAt": "2026-10-05",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 210,
+    "name": "周泰",
+    "extend": "",
+    "hp": 4,
+    "figure": "吴",
+    "quality": ""
+  },
+  "artwork": {
+    "skinId": "2100",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/2100.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-zhou-tai.png",
+    "sha256": "81bc4d36dad3b55c7a37f60dd6caa7d6ff70f8ab1399349b489644b568164ac5",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "不屈",
+      "text": "锁定技。当你处于濒死状态时，你将牌堆顶的一张牌置于你的武将牌上，称为“创”，若此牌点数与其他“创”均不同，你回复至1点体力，否则将此牌置入弃牌堆。若你的武将牌上有“创”，你的手牌上限为“创”的数量。",
+      "programId": "boundary:buqu-current",
+      "notes": [
+        "触发体逐字复用已验收的 classic:buqu 程序形状（selfDyingResponse 必发、revealUniqueRankForDying、buquWound 公共伤口区、rescueHp 1），仅换 boundary id。",
+        "手牌上限为创数：EvaluateHandLimit 原以技能 id 硬编码识别 classic:buqu，本批扩展为同时识别 boundary:buqu-current，使界版享有同一伤口上限口径。"
+      ]
+    },
+    {
+      "name": "奋激",
+      "text": "当一名角色的手牌被弃置或获得后，你可以失去1点体力，令其摸两张牌。",
+      "programId": "boundary:fenji-current",
+      "notes": [
+        "弃置分支：discardPileReceived（movementDiscardOnly）按 per-card 逐张触发；sourceZones=[hand] 限定手牌来源（本批为该窗口补齐既有 sourceZones 字段的逐张过滤，过滤沿用 GetProgramDiscardSource 解析出的真实弃置来源区，含经 Processing 暂存的弃置）。",
+        "“一名角色”含自己：弃置分支拆为 other/own 两条触发（既有 DiscardOwnerScope 为互斥二元），各挂一份 loseHp+draw。",
+        "获得分支：cardsGained 新增 movementOccurrence perThirdPartyHandGain（枚举 762）——以 seat 解耦收集器逐张观察“任意存活角色的手牌被另一名角色获得”的移动（观察者与两端座位均无关联要求），上下文 SourceSeat=牌原属者，配合 selectTarget(eventSource)+loseHp(owner)+draw(selectedTarget) 复用既有效果面。",
+        "摸牌堆摸牌（From 无主）天然不满足 From.OwnerSeat 条件，不会误触发。"
+      ]
+    }
+  ],
+  "apiInfo": {
+    "hp": 4,
+    "figure": "wu",
+    "initial_hp": 0
+  },
+  "genderBasis": "官方无结构化性别字段；沿仓库同角色（周泰）男性惯例。",
+  "observations": [
+    "官方页 fetch 时间 2026-10-05（页面 + /api/v1/hero/info?gid=210），gid 210 为 OL 当前周泰页，页面文本即界版（不屈 + 奋激）。",
+    "_gid 扫描定位：界系 gid 密集区 400-900；210 在独立经典段（魏延 27、曹仁 29 为经典 gid 段，其页面同样展示当前 OL 版）。"
+  ]
+}

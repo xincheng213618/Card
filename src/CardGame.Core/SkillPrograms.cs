@@ -494,7 +494,7 @@ public enum SkillProgramTriggerWindow
     ActualSlashTargetBenefit = 7000, SlashDodgeCancelledBenefit = 7001, ActualSlashTargetPenalty = 7340
 }
 public enum SkillProgramTriggerSubject { Owner, Any, Source, DamageSource, DamageTarget }
-public enum SkillProgramMovementOccurrence { PerBatch, PerCard, PerSourceOwner = 700, PerOwnerBatch = 761 }
+public enum SkillProgramMovementOccurrence { PerBatch, PerCard, PerSourceOwner = 700, PerOwnerBatch = 761, PerThirdPartyHandGain = 762 }
 public enum SkillProgramCardCountExpression { NextPhaseActivationOrdinal = 760 }
 public enum SkillProgramHpChangeOccurrence { PerEvent, PerPoint }
 public enum SkillProgramDamageOccurrence { PerDamage, PerDamagePoint }
@@ -2932,8 +2932,9 @@ public sealed class SkillProgramCatalog
             SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.JudgmentPhaseStarting or
             SkillProgramTriggerWindow.CharacterTurnedOver or SkillProgramTriggerWindow.CharacterTurnedFaceUp or SkillProgramTriggerWindow.CharacterEnteredChain ||
             window == SkillProgramTriggerWindow.AfterDamageApplied;
-        if (window != SkillProgramTriggerWindow.CardsMoved && node.TryGetProperty("sourceZones", out _))
-            Fail(path, "sourceZones and movementOccurrence are supported only by cardsMoved");
+        if (window is not (SkillProgramTriggerWindow.CardsMoved or SkillProgramTriggerWindow.DiscardPileReceived) &&
+            node.TryGetProperty("sourceZones", out _))
+            Fail(path, "sourceZones and movementOccurrence are supported only by cardsMoved or discardPileReceived");
         if (window is not (SkillProgramTriggerWindow.AfterDamageApplied or
                 SkillProgramTriggerWindow.DamageAppliedBeforeDying) &&
             node.TryGetProperty("damageOccurrence", out _))
@@ -3025,6 +3026,12 @@ public sealed class SkillProgramCatalog
                 if (!destinationZones.SequenceEqual([CardZoneKind.Hand]))
                     Fail(path + ".destinationZones", "cardsGained requires exactly the hand destination zone");
                 movementOccurrence = EnumValue<SkillProgramMovementOccurrence>(node, "movementOccurrence", path);
+            }
+            if (window == SkillProgramTriggerWindow.DiscardPileReceived && node.TryGetProperty("sourceZones", out _))
+            {
+                sourceZones = EnumArray<CardZoneKind>(node, "sourceZones", path);
+                if (sourceZones.Any(zone => zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment)))
+                    Fail(path + ".sourceZones", "discardPileReceived accepts hand, equipment and judgment sources only");
             }
             if (window == SkillProgramTriggerWindow.CardsMoved)
             {
@@ -3487,6 +3494,8 @@ public sealed class SkillProgramCatalog
             Fail(path + ".movementOccurrence", "perSourceOwner requires a cardsGained boundary");
         if (movementOccurrence == SkillProgramMovementOccurrence.PerOwnerBatch && window != SkillProgramTriggerWindow.CardsMoved)
             Fail(path + ".movementOccurrence", "perOwnerBatch requires a cardsMoved boundary");
+        if (movementOccurrence == SkillProgramMovementOccurrence.PerThirdPartyHandGain && window != SkillProgramTriggerWindow.CardsGained)
+            Fail(path + ".movementOccurrence", "perThirdPartyHandGain requires a cardsGained boundary");
         if (effects.Any(e => e.Op == SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance) &&
             (movementOccurrence != SkillProgramMovementOccurrence.PerCard || subject != SkillProgramTriggerSubject.Owner ||
              node.TryGetProperty("discardOwnerScope", out var provenanceScope) && !string.Equals(provenanceScope.GetString(), "other", StringComparison.OrdinalIgnoreCase) ||
