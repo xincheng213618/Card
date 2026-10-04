@@ -1,0 +1,51 @@
+{
+  "capturedUtc": "2026-10-04T08:39:31.123054+00:00",
+  "timestampMeaning": "UTC when retaining selected web-tool evidence; individual web request timestamps/status/headers were not exposed.",
+  "officialDomain": "www.sanguosha.com",
+  "queries": [
+    {
+      "officialId": 690,
+      "query": "\"父魂\" \"颜色相同\" \"武圣\" \"咆哮\"",
+      "newQueryCount": 1
+    },
+    {
+      "officialId": 449,
+      "query": "\"界于吉\" \"同时\" \"缠怨\"",
+      "newQueryCount": 1
+    }
+  ],
+  "aggregateReturnedRelevantHits": [
+    {
+      "url": "https://www.sanguosha.com/hero/690",
+      "title": "三国杀界关兴张苞 - 三国杀OL-三国杀官网-武将技能介绍",
+      "role": "Current main text only; no expanded granted-skill body.",
+      "selectedOpenCount": 0
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/449",
+      "title": "三国杀界于吉 - 三国杀OL-三国杀官网-武将技能介绍",
+      "role": "Current main text only; existing frozen hero source remains authority.",
+      "selectedOpenCount": 0
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20200101_3308_3113",
+      "title": "1.3-1.9 界于吉新品上架，夺宝转盘更新",
+      "publishedLocalAsDisplayed": "2020-01-02 18:51:16",
+      "timezoneNotExplicitlyDisplayed": true,
+      "selectedOpenCount": 1,
+      "webOpenOutcome": "Internal Error; (400) Timeout fetching",
+      "webHttpStatus": null,
+      "webErrorCodeNotClaimedAsOriginHttpStatus": true,
+      "separateAuthorizedRawGet": "449-single-get-evidence.json"
+    }
+  ],
+  "budgetUsed": {
+    "newOfficialSearchQueries": 2,
+    "selectedWebOpenAttempts": 1,
+    "authorized449ExactUrlRawGetRequests": 1,
+    "retries": 0,
+    "guessedFontResolverRequests": 0,
+    "mediaRequests": 0
+  },
+  "boundedConclusion": "This bounded result is not an official-site-wide absence claim."
+}

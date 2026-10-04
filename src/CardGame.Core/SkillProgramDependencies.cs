@@ -40,8 +40,9 @@ internal sealed class SkillProgramDependencies
                 group => (IReadOnlyList<string>)Array.AsReadOnly(group.Select(entry => entry.SkillId)
                     .Distinct(StringComparer.Ordinal).ToArray()));
         _windows = triggers.Select(trigger => trigger.Window).ToFrozenSet();
+        UsesTieredRoundConversions = programs.Any(program => program.ViewAs.Any(rule => rule.TieredRoundConversion is not null));
         UsesDynamicRoundUsage = triggers.Any(trigger => trigger.DynamicUsageLimit is not null);
-        UsesRoundTracking = UsesDynamicRoundUsage || HasActivationOperation(SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund) || HasTriggerOperation(SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol) || HasTriggerOperation(SkillProgramEffectOp.DrawEndingPairThenBlockRoundIfUnequal);
+        UsesRoundTracking = UsesTieredRoundConversions || UsesDynamicRoundUsage || HasActivationOperation(SkillProgramEffectOp.ScheduleFirstRoundGameUsageRefund) || HasTriggerOperation(SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol) || HasTriggerOperation(SkillProgramEffectOp.DrawEndingPairThenBlockRoundIfUnequal);
         _maximumCardPolicyKind = programs.SelectMany(program => program.CardPolicies)
             .Select(policy => (int?)policy.Kind).Max();
         var finalized = triggers.Where(trigger => trigger.Window == SkillProgramTriggerWindow.CardUseTargetsFinalized).ToArray();
@@ -64,6 +65,7 @@ internal sealed class SkillProgramDependencies
     internal bool UsesOwnerMarkerCount { get; }
     internal bool TracksCurrentTurnUseKinds { get; }
     internal bool UsesDynamicRoundUsage { get; }
+    internal bool UsesTieredRoundConversions { get; }
     internal bool UsesRoundTracking { get; }
     internal bool CapturesCompletedResponseSuit { get; }
     internal bool TracksPlayCardHistory { get; }

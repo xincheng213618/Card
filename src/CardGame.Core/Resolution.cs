@@ -356,6 +356,7 @@ public sealed record ProgramSkillFrame(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramOwnedDeathBenefitReturn? OwnedDeathBenefitReturn { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramEndingPairDrawReceipt? EndingPairDraw { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPlaySlashRecastReceipt? PlaySlashRecast { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramCappedConversionBenefitReceipt? CappedConversionBenefit { get; init; }
     public bool ReexecuteParticipantInstruction { get; init; }
 }
 
@@ -538,6 +539,8 @@ public sealed record CardUseFrame(
     public CurrentCardEnhancement Enhancements { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? EnhancementOwnerSeat { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public TieredRoundConversionUseReceipt? TieredRoundConversionUse { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public TieredRoundConversionUseReceipt? TieredRoundResponseUse { get; init; }
 }
 
 public sealed record SequentialTrickUse(LegalActionKind ActionKind, int? FirstTargetCardId, CardKind? RequiredCardKind);
@@ -716,6 +719,7 @@ public sealed record NullificationWindowFrame(
     public UnrespondableCounterspellReceipt? UnrespondableCounterspell { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public CounterspellPaidUseReceipt? CounterspellPayment { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public TieredRoundConversionUseReceipt? TieredRoundResponseUse { get; init; }
 }
 
 /// <summary>

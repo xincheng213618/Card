@@ -424,6 +424,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _selectedProgramSkillOwnerSeat = null;
             _selectedActiveSkillTargetContract = null;
         _activeSkillPromptId = null;
+        _selectedTieredRoundZeroAction = null;
         _isSelectingActiveSkillCards = false;
         _selectedTargetSeat = null;
         _selectedCardTargetSeats.Clear();
@@ -492,6 +493,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         var promptId = pending?.Kind == DecisionKind.PlayCard ? pending.PromptId : (PromptId?)null;
         if (promptId != _activeSkillPromptId)
         {
+            _selectedTieredRoundZeroAction = null;
             _selectedActiveSkillCardIds.Clear();
             _selectedActiveSkillTargetSeats.Clear();
             _selectedEquipmentEffectKind = null;
@@ -503,9 +505,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
 
         _activeSkillPromptId = promptId;
+        if (_selectedTieredRoundZeroAction is not null && SelectedTieredRoundZeroAction() is null)
+            ClearTieredRoundZeroSelection();
         var hasSelectionContract = pending?.Kind == DecisionKind.PlayCard &&
                                    HumanActiveSkillAction is { } selectedAction &&
-                                   (selectedAction.MaxCardCount > 0 || selectedAction.MaxTargetCount > 0);
+                                   (selectedAction.MaxCardCount > 0 || ActiveSkillMaximumTargets(selectedAction) > 0);
         if (!hasSelectionContract)
         {
             _selectedActiveSkillCardIds.Clear();
@@ -521,7 +525,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         var action = HumanActiveSkillAction;
         _selectedActiveSkillCardIds.IntersectWith(action?.SelectableCardIds ?? []);
-        _selectedActiveSkillTargetSeats.RemoveAll(seat => action?.SelectableTargetSeats.Contains(seat) != true);
+        _selectedActiveSkillTargetSeats.RemoveAll(seat => action is null || !ActiveSkillSelectableTargets(action).Contains(seat));
     }
 
     private void Refresh(GameSnapshot snapshot)
@@ -983,6 +987,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
+        ClearTieredRoundZeroSelection();
         _selectedCardId = _selectedCardId == card.Id ? null : card.Id;
         _selectedConversionSource = null;
         _selectedTargetSeat = null;
@@ -1264,7 +1269,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private void ToggleActiveSkillTarget(SeatViewModel seat)
     {
         if (_snapshot.PendingDecision is not { Kind: DecisionKind.PlayCard } ||
-            HumanActiveSkillAction?.SelectableTargetSeats.Contains(seat.Seat) != true)
+            (HumanActiveSkillAction is not { } targetAction || !ActiveSkillSelectableTargets(targetAction).Contains(seat.Seat)))
         {
             return;
         }
@@ -1277,7 +1282,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         if (!_selectedActiveSkillTargetSeats.Remove(seat.Seat))
         {
-            if (_selectedActiveSkillTargetSeats.Count >= action.MaxTargetCount)
+            if (_selectedActiveSkillTargetSeats.Count >= ActiveSkillMaximumTargets(action))
             {
                 return;
             }
@@ -1643,7 +1648,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         if (IsActiveSkillTargetSelectionPending)
         {
-            var activeLegalTargets = (HumanActiveSkillAction?.SelectableTargetSeats ?? []).ToHashSet();
+            var activeLegalTargets = HumanActiveSkillAction is { } activeAction
+                ? ActiveSkillSelectableTargets(activeAction).ToHashSet() : [];
             foreach (var seat in Seats)
             {
                 seat.IsLegalTarget = activeLegalTargets.Contains(seat.Seat);
@@ -1799,6 +1805,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             return;
         }
+        if (IsTieredRoundZeroAction(action))
+        {
+            UseTieredRoundZeroAction(action);
+            return;
+        }
         _selectedEquipmentEffectKind = action.EquipmentKind;
         _selectedProgramSkillId = action.ProgramSkillId;
         _selectedProgramActivationId = action.ProgramActivationId;
@@ -1903,6 +1914,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void UseActiveSkill(LegalAction action)
     {
+        if (IsTieredRoundZeroAction(action))
+        {
+            UseTieredRoundZeroAction(action, beginSelection: true);
+            return;
+        }
         if (action.Kind is not (LegalActionKind.UseEquipmentEffect or LegalActionKind.UseProgramSkill) ||
             action.EquipmentKind is null &&
             (action.ProgramSkillId is null || action.ProgramActivationId is null))
@@ -1913,6 +1929,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _selectedProgramSkillId = action.ProgramSkillId;
         _selectedProgramActivationId = action.ProgramActivationId;
         _selectedProgramSkillOwnerSeat = action.ProgramSkillOwnerSeat;
+        ClearTieredRoundZeroSelection();
         _selectedActiveSkillTargetContract = action.TargetSeats.ToArray();
         UseActiveSkill();
     }
@@ -1921,6 +1938,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         ExecuteSafely(() =>
         {
+            ClearTieredRoundZeroSelection();
             _selectedCardId = null;
             _selectedTargetSeat = null;
             _selectedCardTargetSeats.Clear();

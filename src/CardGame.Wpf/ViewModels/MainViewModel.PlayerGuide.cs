@@ -187,7 +187,8 @@ public sealed partial class MainViewModel
             CurrentGuideBody = $"{VisibleSkillDescriptions(human?.Skills)}\n{GetActiveSkillSelectionHint()}";
             var selectedNames = _selectedActiveSkillTargetSeats.Select(selected => Seats.Single(seat => seat.Seat == selected))
                 .Select(seat => seat.IsHuman ? $"你（{seat.GeneralName}）" : $"{seat.Seat + 1} 号位 {seat.GeneralName}").ToArray();
-            steps = [$"本次需要选择{BuildActiveSkillRequirement(skillAction)}，目标按点击顺序记录。再次点击已选牌或目标可以取消。",
+            var targetOrderHint = IsTieredRoundZeroAction(skillAction) ? "目标按原公开动作顺序提交" : "目标按点击顺序记录";
+            steps = [$"本次需要选择{BuildActiveSkillRequirement(skillAction)}，{targetOrderHint}。再次点击已选牌或目标可以取消。",
                 selectedNames.Length == 0 ? "尚未选择目标；不要求目标的技能只需选牌。" : $"已选目标：{string.Join("、", selectedNames)}。",
                 "点击「确定」或按 Enter 才会支付代价并提交技能；Esc 取消整次选择。关闭指南会保留已选牌和目标。"];
         }

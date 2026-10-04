@@ -91,6 +91,7 @@ internal static class Program
             Check("declaration and general library views protect private faces", () => RuleInformationUiChecks.PrivateFacesAndPublicDeclarations(output));
             Check("Program deferred cards preserve private views and public pile ownership", () => DeferredCardsUiChecks.PrivateViewAndPublicPileRestoreThroughSharedControls(output));
             Check("Program conversion tiers restore actual shared skill state", () => ConfiguredConversionsUiChecks.TierRestoresWithActualUpgrade(output));
+            Check("zero-entity round conversions use public target drafts and exact PlayCard commands", TieredRoundZeroUseUiChecks.PublicZeroUseTargetsAndRealCardSubmission);
             Check("Program conversion polarity stays visible with active entry and restore", () => ProgramConversionPolarityUiChecks.PolarityRemainsVisibleWithActiveEntryAndRestore(output));
             Check("Program private damage offers restore exact shared faces", () => ConfiguredConversionsUiChecks.PrivateOfferRestoresThroughSharedFaces(output));
             Check("Program public card choices restore exact faces and submit current choices", () => PublicProgramCardsUiChecks.RevealedChoicesRestoreAndSubmit(output));

@@ -1,0 +1,126 @@
+{
+  "status": "frozen-source-evidence-adopted-gaps-retained-runtime-deferred",
+  "recordedUtc": "2026-10-04T09:25:35.5324283Z",
+  "originalDraftManifestSha256": "b641e8d854d031cc6b73698d88f703511cc3027ee1e30543218bcdd6b38fd9cd",
+  "originalScopeManifestSha256": "235602d44fd1a9add9be6dc4d705924aa19cb819a36fe655b35fb4b10f5a93bd",
+  "mappings": [
+    {
+      "origin": ".artifacts/continuation-20261003-batch17/batch32/root-integration-draft/fenglin-thirty-first-current-grant-followup-2026-10-04.json",
+      "destination": "docs/content/sources/fenglin-thirty-first-current-grant-followup-2026-10-04.json",
+      "rawSha256": "3e313913f354ce67b28c84b39dea6692c533144bcb4d0532ba729b9917fd7040"
+    },
+    {
+      "origin": ".artifacts/continuation-20261003-batch17/batch32/root-integration-draft/fenglin-thirty-second-447-source-2026-10-04.json",
+      "destination": "docs/content/sources/fenglin-thirty-second-447-source-2026-10-04.json",
+      "rawSha256": "48749a7df2a85ce2f17c66955908c1770bf74fd0dd05137e3d03741e2cf72940"
+    },
+    {
+      "origin": ".artifacts/continuation-20261003-batch17/batch32/root-integration-draft/fenglin-thirty-second-candidate-exclusion-preflight-2026-10-04.json",
+      "destination": "docs/content/sources/fenglin-thirty-second-candidate-exclusion-preflight-2026-10-04.json",
+      "rawSha256": "7738a569e977fa92f503de842e10012b7fa533e88e691a4305c48d7f5aae74dd"
+    },
+    {
+      "origin": ".artifacts/continuation-20261003-batch17/batch32/root-integration-draft/FENG_LIN_THIRTY_FIRST_CURRENT_GRANT_FOLLOWUP.md",
+      "destination": "docs/content/skill-composition/FENG_LIN_THIRTY_FIRST_CURRENT_GRANT_FOLLOWUP.md",
+      "rawSha256": "6be698823259f142b732ab0081475e13710734c7db76352104855e745abb7873"
+    },
+    {
+      "origin": ".artifacts/continuation-20261003-batch17/batch32/root-integration-draft/FENG_LIN_THIRTY_SECOND_SOURCE_PREFLIGHT.md",
+      "destination": "docs/content/skill-composition/FENG_LIN_THIRTY_SECOND_SOURCE_PREFLIGHT.md",
+      "rawSha256": "deb4168153ae0ff65702d2a153e8b605d4c0450d972de650ea5eb55f41259c02"
+    },
+    {
+      "origin": ".artifacts/continuation-20261003-batch17/batch31/current-grant-followup/449-20200101-official-announcement.raw.html",
+      "destination": "docs/content/sources/evidence/fenglin-thirty-first-449-announcement-20200101.raw.html",
+      "rawSha256": "1651923c0c6ee3c09db59477f90ff3640688a8fefe098ccc2f22ba28593d2574"
+    },
+    {
+      "origin": ".artifacts/continuation-20261003-batch17/batch31/current-grant-followup/449-single-get-evidence.json",
+      "destination": "docs/content/sources/evidence/fenglin-thirty-first-449-announcement-http-2026-10-04.json",
+      "rawSha256": "227daf274e3559387034e68046d117c5627a363acd1e6ab06c2a92deac53d040"
+    },
+    {
+      "origin": ".artifacts/continuation-20261003-batch17/batch31/current-grant-followup/new-official-search-evidence.json",
+      "destination": "docs/content/sources/evidence/fenglin-thirty-first-current-grant-search-2026-10-04.json",
+      "rawSha256": "73e4d6869e5c9a107fd265282a4552815c9770cec78b1e5bca48d74f5802a198"
+    },
+    {
+      "origin": ".artifacts/continuation-20261003-batch17/batch32/source-preflight/447-hero.raw",
+      "destination": "docs/content/sources/evidence/fenglin-thirty-second-447-hero-2026-10-04.raw.html",
+      "rawSha256": "ff8f3ae73932b5b788524db4085d6333feba8612cccfa993100b36bb3e44683a"
+    },
+    {
+      "origin": ".artifacts/continuation-20261003-batch17/batch32/source-preflight/447-hero.http.json",
+      "destination": "docs/content/sources/evidence/fenglin-thirty-second-447-hero-http-2026-10-04.json",
+      "rawSha256": "e68391e93c319dd3ca90f31c318de2f64759dd031c49aa6d7cf58b67be43d978"
+    },
+    {
+      "origin": ".artifacts/continuation-20261003-batch17/batch32/source-preflight/447-api.raw",
+      "destination": "docs/content/sources/evidence/fenglin-thirty-second-447-api-2026-10-04.raw.json",
+      "rawSha256": "fe92a94cfb78db260a19d3e61d434642f4bc8427619094d6c0f7e4617bb1bb22"
+    },
+    {
+      "origin": ".artifacts/continuation-20261003-batch17/batch32/source-preflight/447-api.http.json",
+      "destination": "docs/content/sources/evidence/fenglin-thirty-second-447-api-http-2026-10-04.json",
+      "rawSha256": "937b4ca668994cbe889ad289ee1da7483aec301acd15c73d086aa787b019b583"
+    },
+    {
+      "origin": ".artifacts/continuation-20261003-batch17/batch32/zuo-ci-scope-followup/2019-ol-boundary-release.raw",
+      "destination": "docs/content/sources/evidence/fenglin-thirty-second-447-release-2019.raw.html",
+      "rawSha256": "8b4ea680c49c4a89079c6083b339afb6137c622ba8406e9905ec999962a71f98"
+    },
+    {
+      "origin": ".artifacts/continuation-20261003-batch17/batch32/zuo-ci-scope-followup/2019-ol-boundary-release.http.json",
+      "destination": "docs/content/sources/evidence/fenglin-thirty-second-447-release-http-2026-10-04.json",
+      "rawSha256": "2ec0dee548320c205b410241d5f84a8d125b8328568d46cea8f31bef2b74c18c"
+    },
+    {
+      "origin": ".artifacts/continuation-20261003-batch17/batch32/zuo-ci-scope-followup/2021-ol-avatar-scope.raw",
+      "destination": "docs/content/sources/evidence/fenglin-thirty-second-447-avatar-scope-2021.raw.html",
+      "rawSha256": "ea507031f65b5511c665504534d95e328353d2752be086a0491d838dde51d1c5"
+    },
+    {
+      "origin": ".artifacts/continuation-20261003-batch17/batch32/zuo-ci-scope-followup/2021-ol-avatar-scope.http.json",
+      "destination": "docs/content/sources/evidence/fenglin-thirty-second-447-avatar-scope-http-2026-10-04.json",
+      "rawSha256": "f022d59eba842a985d0499d47f2c3e13e27f42f5ab3efb966a2ea7d3bdba1aef"
+    },
+    {
+      "origin": ".artifacts/continuation-20261003-batch17/batch32/zuo-ci-scope-followup/web-evidence.json",
+      "destination": "docs/content/sources/evidence/fenglin-thirty-second-447-scope-search-2026-10-04.json",
+      "rawSha256": "b950091b05840f28c9c87d5ee7e3f691ec51f325cc3699751e773c4c816709b6"
+    },
+    {
+      "origin": ".artifacts/continuation-20261003-batch17/batch32/zuo-ci-scope-followup/447-scope-supplement.json",
+      "destination": "docs/content/sources/fenglin-thirty-second-447-scope-followup-2026-10-04.json",
+      "rawSha256": "518cb2bd9210305897b17fd7cda05dd8bfee08276ec890885ea2d2e8e47e3e94"
+    },
+    {
+      "origin": ".artifacts/continuation-20261003-batch17/batch32/zuo-ci-scope-followup/SOURCE-REVIEW.md",
+      "destination": "docs/content/skill-composition/FENG_LIN_THIRTY_SECOND_ZUO_CI_SCOPE_FOLLOWUP.md",
+      "rawSha256": "861c77bea383ee87db0e8f76496d2e02deb5ae652ea60fd3a916096cea6a8500"
+    }
+  ],
+  "originalFrozenEvidenceUnchanged": true,
+  "readiness": {
+    "449": false,
+    "690": false,
+    "447": false
+  },
+  "execution": {
+    "loader": false,
+    "game": false,
+    "compiler": false,
+    "build": false,
+    "benchmark": false,
+    "nativeAi": false,
+    "newHttp": false,
+    "tests": false
+  },
+  "rawReceiptPathMeaning": "Frozen HTTP receipts keep their original capture basename; mappings above name durable main copies. Scope supplement retains original capture-stage references as provenance.",
+  "rawEvidenceGitStorage": {
+    "attributes": "docs/content/sources/evidence/.gitattributes",
+    "namedCapturedFiles": 12,
+    "originalRawBlobsMatchStaged": true,
+    "sourceWhitespacePreserved": true
+  }
+}

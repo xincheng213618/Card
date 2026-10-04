@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "boundary:jiaozhao-round-current": {
+      "name": "矫诏",
+      "description": "出牌阶段限一次，你可将一张牌当本轮未有角色使用过的基本或普通锦囊牌使用。修改一：每轮限一次，你可将一张牌当任意基本牌或普通锦囊牌使用。修改二：每轮限一次，你可视为使用一张基本牌或普通锦囊。"
+    },
+    "boundary:danxin-capped-current": {
+      "name": "殚心",
+      "description": "当你受到伤害后，你可摸X张牌，然后修改“矫诏”（X为你修改“矫诏”的次数）。",
+      "triggerChoices": {
+        "draw-before-modification": "先摸X张牌，再修改“矫诏”"
+      }
+    }
+  }
+}

@@ -1,0 +1,1493 @@
+{
+  "status": "bounded-retained-index-one-new-candidate-currently-verified",
+  "capturedAtUtc": "2026-10-04T08:53:30.541935+00:00",
+  "mainHeadAtStaticRegistrationReview": "e492e9e8d83a1d921de471d1463c4ae288b0251f",
+  "scope": "Only the retained 87 ordinary OL boundary index rows; not a full current official-site catalog conclusion.",
+  "discoveryInputs": [
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch21/dong-zhuo/next-batch22/index.raw.html",
+      "rawSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "rows": 87,
+      "retainedCapturedAtUtc": "2026-10-03T17:09:18.318761+00:00"
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/batch28/source-preflight/candidate-registration-preflight.json",
+      "rawSha256": "cfc3ff50973a4898a4ff01fba36718c91e372d58edd226b5f05c5d647d863a8c",
+      "cacheMainHead": "71407cae03f0560b5df75f30fbcac3eeac9dffc2",
+      "authority": "Discovery only; current exact proofs below supersede cached registration status."
+    }
+  ],
+  "currentPackage": {
+    "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+    "rawSha256": "66577b1745b2ea3b531777cedb25850b2ccc935dcd8a91e359a64f57679ff530"
+  },
+  "requestedFreshCandidateCount": 3,
+  "freshCandidateCountWithinRetainedScope": 1,
+  "parentAuthorizedSingleton": 447,
+  "httpSelectedGids": [
+    447
+  ],
+  "httpRequests": 2,
+  "httpRetries": 0,
+  "otherCandidateHttpRequests": 0,
+  "postCacheExclusions": [
+    {
+      "gid": 457,
+      "name": "界小乔",
+      "indexRow": {
+        "gid": 457,
+        "name": "界小乔",
+        "extend": "界限突破",
+        "figure_py": "wu",
+        "hp": 3
+      },
+      "reason": "Current exact boundary display name is registered; no duplicate boundary candidate.",
+      "module": "BoundaryXiaoQiaoContent",
+      "registrationProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 104,
+          "text": "new(BoundaryXiaoQiaoContent.Register),"
+        }
+      ],
+      "exactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryXiaoQiaoContent.cs",
+          "line": 12,
+          "text": "builder.AddGeneral(new(\"boundary:xiao-qiao\", \"界小乔\", \"boundary_xiao_qiao\", \"boundary:hongyan\", \"wu\", 3,"
+        }
+      ],
+      "moduleRawSha256": "dc8ec28303863530c91852d2b87f54e7d8c76684c5917b98e1d8b4afb8b5d271"
+    },
+    {
+      "gid": 485,
+      "name": "界鲁肃",
+      "indexRow": {
+        "gid": 485,
+        "name": "界鲁肃",
+        "extend": "界限突破",
+        "figure_py": "wu",
+        "hp": 3
+      },
+      "reason": "Current exact boundary display name is registered; no duplicate boundary candidate.",
+      "module": "BoundaryLuSuContent",
+      "registrationProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 105,
+          "text": "new(BoundaryLuSuContent.Register),"
+        }
+      ],
+      "exactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryLuSuContent.cs",
+          "line": 9,
+          "text": "builder.AddGeneral(new(\"boundary:lu-su\", \"界鲁肃\", \"boundary_lu_su\", \"boundary:haoshi-current\", \"wu\", 3,"
+        }
+      ],
+      "moduleRawSha256": "b048d43ac761fc26c9a196984c05fd718eba080671786a7b39e5751eedbd3c59"
+    },
+    {
+      "gid": 550,
+      "name": "界颜良文丑",
+      "indexRow": {
+        "gid": 550,
+        "name": "界颜良文丑",
+        "extend": "界限突破",
+        "figure_py": "qun",
+        "hp": 4
+      },
+      "reason": "Current exact boundary display name is registered; no duplicate boundary candidate.",
+      "module": "BoundaryYanLiangWenChouContent",
+      "registrationProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 106,
+          "text": "new(BoundaryYanLiangWenChouContent.Register),"
+        }
+      ],
+      "exactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryYanLiangWenChouContent.cs",
+          "line": 11,
+          "text": "builder.AddGeneral(new(\"boundary:yan-liang-wen-chou\", \"界颜良文丑\", \"boundary_yan_liang_wen_chou\","
+        }
+      ],
+      "moduleRawSha256": "7045e6464a409fde526a6ac236b5d8adf85b33763ad42bfc6bf517e39306e11c"
+    },
+    {
+      "gid": 449,
+      "name": "界于吉",
+      "indexRow": {
+        "gid": 449,
+        "name": "界于吉",
+        "extend": "界限突破",
+        "figure_py": "qun",
+        "hp": 3
+      },
+      "reason": "Already current-source preflighted and explicitly excluded from repeated requests.",
+      "existingSource": {
+        "path": "docs/content/sources/fenglin-thirty-first-449-source-2026-10-04.json",
+        "rawSha256": "53d1ea9e3de088db5d760816be8c09de176ee870699031586ac3997c88623fe1",
+        "status": "current-main-text-ready-grant-source-gap"
+      }
+    },
+    {
+      "gid": 451,
+      "name": "界刘禅",
+      "indexRow": {
+        "gid": 451,
+        "name": "界刘禅",
+        "extend": "界限突破",
+        "figure_py": "shu",
+        "hp": 3
+      },
+      "reason": "Already current-source preflighted and explicitly excluded from repeated requests.",
+      "existingSource": {
+        "path": "docs/content/sources/fenglin-twenty-ninth-451-source-2026-10-04.json",
+        "rawSha256": "d9a656e8e8c334c3a1719525194df07eebf6c1809dc8787c7948c3b4e984f37c",
+        "status": "current-main-text-frozen-derived-full-text-unverified"
+      }
+    },
+    {
+      "gid": 563,
+      "name": "界张昭张纮",
+      "indexRow": {
+        "gid": 563,
+        "name": "界张昭张纮",
+        "extend": "界限突破",
+        "figure_py": "wu",
+        "hp": 3
+      },
+      "reason": "Current exact boundary display name is registered; no duplicate boundary candidate.",
+      "module": "BoundaryZhangZhaoZhangHongContent",
+      "registrationProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 107,
+          "text": "new(BoundaryZhangZhaoZhangHongContent.Register),"
+        }
+      ],
+      "exactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryZhangZhaoZhangHongContent.cs",
+          "line": 10,
+          "text": "builder.AddGeneral(new(\"boundary:zhang-zhao-zhang-hong\", \"界张昭张纮\", \"boundary_zhang_zhao_zhang_hong\","
+        }
+      ],
+      "moduleRawSha256": "5a51d8f095712b30a6f7d7aa6c2a060ef8a292073d3df2f73e38465e8d273476"
+    },
+    {
+      "gid": 671,
+      "name": "界伏皇后",
+      "indexRow": {
+        "gid": 671,
+        "name": "界伏皇后",
+        "extend": "界限突破",
+        "figure_py": "qun",
+        "hp": 3
+      },
+      "reason": "Current exact boundary display name is registered; no duplicate boundary candidate.",
+      "module": "BoundaryFuHuangHouContent",
+      "registrationProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 109,
+          "text": "new(BoundaryFuHuangHouContent.Register),"
+        }
+      ],
+      "exactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryFuHuangHouContent.cs",
+          "line": 11,
+          "text": "builder.AddGeneral(new(\"boundary:fu-huang-hou\", \"界伏皇后\", \"boundary_fu_huang_hou\","
+        }
+      ],
+      "moduleRawSha256": "83db55ae8d3a299777ffcf15dcab35bab4b1d8e5956ee9a41d53caef23f0bd53"
+    },
+    {
+      "gid": 690,
+      "name": "界关兴张苞",
+      "indexRow": {
+        "gid": 690,
+        "name": "界关兴张苞",
+        "extend": "界限突破",
+        "figure_py": "shu",
+        "hp": 4
+      },
+      "reason": "Already current-source preflighted and explicitly excluded from repeated requests.",
+      "existingSource": {
+        "path": "docs/content/sources/fenglin-thirty-first-690-source-2026-10-04.json",
+        "rawSha256": "a9d4e50225c01265c72db3bb0ba1485d354b0f237a402618344b7ceb0bb86779",
+        "status": "current-main-text-ready-grant-source-gap"
+      }
+    },
+    {
+      "gid": 696,
+      "name": "界马岱",
+      "indexRow": {
+        "gid": 696,
+        "name": "界马岱",
+        "extend": "界限突破",
+        "figure_py": "shu",
+        "hp": 4
+      },
+      "reason": "Current exact boundary display name is registered; no duplicate boundary candidate.",
+      "module": "BoundaryMaDaiContent",
+      "registrationProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 110,
+          "text": "new(BoundaryMaDaiContent.Register),"
+        }
+      ],
+      "exactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryMaDaiContent.cs",
+          "line": 8,
+          "text": "builder.AddGeneral(new(\"boundary:ma-dai\",\"界马岱\",\"boundary_ma_dai\",\"classic:mashu\",\"shu\",4,[\"boundary:qianxi\"],GeneralGender.Male)"
+        }
+      ],
+      "moduleRawSha256": "242dfc1ff41512ea6383f6d94659a8c552f92762a91fdb113d9be444b2537ac7"
+    },
+    {
+      "gid": 756,
+      "name": "界于禁",
+      "indexRow": {
+        "gid": 756,
+        "name": "界于禁",
+        "extend": "界限突破",
+        "figure_py": "wei",
+        "hp": 4
+      },
+      "reason": "Current exact boundary display name is registered; no duplicate boundary candidate.",
+      "module": "BoundaryYuJinContent",
+      "registrationProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 112,
+          "text": "new(BoundaryYuJinContent.Register),"
+        }
+      ],
+      "exactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryYuJinContent.cs",
+          "line": 14,
+          "text": "builder.AddGeneral(new(\"boundary:yu-jin\", \"界于禁\", \"boundary_yu_jin\", \"boundary:zhenjun-current\", \"wei\", 4,"
+        }
+      ],
+      "moduleRawSha256": "fcc05b971c677a965a7b051e7b4a48fa64a467710203f0c255a19f4f832306a5"
+    },
+    {
+      "gid": 752,
+      "name": "界夏侯氏",
+      "indexRow": {
+        "gid": 752,
+        "name": "界夏侯氏",
+        "extend": "界限突破",
+        "figure_py": "shu",
+        "hp": 3
+      },
+      "reason": "Current exact boundary display name is registered; no duplicate boundary candidate.",
+      "module": "BoundaryXiahouShiContent",
+      "registrationProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 111,
+          "text": "new(BoundaryXiahouShiContent.Register),"
+        }
+      ],
+      "exactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryXiahouShiContent.cs",
+          "line": 8,
+          "text": "b.AddGeneral(new(\"boundary:xiahou-shi\", \"界夏侯氏\", \"boundary_xiahou_shi\", \"boundary:qiaoshi-current\", \"shu\", 3,"
+        }
+      ],
+      "moduleRawSha256": "96fd17faf52bcadd5e211dd046e0daca76c60435165d81b90b98dba17ef0ab14"
+    },
+    {
+      "gid": 726,
+      "name": "界郭皇后",
+      "indexRow": {
+        "gid": 726,
+        "name": "界郭皇后",
+        "extend": "界限突破",
+        "figure_py": "wei",
+        "hp": 3
+      },
+      "reason": "Already current-source preflighted and explicitly excluded from repeated requests.",
+      "existingSource": {
+        "path": "docs/content/sources/fenglin-thirty-first-726-source-2026-10-04.json",
+        "rawSha256": "9387c8212c44a4909ee2ace1e5657ac9d8632151f8f3093035ec0bcd7e06251e",
+        "status": "current-main-text-ready-modification-source-gap"
+      }
+    },
+    {
+      "gid": 775,
+      "name": "界步练师",
+      "indexRow": {
+        "gid": 775,
+        "name": "界步练师",
+        "extend": "界限突破",
+        "figure_py": "wu",
+        "hp": 3
+      },
+      "reason": "Current exact boundary display name is registered; no duplicate boundary candidate.",
+      "module": "BoundaryBuLianShiContent",
+      "registrationProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 108,
+          "text": "new(BoundaryBuLianShiContent.Register),"
+        }
+      ],
+      "exactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryBuLianShiContent.cs",
+          "line": 10,
+          "text": "builder.AddGeneral(new(\"boundary:bu-lian-shi\", \"界步练师\", \"boundary_bu_lian_shi\", \"boundary:anxu-current\", \"wu\", 3,"
+        }
+      ],
+      "moduleRawSha256": "8543a3609080a2b5d2f445824300f0298f22e25700bfc48e77d3e568fb7489f4"
+    }
+  ],
+  "cachedRegisteredRechecked": [
+    {
+      "gid": 26,
+      "name": "界黄忠",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryHuangZhongContent.cs",
+          "line": 9,
+          "text": "builder.AddGeneral(new(\"boundary:huang-zhong\", \"界黄忠\", \"boundary_huang_zhong\", \"boundary:liegong-current\", \"shu\", 4, Gender: GeneralGender.Male)"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryHuangZhongContent"
+      ]
+    },
+    {
+      "gid": 299,
+      "name": "界刘备",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryLiuBeiContent.cs",
+          "line": 12,
+          "text": "builder.AddGeneral(new(\"boundary:liu-bei\", \"界刘备\", \"boundary_liu_bei\", \"boundary:rende\", \"shu\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryLiuBeiContent"
+      ]
+    },
+    {
+      "gid": 300,
+      "name": "界关羽",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryGuanYuContent.cs",
+          "line": 10,
+          "text": "builder.AddGeneral(new(\"boundary:guan-yu\", \"界关羽\", \"boundary_guan_yu\", \"boundary:wusheng\", \"shu\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryGuanYuContent"
+      ]
+    },
+    {
+      "gid": 301,
+      "name": "界张飞",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryZhangFeiContent.cs",
+          "line": 12,
+          "text": "builder.AddGeneral(new(\"boundary:zhang-fei\", \"界张飞\", \"boundary_zhang_fei\", \"boundary:paoxiao\", \"shu\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryZhangFeiContent"
+      ]
+    },
+    {
+      "gid": 302,
+      "name": "界赵云",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 1909,
+          "text": "\"boundary:zhao-yun\", \"界赵云\", \"boundary_zhao_yun\","
+        }
+      ],
+      "moduleNames": [
+        "StandardClassicGeneralPackage"
+      ]
+    },
+    {
+      "gid": 303,
+      "name": "界马超",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryMaChaoContent.cs",
+          "line": 10,
+          "text": "builder.AddGeneral(new ContentGeneralDefinition(\"boundary:ma-chao\", \"界马超\", \"boundary_ma_chao\","
+        }
+      ],
+      "moduleNames": [
+        "BoundaryMaChaoContent"
+      ]
+    },
+    {
+      "gid": 304,
+      "name": "界徐庶",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryXuShuContent.cs",
+          "line": 15,
+          "text": "builder.AddGeneral(new(\"boundary:xu-shu\", \"界徐庶\", \"boundary_xu_shu\", \"boundary:zhuhai-current\", \"shu\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryXuShuContent"
+      ]
+    },
+    {
+      "gid": 305,
+      "name": "界甘宁",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 1821,
+          "text": "\"boundary:gan-ning\", \"界甘宁\", \"boundary_gan_ning\","
+        }
+      ],
+      "moduleNames": [
+        "StandardClassicGeneralPackage"
+      ]
+    },
+    {
+      "gid": 306,
+      "name": "界吕蒙",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryLuMengContent.cs",
+          "line": 12,
+          "text": "builder.AddGeneral(new(\"boundary:lu-meng\", \"界吕蒙\", \"boundary_lu_meng\", \"boundary:keji\", \"wu\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryLuMengContent"
+      ]
+    },
+    {
+      "gid": 307,
+      "name": "界黄盖",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/FengLinBoundaryHuangGaiContent.cs",
+          "line": 9,
+          "text": "builder.AddGeneral(new ContentGeneralDefinition(\"boundary:huang-gai\",\"界黄盖\",\"boundary_huang_gai\",\"boundary:kurou\",\"wu\",4,[\"boundary:zhaxiang\"],Gender:GeneralGender.Male)"
+        }
+      ],
+      "moduleNames": [
+        "FengLinBoundaryHuangGaiContent"
+      ]
+    },
+    {
+      "gid": 308,
+      "name": "界周瑜",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 1825,
+          "text": "\"boundary:zhou-yu\", \"界周瑜\", \"boundary_zhou_yu\","
+        }
+      ],
+      "moduleNames": [
+        "StandardClassicGeneralPackage"
+      ]
+    },
+    {
+      "gid": 309,
+      "name": "界大乔",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryDaQiaoContent.cs",
+          "line": 10,
+          "text": "builder.AddGeneral(new(\"boundary:da-qiao\", \"界大乔\", \"boundary_da_qiao\", \"boundary:guose\", \"wu\", 3,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryDaQiaoContent"
+      ]
+    },
+    {
+      "gid": 310,
+      "name": "界陆逊",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryLuXunContent.cs",
+          "line": 8,
+          "text": "builder.AddGeneral(new ContentGeneralDefinition(\"boundary:lu-xun\",\"界陆逊\",\"boundary_lu_xun\",\"boundary:qianxun\",\"wu\",3,[\"boundary:lianying\"],GeneralGender.Male){CharacterId=\"character:lu-xun\",VariantId=\"boundary\",RulesetId=\"sanguosha-ol\"});"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryLuXunContent"
+      ]
+    },
+    {
+      "gid": 311,
+      "name": "界曹操",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 1800,
+          "text": "\"boundary:cao-cao\", \"界曹操\", \"boundary_cao_cao\","
+        }
+      ],
+      "moduleNames": [
+        "StandardClassicGeneralPackage"
+      ]
+    },
+    {
+      "gid": 312,
+      "name": "界司马懿",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 1806,
+          "text": "\"boundary:sima-yi\", \"界司马懿\", \"boundary_sima_yi\","
+        }
+      ],
+      "moduleNames": [
+        "StandardClassicGeneralPackage"
+      ]
+    },
+    {
+      "gid": 313,
+      "name": "界夏侯惇",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryXiahouDunContent.cs",
+          "line": 11,
+          "text": "builder.AddGeneral(new(\"boundary:xiahou-dun\", \"界夏侯惇\", \"boundary_xiahou_dun\", \"boundary:ganglie\", \"wei\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryXiahouDunContent"
+      ]
+    },
+    {
+      "gid": 314,
+      "name": "界张辽",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 1814,
+          "text": "\"boundary:zhang-liao\", \"界张辽\", \"boundary_zhang_liao\","
+        }
+      ],
+      "moduleNames": [
+        "StandardClassicGeneralPackage"
+      ]
+    },
+    {
+      "gid": 315,
+      "name": "界许褚",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 1818,
+          "text": "\"boundary:xu-chu\", \"界许褚\", \"boundary_xu_chu\","
+        }
+      ],
+      "moduleNames": [
+        "StandardClassicGeneralPackage"
+      ]
+    },
+    {
+      "gid": 316,
+      "name": "界郭嘉",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 1796,
+          "text": "\"boundary:guo-jia\", \"界郭嘉\", \"boundary_guo_jia\","
+        }
+      ],
+      "moduleNames": [
+        "StandardClassicGeneralPackage"
+      ]
+    },
+    {
+      "gid": 317,
+      "name": "界李典",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryLiDianContent.cs",
+          "line": 11,
+          "text": "builder.AddGeneral(new(\"boundary:li-dian\", \"界李典\", \"boundary_li_dian\", \"boundary:xunxun\", \"wei\", 3,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryLiDianContent"
+      ]
+    },
+    {
+      "gid": 318,
+      "name": "界华佗",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryHuaTuoContent.cs",
+          "line": 9,
+          "text": "builder.AddGeneral(new ContentGeneralDefinition(\"boundary:hua-tuo\",\"界华佗\",\"boundary_hua_tuo\",\"boundary:jijiu\",\"qun\",3,[\"boundary:chuli\"],GeneralGender.Male){CharacterId=\"character:hua-tuo\",VariantId=\"boundary\",RulesetId=\"sanguosha-ol\"});"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryHuaTuoContent"
+      ]
+    },
+    {
+      "gid": 319,
+      "name": "界吕布",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryLuBuContent.cs",
+          "line": 9,
+          "text": "b.AddGeneral(new(\"boundary:lu-bu\",\"界吕布\",\"boundary_lu_bu\",\"classic:wushuang\",\"qun\",5,[\"boundary:liyu-current\"],GeneralGender.Male)"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryLuBuContent"
+      ]
+    },
+    {
+      "gid": 320,
+      "name": "界公孙瓒",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryGongsunZanContent.cs",
+          "line": 11,
+          "text": "b.AddGeneral(new(\"boundary:gongsun-zan\",\"界公孙瓒\",\"boundary_gongsun_zan\",\"boundary:yicong-current\",\"qun\",4,[\"boundary:qiaomeng-current\"],GeneralGender.Male)"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryGongsunZanContent"
+      ]
+    },
+    {
+      "gid": 440,
+      "name": "界诸葛亮",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryZhugeLiangContent.cs",
+          "line": 9,
+          "text": "builder.AddGeneral(new(\"boundary:zhuge-liang\", \"界诸葛亮\", \"boundary_zhuge_liang\", \"boundary:guanxing-current\", \"shu\", 3,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryZhugeLiangContent"
+      ]
+    },
+    {
+      "gid": 441,
+      "name": "界黄月英",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryHuangYueyingContent.cs",
+          "line": 12,
+          "text": "builder.AddGeneral(new(\"boundary:huang-yueying\", \"界黄月英\", \"boundary_huang_yueying\", \"boundary:jizhi-current\", \"shu\", 3,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryHuangYueyingContent"
+      ]
+    },
+    {
+      "gid": 442,
+      "name": "界孙权",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundarySunQuanContent.cs",
+          "line": 15,
+          "text": "builder.AddGeneral(new(\"boundary:sun-quan\", \"界孙权\", \"boundary_sun_quan\", \"boundary:zhiheng\", \"wu\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundarySunQuanContent"
+      ]
+    },
+    {
+      "gid": 443,
+      "name": "界孙尚香",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundarySunShangxiangContent.cs",
+          "line": 10,
+          "text": "builder.AddGeneral(new(\"boundary:sun-shangxiang\", \"界孙尚香\", \"boundary_sun_shangxiang\", \"boundary:jieyin-current\", \"wu\", 3,"
+        }
+      ],
+      "moduleNames": [
+        "BoundarySunShangxiangContent"
+      ]
+    },
+    {
+      "gid": 444,
+      "name": "界甄姬",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryZhenJiContent.cs",
+          "line": 9,
+          "text": "builder.AddGeneral(new(\"boundary:zhen-ji\", \"界甄姬\", \"boundary_zhen_ji\", \"boundary:luoshen\", \"wei\", 3,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryZhenJiContent"
+      ]
+    },
+    {
+      "gid": 445,
+      "name": "界貂蝉",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 1810,
+          "text": "\"boundary:diao-chan\", \"界貂蝉\", \"boundary_diao_chan\","
+        }
+      ],
+      "moduleNames": [
+        "StandardClassicGeneralPackage"
+      ]
+    },
+    {
+      "gid": 446,
+      "name": "界华雄",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryHuaXiongContent.cs",
+          "line": 9,
+          "text": "b.AddGeneral(new(\"boundary:hua-xiong\",\"界华雄\",\"boundary_hua_xiong\",\"boundary:shizhan-current\",\"qun\",6,[\"boundary:yaowu-current\"],GeneralGender.Male)"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryHuaXiongContent"
+      ]
+    },
+    {
+      "gid": 448,
+      "name": "界张角",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 1626,
+          "text": "\"boundary:zhang-jiao\", \"界张角\", \"boundary_zhang_jiao\","
+        }
+      ],
+      "moduleNames": [
+        "StandardClassicGeneralPackage"
+      ]
+    },
+    {
+      "gid": 450,
+      "name": "界袁绍",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryYuanShaoContent.cs",
+          "line": 11,
+          "text": "builder.AddGeneral(new(\"boundary:yuan-shao\", \"界袁绍\", \"boundary_yuan_shao\", \"boundary:luanji-current\", \"qun\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryYuanShaoContent"
+      ]
+    },
+    {
+      "gid": 452,
+      "name": "界孙策",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundarySunCeContent.cs",
+          "line": 13,
+          "text": "builder.AddGeneral(new(\"boundary:sun-ce\", \"界孙策\", \"boundary_sun_ce\", \"boundary:jiang-current\", \"wu\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundarySunCeContent"
+      ]
+    },
+    {
+      "gid": 453,
+      "name": "界夏侯渊",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryXiahouYuanContent.cs",
+          "line": 10,
+          "text": "builder.AddGeneral(new(\"boundary:xiahou-yuan\", \"界夏侯渊\", \"boundary_xiahou_yuan\","
+        }
+      ],
+      "moduleNames": [
+        "BoundaryXiahouYuanContent"
+      ]
+    },
+    {
+      "gid": 454,
+      "name": "界卧龙诸葛亮",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryWolongZhugeLiangContent.cs",
+          "line": 15,
+          "text": "builder.AddGeneral(new(\"boundary:wolong-zhuge-liang\", \"界卧龙诸葛亮\", \"boundary_wolong_zhuge_liang\","
+        }
+      ],
+      "moduleNames": [
+        "BoundaryWolongZhugeLiangContent"
+      ]
+    },
+    {
+      "gid": 455,
+      "name": "界庞统",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryPangTongContent.cs",
+          "line": 13,
+          "text": "builder.AddGeneral(new(\"boundary:pang-tong\", \"界庞统\", \"boundary_pang_tong\", \"boundary:lianhuan\", \"shu\", 3,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryPangTongContent"
+      ]
+    },
+    {
+      "gid": 456,
+      "name": "界魏延",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryWeiYanContent.cs",
+          "line": 9,
+          "text": "b.AddGeneral(new(\"boundary:wei-yan\",\"界魏延\",\"boundary_wei_yan\",\"boundary:qimou-current\",\"shu\",4,[\"boundary:kuanggu\"],GeneralGender.Male)"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryWeiYanContent"
+      ]
+    },
+    {
+      "gid": 458,
+      "name": "界孙坚",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundarySunJianContent.cs",
+          "line": 12,
+          "text": "builder.AddGeneral(new(\"boundary:sun-jian\", \"界孙坚\", \"boundary_sun_jian\", \"boundary:yinghun\", \"wu\", 5,"
+        }
+      ],
+      "moduleNames": [
+        "BoundarySunJianContent"
+      ]
+    },
+    {
+      "gid": 462,
+      "name": "界庞德",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryPangDeContent.cs",
+          "line": 11,
+          "text": "builder.AddGeneral(new(\"boundary:pang-de\", \"界庞德\", \"boundary_pang_de\", \"classic:mashu\", \"qun\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryPangDeContent"
+      ]
+    },
+    {
+      "gid": 463,
+      "name": "界太史慈",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryTaiShiCiContent.cs",
+          "line": 13,
+          "text": "builder.AddGeneral(new(\"boundary:taishi-ci\", \"界太史慈\", \"boundary_taishi_ci\", \"boundary:tianyi\", \"wu\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryTaiShiCiContent"
+      ]
+    },
+    {
+      "gid": 470,
+      "name": "界董卓",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryDongZhuoContent.cs",
+          "line": 16,
+          "text": "builder.AddGeneral(new(\"boundary:dong-zhuo\", \"界董卓\", \"boundary_dong_zhuo\", \"boundary:jiuchi-current\", \"qun\", 8,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryDongZhuoContent"
+      ]
+    },
+    {
+      "gid": 471,
+      "name": "界邓艾",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryDengAiContent.cs",
+          "line": 13,
+          "text": "builder.AddGeneral(new(\"boundary:deng-ai\", \"界邓艾\", \"boundary_deng_ai\", \"boundary:tuntian-current\", \"wei\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryDengAiContent"
+      ]
+    },
+    {
+      "gid": 479,
+      "name": "界祝融",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryZhuRongContent.cs",
+          "line": 13,
+          "text": "builder.AddGeneral(new(\"boundary:zhu-rong\", \"界祝融\", \"boundary_zhu_rong\", \"boundary:juxiang-current\", \"shu\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryZhuRongContent"
+      ]
+    },
+    {
+      "gid": 480,
+      "name": "界姜维",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryJiangWeiContent.cs",
+          "line": 11,
+          "text": "builder.AddGeneral(new(\"boundary:jiang-wei\", \"界姜维\", \"boundary_jiang_wei\", \"boundary:tiaoxin-current\", \"shu\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryJiangWeiContent"
+      ]
+    },
+    {
+      "gid": 484,
+      "name": "界贾诩",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryJiaXuContent.cs",
+          "line": 14,
+          "text": "builder.AddGeneral(new(\"boundary:jia-xu\", \"界贾诩\", \"boundary_jia_xu\", \"boundary:wansha\", \"qun\", 3,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryJiaXuContent"
+      ]
+    },
+    {
+      "gid": 486,
+      "name": "界张郃",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryZhangHeContent.cs",
+          "line": 11,
+          "text": "builder.AddGeneral(new(\"boundary:zhang-he\", \"界张郃\", \"boundary_zhang_he\","
+        }
+      ],
+      "moduleNames": [
+        "BoundaryZhangHeContent"
+      ]
+    },
+    {
+      "gid": 492,
+      "name": "界孟获",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryMengHuoContent.cs",
+          "line": 11,
+          "text": "builder.AddGeneral(new(\"boundary:meng-huo\", \"界孟获\", \"boundary_meng_huo\", \"boundary:huoshou-current\", \"shu\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryMengHuoContent"
+      ]
+    },
+    {
+      "gid": 496,
+      "name": "界徐晃",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryXuHuangContent.cs",
+          "line": 10,
+          "text": "builder.AddGeneral(new(\"boundary:xu-huang\", \"界徐晃\", \"boundary_xu_huang\","
+        }
+      ],
+      "moduleNames": [
+        "BoundaryXuHuangContent"
+      ]
+    },
+    {
+      "gid": 505,
+      "name": "界蔡文姬",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryCaiWenJiContent.cs",
+          "line": 12,
+          "text": "builder.AddGeneral(new(\"boundary:cai-wen-ji\", \"界蔡文姬\", \"boundary_cai_wen_ji\", \"boundary:beige\", \"qun\", 3,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryCaiWenJiContent"
+      ]
+    },
+    {
+      "gid": 515,
+      "name": "界荀彧",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryXunYuContent.cs",
+          "line": 12,
+          "text": "builder.AddGeneral(new(\"boundary:xun-yu\", \"界荀彧\", \"boundary_xun_yu\", \"boundary:quhu-current\", \"wei\", 3,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryXunYuContent"
+      ]
+    },
+    {
+      "gid": 526,
+      "name": "界典韦",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryDianWeiContent.cs",
+          "line": 15,
+          "text": "builder.AddGeneral(new(\"boundary:dian-wei\", \"界典韦\", \"boundary_dian_wei\", \"boundary:qiangxi\", \"wei\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryDianWeiContent"
+      ]
+    },
+    {
+      "gid": 587,
+      "name": "界徐盛",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 1838,
+          "text": "\"boundary:xu-sheng\", \"界徐盛\", \"boundary_xu_sheng\","
+        }
+      ],
+      "moduleNames": [
+        "StandardClassicGeneralPackage"
+      ]
+    },
+    {
+      "gid": 588,
+      "name": "界凌统",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryLingTongContent.cs",
+          "line": 12,
+          "text": "builder.AddGeneral(new(\"boundary:ling-tong\", \"界凌统\", \"boundary_ling_tong\","
+        }
+      ],
+      "moduleNames": [
+        "BoundaryLingTongContent"
+      ]
+    },
+    {
+      "gid": 597,
+      "name": "界陈宫",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryChenGongContent.cs",
+          "line": 11,
+          "text": "builder.AddGeneral(new(\"boundary:chen-gong\", \"界陈宫\", \"boundary_chen_gong\","
+        }
+      ],
+      "moduleNames": [
+        "BoundaryChenGongContent"
+      ]
+    },
+    {
+      "gid": 599,
+      "name": "界曹彰",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryCaoZhangContent.cs",
+          "line": 10,
+          "text": "builder.AddGeneral(new(\"boundary:cao-zhang\", \"界曹彰\", \"boundary_cao_zhang\","
+        }
+      ],
+      "moduleNames": [
+        "BoundaryCaoZhangContent"
+      ]
+    },
+    {
+      "gid": 600,
+      "name": "界简雍",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryJianYongContent.cs",
+          "line": 10,
+          "text": "builder.AddGeneral(new(\"boundary:jian-yong\", \"界简雍\", \"boundary_jian_yong\","
+        }
+      ],
+      "moduleNames": [
+        "BoundaryJianYongContent"
+      ]
+    },
+    {
+      "gid": 603,
+      "name": "界虞翻",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryYuFanContent.cs",
+          "line": 11,
+          "text": "builder.AddGeneral(new(\"boundary:yu-fan\", \"界虞翻\", \"boundary_yu_fan\", \"boundary:zongxuan-current\", \"wu\", 3,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryYuFanContent"
+      ]
+    },
+    {
+      "gid": 604,
+      "name": "界高顺",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryGaoShunContent.cs",
+          "line": 12,
+          "text": "builder.AddGeneral(new(\"boundary:gao-shun\", \"界高顺\", \"boundary_gao_shun\", \"boundary:xianzhen-current\", \"qun\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryGaoShunContent"
+      ]
+    },
+    {
+      "gid": 610,
+      "name": "界法正",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryFaZhengContent.cs",
+          "line": 10,
+          "text": "builder.AddGeneral(new(\"boundary:fa-zheng\", \"界法正\", \"boundary_fa_zheng\", \"boundary:xuanhuo\", \"shu\", 3,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryFaZhengContent"
+      ]
+    },
+    {
+      "gid": 620,
+      "name": "界程普",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryChengPuContent.cs",
+          "line": 13,
+          "text": "builder.AddGeneral(new(\"boundary:cheng-pu\", \"界程普\", \"boundary_cheng_pu\", \"boundary:lihuo\", \"wu\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryChengPuContent"
+      ]
+    },
+    {
+      "gid": 625,
+      "name": "界张春华",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryZhangChunHuaContent.cs",
+          "line": 11,
+          "text": "builder.AddGeneral(new(\"boundary:zhang-chun-hua\", \"界张春华\", \"boundary_zhang_chun_hua\","
+        }
+      ],
+      "moduleNames": [
+        "BoundaryZhangChunHuaContent"
+      ]
+    },
+    {
+      "gid": 628,
+      "name": "界曹冲",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryCaoChongContent.cs",
+          "line": 10,
+          "text": "builder.AddGeneral(new(\"boundary:cao-chong\", \"界曹冲\", \"boundary_cao_chong\", \"boundary:chengxiang-current\", \"wei\", 3,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryCaoChongContent"
+      ]
+    },
+    {
+      "gid": 676,
+      "name": "界韩当",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryHanDangContent.cs",
+          "line": 10,
+          "text": "builder.AddGeneral(new(\"boundary:han-dang\", \"界韩当\", \"boundary_han_dang\", \"boundary:gongqi-current\", \"wu\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryHanDangContent"
+      ]
+    },
+    {
+      "gid": 626,
+      "name": "界刘表",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryLiuBiaoContent.cs",
+          "line": 13,
+          "text": "builder.AddGeneral(new(\"boundary:liu-biao\", \"界刘表\", \"boundary_liu_biao\", \"boundary:zishou-current\", \"qun\", 3,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryLiuBiaoContent"
+      ]
+    },
+    {
+      "gid": 629,
+      "name": "界曹植",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryCaoZhiContent.cs",
+          "line": 15,
+          "text": "builder.AddGeneral(new(\"boundary:cao-zhi\", \"界曹植\", \"boundary_cao_zhi\", \"boundary:luoying\", \"wei\", 3,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryCaoZhiContent"
+      ]
+    },
+    {
+      "gid": 641,
+      "name": "界廖化",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryLiaoHuaContent.cs",
+          "line": 15,
+          "text": "builder.AddGeneral(new(\"boundary:liao-hua\", \"界廖化\", \"boundary_liao_hua\", \"boundary:dangxian\", \"shu\", 4,"
+        }
+      ],
+      "moduleNames": [
+        "BoundaryLiaoHuaContent"
+      ]
+    },
+    {
+      "gid": 658,
+      "name": "界郭淮",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryGuoHuaiContent.cs",
+          "line": 10,
+          "text": "builder.AddGeneral(new(\"boundary:guo-huai\", \"界郭淮\", \"boundary_guo_huai\","
+        }
+      ],
+      "moduleNames": [
+        "BoundaryGuoHuaiContent"
+      ]
+    },
+    {
+      "gid": 749,
+      "name": "界沮授",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 1856,
+          "text": "\"boundary:ju-shou\", \"界沮授\", \"boundary_ju_shou\","
+        }
+      ],
+      "moduleNames": [
+        "StandardClassicGeneralPackage"
+      ]
+    },
+    {
+      "gid": 753,
+      "name": "界张松",
+      "currentExactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 1847,
+          "text": "\"boundary:zhang-song\", \"界张松\", \"boundary_zhang_song\","
+        }
+      ],
+      "moduleNames": [
+        "StandardClassicGeneralPackage"
+      ]
+    }
+  ],
+  "reservedRechecked": [
+    {
+      "gid": 603,
+      "name": "界虞翻",
+      "module": "BoundaryYuFanContent",
+      "registrationProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 98,
+          "text": "new(BoundaryYuFanContent.Register),"
+        }
+      ],
+      "exactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryYuFanContent.cs",
+          "line": 11,
+          "text": "builder.AddGeneral(new(\"boundary:yu-fan\", \"界虞翻\", \"boundary_yu_fan\", \"boundary:zongxuan-current\", \"wu\", 3,"
+        }
+      ]
+    },
+    {
+      "gid": 620,
+      "name": "界程普",
+      "module": "BoundaryChengPuContent",
+      "registrationProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 99,
+          "text": "new(BoundaryChengPuContent.Register),"
+        }
+      ],
+      "exactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryChengPuContent.cs",
+          "line": 13,
+          "text": "builder.AddGeneral(new(\"boundary:cheng-pu\", \"界程普\", \"boundary_cheng_pu\", \"boundary:lihuo\", \"wu\", 4,"
+        }
+      ]
+    },
+    {
+      "gid": 621,
+      "name": "界王异",
+      "module": "BoundaryWangYiContent",
+      "registrationProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 101,
+          "text": "new(BoundaryWangYiContent.Register),"
+        }
+      ],
+      "exactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryWangYiContent.cs",
+          "line": 9,
+          "text": "b.AddGeneral(new(\"boundary:wang-yi\", \"界王异\", \"boundary_wang_yi\", \"boundary:zhenlie-current\", \"wei\", 3,"
+        }
+      ]
+    },
+    {
+      "gid": 627,
+      "name": "界蔡夫人",
+      "module": "BoundaryCaiFuRenContent",
+      "registrationProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 103,
+          "text": "new(BoundaryCaiFuRenContent.Register),"
+        }
+      ],
+      "exactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryCaiFuRenContent.cs",
+          "line": 14,
+          "text": "builder.AddGeneral(new(\"boundary:cai-fu-ren\", \"界蔡夫人\", \"boundary_cai_fu_ren\", \"boundary:xianzhou-current\", \"qun\", 3,"
+        }
+      ]
+    },
+    {
+      "gid": 640,
+      "name": "界吴国太",
+      "module": "BoundaryWuGuoTaiContent",
+      "registrationProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 100,
+          "text": "new(BoundaryWuGuoTaiContent.Register),"
+        }
+      ],
+      "exactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryWuGuoTaiContent.cs",
+          "line": 10,
+          "text": "builder.AddGeneral(new ContentGeneralDefinition(\"boundary:wu-guo-tai\", \"界吴国太\", \"boundary_wu_guo_tai\", \"boundary:ganlu-current\", \"wu\","
+        }
+      ]
+    },
+    {
+      "gid": 642,
+      "name": "界李儒",
+      "module": "BoundaryLiRuContent",
+      "registrationProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 102,
+          "text": "new(BoundaryLiRuContent.Register),"
+        }
+      ],
+      "exactNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/BoundaryLiRuContent.cs",
+          "line": 11,
+          "text": "builder.AddGeneral(new(\"boundary:li-ru\", \"界李儒\", \"boundary_li_ru\", \"boundary:mieji-current\", \"qun\", 3,"
+        }
+      ]
+    }
+  ],
+  "remainingCandidate": {
+    "gid": 447,
+    "name": "界左慈",
+    "currentBoundaryRegistered": false,
+    "classicOnlyDoesNotExcludeBoundary": {
+      "registrationProof": [
+        {
+          "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+          "line": 45,
+          "text": "new(FengLinZuoCiContent.Register),"
+        }
+      ],
+      "exactClassicNameProof": [
+        {
+          "path": "src/CardGame.Content.Standard/FengLinZuoCiContent.cs",
+          "line": 8,
+          "text": "builder.AddGeneral(new ContentGeneralDefinition(\"classic:zuo-ci\",\"左慈\",\"zuo_ci\",\"classic:huashen\",\"qun\",3,[\"classic:xinsheng\"],GeneralGender.Male){CharacterId=\"character:zuo-ci\",VariantId=\"classic\",RulesetId=\"sanguosha-ol\"});"
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "No fresh three-candidate set exists within this retained index and these exact current registrations.",
+    "No claim is made about candidates absent from the retained 87-row index.",
+    "No repeated request for 451/690/726/449; their prior source gaps remain their independent recorded status."
+  ],
+  "frozenEvidenceOrigin": {
+    "stagePath": ".artifacts/continuation-20261003-batch17/batch32/source-preflight/candidate-exclusion-preflight.json",
+    "rawSha256": "cb86ab3726383e5a014f0049d8fcf21323a14af53d4d7cd5cdfdb111976bdc37"
+  },
+  "documentationReviewHead": "e492e9e8d83a1d921de471d1463c4ae288b0251f",
+  "registrationProofMeaning": "Exact textual registration at the original frozen e492 review. Not production registry execution and not a site-wide current catalog assertion.",
+  "fullImplementationSourceReady": {
+    "447": false,
+    "690": false,
+    "449": false
+  },
+  "execution": {
+    "runtime": false,
+    "implementation": false,
+    "mainWrites": false,
+    "gitWrites": false,
+    "build": false,
+    "compiler": false,
+    "loader": false,
+    "tests": false,
+    "nativeAi": false,
+    "nativeGame": false,
+    "benchmark": false,
+    "newHttpRequests": 0,
+    "newWebSearches": 0,
+    "media": false,
+    "originalFrozenEvidenceModified": false
+  }
+}

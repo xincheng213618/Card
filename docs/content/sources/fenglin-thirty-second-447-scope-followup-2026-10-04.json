@@ -1,0 +1,227 @@
+{
+  "status": "bounded-current-avatar-scope-followup-historical-primary-strengthened-current-pool-still-unproved",
+  "officialId": 447,
+  "name": "界左慈",
+  "reviewHead": "e492e9e8d83a1d921de471d1463c4ae288b0251f",
+  "currentFrozenSource": {
+    "path": ".artifacts/continuation-20261003-batch17/batch32/source-preflight/447-official-source.json",
+    "rawSha256": "9450b8178a6ad336d7d6aa4dd6b25c9c789d3e398a71b0a94f45b3fc92644fd7"
+  },
+  "currentFrozenManifest": {
+    "path": ".artifacts/continuation-20261003-batch17/batch32/source-preflight/delivery-manifest.json",
+    "rawSha256": "f593a13e8f1b63b56ffa9acd2d64545088749d9108401029758d75225ecd16fb"
+  },
+  "currentSkillTexts": [
+    {
+      "name": "化身",
+      "text": "游戏开始时，你随机获得三张武将牌作为“化身”牌，然后展示其中一张，获得此“化身”牌上的一个技能，且性别和势力视为与之相同。回合开始时和回合结束后，你可以选择一项：1.替换展示的“化身”牌及因此获得的技能；2.移去至多两张“化身”牌并获得等量新的“化身”牌。",
+      "authority": "All visible current hero skill tabs and their exact skill-text spans."
+    },
+    {
+      "name": "新生",
+      "text": "当你受到1点伤害后，你可以获得一张新的“化身”牌。",
+      "authority": "All visible current hero skill tabs and their exact skill-text spans."
+    }
+  ],
+  "primarySupplements": [
+    {
+      "url": "https://www.sanguosha.com/news/20191212_3649_0318",
+      "title": "《三国杀OL》12月19日版本更新公告 燎原之势·合纵抗秦！ - 三国杀OL官网",
+      "publishedLocalAsDisplayed": "2019-12-18 19:39:36",
+      "timezoneNotExplicitlyDisplayed": true,
+      "actualRawGet": {
+        "status": 200,
+        "startedAtUtc": "2026-10-04T09:07:09.3870395+00:00",
+        "completedAtUtc": "2026-10-04T09:07:09.7480437+00:00",
+        "bytes": 88333,
+        "rawPath": ".artifacts/continuation-20261003-batch17/batch32/zuo-ci-scope-followup/2019-ol-boundary-release.raw",
+        "rawSha256": "8b4ea680c49c4a89079c6083b339afb6137c622ba8406e9905ec999962a71f98",
+        "fullHeadersEvidencePath": ".artifacts/continuation-20261003-batch17/batch32/zuo-ci-scope-followup/2019-ol-boundary-release.http.json",
+        "httpEvidenceRawSha256": "2ec0dee548320c205b410241d5f84a8d125b8328568d46cea8f31bef2b74c18c",
+        "redirectsFollowed": false,
+        "retries": 0
+      },
+      "editionEvidence": [
+        "Title explicitly 三国杀OL version update.",
+        "Actual 新增武将 section names 界限突破·左慈, 群3体力.",
+        "Not the classic two-avatar recipe."
+      ],
+      "skillsAsRetainedHistoricalPrimary": [
+        {
+          "name": "化身",
+          "text": "游戏开始时，你随机获得3张武将牌，然后亮出其中一张。你获得亮出\"化身\"牌的一个技能（限定技、觉醒技、主公技除外），且性别和势力视为与\"化身\"牌相同。回合开始时或回合结束时，你可以选择一项：更改亮出的化身牌；或移去至多两张\"化身\"牌并获得等量新的\"化身\"牌。",
+          "identicalRawOccurrences": 2
+        },
+        {
+          "name": "新生",
+          "text": "当你受到1点伤害后，你可以获得一张新的\"化身\"牌。",
+          "identicalRawOccurrences": 2
+        }
+      ],
+      "exactScopeCore": "限定技、觉醒技、主公技除外",
+      "currentComparison": {
+        "initialCount": {
+          "historical": 3,
+          "current": 3,
+          "match": true
+        },
+        "exchangeUpperBound": {
+          "historical": 2,
+          "current": 2,
+          "match": true
+        },
+        "exchangeNewCountEqualsRemovedCount": {
+          "historical": true,
+          "current": true,
+          "match": true
+        },
+        "shownAvatarSkillAndGenderFactionProjection": {
+          "historical": true,
+          "current": true,
+          "match": true
+        },
+        "endWindowWording": {
+          "historical": "回合结束时",
+          "current": "回合结束后",
+          "exactMatch": false
+        },
+        "changeAvatarAndSkillWording": {
+          "historical": "更改亮出的化身牌",
+          "current": "替换展示的“化身”牌及因此获得的技能",
+          "exactMatch": false
+        },
+        "exclusionTagsExplicitlyStated": {
+          "historical": [
+            "limited",
+            "awakening",
+            "lord"
+          ],
+          "currentMain": null,
+          "currentInheritanceProved": false
+        },
+        "wholeSkillTextExactMatch": false,
+        "evidenceStrength": "Strong retained ordinary-OL boundary historical primary with the same three-avatar/up-to-two equal-replacement core. Supports a historical exclusion policy; does not prove unchanged current inheritance or an exact whole-text match."
+      }
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20210903_6756_2218",
+      "title": "9月15日《三国杀OL》版本更新公告 - 三国杀OL官网",
+      "publishedLocalAsDisplayed": "2021-09-14 15:52:45",
+      "timezoneNotExplicitlyDisplayed": true,
+      "actualRawGet": {
+        "status": 200,
+        "startedAtUtc": "2026-10-04T09:07:09.7739870+00:00",
+        "completedAtUtc": "2026-10-04T09:07:10.2438991+00:00",
+        "bytes": 107337,
+        "rawPath": ".artifacts/continuation-20261003-batch17/batch32/zuo-ci-scope-followup/2021-ol-avatar-scope.raw",
+        "rawSha256": "ea507031f65b5511c665504534d95e328353d2752be086a0491d838dde51d1c5",
+        "fullHeadersEvidencePath": ".artifacts/continuation-20261003-batch17/batch32/zuo-ci-scope-followup/2021-ol-avatar-scope.http.json",
+        "httpEvidenceRawSha256": "f022d59eba842a985d0499d47f2c3e13e27f42f5ab3efb966a2ea7d3bdba1aef",
+        "redirectsFollowed": false,
+        "retries": 0
+      },
+      "editionEvidence": [
+        "Title explicitly 三国杀OL version update.",
+        "Actual 武将技能范围调整 section explicitly names 界左慈."
+      ],
+      "exactScopeCore": "界左慈可化身界限突破武将范围增加",
+      "historicalBoundaryAvatarSubset": {
+        "effectiveAnnouncement": "2021-09-15 version title, published-local 2021-09-14",
+        "existingNames": [
+          "界刘备",
+          "界关羽",
+          "界张飞",
+          "界赵云",
+          "界马超",
+          "界徐庶",
+          "界甘宁",
+          "界吕蒙",
+          "界黄盖",
+          "界周瑜",
+          "界大乔",
+          "界陆逊",
+          "界曹操",
+          "界司马懿",
+          "界夏侯惇",
+          "界张辽",
+          "界许褚",
+          "界郭嘉",
+          "界李典",
+          "界华佗",
+          "界吕布",
+          "界公孙瓒",
+          "界诸葛亮",
+          "界黄月英",
+          "界孙权",
+          "界孙尚香",
+          "界甄姬",
+          "界貂蝉",
+          "界华雄",
+          "界张角"
+        ],
+        "existingCount": 30,
+        "addedNames": [
+          "界于吉",
+          "界袁绍",
+          "界刘禅",
+          "界孙策",
+          "界夏侯渊",
+          "界卧龙诸葛亮",
+          "界庞统",
+          "界魏延",
+          "界小乔",
+          "界孙坚",
+          "界庞德",
+          "界太史慈"
+        ],
+        "addedCount": 12,
+        "combinedNamedBoundaryCount": 42,
+        "entireCurrentAvatarPool": false,
+        "entireHistoricalAvatarPool": false,
+        "meaning": "The explicitly named boundary-generals subset affected by this update, not all random avatar types or a current complete pool."
+      }
+    }
+  ],
+  "webReadEvidencePath": ".artifacts/continuation-20261003-batch17/batch32/zuo-ci-scope-followup/web-evidence.json",
+  "newlyStrengthened": {
+    "historicalBoundaryThreeAvatarExchangeCoreRawPrimary": true,
+    "historicalBoundaryExcludedSkillTagsRawPrimary": true,
+    "historical2021NamedBoundarySubsetRawPrimary": true
+  },
+  "remainingCurrentScope": {
+    "currentAvatarPoolComplete": false,
+    "currentExcludedSkillTagsInheritanceProved": false,
+    "removedAvatarPoolReturnRuleProved": false,
+    "insufficientOrExhaustedPoolRuleProved": false,
+    "duplicateAvatarRuleProved": false,
+    "laterPoolChangesChecked": false
+  },
+  "scopeCautions": [
+    "2019 is an exact ordinary-OL boundary source with matching count/exchange core, but the current and historical end-window and avatar-change wording differ.",
+    "2021 names a historical boundary subset; 42 must not be a hard-coded current entire avatar pool.",
+    "Current 447 omits explicit exclusion tags. The 2019 primary is stronger than importing classic same-name behavior, but does not alone certify current inheritance.",
+    "The 2014 classic/player strategy and national-war/ten-anniversary sources are not promoted to current boundary FAQ.",
+    "This is a limited two-search/two-link followup, not a claim that no applicable official source exists elsewhere."
+  ],
+  "fullCurrentMainText": true,
+  "fullImplementationSourceReady": false,
+  "runtimeAcceptance": false,
+  "recommendation": "Keep current full source readiness false. Root may evaluate the explicitly versioned historical exclusion evidence; no automatic pool restriction or partial boundary implementation is authorized.",
+  "execution": {
+    "runtime": false,
+    "implementation": false,
+    "mainWrites": false,
+    "gitWrites": false,
+    "originalSourcesModified": false,
+    "originalDeliveriesModified": false,
+    "compiler": false,
+    "build": false,
+    "loader": false,
+    "tests": false,
+    "nativeAi": false,
+    "nativeGame": false,
+    "benchmark": false,
+    "pageJavaScript": false,
+    "media": false
+  }
+}

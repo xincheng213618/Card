@@ -779,6 +779,9 @@ public sealed record LegalAction
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public CardConversionSource? ConversionSource { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ProgramTieredRoundConversionPolicy? TieredRoundZeroUse { get; init; }
+
     /// <summary>
     /// Ordered public conversions applied after <see cref="ConversionSource"/>.
     /// A chained view-as keeps every source visible to replay and trigger facts.

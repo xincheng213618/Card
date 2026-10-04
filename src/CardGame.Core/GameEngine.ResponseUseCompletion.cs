@@ -103,8 +103,8 @@ public sealed partial class GameEngine
     private void ContinueNullificationAfterResponseUse(CardActionContext action)
     {
         if (!TryBeginCompletedResponseUsePrograms(null, action, ProgramCardContinuation.NullificationResponse))
-            ContinueNullificationWindow(ActiveNullificationWindow ??
-                throw new InvalidOperationException("The completed counterspell lost its original chain."));
+            ContinueNullificationWindow(ClearTieredRoundCounterspellResponse(ActiveNullificationWindow ??
+                throw new InvalidOperationException("The completed counterspell lost its original chain.")));
     }
 
     private void ContinueCompletedResponseUse(CardAttackHandle? attack, ProgramCardTriggerWindowFrame frame)
@@ -114,8 +114,8 @@ public sealed partial class GameEngine
         if (!IsCompletedResponseUse(frame.Action, completed.Kind))
             throw new InvalidOperationException("A completed response use changed its actor or card kind.");
         if (completed.Kind == ProgramCompletedResponseKind.Nullification)
-            ContinueNullificationWindow(ActiveNullificationWindow ??
-                throw new InvalidOperationException("The completed counterspell lost its original chain."));
+            ContinueNullificationWindow(ClearTieredRoundCounterspellResponse(ActiveNullificationWindow ??
+                throw new InvalidOperationException("The completed counterspell lost its original chain.")));
         else ContinueFinishedCardResponse(attack ??
             throw new InvalidOperationException("The completed Dodge lost its original Slash."), frame.Action,
             ProgramCardContinuation.Dodge);

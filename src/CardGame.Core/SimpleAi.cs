@@ -755,7 +755,10 @@ public sealed partial class SimpleAiBrain
         var canUseSlash = view.PendingDecision is { Kind: DecisionKind.RespondSlash } prompt &&
                           prompt.Choices.Any(choice =>
                               choice.Parameters.GetValueOrDefault("response") is
-                                  "borrowed-sword-slash" or "faction-slash-request");
+                                  "borrowed-sword-slash" or "faction-slash-request" ||
+                              choice.Parameters.GetValueOrDefault("response") == "tiered-round-zero-forced-slash" &&
+                              choice.Parameters.GetValueOrDefault("forced-use") == "borrowed-sword" && choice.Cards.Count == 0 &&
+                              choice.Targets.SequenceEqual([slashTargetSeat]) && choice.Parameters.GetValueOrDefault("conversion-owner-seat") == Seat.ToString(System.Globalization.CultureInfo.InvariantCulture));
         var targetSupport = GetTacticalSupport(view, selfRole, target);
         var sourceSupport = GetTacticalSupport(view, selfRole, source);
         var slashScore = canUseSlash
@@ -1004,7 +1007,9 @@ public sealed partial class SimpleAiBrain
         var candidates = prompt.Choices.Select(choice =>
         {
             var action = choice.Parameters.GetValueOrDefault("action");
-            var usesOwnSlash = action == "qinglong-slash";
+            var usesOwnSlash = action == "qinglong-slash" || action == "tiered-round-zero-forced-slash" &&
+                choice.Parameters.GetValueOrDefault("forced-use") == "qinglong" && choice.Cards.Count == 0 &&
+                choice.Targets.SequenceEqual([targetSeat]) && choice.Parameters.GetValueOrDefault("conversion-owner-seat") == Seat.ToString(System.Globalization.CultureInfo.InvariantCulture);
             var requestsFactionSlash = action == "qinglong-jijiang";
             var continuesAttack = usesOwnSlash || requestsFactionSlash;
             var cardCost = usesOwnSlash && choice.Cards.Count == 1 && ownedCards.TryGetValue(choice.Cards[0], out var card)
@@ -2064,6 +2069,7 @@ public sealed partial class SimpleAiBrain
         Role selfRole,
         LegalAction action)
     {
+        if (action.TieredRoundZeroUse is not null) return ScoreTieredRoundZeroAction(view, self, selfRole, action);
         if (action.Kind == LegalActionKind.UseProgramSkill)
             return ScoreProgramAction(view, self, selfRole, action);
 

@@ -1,0 +1,72 @@
+{
+  "url": "https://www.sanguosha.com/hero/447",
+  "method": "GET",
+  "requestCount": 1,
+  "retries": 0,
+  "autoRedirect": false,
+  "startedAtUtc": "2026-10-04T08:47:10.8989994+00:00",
+  "status": 200,
+  "reasonPhrase": "OK",
+  "headers": {
+    "Server": [
+      "istio-envoy"
+    ],
+    "trace-id": [
+      "d51d16bfa26cd8882f3bdbfd31923204"
+    ],
+    "Date": [
+      "Sun, 04 Oct 2026 07:49:23 GMT"
+    ],
+    "Vary": [
+      "Accept-Encoding"
+    ],
+    "x-varnish": [
+      "54956846 56308639"
+    ],
+    "Accept-Ranges": [
+      "bytes"
+    ],
+    "x-varnish-cache": [
+      "hit"
+    ],
+    "req-cost-time": [
+      "2"
+    ],
+    "req-arrive-time": [
+      "1791103634637"
+    ],
+    "resp-start-time": [
+      "1791103634640"
+    ],
+    "x-envoy-upstream-service-time": [
+      "2"
+    ],
+    "Set-Cookie": [
+      "acw_tc=180113d117911036346375953e2b00242152a47845a7d8774598e3fda17505;path=/;HttpOnly;Max-Age=1800"
+    ],
+    "X-Cache-Lookup": [
+      "Cache Miss",
+      "Hit From Upstream Cluster",
+      "Cache Miss"
+    ],
+    "Age": [
+      "3471"
+    ],
+    "X-NWS-LOG-UUID": [
+      "7496667960487421234"
+    ],
+    "Connection": [
+      "keep-alive"
+    ],
+    "Content-Type": [
+      "text/html"
+    ],
+    "Content-Length": [
+      "24388"
+    ]
+  },
+  "bytes": 24388,
+  "rawPath": "447-hero.raw",
+  "rawSha256": "ff8f3ae73932b5b788524db4085d6333feba8612cccfa993100b36bb3e44683a",
+  "completedAtUtc": "2026-10-04T08:47:11.2526378+00:00"
+}

@@ -1,0 +1,18 @@
+{
+  "status": "frozen-independent-static-correction-review",
+  "capturedAtUtc": "2026-10-04T09:45:10.477579+00:00",
+  "originalReviewManifestSha256": "ee8269a646f976a36ddcbcf26ca336944b673419f42d3dbecc4939d7509947b5",
+  "originalDeliveryPreserved": true,
+  "followupManifestSha256": "a65e28afb290c9b3c2304fd3cc8ebf5aac4f090b5f895bc3fe9403a47cd025f4",
+  "patchSha256": "07694ebda431f22a7e95b2c6cea701b0107dea3103315e2069db5f19c28070c5",
+  "effectiveCheckSha256": "6bb2b2e3911477610283ff9deced92bffe48e231c98c0c7daf5d57d92a9edc9c",
+  "twoIdentifierReplacementOnly": true,
+  "fullTextReconstructionMatches": true,
+  "conclusion": "The identified CardZone type-name defect is statically corrected by using the current CardZoneKind enum; no compiler or runtime acceptance claimed",
+  "compiled": false,
+  "loader": false,
+  "tests": false,
+  "uiRun": false,
+  "mainEdited": false,
+  "authorEdited": false
+}

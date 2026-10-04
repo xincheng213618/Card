@@ -359,7 +359,7 @@ public sealed partial class MainViewModel
             var skillIds = _snapshot.Players.Single(player => player.IsHuman).Skills?
                 .Select(skill => skill.ContentId).ToArray() ?? [];
             return GetViewLegalActions().Where(action =>
-                    action.Kind is LegalActionKind.UseEquipmentEffect or LegalActionKind.UseProgramSkill)
+                    (action.Kind is LegalActionKind.UseEquipmentEffect or LegalActionKind.UseProgramSkill) || IsTieredRoundZeroAction(action))
                 .OrderBy(action =>
                 {
                     var index = Array.IndexOf(skillIds, action.ProgramSkillId);
@@ -369,6 +369,7 @@ public sealed partial class MainViewModel
     }
     public IReadOnlyList<LegalAction> AdditionalActiveSkillActions => HumanActiveSkillActions.Skip(1).ToArray();
     private LegalAction? HumanActiveSkillAction =>
+        _selectedTieredRoundZeroAction is not null ? SelectedTieredRoundZeroAction() :
         _selectedEquipmentEffectKind is not null || _selectedProgramSkillId is not null
             ? HumanActiveSkillActions.FirstOrDefault(action =>
                 action.EquipmentKind == _selectedEquipmentEffectKind &&
@@ -384,7 +385,7 @@ public sealed partial class MainViewModel
     private bool IsActiveSkillTargetSelectionPending =>
         _isSelectingActiveSkillCards &&
         _snapshot?.PendingDecision?.Kind == DecisionKind.PlayCard &&
-        HumanActiveSkillAction is { MaxTargetCount: > 0 };
+        HumanActiveSkillAction is { } action && ActiveSkillMaximumTargets(action) > 0;
     public bool IsActiveSkillSelectionPending =>
         IsActiveSkillCardSelectionPending || IsActiveSkillTargetSelectionPending;
     public bool ShowActiveSkillEntry => CanUseActiveSkill && !IsActiveSkillSelectionPending;
@@ -396,14 +397,17 @@ public sealed partial class MainViewModel
         ? programSkill.Name
         : action.EquipmentKind is { } equipment
                 ? EquipmentCatalog.Get(equipment).DisplayName
-                : "技能";
+                : IsTieredRoundZeroAction(action) && action.ConversionSource is { } source &&
+                  _contentRegistry.Skills.TryGetValue(source.SkillId, out var zeroSkill)
+                    ? zeroSkill.Name : "技能";
     public bool CanConfirmActiveSkill => IsActiveSkillSelectionPending && HumanActiveSkillAction is { } action &&
+        (IsTieredRoundZeroAction(action) ? CanConfirmTieredRoundZeroAction(action) :
         _selectedActiveSkillCardIds.Count >= action.MinCardCount && _selectedActiveSkillCardIds.Count <= action.MaxCardCount &&
         _selectedActiveSkillTargetSeats.Count >= action.MinTargetCount && _selectedActiveSkillTargetSeats.Count <= action.MaxTargetCount &&
         _selectedActiveSkillCardIds.All(id => action.SelectableCardIds.Contains(id)) &&
         _selectedActiveSkillTargetSeats.All(seat => action.SelectableTargetSeats.Contains(seat)) &&
         (!action.SelectedCardsSameSuit || Hand.Where(card => _selectedActiveSkillCardIds.Contains(card.Id))
-            .Select(card => card.SuitGlyph).Distinct(StringComparer.Ordinal).Count() == 1);
+            .Select(card => card.SuitGlyph).Distinct(StringComparer.Ordinal).Count() == 1));
     public bool CanUseActiveSkill => HumanActiveSkillAction is not null;
     public string ActiveSkillButtonText
     {
@@ -412,7 +416,7 @@ public sealed partial class MainViewModel
             var action = HumanActiveSkillAction;
             if (action is null) return "发动技能";
             var requiresSelection = action.MinCardCount > 0 || action.MaxCardCount > 0 ||
-                                    action.MinTargetCount > 0 || action.MaxTargetCount > 0;
+                                    action.MinTargetCount > 0 || ActiveSkillMaximumTargets(action) > 0;
             if (!requiresSelection) return action.Description;
             if (!IsActiveSkillSelectionPending)
             {
@@ -699,6 +703,7 @@ public sealed partial class MainViewModel
     private void ClearSelection()
     {
         var wasSelectingActiveSkillCards = _isSelectingActiveSkillCards;
+        _selectedTieredRoundZeroAction = null;
         _selectedCardId = null;
         _selectedConversionSource = null;
         _selectedTargetSeat = null;
@@ -736,7 +741,7 @@ public sealed partial class MainViewModel
             parts.Add($" {_selectedActiveSkillCardIds.Count} 张牌");
         }
 
-        if (action.MaxTargetCount > 0)
+        if (ActiveSkillMaximumTargets(action) > 0)
         {
             parts.Add($" {_selectedActiveSkillTargetSeats.Count} 个目标");
         }
@@ -746,6 +751,7 @@ public sealed partial class MainViewModel
 
     private static string BuildActiveSkillRequirement(LegalAction action)
     {
+        if (IsTieredRoundZeroAction(action)) return $"{action.TargetSeats.Count} 个目标";
         var parts = new List<string>();
         if (action.MaxCardCount > 0)
         {
@@ -772,9 +778,10 @@ public sealed partial class MainViewModel
             parts.Add($"牌 {_selectedActiveSkillCardIds.Count}/{FormatSelectionRange(action.MinCardCount, action.MaxCardCount)}");
         }
 
-        if (action.MaxTargetCount > 0)
+        if (ActiveSkillMaximumTargets(action) > 0)
         {
-            parts.Add($"目标 {_selectedActiveSkillTargetSeats.Count}/{FormatSelectionRange(action.MinTargetCount, action.MaxTargetCount)}");
+            var minimum = IsTieredRoundZeroAction(action) ? action.TargetSeats.Count : action.MinTargetCount;
+            parts.Add($"目标 {_selectedActiveSkillTargetSeats.Count}/{FormatSelectionRange(minimum, ActiveSkillMaximumTargets(action))}");
         }
 
         var next = CanConfirmActiveSkill

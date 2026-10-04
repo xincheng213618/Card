@@ -38,7 +38,7 @@ public sealed partial class GameEngine
         CardConversionSource? source)
     {
         if (source is not null && ViewAsRule(source) is { } usageRule &&
-            (usageRule.UnusedOutputNameThisGame || usageRule.ConversionStateId is not null && usageRule.UsesPerPhase is not null)) ConsumeProgramViewAsUsage([source]);
+            (usageRule.TieredRoundConversion is not null || usageRule.UnusedOutputNameThisGame || usageRule.ConversionStateId is not null && usageRule.UsesPerPhase is not null)) ConsumeProgramViewAsUsage([source]);
         var alternative = IsProgramTopDeckDodgeSource(source);
         if (alternative && (source!.OwnerSeat != provider.Seat || !IsProgramResponseCardUse(provider, effectiveKind)))
             throw new InvalidOperationException("A top-deck response cost requires its own enabled Slash-defense Dodge use.");
@@ -59,6 +59,7 @@ public sealed partial class GameEngine
 
     private void FinishSingleBasicCardUseCost(CardUseFrame use, Card card)
     {
+        if (SkipTieredRoundZeroFinishedMovement(use.Id, card)) return;
         if (IsProgramAlternativeCost(use.Action, card.Id))
         {
             if (_cardZones.GetLocation(card.Id) == CardLocation.Processing)

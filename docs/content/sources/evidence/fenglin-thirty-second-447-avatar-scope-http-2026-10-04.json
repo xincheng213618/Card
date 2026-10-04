@@ -1,0 +1,72 @@
+{
+  "url": "https://www.sanguosha.com/news/20210903_6756_2218",
+  "method": "GET",
+  "requestCount": 1,
+  "retries": 0,
+  "autoRedirect": false,
+  "startedAtUtc": "2026-10-04T09:07:09.7739870+00:00",
+  "status": 200,
+  "reasonPhrase": "OK",
+  "headers": {
+    "Server": [
+      "istio-envoy"
+    ],
+    "trace-id": [
+      "30188d714883512c82a34590ba976c78"
+    ],
+    "Date": [
+      "Sun, 04 Oct 2026 09:07:13 GMT"
+    ],
+    "Vary": [
+      "Accept-Encoding"
+    ],
+    "x-varnish": [
+      "56758040"
+    ],
+    "Accept-Ranges": [
+      "bytes"
+    ],
+    "x-varnish-cache": [
+      "miss"
+    ],
+    "req-cost-time": [
+      "31"
+    ],
+    "req-arrive-time": [
+      "1791104833495"
+    ],
+    "resp-start-time": [
+      "1791104833527"
+    ],
+    "x-envoy-upstream-service-time": [
+      "30"
+    ],
+    "Set-Cookie": [
+      "acw_tc=180113d117911048334967078e2b00d5d93054e0a82e24b321de28477bb60b;path=/;HttpOnly;Max-Age=1800"
+    ],
+    "X-Cache-Lookup": [
+      "Cache Miss",
+      "Hit From Upstream Cluster",
+      "Cache Miss"
+    ],
+    "Age": [
+      "0"
+    ],
+    "Transfer-Encoding": [
+      "chunked"
+    ],
+    "X-NWS-LOG-UUID": [
+      "10781878153537185152"
+    ],
+    "Connection": [
+      "keep-alive"
+    ],
+    "Content-Type": [
+      "text/html"
+    ]
+  },
+  "bytes": 107337,
+  "rawPath": "2021-ol-avatar-scope.raw",
+  "rawSha256": "ea507031f65b5511c665504534d95e328353d2752be086a0491d838dde51d1c5",
+  "completedAtUtc": "2026-10-04T09:07:10.2438991+00:00"
+}
