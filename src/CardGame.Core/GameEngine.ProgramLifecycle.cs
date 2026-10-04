@@ -2458,7 +2458,9 @@ public sealed partial class GameEngine
             [
                 new PromptChoice(
                     new ChoiceId($"program-trigger.activate.{candidate.SkillId}.{candidate.BindingId}.{candidate.SkillInstanceId}"),
-                    $"发动【{skill.Name}】。",
+                    _contentRegistry!.Skills[candidate.SkillId].ProgramPresentation?.TriggerLabels
+                        .GetValueOrDefault(GetProgramTrigger(candidate).Id) is { } activateLabel
+                        ? activateLabel : $"发动【{skill.Name}】。",
                     [], [],
                     Parameters("activate")),
                 new PromptChoice(

@@ -41,7 +41,7 @@ public sealed partial class GameEngine
         var ordinal=CompleteProgramEventHistory().OfType<TurnStartedEvent>().Count(e=>e.ActorSeat==frame.OwnerSeat);
         var last=CompleteProgramEventHistory().OfType<ConsecutiveTargetDeckGiftEvent>().LastOrDefault(e=>e.OwnerSeat==frame.OwnerSeat && e.SkillId==frame.SkillId && e.SkillInstanceId==frame.SkillInstanceId && e.StateId==effect.StateId);
         var repeated=last is not null && last.TargetSeat==targetSeat && last.OwnerTurnOrdinal==ordinal-1;
-        var card=_cardZones.CardsAt(CardLocation.DrawPile).Reverse().FirstOrDefault(c=>effect.Suits.Contains(c.Suit) && effect.CardCategories.Contains(GetProgramCardCategory(c.Kind)));
+        var card=_cardZones.CardsAt(CardLocation.DrawPile).Reverse().FirstOrDefault(c=>effect.Suits.Contains(c.Suit) && effect.CardCategories.Any(category => MatchesSkillProgramCardCategory(c.Kind, category)));
         var index=_resolutionStack.FindIndex(f=>f.Id==frame.Id);
         ReplaceRuntimeFrame(_resolutionStack[index].Id, frame with {ChoiceBindings=frame.ChoiceBindings.Append(new ProgramChoiceResultBinding(effect.ResultBind!,repeated?"repeat":"new",targetSeat)).ToArray()});
         AdvanceEventRulesAndQueueFact(new ConsecutiveTargetDeckGiftEvent(frame.OwnerSeat,frame.SkillId,frame.SkillInstanceId,effect.StateId!,targetSeat,ordinal,card?.Id,repeated));

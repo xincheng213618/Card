@@ -159,7 +159,7 @@ public enum SkillProgramTargetKind
     OtherLivingWithHandOrEquipment = 940,
     AnyLivingMale = 2000,
     OtherLivingWuFactionWithHand = 2001, CurrentArrowBarrageTargets = 2601}
-public enum SkillProgramCardCategory { Basic, Trick, Equipment }
+public enum SkillProgramCardCategory { Basic, Trick, Equipment, InstantTrick }
 public enum SkillProgramGainPhaseQualification { OutsideOwnerDraw }
 public enum SkillProgramTurnOwnerScope { Own = 0, OtherLiving = 1, OwnOrPreviousLiving = 5300, EarnedActualEnding = 5601,
     PaidPrepDiscardEnding = 6600
@@ -1605,6 +1605,8 @@ public sealed class SkillPresentation
     public IReadOnlyDictionary<string, string> TriggerChoices { get; }
     public IReadOnlyDictionary<string, ProgramBooleanStatePresentation> BooleanStates { get; }
     public string? AuthorityName { get; internal init; }
+    public IReadOnlyDictionary<string, string> TriggerLabels { get; internal init; } =
+        new ReadOnlyDictionary<string, string>(new Dictionary<string, string>(StringComparer.Ordinal));
     public IReadOnlyDictionary<string, string> ActivationLabels { get; internal init; } =
         new ReadOnlyDictionary<string, string>(new Dictionary<string, string>(StringComparer.Ordinal));
 }
@@ -1879,7 +1881,7 @@ public sealed class SkillProgramCatalog
             if (string.IsNullOrWhiteSpace(id) || id.Length > 128) Fail(path, "skill id must contain 1 to 128 characters");
             if (!programs.ContainsKey(id)) Fail(path, $"presentation references unknown skill '{id}'");
             RequireObject(property.Value, path);
-            CheckProperties(property.Value, path, "name", "description", "triggerChoices", "booleanStates", "optionLabels", "activationLabels", "authorityName");
+            CheckProperties(property.Value, path, "name", "description", "triggerChoices", "booleanStates", "optionLabels", "activationLabels", "authorityName", "triggerLabels");
             var triggerChoices = new Dictionary<string, string>(StringComparer.Ordinal);
             var booleanStates = new Dictionary<string, ProgramBooleanStatePresentation>(StringComparer.Ordinal);
             if (property.Value.TryGetProperty("triggerChoices", out var choices))
@@ -1957,12 +1959,26 @@ public sealed class SkillProgramCatalog
                         Fail(path + ".activationLabels", $"duplicate activation label '{label.Name}'");
                 }
             }
+            var triggerLabels = new Dictionary<string, string>(StringComparer.Ordinal);
+            if (property.Value.TryGetProperty("triggerLabels", out var triggerLabelNode))
+            {
+                RequireObject(triggerLabelNode, path + ".triggerLabels");
+                CheckCount(triggerLabelNode.EnumerateObject().Count(), path + ".triggerLabels");
+                foreach (var label in triggerLabelNode.EnumerateObject())
+                {
+                    if (!programs[id].Triggers.Any(trigger => trigger.Id == label.Name))
+                        Fail(path + ".triggerLabels", $"references unknown trigger '{label.Name}'");
+                    if (!triggerLabels.TryAdd(label.Name, NonEmptyStringValue(label.Value, path + ".triggerLabels")))
+                        Fail(path + ".triggerLabels", $"duplicate trigger label '{label.Name}'");
+                }
+            }
             result.Add(id, new SkillPresentation(NonEmptyString(property.Value, "name", path),
                 NonEmptyString(property.Value, "description", path),
                 new ReadOnlyDictionary<string, string>(triggerChoices),
                 new ReadOnlyDictionary<string, ProgramBooleanStatePresentation>(booleanStates))
                 {
                     ActivationLabels = new ReadOnlyDictionary<string, string>(activationLabels),
+                    TriggerLabels = new ReadOnlyDictionary<string, string>(triggerLabels),
                     AuthorityName = property.Value.TryGetProperty("authorityName", out var authorityName)
                         ? NonEmptyStringValue(authorityName, path + ".authorityName") : null
                 });
@@ -3416,8 +3432,10 @@ public sealed class SkillProgramCatalog
                 .Any(reference => reference.Kind == ProgramParticipantRef.EventSource) &&
             window is not (SkillProgramTriggerWindow.AfterDamageApplied or
                 SkillProgramTriggerWindow.DamageAppliedBeforeDying or
+                SkillProgramTriggerWindow.BeforeDamageApplied or
                 SkillProgramTriggerWindow.JudgmentFinalized or
-                SkillProgramTriggerWindow.DiscardPhaseEnded) &&
+                SkillProgramTriggerWindow.DiscardPhaseEnded or
+                SkillProgramTriggerWindow.OtherActualUseTargeted) &&
             !(window == SkillProgramTriggerWindow.CardsGained && movementOccurrence == SkillProgramMovementOccurrence.PerSourceOwner))
             Fail(path + ".effects", "eventSource requires a damage-applied, judgment or discard-phase-ended trigger");
         if (window == SkillProgramTriggerWindow.JudgmentReplacing &&

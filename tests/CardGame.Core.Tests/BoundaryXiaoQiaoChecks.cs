@@ -31,7 +31,7 @@ internal static class BoundaryXiaoQiaoChecks
     public static void TianxiangEquipmentPaymentWaitsForRecoveryBeforeNewDamageAndCappedDraw()
     {
         var (g, r) = Create(equipment: true); var cost = Equip(g);
-        var recipient = Peer(g), source = Peer(g, recipient); var hp = g.State.Players[0].Hp;
+        var recipient = Peer(g); var source = Peer(g, recipient); var hp = g.State.Players[0].Hp;
         Incoming(g, source); Activate(g, Tianxiang); ReachAction(g, "suit-prevention-benefit");
         Private(g, 0); g = Cold(g, r); Reject(g);
         Answer(g, c => c.Cards.SequenceEqual([cost]));
@@ -67,7 +67,7 @@ internal static class BoundaryXiaoQiaoChecks
 
     public static void TianxiangLossOwnsRealDyingThenGivesTheExactDiscardedEntity()
     {
-        var (g, r) = Create(fragilePeers: true); var recipient = Peer(g), source = Peer(g, recipient);
+        var (g, r) = Create(fragilePeers: true); var recipient = Peer(g); var source = Peer(g, recipient);
         Incoming(g, source); Activate(g, Tianxiang); ReachAction(g, "suit-prevention-benefit");
         var card = P(g)!.Choices.First(c => c.Cards.Count == 1).Cards.Single();
         Answer(g, c => c.Cards.SequenceEqual([card])); g = Cold(g, r);

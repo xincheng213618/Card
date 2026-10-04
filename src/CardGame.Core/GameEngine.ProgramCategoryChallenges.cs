@@ -24,7 +24,7 @@ public sealed partial class GameEngine
         {
             var location = _cardZones.GetLocation(cardId);
             var card = _cardZones.CardsAt(location).Single(candidate => candidate.Id == cardId);
-            return categories.Contains(GetProgramCardCategory(card.Kind));
+            return categories.Any(category => MatchesSkillProgramCardCategory(card.Kind, category));
         });
     }
 
@@ -204,7 +204,7 @@ public sealed partial class GameEngine
                 CardZoneKind.Judgment => GetJudgment(_players[cardOwnerSeat]),
                 _ => throw new InvalidOperationException("Unsupported category-challenge zone.")
             };
-            foreach (var card in cards.Where(card => !excludedCategories.Contains(GetProgramCardCategory(card.Kind))))
+            foreach (var card in cards.Where(card => !excludedCategories.Any(category => MatchesSkillProgramCardCategory(card.Kind, category))))
             {
                 result.Add(new PromptChoice(
                     new ChoiceId($"program-category-discard.frame-{frameId}.{resultBind}.card-{card.Id}"),
@@ -266,7 +266,7 @@ public sealed partial class GameEngine
             var excluded = GetProgramCardSet(frame, effect.SourceBind!).CardIds.Select(cardId =>
                 GetProgramCardCategory(_cardZones.CardsAt(_cardZones.GetLocation(cardId))
                     .Single(item => item.Id == cardId).Kind)).ToHashSet();
-            if (excluded.Contains(GetProgramCardCategory(card.Kind)))
+            if (excluded.Any(category => MatchesSkillProgramCardCategory(card.Kind, category)))
                 throw new InvalidOperationException("The selected response card now matches a forbidden category.");
             MoveCard(card, source, CardLocation.DiscardPile,
                 new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"));

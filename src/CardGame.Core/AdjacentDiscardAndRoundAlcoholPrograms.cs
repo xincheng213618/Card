@@ -159,7 +159,7 @@ internal sealed class UseRoundPricedPileDyingAlcoholDescriptor : AdjacentDiscard
         [new RequireTriggerWindow(SkillProgramTriggerWindow.DyingResponse), new RequireContext(ProgramContextCapability.Dying)];
 }
 
-public sealed class AdjacentDiscardAndRoundAlcoholHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
+internal sealed class AdjacentDiscardAndRoundAlcoholHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect e, ProgramSkillFrame f, int seat, ISkillProgramEffectHost host) =>

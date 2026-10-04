@@ -177,7 +177,8 @@ public sealed partial class GameEngine
             }
             return decision.Choices.OrderBy(c => GetKeepValue(GetAdvancedCard(c.Cards.Single()), _players[r.ChooserSeat])).ThenBy(c => c.Cards.Single()).First();
         }
-        var damage = new SkillProgramEffect(SkillProgramEffectOp.Damage, SkillProgramEffectTarget.SelectedTarget, 1, new(SkillProgramConditionKind.Always, 0, []));
-        return decision.Choices.OrderByDescending(c => _aiBrains[f.OwnerSeat].ScoreProgramTarget(CreateSnapshot(f.OwnerSeat), c.Targets.Single(), damage)).ThenBy(c => c.Targets.Single()).First();
+        // A one-point damage to the selected target is what this effect promises;
+        // score it through the shared target-loss hint shape.
+        return decision.Choices.OrderByDescending(c => _aiBrains[f.OwnerSeat].ScoreProgramTarget(CreateSnapshot(f.OwnerSeat), c.Targets.Single(), new SkillProgramAiHint(0, 0, 0, 0, 0, 1, false, false))).ThenBy(c => c.Targets.Single()).First();
     }
 }

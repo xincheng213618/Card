@@ -78,7 +78,7 @@ internal static class OrdinaryLiuXieChecks
             Accept(g, new PlayCardCommand(0, a.CardId!.Value, a.TargetSeats, g.Revision, P(g)!.PromptId, a.PlayedCardKind) { ConversionSource = a.ConversionSource, AdditionalConversionSources = a.AdditionalConversionSources });
             Reach(g, p => p.SkillPrompt?.SkillId == Tianming && Has(p, "activate"));
             var w = g.ResolutionStack.OfType<ActualUseTargetWindowFrame>().Single(); var use = g.ResolutionStack.OfType<CardUseFrame>().Single(u => u.Id == w.ParentFrameId);
-            Require(use.UniqueHpAnnouncedTargets!.SequenceEqual(use.TargetSeats) && w.Contexts.Where(c => c.ActualUseTarget is not null).Select(c => c.TargetSeat).Distinct().Order().SequenceEqual(a.TargetSeats.Order()) &&
+            Require(use.UniqueHpAnnouncedTargets!.SequenceEqual(use.TargetSeats) && w.Contexts.Where(c => c.ActualUseTarget is not null).Select(c => c.TargetSeat).Distinct().Order().SequenceEqual(a.TargetSeats.Order().Cast<int?>()) &&
                 !F<DamageAppliedEvent>(g).Any(),
                 "All finalized real Slash targets get their Tianming offers before any first target damage, rather than at each later effect.");
             Freeze(use.UniqueHpAnnouncedTargets); g = ColdRestore(g, r); Play(g);

@@ -86,7 +86,7 @@ public sealed partial class GameEngine
                                rule.Condition.Evaluate(context) &&
                                (rule.InputKinds.Count == 0 || rule.InputKinds.Contains(inputKind)) &&
                                (rule.InputCategories.Count == 0 ||
-                                rule.InputCategories.Contains(GetProgramCardCategory(inputKind))) &&
+                                rule.InputCategories.Any(category => MatchesSkillProgramCardCategory(inputKind, category))) &&
                                (rule.InputSuits.Count == 0 || rule.InputSuits.Contains(physicalCard.Suit)))
                 .Select(rule => new CardConversionSource(
                     instance.SkillId,

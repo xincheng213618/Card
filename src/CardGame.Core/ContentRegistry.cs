@@ -34,6 +34,11 @@ public sealed record PackageManifest(
         : this(id, version, [])
     {
     }
+
+    public PackageManifest(string id, string version, string description)
+        : this(id, Version.Parse(version), [])
+    {
+    }
 }
 
 public interface IGameContentPackage

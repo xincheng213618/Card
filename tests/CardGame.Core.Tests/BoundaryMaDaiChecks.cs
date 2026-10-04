@@ -2,7 +2,6 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using CardGame.Content.Standard;
 using CardGame.Core;
-namespace CardGame.Core.Tests;
 
 internal static class BoundaryMaDaiChecks
 {

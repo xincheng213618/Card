@@ -46,6 +46,8 @@ public sealed record PromptChoice(
     IReadOnlyList<int> Targets,
     IReadOnlyDictionary<string, string> Parameters)
 {
+    public string Label => Description;
+
     /// <summary>
     /// Optional content references for non-card prompts, such as selecting a
     /// general. A choice still represents one complete legal selection.

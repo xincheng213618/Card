@@ -63,3 +63,13 @@ internal sealed class AwaitOwnedCardMovementDescriptor:ProgramOperationDescripto
 }
 public sealed class AwaitOwnedCardMovementHandler:ISkillProgramEffectHandler
 {public SkillProgramEffectOp Op=>SkillProgramEffectOp.AwaitOwnedCardMovement;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int s,ISkillProgramEffectHost h)=>((IBoundCardMovementContinuationHost)h).AwaitBoundCardMovements(f.Id,f.OwnerSeat);}
+internal sealed class AwaitBoundCardMovementsDescriptor:ProgramOperationDescriptorBase
+{
+    public override SkillProgramEffectOp Op=>SkillProgramEffectOp.AwaitBoundCardMovements;
+    public override ISkillProgramEffectHandler Handler {get;}=new AwaitBoundCardMovementsHandler();
+    public override ProgramOperationAiPolicy AiPolicy {get;}=new(ProgramOperationAiSemantic.GainCards,static(e,c)=>{});
+    public override SkillProgramEffect Parse(ProgramOperationNodeReader r){r.AllowOnly("op","target","condition");var e=new SkillProgramEffect(Op,FilterBoundCardsProgramOperationDescriptor.Owner(r),0,r.Condition());RequireAlways(e,r.Path);return e;}
+    public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>[];
+}
+public sealed class AwaitBoundCardMovementsHandler:ISkillProgramEffectHandler
+{public SkillProgramEffectOp Op=>SkillProgramEffectOp.AwaitBoundCardMovements;public SkillProgramStepOutcome Execute(SkillProgramEffect e,ProgramSkillFrame f,int s,ISkillProgramEffectHost h)=>((IBoundCardMovementContinuationHost)h).AwaitBoundCardMovements(f.Id,f.OwnerSeat);}

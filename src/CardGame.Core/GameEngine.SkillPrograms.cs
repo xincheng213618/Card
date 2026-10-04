@@ -322,7 +322,7 @@ public sealed partial class GameEngine
         (!activation.Effects.Any(e => e.Op == SkillProgramEffectOp.UseDiamondDelayedOrDiscard) || DiamondPaymentLegal(ownerSeat, card, skillId) && (DiamondJudgments().Any() || _players.Any(p => DiamondUseTargetLegal(ownerSeat, card, p.Seat, skillId)))) &&
         (activation.CardKinds.Count == 0 || activation.CardKinds.Contains(card.Kind)) &&
         (activation.CardSuits.Count == 0 || activation.CardSuits.Contains(activation.Effects.Any(e => e.Op == SkillProgramEffectOp.UseDiamondDelayedOrDiscard) ? EffectiveSuit(_players[ownerSeat], card) : card.Suit)) &&
-        (activation.CardCategories.Count == 0 || activation.CardCategories.Contains(GetProgramCardCategory(card.Kind)));
+        (activation.CardCategories.Count == 0 || activation.CardCategories.Any(category => MatchesSkillProgramCardCategory(card.Kind, category)));
 
     private SkillProgramAiHint CreateProgramAiHint(
         SkillProgram program,

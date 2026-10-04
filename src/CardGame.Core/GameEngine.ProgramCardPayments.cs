@@ -423,8 +423,16 @@ public sealed partial class GameEngine
         CardKind kind,
         IReadOnlyList<SkillProgramCardCategory> categories)
     {
-        return categories.Contains(GetProgramCardCategory(kind));
+        return categories.Any(category => MatchesSkillProgramCardCategory(kind, category));
     }
+
+    // "Trick" keeps matching every trick; "InstantTrick" excludes delayed tricks (Indulgence, SupplyShortage, Lightning).
+    private static bool MatchesSkillProgramCardCategory(CardKind kind, SkillProgramCardCategory category) =>
+        category != SkillProgramCardCategory.InstantTrick
+            ? GetProgramCardCategory(kind) == category
+            : GetProgramCardCategory(kind) == SkillProgramCardCategory.Trick &&
+              CardUseCategoryCatalog.Get(kind) is not CardUseCategories.DelayedTrick;
+    
 
     private static bool MatchesProgramCardFilter(
         CardKind kind,

@@ -2,7 +2,6 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using CardGame.Core;
 using CardGame.Content.Standard;
-namespace CardGame.Core.Tests;
 
 internal static class BoundaryZhangZhaoZhangHongChecks
 {

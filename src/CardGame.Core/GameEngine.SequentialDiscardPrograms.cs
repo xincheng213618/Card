@@ -93,7 +93,7 @@ public sealed partial class GameEngine
         {
             if (d.Kind == ProgramSequentialDiscardKind.CategoryOrSequential)
             {
-                if (available.Any(item => effect.CardCategories.Contains(GetProgramCardCategory(item.Card.Kind))))
+                if (available.Any(item => effect.CardCategories.Any(category => MatchesSkillProgramCardCategory(item.Card.Kind, category))))
                     Add("primary", $"弃置 {effect.Amount} 张指定类别牌。");
                 if (available.Length != 0) Add("sequential", $"依次弃置 {effect.MinimumValue} 张任意牌。");
             }
@@ -106,7 +106,7 @@ public sealed partial class GameEngine
         else
         {
             foreach (var item in available.Where(item => !d.SelectedCardIds.Contains(item.Card.Id) &&
-                (d.PrimaryBranch != true || effect.CardCategories.Contains(GetProgramCardCategory(item.Card.Kind)))))
+                (d.PrimaryBranch != true || effect.CardCategories.Any(category => MatchesSkillProgramCardCategory(item.Card.Kind, category)))))
                 Add("card", $"{(d.Stage == ProgramSequentialDiscardStage.SelectingBatch ? "选择" : "弃置")}【{item.Card.DisplayName}】。", [item.Card.Id], item.Location);
             if (d.Stage == ProgramSequentialDiscardStage.SelectingBatch && d.SelectedCardIds.Count > d.PreviousCount)
                 Add("finish", $"一次弃置所选 {d.SelectedCardIds.Count} 张牌。");
@@ -167,7 +167,7 @@ public sealed partial class GameEngine
                 !Enum.TryParse<CardZoneKind>(choice.Parameters.GetValueOrDefault("source-zone"), out var zone))
                 throw new InvalidOperationException("Invalid sequential discard entity.");
             var item = SequentialDiscardCards(f, chooser, effect).SingleOrDefault(item => item.Card.Id == id && item.Location.Zone == zone);
-            if (item.Card is null || d.PrimaryBranch == true && !effect.CardCategories.Contains(GetProgramCardCategory(item.Card.Kind)))
+            if (item.Card is null || d.PrimaryBranch == true && !effect.CardCategories.Any(category => MatchesSkillProgramCardCategory(item.Card.Kind, category)))
                 throw new InvalidOperationException("The selected entity no longer satisfies the frozen discard branch.");
             ClearPendingDecision();
             if (d.Stage == ProgramSequentialDiscardStage.SelectingBatch)

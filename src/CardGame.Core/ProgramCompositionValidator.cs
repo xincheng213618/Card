@@ -448,6 +448,8 @@ internal static class ProgramCompositionValidator
                     case RequireSelectedTargetKind requiredTarget:
                     {
                         var producer = effects.Take(index).LastOrDefault(item => item.Op == SkillProgramEffectOp.SelectTarget);
+                        if (producer is null && index == 0 && initialSelectedTarget && activationTargetKind == requiredTarget.Kind)
+                            break; // The activation's own target selection provides the declared participant kind.
                         if (producer is null || producer.TargetKind != requiredTarget.Kind || producer.Condition.Kind != SkillProgramConditionKind.Always)
                             Fail("selectedTarget requires an unconditional selection of the declared participant kind");
                         break;
@@ -466,6 +468,9 @@ internal static class ProgramCompositionValidator
                     {
                         var selection = effects.Take(index)
                             .LastOrDefault(item => item.Op == SkillProgramEffectOp.SelectTargets);
+                        if (selection is null && effects.Take(index)
+                                .Any(item => item.Op == SkillProgramEffectOp.SelectEquipmentPairAndPayment))
+                            break; // The paid pair selection produces exactly its two exchange targets.
                         var minimum = selection?.MinimumTargets ?? initialTargetSetCount;
                         var maximum = selection?.MaximumTargets ?? initialTargetSetMaximum;
                         if (!targetSetAvailable || minimum < read.Minimum ||

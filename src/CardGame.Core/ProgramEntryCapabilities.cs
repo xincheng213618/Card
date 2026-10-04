@@ -69,7 +69,10 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.SlashBeforeResponse or
         SkillProgramTriggerWindow.SlashFullyDodged or
         SkillProgramTriggerWindow.JudgmentReplacing or
-        SkillProgramTriggerWindow.JudgmentFinalized;
+        SkillProgramTriggerWindow.JudgmentFinalized or
+        SkillProgramTriggerWindow.ActualSlashTargetBenefit or
+        SkillProgramTriggerWindow.ActualSlashTargetPenalty or
+        SkillProgramTriggerWindow.SlashDodgeCancelledBenefit;
 
     internal static ProgramContextCapability For(SkillProgramTriggerWindow? window) => window switch
     {

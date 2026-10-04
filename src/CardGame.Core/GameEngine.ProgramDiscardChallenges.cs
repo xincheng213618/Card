@@ -41,8 +41,8 @@ public sealed partial class GameEngine
         {
             var effect = ProgramInstructionResolver.Default.Resolve(frame, _contentRegistry.GetSkill(frame.SkillId).Program!)
                 .GetPausedInstruction(frame.InstructionIndex).Effect;
-            var primary = cards.FirstOrDefault(c => effect.CardCategories.Contains(GetProgramCardCategory(
-                _cardZones.CardsAt(_cardZones.GetLocation(c.Cards[0])).Single(card => card.Id == c.Cards[0]).Kind)));
+            var primary = cards.FirstOrDefault(c => effect.CardCategories.Any(category => MatchesSkillProgramCardCategory(
+                _cardZones.CardsAt(_cardZones.GetLocation(c.Cards[0])).Single(card => card.Id == c.Cards[0]).Kind, category)));
             if (primary is not null) return primary;
         }
         return cards.FirstOrDefault() ?? decision.Choices.First();
@@ -82,7 +82,7 @@ public sealed partial class GameEngine
         foreach (var card in _cardZones.CardsAt(new CardLocation(zone, draft.ChooserSeat)))
         {
             if (IsSelfHandCategoryDiscardForbidden(draft.ChooserSeat, card, new(zone, draft.ChooserSeat), OwnedCardMoveIntent.Discard) || draft.SelectedIds.Contains(card.Id) || draft.Mode == "category" && draft.ComplementOnly &&
-                effect.CardCategories.Contains(GetProgramCardCategory(card.Kind))) continue;
+                effect.CardCategories.Any(category => MatchesSkillProgramCardCategory(card.Kind, category))) continue;
             choices.Add(new(new ChoiceId($"discard-challenge.card-{card.Id}"), $"{(draft.Mode == "escalating" ? "选择" : "弃置")}【{card.DisplayName}】", [card.Id], [draft.ChooserSeat],
                 new Dictionary<string, string> { ["program-action"] = "discard-challenge", ["branch"] = "card" }));
         }
@@ -128,7 +128,7 @@ public sealed partial class GameEngine
             var location = _cardZones.GetLocation(choice.Cards[0]);
             if (location.OwnerSeat != draft.ChooserSeat || !effect.Zones.Contains(location.Zone)) throw new InvalidOperationException("Discard card left its owner.");
             var card = _cardZones.CardsAt(location).Single(c => c.Id == choice.Cards[0]);
-            var primary = effect.CardCategories.Contains(GetProgramCardCategory(card.Kind));
+            var primary = effect.CardCategories.Any(category => MatchesSkillProgramCardCategory(card.Kind, category));
             if (draft.Mode == "category" && draft.ComplementOnly && primary) throw new InvalidOperationException("Wrong discard category.");
             ClearPendingDecision();
             if (draft.Mode == "escalating")

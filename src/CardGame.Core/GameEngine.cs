@@ -1748,6 +1748,8 @@ public sealed partial class GameEngine
         AdvanceToHumanBoundary();
     }
 
+    public IReadOnlyList<LegalAction> GetLegalActions() => GetHumanLegalActions();
+
     public IReadOnlyList<LegalAction> GetHumanLegalActions()
     {
         if (_pendingDecision is not { } pending || pending.PlayerSeat != _options.HumanSeat)

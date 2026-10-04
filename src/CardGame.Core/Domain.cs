@@ -391,6 +391,8 @@ public sealed partial record GeneralSkillDefinition(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? ContentId { get; init; }
 
+    public string? Id => ContentId;
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public SkillTag Tags { get; init; }
 
@@ -765,6 +767,8 @@ public sealed record LegalAction
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? ProgramSkillId { get; init; }
+
+    public string? SkillId => ProgramSkillId;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? ProgramActivationId { get; init; }

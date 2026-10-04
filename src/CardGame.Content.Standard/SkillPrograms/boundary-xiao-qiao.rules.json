@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 62,
   "skills": [
     {
@@ -52,6 +52,7 @@
         {
           "id": "ending-heart-placement",
           "window": "turnEnding",
+          "subject": "owner",
           "optional": true,
           "effects": [
             {
