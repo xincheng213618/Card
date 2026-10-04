@@ -16799,7 +16799,8 @@ public sealed partial class GameEngine
         if (_started)
         {
             _pendingNotifications.Enqueue(new CardMovedNotification(movement));
-            AdvanceEventRulesAndQueueFact(new CardMovedEvent(card.Id, card.Kind, from, to, reason));
+            if (_suppressedCardMovedEventBatchIds.Count == 0)
+                AdvanceEventRulesAndQueueFact(new CardMovedEvent(card.Id, card.Kind, from, to, reason));
         }
         return movement;
     }

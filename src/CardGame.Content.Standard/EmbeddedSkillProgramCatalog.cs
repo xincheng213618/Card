@@ -21,11 +21,10 @@ internal static class EmbeddedSkillProgramCatalog
     internal static void RegisterBundle(
         IContentRegistryBuilder builder,
         string bundleResourceName,
-        Func<ContentSkillDefinition, ContentSkillDefinition> configure,
+        Func<ContentSkillDefinition, ContentSkillDefinition>? configure = null,
         IReadOnlyDictionary<string, SkillTag>? tagOverrides = null)
     {
         ArgumentNullException.ThrowIfNull(builder);
-        ArgumentNullException.ThrowIfNull(configure);
         var catalog = Catalog(bundleResourceName);
         if (tagOverrides is not null)
         {
@@ -40,7 +39,7 @@ internal static class EmbeddedSkillProgramCatalog
             var definition = Definition(bundleResourceName, id);
             if (tagOverrides is not null && tagOverrides.TryGetValue(id, out var tags))
                 definition = definition with { Tags = tags };
-            var configured = configure(definition);
+            var configured = (configure ?? (d => d))(definition);
             if (configured.Id != id)
                 throw new InvalidOperationException("Bundle metadata cannot change a skill identity.");
             builder.AddSkill(configured);

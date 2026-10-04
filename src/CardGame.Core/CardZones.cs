@@ -76,6 +76,7 @@ public readonly record struct CardLocation
     public static CardLocation Judgment(int seat) => new(CardZoneKind.Judgment, seat);
 
     public static CardLocation WoodenOxGrain(int seat) => new(CardZoneKind.WoodenOxGrain, seat);
+    public static CardLocation Grain(int seat) => WoodenOxGrain(seat);
 
     public static CardLocation BuquWound(int seat) => new(CardZoneKind.BuquWound, seat);
 

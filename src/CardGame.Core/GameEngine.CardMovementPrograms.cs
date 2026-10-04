@@ -14,6 +14,8 @@ public sealed partial class GameEngine
         trigger.GainPhaseQualification is null || timing is not null &&
         (timing.Phase != TurnPhase.Draw || timing.PhaseActorSeat != ownerSeat);
 
+    private readonly Stack<long> _suppressedCardMovedEventBatchIds = new();
+
     private sealed class CardMovementBatchBuilder(
         long id,
         long? parentFrameId,
@@ -22,8 +24,18 @@ public sealed partial class GameEngine
         int turnNumber,
         IReadOnlyDictionary<CardLocation, int> sourceCountsBefore,
         IReadOnlyDictionary<CardLocation, int> destinationCountsBefore,
-        ProgramSkillFrame? originProgram)
+        ProgramSkillFrame? originProgram,
+        Action? finalize = null) : IDisposable
     {
+        private bool _completed;
+
+        public void Dispose()
+        {
+            if (_completed) return;
+            _completed = true;
+            finalize?.Invoke();
+        }
+
         public long Id { get; } = id;
         public long? ParentFrameId { get; } = parentFrameId;
         public long? ParentBatchId { get; } = parentBatchId;
@@ -54,6 +66,36 @@ public sealed partial class GameEngine
             _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault()) { MovementTiming = CaptureMovementTiming(), DiscardRecoveryPhase = CurrentActualDiscardRecoveryPhase() };
         _activeCardMovementBatchIds.Push(batch.Id);
         return batch;
+    }
+    // Scope for callers that perform their own per-move fact emission: the
+    // movements still join one atomic batch and its completion facts, but the
+    // per-move CardMoved events stay suppressed until the scope disposes.
+    private CardMovementBatchBuilder BeginCardMovementBatch(bool emitCardMovedEvents = true)
+    {
+        var batch = new CardMovementBatchBuilder(
+            ++_resolutionSequence,
+            _resolutionStack.LastOrDefault()?.Id,
+            _activeCardMovementBatchIds.TryPeek(out var parentBatchId) ? parentBatchId : null,
+            _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault() is
+                { } awaited && IsAwaitingProgramMovement(awaited)
+                    ? awaited.Id : null,
+            _turnNumber,
+            new Dictionary<CardLocation, int>(),
+            new Dictionary<CardLocation, int>(),
+            _resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault()) { MovementTiming = CaptureMovementTiming(), DiscardRecoveryPhase = CurrentActualDiscardRecoveryPhase() };
+        _activeCardMovementBatchIds.Push(batch.Id);
+        if (!emitCardMovedEvents) _suppressedCardMovedEventBatchIds.Push(batch.Id);
+        return batch;
+    }
+
+    private void CompleteScopedCardMovementBatch(CardMovementBatchBuilder batch)
+    {
+        if (_suppressedCardMovedEventBatchIds.TryPop(out var suppressed) || true)
+        {
+            if (_activeCardMovementBatchIds.TryPeek(out var active) && active == batch.Id)
+                _activeCardMovementBatchIds.Pop();
+        }
+        CompleteCardMovementBatch(batch, Array.Empty<CardMovementRecord>(), committed: true);
     }
 
     private void CompleteCardMovementBatch(
@@ -107,7 +149,7 @@ public sealed partial class GameEngine
         return true;
     }
 
-    private bool TryBeginCardsMovedProgramWindow(long? instructionFrameId = null)
+    private bool TryBeginCardsMovedProgramWindow(long? instructionFrameId = null, int? subjectSeat = null)
     {
         var factionRequestCost = _resolutionStack.LastOrDefault() is { PaidFactionRequestCostRecovery: not null } paidRequest &&
             paidRequest.Id == instructionFrameId ? paidRequest : null;

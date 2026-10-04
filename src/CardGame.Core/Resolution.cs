@@ -358,6 +358,8 @@ public sealed record ProgramSkillFrame(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramPlaySlashRecastReceipt? PlaySlashRecast { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ProgramCappedConversionBenefitReceipt? CappedConversionBenefit { get; init; }
     public bool ReexecuteParticipantInstruction { get; init; }
+    public long? ParentFrameId => WindowContext?.ParentFrameId;
+
 }
 
 /// <summary>One cardless program damage instruction, owned solely by its program frame.</summary>

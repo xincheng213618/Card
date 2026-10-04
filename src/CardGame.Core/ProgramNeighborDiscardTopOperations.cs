@@ -67,7 +67,7 @@ internal sealed class LoseHpIfRevealedNonEquipmentDiffersDescriptor : ProgramOpe
         [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnEnding), new ReadSelectedTarget(), new ReadCardSet(e.SourceBind!)];
 
     internal static void Validate(string path, IReadOnlyList<SkillProgramEffect> effects,
-        SkillProgramTriggerWindow window, SkillProgramTriggerSubject subject,
+        SkillProgramTriggerWindow window, SkillProgramTriggerSubject? subject,
         SkillProgramMovementOccurrence? occurrence, bool discardOnly, IReadOnlyList<CardZoneKind> sourceZones,
         SkillProgramTurnOwnerScope scope, IReadOnlyList<string> movementReasons,
         IReadOnlyList<string> excludedMovementReasons, bool ignoreOwnSkillMovements)

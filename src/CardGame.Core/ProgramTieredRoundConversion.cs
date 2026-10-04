@@ -69,15 +69,15 @@ public sealed partial class GameEngine
         if (!TracksTrueRoundCardNames || _roundNumber < 1) return;
         if (payload is CardActionAcceptedEvent accepted)
         {
-            var action = accepted.Action;
-            if (TryRecordTrueRoundDodgeUse(action)) return;
-            if (action.Type != CardActionType.Response || action.EffectiveKind != CardKind.Nullification ||
-                action.ActorSeat != action.ProviderSeat || action.ResponderSeat != action.ActorSeat || action.RequesterSeat is not null) return;
+            var acceptedAction = accepted.Action;
+            if (TryRecordTrueRoundDodgeUse(acceptedAction)) return;
+            if (acceptedAction.Type != CardActionType.Response || acceptedAction.EffectiveKind != CardKind.Nullification ||
+                acceptedAction.ActorSeat != acceptedAction.ProviderSeat || acceptedAction.ResponderSeat != acceptedAction.ActorSeat || acceptedAction.RequesterSeat is not null) return;
             var window = _resolutionStack.OfType<NullificationWindowFrame>().LastOrDefault();
             var parent = _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(u => u.Id == window?.ParentFrameId);
-            if (window is null || parent is null || action.ParentActionId != parent.Action?.ActionId ||
-                action.OpponentSeat != window.SourceSeat || !IsValidPlayerSeat(action.ActorSeat)) return;
-            RecordTrueRoundCardName(window.Id, action.ActorSeat, action.ActionId, action.EffectiveKind, true); return;
+            if (window is null || parent is null || acceptedAction.ParentActionId != parent.Action?.ActionId ||
+                acceptedAction.OpponentSeat != window.SourceSeat || !IsValidPlayerSeat(acceptedAction.ActorSeat)) return;
+            RecordTrueRoundCardName(window.Id, acceptedAction.ActorSeat, acceptedAction.ActionId, acceptedAction.EffectiveKind, true); return;
         }
         if (payload is not CardUseDeclaredEvent declared) return;
         var use = _resolutionStack.OfType<CardUseFrame>().SingleOrDefault(u => u.Id == declared.ResolutionId);

@@ -189,6 +189,7 @@ public enum SkillProgramEffectOp
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,
     ClaimDiscardedEntityWithProvenance = 4500, UseVirtualAlcohol = 4501, OfferFaceUpForOutsideClaims = 4502,
+    AwaitBoundCardMovements = 1484, UseVirtualDuel = 1486,
     InsertGrantedEntityPlayPhase = 4800, ClaimGrantedPhaseSlash = 4801,
     FreezeLivingFactionRecovery = 4802, DrawToFrozenFactionCount = 4803, TurnOverIfFrozenFactionCountExceedsGameDamage = 4804,
     RevealTopCardsWithNextBooleanBonus = 3600, ObtainBoundCardsAndArmNextRevealBonus = 3601,

@@ -173,7 +173,7 @@ internal static class HalfHandPhaseDebtComposition
 
 internal static class HalfHandPhaseDebtTriggerContract
 {
-    internal static void Validate(string path, IReadOnlyList<SkillProgramEffect> effects, SkillProgramTriggerSubject subject, bool optional)
+    internal static void Validate(string path, IReadOnlyList<SkillProgramEffect> effects, SkillProgramTriggerSubject? subject, bool optional)
     {
         if (effects.Any(e => e.Op is SkillProgramEffectOp.DrawExtraAndArmHalfHandSupport or SkillProgramEffectOp.GiveHalfHandAndIssueTargetSupport or
             SkillProgramEffectOp.SelectFrozenHandExchangeDebtPayment or SkillProgramEffectOp.OfferHalfHandRecipientSupport) &&
