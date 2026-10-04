@@ -1,0 +1,280 @@
+{
+  "status": "current-main-text-ready-grant-source-gap",
+  "scope": "Current ordinary OL 界限突破; no classic/x/mobile/national-war skill substitution",
+  "capturedUtc": "2026-10-04T06:47:39.835863+00:00",
+  "officialId": 690,
+  "identity": {
+    "name": "界关兴张苞",
+    "faction": "shu",
+    "factionName": "蜀",
+    "hp": 4,
+    "initialHpRaw": 0,
+    "productLineAuthority": "Retained official index Listdata[界限突破] exact row plus current hero page/API identity"
+  },
+  "genderProvenance": {
+    "currentApiHasGender": false,
+    "currentApiValue": null,
+    "supplement": "Male",
+    "supplementAuthority": "Existing classic definition omits Gender; ContentGeneralDefinition default Male. Same-person supplement only, not current API gender.",
+    "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+    "rawSha256": "41e6e30c90f10b8031f1614ccff4bf427270a7f48c5dab874b30418bfda9e8f5",
+    "defaultDefinitionPath": "src/CardGame.Core/ContentRegistry.cs"
+  },
+  "page": {
+    "requestUrl": "https://www.sanguosha.com/hero/690",
+    "responseUrl": "https://www.sanguosha.com/hero/690",
+    "method": "GET",
+    "httpStatus": 200,
+    "requestStartedUtc": "2026-10-04T06:43:16.7339560Z",
+    "completedUtc": "2026-10-04T06:43:17.1073621Z",
+    "rawPath": "690-page.raw.html",
+    "rawBytes": 23905,
+    "rawSha256": "0ef85cd8811160b5d79d98e342e82c15a9f5841816f8db34dc4f392e9283ecab",
+    "headers": {
+      "Server": [
+        "istio-envoy"
+      ],
+      "trace-id": [
+        "eae3995b0b21f71e7e8696051125a4f5"
+      ],
+      "Date": [
+        "Sun, 04 Oct 2026 05:59:07 GMT"
+      ],
+      "Vary": [
+        "Accept-Encoding"
+      ],
+      "x-varnish": [
+        "53017784 55459618"
+      ],
+      "Accept-Ranges": [
+        "bytes"
+      ],
+      "x-varnish-cache": [
+        "hit"
+      ],
+      "req-cost-time": [
+        "2"
+      ],
+      "req-arrive-time": [
+        "1791096200356"
+      ],
+      "resp-start-time": [
+        "1791096200359"
+      ],
+      "x-envoy-upstream-service-time": [
+        "2"
+      ],
+      "Set-Cookie": [
+        "acw_tc=18a9a98f17910962003566160e260095f86153b571b7c08353115b49083b8f;path=/;HttpOnly;Max-Age=1800"
+      ],
+      "X-Cache-Lookup": [
+        "Cache Miss",
+        "Hit From Upstream Cluster",
+        "Cache Miss"
+      ],
+      "Age": [
+        "2652"
+      ],
+      "X-NWS-LOG-UUID": [
+        "4865713246056099155"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Content-Type": [
+        "text/html"
+      ],
+      "Content-Length": [
+        "23905"
+      ]
+    },
+    "redirectsFollowed": false,
+    "execution": "response bytes only; no page JavaScript",
+    "provenance": "exact URL advertised in retained index.raw.html"
+  },
+  "api": {
+    "requestUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=690",
+    "responseUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=690",
+    "method": "GET",
+    "httpStatus": 200,
+    "requestStartedUtc": "2026-10-04T06:43:44.2492971Z",
+    "completedUtc": "2026-10-04T06:43:44.4794593Z",
+    "rawPath": "690-api.raw.json",
+    "rawBytes": 932,
+    "rawSha256": "0fc32364e5209cd0c001648582fd91a6eb150b3031bf80fc7c827d9734aeeb7e",
+    "headers": {
+      "Server": [
+        "istio-envoy"
+      ],
+      "trace-id": [
+        "0dc5cba70585b0e5269abe7111bde6d1"
+      ],
+      "Date": [
+        "Sun, 04 Oct 2026 06:43:47 GMT"
+      ],
+      "x-varnish": [
+        "56154692"
+      ],
+      "x-varnish-cache": [
+        "miss"
+      ],
+      "req-cost-time": [
+        "45"
+      ],
+      "req-arrive-time": [
+        "1791096227710"
+      ],
+      "resp-start-time": [
+        "1791096227756"
+      ],
+      "x-envoy-upstream-service-time": [
+        "44"
+      ],
+      "Set-Cookie": [
+        "acw_tc=1801138d17910962277106322e2600e8e29c334b8ee1a17b83b9f1ef868e30;path=/;HttpOnly;Max-Age=1800"
+      ],
+      "Vary": [
+        "Accept-Encoding"
+      ],
+      "X-Cache-Lookup": [
+        "Cache Miss",
+        "Hit From Upstream Cluster",
+        "Cache Miss"
+      ],
+      "Age": [
+        "0"
+      ],
+      "Transfer-Encoding": [
+        "chunked"
+      ],
+      "X-NWS-LOG-UUID": [
+        "7476824810046388736"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "redirectsFollowed": false,
+    "execution": "response bytes only; no JavaScript",
+    "advertisedProducer": "fetch('/api/v1/hero/info?gid=' + gid)",
+    "advertisedBy": "690-page.raw.html"
+  },
+  "apiIdentityRaw": {
+    "gid": 690,
+    "name": "界关兴张苞",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/690.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/69000.png",
+    "label": [
+      "进攻",
+      "过牌",
+      "强命"
+    ],
+    "figure": "蜀",
+    "figure_py": "shu",
+    "quality": "史诗",
+    "biography": "关兴，字安国，关羽之子。曾任侍中、中监军，后病逝。张苞，字不详，张飞之子，早卒。小说《三国演义》中，将二人设定为如父亲一般勇武的猛将，二人结为兄弟参与北伐，共报父仇。",
+    "characteristic": "拥有恐怖的进攻能力，但害怕被破坏手牌结构。",
+    "hp": 4,
+    "initial_hp": 0,
+    "score": 0
+  },
+  "apiHasSkillText": false,
+  "selectedSkills": [
+    {
+      "name": "父魂",
+      "currentText": "你可将两张牌当【杀】使用或打出。你使用的转化【杀】目标角色只能使用颜色相同的手牌响应；\n你于出牌阶段使用【杀】造成伤害后，你本回合获得“武圣”“咆哮”。",
+      "html": "你可将两张牌当【杀】使用或打出。你使用的转化【杀】目标角色只能使用颜色相同的手牌响应；<br>你于出牌阶段使用【杀】造成伤害后，你本回合获得“<font href='878'>武圣</font>”“<font href='939'>咆哮</font>”。",
+      "fontReferences": [
+        {
+          "id": 878,
+          "label": "武圣",
+          "resolved": false
+        },
+        {
+          "id": 939,
+          "label": "咆哮",
+          "resolved": false
+        }
+      ]
+    }
+  ],
+  "currentMainTextComplete": true,
+  "fullImplementationSourceReady": false,
+  "placeholder": {
+    "unresolvedNumericFontReferences": [
+      {
+        "id": 878,
+        "label": "武圣",
+        "resolved": false
+      },
+      {
+        "id": 939,
+        "label": "咆哮",
+        "resolved": false
+      }
+    ],
+    "unexpandedModification": false,
+    "skillBodyEmpty": false
+  },
+  "sourceGaps": [
+    "Current page only names derived 武圣/font878 and 咆哮/font939. No resolver or full derived text is provided by this page/detail API; no request to guessed resolver was made.",
+    "Do not substitute classic or currently registered boundary names for an unresolved font identity. Full implementation remains grant-source-blocked."
+  ],
+  "faqAndEngineeringGaps": [
+    "Two-card source zones and mixed-color conversion effective color are not specified.",
+    "Meaning of 颜色相同的手牌响应 and treatment of converted/equipment/pile responses needs a ruling.",
+    "Actual Play Slash damage grants, source loss, extra actual turns and expiration require precise engineering defaults after derived source is resolved."
+  ],
+  "partialReuseNotes": [
+    "Existing two-material physical/converted Slash and actual-turn skill grants can be inspected later; no implementation contract is asserted here.",
+    "Current target response-color/hand provenance restriction differs from existing classic Fuhun; derived identities must be proved first."
+  ],
+  "registration": {
+    "officialId": 690,
+    "currentName": "界关兴张苞",
+    "expectedBoundaryModuleNames": [
+      "BoundaryGuanXingZhangBaoContent"
+    ],
+    "registeredBoundaryModuleMatches": [],
+    "exactCurrentBoundaryNameInPackage": false,
+    "existingClassicOnly": {
+      "contentId": "classic:guan-xing-zhang-bao",
+      "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+      "literal": "\"classic:guan-xing-zhang-bao\", \"关兴张苞\""
+    },
+    "registeredCurrent": false,
+    "cacheUsedAsCurrentRegistrationFact": false
+  },
+  "retainedIndexProvenance": {
+    "path": ".artifacts/continuation-20261003-batch17/batch21/dong-zhuo/next-batch22/index.raw.html",
+    "rawSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+    "capturedAtUtcAsRetained": "2026-10-03T17:09:18.318761+00:00",
+    "advertisedPageUrl": "https://www.sanguosha.com/hero/690",
+    "cachedCandidatePath": ".artifacts/continuation-20261003-batch17/batch28/source-preflight/candidate-registration-preflight.json",
+    "cachedCandidateNotCurrentFact": {
+      "gid": 690,
+      "name": "界关兴张苞",
+      "faction": "shu",
+      "hp": 4,
+      "nameLiteralMatchesInRegisteredModules": []
+    }
+  },
+  "requestBudget": {
+    "pageRequests": 1,
+    "advertisedDetailApiRequests": 1,
+    "derivedResolverRequests": 0,
+    "mediaRequests": 0
+  },
+  "execution": {
+    "pageJavaScript": false,
+    "application": false,
+    "registryLoader": false,
+    "compiler": false,
+    "tests": false,
+    "benchmark": false,
+    "nativeAi": false
+  }
+}

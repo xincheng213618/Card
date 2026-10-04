@@ -1,0 +1,90 @@
+{
+  "scope": "Bounded primary-source linked-rule followup only; no implementation or main writes",
+  "capturedUtc": "2026-10-04T06:50:45Z",
+  "timestampMeaning": "UTC recorded when retaining tool results after the bounded requests; individual request-start UTC was not exposed by web tool.",
+  "searchProvider": "web official-domain search, www.sanguosha.com",
+  "sourceRetrievalNotes": "web tool readable content/snippets retained as selected evidence. HTTP raw bytes, response headers/status were not exposed and are not represented as successfully captured.",
+  "execution": {
+    "mainWrites": false,
+    "pageJavaScript": false,
+    "media": false,
+    "compiler": false,
+    "loader": false,
+    "tests": false,
+    "benchmark": false,
+    "nativeAi": false
+  },
+  "budget": {
+    "officialDomainSearchQueries": 1,
+    "officialNewsOpenAttempts": 1,
+    "oldHeroOrApiRequests": 0,
+    "derivedResolverRequests": 0
+  },
+  "officialId": 726,
+  "status": "current-modification-source-gap-closed-by-matching-primary-announcement",
+  "baseSource": {
+    "path": ".artifacts/continuation-20261003-batch17/batch31/source-preflight/726-official-source.json",
+    "sha256": "9387c8212c44a4909ee2ace1e5657ac9d8632151f8f3093035ec0bcd7e06251e"
+  },
+  "query": "\"界郭皇后\" \"矫诏\" \"殚心\" 修改",
+  "domainFilter": [
+    "www.sanguosha.com"
+  ],
+  "selectedHit": {
+    "url": "https://www.sanguosha.com/news/20260612_7102_0710",
+    "title": "6.18-6.26 端午钜惠界郭皇后、界张松来袭 擎天柱石 金城银焰*董翓琳琅绘卷上新",
+    "publishedLocalAsDisplayed": "2026-06-17 17:14:20",
+    "timezoneNotExplicitlyDisplayed": true,
+    "openResult": "Succeeded; readable text/html content",
+    "httpStatus": null,
+    "rawHttpSha256": null,
+    "evidenceAuthority": "Official page opened by web tool; readable selected section retained. Raw HTTP SHA unavailable, no SHA invented.",
+    "section": "新品武将 → 界郭皇后",
+    "identity": {
+      "faction": "wei",
+      "factionName": "魏",
+      "hp": 3,
+      "gender": "Female",
+      "genderLabel": "女",
+      "authority": "Direct official announcement table; replaces reliance on classic identity supplement for this followup."
+    },
+    "skills": {
+      "矫诏": "出牌阶段限一次，你可将一张牌当本轮未有角色使用过的基本或普通锦囊牌使用。",
+      "矫诏修改一": "每轮限一次，你可将一张牌当任意基本牌或普通锦囊牌使用。",
+      "矫诏修改二": "每轮限一次，你可视为使用一张基本牌或普通锦囊。",
+      "殚心": "当你受到伤害后，你可摸X张牌，然后修改“矫诏”（X为你修改“矫诏”的次数）。"
+    },
+    "lineEvidence": {
+      "date": 16,
+      "identity": 24,
+      "fullRules": 25
+    },
+    "versionEvidence": "2026 ordinary OL 新品武将 section, title has no 十周年 product marker, both current base skills match retained hero726 word-for-word.",
+    "eventAvailability": "2026-06-18 through 2026-06-26 as displayed; this supports publication context only, no purchasing recommendation."
+  },
+  "excludedCrossProductHits": [
+    {
+      "url": "https://www.sanguosha.com/news/20220330_2669_0715",
+      "reason": "Explicit 十周年 title and nearest-character declaration base; not current726.",
+      "opened": false
+    },
+    {
+      "url": "https://www.sanguosha.com/news/20220318_9260_2118",
+      "reason": "Explicit 十周年 title and old nearest-character declaration base; not current726.",
+      "opened": false
+    }
+  ],
+  "applicability": {
+    "currentSameVersionProved": true,
+    "proof": "Current retained726 base 矫诏/殚心 match complete2026 primary table; identity name/Wei3 match; table explicitly supplies the two modifications.",
+    "sourceReadySubjectToEngineeringRulings": true
+  },
+  "fullImplementationSourceReady": true,
+  "remainingFaq": [
+    "Whether modified per-Round once usage shares issuance/usage with prior base/per-phase activations must be specified.",
+    "Whether modified text retains any Play timing from original activation is not an explicit ruling in this announcement.",
+    "Draw X uses already-completed modifications before the new modification; third and later Danxin behavior after maximum tier is not supplied.",
+    "True Round use-name history, exact Basic/ordinaryTrick repertoire, Nullification Use vs ordinary response, source-loss/reacquisition and zero-material virtual use need engineering defaults."
+  ],
+  "boundedSearchConclusion": "This primary announcement closes modification text/identity provenance only; it does not settle the listed FAQ or authorize implementation."
+}

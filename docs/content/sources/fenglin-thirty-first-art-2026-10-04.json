@@ -1,0 +1,30 @@
+{
+  "status": "official-advertised-original-png-owned-stage-uninstalled",
+  "gid": 726,
+  "name": "界郭皇后",
+  "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/72600.png",
+  "httpStatus": 200,
+  "requestCount": 1,
+  "redirectFollowed": false,
+  "capturedStartUtc": "2026-10-04T07:01:20.7818285Z",
+  "capturedCompletedUtc": "2026-10-04T07:01:20.9632817Z",
+  "sourceRecord": {
+    "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch31\\source-preflight/726-official-source.json",
+    "sha256": "9387c8212c44a4909ee2ace1e5657ac9d8632151f8f3093035ec0bcd7e06251e"
+  },
+  "matchingRuleFollowup": {
+    "stagePath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch31\\linked-rule-followup/726-linked-rule-evidence.json",
+    "sha256": "f66822510b9c9716788f0d0768e79ebc40ae3933dcf29c6885400b21a05b8bda"
+  },
+  "pngPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch31\\official-art\\726-cover.original.png",
+  "headersPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch31\\official-art\\726-cover.headers.txt",
+  "bytes": 944707,
+  "sha256": "e5a4b72b604fb293dd51220c4a152e4a69fe9021d1a030b00f4b247a8f327091",
+  "headersSha256": "a490e936b60883059f7a48c9d64e577b324712e394af0be98eaffc9e41aeae4b",
+  "pixelWidth": 750,
+  "pixelHeight": 950,
+  "originalBytesUnmodified": true,
+  "installed": false,
+  "fullOfflineCatalogRun": false,
+  "compiledVerification": false
+}

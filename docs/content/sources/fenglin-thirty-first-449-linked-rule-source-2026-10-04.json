@@ -1,0 +1,59 @@
+{
+  "scope": "Bounded primary-source linked-rule followup only; no implementation or main writes",
+  "capturedUtc": "2026-10-04T06:50:45Z",
+  "timestampMeaning": "UTC recorded when retaining tool results after the bounded requests; individual request-start UTC was not exposed by web tool.",
+  "searchProvider": "web official-domain search, www.sanguosha.com",
+  "sourceRetrievalNotes": "web tool readable content/snippets retained as selected evidence. HTTP raw bytes, response headers/status were not exposed and are not represented as successfully captured.",
+  "execution": {
+    "mainWrites": false,
+    "pageJavaScript": false,
+    "media": false,
+    "compiler": false,
+    "loader": false,
+    "tests": false,
+    "benchmark": false,
+    "nativeAi": false
+  },
+  "budget": {
+    "officialDomainSearchQueries": 1,
+    "officialNewsOpenAttempts": 1,
+    "oldHeroOrApiRequests": 0,
+    "derivedResolverRequests": 0
+  },
+  "officialId": 449,
+  "status": "current-grant-source-gap-retained-with-promising-historical-supplement",
+  "baseSource": {
+    "path": ".artifacts/continuation-20261003-batch17/batch31/source-preflight/449-official-source.json",
+    "sha256": "53d1ea9e3de088db5d760816be8c09de176ee870699031586ac3997c88623fe1"
+  },
+  "query": "\"界于吉\" \"蛊惑\" \"缠怨\"",
+  "domainFilter": [
+    "www.sanguosha.com"
+  ],
+  "selectedHit": {
+    "url": "https://www.sanguosha.com/news/20200101_3308_3113",
+    "title": "1.3-1.9 界于吉新品上架，夺宝转盘更新",
+    "publishedLocalAsDisplayed": "2020-01-02 18:51:16",
+    "timezoneNotExplicitlyDisplayed": true,
+    "openResult": "Internal Error",
+    "httpStatus": null,
+    "evidenceAuthority": "Official search readable extract only; independent page open failed; no raw response capture.",
+    "mainText": "每名角色的回合限一次，你可以扣置一张手牌当任意一张基本牌或普通锦囊牌使用或打出。其他角色可以进行质疑并翻开此牌：若为假则此牌作废，且质疑者摸一张牌；若为真则所有质疑者需要选择弃置一张牌或失去1点体力，并且获得“缠怨”。",
+    "derivedTextAsSearchExtract": {
+      "缠怨": "锁定技，你不能质疑“蛊惑”；你的体力值小于等于1时，你的其他技能失效。"
+    },
+    "versionEvidence": "Ordinary OL announcement explicitly sells 界于吉 and 经典版界于吉. No 十周年 marker in selected result.",
+    "typography": "Search renderer uses 〖〗 and ASCII quotes; bracket/quote glyphs normalized here without changing wording."
+  },
+  "applicability": {
+    "currentSameVersionProved": false,
+    "reason": "This is a promising same-person boundary ordinary-OL historical announcement with matching main mechanism. Current449 explicitly says 同时 and grants 缠怨 then discards/losesHP; historical extract says all challengers select discard/loseHP and obtain 缠怨. Independent page opening failed and no font885 binding/current inheritance was established.",
+    "currentFont885ResolverProved": false,
+    "notAutomaticallyImported": true
+  },
+  "fullImplementationSourceReady": false,
+  "remainingGap": [
+    "Successful retained primary page and current font885/derived-version applicability proof remain missing. Parent may evaluate historical supplement separately; this record itself keeps gap."
+  ],
+  "boundedSearchConclusion": "One official-domain query found a promising historical supplement; this bounded failed-open result is not a site-wide absence claim."
+}

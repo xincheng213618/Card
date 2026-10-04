@@ -1,0 +1,259 @@
+{
+  "status": "current-main-text-ready-modification-source-gap",
+  "scope": "Current ordinary OL 界限突破; no classic/x/mobile/national-war skill substitution",
+  "capturedUtc": "2026-10-04T06:47:39.835863+00:00",
+  "officialId": 726,
+  "identity": {
+    "name": "界郭皇后",
+    "faction": "wei",
+    "factionName": "魏",
+    "hp": 3,
+    "initialHpRaw": 0,
+    "productLineAuthority": "Retained official index Listdata[界限突破] exact row plus current hero page/API identity"
+  },
+  "genderProvenance": {
+    "currentApiHasGender": false,
+    "currentApiValue": null,
+    "supplement": "Female",
+    "supplementAuthority": "Existing classic definition explicitly GeneralGender.Female; same-person supplement only.",
+    "path": "src/CardGame.Content.Standard/Fame2016ConversionContent.cs",
+    "rawSha256": "14cf9e36e6bf96f1fef76a8f18a133199a42df97cdf2ac37e522ad6795ac63cf",
+    "defaultDefinitionPath": null
+  },
+  "page": {
+    "requestUrl": "https://www.sanguosha.com/hero/726",
+    "responseUrl": "https://www.sanguosha.com/hero/726",
+    "method": "GET",
+    "httpStatus": 200,
+    "requestStartedUtc": "2026-10-04T06:43:17.1740475Z",
+    "completedUtc": "2026-10-04T06:43:17.2482162Z",
+    "rawPath": "726-page.raw.html",
+    "rawBytes": 23502,
+    "rawSha256": "acda1447ad2693b5387b4811d19c2c2a3f5e9ab09351df12c79466fe910e01cf",
+    "headers": {
+      "Server": [
+        "istio-envoy"
+      ],
+      "trace-id": [
+        "d83447121b374543f6edbfccbbfd6bf6"
+      ],
+      "Date": [
+        "Sun, 04 Oct 2026 05:48:25 GMT"
+      ],
+      "Vary": [
+        "Accept-Encoding"
+      ],
+      "x-varnish": [
+        "56572880 53017657"
+      ],
+      "Accept-Ranges": [
+        "bytes"
+      ],
+      "x-varnish-cache": [
+        "hit"
+      ],
+      "req-cost-time": [
+        "2"
+      ],
+      "req-arrive-time": [
+        "1791096200525"
+      ],
+      "resp-start-time": [
+        "1791096200527"
+      ],
+      "x-envoy-upstream-service-time": [
+        "2"
+      ],
+      "X-Cache-Lookup": [
+        "Cache Miss",
+        "Hit From Upstream Cluster",
+        "Cache Miss"
+      ],
+      "Age": [
+        "3295"
+      ],
+      "X-NWS-LOG-UUID": [
+        "2005441346772311799"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Content-Type": [
+        "text/html"
+      ],
+      "Content-Length": [
+        "23502"
+      ]
+    },
+    "redirectsFollowed": false,
+    "execution": "response bytes only; no page JavaScript",
+    "provenance": "exact URL advertised in retained index.raw.html"
+  },
+  "api": {
+    "requestUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=726",
+    "responseUrl": "https://www.sanguosha.com/api/v1/hero/info?gid=726",
+    "method": "GET",
+    "httpStatus": 200,
+    "requestStartedUtc": "2026-10-04T06:43:44.5135270Z",
+    "completedUtc": "2026-10-04T06:43:44.6234217Z",
+    "rawPath": "726-api.raw.json",
+    "rawBytes": 613,
+    "rawSha256": "4e7c76c15ba65974ba64ec10a504f477c1aabc8c12457e89f8256d15586ffb40",
+    "headers": {
+      "Server": [
+        "istio-envoy"
+      ],
+      "trace-id": [
+        "94f23d6d3f6832020e1550460b431f59"
+      ],
+      "Date": [
+        "Sun, 04 Oct 2026 06:43:47 GMT"
+      ],
+      "x-varnish": [
+        "57197618"
+      ],
+      "x-varnish-cache": [
+        "miss"
+      ],
+      "req-cost-time": [
+        "48"
+      ],
+      "req-arrive-time": [
+        "1791096227865"
+      ],
+      "resp-start-time": [
+        "1791096227914"
+      ],
+      "x-envoy-upstream-service-time": [
+        "47"
+      ],
+      "Vary": [
+        "Accept-Encoding"
+      ],
+      "X-Cache-Lookup": [
+        "Cache Miss",
+        "Hit From Upstream Cluster",
+        "Cache Miss"
+      ],
+      "Age": [
+        "0"
+      ],
+      "Transfer-Encoding": [
+        "chunked"
+      ],
+      "X-NWS-LOG-UUID": [
+        "11849527954744824949"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "redirectsFollowed": false,
+    "execution": "response bytes only; no JavaScript",
+    "advertisedProducer": "fetch('/api/v1/hero/info?gid=' + gid)",
+    "advertisedBy": "726-page.raw.html"
+  },
+  "apiIdentityRaw": {
+    "gid": 726,
+    "name": "界郭皇后",
+    "avatar": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/skinShop/726.png",
+    "cover": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/72600.png",
+    "label": [
+      "进攻",
+      "防御",
+      "控制"
+    ],
+    "figure": "魏",
+    "figure_py": "wei",
+    "quality": "传说",
+    "biography": "明元郭皇后，即魏明帝曹叡皇后。曹魏三少帝时期，郭太后与重臣一同处理政务。",
+    "characteristic": "可以快速成长修改技能效果。",
+    "hp": 3,
+    "initial_hp": 0,
+    "score": 0
+  },
+  "apiHasSkillText": false,
+  "selectedSkills": [
+    {
+      "name": "矫诏",
+      "currentText": "出牌阶段限一次，你可将一张牌当本轮未有角色使用过的基本或普通锦囊牌使用。",
+      "html": "出牌阶段限一次，你可将一张牌当本轮未有角色使用过的基本或普通锦囊牌使用。",
+      "fontReferences": []
+    },
+    {
+      "name": "殚心",
+      "currentText": "当你受到伤害后，你可摸X张牌，然后修改“矫诏”（X为你修改“矫诏”的次数）。",
+      "html": "当你受到伤害后，你可摸X张牌，然后修改“矫诏”（X为你修改“矫诏”的次数）。",
+      "fontReferences": []
+    }
+  ],
+  "currentMainTextComplete": true,
+  "fullImplementationSourceReady": false,
+  "placeholder": {
+    "unresolvedNumericFontReferences": [],
+    "unexpandedModification": true,
+    "skillBodyEmpty": false
+  },
+  "sourceGaps": [
+    "Current page says 修改矫诏 but supplies no modification levels, modified text, upper bound or resolver. Detail API has identity only.",
+    "Classic Jiaozhao/Danxin tier mechanics are a different version and cannot fill the current modification-source gap."
+  ],
+  "faqAndEngineeringGaps": [
+    "X is the number of prior modifications at damage activation; whether draw precedes increment needs an explicit implementation default.",
+    "True Round card-name use history, Nullification true Use vs ordinary responses, extra turns and source reacquisition require exact semantics.",
+    "The initial zero-modification case and modified activation limits cannot be inferred from classic text."
+  ],
+  "partialReuseNotes": [
+    "Existing declaration/conversion state and true Round tracking are partial building blocks; current complete modification text is missing.",
+    "Do not map current Danxin to the classic capped tier alteration."
+  ],
+  "registration": {
+    "officialId": 726,
+    "currentName": "界郭皇后",
+    "expectedBoundaryModuleNames": [
+      "BoundaryGuoHuangHouContent",
+      "BoundaryGuoHuanghouContent"
+    ],
+    "registeredBoundaryModuleMatches": [],
+    "exactCurrentBoundaryNameInPackage": false,
+    "existingClassicOnly": {
+      "contentId": "classic:guo-huanghou",
+      "path": "src/CardGame.Content.Standard/Fame2016ConversionContent.cs",
+      "literal": "\"classic:guo-huanghou\", \"郭皇后\""
+    },
+    "registeredCurrent": false,
+    "cacheUsedAsCurrentRegistrationFact": false
+  },
+  "retainedIndexProvenance": {
+    "path": ".artifacts/continuation-20261003-batch17/batch21/dong-zhuo/next-batch22/index.raw.html",
+    "rawSha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+    "capturedAtUtcAsRetained": "2026-10-03T17:09:18.318761+00:00",
+    "advertisedPageUrl": "https://www.sanguosha.com/hero/726",
+    "cachedCandidatePath": ".artifacts/continuation-20261003-batch17/batch28/source-preflight/candidate-registration-preflight.json",
+    "cachedCandidateNotCurrentFact": {
+      "gid": 726,
+      "name": "界郭皇后",
+      "faction": "wei",
+      "hp": 3,
+      "nameLiteralMatchesInRegisteredModules": []
+    }
+  },
+  "requestBudget": {
+    "pageRequests": 1,
+    "advertisedDetailApiRequests": 1,
+    "derivedResolverRequests": 0,
+    "mediaRequests": 0
+  },
+  "execution": {
+    "pageJavaScript": false,
+    "application": false,
+    "registryLoader": false,
+    "compiler": false,
+    "tests": false,
+    "benchmark": false,
+    "nativeAi": false
+  }
+}

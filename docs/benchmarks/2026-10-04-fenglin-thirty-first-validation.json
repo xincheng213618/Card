@@ -1,0 +1,119 @@
+{
+  "status": "one-owned-implementation-two-current-grant-source-gaps-runtime-deferred",
+  "batch": 31,
+  "baselineCommit": "c0cf5dfec064882b3b4b513a6ec04dc29843ac3b",
+  "recordedAtUtc": "2026-10-04T07:26:28.6581780Z",
+  "userSteering": {
+    "instruction": "Keep adding and commit; user will run unified tests after waking because CPU noise",
+    "buildsRun": false,
+    "productionLoaderExecuted": false,
+    "testsRun": false,
+    "benchmarksRun": false,
+    "commitAuthorized": true,
+    "pushAuthorized": false
+  },
+  "candidates": [
+    {
+      "gid": 690,
+      "name": "界关兴张苞",
+      "sourceRecord": "docs/content/sources/fenglin-thirty-first-690-source-2026-10-04.json",
+      "sourceSha256": "a9d4e50225c01265c72db3bb0ba1485d354b0f237a402618344b7ceb0bb86779",
+      "linkedRuleRecord": "docs/content/sources/fenglin-thirty-first-690-linked-rule-source-2026-10-04.json",
+      "linkedRuleSha256": "497cc3fc43413267fe3353b5ab28fd680b73ba318555773df8ce4259b34d4fdb",
+      "originalSnapshotReady": false,
+      "currentFullImplementationSourceReady": false,
+      "mainRegistered": false,
+      "status": "current-grant-source-gap",
+      "owner": null,
+      "stage": null,
+      "reservedCapacity": null,
+      "runtimeAcceptance": false
+    },
+    {
+      "gid": 726,
+      "name": "界郭皇后",
+      "sourceRecord": "docs/content/sources/fenglin-thirty-first-726-source-2026-10-04.json",
+      "sourceSha256": "9387c8212c44a4909ee2ace1e5657ac9d8632151f8f3093035ec0bcd7e06251e",
+      "linkedRuleRecord": "docs/content/sources/fenglin-thirty-first-726-linked-rule-source-2026-10-04.json",
+      "linkedRuleSha256": "f66822510b9c9716788f0d0768e79ebc40ae3933dcf29c6885400b21a05b8bda",
+      "originalSnapshotReady": false,
+      "currentFullImplementationSourceReady": true,
+      "mainRegistered": false,
+      "status": "owned-contract-and-new-development-no-main-integration",
+      "owner": "/root/next_batch_audit",
+      "stage": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\batch31\\guo-huang-hou",
+      "reservedCapacity": "6900-6999",
+      "runtimeAcceptance": false
+    },
+    {
+      "gid": 449,
+      "name": "界于吉",
+      "sourceRecord": "docs/content/sources/fenglin-thirty-first-449-source-2026-10-04.json",
+      "sourceSha256": "53d1ea9e3de088db5d760816be8c09de176ee870699031586ac3997c88623fe1",
+      "linkedRuleRecord": "docs/content/sources/fenglin-thirty-first-449-linked-rule-source-2026-10-04.json",
+      "linkedRuleSha256": "e9b38dc096022a5d3e9a57815918db61e26f44335e560e077e3fcec2ff685d2b",
+      "originalSnapshotReady": false,
+      "currentFullImplementationSourceReady": false,
+      "mainRegistered": false,
+      "status": "current-grant-source-gap",
+      "owner": null,
+      "stage": null,
+      "reservedCapacity": null,
+      "runtimeAcceptance": false
+    }
+  ],
+  "sourcePreflight": {
+    "manifestSha256": "c7a239a987a7497cfadb926861fedc3548f35094ca7a8336a40176b45336592d",
+    "sourceSnapshotsUnchanged": true,
+    "rawHttpRequests": 6,
+    "rawHttp200Responses": 6,
+    "capturedRegistrationHead": "da931c4c97600741ac521bd4c1be4d83d9ed9cce",
+    "currentRegistrationRecheckedThroughExactModules": true
+  },
+  "linkedFollowup": {
+    "manifestSha256": "4d45a6e35c9913e19b5081e1b8df6b794f443e56ac97ea74cbb5904064525ec1",
+    "originalSnapshotsUnchanged": true,
+    "officialDomainSearches": 3,
+    "selectedOpenAttempts": 3,
+    "successfulOpen": 1,
+    "rawHttpExposed": false,
+    "newRawHttpShaOrStatusClaimed": false,
+    "matchingCurrent726AnnouncementClosesModifications": true,
+    "unresolved690And449": true
+  },
+  "runs": [],
+  "integrations": [],
+  "runtimeAcceptance": false,
+  "engineeringDefaults": {
+    "officialFAQ": false,
+    "onlyTwoSuccessfulModifications": true,
+    "issueXBeforeUpgrade": true,
+    "actualDrawChildrenBeforeUpgrade": true,
+    "permanentOwnerSkillStateTier": true,
+    "sharedTrueRoundQuotaAcrossRegrant": true,
+    "allBasicAndOrdinaryTrickIncludingCounterspellRealUse": true
+  },
+  "media": {
+    "record": "docs/content/sources/fenglin-thirty-first-art-2026-10-04.json",
+    "rawCaptured": 1,
+    "installed": 0,
+    "sha256": "e5a4b72b604fb293dd51220c4a152e4a69fe9021d1a030b00f4b247a8f327091",
+    "originalBytesUnmodified": true,
+    "fullOfflineCatalogRun": false,
+    "compiledVerificationRun": false
+  },
+  "versions": {
+    "perCharacterBumped": false
+  },
+  "pending": [
+    "726 full NEW/final OLD static review and registration",
+    "690 font878/939 and449 font885 current grant-source evidence remains unresolved",
+    "All runtime, full and measured routine verification deferred until user resumes"
+  ],
+  "cleanup": {
+    "ownedRoot": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+    "priorAutomaticApprovalRejection": "blocked by policy",
+    "retryPerformed": false,
+    "sourceStagesAndCacheRetainedForContinuation": true
+  }
+}
