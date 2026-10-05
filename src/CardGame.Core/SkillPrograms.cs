@@ -178,6 +178,7 @@ public enum SkillProgramDamageModifierCondition
     SourceOutsideTargetAttackRange = 1,
     SourceNotFewerHandAndEquipmentThanTarget = 2,
     OwnerUniqueMaximumHand = 3,
+    FaceStatesDiffer = 1021,
     ChainedFirePropagationOrigin = 1020
 }
 public sealed record SkillProgramDamageModifier(
@@ -2225,7 +2226,8 @@ public sealed class SkillProgramCatalog
         if (kinds.Distinct().Count() != kinds.Count ||
             (kinds.Count == 0 && !(
                 EnumValue<SkillProgramDamageModifierCondition>(node, "condition", path) is
-                SkillProgramDamageModifierCondition.OwnerUniqueMaximumHand or SkillProgramDamageModifierCondition.ChainedFirePropagationOrigin)))
+                SkillProgramDamageModifierCondition.OwnerUniqueMaximumHand or SkillProgramDamageModifierCondition.ChainedFirePropagationOrigin
+                    or SkillProgramDamageModifierCondition.FaceStatesDiffer)))
             Fail(path + ".cardKinds", "must contain distinct effective card kinds");
         var amount = PositiveInt(node, "amount", path);
         if (amount > 20) Fail(path + ".amount", "must not exceed 20");
@@ -2237,6 +2239,11 @@ public sealed class SkillProgramCatalog
         {
             if (scope != SkillProgramDamageModifierSourceScope.DamageParticipant || kinds.Count != 0)
                 Fail(path, "unique-maximum-hand damage requires damageParticipant and every damage kind");
+        }
+        else if (condition is SkillProgramDamageModifierCondition.FaceStatesDiffer)
+        {
+            if (scope != SkillProgramDamageModifierSourceScope.DamageParticipant)
+                Fail(path + ".sourceScope", "face-state damage modifiers require damageParticipant");
         }
         else if (scope != SkillProgramDamageModifierSourceScope.OwnerUsed)
             Fail(path + ".sourceScope", "card damage modifiers require ownerUsed");

@@ -15312,6 +15312,9 @@ public sealed partial class GameEngine
                           item.seat == attack.TargetSeat && !attack.IsChainPropagation &&
                           GetDamageNature(attack) == DamageNature.Fire && _players[item.seat].IsChained &&
                           _players.Any(player => player.IsAlive && player.Seat != item.seat && player.IsChained),
+                      SkillProgramDamageModifierCondition.FaceStatesDiffer =>
+                          attack.SourceSeat != attack.TargetSeat &&
+                          _players[attack.SourceSeat].IsFaceDown != _players[attack.TargetSeat].IsFaceDown,
                       _ => false
                   }
                 : item.seat == attack.SourceSeat &&

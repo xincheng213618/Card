@@ -14,7 +14,8 @@
             {
               "op": "selectTarget",
               "target": "owner",
-              "targetKind": "otherLivingWithFewerHandCards"
+              "targetKind": "otherLivingWithFewerHandCards",
+              "skipIfNoTarget": true
             },
             {
               "op": "chooseOption",
@@ -40,8 +41,29 @@
               "op": "turnOver",
               "target": "selectedTarget",
               "condition": { "kind": "choiceIs", "sourceBind": "luelve-choice", "optionId": "flip-slash" }
+            },
+            {
+              "op": "damage",
+              "target": "owner",
+              "sourceRef": { "kind": "selectedTarget" },
+              "amount": 1,
+              "condition": { "kind": "choiceIs", "sourceBind": "luelve-choice", "optionId": "flip-slash" }
             }
           ]
+        }
+      ]
+    },
+    {
+      "id": "ol:zhuanxi",
+      "revision": 1,
+      "triggers": [],
+      "damageModifiers": [
+        {
+          "id": "zhuanxi-face-differ",
+          "cardKinds": [],
+          "amount": 1,
+          "condition": "faceStatesDiffer",
+          "sourceScope": "damageParticipant"
         }
       ]
     }

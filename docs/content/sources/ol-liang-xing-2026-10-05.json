@@ -1,0 +1,51 @@
+{
+  "generalId": "ol:liang-xing",
+  "characterName": "梁兴",
+  "officialId": 514,
+  "sourcePage": "https://www.sanguosha.com/hero/514",
+  "textSource": "https://wiki.biligame.com/sgs/梁兴（官网 heroDetail 接口当日不可用，技能文本取自百科同一武将词条，与此前官网抓取一致）",
+  "capturedAt": "2026-10-05",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 514,
+    "name": "梁兴",
+    "extend": "",
+    "hp": 4,
+    "figure": "群",
+    "quality": "稀有"
+  },
+  "artwork": {
+    "skinId": "51400",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/51400.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-liang-xing.png",
+    "sha256": "122bda4fb5b13177ffecff26f97928f4986e99f3531807b7e0941bcc0a1264a1",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "掳掠",
+      "text": "出牌阶段开始时，你可以令一名有手牌且手牌数小于你的其他角色选择一项：1.将所有手牌交给你，然后你翻面；2.翻面，视为对你使用一张【杀】。",
+      "programId": "ol:luelve",
+      "notes": [
+        "playPhaseStarting optional trigger: selectTarget with the new otherLivingWithFewerHandCards target kind (has hand and fewer than owner) plus skipIfNoTarget.",
+        "The counterpart answers chooseOption with chooserRef selectedTarget (界周瑜/曹操昂 precedent); both branches gate on choiceIs against the resultBind.",
+        "Branch one: the new giveSelectedTargetHand op (7162) moves the counterpart's entire hand to the owner, then turnOver flips the owner.",
+        "Branch two: turnOver flips the counterpart; the strike is realized as one point of normal damage sourced from the counterpart. This approximates 视为对你使用一张【杀】 without a dodge opportunity and without slash-linked triggers; upgrading to a true third-party virtual card use is left for a later batch."
+      ]
+    },
+    {
+      "name": "追袭",
+      "text": "锁定技，当你对其他角色造成伤害时，或受到其他角色造成的伤害时，若其中一方武将牌背面朝上且另一方武将牌正面朝上，此伤害+1。",
+      "programId": "ol:zhuanxi",
+      "notes": [
+        "A damageParticipant-scope damage modifier with the new faceStatesDiffer condition (source and target face states differ and the damage is not self-damage), amount 1, every damage kind; the validator now accepts empty cardKinds for this condition."
+      ]
+    }
+  ],
+  "observations": [
+    "OL lists 梁兴 as qun 4HP with quality 稀有; the page labels him 通过翻面增伤与对手进行博弈.",
+    "New shared pieces: otherLivingWithFewerHandCards target kind, giveSelectedTargetHand op, and the faceStatesDiffer damage-modifier condition."
+  ]
+}

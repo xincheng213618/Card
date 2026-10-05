@@ -170,6 +170,8 @@ var tests = new (string Name, Action Body)[]
     ("Ol Deng Zhong kanpo activates once per turn", OrdinaryDengZhongChecks.KanpoActivatesOncePerTurn),
     ("Ol Deng Zhong gengzhan claims a discarded slash", OrdinaryDengZhongChecks.GengzhanClaimsDiscardedSlash),
     ("Ol Deng Zhong gengzhan tally grants the slash limit", OrdinaryDengZhongChecks.GengzhanTallyGrantsSlashLimit),
+    ("Ol Liang Xing definitions and metadata", OrdinaryLiangXingChecks.Definitions),
+    ("Ol Liang Xing luelve choice and zhuanxi amplification", OrdinaryLiangXingChecks.LuelveChoiceResolvesAndZhuanxiAmplifies),
     ("Ol Yi Ji definitions and metadata", OrdinaryYiJiChecks.Definitions),
     ("Ol Yi Ji jijie hands deck bottom to selected participant", OrdinaryYiJiChecks.JijieHandsDeckBottomToSelectedParticipant),
     ("Ol Yi Ji jiyuan covers dying entries and own gifts", OrdinaryYiJiChecks.JiyuanCoversDyingEntriesAndOwnGifts),
