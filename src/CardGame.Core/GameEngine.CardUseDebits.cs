@@ -24,6 +24,7 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("A counted Slash has no frozen card-action identity.");
         var identity = new CardUseDebitIdentity(action.ActionId, actorSeat, SkillRuleQuery.SlashLimit,
             _turnNumber, _phase, _cardUseDebitPhaseInstanceId);
+        if (HasIssuedJudgedRankSlashQuota(cardUseFrameId, actorSeat)) return;
         var suit = action.EffectiveSuit;
         if (suit is null && action.PhysicalCards.Count == 1)
         {

@@ -1,0 +1,126 @@
+{
+  "baseHead": "ed09df8347ab50eaea825579fba95e8070df579c",
+  "scope": "Three current official OL pages and advertised info responses; exact skill text, source ready but no implementation or runtime acceptance",
+  "httpRequests": 6,
+  "statuses": [
+    200,
+    200,
+    200,
+    200,
+    200,
+    200
+  ],
+  "redirectsFollowed": false,
+  "retries": 0,
+  "mediaRequests": 0,
+  "candidates": [
+    {
+      "gid": 123,
+      "name": "诸葛瑾",
+      "plannedGeneralId": "ol:zhuge-jin",
+      "officialPageUrl": "https://www.sanguosha.com/hero/123",
+      "pagePath": ".artifacts/continuation-20261003-batch17/batch40/root-source/123-page.raw.html",
+      "pageSha256": "bf21c17e8c051ea0af07981a337c1c9affac0e094924e6abadaa744d48a09af8",
+      "infoPath": ".artifacts/continuation-20261003-batch17/batch40/root-source/123-info.raw.json",
+      "infoSha256": "12b4b4a6c1a5d172ad93ec7a4fad34a6d4fe9ddc0d97deccdc080fa79ac86f60",
+      "faction": "wu",
+      "baseHp": 3,
+      "rawInitialHp": 0,
+      "sexFieldPresent": false,
+      "biography": "字子瑜，吴国大臣，诸葛亮之兄，诸葛恪[kè]之父。经鲁肃推荐，为东吴效力。胸怀宽广，温厚诚信，得到孙权的深深信赖，努力缓和蜀汉与东吴的关系。建安二十五年（220年）吕蒙病逝，诸葛瑾代吕蒙领南郡太守，驻守公安。孙权称帝后，诸葛瑾官至大将军，领豫州牧。",
+      "advertisedOriginalCoverUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12300.png",
+      "skills": [
+        {
+          "name": "缓释",
+          "officialText": "当一名角色的判定牌生效前，你可以令其观看你的手牌并选择你的一张牌，然后你用此牌代替判定牌。"
+        },
+        {
+          "name": "弘援",
+          "officialText": "每阶段限一次，当你一次获得至少两张牌后，你可以交给至多两名其他角色各一张牌。"
+        },
+        {
+          "name": "明哲",
+          "officialText": "锁定技，当你于出牌阶段外失去红色牌后，你展示之并摸一张牌。"
+        }
+      ],
+      "fullMainTextReady": true,
+      "derivedSkillDefinitionsRequired": false,
+      "implementationComplete": false,
+      "runtimeAcceptance": false
+    },
+    {
+      "gid": 124,
+      "name": "张星彩",
+      "plannedGeneralId": "ol:zhang-xing-cai",
+      "officialPageUrl": "https://www.sanguosha.com/hero/124",
+      "pagePath": ".artifacts/continuation-20261003-batch17/batch40/root-source/124-page.raw.html",
+      "pageSha256": "67bb8c43209da1e8244c4c7e4e24b4a290a6fb2d1d27062ea278b1f0c6e82c03",
+      "infoPath": ".artifacts/continuation-20261003-batch17/batch40/root-source/124-info.raw.json",
+      "infoSha256": "44ac99ea342e005bd6c2a55f2ea25be2fb0be58bbab82ceba08324c6114d07af",
+      "faction": "shu",
+      "baseHp": 3,
+      "rawInitialHp": 0,
+      "sexFieldPresent": false,
+      "biography": "蜀名将张飞与夏侯氏所生之女，刘禅的妻子，史上称为“敬哀皇后”。",
+      "advertisedOriginalCoverUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12400.png",
+      "skills": [
+        {
+          "name": "甚贤",
+          "officialText": "每回合限一次，当其他角色在你的回合外因弃置而失去基本牌后，你可以摸一张牌。"
+        },
+        {
+          "name": "枪舞",
+          "officialText": "出牌阶段限一次，你可以判定，然后你本回合使用点数小于X的【杀】无距离限制、点数大于X的【杀】无次数限制（X为判定牌点数）。"
+        }
+      ],
+      "fullMainTextReady": true,
+      "derivedSkillDefinitionsRequired": false,
+      "implementationComplete": false,
+      "runtimeAcceptance": false
+    },
+    {
+      "gid": 125,
+      "name": "祖茂",
+      "plannedGeneralId": "ol:zu-mao",
+      "officialPageUrl": "https://www.sanguosha.com/hero/125",
+      "pagePath": ".artifacts/continuation-20261003-batch17/batch40/root-source/125-page.raw.html",
+      "pageSha256": "f3075a4b83e5d2c3ae3b640a6b740d871bbfe6106439ad059c336cd98d566686",
+      "infoPath": ".artifacts/continuation-20261003-batch17/batch40/root-source/125-info.raw.json",
+      "infoSha256": "b41cab8baec20d310727e248affae5950b81f9fc06a060a0a92c0c2d26147716",
+      "faction": "wu",
+      "baseHp": 4,
+      "rawInitialHp": 0,
+      "sexFieldPresent": false,
+      "biography": "字大荣，吴郡富春人，使用双刀。孙坚在汜水关被华雄击败，祖茂为保护主公而主动提出与孙坚交换头盔，孙坚因此得脱。祖茂将孙坚的赤帻[zé]挂在柱子上，准备以此引诱华雄，趁机偷袭，却反被华雄所杀。",
+      "advertisedOriginalCoverUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12500.png",
+      "skills": [
+        {
+          "name": "引兵",
+          "officialText": "结束阶段，你可以将任意张非基本牌置于你的武将牌上。当你受到【杀】或【决斗】造成的伤害后，你移去一张“引兵”牌。"
+        },
+        {
+          "name": "绝地",
+          "officialText": "锁定技，准备阶段，你选择一项：1.移去所有“引兵”牌，将手牌摸至体力上限；2.令一名体力值不大于你的其他角色获得所有“引兵”牌，然后回复1点体力并摸等量张牌。"
+        }
+      ],
+      "fullMainTextReady": true,
+      "derivedSkillDefinitionsRequired": false,
+      "implementationComplete": false,
+      "runtimeAcceptance": false
+    }
+  ],
+  "sourceLedgerSha256": "6a822a51045f3f7e9f01f274e378cbb7916d2b78b0d98e15d3bd58109f89c50c",
+  "execution": {
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "tests": false,
+    "game": false,
+    "ai": false,
+    "ui": false,
+    "benchmark": false,
+    "release": false,
+    "publish": false,
+    "push": false
+  }
+}

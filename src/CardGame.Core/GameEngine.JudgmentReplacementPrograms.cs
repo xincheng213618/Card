@@ -21,13 +21,14 @@ public sealed partial class GameEngine
     {
         if (trigger.Window != SkillProgramTriggerWindow.JudgmentReplacing ||
             trigger.Effects.Count == 0 ||
-            trigger.Effects[0] is not { Op: SkillProgramEffectOp.ReplaceJudgment } replacement ||
+            trigger.Effects[0] is not { Op: SkillProgramEffectOp.ReplaceJudgment or SkillProgramEffectOp.DelegateJudgmentReplacement } replacement ||
             !replacement.Condition.Evaluate(CreateSkillContext(owner)))
             return [];
         var cards = new List<Card>();
         if (replacement.Zones.Contains(CardZoneKind.Hand)) cards.AddRange(GetHand(owner));
         if (replacement.Zones.Contains(CardZoneKind.Equipment)) cards.AddRange(GetEquipment(owner));
         return cards
+            .Where(card => !IsDelegatedJudgment(trigger) || !card.IsGeneralWeapon)
             .Where(card => !IsProtectedJudgmentSourceEquipment(
                 owner, card, judgmentSubjectSeat, judgmentReason))
             .Where(card => replacement.Suits.Contains(EffectiveSuit(owner, card)))
@@ -77,6 +78,11 @@ public sealed partial class GameEngine
             return;
         }
 
+        if (IsDelegatedJudgment(trigger))
+        {
+            BeginDelegatedJudgmentChoice(pending, candidate, program, trigger, replacementCards);
+            return;
+        }
         SetJudgmentFrameStep(pending.Id, ResolutionFrameStep.AwaitingResponse);
         AdvanceEventRulesAndQueueFact(new JudgmentReplacementRequestedEvent(
             pending.Id,
@@ -146,6 +152,7 @@ public sealed partial class GameEngine
 
     private void ResolveProgramJudgmentReplacementChoice(PromptChoice selected)
     {
+        if (TryResolveDelegatedJudgmentChoice(selected)) return;
         var pending = ActiveJudgment ??
             throw new InvalidOperationException("The configured judgment replacement continuation is missing.");
         var candidate = CurrentJudgmentCandidate(pending) ??
@@ -294,12 +301,21 @@ public sealed partial class GameEngine
                 replacement, replacementFrom, CardLocation.Processing,
                 CardMoveReasons.ProgramJudgmentReplace));
             ClearJudgmentEffectiveKindAfterMove(replacement, replacementFrom, CardLocation.Processing);
-            ResolveSilverLionRemoval(replacement, replacementFrom, CardMoveReasons.ProgramJudgmentReplace);
-            ResolveWoodenOxMove(replacement, replacementFrom, CardLocation.Processing);
-            movements.Add(RecordMovement(
-                replacement, CardLocation.Processing, oldFrom,
-                CardMoveReasons.ProgramJudgmentReplace));
-            ClearJudgmentEffectiveKindAfterMove(replacement, CardLocation.Processing, oldFrom);
+            if (pending.DelegatedReplacement is not null)
+            {
+                movements.Add(RecordMovement(replacement, CardLocation.Processing, oldFrom, CardMoveReasons.ProgramJudgmentReplace));
+                RecordDelegatedJudgmentPayment(pending, batch.Id);
+                ResolveEquipmentSkillGrant(replacement, replacementFrom, CardLocation.Processing);
+                ResolveSilverLionRemoval(replacement, replacementFrom, CardMoveReasons.ProgramJudgmentReplace);
+                ResolveWoodenOxMove(replacement, replacementFrom, CardLocation.Processing);
+            }
+            else
+            {
+                ResolveSilverLionRemoval(replacement, replacementFrom, CardMoveReasons.ProgramJudgmentReplace);
+                ResolveWoodenOxMove(replacement, replacementFrom, CardLocation.Processing);
+                movements.Add(RecordMovement(replacement, CardLocation.Processing, oldFrom, CardMoveReasons.ProgramJudgmentReplace));
+                ClearJudgmentEffectiveKindAfterMove(replacement, CardLocation.Processing, oldFrom);
+            }
             committed = true;
         }
         finally
@@ -314,6 +330,7 @@ public sealed partial class GameEngine
 
     private void ResolvePendingAiProgramJudgmentReplacement()
     {
+        if (ResolveAiDelegatedJudgmentChoice()) return;
         var pending = ActiveJudgment ??
             throw new InvalidOperationException("AI configured judgment replacement is missing.");
         var decision = _pendingDecision ??

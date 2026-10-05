@@ -37,6 +37,17 @@ if (unknownArguments.Length > 0)
 // Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("Delegated judgment and gain gifts: actual private judgment and paid HE children", DelegatedJudgmentAndGainGiftChecks.DelegatedJudgmentPrivateChoosersAndRealHePaymentColdReplay),
+    ("Delegated judgment and gain gifts: single gain batch and actual phase quota", DelegatedJudgmentAndGainGiftChecks.BatchGainGiftsUseDistinctRecipientsAndActualPhaseQuota),
+    ("Delegated judgment and gain gifts: foreign Play and frozen effective red loss", DelegatedJudgmentAndGainGiftChecks.RedLossFreezesOriginalEffectiveColorInForeignPlay),
+    ("Delegated judgment and gain gifts: sequential red materials and frozen collections", DelegatedJudgmentAndGainGiftChecks.RedBatchRevealsOnlyEachPaidLossAndKeepsFrozenLists),
+    ("JudgedRankSlashPolicy.QiangwuActualJudgmentFrozenRankDistanceAndSeparateQuota", JudgedRankSlashPolicyChecks.QiangwuActualJudgmentFrozenRankDistanceAndSeparateQuota),
+    ("JudgedRankSlashPolicy.QiangwuReplacementEmptyDeckAndIssuedSourceLossHostBoundary", JudgedRankSlashPolicyChecks.QiangwuReplacementEmptyDeckAndIssuedSourceLossHostBoundary),
+    ("JudgedRankSlashPolicy.ShenxianSkipThenRealDrawOnceWithFrozenGainChild", JudgedRankSlashPolicyChecks.ShenxianSkipThenRealDrawOnceWithFrozenGainChild),
+    ("JudgedRankSlashPolicy.ShenxianOriginalMovedEntityResetAndActualTurnPredicateHostBoundary", JudgedRankSlashPolicyChecks.ShenxianOriginalMovedEntityResetAndActualTurnPredicateHostBoundary),
+    ("skill program public pile preparation empty independent source and real damage", PublicPilePreparationChecks.EmptyPreparationWorksWithoutTheReferencedSource),
+    ("skill program public pile preparation whole fill paid child", PublicPilePreparationChecks.WholePileFillRetainsPaidChild),
+    ("skill program public pile preparation gift recovery original quantity", PublicPilePreparationChecks.GiftChildDrainsBeforeRequestedRecoveryAndOriginalQuantityDraw),
     ("Phase hand seizure: LihunRealCostFlipTakeAndFrozenHpReturnColdReplay", PhaseHandSeizureChecks.LihunRealCostFlipTakeAndFrozenHpReturnColdReplay),
     ("Phase hand seizure: LihunMaleSelfEquipmentTransferCountsOnlyPhysicalCards", PhaseHandSeizureChecks.LihunMaleSelfEquipmentTransferCountsOnlyPhysicalCards),
     ("Phase hand seizure: LihunSourceLossInsufficientAndForcedEndHostBoundaries", PhaseHandSeizureChecks.LihunSourceLossInsufficientAndForcedEndHostBoundaries),

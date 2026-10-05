@@ -224,12 +224,14 @@ public sealed partial class GameEngine
         ConvertRuleValue(EvaluateSlashUseLimit(player));
 
     private bool CanSpendSlashUse(CharacterState player, CharacterState target, bool ignoresCount,
-        CardKind effectiveKind = CardKind.Slash, Card? physicalCard = null) =>
+        CardKind effectiveKind = CardKind.Slash, Card? physicalCard = null, int? effectiveRank = null) =>
         !IsCardUseForbidden(player.Seat, effectiveKind, CardActionType.Use) &&
         (physicalCard is null || !HasBeneficiarySuitShield(player.Seat, target.Seat, EffectiveSuit(player, physicalCard))) &&
         !IsDirectedCardTargetProhibited(player.Seat, target.Seat, effectiveKind) &&
         (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount ||
          _slashCountThisTurn < GetSlashUseLimit(player) ||
+         HasJudgedRankSlashQuota(player.Seat, effectiveKind, effectiveRank ??
+             (physicalCard is not null ? SpecificSlashRank(player, physicalCard, effectiveKind) : null)) ||
          physicalCard is not null && BypassesSlashLimitBySuit(player, physicalCard, effectiveKind) ||
          HasDirectedTurnCardPolicy(player.Seat, target.Seat, effectiveKind,
              DirectedTurnCardPolicyEffect.BypassSlashLimit) ||

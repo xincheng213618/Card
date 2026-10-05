@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:huanshi", "revision": 1,
+      "triggers": [{
+        "id": "delegate-actual-judgment", "window": "judgmentReplacing", "subject": "any",
+        "excludedReasons": [], "optional": true,
+        "effects": [{ "op": "delegateJudgmentReplacement", "target": "owner", "zones": ["hand", "equipment"],
+          "suits": ["spade", "club", "heart", "diamond"], "oldCardDestination": "discardPile" }]
+      }]
+    },
+    {
+      "id": "ol:hongyuan", "revision": 1,
+      "triggers": [{
+        "id": "gift-after-one-gain-batch", "window": "cardsGained", "subject": "owner",
+        "destinationZones": ["hand"], "movementOccurrence": "perBatch", "optional": false,
+        "condition": { "kind": "compare", "left": { "kind": "movedCardCount" }, "operator": "greaterThanOrEqual",
+          "right": { "kind": "integerConstant", "value": 2 } },
+        "effects": [{ "op": "giveAfterBatchGain", "target": "owner" }]
+      }]
+    },
+    {
+      "id": "ol:mingzhe", "revision": 1,
+      "triggers": [{
+        "id": "reveal-actual-red-losses", "window": "cardsMoved", "subject": "owner",
+        "sourceZones": ["hand", "equipment", "judgment", "woodenOxGrain", "buquWound", "authority", "chunlao", "pojunHold",
+          "privateReserve", "publicDeferredPile", "publicPersistentPile", "privateTurnHold"],
+        "movementOccurrence": "perOwnerBatch", "optional": false,
+        "effects": [{ "op": "revealRedLossAndDraw", "target": "owner" }]
+      }]
+    }
+  ]
+}

@@ -500,6 +500,7 @@ public sealed record CardUseFrame(
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public CardActionContext? Action { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public JudgedRankSlashUseReceipt? JudgedRankSlashUse { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public DyingSuitsPeachReturn? DyingSuitsPeachReturn { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public EndingHistoricalUseReturn? EndingHistoricalUseReturn { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public long EndingHistoricalCostBefore { get; init; }

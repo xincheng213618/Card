@@ -74,14 +74,15 @@ public sealed partial class GameEngine
             IsSlashCard(action.EffectiveKind) && action.EffectiveDesignatedTargetSeats.Contains(target);
     }
     private bool HasRankSlashRange(CharacterState actor, CardKind kind) =>
-        IsSlashCard(kind) && HasCardPolicy(actor, SkillProgramCardPolicyKind.SlashRangeFromEffectiveRank, kind);
-    private bool IsWithinSpecificSlashRange(CharacterState actor, CharacterState target, CardKind kind, int? rank) =>
-        HasRankSlashRange(actor, kind) && rank is > 0
+        IsSlashCard(kind) && (HasCardPolicy(actor, SkillProgramCardPolicyKind.SlashRangeFromEffectiveRank, kind) || CurrentJudgedRankSlashPolicy(actor.Seat) is not null);
+    private bool IsWithinSpecificSlashRange(CharacterState actor, CharacterState target, CardKind kind, int? rank, long? existingUseFrameId = null) =>
+        HasJudgedRankSlashDistance(actor.Seat, kind, rank, existingUseFrameId) ||
+        (HasCardPolicy(actor, SkillProgramCardPolicyKind.SlashRangeFromEffectiveRank, kind) && rank is > 0
             ? GetCombatDistance(actor.Seat, target.Seat) <= rank.Value
-            : IsWithinAttackRange(actor.Seat, target.Seat);
+            : IsWithinAttackRange(actor.Seat, target.Seat));
     private bool HasPotentialRankSlashRange(CharacterState actor, CharacterState target, CardKind kind) =>
-        HasRankSlashRange(actor, kind) && (GetSlashUseCards(actor).Any(card => IsWithinSpecificSlashRange(actor,target,kind,SpecificSlashRank(actor,card,kind))) ||
-            GetZhangbaSlashPairs(actor).Any(pair => IsWithinSpecificSlashRange(actor,target,kind,ZhangbaSpecificSlashRank(actor,pair))));
+        (CurrentJudgedRankSlashPolicy(actor.Seat) is { Rank: > 1 } || HasRankSlashRange(actor, kind) && (GetSlashUseCards(actor).Any(card => IsWithinSpecificSlashRange(actor,target,kind,SpecificSlashRank(actor,card,kind))) ||
+            GetZhangbaSlashPairs(actor).Any(pair => IsWithinSpecificSlashRange(actor,target,kind,ZhangbaSpecificSlashRank(actor,pair)))));
     private int? ProvidedSpecificSlashRank(CharacterState actor, CharacterState provider, IReadOnlyList<Card> cards, bool isTrueZhangba, CardKind kind = CardKind.Slash) =>
         cards.Count == 1 ? HasRankSlashRange(actor, kind) ? CaptureAlcoholIdentityRank(provider, cards[0]) ?? SpecificSlashRank(actor,cards[0],kind) : null : isTrueZhangba ? ZhangbaSpecificSlashRank(actor,cards,provider) : null;
     private bool IsSpecificRankProviderPaymentLegal(FactionCardRequestHandle pending, CardKind kind, IReadOnlyList<Card> cards, bool isTrueZhangba = false)
@@ -104,7 +105,7 @@ public sealed partial class GameEngine
         return rank > 0 ? rank : null;
     }
     private int? ZhangbaSpecificSlashRank(CharacterState actor, IReadOnlyList<Card> cards, CharacterState? provider = null) =>
-        HasRankSlashRange(actor, CardKind.Slash) && UsesFormalZhangbaSerpentSpear && HasWeaponAbility(provider ?? actor, CardKind.ZhangbaSerpentSpear) && cards.Count == 2
+        HasCardPolicy(actor, SkillProgramCardPolicyKind.SlashRangeFromEffectiveRank, CardKind.Slash) && UsesFormalZhangbaSerpentSpear && HasWeaponAbility(provider ?? actor, CardKind.ZhangbaSerpentSpear) && cards.Count == 2
             ? Math.Min(13, cards.Sum(card => card.Rank)) : null;
     private sealed partial class ProgramSkillHost : IFinalTargetSlashProgramHost
     {

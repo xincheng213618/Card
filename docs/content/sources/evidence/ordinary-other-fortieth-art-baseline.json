@@ -1,0 +1,24 @@
+{
+  "baseHead": "ed09df8347ab50eaea825579fba95e8070df579c",
+  "sourceSha256": "4350e8d30e524ee5d0d7c38370f38b2cc2c7293228c885a7aab0217c7547cdf7",
+  "scope": "Exactly three original portrait URLs advertised by the already captured official info responses",
+  "maxRequests": 3,
+  "redirectsFollowed": false,
+  "retries": 0,
+  "maxResponseBytes": 3145728,
+  "execution": {
+    "csharp": false,
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "tests": false,
+    "game": false,
+    "ai": false,
+    "ui": false,
+    "benchmark": false,
+    "release": false,
+    "publish": false,
+    "push": false,
+    "cleanup": false
+  }
+}

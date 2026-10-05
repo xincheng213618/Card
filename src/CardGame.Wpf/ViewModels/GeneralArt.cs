@@ -246,6 +246,10 @@ public static class GeneralArt
             ["ol-sp-diao-chan"] = "official-ol-sp-diao-chan.png",
             ["ol-sp-jia-xu"] = "official-ol-sp-jia-xu.png",
             ["ol-zhang-bao"] = "official-ol-zhang-bao.png",
+            // Current OL source and original portraits: docs/content/sources/ordinary-other-fortieth-metadata-and-art.json.
+            ["ol-zhuge-jin"] = "official-ol-zhuge-jin.png",
+            ["ol-zhang-xing-cai"] = "official-ol-zhang-xing-cai.png",
+            ["ol-zu-mao"] = "official-ol-zu-mao.png",
             ["ol-yi-ji"] = "official-ol-yi-ji.png",
             // Official artwork URL and hash: docs/content/sources/ol-huang-zu-2026-10-05.json.
             ["ol-huang-zu"] = "official-ol-huang-zu.png",

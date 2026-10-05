@@ -1,0 +1,31 @@
+{
+  "baseHead": "ed09df8347ab50eaea825579fba95e8070df579c",
+  "scope": "Three current ordinary OL candidate pages from the retained observed directory, followed only by each page advertised info endpoint",
+  "directoryPath": ".artifacts/continuation-20261003-batch17/batch21/dong-zhuo/next-batch22/index.raw.html",
+  "directorySha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+  "gids": [
+    123,
+    124,
+    125
+  ],
+  "maxRequests": 6,
+  "maxResponseBytes": 3145728,
+  "redirectsFollowed": false,
+  "retries": 0,
+  "mediaRequests": 0,
+  "execution": {
+    "csharp": false,
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "tests": false,
+    "game": false,
+    "ai": false,
+    "ui": false,
+    "benchmark": false,
+    "release": false,
+    "publish": false,
+    "push": false,
+    "cleanup": false
+  }
+}

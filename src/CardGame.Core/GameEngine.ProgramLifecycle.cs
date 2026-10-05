@@ -1849,6 +1849,9 @@ public sealed partial class GameEngine
         if (!CanRunDyingSuitsAndEndingHistory(candidate, trigger, context)) return false;
         if (!CanRunDyingOwnedCard(candidate, trigger, context)) return false;
         if (!CanRunSourceCurseTrigger(candidate, trigger, context)) return false;
+        if (!CanRunGainGiftTrigger(candidate, trigger, context)) return false;
+        if (IsOtherActualBasicDiscardTrigger(trigger) && !CanRunOtherActualBasicDiscard(candidate, context)) return false;
+        if (!CanRunPublicPilePreparation(candidate, trigger, context)) return false;
         if (!CanRunFireTargetBenefit(candidate, trigger, context)) return false;
         if (!CanRunPaidColorDamageClaim(candidate, trigger, context)) return false;
         if (!CanRunSameTypeAid(candidate, trigger, context)) return false;
@@ -3168,6 +3171,8 @@ public sealed partial class GameEngine
 
     private void ResolveProgramTriggerChoice(PromptChoice selected)
     {
+        if (selected.Parameters.GetValueOrDefault("program-action") == "gain-after-batch") { ResolveGainGiftChoice(selected); return; }
+        if (selected.Parameters.GetValueOrDefault("program-action") == "public-pile-preparation") { ResolvePublicPilePreparationChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "phase-hand-debt-return") { ResolvePhaseHandDebtChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") == "dynamic-discard-damage") { ResolveDynamicDiscardDamageChoice(selected); return; }
         if (selected.Parameters.GetValueOrDefault("program-action") is "alternative-phase-cost-card" or "alternative-phase-cost-marker")
@@ -4150,6 +4155,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.DiscardOwnedCardToAdjustCurrentDamage => SelectAiSignedDamagePayment(decision, frame),
                 SkillProgramEffectOp.DiscardSuitPreventDamageAndBenefit => SelectAiSuitPreventionBenefit(decision, frame),
                 SkillProgramEffectOp.RestoreActualDiscardBatch => SelectAiActualDiscardRecovery(decision, frame),
+                SkillProgramEffectOp.GiveAfterBatchGain => SelectAiGainGift(decision, frame),
                 SkillProgramEffectOp.PlaceMatchedJudgmentCard => SelectAiMatchedJudgmentPlacement(decision, frame),
                 SkillProgramEffectOp.PayCompletedUseDiscardOrLoseHp => SelectAiCompletedUsePayment(decision),
                 SkillProgramEffectOp.UseRoundPricedPileDyingAlcohol => decision.Choices.First(c => c.Parameters.GetValueOrDefault("branch") != "pass"),
@@ -4183,6 +4189,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.ChooseOwnCardDiscard =>
                     SelectAiProgramOwnCardDiscard(decision, frame),
                 SkillProgramEffectOp.DiscardDrawAndOfferUniqueHpPeer or SkillProgramEffectOp.GiveAllHandAndStartRecipientPindian => SelectAiRecipientContest(decision, frame),
+                SkillProgramEffectOp.StoreNonBasicOwnedPublicPile or SkillProgramEffectOp.RemovePublicPileAfterAttackDamage or SkillProgramEffectOp.ResolvePreparationPublicPile => SelectAiPublicPilePreparation(decision, frame),
                 SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest or SkillProgramEffectOp.RaiseMaximumRecoverAndQualifyPrintedLord => SelectAiRecipientConsequences(decision, frame),
                 SkillProgramEffectOp.SelectEquipmentPairAndPayment => SelectAiEquipmentPairPayment(decision, frame),
                 SkillProgramEffectOp.SelectDyingOwnedCard => SelectAiDyingOwnedCard(decision),

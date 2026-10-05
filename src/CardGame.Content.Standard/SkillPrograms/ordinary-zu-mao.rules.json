@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:yinbing",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "ending-store-nonbasic",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": true,
+          "effects": [
+            {
+              "op": "storeNonBasicOwnedPublicPile",
+              "target": "owner"
+            }
+          ]
+        },
+        {
+          "id": "actual-slash-duel-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "damageCardKinds": [
+            "slash",
+            "fireSlash",
+            "thunderSlash",
+            "duel"
+          ],
+          "optional": false,
+          "effects": [
+            {
+              "op": "removePublicPileAfterAttackDamage",
+              "target": "owner",
+              "skillIds": [
+                "ol:yinbing"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:juedi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "own-prepare-all-pile",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "resolvePreparationPublicPile",
+              "target": "owner",
+              "skillIds": [
+                "ol:yinbing"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

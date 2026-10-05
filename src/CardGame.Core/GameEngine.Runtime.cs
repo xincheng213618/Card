@@ -37,7 +37,9 @@ public sealed partial class GameEngine
             case CardDeclarationChallengeFrame: ContinueCardDeclarationChallenge(frameId); break;
             case ProgramSkillFrame:
                 if (ResumePhaseHandSeizure(frameId)) return;
+                if (ResumePublicPilePreparation(frameId)) return;
                 if (ResumeSourceCurse(frameId)) return;
+                if (ResumeGainGift(frameId)) return;
                 if (ResumePrivateOffer(frameId) || ResumeGameHandHp(frameId)) return;
                 if (ResumeFireTargetBenefit(frameId) || ResumeNamedCardAcquisition(frameId)) return;
                 if (ResumeUniqueHpPeer(frameId) || ResumeRecipientContest(frameId)) return;
@@ -376,7 +378,7 @@ public sealed partial class GameEngine
             paidContext.OwnerSeat == paidDyingProgram.OwnerSeat &&
             (paidContext.Window == SkillProgramTriggerWindow.DyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.ResponderSeat ||
              paidContext.Window == SkillProgramTriggerWindow.SelfDyingResponse && paidDyingProgram.OwnerSeat == paidProgramDying.VictimSeat) &&
-            (IsPrivateOfferProgramDying() || IsPlacedEquipmentBenefitProgramDying() || IsFireTargetBenefitProgramDying() || IsNamedAcquisitionProgramDying() || IsDynamicDiscardDamageProgramDying() || IsConditionalDiscardDuelProgramDying() || IsInspectedHandProgramDying() || IsRecipientContestProgramDying() || IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsOwnTrickDrawProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsOwnedDeathBenefitProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying() || IsDyingSuitsProgramDying()))
+            (IsGainGiftProgramDying() || IsPublicPilePreparationProgramDying() || IsPrivateOfferProgramDying() || IsPlacedEquipmentBenefitProgramDying() || IsFireTargetBenefitProgramDying() || IsNamedAcquisitionProgramDying() || IsDynamicDiscardDamageProgramDying() || IsConditionalDiscardDuelProgramDying() || IsInspectedHandProgramDying() || IsRecipientContestProgramDying() || IsPaidHandRepaymentProgramDying() || IsOwnedDamagePointJudgmentProgramDying() || IsPreventionDrawProgramDying() || IsDamageJudgmentSuitPaymentDying() || IsPaidCounterspellProgramDying() || IsSourceFactionYieldProgramDying() || IsExtraDrawDebtProgramDying() || IsTurnDrawDebtPaymentProgramDying() || IsRevealedHpComparisonProgramDying() || IsEquipmentPairOrDyingCardProgramDying() || IsPaidOwnTargetProgramDying() || IsOwnTrickDrawProgramDying() || IsLostHpOwnedGiftProgramDying() || IsSequentialDiscardProgramDying() || IsEquipmentDonationProgramDying() || IsSuitPlacementProgramDying() || IsSignedDamagePaymentProgramDying() || IsHalfHandPhaseDebtProgramDying() || IsPaidColorDamageClaimProgramDying() || IsActualEquipmentOrDiscardProgramDying() || IsForeignContestAidProgramDying() || IsPairBenefitProgramDying() || IsEndingPairSlashProgramDying() || IsPrepDiscardProgramDying() || IsSlashTargetBenefitProgramDying() || IsTargetPenaltyProgramDying() || IsOwnedDeathBenefitProgramDying() || IsCappedConversionBenefitProgramDying() || IsTieredRoundZeroRescueProgramDying() || IsDyingSuitsProgramDying()))
         {
             AdvanceRuntimeProgram(paidDyingProgram.Id);
             AdvanceRulesAndPublishState();
@@ -776,7 +778,9 @@ public sealed partial class GameEngine
     {
         var frame = GetActiveProgramFrame(frameId);
         if (ReturnPhaseHandSeizureMovement(frame)) return;
+        if (ReturnPublicPilePreparationMovement(frame)) return;
         if (ReturnSourceCurseMovement(frame)) return;
+        if (ReturnGainGiftMovement(frame)) return;
         if (ReturnPrivateOfferMovement(frame) || ReturnGameTargetHandHpMovement(frame)) return;
         if (ReturnLostHpChainedMovement(frame) || ReturnFireTargetBenefitMovement(frame) || ReturnNamedCardAcquisitionMovement(frame)) return;
         if (ReturnConditionalDuelMovement(frame)) return;

@@ -12152,6 +12152,57 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-zhuge-jin",
+      "characterName": "诸葛瑾",
+      "defaultSkinId": "12300",
+      "skins": [
+        {
+          "id": "12300",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/123",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12300.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-zhuge-jin.png",
+          "sha256": "8792536e9b6bdc272956d8982e5d42b03643509ed25ff84fbb987e40ac3e661c",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-zhang-xing-cai",
+      "characterName": "张星彩",
+      "defaultSkinId": "12400",
+      "skins": [
+        {
+          "id": "12400",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/124",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12400.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-zhang-xing-cai.png",
+          "sha256": "003b313e2bf76c7fe94de71c02c36569997fab07019e812129913f7753b755e2",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-zu-mao",
+      "characterName": "祖茂",
+      "defaultSkinId": "12500",
+      "skins": [
+        {
+          "id": "12500",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/125",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12500.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-zu-mao.png",
+          "sha256": "3d08f2367417043a62da42e24ae98d78f0ee5b995169d9d766d95915734f2a8c",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

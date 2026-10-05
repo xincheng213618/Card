@@ -5,7 +5,8 @@ public sealed record ActualDiscardRecoveryPhaseClearedEvent(int TurnNumber) : IG
 public sealed partial class GameEngine
 {
     private bool TracksActualDiscardRecoveryPhases =>
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RestoreActualDiscardBatch);
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.RestoreActualDiscardBatch) ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GiveAfterBatchGain);
 
     private ActualDiscardRecoveryPhaseKey? CurrentActualDiscardRecoveryPhase()
     {

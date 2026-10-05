@@ -88,6 +88,9 @@ public static class GeneralGalleryCatalog
         groups.Add("ol:sp-diao-chan", "other");
         groups.Add("ol:sp-jia-xu", "other");
         groups.Add("ol:zhang-bao", "other");
+        groups.Add("ol:zhuge-jin", "other");
+        groups.Add("ol:zhang-xing-cai", "other");
+        groups.Add("ol:zu-mao", "other");
         groups.Add("ol:chen-lin", "other");
         groups.Add("ol:sp-cai-wen-ji", "other");
         groups.Add("ol:sp-cao-ren", "other");

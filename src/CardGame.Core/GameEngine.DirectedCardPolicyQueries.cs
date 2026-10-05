@@ -30,7 +30,8 @@ public sealed partial class GameEngine
                 !IsCardUseForbidden(actor.Seat, kind, CardActionType.Use) &&
                 !IsDirectedCardTargetProhibited(actor.Seat, target.Seat, kind) &&
                 (CanSpendSlashUse(actor, target, ignoresCount: false, kind) ||
-                 GetHand(actor).Any(card => BypassesSlashLimitBySuit(actor, card, kind)))));
+                 GetHand(actor).Any(card => BypassesSlashLimitBySuit(actor, card, kind) ||
+                     HasJudgedRankSlashQuota(actor.Seat, kind, SpecificSlashRank(actor, card, kind))))));
 
     private bool CanUseGlobalCard(CharacterState actor, CardKind kind, bool excludeOwner = false) =>
         GetDeclaredGlobalCardTargets(actor, kind).Where(target => !excludeOwner || target != actor.Seat).All(target =>

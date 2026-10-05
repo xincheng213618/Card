@@ -5,7 +5,8 @@ public sealed partial class GameEngine
 {
     private readonly bool _hasGainPhaseQualificationCapability;
 
-    private CardMovementTiming? CaptureMovementTiming() => !_hasGainPhaseQualificationCapability ? null :
+    private CardMovementTiming? CaptureMovementTiming() => !(_hasGainPhaseQualificationCapability || TracksRedOwnedLoss ||
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GiveAfterBatchGain)) && !HasOtherActualBasicDiscardCapability ? null :
         _programPhaseSchedule is { Phase: TurnPhase.Draw } scheduled
             ? new(_turnProgression.OwnerSeat, TurnPhase.Draw, scheduled.Frame.OwnerSeat)
             : new(_turnProgression.OwnerSeat, _phase, _currentSeat);
@@ -294,7 +295,7 @@ public sealed partial class GameEngine
                 var indexes = MatchingDiscardPileIndexes(batch, candidate, trigger);
                 if (indexes.Length == 0) continue;
                 var occurrences = trigger.MovementOccurrence == SkillProgramMovementOccurrence.PerBatch
-                    ? new[] { 0 }
+                    ? new[] { IsOtherActualBasicDiscardTrigger(trigger) ? indexes[0] : 0 }
                     : indexes;
                 additions.AddRange(occurrences.Select(index => candidate with { OccurrenceIndex = index }));
             }
@@ -305,6 +306,7 @@ public sealed partial class GameEngine
     private int[] MatchingDiscardPileIndexes(CardMovementBatchContext batch,
         ProgramTriggerCandidate candidate, SkillProgramTrigger trigger)
     {
+        if (IsOtherActualBasicDiscardTrigger(trigger)) return MatchingOtherActualBasicDiscardIndexes(batch, candidate);
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RestoreActualDiscardBatch))
             return MatchingActualDiscardRecoveryIndexes(batch, candidate);
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance))
@@ -370,6 +372,10 @@ public sealed partial class GameEngine
     private int[] MatchingMovementIndexes(CardMovementBatchContext batch, ProgramTriggerCandidate candidate,
         SkillProgramTrigger trigger, CardLocation location)
     {
+        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.GiveAfterBatchGain))
+            return MatchingActualGainGiftIndexes(batch, candidate.OwnerSeat, location);
+        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RevealRedLossAndDraw))
+            return MatchingRedOwnerLossIndexes(batch, candidate.OwnerSeat, location);
         if(trigger.Effects.Any(e=>e.Op==SkillProgramEffectOp.RewardDiscardedActionColor))
         {
             var action=CompleteProgramEventHistory().OfType<ActionCardsDiscardedEvent>().LastOrDefault(e=>e.BatchId==batch.Id);

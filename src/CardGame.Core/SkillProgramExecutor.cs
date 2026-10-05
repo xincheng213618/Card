@@ -1472,7 +1472,7 @@ public sealed class SkillProgramExecutor
                 continue;
             }
             if (frame.WindowContext?.JudgmentReplacement is { } replacement &&
-                effect.Op != SkillProgramEffectOp.ReplaceJudgment &&
+                effect.Op is not (SkillProgramEffectOp.ReplaceJudgment or SkillProgramEffectOp.DelegateJudgmentReplacement) &&
                 (replacement.ReplacementSuit is not { } replacementSuit ||
                  !effect.ReplacementSuits.Contains(replacementSuit) ||
                  replacement.ReplacementRank is not { } replacementRank ||

@@ -23,6 +23,7 @@ public sealed partial class GameEngine
         ObserveTrueRoundCardNames(payload);
         ObservePhaseHandSeizureDeath(payload);
         ObserveUnnullifiableOrdinaryTrick(payload);
+        ObserveJudgedRankSlashUse(payload);
         QueueGameEvent(payload);
         if (_started)
         {

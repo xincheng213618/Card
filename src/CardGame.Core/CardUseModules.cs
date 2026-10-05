@@ -594,7 +594,7 @@ internal sealed partial class TurnCardUseEffectStore
 
     internal IReadOnlyList<long> ExpireTurn(int turnNumber, int turnSeat)
     {
-        var expired = ExpiringInspectedHandDistances(turnNumber, turnSeat).Concat(ExpiringTargetCardQuotaAllowances(turnNumber, turnSeat)).Concat(ExpiringHandCategoryRestrictions(turnNumber, turnSeat)).Concat(ExpiringBoundSlashBenefits(turnNumber, turnSeat)).Concat(ExpiringHandLimitKindExemptions(turnNumber, turnSeat)).Concat(ExpiringHandLimitExemptCards(turnNumber, turnSeat)).Concat(ExpiringRedSlashPolicies(turnNumber, turnSeat)).Concat(_targetAdjustments
+        var expired = ExpiringJudgedRankSlashPolicies(turnNumber, turnSeat).Concat(ExpiringInspectedHandDistances(turnNumber, turnSeat)).Concat(ExpiringTargetCardQuotaAllowances(turnNumber, turnSeat)).Concat(ExpiringHandCategoryRestrictions(turnNumber, turnSeat)).Concat(ExpiringBoundSlashBenefits(turnNumber, turnSeat)).Concat(ExpiringHandLimitKindExemptions(turnNumber, turnSeat)).Concat(ExpiringHandLimitExemptCards(turnNumber, turnSeat)).Concat(ExpiringRedSlashPolicies(turnNumber, turnSeat)).Concat(_targetAdjustments
             .Where(item => item.TurnNumber == turnNumber && item.TurnSeat == turnSeat)
             .Select(item => item.GrantSequence))
             .Concat(_prohibitions
@@ -638,6 +638,7 @@ internal sealed partial class TurnCardUseEffectStore
         ExpireHandCategoryRestrictions(expiredSet);
         ExpireTargetCardQuotaAllowances(expiredSet);
         ExpireInspectedHandDistances(expiredSet);
+        ExpireJudgedRankSlashPolicies(expiredSet);
         return expired;
     }
 
@@ -661,7 +662,7 @@ internal sealed partial class TurnCardUseEffectStore
 
     internal void AssertInvariants()
     {
-        var all = _targetAdjustments.Select(item => item.GrantSequence)
+        var all = _judgedRankSlashPolicies.Select(item => item.GrantSequence).Concat(_targetAdjustments.Select(item => item.GrantSequence))
             .Concat(_prohibitions.Select(item => item.GrantSequence))
             .Concat(_damageModifiers.Select(item => item.GrantSequence))
             .Concat(_actionProhibitions.Select(item => item.GrantSequence))
@@ -675,7 +676,7 @@ internal sealed partial class TurnCardUseEffectStore
             .Concat(_firstRoundGameUsageRefunds.Select(item => item.GrantSequence))
             .Concat(_inspectedHandDistances.Select(item => item.GrantSequence)).ToArray();
         if (all.Length != all.Distinct().Count() || all.Any(sequence => sequence <= 0) ||
-            all.Any(sequence => sequence > _grantSequence) ||
+            all.Any(sequence => sequence > _grantSequence) || JudgedRankSlashPoliciesAreInvalid() ||
             _targetAdjustments.Any(item => !CardUseCategoryCatalog.IsValid(item.Categories) ||
                 item.MinimumTargets < 1 || !item.AllowAdd && !item.AllowRemove) ||
             _prohibitions.Any(item => !CardUseCategoryCatalog.IsValid(item.Categories)) ||

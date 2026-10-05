@@ -189,6 +189,7 @@ public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition C
 }
 public enum SkillProgramEffectOp
 {
+    StoreNonBasicOwnedPublicPile = 8500, RemovePublicPileAfterAttackDamage = 8501, ResolvePreparationPublicPile = 8502,
     DepositSelectedSourceCurse = 8200, DrawForSourceCurseUse = 8201, LoseHpForLostSourceCurses = 8202,
     DepositBoundPrivateCardOffer = 7700, ResolveDeferredPrivateCardOffer = 7701, ResolveGameTargetHandHpChoice = 7702,
     DiscardTargetHpCardsAndDamage = 7601,
@@ -429,6 +430,7 @@ public enum SkillProgramEffectOp
     DrawExtraAndArmHalfHandSupport = 6000, GiveHalfHandAndIssueTargetSupport = 6001,
     ExchangeHandsAndArmPhaseDebt = 6002, SelectFrozenHandExchangeDebtPayment = 6003, OfferHalfHandRecipientSupport = 6004,
     DrawThenDiscardSuitsForDyingPeach = 7900, UseOwnPlayHistoryAtEnding = 7901,
+    GrantJudgedRankSplitSlashTurnPolicy = 8400, DrawFromOtherActualBasicDiscard = 8401,
     DiscardTurnOverAndTakeHand = 8000, ReturnIssuedPhaseHandDebt = 8001,
     DrawEndingPairThenBlockRoundIfUnequal = 6700, RecastSelectedPhysicalSlash = 6701,
     ObtainOneFromEachSelectedTarget = 6300, GiveShownCardToLeastOriginalTarget = 6301,
@@ -452,7 +454,8 @@ public enum SkillProgramEffectOp
     DrawThenNullifyOwnMultiTargetTrick = 7300, RestrictDamageSourceHandCategory = 7301,
     PlaceOwnedEquipmentThenResolveSlotBenefit = 7500,
     GiveBlackHandAndResolveRecipientContest = 8100, RaiseMaximumRecoverAndQualifyPrintedLord = 8101,
-    PayHpInspectHandThenDiscardOrSlash = 7800
+    PayHpInspectHandThenDiscardOrSlash = 7800,
+    DelegateJudgmentReplacement = 8300, GiveAfterBatchGain = 8301, RevealRedLossAndDraw = 8302
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets, HpPairHigher = 2000, HpPairLower = 2001 }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -1775,6 +1778,7 @@ public sealed class SkillProgramCatalog
             EnsureUniqueIds(triggers.Select(item => item.Id), skillPath + ".triggers");
             PrivateOfferComposition.ValidateBindings(skillPath, triggers);
             PhaseHandSeizureComposition.ValidateBindings(skillPath, activations, triggers);
+            JudgedRankSlashComposition.ValidateBindings(skillPath, activations, triggers);
             ValidateTriggerChoiceGroups(skillPath, triggers);
             foreach (var group in triggers.Where(t => t.NamedUsageGroup is not null).GroupBy(t => t.NamedUsageGroup!, StringComparer.Ordinal))
             {
@@ -2767,6 +2771,7 @@ public sealed class SkillProgramCatalog
                 CardCountExpression = cardCountExpression, CardKinds = cardKinds, CardSuits = cardSuits, CardCategories = cardCategories };
         RecipientContestConsequencesComposition.Activation(path, activation);
         SourceCurseComposition.ValidateActivation(path, activation);
+        PublicPilePreparationComposition.ValidateActivation(path, activation);
         ActualDiscardRecoveryComposition.ValidateActivation(path, activation);
         EquipmentDonationComposition.ValidateActivation(path, activation);
         ConditionalDiscardDuelComposition.Validate(path, activation);
@@ -3091,7 +3096,11 @@ public sealed class SkillProgramCatalog
                     movementOccurrence != SkillProgramMovementOccurrence.PerOwnerBatch && sourceZones.Count != 1 || sourceZones.Any(zone => zone is not
                         (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or
                          CardZoneKind.WoodenOxGrain or CardZoneKind.BuquWound or CardZoneKind.Authority or
-                         CardZoneKind.Chunlao)))
+                         CardZoneKind.Chunlao) && !(node.TryGetProperty("effects", out var rawEffects) && rawEffects.ValueKind == JsonValueKind.Array &&
+                             rawEffects.EnumerateArray().Any(e => e.ValueKind == JsonValueKind.Object &&
+                             e.TryGetProperty("op", out var op) && op.ValueKind == JsonValueKind.String && op.GetString() == "revealRedLossAndDraw") &&
+                             zone is CardZoneKind.PojunHold or CardZoneKind.PrivateReserve or CardZoneKind.PublicDeferredPile or
+                                 CardZoneKind.PublicPersistentPile or CardZoneKind.PrivateTurnHold)))
                     Fail(path + ".sourceZones",
                         "cardsMoved requires exactly one owner-scoped source zone");
                 movementOccurrence = EnumValue<SkillProgramMovementOccurrence>(
@@ -3513,19 +3522,30 @@ public sealed class SkillProgramCatalog
             !(window == SkillProgramTriggerWindow.CardsGained && movementOccurrence == SkillProgramMovementOccurrence.PerSourceOwner))
             Fail(path + ".effects", "eventSource requires a damage-applied, judgment or discard-phase-ended trigger");
         if (window == SkillProgramTriggerWindow.JudgmentReplacing &&
-            (effects[0].Op != SkillProgramEffectOp.ReplaceJudgment ||
+            (effects[0].Op is not (SkillProgramEffectOp.ReplaceJudgment or SkillProgramEffectOp.DelegateJudgmentReplacement) ||
              effects.Skip(1).Any(effect => effect.Op is not
                  (SkillProgramEffectOp.Draw or SkillProgramEffectOp.Recover) ||
                  effect.Target != SkillProgramEffectTarget.Owner ||
                  effect.ReplacementSuits.Count == 0)))
             Fail(path + ".effects", "judgmentReplacing requires replaceJudgment first, followed only by draw or recover");
         if (window != SkillProgramTriggerWindow.JudgmentReplacing &&
-            effects.Any(effect => effect.Op == SkillProgramEffectOp.ReplaceJudgment ||
+            effects.Any(effect => effect.Op is SkillProgramEffectOp.ReplaceJudgment or SkillProgramEffectOp.DelegateJudgmentReplacement ||
                                   effect.ReplacementSuits.Count > 0))
             Fail(path + ".effects", "judgment replacement effects require judgmentReplacing");
         if (window != SkillProgramTriggerWindow.JudgmentFinalized &&
             effects.Any(effect => effect.Op == SkillProgramEffectOp.ClaimJudgmentCard))
             Fail(path + ".effects", "claimJudgmentCard requires judgmentFinalized");
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.DelegateJudgmentReplacement) &&
+            (effects.Count != 1 || subject != SkillProgramTriggerSubject.Any || !optional))
+            Fail(path, "delegated judgment requires one optional any-subject replacement operation");
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.GiveAfterBatchGain) &&
+            (effects.Count != 1 || window != SkillProgramTriggerWindow.CardsGained || subject != SkillProgramTriggerSubject.Owner ||
+             movementOccurrence != SkillProgramMovementOccurrence.PerBatch || optional || usageScope is not null || usageLimit is not null))
+            Fail(path, "batch gain gift requires one owner perBatch cardsGained operation with its own actual-phase quota");
+        if (effects.Any(e => e.Op == SkillProgramEffectOp.RevealRedLossAndDraw) &&
+            (effects.Count != 1 || window != SkillProgramTriggerWindow.CardsMoved || subject != SkillProgramTriggerSubject.Owner ||
+             movementOccurrence != SkillProgramMovementOccurrence.PerOwnerBatch || optional || movementDiscardOnly || usageScope is not null || usageLimit is not null))
+            Fail(path, "red loss requires one mandatory owner perOwnerBatch loss operation");
         var allowNoEventTarget = node.TryGetProperty("allowNoEventTarget", out _) && RequiredBool(node, "allowNoEventTarget", path);
         if (allowNoEventTarget && (!isCardActionWindow || ownerRelation != SkillProgramCardActionOwnerRelation.ConversionSource ||
             effects.SelectMany(EnumerateParticipantReferences).Any(reference => reference.Kind == ProgramParticipantRef.EventTarget)))
@@ -3538,10 +3558,11 @@ public sealed class SkillProgramCatalog
         // The provenance operation makes that existing boundary explicit without
         // changing the occurrence contract of historical discard programs.
         if (window == SkillProgramTriggerWindow.DiscardPileReceived &&
-            effects.Any(e => e.Op is SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance or SkillProgramEffectOp.StoreAdjacentDiscardedSlash))
+            effects.Any(e => e.Op is SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance or SkillProgramEffectOp.StoreAdjacentDiscardedSlash or SkillProgramEffectOp.DrawFromOtherActualBasicDiscard))
             movementOccurrence = node.TryGetProperty("movementOccurrence", out _)
                 ? EnumValue<SkillProgramMovementOccurrence>(node, "movementOccurrence", path)
-                : SkillProgramMovementOccurrence.PerCard;
+                : effects.Any(e => e.Op == SkillProgramEffectOp.DrawFromOtherActualBasicDiscard)
+                    ? SkillProgramMovementOccurrence.PerBatch : SkillProgramMovementOccurrence.PerCard;
         if (movementOccurrence == SkillProgramMovementOccurrence.PerSourceOwner && window != SkillProgramTriggerWindow.CardsGained)
             Fail(path + ".movementOccurrence", "perSourceOwner requires a cardsGained boundary");
         if (movementOccurrence == SkillProgramMovementOccurrence.PerOwnerBatch && window != SkillProgramTriggerWindow.CardsMoved)
@@ -3615,6 +3636,7 @@ public sealed class SkillProgramCatalog
             (window != SkillProgramTriggerWindow.PlayEnding || subject != SkillProgramTriggerSubject.Owner || turnOwnerScope != SkillProgramTurnOwnerScope.Own))
             Fail(path, "actual turn type-count draw requires an own Play-ending owner window");
         SourceCurseComposition.ValidateTrigger(path, effects, window, subject, turnOwnerScope, optional, ownerRelation, includeResponseUses);
+        PublicPilePreparationComposition.ValidateTrigger(path, effects, window, subject, turnOwnerScope, optional, damageCardKinds, damageOccurrence);
         PrivateOfferComposition.ValidateTrigger(path, effects, window, subject, turnOwnerScope, optional);
         HalfHandPhaseDebtTriggerContract.Validate(path, effects, subject, optional);
         PhaseHandSeizureComposition.ValidateTrigger(path, effects, subject, optional);
@@ -3778,6 +3800,7 @@ public sealed class SkillProgramCatalog
     private static void ValidateTriggerSources(IReadOnlyDictionary<string, SkillProgram> programs)
     {
         SourceCurseComposition.ValidatePrograms(programs);
+        PublicPilePreparationComposition.ValidatePrograms(programs);
         foreach (var owner in programs.Values)
             foreach (var trigger in owner.Triggers)
             {

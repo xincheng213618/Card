@@ -71,7 +71,7 @@ public sealed partial class GameEngine
              HasTurnRedSlashPolicyForColor(actor.Seat, CardKind.FireSlash, ActualTargetPolicyColor(action)) ||
              HasPhaseSuitAllowance(actor.Seat, action.EffectiveSuit) || HasCardDistanceExemption(actor, t, CardKind.FireSlash) ||
              HasUnlimitedTurnRuleModifier(actor.Seat, SkillRuleQuery.SlashDistanceLimit) ||
-             IsWithinSpecificSlashRange(actor, t, CardKind.FireSlash, action.EffectiveRank)))
+             IsWithinSpecificSlashRange(actor, t, CardKind.FireSlash, action.EffectiveRank, use.Id)))
             .Select(t => t.Seat).ToArray();
     }
 

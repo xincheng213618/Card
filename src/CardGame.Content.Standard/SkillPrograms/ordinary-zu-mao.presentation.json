@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:yinbing": {
+      "name": "引兵",
+      "authorityName": "引兵",
+      "description": "结束阶段，你可以将任意张非基本牌置于你的武将牌上。当你受到【杀】或【决斗】造成的伤害后，你移去一张“引兵”牌。",
+      "triggerChoices": {
+        "ending-store-nonbasic": "将任意张非基本牌置于武将牌上",
+        "actual-slash-duel-damage": "移去一张引兵牌"
+      }
+    },
+    "ol:juedi": {
+      "name": "绝地",
+      "description": "锁定技，准备阶段，你选择一项：1.移去所有“引兵”牌，将手牌摸至体力上限；2.令一名体力值不大于你的其他角色获得所有“引兵”牌，然后回复1点体力并摸等量张牌。",
+      "triggerChoices": {
+        "own-prepare-all-pile": "选择移去引兵补手牌，或令其他角色获得引兵并回复、摸牌"
+      }
+    }
+  }
+}

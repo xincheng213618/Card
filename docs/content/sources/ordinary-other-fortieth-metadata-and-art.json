@@ -1,0 +1,135 @@
+{
+  "status": "current-source-and-original-art-reviewed-runtime-unverified",
+  "captureParentHead": "ed09df8347ab50eaea825579fba95e8070df579c",
+  "registrationPreviewBaseHead": "7280ce51f114a1fe7ac04bad0d0676eef62d0dea",
+  "characters": [
+    {
+      "gid": 123,
+      "generalId": "ol:zhuge-jin",
+      "moduleClass": "OrdinaryZhugeJinContent",
+      "name": "诸葛瑾",
+      "faction": "wu",
+      "maximumHp": 3,
+      "rawInitialHpField": 0,
+      "initialHpOverride": null,
+      "initialHpMeaning": "No separate initial HP override; follow the retained current frontend else branch for full maximum HP. Existing actual Lord identity bonuses remain unchanged.",
+      "initialHpInterpretationSource": {
+        "path": "docs/content/sources/evidence/ordinary-other-thirty-ninth-current-heroDetail.raw.js",
+        "sha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+        "lines": [
+          101,
+          127
+        ],
+        "freshRequestInThisBatch": false,
+        "sameScriptUrlAdvertisedByAllThreePages": true
+      },
+      "gender": "Male",
+      "genderAuthority": "Editorial inference from current official biography explicit brother/father terms; no structured API sex field",
+      "structuredApiGenderPresent": false,
+      "officialBiography": "字子瑜，吴国大臣，诸葛亮之兄，诸葛恪[kè]之父。经鲁肃推荐，为东吴效力。胸怀宽广，温厚诚信，得到孙权的深深信赖，努力缓和蜀汉与东吴的关系。建安二十五年（220年）吕蒙病逝，诸葛瑾代吕蒙领南郡太守，驻守公安。孙权称帝后，诸葛瑾官至大将军，领豫州牧。",
+      "factionAuthority": "docs/content/sources/evidence/ordinary-other-fortieth-123-info.raw.json data.info[0].figure_py",
+      "portraitAsset": "src/CardGame.Wpf/Assets/official-ol-zhuge-jin.png",
+      "portraitSourceUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12300.png",
+      "portraitSha256": "8792536e9b6bdc272956d8982e5d42b03643509ed25ff84fbb987e40ac3e661c",
+      "portraitDimensions": [
+        750,
+        950
+      ],
+      "portraitVisuallyInspected": true,
+      "variantRuleTextAuthority": "docs/content/sources/evidence/ordinary-other-fortieth-123-page.raw.html",
+      "otherVariantRulesSubstituted": false
+    },
+    {
+      "gid": 124,
+      "generalId": "ol:zhang-xing-cai",
+      "moduleClass": "OrdinaryZhangXingCaiContent",
+      "name": "张星彩",
+      "faction": "shu",
+      "maximumHp": 3,
+      "rawInitialHpField": 0,
+      "initialHpOverride": null,
+      "initialHpMeaning": "No separate initial HP override; follow the retained current frontend else branch for full maximum HP. Existing actual Lord identity bonuses remain unchanged.",
+      "initialHpInterpretationSource": {
+        "path": "docs/content/sources/evidence/ordinary-other-thirty-ninth-current-heroDetail.raw.js",
+        "sha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+        "lines": [
+          101,
+          127
+        ],
+        "freshRequestInThisBatch": false,
+        "sameScriptUrlAdvertisedByAllThreePages": true
+      },
+      "gender": "Female",
+      "genderAuthority": "Editorial inference from current official biography explicit daughter/wife terms; no structured API sex field",
+      "structuredApiGenderPresent": false,
+      "officialBiography": "蜀名将张飞与夏侯氏所生之女，刘禅的妻子，史上称为“敬哀皇后”。",
+      "factionAuthority": "docs/content/sources/evidence/ordinary-other-fortieth-124-info.raw.json data.info[0].figure_py",
+      "portraitAsset": "src/CardGame.Wpf/Assets/official-ol-zhang-xing-cai.png",
+      "portraitSourceUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12400.png",
+      "portraitSha256": "003b313e2bf76c7fe94de71c02c36569997fab07019e812129913f7753b755e2",
+      "portraitDimensions": [
+        750,
+        950
+      ],
+      "portraitVisuallyInspected": true,
+      "variantRuleTextAuthority": "docs/content/sources/evidence/ordinary-other-fortieth-124-page.raw.html",
+      "otherVariantRulesSubstituted": false
+    },
+    {
+      "gid": 125,
+      "generalId": "ol:zu-mao",
+      "moduleClass": "OrdinaryZuMaoContent",
+      "name": "祖茂",
+      "faction": "wu",
+      "maximumHp": 4,
+      "rawInitialHpField": 0,
+      "initialHpOverride": null,
+      "initialHpMeaning": "No separate initial HP override; follow the retained current frontend else branch for full maximum HP. Existing actual Lord identity bonuses remain unchanged.",
+      "initialHpInterpretationSource": {
+        "path": "docs/content/sources/evidence/ordinary-other-thirty-ninth-current-heroDetail.raw.js",
+        "sha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+        "lines": [
+          101,
+          127
+        ],
+        "freshRequestInThisBatch": false,
+        "sameScriptUrlAdvertisedByAllThreePages": true
+      },
+      "gender": "Male",
+      "genderAuthority": "Editorial metadata choice for the historical Zu Mao identity and current official portrait; no structured API sex field",
+      "structuredApiGenderPresent": false,
+      "officialBiography": "字大荣，吴郡富春人，使用双刀。孙坚在汜水关被华雄击败，祖茂为保护主公而主动提出与孙坚交换头盔，孙坚因此得脱。祖茂将孙坚的赤帻[zé]挂在柱子上，准备以此引诱华雄，趁机偷袭，却反被华雄所杀。",
+      "factionAuthority": "docs/content/sources/evidence/ordinary-other-fortieth-125-info.raw.json data.info[0].figure_py",
+      "portraitAsset": "src/CardGame.Wpf/Assets/official-ol-zu-mao.png",
+      "portraitSourceUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12500.png",
+      "portraitSha256": "3d08f2367417043a62da42e24ae98d78f0ee5b995169d9d766d95915734f2a8c",
+      "portraitDimensions": [
+        750,
+        950
+      ],
+      "portraitVisuallyInspected": true,
+      "variantRuleTextAuthority": "docs/content/sources/evidence/ordinary-other-fortieth-125-page.raw.html",
+      "otherVariantRulesSubstituted": false
+    }
+  ],
+  "pageInfoHttpRequests": 6,
+  "portraitHttpRequests": 3,
+  "redirectsFollowed": false,
+  "retries": 0,
+  "sexAuthorityLimit": "The official API has no structured sex field. The named editorial metadata choices are separate from structured official facts.",
+  "sourceCaptureSha256": "4350e8d30e524ee5d0d7c38370f38b2cc2c7293228c885a7aab0217c7547cdf7",
+  "execution": {
+    "csharp": false,
+    "compiler": false,
+    "build": false,
+    "productionLoader": false,
+    "tests": false,
+    "game": false,
+    "ai": false,
+    "ui": false,
+    "benchmark": false,
+    "release": false,
+    "publish": false,
+    "push": false
+  }
+}

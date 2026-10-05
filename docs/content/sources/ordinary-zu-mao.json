@@ -1,0 +1,82 @@
+{
+  "generalId": "ol:zu-mao",
+  "officialPageUrl": "https://www.sanguosha.com/hero/125",
+  "officialHeroId": 125,
+  "codeBaseHead": "7280ce51f114a1fe7ac04bad0d0676eef62d0dea",
+  "captureParentHead": "ed09df8347ab50eaea825579fba95e8070df579c",
+  "skills": [
+    {
+      "name": "引兵",
+      "officialText": "结束阶段，你可以将任意张非基本牌置于你的武将牌上。当你受到【杀】或【决斗】造成的伤害后，你移去一张“引兵”牌。",
+      "implementedSkillId": "ol:yinbing"
+    },
+    {
+      "name": "绝地",
+      "officialText": "锁定技，准备阶段，你选择一项：1.移去所有“引兵”牌，将手牌摸至体力上限；2.令一名体力值不大于你的其他角色获得所有“引兵”牌，然后回复1点体力并摸等量张牌。",
+      "implementedSkillId": "ol:juedi"
+    }
+  ],
+  "evidence": [
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-fortieth-current-source.json",
+      "afterRawSha256": "4350e8d30e524ee5d0d7c38370f38b2cc2c7293228c885a7aab0217c7547cdf7"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-fortieth-125-page.raw.html",
+      "afterRawSha256": "f3075a4b83e5d2c3ae3b640a6b740d871bbfe6106439ad059c336cd98d566686"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-fortieth-125-page.headers.txt",
+      "afterRawSha256": "bb220669256ce95a4a2f38d33f2f5c6a82b4edf4a37d6c03713133a4a269ab10"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-fortieth-125-info.raw.json",
+      "afterRawSha256": "b41cab8baec20d310727e248affae5950b81f9fc06a060a0a92c0c2d26147716"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-fortieth-125-info.headers.txt",
+      "afterRawSha256": "6a25f5db75ff993f9731841cdf263c9b3c55974923e4e80fc2afd3017bbc491d"
+    },
+    {
+      "repoPath": "docs/content/sources/evidence/ordinary-other-fortieth-125-cover.headers.txt",
+      "afterRawSha256": "00debacbea8b1947cad4733336e0b396a608774e33ef41dad2d165c90d26d12c"
+    }
+  ],
+  "metadataPath": "docs/content/sources/ordinary-other-fortieth-metadata-and-art.json",
+  "metadataSha256": "29ffc595f547e4dbdc6ee0e4954e93b94809689943e81d692af7b5d712d8b374",
+  "authorityBoundaries": {
+    "faction": "current API figure_py=wu",
+    "baseHp": "current API hp=4",
+    "initialHp": "API 0 means unspecified differential start in current frontend; default full max4 before mode bonus",
+    "gender": "Male editorial judgment from identity/current portrait, not a structured API sex field",
+    "HEStorage": "current owned Hand+Equipment nonbasic; immovable general weapon/provider equipment excluded",
+    "arbitraryCount": "current payable count with zero finish, no artificial 2/3/16 cap",
+    "zeroPreparation": "independently owned Juedi still chooses without any paired Yinbing source",
+    "pairedEntityReference": "exact instance first, otherwise ordinal first Yinbing raw grant sharing original SourceId; never merge piles",
+    "damage": "real effective Slash/FireSlash/ThunderSlash/Duel AfterDamageApplied; one card per actual damage occurrence",
+    "preparation": "source owner actual TurnStartBeforeNormalFlow only",
+    "branchTwo": "ALL current source pile gift; drain; requested Recover1; drain; draw frozen original quantity",
+    "paidSourceLoss": "already issued successors survive issuer skill loss/death while beneficiary lives",
+    "terminal": "only Completed+Finished+winner+matching genuine GameEnded stops this producer; no fabricated unpaid effect"
+  },
+  "runtimeAcceptance": false,
+  "execution": {
+    "csharp": false,
+    "productionLoader": false,
+    "build": false,
+    "compile": false,
+    "focusedTests": false,
+    "coreTests": false,
+    "wpfTests": false,
+    "game": false,
+    "replay": false,
+    "nativeAi": false,
+    "ui": false,
+    "benchmark": false,
+    "seedSearch": false,
+    "http": false,
+    "release": false,
+    "publish": false,
+    "push": false
+  }
+}

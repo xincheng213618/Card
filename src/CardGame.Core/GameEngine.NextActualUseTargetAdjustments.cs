@@ -262,7 +262,7 @@ public sealed partial class GameEngine
         foreach (var card in cards) MoveCard(card, FindOwnedCardLocation(owner, card), CardLocation.Processing, CardMoveReasons.Use);
         typedReturn = typedReturn with { PaidMovementLastSequence = CardMovements[^1].Sequence };
         UpdateLifecycleCardUse(id, use => use with { AdjustedSlashReturn = typedReturn });
-        var counted = !(LifecycleCardUse(id)?.UnlimitedUse == true) && !nuzhan.IgnoresSlashLimit && !IgnoresProgramSlashLimit(owner, source) &&
+        var counted = !(LifecycleCardUse(id)?.UnlimitedUse == true) && !HasIssuedJudgedRankSlashQuota(id, owner.Seat) && !nuzhan.IgnoresSlashLimit && !IgnoresProgramSlashLimit(owner, source) &&
             _phase == TurnPhase.Play && owner.Seat == _currentSeat;
         if (counted) RecordSlashUseDebit(id, owner.Seat);
         MarkSlashUsedOrPlayedDuringCurrentPlayPhase(owner.Seat, kind);

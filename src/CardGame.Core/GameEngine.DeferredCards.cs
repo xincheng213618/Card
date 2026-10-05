@@ -17,7 +17,7 @@ public sealed partial class GameEngine
             .SelectMany(view => view.Ids)
             .Select(id => _cardZones.CardsAt(CardLocation.Processing).Single(card => card.Id == id))
             .Select(ToSnapshot);
-        return topCards.Concat(DeferredPrivateOfferViewedCards(viewerSeat)).Concat(InspectedHandPrivateCards(viewerSeat)).Concat(RequestedDeckBasicPrivateCards(viewerSeat)).Concat(GetOfferedPrivatelyViewedCards(viewerSeat)).Concat(GetQuotaPrivatelyViewedCards(viewerSeat)).Concat(GetConvertingGiftPrivatelyViewedCards(viewerSeat)).Concat(GetExactTopPrivatelyViewedCards(viewerSeat)).Concat(GetPopulationTopPrivatelyViewedCards(viewerSeat)).Concat(GetParticipantPrivatelyViewedCards(viewerSeat)).DistinctBy(card => card.Id).ToArray();
+        return topCards.Concat(DelegatedJudgmentPrivateCards(viewerSeat)).Concat(DeferredPrivateOfferViewedCards(viewerSeat)).Concat(InspectedHandPrivateCards(viewerSeat)).Concat(RequestedDeckBasicPrivateCards(viewerSeat)).Concat(GetOfferedPrivatelyViewedCards(viewerSeat)).Concat(GetQuotaPrivatelyViewedCards(viewerSeat)).Concat(GetConvertingGiftPrivatelyViewedCards(viewerSeat)).Concat(GetExactTopPrivatelyViewedCards(viewerSeat)).Concat(GetPopulationTopPrivatelyViewedCards(viewerSeat)).Concat(GetParticipantPrivatelyViewedCards(viewerSeat)).DistinctBy(card => card.Id).ToArray();
     }
 
     // Checkpoints replay the complete accepted command prefix. The event stream is never

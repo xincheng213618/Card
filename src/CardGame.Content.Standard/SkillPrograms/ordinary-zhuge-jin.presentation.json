@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:huanshi": {
+      "name": "缓释",
+      "description": "当一名角色的判定牌生效前，你可以令其观看你的手牌并选择你的一张牌，然后你用此牌代替判定牌。"
+    },
+    "ol:hongyuan": {
+      "name": "弘援",
+      "description": "每阶段限一次，当你一次获得至少两张牌后，你可以交给至多两名其他角色各一张牌。"
+    },
+    "ol:mingzhe": {
+      "name": "明哲",
+      "description": "锁定技，当你于出牌阶段外失去红色牌后，你展示之并摸一张牌。"
+    }
+  }
+}

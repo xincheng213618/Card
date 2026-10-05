@@ -82,6 +82,7 @@ public sealed partial class GameEngine
                 TurnHandLimitCardKindExemptions = GetTurnHandLimitCardKindExemptionsSnapshot(player.Seat),
                 TurnSlashSuitAllowances = GetTurnSlashSuitAllowancesSnapshot(player.Seat),
                 FirstRoundGameUsageRefunds = GetFirstRoundGameUsageRefundsSnapshot(player.Seat),
+                JudgedRankSlashThreshold = JudgedRankSlashSnapshot(player.Seat),
                 ActualPlayPhaseCardUseState = TracksActualPlayPhaseCardUses && _phase == TurnPhase.Play && player.Seat == _currentSeat ? new(player.Seat, _turnNumber, _cardUseDebitPhaseInstanceId, GetActualPlayPhaseUseCount(player.Seat)) : null,
                 IssuedPlayPhaseUseProhibitions = _issuedPlayPhaseUseProhibitions.Where(p => p.ActorSeat == player.Seat && HasIssuedPlayPhaseUseBan(player.Seat)).ToArray() is { Length: > 0 } issuedBans ? issuedBans : null,
                 IssuedPlayPhaseSuitUseAllowances = GetIssuedPlayPhaseSuitUseAllowances(player.Seat),
@@ -176,7 +177,7 @@ public sealed partial class GameEngine
         var visibleDecision = _pendingDecision?.PlayerSeat == viewerSeat
             ? _pendingDecision
             : null;
-        var programRevealedCards = GetProgramPublicCards();
+        IReadOnlyList<CardSnapshot> programRevealedCards = GetProgramPublicCards().Concat(GainGiftPublicLostCards()).DistinctBy(card => card.Id).ToArray();
         if (_resolutionStack.OfType<ProgramSkillFrame>().LastOrDefault()?.PublicPileDraft is { Stage: "pile" or "distribute" } pileDraft)
             programRevealedCards = programRevealedCards.Concat(PublicPileDraftCards(pileDraft).Select(ToSnapshot)).DistinctBy(card => card.Id).ToArray();
         if (_resolutionStack.LastOrDefault() is ProgramSkillFrame { InstructionIndex: > 0 } pileFrame &&
