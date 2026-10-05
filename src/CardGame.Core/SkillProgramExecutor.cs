@@ -310,7 +310,8 @@ public interface ISkillProgramEffectHost
         SkillRuleQuery query,
         SkillRuleOperation operation,
         int amount,
-        IReadOnlyList<CardKind> cardKinds);
+        IReadOnlyList<CardKind> cardKinds,
+        PlayerMarkerKind? amountFromMarker = null);
     void GrantTurnCardTargetRestriction(
         ProgramSkillFrame frame,
         SkillProgramCardTargetRestriction restriction,
@@ -1040,7 +1041,8 @@ public sealed class GrantTurnRuleModifierSkillProgramEffectHandler : ISkillProgr
             effect.RuleQuery ?? throw new InvalidOperationException("A turn rule modifier lost its query."),
             effect.RuleOperation ?? throw new InvalidOperationException("A turn rule modifier lost its operation."),
             effect.Amount,
-            effect.CardKinds);
+            effect.CardKinds,
+            effect.AmountFromMarker);
         return SkillProgramStepOutcome.Continue;
     }
 }
@@ -1102,18 +1104,26 @@ public sealed class SelectAndMoveOwnedCardSkillProgramEffectHandler : ISkillProg
 {
     public SkillProgramEffectOp Op => SkillProgramEffectOp.SelectAndMoveOwnedCard;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame,
-        int targetSeat, ISkillProgramEffectHost host) => host.SelectAndMoveOwnedCard(
-        frame,
-        effect.ChooserRef ?? throw new InvalidOperationException("selectAndMoveOwnedCard has no chooserRef."),
-        effect.CardOwnerRef ?? throw new InvalidOperationException("selectAndMoveOwnedCard has no cardOwnerRef."),
-        effect.Zones,
-        effect.Destination ?? throw new InvalidOperationException("selectAndMoveOwnedCard has no destination."),
-        effect.TargetReference,
-        effect.ResultBind,
-        new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"), effect.CardCategories,
-        effect.SkipIfNoCards, effect.AllowSameOwnerHandReturn,
-        effect.CoverageResultBind, effect.AwaitMovementTriggers, effect.RevealBeforeMove,
-        effect.CardKinds, effect.ProhibitReplacingEquipment, effect.Suits);
+        int targetSeat, ISkillProgramEffectHost host)
+    {
+        var suits = effect.Suits;
+        if (suits.Count == 0 && effect.SuitFrom == SkillProgramSuitSource.DamageCard)
+            suits = frame.WindowContext?.Facts.DamageCardSuit is { } suit
+                ? [suit]
+                : throw new InvalidOperationException("suitFrom damageCard requires a damage card suit.");
+        return host.SelectAndMoveOwnedCard(
+            frame,
+            effect.ChooserRef ?? throw new InvalidOperationException("selectAndMoveOwnedCard has no chooserRef."),
+            effect.CardOwnerRef ?? throw new InvalidOperationException("selectAndMoveOwnedCard has no cardOwnerRef."),
+            effect.Zones,
+            effect.Destination ?? throw new InvalidOperationException("selectAndMoveOwnedCard has no destination."),
+            effect.TargetReference,
+            effect.ResultBind,
+            new CardMoveReason($"skill-program.{frame.SkillId}.{effect.Op}"), effect.CardCategories,
+            effect.SkipIfNoCards, effect.AllowSameOwnerHandReturn,
+            effect.CoverageResultBind, effect.AwaitMovementTriggers, effect.RevealBeforeMove,
+            effect.CardKinds, effect.ProhibitReplacingEquipment, suits);
+    }
 }
 
 public sealed class ChooseOtherOwnedCardDiscardSkillProgramEffectHandler : ISkillProgramEffectHandler

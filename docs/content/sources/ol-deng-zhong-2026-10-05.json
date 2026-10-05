@@ -1,0 +1,52 @@
+{
+  "generalId": "ol:deng-zhong",
+  "characterName": "邓忠",
+  "officialId": 512,
+  "sourcePage": "https://www.sanguosha.com/hero/512",
+  "capturedAt": "2026-10-05",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 512,
+    "name": "邓忠",
+    "extend": "",
+    "hp": 4,
+    "figure": "魏",
+    "quality": "稀有"
+  },
+  "artwork": {
+    "skinId": "51200",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/51200.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-deng-zhong.png",
+    "sha256": "218b10f4f9d780d79a086baed136d56e3542ff128ca4cfd3b2ed9e919ba1e292",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "勘破",
+      "text": "当你使用【杀】对目标角色造成伤害后，你可以观看其手牌并获得其中一张与此【杀】花色相同的牌。每回合限一次，你可以将一张手牌当【杀】使用。",
+      "programId": "ol:kanpo",
+      "notes": [
+        "Take: afterDamageApplied optional trigger with subject damageSource (the damage-window owner subject denotes the victim, 奸雄 precedent), damageCardKinds slash trio, conditions damageSourceIsOwner/damageTargetIsOther/directCardUseDamage.",
+        "The take is selectAndMoveOwnedCard with the new suitFrom: damageCard input: the move filters the event target's hand to the damaging slash's suit, resolved at execution from the bound window facts (DamageCardSuit captured in CreateAfterDamageProgramContext).",
+        "View-as: a single-card play-flow viewAs rule (any hand card as slash, allowSameKind, usesPerPhase 1 with usageGroup kanpo-view-slash). The play-phase limit is equivalent to 每回合限一次 because the rule is play-only; the standard single-card conversion offering consumes the allowance via ConsumeProgramViewAsUsage."
+      ]
+    },
+    {
+      "name": "更战",
+      "text": "其他角色出牌阶段限一次，当一张【杀】因弃置置入弃牌堆后，你可以获得之。其他角色的结束阶段，若其本回合未使用过【杀】，你下个出牌阶段使用【杀】的限制次数+1。",
+      "programId": "ol:gengzhan",
+      "notes": [
+        "Claim: discardPileReceived optional trigger with movementDiscardOnly and the trigger-level usageScope turn/usageLimit 1 (once per each other player's turn), cardKinds slash trio, conditions phaseIsPlay plus not ownerIsTurnPlayer; effects are the exact claimDiscardedEntityWithProvenance/offerFaceUpForOutsideClaims pair (曹植落英 precedent, offer is inert without a face-down claim policy). The composition validator now accepts cardKinds on provenance-claim triggers.",
+        "Tally: compulsory turnEnding trigger (subject owner, turnOwnerScope otherLiving) gated by the new turnOwnerSlashUseCount compare (events since the turn started, slash kinds, turn owner); grants one gengZhan marker to the owner (owner-self marker mutation now permitted in lifecycle windows).",
+        "Release: compulsory playPhaseStarting trigger gated by ownerAttributedMarkerCount; grantTurnRuleModifier slashLimit add with the new amountFromMarker input (engine resolves the owner's current marker count) plus changeParticipantMarker clearMarker, so stacked tallies convert into one combined limit for exactly the next play phase. The marker gate accepts TurnEndingBoundaryFrame for turnEnding mutations."
+      ]
+    }
+  ],
+  "observations": [
+    "OL lists 邓忠 as wei 4HP with quality 稀有; the hero page labels him 收取他人未使用的出杀机会.",
+    "New shared pieces: suitFrom damageCard on selectAndMoveOwnedCard (dynamic suit filter from the bound damage facts), turnOwnerSlashUseCount trigger value, PhaseIsPlay trigger condition on base facts, amountFromMarker/clearMarker inputs, cardKinds allowed on provenance-claim triggers, and owner-self marker mutations in lifecycle windows with the TurnEndingBoundaryFrame parent.",
+    "The grantTurnRuleModifier op stays current-turn scoped; the tally-then-release marker composition defers the slash-limit grant to the next play phase without new deferral machinery."
+  ]
+}

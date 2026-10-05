@@ -10,7 +10,7 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
 
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
-        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "targetRef", "resultBind", "cardCategories", "cardKinds", "suits", "skipIfNoCards", "allowSameOwnerHandReturn", "coverageResultBind", "awaitMovementTriggers", "revealBeforeMove", "freezeMovedCardSuit", "prohibitReplacingEquipment", "allowDecline", "condition");
+        r.AllowOnly("op", "target", "chooserRef", "cardOwnerRef", "zones", "count", "destination", "targetRef", "resultBind", "cardCategories", "cardKinds", "suits", "suitFrom", "skipIfNoCards", "allowSameOwnerHandReturn", "coverageResultBind", "awaitMovementTriggers", "revealBeforeMove", "freezeMovedCardSuit", "prohibitReplacingEquipment", "allowDecline", "condition");
         var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
         if (target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.target: must be owner.");
@@ -98,6 +98,13 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
         var suits = r.OptionalEnumArray<Suit>("suits");
         if (suits is { Count: 0 })
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.suits: must not be empty when specified.");
+        var suitFrom = r.Has("suitFrom") ? r.RequiredEnum<SkillProgramSuitSource>("suitFrom") : (SkillProgramSuitSource?)null;
+        if (suitFrom is not null && (suits is not null ||
+            zones is not [CardZoneKind.Hand] ||
+            destination != SkillProgramCardDestination.OwnerHand ||
+            cardOwnerRef.Kind != ProgramParticipantRef.EventTarget))
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}.suitFrom: damage-card suit matching takes one event-target hand card to the owner's hand without static suits.");
         var effect = new SkillProgramEffect(Op, target, count, r.Condition(), zones: zones,
             destination: destination, resultBind: r.OptionalIdentifier("resultBind"),
             chooserRef: chooserRef, cardOwnerRef: cardOwnerRef, cardCategories: cardCategories,
@@ -107,7 +114,8 @@ internal sealed class SelectAndMoveOwnedCardProgramOperationDescriptor : Program
             coverageResultBind: coverageResultBind, awaitMovementTriggers: awaitMovementTriggers,
             revealBeforeMove: revealBeforeMove, cardKinds: cardKinds,
             prohibitReplacingEquipment: prohibitReplacingEquipment, allowDecline: allowDecline,
-            freezeMovedCardSuit: r.Has("freezeMovedCardSuit") && r.RequiredBool("freezeMovedCardSuit"));
+            freezeMovedCardSuit: r.Has("freezeMovedCardSuit") && r.RequiredBool("freezeMovedCardSuit"),
+            suitFrom: suitFrom);
         var optionalEquipmentDiscard = effect.FreezeMovedCardSuit && effect.AwaitMovementTriggers &&
             effect.Destination == SkillProgramCardDestination.DiscardPile && effect.CardCategories is [SkillProgramCardCategory.Equipment] &&
             effect.ChooserRef?.Kind == ProgramParticipantRef.SelectedTarget && effect.CardOwnerRef?.Kind == ProgramParticipantRef.SelectedTarget;

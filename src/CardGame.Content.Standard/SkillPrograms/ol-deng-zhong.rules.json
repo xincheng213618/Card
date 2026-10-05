@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:kanpo",
+      "revision": 1,
+      "viewAs": [
+        {
+          "id": "kanpo-hand-as-slash",
+          "inputKinds": [],
+          "inputSuits": [],
+          "inputCount": 1,
+          "sourceZones": ["hand"],
+          "outputKind": "slash",
+          "forPlay": true,
+          "forResponse": false,
+          "allowSameKind": true,
+          "usesPerPhase": 1,
+          "usageGroup": "kanpo-view-slash",
+          "condition": { "kind": "always" }
+        }
+      ],
+      "triggers": [
+        {
+          "id": "kanpo-take",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "damageOccurrence": "perDamage",
+          "damageCardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "optional": true,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "damageSourceIsOwner" },
+              { "kind": "damageTargetIsOther" },
+              { "kind": "directCardUseDamage" }
+            ]
+          },
+          "effects": [
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "eventTarget" },
+              "zones": ["hand"],
+              "count": 1,
+              "destination": "ownerHand",
+              "suitFrom": "damageCard",
+              "skipIfNoCards": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:gengzhan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "gengzhan-claim",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "movementOccurrence": "perCard",
+          "movementDiscardOnly": true,
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"],
+          "ignoreOwnSkillMovements": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "optional": true,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "phaseIsPlay" },
+              { "kind": "not", "children": [ { "kind": "ownerIsTurnPlayer" } ] }
+            ]
+          },
+          "effects": [
+            { "op": "claimDiscardedEntityWithProvenance", "target": "owner", "provenanceId": "gengzhan" },
+            { "op": "offerFaceUpForOutsideClaims", "target": "owner", "provenanceId": "gengzhan" }
+          ]
+        },
+        {
+          "id": "gengzhan-tally",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": false,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "turnOwnerSlashUseCount" },
+            "operator": "equal",
+            "right": { "kind": "integerConstant", "value": 0 }
+          },
+          "effects": [
+            { "op": "changeParticipantMarker", "target": "owner", "marker": "gengZhan", "amount": 1 }
+          ]
+        },
+        {
+          "id": "gengzhan-release",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": false,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "ownerAttributedMarkerCount", "marker": "gengZhan" },
+            "operator": "greaterThanOrEqual",
+            "right": { "kind": "integerConstant", "value": 1 }
+          },
+          "effects": [
+            {
+              "op": "grantTurnRuleModifier",
+              "target": "owner",
+              "ruleQuery": "slashLimit",
+              "ruleOperation": "add",
+              "amountFromMarker": "gengZhan"
+            },
+            {
+              "op": "changeParticipantMarker",
+              "target": "owner",
+              "marker": "gengZhan",
+              "amount": -1,
+              "clearMarker": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

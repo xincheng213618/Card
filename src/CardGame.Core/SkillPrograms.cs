@@ -62,7 +62,8 @@ public enum SkillProgramTriggerConditionKind
     OwnerKilledThisTurn = 550,
     TurnDiscardIncludesAllSuits = 1660,
     DeathExtinguishedFaction = 1020, DiscardPhaseSuitsAllDistinct = 1021, OtherDamageSourceAlive = 1022, DamageSourcePairUnused = 1023,
-    PreviousPlayCardIsBasic = 1024
+    PreviousPlayCardIsBasic = 1024,
+    PhaseIsPlay = 1025
 }
 public enum SkillProgramTriggerValueKind
 {
@@ -106,8 +107,10 @@ public enum SkillProgramTriggerValueKind
     GlobalMarkerCount = 452,
     OwnerLostHp = 600, CardActionHandCardCount = 601, PlayPhaseDamageTakenByAny = 900,
     EventTargetMarkerCount = 1280, EventSourceMarkerCount = 3101,
+    TurnOwnerSlashUseCount = 3102,
     MovedEquipmentCardCount = 5000
 }
+public enum SkillProgramSuitSource { DamageCard }
 public enum SkillProgramComparisonOperator
 {
     Equal,
@@ -543,7 +546,7 @@ public enum SkillProgramCardSource { DamageSource, Owner, EventTarget = 2 }
 public enum SkillProgramSubsetAiOrder { MostCardsThenRankSum }
 public enum SkillProgramTargetAiOrder { Stable, HostileThenHandCount, SupportFirstThenOpposeSecond, SupportDraw, CardEffectIntervention = 4 }
 public enum SkillProgramPhaseContinuation { BeforeNormalPreparation }
-public enum SkillProgramCardTargetRestriction { SelfOnly, DistanceUnlimitedAgainstTarget, SlashCountUnlimitedAgainstTarget, IgnoreArmorAgainstTarget, ArmorIneffectiveForTurn = 400 }
+public enum SkillProgramCardTargetRestriction { SelfOnly, DistanceUnlimitedAgainstTarget, SlashCountUnlimitedAgainstTarget, IgnoreArmorAgainstTarget, ArmorIneffectiveForTurn = 400, NormalSlashTarget = 500 }
 public enum SkillProgramCardColorRelation { OppositeBoundCard }
 public enum SkillProgramStateVisibility { Public, Private }
 public enum SkillProgramStateResetScope { Game, PlayPhase = 450, Turn = 1081 }
@@ -852,7 +855,10 @@ public sealed record SkillProgramTriggerFacts(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] int? CurrentAvailableEquipmentSlotCount = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, int>? PublicPersistentPileCounts = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? TurnDiscardSuitMask = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? TurnOwnerDamageDealtThisTurn = null)
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? TurnOwnerDamageDealtThisTurn = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? TurnOwnerSlashUseCount = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] Suit? DamageCardSuit = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? PhaseIsPlay = null)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public CardMovementTiming? MovementTiming { get; init; }
@@ -946,6 +952,8 @@ public sealed record SkillProgramTriggerValue(SkillProgramTriggerValueKind Kind,
         SkillProgramTriggerValueKind.OwnerEventTargetDistance => facts.OwnerEventTargetDistance,
         SkillProgramTriggerValueKind.EventTargetMarkerCount => facts.EventTargetMarkerCounts?.GetValueOrDefault(Marker!.Value) ?? 0,
         SkillProgramTriggerValueKind.EventSourceMarkerCount => facts.EventSourceMarkerCounts?.GetValueOrDefault(Marker!.Value) ?? 0,
+        SkillProgramTriggerValueKind.TurnOwnerSlashUseCount => facts.TurnOwnerSlashUseCount ??
+            throw new InvalidOperationException("Turn-owner slash use facts were not captured."),
         SkillProgramTriggerValueKind.OwnerAttributedMarkerCount => Marker is { } marker &&
             facts.MarkerCounts is { } counts && counts.TryGetValue(marker, out var markerCount) ? markerCount : 0,
         _ => throw new InvalidOperationException($"Unsupported trigger value kind '{Kind}'.")
@@ -1038,6 +1046,7 @@ public sealed class SkillProgramTriggerCondition
         SkillProgramTriggerConditionKind.OwnerKilledThisTurn => facts.OwnerKilledThisTurn == true,
         SkillProgramTriggerConditionKind.DeathVictimHasCards => facts.DeathVictimCleanupCardCount > 0,
         SkillProgramTriggerConditionKind.OwnerIsTurnPlayer => facts.OwnerIsTurnPlayer == true,
+        SkillProgramTriggerConditionKind.PhaseIsPlay => facts.PhaseIsPlay == true,
         SkillProgramTriggerConditionKind.CardActionFromOwnerHand => facts.CardActionFromOwnerHand == true,
         SkillProgramTriggerConditionKind.DamageSourceIsOwner => facts.DamageSourceIsOwner == true,
         SkillProgramTriggerConditionKind.PreviousPlayCardIsBasic => facts.PreviousPlayCardIsBasic == true,
@@ -1274,7 +1283,8 @@ public sealed class SkillProgramEffect
         bool prohibitReplacingEquipment = false,
         bool onePerSuit = false,
         bool allowDecline = false,
-        bool useCardActionWindows = false, bool freezeMovedCardSuit = false, bool useFrozenSuit = false) =>
+        bool useCardActionWindows = false, bool freezeMovedCardSuit = false, bool useFrozenSuit = false,
+        SkillProgramSuitSource? suitFrom = null, PlayerMarkerKind? amountFromMarker = null, bool clearMarker = false) =>
         (Op, Target, Amount, Condition, Phase, PhaseContinuation, NumberExpression, MinimumValue,
             ClampToMaxHp, SourceBind, ResultBind, ExceptBind, Visibility, MinimumCards, MaximumCards,
             MaximumRankSum, AiOrder, Destination, DestinationZone, CardSource, FaceDown, Zones, TargetKind,
@@ -1287,7 +1297,8 @@ public sealed class SkillProgramEffect
             RevealBeforeMove, MatchSuitOfBind, AllowSameSource, SkipIfNoTarget,
             DamageNature, OldCardDestination, ReplacementSuits, MinimumReplacementRank, MaximumReplacementRank,
             ProviderFactionId, SkippedPhases, RevealMode, SourceRef, ProhibitReplacingEquipment,
-            OnePerSuit, AllowDecline, UseCardActionWindows, FreezeMovedCardSuit, UseFrozenSuit) =
+            OnePerSuit, AllowDecline, UseCardActionWindows, FreezeMovedCardSuit, UseFrozenSuit,
+            SuitFrom, AmountFromMarker, ClearMarker) =
         (op, target, amount, condition, phase, phaseContinuation, numberExpression, minimumValue,
             clampToMaxHp, sourceBind, resultBind, exceptBind, visibility, minimumCards, maximumCards,
             maximumRankSum, aiOrder, destination, destinationZone, cardSource, faceDown,
@@ -1306,7 +1317,8 @@ public sealed class SkillProgramEffect
             damageNature, oldCardDestination, replacementSuits ?? Array.Empty<Suit>(),
             minimumReplacementRank, maximumReplacementRank, providerFactionId,
             skippedPhases ?? Array.Empty<SkillProgramTurnPhase>(), revealMode, sourceRef,
-            prohibitReplacingEquipment, onePerSuit, allowDecline, useCardActionWindows, freezeMovedCardSuit, useFrozenSuit);
+            prohibitReplacingEquipment, onePerSuit, allowDecline, useCardActionWindows, freezeMovedCardSuit, useFrozenSuit,
+            suitFrom, amountFromMarker, clearMarker);
     [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public PrivateGeneralLibraryPolicy? GeneralLibraryPolicy {get;internal init;}
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -1334,6 +1346,12 @@ public sealed class SkillProgramEffect
     public bool FreezeMovedCardSuit { get; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public bool UseFrozenSuit { get; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public SkillProgramSuitSource? SuitFrom { get; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PlayerMarkerKind? AmountFromMarker { get; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool ClearMarker { get; }
     public SkillProgramEffectTarget Target { get; }
     public int Amount { get; }
     public SkillProgramCondition Condition { get; }
@@ -3535,7 +3553,7 @@ public sealed class SkillProgramCatalog
         if (effects.Any(e => e.Op == SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance) &&
             (movementOccurrence != SkillProgramMovementOccurrence.PerCard || subject != SkillProgramTriggerSubject.Owner ||
              node.TryGetProperty("discardOwnerScope", out var provenanceScope) && !string.Equals(provenanceScope.GetString(), "other", StringComparison.OrdinalIgnoreCase) ||
-             cardKinds.Count != 0 || cardCategories.Count != 0 || movementReasons.Count != 0 || excludedMovementReasons.Count != 0))
+             cardCategories.Count != 0 || movementReasons.Count != 0 || excludedMovementReasons.Count != 0))
             Fail(path, "Provenance claims require unfiltered other-player per-card discard/judgment origins.");
         var movementDiscardOnly = node.TryGetProperty("movementDiscardOnly", out _) && RequiredBool(node, "movementDiscardOnly", path);
         if (effects.Any(e => e.Op == SkillProgramEffectOp.StoreAdjacentDiscardedSlash) &&

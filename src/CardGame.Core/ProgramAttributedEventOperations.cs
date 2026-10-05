@@ -7,11 +7,13 @@ internal abstract class AttributedEventDescriptor : ProgramOperationDescriptorBa
  public override ProgramOperationAiPolicy AiPolicy { get; } = new(ProgramOperationAiSemantic.ChangeAttributedMarker,static(e,c)=> { if(e.Op==SkillProgramEffectOp.ConsumeMarkerPreventDamage)c.PreventCurrentDamage(e); else if(e.Op==SkillProgramEffectOp.AddMarkerSubjectNormalDraw)c.AdjustNormalDraw(new SkillProgramEffect(SkillProgramEffectOp.AdjustNormalDraw,SkillProgramEffectTarget.Owner,1,e.Condition)); else c.PriceParticipantMarker(e); });
  public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
  {
-  r.AllowOnly("op","target","targetRef","amount","marker","condition");var target=r.RequiredEnum<SkillProgramEffectTarget>("target");var amount=r.RequiredInt("amount");
+  r.AllowOnly("op","target","targetRef","amount","marker","clearMarker","condition");var target=r.RequiredEnum<SkillProgramEffectTarget>("target");var amount=r.RequiredInt("amount");
+  var clearMarker=r.Has("clearMarker")&&r.RequiredBool("clearMarker");
   if(amount is < -20 or > 20 || amount==0 || amount<0&&target!=SkillProgramEffectTarget.Owner || target is not (SkillProgramEffectTarget.Owner or SkillProgramEffectTarget.SelectedTarget) || Op!=SkillProgramEffectOp.ChangeParticipantMarker && (target!=SkillProgramEffectTarget.Owner || amount!=1))throw new InvalidOperationException("Invalid attributed event marker operation.");
+  if(clearMarker&&(Op!=SkillProgramEffectOp.ChangeParticipantMarker||target!=SkillProgramEffectTarget.Owner||amount!=-1))throw new InvalidOperationException("Clearing a participant marker takes the owner with amount -1.");
   var targetRef=r.Has("targetRef")?r.RequiredParticipantReference("targetRef"):null;
   if(targetRef is not null&&(target!=SkillProgramEffectTarget.Owner||targetRef.Kind is not (ProgramParticipantRef.EventTarget or ProgramParticipantRef.EventSource)))throw new InvalidOperationException("Attributed marker references support only owner placeholder with eventTarget or eventSource.");
-  return new(Op,target,amount,r.Condition(),marker:r.RequiredEnum<PlayerMarkerKind>("marker"),targetReference:targetRef);
+  return new(Op,target,amount,r.Condition(),marker:r.RequiredEnum<PlayerMarkerKind>("marker"),targetReference:targetRef,clearMarker:clearMarker);
  }
  public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect e)=>Op switch {
   SkillProgramEffectOp.ConsumeMarkerPreventDamage=>[new RequireTriggerWindow(SkillProgramTriggerWindow.BeforeDamageApplied)],

@@ -575,8 +575,9 @@ public sealed partial class GameEngine
             SkillRuleQuery query,
             SkillRuleOperation operation,
             int amount,
-            IReadOnlyList<CardKind> cardKinds) =>
-            engine.GrantProgramTurnRuleModifier(frame, query, operation, amount, cardKinds);
+            IReadOnlyList<CardKind> cardKinds,
+            PlayerMarkerKind? amountFromMarker = null) =>
+            engine.GrantProgramTurnRuleModifier(frame, query, operation, amount, cardKinds, amountFromMarker);
 
         public void GrantTurnCardTargetRestriction(
             ProgramSkillFrame frame,

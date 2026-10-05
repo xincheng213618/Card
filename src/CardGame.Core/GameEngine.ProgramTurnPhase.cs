@@ -48,16 +48,19 @@ public sealed partial class GameEngine
         var active = GetActiveProgramFrame(frame.Id);
         var instruction = ProgramInstructionResolver.Default.Resolve(active, _contentRegistry.GetSkill(active.SkillId).Program!)
             .GetPausedInstruction(active.InstructionIndex).Effect;
-        if (active.TriggerId is null && instruction.Op != SkillProgramEffectOp.OfferUnlimitedVirtualSlash || active.SelectedTargetSeats.Count != 1 ||
+        if (active.TriggerId is null &&
+            instruction.Op is not (SkillProgramEffectOp.OfferUnlimitedVirtualSlash or SkillProgramEffectOp.UseVirtualCard) ||
+            active.SelectedTargetSeats.Count != 1 ||
             active.SelectedTargetSeats[0] != targetSeat || cardKind != CardKind.Slash ||
-            !ignoreDistance || ActiveCardAttack is not null || ActiveDuel is not null ||
+            ActiveCardAttack is not null || ActiveDuel is not null ||
             !IsValidPlayerSeat(targetSeat))
             throw new InvalidOperationException("Virtual card use requires one current selected Slash target.");
         var source = _players[active.OwnerSeat];
         var target = _players[targetSeat];
         if (!source.IsAlive || !target.IsAlive || source.Seat == target.Seat ||
             IsDirectedCardTargetProhibited(source.Seat, targetSeat, cardKind) ||
-            IsSlashProhibited(target))
+            IsSlashProhibited(target) ||
+            !ignoreDistance && GetSeatDistance(source.Seat, targetSeat) > GetAttackRange(source.Seat))
             return SkillProgramStepOutcome.Continue;
 
         var resolutionId = ++_resolutionSequence;
@@ -69,7 +72,9 @@ public sealed partial class GameEngine
         PushRuntimeFrame(new CardUseFrame(resolutionId, source.Seat, 0, cardKind,
             Array.AsReadOnly(new[] { targetSeat }),
             PhysicalCardIds: Array.AsReadOnly(Array.Empty<int>())) { Action = action });
-        if ((instruction.Op == SkillProgramEffectOp.OfferUnlimitedVirtualSlash || HasCommittedSlashFireCapability(source)) && action is not null)
+        if ((instruction.Op == SkillProgramEffectOp.OfferUnlimitedVirtualSlash ||
+             instruction.TargetRestriction == SkillProgramCardTargetRestriction.NormalSlashTarget ||
+             HasCommittedSlashFireCapability(source)) && action is not null)
         {
             RecordYingboCardUse(resolutionId, source.Seat, cardKind);
             RecordProgramUsedBasicCard(source.Seat, cardKind);

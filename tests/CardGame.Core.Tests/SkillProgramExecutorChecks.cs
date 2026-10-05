@@ -599,7 +599,8 @@ internal static class SkillProgramExecutorChecks
             SkillRuleQuery query,
             SkillRuleOperation operation,
             int amount,
-            IReadOnlyList<CardKind> cardKinds) =>
+            IReadOnlyList<CardKind> cardKinds,
+            PlayerMarkerKind? amountFromMarker = null) =>
             Calls.Add($"grant-turn-rule:{frame.OwnerSeat}:{query}:{operation}:{amount}");
 
         public void GrantTurnCardTargetRestriction(

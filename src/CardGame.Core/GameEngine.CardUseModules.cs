@@ -219,9 +219,12 @@ public sealed partial class GameEngine
         SkillRuleQuery query,
         SkillRuleOperation operation,
         int amount,
-        IReadOnlyList<CardKind> cardKinds)
+        IReadOnlyList<CardKind> cardKinds,
+        PlayerMarkerKind? amountFromMarker = null)
     {
         ValidateProgramTurnEffectGrant(frame);
+        if (amountFromMarker is { } marker)
+            amount = _players[frame.OwnerSeat].Markers.GetValueOrDefault(marker);
         var valid = query == SkillRuleQuery.SlashLimit && operation == SkillRuleOperation.Add && (amount > 0 || amount is >= -20 and <= -1) ||
                     query == SkillRuleQuery.HandLimit && operation == SkillRuleOperation.Add && amount is >= -20 and <= 20 && amount != 0 ||
                     query == SkillRuleQuery.OutgoingDistance && operation == SkillRuleOperation.Add && amount is >= -20 and <= 20 && amount != 0 ||

@@ -2304,6 +2304,10 @@ public sealed partial class GameEngine
             TurnOwnerDamageDealtThisTurn: _contentRegistry.ProgramDependencies.UsesTriggerValue(SkillProgramTriggerValueKind.TurnOwnerDamageDealtThisTurn)
                 ? EventsSinceLastBoundary(item => item is TurnStartedEvent).OfType<DamageAppliedEvent>()
                     .Where(item => !item.SourceLess && item.SourceSeat == _currentSeat && item.Amount > 0).Sum(item => item.Amount) : null,
+            TurnOwnerSlashUseCount: _contentRegistry.ProgramDependencies.UsesTriggerValue(SkillProgramTriggerValueKind.TurnOwnerSlashUseCount)
+                ? EventsSinceLastBoundary(item => item is TurnStartedEvent).OfType<CardUsedEvent>()
+                    .Count(item => item.SourceSeat == _currentSeat &&
+                        item.CardKind is CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash) : null,
             CurrentAttackRange: GetAttackRange(owner.Seat),
             CurrentMaxHp: owner.MaxHp,
             CurrentAvailableEquipmentSlotCount: UsesStrategicTriggerValue(SkillProgramTriggerValueKind.CurrentAvailableEquipmentSlotCount) ? Enum.GetValues<EquipmentSlot>().Count(slot => owner.EquipmentSlotCapacity(slot) > 0) : null,
@@ -2341,6 +2345,8 @@ public sealed partial class GameEngine
                 ? Enum.GetValues<PlayerMarkerKind>().Where(marker => marker is PlayerMarkerKind.Camp or PlayerMarkerKind.Junlue).ToDictionary(marker => marker,
                     marker => _players.Where(player => player.IsAlive).Sum(player => player.Markers.GetValueOrDefault(marker))) : null)
         { OwnerTrickUsesThisActualTurn = TracksActualTurnTrickUses ? ActualTurnTrickUseCount(owner.Seat) : null,
+          PhaseIsPlay = _contentRegistry.ProgramDependencies.UsesTriggerCondition(SkillProgramTriggerConditionKind.PhaseIsPlay)
+              ? _phase == TurnPhase.Play : null,
           CurrentTurnUsedCardCategoryCount = TracksCurrentTurnUseKinds ? CurrentTurnUseKinds(owner.Seat).Categories : null,
           CurrentActualPlayPhysicalSlashLossCount = TracksActualPlaySlashLoss ? CurrentActualPlaySlashLossCount(owner.Seat) : null };
     }
@@ -4101,7 +4107,7 @@ public sealed partial class GameEngine
                 .GetPausedInstruction(frame.InstructionIndex).Effect;
             selected = paused.Op switch
             {
-                SkillProgramEffectOp.DiscardHandOrUseEquipment or SkillProgramEffectOp.MoveFieldEquipment =>
+                SkillProgramEffectOp.DiscardHandOrUseEquipment or SkillProgramEffectOp.MoveFieldEquipment =>
                     decision.Choices.First(),
                 SkillProgramEffectOp.DonateAllEquipmentAndOfferRecipientBenefits => SelectAiEquipmentDonation(decision, frame),
                 SkillProgramEffectOp.ChooseEquipmentOrDrawAfterOtherActualTurn => SelectAiActualEndedEquipment(decision, frame),
@@ -4725,6 +4731,7 @@ public sealed partial class GameEngine
                 attack.Card is not null &&
                 attack.CardUserSeat == attack.SourceSeat,
             DamageCardIsRed = !attack.IsSourceLess && attack.Card?.Suit is Suit.Heart or Suit.Diamond,
+            DamageCardSuit = !attack.IsSourceLess ? attack.Card?.Suit : null,
             DamageCardIsSlash = !attack.IsSourceLess && attack.EffectiveCardKind is
                 CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash,
             SourceToTargetDistanceAtDamage = attack.IsSourceLess ? null : attack.SourceToTargetDistanceAtDamage,

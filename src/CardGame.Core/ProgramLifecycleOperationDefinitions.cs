@@ -470,12 +470,19 @@ internal sealed class GrantTurnRuleModifierProgramOperationDescriptor : TurnEffe
         if (query is (SkillRuleQuery.SlashLimit or SkillRuleQuery.HandLimit) &&
             operation == SkillRuleOperation.Add)
         {
-            r.AllowOnly("op", "target", "ruleQuery", "ruleOperation", "amount", "condition");
-            var amount = r.RequiredInt("amount");
-            if (amount is < -20 or > 20 || amount == 0)
+            r.AllowOnly("op", "target", "ruleQuery", "ruleOperation", "amount", "amountFromMarker", "condition");
+            if (r.Has("amount") == r.Has("amountFromMarker"))
+                throw new InvalidOperationException(
+                    $"Invalid skill program at {r.Path}: a rule modifier takes exactly one of amount or amountFromMarker.");
+            if (r.Has("amountFromMarker") && query != SkillRuleQuery.SlashLimit)
+                throw new InvalidOperationException(
+                    $"Invalid skill program at {r.Path}.amountFromMarker: only the slash limit accepts a marker-derived amount.");
+            var amount = r.Has("amount") ? r.RequiredInt("amount") : 0;
+            if (r.Has("amount") && (amount is < -20 or > 20 || amount == 0))
                 throw new InvalidOperationException($"Invalid skill program at {r.Path}.amount: unsupported rule modifier amount.");
             return new(Op, Owner(r), amount, r.Condition(),
-                ruleQuery: query, ruleOperation: operation);
+                ruleQuery: query, ruleOperation: operation,
+                amountFromMarker: r.Has("amountFromMarker") ? r.RequiredEnum<PlayerMarkerKind>("amountFromMarker") : null);
         }
         r.AllowOnly("op", "target", "ruleQuery", "ruleOperation", "condition");
         if (query is not (SkillRuleQuery.CardUseDistanceLimit or SkillRuleQuery.SlashDistanceLimit or SkillRuleQuery.AttackRange) ||

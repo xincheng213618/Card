@@ -41,8 +41,8 @@ internal sealed class UseVirtualCardProgramOperationDescriptor : ProgramOperatio
         var kind = reader.RequiredEnum<CardKind>("outputKind");
         var restriction = reader.RequiredEnum<SkillProgramCardTargetRestriction>("targetRestriction");
         if (target != SkillProgramEffectTarget.SelectedTarget || kind != CardKind.Slash ||
-            restriction != SkillProgramCardTargetRestriction.DistanceUnlimitedAgainstTarget)
-            throw new InvalidOperationException($"Invalid skill program at {reader.Path}: virtual card use currently supports one selected unlimited-distance Slash.");
+            restriction is not (SkillProgramCardTargetRestriction.DistanceUnlimitedAgainstTarget or SkillProgramCardTargetRestriction.NormalSlashTarget))
+            throw new InvalidOperationException($"Invalid skill program at {reader.Path}: virtual card use currently supports one selected Slash with normal or unlimited distance.");
         var effect = new SkillProgramEffect(Op, target, 0, reader.Condition(), outputKind: kind,
             targetRestriction: restriction, useCardActionWindows: reader.Has("useCardActionWindows") && reader.RequiredBool("useCardActionWindows"));
         RequireAlways(effect, reader.Path);
