@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:luelve",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "luelve-choose",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLivingWithFewerHandCards"
+            },
+            {
+              "op": "chooseOption",
+              "target": "selectedTarget",
+              "chooserRef": { "kind": "selectedTarget" },
+              "resultBind": "luelve-choice",
+              "options": [
+                { "id": "give-hand" },
+                { "id": "flip-slash" }
+              ]
+            },
+            {
+              "op": "giveSelectedTargetHand",
+              "target": "selectedTarget",
+              "condition": { "kind": "choiceIs", "sourceBind": "luelve-choice", "optionId": "give-hand" }
+            },
+            {
+              "op": "turnOver",
+              "target": "owner",
+              "condition": { "kind": "choiceIs", "sourceBind": "luelve-choice", "optionId": "give-hand" }
+            },
+            {
+              "op": "turnOver",
+              "target": "selectedTarget",
+              "condition": { "kind": "choiceIs", "sourceBind": "luelve-choice", "optionId": "flip-slash" }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
