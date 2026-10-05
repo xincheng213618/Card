@@ -3551,6 +3551,8 @@ public sealed class SkillProgramCatalog
             (effects.Count != 1 || window != SkillProgramTriggerWindow.CardsGained || subject != SkillProgramTriggerSubject.Owner ||
              movementOccurrence != SkillProgramMovementOccurrence.PerBatch || optional || usageScope is not null || usageLimit is not null))
             Fail(path, "batch gain gift requires one owner perBatch cardsGained operation with its own actual-phase quota");
+        var movementDiscardOnly = node.TryGetProperty("movementDiscardOnly", out _) && RequiredBool(node, "movementDiscardOnly", path);
+
         if (effects.Any(e => e.Op == SkillProgramEffectOp.RevealRedLossAndDraw) &&
             (effects.Count != 1 || window != SkillProgramTriggerWindow.CardsMoved || subject != SkillProgramTriggerSubject.Owner ||
              movementOccurrence != SkillProgramMovementOccurrence.PerOwnerBatch || optional || movementDiscardOnly || usageScope is not null || usageLimit is not null))
@@ -3585,7 +3587,6 @@ public sealed class SkillProgramCatalog
              node.TryGetProperty("discardOwnerScope", out var provenanceScope) && !string.Equals(provenanceScope.GetString(), "other", StringComparison.OrdinalIgnoreCase) ||
              cardCategories.Count != 0 || movementReasons.Count != 0 || excludedMovementReasons.Count != 0))
             Fail(path, "Provenance claims require unfiltered other-player per-card discard/judgment origins.");
-        var movementDiscardOnly = node.TryGetProperty("movementDiscardOnly", out _) && RequiredBool(node, "movementDiscardOnly", path);
         if (effects.Any(e => e.Op == SkillProgramEffectOp.StoreAdjacentDiscardedSlash) &&
             (window != SkillProgramTriggerWindow.DiscardPileReceived || movementOccurrence != SkillProgramMovementOccurrence.PerCard ||
              subject != SkillProgramTriggerSubject.Owner || optional || cardKinds.Count != 0 || cardCategories.Count != 0 ||
