@@ -201,6 +201,7 @@ public enum SkillProgramEffectOp
     GiveDrawPileBottomCard = 7160, GivePindianCard = 7161,
     GiveSelectedTargetHand = 7162,
     XiZhenResponseBenefit = 7163,
+    SelectedTargetVirtualSlashAgainstOwner = 7164,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,

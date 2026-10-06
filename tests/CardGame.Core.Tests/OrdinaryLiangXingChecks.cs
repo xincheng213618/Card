@@ -92,10 +92,11 @@ internal static class OrdinaryLiangXingChecks
         }
         else
         {
-            Require(damage is 1 or 2 && g.CreateSnapshot(0).Players[target].IsFaceDown,
-                "The flip-and-strike branch flips the counterpart and damages the owner. damage=" + damage);
-            if (g.CreateSnapshot(0).Players[0].IsFaceDown != g.CreateSnapshot(0).Players[target].IsFaceDown)
-                Require(damage == 2, "Zhuanxi amplifies face-state-differing damage to two. damage=" + damage);
+            var virtualUse = choiceEvents.Any(e => e is CardUsedEvent u &&
+                u.SourceSeat == target && u.TargetSeat == 0 && u.CardKind == CardKind.Slash);
+            Require(virtualUse && g.CreateSnapshot(0).Players[target].IsFaceDown && damage == 2,
+                "The flipped counterpart's virtual slash hits through Zhuanxi's face-state bonus. " +
+                    "virtualUse=" + virtualUse + " damage=" + damage);
         }
         Replay(g, r);
     }

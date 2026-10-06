@@ -32,7 +32,7 @@
         "playPhaseStarting optional trigger: selectTarget with the new otherLivingWithFewerHandCards target kind (has hand and fewer than owner) plus skipIfNoTarget.",
         "The counterpart answers chooseOption with chooserRef selectedTarget (界周瑜/曹操昂 precedent); both branches gate on choiceIs against the resultBind.",
         "Branch one: the new giveSelectedTargetHand op (7162) moves the counterpart's entire hand to the owner, then turnOver flips the owner.",
-        "Branch two: turnOver flips the counterpart; the strike is realized as one point of normal damage sourced from the counterpart. This approximates 视为对你使用一张【杀】 without a dodge opportunity and without slash-linked triggers; upgrading to a true third-party virtual card use is left for a later batch."
+        "Branch two: turnOver flips the counterpart, then the new selectedTargetVirtualSlashAgainstOwner op (7164) has the counterpart use a real virtual Slash against the owner under their own distance and targeting rules, with full response windows (dodge) and slash-linked triggers (追袭 amplification). The forced use is not charged to the counterpart's play-phase ledger or alcohol."
       ]
     },
     {

@@ -43,10 +43,8 @@
               "condition": { "kind": "choiceIs", "sourceBind": "luelve-choice", "optionId": "flip-slash" }
             },
             {
-              "op": "damage",
+              "op": "selectedTargetVirtualSlashAgainstOwner",
               "target": "owner",
-              "sourceRef": { "kind": "selectedTarget" },
-              "amount": 1,
               "condition": { "kind": "choiceIs", "sourceBind": "luelve-choice", "optionId": "flip-slash" }
             }
           ]

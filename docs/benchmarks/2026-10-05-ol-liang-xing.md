@@ -4,7 +4,7 @@
 
 | 技能 | 实现口径 |
 | --- | --- |
-| 掳掠 | playPhaseStarting 可选触发：selectTarget（本批新增 targetKind `otherLivingWithFewerHandCards`：有手牌且少于你；skipIfNoTarget）→ chooseOption（chooserRef selectedTarget，由对方选择）→ 分支一（本批新增 op `giveSelectedTargetHand` 7162：对方全部手牌移交己方，turnOver 翻己方）；分支二（turnOver 翻对方 + 以该角色为源的 1 点普通伤害近似“视为使用【杀】”）。 |
+| 掳掠 | playPhaseStarting 可选触发：selectTarget（本批新增 targetKind `otherLivingWithFewerHandCards`：有手牌且少于你；skipIfNoTarget）→ chooseOption（chooserRef selectedTarget，由对方选择）→ 分支一（本批新增 op `giveSelectedTargetHand` 7162：对方全部手牌移交己方，turnOver 翻己方）；分支二（turnOver 翻对方 + 本批升级的 op `selectedTargetVirtualSlashAgainstOwner` 7164：对方作为使用者对梁兴使用一张真实虚拟【杀】，含完整响应窗口与杀类联动）。 |
 | 追袭 | 伤害修正器（damageParticipant 作用域，amount 1，任意伤害类别）+ 本批新增条件 `faceStatesDiffer`（伤害双方翻面状态相异且非自伤）；组合校验器允许该条件下省略 cardKinds。 |
 
 ## 共享能力扩展
@@ -15,7 +15,7 @@
 
 ## 边界口径
 
-- “视为对你使用一张【杀】”以来源为对方的 1 点普通伤害近似：不含【闪】响应与杀类联动（神速/虚拟用牌体系仅支持拥有者为使用者，第三方虚拟用牌留待后续批次升级）。
+- “视为对你使用一张【杀】”已升级为第三方虚拟用牌（2026-10-06 批次 op 7164）：对方为其作用者，走正常距离/目标合法性与完整响应窗口；该强制使用不计入对方的出牌阶段使用账本与酒状态。
 - 掳掠的目标选择在候选为空时不提示（skipIfNoTarget）。
 - 追袭对任意类别伤害生效（含非牌伤害），源与目标为同一角色时不加成。
 
