@@ -1,0 +1,65 @@
+{
+ "schemaVersion": 62,
+ "skills": [
+  {
+   "id": "ol:duanfa",
+   "revision": 1,
+   "activations": [
+    {
+     "id": "duanfa-recycle",
+     "minCards": 0,
+     "maxCards": 0,
+     "minTargets": 0,
+     "maxTargets": 0,
+     "targetKind": "otherLiving",
+     "usesPerTurn": null,
+     "effects": [
+      {
+       "op": "selectOwnedCards",
+       "target": "owner",
+       "zones": ["hand"],
+       "suits": ["spade", "club"],
+       "minimumCards": 1,
+       "maximumCards": null,
+       "resultBind": "duanfa-chosen"
+      },
+      {
+       "op": "duanfaDiscardAndDraw",
+       "target": "owner",
+       "sourceBind": "duanfa-chosen"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ol:youdi",
+   "revision": 1,
+   "triggers": [
+    {
+     "id": "youdi-bait",
+     "window": "turnEnding",
+     "subject": "owner",
+     "optional": true,
+     "condition": {
+      "kind": "compare",
+      "left": { "kind": "currentHandCount" },
+      "operator": "greaterThanOrEqual",
+      "right": { "kind": "integerConstant", "value": 1 }
+     },
+     "effects": [
+      {
+       "op": "selectTarget",
+       "target": "owner",
+       "targetKind": "otherLiving"
+      },
+      {
+       "op": "youdiBaitDiscard",
+       "target": "owner"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

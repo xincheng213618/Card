@@ -82,6 +82,7 @@ public sealed partial class GameEngine
                 if (features.HasOperation(SkillProgramEffectOp.DiscardTargetHpCardsAndDamage) && !CanStartDynamicDiscardDamage(owner, program.Id)) continue;
                 if (features.HasOperation(SkillProgramEffectOp.DiscardSlashThenOtherCardAndUseDuel) && !CanStartConditionalDiscardDuel(owner)) continue;
                 if (features.HasOperation(SkillProgramEffectOp.PayHpInspectHandThenDiscardOrSlash) && owner.Hp < 1) continue;
+                if (features.HasOperation(SkillProgramEffectOp.DuanfaDiscardAndDraw) && !CanStartDuanfaRecycle(owner, program.Id)) continue;
                 var requiredCards = GetProgramActivationMinimumCards(owner.Seat, program.Id, activation);
                 if (features.HasOperation(SkillProgramEffectOp.GiveAllHandAndStartRecipientPindian) && !CanStartRecipientContest(owner)) continue;
                 if (features.HasOperation(SkillProgramEffectOp.GiveBlackHandAndResolveRecipientContest) && BlackGiftGameIssued(owner.Seat, program.Id)) continue;

@@ -1,0 +1,58 @@
+{
+  "generalId": "ol:zhou-fang",
+  "characterName": "周鲂",
+  "officialId": 468,
+  "sourcePage": "https://www.sanguosha.com/hero/468",
+  "textSource": "https://wiki.biligame.com/sgs/周鲂（官网 heroDetail 接口不可用，技能文本取自百科同一武将词条）",
+  "capturedAt": "2026-10-07",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 468,
+    "name": "周鲂",
+    "extend": "",
+    "hp": 3,
+    "figure": "吴",
+    "gender": "男",
+    "title": "断发载义"
+  },
+  "artwork": {
+    "skinId": "46800",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/46800.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-zhou-fang.png",
+    "sha256": "174c4ec82160c1f815f667af9adad5aaceeedce6894d4d9b1a114963a8a2bfcf",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "断发",
+      "text": "出牌阶段，你可以弃置任意张黑色牌（本阶段至多以此法弃置体力上限张牌），摸等量张牌。",
+      "programId": "ol:duanfa",
+      "notes": [
+        "Activation duanfa-recycle: repeatable play-phase activation (usesPerTurn null, no activation-level cards or targets); availability is gated by CanStartDuanfaRecycle — at least one effective-black hand card and the phase ledger below maximum health.",
+        "Selection reuses the generic selectOwnedCards op: private hand-only prompt, suits spade+club, minimumCards 1, maximumCards null; selecting zero cards cannot complete the draft, so the skill never fires for an empty pick.",
+        "Bespoke op duanfaDiscardAndDraw (7180) enforces the phase cap against the committed ProgramDuanfaRecycledEvent ledger of the current turn (the skill only fires inside the owner's own play phase, so the turn number is exactly the 'this phase' scope), discards the selected cards and draws one-for-one, then opens the cards-moved window.",
+        "A selection larger than the remaining allowance cancels the whole settlement without moving any card; the activation stays available and the player may reselect."
+      ]
+    },
+    {
+      "name": "诱敌",
+      "text": "结束阶段，你可以令一名其他角色弃置你的一张手牌，若此牌不为【杀】，你获得其一张牌；黑色牌，你摸一张牌。",
+      "programId": "ol:youdi",
+      "notes": [
+        "Trigger youdi-bait: turnEnding, subject owner, optional, gated by compare currentHandCount >= 1 so an empty hand never offers the bait.",
+        "Generic selectTarget (otherLiving) picks the chooser; bespoke op youdiBaitDiscard (7181) presents the chooser a private slot-based prompt over the owner's hand — choices carry no card ids, so the concealed identities never enter the decision projection.",
+        "The discarded bait card is settled branchwise: a non-Slash (Slash/FireSlash/ThunderSlash all count as 【杀】) makes the owner take one random chooser hand card via the Processing two-hop with seats-only public evidence, and a black effective suit makes the owner draw one; both branches can apply from one bait.",
+        "ProgramYoudiBaitEvent records owner, chooser, the now-public discarded card id, whether a hand card was taken and the draw count; the taken card's identity stays private."
+      ]
+    }
+  ],
+  "observations": [
+    "BWIKI lists 周鲂 (officialId 468) as wu male 3HP; both the sgs and sgsol entries render the title as '下发载义', which is nonsensical Chinese and contradicts the cross-checked 知乎 hero guide ('断发载义'); the implemented record uses 断发载义 as the corrected title and keeps the BWIKI string noted here.",
+    "The BWIKI 诱敌 text renders '不为：【杀】' with a stray colon inside the brackets; the implemented presentation uses the coordinator-locked punctuation '不为【杀】' and otherwise matches the BWIKI text verbatim, including the trailing '黑色牌，你摸一张牌。' branch.",
+    "断发's BWIKI text matches the locked wording verbatim; the OL-page paraphrase (每阶段以此法弃置的牌数总和不能大于体力上限) confirms the per-phase cumulative cap rather than a per-use cap.",
+    "New bespoke ops 7180-7181 (duanfaDiscardAndDraw, youdiBaitDiscard); no new trigger fact kinds, player markers, condition kinds or schema nodes; the 断发 phase ledger derives from committed events instead of serialized runtime state, so cold recovery replays it without extra boundaries.",
+    "共享口径：'你获得其一张牌' 按随机取得其一张暗手牌执行（同突袭/冲阵的隐私口径）；其没有手牌（含仅剩装备/判定区牌）时该分支自然跳过，黑色分支不受影响。"
+  ]
+}
