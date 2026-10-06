@@ -466,6 +466,16 @@ internal static class ProgramCompositionValidator
                     case ReadHpPairSnapshot:
                         if (!hpPairProduced) Fail("Frozen HP pair target requires its earlier unconditional producer.");
                         break;
+                    case ReadVirtualDuelPair:
+                    {
+                        var duelSelection = effects.Take(index)
+                            .LastOrDefault(item => item.Op == SkillProgramEffectOp.SelectTargets);
+                        if (duelSelection is not null && duelSelection.MinimumTargets >= 2) break;
+                        if (effects.Take(index).Any(item => item.Op == SkillProgramEffectOp.SelectTarget)) break;
+                        if (duelSelection is null && initialTargetSetCount >= 2 && initialTargetSetMaximum <= 2) break;
+                        Fail("the required selected target set must be produced before it is read");
+                        break;
+                    }
                     case ReadTargetSet read:
                     {
                         var selection = effects.Take(index)

@@ -2362,6 +2362,8 @@ public sealed partial class GameEngine
         {
             CardActionActorIsCurrentTurn = action.ActorSeat == _currentSeat,
             CardActionActorIsOwner = action.ActorSeat == owner.Seat,
+            CardActionOpponentIsOwner = _contentRegistry.ProgramDependencies.UsesTriggerCondition(SkillProgramTriggerConditionKind.CardActionOpponentIsOwner)
+                ? action.OpponentSeat == owner.Seat : null,
             CardActionPhaseIsPlay = _phase == TurnPhase.Play,
             CardActionSuit = _contentRegistry.ProgramDependencies.UsesTriggerCondition(SkillProgramTriggerConditionKind.CardActionSuitIs)
                 ? action.EffectiveSuit : null,

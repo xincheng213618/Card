@@ -62,6 +62,7 @@ internal sealed record GiftCardSet(string Source) : ProgramResourceOperation;
 internal sealed record ReadSelectedTarget : ProgramResourceOperation;
 internal sealed record RequireSelectedTargetKind(SkillProgramTargetKind Kind) : ProgramResourceOperation;
 internal sealed record ReadTargetSet(int Minimum, int? Maximum = null) : ProgramResourceOperation;
+internal sealed record ReadVirtualDuelPair : ProgramResourceOperation;
 internal sealed record RequireContext(ProgramContextCapability Capability) : ProgramResourceOperation;
 internal sealed record RequireCardActionActor : ProgramResourceOperation;
 internal sealed record RequireTriggerWindows(IReadOnlyList<SkillProgramTriggerWindow> Windows) : ProgramResourceOperation;

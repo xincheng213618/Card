@@ -6,11 +6,26 @@ public sealed partial class GameEngine
     private SkillProgramStepOutcome BeginProgramVirtualDuel(ProgramSkillFrame frame)
     {
         var active = GetActiveProgramFrame(frame.Id);
-        if (active.TriggerId is not null || active.SelectedTargetSeats.Count != 2 ||
-            active.SelectedTargetSeats[0] == active.SelectedTargetSeats[1])
-            throw new InvalidOperationException("A virtual duel needs an activation with two different ordered participants.");
-        var sourceSeat = active.SelectedTargetSeats[0];
-        var targetSeat = active.SelectedTargetSeats[1];
+        int sourceSeat;
+        int targetSeat;
+        if (active.TriggerId is null)
+        {
+            if (active.SelectedTargetSeats.Count != 2 ||
+                active.SelectedTargetSeats[0] == active.SelectedTargetSeats[1])
+                throw new InvalidOperationException("A virtual duel needs an activation with two different ordered participants.");
+            sourceSeat = active.SelectedTargetSeats[0];
+            targetSeat = active.SelectedTargetSeats[1];
+        }
+        else
+        {
+            // A play-phase trigger duel takes one selected counterpart; the skill
+            // owner is the duel source.
+            if (active.WindowContext?.Window is not SkillProgramTriggerWindow.PlayPhaseStarting ||
+                active.SelectedTargetSeats is not [var counterpart] || counterpart == active.OwnerSeat)
+                throw new InvalidOperationException("A triggered virtual duel needs one play-phase selected counterpart.");
+            sourceSeat = active.OwnerSeat;
+            targetSeat = counterpart;
+        }
         if (active.SelectedTargetSeats.Any(seat => seat < 0 || seat >= _players.Count))
             throw new InvalidOperationException("A virtual duel participant seat is invalid.");
         // Paying a preceding cost can trigger other effects; a deceased participant cannot enter a new duel.

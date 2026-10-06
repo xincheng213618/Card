@@ -45,7 +45,8 @@ internal sealed class UseVirtualCardProgramOperationDescriptor : ProgramOperatio
             throw new InvalidOperationException($"Invalid skill program at {reader.Path}: virtual card use currently supports one selected Slash with normal or unlimited distance.");
         var effect = new SkillProgramEffect(Op, target, 0, reader.Condition(), outputKind: kind,
             targetRestriction: restriction, useCardActionWindows: reader.Has("useCardActionWindows") && reader.RequiredBool("useCardActionWindows"));
-        RequireAlways(effect, reader.Path);
+        if (effect.Condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.ChoiceIs))
+            throw new InvalidOperationException($"Invalid skill program at {reader.Path}.condition: a virtual card use accepts always or a named-choice branch.");
         return effect;
     }
 

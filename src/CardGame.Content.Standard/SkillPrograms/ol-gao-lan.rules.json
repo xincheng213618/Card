@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:xizhen",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "xizhen-launch",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            {
+              "op": "chooseOption",
+              "target": "owner",
+              "resultBind": "xizhen-choice",
+              "options": [
+                { "id": "slash" },
+                { "id": "duel" }
+              ]
+            },
+            {
+              "op": "useVirtualCard",
+              "target": "selectedTarget",
+              "outputKind": "slash",
+              "targetRestriction": "normalSlashTarget",
+              "condition": { "kind": "choiceIs", "sourceBind": "xizhen-choice", "optionId": "slash" }
+            },
+            {
+              "op": "startVirtualDuel",
+              "target": "owner",
+              "condition": { "kind": "choiceIs", "sourceBind": "xizhen-choice", "optionId": "duel" }
+            },
+            {
+              "op": "changeParticipantMarker",
+              "target": "selectedTarget",
+              "marker": "xiZhen",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "xizhen-response",
+          "window": "cardResponseAccepted",
+          "ownerRelation": "observer",
+          "optional": false,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "cardActionOpponentIsOwner" },
+              { "kind": "ownerIsTurnPlayer" }
+            ]
+          },
+          "effects": [
+            { "op": "xiZhenResponseBenefit", "target": "owner" }
+          ]
+        },
+        {
+          "id": "xizhen-expiry",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": false,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "eventTargetMarkerCount", "marker": "xiZhen" },
+            "operator": "greaterThanOrEqual",
+            "right": { "kind": "integerConstant", "value": 1 }
+          },
+          "effects": [
+            {
+              "op": "changeParticipantMarker",
+              "target": "owner",
+              "targetRef": { "kind": "eventTarget" },
+              "marker": "xiZhen",
+              "amount": -1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

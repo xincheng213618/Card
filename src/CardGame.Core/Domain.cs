@@ -128,6 +128,7 @@ public enum PlayerMarkerKind
     LiuShi = 3100,
     MouShi = 3150,
     GengZhan = 3200,
+    XiZhen = 3250,
     Bian = 3500,
     Zi = 3800
 }
@@ -144,6 +145,7 @@ public static class PlayerMarkerCatalog
         PlayerMarkerKind.LiuShi => "流矢",
         PlayerMarkerKind.MouShi => "谋识",
         PlayerMarkerKind.GengZhan => "更战",
+        PlayerMarkerKind.XiZhen => "袭阵",
         PlayerMarkerKind.Bian => "变",
         PlayerMarkerKind.Zi => "辎",
         PlayerMarkerKind.Ren => "忍",

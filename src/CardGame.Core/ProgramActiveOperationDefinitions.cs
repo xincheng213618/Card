@@ -13,11 +13,12 @@ internal sealed class StartVirtualDuelProgramOperationDescriptor : ProgramOperat
         if (target != SkillProgramEffectTarget.Owner)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}: a virtual duel reads an ordered target pair.");
         var effect = new SkillProgramEffect(Op, target, 1, r.Condition());
-        RequireAlways(effect, r.Path);
+        if (effect.Condition.Kind is not (SkillProgramConditionKind.Always or SkillProgramConditionKind.ChoiceIs))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.condition: a virtual duel accepts always or a named-choice branch.");
         return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        [new ReadTargetSet(2, 2)];
+        [new ReadVirtualDuelPair()];
 }
 
 internal sealed class RequestFactionCardProgramOperationDescriptor : ProgramOperationDescriptorBase

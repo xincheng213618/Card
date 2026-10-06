@@ -1,0 +1,43 @@
+{
+  "generalId": "ol:gao-lan",
+  "characterName": "高览",
+  "officialId": 461,
+  "sourcePage": "https://www.sanguosha.com/hero/461",
+  "textSource": "https://wiki.biligame.com/sgs/高览（官网 heroDetail 接口不可用，技能文本取自百科同一武将词条）",
+  "capturedAt": "2026-10-06",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 461,
+    "name": "高览",
+    "extend": "",
+    "hp": 4,
+    "figure": "群",
+    "quality": "稀有"
+  },
+  "artwork": {
+    "skinId": "46100",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/46100.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-gao-lan.png",
+    "sha256": "593088a5e9f3a0d81613f6ffffaaffbb44434701822dccf28c9b98ca8196a6fa",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "袭阵",
+      "text": "出牌阶段开始时，你可以选择一名其他角色，视为对其使用一张【杀】或【决斗】。此牌结算结束后，当你本阶段使用的牌被响应时，该角色回复1点体力，然后若其已受伤，则你摸一张牌，否则你摸两张牌。",
+      "programId": "ol:xizhen",
+      "notes": [
+        "Launch: playPhaseStarting optional trigger; selectTarget otherLiving; chooseOption (owner picks slash or duel); the chosen branch executes useVirtualCard (normalSlashTarget) or startVirtualDuel; the XiZhen marker lands on the counterpart as the LAST instruction, i.e. after the virtual card fully settles, so the virtual card's own responses never pay the benefit.",
+        "Duel: BeginProgramVirtualDuel now accepts a play-phase trigger with one selected counterpart (the skill owner is the duel source) in addition to the classic two-target activation path (貂蝉离间 unchanged); the composition validator gained ReadVirtualDuelPair covering both shapes.",
+        "Benefit: a mandatory cardResponseAccepted trigger (ownerRelation observer) gated by the new cardActionOpponentIsOwner condition (a response action's OpponentSeat is the use actor) plus ownerIsTurnPlayer; the new xiZhenResponseBenefit op finds the single alive XiZhen holder, recovers it one, and draws the owner one if the holder is still wounded afterwards, otherwise two.",
+        "Expiry: the moushi-pattern turnEnding trigger (otherLiving) clears the marker at the holder's turn end; the follow-up is additionally gated by ownerIsTurnPlayer so it never fires outside the launch turn."
+      ]
+    }
+  ],
+  "observations": [
+    "OL lists 高览 as qun 4HP with quality 稀有; the page labels him 今我为刀俎（袭阵）.",
+    "New shared pieces: the trigger-path virtual duel (single counterpart + owner source), the ReadVirtualDuelPair composition resource, the cardActionOpponentIsOwner trigger condition, and the xiZhenResponseBenefit op (7163)."
+  ]
+}

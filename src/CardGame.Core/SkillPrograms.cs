@@ -63,7 +63,8 @@ public enum SkillProgramTriggerConditionKind
     TurnDiscardIncludesAllSuits = 1660,
     DeathExtinguishedFaction = 1020, DiscardPhaseSuitsAllDistinct = 1021, OtherDamageSourceAlive = 1022, DamageSourcePairUnused = 1023,
     PreviousPlayCardIsBasic = 1024,
-    PhaseIsPlay = 1025
+    PhaseIsPlay = 1025,
+    CardActionOpponentIsOwner = 1026
 }
 public enum SkillProgramTriggerValueKind
 {
@@ -199,6 +200,7 @@ public enum SkillProgramEffectOp
     DiscardHandOrUseEquipment = 7150, MoveFieldEquipment = 7151,
     GiveDrawPileBottomCard = 7160, GivePindianCard = 7161,
     GiveSelectedTargetHand = 7162,
+    XiZhenResponseBenefit = 7163,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,
@@ -864,7 +866,8 @@ public sealed record SkillProgramTriggerFacts(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? TurnOwnerDamageDealtThisTurn = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? TurnOwnerSlashUseCount = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] Suit? DamageCardSuit = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? PhaseIsPlay = null)
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? PhaseIsPlay = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? CardActionOpponentIsOwner = null)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public CardMovementTiming? MovementTiming { get; init; }
@@ -1053,6 +1056,7 @@ public sealed class SkillProgramTriggerCondition
         SkillProgramTriggerConditionKind.DeathVictimHasCards => facts.DeathVictimCleanupCardCount > 0,
         SkillProgramTriggerConditionKind.OwnerIsTurnPlayer => facts.OwnerIsTurnPlayer == true,
         SkillProgramTriggerConditionKind.PhaseIsPlay => facts.PhaseIsPlay == true,
+        SkillProgramTriggerConditionKind.CardActionOpponentIsOwner => facts.CardActionOpponentIsOwner == true,
         SkillProgramTriggerConditionKind.CardActionFromOwnerHand => facts.CardActionFromOwnerHand == true,
         SkillProgramTriggerConditionKind.DamageSourceIsOwner => facts.DamageSourceIsOwner == true,
         SkillProgramTriggerConditionKind.PreviousPlayCardIsBasic => facts.PreviousPlayCardIsBasic == true,
