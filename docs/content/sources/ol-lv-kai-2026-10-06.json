@@ -1,0 +1,55 @@
+{
+  "generalId": "ol:lv-kai",
+  "characterName": "吕凯",
+  "officialId": 465,
+  "sourcePage": "https://www.sanguosha.com/hero/465",
+  "textSource": "https://wiki.biligame.com/sgs/吕凯（官网 heroDetail 接口不可用，技能文本取自百科同一武将词条）",
+  "capturedAt": "2026-10-06",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 465,
+    "name": "吕凯",
+    "extend": "",
+    "hp": 3,
+    "figure": "蜀",
+    "gender": "男",
+    "title": "铁心司南"
+  },
+  "artwork": {
+    "skinId": "46500",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/46500.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-lv-kai.png",
+    "sha256": "f74c1c4d32cefd369dec63e48a0effb2cae2d7b5fd271eadbba37665b5cf6422",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "图南",
+      "text": "出牌阶段限一次，你可以令一名其他角色观看牌堆顶的一张牌，然后其选择一项：1.使用此牌（无距离限制）；2.将此牌当【杀】使用。",
+      "programId": "ol:tunan",
+      "notes": [
+        "Launch: playPhaseStarting optional trigger; selectTarget otherLiving; revealTopCards amount 1 public into the tunan-card bind; bespoke op tunanUseRevealedCard (7168) hands the branch decision to the selected counterpart.",
+        "Use branch: kinds that are proactively usable (Slash, Peach, equipment) offer a real use that ignores distance; the physical card keeps its identity (BeginCardUse + CardAttackHandle for Slash, recovery flow for Peach, equipment install for equips), and the use commits through the standard cards-moved window.",
+        "Slash conversion branch: the revealed card is declared as an ordinary Slash via CardConversionSource with the normal-distance target convention; victims are picked in a follow-up prompt and the real use responds and damages as usual.",
+        "If neither branch is feasible (not proactively usable and no in-range Slash victim), the op cancels the remaining settlement and returns the card."
+      ]
+    },
+    {
+      "name": "闭境",
+      "text": "结束阶段，你可以将至多两张手牌标记为“闭境”牌：1.准备阶段，你重铸手牌中的“闭境”牌；2.其他角色的弃牌阶段开始时，若你本回合失去过“闭境”牌，其弃置两张牌。",
+      "programId": "ol:bijing",
+      "notes": [
+        "Mark: turnEnding optional trigger; selectOwnedCards 0..2 hand cards; bespoke op bijingMarkHandCards (7169) registers the hand-resident ids in an engine-side registry (reconstructed deterministically from the accepted command prefix on cold replay; nothing extra is serialized).",
+        "Recast: turnStartBeforeNormalFlow mandatory trigger fires only at the owner's own preparation phase (turn-start collection is per current seat); bespoke op bijingRecastMarkedCards (7170) discards every marked card still in hand and draws that many, then opens the cards-moved window.",
+        "Punish: discardPhaseStarting mandatory trigger with subject owner and turnOwnerScope otherLiving; bespoke op bijingPunishDiscardPhase (7171) detects marked card ids that left the owner's hand this turn through the movement log, then the current turn character discards up to two hand cards through private per-card prompts; ProgramBijingPunishEvent records owner, turn owner, lost ids and discards."
+      ]
+    }
+  ],
+  "observations": [
+    "OL lists 吕凯 as shu 3HP male with title 铁心司南; the biligame texts for 图南/闭境 are the current OL wording and match the implemented presentation verbatim.",
+    "New bespoke ops 7168-7171 (tunanUseRevealedCard, bijingMarkHandCards, bijingRecastMarkedCards, bijingPunishDiscardPhase); no new markers, resources or schema nodes.",
+    "Shared capability: the discardPhaseStarting program window now collects trigger candidates from every living participant with per-seat facts and gates them by TurnOwnerScope (Own keeps the discarder-only semantics; otherLiving candidates run at other characters' discard phases), mirroring PlayEnding/DiscardPhaseEnded; existing Own-scope candidate sets and order are unchanged."
+  ]
+}

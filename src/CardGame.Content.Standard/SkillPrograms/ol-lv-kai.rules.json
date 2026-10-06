@@ -1,0 +1,88 @@
+{
+ "schemaVersion": 62,
+ "skills": [
+  {
+   "id": "ol:tunan",
+   "revision": 1,
+   "triggers": [
+    {
+     "id": "tunan-launch",
+     "window": "playPhaseStarting",
+     "subject": "owner",
+     "optional": true,
+     "effects": [
+      {
+       "op": "selectTarget",
+       "target": "owner",
+       "targetKind": "otherLiving"
+      },
+      {
+       "op": "revealTopCards",
+       "target": "owner",
+       "amount": 1,
+       "resultBind": "tunan-card",
+       "visibility": "public"
+      },
+      {
+       "op": "tunanUseRevealedCard",
+       "target": "owner",
+       "sourceBind": "tunan-card"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ol:bijing",
+   "revision": 1,
+   "triggers": [
+    {
+     "id": "bijing-mark",
+     "window": "turnEnding",
+     "subject": "owner",
+     "optional": true,
+     "effects": [
+      {
+       "op": "selectOwnedCards",
+       "target": "owner",
+       "zones": ["hand"],
+       "minimumCards": 0,
+       "maximumCards": 2,
+       "resultBind": "bijing-chosen"
+      },
+      {
+       "op": "bijingMarkHandCards",
+       "target": "owner",
+       "sourceBind": "bijing-chosen"
+      }
+     ]
+    },
+    {
+     "id": "bijing-recast",
+     "window": "turnStartBeforeNormalFlow",
+     "subject": "owner",
+     "optional": false,
+     "effects": [
+      {
+       "op": "bijingRecastMarkedCards",
+       "target": "owner"
+      }
+     ]
+    },
+    {
+     "id": "bijing-punish",
+     "window": "discardPhaseStarting",
+     "subject": "owner",
+     "turnOwnerScope": "otherLiving",
+     "optional": false,
+     "effects": [
+      {
+       "op": "bijingPunishDiscardPhase",
+       "target": "owner"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

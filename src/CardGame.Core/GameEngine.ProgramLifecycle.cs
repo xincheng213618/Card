@@ -2161,8 +2161,10 @@ public sealed partial class GameEngine
                     item.SkillId == candidate.SkillId && item.SkillInstanceId == candidate.SkillInstanceId &&
                     item.TriggerId == candidate.BindingId && item.GameplayHash == candidate.GameplayHash),
             SkillProgramTriggerWindow.DiscardPhaseStarting =>
-                owner.Seat == _currentSeat && context.SourceSeat == owner.Seat &&
-                _phase == TurnPhase.Discard,
+                context.SourceSeat == _currentSeat && _phase == TurnPhase.Discard &&
+                (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own
+                    ? owner.Seat == _currentSeat
+                    : owner.Seat != _currentSeat && _players[_currentSeat].IsAlive),
             SkillProgramTriggerWindow.DiscardPhaseEnded =>
                 (trigger.AllowOwnDiscardPhaseEnded ? owner.Seat == _currentSeat : owner.Seat != _currentSeat) && owner.IsAlive &&
                 context.SourceSeat == _currentSeat && _phase == TurnPhase.Discard,
@@ -2613,13 +2615,23 @@ public sealed partial class GameEngine
         if (!owner.IsAlive || owner.Seat != _currentSeat || _phase != TurnPhase.Discard ||
             _pendingDecision is not null || _resolutionStack.Count != 0)
             return false;
-        var facts = CaptureProgramTriggerFacts(owner);
-        var candidates = CollectEligibleProgramTriggerCandidates(
-            owner, SkillProgramTriggerWindow.DiscardPhaseStarting, facts);
-        if (candidates.Count == 0) return false;
+        var participants = _players.Where(player => player.IsAlive).ToArray();
+        var participantFacts = participants.ToDictionary(player => player.Seat, CaptureProgramTriggerFacts);
+        var facts = participantFacts[owner.Seat];
+        var candidates = participants.SelectMany(player =>
+                CollectEligibleProgramTriggerCandidates(player, SkillProgramTriggerWindow.DiscardPhaseStarting,
+                    participantFacts[player.Seat])
+                    .Where(candidate => GetProgramTrigger(candidate).TurnOwnerScope ==
+                        (player.Seat == owner.Seat ? SkillProgramTurnOwnerScope.Own : SkillProgramTurnOwnerScope.OtherLiving)))
+            .OrderBy(candidate => (candidate.OwnerSeat - owner.Seat + _players.Count) % _players.Count)
+            .ThenByDescending(candidate => candidate.Priority)
+            .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray();
+        if (candidates.Length == 0) return false;
         PushRuntimeFrame(new ProgramLifecycleTriggerWindowFrame(
             ++_resolutionSequence, owner.Seat, SkillProgramTriggerWindow.DiscardPhaseStarting,
-            candidates, ProgramLifecycleContinuation.CompleteDiscardPhase, facts));
+            candidates, ProgramLifecycleContinuation.CompleteDiscardPhase, facts)
+        { ParticipantFacts = participantFacts });
         AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
         return true;
     }
@@ -3489,6 +3501,9 @@ public sealed partial class GameEngine
             return;
         }
         if (action == "yanjiao-split") { ResolveYanjiaoSplitChoice(selected); return; }
+        if (action == "tunan-branch") { ResolveTunanBranchChoice(selected); return; }
+        if (action == "tunan-target") { ResolveTunanTargetChoice(selected); return; }
+        if (action == "bijing-punish-discard") { ResolveBijingPunishChoice(selected); return; }
 
         var (candidate, context) = GetPendingProgramTriggerCandidate();
         if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle &&
@@ -4258,6 +4273,9 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.DrawThenDiscardSuitsForDyingPeach => SelectAiDyingSuits(decision, frame),
                 SkillProgramEffectOp.UseOwnPlayHistoryAtEnding => SelectAiHistoricalEndingUse(decision, frame),
                 SkillProgramEffectOp.YanjiaoSplitRevealedCards => SelectAiYanjiaoSplit(decision, frame),
+                SkillProgramEffectOp.TunanUseRevealedCard => SelectAiTunanChoice(decision),
+                SkillProgramEffectOp.BijingPunishDiscardPhase => decision.Choices
+                    .OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First(),
                 _ => throw new InvalidOperationException(
                     $"The AI does not support suspended program instruction '{paused.Op}'.")
             };

@@ -203,6 +203,8 @@ public enum SkillProgramEffectOp
     XiZhenResponseBenefit = 7163,
     SelectedTargetVirtualSlashAgainstOwner = 7164,
     YanjiaoRevealTopCards = 7165, YanjiaoSplitRevealedCards = 7166, ShenShenDrawAndArmBonus = 7167,
+    TunanUseRevealedCard = 7168, BijingMarkHandCards = 7169, BijingRecastMarkedCards = 7170,
+    BijingPunishDiscardPhase = 7171,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,
@@ -2948,8 +2950,9 @@ public sealed class SkillProgramCatalog
         {
             if (window is not (SkillProgramTriggerWindow.AfterTurnEnded or SkillProgramTriggerWindow.TurnEnding or
                 SkillProgramTriggerWindow.PlayEnding or SkillProgramTriggerWindow.PlayPhaseStarting or
-                SkillProgramTriggerWindow.DiscardPhaseEnded or SkillProgramTriggerWindow.JudgmentPhaseStarting))
-                Fail(path + ".turnOwnerScope", "requires an afterTurnEnded, turnEnding, playEnding, playPhaseStarting, judgmentPhaseStarting or discardPhaseEnded trigger");
+                SkillProgramTriggerWindow.DiscardPhaseEnded or SkillProgramTriggerWindow.DiscardPhaseStarting or
+                SkillProgramTriggerWindow.JudgmentPhaseStarting))
+                Fail(path + ".turnOwnerScope", "requires an afterTurnEnded, turnEnding, playEnding, playPhaseStarting, judgmentPhaseStarting, discardPhaseStarting or discardPhaseEnded trigger");
             turnOwnerScope = EnumValue<SkillProgramTurnOwnerScope>(node, "turnOwnerScope", path);
         }
         var isCardActionWindow = window is (
