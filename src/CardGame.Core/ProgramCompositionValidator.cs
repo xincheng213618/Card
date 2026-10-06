@@ -322,6 +322,38 @@ internal static class ProgramCompositionValidator
                     case RequireTopHandPayment requiredPayment:
                         if(!topPayments.Contains(requiredPayment.Name)) Fail("replacement requires an unconditional awaited owner-hand top-deck payment");
                         break;
+                    case PartitionCardSet partition:
+                    {
+                        var source = Get(partition.Source);
+                        if (source.Root.OwnerHeld || source.Root.AlreadyMoved ||
+                            source.Atoms.Overlaps(source.Root.Consumed) ||
+                            source.Atoms.Overlaps(source.Root.PossiblyGifted))
+                            Fail("a partitioned set reads cards that may already have moved");
+                        var ownerAtoms = new HashSet<int>();
+                        var chooserAtoms = new HashSet<int>();
+                        var leftoverAtoms = new HashSet<int>();
+                        foreach (var atom in source.Atoms.ToArray())
+                        {
+                            var children = new[] { source.Root.NextAtom++, source.Root.NextAtom++, source.Root.NextAtom++ };
+                            var info = source.Root.Atoms[atom];
+                            foreach (var child in children)
+                                source.Root.Atoms.Add(child, info);
+                            source.Root.Atoms.Remove(atom);
+                            foreach (var prior in bindings.Values.Where(value =>
+                                         ReferenceEquals(value.Root, source.Root) && value.Atoms.Contains(atom)))
+                            {
+                                prior.Atoms.UnionWith(children);
+                                prior.Atoms.Remove(atom);
+                            }
+                            ownerAtoms.Add(children[0]);
+                            chooserAtoms.Add(children[1]);
+                            leftoverAtoms.Add(children[2]);
+                        }
+                        Add(partition.Owner, new(source.Root, ownerAtoms, source.MaximumCount, source.CardOwner));
+                        Add(partition.Chooser, new(source.Root, chooserAtoms, source.MaximumCount, source.CardOwner));
+                        Add(partition.Leftover, new(source.Root, leftoverAtoms, source.MaximumCount, source.CardOwner));
+                        break;
+                    }
                     case ReadCardSet read:
                         _ = Get(read.Name);
                         break;

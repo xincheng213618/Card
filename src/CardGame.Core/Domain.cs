@@ -130,7 +130,8 @@ public enum PlayerMarkerKind
     GengZhan = 3200,
     XiZhen = 3250,
     Bian = 3500,
-    Zi = 3800
+    Zi = 3800,
+    ShenJiao = 3900
 }
 
 public static class PlayerMarkerCatalog
@@ -148,6 +149,7 @@ public static class PlayerMarkerCatalog
         PlayerMarkerKind.XiZhen => "袭阵",
         PlayerMarkerKind.Bian => "变",
         PlayerMarkerKind.Zi => "辎",
+        PlayerMarkerKind.ShenJiao => "省身",
         PlayerMarkerKind.Ren => "忍",
         PlayerMarkerKind.Rage => "暴怒",
         PlayerMarkerKind.Gale => "狂风",

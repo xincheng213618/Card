@@ -202,6 +202,7 @@ public enum SkillProgramEffectOp
     GiveSelectedTargetHand = 7162,
     XiZhenResponseBenefit = 7163,
     SelectedTargetVirtualSlashAgainstOwner = 7164,
+    YanjiaoRevealTopCards = 7165, YanjiaoSplitRevealedCards = 7166, ShenShenDrawAndArmBonus = 7167,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,
@@ -1346,6 +1347,12 @@ public sealed class SkillProgramEffect
     public SkillProgramClaimHandLimitExemption? ClaimHandLimitExemption { get; internal init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? AvailableAtSourceOnly { get; internal init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? OwnerBind { get; internal init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? ChooserBind { get; internal init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? LeftoverBind { get; internal init; }
     public SkillProgramEffectOp Op { get; }
     // An internal execution view compiled by the operation descriptor after JSON validation.
     // The public definition and its serialized content fingerprint stay unchanged.

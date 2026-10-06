@@ -58,6 +58,7 @@ internal sealed record RequirePublicOwnedGiftSet(string Name) : ProgramResourceO
 internal sealed record ReadCardSet(string Name) : ProgramResourceOperation;
 internal sealed record RetainOwnedCardSet(string Name) : ProgramResourceOperation;
 internal sealed record MoveCardSet(string Source, string? Except, SkillProgramCardDestination Destination) : ProgramResourceOperation;
+internal sealed record PartitionCardSet(string Source, string Owner, string Chooser, string Leftover) : ProgramResourceOperation;
 internal sealed record GiftCardSet(string Source) : ProgramResourceOperation;
 internal sealed record ReadSelectedTarget : ProgramResourceOperation;
 internal sealed record RequireSelectedTargetKind(SkillProgramTargetKind Kind) : ProgramResourceOperation;

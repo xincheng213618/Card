@@ -1,0 +1,54 @@
+{
+  "generalId": "ol:zhang-chang-pu",
+  "characterName": "张昌蒲",
+  "officialId": 466,
+  "sourcePage": "https://www.sanguosha.com/hero/466",
+  "textSource": "https://wiki.biligame.com/sgs/张昌蒲（官网 heroDetail 接口不可用，技能文本取自百科同一武将词条）",
+  "capturedAt": "2026-10-06",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 466,
+    "name": "张昌蒲",
+    "extend": "",
+    "hp": 3,
+    "figure": "wei",
+    "quality": "传说"
+  },
+  "artwork": {
+    "skinId": "46600",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/46600.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-zhang-chang-pu.png",
+    "sha256": "0962ad7ea5442b82409a2847fa7b006006f45d23eb0eda398f1dd9f63c90622d",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "严教",
+      "text": "出牌阶段限一次，你可以选择一名其他角色并亮出牌堆顶的四张牌，令该角色将这些牌分成点数之和相等的两组并将这两组牌分配给你与其，然后将剩余未分组的牌置入弃牌堆。若未分组的牌数大于1，你本回合的手牌上限-1。",
+      "programId": "ol:yanjiao",
+      "notes": [
+        "Launch: playPhaseStarting optional trigger; selectTarget otherLiving; new op yanjiaoRevealTopCards (7165) reveals 4 + pending ShenJiao-marker bonus cards publicly into the revealed bind.",
+        "Split: new op yanjiaoSplitRevealedCards (7166) presents the distributing counterpart every feasible owner group (each choice admits a disjoint equal-rank-sum partner), then the equal-rank-sum partner group for themselves; ungrouped cards land in the leftover bind. No feasible split binds empty groups and treats every card as leftover.",
+        "Distribution: three moveBoundCards instructions send group-owner to ownerHand, group-chooser to selectedTargetHand, and leftover to discardPile with awaited movement triggers.",
+        "Penalty: the split op grants a HandLimit Add(-1) turn rule modifier whenever the leftover bind holds more than one card; the composition validator's boundCardCountAtLeast resource contract cannot sit on grantTurnRuleModifier, so the count check lives in the op.",
+        "Consumption: the launch closes with changeParticipantMarker clearing the whole ShenJiao marker, mirroring the reveal-time read.",
+        "Composition: new PartitionCardSet resource partitions the revealed root into three fresh atom aliases (retiring the originals) so the three group moves each consume exactly once."
+      ]
+    },
+    {
+      "name": "省身",
+      "text": "当你受到伤害后，你可以摸一张牌（若你的手牌数为全场最少，改为摸两张牌），令下一次发动“严教”亮出的牌数+1（若你的体力值为全场最少，改为+2）且至多+4。",
+      "programId": "ol:shengshen",
+      "notes": [
+        "Optional afterDamageApplied (perDamage) trigger; new op shenShenDrawAndArmBonus (7167) draws one, or two when the owner's hand is the fewest alive, then arms the ShenJiao marker by one, or two when the owner's HP is the fewest alive, capped at four; Yanjiao consumes the marker at reveal time and clears it after the split."
+      ]
+    }
+  ],
+  "observations": [
+    "OL lists 张昌蒲 as wei 3HP female (雇佣军 label on the wiki infobox) with quality 传说; the wiki texts for 严教/省身 match the current OL wording.",
+    "New shared pieces: the partition resource (PartitionCardSet) for three-way equal-consumption splits of one revealed root, the ShenJiao participant marker (3900), and the three bespoke ops 7165/7166/7167.",
+    "The hand-limit penalty rides the existing TurnRuleModifier pipeline: grantTurnRuleModifier's HandLimit Add branch already accepts -20..20 and EvaluateHandLimit folds the negative contribution."
+  ]
+}

@@ -1,0 +1,86 @@
+{
+ "schemaVersion": 62,
+ "skills": [
+  {
+   "id": "ol:yanjiao",
+   "revision": 1,
+   "triggers": [
+    {
+     "id": "yanjiao-launch",
+     "window": "playPhaseStarting",
+     "subject": "owner",
+     "optional": true,
+     "effects": [
+      {
+       "op": "selectTarget",
+       "target": "owner",
+       "targetKind": "otherLiving"
+      },
+      {
+       "op": "yanjiaoRevealTopCards",
+       "target": "owner",
+       "amount": 4,
+       "marker": "shenJiao",
+       "resultBind": "revealed",
+       "visibility": "public"
+      },
+      {
+       "op": "yanjiaoSplitRevealedCards",
+       "target": "owner",
+       "sourceBind": "revealed",
+       "ownerBind": "group-owner",
+       "chooserBind": "group-chooser",
+       "leftoverBind": "leftover"
+      },
+      {
+       "op": "moveBoundCards",
+       "target": "owner",
+       "sourceBind": "group-owner",
+       "destination": "ownerHand"
+      },
+      {
+       "op": "moveBoundCards",
+       "target": "owner",
+       "sourceBind": "group-chooser",
+       "destination": "selectedTargetHand"
+      },
+      {
+       "op": "moveBoundCards",
+       "target": "owner",
+       "sourceBind": "leftover",
+       "destination": "discardPile",
+       "awaitMovementTriggers": true
+      },
+      {
+       "op": "changeParticipantMarker",
+       "target": "owner",
+       "marker": "shenJiao",
+       "amount": -1,
+       "clearMarker": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ol:shengshen",
+   "revision": 1,
+   "triggers": [
+    {
+     "id": "shengshen-benefit",
+     "window": "afterDamageApplied",
+     "subject": "owner",
+     "damageOccurrence": "perDamage",
+     "optional": true,
+     "effects": [
+      {
+       "op": "shenShenDrawAndArmBonus",
+       "target": "owner",
+       "marker": "shenJiao"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
