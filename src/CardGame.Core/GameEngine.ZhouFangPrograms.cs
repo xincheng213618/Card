@@ -126,7 +126,9 @@ public sealed partial class GameEngine
         var paused = ProgramInstructionResolver.Default
             .Resolve(frame, _contentRegistry!.GetSkill(frame.SkillId).Program!)
             .GetPausedInstruction(frame.InstructionIndex);
-        if (paused.Effect is not { Op: SkillProgramEffectOp.YoudiBaitDiscard })
+        if (paused.Effect is not { Op: SkillProgramEffectOp.YoudiBaitDiscard } ||
+            selected.Parameters.GetValueOrDefault("frame-id") !=
+                frame.Id.ToString(System.Globalization.CultureInfo.InvariantCulture))
             throw new InvalidOperationException("The Youdi bait choice does not match its suspended instruction.");
         var active = GetActiveProgramFrame(frame.Id);
         if (active.SelectedTargetSeats is not [var chooserSeat] ||

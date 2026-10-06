@@ -21,5 +21,6 @@
 ## 验证
 
 - 定向 `-CoreFilter @('Zhou Fang')`：6/6 通过（定义元数据；断发分次回收至体力上限并含冷恢复重放比对；超上限/超剩余选择拒绝且不移动牌；黑色非【杀】双收益含暗置槽位提示隐私断言；红色【杀】无任何收益；选择者无手牌时只摸一张）。种子固定 7，纯梅花/纯黑桃/纯红桃夹具。
-- 例行 `tools/Test-Changed.ps1`（无过滤）：结果见提交信息与最终汇报（分支基线 dd5945d5 自带约 46 个已知失败项，逐项 diff 由协调者合并时处理）。
+- 例行 `tools/Test-Changed.ps1`（无过滤，128.2 s，含构建 12.5 s）：Core 266 通过 / 46 失败 / 0 跳过（312 项），WPF 18/18 通过。46 个失败项全部位于既有检查领域（委派判定、绝义/强袭策略、离魂/阶段手牌征用、源诅咒、装备捐赠、SP 系列与界系列等），无一与周鲂相关，数量与 main 基线（dd5945d5）已知失败数 46 一致，逐项 diff 留待协调者合并时处理。
+- Release 构建（`dotnet build -c Release` 全解决方案）：0 error、0 warning；Debug 全量编译的 18 条既有 warning 均位于本批未触碰的文件（SkillProgramExecutor、EndingHistoricalUses、LiangXingPrograms、OwnedDeathBenefitReturns、PublicPilePreparation、SameTypeActualUseAid 及既有测试文件），非本批引入。
 - 本批在独立 worktree（batch/ol-zhou-fang）开发，与蒋干、潘濬两路并行。
