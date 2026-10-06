@@ -118,7 +118,7 @@ internal static class DelegatedJudgmentAndGainGiftChecks
 
     private static (GameEngine, ContentRegistry) Start(Kind kind, bool finishInitialGift = true)
     {
-        var r = ContentRegistry.Build(new StandardContentPackage(), new StandardClassicGeneralPackage(), new Fixture(kind));
+        var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(kind));
         var g = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord,
             ModeId = Mode, UseInteractiveSetup = true, UseInteractiveDiscard = true, AdvanceAfterHumanCommands = false, MaxTurns = 3 }, r);
         Accept(g, new StartGameCommand()); Reach(g, p => p.Kind == DecisionKind.SelectGeneral && p.PlayerSeat == 0);
@@ -179,10 +179,13 @@ internal static class DelegatedJudgmentAndGainGiftChecks
             foreach (var p in c.Programs) b.AddSkill(new(p.Key, p.Key, "固定共享能力") { Program = p.Value });
             b.AddSkill(new("fixture:gg-idle", "无技能", "固定对照"));
             var primary = kind == Kind.Judgment ? "ol:huanshi" : kind == Kind.Gain ? "ol:hongyuan" : "ol:mingzhe";
+            var ownerExtras = kind is Kind.RedForeign or Kind.RedBatch
+                ? new[] { Driver, Gain, Hp, Red } : new[] { Driver, Gain, Hp };
             b.AddGeneral(new("fixture:gg-owner", "固定拥有者", "supporter", primary, "wu", 4,
-                kind is Kind.RedForeign or Kind.RedBatch ? [Driver, Gain, Hp, Red] : [Driver, Gain, Hp], GeneralGender.Male));
+                ownerExtras, GeneralGender.Male));
+            var peerExtras = kind == Kind.RedForeign ? new[] { Gain, Peer } : new[] { Gain };
             for (var i = 1; i < 4; i++) b.AddGeneral(new($"fixture:gg-peer-{i}", "固定其他角色", "supporter", "fixture:gg-idle", "wei", 4,
-                kind == Kind.RedForeign ? [Gain, Peer] : [Gain], GeneralGender.Male));
+                peerExtras, GeneralGender.Male));
             b.AddDeck(new("fixture:gg-deck", "固定同类实体", 4, kind == Kind.Gain ? 2 : 0, []) { PhysicalCards = Enumerable.Range(0, 48)
                 .Select(_ => new ContentDeckPhysicalCard("classic:silver-lion", Suit.Spade, 7)).ToArray() });
             b.AddMode(new(Mode, "固定共享边界", 4, 4, new Dictionary<string, int> { [nameof(Role.Lord)] = 1, [nameof(Role.Renegade)] = 3 },

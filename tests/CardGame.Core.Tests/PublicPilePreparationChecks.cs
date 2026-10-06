@@ -127,7 +127,7 @@ internal static class PublicPilePreparationChecks
 
     private static (GameEngine Game, ContentRegistry Registry) Start(bool empty = false, bool fillObserver = false, bool giftObserver = false, bool attackObserver = false)
     {
-        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardClassicGeneralPackage(), new Fixture(empty, fillObserver, giftObserver, attackObserver));
+        var registry = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true), new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(empty, fillObserver, giftObserver, attackObserver));
         var game = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord,
             ModeId = Mode, UseInteractiveSetup = true, AdvanceAfterHumanCommands = false, MaxTurns = 8 }, registry);
         Accept(game, new StartGameCommand());
@@ -211,7 +211,7 @@ internal static class PublicPilePreparationChecks
             var gift = "skill-program.ol:juedi.public-pile-preparation.payment";
             var tail = "{\"op\":\"draw\",\"target\":\"owner\",\"amount\":1},{\"op\":\"loseHp\",\"target\":\"owner\",\"amount\":1}";
             var rules = $$"""{"schemaVersion":{{SkillProgramCatalog.RulesSchemaVersion}},"skills":[{"id":"{{Observe}}","revision":1,"triggers":[{"id":"paid-gain","window":"cardsGained","subject":"owner","destinationZones":["hand"],"movementOccurrence":"perBatch","movementReasons":["{{(fillObserver ? ending : gift)}}"],"optional":false,"effects":[{"op":"chooseOption","target":"owner","resultBind":"pause","options":[{"id":"continue"}]},{{tail}}]}]},{"id":"{{Attack}}","revision":1,"triggers":[{"id":"actual-slash","window":"turnStartBeforeNormalFlow","subject":"owner","optional":false,"effects":[{"op":"selectTarget","target":"owner","targetKind":"otherLivingVirtualSlashTarget"},{"op":"useVirtualCard","target":"selectedTarget","outputKind":"slash","useCardActionWindows":true,"targetRestriction":"distanceUnlimitedAgainstTarget"}]}]}]}""";
-            var catalog = SkillProgramCatalog.Load(rules, $$"""{"schemaVersion":3,"skills":{"{{Observe}}":{"name":"付款观察","description":"子流程返回后再推进","optionLabels":{"continue":"继续"}},"{{Attack}}":{"name":"真实杀伤","description":"真实准备阶段对选定目标使用杀"}}}""");
+            var catalog = SkillProgramCatalog.Load(rules, $$"""{"schemaVersion":3,"skills":{"{{Observe}}":{"name":"付款观察","description":"子流程返回后再推进","optionLabels":{"continue":"继续"} },"{{Attack}}":{"name":"真实杀伤","description":"真实准备阶段对选定目标使用杀"} } }""");
             foreach (var skill in catalog.Programs) builder.AddSkill(new(skill.Key, skill.Key, skill.Key) { Program = skill.Value });
             builder.AddGeneral(new(Owner, "公开牌区拥有者", "supporter", empty ? "ol:juedi" : "ol:yinbing", "wu", 4,
                 empty ? [] : fillObserver ? ["ol:juedi", Observe] : ["ol:juedi"]));
