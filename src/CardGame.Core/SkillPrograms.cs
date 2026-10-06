@@ -64,7 +64,8 @@ public enum SkillProgramTriggerConditionKind
     DeathExtinguishedFaction = 1020, DiscardPhaseSuitsAllDistinct = 1021, OtherDamageSourceAlive = 1022, DamageSourcePairUnused = 1023,
     PreviousPlayCardIsBasic = 1024,
     PhaseIsPlay = 1025,
-    CardActionOpponentIsOwner = 1026
+    CardActionOpponentIsOwner = 1026,
+    TurnOwnerUsedSameSuitCards
 }
 public enum SkillProgramTriggerValueKind
 {
@@ -168,7 +169,7 @@ public enum SkillProgramTargetKind
 public enum SkillProgramCardCategory { Basic, Trick, Equipment, InstantTrick }
 public enum SkillProgramGainPhaseQualification { OutsideOwnerDraw }
 public enum SkillProgramTurnOwnerScope { Own = 0, OtherLiving = 1, OwnOrPreviousLiving = 5300, EarnedActualEnding = 5601,
-    PaidPrepDiscardEnding = 6600, IssuedFixedDistanceEnding = 8600
+    PaidPrepDiscardEnding = 6600, IssuedFixedDistanceEnding = 8600, AnyLiving = 4720
 }
 public enum SkillProgramDiscardOwnerScope { Other = 0, Own = 1 }
 public enum SkillProgramDamageModifierExpiration { CurrentTurnEnd = 0, NextOwnerTurnStart = 1 }
@@ -180,12 +181,15 @@ public enum SkillProgramDamageModifierCondition
     SourceNotFewerHandAndEquipmentThanTarget = 2,
     OwnerUniqueMaximumHand = 3,
     FaceStatesDiffer = 1021,
-    ChainedFirePropagationOrigin = 1020
+    ChainedFirePropagationOrigin = 1020,
+    DamageSourceAttackRangeBelowThree = 1030,
+    DamageSourceAttackRangeAboveThree = 1031
 }
 public sealed record SkillProgramDamageModifier(
     string Id, IReadOnlyList<CardKind> CardKinds, int Amount,
     SkillProgramDamageModifierCondition Condition,
-    SkillProgramDamageModifierSourceScope SourceScope);
+    SkillProgramDamageModifierSourceScope SourceScope,
+    bool CapsToAmount = false);
 public sealed record SkillProgramChoiceOption(string Id, SkillProgramCondition Condition)
 {
     public string Label { get; internal set; } = "";
@@ -875,7 +879,8 @@ public sealed record SkillProgramTriggerFacts(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? TurnOwnerSlashUseCount = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] Suit? DamageCardSuit = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? PhaseIsPlay = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? CardActionOpponentIsOwner = null)
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? CardActionOpponentIsOwner = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? TurnOwnerUsedSameSuitCards = null)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public CardMovementTiming? MovementTiming { get; init; }
@@ -1065,6 +1070,7 @@ public sealed class SkillProgramTriggerCondition
         SkillProgramTriggerConditionKind.OwnerIsTurnPlayer => facts.OwnerIsTurnPlayer == true,
         SkillProgramTriggerConditionKind.PhaseIsPlay => facts.PhaseIsPlay == true,
         SkillProgramTriggerConditionKind.CardActionOpponentIsOwner => facts.CardActionOpponentIsOwner == true,
+        SkillProgramTriggerConditionKind.TurnOwnerUsedSameSuitCards => facts.TurnOwnerUsedSameSuitCards == true,
         SkillProgramTriggerConditionKind.CardActionFromOwnerHand => facts.CardActionFromOwnerHand == true,
         SkillProgramTriggerConditionKind.DamageSourceIsOwner => facts.DamageSourceIsOwner == true,
         SkillProgramTriggerConditionKind.PreviousPlayCardIsBasic => facts.PreviousPlayCardIsBasic == true,
@@ -2244,13 +2250,15 @@ public sealed class SkillProgramCatalog
     private static SkillProgramDamageModifier ParseDamageModifier(JsonElement node, string path)
     {
         RequireObject(node, path);
-        CheckProperties(node, path, "id", "cardKinds", "amount", "condition", "sourceScope");
+        CheckProperties(node, path, "id", "cardKinds", "amount", "condition", "sourceScope", "capsToAmount");
         var kinds = EnumArray<CardKind>(node, "cardKinds", path);
         if (kinds.Distinct().Count() != kinds.Count ||
             (kinds.Count == 0 && !(
                 EnumValue<SkillProgramDamageModifierCondition>(node, "condition", path) is
                 SkillProgramDamageModifierCondition.OwnerUniqueMaximumHand or SkillProgramDamageModifierCondition.ChainedFirePropagationOrigin
-                    or SkillProgramDamageModifierCondition.FaceStatesDiffer)))
+                    or SkillProgramDamageModifierCondition.FaceStatesDiffer
+                    or SkillProgramDamageModifierCondition.DamageSourceAttackRangeBelowThree
+                    or SkillProgramDamageModifierCondition.DamageSourceAttackRangeAboveThree)))
             Fail(path + ".cardKinds", "must contain distinct effective card kinds");
         var amount = PositiveInt(node, "amount", path);
         if (amount > 20) Fail(path + ".amount", "must not exceed 20");
@@ -2258,6 +2266,20 @@ public sealed class SkillProgramCatalog
         var scope = node.TryGetProperty("sourceScope", out _)
             ? EnumValue<SkillProgramDamageModifierSourceScope>(node, "sourceScope", path)
             : SkillProgramDamageModifierSourceScope.OwnerUsed;
+        var capsToAmount = node.TryGetProperty("capsToAmount", out _) && RequiredBool(node, "capsToAmount", path);
+        if (condition is SkillProgramDamageModifierCondition.DamageSourceAttackRangeBelowThree or
+            SkillProgramDamageModifierCondition.DamageSourceAttackRangeAboveThree)
+        {
+            if (scope != SkillProgramDamageModifierSourceScope.DamageParticipant || kinds.Count != 0)
+                Fail(path, "damage-source attack-range conditions require damageParticipant and every damage kind");
+            if (capsToAmount && (condition != SkillProgramDamageModifierCondition.DamageSourceAttackRangeBelowThree ||
+                    amount != 1))
+                Fail(path, "capsToAmount requires the below-three condition and amount 1");
+            if (!capsToAmount && condition == SkillProgramDamageModifierCondition.DamageSourceAttackRangeBelowThree)
+                Fail(path, "the below-three condition expresses set-to-one and requires capsToAmount");
+        }
+        else if (capsToAmount)
+            Fail(path + ".capsToAmount", "requires the below-three attack-range condition");
         if (condition is SkillProgramDamageModifierCondition.OwnerUniqueMaximumHand or SkillProgramDamageModifierCondition.ChainedFirePropagationOrigin)
         {
             if (scope != SkillProgramDamageModifierSourceScope.DamageParticipant || kinds.Count != 0)
@@ -2268,9 +2290,11 @@ public sealed class SkillProgramCatalog
             if (scope != SkillProgramDamageModifierSourceScope.DamageParticipant)
                 Fail(path + ".sourceScope", "face-state damage modifiers require damageParticipant");
         }
-        else if (scope != SkillProgramDamageModifierSourceScope.OwnerUsed)
+        else if (scope != SkillProgramDamageModifierSourceScope.OwnerUsed &&
+                 condition is not (SkillProgramDamageModifierCondition.DamageSourceAttackRangeBelowThree or
+                     SkillProgramDamageModifierCondition.DamageSourceAttackRangeAboveThree))
             Fail(path + ".sourceScope", "card damage modifiers require ownerUsed");
-        return new SkillProgramDamageModifier(Identifier(node, "id", path), kinds, amount, condition, scope);
+        return new SkillProgramDamageModifier(Identifier(node, "id", path), kinds, amount, condition, scope, capsToAmount);
     }
 
     private static SkillProgramModifier ParseModifier(JsonElement node, string path)
@@ -3295,6 +3319,9 @@ public sealed class SkillProgramCatalog
         if (EnumerateTriggerConditions(condition).Any(c => c.Kind == SkillProgramTriggerConditionKind.TurnDiscardIncludesAllSuits) &&
             window != SkillProgramTriggerWindow.AfterTurnEnded)
             Fail(path, "turn discard suit history requires AfterTurnEnded");
+        if (EnumerateTriggerConditions(condition).Any(c => c.Kind == SkillProgramTriggerConditionKind.TurnOwnerUsedSameSuitCards) &&
+            window != SkillProgramTriggerWindow.PlayEnding)
+            Fail(path, "turn-owner used-suit history requires playEnding");
         if (EnumerateTriggerValues(condition).Any(v=>v.Kind==SkillProgramTriggerValueKind.EventTargetMarkerCount) && window is not (SkillProgramTriggerWindow.BeforeDamageApplied or SkillProgramTriggerWindow.DrawPhaseStarting or SkillProgramTriggerWindow.DiscardPhaseEnded or SkillProgramTriggerWindow.TurnEnding)) Fail(path + ".condition", "eventTargetMarkerCount requires an actual damage, draw, or discard subject");
         if (EnumerateTriggerValues(condition).Any(v=>v.Kind==SkillProgramTriggerValueKind.EventSourceMarkerCount) && window != SkillProgramTriggerWindow.AfterDamageApplied) Fail(path + ".condition", "eventSourceMarkerCount requires the after-damage subject");
         if (EnumerateTriggerConditions(condition).Any(item => item.Kind == SkillProgramTriggerConditionKind.OwnerKilledThisTurn) &&

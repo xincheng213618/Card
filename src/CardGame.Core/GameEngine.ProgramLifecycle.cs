@@ -194,13 +194,22 @@ public sealed partial class GameEngine
     private SkillProgramStepOutcome ScheduleProgramPhase(
         ProgramSkillFrame frame,
         TurnPhase phase,
-        SkillProgramPhaseContinuation continuation)
+        SkillProgramPhaseContinuation continuation,
+        int? beneficiarySeat = null)
     {
+        var playEndingGrant = frame.WindowContext?.Window == SkillProgramTriggerWindow.PlayEnding;
         if (phase is not (TurnPhase.Play or TurnPhase.Draw) || continuation != SkillProgramPhaseContinuation.BeforeNormalPreparation ||
-            frame.WindowContext is not { Window: SkillProgramTriggerWindow.TurnStartBeforeNormalFlow } context ||
+            frame.WindowContext is not { } context ||
+            context.Window is not (SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or SkillProgramTriggerWindow.PlayEnding) ||
             context.OwnerSeat != frame.OwnerSeat || _programPhaseSchedule is not null ||
-            GetActiveProgramFrame(frame.Id) != frame)
-            throw new InvalidOperationException("The configured phase insertion does not match a clean turn-start boundary.");
+            GetActiveProgramFrame(frame.Id) != frame ||
+            playEndingGrant && (phase != TurnPhase.Play || beneficiarySeat is null))
+            throw new InvalidOperationException("The configured phase insertion does not match a clean turn-start or play-ending boundary.");
+        // A play-ending grant belongs to the living current turn player; a
+        // turn-start insertion keeps inserting for the program owner itself.
+        var beneficiary = playEndingGrant ? beneficiarySeat!.Value : frame.OwnerSeat;
+        if (playEndingGrant && (beneficiary != _currentSeat || !_players[beneficiary].IsAlive))
+            throw new InvalidOperationException("A play-ending phase insertion requires the living current turn player.");
 
         if (_resolutionStack.Count < 2 ||
             _resolutionStack[^2] is not ProgramLifecycleTriggerWindowFrame parent ||
@@ -209,10 +218,10 @@ public sealed partial class GameEngine
         PopResolutionFrame(frame.Id, ResolutionFrameKind.ProgramSkill);
         PopResolutionFrame(parent.Id, ResolutionFrameKind.ProgramLifecycleTriggerWindow);
         _programPhaseSchedule = new ProgramPhaseSchedule(frame, parent, phase, continuation)
-        { DiscardRecoveryReturnPhase = CurrentActualDiscardRecoveryPhase() };
+        { DiscardRecoveryReturnPhase = playEndingGrant ? null : CurrentActualDiscardRecoveryPhase() };
         AdvanceEventRulesAndQueueFact(new ProgramPhaseScheduledEvent(
             frame.Id, frame.SkillId, frame.TriggerId!, frame.OwnerSeat, phase, Started: true));
-        if (phase == TurnPhase.Play) EnterPlayPhase(_players[frame.OwnerSeat]);
+        if (phase == TurnPhase.Play) EnterPlayPhase(_players[beneficiary]);
         else
         {
             StartActualDiscardRecoveryPhase(ActualDiscardRecoveryPhaseKind.Draw, frame.OwnerSeat);
@@ -2005,7 +2014,9 @@ public sealed partial class GameEngine
             SkillProgramTriggerWindow.PlayEnding =>
                 context.SourceSeat == _currentSeat && _phase == TurnPhase.Play &&
                 (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own
-                    ? owner.Seat == _currentSeat : owner.Seat != _currentSeat),
+                    ? owner.Seat == _currentSeat
+                    : trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.AnyLiving ||
+                      owner.Seat != _currentSeat),
             SkillProgramTriggerWindow.PlayPhaseStarting =>
                 context.SourceSeat == _currentSeat && _phase == TurnPhase.Play &&
                 (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own
@@ -2360,7 +2371,9 @@ public sealed partial class GameEngine
           PhaseIsPlay = _contentRegistry.ProgramDependencies.UsesTriggerCondition(SkillProgramTriggerConditionKind.PhaseIsPlay)
               ? _phase == TurnPhase.Play : null,
           CurrentTurnUsedCardCategoryCount = TracksCurrentTurnUseKinds ? CurrentTurnUseKinds(owner.Seat).Categories : null,
-          CurrentActualPlayPhysicalSlashLossCount = TracksActualPlaySlashLoss ? CurrentActualPlaySlashLossCount(owner.Seat) : null };
+          CurrentActualPlayPhysicalSlashLossCount = TracksActualPlaySlashLoss ? CurrentActualPlaySlashLossCount(owner.Seat) : null,
+          TurnOwnerUsedSameSuitCards = _contentRegistry.ProgramDependencies.UsesTriggerCondition(SkillProgramTriggerConditionKind.TurnOwnerUsedSameSuitCards)
+              ? CurrentTurnOwnerUsedSameSuitCards() : null };
     }
 
     private SkillProgramTriggerFacts CaptureProgramTriggerFacts(CharacterState owner, CardActionContext action) =>
@@ -2543,8 +2556,8 @@ public sealed partial class GameEngine
         var candidates = participants.SelectMany(player =>
                 CollectEligibleProgramTriggerCandidates(player, SkillProgramTriggerWindow.PlayEnding,
                     participantFacts[player.Seat])
-                    .Where(candidate => GetProgramTrigger(candidate).TurnOwnerScope ==
-                        (player.Seat == owner.Seat ? SkillProgramTurnOwnerScope.Own : SkillProgramTurnOwnerScope.OtherLiving)))
+                    .Where(candidate => MatchesPlayEndingTurnOwnerScope(
+                        GetProgramTrigger(candidate).TurnOwnerScope, player.Seat == owner.Seat)))
             .OrderBy(candidate => (candidate.OwnerSeat - owner.Seat + _players.Count) % _players.Count)
             .ThenByDescending(candidate => candidate.Priority)
             .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
@@ -2558,6 +2571,15 @@ public sealed partial class GameEngine
         AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
         return true;
     }
+
+    private static bool MatchesPlayEndingTurnOwnerScope(SkillProgramTurnOwnerScope scope, bool ownSeat) => scope switch
+    {
+        SkillProgramTurnOwnerScope.Own => ownSeat,
+        // AnyLiving collects the trigger once for its owner and lets the shared
+        // PlayEnding eligibility accept both the own and the foreign phase end.
+        SkillProgramTurnOwnerScope.AnyLiving => true,
+        _ => !ownSeat,
+    };
 
     private bool TryBeginDrawPhaseProgramWindow(CharacterState owner, bool skipPlayPhaseAfterDraw)
     {

@@ -112,7 +112,9 @@ internal sealed class InsertPhaseProgramOperationDescriptor : ProgramOperationDe
     public override SkillProgramEffect Parse(ProgramOperationNodeReader r)
     {
         r.AllowOnly("op", "target", "phase", "phaseContinuation", "condition");
-        var target = FilterBoundCardsProgramOperationDescriptor.Owner(r);
+        var target = r.RequiredEnum<SkillProgramEffectTarget>("target");
+        if (target is not (SkillProgramEffectTarget.Owner or SkillProgramEffectTarget.SelectedTarget))
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.target: insertPhase requires owner or selectedTarget.");
         var phase = r.RequiredEnum<TurnPhase>("phase");
         if (phase != TurnPhase.Play)
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.phase: insertPhase currently supports play only.");
@@ -122,7 +124,11 @@ internal sealed class InsertPhaseProgramOperationDescriptor : ProgramOperationDe
         return new(Op, target, 0, r.Condition(), phase: phase, phaseContinuation: continuation);
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        WithSelectedTarget(effect);
+        effect.Target == SkillProgramEffectTarget.SelectedTarget
+            // A selected-target insertion is the play-ending grant to the phase
+            // owner; the turn-start insertion keeps using the owner target.
+            ? [new RequireTriggerWindow(SkillProgramTriggerWindow.PlayEnding), new ReadSelectedTarget()]
+            : WithSelectedTarget(effect);
 }
 
 internal sealed class RecoverToProgramOperationDescriptor : ProgramOperationDescriptorBase

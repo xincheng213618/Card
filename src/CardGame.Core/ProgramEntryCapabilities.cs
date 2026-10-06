@@ -87,7 +87,8 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.AfterNormalDraw => Common | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.DiscardPhaseStarting => Common | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.DiscardPhaseEnded => Common | ProgramContextCapability.Judgment,
-        SkillProgramTriggerWindow.PlayEnding => Common | ProgramContextCapability.Judgment | ProgramContextCapability.PhaseOwner,
+        SkillProgramTriggerWindow.PlayEnding => Common | ProgramContextCapability.Judgment | ProgramContextCapability.PhaseOwner |
+            ProgramContextCapability.PhaseInsertion,
         SkillProgramTriggerWindow.TurnEnding => Common | ProgramContextCapability.Judgment,
         SkillProgramTriggerWindow.PlayPhaseStarting =>
             Common | ProgramContextCapability.Judgment | ProgramContextCapability.PhaseOwner | ProgramContextCapability.PhaseSubstitution | ProgramContextCapability.Pindian,

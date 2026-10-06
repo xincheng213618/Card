@@ -107,7 +107,8 @@ public interface ISkillProgramEffectHost
     SkillProgramStepOutcome InsertPhase(
         ProgramSkillFrame frame,
         TurnPhase phase,
-        SkillProgramPhaseContinuation continuation);
+        SkillProgramPhaseContinuation continuation,
+        int? beneficiarySeat = null);
     void RecoverTo(
         long frameId,
         int ownerSeat,
@@ -785,7 +786,8 @@ public sealed class InsertPhaseSkillProgramEffectHandler : ISkillProgramEffectHa
             frame,
             effect.Phase ?? throw new InvalidOperationException("insertPhase has no phase."),
             effect.PhaseContinuation ??
-            throw new InvalidOperationException("insertPhase has no continuation."));
+            throw new InvalidOperationException("insertPhase has no continuation."),
+            effect.Target == SkillProgramEffectTarget.SelectedTarget ? targetSeat : null);
 }
 
 public sealed class RecoverToSkillProgramEffectHandler : ISkillProgramEffectHandler
