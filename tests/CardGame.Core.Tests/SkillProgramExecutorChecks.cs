@@ -408,9 +408,10 @@ internal static class SkillProgramExecutorChecks
         public SkillProgramStepOutcome InsertPhase(
             ProgramSkillFrame frame,
             TurnPhase phase,
-            SkillProgramPhaseContinuation continuation)
+            SkillProgramPhaseContinuation continuation,
+            int? beneficiarySeat = null)
         {
-            Calls.Add($"insert-phase:{frame.OwnerSeat}:{phase}:{continuation}");
+            Calls.Add($"insert-phase:{frame.OwnerSeat}:{phase}:{continuation}:{beneficiarySeat?.ToString() ?? "owner"}");
             return SkillProgramStepOutcome.AwaitChild;
         }
 
