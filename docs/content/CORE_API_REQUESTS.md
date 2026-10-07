@@ -182,7 +182,6 @@ K4 已开放：`ContentModeDefinition` 提供 `DeckId`、候选数量和 `Genera
 - `GetCombatDistance` 计算存活座位环距离并应用赤兔/绝影及 `standard:mashu` 的出攻距离 modifier；`GetLegalActions` 应用 `standard:qicai` 的锦囊距离豁免；`GetAttackRange` 应用诸葛连弩范围 modifier；玉玺接入回合摸牌数量，死亡清理装备区并保持牌数守恒。
 - K6 基础场景已由 `equipment.replace`、`equipment.distance`、青釭剑无视防具、公开装备目标选择和 Standard Console 自测覆盖；K7 八卦阵基础判定场景以及公开判定区牌目标选择已由独立回归覆盖；装备失效/卸载语义和复杂装备效果留待后续 K6/K7。
 
-<<<<<<< HEAD
 ## 内容请求：2026-10-08 OL 黄承彦批（择才/隐世）能力缺口
 
 - 轮结束触发窗口：引擎只有回合开始/结束窗口与 `RoundStartedEvent`，没有"一轮游戏结束时"钩子；本批择才以"新一轮开始后的拥有者首个回合开始"近似结算并如实记录。若后续提供 `roundEnded`（或轮边界生命周期窗口），择才可直接改挂而无需定制 op。
@@ -199,3 +198,8 @@ OL 杨仪"狷狭"需要"视为依次使用至多三张牌名各不相同的仅�
 - **普通用牌的回复值修正入口**：战意"基本牌……回复值或伤害值+1"的伤害侧已由共享回合伤害修正表达，但回复侧没有共享入口——现有 `RecoveryBonus` 只挂在濒死救援（`SkillProgramCardPolicyKind.RescueRecoveryBonus`，按目标/势力策略、仅在 allowDying 分支求值），普通（非濒死、含自救）用桃的回复量在 `ResolvePeach`/`ProgramSimpleCardContinuation.RecoveryAmount` 处直接取 1。需要一条"按使用者的种类/条件修正回复值"的共享策略（描述符 + 查询点），本批未表达该子项。
 - **规则修正的跨回合生命周期**：`cardUseDistanceLimit` 等规则修正存储按（回合号、回合座位）索引，只覆盖当回合；战意"无距离限制"的文本生命周期是"直到你的下个回合开始"。本批按回合级表达（伤害侧已用 `SkillProgramDamageModifierExpiration.NextOwnerTurnStart` 覆盖精确生命周期），跨回合规则修正（带到期时点的通用 rule-modifier 作用域）留作后续共享能力。
 - 本批已落地的对应共享能力：`cardUseDistanceLimit=unlimited` 规则修正支持按牌种过滤（存储过滤既有、校验与描述符放行为本批新增），战意以此把"无距离限制"限定在三种杀上。
+## 内容程序表达力缺口：陈登批记录（2026-10-08）
+
+- 轮级、跨座位、随事件账本变动的公共数值规则调整（如丰积的"本轮 摸牌阶段摸牌数 -1 / 出牌阶段使用【杀】的次数上限 -1，对应其他角色 +2，选择否 +1"）目前没有内容侧声明通道：rules.json 无法表达"作用于任意座位、按轮号生效、由技能事件推导数值"的规则查询贡献。本批以 bespoke op（7244）+ 引擎侧门控贡献（EvaluateDrawCount / EvaluateSlashUseLimit 内按依赖开关读取事件账本）实现；若后续出现第二个同类技能，建议抽象出"事件账本驱动的轮级规则修改器"共享描述符。
+- "此技能失效直到<条件>"（旋回：失效直到一名角色死亡）没有通用失效/恢复原语。本批以"失效事件与 PlayerDiedEvent 的历史顺序比较"推导（无序列化运行时状态）；通用化需要内容可声明的失效条件与自动恢复账本。
+- "每轮开始时"触发窗口为本批新增共享能力（roundStarting，复用 ProgramLifecycleTriggerWindowFrame 与续接枚举尾部值），非缺口；列出仅为说明该窗口自此可用。

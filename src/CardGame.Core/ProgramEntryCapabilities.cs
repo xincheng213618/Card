@@ -37,6 +37,7 @@ internal static class ProgramEntryCapabilities
         SkillProgramTriggerWindow.DyingEntering or SkillProgramTriggerWindow.DyingEntered or
         SkillProgramTriggerWindow.DyingExited or
         SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
+        SkillProgramTriggerWindow.RoundStarting or
         SkillProgramTriggerWindow.DrawPhaseStarting or
         SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or SkillProgramTriggerWindow.DrawPhaseSkipped or
         SkillProgramTriggerWindow.SelfDyingResponse or

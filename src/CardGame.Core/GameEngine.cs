@@ -3388,6 +3388,12 @@ public sealed partial class GameEngine
 
     private void ContinueTurnAfterHengye(CharacterState current)
     {
+        if (TryBeginRoundStartingProgramWindow(current)) return;
+        ContinueTurnAfterRoundPrograms(current);
+    }
+
+    private void ContinueTurnAfterRoundPrograms(CharacterState current)
+    {
         if (TryBeginForeignActualTurnStart(current)) return;
         ContinueTurnAfterForeignActualContests(current);
     }

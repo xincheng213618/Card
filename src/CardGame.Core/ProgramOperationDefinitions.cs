@@ -35,6 +35,8 @@ internal enum ProgramOperationAiSemantic
     GiftSettledUsedCard,
     JuanxiaTrickUse,
     JuanxiaRetaliationChoice
+    FengjiRoundChoice,
+    XuanhuiSwapEffects
 }
 internal sealed record ProgramOperationAiPolicy(
     ProgramOperationAiSemantic Semantic,

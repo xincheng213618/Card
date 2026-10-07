@@ -555,6 +555,14 @@ public sealed partial class GameEngine
                 AdvanceProgramLifecycleCursor(lifecycle);
                 AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
                 break;
+            case SkillProgramTriggerWindow.RoundStarting:
+                if (_resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame roundStart ||
+                    roundStart.Id != context.ParentFrameId ||
+                    roundStart.Continuation != ProgramLifecycleContinuation.RoundProgramsTurnStart)
+                    throw new InvalidOperationException("The round-starting program lost its parent window.");
+                AdvanceProgramLifecycleCursor(roundStart);
+                AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
+                break;
             case SkillProgramTriggerWindow.DrawPhaseEnded:
                 if (_phase != TurnPhase.Draw || _resolutionStack.LastOrDefault() is not ProgramLifecycleTriggerWindowFrame drawEnded ||
                     drawEnded.Id != context.ParentFrameId || drawEnded.Continuation != ProgramLifecycleContinuation.CompleteDrawPhaseEnded)

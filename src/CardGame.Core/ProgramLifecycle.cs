@@ -319,7 +319,8 @@ public enum ProgramLifecycleContinuation
     CompleteDiscardPhase, EndTurnAfterDiscardPhase, CompleteGameStarting,
     ResumeCardDeclaration = 1600,
     ResumeParentProgram = 500, ResumeDyingEntry = 660,
-    CompleteJudgmentPhaseStarting = 800, ResumeCharacterStateChange = 820, CompleteDrawPhaseEnded = 1140, ResumeDrawPhaseObligation = 3800, CompletePhaseHandDebtForcedEnd = 8007
+    CompleteJudgmentPhaseStarting = 800, ResumeCharacterStateChange = 820, CompleteDrawPhaseEnded = 1140, ResumeDrawPhaseObligation = 3800, CompletePhaseHandDebtForcedEnd = 8007,
+    RoundProgramsTurnStart = 8040
 }
 
 public enum TurnEndingBoundaryItemKind { Program, GiftRetention = 1460 }

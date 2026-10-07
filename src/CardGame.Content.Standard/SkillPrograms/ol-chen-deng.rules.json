@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:fengji",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "fengji-round-choice",
+          "window": "roundStarting",
+          "subject": "owner",
+          "optional": true,
+          "condition": {
+            "kind": "fengjiRoundChoicePending"
+          },
+          "effects": [
+            { "op": "fengjiRoundChoice", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:xuanhui",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "xuanhui-swap",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "condition": {
+            "kind": "fengjiSwapAvailable"
+          },
+          "effects": [
+            { "op": "xuanhuiSwapEffects", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}
