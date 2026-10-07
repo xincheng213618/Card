@@ -1,0 +1,60 @@
+{
+  "generalId": "ol:jiang-gan",
+  "characterName": "蒋干",
+  "officialId": 467,
+  "sourcePage": "https://www.sanguosha.com/hero/467",
+  "textSource": "https://wiki.biligame.com/sgs/蒋干（官网 heroDetail 接口不可用，技能文本取自百科同一武将词条）",
+  "capturedAt": "2026-10-07",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 467,
+    "name": "蒋干",
+    "extend": "",
+    "hp": 3,
+    "figure": "魏",
+    "gender": "男",
+    "title": "锋镝悬信"
+  },
+  "artwork": {
+    "skinId": "46700",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/46700.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-jiang-gan.png",
+    "sha256": "37d0ae7671229e448ff110eb4e28110f3a46c77788b506841d3dd96a961eb772",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "伪诚",
+      "text": "当你交给其他角色手牌后，或你的手牌被其他角色获得后，若你的手牌数小于体力值，你可以摸一张牌。",
+      "programId": "ol:weicheng",
+      "notes": [
+        "Trigger weicheng/hand-transfer-draw: cardsMoved with movementOccurrence perOwnerSourceHandGain over sourceZones hand — one candidate per movement of an owner hand card into another living character's hand, which covers both clauses (a give and a take by another character are the same physical movement shape).",
+        "The compare condition (currentHandCount lessThan currentHp) is evaluated at window capture, i.e. after the transfer and before the draw; the generic draw op draws one.",
+        "The existing perOwnerSourceHandGain boundary (introduced for Yi Ji's Jiyuan) expresses the whole trigger, so no new TriggerFactKind, window or schema node was needed."
+      ]
+    },
+    {
+      "name": "盗书",
+      "text": "出牌阶段限一次，你可以选择一种花色，获得其他角色的一张手牌。若此牌与你选择的花色：相同，你对其造成1点伤害且此技能视为未发动过；不同，你交给该角色一张其他花色的手牌（若没有需展示所有手牌）。",
+      "programId": "ol:daoshu",
+      "notes": [
+        "Activation daoshu-guess: play-phase activation, usesPerTurn 1, one activation-level target of kind otherLivingWithHand; the bespoke op daoshuGuessAndTake (7172) runs the whole settlement.",
+        "Suit prompt: four public suit options (spade/heart/club/diamond); the take rides the blind-hand privacy shape (random concealed hand card, two processing hops, seats-only public evidence). The suit comparison reads the card's effective suit inside the owner's hand per the BWIKI FAQ.",
+        "Same suit: the per-turn ledger _programUses[(owner, skill, activation)] is decremented so the activation is immediately available again this phase (BWIKI FAQ: repeated correct guesses may repeat), then the 1 damage settles through BeginProgramSkillDamage which resumes and completes the frame.",
+        "Different suit: the owner picks one hand card whose effective suit differs from the taken card's suit (BWIKI FAQ: 'other suit' is relative to the obtained card, not the declared suit); without one the whole hand is bound into a public card set and revealed through ProgramCardsRevealedEvent.",
+        "ProgramDaoshuEvent records owner, target, declared suit, whether a card was taken, the branch and the public give-back/reveal ids; the taken card's identity stays out of the event and of ordinary snapshots."
+      ]
+    }
+  ],
+  "observations": [
+    "BWIKI matches the coordinator-locked wording verbatim for both skills, the title 锋镝悬信, wei male 3HP (经典体力=3) and the 2019-09-02 荟萃-计将安出 release; no textual divergence.",
+    "BWIKI FAQ clarifies '盗书'的'其他花色'是与获得的牌不同的花色 — the give-back suit is judged against the TAKEN card's suit, not the declared suit. The coordinator hint suggested 相对所选花色; the implemented rule follows the BWIKI FAQ reading and only differs from the hint when the given card would carry the declared suit (legal here, forbidden there).",
+    "BWIKI FAQ also fixes the comparison basis: 花色是否一致均以在蒋干手牌中的花色判断 — the taken card's effective suit inside the owner's hand decides the branch; the give-back eligibility uses the same effective-suit basis for the owner's hand cards.",
+    "盗书's own take does NOT trigger 伪诚: the taken card moves from the target's hand (not the owner's), and the perOwnerSourceHandGain boundary only fires for movements whose source is the owner's hand. The give-back branch does trigger 伪诚, once per given card, through the shared cards-moved window that opens after the give movement.",
+    "The activation-level target selection precedes the suit declaration (engine convention for active-skill targets); the real game's wording suggests suit-first, which is a cosmetic ordering difference with identical legality.",
+    "New bespoke op 7172 daoshuGuessAndTake only; no new TriggerFactKind, PlayerMarkerKind, ConditionKind, trigger window or schema node; weicheng reuses the generic compare condition and draw op.",
+    "共享口径：'获得其他角色的一张手牌'按随机取得一张暗手牌执行（同突袭/冲阵/诱敌隐私口径），牌面只对结算可见，公开证据只含座位与数量。"
+  ]
+}
