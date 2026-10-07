@@ -60,7 +60,8 @@ public enum SkillProgramCardPolicyKind
     PindianClaimAllWhenSourceWins = 785,
     ConvertedSlashSameColorResponseOnly = 786,
     IgnoreTurnObtainedHandCardsForDiscard = 1000,
-    NullifyBlackSlashByCurrentHp = 6602, ProhibitBlackSlashResponseByCurrentHand = 6603}
+    NullifyBlackSlashByCurrentHp = 6602, ProhibitBlackSlashResponseByCurrentHand = 6603,
+    DyingSelfRescueOnly = 6604}
 
 public sealed record SkillProgramCardPolicy(
     string Id,

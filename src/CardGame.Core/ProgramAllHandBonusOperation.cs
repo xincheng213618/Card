@@ -35,6 +35,8 @@ public sealed partial class GameEngine
             .Any(item => item.Policy.InputSuit == EffectiveSuit(owner, card));
     private bool CanUsePeachToRescue(int responderSeat, int victimSeat) =>
         !(responderSeat == victimSeat && HasSelfCardTargetProhibition(responderSeat)) &&
+        !(responderSeat != victimSeat &&
+          HasCardPolicy(_players[victimSeat], SkillProgramCardPolicyKind.DyingSelfRescueOnly, CardKind.Peach)) &&
         (responderSeat == _currentSeat || responderSeat == victimSeat ||
         !_players[_currentSeat].IsAlive ||
         !HasCardPolicy(_players[_currentSeat], SkillProgramCardPolicyKind.ExclusiveDyingPeachRescue, CardKind.Peach));

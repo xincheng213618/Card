@@ -1855,6 +1855,7 @@ public sealed partial class GameEngine
         if (!CanRunGainGiftTrigger(candidate, trigger, context)) return false;
         if (!CanRunShortRangeSlash(candidate, trigger, context)) return false;
         if (!CanRunActualHandGainTrigger(candidate, trigger, context)) return false;
+        if (!CanRunShiYuanTargetDraw(candidate, trigger, context)) return false;
         if (IsOtherActualBasicDiscardTrigger(trigger) && !CanRunOtherActualBasicDiscard(candidate, context)) return false;
         if (!CanRunPublicPilePreparation(candidate, trigger, context)) return false;
         if (!CanRunFireTargetBenefit(candidate, trigger, context)) return false;
@@ -2313,6 +2314,8 @@ public sealed partial class GameEngine
             IsClassicIdentityMode,
             CardsUsedOrRespondedThisTurn: CountCardsUsedOrRespondedByPlayerThisTurn(owner.Seat),
             OwnerIsTurnPlayer: owner.Seat == _currentSeat,
+            TurnOwnerFactionId: _contentRegistry.ProgramDependencies.UsesTriggerCondition(SkillProgramTriggerConditionKind.TurnOwnerFactionIs)
+                ? GetEffectiveFactionId(_players[_currentSeat]) : null,
             TurnOwnerDamageDealtThisTurn: _contentRegistry.ProgramDependencies.UsesTriggerValue(SkillProgramTriggerValueKind.TurnOwnerDamageDealtThisTurn)
                 ? EventsSinceLastBoundary(item => item is TurnStartedEvent).OfType<DamageAppliedEvent>()
                     .Where(item => !item.SourceLess && item.SourceSeat == _currentSeat && item.Amount > 0).Sum(item => item.Amount) : null,
