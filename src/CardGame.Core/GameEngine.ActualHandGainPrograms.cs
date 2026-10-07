@@ -118,6 +118,7 @@ public sealed partial class GameEngine
         // Out parameters cannot be captured by the finished-use lambda below.
         var useFrame = use;
         var parentFrame = parent;
+        var committedAction = parent.Action;
         return context.Window == SkillProgramTriggerWindow.CardUseCompleted && parent is not null &&
             parent.CandidateIndex >= 0 && parent.CandidateIndex < parent.Candidates.Count && ToSharedCandidate(parent.Candidates[parent.CandidateIndex]) == c &&
             parent.Action.Type == CardActionType.Use && parent.Action.ActorSeat == c.OwnerSeat && use is { Step: ResolutionFrameStep.Completed } &&
@@ -125,7 +126,7 @@ public sealed partial class GameEngine
             context.CardUse is { } card && card.ParentCardUseFrameId == use.Id && card.CardActionId == parent.Action.ActionId &&
             card.ActorSeat == c.OwnerSeat && card.EffectiveKind == parent.Action.EffectiveKind &&
             HasExactAcceptedActualHandGainUse(use, parent.Action) &&
-            CompleteProgramEventHistory().OfType<CardUseFinishedEvent>().Count(e => e.ResolutionId == useFrame.Id && e.CardKind == parentFrame.Action.EffectiveKind) == 1;
+            CompleteProgramEventHistory().OfType<CardUseFinishedEvent>().Count(e => e.ResolutionId == useFrame.Id && e.CardKind == committedAction.EffectiveKind) == 1;
     }
     private bool CanRunActualHandGainTrigger(ProgramTriggerCandidate c, SkillProgramTrigger t, ProgramSkillWindowContext context)
     {
