@@ -208,3 +208,7 @@ OL 杨仪"狷狭"需要"视为依次使用至多三张牌名各不相同的仅�
 - **全局时长伤害加成（已落地为共享能力）**：图兴②"你本局造成的伤害+1"需要"本局剩余时间对来源座位一切伤害 +N"的表达。此前引擎只有回合级 `grantTurnCardDamageModifier`（`CurrentTurnEnd`/`NextOwnerTurnStart` 两种过期）与声明式 `damageModifiers`（OwnerUsed 路径排除传导伤害且要求具体牌种；空牌种条件都是受击侧 `damageParticipant` 语义），没有全局时长条目。本批新增共享武装通道：通用证据事件 `ProgramGameDamageBonusArmedEvent`（内容技能经 bespoke 流程发布，committed-history 推导、幂等防重）+ `FinalizeAttackDamageAmount` 一处通用接入 `GetArmedGameDamageBonuses`（含传导、不限牌种、`ProgramCardDamageModifiedEvent` 照常发布）。后续"至游戏结束/至某条件为止"的全局数值修正可复用该事件通道或抽象为声明式描述符。
 - **"装备栏被废除"触发窗口（未落地，如实记录）**：图兴①"当你废除一个装备栏时"没有对应触发窗口，当前由鬻爵的废除流程内联结算（当前内容中刘宏装备栏废除仅来自鬻爵，覆盖全部可观察行为），并为武装子句留了回合开始幂等补账。若后续出现第二个"当你废除装备栏时"或"其他角色的装备栏被废除时"技能，需要共享的 equipment-slot-abolished 触发窗口（窗口枚举尾部新值 + `EquipmentSlotCapacityChangedEvent`/`PlayerAreasAbolishedEvent` 的窗口发布点），届时图兴①即可改为纯内容触发。
 - 本批已落地的其余口径全部为既有共享能力复用（装备栏容量废除、`ChangeProgramMaximumHp`、共享 Recover、`AcquireRuntimeSkills` 自定义源前缀授予与择时清除、耀冥"对其他角色造成伤害后"条件口径、usageScope/usageLimit 限次）。
+## 内容程序表达力记录：卫兹批（2026-10-08）
+
+- **"随机弃置一名其他角色至多N张手牌"的通用节点（未落地，如实记录）**：烈节第二子句"弃置伤害来源至多X张牌（X为红色牌数）"需要"按公开计算量随机弃置指定座位手牌"。既有 `takeRandomHandCardFromSelectedTargets` 是"获得"（进拥有者手牌）而非"弃置"；杨婉追还的随机弃牌与本批烈节各自以 bespoke 流程实现（同一 `_random` 口径）。若后续出现第二个同类技能，建议抽象出"随机弃置指定角色至多N张手牌"的声明式描述符（数量可来自绑定牌集派生值），并可一并考虑"装备区由拥有者挑选 + 手牌随机"的混合弃置口径（OL 客户端同类效果常见形态，本批未表达）。
+- 本批已落地的其余口径全部为既有共享能力复用（其他角色的准备阶段窗口、usageScope round、制衡式弃置摸等量声明式组合、cards-moved 续接、可选触发通用激活与估算路径）；共享扩展仅 `EstimateCompositionForAi` 的回合开始窗口受赠者发布行与 `ProgramAiEstimateContext.AllHandTurnOwnerGift` 估值钩子。

@@ -1,0 +1,84 @@
+{
+  "generalId": "ol:wei-zi",
+  "characterName": "卫兹",
+  "officialId": 501,
+  "sourcePage": "https://www.sanguosha.com/hero/501",
+  "textSource": "https://www.sanguosha.com/hero/501（官网 hero/info 接口 gid=501 交叉核对体力/势力/品质/特点；技能逐字文本取自官网页面 SSR 正文。OL 专站 wiki.biligame.com/sgsol/卫兹 提供称号/性别/武将包/上线时间，其技能文本为较早措辞，差异逐条记录于 skills[].textNote；BWIKI 主站 wiki.biligame.com/sgs/卫兹 页面不存在（“此页面目前没有内容”），即卫兹无十周年经典版条目，无跨版本文本冲突）",
+  "capturedAt": "2026-10-08",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 501,
+    "name": "卫兹",
+    "extend": "",
+    "hp": 3,
+    "figure": "群",
+    "figure_py": "qun",
+    "gender": "男",
+    "title": "倾家资君",
+    "quality": "传说",
+    "package": "璀璨星河-列肆",
+    "releaseDate": "2022-08-20",
+    "labels": ["防御", "控制", "辅助"],
+    "characteristic": "给造成伤害能力强的队友牌，能获得更大收益。"
+  },
+  "artwork": {
+    "skinId": "50100",
+    "skinName": "经典形象",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/50100.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-wei-zi.png",
+    "sha256": "a838e3ae7a27a04d84d4ac3a25c815eb8300438d0324979060f1f1c4cf4b3081",
+    "byteCount": 916888,
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "援资",
+      "text": "每轮限一次，其他角色的准备阶段，你可以交给其所有手牌。若如此做，当其本回合造成伤害后，若其手牌数不小于你，你可以摸两张牌。",
+      "textNote": "官网页面 SSR 正文逐字原文（character-tabs 首个 tab 为 on 态，skill-text 首个 span 与援资配对）。OL 专站现行版（oldid=31199，2025-06-01 更新）为较早措辞：“每轮限一次，其他角色的准备阶段，你可以交给其所有手牌。然后当其本回合造成伤害后，若你手牌数不大于其，你可以摸两张牌。”——差异仅在“若如此做/然后”与“其手牌数不小于你/你手牌数不大于其”（后者为同一比较的反向表述），语义一致；按协调者规则官网 SSR 正文优先，实现按官网版措辞登记。",
+      "programId": "ol:yuanzi",
+      "notes": [
+        "两段触发：yuanzi-arm = turnStartBeforeNormalFlow + subject owner + turnOwnerScope otherLiving（杨婉追还清算、刘宏执笏失效同款“其他角色的准备阶段”窗口口径）+ optional true + usageScope round + usageLimit 1 + 条件 compare(currentHandCount >= 1)；yuanzi-draw = afterDamageApplied + subject any + damageOccurrence perDamage + optional false + bespoke op 内门控。",
+        "Bespoke op yuanziResolve（7325）：发动即把全部手牌（按 id 升序）一次 MoveCards 交给当前回合角色，公开移动 reason=skill-program.ol:yuanzi.give；随后发布 ProgramYuanziInvokedEvent(OwnerSeat, RecipientSeat, TurnNumber)。",
+        "Bespoke op yuanziDamageDraw（7326）：伤害窗口上下文 SourceSeat 等于已武装对象、等于当前回合座位、_turnNumber 等于武装回合号时门控通过；再校验“其手牌数不小于你”（受赠者手牌数 >= 拥有者手牌数，均为公开数），弹可选摸两张提示（摸两张/不发动）。摸牌经共享 DrawCards，公开移动 reason=skill-program.ol:yuanzi.draw，证据 ProgramYuanziDamageDrawEvent。",
+        "武装状态由已提交事件史推导（IsTuxingDamageArmPending/择才同款 committed-history 口径），无运行期私有映射，冷恢复一致；每轮限一次由触发级 usageScope=round 在接受发动时消费（拒绝不消耗）。",
+        "AI 策略：arm 经 EstimateCompositionForAi 估算（新增共享行：把回合开始窗口的 SourceSeat 作为已发布受赠者目标，走共享 ScoreProgramTarget 计价），描述符 AiPolicy = Gift 语义 + AllHandTurnOwnerGift（TargetDraw += 手牌数、受赠正收益、拥有者整手负计价、同回合摸牌收益先验 +4）——整手赠出按保守估值，AI 通常仅在受赠者友好时发动；payoff 提示 AI 恒选摸两张。"
+      ]
+    },
+    {
+      "name": "烈节",
+      "text": "当你受到伤害后，你可以弃置至多三张牌并摸等量张牌，然后你可以弃置伤害来源至多X张牌（X为你以此法弃置的红色牌数）。",
+      "textNote": "官网页面 SSR 正文逐字原文。OL 专站现行版：“当你受到伤害后，你可以弃置至多三张牌并摸等量的牌，然后你可以弃置伤害来源至多X张牌。（X为你以此法弃置的红色牌数）”——仅“摸等量张牌/摸等量的牌”与句号位置差异，语义一致。",
+      "programId": "ol:liejie",
+      "notes": [
+        "触发 liejie-damage = afterDamageApplied + subject owner（伤害目标为拥有者）+ damageOccurrence perDamage + optional true；引擎侧 AfterDamageApplied 候选已内建 context.Amount > 0 门控（受击且伤害已实际生效）。",
+        "第一子句为纯内容组合，无 bespoke 结算：selectOwnedCards（1–3 张，zones hand+equipment，resultBind liejie-discarded）→ moveBoundCards → discardPile → draw(numberExpression=boundCardCount, sourceBind=liejie-discarded)——界孙权制衡同款“弃置任意张牌并摸等量张牌”既有声明式口径。",
+        "第二子句 bespoke op liejieSourceDiscard（7327）：读取绑定牌集统计红色牌数（Heart/Diamond）得 X，伤害来源存活且有手牌时弹可选提示（1..min(X, 来源手牌数) 各一档 + 不发动）；执行按杨婉追还同款随机取牌（引擎 _random，不读牌序、不泄隐藏信息）弃入弃牌堆，证据 ProgramLiejieSourceDiscardEvent。",
+        "弃置“牌”的拥有者侧区域口径为手牌+装备区（制衡/ selectOwnedCards zones 既有口径）；伤害来源侧仅随机弃手牌（见 versionBoundary 与 CORE_API_REQUESTS 缺口记录）。",
+        "无来源伤害（如闪电）时第一子句照常可选，第二子句因无伤害来源静默跳过；来源死亡或无手牌时同样跳过并记录日志。",
+        "AI 策略：激活估算由声明式弃置/摸牌组合 + 描述符 DiscardSelected 语义（PublicControlValue +5，剥牌控制价值）经共享 EstimateCompositionForAi 走通用路径；选牌用共享 SelectAiProgramOwnedCards；来源弃牌档位 AI 恒选最大档。"
+      ]
+    }
+  ],
+  "observations": [
+    "Official hero/info API (gid=501) confirms 卫兹 as qun 3HP 传说 with labels 防御/控制/辅助 and the characteristic 给造成伤害能力强的队友牌，能获得更大收益。; biography: 曹操陈留募兵时卫兹以家财资助，使其顺利募得五千士兵。两人共讨董卓，后于徐荣作战时身亡。",
+    "OL 专站 infobox (wiki.biligame.com/sgsol/卫兹, oldid=31199, 最后编辑 2025-06-01 14:26): 称号=倾家资君、性别=男、势力=群、3 体力（页面底部数据块）、武将包=璀璨星河-列肆、上线时间 2022-08-20、获取=1200星石币兑换、画师=君桓文化（经典形象 拥有武将卫兹 22/08/20）；与官网接口的势力/体力/定位一致。",
+    "BWIKI 主站 (wiki.biligame.com/sgs/卫兹) 无该武将页面（“此页面目前没有内容”）——卫兹不存在十周年经典版条目，本批没有跨版本文本冲突；此前批次（陈登/清河公主/杨婉/芮姬/滕芳兰）撞版本的问题在卫兹上不成立。",
+    "取证过程：官网 hero/info 接口与 hero/501 页面（24082B）无拦截一次取回（curl 带 User-Agent: Mozilla/5.0）；sgsol 武将页（93794B）与 BWIKI 主站页（76678B）均 200 一次取回，本批未遇到 EdgeOne 限流（HTTP 567），未触发 sleep 重试。技能-描述配对以官网页面 character-tabs 与 skill-text span 的顺序（首个 tab 为 on 态）为准。",
+    "官方立绘 50100.png 一次下载成功（916,888 字节，PNG 签名校验通过，750×950，SHA-256 a838e3ae7a27a04d84d4ac3a25c815eb8300438d0324979060f1f1c4cf4b3081），与协调者预验字节数一致。",
+    "New bespoke ops 7325-7327 (yuanziResolve, yuanziDamageDraw, liejieSourceDiscard)，只占用分配的 7325-7332 段（7320 既有占用、7300-7304 刘宏批已用、7308-7324 王双/田豫批在制，取号前逐一核实空闲）；未新增 TriggerFactKind、PlayerMarkerKind、ConditionKind、触发窗口或 schema 节点；三个 Program* 证据事件均为标量记录（id 列表为已公开移动的牌 id）。",
+    "共享口径：其他角色的准备阶段（turnStartBeforeNormalFlow + turnOwnerScope otherLiving，杨婉/刘宏同款）、每轮限一次（usageScope round）、弃任意张摸等量（制衡 selectOwnedCards/moveBoundCards/draw(boundCardCount) 声明式组合）、随机弃其他角色手牌（杨婉追还 _random 口径）、可选触发通用激活提示与 EstimateCompositionForAi 估算路径。本批共享扩展仅有：EstimateCompositionForAi 的援资受赠者发布行（通用窗口条件行）与 ProgramAiEstimateContext.AllHandTurnOwnerGift 估值钩子（partial 扩展，不改动既有技能）。"
+  ],
+  "versionBoundary": [
+    "援资发动门槛：拥有者至少有一张手牌才提示（触发条件 compare(currentHandCount >= 1)）；零手牌时“交给其所有手牌”无可执行内容，按不可发动处理，官方无明确裁定，如实记录。",
+    "“每轮限一次”以触发级 usageScope=round/usageLimit=1 表达，在接受发动（BeginProgramBinding）时消费；仅查看提示不消耗。技能文本未写明拒绝是否消耗，按本仓可选触发既有语义实现。",
+    "援资 payoff 的“本回合”按回合号与回合座位双重匹配（ProgramYuanziInvokedEvent.TurnNumber == 当前回合号且受赠者 == 当前回合座位）；同回合多次伤害各提示一次（文本无每回合限次）；payoff 手牌比较在伤害时点取公开手牌数。",
+    "援资武装对象为准备阶段的回合角色本人（“其”即该角色），无目标选择；受赠者在同轮内死亡不影响证据，payoff 只在活座位间结算。",
+    "烈节激活后必须弃置至少一张牌（minimumCards=1）；文本“至多三张”字面允许弃 0 张，但弃 0 张时两个子句均无效果，按界孙权制衡最小 1 张的既有口径实现并记录。",
+    "烈节第一子句弃置区域为手牌+装备区（拥有者自己的牌）；文本仅写“牌”未限区域，按制衡/selectOwnedCards 既有 zones 口径实现。",
+    "烈节第二子句“弃置伤害来源至多X张牌”实现为：从伤害来源手牌中随机弃置（1..min(X, 来源手牌数) 由拥有者选档）；不打开来源装备区选择、拥有者不查看来源手牌——本仓隐藏手牌信息边界（杨婉追还同款）。OL 客户端同类效果若允许在装备区与手牌间挑选，该部分未表达；通用缺口已记 docs/content/CORE_API_REQUESTS.md。",
+    "烈节第二子句在伤害无来源（闪电等）、来源死亡或来源无手牌时跳过；第一子句不受影响照常结算。",
+    "致命伤害时序：受击进入濒死后被救回的，伤害窗口完成后 AfterDamageApplied 照常开放、烈节可结算；受击即死亡时拥有者已不在存活座位集合，不再提示（引擎触发窗口通用语义）。",
+    "冷恢复：援资武装（受赠者/回合号）由已提交 ProgramYuanziInvokedEvent 推导，烈节弃牌集由命令重放中的帧内绑定重建，全部证据事件为标量/id 列表记录，无暗手牌 id 进普通快照。"
+  ]
+}
