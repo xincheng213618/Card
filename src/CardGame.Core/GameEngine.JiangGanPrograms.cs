@@ -151,11 +151,7 @@ public sealed partial class GameEngine
             SetProgramCardSet(frame.Id, "daoshu-reveal",
                 handCards.Select(card => card.Id).ToArray(), SkillProgramCardSetVisibility.Private,
                 handCards.Select(card => _cardZones.GetLocation(card.Id)).ToArray());
-            ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with
-            {
-                DaoshuGuess = null,
-                PendingMovementContinuation = new ProgramMovementContinuation(owner.Seat, 0, null)
-            });
+            ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with { DaoshuGuess = null });
             RevealProgramBoundCards(GetActiveProgramFrame(frame.Id), "daoshu-reveal");
             AddLog("SkillEffect",
                 $"{owner.Name} 的【盗书】未猜中花色，没有其他花色的手牌，展示了所有手牌。",
@@ -163,8 +159,8 @@ public sealed partial class GameEngine
             AdvanceEventRulesAndQueueFact(new ProgramDaoshuEvent(active.Id, active.SkillId,
                 GetProgramBindingId(active), owner.Seat, target, chosenSuit, true, false, null,
                 Array.AsReadOnly(handCards.Select(card => card.Id).ToArray())));
-            if (!TryBeginCardsMovedProgramWindow(frame.Id))
-                ReturnRuntimeProgramMovement(frame.Id);
+            if (!TryBeginCardsMovedProgramWindow())
+                AdvanceRuntimeProgram(active.Id);
             return;
         }
         ReplaceRuntimeTop(active with
@@ -239,11 +235,7 @@ public sealed partial class GameEngine
         if (GetProgramEffectiveSuit(owner, card) == state.TakenEffectiveSuit)
             throw new InvalidOperationException("The Daoshu give-back card must differ from the taken card's suit.");
         ClearPendingDecision();
-        ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with
-        {
-            DaoshuGuess = null,
-            PendingMovementContinuation = new ProgramMovementContinuation(owner.Seat, 0, null)
-        });
+        ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with { DaoshuGuess = null });
         MoveCard(card, CardLocation.Hand(owner.Seat), CardLocation.Hand(state.TargetSeat),
             new($"skill-program.{frame.SkillId}.daoshu-give"));
         AddLog("SkillEffect",
@@ -252,8 +244,8 @@ public sealed partial class GameEngine
         AdvanceEventRulesAndQueueFact(new ProgramDaoshuEvent(active.Id, active.SkillId,
             GetProgramBindingId(active), owner.Seat, state.TargetSeat, state.ChosenSuit, true, false,
             card.Id, Array.Empty<int>()));
-        if (!TryBeginCardsMovedProgramWindow(frame.Id))
-            ReturnRuntimeProgramMovement(frame.Id);
+        if (!TryBeginCardsMovedProgramWindow())
+            AdvanceRuntimeProgram(active.Id);
     }
 
     private PromptChoice SelectAiDaoshuChoice(PendingDecision decision) =>
