@@ -1,0 +1,58 @@
+{
+  "generalId": "ol:zhao-yan",
+  "characterName": "赵俨",
+  "officialId": 511,
+  "sourcePage": "https://www.sanguosha.com/hero/511",
+  "textSource": "https://www.sanguosha.com/hero/511（官网 hero/info 接口 gid=511 交叉核对体力/势力/特点/标签；技能逐字文本取自官网页面 skill-text 节点，并与 OL 专站 wiki.biligame.com/sgsol/赵俨 的现行版展开句式交叉验证——'不因此技能使用的'链排除从句仅见于 OL 专站展开文本，已按其实现）",
+  "capturedAt": "2026-10-08",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 511,
+    "name": "赵俨",
+    "extend": "",
+    "hp": 4,
+    "figure": "魏",
+    "figure_py": "wei",
+    "gender": "男",
+    "title": "刚毅有度",
+    "quality": "史诗",
+    "package": "璀璨星河-虎贲",
+    "releaseDate": "2022-09-02",
+    "labels": ["多刀", "配合神将", "保核能力"],
+    "characteristic": "具有与队友协同集火和拆火的能力。"
+  },
+  "artwork": {
+    "skinId": "51100",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/51100.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-zhao-yan.png",
+    "sha256": "7a6ee00494f164cac0eb965f569c4b9b46e8ef5e669a8a18ca43d8b45d2bc31e",
+    "byteCount": 916051,
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "同协",
+      "text": "出牌阶段开始时，你可以令你与至多两名其他角色直到你的下回合开始称为“同协”角色，然后令其中手牌唯一最少的角色摸一张牌。当同协角色使用仅指定单一目标的【杀】结算后，其他同协角色可以依次对目标使用一张无距离限制的【杀】。当同协角色受到伤害时，本回合未失去过体力的其他同协角色可以防止此伤害并失去1点体力。",
+      "textNote": "官网页面 skill-text 节点逐字原文；OL 专站展开句式：“出牌阶段开始时，你可以令你和至多两名其他角色获得‘协’标记直到你的下回合开始，然后其中手牌唯一最少的角色摸一张牌（当有‘协’标记的角色：1.不因此技能使用的仅指定唯一目标的【杀】结算结束后，其他有‘协’标记的角色可以依次对目标使用一张无距离限制的【杀】；2.受到伤害时，本回合未失去过体力的一名其他有‘协’标记的角色可以防止此伤害并失去1点体力）。”两文本同义，展开句式含“不因此技能使用的”排除从句。",
+      "programId": "ol:tongxie",
+      "notes": [
+        "Trigger tongxie-arm: playPhaseStarting, subject owner, optional → bespoke op tongxieArm (7292)。组合私有提示只含全部单人与全部双人组合（“至多两名其他角色”）；公开事件 ProgramTongxieArmedEvent 记录成员座位与回合号（成员集合公开）；随后手牌唯一最少的成员摸一张牌（DrawForUniqueLeastTongxieHand，并列最少或全员 0 张则无人摸并记日志，“唯一最少”逐字执行）。",
+        "成员集合到期：arm 事件与拥有者 TurnStartedEvent 的最后先后判定（到拥有者下回合开始为止）；多赵俨各自维护自己的集合，互不重叠。",
+        "Trigger tongxie-follow-up: discardPileReceived, subject owner, mandatory → bespoke op tongxieFollowUp (7293)。“当同协角色使用仅指定单一目标的【杀】结算后”复用逊贤建立的 SettledActionCardDiscardEvent 既定用牌账目（批次完成时在用牌帧存活期捕获的共享 completed-use 台账），候选 movementIndex 钉住本链的杀，冻结的 CardActionAcceptedEvent 回溯使用者与唯一目标；TrackerSettledActionCards 开关按操作注册发现（XunxianGiftUsedCard 或 TongxieFollowUp）。",
+        "链结算：其他同协角色按从使用者开始的座位顺序依次收到 IsPrivate 提示（每张手牌杀一个选项 + 放弃）；接受的杀经 ResolveSlashCore 作为完整无距离限制使用结算（子结算挂起、ReexecuteParticipantInstruction 重入，可被闪抵消）；“不因此技能使用的”由 ProgramTongxieFollowUpResolvedEvent.UsedCardIds 排除链杀重开新链。多目标杀、多牌转化杀、响应类打出不触发（versionBoundary：可回溯使用要求单一目标且单一实体牌）。",
+        "Trigger tongxie-guard-other / tongxie-guard-self: beforeDamageApplied 两条强制触发（owner / damageTarget）→ bespoke op tongxieGuard (7294)。候选=本回合未失去过体力的其他同协角色（相对受害者，ProgramSkillHpLostEvent 与本回合 TurnStartedEvent 判定），按受害者之后的座位顺序依次询问，第一名接受者 PreventProgramCurrentDamage 防止全部伤害并失去 1 点体力；致命代价的濒死作为子结算在窗口内完成后回到护法指令收尾；证据 ProgramTongxieGuardedEvent 记录受害者、防止者与防止量。",
+        "AI 策略：arm 按combo内成员的支援计价 + 保证的唯一最少摸牌加成（TongxieArmDrawBonus）；追杀在使用目标为敌对（ScoreProgramTarget>0）时接受并选首张手牌杀，否则放弃；护法在自身体力<=1 时放弃、被保护者为友方时接受；三个选择器均挂 ResolvePendingAiProgramTrigger 既有分发点，描述符 AiPolicy 复用 GainCards / RequestSlashByTarget / PreventCurrentDamage 语义。"
+      ]
+    }
+  ],
+  "observations": [
+    "Official hero/info API (gid=511) confirms 赵俨 as wei 4HP 史诗 with labels 多刀/配合神将/保核能力 and the characteristic 具有与队友协同集火和拆火的能力。; the OL 专站 infobox (wiki.biligame.com/sgsol/赵俨) gives 性别=男、称号=刚毅有度、别称=同学会、武将包=璀璨星河-虎贲、上线时间 2022-09-02（官网新闻 20220830_4701 链接），与官网接口完全一致。",
+    "BWIKI 主站 (wiki.biligame.com/sgs/赵俨) 是《三国杀十周年》版本（3 体力，技能为 抚宁/秉纪 一族），与 OL 普通版（同协）完全不同，未采用。BWIKI 取证过程：主站与 OL 专站均遭遇间歇性 EdgeOne 限流（HTTP 567，响应体为拦截页），按约 3 分钟间隔后台重试后取回；主站全站搜索 API 对现存页面返回 0 命中（索引失效），改用 allpages 前缀枚举定位页面；OL 专站武将页 action=raw 原始 wikitext 767B 取回成功，技能展开文本经页面 HTML 提取。",
+    "两文本同义且官网紧凑变体省略“不因此技能使用的”排除从句；OL 专站展开句式为链杀排除提供了明确依据，实现按展开句式执行（链上被使用的杀不再重开新链）。",
+    "New bespoke ops 7292-7294 (tongxieArm, tongxieFollowUp, tongxieGuard)，只占用分配的 7292-7299 段；未新增 PlayerMarkerKind、ConditionKind、触发窗口枚举或 schema 节点；三个 Program* 证据事件均为标量记录，暗手牌 id 不进任何事件或快照。",
+    "共享口径：追杀的 completed-use 触发复用逊贤的既定用牌账目（SettledActionCardDiscardEvent），`TracksSettledActionCards` 从单技能开关扩为按操作注册发现；`MatchingDiscardPileIndexes` 新增 TongxieFollowUp 操作分支（use-finished 完成式被通用弃牌过滤器排除，既定账目是唯一合法通道）；跨命令子结算复用 ReexecuteParticipantInstruction 参与者游标机制（白名单追加两操作）；致命护法代价的濒死以 HasTongxieGuardDying 钉回护法程序帧（详见 benchmark 文档共享能力扩展）。",
+    "versionBoundary：赵俨死亡后其未决追杀/护法不再结算（程序触发统一要求拥有者存活，平台既有边界）；成员资格/响应者名单在窗口开始冻结，中途死亡或已失去体力的成员被静默跳过；护法防止量按窗口伤害全额记录；多个赵俨同局时各链独立、UsedCardIds 按各自事件过滤互不重开。"
+  ]
+}
