@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:yuanzi",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "yuanzi-arm",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "usageScope": "round",
+          "usageLimit": 1,
+          "optional": true,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "currentHandCount" },
+            "operator": "greaterThanOrEqual",
+            "right": { "kind": "integerConstant", "value": 1 }
+          },
+          "effects": [
+            { "op": "yuanziResolve", "target": "owner" }
+          ]
+        },
+        {
+          "id": "yuanzi-draw",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "damageOccurrence": "perDamage",
+          "optional": false,
+          "effects": [
+            { "op": "yuanziDamageDraw", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:liejie",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "liejie-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "minimumCards": 1,
+              "maximumCards": 3,
+              "zones": ["hand", "equipment"],
+              "resultBind": "liejie-discarded"
+            },
+            {
+              "op": "moveBoundCards",
+              "target": "owner",
+              "sourceBind": "liejie-discarded",
+              "destination": "discardPile"
+            },
+            {
+              "op": "draw",
+              "target": "owner",
+              "numberExpression": "boundCardCount",
+              "sourceBind": "liejie-discarded"
+            },
+            {
+              "op": "liejieSourceDiscard",
+              "target": "owner",
+              "sourceBind": "liejie-discarded"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
