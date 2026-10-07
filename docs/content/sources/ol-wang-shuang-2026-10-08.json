@@ -1,0 +1,58 @@
+{
+  "generalId": "ol:wang-shuang",
+  "characterName": "王双",
+  "officialId": 490,
+  "sourcePage": "https://www.sanguosha.com/hero/490",
+  "textSource": "https://www.sanguosha.com/hero/490（官网 hero/info 接口 gid=490 交叉核对体力/势力/特点/标签；技能逐字文本取自官网页面 skill-text 节点，并与 OL 专站 wiki.biligame.com/sgsol/王双 的现行版展开句式交叉验证——'不计入次数'与'伤害增至该角色的体力值'的精确口径以 OL 专站展开文本为准实现；BWIKI 主站 wiki.biligame.com/sgs/王双 为十周年经典版，技能文本与 OL 现行版逐字一致，仅包别/上线信息不同，对照记录）",
+  "capturedAt": "2026-10-08",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 490,
+    "name": "王双",
+    "extend": "",
+    "hp": 8,
+    "figure": "魏",
+    "figure_py": "wei",
+    "gender": "男",
+    "title": "遏北的悍锋",
+    "quality": "史诗",
+    "package": "璀璨星河-天柱",
+    "releaseDate": "2022-02-12",
+    "labels": ["进攻", "简单", "加伤"],
+    "characteristic": "要谨慎的对距离外的目标使用杀"
+  },
+  "artwork": {
+    "skinId": "49000",
+    "skinName": "经典形象",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/49000.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-wang-shuang.png",
+    "sha256": "f51208fa6a2e7c1adc0d2e1344d919e478f7ca0791dd7f28014dcc668e1e7a57",
+    "byteCount": 1221928,
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "追猎",
+      "text": "锁定技，你使用【杀】无距离限制。当你使用【杀】指定攻击范围外的角色为目标后，此【杀】无次数限制且你判定，若为武器牌或坐骑牌，此【杀】伤害值等于其体力值，否则你失去1点体力。",
+      "textNote": "官网页面 skill-text 节点逐字原文；OL 专站展开句式：“锁定技，①你使用【杀】无距离限制；②当你使用【杀】指定你攻击范围外的一名角色为目标后，此【杀】不计入次数且你进行一次判定，若结果为武器牌或坐骑牌，则此【杀】伤害增至该角色的体力值，否则你失去1点体力。”两文本同义；官网紧凑变体“伤害值等于其体力值”与 OL 专站“伤害增至该角色的体力值”在伤害抬升方向一致（低则抬至、高则不变，按“增至”实现），实现按 OL 专站展开句式执行。",
+      "programId": "ol:zhui-lie",
+      "notes": [
+        "静态口径①“你使用【杀】无距离限制”：技能 cardPolicies 声明 ignoreUseDistance（cardKinds 为杀族三类），与奇才同款共享卡牌政策，无新引擎代码。",
+        "Trigger zhui-lie-outside-range：cardUseTargetsFinalized、ownerRelation=actor、cardKinds 杀族三类、锁定强制触发；触发条件 compare(ownerEventTargetDistance > currentAttackRange)（逐字“指定攻击范围外的角色为目标后”），按最终目标逐个绑定（复用 final-target-Slash 事实的逐目标枚举）。",
+        "效果序列：refundCardUseDebit（“此【杀】不计入次数”，出牌阶段内本人使用被记账的杀额度即时返还；非出牌阶段或回合外使用本无记账则自然空操作）→ startJudgment（resultBind，公开）→ zhuiLieEscalateTargetDamage（新 op 7308：判定牌为武器牌或坐骑牌时发“伤害抬升”回执，伤害结算时把本次【杀】伤害抬升至目标当前体力值，低则抬至、高则不变）→ loseHp 1（判定牌非武器/坐骑分支）→ moveBoundCards 判定牌进弃牌堆。",
+        "“武器牌或坐骑牌”按装备槽判定口径展开为逐牌类白名单：武器 15 类（crossbow/stoneAxe/zhangbaSerpentSpear/cixiongDoubleSwords/qinglongCrescentBlade/iceSword/qilinBow/fangtianHalberd/gudingBlade/zhuqueFan/ghostDragonCrescentBlade/scarletBloodSword/xingtianAxe/redBloodBlade/generalWeapon）+ 坐骑 7 类（offensiveHorse/defensiveHorse/dawan/zixing/dilu/zhaohuangfeidian/hualiu）；宝物（jadeSeal/woodenOx）与防具不属“武器牌或坐骑牌”。",
+        "AI 策略：整条触发锁定强制、无选择点；描述符 AiPolicy 复用 final-target-Slash 族语义（ProhibitCurrentResponse/FinalTargetSlashValue，抬升回执 DamageBonus=0 时估值为中性），refundCardUseDebit/startJudgment/loseHp/moveBoundCards 走既有描述符语义。",
+        "证据事件 ProgramTargetSlashDamageEscalatedEvent（标量：resolutionId/源/目标/牌类/抬升前后伤害量）在伤害结算时记录抬升，公开信息无暗手牌 id。"
+      ]
+    }
+  ],
+  "observations": [
+    "Official hero/info API (gid=490) confirms 王双 as wei 8HP 史诗 with labels 进攻/简单/加伤 and the characteristic 要谨慎的对距离外的目标使用杀；8 体力与 OL 专站 infobox（经典体力=8）一致，属高体力武将。",
+    "The OL 专站 infobox (wiki.biligame.com/sgsol/王双) gives 性别=男、称号=遏北的悍锋、别称=一刀超人、武将包=璀璨星河-天柱、经典品质=史诗、上线时间 2022-02-12（官网新闻 20220207_8129 链接）、定位=攻击,爆发，与官网接口完全一致。",
+    "BWIKI 主站 (wiki.biligame.com/sgs/王双) 是《三国杀十周年》版本（武将包=荟萃-百战虎贲、上线时间 2020-05-15），但技能名与逐字展开文本与 OL 专站现行版完全一致（锁定技，①无距离限制；②范围外目标不计入次数+判定，武器/坐骑则伤害增至该角色体力值，否则失去1点体力），无文本分歧，仅包别/上线信息不同。",
+    "官网紧凑文本“此【杀】无次数限制”与 OL 专站“此【杀】不计入次数”同义；“伤害值等于其体力值”（官网）与“伤害增至该角色的体力值”（OL 专站）按“增至”口径实现：伤害低于目标体力值时抬升至体力值，已不低于则保持不变——不降低既有伤害。目标体力值在伤害结算时读取（目标指定后至伤害结算之间目标体力不会变化）。",
+    "New bespoke op 7308 (zhuiLieEscalateTargetDamage)，只占用分配的 7308–7315 段；未新增 PlayerMarkerKind、ConditionKind、触发窗口枚举或 schema 节点；唯一共享校验放宽是 CurrentAttackRange 触发比较值在 cardUseTargetsFinalized 窗口放行（该窗口事实本就冻结攻击范围，详见 benchmark 文档共享能力扩展）。",
+    "versionBoundary：多目标【杀】（方天画戟等）按最终目标逐个触发，每个范围外目标独立判定与结算；“此【杀】伤害增至该角色的体力值”读伤害结算时目标当前体力值；白银狮子/被动伤害上限等既有封顶在抬升后照常收敛；锁定技强制触发，无 AI 选择点；暗手牌 id 不进任何事件或快照。"
+  ]
+}
