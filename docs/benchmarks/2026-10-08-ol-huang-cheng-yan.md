@@ -29,5 +29,5 @@
 
 - Release 全解决方案构建 0 error；20 条 warning 全部位于既有文件（`SkillProgramExecutor.cs`、`GameEngine.ActualHandGainPrograms.cs`、`GameEngine.EndingHistoricalUses.cs`、`GameEngine.LiangXingPrograms.cs`、`GameEngine.OwnedDeathBenefitReturns.cs`、`GameEngine.PublicPilePreparation.cs`、`GameEngine.SameTypeActualUseAid.cs` 与既有测试文件），本批新增文件无 warning。
 - 内容包静态加载冒烟：定向 `--filter` 跑既有 "classic identity applies base HP, multiple skills and legacy replay boundaries" 1/1 通过（该检查完整构建 StandardClassicGeneralPackage，覆盖本批 rules/presentation JSON 的 schema 校验与注册）。
-- 例行 `tools/Test-Changed.ps1`（无过滤，分支 5b47fd15+本批内容）：见下方实测记录；失败集合与修复基线（cherry-pick 46de0ef7、49dde3de 后的分支基线，yan-jun 批实测 266 通过/57 失败）逐项比对结论记于来源档案与最终汇报。
+- 例行 `tools/Test-Changed.ps1`（无过滤，分支 5b47fd15+本批内容，实测耗时 145 秒）：Core 266 通过 / 57 失败 / 0 跳过（323 项），WPF 18/18 通过。失败名单与 yan-jun 批在同源修复基线上实测的 57 项失败逐项 diff 完全一致（57=57，通过集合亦一致），无新增失败；基线失败属 aed24e70 批次自身在制状态，非本批引入，逐项核对留待协调者合并时处理。
 - 按用户指令本批不含新增行为检查：未新建测试文件、未修改 tests/、未注册检查。
