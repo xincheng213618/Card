@@ -698,7 +698,8 @@ internal sealed partial class TurnCardUseEffectStore
                 item.Query == SkillRuleQuery.SlashLimit &&
                     (item.Operation != SkillRuleOperation.Add || item.Amount < -20 || item.Amount == 0) ||
                 item.Query == SkillRuleQuery.CardUseDistanceLimit &&
-                    (item.Operation != SkillRuleOperation.Unlimited || item.Amount != 0 || item.CardKinds is { Count: > 0 }) ||
+                    (item.Operation != SkillRuleOperation.Unlimited || item.Amount != 0 ||
+                     item.CardKinds is { Count: > 0 } distanceKinds && distanceKinds.Distinct().Count() != distanceKinds.Count) ||
                 item.Query == SkillRuleQuery.SlashDistanceLimit &&
                     item.Operation != SkillRuleOperation.Unlimited ||
                 item.Query == SkillRuleQuery.AttackRange &&

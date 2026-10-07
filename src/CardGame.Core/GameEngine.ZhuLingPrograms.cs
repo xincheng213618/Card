@@ -15,6 +15,10 @@ public sealed partial class GameEngine
             GetProgramCardCategory(kind) == SkillProgramCardCategory.Trick)
         .Order().ToArray();
 
+    // 基本牌 with a recovery or damage value: the slash family deals card-use damage.
+    internal static IReadOnlyList<CardKind> ZhanyiBasicDamageKinds { get; } =
+        [CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash];
+
     private static string ZhanyiCategoryName(SkillProgramCardCategory category) => category switch
     {
         SkillProgramCardCategory.Basic => "基本牌",
@@ -108,11 +112,11 @@ public sealed partial class GameEngine
         if (category != SkillProgramCardCategory.Basic)
         {
             GrantProgramTurnCardDamageModifier(active,
-                [CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash], 1,
+                ZhanyiBasicDamageKinds, 1,
                 SkillProgramDamageModifierExpiration.NextOwnerTurnStart,
                 SkillProgramDamageModifierSourceScope.OwnerUsed);
             GrantProgramTurnRuleModifier(active, SkillRuleQuery.CardUseDistanceLimit,
-                SkillRuleOperation.Unlimited, 0, []);
+                SkillRuleOperation.Unlimited, 0, ZhanyiBasicDamageKinds);
         }
         if (category != SkillProgramCardCategory.Trick)
             GrantProgramTurnHandLimitCardKindExemption(active, ZhanyiTrickKinds);
