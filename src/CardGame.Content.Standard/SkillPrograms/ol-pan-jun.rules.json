@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:guanwei",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "guanwei-launch",
+          "window": "playEnding",
+          "subject": "owner",
+          "turnOwnerScope": "anyLiving",
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "condition": { "kind": "turnOwnerUsedSameSuitCards" },
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "currentTurnPlayer"
+            },
+            {
+              "op": "selectAndMoveOwnedCard",
+              "target": "owner",
+              "chooserRef": { "kind": "owner" },
+              "cardOwnerRef": { "kind": "owner" },
+              "zones": ["hand", "equipment"],
+              "count": 1,
+              "destination": "discardPile",
+              "skipIfNoCards": true
+            },
+            {
+              "op": "draw",
+              "target": "selectedTarget",
+              "amount": 2
+            },
+            {
+              "op": "insertPhase",
+              "target": "selectedTarget",
+              "phase": "play",
+              "phaseContinuation": "beforeNormalPreparation"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:gongqing",
+      "revision": 1,
+      "damageModifiers": [
+        {
+          "id": "gongqing-cap",
+          "cardKinds": [],
+          "amount": 1,
+          "condition": "damageSourceAttackRangeBelowThree",
+          "sourceScope": "damageParticipant",
+          "capsToAmount": true
+        },
+        {
+          "id": "gongqing-boost",
+          "cardKinds": [],
+          "amount": 1,
+          "condition": "damageSourceAttackRangeAboveThree",
+          "sourceScope": "damageParticipant"
+        }
+      ]
+    }
+  ]
+}

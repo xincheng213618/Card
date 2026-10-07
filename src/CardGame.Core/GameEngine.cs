@@ -15213,12 +15213,14 @@ public sealed partial class GameEngine
             (receivesTengjiaBonus ? 1 : 0) > 1 &&
             HasSilverLion(_players[attack.TargetSeat]) &&
             (attack.IsChainPropagation || !attack.IgnoresArmor);
+        var passiveDamageCap = GetPassiveProgramDamageCap(attack);
         var damageBonus = programDamageBonus + conversionBonus +
                           (GetDamageNature(attack) == DamageNature.Fire ? _players[attack.TargetSeat].Markers.GetValueOrDefault(PlayerMarkerKind.Gale) : 0) +
                           (receivesGudingBladeBonus ? 1 : 0) +
                           (receivesYingboBonus ? 1 : 0) +
                           (receivesTengjiaBonus ? 1 : 0);
-        attack.FinalizeDamageAmount(damageBonus, silverLionCapsDamage ? 1 : null);
+        attack.FinalizeDamageAmount(damageBonus,
+            silverLionCapsDamage || passiveDamageCap is not null ? 1 : null);
         var runningAmount = baseAmount;
         foreach (var modifier in programDamageModifiers)
         {
@@ -15295,6 +15297,20 @@ public sealed partial class GameEngine
                 1));
             AddLog("EquipmentEffect", $"{_players[attack.TargetSeat].Name} 的【白银狮子】将本次伤害改为 1 点。", attack.TargetSeat, attack.SourceSeat);
         }
+        if (passiveDamageCap is { } damageCap && runningAmount > damageCap.Cap)
+        {
+            AdvanceEventRulesAndQueueFact(new ProgramDamageCappedEvent(
+                attack.ResolutionId,
+                damageCap.Source,
+                attack.SourceSeat,
+                attack.TargetSeat,
+                attack.EffectiveCardKind,
+                runningAmount,
+                damageCap.Cap));
+            AddLog("SkillTriggered",
+                $"{_players[attack.TargetSeat].Name} 的【{_contentRegistry!.GetSkill(damageCap.Source.SkillId).Name}】将本次伤害改为 {damageCap.Cap} 点。",
+                attack.TargetSeat, attack.SourceSeat);
+        }
 
         return attack.DamageAmount;
     }
@@ -15311,7 +15327,8 @@ public sealed partial class GameEngine
             .SelectMany(seat => GetSkillBindingShard(_players[seat]).ProgramInstances
                 .SelectMany(instance => instance.Program.DamageModifiers.Select(modifier =>
                     (seat, instance, modifier))))
-            .Where(item => item.modifier.SourceScope == SkillProgramDamageModifierSourceScope.DamageParticipant
+            .Where(item => !item.modifier.CapsToAmount && (
+                item.modifier.SourceScope == SkillProgramDamageModifierSourceScope.DamageParticipant
                 ? item.modifier.Condition switch
                   {
                       SkillProgramDamageModifierCondition.OwnerUniqueMaximumHand =>
@@ -15324,6 +15341,10 @@ public sealed partial class GameEngine
                       SkillProgramDamageModifierCondition.FaceStatesDiffer =>
                           attack.SourceSeat != attack.TargetSeat &&
                           _players[attack.SourceSeat].IsFaceDown != _players[attack.TargetSeat].IsFaceDown,
+                      SkillProgramDamageModifierCondition.DamageSourceAttackRangeBelowThree =>
+                          item.seat == attack.TargetSeat && GetAttackRange(attack.SourceSeat) < 3,
+                      SkillProgramDamageModifierCondition.DamageSourceAttackRangeAboveThree =>
+                          item.seat == attack.TargetSeat && GetAttackRange(attack.SourceSeat) > 3,
                       _ => false
                   }
                 : item.seat == attack.SourceSeat &&
@@ -15340,10 +15361,28 @@ public sealed partial class GameEngine
                           GetEquipment(_players[attack.TargetSeat]).Count <=
                           GetEquipment(_players[attack.SourceSeat]).Count,
                       _ => false
-                  }))
+                  })))
             .Select(item => (new CardUseEffectSource(item.instance.SkillId, item.modifier.Id,
                 item.seat, item.instance.SkillInstanceId), item.modifier.Amount))
             .ToArray();
+    }
+
+    // A damage-target cap (公清 range<3 rewrites the damage to one) joins the
+    // silver-lion cap slot: one qualifies per attack through distinct sources.
+    private (CardUseEffectSource Source, int Cap)? GetPassiveProgramDamageCap(IDamageAttempt attack)
+    {
+        if (!IsValidPlayerSeat(attack.SourceSeat) || !IsValidPlayerSeat(attack.TargetSeat) ||
+            !_players[attack.SourceSeat].IsAlive || !_players[attack.TargetSeat].IsAlive)
+            return null;
+        foreach (var instance in GetSkillBindingShard(_players[attack.TargetSeat]).ProgramInstances)
+            foreach (var modifier in instance.Program.DamageModifiers)
+                if (modifier.CapsToAmount &&
+                    modifier.SourceScope == SkillProgramDamageModifierSourceScope.DamageParticipant &&
+                    modifier.Condition == SkillProgramDamageModifierCondition.DamageSourceAttackRangeBelowThree &&
+                    GetAttackRange(attack.SourceSeat) < 3)
+                    return (new CardUseEffectSource(instance.SkillId, modifier.Id,
+                        attack.TargetSeat, instance.SkillInstanceId), Math.Min(1, modifier.Amount));
+        return null;
     }
 
     private static string GetSuitName(Suit suit) => suit switch

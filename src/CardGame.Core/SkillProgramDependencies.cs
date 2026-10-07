@@ -26,7 +26,9 @@ internal sealed class SkillProgramDependencies
         UsesOwnerMarkerCount = programs.Any(program => program.Modifiers.Any(modifier => modifier.ValueExpression == SkillRuleValueExpression.OwnerMarkerCount));
         TracksCurrentTurnUseKinds = programs.Any(program =>
             program.Modifiers.Any(modifier => modifier.ValueExpression == SkillRuleValueExpression.CurrentTurnUsedHandSuitCount) ||
-            program.Triggers.SelectMany(trigger => trigger.Effects).Any(effect => effect.NumberExpression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount));
+            program.Triggers.SelectMany(trigger => trigger.Effects).Any(effect => effect.NumberExpression == SkillProgramNumberExpression.CurrentTurnUsedCardCategoryCount)) ||
+            triggers.Any(trigger => ProgramInstructionResolver.Default.Features(trigger).ConditionKinds.Contains(
+                SkillProgramTriggerConditionKind.TurnOwnerUsedSameSuitCards));
         var resolver = ProgramInstructionResolver.Default;
         _conditions = triggers.SelectMany(trigger => resolver.Features(trigger).ConditionKinds).ToFrozenSet();
         _values = triggers.SelectMany(trigger => resolver.Features(trigger).ValueKinds).ToFrozenSet();

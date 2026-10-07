@@ -277,6 +277,8 @@ public static class GeneralArt
             ["ol-yan-jun"] = "official-ol-yan-jun.png",
             // Official artwork URL and hash: docs/content/sources/ol-jiang-gan-2026-10-07.json.
             ["ol-jiang-gan"] = "official-ol-jiang-gan.png",
+            // Official artwork URL and hash: docs/content/sources/ol-pan-jun-2026-10-07.json.
+            ["ol-pan-jun"] = "official-ol-pan-jun.png",
             // Official artwork URL and hash: docs/content/sources/bu-lian-shi-a63-2026-09-21.json.
             ["bu-lian-shi"] = "official-bu-lian-shi.png",
             // Official artwork URL and hash: docs/content/sources/cheng-pu-a64b-2026-09-21.json.

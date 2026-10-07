@@ -100,6 +100,26 @@ public sealed partial class GameEngine
             System.Numerics.BitOperations.PopCount((uint)categories));
     }
 
+    // 观微 condition: the current turn player used at least two cards this turn
+    // and every one of those uses carried exactly one shared hand suit. A use
+    // without hand-card material (a virtual declaration) has no suit and fails
+    // the shared-suit requirement.
+    private bool CurrentTurnOwnerUsedSameSuitCards()
+    {
+        if (!TracksCurrentTurnUseKinds) return false;
+        var mask = 0;
+        var uses = 0;
+        foreach (var fact in EventsSinceLastBoundary(e => e is TurnStartedEvent or TurnEndedEvent)
+            .OfType<CurrentTurnCardUseKindsRecordedEvent>().Where(e => e.TurnNumber == _turnNumber &&
+                e.TurnOwnerSeat == _currentSeat && e.ActorSeat == _currentSeat))
+        {
+            if (fact.HandSuitMask == 0) return false;
+            mask |= fact.HandSuitMask;
+            uses++;
+        }
+        return uses >= 2 && System.Numerics.BitOperations.PopCount((uint)mask) == 1;
+    }
+
     private int CurrentTurnCategoryDrawCount(ProgramSkillFrame frame, int targetSeat)
     {
         var context = frame.WindowContext;

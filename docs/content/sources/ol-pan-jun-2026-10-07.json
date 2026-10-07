@@ -1,0 +1,57 @@
+{
+  "generalId": "ol:pan-jun",
+  "characterName": "潘濬",
+  "officialId": 472,
+  "sourcePage": "https://www.sanguosha.com/hero/472",
+  "textSource": "https://wiki.biligame.com/sgs/潘濬（官网 heroDetail 接口不可用，技能文本取自百科同一武将词条）",
+  "capturedAt": "2026-10-07",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 472,
+    "name": "潘濬",
+    "extend": "",
+    "hp": 3,
+    "figure": "吴",
+    "gender": "男",
+    "title": "方严疾恶"
+  },
+  "artwork": {
+    "skinId": "47200",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/47200.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-pan-jun.png",
+    "sha256": "a48e49615f456095f75112f0d2cb5b88ecd96f6a4ee344bf094d44831306f564",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "观微",
+      "text": "每回合限一次，一名角色的出牌阶段结束后，若其本回合使用过至少两张牌且这些牌花色均相同，你可以弃置一张牌，令其摸两张牌并执行一个额外的出牌阶段。",
+      "programId": "ol:guanwei",
+      "notes": [
+        "Launch: playEnding optional trigger with turnOwnerScope anyLiving (own and other living play ends) gated by the turn-owner used-suit history condition; usageScope turn with usageLimit 1 so both branches share one launch per turn.",
+        "Condition: the engine's per-turn card-use ledger (CurrentTurnCardUseKindsRecordedEvent) proves at least two uses by the current turn owner whose recorded hand-suit masks resolve to a single suit; a use whose physical cards do not all come from the owner's own hand records an empty suit mask and never satisfies the condition.",
+        "Cost: selectAndMoveOwnedCard (owner chooser, hand+equipment, 1 card, discard pile, skipIfNoCards) reusing the established discard-cost pattern; the movement carries the skill reason.",
+        "Grant: draw(selectedTarget, 2) plus insertPhase(selectedTarget, play, beforeNormalPreparation) — the same scheduled-phase mechanism as 廖化当先, extended so a playEnding grant can name the current turn player as beneficiary; the inserted phase runs inside the beneficiary's own turn and the scheduling fact is public."
+      ]
+    },
+    {
+      "name": "公清",
+      "text": "锁定技，当你受到伤害时，若伤害来源的攻击范围：小于3，将此次伤害的伤害值改为1；大于3，此伤害+1。",
+      "programId": "ol:gongqing",
+      "notes": [
+        "Locked passive expressed declaratively through two damageModifiers on the owner: damageSourceAttackRangeBelowThree with capsToAmount (joins the silver-lion maximum slot in FinalizeAttackDamageAmount) and damageSourceAttackRangeAboveThree adding +1 through the existing additive modifier pipeline.",
+        "sourceScope damageParticipant: the modifier is read from the damage target's program instances; the exact-three boundary falls through both conditions and stays untouched.",
+        "A cap that actually reduces damage emits ProgramDamageCappedEvent (base amount, capped amount, skill source) for public evidence; boosts keep the existing ProgramCardDamageModifiedEvent."
+      ]
+    }
+  ],
+  "observations": [
+    "OL lists 潘濬 as wu 3HP male with title 方严疾恶 (星火燎原-天机); the biligame texts for 观微/公清 are the current OL wording and match the implemented presentation verbatim.",
+    "No new bespoke ops were needed (the pre-allocated 7188-7195 range stays unused); no new player markers. Shared capability extensions: playEnding turnOwnerScope anyLiving; ScheduleProgramPhase play-ending beneficiary grant; insertPhase selectedTarget; TurnOwnerUsedSameSuitCards trigger condition + fact; damageModifiers capsToAmount plus the two attack-range conditions and ProgramDamageCappedEvent.",
+    "观微's same-suit condition reads only proactively-used cards whose physical cards all come from the owner's own hand; converted or sourceless uses never satisfy it.",
+    "公清 only rewrites damage that has a damage source (attacker attack range); sourceless damage is untouched, and an exact range of three is neither capped nor boosted.",
+    "An unpayable 观微 launch cannot arise in practice (arming two same-suit uses always leaves payable cards in hand), so the cost keeps the established skipIfNoCards fallback (ol-deng-zhong precedent) instead of a new offer gate."
+  ]
+}

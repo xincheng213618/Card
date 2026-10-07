@@ -261,8 +261,8 @@ public sealed partial class GameEngine
         }
 
         public SkillProgramStepOutcome InsertPhase(ProgramSkillFrame frame, TurnPhase phase,
-            SkillProgramPhaseContinuation continuation) =>
-            engine.ScheduleProgramPhase(frame, phase, continuation);
+            SkillProgramPhaseContinuation continuation, int? beneficiarySeat = null) =>
+            engine.ScheduleProgramPhase(frame, phase, continuation, beneficiarySeat);
 
         public void RecoverTo(long frameId, int ownerSeat, int targetSeat,
             SkillProgramNumberExpression expression, int minimumValue, bool clampToMaxHp) =>

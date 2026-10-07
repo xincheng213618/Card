@@ -25,7 +25,11 @@ internal static class ProgramCompositionContextChecks
             """[{"op":"adjustNormalDraw","target":"owner","amount":1}]""")]), "DrawPlan");
         Reject(Rules("fixture:turn-damage", [], [Trigger("run", "turnEnding",
             """[{"op":"claimDamageCards","target":"owner"}]""")]), "Damage");
-        Reject(Rules("fixture:play-phase", [], [Trigger("run", "playEnding",
+        // Play ending grants phase insertion (OL Pan Jun guanwei); turn ending
+        // still rejects it.
+        _ = Load(Rules("fixture:play-phase", [], [Trigger("run", "playEnding",
+            """[{"op":"insertPhase","target":"owner","phase":"play","phaseContinuation":"beforeNormalPreparation"}]""")]));
+        Reject(Rules("fixture:turn-phase", [], [Trigger("run", "turnEnding",
             """[{"op":"insertPhase","target":"owner","phase":"play","phaseContinuation":"beforeNormalPreparation"}]""")]),
             "PhaseInsertion");
         foreach (var window in new[] { "selfDyingResponse" })
