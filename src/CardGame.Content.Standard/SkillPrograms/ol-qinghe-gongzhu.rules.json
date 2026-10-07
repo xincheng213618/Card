@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:changji",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "changji-ending-own",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
+          "optional": false,
+          "effects": [
+            { "op": "changjiEndingDamageChoice", "target": "owner" }
+          ]
+        },
+        {
+          "id": "changji-ending-others",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": false,
+          "effects": [
+            { "op": "changjiEndingDamageChoice", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:zengou",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "zengou-nullify",
+          "window": "slashFullyDodged",
+          "ownerRelation": "observer",
+          "optional": true,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "ownerEventTargetDistance" },
+            "operator": "lessThanOrEqual",
+            "right": { "kind": "currentAttackRange" }
+          },
+          "effects": [
+            { "op": "zengouNullifyDodge", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}

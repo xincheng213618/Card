@@ -219,6 +219,7 @@ public enum SkillProgramEffectOp
     ZhuLingZhanyiChooseCategory = 7228, ZhuLingZhanyiEquipmentPunish = 7229,
     ShiYuanTargetDraw = 7236, DuShiGrantSkill = 7237, YuWeiMarkActiveTurn = 7238,
     FengjiRoundChoice = 7244, XuanhuiSwapEffects = 7245,
+    ChangjiEndingDamageChoice = 7252, ZengouNullifyDodge = 7253,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,
@@ -3486,7 +3487,8 @@ public sealed class SkillProgramCatalog
             Fail(path + ".condition", "target-hand comparison requires a Slash response or turn-ending boundary");
         if (EnumerateTriggerValues(condition).Any(value => value.Kind == SkillProgramTriggerValueKind.CurrentAttackRange) &&
             window is not (SkillProgramTriggerWindow.SlashBeforeResponse or
-                SkillProgramTriggerWindow.CardUseCommitted or SkillProgramTriggerWindow.CardResponseAccepted or SkillProgramTriggerWindow.JudgmentPhaseStarting))
+                SkillProgramTriggerWindow.CardUseCommitted or SkillProgramTriggerWindow.CardResponseAccepted or SkillProgramTriggerWindow.JudgmentPhaseStarting or
+                SkillProgramTriggerWindow.SlashFullyDodged))
             Fail(path + ".condition", "attack-range comparison requires a card-action or Slash response boundary");
         if (EnumerateTriggerValues(condition).Any(value =>
                 value.Kind == SkillProgramTriggerValueKind.OwnerEventTargetDistance) &&
