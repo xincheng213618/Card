@@ -464,6 +464,7 @@ internal sealed partial class ProgramAiEstimateContext
                 SkillProgramNumberExpression.LivingFactionCount => _publicContext.LivingFactionCount,
                 SkillProgramNumberExpression.LivingPlayersMinHp =>
                     _publicContext.LivingPlayersMinHp ?? _player.Hp,
+                SkillProgramNumberExpression.OwnerMaxHp => _player.MaxHp,
                 SkillProgramNumberExpression.SelectedPairHandDifference => Math.Max(0,
                     (_publicContext.SelectedTarget?.HandCount ?? 0) - _estimatedHandCount),
                 _ => effect.Amount

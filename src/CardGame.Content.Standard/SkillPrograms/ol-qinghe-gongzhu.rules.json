@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:changji",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "changji-designation-draw",
+          "window": "cardUseCompleted",
+          "ownerRelation": "target",
+          "optional": false,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "cardActionTargetIsOwner" },
+              { "kind": "compare", "left": { "kind": "cardUseDesignatedTargetCount" }, "operator": "greaterThan", "right": { "kind": "integerConstant", "value": 1 } }
+            ]
+          },
+          "effects": [
+            { "op": "changjiDesignationDraw", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:zengou",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "zengou-gift",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 1,
+          "maxTargets": 1,
+          "targetKind": "otherLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "selectOwnedCards",
+              "target": "owner",
+              "zones": ["hand"],
+              "numberExpression": "ownerMaxHp",
+              "resultBind": "zengou-chosen"
+            },
+            {
+              "op": "zengouGiftMarkedCards",
+              "target": "selectedTarget",
+              "sourceBind": "zengou-chosen"
+            }
+          ]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "zengou-punish-use",
+          "window": "cardUseCommitted",
+          "ownerRelation": "observer",
+          "optional": false,
+          "effects": [
+            { "op": "zengouPunishRecipient", "target": "owner" }
+          ]
+        },
+        {
+          "id": "zengou-punish-increase",
+          "window": "afterHealthChanged",
+          "subject": "owner",
+          "optional": false,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "hpAfterChange" },
+            "operator": "greaterThan",
+            "right": { "kind": "hpBeforeChange" }
+          },
+          "effects": [
+            { "op": "zengouPunishRecipient", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}

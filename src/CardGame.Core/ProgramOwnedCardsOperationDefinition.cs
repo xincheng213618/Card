@@ -34,9 +34,10 @@ internal sealed class SelectOwnedCardsProgramOperationDescriptor : ProgramOperat
         if (expression is not null && (r.Has("amount") || expression is not
                 (SkillProgramNumberExpression.CategoryTargetTurnUsage or SkillProgramNumberExpression.OwnerLostHp or SkillProgramNumberExpression.AllOwnedZoneCards or
                  SkillProgramNumberExpression.HandHalfFloor or SkillProgramNumberExpression.SelectedPairHandDifference or
-                 SkillProgramNumberExpression.LivingPlayersMinHp or SkillProgramNumberExpression.LivingPlayerCount or SkillProgramNumberExpression.LivingFactionCount)))
+                 SkillProgramNumberExpression.LivingPlayersMinHp or SkillProgramNumberExpression.LivingPlayerCount or
+                 SkillProgramNumberExpression.LivingFactionCount or SkillProgramNumberExpression.OwnerMaxHp)))
             throw new InvalidOperationException(
-                $"Invalid skill program at {r.Path}: selection accepts a constant, ownerLostHp, allOwnedZoneCards, handHalfFloor, livingPlayersMinHp or selectedPairHandDifference.");
+                $"Invalid skill program at {r.Path}: selection accepts a constant, ownerLostHp, allOwnedZoneCards, handHalfFloor, livingPlayersMinHp, ownerMaxHp or selectedPairHandDifference.");
         var zones = r.RequiredEnumArray<CardZoneKind>("zones");
         if (zones.Count == 0 || zones.Any(zone => zone is not (CardZoneKind.Hand or CardZoneKind.Equipment or CardZoneKind.Judgment or CardZoneKind.PrivateReserve)))
             throw new InvalidOperationException($"Invalid skill program at {r.Path}.zones: requires owned hand, equipment or judgment zones.");

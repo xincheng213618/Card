@@ -43,10 +43,13 @@ public sealed partial class GameEngine
                     GetProgramTrigger(candidate)
                         .HpChangeOccurrence == SkillProgramHpChangeOccurrence.PerPoint ? change.Amount : 1)
                     .Select(index => candidate with { OccurrenceIndex = index })).ToArray();
-            if (candidates.Length == 0) continue;
+            var watcherBindings = ZengouWatcherBindings(change, facts).ToArray();
+            if (candidates.Length == 0 && watcherBindings.Length == 0) continue;
             var contexts = candidates.Select(candidate => new ProgramSkillWindowContext(GetProgramTrigger(candidate).Window, change.Id,
                 owner.Seat, SourceSeat: change.SourceSeat, TargetSeat: owner.Seat, Amount: change.Amount,
-                OccurrenceIndex: candidate.OccurrenceIndex, Facts: facts, HpChange: change)).ToArray();
+                OccurrenceIndex: candidate.OccurrenceIndex, Facts: facts, HpChange: change))
+                .Concat(watcherBindings.Select(binding => binding.Context)).ToArray();
+            candidates = candidates.Concat(watcherBindings.Select(binding => binding.Candidate)).ToArray();
             if (continuation == PostEventContinuation.AwaitedProgramMovement &&
                 _resolutionStack.LastOrDefault() is ProgramSkillFrame
                     { SelectedCardPayment: { } payment, SelectedCardPaymentResult: null } parent)
