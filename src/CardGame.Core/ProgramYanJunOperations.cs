@@ -50,7 +50,7 @@ internal sealed class GuanchaoRankDrawDescriptor : ProgramOperationDescriptorBas
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
     [
         new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseCommitted),
-        new RequireCardActionRelation(SkillProgramCardActionOwnerRelation.Actor, [])
+        new RequireCardActionActor()
     ];
 }
 

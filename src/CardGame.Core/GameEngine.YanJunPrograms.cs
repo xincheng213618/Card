@@ -92,10 +92,10 @@ public sealed partial class GameEngine
         foreach (var accepted in CompleteProgramEventHistory().Skip(phaseEventIndex + 1).OfType<CardActionAcceptedEvent>())
         {
             var action = accepted.Action;
-            if (action.Type != CardActionType.Use || action.ActorSeat != ownerSeat || !seen.Add(action.ActionId))
+            if (action.Type != CardActionType.Use || action.ActorSeat != ownerSeat || !seen.Add(action.ActionId) ||
+                action.ActionId == currentActionId)
                 continue;
-            ranks.Add(action.ActionId == currentActionId ? null :
-                action.EffectiveRank ?? (action.PhysicalCards.Count == 1 ? GetAdvancedCard(action.PhysicalCards[0].CardId).Rank : null));
+            ranks.Add(action.EffectiveRank ?? (action.PhysicalCards.Count == 1 ? GetAdvancedCard(action.PhysicalCards[0].CardId).Rank : null));
         }
         return ranks;
     }
