@@ -1867,6 +1867,12 @@ public sealed partial class GameEngine
         if (!CanRunShiYuanTargetDraw(candidate, trigger, context)) return false;
         if (trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.LuochongResolve) &&
             !CanRunLuochongResolve(candidate.OwnerSeat)) return false;
+        if (trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.TongxieArm) &&
+            !CanRunTongxieArm(candidate.OwnerSeat)) return false;
+        if (trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.TongxieFollowUp) &&
+            !CanRunTongxieFollowUp(candidate.OwnerSeat, context)) return false;
+        if (trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.TongxieGuard) &&
+            !CanRunTongxieGuard(candidate.OwnerSeat, context)) return false;
         if (IsOtherActualBasicDiscardTrigger(trigger) && !CanRunOtherActualBasicDiscard(candidate, context)) return false;
         if (!CanRunPublicPilePreparation(candidate, trigger, context)) return false;
         if (!CanRunFireTargetBenefit(candidate, trigger, context)) return false;
@@ -3639,6 +3645,11 @@ public sealed partial class GameEngine
         if (action == "changji-discard") { ResolveChangjiDiscardChoice(selected); return; }
         if (action == "zengou-cost") { ResolveZengouCostChoice(selected); return; }
         if (action == "zhuihuan-arm") { ResolveZhuihuanArmChoice(selected); return; }
+        if (action == "tongxie-arm") { ResolveTongxieArmChoice(selected); return; }
+        if (action is "tongxie-follow-up" or "tongxie-follow-up-decline")
+        { ResolveTongxieFollowUpChoice(selected); return; }
+        if (action is "tongxie-guard" or "tongxie-guard-decline")
+        { ResolveTongxieGuardChoice(selected); return; }
         if (action == "ruiji-distribution") { ResolveQiaoliDistributionChoice(selected); return; }
         if (action == "qingliang-option") { ResolveQingliangOptionChoice(selected); return; }
         if (action == "qingliang-suit") { ResolveQingliangSuitChoice(selected); return; }
@@ -4435,6 +4446,9 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.ChangjiEndingDamageChoice => SelectAiChangjiEndingChoice(decision),
                 SkillProgramEffectOp.ZengouNullifyDodge => SelectAiZengouCostChoice(decision),
                 SkillProgramEffectOp.ZhuihuanArm => SelectAiZhuihuanArmChoice(decision),
+                SkillProgramEffectOp.TongxieArm => SelectAiTongxieArmChoice(decision),
+                SkillProgramEffectOp.TongxieFollowUp => SelectAiTongxieFollowUpChoice(decision),
+                SkillProgramEffectOp.TongxieGuard => SelectAiTongxieGuardChoice(decision),
                 SkillProgramEffectOp.QiaoliWeaponDamageDraw => SelectAiQiaoliDistributionChoice(decision),
                 SkillProgramEffectOp.QingliangChooseOption => SelectAiQingliangChoice(decision),
                 SkillProgramEffectOp.LuochongResolve => SelectAiLuochongResolveChoice(decision),
