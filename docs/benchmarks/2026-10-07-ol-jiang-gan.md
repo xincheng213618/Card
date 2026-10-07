@@ -23,5 +23,5 @@
 - 本批按用户指令不含新增行为检查；已注册共享机制检查（目录门禁、组合校验器、池签名、图鉴完整性）随例行范围自动加载新内容。
 - 临时诊断冒烟（worktree 外的控制台 harness，交付前删除，非测试文件）：种子 126 身份局（蒋干主公）实测——同花色分支造成 1 点伤害且同阶段再次发动被接受（账本回退）、异花色交回移动与目标手牌区落位、交回后伪诚在 hand<hp 时弹出并摸一张（3→4）、取得的暗手牌在其他座位快照中不可见、前缀冷恢复快照完全一致。展示分支（无其他花色手牌）未在自然场景中触达，逻辑与交回分支共用同一揭示调用（`ProgramCardsRevealedEvent` 既有路径）。
 - Release 构建（`dotnet build CardGame.sln -c Release`）：0 error、0 warning；Debug 增量编译的 8 条既有 warning 均位于本批未触碰的文件（SkillProgramExecutor、EndingHistoricalUses、LiangXingPrograms、OwnedDeathBenefitReturns、PublicPilePreparation、SameTypeActualUseAid），非本批引入。
-- 例行 `tools/Test-Changed.ps1`（无过滤）：结果见提交信息与最终汇报（分支基线 dd5945d5 自带约 46 个已知失败项）。
+- 例行 `tools/Test-Changed.ps1`（无过滤，含构建）：Core 266 通过 / 46 失败 / 0 跳过（312 项），WPF 18/18 通过。46 个失败项与分支基线 dd5945d5 的同名例行（266/46/312 + 18）逐项完全一致（临时基线对照运行 diff 为空，逐项名单见 `artifacts-jiang-gan/logs/core-selected.log` 与对照产物），全部位于既有检查领域（委派判定、离魂/阶段手牌征用、源诅咒、装备捐赠、SP 与界系列等），无一与蒋干相关。
 - 本批在独立 worktree（batch/ol-jiang-gan）开发，与周鲂、潘濬两路并行。
