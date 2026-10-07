@@ -67,8 +67,8 @@ public sealed partial class GameEngine
             ? targets.Where(seat => seat == source.Seat).ToArray()
             : targets;
 
-    private bool HasUnlimitedTurnRuleModifier(int actorSeat, SkillRuleQuery query) =>
-        _turnCardUseEffects.GetRuleModifiers(_turnNumber, _currentSeat, actorSeat, query)
+    private bool HasUnlimitedTurnRuleModifier(int actorSeat, SkillRuleQuery query, CardKind? effectiveCardKind = null) =>
+        _turnCardUseEffects.GetRuleModifiers(_turnNumber, _currentSeat, actorSeat, query, effectiveCardKind)
             .Any(item => item.Operation == SkillRuleOperation.Unlimited);
 
     private int GetAdditiveTurnRuleModifier(int actorSeat, SkillRuleQuery query) =>
@@ -233,8 +233,11 @@ public sealed partial class GameEngine
                     operation == SkillRuleOperation.Unlimited && amount == 0 ||
                     query == SkillRuleQuery.CardTargetCount && operation == SkillRuleOperation.Add &&
                     amount > 0 && cardKinds.Count > 0;
-        if (query != SkillRuleQuery.CardTargetCount && cardKinds.Count > 0)
-            throw new InvalidOperationException("Only card target-count modifiers accept card kinds.");
+        if (query != SkillRuleQuery.CardTargetCount && query != SkillRuleQuery.CardUseDistanceLimit && cardKinds.Count > 0)
+            throw new InvalidOperationException("Only card target-count and card-use distance-limit modifiers accept card kinds.");
+        if (query == SkillRuleQuery.CardUseDistanceLimit && cardKinds.Count > 0 &&
+            cardKinds.Distinct().Count() != cardKinds.Count)
+            throw new InvalidOperationException("A card-use distance-limit modifier requires distinct card kinds.");
         if (!valid) throw new InvalidOperationException("The turn rule modifier is unsupported.");
         var granted = _turnCardUseEffects.GrantRuleModifier(
             _turnNumber, _currentSeat, frame.Id, frame.InstructionIndex - 1,

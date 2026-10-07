@@ -1,0 +1,59 @@
+{
+  "generalId": "ol:zhu-ling",
+  "characterName": "朱灵",
+  "officialId": 489,
+  "sourcePage": "https://www.sanguosha.com/hero/489",
+  "textSource": "https://wiki.biligame.com/sgs/朱灵 （BWIKI 现行普通版正文，页面修订 oldid=74685、最后编辑 2026-01-23；官网 hero/info 接口 gid=489 交叉核对势力/体力，官网 heroDetail 技能接口不可用，这是既定口径）",
+  "capturedAt": "2026-10-08",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 489,
+    "name": "朱灵",
+    "extend": "",
+    "hp": 4,
+    "figure": "魏",
+    "figure_py": "wei",
+    "gender": "男",
+    "title": "良将之亚",
+    "quality": "史诗",
+    "package": "荟萃-虓虎悲歌",
+    "releaseDate": "2022-05-28"
+  },
+  "artwork": {
+    "skinId": "48900",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/48900.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-zhu-ling.png",
+    "sha256": "a6990242f3baac62911cf66ea4825ad31d4bd483708af8c33b88325552abef23",
+    "byteCount": 977893,
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "战意",
+      "text": "出牌阶段开始时，你可以弃置一种类别的所有牌，然后直到你的下个回合开始，另外两种类别的牌：基本牌，你使用时无距离限制且回复值或伤害值+1；锦囊牌，不计入你的手牌上限且你使用时摸一张牌；装备牌，置入你的装备区时可以选择一名其他角色的一张牌并令其弃置之。",
+      "programId": "ol:zhanyi",
+      "versionBoundary": [
+        "现行版（BWIKI 当前普通版正文，2023-01-04《三国杀十周年》版本更新公告调整后的文本）：出牌阶段开始时，你可以弃置一种类别的所有牌，然后直到你的下个回合开始，另外两种类别的牌：基本牌，你使用时无距离限制且回复值或伤害值+1；锦囊牌，不计入你的手牌上限且你使用时摸一张牌；装备牌，置入你的装备区时可以选择一名其他角色的一张牌并令其弃置之。",
+        "历史版本（BWIKI 历史版本表\"原版\"，2022-05-28 上线文本，仅记录不实现）：出牌阶段开始时，你可以弃置一种类别的所有牌，然后本回合另外两种类别的牌：基本牌，你使用时无距离限制且回复值或伤害值+1；锦囊牌，不计入你的手牌上限且你使用时摸一张牌；装备牌，你使用时可以选择一名其他角色的一张牌并令其弃置之。现行版把持续时长从\"本回合\"改为\"直到你的下个回合开始\"，装备牌触发时点从\"你使用时\"改为\"置入你的装备区时\"。"
+      ],
+      "notes": [
+        "Launch zhanyi-launch: playPhaseStarting optional trigger, subject owner; bespoke op zhuLingZhanyiChooseCategory (7228) presents one choice per category that has at least one owned card (hand + equipment, count shown), discards all those cards as two batched movements (Hand→DiscardPile, Equipment→DiscardPile, reason skill-program.ol:zhanyi.launch) and records ProgramZhanyiCategoryChosenEvent.",
+        "The chosen category itself loses its buff; the other two categories are empowered until the owner's next turn starts.",
+        "Basic buffs: shared turn-effect grants only fire when the chosen category is not basic — grantTurnCardDamageModifier-equivalent store grant (slash/fireSlash/thunderSlash, amount 1, expires nextOwnerTurnStart, sourceScope ownerUsed) plus a kind-scoped cardUseDistanceLimit unlimited rule modifier (new shared capability, kinds slash/fireSlash/thunderSlash).",
+        "Trick buffs: when the chosen category is not trick — shared turn hand-limit kind exemption for every non-equipment catalog trick kind, plus the content trigger zhanyi-trick-draw (cardUseCommitted, ownerRelation actor, condition cardActionCategoryIs [trick] + booleanState zhanyi-trick) drawing one card via the shared draw op.",
+        "Equipment buff: when the chosen category is not equipment — the content trigger zhanyi-equipment-punish (cardUseCommitted, ownerRelation actor, condition cardActionCategoryIs [equipment] + booleanState zhanyi-equipment) runs bespoke op zhuLingZhanyiEquipmentPunish (7229): choose another living character holding at least one discardable card, then one of their visible equipment cards or a blind hand slot; the chosen entity is discarded through the standard movement contract and ProgramZhanyiEquipmentPunishEvent records the evidence.",
+        "Expiry zhanyi-expire: turnStartBeforeNormalFlow mandatory trigger sets the three declared boolean states (zhanyi-basic/zhanyi-trick/zhanyi-equipment, private, game scope) back to false at the owner's next turn start — the shared nextOwnerTurnStart damage-modifier expiry and the turn-scoped rule-modifier/hand-limit exemption stores expire on their own."
+      ]
+    }
+  ],
+  "observations": [
+    "Official hero/info API (gid=489) confirms 朱灵 as wei 4HP 史诗 with labels 过牌/简单/多刀; BWIKI gives the title 良将之亚, gender 男, package 荟萃-虓虎悲歌 and release date 2022-05-28, matching the coordinator-locked record.",
+    "BWIKI capture path: GET https://wiki.biligame.com/sgs/朱灵 returned HTTP 200 on the first attempt (no EdgeOne 567 rate limit encountered); the page's 历史版本 collapsible table holds the 原版 text and the current-version div below it marks the changed segments (data-su: 直到你的下个回合开始，/ 置入你的装备区) against the 原版 → 当前版本(经典) comparison; the 其他 section quotes the same current text from the 1月4日《三国杀十周年》版本更新公告.",
+    "Implemented rule is the current (经典) wording; the 原版 wording differs only in the buff duration (本回合) and the equipment trigger point (你使用时), both recorded under versionBoundary.",
+    "朱灵 has exactly one skill (战意) on both the official API and BWIKI; no second skill exists to register.",
+    "New bespoke ops 7228-7229 (zhuLingZhanyiChooseCategory, zhuLingZhanyiEquipmentPunish); no new PlayerMarkerKind, condition kinds, trigger windows or schema nodes. The evidence events are scalar-only records; the three boolean states are private runtime state rebuilt by command replay.",
+    "共享口径：无距离限制通过新增的 kind-scoped cardUseDistanceLimit unlimited 规则修正表达（共享能力，见 benchmark 共享能力扩展节）；回复值+1 在普通（非濒死）用桃路径没有共享修正入口，本批未表达该子项（诚实缺口，已记 CORE_API_REQUESTS）。"
+  ]
+}

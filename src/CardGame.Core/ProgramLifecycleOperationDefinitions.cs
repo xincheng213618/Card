@@ -490,12 +490,20 @@ internal sealed class GrantTurnRuleModifierProgramOperationDescriptor : TurnEffe
                 ruleQuery: query, ruleOperation: operation,
                 amountFromMarker: r.Has("amountFromMarker") ? r.RequiredEnum<PlayerMarkerKind>("amountFromMarker") : null);
         }
-        r.AllowOnly("op", "target", "ruleQuery", "ruleOperation", "condition");
+        r.AllowOnly("op", "target", "ruleQuery", "ruleOperation", "condition", "cardKinds");
         if (query is not (SkillRuleQuery.CardUseDistanceLimit or SkillRuleQuery.SlashDistanceLimit or SkillRuleQuery.AttackRange) ||
             operation != SkillRuleOperation.Unlimited)
             throw new InvalidOperationException(
                 $"Invalid skill program at {r.Path}: supports slashLimit/handLimit add, slashDistanceLimit unlimited or attackRange unlimited.");
-        return new(Op, Owner(r), 0, r.Condition(), ruleQuery: query, ruleOperation: operation);
+        var unlimitedKinds = r.Has("cardKinds")
+            ? r.RequiredEnumArray<CardKind>("cardKinds")
+            : (IReadOnlyList<CardKind>)Array.Empty<CardKind>();
+        if (unlimitedKinds.Count > 0 && query != SkillRuleQuery.CardUseDistanceLimit)
+            throw new InvalidOperationException(
+                $"Invalid skill program at {r.Path}.cardKinds: only cardUseDistanceLimit accepts kinds with unlimited.");
+        if (unlimitedKinds.Distinct().Count() != unlimitedKinds.Count)
+            throw new InvalidOperationException($"Invalid skill program at {r.Path}.cardKinds: requires distinct card kinds.");
+        return new(Op, Owner(r), 0, r.Condition(), ruleQuery: query, ruleOperation: operation, cardKinds: unlimitedKinds);
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) => [];
 }

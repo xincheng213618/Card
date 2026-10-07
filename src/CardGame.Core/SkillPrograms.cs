@@ -214,6 +214,7 @@ public enum SkillProgramEffectOp
     DuanfaDiscardAndDraw = 7180, YoudiBaitDiscard = 7181,
     GuanchaoChoosePattern = 7196, GuanchaoRankDraw = 7197, XunxianGiftUsedCard = 7198,
     JuanxiaDeclareTricks = 7220, JuanxiaRetaliation = 7221,
+    ZhuLingZhanyiChooseCategory = 7228, ZhuLingZhanyiEquipmentPunish = 7229,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,

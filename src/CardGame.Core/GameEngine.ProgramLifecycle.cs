@@ -3554,6 +3554,9 @@ public sealed partial class GameEngine
         if (action == "juanxia-target-card") { ResolveJuanxiaTargetCardChoice(selected); return; }
         if (action == "juanxia-fire-payment") { ResolveJuanxiaFirePaymentChoice(selected); return; }
         if (action == "juanxia-retaliate") { ResolveJuanxiaRetaliateChoice(selected); return; }
+        if (action == "zhanyi-launch") { ResolveZhanyiCategoryChoice(selected); return; }
+        if (action == "zhanyi-punish-target") { ResolveZhanyiPunishTargetChoice(selected); return; }
+        if (action == "zhanyi-punish-card") { ResolveZhanyiPunishCardChoice(selected); return; }
 
         var (candidate, context) = GetPendingProgramTriggerCandidate();
         if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle &&
@@ -4338,6 +4341,8 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.ZecaiRoundSettlement => SelectAiZecaiChoice(decision),
                 SkillProgramEffectOp.JuanxiaDeclareTricks or SkillProgramEffectOp.JuanxiaRetaliation =>
                     SelectAiJuanxiaChoice(decision),
+                SkillProgramEffectOp.ZhuLingZhanyiChooseCategory => SelectAiZhanyiCategoryChoice(decision),
+                SkillProgramEffectOp.ZhuLingZhanyiEquipmentPunish => SelectAiZhanyiPunishChoice(decision),
                 _ => throw new InvalidOperationException(
                     $"The AI does not support suspended program instruction '{paused.Op}'.")
             };

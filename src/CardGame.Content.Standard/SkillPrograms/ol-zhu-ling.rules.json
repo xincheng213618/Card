@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:zhanyi",
+      "revision": 1,
+      "states": [
+        { "id": "zhanyi-basic", "initialValue": false, "visibility": "private", "resetScope": "game", "reacquirePolicy": "preserveUntilGameEnd" },
+        { "id": "zhanyi-trick", "initialValue": false, "visibility": "private", "resetScope": "game", "reacquirePolicy": "preserveUntilGameEnd" },
+        { "id": "zhanyi-equipment", "initialValue": false, "visibility": "private", "resetScope": "game", "reacquirePolicy": "preserveUntilGameEnd" }
+      ],
+      "triggers": [
+        {
+          "id": "zhanyi-launch",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            { "op": "zhuLingZhanyiChooseCategory", "target": "owner" }
+          ]
+        },
+        {
+          "id": "zhanyi-trick-draw",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": false,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "cardActionCategoryIs", "categories": ["trick"] },
+              { "kind": "booleanState", "stateId": "zhanyi-trick", "expectedValue": true }
+            ]
+          },
+          "effects": [
+            { "op": "draw", "target": "owner", "amount": 1 }
+          ]
+        },
+        {
+          "id": "zhanyi-equipment-punish",
+          "window": "cardUseCommitted",
+          "ownerRelation": "actor",
+          "optional": true,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "cardActionCategoryIs", "categories": ["equipment"] },
+              { "kind": "booleanState", "stateId": "zhanyi-equipment", "expectedValue": true }
+            ]
+          },
+          "effects": [
+            { "op": "zhuLingZhanyiEquipmentPunish", "target": "owner" }
+          ]
+        },
+        {
+          "id": "zhanyi-expire",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            { "op": "setBooleanState", "target": "owner", "stateId": "zhanyi-basic", "value": false },
+            { "op": "setBooleanState", "target": "owner", "stateId": "zhanyi-trick", "value": false },
+            { "op": "setBooleanState", "target": "owner", "stateId": "zhanyi-equipment", "value": false }
+          ]
+        }
+      ]
+    }
+  ]
+}
