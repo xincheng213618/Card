@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:tongxie",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "tongxie-arm",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            { "op": "tongxieArm", "target": "owner" }
+          ]
+        },
+        {
+          "id": "tongxie-follow-up",
+          "window": "cardUseCompleted",
+          "ownerRelation": "observer",
+          "cardKinds": ["slash"],
+          "optional": false,
+          "effects": [
+            { "op": "tongxieFollowUp", "target": "owner" }
+          ]
+        },
+        {
+          "id": "tongxie-guard-other",
+          "window": "beforeDamageApplied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            { "op": "tongxieGuard", "target": "owner" }
+          ]
+        },
+        {
+          "id": "tongxie-guard-self",
+          "window": "beforeDamageApplied",
+          "subject": "damageTarget",
+          "optional": false,
+          "effects": [
+            { "op": "tongxieGuard", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}
