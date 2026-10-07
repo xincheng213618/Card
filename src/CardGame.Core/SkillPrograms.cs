@@ -223,6 +223,7 @@ public enum SkillProgramEffectOp
     YouyanGainSuitCards = 7268, ZhuihuanArm = 7269, ZhuihuanRetaliate = 7270,
     QiaoliWeaponDuel = 7260, QiaoliArmorDuel = 7261, QiaoliWeaponDamageDraw = 7262,
     QiaoliEndingEquipmentGain = 7263, QingliangChooseOption = 7264,
+    LuochongResolve = 7276, AichenRemoveOption = 7277,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,

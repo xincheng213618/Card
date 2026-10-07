@@ -1865,6 +1865,8 @@ public sealed partial class GameEngine
         if (!CanRunShortRangeSlash(candidate, trigger, context)) return false;
         if (!CanRunActualHandGainTrigger(candidate, trigger, context)) return false;
         if (!CanRunShiYuanTargetDraw(candidate, trigger, context)) return false;
+        if (trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.LuochongResolve) &&
+            !CanRunLuochongResolve(candidate.OwnerSeat)) return false;
         if (IsOtherActualBasicDiscardTrigger(trigger) && !CanRunOtherActualBasicDiscard(candidate, context)) return false;
         if (!CanRunPublicPilePreparation(candidate, trigger, context)) return false;
         if (!CanRunFireTargetBenefit(candidate, trigger, context)) return false;
@@ -3640,6 +3642,9 @@ public sealed partial class GameEngine
         if (action == "ruiji-distribution") { ResolveQiaoliDistributionChoice(selected); return; }
         if (action == "qingliang-option") { ResolveQingliangOptionChoice(selected); return; }
         if (action == "qingliang-suit") { ResolveQingliangSuitChoice(selected); return; }
+        if (action == "luochong-pick" || action == "luochong-decline") { ResolveLuochongPickChoice(selected); return; }
+        if (action == "luochong-discard") { ResolveLuochongDiscardChoice(selected); return; }
+        if (action == "aichen-remove") { ResolveAichenRemoveChoice(selected); return; }
 
         var (candidate, context) = GetPendingProgramTriggerCandidate();
         if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle &&
@@ -4432,6 +4437,8 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.ZhuihuanArm => SelectAiZhuihuanArmChoice(decision),
                 SkillProgramEffectOp.QiaoliWeaponDamageDraw => SelectAiQiaoliDistributionChoice(decision),
                 SkillProgramEffectOp.QingliangChooseOption => SelectAiQingliangChoice(decision),
+                SkillProgramEffectOp.LuochongResolve => SelectAiLuochongResolveChoice(decision),
+                SkillProgramEffectOp.AichenRemoveOption => SelectAiAichenRemoveChoice(decision),
                 _ => throw new InvalidOperationException(
                     $"The AI does not support suspended program instruction '{paused.Op}'.")
             };

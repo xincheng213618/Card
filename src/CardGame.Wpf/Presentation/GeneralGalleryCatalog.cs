@@ -193,6 +193,7 @@ public static class GeneralGalleryCatalog
         groups.Add("ol:qinghe-gongzhu", "other");
         groups.Add("ol:yang-wan", "other");
         groups.Add("ol:rui-ji", "other");
+        groups.Add("ol:teng-fang-lan", "other");
         return groups;
 
         void Add(string group, string ids)

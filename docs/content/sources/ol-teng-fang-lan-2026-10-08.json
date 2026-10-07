@@ -1,0 +1,73 @@
+{
+  "generalId": "ol:teng-fang-lan",
+  "characterName": "滕芳兰",
+  "officialId": 500,
+  "sourcePage": "https://www.sanguosha.com/hero/500",
+  "textSource": "https://www.sanguosha.com/hero/500（官网 hero/info 接口 gid=500 交叉核对体力/势力/特点；技能逐字文本取自官网页面正文，并与 OL 专站 wiki.biligame.com/sgsol/滕芳兰 的现行版交叉验证；BWIKI 主站 wiki.biligame.com/sgs/滕芳兰 为十周年经典版，仅作对照记录差异）",
+  "capturedAt": "2026-10-08",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 500,
+    "name": "滕芳兰",
+    "extend": "",
+    "hp": 3,
+    "figure": "吴",
+    "figure_py": "wu",
+    "gender": "女",
+    "title": "铃兰凋落",
+    "quality": "传说",
+    "package": "璀璨星河-天极",
+    "releaseDate": "2022-09-09",
+    "labels": ["卖血", "回复", "简单"],
+    "characteristic": "前期收益高效，但濒死会永久弱化。"
+  },
+  "artwork": {
+    "skinId": "50000",
+    "skinName": "经典形象",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/50000.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-teng-fang-lan.png",
+    "sha256": "22ed2f4519306df23b9981d4ee651838ad114b9dab4582a4787af4a24582f4ae",
+    "byteCount": 1130048,
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "落宠",
+      "text": "准备阶段或当你每回合首次受到伤害后，你可以选择一项，令一名角色：1.回复1点体力；2.失去1点体力；3.弃置两张牌；4.摸两张牌。每轮每项每名角色限一次。",
+      "textNote": "官网页面正文逐字原文；OL 专站现行版同义原文：“准备阶段，或当你每回合第一次受到伤害后，你可以选择一名角色并选择一项（每轮每个选项与每名角色各限一次）：1.令其回复1点体力；2.令其失去1点体力；3.令其弃置两张牌；4.令其摸两张牌。”两站措辞不同但语义一致（每轮每项限一次 + 每名角色各限一次）。",
+      "programId": "ol:luochong",
+      "notes": [
+        "Trigger luochong-preparation: turnStartBeforeNormalFlow, subject owner（默认 own，即自己回合的准备阶段边界），optional；Trigger luochong-damage: afterDamageApplied, subject owner, damageOccurrence perDamage, optional, condition compare(damageInstancesTakenThisTurn, equal, 1)（石壁同款“每回合首次受到伤害”现成口径，任何回合内的第一次伤害都算，含自己的回合）。",
+        "Bespoke op luochongResolve (7276)：一个合并提示同时给出所有可用的（选项 × 目标）组合与“不发动”退出项（“选择一名角色并选择一项”合并为一次公开选择，语义等价）；目标为全部存活角色（含自己，“一名角色”未排除自己）。",
+        "选项合法性：回复 1 点体力要求目标已受伤（满体力回复为无操作，不进入候选）；弃置两张牌要求目标手牌+装备区至少有一张牌；失去体力与摸牌恒可选。哀尘已移除的选项不再出现。",
+        "每轮账本：从已提交事件史按 OwnerSeat+RoundNumber 推导（同诗怨/择才的 committed-history 口径），每轮每个选项限一次且每名角色限一次，两项账本相互独立；轮次号取事件提交时的 _roundNumber，冷恢复重放接受的选择命令得到同一账本。",
+        "证据 ProgramLuochongResolvedEvent 记录选项 id（recover/loseHp/discardTwo/drawTwo）、目标座位、回复/失去体力值或弃置牌 id/摸牌张数；落宠不产生暗手牌 id（摸的牌进目标手牌，事件只记张数）。",
+        "“令其弃置两张牌”由目标自己选牌弃置：逐张提示目标从其手牌与装备区选择（闭境惩罚同款逐张提示；不足两张时全弃）。弃置区口径为手牌+装备区，不含判定区（见 versionBoundary）。",
+        "AI 策略：描述符 AiPolicy = GainCards 语义按约 2 张摸牌计价使可选触发通过通用 EstimateCompositionForAi 路径；挂起选择 SelectAiLuochongPickChoice 优先给己方/自己摸牌、受伤己方回复，敌方优先弃牌其次失去体力，其余按座位序稳定排序；弃牌阶段 SelectAiLuochongDiscardChoice 按选择 id 稳定取第一张。"
+      ]
+    },
+    {
+      "name": "哀尘",
+      "text": "锁定技，当你进入濒死状态时，若“落宠”选项数大于1，你移除其中一项。",
+      "textNote": "官网页面正文逐字原文；OL 专站现行版：“锁定技，当你进入濒死状态时，若‘落宠’的选项数大于1，你移除一个选项。”一致。",
+      "programId": "ol:aichen",
+      "notes": [
+        "Trigger aichen-remove: dyingEntering, subject owner, optional=false（锁定技）。dyingEntering 是濒死进入的完整程序窗口（进入濒死、求援开始前，每次濒死进入恰好一次），“当你进入濒死状态时”逐字对应；dyingEntered 窗口被平台限制为仅自动摸牌（ResolveAutomaticDyingTransitionPrograms 只执行 Draw），不能承载选择提示，故用 dyingEntering。",
+        "“落宠”选项数 = 4 − 哀尘已移除数（每轮已用过的选项不计入，它们下一轮恢复）；大于 1 时弹出选择，拥有者从剩余选项中选一项永久移除；小于等于 1 时静默跳过。",
+        "证据 ProgramAichenRemovedEvent 记录拥有者、被移除选项与移除后剩余数；移除永久生效（整局），落宠的候选与每轮账本共同决定后续可选项。",
+        "选择发生在濒死求援前：即使本次濒死未被救回（角色死亡），移除依然成立（锁定技进入时已结算）。",
+        "AI 策略：SelectAiAichenRemoveChoice 按 回复 → 失去体力 → 弃置两张牌 → 摸两张牌 的保留价值顺序移除估值最低的剩余选项（摸牌牌价值最高保留到最后）；描述符 AiPolicy = ChooseOption 空计价（锁定技不参与可选触发估算）。"
+      ]
+    }
+  ],
+  "observations": [
+    "Official hero/info API (gid=500) confirms 滕芳兰 as wu 3HP 传说 with labels 卖血/回复/简单 and the characteristic 前期收益高效，但濒死会永久弱化; the OL 专站 infobox (wiki.biligame.com/sgsol/滕芳兰) gives 性别=女、称号=铃兰凋落、武将包=璀璨星河-天极、上线时间 2022-09-09，与官网接口的势力/体力一致。",
+    "BWIKI 主站 (wiki.biligame.com/sgs/滕芳兰) 是《三国杀十周年》版本（称号=铃兰零落、武将包=荟萃-钟灵毓秀、上线 2023-04-14），技能与 OL 普通版完全不同：其落宠为“每轮开始时弃置一名角色区域内至多四张牌且上限递减”，其哀尘按牌堆数分档（大于80摸牌/大于40跳过弃牌阶段/小于40不能响应黑桃目标），均未采用，仅作版本对照。",
+    "OL 专站页面保留“历史版本/测试服1版”：测试服落宠选项3为“弃置其至多两张牌（此选项只能指定其他角色）”且上限“至多两张”弹性；测试服哀尘为“你将体力回复至1点，然后移除一个选项”（含回体）。现行版两项弱化均已移除（选项3固定两张、可指定自己；哀尘无回体），按现行版实现。",
+    "取证过程：官网 hero/500 页面（24427B）与 hero/info 接口无拦截一次取回；sgsol 武将页（101488B）与 BWIKI 主站页（121943B）均 200 一次取回，本批未遇到 EdgeOne 限流（HTTP 567），未触发 sleep 重试。",
+    "New bespoke ops 7276-7277 (luochongResolve, aichenRemoveOption)，只占用分配的 7276-7283 段；未新增 TriggerFactKind、PlayerMarkerKind、ConditionKind、触发窗口枚举或 schema 节点；两个 Program* 证据事件均为标量记录。",
+    "共享口径：每回合首次受伤复用石壁（classic:shibei）的 afterDamageApplied + damageInstancesTakenThisTurn==1 触发口径；逐张弃置复用闭境惩罚的帧内逐张提示模式；濒死进入复用 dyingEntering 完整窗口（界左慈类进入窗口先例）；没有新增共享能力（详见 benchmark 文档）。",
+    "versionBoundary：①“每轮”按引擎共享轮次账本（_roundNumber）计，与官方轮次定义一致，额外回合不推进轮次；②弃置选项的区口径为手牌+装备区，判定区牌不可被此选项弃置（官方文本未指明区域，按本仓“弃置牌”常用区口径实现并如实记录）；③“弃置两张牌”在目标只有一张牌时弃置一张（不足全弃）；④回复选项在目标满体力时不可选（无操作不进入候选）；⑤落宠在寡残局（目标全灭/账本耗尽）自动无可选项即不触发；⑥哀尘移除选项的时机为进入濒死时、求援前，若该次濒死角色死亡移除不回滚。"
+  ]
+}
