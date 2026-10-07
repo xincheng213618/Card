@@ -1988,7 +1988,11 @@ public sealed partial class GameEngine
                 _resolutionStack.OfType<ProgramLifecycleTriggerWindowFrame>().LastOrDefault() is { } judgmentStart &&
                 judgmentStart.Id == context.ParentFrameId && judgmentStart.Window == context.Window,
             SkillProgramTriggerWindow.TurnStartBeforeNormalFlow =>
-                owner.Seat == _currentSeat && context.SourceSeat == owner.Seat,
+                context.SourceSeat == _currentSeat &&
+                (owner.Seat == _currentSeat
+                    ? context.SourceSeat == owner.Seat
+                    : trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.OtherLiving &&
+                      _players[_currentSeat].IsAlive),
             SkillProgramTriggerWindow.DrawPhaseStarting =>
                 (owner.Seat == _currentSeat && context.SourceSeat == owner.Seat && CanRunDrawPhaseProgramTrigger(owner, trigger) ||
                  features.HasOperation(SkillProgramEffectOp.AddMarkerSubjectNormalDraw) && context.SourceSeat==_currentSeat && context.TargetSeat==_currentSeat) && _phase == TurnPhase.Draw,
@@ -2515,8 +2519,9 @@ public sealed partial class GameEngine
     private bool TryBeginTurnStartProgramWindow(CharacterState owner)
     {
         var facts = CaptureProgramTriggerFacts(owner);
-        var candidates = CollectEligibleProgramTriggerCandidates(
-            owner, SkillProgramTriggerWindow.TurnStartBeforeNormalFlow, facts);
+        var candidates = TracksForeignTurnStartPrograms
+            ? CollectForeignTurnStartCandidates(owner, facts)
+            : CollectEligibleProgramTriggerCandidates(owner, SkillProgramTriggerWindow.TurnStartBeforeNormalFlow, facts);
         if (candidates.Count == 0) return false;
         if (_resolutionStack.Count != 0)
             throw new InvalidOperationException("Turn-start program bindings require a clean boundary.");
@@ -2530,6 +2535,32 @@ public sealed partial class GameEngine
         PushRuntimeFrame(frame);
         AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
         return true;
+    }
+
+    // Other-living turn-start programs (追还-style preparation resolutions) join
+    // the own-turn boundary only when some registered skill needs them; every
+    // existing own-turn content keeps the original single-owner enumeration.
+    private bool TracksForeignTurnStartPrograms =>
+        _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.ZhuihuanRetaliate) == true;
+
+    private IReadOnlyList<ProgramTriggerCandidate> CollectForeignTurnStartCandidates(
+        CharacterState turnOwner, SkillProgramTriggerFacts turnOwnerFacts)
+    {
+        var participants = _players.Where(player => player.IsAlive).ToArray();
+        var participantFacts = participants.ToDictionary(player => player.Seat, player =>
+            player.Seat == turnOwner.Seat ? turnOwnerFacts : CaptureProgramTriggerFacts(player));
+        return participants.SelectMany(player =>
+                CollectEligibleProgramTriggerCandidates(player, SkillProgramTriggerWindow.TurnStartBeforeNormalFlow,
+                    participantFacts[player.Seat])
+                    .Where(candidate => GetProgramTrigger(candidate).TurnOwnerScope ==
+                        (player.Seat == turnOwner.Seat
+                            ? SkillProgramTurnOwnerScope.Own
+                            : SkillProgramTurnOwnerScope.OtherLiving)))
+            .OrderBy(candidate => (candidate.OwnerSeat - turnOwner.Seat + _players.Count) % _players.Count)
+            .ThenByDescending(candidate => candidate.Priority)
+            .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal)
+            .ToArray();
     }
 
     private bool TryBeginPlayEndingProgramWindow(CharacterState owner)
@@ -3518,6 +3549,7 @@ public sealed partial class GameEngine
         if (action == "youdi-bait-discard") { ResolveYoudiBaitChoice(selected); return; }
         if (action == "guanchao-pattern") { ResolveGuanchaoPatternChoice(selected); return; }
         if (action == "xunxian-gift") { ResolveXunxianGiftChoice(selected); return; }
+        if (action == "zhuihuan-arm") { ResolveZhuihuanArmChoice(selected); return; }
 
         var (candidate, context) = GetPendingProgramTriggerCandidate();
         if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle &&
@@ -4297,6 +4329,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.YoudiBaitDiscard => SelectAiYoudiBaitChoice(decision),
                 SkillProgramEffectOp.GuanchaoChoosePattern => SelectAiGuanchaoPatternChoice(decision),
                 SkillProgramEffectOp.XunxianGiftUsedCard => SelectAiXunxianGiftChoice(decision),
+                SkillProgramEffectOp.ZhuihuanArm => SelectAiZhuihuanArmChoice(decision),
                 _ => throw new InvalidOperationException(
                     $"The AI does not support suspended program instruction '{paused.Op}'.")
             };
