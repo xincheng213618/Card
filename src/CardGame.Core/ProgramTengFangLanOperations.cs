@@ -23,8 +23,8 @@ internal sealed class LuochongResolveDescriptor : ProgramOperationDescriptorBase
         RequireAlways(effect, r.Path); return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow),
-         new RequireTriggerWindow(SkillProgramTriggerWindow.AfterDamageApplied)];
+        [new RequireTriggerWindows([SkillProgramTriggerWindow.TurnStartBeforeNormalFlow,
+         SkillProgramTriggerWindow.AfterDamageApplied])];
 }
 
 public sealed class LuochongResolveHandler : ISkillProgramEffectHandler
