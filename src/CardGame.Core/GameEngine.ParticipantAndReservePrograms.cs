@@ -246,7 +246,8 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.EscalatingDiscardOrDamageFromSelected or SkillProgramEffectOp.ChooseHandCountIntervention or
                 SkillProgramEffectOp.RevealHandColorDiscardAndTake or SkillProgramEffectOp.DrawThenPutOwnedCardOnTopParticipants or
                 SkillProgramEffectOp.DrawTurnOwnerThenDiscardMaximumHandForDodge or SkillProgramEffectOp.DistributePublicPileIfAllSuits or
-                SkillProgramEffectOp.ObtainOneFromEachSelectedTarget or SkillProgramEffectOp.GiveShownCardToLeastOriginalTarget))
+                SkillProgramEffectOp.ObtainOneFromEachSelectedTarget or SkillProgramEffectOp.GiveShownCardToLeastOriginalTarget or
+                SkillProgramEffectOp.TongxieFollowUp or SkillProgramEffectOp.TongxieGuard))
             throw new InvalidOperationException("A participant cursor must resume its own committed instruction.");
         if (frame.PrivateReserveDraft is not { } draft) return;
         if (!IsValidPlayerSeat(draft.ChooserSeat) || draft.RequiredCount < 1 || draft.RequiredCount > 64 ||

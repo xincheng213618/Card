@@ -16,9 +16,8 @@
         },
         {
           "id": "tongxie-follow-up",
-          "window": "cardUseCompleted",
-          "ownerRelation": "observer",
-          "cardKinds": ["slash"],
+          "window": "discardPileReceived",
+          "subject": "owner",
           "optional": false,
           "effects": [
             { "op": "tongxieFollowUp", "target": "owner" }

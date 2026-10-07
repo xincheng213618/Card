@@ -18,7 +18,8 @@ public sealed record ProgramXunxianGiftEvent(long FrameId, string SkillId, strin
 public sealed partial class GameEngine
 {
     private bool TracksSettledActionCards =>
-        _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.XunxianGiftUsedCard) == true;
+        _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.XunxianGiftUsedCard) == true ||
+        _contentRegistry?.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.TongxieFollowUp) == true;
 
     // One scalar fact per settled use/response card. The attribution has to be
     // captured at batch completion, while the acting use frame is still on the

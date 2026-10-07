@@ -313,6 +313,8 @@ public sealed partial class GameEngine
         if (IsOtherActualBasicDiscardTrigger(trigger)) return MatchingOtherActualBasicDiscardIndexes(batch, candidate);
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.XunxianGiftUsedCard))
             return MatchingOwnSettledActionCardIndexes(batch, candidate);
+        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.TongxieFollowUp))
+            return MatchingTongxieSettledSlashIndexes(batch);
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RestoreActualDiscardBatch))
             return MatchingActualDiscardRecoveryIndexes(batch, candidate);
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.ClaimDiscardedEntityWithProvenance))
