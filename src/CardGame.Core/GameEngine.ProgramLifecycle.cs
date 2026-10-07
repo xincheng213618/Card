@@ -3668,6 +3668,7 @@ public sealed partial class GameEngine
         if (action == "aichen-remove") { ResolveAichenRemoveChoice(selected); return; }
         if (action == "yujue-slot" || action == "yujue-decline" || action == "yujue-target" ||
             action == "yujue-give") { ResolveYujueProgramChoice(selected); return; }
+        if (action == "zhuitao-mark") { ResolveZhuitaoMarkChoice(selected); return; }
 
         var (candidate, context) = GetPendingProgramTriggerCandidate();
         if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle &&
@@ -4469,6 +4470,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.LuochongResolve => SelectAiLuochongResolveChoice(decision),
                 SkillProgramEffectOp.AichenRemoveOption => SelectAiAichenRemoveChoice(decision),
                 SkillProgramEffectOp.YujueResolve => SelectAiYujueChoice(decision),
+                SkillProgramEffectOp.ZhuitaoMarkTarget => SelectAiZhuitaoMarkChoice(decision),
                 _ => throw new InvalidOperationException(
                     $"The AI does not support suspended program instruction '{paused.Op}'.")
             };

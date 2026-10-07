@@ -35,7 +35,8 @@ public sealed partial class GameEngine
             .Select(item => new FiniteRuleQueryContribution(
                 $"turn:{item.TurnNumber}:{item.Source.SkillId}:{item.Source.BindingId}:{item.GrantSequence}", SkillRuleOperation.Add, item.Amount)));
         var incoming = CollectNumericRuleContributions(target, SkillRuleQuery.IncomingDistance);
-        return ApplyFixedDistanceOne(source, target, ApplyInspectedHandDistance(source, target, ApplyHpOrderedDistance(source, target, RuleQueryService.EvaluateDirectionalDistance(baseTerms, outgoing, incoming))));
+        return ApplyFixedDistanceOne(source, target, ApplyInspectedHandDistance(source, target, ApplyHpOrderedDistance(source, target,
+            ApplyProgramDirectedDistance(source, target, RuleQueryService.EvaluateDirectionalDistance(baseTerms, outgoing, incoming)))));
     }
 
     private RuleQueryEvaluation EvaluateAttackRange(CharacterState player, int? excludedEquipmentId = null)
