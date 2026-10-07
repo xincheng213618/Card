@@ -18,6 +18,7 @@ public sealed partial class GameEngine
         ObserveCurrentTurnUseKinds(payload);
         ObserveTurnDrawDebtUse(payload);
         ObserveActualTurnTrickUse(payload);
+        ObserveRoundTrickUse(payload);
         ObserveActualForeignUseTargets(payload);
         ObserveActualTurnDamageEntities(payload);
         ObserveTrueRoundCardNames(payload);

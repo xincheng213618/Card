@@ -1,0 +1,110 @@
+{
+ "schemaVersion": 62,
+ "skills": [
+  {
+   "id": "ol:jiezhen",
+   "revision": 1,
+   "triggers": [
+    {
+     "id": "jiezhen-launch",
+     "window": "playPhaseStarting",
+     "subject": "owner",
+     "optional": true,
+     "effects": [
+      {
+       "op": "selectTarget",
+       "target": "owner",
+       "targetKind": "otherLiving"
+      },
+      {
+       "op": "jiezhenReplaceSkills",
+       "target": "owner"
+      }
+     ]
+    },
+    {
+     "id": "jiezhen-restore-turn",
+     "window": "turnStartBeforeNormalFlow",
+     "subject": "owner",
+     "optional": false,
+     "effects": [
+      {
+       "op": "jiezhenRestoreSkills",
+       "target": "owner"
+      }
+     ]
+    },
+    {
+     "id": "jiezhen-restore-bagua",
+     "window": "judgmentFinalized",
+     "subject": "any",
+     "judgmentReasons": ["equipment.bagua-defense"],
+     "excludedReasons": [],
+     "suits": ["spade", "heart", "club", "diamond"],
+     "minimumRank": 1,
+     "maximumRank": 13,
+     "optional": false,
+     "effects": [
+      {
+       "op": "jiezhenRestoreSkills",
+       "target": "owner"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ol:zecai",
+   "revision": 1,
+   "triggers": [
+    {
+     "id": "zecai-round-end",
+     "window": "turnStartBeforeNormalFlow",
+     "subject": "owner",
+     "optional": false,
+     "effects": [
+      {
+       "op": "zecaiRoundSettlement",
+       "target": "owner"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ol:yinshi",
+   "revision": 1,
+   "triggers": [
+    {
+     "id": "yinshi-prevent",
+     "window": "beforeDamageApplied",
+     "subject": "damageTarget",
+     "optional": false,
+     "effects": [
+      {
+       "op": "yinshiPreventSourcelessDamage",
+       "target": "owner"
+      }
+     ]
+    },
+    {
+     "id": "yinshi-claim",
+     "window": "judgmentFinalized",
+     "subject": "any",
+     "judgmentReasons": ["equipment.bagua-defense"],
+     "excludedReasons": [],
+     "suits": ["spade", "heart", "club", "diamond"],
+     "minimumRank": 1,
+     "maximumRank": 13,
+     "optional": false,
+     "effects": [
+      {
+       "op": "yinshiClaimBaguaJudgmentCard",
+       "target": "owner"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
