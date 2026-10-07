@@ -274,6 +274,7 @@ public sealed partial class GameEngine
         candidates.AddRange(CollectThirdPartyHandGainCandidates(batch));
         candidates.AddRange(CollectOwnerSourceHandGainCandidates(batch));
         candidates.AddRange(CollectOtherLastHandLossCandidates(batch));
+        candidates.AddRange(CollectKanggeHandGainCandidates(batch));
         return candidates
             .OrderBy(candidate => (candidate.OwnerSeat - _currentSeat + _players.Count) % _players.Count)
             .ThenByDescending(candidate => candidate.Priority)

@@ -3637,6 +3637,9 @@ public sealed partial class GameEngine
         if (action == "changji-discard") { ResolveChangjiDiscardChoice(selected); return; }
         if (action == "zengou-cost") { ResolveZengouCostChoice(selected); return; }
         if (action == "zhuihuan-arm") { ResolveZhuihuanArmChoice(selected); return; }
+        if (action == "kangge-choose") { ResolveKanggeChooseChoice(selected); return; }
+        if (action == "kangge-heal") { ResolveKanggeHealChoice(selected); return; }
+        if (action == "jielie-gift") { ResolveJielieSuitChoice(selected); return; }
         if (action == "ruiji-distribution") { ResolveQiaoliDistributionChoice(selected); return; }
         if (action == "qingliang-option") { ResolveQingliangOptionChoice(selected); return; }
         if (action == "qingliang-suit") { ResolveQingliangSuitChoice(selected); return; }
@@ -4430,6 +4433,9 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.ChangjiEndingDamageChoice => SelectAiChangjiEndingChoice(decision),
                 SkillProgramEffectOp.ZengouNullifyDodge => SelectAiZengouCostChoice(decision),
                 SkillProgramEffectOp.ZhuihuanArm => SelectAiZhuihuanArmChoice(decision),
+                SkillProgramEffectOp.KanggeChooseTarget => SelectAiKanggeChooseChoice(decision),
+                SkillProgramEffectOp.KanggeHealVictim => SelectAiKanggeHealChoice(decision),
+                SkillProgramEffectOp.JieliePreventAndGift => SelectAiJielieSuitChoice(decision, frame),
                 SkillProgramEffectOp.QiaoliWeaponDamageDraw => SelectAiQiaoliDistributionChoice(decision),
                 SkillProgramEffectOp.QingliangChooseOption => SelectAiQingliangChoice(decision),
                 _ => throw new InvalidOperationException(
