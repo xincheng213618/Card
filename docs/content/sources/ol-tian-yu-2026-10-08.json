@@ -1,0 +1,83 @@
+{
+  "generalId": "ol:tian-yu",
+  "characterName": "田豫",
+  "officialId": 493,
+  "sourcePage": "https://www.sanguosha.com/hero/493",
+  "textSource": "https://www.sanguosha.com/hero/493（官网 hero/info 接口 gid=493 交叉核对体力/势力/品质/特点；技能逐字文本取自官网页面 SSR 正文，首个 character-tab 为 on 态、skill-text span 顺序与技能名一一配对；OL 专站 wiki.biligame.com/sgsol/田豫（更新日期 2025-06-01，oldid=31287）同为现行 OL 版但两技能措辞与官网正文存在实质差异，按协调者优先级以官网 SSR 正文为准实现并记录差异；BWIKI 主站 wiki.biligame.com/sgs/田豫 页面不存在（返回“此页面目前没有内容”），无十周年版本可对照）",
+  "capturedAt": "2026-10-08",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 493,
+    "name": "田豫",
+    "extend": "",
+    "hp": 4,
+    "figure": "魏",
+    "figure_py": "wei",
+    "gender": "男",
+    "title": "威震北疆",
+    "quality": "史诗",
+    "package": "璀璨星河-虎贲",
+    "releaseDate": "2022-04-15",
+    "labels": ["进攻", "控制", "距离掌控者"],
+    "characteristic": "在合适的位置能将牌的价值发挥到最大"
+  },
+  "artwork": {
+    "skinId": "49300",
+    "skinName": "经典形象",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/49300.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-tian-yu.png",
+    "sha256": "9af1532a7b142ef2a1b2b61789bc9ee2f06220da552e7f5bbac745c14087bd92",
+    "byteCount": 1230785,
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "扫狄",
+      "text": "当你使用【杀】或普通锦囊牌仅指定一名其他角色为目标时，你可以令你与其之间的角色均成为此牌的目标。",
+      "textNote": "官网页面 SSR 正文逐字原文（首个 character-tab 为 on 态“扫狄”，skill-text 首个 span 与之配对）。OL 专站现行版措辞不同：“当你使用【杀】或普通锦囊牌指定其他角色为唯一目标时，你可以选择一条你计算与其的距离最短的路径中的所有角色，令这些角色均成为此牌的目标。”两版语义同为“加目标”，但官网版按座位“之间”取角色、OL 专站版按最短距离路径取角色；按协调者优先级以官网 SSR 正文实现。",
+      "programId": "ol:saodi",
+      "notes": [
+        "Trigger saodi-expand：cardUseTargetsFinalized + ownerRelation actor + cardKinds =【杀】三形态与可指定角色目标的普通锦囊（决斗/过河拆桥/顺手牵羊/火攻/铁索连环/借刀杀人）；纯收益或无角色目标的普通锦囊（无中生有/五谷丰登/无懈可击）与全场 AOE 锦囊（南蛮入侵/万箭齐发/桃园结义）不可能满足“仅指定一名其他角色为目标”且有可用之间角色，故不入 cardKinds（借刀杀人保留，交由 designated count 条件按引擎口径判定）。条件 compare(cardUseDesignatedTargetCount, equal, 1) 表达“仅指定一名”（芮姬清凉同款窗口与条件口径）。",
+        "optional=true 的“是否发动【扫狄】？”由共享 optional 触发提示呈现（界孙坚英魂同款），“你可以”无需 op 内退出项；bespoke op saodiExpandTargets（7316）为 Automatic：重读冻结的 finalized use，计算拥有者与锚定目标之间（短弧）的存活角色，经与既有追加目标检查同源的合法性过滤（IsDirectedCardTargetProhibited/IsCardTargetProhibited/HasBeneficiarySuitShield；【杀】走 CanUseSlashTarget 且 ignoreDistance=true；普通锦囊按 CurrentCardExtraTargets 同款 switch），全部合法角色经 UpdateLifecycleCardUse 追加进 use.TargetSeats 并 CloneRoleAction 同步 action.TargetTargets（原始目标追加机制 ResolveOriginalTargetAdditionChoice 同款变异路径），每追加一人提交一条 ProgramSaodiTargetsAddedEvent（标量证据）。",
+        "之间计算与引擎 GetAliveSeatDistance 同一口径：沿顺/逆时针较短弧枚举存活角色（死座跳过、目标端点恒计入弧长），两弧等长时取并集；追加集按座位号升序，追加在原目标之后结算。",
+        "追加时点在目标效果开始之前：普通锦囊随后的 JizhiResolution/FreezeSequentialTrickTarget 读到扩充后 action.TargetSeats，多目标顺次结算（DrawTwo/Dismantlement/Snatch/FireAttack/Duel 既有顺次机制）；【杀】经既有 TryContinueEnhancedSlashTargets 游标在首个目标结算完后逐个展开追加目标（卡牌增强机制同款游标，ProgramAdjustedSlashBaseDamage 在 BeginSlashTargetResolution 恒捕获）；铁索连环结算遍历 pending.TargetSeats（任意目标数），使用时声明的目标数上限只在声明时校验。",
+        "AI 策略：op 无选择（Automatic）；optional 触发接受经描述符 AiPolicy 定价（ChooseOption 语义 + Draw(1) 正计价）走通用 EstimateCompositionForAi；无追加目标的发动为无效果空转（无事件无日志），如实记录。"
+      ]
+    },
+    {
+      "name": "追讨",
+      "text": "准备阶段，你可以令你与一名未以此法减少距离的其他角色的距离-1。当你对其造成伤害后，失去你以此法对其减少的距离。",
+      "textNote": "官网页面 SSR 正文逐字原文（第二个 character-tab“追讨”与 skill-text 第二个 span 配对）。OL 专站现行版为标记口径：“准备阶段，你可以令一名没有‘追讨’标记的其他角色获得‘追讨’标记直到你对其造成伤害后（你计算与有‘追讨’标记的其他角色的距离-1）。”两版机制等价（至多逐回合点名一人、持续到对其造成伤害、期间距离-1），按官网正文实现。",
+      "programId": "ol:zhuitao",
+      "notes": [
+        "两个触发共享 ol:zhuitao：zhuitao-mark = turnStartBeforeNormalFlow（准备阶段，界孙坚代讨同款窗口）+ subject owner + optional=true + bespoke op zhuitaoMarkTarget（7317）：候选为拥有者以外、当前无活跃减免的其他存活角色（“未以此法减少距离”），单段目标选择提示；zhuitao-revoke = afterDamageApplied + subject any + damageOccurrence perDamage + condition all(damageSourceIsOwner, damageTargetIsOther)（刘宏执笏同款口径）+ bespoke op zhuitaoRevoke（7318）：从窗口上下文读本次伤害目标，撤销拥有者对该目标全部活跃减免。",
+        "点选提交 ProgramDirectedDistanceGrantedEvent（拥有者、目标、-1），伤害后提交 ProgramDirectedDistanceRevokedEvent；活跃减免由已提交事件史推导（撤销清除此前全部同对授予，其后重新点名重新生效），无运行期私有映射，冷恢复一致（图兴武装/择才同款 committed-history 口径）。",
+        "距离-1 为本批新增共享能力：EvaluateDistance 串联 ApplyProgramDirectedDistance overlay——依赖 HasTriggerOperation(zhuitaoMarkTarget) 门控，活跃授予按 Add(-1) 计入 outgoingDistance、下界 1（与坐骑/加法距离同层，先于 FixedDistanceOne/InspectedHand/HpOrdered 三个 Set 型 overlay）。",
+        "可多目标并存：每回合准备阶段至多点名一人，减免持续到对其造成伤害；跨回合对未造成伤害的旧目标之外再点名新目标时两者并存，对任一目标造成伤害仅撤销该目标的减免。",
+        "AI 策略：mark 候选用共享 ScoreProgramTarget 按 TargetHpLoss=1 计价（敌意加权选目标）；optional 触发接受经描述符 AiPolicy 定价（SelectTarget 语义 + Draw(1) 正计价）；revoke 为锁定自动，ChooseOption 空计价。"
+      ]
+    }
+  ],
+  "observations": [
+    "Official hero/info API (gid=493) confirms 田豫 as wei 4HP 史诗 with labels 进攻/控制/距离掌控者 and the characteristic 在合适的位置能将牌的价值发挥到最大; biography: 初从刘备，因母亲年老回乡，后跟随公孙瓒[zàn]，公孙瓒败亡，劝说鲜于辅加入曹操。曹操攻略河北时，田豫正式得到曹操任用，历任颖阴、郎陵令、弋阳太守等。后来田豫常年镇守曹魏北疆，从征代郡乌桓、斩骨进、破轲比能，多有功勋；也曾参与对孙吴的作战，在成山斩杀周贺，于新城击败孙权。官至太中大夫，封长乐亭侯。",
+    "OL 专站 infobox (wiki.biligame.com/sgsol/田豫, 更新日期 2025-06-01, oldid=31287): 武将称号=威震北疆、性别=男、势力=魏、武将包=璀璨星河-虎贲、上线时间 2022-04-15、战功=战功*威震北疆、获取方式=800星石币兑换/1600翻翻乐积分兑换、品质=史诗；与官网接口的势力/体力一致。",
+    "官网 hero/info 接口不返回性别/称号/所属包/上线时间，这些字段取自 OL 专站 infobox；性别=男与称号=威震北疆按来源记录。",
+    "BWIKI 主站 (wiki.biligame.com/sgs/田豫) 返回“此页面目前没有内容”——田豫在 BWIKI 主站无页面，不存在十周年版本对照（与陈登/清河公主/杨婉/芮姬/滕芳兰批“主站为十周年版”的情形不同，本批为页面缺失）。",
+    "官网正文与 OL 专站现行版在两个技能上均有实质措辞差异（扫狄：座位之间 vs 最短距离路径；追讨：距离-1 措辞 vs “追讨”标记措辞），按协调者优先级以官网 SSR 正文为实现口径，差异逐条记录于 textNote 与 versionBoundary。",
+    "取证过程：官网 hero/info 接口（1071B）与 hero/493 页面（24558B）无拦截一次取回（curl 带 User-Agent: Mozilla/5.0）；sgsol 武将页（89431B）与 BWIKI 主站页（76678B）均 200 一次取回，本批未遇到 EdgeOne 限流（HTTP 567），未触发 sleep 重试。技能-描述配对以官网页面 character-tabs 与 skill-text span 的顺序（首个 tab 为 on 态）为准。",
+    "官方立绘 49300.png 一次下载成功（1,230,785 字节，与协调者预验字节数一致，PNG 签名校验通过，750×950，SHA-256 9af1532a7b142ef2a1b2b61789bc9ee2f06220da552e7f5bbac745c14087bd92）。",
+    "New bespoke ops 7316-7318 (saodiExpandTargets, zhuitaoMarkTarget, zhuitaoRevoke)，只占用分配的 7316–7319 段（7320 为既有 DiscardSlashThenOtherCardAndUseDuel 占用，未触碰；7321–7324 未使用）；未新增 TriggerFactKind、PlayerMarkerKind、ConditionKind、触发窗口枚举或 schema 节点；三个 Program* 证据事件均为标量记录。",
+    "共享口径：加目标变异复用原始目标追加/卡牌增强既有管线（UpdateLifecycleCardUse + CloneRoleAction + SyncIssuedTieredRoundZeroTrickTargetWindows），多目标展开复用既有顺序锦囊与增强杀游标机制；目标合法性复用 CurrentCardExtraTargets/CanAddIssuedOriginalTarget 同款检查；“对其他角色造成伤害后”复用执笏条件口径；准备阶段复用 turnStartBeforeNormalFlow（界孙坚代讨同款）；optional 触发提示、组合估值、共享 ScoreProgramTarget 全为既有共享路径；directed distance 授予/撤销事件与 EvaluateDistance overlay 为本批新增共享能力（见 benchmark 文档共享能力节）。"
+  ],
+  "versionBoundary": [
+    "扫狄“你与其之间的角色”按座位短弧实现（与 GetAliveSeatDistance 同口径，死座跳过），两弧等长时取并集；OL 专站现行版的“最短距离路径”口径未采用（版本差异记录）。追加目标不受攻击范围限制（官网文本无距离限定，CanUseSlashTarget 以 ignoreDistance=true 表达）；追加目标仍受禁止类目标检查（如空城、藤甲、仁王盾类禁止/免疫与花色护盾）过滤，被过滤的角色不成为目标。",
+    "扫狄对“借刀杀人”保留在 cardKinds 中，是否可发动由引擎 designated-target 计数条件判定（引擎口径下借刀的指定目标数若为 2 则不满足“仅指定一名”）；普通锦囊子集（无中生有/五谷丰登/无懈可击/南蛮/万箭/桃园）不可能出现“单目标且有之间角色”，未入 cardKinds，行为覆盖不受影响。",
+    "扫狄发动但之间角色为空（如目标相邻）或全部不合法时为无效果空转：无事件、无日志、卡牌照常结算；optional 提示在此之前已呈现（共享窗口无“之间非空”前置条件可表达），如实记录。",
+    "追讨的“距离-1”实现为拥有者的 outgoingDistance（“你与X的距离”按出向距离口径，与 OL 专站标记版“你计算与…的距离-1”一致）；目标对拥有者的入向距离不变。",
+    "追讨减免在拥有者对目标造成任意伤害后撤销（含传导伤害来源为拥有者的情形——afterDamageApplied 条件只看 damageSourceIsOwner，与“当你对其造成伤害后”逐字一致）；目标死亡后授予记录留存但距离计算无意义，不额外清理。",
+    "追讨“未以此法减少距离”按当前活跃授予判定：已撤销的旧目标可再次点名（下个准备阶段），多目标可并存（跨回合累积）。",
+    "扫狄/追讨的发动提示均为共享 optional 触发提示（“是否发动【X】？”），时点分别为 CardUseTargetsFinalized（目标冻结后、效果开始前）与 turnStartBeforeNormalFlow（回合开始、正常流程前，本仓“准备阶段”口径）。",
+    "AI 对扫狄的 optional 接受为正计价（+1 牌等价），在之间角色为空时会接受一次无效果发动；对追讨 mark 按 TargetHpLoss=1 敌意计价选目标。两者均为 AI 近似，不影响规则结算。"
+  ]
+}
