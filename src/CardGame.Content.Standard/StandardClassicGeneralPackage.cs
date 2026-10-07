@@ -138,6 +138,7 @@ public sealed class StandardClassicGeneralPackage : IGameContentPackage
         new(OrdinaryLiuBianContent.Register),
         new(OrdinaryChenDengContent.Register),
         new(OrdinaryQingHeGongZhuContent.Register),
+        new(OrdinaryYangWanContent.Register),
         new(OrdinaryFuWanContent.Register),
         new(OrdinaryLiuXieContent.Register),
         new(OrdinarySpMaChaoContent.Register),

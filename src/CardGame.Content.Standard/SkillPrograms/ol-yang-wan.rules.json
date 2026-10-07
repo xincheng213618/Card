@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:youyan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "youyan-gain",
+          "window": "discardPileReceived",
+          "subject": "owner",
+          "movementDiscardOnly": true,
+          "discardOwnerScope": "own",
+          "sourceZones": ["hand", "equipment", "judgment"],
+          "usageScope": "phase",
+          "usageLimit": 1,
+          "optional": true,
+          "effects": [
+            { "op": "youyanGainSuitCards", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:zhuihuan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "zhuihuan-arm",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            { "op": "zhuihuanArm", "target": "owner" }
+          ]
+        },
+        {
+          "id": "zhuihuan-resolve-own",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            { "op": "zhuihuanRetaliate", "target": "owner" }
+          ]
+        },
+        {
+          "id": "zhuihuan-resolve-other",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": false,
+          "effects": [
+            { "op": "zhuihuanRetaliate", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}

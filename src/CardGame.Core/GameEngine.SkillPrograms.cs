@@ -628,7 +628,8 @@ public sealed partial class GameEngine
         int amount,
         ProgramParticipantReference? sourceReference = null,
         DamageNature? nature = null,
-        bool sourceLess = false)
+        bool sourceLess = false,
+        int? explicitSourceSeat = null)
     {
         var judgmentNested = frame.WindowContext?.Judgment is { } frozenJudgment &&
             ActiveJudgment is { } pendingJudgment &&
@@ -663,7 +664,7 @@ public sealed partial class GameEngine
             amount <= 0 || !IsValidPlayerSeat(targetSeat) || !_players[targetSeat].IsAlive)
             throw new InvalidOperationException("A program damage effect requires one active program and living target.");
         var state = new AttackAttemptState(
-            sourceReference is { } reference ? ResolveProgramParticipant(frame, reference) : frame.OwnerSeat,
+            explicitSourceSeat ?? (sourceReference is { } reference ? ResolveProgramParticipant(frame, reference) : frame.OwnerSeat),
             targetSeat, amount, nature ?? DamageNature.Normal, sourceLess,
             frame.WindowContext?.Window == SkillProgramTriggerWindow.JudgmentFinalized
                 ? frame.WindowContext.ParentFrameId : null);

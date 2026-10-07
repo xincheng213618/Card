@@ -293,6 +293,8 @@ public static class GeneralArt
             ["ol-chen-deng"] = "official-ol-chen-deng.png",
             // Official artwork URL and hash: docs/content/sources/ol-qinghe-gongzhu-2026-10-08.json.
             ["ol-qinghe-gongzhu"] = "official-ol-qinghe-gongzhu.png",
+            // Official artwork URL and hash: docs/content/sources/ol-yang-wan-2026-10-08.json.
+            ["ol-yang-wan"] = "official-ol-yang-wan.png",
             // Official artwork URL and hash: docs/content/sources/bu-lian-shi-a63-2026-09-21.json.
             ["bu-lian-shi"] = "official-bu-lian-shi.png",
             // Official artwork URL and hash: docs/content/sources/cheng-pu-a64b-2026-09-21.json.
