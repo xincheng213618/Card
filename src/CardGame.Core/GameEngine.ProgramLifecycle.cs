@@ -2003,7 +2003,8 @@ public sealed partial class GameEngine
                     ? context.SourceSeat == owner.Seat
                     : trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.OtherLiving &&
                       _players[_currentSeat].IsAlive),
-SkillProgramTriggerWindow.RoundStarting =>
+            SkillProgramTriggerWindow.RoundStarting =>
+                owner.IsAlive && context.SourceSeat == _currentSeat && _roundNumber > 0,
             SkillProgramTriggerWindow.DrawPhaseStarting =>
                 (owner.Seat == _currentSeat && context.SourceSeat == owner.Seat && CanRunDrawPhaseProgramTrigger(owner, trigger) ||
                  features.HasOperation(SkillProgramEffectOp.AddMarkerSubjectNormalDraw) && context.SourceSeat==_currentSeat && context.TargetSeat==_currentSeat) && _phase == TurnPhase.Draw,
