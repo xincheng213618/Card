@@ -331,7 +331,7 @@ public sealed partial class GameEngine
     {
         var active = GetActiveProgramFrame(frame.Id);
         var owner = _players[active.OwnerSeat];
-        if (!HasRuntimeSkillInstance(owner, "ol:tuxing", active.SkillInstanceId))
+        if (!EnabledContentSkillIds(owner).Contains("ol:tuxing", StringComparer.Ordinal))
             return;
         var tuxingPresentation = _contentRegistry!.GetSkill("ol:tuxing");
         ChangeProgramMaximumHp(GetActiveProgramFrame(frame.Id), 1);
@@ -345,7 +345,7 @@ public sealed partial class GameEngine
             $"{owner.Name} 的【{tuxingPresentation.Name}】生效：所有装备栏均已废除，减少4点体力上限，本局游戏接下来造成的伤害+1。",
             active.OwnerSeat);
         ChangeProgramMaximumHp(GetActiveProgramFrame(frame.Id), -4);
-        ArmProgramGameDamageBonus(GetActiveProgramFrame(frame.Id), active.OwnerSeat, 1);
+        ArmProgramGameDamageBonus(GetActiveProgramFrame(frame.Id), "ol:tuxing", active.OwnerSeat, 1);
     }
 
     // 图兴 catch-up: the locked turn-start sweep arms the game-long damage
@@ -363,7 +363,7 @@ public sealed partial class GameEngine
         AddLog("SkillTriggered",
             $"{owner.Name} 的【{_contentRegistry!.GetSkill(active.SkillId).Name}】生效：所有装备栏均已废除，本局游戏接下来造成的伤害+1。",
             active.OwnerSeat);
-        ArmProgramGameDamageBonus(active, active.OwnerSeat, 1);
+        ArmProgramGameDamageBonus(active, active.SkillId, active.OwnerSeat, 1);
         return SkillProgramStepOutcome.Continue;
     }
 
@@ -377,10 +377,12 @@ public sealed partial class GameEngine
     }
 
     // Shared arming: emits the committed evidence the damage pipeline reads.
-    private void ArmProgramGameDamageBonus(ProgramSkillFrame frame, int ownerSeat, int amount)
+    // The evidence attributes to the skill whose clause arms the bonus, so the
+    // damage-time log names the right skill.
+    private void ArmProgramGameDamageBonus(ProgramSkillFrame frame, string skillId, int ownerSeat, int amount)
     {
         var active = GetActiveProgramFrame(frame.Id);
-        AdvanceEventRulesAndQueueFact(new ProgramGameDamageBonusArmedEvent(active.Id, active.SkillId,
+        AdvanceEventRulesAndQueueFact(new ProgramGameDamageBonusArmedEvent(active.Id, skillId,
             GetProgramBindingId(active), active.SkillInstanceId, ownerSeat, amount));
     }
 
