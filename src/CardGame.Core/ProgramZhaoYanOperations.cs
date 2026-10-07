@@ -47,7 +47,7 @@ internal sealed class TongxieFollowUpDescriptor : ProgramOperationDescriptorBase
         RequireAlways(effect, r.Path); return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        [new RequireTriggerWindow(SkillProgramTriggerWindow.CardUseCompleted)];
+        [new RequireTriggerWindow(SkillProgramTriggerWindow.DiscardPileReceived)];
 }
 
 public sealed class TongxieFollowUpHandler : ISkillProgramEffectHandler
