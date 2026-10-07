@@ -56,6 +56,7 @@ public sealed partial class GameEngine
                 if (ResumeSuitPreventionBenefit(frameId) || ResumeMatchedJudgmentPlacement(frameId)) return;
                 if (ResumeAdjacentDiscardStorage(frameId) || ResumeCompletedUsePayment(frameId) || ResumeRoundPileAlcohol(frameId)) return;
                 if (ResumeForeignTurnContest(frameId) || ResumeSameTypeAid(frameId)) return;
+                if (ResumeJuanxia(frameId)) return;
                 if (ResumeSharedSlashOffer(frameId)) return;
                 if (ResumeSlashTargetBenefit(frameId)) return;
                 if (ResumeTargetPenalty(frameId)) return;

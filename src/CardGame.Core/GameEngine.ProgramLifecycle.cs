@@ -3550,6 +3550,10 @@ public sealed partial class GameEngine
         if (action == "daoshu-suit") { ResolveDaoshuSuitChoice(selected); return; }
         if (action == "daoshu-give-back") { ResolveDaoshuGiveBackChoice(selected); return; }
         if (action == "zecai-target" || action == "zecai-decline") { ResolveZecaiChoice(selected); return; }
+        if (action == "juanxia-trick") { ResolveJuanxiaTrickChoice(selected); return; }
+        if (action == "juanxia-target-card") { ResolveJuanxiaTargetCardChoice(selected); return; }
+        if (action == "juanxia-fire-payment") { ResolveJuanxiaFirePaymentChoice(selected); return; }
+        if (action == "juanxia-retaliate") { ResolveJuanxiaRetaliateChoice(selected); return; }
 
         var (candidate, context) = GetPendingProgramTriggerCandidate();
         if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle &&
@@ -4332,6 +4336,8 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.GuanchaoChoosePattern => SelectAiGuanchaoPatternChoice(decision),
                 SkillProgramEffectOp.XunxianGiftUsedCard => SelectAiXunxianGiftChoice(decision),
                 SkillProgramEffectOp.ZecaiRoundSettlement => SelectAiZecaiChoice(decision),
+                SkillProgramEffectOp.JuanxiaDeclareTricks or SkillProgramEffectOp.JuanxiaRetaliation =>
+                    SelectAiJuanxiaChoice(decision),
                 _ => throw new InvalidOperationException(
                     $"The AI does not support suspended program instruction '{paused.Op}'.")
             };
