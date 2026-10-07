@@ -26,5 +26,5 @@
 - 按用户指令本批不含新增行为检查：未新建测试文件、未改动 tests/ 下任何文件、未注册检查。
 - Release 构建（`dotnet build CardGame.sln -c Release` 全解决方案）：0 error；20 条 warning 全部为基线既有文件（SkillProgramExecutor.cs、GameEngine.ActualHandGainPrograms.cs、GameEngine.EndingHistoricalUses.cs、GameEngine.LiangXingPrograms.cs、GameEngine.OwnedDeathBenefitReturns.cs、GameEngine.PublicPilePreparation.cs、GameEngine.SameTypeActualUseAid.cs 及 tests/ 下既有文件），本批新文件无任何 warning。
 - 内容静态校验：`tools/Inspect-SkillProgram.ps1` 对 ol-yang-wan.rules.json + presentation.json 解析通过，三个触发器（zhuihuan-arm/zhuihuan-resolve-own/zhuihuan-resolve-other）与诱言触发器均按描述符目录解析成功。
-- 例行 `tools/Test-Changed.ps1`（无过滤，ArtifactsPath 独立目录）：见最终提交说明；与严畯批修复基线（1fc7b1d6 实测 Core 266 通过 / 57 失败、WPF 18/0，说明见 docs/benchmarks/2026-10-07-ol-yan-jun.md 验证节）逐项比对，失败集合一致、无新增失败。
+- 例行 `tools/Test-Changed.ps1`（无过滤，ArtifactsPath 独立目录 `artifacts-yang-wan`）：全解决方案构建 12.2s、Core 214 项过滤联合执行 102.9s（266 通过 / 57 失败 / 0 跳过，共 323 项）、WPF 18 通过 / 0 失败（18.5s）。57 项失败名单与严畯批基线（同一基线提交 1fc7b1d6 的 `artifacts-yan-jun` 实测）逐项 diff 完全一致，无新增失败；全部失败均为基线既有的在制特性检查（狂斧、离魂、强武、源咒、SP 群雄等），无任何杨婉相关失败。
 - 本批在独立 worktree（batch/ol-yang-wan）开发，与清河公主、芮姬两路并行。
