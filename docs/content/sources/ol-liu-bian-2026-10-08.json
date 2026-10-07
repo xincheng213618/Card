@@ -1,0 +1,68 @@
+{
+  "generalId": "ol:liu-bian",
+  "characterName": "刘辩",
+  "officialId": 487,
+  "sourcePage": "https://www.sanguosha.com/hero/487",
+  "textSource": "https://wiki.biligame.com/sgs/刘辩（官网 hero/info 接口 gid=487 交叉核对体力/势力，技能文本取自百科同一武将词条现行版）",
+  "capturedAt": "2026-10-08",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 487,
+    "name": "刘辩",
+    "extend": "",
+    "hp": 3,
+    "figure": "群",
+    "gender": "男",
+    "title": "弘农怀王"
+  },
+  "artwork": {
+    "skinId": "48700",
+    "skinName": "经典形象",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/48700.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-liu-bian.png",
+    "sha256": "9282c94cb710a5d3114d9352ae33036872838843d5984a8f714c11dbb10b5492",
+    "byteCount": 1235236,
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "诗怨",
+      "text": "每回合每项限一次，当你成为其他角色使用牌的目标后，若该角色的体力值大于/等于/小于你，你可以摸三/二/一张牌。",
+      "programId": "ol:shiyuan",
+      "notes": [
+        "Trigger target-draw: cardUseTargetsFinalized, ownerRelation target, onlyDesignatedCardTargets (borrowed-sword odd pair targets excluded, mirroring the 荐降 boundary), optional, condition not(cardActionActorIsOwner); one candidate per actual use, so a multi-target card prompts once.",
+        "Bespoke op shiYuanTargetDraw (7236): compares the targeting character's live HP with the owner's (greater/equal/less → 3/2/1 cards), counts this turn's prior accepted draws of the same option from ProgramShiYuanTargetDrawEvent ledger entries, and draws with reason skill-program.ol:shiyuan.target-draw.",
+        "The per-option limit (1, or 2 while 余威 is active) is evaluated twice: at candidate eligibility (CanRunShiYuanTargetDraw, so an exhausted option never reaches the chooser) and defensively at execution.",
+        "Declining the optional prompt does not consume the option; only an accepted draw commits evidence. The ledger is history-derived with no serialized runtime state; cold recovery replays the accepted commands into the same state."
+      ]
+    },
+    {
+      "name": "毒逝",
+      "text": "锁定技，①当你死亡时，你令一名其他角色获得此技能；②当你进入濒死状态时，其他角色不能在此次濒死结算中对你使用【桃】。",
+      "programId": "ol:dushi",
+      "notes": [
+        "Clause ① trigger death-grant: ownerDied, subject owner, mandatory, effects selectTarget(otherLiving) then bespoke op duShiGrantSkill (7237) which calls the shared AcquireRuntimeSkills so the recipient owns the complete skill (both clauses) through a runtime grant; ProgramDuShiGrantEvent records the transfer. A later death of the recipient re-fires the same trigger, so the skill keeps propagating.",
+        "Clause ② card policy dyingSelfRescueOnly (new shared kind, exactly Peach): the shared rescue gate CanUsePeachToRescue now denies rescues where responder != victim while the victim holds the policy; the dying holder may still rescue themself, and the restriction is evaluated per rescue attempt, which is exactly the per-dying-settlement scope of the text.",
+        "Clause ② needs no trigger: the policy travels with every enabled ol:dushi instance, including runtime grants received through clause ①."
+      ]
+    },
+    {
+      "name": "余威",
+      "text": "主公技，锁定技，其他群势力角色的回合内，“诗怨”改为“每回合每项限两次”。",
+      "programId": "ol:yuwei",
+      "notes": [
+        "Trigger qun-turn-activation: playPhaseStarting, subject owner, turnOwnerScope otherLiving, mandatory, condition turnOwnerFactionIs([qun]) (new tail condition kind reading a dependency-gated TurnOwnerFactionId fact); bespoke op yuWeiMarkActiveTurn (7238) commits ProgramYuWeiActiveTurnEvent for the running turn.",
+        "诗怨 reads the ledger: ShiYuanTurnLimit returns 2 while a ProgramYuWeiActiveTurnEvent exists for the current turn number, otherwise 1. The play-phase boundary is the earliest shared window that covers every use made during that character's turn; turnOwnerScope is not accepted by turnStartBeforeNormalFlow, so uses before the play-phase boundary are the one documented gap.",
+        "Tags: SkillTag.Lord | SkillTag.Locked with trigger execution form, following the boundary 暴虐 registration pattern; identity mode does not role-suppress printed lord skills (shared codebase口径)."
+      ]
+    }
+  ],
+  "observations": [
+    "Official hero/info API (gid=487) confirms 刘辩 as qun 3HP quality 传说 with label 防御/简单/亡语 and characteristic 成为其他角色使用牌的目标后，可以摸牌, matching 诗怨; BWIKI gives the title 弘农怀王, gender 男, faction 群, package 荟萃-皇家贵胄, launch 2020-12-28, classic artist zoo.",
+    "BWIKI page https://wiki.biligame.com/sgs/刘辩 (oldid 77557, page last edited 2026-05-09) lists one 经典版本 skill set; no older revision of 诗怨/毒逝/余威 is shown on the page, so the implemented text is the current ordinary wording verbatim. First fetch succeeded (123119 bytes); the known EdgeOne 567 throttling did not occur.",
+    "技能文本逐字采用 BWIKI 经典版本正文；官网 heroDetail 接口不可用（既定口径），官网 hero/info 接口仅用于势力/体力/画像交叉核对。",
+    "New bespoke ops 7236-7238 (shiYuanTargetDraw, duShiGrantSkill, yuWeiMarkActiveTurn); new tail members SkillProgramTriggerConditionKind.TurnOwnerFactionIs (1027) and SkillProgramCardPolicyKind.DyingSelfRescueOnly (6604) plus the dependency-gated SkillProgramTriggerFacts.TurnOwnerFactionId fact. No PlayerMarkerKind, no SkillProgramTriggerFactKind values, no new trigger windows and no new schema nodes; rules JSON stays at schemaVersion 62 and no version sources changed.",
+    "共享口径：毒逝② 的濒死限制通过共享 CanUsePeachToRescue 门（所有濒死救援路径的唯一闸口）实现，策略缺省时该门与既有指纹完全同行为；余威 的证据事件与 诗怨 的每项计数均为标量事实，暗手牌 id 不进任何普通快照。"
+  ]
+}

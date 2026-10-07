@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:shiyuan",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "target-draw",
+          "window": "cardUseTargetsFinalized",
+          "ownerRelation": "target",
+          "onlyDesignatedCardTargets": true,
+          "optional": true,
+          "condition": {
+            "kind": "not",
+            "children": [
+              { "kind": "cardActionActorIsOwner" }
+            ]
+          },
+          "effects": [
+            { "op": "shiYuanTargetDraw", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:dushi",
+      "revision": 1,
+      "cardPolicies": [
+        {
+          "id": "dying-self-rescue-only",
+          "kind": "dyingSelfRescueOnly",
+          "cardKinds": ["peach"]
+        }
+      ],
+      "triggers": [
+        {
+          "id": "death-grant",
+          "window": "ownerDied",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            {
+              "op": "selectTarget",
+              "target": "owner",
+              "targetKind": "otherLiving"
+            },
+            { "op": "duShiGrantSkill", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:yuwei",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "qun-turn-activation",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": false,
+          "condition": {
+            "kind": "turnOwnerFactionIs",
+            "factions": ["qun"]
+          },
+          "effects": [
+            { "op": "yuWeiMarkActiveTurn", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}

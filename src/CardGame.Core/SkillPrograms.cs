@@ -65,7 +65,8 @@ public enum SkillProgramTriggerConditionKind
     PreviousPlayCardIsBasic = 1024,
     PhaseIsPlay = 1025,
     CardActionOpponentIsOwner = 1026,
-    TurnOwnerUsedSameSuitCards
+    TurnOwnerUsedSameSuitCards,
+    TurnOwnerFactionIs = 1027
 }
 public enum SkillProgramTriggerValueKind
 {
@@ -215,6 +216,7 @@ public enum SkillProgramEffectOp
     GuanchaoChoosePattern = 7196, GuanchaoRankDraw = 7197, XunxianGiftUsedCard = 7198,
     JuanxiaDeclareTricks = 7220, JuanxiaRetaliation = 7221,
     ZhuLingZhanyiChooseCategory = 7228, ZhuLingZhanyiEquipmentPunish = 7229,
+    ShiYuanTargetDraw = 7236, DuShiGrantSkill = 7237, YuWeiMarkActiveTurn = 7238,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,
@@ -889,7 +891,8 @@ public sealed record SkillProgramTriggerFacts(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? PhaseIsPlay = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? CardActionOpponentIsOwner = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? TurnOwnerUsedSameSuitCards = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? CurrentTurnNonConvertedUseCount = null)
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? CurrentTurnNonConvertedUseCount = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TurnOwnerFactionId = null)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public CardMovementTiming? MovementTiming { get; init; }
@@ -1082,6 +1085,8 @@ public sealed class SkillProgramTriggerCondition
         SkillProgramTriggerConditionKind.PhaseIsPlay => facts.PhaseIsPlay == true,
         SkillProgramTriggerConditionKind.CardActionOpponentIsOwner => facts.CardActionOpponentIsOwner == true,
         SkillProgramTriggerConditionKind.TurnOwnerUsedSameSuitCards => facts.TurnOwnerUsedSameSuitCards == true,
+        SkillProgramTriggerConditionKind.TurnOwnerFactionIs => facts.TurnOwnerFactionId is { } turnFaction &&
+            Factions.Contains(turnFaction, StringComparer.Ordinal),
         SkillProgramTriggerConditionKind.CardActionFromOwnerHand => facts.CardActionFromOwnerHand == true,
         SkillProgramTriggerConditionKind.DamageSourceIsOwner => facts.DamageSourceIsOwner == true,
         SkillProgramTriggerConditionKind.PreviousPlayCardIsBasic => facts.PreviousPlayCardIsBasic == true,
@@ -2226,6 +2231,11 @@ public sealed class SkillProgramCatalog
             Fail(path, "A distance-one Slash policy requires exactly Slash-family/Dodge/minimum two without qualifiers.");
         if (kind == SkillProgramCardPolicyKind.ExclusiveTurnPeachUse && !cardKinds.SequenceEqual([CardKind.Peach]))
             Fail(path, "exclusiveTurnPeachUse requires exactly Peach");
+        if (kind == SkillProgramCardPolicyKind.DyingSelfRescueOnly &&
+            (!cardKinds.SequenceEqual([CardKind.Peach]) || requiredKinds.Count != 0 || value != 0 ||
+             inputSuit is not null || outputSuit is not null || ownerRole is not null || factionId is not null ||
+             OptionalCondition(node, path).Kind != SkillProgramConditionKind.Always))
+            Fail(path, "Dying self-rescue-only requires exactly Peach and no other qualifiers.");
         if (kind == SkillProgramCardPolicyKind.SlashRangeFromEffectiveRank &&
             (cardKinds.Count == 0 || cardKinds.Any(card => card is not (CardKind.Slash or CardKind.FireSlash or CardKind.ThunderSlash)) ||
              requiredKinds.Count != 0 || value != 0 || inputSuit is not null || outputSuit is not null))
@@ -4026,11 +4036,13 @@ public sealed class SkillProgramCatalog
             Fail(path + ".suits", "must contain distinct suits");
         if (genderIs != node.TryGetProperty("gender", out _)) Fail(path, "Only damageSourceGenderIs requires gender.");
         var damageSourceFactionIs = kind == SkillProgramTriggerConditionKind.DamageSourceFactionIs;
-        if (damageSourceFactionIs != hasFactions)
-            Fail(path, damageSourceFactionIs ? "damageSourceFactionIs requires factions" :
+        var turnOwnerFactionIs = kind == SkillProgramTriggerConditionKind.TurnOwnerFactionIs;
+        var factionIs = damageSourceFactionIs || turnOwnerFactionIs;
+        if (factionIs != hasFactions)
+            Fail(path, factionIs ? "faction conditions require factions" :
                 "this trigger condition does not accept factions");
-        var factions = damageSourceFactionIs ? StringArray(node, "factions", path) : Array.Empty<string>();
-        if (damageSourceFactionIs && factions.Count == 0)
+        var factions = factionIs ? StringArray(node, "factions", path) : Array.Empty<string>();
+        if (factionIs && factions.Count == 0)
             Fail(path + ".factions", "must not be empty");
         var left = compare ? ParseTriggerValue(leftNode, path + ".left") : null;
         SkillProgramComparisonOperator? comparison = compare
