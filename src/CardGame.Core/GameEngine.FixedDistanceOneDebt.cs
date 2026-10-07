@@ -126,9 +126,13 @@ public sealed partial class GameEngine
     {
         var f = _resolutionStack.LastOrDefault() as ProgramSkillFrame ?? throw new InvalidOperationException("Distance debt has no owning program.");
         AssertFixedDistanceDebtPayment(f);
+        // CardLocation is a non-nullable struct, so the owned-selection check runs
+        // against a lifted nullable instead of an impossible negated pattern.
+        var debtCardId = choice.Cards is [var selected] ? selected : default(int?);
+        var debtSelection = debtCardId is { } paid ? _cardZones.GetLocation(paid) : (CardLocation?)null;
         if (f.FixedDistanceDebtPayment is not { CardId: null } r || _pendingDecision?.PlayerSeat != f.OwnerSeat ||
             !AssistedChoicesEqual([choice], FixedDistanceDebtChoices(f).Where(c => c.Id == choice.Id).ToArray()) ||
-            choice.Cards is not [var id] || _cardZones.GetLocation(id) is not { OwnerSeat: var owner } from || owner != f.OwnerSeat ||
+            debtCardId is not { } id || debtSelection is not { OwnerSeat: { } owner } from || owner != f.OwnerSeat ||
             from.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)) throw new InvalidOperationException("The debt lost its exact owned physical selection.");
         ClearPendingDecision();
         if (_winner != Winner.None || !_players[f.OwnerSeat].IsAlive)
