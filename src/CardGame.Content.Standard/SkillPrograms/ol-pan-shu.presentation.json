@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 3,
+  "skills": {
+    "ol:zhiren": {
+      "name": "织纴",
+      "description": "你的回合内，当你使用本回合的第一张非转化牌时，你可以执行对应效果，若X不小于（X为此牌牌名字数）：1，观看牌堆顶X张牌并以任意顺序放回牌堆顶或牌堆底；2，至多弃置场上的一张装备牌和一张延时锦囊牌；3，回复1点体力；4，摸三张牌。",
+      "triggerChoices": {},
+      "booleanStates": {
+        "zhiren-unrestricted": "织纴·无回合限制"
+      },
+      "optionLabels": {}
+    },
+    "ol:yaner": {
+      "name": "燕尔",
+      "description": "每回合限一次，当其他角色于其出牌阶段内失去最后的手牌时，你可以与其各摸两张牌。若你/其以此法摸到的牌类别相同，'织纴'删去'你的回合内'的描述直到你的下个回合开始/其回复1点体力。",
+      "triggerChoices": {},
+      "booleanStates": {},
+      "optionLabels": {}
+    }
+  }
+}

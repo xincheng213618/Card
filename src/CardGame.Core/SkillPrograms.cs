@@ -109,6 +109,7 @@ public enum SkillProgramTriggerValueKind
     OwnerLostHp = 600, CardActionHandCardCount = 601, PlayPhaseDamageTakenByAny = 900,
     EventTargetMarkerCount = 1280, EventSourceMarkerCount = 3101,
     TurnOwnerSlashUseCount = 3102,
+    CurrentTurnNonConvertedUseCount = 1030,
     MovedEquipmentCardCount = 5000
 }
 public enum SkillProgramSuitSource { DamageCard }
@@ -461,6 +462,7 @@ public enum SkillProgramEffectOp
     RequireTargetDiscardOrEquipmentRecast = 7340,
     OfferSlashTargetBenefit = 7000, SettleDodgeCancelledSlashBenefit = 7001,
     DiscardDrawAndOfferUniqueHpPeer = 7200, GiveAllHandAndStartRecipientPindian = 7201, UsePindianWinnerSlash = 7202,
+    ZhirenReorderTopByLength = 7204, ZhirenResolveFieldTiers = 7205, YanerResolvePairBenefit = 7206,
     DiscardSlashThenOtherCardAndUseDuel = 7320,
     DrawThenNullifyOwnMultiTargetTrick = 7300, RestrictDamageSourceHandCategory = 7301,
     PlaceOwnedEquipmentThenResolveSlotBenefit = 7500,
@@ -522,7 +524,7 @@ public enum SkillProgramTriggerWindow
     ActualSlashTargetBenefit = 7000, SlashDodgeCancelledBenefit = 7001, ActualSlashTargetPenalty = 7340
 }
 public enum SkillProgramTriggerSubject { Owner, Any, Source, DamageSource, DamageTarget }
-public enum SkillProgramMovementOccurrence { PerBatch, PerCard, PerSourceOwner = 700, PerOwnerBatch = 761, PerThirdPartyHandGain = 762, PerOwnerSourceHandGain = 763 }
+public enum SkillProgramMovementOccurrence { PerBatch, PerCard, PerSourceOwner = 700, PerOwnerBatch = 761, PerThirdPartyHandGain = 762, PerOwnerSourceHandGain = 763, PerOtherLastHandLoss = 1031 }
 public enum SkillProgramCardCountExpression { NextPhaseActivationOrdinal = 760 }
 public enum SkillProgramHpChangeOccurrence { PerEvent, PerPoint }
 public enum SkillProgramDamageOccurrence { PerDamage, PerDamagePoint }
@@ -875,7 +877,8 @@ public sealed record SkillProgramTriggerFacts(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? TurnOwnerSlashUseCount = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] Suit? DamageCardSuit = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? PhaseIsPlay = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? CardActionOpponentIsOwner = null)
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? CardActionOpponentIsOwner = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? CurrentTurnNonConvertedUseCount = null)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public CardMovementTiming? MovementTiming { get; init; }
@@ -971,6 +974,8 @@ public sealed record SkillProgramTriggerValue(SkillProgramTriggerValueKind Kind,
         SkillProgramTriggerValueKind.EventSourceMarkerCount => facts.EventSourceMarkerCounts?.GetValueOrDefault(Marker!.Value) ?? 0,
         SkillProgramTriggerValueKind.TurnOwnerSlashUseCount => facts.TurnOwnerSlashUseCount ??
             throw new InvalidOperationException("Turn-owner slash use facts were not captured."),
+        SkillProgramTriggerValueKind.CurrentTurnNonConvertedUseCount => facts.CurrentTurnNonConvertedUseCount ??
+            throw new InvalidOperationException("Current-turn non-converted use facts were not captured."),
         SkillProgramTriggerValueKind.OwnerAttributedMarkerCount => Marker is { } marker &&
             facts.MarkerCounts is { } counts && counts.TryGetValue(marker, out var markerCount) ? markerCount : 0,
         _ => throw new InvalidOperationException($"Unsupported trigger value kind '{Kind}'.")

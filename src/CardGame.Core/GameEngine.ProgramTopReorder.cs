@@ -4,11 +4,12 @@ public sealed partial class GameEngine
 {
     private SkillProgramStepOutcome BeginProgramTopReorder(ProgramSkillFrame frame, int maximumCards,
         SkillProgramNumberExpression? numberExpression, int? exactTopCount = null,
-        ProgramPopulationThresholdCount? population = null, string? allBottomStateId = null)
+        ProgramPopulationThresholdCount? population = null, string? allBottomStateId = null,
+        bool requireCurrentSeat = true)
     {
         var active = GetActiveProgramFrame(frame.Id);
-        if (active.TopReorder is not null || _pendingDecision is not null ||
-            active.OwnerSeat != _currentSeat || !_players[active.OwnerSeat].IsAlive)
+        if (active.TopReorder is not null || _pendingDecision is not null || !_players[active.OwnerSeat].IsAlive ||
+            (requireCurrentSeat && active.OwnerSeat != _currentSeat))
             throw new InvalidOperationException("Top ordering requires one current owner and clean prompt.");
         if (numberExpression is not null and not SkillProgramNumberExpression.LivingPlayerCount)
             throw new InvalidOperationException("Unsupported top-ordering count expression.");

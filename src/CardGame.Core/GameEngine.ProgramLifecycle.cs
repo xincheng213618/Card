@@ -2360,7 +2360,9 @@ public sealed partial class GameEngine
           PhaseIsPlay = _contentRegistry.ProgramDependencies.UsesTriggerCondition(SkillProgramTriggerConditionKind.PhaseIsPlay)
               ? _phase == TurnPhase.Play : null,
           CurrentTurnUsedCardCategoryCount = TracksCurrentTurnUseKinds ? CurrentTurnUseKinds(owner.Seat).Categories : null,
-          CurrentActualPlayPhysicalSlashLossCount = TracksActualPlaySlashLoss ? CurrentActualPlaySlashLossCount(owner.Seat) : null };
+          CurrentActualPlayPhysicalSlashLossCount = TracksActualPlaySlashLoss ? CurrentActualPlaySlashLossCount(owner.Seat) : null,
+          CurrentTurnNonConvertedUseCount = _contentRegistry.ProgramDependencies.UsesTriggerValue(SkillProgramTriggerValueKind.CurrentTurnNonConvertedUseCount)
+              ? CountNonConvertedActualUsesThisTurn(owner.Seat) : null };
     }
 
     private SkillProgramTriggerFacts CaptureProgramTriggerFacts(CharacterState owner, CardActionContext action) =>
@@ -3515,6 +3517,7 @@ public sealed partial class GameEngine
         if (action == "tunan-branch") { ResolveTunanBranchChoice(selected); return; }
         if (action == "tunan-target") { ResolveTunanTargetChoice(selected); return; }
         if (action == "bijing-punish-discard") { ResolveBijingPunishChoice(selected); return; }
+        if (action == "zhiren-field-discard") { ResolveZhirenFieldChoice(selected); return; }
         if (action == "youdi-bait-discard") { ResolveYoudiBaitChoice(selected); return; }
 
         var (candidate, context) = GetPendingProgramTriggerCandidate();
@@ -4290,6 +4293,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.UseOwnPlayHistoryAtEnding => SelectAiHistoricalEndingUse(decision, frame),
                 SkillProgramEffectOp.YanjiaoSplitRevealedCards => SelectAiYanjiaoSplit(decision, frame),
                 SkillProgramEffectOp.TunanUseRevealedCard => SelectAiTunanChoice(decision),
+                SkillProgramEffectOp.ZhirenResolveFieldTiers => SelectAiZhirenFieldChoice(decision),
                 SkillProgramEffectOp.BijingPunishDiscardPhase => decision.Choices
                     .OrderBy(choice => choice.Id.Value, StringComparer.Ordinal).First(),
                 SkillProgramEffectOp.YoudiBaitDiscard => SelectAiYoudiBaitChoice(decision),
