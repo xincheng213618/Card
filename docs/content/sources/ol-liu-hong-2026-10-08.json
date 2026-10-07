@@ -1,0 +1,92 @@
+{
+  "generalId": "ol:liu-hong",
+  "characterName": "刘宏",
+  "officialId": 507,
+  "sourcePage": "https://www.sanguosha.com/hero/507",
+  "textSource": "https://www.sanguosha.com/hero/507（官网 hero/info 接口 gid=507 交叉核对体力/势力/特点；技能逐字文本取自官网页面 SSR 正文，并与 OL 专站 wiki.biligame.com/sgsol/刘宏 的现行版逐字交叉验证；BWIKI 主站 wiki.biligame.com/sgs/刘宏 为十周年经典版，仅作对照记录差异）",
+  "capturedAt": "2026-10-08",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 507,
+    "name": "刘宏",
+    "extend": "",
+    "hp": 4,
+    "figure": "群",
+    "figure_py": "qun",
+    "gender": "男",
+    "title": "汉灵帝",
+    "quality": "史诗",
+    "package": "璀璨星河-天极",
+    "releaseDate": "2022-08-28",
+    "labels": ["防御", "辅助", "发育"],
+    "characteristic": "能够给造成伤害能力强的队友提供过牌。"
+  },
+  "artwork": {
+    "skinId": "50700",
+    "skinName": "经典形象",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/50700.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-liu-hong.png",
+    "sha256": "c9c1929ecb36a30daabaa0d003e634c71b037951bde3624916cbafd129220175",
+    "byteCount": 919754,
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "鬻爵",
+      "text": "出牌阶段限一次，你可以废除一个装备栏，然后令一名有手牌的其他角色交给你一张手牌，其直到你的下回合开始获得“执笏”。",
+      "textNote": "官网页面 SSR 正文逐字原文（首个 character-tab 为 on 态，skill-text 首个 span 与鬻爵配对；“执笏”为页内技能术语引用 font href=3110）。OL 专站现行版同义原文：“出牌阶段限一次，你可以废除你的一个装备栏，并选择一名有手牌的其他角色，令其交给你一张手牌，然后其获得技能‘执笏’直到你的下个回合开始。”两站措辞不同但语义一致。",
+      "programId": "ol:yujue",
+      "notes": [
+        "Trigger yujue-launch: playPhaseStarting, subject owner, optional=false（吕凯图南、黄承彦接疹同款“出牌阶段限一次”窗口口径）；“你可以”的退出项在 op 提示内（择才同款：强制触发 + op 提示带“不发动”）。",
+        "Bespoke op yujueResolve（7302）：一条 op 串起三段提示——①拥有者选要废除的装备栏（五个装备栏枚举序，仅列出容量>0 的栏，附“不发动”）；②拥有者选交牌角色（有手牌的其他存活角色）；③目标自选一张手牌交给拥有者。挂起状态 YujuePendingState 挂在程序帧上（落宠同款帧内 pending）。",
+        "废除口径：复用 SetEquipmentSlotCapacity(slot, 0)（陆抗决阉/共享装备栏机制），容量归零并发布 EquipmentSlotCapacityChangedEvent；栏内有装备牌时随废除移入弃牌堆，随后走 cards-moved 窗口挂起续接。鬻爵的废除支付校验限 own Play 阶段（AbolishProgramEquipmentSlotGroup 同款门槛）。",
+        "交牌后目标经 AcquireRuntimeSkills 获得 ol:zhihu（授予源 acquired:zhihu:{拥有者座位}:{帧id}，黄承彦择才“acquired:round:”同款自定义源前缀 + 择时清除），ol:zhihu 在同一 bundle 注册（EmbeddedSkillProgramCatalog.RegisterBundle 声明覆盖授予技能）。",
+        "目标池门控：发动前 CanRunYujueResolve 要求存在至少一个未废除装备栏且存在至少一名有手牌的其他存活角色；交牌角色选择与交牌之间无他人行动插入，目标必有效（若 cards-moved 窗口内目标池塌缩则按无交牌收尾，废除不回滚）。",
+        "证据 ProgramYujueInvokedEvent 记录废除栏 id、目标座位、给出牌 id；执笏授予本身经 AcquireRuntimeSkills 发布 SkillsAcquiredEvent。交牌为公开手牌间移动（给定牌 id 记录于事件），不产生暗手牌 id 进普通快照的问题。",
+        "AI 策略：废除按 宝物→防御坐骑→进攻坐骑→防具→武器 的保栏偏好、空栏优先（先废空栏不损牌）；交牌目标用共享 ScoreProgramTarget 按 TargetDraw=2 计价（受赠者既付一张牌又获强过牌技能）；目标交牌按选择 id 稳定取第一张；描述符 AiPolicy = GainCards 语义按拥有者 +1 牌计价使可选触发通过通用 EstimateCompositionForAi 路径。"
+      ]
+    },
+    {
+      "name": "图兴",
+      "text": "锁定技，当你废除一个装备栏时，你增加1点体力上限并回复1点体力。当你的所有装备栏首次被废除后，你减少4点体力上限，并令你本局造成的伤害+1。",
+      "textNote": "官网页面 SSR 正文逐字原文。OL 专站现行版：“锁定技，①当你废除一个装备栏时，你加1点体力上限并回复1点体力。②当你首次废除所有装备栏后，你减4点体力上限，然后你本局游戏接下来造成的伤害+1。”一致。BWIKI 主站（十周年）第二句为“然后你造成不为传导伤害的伤害+1”（排除传导伤害），OL 版无此排除，按 OL 版实现。",
+      "programId": "ol:tuxing",
+      "notes": [
+        "引擎无“装备栏废除”触发窗口，图兴两个子句由鬻爵废除流程内联结算（ProgramLiuHongPrograms.ResolveTuxingAfterSlotAbolish）：废除后 +1 体力上限（ChangeProgramMaximumHp）+ 回复1点（共享 Recover 原语）；随后检测五个装备栏容量是否全部为 0，首次全部废除时 -4 体力上限并武装全局伤害 +1。",
+        "“首次”防重：已提交事件史中该座位存在 ProgramGameDamageBonusArmedEvent 即不再武装（择才/落宠同款 committed-history 推导，无运行期私有状态，冷恢复重放一致）。",
+        "第二条保险（catch-up）：ol:tuxing 另声明 turnStartBeforeNormalFlow 强制触发（条件 compare(currentAvailableEquipmentSlotCount, equal, 0)，触发事实 1400 为既有枚举），op tuxingArmGameDamage（7304）幂等补武装——覆盖未来出现“鬻爵之外废除刘宏装备栏的能力”时的武装补账（见 versionBoundary）。",
+        "全局伤害 +1 为本批新增共享能力：ProgramGameDamageBonusArmedEvent（通用命名，任意内容技能可复用）+ 伤害管线一处通用接入（FinalizeAttackDamageAmount 的 programDamageModifiers 串联 GetArmedGameDamageBonuses，按来源座位读取已提交武装事件，含传导伤害、不限牌种，ProgramCardDamageModifiedEvent 证据照常发布）。",
+        "AI 策略：图兴为锁定技无选择；描述符 AiPolicy = ChooseOption 空计价（锁定触发不参与可选触发估算）；伤害 +1 通过武装事件在伤害结算时自动生效，无需 AI 侧特判。"
+      ]
+    },
+    {
+      "name": "执笏",
+      "text": "锁定技，每回合限两次，当你对其他角色造成伤害后，你摸两张牌。",
+      "textNote": "官网页面 SSR 正文未展开“执笏”文本（页内术语引用）；OL 专站现行版与 BWIKI 主站逐字一致：“锁定技，每回合限两次，当你对其他角色造成伤害后，你摸两张牌。”",
+      "programId": "ol:zhihu",
+      "notes": [
+        "纯内容表达，无 bespoke 结算 op：trigger zhihu-draw = afterDamageApplied + subject any + damageOccurrence perDamage + condition all(damageSourceIsOwner, damageTargetIsOther)（典韦耀冥同款“当你对其他角色造成伤害后”口径）+ usageScope turn + usageLimit 2 + effects draw(2)（既有 draw op）。",
+        "失效：ol:zhihu 另声明 zhihu-expire-own（默认 own 回合）与 zhihu-expire-other（turnOwnerScope otherLiving）两条 turnStartBeforeNormalFlow 强制触发，共用 op zhihuExpire（7303）：持有者技能授予源前缀 acquired:zhihu:{拥有者座位}: 解析出授予者座位，等于当前回合座位时移除授予（即“直到你的下回合开始”——期间其他角色的回合开始不移除）。",
+        "若授予者（刘宏）死亡，其下回合不再开始，执笏按字面持续存在（官方无明确裁定，见 versionBoundary）。"
+      ]
+    }
+  ],
+  "observations": [
+    "Official hero/info API (gid=507) confirms 刘宏 as qun 4HP 史诗 with labels 防御/辅助/发育 and the characteristic 能够给造成伤害能力强的队友提供过牌; biography: 汉灵帝，汉献帝刘协之父，在位施行党锢及宦官政治，又巧立名目搜刮钱财，卖官鬻[yù]爵以享乐。在位晚期爆发黄巾起义。",
+    "OL 专站 infobox (wiki.biligame.com/sgsol/刘宏, 现行版 2025-06-01 更新): 称号=汉灵帝、性别=男、势力=群、4体力（页面底部表）、武将包=璀璨星河-天极、上线时间 2022-08-28、获取=开启100个刘宏武将宝箱；与官网接口的势力/体力一致；页面同时给出 ☆执笏 文本。",
+    "BWIKI 主站 (wiki.biligame.com/sgs/刘宏) 是《三国杀十周年》版本（称号=汉灵帝、性别=男、势力=群、武将包=荟萃-黄巾之乱、上线 2020-12-28）：技能名与结构与 OL 现行版相同，唯一实质差异是图兴第二句的伤害加成范围——十周年为“造成不为传导伤害的伤害+1”，OL 为“本局造成的伤害+1”（无传导排除）。本批按 OL 版实现（武装加成作用于来源座位的一切伤害，含传导）。此外官网 og:description 出现“0体力”为官网模板未解析字段的页面缺陷，以接口 hp=4 与页面正文为准。",
+    "取证过程：官网 hero/info 接口与 hero/507 页面（24206B）无拦截一次取回（curl 带 User-Agent: Mozilla/5.0）；sgsol 武将页（98167B）与 BWIKI 主站页（125214B）均 200 一次取回，本批未遇到 EdgeOne 限流（HTTP 567），未触发 sleep 重试。技能-描述配对以官网页面 character-tabs 与 skill-text span 的顺序（首个 tab 为 on 态）为准。",
+    "官方立绘 50700.png 一次下载成功（919,754 字节，PNG 签名校验通过，750×950，SHA-256 c9c1929ecb36a30daabaa0d003e634c71b037951bde3624916cbafd129220175），与协调者预验字节数一致。",
+    "New bespoke ops 7302-7304 (yujueResolve, zhihuExpire, tuxingArmGameDamage)，只占用分配的 7300-7307 段（7300/7301 在基线已被 OL 杨修/SP 庞德批占用，取号前逐一核实空闲后从 7302 起）；未新增 TriggerFactKind、PlayerMarkerKind、ConditionKind、触发窗口枚举或 schema 节点；三个 Program* 证据事件均为标量记录。",
+    "共享口径：废除装备栏复用共享装备栏容量机制（SetEquipmentSlotCapacity/EquipmentSlotCapacityChangedEvent，陆抗决阉同款）；体力上限增减复用 ChangeProgramMaximumHp/MaximumHpChangedEvent；回复复用共享 Recover 原语；技能授予复用 AcquireRuntimeSkills（黄承彦择才同款自定义源前缀 + 择时清除）；“对其他角色造成伤害后”复用典韦耀冥条件口径；每回合限两次复用 usageScope/usageLimit；全局伤害 +1 为本批新增共享能力（见 benchmark 文档共享能力节）。"
+  ],
+  "versionBoundary": [
+    "“当你废除一个装备栏时”（图兴①）由鬻爵的废除流程内联结算：当前内容中刘宏装备栏的废除仅来自鬻爵，口径覆盖全部可观察行为；若未来出现其他废除刘宏装备栏的能力，①的即时结算需要共享的“装备栏废除”触发窗口（本批未新增窗口枚举）。作为保险，图兴的武装子句另有回合开始幂等补账触发（条件化 currentAvailableEquipmentSlotCount==0），但①的加体力上限/回复即时结算无此补账。",
+    "执笏失效点为拥有者（刘宏）下回合的 turnStartBeforeNormalFlow（回合开始、正常流程前）——“直到你的下回合开始”按本仓回合开始窗口口径实现；在拥有者死亡（其回合永不开始）时执笏按字面持续存在，官方无明确裁定，如实记录。",
+    "“废除一个装备栏”时若该栏有装备牌，牌随废除移入弃牌堆（共享装备栏容量机制语义）；官方文本未描述装备牌去向，按本仓共享机制口径实现并如实记录。",
+    "全局伤害 +1 作用于来源座位的一切伤害（含铁索传导、程序伤害），与 OL 文本“本局造成的伤害+1”一致；十周年版的“不为传导伤害”排除未采用（版本差异已记录）。",
+    "鬻爵的“出牌阶段限一次”以 playPhaseStarting 触发（每回合恰好一次）表达，与吕凯图南、黄承彦接疹的既有口径一致；发动时点为出牌阶段开始而非阶段内任意时点。",
+    "交牌为目标的“交给你一张手牌”：目标自选（含等价于任意手牌的选择权）；拥有者获得该牌进入自己手牌。目标池在废除与交牌之间塌缩的极端情形按无交牌收尾，废除不回滚（废除支付已成立）。"
+  ]
+}
