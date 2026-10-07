@@ -1,0 +1,310 @@
+{
+  "baseHead": "f1833922cec066f9f4737971956f2de97d74b350",
+  "capturedAtUtc": "2026-10-07T04:00:03.339505+00:00",
+  "scope": "Three next unregistered current ordinary official OL generals from freshly advertised directory; exact current skill text and metadata, source only.",
+  "network": {
+    "requestCount": 7,
+    "httpStatuses": [
+      200,
+      200,
+      200,
+      200,
+      200,
+      200,
+      200
+    ],
+    "redirectsFollowed": false,
+    "retries": 0,
+    "mediaRequests": 0,
+    "moreRequestsPlanned": false
+  },
+  "directory": {
+    "url": "https://www.sanguosha.com/hero",
+    "path": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/directory.raw.html",
+    "sha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+    "totalAdvertisedCharacters": 692,
+    "otherSeriesAdvertisedCharacters": 267
+  },
+  "currentInputs": [
+    {
+      "path": "src/CardGame.Content.Standard/StandardClassicGeneralPackage.cs",
+      "sha256": "ad59b15b3853bc29ff0e3fe39e1ddfda9b9351f65598a8cf8f6924abf3a041b9"
+    },
+    {
+      "path": "src/CardGame.Wpf/Presentation/GeneralGalleryCatalog.cs",
+      "sha256": "6e57ba0be2cb669ee3d810517ee64c18e8be85d81133eab30423a94eec89370f"
+    },
+    {
+      "path": "docs/LUNA_CONTENT_BACKLOG.md",
+      "sha256": "4352015c38f7b7d8f7e5c6d7fdbb66c6f125c66bda55d0462e8c3ceeee6a59b1"
+    }
+  ],
+  "existingSourceGapsNotReopened": [
+    103,
+    116,
+    117,
+    451,
+    690,
+    449,
+    447
+  ],
+  "commonBoundaries": {
+    "runtimeBoundary": "Typed frame-owned pending state and exact parent returns; pay each cost once across nested movement/damage/dying/skill-change windows; prepare immutable player views and event payloads; AI consumes filtered snapshots only.",
+    "ruleEntryPoints": [
+      "AdvanceEventRulesAndQueueFact",
+      "AdvanceRulesAndPublishState"
+    ],
+    "verification": "Source/hash/JSON inspection only. No build, test runner, loader, game execution, image download, packaging, publish or commit.",
+    "versionPolicy": "No rules epoch, JSON schema or content package version change for these ordinary content additions."
+  },
+  "candidates": [
+    {
+      "gid": 126,
+      "name": "丁奉",
+      "officialPageUrl": "https://www.sanguosha.com/hero/126",
+      "series": "其他",
+      "variantId": "ordinary",
+      "rulesetId": "sanguosha-ol",
+      "plannedGeneralId": "ol:ding-feng",
+      "plannedCharacterId": "character:ding-feng",
+      "metadata": {
+        "faction": "wu",
+        "maxHp": 4,
+        "rawInitialHp": 0,
+        "hasStructuredGenderField": false,
+        "genderEditorial": "Male",
+        "genderAuthority": "Editorial historical identity; official info has no structured gender field.",
+        "biography": "吴国将领。年少时以骁勇为小将，经常奋勇杀敌，屡立功勋，此后又于东兴之战中“雪中奋短兵”，大破侵犯东吴的魏军。吴景帝孙休在位时，丁奉设计除掉了东吴的权臣孙綝[chēn]，被拜为大将军，后为右大司马、左军师。",
+        "advertisedCoverUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12600.png"
+      },
+      "skills": [
+        {
+          "name": "短兵",
+          "officialText": "你使用【杀】可以多指定一名距离为1的角色为目标。你对距离为1的角色使用【杀】需两张【闪】才能抵消。",
+          "rawInnerHtml": "你使用【杀】可以多指定一名距离为1的角色为目标。你对距离为1的角色使用【杀】需两张【闪】才能抵消。"
+        },
+        {
+          "name": "奋迅",
+          "officialText": "出牌阶段限一次，你可以选择一名其他角色，然后你本回合计算与其的距离视为1，若如此做，若你直到结束阶段未对其造成过伤害，结束阶段，你弃置一张牌。",
+          "rawInnerHtml": "出牌阶段限一次，你可以选择一名其他角色，然后你本回合计算与其的距离视为1，若如此做，若你直到结束阶段未对其造成过伤害，结束阶段，你弃置一张牌。"
+        }
+      ],
+      "fullMainTextReady": true,
+      "derivedSkillDefinitionRequired": false,
+      "pagePath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/126-page.raw.html",
+      "pageSha256": "283aafa51b7fc1558645135cf99e6b53ba130066fe2d1ebe6598a772669fd859",
+      "infoPath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/126-info.raw.json",
+      "infoSha256": "b4a3d35bfce3e691c30433cdfffe48acaabe165dd3fde4270368f7704d0c2fd1",
+      "registrationGap": "No name or planned ol ID appears in current src/**/*.cs; no corresponding GeneralModules or gallery entry. This is source inspection, not loader execution.",
+      "capabilityAssessment": {
+        "reuse": [
+          "Existing use/target frame flow, actual turn/phase issuance ledgers, Slash extra-target entry points and minimum response count capability; owned-card discard and applied-damage receipts."
+        ],
+        "typedExtensionsToConfirm": [
+          "Allow exactly one additional other legal Slash target whose actual directed distance is one; require two Dodge responses only for individual final targets at directed distance one.",
+          "Issue an owner-to-selected-target distance-equals-one policy through the actual turn and preserve each activation's ending debt, including multiple real Play phases.",
+          "Record whether the owner actually caused positive applied damage to each issued target before Ending; if not, resolve one owned-card discard at Ending through native movement/continuation flow."
+        ],
+        "engineeringQuestions": [
+          "Define and document distance evaluation/freeze timing for redirected or added Slash targets.",
+          "Define and document per-activation behavior for repeated Play phases and beneficiary death or skill loss after issuance."
+        ]
+      },
+      "implementationComplete": false,
+      "runtimeAcceptance": false
+    },
+    {
+      "gid": 127,
+      "name": "潘凤",
+      "officialPageUrl": "https://www.sanguosha.com/hero/127",
+      "series": "其他",
+      "variantId": "ordinary",
+      "rulesetId": "sanguosha-ol",
+      "plannedGeneralId": "ol:pan-feng",
+      "plannedCharacterId": "character:pan-feng",
+      "metadata": {
+        "faction": "qun",
+        "maxHp": 4,
+        "rawInitialHp": 0,
+        "hasStructuredGenderField": false,
+        "genderEditorial": "Male",
+        "genderAuthority": "Editorial historical identity; official info has no structured gender field.",
+        "biography": "冀州牧韩馥部下的上将。当十八路诸侯讨伐董卓之时，他奉韩馥之命前往汜水关前挑战董卓部下大将华雄，不敌被斩。",
+        "advertisedCoverUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12700.png"
+      },
+      "skills": [
+        {
+          "name": "狂斧",
+          "officialText": "出牌阶段限一次，你可以弃置一名角色装备区里的一张牌，视为使用一张无距离限制的【杀】。若此装备牌：不属于你且未造成伤害，你弃置两张手牌；属于你且造成了伤害，你摸两张牌。",
+          "rawInnerHtml": "出牌阶段限一次，你可以弃置一名角色装备区里的一张牌，视为使用一张无距离限制的【杀】。若此装备牌：不属于你且未造成伤害，你弃置两张手牌；属于你且造成了伤害，你摸两张牌。"
+        }
+      ],
+      "fullMainTextReady": true,
+      "derivedSkillDefinitionRequired": false,
+      "pagePath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/127-page.raw.html",
+      "pageSha256": "2595e3bc8f3a4ab48e18e11696bb773ff70f307b91f2a02a8da16c666448e468",
+      "infoPath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/127-info.raw.json",
+      "infoSha256": "333feeb5cf99ee294267b61cd0f9dd8b13696d255878dd02ed1b65065c69bdce",
+      "registrationGap": "No name or planned ol ID appears in current src/**/*.cs; no corresponding GeneralModules or gallery entry. This is source inspection, not loader execution.",
+      "capabilityAssessment": {
+        "reuse": [
+          "Existing other-owned equipment selection and discard, UseVirtualSlash, native Slash response/damage/use completion and ordinary discard/draw effects."
+        ],
+        "typedExtensionsToConfirm": [
+          "Freeze discarded equipment's original owner before payment; discard exactly that public equipment entity and finish all departure hooks before virtual Slash target/use issuance.",
+          "Create a distance-unlimited virtual Slash through native legality and quota rules, then receive its exact actual-use caused-damage result with a typed parent return.",
+          "After that Slash completes: foreign equipment and no caused damage requires two hand cards discarded; own equipment and caused damage draws two; other combinations have no follow-up."
+        ],
+        "engineeringQuestions": [
+          "Freeze original equipment ownership before Silver Lion or Wooden Ox departure effects; never repay after resume.",
+          "Define and document partial hand discard when fewer than two remain and actual-use damage attribution, including redirected/multi-target/chained paths."
+        ]
+      },
+      "implementationComplete": false,
+      "runtimeAcceptance": false
+    },
+    {
+      "gid": 128,
+      "name": "马良",
+      "officialPageUrl": "https://www.sanguosha.com/hero/128",
+      "series": "其他",
+      "variantId": "ordinary",
+      "rulesetId": "sanguosha-ol",
+      "plannedGeneralId": "ol:ma-liang",
+      "plannedCharacterId": "character:ma-liang",
+      "metadata": {
+        "faction": "shu",
+        "maxHp": 3,
+        "rawInitialHp": 0,
+        "hasStructuredGenderField": false,
+        "genderEditorial": "Male",
+        "genderAuthority": "Editorial historical identity; official info has no structured gender field.",
+        "biography": "字季常，因眉毛中有白毛，人称白眉马良，马谡的兄长。马良在兄弟五人中名声最佳，因此有“马氏五常，白眉最良”的说法。",
+        "advertisedCoverUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12800.png"
+      },
+      "skills": [
+        {
+          "name": "自书",
+          "officialText": "锁定技，其他角色的回合结束后，你将此回合获得的手牌置入弃牌堆。当你于回合内不因本技能获得手牌后，你摸一张牌。",
+          "rawInnerHtml": "锁定技，其他角色的回合结束后，你将此回合获得的手牌置入弃牌堆。当你于回合内不因本技能获得手牌后，你摸一张牌。"
+        },
+        {
+          "name": "应援",
+          "officialText": "当你于回合内使用牌后，你可以令一名其他角色获得牌堆中一张类型相同的牌。每回合每种类型限一次。",
+          "rawInnerHtml": "当你于回合内使用牌后，你可以令一名其他角色获得牌堆中一张类型相同的牌。每回合每种类型限一次。"
+        }
+      ],
+      "fullMainTextReady": true,
+      "derivedSkillDefinitionRequired": false,
+      "pagePath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/128-page.raw.html",
+      "pageSha256": "4f8f7cb36a86411dcb70d1e76f9c5f87e3e57a3b3be892c1f3e224b98b7a28bc",
+      "infoPath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/128-info.raw.json",
+      "infoSha256": "0354a86a559f7c96f1185f9fc3738973d77958516a897f9cd04678b4ec618edc",
+      "registrationGap": "No name or planned ol ID appears in current src/**/*.cs; no corresponding GeneralModules or gallery entry. This is source inspection, not loader execution.",
+      "capabilityAssessment": {
+        "reuse": [
+          "CardsGained movement observer, actual turn boundaries, CardUseFinished/committed-use lifecycle, per-actual-turn ledgers and category-aware draw-pile selection/movement."
+        ],
+        "typedExtensionsToConfirm": [
+          "During each other actual turn, retain exact entity receipts for cards gained into this owner's hand; after that turn ends place only tracked cards still in that owner's hand into DiscardPile. Do not use the historical immediate outside-turn discard rule.",
+          "For each own-turn hand-gain batch not produced by this exact skill, draw one through native gain flow with an explicit producer identity exclusion that prevents recursion.",
+          "After own-turn use, offer another living recipient once per Basic/Trick/Equipment category per actual turn; transfer one matching category entity from the real draw pile without revealing hidden deck order to observers."
+        ],
+        "engineeringQuestions": [
+          "Define and document matching draw-pile selection order when the source only says one card of the same type.",
+          "Define and document category evaluation for converted/virtual cards and true skill loss/regrant, death, no matching draw-pile card, and extra actual phases."
+        ]
+      },
+      "implementationComplete": false,
+      "runtimeAcceptance": false
+    }
+  ],
+  "requestLedger": [
+    {
+      "url": "https://www.sanguosha.com/hero",
+      "advertisedBy": {
+        "path": "docs/content/sources/evidence/ordinary-other-fortieth-123-page.raw.html",
+        "line": 141
+      },
+      "bodyPath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/directory.raw.html",
+      "bodySha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26",
+      "headersPath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/directory.headers.txt",
+      "headersSha256": "848213bc21ffaf144017db4509bf609d8159342207b844b0eee2f1a36905d934",
+      "httpStatus": 200
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/126",
+      "advertisedBy": {
+        "path": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/directory.raw.html",
+        "bodySha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26"
+      },
+      "bodyPath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/126-page.raw.html",
+      "bodySha256": "283aafa51b7fc1558645135cf99e6b53ba130066fe2d1ebe6598a772669fd859",
+      "headersPath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/126-page.headers.txt",
+      "headersSha256": "e7feb9cb9187f897ffb840bd15d91f8d8a0d1ebf24489203478d09e6eeea74d4",
+      "httpStatus": 200
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=126",
+      "advertisedBy": {
+        "path": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/126-page.raw.html",
+        "bodySha256": "283aafa51b7fc1558645135cf99e6b53ba130066fe2d1ebe6598a772669fd859"
+      },
+      "bodyPath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/126-info.raw.json",
+      "bodySha256": "b4a3d35bfce3e691c30433cdfffe48acaabe165dd3fde4270368f7704d0c2fd1",
+      "headersPath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/126-info.headers.txt",
+      "headersSha256": "35d341d4a38677975ea98bb134eb1dcd343dd6f897856dd65504ee329326e32a",
+      "httpStatus": 200
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/127",
+      "advertisedBy": {
+        "path": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/directory.raw.html",
+        "bodySha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26"
+      },
+      "bodyPath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/127-page.raw.html",
+      "bodySha256": "2595e3bc8f3a4ab48e18e11696bb773ff70f307b91f2a02a8da16c666448e468",
+      "headersPath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/127-page.headers.txt",
+      "headersSha256": "22a6bb1946c5a0129cdd9168a42a1d46e92a63a26c6d902d0fcdacb5f471c4c6",
+      "httpStatus": 200
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=127",
+      "advertisedBy": {
+        "path": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/127-page.raw.html",
+        "bodySha256": "2595e3bc8f3a4ab48e18e11696bb773ff70f307b91f2a02a8da16c666448e468"
+      },
+      "bodyPath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/127-info.raw.json",
+      "bodySha256": "333feeb5cf99ee294267b61cd0f9dd8b13696d255878dd02ed1b65065c69bdce",
+      "headersPath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/127-info.headers.txt",
+      "headersSha256": "e199f25b8b24b18c19ccfdee7863b2749f231c1552e9dfac22e38435af9812fd",
+      "httpStatus": 200
+    },
+    {
+      "url": "https://www.sanguosha.com/hero/128",
+      "advertisedBy": {
+        "path": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/directory.raw.html",
+        "bodySha256": "df68e4bb68731cf79e2ab27a2c970b251c75e084c321769d140bb3847e73bb26"
+      },
+      "bodyPath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/128-page.raw.html",
+      "bodySha256": "4f8f7cb36a86411dcb70d1e76f9c5f87e3e57a3b3be892c1f3e224b98b7a28bc",
+      "headersPath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/128-page.headers.txt",
+      "headersSha256": "75442e30fc38e9db7af82b0a2f93c36b4680e25d5156f4d8347af7558f7c0157",
+      "httpStatus": 200
+    },
+    {
+      "url": "https://www.sanguosha.com/api/v1/hero/info?gid=128",
+      "advertisedBy": {
+        "path": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/128-page.raw.html",
+        "bodySha256": "4f8f7cb36a86411dcb70d1e76f9c5f87e3e57a3b3be892c1f3e224b98b7a28bc"
+      },
+      "bodyPath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/128-info.raw.json",
+      "bodySha256": "0354a86a559f7c96f1185f9fc3738973d77958516a897f9cd04678b4ec618edc",
+      "headersPath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/128-info.headers.txt",
+      "headersSha256": "e8384e60e1aa8ffeadacb2c836b6786eb02967294121bc6c729af273bd06c589",
+      "httpStatus": 200
+    }
+  ],
+  "runtimeAcceptance": false,
+  "initialHpInterpretation": "initial_hp=0 is the same official sentinel as prior captures; no separate initial-HP override is proposed. Root should retain previous heroDetail.js source interpretation and cite its exact retained bytes if adopted."
+}

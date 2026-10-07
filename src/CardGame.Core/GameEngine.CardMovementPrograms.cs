@@ -5,7 +5,7 @@ public sealed partial class GameEngine
 {
     private readonly bool _hasGainPhaseQualificationCapability;
 
-    private CardMovementTiming? CaptureMovementTiming() => !(_hasGainPhaseQualificationCapability || TracksRedOwnedLoss ||
+    private CardMovementTiming? CaptureMovementTiming() => !(_hasGainPhaseQualificationCapability || TracksRedOwnedLoss || HasActualHandGainCapability ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GiveAfterBatchGain)) && !HasOtherActualBasicDiscardCapability ? null :
         _programPhaseSchedule is { Phase: TurnPhase.Draw } scheduled
             ? new(_turnProgression.OwnerSeat, TurnPhase.Draw, scheduled.Frame.OwnerSeat)
@@ -123,7 +123,7 @@ public sealed partial class GameEngine
         CaptureTurnRedDiscardCount(batch.TurnNumber,movements);
         CaptureActionDiscardFact(batch.Id,batch.TurnNumber,movements);
         CaptureFirstGameDomainCrossings(batch.Id,batch.TurnNumber,movements);
-        _pendingCardsMovedBatches.Add(new CardMovementBatchContext(
+        var completed = new CardMovementBatchContext(
             batch.Id,
             batch.ParentFrameId,
             batch.ParentBatchId,
@@ -134,7 +134,9 @@ public sealed partial class GameEngine
             batch.DestinationCountsBefore.OrderBy(item => item.Key.Zone).ThenBy(item => item.Key.OwnerSeat)
                 .Select(item => new CardMovementSourceCount(item.Key, item.Value, _cardZones.Count(item.Key))).ToArray(),
             batch.OriginProgram?.SkillId, batch.OriginProgram?.SkillInstanceId, batch.OriginProgram?.OwnerSeat)
-            { MovementTiming = batch.MovementTiming, DiscardRecoveryPhase = batch.DiscardRecoveryPhase });
+            { MovementTiming = batch.MovementTiming, DiscardRecoveryPhase = batch.DiscardRecoveryPhase };
+        CaptureForeignTurnActualHandGains(completed);
+        _pendingCardsMovedBatches.Add(completed);
     }
 
     private bool HasCardsMovedProgramBoundaryFrame()
@@ -376,6 +378,8 @@ public sealed partial class GameEngine
             return MatchingActualGainGiftIndexes(batch, candidate.OwnerSeat, location);
         if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.RevealRedLossAndDraw))
             return MatchingRedOwnerLossIndexes(batch, candidate.OwnerSeat, location);
+        if (trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.DrawAfterActualOwnHandGain))
+            return MatchingActualHandGainIndexes(batch, candidate.OwnerSeat, location);
         if(trigger.Effects.Any(e=>e.Op==SkillProgramEffectOp.RewardDiscardedActionColor))
         {
             var action=CompleteProgramEventHistory().OfType<ActionCardsDiscardedEvent>().LastOrDefault(e=>e.BatchId==batch.Id);

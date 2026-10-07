@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:zishu", "revision": 1,
+      "triggers": [
+        {
+          "id": "draw-after-actual-own-hand-gain", "window": "cardsGained", "subject": "owner",
+          "destinationZones": ["hand"], "movementOccurrence": "perBatch", "optional": false,
+          "effects": [{ "op": "drawAfterActualOwnHandGain", "target": "owner" }]
+        },
+        {
+          "id": "cleanup-after-actual-foreign-turn", "window": "afterTurnEnded", "subject": "owner",
+          "turnOwnerScope": "otherLiving", "optional": false,
+          "effects": [{ "op": "discardForeignTurnHandGains", "target": "owner" }]
+        }
+      ]
+    },
+    {
+      "id": "ol:yingyuan", "revision": 1,
+      "triggers": [{
+        "id": "same-category-deck-gift", "window": "cardUseCompleted", "ownerRelation": "actor",
+        "includeResponseUses": false, "optional": false,
+        "effects": [{ "op": "giveSameCategoryFromDeck", "target": "owner" }]
+      }]
+    }
+  ]
+}

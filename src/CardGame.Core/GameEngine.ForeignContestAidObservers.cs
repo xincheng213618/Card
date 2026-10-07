@@ -185,7 +185,7 @@ public sealed partial class GameEngine
                 action.ProviderSeat != action.ActorSeat || action.PhysicalCards.Count != 0 ||
                 !CompleteProgramEventHistory().OfType<TargetsConfirmedEvent>().Any(e => e.ResolutionId == use.Id &&
                     e.TargetSeats.SequenceEqual([returned.Origin.Result.SourceSeat])) ||
-                use.TargetSeats.Count > 1 && !HasSameTypeAidTargetTail(use) && !HasIssuedOriginalTargetAdditionTail(use) && !IsCurrentSlashFireChangedUse(use))
+                use.TargetSeats.Count > 1 && !HasSameTypeAidTargetTail(use) && !HasShortRangeSlashTail(use) && !HasIssuedOriginalTargetAdditionTail(use) && !IsCurrentSlashFireChangedUse(use))
                 throw new InvalidOperationException("A foreign virtual Slash lost its exact issued zero-entity use and typed parent.");
         }
     }

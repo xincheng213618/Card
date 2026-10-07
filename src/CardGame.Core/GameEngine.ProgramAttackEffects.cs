@@ -45,6 +45,7 @@ public sealed partial class GameEngine
                 attack.EffectiveCardKind ?? CardKind.Slash));
         RedirectCardUseTarget(attack.ResolutionId, previousSeat, targetSeat);
         RecordCurrentSlashFireRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
+        RecordShortRangeSlashRedirect(frame, attack.ResolutionId, previousSeat, targetSeat);
         AddLog("SkillTriggered",
             $"{_players[frame.OwnerSeat].Name} 发动【{_contentRegistry.GetSkill(frame.SkillId).Name}】，将【杀】转移给 {_players[targetSeat].Name}。",
             frame.OwnerSeat, targetSeat);

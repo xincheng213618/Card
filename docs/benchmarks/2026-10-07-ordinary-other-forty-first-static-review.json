@@ -1,0 +1,450 @@
+{
+  "inspectionKind": "static source, bytes, JSON, PowerShell AST and independent source reviews",
+  "baseHead": "3829541ac962270648378e487281b29a6e7d1c19",
+  "reviewedSourceManifest": ".artifacts/continuation-20261003-batch17/resume-20261007/root-integration/review-v7/integration-manifest.json",
+  "reviewedSourceManifestRawSha256": "cb74f1ff7bfdb81665cd2096b3875165f0b4e102a26de48a59e7ff6d936816df",
+  "sourceAuthorDeliveries": [
+    {
+      "author": "root-source",
+      "manifestPath": ".artifacts/continuation-20261003-batch17/resume-20261007/root-source/root-delivery.json",
+      "manifestRawSha256": "1d5e41af2e62647eb18ccea69246949bbc2baa0cc322efb235dd8326fa807b80"
+    },
+    {
+      "author": "ding-feng",
+      "manifestPath": ".artifacts/continuation-20261003-batch17/resume-20261007/ding-feng/delivery-manifest-v7.json",
+      "manifestRawSha256": "3930adeb068f7aa733032fb7003ee9cff4fad6628c4eb194afccd721c3a0516e"
+    },
+    {
+      "author": "pan-feng",
+      "manifestPath": ".artifacts/continuation-20261003-batch17/resume-20261007/pan-feng/delivery-manifest.json",
+      "manifestRawSha256": "1d499d197d9fa3e1cb81630a2a40dceba6de53dced344ed512f958c8f39ed17d"
+    },
+    {
+      "author": "ma-liang",
+      "manifestPath": ".artifacts/continuation-20261003-batch17/resume-20261007/ma-liang/delivery-manifest-v3.json",
+      "manifestRawSha256": "def44c11dd5bfec056622d3222ab68f7ef1396f903728990c32fb1a89211c3af"
+    }
+  ],
+  "staticByteReview": {
+    "path": ".artifacts/continuation-20261003-batch17/resume-20261007/root-integration/review-v7/static-byte-json-review.json",
+    "rawSha256": "a438bd27a42ec34265c59b163d6eea6aea30ac924de44264dc4dfd4894a4c2ca",
+    "record": {
+      "inspectionKind": "static source, bytes, JSON and registrations only",
+      "runtimeExecuted": false,
+      "inputManifest": ".artifacts/continuation-20261003-batch17/resume-20261007/root-integration/review-v7/integration-manifest.json",
+      "inputManifestRawSha256": "cb74f1ff7bfdb81665cd2096b3875165f0b4e102a26de48a59e7ff6d936816df",
+      "pathCount": 82,
+      "jsonPathCount": 14,
+      "csharpPathCount": 49,
+      "newEffectIds": {
+        "OfferShortRangeSlashTarget": 8600,
+        "GrantFixedDistanceOneTurnPolicy": 8601,
+        "SettleFixedDistanceOneEndingDebt": 8602,
+        "DiscardEquipmentThenSlashAndOwnershipOutcome": 8700,
+        "DrawAfterActualOwnHandGain": 8800,
+        "DiscardForeignTurnHandGains": 8801,
+        "GiveSameCategoryFromDeck": 8802
+      },
+      "preservedOldEffectIds": 287,
+      "preservedOldArtEntries": 249,
+      "preservedOldEnumMembersAcrossChangedSources": 907,
+      "generals": [
+        "ding-feng",
+        "pan-feng",
+        "ma-liang"
+      ],
+      "officialDescriptions": 5,
+      "originalPortraits": {
+        "ding-feng": "c307850a397a5049e849ed0aeb81a9d838234535e989423cae255c836c526a91",
+        "pan-feng": "b34719f44cf8b67dc19a6941952b252711327de3b3b30fd498059665b44acae1",
+        "ma-liang": "04572086857e460cdda7d207f0e31b6b27fa4516611ae3a168a1d09c2fe4f598"
+      },
+      "protectedSourceHash": "d94c540e827ba6d70ba44ca65b0a02c41f77f12c4572fc7fa209444e1e7a8194"
+    }
+  },
+  "powerShellScopeReview": {
+    "path": ".artifacts/continuation-20261003-batch17/resume-20261007/root-integration/review-v7/scope-static.json",
+    "rawSha256": "9586cde09984453d9b07757d465bbab728bb9bde36864d202fdc0bd2818f9a39",
+    "record": {
+      "Mode": "PowerShell AST and constant SafeGetValue only; no runner or project code invoked",
+      "inputManifestRawSha256": "cb74f1ff7bfdb81665cd2096b3875165f0b4e102a26de48a59e7ff6d936816df",
+      "scopeBeforeRawSha256": "c0dfe2483f9747b44717b7b5825c445135ef9bfba84766710e68b3ef0e9bd5b4",
+      "scopeAfterRawSha256": "4210d5f151710526955408f48b61958eef78ad07c382fe4bb247949981be210f",
+      "SyntaxErrors": 0,
+      "CoreBefore": 211,
+      "CoreAfter": 214,
+      "WpfBefore": 18,
+      "WpfAfter": 18,
+      "Added": [
+        "Short range Slash and directed ending debt:",
+        "Equipment Slash ownership:",
+        "Actual hand gains and category gifts:"
+      ],
+      "ExistingSequencesPreserved": true,
+      "RuntimeExecuted": false
+    }
+  },
+  "finalCrossReviewRecords": [
+    {
+      "path": ".artifacts/continuation-20261003-batch17/resume-20261007/ding-feng/combined-review-v7-final-addendum.json",
+      "rawSha256": "f93693aa6d2f887d76d5461cb94b42de4bad55bf9e782468a3bdd1bb3f5094f8",
+      "record": {
+        "inputManifestRawSha256": "cb74f1ff7bfdb81665cd2096b3875165f0b4e102a26de48a59e7ff6d936816df",
+        "inputManifestPath": ".artifacts/continuation-20261003-batch17/resume-20261007/root-integration/review-v7/integration-manifest.json",
+        "runtimeExecuted": false,
+        "compilationExecuted": false,
+        "checksExecuted": false,
+        "definiteRemainingIssues": [],
+        "reviewRole": "Author byte/preservation self-check only, not independent production review; Ma and Pan supply the two independent final delta reviews.",
+        "all82PreviewRawHashesVerified": true,
+        "unchanged81PreviewPathsAndRawHashesVerified": true,
+        "onlyChangedPreviewEqualsOwnSealedV7Bytes": true,
+        "changedFileHashes": [
+          {
+            "repoPath": "tests/CardGame.Core.Tests/DirectedDistanceDebtChecks.cs",
+            "beforeRawSha256": null,
+            "afterRawSha256": "5c63bffd4af39957305167f426b9f6bad01af9bdd33ec88e6c4fad6bf481aff5",
+            "previewPath": ".artifacts/continuation-20261003-batch17/resume-20261007/ding-feng/revision-v7/preview/tests/CardGame.Core.Tests/DirectedDistanceDebtChecks.cs"
+          }
+        ],
+        "sourceManifestPath": ".artifacts/continuation-20261003-batch17/resume-20261007/ding-feng/delivery-manifest-v7.json",
+        "sourceManifestRawSha256": "3930adeb068f7aa733032fb7003ee9cff4fad6628c4eb194afccd721c3a0516e",
+        "priorAuthorByteReviewPath": ".artifacts/continuation-20261003-batch17/resume-20261007/ding-feng/combined-review-v6-final-addendum.json",
+        "priorAuthorByteReviewRawSha256": "8b9405043557a9afab66b9eabde8edc25aeb2d1d952fb6e44dab53769d4399d9",
+        "scope": "Only the final single-test V6-to-V7 byte delta and preservation of the remaining 81 paths. The already frozen V6 three-path byte merge findings retain their stated limits.",
+        "limits": [
+          "No source editing, compilation, tests, loader, game, seed search, UI, benchmark, main/index write or cleanup. All eleven focused methods remain unexecuted. This author self-check does not establish independent review or runtime acceptance."
+        ],
+        "mainOrIndexWritten": false
+      }
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/resume-20261007/pan-feng/combined-review-v7-final-addendum.json",
+      "rawSha256": "35a51fe1b7730c376561cf3dd8ed7865057867facb3e753b214dcbc274cc659d",
+      "record": {
+        "reviewRole": "Independent bounded source reviewer /root/resume_batch40_audit",
+        "inputManifestPath": ".artifacts/continuation-20261003-batch17/resume-20261007/root-integration/review-v7/integration-manifest.json",
+        "inputManifestRawSha256": "cb74f1ff7bfdb81665cd2096b3875165f0b4e102a26de48a59e7ff6d936816df",
+        "runtimeExecuted": false,
+        "compileExecuted": false,
+        "loaderExecuted": false,
+        "testExecuted": false,
+        "scope": {
+          "method": "Read the frozen manifest-selected single changed test preview, verify its raw SHA256, compare the exact V6/V7 delta and retained adjacent assertions. Production was not reread.",
+          "manifestPathCount": 82,
+          "deltaPathCount": 1,
+          "unchangedRawHashPathCount": 81,
+          "focusedRegistrationCount": 11,
+          "repoPath": "tests/CardGame.Core.Tests/DirectedDistanceDebtChecks.cs",
+          "previewPath": ".artifacts/continuation-20261003-batch17/resume-20261007/ding-feng/revision-v7/preview/tests/CardGame.Core.Tests/DirectedDistanceDebtChecks.cs",
+          "afterRawSha256": "5c63bffd4af39957305167f426b9f6bad01af9bdd33ec88e6c4fad6bf481aff5",
+          "rawHashMatched": true
+        },
+        "priorReportPreserved": {
+          "path": ".artifacts/continuation-20261003-batch17/resume-20261007/pan-feng/combined-review-v6-final-addendum.json",
+          "rawSha256": "610055f1b8e1aa7ff177676b84373ccb048030c586e61173bd291c702f305ee0",
+          "productionConclusion": "The V6 source findings and closure of both V5 production/order issues remain applicable because all production hashes are unchanged in V7. The V6 report remains immutable, including its then-unresolved fixture-distance finding."
+        },
+        "closedIssues": [
+          {
+            "id": "COMBINED-V6-FOCUSED-FIRE-EXTRA-RANGE-01",
+            "status": "Closed by exact source delta and native-rule reasoning; no runtime acceptance claimed.",
+            "evidence": [
+              "Line129 chooses mature FireExtra target2, which the fixture's previously issued directed0-to2 Set=1 makes legal.",
+              "Line135 redirects the first native target1-to2, a distance-one living target within the unequipped redirector's native range.",
+              "Line136 chooses tail3. It is distance one from source0 and is outside the actual prefix.",
+              "Line141 now asserts complete duplicate actual prefix[2,2] only for FireExtra; plain/fire retain prefix[2].",
+              "Line153 now asserts original planned[1,2] for FireExtra; plain converted fire retains planned[1]."
+            ],
+            "nativeEvidenceReference": "The exact unchanged IsProgramSlashRedirectTarget/range and triggered-virtual-use evidence is recorded in the preserved V6 report; V7 only corrects the fixture inputs."
+          }
+        ],
+        "retainedBoundaries": [
+          "The diff contains exactly the five requested substitutions and no production, registration, public-method or additional matrix change.",
+          "Real first Liuli precedes finalized ShortRange; full actual accepted-prefix receipt assertion, original producer singleton helper and native next chooseOption instruction remain.",
+          "Whole-use CardUseFinished exactly once and actual parent singleton checks remain; converted-fire completed-use-payment still selects the explicit lose-hp branch before reaching the producer's next instruction.",
+          "Cold checks remain before private host answers; no post-host replay claim was introduced. Forged redirect-index/state immutability assertions, genuine physical tail redirect, fixed seed31/deck64 and bounded128 driver remain unchanged.",
+          "The existing chooseOption/options/resultBind/optionLabels fixture and explicit package dependencies are unchanged from reviewed V6."
+        ],
+        "definiteRemainingIssues": [],
+        "limits": [
+          "This final addendum is static source and byte evidence only. No compilation, loader, test, game, replay execution, seed search, UI, AI or benchmark ran.",
+          "The empty issue list applies to this single V7 delta together with the preserved bounded prior review scopes; it is not an unrun full-suite or runtime result.",
+          "No source/main/index/old report/preview was modified, no cleanup was performed and no next group was started. This bounded review is complete and stops here."
+        ]
+      }
+    },
+    {
+      "path": ".artifacts/continuation-20261003-batch17/resume-20261007/ma-liang/final-combined-delta-addendum-v7.json",
+      "rawSha256": "e1785ad1cc67da3eaa1316e5f2462d5825e3d9084c3510bef09ff2fbecec6ee0",
+      "record": {
+        "inputManifestPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\resume-20261007\\root-integration\\review-v7\\integration-manifest.json",
+        "inputManifestRawSha256": "cb74f1ff7bfdb81665cd2096b3875165f0b4e102a26de48a59e7ff6d936816df",
+        "runtimeExecuted": false,
+        "definiteRemainingIssues": [],
+        "reviewer": {
+          "agent": "/root/resume_backlog_audit",
+          "role": "Independent reviewer of Ding production/test delta; Ma completed-proof compatibility reviewed against the authored frozen interface.",
+          "productionAuthoredInThisGroup": "Ma Liang only",
+          "DingDeltaAuthoredByReviewer": false
+        },
+        "scope": "V7 exact five-literal test correction plus carried-forward, completed V6 narrow production source review. No reread or new semantic review of the other 81 V7 paths.",
+        "byteEvidence": {
+          "manifestFileCount": 82,
+          "newTestPreviewPath": "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17\\resume-20261007\\ding-feng\\revision-v7\\preview\\tests\\CardGame.Core.Tests\\DirectedDistanceDebtChecks.cs",
+          "newTestPreviewRawSha256": "5c63bffd4af39957305167f426b9f6bad01af9bdd33ec88e6c4fad6bf481aff5",
+          "newTestRawHashMatchesManifest": true,
+          "fiveExpectedReplacementsReproduceWholeNewTestBytes": true,
+          "other81ManifestPreviewPathsAndAfterRawHashesExactlyMatchV6": true,
+          "v6InputManifestRawSha256": "251d56aaf6e227eab0c7ebaca430bdfc18900e3efe92e595901f371a85c7d40e",
+          "v6PriorAllPreviewAndBeforeRawHashesMatched": true
+        },
+        "v7Corrections": [
+          {
+            "line": 129,
+            "change": "Fire extra target 2",
+            "reason": "Actual source 0 has its frozen directed distance-to-2 policy; original planned target sequence is [1,2]."
+          },
+          {
+            "line": 135,
+            "change": "First native Liuli redirects 1 to 2 for every branch",
+            "reason": "Seats 1 and 2 are adjacent, fixing the prior illegal distance-two 1-to-3 choice; redirect target is distinct from source 0."
+          },
+          {
+            "line": 136,
+            "change": "ShortRange tail target 3",
+            "reason": "Seat 3 is at native distance one from source 0 and outside the accepted actual prefix."
+          },
+          {
+            "line": 141,
+            "change": "FireExtra complete actual prefix [2,2]",
+            "reason": "Native first redirect and the already planned extra both lead to actual seat 2; complete same-Action finalized acceptance is asserted before ShortRange issuance."
+          },
+          {
+            "line": 153,
+            "change": "FireExtra retained planned targets [1,2]",
+            "reason": "Original group plan retains original target 1 and its committed Fire extra 2; finalized actual prefix and short tail do not rewrite that prepared plan."
+          }
+        ],
+        "unchangedDraftBoundaries": [
+          "First native Liuli is reached and Cold assertion occurs before explicit host AI-seat answers.",
+          "Physical branch uses first redirect, native finalized accepted prefix, ShortRange issuance, then tail redirect and unique complete Use; malformed-index checks preserve exact state.",
+          "Virtual plain, converted Fire and FireExtra branches verify original declared singleton [1] both through the exact helper and at the real next chooseOption instruction, with exactly one whole-use finish.",
+          "Both Fire branches explicitly answer the real owner completed-use-payment lose-hp choice before the next original producer instruction.",
+          "Host answers remain an explicit boundary with no subsequent cold-replay acceptance claim; all drivers remain bounded and unexecuted."
+        ],
+        "carriedV6ProductionReview": {
+          "status": "Source reviewed before the V6 test-distance defect was reported; these two production previews and their hashes are unchanged in V7.",
+          "nativeOrder": "BeginSlashTargetResolution runs native redirect before PrepareProgramSlashTargets; preparation captures complete frame.TargetSeats in CardActionAccepted and ProgramUseAccepted before CardUseTargetsFinalized. ShortRange receipt freezes that finalized actual prefix. Tail redirects are separately reconstructed afterward.",
+          "duplicatePrefixProof": "Only modern non-null Action with ProgramUseAccepted can prove a repeated complete prefix through the latest same-Action acceptance before the exact source/instance/binding. Actor/provider/type/kind/parent/requester/responder/opponent/material/chain/suit/rank/color all match; binding precedes the unique generic companion and owning resolved receipt with frozen prefix/source/hash. Legacy null-Action receipts cannot use the duplicate-prefix exception.",
+          "parentReturn": "Modern plain ShortRange primary proof uses the exact finalized actual prefix but the paused instruction and original declared singleton still prove and return the original target. Converted Fire and FireExtra use mature frozen OriginalAction proof, direct parent, original selection, gameplay hash and exact ShortRange tail, then return the initial TargetsConfirmed singleton.",
+          "firePlan": "ShortRange resolved fact increments designated and actual targets only, once; original Fangtian planned sequence is preserved. Early native finalized acceptance normalizes designations to the complete actual prefix without changing the original prepared plan.",
+          "maCompatibility": "Ma CompletedCategoryUseProof begins at latest same-Action native accepted full TargetSeats, imposes no Distinct constraint, consumes only subsequent mutation facts and does not read Fangtian planned. It therefore accepts first-Liuli-before-Short and legitimate duplicate actual prefixes through unchanged Ding helper signatures, without consuming an earlier redirect twice."
+        },
+        "priorReportDisposition": {
+          "v5NarrowAddendum": "Preserved for history; its short/fire native-order conclusion is superseded and must not serve as acceptance input.",
+          "v4OtherScope": "Unchanged retained group scope remains the previously reviewed source scope; this delta does not repeat or widen it."
+        },
+        "limits": [
+          "No C# compiler/build, loader, test, game, AI/UI, seed search, benchmark or replay execution. Python -B was used only for file bytes, manifest JSON and exact static replacement comparison.",
+          "Static source reachability and drafted assertions are not measured runtime or test acceptance; unified execution remains for the user.",
+          "The empty remaining-issue list covers this bounded known delta and carried V6 production contracts, not all historical producers or every rules matrix.",
+          "No source/main/index or prior report/manifests changed by this review; only this new report was written."
+        ],
+        "state": "Stopped after the current group. No further work or next group opened."
+      }
+    }
+  ],
+  "retainedSupportingSourceReviews": [
+    {
+      "path": ".artifacts/continuation-20261003-batch17/resume-20261007/pan-feng/combined-review-v6-final-addendum.json",
+      "rawSha256": "610055f1b8e1aa7ff177676b84373ccb048030c586e61173bd291c702f305ee0",
+      "record": {
+        "reviewRole": "Independent bounded source reviewer /root/resume_batch40_audit",
+        "inputManifestPath": ".artifacts/continuation-20261003-batch17/resume-20261007/root-integration/review-v6/integration-manifest.json",
+        "inputManifestRawSha256": "251d56aaf6e227eab0c7ebaca430bdfc18900e3efe92e595901f371a85c7d40e",
+        "runtimeExecuted": false,
+        "compileExecuted": false,
+        "loaderExecuted": false,
+        "testExecuted": false,
+        "scope": {
+          "method": "Read frozen manifest-selected previews, compare exact V5/V6 source deltas and raw SHA256, trace only necessary unchanged native call sites.",
+          "manifestPathCount": 82,
+          "deltaPathCount": 3,
+          "unchangedRawHashPathCount": 79,
+          "focusedRegistrationCount": 11,
+          "deltaFiles": [
+            {
+              "repoPath": "src/CardGame.Core/GameEngine.CurrentSlashFireOffers.cs",
+              "previewPath": ".artifacts/continuation-20261003-batch17/resume-20261007/root-integration/review-v6/preview/src/CardGame.Core/GameEngine.CurrentSlashFireOffers.cs",
+              "afterRawSha256": "93f35ac147dfe0ec7a7d9f06335157f9c6f68c854e16e0f268f766514bf1af9c",
+              "rawHashMatched": true
+            },
+            {
+              "repoPath": "src/CardGame.Core/GameEngine.ShortRangeSlashTargets.cs",
+              "previewPath": ".artifacts/continuation-20261003-batch17/resume-20261007/ding-feng/revision-v6/preview/src/CardGame.Core/GameEngine.ShortRangeSlashTargets.cs",
+              "afterRawSha256": "627f0866fff2eebe023b5303c7cfd9ebee7b456a40fa2704676368368c7dc7ac",
+              "rawHashMatched": true
+            },
+            {
+              "repoPath": "tests/CardGame.Core.Tests/DirectedDistanceDebtChecks.cs",
+              "previewPath": ".artifacts/continuation-20261003-batch17/resume-20261007/ding-feng/revision-v6/preview/tests/CardGame.Core.Tests/DirectedDistanceDebtChecks.cs",
+              "afterRawSha256": "62ab55d997b56445f5afe29af5350c4d362a902c21cca1329eab215e9a85d5a0",
+              "rawHashMatched": true
+            }
+          ]
+        },
+        "priorReviewsPreserved": [
+          {
+            "path": ".artifacts/continuation-20261003-batch17/resume-20261007/pan-feng/combined-final-review-v4.json",
+            "rawSha256": "6be18552a2cd663040e92e264b308f2b2f925dd5f15ef5fc20224f9cab634173",
+            "scopeLimit": "The V4 scope did not cover modern converted fire plus short-range tail plus first-target Liuli returning the original producer singleton. This addendum does not rewrite that frozen report."
+          },
+          {
+            "path": ".artifacts/continuation-20261003-batch17/resume-20261007/pan-feng/combined-review-v5-primary-addendum.json",
+            "rawSha256": "8abd8def6a262edab1052aa7977839374ed477b9800770d26e83f3ba28fe1dfe"
+          }
+        ],
+        "closedPriorIssues": [
+          {
+            "id": "COMBINED-V5-REDIRECT-FOCUSED-ORDER-01",
+            "status": "Closed by source inspection for the original native-order error; one distinct FireExtra fixture-distance issue remains below.",
+            "evidence": "DirectedDistanceDebtChecks.cs:83-95 and 131-138 now stop at the real first Liuli prompt before finalized ShortRange. GameEngine.cs:7069-7086 and GameEngine.CardActions.cs:148-180,448-460 prove this ordering. Cold checks at test lines85 and132 precede host answers."
+          },
+          {
+            "id": "COMBINED-V5-FIRE-SHORT-PLANNED-PREFIX-02",
+            "status": "Closed by source inspection.",
+            "evidence": "GameEngine.CurrentSlashFireOffers.cs:174-183 validates exact ShortRange issuance against the ordered designation and complete actual prefix, then adds only to actual/designated. Planned retains the original source preparation; AssertCurrentSlashFirePolicy still compares the original Fangtian continuation to rebuilt Planned at292. Unknown prefix or mismatched issuance throws."
+          }
+        ],
+        "sourceFindings": [
+          "ShortRange issuance still requires the exact owning native finalized window, ParentCardUseFrameId/use.Id, ActionId, source actor and effective kind at ShortRangeSlashTargets.cs:20-27. Receipt identity, source/hash/trigger, unique binding/companion/resolved and exact full final target list remain checked at131-156,238-279.",
+          "Repeated actual prefix is permitted only through TryGetShortRangeFinalizedPrefix at161-195: ProgramUseAccepted, non-null same ActionId/use, unique finalized source binding, binding before companion before resolved, and the last same-Action accepted envelope before the binding with full TargetSeats SequenceEqual. Actor/provider/parent/requester/responder/opponent/kind/suit/rank/color/materials/chain stay exact. The native accepted full TargetSeats may repeat; its distinct designated targets are not substituted for this proof.",
+          "Modern non-fire virtual return now proves the native finalized actual singleton separately from the unique original TargetsConfirmed singleton and exact paused virtual producer/source/hash/selection at281-330. It returns frozen original TargetsConfirmed targets, so initial native redirection cannot overwrite the producer selection. Legacy normalization keeps its existing narrow source/parent/hash/instruction proof.",
+          "The existing receipt-only converted-fire return at CurrentSlashFireOffers.cs:228-269 retains original paused producer selection, gameplay hash, original kind/material/source/chain and full HasShortRangeSlashTail proof, allowing mature FireExtra before ShortRange. The unchanged generic native FinishAttack writes that original singleton before whole CardUseFinished and the real completed-use window at GameEngine.cs:12949-12968; Kuangfu typed return remains excluded.",
+          "The revised fourth method preserves forged-index rejection/state immutability, full-use finish, plain/fire/fire-extra three bounded branches, actual next chooseOption instruction and original parent singleton, real completed-use-payment lose-hp answers, and host-before-only Cold boundaries. Its new chooseOption/options/resultBind/optionLabels names match the existing operation/prompt contract. Registration remains the same fourth public method; the driver remains bounded to128, with fixed seed31 and a64-Slash deck."
+        ],
+        "definiteRemainingIssues": [
+          {
+            "id": "COMBINED-V6-FOCUSED-FIRE-EXTRA-RANGE-01",
+            "repoPath": "tests/CardGame.Core.Tests/DirectedDistanceDebtChecks.cs",
+            "line": 135,
+            "relatedLines": [
+              128,
+              136,
+              141,
+              153,
+              196,
+              245,
+              247
+            ],
+            "finding": "The FireExtra branch chooses extra target3 and then asks RedirectHost(g,1,3). In this four-player all-Slash fixture seat1-to-seat3 has distance2 and no weapon or range skill. The original attacker has no distance exemption: Grant only fixes directed0-to2 distance; UseTriggeredProgramVirtualSlash does not issue an ignore-distance policy. Native Liuli therefore cannot expose target3 and the bounded driver cannot reach the intended repeated actual prefix[3,3].",
+            "nativeEvidence": [
+              "GameEngine.ProgramAttackEffects.cs:5-18 requires source distance exemption or the redirector's attack range, with living non-self/non-source target.",
+              "GameEngine.ProgramDodgeResponses.cs:104-106 checks GetCombatDistance(redirector,target)<=GetAttackRange(redirector).",
+              "GameEngine.DirectedCardPolicyQueries.cs:8-9 does not infer a distance exemption merely from a triggered virtual Slash.",
+              "GameEngine.TriggeredCardPrograms.cs:21-50 issues this virtual Slash without such an exemption; the fixture's peers only carry boundary:liuli and its deck only contains standard:slash."
+            ],
+            "minimalCorrection": "In the existing FireExtra branch choose extra2, redirect the first target1-to2, add short-range tail3, assert complete actual prefix[2,2] and original planned[1,2]. Preserve all original parent singleton, host boundary, real payment, whole-use/next-instruction and bounded-driver assertions. No production change or matrix expansion is required.",
+            "rootAcknowledged": true,
+            "fixPending": "Root authorized the author to freeze V7 with only this test correction. This V6 report remains immutable."
+          }
+        ],
+        "limits": [
+          "This is static source and byte evidence, not runtime, compilation, loader, replay or test acceptance.",
+          "Only the three V6 delta paths and necessary unchanged native call sites were inspected; the prior bounded reports cover other unchanged batch paths. No expanded matrix or additional group was started.",
+          "No project source, main working tree, index, prior frozen report or source preview was modified. No cleanup was performed."
+        ]
+      }
+    }
+  ],
+  "focusedRegistrations": [
+    {
+      "prefix": "Short range Slash and directed ending debt:",
+      "name": "Short range Slash and directed ending debt: FixedOneActualTurnZeroCostEndingPhysicalOnce",
+      "method": "DirectedDistanceDebtChecks.FixedOneActualTurnZeroCostEndingPhysicalOnce"
+    },
+    {
+      "prefix": "Short range Slash and directed ending debt:",
+      "name": "Short range Slash and directed ending debt: ShortRangeOneTailActualSlashAndNativeDoubleDodge",
+      "method": "DirectedDistanceDebtChecks.ShortRangeOneTailActualSlashAndNativeDoubleDodge"
+    },
+    {
+      "prefix": "Short range Slash and directed ending debt:",
+      "name": "Short range Slash and directed ending debt: WholeActualTurnPriorDamageAndIssuedSourceLossHostBoundary",
+      "method": "DirectedDistanceDebtChecks.WholeActualTurnPriorDamageAndIssuedSourceLossHostBoundary"
+    },
+    {
+      "prefix": "Short range Slash and directed ending debt:",
+      "name": "Short range Slash and directed ending debt: ShortRangeNativeRedirectCursorAndFireOrdering",
+      "method": "DirectedDistanceDebtChecks.ShortRangeNativeRedirectCursorAndFireOrdering"
+    },
+    {
+      "prefix": "Equipment Slash ownership:",
+      "name": "Equipment Slash ownership: KuangfuOwnEquipmentRecoveryAndWholeUseCompletionReturnOnce",
+      "method": "KuangfuChecks.KuangfuOwnEquipmentRecoveryAndWholeUseCompletionReturnOnce"
+    },
+    {
+      "prefix": "Equipment Slash ownership:",
+      "name": "Equipment Slash ownership: KuangfuForeignPreventionIgnoresPaidSkillsChangedDyingDamage",
+      "method": "KuangfuChecks.KuangfuForeignPreventionIgnoresPaidSkillsChangedDyingDamage"
+    },
+    {
+      "prefix": "Equipment Slash ownership:",
+      "name": "Equipment Slash ownership: KuangfuOwnershipDamageMatrixAndPartialHandPenalty",
+      "method": "KuangfuChecks.KuangfuOwnershipDamageMatrixAndPartialHandPenalty"
+    },
+    {
+      "prefix": "Equipment Slash ownership:",
+      "name": "Equipment Slash ownership: KuangfuSpentQuotaRejectsDiscardingItsOwnCrossbow",
+      "method": "KuangfuChecks.KuangfuSpentQuotaRejectsDiscardingItsOwnCrossbow"
+    },
+    {
+      "prefix": "Actual hand gains and category gifts:",
+      "name": "Actual hand gains and category gifts: ActualHandGainsPreserveBatchIdentityAndExcludeSelfRecursion",
+      "method": "ActualHandGainAndCategoryGiftChecks.ActualHandGainsPreserveBatchIdentityAndExcludeSelfRecursion"
+    },
+    {
+      "prefix": "Actual hand gains and category gifts:",
+      "name": "Actual hand gains and category gifts: ForeignHandGainsWaitForActualEndAndKeepOnlySurvivingAcquisitions",
+      "method": "ActualHandGainAndCategoryGiftChecks.ForeignHandGainsWaitForActualEndAndKeepOnlySurvivingAcquisitions"
+    },
+    {
+      "prefix": "Actual hand gains and category gifts:",
+      "name": "Actual hand gains and category gifts: CategoryDeckGiftsUseTrueCompletionQuotaAndPrivateTargets",
+      "method": "ActualHandGainAndCategoryGiftChecks.CategoryDeckGiftsUseTrueCompletionQuotaAndPrivateTargets"
+    }
+  ],
+  "focusedChecksCompiled": false,
+  "focusedChecksExecuted": false,
+  "runtimeAcceptance": false,
+  "compilationExecuted": false,
+  "loaderExecuted": false,
+  "routineOrFullExecuted": false,
+  "buildOrReleaseOutputsGenerated": false,
+  "resolvedCombinedFindings": [
+    "Completed actual-use identity after ordered target additions and native redirection",
+    "Short-range target receipt in current-Slash fire target reconstruction",
+    "Native first-target redirection precedes finalized short-range target issuance",
+    "Exact finalized actual prefix permits native redirected duplicates without changing the prepared Fangtian plan",
+    "Precise native current-target cursor with duplicate actual redirected seats",
+    "Original generic virtual-program target after native redirect and short-range tail, with or without fire conversion",
+    "Fire-extra focused draft uses a target inside the native redirector attack range",
+    "Exact complete compound target addition independent of terminal trick resolution",
+    "Independent new enum members require a comma at the shared insertion boundary"
+  ],
+  "scope": "Finish only Ding Feng, Pan Feng and Ma Liang; scoped local commit then stop",
+  "cleanup": {
+    "previousAutomaticReviewRejection": "blocked by policy",
+    "retried": false,
+    "retainedPaths": [
+      "C:\\Users\\17917\\Desktop\\Card\\.artifacts\\continuation-20261003-batch17",
+      "C:\\Users\\17917\\Desktop\\Card\\tools\\__pycache__\\sync_general_art.cpython-314.pyc"
+    ]
+  },
+  "limits": [
+    "No runtime results or timing are inferred from this static review",
+    "Retained author drafts and prior reviews preserve the earlier findings",
+    "No next group was started after the explicit stop request"
+  ]
+}

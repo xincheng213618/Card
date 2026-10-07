@@ -12203,6 +12203,57 @@
           "pixelHeight": 950
         }
       ]
+    },
+    {
+      "key": "ol-ding-feng",
+      "characterName": "丁奉",
+      "defaultSkinId": "12600",
+      "skins": [
+        {
+          "id": "12600",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/126",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12600.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-ding-feng.png",
+          "sha256": "c307850a397a5049e849ed0aeb81a9d838234535e989423cae255c836c526a91",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-pan-feng",
+      "characterName": "潘凤",
+      "defaultSkinId": "12700",
+      "skins": [
+        {
+          "id": "12700",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/127",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12700.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-pan-feng.png",
+          "sha256": "b34719f44cf8b67dc19a6941952b252711327de3b3b30fd498059665b44acae1",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
+    },
+    {
+      "key": "ol-ma-liang",
+      "characterName": "马良",
+      "defaultSkinId": "12800",
+      "skins": [
+        {
+          "id": "12800",
+          "name": "经典形象",
+          "sourcePage": "https://www.sanguosha.com/hero/128",
+          "imageUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12800.png",
+          "localPath": "src/CardGame.Wpf/Assets/official-ol-ma-liang.png",
+          "sha256": "04572086857e460cdda7d207f0e31b6b27fa4516611ae3a168a1d09c2fe4f598",
+          "pixelWidth": 750,
+          "pixelHeight": 950
+        }
+      ]
     }
   ]
 }

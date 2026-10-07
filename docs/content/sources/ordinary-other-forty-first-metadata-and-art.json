@@ -1,0 +1,125 @@
+{
+  "status": "primary-source-and-original-art-reviewed-runtime-unverified",
+  "captureParentHead": "f1833922cec066f9f4737971956f2de97d74b350",
+  "registrationPreviewBaseHead": "3829541ac962270648378e487281b29a6e7d1c19",
+  "characters": [
+    {
+      "gid": 126,
+      "generalId": "ol:ding-feng",
+      "characterId": "character:ding-feng",
+      "moduleClass": "OrdinaryDingFengContent",
+      "name": "丁奉",
+      "faction": "wu",
+      "maximumHp": 4,
+      "rawInitialHpField": 0,
+      "initialHpOverride": null,
+      "initialHpInterpretationSource": {
+        "path": "docs/content/sources/evidence/ordinary-other-thirty-ninth-current-heroDetail.raw.js",
+        "sha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+        "lines": [
+          101,
+          127
+        ],
+        "freshRequestInThisBatch": false
+      },
+      "gender": "Male",
+      "structuredApiGenderPresent": false,
+      "genderAuthority": "Editorial historical identity; official info has no structured gender field.",
+      "portraitAsset": "src/CardGame.Wpf/Assets/official-ol-ding-feng.png",
+      "portraitSourceUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12600.png",
+      "portraitSha256": "c307850a397a5049e849ed0aeb81a9d838234535e989423cae255c836c526a91",
+      "portraitDimensions": [
+        750,
+        950
+      ],
+      "portraitVisuallyInspected": true,
+      "rulesPage": "https://www.sanguosha.com/hero/126",
+      "rulesPageSha256": "283aafa51b7fc1558645135cf99e6b53ba130066fe2d1ebe6598a772669fd859",
+      "officialDescriptions": [
+        "你使用【杀】可以多指定一名距离为1的角色为目标。你对距离为1的角色使用【杀】需两张【闪】才能抵消。",
+        "出牌阶段限一次，你可以选择一名其他角色，然后你本回合计算与其的距离视为1，若如此做，若你直到结束阶段未对其造成过伤害，结束阶段，你弃置一张牌。"
+      ]
+    },
+    {
+      "gid": 127,
+      "generalId": "ol:pan-feng",
+      "characterId": "character:pan-feng",
+      "moduleClass": "OrdinaryPanFengContent",
+      "name": "潘凤",
+      "faction": "qun",
+      "maximumHp": 4,
+      "rawInitialHpField": 0,
+      "initialHpOverride": null,
+      "initialHpInterpretationSource": {
+        "path": "docs/content/sources/evidence/ordinary-other-thirty-ninth-current-heroDetail.raw.js",
+        "sha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+        "lines": [
+          101,
+          127
+        ],
+        "freshRequestInThisBatch": false
+      },
+      "gender": "Male",
+      "structuredApiGenderPresent": false,
+      "genderAuthority": "Editorial historical identity; official info has no structured gender field.",
+      "portraitAsset": "src/CardGame.Wpf/Assets/official-ol-pan-feng.png",
+      "portraitSourceUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12700.png",
+      "portraitSha256": "b34719f44cf8b67dc19a6941952b252711327de3b3b30fd498059665b44acae1",
+      "portraitDimensions": [
+        750,
+        950
+      ],
+      "portraitVisuallyInspected": true,
+      "rulesPage": "https://www.sanguosha.com/hero/127",
+      "rulesPageSha256": "2595e3bc8f3a4ab48e18e11696bb773ff70f307b91f2a02a8da16c666448e468",
+      "officialDescriptions": [
+        "出牌阶段限一次，你可以弃置一名角色装备区里的一张牌，视为使用一张无距离限制的【杀】。若此装备牌：不属于你且未造成伤害，你弃置两张手牌；属于你且造成了伤害，你摸两张牌。"
+      ]
+    },
+    {
+      "gid": 128,
+      "generalId": "ol:ma-liang",
+      "characterId": "character:ma-liang",
+      "moduleClass": "OrdinaryMaLiangContent",
+      "name": "马良",
+      "faction": "shu",
+      "maximumHp": 3,
+      "rawInitialHpField": 0,
+      "initialHpOverride": null,
+      "initialHpInterpretationSource": {
+        "path": "docs/content/sources/evidence/ordinary-other-thirty-ninth-current-heroDetail.raw.js",
+        "sha256": "55617a7de749ff8bf19ecd2b17682b59f35554090d5c1a8cc2101121ea248a59",
+        "lines": [
+          101,
+          127
+        ],
+        "freshRequestInThisBatch": false
+      },
+      "gender": "Male",
+      "structuredApiGenderPresent": false,
+      "genderAuthority": "Editorial historical identity; official info has no structured gender field.",
+      "portraitAsset": "src/CardGame.Wpf/Assets/official-ol-ma-liang.png",
+      "portraitSourceUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12800.png",
+      "portraitSha256": "04572086857e460cdda7d207f0e31b6b27fa4516611ae3a168a1d09c2fe4f598",
+      "portraitDimensions": [
+        750,
+        950
+      ],
+      "portraitVisuallyInspected": true,
+      "rulesPage": "https://www.sanguosha.com/hero/128",
+      "rulesPageSha256": "4f8f7cb36a86411dcb70d1e76f9c5f87e3e57a3b3be892c1f3e224b98b7a28bc",
+      "officialDescriptions": [
+        "锁定技，其他角色的回合结束后，你将此回合获得的手牌置入弃牌堆。当你于回合内不因本技能获得手牌后，你摸一张牌。",
+        "当你于回合内使用牌后，你可以令一名其他角色获得牌堆中一张类型相同的牌。每回合每种类型限一次。"
+      ]
+    }
+  ],
+  "sourceRequests": 7,
+  "portraitRequests": 3,
+  "totalHttpRequests": 10,
+  "retries": 0,
+  "redirectsFollowed": false,
+  "runtimeAcceptance": false,
+  "implementationComplete": false,
+  "priorSourceReportSha256": "763000c6e203cd1d098720b888bf990202ce8fc436f240ae149025db65349d7c"
+}

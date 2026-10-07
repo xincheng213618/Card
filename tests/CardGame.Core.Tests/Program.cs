@@ -37,6 +37,17 @@ if (unknownArguments.Length > 0)
 // Default/manual discard validation and complete-match coverage live in ManualDiscardChecks.
 var tests = new (string Name, Action Body)[]
 {
+    ("Short range Slash and directed ending debt: FixedOneActualTurnZeroCostEndingPhysicalOnce", DirectedDistanceDebtChecks.FixedOneActualTurnZeroCostEndingPhysicalOnce),
+    ("Short range Slash and directed ending debt: ShortRangeOneTailActualSlashAndNativeDoubleDodge", DirectedDistanceDebtChecks.ShortRangeOneTailActualSlashAndNativeDoubleDodge),
+    ("Short range Slash and directed ending debt: WholeActualTurnPriorDamageAndIssuedSourceLossHostBoundary", DirectedDistanceDebtChecks.WholeActualTurnPriorDamageAndIssuedSourceLossHostBoundary),
+    ("Short range Slash and directed ending debt: ShortRangeNativeRedirectCursorAndFireOrdering", DirectedDistanceDebtChecks.ShortRangeNativeRedirectCursorAndFireOrdering),
+    ("Equipment Slash ownership: KuangfuOwnEquipmentRecoveryAndWholeUseCompletionReturnOnce", KuangfuChecks.KuangfuOwnEquipmentRecoveryAndWholeUseCompletionReturnOnce),
+    ("Equipment Slash ownership: KuangfuForeignPreventionIgnoresPaidSkillsChangedDyingDamage", KuangfuChecks.KuangfuForeignPreventionIgnoresPaidSkillsChangedDyingDamage),
+    ("Equipment Slash ownership: KuangfuOwnershipDamageMatrixAndPartialHandPenalty", KuangfuChecks.KuangfuOwnershipDamageMatrixAndPartialHandPenalty),
+    ("Equipment Slash ownership: KuangfuSpentQuotaRejectsDiscardingItsOwnCrossbow", KuangfuChecks.KuangfuSpentQuotaRejectsDiscardingItsOwnCrossbow),
+    ("Actual hand gains and category gifts: ActualHandGainsPreserveBatchIdentityAndExcludeSelfRecursion", ActualHandGainAndCategoryGiftChecks.ActualHandGainsPreserveBatchIdentityAndExcludeSelfRecursion),
+    ("Actual hand gains and category gifts: ForeignHandGainsWaitForActualEndAndKeepOnlySurvivingAcquisitions", ActualHandGainAndCategoryGiftChecks.ForeignHandGainsWaitForActualEndAndKeepOnlySurvivingAcquisitions),
+    ("Actual hand gains and category gifts: CategoryDeckGiftsUseTrueCompletionQuotaAndPrivateTargets", ActualHandGainAndCategoryGiftChecks.CategoryDeckGiftsUseTrueCompletionQuotaAndPrivateTargets),
     ("Delegated judgment and gain gifts: actual private judgment and paid HE children", DelegatedJudgmentAndGainGiftChecks.DelegatedJudgmentPrivateChoosersAndRealHePaymentColdReplay),
     ("Delegated judgment and gain gifts: single gain batch and actual phase quota", DelegatedJudgmentAndGainGiftChecks.BatchGainGiftsUseDistinctRecipientsAndActualPhaseQuota),
     ("Delegated judgment and gain gifts: foreign Play and frozen effective red loss", DelegatedJudgmentAndGainGiftChecks.RedLossFreezesOriginalEffectiveColorInForeignPlay),

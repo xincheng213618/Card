@@ -35,7 +35,7 @@ public sealed partial class GameEngine
             .Select(item => new FiniteRuleQueryContribution(
                 $"turn:{item.TurnNumber}:{item.Source.SkillId}:{item.Source.BindingId}:{item.GrantSequence}", SkillRuleOperation.Add, item.Amount)));
         var incoming = CollectNumericRuleContributions(target, SkillRuleQuery.IncomingDistance);
-        return ApplyInspectedHandDistance(source, target, ApplyHpOrderedDistance(source, target, RuleQueryService.EvaluateDirectionalDistance(baseTerms, outgoing, incoming)));
+        return ApplyFixedDistanceOne(source, target, ApplyInspectedHandDistance(source, target, ApplyHpOrderedDistance(source, target, RuleQueryService.EvaluateDirectionalDistance(baseTerms, outgoing, incoming))));
     }
 
     private RuleQueryEvaluation EvaluateAttackRange(CharacterState player, int? excludedEquipmentId = null)
@@ -90,7 +90,7 @@ public sealed partial class GameEngine
             contributions);
     }
 
-    private RuleQueryEvaluation EvaluateSlashUseLimit(CharacterState player)
+    private RuleQueryEvaluation EvaluateSlashUseLimit(CharacterState player, int? excludedEquipmentId = null)
     {
         var baseTerms = new[]
         {
@@ -98,7 +98,7 @@ public sealed partial class GameEngine
         };
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.SlashLimit).ToList();
         if (HasNextUnlimitedCard(player)) contributions.Add(new UnlimitedRuleQueryContribution($"skill:{player.Seat}:next-card-unlimited"));
-        foreach (var card in GetEquipmentRuleCards(player))
+        foreach (var card in GetEquipmentRuleCards(player).Where(card => card.Id != excludedEquipmentId))
         {
             var bonus = EquipmentCatalog.Get(card.Kind).SlashLimitBonus;
             if (bonus == int.MaxValue)
@@ -220,16 +220,16 @@ public sealed partial class GameEngine
             ? int.MaxValue
             : ((FiniteRuleQueryValue)evaluation.Value).Value;
 
-    private int GetSlashUseLimit(CharacterState player) =>
-        ConvertRuleValue(EvaluateSlashUseLimit(player));
+    private int GetSlashUseLimit(CharacterState player, int? excludedEquipmentId = null) =>
+        ConvertRuleValue(EvaluateSlashUseLimit(player, excludedEquipmentId));
 
     private bool CanSpendSlashUse(CharacterState player, CharacterState target, bool ignoresCount,
-        CardKind effectiveKind = CardKind.Slash, Card? physicalCard = null, int? effectiveRank = null) =>
+        CardKind effectiveKind = CardKind.Slash, Card? physicalCard = null, int? effectiveRank = null, int? excludedEquipmentId = null) =>
         !IsCardUseForbidden(player.Seat, effectiveKind, CardActionType.Use) &&
         (physicalCard is null || !HasBeneficiarySuitShield(player.Seat, target.Seat, EffectiveSuit(player, physicalCard))) &&
         !IsDirectedCardTargetProhibited(player.Seat, target.Seat, effectiveKind) &&
         (_phase != TurnPhase.Play || player.Seat != _currentSeat || ignoresCount ||
-         _slashCountThisTurn < GetSlashUseLimit(player) ||
+         _slashCountThisTurn < GetSlashUseLimit(player, excludedEquipmentId) ||
          HasJudgedRankSlashQuota(player.Seat, effectiveKind, effectiveRank ??
              (physicalCard is not null ? SpecificSlashRank(player, physicalCard, effectiveKind) : null)) ||
          physicalCard is not null && BypassesSlashLimitBySuit(player, physicalCard, effectiveKind) ||

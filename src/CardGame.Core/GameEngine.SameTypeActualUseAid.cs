@@ -101,6 +101,7 @@ public sealed partial class GameEngine
     }
     private bool SameTypeAidIssuedSlashIgnoresDistance(CardUseFrame use)
     {
+        if (use.KuangfuSlashReturn is not null) return HasIssuedKuangfuDistance(use.Id, use.KuangfuSlashReturn.Source.OwnerSeat);
         if (use.PindianWinnerSlashReturn is { } winner) return MatchesPindianWinnerUse(use, winner);
         if (use.ForeignTurnContestSlashReturn is not null) return true;
         if (use.CardAttack?.ProgramSkillCardUseFrameId is not { } id ||

@@ -58,7 +58,7 @@ public sealed partial class GameEngine
     {
         var actor = _players[use.SourceSeat]; var action = use.Action!;
         // A granted virtual use can carry an explicit distance exemption on its exact producer.
-        var ignoreDistance = use.UnlimitedUse || use.CardAttack?.ProgramSkillCardUseFrameId is { } parentId &&
+        var ignoreDistance = HasIssuedKuangfuDistance(use.Id, actor.Seat) || use.UnlimitedUse || use.CardAttack?.ProgramSkillCardUseFrameId is { } parentId &&
             _resolutionStack.OfType<ProgramSkillFrame>().SingleOrDefault(f => f.Id == parentId) is { } parent &&
             ProgramInstructionResolver.Default.Resolve(parent, _contentRegistry.GetSkill(parent.SkillId).Program!)
                 .GetPausedInstruction(parent.InstructionIndex).Effect is { Op: SkillProgramEffectOp.UseVirtualCard, TargetRestriction: SkillProgramCardTargetRestriction.DistanceUnlimitedAgainstTarget };
@@ -171,6 +171,17 @@ public sealed partial class GameEngine
                 if (p.ExtraTargetSeat is { } extra) { designated.Add(extra); actual.Add(extra); planned.Add(extra); }
                 continue;
             }
+            if (e is ShortRangeSlashTargetResolvedEvent { Added: true } shortRange && shortRange.CardUseFrameId == use.Id)
+            {
+                if (!IsShortRangeSlashTargetFact(use, shortRange, designated) ||
+                    !shortRange.Receipt!.OriginalTargets.SequenceEqual(actual))
+                    throw new InvalidOperationException("A short-range fire tail lost its complete native finalized prefix.");
+                designated.Add(shortRange.Receipt.AddedTargetSeat); actual.Add(shortRange.Receipt.AddedTargetSeat);
+                // Finalized-tail issuance does not enlarge or rewrite the already
+                // prepared original Fangtian plan. Its native cursor handles the
+                // extra target after that original group completes.
+                continue;
+            }
             int? added = e switch
             {
                 CurrentCardEnhancedEvent { Enhancement: CurrentCardEnhancement.ExtraTarget } enhancement when enhancement.CardUseFrameId == use.Id && enhancement.CardActionId == p.OriginalAction.ActionId => enhancement.ExtraTargetSeat,
@@ -239,6 +250,24 @@ public sealed partial class GameEngine
             _ => false
         };
         if (!exact) return false;
+        if (use.ShortRangeSlashTarget is not null)
+        {
+            // This owning tail belongs to the native use. A redirect must not
+            // rewrite the paused producer's original singleton selection.
+            // The tail may have been issued after fire already added a target.
+            var originalSelection = effect.Op switch
+            {
+                SkillProgramEffectOp.UseVirtualCard or SkillProgramEffectOp.OfferUnlimitedVirtualSlash =>
+                    parent.SelectedTargetSeats.SequenceEqual([target]),
+                SkillProgramEffectOp.OfferVirtualSlashOrDraw => parent.SelectedTargetSeats.SequenceEqual([use.SourceSeat]),
+                SkillProgramEffectOp.UseVirtualSlash => effect.TargetReference is null
+                    ? parent.SelectedTargetSeats.SequenceEqual([target])
+                    : effect.TargetReference.Kind == ProgramParticipantRef.EventTarget && parent.WindowContext?.TargetSeat == target,
+                _ => false
+            };
+            if (!originalSelection || definition.GameplayHash != parent.GameplayHash || !HasShortRangeSlashTail(use)) return false;
+            primary = Array.AsReadOnly(new[] { target }); return true;
+        }
         primary = Array.AsReadOnly(new[] { use.TargetSeats.Count == 0 ? target : use.TargetSeats[0] }); return true;
     }
 

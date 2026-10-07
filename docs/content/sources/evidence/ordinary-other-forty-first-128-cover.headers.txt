@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+Server: Tengine
+Content-Type: image/png
+Content-Length: 1003636
+Connection: keep-alive
+Date: Wed, 07 Oct 2026 04:08:17 GMT
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET, POST, OPTIONS
+Access-Control-Allow-Headers: DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization
+Last-Modified: Mon, 08 Jun 2026 02:06:40 GMT
+ETag: "6a2623b0-f5074"
+Accept-Ranges: bytes
+Via: cache53.l2cn3059[19,19,200-0,H], cache8.l2cn3059[22,0], ens-cache10.cn6020[33,33,200-0,M], ens-cache20.cn6020[35,0]
+Age: 0
+Ali-Swift-Global-Savetime: 1791346097
+X-Cache: MISS TCP_MISS dirn:-2:-2
+X-Swift-SaveTime: Wed, 07 Oct 2026 04:08:17 GMT
+X-Swift-CacheTime: 3600
+Expires: 180d
+Timing-Allow-Origin: *
+EagleId: 3daa4d2817913460972248111e
+

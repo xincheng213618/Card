@@ -467,6 +467,7 @@ public sealed record CardAttackState
     public bool ProhibitsTargetHandResponses { get; init; }
     public IReadOnlyList<string> ResponseProhibitingSkillNames { get; init; } = [];
     public int RequiredDodgeResponses { get; init; } = 1;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ShortRangeSlashResponseRequirement? ShortRangeResponseRequirement { get; init; }
     public int SuccessfulDodgeResponses { get; init; }
     public CardKind? EffectiveCardKind { get; init; }
     public bool IsDelayedJudgmentDamage { get; init; }
@@ -525,6 +526,7 @@ public sealed record CardUseFrame(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ProgramSelectedActorDuelOrigin? SelectedActorDuelOrigin { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public OriginalTargetAdditionReceipt? OriginalTargetAddition { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ShortRangeSlashTargetReceipt? ShortRangeSlashTarget { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public GrantedEntityDistanceUseIssued? GrantedEntityDistance { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public CardConversionSource? ProvenanceUseSource { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -535,6 +537,8 @@ public sealed record CardUseFrame(
     public ConditionalDiscardDuelOrigin? ConditionalDiscardDuelOrigin { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public InspectedHandSlashReturn? InspectedHandSlashReturn { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public KuangfuSlashReturn? KuangfuSlashReturn { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public SharedSlashBenefitReturn? SharedSlashBenefit { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ForeignTurnContestSlashReturn? ForeignTurnContestSlashReturn { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public PindianWinnerSlashReturn? PindianWinnerSlashReturn { get; init; }

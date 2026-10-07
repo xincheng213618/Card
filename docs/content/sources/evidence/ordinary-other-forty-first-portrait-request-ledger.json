@@ -1,0 +1,65 @@
+{
+  "requests": [
+    {
+      "gid": 126,
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12600.png",
+      "advertisedBy": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/126-info.raw.json",
+      "advertisedBySha256": "b4a3d35bfce3e691c30433cdfffe48acaabe165dd3fde4270368f7704d0c2fd1",
+      "capturedAtUtc": "2026-10-07T04:08:16.138198+00:00",
+      "httpStatus": 200,
+      "curlExitCode": 0,
+      "bodyPath": ".artifacts/continuation-20261003-batch17/resume-20261007/root-source/preview/src/CardGame.Wpf/Assets/official-ol-ding-feng.png",
+      "headersPath": ".artifacts/continuation-20261003-batch17/resume-20261007/root-source/126-cover.headers.txt",
+      "bodySha256": "c307850a397a5049e849ed0aeb81a9d838234535e989423cae255c836c526a91",
+      "headersSha256": "44f2dbf8fca56d2aa6383862023a107d0b2859b925c5ae1b2e44093f653a6f7f",
+      "assetRepoPath": "src/CardGame.Wpf/Assets/official-ol-ding-feng.png",
+      "redirectsFollowed": false,
+      "retries": 0,
+      "dimensions": [
+        750,
+        950
+      ]
+    },
+    {
+      "gid": 127,
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12700.png",
+      "advertisedBy": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/127-info.raw.json",
+      "advertisedBySha256": "333feeb5cf99ee294267b61cd0f9dd8b13696d255878dd02ed1b65065c69bdce",
+      "capturedAtUtc": "2026-10-07T04:08:16.281398+00:00",
+      "httpStatus": 200,
+      "curlExitCode": 0,
+      "bodyPath": ".artifacts/continuation-20261003-batch17/resume-20261007/root-source/preview/src/CardGame.Wpf/Assets/official-ol-pan-feng.png",
+      "headersPath": ".artifacts/continuation-20261003-batch17/resume-20261007/root-source/127-cover.headers.txt",
+      "bodySha256": "b34719f44cf8b67dc19a6941952b252711327de3b3b30fd498059665b44acae1",
+      "headersSha256": "6cdaf4ee597d8403f99e4236431be923e6c21b9c469838112ae03c52f2b6fe35",
+      "assetRepoPath": "src/CardGame.Wpf/Assets/official-ol-pan-feng.png",
+      "redirectsFollowed": false,
+      "retries": 0,
+      "dimensions": [
+        750,
+        950
+      ]
+    },
+    {
+      "gid": 128,
+      "url": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12800.png",
+      "advertisedBy": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/128-info.raw.json",
+      "advertisedBySha256": "0354a86a559f7c96f1185f9fc3738973d77958516a897f9cd04678b4ec618edc",
+      "capturedAtUtc": "2026-10-07T04:08:16.415723+00:00",
+      "httpStatus": 200,
+      "curlExitCode": 0,
+      "bodyPath": ".artifacts/continuation-20261003-batch17/resume-20261007/root-source/preview/src/CardGame.Wpf/Assets/official-ol-ma-liang.png",
+      "headersPath": ".artifacts/continuation-20261003-batch17/resume-20261007/root-source/128-cover.headers.txt",
+      "bodySha256": "04572086857e460cdda7d207f0e31b6b27fa4516611ae3a168a1d09c2fe4f598",
+      "headersSha256": "575e6fc1947e184f7aa91c628e03313e5104ed79230236e61be9de75e49a3123",
+      "assetRepoPath": "src/CardGame.Wpf/Assets/official-ol-ma-liang.png",
+      "redirectsFollowed": false,
+      "retries": 0,
+      "dimensions": [
+        750,
+        950
+      ]
+    }
+  ],
+  "plannedCount": 3
+}

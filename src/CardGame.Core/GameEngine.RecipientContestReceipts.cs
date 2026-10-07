@@ -126,7 +126,7 @@ public sealed partial class GameEngine
         if (use.CurrentSlashFirePolicy is not null) AssertCurrentSlashFirePolicy(use);
         return (action.ActorSeat == returned.WinnerSeat && use.SourceSeat == returned.WinnerSeat ||
                 MatchesDeclaredActualDamageUse(use, action.ActorSeat, returned.WinnerSeat)) &&
-            (use.TargetSeats.Count == 1 || HasSameTypeAidTargetTail(use) || HasIssuedOriginalTargetAdditionTail(use) || IsCurrentSlashFireChangedUse(use));
+            (use.TargetSeats.Count == 1 || HasShortRangeSlashTail(use) || HasSameTypeAidTargetTail(use) || HasIssuedOriginalTargetAdditionTail(use) || IsCurrentSlashFireChangedUse(use));
     }
     private void AssertRecipientContestPrograms(ProgramSkillFrame f)
     {

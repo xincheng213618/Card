@@ -108,6 +108,7 @@ public sealed partial class GameEngine
         ExpireNextSlashDamage(turnNumber, turnSeat);
         ExpireDirectedTurnCardPolicies(turnNumber, turnSeat);
         ExpireOriginalTargetAdditionGrants(turnNumber, turnSeat);
+        ExpireFixedDistanceOneGrants(turnNumber, turnSeat);
         ResolveFirstRoundGameUsageRefunds(turnNumber, turnSeat);
         var expired = _turnCardUseEffects.ExpireTurn(turnNumber, turnSeat);
         if (expired.Count == 0) return;

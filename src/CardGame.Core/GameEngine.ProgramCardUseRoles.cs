@@ -103,6 +103,23 @@ public sealed partial class GameEngine
         var action = CloneRoleAction(use.Action!, use.SourceSeat, targets);
         UpdateProgramRoleCardUse(use with { TargetSeats = targets, Action = action }, action);
         AdvanceEventRulesAndQueueFact(new ProgramCardUseTargetAddedEvent(frame.Id, frame.SkillId, frame.OwnerSeat, use.Id, targetSeat));
+        if (use.CardKind == CardKind.BorrowedSword &&
+            _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.GiveSameCategoryFromDeck))
+        {
+            var program = _contentRegistry.GetSkill(frame.SkillId).Program!;
+            var effect = ProgramInstructionResolver.Default.Resolve(frame, program).GetPausedInstruction(frame.InstructionIndex).Effect;
+            if (frame.GameplayHash != program.GameplayHash || effect.Op != SkillProgramEffectOp.AddCurrentCardUseTarget ||
+                frame.WindowContext is not { Window: SkillProgramTriggerWindow.CardUseTargetsFinalized, CardUse: { } context } ||
+                context.ParentCardUseFrameId != use.Id || context.CardActionId != action.ActionId ||
+                targets.Count != use.TargetSeats.Count + 2 || !targets.Take(use.TargetSeats.Count).SequenceEqual(use.TargetSeats) ||
+                targets[^2] != targetSeat || !frame.SelectedTargetSeats.SequenceEqual([targetSeat]) ||
+                CompleteProgramEventHistory().OfType<CompletedCategoryCompoundTargetsIssuedEvent>().Any(e =>
+                    e.ProgramFrameId == frame.Id && e.CardUseFrameId == use.Id && e.InstructionIndex == frame.InstructionIndex))
+                throw new InvalidOperationException("A compound addition lost its original prefix, paused producer or exact new pair.");
+            AdvanceEventRulesAndQueueFact(new CompletedCategoryCompoundTargetsIssuedEvent(frame.Id, use.Id, action.ActionId,
+                new(frame.SkillId, GetProgramBindingId(frame), frame.OwnerSeat, frame.SkillInstanceId), frame.GameplayHash,
+                frame.InstructionIndex, use.TargetSeats, targets));
+        }
     }
 
     private CardActionContext CloneRoleAction(CardActionContext action, int actorSeat, IReadOnlyList<int> targets) =>

@@ -28,7 +28,7 @@ public sealed partial class GameEngine
             ignoresArmor: use.IgnoresArmor || HasDirectedCardArmorBypass(use.Id, targetSeat) || HasCardArmorBypass(_players[use.SourceSeat], _players[targetSeat], use.CardKind),
             physicalCards: attack.PhysicalCards, conversionSource: attack.ConversionSource,
             programSkillCardUseFrameId: attack.ProgramSkillCardUseFrameId);
-        if ((HasIssuedOriginalTargetAdditionTail(use) || HasSameTypeAidTargetTail(use)) && use.AdjustedSlashReturn is { } adjustedReturn && adjustedReturn.CardUseFrameId == use.Id)
+        if ((HasIssuedOriginalTargetAdditionTail(use) || HasSameTypeAidTargetTail(use) || HasShortRangeSlashTail(use)) && use.AdjustedSlashReturn is { } adjustedReturn && adjustedReturn.CardUseFrameId == use.Id)
             UpdateCardAttackState(use.Id, state => state! with { AdjustedSlashReturn = adjustedReturn, PhysicalCardIds = use.PhysicalCardIds! });
         if (use.HpLossMaterialSlashReturn is not null)
             UpdateCardAttackState(use.Id, state => state! with { PhysicalCardIds = use.PhysicalCardIds! });

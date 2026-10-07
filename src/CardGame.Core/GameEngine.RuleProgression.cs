@@ -24,6 +24,7 @@ public sealed partial class GameEngine
         ObservePhaseHandSeizureDeath(payload);
         ObserveUnnullifiableOrdinaryTrick(payload);
         ObserveJudgedRankSlashUse(payload);
+        ObserveKuangfuAppliedDamage(payload);
         QueueGameEvent(payload);
         if (_started)
         {

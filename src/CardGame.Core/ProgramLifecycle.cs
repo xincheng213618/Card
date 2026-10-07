@@ -338,6 +338,8 @@ public sealed record TurnEndingBoundaryItem(
     public EarnedActualEndingBenefit? EarnedBenefit { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public PrepDiscardEndingPromise? PrepDiscardPromise { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public FixedDistanceOneTurnGrant? FixedDistanceDebt { get; init; }
 }
 
 /// <summary>

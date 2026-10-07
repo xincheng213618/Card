@@ -168,7 +168,7 @@ public enum SkillProgramTargetKind
 public enum SkillProgramCardCategory { Basic, Trick, Equipment, InstantTrick }
 public enum SkillProgramGainPhaseQualification { OutsideOwnerDraw }
 public enum SkillProgramTurnOwnerScope { Own = 0, OtherLiving = 1, OwnOrPreviousLiving = 5300, EarnedActualEnding = 5601,
-    PaidPrepDiscardEnding = 6600
+    PaidPrepDiscardEnding = 6600, IssuedFixedDistanceEnding = 8600
 }
 public enum SkillProgramDiscardOwnerScope { Other = 0, Own = 1 }
 public enum SkillProgramDamageModifierExpiration { CurrentTurnEnd = 0, NextOwnerTurnStart = 1 }
@@ -431,6 +431,7 @@ public enum SkillProgramEffectOp
     GrantFactionPopulationMarker = 2600, RemoveSelectedCurrentArrowBarrageTarget = 2601,
     GrantTurnOriginalTargetAddition = 4900,
     OfferOriginalTargetAddition = 4901,
+    OfferShortRangeSlashTarget = 8600, GrantFixedDistanceOneTurnPolicy = 8601, SettleFixedDistanceOneEndingDebt = 8602,
     GrantTurnHandLimitCardKindExemption = 3101,
     PayOwnedCardOrMarker = 3500, RecordEndHandCountAndGrantMarker = 3501,
     ClaimCurrentUsePhysicalCards = 3200, PreventCurrentTargetSlashCancellationByRule = 3201,
@@ -465,7 +466,9 @@ public enum SkillProgramEffectOp
     PlaceOwnedEquipmentThenResolveSlotBenefit = 7500,
     GiveBlackHandAndResolveRecipientContest = 8100, RaiseMaximumRecoverAndQualifyPrintedLord = 8101,
     PayHpInspectHandThenDiscardOrSlash = 7800,
-    DelegateJudgmentReplacement = 8300, GiveAfterBatchGain = 8301, RevealRedLossAndDraw = 8302
+    DelegateJudgmentReplacement = 8300, GiveAfterBatchGain = 8301, RevealRedLossAndDraw = 8302,
+    DiscardEquipmentThenSlashAndOwnershipOutcome = 8700,
+    DrawAfterActualOwnHandGain = 8800, DiscardForeignTurnHandGains = 8801, GiveSameCategoryFromDeck = 8802
 }
 public enum SkillProgramEffectTarget { Owner, Actor, SelectedTarget, SelectedTargets, HpPairHigher = 2000, HpPairLower = 2001 }
 public enum SkillProgramTurnPhase { Judgment, Draw, Play, Discard }
@@ -2123,7 +2126,7 @@ public sealed class SkillProgramCatalog
         else if (inputSuit is not null || outputSuit is not null)
             Fail(path, "suit fields require rewriteSuit or a suit response prohibition");
         if (kind is SkillProgramCardPolicyKind.MinimumResponseCount or
-            SkillProgramCardPolicyKind.MinimumResponseCountAsTarget)
+            SkillProgramCardPolicyKind.MinimumResponseCountAsTarget or SkillProgramCardPolicyKind.MinimumSlashResponseAtDistanceOne)
         {
             if (cardKinds.Count == 0 || requiredKinds.Count == 0 || value is < 2 or > 20)
                 Fail(path, "minimumResponseCount requires incoming and response card kinds and value 2..20");
@@ -2199,6 +2202,11 @@ public sealed class SkillProgramCatalog
                 OptionalCondition(node, path).Kind != SkillProgramConditionKind.Always)
                 Fail(path, "Issued Fire Attack/counterspell policies require their exact kind and no other qualifiers.");
         }
+        if (kind == SkillProgramCardPolicyKind.MinimumSlashResponseAtDistanceOne &&
+            (cardKinds.Count != 3 || !cardKinds.ToHashSet().SetEquals([CardKind.Slash, CardKind.FireSlash, CardKind.ThunderSlash]) ||
+             !requiredKinds.SequenceEqual([CardKind.Dodge]) || value != 2 || ownerRole is not null || factionId is not null ||
+             inputSuit is not null || outputSuit is not null || OptionalCondition(node, path).Kind != SkillProgramConditionKind.Always))
+            Fail(path, "A distance-one Slash policy requires exactly Slash-family/Dodge/minimum two without qualifiers.");
         if (kind == SkillProgramCardPolicyKind.ExclusiveTurnPeachUse && !cardKinds.SequenceEqual([CardKind.Peach]))
             Fail(path, "exclusiveTurnPeachUse requires exactly Peach");
         if (kind == SkillProgramCardPolicyKind.SlashRangeFromEffectiveRank &&
@@ -2796,10 +2804,13 @@ public sealed class SkillProgramCatalog
         RecipientContestConsequencesComposition.Activation(path, activation);
         SourceCurseComposition.ValidateActivation(path, activation);
         PublicPilePreparationComposition.ValidateActivation(path, activation);
+        ActualHandGainAndCategoryGiftComposition.ValidateActivation(path, activation);
         ActualDiscardRecoveryComposition.ValidateActivation(path, activation);
         EquipmentDonationComposition.ValidateActivation(path, activation);
+        DirectedDistanceDebtComposition.ValidateActivation(path, activation);
         ConditionalDiscardDuelComposition.Validate(path, activation);
         InspectedHandSlashComposition.Validate(path, activation);
+        KuangfuComposition.Validate(path, activation);
         RecipientContestComposition.Validate(path, effects, null, minCards, minTargets, targetKind, usesPerPhase);
         if (effects.Any(e => e.Op == SkillProgramEffectOp.GiveAllHandAndStartRecipientPindian) &&
             (maxCards != 0 || maxTargets != 1 || uses is not null || usesPerGame is not null ||
@@ -3686,6 +3697,7 @@ public sealed class SkillProgramCatalog
             movementDiscardOnly, suits, cardKinds, cardCategories, movementReasons, excludedMovementReasons, movementOccurrence);
         ShownEntityTurnPolicyComposition.Validate(path, effects, window, subject, turnOwnerScope);
         EquipmentDonationComposition.ValidateTrigger(path, effects, window, subject, turnOwnerScope, optional);
+        DirectedDistanceDebtComposition.ValidateTrigger(path, effects, window, subject, turnOwnerScope, optional, ownerRelation, cardKinds);
         PlacedEquipmentBenefitComposition.Validate(path, effects, window, subject, turnOwnerScope, optional);
         PaidColorDamageClaimComposition.Validate(path, effects, window, subject, turnOwnerScope, optional);
         ForeignTurnContestAidComposition.Validate(path, effects, window, subject, optional, ownerRelation, cardKinds);
@@ -3753,6 +3765,7 @@ public sealed class SkillProgramCatalog
             MarkerCost = ParseMarkerCost(node, path)
         };
         PairObtainFixedRecipientComposition.ValidateTrigger(path, parsedTrigger);
+        ActualHandGainAndCategoryGiftComposition.ValidateTrigger(path, parsedTrigger);
         SelectIssuedFixedRecipientWithDeathReturnDescriptor.ValidateTrigger(path, parsedTrigger);
         EndingPairSlashLossComposition.ValidateTrigger(path, parsedTrigger);
         CappedConversionBenefitComposition.ValidateTrigger(path, parsedTrigger);
@@ -3826,6 +3839,7 @@ public sealed class SkillProgramCatalog
     private static void ValidateTriggerSources(IReadOnlyDictionary<string, SkillProgram> programs)
     {
         SourceCurseComposition.ValidatePrograms(programs);
+        DirectedDistanceDebtComposition.ValidatePrograms(programs);
         PublicPilePreparationComposition.ValidatePrograms(programs);
         foreach (var owner in programs.Values)
             foreach (var trigger in owner.Triggers)

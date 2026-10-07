@@ -77,7 +77,11 @@ public sealed partial class GameEngine
                 eventTargetIsFemale: _players[responderSeat].Gender == GeneralGender.Female,
                 eventSourceIsFemale: _players[sourceSeat].Gender == GeneralGender.Female)
             .Select(item => item.Policy.Value).DefaultIfEmpty(0).Max();
-        return Math.Max(attackerSide, targetSide);
+        var shortRange = sourceSeat == owner.Seat && IsSlashCard(incomingKind) && requiredKind == CardKind.Dodge &&
+            GetCombatDistance(sourceSeat, responderSeat) == 1
+            ? CardPolicies(owner, SkillProgramCardPolicyKind.MinimumSlashResponseAtDistanceOne, incomingKind, requiredKind)
+                .Select(item => item.Policy.Value).DefaultIfEmpty(1).Max() : 1;
+        return Math.Max(shortRange, Math.Max(attackerSide, targetSide));
     }
 
     private Suit GetProgramEffectiveSuit(CharacterState owner, Card card)

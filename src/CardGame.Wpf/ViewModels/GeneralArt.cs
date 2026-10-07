@@ -250,6 +250,10 @@ public static class GeneralArt
             ["ol-zhuge-jin"] = "official-ol-zhuge-jin.png",
             ["ol-zhang-xing-cai"] = "official-ol-zhang-xing-cai.png",
             ["ol-zu-mao"] = "official-ol-zu-mao.png",
+            // Current OL portraits: docs/content/sources/ordinary-other-forty-first-metadata-and-art.json.
+            ["ol-ding-feng"] = "official-ol-ding-feng.png",
+            ["ol-pan-feng"] = "official-ol-pan-feng.png",
+            ["ol-ma-liang"] = "official-ol-ma-liang.png",
             ["ol-yi-ji"] = "official-ol-yi-ji.png",
             // Official artwork URL and hash: docs/content/sources/ol-huang-zu-2026-10-05.json.
             ["ol-huang-zu"] = "official-ol-huang-zu.png",

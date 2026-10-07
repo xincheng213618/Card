@@ -4,7 +4,7 @@ public sealed partial class GameEngine
 {
     private bool TracksPaidOwnTargets => _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.PayHpThenNullifyOwnActualUseTarget) ||
         _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.OfferHalfHandRecipientSupport) ||
-        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardDrawAndOfferUniqueHpPeer) || HasSameTypeActualUseAid || HasOwnMultiTargetTrickDraw;
+        _contentRegistry.ProgramDependencies.HasTriggerOperation(SkillProgramEffectOp.DiscardDrawAndOfferUniqueHpPeer) || HasSameTypeActualUseAid || HasOwnMultiTargetTrickDraw || HasShortRangeSlashCapability;
 
     private ActualUseTargetIdentity? FreezeActualUseTarget(CardUseFrame use, int target)
     {
@@ -65,6 +65,7 @@ public sealed partial class GameEngine
                     { ActualUseTarget = identity }));
             }
         }
+        AppendShortRangeLegacyCandidate(use, id, entries);
         var previouslyAnnounced = use.UniqueHpAnnouncedTargets?.Count ?? 0;
         AppendUnannouncedUniqueHpTargets(use, id, entries);
         if (entries.Count == 0 && (LifecycleCardUse(use.Id)?.UniqueHpAnnouncedTargets?.Count ?? 0) == previouslyAnnounced) return false;
@@ -80,6 +81,7 @@ public sealed partial class GameEngine
     private bool CanRunActualUseTarget(ProgramTriggerCandidate candidate, ProgramSkillWindowContext context)
     {
         if (context.Window != SkillProgramTriggerWindow.OtherActualUseTargeted) return true;
+        if (IsShortRangeLegacyCandidate(candidate, context)) return true;
         return context.ActualUseTarget is { } use && use.TargetSeat == candidate.OwnerSeat && context.TargetSeat == use.TargetSeat &&
             context.SourceSeat == use.ActorSeat && (candidate.OwnerSeat != use.ActorSeat || IsHalfHandSupportCandidate(candidate) || OwnMultiTargetTrickCandidate(candidate)) && _players[candidate.OwnerSeat].Hp > 0 &&
             MatchesActualUseTarget(use) && !IsCardEffectIneffective(use.CardUseFrameId, use.TargetSeat) &&

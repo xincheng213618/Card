@@ -2,6 +2,9 @@
     # Routine checks use existing name filters; each runner executes their union once.
     # Full validation retains every registration, including individual content scenarios.
     Core = @(
+        'Short range Slash and directed ending debt:',
+        'Equipment Slash ownership:',
+        'Actual hand gains and category gifts:',
         'Delegated judgment and gain gifts:', 'JudgedRankSlashPolicy.', 'skill program public pile preparation',
         'Phase hand seizure:', 'RecipientContestConsequences',
         'command', 'observer', 'viewer', 'prepared snapshot', 'internal failure',

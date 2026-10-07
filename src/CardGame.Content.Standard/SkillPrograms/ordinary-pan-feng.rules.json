@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:kuangfu",
+      "revision": 1,
+      "activations": [
+        {
+          "id": "equipment-slash",
+          "minCards": 0,
+          "maxCards": 0,
+          "minTargets": 0,
+          "maxTargets": 0,
+          "targetKind": "anyLiving",
+          "usesPerTurn": null,
+          "usesPerPhase": 1,
+          "effects": [
+            {
+              "op": "discardEquipmentThenSlashAndOwnershipOutcome",
+              "target": "owner"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

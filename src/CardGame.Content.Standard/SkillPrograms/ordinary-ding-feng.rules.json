@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:duanbing", "revision": 1,
+      "cardPolicies": [{ "id": "distance-one-two-dodge", "kind": "minimumSlashResponseAtDistanceOne",
+        "cardKinds": ["slash", "fireSlash", "thunderSlash"], "requiredCardKinds": ["dodge"], "value": 2 }],
+      "triggers": [
+        { "id": "one-short-range-final-target", "window": "cardUseTargetsFinalized", "ownerRelation": "actor",
+          "cardKinds": ["slash", "fireSlash", "thunderSlash"], "optional": false,
+          "effects": [{ "op": "offerShortRangeSlashTarget", "target": "owner" }] },
+        { "id": "one-short-range-legacy-target", "window": "otherActualUseTargeted", "subject": "owner", "optional": true,
+          "effects": [{ "op": "offerShortRangeSlashTarget", "target": "owner" }] }
+      ]
+    },
+    {
+      "id": "ol:fenxun", "revision": 1,
+      "activations": [{ "id": "fixed-one-actual-turn", "minCards": 0, "maxCards": 0, "minTargets": 1, "maxTargets": 1,
+        "targetKind": "otherLiving", "usesPerTurn": null, "usesPerPhase": 1,
+        "effects": [{ "op": "grantFixedDistanceOneTurnPolicy", "target": "selectedTarget" }] }],
+      "triggers": [{ "id": "settle-original-ending-debt", "window": "turnEnding", "subject": "owner",
+        "turnOwnerScope": "issuedFixedDistanceEnding", "optional": false,
+        "effects": [{ "op": "settleFixedDistanceOneEndingDebt", "target": "owner" }] }]
+    }
+  ]
+}

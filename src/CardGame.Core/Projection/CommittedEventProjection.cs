@@ -12,6 +12,14 @@ internal static class CommittedEventProjection
     // Rules see the original fact first; only the committed projection is copied.
     public static IGameEvent Freeze(IGameEvent payload) => payload switch
     {
+        ShortRangeSlashTargetResolvedEvent value => value with { Receipt = value.Receipt is { } receipt
+            ? receipt with { OriginalTargets = FreezeList(receipt.OriginalTargets) } : null },
+        KuangfuHandDiscardPaidEvent value => value with { CardIds = FreezeList(value.CardIds) },
+        CompletedCategoryCompoundTargetsIssuedEvent value => value with
+            { OriginalTargets = FreezeList(value.OriginalTargets), Targets = FreezeList(value.Targets) },
+        ActualOwnTurnHandGainsRecordedEvent value => value with { Gains = FreezeList(value.Gains) },
+        ForeignTurnHandGainsRecordedEvent value => value with { Gains = FreezeList(value.Gains) },
+        ForeignTurnHandGainsCleanupPaidEvent value => value with { CardIds = FreezeList(value.CardIds) },
         PublicPilePreparationPaidEvent value => value with { CardIds = FreezeList(value.CardIds), From = FreezeList(value.From) },
         SourceCurseLossRosterIssuedEvent value => value with { Losses = FreezeList(value.Losses) },
         DyingSuitsDiscardPaidEvent value => value with { CardIds = FreezeList(value.CardIds), Suits = FreezeList(value.Suits) },

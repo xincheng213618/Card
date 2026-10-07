@@ -42,7 +42,7 @@ public sealed partial class GameEngine
             context.OccurrenceIndex == candidate.OccurrenceIndex && context.Facts == parent.AfterTurnEnded!.Items[parent.AfterTurnEnded.ItemIndex].Facts &&
             (trigger.TurnOwnerScope == SkillProgramTurnOwnerScope.Own ? candidate.OwnerSeat == parent.OwnerSeat :
                 candidate.OwnerSeat != parent.OwnerSeat && (_players[parent.OwnerSeat].IsAlive ||
-                    trigger.Effects.Any(e => e.Op == SkillProgramEffectOp.LoseHpForLostSourceCurses)));
+                    trigger.Effects.Any(e => e.Op is SkillProgramEffectOp.LoseHpForLostSourceCurses or SkillProgramEffectOp.DiscardForeignTurnHandGains)));
     }
 
     private bool ContinueAfterTurnEndedPrograms(DeferredTurnEndFrame parent)

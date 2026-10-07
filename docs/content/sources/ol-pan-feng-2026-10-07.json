@@ -1,0 +1,49 @@
+{
+  "generalId": "ol:pan-feng",
+  "characterId": "character:pan-feng",
+  "characterName": "潘凤",
+  "officialId": 127,
+  "sourcePage": "https://www.sanguosha.com/hero/127",
+  "capturedAtUtc": "2026-10-07T04:00:03.339505+00:00",
+  "variantId": "ordinary",
+  "rulesetId": "sanguosha-ol",
+  "series": "其他",
+  "metadata": {
+    "faction": "qun",
+    "maxHp": 4,
+    "rawInitialHp": 0,
+    "hasStructuredGenderField": false,
+    "genderEditorial": "Male",
+    "genderAuthority": "Editorial historical identity; official info has no structured gender field.",
+    "biography": "冀州牧韩馥部下的上将。当十八路诸侯讨伐董卓之时，他奉韩馥之命前往汜水关前挑战董卓部下大将华雄，不敌被斩。",
+    "advertisedCoverUrl": "https://web.sanguosha.com//220/miniGame/release/laya2/res/runtime/m/general/big/static/12700.png"
+  },
+  "initialHpInterpretation": "initial_hp=0 is the same official sentinel as prior captures; no separate initial-HP override is proposed. Root should retain previous heroDetail.js source interpretation and cite its exact retained bytes if adopted.",
+  "sourceEvidence": {
+    "frozenCandidateReportPath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/candidate-report.json",
+    "frozenCandidateReportSha256": "763000c6e203cd1d098720b888bf990202ce8fc436f240ae149025db65349d7c",
+    "pagePath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/127-page.raw.html",
+    "pageSha256": "2595e3bc8f3a4ab48e18e11696bb773ff70f307b91f2a02a8da16c666448e468",
+    "infoPath": ".artifacts/continuation-20261003-batch17/resume-20261007/source-candidates/127-info.raw.json",
+    "infoSha256": "333feeb5cf99ee294267b61cd0f9dd8b13696d255878dd02ed1b65065c69bdce"
+  },
+  "skills": [
+    {
+      "programId": "ol:kuangfu",
+      "name": "狂斧",
+      "text": "出牌阶段限一次，你可以弃置一名角色装备区里的一张牌，视为使用一张无距离限制的【杀】。若此装备牌：不属于你且未造成伤害，你弃置两张手牌；属于你且造成了伤害，你摸两张牌。"
+    }
+  ],
+  "engineeringInterpretations": [
+    "The official text grants distance exemption only. This Play activation uses the native ordinary Slash quota query, debit/refund identity, commit/completed windows, and alcohol consumption. It does not grant unlimited use.",
+    "Before paying, equipment eligibility requires an actual legal ordinary Slash target after excluding the selected own equipment entity from the native Slash-limit query. A spent quota cannot be reopened by the Crossbow being discarded.",
+    "The original equipment owner and exact public entity are frozen before payment. All actual departure/recovery, movement, SkillsChanged and nested Dying children drain before one issued Slash. Completed payment is never repeated after cold replay or source removal.",
+    "KuangfuReceipt owns the payment and outcome; KuangfuSlashReturn fixes the exact UseId, original ActionId and original target. Confirmed additional targets require their own mature typed proof, including ShortRangeSlashTarget; the program keeps its original selected target.",
+    "Only positive actually applied damage of that exact Use counts. Damage prevention or unrelated skill children do not count. Actual rewritten source attribution, redirected targets, additional targets and chain propagation remain native facts and do not negate this Use result.",
+    "After complete native CardUseCompleted/Finished: foreign equipment plus no damage discards min(2, remaining own Hand); own equipment plus damage draws two; the other two combinations have no follow-up. Equipment and Draw facts reveal no new private Hand identities.",
+    "A paid source loss preserves the frozen successor. Owner death or an actual terminal game closes unissued follow-ups. Departure children that remove every legal target close the unissued Slash without repayment.",
+    "Current raw initial_hp=0 is a normal full-HP placeholder, not a zero-HP dying state. Gender is editorial Male because the official info has no structured gender field."
+  ],
+  "runtimeAcceptance": false,
+  "validationBoundary": "Source-only draft: no compiler, loader, tests, game, UI, AI, seed search or benchmark executed; root integrates registration and artwork."
+}
