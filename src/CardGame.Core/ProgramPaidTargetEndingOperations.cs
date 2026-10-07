@@ -125,7 +125,8 @@ internal static class PaidTargetEndingComposition
         if ((window == SkillProgramTriggerWindow.OtherActualUseTargeted ||
             effects.Any(e => e.Op is SkillProgramEffectOp.PayHpThenNullifyOwnActualUseTarget or SkillProgramEffectOp.ScheduleEarnedActualEndingBenefit)) &&
             !effects.Any(e => e.Op is SkillProgramEffectOp.OfferHalfHandRecipientSupport or SkillProgramEffectOp.DrawThenNullifyOwnMultiTargetTrick or
-                SkillProgramEffectOp.OfferSameTypeDifferentNameOrExtraTarget or SkillProgramEffectOp.DiscardDrawAndOfferUniqueHpPeer))
+                SkillProgramEffectOp.OfferSameTypeDifferentNameOrExtraTarget or SkillProgramEffectOp.DiscardDrawAndOfferUniqueHpPeer or
+                SkillProgramEffectOp.OfferShortRangeSlashTarget))
         {
             bool Choice(SkillProgramEffect e, string option) => e.Condition.Kind == SkillProgramConditionKind.ChoiceIs &&
                 e.Condition.SourceBind == "benefit" && e.Condition.OptionId == option;
