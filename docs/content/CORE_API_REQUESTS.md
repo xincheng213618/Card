@@ -181,3 +181,7 @@ K4 已开放：`ContentModeDefinition` 提供 `DeckId`、候选数量和 `Genera
 - 装备使用通过 `LegalActionKind.Equip` 和精确无目标 Choice 提交；装备实体按 `Hand → Processing → Equipment` 移动，同槽替换按 `Equipment → DiscardPile` 后进入新装备，并发布 `EquipmentChangedEvent`。
 - `GetCombatDistance` 计算存活座位环距离并应用赤兔/绝影及 `standard:mashu` 的出攻距离 modifier；`GetLegalActions` 应用 `standard:qicai` 的锦囊距离豁免；`GetAttackRange` 应用诸葛连弩范围 modifier；玉玺接入回合摸牌数量，死亡清理装备区并保持牌数守恒。
 - K6 基础场景已由 `equipment.replace`、`equipment.distance`、青釭剑无视防具、公开装备目标选择和 Standard Console 自测覆盖；K7 八卦阵基础判定场景以及公开判定区牌目标选择已由独立回归覆盖；装备失效/卸载语义和复杂装备效果留待后续 K6/K7。
+
+## 2026-10-08 补充：可被无懈响应的无实体牌普通锦囊使用
+
+OL 杨仪"狷狭"需要"视为依次使用至多三张牌名各不相同的仅指定唯一目标的普通锦囊牌"。当前引擎的无实体牌虚拟使用（无牌虚拟决斗、无牌虚拟【杀】）按既有保真度结算：真实伤害、濒死、防具与统一 cards-moved 窗口照常开放，但不进入无懈可击响应窗口，也不生成普通用牌的 `CardUseFrame`/`CardActionAcceptedEvent` 用牌历史。狷狭按该既有口径实现（四种单目标普通锦囊：决斗走无牌决斗管线，顺手牵羊/过河拆桥走牌区移动，火攻走展示+同色支付+程序火焰伤害），缺口如实记录：内容后续若需要"可被无懈响应、可进入用牌历史的无牌普通锦囊虚拟使用"，需要共享的无实体牌 `CardUseFrame` 生命周期（虚拟代表牌、无懈窗口、用牌事件与 Checkpoint 契约）。

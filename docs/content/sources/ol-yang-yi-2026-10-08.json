@@ -1,0 +1,64 @@
+{
+  "generalId": "ol:yang-yi",
+  "characterName": "杨仪",
+  "officialId": 488,
+  "sourcePage": "https://www.sanguosha.com/hero/488",
+  "textSource": "https://wiki.biligame.com/sgs/杨仪（官网 hero/info 接口 gid=488 交叉核对体力/势力/品质，技能文本取自 BWIKI 同一武将词条现行版 oldid=74747）",
+  "capturedAt": "2026-10-08",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 488,
+    "name": "杨仪",
+    "extend": "",
+    "hp": 3,
+    "figure": "蜀",
+    "figure_py": "shu",
+    "gender": "男",
+    "title": "武侯长史",
+    "quality": "传说",
+    "pack": "荟萃-匡鼎炎汉",
+    "releaseDate": "2022-09-24"
+  },
+  "artwork": {
+    "skinId": "48800",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/48800.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-yang-yi.png",
+    "sha256": "9e5a4e226472c3c60b7fc754a45c445c88e7161f538dfef795c9fcba247e53f0",
+    "byteCount": 875220,
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "狷狭",
+      "text": "结束阶段，你可以选择一名其他角色，视为依次使用至多三张牌名各不相同的仅指定唯一目标的普通锦囊牌。若如此做，该角色的下一个结束阶段开始时，其可以视为对你使用等量张【杀】。",
+      "programId": "ol:juanxia",
+      "notes": [
+        "Launch juanxia-launch: turnEnding optional trigger, subject owner; shared selectTarget (otherLiving) then bespoke op juanxiaDeclareTricks (7220) offers per-trick prompts over the engine's exactly-one-target ordinary tricks (决斗/顺手牵羊/过河拆桥/火攻), distinct names, at most three, with an explicit stop option; legality (distance-1 for snatch incl. engine exemptions, target has cards, fire attack needs a hand) is re-checked before every declaration.",
+        "Duel resolves through the cardless CardAttackHandle keyed on the owning program frame (full duel-response pipeline); snatch/dismantle move one chosen target card (hand cards stay opaque/random) through the unified cards-moved window; fire attack shows a random target hand card and prompts one same-color hand/equipment discard, paying through BeginProgramSkillDamage for one fire damage.",
+        "若如此做：at least one trick commits ProgramJuanxiaDebtEvent (owner, target, count) — the debt lives only in the event ledger, no marker and no serialized runtime state.",
+        "Retaliation juanxia-retaliation: turnEnding, subject owner, turnOwnerScope otherLiving, mandatory; bespoke op juanxiaRetaliation (7221) derives the turn owner's outstanding debts from committed events (debts minus settlements), no-op when none. With a debt it asks the debtor (public decision at the debtor's seat) to view as using an equal number of Slashes against the owner; accepted slashes resolve one by one like BeginOfferedProgramVirtualSlash (CardUseFrame + declared/confirmed/used events, dodge responses, alcohol, armor bypass; slash-use count not spent), resuming through ResumeJuanxia after each child; each launch settles with ProgramJuanxiaRetaliationEvent (offered vs used).",
+        "The debtor's NEXT ending phase is the first other-living turnEnding binding whose turn owner carries an unsettled debt; several unsettled debts on the same debtor merge into one equal-count offer and settle per launch. The debtor may decline (settles with used=0); legality re-checks can void the remaining slashes and the settlement records the true used count. After the owner dies the trigger no longer assembles and the ledger debt leaves no public state."
+      ]
+    },
+    {
+      "name": "定措",
+      "text": "每回合限一次，当你对其他角色造成伤害后，或受到伤害来源不为你的伤害后，你可以摸两张牌，然后若这两张牌颜色不同，你弃置一张手牌。",
+      "programId": "ol:dingcuo",
+      "notes": [
+        "Pure content expression, no bespoke op: dingcuo-damage-caused (afterDamageApplied, subject damageSource, condition damageTargetIsOther) and dingcuo-damage-taken (afterDamageApplied, subject owner = the victim, condition not(damageSourceIsOwner)) share the once-per-turn allowance through namedUsageGroup 'dingcuo' (usageScope turn + usageLimit 1).",
+        "Effects: shared draw (amount 2, resultBind dingcuo-drawn) plus a conditional shared chooseOwnCardDiscard (zones hand) gated on not(boundCardsSameColor dingcuo-drawn); mixed colors force one hand discard, an empty hand skips it naturally, and same-color pairs skip the discard entirely."
+      ]
+    }
+  ],
+  "observations": [
+    "Official hero/info API (gid=488) confirms 杨仪 as shu 3HP quality 传说 with labels 进攻/防御/控制; BWIKI gives the title 武侯长史, gender 男, pack 荟萃-匡鼎炎汉, release 2022-09-24 — matching the coordinator-locked record.",
+    "BWIKI 现行版 (oldid=74747, fetched after two EdgeOne HTTP 567 throttles with 180s retries) 狷狭 reads 至多三张牌名各不相同的仅指定唯一目标的普通锦囊牌…该角色的下一个结束阶段开始时; the official hero page (www.sanguosha.com/hero/488) still renders an older wording 至多两张不同的仅指定单一目标且目标不为自己的普通锦囊牌，然后其下个结束阶段可以视为对你使用等量张【杀】. Per the locked rule the BWIKI current text wins: three tricks, distinct card names, 'next ending phase start' — the official page's two-trick wording is recorded here only.",
+    "Official page 定措 reads 每回合限一次，当你造成或受到伤害后…; BWIKI current splits the damage condition into 对其他角色造成伤害后，或受到伤害来源不为你的伤害后 (self-inflicted damage never draws). The implemented triggers follow the BWIKI condition split.",
+    "仅指定唯一目标的普通锦囊牌 maps to exactly 决斗/顺手牵羊/过河拆桥/火攻 in this engine's trick set; multi-target, self/none-target, one-or-two-target (铁索连环), two-target (借刀杀人) and delayed tricks are excluded — the per-card mapping is argued in docs/benchmarks/2026-10-08-ol-yang-yi.md.",
+    "New bespoke ops 7220-7221 (juanxiaDeclareTricks, juanxiaRetaliation) in the allocated 7220-7227 segment; PlayerMarkerKind 3950+ was allocated but NOT used (history-derived debt), no new condition kinds, trigger windows or schema nodes; three scalar ProgramJuanxia* evidence events carry the ledger.",
+    "共享口径：狷狭的视为使用按引擎既有无实体牌虚拟使用保真度结算（与共享无牌虚拟决斗/虚拟【杀】一致）：真实伤害、濒死与统一 cards-moved 窗口照常开放，但不进入无懈可击响应窗口，也不生成普通用牌 CardUseFrame（报复【杀】按 BeginOfferedProgramVirtualSlash 同构压入 CardUseFrame 并声明事件）。可被无懈响应的无牌普通锦囊虚拟使用仍是引擎缺口，已记入 docs/content/CORE_API_REQUESTS.md（2026-10-08 条目）。",
+    "临时验证（工作区外诊断程序，已清理）：40 个 seed 的五人全 AI 身份局全部完局且 Checkpoint→Replay 往返快照一致；四种锦囊、火攻支付/放弃两路、债与结清账本、定措两触发均被真实对局命中（明细见 benchmark 文档验证节）。"
+  ]
+}

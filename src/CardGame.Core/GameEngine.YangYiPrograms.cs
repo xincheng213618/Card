@@ -81,6 +81,17 @@ public sealed partial class GameEngine
         var active = GetActiveProgramFrame(frame.Id);
         var state = active.JuanxiaLaunch ??
             throw new InvalidOperationException("The Juanxia launch lost its frame state.");
+        if (state.Stage != JuanxiaStage.Choice)
+        {
+            // A returned child re-presents this prompt; normalize the stage so
+            // the next choice resolution recognizes its suspended chooser.
+            ReplaceRuntimeTop(GetActiveProgramFrame(frame.Id) with
+            {
+                JuanxiaLaunch = state with { Stage = JuanxiaStage.Choice, PendingKind = null }
+            });
+            active = GetActiveProgramFrame(frame.Id);
+            state = active.JuanxiaLaunch!;
+        }
         var owner = _players[active.OwnerSeat];
         if (_winner != Winner.None || !owner.IsAlive ||
             !HasRuntimeSkillInstance(owner, active.SkillId, active.SkillInstanceId) ||
