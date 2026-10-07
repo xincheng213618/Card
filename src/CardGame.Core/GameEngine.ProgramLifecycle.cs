@@ -3518,6 +3518,9 @@ public sealed partial class GameEngine
         if (action == "youdi-bait-discard") { ResolveYoudiBaitChoice(selected); return; }
         if (action == "guanchao-pattern") { ResolveGuanchaoPatternChoice(selected); return; }
         if (action == "xunxian-gift") { ResolveXunxianGiftChoice(selected); return; }
+        if (action == "zhanyi-launch") { ResolveZhanyiCategoryChoice(selected); return; }
+        if (action == "zhanyi-punish-target") { ResolveZhanyiPunishTargetChoice(selected); return; }
+        if (action == "zhanyi-punish-card") { ResolveZhanyiPunishCardChoice(selected); return; }
 
         var (candidate, context) = GetPendingProgramTriggerCandidate();
         if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle &&
@@ -4297,6 +4300,8 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.YoudiBaitDiscard => SelectAiYoudiBaitChoice(decision),
                 SkillProgramEffectOp.GuanchaoChoosePattern => SelectAiGuanchaoPatternChoice(decision),
                 SkillProgramEffectOp.XunxianGiftUsedCard => SelectAiXunxianGiftChoice(decision),
+                SkillProgramEffectOp.ZhuLingZhanyiChooseCategory => SelectAiZhanyiCategoryChoice(decision),
+                SkillProgramEffectOp.ZhuLingZhanyiEquipmentPunish => SelectAiZhanyiPunishChoice(decision),
                 _ => throw new InvalidOperationException(
                     $"The AI does not support suspended program instruction '{paused.Op}'.")
             };
