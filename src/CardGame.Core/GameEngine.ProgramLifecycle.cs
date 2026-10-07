@@ -1904,6 +1904,8 @@ public sealed partial class GameEngine
             (context.TargetSeat is not { } deckTarget || _players[deckTarget].Gender != GeneralGender.Male ||
              owner.Hp <= 0 || _cardZones.Count(CardLocation.DrawPile) > owner.Hp * 10)) return false;
         if (trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.NullifyFirstTurnTargetByHand) && !IsFirstTurnTarget(candidate, context)) return false;
+        if (trigger.Effects.Any(effect => effect.Op == SkillProgramEffectOp.QiaoliEndingEquipmentGain) &&
+            !HasQiaoliEndingGainPending(candidate.OwnerSeat)) return false;
         if (!CanOfferProgramHandControl(owner, trigger)) return false;
         if (!CanOfferResponseExchange(candidate, trigger, context)) return false;
         if (!CanOfferAttributedEvent(trigger,context)) return false;
@@ -3635,6 +3637,9 @@ public sealed partial class GameEngine
         if (action == "changji-discard") { ResolveChangjiDiscardChoice(selected); return; }
         if (action == "zengou-cost") { ResolveZengouCostChoice(selected); return; }
         if (action == "zhuihuan-arm") { ResolveZhuihuanArmChoice(selected); return; }
+        if (action == "ruiji-distribution") { ResolveQiaoliDistributionChoice(selected); return; }
+        if (action == "qingliang-option") { ResolveQingliangOptionChoice(selected); return; }
+        if (action == "qingliang-suit") { ResolveQingliangSuitChoice(selected); return; }
 
         var (candidate, context) = GetPendingProgramTriggerCandidate();
         if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle &&
@@ -4425,6 +4430,8 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.ChangjiEndingDamageChoice => SelectAiChangjiEndingChoice(decision),
                 SkillProgramEffectOp.ZengouNullifyDodge => SelectAiZengouCostChoice(decision),
                 SkillProgramEffectOp.ZhuihuanArm => SelectAiZhuihuanArmChoice(decision),
+                SkillProgramEffectOp.QiaoliWeaponDamageDraw => SelectAiQiaoliDistributionChoice(decision),
+                SkillProgramEffectOp.QingliangChooseOption => SelectAiQingliangChoice(decision),
                 _ => throw new InvalidOperationException(
                     $"The AI does not support suspended program instruction '{paused.Op}'.")
             };

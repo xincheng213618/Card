@@ -13876,6 +13876,7 @@ public sealed partial class GameEngine
         ContinueProgramAfterRandomEquipmentUse();
         if (!HasExactNextActualUseAdjustedProgramReturn(completedUse) && !hpLossMaterialReturn)
             ContinueProgramAfterSelectedCardUse();
+        ContinueProgramAfterRuiJiDuelUse();
         if (dyingResponse is not null) CompleteDyingCardResponse(dyingResponse);
         ReturnVirtualBasicUse(basicReturn, frameId);
         ReturnSelectedActorDuel(completedUse);

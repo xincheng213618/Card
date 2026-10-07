@@ -221,6 +221,8 @@ public enum SkillProgramEffectOp
     FengjiRoundChoice = 7244, XuanhuiSwapEffects = 7245,
     ChangjiEndingDamageChoice = 7252, ZengouNullifyDodge = 7253,
     YouyanGainSuitCards = 7268, ZhuihuanArm = 7269, ZhuihuanRetaliate = 7270,
+    QiaoliWeaponDuel = 7260, QiaoliArmorDuel = 7261, QiaoliWeaponDamageDraw = 7262,
+    QiaoliEndingEquipmentGain = 7263, QingliangChooseOption = 7264,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,
