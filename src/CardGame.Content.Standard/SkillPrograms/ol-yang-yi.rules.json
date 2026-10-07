@@ -35,6 +35,7 @@
           "id": "dingcuo-damage-caused",
           "window": "afterDamageApplied",
           "subject": "damageSource",
+          "damageOccurrence": "perDamage",
           "optional": true,
           "usageScope": "turn",
           "usageLimit": 1,
@@ -60,7 +61,8 @@
         {
           "id": "dingcuo-damage-taken",
           "window": "afterDamageApplied",
-          "subject": "damageTarget",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
           "optional": true,
           "usageScope": "turn",
           "usageLimit": 1,
