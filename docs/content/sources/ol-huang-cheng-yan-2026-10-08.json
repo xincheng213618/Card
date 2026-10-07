@@ -1,0 +1,70 @@
+{
+  "generalId": "ol:huang-cheng-yan",
+  "characterName": "黄承彦",
+  "officialId": 481,
+  "sourcePage": "https://www.sanguosha.com/hero/481",
+  "textSource": "https://wiki.biligame.com/sgs/黄承彦（官网 heroDetail 接口不可用，技能文本取自百科同一武将词条，oldid=74690，最后编辑 2026-01-23）",
+  "capturedAt": "2026-10-08",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 481,
+    "name": "黄承彦",
+    "extend": "",
+    "hp": 3,
+    "figure": "群",
+    "figure_py": "qun",
+    "gender": "男",
+    "title": "捧月共明"
+  },
+  "artwork": {
+    "skinId": "48100",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/48100.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-huang-cheng-yan.png",
+    "sha256": "48e5fac6b3a2a15af6fef147ba701cb42f12c7cb497e71852a0e7d7ff0923bb9",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "解阵",
+      "text": "出牌阶段限一次，你可以令一名其他角色将其所有技能替换为“八阵”（锁定技、限定技、主公技除外），你的下个回合开始时或当其发动【八卦阵】进行判定后，其失去“八阵”并获得原技能，然后你获得其区域里的一张牌。",
+      "programId": "ol:jiezhen",
+      "notes": [
+        "Trigger jiezhen-launch: playPhaseStarting optional (window fires once per play phase), selectTarget otherLiving then bespoke op jiezhenReplaceSkills (7212).",
+        "Replacement scope: every enabled content skill of the target whose registry SkillTag carries none of Locked/Limited/Lord; each enabled grant is disabled individually and classic:bazhen (the 八阵 wording matching BWIKI skill page oldid=66009 verbatim) is granted through the runtime acquisition path (source 'jiezhen:{seat}').",
+        "Conversion bookkeeping lives in an engine-side registry (target seat -> owner/replaced skills/bazhen grant id) rebuilt deterministically while accepted commands replay; ProgramJiezhenConvertedEvent is the committed audit fact.",
+        "Restoration reuses bespoke op jiezhenRestoreSkills (7213) on two triggers: turnStartBeforeNormalFlow subject owner ('你的下个回合开始时') and judgmentFinalized subject any filtered to judgmentReasons equipment.bagua-defense ('当其发动【八卦阵】进行判定后'); it re-enables the recorded skills' grants, removes the granted 八阵, and then takes one uniform-random card across the character's hand/equipment/judgment zones (established multi-zone 口径, processing two-hop with cards-moved window)."
+      ]
+    },
+    {
+      "name": "择才",
+      "text": "限定技，一轮游戏结束时，你可以令一名其他角色获得技能“集智”直到下一轮游戏结束，然后若其是本轮使用锦囊牌数唯一最多的角色，其执行一个额外的回合。",
+      "programId": "ol:zecai",
+      "notes": [
+        "Trigger zecai-round-end: turnStartBeforeNormalFlow non-optional running bespoke op zecaiRoundSettlement (7214). The engine has no round-end hook, so the finished round (current round - 1, and at least 1) is settled at the owner's first turn start after the boundary; a committed ProgramZecaiRoundSettledEvent keeps the settlement once per round.",
+        "SkillTag.Limited is set on the skill; the once-per-game consumption is the existence of ProgramZecaiSkillGrantedEvent for the owner, so declining never burns the limited use.",
+        "The grant uses the runtime acquisition path with source 'round:{N}:{skill}:{binding}' so the granted classic:jizhi (real 集智, existing content) stays enabled during round N and is purged once round N+1 has begun — the '直到下一轮游戏结束' scope under the delayed timing.",
+        "Round trick-use statistics come from a new ProgramRoundTrickUsedEvent observer mirroring the existing actual-turn observer (includes nullification response uses, deduped per action id, gated on the content package); the unique strict maximum of the settled round earns the chosen beneficiary a pendExtraTurn via the generic engine path.",
+        "The decision prompt carries the public unique-leader flag per option; the AI picks the flagged seat or declines."
+      ]
+    },
+    {
+      "name": "隐世",
+      "text": "锁定技，①当你每回合首次受到无色牌或非游戏牌造成的伤害时，防止此伤害；②当一名角色发动【八卦阵】进行判定时，你获得其生效的判定牌。",
+      "programId": "ol:yinshi",
+      "notes": [
+        "Trigger yinshi-prevent: beforeDamageApplied subject damageTarget, non-optional; bespoke op yinshiPreventSourcelessDamage (7215) prevents via the existing PreventProgramCurrentDamage path when the damage attempt has no source game card (IsSourceless or no card) and no ProgramYinshiDamagePreventedEvent (turn-numbered committed fact) exists for this turn.",
+        "Trigger yinshi-claim: judgmentFinalized subject any filtered to judgmentReasons equipment.bagua-defense; bespoke op yinshiClaimBaguaJudgmentCard (7216) mirrors the existing claimJudgmentCard legality checks but drops the owner-subject restriction, moving the effective judgment card into the owner's hand."
+      ]
+    }
+  ],
+  "observations": [
+    "官方接口 https://www.sanguosha.com/api/v1/hero/info?gid=481 返回 name=黄承彦、figure=群/figure_py=qun、hp=3、label=[防御,控制,花色爱好者]，与 BWIKI 信息栏（势力群、性别男、体力3、称号捧月共明）一致；官网 hero 页正文为陈旧 SEO 文案（提及'观虚、雅士'，非当前技能），官网 heroDetail 接口不可用，技能文本以 BWIKI 词条（oldid=74690）为准。",
+    "BWIKI 页面含身份/欢乐/国战/自走棋分页，实现取'身份（经典）'分页正文；'经典版本'栏 3D 原画凡果、武将包荟萃-江湖之远、上线时间 2022-07-16，与'当前 OL 普通版'口径一致。",
+    "解阵授予的'八阵'文本取自 BWIKI 技能页 https://wiki.biligame.com/sgs/八阵（oldid=66009）：'锁定技，若你的装备区里没有防具牌，视为你装备着【八卦阵】。'，与仓库既有 classic:bazhen 描述逐字一致，直接复用；择才授予的'集智'同理复用既有 classic:jizhi。",
+    "取证路径：BWIKI 首次抓取即 200（121,640 字节）；八阵词条首两次 567（EdgeOne 限流），按预定流程 sleep 300 后重试，第 1 次重试即 200（102,767 字节）。立绘 curl 带 User-Agent/Referer 下载 1,137,678 字节（与协调者预验证字节数一致），PNG 签名 89504E470D0A1A0A，尺寸 750×950，SHA-256 记于 artwork 节。",
+    "共享口径：'你获得其区域里的一张牌' 按手牌/装备/判定三区全体候选均匀随机执行（同跨区域随机获取的既有隐私口径）；区域为空自然跳过。",
+    "版本边界：'一轮游戏结束时'无引擎钩子，实现为新一轮开始后的拥有者首个回合开始结算（统计完整、时机最迟延至拥有者回合开始，额外回合插在拥有者当前回合后）；'无色牌'在本规则集无正实例（所有游戏牌带花色），隐世①可表达口径为'无来源游戏牌伤害'；其余未见无法表达的子效果。共享能力扩展（UsesRoundTracking 增补、每轮锦囊使用观察器、AI 分派用例）与版本缺口记录于 benchmark 文档。"
+  ]
+}

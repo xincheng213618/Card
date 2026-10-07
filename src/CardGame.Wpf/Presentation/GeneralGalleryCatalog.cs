@@ -94,6 +94,7 @@ public static class GeneralGalleryCatalog
         groups.Add("ol:ding-feng", "other");
         groups.Add("ol:pan-feng", "other");
         groups.Add("ol:ma-liang", "other");
+        groups.Add("ol:huang-cheng-yan", "other");
         groups.Add("ol:chen-lin", "other");
         groups.Add("ol:sp-cai-wen-ji", "other");
         groups.Add("ol:sp-cao-ren", "other");

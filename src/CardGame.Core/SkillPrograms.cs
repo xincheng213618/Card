@@ -467,6 +467,8 @@ public enum SkillProgramEffectOp
     RequireTargetDiscardOrEquipmentRecast = 7340,
     OfferSlashTargetBenefit = 7000, SettleDodgeCancelledSlashBenefit = 7001,
     DiscardDrawAndOfferUniqueHpPeer = 7200, GiveAllHandAndStartRecipientPindian = 7201, UsePindianWinnerSlash = 7202,
+    JiezhenReplaceSkills = 7212, JiezhenRestoreSkills = 7213, ZecaiRoundSettlement = 7214,
+    YinshiPreventSourcelessDamage = 7215, YinshiClaimBaguaJudgmentCard = 7216,
     DiscardSlashThenOtherCardAndUseDuel = 7320,
     DrawThenNullifyOwnMultiTargetTrick = 7300, RestrictDamageSourceHandCategory = 7301,
     PlaceOwnedEquipmentThenResolveSlotBenefit = 7500,
