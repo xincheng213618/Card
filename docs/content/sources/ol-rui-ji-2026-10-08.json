@@ -1,0 +1,66 @@
+{
+  "generalId": "ol:rui-ji",
+  "characterName": "芮姬",
+  "officialId": 502,
+  "sourcePage": "https://www.sanguosha.com/hero/502",
+  "textSource": "https://wiki.biligame.com/sgsol/芮姬（OL 专站词条现行版，oldid=33588；官网 sanguosha.com/hero/502 页面正文交叉核对体力/势力/技能名，官网 hero/info 接口 gid=502 交叉核对 hp/势力）",
+  "capturedAt": "2026-10-08",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 502,
+    "name": "芮姬",
+    "extend": "",
+    "hp": 3,
+    "figure": "吴",
+    "figure_py": "wu",
+    "gender": "女",
+    "title": "伶形俐影",
+    "quality": "传说",
+    "package": "璀璨星河-天极",
+    "releaseDate": "2022-12-10",
+    "officialLabels": ["简单", "强命", "花色爱好者"]
+  },
+  "artwork": {
+    "skinId": "50200",
+    "skinName": "默认皮肤（经典形象，君桓文化）",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/50200.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-rui-ji.png",
+    "sha256": "6a0fb5989e761987f879cd444b831954288e007624baa5ccce805632886ceaf3",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "byteLength": 1073751
+  },
+  "skills": [
+    {
+      "name": "巧力",
+      "text": "出牌阶段每项各限一次，你可以：1.将一张武器牌当【决斗】使用，然后当此牌对目标角色造成伤害后，你摸X张牌（X为此牌的攻击范围），并可以将其中任意张牌交给任意名其他角色；2.将一张非武器装备牌当【决斗】使用且此牌不能被响应，然后你于本回合的结束阶段随机获得一张装备牌。",
+      "programId": "ol:qiaoli",
+      "notes": [
+        "Activation qiaoli-weapon (usesPerPhase 1, one weapon-slot hand/equipment card, one otherLiving target) → bespoke op qiaoliWeaponDuel (7260): BeginCardUse with playedCardKind Duel + CardConversionSource binding qiaoli-weapon, physical card moved to Processing with the standard pipeline (RecordActualPlayPhaseUse included).",
+        "Payoff trigger qiaoli-weapon-draw: damageAppliedBeforeDying, subject damageSource, perDamage, mandatory binding; bespoke op qiaoliWeaponDamageDraw (7262) matches the active attempt by ConversionSource (skill ol:qiaoli, binding qiaoli-weapon), non-propagation damage to the designated target, then draws WeaponAttackRange cards (fallback 1) and offers per-card keep-or-give-to-one-other prompts recorded in ProgramQiaoliDistributionEvent.",
+        "Activation qiaoli-armor (usesPerPhase 1, one non-weapon equipmentSlots hand/equipment card, one otherLiving target) → bespoke op qiaoliArmorDuel (7261): same Duel launch and after BeginJizhiOrNullificationWindow attaches the shared IssuedCardNoResponse policy on the committed use (counter window stays open; the Duel cannot be responded to), evidenced by IssuedCardNoResponseEvent.",
+        "End-phase trigger qiaoli-ending-gain: turnEnding own, optional; bespoke op qiaoliEndingEquipmentGain (7263) grants one random equipment card from the draw pile per option-2 activation committed this turn (counted by ProgramQiaoliArmorCommittedEvent facts), moving it DrawPile→Hand with a skill reason; no eligible card resolves as a logged no-op."
+      ]
+    },
+    {
+      "name": "清靓",
+      "text": "每回合限一次，当你成为其他角色使用伤害牌的唯一目标时，你可以展示所有手牌并选择一项：1.你与其各摸一张牌；2.弃置一种花色的所有手牌并取消之。",
+      "programId": "ol:qingliang",
+      "notes": [
+        "Trigger qingliang-defense: cardUseTargetsFinalized, ownerRelation target, cardKinds slash/fireSlash/thunderSlash/duel/barbarianAssault/arrowBarrage/fireAttack, condition NOT cardActionActorIsOwner AND compare cardUseDesignatedTargetCount == 1, optional, usageScope turn + usageLimit 1 (每回合限一次 by the shared usage ledger).",
+        "Bespoke op qingliangChooseOption (7264) re-verifies the exact single designated target engine-side, publishes the whole hand as a public card-set binding (surfaces in PublicRevealedCards), and offers 两选择: mutual draws, or suit-discard + nullify.",
+        "Choice 1 draws one card for the owner and one for the acting other player. Choice 2 prompts a suit restricted to suits present in the hand, discards all hand cards of that suit, then reuses the shared per-target nullification contract (MarkCardEffectIneffective + CardEffectSkippedEvent with SkillNullified)."
+      ]
+    }
+  ],
+  "observations": [
+    "版本核对（2026-10-08）：官网 sanguosha.com/hero/502 页面正文与 hero/info 接口（gid=502，hp=3、figure=吴、quality=传说、label 简单/强命/花色爱好者、characteristic 攻守兼备，装备牌能带来极高收益）指向的当前 OL 普通版技能为巧力/清靓；官网页面正文同样列出巧力/清靓（服务器直出）。BWIKI 主站 wiki.biligame.com/sgs/芮姬（oldid=70752，2023-04-29 荟萃-豆蔻梢头）是同名的移动版/十周年角色，技能为妄缘/俐影/铃音（柔荑弄钺），与本批 OL 版不是同一武将版本，未采用。",
+    "OL 专站 wiki.biligame.com/sgsol/芮姬（oldid=33588，璀璨星河-天极，2022-12-10，伶形俐影，定位全能）与官网正文技能名一致，技能文本取该词条现行版为锁定文本。",
+    "锁定文本与官网页正文的差异（以 sgsol 现行版为准）：巧力限次写法（每项各限一次 vs 出牌阶段各限一次，语义一致）；摸牌数表述（X为此牌的攻击范围 vs 与之攻击范围等量张牌，语义一致）；分配去向（交给任意名其他角色 vs 可以分配其中任意张牌，实现为每张牌保留或交给一名其他角色，兼容两种表述）；清靓范围（伤害牌 vs 【杀】或伤害锦囊牌，实现取精确口径：杀系三种与决斗/南蛮入侵/万箭齐发/火攻）；清靓取消（取消之 vs 取消此目标，实现为按目标取消）。巧力第 2 项 wiki 有『此牌』官网无、结束阶段 wiki 有『本回合的』官网无——均按更明确的 wiki 文本实现。",
+    "官网 og:description 的『0体力』为官网页面模板缺陷，hero/info 接口 hp=3 与 OL 专站一致，取 3 体力。",
+    "历史版本：sgsol 页面历史（2023-04-01 创建，2023-05-12 +32B，其后仅链接/模板文本替换与 +6B/+15B 小改）未见技能改写记录，页面只呈现一套现行文本；diff 视图需登录无法逐字取证，已在文本锁定时以官网正文交叉核对。",
+    "New bespoke ops 7260–7264 (qiaoliWeaponDuel, qiaoliArmorDuel, qiaoliWeaponDamageDraw, qiaoliEndingEquipmentGain, qingliangChooseOption); no new PlayerMarkerKind, condition kinds, trigger windows or schema nodes. IssuedCardNoResponse reuse is additive (existing shared policy consumed by BeginDuelResponse/BeginNullificationWindow).",
+    "巧力第 2 项的『不能被响应』按 OL 精确口径实现：目标不能打出【杀】响应；无懈可击的反制窗口保持开放（IssuedCardNoResponse 在空窗开启之后挂载，响应检查每次询问时生效）。",
+    "巧力摸牌数 X 为『此牌（武器牌）的攻击范围』（EquipmentCatalog.WeaponAttackRange，虚拟/无范围时回退 1）；分配子句的『任意名其他角色』按每张摸到的牌独立选择保留或交给一名其他存活角色实现。"
+  ]
+}
