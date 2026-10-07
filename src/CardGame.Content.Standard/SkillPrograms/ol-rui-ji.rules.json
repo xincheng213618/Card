@@ -39,7 +39,7 @@
       "triggers": [
         {
           "id": "qiaoli-weapon-draw",
-          "window": "damageAppliedBeforeDying",
+          "window": "afterDamageApplied",
           "subject": "damageSource",
           "damageOccurrence": "perDamage",
           "optional": false,

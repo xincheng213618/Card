@@ -49,7 +49,7 @@ internal sealed class QiaoliArmorDuelDescriptor : ProgramOperationDescriptorBase
         [new ConsumeSelectedCards(0), new ReadSelectedTarget()];
 }
 
-public sealed class QiaoliDuelHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
+internal sealed class QiaoliDuelHandler(SkillProgramEffectOp op) : ISkillProgramEffectHandler
 {
     public SkillProgramEffectOp Op => op;
     public SkillProgramStepOutcome Execute(SkillProgramEffect effect, ProgramSkillFrame frame, int seat, ISkillProgramEffectHost host) =>
@@ -74,7 +74,7 @@ internal sealed class QiaoliWeaponDamageDrawDescriptor : ProgramOperationDescrip
         RequireAlways(effect, r.Path); return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        [new RequireTriggerWindow(SkillProgramTriggerWindow.DamageAppliedBeforeDying)];
+        [new RequireTriggerWindow(SkillProgramTriggerWindow.AfterDamageApplied)];
 }
 
 public sealed class QiaoliWeaponDamageDrawHandler : ISkillProgramEffectHandler

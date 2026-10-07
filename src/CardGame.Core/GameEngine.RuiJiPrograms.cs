@@ -96,9 +96,10 @@ public sealed partial class GameEngine
     {
         var active = GetActiveProgramFrame(frame.Id);
         var owner = _players[active.OwnerSeat];
-        if (frame.WindowContext is not { Window: SkillProgramTriggerWindow.DamageAppliedBeforeDying } window ||
+        if (frame.WindowContext is not { Window: SkillProgramTriggerWindow.AfterDamageApplied,
+                ParentFrameId: { } parentFrameId, DamageFrameId: { } damageFrameId } ||
             _resolutionStack.Count < 2 || _resolutionStack[^2] is not DamageTriggerWindowFrame damageWindow ||
-            damageWindow.Id != window.ParentFrameId || window.ParentFrameId != window.DamageFrameId ||
+            damageWindow.Id != parentFrameId || damageWindow.ParentFrameId != damageFrameId ||
             _winner != Winner.None || !owner.IsAlive)
             return SkillProgramStepOutcome.Continue;
         var attempt = GetDamageTriggerAttack(damageWindow);
