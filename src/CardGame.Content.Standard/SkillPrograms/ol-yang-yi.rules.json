@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:juanxia",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "juanxia-launch",
+          "window": "turnEnding",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            { "op": "selectTarget", "target": "owner", "targetKind": "otherLiving" },
+            { "op": "juanxiaDeclareTricks", "target": "owner" }
+          ]
+        },
+        {
+          "id": "juanxia-retaliation",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": false,
+          "effects": [
+            { "op": "juanxiaRetaliation", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:dingcuo",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "dingcuo-damage-caused",
+          "window": "afterDamageApplied",
+          "subject": "damageSource",
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "namedUsageGroup": "dingcuo",
+          "condition": {
+            "kind": "damageTargetIsOther"
+          },
+          "effects": [
+            { "op": "draw", "target": "owner", "amount": 2, "resultBind": "dingcuo-drawn" },
+            {
+              "op": "chooseOwnCardDiscard",
+              "target": "owner",
+              "zones": ["hand"],
+              "condition": {
+                "kind": "not",
+                "children": [
+                  { "kind": "boundCardsSameColor", "sourceBind": "dingcuo-drawn" }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "dingcuo-damage-taken",
+          "window": "afterDamageApplied",
+          "subject": "damageTarget",
+          "optional": true,
+          "usageScope": "turn",
+          "usageLimit": 1,
+          "namedUsageGroup": "dingcuo",
+          "condition": {
+            "kind": "not",
+            "children": [
+              { "kind": "damageSourceIsOwner" }
+            ]
+          },
+          "effects": [
+            { "op": "draw", "target": "owner", "amount": 2, "resultBind": "dingcuo-drawn" },
+            {
+              "op": "chooseOwnCardDiscard",
+              "target": "owner",
+              "zones": ["hand"],
+              "condition": {
+                "kind": "not",
+                "children": [
+                  { "kind": "boundCardsSameColor", "sourceBind": "dingcuo-drawn" }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
