@@ -1,0 +1,73 @@
+{
+  "generalId": "ol:qinghe-gongzhu",
+  "characterName": "清河公主",
+  "officialId": 498,
+  "sourcePage": "https://www.sanguosha.com/hero/498",
+  "textSource": "OL 专站 https://wiki.biligame.com/sgsol/清河公主（oldid=31193，OL 当前普通版技能文本逐字来源）；官网 hero/info 接口 gid=498 交叉核对体力/势力/特点",
+  "capturedAt": "2026-10-08",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 498,
+    "name": "清河公主",
+    "extend": "",
+    "hp": 3,
+    "figure": "魏",
+    "figure_py": "wei",
+    "gender": "女",
+    "title": "魏长公主",
+    "quality": "史诗",
+    "labels": ["进攻", "控制", "卖血"],
+    "package": "璀璨星河-天极",
+    "releaseDate": "2022-05-20"
+  },
+  "artwork": {
+    "skinId": "49800",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/49800.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-qinghe-gongzhu.png",
+    "sha256": "6b42e0d97a20717585397c2e886e7593290a115e26691c7d3e4c1a8d91f8f57b",
+    "byteCount": 983177,
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "谮构",
+      "text": "当你攻击范围内一名角色使用【闪】时，你可以弃置一张非基本牌或失去1点体力，令此【闪】无效，然后你获得之。",
+      "programId": "ol:zengou",
+      "notes": [
+        "Trigger zengou-nullify: slashFullyDodged, ownerRelation observer, optional; trigger condition compare(ownerEventTargetDistance <= currentAttackRange) pre-filters to characters within the owner's attack range; the operation re-checks with IsWithinAttackRange.",
+        "Bespoke op zengouNullifyDodge (7253): requires a frozen card action, a single-target attack (multi-target attacks do not fire, recorded boundary), and the latest card.response-finished discard-pile entity whose advanced kind is Dodge; then a private prompt offers one non-basic card (hand or equipment, CardCatalog category != 基本牌) per card plus 失去1点体力.",
+        "Payment nullifies the Dodge by setting CurrentCardEnhancement.Uncancelable on the attack CardUseFrame (same mechanism as the red-slash policy), so the subsequent ContinueSlashAfterDodgePrograms damage check reads it; the Dodge entity then moves DiscardPile -> Hand with reason skill-program.ol:zengou.zengou-gain.",
+        "Converted or virtual Dodges have no Dodge-kind entity; they are nullified without a gain (recorded boundary). If paying HP empties it, the nullify and gain complete before BeginProgramSkillDying suspends into the dying flow."
+      ]
+    },
+    {
+      "name": "长姬",
+      "text": "一名角色的结束阶段，若你本回合：造成过伤害，你可以令其摸两张牌；受到过伤害，你可以令其弃置两张牌。",
+      "programId": "ol:changji",
+      "notes": [
+        "Triggers changji-ending-own (turnEnding, turnOwnerScope own) and changji-ending-others (turnEnding, turnOwnerScope otherLiving): mandatory trigger, the choice lives inside the operation.",
+        "Bespoke op changjiEndingDamageChoice (7252): damage history is rebuilt from committed DamageAppliedEvent records since the TurnStartedEvent boundary of the current turn; 造成过伤害 = SourceSeat == owner && !SourceLess && Amount > 0, 受到过伤害 = TargetSeat == owner && Amount > 0.",
+        "A private-to-public choice prompt offers 令其摸两张牌 (dealt) and 令其弃置两张牌 (taken) plus 不发动; 其 is the ending character (WindowContext.TargetSeat of the turnEnding window).",
+        "The draw branch draws two for the ending character; the discard branch follows the Bijing punish two-stage pattern (ChangjiDiscardState on the program frame): the ending character discards min(2, hand count) of their own hand cards, one prompt each."
+      ]
+    }
+  ],
+  "observations": [
+    "Official hero/info API (gid=498, fetched 2026-10-08) confirms 清河公主 as wei 3HP 史诗 with labels 进攻/控制/卖血 and characteristic 可以无效化敌人的闪，与能为你制造回合外输出的队友配合更好。 — the characteristic matches the sgsol 谮构 wording, not the sgs-main wording.",
+    "Cross-site divergence (coordinator alert): wiki.biligame.com/sgs/清河公主 (oldid=70271, edited 2025-05-20) carries the 十周年-classic version — title 大魏长公主, package 荟萃-皇家贵胄, release 2024-10-24, skills 长姬(锁定技, multi-target priority draw) + 谮构(gift-mark-punish). It matches the official API on hp 3 / 魏 but disagrees on skills, title, package and timeline. It is NOT the OL current normal version and was not used.",
+    "wiki.biligame.com/sgsol/清河公主 (oldid=31193) is the OL-specific wiki: title 魏长公主, package 璀璨星河-天极, release 2022-05-20, 谮构(闪无效获得) + 长姬(结束阶段摸/弃). Its skill texts match the official hero page body verbatim modulo the final clause (official page: 然后你获得此【闪】。; sgsol: 然后你获得之。), and both match the API characteristic. sgsol is taken as the authoritative verbatim source; the official page body is only a cross-check (its og:description even claims 0体力, showing the static template is unreliable).",
+    "The first implementation (commit a7374e03) was built on the sgs-main 十周年 texts before the cross-check; it was reworked onto the OL wording in commit 0a614ffc in the same batch.",
+    "New bespoke ops 7252-7253 (changjiEndingDamageChoice, zengouNullifyDodge); no new trigger windows, condition kinds, value kinds, PlayerMarkerKind or schema nodes. The only shared change beyond the new ops is the schema whitelist extension allowing CurrentAttackRange comparisons on slashFullyDodged (additive; the window's frozen facts already compute CurrentAttackRange unconditionally).",
+    "BWIKI fetches on 2026-10-08 both returned HTTP 200 on the first attempt (no EdgeOne 567 retry needed); raw HTML and extracted text kept under the batch temp workdir during development."
+  ],
+  "versionBoundary": [
+    "谮构 triggers at slashFullyDodged, i.e. after the Dodge has fully resolved, and retroactively nullifies it before the slash damage check runs; the official wording 当…使用【闪】时 would fire at the use instant. The observable ordering difference only matters for skills that trigger between the dodge use and its completion.",
+    "谮构 only fires against single-target attacks. On a multi-target attack the Uncancelable flag cannot be scoped to one target (HasCurrentCardEnhancement reads the whole CardUseFrame), so firing would bleed onto other targets' dodges; the operation declines instead (recorded gap).",
+    "谮构 gains the Dodge entity only when the settled response entity's advanced kind is Dodge (converted/virtual Dodges gain nothing).",
+    "长姬 damage history counts every committed DamageAppliedEvent of the current turn with Amount > 0 (source side excluding SourceLess); chain/transfer attribution follows the engine's DamageAppliedEvent fields.",
+    "长姬 discard branch discards hand cards only (standard 弃置两张牌 reading); if the ending character has fewer than two hand cards they discard what they have; zero hand cards voids the branch.",
+    "Both skills' prompts are realised per the engine's DecisionKind.ProgramTrigger machinery; the AI heuristics are deterministic (长姬: draw for self, discard for others; 谮构: prefer the discard cost over losing HP; the optional activation itself is priced by the generic estimate, which values 谮构 at zero, so the AI effectively declines it)."
+  ]
+}
