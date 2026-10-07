@@ -67,6 +67,7 @@
     {
      "id": "yaner-last-hand",
      "window": "cardsMoved",
+     "subject": "owner",
      "movementOccurrence": "perOtherLastHandLoss",
      "sourceZones": ["hand"],
      "optional": true,

@@ -1,0 +1,60 @@
+{
+  "generalId": "ol:pan-shu",
+  "characterName": "潘淑",
+  "officialId": 478,
+  "sourcePage": "https://www.sanguosha.com/hero/478",
+  "textSource": "https://wiki.biligame.com/sgs/潘淑（官网 heroDetail 页面文本有限，技能文本取自百科同一武将词条，并用 https://www.sanguosha.com/api/v1/hero/info?gid=478 交叉核对元数据）",
+  "capturedAt": "2026-10-07",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 478,
+    "name": "潘淑",
+    "extend": "",
+    "hp": 3,
+    "figure": "吴",
+    "gender": "女",
+    "title": "神女"
+  },
+  "artwork": {
+    "skinId": "47800",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/47800.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-pan-shu.png",
+    "sha256": "3aa03bcda3558ca6ccacf12b826f97499036f8892e9d65db912bcde20b3f1ae3",
+    "pixelWidth": 750,
+    "pixelHeight": 950,
+    "byteCount": 1143462
+  },
+  "skills": [
+    {
+      "name": "织纴",
+      "text": "你的回合内，当你使用本回合的第一张非转化牌时，你可以执行对应效果，若X不小于（X为此牌牌名字数）：1，观看牌堆顶X张牌并以任意顺序放回牌堆顶或牌堆底；2，至多弃置场上的一张装备牌和一张延时锦囊牌；3，回复1点体力；4，摸三张牌。",
+      "programId": "ol:zhiren",
+      "notes": [
+        "Trigger zhiren-tiers: cardUseTargetsFinalized, ownerRelation actor, requireNoCardConversion true (the shared IsUnconvertedActualCardUse gate: empty conversion chain on an accepted actual Use), optional.",
+        "Own-turn gate is data, not code: trigger condition any[ownerIsTurnPlayer, booleanState zhiren-unrestricted], so the 燕尔 modification removes the own-turn restriction by flipping one declared public boolean state.",
+        "'First of this turn' is a committed-events ledger: new trigger value currentTurnNonConvertedUseCount (1030) counts the owner's CardActionAcceptedEvent uses since the last turn boundary whose conversion chain is empty and whose effective kind equals every paid entity kind; the current use's accepted event commits before the window opens, so the gate is count == 1.",
+        "Tier 1 reuses the shared program top-reorder machinery with a dynamic count: new op zhirenReorderTopByLength (7204) calls BeginProgramTopReorder with X = CardCatalog display-name character length (requireCurrentSeat relaxed to an optional parameter, default unchanged, because the 燕尔 modification can lawfully suspend the own-turn restriction).",
+        "Tiers 2-4 run in one stateful op zhirenResolveFieldTiers (7205): X>=2 prompts at most one field equipment and then at most one field delayed trick (private choices with explicit skip options, state on the owning frame), X>=3 recovers one HP through the shared recovery queue, X>=4 draws three cards; each tier only fires when X reaches its threshold."
+      ]
+    },
+    {
+      "name": "燕尔",
+      "text": "每回合限一次，当其他角色于其出牌阶段内失去最后的手牌时，你可以与其各摸两张牌。若你/其以此法摸到的牌类别相同，'织纴'删去'你的回合内'的描述直到你的下个回合开始/其回复1点体力。",
+      "programId": "ol:yaner",
+      "notes": [
+        "Trigger yaner-last-hand: cardsMoved with new movement occurrence perOtherLastHandLoss (1031) and a shared collector shaped like the existing third-party-hand-gain ones: the movement leaves another living character's hand during that character's own play phase (live phase/turn-owner check at batch completion) and the batch source counts show Hand(loser) going from >0 to 0; the frozen condition repeats the before>=1/after==0 comparison as data.",
+        "usageScope turn + usageLimit 1 gives the per-turn ledger; consumption happens at program binding begin, so a declined launch still spends the once-per-turn window, matching '每回合限一次'.",
+        "Bespoke op yanerResolvePairBenefit (7206) draws two for the owner first and then two for the loser (both binds private), and only when both pairs drew exactly two cards compares the unordered SkillProgramCardCategory sets.",
+        "On equal category sets the op writes the paired skill's declared public boolean state (skillIds names ol:zhiren, stateId zhiren-unrestricted) through a cross-skill boolean write helper and recovers the loser by one HP through the shared recovery queue.",
+        "The 织纴 own trigger zhiren-unrestricted-clear (turnStartBeforeNormalFlow, subject owner, mandatory setBooleanState false) clears the modification exactly at the owner's next turn start; resetScope game keeps it across intervening foreign turns."
+      ]
+    }
+  ],
+  "observations": [
+    "BWIKI lists 潘淑 (officialId 478) as wu female, title 神女, online 2021-10-14, package 荟萃-章台春望; the official hero info API (gid=478) independently reports hp 3 and figure 吴. The BWIKI infobox renders HP as magatama icons; the rendered page text does not expose a numeral and the raw HTML fetch was EdgeOne-blocked, so the HP=3 record relies on the official API value (3) cross-checked against the icon count expectation.",
+    "Both skill texts on BWIKI match the coordinator-locked wording verbatim, including the '若X不小于（X为此牌牌名字数）' bracket and the slash-separated '直到你的下个回合开始/其回复1点体力' tail.",
+    "New bespoke ops 7204-7206 (zhirenReorderTopByLength, zhirenResolveFieldTiers, yanerResolvePairBenefit); new trigger value currentTurnNonConvertedUseCount (1030); new movement occurrence perOtherLastHandLoss (1031). No new player markers, trigger windows, condition kinds or schema nodes; RulesSchemaVersion and CurrentRulesVersion unchanged.",
+    "Shared capability notes: BeginProgramTopReorder gained an optional requireCurrentSeat parameter (default true preserves every existing caller's behavior); CaptureProgramTriggerFacts captures the gated CurrentTurnNonConvertedUseCount only when some content uses the value; the cards-moved candidate collection gained the perOtherLastHandLoss collector alongside the existing third-party/owner-source collectors."
+  ]
+}
