@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:luochong",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "luochong-preparation",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": true,
+          "effects": [
+            { "op": "luochongResolve", "target": "owner" }
+          ]
+        },
+        {
+          "id": "luochong-damage",
+          "window": "afterDamageApplied",
+          "subject": "owner",
+          "damageOccurrence": "perDamage",
+          "optional": true,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "damageInstancesTakenThisTurn" },
+            "operator": "equal",
+            "right": { "kind": "integerConstant", "value": 1 }
+          },
+          "effects": [
+            { "op": "luochongResolve", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:aichen",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "aichen-remove",
+          "window": "dyingEntering",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            { "op": "aichenRemoveOption", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}
