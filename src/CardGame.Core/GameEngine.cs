@@ -15199,6 +15199,7 @@ public sealed partial class GameEngine
             .Concat(GetPassiveProgramDamageModifiers(attack))
             .Concat(GetCurrentTurnHeartSlashBonuses(attack))
             .Concat(GetShownEntityUseDamageBenefits(attack))
+            .Concat(GetArmedGameDamageBonuses(attack))
             .ToArray();
         var programDamageBonus = programDamageModifiers.Sum(modifier => modifier.Amount) + FinalTargetSlashDamage(attack) + FrozenNextSlashDamage(attack) +
             (attack is CardAttackHandle bladed ? RedBladeDamageBonus(bladed) : 0);

@@ -203,3 +203,8 @@ OL 杨仪"狷狭"需要"视为依次使用至多三张牌名各不相同的仅�
 - 轮级、跨座位、随事件账本变动的公共数值规则调整（如丰积的"本轮 摸牌阶段摸牌数 -1 / 出牌阶段使用【杀】的次数上限 -1，对应其他角色 +2，选择否 +1"）目前没有内容侧声明通道：rules.json 无法表达"作用于任意座位、按轮号生效、由技能事件推导数值"的规则查询贡献。本批以 bespoke op（7244）+ 引擎侧门控贡献（EvaluateDrawCount / EvaluateSlashUseLimit 内按依赖开关读取事件账本）实现；若后续出现第二个同类技能，建议抽象出"事件账本驱动的轮级规则修改器"共享描述符。
 - "此技能失效直到<条件>"（旋回：失效直到一名角色死亡）没有通用失效/恢复原语。本批以"失效事件与 PlayerDiedEvent 的历史顺序比较"推导（无序列化运行时状态）；通用化需要内容可声明的失效条件与自动恢复账本。
 - "每轮开始时"触发窗口为本批新增共享能力（roundStarting，复用 ProgramLifecycleTriggerWindowFrame 与续接枚举尾部值），非缺口；列出仅为说明该窗口自此可用。
+## 内容程序表达力记录：刘宏批（2026-10-08）
+
+- **全局时长伤害加成（已落地为共享能力）**：图兴②"你本局造成的伤害+1"需要"本局剩余时间对来源座位一切伤害 +N"的表达。此前引擎只有回合级 `grantTurnCardDamageModifier`（`CurrentTurnEnd`/`NextOwnerTurnStart` 两种过期）与声明式 `damageModifiers`（OwnerUsed 路径排除传导伤害且要求具体牌种；空牌种条件都是受击侧 `damageParticipant` 语义），没有全局时长条目。本批新增共享武装通道：通用证据事件 `ProgramGameDamageBonusArmedEvent`（内容技能经 bespoke 流程发布，committed-history 推导、幂等防重）+ `FinalizeAttackDamageAmount` 一处通用接入 `GetArmedGameDamageBonuses`（含传导、不限牌种、`ProgramCardDamageModifiedEvent` 照常发布）。后续"至游戏结束/至某条件为止"的全局数值修正可复用该事件通道或抽象为声明式描述符。
+- **"装备栏被废除"触发窗口（未落地，如实记录）**：图兴①"当你废除一个装备栏时"没有对应触发窗口，当前由鬻爵的废除流程内联结算（当前内容中刘宏装备栏废除仅来自鬻爵，覆盖全部可观察行为），并为武装子句留了回合开始幂等补账。若后续出现第二个"当你废除装备栏时"或"其他角色的装备栏被废除时"技能，需要共享的 equipment-slot-abolished 触发窗口（窗口枚举尾部新值 + `EquipmentSlotCapacityChangedEvent`/`PlayerAreasAbolishedEvent` 的窗口发布点），届时图兴①即可改为纯内容触发。
+- 本批已落地的其余口径全部为既有共享能力复用（装备栏容量废除、`ChangeProgramMaximumHp`、共享 Recover、`AcquireRuntimeSkills` 自定义源前缀授予与择时清除、耀冥"对其他角色造成伤害后"条件口径、usageScope/usageLimit 限次）。

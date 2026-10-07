@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 62,
+  "skills": [
+    {
+      "id": "ol:yujue",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "yujue-launch",
+          "window": "playPhaseStarting",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            { "op": "yujueResolve", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:tuxing",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "tuxing-arm-catchup",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "condition": {
+            "kind": "compare",
+            "left": { "kind": "currentAvailableEquipmentSlotCount" },
+            "operator": "equal",
+            "right": { "kind": "integerConstant", "value": 0 }
+          },
+          "effects": [
+            { "op": "tuxingArmGameDamage", "target": "owner" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ol:zhihu",
+      "revision": 1,
+      "triggers": [
+        {
+          "id": "zhihu-draw",
+          "window": "afterDamageApplied",
+          "subject": "any",
+          "damageOccurrence": "perDamage",
+          "usageScope": "turn",
+          "usageLimit": 2,
+          "optional": false,
+          "condition": {
+            "kind": "all",
+            "children": [
+              { "kind": "damageSourceIsOwner" },
+              { "kind": "damageTargetIsOther" }
+            ]
+          },
+          "effects": [
+            { "op": "draw", "target": "owner", "amount": 2 }
+          ]
+        },
+        {
+          "id": "zhihu-expire-own",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "optional": false,
+          "effects": [
+            { "op": "zhihuExpire", "target": "owner" }
+          ]
+        },
+        {
+          "id": "zhihu-expire-other",
+          "window": "turnStartBeforeNormalFlow",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": false,
+          "effects": [
+            { "op": "zhihuExpire", "target": "owner" }
+          ]
+        }
+      ]
+    }
+  ]
+}
