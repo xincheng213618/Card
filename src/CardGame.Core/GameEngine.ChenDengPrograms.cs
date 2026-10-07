@@ -156,7 +156,6 @@ public sealed partial class GameEngine
         if (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } decision ||
             decision.PlayerSeat != active.OwnerSeat)
             throw new InvalidOperationException("The Fengji chooser changed while suspended.");
-        ClearPendingDecision();
         var accept = selected.Parameters.GetValueOrDefault("accept");
         if (accept is not ("true" or "false"))
             throw new InvalidOperationException("The Fengji choice answer is malformed.");
@@ -164,6 +163,7 @@ public sealed partial class GameEngine
             ? FengjiOptionKind.Draw : FengjiOptionKind.Slash;
         if (CurrentRoundFengjiOptions(active.OwnerSeat).Any(e => e.Option == option))
             throw new InvalidOperationException("The Fengji option was already resolved this round.");
+        ClearPendingDecision();
         if (accept == "false")
         {
             CommitFengjiOption(active, option, accepted: false, recipientSeat: active.OwnerSeat);
@@ -230,11 +230,12 @@ public sealed partial class GameEngine
         if (_pendingDecision is not { Kind: DecisionKind.ProgramTrigger } decision ||
             decision.PlayerSeat != active.OwnerSeat)
             throw new InvalidOperationException("The Fengji chooser changed while suspended.");
-        ClearPendingDecision();
         var option = selected.Parameters.GetValueOrDefault("option") == "draw"
             ? FengjiOptionKind.Draw : FengjiOptionKind.Slash;
-        if (recipient == active.OwnerSeat || !IsValidPlayerSeat(recipient) || !_players[recipient].IsAlive ||
-            CurrentRoundFengjiOptions(active.OwnerSeat).Any(e => e.Option == option))
+        if (CurrentRoundFengjiOptions(active.OwnerSeat).Any(e => e.Option == option))
+            throw new InvalidOperationException("The Fengji option was already resolved this round.");
+        ClearPendingDecision();
+        if (recipient == active.OwnerSeat || !IsValidPlayerSeat(recipient) || !_players[recipient].IsAlive)
         {
             CancelProgramBindingAndCleanup(active, "丰积的目标已失效，剩余结算取消。");
             return;
