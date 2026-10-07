@@ -25,6 +25,16 @@ public sealed partial class GameEngine
             .Where(e => e.RoundNumber == _roundNumber && e.OwnerSeat == ownerSeat)];
     }
 
+    // The op prompts exactly one unresolved option in text order; stale
+    // commands for other options are rejected against this derivation.
+    private FengjiOptionKind? PendingFengjiOption(int ownerSeat)
+    {
+        var chosen = CurrentRoundFengjiOptions(ownerSeat);
+        if (chosen.Any(e => e.Option == FengjiOptionKind.Draw))
+            return chosen.Any(e => e.Option == FengjiOptionKind.Slash) ? null : FengjiOptionKind.Slash;
+        return FengjiOptionKind.Draw;
+    }
+
     // The choice opportunity belongs to exactly the actual turn whose begin
     // advanced the round ledger; extra turns never re-open it.
     internal bool IsFengjiRoundChoicePending(int ownerSeat)
@@ -104,11 +114,7 @@ public sealed partial class GameEngine
         if (!owner.IsAlive || _winner != Winner.None || _roundNumber == 0 ||
             !HasRuntimeSkillInstance(owner, active.SkillId, active.SkillInstanceId))
             return SkillProgramStepOutcome.Continue;
-        var chosen = CurrentRoundFengjiOptions(active.OwnerSeat);
-        var pendingOption = chosen.Any(e => e.Option == FengjiOptionKind.Draw)
-            ? chosen.Any(e => e.Option == FengjiOptionKind.Slash) ? (FengjiOptionKind?)null : FengjiOptionKind.Slash
-            : FengjiOptionKind.Draw;
-        if (pendingOption is not { } option)
+        if (PendingFengjiOption(active.OwnerSeat) is not { } option)
         {
             AdvanceRuntimeProgram(active.Id);
             return SkillProgramStepOutcome.Continue;
@@ -164,8 +170,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The Fengji choice answer is malformed.");
         var option = selected.Parameters.GetValueOrDefault("option") == "draw"
             ? FengjiOptionKind.Draw : FengjiOptionKind.Slash;
-        if (CurrentRoundFengjiOptions(active.OwnerSeat).Any(e => e.Option == option))
-            throw new InvalidOperationException("The Fengji option was already resolved this round.");
+        if (option != PendingFengjiOption(active.OwnerSeat))
+            throw new InvalidOperationException("The Fengji option does not match the pending prompt.");
         ClearPendingDecision();
         if (accept == "false")
         {
@@ -235,8 +241,8 @@ public sealed partial class GameEngine
             throw new InvalidOperationException("The Fengji chooser changed while suspended.");
         var option = selected.Parameters.GetValueOrDefault("option") == "draw"
             ? FengjiOptionKind.Draw : FengjiOptionKind.Slash;
-        if (CurrentRoundFengjiOptions(active.OwnerSeat).Any(e => e.Option == option))
-            throw new InvalidOperationException("The Fengji option was already resolved this round.");
+        if (option != PendingFengjiOption(active.OwnerSeat))
+            throw new InvalidOperationException("The Fengji recipient does not match the pending prompt.");
         ClearPendingDecision();
         if (recipient == active.OwnerSeat || !IsValidPlayerSeat(recipient) || !_players[recipient].IsAlive)
         {
