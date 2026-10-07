@@ -228,6 +228,7 @@ public enum SkillProgramEffectOp
     KanggeChooseTarget = 7284, KanggeGainDraw = 7285, KanggeHealVictim = 7286, KanggeDeathPrice = 7287,
     JieliePreventAndGift = 7288,
     YujueResolve = 7302, ZhihuExpire = 7303, TuxingArmGameDamage = 7304,
+    YuanziResolve = 7325, YuanziDamageDraw = 7326, LiejieSourceDiscard = 7327,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,

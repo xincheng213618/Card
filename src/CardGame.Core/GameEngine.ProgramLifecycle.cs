@@ -3668,6 +3668,9 @@ public sealed partial class GameEngine
         if (action == "aichen-remove") { ResolveAichenRemoveChoice(selected); return; }
         if (action == "yujue-slot" || action == "yujue-decline" || action == "yujue-target" ||
             action == "yujue-give") { ResolveYujueProgramChoice(selected); return; }
+        if (action == "yuanzi-draw" || action == "yuanzi-decline" ||
+            action == "liejie-count" || action == "liejie-decline")
+        { ResolveWeiZiProgramChoice(selected); return; }
 
         var (candidate, context) = GetPendingProgramTriggerCandidate();
         if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle &&
@@ -4469,6 +4472,8 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.LuochongResolve => SelectAiLuochongResolveChoice(decision),
                 SkillProgramEffectOp.AichenRemoveOption => SelectAiAichenRemoveChoice(decision),
                 SkillProgramEffectOp.YujueResolve => SelectAiYujueChoice(decision),
+                SkillProgramEffectOp.YuanziDamageDraw => SelectAiYuanziDamageDrawChoice(decision),
+                SkillProgramEffectOp.LiejieSourceDiscard => SelectAiLiejieSourceDiscardChoice(decision),
                 _ => throw new InvalidOperationException(
                     $"The AI does not support suspended program instruction '{paused.Op}'.")
             };
@@ -4705,6 +4710,13 @@ public sealed partial class GameEngine
         var effects = sourceEffects.ToArray();
         publishedTargets ??= PublishedFixedRecipientForAi(owner, effects, windowContext);
         publishedTargets ??= PublishedEndingPairActorForAi(owner, effects, windowContext);
+        // The 援资 gift is addressed to the preparation-phase turn owner; publish
+        // that seat so the shared target scoring prices the recipient's benefit.
+        if (publishedTargets is null &&
+            effects.Any(effect => effect.Op == SkillProgramEffectOp.YuanziResolve) &&
+            windowContext is { Window: SkillProgramTriggerWindow.TurnStartBeforeNormalFlow,
+                SourceSeat: { } yuanziTurnSeat } && yuanziTurnSeat != owner.Seat)
+            publishedTargets = [yuanziTurnSeat];
         if (effects.Any(effect => effect.Op is SkillProgramEffectOp.RecoverOtherDyingVictimTo or SkillProgramEffectOp.SelectDyingOwnedCard) &&
             windowContext is { Window: SkillProgramTriggerWindow.DyingEntering, TargetSeat: { } dyingVictim })
             publishedTargets = [dyingVictim];
