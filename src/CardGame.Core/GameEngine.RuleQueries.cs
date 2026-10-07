@@ -83,6 +83,9 @@ public sealed partial class GameEngine
         var contributions = CollectNumericRuleContributions(player, SkillRuleQuery.DrawCount).ToList();
         AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
         AddFiniteContribution(contributions, $"turn:{player.Seat}:draw-count", GetAdditiveTurnRuleModifier(player.Seat, SkillRuleQuery.DrawCount));
+        if (TracksFengjiRoundLedger)
+            AddFiniteContribution(contributions, $"state:{player.Seat}:olfengji:round-draw",
+                GetFengjiRoundAdjustment(player.Seat, SkillRuleQuery.DrawCount));
         return RuleQueryService.Evaluate(
             SkillRuleQuery.DrawCount,
             new RuleQueryBounds(0, int.MaxValue),
@@ -109,6 +112,9 @@ public sealed partial class GameEngine
         AddFiniteContribution(contributions, $"state:{player.Seat}:hengye:growth", GetHengyeGrowth(player));
         AddFiniteContribution(contributions, $"turn:{player.Seat}:slash-limit",
             GetAdditiveTurnRuleModifier(player.Seat, SkillRuleQuery.SlashLimit));
+        if (TracksFengjiRoundLedger)
+            AddFiniteContribution(contributions, $"state:{player.Seat}:olfengji:round-slash",
+                GetFengjiRoundAdjustment(player.Seat, SkillRuleQuery.SlashLimit));
         return RuleQueryService.Evaluate(
             SkillRuleQuery.SlashLimit,
             new RuleQueryBounds(0, int.MaxValue),

@@ -1989,6 +1989,8 @@ public sealed partial class GameEngine
                 judgmentStart.Id == context.ParentFrameId && judgmentStart.Window == context.Window,
             SkillProgramTriggerWindow.TurnStartBeforeNormalFlow =>
                 owner.Seat == _currentSeat && context.SourceSeat == owner.Seat,
+            SkillProgramTriggerWindow.RoundStarting =>
+                owner.IsAlive && context.SourceSeat == _currentSeat && _roundNumber > 0,
             SkillProgramTriggerWindow.DrawPhaseStarting =>
                 (owner.Seat == _currentSeat && context.SourceSeat == owner.Seat && CanRunDrawPhaseProgramTrigger(owner, trigger) ||
                  features.HasOperation(SkillProgramEffectOp.AddMarkerSubjectNormalDraw) && context.SourceSeat==_currentSeat && context.TargetSeat==_currentSeat) && _phase == TurnPhase.Draw,
@@ -2359,6 +2361,10 @@ public sealed partial class GameEngine
         { OwnerTrickUsesThisActualTurn = TracksActualTurnTrickUses ? ActualTurnTrickUseCount(owner.Seat) : null,
           PhaseIsPlay = _contentRegistry.ProgramDependencies.UsesTriggerCondition(SkillProgramTriggerConditionKind.PhaseIsPlay)
               ? _phase == TurnPhase.Play : null,
+          FengjiRoundChoicePending = _contentRegistry.ProgramDependencies.UsesTriggerCondition(SkillProgramTriggerConditionKind.FengjiRoundChoicePending)
+              ? IsFengjiRoundChoicePending(owner.Seat) : null,
+          FengjiSwapAvailable = _contentRegistry.ProgramDependencies.UsesTriggerCondition(SkillProgramTriggerConditionKind.FengjiSwapAvailable)
+              ? IsFengjiSwapAvailable(owner.Seat) : null,
           CurrentTurnUsedCardCategoryCount = TracksCurrentTurnUseKinds ? CurrentTurnUseKinds(owner.Seat).Categories : null,
           CurrentActualPlayPhysicalSlashLossCount = TracksActualPlaySlashLoss ? CurrentActualPlaySlashLossCount(owner.Seat) : null };
     }
@@ -2527,6 +2533,35 @@ public sealed partial class GameEngine
             candidates,
             ProgramLifecycleContinuation.NormalTurnStart,
             facts);
+        PushRuntimeFrame(frame);
+        AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
+        return true;
+    }
+
+    // 每轮开始时 boundary: opens once per actual turn, right after the round
+    // ledger advanced and before every other turn-start contest or phase work.
+    private bool TryBeginRoundStartingProgramWindow(CharacterState turnOwner)
+    {
+        if (_winner != Winner.None || !turnOwner.IsAlive || turnOwner.Seat != _currentSeat ||
+            _roundNumber == 0 || _turnProgression.Kind == ActualTurnKind.Extra ||
+            !_contentRegistry!.ProgramDependencies.HasTriggerWindow(SkillProgramTriggerWindow.RoundStarting))
+            return false;
+        if (_resolutionStack.Count != 0 || _pendingDecision is not null)
+            throw new InvalidOperationException("A round-starting program window requires a clean turn boundary.");
+        var participants = _players.Where(player => player.IsAlive).ToArray();
+        var participantFacts = participants.ToDictionary(player => player.Seat, CaptureProgramTriggerFacts);
+        var candidates = participants.SelectMany(player =>
+                CollectEligibleProgramTriggerCandidates(player, SkillProgramTriggerWindow.RoundStarting,
+                    participantFacts[player.Seat]))
+            .OrderBy(candidate => (candidate.OwnerSeat - turnOwner.Seat + _players.Count) % _players.Count)
+            .ThenByDescending(candidate => candidate.Priority)
+            .ThenBy(candidate => candidate.SkillId, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.BindingId, StringComparer.Ordinal).ToArray();
+        if (candidates.Length == 0) return false;
+        var frame = new ProgramLifecycleTriggerWindowFrame(
+            ++_resolutionSequence, turnOwner.Seat, SkillProgramTriggerWindow.RoundStarting,
+            candidates, ProgramLifecycleContinuation.RoundProgramsTurnStart, participantFacts[turnOwner.Seat])
+        { ParticipantFacts = participantFacts };
         PushRuntimeFrame(frame);
         AdvanceRuntimeTop<ProgramLifecycleTriggerWindowFrame>();
         return true;
@@ -2963,6 +2998,9 @@ public sealed partial class GameEngine
                         break;
                     case ProgramLifecycleContinuation.NormalTurnStart:
                         BeginNormalTurnStartAfterProgramBindings(_players[frame.OwnerSeat]);
+                        break;
+                    case ProgramLifecycleContinuation.RoundProgramsTurnStart:
+                        ContinueTurnAfterRoundPrograms(_players[frame.OwnerSeat]);
                         break;
                     case ProgramLifecycleContinuation.CompleteDrawPhase:
                         CompleteDrawPhaseAfterProgramWindow(
@@ -3518,6 +3556,8 @@ public sealed partial class GameEngine
         if (action == "youdi-bait-discard") { ResolveYoudiBaitChoice(selected); return; }
         if (action == "guanchao-pattern") { ResolveGuanchaoPatternChoice(selected); return; }
         if (action == "xunxian-gift") { ResolveXunxianGiftChoice(selected); return; }
+        if (action == "fengji-option") { ResolveFengjiOptionChoice(selected); return; }
+        if (action == "fengji-recipient") { ResolveFengjiRecipientChoice(selected); return; }
 
         var (candidate, context) = GetPendingProgramTriggerCandidate();
         if (_resolutionStack.LastOrDefault() is ProgramLifecycleTriggerWindowFrame lifecycle &&
@@ -4297,6 +4337,7 @@ public sealed partial class GameEngine
                 SkillProgramEffectOp.YoudiBaitDiscard => SelectAiYoudiBaitChoice(decision),
                 SkillProgramEffectOp.GuanchaoChoosePattern => SelectAiGuanchaoPatternChoice(decision),
                 SkillProgramEffectOp.XunxianGiftUsedCard => SelectAiXunxianGiftChoice(decision),
+                SkillProgramEffectOp.FengjiRoundChoice => SelectAiFengjiChoice(decision),
                 _ => throw new InvalidOperationException(
                     $"The AI does not support suspended program instruction '{paused.Op}'.")
             };

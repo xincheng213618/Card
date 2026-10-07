@@ -64,7 +64,8 @@ public enum SkillProgramTriggerConditionKind
     DeathExtinguishedFaction = 1020, DiscardPhaseSuitsAllDistinct = 1021, OtherDamageSourceAlive = 1022, DamageSourcePairUnused = 1023,
     PreviousPlayCardIsBasic = 1024,
     PhaseIsPlay = 1025,
-    CardActionOpponentIsOwner = 1026
+    CardActionOpponentIsOwner = 1026,
+    FengjiRoundChoicePending = 1027, FengjiSwapAvailable = 1028
 }
 public enum SkillProgramTriggerValueKind
 {
@@ -207,6 +208,7 @@ public enum SkillProgramEffectOp
     BijingPunishDiscardPhase = 7171,
     DuanfaDiscardAndDraw = 7180, YoudiBaitDiscard = 7181,
     GuanchaoChoosePattern = 7196, GuanchaoRankDraw = 7197, XunxianGiftUsedCard = 7198,
+    FengjiRoundChoice = 7244, XuanhuiSwapEffects = 7245,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,
@@ -520,7 +522,8 @@ public enum SkillProgramTriggerWindow
     CharacterEnteredChain = 821, DrawPhaseEnded = 1140, ProgramTargetCommitted = 1260,
     OtherActualUseTargeted = 5600,
     OtherActualTurnStarted = 6400,
-    ActualSlashTargetBenefit = 7000, SlashDodgeCancelledBenefit = 7001, ActualSlashTargetPenalty = 7340
+    ActualSlashTargetBenefit = 7000, SlashDodgeCancelledBenefit = 7001, ActualSlashTargetPenalty = 7340,
+    RoundStarting
 }
 public enum SkillProgramTriggerSubject { Owner, Any, Source, DamageSource, DamageTarget }
 public enum SkillProgramMovementOccurrence { PerBatch, PerCard, PerSourceOwner = 700, PerOwnerBatch = 761, PerThirdPartyHandGain = 762, PerOwnerSourceHandGain = 763 }
@@ -876,7 +879,9 @@ public sealed record SkillProgramTriggerFacts(
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? TurnOwnerSlashUseCount = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] Suit? DamageCardSuit = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? PhaseIsPlay = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? CardActionOpponentIsOwner = null)
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? CardActionOpponentIsOwner = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? FengjiRoundChoicePending = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? FengjiSwapAvailable = null)
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public CardMovementTiming? MovementTiming { get; init; }
@@ -1066,6 +1071,8 @@ public sealed class SkillProgramTriggerCondition
         SkillProgramTriggerConditionKind.OwnerIsTurnPlayer => facts.OwnerIsTurnPlayer == true,
         SkillProgramTriggerConditionKind.PhaseIsPlay => facts.PhaseIsPlay == true,
         SkillProgramTriggerConditionKind.CardActionOpponentIsOwner => facts.CardActionOpponentIsOwner == true,
+        SkillProgramTriggerConditionKind.FengjiRoundChoicePending => facts.FengjiRoundChoicePending == true,
+        SkillProgramTriggerConditionKind.FengjiSwapAvailable => facts.FengjiSwapAvailable == true,
         SkillProgramTriggerConditionKind.CardActionFromOwnerHand => facts.CardActionFromOwnerHand == true,
         SkillProgramTriggerConditionKind.DamageSourceIsOwner => facts.DamageSourceIsOwner == true,
         SkillProgramTriggerConditionKind.PreviousPlayCardIsBasic => facts.PreviousPlayCardIsBasic == true,
@@ -2990,7 +2997,7 @@ public sealed class SkillProgramCatalog
             if (cardCategories.Count == 0 || cardCategories.Distinct().Count() != cardCategories.Count)
                 Fail(path + ".cardCategories", "must contain distinct card categories");
         }
-        var isLifecycleWindow = window is SkillProgramTriggerWindow.ActualSlashTargetPenalty or SkillProgramTriggerWindow.ActualSlashTargetBenefit or SkillProgramTriggerWindow.SlashDodgeCancelledBenefit || window == SkillProgramTriggerWindow.OtherActualTurnStarted || window == SkillProgramTriggerWindow.OtherActualUseTargeted || window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
+        var isLifecycleWindow = window == SkillProgramTriggerWindow.RoundStarting || window is SkillProgramTriggerWindow.ActualSlashTargetPenalty or SkillProgramTriggerWindow.ActualSlashTargetBenefit or SkillProgramTriggerWindow.SlashDodgeCancelledBenefit || window == SkillProgramTriggerWindow.OtherActualTurnStarted || window == SkillProgramTriggerWindow.OtherActualUseTargeted || window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
             SkillProgramTriggerWindow.DyingEntering or SkillProgramTriggerWindow.DyingEntered or SkillProgramTriggerWindow.DyingExited or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or SkillProgramTriggerWindow.DrawPhaseSkipped or
@@ -3008,7 +3015,7 @@ public sealed class SkillProgramCatalog
             SkillProgramTriggerWindow.CharacterDied or
             SkillProgramTriggerWindow.PlayPhaseStarting or SkillProgramTriggerWindow.JudgmentPhaseStarting or
             SkillProgramTriggerWindow.CharacterTurnedOver or SkillProgramTriggerWindow.CharacterTurnedFaceUp or SkillProgramTriggerWindow.CharacterEnteredChain;
-        var supportsTriggerCondition = window is SkillProgramTriggerWindow.ActualSlashTargetPenalty or SkillProgramTriggerWindow.ActualSlashTargetBenefit or SkillProgramTriggerWindow.SlashDodgeCancelledBenefit || window == SkillProgramTriggerWindow.OtherActualTurnStarted || window == SkillProgramTriggerWindow.OtherActualUseTargeted || window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isCardActionWindow || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
+        var supportsTriggerCondition = window == SkillProgramTriggerWindow.RoundStarting || window is SkillProgramTriggerWindow.ActualSlashTargetPenalty or SkillProgramTriggerWindow.ActualSlashTargetBenefit or SkillProgramTriggerWindow.SlashDodgeCancelledBenefit || window == SkillProgramTriggerWindow.OtherActualTurnStarted || window == SkillProgramTriggerWindow.OtherActualUseTargeted || window == SkillProgramTriggerWindow.AfterTurnEnded || window == SkillProgramTriggerWindow.FirstGameDomainCrossing || window == SkillProgramTriggerWindow.ProgramTargetCommitted || isCardActionWindow || isMovementWindow || isHpWindow || window is SkillProgramTriggerWindow.SkillsChanged or SkillProgramTriggerWindow.GameStarting or
             SkillProgramTriggerWindow.DyingEntering or SkillProgramTriggerWindow.DyingEntered or SkillProgramTriggerWindow.DyingExited or SkillProgramTriggerWindow.TurnStartBeforeNormalFlow or
             SkillProgramTriggerWindow.DrawPhaseStarting or
             SkillProgramTriggerWindow.AfterNormalDraw or SkillProgramTriggerWindow.DrawPhaseEnded or SkillProgramTriggerWindow.DrawPhaseSkipped or
