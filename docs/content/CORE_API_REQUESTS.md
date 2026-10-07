@@ -181,3 +181,9 @@ K4 已开放：`ContentModeDefinition` 提供 `DeckId`、候选数量和 `Genera
 - 装备使用通过 `LegalActionKind.Equip` 和精确无目标 Choice 提交；装备实体按 `Hand → Processing → Equipment` 移动，同槽替换按 `Equipment → DiscardPile` 后进入新装备，并发布 `EquipmentChangedEvent`。
 - `GetCombatDistance` 计算存活座位环距离并应用赤兔/绝影及 `standard:mashu` 的出攻距离 modifier；`GetLegalActions` 应用 `standard:qicai` 的锦囊距离豁免；`GetAttackRange` 应用诸葛连弩范围 modifier；玉玺接入回合摸牌数量，死亡清理装备区并保持牌数守恒。
 - K6 基础场景已由 `equipment.replace`、`equipment.distance`、青釭剑无视防具、公开装备目标选择和 Standard Console 自测覆盖；K7 八卦阵基础判定场景以及公开判定区牌目标选择已由独立回归覆盖；装备失效/卸载语义和复杂装备效果留待后续 K6/K7。
+
+## 2026-10-08 朱灵批记录的能力缺口
+
+- **普通用牌的回复值修正入口**：战意"基本牌……回复值或伤害值+1"的伤害侧已由共享回合伤害修正表达，但回复侧没有共享入口——现有 `RecoveryBonus` 只挂在濒死救援（`SkillProgramCardPolicyKind.RescueRecoveryBonus`，按目标/势力策略、仅在 allowDying 分支求值），普通（非濒死、含自救）用桃的回复量在 `ResolvePeach`/`ProgramSimpleCardContinuation.RecoveryAmount` 处直接取 1。需要一条"按使用者的种类/条件修正回复值"的共享策略（描述符 + 查询点），本批未表达该子项。
+- **规则修正的跨回合生命周期**：`cardUseDistanceLimit` 等规则修正存储按（回合号、回合座位）索引，只覆盖当回合；战意"无距离限制"的文本生命周期是"直到你的下个回合开始"。本批按回合级表达（伤害侧已用 `SkillProgramDamageModifierExpiration.NextOwnerTurnStart` 覆盖精确生命周期），跨回合规则修正（带到期时点的通用 rule-modifier 作用域）留作后续共享能力。
+- 本批已落地的对应共享能力：`cardUseDistanceLimit=unlimited` 规则修正支持按牌种过滤（存储过滤既有、校验与描述符放行为本批新增），战意以此把"无距离限制"限定在三种杀上。
