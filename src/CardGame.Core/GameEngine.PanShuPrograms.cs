@@ -58,7 +58,7 @@ public sealed partial class GameEngine
             {
                 var sourceCount = ProgramMovementSourceCounts(batch, SkillProgramTriggerWindow.CardsMoved)
                     .FirstOrDefault(item => item.Count.Location == batch.Movements[index].From).Count;
-                var facts = CaptureCardsMovedTriggerFacts(_players[owner], 1,
+                var facts = CaptureCardsMovedTriggerFacts(owner, 1,
                     sourceCount ?? new CardMovementSourceCount(batch.Movements[index].From, 0, 1),
                     SkillProgramTriggerWindow.CardsMoved, batch.MovementTiming);
                 if (trigger.Condition.Evaluate(facts, candidate.SkillId, candidate.SkillInstanceId))

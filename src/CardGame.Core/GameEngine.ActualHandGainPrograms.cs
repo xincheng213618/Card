@@ -115,6 +115,8 @@ public sealed partial class GameEngine
     {
         parent = _resolutionStack.OfType<ProgramCardTriggerWindowFrame>().LastOrDefault(w => w.Id == context.ParentFrameId)!;
         use = parent is null ? null! : LifecycleCardUse(parent.ParentFrameId)!;
+        CardUseFrame useFrame = use;
+        ProgramCardTriggerWindowFrame parentFrame = parent;
         return context.Window == SkillProgramTriggerWindow.CardUseCompleted && parent is not null &&
             parent.CandidateIndex >= 0 && parent.CandidateIndex < parent.Candidates.Count && ToSharedCandidate(parent.Candidates[parent.CandidateIndex]) == c &&
             parent.Action.Type == CardActionType.Use && parent.Action.ActorSeat == c.OwnerSeat && use is { Step: ResolutionFrameStep.Completed } &&
@@ -122,7 +124,7 @@ public sealed partial class GameEngine
             context.CardUse is { } card && card.ParentCardUseFrameId == use.Id && card.CardActionId == parent.Action.ActionId &&
             card.ActorSeat == c.OwnerSeat && card.EffectiveKind == parent.Action.EffectiveKind &&
             HasExactAcceptedActualHandGainUse(use, parent.Action) &&
-            CompleteProgramEventHistory().OfType<CardUseFinishedEvent>().Count(e => e.ResolutionId == use.Id && e.CardKind == parent.Action.EffectiveKind) == 1;
+            CompleteProgramEventHistory().OfType<CardUseFinishedEvent>().Count(e => e.ResolutionId == useFrame.Id && e.CardKind == parentFrame.Action.EffectiveKind) == 1;
     }
     private bool CanRunActualHandGainTrigger(ProgramTriggerCandidate c, SkillProgramTrigger t, ProgramSkillWindowContext context)
     {
@@ -230,7 +232,7 @@ public sealed partial class GameEngine
         {
             var drawn = DrawCards(_players[f.OwnerSeat], 1, true, new(ActualHandGainDrawReason));
             f = GetActiveProgramFrame(f.Id);
-            ReplaceRuntimeTop(f = f with { ActualHandGain = r = f.ActualHandGain! with { PaidIds = drawn.Select(c => c.Id).ToArray(), After = _movementSequence } });
+            ReplaceRuntimeTop(f = f with { ActualHandGain = r = f.ActualHandGain! with { PaidIds = drawn.ToArray(), After = _movementSequence } });
             AdvanceEventRulesAndQueueFact(new ActualHandGainDrawPaidEvent(f.Id, r.Source, r.GameplayHash, r.OriginalBatchId,
                 r.ActualTurn, r.ActualTurnOwner, before, r.After, drawn.Count));
         }

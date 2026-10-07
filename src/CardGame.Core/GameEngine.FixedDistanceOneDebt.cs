@@ -128,8 +128,10 @@ public sealed partial class GameEngine
         AssertFixedDistanceDebtPayment(f);
         if (f.FixedDistanceDebtPayment is not { CardId: null } r || _pendingDecision?.PlayerSeat != f.OwnerSeat ||
             !AssistedChoicesEqual([choice], FixedDistanceDebtChoices(f).Where(c => c.Id == choice.Id).ToArray()) ||
-            choice.Cards is not [var id] || _cardZones.GetLocation(id) is not { OwnerSeat: var owner } from || owner != f.OwnerSeat ||
-            from.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)) throw new InvalidOperationException("The debt lost its exact owned physical selection.");
+            choice.Cards is not [var id] ||
+            _cardZones.GetLocation(id) is var from && (from.OwnerSeat is not { } owner || owner != f.OwnerSeat ||
+            from.Zone is not (CardZoneKind.Hand or CardZoneKind.Equipment)))
+            throw new InvalidOperationException("The debt lost its exact owned physical selection.");
         ClearPendingDecision();
         if (_winner != Winner.None || !_players[f.OwnerSeat].IsAlive)
         { ReplaceRuntimeTop(f with { FixedDistanceDebtPayment = null }); AdvanceRuntimeProgram(f.Id); return; }
