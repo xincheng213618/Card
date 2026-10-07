@@ -6,19 +6,23 @@
       "revision": 1,
       "triggers": [
         {
-          "id": "changji-designation-draw",
-          "window": "cardUseCompleted",
-          "ownerRelation": "target",
+          "id": "changji-ending-own",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "own",
           "optional": false,
-          "condition": {
-            "kind": "all",
-            "children": [
-              { "kind": "cardActionTargetIsOwner" },
-              { "kind": "compare", "left": { "kind": "cardUseDesignatedTargetCount" }, "operator": "greaterThan", "right": { "kind": "integerConstant", "value": 1 } }
-            ]
-          },
           "effects": [
-            { "op": "changjiDesignationDraw", "target": "owner" }
+            { "op": "changjiEndingDamageChoice", "target": "owner" }
+          ]
+        },
+        {
+          "id": "changji-ending-others",
+          "window": "turnEnding",
+          "subject": "owner",
+          "turnOwnerScope": "otherLiving",
+          "optional": false,
+          "effects": [
+            { "op": "changjiEndingDamageChoice", "target": "owner" }
           ]
         }
       ]
@@ -26,55 +30,20 @@
     {
       "id": "ol:zengou",
       "revision": 1,
-      "activations": [
-        {
-          "id": "zengou-gift",
-          "minCards": 0,
-          "maxCards": 0,
-          "minTargets": 1,
-          "maxTargets": 1,
-          "targetKind": "otherLiving",
-          "usesPerTurn": null,
-          "usesPerPhase": 1,
-          "effects": [
-            {
-              "op": "selectOwnedCards",
-              "target": "owner",
-              "zones": ["hand"],
-              "numberExpression": "ownerMaxHp",
-              "resultBind": "zengou-chosen"
-            },
-            {
-              "op": "zengouGiftMarkedCards",
-              "target": "selectedTarget",
-              "sourceBind": "zengou-chosen"
-            }
-          ]
-        }
-      ],
       "triggers": [
         {
-          "id": "zengou-punish-use",
-          "window": "cardUseCommitted",
+          "id": "zengou-nullify",
+          "window": "slashFullyDodged",
           "ownerRelation": "observer",
-          "optional": false,
-          "effects": [
-            { "op": "zengouPunishRecipient", "target": "owner" }
-          ]
-        },
-        {
-          "id": "zengou-punish-increase",
-          "window": "afterHealthChanged",
-          "subject": "owner",
-          "optional": false,
+          "optional": true,
           "condition": {
             "kind": "compare",
-            "left": { "kind": "hpAfterChange" },
-            "operator": "greaterThan",
-            "right": { "kind": "hpBeforeChange" }
+            "left": { "kind": "ownerEventTargetDistance" },
+            "operator": "lessThanOrEqual",
+            "right": { "kind": "currentAttackRange" }
           },
           "effects": [
-            { "op": "zengouPunishRecipient", "target": "owner" }
+            { "op": "zengouNullifyDodge", "target": "owner" }
           ]
         }
       ]

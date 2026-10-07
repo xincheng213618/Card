@@ -32,8 +32,7 @@ internal enum ProgramOperationAiSemantic
     ClaimMovedCards,
     TakeRandomCardFromEveryOtherCharacter,
     UseVirtualDyingAlcohol,
-    GiftSettledUsedCard,
-    GiftMarkedCards
+    GiftSettledUsedCard
 }
 internal sealed record ProgramOperationAiPolicy(
     ProgramOperationAiSemantic Semantic,

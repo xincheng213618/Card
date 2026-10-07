@@ -207,7 +207,7 @@ public enum SkillProgramEffectOp
     BijingPunishDiscardPhase = 7171,
     DuanfaDiscardAndDraw = 7180, YoudiBaitDiscard = 7181,
     GuanchaoChoosePattern = 7196, GuanchaoRankDraw = 7197, XunxianGiftUsedCard = 7198,
-    ChangjiDesignationDraw = 7252, ZengouGiftMarkedCards = 7253, ZengouPunishRecipient = 7254,
+    ChangjiEndingDamageChoice = 7252, ZengouNullifyDodge = 7253,
     IssueShownEntityTurnPolicy = 6500,
     PlaceCapturedEquipmentAndDraw = 6200, RestoreActualDiscardBatch = 6201,
     DiscardSuitPreventDamageAndBenefit = 5900, PlaceMatchedJudgmentCard = 5901,
@@ -551,7 +551,7 @@ public enum SkillProgramNumberExpression
     LostHpMinusHandCount = 600,
     CategoryTargetTurnUsage = 820, CurrentHp = 1020, SelectedTargetsHandGreaterThanLord = 1021,
     PhaseSkillUsage = 1022, EventMovedCardCount = 1700, CurrentTurnUsedCardCategoryCount = 4600, OwnerLostHpAtLeastOne = 7400,
-    TurnOwnerDiscardPhaseHandDiscardCount = 3100, CurrentHandEmptyTwoOtherwiseOne = 8008, OwnerMaxHp = 8600}
+    TurnOwnerDiscardPhaseHandDiscardCount = 3100, CurrentHandEmptyTwoOtherwiseOne = 8008}
 public enum SkillProgramCardSetVisibility { Private, Public }
 public enum SkillProgramCardDestination
 {
@@ -3433,7 +3433,8 @@ public sealed class SkillProgramCatalog
             Fail(path + ".condition", "target-hand comparison requires a Slash response or turn-ending boundary");
         if (EnumerateTriggerValues(condition).Any(value => value.Kind == SkillProgramTriggerValueKind.CurrentAttackRange) &&
             window is not (SkillProgramTriggerWindow.SlashBeforeResponse or
-                SkillProgramTriggerWindow.CardUseCommitted or SkillProgramTriggerWindow.CardResponseAccepted or SkillProgramTriggerWindow.JudgmentPhaseStarting))
+                SkillProgramTriggerWindow.CardUseCommitted or SkillProgramTriggerWindow.CardResponseAccepted or SkillProgramTriggerWindow.JudgmentPhaseStarting or
+                SkillProgramTriggerWindow.SlashFullyDodged))
             Fail(path + ".condition", "attack-range comparison requires a card-action or Slash response boundary");
         if (EnumerateTriggerValues(condition).Any(value =>
                 value.Kind == SkillProgramTriggerValueKind.OwnerEventTargetDistance) &&
