@@ -181,3 +181,9 @@ K4 已开放：`ContentModeDefinition` 提供 `DeckId`、候选数量和 `Genera
 - 装备使用通过 `LegalActionKind.Equip` 和精确无目标 Choice 提交；装备实体按 `Hand → Processing → Equipment` 移动，同槽替换按 `Equipment → DiscardPile` 后进入新装备，并发布 `EquipmentChangedEvent`。
 - `GetCombatDistance` 计算存活座位环距离并应用赤兔/绝影及 `standard:mashu` 的出攻距离 modifier；`GetLegalActions` 应用 `standard:qicai` 的锦囊距离豁免；`GetAttackRange` 应用诸葛连弩范围 modifier；玉玺接入回合摸牌数量，死亡清理装备区并保持牌数守恒。
 - K6 基础场景已由 `equipment.replace`、`equipment.distance`、青釭剑无视防具、公开装备目标选择和 Standard Console 自测覆盖；K7 八卦阵基础判定场景以及公开判定区牌目标选择已由独立回归覆盖；装备失效/卸载语义和复杂装备效果留待后续 K6/K7。
+
+## 内容程序表达力缺口：陈登批记录（2026-10-08）
+
+- 轮级、跨座位、随事件账本变动的公共数值规则调整（如丰积的"本轮 摸牌阶段摸牌数 -1 / 出牌阶段使用【杀】的次数上限 -1，对应其他角色 +2，选择否 +1"）目前没有内容侧声明通道：rules.json 无法表达"作用于任意座位、按轮号生效、由技能事件推导数值"的规则查询贡献。本批以 bespoke op（7244）+ 引擎侧门控贡献（EvaluateDrawCount / EvaluateSlashUseLimit 内按依赖开关读取事件账本）实现；若后续出现第二个同类技能，建议抽象出"事件账本驱动的轮级规则修改器"共享描述符。
+- "此技能失效直到<条件>"（旋回：失效直到一名角色死亡）没有通用失效/恢复原语。本批以"失效事件与 PlayerDiedEvent 的历史顺序比较"推导（无序列化运行时状态）；通用化需要内容可声明的失效条件与自动恢复账本。
+- "每轮开始时"触发窗口为本批新增共享能力（roundStarting，复用 ProgramLifecycleTriggerWindowFrame 与续接枚举尾部值），非缺口；列出仅为说明该窗口自此可用。

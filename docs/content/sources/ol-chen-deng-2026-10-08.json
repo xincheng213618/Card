@@ -1,0 +1,58 @@
+{
+  "generalId": "ol:chen-deng",
+  "characterName": "陈登",
+  "officialId": 495,
+  "sourcePage": "https://www.sanguosha.com/hero/495",
+  "textSource": "https://wiki.biligame.com/sgsol/陈登（OL 专站 BWIKI 当前普通版正文；官网 hero/info 接口 gid=495 与官网 hero/495 页面 SSR 文本交叉核对体力/势力/技能名，技能文本取自 OL 专站词条现行版）",
+  "capturedAt": "2026-10-08",
+  "rulesetId": "sanguosha-ol",
+  "indexFields": {
+    "gid": 495,
+    "name": "陈登",
+    "extend": "",
+    "hp": 4,
+    "figure": "群",
+    "gender": "男",
+    "title": "湖海豪气"
+  },
+  "artwork": {
+    "skinId": "49500",
+    "skinName": "默认皮肤",
+    "imageUrl": "https://web.sanguosha.com/220/miniGame/release/laya2/res/runtime/m/general/big/static/49500.png",
+    "localPath": "src/CardGame.Wpf/Assets/official-ol-chen-deng.png",
+    "sha256": "d59c2d7e9f13385e04ed0d92342193bbb8b58cff8afaef5d9c4a632bc1ebaa96",
+    "pixelWidth": 750,
+    "pixelHeight": 950
+  },
+  "skills": [
+    {
+      "name": "丰积",
+      "text": "每轮开始时，你可以依次选择是否令对应项数值-1：1.摸牌阶段摸牌数；2.出牌阶段使用【杀】的次数上限。你每选择一项，便令一名其他角色本轮的对应项数值+2，选择完成后，你令本轮选择否的对应项数值+1。",
+      "programId": "ol:fengji",
+      "notes": [
+        "Trigger fengji-round-choice: new roundStarting window (shared capability), subject owner, optional, gated by new condition fengjiRoundChoicePending (facts-derived: the current actual turn is exactly the turn whose begin advanced the round ledger, extra turns excluded, and no ProgramFengjiOptionChosenEvent exists for this round and owner).",
+        "Bespoke op fengjiRoundChoice (7244) walks the two options in text order: each 是/否 prompt commits one scalar ProgramFengjiOptionChosenEvent; a 是 prompts a recipient among other living characters before committing (Accepted with RecipientSeat). Declined options commit immediately with +1 for the owner.",
+        "The round ledger feeds public rule queries: gated contributions in EvaluateDrawCount/EvaluateSlashUseLimit derive each seat's current-round adjustment from the committed facts (owner -1 / recipient +2 per accepted option; owner +1 per declined option), clamped by the existing [0,∞) bounds.",
+        "Round identity comes from RoundStartedEvent (UsesRoundTracking now also keyed on FengjiRoundChoice); effects are scoped to the committed RoundNumber, so a new round naturally drops the previous ledger."
+      ]
+    },
+    {
+      "name": "旋回",
+      "text": "准备阶段，你可以令所有受到“丰积”效果影响的其他角色与你交换对应的“丰积”效果，然后此技能失效直到一名角色死亡。",
+      "programId": "ol:xuanhui",
+      "notes": [
+        "Trigger xuanhui-swap: turnStartBeforeNormalFlow (established 准备阶段 window), subject owner, optional, gated by new condition fengjiSwapAvailable (skill not disabled by its own swap, and at least one accepted 丰积 option this round has a living recipient other than the owner).",
+        "Bespoke op xuanhuiSwapEffects (7245) commits one ProgramXuanhuiEffectsSwappedEvent for the round; the ledger derivation then flips the owner↔recipient assignment of every accepted option by swap parity for the remainder of the round (declined options' +1 has no counterpart and stays with the owner).",
+        "失效直到一名角色死亡 is ledger-derived: the skill counts as disabled exactly while the latest ProgramXuanhuiEffectsSwappedEvent is later than the latest PlayerDiedEvent in the committed history; any death re-enables the trigger. No serialized runtime state."
+      ]
+    }
+  ],
+  "observations": [
+    "Official hero/info API (gid=495) confirms 陈登 as qun 4HP with label 进攻/过牌/辅助 and quality 传说, matching the coordinator-locked record; the heroDetail JSON API remains unusable, but the official hero page https://www.sanguosha.com/hero/495 renders its skill section server-side and its SSR text was retrieved successfully for cross-checking.",
+    "Version-source discrepancy (recorded per the取证 requirement): the coordinator-designated text URL wiki.biligame.com/sgs/陈登 hosts the 十周年 classic version of 陈登 (望族/营说/扶援, 3HP, 荟萃-天下归心 pack, 2022-02-18, title 湖海之士) — a different general version that contradicts the locked OL 495 record (qun 4HP). None of its text was implemented. The OL-specific BWIKI (wiki.biligame.com/sgsol/陈登, last edited 2024-07-23) hosts the current OL normal version: 群、4 体力、称号 湖海豪气、璀璨星河-四弼 pack、上线 2022-06-03, and its current tab text (丰积 第2版 + 旋回) was implemented verbatim per the established 'BWIKI 当前普通版正文为准' rule.",
+    "BWIKI sgsol also records 丰积 第1版 (历史版本): 摸牌阶段开始时…下回合…本回合… — the implemented rule is the current per-round wording (每轮开始时/本轮); the older wording is recorded here only. The sgsol page's 其他 section notes the text was changed on 2024-07-23 without a same-day maintenance announcement.",
+    "Official page SSR wording differs from BWIKI sgsol in phrasing only: 丰积 official '你可以令你本轮以下至多两项数值-1…使用【杀】的限制次数…你未选择选项的数值+1' vs BWIKI '你可以依次选择是否令对应项数值-1…使用【杀】的次数上限…你令本轮选择否的对应项数值+1'; 旋回 official '令本轮其他丰积角色…交换对应丰积项效果，若如此做，本技能失效直到有角色死亡' vs BWIKI '令所有受到“丰积”效果影响的其他角色…交换对应的“丰积”效果，然后此技能失效直到一名角色死亡'. Both agree on the 每轮开始时 timing and the -1/+2/+1 shape; per the established rule the BWIKI current normal text wins and is what the presentation JSON carries.",
+    "New bespoke ops 7244-7245 (fengjiRoundChoice, xuanhuiSwapEffects); new trigger window roundStarting; new condition kinds 1027-1028 (fengjiRoundChoicePending, fengjiSwapAvailable) with gated nullable facts. No new PlayerMarkerKind, SkillProgramTriggerFactKind, trigger usage scopes or schema nodes; both evidence events are scalar-only records.",
+    "共享口径：丰积的轮级数值调整通过引擎侧规则查询贡献实现（依赖开关 TracksFengjiRoundLedger 按 HasTriggerOperation(fengjiRoundChoice) 门控，未启用该技能的指纹完全不受影响）；'失效直到一名角色死亡' 由事件账本推导（无新增序列化运行时状态），冷恢复按接受命令前缀确定性重建。"
+  ]
+}
