@@ -102,7 +102,8 @@ internal static class JudgedRankSlashPolicyChecks
 
     private static (GameEngine, ContentRegistry) Start(bool replacement = false, bool empty = false, bool shen = false)
     {
-        var r = ContentRegistry.Build(new StandardContentPackage(), new StandardClassicGeneralPackage(), new Fixture(replacement, empty, shen));
+        var r = ContentRegistry.Build(new StandardContentPackage(), new StandardActiveSkillExpansionPackage(true),
+            new StandardRescueSkillExpansionPackage(), new StandardClassicGeneralPackage(), new Fixture(replacement, empty, shen));
         var g = GameEngine.CreateStandard(new GameOptions { Seed = 31, PlayerCount = 4, HumanSeat = 0, HumanRole = Role.Lord, ModeId = Mode,
             UseInteractiveSetup = true, UseInteractiveDiscard = true, AdvanceAfterHumanCommands = false, MaxTurns = 6 }, r);
         Accept(g, new StartGameCommand()); Reach(g, p => p.Kind == DecisionKind.SelectGeneral && p.PlayerSeat == 0);
