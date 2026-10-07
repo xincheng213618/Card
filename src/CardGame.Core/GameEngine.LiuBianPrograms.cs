@@ -22,7 +22,7 @@ public sealed partial class GameEngine
     private int ShiYuanDrawCountFor(int ownerHp, int sourceHp) =>
         sourceHp > ownerHp ? 3 : sourceHp == ownerHp ? 2 : 1;
 
-    // 余威 is active while its turn-start evidence exists for the running turn:
+    // 余威 is active while its play-phase evidence exists for the running turn:
     // the trigger only commits on other living Qun-faction characters' turns.
     private bool IsYuWeiLimitDoubled(int ownerSeat) =>
         CompleteProgramEventHistory().OfType<ProgramYuWeiActiveTurnEvent>()

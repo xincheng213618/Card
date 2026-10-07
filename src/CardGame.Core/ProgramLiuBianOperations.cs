@@ -58,8 +58,10 @@ public sealed class DuShiGrantSkillHandler : ISkillProgramEffectHandler
         ((ILiuBianProgramHost)host).DuShiGrantSkill(f, e);
 }
 
-// 余威: commits the evidence that this turn belongs to another Qun-faction
-// character, which is the ledger 诗怨 reads for its doubled per-option limit.
+// 余威: commits the evidence that this play phase belongs to another
+// Qun-faction character, which is the ledger 诗怨 reads for its doubled
+// per-option limit; the play-phase boundary is the earliest shared window that
+// covers every use made during that character's turn.
 internal sealed class YuWeiMarkActiveTurnDescriptor : ProgramOperationDescriptorBase
 {
     public override SkillProgramEffectOp Op => SkillProgramEffectOp.YuWeiMarkActiveTurn;
@@ -73,7 +75,7 @@ internal sealed class YuWeiMarkActiveTurnDescriptor : ProgramOperationDescriptor
         RequireAlways(effect, r.Path); return effect;
     }
     public override IReadOnlyList<ProgramResourceOperation> Resources(SkillProgramEffect effect) =>
-        [new RequireTriggerWindow(SkillProgramTriggerWindow.TurnStartBeforeNormalFlow)];
+        [new RequireTriggerWindow(SkillProgramTriggerWindow.PlayPhaseStarting)];
 }
 
 public sealed class YuWeiMarkActiveTurnHandler : ISkillProgramEffectHandler
